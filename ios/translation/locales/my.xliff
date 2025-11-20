@@ -5,9 +5,9 @@
       <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
     </header>
     <body>
-      <trans-unit id="%@" xml:space="preserve">
+      <trans-unit id="%@" xml:space="preserve" approved="yes">
         <source>%@</source>
-        <target state="needs-translation">%@</target>
+        <target state="final">%@</target>
         <note/>
       </trans-unit>
       <trans-unit id="%@ (%@) hides patterns in your encrypted VPN traffic." xml:space="preserve" approved="yes">
@@ -15,9 +15,9 @@
         <target state="final">%1$@ (%2$@) က သင်၏ ကုဒ်ပြောင်းဝှက်ထားသော VPN ဝင်ရောက်ကြည့်ရှုမှုထဲရှိ ပက်တန်များကို ဝှက်ပေးသည်။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="%@ cannot be empty." xml:space="preserve">
+      <trans-unit id="%@ cannot be empty." xml:space="preserve" approved="yes">
         <source>%@ cannot be empty.</source>
-        <target state="needs-translation">%@ cannot be empty.</target>
+        <target state="final">%@ ကို အလွတ်ထား၍ မရပါ။</target>
         <note/>
       </trans-unit>
       <trans-unit id="%@ does this by carefully adding network noise and making all network packets the same size." xml:space="preserve" approved="yes">
@@ -25,9 +25,9 @@
         <target state="final">%@ သည် ကွန်ရက် အနှောင့်အယှက်လျှပ်လိုင်းကို ဂရုတစိုက် ထည့်ပြီး ကွန်ရက် ပက်ကက်အားလုံးကို အရွယ်အစားတူညီအောင် ပြုလုပ်၍ ထိုသို့လုပ်ဆောင်ခြင်းဖြစ်သည်။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="%@ left on this account" xml:space="preserve">
+      <trans-unit id="%@ left on this account" xml:space="preserve" approved="yes">
         <source>%@ left on this account</source>
-        <target state="needs-translation">%@ left on this account</target>
+        <target state="final">ဤအကောင့်တွင် သုံးစွဲခွင့် %@ ကျန်သည်</target>
         <note/>
       </trans-unit>
       <trans-unit id="%@ via %@" xml:space="preserve" approved="yes">
@@ -40,14 +40,22 @@
         <target state="final">%@ ကို သင့်အကောင့်တွင် ထည့်လိုက်ပြီ။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="%@, %@" xml:space="preserve">
-        <source>%1$@, %2$@</source>
-        <target state="needs-translation">%1$@, %2$@</target>
+      <trans-unit id="%@ “Local network sharing” requires restarting the VPN connection, which will disconnect you and briefly expose your traffic.&#10;To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.&#10;Would you like to continue to enable “Local network sharing”?" xml:space="preserve" approved="yes">
+        <source>%@ “Local network sharing” requires restarting the VPN connection, which will disconnect you and briefly expose your traffic.
+To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.
+Would you like to continue to enable “Local network sharing”?</source>
+        <target state="final">"လိုကယ် ကွန်ရက် ဝေမျှမှု %@” သည် VPN ချိတ်ဆက်မှုကို ပြန်လည်စတင်ရန် လိုအပ်ပါသည်၊ ပြန်လည်စတင်သည့်အခါ ချိတ်ဆက်မှုကို ဖြုတ်လိုက်ပြီး အင်တာနက်ပေါ်သို့ ကူးလူးနေသော ဒေတာတို့ကို အများက ခဏတာ မြင်တွေ့နိုင်ပါသည်။
+ဤကဲ့သို့ မဖြစ်စေရန် ဆက်မလုပ်မီ Airplane Mode ကို ကိုယ်တိုင်ဖွင့်ပြီး Wi-Fi ကို ပိတ်ပါ။ "လိုကယ် ကွန်ရက် ဝေမျှမှု"ကို ဖွင့်ရန် ဆက်လုပ်လိုပါသလား။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="%@-enabled" xml:space="preserve">
+      <trans-unit id="%@, %@" xml:space="preserve" approved="yes">
+        <source>%1$@, %2$@</source>
+        <target state="final">%1$@, %2$@</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="%@-enabled" xml:space="preserve" approved="yes">
         <source>%@-enabled</source>
-        <target state="needs-translation">%@-enabled</target>
+        <target state="final">%@ ဖွင့်ထားသည်</target>
         <note/>
       </trans-unit>
       <trans-unit id="%d more..." xml:space="preserve" approved="yes">
@@ -60,14 +68,14 @@
         <target state="final">နောက်ထပ် %lld ...</target>
         <note/>
       </trans-unit>
-      <trans-unit id="**Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans.**" xml:space="preserve">
+      <trans-unit id="**Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans.**" xml:space="preserve" approved="yes">
         <source>**Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans.**</source>
-        <target state="needs-translation">**Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans.**</target>
+        <target state="final">**သတိပြုရန်—ယင်းသည် ကွန်ရက်အသုံးပြုမှုကို တိုးမြှင့်စေပြီး၊ အမြန်နှုန်း၊ နောက်ကျမှုနှင့် မိုဘိုင်းဘက်ထရီအသုံးစွဲမှုတို့အပေါ် ဆိုးကျိုးများ ဖြစ်စေနိုင်ပါသည်။ ကန့်သတ်မှုရှိသော မိုဘိုင်းပလန်များတွင် သတိထား၍ အသုံးပြုပါ။**</target>
         <note/>
       </trans-unit>
-      <trans-unit id="**Tap here** to see what’s new" xml:space="preserve">
+      <trans-unit id="**Tap here** to see what’s new" xml:space="preserve" approved="yes">
         <source>**Tap here** to see what’s new</source>
-        <target state="needs-translation">**Tap here** to see what’s new</target>
+        <target state="final">အသစ်ထူးသော အကြောင်းအရာကို ကြည့်ရန် **ဤနေရာကို နှိပ်ပါ**</target>
         <note/>
       </trans-unit>
       <trans-unit id="API access" xml:space="preserve" approved="yes">
@@ -90,19 +98,19 @@
         <target state="final">API နှင့် ချိတ်၍မရပါ၊ မည်သို့ပင်ဖြစ်စေ နည်းလမ်းကို သိမ်းမလား။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="About %@ method..." xml:space="preserve">
+      <trans-unit id="About %@ method..." xml:space="preserve" approved="yes">
         <source>About %@ method...</source>
-        <target state="needs-translation">About %@ method...</target>
+        <target state="final">%@ နည်းလမ်း အကြောင်း...</target>
         <note/>
       </trans-unit>
-      <trans-unit id="About API access…" xml:space="preserve">
+      <trans-unit id="About API access…" xml:space="preserve" approved="yes">
         <source>About API access…</source>
-        <target state="needs-translation">About API access…</target>
+        <target state="final">API ရယူသုံးစွဲခွင့်အကြောင်း…</target>
         <note/>
       </trans-unit>
-      <trans-unit id="About Server IP override..." xml:space="preserve">
+      <trans-unit id="About Server IP override..." xml:space="preserve" approved="yes">
         <source>About Server IP override...</source>
-        <target state="needs-translation">About Server IP override...</target>
+        <target state="final">ဆာဗာ IP ကို ကျော်လွန် ပယ်ဖျက်မှု အကြောင်း…</target>
         <note/>
       </trans-unit>
       <trans-unit id="Account" xml:space="preserve" approved="yes">
@@ -120,14 +128,14 @@
         <target state="final">မကြာမီ အကောင့် ခရက်ဒစ် သက်တမ်းကုန်ပါတော့မည်</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Account credit has expired" xml:space="preserve">
+      <trans-unit id="Account credit has expired" xml:space="preserve" approved="yes">
         <source>Account credit has expired</source>
-        <target state="needs-translation">Account credit has expired</target>
+        <target state="final">အကောင့် ခရက်ဒစ် သက်တမ်းကုန်ဆုံးသွားပါပြီ</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Account deletion" xml:space="preserve">
+      <trans-unit id="Account deletion" xml:space="preserve" approved="yes">
         <source>Account deletion</source>
-        <target state="needs-translation">Account deletion</target>
+        <target state="final">အကောင့် ဖျက်ခြင်း</target>
         <note/>
       </trans-unit>
       <trans-unit id="Account number" xml:space="preserve" approved="yes">
@@ -195,9 +203,9 @@
         <target state="final">အယ်လ်ဘေးနီးယား</target>
         <note/>
       </trans-unit>
-      <trans-unit id="All" xml:space="preserve">
+      <trans-unit id="All" xml:space="preserve" approved="yes">
         <source>All</source>
-        <target state="needs-translation">All</target>
+        <target state="final">အားလုံး</target>
         <note/>
       </trans-unit>
       <trans-unit id="All locations" xml:space="preserve" approved="yes">
@@ -220,14 +228,14 @@
         <target state="final">တစ်ခုခု</target>
         <note/>
       </trans-unit>
-      <trans-unit id="App logs" xml:space="preserve">
-        <source>App logs</source>
-        <target state="needs-translation">App logs</target>
+      <trans-unit id="App Store receipt is not found on disk." xml:space="preserve" approved="yes">
+        <source>App Store receipt is not found on disk.</source>
+        <target state="final">App Store ပြေစာကို Disk တွင် ရှာမတွေ့ပါ။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="AppStore receipt is not found on disk." xml:space="preserve">
-        <source>AppStore receipt is not found on disk.</source>
-        <target state="needs-translation">AppStore receipt is not found on disk.</target>
+      <trans-unit id="App logs" xml:space="preserve" approved="yes">
+        <source>App logs</source>
+        <target state="final">အက်ပ် မှတ်တမ်းများ</target>
         <note/>
       </trans-unit>
       <trans-unit id="Are you sure you want to log %@ out?" xml:space="preserve" approved="yes">
@@ -235,9 +243,9 @@
         <target state="final">%@ မှ ထွက်လိုသည်မှာ သေချာပါသလား။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Argentina" xml:space="preserve">
+      <trans-unit id="Argentina" xml:space="preserve" approved="yes">
         <source>Argentina</source>
-        <target state="needs-translation">Argentina</target>
+        <target state="final">အာဂျင်တီးနား</target>
         <note/>
       </trans-unit>
       <trans-unit id="Ashburn, VA" xml:space="preserve" approved="yes">
@@ -245,9 +253,9 @@
         <target state="final">Ashburn, VA</target>
         <note/>
       </trans-unit>
-      <trans-unit id="At least one method needs to be enabled." xml:space="preserve">
+      <trans-unit id="At least one method needs to be enabled." xml:space="preserve" approved="yes">
         <source>At least one method needs to be enabled.</source>
-        <target state="needs-translation">At least one method needs to be enabled.</target>
+        <target state="final">အနည်းဆုံး နည်းလမ်းတစ်ခုကို ဖွင့်ရမည်။</target>
         <note/>
       </trans-unit>
       <trans-unit id="Athens" xml:space="preserve" approved="yes">
@@ -260,14 +268,14 @@
         <target state="final">အတ္တလန်တာ၊ ဂျော်ဂျီယာ</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Attention: this setting cannot be used in combination with **%@**" xml:space="preserve">
+      <trans-unit id="Attention: this setting cannot be used in combination with **%@**" xml:space="preserve" approved="yes">
         <source>Attention: this setting cannot be used in combination with **%@**</source>
-        <target state="needs-translation">Attention: this setting cannot be used in combination with **%@**</target>
+        <target state="final">သတိပြုရန်- ဤဆက်တင်ကို **%@** နှင့် ပေါင်းစပ်၍ အသုံးမပြုနိုင်ပါ</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Attention: toggling “Local network sharing” requires restarting the VPN connection." xml:space="preserve">
+      <trans-unit id="Attention: toggling “Local network sharing” requires restarting the VPN connection." xml:space="preserve" approved="yes">
         <source>Attention: toggling “Local network sharing” requires restarting the VPN connection.</source>
-        <target state="needs-translation">Attention: toggling “Local network sharing” requires restarting the VPN connection.</target>
+        <target state="final">သတိပြုရန်- “လိုကယ် ကွန်ရက် ဝေမျှမှု” သို့ ပြောင်းပါက VPN ချိတ်ဆက်မှုကို ပြန်လည်စတင်ရန် လိုအပ်ပါသည်။</target>
         <note/>
       </trans-unit>
       <trans-unit id="Auckland" xml:space="preserve" approved="yes">
@@ -330,9 +338,9 @@
         <target state="final">ဘာလင်</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Blocking internet: Your time on this account has expired. To continue using the internet, please add more time or disconnect the VPN." xml:space="preserve">
+      <trans-unit id="Blocking internet: Your time on this account has expired. To continue using the internet, please add more time or disconnect the VPN." xml:space="preserve" approved="yes">
         <source>Blocking internet: Your time on this account has expired. To continue using the internet, please add more time or disconnect the VPN.</source>
-        <target state="needs-translation">Blocking internet: Your time on this account has expired. To continue using the internet, please add more time or disconnect the VPN.</target>
+        <target state="final">အင်တာနက် သုံးစွဲမှုကို ပိတ်ပင်ထားသည်- ဤအကောင့်တွင် သုံးစွဲချိန် ကုန်ဆုံးသွားပါပြီ။ အင်တာနက် ဆက်သုံးရန် အချိန်ထပ်တိုးပေးပါ သို့မဟုတ် VPN ချိတ်ဆက်မှု ဖြုတ်ပါ။</target>
         <note/>
       </trans-unit>
       <trans-unit id="Bogota" xml:space="preserve" approved="yes">
@@ -380,9 +388,9 @@
         <target state="final">ဘူဒါပက်</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Buenos Aires" xml:space="preserve">
+      <trans-unit id="Buenos Aires" xml:space="preserve" approved="yes">
         <source>Buenos Aires</source>
-        <target state="needs-translation">Buenos Aires</target>
+        <target state="final">Buenos Aires</target>
         <note/>
       </trans-unit>
       <trans-unit id="Bulgaria" xml:space="preserve" approved="yes">
@@ -390,9 +398,14 @@
         <target state="final">ဘူလ်ဂေးရီးယား</target>
         <note/>
       </trans-unit>
-      <trans-unit id="By enabling “%@” you will have to manually select a server that is %@-enabled. %@ won't automatically be used to enable DAITA with any server." xml:space="preserve">
+      <trans-unit id="By attaching your account token it links this report to your account, which helps us resolve your issue quicker. All reports are automatically deleted after a period of time. For details, please see our " xml:space="preserve" approved="yes">
+        <source>By attaching your account token it links this report to your account, which helps us resolve your issue quicker. All reports are automatically deleted after a period of time. For details, please see our </source>
+        <target state="final">သင့်အကောင့် တိုကင်ကို တွဲချိတ်ခြင်းဖြင့် ဤရီပို့တ်ကို သင့်အကောင့်နှင့် ချိတ်ဆက်လိုက်ပြီး ဤကဲ့သို့ တွဲချိတ်ပေးခြင်းအားဖြင့် သင်ကြုံတွေ့နေရသော ပြဿနာကို ပို၍ မြန်မြန်ဆန်ဆန် ဖြေရှင်းနိုင်ရန် အထောက်အကူပြုပါသည်။ ရီပို့တ်အားလုံးကို အချိန်ကာလတစ်ခုကြာပြီးနောက် အော်တို ဖျက်ပါသည်။ အသေးစိတ်ကို ဖော်ပြပါတွင် ကြည့်ပါ </target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="By enabling “%@” you will have to manually select a server that is %@-enabled. %@ won't automatically be used to enable DAITA with any server." xml:space="preserve" approved="yes">
         <source>By enabling “%1$@” you will have to manually select a server that is %2$@-enabled. %3$@ won't automatically be used to enable DAITA with any server.</source>
-        <target state="needs-translation">By enabling “%1$@” you will have to manually select a server that is %2$@-enabled. %3$@ won't automatically be used to enable DAITA with any server.</target>
+        <target state="final">“%1$@” ကို ဖွင့်ခြင်းအားဖြင့် %2$@ ဖွင့်ထားသော ဆာဗာတစ်ခုကို ကိုယ်တိုင် ရွေးချယ်ရပါမည်။ ဆာဗာတစ်ခုခုအတွက် DAITA ကို ဖွင့်ရန် %3$@ ကို အော်တို အသုံးပြုမည် မဟုတ်ပါ။</target>
         <note/>
       </trans-unit>
       <trans-unit id="By using sophisticated AI it’s possible to analyze the traffic of data packets going in and out of your device (even if the traffic is encrypted)." xml:space="preserve" approved="yes">
@@ -425,24 +438,24 @@
         <target state="final">မလုပ်တော့ပါ</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Cannot complete the purchase" xml:space="preserve">
+      <trans-unit id="Cannot complete the purchase" xml:space="preserve" approved="yes">
         <source>Cannot complete the purchase</source>
-        <target state="needs-translation">Cannot complete the purchase</target>
+        <target state="final">ဝယ်ယူမှုကို ပြီးမြောက်အောင် ဆောင်ရွက်၍ မရနိုင်ပါ</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Cannot read the AppStore receipt from disk" xml:space="preserve">
-        <source>Cannot read the AppStore receipt from disk</source>
-        <target state="needs-translation">Cannot read the AppStore receipt from disk</target>
+      <trans-unit id="Cannot read the App Store receipt from disk" xml:space="preserve" approved="yes">
+        <source>Cannot read the App Store receipt from disk</source>
+        <target state="final">App Store ပြေစာကို Disk မှ ဖတ်၍ မရပါ</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Cannot refresh the AppStore receipt: %@" xml:space="preserve">
-        <source>Cannot refresh the AppStore receipt: %@</source>
-        <target state="needs-translation">Cannot refresh the AppStore receipt: %@</target>
+      <trans-unit id="Cannot refresh the App Store receipt: %@" xml:space="preserve" approved="yes">
+        <source>Cannot refresh the App Store receipt: %@</source>
+        <target state="final">App Store ပြေစာကို ပြန်လည်လုပ်ဆောင်၍ မရပါ- %@</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Cannot restore purchases" xml:space="preserve">
+      <trans-unit id="Cannot restore purchases" xml:space="preserve" approved="yes">
         <source>Cannot restore purchases</source>
-        <target state="needs-translation">Cannot restore purchases</target>
+        <target state="final">ဝယ်ယူမှုများကို ပြန်လည်ရယူ၍ မရပါ</target>
         <note/>
       </trans-unit>
       <trans-unit id="Checking account number" xml:space="preserve" approved="yes">
@@ -485,19 +498,19 @@
         <target state="final">ထည့်သွင်းထားသော ကျော်လွန် ပယ်ဖျက်မှုများကို ရှင်းလင်းခြင်းဖြင့် တည်နေရာ ရွေးရန် ပြသမှုတွင် ဆာဗာ IP များကို ပုံသေအဖြစ် ပြန်ပြောင်းလိုက်ပါမည်။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Client is not allowed to issue the request." xml:space="preserve">
+      <trans-unit id="Client is not allowed to issue the request." xml:space="preserve" approved="yes">
         <source>Client is not allowed to issue the request.</source>
-        <target state="needs-translation">Client is not allowed to issue the request.</target>
+        <target state="final">တောင်းဆိုချက် ပေးပို့ရန် Client ကို ခွင့်မပြုထားပါ။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Collapse %@" xml:space="preserve">
+      <trans-unit id="Collapse %@" xml:space="preserve" approved="yes">
         <source>Collapse %@</source>
-        <target state="needs-translation">Collapse %@</target>
+        <target state="final">%@ ကို ချုံ့ရန်</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Collapses this location." xml:space="preserve">
+      <trans-unit id="Collapses this location." xml:space="preserve" approved="yes">
         <source>Collapses this location.</source>
-        <target state="needs-translation">Collapses this location.</target>
+        <target state="final">ဤတည်နေရာကို ချုံ့မည်။</target>
         <note/>
       </trans-unit>
       <trans-unit id="Colombia" xml:space="preserve" approved="yes">
@@ -515,14 +528,14 @@
         <target state="final">ချိတ်ဆက်ရန်</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Connected to %@" xml:space="preserve">
+      <trans-unit id="Connected to %@" xml:space="preserve" approved="yes">
         <source>Connected to %@</source>
-        <target state="needs-translation">Connected to %@</target>
+        <target state="final">%@ သို့ ချိတ်ဆက်ထားပါသည်</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Connecting to %@" xml:space="preserve">
+      <trans-unit id="Connecting to %@" xml:space="preserve" approved="yes">
         <source>Connecting to %@</source>
-        <target state="needs-translation">Connecting to %@</target>
+        <target state="final">%@ နှင့် ချိတ်ဆက်နေပါသည်</target>
         <note/>
       </trans-unit>
       <trans-unit id="Connection details" xml:space="preserve" approved="yes">
@@ -540,9 +553,9 @@
         <target state="final">ကိုပင်ဟေဂင်</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Copied Mullvad account number to pasteboard" xml:space="preserve">
+      <trans-unit id="Copied Mullvad account number to pasteboard" xml:space="preserve" approved="yes">
         <source>Copied Mullvad account number to pasteboard</source>
-        <target state="needs-translation">Copied Mullvad account number to pasteboard</target>
+        <target state="final">Mullvad အကောင့်နံပါတ်ကို ပေ့စ်ဘုတ်တွင် ကူးထားပါသည်</target>
         <note/>
       </trans-unit>
       <trans-unit id="Create" xml:space="preserve" approved="yes">
@@ -565,9 +578,9 @@
         <target state="final">စာရင်းသစ် ဖန်တီးမည်</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Created: %@" xml:space="preserve">
+      <trans-unit id="Created: %@" xml:space="preserve" approved="yes">
         <source>Created: %@</source>
-        <target state="needs-translation">Created: %@</target>
+        <target state="final">ဖန်တီးချိန်- %@</target>
         <note/>
       </trans-unit>
       <trans-unit id="Creating account..." xml:space="preserve" approved="yes">
@@ -610,19 +623,19 @@
         <target state="final">ချက်သမ္မတနိုင်ငံ</target>
         <note/>
       </trans-unit>
-      <trans-unit id="DAITA" xml:space="preserve">
+      <trans-unit id="DAITA" xml:space="preserve" approved="yes">
         <source>DAITA</source>
-        <target state="needs-translation">DAITA</target>
+        <target state="final">DAITA</target>
         <note/>
       </trans-unit>
-      <trans-unit id="DAITA isn't available at the currently selected location. After enabling, please go to the &quot;Select location&quot; view and select a location that supports DAITA." xml:space="preserve">
+      <trans-unit id="DAITA isn't available at the currently selected location. After enabling, please go to the &quot;Select location&quot; view and select a location that supports DAITA." xml:space="preserve" approved="yes">
         <source>DAITA isn't available at the currently selected location. After enabling, please go to the "Select location" view and select a location that supports DAITA.</source>
-        <target state="needs-translation">DAITA isn't available at the currently selected location. After enabling, please go to the "Select location" view and select a location that supports DAITA.</target>
+        <target state="final">DAITA ကို လက်ရှိရွေးချယ်ထားသောနေရာတွင် ရရှိနိုင်ခြင်း မရှိပါ။ ဖွင့်ပြီးနောက် "တည်နေရာရွေးချယ်ရန်" ပြသမှုသို့ သွားပြီး DAITA ကို ပံ့ပိုးပေးသော တည်နေရာကို ရွေးချယ်ပါ။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="DAITA isn't available on the current entry server. After enabling, please go to the &quot;Select location&quot; view and select an entry location that supports DAITA." xml:space="preserve">
+      <trans-unit id="DAITA isn't available on the current entry server. After enabling, please go to the &quot;Select location&quot; view and select an entry location that supports DAITA." xml:space="preserve" approved="yes">
         <source>DAITA isn't available on the current entry server. After enabling, please go to the "Select location" view and select an entry location that supports DAITA.</source>
-        <target state="needs-translation">DAITA isn't available on the current entry server. After enabling, please go to the "Select location" view and select an entry location that supports DAITA.</target>
+        <target state="final">လက်ရှိ အဝင်ဆာဗာတွင် DAITA ကို မရရှိနိုင်ပါ။ DAITA ကို ဖွင့်ပြီးနောက် “တည်နေရာ ရွေးချယ်ရန်” ပြသမှုသို့ သွားပြီး DAITA ကို လုပ်ဆောင်နိုင်သော အဝင် တည်နေရာတစ်ခုကို ရွေးချယ်ပါ။</target>
         <note/>
       </trans-unit>
       <trans-unit id="DISCONNECTED" xml:space="preserve" approved="yes">
@@ -640,9 +653,9 @@
         <target state="final">DNS အကြောင်းအရာ ပိတ်ဆို့မှုများ</target>
         <note/>
       </trans-unit>
-      <trans-unit id="DNS settings" xml:space="preserve">
+      <trans-unit id="DNS settings" xml:space="preserve" approved="yes">
         <source>DNS settings</source>
-        <target state="needs-translation">DNS settings</target>
+        <target state="final">DNS ဆက်တင်များ</target>
         <note/>
       </trans-unit>
       <trans-unit id="Dallas, TX" xml:space="preserve" approved="yes">
@@ -655,14 +668,14 @@
         <target state="final">ဖျက်ရန်</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Delete %@?" xml:space="preserve">
+      <trans-unit id="Delete %@?" xml:space="preserve" approved="yes">
         <source>Delete %@?</source>
-        <target state="needs-translation">Delete %@?</target>
+        <target state="final">%@ ကို ဖျက်မည်လား။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Delete account" xml:space="preserve">
+      <trans-unit id="Delete account" xml:space="preserve" approved="yes">
         <source>Delete account</source>
-        <target state="needs-translation">Delete account</target>
+        <target state="final">အကောင့် ဖျက်ရန်</target>
         <note/>
       </trans-unit>
       <trans-unit id="Delete list" xml:space="preserve" approved="yes">
@@ -675,9 +688,9 @@
         <target state="final">နည်းလမ်းကို ဖျက်ရန်</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Deleting account..." xml:space="preserve">
+      <trans-unit id="Deleting account..." xml:space="preserve" approved="yes">
         <source>Deleting account...</source>
-        <target state="needs-translation">Deleting account...</target>
+        <target state="final">အကောင့် ဖျက်နေဆဲ...</target>
         <note/>
       </trans-unit>
       <trans-unit id="Denmark" xml:space="preserve" approved="yes">
@@ -705,9 +718,9 @@
         <target state="final">စက်အမည်</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Device name: %@" xml:space="preserve">
+      <trans-unit id="Device name: %@" xml:space="preserve" approved="yes">
         <source>Device name: %@</source>
-        <target state="needs-translation">Device name: %@</target>
+        <target state="final">စက်အမည်- %@</target>
         <note/>
       </trans-unit>
       <trans-unit id="Direct only" xml:space="preserve" approved="yes">
@@ -720,14 +733,14 @@
         <target state="final">ဤဆက်တင်ကိုဖွင့်ရန် အထက်ရှိ "%@" အားလုံးကို ပိတ်ပါ။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Disabling" xml:space="preserve">
+      <trans-unit id="Disabling" xml:space="preserve" approved="yes">
         <source>Disabling</source>
-        <target state="needs-translation">Disabling</target>
+        <target state="final">ပိတ်ခြင်း</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Discard changes" xml:space="preserve">
+      <trans-unit id="Discard changes" xml:space="preserve" approved="yes">
         <source>Discard changes</source>
-        <target state="needs-translation">Discard changes</target>
+        <target state="final">အပြောင်းအလဲများကို ဖယ်ရှားရန်</target>
         <note/>
       </trans-unit>
       <trans-unit id="Disconnect" xml:space="preserve" approved="yes">
@@ -735,9 +748,9 @@
         <target state="final">ချိတ်ဆက်မှုဖြုတ်ရန်</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Do you agree to remaining anonymous?" xml:space="preserve">
+      <trans-unit id="Do you agree to remaining anonymous?" xml:space="preserve" approved="yes">
         <source>Do you agree to remaining anonymous?</source>
-        <target state="needs-translation">Do you agree to remaining anonymous?</target>
+        <target state="final">အမည်ဝှက်ထားရန် သဘောတူပါသလား။</target>
         <note/>
       </trans-unit>
       <trans-unit id="Do you want to create a new account?" xml:space="preserve" approved="yes">
@@ -745,14 +758,14 @@
         <target state="final">အကောင့်သစ် ဖွင့်လိုပါသလား။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Do you want to delete the list **%@**?" xml:space="preserve">
+      <trans-unit id="Do you want to delete the list **%@**?" xml:space="preserve" approved="yes">
         <source>Do you want to delete the list **%@**?</source>
-        <target state="needs-translation">Do you want to delete the list **%@**?</target>
+        <target state="final">**%@** စာရင်းကို ဖျက်လိုပါသလား။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Done" xml:space="preserve">
+      <trans-unit id="Done" xml:space="preserve" approved="yes">
         <source>Done</source>
-        <target state="needs-translation">Done</target>
+        <target state="final">ပြီးပါပြီ</target>
         <note/>
       </trans-unit>
       <trans-unit id="Don’t have an account number?" xml:space="preserve" approved="yes">
@@ -770,9 +783,9 @@
         <target state="final">ဒူဆင်ဒေါ့ဖ်</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Edit custom list" xml:space="preserve">
+      <trans-unit id="Edit custom list" xml:space="preserve" approved="yes">
         <source>Edit custom list</source>
-        <target state="needs-translation">Edit custom list</target>
+        <target state="final">စိတ်ကြိုက်စာရင်းကို ပြင်ရန်</target>
         <note/>
       </trans-unit>
       <trans-unit id="Edit custom lists" xml:space="preserve" approved="yes">
@@ -790,9 +803,9 @@
         <target state="final">နည်းလမ်းကို တည်းဖြတ်ပါ</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Either buy credit on our website or make an in-app purchase via the **Add time** button below." xml:space="preserve">
+      <trans-unit id="Either buy credit on our website or make an in-app purchase via the **Add time** button below." xml:space="preserve" approved="yes">
         <source>Either buy credit on our website or make an in-app purchase via the **Add time** button below.</source>
-        <target state="needs-translation">Either buy credit on our website or make an in-app purchase via the **Add time** button below.</target>
+        <target state="final">ကျွန်ုပ်တို့၏ ဝက်ဘ်ဆိုက်မှ ခရက်ဒစ် ဝယ်ယူခြင်း သို့မဟုတ် အောက်ရှိ **အချိန်တိုးရန်** ခလုတ်ကို အသုံးပြု၍ အက်ပ်အတွင်း ငွေပေးချေမှု ပြုလုပ်နိုင်ပါသည်။</target>
         <note/>
       </trans-unit>
       <trans-unit id="Either buy credit on our website or redeem a voucher." xml:space="preserve" approved="yes">
@@ -810,9 +823,9 @@
         <target state="final">နည်းလမ်းကို ဖွင့်ရန်</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Enabling" xml:space="preserve">
+      <trans-unit id="Enabling" xml:space="preserve" approved="yes">
         <source>Enabling</source>
-        <target state="needs-translation">Enabling</target>
+        <target state="final">ဖွင့်ခြင်း</target>
         <note/>
       </trans-unit>
       <trans-unit id="Enter IP" xml:space="preserve" approved="yes">
@@ -845,19 +858,19 @@
         <target state="final">အထွက်</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Expand %@" xml:space="preserve">
+      <trans-unit id="Expand %@" xml:space="preserve" approved="yes">
         <source>Expand %@</source>
-        <target state="needs-translation">Expand %@</target>
+        <target state="final">%@ ကို ဖြန့်ပြရန်</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Expands this location." xml:space="preserve">
+      <trans-unit id="Expands this location." xml:space="preserve" approved="yes">
         <source>Expands this location.</source>
-        <target state="needs-translation">Expands this location.</target>
+        <target state="final">ဤတည်နေရာကို ဖြန့်ပြပါသည်။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="FAQs &amp; Guides" xml:space="preserve">
+      <trans-unit id="FAQs &amp; Guides" xml:space="preserve" approved="yes">
         <source>FAQs &amp; Guides</source>
-        <target state="needs-translation">FAQs &amp; Guides</target>
+        <target state="final">မေးလေ့ရှိသည့် မေးခွန်းများ&amp; လမ်းညွှန်များ</target>
         <note/>
       </trans-unit>
       <trans-unit id="Failed to load products, please try again" xml:space="preserve" approved="yes">
@@ -870,34 +883,34 @@
         <target state="final">ပို့ရန် မအောင်မြင်ခဲ့ပါ</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Failed to send the receipt to server: %@" xml:space="preserve">
+      <trans-unit id="Failed to send the receipt to server: %@" xml:space="preserve" approved="yes">
         <source>Failed to send the receipt to server: %@</source>
-        <target state="needs-translation">Failed to send the receipt to server: %@</target>
+        <target state="final">ပြေစာကို ဆာဗာသို့ ပေးပို့၍ မရပါ- %@</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Failed to start the tunnel." xml:space="preserve">
+      <trans-unit id="Failed to start the tunnel." xml:space="preserve" approved="yes">
         <source>Failed to start the tunnel.</source>
-        <target state="needs-translation">Failed to start the tunnel.</target>
+        <target state="final">Tunnel ကို စတင်၍ မရပါ။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Failed to start the tunnel: %@." xml:space="preserve">
+      <trans-unit id="Failed to start the tunnel: %@." xml:space="preserve" approved="yes">
         <source>Failed to start the tunnel: %@.</source>
-        <target state="needs-translation">Failed to start the tunnel: %@.</target>
+        <target state="final">ဤ Tunnel ကို စတင်၍ မရပါ- %@။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Failed to stop the tunnel." xml:space="preserve">
+      <trans-unit id="Failed to stop the tunnel." xml:space="preserve" approved="yes">
         <source>Failed to stop the tunnel.</source>
-        <target state="needs-translation">Failed to stop the tunnel.</target>
+        <target state="final">Tunnel ကို ရပ်တန့်၍ မရပါ။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Failed to stop the tunnel: %@." xml:space="preserve">
+      <trans-unit id="Failed to stop the tunnel: %@." xml:space="preserve" approved="yes">
         <source>Failed to stop the tunnel: %@.</source>
-        <target state="needs-translation">Failed to stop the tunnel: %@.</target>
+        <target state="final">ဤ Tunnel ကို ရပ်တန့်၍ မရပါ- %@။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Fetching devices..." xml:space="preserve">
+      <trans-unit id="Fetching devices..." xml:space="preserve" approved="yes">
         <source>Fetching devices...</source>
-        <target state="needs-translation">Fetching devices...</target>
+        <target state="final">စက်များကို ရယူနေသည်...</target>
         <note/>
       </trans-unit>
       <trans-unit id="Filter" xml:space="preserve" approved="yes">
@@ -1030,9 +1043,9 @@
         <target state="final">အကယ်၍ သင်သည် ကျွန်ုပ်တို့၏ VPN သို့ ချိတ်ဆက်ထားခြင်းမရှိပါက ကုဒ်ဝှက်ထားသော DNS ပရောက်စီသည် ချိတ်ဆက်ရာတွင် သင်၏ကိုယ်ပိုင် VPN မဟုတ်သော IP ကို ​​အသုံးပြုပါမည်။ DoH ဆာဗာများကို အောက်ပါဝန်ဆောင်မှုပေးသူများထဲမှ တစ်ခုမှ လက်ခံဆောင်ရွက်ပေးသည်- Quad 9 သို့မဟုတ် CloudFlare ။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="If you disconnect now, you won’t be able to secure your connection until the device is online." xml:space="preserve">
+      <trans-unit id="If you disconnect now, you won’t be able to secure your connection until the device is online." xml:space="preserve" approved="yes">
         <source>If you disconnect now, you won’t be able to secure your connection until the device is online.</source>
-        <target state="needs-translation">If you disconnect now, you won’t be able to secure your connection until the device is online.</target>
+        <target state="final">ယခု ချိတ်ဆက်မှု ဖြတ်တောက်လိုက်ပါက ထိုစက် အွန်လိုင်းမတက်မချင်း သင်၏ ချိတ်ဆက်မှုကို လုံခြုံအောင် ပြုလုပ်နိုင်မည် မဟုတ်ပါ။</target>
         <note/>
       </trans-unit>
       <trans-unit id="If you exit the form and try again later, the information you already entered will still be here." xml:space="preserve" approved="yes">
@@ -1040,9 +1053,9 @@
         <target state="final">ဖောင်မှ ထွက်ပြီး နောက်မှ ထပ်ကြိုးစားကြည့်ပါ၊ သင်ဖြည့်ထားသည့် အချက်အလက်များသည် ဤတွင် ဆက်ရှိနေပါမည်။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="If you haven’t received additional VPN time after purchasing" xml:space="preserve">
+      <trans-unit id="If you haven’t received additional VPN time after purchasing" xml:space="preserve" approved="yes">
         <source>If you haven’t received additional VPN time after purchasing</source>
-        <target state="needs-translation">If you haven’t received additional VPN time after purchasing</target>
+        <target state="final">ဝယ်ယူပြီးနောက်တွင် VPN အချိန်ပိုမရရှိသေးပါက</target>
         <note/>
       </trans-unit>
       <trans-unit id="If you log out, the device and the device name is removed. When you log back in again, the device will get a new name." xml:space="preserve" approved="yes">
@@ -1050,9 +1063,9 @@
         <target state="final">ထွက်လိုက်ပါက စက်နှင့် စက်အမည်ကို ဖယ်ရှားပါသည်။ နောက်တစ်ကြိမ် ပြန်ဝင်ရောက်သည့်အခါ စက်သည် အမည်သစ်တစ်ခု ရရှိပါမည်။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="If you still experience issues you can email our support directly at **%@**. Please attach your app log to your email." xml:space="preserve">
+      <trans-unit id="If you still experience issues you can email our support directly at **%@**. Please attach your app log to your email." xml:space="preserve" approved="yes">
         <source>If you still experience issues you can email our support directly at **%@**. Please attach your app log to your email.</source>
-        <target state="needs-translation">If you still experience issues you can email our support directly at **%@**. Please attach your app log to your email.</target>
+        <target state="final">ပြဿနာများ ဆက်လက်ကြုံတွေ့နေပါက ကျွန်ုပ်တို့၏ သုံးစွဲသူ အကူအညီပေးရေး အဖွဲ့ထံသို့ **%@** မှတစ်ဆင့် တိုက်ရိုက်အီးမေးလ်ပေးပို့နိုင်ပါသည်။ အီးမေးလ်တွင် သင်၏ အက်ပ်မှတ်တမ်းကို တွဲချိတ်ပေးပါ။</target>
         <note/>
       </trans-unit>
       <trans-unit id="Import" xml:space="preserve" approved="yes">
@@ -1070,14 +1083,14 @@
         <target state="final">တည်နေရာ ရွေးရန် ပြသမှုတွင် ဆာဗာများအတွက် IP လိပ်စာသစ်များပါဝင်‌သော ဖိုင်များ သို့မဟုတ် စာသားကို ထည့်သွင်းပါ။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Import of %@ was successful, overrides are now active." xml:space="preserve">
+      <trans-unit id="Import of %@ was successful, overrides are now active." xml:space="preserve" approved="yes">
         <source>Import of %@ was successful, overrides are now active.</source>
-        <target state="needs-translation">Import of %@ was successful, overrides are now active.</target>
+        <target state="final">%@ ထည့်သွင်းမှု အောင်မြင်ပါသည်၊ ယခုအခါ ကျော်လွန် ပယ်ဖျက်မှုများသည် သက်ဝင်နေပါပြီ။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Import of %@ was unsuccessful, please try again." xml:space="preserve">
+      <trans-unit id="Import of %@ was unsuccessful, please try again." xml:space="preserve" approved="yes">
         <source>Import of %@ was unsuccessful, please try again.</source>
-        <target state="needs-translation">Import of %@ was unsuccessful, please try again.</target>
+        <target state="final">%@ ထည့်သွင်းမှု မအောင်မြင်ပါ၊ ထပ်ကြိုးစားကြည့်ပါ။</target>
         <note/>
       </trans-unit>
       <trans-unit id="Import of text was successful, overrides are now active." xml:space="preserve" approved="yes">
@@ -1105,9 +1118,14 @@
         <target state="final">အသုံးပြုဆဲ</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Include all networks" xml:space="preserve">
+      <trans-unit id="Include all networks" xml:space="preserve" approved="yes">
         <source>Include all networks</source>
-        <target state="needs-translation">Include all networks</target>
+        <target state="final">ကွန်ရက်အားလုံး ထည့်သွင်းပါ</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Include my account token for faster help with payment or account related issues" xml:space="preserve" approved="yes">
+        <source>Include my account token for faster help with payment or account related issues</source>
+        <target state="final">ငွေပေးချေမှု သို့မဟုတ် အကောင့်နှင့်ဆိုင်သောပြဿနာများအတွက် ပိုမိုမြန်ဆန်စွာအကူအညီရရှိနိုင်ရန်၊ သင့်အကောင့်တိုကင်ကို ထည့်ပါ</target>
         <note/>
       </trans-unit>
       <trans-unit id="Indonesia" xml:space="preserve" approved="yes">
@@ -1115,14 +1133,14 @@
         <target state="final">အင်ဒိုနီးရှား</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Internal error occurred. Settings will be reset to defaults and device logged out." xml:space="preserve">
+      <trans-unit id="Internal error occurred. Settings will be reset to defaults and device logged out." xml:space="preserve" approved="yes">
         <source>Internal error occurred. Settings will be reset to defaults and device logged out.</source>
-        <target state="needs-translation">Internal error occurred. Settings will be reset to defaults and device logged out.</target>
+        <target state="final">ကွန်ရက်တွင်း ချို့ယွင်းချက် ဖြစ်ပွားခဲ့သည်။ ဆက်တင်များကို ပုံသေအတိုင်း ပြန်လည်သတ်မှတ်သွားမည်ဖြစ်ပြီး စက်မှ အကောင့်ထွက်သွားပါမည်။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Internal error." xml:space="preserve">
+      <trans-unit id="Internal error." xml:space="preserve" approved="yes">
         <source>Internal error.</source>
-        <target state="needs-translation">Internal error.</target>
+        <target state="final">စနစ်တွင်း ချို့ယွင်းချက်။</target>
         <note/>
       </trans-unit>
       <trans-unit id="Invalid account number" xml:space="preserve" approved="yes">
@@ -1130,19 +1148,19 @@
         <target state="final">အကောင့်နံပါတ် မမှန်ကန်ပါ</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Invalid account number: %@" xml:space="preserve">
+      <trans-unit id="Invalid account number: %@" xml:space="preserve" approved="yes">
         <source>Invalid account number: %@</source>
-        <target state="needs-translation">Invalid account number: %@</target>
+        <target state="final">အကောင့်နံပါတ် မမှန်ကန်ပါ- %@</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Invalid device state." xml:space="preserve">
+      <trans-unit id="Invalid device state." xml:space="preserve" approved="yes">
         <source>Invalid device state.</source>
-        <target state="needs-translation">Invalid device state.</target>
+        <target state="final">စက်အခြေအနေ မမှန်ကန်ပါ။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Invalid purchase identifier." xml:space="preserve">
+      <trans-unit id="Invalid purchase identifier." xml:space="preserve" approved="yes">
         <source>Invalid purchase identifier.</source>
-        <target state="needs-translation">Invalid purchase identifier.</target>
+        <target state="final">ဝယ်ယူမှု အထောက်အထားနံပါတ်သည် မမှန်ကန်ပါ။</target>
         <note/>
       </trans-unit>
       <trans-unit id="Ireland" xml:space="preserve" approved="yes">
@@ -1215,14 +1233,14 @@
         <target state="final">ဘာသာစကား</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Last four digits of the account number are incorrect" xml:space="preserve">
+      <trans-unit id="Last four digits of the account number are incorrect" xml:space="preserve" approved="yes">
         <source>Last four digits of the account number are incorrect</source>
-        <target state="needs-translation">Last four digits of the account number are incorrect</target>
+        <target state="final">အကောင့်နံပါတ်၏ နောက်ဆုံးဂဏန်း လေးခု မမှန်ကန်ပါ</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Last used account" xml:space="preserve">
+      <trans-unit id="Last used account" xml:space="preserve" approved="yes">
         <source>Last used account</source>
-        <target state="needs-translation">Last used account</target>
+        <target state="final">နောက်ဆုံးအသုံးပြုခဲ့သည် အကောင့်</target>
         <note/>
       </trans-unit>
       <trans-unit id="Learn about privacy" xml:space="preserve" approved="yes">
@@ -1230,9 +1248,9 @@
         <target state="final">ကိုယ်ရေးအချက်အလက်လုံခြုံရေးအကြောင်း လေ့လာရန်</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Less than a day" xml:space="preserve">
+      <trans-unit id="Less than a day" xml:space="preserve" approved="yes">
         <source>Less than a day</source>
-        <target state="needs-translation">Less than a day</target>
+        <target state="final">တစ်ရက်အောက်</target>
         <note/>
       </trans-unit>
       <trans-unit id="Lima" xml:space="preserve" approved="yes">
@@ -1275,9 +1293,9 @@
         <target state="final">ဝင်ရောက်နေဆဲ...</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Logging out..." xml:space="preserve">
+      <trans-unit id="Logging out..." xml:space="preserve" approved="yes">
         <source>Logging out...</source>
-        <target state="needs-translation">Logging out...</target>
+        <target state="final">ထွက်နေဆဲ...</target>
         <note/>
       </trans-unit>
       <trans-unit id="Login" xml:space="preserve" approved="yes">
@@ -1305,9 +1323,9 @@
         <target state="final">မက်ဒရစ်</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Make a purchase with StoreKit2" xml:space="preserve">
+      <trans-unit id="Make a purchase with StoreKit2" xml:space="preserve" approved="yes">
         <source>Make a purchase with StoreKit2</source>
-        <target state="needs-translation">Make a purchase with StoreKit2</target>
+        <target state="final">StoreKit2 ဖြင့် ဝယ်ယူမှုတစ်ခု ပြုလုပ်ပါ</target>
         <note/>
       </trans-unit>
       <trans-unit id="Malaysia" xml:space="preserve" approved="yes">
@@ -1390,9 +1408,9 @@
         <target state="final">မာလ်တီဟော့ပ်</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Multihop is being used to enable DAITA for your selected location." xml:space="preserve">
+      <trans-unit id="Multihop is being used to enable DAITA for your selected location." xml:space="preserve" approved="yes">
         <source>Multihop is being used to enable DAITA for your selected location.</source>
-        <target state="needs-translation">Multihop is being used to enable DAITA for your selected location.</target>
+        <target state="final">သင်ရွေးချယ်ထားသော ဒေသအတွက် DAITA ကို ဖွင့်ရန် Multihop ကို သုံးနေသည်။</target>
         <note/>
       </trans-unit>
       <trans-unit id="Multihop routes your traffic into one WireGuard server and out another, making it harder to trace. This results in increased latency but increases anonymity online." xml:space="preserve" approved="yes">
@@ -1400,9 +1418,9 @@
         <target state="final">မာလ်တီဟော့ပ်သည် သင်၏အသွားအလာကို WireGuard ဆာဗာတစ်ခုသို့ လမ်းကြောင်းပေးပြီး အခြားတစ်နေရာမှ ထွက်စေသောကြောင့် ခြေရာခံရန် ပိုမိုခက်ခဲစေသည်။ ၎င်းသည် အချိန်ကို ပိုမိုကြန့်ကြာစေသော်လည်း အွန်လိုင်းတွင် ပို၍ သိုသိုသိပ်သိပ်ဖြစ်စေသည်။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="NETWORK ISSUES" xml:space="preserve">
+      <trans-unit id="NETWORK ISSUES" xml:space="preserve" approved="yes">
         <source>NETWORK ISSUES</source>
-        <target state="needs-translation">NETWORK ISSUES</target>
+        <target state="final">ကွန်ရက်ပြဿနာများ</target>
         <note/>
       </trans-unit>
       <trans-unit id="NEW DEVICE CREATED" xml:space="preserve" approved="yes">
@@ -1415,9 +1433,9 @@
         <target state="final">ဗားရှင်းအသစ်ကို ထည့်သွင်းထားသည်</target>
         <note/>
       </trans-unit>
-      <trans-unit id="NO NETWORK" xml:space="preserve">
+      <trans-unit id="NO NETWORK" xml:space="preserve" approved="yes">
         <source>NO NETWORK</source>
-        <target state="needs-translation">NO NETWORK</target>
+        <target state="final">ကွန်ရက်မရှိ</target>
         <note/>
       </trans-unit>
       <trans-unit id="NO OVERRIDES IMPORTED" xml:space="preserve" approved="yes">
@@ -1435,9 +1453,9 @@
         <target state="final">အမည်သည် ရှိနှင့်ပြီး ဖြစ်သည်။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Name should be no longer than %i characters." xml:space="preserve">
+      <trans-unit id="Name should be no longer than %i characters." xml:space="preserve" approved="yes">
         <source>Name should be no longer than %i characters.</source>
-        <target state="needs-translation">Name should be no longer than %i characters.</target>
+        <target state="final">အမည်ကို အက္ခရာ %i လုံးထက် ပို၍ မထားရပါ။</target>
         <note/>
       </trans-unit>
       <trans-unit id="Netherlands" xml:space="preserve" approved="yes">
@@ -1445,9 +1463,9 @@
         <target state="final">နယ်သာလန်</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Network error: %@" xml:space="preserve">
+      <trans-unit id="Network error: %@" xml:space="preserve" approved="yes">
         <source>Network error: %@</source>
-        <target state="needs-translation">Network error: %@</target>
+        <target state="final">ကွန်ရက် ချို့ယွင်းချက်- %@</target>
         <note/>
       </trans-unit>
       <trans-unit id="New York, NY" xml:space="preserve" approved="yes">
@@ -1475,14 +1493,14 @@
         <target state="final">နိုင်ဂျီးရီးယား</target>
         <note/>
       </trans-unit>
-      <trans-unit id="No DAITA compatible servers match your location settings. Try changing location." xml:space="preserve">
+      <trans-unit id="No DAITA compatible servers match your location settings. Try changing location." xml:space="preserve" approved="yes">
         <source>No DAITA compatible servers match your location settings. Try changing location.</source>
-        <target state="needs-translation">No DAITA compatible servers match your location settings. Try changing location.</target>
+        <target state="final">သင့်တည်နေရာ ဆက်တင်နှင့် ကိုက်ညီပြီး DAITA တွဲဖက်သုံးနိုင်သော ဆာဗာ မရှိပါ။ တည်နေရာ ပြောင်းကြည့်ပါ။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="No matching relays found, check your filter settings." xml:space="preserve">
+      <trans-unit id="No matching relays found, check your filter settings." xml:space="preserve" approved="yes">
         <source>No matching relays found, check your filter settings.</source>
-        <target state="needs-translation">No matching relays found, check your filter settings.</target>
+        <target state="final">ကိုက်ညီသော ရီလေး (Relay) များ မတွေ့ပါ၊ သင်၏ စစ်ထုတ်မှု ဆက်တင်များကို စစ်ဆေးပါ။</target>
         <note/>
       </trans-unit>
       <trans-unit id="No matching servers found." xml:space="preserve" approved="yes">
@@ -1490,14 +1508,14 @@
         <target state="final">ကိုက်ညီသည့် ဆာဗာများ မတွေ့ပါ။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="No servers match your location filter. Try changing filter settings." xml:space="preserve">
+      <trans-unit id="No servers match your location filter. Try changing filter settings." xml:space="preserve" approved="yes">
         <source>No servers match your location filter. Try changing filter settings.</source>
-        <target state="needs-translation">No servers match your location filter. Try changing filter settings.</target>
+        <target state="final">သင်၏ တည်နေရာ စစ်ထုတ်မှုနှင့် ကိုက်ညီသော ဆာဗာ မရှိပါ။ စစ်ထုတ်မှု ဆက်တင်များကို ပြောင်းကြည့်ပါ။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="No servers match your obfuscation settings. Try changing location or obfuscation method." xml:space="preserve">
+      <trans-unit id="No servers match your obfuscation settings. Try changing location or obfuscation method." xml:space="preserve" approved="yes">
         <source>No servers match your obfuscation settings. Try changing location or obfuscation method.</source>
-        <target state="needs-translation">No servers match your obfuscation settings. Try changing location or obfuscation method.</target>
+        <target state="final">သင့် Obfuscation ဆက်တင်များနှင့် ကိုက်ညီသော ဆာဗာများ မရှိပါ။ တည်နေရာ သို့မဟုတ် Obfuscation ဆက်တင်ကို ပြောင်းကြည့်ပါ။</target>
         <note/>
       </trans-unit>
       <trans-unit id="No servers match your settings, try changing server or other settings." xml:space="preserve" approved="yes">
@@ -1535,9 +1553,9 @@
         <target state="final">Obfuscation သည် အခြားပရိုတိုကောလ်အတွင်းရှိ WireGuard ကူးလူးမှုကို ဝှက်ထားပေးပါသည်။ သာမန် WireGuard ချိတ်ဆက်မှုကို ပိတ်ဆို့မည့် အခြားသော စစ်ထုတ်မှု အမျိုးအစားများနှင့် ဆင်ဆာဖြတ်တောက်ခြင်းကို ရှောင်လွှဲနိုင်စေရာတွင် ကူညီနိုင်စေရန် ၎င်းကို သုံးနိုင်ပါသည်။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Obscured" xml:space="preserve">
+      <trans-unit id="Obscured" xml:space="preserve" approved="yes">
         <source>Obscured</source>
-        <target state="needs-translation">Obscured</target>
+        <target state="final">ဖုံးကာထားသည်</target>
         <note/>
       </trans-unit>
       <trans-unit id="Off" xml:space="preserve" approved="yes">
@@ -1580,14 +1598,14 @@
         <target state="final">အော်စလို</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Out IPv4" xml:space="preserve">
+      <trans-unit id="Out IPv4" xml:space="preserve" approved="yes">
         <source>Out IPv4</source>
-        <target state="needs-translation">Out IPv4</target>
+        <target state="final">အထွက် IPv4</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Out IPv6" xml:space="preserve">
+      <trans-unit id="Out IPv6" xml:space="preserve" approved="yes">
         <source>Out IPv6</source>
-        <target state="needs-translation">Out IPv6</target>
+        <target state="final">အထွက် IPv6</target>
         <note/>
       </trans-unit>
       <trans-unit id="Out of time" xml:space="preserve" approved="yes">
@@ -1620,9 +1638,9 @@
         <target state="final">စကားဝှက်</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Performs a connection test to a Mullvad API server via this access method." xml:space="preserve">
+      <trans-unit id="Performs a connection test to a Mullvad API server via this access method." xml:space="preserve" approved="yes">
         <source>Performs a connection test to a Mullvad API server via this access method.</source>
-        <target state="needs-translation">Performs a connection test to a Mullvad API server via this access method.</target>
+        <target state="final">ဤရယူသုံးစွဲခွင့် နည်းလမ်းဖြင့် Mullvad API ဆာဗာသို့ ချိတ်ဆက် စမ်းသပ်မှုတစ်ခု ပြုလုပ်ပါသည်။</target>
         <note/>
       </trans-unit>
       <trans-unit id="Perth" xml:space="preserve" approved="yes">
@@ -1660,9 +1678,9 @@
         <target state="final">အောက်ပါစာရင်းမှ အနည်းဆုံး တစ်ခုကို ဖယ်ရှားခြင်းဖြင့် ၎င်းမှ ထွက်ပါ။ စက်၏ အကောင့်ဆက်တင်အောက်တွင် သက်ဆိုင်သော စက်အမည်ကို သင် ရှာနိုင်သည်။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Please retry by using the &quot;Restore purchases&quot; button." xml:space="preserve">
+      <trans-unit id="Please retry by using the &quot;Restore purchases&quot; button." xml:space="preserve" approved="yes">
         <source>Please retry by using the "Restore purchases" button.</source>
-        <target state="needs-translation">Please retry by using the "Restore purchases" button.</target>
+        <target state="final">'ဝယ်ယူမှုများကို ပြန်လည်ရယူရန်' ခလုတ်ကို အသုံးပြု၍ ထပ်မံကြိုးစားပါ။</target>
         <note/>
       </trans-unit>
       <trans-unit id="Poland" xml:space="preserve" approved="yes">
@@ -1675,9 +1693,9 @@
         <target state="final">ပေါ့တ်</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Port: %@" xml:space="preserve">
+      <trans-unit id="Port: %@" xml:space="preserve" approved="yes">
         <source>Port: %@</source>
-        <target state="needs-translation">Port: %@</target>
+        <target state="final">ပေါ့တ်- %@</target>
         <note/>
       </trans-unit>
       <trans-unit id="Portugal" xml:space="preserve" approved="yes">
@@ -1690,9 +1708,9 @@
         <target state="final">ပရာ့ဂ်</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Previous" xml:space="preserve">
+      <trans-unit id="Previous" xml:space="preserve" approved="yes">
         <source>Previous</source>
-        <target state="needs-translation">Previous</target>
+        <target state="final">ယခင်</target>
         <note/>
       </trans-unit>
       <trans-unit id="Providers" xml:space="preserve" approved="yes">
@@ -1700,9 +1718,9 @@
         <target state="final">ပံ့ပိုးသူများ</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Providers: %d" xml:space="preserve">
+      <trans-unit id="Providers: %d" xml:space="preserve" approved="yes">
         <source>Providers: %d</source>
-        <target state="needs-translation">Providers: %d</target>
+        <target state="final">ပံ့ပိုးသူများ- %d</target>
         <note/>
       </trans-unit>
       <trans-unit id="QUIC" xml:space="preserve" approved="yes">
@@ -1725,9 +1743,9 @@
         <target state="final">ကီရင်တာရို (Queretaro)</target>
         <note/>
       </trans-unit>
-      <trans-unit id="RECONNECTING" xml:space="preserve">
+      <trans-unit id="RECONNECTING" xml:space="preserve" approved="yes">
         <source>RECONNECTING</source>
-        <target state="needs-translation">RECONNECTING</target>
+        <target state="final">ပြန်ချိတ်ဆက်နေပါသည်</target>
         <note/>
       </trans-unit>
       <trans-unit id="Raleigh, NC" xml:space="preserve" approved="yes">
@@ -1735,9 +1753,9 @@
         <target state="final">ရာလီ၊ မြောက်ကာရိုလိုင်းနား</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Reconnecting to %@" xml:space="preserve">
+      <trans-unit id="Reconnecting to %@" xml:space="preserve" approved="yes">
         <source>Reconnecting to %@</source>
-        <target state="needs-translation">Reconnecting to %@</target>
+        <target state="final">%@ သို့ ပြန်ချိတ်ဆက်နေပါသည်</target>
         <note/>
       </trans-unit>
       <trans-unit id="Redeem" xml:space="preserve" approved="yes">
@@ -1750,14 +1768,14 @@
         <target state="final">ဘောက်ချာဖြင့် လဲယူရန်</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Refund last purchase with StoreKit2" xml:space="preserve">
+      <trans-unit id="Refund last purchase with StoreKit2" xml:space="preserve" approved="yes">
         <source>Refund last purchase with StoreKit2</source>
-        <target state="needs-translation">Refund last purchase with StoreKit2</target>
+        <target state="final">StoreKit2 နောက်ဆုံးဝယ်ယူမှုအတွက် ငွေပြန်အမ်းပါ</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Refund successful" xml:space="preserve">
+      <trans-unit id="Refund successful" xml:space="preserve" approved="yes">
         <source>Refund successful</source>
-        <target state="needs-translation">Refund successful</target>
+        <target state="final">ငွေပြန်အမ်းခြင်း အောင်မြင်ပါသည်</target>
         <note/>
       </trans-unit>
       <trans-unit id="Remove" xml:space="preserve" approved="yes">
@@ -1770,16 +1788,16 @@
         <target state="final">%@ ကို ဖယ်ရှားမလား။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Remove last used account" xml:space="preserve">
+      <trans-unit id="Remove last used account" xml:space="preserve" approved="yes">
         <source>Remove last used account</source>
-        <target state="needs-translation">Remove last used account</target>
+        <target state="final">နောက်ဆုံးအသုံးပြုထားသော အကောင့်ကို ဖယ်ရှားရန်</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Removing the saved account number from this device cannot be undone.&#10;Do you want to remove the saved account number?" xml:space="preserve">
+      <trans-unit id="Removing the saved account number from this device cannot be undone.&#10;Do you want to remove the saved account number?" xml:space="preserve" approved="yes">
         <source>Removing the saved account number from this device cannot be undone.
 Do you want to remove the saved account number?</source>
-        <target state="needs-translation">Removing the saved account number from this device cannot be undone.
-Do you want to remove the saved account number?</target>
+        <target state="final">ဤစက်မှ သိမ်းဆည်းထားသော အကောင့်နံပါတ်ကို ဖယ်ရှားခြင်းကို ပြန်ပြင်၍မရပါ။
+သိမ်းဆည်းထားသော အကောင့်နံပါတ်ကို ဖယ်ရှားလိုပါသလား။</target>
         <note/>
       </trans-unit>
       <trans-unit id="Rented only" xml:space="preserve" approved="yes">
@@ -1797,9 +1815,9 @@ Do you want to remove the saved account number?</target>
         <target state="final">ဖြည့်ရန် လိုအပ်သည်</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Restore purchases" xml:space="preserve">
+      <trans-unit id="Restore purchases" xml:space="preserve" approved="yes">
         <source>Restore purchases</source>
-        <target state="needs-translation">Restore purchases</target>
+        <target state="final">ဝယ်ယူမှုများကို ပြန်လည်ရယူရန်</target>
         <note/>
       </trans-unit>
       <trans-unit id="Romania" xml:space="preserve" approved="yes">
@@ -1832,9 +1850,9 @@ Do you want to remove the saved account number?</target>
         <target state="final">သိမ်းမည်</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Saving changes..." xml:space="preserve">
+      <trans-unit id="Saving changes..." xml:space="preserve" approved="yes">
         <source>Saving changes...</source>
-        <target state="needs-translation">Saving changes...</target>
+        <target state="final">ပြောင်းလဲမှုများကို သိမ်းဆည်းနေသည်...</target>
         <note/>
       </trans-unit>
       <trans-unit id="Search for..." xml:space="preserve" approved="yes">
@@ -1857,9 +1875,9 @@ Do you want to remove the saved account number?</target>
         <target state="final">တည်နေရာ ရွေးရန်</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Selected" xml:space="preserve">
+      <trans-unit id="Selected" xml:space="preserve" approved="yes">
         <source>Selected</source>
-        <target state="needs-translation">Selected</target>
+        <target state="final">ရွေးချယ်ထားသည်</target>
         <note/>
       </trans-unit>
       <trans-unit id="Send" xml:space="preserve" approved="yes">
@@ -1902,9 +1920,9 @@ Do you want to remove the saved account number?</target>
         <target state="final">ဆာဗာ အသေးစိတ်အချက်များ</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Setting: %@" xml:space="preserve">
+      <trans-unit id="Setting: %@" xml:space="preserve" approved="yes">
         <source>Setting: %@</source>
-        <target state="needs-translation">Setting: %@</target>
+        <target state="final">ဆက်တင်- %@</target>
         <note/>
       </trans-unit>
       <trans-unit id="Settings" xml:space="preserve" approved="yes">
@@ -1912,9 +1930,9 @@ Do you want to remove the saved account number?</target>
         <target state="final">ဆက်တင်များ</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Settings migration error" xml:space="preserve">
+      <trans-unit id="Settings migration error" xml:space="preserve" approved="yes">
         <source>Settings migration error</source>
-        <target state="needs-translation">Settings migration error</target>
+        <target state="final">ဆက်တင်ပြောင်းရွှေ့မှု ချို့ယွင်းချက်</target>
         <note/>
       </trans-unit>
       <trans-unit id="Shadowsocks" xml:space="preserve" approved="yes">
@@ -1947,9 +1965,9 @@ Do you want to remove the saved account number?</target>
         <target state="final">လူမှုမီဒီယာ</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Socks5" xml:space="preserve">
+      <trans-unit id="Socks5" xml:space="preserve" approved="yes">
         <source>Socks5</source>
-        <target state="needs-translation">Socks5</target>
+        <target state="final">Socks5</target>
         <note/>
       </trans-unit>
       <trans-unit id="Sofia" xml:space="preserve" approved="yes">
@@ -2012,9 +2030,9 @@ Do you want to remove the saved account number?</target>
         <target state="final">TCP</target>
         <note/>
       </trans-unit>
-      <trans-unit id="TUNNEL ERROR" xml:space="preserve">
+      <trans-unit id="TUNNEL ERROR" xml:space="preserve" approved="yes">
         <source>TUNNEL ERROR</source>
-        <target state="needs-translation">TUNNEL ERROR</target>
+        <target state="final">TUNNEL ချို့ယွင်းချက်</target>
         <note/>
       </trans-unit>
       <trans-unit id="Tallinn" xml:space="preserve" approved="yes">
@@ -2022,9 +2040,9 @@ Do you want to remove the saved account number?</target>
         <target state="final">တောလ်လင်း</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Tap **Edit** to add at least one DNS server." xml:space="preserve">
+      <trans-unit id="Tap **Edit** to add at least one DNS server." xml:space="preserve" approved="yes">
         <source>Tap **Edit** to add at least one DNS server.</source>
-        <target state="needs-translation">Tap **Edit** to add at least one DNS server.</target>
+        <target state="final">အနည်းဆုံး DNS ဆာဗာတစ်ခု ထည့်ရန်တွက် **ပြင်ရန်**ကို နှိပ်ပါ။</target>
         <note/>
       </trans-unit>
       <trans-unit id="Tel Aviv" xml:space="preserve" approved="yes">
@@ -2047,9 +2065,9 @@ Do you want to remove the saved account number?</target>
         <target state="final">ထိုင်း</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Thanks for your purchase" xml:space="preserve">
+      <trans-unit id="Thanks for your purchase" xml:space="preserve" approved="yes">
         <source>Thanks for your purchase</source>
-        <target state="needs-translation">Thanks for your purchase</target>
+        <target state="final">ဝယ်ယူမှုအတွက် ကျေးဇူးတင်ပါသည်</target>
         <note/>
       </trans-unit>
       <trans-unit id="Thanks!" xml:space="preserve" approved="yes">
@@ -2057,19 +2075,19 @@ Do you want to remove the saved account number?</target>
         <target state="final">ကျေးဇူးတင်ပါသည်။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="The app communicates with a Mullvad API server directly." xml:space="preserve">
+      <trans-unit id="The app communicates with a Mullvad API server directly." xml:space="preserve" approved="yes">
         <source>The app communicates with a Mullvad API server directly.</source>
-        <target state="needs-translation">The app communicates with a Mullvad API server directly.</target>
+        <target state="final">အက်ပ်သည် Mullvad API ဆာဗာနှင့် တိုက်ရိုက် ဆက်သွယ်ဆောင်ရွက်ပါသည်။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="The app communicates with a Mullvad API server via a Mullvad bridge server." xml:space="preserve">
+      <trans-unit id="The app communicates with a Mullvad API server via a Mullvad bridge server." xml:space="preserve" approved="yes">
         <source>The app communicates with a Mullvad API server via a Mullvad bridge server.</source>
-        <target state="needs-translation">The app communicates with a Mullvad API server via a Mullvad bridge server.</target>
+        <target state="final">အက်ပ်သည် Mullvad ပေါင်းကူးဆာဗာတစ်ခုမှတဆင့် Mullvad API ဆာဗာနှင့် ဆက်သွယ်ဆောင်ရွက်ပါသည်။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="The app communicates with a Mullvad API server via a proxy address." xml:space="preserve">
+      <trans-unit id="The app communicates with a Mullvad API server via a proxy address." xml:space="preserve" approved="yes">
         <source>The app communicates with a Mullvad API server via a proxy address.</source>
-        <target state="needs-translation">The app communicates with a Mullvad API server via a proxy address.</target>
+        <target state="final">အက်ပ်သည် ပရောက်စီ လိပ်စာတစ်ခုမှတဆင့် Mullvad API ဆာဗာနှင့် ဆက်သွယ်ဆောင်ရွက်ပါသည်။</target>
         <note/>
       </trans-unit>
       <trans-unit id="The app needs to communicate with a Mullvad API server to log you in, fetch server lists, and other critical operations." xml:space="preserve" approved="yes">
@@ -2077,9 +2095,9 @@ Do you want to remove the saved account number?</target>
         <target state="final">Mullvad API ဆာဗာသို့ သင်ဝင်ရောက်ရန်၊ ဆာဗာစာရင်းများ ရယူရန်နှင့် အလွန်အရေးပါသည့် အခြားလုပ်ဆောင်မှုများအတွက် ဤအက်ပ်သည် ၎င်းနှင့်ဆက်သွယ်ရန် လိုအပ်ပါသည်။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="The app will test the method before saving." xml:space="preserve">
+      <trans-unit id="The app will test the method before saving." xml:space="preserve" approved="yes">
         <source>The app will test the method before saving.</source>
-        <target state="needs-translation">The app will test the method before saving.</target>
+        <target state="final">အက်ပ်သည် နည်းလမ်းကို မသိမ်းဆည်းမီ အရင်ဆုံး စမ်းသပ်ပါမည်။</target>
         <note/>
       </trans-unit>
       <trans-unit id="The automatic setting will randomly choose from the valid port ranges shown below." xml:space="preserve" approved="yes">
@@ -2097,29 +2115,29 @@ Do you want to remove the saved account number?</target>
         <target state="final">စက်ကို စာရင်းမှ ဖယ်ရှားပြီး စနစ်မှ ထွက်သွားလိမ့်မည်။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="The entry and exit servers cannot be the same. Try changing one to a new server or location." xml:space="preserve">
+      <trans-unit id="The entry and exit servers cannot be the same. Try changing one to a new server or location." xml:space="preserve" approved="yes">
         <source>The entry and exit servers cannot be the same. Try changing one to a new server or location.</source>
-        <target state="needs-translation">The entry and exit servers cannot be the same. Try changing one to a new server or location.</target>
+        <target state="final">အဝင်ဆာဗာနှင့် အထွက်ဆာဗာသည် တစ်ခုတည်းဖြစ်၍မရပါ။ ဆာဗာသစ်တစ်ခု သို့မဟုတ် တည်နေရာအသစ်တစ်ခုသို့ ပြောင်းကြည့်ပါ။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="The entry server for %@ is currently overridden by %@. To select an entry server, please first enable “%@” or disable “%@“ in the settings." xml:space="preserve">
+      <trans-unit id="The entry server for %@ is currently overridden by %@. To select an entry server, please first enable “%@” or disable “%@“ in the settings." xml:space="preserve" approved="yes">
         <source>The entry server for %1$@ is currently overridden by %2$@. To select an entry server, please first enable “%3$@” or disable “%4$@“ in the settings.</source>
-        <target state="needs-translation">The entry server for %1$@ is currently overridden by %2$@. To select an entry server, please first enable “%3$@” or disable “%4$@“ in the settings.</target>
+        <target state="final">လက်ရှိတွင် %1$@ အတွက် အဝင်ဆာဗာကို %2$@ က ကျော်လွန် ပယ်ဖျက်ထားပါသည်။ အဝင်ဆာဗာတစ်ခု ရွေးချယ်ရန် ဦးစွာ ဆက်တင်တွင် “%3$@” ကို ဖွင့်ပါ သို့မဟုတ် “%4$@“ ကို ပိတ်ပါ။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="The payment request was cancelled." xml:space="preserve">
+      <trans-unit id="The payment request was cancelled." xml:space="preserve" approved="yes">
         <source>The payment request was cancelled.</source>
-        <target state="needs-translation">The payment request was cancelled.</target>
+        <target state="final">ငွေပေးချေမှု တောင်းဆိုချက်ကို ပယ်ဖျက်လိုက်ပါပြီ။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="The selected WireGuard port is not supported, please change it under **VPN settings**." xml:space="preserve">
+      <trans-unit id="The selected WireGuard port is not supported, please change it under **VPN settings**." xml:space="preserve" approved="yes">
         <source>The selected WireGuard port is not supported, please change it under **VPN settings**.</source>
-        <target state="needs-translation">The selected WireGuard port is not supported, please change it under **VPN settings**.</target>
+        <target state="final">ရွေးချယ်ထားသော WireGuard ပေါ့တ်ကို တွဲဖက်လုပ်ဆောင်နိုင်ခြင်း မရှိသဖြင့် ** VPN ဆက်တင် များ ** တွင်ပြောင်းပေးပါ။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="The version of settings stored on device is unrecognized.Settings will be reset to defaults and the device will be logged out." xml:space="preserve">
+      <trans-unit id="The version of settings stored on device is unrecognized.Settings will be reset to defaults and the device will be logged out." xml:space="preserve" approved="yes">
         <source>The version of settings stored on device is unrecognized.Settings will be reset to defaults and the device will be logged out.</source>
-        <target state="needs-translation">The version of settings stored on device is unrecognized.Settings will be reset to defaults and the device will be logged out.</target>
+        <target state="final">စက်ပေါ်တွင် သိမ်းဆည်းထားသော ဆက်တင်များ၏ ဗားရှင်းကို မသိရှိပါ။ ဆက်တင်များကို ပုံသေအတိုင်း ပြန်လည်သတ်မှတ်မည်ဖြစ်ပြီး စက်မှ အကောင့်ထွက်သွားပါမည်။</target>
         <note/>
       </trans-unit>
       <trans-unit id="This can be useful if the API is censored but Mullvad’s bridge servers are not." xml:space="preserve" approved="yes">
@@ -2132,14 +2150,14 @@ Do you want to remove the saved account number?</target>
         <target state="final">သင့်အပေါ် စိစစ်ဖြတ်တောက်မှု၏ အကျိုးသက်ရောက်ခြင်း မရှိသည့်အခါ ၎င်းသည် အသုံးဝင်နိုင်ပါသည်။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="This device is not allowed to make the payment." xml:space="preserve">
+      <trans-unit id="This device is not allowed to make the payment." xml:space="preserve" approved="yes">
         <source>This device is not allowed to make the payment.</source>
-        <target state="needs-translation">This device is not allowed to make the payment.</target>
+        <target state="final">ဤစက်တွင် ငွေပေးချေမှု ပြုလုပ်ခြင်းကို ခွင့်မပြုထားပါ။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="This device is now named **%@**. See more under &quot;Manage devices&quot; in Account." xml:space="preserve">
+      <trans-unit id="This device is now named **%@**. See more under &quot;Manage devices&quot; in Account." xml:space="preserve" approved="yes">
         <source>This device is now named **%@**. See more under "Manage devices" in Account.</source>
-        <target state="needs-translation">This device is now named **%@**. See more under "Manage devices" in Account.</target>
+        <target state="final">ယခုအခါ ဤစက်ကို **%@**.ဟု အမည်ပေးထားသည်။ အကောင့်ရှိ "စက်များ စီမံရန်" အောက်တွင် ပိုမိုကြည့်ရှုပါ။</target>
         <note/>
       </trans-unit>
       <trans-unit id="This feature allows access to other devices on the local network, such as for sharing, printing, streaming, etc." xml:space="preserve" approved="yes">
@@ -2157,14 +2175,19 @@ Do you want to remove the saved account number?</target>
         <target state="final">ဤလုပ်ဆောင်ချက်သည် Quantum ကွန်ပျူတာများမှ ဖြစ်လာနိုင်ခြေရှိသော တိုက်ခိုက်မှုများကို ခုခံနိုင်သည့် WireGuard Tunnel ကို ပြုလုပ်သည်။</target>
         <note/>
       </trans-unit>
+      <trans-unit id="This impacts your anonymity" xml:space="preserve" approved="yes">
+        <source>This impacts your anonymity</source>
+        <target state="final">ယင်းက သင်၏ အမည်မဖော်လိုမှုကို သက်ရောက်မှုရှိသည်</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="This is the name assigned to the device. Each device logged in on a Mullvad account gets a unique name that helps you identify it when you manage your devices in the app or on the website." xml:space="preserve" approved="yes">
         <source>This is the name assigned to the device. Each device logged in on a Mullvad account gets a unique name that helps you identify it when you manage your devices in the app or on the website.</source>
         <target state="final">ဤအမည်မှာ စက်အတွက် သတ်မှတ်ထားသော အမည် ဖြစ်ပါသည်။ Mullvad အကောင့်တစ်ခုတွင် ဝင်ရောက်ထားသည့် စက်တစ်ခုစီသည် တစ်မူထူးခြားသည့် အမည်တစ်ခု ရရှိမည်ဖြစ်ပြီး အက်ပ် သို့မဟုတ် ဝက်ဘ်ဆိုက်ပေါ်တွင် သင့်စက်များကို စီမံသည့်အခါ သင်အနေဖြင့် ကွဲကွဲပြားပြားသိရှိအောင် ကူညီပေးပါသည်။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="This logs out all devices using this account and all VPN access will be denied even if there is time left on the account. Enter the last 4 digits of the account number and hit &quot;Delete account&quot; if you really want to delete the account:" xml:space="preserve">
+      <trans-unit id="This logs out all devices using this account and all VPN access will be denied even if there is time left on the account. Enter the last 4 digits of the account number and hit &quot;Delete account&quot; if you really want to delete the account:" xml:space="preserve" approved="yes">
         <source>This logs out all devices using this account and all VPN access will be denied even if there is time left on the account. Enter the last 4 digits of the account number and hit "Delete account" if you really want to delete the account:</source>
-        <target state="needs-translation">This logs out all devices using this account and all VPN access will be denied even if there is time left on the account. Enter the last 4 digits of the account number and hit "Delete account" if you really want to delete the account:</target>
+        <target state="final">ဤသို့ လုပ်ဆောင်ခြင်းဖြင့် ဤအကောင့်ကို သုံးနေသော စက်အားလုံးတွင် အကောင့် ထွက်သွားမည်ဖြစ်ပြီး အကောင့်တွင် အချိန်ကျန်သေးလျှင်ပင် VPN ရယူသုံးစွဲခွင့်အားလုံးကို ငြင်းပယ်သွားပါမည်။ ဤအကောင့်ကို အမှန်တကယ် ဖျက်လိုပါက အကောင့်နံပါတ်၏ နောက်ဆုံးဂဏန်း 4 လုံးကို ရိုက်ထည့်ပြီး "အကောင့် ဖျက်ရန်" ကို နှိပ်ပါ-</target>
         <note/>
       </trans-unit>
       <trans-unit id="This might cause issues on certain websites, services, and apps." xml:space="preserve" approved="yes">
@@ -2172,9 +2195,9 @@ Do you want to remove the saved account number?</target>
         <target state="final">၎င်းသည် အချို့သော ဝဘ်ဆိုက်များ၊ ဝန်ဆောင်မှုများနှင့် အက်ပ်များတွင် ပြဿနာများကို ဖြစ်စေနိုင်သည်။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Time left: %@" xml:space="preserve">
+      <trans-unit id="Time left: %@" xml:space="preserve" approved="yes">
         <source>Time left: %@</source>
-        <target state="needs-translation">Time left: %@</target>
+        <target state="final">ကျန်သည့် အချိန်- %@</target>
         <note/>
       </trans-unit>
       <trans-unit id="Tirana" xml:space="preserve" approved="yes">
@@ -2202,14 +2225,14 @@ Do you want to remove the saved account number?</target>
         <target state="final">ကိုယ်ရေးအချက်အလက် လုံခြုံသော နင်ဂျာတစ်ဦးကဲ့သို့ ခရီးဆက်ရန်အတွက် အခြားသော ကိုယ်ရေးအချက်အလက်လုံခြုံရေး အထောက်အကူပြု အလေ့အကျင့်နှင့် တူးလ်များကို ရွေးရန် ကျွန်ုပ်တို့၏ ဝက်ဘ်ဆိုက်ကို ဝင်ကြည့်ပါ။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="To create a custom list, tap on &quot;...&quot; " xml:space="preserve">
+      <trans-unit id="To create a custom list, tap on &quot;...&quot; " xml:space="preserve" approved="yes">
         <source>To create a custom list, tap on "..." </source>
-        <target state="needs-translation">To create a custom list, tap on "..." </target>
+        <target state="final">စိတ်ကြိုက်စာရင်းတစ်ခု ဖန်တီးရန် “...” ကို နှိပ်ပါ</target>
         <note/>
       </trans-unit>
-      <trans-unit id="To enable this setting, add at least one server." xml:space="preserve">
+      <trans-unit id="To enable this setting, add at least one server." xml:space="preserve" approved="yes">
         <source>To enable this setting, add at least one server.</source>
-        <target state="needs-translation">To enable this setting, add at least one server.</target>
+        <target state="final">ဤဆက်တင်ကို ဖွင့်ရန် အနည်းဆုံး ဆာဗာတစ်ခု ထည့်ပါ။</target>
         <note/>
       </trans-unit>
       <trans-unit id="To help you more effectively, your app’s log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel." xml:space="preserve" approved="yes">
@@ -2247,9 +2270,9 @@ Do you want to remove the saved account number?</target>
         <target state="final">ထပ်ကြိုးစားရန်</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Tunnel is unset." xml:space="preserve">
+      <trans-unit id="Tunnel is unset." xml:space="preserve" approved="yes">
         <source>Tunnel is unset.</source>
-        <target state="needs-translation">Tunnel is unset.</target>
+        <target state="final">Tunnel သတ်မှတ်မှုကို ပြန်ဖယ်ရှားထားသည်။</target>
         <note/>
       </trans-unit>
       <trans-unit id="Turkey" xml:space="preserve" approved="yes">
@@ -2287,14 +2310,14 @@ Do you want to remove the saved account number?</target>
         <target state="final">ယူကရိန်း</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Unable to authenticate account. Please log out and log back in." xml:space="preserve">
+      <trans-unit id="Unable to authenticate account. Please log out and log back in." xml:space="preserve" approved="yes">
         <source>Unable to authenticate account. Please log out and log back in.</source>
-        <target state="needs-translation">Unable to authenticate account. Please log out and log back in.</target>
+        <target state="final">အကောင့်ကို စစ်မှန်ကြောင်း အတည်ပြု၍ မရပါ။ အကောင့်ကို စနစ်မှ ထွက်ပြီး ပြန်ဝင်ကြည့်ပါ။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Unable to start tunnel connection after update. Please disconnect and reconnect." xml:space="preserve">
+      <trans-unit id="Unable to start tunnel connection after update. Please disconnect and reconnect." xml:space="preserve" approved="yes">
         <source>Unable to start tunnel connection after update. Please disconnect and reconnect.</source>
-        <target state="needs-translation">Unable to start tunnel connection after update. Please disconnect and reconnect.</target>
+        <target state="final">အပ်ဒိတ်လုပ်ပြီးနောက် tunnel ချိတ်ဆက်မှုကို စတင်၍ မရပါ။ ချိတ်ဆက်မှုဖြုတ်ပြီး ပြန်လည်ချိတ်ဆက်ကြည့်ပါ။</target>
         <note/>
       </trans-unit>
       <trans-unit id="Unable to start tunnel connection. Please send a problem report." xml:space="preserve" approved="yes">
@@ -2302,19 +2325,19 @@ Do you want to remove the saved account number?</target>
         <target state="final">Tunnel ချိတ်ဆက်မှုကို စတင်၍ မရနိုင်ပါ။ ပြဿနာ ရီပို့တ်တစ်ခု ပေးပို့ပေးပါ။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Unexpected server response: %1$@ (HTTP status: %2$d)" xml:space="preserve">
+      <trans-unit id="Unexpected server response: %1$@ (HTTP status: %2$d)" xml:space="preserve" approved="yes">
         <source>Unexpected server response: %1$@ (HTTP status: %2$d)</source>
-        <target state="needs-translation">Unexpected server response: %1$@ (HTTP status: %2$d)</target>
+        <target state="final">မမျှော်လင့်ထားသော ဆာဗာတုံ့ပြန်မှု- %1$@ (HTTP အခြေအနေ- %2$d)</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Unexpected server response: %d" xml:space="preserve">
+      <trans-unit id="Unexpected server response: %d" xml:space="preserve" approved="yes">
         <source>Unexpected server response: %d</source>
-        <target state="needs-translation">Unexpected server response: %d</target>
+        <target state="final">မမျှော်လင့်ထားသော ဆာဗာတုံ့ပြန်မှု- %d</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Unknown error." xml:space="preserve">
+      <trans-unit id="Unknown error." xml:space="preserve" approved="yes">
         <source>Unknown error.</source>
-        <target state="needs-translation">Unknown error.</target>
+        <target state="final">အမျိုးအမည်မသိ ချို့ယွင်းချက်။</target>
         <note/>
       </trans-unit>
       <trans-unit id="Use custom DNS server" xml:space="preserve" approved="yes">
@@ -2402,9 +2425,9 @@ Do you want to remove the saved account number?</target>
         <target state="final">ဝါရှင်တန်ဒီစီ</target>
         <note/>
       </trans-unit>
-      <trans-unit id="We are having some issues, please try again later" xml:space="preserve">
+      <trans-unit id="We are having some issues, please try again later" xml:space="preserve" approved="yes">
         <source>We are having some issues, please try again later</source>
-        <target state="needs-translation">We are having some issues, please try again later</target>
+        <target state="final">ကျွန်ုပ်တို့တွင် ပြဿနာအချို့ရှိနေပါသည်၊ နောက်မှ ထပ်မံကြိုးစားပါ</target>
         <note/>
       </trans-unit>
       <trans-unit id="We will look into this." xml:space="preserve" approved="yes">
@@ -2422,9 +2445,9 @@ Do you want to remove the saved account number?</target>
         <target state="final">ဤလုပ်ဆောင်ချက်ကို ဖွင့်ထားသည့်အခါ အနှောင့်အယှက်ဖြစ်စေသည့် ကြော်ငြာများ၊ မဲလ်ဝဲရ်၊ ခြေရာခံများနှင့် အစရှိသည်တို့နှင့်စပ်လျဉ်း၍ သိရှိထားသော အချို့သော Domain များ သို့မဟုတ် ဝဘ်ဆိုက်များနှင့် ဆက်သွယ်ခြင်းမှ စက်ကို ရပ်တန့်ပေးပါသည်။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="When using DAITA, one provider with DAITA-enabled servers is required." xml:space="preserve">
+      <trans-unit id="When using DAITA, one provider with DAITA-enabled servers is required." xml:space="preserve" approved="yes">
         <source>When using DAITA, one provider with DAITA-enabled servers is required.</source>
-        <target state="needs-translation">When using DAITA, one provider with DAITA-enabled servers is required.</target>
+        <target state="final">DAITA ကိုအသုံးပြုသည့်အခါ DAITA ဖွင့်ထားသည့် ဆာဗာများရှိသော ပံ့ပိုးသူတစ်ဦး လိုအပ်ပါသည်။</target>
         <note/>
       </trans-unit>
       <trans-unit id="Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server." xml:space="preserve" approved="yes">
@@ -2458,9 +2481,9 @@ Do you want to remove the saved account number?</target>
         <target state="final">"Mullvad ပေါင်းကူးများ" နည်းလမ်းဖြင့်ဆိုလျှင် အက်ပ်သည် Mullvad API ဆာဗာအား Mullvad ပေါင်းကူး ဆာဗာမှတစ်ဆင့် ဆက်သွယ်ပါသည်။ Shadowsock များဖြင့် ရှုပ်ထွေးအောင် ပြုလုပ်ထားသည့် ဒေတာကူးလူးမှုများကို ပေးပို့ခြင်းဖြင့် ၎င်းက အဆိုပါကိစ္စကို ဆောင်ရွက်ပါသည်။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Yes, continue" xml:space="preserve">
+      <trans-unit id="Yes, continue" xml:space="preserve" approved="yes">
         <source>Yes, continue</source>
-        <target state="needs-translation">Yes, continue</target>
+        <target state="final">ဟုတ်ပါသည်၊ ဆက်လုပ်ပါ</target>
         <note/>
       </trans-unit>
       <trans-unit id="Yes, log out device" xml:space="preserve" approved="yes">
@@ -2483,9 +2506,9 @@ Do you want to remove the saved account number?</target>
         <target state="final">မှားနေသည့် အကောင့်နံပါတ်ဖြင့် စနစ်တွင်း ဝင်ရောက်ထားပါသည်။ စနစ်တွင်းမှ ထွက်ပြီး အခြားတစ်ခုဖြင့် ကြိုးစားကြည့်ပါ။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="You can add more time via the account view or website to continue using the VPN." xml:space="preserve">
+      <trans-unit id="You can add more time via the account view or website to continue using the VPN." xml:space="preserve" approved="yes">
         <source>You can add more time via the account view or website to continue using the VPN.</source>
-        <target state="needs-translation">You can add more time via the account view or website to continue using the VPN.</target>
+        <target state="final">VPN ကို ဆက်လက်အသုံးပြုရန် အကောင့် ပြသမှု သို့မဟုတ် ဝက်ဘ်ဆိုက်မှတစ်ဆင့် အချိန်ထပ်တိုးနိုင်ပါသည်။</target>
         <note/>
       </trans-unit>
       <trans-unit id="You can have up to 5 devices logged in on one Mullvad account." xml:space="preserve" approved="yes">
@@ -2498,37 +2521,37 @@ Do you want to remove the saved account number?</target>
         <target state="final">သင်သည် ယခု ဤစက်တွင် ဆက်လက် ဝင်ရောက်နိုင်သည်။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="You can use the &quot;restore purchases&quot; function to check for any in-app payments made via Apple services. If there is a payment that has not been credited, it will add the time to the currently logged in Mullvad account." xml:space="preserve">
+      <trans-unit id="You can use the &quot;restore purchases&quot; function to check for any in-app payments made via Apple services. If there is a payment that has not been credited, it will add the time to the currently logged in Mullvad account." xml:space="preserve" approved="yes">
         <source>You can use the "restore purchases" function to check for any in-app payments made via Apple services. If there is a payment that has not been credited, it will add the time to the currently logged in Mullvad account.</source>
-        <target state="needs-translation">You can use the "restore purchases" function to check for any in-app payments made via Apple services. If there is a payment that has not been credited, it will add the time to the currently logged in Mullvad account.</target>
+        <target state="final">Apple ဝန်ဆောင်မှုများမှတစ်ဆင့် လုပ်ဆောင်သော အက်ပ်တွင်း ပေးချေမှုမှန်သမျှကို ရှာကြည့်ရန်အတွက် "ဝယ်ယူမှုများကို ပြန်လည်ရယူရန်" လုပ်ဆောင်ချက်ကို သုံးနိုင်ပါသည်။ ငွေပေးချေမှုတစ်ခုခုအတွက် ရသင့်သည့် အချိန်ကို အကောင့်တွင် မထည့်သေးပါက ထိုသို့လုပ်ဆောင်ခြင်းဖြင့် လက်ရှိဝင်ရောက်ထားသော Mullvat အကောင့်တွင် အချိန်ထပ်တိုးပေးပါမည်။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="You have %@ left on this account." xml:space="preserve">
+      <trans-unit id="You have %@ left on this account." xml:space="preserve" approved="yes">
         <source>You have %@ left on this account.</source>
-        <target state="needs-translation">You have %@ left on this account.</target>
+        <target state="final">ဤအကောင့်တွင် %@ ကျန်ရှိနေပါသည်။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="You have a right to privacy. That’s why we never store activity logs, don’t ask for personal information, and encourage anonymous payments.&#10;&#10;In some situations, as outlined in our privacy policy, we might process personal data that you choose to send, for example if you email us.&#10;&#10;We strongly believe in retaining as little data as possible because we want you to remain anonymous." xml:space="preserve">
+      <trans-unit id="You have a right to privacy. That’s why we never store activity logs, don’t ask for personal information, and encourage anonymous payments.&#10;&#10;In some situations, as outlined in our privacy policy, we might process personal data that you choose to send, for example if you email us.&#10;&#10;We strongly believe in retaining as little data as possible because we want you to remain anonymous." xml:space="preserve" approved="yes">
         <source>You have a right to privacy. That’s why we never store activity logs, don’t ask for personal information, and encourage anonymous payments.
 
 In some situations, as outlined in our privacy policy, we might process personal data that you choose to send, for example if you email us.
 
 We strongly believe in retaining as little data as possible because we want you to remain anonymous.</source>
-        <target state="needs-translation">You have a right to privacy. That’s why we never store activity logs, don’t ask for personal information, and encourage anonymous payments.
+        <target state="final">သင့်တွင် ကိုယ်ရေးအချက်အလက်များကို ကာကွယ်ရန် အခွင့်အရေးရှိပါသည်။ ထို့ကြောင့် ကျွန်ုပ်တို့သည် မည်သည့်အခါမျှ သင်၏ လုပ်ဆောင်မှုမှတ်တမ်းများကို သိမ်းဆည်းခြင်းမရှိ ကိုယ်ရေးအချက်အလက်များကို မေးမြန်းခြင်းမရှိဘဲ အမည်ဝှက်၍ ငွေပေးချေမှုများ လုပ်ဆောင်ခြင်းကို အားပေးပါသည်။
 
-In some situations, as outlined in our privacy policy, we might process personal data that you choose to send, for example if you email us.
+ကျွန်ုပ်တို့၏ ကိုယ်ပိုင်အချက်အလက် မူဝါဒတွင် ဖော်ပြထားသည့်အတိုင်း အချို့အခြေအနေများတွင် သင်ပေးပို့ရန် ရွေးချယ်သော ကိုယ်ရေးဒေတာကို ဥပမာအားဖြင့် သင်က ကျွန်ုပ်တို့ထံ အီးမေးလ်ပေးပို့ပါက ကျွန်ုပ်တို့က အဆိုပါဒေတာကို စီမံဆောင်ရွက်ပါမည်။
 
-We strongly believe in retaining as little data as possible because we want you to remain anonymous.</target>
+အမည်ဝှက်မှုကို တတ်နိုင်သမျှ အလုံခြုံဆုံးဖြစ်စေရန် ကျွန်ုပ်တို့သည် ဒေတာကို တတ်နိုင်သမျှ အနည်းဆုံးသာ ထိန်းသိမ်းထားခြင်းကို အထူး အားပေးပါသည်။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="You have no more VPN time left on this account. " xml:space="preserve">
+      <trans-unit id="You have no more VPN time left on this account. " xml:space="preserve" approved="yes">
         <source>You have no more VPN time left on this account. </source>
-        <target state="needs-translation">You have no more VPN time left on this account. </target>
+        <target state="final">ဤအကောင့်တွင် နောက်ထပ် VPN သုံးနိုင်ချိန် မကျန်တော့ပါ။ </target>
         <note/>
       </trans-unit>
-      <trans-unit id="You have one day left on this account. Please add more time to continue using the VPN." xml:space="preserve">
+      <trans-unit id="You have one day left on this account. Please add more time to continue using the VPN." xml:space="preserve" approved="yes">
         <source>You have one day left on this account. Please add more time to continue using the VPN.</source>
-        <target state="needs-translation">You have one day left on this account. Please add more time to continue using the VPN.</target>
+        <target state="final">ဤအကောင့်တွင် သုံးစွဲချိန် တစ်ရက်သာ ကျန်တော့သည်။ VPN ကို ဆက်လက်အသုံးပြုရန် အချိန်ထပ်တိုးပေးပါ။</target>
         <note/>
       </trans-unit>
       <trans-unit id="You have removed this device. To connect again, you will need to log back in." xml:space="preserve" approved="yes">
@@ -2536,9 +2559,9 @@ We strongly believe in retaining as little data as possible because we want you 
         <target state="final">ဤစက်ကို ဖယ်ရှားပြီး ဖြစ်သည်။ ထပ်မံချိတ်ဆက်ရန်အတွက် ပြန်လည် ဝင်ရောက်ရန် လိုပါသည်။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="You have unsaved changes." xml:space="preserve">
+      <trans-unit id="You have unsaved changes." xml:space="preserve" approved="yes">
         <source>You have unsaved changes.</source>
-        <target state="needs-translation">You have unsaved changes.</target>
+        <target state="final">သင် မသိမ်းဆည်းရသေးသော ပြောင်းလဲမှုများ ရှိပါသည်။</target>
         <note/>
       </trans-unit>
       <trans-unit id="Your device is offline. The tunnel will automatically connect once your device is back online." xml:space="preserve" approved="yes">
@@ -2546,9 +2569,9 @@ We strongly believe in retaining as little data as possible because we want you 
         <target state="final">သင့်စက်သည် အော့ဖ်လိုင်း ဖြစ်နေပါသည်။ သင့်စက် အွန်လိုင်း ပြန်ဖြစ်သည်နှင့် Tunnel သည် အော်တို ချိတ်ဆက်သွားပါမည်။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Your device is offline. Try connecting again when the device has access to Internet." xml:space="preserve">
+      <trans-unit id="Your device is offline. Try connecting again when the device has access to Internet." xml:space="preserve" approved="yes">
         <source>Your device is offline. Try connecting again when the device has access to Internet.</source>
-        <target state="needs-translation">Your device is offline. Try connecting again when the device has access to Internet.</target>
+        <target state="final">သင့်စက် အော့ဖ်လိုင်းဖြစ်နေသည်။ စက်တွင် အင်တာနက် အသုံးပြုနိုင်သည့်အခါ ထပ်မံချိတ်ဆက်ကြည့်ပါ။</target>
         <note/>
       </trans-unit>
       <trans-unit id="Your email (optional)" xml:space="preserve" approved="yes">
@@ -2556,14 +2579,14 @@ We strongly believe in retaining as little data as possible because we want you 
         <target state="final">သင့်အီးမေးလ် (မဖြည့်လည်း ရပါသည်)</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Your previous purchases have already been added to this account." xml:space="preserve">
+      <trans-unit id="Your previous purchases have already been added to this account." xml:space="preserve" approved="yes">
         <source>Your previous purchases have already been added to this account.</source>
-        <target state="needs-translation">Your previous purchases have already been added to this account.</target>
+        <target state="final">သင်၏ ယခင်ဝယ်ယူမှုများကို ဤအကောင့်သို့ ထည့်ပြီးပါပြီ။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Your purchase was successfully refunded." xml:space="preserve">
+      <trans-unit id="Your purchase was successfully refunded." xml:space="preserve" approved="yes">
         <source>Your purchase was successfully refunded.</source>
-        <target state="needs-translation">Your purchase was successfully refunded.</target>
+        <target state="final">သင့်ဝယ်ယူမှုကို အောင်မြင်စွာ ငွေပြန်အမ်းပြီးပါပြီ။</target>
         <note/>
       </trans-unit>
       <trans-unit id="You’re all set!" xml:space="preserve" approved="yes">
@@ -2586,18 +2609,14 @@ We strongly believe in retaining as little data as possible because we want you 
         <target state="final">မာလ်တီဟော့ပ်</target>
         <note/>
       </trans-unit>
-      <trans-unit id="value" xml:space="preserve">
-        <source>value</source>
-        <target state="needs-translation">value</target>
+      <trans-unit id="privacy policy" xml:space="preserve" approved="yes">
+        <source>privacy policy</source>
+        <target state="final">ကိုယ်ပိုင်အချက်အလက် မူဝါဒ</target>
         <note/>
       </trans-unit>
-      <trans-unit id="“%@ Local network sharing” requires restarting the VPN connection, which will disconnect you and briefly expose your traffic.&#10;To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.&#10;Would you like to continue to enable “Local network sharing”?" xml:space="preserve">
-        <source>“%@ Local network sharing” requires restarting the VPN connection, which will disconnect you and briefly expose your traffic.
-To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.
-Would you like to continue to enable “Local network sharing”?</source>
-        <target state="needs-translation">“%@ Local network sharing” requires restarting the VPN connection, which will disconnect you and briefly expose your traffic.
-To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.
-Would you like to continue to enable “Local network sharing”?</target>
+      <trans-unit id="value" xml:space="preserve" approved="yes">
+        <source>value</source>
+        <target state="final">တန်ဖိုး</target>
         <note/>
       </trans-unit>
     </body>
@@ -2649,9 +2668,9 @@ Would you like to continue to enable “Local network sharing”?</target>
       <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
     </header>
     <body>
-      <trans-unit id="NSLocalNetworkUsageDescription" xml:space="preserve">
+      <trans-unit id="NSLocalNetworkUsageDescription" xml:space="preserve" approved="yes">
         <source>The app needs this to connect and test a new method.</source>
-        <target state="needs-translation">The app needs this to connect and test a new method.</target>
+        <target state="final">အက်ပ်သည် ချိတ်ဆက်ရန်နှင့် နည်းလမ်းအသစ်ကို စမ်းသပ်ရန်အတွက် ဤအရာကို လိုအပ်ပါသည်။</target>
         <note>Privacy - Local Network Usage Description</note>
       </trans-unit>
     </body>

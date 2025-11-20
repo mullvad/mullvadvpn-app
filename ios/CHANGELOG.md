@@ -22,6 +22,8 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## UNRELEASED
+### Added
+- Add support for translation in additional languages.
 
 ### Changed
 - Bump minimum version to iOS 17.0

@@ -420,6 +420,8 @@ Instructions for how to handle locales and translations are found
 
 For instructions specific to the Android app, see [here](./android/README.md).
 
+For instructions specific to the iOS app, see [here](./ios/translation/README.md).
+
 ## Audits, pentests and external security reviews
 
 Mullvad has used external pentesting companies to carry out security audits of this VPN app. Read
