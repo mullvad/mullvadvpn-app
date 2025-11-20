@@ -55,24 +55,24 @@ class SendStoreReceiptOperation: ResultOperation<REST.CreateApplePaymentResponse
     }
 
     override func main() {
-        // Pull receipt from AppStore if requested.
+        // Pull receipt from App Store if requested.
         guard !forceRefresh else {
             startRefreshRequest()
             return
         }
 
-        // Read AppStore receipt from disk.
+        // Read App Store receipt from disk.
         do {
             let data = try readReceiptFromDisk()
 
             sendReceipt(data)
         } catch is StoreReceiptNotFound {
-            // Pull receipt from AppStore if it's not cached locally.
+            // Pull receipt from App Store if it's not cached locally.
             startRefreshRequest()
         } catch {
             logger.error(
                 error: error,
-                message: "Failed to read the AppStore receipt."
+                message: "Failed to read the App Store receipt."
             )
             finish(result: .failure(StorePaymentManagerError.readReceipt(error)))
         }
@@ -89,7 +89,7 @@ class SendStoreReceiptOperation: ResultOperation<REST.CreateApplePaymentResponse
             } catch {
                 self.logger.error(
                     error: error,
-                    message: "Failed to read the AppStore receipt after refresh."
+                    message: "Failed to read the App Store receipt after refresh."
                 )
                 self.finish(result: .failure(StorePaymentManagerError.readReceipt(error)))
             }
@@ -100,7 +100,7 @@ class SendStoreReceiptOperation: ResultOperation<REST.CreateApplePaymentResponse
         dispatchQueue.async {
             self.logger.error(
                 error: error,
-                message: "Failed to refresh the AppStore receipt."
+                message: "Failed to refresh the App Store receipt."
             )
             self.finish(result: .failure(StorePaymentManagerError.readReceipt(error)))
         }
@@ -142,7 +142,7 @@ class SendStoreReceiptOperation: ResultOperation<REST.CreateApplePaymentResponse
                 case let .success(response):
                     self.logger.info(
                         """
-                        AppStore receipt was processed. \
+                        App Store receipt was processed. \
                         Time added: \(response.timeAdded), \
                         New expiry: \(response.newExpiry.logFormatted)
                         """
@@ -156,7 +156,7 @@ class SendStoreReceiptOperation: ResultOperation<REST.CreateApplePaymentResponse
                     } else {
                         self.logger.error(
                             error: error,
-                            message: "Failed to send the AppStore receipt."
+                            message: "Failed to send the App Store receipt."
                         )
                         self.finish(result: .failure(StorePaymentManagerError.sendReceipt(error)))
                     }
@@ -168,6 +168,6 @@ class SendStoreReceiptOperation: ResultOperation<REST.CreateApplePaymentResponse
 
 struct StoreReceiptNotFound: LocalizedError {
     var errorDescription: String? {
-        "AppStore receipt file does not exist on disk."
+        "App Store receipt file does not exist on disk."
     }
 }

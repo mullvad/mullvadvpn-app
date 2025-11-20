@@ -122,19 +122,16 @@ fun ApiUnreachableInfoDialog(
             buildAnnotatedString {
                 append(
                     stringResource(
-                        id = R.string.unable_to_reach_api_dialog_message_first,
-                        when (state.loginAction) {
-                            LoginAction.LOGIN ->
-                                stringResource(
-                                    id = R.string.unable_to_reach_api_dialog_action_login
-                                )
-                            LoginAction.CREATE_ACCOUNT ->
-                                stringResource(
-                                    id = R.string.unable_to_reach_api_dialog_action_create
-                                )
-                        },
+                        id =
+                            when (state.loginAction) {
+                                LoginAction.LOGIN ->
+                                    R.string.unable_to_reach_api_dialog_message_first_login
+                                LoginAction.CREATE_ACCOUNT ->
+                                    R.string.unable_to_reach_api_dialog_message_first_create_account
+                            }
                     )
                 )
+                append(stringResource(id = R.string.unable_to_reach_api_dialog_message_second))
                 val firstItem =
                     stringResource(id = R.string.unable_to_reach_api_dialog_message_list_first)
                 val secondItem =
@@ -149,7 +146,7 @@ fun ApiUnreachableInfoDialog(
                     }
                 }
             },
-        additionalInfo = stringResource(id = R.string.unable_to_reach_api_dialog_message_second),
+        additionalInfo = stringResource(id = R.string.unable_to_reach_api_dialog_message_third),
         showIcon = false,
         confirmButton = {
             Column {

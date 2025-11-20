@@ -60,24 +60,6 @@ impl TestConfig {
     }
 }
 
-/// A script which should be run *in* the test runner before the test run begins.
-#[derive(Clone, Debug)]
-pub struct BootstrapScript(Vec<u8>);
-
-impl Deref for BootstrapScript {
-    type Target = [u8];
-
-    fn deref(&self) -> &Self::Target {
-        &self.0
-    }
-}
-
-impl Default for BootstrapScript {
-    fn default() -> Self {
-        Self(Vec::from(BOOTSTRAP_SCRIPT))
-    }
-}
-
 #[derive(Debug, Clone)]
 pub struct TestConfigContainer(OnceLock<TestConfig>);
 

@@ -19,12 +19,6 @@ typedef uint8_t SwiftAccessMethodKind;
 
 typedef struct ApiContext ApiContext;
 
-/**
- * A thin wrapper around [`mullvad_encrypted_dns_proxy::state::EncryptedDnsProxyState`] that
- * can start a local forwarder (see [`Self::start`]).
- */
-typedef struct EncryptedDnsProxyState EncryptedDnsProxyState;
-
 typedef struct ExchangeCancelToken ExchangeCancelToken;
 
 typedef struct Map Map;
@@ -107,11 +101,6 @@ typedef struct SwiftProblemReportRequest {
   struct ProblemReportMetadata metadata;
 } SwiftProblemReportRequest;
 
-typedef struct ProxyHandle {
-  void *context;
-  uint16_t port;
-} ProxyHandle;
-
 typedef struct DaitaParameters {
   uint8_t *machines;
   double max_padding_frac;
@@ -131,6 +120,11 @@ typedef struct EphemeralPeerParameters {
   bool enable_daita;
   struct WgTcpConnectionFunctions funcs;
 } EphemeralPeerParameters;
+
+typedef struct ProxyHandle {
+  void *context;
+  uint16_t port;
+} ProxyHandle;
 
 extern const uint16_t CONFIG_SERVICE_PORT;
 
@@ -814,51 +808,6 @@ struct SwiftCancelHandle mullvad_ios_check_storekit_payment(struct SwiftApiConte
                                                             uintptr_t body_size);
 
 /**
- * Initializes a valid pointer to an instance of `EncryptedDnsProxyState`.
- *
- * # Safety
- *
- * * [domain_name] must not be non-null.
- *
- * * [domain_name] pointer must be [valid](core::ptr#safety)
- *
- * * The caller must ensure that the pointer to the [domain_name] string contains a nul terminator
- *   at the end of the string.
- */
-struct EncryptedDnsProxyState *encrypted_dns_proxy_init(const char *domain_name);
-
-/**
- * This must be called only once to deallocate `EncryptedDnsProxyState`.
- *
- * # Safety
- * `ptr` must be a valid, exclusive pointer to `EncryptedDnsProxyState`, initialized
- * by `encrypted_dns_proxy_init`. This function is not thread safe, and should only be called
- * once.
- */
-void encrypted_dns_proxy_free(struct EncryptedDnsProxyState *ptr);
-
-/**
- * # Safety
- * encrypted_dns_proxy must be a valid, exclusive pointer to `EncryptedDnsProxyState`, initialized
- * by `encrypted_dns_proxy_init`. This function is not thread safe.
- * `proxy_handle` must be pointing to a valid memory region for the size of a `ProxyHandle`. This
- * function is not thread safe, but it can be called repeatedly. Each successful invocation should
- * clean up the resulting proxy via `[encrypted_dns_proxy_stop]`.
- *
- * `proxy_handle` will only contain valid values if the return value is zero. It is still valid to
- * deallocate the memory.
- */
-int32_t encrypted_dns_proxy_start(struct EncryptedDnsProxyState *encrypted_dns_proxy,
-                                  struct ProxyHandle *proxy_handle);
-
-/**
- * # Safety
- * `proxy_config` must be a valid pointer to a `ProxyHandle` as initialized by
- * [`encrypted_dns_proxy_start`]. It should only ever be called once.
- */
-int32_t encrypted_dns_proxy_stop(struct ProxyHandle *proxy_config);
-
-/**
  * To be called when ephemeral peer exchange has finished. All parameters except
  * `raw_packet_tunnel` are optional.
  *
@@ -909,33 +858,6 @@ struct ExchangeCancelToken *request_ephemeral_peer(const uint8_t *public_key,
                                                    const void *packet_tunnel,
                                                    int32_t tunnel_handle,
                                                    struct EphemeralPeerParameters peer_parameters);
-
-/**
- * # Safety
- * `addr`, `password`, `cipher` must be valid for the lifetime of this function call and they must
- * be backed by the amount of bytes as stored in the respective `*_len` parameters.
- *
- * `proxy_config` must be pointing to a valid memory region for the size of a `ProxyHandle`
- * instance.
- */
-int32_t start_shadowsocks_proxy(const uint8_t *forward_address,
-                                uintptr_t forward_address_len,
-                                uint16_t forward_port,
-                                const uint8_t *addr,
-                                uintptr_t addr_len,
-                                uint16_t port,
-                                const uint8_t *password,
-                                uintptr_t password_len,
-                                const uint8_t *cipher,
-                                uintptr_t cipher_len,
-                                struct ProxyHandle *proxy_config);
-
-/**
- * # Safety
- * `proxy_config` must be pointing to a valid instance of a `ProxyInstance`, as instantiated by
- * `start_shadowsocks_proxy`.
- */
-int32_t stop_shadowsocks_proxy(struct ProxyHandle *proxy_config);
 
 int32_t start_udp2tcp_obfuscator_proxy(const uint8_t *peer_address,
                                        uintptr_t peer_address_len,

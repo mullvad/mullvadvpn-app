@@ -22,6 +22,8 @@ extract_key() {
 countries=$(extract_key "country")
 cities=$(extract_key "city")
 
+echo "Updating '$(basename "$OUTPUT_FILE")'."
+
 all_locations=$(printf "%s\n%s\n" "$countries" "$cities" | awk '!seen[tolower($0)]++')
 
 {
@@ -29,7 +31,7 @@ all_locations=$(printf "%s\n%s\n" "$countries" "$cities" | awk '!seen[tolower($0
   echo
   echo "import Foundation"
   echo
-  echo "let allLocations: [String: String] = ["
+  echo "private let relayLocationList: [String: String] = ["
   while read -r name; do
     [ -z "$name" ] && continue
     echo "    \"$name\": NSLocalizedString(\"$name\", comment: \"\"),"

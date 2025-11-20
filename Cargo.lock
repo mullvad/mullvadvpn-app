@@ -2472,15 +2472,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "iprange"
-version = "0.6.7"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "37209be0ad225457e63814401415e748e2453a5297f9b637338f5fb8afa4ec00"
-dependencies = [
- "ipnet",
-]
-
-[[package]]
 name = "iri-string"
 version = "0.7.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2621,17 +2612,6 @@ dependencies = [
  "ryu-js",
  "serde",
  "serde_json",
-]
-
-[[package]]
-name = "json5"
-version = "0.4.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "96b0db21af676c1ce64250b5f40f3ce2cf27e4e47cb91ed91eb6fe9350b430c1"
-dependencies = [
- "pest",
- "pest_derive",
- "serde",
 ]
 
 [[package]]
@@ -2777,12 +2757,6 @@ name = "lru-slab"
 version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "112b39cec0b298b6c1999fee3e31427f74f676e4cb9879ed1a121b43661a4154"
-
-[[package]]
-name = "lru_time_cache"
-version = "0.11.11"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9106e1d747ffd48e6be5bb2d97fa706ed25b144fbee4d5c02eae110cd8d6badd"
 
 [[package]]
 name = "malloc_buf"
@@ -3147,7 +3121,6 @@ dependencies = [
  "mullvad-types",
  "oslog",
  "serde_json",
- "shadowsocks-service",
  "talpid-future",
  "talpid-tunnel-config-client",
  "talpid-types",
@@ -3991,51 +3964,6 @@ name = "percent-encoding"
 version = "2.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e3148f5046208a5d56bcfc03053e3ca6334e51da8dfb19b6cdc8b306fae3283e"
-
-[[package]]
-name = "pest"
-version = "2.7.10"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "560131c633294438da9f7c4b08189194b20946c8274c6b9e38881a7874dc8ee8"
-dependencies = [
- "memchr",
- "thiserror 1.0.59",
- "ucd-trie",
-]
-
-[[package]]
-name = "pest_derive"
-version = "2.7.10"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "26293c9193fbca7b1a3bf9b79dc1e388e927e6cacaa78b4a3ab705a1d3d41459"
-dependencies = [
- "pest",
- "pest_generator",
-]
-
-[[package]]
-name = "pest_generator"
-version = "2.7.10"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3ec22af7d3fb470a85dd2ca96b7c577a1eb4ef6f1683a9fe9a8c16e136c04687"
-dependencies = [
- "pest",
- "pest_meta",
- "proc-macro2",
- "quote",
- "syn 2.0.108",
-]
-
-[[package]]
-name = "pest_meta"
-version = "2.7.10"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d7a240022f37c361ec1878d646fc5b7d7c4d28d5946e1a80ad5a7a4f4ca0bdcd"
-dependencies = [
- "once_cell",
- "pest",
- "sha2",
-]
 
 [[package]]
 name = "petgraph"
@@ -5187,43 +5115,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "shadowsocks-service"
-version = "1.20.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c0c0ce5a3a15e2688b7014c37ed3db33dc296d8b8fda36643c053882bf1d5f44"
-dependencies = [
- "arc-swap",
- "async-trait",
- "byte_string",
- "byteorder",
- "bytes",
- "cfg-if",
- "futures",
- "http-body-util",
- "httparse",
- "hyper",
- "idna",
- "ipnet",
- "iprange",
- "json5",
- "libc",
- "log",
- "lru_time_cache",
- "nix 0.29.0",
- "once_cell",
- "pin-project",
- "rand 0.8.5",
- "regex",
- "serde",
- "shadowsocks",
- "socket2 0.5.8",
- "spin",
- "thiserror 1.0.59",
- "tokio",
- "windows-sys 0.59.0",
-]
-
-[[package]]
 name = "sharded-slab"
 version = "0.1.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -6299,12 +6190,6 @@ name = "typenum"
 version = "1.17.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "42ff0bf0c66b8238c6f3b578df37d0b7848e55df8577b3f74f92a69acceeb825"
-
-[[package]]
-name = "ucd-trie"
-version = "0.1.6"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ed646292ffc8188ef8ea4d1e0e0150fb15a5c2e12ad9b8fc191ae7a8a7f3c4b9"
 
 [[package]]
 name = "udp-over-tcp"

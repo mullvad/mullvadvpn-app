@@ -21,14 +21,14 @@ android-gradle-aapt = "13719691"
 android-billingclient = "8.0.0"
 
 # AndroidX
-androidx-activitycompose = "1.11.0"
+androidx-activitycompose = "1.12.0"
 androidx-appcompat = "1.7.1"
 androidx-ktx = "1.17.0"
 androidx-credentials = "1.5.0"
-androidx-coresplashscreen = "1.2.0-rc01"
-androidx-datastore = "1.1.7"
+androidx-coresplashscreen = "1.2.0"
+androidx-datastore = "1.2.0"
 androidx-espresso = "3.7.0"
-androidx-lifecycle = "2.9.4"
+androidx-lifecycle = "2.10.0"
 androidx-test = "1.7.0"
 androidx-testmonitor = "1.8.0"
 androidx-testorchestrator = "1.6.1"
@@ -40,7 +40,7 @@ androidx-tv = "1.0.1"
 arrow = "2.2.0"
 
 # Compose
-compose = "1.9.4"
+compose = "1.9.5"
 compose-destinations = "2.3.0"
 compose-constraintlayout = "1.1.1"
 compose-material3 = "1.4.0"
@@ -72,10 +72,10 @@ kotlinx-serialization-json = "1.9.0"
 
 # Protobuf
 protobuf-gradle-plugin = "0.9.5"
-protobuf = "4.33.0"
+protobuf = "4.33.1"
 
 # Misc
-commonsvalidator = "1.10.0"
+commonsvalidator = "1.10.1"
 dependency-versions = "0.53.0"
 detekt = "1.23.8"
 kermit = "2.0.8"

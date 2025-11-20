@@ -13,7 +13,7 @@ extension Bundle {
     ///
     /// 1. Dev builds (debug): XXXX.YY-devZ
     /// 2. TestFlight builds: XXXX.YY-betaZ
-    /// 3. AppStore builds: XXXX.YY
+    /// 3. App Store builds: XXXX.YY
     ///
     /// Note: XXXX.YY is an app version (i.e 2020.5) and Z is a build number (i.e 1)
     var productVersion: String {

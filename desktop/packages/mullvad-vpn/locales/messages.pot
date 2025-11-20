@@ -3280,7 +3280,10 @@ msgstr ""
 msgid "The app is blocking internet, please disconnect first"
 msgstr ""
 
-msgid "The app was unable to %s due to not being able to reach the Mullvad API. This might be due to censorship or network issues. Please try to:"
+msgid "The app was unable to create an account due to not being able to reach the Mullvad API."
+msgstr ""
+
+msgid "The app was unable to login due to not being able to reach the Mullvad API."
 msgstr ""
 
 msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under VPN settings."
@@ -3299,6 +3302,9 @@ msgid "This impacts your anonymity"
 msgstr ""
 
 msgid "This is already set as current"
+msgstr ""
+
+msgid "This might be due to censorship or network issues. Please try to:"
 msgstr ""
 
 msgid "Time added"
@@ -3427,16 +3433,10 @@ msgstr ""
 msgid "click here"
 msgstr ""
 
-msgid "create an account"
-msgstr ""
-
 msgid "here"
 msgstr ""
 
 msgid "less than one day"
-msgstr ""
-
-msgid "login"
 msgstr ""
 
 msgid "privacy policy"

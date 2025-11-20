@@ -33,8 +33,9 @@ unused_macro_rules = "warn"
 single_use_lifetimes = "warn"
 
 [workspace.lints.clippy]
-unused_async = "deny"
+borrow_as_ptr = "warn"
 implicit_clone = "warn"
+unused_async = "deny"
 
 [workspace.dependencies]
 dirs = "6.0.0"

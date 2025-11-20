@@ -403,11 +403,11 @@ mod windows {
                     u16_path.as_ptr(),
                     object_type,
                     security_information,
-                    &mut owner,
+                    &raw mut owner,
                     ptr::null_mut(),
                     ptr::null_mut(),
                     ptr::null_mut(),
-                    &mut security_descriptor,
+                    &raw mut security_descriptor,
                 )
             };
 

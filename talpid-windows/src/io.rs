@@ -29,7 +29,7 @@ impl Overlapped {
 
     /// Borrows the underlying `OVERLAPPED` object.
     pub fn as_mut_ptr(&mut self) -> *mut OVERLAPPED {
-        &mut self.overlapped
+        &raw mut self.overlapped
     }
 
     /// Returns a reference to the associated event.

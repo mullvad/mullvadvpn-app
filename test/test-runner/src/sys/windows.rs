@@ -77,7 +77,7 @@ fn grant_shutdown_privilege() -> Result<(), test_rpc::Error> {
         LookupPrivilegeValueW(
             std::ptr::null(),
             SE_SHUTDOWN_NAME,
-            &mut privileges.Privileges[0].Luid,
+            &raw mut privileges.Privileges[0].Luid,
         )
     } == 0
     {
@@ -94,7 +94,7 @@ fn grant_shutdown_privilege() -> Result<(), test_rpc::Error> {
         OpenProcessToken(
             GetCurrentProcess(),
             TOKEN_ADJUST_PRIVILEGES,
-            &mut token_handle,
+            &raw mut token_handle,
         )
     } == 0
     {
@@ -106,7 +106,7 @@ fn grant_shutdown_privilege() -> Result<(), test_rpc::Error> {
         AdjustTokenPrivileges(
             token_handle,
             0,
-            &privileges,
+            &raw const privileges,
             0,
             std::ptr::null_mut(),
             std::ptr::null_mut(),

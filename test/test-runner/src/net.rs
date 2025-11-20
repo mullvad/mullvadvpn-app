@@ -179,12 +179,11 @@ pub fn get_interface_ip(interface: &str) -> Result<IpAddr, test_rpc::Error> {
         test_rpc::Error::Syscall
     })?;
     for addr in addrs {
-        if addr.interface_name == interface {
-            if let Some(address) = addr.address {
-                if let Some(sockaddr) = address.as_sockaddr_in() {
-                    return Ok(IpAddr::V4(sockaddr.ip()));
-                }
-            }
+        if addr.interface_name == interface
+            && let Some(address) = addr.address
+            && let Some(sockaddr) = address.as_sockaddr_in()
+        {
+            return Ok(IpAddr::V4(sockaddr.ip()));
         }
     }
 
@@ -301,7 +300,7 @@ pub fn get_interface_mtu(interface_name: &str) -> Result<u16, test_rpc::Error> {
     unsafe {
         std::ptr::copy_nonoverlapping(
             interface_name.as_ptr() as *const libc::c_char,
-            &mut ifr.ifr_name as *mut _,
+            ifr.ifr_name.as_mut_ptr(),
             interface_name.len(),
         )
     };

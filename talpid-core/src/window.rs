@@ -77,7 +77,7 @@ pub fn create_hidden_window<F: (Fn(HWND, u32, WPARAM, LPARAM) -> LRESULT) + Send
         let mut msg = unsafe { std::mem::zeroed() };
 
         loop {
-            let status = unsafe { GetMessageW(&mut msg, ptr::null_mut(), 0, 0) };
+            let status = unsafe { GetMessageW(&raw mut msg, ptr::null_mut(), 0, 0) };
 
             if status < 0 {
                 continue;
@@ -92,8 +92,8 @@ pub fn create_hidden_window<F: (Fn(HWND, u32, WPARAM, LPARAM) -> LRESULT) + Send
                 }
             } else {
                 unsafe {
-                    TranslateMessage(&msg);
-                    DispatchMessageW(&msg);
+                    TranslateMessage(&raw const msg);
+                    DispatchMessageW(&raw const msg);
                 }
             }
         }

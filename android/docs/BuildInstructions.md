@@ -166,7 +166,7 @@ This is supported on Linux (x86_64) as well as macOS (x86_64 and aarch64).
 2. Enable the experimental `nix-command` and `flake` features by following [these instructions](https://nixos.wiki/wiki/flakes).
 3. Launch a devshell (in `<repository>/android`) by running:
    ```bash
-   nix develop
+   nix develop .#android
    ```
 4. Build the app as usual by running for example:
    ```bash

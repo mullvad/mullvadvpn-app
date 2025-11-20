@@ -88,7 +88,12 @@ function build_solution_config {
     fi
 
     set -x
-    cmd.exe "/c msbuild.exe $MAX_CPU_COUNT_ARG $(to_win_path "$sln") /p:Configuration=$config /p:Platform=$platform"
+    # Note: We've seen issues in CI (Windows ARM) indicating that the amount of memory that VS is allowed to reserve
+    # for pre-compiled headers is too small. '/Zm' allow us to tweak this value. /Zm100 is the default, and the value
+    # represents a multiplier expressed in percents. That is, /Zm400 equates to 4x the amount of memory VS is allowed
+    # to reserve compared to the default value. This parameter may be subject to tweaking if the issue persists.
+    # /Zm200 was not enough from our empirical testing, so /Zm400 was semi-arbitrarily chosen for now.
+    cmd.exe "/c msbuild.exe $MAX_CPU_COUNT_ARG $(to_win_path "$sln") /p:Configuration=$config /p:Platform=$platform /p:AdditionalOptions=/Zm400"
     set +x
 }
 

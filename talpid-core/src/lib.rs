@@ -3,11 +3,6 @@
 #![deny(missing_docs)]
 #![recursion_limit = "1024"]
 
-/// Misc FFI utilities.
-#[cfg(windows)]
-#[macro_use]
-mod ffi;
-
 /// Window API wrappers and utilities
 #[cfg(target_os = "windows")]
 pub mod window;

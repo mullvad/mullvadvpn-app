@@ -1010,7 +1010,7 @@ mod windows {
                 socket.as_raw_socket() as libc::SOCKET,
                 WinSock::IPPROTO_UDP,
                 WinSock::UDP_SEND_MSG_SIZE,
-                &mut gso_size as *mut _ as *mut _,
+                (&raw mut gso_size).cast(),
                 i32::try_from(std::mem::size_of_val(&gso_size)).unwrap(),
             )
         };

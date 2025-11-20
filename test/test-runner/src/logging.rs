@@ -111,10 +111,10 @@ async fn list_logs<T: AsRef<Path>>(log_dir: T) -> Result<Vec<PathBuf>, Error> {
     let mut paths = Vec::new();
     while let Ok(Some(entry)) = dir_entries.next_entry().await {
         let path = entry.path();
-        if let Some(u8_path) = path.to_str() {
-            if u8_path.contains(EXCLUDE_LOG_FILE_CONTAIN) {
-                continue;
-            }
+        if let Some(u8_path) = path.to_str()
+            && u8_path.contains(EXCLUDE_LOG_FILE_CONTAIN)
+        {
+            continue;
         }
         if path.extension() == Some(OsStr::new(INCLUDE_LOG_FILE_EXT)) {
             paths.push(path);
@@ -134,10 +134,10 @@ async fn read_truncated<T: AsRef<Path>>(
     while let Some(line) = lines.next_line().await? {
         output.push(line);
     }
-    if let Some(max_number_of_lines) = truncate_lines {
-        if output.len() > max_number_of_lines {
-            output = output.split_off(output.len() - max_number_of_lines);
-        }
+    if let Some(max_number_of_lines) = truncate_lines
+        && output.len() > max_number_of_lines
+    {
+        output = output.split_off(output.len() - max_number_of_lines);
     }
     Ok(output.join("\n"))
 }

@@ -92,7 +92,8 @@ impl Iterator for ProcessSnapshotModules<'_> {
     fn next(&mut self) -> Option<io::Result<ModuleEntry>> {
         if self.iter_started {
             // SAFETY: `self.snapshot` is a valid pointer, and `temp_entry` is a valid `MODULEENTRY32`
-            if unsafe { Module32Next(self.snapshot.as_raw_handle(), &mut self.temp_entry) } == 0 {
+            if unsafe { Module32Next(self.snapshot.as_raw_handle(), &raw mut self.temp_entry) } == 0
+            {
                 let last_error = io::Error::last_os_error();
 
                 return if last_error.raw_os_error().unwrap() as u32 == ERROR_NO_MORE_FILES {
@@ -103,7 +104,9 @@ impl Iterator for ProcessSnapshotModules<'_> {
             }
         } else {
             // SAFETY: `self.snapshot` is a valid pointer, and `temp_entry` is a valid `MODULEENTRY32`
-            if unsafe { Module32First(self.snapshot.as_raw_handle(), &mut self.temp_entry) } == 0 {
+            if unsafe { Module32First(self.snapshot.as_raw_handle(), &raw mut self.temp_entry) }
+                == 0
+            {
                 return Some(Err(io::Error::last_os_error()));
             }
             self.iter_started = true;
@@ -141,7 +144,9 @@ impl Iterator for ProcessSnapshotEntries<'_> {
     fn next(&mut self) -> Option<io::Result<ProcessEntry>> {
         if self.iter_started {
             // SAFETY: `self.snapshot` is a valid pointer, and `temp_entry` is a valid `PROCESSENTRY32W`
-            if unsafe { Process32NextW(self.snapshot.as_raw_handle(), &mut self.temp_entry) } == 0 {
+            if unsafe { Process32NextW(self.snapshot.as_raw_handle(), &raw mut self.temp_entry) }
+                == 0
+            {
                 let last_error = io::Error::last_os_error();
 
                 return if last_error.raw_os_error().unwrap() as u32 == ERROR_NO_MORE_FILES {
@@ -152,7 +157,8 @@ impl Iterator for ProcessSnapshotEntries<'_> {
             }
         } else {
             // SAFETY: `self.snapshot` is a valid pointer, and `temp_entry` is a valid `PROCESSENTRY32W`
-            if unsafe { Process32FirstW(self.snapshot.as_raw_handle(), &mut self.temp_entry) } == 0
+            if unsafe { Process32FirstW(self.snapshot.as_raw_handle(), &raw mut self.temp_entry) }
+                == 0
             {
                 return Some(Err(io::Error::last_os_error()));
             }

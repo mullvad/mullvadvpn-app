@@ -578,6 +578,7 @@ impl MullvadProxyClient {
         Ok(())
     }
 
+    /// Toggle split tunneling on (`state: true`) or off (`state: false`).
     pub async fn set_split_tunnel_state(&mut self, state: bool) -> Result<()> {
         self.0.set_split_tunnel_state(state).await?;
         Ok(())

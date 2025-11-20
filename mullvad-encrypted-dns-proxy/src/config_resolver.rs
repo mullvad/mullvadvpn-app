@@ -110,6 +110,7 @@ pub async fn resolve_config_with_resolverconfig(
                 log::trace!("IPv6 {addr} parsed into proxy config: {proxy_config:?}");
                 proxy_configs.push(proxy_config);
             }
+            Err(config::Error::XorV1Unsupported) => continue, // ignore deprecated configs
             Err(e) => log::error!("IPv6 {addr} fails to parse to a proxy config: {e}"),
         }
     }

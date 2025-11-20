@@ -451,13 +451,13 @@
     <string name="create_account_fail_title">Creating account failed</string>
     <string name="read_more_here">read more here</string>
     <string name="unable_to_reach_api_dialog_title">Unable to reach API</string>
-    <string name="unable_to_reach_api_dialog_message_first">The app was unable to %s due to not being able to reach the Mullvad API. This might be due to censorship or network issues. Please try to:</string>
-    <string name="unable_to_reach_api_dialog_action_login">login</string>
-    <string name="unable_to_reach_api_dialog_action_create">create an account</string>
+    <string name="unable_to_reach_api_dialog_message_first_login">The app was unable to login due to not being able to reach the Mullvad API.</string>
+    <string name="unable_to_reach_api_dialog_message_first_create_account">The app was unable to create an account due to not being able to reach the Mullvad API.</string>
+    <string name="unable_to_reach_api_dialog_message_second">This might be due to censorship or network issues. Please try to:</string>
     <string name="unable_to_reach_api_dialog_message_list_first">Restart your device</string>
     <string name="unable_to_reach_api_dialog_message_list_second">Connect to a different network</string>
     <string name="unable_to_reach_api_dialog_message_list_third">Enable all access methods in the app</string>
-    <string name="unable_to_reach_api_dialog_message_second">If these steps don’t work, please send an email to support using the button below. It will automatically attach the logs which have been anonymized.</string>
+    <string name="unable_to_reach_api_dialog_message_third">If these steps don’t work, please send an email to support using the button below. It will automatically attach the logs which have been anonymized.</string>
     <string name="enable_all_methods">Enable all &amp; retry</string>
     <string name="send_email">Send email</string>
     <string name="no_email_app_available">No email app available on the device</string>
