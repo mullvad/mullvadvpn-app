@@ -1024,6 +1024,7 @@
 		F0C3333C2B31A29C00D1A478 /* MullvadSettings.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 58B2FDD32AA71D2A003EB5C6 /* MullvadSettings.framework */; };
 		F0C6A8432AB08E54000777A8 /* RedeemVoucherViewConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0C6A8422AB08E54000777A8 /* RedeemVoucherViewConfiguration.swift */; };
 		F0C6FA852A6A733700F521F0 /* InAppPurchaseInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0C6FA842A6A733700F521F0 /* InAppPurchaseInteractor.swift */; };
+		F0CFB9372ECDBA5300776BA3 /* InfoPlist.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F0CFB9362ECDBA5300776BA3 /* InfoPlist.xcstrings */; };
 		F0D5591E2D38051C0072B63F /* LatestChangesNotificationProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0D5591D2D3805050072B63F /* LatestChangesNotificationProvider.swift */; };
 		F0D5591F2D38051C0072B63F /* LatestChangesNotificationProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0D5591D2D3805050072B63F /* LatestChangesNotificationProvider.swift */; };
 		F0D7FF8F2B31DF5900E0FDE5 /* AccessMethodRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5827B0A02B0E064E00CCBBA1 /* AccessMethodRepository.swift */; };
@@ -2437,6 +2438,7 @@
 		F0C6A8422AB08E54000777A8 /* RedeemVoucherViewConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedeemVoucherViewConfiguration.swift; sourceTree = "<group>"; };
 		F0C6FA842A6A733700F521F0 /* InAppPurchaseInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InAppPurchaseInteractor.swift; sourceTree = "<group>"; };
 		F0CB96302E4A324000206149 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		F0CFB9362ECDBA5300776BA3 /* InfoPlist.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; name = InfoPlist.xcstrings; path = "MullvadVPN/Supporting Files/InfoPlist.xcstrings"; sourceTree = SOURCE_ROOT; };
 		F0D5591D2D3805050072B63F /* LatestChangesNotificationProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LatestChangesNotificationProvider.swift; sourceTree = "<group>"; };
 		F0D8825A2B04F53600D3EF9A /* OutgoingConnectionData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutgoingConnectionData.swift; sourceTree = "<group>"; };
 		F0DA87462A9CB9A2006044F1 /* AccountExpiryRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountExpiryRow.swift; sourceTree = "<group>"; };
@@ -3430,6 +3432,7 @@
 		583FE02929C1B0E1006E85F9 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				F0CFB9362ECDBA5300776BA3 /* InfoPlist.xcstrings */,
 				58CE5E6A224146210008646E /* Assets.xcassets */,
 				58CE5E6F224146210008646E /* Info.plist */,
 				F0EE6E762E4A321B0089DFF3 /* InfoPlist.strings */,
@@ -5061,7 +5064,6 @@
 				58CE5E5E224146200008646E /* Resources */,
 				58CE5E85224146470008646E /* Embed Foundation Extensions */,
 				06799AD628F98E1D00ACD94E /* Embed Frameworks */,
-				F0DABA422E27D20900EB4E21 /* Localization Cleanup (Release Build) */,
 			);
 			buildRules = (
 			);
@@ -5525,6 +5527,7 @@
 				5859A55529CD9DD900F66591 /* changes.txt in Resources */,
 				587DCCEF287D84A500CE821E /* countries.geo.json in Resources */,
 				F0B06BC22EAA4191008C0A0B /* Localizable.xcstrings in Resources */,
+				F0CFB9372ECDBA5300776BA3 /* InfoPlist.xcstrings in Resources */,
 				58CE5E6B224146210008646E /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -5729,25 +5732,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "exec > $PROJECT_DIR/relays-prebuild.log 2>&1\n\n$PROJECT_DIR/relays-prebuild.sh\n";
-		};
-		F0DABA422E27D20900EB4E21 /* Localization Cleanup (Release Build) */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			name = "Localization Cleanup (Release Build)";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"${DERIVED_FILE_DIR}/localization-cleanup-done.flag",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "# Run the following steps if the build configuration is NOT Debug\n# OR if the configuration is Staging (used for UITests).\nif [ \"$CONFIGURATION\" != \"Debug\" ] || [ \"$CONFIGURATION\" = \"Staging\" ]; then\n      # Remove all non-English .lproj folders\n    find \"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}\" \\\n        -type d -name \"*.lproj\" ! -name \"en.lproj\" -exec rm -r {} +\n\n    # Remove all .xcstrings files\n    find \"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}\" \\\n        -type f -name \"*.xcstrings\" -exec rm -f {} +\nfi\n\n# Ensure the output directory exists\nmkdir -p \"${DERIVED_FILE_DIR}\"\n\n# Final output\necho \">> Creating output flag file at: ${DERIVED_FILE_DIR}/localization-cleanup-done.flag\"\ntouch \"${DERIVED_FILE_DIR}/localization-cleanup-done.flag\"\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 

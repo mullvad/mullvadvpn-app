@@ -40,6 +40,15 @@
         <target state="new">%@ was added to your account.</target>
         <note/>
       </trans-unit>
+      <trans-unit id="%@ “Local network sharing” requires restarting the VPN connection, which will disconnect you and briefly expose your traffic.&#10;To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.&#10;Would you like to continue to enable “Local network sharing”?" xml:space="preserve">
+        <source>%@ “Local network sharing” requires restarting the VPN connection, which will disconnect you and briefly expose your traffic.
+To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.
+Would you like to continue to enable “Local network sharing”?</source>
+        <target state="new">%@ “Local network sharing” requires restarting the VPN connection, which will disconnect you and briefly expose your traffic.
+To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.
+Would you like to continue to enable “Local network sharing”?</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="%@, %@" xml:space="preserve">
         <source>%1$@, %2$@</source>
         <target state="new">%1$@, %2$@</target>
@@ -220,14 +229,14 @@
         <target state="new">Any</target>
         <note/>
       </trans-unit>
+      <trans-unit id="App Store receipt is not found on disk." xml:space="preserve">
+        <source>App Store receipt is not found on disk.</source>
+        <target state="new">App Store receipt is not found on disk.</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="App logs" xml:space="preserve">
         <source>App logs</source>
         <target state="new">App logs</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="AppStore receipt is not found on disk." xml:space="preserve">
-        <source>AppStore receipt is not found on disk.</source>
-        <target state="new">AppStore receipt is not found on disk.</target>
         <note/>
       </trans-unit>
       <trans-unit id="Are you sure you want to log %@ out?" xml:space="preserve">
@@ -390,6 +399,11 @@
         <target state="new">Bulgaria</target>
         <note/>
       </trans-unit>
+      <trans-unit id="By attaching your account token it links this report to your account, which helps us resolve your issue quicker. All reports are automatically deleted after a period of time. For details, please see our " xml:space="preserve">
+        <source>By attaching your account token it links this report to your account, which helps us resolve your issue quicker. All reports are automatically deleted after a period of time. For details, please see our </source>
+        <target state="new">By attaching your account token it links this report to your account, which helps us resolve your issue quicker. All reports are automatically deleted after a period of time. For details, please see our </target>
+        <note/>
+      </trans-unit>
       <trans-unit id="By enabling “%@” you will have to manually select a server that is %@-enabled. %@ won't automatically be used to enable DAITA with any server." xml:space="preserve">
         <source>By enabling “%1$@” you will have to manually select a server that is %2$@-enabled. %3$@ won't automatically be used to enable DAITA with any server.</source>
         <target state="new">By enabling “%1$@” you will have to manually select a server that is %2$@-enabled. %3$@ won't automatically be used to enable DAITA with any server.</target>
@@ -430,14 +444,14 @@
         <target state="new">Cannot complete the purchase</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Cannot read the AppStore receipt from disk" xml:space="preserve">
-        <source>Cannot read the AppStore receipt from disk</source>
-        <target state="new">Cannot read the AppStore receipt from disk</target>
+      <trans-unit id="Cannot read the App Store receipt from disk" xml:space="preserve">
+        <source>Cannot read the App Store receipt from disk</source>
+        <target state="new">Cannot read the App Store receipt from disk</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Cannot refresh the AppStore receipt: %@" xml:space="preserve">
-        <source>Cannot refresh the AppStore receipt: %@</source>
-        <target state="new">Cannot refresh the AppStore receipt: %@</target>
+      <trans-unit id="Cannot refresh the App Store receipt: %@" xml:space="preserve">
+        <source>Cannot refresh the App Store receipt: %@</source>
+        <target state="new">Cannot refresh the App Store receipt: %@</target>
         <note/>
       </trans-unit>
       <trans-unit id="Cannot restore purchases" xml:space="preserve">
@@ -1108,6 +1122,11 @@
       <trans-unit id="Include all networks" xml:space="preserve">
         <source>Include all networks</source>
         <target state="new">Include all networks</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Include my account token for faster help with payment or account related issues" xml:space="preserve">
+        <source>Include my account token for faster help with payment or account related issues</source>
+        <target state="new">Include my account token for faster help with payment or account related issues</target>
         <note/>
       </trans-unit>
       <trans-unit id="Indonesia" xml:space="preserve">
@@ -2157,6 +2176,11 @@ Do you want to remove the saved account number?</target>
         <target state="new">This feature makes the WireGuard tunnel resistant to potential attacks from quantum computers.</target>
         <note/>
       </trans-unit>
+      <trans-unit id="This impacts your anonymity" xml:space="preserve">
+        <source>This impacts your anonymity</source>
+        <target state="new">This impacts your anonymity</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="This is the name assigned to the device. Each device logged in on a Mullvad account gets a unique name that helps you identify it when you manage your devices in the app or on the website." xml:space="preserve">
         <source>This is the name assigned to the device. Each device logged in on a Mullvad account gets a unique name that helps you identify it when you manage your devices in the app or on the website.</source>
         <target state="new">This is the name assigned to the device. Each device logged in on a Mullvad account gets a unique name that helps you identify it when you manage your devices in the app or on the website.</target>
@@ -2585,18 +2609,14 @@ We strongly believe in retaining as little data as possible because we want you 
         <target state="new">multihop</target>
         <note/>
       </trans-unit>
+      <trans-unit id="privacy policy" xml:space="preserve">
+        <source>privacy policy</source>
+        <target state="new">privacy policy</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="value" xml:space="preserve">
         <source>value</source>
         <target state="new">value</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="“%@ Local network sharing” requires restarting the VPN connection, which will disconnect you and briefly expose your traffic.&#10;To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.&#10;Would you like to continue to enable “Local network sharing”?" xml:space="preserve">
-        <source>“%@ Local network sharing” requires restarting the VPN connection, which will disconnect you and briefly expose your traffic.
-To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.
-Would you like to continue to enable “Local network sharing”?</source>
-        <target state="new">“%@ Local network sharing” requires restarting the VPN connection, which will disconnect you and briefly expose your traffic.
-To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.
-Would you like to continue to enable “Local network sharing”?</target>
         <note/>
       </trans-unit>
     </body>
