@@ -96,7 +96,7 @@ pub fn process_file_descriptors(pid: pid_t) -> io::Result<Vec<proc_fdinfo>> {
             pid,
             PROC_PIDLISTFDS,
             0,
-            file_desc_buf.as_mut_ptr() as _,
+            file_desc_buf.as_mut_ptr().cast::<c_void>(),
             fds_buf_size as c_int,
         )
     };
@@ -114,7 +114,7 @@ pub fn process_file_descriptors(pid: pid_t) -> io::Result<Vec<proc_fdinfo>> {
 
 /// Return the file path that belongs to a vnode file descriptor type for a given process.
 pub fn get_file_desc_vnode_path(pid: pid_t, info: &proc_fdinfo) -> io::Result<CString> {
-    assert!(info.proc_fdtype == PROX_FDTYPE_VNODE as _);
+    assert!(info.proc_fdtype == PROX_FDTYPE_VNODE);
 
     // SAFETY: This is a pure C struct which we're expected to zero-initialize
     let mut vnode: vnode_fdinfowithpath = unsafe { std::mem::zeroed() };
@@ -124,9 +124,9 @@ pub fn get_file_desc_vnode_path(pid: pid_t, info: &proc_fdinfo) -> io::Result<CS
         proc_pidfdinfo(
             pid,
             info.proc_fd,
-            PROC_PIDFDVNODEPATHINFO as _,
+            PROC_PIDFDVNODEPATHINFO as i32,
             (&raw mut vnode).cast::<c_void>(),
-            std::mem::size_of_val(&vnode) as _,
+            std::mem::size_of_val(&vnode) as i32,
         )
     };
     if err <= 0 {
@@ -147,10 +147,10 @@ pub fn process_bsdinfo(pid: pid_t) -> io::Result<proc_bsdinfo> {
     let err = unsafe {
         proc_pidinfo(
             pid,
-            PROC_PIDTBSDINFO as _,
+            PROC_PIDTBSDINFO,
             0,
             (&raw mut info).cast::<c_void>(),
-            std::mem::size_of_val(&info) as _,
+            std::mem::size_of_val(&info) as i32,
         )
     };
     if err <= 0 {
