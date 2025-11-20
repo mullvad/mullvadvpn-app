@@ -22,12 +22,12 @@ use super::{
     TunnelStateTransition,
 };
 
-#[cfg(target_os = "macos")]
-use crate::dns::DnsConfig;
 use crate::firewall::FirewallPolicy;
 #[cfg(target_os = "macos")]
 use crate::resolver::LOCAL_DNS_RESOLVER;
 use crate::tunnel_state_machine::tunnel_monitor::{self, TunnelMonitor};
+#[cfg(target_os = "macos")]
+use talpid_dns::DnsConfig;
 
 pub(crate) type TunnelCloseEvent = Fuse<oneshot::Receiver<Option<ErrorStateCause>>>;
 

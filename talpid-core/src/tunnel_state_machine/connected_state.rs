@@ -7,10 +7,10 @@ use talpid_types::net::{AllowedClients, AllowedEndpoint, wireguard::TunnelParame
 use talpid_types::tunnel::{ErrorStateCause, FirewallPolicyError};
 use talpid_types::{BoxedError, ErrorExt};
 
-use crate::dns::ResolvedDnsConfig;
 use crate::firewall::FirewallPolicy;
 #[cfg(target_os = "macos")]
 use crate::resolver::LOCAL_DNS_RESOLVER;
+use talpid_dns::ResolvedDnsConfig;
 
 use super::connecting_state::TunnelCloseEvent;
 use super::{
