@@ -11,17 +11,14 @@ use tokio_rustls::rustls::{self};
 use crate::{DefaultDnsResolver, DnsResolver, tls_stream::TlsStream};
 
 pub struct DomainFronting {
-    host: String,
     front: String,
 }
 
 impl DomainFronting {
-    pub fn new(host: String, front: String) -> Self {
-        DomainFronting { host, front }
+    pub fn new(front: String) -> Self {
+        DomainFronting { front }
     }
 
-    // This doesn't really work with cdn77. It just returns a 403, why ?
-    // Original code stolen from https://github.com/rustls/rustls-native-certs/blob/HEAD/examples/google.rs
     pub async fn try_connect(&self) -> Result<TlsStream<TcpStream>, Box<dyn std::error::Error>> {
         let cert_store = read_cert_store();
 
@@ -37,7 +34,7 @@ impl DomainFronting {
         let addr = addrs
             .first()
             .ok_or_else(|| io::Error::other("Empty DNS response"))?;
-
+        log::trace!("Resolved addrs {:?} for {:?}", addrs.clone(), self.front);
         let stream = TcpStream::connect((addr.ip(), 443)).await?;
 
         Ok(TlsStream::connect_https(stream, &self.front, config).await?)

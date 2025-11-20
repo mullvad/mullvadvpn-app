@@ -29,7 +29,7 @@ use std::{
     net::{IpAddr, SocketAddr},
     pin::Pin,
     str::{self, FromStr},
-    sync::{Arc, LazyLock, Mutex},
+    sync::{Arc, Mutex},
     task::{Context, Poll},
     time::Duration,
 };
