@@ -3059,6 +3059,7 @@ dependencies = [
  "socket2 0.5.8",
  "talpid-core",
  "talpid-dbus",
+ "talpid-dns",
  "talpid-future",
  "talpid-macos",
  "talpid-platform-metadata",
@@ -5424,6 +5425,30 @@ dependencies = [
  "log",
  "thiserror 2.0.9",
  "tokio",
+]
+
+[[package]]
+name = "talpid-dns"
+version = "0.0.0"
+dependencies = [
+ "futures",
+ "inotify 0.10.2",
+ "log",
+ "nix 0.30.1",
+ "once_cell",
+ "parking_lot",
+ "resolv-conf",
+ "system-configuration",
+ "talpid-dbus",
+ "talpid-routing",
+ "talpid-types",
+ "talpid-windows",
+ "thiserror 2.0.9",
+ "tokio",
+ "triggered",
+ "which",
+ "windows-sys 0.61.1",
+ "winreg 0.55.0",
 ]
 
 [[package]]
