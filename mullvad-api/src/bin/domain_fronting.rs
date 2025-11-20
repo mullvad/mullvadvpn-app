@@ -76,8 +76,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
 }
 
 #[cfg(not(target_os = "macos"))]
-mod imp {
+pub mod imp {
     pub async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-        Ok(())
+        unimplemented!()
     }
 }
