@@ -96,7 +96,6 @@
     <string name="copy">複製</string>
     <string name="copy_account_number">複製帳號</string>
     <string name="create">建立</string>
-    <string name="create_account">建立帳戶</string>
     <string name="create_account_fail_title">建立帳戶失敗</string>
     <string name="create_custom_list_message">已建立「%1$s」</string>
     <string name="create_new_account">建立新帳戶</string>

@@ -550,7 +550,7 @@ private fun CreateAccountPanel(onCreateAccountClick: () -> Unit, isEnabled: Bool
         )
         PrimaryButton(
             modifier = Modifier.fillMaxWidth(),
-            text = stringResource(id = R.string.create_account),
+            text = stringResource(id = R.string.create_new_account),
             isEnabled = isEnabled,
             onClick = onCreateAccountClick,
         )

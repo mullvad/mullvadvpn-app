@@ -16,7 +16,6 @@
     <string name="login_fail_title">Login failed</string>
     <string name="login_fail_description">Invalid account number</string>
     <string name="dont_have_an_account">Don’t have an account number?</string>
-    <string name="create_account">Create account</string>
     <string name="create_new_account_warning_paragraph1">You already have a saved account number, by creating a new account the saved account number will be removed from this device. This cannot be undone.</string>
     <string name="create_new_account_warning_paragraph2">Do you want to create a new account?</string>
     <string name="creating_new_account">Creating account...</string>

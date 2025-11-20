@@ -96,7 +96,6 @@
     <string name="copy">Kopiëren</string>
     <string name="copy_account_number">Accountnummer kopiëren</string>
     <string name="create">Maken</string>
-    <string name="create_account">Account aanmaken</string>
     <string name="create_account_fail_title">Account maken is mislukt</string>
     <string name="create_custom_list_message">\"%1$s\" is gemaakt</string>
     <string name="create_new_account">Nieuw account aanmaken</string>

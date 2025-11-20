@@ -96,7 +96,6 @@
     <string name="copy">コピー</string>
     <string name="copy_account_number">アカウント番号のコピー</string>
     <string name="create">作成</string>
-    <string name="create_account">アカウントを作成</string>
     <string name="create_account_fail_title">アカウントを作成できませんでした</string>
     <string name="create_custom_list_message">\"%1$s\" が作成されました</string>
     <string name="create_new_account">新規アカウントを作成</string>

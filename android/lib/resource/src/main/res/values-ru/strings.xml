@@ -96,7 +96,6 @@
     <string name="copy">Копировать</string>
     <string name="copy_account_number">Копировать номер учетной записи</string>
     <string name="create">Создать</string>
-    <string name="create_account">Создать учетную запись</string>
     <string name="create_account_fail_title">Не удалось создать учетную запись</string>
     <string name="create_custom_list_message">Список «%1$s» создан</string>
     <string name="create_new_account">Создать учетную запись</string>

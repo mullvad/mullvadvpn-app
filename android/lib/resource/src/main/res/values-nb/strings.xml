@@ -96,7 +96,6 @@
     <string name="copy">Kopier</string>
     <string name="copy_account_number">Kopier kontonummer</string>
     <string name="create">Opprett</string>
-    <string name="create_account">Opprett konto</string>
     <string name="create_account_fail_title">Opprettelse av konto mislyktes</string>
     <string name="create_custom_list_message">«%1$s» ble opprettet</string>
     <string name="create_new_account">Opprett en ny konto</string>
