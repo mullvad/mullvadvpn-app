@@ -5,6 +5,7 @@ use talpid_windows::string::multibyte_to_wide;
 use windows_sys::Win32::Globalization::CP_ACP;
 
 use super::{Error, WideCString};
+use crate::ffi_error;
 
 pub const LOGGING_CONTEXT: &CStr = c"WinFw";
 

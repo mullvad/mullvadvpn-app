@@ -63,7 +63,7 @@ As such, the above algorithm is simplified to the following version:
 
 ### Random Ports for UDP2TCP and Shadowsocks
 
-- The UDP2TCP random port is **either** 80 **or** 5001
+- The UDP2TCP random port is one of 80, 443 or 5001.
 - The Shadowsocks port is random within a certain range of ports defined by the relay list
 
 ### Ports for QUIC

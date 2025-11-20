@@ -1,3 +1,5 @@
+//! Misc FFI utilities.
+
 /// Creates a new result type that returns the given result variant on error.
 #[macro_export]
 macro_rules! ffi_error {

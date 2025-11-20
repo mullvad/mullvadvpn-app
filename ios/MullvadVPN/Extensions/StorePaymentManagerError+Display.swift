@@ -10,7 +10,7 @@ import Foundation
 import MullvadTypes
 import StoreKit
 
-extension StorePaymentManagerError: DisplayError {
+extension LegacyStorePaymentManagerError: DisplayError {
     var displayErrorDescription: String? {
         switch self {
         case .noAccountSet:
@@ -25,14 +25,14 @@ extension StorePaymentManagerError: DisplayError {
 
         case let .readReceipt(readReceiptError):
             if readReceiptError is StoreReceiptNotFound {
-                return NSLocalizedString("AppStore receipt is not found on disk.", comment: "")
+                return NSLocalizedString("App Store receipt is not found on disk.", comment: "")
             } else if let storeError = readReceiptError as? SKError {
                 return String(
-                    format: NSLocalizedString("Cannot refresh the AppStore receipt: %@", comment: ""),
+                    format: NSLocalizedString("Cannot refresh the App Store receipt: %@", comment: ""),
                     storeError.localizedDescription
                 )
             } else {
-                return NSLocalizedString("Cannot read the AppStore receipt from disk", comment: "")
+                return NSLocalizedString("Cannot read the App Store receipt from disk", comment: "")
             }
 
         case let .sendReceipt(error):

@@ -10,8 +10,8 @@ import Foundation
 import MullvadREST
 import MullvadTypes
 
-/// An error type emitted by `StorePaymentManager`.
-enum StorePaymentManagerError: LocalizedError, WrappingError {
+/// An error type emitted by `LegacyStorePaymentManager`.
+enum LegacyStorePaymentManagerError: LocalizedError, WrappingError {
     /// Failure to find the account token associated with the transaction.
     case noAccountSet
 
@@ -21,10 +21,10 @@ enum StorePaymentManagerError: LocalizedError, WrappingError {
     /// Failure to handle payment transaction. Contains error returned by StoreKit.
     case storePayment(Error)
 
-    /// Failure to read the AppStore receipt.
+    /// Failure to read the App Store receipt.
     case readReceipt(Error)
 
-    /// Failure to send the AppStore receipt to backend.
+    /// Failure to send the App Store receipt to backend.
     case sendReceipt(Error)
 
     var errorDescription: String? {

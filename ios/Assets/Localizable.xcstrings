@@ -1,9 +1,6 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
-    "“%@ Local network sharing” requires restarting the VPN connection, which will disconnect you and briefly expose your traffic.\nTo prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.\nWould you like to continue to enable “Local network sharing”?" : {
-
-    },
     "**Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans.**" : {
       "localizations" : {
         "da" : {
@@ -96,6 +93,9 @@
 
     },
     "%@" : {
+
+    },
+    "%@ “Local network sharing” requires restarting the VPN connection, which will disconnect you and briefly expose your traffic.\nTo prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.\nWould you like to continue to enable “Local network sharing”?" : {
 
     },
     "%@ (%@) hides patterns in your encrypted VPN traffic." : {
@@ -342,6 +342,9 @@
           }
         }
       }
+    },
+    "%@ have been added to your account." : {
+
     },
     "%@ left on this account" : {
 
@@ -2153,6 +2156,9 @@
         }
       }
     },
+    "Add Time" : {
+
+    },
     "Adelaide" : {
       "localizations" : {
         "da" : {
@@ -3796,7 +3802,7 @@
     "App logs" : {
 
     },
-    "AppStore receipt is not found on disk." : {
+    "App Store receipt is not found on disk." : {
 
     },
     "Are you sure you want to log %@ out?" : {
@@ -7482,10 +7488,10 @@
     "Cannot complete the purchase" : {
 
     },
-    "Cannot read the AppStore receipt from disk" : {
+    "Cannot read the App Store receipt from disk" : {
 
     },
-    "Cannot refresh the AppStore receipt: %@" : {
+    "Cannot refresh the App Store receipt: %@" : {
 
     },
     "Cannot restore purchases" : {
@@ -14739,6 +14745,9 @@
         }
       }
     },
+    "Failed to reach Mullvad servers to initiate purchase" : {
+
+    },
     "Failed to send" : {
       "localizations" : {
         "da" : {
@@ -14870,6 +14879,12 @@
 
     },
     "Failed to stop the tunnel." : {
+
+    },
+    "Failed to upload receipt to Mullvad servers. Try again later or contact support for help." : {
+
+    },
+    "Failed to verify transaction receipt" : {
 
     },
     "FAQs & Guides" : {
@@ -22798,9 +22813,6 @@
           }
         }
       }
-    },
-    "Make a purchase with StoreKit2" : {
-
     },
     "Malaysia" : {
       "localizations" : {
@@ -45282,6 +45294,9 @@
       }
     },
     "Your previous purchases have already been added to this account." : {
+
+    },
+    "Your previous purchases have been added to your account." : {
 
     },
     "Your purchase was successfully refunded." : {

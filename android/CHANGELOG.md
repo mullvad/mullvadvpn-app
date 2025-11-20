@@ -22,6 +22,17 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+### Removed
+- Remove "Automatic" as a setting for the "Quantum-resistant tunnel" option.
+
+
+## [android/2025.10-beta2] - 2025-11-18
+### Security
+- Fix regression introduced in 2025.10-beta1 where IPv6 traffic would leak when enabling
+  Local Network Sharing and disabling In-tunnel IPv6.
+
+### Fixed
+- Fix Android 16 upgrade warning text not being displayed properly in some languages.
 
 
 ## [android/2025.10-beta1] - 2025-11-10
@@ -38,9 +49,6 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Fixed
 - Recents will now always show the selected location.
-
-### Removed
-- Remove "Automatic" as a setting for the "Quantum-resistant tunnel" option.
 
 
 ## [android/2025.9] - 2025-10-20
