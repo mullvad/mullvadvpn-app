@@ -224,7 +224,7 @@ pub(super) fn apply_policy_connected(
     exit_endpoint_ip: Option<IpAddr>,
     winfw_settings: &WinFwSettings,
     tunnel_interface: &str,
-    dns_config: &crate::dns::ResolvedDnsConfig,
+    dns_config: &talpid_dns::ResolvedDnsConfig,
 ) -> Result<(), FirewallPolicyError> {
     let mut winfw_relays = vec![];
     let mut ip_strs = vec![];
