@@ -1,6 +1,7 @@
 use crate::{Error, Result, UserPermissions};
 use once_cell::sync::OnceCell;
 use std::{
+    ffi::c_void,
     io, mem,
     os::windows::io::{AsHandle, AsRawHandle, BorrowedHandle, FromRawHandle, OwnedHandle},
     path::{Path, PathBuf},
@@ -161,7 +162,7 @@ fn set_security_permissions(path: &Path, user_permissions: UserPermissions) -> R
         CreateWellKnownSid(
             WinBuiltinAdministratorsSid,
             ptr::null_mut(),
-            admin_psid.as_mut_ptr() as _,
+            admin_psid.as_mut_ptr().cast::<c_void>(),
             &raw mut admin_psid_len,
         )
     } == 0
@@ -195,7 +196,7 @@ fn set_security_permissions(path: &Path, user_permissions: UserPermissions) -> R
         CreateWellKnownSid(
             WinAuthenticatedUserSid,
             ptr::null_mut(),
-            au_psid.as_mut_ptr() as _,
+            au_psid.as_mut_ptr().cast::<c_void>(),
             &raw mut au_psid_len,
         )
     } == 0
@@ -211,7 +212,7 @@ fn set_security_permissions(path: &Path, user_permissions: UserPermissions) -> R
         MultipleTrusteeOperation: NO_MULTIPLE_TRUSTEE,
         TrusteeForm: TRUSTEE_IS_SID,
         TrusteeType: TRUSTEE_IS_GROUP,
-        ptstrName: au_psid.as_mut_ptr() as *mut _,
+        ptstrName: au_psid.as_mut_ptr().cast(),
     };
 
     let authenticated_users_ea = EXPLICIT_ACCESS_W {
@@ -250,8 +251,8 @@ fn set_security_permissions(path: &Path, user_permissions: UserPermissions) -> R
             wide_path.as_ptr(),
             SE_FILE_OBJECT,
             security_information,
-            admin_psid.as_mut_ptr() as *mut _,
-            admin_psid.as_mut_ptr() as *mut _,
+            admin_psid.as_mut_ptr().cast(),
+            admin_psid.as_mut_ptr().cast(),
             new_dacl,
             ptr::null(),
         )
@@ -530,7 +531,7 @@ fn is_local_system_user_token(token: &impl AsRawHandle) -> io::Result<bool> {
             GetTokenInformation(
                 token.as_raw_handle(),
                 TokenUser,
-                token_info.as_mut_ptr() as _,
+                token_info.as_mut_ptr().cast::<c_void>(),
                 u32::try_from(token_info.len()).expect("len must fit in u32"),
                 &raw mut returned_info_len,
             )
@@ -564,7 +565,7 @@ fn is_local_system_user_token(token: &impl AsRawHandle) -> io::Result<bool> {
         CreateWellKnownSid(
             WinLocalSystemSid,
             std::ptr::null_mut(),
-            local_system_sid.as_mut_ptr() as _,
+            local_system_sid.as_mut_ptr().cast::<c_void>(),
             &raw mut local_system_size,
         )
     } == 0
@@ -575,5 +576,10 @@ fn is_local_system_user_token(token: &impl AsRawHandle) -> io::Result<bool> {
     }
 
     // SAFETY: Both arguments point to valid security identifiers
-    Ok(unsafe { EqualSid(token_user.User.Sid, local_system_sid.as_ptr() as _) } != 0)
+    Ok(unsafe {
+        EqualSid(
+            token_user.User.Sid,
+            local_system_sid.as_mut_ptr().cast::<c_void>(),
+        )
+    } != 0)
 }
