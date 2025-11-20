@@ -252,7 +252,7 @@ export default class AppRenderer {
       this.reduxActions.userInterface.setMacOsScrollbarVisibility(visibility);
     });
 
-    IpcRendererEventChannel.navigation.listenReset(() => this.history.pop(true));
+    IpcRendererEventChannel.app.listenSuspendEvent(() => this.history.pop(true));
 
     IpcRendererEventChannel.app.listenOpenRoute((route: RoutePath) => {
       this.history.push({
