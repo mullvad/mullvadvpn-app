@@ -7,6 +7,7 @@
 //
 
 import Testing
+
 @testable import MullvadLogging
 
 struct LoggerBuilderTests {
