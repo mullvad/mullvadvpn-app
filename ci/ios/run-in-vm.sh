@@ -22,8 +22,6 @@ vm_pid=$!
 # Sleep to wait until VM is up
 sleep 10
 
-# apparently, there's a difference between piping into bash like this and doing
-# a <(echo $SCRIPT).
 ssh -i ~/build/upload-vm-ssh-key admin@"$(tart ip "$VM_NAME")" bash /dev/stdin <"$SCRIPT"
 script_status=$?
 
