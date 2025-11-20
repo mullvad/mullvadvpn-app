@@ -39,8 +39,11 @@ struct AccountDeletionView: View {
                 .padding(.bottom, 8)
 
                 // accountTextField
+                let placeholder = "XXXX"
                 MullvadPrimaryTextField(
-                    label: "Last 4 digits", placeholder: "XXXX", text: $viewModel.enteredAccountNumberSuffix,
+                    label: "Last 4 digits",
+                    placeholder: LocalizedStringKey(placeholder),
+                    text: $viewModel.enteredAccountNumberSuffix,
                     keyboardType: .numberPad
                 )
                 .accessibilityIdentifier(.deleteAccountTextField)

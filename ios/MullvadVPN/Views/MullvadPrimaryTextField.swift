@@ -1,16 +1,16 @@
 import SwiftUI
 
 struct MullvadPrimaryTextField: View {
-    private let label: String
-    private let placeholder: String
+    private let label: LocalizedStringKey
+    private let placeholder: LocalizedStringKey
     @Binding private var text: String
     @Binding private var suggestion: String?
     private let validate: ((String) -> Bool)?
     private let keyboardType: UIKeyboardType?
 
     init(
-        label: String,
-        placeholder: String,
+        label: LocalizedStringKey,
+        placeholder: LocalizedStringKey,
         text: Binding<String>,
         suggestion: Binding<String?>? = nil,
         validate: ((String) -> Bool)? = nil,
@@ -188,17 +188,19 @@ private struct RoundedCorner: Shape {
 #Preview {
     @Previewable @State var suggestion: String? = "1234"
     @Previewable @State var text = ""
+    let label = "Label"
+    let placeholder = "Placeholder text"
     VStack {
         MullvadPrimaryTextField(
-            label: "Label",
-            placeholder: "Placeholder text",
+            label: LocalizedStringKey(label),
+            placeholder: LocalizedStringKey(placeholder),
             text: $text,
             suggestion: $suggestion
         )
 
         MullvadPrimaryTextField(
-            label: "Label",
-            placeholder: "Placeholder text",
+            label: LocalizedStringKey(label),
+            placeholder: LocalizedStringKey(placeholder),
             text: $text,
             suggestion: $suggestion,
             validate: { _ in
@@ -207,8 +209,8 @@ private struct RoundedCorner: Shape {
         )
 
         MullvadPrimaryTextField(
-            label: "Label",
-            placeholder: "Placeholder text",
+            label: LocalizedStringKey(label),
+            placeholder: LocalizedStringKey(placeholder),
             text: $text,
             suggestion: $suggestion
         )
@@ -229,8 +231,8 @@ class UIMullvadPrimaryTextField: UIHostingController<UIMullvadPrimaryTextField.W
     }
 
     struct Wrapper: View {
-        let label: String
-        let placeholder: String
+        let label: LocalizedStringKey
+        let placeholder: LocalizedStringKey
         @State var text = ""
         @State var suggestion: String?
         let validate: ((String) -> Bool)?
@@ -258,8 +260,8 @@ class UIMullvadPrimaryTextField: UIHostingController<UIMullvadPrimaryTextField.W
     }
 
     init(
-        label: String,
-        placeholder: String,
+        label: LocalizedStringKey,
+        placeholder: LocalizedStringKey,
         validate: ((String) -> Bool)? = nil,
         contentType: UITextContentType? = nil,
         keyboardType: UIKeyboardType = .default
@@ -290,7 +292,10 @@ struct UIMullvadPrimaryTextFieldRepresentable: UIViewRepresentable {
     }
 
     func makeUIView(context: Context) -> UIView {
-        let controller = UIMullvadPrimaryTextField(label: "Label", placeholder: "Placeholder")
+        let label = "Label"
+        let placeholder = "Placeholder text"
+        let controller = UIMullvadPrimaryTextField(
+            label: LocalizedStringKey(label), placeholder: LocalizedStringKey(placeholder))
         context.coordinator.controller = controller
         return controller.view
     }

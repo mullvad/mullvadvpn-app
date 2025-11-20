@@ -25,8 +25,7 @@ struct TermsOfServiceView: View {
         We strongly believe in retaining as little data as possible because we want you to remain anonymous.
         """)
 
-    let privacyPolicyLink =
-        LocalizedStringKey(stringLiteral: "[Privacy Policy](\(ApplicationConfiguration.privacyPolicyLink))")
+    let privacyPolicyText = NSLocalizedString("privacy policy", comment: "").localizedCapitalized
     var scrollableContent: some View {
         ScrollView {
             Text(LocalizedStringKey("Do you agree to remaining anonymous?"))
@@ -45,11 +44,14 @@ struct TermsOfServiceView: View {
         VStack(alignment: .leading) {
             scrollableContent.scrollBounceBehavior(.basedOnSize)
             HStack {
-                Text(privacyPolicyLink)
-                    .font(.mullvadSmall)
-                    .underline(true, color: .white)
-                    .foregroundStyle(.white)
-                    .tint(.white)
+                Text(
+                    LocalizedStringKey(
+                        stringLiteral: "[\(privacyPolicyText)](\(ApplicationConfiguration.privacyPolicyLink))")
+                )
+                .font(.mullvadSmall)
+                .underline(true, color: .white)
+                .foregroundStyle(.white)
+                .tint(.white)
                 Image(uiImage: UIImage.iconExtLink)
                     .resizable()
                     .scaledToFit()

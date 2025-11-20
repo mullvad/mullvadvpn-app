@@ -64,6 +64,6 @@ struct FilterDescriptor {
         let displayNumber: (Int) -> String = { number in
             number >= 100 ? "99+" : "\(number)"
         }
-        return String(format: "Show %@ servers", displayNumber(numberOfServers))
+        return String(format: NSLocalizedString("Show %@ servers", comment: ""), displayNumber(numberOfServers))
     }
 }
