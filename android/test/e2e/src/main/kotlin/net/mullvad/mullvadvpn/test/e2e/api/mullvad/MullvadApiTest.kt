@@ -10,17 +10,18 @@ import org.junit.jupiter.api.assertDoesNotThrow
 @Disabled("Only used developing the MullvadApi")
 class MullvadApiTest {
     private val mullvadApi = MullvadApi()
+    private val accountProvider = AccountProvider.createAccountProvider()
 
     @Test
     fun testLogin() = runTest {
-        val validAccountNumber = AccountProvider.getValidAccountNumber()
+        val validAccountNumber = accountProvider.getValidAccountNumber()
         val accessToken = assertDoesNotThrow { mullvadApi.login(validAccountNumber) }
         assertTrue(accessToken.isNotBlank())
     }
 
     @Test
     fun testGetDeviceList() = runTest {
-        val validAccountNumber = AccountProvider.getValidAccountNumber()
+        val validAccountNumber = accountProvider.getValidAccountNumber()
         val accessToken = assertDoesNotThrow { mullvadApi.login(validAccountNumber) }
         assertTrue(accessToken.isNotBlank())
         assertDoesNotThrow { mullvadApi.getDeviceList(accessToken) }
