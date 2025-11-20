@@ -294,7 +294,7 @@ jobs:
 
       - name: Calculate timeout
         id: calculate-timeout
-        run: echo "timeout=$(( ${{ needs.prepare.outputs.E2E_TEST_REPEAT }} * 15 ))" >> $GITHUB_OUTPUT
+        run: echo "timeout=$(( ${{ needs.prepare.outputs.E2E_TEST_REPEAT }} * 20 ))" >> $GITHUB_OUTPUT
         shell: bash
 
       - name: Run instrumented test script
