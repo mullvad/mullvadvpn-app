@@ -75,7 +75,7 @@ protobuf-gradle-plugin = "0.9.5"
 protobuf = "4.33.1"
 
 # Misc
-commonsvalidator = "1.10.0"
+commonsvalidator = "1.10.1"
 dependency-versions = "0.53.0"
 detekt = "1.23.8"
 kermit = "2.0.8"
