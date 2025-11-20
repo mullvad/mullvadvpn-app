@@ -1,3 +1,5 @@
+package net.mullvad.mullvadvpn.lib.ui.util
+
 import androidx.compose.ui.Modifier
 
 fun <T> Modifier.applyIfNotNull(
