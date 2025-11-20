@@ -1,6 +1,8 @@
 use super::Result;
 use mullvad_types::settings::SettingsVersion;
 
+/// NOTE: This migration has been closed.
+///
 /// This migration handles:
 /// - Introduces 2 new fields to the [mullvad_constraints::WireguardConstraints] struct:
 ///   pub entry_providers: Constraint<Providers>,
