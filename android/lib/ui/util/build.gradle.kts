@@ -4,17 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "net.mullvad.mullvadvpn.lib.ui.designsystem"
-
+    namespace = "net.mullvad.mullvadvpn.lib.ui.util"
     buildFeatures { compose = true }
 }
 
 dependencies {
-    implementation(projects.lib.theme)
-    implementation(projects.lib.model)
-    implementation(projects.lib.ui.tag)
-    implementation(projects.lib.ui.util)
-
     implementation(libs.compose.ui)
     implementation(libs.compose.ui.tooling)
     implementation(libs.compose.ui.tooling.preview)
