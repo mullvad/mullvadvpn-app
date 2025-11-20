@@ -58,7 +58,7 @@ fn write_file_to_temp(data: &[u8]) -> anyhow::Result<TempPath> {
 
 /// Return a slice of data for the given resource
 fn find_binary_data(architecture: Architecture) -> anyhow::Result<&'static [u8]> {
-    let resource_id = match architecture {
+    let resource_id: usize = match architecture {
         Architecture::X64 => resource::IDB_X64EXE,
         Architecture::Arm64 => resource::IDB_ARM64EXE,
     };
@@ -68,7 +68,7 @@ fn find_binary_data(architecture: Architecture) -> anyhow::Result<&'static [u8]>
         // which is not available in windows-sys, as it is a macro.
         // `resource_id` is guaranteed by the build script to refer to an actual resource.
         // See https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-findresourcew
-        NonZero::new(unsafe { FindResourceW(0, resource_id as _, w!("BINARY")) })
+        NonZero::new(unsafe { FindResourceW(0, resource_id as *const u16, w!("BINARY")) })
     else {
         bail!("Failed to find resource: {}", io::Error::last_os_error());
     };

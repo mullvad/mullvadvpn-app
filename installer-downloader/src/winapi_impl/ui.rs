@@ -412,7 +412,7 @@ fn handle_link_messages(
         if msg == WM_CTLCOLORSTATIC && Some(p) == link_hwnd {
             // SAFETY: `w` is a valid device context for WM_CTLCOLORSTATIC
             unsafe {
-                SetBkMode(w as HDC, TRANSPARENT as _);
+                SetBkMode(w as HDC, TRANSPARENT as i32);
                 SetTextColor(w as HDC, rgb(LINK_COLOR));
             }
             // Out of bounds background
