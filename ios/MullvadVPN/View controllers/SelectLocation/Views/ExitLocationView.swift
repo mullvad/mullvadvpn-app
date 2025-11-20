@@ -5,7 +5,6 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
     @Binding var context: LocationContext
     @State var newCustomListAlert: MullvadInputAlert?
     @State var alert: MullvadAlert?
-    @State private var scrollPosition: String?
 
     var isShowingCustomListsSection: Bool {
         viewModel.searchText.isEmpty
@@ -20,49 +19,53 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
     }
 
     var body: some View {
-        // All items in the list are arranged in a flat hierarchy
-        ScrollView {
-            LazyVStack(spacing: 0) {
-                Group {
-                    if !context.filter.isEmpty {
-                        ActiveFilterView(
-                            activeFilter: context.filter
-                        ) { filter in
-                            viewModel.onFilterTapped(filter)
-                        } onRemove: { filter in
-                            viewModel.onFilterRemoved(filter)
-                        }
-                        .padding(.bottom, 16)
-                    }
+        ScrollViewReader { scrollProxy in
+            // All items in the list are arranged in a flat hierarchy
+            ScrollView {
+                LazyVStack(spacing: 0) {
                     Group {
-                        if isShowingCustomListsSection {
-                            customListSection(isShowingHeader: isShowingAllLocationsSection)
+                        if !context.filter.isEmpty {
+                            ActiveFilterView(
+                                activeFilter: context.filter
+                            ) { filter in
+                                viewModel.onFilterTapped(filter)
+                            } onRemove: { filter in
+                                viewModel.onFilterRemoved(filter)
+                            }
+                            .padding(.bottom, 16)
                         }
-                        if isShowingAllLocationsSection {
-                            allLocationsSection(isShowingHeader: isShowingCustomListsSection)
+                        Group {
+                            if isShowingCustomListsSection {
+                                customListSection(isShowingHeader: isShowingAllLocationsSection)
+                            }
+                            if isShowingAllLocationsSection {
+                                allLocationsSection(isShowingHeader: isShowingCustomListsSection)
+                            }
+                            if !isShowingCustomListsSection && !isShowingAllLocationsSection {
+                                Text("No result for \"\(viewModel.searchText)\", please try a different search term.")
+                                    .font(.mullvadMiniSemiBold)
+                                    .foregroundStyle(Color.mullvadTextPrimary.opacity(0.6))
+                                    .padding(.vertical)
+                            }
                         }
-                        if !isShowingCustomListsSection && !isShowingAllLocationsSection {
-                            Text("No result for \"\(viewModel.searchText)\", please try a different search term.")
-                                .font(.mullvadMiniSemiBold)
-                                .foregroundStyle(Color.mullvadTextPrimary.opacity(0.6))
-                                .padding(.vertical)
-                        }
+                        .padding(.horizontal, 16)
                     }
-                    .padding(.horizontal, 16)
+                    .zIndex(3)  // prevent wrong overlapping during animations
                 }
-                .zIndex(3)  // prevent wrong overlapping during animations
+                .scrollTargetLayout()
             }
-        }
-        .scrollPosition(id: $scrollPosition, anchor: .center)
-        .accessibilityIdentifier(.selectLocationView)
-        .task {
-            guard viewModel.searchText.isEmpty else { return }
-            let selectedLocation = (context.locations + context.customLists)
-                .flatMap { $0.flattened + [$0] }
-                .first { $0.isSelected }
-            // prevent some cells from not being populated after the scroll
-            try? await Task.sleep(for: .milliseconds(25))
-            scrollPosition = selectedLocation?.code
+            .scrollTargetBehavior(.viewAligned)
+            .onAppear {
+                guard viewModel.searchText.isEmpty else { return }
+                let selectedLocation = (context.locations + context.customLists)
+                    .flatMap { $0.flattened + [$0] }
+                    .first { $0.isSelected }
+
+                if let selectedLocation {
+                    scrollProxy.scrollTo(selectedLocation.code, anchor: .center)
+                }
+            }
+            .accessibilityIdentifier(.selectLocationView)
         }
         .mullvadInputAlert(item: $newCustomListAlert)
         .mullvadAlert(item: $alert)
@@ -70,7 +73,6 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
 
     @ViewBuilder
     func allLocationsSection(isShowingHeader: Bool) -> some View {
-        //        VStack(alignment: .leading, spacing: 4) {
         if isShowingHeader {
             MullvadListSectionHeader(title: "All locations")
         }
@@ -86,7 +88,6 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
 
     @ViewBuilder
     func customListSection(isShowingHeader: Bool) -> some View {
-        //        VStack(alignment: .leading, spacing: 4) {
         if isShowingHeader {
             HStack(spacing: 0) {
                 MullvadListSectionHeader(title: "Custom lists")
