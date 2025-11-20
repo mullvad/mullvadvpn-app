@@ -45,6 +45,7 @@
 		4424CDD32CDBD4A6009D8C9F /* SingleChoiceList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4424CDD22CDBD4A6009D8C9F /* SingleChoiceList.swift */; };
 		447F3D8A2CDE1853006E3462 /* ShadowsocksObfuscationSettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 447F3D882CDE1852006E3462 /* ShadowsocksObfuscationSettingsViewModel.swift */; };
 		447F3D8B2CDE1853006E3462 /* ShadowsocksObfuscationSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 447F3D892CDE1853006E3462 /* ShadowsocksObfuscationSettingsView.swift */; };
+		4491AC7B2ECF5FE4005789DF /* MullvadAddressCacheKeychainStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4491AC7A2ECF5FC8005789DF /* MullvadAddressCacheKeychainStore.swift */; };
 		449275422C3570CA000526DE /* ICMP.swift in Sources */ = {isa = PBXBuildFile; fileRef = 449275412C3570CA000526DE /* ICMP.swift */; };
 		4495ECD12D0B170700A7358B /* UDPOverTCPObfuscationSettingsPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4495ECD02D0B16F700A7358B /* UDPOverTCPObfuscationSettingsPage.swift */; };
 		4495ECD52D131A4800A7358B /* ShadowsocksObfuscationSettingsPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4495ECD42D131A3E00A7358B /* ShadowsocksObfuscationSettingsPage.swift */; };
@@ -1616,6 +1617,7 @@
 		447F3D882CDE1852006E3462 /* ShadowsocksObfuscationSettingsViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShadowsocksObfuscationSettingsViewModel.swift; sourceTree = "<group>"; };
 		447F3D892CDE1853006E3462 /* ShadowsocksObfuscationSettingsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShadowsocksObfuscationSettingsView.swift; sourceTree = "<group>"; };
 		4483EC352E2693D5007E5473 /* MullvadAccessMethodChangeListening.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadAccessMethodChangeListening.swift; sourceTree = "<group>"; };
+		4491AC7A2ECF5FC8005789DF /* MullvadAddressCacheKeychainStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadAddressCacheKeychainStore.swift; sourceTree = "<group>"; };
 		449275412C3570CA000526DE /* ICMP.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ICMP.swift; sourceTree = "<group>"; };
 		449275432C3C3029000526DE /* TunnelPinger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelPinger.swift; sourceTree = "<group>"; };
 		4495ECD02D0B16F700A7358B /* UDPOverTCPObfuscationSettingsPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UDPOverTCPObfuscationSettingsPage.swift; sourceTree = "<group>"; };
@@ -4550,6 +4552,7 @@
 		A992DA1E2C24709F00DE7CE5 /* MullvadRustRuntime */ = {
 			isa = PBXGroup;
 			children = (
+				4491AC7A2ECF5FC8005789DF /* MullvadAddressCacheKeychainStore.swift */,
 				A948809A2BC9308D0090A44C /* EphemeralPeerExchangeActor.swift */,
 				A9EB4F9C2B7FAB21002A2D7A /* EphemeralPeerNegotiator.swift */,
 				A9A557F42B7E3E5C0017ADA8 /* EphemeralPeerReceiver.swift */,
@@ -6932,6 +6935,7 @@
 				A98207F32D9ACE4C00654558 /* MullvadAccessMethodReceiver.swift in Sources */,
 				A9173C322C36CCDD00F6A08C /* EphemeralPeerReceiver.swift in Sources */,
 				A96D0B452D675F0400DD6C59 /* MullvadConnectionModeProvider.swift in Sources */,
+				4491AC7B2ECF5FE4005789DF /* MullvadAddressCacheKeychainStore.swift in Sources */,
 				7A99D3712D56222000891FF7 /* MullvadApiCancellable.swift in Sources */,
 				A93969812CE606190032A7A0 /* Maybenot.swift in Sources */,
 				F05919802C45515200C301F3 /* EphemeralPeerExchangeActor.swift in Sources */,

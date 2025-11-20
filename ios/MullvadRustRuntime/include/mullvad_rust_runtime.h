@@ -53,14 +53,6 @@ typedef struct SwiftAddressCacheWrapper {
   struct SwiftAddressCacheProviderContext _0;
 } SwiftAddressCacheWrapper;
 
-typedef struct SwiftCancelHandle {
-  struct RequestCancelHandle *ptr;
-} SwiftCancelHandle;
-
-typedef struct SwiftRetryStrategy {
-  struct RetryStrategy *_0;
-} SwiftRetryStrategy;
-
 /**
  * A struct used to deallocate a pointer to a C String later than when the pointer's control is relinquished from Swift.
  * Use the `deallocate_ptr` function on `ptr` to call the custom deallocator provided by Swift.
@@ -69,6 +61,14 @@ typedef struct LateStringDeallocator {
   const char *ptr;
   void (*deallocate_ptr)(const char*);
 } LateStringDeallocator;
+
+typedef struct SwiftCancelHandle {
+  struct RequestCancelHandle *ptr;
+} SwiftCancelHandle;
+
+typedef struct SwiftRetryStrategy {
+  struct RetryStrategy *_0;
+} SwiftRetryStrategy;
 
 typedef struct SwiftMullvadApiResponse {
   uint8_t *body;
@@ -224,6 +224,10 @@ struct SwiftApiContext mullvad_api_init_inner(const char *host,
                                               void (*access_method_change_callback)(const void*,
                                                                                     const uint8_t*),
                                               const void *access_method_change_context);
+
+extern void swift_store_address_cache(const uint8_t *data, uint64_t data_size);
+
+extern struct LateStringDeallocator swift_read_address_cache(void);
 
 /**
  * Converts parameters into a `Box<AccessMethodSetting>` raw representation that
