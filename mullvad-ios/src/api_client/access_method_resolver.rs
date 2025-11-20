@@ -11,9 +11,16 @@ use talpid_types::net::{
 use tonic::async_trait;
 
 use super::{
+    address_cache_provider::LateStringDeallocator,    
     address_cache_provider::SwiftAddressCacheWrapper,
     shadowsocks_loader::SwiftShadowsocksLoaderWrapper,
 };
+
+unsafe extern "C" {
+    pub fn swift_store_address_cache(data: *const u8, data_size: u64);
+
+    pub fn swift_read_address_cache() -> LateStringDeallocator;
+}
 
 #[derive(Debug)]
 pub struct SwiftAccessMethodResolver {
