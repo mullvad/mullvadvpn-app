@@ -138,7 +138,6 @@ export const ipcSchema = {
     scaleFactorChange: notifyRenderer<void>(),
   },
   navigation: {
-    reset: notifyRenderer<void>(),
     setHistory: send<IHistoryObject>(),
   },
   daemon: {
@@ -174,6 +173,7 @@ export const ipcSchema = {
     showLaunchDaemonSettings: invoke<void, void>(),
     showFullDiskAccessSettings: invoke<void, void>(),
     getPathBaseName: invoke<string, string>(),
+    suspendEvent: notifyRenderer<void>(),
     upgrade: send<void>(),
     upgradeAbort: send<void>(),
     upgradeEvent: notifyRenderer<AppUpgradeEvent>(),
