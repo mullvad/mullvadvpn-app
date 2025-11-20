@@ -1,0 +1,12 @@
+---
+source: mullvad-daemon/src/migrations/v13.rs
+expression: "serde_json::to_string_pretty(&on_to_on).unwrap()"
+---
+{
+  "settings_version": 14,
+  "tunnel_options": {
+    "wireguard": {
+      "quantum_resistant": "on"
+    }
+  }
+}

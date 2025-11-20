@@ -121,6 +121,45 @@ mod test {
         Ok(())
     }
 
+    /// If a client already have gone through a migration of PQ settings previously, make
+    /// sure that running this migration does not break. The mathematical name for this property
+    /// would be idempotancy.
+    #[test]
+    fn test_migration_identity() {
+        // Possible input values:
+        // * "quantum_resistant": "on"
+        // * "quantum_resistant": "off"
+        // Possible output values:
+        // * "quantum_resistant": "on" -> "on"
+        // * "quantum_resistant": "off" -> "off"
+        {
+            // "on" -> "on"
+            let mut on_to_on = json!({
+                "tunnel_options": {
+                  "wireguard": {
+                    "quantum_resistant": "on"
+                  }
+                },
+                "settings_version": 13
+            });
+            migrate(&mut on_to_on).unwrap();
+            insta::assert_snapshot!(serde_json::to_string_pretty(&on_to_on).unwrap());
+        }
+        {
+            // "off" -> "off"
+            let mut off_to_off = json!({
+                "tunnel_options": {
+                  "wireguard": {
+                    "quantum_resistant": "off"
+                  }
+                },
+                "settings_version": 13
+            });
+            migrate(&mut off_to_off).unwrap();
+            insta::assert_snapshot!(serde_json::to_string_pretty(&off_to_off).unwrap());
+        }
+    }
+
     /// quantum resistant setting is migrated from auto to on.
     #[test]
     fn test_v13_to_v14_migration_pq_auto_to_on() {
