@@ -23,7 +23,7 @@ function run_git {
 }
 
 function upload_app() {
-	bash run-in-vm.sh "ios-upload" "$(pwd)/upload-app.sh" "build-output:~/build/build-output"
+    bash run-in-vm.sh "ios-upload" "$(pwd)/upload-app.sh" "build-output:~/build/build-output"
 }
 
 function build_ref() {
