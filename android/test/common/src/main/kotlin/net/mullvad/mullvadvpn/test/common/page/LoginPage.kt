@@ -28,7 +28,7 @@ class LoginPage internal constructor() : Page() {
     }
 
     fun clickCreateAccount() {
-        uiDevice.findObjectWithTimeout(By.text("Create account")).click()
+        uiDevice.findObjectWithTimeout(By.text("Create new account")).click()
     }
 
     fun verifyShowingInvalidAccount() {

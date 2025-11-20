@@ -96,7 +96,6 @@
     <string name="copy">Kopioi</string>
     <string name="copy_account_number">Kopioi tilin numero</string>
     <string name="create">Luo</string>
-    <string name="create_account">Luo tili</string>
     <string name="create_account_fail_title">Tilin luominen epäonnistui</string>
     <string name="create_custom_list_message">\"%1$s\" luotiin</string>
     <string name="create_new_account">Luo uusi tili</string>

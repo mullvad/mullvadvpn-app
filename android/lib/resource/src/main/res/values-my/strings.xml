@@ -96,7 +96,6 @@
     <string name="copy">ကူးယူရန်</string>
     <string name="copy_account_number">အကောင့်နံပါတ်ကို ကူးရန်</string>
     <string name="create">ဖန်တီးမည်</string>
-    <string name="create_account">အကောင့် ဖွင့်ရန်</string>
     <string name="create_account_fail_title">အကောင့်ဖန်တီးခြင်း မအောင်မြင်ပါ</string>
     <string name="create_custom_list_message">\"%1$s\" ကို ဖန်တီးလိုက်ပြီ</string>
     <string name="create_new_account">အကောင့်သစ် ဖွင့်ရန်</string>

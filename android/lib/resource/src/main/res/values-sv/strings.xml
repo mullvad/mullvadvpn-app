@@ -96,7 +96,6 @@
     <string name="copy">Kopiera</string>
     <string name="copy_account_number">Kopiera kontonummer</string>
     <string name="create">Skapa</string>
-    <string name="create_account">Skapa konto</string>
     <string name="create_account_fail_title">Det gick inte att skapa konto</string>
     <string name="create_custom_list_message">\"%1$s\" har skapats</string>
     <string name="create_new_account">Skapa nytt konto</string>

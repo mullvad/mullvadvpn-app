@@ -96,7 +96,6 @@
     <string name="copy">복사</string>
     <string name="copy_account_number">계정 번호 복사</string>
     <string name="create">생성</string>
-    <string name="create_account">계정 생성</string>
     <string name="create_account_fail_title">계정을 생성하지 못했습니다</string>
     <string name="create_custom_list_message">\"%1$s\"이(가) 생성되었습니다</string>
     <string name="create_new_account">새 계정 생성</string>

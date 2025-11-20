@@ -96,7 +96,6 @@
     <string name="copy">คัดลอก</string>
     <string name="copy_account_number">คัดลอกหมายเลขบัญชี</string>
     <string name="create">สร้าง</string>
-    <string name="create_account">สร้างบัญชี</string>
     <string name="create_account_fail_title">การสร้างบัญชีล้มเหลว</string>
     <string name="create_custom_list_message">\"%1$s\" ถูกสร้างแล้ว</string>
     <string name="create_new_account">สร้างบัญชีใหม่</string>

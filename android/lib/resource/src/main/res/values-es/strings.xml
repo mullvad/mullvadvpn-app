@@ -96,7 +96,6 @@
     <string name="copy">Copiar</string>
     <string name="copy_account_number">Copiar número de cuenta</string>
     <string name="create">Crear</string>
-    <string name="create_account">Crear cuenta</string>
     <string name="create_account_fail_title">Error al crear la cuenta</string>
     <string name="create_custom_list_message">Se ha creado «%1$s»</string>
     <string name="create_new_account">Crear nueva cuenta</string>

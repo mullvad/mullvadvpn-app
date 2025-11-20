@@ -2905,9 +2905,6 @@ msgstr ""
 msgid "Create"
 msgstr ""
 
-msgid "Create account"
-msgstr ""
-
 msgid "Create new list"
 msgstr ""
 
