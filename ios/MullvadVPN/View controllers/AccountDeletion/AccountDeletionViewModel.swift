@@ -80,12 +80,15 @@ class AccountDeletionViewModel: ObservableObject {
         self.onConclusion = nil
     }
 
-    var messageText: AttributedString {
-        .fromMarkdown(
-            """
-            Are you sure you want to delete the account **\(accountNumber)**?
-            """
-        )
+    var messageText: LocalizedStringKey {
+        var attributedAccountNumber: AttributedString {
+            return
+                (try? AttributedString(
+                    markdown: "**\(accountNumber)**",
+                    options: AttributedString.MarkdownParsingOptions(interpretedSyntax: .inlineOnlyPreservingWhitespace)
+                )) ?? AttributedString(accountNumber)
+        }
+        return LocalizedStringKey("Are you sure you want to delete the account \(attributedAccountNumber)?")
     }
 
     var statusText: LocalizedStringKey? {
