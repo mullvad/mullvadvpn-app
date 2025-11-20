@@ -121,7 +121,7 @@ pub async fn test_split_tunnel_toggle(
     // Steam should now be forced to route traffic through the tunnel again.
     steam.assert_secure().await?;
     // Re-enabling split-tunneling will once again make the split program leak.
-    mullvad_client.set_split_tunnel_state(true).await?; // <- Split tunneling: off
+    mullvad_client.set_split_tunnel_state(true).await?; // <- Split tunneling: on
     steam.assert_insecure().await?;
     Ok(())
 }
