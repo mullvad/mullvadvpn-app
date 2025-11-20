@@ -1,9 +1,7 @@
 //! A module for a POC of domain fronting. See IOS-1316.
+//! This only compiles on macos for the time being.
 
-use std::{
-    io::{self},
-    sync::Arc,
-};
+use std::{io::Error, sync::Arc};
 
 use tokio::net::TcpStream;
 use tokio_rustls::rustls::{self};
@@ -33,8 +31,13 @@ impl DomainFronting {
         let addrs = dns_resolver.resolve(self.front.clone()).await?;
         let addr = addrs
             .first()
-            .ok_or_else(|| io::Error::other("Empty DNS response"))?;
-        log::trace!("Resolved addrs {:?} for {:?}", addrs.clone(), self.front);
+            .ok_or_else(|| Error::other("Empty DNS response"))?;
+        log::debug!(
+            "Resolved addresses {:?} for {:?}, will connect to {:?}",
+            addrs.clone(),
+            self.front,
+            addr.ip()
+        );
         let stream = TcpStream::connect((addr.ip(), 443)).await?;
 
         Ok(TlsStream::connect_https(stream, &self.front, config).await?)

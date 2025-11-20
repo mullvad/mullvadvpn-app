@@ -28,6 +28,7 @@ pub use crate::https_client_with_sni::SocketBypassRequest;
 mod access;
 mod address_cache;
 pub mod device;
+#[cfg(target_os = "macos")]
 pub mod domain_fronting;
 mod relay_list;
 
