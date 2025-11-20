@@ -56,7 +56,7 @@ expression: "serde_json::to_string_pretty(&old_settings).unwrap()"
   "settings_version": 13,
   "tunnel_options": {
     "wireguard": {
-      "quantum_resistant": "on"
+      "quantum_resistant": "auto"
     }
   }
 }
