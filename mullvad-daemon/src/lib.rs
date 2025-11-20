@@ -48,7 +48,7 @@ use mullvad_types::account::{PlayPurchase, PlayPurchasePaymentToken};
 use mullvad_types::relay_constraints::{
     GeographicLocationConstraint, LocationConstraint, RelayConstraints, WireguardConstraints,
 };
-#[cfg(any(windows, target_os = "android", target_os = "macos"))]
+#[cfg(any(target_os = "windows", target_os = "android", target_os = "macos"))]
 use mullvad_types::settings::SplitApp;
 #[cfg(daita)]
 use mullvad_types::wireguard::DaitaSettings;
@@ -78,7 +78,7 @@ use mullvad_update::version::rollout::{Rollout, generate_rollout_seed};
 use relay_list::{RELAYS_FILENAME, RelayListUpdater, RelayListUpdaterHandle};
 use settings::SettingsPersister;
 use std::collections::BTreeSet;
-#[cfg(any(windows, target_os = "android", target_os = "macos"))]
+#[cfg(any(target_os = "windows", target_os = "android", target_os = "macos"))]
 use std::collections::HashSet;
 #[cfg(target_os = "android")]
 use std::os::unix::io::RawFd;
@@ -175,7 +175,7 @@ pub enum Error {
     #[error("Unable to initialize split tunneling")]
     InitSplitTunneling(#[source] split_tunnel::Error),
 
-    #[cfg(any(windows, target_os = "android", target_os = "macos"))]
+    #[cfg(any(target_os = "windows", target_os = "android", target_os = "macos"))]
     #[error("Split tunneling error")]
     SplitTunnelError(#[source] split_tunnel::Error),
 
@@ -377,19 +377,19 @@ pub enum DaemonCommand {
     #[cfg(target_os = "linux")]
     ClearSplitTunnelProcesses(ResponseTx<(), split_tunnel::Error>),
     /// Exclude traffic of an application from the tunnel
-    #[cfg(any(windows, target_os = "android", target_os = "macos"))]
+    #[cfg(any(target_os = "windows", target_os = "android", target_os = "macos"))]
     AddSplitTunnelApp(ResponseTx<(), Error>, SplitApp),
     /// Remove application from list of apps to exclude from the tunnel
-    #[cfg(any(windows, target_os = "android", target_os = "macos"))]
+    #[cfg(any(target_os = "windows", target_os = "android", target_os = "macos"))]
     RemoveSplitTunnelApp(ResponseTx<(), Error>, SplitApp),
     /// Clear list of apps to exclude from the tunnel
-    #[cfg(any(windows, target_os = "android", target_os = "macos"))]
+    #[cfg(any(target_os = "windows", target_os = "android", target_os = "macos"))]
     ClearSplitTunnelApps(ResponseTx<(), Error>),
     /// Enable or disable split tunneling
-    #[cfg(any(windows, target_os = "android", target_os = "macos"))]
+    #[cfg(any(target_os = "windows", target_os = "android", target_os = "macos"))]
     SetSplitTunnelState(ResponseTx<(), Error>, bool),
     /// Returns all processes currently being excluded from the tunnel
-    #[cfg(windows)]
+    #[cfg(target_os = "windows")]
     GetSplitTunnelProcesses(ResponseTx<Vec<ExcludedProcess>, split_tunnel::Error>),
     /// Notify the split tunnel monitor that a volume was mounted or dismounted
     #[cfg(target_os = "windows")]
@@ -478,13 +478,13 @@ pub(crate) enum InternalDaemonEvent {
     /// A generic event for when any settings change.
     SettingsChanged,
     /// The split tunnel paths or state were updated.
-    #[cfg(any(windows, target_os = "android", target_os = "macos"))]
+    #[cfg(any(target_os = "windows", target_os = "android", target_os = "macos"))]
     ExcludedPathsEvent(ExcludedPathsUpdate, oneshot::Sender<Result<(), Error>>),
     /// A network leak was detected.
     LeakDetected(LeakInfo),
 }
 
-#[cfg(any(windows, target_os = "android", target_os = "macos"))]
+#[cfg(any(target_os = "windows", target_os = "android", target_os = "macos"))]
 pub(crate) enum ExcludedPathsUpdate {
     SetState(bool),
     SetPaths(HashSet<SplitApp>),
@@ -843,7 +843,7 @@ impl Daemon {
             PersistentTargetState::new(&config.cache_dir).await
         };
 
-        #[cfg(any(windows, target_os = "android", target_os = "macos"))]
+        #[cfg(any(target_os = "windows", target_os = "android", target_os = "macos"))]
         let exclude_paths = if settings.split_tunnel.enable_exclusions {
             settings
                 .split_tunnel
@@ -906,7 +906,7 @@ impl Daemon {
                     .map_err(Error::ApiConnectionModeError)?
                     .endpoint,
                 reset_firewall: *target_state != TargetState::Secured,
-                #[cfg(any(windows, target_os = "android", target_os = "macos"))]
+                #[cfg(any(target_os = "windows", target_os = "android", target_os = "macos"))]
                 exclude_paths,
             },
             parameters_generator.clone(),
@@ -1166,7 +1166,7 @@ impl Daemon {
             SettingsChanged => {
                 self.update_feature_indicators_on_settings_changed();
             }
-            #[cfg(any(windows, target_os = "android", target_os = "macos"))]
+            #[cfg(any(target_os = "windows", target_os = "android", target_os = "macos"))]
             ExcludedPathsEvent(update, tx) => self.handle_new_excluded_paths(update, tx).await,
             LeakDetected(leak_info) => {
                 log::warn!("Network leak detected! Please contact Mullvad support.");
@@ -1539,15 +1539,15 @@ impl Daemon {
             RemoveSplitTunnelProcess(tx, pid) => self.on_remove_split_tunnel_process(tx, pid),
             #[cfg(target_os = "linux")]
             ClearSplitTunnelProcesses(tx) => self.on_clear_split_tunnel_processes(tx),
-            #[cfg(any(windows, target_os = "android", target_os = "macos"))]
+            #[cfg(any(target_os = "windows", target_os = "android", target_os = "macos"))]
             AddSplitTunnelApp(tx, app) => self.on_add_split_tunnel_app(tx, app),
-            #[cfg(any(windows, target_os = "android", target_os = "macos"))]
+            #[cfg(any(target_os = "windows", target_os = "android", target_os = "macos"))]
             RemoveSplitTunnelApp(tx, path) => self.on_remove_split_tunnel_app(tx, path),
-            #[cfg(any(windows, target_os = "android", target_os = "macos"))]
+            #[cfg(any(target_os = "windows", target_os = "android", target_os = "macos"))]
             ClearSplitTunnelApps(tx) => self.on_clear_split_tunnel_apps(tx),
-            #[cfg(any(windows, target_os = "android", target_os = "macos"))]
+            #[cfg(any(target_os = "windows", target_os = "android", target_os = "macos"))]
             SetSplitTunnelState(tx, enabled) => self.on_set_split_tunnel_state(tx, enabled),
-            #[cfg(windows)]
+            #[cfg(target_os = "windows")]
             GetSplitTunnelProcesses(tx) => self.on_get_split_tunnel_processes(tx),
             #[cfg(target_os = "windows")]
             CheckVolumes(tx) => self.on_check_volumes(tx),
@@ -1773,7 +1773,7 @@ impl Daemon {
         });
     }
 
-    #[cfg(any(windows, target_os = "android", target_os = "macos"))]
+    #[cfg(any(target_os = "windows", target_os = "android", target_os = "macos"))]
     async fn handle_new_excluded_paths(
         &mut self,
         update: ExcludedPathsUpdate,
@@ -2209,7 +2209,7 @@ impl Daemon {
     }
 
     /// Update the split app paths in both the settings and tunnel
-    #[cfg(any(windows, target_os = "android"))]
+    #[cfg(any(target_os = "windows", target_os = "android"))]
     fn set_split_tunnel_paths(
         &mut self,
         tx: ResponseTx<(), Error>,
@@ -2347,7 +2347,7 @@ impl Daemon {
         );
     }
 
-    #[cfg(any(windows, target_os = "android", target_os = "macos"))]
+    #[cfg(any(target_os = "windows", target_os = "android", target_os = "macos"))]
     fn on_remove_split_tunnel_app(&mut self, tx: ResponseTx<(), Error>, app: impl Into<SplitApp>) {
         let settings = self.settings.to_settings();
 
@@ -2365,7 +2365,7 @@ impl Daemon {
         );
     }
 
-    #[cfg(any(windows, target_os = "android", target_os = "macos"))]
+    #[cfg(any(target_os = "windows", target_os = "android", target_os = "macos"))]
     fn on_clear_split_tunnel_apps(&mut self, tx: ResponseTx<(), Error>) {
         let settings = self.settings.to_settings();
         let new_list = HashSet::new();
@@ -2377,7 +2377,7 @@ impl Daemon {
         );
     }
 
-    #[cfg(any(windows, target_os = "android", target_os = "macos"))]
+    #[cfg(any(target_os = "windows", target_os = "android", target_os = "macos"))]
     fn on_set_split_tunnel_state(&mut self, tx: ResponseTx<(), Error>, state: bool) {
         let settings = self.settings.to_settings();
         self.set_split_tunnel_paths(
@@ -2388,7 +2388,7 @@ impl Daemon {
         );
     }
 
-    #[cfg(windows)]
+    #[cfg(target_os = "windows")]
     fn on_get_split_tunnel_processes(
         &self,
         tx: ResponseTx<Vec<ExcludedProcess>, split_tunnel::Error>,
@@ -2402,7 +2402,7 @@ impl Daemon {
         );
     }
 
-    #[cfg(windows)]
+    #[cfg(target_os = "windows")]
     fn on_check_volumes(&mut self, tx: ResponseTx<(), Error>) {
         if self.volume_update_tx.unbounded_send(()).is_ok() {
             let _ = tx.send(Ok(()));
@@ -3578,7 +3578,7 @@ fn oneshot_map<T1: Send + 'static, T2: Send + 'static>(
 }
 
 /// Remove any old RPC socket (if it exists).
-#[cfg(not(windows))]
+#[cfg(not(target_os = "windows"))]
 pub async fn cleanup_old_rpc_socket(rpc_socket_path: impl AsRef<std::path::Path>) {
     if let Err(err) = tokio::fs::remove_file(rpc_socket_path).await
         && err.kind() != std::io::ErrorKind::NotFound
