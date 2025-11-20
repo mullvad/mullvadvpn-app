@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.lib.ui.component.listitem
 
+import net.mullvad.mullvadvpn.lib.ui.component.R
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.icons.Icons
@@ -9,11 +10,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import applyIfNotNull
 import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.component.DividerButton
-import net.mullvad.mullvadvpn.lib.ui.component.SpacedColumn
+import net.mullvad.mullvadvpn.lib.ui.component.preview.PreviewSpacedColumn
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Hierarchy
 import net.mullvad.mullvadvpn.lib.ui.designsystem.ListItemDefaults
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
@@ -22,7 +25,7 @@ import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
 @Composable
 private fun PreviewCustomPortListItem() {
     AppTheme {
-        SpacedColumn(Modifier.background(MaterialTheme.colorScheme.surface)) {
+        PreviewSpacedColumn(Modifier.background(MaterialTheme.colorScheme.surface)) {
             CustomPortListItem(
                 hierarchy = Hierarchy.Child1,
                 title = "Custom",
@@ -61,8 +64,8 @@ fun CustomPortListItem(
     isEnabled: Boolean = true,
     isSelected: Boolean,
     port: Port?,
-    mainTestTag: String = "",
-    numberTestTag: String = "",
+    mainTestTag: String? = null,
+    numberTestTag: String? = null,
     onMainCellClicked: (() -> Unit)? = null,
     onPortCellClicked: () -> Unit,
 ) {
@@ -79,7 +82,7 @@ fun CustomPortListItem(
                 Text(title)
                 if (port != null) {
                     Text(
-                        "Port: ${port.value}",
+                        stringResource(id = R.string.port_x, port.value),
                         style = MaterialTheme.typography.labelLarge,
                         color =
                             if (isEnabled) MaterialTheme.colorScheme.onSurfaceVariant
@@ -90,7 +93,7 @@ fun CustomPortListItem(
         },
         trailingContent = {
             DividerButton(
-                modifier = Modifier.testTag(numberTestTag),
+                modifier = Modifier.applyIfNotNull(numberTestTag) { testTag(it) },
                 onClick = onPortCellClicked,
                 isEnabled = isEnabled,
                 icon = Icons.Default.Edit,

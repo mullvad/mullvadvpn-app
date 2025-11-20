@@ -68,7 +68,7 @@ import com.ramcosta.composedestinations.generated.destinations.WireguardCustomPo
 import com.ramcosta.composedestinations.generated.destinations.WireguardPortInfoDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
-import ifTrue
+import applyIf
 import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
 import net.mullvad.mullvadvpn.R
@@ -959,7 +959,7 @@ fun VpnSettingsContent(
                         SelectableListItem(
                             modifier =
                                 Modifier.animateItem()
-                                    .ifTrue(
+                                    .applyIf(
                                         it.quantumResistantState == QuantumResistantState.On,
                                         Modifier.focusRequester(
                                             focusRequesters.getValue(

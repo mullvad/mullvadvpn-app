@@ -18,7 +18,6 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
-import net.mullvad.mullvadvpn.lib.ui.component.ComponentTokens
 import net.mullvad.mullvadvpn.lib.ui.component.ExpandChevron
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Hierarchy
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadListItem
@@ -62,7 +61,7 @@ fun ExpandableListItem(
                 if (onInfoClicked != null) {
                     Box(
                         modifier =
-                            Modifier.width(ComponentTokens.infoIconContainerWidth).fillMaxHeight(),
+                            Modifier.width(ListItemComponentTokens.infoIconContainerWidth).fillMaxHeight(),
                         contentAlignment = Alignment.Center,
                     ) {
                         IconButton(onClick = onInfoClicked) {

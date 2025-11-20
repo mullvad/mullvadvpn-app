@@ -3400,6 +3400,9 @@ msgstr ""
 msgid "Verifying voucher…"
 msgstr ""
 
+msgid "Warning"
+msgstr ""
+
 msgid "We are still verifying your purchase, this might take some time. Your time will be added if the verification is successful."
 msgstr ""
 

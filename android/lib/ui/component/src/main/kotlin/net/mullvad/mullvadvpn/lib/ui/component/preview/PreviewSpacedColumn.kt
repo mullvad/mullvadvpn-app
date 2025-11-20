@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.lib.ui.component
+package net.mullvad.mullvadvpn.lib.ui.component.preview
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -10,7 +10,7 @@ import androidx.compose.ui.unit.Dp
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 
 @Composable
-fun SpacedColumn(
+internal fun PreviewSpacedColumn(
     modifier: Modifier = Modifier,
     spacing: Dp = Dimens.listItemDivider,
     verticalAlignment: Alignment.Vertical = Alignment.Bottom,

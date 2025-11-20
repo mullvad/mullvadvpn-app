@@ -41,7 +41,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewFontScale
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import ifNotNull
+import applyIfNotNull
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaInactive
 
@@ -131,8 +131,8 @@ fun MullvadListItem(
         Row(
             modifier =
                 Modifier.background(hierarchy.containerColor.copy(alpha = backgroundAlpha))
-                    .ifNotNull(testTag) { testTag(it) }
-                    .ifNotNull(onClick, and = isEnabled) {
+                    .applyIfNotNull(testTag) { testTag(it) }
+                    .applyIfNotNull(onClick, and = isEnabled) {
                         combinedClickable(enabled = true, onClick = it, onLongClick = onLongClick)
                     }
                     .padding(start = ListTokens.listItemPaddingStart + hierarchy.paddingStart),

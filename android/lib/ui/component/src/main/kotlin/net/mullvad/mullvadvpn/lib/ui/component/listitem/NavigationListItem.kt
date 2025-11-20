@@ -11,10 +11,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
-import net.mullvad.mullvadvpn.lib.ui.component.SpacedColumn
+import net.mullvad.mullvadvpn.lib.ui.component.R
+import net.mullvad.mullvadvpn.lib.ui.component.preview.PreviewSpacedColumn
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Hierarchy
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadListItem
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
@@ -23,7 +25,9 @@ import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
 @Composable
 private fun PreviewNavigationListItem() {
     AppTheme {
-        SpacedColumn(Modifier.background(MaterialTheme.colorScheme.surface)) {
+        PreviewSpacedColumn(
+            Modifier.background(MaterialTheme.colorScheme.surface),
+        ) {
             NavigationListItem(title = "Navigation sample", showWarning = false, onClick = {})
             NavigationListItem(
                 hierarchy = Hierarchy.Child1,
@@ -62,7 +66,7 @@ fun NavigationListItem(
                 Icon(
                     imageVector = Icons.Default.Error,
                     modifier = Modifier.padding(end = Dimens.smallPadding),
-                    contentDescription = null,
+                    contentDescription = stringResource(R.string.warning),
                     tint = MaterialTheme.colorScheme.error,
                 )
             }

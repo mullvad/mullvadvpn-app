@@ -1,6 +1,6 @@
 import androidx.compose.ui.Modifier
 
-fun <T> Modifier.ifNotNull(
+fun <T> Modifier.applyIfNotNull(
     value: T?,
     and: Boolean = true,
     block: Modifier.(T) -> Modifier,
@@ -11,7 +11,7 @@ fun <T> Modifier.ifNotNull(
         this
     }
 
-fun Modifier.ifTrue(condition: Boolean, modifier: Modifier): Modifier =
+fun Modifier.applyIf(condition: Boolean, modifier: Modifier): Modifier =
     if (condition) {
         then(modifier)
     } else {

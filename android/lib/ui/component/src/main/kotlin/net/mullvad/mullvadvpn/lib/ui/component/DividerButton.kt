@@ -17,7 +17,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import ifTrue
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaInactive
 
@@ -40,7 +39,7 @@ fun DividerButton(
             modifier =
                 Modifier.width(DividerButtonWidth)
                     .fillMaxHeight()
-                    .ifTrue(isEnabled, Modifier.clickable { onClick() }),
+                    .clickable(enabled = isEnabled, onClick = onClick),
             contentAlignment = Alignment.Center,
         ) {
             Icon(

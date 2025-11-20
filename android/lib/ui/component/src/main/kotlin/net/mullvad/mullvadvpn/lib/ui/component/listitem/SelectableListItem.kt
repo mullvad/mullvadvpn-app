@@ -7,7 +7,9 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
@@ -20,7 +22,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
-import net.mullvad.mullvadvpn.lib.ui.component.SpacedColumn
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Hierarchy
 import net.mullvad.mullvadvpn.lib.ui.designsystem.ListItemDefaults
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadListItem
@@ -30,7 +31,10 @@ import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
 @Composable
 private fun PreviewSelectableListItem() {
     AppTheme {
-        SpacedColumn(Modifier.background(MaterialTheme.colorScheme.surface)) {
+        Column(
+            Modifier.background(MaterialTheme.colorScheme.surface),
+            verticalArrangement = Arrangement.spacedBy(Dimens.listItemDivider, Alignment.Bottom),
+        ) {
             SelectableListItem(hierarchy = Hierarchy.Child1, title = "Selected", isSelected = true)
             SelectableListItem(
                 hierarchy = Hierarchy.Child1,

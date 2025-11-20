@@ -471,4 +471,5 @@
     <string name="disable_multihop">Disable multihop</string>
     <string name="enable_multihop">Enable multihop</string>
     <string name="unavailable">Unavailable</string>
+    <string name="warning">Warning</string>
 </resources>

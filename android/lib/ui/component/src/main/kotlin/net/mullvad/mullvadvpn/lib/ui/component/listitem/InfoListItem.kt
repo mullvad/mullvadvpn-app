@@ -15,7 +15,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
-import net.mullvad.mullvadvpn.lib.ui.component.ComponentTokens
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Hierarchy
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadListItem
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
@@ -41,9 +40,10 @@ fun InfoListItem(
     title: String,
     isEnabled: Boolean = true,
     backgroundAlpha: Float = 1f,
+    iconContentDescription: String? = null,
     onCellClicked: (() -> Unit)? = null,
     onInfoClicked: (() -> Unit),
-    testTag: String = "",
+    testTag: String? = null,
 ) {
 
     MullvadListItem(
@@ -58,13 +58,16 @@ fun InfoListItem(
         trailingContent = {
             Box(
                 modifier =
-                    Modifier.width(ComponentTokens.infoIconContainerWidth)
+                    Modifier.width(ListItemComponentTokens.infoIconContainerWidth)
                         .padding(end = Dimens.smallPadding)
                         .fillMaxHeight(),
                 contentAlignment = Alignment.Center,
             ) {
                 IconButton(onClick = onInfoClicked) {
-                    Icon(imageVector = Icons.Default.Info, contentDescription = null)
+                    Icon(
+                        imageVector = Icons.Default.Info,
+                        contentDescription = iconContentDescription,
+                    )
                 }
             }
         },
