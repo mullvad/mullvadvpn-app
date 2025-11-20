@@ -143,27 +143,31 @@ pub unsafe extern "C" fn init_access_method_settings_wrapper(
         )
     };
 
-    let custom = unsafe { access_methods_from_raw_array(custom_methods_raw, custom_method_count) };
+    let custom =
+        unsafe { access_methods_from_raw_array(custom_methods_raw.cast(), custom_method_count) };
     let settings = Settings::new(direct, mullvad_bridges, encrypted_dns_proxy, custom);
     let context = SwiftAccessMethodSettingsContext { settings };
     SwiftAccessMethodSettingsWrapper::new(context)
 }
 
-/// Creates a vector of `AccessMethodSetting` objects from a C array
+/// Creates a vector of `AccessMethodSetting` objects from a C array.
 ///
-/// SAFETY: `raw_array` must be aligned, non-null and initialized for `count` reads
+/// This takes ownership of the `AccessMethodSetting`s pointed to by `raw_array`. So the memory is
+/// freed when the returned vector is dropped.
+///
+/// SAFETY: `raw_array` must be aligned, non-null, initialized for `count` reads and not be used
+/// after this call.
 unsafe fn access_methods_from_raw_array(
-    raw_array: *const c_void,
+    raw_array: *const *mut AccessMethodSetting,
     number_of_elements: usize,
 ) -> Vec<AccessMethodSetting> {
-    let raw_array: *mut *mut AccessMethodSetting = raw_array as _;
     // SAFETY: See notice above
     let slice = unsafe { slice::from_raw_parts(raw_array, number_of_elements) };
     slice
         .iter()
-        .map(|&ptr| {
+        .map(|ptr: &*mut AccessMethodSetting| {
             // SAFETY: `slice` is a slice of pointers to `AccessMethodSetting` created with `Box::into_raw`
-            *unsafe { Box::from_raw(ptr) }
+            *unsafe { Box::from_raw(*ptr) }
         })
         .collect()
 }
