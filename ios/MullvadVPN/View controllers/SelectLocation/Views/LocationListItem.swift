@@ -26,10 +26,10 @@ struct LocationListItem<ContextMenu>: View where ContextMenu: View {
                     onSelect: { onSelect(location) }
                 )
                 .accessibilityIdentifier(.locationListItem(location.name))
-                .padding(.top, level == 0 ? 0 : 1)
                 .contextMenu {
                     contextMenu(location)
                 }
+                .padding(.top, level == 0 ? 4 : 1)
             } else {
                 LocationDisclosureGroup(
                     level: level,

@@ -34,15 +34,17 @@ struct LocationsListView<ContextMenu>: View where ContextMenu: View {
 #Preview {
     @Previewable @StateObject var viewModel = MockSelectLocationViewModel()
     ScrollView {
-        LocationsListView(
-            locations: $viewModel.exitContext.locations,
-            multihopContext: .exit,
-            onSelectLocation: { location in
-                print("Selected: \(location.name)")
-            },
-            contextMenu: { location in Text("Add \(location.name) to list") }
-        )
-        .padding()
+        LazyVStack(spacing: 0) {
+            LocationsListView(
+                locations: $viewModel.exitContext.customLists,
+                multihopContext: .exit,
+                onSelectLocation: { location in
+                    print("Selected: \(location.name)")
+                },
+                contextMenu: { location in Text("Add \(location.name) to list") }
+            )
+            .padding(.horizontal)
+        }
     }
     .background(Color.mullvadBackground)
 }

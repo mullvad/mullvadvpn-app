@@ -13,7 +13,7 @@ class SelectLocationPage: Page {
     @discardableResult override init(_ app: XCUIApplication) {
         super.init(app)
 
-        self.pageElement = app.collectionViews[.selectLocationView]
+        self.pageElement = app.scrollViews[.selectLocationView]
         waitForPageToBeShown()
     }
 

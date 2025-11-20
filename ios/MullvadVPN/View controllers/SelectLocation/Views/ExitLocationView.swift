@@ -5,6 +5,8 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
     @Binding var context: LocationContext
     @State var newCustomListAlert: MullvadInputAlert?
     @State var alert: MullvadAlert?
+    @State private var scrollPosition: String?
+
     var isShowingCustomListsSection: Bool {
         viewModel.searchText.isEmpty
             || (!viewModel.searchText.isEmpty
@@ -18,9 +20,9 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
     }
 
     var body: some View {
-        ScrollViewReader { proxy in
-            // All items in the list are arranged in a flat hierarchy
-            List {
+        // All items in the list are arranged in a flat hierarchy
+        ScrollView {
+            LazyVStack(spacing: 0) {
                 Group {
                     if !context.filter.isEmpty {
                         ActiveFilterView(
@@ -30,11 +32,8 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
                         } onRemove: { filter in
                             viewModel.onFilterRemoved(filter)
                         }
-                        .listRowInsets(
-                            EdgeInsets(top: 8, leading: 0, bottom: 16, trailing: 0)
-                        )
+                        .padding(.bottom, 16)
                     }
-
                     Group {
                         if isShowingCustomListsSection {
                             customListSection(isShowingHeader: isShowingAllLocationsSection)
@@ -49,26 +48,21 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
                                 .padding(.vertical)
                         }
                     }
-                    .listRowInsets(
-                        EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16)
-                    )
+                    .padding(.horizontal, 16)
                 }
                 .zIndex(3)  // prevent wrong overlapping during animations
-                .listRowSeparator(.hidden)
-                .buttonStyle(.plain)  //  disables default list row pressed state and enables multiple buttons per row
-                .listRowBackground(Color.clear)
-
             }
-            .accessibilityIdentifier(.selectLocationView)
-            .environment(\.defaultMinListRowHeight, 0)
-            .listStyle(.plain)
-            .onAppear {
-                guard viewModel.searchText.isEmpty else { return }
-                let selectedLocation = (context.locations + context.customLists)
-                    .flatMap { $0.flattened + [$0] }
-                    .first { $0.isSelected }
-                proxy.scrollTo(selectedLocation?.code, anchor: .center)
-            }
+        }
+        .scrollPosition(id: $scrollPosition, anchor: .center)
+        .accessibilityIdentifier(.selectLocationView)
+        .task {
+            guard viewModel.searchText.isEmpty else { return }
+            let selectedLocation = (context.locations + context.customLists)
+                .flatMap { $0.flattened + [$0] }
+                .first { $0.isSelected }
+            // prevent some cells from not being populated after the scroll
+            try? await Task.sleep(for: .milliseconds(25))
+            scrollPosition = selectedLocation?.code
         }
         .mullvadInputAlert(item: $newCustomListAlert)
         .mullvadAlert(item: $alert)
@@ -139,7 +133,7 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
             .font(.mullvadMini)
             .foregroundStyle(Color.mullvadTextPrimary.opacity(0.6))
             .padding(.horizontal, context.customLists.isEmpty ? 0 : 16)
-            .padding(.top, context.customLists.isEmpty ? 0 : 2)
+            .padding(.top, context.customLists.isEmpty ? 0 : 4)
             .padding(.bottom, 24)
     }
 }
