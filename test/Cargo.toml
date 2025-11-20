@@ -35,6 +35,7 @@ single_use_lifetimes = "warn"
 [workspace.lints.clippy]
 borrow_as_ptr = "warn"
 implicit_clone = "warn"
+as_underscore = "warn"
 unused_async = "deny"
 
 [workspace.dependencies]
