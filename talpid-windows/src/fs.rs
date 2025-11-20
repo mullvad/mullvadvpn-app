@@ -1,3 +1,4 @@
+use std::ffi::c_void;
 use std::io;
 use std::os::windows::io::AsRawHandle;
 use std::ptr;
@@ -35,9 +36,10 @@ pub fn is_admin_owned<T: AsRawHandle>(handle: T) -> io::Result<bool> {
     }
 
     // SAFETY: `owner` is valid since `security_descriptor` still is, and the well-known type is a valid argument
-    let is_system_owned = unsafe { IsWellKnownSid(owner as _, WinLocalSystemSid) != 0 };
+    let is_system_owned = unsafe { IsWellKnownSid(owner.cast::<c_void>(), WinLocalSystemSid) != 0 };
     // SAFETY: `owner` is valid since `security_descriptor` still is, and the well-known type is a valid argument
-    let is_admin_owned = unsafe { IsWellKnownSid(owner as _, WinBuiltinAdministratorsSid) != 0 };
+    let is_admin_owned =
+        unsafe { IsWellKnownSid(owner.cast::<c_void>(), WinBuiltinAdministratorsSid) != 0 };
 
     // SAFETY: Since we no longer need the descriptor (or owner), it may be freed
     unsafe { LocalFree(security_descriptor.cast()) };
