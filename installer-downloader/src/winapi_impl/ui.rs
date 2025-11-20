@@ -487,7 +487,7 @@ fn create_link_font() -> Result<&'static nwg::Font, nwg::NwgError> {
         }
 
         // SAFETY: `logfont` is a valid font
-        let raw_font = unsafe { CreateFontIndirectW(&logfont) };
+        let raw_font = unsafe { CreateFontIndirectW(&raw const logfont) };
 
         if raw_font.is_null() {
             return Err(nwg::NwgError::Unknown);

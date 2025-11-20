@@ -79,7 +79,7 @@ fn generate_minidump(
             process_id,
             handle as HANDLE,
             MiniDumpNormal,
-            &exception_parameters,
+            &raw const exception_parameters,
             ptr::null(),
             ptr::null(),
         )

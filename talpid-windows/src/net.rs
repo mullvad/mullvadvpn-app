@@ -181,9 +181,9 @@ pub fn notify_ip_interface_change<'a, T: FnMut(&MIB_IPINTERFACE_ROW, i32) + Send
         NotifyIpInterfaceChange(
             af_family_from_family(family),
             Some(inner_callback),
-            &mut *context as *mut _ as *mut _,
+            (&raw mut *context).cast(),
             false,
-            (&mut context.handle) as *mut _,
+            &raw mut context.handle,
         )
     })?;
     Ok(context)
@@ -200,7 +200,7 @@ pub fn get_ip_interface_entry(
         ..Default::default()
     };
 
-    win32_err!(unsafe { GetIpInterfaceEntry(&mut row) })?;
+    win32_err!(unsafe { GetIpInterfaceEntry(&raw mut row) })?;
     Ok(row)
 }
 
@@ -328,14 +328,15 @@ pub fn get_ip_address_for_interface(
 /// Adds a unicast IP address for the given interface.
 pub fn add_ip_address_for_interface(luid: NET_LUID_LH, address: IpAddr) -> Result<()> {
     let mut row = MIB_UNICASTIPADDRESS_ROW::default();
-    unsafe { InitializeUnicastIpAddressEntry(&mut row) };
+    unsafe { InitializeUnicastIpAddressEntry(&raw mut row) };
 
     row.InterfaceLuid = luid;
     row.Address = inet_sockaddr_from_socketaddr(SocketAddr::new(address, 0));
     row.DadState = IpDadStatePreferred;
     row.OnLinkPrefixLength = 255;
 
-    win32_err!(unsafe { CreateUnicastIpAddressEntry(&row) }).map_err(Error::CreateUnicastEntry)
+    win32_err!(unsafe { CreateUnicastIpAddressEntry(&raw const row) })
+        .map_err(Error::CreateUnicastEntry)
 }
 
 /// Sets MTU on the specified network interface identified by `luid`.
@@ -356,7 +357,7 @@ pub fn get_unicast_table(
     let mut unicast_table: *mut MIB_UNICASTIPADDRESS_TABLE = std::ptr::null_mut();
 
     win32_err!(unsafe {
-        GetUnicastIpAddressTable(af_family_from_family(family), &mut unicast_table)
+        GetUnicastIpAddressTable(af_family_from_family(family), &raw mut unicast_table)
     })?;
     let first_row = unsafe { &(*unicast_table).Table[0] } as *const MIB_UNICASTIPADDRESS_ROW;
     for i in 0..unsafe { *unicast_table }.NumEntries {
@@ -370,7 +371,7 @@ pub fn get_unicast_table(
 /// Returns the index of a network interface given its LUID.
 pub fn index_from_luid(luid: &NET_LUID_LH) -> io::Result<u32> {
     let mut index = 0u32;
-    win32_err!(unsafe { ConvertInterfaceLuidToIndex(luid, &mut index) })?;
+    win32_err!(unsafe { ConvertInterfaceLuidToIndex(luid, &raw mut index) })?;
     Ok(index)
 }
 
@@ -389,7 +390,7 @@ pub fn luid_from_alias<T: AsRef<OsStr>>(alias: T) -> io::Result<NET_LUID_LH> {
         .chain(std::iter::once(0u16))
         .collect();
     let mut luid = NET_LUID_LH::default();
-    win32_err!(unsafe { ConvertInterfaceAliasToLuid(alias_wide.as_ptr(), &mut luid) })?;
+    win32_err!(unsafe { ConvertInterfaceAliasToLuid(alias_wide.as_ptr(), &raw mut luid) })?;
     Ok(luid)
 }
 

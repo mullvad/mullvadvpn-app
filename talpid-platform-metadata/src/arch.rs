@@ -30,7 +30,9 @@ pub fn get_native_arch() -> Result<Option<Architecture>, std::io::Error> {
         // Determines whether the specified process is running under WOW64; also returns additional machine process and architecture information.
         //
         // SAFETY: Trivially safe, since we provide the required arguments.
-        if 0 == unsafe { IsWow64Process2(current_process, &mut running_arch, &mut native_arch) } {
+        if 0 == unsafe {
+            IsWow64Process2(current_process, &raw mut running_arch, &raw mut native_arch)
+        } {
             return Err(std::io::Error::last_os_error());
         }
 
