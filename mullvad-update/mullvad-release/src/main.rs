@@ -7,6 +7,7 @@ use anyhow::{Context, bail};
 use clap::Parser;
 use mullvad_update::format::key::SecretKey;
 use mullvad_update::format::response::{Response, SignedResponse};
+use mullvad_version::Version;
 use std::{path::PathBuf, str::FromStr};
 use tokio::fs;
 
@@ -15,7 +16,7 @@ use io_util::create_dir_and_write;
 use platform::Platform;
 
 use mullvad_update::api::HttpVersionInfoProvider;
-use mullvad_update::version::rollout::{FULLY_ROLLED_OUT, Rollout, SUPPORTED_VERSION};
+use mullvad_update::version::rollout::{Rollout, SUPPORTED_VERSION};
 
 use crate::io_util::wait_for_confirm;
 
@@ -27,9 +28,6 @@ mod platform;
 
 /// Metadata expiry to use when not specified (months from now)
 const DEFAULT_EXPIRY_MONTHS: usize = 6;
-
-/// Rollout to use when not specified
-const DEFAULT_ROLLOUT: Rollout = FULLY_ROLLED_OUT;
 
 /// Filename for latest.json metadata
 const LATEST_FILENAME: &str = "latest.json";
@@ -76,8 +74,8 @@ pub enum Opt {
         /// Platforms to add releases for. All if none are specified
         platforms: Vec<Platform>,
         /// Rollout fraction to set (0 = not rolled out, 1 = fully rolled out).
-        #[arg(long, default_value_t = DEFAULT_ROLLOUT)]
-        rollout: Rollout,
+        #[arg(long)]
+        rollout: Option<Rollout>,
     },
 
     /// Remove release from `work/`
@@ -226,6 +224,7 @@ async fn main() -> anyhow::Result<()> {
             platforms,
             rollout,
         } => {
+            let rollout = rollout.unwrap_or_else(|| default_value_for_version(&version));
             let changes = github::fetch_changes_text(&version).await?;
             println!("\nchanges.txt for tag {version}:\n\n-- begin\n{changes}\n--end\n\n");
 
@@ -327,6 +326,18 @@ async fn main() -> anyhow::Result<()> {
 
             Ok(())
         }
+    }
+}
+
+fn default_value_for_version(version: &Version) -> Rollout {
+    if version.is_stable() {
+        if cfg!(target_os = "linux") {
+            Rollout::try_from(0.0).unwrap()
+        } else {
+            Rollout::try_from(0.01).unwrap()
+        }
+    } else {
+        Rollout::try_from(0.1).unwrap()
     }
 }
 
