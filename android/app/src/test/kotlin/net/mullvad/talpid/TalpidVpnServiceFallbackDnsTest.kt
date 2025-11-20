@@ -1,6 +1,7 @@
 package net.mullvad.talpid
 
 import android.net.VpnService
+import android.os.Looper
 import android.os.ParcelFileDescriptor
 import arrow.core.right
 import io.mockk.MockKAnnotations
@@ -29,7 +30,8 @@ class TalpidVpnServiceFallbackDnsTest {
     fun setup() {
         MockKAnnotations.init(this)
         mockkStatic(VPN_SERVICE_EXTENSION)
-
+        mockkStatic(Looper::class)
+        every { Looper.getMainLooper() } returns mockk()
         talpidVpnService = spyk<TalpidVpnService>(recordPrivateCalls = true)
         every { talpidVpnService.prepareVpnSafe() } returns Prepared.right()
         builderMockk = mockk<VpnService.Builder>()
