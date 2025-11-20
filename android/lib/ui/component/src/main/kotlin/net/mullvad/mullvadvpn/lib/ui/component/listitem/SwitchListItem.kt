@@ -65,7 +65,8 @@ fun SwitchListItem(
                 if (onInfoClicked != null) {
                     Box(
                         modifier =
-                            Modifier.width(ListItemComponentTokens.infoIconContainerWidth).fillMaxHeight(),
+                            Modifier.width(ListItemComponentTokens.infoIconContainerWidth)
+                                .fillMaxHeight(),
                         contentAlignment = Alignment.Center,
                     ) {
                         IconButton(onClick = onInfoClicked) {

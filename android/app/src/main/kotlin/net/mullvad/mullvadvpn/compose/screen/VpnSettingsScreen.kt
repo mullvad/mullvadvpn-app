@@ -47,6 +47,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
+import applyIf
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.destinations.AutoConnectAndLockdownModeDestination
@@ -68,7 +69,6 @@ import com.ramcosta.composedestinations.generated.destinations.WireguardCustomPo
 import com.ramcosta.composedestinations.generated.destinations.WireguardPortInfoDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
-import applyIf
 import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
 import net.mullvad.mullvadvpn.R
@@ -958,15 +958,15 @@ fun VpnSettingsContent(
                     item(key = it::class.simpleName + it.quantumResistantState) {
                         SelectableListItem(
                             modifier =
-                                Modifier.animateItem()
-                                    .applyIf(
-                                        it.quantumResistantState == QuantumResistantState.On,
-                                        Modifier.focusRequester(
-                                            focusRequesters.getValue(
-                                                FeatureIndicator.QUANTUM_RESISTANCE
-                                            )
-                                        ),
-                                    ),
+                                Modifier.animateItem().applyIf(
+                                    it.quantumResistantState == QuantumResistantState.On
+                                ) {
+                                    focusRequester(
+                                        focusRequesters.getValue(
+                                            FeatureIndicator.QUANTUM_RESISTANCE
+                                        )
+                                    )
+                                },
                             hierarchy = Hierarchy.Child1,
                             position =
                                 when (it.quantumResistantState) {

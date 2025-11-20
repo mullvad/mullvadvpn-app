@@ -25,9 +25,7 @@ import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
 @Composable
 private fun PreviewNavigationListItem() {
     AppTheme {
-        PreviewSpacedColumn(
-            Modifier.background(MaterialTheme.colorScheme.surface),
-        ) {
+        PreviewSpacedColumn(Modifier.background(MaterialTheme.colorScheme.surface)) {
             NavigationListItem(title = "Navigation sample", showWarning = false, onClick = {})
             NavigationListItem(
                 hierarchy = Hierarchy.Child1,

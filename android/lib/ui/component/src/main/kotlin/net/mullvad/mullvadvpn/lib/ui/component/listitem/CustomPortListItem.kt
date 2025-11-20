@@ -1,6 +1,5 @@
 package net.mullvad.mullvadvpn.lib.ui.component.listitem
 
-import net.mullvad.mullvadvpn.lib.ui.component.R
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.icons.Icons
@@ -16,6 +15,7 @@ import applyIfNotNull
 import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.component.DividerButton
+import net.mullvad.mullvadvpn.lib.ui.component.R
 import net.mullvad.mullvadvpn.lib.ui.component.preview.PreviewSpacedColumn
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Hierarchy
 import net.mullvad.mullvadvpn.lib.ui.designsystem.ListItemDefaults

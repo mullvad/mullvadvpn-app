@@ -6,14 +6,14 @@ fun <T> Modifier.applyIfNotNull(
     block: Modifier.(T) -> Modifier,
 ): Modifier =
     if (value != null && and) {
-        then(Modifier.block(value))
+        this.then(Modifier.block(value))
     } else {
         this
     }
 
-fun Modifier.applyIf(condition: Boolean, modifier: Modifier): Modifier =
+fun Modifier.applyIf(condition: Boolean, block: Modifier.() -> Modifier): Modifier =
     if (condition) {
-        then(modifier)
+        this.then(Modifier.block())
     } else {
         this
     }
