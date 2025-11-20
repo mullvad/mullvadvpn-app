@@ -381,6 +381,7 @@ dependencies {
     implementation(projects.lib.ui.designsystem)
     implementation(projects.lib.ui.component)
     implementation(projects.lib.ui.tag)
+    implementation(projects.lib.ui.util)
     implementation(projects.tile)
     implementation(projects.lib.theme)
     implementation(projects.service)

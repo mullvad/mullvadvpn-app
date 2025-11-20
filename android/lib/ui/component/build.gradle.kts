@@ -17,6 +17,7 @@ dependencies {
     implementation(projects.lib.theme)
     implementation(projects.lib.ui.tag)
     implementation(projects.lib.ui.designsystem)
+    implementation(projects.lib.ui.util)
 
     implementation(libs.compose.material3)
     implementation(libs.compose.ui)

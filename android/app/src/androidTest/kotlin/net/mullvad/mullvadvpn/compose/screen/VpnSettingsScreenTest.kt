@@ -439,7 +439,7 @@ class VpnSettingsScreenTest {
                 .performScrollToNode(hasTestTag(LAZY_LIST_WIREGUARD_CUSTOM_PORT_TEXT_TEST_TAG))
 
             // Assert
-            onNodeWithText("4000").assertExists()
+            onNodeWithText("Port: 4000").assertExists()
         }
 
     @Test
@@ -579,7 +579,7 @@ class VpnSettingsScreenTest {
                 navigateToWireguardPortDialog = mockedClickHandler,
             )
 
-            onNodeWithTag(LAZY_LIST_VPN_SETTINGS_TEST_TAG)
+            onNodeWithTag(LAZY_LIST_VPN_SETTINGS_TEST_TAG, useUnmergedTree = true)
                 .performScrollToNode(hasTestTag(LAZY_LIST_WIREGUARD_CUSTOM_PORT_NUMBER_TEST_TAG))
             onNodeWithText("Custom").performClick()
 
@@ -629,7 +629,11 @@ class VpnSettingsScreenTest {
             // Act
             onNodeWithTag(LAZY_LIST_VPN_SETTINGS_TEST_TAG)
                 .performScrollToNode(hasTestTag(LAZY_LIST_WIREGUARD_CUSTOM_PORT_TEXT_TEST_TAG))
-            onNodeWithTag(testTag = LAZY_LIST_WIREGUARD_CUSTOM_PORT_NUMBER_TEST_TAG).performClick()
+            onNodeWithTag(
+                    testTag = LAZY_LIST_WIREGUARD_CUSTOM_PORT_NUMBER_TEST_TAG,
+                    useUnmergedTree = true,
+                )
+                .performClick()
 
             // Assert
             verify { mockOnShowCustomPortDialog.invoke(customPort, availablePortRanges) }
