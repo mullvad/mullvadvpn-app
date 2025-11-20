@@ -110,6 +110,12 @@ mod test {
 }
 "#;
 
+    /// [migrate], but as a proper function (returning it's output).
+    fn migrate_fn(mut settings: serde_json::Value) -> Result<serde_json::Value> {
+        migrate(&mut settings)?;
+        Ok(settings)
+    }
+
     #[test]
     fn test_v13_to_v14_migration() -> Result<()> {
         let mut old_settings = serde_json::from_str(V13_SETTINGS).unwrap();
@@ -145,5 +151,48 @@ mod test {
         });
         migrate_quantum_resistance(&mut old_settings).unwrap();
         insta::assert_snapshot!(serde_json::to_string_pretty(&old_settings).unwrap());
+    }
+
+    // If a client already have gone through a migration of PQ settings previously, make
+    // sure that running this migration does not break. The mathematical name for this property
+    // would be idempotancy.
+    //
+    // Possible input values:
+    // * "quantum_resistant": "on"
+    // * "quantum_resistant": "off"
+    // Possible output values:
+    // * "quantum_resistant": "on" -> "on"
+    // * "quantum_resistant": "off" -> "off"
+
+    /// quantum resistant setting is migrated from on to on.
+    #[test]
+    fn test_v13_to_v14_migration_pq_on_to_on() {
+        insta::assert_json_snapshot!(
+            &migrate_fn(json!({
+                "tunnel_options": {
+                  "wireguard": {
+                    "quantum_resistant": "on"
+                  }
+                },
+                "settings_version": 13
+            }))
+            .unwrap()
+        );
+    }
+
+    /// quantum resistant setting is migrated from off to off.
+    #[test]
+    fn test_v13_to_v14_migration_pq_off_to_off() {
+        insta::assert_json_snapshot!(
+            &migrate_fn(json!({
+                "tunnel_options": {
+                  "wireguard": {
+                    "quantum_resistant": "off"
+                  }
+                },
+                "settings_version": 13
+            }))
+            .unwrap()
+        );
     }
 }
