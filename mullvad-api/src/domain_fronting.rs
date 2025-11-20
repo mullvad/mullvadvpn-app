@@ -1,9 +1,7 @@
 //! A module for a POC of domain fronting. See IOS-1316.
+//! This only compiles with the `domain-fronting` feature flag for the time being.
 
-use std::{
-    io::{self},
-    sync::Arc,
-};
+use std::{io::Error, sync::Arc};
 
 use tokio::net::TcpStream;
 use tokio_rustls::rustls::{self};
@@ -11,18 +9,15 @@ use tokio_rustls::rustls::{self};
 use crate::{DefaultDnsResolver, DnsResolver, tls_stream::TlsStream};
 
 pub struct DomainFronting {
-    host: String,
     front: String,
 }
 
 impl DomainFronting {
-    pub fn new(host: String, front: String) -> Self {
-        DomainFronting { host, front }
+    pub fn new(front: String) -> Self {
+        DomainFronting { front }
     }
 
-    // This doesn't really work with cdn77. It just returns a 403, why ?
-    // Original code stolen from https://github.com/rustls/rustls-native-certs/blob/HEAD/examples/google.rs
-    pub async fn try_connect(&self) -> Result<TlsStream<TcpStream>, Box<dyn std::error::Error>> {
+    pub async fn connect(&self) -> Result<TlsStream<TcpStream>, Box<dyn std::error::Error>> {
         let cert_store = read_cert_store();
 
         let config = Arc::new(
@@ -36,17 +31,23 @@ impl DomainFronting {
         let addrs = dns_resolver.resolve(self.front.clone()).await?;
         let addr = addrs
             .first()
-            .ok_or_else(|| io::Error::other("Empty DNS response"))?;
-
+            .ok_or_else(|| Error::other("Empty DNS response"))?;
+        log::debug!(
+            "Resolved addresses {:?} for {:?}, will connect to {:?}",
+            addrs.clone(),
+            self.front,
+            addr.ip()
+        );
         let stream = TcpStream::connect((addr.ip(), 443)).await?;
 
-        Ok(TlsStream::connect_https(stream, &self.front, config).await?)
+        Ok(TlsStream::connect_https_with_client_config(stream, &self.front, config).await?)
     }
 }
 
 fn read_cert_store() -> rustls::RootCertStore {
     let mut cert_store = rustls::RootCertStore::empty();
 
+    //FIXME: This does not build on iOS yet, it will be figured out later
     let root_certificates =
         rustls_native_certs::load_native_certs().expect("Could not load platform certs");
     for cert in root_certificates {
