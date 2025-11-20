@@ -78,6 +78,7 @@ android {
         register("playStagemoleRelease") { enabled = !appVersion.isDev }
         register("playProdRelease") {
             enabled = !appVersion.isDev
+            releaseStatus.set(ReleaseStatus.DRAFT)
             track.set(
                 when {
                     appVersion.isStable -> "production"
@@ -85,9 +86,6 @@ android {
                     else -> "internal"
                 }
             )
-            if (appVersion.isStable) {
-                releaseStatus.set(ReleaseStatus.DRAFT)
-            }
         }
     }
 
