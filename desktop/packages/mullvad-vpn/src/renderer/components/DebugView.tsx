@@ -6,7 +6,7 @@ import { FlexColumn } from '../lib/components/flex-column';
 import { spacings } from '../lib/foundations';
 import { useHistory } from '../lib/history';
 import { useBoolean } from '../lib/utility-hooks';
-import { AppNavigationHeader } from './';
+import { AppNavigationHeader } from '.';
 import { measurements } from './common-styles';
 import { BackAction } from './KeyboardNavigation';
 import { Layout, SettingsContainer } from './Layout';
@@ -25,7 +25,7 @@ const StyledButtonGroup = styled.div({
   margin: `${spacings.large} ${measurements.horizontalViewMargin}`,
 });
 
-export default function Debug() {
+export function DebugView() {
   const { pop } = useHistory();
 
   return (
