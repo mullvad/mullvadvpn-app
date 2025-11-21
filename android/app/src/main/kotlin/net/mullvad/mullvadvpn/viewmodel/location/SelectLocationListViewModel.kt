@@ -25,12 +25,10 @@ import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
 import net.mullvad.mullvadvpn.usecase.FilteredRelayListUseCase
 import net.mullvad.mullvadvpn.usecase.RecentsUseCase
-import net.mullvad.mullvadvpn.usecase.RelayItemCanBeSelectedUseCase
 import net.mullvad.mullvadvpn.usecase.SelectedLocationUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListsRelayItemUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.FilterCustomListsRelayItemUseCase
 import net.mullvad.mullvadvpn.util.Lce
-import net.mullvad.mullvadvpn.util.combine
 
 @Suppress("LongParameterList")
 class SelectLocationListViewModel(
@@ -43,7 +41,6 @@ class SelectLocationListViewModel(
     private val recentsUseCase: RecentsUseCase,
     private val settingsRepository: SettingsRepository,
     relayListScrollConnection: RelayListScrollConnection,
-    private val canBeSelectedUseCase: RelayItemCanBeSelectedUseCase,
     customListsRelayItemUseCase: CustomListsRelayItemUseCase,
 ) : ViewModel() {
     private val _expandedItems: MutableStateFlow<Set<String>> =
@@ -89,14 +86,7 @@ class SelectLocationListViewModel(
             recentsUseCase(relayListType = relayListType),
             selectedLocationUseCase(),
             _expandedItems,
-            canBeSelectedUseCase(),
-        ) {
-            relayCountries,
-            customLists,
-            recents,
-            selectedItem,
-            expandedItems,
-            (canBeSelectedAsEntry, canBeSelectedAsExit) ->
+        ) { relayCountries, customLists, recents, selectedItem, expandedItems ->
             // If we have no locations we have an empty relay list and we should show an error
             if (relayCountries.isEmpty()) {
                 emptyLocationsRelayListItems(
@@ -125,8 +115,6 @@ class SelectLocationListViewModel(
                             selectedItem.selectedByOtherEntryExitList(relayListType, customLists)
                         },
                     expandedItems = expandedItems,
-                    validEntryLocations = canBeSelectedAsEntry,
-                    validExitLocations = canBeSelectedAsExit,
                 )
             }
         }

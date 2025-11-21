@@ -34,7 +34,6 @@ import net.mullvad.mullvadvpn.usecase.FilteredRelayListUseCase
 import net.mullvad.mullvadvpn.usecase.ModifyMultihopError
 import net.mullvad.mullvadvpn.usecase.ModifyMultihopUseCase
 import net.mullvad.mullvadvpn.usecase.MultihopChange
-import net.mullvad.mullvadvpn.usecase.RelayItemCanBeSelectedUseCase
 import net.mullvad.mullvadvpn.usecase.SelectRelayItemError
 import net.mullvad.mullvadvpn.usecase.SelectSinglehopUseCase
 import net.mullvad.mullvadvpn.usecase.SelectedLocationUseCase
@@ -54,7 +53,6 @@ class SearchLocationViewModel(
     private val modifyMultihopUseCase: ModifyMultihopUseCase,
     private val settingsRepository: SettingsRepository,
     private val wireguardConstraintsRepository: WireguardConstraintsRepository,
-    relayItemCanBeSelectedUseCase: RelayItemCanBeSelectedUseCase,
     filteredRelayListUseCase: FilteredRelayListUseCase,
     filteredCustomListRelayItemsUseCase: FilterCustomListsRelayItemUseCase,
     selectedLocationUseCase: SelectedLocationUseCase,
@@ -77,7 +75,6 @@ class SearchLocationViewModel(
                 selectedLocationUseCase(),
                 filterChips(),
                 _expandOverrides,
-                relayItemCanBeSelectedUseCase(),
             ) {
                 searchTerm,
                 relayCountries,
@@ -85,8 +82,7 @@ class SearchLocationViewModel(
                 customLists,
                 selectedItem,
                 filterChips,
-                expandOverrides,
-                (canBeSelectedEntry, canBeSelectedExit) ->
+                expandOverrides ->
                 if (relayCountries.isEmpty()) {
                     return@combine Lce.Error(Unit)
                 }
@@ -119,8 +115,6 @@ class SearchLocationViewModel(
                                         )
                                     },
                                 expandedItems = expandedItems,
-                                validEntryLocations = canBeSelectedEntry,
-                                validExitLocations = canBeSelectedExit,
                             ),
                         customLists = customLists,
                         filterChips = filterChips,
