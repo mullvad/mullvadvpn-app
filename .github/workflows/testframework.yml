@@ -68,7 +68,7 @@ jobs:
 
       - name: Build test framework
         working-directory: test
-        run: cargo build --release --locked
+        run: cargo build --locked
 
   # Build the test runner + test manager at once.
   build-test-framework-macos:
@@ -108,4 +108,4 @@ jobs:
 
       - name: Build test runner
         working-directory: test
-        run: cargo build --release --locked -p test-runner --target x86_64-pc-windows-gnu
+        run: cargo build --locked -p test-runner --target x86_64-pc-windows-gnu
