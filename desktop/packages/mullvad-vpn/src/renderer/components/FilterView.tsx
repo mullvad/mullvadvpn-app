@@ -12,7 +12,7 @@ import { useHistory } from '../lib/history';
 import { useNormalRelaySettings } from '../lib/relay-settings-hooks';
 import { IRelayLocationCountryRedux } from '../redux/settings/reducers';
 import { useSelector } from '../redux/store';
-import { AppNavigationHeader } from './';
+import { AppNavigationHeader } from '.';
 import { AriaInputGroup } from './AriaGroup';
 import * as Cell from './cell';
 import Selector from './cell/Selector';
@@ -31,7 +31,7 @@ const StyledViewContent = styled(View.Content)`
   margin-bottom: 0;
 `;
 
-export default function Filter() {
+export function FilterView() {
   const history = useHistory();
   const relaySettingsUpdater = useRelaySettingsUpdater();
 
