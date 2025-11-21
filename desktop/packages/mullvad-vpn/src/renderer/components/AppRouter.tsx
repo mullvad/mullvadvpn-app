@@ -6,7 +6,6 @@ import SelectLocation from '../components/select-location/SelectLocationContaine
 import { useViewTransitions } from '../lib/transition-hooks';
 import ApiAccessMethods from './ApiAccessMethods';
 import Debug from './Debug';
-import { DeviceRevokedView } from './DeviceRevokedView';
 import { EditApiAccessMethod } from './EditApiAccessMethod';
 import { EditCustomBridge } from './EditCustomBridge';
 import {
@@ -28,6 +27,7 @@ import {
   AppUpgradeView,
   ChangelogView,
   DaitaSettingsView,
+  DeviceRevokedView,
   ExpiredAccountErrorView,
   LaunchView,
   LoginView,
