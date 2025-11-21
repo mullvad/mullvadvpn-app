@@ -3482,8 +3482,6 @@ dependencies = [
 [[package]]
 name = "nftnl"
 version = "0.9.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e65c1365321c197bc2c7b3c858d87ad9db235632622278f19a2eff0de704b968"
 dependencies = [
  "bitflags 2.9.0",
  "log",
@@ -3492,9 +3490,7 @@ dependencies = [
 
 [[package]]
 name = "nftnl-sys"
-version = "0.6.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "38d8e4f1cfbbeb744087d1f22debb590266417eb0a2e8a171800ae3694bdac81"
+version = "0.6.4"
 dependencies = [
  "cfg-if",
  "libc",
