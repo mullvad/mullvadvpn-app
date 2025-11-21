@@ -20,7 +20,7 @@ import { useNormalRelaySettings } from '../../lib/relay-settings-hooks';
 import { useSelector } from '../../redux/store';
 import { AppNavigationHeader } from '../';
 import * as Cell from '../cell';
-import { useFilteredProviders } from '../Filter';
+import { useFilteredProviders } from '../FilterView';
 import { BackAction } from '../KeyboardNavigation';
 import { Layout, SettingsContainer } from '../Layout';
 import { NavigationContainer } from '../NavigationContainer';
