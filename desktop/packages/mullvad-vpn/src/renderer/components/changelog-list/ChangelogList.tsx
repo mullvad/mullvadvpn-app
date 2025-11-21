@@ -2,9 +2,12 @@ import styled from 'styled-components';
 
 import { IChangelog } from '../../../shared/ipc-types';
 import { BodySmall } from '../../lib/components';
-import { Flex } from '../../lib/components';
+import { spacings } from '../../lib/foundations';
 
-const StyledList = styled(Flex)`
+const StyledList = styled.ul`
+  display: flex;
+  flex-direction: column;
+  gap: ${spacings.medium};
   list-style-type: disc;
   padding-left: 0;
   li {
@@ -18,7 +21,7 @@ export type ChangelogListProps = {
 
 export function ChangelogList({ changelog }: ChangelogListProps) {
   return (
-    <StyledList as="ul" flexDirection="column" gap="medium">
+    <StyledList>
       {changelog.map((item, i) => (
         <BodySmall as="li" key={`${item}${i}`} color="whiteAlpha60">
           {item}
