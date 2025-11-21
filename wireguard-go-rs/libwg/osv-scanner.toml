@@ -168,3 +168,9 @@ reason = "wireguard-go does not use net/textproto"
 id = "CVE-2025-47913" # GO-2025-4116
 ignoreUntil = 2026-11-14
 reason = "wireguard-go does not use x/crypto/ssh/agent"
+
+# golang.org/x/crypto/ssh/agent vulnerable to panic if message is malformed due to out of bounds read
+[[IgnoredVulns]]
+id = "CVE-2025-47914 " # GO-2025-4135
+ignoreUntil = 2026-11-21
+reason = "wireguard-go does not use x/crypto/ssh/agent"
