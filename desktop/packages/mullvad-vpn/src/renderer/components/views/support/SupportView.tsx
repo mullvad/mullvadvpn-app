@@ -13,8 +13,8 @@ export function SupportView() {
   const { pop } = useHistory();
 
   return (
-    <BackAction action={pop}>
-      <View backgroundColor="darkBlue">
+    <View backgroundColor="darkBlue">
+      <BackAction action={pop}>
         <NavigationContainer>
           <AppNavigationHeader
             title={
@@ -34,7 +34,7 @@ export function SupportView() {
             </FlexColumn>
           </NavigationScrollbars>
         </NavigationContainer>
-      </View>
-    </BackAction>
+      </BackAction>
+    </View>
   );
 }
