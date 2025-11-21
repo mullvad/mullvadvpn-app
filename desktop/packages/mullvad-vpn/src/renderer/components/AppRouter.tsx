@@ -15,7 +15,7 @@ import {
   VoucherVerificationSuccess,
 } from './ExpiredAccountAddTime';
 import Focus, { IFocusHandle } from './Focus';
-import ProblemReport from './ProblemReport';
+import { ProblemReportView } from './ProblemReportView';
 import { SettingsImportView } from './SettingsImportView';
 import StateTriggeredNavigation from './StateTriggeredNavigation';
 import {
@@ -88,7 +88,7 @@ export default function AppRouter() {
           <Route exact path={RoutePath.settingsTextImport} component={SettingsTextImportView} />
           <Route exact path={RoutePath.editApiAccessMethods} component={EditApiAccessMethod} />
           <Route exact path={RoutePath.support} component={SupportView} />
-          <Route exact path={RoutePath.problemReport} component={ProblemReport} />
+          <Route exact path={RoutePath.problemReport} component={ProblemReportView} />
           <Route exact path={RoutePath.debug} component={Debug} />
           <Route exact path={RoutePath.selectLocation} component={SelectLocation} />
           <Route exact path={RoutePath.editCustomBridge} component={EditCustomBridge} />

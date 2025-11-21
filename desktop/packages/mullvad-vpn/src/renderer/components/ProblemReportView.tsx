@@ -26,7 +26,7 @@ import { IconBadge } from '../lib/icon-badge';
 import { useEffectEvent } from '../lib/utility-hooks';
 import { useSelector } from '../redux/store';
 import support from '../redux/support/actions';
-import { AppNavigationHeader } from './';
+import { AppNavigationHeader } from '.';
 import { BackAction } from './KeyboardNavigation';
 import { ModalAlert, ModalAlertType } from './Modal';
 import {
@@ -52,7 +52,7 @@ enum SendState {
   failed,
 }
 
-export default function ProblemReport() {
+export function ProblemReportView() {
   return (
     <ProblemReportContextProvider>
       <ProblemReportComponent />
