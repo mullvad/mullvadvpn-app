@@ -5,7 +5,7 @@ import { RoutePath } from '../../shared/routes';
 import SelectLocation from '../components/select-location/SelectLocationContainer';
 import { useViewTransitions } from '../lib/transition-hooks';
 import Debug from './Debug';
-import { EditApiAccessMethod } from './EditApiAccessMethod';
+import { EditApiAccessView } from './EditApiAccessView';
 import { EditCustomBridge } from './EditCustomBridge';
 import {
   SetupFinished,
@@ -86,7 +86,7 @@ export default function AppRouter() {
           <Route exact path={RoutePath.apiAccessMethods} component={ApiAccessView} />
           <Route exact path={RoutePath.settingsImport} component={SettingsImportView} />
           <Route exact path={RoutePath.settingsTextImport} component={SettingsTextImportView} />
-          <Route exact path={RoutePath.editApiAccessMethods} component={EditApiAccessMethod} />
+          <Route exact path={RoutePath.editApiAccessMethods} component={EditApiAccessView} />
           <Route exact path={RoutePath.support} component={SupportView} />
           <Route exact path={RoutePath.problemReport} component={ProblemReportView} />
           <Route exact path={RoutePath.debug} component={Debug} />

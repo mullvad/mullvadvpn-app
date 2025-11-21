@@ -15,7 +15,7 @@ import { Button } from '../lib/components';
 import { useHistory } from '../lib/history';
 import { useLastDefinedValue } from '../lib/utility-hooks';
 import { useSelector } from '../redux/store';
-import { AppNavigationHeader } from './';
+import { AppNavigationHeader } from '.';
 import { SettingsForm } from './cell/SettingsForm';
 import { BackAction } from './KeyboardNavigation';
 import { Layout, SettingsContainer, SettingsContent, SettingsNavigationScrollbars } from './Layout';
@@ -24,7 +24,7 @@ import { NavigationContainer } from './NavigationContainer';
 import { NamedProxyForm, ProxyFormButtons, ProxyFormInner, ProxyFormNameField } from './ProxyForm';
 import SettingsHeader, { HeaderSubTitle, HeaderTitle } from './SettingsHeader';
 
-export function EditApiAccessMethod() {
+export function EditApiAccessView() {
   return (
     <SettingsForm>
       <AccessMethodForm></AccessMethodForm>
