@@ -4,7 +4,6 @@ import { Route, Switch } from 'react-router';
 import { RoutePath } from '../../shared/routes';
 import SelectLocation from '../components/select-location/SelectLocationContainer';
 import { useViewTransitions } from '../lib/transition-hooks';
-import { DebugView } from './DebugView';
 import { EditCustomBridge } from './EditCustomBridge';
 import {
   SetupFinished,
@@ -22,6 +21,7 @@ import {
   AppUpgradeView,
   ChangelogView,
   DaitaSettingsView,
+  DebugView,
   DeviceRevokedView,
   EditApiAccessView,
   ExpiredAccountErrorView,
