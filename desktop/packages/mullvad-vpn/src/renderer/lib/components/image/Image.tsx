@@ -1,12 +1,8 @@
 import React from 'react';
 
-export interface ImageProps {
+export type ImageProps = Omit<React.ComponentPropsWithRef<'img'>, 'src'> & {
   source: string;
-  onClick?: (event: React.MouseEvent) => void;
-  width?: number;
-  height?: number;
-  className?: string;
-}
+};
 
 export const Image = ({ source, ...props }: ImageProps) => {
   const url = source.startsWith('data:') ? source : `assets/images/${source}.svg`;
