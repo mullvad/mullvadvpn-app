@@ -80,6 +80,10 @@ unused_async = "deny"
 undocumented_unsafe_blocks = "warn"
 implicit_clone = "warn"
 
+[patch.crates-io]
+nftnl.path = "../nftnl-rs/nftnl"
+nftnl-sys.path = "../nftnl-rs/nftnl-sys"
+
 [workspace.dependencies]
 dirs = "6.0.0"
 tokio = { version = "1.44" }

@@ -37,6 +37,7 @@ use rtnetlink::{
     sys::SocketAddr,
 };
 
+/// What this
 static SUPPRESS_RULE_V4: LazyLock<RuleMessage> = LazyLock::new(|| {
     let mut rule_msg = RuleMessage::default();
     let header = RuleHeader {
@@ -53,6 +54,8 @@ static SUPPRESS_RULE_V4: LazyLock<RuleMessage> = LazyLock::new(|| {
     rule_msg.attributes = attributes;
     rule_msg
 });
+
+/// What this
 static SUPPRESS_RULE_V6: LazyLock<RuleMessage> = LazyLock::new(|| {
     let mut v6_rule = SUPPRESS_RULE_V4.clone();
     v6_rule.header.family = AddressFamily::Inet6;
@@ -68,6 +71,7 @@ fn all_rules(fwmark: u32, table: u32) -> [RuleMessage; 4] {
     ]
 }
 
+/// What this
 fn no_fwmark_rule_v4(fwmark: u32, table: u32) -> RuleMessage {
     let mut rule_msg = RuleMessage::default();
     let header = RuleHeader {
@@ -83,6 +87,7 @@ fn no_fwmark_rule_v4(fwmark: u32, table: u32) -> RuleMessage {
     rule_msg
 }
 
+/// What this
 fn no_fwmark_rule_v6(fwmark: u32, table: u32) -> RuleMessage {
     let mut v6_rule = no_fwmark_rule_v4(fwmark, table);
     v6_rule.header.family = AddressFamily::Inet6;
