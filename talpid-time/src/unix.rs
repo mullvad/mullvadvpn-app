@@ -39,11 +39,11 @@ impl Instant {
             )
         };
 
-        if tv_sec < 0 {
-            return None;
-        }
+        // Return `None` if the duration would be negative
+        let secs = u64::try_from(tv_sec).ok()?;
+        let nanos = u32::try_from(tv_nsec).expect("tv_nsec outside expected range");
 
-        Some(Duration::new(tv_sec as _, tv_nsec as _))
+        Some(Duration::new(secs, nanos))
     }
 
     pub fn duration_since(&self, earlier: Instant) -> Duration {
