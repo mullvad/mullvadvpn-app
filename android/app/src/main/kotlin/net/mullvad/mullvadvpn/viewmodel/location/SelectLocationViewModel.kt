@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.WhileSubscribed
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -37,6 +38,7 @@ import net.mullvad.mullvadvpn.usecase.HopSelectionUseCase
 import net.mullvad.mullvadvpn.usecase.ModifyMultihopError
 import net.mullvad.mullvadvpn.usecase.ModifyMultihopUseCase
 import net.mullvad.mullvadvpn.usecase.MultihopChange
+import net.mullvad.mullvadvpn.usecase.SelectMultiHopUseCase
 import net.mullvad.mullvadvpn.usecase.SelectRelayItemError
 import net.mullvad.mullvadvpn.usecase.SelectSinglehopUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
@@ -56,7 +58,8 @@ class SelectLocationViewModel(
     private val settingsRepository: SettingsRepository,
     private val selectSingleUseCase: SelectSinglehopUseCase,
     private val modifyMultihopUseCase: ModifyMultihopUseCase,
-    hopSelectionUseCase: HopSelectionUseCase,
+    private val selectMultiHopUseCase: SelectMultiHopUseCase,
+    private val hopSelectionUseCase: HopSelectionUseCase,
     connectionProxy: ConnectionProxy,
 ) : ViewModel() {
     private val _multihopRelayListTypeSelection: MutableStateFlow<MultihopRelayListType> =
@@ -88,6 +91,7 @@ class SelectLocationViewModel(
                         isRecentsEnabled = settings.recents is Recents.Enabled,
                         hopSelection = selectedHop,
                         tunnelErrorStateCause = errorStateCause,
+                        entrySelectionAllowed = !settings.entryBlocked(),
                     )
                 )
             }
@@ -145,7 +149,7 @@ class SelectLocationViewModel(
         viewModelScope.launch { modifyMultihop(change) }
     }
 
-    private suspend fun modifyMultihop(change: MultihopChange) {
+    private suspend fun modifyMultihop(change: MultihopChange, onSuccess: suspend () -> Unit = {}) {
         modifyMultihopUseCase(change)
             .fold(
                 { _uiSideEffect.send(it.toSideEffect(change)) },
@@ -156,6 +160,7 @@ class SelectLocationViewModel(
                         is MultihopChange.Exit ->
                             _uiSideEffect.send(SelectLocationSideEffect.CloseScreen)
                     }
+                    onSuccess()
                 },
             )
     }
@@ -211,7 +216,47 @@ class SelectLocationViewModel(
         }
     }
 
-    fun toggleMultihop(enable: Boolean) {
+    fun setAsEntry(item: RelayItem) {
+        viewModelScope.launch {
+            modifyMultihop(MultihopChange.Entry(item)) {
+                // If we were successful we should set multihop to true if required
+                if (
+                    wireguardConstraintsRepository.wireguardConstraints.value?.isMultihopEnabled ==
+                        false
+                ) {
+                    toggleMultihop(enable = true, showSnackbar = true)
+                    _uiSideEffect.send(SelectLocationSideEffect.MultihopChanged(true))
+                }
+            }
+        }
+    }
+
+    fun setAsExit(item: RelayItem) {
+        viewModelScope.launch {
+            if (
+                wireguardConstraintsRepository.wireguardConstraints.value?.isMultihopEnabled ==
+                    false
+            ) {
+                // If we are in singlehop mode we want to set a new multihop were the previous exit
+                // is set as an entry, and the new exit is set as exit
+                // After that we turn on multihop
+                val previousSelection = hopSelectionUseCase().first().exit()?.getOrNull()
+                if (previousSelection != null) {
+                    selectMultiHopUseCase(entry = previousSelection, exit = item)
+                        .fold(
+                            { _uiSideEffect.send(it.toSideEffect()) },
+                            { toggleMultihop(enable = true, showSnackbar = true) },
+                        )
+                } else {
+                    toggleMultihop(enable = true, showSnackbar = true)
+                }
+            } else {
+                modifyMultihop(MultihopChange.Exit(item))
+            }
+        }
+    }
+
+    fun toggleMultihop(enable: Boolean, showSnackbar: Boolean = false) {
         viewModelScope.launch {
             wireguardConstraintsRepository
                 .setMultihop(enable)
@@ -220,6 +265,9 @@ class SelectLocationViewModel(
                     {
                         if (enable) {
                             _multihopRelayListTypeSelection.emit(MultihopRelayListType.EXIT)
+                        }
+                        if (showSnackbar) {
+                            _uiSideEffect.send(SelectLocationSideEffect.MultihopChanged(enable))
                         }
                     },
                 )
@@ -268,4 +316,6 @@ sealed interface SelectLocationSideEffect {
     data object EntryAndExitAreSame : SelectLocationSideEffect
 
     data object RelayListUpdating : SelectLocationSideEffect
+
+    data class MultihopChanged(val enabled: Boolean) : SelectLocationSideEffect
 }

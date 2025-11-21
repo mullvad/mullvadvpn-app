@@ -46,6 +46,7 @@ import net.mullvad.mullvadvpn.usecase.HopSelectionUseCase
 import net.mullvad.mullvadvpn.usecase.ModelOwnership
 import net.mullvad.mullvadvpn.usecase.ModifyMultihopUseCase
 import net.mullvad.mullvadvpn.usecase.MultihopChange
+import net.mullvad.mullvadvpn.usecase.SelectMultiHopUseCase
 import net.mullvad.mullvadvpn.usecase.SelectSinglehopUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
 import net.mullvad.mullvadvpn.util.Lc
@@ -68,6 +69,7 @@ class SelectLocationViewModelTest {
     private val mockModifyMultihopUseCase: ModifyMultihopUseCase = mockk()
     private val mockHopSelectionUseCase: HopSelectionUseCase = mockk()
     private val mockConnectionProxy: ConnectionProxy = mockk()
+    private val mockSelectMultihopUseCase: SelectMultiHopUseCase = mockk()
 
     private lateinit var viewModel: SelectLocationViewModel
 
@@ -104,6 +106,7 @@ class SelectLocationViewModelTest {
                 selectSingleUseCase = mockSelectSinglehopUseCase,
                 hopSelectionUseCase = mockHopSelectionUseCase,
                 connectionProxy = mockConnectionProxy,
+                selectMultiHopUseCase = mockSelectMultihopUseCase,
             )
     }
 

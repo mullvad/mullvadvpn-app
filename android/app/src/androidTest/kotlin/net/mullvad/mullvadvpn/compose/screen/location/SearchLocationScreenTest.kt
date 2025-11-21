@@ -58,6 +58,9 @@ class SearchLocationScreenTest {
         onDeleteCustomList: (RelayItem.CustomList) -> Unit = {},
         onRemoveOwnershipFilter: () -> Unit = {},
         onRemoveProviderFilter: () -> Unit = {},
+        onSetAsEntry: (RelayItem) -> Unit = {},
+        onSetAsExit: (RelayItem) -> Unit = {},
+        onDisableMultihop: () -> Unit = {},
         onGoBack: () -> Unit = {},
     ) {
         setContentWithTheme {
@@ -74,6 +77,9 @@ class SearchLocationScreenTest {
                 onDeleteCustomList = onDeleteCustomList,
                 onRemoveOwnershipFilter = onRemoveOwnershipFilter,
                 onRemoveProviderFilter = onRemoveProviderFilter,
+                onSetAsEntry = onSetAsEntry,
+                onSetAsExit = onSetAsExit,
+                onDisableMultihop = onDisableMultihop,
                 onGoBack = onGoBack,
             )
         }

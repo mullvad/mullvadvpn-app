@@ -36,6 +36,9 @@ sealed interface RelayListItem {
         val canExpand: Boolean
         val state: RelayListItemState?
         val itemPosition: ItemPosition
+        val canBeSetAsEntry: Boolean
+        val canBeSetAsExit: Boolean
+        val canBeRemovedAsEntry: Boolean
     }
 
     data object CustomListHeader : RelayListItem {
@@ -49,6 +52,9 @@ sealed interface RelayListItem {
         override val expanded: Boolean = false,
         override val state: RelayListItemState? = null,
         override val itemPosition: ItemPosition = ItemPosition.Single,
+        override val canBeSetAsEntry: Boolean = true,
+        override val canBeSetAsExit: Boolean = true,
+        override val canBeRemovedAsEntry: Boolean = false,
     ) : SelectableItem {
         override val key = item.id
         override val depth: Int = 0
@@ -64,6 +70,9 @@ sealed interface RelayListItem {
         override val depth: Int = 0,
         override val state: RelayListItemState? = null,
         override val itemPosition: ItemPosition,
+        override val canBeSetAsEntry: Boolean = true,
+        override val canBeSetAsExit: Boolean = true,
+        override val canBeRemovedAsEntry: Boolean = false,
     ) : SelectableItem {
         override val key = parentId to item.id
 
@@ -90,6 +99,9 @@ sealed interface RelayListItem {
         override val expanded: Boolean = false,
         override val state: RelayListItemState? = null,
         override val itemPosition: ItemPosition,
+        override val canBeSetAsEntry: Boolean = true,
+        override val canBeSetAsExit: Boolean = true,
+        override val canBeRemovedAsEntry: Boolean = false,
     ) : SelectableItem {
         override val key = item.id
         override val contentType = RelayListItemContentType.LOCATION_ITEM
@@ -107,6 +119,9 @@ sealed interface RelayListItem {
         override val expanded: Boolean = false,
         override val state: RelayListItemState? = null,
         override val itemPosition: ItemPosition = ItemPosition.Single,
+        override val canBeSetAsEntry: Boolean = true,
+        override val canBeSetAsExit: Boolean = true,
+        override val canBeRemovedAsEntry: Boolean = false,
     ) : SelectableItem {
         override val key = "recents$item"
         override val depth: Int = 0
