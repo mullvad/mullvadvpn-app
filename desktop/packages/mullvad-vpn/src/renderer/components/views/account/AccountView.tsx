@@ -22,7 +22,7 @@ const StyledViewContainer = styled(View.Container)`
   justify-content: space-between;
 `;
 
-export function Account() {
+export function AccountView() {
   const history = useHistory();
   const isOffline = useSelector((state) => state.connection.isBlocked);
   const { updateAccountData, openUrlWithAuth, logout } = useAppContext();
