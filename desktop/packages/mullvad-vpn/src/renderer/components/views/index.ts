@@ -13,6 +13,7 @@ export * from './problem-report';
 export * from './login';
 export * from './changelog';
 export * from './settings';
+export * from './settings-import';
 export * from './settings-text-import';
 export * from './select-language';
 export * from './shadowsocks-settings';
