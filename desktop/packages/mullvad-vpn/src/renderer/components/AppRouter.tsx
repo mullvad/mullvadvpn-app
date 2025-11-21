@@ -38,13 +38,13 @@ import {
   SettingsView,
   ShadowsocksSettingsView,
   SplitTunnelingView,
+  SupportView,
   TooManyDevicesView,
   UdpOverTcpSettingsView,
   UserInterfaceSettingsView,
   VpnSettingsView,
   WireguardPortView,
 } from './views';
-import { SupportView } from './views/support/SupportView';
 
 export default function AppRouter() {
   const focusRef = useRef<IFocusHandle>(null);
