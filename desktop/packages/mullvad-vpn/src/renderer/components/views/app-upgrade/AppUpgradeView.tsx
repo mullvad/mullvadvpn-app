@@ -1,11 +1,10 @@
 import styled from 'styled-components';
 
 import { messages } from '../../../../shared/gettext';
+import { View } from '../../../lib/components/view';
 import { useHistory } from '../../../lib/history';
 import { AppNavigationHeader } from '../../app-navigation-header';
 import { BackAction } from '../../KeyboardNavigation';
-import { SettingsContainer } from '../../Layout';
-import { Layout } from '../../Layout';
 import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
 import { Footer, UpgradeDetails } from './components';
@@ -25,25 +24,23 @@ export const AppUpgradeView = () => {
   const hasUpgrade = useHasUpgrade();
 
   return (
-    <BackAction action={pop}>
-      <Layout>
-        <SettingsContainer>
-          <NavigationContainer>
-            <AppNavigationHeader
-              title={
-                // TRANSLATORS: Title in navigation bar
-                messages.pgettext('app-upgrade-view', 'Update available')
-              }
-            />
-            <NavigationScrollbars>
-              {hasUpgrade ? <UpgradeDetails /> : <NoUpgradeAvailable />}
-            </NavigationScrollbars>
-          </NavigationContainer>
-        </SettingsContainer>
+    <View backgroundColor="darkBlue">
+      <BackAction action={pop}>
+        <NavigationContainer>
+          <AppNavigationHeader
+            title={
+              // TRANSLATORS: Title in navigation bar
+              messages.pgettext('app-upgrade-view', 'Update available')
+            }
+          />
+          <NavigationScrollbars>
+            <View.Content>{hasUpgrade ? <UpgradeDetails /> : <NoUpgradeAvailable />}</View.Content>
+          </NavigationScrollbars>
+        </NavigationContainer>
         <StyledFooter>
           <Footer />
         </StyledFooter>
-      </Layout>
-    </BackAction>
+      </BackAction>
+    </View>
   );
 };
