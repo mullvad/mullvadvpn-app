@@ -7,6 +7,7 @@ on:
       - 'test/**/*.rs'
       - .github/workflows/clippy-test.yml
       - clippy.toml
+      - 'ci/cargo-ci.sh'
   workflow_dispatch:
 
 permissions: {}
@@ -30,11 +31,9 @@ jobs:
       - name: Clippy check
         working-directory: test
         shell: bash
-        env:
-          RUSTFLAGS: --deny warnings
         run: |
-          time cargo clippy --locked --all-targets --no-default-features
-          time cargo clippy --locked --all-targets --all-features
+          time ../ci/cargo-ci.sh clippy --all-targets --no-default-features
+          time ../ci/cargo-ci.sh clippy --all-targets --all-features
 
   clippy-check-test-windows:
     name: Clippy linting of test workspace (Windows)
@@ -55,9 +54,7 @@ jobs:
       - name: Clippy check
         working-directory: test
         shell: bash
-        env:
-          RUSTFLAGS: --deny warnings
         run: |
           # Exclude checking test-manager on Windows, since it is not a supported compilation target.
-          time cargo clippy  --all-targets --workspace --exclude test-manager --locked --no-default-features
-          time cargo clippy  --all-targets --workspace --exclude test-manager --locked --all-features
+          time ../ci/cargo-ci.sh clippy --all-targets --workspace --exclude test-manager --no-default-features
+          time ../ci/cargo-ci.sh clippy --all-targets --workspace --exclude test-manager --all-features
