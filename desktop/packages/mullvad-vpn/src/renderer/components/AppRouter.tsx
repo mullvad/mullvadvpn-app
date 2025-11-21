@@ -17,7 +17,6 @@ import {
 import Focus, { IFocusHandle } from './Focus';
 import ProblemReport from './ProblemReport';
 import SettingsImport from './SettingsImport';
-import { SettingsTextImportView } from './SettingsTextImportView';
 import StateTriggeredNavigation from './StateTriggeredNavigation';
 import {
   AccountView,
@@ -35,6 +34,7 @@ import {
   ManageDevicesView,
   MultihopSettingsView,
   SelectLanguageView,
+  SettingsTextImportView,
   SettingsView,
   ShadowsocksSettingsView,
   SplitTunnelingView,
