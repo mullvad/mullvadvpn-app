@@ -4,6 +4,7 @@ export * from './app-upgrade';
 export * from './daita-settings';
 export * from './device-revoked';
 export * from './expired-account-error';
+export * from './filter';
 export * from './launch';
 export * from './main';
 export * from './manage-devices';
