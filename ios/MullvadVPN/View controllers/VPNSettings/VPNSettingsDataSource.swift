@@ -112,6 +112,7 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
             [
                 .wireGuardObfuscationPort(.automatic),
                 .wireGuardObfuscationPort(.port80),
+                .wireGuardObfuscationPort(.port443),
                 .wireGuardObfuscationPort(.port5001),
             ]
         }

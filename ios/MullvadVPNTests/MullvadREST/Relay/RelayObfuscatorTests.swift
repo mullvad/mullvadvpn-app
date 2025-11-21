@@ -137,7 +137,7 @@ final class RelayObfuscatorTests: XCTestCase {
                 connectionAttemptCount: UInt(attempt), obfuscationBypass: IdentityObfuscationProvider()
             ).obfuscate()
 
-            let validPorts: [RelayConstraint<UInt16>] = [.only(80), .only(5001)]
+            let validPorts: [RelayConstraint<UInt16>] = [.only(80), .only(443), .only(5001)]
             XCTAssertTrue(validPorts.contains(obfuscationResult.port))
         }
     }
