@@ -10,10 +10,18 @@ import { startInstalledApp } from '../installed-utils';
 // Windows and macOS only. This test expects the daemon to be logged in and for split tunneling to
 // be off and have no split applications.
 
-const applications =
+interface Application {
+  name: string;
+  filename?: string;
+}
+
+const applications: Array<Application> =
   process.platform === 'win32'
-    ? ['microsoft edge', 'windows media player legacy']
-    : ['launchpad', 'clock'];
+    ? [
+        { name: 'microsoft edge', filename: 'msedge.exe' },
+        { name: 'windows media player legacy', filename: 'wmplayer.exe' },
+      ]
+    : [{ name: 'launchpad' }, { name: 'clock' }];
 
 let page: Page;
 let util: TestUtils;
@@ -47,7 +55,7 @@ test.describe('Split tunneling', () => {
     await expect(splitList).not.toBeVisible();
     await expect(nonSplitList).not.toBeVisible();
 
-    const application = routes.splitTunnelingSettings.selectors.application(applications[0]);
+    const application = routes.splitTunnelingSettings.selectors.application(applications[0].name);
     await expect(application).not.toBeVisible();
 
     await routes.splitTunnelingSettings.toggleSplitTunneling();
@@ -55,25 +63,20 @@ test.describe('Split tunneling', () => {
     await expect(splitList).not.toBeVisible();
     await expect(nonSplitList).toBeVisible();
     await expect(application).toBeVisible();
-
-    const numberOfSplitApplications =
-      await routes.splitTunnelingSettings.numberOfSplitApplications();
-    expect(numberOfSplitApplications).toBe(0);
-    expect(getDaemonSplitTunnelingApplications()).toHaveLength(0);
   });
 
   applications.forEach((application, index, applications) => {
-    test(`App should split ${application}`, async () => {
+    test(`App should split ${application.name}`, async () => {
       const splitList = routes.splitTunnelingSettings.selectors.splitApplicationsList();
       const nonSplitList = routes.splitTunnelingSettings.selectors.nonSplitApplicationsList();
 
       const splitApplication = routes.splitTunnelingSettings.selectors.applicationInList(
         splitList,
-        application,
+        application.name,
       );
       const nonSplitApplication = routes.splitTunnelingSettings.selectors.applicationInList(
         nonSplitList,
-        application,
+        application.name,
       );
 
       await expect(splitApplication).not.toBeVisible();
@@ -81,12 +84,13 @@ test.describe('Split tunneling', () => {
 
       await routes.splitTunnelingSettings.toggleApplication(nonSplitApplication);
 
+      await expect(splitList).toBeVisible();
       await expect(splitApplication).toBeVisible();
       await expect(nonSplitApplication).not.toBeVisible();
 
-      const numberOfSplitApplications =
-        await routes.splitTunnelingSettings.numberOfSplitApplications();
-      expect(numberOfSplitApplications).toBe(index + 1);
+      await expect(
+        routes.splitTunnelingSettings.selectors.applicationButtonsInList(splitList),
+      ).toHaveCount(index + 1);
 
       const daemonSplitTunnelingApplications = getDaemonSplitTunnelingApplications();
       expect(daemonSplitTunnelingApplications).toHaveLength(index + 1);
@@ -97,18 +101,18 @@ test.describe('Split tunneling', () => {
     });
   });
 
-  test(`App should unsplit ${applications[0]}`, async () => {
+  test(`App should unsplit ${applications[0].name}`, async () => {
     const application = applications[0];
     const splitList = routes.splitTunnelingSettings.selectors.splitApplicationsList();
     const nonSplitList = routes.splitTunnelingSettings.selectors.nonSplitApplicationsList();
 
     const splitApplication = routes.splitTunnelingSettings.selectors.applicationInList(
       splitList,
-      application,
+      application.name,
     );
     const nonSplitApplication = routes.splitTunnelingSettings.selectors.applicationInList(
       nonSplitList,
-      application,
+      application.name,
     );
 
     await expect(splitApplication).toBeVisible();
@@ -119,9 +123,10 @@ test.describe('Split tunneling', () => {
     await expect(splitApplication).not.toBeVisible();
     await expect(nonSplitApplication).toBeVisible();
 
-    const numberOfSplitApplications =
-      await routes.splitTunnelingSettings.numberOfSplitApplications();
-    expect(numberOfSplitApplications).toBe(1);
+    await expect(splitList).toBeVisible();
+    await expect(
+      routes.splitTunnelingSettings.selectors.applicationButtonsInList(splitList),
+    ).toHaveCount(1);
 
     const daemonSplitTunnelingApplications = getDaemonSplitTunnelingApplications();
     expect(daemonSplitTunnelingApplications).toHaveLength(1);
@@ -139,7 +144,7 @@ test.describe('Split tunneling', () => {
     await expect(splitList).toBeVisible();
     await expect(nonSplitList).toBeVisible();
 
-    const application = routes.splitTunnelingSettings.selectors.application(applications[0]);
+    const application = routes.splitTunnelingSettings.selectors.application(applications[0].name);
     await expect(application).toBeVisible();
 
     await routes.splitTunnelingSettings.toggleSplitTunneling();
@@ -158,7 +163,7 @@ test.describe('Split tunneling', () => {
     const nonSplitList = routes.splitTunnelingSettings.selectors.nonSplitApplicationsList();
     const application = routes.splitTunnelingSettings.selectors.applicationInList(
       splitList,
-      applications[1],
+      applications[1].name,
     );
 
     await expect(splitList).not.toBeVisible();
@@ -171,7 +176,10 @@ test.describe('Split tunneling', () => {
     await expect(splitList).toBeVisible();
     await expect(nonSplitList).toBeVisible();
     await expect(application).toBeVisible();
-    expect(await routes.splitTunnelingSettings.numberOfSplitApplications()).toBe(1);
+
+    await expect(
+      routes.splitTunnelingSettings.selectors.applicationButtonsInList(splitList),
+    ).toHaveCount(1);
   });
 });
 
@@ -180,8 +188,8 @@ function getDaemonSplitTunnelingApplications() {
   return output.slice(output.indexOf('Excluded applications:') + 1);
 }
 
-function isSplitInDaemon(app: string): boolean {
+function isSplitInDaemon(application: Application): boolean {
   return !!getDaemonSplitTunnelingApplications().find((splitApp) =>
-    splitApp.toLowerCase().includes(app),
+    splitApp.toLowerCase().includes(application.filename ?? application.name),
   );
 }
