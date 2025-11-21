@@ -6,23 +6,33 @@ import {
   CustomProxy,
   NamedCustomProxy,
   NewAccessMethodSetting,
-} from '../../shared/daemon-rpc-types';
-import { messages } from '../../shared/gettext';
-import { useScheduler } from '../../shared/scheduler';
-import { useAppContext } from '../context';
-import { useApiAccessMethodTest } from '../lib/api-access-methods';
-import { Button } from '../lib/components';
-import { useHistory } from '../lib/history';
-import { useLastDefinedValue } from '../lib/utility-hooks';
-import { useSelector } from '../redux/store';
-import { AppNavigationHeader } from '.';
-import { SettingsForm } from './cell/SettingsForm';
-import { BackAction } from './KeyboardNavigation';
-import { Layout, SettingsContainer, SettingsContent, SettingsNavigationScrollbars } from './Layout';
-import { ModalAlert, ModalAlertType } from './Modal';
-import { NavigationContainer } from './NavigationContainer';
-import { NamedProxyForm, ProxyFormButtons, ProxyFormInner, ProxyFormNameField } from './ProxyForm';
-import SettingsHeader, { HeaderSubTitle, HeaderTitle } from './SettingsHeader';
+} from '../../../../shared/daemon-rpc-types';
+import { messages } from '../../../../shared/gettext';
+import { useScheduler } from '../../../../shared/scheduler';
+import { useAppContext } from '../../../context';
+import { useApiAccessMethodTest } from '../../../lib/api-access-methods';
+import { Button } from '../../../lib/components';
+import { useHistory } from '../../../lib/history';
+import { useLastDefinedValue } from '../../../lib/utility-hooks';
+import { useSelector } from '../../../redux/store';
+import { AppNavigationHeader } from '../..';
+import { SettingsForm } from '../../cell/SettingsForm';
+import { BackAction } from '../../KeyboardNavigation';
+import {
+  Layout,
+  SettingsContainer,
+  SettingsContent,
+  SettingsNavigationScrollbars,
+} from '../../Layout';
+import { ModalAlert, ModalAlertType } from '../../Modal';
+import { NavigationContainer } from '../../NavigationContainer';
+import {
+  NamedProxyForm,
+  ProxyFormButtons,
+  ProxyFormInner,
+  ProxyFormNameField,
+} from '../../ProxyForm';
+import SettingsHeader, { HeaderSubTitle, HeaderTitle } from '../../SettingsHeader';
 
 export function EditApiAccessView() {
   return (
