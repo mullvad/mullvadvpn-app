@@ -1,8 +1,10 @@
 package net.mullvad.mullvadvpn.test.e2e.api.partner
 
+import co.touchlab.kermit.Logger
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.engine.cio.CIO
+import io.ktor.client.plugins.HttpRequestRetry
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.logging.LogLevel
@@ -33,6 +35,11 @@ class PartnerApi(base64AuthCredentials: String) {
                 logger = KermitLogger()
                 level = LogLevel.INFO
                 sanitizeHeader { header -> header == HttpHeaders.Authorization }
+            }
+            install(HttpRequestRetry) {
+                retryOnException(maxRetries = MAX_RETRIES, retryOnTimeout = true)
+                retryOnServerErrors(maxRetries = MAX_RETRIES)
+                exponentialDelay()
             }
 
             defaultRequest {
@@ -65,10 +72,15 @@ class PartnerApi(base64AuthCredentials: String) {
 
     suspend fun deleteAccount(accountNumber: String) =
         withContext(Dispatchers.IO) {
-            client.delete { url { path("$ACCOUNT_PATH/$accountNumber") } }
+            try {
+                client.delete { url { path("$ACCOUNT_PATH/$accountNumber") } }
+            } catch (e: Throwable) {
+                Logger.e("Could not delete account", e)
+            }
         }
 
     companion object {
+        private const val MAX_RETRIES = 3
         private const val BASE_URL = "partner.${BuildConfig.INFRASTRUCTURE_BASE_DOMAIN}"
         private const val ACCOUNT_PATH = "v1/accounts"
     }
