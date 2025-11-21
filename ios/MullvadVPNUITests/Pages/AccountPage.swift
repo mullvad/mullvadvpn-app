@@ -78,7 +78,7 @@ class AccountPage: Page {
 
     func waitForLogoutSpinnerToDisappear() {
         let spinnerDisappeared = app.otherElements[.logOutSpinnerAlertView]
-            .waitForNonExistence(timeout: BaseUITestCase.extremelyLongTimeout)
+            .notExistsAfterWait(timeout: .extremelyLong)
         XCTAssertTrue(spinnerDisappeared, "Log out spinner disappeared")
     }
 }

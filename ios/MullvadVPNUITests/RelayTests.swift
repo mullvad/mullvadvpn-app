@@ -508,6 +508,7 @@ class RelayTests: LoggedInWithTimeUITestCase {
             .tapLocationCell(withName: BaseUITestCase.testsDefaultDAITACountryName)
 
         TunnelControlPage(app)
+            .waitForConnectedLabel()
             .verifyConnectingUsingDAITA()
             .tapDisconnectButton()
     }
