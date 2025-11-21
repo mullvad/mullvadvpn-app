@@ -3,13 +3,13 @@ import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { messages } from '../../../../shared/gettext';
 import { useAppContext } from '../../../context';
 import { Listbox } from '../../../lib/components/listbox';
+import { View } from '../../../lib/components/view';
 import { useHistory } from '../../../lib/history';
 import { useSelector } from '../../../redux/store';
 import { AppNavigationHeader } from '../..';
 import { SelectorItem } from '../../cell/Selector';
 import { CustomScrollbarsRef } from '../../CustomScrollbars';
 import { BackAction } from '../../KeyboardNavigation';
-import { Layout, SettingsContainer } from '../../Layout';
 import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
 import SettingsHeader, { HeaderTitle } from '../../SettingsHeader';
@@ -43,18 +43,18 @@ export function SelectLanguageView() {
   }, []);
 
   return (
-    <BackAction action={pop}>
-      <Layout>
-        <SettingsContainer>
-          <NavigationContainer>
-            <AppNavigationHeader
-              title={
-                // TRANSLATORS: Title label in navigation bar
-                messages.pgettext('select-language-nav', 'Select language')
-              }
-            />
+    <View backgroundColor="darkBlue">
+      <BackAction action={pop}>
+        <NavigationContainer>
+          <AppNavigationHeader
+            title={
+              // TRANSLATORS: Title label in navigation bar
+              messages.pgettext('select-language-nav', 'Select language')
+            }
+          />
 
-            <NavigationScrollbars ref={scrollView}>
+          <NavigationScrollbars ref={scrollView}>
+            <View.Content>
               <SettingsHeader>
                 <HeaderTitle>
                   {messages.pgettext('select-language-nav', 'Select language')}
@@ -78,11 +78,11 @@ export function SelectLanguageView() {
                   ))}
                 </Listbox.Options>
               </Listbox>
-            </NavigationScrollbars>
-          </NavigationContainer>
-        </SettingsContainer>
-      </Layout>
-    </BackAction>
+            </View.Content>
+          </NavigationScrollbars>
+        </NavigationContainer>
+      </BackAction>
+    </View>
   );
 }
 
