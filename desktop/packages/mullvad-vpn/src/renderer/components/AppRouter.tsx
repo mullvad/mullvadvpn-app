@@ -16,7 +16,7 @@ import {
 } from './ExpiredAccountAddTime';
 import Focus, { IFocusHandle } from './Focus';
 import ProblemReport from './ProblemReport';
-import SettingsImport from './SettingsImport';
+import { SettingsImportView } from './SettingsImportView';
 import StateTriggeredNavigation from './StateTriggeredNavigation';
 import {
   AccountView,
@@ -84,7 +84,7 @@ export default function AppRouter() {
           <Route exact path={RoutePath.shadowsocks} component={ShadowsocksSettingsView} />
           <Route exact path={RoutePath.splitTunneling} component={SplitTunnelingView} />
           <Route exact path={RoutePath.apiAccessMethods} component={ApiAccessMethods} />
-          <Route exact path={RoutePath.settingsImport} component={SettingsImport} />
+          <Route exact path={RoutePath.settingsImport} component={SettingsImportView} />
           <Route exact path={RoutePath.settingsTextImport} component={SettingsTextImportView} />
           <Route exact path={RoutePath.editApiAccessMethods} component={EditApiAccessMethod} />
           <Route exact path={RoutePath.support} component={SupportView} />
