@@ -18,6 +18,9 @@ class LocationNode: @unchecked Sendable {
     var children: [LocationNode]
     var showsChildren: Bool
     var isHiddenFromSearch: Bool
+    var isConnected: Bool
+    var isSelected: Bool
+    var isExcluded: Bool
 
     init(
         name: String,
@@ -27,7 +30,10 @@ class LocationNode: @unchecked Sendable {
         parent: LocationNode? = nil,
         children: [LocationNode] = [],
         showsChildren: Bool = false,
-        isHiddenFromSearch: Bool = false
+        isHiddenFromSearch: Bool = false,
+        isConnected: Bool = false,
+        isSelected: Bool = false,
+        isExcluded: Bool = false
     ) {
         self.name = name
         self.code = code
@@ -37,6 +43,9 @@ class LocationNode: @unchecked Sendable {
         self.children = children
         self.showsChildren = showsChildren
         self.isHiddenFromSearch = isHiddenFromSearch
+        self.isConnected = isConnected
+        self.isSelected = isSelected
+        self.isExcluded = isExcluded
     }
 }
 
@@ -45,10 +54,23 @@ extension LocationNode {
         parent?.root ?? self
     }
 
-    var hierarchyLevel: Int {
-        var level = 0
-        forEachAncestor { _ in level += 1 }
-        return level
+    var asCustomListNode: CustomListLocationNode? {
+        self as? CustomListLocationNode
+    }
+
+    var userSelectedRelays: UserSelectedRelays {
+        var customListSelection: UserSelectedRelays.CustomListSelection?
+        if let topmostNode = root.asCustomListNode {
+            customListSelection = UserSelectedRelays.CustomListSelection(
+                listId: topmostNode.customList.id,
+                isList: topmostNode == self
+            )
+        }
+
+        return UserSelectedRelays(
+            locations: locations,
+            customListSelection: customListSelection
+        )
     }
 
     func countryFor(code: String) -> LocationNode? {
@@ -90,6 +112,19 @@ extension LocationNode {
     var flattened: [LocationNode] {
         children + children.flatMap { $0.flattened }
     }
+
+    var activeRelayNodes: [LocationNode] {
+        ([self] + flattened).filter { !($0 is CustomListLocationNode) }
+            .filter(\.self.isActive)
+            .filter {
+                switch $0.locations.first {
+                case .hostname:
+                    return true
+                default:
+                    return false
+                }
+            }
+    }
 }
 
 extension LocationNode {
@@ -104,7 +139,10 @@ extension LocationNode {
             parent: parent,
             children: [],
             showsChildren: showsChildren,
-            isHiddenFromSearch: isHiddenFromSearch
+            isHiddenFromSearch: isHiddenFromSearch,
+            isConnected: isConnected,
+            isSelected: false,  // explicity set to false since it's a different node
+            isExcluded: isExcluded
         )
 
         node.children = recursivelyCopyChildren(withParent: node)
@@ -130,6 +168,15 @@ extension LocationNode: Hashable {
 extension LocationNode: Comparable {
     static func < (lhs: LocationNode, rhs: LocationNode) -> Bool {
         lhs.name.lowercased() < rhs.name.lowercased()
+    }
+}
+
+extension Array where Element == LocationNode {
+    func forEachNode(_ body: (LocationNode) -> Void) {
+        for element in self {
+            body(element)
+            element.children.forEachNode(body)
+        }
     }
 }
 

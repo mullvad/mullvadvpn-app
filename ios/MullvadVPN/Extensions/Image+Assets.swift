@@ -13,4 +13,9 @@ extension Image {
     static let mullvadIconFail = Image("IconFail")
     static let mullvadIconSearch = Image("IconSearch")
     static let mullvadIconCross = Image("IconCross")
+    static let mullvadIconChevron = Image("IconChevron")
+    static let mullvadIconAdd = Image("IconAdd")
+    static let mullvadIconEdit = Image("IconEdit")
+    static let mullvadIconTick = Image("IconTick")
+    static let mullvadRedDot = Image("RedDot")
 }
