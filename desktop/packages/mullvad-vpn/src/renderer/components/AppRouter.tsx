@@ -15,7 +15,6 @@ import {
   VoucherInput,
   VoucherVerificationSuccess,
 } from './ExpiredAccountAddTime';
-import ExpiredAccountErrorView from './ExpiredAccountErrorView';
 import Filter from './Filter';
 import Focus, { IFocusHandle } from './Focus';
 import ProblemReport from './ProblemReport';
@@ -29,6 +28,7 @@ import {
   AppUpgradeView,
   ChangelogView,
   DaitaSettingsView,
+  ExpiredAccountErrorView,
   LaunchView,
   LoginView,
   MainView,
