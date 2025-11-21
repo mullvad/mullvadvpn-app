@@ -1088,6 +1088,8 @@
 		F97C38E82DF025D9006DCB08 /* MullvadAlert.swift in Sources */ = {isa = PBXBuildFile; fileRef = F97C38E72DF025D9006DCB08 /* MullvadAlert.swift */; };
 		F998EFF82D359C4600D88D01 /* SKProduct+Formatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FD5BEF24238EB300112C88 /* SKProduct+Formatting.swift */; };
 		F998EFFA2D3656BA00D88D01 /* SKProduct+Sorting.swift in Sources */ = {isa = PBXBuildFile; fileRef = F998EFF92D3656B100D88D01 /* SKProduct+Sorting.swift */; };
+		F99E323F2E7A93CC004A7EFE /* FigmaVariables.swift in Sources */ = {isa = PBXBuildFile; fileRef = F99E323E2E7A93CC004A7EFE /* FigmaVariables.swift */; };
+		F99E32402E7A93CC004A7EFE /* FigmaVariables.swift in Sources */ = {isa = PBXBuildFile; fileRef = F99E323E2E7A93CC004A7EFE /* FigmaVariables.swift */; };
 		F9E3BCF72DD35B78009986C3 /* ListAccessViewModelBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9E3BCF62DD35B78009986C3 /* ListAccessViewModelBridge.swift */; };
 /* End PBXBuildFile section */
 
@@ -2495,6 +2497,7 @@
 		F97C38E42DEEDFD2006DCB08 /* Image+Assets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Image+Assets.swift"; sourceTree = "<group>"; };
 		F97C38E72DF025D9006DCB08 /* MullvadAlert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadAlert.swift; sourceTree = "<group>"; };
 		F998EFF92D3656B100D88D01 /* SKProduct+Sorting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SKProduct+Sorting.swift"; sourceTree = "<group>"; };
+		F99E323E2E7A93CC004A7EFE /* FigmaVariables.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FigmaVariables.swift; sourceTree = "<group>"; };
 		F9E3BCF62DD35B78009986C3 /* ListAccessViewModelBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListAccessViewModelBridge.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -3400,6 +3403,7 @@
 		583FE02729C1ADF7006E85F9 /* UI appearance */ = {
 			isa = PBXGroup;
 			children = (
+				F99E323E2E7A93CC004A7EFE /* FigmaVariables.swift */,
 				F9394EEB2DBF56AA009595EA /* Color+Mullvad.swift */,
 				F9276C612DBA20FC006FE43D /* Font+Mullvad.swift */,
 				58CCA0152242560B004F3011 /* UIColor+Palette.swift */,
@@ -5960,6 +5964,7 @@
 				A9A5FA222ACB05160083449F /* TunnelObserver.swift in Sources */,
 				A988A3E22AFE54AC0008D2C7 /* AccountExpiry.swift in Sources */,
 				A9E0317F2ACC331C0095D843 /* TunnelStatusBlockObserver.swift in Sources */,
+				F99E32402E7A93CC004A7EFE /* FigmaVariables.swift in Sources */,
 				7A9BE5A62B90762F00E2A7D0 /* CustomListsDataSource.swift in Sources */,
 				F09D04C02AF39D63003D4F89 /* OutgoingConnectionServiceTests.swift in Sources */,
 				7A9BE5A22B8F88C500E2A7D0 /* LocationNodeTests.swift in Sources */,
@@ -6433,6 +6438,7 @@
 				7A8A19162CEF269E000BCB5B /* MultihopTunnelSettingsViewModel.swift in Sources */,
 				58CEB2FD2AFD19D300E6E088 /* UITableView+ReuseIdentifier.swift in Sources */,
 				F0FADDEA2BE90AAA000D0B02 /* LaunchArguments.swift in Sources */,
+				F99E323F2E7A93CC004A7EFE /* FigmaVariables.swift in Sources */,
 				5835B7CC233B76CB0096D79F /* TunnelManager.swift in Sources */,
 				440E5AB42CDCF24500B09614 /* TunnelObfuscationSettingsWatchingObservableObject.swift in Sources */,
 				588D7EDE2AF3A585005DF40A /* ListAccessMethodItem.swift in Sources */,
