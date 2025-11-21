@@ -65,7 +65,7 @@ function SettingsInner() {
         <ApplicationSearchBar searchTerm={searchTerm} onSearch={setSearchTerm} />
       )}
       {showNoSearchResult && <ApplicationSearchNoResult searchTerm={searchTerm} />}
-      <Flex flexDirection="column" gap="medium" margin={{ bottom: 'large' }}>
+      <Flex flexDirection="column" gap="medium">
         {showApplicationLists && <ApplicationLists />}
         {canEditSplitTunneling && <AddApplicationFilePickerButton />}
       </Flex>
