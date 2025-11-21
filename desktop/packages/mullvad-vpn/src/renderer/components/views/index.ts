@@ -6,6 +6,7 @@ export * from './daita-settings';
 export * from './debug';
 export * from './device-revoked';
 export * from './edit-api-access';
+export * from './error';
 export * from './expired-account-error';
 export * from './filter';
 export * from './launch';

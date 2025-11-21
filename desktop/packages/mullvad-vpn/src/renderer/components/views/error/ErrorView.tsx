@@ -1,11 +1,11 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { Flex, Logo } from '../lib/components';
-import { colors } from '../lib/foundations';
-import { AppMainHeader } from './app-main-header';
-import { measurements } from './common-styles';
-import { Container, Layout } from './Layout';
+import { Flex, Logo } from '../../../lib/components';
+import { colors } from '../../../lib/foundations';
+import { AppMainHeader } from '../../app-main-header';
+import { measurements } from '../../common-styles';
+import { Container, Layout } from '../../Layout';
 
 const StyledContainer = styled(Container)({
   flex: 1,
@@ -36,7 +36,7 @@ interface ErrorViewProps {
   children: React.ReactNode | React.ReactNode[];
 }
 
-export default function ErrorView(props: ErrorViewProps) {
+export function ErrorView(props: ErrorViewProps) {
   return (
     <Layout>
       <AppMainHeader logoVariant="none">
