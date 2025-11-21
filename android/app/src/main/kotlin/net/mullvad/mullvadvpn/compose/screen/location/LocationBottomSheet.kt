@@ -34,6 +34,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
 import com.ramcosta.composedestinations.spec.DestinationSpec
@@ -44,9 +45,7 @@ import net.mullvad.mullvadvpn.compose.cell.IconCell
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
 import net.mullvad.mullvadvpn.compose.communication.CustomListActionResultData
 import net.mullvad.mullvadvpn.compose.component.MullvadModalBottomSheet
-import net.mullvad.mullvadvpn.compose.screen.location.LocationBottomSheetState.ShowCustomListsEntryBottomSheet
-import net.mullvad.mullvadvpn.compose.screen.location.LocationBottomSheetState.ShowEditCustomListBottomSheet
-import net.mullvad.mullvadvpn.compose.screen.location.LocationBottomSheetState.ShowLocationBottomSheet
+import net.mullvad.mullvadvpn.compose.state.LocationBottomSheetUiState
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
@@ -54,11 +53,53 @@ import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_CUSTOM_LIST_BOTTOM_SHEET_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_LOCATION_BOTTOM_SHEET_TEST_TAG
 import net.mullvad.mullvadvpn.relaylist.canAddLocation
+import net.mullvad.mullvadvpn.util.Lc
+import net.mullvad.mullvadvpn.viewmodel.location.LocationBottomSheetViewModel
+import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun LocationBottomSheets(
     locationBottomSheetState: LocationBottomSheetState?,
+    onCreateCustomList: (RelayItem.Location?) -> Unit,
+    onAddLocationToList: (RelayItem.Location, RelayItem.CustomList) -> Unit,
+    onRemoveLocationFromList: (location: RelayItem.Location, parent: CustomListId) -> Unit,
+    onEditCustomListName: (RelayItem.CustomList) -> Unit,
+    onEditLocationsCustomList: (RelayItem.CustomList) -> Unit,
+    onDeleteCustomList: (RelayItem.CustomList) -> Unit,
+    onSetAsEntry: (RelayItem) -> Unit,
+    onDisableMultihop: () -> Unit,
+    onSetAsExit: (RelayItem) -> Unit,
+    onHideBottomSheet: () -> Unit,
+) {
+    if (locationBottomSheetState != null) {
+        val viewModel =
+            koinViewModel<LocationBottomSheetViewModel>(
+                key = locationBottomSheetState.toString(),
+                parameters = { parametersOf(locationBottomSheetState) },
+            )
+
+        val state by viewModel.uiState.collectAsStateWithLifecycle()
+        LocationBottomSheets(
+            locationBottomSheetUiState = state,
+            onCreateCustomList = onCreateCustomList,
+            onAddLocationToList = onAddLocationToList,
+            onRemoveLocationFromList = onRemoveLocationFromList,
+            onEditCustomListName = onEditCustomListName,
+            onEditLocationsCustomList = onEditLocationsCustomList,
+            onDeleteCustomList = onDeleteCustomList,
+            onSetAsEntry = onSetAsEntry,
+            onDisableMultihop = onDisableMultihop,
+            onSetAsExit = onSetAsExit,
+            onHideBottomSheet = onHideBottomSheet,
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun LocationBottomSheets(
+    locationBottomSheetUiState: Lc<Unit, LocationBottomSheetUiState>,
     onCreateCustomList: (RelayItem.Location?) -> Unit,
     onAddLocationToList: (RelayItem.Location, RelayItem.CustomList) -> Unit,
     onRemoveLocationFromList: (location: RelayItem.Location, parent: CustomListId) -> Unit,
@@ -82,17 +123,17 @@ internal fun LocationBottomSheets(
     val backgroundColor: Color = MaterialTheme.colorScheme.surfaceContainer
     val onBackgroundColor: Color = MaterialTheme.colorScheme.onSurface
 
-    when (locationBottomSheetState) {
-        is ShowLocationBottomSheet -> {
+    when (val state = locationBottomSheetUiState.contentOrNull()) {
+        is LocationBottomSheetUiState.Location -> {
             LocationBottomSheet(
                 backgroundColor = backgroundColor,
                 onBackgroundColor = onBackgroundColor,
                 sheetState = sheetState,
-                customLists = locationBottomSheetState.customLists,
-                item = locationBottomSheetState.item,
-                canBeSetAsEntry = locationBottomSheetState.canBeSetAsEntry,
-                canBeSetAsExit = locationBottomSheetState.canBeSetAsExit,
-                canBeRemovedAsEntry = locationBottomSheetState.canBeRemovedAsEntry,
+                customLists = state.customLists,
+                item = state.item,
+                canBeSetAsEntry = state.canBeSetAsEntry,
+                canBeSetAsExit = state.canBeSetAsExit,
+                canBeRemovedAsEntry = state.canBeRemovedAsEntry,
                 onCreateCustomList = onCreateCustomList,
                 onAddLocationToList = onAddLocationToList,
                 onSetAsEntry = onSetAsEntry,
@@ -101,15 +142,15 @@ internal fun LocationBottomSheets(
                 closeBottomSheet = onCloseBottomSheet,
             )
         }
-        is ShowEditCustomListBottomSheet -> {
+        is LocationBottomSheetUiState.CustomList -> {
             EditCustomListBottomSheet(
                 backgroundColor = backgroundColor,
                 onBackgroundColor = onBackgroundColor,
                 sheetState = sheetState,
-                customList = locationBottomSheetState.customList,
-                canBeSetAsEntry = locationBottomSheetState.canBeSetAsEntry,
-                canBeSetAsExit = locationBottomSheetState.canBeSetAsExit,
-                canBeRemovedAsEntry = locationBottomSheetState.canBeRemovedAsEntry,
+                customList = state.item,
+                canBeSetAsEntry = state.canBeSetAsEntry,
+                canBeSetAsExit = state.canBeSetAsExit,
+                canBeRemovedAsEntry = state.canBeRemovedAsEntry,
                 onEditName = onEditCustomListName,
                 onEditLocations = onEditLocationsCustomList,
                 onDeleteCustomList = onDeleteCustomList,
@@ -119,17 +160,17 @@ internal fun LocationBottomSheets(
                 closeBottomSheet = onCloseBottomSheet,
             )
         }
-        is ShowCustomListsEntryBottomSheet -> {
+        is LocationBottomSheetUiState.CustomListsEntry -> {
             CustomListEntryBottomSheet(
                 backgroundColor = backgroundColor,
                 onBackgroundColor = onBackgroundColor,
                 sheetState = sheetState,
-                customListId = locationBottomSheetState.customListId,
-                customListName = locationBottomSheetState.customListName,
-                item = locationBottomSheetState.item,
-                canBeSetAsEntry = locationBottomSheetState.canBeSetAsEntry,
-                canBeSetAsExit = locationBottomSheetState.canBeSetAsExit,
-                canBeRemovedAsEntry = locationBottomSheetState.canBeRemovedAsEntry,
+                customListId = state.customListId,
+                customListName = state.customListName,
+                item = state.item,
+                canBeSetAsEntry = state.canBeSetAsEntry,
+                canBeSetAsExit = state.canBeSetAsExit,
+                canBeRemovedAsEntry = state.canBeRemovedAsEntry,
                 onRemoveLocationFromList = onRemoveLocationFromList,
                 onSetAsEntry = onSetAsEntry,
                 onDisableMultihop = onDisableMultihop,
@@ -513,31 +554,16 @@ internal fun <D : DestinationSpec, R : CustomListActionResultData> ResultRecipie
 }
 
 sealed interface LocationBottomSheetState {
-    val canBeSetAsEntry: Boolean
-    val canBeSetAsExit: Boolean
-    val canBeRemovedAsEntry: Boolean
+    val item: RelayItem
 
     data class ShowCustomListsEntryBottomSheet(
-        override val canBeSetAsEntry: Boolean,
-        override val canBeSetAsExit: Boolean,
-        override val canBeRemovedAsEntry: Boolean,
         val customListId: CustomListId,
-        val customListName: CustomListName,
-        val item: RelayItem.Location,
+        override val item: RelayItem.Location,
     ) : LocationBottomSheetState
 
-    data class ShowLocationBottomSheet(
-        override val canBeSetAsEntry: Boolean,
-        override val canBeSetAsExit: Boolean,
-        override val canBeRemovedAsEntry: Boolean,
-        val customLists: List<RelayItem.CustomList>,
-        val item: RelayItem.Location,
-    ) : LocationBottomSheetState
+    data class ShowLocationBottomSheet(override val item: RelayItem.Location) :
+        LocationBottomSheetState
 
-    data class ShowEditCustomListBottomSheet(
-        override val canBeSetAsEntry: Boolean,
-        override val canBeSetAsExit: Boolean,
-        override val canBeRemovedAsEntry: Boolean,
-        val customList: RelayItem.CustomList,
-    ) : LocationBottomSheetState
+    data class ShowEditCustomListBottomSheet(override val item: RelayItem.CustomList) :
+        LocationBottomSheetState
 }

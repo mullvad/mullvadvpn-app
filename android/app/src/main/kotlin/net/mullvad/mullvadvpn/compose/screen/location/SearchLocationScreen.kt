@@ -359,7 +359,6 @@ fun SearchLocationScreen(
                     is Lce.Content -> {
                         relayListContent(
                             relayListItems = state.value.relayListItems,
-                            customLists = state.value.customLists,
                             onSelectRelayItem = {
                                 onSelectRelayItem(it, state.value.relayListType)
                             },
