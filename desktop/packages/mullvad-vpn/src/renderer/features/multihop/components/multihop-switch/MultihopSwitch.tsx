@@ -12,6 +12,7 @@ function MultihopSwitch({ children, ...props }: MultihopSwitchProps) {
 
   const normalRelaySettings = useNormalRelaySettings();
   const unavailable = normalRelaySettings === null;
+  const checked = multihop && !unavailable;
 
   const setMultihop = React.useCallback(
     async (enabled: boolean) => {
@@ -26,11 +27,7 @@ function MultihopSwitch({ children, ...props }: MultihopSwitchProps) {
   );
 
   return (
-    <Switch
-      disabled={unavailable}
-      checked={multihop && !unavailable}
-      onCheckedChange={setMultihop}
-      {...props}>
+    <Switch disabled={unavailable} checked={checked} onCheckedChange={setMultihop} {...props}>
       {children}
     </Switch>
   );

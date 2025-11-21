@@ -7,12 +7,11 @@ function BlockTrackersSwitch({ children, ...props }: BlockTrackersSwitchProps) {
   const { dns } = useDns();
   const setBlockTrackers = useSetDnsOption('blockTrackers');
 
+  const disabled = dns.state === 'custom';
+  const checked = dns.state === 'default' && dns.defaultOptions.blockTrackers;
+
   return (
-    <Switch
-      disabled={dns.state === 'custom'}
-      checked={dns.state === 'default' && dns.defaultOptions.blockTrackers}
-      onCheckedChange={setBlockTrackers}
-      {...props}>
+    <Switch disabled={disabled} checked={checked} onCheckedChange={setBlockTrackers} {...props}>
       {children}
     </Switch>
   );

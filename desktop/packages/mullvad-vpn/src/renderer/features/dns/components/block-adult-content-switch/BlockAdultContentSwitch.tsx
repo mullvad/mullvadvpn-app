@@ -7,12 +7,11 @@ function BlockAdultContentSwitch({ children, ...props }: BlockAdultContentSwitch
   const { dns } = useDns();
   const setBlockAdultContent = useSetDnsOption('blockAdultContent');
 
+  const disabled = dns.state === 'custom';
+  const checked = dns.state === 'default' && dns.defaultOptions.blockAdultContent;
+
   return (
-    <Switch
-      disabled={dns.state === 'custom'}
-      checked={dns.state === 'default' && dns.defaultOptions.blockAdultContent}
-      onCheckedChange={setBlockAdultContent}
-      {...props}>
+    <Switch disabled={disabled} checked={checked} onCheckedChange={setBlockAdultContent} {...props}>
       {children}
     </Switch>
   );
