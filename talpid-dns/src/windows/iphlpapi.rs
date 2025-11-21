@@ -4,7 +4,7 @@
 //! back on other methods if it is not available.
 #![allow(clippy::undocumented_unsafe_blocks)] // Remove me if you dare.
 
-use crate::dns::{DnsMonitorT, ResolvedDnsConfig};
+use super::{DnsMonitorT, ResolvedDnsConfig};
 use once_cell::sync::OnceCell;
 use std::{
     ffi::OsString,

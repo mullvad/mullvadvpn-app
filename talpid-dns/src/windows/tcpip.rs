@@ -1,4 +1,4 @@
-use crate::dns::{DnsMonitorT, ResolvedDnsConfig};
+use super::{DnsMonitorT, ResolvedDnsConfig};
 use std::{io, net::IpAddr};
 use talpid_types::ErrorExt;
 use talpid_windows::net::{guid_from_luid, luid_from_alias};

@@ -2,13 +2,13 @@ use super::{
     ConnectingState, DisconnectedState, EventConsequence, SharedTunnelStateValues, TunnelCommand,
     TunnelCommandReceiver, TunnelState, TunnelStateTransition,
 };
-#[cfg(target_os = "macos")]
-use crate::dns::DnsConfig;
 #[cfg(not(target_os = "android"))]
 use crate::firewall::FirewallPolicy;
 #[cfg(target_os = "macos")]
 use crate::resolver::LOCAL_DNS_RESOLVER;
 use futures::StreamExt;
+#[cfg(target_os = "macos")]
+use talpid_dns::DnsConfig;
 use talpid_types::{
     ErrorExt,
     tunnel::{ErrorStateCause, FirewallPolicyError, ParameterGenerationError},

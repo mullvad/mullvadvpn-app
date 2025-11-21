@@ -5,7 +5,7 @@ use super::{
 #[cfg(not(target_os = "android"))]
 use crate::firewall::FirewallPolicy;
 #[cfg(target_os = "macos")]
-use crate::{dns, tunnel_state_machine::ErrorState};
+use crate::tunnel_state_machine::ErrorState;
 use futures::StreamExt;
 use talpid_types::ErrorExt;
 #[cfg(target_os = "macos")]
@@ -145,14 +145,14 @@ impl DisconnectedState {
     #[cfg(target_os = "macos")]
     fn setup_local_dns_config(
         shared_values: &mut SharedTunnelStateValues,
-    ) -> Result<(), dns::Error> {
+    ) -> Result<(), talpid_dns::Error> {
         shared_values
             .runtime
             .block_on(shared_values.filtering_resolver.disable_forward());
 
         shared_values.dns_monitor.set(
             "lo",
-            dns::DnsConfig::default().resolve(
+            talpid_dns::DnsConfig::default().resolve(
                 &[shared_values.filtering_resolver.listening_addr().ip()],
                 shared_values.filtering_resolver.listening_addr().port(),
             ),

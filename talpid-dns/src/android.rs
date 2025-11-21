@@ -1,4 +1,4 @@
-use crate::dns::ResolvedDnsConfig;
+use super::ResolvedDnsConfig;
 
 /// Stub error type for DNS errors on Android.
 #[derive(Debug, thiserror::Error)]

@@ -1,6 +1,6 @@
 #![allow(clippy::undocumented_unsafe_blocks)] // Remove me if you dare.
 
-use crate::dns::{DnsMonitorT, ResolvedDnsConfig};
+use super::{DnsMonitorT, ResolvedDnsConfig};
 use std::{
     io::{self, Write},
     net::IpAddr,

@@ -10,7 +10,7 @@ use widestring::WideCString;
 
 use self::winfw::*;
 use super::{FirewallArguments, FirewallPolicy, InitialFirewallState};
-use crate::dns::ResolvedDnsConfig;
+use talpid_dns::ResolvedDnsConfig;
 
 mod hyperv;
 mod winfw;
