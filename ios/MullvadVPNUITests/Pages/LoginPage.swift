@@ -24,7 +24,7 @@ class LoginPage: Page {
 
     @discardableResult public func waitForAccountNumberSubmitButton() -> Self {
         let submitButtonExist = app.buttons[AccessibilityIdentifier.loginTextFieldButton]
-            .waitForExistence(timeout: BaseUITestCase.defaultTimeout)
+            .wait(timeout: .short).exists
         XCTAssertTrue(submitButtonExist, "Account number submit button shown")
         return self
     }
@@ -62,26 +62,6 @@ class LoginPage: Page {
 
     /// Checks whether success icon is being shown
     func getSuccessIconShown() -> Bool {
-        // Success icon is only shown very briefly, since another view is presented after success icon is shown.
-        // Therefore we need to poll faster than waitForElement function.
-        let successIconDisplayedExpectation = XCTestExpectation(description: "Success icon shown")
-        nonisolated(unsafe) var isShown = false
-        let timer = Timer.scheduledTimer(withTimeInterval: 0.2, repeats: true) { [self] _ in
-            DispatchQueue.main.async {
-                let statusImageView = self.app.images[.statusImageView]
-
-                if statusImageView.exists {
-                    if statusImageView.value as? String == "success" {
-                        isShown = true
-                        successIconDisplayedExpectation.fulfill()
-                    }
-                }
-            }
-        }
-
-        _ = XCTWaiter.wait(for: [successIconDisplayedExpectation], timeout: BaseUITestCase.longTimeout)
-        timer.invalidate()
-
-        return isShown
+        app.images[.statusImageView].wait(timeout: .veryLong).exists
     }
 }

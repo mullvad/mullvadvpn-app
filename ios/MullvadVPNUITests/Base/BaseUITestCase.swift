@@ -292,7 +292,7 @@ class BaseUITestCase: XCTestCase {
         return
             !app
             .otherElements[.loginView]
-            .waitForExistence(timeout: 1.0)
+            .wait(timeout: .veryShort, hardAssertion: false).exists
     }
 
     func isPresentingSettings() -> Bool {
@@ -305,10 +305,9 @@ class BaseUITestCase: XCTestCase {
     func agreeToTermsOfServiceIfShown() {
         let termsOfServiceIsShown = app.otherElements[
             .termsOfServiceView
-        ]
-        .waitForExistence(timeout: Self.shortTimeout)
+        ].wait(timeout: .short, hardAssertion: false)
 
-        if termsOfServiceIsShown {
+        if termsOfServiceIsShown.exists {
             TermsOfServicePage(app)
                 .tapAgreeButton()
         }
@@ -381,7 +380,6 @@ class BaseUITestCase: XCTestCase {
                 with: ""
             )  // With space in the query Spotlight search sometimes don't match the Mullvad VPN app
 
-        let timeout = TimeInterval(5)
         let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
         let spotlight = XCUIApplication(bundleIdentifier: "com.apple.Spotlight")
 
@@ -407,21 +405,21 @@ class BaseUITestCase: XCTestCase {
         }
 
         // The rest of the delete app flow is same for iPhone and iPad with the exception that iPhone uses spotlight and iPad uses springboard
-        if mullvadAppIcon.waitForExistence(timeout: timeout) {
+        if mullvadAppIcon.wait(timeout: .short).exists {
             mullvadAppIcon.press(forDuration: 2)
         } else {
             XCTFail("Failed to find app icon named \(appName)")
         }
 
         let deleteAppButton = spotlightOrSpringboard.buttons["Delete App"]
-        if deleteAppButton.waitForExistence(timeout: timeout) {
+        if deleteAppButton.wait(timeout: .short).exists {
             deleteAppButton.tap()
         } else {
             XCTFail("Failed to find 'Delete App'")
         }
 
         let finalDeleteButton = springboard.alerts.buttons["Delete"]
-        if finalDeleteButton.waitForExistence(timeout: timeout) {
+        if finalDeleteButton.wait(timeout: .short).exists {
             finalDeleteButton.tap()
         } else {
             XCTFail("Failed to find 'Delete'")
