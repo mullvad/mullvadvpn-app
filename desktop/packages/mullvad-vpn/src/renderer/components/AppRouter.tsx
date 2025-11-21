@@ -5,7 +5,6 @@ import { RoutePath } from '../../shared/routes';
 import SelectLocation from '../components/select-location/SelectLocationContainer';
 import { useViewTransitions } from '../lib/transition-hooks';
 import Debug from './Debug';
-import { EditApiAccessView } from './EditApiAccessView';
 import { EditCustomBridge } from './EditCustomBridge';
 import {
   SetupFinished,
@@ -24,6 +23,7 @@ import {
   ChangelogView,
   DaitaSettingsView,
   DeviceRevokedView,
+  EditApiAccessView,
   ExpiredAccountErrorView,
   FilterView,
   LaunchView,
