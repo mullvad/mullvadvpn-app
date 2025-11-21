@@ -7,12 +7,11 @@ function BlockGamblingSwitch({ children, ...props }: BlockGamblingSwitchProps) {
   const { dns } = useDns();
   const setBlockGambling = useSetDnsOption('blockGambling');
 
+  const disabled = dns.state === 'custom';
+  const checked = dns.state === 'default' && dns.defaultOptions.blockGambling;
+
   return (
-    <Switch
-      disabled={dns.state === 'custom'}
-      checked={dns.state === 'default' && dns.defaultOptions.blockGambling}
-      onCheckedChange={setBlockGambling}
-      {...props}>
+    <Switch disabled={disabled} checked={checked} onCheckedChange={setBlockGambling} {...props}>
       {children}
     </Switch>
   );

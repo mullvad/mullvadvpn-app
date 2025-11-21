@@ -7,12 +7,11 @@ function BlockSocialMediaSwitch({ children, ...props }: BlockSocialMediaSwitchPr
   const { dns } = useDns();
   const setBlockSocialMedia = useSetDnsOption('blockSocialMedia');
 
+  const disabled = dns.state === 'custom';
+  const checked = dns.state === 'default' && dns.defaultOptions.blockSocialMedia;
+
   return (
-    <Switch
-      disabled={dns.state === 'custom'}
-      checked={dns.state === 'default' && dns.defaultOptions.blockSocialMedia}
-      onCheckedChange={setBlockSocialMedia}
-      {...props}>
+    <Switch disabled={disabled} checked={checked} onCheckedChange={setBlockSocialMedia} {...props}>
       {children}
     </Switch>
   );

@@ -7,12 +7,11 @@ function BlockAdsSwitch({ children, ...props }: BlockAdsSwitchProps) {
   const { dns } = useDns();
   const setBlockAds = useSetDnsOption('blockAds');
 
+  const disabled = dns.state === 'custom';
+  const checked = dns.state === 'default' && dns.defaultOptions.blockAds;
+
   return (
-    <Switch
-      disabled={dns.state === 'custom'}
-      checked={dns.state === 'default' && dns.defaultOptions.blockAds}
-      onCheckedChange={setBlockAds}
-      {...props}>
+    <Switch disabled={disabled} checked={checked} onCheckedChange={setBlockAds} {...props}>
       {children}
     </Switch>
   );
