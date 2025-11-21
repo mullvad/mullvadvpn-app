@@ -1,0 +1,113 @@
+---
+source: mullvad-daemon/src/migrations/mod.rs
+expression: "serde_json::to_string_pretty(&Settings::default()).unwrap()"
+---
+{
+  "relay_settings": {
+    "normal": {
+      "location": {
+        "only": {
+          "location": {
+            "country": "se"
+          }
+        }
+      },
+      "providers": "any",
+      "ownership": "any",
+      "tunnel_protocol": "any",
+      "wireguard_constraints": {
+        "port": "any",
+        "ip_version": "any",
+        "use_multihop": false,
+        "entry_location": {
+          "only": {
+            "location": {
+              "country": "se"
+            }
+          }
+        }
+      },
+      "openvpn_constraints": {
+        "port": "any"
+      }
+    }
+  },
+  "bridge_settings": {
+    "bridge_type": "normal",
+    "normal": {
+      "location": "any",
+      "providers": "any",
+      "ownership": "any"
+    },
+    "custom": null
+  },
+  "obfuscation_settings": {
+    "selected_obfuscation": "auto",
+    "udp2tcp": {
+      "port": "any"
+    },
+    "shadowsocks": {
+      "port": "any"
+    }
+  },
+  "bridge_state": "auto",
+  "custom_lists": {
+    "custom_lists": []
+  },
+  "api_access_methods": {
+    "direct": {
+      "id": "6229b8ea-babc-4d97-819e-8060337957de",
+      "name": "Direct",
+      "enabled": true,
+      "access_method": {
+        "built_in": "direct"
+      }
+    },
+    "mullvad_bridges": {
+      "id": "e8ff661d-a0e4-4e15-b1b8-b227153ade31",
+      "name": "Mullvad Bridges",
+      "enabled": true,
+      "access_method": {
+        "built_in": "bridge"
+      }
+    },
+    "custom": []
+  },
+  "allow_lan": false,
+  "block_when_disconnected": false,
+  "auto_connect": false,
+  "tunnel_options": {
+    "openvpn": {
+      "mssfix": null
+    },
+    "wireguard": {
+      "mtu": null,
+      "quantum_resistant": "auto",
+      "daita": {
+        "enabled": false,
+        "use_multihop_if_necessary": true
+      },
+      "rotation_interval": null
+    },
+    "generic": {
+      "enable_ipv6": false
+    },
+    "dns_options": {
+      "state": "default",
+      "default_options": {
+        "block_ads": false,
+        "block_trackers": false,
+        "block_malware": false,
+        "block_adult_content": false,
+        "block_gambling": false,
+        "block_social_media": false
+      },
+      "custom_options": {
+        "addresses": []
+      }
+    }
+  },
+  "relay_overrides": [],
+  "show_beta_releases": false,
+  "settings_version": 10
+}
