@@ -2,32 +2,37 @@ import { useCallback, useMemo } from 'react';
 import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 
-import { AccessMethodSetting } from '../../shared/daemon-rpc-types';
-import { messages } from '../../shared/gettext';
-import { RoutePath } from '../../shared/routes';
-import { useAppContext } from '../context';
-import { useApiAccessMethodTest } from '../lib/api-access-methods';
-import { Button, Container, Flex, Spinner } from '../lib/components';
-import { Switch } from '../lib/components/switch';
-import { colors, spacings } from '../lib/foundations';
-import { useHistory } from '../lib/history';
-import { generateRoutePath } from '../lib/routeHelpers';
-import { useBoolean } from '../lib/utility-hooks';
-import { useSelector } from '../redux/store';
-import { AppNavigationHeader } from '.';
-import * as Cell from './cell';
+import { AccessMethodSetting } from '../../../../shared/daemon-rpc-types';
+import { messages } from '../../../../shared/gettext';
+import { RoutePath } from '../../../../shared/routes';
+import { useAppContext } from '../../../context';
+import { useApiAccessMethodTest } from '../../../lib/api-access-methods';
+import { Button, Container, Flex, Spinner } from '../../../lib/components';
+import { Switch } from '../../../lib/components/switch';
+import { colors, spacings } from '../../../lib/foundations';
+import { useHistory } from '../../../lib/history';
+import { generateRoutePath } from '../../../lib/routeHelpers';
+import { useBoolean } from '../../../lib/utility-hooks';
+import { useSelector } from '../../../redux/store';
+import { AppNavigationHeader } from '../..';
+import * as Cell from '../../cell';
 import {
   ContextMenu,
   ContextMenuContainer,
   ContextMenuItem,
   ContextMenuTrigger,
-} from './ContextMenu';
-import InfoButton from './InfoButton';
-import { BackAction } from './KeyboardNavigation';
-import { Layout, SettingsContainer, SettingsContent, SettingsNavigationScrollbars } from './Layout';
-import { ModalAlert, ModalAlertType } from './Modal';
-import { NavigationContainer } from './NavigationContainer';
-import SettingsHeader, { HeaderSubTitle, HeaderTitle } from './SettingsHeader';
+} from '../../ContextMenu';
+import InfoButton from '../../InfoButton';
+import { BackAction } from '../../KeyboardNavigation';
+import {
+  Layout,
+  SettingsContainer,
+  SettingsContent,
+  SettingsNavigationScrollbars,
+} from '../../Layout';
+import { ModalAlert, ModalAlertType } from '../../Modal';
+import { NavigationContainer } from '../../NavigationContainer';
+import SettingsHeader, { HeaderSubTitle, HeaderTitle } from '../../SettingsHeader';
 
 const StyledNameLabel = styled(Cell.Label)({
   display: 'block',
