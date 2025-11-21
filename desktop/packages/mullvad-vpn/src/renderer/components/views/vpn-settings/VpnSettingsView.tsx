@@ -7,10 +7,10 @@ import {
   QuantumResistantSetting,
 } from '../../../features/tunnel/components';
 import { FlexColumn } from '../../../lib/components/flex-column';
+import { View } from '../../../lib/components/view';
 import { useHistory } from '../../../lib/history';
 import { AppNavigationHeader } from '../..';
 import { BackAction } from '../../KeyboardNavigation';
-import { Layout, SettingsContainer, SettingsContent } from '../../Layout';
 import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
 import SettingsHeader, { HeaderTitle } from '../../SettingsHeader';
@@ -28,50 +28,48 @@ export function VpnSettingsView() {
   const { pop } = useHistory();
 
   return (
-    <BackAction action={pop}>
-      <Layout>
-        <SettingsContainer>
-          <NavigationContainer>
-            <AppNavigationHeader
-              title={
-                // TRANSLATORS: Title label in navigation bar
-                messages.pgettext('vpn-settings-view', 'VPN settings')
-              }
-            />
+    <View backgroundColor="darkBlue">
+      <BackAction action={pop}>
+        <NavigationContainer>
+          <AppNavigationHeader
+            title={
+              // TRANSLATORS: Title label in navigation bar
+              messages.pgettext('vpn-settings-view', 'VPN settings')
+            }
+          />
 
-            <NavigationScrollbars>
+          <NavigationScrollbars>
+            <View.Content>
               <SettingsHeader>
                 <HeaderTitle>{messages.pgettext('vpn-settings-view', 'VPN settings')}</HeaderTitle>
               </SettingsHeader>
 
-              <SettingsContent>
-                <FlexColumn gap="medium">
-                  <FlexColumn>
-                    <AutoStartSetting />
-                    <AutoConnectSetting />
-                  </FlexColumn>
-
-                  <AllowLanSetting />
-
-                  <FlexColumn>
-                    <DnsBlockerSettings />
-                    <CustomDnsSettings />
-                  </FlexColumn>
-
-                  <EnableIpv6Setting />
-                  <KillSwitchSetting />
-                  <LockdownModeSetting />
-                  <AntiCensorshipListItem />
-                  <QuantumResistantSetting />
-                  <IpVersionSetting />
-                  <MtuSetting />
-                  <IpOverrideSettings />
+              <FlexColumn gap="medium">
+                <FlexColumn>
+                  <AutoStartSetting />
+                  <AutoConnectSetting />
                 </FlexColumn>
-              </SettingsContent>
-            </NavigationScrollbars>
-          </NavigationContainer>
-        </SettingsContainer>
-      </Layout>
-    </BackAction>
+
+                <AllowLanSetting />
+
+                <FlexColumn>
+                  <DnsBlockerSettings />
+                  <CustomDnsSettings />
+                </FlexColumn>
+
+                <EnableIpv6Setting />
+                <KillSwitchSetting />
+                <LockdownModeSetting />
+                <AntiCensorshipListItem />
+                <QuantumResistantSetting />
+                <IpVersionSetting />
+                <MtuSetting />
+                <IpOverrideSettings />
+              </FlexColumn>
+            </View.Content>
+          </NavigationScrollbars>
+        </NavigationContainer>
+      </BackAction>
+    </View>
   );
 }
