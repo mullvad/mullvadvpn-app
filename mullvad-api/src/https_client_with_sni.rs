@@ -2,7 +2,7 @@ use crate::{
     DnsResolver,
     abortable_stream::{AbortableStream, AbortableStreamHandle},
     proxy::{ApiConnection, ApiConnectionMode, ProxyConfig},
-    tls_stream::{TLS_CONFIG, TlsStream},
+    tls_stream::TlsStream,
 };
 use futures::{StreamExt, channel::mpsc, future, pin_mut};
 #[cfg(target_os = "android")]
@@ -218,7 +218,7 @@ impl InnerConnectionMode {
         if disable_tls {
             return Ok(ApiConnection::new(Box::new(ConnectionDecorator(proxy))));
         }
-        let tls_stream = TlsStream::connect_https(proxy, hostname, Arc::clone(&TLS_CONFIG)).await?;
+        let tls_stream = TlsStream::connect_https(proxy, hostname).await?;
         Ok(ApiConnection::new(Box::new(tls_stream)))
     }
 }

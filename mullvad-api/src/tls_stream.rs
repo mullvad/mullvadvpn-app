@@ -20,7 +20,7 @@ pub struct TlsStream<S: AsyncRead + AsyncWrite + Unpin> {
     stream: tokio_rustls::client::TlsStream<S>,
 }
 
-pub static TLS_CONFIG: LazyLock<Arc<ClientConfig>> = LazyLock::new(|| {
+static TLS_CONFIG: LazyLock<Arc<ClientConfig>> = LazyLock::new(|| {
     let config =
         ClientConfig::builder_with_provider(Arc::new(rustls::crypto::ring::default_provider()))
             .with_protocol_versions(&[&rustls::version::TLS13])
@@ -34,7 +34,26 @@ impl<S> TlsStream<S>
 where
     S: AsyncRead + AsyncWrite + Unpin,
 {
-    pub async fn connect_https(
+    pub async fn connect_https(stream: S, domain: &str) -> io::Result<TlsStream<S>> {
+        let connector = TlsConnector::from(Arc::clone(&TLS_CONFIG));
+
+        let host = match ServerName::try_from(domain.to_owned()) {
+            Ok(n) => n,
+            Err(_) => {
+                return Err(io::Error::new(
+                    ErrorKind::InvalidInput,
+                    format!("invalid hostname \"{domain}\""),
+                ));
+            }
+        };
+
+        let stream = connector.connect(host, stream).await?;
+
+        Ok(TlsStream { stream })
+    }
+
+    #[cfg(feature = "domain-fronting")]
+    pub async fn connect_https_with_client_config(
         stream: S,
         domain: &str,
         client_config: Arc<ClientConfig>,
