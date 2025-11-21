@@ -12,23 +12,23 @@ import {
   useState,
 } from 'react';
 
-import { messages } from '../../shared/gettext';
-import { getDownloadUrl } from '../../shared/version';
-import { useAppContext } from '../context';
-import { usePushAppUpgrade } from '../history/hooks';
-import { useIsPlatformLinux } from '../hooks';
-import useActions from '../lib/actionsHook';
-import { Button, Flex, Spinner } from '../lib/components';
-import { FlexColumn } from '../lib/components/flex-column';
-import { View } from '../lib/components/view';
-import { useHistory } from '../lib/history';
-import { IconBadge } from '../lib/icon-badge';
-import { useEffectEvent } from '../lib/utility-hooks';
-import { useSelector } from '../redux/store';
-import support from '../redux/support/actions';
-import { AppNavigationHeader } from '.';
-import { BackAction } from './KeyboardNavigation';
-import { ModalAlert, ModalAlertType } from './Modal';
+import { messages } from '../../../../shared/gettext';
+import { getDownloadUrl } from '../../../../shared/version';
+import { useAppContext } from '../../../context';
+import { usePushAppUpgrade } from '../../../history/hooks';
+import { useIsPlatformLinux } from '../../../hooks';
+import useActions from '../../../lib/actionsHook';
+import { Button, Flex, Spinner } from '../../../lib/components';
+import { FlexColumn } from '../../../lib/components/flex-column';
+import { View } from '../../../lib/components/view';
+import { useHistory } from '../../../lib/history';
+import { IconBadge } from '../../../lib/icon-badge';
+import { useEffectEvent } from '../../../lib/utility-hooks';
+import { useSelector } from '../../../redux/store';
+import support from '../../../redux/support/actions';
+import { AppNavigationHeader } from '../..';
+import { BackAction } from '../../KeyboardNavigation';
+import { ModalAlert, ModalAlertType } from '../../Modal';
 import {
   StyledContent,
   StyledEmail,
@@ -41,8 +41,8 @@ import {
   StyledSentMessage,
   StyledStatusIcon,
   StyledThanks,
-} from './ProblemReportStyles';
-import { HeaderSubTitle, HeaderTitle } from './SettingsHeader';
+} from '../../ProblemReportStyles';
+import { HeaderSubTitle, HeaderTitle } from '../../SettingsHeader';
 
 enum SendState {
   initial,
