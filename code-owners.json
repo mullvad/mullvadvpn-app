@@ -4,7 +4,6 @@
     "building/linux-container-image.txt",
     "ci/buildserver-build.sh",
     "ci/buildserver-config.sh",
-    "ci/check-rust.sh",
     "ci/linux-repository-builder/**",
     "ci/publish-app-to-repositories.sh",
     "desktop/**",
