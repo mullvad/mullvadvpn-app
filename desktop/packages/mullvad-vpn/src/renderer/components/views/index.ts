@@ -2,6 +2,7 @@ export * from './account';
 export * from './app-info';
 export * from './app-upgrade';
 export * from './daita-settings';
+export * from './expired-account-error';
 export * from './launch';
 export * from './main';
 export * from './manage-devices';
