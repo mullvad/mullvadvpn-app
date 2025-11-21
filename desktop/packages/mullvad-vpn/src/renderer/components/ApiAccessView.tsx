@@ -14,7 +14,7 @@ import { useHistory } from '../lib/history';
 import { generateRoutePath } from '../lib/routeHelpers';
 import { useBoolean } from '../lib/utility-hooks';
 import { useSelector } from '../redux/store';
-import { AppNavigationHeader } from './';
+import { AppNavigationHeader } from '.';
 import * as Cell from './cell';
 import {
   ContextMenu,
@@ -44,8 +44,8 @@ const StyledTestResultCircle = styled.div<{ $result: boolean }>((props) => ({
   marginRight: spacings.small,
 }));
 
-// This component is the topmost component in the API access methods view.
-export default function ApiAccessMethods() {
+// This component is the topmost component in the API access view.
+export function ApiAccessView() {
   const history = useHistory();
   const methods = useSelector((state) => state.settings.apiAccessMethods);
   const currentMethod = useSelector((state) => state.settings.currentApiAccessMethod);
