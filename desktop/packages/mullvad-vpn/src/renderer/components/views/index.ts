@@ -12,6 +12,7 @@ export * from './multihop-settings';
 export * from './login';
 export * from './changelog';
 export * from './settings';
+export * from './settings-text-import';
 export * from './select-language';
 export * from './shadowsocks-settings';
 export * from './split-tunneling';
