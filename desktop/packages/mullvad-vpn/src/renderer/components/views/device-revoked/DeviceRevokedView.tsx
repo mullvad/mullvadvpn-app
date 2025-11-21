@@ -1,16 +1,16 @@
 import styled from 'styled-components';
 
-import { messages } from '../../shared/gettext';
-import { useAppContext } from '../context';
-import { Button, Flex } from '../lib/components';
-import { FlexColumn } from '../lib/components/flex-column';
-import { View } from '../lib/components/view';
-import { colors } from '../lib/foundations';
-import { IconBadge } from '../lib/icon-badge';
-import { useSelector } from '../redux/store';
-import { AppMainHeader } from './app-main-header';
-import { bigText, measurements, smallText } from './common-styles';
-import CustomScrollbars from './CustomScrollbars';
+import { messages } from '../../../../shared/gettext';
+import { useAppContext } from '../../../context';
+import { Button, Flex } from '../../../lib/components';
+import { FlexColumn } from '../../../lib/components/flex-column';
+import { View } from '../../../lib/components/view';
+import { colors } from '../../../lib/foundations';
+import { IconBadge } from '../../../lib/icon-badge';
+import { useSelector } from '../../../redux/store';
+import { AppMainHeader } from '../../app-main-header';
+import { bigText, measurements, smallText } from '../../common-styles';
+import CustomScrollbars from '../../CustomScrollbars';
 
 export const StyledCustomScrollbars = styled(CustomScrollbars)({
   flex: 1,
