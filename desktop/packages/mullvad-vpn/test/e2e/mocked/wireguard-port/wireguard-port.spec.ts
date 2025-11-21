@@ -147,4 +147,21 @@ test.describe('WireGuard port settings', () => {
     const automaticOption = routes.wireguardPort.selectors.automaticOption();
     await expect(automaticOption).toHaveAttribute('aria-selected', 'true');
   });
+
+  test('Should reset custom port on blur', async () => {
+    const option = routes.wireguardPort.selectors.customOption();
+    await option.click();
+
+    const input = routes.wireguardPort.selectors.customInput();
+    await input.fill(VALID_PORT.toString());
+    await input.blur();
+
+    await expect(input).toHaveValue('');
+
+    await option.click();
+    await input.fill('9999');
+    await input.blur();
+
+    await expect(input).toHaveValue('');
+  });
 });
