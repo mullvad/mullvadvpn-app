@@ -47,7 +47,8 @@ include(
     ":lib:tv",
     ":lib:ui:designsystem",
     ":lib:ui:component",
-    ":lib:ui:tag"
+    ":lib:ui:tag",
+    ":lib:ui:util"
 )
 include(
     ":test",

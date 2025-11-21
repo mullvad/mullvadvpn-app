@@ -16,6 +16,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -69,20 +71,9 @@ import com.ramcosta.composedestinations.result.ResultRecipient
 import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.cell.BaseCell
 import net.mullvad.mullvadvpn.compose.cell.BaseSubtitleCell
 import net.mullvad.mullvadvpn.compose.cell.ContentBlockersDisableModeCellSubtitle
-import net.mullvad.mullvadvpn.compose.cell.CustomPortCell
-import net.mullvad.mullvadvpn.compose.cell.DnsCell
-import net.mullvad.mullvadvpn.compose.cell.ExpandableComposeCell
-import net.mullvad.mullvadvpn.compose.cell.HeaderSwitchComposeCell
-import net.mullvad.mullvadvpn.compose.cell.InformationComposeCell
-import net.mullvad.mullvadvpn.compose.cell.MtuComposeCell
 import net.mullvad.mullvadvpn.compose.cell.MtuSubtitle
-import net.mullvad.mullvadvpn.compose.cell.NavigationComposeCell
-import net.mullvad.mullvadvpn.compose.cell.NormalSwitchComposeCell
-import net.mullvad.mullvadvpn.compose.cell.ObfuscationModeCell
-import net.mullvad.mullvadvpn.compose.cell.SelectableCell
 import net.mullvad.mullvadvpn.compose.cell.SwitchComposeSubtitleCell
 import net.mullvad.mullvadvpn.compose.communication.DnsDialogResult
 import net.mullvad.mullvadvpn.compose.component.MullvadMediumTopBar
@@ -115,6 +106,19 @@ import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaInvisible
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaVisible
+import net.mullvad.mullvadvpn.lib.ui.component.DividerButton
+import net.mullvad.mullvadvpn.lib.ui.component.listitem.CustomPortListItem
+import net.mullvad.mullvadvpn.lib.ui.component.listitem.DnsListItem
+import net.mullvad.mullvadvpn.lib.ui.component.listitem.ExpandableListItem
+import net.mullvad.mullvadvpn.lib.ui.component.listitem.InfoListItem
+import net.mullvad.mullvadvpn.lib.ui.component.listitem.MtuListItem
+import net.mullvad.mullvadvpn.lib.ui.component.listitem.NavigationListItem
+import net.mullvad.mullvadvpn.lib.ui.component.listitem.ObfuscationModeListItem
+import net.mullvad.mullvadvpn.lib.ui.component.listitem.SelectableListItem
+import net.mullvad.mullvadvpn.lib.ui.component.listitem.SwitchListItem
+import net.mullvad.mullvadvpn.lib.ui.designsystem.Hierarchy
+import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadListItem
+import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
 import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_LAST_ITEM_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_QUANTUM_ITEM_OFF_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_QUANTUM_ITEM_ON_TEST_TAG
@@ -128,6 +132,7 @@ import net.mullvad.mullvadvpn.lib.ui.tag.WIREGUARD_OBFUSCATION_OFF_CELL_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.WIREGUARD_OBFUSCATION_QUIC_CELL_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.WIREGUARD_OBFUSCATION_SHADOWSOCKS_CELL_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.WIREGUARD_OBFUSCATION_UDP_OVER_TCP_CELL_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.util.applyIf
 import net.mullvad.mullvadvpn.util.Lc
 import net.mullvad.mullvadvpn.util.indexOfFirstOrNull
 import net.mullvad.mullvadvpn.viewmodel.VpnSettingsSideEffect
@@ -502,13 +507,12 @@ fun VpnSettingsContent(
         }
     }
 
-    val highlightBackground: @Composable (featureIndicators: FeatureIndicator) -> Color =
-        { featureIndicator: FeatureIndicator ->
-            if (initialScrollToFeature == featureIndicator) {
-                MaterialTheme.colorScheme.primary.copy(alpha = highlightAnimation.value)
-            } else {
-                MaterialTheme.colorScheme.primary
-            }
+    @Composable
+    fun highlightBackgroundAlpha(featureIndicator: FeatureIndicator): Float =
+        if (initialScrollToFeature == featureIndicator) {
+            highlightAnimation.value
+        } else {
+            1.0f
         }
 
     val lazyListState = rememberLazyListState(initialIndexFocus)
@@ -527,6 +531,7 @@ fun VpnSettingsContent(
                     state = lazyListState,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaScrollbar),
                 )
+                .padding(horizontal = Dimens.mediumPadding)
                 .animateContentSize(),
         state = lazyListState,
     ) {
@@ -534,9 +539,9 @@ fun VpnSettingsContent(
             when (it) {
                 VpnSettingItem.AutoConnectAndLockdownMode ->
                     item(key = it::class.simpleName) {
-                        NavigationComposeCell(
-                            title = stringResource(id = R.string.auto_connect_and_lockdown_mode),
+                        NavigationListItem(
                             modifier = Modifier.animateItem(),
+                            title = stringResource(id = R.string.auto_connect_and_lockdown_mode),
                             onClick = { navigateToAutoConnectScreen() },
                         )
                     }
@@ -552,7 +557,7 @@ fun VpnSettingsContent(
 
                 is VpnSettingItem.ConnectDeviceOnStartUpSetting ->
                     item(key = it::class.simpleName) {
-                        HeaderSwitchComposeCell(
+                        SwitchListItem(
                             modifier = Modifier.animateItem(),
                             title = stringResource(R.string.connect_on_start),
                             isToggled = it.enabled,
@@ -565,85 +570,98 @@ fun VpnSettingsContent(
 
                 VpnSettingItem.CustomDnsAdd ->
                     item(key = it::class.simpleName) {
-                        BaseCell(
+                        MullvadListItem(
                             modifier = Modifier.animateItem(),
-                            onCellClicked = { navigateToDns(null, null) },
-                            headlineContent = {
-                                Text(
-                                    text = stringResource(id = R.string.add_a_server),
-                                    color = MaterialTheme.colorScheme.onSurface,
-                                    style = MaterialTheme.typography.bodyLarge,
+                            hierarchy = Hierarchy.Child1,
+                            position = Position.Bottom,
+                            onClick = { navigateToDns(null, null) },
+                            content = { Text(text = stringResource(id = R.string.add_a_server)) },
+                            trailingContent = {
+                                DividerButton(
+                                    onClick = { navigateToDns(null, null) },
+                                    icon = Icons.Default.Add,
                                 )
                             },
-                            bodyView = {},
-                            background = MaterialTheme.colorScheme.surfaceContainerHighest,
-                            startPadding = Dimens.indentedCellStartPadding,
                         )
                     }
 
                 is VpnSettingItem.CustomDnsEntry ->
                     item(key = it::class.simpleName + it.index) {
-                        DnsCell(
+                        DnsListItem(
+                            modifier = Modifier.animateItem(),
+                            hierarchy = Hierarchy.Child1,
+                            position = Position.Middle,
                             address = it.customDnsItem.address,
                             isUnreachableLocalDnsWarningVisible = it.showUnreachableLocalDnsWarning,
                             isUnreachableIpv6DnsWarningVisible = it.showUnreachableIpv6DnsWarning,
                             onClick = { navigateToDns(it.index, it.customDnsItem.address) },
-                            modifier = Modifier.animateItem(),
                         )
                     }
 
                 VpnSettingItem.CustomDnsInfo ->
                     item(key = it::class.simpleName) {
                         BaseSubtitleCell(
+                            modifier = Modifier.animateItem(),
                             text = textResource(id = R.string.custom_dns_footer),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.animateItem(),
                         )
                     }
 
                 is VpnSettingItem.CustomDnsServerSetting ->
                     item(key = it::class.simpleName) {
-                        HeaderSwitchComposeCell(
-                            title = stringResource(R.string.enable_custom_dns),
-                            isToggled = it.enabled,
-                            isEnabled = it.isOptionEnabled,
-                            onCellClicked = { newValue -> onToggleDnsClick(newValue) },
-                            onInfoClicked = { navigateToCustomDnsInfo() },
-                            background = highlightBackground(FeatureIndicator.CUSTOM_DNS),
+                        SwitchListItem(
                             modifier =
                                 Modifier.animateItem()
                                     .focusRequester(
                                         focusRequesters.getValue(FeatureIndicator.CUSTOM_DNS)
                                     ),
+                            position = if (it.enabled) Position.Top else Position.Single,
+                            title = stringResource(R.string.enable_custom_dns),
+                            isToggled = it.enabled,
+                            isEnabled = it.isOptionEnabled,
+                            onCellClicked = { newValue -> onToggleDnsClick(newValue) },
+                            onInfoClicked = { navigateToCustomDnsInfo() },
+                            backgroundAlpha = highlightBackgroundAlpha(FeatureIndicator.CUSTOM_DNS),
                         )
                     }
                 VpnSettingItem.CustomDnsUnavailable ->
                     item(key = it::class.simpleName) {
                         BaseSubtitleCell(
-                            textResource(
-                                id = R.string.custom_dns_disable_mode_subtitle,
-                                textResource(id = R.string.dns_content_blockers),
-                            ),
+                            modifier = Modifier.animateItem(),
+                            text =
+                                textResource(
+                                    id = R.string.custom_dns_disable_mode_subtitle,
+                                    textResource(id = R.string.dns_content_blockers),
+                                ),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.animateItem(),
                         )
                     }
 
                 VpnSettingItem.DeviceIpVersionHeader ->
                     item(key = it::class.simpleName) {
-                        InformationComposeCell(
+                        InfoListItem(
+                            modifier = Modifier.animateItem(),
+                            position = Position.Top,
                             title = stringResource(R.string.device_ip_version_title),
                             onInfoClicked = navigateToDeviceIpInfo,
                             onCellClicked = navigateToDeviceIpInfo,
-                            modifier = Modifier.animateItem(),
                         )
                     }
 
                 is VpnSettingItem.DeviceIpVersionItem ->
                     item(key = it::class.simpleName + it.constraint.getOrNull().toString()) {
-                        SelectableCell(
+                        SelectableListItem(
+                            modifier = Modifier.animateItem(),
+                            hierarchy = Hierarchy.Child1,
+                            position =
+                                if (
+                                    it.constraint is Constraint.Only &&
+                                        it.constraint.value == IpVersion.IPV6
+                                ) {
+                                    Position.Bottom
+                                } else Position.Middle,
                             title =
                                 when (it.constraint) {
                                     Constraint.Any -> stringResource(id = R.string.automatic)
@@ -656,8 +674,7 @@ fun VpnSettingsContent(
                                         }
                                 },
                             isSelected = it.selected,
-                            modifier = Modifier.animateItem(),
-                            onCellClicked = { onSelectDeviceIpVersion(it.constraint) },
+                            onClick = { onSelectDeviceIpVersion(it.constraint) },
                         )
                     }
 
@@ -672,79 +689,85 @@ fun VpnSettingsContent(
 
                 is VpnSettingItem.DnsContentBlockerItem.Ads ->
                     item(key = it::class.simpleName) {
-                        NormalSwitchComposeCell(
+                        SwitchListItem(
+                            modifier = Modifier.animateItem(),
+                            position = Position.Middle,
+                            hierarchy = Hierarchy.Child1,
                             title = stringResource(R.string.block_ads_title),
                             isToggled = it.enabled,
                             isEnabled = it.featureEnabled,
                             onCellClicked = { onToggleBlockAds(it) },
-                            startPadding = Dimens.indentedCellStartPadding,
-                            modifier = Modifier.animateItem(),
                         )
                     }
 
                 is VpnSettingItem.DnsContentBlockerItem.AdultContent ->
                     item(key = it::class.simpleName) {
-                        NormalSwitchComposeCell(
+                        SwitchListItem(
+                            modifier = Modifier.animateItem(),
+                            position = Position.Middle,
+                            hierarchy = Hierarchy.Child1,
                             title = stringResource(R.string.block_adult_content_title),
                             isToggled = it.enabled,
                             isEnabled = it.featureEnabled,
                             onCellClicked = { onToggleBlockAdultContent(it) },
-                            startPadding = Dimens.indentedCellStartPadding,
-                            modifier = Modifier.animateItem(),
                         )
                     }
                 is VpnSettingItem.DnsContentBlockerItem.Gambling ->
                     item(key = it::class.simpleName) {
-                        NormalSwitchComposeCell(
+                        SwitchListItem(
+                            modifier = Modifier.animateItem(),
+                            position = Position.Middle,
+                            hierarchy = Hierarchy.Child1,
                             title = stringResource(R.string.block_gambling_title),
                             isToggled = it.enabled,
                             isEnabled = it.featureEnabled,
                             onCellClicked = { onToggleBlockGambling(it) },
-                            startPadding = Dimens.indentedCellStartPadding,
-                            modifier = Modifier.animateItem(),
                         )
                     }
 
                 is VpnSettingItem.DnsContentBlockerItem.Malware ->
                     item(key = it::class.simpleName) {
-                        NormalSwitchComposeCell(
+                        SwitchListItem(
                             modifier = Modifier.animateItem(),
+                            position = Position.Middle,
+                            hierarchy = Hierarchy.Child1,
                             title = stringResource(R.string.block_malware_title),
                             isToggled = it.enabled,
                             isEnabled = it.featureEnabled,
                             onCellClicked = { onToggleBlockMalware(it) },
                             onInfoClicked = { navigateToMalwareInfo() },
-                            startPadding = Dimens.indentedCellStartPadding,
                         )
                     }
 
                 is VpnSettingItem.DnsContentBlockerItem.SocialMedia ->
                     item(key = it::class.simpleName) {
-                        NormalSwitchComposeCell(
+                        SwitchListItem(
                             modifier = Modifier.animateItem(),
+                            position = Position.Bottom,
+                            hierarchy = Hierarchy.Child1,
                             title = stringResource(R.string.block_social_media_title),
                             isToggled = it.enabled,
                             isEnabled = it.featureEnabled,
                             onCellClicked = { onToggleBlockSocialMedia(it) },
-                            startPadding = Dimens.indentedCellStartPadding,
                         )
                     }
 
                 is VpnSettingItem.DnsContentBlockerItem.Trackers ->
                     item(key = it::class.simpleName) {
-                        NormalSwitchComposeCell(
+                        SwitchListItem(
                             modifier = Modifier.animateItem(),
                             title = stringResource(R.string.block_trackers_title),
                             isToggled = it.enabled,
                             isEnabled = it.featureEnabled,
                             onCellClicked = { onToggleBlockTrackers(it) },
-                            startPadding = Dimens.indentedCellStartPadding,
+                            hierarchy = Hierarchy.Child1,
+                            position = Position.Middle,
                         )
                     }
 
                 is VpnSettingItem.DnsContentBlockersHeader ->
                     item(key = it::class.simpleName) {
-                        ExpandableComposeCell(
+                        ExpandableListItem(
                             modifier =
                                 Modifier.animateItem()
                                     .focusRequester(
@@ -752,8 +775,8 @@ fun VpnSettingsContent(
                                             FeatureIndicator.DNS_CONTENT_BLOCKERS
                                         )
                                     ),
+                            position = if (it.expanded) Position.Top else Position.Single,
                             title = stringResource(R.string.dns_content_blockers),
-                            background = highlightBackground(FeatureIndicator.DNS_CONTENT_BLOCKERS),
                             isExpanded = it.expanded,
                             isEnabled = it.featureEnabled,
                             onInfoClicked = { navigateToContentBlockersInfo() },
@@ -768,28 +791,28 @@ fun VpnSettingsContent(
 
                 is VpnSettingItem.EnableIpv6Setting ->
                     item(key = it::class.simpleName) {
-                        HeaderSwitchComposeCell(
+                        SwitchListItem(
+                            modifier = Modifier.animateItem(),
                             title = stringResource(R.string.enable_ipv6),
                             isToggled = it.enabled,
                             isEnabled = true,
                             onCellClicked = onToggleIpv6,
                             onInfoClicked = navigateToIpv6Info,
-                            modifier = Modifier.animateItem(),
                         )
                     }
 
                 is VpnSettingItem.LocalNetworkSharingSetting ->
                     item(key = it::class.simpleName) {
-                        HeaderSwitchComposeCell(
-                            background = highlightBackground(FeatureIndicator.LAN_SHARING),
-                            title = stringResource(R.string.local_network_sharing),
-                            isToggled = it.enabled,
-                            isEnabled = true,
+                        SwitchListItem(
                             modifier =
                                 Modifier.animateItem()
                                     .focusRequester(
                                         focusRequesters.getValue(FeatureIndicator.LAN_SHARING)
                                     ),
+                            backgroundAlpha = highlightBackgroundAlpha(FeatureIndicator.CUSTOM_DNS),
+                            title = stringResource(R.string.local_network_sharing),
+                            isToggled = it.enabled,
+                            isEnabled = true,
                             onCellClicked = { newValue -> onToggleLocalNetworkSharing(newValue) },
                             onInfoClicked = navigateToLocalNetworkSharingInfo,
                         )
@@ -797,15 +820,15 @@ fun VpnSettingsContent(
 
                 is VpnSettingItem.Mtu ->
                     item(key = it::class.simpleName) {
-                        MtuComposeCell(
-                            mtuValue = it.mtu,
-                            onEditMtu = { navigateToMtuDialog(it.mtu) },
+                        MtuListItem(
                             modifier =
                                 Modifier.animateItem()
                                     .focusRequester(
                                         focusRequesters.getValue(FeatureIndicator.CUSTOM_MTU)
                                     ),
-                            background = highlightBackground(FeatureIndicator.CUSTOM_MTU),
+                            mtuValue = it.mtu,
+                            onEditMtu = { navigateToMtuDialog(it.mtu) },
+                            backgroundAlpha = highlightBackgroundAlpha(FeatureIndicator.CUSTOM_DNS),
                         )
                     }
 
@@ -818,132 +841,145 @@ fun VpnSettingsContent(
 
                 VpnSettingItem.ObfuscationHeader ->
                     item(key = it::class.simpleName) {
-                        InformationComposeCell(
-                            title = stringResource(R.string.obfuscation_title),
-                            onInfoClicked = navigateToObfuscationInfo,
-                            onCellClicked = navigateToObfuscationInfo,
-                            background =
+                        InfoListItem(
+                            modifier = Modifier.animateItem(),
+                            backgroundAlpha =
                                 when (initialScrollToFeature) {
                                     FeatureIndicator.UDP_2_TCP,
                                     FeatureIndicator.SHADOWSOCKS,
                                     FeatureIndicator.QUIC,
-                                    FeatureIndicator.LWO ->
-                                        MaterialTheme.colorScheme.primary.copy(
-                                            alpha = highlightAnimation.value
-                                        )
-                                    else -> MaterialTheme.colorScheme.primary
+                                    FeatureIndicator.LWO -> highlightAnimation.value
+                                    else -> 1.0f
                                 },
+                            position = Position.Top,
+                            title = stringResource(R.string.obfuscation_title),
+                            onInfoClicked = navigateToObfuscationInfo,
+                            onCellClicked = navigateToObfuscationInfo,
                             testTag = LAZY_LIST_WIREGUARD_OBFUSCATION_TITLE_TEST_TAG,
-                            modifier = Modifier.animateItem(),
                         )
                     }
 
                 is VpnSettingItem.ObfuscationItem.Automatic ->
                     item(key = it::class.simpleName) {
-                        SelectableCell(
+                        SelectableListItem(
+                            modifier = Modifier.animateItem(),
+                            hierarchy = Hierarchy.Child1,
+                            position = Position.Middle,
                             title = stringResource(id = R.string.automatic),
                             isSelected = it.selected,
-                            modifier = Modifier.animateItem(),
-                            onCellClicked = { onSelectObfuscationMode(ObfuscationMode.Auto) },
+                            onClick = { onSelectObfuscationMode(ObfuscationMode.Auto) },
                         )
                     }
 
                 is VpnSettingItem.ObfuscationItem.Off ->
                     item(key = it::class.simpleName) {
-                        SelectableCell(
+                        SelectableListItem(
+                            modifier = Modifier.animateItem(),
+                            hierarchy = Hierarchy.Child1,
+                            position = Position.Bottom,
                             title = stringResource(id = R.string.off),
                             isSelected = it.selected,
-                            modifier = Modifier.animateItem(),
-                            onCellClicked = { onSelectObfuscationMode(ObfuscationMode.Off) },
+                            onClick = { onSelectObfuscationMode(ObfuscationMode.Off) },
                             testTag = WIREGUARD_OBFUSCATION_OFF_CELL_TEST_TAG,
                         )
                     }
 
                 is VpnSettingItem.ObfuscationItem.Shadowsocks ->
                     item(key = it::class.simpleName) {
-                        ObfuscationModeCell(
+                        ObfuscationModeListItem(
+                            modifier =
+                                Modifier.animateItem()
+                                    .focusRequester(
+                                        focusRequesters.getValue(FeatureIndicator.SHADOWSOCKS)
+                                    ),
+                            hierarchy = Hierarchy.Child1,
+                            position = Position.Middle,
                             obfuscationMode = ObfuscationMode.Shadowsocks,
                             isSelected = it.selected,
                             port = it.port,
                             onSelected = onSelectObfuscationMode,
                             onNavigate = navigateToShadowSocksSettings,
                             testTag = WIREGUARD_OBFUSCATION_SHADOWSOCKS_CELL_TEST_TAG,
-                            modifier =
-                                Modifier.animateItem()
-                                    .focusRequester(
-                                        focusRequesters.getValue(FeatureIndicator.SHADOWSOCKS)
-                                    ),
                         )
                     }
 
                 is VpnSettingItem.ObfuscationItem.UdpOverTcp ->
                     item(key = it::class.simpleName) {
-                        ObfuscationModeCell(
+                        ObfuscationModeListItem(
+                            modifier =
+                                Modifier.animateItem()
+                                    .focusRequester(
+                                        focusRequesters.getValue(FeatureIndicator.UDP_2_TCP)
+                                    ),
+                            hierarchy = Hierarchy.Child1,
+                            position = Position.Middle,
                             obfuscationMode = ObfuscationMode.Udp2Tcp,
                             isSelected = it.selected,
                             port = it.port,
                             onSelected = onSelectObfuscationMode,
                             onNavigate = navigateToUdp2TcpSettings,
                             testTag = WIREGUARD_OBFUSCATION_UDP_OVER_TCP_CELL_TEST_TAG,
-                            modifier =
-                                Modifier.animateItem()
-                                    .focusRequester(
-                                        focusRequesters.getValue(FeatureIndicator.UDP_2_TCP)
-                                    ),
                         )
                     }
 
                 is VpnSettingItem.ObfuscationItem.Quic ->
                     item(key = it::class.simpleName) {
-                        SelectableCell(
-                            title = stringResource(id = R.string.quic),
-                            isSelected = it.selected,
+                        SelectableListItem(
                             modifier =
                                 Modifier.animateItem()
                                     .focusRequester(
                                         focusRequesters.getValue(FeatureIndicator.QUIC)
                                     ),
+                            hierarchy = Hierarchy.Child1,
+                            position = Position.Middle,
+                            title = stringResource(id = R.string.quic),
+                            isSelected = it.selected,
                             testTag = WIREGUARD_OBFUSCATION_QUIC_CELL_TEST_TAG,
-                            onCellClicked = { onSelectObfuscationMode(ObfuscationMode.Quic) },
+                            onClick = { onSelectObfuscationMode(ObfuscationMode.Quic) },
                         )
                     }
 
                 is VpnSettingItem.ObfuscationItem.Lwo ->
                     item(key = it::class.simpleName) {
-                        SelectableCell(
-                            title = stringResource(id = R.string.lwo),
-                            isSelected = it.selected,
+                        SelectableListItem(
                             modifier =
                                 Modifier.animateItem()
                                     .focusRequester(focusRequesters.getValue(FeatureIndicator.LWO)),
+                            hierarchy = Hierarchy.Child1,
+                            position = Position.Middle,
+                            title = stringResource(id = R.string.lwo),
+                            isSelected = it.selected,
                             testTag = WIREGUARD_OBFUSCATION_LWO_CELL_TEST_TAG,
-                            onCellClicked = { onSelectObfuscationMode(ObfuscationMode.Lwo) },
+                            onClick = { onSelectObfuscationMode(ObfuscationMode.Lwo) },
                         )
                     }
 
                 is VpnSettingItem.QuantumItem ->
                     item(key = it::class.simpleName + it.quantumResistantState) {
-                        SelectableCell(
+                        SelectableListItem(
+                            modifier =
+                                Modifier.animateItem().applyIf(
+                                    it.quantumResistantState == QuantumResistantState.On
+                                ) {
+                                    focusRequester(
+                                        focusRequesters.getValue(
+                                            FeatureIndicator.QUANTUM_RESISTANCE
+                                        )
+                                    )
+                                },
+                            hierarchy = Hierarchy.Child1,
+                            position =
+                                when (it.quantumResistantState) {
+                                    QuantumResistantState.Off -> Position.Bottom
+                                    QuantumResistantState.On -> Position.Middle
+                                },
                             title =
                                 when (it.quantumResistantState) {
                                     QuantumResistantState.Off -> stringResource(id = R.string.off)
                                     QuantumResistantState.On -> stringResource(id = R.string.on)
                                 },
                             isSelected = it.selected,
-                            modifier =
-                                Modifier.animateItem()
-                                    .then(
-                                        if (it.quantumResistantState == QuantumResistantState.On) {
-                                            Modifier.focusRequester(
-                                                focusRequesters.getValue(
-                                                    FeatureIndicator.QUANTUM_RESISTANCE
-                                                )
-                                            )
-                                        } else {
-                                            Modifier
-                                        }
-                                    ),
-                            onCellClicked = {
+                            onClick = {
                                 onSelectQuantumResistanceSetting(it.quantumResistantState)
                             },
                             testTag =
@@ -957,12 +993,14 @@ fun VpnSettingsContent(
 
                 VpnSettingItem.QuantumResistanceHeader ->
                     item(key = it::class.simpleName) {
-                        InformationComposeCell(
+                        InfoListItem(
+                            modifier = Modifier.animateItem(),
+                            position = Position.Top,
                             title = stringResource(R.string.quantum_resistant_title),
-                            background = highlightBackground(FeatureIndicator.QUANTUM_RESISTANCE),
+                            backgroundAlpha =
+                                highlightBackgroundAlpha(FeatureIndicator.QUANTUM_RESISTANCE),
                             onInfoClicked = navigateToQuantumResistanceInfo,
                             onCellClicked = navigateToQuantumResistanceInfo,
-                            modifier = Modifier.animateItem(),
                         )
                     }
 
@@ -978,18 +1016,22 @@ fun VpnSettingsContent(
 
                 is VpnSettingItem.WireguardPortHeader ->
                     item(key = it::class.simpleName) {
-                        InformationComposeCell(
+                        InfoListItem(
+                            modifier = Modifier.animateItem(),
+                            position = Position.Top,
                             title = stringResource(id = R.string.wireguard_port_title),
                             onInfoClicked = { navigateToWireguardPortInfo(it.availablePortRanges) },
                             onCellClicked = { navigateToWireguardPortInfo(it.availablePortRanges) },
                             isEnabled = it.enabled,
-                            modifier = Modifier.animateItem(),
                         )
                     }
 
                 is VpnSettingItem.WireguardPortItem.Constraint ->
                     item(key = it::class.simpleName + it.constraint) {
-                        SelectableCell(
+                        SelectableListItem(
+                            modifier = Modifier.animateItem(),
+                            hierarchy = Hierarchy.Child1,
+                            position = Position.Middle,
                             title =
                                 when (it.constraint) {
                                     is Constraint.Only -> it.constraint.value.toString()
@@ -997,9 +1039,8 @@ fun VpnSettingsContent(
                                     is Constraint.Any -> stringResource(id = R.string.automatic)
                                 },
                             isSelected = it.selected,
-                            modifier = Modifier.animateItem(),
                             isEnabled = it.enabled,
-                            onCellClicked = { onWireguardPortSelected(it.constraint) },
+                            onClick = { onWireguardPortSelected(it.constraint) },
                             testTag =
                                 when (it.constraint) {
                                     is Constraint.Only ->
@@ -1016,7 +1057,10 @@ fun VpnSettingsContent(
 
                 is VpnSettingItem.WireguardPortItem.WireguardPortCustom ->
                     item(key = it::class.simpleName) {
-                        CustomPortCell(
+                        CustomPortListItem(
+                            modifier = Modifier.animateItem(),
+                            hierarchy = Hierarchy.Child1,
+                            position = Position.Bottom,
                             title = stringResource(id = R.string.wireguard_custon_port_title),
                             isSelected = it.selected,
                             port = it.customPort,
@@ -1031,7 +1075,6 @@ fun VpnSettingsContent(
                                 navigateToWireguardPortDialog(it.customPort, it.availablePortRanges)
                             },
                             isEnabled = it.enabled,
-                            modifier = Modifier.animateItem(),
                             mainTestTag = LAZY_LIST_WIREGUARD_CUSTOM_PORT_TEXT_TEST_TAG,
                             numberTestTag = LAZY_LIST_WIREGUARD_CUSTOM_PORT_NUMBER_TEST_TAG,
                         )
@@ -1040,6 +1083,7 @@ fun VpnSettingsContent(
                 VpnSettingItem.WireguardPortUnavailable ->
                     item(key = it::class.simpleName) {
                         BaseSubtitleCell(
+                            modifier = Modifier.animateItem(),
                             text =
                                 stringResource(
                                     id = R.string.wg_port_subtitle,
@@ -1047,7 +1091,6 @@ fun VpnSettingsContent(
                                 ),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.animateItem(),
                         )
                     }
             }
@@ -1057,7 +1100,7 @@ fun VpnSettingsContent(
 
 @Composable
 private fun ServerIpOverrides(onServerIpOverridesClick: () -> Unit, modifier: Modifier = Modifier) {
-    NavigationComposeCell(
+    NavigationListItem(
         title = stringResource(id = R.string.server_ip_override),
         modifier = modifier,
         onClick = onServerIpOverridesClick,

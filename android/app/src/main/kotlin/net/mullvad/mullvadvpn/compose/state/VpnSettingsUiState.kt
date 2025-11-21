@@ -105,6 +105,7 @@ data class VpnSettingsUiState(val settings: List<VpnSettingItem>, val isModal: B
                             add(VpnSettingItem.DnsContentBlockersUnavailable)
                         }
                     }
+                    add(VpnSettingItem.Spacer)
 
                     // Custom DNS
                     add(
