@@ -40,7 +40,7 @@ impl DomainFronting {
         );
         let stream = TcpStream::connect((addr.ip(), 443)).await?;
 
-        Ok(TlsStream::connect_https(stream, &self.front, config).await?)
+        Ok(TlsStream::connect_https_with_client_config(stream, &self.front, config).await?)
     }
 }
 
