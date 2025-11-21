@@ -23,7 +23,7 @@ import SettingsImport from './SettingsImport';
 import SettingsTextImport from './SettingsTextImport';
 import StateTriggeredNavigation from './StateTriggeredNavigation';
 import {
-  Account,
+  AccountView,
   AntiCensorshipView,
   AppInfoView,
   AppUpgradeView,
@@ -69,7 +69,7 @@ export default function AppRouter() {
           <Route exact path={RoutePath.voucherSuccess} component={VoucherVerificationSuccess} />
           <Route exact path={RoutePath.timeAdded} component={TimeAdded} />
           <Route exact path={RoutePath.setupFinished} component={SetupFinished} />
-          <Route exact path={RoutePath.account} component={Account} />
+          <Route exact path={RoutePath.account} component={AccountView} />
           <Route exact path={RoutePath.settings} component={SettingsView} />
           <Route exact path={RoutePath.selectLanguage} component={SelectLanguageView} />
           <Route
