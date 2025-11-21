@@ -52,12 +52,9 @@ jobs:
 
       - name: Clippy check
         shell: bash
-        env:
-          RUSTFLAGS: --deny warnings
         run: |
-          source env.sh
-          time cargo clippy --workspace --locked --all-targets --no-default-features
-          time cargo clippy --workspace --locked --all-targets --all-features
+          time ci/cargo-ci.sh clippy --workspace --all-targets --no-default-features
+          time ci/cargo-ci.sh clippy --workspace --all-targets --all-features
 
   clippy-check-android:
     name: Clippy linting, Android
@@ -81,8 +78,6 @@ jobs:
           git submodule update --init wireguard-go-rs/libwg/wireguard-go
 
       - name: Clippy check
-        env:
-          RUSTFLAGS: --deny warnings
         run: |
-          cargo clippy --locked --all-targets --target x86_64-linux-android --package mullvad-jni --no-default-features
-          cargo clippy --locked --all-targets --target x86_64-linux-android --package mullvad-jni --all-features
+          ci/cargo-ci.sh clippy --all-targets --target x86_64-linux-android --package mullvad-jni --no-default-features
+          ci/cargo-ci.sh clippy --all-targets --target x86_64-linux-android --package mullvad-jni --all-features
