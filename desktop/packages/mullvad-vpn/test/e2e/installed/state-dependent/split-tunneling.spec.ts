@@ -79,6 +79,11 @@ test.describe('Split tunneling', () => {
         application.name,
       );
 
+      const nonSplitApplications = await routes.splitTunnelingSettings.selectors
+        .applicationButtonsInList(nonSplitList)
+        .all();
+      console.log(nonSplitApplications.map((application) => application.innerText).join(', '));
+
       await expect(splitApplication).not.toBeVisible();
       await expect(nonSplitApplication).toBeVisible();
 
