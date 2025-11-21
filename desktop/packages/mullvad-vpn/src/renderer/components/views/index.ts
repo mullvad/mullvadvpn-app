@@ -3,6 +3,7 @@ export * from './account';
 export * from './app-info';
 export * from './app-upgrade';
 export * from './daita-settings';
+export * from './debug';
 export * from './device-revoked';
 export * from './edit-api-access';
 export * from './expired-account-error';
