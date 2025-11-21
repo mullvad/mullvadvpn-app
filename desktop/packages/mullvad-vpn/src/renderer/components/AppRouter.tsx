@@ -4,7 +4,7 @@ import { Route, Switch } from 'react-router';
 import { RoutePath } from '../../shared/routes';
 import SelectLocation from '../components/select-location/SelectLocationContainer';
 import { useViewTransitions } from '../lib/transition-hooks';
-import Debug from './Debug';
+import { DebugView } from './DebugView';
 import { EditCustomBridge } from './EditCustomBridge';
 import {
   SetupFinished,
@@ -89,7 +89,7 @@ export default function AppRouter() {
           <Route exact path={RoutePath.editApiAccessMethods} component={EditApiAccessView} />
           <Route exact path={RoutePath.support} component={SupportView} />
           <Route exact path={RoutePath.problemReport} component={ProblemReportView} />
-          <Route exact path={RoutePath.debug} component={Debug} />
+          <Route exact path={RoutePath.debug} component={DebugView} />
           <Route exact path={RoutePath.selectLocation} component={SelectLocation} />
           <Route exact path={RoutePath.editCustomBridge} component={EditCustomBridge} />
           <Route exact path={RoutePath.filter} component={FilterView} />
