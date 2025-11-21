@@ -4,7 +4,7 @@ import { Route, Switch } from 'react-router';
 import { RoutePath } from '../../shared/routes';
 import SelectLocation from '../components/select-location/SelectLocationContainer';
 import { useViewTransitions } from '../lib/transition-hooks';
-import ApiAccessMethods from './ApiAccessMethods';
+import { ApiAccessView } from './ApiAccessView';
 import Debug from './Debug';
 import { EditApiAccessMethod } from './EditApiAccessMethod';
 import { EditCustomBridge } from './EditCustomBridge';
@@ -83,7 +83,7 @@ export default function AppRouter() {
           <Route exact path={RoutePath.udpOverTcp} component={UdpOverTcpSettingsView} />
           <Route exact path={RoutePath.shadowsocks} component={ShadowsocksSettingsView} />
           <Route exact path={RoutePath.splitTunneling} component={SplitTunnelingView} />
-          <Route exact path={RoutePath.apiAccessMethods} component={ApiAccessMethods} />
+          <Route exact path={RoutePath.apiAccessMethods} component={ApiAccessView} />
           <Route exact path={RoutePath.settingsImport} component={SettingsImportView} />
           <Route exact path={RoutePath.settingsTextImport} component={SettingsTextImportView} />
           <Route exact path={RoutePath.editApiAccessMethods} component={EditApiAccessMethod} />
