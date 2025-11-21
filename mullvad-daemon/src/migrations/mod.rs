@@ -49,6 +49,7 @@ mod v1;
 mod v10;
 mod v11;
 mod v12;
+mod v13;
 mod v2;
 mod v3;
 mod v4;
@@ -70,6 +71,9 @@ pub enum Error {
 
     #[error("Unexpected settings format")]
     InvalidSettingsContent,
+
+    #[error("Missing setting {0}")]
+    MissingKey(&'static str),
 
     #[error("Unable to serialize settings to JSON")]
     Serialize(#[source] serde_json::Error),
@@ -213,6 +217,7 @@ async fn migrate_settings(
     v10::migrate(settings)?;
     v11::migrate(settings)?;
     v12::migrate(settings)?;
+    v13::migrate(settings)?;
 
     Ok(migration_data)
 }
