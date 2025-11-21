@@ -12,6 +12,7 @@ on:
       - '!audits/**'
       - '!build.sh'
       - '!ci/**'
+      - 'ci/cargo-ci.sh'
       - '!clippy.toml'
       - '!deny.toml'
       - '!docs/**'
@@ -68,7 +69,7 @@ jobs:
 
       - name: Build test framework
         working-directory: test
-        run: cargo build --release --locked
+        run: ../ci/cargo-ci.sh build
 
   # Build the test runner + test manager at once.
   build-test-framework-macos:
@@ -84,7 +85,7 @@ jobs:
 
       - name: Build test runner
         working-directory: test
-        run: cargo build --locked
+        run: ../ci/cargo-ci.sh build
 
   # Build only the test-runner binary on Windows. Windows is not a supported host for test-manager.
   build-test-runner-windows:
@@ -108,4 +109,4 @@ jobs:
 
       - name: Build test runner
         working-directory: test
-        run: cargo build --release --locked -p test-runner --target x86_64-pc-windows-gnu
+        run: ../ci/cargo-ci.sh build -p test-runner --target x86_64-pc-windows-gnu

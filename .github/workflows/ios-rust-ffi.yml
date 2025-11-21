@@ -5,6 +5,7 @@ on:
     paths:
       - .github/workflows/ios-rust-ffi.yml
       - clippy.toml
+      - 'ci/cargo-ci.sh'
       - Cargo.lock
       - Cargo.toml
       - '**/*.rs'
@@ -38,14 +39,11 @@ jobs:
 
       - name: Build and test crates
         shell: bash
-        env:
-          RUSTFLAGS: --deny warnings
         # NOTE: Tests actually target macOS here. This is because we do not have an iOS runner
         #       handy.
         run: |
-          source env.sh
-          time cargo build --locked --verbose --lib -p mullvad-ios -p mullvad-api --target ${{ matrix.target }}
-          time cargo test --locked --verbose --lib -p mullvad-ios -p mullvad-api
+          time ci/cargo-ci.sh build --verbose --lib -p mullvad-ios -p mullvad-api --target ${{ matrix.target }}
+          time ci/cargo-ci.sh test --verbose --lib -p mullvad-ios -p mullvad-api
 
   clippy-check-ios:
     runs-on: macos-latest
@@ -68,11 +66,8 @@ jobs:
 
       - name: Clippy check
         shell: bash
-        env:
-          RUSTFLAGS: --deny warnings
         run: |
-          source env.sh
-          time cargo clippy --locked --all-targets --no-default-features -p mullvad-ios -p mullvad-api \
+          time ci/cargo-ci.sh clippy --all-targets --no-default-features -p mullvad-ios -p mullvad-api \
             --target ${{ matrix.target }}
-          time cargo clippy --locked --all-targets --all-features -p mullvad-ios -p mullvad-api \
+          time ci/cargo-ci.sh clippy --all-targets --all-features -p mullvad-ios -p mullvad-api \
             --target ${{ matrix.target }}

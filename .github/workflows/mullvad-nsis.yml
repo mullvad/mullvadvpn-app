@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - mullvad-nsis/**
+      - 'ci/cargo-ci.sh'
   workflow_dispatch:
 
 permissions: {}
@@ -23,7 +24,7 @@ jobs:
 
       - name: Build mullvad-nsis
         shell: bash
-        run: cargo build --target i686-pc-windows-msvc -p mullvad-nsis
+        run: ci/cargo-ci.sh build --target i686-pc-windows-msvc -p mullvad-nsis
 
       - name: Check working directory is clean
         shell: bash
