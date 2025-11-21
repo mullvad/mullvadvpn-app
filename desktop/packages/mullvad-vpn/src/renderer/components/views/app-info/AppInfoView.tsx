@@ -1,10 +1,10 @@
 import { messages } from '../../../../shared/gettext';
 import { BetaSetting } from '../../../features/version/components';
 import { Flex } from '../../../lib/components';
+import { View } from '../../../lib/components/view';
 import { useHistory } from '../../../lib/history';
 import { AppNavigationHeader } from '../../';
 import { BackAction } from '../../KeyboardNavigation';
-import { Layout, SettingsContainer } from '../../Layout';
 import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
 import SettingsHeader, { HeaderTitle } from '../../SettingsHeader';
@@ -15,18 +15,18 @@ export function AppInfoView() {
   const { pop } = useHistory();
   const showUpdateAvailable = useShowUpdateAvailable();
   return (
-    <BackAction action={pop}>
-      <Layout>
-        <SettingsContainer>
-          <NavigationContainer>
-            <AppNavigationHeader
-              title={
-                // TRANSLATORS: Title of the app info view.
-                messages.pgettext('app-info-view', 'App info')
-              }
-            />
+    <View backgroundColor="darkBlue">
+      <BackAction action={pop}>
+        <NavigationContainer>
+          <AppNavigationHeader
+            title={
+              // TRANSLATORS: Title of the app info view.
+              messages.pgettext('app-info-view', 'App info')
+            }
+          />
 
-            <NavigationScrollbars>
+          <NavigationScrollbars>
+            <View.Content>
               <SettingsHeader>
                 <HeaderTitle>{messages.pgettext('app-info-view', 'App info')}</HeaderTitle>
               </SettingsHeader>
@@ -39,10 +39,10 @@ export function AppInfoView() {
                 </Flex>
                 <BetaSetting />
               </Flex>
-            </NavigationScrollbars>
-          </NavigationContainer>
-        </SettingsContainer>
-      </Layout>
-    </BackAction>
+            </View.Content>
+          </NavigationScrollbars>
+        </NavigationContainer>
+      </BackAction>
+    </View>
   );
 }
