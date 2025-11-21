@@ -1,3 +1,4 @@
+export * from './api-access';
 export * from './account';
 export * from './app-info';
 export * from './app-upgrade';

@@ -4,7 +4,6 @@ import { Route, Switch } from 'react-router';
 import { RoutePath } from '../../shared/routes';
 import SelectLocation from '../components/select-location/SelectLocationContainer';
 import { useViewTransitions } from '../lib/transition-hooks';
-import { ApiAccessView } from './ApiAccessView';
 import Debug from './Debug';
 import { EditApiAccessMethod } from './EditApiAccessMethod';
 import { EditCustomBridge } from './EditCustomBridge';
@@ -19,6 +18,7 @@ import StateTriggeredNavigation from './StateTriggeredNavigation';
 import {
   AccountView,
   AntiCensorshipView,
+  ApiAccessView,
   AppInfoView,
   AppUpgradeView,
   ChangelogView,
