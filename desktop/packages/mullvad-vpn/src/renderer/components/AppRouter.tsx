@@ -15,7 +15,6 @@ import {
   VoucherVerificationSuccess,
 } from './ExpiredAccountAddTime';
 import Focus, { IFocusHandle } from './Focus';
-import { SettingsImportView } from './SettingsImportView';
 import StateTriggeredNavigation from './StateTriggeredNavigation';
 import {
   AccountView,
@@ -34,6 +33,7 @@ import {
   MultihopSettingsView,
   ProblemReportView,
   SelectLanguageView,
+  SettingsImportView,
   SettingsTextImportView,
   SettingsView,
   ShadowsocksSettingsView,
