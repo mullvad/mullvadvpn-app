@@ -214,17 +214,19 @@ private struct RoundedCorner: Shape {
 #Preview {
     @Previewable @State var suggestion: String? = "1234"
     @Previewable @State var text = ""
+    let label = "Label"
+    let placeholder = "Placeholder text"
     VStack {
         MullvadPrimaryTextField(
-            label: "Label",
-            placeholder: "Placeholder text",
+            label: LocalizedStringKey(label),
+            placeholder: LocalizedStringKey(placeholder),
             text: $text,
             suggestion: $suggestion
         )
 
         MullvadPrimaryTextField(
-            label: "Label",
-            placeholder: "Placeholder text",
+            label: LocalizedStringKey(label),
+            placeholder: LocalizedStringKey(placeholder),
             text: $text,
             suggestion: $suggestion,
             validate: { _ in
@@ -233,8 +235,8 @@ private struct RoundedCorner: Shape {
         )
 
         MullvadPrimaryTextField(
-            label: "Label",
-            placeholder: "Placeholder text",
+            label: LocalizedStringKey(label),
+            placeholder: LocalizedStringKey(placeholder),
             text: $text,
             suggestion: $suggestion
         )
@@ -316,7 +318,10 @@ struct UIMullvadPrimaryTextFieldRepresentable: UIViewRepresentable {
     }
 
     func makeUIView(context: Context) -> UIView {
-        let controller = UIMullvadPrimaryTextField(label: "Label", placeholder: "Placeholder")
+        let label = "Label"
+        let placeholder = "Placeholder text"
+        let controller = UIMullvadPrimaryTextField(
+            label: LocalizedStringKey(label), placeholder: LocalizedStringKey(placeholder))
         context.coordinator.controller = controller
         return controller.view
     }
