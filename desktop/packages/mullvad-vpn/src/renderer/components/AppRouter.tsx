@@ -14,7 +14,7 @@ import {
   VoucherInput,
   VoucherVerificationSuccess,
 } from './ExpiredAccountAddTime';
-import Filter from './Filter';
+import { FilterView } from './FilterView';
 import Focus, { IFocusHandle } from './Focus';
 import ProblemReport from './ProblemReport';
 import SettingsImport from './SettingsImport';
@@ -92,7 +92,7 @@ export default function AppRouter() {
           <Route exact path={RoutePath.debug} component={Debug} />
           <Route exact path={RoutePath.selectLocation} component={SelectLocation} />
           <Route exact path={RoutePath.editCustomBridge} component={EditCustomBridge} />
-          <Route exact path={RoutePath.filter} component={Filter} />
+          <Route exact path={RoutePath.filter} component={FilterView} />
           <Route exact path={RoutePath.appInfo} component={AppInfoView} />
           <Route exact path={RoutePath.changelog} component={ChangelogView} />
           <Route exact path={RoutePath.appUpgrade} component={AppUpgradeView} />
