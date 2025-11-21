@@ -11,7 +11,6 @@ import net.mullvad.mullvadvpn.lib.ui.component.relaylist.ItemPosition
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.RelayListItem
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.RelayListItemState
 import net.mullvad.mullvadvpn.relaylist.filterOnSearchTerm
-import net.mullvad.mullvadvpn.relaylist.withDescendants
 
 const val RECENTS_MAX_VISIBLE: Int = 3
 
@@ -19,8 +18,6 @@ const val RECENTS_MAX_VISIBLE: Int = 3
 internal fun relayListItems(
     relayListType: RelayListType,
     relayCountries: List<RelayItem.Location.Country>,
-    validEntryLocations: Set<GeoLocationId>,
-    validExitLocations: Set<GeoLocationId>,
     customLists: List<RelayItem.CustomList>,
     recents: List<RelayItem>?,
     selectedItem: RelayItemSelection,
@@ -36,8 +33,6 @@ internal fun relayListItems(
         customLists = customLists,
         recents = recents,
         countries = relayCountries,
-        canBeSelectedAsEntry = { relayItem -> validate(relayItem, validEntryLocations) },
-        canBeSelectedAsExit = { relayItem -> validate(relayItem, validExitLocations) },
         isExpanded = { it in expandedItems },
     )
 }
@@ -47,8 +42,6 @@ internal fun relayListItemsSearching(
     relayListType: RelayListType,
     relayCountries: List<RelayItem.Location.Country>,
     customLists: List<RelayItem.CustomList>,
-    validEntryLocations: Set<GeoLocationId>,
-    validExitLocations: Set<GeoLocationId>,
     selectedByThisEntryExitList: RelayItemId?,
     selectedByOtherEntryExitList: RelayItemId?,
     expandedItems: Set<String>,
@@ -61,8 +54,6 @@ internal fun relayListItemsSearching(
             selectedByOtherEntryExitList = selectedByOtherEntryExitList,
             customLists = filteredCustomLists,
             countries = relayCountries,
-            canBeSelectedAsEntry = { relayItem -> validate(relayItem, validEntryLocations) },
-            canBeSelectedAsExit = { relayItem -> validate(relayItem, validExitLocations) },
         ) {
             it in expandedItems
         }
@@ -81,8 +72,6 @@ internal fun emptyLocationsRelayListItems(
         selectedByThisEntryExitList = selectedByThisEntryExitList,
         selectedByOtherEntryExitList = selectedByOtherEntryExitList,
         customLists = customLists,
-        canBeSelectedAsEntry = { false },
-        canBeSelectedAsExit = { false },
     ) {
         it in expandedItems
     } + RelayListItem.LocationHeader + RelayListItem.EmptyRelayList
@@ -95,8 +84,6 @@ private fun createRelayListItems(
     customLists: List<RelayItem.CustomList>,
     recents: List<RelayItem>?,
     countries: List<RelayItem.Location.Country>,
-    canBeSelectedAsEntry: (RelayItem) -> Boolean,
-    canBeSelectedAsExit: (RelayItem) -> Boolean,
     isExpanded: (String) -> Boolean,
 ): List<RelayListItem> = buildList {
     if (recents != null) {
@@ -105,8 +92,6 @@ private fun createRelayListItems(
                 recents = recents,
                 itemSelection = selectedItem,
                 relayListType = relayListType,
-                canBeSelectedAsEntry = canBeSelectedAsEntry,
-                canBeSelectedAsExit = canBeSelectedAsExit,
             )
         )
     }
@@ -117,8 +102,6 @@ private fun createRelayListItems(
             selectedByOtherEntryExitList = selectedByOtherEntryExitList,
             customLists = customLists,
             isExpanded = isExpanded,
-            canBeSelectedAsEntry = canBeSelectedAsEntry,
-            canBeSelectedAsExit = canBeSelectedAsExit,
         )
     )
     addAll(
@@ -128,8 +111,6 @@ private fun createRelayListItems(
             selectedByOtherEntryExitList = selectedByOtherEntryExitList,
             countries = countries,
             isExpanded = isExpanded,
-            canBeSelectedAsEntry = canBeSelectedAsEntry,
-            canBeSelectedAsExit = canBeSelectedAsExit,
         )
     )
 }
@@ -138,8 +119,6 @@ private fun createRecentsSection(
     recents: List<RelayItem>,
     itemSelection: RelayItemSelection,
     relayListType: RelayListType,
-    canBeSelectedAsEntry: (RelayItem) -> Boolean,
-    canBeSelectedAsExit: (RelayItem) -> Boolean,
 ): List<RelayListItem> = buildList {
     add(RelayListItem.RecentsListHeader)
 
@@ -147,13 +126,7 @@ private fun createRecentsSection(
         recents
             .map { recent ->
                 val isSelected = recent.matches(itemSelection, relayListType)
-                RelayListItem.RecentListItem(
-                    item = recent,
-                    isSelected = isSelected,
-                    canBeSetAsEntry = canBeSelectedAsEntry(recent),
-                    canBeSetAsExit = canBeSelectedAsExit(recent),
-                    canBeRemovedAsEntry = itemSelection.entryLocation()?.getOrNull() == recent.id,
-                )
+                RelayListItem.RecentListItem(item = recent, isSelected = isSelected)
             }
             // Convert to a set to remove possible duplicates. We can get duplicate entries if
             // multihop is enabled because multiple multihop recents
@@ -191,8 +164,6 @@ private fun createRelayListItemsSearching(
     selectedByOtherEntryExitList: RelayItemId?,
     customLists: List<RelayItem.CustomList>,
     countries: List<RelayItem.Location.Country>,
-    canBeSelectedAsEntry: (RelayItem) -> Boolean,
-    canBeSelectedAsExit: (RelayItem) -> Boolean,
     isExpanded: (String) -> Boolean,
 ): List<RelayListItem> =
     createCustomListSectionSearching(
@@ -201,8 +172,6 @@ private fun createRelayListItemsSearching(
         selectedByOtherEntryExitList = selectedByOtherEntryExitList,
         customLists = customLists,
         isExpanded = isExpanded,
-        canBeSelectedAsEntry = canBeSelectedAsEntry,
-        canBeSelectedAsExit = canBeSelectedAsExit,
     ) +
         createLocationSectionSearching(
             selectedByThisEntryExitList = selectedByThisEntryExitList,
@@ -210,8 +179,6 @@ private fun createRelayListItemsSearching(
             selectedByOtherEntryExitList = selectedByOtherEntryExitList,
             countries = countries,
             isExpanded = isExpanded,
-            canBeSelectedAsEntry = canBeSelectedAsEntry,
-            canBeSelectedAsExit = canBeSelectedAsExit,
         )
 
 private fun createCustomListSection(
@@ -219,8 +186,6 @@ private fun createCustomListSection(
     selectedByThisEntryExitList: RelayItemId?,
     selectedByOtherEntryExitList: RelayItemId?,
     customLists: List<RelayItem.CustomList>,
-    canBeSelectedAsEntry: (RelayItem) -> Boolean,
-    canBeSelectedAsExit: (RelayItem) -> Boolean,
     isExpanded: (String) -> Boolean,
 ): List<RelayListItem> = buildList {
     add(RelayListItem.CustomListHeader)
@@ -231,8 +196,6 @@ private fun createCustomListSection(
             selectedByThisEntryExitList = selectedByThisEntryExitList,
             selectedByOtherEntryExitList = selectedByOtherEntryExitList,
             isExpanded = isExpanded,
-            canBeSelectedAsEntry = canBeSelectedAsEntry,
-            canBeSelectedAsExit = canBeSelectedAsExit,
         )
     addAll(customListItems)
     add(RelayListItem.CustomListFooter(customListItems.isNotEmpty()))
@@ -244,8 +207,6 @@ private fun createCustomListSectionSearching(
     selectedByOtherEntryExitList: RelayItemId?,
     customLists: List<RelayItem.CustomList>,
     isExpanded: (String) -> Boolean,
-    canBeSelectedAsEntry: (RelayItem) -> Boolean,
-    canBeSelectedAsExit: (RelayItem) -> Boolean,
 ): List<RelayListItem> = buildList {
     if (customLists.isNotEmpty()) {
         add(RelayListItem.CustomListHeader)
@@ -256,8 +217,6 @@ private fun createCustomListSectionSearching(
                 selectedByThisEntryExitList = selectedByThisEntryExitList,
                 selectedByOtherEntryExitList = selectedByOtherEntryExitList,
                 isExpanded = isExpanded,
-                canBeSelectedAsEntry = canBeSelectedAsEntry,
-                canBeSelectedAsExit = canBeSelectedAsExit,
             )
         addAll(customListItems)
     }
@@ -268,8 +227,6 @@ private fun createCustomListRelayItems(
     relayListType: RelayListType,
     selectedByThisEntryExitList: RelayItemId?,
     selectedByOtherEntryExitList: RelayItemId?,
-    canBeSelectedAsEntry: (RelayItem) -> Boolean,
-    canBeSelectedAsExit: (RelayItem) -> Boolean,
     isExpanded: (String) -> Boolean,
 ): List<RelayListItem> =
     customLists.flatMap { customList ->
@@ -294,15 +251,6 @@ private fun createCustomListRelayItems(
                         } else {
                             ItemPosition.Single
                         },
-                    canBeSetAsEntry = canBeSelectedAsEntry(customList),
-                    canBeSetAsExit = canBeSelectedAsExit(customList),
-                    canBeRemovedAsEntry =
-                        when (relayListType) {
-                            is RelayListType.Multihop if
-                                relayListType.multihopRelayListType == MultihopRelayListType.ENTRY
-                             -> selectedByThisEntryExitList == customList.id
-                            else -> selectedByOtherEntryExitList == customList.id
-                        },
                 )
             )
 
@@ -317,8 +265,6 @@ private fun createCustomListRelayItems(
                             depth = 1,
                             isExpanded = isExpanded,
                             isLast = index == customList.locations.lastIndex,
-                            canBeSelectedAsEntry = canBeSelectedAsEntry,
-                            canBeSelectedAsExit = canBeSelectedAsExit,
                         )
                     }
                 )
@@ -332,8 +278,6 @@ private fun createLocationSection(
     selectedByOtherEntryExitList: RelayItemId?,
     countries: List<RelayItem.Location.Country>,
     isExpanded: (String) -> Boolean,
-    canBeSelectedAsEntry: (RelayItem) -> Boolean,
-    canBeSelectedAsExit: (RelayItem) -> Boolean,
 ): List<RelayListItem> = buildList {
     add(RelayListItem.LocationHeader)
     addAll(
@@ -345,8 +289,6 @@ private fun createLocationSection(
                 selectedByOtherEntryExitList = selectedByOtherEntryExitList,
                 isExpanded = isExpanded,
                 isLast = true,
-                canBeSelectedAsEntry = canBeSelectedAsEntry,
-                canBeSelectedAsExit = canBeSelectedAsExit,
             )
         }
     )
@@ -358,8 +300,6 @@ private fun createLocationSectionSearching(
     selectedByOtherEntryExitList: RelayItemId?,
     countries: List<RelayItem.Location.Country>,
     isExpanded: (String) -> Boolean,
-    canBeSelectedAsEntry: (RelayItem) -> Boolean,
-    canBeSelectedAsExit: (RelayItem) -> Boolean,
 ): List<RelayListItem> = buildList {
     if (countries.isNotEmpty()) {
         add(RelayListItem.LocationHeader)
@@ -372,8 +312,6 @@ private fun createLocationSectionSearching(
                     selectedByOtherEntryExitList = selectedByOtherEntryExitList,
                     isExpanded = isExpanded,
                     isLast = true,
-                    canBeSelectedAsEntry = canBeSelectedAsEntry,
-                    canBeSelectedAsExit = canBeSelectedAsExit,
                 )
             }
         )
@@ -388,8 +326,6 @@ private fun createCustomListEntry(
     depth: Int = 1,
     isExpanded: (String) -> Boolean,
     isLast: Boolean,
-    canBeSelectedAsEntry: (RelayItem) -> Boolean,
-    canBeSelectedAsExit: (RelayItem) -> Boolean,
 ): List<RelayListItem.CustomListEntryItem> = buildList {
     val expanded = isExpanded(item.id.expandKey(parent.id))
     add(
@@ -410,8 +346,6 @@ private fun createCustomListEntry(
                 } else {
                     ItemPosition.Middle
                 },
-            canBeSetAsEntry = canBeSelectedAsEntry(item),
-            canBeSetAsExit = canBeSelectedAsExit(item),
         )
     )
 
@@ -428,8 +362,6 @@ private fun createCustomListEntry(
                             depth = depth + 1,
                             isExpanded = isExpanded,
                             isLast = isLast && index == item.relays.lastIndex,
-                            canBeSelectedAsEntry = canBeSelectedAsEntry,
-                            canBeSelectedAsExit = canBeSelectedAsExit,
                         )
                     }
                 )
@@ -444,8 +376,6 @@ private fun createCustomListEntry(
                             depth = depth + 1,
                             isExpanded = isExpanded,
                             isLast = isLast && index == item.cities.lastIndex,
-                            canBeSelectedAsEntry = canBeSelectedAsEntry,
-                            canBeSelectedAsExit = canBeSelectedAsExit,
                         )
                     }
                 )
@@ -462,8 +392,6 @@ private fun createGeoLocationEntry(
     depth: Int = 0,
     isExpanded: (String) -> Boolean,
     isLast: Boolean,
-    canBeSelectedAsEntry: (RelayItem) -> Boolean,
-    canBeSelectedAsExit: (RelayItem) -> Boolean,
 ): List<RelayListItem.GeoLocationItem> = buildList {
     val expanded = isExpanded(item.id.expandKey())
 
@@ -496,15 +424,6 @@ private fun createGeoLocationEntry(
                         }
                     }
                 },
-            canBeSetAsEntry = canBeSelectedAsEntry(item),
-            canBeSetAsExit = canBeSelectedAsExit(item),
-            canBeRemovedAsEntry =
-                when (relayListType) {
-                    is RelayListType.Multihop if
-                        relayListType.multihopRelayListType == MultihopRelayListType.ENTRY
-                     -> selectedByThisEntryExitList == item.id
-                    else -> selectedByOtherEntryExitList == item.id
-                },
         )
     )
 
@@ -521,8 +440,6 @@ private fun createGeoLocationEntry(
                             depth = depth + 1,
                             isExpanded = isExpanded,
                             isLast = isLast && index == item.relays.lastIndex,
-                            canBeSelectedAsEntry = canBeSelectedAsEntry,
-                            canBeSelectedAsExit = canBeSelectedAsExit,
                         )
                     }
                 )
@@ -537,8 +454,6 @@ private fun createGeoLocationEntry(
                             depth = depth + 1,
                             isExpanded = isExpanded,
                             isLast = isLast && index == item.cities.lastIndex,
-                            canBeSelectedAsEntry = canBeSelectedAsEntry,
-                            canBeSelectedAsExit = canBeSelectedAsExit,
                         )
                     }
                 )
@@ -625,10 +540,3 @@ private fun RelayItem.createState(
         null
     }
 }
-
-private fun validate(relayItem: RelayItem, geoLocationIds: Set<GeoLocationId>): Boolean =
-    when (relayItem) {
-        is RelayItem.Location -> geoLocationIds.contains(relayItem.id)
-        is RelayItem.CustomList ->
-            relayItem.locations.withDescendants().any { geoLocationIds.contains(it.id) }
-    }
