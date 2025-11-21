@@ -1,17 +1,17 @@
 import { useCallback } from 'react';
 import styled from 'styled-components';
 
-import { messages } from '../../shared/gettext';
-import useActions from '../lib/actionsHook';
-import { IconButton } from '../lib/components';
-import { colors } from '../lib/foundations';
-import { useHistory } from '../lib/history';
-import { useCombinedRefs, useRefCallback, useStyledRef } from '../lib/utility-hooks';
-import settingsImportActions from '../redux/settings-import/actions';
-import { useSelector } from '../redux/store';
-import { AppNavigationHeader } from '.';
-import { BackAction } from './KeyboardNavigation';
-import { Layout, SettingsContainer } from './Layout';
+import { messages } from '../../../../shared/gettext';
+import useActions from '../../../lib/actionsHook';
+import { IconButton } from '../../../lib/components';
+import { colors } from '../../../lib/foundations';
+import { useHistory } from '../../../lib/history';
+import { useCombinedRefs, useRefCallback, useStyledRef } from '../../../lib/utility-hooks';
+import settingsImportActions from '../../../redux/settings-import/actions';
+import { useSelector } from '../../../redux/store';
+import { AppNavigationHeader } from '../..';
+import { BackAction } from '../../KeyboardNavigation';
+import { Layout, SettingsContainer } from '../../Layout';
 
 const StyledTextArea = styled.textarea({
   width: '100%',
