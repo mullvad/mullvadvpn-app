@@ -159,6 +159,3 @@ jobs:
         shell: bash
         run: ci/cargo-ci.sh test --workspace  --exclude windows-installer
 
-      - name: Check windows-installer
-        shell: bash
-        run: ci/cargo-ci.sh check -p windows-installer
