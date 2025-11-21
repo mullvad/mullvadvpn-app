@@ -9,7 +9,7 @@ import { useHistory } from '../lib/history';
 import { useCombinedRefs, useRefCallback, useStyledRef } from '../lib/utility-hooks';
 import settingsImportActions from '../redux/settings-import/actions';
 import { useSelector } from '../redux/store';
-import { AppNavigationHeader } from './';
+import { AppNavigationHeader } from '.';
 import { BackAction } from './KeyboardNavigation';
 import { Layout, SettingsContainer } from './Layout';
 
@@ -20,7 +20,7 @@ const StyledTextArea = styled.textarea({
   color: colors.blue,
 });
 
-export default function SettingsTextImport() {
+export function SettingsTextImportView() {
   const { pop } = useHistory();
 
   const { saveSettingsImportForm } = useActions(settingsImportActions);
