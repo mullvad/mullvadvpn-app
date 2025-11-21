@@ -2033,6 +2033,8 @@ dependencies = [
  "async-trait",
  "cbindgen",
  "chrono",
+ "clap",
+ "env_logger",
  "futures",
  "http 1.1.0",
  "http-body-util",
