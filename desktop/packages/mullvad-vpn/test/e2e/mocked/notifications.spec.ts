@@ -78,9 +78,7 @@ test.describe('Unsupported wireguard port', () => {
 
   const updatePort = async (port: Constraint<number>) => {
     const settings = getDefaultSettings();
-    if ('normal' in settings.relaySettings) {
-      settings.relaySettings.normal.wireguardConstraints.port = port;
-    }
+    settings.obfuscationSettings.wireGuardPortSettings.port = port;
     await util.ipc.settings[''].notify(settings);
   };
 

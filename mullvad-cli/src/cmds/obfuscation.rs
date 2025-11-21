@@ -5,6 +5,7 @@ use mullvad_types::{
     constraints::Constraint,
     relay_constraints::{
         ObfuscationSettings, SelectedObfuscation, ShadowsocksSettings, Udp2TcpObfuscationSettings,
+        WireguardPortSettings,
     },
 };
 
@@ -33,6 +34,11 @@ pub enum SetCommands {
     /// Configure Shadowsocks obfuscation.
     Shadowsocks {
         /// Port to use, or 'any'
+        #[arg(long, short = 'p')]
+        port: Constraint<u16>,
+    },
+    WireguardPort {
+        /// Port to use
         #[arg(long, short = 'p')]
         port: Constraint<u16>,
     },
@@ -78,6 +84,27 @@ impl Obfuscation {
             SetCommands::Shadowsocks { port } => {
                 rpc.set_obfuscation_settings(ObfuscationSettings {
                     shadowsocks: ShadowsocksSettings { port },
+                    ..current_settings
+                })
+                .await?;
+            }
+            SetCommands::WireguardPort { port } => {
+                let mut rpc = MullvadProxyClient::new().await?;
+                let wireguard = rpc.get_relay_locations().await?.wireguard;
+                let wireguard_port = WireguardPortSettings::from(port);
+                let is_valid_port = match wireguard_port.get() {
+                    Constraint::Any => true,
+                    Constraint::Only(port) => wireguard
+                        .port_ranges
+                        .into_iter()
+                        .any(|range| range.contains(&port)),
+                };
+
+                if !is_valid_port {
+                    return Err(anyhow::anyhow!("The specified port is invalid"));
+                }
+                rpc.set_obfuscation_settings(ObfuscationSettings {
+                    wireguard_port,
                     ..current_settings
                 })
                 .await?;
