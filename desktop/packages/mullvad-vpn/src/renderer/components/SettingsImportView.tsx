@@ -15,7 +15,7 @@ import { TransitionType, useHistory } from '../lib/history';
 import { useBoolean, useEffectEvent } from '../lib/utility-hooks';
 import settingsImportActions from '../redux/settings-import/actions';
 import { useSelector } from '../redux/store';
-import { AppNavigationHeader } from './';
+import { AppNavigationHeader } from '.';
 import { ButtonGroup } from './ButtonGroup';
 import { normalText } from './common-styles';
 import { BackAction } from './KeyboardNavigation';
@@ -24,7 +24,7 @@ import { HeaderSubTitle, HeaderTitle } from './SettingsHeader';
 
 type ImportStatus = { successful: boolean } & ({ type: 'file'; name: string } | { type: 'text' });
 
-export default function SettingsImport() {
+export function SettingsImportView() {
   const history = useHistory();
   const {
     clearAllRelayOverrides,
