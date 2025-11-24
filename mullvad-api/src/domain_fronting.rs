@@ -5,6 +5,7 @@ use std::{io::Error, sync::Arc};
 
 use tokio::net::TcpStream;
 use tokio_rustls::rustls::{self};
+use webpki_roots::TLS_SERVER_ROOTS;
 
 use crate::{DefaultDnsResolver, DnsResolver, tls_stream::TlsStream};
 
@@ -47,12 +48,6 @@ impl DomainFronting {
 fn read_cert_store() -> rustls::RootCertStore {
     let mut cert_store = rustls::RootCertStore::empty();
 
-    //FIXME: This does not build on iOS yet, it will be figured out later
-    let root_certificates =
-        rustls_native_certs::load_native_certs().expect("Could not load platform certs");
-    for cert in root_certificates {
-        cert_store.add(cert).unwrap();
-    }
-
+    cert_store.extend(TLS_SERVER_ROOTS.iter().cloned());
     cert_store
 }

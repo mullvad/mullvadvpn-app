@@ -13,7 +13,7 @@ workspace = true
 [features]
 # Allow the API server to use to be configured via MULLVAD_API_HOST and MULLVAD_API_ADDR.
 api-override = []
-domain-fronting = ["rustls-native-certs", "clap", "env_logger"]
+domain-fronting = ["webpki-roots", "clap", "env_logger"]
 
 [dependencies]
 anyhow = { workspace = true }
@@ -57,7 +57,7 @@ mullvad-types = { path = "../mullvad-types" }
 mullvad-version = { path = "../mullvad-version" }
 talpid-types = { path = "../talpid-types" }
 talpid-time = { path = "../talpid-time" }
-rustls-native-certs = { version = "0.8.2", optional = true }
+webpki-roots = { version = "1.0.4", optional = true }
 clap = { workspace = true, features = ["cargo", "derive"], optional = true  }
 env_logger = { workspace = true, optional = true  }
 shadowsocks = { workspace = true, features = ["stream-cipher"] }
