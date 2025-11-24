@@ -7,6 +7,7 @@ import arrow.core.None
 import arrow.core.Option
 import arrow.core.Some
 import co.touchlab.kermit.Logger
+import com.ramcosta.composedestinations.generated.destinations.ConnectDestination
 import com.ramcosta.composedestinations.generated.destinations.VpnSettingsDestination
 import java.net.Inet6Address
 import java.net.InetAddress
@@ -16,7 +17,6 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.WhileSubscribed
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
@@ -26,6 +26,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.CustomDnsItem
 import net.mullvad.mullvadvpn.compose.state.VpnSettingsUiState
+import net.mullvad.mullvadvpn.compose.util.BackstackObserver
 import net.mullvad.mullvadvpn.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.constant.WIREGUARD_PRESET_PORTS
 import net.mullvad.mullvadvpn.lib.model.Constraint
@@ -41,6 +42,7 @@ import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
 import net.mullvad.mullvadvpn.usecase.SystemVpnSettingsAvailableUseCase
 import net.mullvad.mullvadvpn.util.Lc
+import net.mullvad.mullvadvpn.util.combine
 import net.mullvad.mullvadvpn.util.contentBlockersSettings
 import net.mullvad.mullvadvpn.util.customDnsAddresses
 import net.mullvad.mullvadvpn.util.deviceIpVersion
@@ -69,6 +71,7 @@ class VpnSettingsViewModel(
     private val autoStartAndConnectOnBootRepository: AutoStartAndConnectOnBootRepository,
     private val wireguardConstraintsRepository: WireguardConstraintsRepository,
     savedStateHandle: SavedStateHandle,
+    backstackObserver: BackstackObserver,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : ViewModel() {
     private val navArgs = VpnSettingsDestination.argsFrom(savedStateHandle)
@@ -98,13 +101,17 @@ class VpnSettingsViewModel(
                 relayListRepository.portRanges,
                 customPort.filterIsInstance<Some<Port?>>().map { it.value },
                 autoStartAndConnectOnBootRepository.autoStartAndConnectOnBoot,
-                _mutableIsContentBlockersExpanded.filterIsInstance<Some<Boolean>>().map { it.value },
+                _mutableIsContentBlockersExpanded.filterIsInstance<Some<Boolean>>().map {
+                    it.value
+                },
+                backstackObserver.previousDestinationFlow.map { it is ConnectDestination },
             ) {
                 settings,
                 portRanges,
                 customWgPort,
                 autoStartAndConnectOnBoot,
-                isContentBlockersExpanded ->
+                isContentBlockersExpanded,
+                isScrollToFeatureEnabled ->
                 VpnSettingsUiState.from(
                         mtu = settings.tunnelOptions.mtu,
                         isLocalNetworkSharingEnabled = settings.allowLan,
@@ -125,6 +132,7 @@ class VpnSettingsViewModel(
                         isIpv6Enabled = settings.tunnelOptions.enableIpv6,
                         isContentBlockersExpanded = isContentBlockersExpanded,
                         isModal = navArgs.isModal,
+                        isScrollToFeatureEnabled = isScrollToFeatureEnabled,
                     )
                     .toLc<Boolean, VpnSettingsUiState>()
             }
