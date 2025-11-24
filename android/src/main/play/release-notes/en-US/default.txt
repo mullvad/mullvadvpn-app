@@ -1,1 +1,4 @@
-- Fixed a regression introduced in 2025.10-beta1 where IPv6 traffic would leak when enabling Local Network Sharing and disabling In-tunnel IPv6.
+- Switched from wireguard go to GotaTun. This will increase speed and stability.
+- Added option to show location in connected notification.
+- Feature indicators are now also showing while connecting.
+- Shows the exact obfuscation method used on the connect screen.
