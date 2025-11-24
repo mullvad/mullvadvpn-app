@@ -8,7 +8,9 @@ import { RoutePath } from '../../../../shared/routes';
 import { useAppContext } from '../../../context';
 import { useApiAccessMethodTest } from '../../../lib/api-access-methods';
 import { Button, Container, Flex, Spinner } from '../../../lib/components';
+import { FlexColumn } from '../../../lib/components/flex-column';
 import { Switch } from '../../../lib/components/switch';
+import { View } from '../../../lib/components/view';
 import { colors, spacings } from '../../../lib/foundations';
 import { useHistory } from '../../../lib/history';
 import { generateRoutePath } from '../../../lib/routeHelpers';
@@ -24,14 +26,9 @@ import {
 } from '../../ContextMenu';
 import InfoButton from '../../InfoButton';
 import { BackAction } from '../../KeyboardNavigation';
-import {
-  Layout,
-  SettingsContainer,
-  SettingsContent,
-  SettingsNavigationScrollbars,
-} from '../../Layout';
 import { ModalAlert, ModalAlertType } from '../../Modal';
 import { NavigationContainer } from '../../NavigationContainer';
+import { NavigationScrollbars } from '../../NavigationScrollbars';
 import SettingsHeader, { HeaderSubTitle, HeaderTitle } from '../../SettingsHeader';
 
 const StyledNameLabel = styled(Cell.Label)({
@@ -66,80 +63,78 @@ export function ApiAccessView() {
   const navigateToNew = useCallback(() => navigateToEdit(), [navigateToEdit]);
 
   return (
-    <BackAction action={history.pop}>
-      <Layout>
-        <SettingsContainer>
-          <NavigationContainer>
-            <AppNavigationHeader
-              title={
-                // TRANSLATORS: Title label in navigation bar
-                messages.pgettext('navigation-bar', 'API access')
-              }>
-              <AppNavigationHeader.InfoButton
-                message={[
-                  messages.pgettext(
-                    'api-access-methods-view',
-                    'The app needs to communicate with a Mullvad API server to log you in, fetch server lists, and other critical operations.',
-                  ),
-                  messages.pgettext(
-                    'api-access-methods-view',
-                    'On some networks, where various types of censorship are being used, the API servers might not be directly reachable.',
-                  ),
-                  messages.pgettext(
-                    'api-access-methods-view',
-                    'This feature allows you to circumvent that censorship by adding custom ways to access the API via proxies and similar methods.',
-                  ),
-                ]}
-              />
-            </AppNavigationHeader>
+    <View backgroundColor="darkBlue">
+      <BackAction action={history.pop}>
+        <NavigationContainer>
+          <AppNavigationHeader
+            title={
+              // TRANSLATORS: Title label in navigation bar
+              messages.pgettext('navigation-bar', 'API access')
+            }>
+            <AppNavigationHeader.InfoButton
+              message={[
+                messages.pgettext(
+                  'api-access-methods-view',
+                  'The app needs to communicate with a Mullvad API server to log you in, fetch server lists, and other critical operations.',
+                ),
+                messages.pgettext(
+                  'api-access-methods-view',
+                  'On some networks, where various types of censorship are being used, the API servers might not be directly reachable.',
+                ),
+                messages.pgettext(
+                  'api-access-methods-view',
+                  'This feature allows you to circumvent that censorship by adding custom ways to access the API via proxies and similar methods.',
+                ),
+              ]}
+            />
+          </AppNavigationHeader>
 
-            <SettingsNavigationScrollbars fillContainer>
-              <SettingsContent>
-                <SettingsHeader>
-                  <HeaderTitle>{messages.pgettext('navigation-bar', 'API access')}</HeaderTitle>
-                  <HeaderSubTitle>
-                    {messages.pgettext(
-                      'api-access-methods-view',
-                      'Manage and add custom methods to access the Mullvad API.',
-                    )}
-                  </HeaderSubTitle>
-                </SettingsHeader>
+          <NavigationScrollbars fillContainer>
+            <View.Content>
+              <SettingsHeader>
+                <HeaderTitle>{messages.pgettext('navigation-bar', 'API access')}</HeaderTitle>
+                <HeaderSubTitle>
+                  {messages.pgettext(
+                    'api-access-methods-view',
+                    'Manage and add custom methods to access the Mullvad API.',
+                  )}
+                </HeaderSubTitle>
+              </SettingsHeader>
 
-                <Flex flexDirection="column" gap="large">
-                  <Cell.Group $noMarginBottom>
+              <Flex flexDirection="column" gap="large">
+                <FlexColumn>
+                  <ApiAccessMethod
+                    method={methods.direct}
+                    inUse={methods.direct.id === currentMethod?.id}
+                  />
+                  <ApiAccessMethod
+                    method={methods.mullvadBridges}
+                    inUse={methods.mullvadBridges.id === currentMethod?.id}
+                  />
+                  <ApiAccessMethod
+                    method={methods.encryptedDnsProxy}
+                    inUse={methods.encryptedDnsProxy.id === currentMethod?.id}
+                  />
+                  {methods.custom.map((method) => (
                     <ApiAccessMethod
-                      method={methods.direct}
-                      inUse={methods.direct.id === currentMethod?.id}
+                      key={method.id}
+                      method={method}
+                      inUse={method.id === currentMethod?.id}
+                      custom
                     />
-                    <ApiAccessMethod
-                      method={methods.mullvadBridges}
-                      inUse={methods.mullvadBridges.id === currentMethod?.id}
-                    />
-                    <ApiAccessMethod
-                      method={methods.encryptedDnsProxy}
-                      inUse={methods.encryptedDnsProxy.id === currentMethod?.id}
-                    />
-                    {methods.custom.map((method) => (
-                      <ApiAccessMethod
-                        key={method.id}
-                        method={method}
-                        inUse={method.id === currentMethod?.id}
-                        custom
-                      />
-                    ))}
-                  </Cell.Group>
-                  <Container marginInline="medium" justifyContent="flex-end">
-                    <Button width="fit" onClick={navigateToNew}>
-                      <Button.Text>{messages.gettext('Add')}</Button.Text>
-                    </Button>
-                  </Container>
-                </Flex>
-              </SettingsContent>
-            </SettingsNavigationScrollbars>
-          </NavigationContainer>
-        </SettingsContainer>
-      </Layout>
-    </BackAction>
+                  ))}
+                </FlexColumn>
+                <Container marginInline="medium" justifyContent="flex-end">
+                  <Button width="fit" onClick={navigateToNew}>
+                    <Button.Text>{messages.gettext('Add')}</Button.Text>
+                  </Button>
+                </Container>
+              </Flex>
+            </View.Content>
+          </NavigationScrollbars>
+        </NavigationContainer>
+      </BackAction>
+    </View>
   );
 }
 
