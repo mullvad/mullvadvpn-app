@@ -1,2702 +1,2289 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xliff xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 http://docs.oasis-open.org/xliff/v1.2/os/xliff-core-1.2-strict.xsd">
-  <file original="Assets/Localizable.xcstrings" source-language="en" target-language="zh-Hans" datatype="plaintext">
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.2" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 http://docs.oasis-open.org/xliff/v1.2/os/xliff-core-1.2-strict.xsd">
+  <file original="Assets/Localizable.xcstrings" source-language="en" target-language="zh-CN" datatype="plaintext">
     <header>
       <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
     </header>
     <body>
-      <trans-unit id="%@" xml:space="preserve" approved="yes">
+      <trans-unit id="" translate="no" xml:space="preserve">
+        <source/>
+        <note/>
+      </trans-unit>
+      <trans-unit id="%@" xml:space="preserve">
         <source>%@</source>
-        <target state="final">%@</target>
         <note/>
       </trans-unit>
-      <trans-unit id="%@ (%@) hides patterns in your encrypted VPN traffic." xml:space="preserve" approved="yes">
+      <trans-unit id="%@ (%@) hides patterns in your encrypted VPN traffic." xml:space="preserve">
         <source>%1$@ (%2$@) hides patterns in your encrypted VPN traffic.</source>
-        <target state="final">%1$@ (%2$@) 会隐藏您的加密 VPN 流量中的模式。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="%@ cannot be empty." xml:space="preserve" approved="yes">
+      <trans-unit id="%@ cannot be empty." xml:space="preserve">
         <source>%@ cannot be empty.</source>
-        <target state="final">“%@”不能为空。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="%@ does this by carefully adding network noise and making all network packets the same size." xml:space="preserve" approved="yes">
+      <trans-unit id="%@ does this by carefully adding network noise and making all network packets the same size." xml:space="preserve">
         <source>%@ does this by carefully adding network noise and making all network packets the same size.</source>
-        <target state="final">%@ 的实现方法是精心添加网络噪声并将所有网络数据包处理为相同的大小。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="%@ left on this account" xml:space="preserve" approved="yes">
+      <trans-unit id="%@ have been added to your account." xml:space="preserve">
+        <source>%@ have been added to your account.</source>
+        <note/>
+      </trans-unit>
+      <trans-unit id="%@ left on this account" xml:space="preserve">
         <source>%@ left on this account</source>
-        <target state="final">此帐户剩余 %@</target>
         <note/>
       </trans-unit>
-      <trans-unit id="%@ via %@" xml:space="preserve" approved="yes">
+      <trans-unit id="%@ via %@" xml:space="preserve">
         <source>%1$@ via %2$@</source>
-        <target state="final">%1$@，经由 %2$@</target>
         <note/>
       </trans-unit>
-      <trans-unit id="%@ was added to your account." xml:space="preserve" approved="yes">
+      <trans-unit id="%@ was added to your account." xml:space="preserve">
         <source>%@ was added to your account.</source>
-        <target state="final">%@已添加到您的帐户中。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="%@ “Local network sharing” requires restarting the VPN connection, which will disconnect you and briefly expose your traffic.&#10;To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.&#10;Would you like to continue to enable “Local network sharing”?" xml:space="preserve" approved="yes">
+      <trans-unit id="%@ “Local network sharing” requires restarting the VPN connection, which will disconnect you and briefly expose your traffic.&#10;To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.&#10;Would you like to continue to enable “Local network sharing”?" xml:space="preserve">
         <source>%@ “Local network sharing” requires restarting the VPN connection, which will disconnect you and briefly expose your traffic.
 To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.
 Would you like to continue to enable “Local network sharing”?</source>
-        <target state="final">“%@本地网络共享”需要重启 VPN 连接，这将导致您断开连接并短暂暴露您的流量。
-为防止发生这种情况，请在继续之前手动启用飞行模式并关闭 Wi-Fi。
-是否继续启用“本地网络共享”？</target>
         <note/>
       </trans-unit>
-      <trans-unit id="%@, %@" xml:space="preserve" approved="yes">
+      <trans-unit id="%@, %@" xml:space="preserve">
         <source>%1$@, %2$@</source>
-        <target state="final">%1$@，%2$@</target>
         <note/>
       </trans-unit>
-      <trans-unit id="%@-enabled" xml:space="preserve" approved="yes">
+      <trans-unit id="%@-enabled" xml:space="preserve">
         <source>%@-enabled</source>
-        <target state="final">已启用 %@</target>
         <note/>
       </trans-unit>
-      <trans-unit id="%d more..." xml:space="preserve" approved="yes">
+      <trans-unit id="%d more..." xml:space="preserve">
         <source>%d more...</source>
-        <target state="final">其他 %d 个…</target>
         <note/>
       </trans-unit>
-      <trans-unit id="%lld more..." xml:space="preserve" approved="yes">
+      <trans-unit id="%lld more..." xml:space="preserve">
         <source>%lld more...</source>
-        <target state="final">其他 %lld 个…</target>
         <note/>
       </trans-unit>
-      <trans-unit id="**Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans.**" xml:space="preserve" approved="yes">
+      <trans-unit id="**Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans.**" xml:space="preserve">
         <source>**Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans.**</source>
-        <target state="final">**注意：这会增加网络流量，还会对速度、延迟和电池使用产生负面影响。如果套餐流量有限，请谨慎使用**。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="**Tap here** to see what’s new" xml:space="preserve" approved="yes">
+      <trans-unit id="**Tap here** to see what’s new" xml:space="preserve">
         <source>**Tap here** to see what’s new</source>
-        <target state="final">**点按此处**查看最新变化</target>
         <note/>
       </trans-unit>
-      <trans-unit id="API access" xml:space="preserve" approved="yes">
+      <trans-unit id="API access" xml:space="preserve">
         <source>API access</source>
-        <target state="final">API 访问</target>
         <note/>
       </trans-unit>
-      <trans-unit id="API reachable" xml:space="preserve" approved="yes">
+      <trans-unit id="API reachable" xml:space="preserve">
         <source>API reachable</source>
-        <target state="final">可通过 API 访问</target>
         <note/>
       </trans-unit>
-      <trans-unit id="API unreachable" xml:space="preserve" approved="yes">
+      <trans-unit id="API unreachable" xml:space="preserve">
         <source>API unreachable</source>
-        <target state="final">无法通过 API 访问</target>
         <note/>
       </trans-unit>
-      <trans-unit id="API unreachable, save method anyway?" xml:space="preserve" approved="yes">
+      <trans-unit id="API unreachable, save method anyway?" xml:space="preserve">
         <source>API unreachable, save method anyway?</source>
-        <target state="final">无法通过 API 访问，是否仍然保存方法？</target>
         <note/>
       </trans-unit>
-      <trans-unit id="About %@ method..." xml:space="preserve" approved="yes">
+      <trans-unit id="About %@ method..." xml:space="preserve">
         <source>About %@ method...</source>
-        <target state="final">关于%@方法…</target>
         <note/>
       </trans-unit>
-      <trans-unit id="About API access…" xml:space="preserve" approved="yes">
+      <trans-unit id="About API access…" xml:space="preserve">
         <source>About API access…</source>
-        <target state="final">关于 API 访问…</target>
         <note/>
       </trans-unit>
-      <trans-unit id="About Server IP override..." xml:space="preserve" approved="yes">
+      <trans-unit id="About Server IP override..." xml:space="preserve">
         <source>About Server IP override...</source>
-        <target state="final">关于服务器 IP 覆盖…</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Account" xml:space="preserve" approved="yes">
+      <trans-unit id="Account" xml:space="preserve">
         <source>Account</source>
-        <target state="final">帐户</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Account created" xml:space="preserve" approved="yes">
+      <trans-unit id="Account created" xml:space="preserve">
         <source>Account created</source>
-        <target state="final">已创建帐户</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Account credit expires soon" xml:space="preserve" approved="yes">
+      <trans-unit id="Account credit expires soon" xml:space="preserve">
         <source>Account credit expires soon</source>
-        <target state="final">帐户额度即将到期</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Account credit has expired" xml:space="preserve" approved="yes">
+      <trans-unit id="Account credit has expired" xml:space="preserve">
         <source>Account credit has expired</source>
-        <target state="final">帐户额度已过期</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Account deletion" xml:space="preserve" approved="yes">
+      <trans-unit id="Account deletion" xml:space="preserve">
         <source>Account deletion</source>
-        <target state="final">帐户删除</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Account number" xml:space="preserve" approved="yes">
+      <trans-unit id="Account number" xml:space="preserve">
         <source>Account number</source>
-        <target state="final">帐号</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Active features" xml:space="preserve" approved="yes">
+      <trans-unit id="Active features" xml:space="preserve">
         <source>Active features</source>
-        <target state="final">有效功能</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Add" xml:space="preserve" approved="yes">
+      <trans-unit id="Add" xml:space="preserve">
         <source>Add</source>
-        <target state="final">添加</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Add 30 days time (%@)" xml:space="preserve" approved="yes">
+      <trans-unit id="Add %@ to list" xml:space="preserve">
+        <source>Add %@ to list</source>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Add 30 days time (%@)" xml:space="preserve">
         <source>Add 30 days time (%@)</source>
-        <target state="final">添加 30 天 (%@)</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Add 90 days time (%@)" xml:space="preserve" approved="yes">
+      <trans-unit id="Add 90 days time (%@)" xml:space="preserve">
         <source>Add 90 days time (%@)</source>
-        <target state="final">添加 90 天 (%@)</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Add a server" xml:space="preserve" approved="yes">
+      <trans-unit id="Add a server" xml:space="preserve">
         <source>Add a server</source>
-        <target state="final">添加服务器</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Add method" xml:space="preserve" approved="yes">
+      <trans-unit id="Add method" xml:space="preserve">
         <source>Add method</source>
-        <target state="final">添加方法</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Add time" xml:space="preserve" approved="yes">
+      <trans-unit id="Add time" xml:space="preserve">
         <source>Add time</source>
-        <target state="final">添加时间</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Adelaide" xml:space="preserve" approved="yes">
+      <trans-unit id="Adelaide" xml:space="preserve">
         <source>Adelaide</source>
-        <target state="final">阿德莱德</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Ads" xml:space="preserve" approved="yes">
+      <trans-unit id="Ads" xml:space="preserve">
         <source>Ads</source>
-        <target state="final">广告</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Adult content" xml:space="preserve" approved="yes">
+      <trans-unit id="Adult content" xml:space="preserve">
         <source>Adult content</source>
-        <target state="final">成人内容</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Agree and continue" xml:space="preserve" approved="yes">
+      <trans-unit id="Agree and continue" xml:space="preserve">
         <source>Agree and continue</source>
-        <target state="final">同意并继续</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Albania" xml:space="preserve" approved="yes">
+      <trans-unit id="Albania" xml:space="preserve">
         <source>Albania</source>
-        <target state="final">阿尔巴尼亚</target>
         <note/>
       </trans-unit>
-      <trans-unit id="All" xml:space="preserve" approved="yes">
+      <trans-unit id="All" xml:space="preserve">
         <source>All</source>
-        <target state="final">所有</target>
         <note/>
       </trans-unit>
-      <trans-unit id="All locations" xml:space="preserve" approved="yes">
+      <trans-unit id="All locations" xml:space="preserve">
         <source>All locations</source>
-        <target state="final">所有位置</target>
         <note/>
       </trans-unit>
-      <trans-unit id="All providers" xml:space="preserve" approved="yes">
+      <trans-unit id="All providers" xml:space="preserve">
         <source>All providers</source>
-        <target state="final">所有提供商</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Amsterdam" xml:space="preserve" approved="yes">
+      <trans-unit id="Amsterdam" xml:space="preserve">
         <source>Amsterdam</source>
-        <target state="final">阿姆斯特丹</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Any" xml:space="preserve" approved="yes">
+      <trans-unit id="Any" xml:space="preserve">
         <source>Any</source>
-        <target state="final">任何</target>
         <note/>
       </trans-unit>
-      <trans-unit id="App Store receipt is not found on disk." xml:space="preserve" approved="yes">
+      <trans-unit id="App Store receipt is not found on disk." xml:space="preserve">
         <source>App Store receipt is not found on disk.</source>
-        <target state="final">在磁盘上找不到 App Store 收据。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="App logs" xml:space="preserve" approved="yes">
+      <trans-unit id="App logs" xml:space="preserve">
         <source>App logs</source>
-        <target state="final">应用日志</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Are you sure you want to log %@ out?" xml:space="preserve" approved="yes">
+      <trans-unit id="Are you sure you want to delete the account %@?" xml:space="preserve">
+        <source>Are you sure you want to delete the account %@?</source>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Are you sure you want to log %@ out?" xml:space="preserve">
         <source>Are you sure you want to log %@ out?</source>
-        <target state="final">确定要退出 %@ 吗？</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Argentina" xml:space="preserve" approved="yes">
+      <trans-unit id="Argentina" xml:space="preserve">
         <source>Argentina</source>
-        <target state="final">阿根廷</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Ashburn, VA" xml:space="preserve" approved="yes">
+      <trans-unit id="Ashburn, VA" xml:space="preserve">
         <source>Ashburn, VA</source>
-        <target state="final">弗吉尼亚州阿什本</target>
         <note/>
       </trans-unit>
-      <trans-unit id="At least one method needs to be enabled." xml:space="preserve" approved="yes">
+      <trans-unit id="At least one method needs to be enabled." xml:space="preserve">
         <source>At least one method needs to be enabled.</source>
-        <target state="final">至少需要启用一个方法.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Athens" xml:space="preserve" approved="yes">
+      <trans-unit id="Athens" xml:space="preserve">
         <source>Athens</source>
-        <target state="final">雅典</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Atlanta, GA" xml:space="preserve" approved="yes">
+      <trans-unit id="Atlanta, GA" xml:space="preserve">
         <source>Atlanta, GA</source>
-        <target state="final">佐治亚州亚特兰大</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Attention: this setting cannot be used in combination with **%@**" xml:space="preserve" approved="yes">
+      <trans-unit id="Attention: this setting cannot be used in combination with **%@**" xml:space="preserve">
         <source>Attention: this setting cannot be used in combination with **%@**</source>
-        <target state="final">注意：此设置不能与**%@**结合使用</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Attention: toggling “Local network sharing” requires restarting the VPN connection." xml:space="preserve" approved="yes">
+      <trans-unit id="Attention: toggling “Local network sharing” requires restarting the VPN connection." xml:space="preserve">
         <source>Attention: toggling “Local network sharing” requires restarting the VPN connection.</source>
-        <target state="final">注意：切换“本地网络共享”功能需要重启 VPN 连接。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Auckland" xml:space="preserve" approved="yes">
+      <trans-unit id="Auckland" xml:space="preserve">
         <source>Auckland</source>
-        <target state="final">奥克兰</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Australia" xml:space="preserve" approved="yes">
+      <trans-unit id="Australia" xml:space="preserve">
         <source>Australia</source>
-        <target state="final">澳大利亚</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Austria" xml:space="preserve" approved="yes">
+      <trans-unit id="Austria" xml:space="preserve">
         <source>Austria</source>
-        <target state="final">奥地利</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Authentication" xml:space="preserve" approved="yes">
+      <trans-unit id="Authentication" xml:space="preserve">
         <source>Authentication</source>
-        <target state="final">身份验证</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Automatic" xml:space="preserve" approved="yes">
+      <trans-unit id="Automatic" xml:space="preserve">
         <source>Automatic</source>
-        <target state="final">自动</target>
         <note/>
       </trans-unit>
-      <trans-unit id="BLOCKED CONNECTION" xml:space="preserve" approved="yes">
+      <trans-unit id="BLOCKED CONNECTION" xml:space="preserve">
         <source>BLOCKED CONNECTION</source>
-        <target state="final">已阻止连接</target>
         <note/>
       </trans-unit>
-      <trans-unit id="BLOCKING INTERNET" xml:space="preserve" approved="yes">
+      <trans-unit id="BLOCKING INTERNET" xml:space="preserve">
         <source>BLOCKING INTERNET</source>
-        <target state="final">正在阻止网络</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Bangkok" xml:space="preserve" approved="yes">
+      <trans-unit id="Bangkok" xml:space="preserve">
         <source>Bangkok</source>
-        <target state="final">曼谷</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Barcelona" xml:space="preserve" approved="yes">
+      <trans-unit id="Barcelona" xml:space="preserve">
         <source>Barcelona</source>
-        <target state="final">巴塞罗那</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Belgium" xml:space="preserve" approved="yes">
+      <trans-unit id="Belgium" xml:space="preserve">
         <source>Belgium</source>
-        <target state="final">比利时</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Belgrade" xml:space="preserve" approved="yes">
+      <trans-unit id="Belgrade" xml:space="preserve">
         <source>Belgrade</source>
-        <target state="final">贝尔格莱德</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Berlin" xml:space="preserve" approved="yes">
+      <trans-unit id="Berlin" xml:space="preserve">
         <source>Berlin</source>
-        <target state="final">柏林</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Blocking internet: Your time on this account has expired. To continue using the internet, please add more time or disconnect the VPN." xml:space="preserve" approved="yes">
+      <trans-unit id="Blocking internet: Your time on this account has expired. To continue using the internet, please add more time or disconnect the VPN." xml:space="preserve">
         <source>Blocking internet: Your time on this account has expired. To continue using the internet, please add more time or disconnect the VPN.</source>
-        <target state="final">阻止互联网：您的帐户时间已过期。要继续使用互联网，请添加时间或断开 VPN 连接。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Bogota" xml:space="preserve" approved="yes">
+      <trans-unit id="Bogota" xml:space="preserve">
         <source>Bogota</source>
-        <target state="final">波哥大</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Bordeaux" xml:space="preserve" approved="yes">
+      <trans-unit id="Bordeaux" xml:space="preserve">
         <source>Bordeaux</source>
-        <target state="final">波尔多</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Boston, MA" xml:space="preserve" approved="yes">
+      <trans-unit id="Boston, MA" xml:space="preserve">
         <source>Boston, MA</source>
-        <target state="final">马萨诸塞州波士顿</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Bratislava" xml:space="preserve" approved="yes">
+      <trans-unit id="Bratislava" xml:space="preserve">
         <source>Bratislava</source>
-        <target state="final">布拉迪斯拉发</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Brazil" xml:space="preserve" approved="yes">
+      <trans-unit id="Brazil" xml:space="preserve">
         <source>Brazil</source>
-        <target state="final">巴西</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Brisbane" xml:space="preserve" approved="yes">
+      <trans-unit id="Brisbane" xml:space="preserve">
         <source>Brisbane</source>
-        <target state="final">布里斯班</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Brussels" xml:space="preserve" approved="yes">
+      <trans-unit id="Brussels" xml:space="preserve">
         <source>Brussels</source>
-        <target state="final">布鲁塞尔</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Bucharest" xml:space="preserve" approved="yes">
+      <trans-unit id="Bucharest" xml:space="preserve">
         <source>Bucharest</source>
-        <target state="final">布加勒斯特</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Budapest" xml:space="preserve" approved="yes">
+      <trans-unit id="Budapest" xml:space="preserve">
         <source>Budapest</source>
-        <target state="final">布达佩斯</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Buenos Aires" xml:space="preserve" approved="yes">
+      <trans-unit id="Buenos Aires" xml:space="preserve">
         <source>Buenos Aires</source>
-        <target state="final">布宜诺斯艾利斯</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Bulgaria" xml:space="preserve" approved="yes">
+      <trans-unit id="Bulgaria" xml:space="preserve">
         <source>Bulgaria</source>
-        <target state="final">保加利亚</target>
         <note/>
       </trans-unit>
-      <trans-unit id="By attaching your account token it links this report to your account, which helps us resolve your issue quicker. All reports are automatically deleted after a period of time. For details, please see our " xml:space="preserve" approved="yes">
+      <trans-unit id="By attaching your account token it links this report to your account, which helps us resolve your issue quicker. All reports are automatically deleted after a period of time. For details, please see our " xml:space="preserve">
         <source>By attaching your account token it links this report to your account, which helps us resolve your issue quicker. All reports are automatically deleted after a period of time. For details, please see our </source>
-        <target state="final">通过附加您的帐户令牌，此报告将与您的帐户关联，这有助于我们更快地解决您的问题。所有报告会在一段时间后自动删除。有关详情，请参阅我们的</target>
         <note/>
       </trans-unit>
-      <trans-unit id="By enabling “%@” you will have to manually select a server that is %@-enabled. %@ won't automatically be used to enable DAITA with any server." xml:space="preserve" approved="yes">
+      <trans-unit id="By enabling “%@” you will have to manually select a server that is %@-enabled. %@ won't automatically be used to enable DAITA with any server." xml:space="preserve">
         <source>By enabling “%1$@” you will have to manually select a server that is %2$@-enabled. %3$@ won't automatically be used to enable DAITA with any server.</source>
-        <target state="final">启用“%1$@”后，您必须手动选择一个已启用 %2$@ 的服务器。系统不会自动使用%3$@来为任何服务器启用 DAITA。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="By using sophisticated AI it’s possible to analyze the traffic of data packets going in and out of your device (even if the traffic is encrypted)." xml:space="preserve" approved="yes">
+      <trans-unit id="By using sophisticated AI it’s possible to analyze the traffic of data packets going in and out of your device (even if the traffic is encrypted)." xml:space="preserve">
         <source>By using sophisticated AI it’s possible to analyze the traffic of data packets going in and out of your device (even if the traffic is encrypted).</source>
-        <target state="final">通过使用复杂 AI，可以分析传入和传出您的设备的数据包流量（即使流量已加密）。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="CONNECTED" xml:space="preserve" approved="yes">
+      <trans-unit id="CONNECTED" xml:space="preserve">
         <source>CONNECTED</source>
-        <target state="final">已连接</target>
         <note/>
       </trans-unit>
-      <trans-unit id="CONNECTING..." xml:space="preserve" approved="yes">
+      <trans-unit id="CONNECTING..." xml:space="preserve">
         <source>CONNECTING...</source>
-        <target state="final">正在连接…</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Calgary" xml:space="preserve" approved="yes">
+      <trans-unit id="Calgary" xml:space="preserve">
         <source>Calgary</source>
-        <target state="final">卡尔加里</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Canada" xml:space="preserve" approved="yes">
+      <trans-unit id="Canada" xml:space="preserve">
         <source>Canada</source>
-        <target state="final">加拿大</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Cancel" xml:space="preserve" approved="yes">
+      <trans-unit id="Cancel" xml:space="preserve">
         <source>Cancel</source>
-        <target state="final">取消</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Cannot complete the purchase" xml:space="preserve" approved="yes">
+      <trans-unit id="Cannot complete the purchase" xml:space="preserve">
         <source>Cannot complete the purchase</source>
-        <target state="final">无法完成购买</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Cannot read the App Store receipt from disk" xml:space="preserve" approved="yes">
+      <trans-unit id="Cannot read the App Store receipt from disk" xml:space="preserve">
         <source>Cannot read the App Store receipt from disk</source>
-        <target state="final">无法从磁盘读取 App Store 收据</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Cannot refresh the App Store receipt: %@" xml:space="preserve" approved="yes">
+      <trans-unit id="Cannot refresh the App Store receipt: %@" xml:space="preserve">
         <source>Cannot refresh the App Store receipt: %@</source>
-        <target state="final">无法刷新 App Store 收据：%@</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Cannot restore purchases" xml:space="preserve" approved="yes">
+      <trans-unit id="Cannot restore purchases" xml:space="preserve">
         <source>Cannot restore purchases</source>
-        <target state="final">无法恢复购买</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Checking account number" xml:space="preserve" approved="yes">
+      <trans-unit id="Checking account number" xml:space="preserve">
         <source>Checking account number</source>
-        <target state="final">正在检查帐号</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Chicago, IL" xml:space="preserve" approved="yes">
+      <trans-unit id="Chicago, IL" xml:space="preserve">
         <source>Chicago, IL</source>
-        <target state="final">伊利诺伊州芝加哥</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Chile" xml:space="preserve" approved="yes">
+      <trans-unit id="Chile" xml:space="preserve">
         <source>Chile</source>
-        <target state="final">智利</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Cipher" xml:space="preserve" approved="yes">
+      <trans-unit id="Cipher" xml:space="preserve">
         <source>Cipher</source>
-        <target state="final">加密方式</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Clear" xml:space="preserve" approved="yes">
+      <trans-unit id="Clear" xml:space="preserve">
         <source>Clear</source>
-        <target state="final">清除</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Clear all overrides" xml:space="preserve" approved="yes">
+      <trans-unit id="Clear all overrides" xml:space="preserve">
         <source>Clear all overrides</source>
-        <target state="final">清除所有覆盖设置</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Clear all overrides?" xml:space="preserve" approved="yes">
+      <trans-unit id="Clear all overrides?" xml:space="preserve">
         <source>Clear all overrides?</source>
-        <target state="final">是否清除所有覆盖设置？</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Clearing the imported overrides changes the server IPs, in the Select location view, back to default." xml:space="preserve" approved="yes">
+      <trans-unit id="Clearing the imported overrides changes the server IPs, in the Select location view, back to default." xml:space="preserve">
         <source>Clearing the imported overrides changes the server IPs, in the Select location view, back to default.</source>
-        <target state="final">清除导入的覆盖设置会将“选择位置”视图中的服务器 IP 更改回默认值。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Client is not allowed to issue the request." xml:space="preserve" approved="yes">
+      <trans-unit id="Client is not allowed to issue the request." xml:space="preserve">
         <source>Client is not allowed to issue the request.</source>
-        <target state="final">客户端不能发出此请求。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Collapse %@" xml:space="preserve" approved="yes">
+      <trans-unit id="Collapse" xml:space="preserve">
+        <source>Collapse</source>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Collapse %@" xml:space="preserve">
         <source>Collapse %@</source>
-        <target state="final">收起%@</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Collapses this location." xml:space="preserve" approved="yes">
+      <trans-unit id="Collapses this location." xml:space="preserve">
         <source>Collapses this location.</source>
-        <target state="final">收起此位置。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Colombia" xml:space="preserve" approved="yes">
+      <trans-unit id="Colombia" xml:space="preserve">
         <source>Colombia</source>
-        <target state="final">哥伦比亚</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Congrats!" xml:space="preserve" approved="yes">
+      <trans-unit id="Congrats!" xml:space="preserve">
         <source>Congrats!</source>
-        <target state="final">恭喜！</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Connect" xml:space="preserve" approved="yes">
+      <trans-unit id="Connect" xml:space="preserve">
         <source>Connect</source>
-        <target state="final">Connect（连接）</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Connected to %@" xml:space="preserve" approved="yes">
+      <trans-unit id="Connected server" xml:space="preserve">
+        <source>Connected server</source>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Connected to %@" xml:space="preserve">
         <source>Connected to %@</source>
-        <target state="final">已连接到%@</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Connecting to %@" xml:space="preserve" approved="yes">
+      <trans-unit id="Connecting to %@" xml:space="preserve">
         <source>Connecting to %@</source>
-        <target state="final">正在连接到 %@</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Connection details" xml:space="preserve" approved="yes">
+      <trans-unit id="Connection details" xml:space="preserve">
         <source>Connection details</source>
-        <target state="final">连接详细信息</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Continue with login" xml:space="preserve" approved="yes">
+      <trans-unit id="Continue with login" xml:space="preserve">
         <source>Continue with login</source>
-        <target state="final">继续登录</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Copenhagen" xml:space="preserve" approved="yes">
+      <trans-unit id="Copenhagen" xml:space="preserve">
         <source>Copenhagen</source>
-        <target state="final">哥本哈根</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Copied Mullvad account number to pasteboard" xml:space="preserve" approved="yes">
+      <trans-unit id="Copied Mullvad account number to pasteboard" xml:space="preserve">
         <source>Copied Mullvad account number to pasteboard</source>
-        <target state="final">已将 Mullvad 帐号复制到剪贴板</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Create" xml:space="preserve" approved="yes">
+      <trans-unit id="Create" xml:space="preserve">
         <source>Create</source>
-        <target state="final">创建</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Create account" xml:space="preserve" approved="yes">
+      <trans-unit id="Create account" xml:space="preserve">
         <source>Create account</source>
-        <target state="final">创建帐户</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Create new account" xml:space="preserve" approved="yes">
+      <trans-unit id="Create new account" xml:space="preserve">
         <source>Create new account</source>
-        <target state="final">创建新帐户</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Create new list" xml:space="preserve" approved="yes">
+      <trans-unit id="Create new list" xml:space="preserve">
         <source>Create new list</source>
-        <target state="final">创建新列表</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Created: %@" xml:space="preserve" approved="yes">
+      <trans-unit id="Created: %@" xml:space="preserve">
         <source>Created: %@</source>
-        <target state="final">创建日期：%@</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Creating account..." xml:space="preserve" approved="yes">
+      <trans-unit id="Creating account..." xml:space="preserve">
         <source>Creating account...</source>
-        <target state="final">正在创建帐户…</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Croatia" xml:space="preserve" approved="yes">
+      <trans-unit id="Croatia" xml:space="preserve">
         <source>Croatia</source>
-        <target state="final">克罗地亚</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Current device" xml:space="preserve" approved="yes">
+      <trans-unit id="Current device" xml:space="preserve">
         <source>Current device</source>
-        <target state="final">当前设备</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Custom" xml:space="preserve" approved="yes">
+      <trans-unit id="Custom" xml:space="preserve">
         <source>Custom</source>
-        <target state="final">自定义</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Custom DNS" xml:space="preserve" approved="yes">
+      <trans-unit id="Custom DNS" xml:space="preserve">
         <source>Custom DNS</source>
-        <target state="final">自定义 DNS</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Custom lists" xml:space="preserve" approved="yes">
+      <trans-unit id="Custom lists" xml:space="preserve">
         <source>Custom lists</source>
-        <target state="final">自定义列表</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Cyprus" xml:space="preserve" approved="yes">
+      <trans-unit id="Cyprus" xml:space="preserve">
         <source>Cyprus</source>
-        <target state="final">塞浦路斯</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Czech Republic" xml:space="preserve" approved="yes">
+      <trans-unit id="Czech Republic" xml:space="preserve">
         <source>Czech Republic</source>
-        <target state="final">捷克</target>
         <note/>
       </trans-unit>
-      <trans-unit id="DAITA" xml:space="preserve" approved="yes">
+      <trans-unit id="DAITA" xml:space="preserve">
         <source>DAITA</source>
-        <target state="final">DAITA</target>
         <note/>
       </trans-unit>
-      <trans-unit id="DAITA isn't available at the currently selected location. After enabling, please go to the &quot;Select location&quot; view and select a location that supports DAITA." xml:space="preserve" approved="yes">
+      <trans-unit id="DAITA isn't available at the currently selected location. After enabling, please go to the &quot;Select location&quot; view and select a location that supports DAITA." xml:space="preserve">
         <source>DAITA isn't available at the currently selected location. After enabling, please go to the "Select location" view and select a location that supports DAITA.</source>
-        <target state="final">DAITA 在当前所选位置不可用。启用后，请前往“选择位置”视图并选择一个支持 DAITA 的位置。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="DAITA isn't available on the current entry server. After enabling, please go to the &quot;Select location&quot; view and select an entry location that supports DAITA." xml:space="preserve" approved="yes">
+      <trans-unit id="DAITA isn't available on the current entry server. After enabling, please go to the &quot;Select location&quot; view and select an entry location that supports DAITA." xml:space="preserve">
         <source>DAITA isn't available on the current entry server. After enabling, please go to the "Select location" view and select an entry location that supports DAITA.</source>
-        <target state="final">DAITA 在当前入口服务器上不可用。启用后，请前往“选择位置”视图并选择一个支持 DAITA 的入口位置。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="DISCONNECTED" xml:space="preserve" approved="yes">
+      <trans-unit id="DISCONNECTED" xml:space="preserve">
         <source>DISCONNECTED</source>
-        <target state="final">已断开连接</target>
         <note/>
       </trans-unit>
-      <trans-unit id="DISCONNECTING..." xml:space="preserve" approved="yes">
+      <trans-unit id="DISCONNECTING..." xml:space="preserve">
         <source>DISCONNECTING...</source>
-        <target state="final">正在断开连接…</target>
         <note/>
       </trans-unit>
-      <trans-unit id="DNS content blockers" xml:space="preserve" approved="yes">
+      <trans-unit id="DNS content blockers" xml:space="preserve">
         <source>DNS content blockers</source>
-        <target state="final">DNS 内容阻止程序</target>
         <note/>
       </trans-unit>
-      <trans-unit id="DNS settings" xml:space="preserve" approved="yes">
+      <trans-unit id="DNS settings" xml:space="preserve">
         <source>DNS settings</source>
-        <target state="final">DNS 设置</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Dallas, TX" xml:space="preserve" approved="yes">
+      <trans-unit id="Dallas, TX" xml:space="preserve">
         <source>Dallas, TX</source>
-        <target state="final">德克萨斯州达拉斯</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Delete" xml:space="preserve" approved="yes">
+      <trans-unit id="Delete" xml:space="preserve">
         <source>Delete</source>
-        <target state="final">删除</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Delete %@?" xml:space="preserve" approved="yes">
+      <trans-unit id="Delete %@?" xml:space="preserve">
         <source>Delete %@?</source>
-        <target state="final">是否删除%@？</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Delete account" xml:space="preserve" approved="yes">
+      <trans-unit id="Delete account" xml:space="preserve">
         <source>Delete account</source>
-        <target state="final">删除帐户</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Delete list" xml:space="preserve" approved="yes">
+      <trans-unit id="Delete list" xml:space="preserve">
         <source>Delete list</source>
-        <target state="final">删除列表</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Delete method" xml:space="preserve" approved="yes">
+      <trans-unit id="Delete method" xml:space="preserve">
         <source>Delete method</source>
-        <target state="final">删除方法</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Deleting account..." xml:space="preserve" approved="yes">
+      <trans-unit id="Deleting account..." xml:space="preserve">
         <source>Deleting account...</source>
-        <target state="final">正在删除帐户…</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Denmark" xml:space="preserve" approved="yes">
+      <trans-unit id="Denmark" xml:space="preserve">
         <source>Denmark</source>
-        <target state="final">丹麦</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Denver, CO" xml:space="preserve" approved="yes">
+      <trans-unit id="Denver, CO" xml:space="preserve">
         <source>Denver, CO</source>
-        <target state="final">科罗拉多州丹佛</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Detroit, MI" xml:space="preserve" approved="yes">
+      <trans-unit id="Detroit, MI" xml:space="preserve">
         <source>Detroit, MI</source>
-        <target state="final">密歇根州底特律</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Device is inactive" xml:space="preserve" approved="yes">
+      <trans-unit id="Device is inactive" xml:space="preserve">
         <source>Device is inactive</source>
-        <target state="final">设备处于非活动状态</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Device name" xml:space="preserve" approved="yes">
+      <trans-unit id="Device name" xml:space="preserve">
         <source>Device name</source>
-        <target state="final">设备名称</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Device name: %@" xml:space="preserve" approved="yes">
+      <trans-unit id="Device name: %@" xml:space="preserve">
         <source>Device name: %@</source>
-        <target state="final">设备名称：%@</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Direct only" xml:space="preserve" approved="yes">
+      <trans-unit id="Direct only" xml:space="preserve">
         <source>Direct only</source>
-        <target state="final">仅直连</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Disable all &quot;%@&quot; above to activate this setting." xml:space="preserve" approved="yes">
+      <trans-unit id="Disable all &quot;%@&quot; above to activate this setting." xml:space="preserve">
         <source>Disable all "%@" above to activate this setting.</source>
-        <target state="final">停用上方的所有“%@”以激活此设置。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Disabling" xml:space="preserve" approved="yes">
+      <trans-unit id="Disabling" xml:space="preserve">
         <source>Disabling</source>
-        <target state="final">停用</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Discard changes" xml:space="preserve" approved="yes">
+      <trans-unit id="Discard changes" xml:space="preserve">
         <source>Discard changes</source>
-        <target state="final">舍弃更改</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Disconnect" xml:space="preserve" approved="yes">
+      <trans-unit id="Disconnect" xml:space="preserve">
         <source>Disconnect</source>
-        <target state="final">断开连接</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Do you agree to remaining anonymous?" xml:space="preserve" approved="yes">
+      <trans-unit id="Do you agree to remaining anonymous?" xml:space="preserve">
         <source>Do you agree to remaining anonymous?</source>
-        <target state="final">您是否同意保持匿名？</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Do you want to create a new account?" xml:space="preserve" approved="yes">
+      <trans-unit id="Do you want to create a new account?" xml:space="preserve">
         <source>Do you want to create a new account?</source>
-        <target state="final">是否要创建新帐户？</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Do you want to delete the list **%@**?" xml:space="preserve" approved="yes">
+      <trans-unit id="Do you want to delete the list **%@**?" xml:space="preserve">
         <source>Do you want to delete the list **%@**?</source>
-        <target state="final">是否要删除列表**%@**？</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Done" xml:space="preserve" approved="yes">
+      <trans-unit id="Done" xml:space="preserve">
         <source>Done</source>
-        <target state="final">完成</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Don’t have an account number?" xml:space="preserve" approved="yes">
+      <trans-unit id="Don’t have an account number?" xml:space="preserve">
         <source>Don’t have an account number?</source>
-        <target state="final">还没有帐号？</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Dublin" xml:space="preserve" approved="yes">
+      <trans-unit id="Dublin" xml:space="preserve">
         <source>Dublin</source>
-        <target state="final">都柏林</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Dusseldorf" xml:space="preserve" approved="yes">
+      <trans-unit id="Dusseldorf" xml:space="preserve">
         <source>Dusseldorf</source>
-        <target state="final">杜塞尔多夫</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Edit custom list" xml:space="preserve" approved="yes">
+      <trans-unit id="Edit" xml:space="preserve">
+        <source>Edit</source>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Edit custom list" xml:space="preserve">
         <source>Edit custom list</source>
-        <target state="final">编辑自定义列表</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Edit custom lists" xml:space="preserve" approved="yes">
+      <trans-unit id="Edit custom lists" xml:space="preserve">
         <source>Edit custom lists</source>
-        <target state="final">编辑自定义列表</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Edit message" xml:space="preserve" approved="yes">
+      <trans-unit id="Edit message" xml:space="preserve">
         <source>Edit message</source>
-        <target state="final">编辑消息</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Edit method" xml:space="preserve" approved="yes">
+      <trans-unit id="Edit method" xml:space="preserve">
         <source>Edit method</source>
-        <target state="final">编辑方法</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Either buy credit on our website or make an in-app purchase via the **Add time** button below." xml:space="preserve" approved="yes">
+      <trans-unit id="Either buy credit on our website or make an in-app purchase via the **Add time** button below." xml:space="preserve">
         <source>Either buy credit on our website or make an in-app purchase via the **Add time** button below.</source>
-        <target state="final">您可以在我们的网站上购买额度，或通过下方的**添加时间**按钮进行应用内购买。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Either buy credit on our website or redeem a voucher." xml:space="preserve" approved="yes">
+      <trans-unit id="Either buy credit on our website or redeem a voucher." xml:space="preserve">
         <source>Either buy credit on our website or redeem a voucher.</source>
-        <target state="final">在我们的网站上购买额度或兑换优惠券。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Enable" xml:space="preserve" approved="yes">
+      <trans-unit id="Enable" xml:space="preserve">
         <source>Enable</source>
-        <target state="final">启用</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Enable method" xml:space="preserve" approved="yes">
+      <trans-unit id="Enable method" xml:space="preserve">
         <source>Enable method</source>
-        <target state="final">启用方法</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Enabling" xml:space="preserve" approved="yes">
+      <trans-unit id="Enabling" xml:space="preserve">
         <source>Enabling</source>
-        <target state="final">启用</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Enter IP" xml:space="preserve" approved="yes">
+      <trans-unit id="Enter IP" xml:space="preserve">
         <source>Enter IP</source>
-        <target state="final">输入 IP</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Enter voucher code" xml:space="preserve" approved="yes">
+      <trans-unit id="Enter voucher code" xml:space="preserve">
         <source>Enter voucher code</source>
-        <target state="final">输入优惠码</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Enter your account number" xml:space="preserve" approved="yes">
+      <trans-unit id="Enter your account number" xml:space="preserve">
         <source>Enter your account number</source>
-        <target state="final">输入您的帐号</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Entry" xml:space="preserve" approved="yes">
+      <trans-unit id="Entry" xml:space="preserve">
         <source>Entry</source>
-        <target state="final">入口</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Estonia" xml:space="preserve" approved="yes">
+      <trans-unit id="Estonia" xml:space="preserve">
         <source>Estonia</source>
-        <target state="final">爱沙尼亚</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Exit" xml:space="preserve" approved="yes">
+      <trans-unit id="Exit" xml:space="preserve">
         <source>Exit</source>
-        <target state="final">出口</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Expand %@" xml:space="preserve" approved="yes">
+      <trans-unit id="Expand" xml:space="preserve">
+        <source>Expand</source>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Expand %@" xml:space="preserve">
         <source>Expand %@</source>
-        <target state="final">展开%@</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Expands this location." xml:space="preserve" approved="yes">
+      <trans-unit id="Expands this location." xml:space="preserve">
         <source>Expands this location.</source>
-        <target state="final">展开此位置。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="FAQs &amp; Guides" xml:space="preserve" approved="yes">
+      <trans-unit id="FAQs &amp; Guides" xml:space="preserve">
         <source>FAQs &amp; Guides</source>
-        <target state="final">常见问题解答与指南</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Failed to load products, please try again" xml:space="preserve" approved="yes">
+      <trans-unit id="Failed to load products, please try again" xml:space="preserve">
         <source>Failed to load products, please try again</source>
-        <target state="final">无法加载产品，请重试</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Failed to send" xml:space="preserve" approved="yes">
+      <trans-unit id="Failed to reach Mullvad servers to initiate purchase" xml:space="preserve">
+        <source>Failed to reach Mullvad servers to initiate purchase</source>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Failed to send" xml:space="preserve">
         <source>Failed to send</source>
-        <target state="final">无法发送</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Failed to send the receipt to server: %@" xml:space="preserve" approved="yes">
+      <trans-unit id="Failed to send the receipt to server: %@" xml:space="preserve">
         <source>Failed to send the receipt to server: %@</source>
-        <target state="final">无法将收据发送到服务器：%@</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Failed to start the tunnel." xml:space="preserve" approved="yes">
+      <trans-unit id="Failed to start the tunnel." xml:space="preserve">
         <source>Failed to start the tunnel.</source>
-        <target state="final">无法启动隧道。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Failed to start the tunnel: %@." xml:space="preserve" approved="yes">
+      <trans-unit id="Failed to start the tunnel: %@." xml:space="preserve">
         <source>Failed to start the tunnel: %@.</source>
-        <target state="final">无法启动隧道：%@。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Failed to stop the tunnel." xml:space="preserve" approved="yes">
+      <trans-unit id="Failed to stop the tunnel." xml:space="preserve">
         <source>Failed to stop the tunnel.</source>
-        <target state="final">无法停止隧道。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Failed to stop the tunnel: %@." xml:space="preserve" approved="yes">
+      <trans-unit id="Failed to stop the tunnel: %@." xml:space="preserve">
         <source>Failed to stop the tunnel: %@.</source>
-        <target state="final">无法停止隧道：%@。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Fetching devices..." xml:space="preserve" approved="yes">
+      <trans-unit id="Failed to upload one or more receipts to Mullvad servers. Try again later or contact support for help." xml:space="preserve">
+        <source>Failed to upload one or more receipts to Mullvad servers. Try again later or contact support for help.</source>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Failed to verify transaction receipt" xml:space="preserve">
+        <source>Failed to verify transaction receipt</source>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Fetching devices..." xml:space="preserve">
         <source>Fetching devices...</source>
-        <target state="final">正在获取设备…</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Filter" xml:space="preserve" approved="yes">
+      <trans-unit id="Filter" xml:space="preserve">
         <source>Filter</source>
-        <target state="final">筛选</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Filtered:" xml:space="preserve" approved="yes">
-        <source>Filtered:</source>
-        <target state="final">已筛选：</target>
+      <trans-unit id="Filters" xml:space="preserve">
+        <source>Filters</source>
         <note/>
       </trans-unit>
-      <trans-unit id="Finland" xml:space="preserve" approved="yes">
+      <trans-unit id="Finland" xml:space="preserve">
         <source>Finland</source>
-        <target state="final">芬兰</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Fortaleza" xml:space="preserve" approved="yes">
+      <trans-unit id="Fortaleza" xml:space="preserve">
         <source>Fortaleza</source>
-        <target state="final">福塔莱萨</target>
         <note/>
       </trans-unit>
-      <trans-unit id="France" xml:space="preserve" approved="yes">
+      <trans-unit id="France" xml:space="preserve">
         <source>France</source>
-        <target state="final">法国</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Frankfurt" xml:space="preserve" approved="yes">
+      <trans-unit id="Frankfurt" xml:space="preserve">
         <source>Frankfurt</source>
-        <target state="final">法兰克福</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Gambling" xml:space="preserve" approved="yes">
+      <trans-unit id="Gambling" xml:space="preserve">
         <source>Gambling</source>
-        <target state="final">博彩</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Germany" xml:space="preserve" approved="yes">
+      <trans-unit id="Germany" xml:space="preserve">
         <source>Germany</source>
-        <target state="final">德国</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Glasgow" xml:space="preserve" approved="yes">
+      <trans-unit id="Glasgow" xml:space="preserve">
         <source>Glasgow</source>
-        <target state="final">格拉斯哥</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Go ahead and start using the app to begin reclaiming your online privacy." xml:space="preserve" approved="yes">
+      <trans-unit id="Go ahead and start using the app to begin reclaiming your online privacy." xml:space="preserve">
         <source>Go ahead and start using the app to begin reclaiming your online privacy.</source>
-        <target state="final">现在就开始使用应用，重新夺回您的在线隐私。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Go to login" xml:space="preserve" approved="yes">
+      <trans-unit id="Go to login" xml:space="preserve">
         <source>Go to login</source>
-        <target state="final">前往登录</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Going to login will unblock the Internet on this device." xml:space="preserve" approved="yes">
+      <trans-unit id="Going to login will unblock the Internet on this device." xml:space="preserve">
         <source>Going to login will unblock the Internet on this device.</source>
-        <target state="final">前往登录将在此设备上解除阻止 Internet。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Got it!" xml:space="preserve" approved="yes">
+      <trans-unit id="Got it!" xml:space="preserve">
         <source>Got it!</source>
-        <target state="final">知道了！</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Gothenburg" xml:space="preserve" approved="yes">
+      <trans-unit id="Gothenburg" xml:space="preserve">
         <source>Gothenburg</source>
-        <target state="final">哥德堡</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Greece" xml:space="preserve" approved="yes">
+      <trans-unit id="Greece" xml:space="preserve">
         <source>Greece</source>
-        <target state="final">希腊</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Helsinki" xml:space="preserve" approved="yes">
+      <trans-unit id="Helsinki" xml:space="preserve">
         <source>Helsinki</source>
-        <target state="final">赫尔辛基</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Here’s your account number. Save it!" xml:space="preserve" approved="yes">
+      <trans-unit id="Here’s your account number. Save it!" xml:space="preserve">
         <source>Here’s your account number. Save it!</source>
-        <target state="final">以下是您的帐号。请妥善保存！</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Hide account number" xml:space="preserve" approved="yes">
+      <trans-unit id="Hide account number" xml:space="preserve">
         <source>Hide account number</source>
-        <target state="final">隐藏帐号</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Hong Kong" xml:space="preserve" approved="yes">
+      <trans-unit id="Hong Kong" xml:space="preserve">
         <source>Hong Kong</source>
-        <target state="final">香港</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Houston, TX" xml:space="preserve" approved="yes">
+      <trans-unit id="Houston, TX" xml:space="preserve">
         <source>Houston, TX</source>
-        <target state="final">德克萨斯州休斯敦</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Hungary" xml:space="preserve" approved="yes">
+      <trans-unit id="Hungary" xml:space="preserve">
         <source>Hungary</source>
-        <target state="final">匈牙利</target>
         <note/>
       </trans-unit>
-      <trans-unit id="IMPORT SUCCESSFUL" xml:space="preserve" approved="yes">
+      <trans-unit id="IMPORT SUCCESSFUL" xml:space="preserve">
         <source>IMPORT SUCCESSFUL</source>
-        <target state="final">导入成功</target>
         <note/>
       </trans-unit>
-      <trans-unit id="If an observer monitors these data packets, %@ makes it significantly harder for them to identify which websites you are visiting or with whom you are communicating." xml:space="preserve" approved="yes">
+      <trans-unit id="If an observer monitors these data packets, %@ makes it significantly harder for them to identify which websites you are visiting or with whom you are communicating." xml:space="preserve">
         <source>If an observer monitors these data packets, %@ makes it significantly harder for them to identify which websites you are visiting or with whom you are communicating.</source>
-        <target state="final">如果某个观察者监视这些数据包，%@ 会大大提高他们识别您所访问的网站或您沟通对象的难度。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="If needed we will contact you at %@" xml:space="preserve" approved="yes">
+      <trans-unit id="If needed we will contact you at %@" xml:space="preserve">
         <source>If needed we will contact you at %@</source>
-        <target state="final">如果需要，我们将通过 %@ 与您联系</target>
         <note/>
       </trans-unit>
-      <trans-unit id="If you are having issues connecting to VPN servers, please contact support." xml:space="preserve" approved="yes">
+      <trans-unit id="If you are having issues connecting to VPN servers, please contact support." xml:space="preserve">
         <source>If you are having issues connecting to VPN servers, please contact support.</source>
-        <target state="final">如果您在连接到 VPN 服务器时遇到问题，请联系支持团队。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad9 or CloudFlare." xml:space="preserve" approved="yes">
+      <trans-unit id="If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad9 or CloudFlare." xml:space="preserve">
         <source>If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad9 or CloudFlare.</source>
-        <target state="final">如果您未连接到我们的 VPN，加密 DNS 代理将在连接时使用您自己的非 VPN IP。DoH 服务器由下列提供商之一托管：Quad9 或 CloudFlare。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="If you disconnect now, you won’t be able to secure your connection until the device is online." xml:space="preserve" approved="yes">
+      <trans-unit id="If you disconnect now, you won’t be able to secure your connection until the device is online." xml:space="preserve">
         <source>If you disconnect now, you won’t be able to secure your connection until the device is online.</source>
-        <target state="final">如果您现在断开连接，在设备重新上线之前将无法保障您的连接安全。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="If you exit the form and try again later, the information you already entered will still be here." xml:space="preserve" approved="yes">
+      <trans-unit id="If you exit the form and try again later, the information you already entered will still be here." xml:space="preserve">
         <source>If you exit the form and try again later, the information you already entered will still be here.</source>
-        <target state="final">如果您退出窗体并稍后再试，您输入的信息仍会在这里。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="If you haven’t received additional VPN time after purchasing" xml:space="preserve" approved="yes">
+      <trans-unit id="If you haven’t received additional VPN time after purchasing" xml:space="preserve">
         <source>If you haven’t received additional VPN time after purchasing</source>
-        <target state="final">如果您在购买后未收到额外的 VPN 时间</target>
         <note/>
       </trans-unit>
-      <trans-unit id="If you log out, the device and the device name is removed. When you log back in again, the device will get a new name." xml:space="preserve" approved="yes">
+      <trans-unit id="If you log out, the device and the device name is removed. When you log back in again, the device will get a new name." xml:space="preserve">
         <source>If you log out, the device and the device name is removed. When you log back in again, the device will get a new name.</source>
-        <target state="final">如果您退出登录，设备和设备名称将被移除。当您再次登录时，设备将获得新名称。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="If you still experience issues you can email our support directly at **%@**. Please attach your app log to your email." xml:space="preserve" approved="yes">
+      <trans-unit id="If you still experience issues you can email our support directly at **%@**. Please attach your app log to your email." xml:space="preserve">
         <source>If you still experience issues you can email our support directly at **%@**. Please attach your app log to your email.</source>
-        <target state="final">如果仍然遇到问题，您可以直接发送电子邮件至 **%@** 联系我们的支持团队。请在电子邮件中附上您的应用日志。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Import" xml:space="preserve" approved="yes">
+      <trans-unit id="Import" xml:space="preserve">
         <source>Import</source>
-        <target state="final">导入</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Import file" xml:space="preserve" approved="yes">
+      <trans-unit id="Import file" xml:space="preserve">
         <source>Import file</source>
-        <target state="final">导入文件</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Import files or text with new IP addresses for the servers in the Select location view." xml:space="preserve" approved="yes">
+      <trans-unit id="Import files or text with new IP addresses for the servers in the Select location view." xml:space="preserve">
         <source>Import files or text with new IP addresses for the servers in the Select location view.</source>
-        <target state="final">为“选择位置”视图中的服务器导入具有新 IP 地址的文件或文本。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Import of %@ was successful, overrides are now active." xml:space="preserve" approved="yes">
+      <trans-unit id="Import of %@ was successful, overrides are now active." xml:space="preserve">
         <source>Import of %@ was successful, overrides are now active.</source>
-        <target state="final">%@ 导入成功，覆盖设置现已激活。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Import of %@ was unsuccessful, please try again." xml:space="preserve" approved="yes">
+      <trans-unit id="Import of %@ was unsuccessful, please try again." xml:space="preserve">
         <source>Import of %@ was unsuccessful, please try again.</source>
-        <target state="final">%@ 导入失败，请重试。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Import of text was successful, overrides are now active." xml:space="preserve" approved="yes">
+      <trans-unit id="Import of text was successful, overrides are now active." xml:space="preserve">
         <source>Import of text was successful, overrides are now active.</source>
-        <target state="final">文本导入成功，覆盖设置现已激活。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Import of text was unsuccessful, please try again." xml:space="preserve" approved="yes">
+      <trans-unit id="Import of text was unsuccessful, please try again." xml:space="preserve">
         <source>Import of text was unsuccessful, please try again.</source>
-        <target state="final">文本导入失败，请重试。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Import via text" xml:space="preserve" approved="yes">
+      <trans-unit id="Import via text" xml:space="preserve">
         <source>Import via text</source>
-        <target state="final">通过文本导入</target>
         <note/>
       </trans-unit>
-      <trans-unit id="In" xml:space="preserve" approved="yes">
+      <trans-unit id="In" xml:space="preserve">
         <source>In</source>
-        <target state="final">内部</target>
         <note/>
       </trans-unit>
-      <trans-unit id="In use" xml:space="preserve" approved="yes">
+      <trans-unit id="In use" xml:space="preserve">
         <source>In use</source>
-        <target state="final">正在使用</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Include all networks" xml:space="preserve" approved="yes">
+      <trans-unit id="Include all networks" xml:space="preserve">
         <source>Include all networks</source>
-        <target state="final">包括所有网络</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Include my account token for faster help with payment or account related issues" xml:space="preserve" approved="yes">
+      <trans-unit id="Include my account token for faster help with payment or account related issues" xml:space="preserve">
         <source>Include my account token for faster help with payment or account related issues</source>
-        <target state="final">包含我的帐户令牌，以便在处理付款或帐户相关问题时获得更快的帮助</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Indonesia" xml:space="preserve" approved="yes">
+      <trans-unit id="Indonesia" xml:space="preserve">
         <source>Indonesia</source>
-        <target state="final">印度尼西亚</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Internal error occurred. Settings will be reset to defaults and device logged out." xml:space="preserve" approved="yes">
+      <trans-unit id="Internal error occurred. Settings will be reset to defaults and device logged out." xml:space="preserve">
         <source>Internal error occurred. Settings will be reset to defaults and device logged out.</source>
-        <target state="final">发生内部错误。设置将重置为默认值，设备将退出登录。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Internal error." xml:space="preserve" approved="yes">
+      <trans-unit id="Internal error." xml:space="preserve">
         <source>Internal error.</source>
-        <target state="final">内部错误。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Invalid account number" xml:space="preserve" approved="yes">
+      <trans-unit id="Invalid account number" xml:space="preserve">
         <source>Invalid account number</source>
-        <target state="final">帐号无效</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Invalid account number: %@" xml:space="preserve" approved="yes">
+      <trans-unit id="Invalid account number: %@" xml:space="preserve">
         <source>Invalid account number: %@</source>
-        <target state="final">帐号无效：%@</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Invalid device state." xml:space="preserve" approved="yes">
+      <trans-unit id="Invalid device state." xml:space="preserve">
         <source>Invalid device state.</source>
-        <target state="final">设备状态无效。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Invalid purchase identifier." xml:space="preserve" approved="yes">
+      <trans-unit id="Invalid purchase identifier." xml:space="preserve">
         <source>Invalid purchase identifier.</source>
-        <target state="final">购买标识符无效。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Ireland" xml:space="preserve" approved="yes">
+      <trans-unit id="Ireland" xml:space="preserve">
         <source>Ireland</source>
-        <target state="final">爱尔兰</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Israel" xml:space="preserve" approved="yes">
+      <trans-unit id="Israel" xml:space="preserve">
         <source>Israel</source>
-        <target state="final">以色列</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Istanbul" xml:space="preserve" approved="yes">
+      <trans-unit id="Istanbul" xml:space="preserve">
         <source>Istanbul</source>
-        <target state="final">伊斯坦布尔</target>
         <note/>
       </trans-unit>
-      <trans-unit id="It does this by performing an extra key exchange using a quantum safe algorithm and mixing the result into WireGuard’s regular encryption. This extra step uses approximately 500 kiB of traffic every time a new tunnel is established." xml:space="preserve" approved="yes">
+      <trans-unit id="It does this by performing an extra key exchange using a quantum safe algorithm and mixing the result into WireGuard’s regular encryption. This extra step uses approximately 500 kiB of traffic every time a new tunnel is established." xml:space="preserve">
         <source>It does this by performing an extra key exchange using a quantum safe algorithm and mixing the result into WireGuard’s regular encryption. This extra step uses approximately 500 kiB of traffic every time a new tunnel is established.</source>
-        <target state="final">实现方法是使用量子安全算法执行额外的密钥交换，并将结果混合到 WireGuard 的常规加密中。每次建立新隧道时，这一额外步骤都会使用约 500 kiB 的流量。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="It looks like you’ve entered an account number instead of a voucher code. If you would like to change the active account, please log out first." xml:space="preserve" approved="yes">
+      <trans-unit id="It looks like you’ve entered an account number instead of a voucher code. If you would like to change the active account, please log out first." xml:space="preserve">
         <source>It looks like you’ve entered an account number instead of a voucher code. If you would like to change the active account, please log out first.</source>
-        <target state="final">您输入的似乎是帐号，而不是代金券代码。如果您想更改有效帐户，请先退出登录。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Italy" xml:space="preserve" approved="yes">
+      <trans-unit id="Italy" xml:space="preserve">
         <source>Italy</source>
-        <target state="final">意大利</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Jakarta" xml:space="preserve" approved="yes">
+      <trans-unit id="Jakarta" xml:space="preserve">
         <source>Jakarta</source>
-        <target state="final">雅加达</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Japan" xml:space="preserve" approved="yes">
+      <trans-unit id="Japan" xml:space="preserve">
         <source>Japan</source>
-        <target state="final">日本</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Johannesburg" xml:space="preserve" approved="yes">
+      <trans-unit id="Johannesburg" xml:space="preserve">
         <source>Johannesburg</source>
-        <target state="final">约翰内斯堡</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Kansas City, MO" xml:space="preserve" approved="yes">
+      <trans-unit id="Kansas City, MO" xml:space="preserve">
         <source>Kansas City, MO</source>
-        <target state="final">密苏里州堪萨斯城</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Kuala Lumpur" xml:space="preserve" approved="yes">
+      <trans-unit id="Kuala Lumpur" xml:space="preserve">
         <source>Kuala Lumpur</source>
-        <target state="final">吉隆坡</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Kyiv" xml:space="preserve" approved="yes">
+      <trans-unit id="Kyiv" xml:space="preserve">
         <source>Kyiv</source>
-        <target state="final">基辅</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Lagos" xml:space="preserve" approved="yes">
+      <trans-unit id="Lagos" xml:space="preserve">
         <source>Lagos</source>
-        <target state="final">拉各斯</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Language" xml:space="preserve" approved="yes">
+      <trans-unit id="Language" xml:space="preserve">
         <source>Language</source>
-        <target state="final">语言</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Last four digits of the account number are incorrect" xml:space="preserve" approved="yes">
+      <trans-unit id="Last 4 digits" xml:space="preserve">
+        <source>Last 4 digits</source>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Last four digits of the account number are incorrect" xml:space="preserve">
         <source>Last four digits of the account number are incorrect</source>
-        <target state="final">帐号的最后四位不正确</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Last used account" xml:space="preserve" approved="yes">
+      <trans-unit id="Last used account" xml:space="preserve">
         <source>Last used account</source>
-        <target state="final">上次使用的帐户</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Learn about privacy" xml:space="preserve" approved="yes">
+      <trans-unit id="Learn about privacy" xml:space="preserve">
         <source>Learn about privacy</source>
-        <target state="final">了解隐私</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Less than a day" xml:space="preserve" approved="yes">
+      <trans-unit id="Less than a day" xml:space="preserve">
         <source>Less than a day</source>
-        <target state="final">不足 1 天</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Lima" xml:space="preserve" approved="yes">
+      <trans-unit id="Lima" xml:space="preserve">
         <source>Lima</source>
-        <target state="final">利马</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Lisbon" xml:space="preserve" approved="yes">
+      <trans-unit id="Lisbon" xml:space="preserve">
         <source>Lisbon</source>
-        <target state="final">里斯本</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Ljubljana" xml:space="preserve" approved="yes">
+      <trans-unit id="List name" xml:space="preserve">
+        <source>List name</source>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Ljubljana" xml:space="preserve">
         <source>Ljubljana</source>
-        <target state="final">卢布尔雅那</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Local network sharing" xml:space="preserve" approved="yes">
+      <trans-unit id="Local network sharing" xml:space="preserve">
         <source>Local network sharing</source>
-        <target state="final">本地网络共享</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Locations" xml:space="preserve" approved="yes">
+      <trans-unit id="Locations" xml:space="preserve">
         <source>Locations</source>
-        <target state="final">位置</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Log out" xml:space="preserve" approved="yes">
+      <trans-unit id="Log out" xml:space="preserve">
         <source>Log out</source>
-        <target state="final">退出</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Logged in" xml:space="preserve" approved="yes">
+      <trans-unit id="Logged in" xml:space="preserve">
         <source>Logged in</source>
-        <target state="final">已登录</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Logging in..." xml:space="preserve" approved="yes">
+      <trans-unit id="Logging in..." xml:space="preserve">
         <source>Logging in...</source>
-        <target state="final">登录中…</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Logging out..." xml:space="preserve" approved="yes">
+      <trans-unit id="Logging out..." xml:space="preserve">
         <source>Logging out...</source>
-        <target state="final">正在退出登录…</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Login" xml:space="preserve" approved="yes">
+      <trans-unit id="Login" xml:space="preserve">
         <source>Login</source>
-        <target state="final">登录</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Login failed" xml:space="preserve" approved="yes">
+      <trans-unit id="Login failed" xml:space="preserve">
         <source>Login failed</source>
-        <target state="final">登录失败</target>
         <note/>
       </trans-unit>
-      <trans-unit id="London" xml:space="preserve" approved="yes">
+      <trans-unit id="London" xml:space="preserve">
         <source>London</source>
-        <target state="final">伦敦</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Los Angeles, CA" xml:space="preserve" approved="yes">
+      <trans-unit id="Los Angeles, CA" xml:space="preserve">
         <source>Los Angeles, CA</source>
-        <target state="final">加利福尼亚州洛杉矶</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Madrid" xml:space="preserve" approved="yes">
+      <trans-unit id="Madrid" xml:space="preserve">
         <source>Madrid</source>
-        <target state="final">马德里</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Make a purchase with StoreKit2" xml:space="preserve" approved="yes">
-        <source>Make a purchase with StoreKit2</source>
-        <target state="final">通过 StoreKit2 购买</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Malaysia" xml:space="preserve" approved="yes">
+      <trans-unit id="Malaysia" xml:space="preserve">
         <source>Malaysia</source>
-        <target state="final">马来西亚</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Malmö" xml:space="preserve" approved="yes">
+      <trans-unit id="Malmö" xml:space="preserve">
         <source>Malmö</source>
-        <target state="final">马尔默</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Malware" xml:space="preserve" approved="yes">
+      <trans-unit id="Malware" xml:space="preserve">
         <source>Malware</source>
-        <target state="final">恶意软件</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Manage and add custom methods to access the Mullvad API." xml:space="preserve" approved="yes">
+      <trans-unit id="Manage and add custom methods to access the Mullvad API." xml:space="preserve">
         <source>Manage and add custom methods to access the Mullvad API.</source>
-        <target state="final">管理和添加访问 Mulvad API 的自定义方法。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Manage devices" xml:space="preserve" approved="yes">
+      <trans-unit id="Manage devices" xml:space="preserve">
         <source>Manage devices</source>
-        <target state="final">管理设备</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Manchester" xml:space="preserve" approved="yes">
+      <trans-unit id="Manchester" xml:space="preserve">
         <source>Manchester</source>
-        <target state="final">曼彻斯特</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Manila" xml:space="preserve" approved="yes">
+      <trans-unit id="Manila" xml:space="preserve">
         <source>Manila</source>
-        <target state="final">马尼拉</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Marseille" xml:space="preserve" approved="yes">
+      <trans-unit id="Marseille" xml:space="preserve">
         <source>Marseille</source>
-        <target state="final">马赛</target>
         <note/>
       </trans-unit>
-      <trans-unit id="McAllen, TX" xml:space="preserve" approved="yes">
+      <trans-unit id="McAllen, TX" xml:space="preserve">
         <source>McAllen, TX</source>
-        <target state="final">得克萨斯州麦卡伦</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Melbourne" xml:space="preserve" approved="yes">
+      <trans-unit id="Melbourne" xml:space="preserve">
         <source>Melbourne</source>
-        <target state="final">墨尔本</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Mexico" xml:space="preserve" approved="yes">
+      <trans-unit id="Mexico" xml:space="preserve">
         <source>Mexico</source>
-        <target state="final">墨西哥</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Miami, FL" xml:space="preserve" approved="yes">
+      <trans-unit id="Miami, FL" xml:space="preserve">
         <source>Miami, FL</source>
-        <target state="final">佛罗里达州迈阿密</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Milan" xml:space="preserve" approved="yes">
+      <trans-unit id="Milan" xml:space="preserve">
         <source>Milan</source>
-        <target state="final">米兰</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Montreal" xml:space="preserve" approved="yes">
+      <trans-unit id="Montreal" xml:space="preserve">
         <source>Montreal</source>
-        <target state="final">蒙特利尔</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Mullvad owned only" xml:space="preserve" approved="yes">
+      <trans-unit id="Mullvad owned only" xml:space="preserve">
         <source>Mullvad owned only</source>
-        <target state="final">仅 Mullvad 自有</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Multihop" xml:space="preserve" approved="yes">
+      <trans-unit id="Multihop" xml:space="preserve">
         <source>Multihop</source>
-        <target state="final">多跳</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Multihop is being used to enable DAITA for your selected location." xml:space="preserve" approved="yes">
+      <trans-unit id="Multihop is being used to enable DAITA for your selected location." xml:space="preserve">
         <source>Multihop is being used to enable DAITA for your selected location.</source>
-        <target state="final">正在使用多跳为您的所选位置启用 DAITA.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Multihop routes your traffic into one WireGuard server and out another, making it harder to trace. This results in increased latency but increases anonymity online." xml:space="preserve" approved="yes">
+      <trans-unit id="Multihop routes your traffic into one WireGuard server and out another, making it harder to trace. This results in increased latency but increases anonymity online." xml:space="preserve">
         <source>Multihop routes your traffic into one WireGuard server and out another, making it harder to trace. This results in increased latency but increases anonymity online.</source>
-        <target state="final">多跳技术会将您的流量传输到一个 WireGuard 服务器并从另一个服务器传出，从而提高追踪的难度。这会导致延迟增加，但会提高在线匿名性。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="NETWORK ISSUES" xml:space="preserve" approved="yes">
+      <trans-unit id="NETWORK ISSUES" xml:space="preserve">
         <source>NETWORK ISSUES</source>
-        <target state="final">网络问题</target>
         <note/>
       </trans-unit>
-      <trans-unit id="NEW DEVICE CREATED" xml:space="preserve" approved="yes">
+      <trans-unit id="NEW DEVICE CREATED" xml:space="preserve">
         <source>NEW DEVICE CREATED</source>
-        <target state="final">已创建新设备</target>
         <note/>
       </trans-unit>
-      <trans-unit id="NEW VERSION INSTALLED" xml:space="preserve" approved="yes">
+      <trans-unit id="NEW VERSION INSTALLED" xml:space="preserve">
         <source>NEW VERSION INSTALLED</source>
-        <target state="final">已安装新版本</target>
         <note/>
       </trans-unit>
-      <trans-unit id="NO NETWORK" xml:space="preserve" approved="yes">
+      <trans-unit id="NO NETWORK" xml:space="preserve">
         <source>NO NETWORK</source>
-        <target state="final">无网络</target>
         <note/>
       </trans-unit>
-      <trans-unit id="NO OVERRIDES IMPORTED" xml:space="preserve" approved="yes">
+      <trans-unit id="NO OVERRIDES IMPORTED" xml:space="preserve">
         <source>NO OVERRIDES IMPORTED</source>
-        <target state="final">未导入覆盖设置</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Name" xml:space="preserve" approved="yes">
+      <trans-unit id="Name" xml:space="preserve">
         <source>Name</source>
-        <target state="final">名称</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Name is already taken." xml:space="preserve" approved="yes">
+      <trans-unit id="Name is already taken." xml:space="preserve">
         <source>Name is already taken.</source>
-        <target state="final">名称已被占用。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Name should be no longer than %i characters." xml:space="preserve" approved="yes">
+      <trans-unit id="Name should be no longer than %i characters." xml:space="preserve">
         <source>Name should be no longer than %i characters.</source>
-        <target state="final">名称不得超过 %i 个字符。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Netherlands" xml:space="preserve" approved="yes">
+      <trans-unit id="Netherlands" xml:space="preserve">
         <source>Netherlands</source>
-        <target state="final">荷兰</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Network error: %@" xml:space="preserve" approved="yes">
+      <trans-unit id="Network error: %@" xml:space="preserve">
         <source>Network error: %@</source>
-        <target state="final">网络错误：%@</target>
         <note/>
       </trans-unit>
-      <trans-unit id="New York, NY" xml:space="preserve" approved="yes">
+      <trans-unit id="New York, NY" xml:space="preserve">
         <source>New York, NY</source>
-        <target state="final">纽约州纽约</target>
         <note/>
       </trans-unit>
-      <trans-unit id="New Zealand" xml:space="preserve" approved="yes">
+      <trans-unit id="New Zealand" xml:space="preserve">
         <source>New Zealand</source>
-        <target state="final">新西兰</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Next" xml:space="preserve" approved="yes">
+      <trans-unit id="New list" xml:space="preserve">
+        <source>New list</source>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Next" xml:space="preserve">
         <source>Next</source>
-        <target state="final">下一步</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Nicosia" xml:space="preserve" approved="yes">
+      <trans-unit id="Nicosia" xml:space="preserve">
         <source>Nicosia</source>
-        <target state="final">尼科西亚</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Nigeria" xml:space="preserve" approved="yes">
+      <trans-unit id="Nigeria" xml:space="preserve">
         <source>Nigeria</source>
-        <target state="final">尼日利亚</target>
         <note/>
       </trans-unit>
-      <trans-unit id="No DAITA compatible servers match your location settings. Try changing location." xml:space="preserve" approved="yes">
+      <trans-unit id="No DAITA compatible servers match your location settings. Try changing location." xml:space="preserve">
         <source>No DAITA compatible servers match your location settings. Try changing location.</source>
-        <target state="final">没有与您的位置设置匹配的兼容 DAITA 的服务器。请尝试更改位置。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="No matching relays found, check your filter settings." xml:space="preserve" approved="yes">
+      <trans-unit id="No matching relays found, check your filter settings." xml:space="preserve">
         <source>No matching relays found, check your filter settings.</source>
-        <target state="final">找不到匹配的中继，请检查您的筛选器设置。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="No matching servers found." xml:space="preserve" approved="yes">
+      <trans-unit id="No matching servers found." xml:space="preserve">
         <source>No matching servers found.</source>
-        <target state="final">找不到匹配的服务器。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="No servers match your location filter. Try changing filter settings." xml:space="preserve" approved="yes">
+      <trans-unit id="No result for &quot;%@&quot;, please try a different search term." xml:space="preserve">
+        <source>No result for "%@", please try a different search term.</source>
+        <note/>
+      </trans-unit>
+      <trans-unit id="No servers match your location filter. Try changing filter settings." xml:space="preserve">
         <source>No servers match your location filter. Try changing filter settings.</source>
-        <target state="final">没有与您的位置筛选器匹配的服务器。请尝试更改筛选器设置。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="No servers match your obfuscation settings. Try changing location or obfuscation method." xml:space="preserve" approved="yes">
+      <trans-unit id="No servers match your obfuscation settings. Try changing location or obfuscation method." xml:space="preserve">
         <source>No servers match your obfuscation settings. Try changing location or obfuscation method.</source>
-        <target state="final">没有与您的混淆设置匹配的服务器。请尝试更改位置或混淆方法。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="No servers match your settings, try changing server or other settings." xml:space="preserve" approved="yes">
+      <trans-unit id="No servers match your settings, try changing server or other settings." xml:space="preserve">
         <source>No servers match your settings, try changing server or other settings.</source>
-        <target state="final">没有与您的设置匹配的服务器，请尝试更改服务器或其他设置。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Norway" xml:space="preserve" approved="yes">
+      <trans-unit id="Norway" xml:space="preserve">
         <source>Norway</source>
-        <target state="final">挪威</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Not all our servers are %@-enabled. Therefore, we use multihop automatically to enable %@ with any server." xml:space="preserve" approved="yes">
+      <trans-unit id="Not all our servers are %@-enabled. Therefore, we use multihop automatically to enable %@ with any server." xml:space="preserve">
         <source>Not all our servers are %1$@-enabled. Therefore, we use multihop automatically to enable %2$@ with any server.</source>
-        <target state="final">我们的部分服务器未启用 %1$@。因此，我们使用多跳自动为任何服务器启用 %2$@。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="OUT OF TIME" xml:space="preserve" approved="yes">
+      <trans-unit id="OUT OF TIME" xml:space="preserve">
         <source>OUT OF TIME</source>
-        <target state="final">已没有时间</target>
         <note/>
       </trans-unit>
-      <trans-unit id="OVERRIDES ACTIVE" xml:space="preserve" approved="yes">
+      <trans-unit id="OVERRIDES ACTIVE" xml:space="preserve">
         <source>OVERRIDES ACTIVE</source>
-        <target state="final">覆盖设置处于激活状态</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Obfuscation" xml:space="preserve" approved="yes">
+      <trans-unit id="Obfuscation" xml:space="preserve">
         <source>Obfuscation</source>
-        <target state="final">混淆</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Obfuscation hides the WireGuard traffic inside another protocol. It can be used to help circumvent censorship and other types of filtering, where a plain WireGuard connection would be blocked." xml:space="preserve" approved="yes">
+      <trans-unit id="Obfuscation hides the WireGuard traffic inside another protocol. It can be used to help circumvent censorship and other types of filtering, where a plain WireGuard connection would be blocked." xml:space="preserve">
         <source>Obfuscation hides the WireGuard traffic inside another protocol. It can be used to help circumvent censorship and other types of filtering, where a plain WireGuard connection would be blocked.</source>
-        <target state="final">混淆会将 WireGuard 流量隐藏在其他协议中。这有助于规避审查和其他类型的过滤，在这些过滤中，普通 WireGuard 连接将被阻止。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Obscured" xml:space="preserve" approved="yes">
+      <trans-unit id="Obscured" xml:space="preserve">
         <source>Obscured</source>
-        <target state="final">已混淆</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Off" xml:space="preserve" approved="yes">
+      <trans-unit id="Off" xml:space="preserve">
         <source>Off</source>
-        <target state="final">关</target>
         <note/>
       </trans-unit>
-      <trans-unit id="On" xml:space="preserve" approved="yes">
+      <trans-unit id="On" xml:space="preserve">
         <source>On</source>
-        <target state="final">开</target>
         <note/>
       </trans-unit>
-      <trans-unit id="On some networks, where various types of censorship are being used, our server IP addresses are sometimes blocked." xml:space="preserve" approved="yes">
+      <trans-unit id="On some networks, where various types of censorship are being used, our server IP addresses are sometimes blocked." xml:space="preserve">
         <source>On some networks, where various types of censorship are being used, our server IP addresses are sometimes blocked.</source>
-        <target state="final">在某些使用各类审查的网络上，我们的服务器 IP 地址有时会被阻止。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="On some networks, where various types of censorship are being used, the API servers might not be directly reachable." xml:space="preserve" approved="yes">
+      <trans-unit id="On some networks, where various types of censorship are being used, the API servers might not be directly reachable." xml:space="preserve">
         <source>On some networks, where various types of censorship are being used, the API servers might not be directly reachable.</source>
-        <target state="final">在某些使用各类审查的网络上，可能无法直接访问 API 服务器。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Open %@ settings" xml:space="preserve" approved="yes">
+      <trans-unit id="Open %@ settings" xml:space="preserve">
         <source>Open %@ settings</source>
-        <target state="final">打开 %@ 设置</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Optional" xml:space="preserve" approved="yes">
+      <trans-unit id="Optional" xml:space="preserve">
         <source>Optional</source>
-        <target state="final">选填</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Osaka" xml:space="preserve" approved="yes">
+      <trans-unit id="Osaka" xml:space="preserve">
         <source>Osaka</source>
-        <target state="final">大阪</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Oslo" xml:space="preserve" approved="yes">
+      <trans-unit id="Oslo" xml:space="preserve">
         <source>Oslo</source>
-        <target state="final">奥斯陆</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Out IPv4" xml:space="preserve" approved="yes">
+      <trans-unit id="Out IPv4" xml:space="preserve">
         <source>Out IPv4</source>
-        <target state="final">出站 IPv4</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Out IPv6" xml:space="preserve" approved="yes">
+      <trans-unit id="Out IPv6" xml:space="preserve">
         <source>Out IPv6</source>
-        <target state="final">出站 IPv6</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Out of time" xml:space="preserve" approved="yes">
+      <trans-unit id="Out of time" xml:space="preserve">
         <source>Out of time</source>
-        <target state="final">已没有时间</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Ownership" xml:space="preserve" approved="yes">
+      <trans-unit id="Owned" xml:space="preserve">
+        <source>Owned</source>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Ownership" xml:space="preserve">
         <source>Ownership</source>
-        <target state="final">所有权</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Paid until" xml:space="preserve" approved="yes">
+      <trans-unit id="Paid until" xml:space="preserve">
         <source>Paid until</source>
-        <target state="final">到期时间</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Palermo" xml:space="preserve" approved="yes">
+      <trans-unit id="Palermo" xml:space="preserve">
         <source>Palermo</source>
-        <target state="final">Palermo</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Paris" xml:space="preserve" approved="yes">
+      <trans-unit id="Paris" xml:space="preserve">
         <source>Paris</source>
-        <target state="final">巴黎</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Password" xml:space="preserve" approved="yes">
+      <trans-unit id="Password" xml:space="preserve">
         <source>Password</source>
-        <target state="final">密码</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Performs a connection test to a Mullvad API server via this access method." xml:space="preserve" approved="yes">
+      <trans-unit id="Performs a connection test to a Mullvad API server via this access method." xml:space="preserve">
         <source>Performs a connection test to a Mullvad API server via this access method.</source>
-        <target state="final">通过此访问方法对 Mullvad API 服务器执行连接测试。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Perth" xml:space="preserve" approved="yes">
+      <trans-unit id="Perth" xml:space="preserve">
         <source>Perth</source>
-        <target state="final">珀斯</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Peru" xml:space="preserve" approved="yes">
+      <trans-unit id="Peru" xml:space="preserve">
         <source>Peru</source>
-        <target state="final">秘鲁</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Philippines" xml:space="preserve" approved="yes">
+      <trans-unit id="Philippines" xml:space="preserve">
         <source>Philippines</source>
-        <target state="final">菲律宾</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Phoenix, AZ" xml:space="preserve" approved="yes">
+      <trans-unit id="Phoenix, AZ" xml:space="preserve">
         <source>Phoenix, AZ</source>
-        <target state="final">亚利桑那州菲尼克斯</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Please enter a valid IPv4 or IPv6 address." xml:space="preserve" approved="yes">
+      <trans-unit id="Please enter a valid IPv4 or IPv6 address." xml:space="preserve">
         <source>Please enter a valid IPv4 or IPv6 address.</source>
-        <target state="final">请输入有效的 IPv4 或 IPv6 地址。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Please enter a valid remote server port." xml:space="preserve" approved="yes">
+      <trans-unit id="Please enter a valid remote server port." xml:space="preserve">
         <source>Please enter a valid remote server port.</source>
-        <target state="final">请输入有效的远程服务器端口。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Please log out of at least one by removing it from the list below. You can find the corresponding device name under the device’s Account settings." xml:space="preserve" approved="yes">
+      <trans-unit id="Please log out of at least one by removing it from the list below. You can find the corresponding device name under the device’s Account settings." xml:space="preserve">
         <source>Please log out of at least one by removing it from the list below. You can find the corresponding device name under the device’s Account settings.</source>
-        <target state="final">请通过从以下列表中移除的方式退出至少一个帐户。您可以在设备的帐户设置下找到相应设备名称。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Please retry by using the &quot;Restore purchases&quot; button." xml:space="preserve" approved="yes">
+      <trans-unit id="Please retry by using the &quot;Restore purchases&quot; button." xml:space="preserve">
         <source>Please retry by using the "Restore purchases" button.</source>
-        <target state="final">请使用“恢复购买”按钮重试。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Poland" xml:space="preserve" approved="yes">
+      <trans-unit id="Poland" xml:space="preserve">
         <source>Poland</source>
-        <target state="final">波兰</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Port" xml:space="preserve" approved="yes">
+      <trans-unit id="Port" xml:space="preserve">
         <source>Port</source>
-        <target state="final">端口</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Port: %@" xml:space="preserve" approved="yes">
+      <trans-unit id="Port: %@" xml:space="preserve">
         <source>Port: %@</source>
-        <target state="final">端口：%@</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Portugal" xml:space="preserve" approved="yes">
+      <trans-unit id="Portugal" xml:space="preserve">
         <source>Portugal</source>
-        <target state="final">葡萄牙</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Prague" xml:space="preserve" approved="yes">
+      <trans-unit id="Prague" xml:space="preserve">
         <source>Prague</source>
-        <target state="final">布拉格</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Previous" xml:space="preserve" approved="yes">
+      <trans-unit id="Previous" xml:space="preserve">
         <source>Previous</source>
-        <target state="final">上一页</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Providers" xml:space="preserve" approved="yes">
+      <trans-unit id="Providers" xml:space="preserve">
         <source>Providers</source>
-        <target state="final">提供商</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Providers: %d" xml:space="preserve" approved="yes">
-        <source>Providers: %d</source>
-        <target state="final">提供商：%d</target>
+      <trans-unit id="Providers: %lld" xml:space="preserve">
+        <source>Providers: %lld</source>
         <note/>
       </trans-unit>
-      <trans-unit id="QUIC" xml:space="preserve" approved="yes">
+      <trans-unit id="QUIC" xml:space="preserve">
         <source>QUIC</source>
-        <target state="final">QUIC</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Quantum resistance" xml:space="preserve" approved="yes">
+      <trans-unit id="Quantum resistance" xml:space="preserve">
         <source>Quantum resistance</source>
-        <target state="final">量子阻力</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Quantum-resistant tunnel" xml:space="preserve" approved="yes">
+      <trans-unit id="Quantum-resistant tunnel" xml:space="preserve">
         <source>Quantum-resistant tunnel</source>
-        <target state="final">抗量子隧道</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Queretaro" xml:space="preserve" approved="yes">
+      <trans-unit id="Queretaro" xml:space="preserve">
         <source>Queretaro</source>
-        <target state="final">克雷塔罗</target>
         <note/>
       </trans-unit>
-      <trans-unit id="RECONNECTING" xml:space="preserve" approved="yes">
+      <trans-unit id="RECONNECTING" xml:space="preserve">
         <source>RECONNECTING</source>
-        <target state="final">正在重新连接</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Raleigh, NC" xml:space="preserve" approved="yes">
+      <trans-unit id="Raleigh, NC" xml:space="preserve">
         <source>Raleigh, NC</source>
-        <target state="final">罗利，北卡罗来纳州</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Reconnecting to %@" xml:space="preserve" approved="yes">
+      <trans-unit id="Reconnecting to %@" xml:space="preserve">
         <source>Reconnecting to %@</source>
-        <target state="final">正在重新连接到%@</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Redeem" xml:space="preserve" approved="yes">
+      <trans-unit id="Redeem" xml:space="preserve">
         <source>Redeem</source>
-        <target state="final">兑换</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Redeem voucher" xml:space="preserve" approved="yes">
+      <trans-unit id="Redeem voucher" xml:space="preserve">
         <source>Redeem voucher</source>
-        <target state="final">兑换优惠券</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Refund last purchase with StoreKit2" xml:space="preserve" approved="yes">
+      <trans-unit id="Refund last purchase with StoreKit2" xml:space="preserve">
         <source>Refund last purchase with StoreKit2</source>
-        <target state="final">对通过 StoreKit2 进行的上次购买退款</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Refund successful" xml:space="preserve" approved="yes">
+      <trans-unit id="Refund successful" xml:space="preserve">
         <source>Refund successful</source>
-        <target state="final">退款成功</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Remove" xml:space="preserve" approved="yes">
+      <trans-unit id="Remove" xml:space="preserve">
         <source>Remove</source>
-        <target state="final">移除</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Remove %@?" xml:space="preserve" approved="yes">
+      <trans-unit id="Remove %@?" xml:space="preserve">
         <source>Remove %@?</source>
-        <target state="final">是否移除“%@”？</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Remove last used account" xml:space="preserve" approved="yes">
+      <trans-unit id="Remove last used account" xml:space="preserve">
         <source>Remove last used account</source>
-        <target state="final">移除上次使用的帐户</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Removing the saved account number from this device cannot be undone.&#10;Do you want to remove the saved account number?" xml:space="preserve" approved="yes">
+      <trans-unit id="Removing the saved account number from this device cannot be undone.&#10;Do you want to remove the saved account number?" xml:space="preserve">
         <source>Removing the saved account number from this device cannot be undone.
 Do you want to remove the saved account number?</source>
-        <target state="final">从此设备移除已保存帐号的操作无法撤消。
-是否要移除已保存的帐号？</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Rented only" xml:space="preserve" approved="yes">
+      <trans-unit id="Rented" xml:space="preserve">
+        <source>Rented</source>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Rented only" xml:space="preserve">
         <source>Rented only</source>
-        <target state="final">仅租用</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Report a problem" xml:space="preserve" approved="yes">
+      <trans-unit id="Report a problem" xml:space="preserve">
         <source>Report a problem</source>
-        <target state="final">报告问题</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Required" xml:space="preserve" approved="yes">
+      <trans-unit id="Required" xml:space="preserve">
         <source>Required</source>
-        <target state="final">必填</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Restore purchases" xml:space="preserve" approved="yes">
+      <trans-unit id="Restore purchases" xml:space="preserve">
         <source>Restore purchases</source>
-        <target state="final">恢复购买</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Romania" xml:space="preserve" approved="yes">
+      <trans-unit id="Romania" xml:space="preserve">
         <source>Romania</source>
-        <target state="final">罗马尼亚</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Salt Lake City, UT" xml:space="preserve" approved="yes">
+      <trans-unit id="Salt Lake City, UT" xml:space="preserve">
         <source>Salt Lake City, UT</source>
-        <target state="final">犹他州盐湖城</target>
         <note/>
       </trans-unit>
-      <trans-unit id="San Jose, CA" xml:space="preserve" approved="yes">
+      <trans-unit id="San Jose, CA" xml:space="preserve">
         <source>San Jose, CA</source>
-        <target state="final">加利福尼亚州圣何塞</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Santiago" xml:space="preserve" approved="yes">
+      <trans-unit id="Santiago" xml:space="preserve">
         <source>Santiago</source>
-        <target state="final">圣地亚哥</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Sao Paulo" xml:space="preserve" approved="yes">
+      <trans-unit id="Sao Paulo" xml:space="preserve">
         <source>Sao Paulo</source>
-        <target state="final">圣保罗</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Save" xml:space="preserve" approved="yes">
+      <trans-unit id="Save" xml:space="preserve">
         <source>Save</source>
-        <target state="final">保存</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Saving changes..." xml:space="preserve" approved="yes">
+      <trans-unit id="Saving changes..." xml:space="preserve">
         <source>Saving changes...</source>
-        <target state="final">正在保存更改…</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Search for..." xml:space="preserve" approved="yes">
-        <source>Search for...</source>
-        <target state="final">搜索…</target>
+      <trans-unit id="Search for locations or servers" xml:space="preserve">
+        <source>Search for locations or servers</source>
         <note/>
       </trans-unit>
-      <trans-unit id="Seattle, WA" xml:space="preserve" approved="yes">
+      <trans-unit id="Seattle, WA" xml:space="preserve">
         <source>Seattle, WA</source>
-        <target state="final">华盛顿州西雅图</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Secaucus, NJ" xml:space="preserve" approved="yes">
+      <trans-unit id="Secaucus, NJ" xml:space="preserve">
         <source>Secaucus, NJ</source>
-        <target state="final">新泽西州锡考克斯</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Select location" xml:space="preserve" approved="yes">
+      <trans-unit id="Select location" xml:space="preserve">
         <source>Select location</source>
-        <target state="final">选择位置</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Selected" xml:space="preserve" approved="yes">
+      <trans-unit id="Selected" xml:space="preserve">
         <source>Selected</source>
-        <target state="final">已选</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Send" xml:space="preserve" approved="yes">
+      <trans-unit id="Send" xml:space="preserve">
         <source>Send</source>
-        <target state="final">发送</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Send anyway" xml:space="preserve" approved="yes">
+      <trans-unit id="Send anyway" xml:space="preserve">
         <source>Send anyway</source>
-        <target state="final">仍然发送</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Sending..." xml:space="preserve" approved="yes">
+      <trans-unit id="Sending..." xml:space="preserve">
         <source>Sending...</source>
-        <target state="final">正在发送…</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Sent" xml:space="preserve" approved="yes">
+      <trans-unit id="Sent" xml:space="preserve">
         <source>Sent</source>
-        <target state="final">已发送</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Serbia" xml:space="preserve" approved="yes">
+      <trans-unit id="Serbia" xml:space="preserve">
         <source>Serbia</source>
-        <target state="final">塞尔维亚</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Server" xml:space="preserve" approved="yes">
+      <trans-unit id="Server" xml:space="preserve">
         <source>Server</source>
-        <target state="final">服务器</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Server IP override" xml:space="preserve" approved="yes">
+      <trans-unit id="Server IP override" xml:space="preserve">
         <source>Server IP override</source>
-        <target state="final">服务器 IP 覆盖</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Server details" xml:space="preserve" approved="yes">
+      <trans-unit id="Server details" xml:space="preserve">
         <source>Server details</source>
-        <target state="final">服务器详细信息</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Setting: %@" xml:space="preserve" approved="yes">
+      <trans-unit id="Setting: %@" xml:space="preserve">
         <source>Setting: %@</source>
-        <target state="final">设置：%@</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Settings" xml:space="preserve" approved="yes">
+      <trans-unit id="Settings" xml:space="preserve">
         <source>Settings</source>
-        <target state="final">设置</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Settings migration error" xml:space="preserve" approved="yes">
+      <trans-unit id="Settings migration error" xml:space="preserve">
         <source>Settings migration error</source>
-        <target state="final">设置迁移错误</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Shadowsocks" xml:space="preserve" approved="yes">
+      <trans-unit id="Shadowsocks" xml:space="preserve">
         <source>Shadowsocks</source>
-        <target state="final">Shadowsocks</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Show account number" xml:space="preserve" approved="yes">
+      <trans-unit id="Show %@ servers" xml:space="preserve">
+        <source>Show %@ servers</source>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Show account number" xml:space="preserve">
         <source>Show account number</source>
-        <target state="final">显示帐号</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Singapore" xml:space="preserve" approved="yes">
+      <trans-unit id="Singapore" xml:space="preserve">
         <source>Singapore</source>
-        <target state="final">新加坡</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Slovakia" xml:space="preserve" approved="yes">
+      <trans-unit id="Slovakia" xml:space="preserve">
         <source>Slovakia</source>
-        <target state="final">斯洛伐克</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Slovenia" xml:space="preserve" approved="yes">
+      <trans-unit id="Slovenia" xml:space="preserve">
         <source>Slovenia</source>
-        <target state="final">斯洛文尼亚</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Social media" xml:space="preserve" approved="yes">
+      <trans-unit id="Social media" xml:space="preserve">
         <source>Social media</source>
-        <target state="final">社交媒体</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Socks5" xml:space="preserve" approved="yes">
+      <trans-unit id="Socks5" xml:space="preserve">
         <source>Socks5</source>
-        <target state="final">Socks5</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Sofia" xml:space="preserve" approved="yes">
+      <trans-unit id="Sofia" xml:space="preserve">
         <source>Sofia</source>
-        <target state="final">索非亚</target>
         <note/>
       </trans-unit>
-      <trans-unit id="South Africa" xml:space="preserve" approved="yes">
+      <trans-unit id="South Africa" xml:space="preserve">
         <source>South Africa</source>
-        <target state="final">南非</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Spain" xml:space="preserve" approved="yes">
+      <trans-unit id="Spain" xml:space="preserve">
         <source>Spain</source>
-        <target state="final">西班牙</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Start using the app" xml:space="preserve" approved="yes">
+      <trans-unit id="Start using the app" xml:space="preserve">
         <source>Start using the app</source>
-        <target state="final">开始使用应用</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Stavanger" xml:space="preserve" approved="yes">
+      <trans-unit id="Stavanger" xml:space="preserve">
         <source>Stavanger</source>
-        <target state="final">斯塔万格</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Stockholm" xml:space="preserve" approved="yes">
+      <trans-unit id="Stockholm" xml:space="preserve">
         <source>Stockholm</source>
-        <target state="final">斯德哥尔摩</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Super!" xml:space="preserve" approved="yes">
+      <trans-unit id="Super!" xml:space="preserve">
         <source>Super!</source>
-        <target state="final">太棒了！</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Sweden" xml:space="preserve" approved="yes">
+      <trans-unit id="Sweden" xml:space="preserve">
         <source>Sweden</source>
-        <target state="final">瑞典</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Switch location" xml:space="preserve" approved="yes">
+      <trans-unit id="Switch location" xml:space="preserve">
         <source>Switch location</source>
-        <target state="final">切换位置</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Switzerland" xml:space="preserve" approved="yes">
+      <trans-unit id="Switzerland" xml:space="preserve">
         <source>Switzerland</source>
-        <target state="final">瑞士</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Sydney" xml:space="preserve" approved="yes">
+      <trans-unit id="Sydney" xml:space="preserve">
         <source>Sydney</source>
-        <target state="final">悉尼</target>
         <note/>
       </trans-unit>
-      <trans-unit id="TCP" xml:space="preserve" approved="yes">
+      <trans-unit id="TCP" xml:space="preserve">
         <source>TCP</source>
-        <target state="final">TCP</target>
         <note/>
       </trans-unit>
-      <trans-unit id="TUNNEL ERROR" xml:space="preserve" approved="yes">
+      <trans-unit id="TUNNEL ERROR" xml:space="preserve">
         <source>TUNNEL ERROR</source>
-        <target state="final">隧道错误</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Tallinn" xml:space="preserve" approved="yes">
+      <trans-unit id="Tallinn" xml:space="preserve">
         <source>Tallinn</source>
-        <target state="final">塔林</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Tap **Edit** to add at least one DNS server." xml:space="preserve" approved="yes">
+      <trans-unit id="Tap **Edit** to add at least one DNS server." xml:space="preserve">
         <source>Tap **Edit** to add at least one DNS server.</source>
-        <target state="final">点按**编辑**以添加至少一个 DNS 服务器。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Tel Aviv" xml:space="preserve" approved="yes">
+      <trans-unit id="Tel Aviv" xml:space="preserve">
         <source>Tel Aviv</source>
-        <target state="final">特拉维夫</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Test method" xml:space="preserve" approved="yes">
+      <trans-unit id="Test method" xml:space="preserve">
         <source>Test method</source>
-        <target state="final">测试方法</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Testing..." xml:space="preserve" approved="yes">
+      <trans-unit id="Testing..." xml:space="preserve">
         <source>Testing...</source>
-        <target state="final">正在测试…</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Thailand" xml:space="preserve" approved="yes">
+      <trans-unit id="Thailand" xml:space="preserve">
         <source>Thailand</source>
-        <target state="final">泰国</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Thanks for your purchase" xml:space="preserve" approved="yes">
+      <trans-unit id="Thanks for your purchase" xml:space="preserve">
         <source>Thanks for your purchase</source>
-        <target state="final">感谢购买</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Thanks!" xml:space="preserve" approved="yes">
+      <trans-unit id="Thanks!" xml:space="preserve">
         <source>Thanks!</source>
-        <target state="final">谢谢！</target>
         <note/>
       </trans-unit>
-      <trans-unit id="The app communicates with a Mullvad API server directly." xml:space="preserve" approved="yes">
+      <trans-unit id="The app communicates with a Mullvad API server directly." xml:space="preserve">
         <source>The app communicates with a Mullvad API server directly.</source>
-        <target state="final">此应用直接与 Mullvad API 服务器通信。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="The app communicates with a Mullvad API server via a Mullvad bridge server." xml:space="preserve" approved="yes">
+      <trans-unit id="The app communicates with a Mullvad API server via a Mullvad bridge server." xml:space="preserve">
         <source>The app communicates with a Mullvad API server via a Mullvad bridge server.</source>
-        <target state="final">此应用通过 Mullvad 桥接服务器与 Mullvad API 服务器通信。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="The app communicates with a Mullvad API server via a proxy address." xml:space="preserve" approved="yes">
+      <trans-unit id="The app communicates with a Mullvad API server via a proxy address." xml:space="preserve">
         <source>The app communicates with a Mullvad API server via a proxy address.</source>
-        <target state="final">此应用通过代理地址与 Mullvad API 服务器通信。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="The app needs to communicate with a Mullvad API server to log you in, fetch server lists, and other critical operations." xml:space="preserve" approved="yes">
+      <trans-unit id="The app needs to communicate with a Mullvad API server to log you in, fetch server lists, and other critical operations." xml:space="preserve">
         <source>The app needs to communicate with a Mullvad API server to log you in, fetch server lists, and other critical operations.</source>
-        <target state="final">该应用需要与 Mulvad API 服务器通信，以便您登录、获取服务器列表和执行其他关键操作。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="The app will test the method before saving." xml:space="preserve" approved="yes">
+      <trans-unit id="The app will test the method before saving." xml:space="preserve">
         <source>The app will test the method before saving.</source>
-        <target state="final">应用将在保存前测试该方法。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="The automatic setting will randomly choose from the valid port ranges shown below." xml:space="preserve" approved="yes">
+      <trans-unit id="The automatic setting will randomly choose from the valid port ranges shown below." xml:space="preserve">
         <source>The automatic setting will randomly choose from the valid port ranges shown below.</source>
-        <target state="final">自动设置将从下方显示的有效端口范围中随机选择。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="The custom port can be any value inside the valid ranges: %@." xml:space="preserve" approved="yes">
+      <trans-unit id="The custom port can be any value inside the valid ranges: %@." xml:space="preserve">
         <source>The custom port can be any value inside the valid ranges: %@.</source>
-        <target state="final">自定义端口可以是有效范围内的任何值：%@。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="The device will be removed from the list and logged out." xml:space="preserve" approved="yes">
+      <trans-unit id="The device will be removed from the list and logged out." xml:space="preserve">
         <source>The device will be removed from the list and logged out.</source>
-        <target state="final">该设备将从列表中移除并退出登录。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="The entry and exit servers cannot be the same. Try changing one to a new server or location." xml:space="preserve" approved="yes">
+      <trans-unit id="The entry and exit servers cannot be the same. Try changing one to a new server or location." xml:space="preserve">
         <source>The entry and exit servers cannot be the same. Try changing one to a new server or location.</source>
-        <target state="final">入口服务器和出口服务器不能相同。请尝试将其中一个更改为新的服务器或位置。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="The entry server for %@ is currently overridden by %@. To select an entry server, please first enable “%@” or disable “%@“ in the settings." xml:space="preserve" approved="yes">
-        <source>The entry server for %1$@ is currently overridden by %2$@. To select an entry server, please first enable “%3$@” or disable “%4$@“ in the settings.</source>
-        <target state="final">%1$@的入口服务器目前被 %2$@ 覆盖。要选择入口服务器，请先在设置中启用“%3$@”或停用“%4$@”。</target>
+      <trans-unit id="The entry server for %@ is currently overridden by %@. To select an entry server, please first enable “%@” or disable “%@” in the settings." xml:space="preserve">
+        <source>The entry server for %1$@ is currently overridden by %2$@. To select an entry server, please first enable “%3$@” or disable “%4$@” in the settings.</source>
         <note/>
       </trans-unit>
-      <trans-unit id="The payment request was cancelled." xml:space="preserve" approved="yes">
+      <trans-unit id="The payment request was cancelled." xml:space="preserve">
         <source>The payment request was cancelled.</source>
-        <target state="final">付款请求已取消。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="The selected WireGuard port is not supported, please change it under **VPN settings**." xml:space="preserve" approved="yes">
+      <trans-unit id="The selected WireGuard port is not supported, please change it under **VPN settings**." xml:space="preserve">
         <source>The selected WireGuard port is not supported, please change it under **VPN settings**.</source>
-        <target state="final">所选 WireGuard 端口不受支持，请在 **VPN 设置**下更改。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="The version of settings stored on device is unrecognized.Settings will be reset to defaults and the device will be logged out." xml:space="preserve" approved="yes">
+      <trans-unit id="The version of settings stored on device is unrecognized.Settings will be reset to defaults and the device will be logged out." xml:space="preserve">
         <source>The version of settings stored on device is unrecognized.Settings will be reset to defaults and the device will be logged out.</source>
-        <target state="final">存储在设备上的设置版本无法识别。设置将被重置为默认值，且设备将退出登录。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="This can be useful if the API is censored but Mullvad’s bridge servers are not." xml:space="preserve" approved="yes">
+      <trans-unit id="This can be useful if the API is censored but Mullvad’s bridge servers are not." xml:space="preserve">
         <source>This can be useful if the API is censored but Mullvad’s bridge servers are not.</source>
-        <target state="final">如果 API 被审查，但 Mullvad 的桥接服务器没有被审查，此方法可能很有用。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="This can be useful when you are not affected by censorship." xml:space="preserve" approved="yes">
+      <trans-unit id="This can be useful when you are not affected by censorship." xml:space="preserve">
         <source>This can be useful when you are not affected by censorship.</source>
-        <target state="final">当您不受审查影响时，此方法可能很有用。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="This device is not allowed to make the payment." xml:space="preserve" approved="yes">
+      <trans-unit id="This device is not allowed to make the payment." xml:space="preserve">
         <source>This device is not allowed to make the payment.</source>
-        <target state="final">此设备不能进行付款。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="This device is now named **%@**. See more under &quot;Manage devices&quot; in Account." xml:space="preserve" approved="yes">
+      <trans-unit id="This device is now named **%@**. See more under &quot;Manage devices&quot; in Account." xml:space="preserve">
         <source>This device is now named **%@**. See more under "Manage devices" in Account.</source>
-        <target state="final">此设备现已被命名为 **%@**。请在“帐户”中的“管理设备”下查看更多信息。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="This feature allows access to other devices on the local network, such as for sharing, printing, streaming, etc." xml:space="preserve" approved="yes">
+      <trans-unit id="This feature allows access to other devices on the local network, such as for sharing, printing, streaming, etc." xml:space="preserve">
         <source>This feature allows access to other devices on the local network, such as for sharing, printing, streaming, etc.</source>
-        <target state="final">此功能允许访问本地网络中的其他设备，以实现共享、打印、流式传输等</target>
         <note/>
       </trans-unit>
-      <trans-unit id="This feature allows you to circumvent that censorship by adding custom ways to access the API via proxies and similar methods." xml:space="preserve" approved="yes">
+      <trans-unit id="This feature allows you to circumvent that censorship by adding custom ways to access the API via proxies and similar methods." xml:space="preserve">
         <source>This feature allows you to circumvent that censorship by adding custom ways to access the API via proxies and similar methods.</source>
-        <target state="final">此功能允许您通过代理和类似方法添加访问 API 的自定义方式，从而规避审查。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="This feature makes the WireGuard tunnel resistant to potential attacks from quantum computers." xml:space="preserve" approved="yes">
+      <trans-unit id="This feature makes the WireGuard tunnel resistant to potential attacks from quantum computers." xml:space="preserve">
         <source>This feature makes the WireGuard tunnel resistant to potential attacks from quantum computers.</source>
-        <target state="final">借助此功能，WireGuard 隧道能够抵抗可能通过量子计算机发起的攻击。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="This impacts your anonymity" xml:space="preserve" approved="yes">
+      <trans-unit id="This impacts your anonymity" xml:space="preserve">
         <source>This impacts your anonymity</source>
-        <target state="final">这会影响您的匿名性</target>
         <note/>
       </trans-unit>
-      <trans-unit id="This is the name assigned to the device. Each device logged in on a Mullvad account gets a unique name that helps you identify it when you manage your devices in the app or on the website." xml:space="preserve" approved="yes">
+      <trans-unit id="This is the name assigned to the device. Each device logged in on a Mullvad account gets a unique name that helps you identify it when you manage your devices in the app or on the website." xml:space="preserve">
         <source>This is the name assigned to the device. Each device logged in on a Mullvad account gets a unique name that helps you identify it when you manage your devices in the app or on the website.</source>
-        <target state="final">这是为设备分配的名称。每台登录 Mulvad 帐户的设备都会获得一个唯一名称，有助于您在应用或网站上管理设备时识别各个设备。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="This logs out all devices using this account and all VPN access will be denied even if there is time left on the account. Enter the last 4 digits of the account number and hit &quot;Delete account&quot; if you really want to delete the account:" xml:space="preserve" approved="yes">
+      <trans-unit id="This logs out all devices using this account and all VPN access will be denied even if there is time left on the account. Enter the last 4 digits of the account number and hit &quot;Delete account&quot; if you really want to delete the account:" xml:space="preserve">
         <source>This logs out all devices using this account and all VPN access will be denied even if there is time left on the account. Enter the last 4 digits of the account number and hit "Delete account" if you really want to delete the account:</source>
-        <target state="final">这将使所有使用此帐户的设备退出登录，并且所有 VPN 访问都将被拒绝，即使帐户仍有剩余时间。如果您确定要删除此帐户，请输入帐号的最后 4 位，然后点击“删除帐户”：</target>
         <note/>
       </trans-unit>
-      <trans-unit id="This might cause issues on certain websites, services, and apps." xml:space="preserve" approved="yes">
+      <trans-unit id="This might cause issues on certain websites, services, and apps." xml:space="preserve">
         <source>This might cause issues on certain websites, services, and apps.</source>
-        <target state="final">这可能会导致某些网站、服务和应用出现问题。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Time left: %@" xml:space="preserve" approved="yes">
+      <trans-unit id="Time left: %@" xml:space="preserve">
         <source>Time left: %@</source>
-        <target state="final">剩余时间：%@</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Tirana" xml:space="preserve" approved="yes">
+      <trans-unit id="Tirana" xml:space="preserve">
         <source>Tirana</source>
-        <target state="final">地拉那</target>
         <note/>
       </trans-unit>
-      <trans-unit id="To add more, you will need to disconnect and access the Internet with an unsecure connection." xml:space="preserve" approved="yes">
+      <trans-unit id="To add locations to a list, press the pen or long press on a country, city, or server." xml:space="preserve">
+        <source>To add locations to a list, press the pen or long press on a country, city, or server.</source>
+        <note/>
+      </trans-unit>
+      <trans-unit id="To add more, you will need to disconnect and access the Internet with an unsecure connection." xml:space="preserve">
         <source>To add more, you will need to disconnect and access the Internet with an unsecure connection.</source>
-        <target state="final">要添加更多时间，您需要断开连接并使用不安全的连接访问网络。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="To assist you better, please write in English or Swedish and include which country you are connecting from." xml:space="preserve" approved="yes">
+      <trans-unit id="To assist you better, please write in English or Swedish and include which country you are connecting from." xml:space="preserve">
         <source>To assist you better, please write in English or Swedish and include which country you are connecting from.</source>
-        <target state="final">为了更好地帮助您，请用英语或瑞典语书写，并包含您连接时所在的国家/地区。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="To circumvent this you can import a file or a text, provided by our support team, with new IP addresses that override the default addresses of the servers in the Select location view." xml:space="preserve" approved="yes">
+      <trans-unit id="To circumvent this you can import a file or a text, provided by our support team, with new IP addresses that override the default addresses of the servers in the Select location view." xml:space="preserve">
         <source>To circumvent this you can import a file or a text, provided by our support team, with new IP addresses that override the default addresses of the servers in the Select location view.</source>
-        <target state="final">为了避免这种情况，您可以导入由我们的支持团队提供的文件或文本，其中的新 IP 地址会覆盖“选择位置”视图中服务器的默认地址。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="To continue your journey as a privacy ninja, visit our website to pick up other privacy-friendly habits and tools." xml:space="preserve" approved="yes">
+      <trans-unit id="To continue your journey as a privacy ninja, visit our website to pick up other privacy-friendly habits and tools." xml:space="preserve">
         <source>To continue your journey as a privacy ninja, visit our website to pick up other privacy-friendly habits and tools.</source>
-        <target state="final">要以隐私忍者身份继续您的旅程，请访问我们的网站以选择其他对隐私友好的习惯和工具。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="To create a custom list, tap on &quot;...&quot; " xml:space="preserve" approved="yes">
+      <trans-unit id="To create a custom list press the “+” or long press on a country, city, or server." xml:space="preserve">
+        <source>To create a custom list press the “+” or long press on a country, city, or server.</source>
+        <note/>
+      </trans-unit>
+      <trans-unit id="To create a custom list, tap on &quot;...&quot; " xml:space="preserve">
         <source>To create a custom list, tap on "..." </source>
-        <target state="final">要创建自定义列表，请点按“...”</target>
         <note/>
       </trans-unit>
-      <trans-unit id="To enable this setting, add at least one server." xml:space="preserve" approved="yes">
+      <trans-unit id="To enable this setting, add at least one server." xml:space="preserve">
         <source>To enable this setting, add at least one server.</source>
-        <target state="final">要启用此设置，请添加至少一个服务器。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="To help you more effectively, your app’s log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel." xml:space="preserve" approved="yes">
+      <trans-unit id="To help you more effectively, your app’s log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel." xml:space="preserve">
         <source>To help you more effectively, your app’s log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel.</source>
-        <target state="final">为了更有效地帮助您，您应用的日志文件将被附加到此消息。您的数据将保持安全和私密，因为所有数据在发送之前都将通过加密通道进行匿名处理。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="To start using the app, you first need to add time to your account." xml:space="preserve" approved="yes">
+      <trans-unit id="To start using the app, you first need to add time to your account." xml:space="preserve">
         <source>To start using the app, you first need to add time to your account.</source>
-        <target state="final">要开始使用本应用，您首先需要向帐户中充入时间。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Tokyo" xml:space="preserve" approved="yes">
+      <trans-unit id="Tokyo" xml:space="preserve">
         <source>Tokyo</source>
-        <target state="final">东京</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Too many devices" xml:space="preserve" approved="yes">
+      <trans-unit id="Too many devices" xml:space="preserve">
         <source>Too many devices</source>
-        <target state="final">设备过多</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Toronto" xml:space="preserve" approved="yes">
+      <trans-unit id="Toronto" xml:space="preserve">
         <source>Toronto</source>
-        <target state="final">多伦多</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Trackers" xml:space="preserve" approved="yes">
+      <trans-unit id="Trackers" xml:space="preserve">
         <source>Trackers</source>
-        <target state="final">跟踪器</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Try again" xml:space="preserve" approved="yes">
+      <trans-unit id="Try again" xml:space="preserve">
         <source>Try again</source>
-        <target state="final">重试</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Tunnel is unset." xml:space="preserve" approved="yes">
+      <trans-unit id="Tunnel is unset." xml:space="preserve">
         <source>Tunnel is unset.</source>
-        <target state="final">隧道未设置。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Turkey" xml:space="preserve" approved="yes">
+      <trans-unit id="Turkey" xml:space="preserve">
         <source>Turkey</source>
-        <target state="final">土耳其</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Type" xml:space="preserve" approved="yes">
+      <trans-unit id="Type" xml:space="preserve">
         <source>Type</source>
-        <target state="final">类型</target>
         <note/>
       </trans-unit>
-      <trans-unit id="UDP" xml:space="preserve" approved="yes">
+      <trans-unit id="UDP" xml:space="preserve">
         <source>UDP</source>
-        <target state="final">UDP</target>
         <note/>
       </trans-unit>
-      <trans-unit id="UDP-over-TCP" xml:space="preserve" approved="yes">
+      <trans-unit id="UDP-over-TCP" xml:space="preserve">
         <source>UDP-over-TCP</source>
-        <target state="final">UDP-over-TCP</target>
         <note/>
       </trans-unit>
-      <trans-unit id="UK" xml:space="preserve" approved="yes">
+      <trans-unit id="UK" xml:space="preserve">
         <source>UK</source>
-        <target state="final">英国</target>
         <note/>
       </trans-unit>
-      <trans-unit id="USA" xml:space="preserve" approved="yes">
+      <trans-unit id="USA" xml:space="preserve">
         <source>USA</source>
-        <target state="final">美国</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Ukraine" xml:space="preserve" approved="yes">
+      <trans-unit id="Ukraine" xml:space="preserve">
         <source>Ukraine</source>
-        <target state="final">乌克兰</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Unable to authenticate account. Please log out and log back in." xml:space="preserve" approved="yes">
+      <trans-unit id="Unable to authenticate account. Please log out and log back in." xml:space="preserve">
         <source>Unable to authenticate account. Please log out and log back in.</source>
-        <target state="final">无法对帐户进行身份验证。请退出登录并重新登录。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Unable to start tunnel connection after update. Please disconnect and reconnect." xml:space="preserve" approved="yes">
+      <trans-unit id="Unable to start tunnel connection after update. Please disconnect and reconnect." xml:space="preserve">
         <source>Unable to start tunnel connection after update. Please disconnect and reconnect.</source>
-        <target state="final">更新后无法启动隧道连接。请断开连接并重新连接。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Unable to start tunnel connection. Please send a problem report." xml:space="preserve" approved="yes">
+      <trans-unit id="Unable to start tunnel connection. Please send a problem report." xml:space="preserve">
         <source>Unable to start tunnel connection. Please send a problem report.</source>
-        <target state="final">无法启动隧道连接。请发送问题报告。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Unexpected server response: %1$@ (HTTP status: %2$d)" xml:space="preserve" approved="yes">
+      <trans-unit id="Unexpected error occured." xml:space="preserve">
+        <source>Unexpected error occured.</source>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Unexpected server response: %1$@ (HTTP status: %2$d)" xml:space="preserve">
         <source>Unexpected server response: %1$@ (HTTP status: %2$d)</source>
-        <target state="final">意外的服务器响应：%1$@（HTTP 状态：%2$d）</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Unexpected server response: %d" xml:space="preserve" approved="yes">
+      <trans-unit id="Unexpected server response: %d" xml:space="preserve">
         <source>Unexpected server response: %d</source>
-        <target state="final">意外的服务器响应：%d</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Unknown error." xml:space="preserve" approved="yes">
+      <trans-unit id="Unknown error." xml:space="preserve">
         <source>Unknown error.</source>
-        <target state="final">未知错误.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Use custom DNS server" xml:space="preserve" approved="yes">
+      <trans-unit id="Use custom DNS server" xml:space="preserve">
         <source>Use custom DNS server</source>
-        <target state="final">使用自定义 DNS 服务器</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Username" xml:space="preserve" approved="yes">
+      <trans-unit id="Username" xml:space="preserve">
         <source>Username</source>
-        <target state="final">用户名</target>
         <note/>
       </trans-unit>
-      <trans-unit id="VPN settings" xml:space="preserve" approved="yes">
+      <trans-unit id="VPN settings" xml:space="preserve">
         <source>VPN settings</source>
-        <target state="final">VPN 设置</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Valencia" xml:space="preserve" approved="yes">
+      <trans-unit id="Valencia" xml:space="preserve">
         <source>Valencia</source>
-        <target state="final">瓦伦西亚</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Valid account number" xml:space="preserve" approved="yes">
+      <trans-unit id="Valid account number" xml:space="preserve">
         <source>Valid account number</source>
-        <target state="final">有效帐号</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Valid range: %d - %d" xml:space="preserve" approved="yes">
+      <trans-unit id="Valid range: %d - %d" xml:space="preserve">
         <source>Valid range: %1$d - %2$d</source>
-        <target state="final">有效范围：%1$d - %2$d</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Vancouver" xml:space="preserve" approved="yes">
+      <trans-unit id="Vancouver" xml:space="preserve">
         <source>Vancouver</source>
-        <target state="final">温哥华</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Verifying voucher..." xml:space="preserve" approved="yes">
+      <trans-unit id="Verifying voucher..." xml:space="preserve">
         <source>Verifying voucher...</source>
-        <target state="final">正在验证优惠券…</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Vienna" xml:space="preserve" approved="yes">
+      <trans-unit id="Vienna" xml:space="preserve">
         <source>Vienna</source>
-        <target state="final">维也纳</target>
         <note/>
       </trans-unit>
-      <trans-unit id="View and manage all your logged in devices. You can have up to 5 devices on one account at a time. Each device gets a name when logged in to help you tell them apart easily." xml:space="preserve" approved="yes">
+      <trans-unit id="View and manage all your logged in devices. You can have up to 5 devices on one account at a time. Each device gets a name when logged in to help you tell them apart easily." xml:space="preserve">
         <source>View and manage all your logged in devices. You can have up to 5 devices on one account at a time. Each device gets a name when logged in to help you tell them apart easily.</source>
-        <target state="final">查看和管理您所有已登录的设备。一个帐户最多可以同时登录 5 台设备。每台设备登录时都会获得一个名称，以便您能够轻松区分。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="View app logs" xml:space="preserve" approved="yes">
+      <trans-unit id="View app logs" xml:space="preserve">
         <source>View app logs</source>
-        <target state="final">查看应用日志</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Voucher code has already been used." xml:space="preserve" approved="yes">
+      <trans-unit id="Voucher code has already been used." xml:space="preserve">
         <source>Voucher code has already been used.</source>
-        <target state="final">该优惠券码已被使用。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Voucher code is invalid." xml:space="preserve" approved="yes">
+      <trans-unit id="Voucher code is invalid." xml:space="preserve">
         <source>Voucher code is invalid.</source>
-        <target state="final">该优惠券码无效。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Voucher was successfully redeemed." xml:space="preserve" approved="yes">
+      <trans-unit id="Voucher was successfully redeemed." xml:space="preserve">
         <source>Voucher was successfully redeemed.</source>
-        <target state="final">优惠券已成功兑换。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Warning: The malware blocker is not an anti-virus and should not be treated as such, this is just an extra layer of protection." xml:space="preserve" approved="yes">
+      <trans-unit id="Warning: The malware blocker is not an anti-virus and should not be treated as such, this is just an extra layer of protection." xml:space="preserve">
         <source>Warning: The malware blocker is not an anti-virus and should not be treated as such, this is just an extra layer of protection.</source>
-        <target state="final">警告：恶意软件阻止程序不是防病毒软件，也不应被视为防病毒软件，这只是提供了一层额外的保护。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Warsaw" xml:space="preserve" approved="yes">
+      <trans-unit id="Warsaw" xml:space="preserve">
         <source>Warsaw</source>
-        <target state="final">华沙</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Washington DC" xml:space="preserve" approved="yes">
+      <trans-unit id="Washington DC" xml:space="preserve">
         <source>Washington DC</source>
-        <target state="final">华盛顿特区</target>
         <note/>
       </trans-unit>
-      <trans-unit id="We are having some issues, please try again later" xml:space="preserve" approved="yes">
+      <trans-unit id="We are having some issues, please try again later" xml:space="preserve">
         <source>We are having some issues, please try again later</source>
-        <target state="final">我们遇到了一些问题，请稍后再试</target>
         <note/>
       </trans-unit>
-      <trans-unit id="We will look into this." xml:space="preserve" approved="yes">
+      <trans-unit id="We will look into this." xml:space="preserve">
         <source>We will look into this.</source>
-        <target state="final">我们将对此进行调查。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="What’s new" xml:space="preserve" approved="yes">
+      <trans-unit id="What’s new" xml:space="preserve">
         <source>What’s new</source>
-        <target state="final">最新变化</target>
         <note/>
       </trans-unit>
-      <trans-unit id="When this feature is enabled it stops the device from contacting certain domains or websites known for distributing ads, malware, trackers and more." xml:space="preserve" approved="yes">
+      <trans-unit id="When this feature is enabled it stops the device from contacting certain domains or websites known for distributing ads, malware, trackers and more." xml:space="preserve">
         <source>When this feature is enabled it stops the device from contacting certain domains or websites known for distributing ads, malware, trackers and more.</source>
-        <target state="final">启用此功能后，它将阻止设备与已知的分发广告、恶意软件、跟踪器等内容的特定域或网站联系。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="When using DAITA, one provider with DAITA-enabled servers is required." xml:space="preserve" approved="yes">
+      <trans-unit id="When using DAITA, one provider with DAITA-enabled servers is required." xml:space="preserve">
         <source>When using DAITA, one provider with DAITA-enabled servers is required.</source>
-        <target state="final">使用 DAITA 时，需要一个已启用 DAITA 服务器的提供商。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server." xml:space="preserve" approved="yes">
+      <trans-unit id="Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server." xml:space="preserve">
         <source>Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server.</source>
-        <target state="final">UDP-over-TCP 混淆协议应连接到 VPN 服务器上的哪个 TCP 端口。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="WireGuard obfuscation" xml:space="preserve" approved="yes">
+      <trans-unit id="WireGuard obfuscation" xml:space="preserve">
         <source>WireGuard obfuscation</source>
-        <target state="final">WireGuard 混淆</target>
         <note/>
       </trans-unit>
-      <trans-unit id="WireGuard port" xml:space="preserve" approved="yes">
+      <trans-unit id="WireGuard port" xml:space="preserve">
         <source>WireGuard port</source>
-        <target state="final">WireGuard 端口</target>
         <note/>
       </trans-unit>
-      <trans-unit id="With the “Direct” method, the app communicates with a Mullvad API server directly without any intermediate proxies." xml:space="preserve" approved="yes">
+      <trans-unit id="With the “Direct” method, the app communicates with a Mullvad API server directly without any intermediate proxies." xml:space="preserve">
         <source>With the “Direct” method, the app communicates with a Mullvad API server directly without any intermediate proxies.</source>
-        <target state="final">使用“直接”方法，应用将直接与 Mulvad API 服务器通信，无需任何中间代理。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="With the “Encrypted DNS proxy” method, the app will communicate with our Mullvad API through a proxy address. It does this by retrieving an address from a DNS over HTTPS (DoH) server and then using that to reach our API servers." xml:space="preserve" approved="yes">
+      <trans-unit id="With the “Encrypted DNS proxy” method, the app will communicate with our Mullvad API through a proxy address. It does this by retrieving an address from a DNS over HTTPS (DoH) server and then using that to reach our API servers." xml:space="preserve">
         <source>With the “Encrypted DNS proxy” method, the app will communicate with our Mullvad API through a proxy address. It does this by retrieving an address from a DNS over HTTPS (DoH) server and then using that to reach our API servers.</source>
-        <target state="final">利用“加密 DNS 代理”方法，应用将通过代理地址与我们的 Mullvad API 进行通信。通信时，应用从 DNS over HTTPS (DoH) 服务器获取地址，然后使用该地址连接我们的 API 服务器。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="With the “Mullvad bridges” method, the app communicates with a Mullvad API server via a Mullvad bridge server. It does this by sending the traffic obfuscated by Shadowsocks." xml:space="preserve" approved="yes">
+      <trans-unit id="With the “Mullvad bridges” method, the app communicates with a Mullvad API server via a Mullvad bridge server. It does this by sending the traffic obfuscated by Shadowsocks." xml:space="preserve">
         <source>With the “Mullvad bridges” method, the app communicates with a Mullvad API server via a Mullvad bridge server. It does this by sending the traffic obfuscated by Shadowsocks.</source>
-        <target state="final">使用“Mullvad 桥接”方法，应用通过 Mullvad 桥接服务器与 Mullvad API 服务器进行通信。这是通过发送被 Shadowsocks 混淆的流量来实现的。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Yes, continue" xml:space="preserve" approved="yes">
+      <trans-unit id="Yes, continue" xml:space="preserve">
         <source>Yes, continue</source>
-        <target state="final">是，继续</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Yes, log out device" xml:space="preserve" approved="yes">
+      <trans-unit id="Yes, log out device" xml:space="preserve">
         <source>Yes, log out device</source>
-        <target state="final">是，退出登录设备</target>
         <note/>
       </trans-unit>
-      <trans-unit id="You already have a saved account number, by creating a new account the saved account number will be removed from this device. This cannot be undone." xml:space="preserve" approved="yes">
+      <trans-unit id="You already have a saved account number, by creating a new account the saved account number will be removed from this device. This cannot be undone." xml:space="preserve">
         <source>You already have a saved account number, by creating a new account the saved account number will be removed from this device. This cannot be undone.</source>
-        <target state="final">您已保存一个帐号，如果创建新帐户，已保存的帐号将从此设备中移除。此操作无法撤消。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="You are about to send the problem report without a way for us to get back to you. If you want an answer to your report you will have to enter an email address." xml:space="preserve" approved="yes">
+      <trans-unit id="You are about to send the problem report without a way for us to get back to you. If you want an answer to your report you will have to enter an email address." xml:space="preserve">
         <source>You are about to send the problem report without a way for us to get back to you. If you want an answer to your report you will have to enter an email address.</source>
-        <target state="final">您即将发送问题报告，但没有提供让我们可以联系到您的方式。如果您希望获得回复，必须输入您的电子邮件地址。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="You are logged in with an invalid account number. Please log out and try another one." xml:space="preserve" approved="yes">
+      <trans-unit id="You are logged in with an invalid account number. Please log out and try another one." xml:space="preserve">
         <source>You are logged in with an invalid account number. Please log out and try another one.</source>
-        <target state="final">您登录时使用的帐号无效。请退出并尝试其他帐号。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="You can add more time via the account view or website to continue using the VPN." xml:space="preserve" approved="yes">
+      <trans-unit id="You can add more time via the account view or website to continue using the VPN." xml:space="preserve">
         <source>You can add more time via the account view or website to continue using the VPN.</source>
-        <target state="final">您可以通过帐户视图或网站添加更多时间，以继续使用 VPN。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="You can have up to 5 devices logged in on one Mullvad account." xml:space="preserve" approved="yes">
+      <trans-unit id="You can have up to 5 devices logged in on one Mullvad account." xml:space="preserve">
         <source>You can have up to 5 devices logged in on one Mullvad account.</source>
-        <target state="final">一个 Mulvad 帐户最多可以登录 5 台设备。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="You can now continue logging in on this device." xml:space="preserve" approved="yes">
+      <trans-unit id="You can now continue logging in on this device." xml:space="preserve">
         <source>You can now continue logging in on this device.</source>
-        <target state="final">您现在可以继续在此设备上登录。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="You can use the &quot;restore purchases&quot; function to check for any in-app payments made via Apple services. If there is a payment that has not been credited, it will add the time to the currently logged in Mullvad account." xml:space="preserve" approved="yes">
+      <trans-unit id="You can use the &quot;restore purchases&quot; function to check for any in-app payments made via Apple services. If there is a payment that has not been credited, it will add the time to the currently logged in Mullvad account." xml:space="preserve">
         <source>You can use the "restore purchases" function to check for any in-app payments made via Apple services. If there is a payment that has not been credited, it will add the time to the currently logged in Mullvad account.</source>
-        <target state="final">您可以使用“恢复购买”功能来检查通过 Apple 服务进行的任何应用内付款。如果存在未记入的付款，系统会将相应时间添加到当前登录的 Mullvad 帐户中。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="You have %@ left on this account." xml:space="preserve" approved="yes">
+      <trans-unit id="You have %@ left on this account." xml:space="preserve">
         <source>You have %@ left on this account.</source>
-        <target state="final">此帐户剩余 %@。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="You have a right to privacy. That’s why we never store activity logs, don’t ask for personal information, and encourage anonymous payments.&#10;&#10;In some situations, as outlined in our privacy policy, we might process personal data that you choose to send, for example if you email us.&#10;&#10;We strongly believe in retaining as little data as possible because we want you to remain anonymous." xml:space="preserve" approved="yes">
+      <trans-unit id="You have a right to privacy. That’s why we never store activity logs, don’t ask for personal information, and encourage anonymous payments.&#10;&#10;In some situations, as outlined in our privacy policy, we might process personal data that you choose to send, for example if you email us.&#10;&#10;We strongly believe in retaining as little data as possible because we want you to remain anonymous." xml:space="preserve">
         <source>You have a right to privacy. That’s why we never store activity logs, don’t ask for personal information, and encourage anonymous payments.
 
 In some situations, as outlined in our privacy policy, we might process personal data that you choose to send, for example if you email us.
 
 We strongly believe in retaining as little data as possible because we want you to remain anonymous.</source>
-        <target state="final">您拥有隐私权。因此，我们绝不存储活动日志、不要求提供个人信息，并鼓励匿名付款。
-
-如我们的隐私政策所述，在某些情况下，我们可能会处理您选择发送的个人数据，例如当您给我们发送电子邮件时。
-
-我们坚信应尽可能少地保留数据，因为我们希望您能保持匿名。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="You have no more VPN time left on this account. " xml:space="preserve" approved="yes">
+      <trans-unit id="You have no more VPN time left on this account. " xml:space="preserve">
         <source>You have no more VPN time left on this account. </source>
-        <target state="final">此帐户的 VPN 时间已用尽。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="You have one day left on this account. Please add more time to continue using the VPN." xml:space="preserve" approved="yes">
+      <trans-unit id="You have one day left on this account. Please add more time to continue using the VPN." xml:space="preserve">
         <source>You have one day left on this account. Please add more time to continue using the VPN.</source>
-        <target state="final">此帐户还剩一天时间。请添加更多时间以继续使用 VPN。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="You have removed this device. To connect again, you will need to log back in." xml:space="preserve" approved="yes">
+      <trans-unit id="You have removed this device. To connect again, you will need to log back in." xml:space="preserve">
         <source>You have removed this device. To connect again, you will need to log back in.</source>
-        <target state="final">您已移除此设备。要重新连接，您需要重新登录。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="You have unsaved changes." xml:space="preserve" approved="yes">
+      <trans-unit id="You have unsaved changes." xml:space="preserve">
         <source>You have unsaved changes.</source>
-        <target state="final">您有未保存的更改。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Your device is offline. The tunnel will automatically connect once your device is back online." xml:space="preserve" approved="yes">
+      <trans-unit id="Your device is offline. The tunnel will automatically connect once your device is back online." xml:space="preserve">
         <source>Your device is offline. The tunnel will automatically connect once your device is back online.</source>
-        <target state="final">您的设备已离线。在您的设备重新上线后，隧道将自动连接。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Your device is offline. Try connecting again when the device has access to Internet." xml:space="preserve" approved="yes">
+      <trans-unit id="Your device is offline. Try connecting again when the device has access to Internet." xml:space="preserve">
         <source>Your device is offline. Try connecting again when the device has access to Internet.</source>
-        <target state="final">您的设备处于离线状态。请在设备接入互联网后重新尝试连接。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Your email (optional)" xml:space="preserve" approved="yes">
+      <trans-unit id="Your email (optional)" xml:space="preserve">
         <source>Your email (optional)</source>
-        <target state="final">您的电子邮件（可选）</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Your previous purchases have already been added to this account." xml:space="preserve" approved="yes">
+      <trans-unit id="Your previous purchases have already been added to this account." xml:space="preserve">
         <source>Your previous purchases have already been added to this account.</source>
-        <target state="final">您之前的购买已添加到此帐户。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Your purchase was successfully refunded." xml:space="preserve" approved="yes">
+      <trans-unit id="Your previous purchases have been added to your account." xml:space="preserve">
+        <source>Your previous purchases have been added to your account.</source>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Your purchase was successfully refunded." xml:space="preserve">
         <source>Your purchase was successfully refunded.</source>
-        <target state="final">您的购买已成功退款。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="You’re all set!" xml:space="preserve" approved="yes">
+      <trans-unit id="You’re all set!" xml:space="preserve">
         <source>You’re all set!</source>
-        <target state="final">您已设置完毕！</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Zagreb" xml:space="preserve" approved="yes">
+      <trans-unit id="Zagreb" xml:space="preserve">
         <source>Zagreb</source>
-        <target state="final">萨格勒布</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Zurich" xml:space="preserve" approved="yes">
+      <trans-unit id="Zurich" xml:space="preserve">
         <source>Zurich</source>
-        <target state="final">苏黎世</target>
         <note/>
       </trans-unit>
-      <trans-unit id="multihop" xml:space="preserve" approved="yes">
-        <source>multihop</source>
-        <target state="final">多跳</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="privacy policy" xml:space="preserve" approved="yes">
+      <trans-unit id="privacy policy" xml:space="preserve">
         <source>privacy policy</source>
-        <target state="final">隐私政策</target>
         <note/>
       </trans-unit>
-      <trans-unit id="value" xml:space="preserve" approved="yes">
+      <trans-unit id="value" xml:space="preserve">
         <source>value</source>
-        <target state="final">值</target>
         <note/>
       </trans-unit>
     </body>
   </file>
-  <file original="Assets/MullvadSettings-InfoPlist.xcstrings" source-language="en" target-language="zh-Hans" datatype="plaintext">
+  <file original="Assets/MullvadSettings-InfoPlist.xcstrings" source-language="en" target-language="zh-CN" datatype="plaintext">
     <header>
       <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
     </header>
     <body>
     </body>
   </file>
-  <file original="Assets/MullvadTypes-InfoPlist.xcstrings" source-language="en" target-language="zh-Hans" datatype="plaintext">
+  <file original="Assets/MullvadTypes-InfoPlist.xcstrings" source-language="en" target-language="zh-CN" datatype="plaintext">
     <header>
       <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
     </header>
     <body>
     </body>
   </file>
-  <file original="MullvadLogging-InfoPlist.xcstrings" source-language="en" target-language="zh-Hans" datatype="plaintext">
+  <file original="MullvadLogging-InfoPlist.xcstrings" source-language="en" target-language="zh-CN" datatype="plaintext">
     <header>
       <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
     </header>
     <body>
     </body>
   </file>
-  <file original="MullvadMockData/MullvadMockData-InfoPlist.xcstrings" source-language="en" target-language="zh-Hans" datatype="plaintext">
+  <file original="MullvadMockData/MullvadMockData-InfoPlist.xcstrings" source-language="en" target-language="zh-CN" datatype="plaintext">
     <header>
       <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
     </header>
     <body>
     </body>
   </file>
-  <file original="MullvadREST/InfoPlist.xcstrings" source-language="en" target-language="zh-Hans" datatype="plaintext">
+  <file original="MullvadREST/InfoPlist.xcstrings" source-language="en" target-language="zh-CN" datatype="plaintext">
     <header>
       <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
     </header>
     <body>
     </body>
   </file>
-  <file original="MullvadRustRuntime-InfoPlist.xcstrings" source-language="en" target-language="zh-Hans" datatype="plaintext">
+  <file original="MullvadRustRuntime-InfoPlist.xcstrings" source-language="en" target-language="zh-CN" datatype="plaintext">
     <header>
       <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
     </header>
     <body>
     </body>
   </file>
-  <file original="MullvadVPN/Supporting Files/InfoPlist.xcstrings" source-language="en" target-language="zh-Hans" datatype="plaintext">
+  <file original="MullvadVPN/Supporting Files/InfoPlist.xcstrings" source-language="en" target-language="zh-CN" datatype="plaintext">
     <header>
       <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
     </header>
     <body>
-      <trans-unit id="NSLocalNetworkUsageDescription" xml:space="preserve" approved="yes">
+      <trans-unit id="NSLocalNetworkUsageDescription" xml:space="preserve">
         <source>The app needs this to connect and test a new method.</source>
-        <target state="final">应用需要此项来连接并测试新方法。</target>
         <note>Privacy - Local Network Usage Description</note>
       </trans-unit>
     </body>
   </file>
-  <file original="Operations/Operations-InfoPlist.xcstrings" source-language="en" target-language="zh-Hans" datatype="plaintext">
+  <file original="Operations/Operations-InfoPlist.xcstrings" source-language="en" target-language="zh-CN" datatype="plaintext">
     <header>
       <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
     </header>
     <body>
     </body>
   </file>
-  <file original="PacketTunnel/InfoPlist.xcstrings" source-language="en" target-language="zh-Hans" datatype="plaintext">
+  <file original="PacketTunnel/InfoPlist.xcstrings" source-language="en" target-language="zh-CN" datatype="plaintext">
     <header>
       <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
     </header>
     <body>
     </body>
   </file>
-  <file original="PacketTunnelCore/PacketTunnelCore-InfoPlist.xcstrings" source-language="en" target-language="zh-Hans" datatype="plaintext">
+  <file original="PacketTunnel/Localizable.xcstrings" source-language="en" target-language="zh-CN" datatype="plaintext">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
+    </header>
+    <body>
+      <trans-unit id="%@ have been added to your account." xml:space="preserve">
+        <source>%@ have been added to your account.</source>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Cannot complete the purchase" xml:space="preserve">
+        <source>Cannot complete the purchase</source>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Cannot restore purchases" xml:space="preserve">
+        <source>Cannot restore purchases</source>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Restore purchases" xml:space="preserve">
+        <source>Restore purchases</source>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Thanks for your purchase" xml:space="preserve">
+        <source>Thanks for your purchase</source>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Your previous purchases have already been added to this account." xml:space="preserve">
+        <source>Your previous purchases have already been added to this account.</source>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Your previous purchases have been added to your account." xml:space="preserve">
+        <source>Your previous purchases have been added to your account.</source>
+        <note/>
+      </trans-unit>
+    </body>
+  </file>
+  <file original="PacketTunnelCore/PacketTunnelCore-InfoPlist.xcstrings" source-language="en" target-language="zh-CN" datatype="plaintext">
     <header>
       <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
     </header>
     <body>
     </body>
   </file>
-  <file original="Routing/Routing-InfoPlist.xcstrings" source-language="en" target-language="zh-Hans" datatype="plaintext">
+  <file original="Routing/Routing-InfoPlist.xcstrings" source-language="en" target-language="zh-CN" datatype="plaintext">
     <header>
       <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
     </header>

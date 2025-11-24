@@ -184,10 +184,8 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
                 ], toSection: .vpnSettings)
         }
 
-        #if DEBUG
-            snapshot.appendSections([.language])
-            snapshot.appendItems([.language], toSection: .language)
-        #endif
+        snapshot.appendSections([.language])
+        snapshot.appendItems([.language], toSection: .language)
 
         snapshot.appendSections([.apiAccess])
         snapshot.appendItems([.apiAccess], toSection: .apiAccess)

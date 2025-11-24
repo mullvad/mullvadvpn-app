@@ -70,7 +70,9 @@ struct LocationDisclosureGroup<Label: View, Content: View, ContextMenu: View>: V
                         Color.colorForLevel(level)
                     }
             }
-            .accessibilityLabel(isExpanded ? Text("Collapse") : Text("Expand"))
+            .accessibilityLabel(
+                isExpanded ? Text("Collapse".localizedCapitalized) : Text("Expand".localizedCapitalized)
+            )
             .accessibilityIdentifier(.expandButton)
             .contentShape(Rectangle())
         }

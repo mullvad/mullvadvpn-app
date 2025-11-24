@@ -17,7 +17,7 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
             }
             if showSearchField {
                 MullvadSecondaryTextField(
-                    placeholder: "Search for locations or servers...",
+                    placeholder: "Search for locations or servers",
                     text: $viewModel.searchText
                 )
                 .padding(.horizontal)
