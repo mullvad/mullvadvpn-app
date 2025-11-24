@@ -8,24 +8,25 @@ import androidx.compose.animation.slideIn
 import androidx.compose.animation.slideOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Remove
+import androidx.compose.material.icons.outlined.Dns
+import androidx.compose.material.icons.outlined.LocationOn
+import androidx.compose.material.icons.outlined.WrongLocation
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -46,10 +47,13 @@ import net.mullvad.mullvadvpn.compose.communication.CustomListAction
 import net.mullvad.mullvadvpn.compose.communication.CustomListActionResultData
 import net.mullvad.mullvadvpn.compose.component.MullvadModalBottomSheet
 import net.mullvad.mullvadvpn.compose.state.LocationBottomSheetUiState
+import net.mullvad.mullvadvpn.compose.state.RelayListType
+import net.mullvad.mullvadvpn.compose.state.SetAsState
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
 import net.mullvad.mullvadvpn.lib.model.RelayItem
+import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_CUSTOM_LIST_BOTTOM_SHEET_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_LOCATION_BOTTOM_SHEET_TEST_TAG
 import net.mullvad.mullvadvpn.relaylist.canAddLocation
@@ -61,6 +65,7 @@ import org.koin.core.parameter.parametersOf
 @Composable
 internal fun LocationBottomSheets(
     locationBottomSheetState: LocationBottomSheetState?,
+    relayListType: RelayListType,
     onCreateCustomList: (RelayItem.Location?) -> Unit,
     onAddLocationToList: (RelayItem.Location, RelayItem.CustomList) -> Unit,
     onRemoveLocationFromList: (location: RelayItem.Location, parent: CustomListId) -> Unit,
@@ -76,7 +81,7 @@ internal fun LocationBottomSheets(
         val viewModel =
             koinViewModel<LocationBottomSheetViewModel>(
                 key = locationBottomSheetState.toString(),
-                parameters = { parametersOf(locationBottomSheetState) },
+                parameters = { parametersOf(locationBottomSheetState, relayListType) },
             )
 
         val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -131,9 +136,9 @@ private fun LocationBottomSheets(
                 sheetState = sheetState,
                 customLists = state.customLists,
                 item = state.item,
-                canBeSetAsEntry = state.canBeSetAsEntry,
-                canBeSetAsExit = state.canBeSetAsExit,
-                canBeRemovedAsEntry = state.canBeRemovedAsEntry,
+                setAsEntryState = state.setAsEntryState,
+                setAsExitState = state.setAsExitState,
+                canBeRemovedAsEntry = state.canDisableMultihop,
                 onCreateCustomList = onCreateCustomList,
                 onAddLocationToList = onAddLocationToList,
                 onSetAsEntry = onSetAsEntry,
@@ -148,9 +153,9 @@ private fun LocationBottomSheets(
                 onBackgroundColor = onBackgroundColor,
                 sheetState = sheetState,
                 customList = state.item,
-                canBeSetAsEntry = state.canBeSetAsEntry,
-                canBeSetAsExit = state.canBeSetAsExit,
-                canBeRemovedAsEntry = state.canBeRemovedAsEntry,
+                setAsEntryState = state.setAsEntryState,
+                setAsExitState = state.setAsExitState,
+                canBeRemovedAsEntry = state.canDisableMultihop,
                 onEditName = onEditCustomListName,
                 onEditLocations = onEditLocationsCustomList,
                 onDeleteCustomList = onDeleteCustomList,
@@ -168,9 +173,9 @@ private fun LocationBottomSheets(
                 customListId = state.customListId,
                 customListName = state.customListName,
                 item = state.item,
-                canBeSetAsEntry = state.canBeSetAsEntry,
-                canBeSetAsExit = state.canBeSetAsExit,
-                canBeRemovedAsEntry = state.canBeRemovedAsEntry,
+                setAsEntryState = state.setAsEntryState,
+                setAsExitState = state.setAsExitState,
+                canBeRemovedAsEntry = state.canDisableMultihop,
                 onRemoveLocationFromList = onRemoveLocationFromList,
                 onSetAsEntry = onSetAsEntry,
                 onDisableMultihop = onDisableMultihop,
@@ -192,8 +197,8 @@ private fun LocationBottomSheet(
     sheetState: SheetState,
     customLists: List<RelayItem.CustomList>,
     item: RelayItem.Location,
-    canBeSetAsEntry: Boolean,
-    canBeSetAsExit: Boolean,
+    setAsEntryState: SetAsState,
+    setAsExitState: SetAsState,
     canBeRemovedAsEntry: Boolean,
     onCreateCustomList: (relayItem: RelayItem.Location) -> Unit,
     onAddLocationToList: (location: RelayItem.Location, customList: RelayItem.CustomList) -> Unit,
@@ -209,26 +214,28 @@ private fun LocationBottomSheet(
         onDismissRequest = { closeBottomSheet(false) },
         modifier = Modifier.testTag(SELECT_LOCATION_LOCATION_BOTTOM_SHEET_TEST_TAG),
     ) { ->
-        var showAddToListState by remember { mutableStateOf(false) }
-        HeaderCell(
-            text =
-                if (showAddToListState) {
-                    stringResource(id = R.string.add_location_to_list, item.name)
-                } else {
-                    item.name
-                },
-            background = backgroundColor,
-        )
+        HeaderCell(text = item.name, background = backgroundColor)
         HorizontalDivider(color = onBackgroundColor)
         AnimatedContent(
-            targetState = showAddToListState to customLists,
+            targetState = customLists,
             transitionSpec = {
                 slideIn { IntOffset(it.width, 0) } + fadeIn() togetherWith
                     slideOut { IntOffset(-it.width, 0) } + fadeOut()
             },
             label = "Show add to list",
-        ) { (showAddToList, customLists) ->
-            if (showAddToList) {
+        ) { customLists ->
+            Column {
+                Text(
+                    stringResource(R.string.add_to_list),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = onBackgroundColor,
+                    modifier =
+                        Modifier.padding(
+                            start = Dimens.smallPadding,
+                            end = Dimens.smallPadding,
+                            top = Dimens.smallPadding,
+                        ),
+                )
                 CustomLists(
                     customLists = customLists,
                     item = item,
@@ -237,33 +244,28 @@ private fun LocationBottomSheet(
                     onCreateCustomList = onCreateCustomList,
                     closeBottomSheet = closeBottomSheet,
                 )
-            } else {
-                Column {
-                    IconCell(
-                        imageVector = null,
-                        title = stringResource(id = R.string.add_to_list),
-                        titleColor = onBackgroundColor,
-                        onClick = { showAddToListState = true },
-                        endIcon = {
-                            Icon(
-                                imageVector = Icons.Default.ChevronRight,
-                                contentDescription = null,
-                                tint = onBackgroundColor,
-                            )
-                        },
-                    )
-                    MultihopOptions(
-                        item = item,
-                        canBeSetAsEntry = canBeSetAsEntry,
-                        canBeSetAsExit = canBeSetAsExit,
-                        canBeRemovedAsEntry = canBeRemovedAsEntry,
-                        onBackgroundColor = onBackgroundColor,
-                        onSetAsEntry = onSetAsEntry,
-                        onSetAsExit = onSetAsExit,
-                        onDisableMultihop = onDisableMultihop,
-                        closeBottomSheet = closeBottomSheet,
-                    )
-                }
+                Text(
+                    stringResource(R.string.multihop),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = onBackgroundColor,
+                    modifier =
+                        Modifier.padding(
+                            start = Dimens.smallPadding,
+                            end = Dimens.smallPadding,
+                            top = Dimens.smallPadding,
+                        ),
+                )
+                MultihopOptions(
+                    item = item,
+                    setAsEntryState = setAsEntryState,
+                    setAsExitState = setAsExitState,
+                    canBeRemovedAsEntry = canBeRemovedAsEntry,
+                    onBackgroundColor = onBackgroundColor,
+                    onSetAsEntry = onSetAsEntry,
+                    onSetAsExit = onSetAsExit,
+                    onDisableMultihop = onDisableMultihop,
+                    closeBottomSheet = closeBottomSheet,
+                )
             }
         }
     }
@@ -276,8 +278,8 @@ private fun EditCustomListBottomSheet(
     onBackgroundColor: Color,
     sheetState: SheetState,
     customList: RelayItem.CustomList,
-    canBeSetAsEntry: Boolean,
-    canBeSetAsExit: Boolean,
+    setAsEntryState: SetAsState,
+    setAsExitState: SetAsState,
     canBeRemovedAsEntry: Boolean,
     onEditName: (item: RelayItem.CustomList) -> Unit,
     onEditLocations: (item: RelayItem.CustomList) -> Unit,
@@ -296,6 +298,17 @@ private fun EditCustomListBottomSheet(
     ) {
         HeaderCell(text = customList.name, background = backgroundColor)
         HorizontalDivider(color = onBackgroundColor)
+        Text(
+            stringResource(R.string.edit_custom_list),
+            style = MaterialTheme.typography.labelLarge,
+            color = onBackgroundColor,
+            modifier =
+                Modifier.padding(
+                    start = Dimens.smallPadding,
+                    end = Dimens.smallPadding,
+                    top = Dimens.smallPadding,
+                ),
+        )
         IconCell(
             imageVector = Icons.Default.Edit,
             title = stringResource(id = R.string.edit_name),
@@ -323,10 +336,21 @@ private fun EditCustomListBottomSheet(
                 closeBottomSheet(true)
             },
         )
+        Text(
+            stringResource(R.string.multihop),
+            style = MaterialTheme.typography.labelLarge,
+            color = onBackgroundColor,
+            modifier =
+                Modifier.padding(
+                    start = Dimens.smallPadding,
+                    end = Dimens.smallPadding,
+                    top = Dimens.smallPadding,
+                ),
+        )
         MultihopOptions(
             item = customList,
-            canBeSetAsEntry = canBeSetAsEntry,
-            canBeSetAsExit = canBeSetAsExit,
+            setAsEntryState = setAsEntryState,
+            setAsExitState = setAsExitState,
             canBeRemovedAsEntry = canBeRemovedAsEntry,
             onBackgroundColor = onBackgroundColor,
             onSetAsEntry = onSetAsEntry,
@@ -346,8 +370,8 @@ private fun CustomListEntryBottomSheet(
     customListId: CustomListId,
     customListName: CustomListName,
     item: RelayItem.Location,
-    canBeSetAsEntry: Boolean,
-    canBeSetAsExit: Boolean,
+    setAsEntryState: SetAsState,
+    setAsExitState: SetAsState,
     canBeRemovedAsEntry: Boolean,
     onRemoveLocationFromList: (location: RelayItem.Location, customListId: CustomListId) -> Unit,
     onSetAsEntry: (RelayItem.Location) -> Unit,
@@ -377,8 +401,8 @@ private fun CustomListEntryBottomSheet(
         )
         MultihopOptions(
             item = item,
-            canBeSetAsEntry = canBeSetAsEntry,
-            canBeSetAsExit = canBeSetAsExit,
+            setAsEntryState = setAsEntryState,
+            setAsExitState = setAsExitState,
             canBeRemovedAsEntry = canBeRemovedAsEntry,
             onBackgroundColor = onBackgroundColor,
             onSetAsEntry = onSetAsEntry,
@@ -398,47 +422,45 @@ private fun CustomLists(
     onCreateCustomList: (location: RelayItem.Location) -> Unit,
     closeBottomSheet: (Boolean) -> Unit,
 ) {
-    Column {
-        customLists.forEach {
-            val enabled = it.canAddLocation(item)
-            IconCell(
-                imageVector = null,
-                title =
-                    if (enabled) {
-                        it.name
-                    } else {
-                        stringResource(id = R.string.location_added, it.name)
-                    },
-                titleColor =
-                    if (enabled) {
-                        onBackgroundColor
-                    } else {
-                        MaterialTheme.colorScheme.onSurfaceVariant
-                    },
-                onClick = {
-                    onAddLocationToList(item, it)
-                    closeBottomSheet(true)
-                },
-                enabled = enabled,
-            )
-        }
+    customLists.forEach {
+        val enabled = it.canAddLocation(item)
         IconCell(
-            imageVector = Icons.Default.Add,
-            title = stringResource(id = R.string.new_list),
-            titleColor = onBackgroundColor,
+            imageVector = null,
+            title =
+                if (enabled) {
+                    it.name
+                } else {
+                    stringResource(id = R.string.location_added, it.name)
+                },
+            titleColor =
+                if (enabled) {
+                    onBackgroundColor
+                } else {
+                    MaterialTheme.colorScheme.onSurfaceVariant
+                },
             onClick = {
-                onCreateCustomList(item)
+                onAddLocationToList(item, it)
                 closeBottomSheet(true)
             },
+            enabled = enabled,
         )
     }
+    IconCell(
+        imageVector = Icons.Default.Add,
+        title = stringResource(id = R.string.new_list),
+        titleColor = onBackgroundColor,
+        onClick = {
+            onCreateCustomList(item)
+            closeBottomSheet(true)
+        },
+    )
 }
 
 @Composable
 private fun <T : RelayItem> MultihopOptions(
     item: T,
-    canBeSetAsEntry: Boolean,
-    canBeSetAsExit: Boolean,
+    setAsEntryState: SetAsState,
+    setAsExitState: SetAsState,
     canBeRemovedAsEntry: Boolean,
     onBackgroundColor: Color,
     onSetAsEntry: (T) -> Unit,
@@ -448,27 +470,28 @@ private fun <T : RelayItem> MultihopOptions(
 ) {
     if (canBeRemovedAsEntry) {
         IconCell(
-            imageVector = null,
-            title = stringResource(R.string.remove_as_multihop_entry),
+            imageVector = Icons.Outlined.WrongLocation,
+            title = stringResource(R.string.disable_multihop),
             titleColor = onBackgroundColor,
             onClick = {
                 onDisableMultihop()
                 closeBottomSheet(true)
             },
         )
-    } else {
+    } else if (setAsEntryState != SetAsState.HIDDEN) {
+        val enabled = setAsEntryState == SetAsState.ENABLED
         IconCell(
-            imageVector = null,
+            imageVector = Icons.Outlined.Dns,
             title =
                 stringResource(
-                    if (canBeSetAsEntry) {
+                    if (enabled) {
                         R.string.set_as_multihop_entry
                     } else {
                         R.string.set_as_multihop_entry_unavailable
                     }
                 ),
             titleColor =
-                if (canBeSetAsEntry) {
+                if (enabled) {
                     onBackgroundColor
                 } else {
                     MaterialTheme.colorScheme.onSurfaceVariant
@@ -477,31 +500,34 @@ private fun <T : RelayItem> MultihopOptions(
                 onSetAsEntry(item)
                 closeBottomSheet(true)
             },
-            enabled = canBeSetAsEntry,
+            enabled = enabled,
         )
     }
-    IconCell(
-        imageVector = null,
-        title =
-            stringResource(
-                if (canBeSetAsExit) {
-                    R.string.set_as_multihop_exit
+    if (setAsExitState != SetAsState.HIDDEN) {
+        val enabled = setAsExitState == SetAsState.ENABLED
+        IconCell(
+            imageVector = Icons.Outlined.LocationOn,
+            title =
+                stringResource(
+                    if (enabled) {
+                        R.string.set_as_multihop_exit
+                    } else {
+                        R.string.set_as_multihop_exit_unavailable
+                    }
+                ),
+            titleColor =
+                if (enabled) {
+                    onBackgroundColor
                 } else {
-                    R.string.set_as_multihop_exit_unavailable
-                }
-            ),
-        titleColor =
-            if (canBeSetAsExit) {
-                onBackgroundColor
-            } else {
-                MaterialTheme.colorScheme.onSurfaceVariant
+                    MaterialTheme.colorScheme.onSurfaceVariant
+                },
+            onClick = {
+                onSetAsExit(item)
+                closeBottomSheet(true)
             },
-        onClick = {
-            onSetAsExit(item)
-            closeBottomSheet(true)
-        },
-        enabled = canBeSetAsExit,
-    )
+            enabled = enabled,
+        )
+    }
 }
 
 internal suspend fun SnackbarHostState.showResultSnackbar(

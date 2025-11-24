@@ -382,9 +382,11 @@ val uiModule = module {
             savedStateHandle = get(),
         )
     }
-    viewModel { (locationBottomSheetState: LocationBottomSheetState) ->
+    viewModel { (locationBottomSheetState: LocationBottomSheetState, relayListType: RelayListType)
+        ->
         LocationBottomSheetViewModel(
             locationBottomSheetState = locationBottomSheetState,
+            relayListType = relayListType,
             canBeSelectedUseCase = get(),
             customListsRelayItemUseCase = get(),
             selectedLocationUseCase = get(),

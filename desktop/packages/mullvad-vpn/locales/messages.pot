@@ -2962,6 +2962,9 @@ msgstr ""
 msgid "Don’t have an account number?"
 msgstr ""
 
+msgid "Edit custom list"
+msgstr ""
+
 msgid "Edit custom lists"
 msgstr ""
 
@@ -3208,9 +3211,6 @@ msgstr ""
 msgid "Remove %s?"
 msgstr ""
 
-msgid "Remove as multihop entry"
-msgstr ""
-
 msgid "Remove custom port"
 msgstr ""
 
@@ -3244,7 +3244,13 @@ msgstr ""
 msgid "Set as multihop entry"
 msgstr ""
 
+msgid "Set as multihop entry (incompatible)"
+msgstr ""
+
 msgid "Set as multihop exit"
+msgstr ""
+
+msgid "Set as multihop exit (incompatible)"
 msgstr ""
 
 msgid "Set port"
