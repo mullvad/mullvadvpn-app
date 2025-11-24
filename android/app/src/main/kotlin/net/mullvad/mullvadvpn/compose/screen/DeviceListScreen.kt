@@ -41,7 +41,6 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.button.VariantButton
 import net.mullvad.mullvadvpn.compose.component.DeviceListItem
-import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBar
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.extensions.dropUnlessResumed
@@ -56,6 +55,7 @@ import net.mullvad.mullvadvpn.lib.model.DeviceId
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.selected
+import net.mullvad.mullvadvpn.lib.ui.component.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.viewmodel.DeviceListSideEffect
 import net.mullvad.mullvadvpn.viewmodel.DeviceListViewModel
 import org.koin.androidx.compose.koinViewModel

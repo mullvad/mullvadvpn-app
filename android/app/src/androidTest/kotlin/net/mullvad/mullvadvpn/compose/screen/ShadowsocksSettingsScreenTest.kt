@@ -45,7 +45,7 @@ class ShadowsocksSettingsScreenTest {
             initScreen(state = ShadowsocksSettingsUiState(customPort = Port(4000)).toLc())
 
             // Assert
-            onNodeWithText("4000").assertExists()
+            onNodeWithText("Port: 4000").assertExists()
         }
 
     @Test

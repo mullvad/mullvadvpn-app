@@ -531,7 +531,7 @@ fun VpnSettingsContent(
                     state = lazyListState,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaScrollbar),
                 )
-                .padding(horizontal = Dimens.mediumPadding)
+                .padding(horizontal = Dimens.sideMarginNew)
                 .animateContentSize(),
         state = lazyListState,
     ) {

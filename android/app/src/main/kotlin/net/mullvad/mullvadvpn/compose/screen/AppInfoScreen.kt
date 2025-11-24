@@ -31,7 +31,6 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.cell.NavigationComposeCell
 import net.mullvad.mullvadvpn.compose.cell.TwoRowCell
-import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.compose.extensions.safeOpenUri
@@ -41,6 +40,7 @@ import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
+import net.mullvad.mullvadvpn.lib.ui.component.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.util.Lc
 import net.mullvad.mullvadvpn.viewmodel.AppInfoSideEffect
 import net.mullvad.mullvadvpn.viewmodel.AppInfoUiState

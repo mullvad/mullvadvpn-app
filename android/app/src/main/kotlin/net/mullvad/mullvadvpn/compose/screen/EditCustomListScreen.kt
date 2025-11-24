@@ -37,7 +37,6 @@ import com.ramcosta.composedestinations.result.ResultRecipient
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.cell.TwoRowCell
 import net.mullvad.mullvadvpn.compose.communication.CustomListActionResultData
-import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.compose.component.SpacedColumn
@@ -50,6 +49,7 @@ import net.mullvad.mullvadvpn.lib.model.CustomListName
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.menuItemColors
+import net.mullvad.mullvadvpn.lib.ui.component.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.lib.ui.tag.DELETE_DROPDOWN_MENU_ITEM_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.TOP_BAR_DROPDOWN_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.viewmodel.EditCustomListViewModel

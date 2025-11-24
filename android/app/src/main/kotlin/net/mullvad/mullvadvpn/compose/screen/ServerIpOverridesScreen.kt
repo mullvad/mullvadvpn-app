@@ -63,7 +63,6 @@ import net.mullvad.mullvadvpn.compose.button.InfoIconButton
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.cell.HeaderCell
 import net.mullvad.mullvadvpn.compose.cell.IconCell
-import net.mullvad.mullvadvpn.compose.cell.ServerIpOverridesCell
 import net.mullvad.mullvadvpn.compose.component.MullvadModalBottomSheet
 import net.mullvad.mullvadvpn.compose.component.MullvadSnackbar
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
@@ -79,6 +78,7 @@ import net.mullvad.mullvadvpn.lib.model.SettingsPatchError
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaDisabled
+import net.mullvad.mullvadvpn.lib.ui.component.listitem.ServerIpOverridesListItem
 import net.mullvad.mullvadvpn.lib.ui.tag.SERVER_IP_OVERRIDES_IMPORT_BY_FILE_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SERVER_IP_OVERRIDES_IMPORT_BY_TEXT_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SERVER_IP_OVERRIDE_IMPORT_TEST_TAG
@@ -227,8 +227,8 @@ fun ServerIpOverridesScreen(
             )
         }
 
-        Column(modifier = modifier.animateContentSize()) {
-            ServerIpOverridesCell(active = state.contentOrNull()?.overridesActive)
+        Column(modifier = modifier.animateContentSize().padding(horizontal = Dimens.sideMarginNew)) {
+            ServerIpOverridesListItem(active = state.contentOrNull()?.overridesActive)
 
             Spacer(modifier = Modifier.weight(1f))
             SnackbarHost(hostState = snackbarHostState) { MullvadSnackbar(snackbarData = it) }
@@ -236,8 +236,7 @@ fun ServerIpOverridesScreen(
                 onClick = { showBottomSheet = true },
                 text = stringResource(R.string.import_overrides_import),
                 modifier =
-                    Modifier.padding(horizontal = Dimens.sideMargin)
-                        .padding(bottom = Dimens.screenBottomMargin)
+                    Modifier.padding(bottom = Dimens.screenBottomMargin)
                         .testTag(SERVER_IP_OVERRIDE_IMPORT_TEST_TAG),
             )
         }
