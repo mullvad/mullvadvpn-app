@@ -27,7 +27,7 @@ export function getDefaultSettings(): ISettings {
     lockdownMode: false,
     showBetaReleases: false,
     splitTunnel: {
-      enableExclusions: false,
+      enableExclusions: true,
       appsList: [],
     },
     relaySettings: {
