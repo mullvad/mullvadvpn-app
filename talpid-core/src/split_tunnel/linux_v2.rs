@@ -45,6 +45,8 @@ struct Inner {
 }
 
 /// A handle to a cgroup2
+///
+/// The cgroup is unmounted when droppped.
 struct Cgroup2 {
     /// Absolute path of the cgroup2, e.g. `/run/my_cgroup2_mount/my_cgroup2`
     path: PathBuf,
@@ -63,7 +65,6 @@ impl PidManager {
     }
 
     fn new_inner() -> Result<Inner, Error> {
-        // TODO: umount on error
         let root_cgroup2 = mount_cgroup2_fs()?;
         let cgroup = SPLIT_TUNNEL_CGROUP_NAME;
         let excluded_cgroup2 = root_cgroup2.create_or_open_child(cgroup)?;
@@ -191,6 +192,14 @@ impl Cgroup2 {
     }
 }
 
+impl Drop for Cgroup2 {
+    fn drop(&mut self) {
+        if let Err(err) = unmount_cgroup2_fs(self) {
+            log::error!("{err}");
+        };
+    }
+}
+
 /// Mount the root cgroup2 at [CGROUP2_MOUNT_PATH].
 ///
 /// Returns the root [Cgroup2].
@@ -215,4 +224,19 @@ fn mount_cgroup2_fs() -> Result<Cgroup2, Error> {
     .context("Failed to mount cgroup2 fs")?;
 
     Cgroup2::open(cgroup2_root)
+}
+
+/// Unmount the root cgroup2 at [CGROUP2_MOUNT_PATH].
+///
+/// `cgroup` will have been unmounted when this function returns.
+//
+// TODO: Do we need to migrate all processes in this cgroup before removing it?
+// v1 implemenatation did this by simply propagating all spawned processes into the cgroup's
+// parent, which seems a bit hacky. But maybe it works here as well :shrug: Would be nice to know
+// for sure.
+fn unmount_cgroup2_fs(cgroup: &Cgroup2) -> Result<(), Error> {
+    std::fs::remove_dir(&cgroup.path)
+        .context(format!("{cgroup}", cgroup = cgroup.path.display()))
+        .context("Failed to unmount cgroup2 fs")
+        .map_err(Error)
 }
