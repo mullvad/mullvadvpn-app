@@ -28,7 +28,7 @@ import net.mullvad.mullvadvpn.lib.model.ApiAccessMethod
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodId
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodName
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
-import net.mullvad.mullvadvpn.lib.ui.component.MullvadCircularProgressIndicatorLarge
+import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.lib.ui.tag.SAVE_API_ACCESS_METHOD_CANCEL_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SAVE_API_ACCESS_METHOD_LOADING_SPINNER_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SAVE_API_ACCESS_METHOD_SAVE_BUTTON_TEST_TAG

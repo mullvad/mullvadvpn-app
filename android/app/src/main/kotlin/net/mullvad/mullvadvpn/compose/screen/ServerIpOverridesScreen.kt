@@ -227,7 +227,9 @@ fun ServerIpOverridesScreen(
             )
         }
 
-        Column(modifier = modifier.animateContentSize().padding(horizontal = Dimens.sideMarginNew)) {
+        Column(
+            modifier = modifier.animateContentSize().padding(horizontal = Dimens.sideMarginNew)
+        ) {
             ServerIpOverridesListItem(active = state.contentOrNull()?.overridesActive)
 
             Spacer(modifier = Modifier.weight(1f))
