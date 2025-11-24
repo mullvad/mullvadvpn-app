@@ -25,6 +25,7 @@ import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.AddLocationAlt
+import androidx.compose.material.icons.outlined.WrongLocation
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FloatingActionButton
@@ -102,6 +103,7 @@ import net.mullvad.mullvadvpn.lib.model.ErrorStateCause
 import net.mullvad.mullvadvpn.lib.model.HopSelection
 import net.mullvad.mullvadvpn.lib.model.ParameterGenerationError
 import net.mullvad.mullvadvpn.lib.model.RelayItem
+import net.mullvad.mullvadvpn.lib.resource.icon.DeleteHistory
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaDisabled
@@ -517,22 +519,7 @@ private fun SelectLocationDropdownMenu(
 ) {
     var showMenu by remember { mutableStateOf(false) }
 
-    var recentsItemTextId by remember { mutableIntStateOf(R.string.disable_recents) }
-    var multihopItemTextId by remember { mutableIntStateOf(R.string.disable_multihop) }
-
-    IconButton(
-        onClick = {
-            showMenu = !showMenu
-            // Only update the recents and multihop menu items text when the menu is being opened to
-            // prevent the texts from being updated when the menu is being closed.
-            if (showMenu) {
-                recentsItemTextId =
-                    if (recentsEnabled) R.string.disable_recents else R.string.enable_recents
-                multihopItemTextId =
-                    if (multihopEnabled) R.string.disable_multihop else R.string.enable_multihop
-            }
-        }
-    ) {
+    IconButton(onClick = { showMenu = !showMenu }) {
         Icon(
             imageVector = Icons.Default.MoreVert,
             contentDescription = stringResource(R.string.more_actions),
@@ -561,6 +548,16 @@ private fun SelectLocationDropdownMenu(
             leadingIcon = { Icon(Icons.Filled.FilterList, contentDescription = null) },
         )
 
+        // Keep these assets in remember so we don't change them as we animate away the dropdown
+        // menu
+        var recentsItemTextId by remember {
+            mutableIntStateOf(
+                if (recentsEnabled) R.string.disable_recents else R.string.enable_recents
+            )
+        }
+        var recentsIcon by remember {
+            mutableStateOf(if (recentsEnabled) DeleteHistory else Icons.Filled.History)
+        }
         DropdownMenuItem(
             text = { Text(text = stringResource(recentsItemTextId)) },
             onClick = {
@@ -568,9 +565,21 @@ private fun SelectLocationDropdownMenu(
                 onRecentsToggleEnableClick()
             },
             colors = colors,
-            leadingIcon = { Icon(Icons.Filled.History, contentDescription = null) },
+            leadingIcon = { Icon(imageVector = recentsIcon, contentDescription = null) },
         )
 
+        // Keep these assets in remember so we don't change them as we animate away the dropdown
+        // menu
+        var multihopItemTextId by remember {
+            mutableIntStateOf(
+                if (multihopEnabled) R.string.disable_multihop else R.string.enable_multihop
+            )
+        }
+        var multihopIcon by remember {
+            mutableStateOf(
+                if (multihopEnabled) Icons.Outlined.WrongLocation else Icons.Outlined.AddLocationAlt
+            )
+        }
         DropdownMenuItem(
             text = { Text(text = stringResource(multihopItemTextId)) },
             onClick = {
@@ -578,7 +587,7 @@ private fun SelectLocationDropdownMenu(
                 onMultihopToggleEnableClick()
             },
             colors = colors,
-            leadingIcon = { Icon(Icons.Outlined.AddLocationAlt, contentDescription = null) },
+            leadingIcon = { Icon(multihopIcon, contentDescription = null) },
         )
 
         DropdownMenuItem(
