@@ -446,37 +446,62 @@ private fun <T : RelayItem> MultihopOptions(
     onDisableMultihop: () -> Unit,
     closeBottomSheet: (Boolean) -> Unit,
 ) {
-    if (canBeSetAsEntry || canBeRemovedAsEntry) {
+    if (canBeRemovedAsEntry) {
+        IconCell(
+            imageVector = null,
+            title = stringResource(R.string.remove_as_multihop_entry),
+            titleColor = onBackgroundColor,
+            onClick = {
+                onDisableMultihop()
+                closeBottomSheet(true)
+            },
+        )
+    } else {
         IconCell(
             imageVector = null,
             title =
-                if (canBeRemovedAsEntry) {
-                    stringResource(R.string.remove_as_multihop_entry)
+                stringResource(
+                    if (canBeSetAsEntry) {
+                        R.string.set_as_multihop_entry
+                    } else {
+                        R.string.set_as_multihop_entry_unavailable
+                    }
+                ),
+            titleColor =
+                if (canBeSetAsEntry) {
+                    onBackgroundColor
                 } else {
-                    stringResource(R.string.set_as_multihop_entry)
+                    MaterialTheme.colorScheme.onSurfaceVariant
                 },
-            titleColor = onBackgroundColor,
             onClick = {
-                if (canBeRemovedAsEntry) {
-                    onDisableMultihop()
+                onSetAsEntry(item)
+                closeBottomSheet(true)
+            },
+            enabled = canBeSetAsEntry,
+        )
+    }
+    IconCell(
+        imageVector = null,
+        title =
+            stringResource(
+                if (canBeSetAsExit) {
+                    R.string.set_as_multihop_exit
                 } else {
-                    onSetAsEntry(item)
+                    R.string.set_as_multihop_exit_unavailable
                 }
-                closeBottomSheet(true)
+            ),
+        titleColor =
+            if (canBeSetAsExit) {
+                onBackgroundColor
+            } else {
+                MaterialTheme.colorScheme.onSurfaceVariant
             },
-        )
-    }
-    if (canBeSetAsExit) {
-        IconCell(
-            imageVector = null,
-            title = stringResource(R.string.set_as_multihop_exit),
-            titleColor = onBackgroundColor,
-            onClick = {
-                onSetAsExit(item)
-                closeBottomSheet(true)
-            },
-        )
-    }
+        onClick = {
+            onSetAsExit(item)
+            closeBottomSheet(true)
+        },
+        enabled = canBeSetAsExit,
+    )
 }
 
 internal suspend fun SnackbarHostState.showResultSnackbar(

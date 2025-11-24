@@ -113,6 +113,7 @@ import net.mullvad.mullvadvpn.lib.ui.component.Singlehop
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_SCREEN_TEST_TAG
 import net.mullvad.mullvadvpn.usecase.FilterChip
+import net.mullvad.mullvadvpn.usecase.MultihopChange
 import net.mullvad.mullvadvpn.util.Lc
 import net.mullvad.mullvadvpn.viewmodel.location.SelectLocationSideEffect
 import net.mullvad.mullvadvpn.viewmodel.location.SelectLocationViewModel
@@ -249,7 +250,22 @@ fun SelectLocation(
                                 }
                             ),
                         actionLabel = context.getString(R.string.undo),
-                        onAction = { vm.toggleMultihop(!it.enabled) },
+                        onAction = {
+                            vm.toggleMultihop(!it.enabled) {
+                                if (it.revertMultihopChange != null) {
+                                    vm.modifyMultihop(
+                                        relayItem = it.revertMultihopChange.item,
+                                        multihopRelayListType =
+                                            when (it.revertMultihopChange) {
+                                                is MultihopChange.Entry ->
+                                                    MultihopRelayListType.ENTRY
+                                                is MultihopChange.Exit -> MultihopRelayListType.EXIT
+                                            },
+                                        closeOnSetExit = false,
+                                    )
+                                }
+                            }
+                        },
                         duration = SnackbarDuration.Long,
                     )
                 }
