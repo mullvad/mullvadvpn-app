@@ -92,9 +92,12 @@ fn run() -> Result<Infallible, Error> {
         .map_err(Error::FindNetClsController)?
         .ok_or(Error::NoNetClsController)?;
 
-    let procs_path = cgroup_dir
-        .join(SPLIT_TUNNEL_CGROUP_NAME)
-        .join("cgroup.procs");
+    let procs_path = {
+        let cgroup = SPLIT_TUNNEL_CGROUP_NAME
+            .to_str()
+            .expect("SPLIT_TUNNEL_CGROUP_NAME only contain valid UTF-8");
+        cgroup_dir.join(cgroup).join("cgroup.procs")
+    };
 
     let file = fs::OpenOptions::new()
         .write(true)

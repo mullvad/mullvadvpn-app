@@ -1,6 +1,9 @@
-use std::{ffi::OsStr, fs, os::unix::ffi::OsStrExt, path::PathBuf};
+use std::ffi::{CStr, OsStr};
+use std::fs;
+use std::os::unix::ffi::OsStrExt;
+use std::path::PathBuf;
 
-pub const SPLIT_TUNNEL_CGROUP_NAME: &str = "mullvad-exclusions";
+pub const SPLIT_TUNNEL_CGROUP_NAME: &CStr = c"mullvad-exclusions";
 
 /// Find the path of the cgroup v1 net_cls controller mount if it exists
 pub fn find_net_cls_mount() -> std::io::Result<Option<PathBuf>> {
