@@ -472,11 +472,11 @@
     <string name="unavailable">Unavailable</string>
     <string name="warning">Warning</string>
     <string name="add_to_list">Add to list</string>
-    <string name="remove_as_multihop_entry">Remove as multihop entry</string>
     <string name="set_as_multihop_entry">Set as multihop entry</string>
     <string name="set_as_multihop_exit">Set as multihop exit</string>
     <string name="multihop_is_enabled">Multihop is enabled</string>
     <string name="multihop_is_disabled">Multihop is disabled</string>
     <string name="set_as_multihop_entry_unavailable">Set as multihop entry (incompatible)</string>
     <string name="set_as_multihop_exit_unavailable">Set as multihop exit (incompatible)</string>
+    <string name="edit_custom_list">Edit custom list</string>
 </resources>

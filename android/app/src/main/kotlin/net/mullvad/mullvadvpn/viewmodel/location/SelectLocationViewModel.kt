@@ -145,7 +145,7 @@ class SelectLocationViewModel(
     fun modifyMultihop(
         relayItem: RelayItem,
         multihopRelayListType: MultihopRelayListType,
-        closeOnSetExit: Boolean = true,
+        actionOnSuccess: Boolean = true,
     ) {
         val change =
             when (multihopRelayListType) {
@@ -153,23 +153,24 @@ class SelectLocationViewModel(
                 MultihopRelayListType.EXIT -> MultihopChange.Exit(relayItem)
             }
 
-        viewModelScope.launch { modifyMultihop(change = change, closeOnSetExit = closeOnSetExit) }
+        viewModelScope.launch { modifyMultihop(change = change, actionOnSuccess = actionOnSuccess) }
     }
 
     private suspend fun modifyMultihop(
         change: MultihopChange,
-        closeOnSetExit: Boolean = true,
+        actionOnSuccess: Boolean = true,
         onSuccess: suspend () -> Unit = {},
     ) {
         modifyMultihopUseCase(change)
             .fold(
                 { _uiSideEffect.send(it.toSideEffect(change)) },
                 {
-                    when (change) {
-                        is MultihopChange.Entry ->
-                            _multihopRelayListTypeSelection.emit(MultihopRelayListType.EXIT)
-                        is MultihopChange.Exit -> {
-                            if (closeOnSetExit) {
+                    if (actionOnSuccess) {
+                        when (change) {
+                            is MultihopChange.Entry ->
+                                _multihopRelayListTypeSelection.emit(MultihopRelayListType.EXIT)
+
+                            is MultihopChange.Exit -> {
                                 _uiSideEffect.send(SelectLocationSideEffect.CloseScreen)
                             }
                         }
@@ -281,7 +282,7 @@ class SelectLocationViewModel(
                     toggleMultihop(enable = true, showSnackbar = true)
                 }
             } else {
-                modifyMultihop(change = MultihopChange.Exit(item), closeOnSetExit = false)
+                modifyMultihop(change = MultihopChange.Exit(item), actionOnSuccess = false)
             }
         }
     }

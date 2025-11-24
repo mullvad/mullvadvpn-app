@@ -262,7 +262,7 @@ fun SelectLocation(
                                                     MultihopRelayListType.ENTRY
                                                 is MultihopChange.Exit -> MultihopRelayListType.EXIT
                                             },
-                                        closeOnSetExit = false,
+                                        actionOnSuccess = false,
                                     )
                                 }
                             }
@@ -466,6 +466,7 @@ fun SelectLocationScreen(
         var locationBottomSheetState by remember { mutableStateOf<LocationBottomSheetState?>(null) }
         LocationBottomSheets(
             locationBottomSheetState = locationBottomSheetState,
+            relayListType = state.contentOrNull()?.relayListType ?: RelayListType.Single,
             onCreateCustomList = onCreateCustomList,
             onAddLocationToList = onAddLocationToList,
             onRemoveLocationFromList = onRemoveLocationFromList,
