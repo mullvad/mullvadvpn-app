@@ -1,34 +1,14 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { Flex, Logo } from '../../../lib/components';
-import { colors } from '../../../lib/foundations';
+import { Logo, Text } from '../../../lib/components';
+import { FlexColumn } from '../../../lib/components/flex-column';
+import { View } from '../../../lib/components/view';
 import { AppMainHeader } from '../../app-main-header';
-import { measurements } from '../../common-styles';
-import { Container, Layout } from '../../Layout';
 
-const StyledContainer = styled(Container)({
-  flex: 1,
-  flexDirection: 'column',
-  alignItems: 'center',
-  justifyContent: 'end',
-});
-
-const Subtitle = styled.span({
-  fontFamily: 'Open Sans',
-  fontSize: '14px',
-  lineHeight: '20px',
-  margin: `0 ${measurements.horizontalViewMargin}`,
-  color: colors.whiteAlpha40,
-  textAlign: 'center',
-});
-
-const StyledFooterContainer = styled.div({
-  display: 'flex',
-  flexDirection: 'column',
-  justifyContent: 'end',
-  minHeight: '241px',
-});
+const StyledFooterContainer = styled(FlexColumn)`
+  min-height: 241px;
+`;
 
 interface ErrorViewProps {
   settingsUnavailable?: boolean;
@@ -38,20 +18,22 @@ interface ErrorViewProps {
 
 export function ErrorView(props: ErrorViewProps) {
   return (
-    <Layout>
+    <View>
       <AppMainHeader logoVariant="none">
         {!props.settingsUnavailable && <AppMainHeader.SettingsButton />}
       </AppMainHeader>
-      <StyledContainer>
-        <Flex flexDirection="column" gap="medium">
-          <Flex flexDirection="column" alignItems="center" justifyContent="end" gap="medium">
+      <View.Container indent="medium" flexGrow={1} alignItems="center" justifyContent="end">
+        <FlexColumn gap="medium">
+          <FlexColumn alignItems="center" justifyContent="end" gap="medium">
             <Logo variant="icon" size="2" />
             <Logo variant="text" size="2" />
-          </Flex>
-          <Subtitle role="alert">{props.children}</Subtitle>
-          <StyledFooterContainer>{props.footer}</StyledFooterContainer>
-        </Flex>
-      </StyledContainer>
-    </Layout>
+          </FlexColumn>
+          <Text role="alert" variant="bodySmall" textAlign="center" color="whiteAlpha60">
+            {props.children}
+          </Text>
+          <StyledFooterContainer justifyContent="end">{props.footer}</StyledFooterContainer>
+        </FlexColumn>
+      </View.Container>
+    </View>
   );
 }
