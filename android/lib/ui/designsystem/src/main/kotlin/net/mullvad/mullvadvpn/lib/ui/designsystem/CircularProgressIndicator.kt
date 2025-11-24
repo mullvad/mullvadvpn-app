@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.compose.component
+package net.mullvad.mullvadvpn.lib.ui.designsystem
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

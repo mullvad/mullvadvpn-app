@@ -58,7 +58,6 @@ import net.mullvad.mullvadvpn.compose.button.NegativeButton
 import net.mullvad.mullvadvpn.compose.button.VariantButton
 import net.mullvad.mullvadvpn.compose.component.AddTimeBottomSheet
 import net.mullvad.mullvadvpn.compose.component.CopyAnimatedIconButton
-import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorMedium
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBar
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.extensions.createOpenAccountPageHook
@@ -72,6 +71,7 @@ import net.mullvad.mullvadvpn.lib.common.util.groupWithSpaces
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
+import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorMedium
 import net.mullvad.mullvadvpn.lib.ui.tag.PLAY_PAYMENT_INFO_ICON_TEST_TAG
 import net.mullvad.mullvadvpn.util.Lc
 import net.mullvad.mullvadvpn.viewmodel.WelcomeViewModel

@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.compose.screen
 
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.runtime.Composable
@@ -16,10 +17,6 @@ import com.ramcosta.composedestinations.generated.destinations.ShadowsocksCustom
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.cell.CustomPortCell
-import net.mullvad.mullvadvpn.compose.cell.InformationComposeCell
-import net.mullvad.mullvadvpn.compose.cell.SelectableCell
-import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.compose.dialog.CustomPortNavArgs
@@ -34,6 +31,13 @@ import net.mullvad.mullvadvpn.constant.SHADOWSOCKS_PRESET_PORTS
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
+import net.mullvad.mullvadvpn.lib.theme.Dimens
+import net.mullvad.mullvadvpn.lib.ui.component.listitem.CustomPortListItem
+import net.mullvad.mullvadvpn.lib.ui.component.listitem.InfoListItem
+import net.mullvad.mullvadvpn.lib.ui.component.listitem.SelectableListItem
+import net.mullvad.mullvadvpn.lib.ui.designsystem.Hierarchy
+import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
+import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
 import net.mullvad.mullvadvpn.lib.ui.tag.SHADOWSOCKS_CUSTOM_PORT_TEXT_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SHADOWSOCKS_PORT_ITEM_AUTOMATIC_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SHADOWSOCKS_PORT_ITEM_X_TEST_TAG
@@ -105,7 +109,7 @@ fun ShadowsocksSettingsScreen(
     ) { modifier, lazyListState ->
         LazyColumn(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = modifier,
+            modifier = modifier.padding(horizontal = Dimens.sideMarginNew),
             state = lazyListState,
         ) {
             when (state) {
@@ -129,27 +133,33 @@ private fun LazyListScope.content(
     navigateToCustomPortDialog: (Port?) -> Unit,
     onObfuscationPortSelected: (Constraint<Port>) -> Unit,
 ) {
-    itemWithDivider { InformationComposeCell(title = stringResource(R.string.port)) }
+    itemWithDivider { InfoListItem(position = Position.Top, title = stringResource(R.string.port)) }
     itemWithDivider {
-        SelectableCell(
+        SelectableListItem(
+            hierarchy = Hierarchy.Child1,
+            position = Position.Middle,
             title = stringResource(id = R.string.automatic),
             isSelected = state.port is Constraint.Any,
-            onCellClicked = { onObfuscationPortSelected(Constraint.Any) },
+            onClick = { onObfuscationPortSelected(Constraint.Any) },
             testTag = SHADOWSOCKS_PORT_ITEM_AUTOMATIC_TEST_TAG,
         )
     }
     SHADOWSOCKS_PRESET_PORTS.forEach { port ->
         itemWithDivider {
-            SelectableCell(
+            SelectableListItem(
+                hierarchy = Hierarchy.Child1,
+                position = Position.Middle,
                 title = port.toString(),
                 isSelected = state.port.getOrNull() == port,
-                onCellClicked = { onObfuscationPortSelected(Constraint.Only(port)) },
+                onClick = { onObfuscationPortSelected(Constraint.Only(port)) },
                 testTag = String.format(null, SHADOWSOCKS_PORT_ITEM_X_TEST_TAG, port.value),
             )
         }
     }
     itemWithDivider {
-        CustomPortCell(
+        CustomPortListItem(
+            hierarchy = Hierarchy.Child1,
+            position = Position.Bottom,
             title = stringResource(id = R.string.wireguard_custon_port_title),
             isSelected = state.isCustom,
             port = state.customPort,

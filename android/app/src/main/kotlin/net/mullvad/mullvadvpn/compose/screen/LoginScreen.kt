@@ -77,7 +77,6 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.button.VariantButton
-import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBar
 import net.mullvad.mullvadvpn.compose.dialog.info.ApiUnreachableInfoDialogNavArgs
 import net.mullvad.mullvadvpn.compose.dialog.info.ApiUnreachableInfoDialogResult
@@ -101,6 +100,7 @@ import net.mullvad.mullvadvpn.compose.util.clickableAnnotatedString
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
+import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.lib.ui.tag.LOGIN_INPUT_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.LOGIN_TITLE_TEST_TAG
 import net.mullvad.mullvadvpn.viewmodel.LoginUiSideEffect

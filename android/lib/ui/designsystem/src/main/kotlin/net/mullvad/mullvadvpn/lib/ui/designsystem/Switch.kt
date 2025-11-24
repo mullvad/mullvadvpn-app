@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.lib.ui.component
+package net.mullvad.mullvadvpn.lib.ui.designsystem
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column

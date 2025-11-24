@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.compose.screen
 
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.runtime.Composable
@@ -15,9 +16,6 @@ import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.destinations.UdpOverTcpPortInfoDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.cell.InformationComposeCell
-import net.mullvad.mullvadvpn.compose.cell.SelectableCell
-import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.compose.extensions.itemWithDivider
@@ -28,6 +26,12 @@ import net.mullvad.mullvadvpn.constant.UDP2TCP_PRESET_PORTS
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
+import net.mullvad.mullvadvpn.lib.theme.Dimens
+import net.mullvad.mullvadvpn.lib.ui.component.listitem.InfoListItem
+import net.mullvad.mullvadvpn.lib.ui.component.listitem.SelectableListItem
+import net.mullvad.mullvadvpn.lib.ui.designsystem.Hierarchy
+import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
+import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
 import net.mullvad.mullvadvpn.lib.ui.tag.UDP_OVER_TCP_PORT_ITEM_AUTOMATIC_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.UDP_OVER_TCP_PORT_ITEM_X_TEST_TAG
 import net.mullvad.mullvadvpn.util.Lc
@@ -77,7 +81,7 @@ fun Udp2TcpSettingsScreen(
     ) { modifier, lazyListState ->
         LazyColumn(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = modifier,
+            modifier = modifier.padding(horizontal = Dimens.sideMarginNew),
             state = lazyListState,
         ) {
             when (state) {
@@ -99,26 +103,33 @@ private fun LazyListScope.content(
     navigateUdp2TcpInfo: () -> Unit,
 ) {
     itemWithDivider {
-        InformationComposeCell(
+        InfoListItem(
+            position = Position.Top,
             title = stringResource(R.string.port),
             onInfoClicked = navigateUdp2TcpInfo,
             onCellClicked = navigateUdp2TcpInfo,
         )
     }
     itemWithDivider {
-        SelectableCell(
+        SelectableListItem(
+            hierarchy = Hierarchy.Child1,
+            position = Position.Middle,
             title = stringResource(id = R.string.automatic),
             isSelected = state.port is Constraint.Any,
-            onCellClicked = { onObfuscationPortSelected(Constraint.Any) },
+            onClick = { onObfuscationPortSelected(Constraint.Any) },
             testTag = UDP_OVER_TCP_PORT_ITEM_AUTOMATIC_TEST_TAG,
         )
     }
-    UDP2TCP_PRESET_PORTS.forEach { port ->
+    UDP2TCP_PRESET_PORTS.forEachIndexed { index, port ->
         itemWithDivider {
-            SelectableCell(
+            SelectableListItem(
+                hierarchy = Hierarchy.Child1,
+                position =
+                    if (index == UDP2TCP_PRESET_PORTS.lastIndex) Position.Bottom
+                    else Position.Middle,
                 title = port.toString(),
                 isSelected = state.port.getOrNull() == port,
-                onCellClicked = { onObfuscationPortSelected(Constraint.Only(port)) },
+                onClick = { onObfuscationPortSelected(Constraint.Only(port)) },
                 testTag = String.format(null, UDP_OVER_TCP_PORT_ITEM_X_TEST_TAG, port.value),
             )
         }

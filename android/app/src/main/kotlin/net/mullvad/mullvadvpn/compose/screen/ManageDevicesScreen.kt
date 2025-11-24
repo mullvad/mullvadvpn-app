@@ -30,7 +30,6 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.cell.BaseSubtitleCell
 import net.mullvad.mullvadvpn.compose.component.DeviceListItem
-import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorMedium
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.compose.extensions.dropUnlessResumed
@@ -45,6 +44,7 @@ import net.mullvad.mullvadvpn.lib.model.DeviceId
 import net.mullvad.mullvadvpn.lib.model.GetDeviceListError
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
+import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorMedium
 import net.mullvad.mullvadvpn.util.Lce
 import net.mullvad.mullvadvpn.viewmodel.ManageDevicesSideEffect
 import net.mullvad.mullvadvpn.viewmodel.ManageDevicesViewModel
