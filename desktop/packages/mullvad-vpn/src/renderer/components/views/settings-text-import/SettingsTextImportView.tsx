@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { messages } from '../../../../shared/gettext';
 import useActions from '../../../lib/actionsHook';
 import { IconButton } from '../../../lib/components';
+import { View } from '../../../lib/components/view';
 import { colors } from '../../../lib/foundations';
 import { useHistory } from '../../../lib/history';
 import { useCombinedRefs, useRefCallback, useStyledRef } from '../../../lib/utility-hooks';
@@ -11,7 +12,6 @@ import settingsImportActions from '../../../redux/settings-import/actions';
 import { useSelector } from '../../../redux/store';
 import { AppNavigationHeader } from '../..';
 import { BackAction } from '../../KeyboardNavigation';
-import { Layout, SettingsContainer } from '../../Layout';
 
 const StyledTextArea = styled.textarea({
   width: '100%',
@@ -51,23 +51,21 @@ export function SettingsTextImportView() {
   }, [pop, saveSettingsImportForm, textareaRef]);
 
   return (
-    <BackAction action={back}>
-      <Layout>
-        <SettingsContainer>
-          <AppNavigationHeader
-            title={
-              // TRANSLATORS: Title label in navigation bar
-              messages.pgettext('settings-import', 'Import via text')
-            }
-            titleVisible>
-            <AppNavigationHeader.IconButton onClick={save} aria-label={messages.gettext('Save')}>
-              <IconButton.Icon icon="checkmark" />
-            </AppNavigationHeader.IconButton>
-          </AppNavigationHeader>
+    <View backgroundColor="darkBlue">
+      <BackAction action={back}>
+        <AppNavigationHeader
+          title={
+            // TRANSLATORS: Title label in navigation bar
+            messages.pgettext('settings-import', 'Import via text')
+          }
+          titleVisible>
+          <AppNavigationHeader.IconButton onClick={save} aria-label={messages.gettext('Save')}>
+            <IconButton.Icon icon="checkmark" />
+          </AppNavigationHeader.IconButton>
+        </AppNavigationHeader>
 
-          <StyledTextArea ref={combinedTextAreaRef} />
-        </SettingsContainer>
-      </Layout>
-    </BackAction>
+        <StyledTextArea ref={combinedTextAreaRef} />
+      </BackAction>
+    </View>
   );
 }
