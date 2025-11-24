@@ -65,8 +65,10 @@ impl PidManager {
     fn new_inner() -> Result<Inner, Error> {
         // TODO: umount on error
         let root_cgroup2 = mount_cgroup2_fs()?;
-
-        let excluded_cgroup2 = root_cgroup2.create_or_open_child(SPLIT_TUNNEL_CGROUP_NAME)?;
+        let cgroup = SPLIT_TUNNEL_CGROUP_NAME
+            .to_str()
+            .expect("SPLIT_TUNNEL_CGROUP_NAME contain valid UTF-8");
+        let excluded_cgroup2 = root_cgroup2.create_or_open_child(cgroup)?;
 
         Ok(Inner {
             root_cgroup2,
