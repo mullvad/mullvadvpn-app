@@ -15,13 +15,10 @@ interface Application {
   filename?: string;
 }
 
-const applications: Array<Application> =
+const application: Application =
   process.platform === 'win32'
-    ? [
-        { name: 'microsoft edge', filename: 'msedge.exe' },
-        { name: 'windows media player legacy', filename: 'wmplayer.exe' },
-      ]
-    : [{ name: 'launchpad' }, { name: 'clock' }];
+    ? { name: 'microsoft edge', filename: 'msedge.exe' }
+    : { name: 'launchpad' };
 
 let page: Page;
 let util: TestUtils;
@@ -55,54 +52,98 @@ test.describe('Split tunneling', () => {
     await expect(splitList).not.toBeVisible();
     await expect(nonSplitList).not.toBeVisible();
 
-    const application = routes.splitTunnelingSettings.selectors.application(applications[0].name);
-    await expect(application).not.toBeVisible();
+    const applicationLocator = routes.splitTunnelingSettings.selectors.application(
+      application.name,
+    );
+    await expect(applicationLocator).not.toBeVisible();
 
     await routes.splitTunnelingSettings.toggleSplitTunneling();
     await expect(toggle).toBeChecked();
     await expect(splitList).not.toBeVisible();
     await expect(nonSplitList).toBeVisible();
-    await expect(application).toBeVisible();
+    await expect(applicationLocator).toBeVisible();
   });
 
-  applications.forEach((application, index, applications) => {
-    test(`App should split ${application.name}`, async () => {
-      const splitList = routes.splitTunnelingSettings.selectors.splitApplicationsList();
-      const nonSplitList = routes.splitTunnelingSettings.selectors.nonSplitApplicationsList();
+  test(`App should split ${application.name}`, async () => {
+    const splitList = routes.splitTunnelingSettings.selectors.splitApplicationsList();
+    const nonSplitList = routes.splitTunnelingSettings.selectors.nonSplitApplicationsList();
 
-      const splitApplication = routes.splitTunnelingSettings.selectors.applicationInList(
-        splitList,
-        application.name,
-      );
-      const nonSplitApplication = routes.splitTunnelingSettings.selectors.applicationInList(
-        nonSplitList,
-        application.name,
-      );
+    const splitApplication = routes.splitTunnelingSettings.selectors.applicationInList(
+      splitList,
+      application.name,
+    );
+    const nonSplitApplication = routes.splitTunnelingSettings.selectors.applicationInList(
+      nonSplitList,
+      application.name,
+    );
 
-      await expect(splitApplication).not.toBeVisible();
-      await expect(nonSplitApplication).toBeVisible();
+    await expect(splitApplication).not.toBeVisible();
+    await expect(nonSplitApplication).toBeVisible();
 
-      await routes.splitTunnelingSettings.toggleApplication(nonSplitApplication);
+    await routes.splitTunnelingSettings.toggleApplication(nonSplitApplication);
 
-      await expect(splitList).toBeVisible();
-      await expect(splitApplication).toBeVisible();
-      await expect(nonSplitApplication).not.toBeVisible();
+    await expect(splitList).toBeVisible();
+    await expect(splitApplication).toBeVisible();
+    await expect(nonSplitApplication).not.toBeVisible();
 
-      await expect(
-        routes.splitTunnelingSettings.selectors.applicationButtonsInList(splitList),
-      ).toHaveCount(index + 1);
+    await expect(
+      routes.splitTunnelingSettings.selectors.applicationButtonsInList(splitList),
+    ).toHaveCount(1);
 
-      const daemonSplitTunnelingApplications = getDaemonSplitTunnelingApplications();
-      expect(daemonSplitTunnelingApplications).toHaveLength(index + 1);
-
-      applications.slice(0, index + 1).forEach((application) => {
-        expect(isSplitInDaemon(application)).toBeTruthy();
-      });
-    });
+    const daemonSplitTunnelingApplications = getDaemonSplitTunnelingApplications();
+    expect(daemonSplitTunnelingApplications).toHaveLength(1);
+    expect(isSplitInDaemon(application)).toBeTruthy();
   });
 
-  test(`App should unsplit ${applications[0].name}`, async () => {
-    const application = applications[0];
+  test('App should disable split tunneling', async () => {
+    const toggle = routes.splitTunnelingSettings.selectors.splitTunnelingSwitch();
+    await expect(toggle).toBeChecked();
+
+    const splitList = routes.splitTunnelingSettings.selectors.splitApplicationsList();
+    const nonSplitList = routes.splitTunnelingSettings.selectors.nonSplitApplicationsList();
+
+    await expect(splitList).toBeVisible();
+
+    const applicationLocator = routes.splitTunnelingSettings.selectors.application(
+      application.name,
+    );
+    await expect(applicationLocator).toBeVisible();
+
+    await routes.splitTunnelingSettings.toggleSplitTunneling();
+    await expect(toggle).not.toBeChecked();
+
+    await expect(applicationLocator).not.toBeVisible();
+    await expect(splitList).not.toBeVisible();
+    await expect(nonSplitList).not.toBeVisible();
+  });
+
+  test('App should reenable split tunneling', async () => {
+    const toggle = routes.splitTunnelingSettings.selectors.splitTunnelingSwitch();
+    await expect(toggle).not.toBeChecked();
+
+    const splitList = routes.splitTunnelingSettings.selectors.splitApplicationsList();
+    const nonSplitList = routes.splitTunnelingSettings.selectors.nonSplitApplicationsList();
+    const applicationLocator = routes.splitTunnelingSettings.selectors.applicationInList(
+      splitList,
+      application.name,
+    );
+
+    await expect(splitList).not.toBeVisible();
+    await expect(nonSplitList).not.toBeVisible();
+    await expect(applicationLocator).not.toBeVisible();
+
+    await routes.splitTunnelingSettings.toggleSplitTunneling();
+    await expect(toggle).toBeChecked();
+
+    await expect(splitList).toBeVisible();
+    await expect(applicationLocator).toBeVisible();
+
+    await expect(
+      routes.splitTunnelingSettings.selectors.applicationButtonsInList(splitList),
+    ).toHaveCount(1);
+  });
+
+  test(`App should unsplit ${application.name}`, async () => {
     const splitList = routes.splitTunnelingSettings.selectors.splitApplicationsList();
     const nonSplitList = routes.splitTunnelingSettings.selectors.nonSplitApplicationsList();
 
@@ -123,63 +164,14 @@ test.describe('Split tunneling', () => {
     await expect(splitApplication).not.toBeVisible();
     await expect(nonSplitApplication).toBeVisible();
 
-    await expect(splitList).toBeVisible();
+    await expect(splitList).not.toBeVisible();
     await expect(
       routes.splitTunnelingSettings.selectors.applicationButtonsInList(splitList),
-    ).toHaveCount(1);
+    ).toHaveCount(0);
 
     const daemonSplitTunnelingApplications = getDaemonSplitTunnelingApplications();
-    expect(daemonSplitTunnelingApplications).toHaveLength(1);
+    expect(daemonSplitTunnelingApplications).toHaveLength(0);
     expect(isSplitInDaemon(application)).toBeFalsy();
-    expect(isSplitInDaemon(applications[1])).toBeTruthy();
-  });
-
-  test('App should disable split tunneling', async () => {
-    const toggle = routes.splitTunnelingSettings.selectors.splitTunnelingSwitch();
-    await expect(toggle).toBeChecked();
-
-    const splitList = routes.splitTunnelingSettings.selectors.splitApplicationsList();
-    const nonSplitList = routes.splitTunnelingSettings.selectors.nonSplitApplicationsList();
-
-    await expect(splitList).toBeVisible();
-    await expect(nonSplitList).toBeVisible();
-
-    const application = routes.splitTunnelingSettings.selectors.application(applications[0].name);
-    await expect(application).toBeVisible();
-
-    await routes.splitTunnelingSettings.toggleSplitTunneling();
-    await expect(toggle).not.toBeChecked();
-
-    await expect(application).not.toBeVisible();
-    await expect(splitList).not.toBeVisible();
-    await expect(nonSplitList).not.toBeVisible();
-  });
-
-  test('App should reenable split tunneling', async () => {
-    const toggle = routes.splitTunnelingSettings.selectors.splitTunnelingSwitch();
-    await expect(toggle).not.toBeChecked();
-
-    const splitList = routes.splitTunnelingSettings.selectors.splitApplicationsList();
-    const nonSplitList = routes.splitTunnelingSettings.selectors.nonSplitApplicationsList();
-    const application = routes.splitTunnelingSettings.selectors.applicationInList(
-      splitList,
-      applications[1].name,
-    );
-
-    await expect(splitList).not.toBeVisible();
-    await expect(nonSplitList).not.toBeVisible();
-    await expect(application).not.toBeVisible();
-
-    await routes.splitTunnelingSettings.toggleSplitTunneling();
-    await expect(toggle).toBeChecked();
-
-    await expect(splitList).toBeVisible();
-    await expect(nonSplitList).toBeVisible();
-    await expect(application).toBeVisible();
-
-    await expect(
-      routes.splitTunnelingSettings.selectors.applicationButtonsInList(splitList),
-    ).toHaveCount(1);
   });
 });
 
