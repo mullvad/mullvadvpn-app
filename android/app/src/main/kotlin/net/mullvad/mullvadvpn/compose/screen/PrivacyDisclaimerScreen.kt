@@ -49,7 +49,7 @@ import net.mullvad.mullvadvpn.constant.DAEMON_READY_TIMEOUT_MS
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
-import net.mullvad.mullvadvpn.lib.ui.component.MullvadCircularProgressIndicatorMedium
+import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorMedium
 import net.mullvad.mullvadvpn.ui.MainActivity
 import net.mullvad.mullvadvpn.util.appendHideNavOnPlayBuild
 import net.mullvad.mullvadvpn.viewmodel.PrivacyDisclaimerUiSideEffect

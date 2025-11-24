@@ -55,7 +55,7 @@ import net.mullvad.mullvadvpn.lib.model.DeviceId
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.selected
-import net.mullvad.mullvadvpn.lib.ui.component.MullvadCircularProgressIndicatorLarge
+import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.viewmodel.DeviceListSideEffect
 import net.mullvad.mullvadvpn.viewmodel.DeviceListViewModel
 import org.koin.androidx.compose.koinViewModel

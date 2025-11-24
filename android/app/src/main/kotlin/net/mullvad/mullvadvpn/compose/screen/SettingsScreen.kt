@@ -48,7 +48,7 @@ import net.mullvad.mullvadvpn.compose.state.SettingsUiState
 import net.mullvad.mullvadvpn.compose.transitions.TopLevelTransition
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
-import net.mullvad.mullvadvpn.lib.ui.component.MullvadCircularProgressIndicatorLarge
+import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.lib.ui.tag.DAITA_CELL_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.VPN_SETTINGS_CELL_TEST_TAG

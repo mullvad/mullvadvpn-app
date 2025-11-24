@@ -55,7 +55,7 @@ import net.mullvad.mullvadvpn.compose.util.createCopyToClipboardHandle
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
-import net.mullvad.mullvadvpn.lib.ui.component.MullvadCircularProgressIndicatorMedium
+import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorMedium
 import net.mullvad.mullvadvpn.provider.getLogsShareIntent
 import net.mullvad.mullvadvpn.viewmodel.ViewLogsUiState
 import net.mullvad.mullvadvpn.viewmodel.ViewLogsViewModel

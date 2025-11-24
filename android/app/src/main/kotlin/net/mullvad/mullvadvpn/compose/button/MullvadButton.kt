@@ -32,7 +32,7 @@ import net.mullvad.mullvadvpn.lib.theme.color.AlphaInvisible
 import net.mullvad.mullvadvpn.lib.theme.color.errorDisabled
 import net.mullvad.mullvadvpn.lib.theme.color.primaryDisabled
 import net.mullvad.mullvadvpn.lib.theme.color.tertiaryDisabled
-import net.mullvad.mullvadvpn.lib.ui.component.MullvadCircularProgressIndicatorSmall
+import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorSmall
 
 @Preview
 @Composable

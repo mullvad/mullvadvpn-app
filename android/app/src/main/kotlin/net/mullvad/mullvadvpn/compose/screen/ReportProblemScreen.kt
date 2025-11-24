@@ -71,7 +71,7 @@ import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.Alpha80
 import net.mullvad.mullvadvpn.lib.theme.color.warning
 import net.mullvad.mullvadvpn.lib.ui.component.ExpandChevron
-import net.mullvad.mullvadvpn.lib.ui.component.MullvadCircularProgressIndicatorLarge
+import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.util.appendHideNavOnPlayBuild
 import net.mullvad.mullvadvpn.viewmodel.ReportProblemSideEffect
 import net.mullvad.mullvadvpn.viewmodel.ReportProblemUiState

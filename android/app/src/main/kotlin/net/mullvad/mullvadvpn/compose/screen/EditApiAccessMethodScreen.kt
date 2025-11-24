@@ -71,7 +71,7 @@ import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaInvisible
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaVisible
-import net.mullvad.mullvadvpn.lib.ui.component.MullvadCircularProgressIndicatorLarge
+import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.lib.ui.tag.EDIT_API_ACCESS_NAME_INPUT_TEST_TAG
 import net.mullvad.mullvadvpn.viewmodel.EditApiAccessMethodViewModel
 import net.mullvad.mullvadvpn.viewmodel.EditApiAccessSideEffect

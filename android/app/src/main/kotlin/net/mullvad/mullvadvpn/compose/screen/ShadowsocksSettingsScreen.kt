@@ -32,11 +32,11 @@ import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
-import net.mullvad.mullvadvpn.lib.ui.component.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.CustomPortListItem
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.InfoListItem
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.SelectableListItem
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Hierarchy
+import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
 import net.mullvad.mullvadvpn.lib.ui.tag.SHADOWSOCKS_CUSTOM_PORT_TEXT_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SHADOWSOCKS_PORT_ITEM_AUTOMATIC_TEST_TAG

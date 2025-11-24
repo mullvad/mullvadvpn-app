@@ -72,7 +72,7 @@ import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
-import net.mullvad.mullvadvpn.lib.ui.component.MullvadCircularProgressIndicatorLarge
+import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.lib.ui.designsystem.RelayListHeader
 import net.mullvad.mullvadvpn.usecase.FilterChip
 import net.mullvad.mullvadvpn.util.Lce

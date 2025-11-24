@@ -45,7 +45,7 @@ import net.mullvad.mullvadvpn.lib.model.DAYS_PER_VOUCHER_MONTH
 import net.mullvad.mullvadvpn.lib.model.RedeemVoucherError
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
-import net.mullvad.mullvadvpn.lib.ui.component.MullvadCircularProgressIndicatorSmall
+import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorSmall
 import net.mullvad.mullvadvpn.lib.ui.tag.VOUCHER_INPUT_TEST_TAG
 import net.mullvad.mullvadvpn.viewmodel.VoucherDialogViewModel
 import org.koin.androidx.compose.koinViewModel
