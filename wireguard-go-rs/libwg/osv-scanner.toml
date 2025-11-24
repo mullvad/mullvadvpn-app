@@ -171,12 +171,12 @@ reason = "wireguard-go does not use x/crypto/ssh/agent"
 
 # golang.org/x/crypto/ssh allows an attacker to cause unbounded memory consumption
 [[IgnoredVulns]]
-id = "CVE-2025-58181 " # GO-2025-4134
+id = "CVE-2025-58181" # GO-2025-4134
 ignoreUntil = 2026-11-21
 reason = "wireguard-go does not use x/crypto/ssh"
 
 # golang.org/x/crypto/ssh/agent vulnerable to panic if message is malformed due to out of bounds read
 [[IgnoredVulns]]
-id = "CVE-2025-47914 " # GO-2025-4135
+id = "CVE-2025-47914" # GO-2025-4135
 ignoreUntil = 2026-11-21
 reason = "wireguard-go does not use x/crypto/ssh/agent"
