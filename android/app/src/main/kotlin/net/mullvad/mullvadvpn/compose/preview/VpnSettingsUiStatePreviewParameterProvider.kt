@@ -48,6 +48,7 @@ class VpnSettingsUiStatePreviewParameterProvider :
                     isContentBlockersExpanded = true,
                     deviceIpVersion = Constraint.Any,
                     isModal = false,
+                    isScrollToFeatureEnabled = true,
                 )
                 .toLc(),
         )

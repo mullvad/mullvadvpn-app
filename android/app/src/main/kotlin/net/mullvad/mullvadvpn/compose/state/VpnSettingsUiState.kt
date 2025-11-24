@@ -10,7 +10,11 @@ import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.model.PortRange
 import net.mullvad.mullvadvpn.lib.model.QuantumResistantState
 
-data class VpnSettingsUiState(val settings: List<VpnSettingItem>, val isModal: Boolean) {
+data class VpnSettingsUiState(
+    val settings: List<VpnSettingItem>,
+    val isModal: Boolean,
+    val isScrollToFeatureEnabled: Boolean,
+) {
 
     companion object {
         @Suppress("LongParameterList", "CyclomaticComplexMethod", "LongMethod")
@@ -33,6 +37,7 @@ data class VpnSettingsUiState(val settings: List<VpnSettingItem>, val isModal: B
             isIpv6Enabled: Boolean,
             isContentBlockersExpanded: Boolean,
             isModal: Boolean,
+            isScrollToFeatureEnabled: Boolean,
         ) =
             VpnSettingsUiState(
                 buildList {
@@ -243,6 +248,7 @@ data class VpnSettingsUiState(val settings: List<VpnSettingItem>, val isModal: B
                     add(VpnSettingItem.Spacer)
                 },
                 isModal = isModal,
+                isScrollToFeatureEnabled = isScrollToFeatureEnabled,
             )
     }
 }
