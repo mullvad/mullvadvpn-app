@@ -21,6 +21,10 @@ Line wrap the file at 100 chars.                                              Th
 * **Fixed**: for any bug fixes.
 * **Security**: in case of vulnerabilities.
 
+## [android/2025.10] - 2025-11-24
+Identical to `android/2025.10-beta2` except for updated translations.
+
+
 ## [android/2025.10-beta2] - 2025-11-18
 ### Security
 - Fix regression introduced in 2025.10-beta1 where IPv6 traffic would leak when enabling
