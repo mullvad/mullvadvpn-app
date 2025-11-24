@@ -167,7 +167,7 @@ export function ProxyFormButtons() {
   // Contains form submittability to know whether or not to enable the Add/Save button.
   const formSubmittable = useSettingsFormSubmittable();
   return (
-    <Flex margin={{ horizontal: 'medium', vertical: 'large' }} justifyContent="space-between">
+    <Flex margin={{ horizontal: 'medium', top: 'large' }} justifyContent="space-between">
       {onDelete !== undefined ? (
         <Button width="fit" variant="destructive" onClick={onDelete}>
           <Button.Text>{messages.gettext('Delete')}</Button.Text>
