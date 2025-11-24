@@ -12,18 +12,15 @@ import { useScheduler } from '../../../../shared/scheduler';
 import { useAppContext } from '../../../context';
 import { useApiAccessMethodTest } from '../../../lib/api-access-methods';
 import { Button } from '../../../lib/components';
+import { FlexColumn } from '../../../lib/components/flex-column';
+import { View } from '../../../lib/components/view';
 import { useHistory } from '../../../lib/history';
 import { useLastDefinedValue } from '../../../lib/utility-hooks';
 import { useSelector } from '../../../redux/store';
 import { AppNavigationHeader } from '../..';
 import { SettingsForm } from '../../cell/SettingsForm';
 import { BackAction } from '../../KeyboardNavigation';
-import {
-  Layout,
-  SettingsContainer,
-  SettingsContent,
-  SettingsNavigationScrollbars,
-} from '../../Layout';
+import { SettingsNavigationScrollbars } from '../../Layout';
 import { ModalAlert, ModalAlertType } from '../../Modal';
 import { NavigationContainer } from '../../NavigationContainer';
 import {
@@ -115,14 +112,14 @@ function AccessMethodForm() {
   );
 
   return (
-    <BackAction action={pop}>
-      <Layout>
-        <SettingsContainer>
-          <NavigationContainer>
-            <AppNavigationHeader title={title} />
+    <View backgroundColor="darkBlue">
+      <BackAction action={pop}>
+        <NavigationContainer>
+          <AppNavigationHeader title={title} />
 
-            <SettingsNavigationScrollbars fillContainer>
-              <SettingsContent>
+          <SettingsNavigationScrollbars fillContainer>
+            <View.Content>
+              <FlexColumn>
                 <SettingsHeader>
                   <HeaderTitle>{title}</HeaderTitle>
                   <HeaderSubTitle>{subtitle}</HeaderSubTitle>
@@ -154,12 +151,12 @@ function AccessMethodForm() {
                   cancel={resetTestResult}
                   save={handleDialogSave}
                 />
-              </SettingsContent>
-            </SettingsNavigationScrollbars>
-          </NavigationContainer>
-        </SettingsContainer>
-      </Layout>
-    </BackAction>
+              </FlexColumn>
+            </View.Content>
+          </SettingsNavigationScrollbars>
+        </NavigationContainer>
+      </BackAction>
+    </View>
   );
 }
 
