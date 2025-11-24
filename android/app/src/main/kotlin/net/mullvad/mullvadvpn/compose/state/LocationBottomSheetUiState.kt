@@ -6,31 +6,37 @@ import net.mullvad.mullvadvpn.lib.model.RelayItem
 
 sealed interface LocationBottomSheetUiState {
     val item: RelayItem
-    val canBeSetAsEntry: Boolean
-    val canBeSetAsExit: Boolean
-    val canBeRemovedAsEntry: Boolean
+    val setAsEntryState: SetAsState
+    val setAsExitState: SetAsState
+    val canDisableMultihop: Boolean
 
     data class CustomListsEntry(
         override val item: RelayItem.Location,
-        override val canBeSetAsEntry: Boolean,
-        override val canBeSetAsExit: Boolean,
-        override val canBeRemovedAsEntry: Boolean,
+        override val setAsEntryState: SetAsState,
+        override val setAsExitState: SetAsState,
+        override val canDisableMultihop: Boolean,
         val customListId: CustomListId,
         val customListName: CustomListName,
     ) : LocationBottomSheetUiState
 
     data class Location(
         override val item: RelayItem.Location,
-        override val canBeSetAsEntry: Boolean,
-        override val canBeSetAsExit: Boolean,
-        override val canBeRemovedAsEntry: Boolean,
+        override val setAsEntryState: SetAsState,
+        override val setAsExitState: SetAsState,
+        override val canDisableMultihop: Boolean,
         val customLists: List<RelayItem.CustomList>,
     ) : LocationBottomSheetUiState
 
     data class CustomList(
         override val item: RelayItem.CustomList,
-        override val canBeSetAsEntry: Boolean,
-        override val canBeSetAsExit: Boolean,
-        override val canBeRemovedAsEntry: Boolean,
+        override val setAsEntryState: SetAsState,
+        override val setAsExitState: SetAsState,
+        override val canDisableMultihop: Boolean,
     ) : LocationBottomSheetUiState
+}
+
+enum class SetAsState {
+    HIDDEN,
+    DISABLED,
+    ENABLED,
 }

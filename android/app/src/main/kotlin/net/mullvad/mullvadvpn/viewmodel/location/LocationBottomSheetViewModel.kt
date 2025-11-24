@@ -9,6 +9,9 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import net.mullvad.mullvadvpn.compose.screen.location.LocationBottomSheetState
 import net.mullvad.mullvadvpn.compose.state.LocationBottomSheetUiState
+import net.mullvad.mullvadvpn.compose.state.MultihopRelayListType
+import net.mullvad.mullvadvpn.compose.state.RelayListType
+import net.mullvad.mullvadvpn.compose.state.SetAsState
 import net.mullvad.mullvadvpn.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.model.CustomListName
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
@@ -21,6 +24,7 @@ import net.mullvad.mullvadvpn.util.Lc
 
 class LocationBottomSheetViewModel(
     private val locationBottomSheetState: LocationBottomSheetState,
+    private val relayListType: RelayListType,
     canBeSelectedUseCase: RelayItemCanBeSelectedUseCase,
     customListsRelayItemUseCase: CustomListsRelayItemUseCase,
     selectedLocationUseCase: SelectedLocationUseCase,
@@ -36,11 +40,19 @@ class LocationBottomSheetViewModel(
                         Lc.Content(
                             LocationBottomSheetUiState.CustomListsEntry(
                                 item = locationBottomSheetState.item,
-                                canBeSetAsEntry =
-                                    validate(locationBottomSheetState.item, entrySelectable),
-                                canBeSetAsExit =
-                                    validate(locationBottomSheetState.item, exitSelectable),
-                                canBeRemovedAsEntry =
+                                setAsEntryState =
+                                    setAsEntryState(
+                                        relayItem = locationBottomSheetState.item,
+                                        geoLocationIds = entrySelectable,
+                                        relayListType = relayListType,
+                                    ),
+                                setAsExitState =
+                                    setAsExitState(
+                                        relayItem = locationBottomSheetState.item,
+                                        geoLocationIds = exitSelectable,
+                                        relayListType = relayListType,
+                                    ),
+                                canDisableMultihop =
                                     false, // Custom list entries are never considered to be
                                 // selected
                                 customListId = locationBottomSheetState.customListId,
@@ -58,11 +70,19 @@ class LocationBottomSheetViewModel(
                         Lc.Content(
                             LocationBottomSheetUiState.CustomList(
                                 item = locationBottomSheetState.item,
-                                canBeSetAsEntry =
-                                    validate(locationBottomSheetState.item, entrySelectable),
-                                canBeSetAsExit =
-                                    validate(locationBottomSheetState.item, exitSelectable),
-                                canBeRemovedAsEntry =
+                                setAsEntryState =
+                                    setAsEntryState(
+                                        relayItem = locationBottomSheetState.item,
+                                        geoLocationIds = entrySelectable,
+                                        relayListType = relayListType,
+                                    ),
+                                setAsExitState =
+                                    setAsExitState(
+                                        relayItem = locationBottomSheetState.item,
+                                        geoLocationIds = exitSelectable,
+                                        relayListType = relayListType,
+                                    ),
+                                canDisableMultihop =
                                     selectedLocation.entryLocation()?.getOrNull() ==
                                         locationBottomSheetState.item.id,
                             )
@@ -72,11 +92,19 @@ class LocationBottomSheetViewModel(
                             LocationBottomSheetUiState.Location(
                                 item = locationBottomSheetState.item,
                                 customLists = customLists,
-                                canBeSetAsEntry =
-                                    validate(locationBottomSheetState.item, entrySelectable),
-                                canBeSetAsExit =
-                                    validate(locationBottomSheetState.item, exitSelectable),
-                                canBeRemovedAsEntry =
+                                setAsEntryState =
+                                    setAsEntryState(
+                                        relayItem = locationBottomSheetState.item,
+                                        geoLocationIds = entrySelectable,
+                                        relayListType = relayListType,
+                                    ),
+                                setAsExitState =
+                                    setAsExitState(
+                                        relayItem = locationBottomSheetState.item,
+                                        geoLocationIds = exitSelectable,
+                                        relayListType = relayListType,
+                                    ),
+                                canDisableMultihop =
                                     selectedLocation.entryLocation()?.getOrNull() ==
                                         locationBottomSheetState.item.id,
                             )
@@ -89,10 +117,44 @@ class LocationBottomSheetViewModel(
                 Lc.Loading(Unit),
             )
 
-    private fun validate(relayItem: RelayItem, geoLocationIds: Set<GeoLocationId>): Boolean =
-        when (relayItem) {
-            is RelayItem.Location -> geoLocationIds.contains(relayItem.id)
-            is RelayItem.CustomList ->
-                relayItem.locations.withDescendants().any { geoLocationIds.contains(it.id) }
+    private fun RelayListType.isMultihopEntry() =
+        this is RelayListType.Multihop && this.multihopRelayListType == MultihopRelayListType.ENTRY
+
+    private fun RelayListType.isMultihopExit() =
+        this is RelayListType.Multihop && this.multihopRelayListType == MultihopRelayListType.EXIT
+
+    private fun setAsEntryState(
+        relayItem: RelayItem,
+        geoLocationIds: Set<GeoLocationId>,
+        relayListType: RelayListType,
+    ) =
+        if (relayListType.isMultihopEntry()) {
+            SetAsState.HIDDEN
+        } else {
+            validate(relayItem, geoLocationIds)
+        }
+
+    private fun setAsExitState(
+        relayItem: RelayItem,
+        geoLocationIds: Set<GeoLocationId>,
+        relayListType: RelayListType,
+    ) =
+        if (relayListType.isMultihopExit()) {
+            SetAsState.HIDDEN
+        } else {
+            validate(relayItem, geoLocationIds)
+        }
+
+    fun validate(relayItem: RelayItem, geoLocationIds: Set<GeoLocationId>): SetAsState =
+        if (
+            when (relayItem) {
+                is RelayItem.Location -> geoLocationIds.contains(relayItem.id)
+                is RelayItem.CustomList ->
+                    relayItem.locations.withDescendants().any { geoLocationIds.contains(it.id) }
+            }
+        ) {
+            SetAsState.ENABLED
+        } else {
+            SetAsState.DISABLED
         }
 }

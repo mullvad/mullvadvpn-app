@@ -302,6 +302,7 @@ fun SearchLocationScreen(
     ) {
         var locationBottomSheetState by remember { mutableStateOf<LocationBottomSheetState?>(null) }
         LocationBottomSheets(
+            relayListType = state.contentOrNull()?.relayListType ?: RelayListType.Single,
             locationBottomSheetState = locationBottomSheetState,
             onCreateCustomList = onCreateCustomList,
             onAddLocationToList = onAddLocationToList,
