@@ -7,6 +7,7 @@ import { messages } from '../../../shared/gettext';
 import { RoutePath } from '../../../shared/routes';
 import { Button, FilterChip, Flex, IconButton, LabelTinySemiBold } from '../../lib/components';
 import { FlexColumn } from '../../lib/components/flex-column';
+import { View } from '../../lib/components/view';
 import { useRelaySettingsUpdater } from '../../lib/constraint-updater';
 import {
   daitaFilterActive,
@@ -21,7 +22,6 @@ import { useSelector } from '../../redux/store';
 import { AppNavigationHeader } from '../';
 import * as Cell from '../cell';
 import { BackAction } from '../KeyboardNavigation';
-import { Layout, SettingsContainer } from '../Layout';
 import { NavigationContainer } from '../NavigationContainer';
 import { NavigationScrollbars } from '../NavigationScrollbars';
 import { useFilteredProviders } from '../views/filter/FilterView';
@@ -122,137 +122,131 @@ export default function SelectLocation() {
     showQuicFilter ||
     showLwoFilter;
   return (
-    <BackAction action={onClose}>
-      <Layout>
-        <SettingsContainer>
-          <NavigationContainer>
-            <AppNavigationHeader
-              title={
-                // TRANSLATORS: Title label in navigation bar
-                messages.pgettext('select-location-nav', 'Select location')
-              }
-              titleVisible>
-              <IconButton
-                variant="secondary"
-                onClick={onViewFilter}
-                aria-label={messages.gettext('Filter')}>
-                <IconButton.Icon icon="filter-circle" />
-              </IconButton>
-            </AppNavigationHeader>
+    <View backgroundColor="darkBlue">
+      <BackAction action={onClose}>
+        <NavigationContainer>
+          <AppNavigationHeader
+            title={
+              // TRANSLATORS: Title label in navigation bar
+              messages.pgettext('select-location-nav', 'Select location')
+            }
+            titleVisible>
+            <IconButton
+              variant="secondary"
+              onClick={onViewFilter}
+              aria-label={messages.gettext('Filter')}>
+              <IconButton.Icon icon="filter-circle" />
+            </IconButton>
+          </AppNavigationHeader>
 
-            <StyledNavigationBarAttachment>
-              {allowEntrySelection && (
-                <>
-                  <StyledScopeBar selectedIndex={locationType} onChange={changeLocationType}>
-                    <ScopeBarItem>
-                      {messages.pgettext('select-location-view', 'Entry')}
-                    </ScopeBarItem>
-                    <ScopeBarItem>{messages.pgettext('select-location-view', 'Exit')}</ScopeBarItem>
-                  </StyledScopeBar>
-                </>
-              )}
+          <StyledNavigationBarAttachment>
+            {allowEntrySelection && (
+              <>
+                <StyledScopeBar selectedIndex={locationType} onChange={changeLocationType}>
+                  <ScopeBarItem>{messages.pgettext('select-location-view', 'Entry')}</ScopeBarItem>
+                  <ScopeBarItem>{messages.pgettext('select-location-view', 'Exit')}</ScopeBarItem>
+                </StyledScopeBar>
+              </>
+            )}
 
-              {locationType === LocationType.entry && daita && !directOnly ? null : (
-                <>
-                  {showFilters && (
-                    <Flex
-                      gap="small"
-                      alignItems="center"
-                      flexWrap="wrap"
-                      margin={{ horizontal: 'small', bottom: 'medium' }}>
-                      <LabelTinySemiBold>
-                        {messages.pgettext('select-location-view', 'Filtered:')}
-                      </LabelTinySemiBold>
+            {locationType === LocationType.entry && daita && !directOnly ? null : (
+              <>
+                {showFilters && (
+                  <Flex
+                    gap="small"
+                    alignItems="center"
+                    flexWrap="wrap"
+                    margin={{ horizontal: 'small', bottom: 'medium' }}>
+                    <LabelTinySemiBold>
+                      {messages.pgettext('select-location-view', 'Filtered:')}
+                    </LabelTinySemiBold>
 
-                      {showOwnershipFilter && (
-                        <FilterChip
-                          aria-label={messages.gettext('Clear')}
-                          onClick={onClearOwnership}>
-                          <FilterChip.Text>{ownershipFilterLabel(ownership)}</FilterChip.Text>
-                          <FilterChip.Icon icon="cross" />
-                        </FilterChip>
-                      )}
+                    {showOwnershipFilter && (
+                      <FilterChip aria-label={messages.gettext('Clear')} onClick={onClearOwnership}>
+                        <FilterChip.Text>{ownershipFilterLabel(ownership)}</FilterChip.Text>
+                        <FilterChip.Icon icon="cross" />
+                      </FilterChip>
+                    )}
 
-                      {showProvidersFilter && (
-                        <FilterChip
-                          aria-label={messages.gettext('Clear')}
-                          onClick={onClearProviders}>
-                          <FilterChip.Text>
-                            {sprintf(
-                              messages.pgettext(
-                                'select-location-view',
-                                'Providers: %(numberOfProviders)d',
-                              ),
-                              { numberOfProviders: filteredProviders.length },
-                            )}
-                          </FilterChip.Text>
-                          <FilterChip.Icon icon="cross" />
-                        </FilterChip>
-                      )}
+                    {showProvidersFilter && (
+                      <FilterChip aria-label={messages.gettext('Clear')} onClick={onClearProviders}>
+                        <FilterChip.Text>
+                          {sprintf(
+                            messages.pgettext(
+                              'select-location-view',
+                              'Providers: %(numberOfProviders)d',
+                            ),
+                            { numberOfProviders: filteredProviders.length },
+                          )}
+                        </FilterChip.Text>
+                        <FilterChip.Icon icon="cross" />
+                      </FilterChip>
+                    )}
 
-                      {showDaitaFilter && (
-                        <FilterChip as="div">
-                          <FilterChip.Text>
-                            {sprintf(
-                              messages.pgettext('select-location-view', 'Setting: %(settingName)s'),
-                              { settingName: 'DAITA' },
-                            )}
-                          </FilterChip.Text>
-                        </FilterChip>
-                      )}
+                    {showDaitaFilter && (
+                      <FilterChip as="div">
+                        <FilterChip.Text>
+                          {sprintf(
+                            messages.pgettext('select-location-view', 'Setting: %(settingName)s'),
+                            { settingName: 'DAITA' },
+                          )}
+                        </FilterChip.Text>
+                      </FilterChip>
+                    )}
 
-                      {showQuicFilter && (
-                        <FilterChip as="div">
-                          <FilterChip.Text>
-                            {sprintf(
-                              // TRANSLATORS: Label for indicator that shows that obfuscation is being used as a filter.
-                              // TRANSLATORS: Available placeholders:
-                              // TRANSLATORS: %(obfuscation)s - type of obfuscation in use
-                              messages.pgettext(
-                                'select-location-view',
-                                'Obfuscation: %(obfuscation)s',
-                              ),
-                              { obfuscation: strings.quic },
-                            )}
-                          </FilterChip.Text>
-                        </FilterChip>
-                      )}
+                    {showQuicFilter && (
+                      <FilterChip as="div">
+                        <FilterChip.Text>
+                          {sprintf(
+                            // TRANSLATORS: Label for indicator that shows that obfuscation is being used as a filter.
+                            // TRANSLATORS: Available placeholders:
+                            // TRANSLATORS: %(obfuscation)s - type of obfuscation in use
+                            messages.pgettext(
+                              'select-location-view',
+                              'Obfuscation: %(obfuscation)s',
+                            ),
+                            { obfuscation: strings.quic },
+                          )}
+                        </FilterChip.Text>
+                      </FilterChip>
+                    )}
 
-                      {showLwoFilter && (
-                        <FilterChip as="div">
-                          <FilterChip.Text>
-                            {sprintf(
-                              // TRANSLATORS: Label for indicator that shows that obfuscation is being used as a filter.
-                              // TRANSLATORS: Available placeholders:
-                              // TRANSLATORS: %(obfuscation)s - type of obfuscation in use
-                              messages.pgettext(
-                                'select-location-view',
-                                'Obfuscation: %(obfuscation)s',
-                              ),
-                              { obfuscation: strings.lwo },
-                            )}
-                          </FilterChip.Text>
-                        </FilterChip>
-                      )}
-                    </Flex>
-                  )}
+                    {showLwoFilter && (
+                      <FilterChip as="div">
+                        <FilterChip.Text>
+                          {sprintf(
+                            // TRANSLATORS: Label for indicator that shows that obfuscation is being used as a filter.
+                            // TRANSLATORS: Available placeholders:
+                            // TRANSLATORS: %(obfuscation)s - type of obfuscation in use
+                            messages.pgettext(
+                              'select-location-view',
+                              'Obfuscation: %(obfuscation)s',
+                            ),
+                            { obfuscation: strings.lwo },
+                          )}
+                        </FilterChip.Text>
+                      </FilterChip>
+                    )}
+                  </Flex>
+                )}
 
-                  <StyledSearchBar searchTerm={searchValue} onSearch={updateSearchTerm} />
-                </>
-              )}
-            </StyledNavigationBarAttachment>
+                <StyledSearchBar searchTerm={searchValue} onSearch={updateSearchTerm} />
+              </>
+            )}
+          </StyledNavigationBarAttachment>
 
-            <NavigationScrollbars ref={scrollViewRef}>
+          <NavigationScrollbars ref={scrollViewRef}>
+            <View.Content>
               <SpacePreAllocationView ref={spacePreAllocationViewRef}>
                 <StyledContent>
                   <SelectLocationContent />
                 </StyledContent>
               </SpacePreAllocationView>
-            </NavigationScrollbars>
-          </NavigationContainer>
-        </SettingsContainer>
-      </Layout>
-    </BackAction>
+            </View.Content>
+          </NavigationScrollbars>
+        </NavigationContainer>
+      </BackAction>
+    </View>
   );
 }
 
