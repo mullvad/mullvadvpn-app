@@ -25,7 +25,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorSmall
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.Alpha20
@@ -33,6 +32,7 @@ import net.mullvad.mullvadvpn.lib.theme.color.AlphaInvisible
 import net.mullvad.mullvadvpn.lib.theme.color.errorDisabled
 import net.mullvad.mullvadvpn.lib.theme.color.primaryDisabled
 import net.mullvad.mullvadvpn.lib.theme.color.tertiaryDisabled
+import net.mullvad.mullvadvpn.lib.ui.component.MullvadCircularProgressIndicatorSmall
 
 @Preview
 @Composable

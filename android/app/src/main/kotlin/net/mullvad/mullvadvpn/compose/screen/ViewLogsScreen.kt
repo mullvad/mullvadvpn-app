@@ -44,7 +44,6 @@ import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorMedium
 import net.mullvad.mullvadvpn.compose.component.MullvadMediumTopBar
 import net.mullvad.mullvadvpn.compose.component.MullvadSnackbar
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
@@ -56,6 +55,7 @@ import net.mullvad.mullvadvpn.compose.util.createCopyToClipboardHandle
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
+import net.mullvad.mullvadvpn.lib.ui.component.MullvadCircularProgressIndicatorMedium
 import net.mullvad.mullvadvpn.provider.getLogsShareIntent
 import net.mullvad.mullvadvpn.viewmodel.ViewLogsUiState
 import net.mullvad.mullvadvpn.viewmodel.ViewLogsViewModel

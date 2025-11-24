@@ -71,7 +71,9 @@ data class Dimensions(
     val searchIconSize: Dp = 24.dp,
     val selectableCellTextMargin: Dp = 8.dp,
     val settingsDetailsImageMaxWidth: Dp = 480.dp,
+    // These two should be consolidated into one value when OK'd with design.
     val sideMargin: Dp = 24.dp,
+    val sideMarginNew: Dp = 16.dp,
     val smallIconSize: Dp = 16.dp,
     val smallPadding: Dp = 8.dp,
     val smallSpacer: Dp = 8.dp,

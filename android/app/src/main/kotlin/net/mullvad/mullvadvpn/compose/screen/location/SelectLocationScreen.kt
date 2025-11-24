@@ -86,7 +86,6 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.cell.FilterRow
 import net.mullvad.mullvadvpn.compose.communication.CustomListActionResultData
-import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithSmallTopBar
 import net.mullvad.mullvadvpn.compose.extensions.dropUnlessResumed
 import net.mullvad.mullvadvpn.compose.preview.SelectLocationsUiStatePreviewParameterProvider
@@ -108,6 +107,7 @@ import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaDisabled
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaVisible
+import net.mullvad.mullvadvpn.lib.ui.component.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.lib.ui.component.MultihopSelector
 import net.mullvad.mullvadvpn.lib.ui.component.Singlehop
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_SCREEN_TEST_TAG

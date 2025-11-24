@@ -57,7 +57,6 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.button.VariantButton
 import net.mullvad.mullvadvpn.compose.cell.CheckboxCell
-import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.compose.extensions.createUriHook
@@ -72,6 +71,7 @@ import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.Alpha80
 import net.mullvad.mullvadvpn.lib.theme.color.warning
 import net.mullvad.mullvadvpn.lib.ui.component.ExpandChevron
+import net.mullvad.mullvadvpn.lib.ui.component.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.util.appendHideNavOnPlayBuild
 import net.mullvad.mullvadvpn.viewmodel.ReportProblemSideEffect
 import net.mullvad.mullvadvpn.viewmodel.ReportProblemUiState

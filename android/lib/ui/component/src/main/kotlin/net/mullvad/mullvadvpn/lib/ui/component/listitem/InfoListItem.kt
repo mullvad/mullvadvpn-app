@@ -42,10 +42,9 @@ fun InfoListItem(
     backgroundAlpha: Float = 1f,
     iconContentDescription: String? = null,
     onCellClicked: (() -> Unit)? = null,
-    onInfoClicked: (() -> Unit),
+    onInfoClicked: (() -> Unit)? = null,
     testTag: String? = null,
 ) {
-
     MullvadListItem(
         modifier = modifier,
         hierarchy = hierarchy,
@@ -56,18 +55,20 @@ fun InfoListItem(
         backgroundAlpha = backgroundAlpha,
         content = { Text(title) },
         trailingContent = {
-            Box(
-                modifier =
-                    Modifier.width(ListItemComponentTokens.infoIconContainerWidth)
-                        .padding(end = Dimens.smallPadding)
-                        .fillMaxHeight(),
-                contentAlignment = Alignment.Center,
-            ) {
-                IconButton(onClick = onInfoClicked) {
-                    Icon(
-                        imageVector = Icons.Default.Info,
-                        contentDescription = iconContentDescription,
-                    )
+            if (onInfoClicked != null) {
+                Box(
+                    modifier =
+                        Modifier.width(ListItemComponentTokens.infoIconContainerWidth)
+                            .padding(end = Dimens.smallPadding)
+                            .fillMaxHeight(),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    IconButton(onClick = onInfoClicked) {
+                        Icon(
+                            imageVector = Icons.Default.Info,
+                            contentDescription = iconContentDescription,
+                        )
+                    }
                 }
             }
         },

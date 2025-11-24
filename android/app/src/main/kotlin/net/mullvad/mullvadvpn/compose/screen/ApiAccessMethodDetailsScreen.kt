@@ -48,7 +48,6 @@ import net.mullvad.mullvadvpn.compose.button.TestMethodButton
 import net.mullvad.mullvadvpn.compose.cell.HeaderSwitchComposeCell
 import net.mullvad.mullvadvpn.compose.cell.NavigationComposeCell
 import net.mullvad.mullvadvpn.compose.cell.SwitchComposeSubtitleCell
-import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.compose.preview.ApiAccessMethodDetailsUiStatePreviewParameterProvider
@@ -62,6 +61,7 @@ import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodId
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.menuItemColors
+import net.mullvad.mullvadvpn.lib.ui.component.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.lib.ui.tag.API_ACCESS_DETAILS_EDIT_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.API_ACCESS_DETAILS_TOP_BAR_DROPDOWN_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.API_ACCESS_TEST_METHOD_BUTTON_TEST_TAG
