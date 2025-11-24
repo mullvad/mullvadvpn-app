@@ -24,6 +24,7 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 ### Added
 - Add port 443 to list of valid UDP2TCP ports.
+- Support GNOME as a Wayland compositor.
 
 
 ## [2025.14-beta1] - 2025-11-11

@@ -8,7 +8,7 @@ else
     SANDBOX_FLAG=""
 fi
 
-SUPPORTED_COMPOSITORS="sway river Hyprland niri"
+SUPPORTED_COMPOSITORS="sway river Hyprland niri GNOME"
 if [ "${XDG_SESSION_TYPE:-""}"  = "wayland" ] && \
     echo " $SUPPORTED_COMPOSITORS " | \
     grep -qi -e " ${XDG_CURRENT_DESKTOP:-""} " -e " ${XDG_SESSION_DESKTOP:-""} "
