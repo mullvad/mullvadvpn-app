@@ -1,6 +1,9 @@
 use socket2::SockAddr;
 #[cfg(target_os = "macos")]
-use std::{ffi::CString, num::NonZeroU32};
+use std::{
+    ffi::{CString, c_char},
+    num::NonZeroU32,
+};
 use std::{
     io::Write,
     net::{IpAddr, SocketAddr},
@@ -25,7 +28,7 @@ pub async fn send_tcp(
         #[cfg(target_os = "macos")]
         let interface_index = unsafe {
             let name = CString::new(iface).unwrap();
-            let index = libc::if_nametoindex(name.as_bytes_with_nul().as_ptr() as _);
+            let index = libc::if_nametoindex(name.as_bytes_with_nul().as_ptr().cast::<c_char>());
             NonZeroU32::new(index).ok_or_else(|| {
                 log::error!("Invalid interface index");
                 test_rpc::Error::SendTcp
@@ -92,7 +95,7 @@ pub async fn send_udp(
         #[cfg(target_os = "macos")]
         let interface_index = unsafe {
             let name = CString::new(iface).unwrap();
-            let index = libc::if_nametoindex(name.as_bytes_with_nul().as_ptr() as _);
+            let index = libc::if_nametoindex(name.as_bytes_with_nul().as_ptr().cast::<c_char>());
             NonZeroU32::new(index).ok_or_else(|| {
                 log::error!("Invalid interface index");
                 test_rpc::Error::SendUdp
