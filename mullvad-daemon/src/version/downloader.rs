@@ -4,6 +4,7 @@ use mullvad_types::version::{AppUpgradeDownloadProgress, AppUpgradeError, AppUpg
 use mullvad_update::app::{
     AppDownloader, AppDownloaderParameters, DownloadError, DownloadedInstaller, bin_path,
 };
+use mullvad_update::version::Metadata;
 use mullvad_version::Version;
 use rand::seq::IndexedRandom;
 use std::io;
@@ -69,7 +70,7 @@ impl std::future::Future for DownloaderHandle {
 }
 
 pub fn spawn_downloader<D>(
-    version: Version,
+    metadata: Metadata,
     event_tx: broadcast::Sender<AppUpgradeEvent>,
 ) -> DownloaderHandle
 where
@@ -77,22 +78,25 @@ where
     D: From<AppDownloaderParameters<ProgressUpdater>>,
 {
     DownloaderHandle {
-        task: tokio::spawn(start::<D>(version, event_tx.clone())),
+        task: tokio::spawn(start::<D>(metadata, event_tx.clone())),
         dropped_tx: Some(event_tx),
     }
 }
 
-/// Begin or resume download of `version`
-async fn start<D>(version: Version, event_tx: broadcast::Sender<AppUpgradeEvent>) -> Result<PathBuf>
+/// Begin or resume download of `metadata`
+async fn start<D>(
+    metadata: Metadata,
+    event_tx: broadcast::Sender<AppUpgradeEvent>,
+) -> Result<PathBuf>
 where
     D: AppDownloader + Send + 'static,
     D: From<AppDownloaderParameters<ProgressUpdater>>,
 {
-    let url = select_cdn_url(&version.urls)
+    let url = select_cdn_url(&metadata.urls)
         .ok_or(Error::NoUrlFound)?
         .to_owned();
 
-    log::info!("Downloading app version '{}' from {url}", version.version);
+    log::info!("Downloading app version '{}' from {url}", metadata.version);
 
     let download_dir = if cfg!(test) {
         PathBuf::new()
@@ -102,14 +106,14 @@ where
             let _ = event_tx.send(AppUpgradeEvent::Error(AppUpgradeError::GeneralError));
         })?
     };
-    let bin_path = bin_path(&version.version, &download_dir);
+    let bin_path = bin_path(&metadata.version, &download_dir);
 
     let params = AppDownloaderParameters {
-        app_version: version.version,
+        app_version: metadata.version,
         app_url: url.clone(),
-        app_size: version.size,
+        app_size: metadata.size,
         app_progress: ProgressUpdater::new(server_from_url(&url), event_tx.clone()),
-        app_sha256: version.sha256,
+        app_sha256: metadata.sha256,
         cache_dir: download_dir,
     };
     let downloader = D::from(params);
