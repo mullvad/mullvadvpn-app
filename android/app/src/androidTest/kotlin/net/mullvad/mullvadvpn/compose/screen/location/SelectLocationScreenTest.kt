@@ -16,10 +16,12 @@ import net.mullvad.mullvadvpn.compose.data.DUMMY_RELAY_COUNTRIES
 import net.mullvad.mullvadvpn.compose.data.DUMMY_RELAY_ITEM_CUSTOM_LISTS
 import net.mullvad.mullvadvpn.compose.data.createSimpleRelayListItemList
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
+import net.mullvad.mullvadvpn.compose.state.LocationBottomSheetUiState
 import net.mullvad.mullvadvpn.compose.state.MultihopRelayListType
 import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.compose.state.SelectLocationListUiState
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
+import net.mullvad.mullvadvpn.compose.state.SetAsState
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.HopSelection
 import net.mullvad.mullvadvpn.lib.model.RelayItem
@@ -33,6 +35,7 @@ import net.mullvad.mullvadvpn.onNodeWithTagAndText
 import net.mullvad.mullvadvpn.performLongClick
 import net.mullvad.mullvadvpn.util.Lc
 import net.mullvad.mullvadvpn.util.Lce
+import net.mullvad.mullvadvpn.viewmodel.location.LocationBottomSheetViewModel
 import net.mullvad.mullvadvpn.viewmodel.location.SelectLocationListViewModel
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -47,12 +50,19 @@ class SelectLocationScreenTest {
     @JvmField @RegisterExtension val composeExtension = createEdgeToEdgeComposeExtension()
 
     private val listViewModel: SelectLocationListViewModel = mockk(relaxed = true)
+    private val bottomSheetViewModel: LocationBottomSheetViewModel = mockk(relaxed = true)
 
     @BeforeEach
     fun setup() {
         MockKAnnotations.init(this)
-        loadKoinModules(module { viewModel { listViewModel } })
+        loadKoinModules(
+            module {
+                viewModel { listViewModel }
+                viewModel { bottomSheetViewModel }
+            }
+        )
         every { listViewModel.uiState } returns MutableStateFlow(Lce.Loading(Unit))
+        every { bottomSheetViewModel.uiState } returns MutableStateFlow(Lc.Loading(Unit))
     }
 
     @AfterEach
@@ -296,6 +306,17 @@ class SelectLocationScreenTest {
                         )
                     )
                 )
+            every { bottomSheetViewModel.uiState } returns
+                MutableStateFlow(
+                    Lc.Content(
+                        LocationBottomSheetUiState.CustomList(
+                            item = customList,
+                            setAsExitState = SetAsState.HIDDEN,
+                            setAsEntryState = SetAsState.ENABLED,
+                            canDisableMultihop = false,
+                        )
+                    )
+                )
             val mockedOnSelectHop: (RelayItem) -> Unit = mockk(relaxed = true)
             initScreen(
                 state =
@@ -339,6 +360,18 @@ class SelectLocationScreenTest {
                                 ),
                             customLists = emptyList(),
                             relayListType = RelayListType.Single,
+                        )
+                    )
+                )
+            every { bottomSheetViewModel.uiState } returns
+                MutableStateFlow(
+                    Lc.Content(
+                        LocationBottomSheetUiState.Location(
+                            item = relayItem,
+                            customLists = emptyList(),
+                            setAsExitState = SetAsState.HIDDEN,
+                            setAsEntryState = SetAsState.ENABLED,
+                            canDisableMultihop = false,
                         )
                     )
                 )
