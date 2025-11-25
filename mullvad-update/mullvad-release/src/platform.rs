@@ -7,10 +7,8 @@ use mullvad_update::format::installer::Installer;
 use mullvad_update::format::key;
 use mullvad_update::format::release::Release;
 use mullvad_update::format::response::{Response, SignedResponse};
-use mullvad_update::version::rollout::Rollout;
-use mullvad_update::version::{
-    MIN_VERIFY_METADATA_VERSION, VersionArchitecture, VersionInfo, VersionParameters,
-};
+use mullvad_update::version::Rollout;
+use mullvad_update::version::{MIN_VERIFY_METADATA_VERSION, VersionInfo, VersionParameters};
 use std::{cmp::Ordering, fmt, path::PathBuf, str::FromStr};
 use strum::IntoEnumIterator;
 use tokio::{fs, io};

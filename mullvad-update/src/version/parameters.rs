@@ -1,11 +1,10 @@
-use crate::format::Architecture;
 use crate::version::rollout::Rollout;
 
 /// Query type for [VersionInfo]
 #[derive(Debug, Clone)]
 pub struct VersionParameters {
     /// Architecture to retrieve data for
-    pub architecture: VersionArchitecture,
+    pub architecture: Architecture,
     /// Rollout threshold. Any version in the response below this threshold will be ignored
     pub rollout: Rollout,
     /// Allow versions without any installers to be returned
@@ -16,4 +15,4 @@ pub struct VersionParameters {
 }
 
 /// Installer architecture
-pub type VersionArchitecture = Architecture;
+pub type Architecture = crate::format::Architecture;

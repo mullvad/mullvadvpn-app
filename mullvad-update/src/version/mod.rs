@@ -9,7 +9,7 @@ mod rollout;
 
 pub use info::{MIN_VERIFY_METADATA_VERSION, Metadata, VersionInfo, is_version_supported};
 pub use parameters::VersionParameters;
-pub use rollout::{IGNORE, Rollout, is_complete_rollout};
+pub use rollout::{IGNORE, Rollout, SUPPORTED_VERSION, is_complete_rollout};
 
 pub use crate::format::Architecture;
 pub use crate::format::installer::Installer;
