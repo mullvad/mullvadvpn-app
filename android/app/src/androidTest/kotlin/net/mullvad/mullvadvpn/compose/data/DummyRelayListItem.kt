@@ -4,7 +4,6 @@ import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.ItemPosition
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.RelayListItem
-import net.mullvad.mullvadvpn.lib.ui.designsystem.RelayListItem
 import net.mullvad.mullvadvpn.relaylist.descendants
 
 @Suppress("CyclomaticComplexMethod")

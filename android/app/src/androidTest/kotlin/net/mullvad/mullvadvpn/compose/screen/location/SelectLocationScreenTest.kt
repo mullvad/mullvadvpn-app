@@ -482,14 +482,14 @@ class SelectLocationScreenTest {
             )
 
             // Assert
-            onNodeWithText(RELAY_LOCATIONS_EMTY_TEXT_FIRST_LINE).assertExists()
-            onNodeWithText(RELAY_LOCATIONS_EMTY_TEXT_SECOND_LINE).assertExists()
+            onNodeWithText(RELAY_LOCATIONS_EMPTY_TEXT_FIRST_LINE).assertExists()
+            onNodeWithText(RELAY_LOCATIONS_EMPTY_TEXT_SECOND_LINE).assertExists()
         }
 
     companion object {
         private const val CUSTOM_LISTS_EMPTY_TEXT = "To create a custom list press the \"+\""
-        private const val RELAY_LOCATIONS_EMTY_TEXT_FIRST_LINE = "No matching servers found."
-        private const val RELAY_LOCATIONS_EMTY_TEXT_SECOND_LINE =
+        private const val RELAY_LOCATIONS_EMPTY_TEXT_FIRST_LINE = "No matching servers found."
+        private const val RELAY_LOCATIONS_EMPTY_TEXT_SECOND_LINE =
             "Please try changing your filters."
     }
 }
