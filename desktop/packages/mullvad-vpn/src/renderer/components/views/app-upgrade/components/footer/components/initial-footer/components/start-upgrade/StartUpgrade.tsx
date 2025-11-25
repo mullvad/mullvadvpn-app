@@ -1,15 +1,15 @@
 import { messages } from '../../../../../../../../../../shared/gettext';
 import { Flex } from '../../../../../../../../../lib/components';
-import { useHasUpgrade } from '../../../../../../hooks';
 import { UpgradeButton } from '../../../../../upgrade-button';
+import { useDisabled } from './hooks';
 
 export function StartUpgrade() {
-  const hasUpgrade = useHasUpgrade();
+  const disabled = useDisabled();
 
   return (
     <Flex $padding="large" $flexDirection="column">
       <Flex $flexDirection="column">
-        <UpgradeButton disabled={!hasUpgrade}>
+        <UpgradeButton disabled={disabled}>
           {
             // TRANSLATORS: Button text to download and install an update
             messages.pgettext('app-upgrade-view', 'Download & install')
