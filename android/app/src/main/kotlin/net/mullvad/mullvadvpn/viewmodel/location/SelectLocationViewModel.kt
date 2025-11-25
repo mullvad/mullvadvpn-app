@@ -231,7 +231,7 @@ class SelectLocationViewModel(
     fun setAsEntry(item: RelayItem) {
         viewModelScope.launch {
             val previousEntry = hopSelectionUseCase().first().entry()?.getOrNull()
-            modifyMultihop(MultihopChange.Entry(item)) {
+            modifyMultihop(MultihopChange.Entry(item), actionOnSuccess = false) {
                 // If we were successful we should set multihop to true if required
                 if (
                     wireguardConstraintsRepository.wireguardConstraints.value?.isMultihopEnabled ==
