@@ -25,7 +25,7 @@ pub async fn send_tcp(
         #[cfg(target_os = "macos")]
         let interface_index = unsafe {
             let name = CString::new(iface).unwrap();
-            let index = libc::if_nametoindex(name.as_bytes_with_nul().as_ptr() as _);
+            let index = libc::if_nametoindex(name.as_bytes_with_nul().as_ptr().cast());
             NonZeroU32::new(index).ok_or_else(|| {
                 log::error!("Invalid interface index");
                 test_rpc::Error::SendTcp
@@ -92,7 +92,7 @@ pub async fn send_udp(
         #[cfg(target_os = "macos")]
         let interface_index = unsafe {
             let name = CString::new(iface).unwrap();
-            let index = libc::if_nametoindex(name.as_bytes_with_nul().as_ptr() as _);
+            let index = libc::if_nametoindex(name.as_bytes_with_nul().as_ptr().cast());
             NonZeroU32::new(index).ok_or_else(|| {
                 log::error!("Invalid interface index");
                 test_rpc::Error::SendUdp
