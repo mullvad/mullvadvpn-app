@@ -5,7 +5,6 @@ use mullvad_update::app::{
     AppDownloader, AppDownloaderParameters, DownloadError, DownloadedInstaller, bin_path,
 };
 use mullvad_update::version::Metadata;
-use mullvad_version::Version;
 use rand::seq::IndexedRandom;
 use std::io;
 use std::path::PathBuf;
