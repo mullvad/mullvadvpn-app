@@ -27,7 +27,6 @@ import net.mullvad.mullvadvpn.usecase.FilterChip
 import net.mullvad.mullvadvpn.usecase.FilterChipUseCase
 import net.mullvad.mullvadvpn.usecase.FilteredRelayListUseCase
 import net.mullvad.mullvadvpn.usecase.ModifyMultihopUseCase
-import net.mullvad.mullvadvpn.usecase.RelayItemCanBeSelectedUseCase
 import net.mullvad.mullvadvpn.usecase.SelectSinglehopUseCase
 import net.mullvad.mullvadvpn.usecase.SelectedLocationUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
@@ -54,7 +53,6 @@ class SearchLocationViewModelTest {
     private val mockSelectSinglehopUseCase: SelectSinglehopUseCase = mockk()
     private val mockModifyMultihopUseCase: ModifyMultihopUseCase = mockk()
     private val mockSettingsRepository: SettingsRepository = mockk()
-    private val mockRelayItemCanBeSelectedUseCase: RelayItemCanBeSelectedUseCase = mockk()
 
     private val filteredRelayList = MutableStateFlow<List<RelayItem.Location.Country>>(emptyList())
     private val selectedLocation =
@@ -65,8 +63,6 @@ class SearchLocationViewModelTest {
     private val filterChips = MutableStateFlow<List<FilterChip>>(emptyList())
     private val wireguardConstraints = MutableStateFlow<WireguardConstraints>(mockk(relaxed = true))
     private val settingsFlow = MutableStateFlow(mockk<Settings>(relaxed = true))
-    private val canBeSelectedFlow =
-        MutableStateFlow(emptySet<RelayItem.Location>() to emptySet<RelayItem.Location>())
 
     private lateinit var viewModel: SearchLocationViewModel
 
@@ -81,7 +77,6 @@ class SearchLocationViewModelTest {
         every { mockWireguardConstraintsRepository.wireguardConstraints } returns
             wireguardConstraints
         every { mockSettingsRepository.settingsUpdates } returns settingsFlow
-        every { mockRelayItemCanBeSelectedUseCase() } returns canBeSelectedFlow
 
         viewModel =
             SearchLocationViewModel(
@@ -97,7 +92,6 @@ class SearchLocationViewModelTest {
                 modifyMultihopUseCase = mockModifyMultihopUseCase,
                 settingsRepository = mockSettingsRepository,
                 wireguardConstraintsRepository = mockWireguardConstraintsRepository,
-                relayItemCanBeSelectedUseCase = mockRelayItemCanBeSelectedUseCase,
                 savedStateHandle =
                     SearchLocationNavArgs(relayListType = RelayListType.Single).toSavedStateHandle(),
             )
