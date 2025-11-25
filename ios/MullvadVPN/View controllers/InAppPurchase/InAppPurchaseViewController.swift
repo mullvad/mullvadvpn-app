@@ -106,7 +106,7 @@ class InAppPurchaseViewController: UIViewController, StorePaymentObserver {
     }
 
     func showPurchaseOptions(for products: [Product]) {
-        let localizedString = NSLocalizedString("Add Time", comment: "")
+        let localizedString = NSLocalizedString("Add time", comment: "")
 
         let sheetController = UIAlertController(
             title: localizedString,
@@ -232,7 +232,7 @@ class InAppPurchaseViewController: UIViewController, StorePaymentObserver {
     }
 
     func legacyShowPurchaseOptions(for products: [SKProduct]) {
-        let localizedString = NSLocalizedString("Add Time", comment: "")
+        let localizedString = NSLocalizedString("Add time", comment: "")
 
         let sheetController = UIAlertController(
             title: localizedString,

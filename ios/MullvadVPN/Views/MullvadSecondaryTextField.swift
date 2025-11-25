@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct MullvadSecondaryTextField: View {
-    let placeholder: String
+    let placeholder: LocalizedStringKey
     @Binding var text: String
     var isValid = true
 
@@ -66,19 +66,20 @@ struct MullvadSecondaryTextField: View {
 #Preview {
     StatefulPreviewWrapper("") { text in
         VStack {
+            let placeholder = "Placeholder text"
             MullvadSecondaryTextField(
-                placeholder: "Placeholder text",
+                placeholder: LocalizedStringKey(placeholder),
                 text: text
             )
 
             MullvadSecondaryTextField(
-                placeholder: "Placeholder text",
+                placeholder: LocalizedStringKey(placeholder),
                 text: text,
                 isValid: false
             )
 
             MullvadSecondaryTextField(
-                placeholder: "Placeholder text",
+                placeholder: LocalizedStringKey(placeholder),
                 text: text
             )
             .disabled(true)

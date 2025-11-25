@@ -5,6 +5,11 @@
       <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
     </header>
     <body>
+      <trans-unit id="" translate="no" xml:space="preserve">
+        <source/>
+        <target state="new"/>
+        <note/>
+      </trans-unit>
       <trans-unit id="%@" xml:space="preserve">
         <source>%@</source>
         <target state="new">%@</target>
@@ -23,6 +28,11 @@
       <trans-unit id="%@ does this by carefully adding network noise and making all network packets the same size." xml:space="preserve">
         <source>%@ does this by carefully adding network noise and making all network packets the same size.</source>
         <target state="new">%@ does this by carefully adding network noise and making all network packets the same size.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="%@ have been added to your account." xml:space="preserve">
+        <source>%@ have been added to your account.</source>
+        <target state="new">%@ have been added to your account.</target>
         <note/>
       </trans-unit>
       <trans-unit id="%@ left on this account" xml:space="preserve">
@@ -152,6 +162,11 @@ Would you like to continue to enable “Local network sharing”?</target>
       <trans-unit id="Add" xml:space="preserve">
         <source>Add</source>
         <target state="new">Add</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Add %@ to list" xml:space="preserve">
+        <source>Add %@ to list</source>
+        <target state="new">Add %@ to list</target>
         <note/>
       </trans-unit>
       <trans-unit id="Add 30 days time (%@)" xml:space="preserve">
@@ -509,6 +524,11 @@ Would you like to continue to enable “Local network sharing”?</target>
         <target state="new">Client is not allowed to issue the request.</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Collapse" xml:space="preserve">
+        <source>Collapse</source>
+        <target state="new">Collapse</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="Collapse %@" xml:space="preserve">
         <source>Collapse %@</source>
         <target state="new">Collapse %@</target>
@@ -532,6 +552,11 @@ Would you like to continue to enable “Local network sharing”?</target>
       <trans-unit id="Connect" xml:space="preserve">
         <source>Connect</source>
         <target state="new">Connect</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Connected server" xml:space="preserve">
+        <source>Connected server</source>
+        <target state="new">Connected server</target>
         <note/>
       </trans-unit>
       <trans-unit id="Connected to %@" xml:space="preserve">
@@ -789,6 +814,11 @@ Would you like to continue to enable “Local network sharing”?</target>
         <target state="new">Dusseldorf</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Edit" xml:space="preserve">
+        <source>Edit</source>
+        <target state="new">Edit</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="Edit custom list" xml:space="preserve">
         <source>Edit custom list</source>
         <target state="new">Edit custom list</target>
@@ -864,6 +894,11 @@ Would you like to continue to enable “Local network sharing”?</target>
         <target state="new">Exit</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Expand" xml:space="preserve">
+        <source>Expand</source>
+        <target state="new">Expand</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="Expand %@" xml:space="preserve">
         <source>Expand %@</source>
         <target state="new">Expand %@</target>
@@ -882,6 +917,11 @@ Would you like to continue to enable “Local network sharing”?</target>
       <trans-unit id="Failed to load products, please try again" xml:space="preserve">
         <source>Failed to load products, please try again</source>
         <target state="new">Failed to load products, please try again</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Failed to reach Mullvad servers to initiate purchase" xml:space="preserve">
+        <source>Failed to reach Mullvad servers to initiate purchase</source>
+        <target state="new">Failed to reach Mullvad servers to initiate purchase</target>
         <note/>
       </trans-unit>
       <trans-unit id="Failed to send" xml:space="preserve">
@@ -914,6 +954,16 @@ Would you like to continue to enable “Local network sharing”?</target>
         <target state="new">Failed to stop the tunnel: %@.</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Failed to upload one or more receipts to Mullvad servers. Try again later or contact support for help." xml:space="preserve">
+        <source>Failed to upload one or more receipts to Mullvad servers. Try again later or contact support for help.</source>
+        <target state="new">Failed to upload one or more receipts to Mullvad servers. Try again later or contact support for help.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Failed to verify transaction receipt" xml:space="preserve">
+        <source>Failed to verify transaction receipt</source>
+        <target state="new">Failed to verify transaction receipt</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="Fetching devices..." xml:space="preserve">
         <source>Fetching devices...</source>
         <target state="new">Fetching devices...</target>
@@ -924,9 +974,9 @@ Would you like to continue to enable “Local network sharing”?</target>
         <target state="new">Filter</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Filtered:" xml:space="preserve">
-        <source>Filtered:</source>
-        <target state="new">Filtered:</target>
+      <trans-unit id="Filters" xml:space="preserve">
+        <source>Filters</source>
+        <target state="new">Filters</target>
         <note/>
       </trans-unit>
       <trans-unit id="Finland" xml:space="preserve">
@@ -1274,6 +1324,11 @@ Would you like to continue to enable “Local network sharing”?</target>
         <target state="new">Lisbon</target>
         <note/>
       </trans-unit>
+      <trans-unit id="List name" xml:space="preserve">
+        <source>List name</source>
+        <target state="new">List name</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="Ljubljana" xml:space="preserve">
         <source>Ljubljana</source>
         <target state="new">Ljubljana</target>
@@ -1332,11 +1387,6 @@ Would you like to continue to enable “Local network sharing”?</target>
       <trans-unit id="Madrid" xml:space="preserve">
         <source>Madrid</source>
         <target state="new">Madrid</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Make a purchase with StoreKit2" xml:space="preserve">
-        <source>Make a purchase with StoreKit2</source>
-        <target state="new">Make a purchase with StoreKit2</target>
         <note/>
       </trans-unit>
       <trans-unit id="Malaysia" xml:space="preserve">
@@ -1489,6 +1539,11 @@ Would you like to continue to enable “Local network sharing”?</target>
         <target state="new">New Zealand</target>
         <note/>
       </trans-unit>
+      <trans-unit id="New list" xml:space="preserve">
+        <source>New list</source>
+        <target state="new">New list</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="Next" xml:space="preserve">
         <source>Next</source>
         <target state="new">Next</target>
@@ -1517,6 +1572,11 @@ Would you like to continue to enable “Local network sharing”?</target>
       <trans-unit id="No matching servers found." xml:space="preserve">
         <source>No matching servers found.</source>
         <target state="new">No matching servers found.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="No result for &quot;%@&quot;, please try a different search term." xml:space="preserve">
+        <source>No result for "%@", please try a different search term.</source>
+        <target state="new">No result for "%@", please try a different search term.</target>
         <note/>
       </trans-unit>
       <trans-unit id="No servers match your location filter. Try changing filter settings." xml:space="preserve">
@@ -1624,6 +1684,11 @@ Would you like to continue to enable “Local network sharing”?</target>
         <target state="new">Out of time</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Owned" xml:space="preserve">
+        <source>Owned</source>
+        <target state="new">Owned</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="Ownership" xml:space="preserve">
         <source>Ownership</source>
         <target state="new">Ownership</target>
@@ -1729,9 +1794,9 @@ Would you like to continue to enable “Local network sharing”?</target>
         <target state="new">Providers</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Providers: %d" xml:space="preserve">
-        <source>Providers: %d</source>
-        <target state="new">Providers: %d</target>
+      <trans-unit id="Providers: %lld" xml:space="preserve">
+        <source>Providers: %lld</source>
+        <target state="new">Providers: %lld</target>
         <note/>
       </trans-unit>
       <trans-unit id="QUIC" xml:space="preserve">
@@ -1811,6 +1876,11 @@ Do you want to remove the saved account number?</source>
 Do you want to remove the saved account number?</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Rented" xml:space="preserve">
+        <source>Rented</source>
+        <target state="new">Rented</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="Rented only" xml:space="preserve">
         <source>Rented only</source>
         <target state="new">Rented only</target>
@@ -1866,9 +1936,9 @@ Do you want to remove the saved account number?</target>
         <target state="new">Saving changes...</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Search for..." xml:space="preserve">
-        <source>Search for...</source>
-        <target state="new">Search for...</target>
+      <trans-unit id="Search for locations or servers" xml:space="preserve">
+        <source>Search for locations or servers</source>
+        <target state="new">Search for locations or servers</target>
         <note/>
       </trans-unit>
       <trans-unit id="Seattle, WA" xml:space="preserve">
@@ -2136,9 +2206,9 @@ Do you want to remove the saved account number?</target>
         <target state="new">The entry and exit servers cannot be the same. Try changing one to a new server or location.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="The entry server for %@ is currently overridden by %@. To select an entry server, please first enable “%@” or disable “%@“ in the settings." xml:space="preserve">
-        <source>The entry server for %1$@ is currently overridden by %2$@. To select an entry server, please first enable “%3$@” or disable “%4$@“ in the settings.</source>
-        <target state="new">The entry server for %1$@ is currently overridden by %2$@. To select an entry server, please first enable “%3$@” or disable “%4$@“ in the settings.</target>
+      <trans-unit id="The entry server for %@ is currently overridden by %@. To select an entry server, please first enable “%@” or disable “%@” in the settings." xml:space="preserve">
+        <source>The entry server for %1$@ is currently overridden by %2$@. To select an entry server, please first enable “%3$@” or disable “%4$@” in the settings.</source>
+        <target state="new">The entry server for %1$@ is currently overridden by %2$@. To select an entry server, please first enable “%3$@” or disable “%4$@” in the settings.</target>
         <note/>
       </trans-unit>
       <trans-unit id="The payment request was cancelled." xml:space="preserve">
@@ -2221,6 +2291,11 @@ Do you want to remove the saved account number?</target>
         <target state="new">Tirana</target>
         <note/>
       </trans-unit>
+      <trans-unit id="To add locations to a list, press the pen or long press on a country, city, or server." xml:space="preserve">
+        <source>To add locations to a list, press the pen or long press on a country, city, or server.</source>
+        <target state="new">To add locations to a list, press the pen or long press on a country, city, or server.</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="To add more, you will need to disconnect and access the Internet with an unsecure connection." xml:space="preserve">
         <source>To add more, you will need to disconnect and access the Internet with an unsecure connection.</source>
         <target state="new">To add more, you will need to disconnect and access the Internet with an unsecure connection.</target>
@@ -2239,6 +2314,11 @@ Do you want to remove the saved account number?</target>
       <trans-unit id="To continue your journey as a privacy ninja, visit our website to pick up other privacy-friendly habits and tools." xml:space="preserve">
         <source>To continue your journey as a privacy ninja, visit our website to pick up other privacy-friendly habits and tools.</source>
         <target state="new">To continue your journey as a privacy ninja, visit our website to pick up other privacy-friendly habits and tools.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="To create a custom list press the “+” or long press on a country, city, or server." xml:space="preserve">
+        <source>To create a custom list press the “+” or long press on a country, city, or server.</source>
+        <target state="new">To create a custom list press the “+” or long press on a country, city, or server.</target>
         <note/>
       </trans-unit>
       <trans-unit id="To create a custom list, tap on &quot;...&quot; " xml:space="preserve">
@@ -2339,6 +2419,11 @@ Do you want to remove the saved account number?</target>
       <trans-unit id="Unable to start tunnel connection. Please send a problem report." xml:space="preserve">
         <source>Unable to start tunnel connection. Please send a problem report.</source>
         <target state="new">Unable to start tunnel connection. Please send a problem report.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Unexpected error occured." xml:space="preserve">
+        <source>Unexpected error occured.</source>
+        <target state="new">Unexpected error occured.</target>
         <note/>
       </trans-unit>
       <trans-unit id="Unexpected server response: %1$@ (HTTP status: %2$d)" xml:space="preserve">
@@ -2599,6 +2684,11 @@ We strongly believe in retaining as little data as possible because we want you 
         <target state="new">Your previous purchases have already been added to this account.</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Your previous purchases have been added to your account." xml:space="preserve">
+        <source>Your previous purchases have been added to your account.</source>
+        <target state="new">Your previous purchases have been added to your account.</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="Your purchase was successfully refunded." xml:space="preserve">
         <source>Your purchase was successfully refunded.</source>
         <target state="new">Your purchase was successfully refunded.</target>
@@ -2617,11 +2707,6 @@ We strongly believe in retaining as little data as possible because we want you 
       <trans-unit id="Zurich" xml:space="preserve">
         <source>Zurich</source>
         <target state="new">Zurich</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="multihop" xml:space="preserve">
-        <source>multihop</source>
-        <target state="new">multihop</target>
         <note/>
       </trans-unit>
       <trans-unit id="privacy policy" xml:space="preserve">
@@ -2702,6 +2787,48 @@ We strongly believe in retaining as little data as possible because we want you 
       <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
     </header>
     <body>
+    </body>
+  </file>
+  <file original="PacketTunnel/Localizable.xcstrings" source-language="en" target-language="en" datatype="plaintext">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
+    </header>
+    <body>
+      <trans-unit id="%@ have been added to your account." xml:space="preserve">
+        <source>%@ have been added to your account.</source>
+        <target state="new">%@ have been added to your account.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Cannot complete the purchase" xml:space="preserve">
+        <source>Cannot complete the purchase</source>
+        <target state="new">Cannot complete the purchase</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Cannot restore purchases" xml:space="preserve">
+        <source>Cannot restore purchases</source>
+        <target state="new">Cannot restore purchases</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Restore purchases" xml:space="preserve">
+        <source>Restore purchases</source>
+        <target state="new">Restore purchases</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Thanks for your purchase" xml:space="preserve">
+        <source>Thanks for your purchase</source>
+        <target state="new">Thanks for your purchase</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Your previous purchases have already been added to this account." xml:space="preserve">
+        <source>Your previous purchases have already been added to this account.</source>
+        <target state="new">Your previous purchases have already been added to this account.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Your previous purchases have been added to your account." xml:space="preserve">
+        <source>Your previous purchases have been added to your account.</source>
+        <target state="new">Your previous purchases have been added to your account.</target>
+        <note/>
+      </trans-unit>
     </body>
   </file>
   <file original="PacketTunnelCore/PacketTunnelCore-InfoPlist.xcstrings" source-language="en" target-language="en" datatype="plaintext">
