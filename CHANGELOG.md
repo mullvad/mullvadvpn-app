@@ -22,6 +22,11 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+### Changed
+- Change `WireGuard port` to no longer affect the port used for LWO.
+
+### Fixed
+- Fix "Time left" label in main view not updating when time passes.
 
 
 ## [2025.14-beta2] - 2025-11-26
@@ -32,9 +37,6 @@ Line wrap the file at 100 chars.                                              Th
 - Fix issues where the in-app updates view is not in sync with the daemon after system is suspended
   or daemon is restarted.
 
-
-### Fixed
-- Fix "Time left" label in main view not updating when time passes.
 
 ## [2025.14-beta1] - 2025-11-11
 ### Changed
