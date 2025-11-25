@@ -6,7 +6,7 @@ use futures::{
 use mullvad_api::{
     availability::ApiAvailability, rest::MullvadRestHandle, version::AppVersionProxy,
 };
-use mullvad_update::version::{VersionInfo, rollout::Rollout};
+use mullvad_update::version::{Metadata, Rollout, VersionInfo};
 use mullvad_version::Version;
 use serde::{Deserialize, Serialize};
 use std::{
@@ -65,11 +65,11 @@ const PLATFORM: &str = "android";
 pub(super) struct VersionCache {
     /// Version used for the [VersionCache]. This is needed to ensure that
     /// `current_version_supported` refers to the installed app.
-    pub cache_version: mullvad_version::Version,
+    pub cache_version: Version,
     /// Whether the current (installed) version is supported or an upgrade is required
     pub current_version_supported: bool,
     /// The latest available versions
-    pub version_info: mullvad_update::version::VersionInfo,
+    pub version_info: VersionInfo,
     /// When we last checked with platform headers
     pub last_platform_header_check: SystemTime,
     #[cfg(not(target_os = "android"))]
@@ -512,12 +512,12 @@ async fn version_check_inner(
     let latest_stable = response.latest_stable()
         .and_then(|version| version.parse().ok())
         // Suggested stable must actually be stable
-        .filter(|version: &mullvad_version::Version| version.pre_stable.is_none())
+        .filter(|version: &Version| version.pre_stable.is_none())
         .ok_or_else(|| Error::MissingStable)?;
     let latest_beta = response.latest_beta()
         .and_then(|version| version.parse().ok())
         // Suggested beta must actually be non-stable
-        .filter(|version: &mullvad_version::Version| version.pre_stable.is_some());
+        .filter(|version: &Version| version.pre_stable.is_some());
 
     Ok(VersionCache {
         cache_version: APP_VERSION.clone(),
@@ -527,14 +527,14 @@ async fn version_check_inner(
         // Note: We're pretending that this is complete information,
         // but on Android and Linux, most of the information is missing
         version_info: VersionInfo {
-            stable: mullvad_update::version::Version {
+            stable: Metadata {
                 version: latest_stable,
                 changelog: "".to_owned(),
                 urls: vec![],
                 sha256: [0u8; 32],
                 size: 0,
             },
-            beta: latest_beta.map(|version| mullvad_update::version::Version {
+            beta: latest_beta.map(|version| Metadata {
                 version,
                 changelog: "".to_owned(),
                 urls: vec![],
@@ -586,7 +586,7 @@ async fn try_load_cache(cache_path: &PathBuf) -> Result<VersionCache, Error> {
 }
 
 /// Check if the cache is left over from another version of the app. If so, discard it.
-fn cache_is_stale(cache: &VersionCache, current_version: &mullvad_version::Version) -> bool {
+fn cache_is_stale(cache: &VersionCache, current_version: &Version) -> bool {
     &cache.cache_version != current_version
 }
 
@@ -595,7 +595,7 @@ fn dev_version_cache() -> VersionCache {
         cache_version: mullvad_version::VERSION.parse().unwrap(),
         current_version_supported: false,
         version_info: VersionInfo {
-            stable: mullvad_update::version::Version {
+            stable: Metadata {
                 version: mullvad_version::VERSION.parse().unwrap(),
                 changelog: "".to_owned(),
                 urls: vec![],
@@ -619,7 +619,6 @@ mod test {
     };
 
     use futures::SinkExt;
-    use mullvad_update::version::Version;
 
     use super::*;
 
@@ -651,14 +650,14 @@ mod test {
             cache_version: cache_version.parse().unwrap(),
             current_version_supported: false,
             version_info: VersionInfo {
-                stable: Version {
+                stable: Metadata {
                     version: stable.parse().unwrap(),
                     urls: vec![],
                     size: 0,
                     changelog: "".to_owned(),
                     sha256: [0u8; 32],
                 },
-                beta: beta.map(|beta| Version {
+                beta: beta.map(|beta| Metadata {
                     version: beta.parse().unwrap(),
                     urls: vec![],
                     size: 0,
@@ -907,8 +906,8 @@ mod test {
             cache_version: mullvad_version::VERSION.parse().unwrap(),
             current_version_supported: true,
             version_info: VersionInfo {
-                stable: Version {
-                    version: "2025.5".parse::<mullvad_version::Version>().unwrap(),
+                stable: Metadata {
+                    version: "2025.5".parse().unwrap(),
                     urls: vec![],
                     size: 0,
                     changelog: "".to_owned(),

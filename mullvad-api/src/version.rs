@@ -5,10 +5,7 @@ use std::sync::Arc;
 use http::StatusCode;
 use http::header;
 use mullvad_update::format::response::SignedResponse;
-use mullvad_update::version::VersionInfo;
-use mullvad_update::version::VersionParameters;
-use mullvad_update::version::is_version_supported;
-use mullvad_update::version::rollout::Rollout;
+use mullvad_update::version::{Rollout, VersionInfo, VersionParameters, is_version_supported};
 
 type AppVersion = String;
 

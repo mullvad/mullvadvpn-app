@@ -71,10 +71,10 @@ use mullvad_types::{
     version::AppVersionInfo,
     wireguard::{PublicKey, QuantumResistantState, RotationInterval},
 };
+#[cfg(not(target_os = "android"))]
+use mullvad_update::version::Rollout;
 #[cfg(target_os = "android")]
 use mullvad_update::version::rollout::SUPPORTED_VERSION;
-#[cfg(not(target_os = "android"))]
-use mullvad_update::version::rollout::{Rollout, generate_rollout_seed};
 use relay_list::{RELAYS_FILENAME, RelayListUpdater, RelayListUpdaterHandle};
 use settings::SettingsPersister;
 use std::collections::BTreeSet;
@@ -955,7 +955,7 @@ impl Daemon {
                 .update(|settings| {
                     settings
                         .rollout_threshold_seed
-                        .get_or_insert_with(generate_rollout_seed);
+                        .get_or_insert_with(Rollout::seed);
                 })
                 .await
                 .map_err(Error::SettingsError)?;
@@ -3245,7 +3245,7 @@ impl Daemon {
     // Regenrate a new seed and store it to settings.
     #[cfg(not(target_os = "android"))]
     async fn generate_and_set(&mut self) -> u32 {
-        let seed = generate_rollout_seed();
+        let seed = Rollout::seed();
         self.set_rollout_threshold_seed(seed).await;
         seed
     }
