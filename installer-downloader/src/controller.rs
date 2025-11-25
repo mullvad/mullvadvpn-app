@@ -12,8 +12,7 @@ use mullvad_update::{
     api::{HttpVersionInfoProvider, MetaRepositoryPlatform},
     app::{self, AppCache, AppDownloader, DownloadedInstaller, HttpAppDownloader},
     local::METADATA_FILENAME,
-    version::rollout::SUPPORTED_VERSION,
-    version::{Version, VersionInfo, VersionParameters},
+    version::{Metadata, SUPPORTED_VERSION, VersionInfo, VersionParameters},
     version_provider::VersionInfoProvider,
 };
 use rand::seq::IndexedRandom;
@@ -586,6 +585,6 @@ fn select_cdn_url(urls: &[String]) -> Option<&str> {
     urls.choose(&mut rand::rng()).map(String::as_str)
 }
 
-fn format_latest_version(version: &Version) -> String {
-    format!("{}: {}", resource::LATEST_VERSION_PREFIX, version.version)
+fn format_latest_version(metadata: &Metadata) -> String {
+    format!("{}: {}", resource::LATEST_VERSION_PREFIX, metadata.version)
 }
