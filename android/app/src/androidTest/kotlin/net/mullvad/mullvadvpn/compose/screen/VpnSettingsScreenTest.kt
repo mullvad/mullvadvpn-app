@@ -66,6 +66,7 @@ class VpnSettingsScreenTest {
         isIpv6Enabled: Boolean = true,
         isContentBlockersExpanded: Boolean = false,
         isModal: Boolean = false,
+        isScrollToFeatureEnabled: Boolean = true,
     ) =
         VpnSettingsUiState.from(
             mtu = mtu,
@@ -86,6 +87,7 @@ class VpnSettingsScreenTest {
             isIpv6Enabled = isIpv6Enabled,
             isContentBlockersExpanded = isContentBlockersExpanded,
             isModal = isModal,
+            isScrollToFeatureEnabled = isScrollToFeatureEnabled,
         )
 
     private fun ComposeContext.initScreen(

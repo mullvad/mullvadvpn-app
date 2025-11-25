@@ -23,6 +23,7 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.navigation.dependency
 import com.ramcosta.composedestinations.rememberNavHostEngine
 import com.ramcosta.composedestinations.utils.rememberDestinationsNavigator
+import net.mullvad.mullvadvpn.compose.util.BackstackObserver
 import net.mullvad.mullvadvpn.compose.util.accessibilityDataSensitive
 import net.mullvad.mullvadvpn.viewmodel.DaemonScreenEvent
 import net.mullvad.mullvadvpn.viewmodel.MullvadAppViewModel
@@ -34,7 +35,7 @@ val LocalSharedTransitionScope = compositionLocalOf<SharedTransitionScope?> { nu
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalSharedTransitionApi::class)
 @Composable
-fun MullvadApp() {
+fun MullvadApp(backstackObserver: BackstackObserver) {
     val engine = rememberNavHostEngine()
     val navHostController: NavHostController = engine.rememberNavController()
     val navigator: DestinationsNavigator = navHostController.rememberDestinationsNavigator()
@@ -42,8 +43,8 @@ fun MullvadApp() {
     val mullvadAppViewModel = koinViewModel<MullvadAppViewModel>()
 
     DisposableEffect(Unit) {
-        navHostController.addOnDestinationChangedListener(mullvadAppViewModel)
-        onDispose { navHostController.removeOnDestinationChangedListener(mullvadAppViewModel) }
+        backstackObserver.addOnDestinationChangedListener(navHostController)
+        onDispose { backstackObserver.removeOnDestinationChangedListener(navHostController) }
     }
 
     SharedTransitionLayout {

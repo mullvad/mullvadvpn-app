@@ -246,13 +246,15 @@ fun SharedTransitionScope.VpnSettings(
         }
     }
 
+    val scrollToFeature = if (state.isScrollToFeatureEnabled()) navArgs.scrollToFeature else null
+
     VpnSettingsScreen(
         state = state,
-        initialScrollToFeature = navArgs.scrollToFeature,
+        initialScrollToFeature = scrollToFeature,
         modifier =
-            if (navArgs.scrollToFeature != null) {
+            if (scrollToFeature != null) {
                 Modifier.sharedBounds(
-                    rememberSharedContentState(key = navArgs.scrollToFeature),
+                    rememberSharedContentState(key = scrollToFeature),
                     animatedVisibilityScope = animatedVisibilityScope,
                 )
             } else Modifier,
@@ -1118,6 +1120,12 @@ private fun Lc<Boolean, VpnSettingsUiState>.isModal() =
     when (this) {
         is Lc.Loading -> value
         is Lc.Content -> value.isModal
+    }
+
+private fun Lc<Boolean, VpnSettingsUiState>.isScrollToFeatureEnabled() =
+    when (this) {
+        is Lc.Loading -> value
+        is Lc.Content -> value.isScrollToFeatureEnabled
     }
 
 // A list of feature indicators on this screen

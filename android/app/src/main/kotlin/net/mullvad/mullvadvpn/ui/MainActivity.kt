@@ -22,6 +22,7 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.screen.MullvadApp
+import net.mullvad.mullvadvpn.compose.util.BackstackObserver
 import net.mullvad.mullvadvpn.compose.util.CreateVpnProfile
 import net.mullvad.mullvadvpn.di.paymentModule
 import net.mullvad.mullvadvpn.di.uiModule
@@ -62,6 +63,7 @@ class MainActivity : ComponentActivity(), AndroidScopeComponent {
     private val serviceConnectionManager by inject<ServiceConnectionManager>()
     private val splashCompleteRepository by inject<SplashCompleteRepository>()
     private val managementService by inject<ManagementService>()
+    private val backstackObserver by inject<BackstackObserver>()
 
     private var isReadyNextDraw: Boolean = false
 
@@ -83,7 +85,7 @@ class MainActivity : ComponentActivity(), AndroidScopeComponent {
 
         super.onCreate(savedInstanceState)
 
-        setContent { AppTheme { MullvadApp() } }
+        setContent { AppTheme { MullvadApp(backstackObserver) } }
 
         // This is to protect against tapjacking attacks
         // This is applied at an OS level since Android 12 so it is only required on older versions

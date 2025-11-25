@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.viewmodel
 import androidx.lifecycle.viewModelScope
 import app.cash.turbine.test
 import arrow.core.right
+import com.ramcosta.composedestinations.generated.destinations.ConnectDestination
 import com.ramcosta.composedestinations.generated.navargs.toSavedStateHandle
 import io.mockk.Awaits
 import io.mockk.Runs
@@ -24,6 +25,7 @@ import mullvad_daemon.management_interface.dnsOptions
 import net.mullvad.mullvadvpn.compose.screen.VpnSettingsNavArgs
 import net.mullvad.mullvadvpn.compose.state.VpnSettingItem
 import net.mullvad.mullvadvpn.compose.state.VpnSettingsUiState
+import net.mullvad.mullvadvpn.compose.util.BackstackObserver
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.DaitaSettings
@@ -66,10 +68,12 @@ class VpnSettingsViewModelTest {
     private val mockAutoStartAndConnectOnBootRepository: AutoStartAndConnectOnBootRepository =
         mockk()
     private val mockWireguardConstraintsRepository: WireguardConstraintsRepository = mockk()
+    private val mockBackstackObserver: BackstackObserver = mockk()
 
     private val mockSettingsUpdate = MutableStateFlow<Settings?>(null)
     private val portRangeFlow = MutableStateFlow(emptyList<PortRange>())
     private val autoStartAndConnectOnBootFlow = MutableStateFlow(false)
+    private val previousDestinationFlow = MutableStateFlow(ConnectDestination)
 
     private lateinit var viewModel: VpnSettingsViewModel
 
@@ -79,6 +83,7 @@ class VpnSettingsViewModelTest {
         every { mockRelayListRepository.portRanges } returns portRangeFlow
         every { mockAutoStartAndConnectOnBootRepository.autoStartAndConnectOnBoot } returns
             autoStartAndConnectOnBootFlow
+        every { mockBackstackObserver.previousDestinationFlow } returns previousDestinationFlow
 
         viewModel =
             VpnSettingsViewModel(
@@ -89,6 +94,7 @@ class VpnSettingsViewModelTest {
                 autoStartAndConnectOnBootRepository = mockAutoStartAndConnectOnBootRepository,
                 wireguardConstraintsRepository = mockWireguardConstraintsRepository,
                 savedStateHandle = VpnSettingsNavArgs().toSavedStateHandle(),
+                backstackObserver = mockBackstackObserver,
             )
     }
 

@@ -1,17 +1,13 @@
 package net.mullvad.mullvadvpn.viewmodel
 
-import android.os.Bundle
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.NavController
-import androidx.navigation.NavDestination
 import com.ramcosta.composedestinations.generated.destinations.PrivacyDisclaimerDestination
 import com.ramcosta.composedestinations.generated.destinations.SplashDestination
 import com.ramcosta.composedestinations.spec.DestinationSpec
-import com.ramcosta.composedestinations.utils.destination
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -22,6 +18,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
+import net.mullvad.mullvadvpn.compose.util.BackstackObserver
 import net.mullvad.mullvadvpn.lib.daemon.grpc.GrpcConnectivityState
 import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
@@ -31,17 +28,18 @@ private val noServiceDestinations = listOf(SplashDestination, PrivacyDisclaimerD
 class MullvadAppViewModel(
     private val connectionProxy: ConnectionProxy,
     managementService: ManagementService,
-) : ViewModel(), LifecycleEventObserver, NavController.OnDestinationChangedListener {
+    backstackObserver: BackstackObserver,
+) : ViewModel(), LifecycleEventObserver {
 
     private val lifecycleFlow: MutableSharedFlow<Lifecycle.Event> = MutableSharedFlow()
-    private val destinationFlow: MutableSharedFlow<DestinationSpec> = MutableSharedFlow()
 
     @OptIn(FlowPreview::class)
     val uiSideEffect =
-        combine(lifecycleFlow, managementService.connectionState, destinationFlow) {
-                event,
-                connEvent,
-                destination ->
+        combine(
+                lifecycleFlow,
+                managementService.connectionState,
+                backstackObserver.destinationFlow,
+            ) { event, connEvent, destination ->
                 toDaemonState(event, connEvent, destination)
             }
             .map { state ->
@@ -89,16 +87,6 @@ class MullvadAppViewModel(
         } else {
             // If we are stopped we intentionally stop service and don't care about showing overlay.
             DaemonState.Hidden.Ignored
-        }
-    }
-
-    override fun onDestinationChanged(
-        controller: NavController,
-        destination: NavDestination,
-        arguments: Bundle?,
-    ) {
-        viewModelScope.launch {
-            controller.currentBackStackEntry?.destination()?.let { destinationFlow.emit(it) }
         }
     }
 
