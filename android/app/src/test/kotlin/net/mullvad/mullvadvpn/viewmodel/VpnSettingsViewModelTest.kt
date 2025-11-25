@@ -83,8 +83,7 @@ class VpnSettingsViewModelTest {
         every { mockRelayListRepository.portRanges } returns portRangeFlow
         every { mockAutoStartAndConnectOnBootRepository.autoStartAndConnectOnBoot } returns
             autoStartAndConnectOnBootFlow
-        every { mockBackstackObserver.previousDestinationFlow } returns
-            previousDestinationFlow
+        every { mockBackstackObserver.previousDestinationFlow } returns previousDestinationFlow
 
         viewModel =
             VpnSettingsViewModel(
