@@ -514,6 +514,8 @@ export default class AppRenderer {
       this.reduxActions.appUpgrade.resetAppUpgradeError();
 
       IpcRendererEventChannel.app.upgradeInstallerStart(verifiedInstallerPath);
+    } else {
+      log.error('App upgrade was invoked without a valid verified installer path.');
     }
   };
 
