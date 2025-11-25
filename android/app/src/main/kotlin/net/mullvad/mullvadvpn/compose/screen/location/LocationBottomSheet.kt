@@ -1,13 +1,6 @@
 package net.mullvad.mullvadvpn.compose.screen.location
 
 import android.content.Context
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideIn
-import androidx.compose.animation.slideOut
-import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -28,13 +21,11 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.IntOffset
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
@@ -213,61 +204,50 @@ private fun LocationBottomSheet(
         onBackgroundColor = onBackgroundColor,
         onDismissRequest = { closeBottomSheet(false) },
         modifier = Modifier.testTag(SELECT_LOCATION_LOCATION_BOTTOM_SHEET_TEST_TAG),
-    ) { ->
+    ) {
         HeaderCell(text = item.name, background = backgroundColor)
         HorizontalDivider(color = onBackgroundColor)
-        AnimatedContent(
-            targetState = customLists,
-            transitionSpec = {
-                slideIn { IntOffset(it.width, 0) } + fadeIn() togetherWith
-                    slideOut { IntOffset(-it.width, 0) } + fadeOut()
-            },
-            label = "Show add to list",
-        ) { customLists ->
-            Column {
-                Text(
-                    stringResource(R.string.add_to_list),
-                    style = MaterialTheme.typography.labelLarge,
-                    color = onBackgroundColor,
-                    modifier =
-                        Modifier.padding(
-                            start = Dimens.smallPadding,
-                            end = Dimens.smallPadding,
-                            top = Dimens.smallPadding,
-                        ),
-                )
-                CustomLists(
-                    customLists = customLists,
-                    item = item,
-                    onBackgroundColor = onBackgroundColor,
-                    onAddLocationToList = onAddLocationToList,
-                    onCreateCustomList = onCreateCustomList,
-                    closeBottomSheet = closeBottomSheet,
-                )
-                Text(
-                    stringResource(R.string.multihop),
-                    style = MaterialTheme.typography.labelLarge,
-                    color = onBackgroundColor,
-                    modifier =
-                        Modifier.padding(
-                            start = Dimens.smallPadding,
-                            end = Dimens.smallPadding,
-                            top = Dimens.smallPadding,
-                        ),
-                )
-                MultihopOptions(
-                    item = item,
-                    setAsEntryState = setAsEntryState,
-                    setAsExitState = setAsExitState,
-                    canBeRemovedAsEntry = canBeRemovedAsEntry,
-                    onBackgroundColor = onBackgroundColor,
-                    onSetAsEntry = onSetAsEntry,
-                    onSetAsExit = onSetAsExit,
-                    onDisableMultihop = onDisableMultihop,
-                    closeBottomSheet = closeBottomSheet,
-                )
-            }
-        }
+        Text(
+            stringResource(R.string.add_to_list),
+            style = MaterialTheme.typography.labelLarge,
+            color = onBackgroundColor,
+            modifier =
+                Modifier.padding(
+                    start = Dimens.smallPadding,
+                    end = Dimens.smallPadding,
+                    top = Dimens.smallPadding,
+                ),
+        )
+        CustomLists(
+            customLists = customLists,
+            item = item,
+            onBackgroundColor = onBackgroundColor,
+            onAddLocationToList = onAddLocationToList,
+            onCreateCustomList = onCreateCustomList,
+            closeBottomSheet = closeBottomSheet,
+        )
+        Text(
+            stringResource(R.string.multihop),
+            style = MaterialTheme.typography.labelLarge,
+            color = onBackgroundColor,
+            modifier =
+                Modifier.padding(
+                    start = Dimens.smallPadding,
+                    end = Dimens.smallPadding,
+                    top = Dimens.smallPadding,
+                ),
+        )
+        MultihopOptions(
+            item = item,
+            setAsEntryState = setAsEntryState,
+            setAsExitState = setAsExitState,
+            canBeRemovedAsEntry = canBeRemovedAsEntry,
+            onBackgroundColor = onBackgroundColor,
+            onSetAsEntry = onSetAsEntry,
+            onSetAsExit = onSetAsExit,
+            onDisableMultihop = onDisableMultihop,
+            closeBottomSheet = closeBottomSheet,
+        )
     }
 }
 
