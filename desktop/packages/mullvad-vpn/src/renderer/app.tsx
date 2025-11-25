@@ -216,14 +216,42 @@ export default class AppRenderer {
 
     IpcRendererEventChannel.upgradeVersion.listen((upgradeVersion: IAppVersionInfo) => {
       const reduxStore = this.reduxStore.getState();
+      const currentSuggestedUpgrade = reduxStore.version.suggestedUpgrade;
+      const newSuggestedUpgrade = upgradeVersion.suggestedUpgrade;
 
-      const currentSuggestedUpgradeVersion = reduxStore.version.suggestedUpgrade?.version;
-      const newSuggestedUpgradeVersion = upgradeVersion.suggestedUpgrade?.version;
-      if (
-        currentSuggestedUpgradeVersion &&
-        currentSuggestedUpgradeVersion !== newSuggestedUpgradeVersion
-      ) {
+      if (currentSuggestedUpgrade && newSuggestedUpgrade) {
+        if (currentSuggestedUpgrade.version !== newSuggestedUpgrade.version) {
+          log.info('Resetting app upgrade state as suggested upgrade version changed.');
+          this.reduxActions.appUpgrade.resetAppUpgrade();
+        } else if (
+          currentSuggestedUpgrade.verifiedInstallerPath &&
+          !newSuggestedUpgrade.verifiedInstallerPath
+        ) {
+          log.info(
+            'Resetting app upgrade state as verified installer path was cleared in new suggested upgrade.',
+          );
+          this.reduxActions.appUpgrade.resetAppUpgrade();
+        } else if (
+          !currentSuggestedUpgrade.verifiedInstallerPath &&
+          newSuggestedUpgrade.verifiedInstallerPath
+        ) {
+          const { verifiedInstallerPath, version } = newSuggestedUpgrade;
+          log.info(
+            `Received updated suggested upgrade ${version} with verified installer path: ${verifiedInstallerPath}`,
+          );
+        }
+      } else if (currentSuggestedUpgrade && !newSuggestedUpgrade) {
+        log.info('Resetting app upgrade state as suggested upgrade was cleared.');
         this.reduxActions.appUpgrade.resetAppUpgrade();
+      } else if (!currentSuggestedUpgrade && newSuggestedUpgrade) {
+        const { verifiedInstallerPath, version } = newSuggestedUpgrade;
+        if (verifiedInstallerPath) {
+          log.info(
+            `Received new suggested upgrade ${version} with verified installer path: ${verifiedInstallerPath}`,
+          );
+        } else if (!currentSuggestedUpgrade) {
+          log.info(`Received new suggested upgrade: ${version}`);
+        }
       }
 
       this.setUpgradeVersion(upgradeVersion);
