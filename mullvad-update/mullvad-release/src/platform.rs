@@ -392,7 +392,7 @@ impl Platform {
         // Grab version info for all architectures
         let mut version_info = vec![];
 
-        for architecture in VersionArchitecture::iter() {
+        for architecture in Architecture::iter() {
             let params = VersionParameters {
                 architecture,
                 rollout,

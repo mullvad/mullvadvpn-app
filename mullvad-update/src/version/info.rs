@@ -143,7 +143,7 @@ mod test {
         let response = SignedResponse::deserialize_insecure(TEST_RESPONSE)?;
 
         let params = VersionParameters {
-            architecture: VersionArchitecture::X86,
+            architecture: Architecture::X86,
             rollout: FULLY_ROLLED_OUT,
             allow_empty: false,
             lowest_metadata_version: 0,
@@ -163,7 +163,7 @@ mod test {
         let response = SignedResponse::deserialize_insecure(TEST_RESPONSE)?;
 
         let params = VersionParameters {
-            architecture: VersionArchitecture::Arm64,
+            architecture: Architecture::Arm64,
             rollout: SUPPORTED_VERSION,
             allow_empty: false,
             lowest_metadata_version: 0,
@@ -183,7 +183,7 @@ mod test {
         let response = SignedResponse::deserialize_insecure(TEST_RESPONSE)?;
 
         let params = VersionParameters {
-            architecture: VersionArchitecture::X86,
+            architecture: Architecture::X86,
             rollout: SUPPORTED_VERSION,
             allow_empty: true,
             lowest_metadata_version: 0,
@@ -203,7 +203,7 @@ mod test {
         let response = SignedResponse::deserialize_insecure(TEST_RESPONSE)?;
 
         let params = VersionParameters {
-            architecture: VersionArchitecture::X86,
+            architecture: Architecture::X86,
             rollout: SUPPORTED_VERSION,
             allow_empty: true,
             lowest_metadata_version: 0,
@@ -215,7 +215,7 @@ mod test {
         assert_yaml_snapshot!(info);
 
         let params = VersionParameters {
-            architecture: VersionArchitecture::X86,
+            architecture: Architecture::X86,
             rollout: IGNORE,
             allow_empty: true,
             lowest_metadata_version: 0,
