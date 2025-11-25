@@ -774,6 +774,8 @@ export default class AppRenderer {
     this.connectedToDaemon = false;
     this.reduxActions.userInterface.setConnectedToDaemon(false);
     this.reduxActions.userInterface.setDaemonStatus('stopped');
+    log.info('Daemon is disconnected. Resetting UI state.');
+    this.reduxActions.appUpgrade.resetAppUpgrade();
   }
 
   private setAccountHistory(accountHistory?: AccountNumber) {
