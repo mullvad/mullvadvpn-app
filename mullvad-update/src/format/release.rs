@@ -3,7 +3,7 @@
 use serde::{Deserialize, Serialize};
 
 use super::installer::Installer;
-use crate::version::rollout::{Rollout, is_complete_rollout};
+use crate::version::{Rollout, is_complete_rollout};
 
 /// App release
 #[derive(Debug, Deserialize, Serialize, Clone)]

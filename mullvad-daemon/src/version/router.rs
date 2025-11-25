@@ -7,8 +7,7 @@ use mullvad_api::{availability::ApiAvailability, rest::MullvadRestHandle};
 use mullvad_types::version::{AppVersionInfo, SuggestedUpgrade};
 #[cfg(in_app_upgrade)]
 use mullvad_update::app::{AppDownloader, AppDownloaderParameters, HttpAppDownloader};
-use mullvad_update::version::VersionInfo;
-use mullvad_update::version::rollout::Rollout;
+use mullvad_update::version::{Rollout, VersionInfo};
 use talpid_core::mpsc::Sender;
 #[cfg(in_app_upgrade)]
 use talpid_types::ErrorExt;
@@ -153,7 +152,7 @@ enum State {
         /// Version info received from `HasVersion`
         version_cache: VersionCache,
         /// The version being upgraded to, derived from `version_info` and beta program state
-        upgrading_to_version: mullvad_update::version::Version,
+        upgrading_to_version: mullvad_update::version::Metadata,
         /// Tokio task for the downloader handle
         downloader_handle: downloader::DownloaderHandle,
     },
@@ -625,7 +624,7 @@ fn to_app_version_info(
 fn recommended_version_upgrade(
     version_info: &VersionInfo,
     beta_program: bool,
-) -> Option<mullvad_update::version::Version> {
+) -> Option<mullvad_update::version::Metadata> {
     let version_details = if beta_program {
         version_info.beta.as_ref().unwrap_or(&version_info.stable)
     } else {
@@ -824,7 +823,7 @@ mod test {
             current_version_supported: true,
             version_info: VersionInfo {
                 beta: None,
-                stable: mullvad_update::version::Version {
+                stable: mullvad_update::version::Metadata {
                     version,
                     urls: vec!["https://example.com".to_string()],
                     size: 123456,
@@ -840,7 +839,7 @@ mod test {
 
     /// Create a version cache with a beta version that is newer than the current version
     fn get_new_beta_version_cache() -> VersionCache {
-        let stable = mullvad_update::version::Version {
+        let stable = mullvad_update::version::Metadata {
             version: mullvad_version::VERSION.parse().unwrap(),
             urls: vec!["https://example.com".to_string()],
             size: 123456,

@@ -16,7 +16,7 @@ use io_util::create_dir_and_write;
 use platform::Platform;
 
 use mullvad_update::api::HttpVersionInfoProvider;
-use mullvad_update::version::rollout::{Rollout, SUPPORTED_VERSION};
+use mullvad_update::version::{Rollout, SUPPORTED_VERSION};
 
 use crate::io_util::wait_for_confirm;
 

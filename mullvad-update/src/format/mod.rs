@@ -25,7 +25,7 @@ pub use architecture::Architecture;
 #[cfg(test)]
 mod test {
     use crate::format::release::Release;
-    use crate::version::rollout::Rollout;
+    use crate::version::Rollout;
 
     #[test]
     fn test_default_rollout_serialize() {

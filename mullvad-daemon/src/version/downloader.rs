@@ -4,6 +4,7 @@ use mullvad_types::version::{AppUpgradeDownloadProgress, AppUpgradeError, AppUpg
 use mullvad_update::app::{
     AppDownloader, AppDownloaderParameters, DownloadError, DownloadedInstaller, bin_path,
 };
+use mullvad_version::Version;
 use rand::seq::IndexedRandom;
 use std::io;
 use std::path::PathBuf;
@@ -68,7 +69,7 @@ impl std::future::Future for DownloaderHandle {
 }
 
 pub fn spawn_downloader<D>(
-    version: mullvad_update::version::Version,
+    version: Version,
     event_tx: broadcast::Sender<AppUpgradeEvent>,
 ) -> DownloaderHandle
 where
@@ -82,10 +83,7 @@ where
 }
 
 /// Begin or resume download of `version`
-async fn start<D>(
-    version: mullvad_update::version::Version,
-    event_tx: broadcast::Sender<AppUpgradeEvent>,
-) -> Result<PathBuf>
+async fn start<D>(version: Version, event_tx: broadcast::Sender<AppUpgradeEvent>) -> Result<PathBuf>
 where
     D: AppDownloader + Send + 'static,
     D: From<AppDownloaderParameters<ProgressUpdater>>,
