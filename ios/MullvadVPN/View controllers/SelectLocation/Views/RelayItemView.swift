@@ -1,3 +1,4 @@
+import MullvadTypes
 import SwiftUI
 
 struct RelayItemView: View {

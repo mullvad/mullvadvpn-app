@@ -29,12 +29,14 @@ final class TunnelSettingsStrategyTests: XCTestCase {
         var currentSettings = LatestTunnelSettings()
         TunnelSettingsUpdate.relayConstraints(RelayConstraints()).apply(to: &currentSettings)
 
+        let filter: RelayConstraint = .only(RelayFilter(ownership: .rented, providers: .only(["foo", "bar"])))
         var updatedSettings = currentSettings
         TunnelSettingsUpdate.relayConstraints(
             RelayConstraints(
                 exitLocations: .only(UserSelectedRelays(locations: [.country("zz")])),
                 port: .only(9999),
-                filter: .only(.init(ownership: .rented, providers: .only(["foo", "bar"])))
+                entryFilter: filter,
+                exitFilter: filter
             )
         ).apply(to: &updatedSettings)
 
