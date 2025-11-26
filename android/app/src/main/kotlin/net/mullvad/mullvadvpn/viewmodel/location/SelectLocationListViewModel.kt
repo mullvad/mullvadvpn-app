@@ -7,13 +7,18 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.WhileSubscribed
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
+import net.mullvad.mullvadvpn.compose.screen.location.RelayListScrollConnection
 import net.mullvad.mullvadvpn.compose.state.MultihopRelayListType
 import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.compose.state.SelectLocationListUiState
 import net.mullvad.mullvadvpn.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
+import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.repository.RelayListRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
@@ -25,6 +30,7 @@ import net.mullvad.mullvadvpn.usecase.customlists.CustomListsRelayItemUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.FilterCustomListsRelayItemUseCase
 import net.mullvad.mullvadvpn.util.Lce
 
+@Suppress("LongParameterList")
 class SelectLocationListViewModel(
     private val relayListType: RelayListType,
     private val filteredRelayListUseCase: FilteredRelayListUseCase,
@@ -34,6 +40,7 @@ class SelectLocationListViewModel(
     private val relayListRepository: RelayListRepository,
     private val recentsUseCase: RecentsUseCase,
     private val settingsRepository: SettingsRepository,
+    relayListScrollConnection: RelayListScrollConnection,
     customListsRelayItemUseCase: CustomListsRelayItemUseCase,
 ) : ViewModel() {
     private val _expandedItems: MutableStateFlow<Set<String>> =
@@ -62,9 +69,16 @@ class SelectLocationListViewModel(
                 SharingStarted.WhileSubscribed(VIEW_MODEL_STOP_TIMEOUT),
                 Lce.Loading(Unit),
             )
+    val uiSideEffect =
+        relayListScrollConnection.scrollEvents
+            .receiveAsFlow()
+            .filter { it.first == relayListType }
+            .map { ScrollSideEffect(it.second) }
 
     fun onToggleExpand(item: RelayItemId, parent: CustomListId? = null, expand: Boolean) {
-        _expandedItems.onToggleExpandSet(item, parent, expand)
+        if (item !is GeoLocationId.Hostname) {
+            _expandedItems.onToggleExpandSet(item, parent, expand)
+        }
     }
 
     private fun relayListItems() =
@@ -135,3 +149,5 @@ class SelectLocationListViewModel(
                 }
         }?.getOrNull()
 }
+
+data class ScrollSideEffect(val relayItem: RelayItem)

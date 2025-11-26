@@ -52,3 +52,9 @@ suspend fun LazyListState.animateScrollAndCentralizeItem(index: Int) {
         animateScrollToItem(index)
     }
 }
+
+suspend fun LazyListState.animateScrollCentralizeItem(index: Int) {
+    val averageHeight = layoutInfo.visibleItemsInfo.map { it.size }.average()
+    val scrollByExtra = layoutInfo.viewportEndOffset / 2 - averageHeight
+    animateScrollToItem(index, -scrollByExtra.toInt())
+}

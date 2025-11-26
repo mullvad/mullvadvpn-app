@@ -16,6 +16,8 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
 import net.mullvad.mullvadvpn.compose.communication.CustomListActionResultData
+import net.mullvad.mullvadvpn.compose.screen.location.RelayListScrollConnection
+import net.mullvad.mullvadvpn.compose.screen.location.ScrollEvent
 import net.mullvad.mullvadvpn.compose.state.MultihopRelayListType
 import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
@@ -56,6 +58,7 @@ class SelectLocationViewModel(
     private val settingsRepository: SettingsRepository,
     private val selectSingleUseCase: SelectSinglehopUseCase,
     private val modifyMultihopUseCase: ModifyMultihopUseCase,
+    private val relayListScrollConnection: RelayListScrollConnection,
     hopSelectionUseCase: HopSelectionUseCase,
     connectionProxy: ConnectionProxy,
 ) : ViewModel() {
@@ -224,6 +227,10 @@ class SelectLocationViewModel(
                     },
                 )
         }
+    }
+
+    fun scrollToItem(event: ScrollEvent) {
+        relayListScrollConnection.scrollEvents.trySend(event)
     }
 
     private fun ModifyMultihopError.toSideEffect(

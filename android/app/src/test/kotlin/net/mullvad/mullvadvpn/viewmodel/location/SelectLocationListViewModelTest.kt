@@ -9,6 +9,7 @@ import io.mockk.verify
 import kotlin.test.assertIs
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
+import net.mullvad.mullvadvpn.compose.screen.location.RelayListScrollConnection
 import net.mullvad.mullvadvpn.compose.state.MultihopRelayListType
 import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.compose.state.SelectLocationListUiState
@@ -47,6 +48,8 @@ class SelectLocationListViewModelTest {
     private val mockCustomListRelayItemsUseCase: CustomListsRelayItemUseCase = mockk()
     private val mockSettingsRepository: SettingsRepository = mockk()
     private val recentsUseCase: RecentsUseCase = mockk()
+
+    private val relayListScrollConnection: RelayListScrollConnection = RelayListScrollConnection()
 
     private val filteredRelayList = MutableStateFlow<List<RelayItem.Location.Country>>(emptyList())
     private val selectedLocationFlow = MutableStateFlow<RelayItemSelection>(mockk(relaxed = true))
@@ -183,6 +186,7 @@ class SelectLocationListViewModelTest {
             customListsRelayItemUseCase = mockCustomListRelayItemsUseCase,
             settingsRepository = mockSettingsRepository,
             recentsUseCase = recentsUseCase,
+            relayListScrollConnection = relayListScrollConnection,
         )
 
     private fun RelayListItem.relayItemId() =

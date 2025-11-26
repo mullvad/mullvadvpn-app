@@ -87,6 +87,7 @@ class SelectLocationScreenTest {
         onRecentsToggleEnableClick: () -> Unit = {},
         onRefreshRelayList: () -> Unit = {},
         setMultihop: (Boolean) -> Unit = {},
+        onScrollToItem: (ScrollEvent) -> Unit = {},
     ) {
 
         setContentWithTheme {
@@ -111,6 +112,7 @@ class SelectLocationScreenTest {
                 onRecentsToggleEnableClick = onRecentsToggleEnableClick,
                 onRefreshRelayList = onRefreshRelayList,
                 toggleMultihop = setMultihop,
+                scrollToItem = onScrollToItem,
             )
         }
     }
