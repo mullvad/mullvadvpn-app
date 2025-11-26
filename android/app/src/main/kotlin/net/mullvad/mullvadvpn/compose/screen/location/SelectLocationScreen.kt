@@ -113,7 +113,9 @@ import net.mullvad.mullvadvpn.lib.ui.component.Singlehop
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_SCREEN_TEST_TAG
 import net.mullvad.mullvadvpn.usecase.FilterChip
+import net.mullvad.mullvadvpn.usecase.ModifyMultihopError
 import net.mullvad.mullvadvpn.usecase.MultihopChange
+import net.mullvad.mullvadvpn.usecase.SelectRelayItemError
 import net.mullvad.mullvadvpn.util.Lc
 import net.mullvad.mullvadvpn.viewmodel.location.SelectLocationSideEffect
 import net.mullvad.mullvadvpn.viewmodel.location.SelectLocationViewModel
@@ -151,9 +153,10 @@ private fun PreviewSelectLocationScreen(
             openDaitaSettings = {},
             onRefreshRelayList = {},
             scrollToItem = {},
-            onSetAsExit = {},
-            onSetAsEntry = {},
-            toggleMultihop = { _, _ -> },
+            toggleMultihop = {},
+            onMultihopChanged = { _, _ -> },
+            onRelayItemError = {},
+            onModifyMultiHopError = { _, _ -> },
         )
     }
 }
@@ -251,22 +254,7 @@ fun SelectLocation(
                                 }
                             ),
                         actionLabel = context.getString(R.string.undo),
-                        onAction = {
-                            vm.toggleMultihop(!it.enabled) {
-                                if (it.revertMultihopChange != null) {
-                                    vm.modifyMultihop(
-                                        relayItem = it.revertMultihopChange.item,
-                                        multihopRelayListType =
-                                            when (it.revertMultihopChange) {
-                                                is MultihopChange.Entry ->
-                                                    MultihopRelayListType.ENTRY
-                                                is MultihopChange.Exit -> MultihopRelayListType.EXIT
-                                            },
-                                        actionOnSuccess = false,
-                                    )
-                                }
-                            }
-                        },
+                        onAction = { vm.revertMultihopAction(it.revertMultihopChange) },
                         duration = SnackbarDuration.Long,
                     )
                 }
@@ -353,8 +341,9 @@ fun SelectLocation(
         onRefreshRelayList = vm::refreshRelayList,
         toggleMultihop = vm::toggleMultihop,
         scrollToItem = vm::scrollToItem,
-        onSetAsEntry = vm::setAsEntry,
-        onSetAsExit = vm::setAsExit,
+        onModifyMultiHopError = vm::onModifyMultihopError,
+        onRelayItemError = vm::onSelectRelayItemError,
+        onMultihopChanged = vm::onMultihopChanged,
     )
 }
 
@@ -382,9 +371,10 @@ fun SelectLocationScreen(
     openDaitaSettings: () -> Unit,
     onRefreshRelayList: () -> Unit,
     scrollToItem: (ScrollEvent) -> Unit,
-    onSetAsEntry: (RelayItem) -> Unit,
-    onSetAsExit: (RelayItem) -> Unit,
-    toggleMultihop: (enable: Boolean, showSnackbar: Boolean) -> Unit,
+    toggleMultihop: (Boolean) -> Unit,
+    onModifyMultiHopError: (ModifyMultihopError, MultihopChange) -> Unit,
+    onRelayItemError: (SelectRelayItemError) -> Unit,
+    onMultihopChanged: (Boolean, MultihopChange?) -> Unit,
 ) {
     val backgroundColor = MaterialTheme.colorScheme.surface
     var fabHeight by remember { mutableIntStateOf(0) }
@@ -459,7 +449,7 @@ fun SelectLocationScreen(
                     onRecentsToggleEnableClick()
                 },
                 onRefreshRelayList = onRefreshRelayList,
-                onMultihopToggleEnableClick = { toggleMultihop(!multihopEnabled, false) },
+                onMultihopToggleEnableClick = { toggleMultihop(!multihopEnabled) },
             )
         },
     ) { modifier ->
@@ -473,10 +463,10 @@ fun SelectLocationScreen(
             onEditCustomListName = onEditCustomListName,
             onEditLocationsCustomList = onEditLocationsCustomList,
             onDeleteCustomList = onDeleteCustomList,
+            onModifyMultiHopError = onModifyMultiHopError,
+            onRelayItemError = onRelayItemError,
+            onMultihopChanged = onMultihopChanged,
             onHideBottomSheet = { locationBottomSheetState = null },
-            onSetAsEntry = onSetAsEntry,
-            onSetAsExit = onSetAsExit,
-            onDisableMultihop = { toggleMultihop(false, true) },
         )
 
         val expandProgress = remember { Animatable(1f) }

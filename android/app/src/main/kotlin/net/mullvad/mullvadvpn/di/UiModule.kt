@@ -302,7 +302,6 @@ val uiModule = module {
             get(),
             get(),
             get(),
-            get(),
         )
     }
     viewModel { SettingsViewModel(get(), get(), get(), get(), IS_PLAY_BUILD) }
@@ -341,6 +340,7 @@ val uiModule = module {
     viewModel { NotificationSettingsViewModel(get()) }
     viewModel {
         SearchLocationViewModel(
+            get(),
             get(),
             get(),
             get(),
@@ -393,6 +393,10 @@ val uiModule = module {
             canBeSelectedUseCase = get(),
             customListsRelayItemUseCase = get(),
             selectedLocationUseCase = get(),
+            modifyMultihopUseCase = get(),
+            wireguardConstraintsRepository = get(),
+            selectMultiHopUseCase = get(),
+            hopSelectionUseCase = get(),
         )
     }
 

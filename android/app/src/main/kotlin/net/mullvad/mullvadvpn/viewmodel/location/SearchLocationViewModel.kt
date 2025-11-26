@@ -26,6 +26,7 @@ import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.relaylist.newFilterOnSearch
 import net.mullvad.mullvadvpn.repository.CustomListsRepository
 import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
+import net.mullvad.mullvadvpn.repository.RelayListRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
 import net.mullvad.mullvadvpn.usecase.FilterChip
@@ -53,6 +54,7 @@ class SearchLocationViewModel(
     private val modifyMultihopUseCase: ModifyMultihopUseCase,
     private val settingsRepository: SettingsRepository,
     private val wireguardConstraintsRepository: WireguardConstraintsRepository,
+    private val relayListRepository: RelayListRepository,
     filteredRelayListUseCase: FilteredRelayListUseCase,
     filteredCustomListRelayItemsUseCase: FilterCustomListsRelayItemUseCase,
     selectedLocationUseCase: SelectedLocationUseCase,
@@ -155,45 +157,14 @@ class SearchLocationViewModel(
     private suspend fun selectSinglehop(item: RelayItem) =
         selectSinglehopUseCase(item)
             .fold(
-                {
-                    _uiSideEffect.send(
-                        when (it) {
-                            SelectRelayItemError.EntryAndExitSame ->
-                                error("Entry and exit should not be the same when using Single hop")
-                            SelectRelayItemError.GenericError ->
-                                SearchLocationSideEffect.GenericError
-                            is SelectRelayItemError.RelayInactive ->
-                                SearchLocationSideEffect.RelayItemInactive(item)
-                        }
-                    )
-                },
+                { _uiSideEffect.send(it.toSideEffect()) },
                 { _uiSideEffect.send(SearchLocationSideEffect.LocationSelected(relayListType)) },
             )
 
     private suspend fun modifyMultihop(change: MultihopChange) =
         modifyMultihopUseCase(change = change)
             .fold(
-                {
-                    _uiSideEffect.send(
-                        when (it) {
-                            is ModifyMultihopError.EntrySameAsExit ->
-                                when (change) {
-                                    is MultihopChange.Entry ->
-                                        SearchLocationSideEffect.ExitAlreadySelected(
-                                            relayItem = change.item
-                                        )
-                                    is MultihopChange.Exit ->
-                                        SearchLocationSideEffect.EntryAlreadySelected(
-                                            relayItem = change.item
-                                        )
-                                }
-                            ModifyMultihopError.GenericError ->
-                                SearchLocationSideEffect.GenericError
-                            is ModifyMultihopError.RelayItemInactive ->
-                                SearchLocationSideEffect.RelayItemInactive(relayItem = it.relayItem)
-                        }
-                    )
-                },
+                { _uiSideEffect.send(it.toSideEffect(change = change)) },
                 { _uiSideEffect.send(SearchLocationSideEffect.LocationSelected(relayListType)) },
             )
 
@@ -250,31 +221,6 @@ class SearchLocationViewModel(
         viewModelScope.launch { customListActionUseCase(action) }
     }
 
-    fun setAsEntry(item: RelayItem) {
-        viewModelScope.launch {
-            modifyMultihop(MultihopChange.Entry(item))
-            // If multihop is not turned on, turn it on and show a snackbar to the user
-            if (
-                wireguardConstraintsRepository.wireguardConstraints.value?.isMultihopEnabled ==
-                    false
-            ) {
-                wireguardConstraintsRepository.setMultihop(true)
-                _uiSideEffect.send(SearchLocationSideEffect.MultihopChanged(true))
-            }
-        }
-    }
-
-    fun setAsExit(item: RelayItem) {
-        viewModelScope.launch { modifyMultihop(MultihopChange.Exit(item)) }
-    }
-
-    fun setMultihop(enable: Boolean) {
-        viewModelScope.launch {
-            wireguardConstraintsRepository.setMultihop(enable)
-            _uiSideEffect.send(SearchLocationSideEffect.MultihopChanged(enable))
-        }
-    }
-
     fun removeOwnerFilter() {
         viewModelScope.launch { relayListFilterRepository.updateSelectedOwnership(Constraint.Any) }
     }
@@ -287,9 +233,76 @@ class SearchLocationViewModel(
         _expandOverrides.onToggleExpandMap(item = item, parent = parent, expand = expand)
     }
 
+    fun onModifyMultihopError(
+        modifyMultihopError: ModifyMultihopError,
+        multihopChange: MultihopChange,
+    ) {
+        viewModelScope.launch {
+            _uiSideEffect.send(modifyMultihopError.toSideEffect(multihopChange))
+        }
+    }
+
+    fun onSelectRelayItemError(selectRelayItemError: SelectRelayItemError) {
+        viewModelScope.launch { _uiSideEffect.send(selectRelayItemError.toSideEffect()) }
+    }
+
+    fun onMultihopChanged(enableMultihop: Boolean, revertMultihopChange: MultihopChange?) {
+        viewModelScope.launch {
+            _uiSideEffect.send(
+                SearchLocationSideEffect.MultihopChanged(enableMultihop, revertMultihopChange)
+            )
+        }
+    }
+
+    fun revertMultihopAction(revertMultihopChange: MultihopChange?) {
+        viewModelScope.launch {
+            when (revertMultihopChange) {
+                is MultihopChange.Entry ->
+                    wireguardConstraintsRepository.setMultihopAndEntryLocation(
+                        false,
+                        revertMultihopChange.item.id,
+                    )
+                is MultihopChange.Exit -> {
+                    relayListRepository.updateSelectedRelayLocationMultihop(
+                        entry = null,
+                        exit = revertMultihopChange.item.id,
+                    )
+                }
+                null -> {
+                    wireguardConstraintsRepository.setMultihop(true).onLeft {
+                        _uiSideEffect.send(SearchLocationSideEffect.GenericError)
+                    }
+                }
+            }
+        }
+    }
+
     private fun Set<String>.with(overrides: Map<String, Boolean>): Set<String> =
         this + overrides.filterValues { expanded -> expanded }.keys -
             overrides.filterValues { expanded -> !expanded }.keys
+
+    private fun ModifyMultihopError.toSideEffect(change: MultihopChange) =
+        when (this) {
+            is ModifyMultihopError.EntrySameAsExit ->
+                when (change) {
+                    is MultihopChange.Entry ->
+                        SearchLocationSideEffect.ExitAlreadySelected(relayItem = change.item)
+                    is MultihopChange.Exit ->
+                        SearchLocationSideEffect.EntryAlreadySelected(relayItem = change.item)
+                }
+            ModifyMultihopError.GenericError -> SearchLocationSideEffect.GenericError
+            is ModifyMultihopError.RelayItemInactive ->
+                SearchLocationSideEffect.RelayItemInactive(relayItem = this.relayItem)
+        }
+
+    private fun SelectRelayItemError.toSideEffect() =
+        when (this) {
+            SelectRelayItemError.EntryAndExitSame ->
+                error("Entry and exit should not be the same when using Single hop")
+            SelectRelayItemError.GenericError -> SearchLocationSideEffect.GenericError
+            is SelectRelayItemError.RelayInactive ->
+                SearchLocationSideEffect.RelayItemInactive(this.relayItem)
+        }
 
     companion object {
         private const val EMPTY_SEARCH_TERM = ""
@@ -302,7 +315,10 @@ sealed interface SearchLocationSideEffect {
     data class CustomListActionToast(val resultData: CustomListActionResultData) :
         SearchLocationSideEffect
 
-    data class MultihopChanged(val enabled: Boolean) : SearchLocationSideEffect
+    data class MultihopChanged(
+        val enabled: Boolean,
+        val revertMultihopChange: MultihopChange? = null,
+    ) : SearchLocationSideEffect
 
     data class RelayItemInactive(val relayItem: RelayItem) : SearchLocationSideEffect
 
