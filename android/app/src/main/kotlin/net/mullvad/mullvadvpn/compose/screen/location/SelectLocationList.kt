@@ -37,10 +37,13 @@ import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.constant.ContentType
 import net.mullvad.mullvadvpn.compose.extensions.animateScrollAndCentralizeItem
+import net.mullvad.mullvadvpn.compose.extensions.animateScrollCentralizeItem
 import net.mullvad.mullvadvpn.compose.preview.SearchLocationsListUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.compose.state.SelectLocationListUiState
+import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.lib.model.CustomListId
+import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
@@ -109,6 +112,26 @@ fun SelectLocationList(
                 lazyListState.scrollToItem(index)
                 lazyListState.animateScrollAndCentralizeItem(index)
             }
+        }
+    }
+
+    CollectSideEffectWithLifecycle(viewModel.uiSideEffect) {
+        val stateActual = viewModel.uiState.first { it is Content }
+        // Ensure the selected item is expanded
+        if (it.relayItem.id !is GeoLocationId.Hostname) {
+            viewModel.onToggleExpand(it.relayItem.id, expand = true)
+        }
+        val index =
+            stateActual.contentOrNull()?.relayListItems?.indexOfFirst { relayListItem ->
+                when (relayListItem) {
+                    is RelayListItem.CustomListItem -> it.relayItem.id == relayListItem.item.id
+                    is RelayListItem.GeoLocationItem -> it.relayItem.id == relayListItem.item.id
+                    else -> false
+                }
+            }
+
+        if (index != null) {
+            lazyListState.animateScrollCentralizeItem(index)
         }
     }
 

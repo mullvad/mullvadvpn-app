@@ -149,6 +149,7 @@ private fun PreviewSelectLocationScreen(
             openDaitaSettings = {},
             onRefreshRelayList = {},
             toggleMultihop = {},
+            scrollToItem = {},
         )
     }
 }
@@ -315,6 +316,7 @@ fun SelectLocation(
             dropUnlessResumed { navigator.navigate(DaitaDestination(isModal = true)) },
         onRefreshRelayList = vm::refreshRelayList,
         toggleMultihop = vm::toggleMultihop,
+        scrollToItem = vm::scrollToItem,
     )
 }
 
@@ -341,6 +343,7 @@ fun SelectLocationScreen(
     onSelectRelayList: (MultihopRelayListType) -> Unit,
     openDaitaSettings: () -> Unit,
     onRefreshRelayList: () -> Unit,
+    scrollToItem: (ScrollEvent) -> Unit,
     toggleMultihop: (enable: Boolean) -> Unit,
 ) {
     val backgroundColor = MaterialTheme.colorScheme.surface
@@ -487,6 +490,9 @@ fun SelectLocationScreen(
                         onSelectRelayList = onSelectRelayList,
                         removeOwnershipFilter = removeOwnershipFilter,
                         removeProviderFilter = removeProviderFilter,
+                        scrollToRelayItem = { relayListType: RelayListType, relayItem: RelayItem ->
+                            scrollToItem(relayListType to relayItem)
+                        },
                     )
 
                     RelayLists(
@@ -684,6 +690,7 @@ private fun SelectionContainer(
     onSelectRelayList: (MultihopRelayListType) -> Unit,
     removeOwnershipFilter: () -> Unit,
     removeProviderFilter: () -> Unit,
+    scrollToRelayItem: (RelayListType, RelayItem) -> Unit,
 ) {
 
     var multihopListSelector by remember { mutableStateOf(MultihopRelayListType.EXIT) }
@@ -706,6 +713,11 @@ private fun SelectionContainer(
                         exitLocation = hopSelection.relay.toDisplayName(),
                         errorText = error.errorText(RelayListType.Single),
                         expandProgress = progress,
+                        onSelect = {
+                            hopSelection.relay?.getOrNull()?.let {
+                                scrollToRelayItem(RelayListType.Single, it)
+                            }
+                        },
                     )
                 is HopSelection.Multi ->
                     MultihopSelector(
@@ -713,11 +725,33 @@ private fun SelectionContainer(
                         exitLocation = hopSelection.exit.toDisplayName(),
                         exitErrorText =
                             error.errorText(RelayListType.Multihop(MultihopRelayListType.EXIT)),
-                        onExitClick = { onSelectRelayList(MultihopRelayListType.EXIT) },
+                        onExitClick = {
+                            if (multihopListSelector == MultihopRelayListType.EXIT) {
+                                hopSelection.exit?.getOrNull()?.let {
+                                    scrollToRelayItem(
+                                        RelayListType.Multihop(MultihopRelayListType.EXIT),
+                                        it,
+                                    )
+                                }
+                            } else {
+                                onSelectRelayList(MultihopRelayListType.EXIT)
+                            }
+                        },
                         entryLocation = hopSelection.entry.toDisplayName(),
                         entryErrorText =
                             error.errorText(RelayListType.Multihop(MultihopRelayListType.ENTRY)),
-                        onEntryClick = { onSelectRelayList(MultihopRelayListType.ENTRY) },
+                        onEntryClick = {
+                            if (multihopListSelector == MultihopRelayListType.ENTRY) {
+                                hopSelection.entry?.getOrNull()?.let {
+                                    scrollToRelayItem(
+                                        RelayListType.Multihop(MultihopRelayListType.ENTRY),
+                                        it,
+                                    )
+                                }
+                            } else {
+                                onSelectRelayList(MultihopRelayListType.ENTRY)
+                            }
+                        },
                         expandProgress = progress,
                     )
             }
