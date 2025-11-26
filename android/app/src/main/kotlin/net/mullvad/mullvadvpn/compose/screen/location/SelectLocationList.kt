@@ -174,6 +174,7 @@ private fun SelectLocationListContent(
 
                 relayListContent(
                     relayListItems = state.value.relayListItems,
+                    relayListType = state.value.relayListType,
                     onSelectRelayItem = { onSelectRelayItem(it, state.value.relayListType) },
                     onToggleExpand = onToggleExpand,
                     onUpdateBottomSheetState = onUpdateBottomSheetState,

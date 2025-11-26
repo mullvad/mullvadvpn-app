@@ -3,12 +3,14 @@ package net.mullvad.mullvadvpn.viewmodel.location
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.Logger
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.WhileSubscribed
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.screen.location.LocationBottomSheetState
 import net.mullvad.mullvadvpn.compose.state.LocationBottomSheetUiState
@@ -34,7 +36,6 @@ import net.mullvad.mullvadvpn.util.Lc
 
 class LocationBottomSheetViewModel(
     private val locationBottomSheetState: LocationBottomSheetState,
-    private val relayListType: RelayListType,
     private val hopSelectionUseCase: HopSelectionUseCase,
     private val modifyMultihopUseCase: ModifyMultihopUseCase,
     private val selectMultiHopUseCase: SelectMultiHopUseCase,
@@ -43,12 +44,13 @@ class LocationBottomSheetViewModel(
     customListsRelayItemUseCase: CustomListsRelayItemUseCase,
     selectedLocationUseCase: SelectedLocationUseCase,
 ) : ViewModel() {
-
     val uiState: StateFlow<Lc<Unit, LocationBottomSheetUiState>> =
-        combine(canBeSelectedUseCase(), customListsRelayItemUseCase(), selectedLocationUseCase()) {
-                (entrySelectable, exitSelectable),
-                customLists,
-                selectedLocation ->
+        combine(
+                canBeSelectedUseCase().take(1),
+                customListsRelayItemUseCase(),
+                selectedLocationUseCase().take(1),
+            ) { (entrySelectable, exitSelectable), customLists, selectedLocation ->
+                Logger.d("LOLZ UpdateLBS")
                 when (locationBottomSheetState) {
                     is LocationBottomSheetState.ShowCustomListsEntryBottomSheet ->
                         Lc.Content(
@@ -58,17 +60,16 @@ class LocationBottomSheetViewModel(
                                     setAsEntryState(
                                         relayItem = locationBottomSheetState.item,
                                         geoLocationIds = entrySelectable,
-                                        relayListType = relayListType,
+                                        relayListType = locationBottomSheetState.relayListType,
                                     ),
                                 setAsExitState =
                                     setAsExitState(
                                         relayItem = locationBottomSheetState.item,
                                         geoLocationIds = exitSelectable,
-                                        relayListType = relayListType,
+                                        relayListType = locationBottomSheetState.relayListType,
                                     ),
-                                canDisableMultihop =
-                                    false, // Custom list entries are never considered to be
-                                // selected
+                                // Custom list entries are never considered to be selected
+                                canDisableMultihop = false,
                                 customListId = locationBottomSheetState.customListId,
                                 customListName =
                                     CustomListName.fromString(
@@ -88,13 +89,13 @@ class LocationBottomSheetViewModel(
                                     setAsEntryState(
                                         relayItem = locationBottomSheetState.item,
                                         geoLocationIds = entrySelectable,
-                                        relayListType = relayListType,
+                                        relayListType = locationBottomSheetState.relayListType,
                                     ),
                                 setAsExitState =
                                     setAsExitState(
                                         relayItem = locationBottomSheetState.item,
                                         geoLocationIds = exitSelectable,
-                                        relayListType = relayListType,
+                                        relayListType = locationBottomSheetState.relayListType,
                                     ),
                                 canDisableMultihop =
                                     selectedLocation.entryLocation()?.getOrNull() ==
@@ -110,13 +111,13 @@ class LocationBottomSheetViewModel(
                                     setAsEntryState(
                                         relayItem = locationBottomSheetState.item,
                                         geoLocationIds = entrySelectable,
-                                        relayListType = relayListType,
+                                        relayListType = locationBottomSheetState.relayListType,
                                     ),
                                 setAsExitState =
                                     setAsExitState(
                                         relayItem = locationBottomSheetState.item,
                                         geoLocationIds = exitSelectable,
-                                        relayListType = relayListType,
+                                        relayListType = locationBottomSheetState.relayListType,
                                     ),
                                 canDisableMultihop =
                                     selectedLocation.entryLocation()?.getOrNull() ==
@@ -136,7 +137,7 @@ class LocationBottomSheetViewModel(
         onError: (ModifyMultihopError, MultihopChange) -> Unit,
         onUpdateMultihop: (Boolean, MultihopChange?) -> Unit,
     ) {
-        viewModelScope.launch {
+        viewModelScope.launch(context = Dispatchers.IO) {
             val previousEntry = hopSelectionUseCase().first().entry()?.getOrNull()
             val change = MultihopChange.Entry(item)
             val isMultihopEnabled = isMultihopEnabled()
@@ -170,7 +171,7 @@ class LocationBottomSheetViewModel(
         onRelayItemError: (SelectRelayItemError) -> Unit,
         onUpdateMultihop: (Boolean, MultihopChange?) -> Unit,
     ) {
-        viewModelScope.launch {
+        viewModelScope.launch(context = Dispatchers.IO) {
             val previousExit = hopSelectionUseCase().first().exit()?.getOrNull()
             val isMultihopEnabled = isMultihopEnabled()
             if (isMultihopEnabled) {
