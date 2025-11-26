@@ -542,9 +542,7 @@ fn state_to_setup_path(state_path: &str) -> Option<String> {
 
 #[cfg(test)]
 mod test {
-    use crate::dns::imp::DNS_PORT;
-
-    use super::{DnsSettings, State};
+    use super::{DNS_PORT, DnsSettings, State};
     use std::{
         collections::{BTreeSet, HashMap},
         net::SocketAddr,

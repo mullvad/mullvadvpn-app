@@ -1,3 +1,4 @@
+//! Abstractions over operating system DNS settings.
 use std::fmt;
 use std::net::IpAddr;
 
@@ -67,7 +68,7 @@ enum InnerDnsConfig {
 }
 
 impl DnsConfig {
-    pub(crate) fn resolve(
+    pub fn resolve(
         &self,
         default_tun_config: &[IpAddr],
         #[cfg(target_os = "macos")] port: u16,

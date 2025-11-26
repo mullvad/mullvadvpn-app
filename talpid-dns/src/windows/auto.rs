@@ -1,5 +1,5 @@
+use super::{DnsMonitorT, ResolvedDnsConfig};
 use super::{iphlpapi, netsh, tcpip};
-use crate::dns::{DnsMonitorT, ResolvedDnsConfig};
 use windows_sys::Win32::System::Rpc::RPC_S_SERVER_UNAVAILABLE;
 
 pub struct DnsMonitor {

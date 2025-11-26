@@ -1,20 +1,19 @@
+mod interface;
 mod network_manager;
 mod resolvconf;
 mod static_resolv_conf;
 mod systemd_resolved;
 
-use self::{
-    network_manager::NetworkManager, resolvconf::Resolvconf, static_resolv_conf::StaticResolvConf,
-    systemd_resolved::SystemdResolved,
-};
-use std::{
-    env,
-    fmt::{self, Display},
-    net::IpAddr,
-};
+use std::env;
+use std::fmt::{self, Display};
+use std::net::IpAddr;
 use talpid_routing::RouteManagerHandle;
 
-use super::ResolvedDnsConfig;
+use self::network_manager::NetworkManager;
+use self::resolvconf::Resolvconf;
+use self::static_resolv_conf::StaticResolvConf;
+use self::systemd_resolved::SystemdResolved;
+use crate::ResolvedDnsConfig;
 
 pub type Result<T> = std::result::Result<T, Error>;
 
@@ -177,6 +176,5 @@ impl DnsMonitorHolder {
 
 /// Returns true if DnsMonitor will use NetworkManager to manage DNS.
 pub fn will_use_nm() -> bool {
-    crate::dns::imp::SystemdResolved::new().is_err()
-        && crate::dns::imp::NetworkManager::new().is_ok()
+    SystemdResolved::new().is_err() && NetworkManager::new().is_ok()
 }
