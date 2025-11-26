@@ -140,7 +140,7 @@ class SelectLocationListViewModelTest {
     }
 
     @Test
-    fun `given relay list type exit and entry blocked no item should consider selected in the entry list`() =
+    fun `given relay list type exit and entry blocked no item should be selected in the entry list`() =
         runTest {
             // Arrange
             viewModel =
@@ -176,7 +176,7 @@ class SelectLocationListViewModelTest {
         }
 
     @Test
-    fun `given entry blocked and entry list selected should be blocked`() = runTest {
+    fun `given relay type entry list and entry blocked uiState should be error`() = runTest {
         // Arrange
         viewModel =
             createSelectLocationListViewModel(RelayListType.Multihop(MultihopRelayListType.ENTRY))
@@ -194,7 +194,7 @@ class SelectLocationListViewModelTest {
     }
 
     @Test
-    fun `given entry blocked and exit list selected should not be blocked`() = runTest {
+    fun `given relay type exit list and entry blocked should work`() = runTest {
         // Arrange
         viewModel =
             createSelectLocationListViewModel(RelayListType.Multihop(MultihopRelayListType.EXIT))
@@ -216,7 +216,7 @@ class SelectLocationListViewModelTest {
     }
 
     @Test
-    fun `given entry blocked and single list selected should not be blocked`() = runTest {
+    fun `given relay type single list and entry blocked should work`() = runTest {
         // Arrange
         viewModel = createSelectLocationListViewModel(RelayListType.Single)
         filteredRelayList.value = testCountries
