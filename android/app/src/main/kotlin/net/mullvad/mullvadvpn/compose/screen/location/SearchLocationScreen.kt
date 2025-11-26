@@ -76,6 +76,9 @@ import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.lib.ui.designsystem.RelayListHeader
 import net.mullvad.mullvadvpn.usecase.FilterChip
+import net.mullvad.mullvadvpn.usecase.ModifyMultihopError
+import net.mullvad.mullvadvpn.usecase.MultihopChange
+import net.mullvad.mullvadvpn.usecase.SelectRelayItemError
 import net.mullvad.mullvadvpn.util.Lce
 import net.mullvad.mullvadvpn.viewmodel.location.SearchLocationSideEffect
 import net.mullvad.mullvadvpn.viewmodel.location.SearchLocationViewModel
@@ -102,9 +105,9 @@ private fun PreviewSearchLocationScreen(
             onDeleteCustomList = {},
             onRemoveOwnershipFilter = {},
             onRemoveProviderFilter = {},
-            onSetAsEntry = {},
-            onSetAsExit = {},
-            onDisableMultihop = {},
+            onModifyMultiHopError = { _, _ -> },
+            onRelayItemError = {},
+            onMultihopChanged = { _, _ -> },
             onGoBack = {},
         )
     }
@@ -194,7 +197,7 @@ fun SearchLocation(
                                 }
                             ),
                         actionLabel = context.getString(R.string.undo),
-                        onAction = { viewModel.setMultihop(!it.enabled) },
+                        onAction = { viewModel.revertMultihopAction(it.revertMultihopChange) },
                         duration = SnackbarDuration.Long,
                     )
                 }
@@ -260,9 +263,9 @@ fun SearchLocation(
             },
         onRemoveOwnershipFilter = viewModel::removeOwnerFilter,
         onRemoveProviderFilter = viewModel::removeProviderFilter,
-        onSetAsEntry = viewModel::setAsEntry,
-        onDisableMultihop = { viewModel.setMultihop(false) },
-        onSetAsExit = viewModel::setAsExit,
+        onModifyMultiHopError = viewModel::onModifyMultihopError,
+        onRelayItemError = viewModel::onSelectRelayItemError,
+        onMultihopChanged = viewModel::onMultihopChanged,
         onGoBack = dropUnlessResumed { navigator.navigateUp() },
     )
 }
@@ -284,9 +287,9 @@ fun SearchLocationScreen(
     onDeleteCustomList: (RelayItem.CustomList) -> Unit,
     onRemoveOwnershipFilter: () -> Unit,
     onRemoveProviderFilter: () -> Unit,
-    onSetAsEntry: (RelayItem) -> Unit,
-    onDisableMultihop: () -> Unit,
-    onSetAsExit: (RelayItem) -> Unit,
+    onModifyMultiHopError: (ModifyMultihopError, MultihopChange) -> Unit,
+    onRelayItemError: (SelectRelayItemError) -> Unit,
+    onMultihopChanged: (Boolean, MultihopChange?) -> Unit,
     onGoBack: () -> Unit,
 ) {
     val backgroundColor = MaterialTheme.colorScheme.surface
@@ -310,9 +313,9 @@ fun SearchLocationScreen(
             onEditCustomListName = onEditCustomListName,
             onEditLocationsCustomList = onEditLocationsCustomList,
             onDeleteCustomList = onDeleteCustomList,
-            onSetAsEntry = onSetAsEntry,
-            onDisableMultihop = onDisableMultihop,
-            onSetAsExit = onSetAsExit,
+            onModifyMultiHopError = onModifyMultiHopError,
+            onRelayItemError = onRelayItemError,
+            onMultihopChanged = onMultihopChanged,
             onHideBottomSheet = { locationBottomSheetState = null },
         )
         Column(modifier = Modifier.padding(it)) {

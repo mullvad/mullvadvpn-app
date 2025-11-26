@@ -48,6 +48,9 @@ import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_CUSTOM_LIST_BOTTOM_SHEET_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_LOCATION_BOTTOM_SHEET_TEST_TAG
 import net.mullvad.mullvadvpn.relaylist.canAddLocation
+import net.mullvad.mullvadvpn.usecase.ModifyMultihopError
+import net.mullvad.mullvadvpn.usecase.MultihopChange
+import net.mullvad.mullvadvpn.usecase.SelectRelayItemError
 import net.mullvad.mullvadvpn.util.Lc
 import net.mullvad.mullvadvpn.viewmodel.location.LocationBottomSheetViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -63,9 +66,9 @@ internal fun LocationBottomSheets(
     onEditCustomListName: (RelayItem.CustomList) -> Unit,
     onEditLocationsCustomList: (RelayItem.CustomList) -> Unit,
     onDeleteCustomList: (RelayItem.CustomList) -> Unit,
-    onSetAsEntry: (RelayItem) -> Unit,
-    onDisableMultihop: () -> Unit,
-    onSetAsExit: (RelayItem) -> Unit,
+    onModifyMultiHopError: (ModifyMultihopError, MultihopChange) -> Unit,
+    onRelayItemError: (SelectRelayItemError) -> Unit,
+    onMultihopChanged: (Boolean, MultihopChange?) -> Unit,
     onHideBottomSheet: () -> Unit,
 ) {
     if (locationBottomSheetState != null) {
@@ -84,9 +87,18 @@ internal fun LocationBottomSheets(
             onEditCustomListName = onEditCustomListName,
             onEditLocationsCustomList = onEditLocationsCustomList,
             onDeleteCustomList = onDeleteCustomList,
-            onSetAsEntry = onSetAsEntry,
-            onDisableMultihop = onDisableMultihop,
-            onSetAsExit = onSetAsExit,
+            onSetAsEntry = {
+                viewModel.setAsEntry(item = it, onError = onModifyMultiHopError, onMultihopChanged)
+            },
+            onDisableMultihop = { viewModel.disableMultihop(onMultihopChanged) },
+            onSetAsExit = {
+                viewModel.setAsExit(
+                    item = it,
+                    onModifyMultihopError = onModifyMultiHopError,
+                    onRelayItemError = onRelayItemError,
+                    onMultihopChanged,
+                )
+            },
             onHideBottomSheet = onHideBottomSheet,
         )
     }
