@@ -1,2 +1,3 @@
 Support for the OpenVPN tunnel protocol has been removed from the app in favor of WireGuard, which is now the only tunnel protocol used by the app.
 Settings in the former WireGuard settings view have moved into the VPN settings view.
+Add support for using port 443 with UDP-Over-TCP anti-censorship method.
