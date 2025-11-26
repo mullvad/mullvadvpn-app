@@ -12,13 +12,13 @@ fi
 # what to pass to cargo build -p, e.g. your_lib_ffi
 CARGO_PACKAGE=$1
 
-CARGO_ARGS=()
+CARGO_ARGS=""
 
 # Enable cargo features by passing feature names to this script, i.e. build-rust-library.sh mullvad-api api-override
 # If more than one feature flag needs to be enabled, pass in a single argument all the features flags separated by spaces
 # build-rust-library.sh mullvad-api "featureA featureB featureC"
 if [[ "$#" -eq 2 ]] ; then
-    CARGO_ARGS+=(--features "$2")
+    CARGO_ARGS+="--features $2"
     echo "Building with these features: $2"
 fi
 
@@ -27,7 +27,7 @@ if [[ "$CONFIGURATION" == "Release" || "$CONFIGURATION" == "MockRelease" ]]; the
     RELFLAG=--release
 
     # Release builds are not allowed to have outdated lockfiles.
-    CARGO_ARGS+=(--locked)
+    CARGO_ARGS+=" --locked"
 fi
 
 # For whatever reason, Xcode includes its toolchain paths in the PATH variable such as
@@ -50,8 +50,8 @@ fi
 for arch in $ARCHS; do
     case "$arch" in
         arm64)
-            "$HOME"/.cargo/bin/cargo build -p "$CARGO_PACKAGE" --lib $RELFLAG --target $TARGET "${CARGO_ARGS[@]}"
-            "$HOME"/.cargo/bin/cargo build -p "$CARGO_PACKAGE" --lib --target $TARGET "${CARGO_ARGS[@]}"
+            "$HOME"/.cargo/bin/cargo build -p "$CARGO_PACKAGE" --lib $RELFLAG --target $TARGET $CARGO_ARGS
+            "$HOME"/.cargo/bin/cargo build -p "$CARGO_PACKAGE" --lib --target $TARGET $CARGO_ARGS
             ;;
     esac
 done
