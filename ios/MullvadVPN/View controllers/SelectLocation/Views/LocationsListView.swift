@@ -1,3 +1,4 @@
+import MullvadTypes
 import SwiftUI
 
 struct LocationsListView<ContextMenu>: View where ContextMenu: View {

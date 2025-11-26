@@ -32,7 +32,8 @@ struct RelayFilterViewModelTests {
     func testRelayFiltering(_ settings: LatestTunnelSettings) {
         let viewModel = RelayFilterViewModel(
             settings: settings,
-            relaySelectorWrapper: RelaySelectorWrapper(relayCache: MockRelayCache())
+            relaySelectorWrapper: RelaySelectorWrapper(relayCache: MockRelayCache()),
+            multihopContext: .exit
         )
         let filteredRelays = viewModel.getFilteredRelays(RelayFilter())
 
@@ -50,7 +51,8 @@ struct RelayFilterViewModelTests {
     func testAvailableProvidersByOwnership(_ ownership: RelayFilter.Ownership) {
         let viewModel = RelayFilterViewModel(
             settings: LatestTunnelSettings(),
-            relaySelectorWrapper: RelaySelectorWrapper(relayCache: MockRelayCache())
+            relaySelectorWrapper: RelaySelectorWrapper(relayCache: MockRelayCache()),
+            multihopContext: .exit
         )
         let providers = viewModel.availableProviders(for: ownership)
 
@@ -68,7 +70,8 @@ struct RelayFilterViewModelTests {
     func testToggleFilterItem(_ item: RelayFilterDataSourceItem) {
         let viewModel = RelayFilterViewModel(
             settings: LatestTunnelSettings(),
-            relaySelectorWrapper: RelaySelectorWrapper(relayCache: MockRelayCache())
+            relaySelectorWrapper: RelaySelectorWrapper(relayCache: MockRelayCache()),
+            multihopContext: .exit
         )
 
         let initialFilter = viewModel.relayFilter
@@ -92,7 +95,8 @@ struct RelayFilterViewModelTests {
     func testToggleRelayProviderFilterItem(_ item: RelayFilterDataSourceItem) {
         let viewModel = RelayFilterViewModel(
             settings: LatestTunnelSettings(),
-            relaySelectorWrapper: RelaySelectorWrapper(relayCache: MockRelayCache())
+            relaySelectorWrapper: RelaySelectorWrapper(relayCache: MockRelayCache()),
+            multihopContext: .exit
         )
 
         let initialFilter = viewModel.relayFilter
@@ -120,7 +124,8 @@ struct RelayFilterViewModelTests {
     ) throws {
         let viewModel = RelayFilterViewModel(
             settings: LatestTunnelSettings(),
-            relaySelectorWrapper: RelaySelectorWrapper(relayCache: MockRelayCache())
+            relaySelectorWrapper: RelaySelectorWrapper(relayCache: MockRelayCache()),
+            multihopContext: .exit
         )
         guard let ownershipItem = viewModel.ownershipItem(for: ownership) else {
             throw TestError.nilOwnershipItem("ownershipItem(for: \(ownership)) returned nil")
@@ -146,7 +151,8 @@ struct RelayFilterViewModelTests {
     ) {
         let viewModel = RelayFilterViewModel(
             settings: LatestTunnelSettings(),
-            relaySelectorWrapper: RelaySelectorWrapper(relayCache: MockRelayCache())
+            relaySelectorWrapper: RelaySelectorWrapper(relayCache: MockRelayCache()),
+            multihopContext: .exit
         )
         let ownership = viewModel.ownership(for: ownershipItem)
 

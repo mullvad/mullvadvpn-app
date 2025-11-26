@@ -43,14 +43,19 @@ class RelayFilterViewController: UIViewController {
         return button
     }()
 
-    var onApplyFilter: ((RelayFilter) -> Void)?
+    var onApplyFilter: ((RelayFilter, MultihopContext) -> Void)?
     var didFinish: (() -> Void)?
 
     init(
         settings: LatestTunnelSettings,
-        relaySelectorWrapper: RelaySelectorWrapper
+        relaySelectorWrapper: RelaySelectorWrapper,
+        multihopContext: MultihopContext
     ) {
-        self.viewModel = RelayFilterViewModel(settings: settings, relaySelectorWrapper: relaySelectorWrapper)
+        self.viewModel = RelayFilterViewModel(
+            settings: settings,
+            relaySelectorWrapper: relaySelectorWrapper,
+            multihopContext: multihopContext
+        )
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -138,6 +143,6 @@ class RelayFilterViewController: UIViewController {
             }
         }
 
-        onApplyFilter?(relayFilter)
+        onApplyFilter?(relayFilter, viewModel.multihopContext)
     }
 }
