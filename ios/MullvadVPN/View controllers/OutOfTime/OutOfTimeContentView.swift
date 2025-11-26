@@ -48,6 +48,7 @@ class OutOfTimeContentView: UIView {
         button.translatesAutoresizingMaskIntoConstraints = false
         let localizedString = NSLocalizedString("Add time", comment: "")
         button.setTitle(localizedString, for: .normal)
+        button.setAccessibilityIdentifier(AccessibilityIdentifier.purchaseButton)
         return button
     }()
 

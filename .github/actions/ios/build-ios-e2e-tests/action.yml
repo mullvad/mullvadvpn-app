@@ -19,6 +19,12 @@ inputs:
   partner_api_token:
     description: 'Partner API Token'
     required: true
+  ios_in_app_purchase_username:
+    description: 'iOS In App Purchase Username'
+    required: true
+  ios_in_app_purchase_password:
+    description: 'iOS In App Purchase Password'
+    required: true
   test_name:
     description: 'Test case/suite name. Will run all tests in the test plan if not provided.'
     required: false
@@ -47,6 +53,12 @@ runs:
             "/PARTNER_API_TOKEN =/ s#= .*#= $PARTNER_API_TOKEN#" \
             UITests.xcconfig
           sed -i "" \
+            "/IOS_IN_APP_PURCHASE_USERNAME =/ s/= .*/= $IOS_IN_APP_PURCHASE_USERNAME/" \
+            UITests.xcconfig
+          sed -i "" \
+            "/IOS_IN_APP_PURCHASE_PASSWORD =/ s/= .*/= $IOS_IN_APP_PURCHASE_PASSWORD/" \
+            UITests.xcconfig
+          sed -i "" \
             "/ATTACH_APP_LOGS_ON_FAILURE =/ s#= .*#= 1#" \
             UITests.xcconfig
           sed -i "" \
@@ -63,6 +75,8 @@ runs:
         HAS_TIME_ACCOUNT_NUMBER: ${{ inputs.has_time_account_number }}
         NO_TIME_ACCOUNT_NUMBER: ${{ inputs.no_time_account_number }}
         PARTNER_API_TOKEN: ${{ inputs.partner_api_token }}
+        IOS_IN_APP_PURCHASE_USERNAME: ${{ inputs.ios_in_app_purchase_username }}
+        IOS_IN_APP_PURCHASE_PASSWORD: ${{ inputs.ios_in_app_purchase_password }}
 
     - name: Build app and tests for testing
       run: |
