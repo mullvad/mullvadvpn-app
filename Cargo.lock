@@ -2956,6 +2956,8 @@ dependencies = [
  "async-trait",
  "cbindgen",
  "chrono",
+ "clap",
+ "env_logger 0.11.7",
  "futures",
  "http 1.1.0",
  "http-body-util",
@@ -2984,6 +2986,7 @@ dependencies = [
  "tower",
  "uuid",
  "vec1",
+ "webpki-roots 1.0.4",
 ]
 
 [[package]]
@@ -4693,7 +4696,7 @@ dependencies = [
  "wasm-bindgen",
  "wasm-bindgen-futures",
  "web-sys",
- "webpki-roots 1.0.2",
+ "webpki-roots 1.0.4",
 ]
 
 [[package]]
@@ -6449,9 +6452,9 @@ dependencies = [
 
 [[package]]
 name = "webpki-roots"
-version = "1.0.2"
+version = "1.0.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7e8983c3ab33d6fb807cfcdad2491c4ea8cbc8ed839181c7dfd9c67c83e261b2"
+checksum = "b2878ef029c47c6e8cf779119f20fcf52bde7ad42a731b2a304bc221df17571e"
 dependencies = [
  "rustls-pki-types",
 ]
