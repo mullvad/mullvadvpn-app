@@ -246,33 +246,34 @@ class SearchLocationViewModel(
         viewModelScope.launch { _uiSideEffect.send(selectRelayItemError.toSideEffect()) }
     }
 
-    fun onMultihopChanged(enableMultihop: Boolean, revertMultihopChange: MultihopChange?) {
+    fun onMultihopChanged(undoChangeMultihopAction: UndoChangeMultihopAction) {
         viewModelScope.launch {
-            _uiSideEffect.send(
-                SearchLocationSideEffect.MultihopChanged(enableMultihop, revertMultihopChange)
-            )
+            _uiSideEffect.send(SearchLocationSideEffect.MultihopChanged(undoChangeMultihopAction))
         }
     }
 
-    fun revertMultihopAction(revertMultihopChange: MultihopChange?) {
+    fun undoMultihopAction(undoChangeMultihopAction: UndoChangeMultihopAction) {
         viewModelScope.launch {
-            when (revertMultihopChange) {
-                is MultihopChange.Entry ->
-                    wireguardConstraintsRepository.setMultihopAndEntryLocation(
-                        false,
-                        revertMultihopChange.item.id,
-                    )
-                is MultihopChange.Exit -> {
-                    relayListRepository.updateSelectedRelayLocationMultihop(
-                        entry = null,
-                        exit = revertMultihopChange.item.id,
-                    )
-                }
-                null -> {
+            when (undoChangeMultihopAction) {
+                UndoChangeMultihopAction.Enable ->
                     wireguardConstraintsRepository.setMultihop(true).onLeft {
                         _uiSideEffect.send(SearchLocationSideEffect.GenericError)
                     }
-                }
+                UndoChangeMultihopAction.Disable ->
+                    wireguardConstraintsRepository.setMultihop(false).onLeft {
+                        _uiSideEffect.send(SearchLocationSideEffect.GenericError)
+                    }
+                is UndoChangeMultihopAction.DisableAndSetEntry ->
+                    wireguardConstraintsRepository
+                        .setMultihopAndEntryLocation(false, undoChangeMultihopAction.relayItemId)
+                        .onLeft { _uiSideEffect.send(SearchLocationSideEffect.GenericError) }
+                is UndoChangeMultihopAction.DisableAndSetExit ->
+                    relayListRepository
+                        .updateExitRelayLocationMultihop(
+                            false,
+                            undoChangeMultihopAction.relayItemId,
+                        )
+                        .onLeft { _uiSideEffect.send(SearchLocationSideEffect.GenericError) }
             }
         }
     }
@@ -315,10 +316,8 @@ sealed interface SearchLocationSideEffect {
     data class CustomListActionToast(val resultData: CustomListActionResultData) :
         SearchLocationSideEffect
 
-    data class MultihopChanged(
-        val enabled: Boolean,
-        val revertMultihopChange: MultihopChange? = null,
-    ) : SearchLocationSideEffect
+    data class MultihopChanged(val undoChangeMultihopAction: UndoChangeMultihopAction) :
+        SearchLocationSideEffect
 
     data class RelayItemInactive(val relayItem: RelayItem) : SearchLocationSideEffect
 

@@ -119,6 +119,7 @@ import net.mullvad.mullvadvpn.usecase.SelectRelayItemError
 import net.mullvad.mullvadvpn.util.Lc
 import net.mullvad.mullvadvpn.viewmodel.location.SelectLocationSideEffect
 import net.mullvad.mullvadvpn.viewmodel.location.SelectLocationViewModel
+import net.mullvad.mullvadvpn.viewmodel.location.UndoChangeMultihopAction
 import org.koin.androidx.compose.koinViewModel
 
 val SCROLL_COLLAPSE_DISTANCE = 150.dp
@@ -154,9 +155,9 @@ private fun PreviewSelectLocationScreen(
             onRefreshRelayList = {},
             scrollToItem = {},
             toggleMultihop = {},
-            onMultihopChanged = { _, _ -> },
+            onMultihopChanged = {},
             onRelayItemError = {},
-            onModifyMultiHopError = { _, _ -> },
+            onModifyMultihopError = { _, _ -> },
         )
     }
 }
@@ -247,14 +248,16 @@ fun SelectLocation(
                     snackbarHostState.showSnackbarImmediately(
                         message =
                             context.getString(
-                                if (it.enabled) {
-                                    R.string.multihop_is_enabled
-                                } else {
-                                    R.string.multihop_is_disabled
+                                when (it.undoChangeMultihopAction) {
+                                    UndoChangeMultihopAction.Disable,
+                                    is UndoChangeMultihopAction.DisableAndSetExit,
+                                    is UndoChangeMultihopAction.DisableAndSetEntry ->
+                                        R.string.multihop_is_enabled
+                                    else -> R.string.multihop_is_disabled
                                 }
                             ),
                         actionLabel = context.getString(R.string.undo),
-                        onAction = { vm.revertMultihopAction(it.revertMultihopChange) },
+                        onAction = { vm.undoMultihopAction(it.undoChangeMultihopAction) },
                         duration = SnackbarDuration.Long,
                     )
                 }
@@ -341,7 +344,7 @@ fun SelectLocation(
         onRefreshRelayList = vm::refreshRelayList,
         toggleMultihop = vm::toggleMultihop,
         scrollToItem = vm::scrollToItem,
-        onModifyMultiHopError = vm::onModifyMultihopError,
+        onModifyMultihopError = vm::onModifyMultihopError,
         onRelayItemError = vm::onSelectRelayItemError,
         onMultihopChanged = vm::onMultihopChanged,
     )
@@ -372,9 +375,9 @@ fun SelectLocationScreen(
     onRefreshRelayList: () -> Unit,
     scrollToItem: (ScrollEvent) -> Unit,
     toggleMultihop: (Boolean) -> Unit,
-    onModifyMultiHopError: (ModifyMultihopError, MultihopChange) -> Unit,
+    onModifyMultihopError: (ModifyMultihopError, MultihopChange) -> Unit,
     onRelayItemError: (SelectRelayItemError) -> Unit,
-    onMultihopChanged: (Boolean, MultihopChange?) -> Unit,
+    onMultihopChanged: (UndoChangeMultihopAction) -> Unit,
 ) {
     val backgroundColor = MaterialTheme.colorScheme.surface
     var fabHeight by remember { mutableIntStateOf(0) }
@@ -462,7 +465,7 @@ fun SelectLocationScreen(
             onEditCustomListName = onEditCustomListName,
             onEditLocationsCustomList = onEditLocationsCustomList,
             onDeleteCustomList = onDeleteCustomList,
-            onModifyMultiHopError = onModifyMultiHopError,
+            onModifyMultihopError = onModifyMultihopError,
             onRelayItemError = onRelayItemError,
             onMultihopChanged = onMultihopChanged,
             onHideBottomSheet = { locationBottomSheetState = null },

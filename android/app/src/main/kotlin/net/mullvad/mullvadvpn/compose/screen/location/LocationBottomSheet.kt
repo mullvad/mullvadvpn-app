@@ -1,7 +1,10 @@
 package net.mullvad.mullvadvpn.compose.screen.location
 
 import android.content.Context
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
@@ -53,6 +56,7 @@ import net.mullvad.mullvadvpn.usecase.MultihopChange
 import net.mullvad.mullvadvpn.usecase.SelectRelayItemError
 import net.mullvad.mullvadvpn.util.Lc
 import net.mullvad.mullvadvpn.viewmodel.location.LocationBottomSheetViewModel
+import net.mullvad.mullvadvpn.viewmodel.location.UndoChangeMultihopAction
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -65,9 +69,9 @@ internal fun LocationBottomSheets(
     onEditCustomListName: (RelayItem.CustomList) -> Unit,
     onEditLocationsCustomList: (RelayItem.CustomList) -> Unit,
     onDeleteCustomList: (RelayItem.CustomList) -> Unit,
-    onModifyMultiHopError: (ModifyMultihopError, MultihopChange) -> Unit,
+    onModifyMultihopError: (ModifyMultihopError, MultihopChange) -> Unit,
     onRelayItemError: (SelectRelayItemError) -> Unit,
-    onMultihopChanged: (Boolean, MultihopChange?) -> Unit,
+    onMultihopChanged: (UndoChangeMultihopAction) -> Unit,
     onHideBottomSheet: () -> Unit,
 ) {
     if (locationBottomSheetState != null) {
@@ -87,13 +91,13 @@ internal fun LocationBottomSheets(
             onEditLocationsCustomList = onEditLocationsCustomList,
             onDeleteCustomList = onDeleteCustomList,
             onSetAsEntry = {
-                viewModel.setAsEntry(item = it, onError = onModifyMultiHopError, onMultihopChanged)
+                viewModel.setAsEntry(item = it, onError = onModifyMultihopError, onMultihopChanged)
             },
             onDisableMultihop = { viewModel.disableMultihop(onMultihopChanged) },
             onSetAsExit = {
                 viewModel.setAsExit(
                     item = it,
-                    onModifyMultihopError = onModifyMultiHopError,
+                    onModifyMultihopError = onModifyMultihopError,
                     onRelayItemError = onRelayItemError,
                     onMultihopChanged,
                 )
@@ -215,50 +219,53 @@ private fun LocationBottomSheet(
         onBackgroundColor = onBackgroundColor,
         onDismissRequest = { closeBottomSheet(false) },
         modifier = Modifier.testTag(SELECT_LOCATION_LOCATION_BOTTOM_SHEET_TEST_TAG),
-    ) {
-        HeaderCell(text = item.name, background = backgroundColor)
-        HorizontalDivider(color = onBackgroundColor)
-        Text(
-            stringResource(R.string.add_to_list),
-            style = MaterialTheme.typography.labelLarge,
-            color = onBackgroundColor,
-            modifier =
-                Modifier.padding(
-                    start = Dimens.smallPadding,
-                    end = Dimens.smallPadding,
-                    top = Dimens.smallPadding,
-                ),
-        )
-        CustomLists(
-            customLists = customLists,
-            item = item,
-            onBackgroundColor = onBackgroundColor,
-            onAddLocationToList = onAddLocationToList,
-            onCreateCustomList = onCreateCustomList,
-            closeBottomSheet = closeBottomSheet,
-        )
-        Text(
-            stringResource(R.string.multihop),
-            style = MaterialTheme.typography.labelLarge,
-            color = onBackgroundColor,
-            modifier =
-                Modifier.padding(
-                    start = Dimens.smallPadding,
-                    end = Dimens.smallPadding,
-                    top = Dimens.smallPadding,
-                ),
-        )
-        MultihopOptions(
-            item = item,
-            setAsEntryState = setAsEntryState,
-            setAsExitState = setAsExitState,
-            canBeRemovedAsEntry = canBeRemovedAsEntry,
-            onBackgroundColor = onBackgroundColor,
-            onSetAsEntry = onSetAsEntry,
-            onSetAsExit = onSetAsExit,
-            onDisableMultihop = onDisableMultihop,
-            closeBottomSheet = closeBottomSheet,
-        )
+    ) { bottomPadding ->
+        val scrollState = rememberScrollState()
+        Column(modifier = Modifier.verticalScroll(scrollState).padding(bottom = bottomPadding)) {
+            HeaderCell(text = item.name, background = backgroundColor)
+            HorizontalDivider(color = onBackgroundColor)
+            Text(
+                stringResource(R.string.add_to_list),
+                style = MaterialTheme.typography.labelLarge,
+                color = onBackgroundColor,
+                modifier =
+                    Modifier.padding(
+                        start = Dimens.smallPadding,
+                        end = Dimens.smallPadding,
+                        top = Dimens.smallPadding,
+                    ),
+            )
+            CustomLists(
+                customLists = customLists,
+                item = item,
+                onBackgroundColor = onBackgroundColor,
+                onAddLocationToList = onAddLocationToList,
+                onCreateCustomList = onCreateCustomList,
+                closeBottomSheet = closeBottomSheet,
+            )
+            Text(
+                stringResource(R.string.multihop),
+                style = MaterialTheme.typography.labelLarge,
+                color = onBackgroundColor,
+                modifier =
+                    Modifier.padding(
+                        start = Dimens.smallPadding,
+                        end = Dimens.smallPadding,
+                        top = Dimens.smallPadding,
+                    ),
+            )
+            MultihopOptions(
+                item = item,
+                setAsEntryState = setAsEntryState,
+                setAsExitState = setAsExitState,
+                canBeRemovedAsEntry = canBeRemovedAsEntry,
+                onBackgroundColor = onBackgroundColor,
+                onSetAsEntry = onSetAsEntry,
+                onSetAsExit = onSetAsExit,
+                onDisableMultihop = onDisableMultihop,
+                closeBottomSheet = closeBottomSheet,
+            )
+        }
     }
 }
 
@@ -290,7 +297,7 @@ private fun EditCustomListBottomSheet(
         HeaderCell(text = customList.name, background = backgroundColor)
         HorizontalDivider(color = onBackgroundColor)
         Text(
-            stringResource(R.string.edit_custom_list),
+            stringResource(R.string.edit_list),
             style = MaterialTheme.typography.labelLarge,
             color = onBackgroundColor,
             modifier =
@@ -459,6 +466,31 @@ private fun <T : RelayItem> MultihopOptions(
     onDisableMultihop: () -> Unit,
     closeBottomSheet: (Boolean) -> Unit,
 ) {
+    if (setAsExitState != SetAsState.HIDDEN) {
+        val enabled = setAsExitState == SetAsState.ENABLED
+        IconCell(
+            imageVector = Icons.Outlined.LocationOn,
+            title =
+                stringResource(
+                    if (enabled) {
+                        R.string.set_as_multihop_exit
+                    } else {
+                        R.string.set_as_multihop_exit_unavailable
+                    }
+                ),
+            titleColor =
+                if (enabled) {
+                    onBackgroundColor
+                } else {
+                    MaterialTheme.colorScheme.onSurfaceVariant
+                },
+            onClick = {
+                onSetAsExit(item)
+                closeBottomSheet(true)
+            },
+            enabled = enabled,
+        )
+    }
     if (canBeRemovedAsEntry) {
         IconCell(
             imageVector = Icons.Outlined.WrongLocation,
@@ -489,31 +521,6 @@ private fun <T : RelayItem> MultihopOptions(
                 },
             onClick = {
                 onSetAsEntry(item)
-                closeBottomSheet(true)
-            },
-            enabled = enabled,
-        )
-    }
-    if (setAsExitState != SetAsState.HIDDEN) {
-        val enabled = setAsExitState == SetAsState.ENABLED
-        IconCell(
-            imageVector = Icons.Outlined.LocationOn,
-            title =
-                stringResource(
-                    if (enabled) {
-                        R.string.set_as_multihop_exit
-                    } else {
-                        R.string.set_as_multihop_exit_unavailable
-                    }
-                ),
-            titleColor =
-                if (enabled) {
-                    onBackgroundColor
-                } else {
-                    MaterialTheme.colorScheme.onSurfaceVariant
-                },
-            onClick = {
-                onSetAsExit(item)
                 closeBottomSheet(true)
             },
             enabled = enabled,

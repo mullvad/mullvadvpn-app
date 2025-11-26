@@ -1,7 +1,6 @@
 package net.mullvad.mullvadvpn.usecase
 
 import arrow.core.Either
-import arrow.core.raise.context.ensureNotNull
 import arrow.core.raise.either
 import arrow.core.raise.ensure
 import arrow.core.raise.ensureNotNull
@@ -9,7 +8,7 @@ import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.relaylist.isTheSameAs
 import net.mullvad.mullvadvpn.repository.RelayListRepository
 
-class SelectMultiHopUseCase(private val relayListRepository: RelayListRepository) {
+class SelectAndEnableMultihopUseCase(private val relayListRepository: RelayListRepository) {
     suspend operator fun invoke(
         entry: RelayItem?,
         exit: RelayItem,
@@ -19,7 +18,11 @@ class SelectMultiHopUseCase(private val relayListRepository: RelayListRepository
         ensure(exit.active) { SelectRelayItemError.RelayInactive(exit) }
         ensure(!entry.isTheSameAs(exit)) { SelectRelayItemError.EntryAndExitSame }
         relayListRepository
-            .updateSelectedRelayLocationMultihop(entry = entry.id, exit = exit.id)
+            .updateSelectedRelayLocationMultihop(
+                isMultihopEnabled = true,
+                entry = entry.id,
+                exit = exit.id,
+            )
             .mapLeft { SelectRelayItemError.GenericError }
     }
 }

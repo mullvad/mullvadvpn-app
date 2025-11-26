@@ -82,6 +82,7 @@ import net.mullvad.mullvadvpn.usecase.SelectRelayItemError
 import net.mullvad.mullvadvpn.util.Lce
 import net.mullvad.mullvadvpn.viewmodel.location.SearchLocationSideEffect
 import net.mullvad.mullvadvpn.viewmodel.location.SearchLocationViewModel
+import net.mullvad.mullvadvpn.viewmodel.location.UndoChangeMultihopAction
 import org.koin.androidx.compose.koinViewModel
 
 @Preview("Loading|Default|No Locations|Not found|Results")
@@ -105,9 +106,9 @@ private fun PreviewSearchLocationScreen(
             onDeleteCustomList = {},
             onRemoveOwnershipFilter = {},
             onRemoveProviderFilter = {},
-            onModifyMultiHopError = { _, _ -> },
+            onModifyMultihopError = { _, _ -> },
             onRelayItemError = {},
-            onMultihopChanged = { _, _ -> },
+            onMultihopChanged = {},
             onGoBack = {},
         )
     }
@@ -190,14 +191,16 @@ fun SearchLocation(
                     snackbarHostState.showSnackbarImmediately(
                         message =
                             context.getString(
-                                if (it.enabled) {
-                                    R.string.multihop_is_enabled
-                                } else {
-                                    R.string.multihop_is_disabled
+                                when (it.undoChangeMultihopAction) {
+                                    UndoChangeMultihopAction.Disable,
+                                    is UndoChangeMultihopAction.DisableAndSetExit,
+                                    is UndoChangeMultihopAction.DisableAndSetEntry ->
+                                        R.string.multihop_is_enabled
+                                    else -> R.string.multihop_is_disabled
                                 }
                             ),
                         actionLabel = context.getString(R.string.undo),
-                        onAction = { viewModel.revertMultihopAction(it.revertMultihopChange) },
+                        onAction = { viewModel.undoMultihopAction(it.undoChangeMultihopAction) },
                         duration = SnackbarDuration.Long,
                     )
                 }
@@ -263,7 +266,7 @@ fun SearchLocation(
             },
         onRemoveOwnershipFilter = viewModel::removeOwnerFilter,
         onRemoveProviderFilter = viewModel::removeProviderFilter,
-        onModifyMultiHopError = viewModel::onModifyMultihopError,
+        onModifyMultihopError = viewModel::onModifyMultihopError,
         onRelayItemError = viewModel::onSelectRelayItemError,
         onMultihopChanged = viewModel::onMultihopChanged,
         onGoBack = dropUnlessResumed { navigator.navigateUp() },
@@ -287,9 +290,9 @@ fun SearchLocationScreen(
     onDeleteCustomList: (RelayItem.CustomList) -> Unit,
     onRemoveOwnershipFilter: () -> Unit,
     onRemoveProviderFilter: () -> Unit,
-    onModifyMultiHopError: (ModifyMultihopError, MultihopChange) -> Unit,
+    onModifyMultihopError: (ModifyMultihopError, MultihopChange) -> Unit,
     onRelayItemError: (SelectRelayItemError) -> Unit,
-    onMultihopChanged: (Boolean, MultihopChange?) -> Unit,
+    onMultihopChanged: (UndoChangeMultihopAction) -> Unit,
     onGoBack: () -> Unit,
 ) {
     val backgroundColor = MaterialTheme.colorScheme.surface
@@ -312,7 +315,7 @@ fun SearchLocationScreen(
             onEditCustomListName = onEditCustomListName,
             onEditLocationsCustomList = onEditLocationsCustomList,
             onDeleteCustomList = onDeleteCustomList,
-            onModifyMultiHopError = onModifyMultiHopError,
+            onModifyMultihopError = onModifyMultihopError,
             onRelayItemError = onRelayItemError,
             onMultihopChanged = onMultihopChanged,
             onHideBottomSheet = { locationBottomSheetState = null },

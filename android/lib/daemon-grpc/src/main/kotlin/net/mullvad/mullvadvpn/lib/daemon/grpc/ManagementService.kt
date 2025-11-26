@@ -593,6 +593,7 @@ class ManagementService(
             .mapEmpty()
 
     suspend fun setRelayLocationMultihop(
+        isMultihopEnabled: Boolean,
         entry: RelayItemId?,
         exit: RelayItemId,
     ): Either<SetRelayLocationError, Unit> =
@@ -608,7 +609,7 @@ class ManagementService(
                                     Constraint.Only(entry)
                             }
                             RelayConstraints.wireguardConstraints.isMultihopEnabled set
-                                (entry != null)
+                                isMultihopEnabled
                         }
                     }
                 grpc.setRelaySettings(updatedRelaySettings.fromDomain())

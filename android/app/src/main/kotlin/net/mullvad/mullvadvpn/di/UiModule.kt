@@ -41,6 +41,7 @@ import net.mullvad.mullvadvpn.usecase.FilteredRelayListUseCase
 import net.mullvad.mullvadvpn.usecase.HopSelectionUseCase
 import net.mullvad.mullvadvpn.usecase.InternetAvailableUseCase
 import net.mullvad.mullvadvpn.usecase.LastKnownLocationUseCase
+import net.mullvad.mullvadvpn.usecase.ModifyAndEnableMultihopUseCase
 import net.mullvad.mullvadvpn.usecase.ModifyMultihopUseCase
 import net.mullvad.mullvadvpn.usecase.OutOfTimeUseCase
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
@@ -48,7 +49,7 @@ import net.mullvad.mullvadvpn.usecase.PlayPaymentUseCase
 import net.mullvad.mullvadvpn.usecase.ProviderToOwnershipsUseCase
 import net.mullvad.mullvadvpn.usecase.RecentsUseCase
 import net.mullvad.mullvadvpn.usecase.RelayItemCanBeSelectedUseCase
-import net.mullvad.mullvadvpn.usecase.SelectMultiHopUseCase
+import net.mullvad.mullvadvpn.usecase.SelectAndEnableMultihopUseCase
 import net.mullvad.mullvadvpn.usecase.SelectSinglehopUseCase
 import net.mullvad.mullvadvpn.usecase.SelectedLocationTitleUseCase
 import net.mullvad.mullvadvpn.usecase.SelectedLocationUseCase
@@ -217,13 +218,21 @@ val uiModule = module {
             settingsRepository = get(),
         )
     }
-    single { SelectMultiHopUseCase(relayListRepository = get()) }
+    single { SelectAndEnableMultihopUseCase(relayListRepository = get()) }
     single {
         RelayItemCanBeSelectedUseCase(
             filteredRelayListUseCase = get(),
             hopSelectionUseCase = get(),
             settingsRepository = get(),
             relayListRepository = get(),
+        )
+    }
+    single {
+        ModifyAndEnableMultihopUseCase(
+            relayListRepository = get(),
+            settingsRepository = get(),
+            customListsRepository = get(),
+            wireguardConstraintsRepository = get(),
         )
     }
 
@@ -385,8 +394,7 @@ val uiModule = module {
             savedStateHandle = get(),
         )
     }
-    viewModel { (locationBottomSheetState: LocationBottomSheetState)
-        ->
+    viewModel { (locationBottomSheetState: LocationBottomSheetState) ->
         LocationBottomSheetViewModel(
             locationBottomSheetState = locationBottomSheetState,
             canBeSelectedUseCase = get(),
@@ -394,8 +402,9 @@ val uiModule = module {
             selectedLocationUseCase = get(),
             modifyMultihopUseCase = get(),
             wireguardConstraintsRepository = get(),
-            selectMultiHopUseCase = get(),
+            selectAndEnableMultihopUseCase = get(),
             hopSelectionUseCase = get(),
+            modifyAndEnableMultihopUseCase = get(),
         )
     }
 

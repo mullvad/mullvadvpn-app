@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.usecase
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.zip
 import net.mullvad.mullvadvpn.compose.state.MultihopRelayListType
 import net.mullvad.mullvadvpn.compose.state.RelayListType
@@ -22,12 +23,24 @@ class RelayItemCanBeSelectedUseCase(
     private val settingsRepository: SettingsRepository,
     private val relayListRepository: RelayListRepository,
 ) {
-    operator fun invoke() =
-        invoke(MultihopRelayListType.ENTRY).zip(invoke(MultihopRelayListType.EXIT)) { entry, exit ->
-            entry to exit
+    operator fun invoke(relayListType: RelayListType) =
+        when (relayListType) {
+            is RelayListType.Multihop ->
+                validEntries(selectedAs = relayListType.multihopRelayListType).map {
+                    when (relayListType.multihopRelayListType) {
+                        MultihopRelayListType.ENTRY -> ValidSelection.OnlyExit(exitIds = it)
+                        MultihopRelayListType.EXIT -> ValidSelection.OnlyEntry(entryIds = it)
+                    }
+                }
+            RelayListType.Single ->
+                validEntries(MultihopRelayListType.ENTRY).zip(
+                    validEntries(MultihopRelayListType.EXIT)
+                ) { entries, exits ->
+                    ValidSelection.Both(entryIds = entries, exitIds = exits)
+                }
         }
 
-    operator fun invoke(selectedAs: MultihopRelayListType): Flow<Set<GeoLocationId>> =
+    private fun validEntries(selectedAs: MultihopRelayListType): Flow<Set<GeoLocationId>> =
         combine(
             relayListRepository.relayList,
             filteredRelayListUseCase(RelayListType.Multihop(selectedAs)),
@@ -79,4 +92,22 @@ class RelayItemCanBeSelectedUseCase(
         }
 
     private fun Settings.entrySelectionBlocked() = isDaitaEnabled() && !isDaitaDirectOnly()
+}
+
+sealed interface ValidSelection {
+    val entryIds: Set<GeoLocationId>?
+    val exitIds: Set<GeoLocationId>?
+
+    data class OnlyEntry(override val entryIds: Set<GeoLocationId>) : ValidSelection {
+        override val exitIds: Set<GeoLocationId>? = null
+    }
+
+    data class OnlyExit(override val exitIds: Set<GeoLocationId>) : ValidSelection {
+        override val entryIds: Set<GeoLocationId>? = null
+    }
+
+    data class Both(
+        override val entryIds: Set<GeoLocationId>,
+        override val exitIds: Set<GeoLocationId>,
+    ) : ValidSelection
 }
