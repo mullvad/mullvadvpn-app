@@ -9,7 +9,6 @@ import co.touchlab.kermit.Logger
 import kotlin.collections.first
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
-import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.model.Settings
 import net.mullvad.mullvadvpn.repository.CustomListsRepository
@@ -19,45 +18,51 @@ import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
 import net.mullvad.mullvadvpn.util.isDaitaDirectOnly
 import net.mullvad.mullvadvpn.util.isDaitaEnabled
 
-class ModifyMultihopUseCase(
+class ModifyAndEnableMultihopUseCase(
     private val relayListRepository: RelayListRepository,
     private val settingsRepository: SettingsRepository,
     private val customListsRepository: CustomListsRepository,
     private val wireguardConstraintsRepository: WireguardConstraintsRepository,
 ) {
-    suspend operator fun invoke(change: MultihopChange): Either<ModifyMultihopError, Unit> =
-        either {
-            ensure(change.item.active) { ModifyMultihopError.RelayItemInactive(change.item) }
-            val changeId: RelayItemId =
-                change.item.id.convertCustomListWithOnlyHostNameToHostName().bind()
-            val settings = settingsRepository.settingsUpdates.value
-            ensureNotNull(settings) { ModifyMultihopError.GenericError }
-            val other =
-                when (change) {
-                        is MultihopChange.Entry -> settings.exit()
-                        is MultihopChange.Exit -> settings.entry()
-                    }
-                    ?.convertCustomListWithOnlyHostNameToHostName()
-                    ?.bind()
-            // If DAITA is enabled and direct only is disabled, allow same relay for entry and
-            // exit.
-            if (!settings.isDaitaEnabled() || settings.isDaitaDirectOnly()) {
-                ensure(!changeId.isSameHost(other)) {
-                    ModifyMultihopError.EntrySameAsExit(change.item)
-                }
-            }
+    suspend operator fun invoke(
+        enableMultihop: Boolean,
+        change: MultihopChange,
+    ): Either<ModifyMultihopError, Unit> = either {
+        ensure(change.item.active) { ModifyMultihopError.RelayItemInactive(change.item) }
+        val changeId: RelayItemId =
+            change.item.id.convertCustomListWithOnlyHostNameToHostName().bind()
+        val settings = settingsRepository.settingsUpdates.value
+        ensureNotNull(settings) { ModifyMultihopError.GenericError }
+        val other =
             when (change) {
-                    is MultihopChange.Entry ->
-                        wireguardConstraintsRepository.setEntryLocation(change.item.id)
-                    is MultihopChange.Exit ->
-                        relayListRepository.updateSelectedRelayLocation(change.item.id)
+                    is MultihopChange.Entry -> settings.exit()
+                    is MultihopChange.Exit -> settings.entry()
                 }
-                .mapLeft {
-                    Logger.e("Failed to update multihop: $it")
-                    ModifyMultihopError.GenericError
-                }
-                .bind()
+                ?.convertCustomListWithOnlyHostNameToHostName()
+                ?.bind()
+        // If DAITA is enabled and direct only is disabled, allow same relay for entry and
+        // exit.
+        if (!settings.isDaitaEnabled() || settings.isDaitaDirectOnly()) {
+            ensure(!changeId.isSameHost(other)) { ModifyMultihopError.EntrySameAsExit(change.item) }
         }
+        when (change) {
+                is MultihopChange.Entry ->
+                    wireguardConstraintsRepository.setMultihopAndEntryLocation(
+                        enableMultihop,
+                        change.item.id,
+                    )
+                is MultihopChange.Exit ->
+                    relayListRepository.updateExitRelayLocationMultihop(
+                        enableMultihop,
+                        change.item.id,
+                    )
+            }
+            .mapLeft {
+                Logger.e("Failed to update multihop: $it")
+                ModifyMultihopError.GenericError
+            }
+            .bind()
+    }
 
     private fun Settings.exit(): RelayItemId? = relaySettings.relayConstraints.location.getOrNull()
 
@@ -86,20 +91,4 @@ class ModifyMultihopUseCase(
 
     private fun RelayItemId.isSameHost(other: RelayItemId?): Boolean =
         this is GeoLocationId.Hostname && other == this
-}
-
-sealed class MultihopChange {
-    abstract val item: RelayItem
-
-    data class Entry(override val item: RelayItem) : MultihopChange()
-
-    data class Exit(override val item: RelayItem) : MultihopChange()
-}
-
-sealed interface ModifyMultihopError {
-    data class RelayItemInactive(val relayItem: RelayItem) : ModifyMultihopError
-
-    data class EntrySameAsExit(val relayItem: RelayItem) : ModifyMultihopError
-
-    data object GenericError : ModifyMultihopError
 }
