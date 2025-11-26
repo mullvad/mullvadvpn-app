@@ -546,9 +546,9 @@ dependencies = [
 
 [[package]]
 name = "nftnl"
-version = "0.7.0"
+version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "06a7491dd91b71643f65546389f25506da70723d1f1ec8c8d6d20444d1c23f27"
+checksum = "e65c1365321c197bc2c7b3c858d87ad9db235632622278f19a2eff0de704b968"
 dependencies = [
  "bitflags 2.9.0",
  "log",
