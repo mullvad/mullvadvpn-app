@@ -22,12 +22,16 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+
+
+## [2025.14-beta2] - 2025-11-26
 ### Added
 - Add port 443 to list of valid UDP2TCP ports.
 
 ### Fixed
 - Fix issues where the in-app updates view is not in sync with the daemon after system is supended
   or daemon is restarted.
+
 
 ## [2025.14-beta1] - 2025-11-11
 ### Changed
