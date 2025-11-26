@@ -119,6 +119,7 @@ export default class AppUpgrade {
 
   private startInstaller(verifiedInstallerPath: string) {
     try {
+      log.info(`Starting verified installer at path: ${verifiedInstallerPath}`);
       const child = this.spawnChild(verifiedInstallerPath);
       IpcMainEventChannel.app.notifyUpgradeEvent?.({
         type: 'APP_UPGRADE_STATUS_STARTED_INSTALLER',
