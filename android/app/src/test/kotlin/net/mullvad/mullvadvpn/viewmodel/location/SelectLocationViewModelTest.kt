@@ -18,6 +18,7 @@ import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
 import net.mullvad.mullvadvpn.compose.communication.CustomListActionResultData
 import net.mullvad.mullvadvpn.compose.communication.LocationsChanged
+import net.mullvad.mullvadvpn.compose.screen.location.RelayListScrollConnection
 import net.mullvad.mullvadvpn.compose.state.MultihopRelayListType
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
@@ -69,6 +70,8 @@ class SelectLocationViewModelTest {
     private val mockHopSelectionUseCase: HopSelectionUseCase = mockk()
     private val mockConnectionProxy: ConnectionProxy = mockk()
 
+    private val relayListScrollConnection: RelayListScrollConnection = RelayListScrollConnection()
+
     private lateinit var viewModel: SelectLocationViewModel
 
     private val selectedRelayItemFlow = MutableStateFlow<HopSelection>(HopSelection.Single(null))
@@ -104,6 +107,7 @@ class SelectLocationViewModelTest {
                 selectSingleUseCase = mockSelectSinglehopUseCase,
                 hopSelectionUseCase = mockHopSelectionUseCase,
                 connectionProxy = mockConnectionProxy,
+                relayListScrollConnection = relayListScrollConnection,
             )
     }
 

@@ -7,6 +7,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.applist.ApplicationsProvider
+import net.mullvad.mullvadvpn.compose.screen.location.RelayListScrollConnection
 import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.compose.util.BackstackObserver
 import net.mullvad.mullvadvpn.constant.IS_FDROID_BUILD
@@ -233,6 +234,8 @@ val uiModule = module {
 
     single { AppVersionInfoRepository(get(), get()) }
 
+    single { RelayListScrollConnection() }
+
     // View models
     viewModel { AccountViewModel(get(), get(), get()) }
     viewModel { ChangelogViewModel(get(), get(), get()) }
@@ -275,6 +278,7 @@ val uiModule = module {
     viewModel { PrivacyDisclaimerViewModel(get(), IS_PLAY_BUILD) }
     viewModel {
         SelectLocationViewModel(
+            get(),
             get(),
             get(),
             get(),
@@ -341,6 +345,7 @@ val uiModule = module {
     viewModel { (relayListType: RelayListType) ->
         SelectLocationListViewModel(
             relayListType,
+            get(),
             get(),
             get(),
             get(),

@@ -420,7 +420,12 @@ fun SinglehopSelectorPreview() {
 @OptIn(ExperimentalMotionApi::class)
 @Suppress("LongMethod")
 @Composable
-fun Singlehop(exitLocation: String, errorText: String? = null, expandProgress: Float = 1f) {
+fun Singlehop(
+    exitLocation: String,
+    errorText: String? = null,
+    expandProgress: Float = 1f,
+    onSelect: (() -> Unit) = {},
+) {
     val scene = MotionScene {
         val expandSet =
             constraintSet("expanded") {
@@ -517,7 +522,7 @@ fun Singlehop(exitLocation: String, errorText: String? = null, expandProgress: F
             leadingIcon = Icons.Outlined.LocationOn,
             text = exitLocation,
             selected = true,
-            onSelect = {},
+            onSelect = onSelect,
             isError = errorText != null,
             colors = colors,
             onIconGloballyPositioned = { exitIconLC = it },
