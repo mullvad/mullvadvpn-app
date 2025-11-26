@@ -5,12 +5,12 @@ set -euvx
 if [ "$#" -gt 2 ] || [ "$#" -eq 0 ]
 then
     echo "Usage (note: only call inside xcode!):"
-    echo "build-rust-library.sh <FFI_TARGET> [FFI_FEATURES]"
+    echo "build-rust-library.sh <CARGO_PACKAGE> [\"CARGO_FEATURES\"]"
     exit 1
 fi
 
 # what to pass to cargo build -p, e.g. your_lib_ffi
-FFI_TARGET=$1
+CARGO_PACKAGE=$1
 
 CARGO_ARGS=()
 
@@ -50,8 +50,8 @@ fi
 for arch in $ARCHS; do
     case "$arch" in
         arm64)
-            "$HOME"/.cargo/bin/cargo build -p "$FFI_TARGET" --lib $RELFLAG --target $TARGET "${CARGO_ARGS[@]}"
-            "$HOME"/.cargo/bin/cargo build -p "$FFI_TARGET" --lib --target $TARGET "${CARGO_ARGS[@]}"
+            "$HOME"/.cargo/bin/cargo build -p "$CARGO_PACKAGE" --lib $RELFLAG --target $TARGET "${CARGO_ARGS[@]}"
+            "$HOME"/.cargo/bin/cargo build -p "$CARGO_PACKAGE" --lib --target $TARGET "${CARGO_ARGS[@]}"
             ;;
     esac
 done
