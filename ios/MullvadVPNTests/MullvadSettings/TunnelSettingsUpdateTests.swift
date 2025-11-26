@@ -95,10 +95,12 @@ final class TunnelSettingsUpdateTests: XCTestCase {
         var settings = LatestTunnelSettings()
 
         // When:
+        let filter: RelayConstraint = .only(RelayFilter(ownership: .rented, providers: .only(["foo", "bar"])))
         let relayConstraints = RelayConstraints(
             exitLocations: .only(UserSelectedRelays(locations: [.country("zz")])),
             port: .only(9999),
-            filter: .only(RelayFilter(ownership: .rented, providers: .only(["foo", "bar"])))
+            entryFilter: filter,
+            exitFilter: filter
         )
         let update = TunnelSettingsUpdate.relayConstraints(relayConstraints)
         update.apply(to: &settings)

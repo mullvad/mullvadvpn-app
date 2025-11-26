@@ -21,37 +21,54 @@ struct FilterDescriptorTests {
                 LatestTunnelSettings(tunnelMultihopState: .always),
                 RelayCandidates(entryRelays: [], exitRelays: createRelayWithLocation()),
                 false,
-                false
+                false,
+                MultihopContext.entry
             ),
             (
                 LatestTunnelSettings(tunnelMultihopState: .always),
                 RelayCandidates(entryRelays: createRelayWithLocation(), exitRelays: createRelayWithLocation()),
                 true,
-                false
+                false,
+                MultihopContext.allCases.randomElement().unsafelyUnwrapped
             ),
+            // DAITA on + automatic routing: exit doesn't need DAITA description
             (
                 LatestTunnelSettings(daita: DAITASettings(daitaState: .on, directOnlyState: .off)),
                 RelayCandidates(entryRelays: [], exitRelays: [esMad1]),
                 true,
-                true
+                false,
+                MultihopContext.exit
             ),
+            // DAITA on + automatic routing: entry needs DAITA description
             (
                 LatestTunnelSettings(daita: DAITASettings(daitaState: .on, directOnlyState: .off)),
                 RelayCandidates(entryRelays: [esMad1], exitRelays: [seSto6]),
                 true,
-                true
+                true,
+                MultihopContext.entry
             ),
+            // DAITA on + automatic routing: exit doesn't need DAITA description
+            (
+                LatestTunnelSettings(daita: DAITASettings(daitaState: .on, directOnlyState: .off)),
+                RelayCandidates(entryRelays: [esMad1], exitRelays: [seSto6]),
+                true,
+                false,
+                MultihopContext.exit
+            ),
+            // DAITA on + direct only: exit needs DAITA description (no auto routing, no multihop)
             (
                 LatestTunnelSettings(daita: DAITASettings(daitaState: .on, directOnlyState: .on)),
                 RelayCandidates(entryRelays: nil, exitRelays: [esMad1]),
                 true,
-                true
+                true,
+                MultihopContext.exit
             ),
             (
                 LatestTunnelSettings(daita: DAITASettings(daitaState: .off, directOnlyState: .off)),
                 RelayCandidates(entryRelays: nil, exitRelays: [esMad1, seSto6]),
                 true,
-                false
+                false,
+                MultihopContext.exit
             ),
             (
                 LatestTunnelSettings(
@@ -60,7 +77,8 @@ struct FilterDescriptorTests {
                 ),
                 RelayCandidates(entryRelays: nil, exitRelays: []),
                 false,
-                false
+                false,
+                MultihopContext.allCases.randomElement().unsafelyUnwrapped
             ),
             (
                 LatestTunnelSettings(
@@ -69,8 +87,10 @@ struct FilterDescriptorTests {
                 ),
                 RelayCandidates(entryRelays: nil, exitRelays: []),
                 false,
-                false
+                false,
+                MultihopContext.allCases.randomElement().unsafelyUnwrapped
             ),
+            // Multihop + DAITA + direct only: entry shows description
             (
                 LatestTunnelSettings(
                     tunnelMultihopState: .always,
@@ -78,8 +98,21 @@ struct FilterDescriptorTests {
                 ),
                 RelayCandidates(entryRelays: createRelayWithLocation(), exitRelays: createRelayWithLocation()),
                 true,
-                true
+                true,
+                MultihopContext.entry
             ),
+            // Multihop + DAITA + direct only: exit does not (multihop handles it)
+            (
+                LatestTunnelSettings(
+                    tunnelMultihopState: .always,
+                    daita: DAITASettings(daitaState: .on, directOnlyState: .on)
+                ),
+                RelayCandidates(entryRelays: createRelayWithLocation(), exitRelays: createRelayWithLocation()),
+                true,
+                false,
+                MultihopContext.exit
+            ),
+            // Multihop + DAITA + automatic routing: entry shows description
             (
                 LatestTunnelSettings(
                     tunnelMultihopState: .always,
@@ -87,7 +120,19 @@ struct FilterDescriptorTests {
                 ),
                 RelayCandidates(entryRelays: createRelayWithLocation(), exitRelays: createRelayWithLocation()),
                 true,
-                true
+                true,
+                MultihopContext.entry
+            ),
+            // Multihop + DAITA + automatic routing: exit does not
+            (
+                LatestTunnelSettings(
+                    tunnelMultihopState: .always,
+                    daita: DAITASettings(daitaState: .on, directOnlyState: .off)
+                ),
+                RelayCandidates(entryRelays: createRelayWithLocation(), exitRelays: createRelayWithLocation()),
+                true,
+                false,
+                MultihopContext.exit
             ),
         ]
     )
@@ -95,11 +140,13 @@ struct FilterDescriptorTests {
         _ settings: LatestTunnelSettings,
         _ relayCandidates: RelayCandidates,
         _ expectedEnabledState: Bool,
-        _ expectedDescription: Bool
+        _ expectedDescription: Bool,
+        _ multihopContext: MultihopContext
     ) {
         let filterDescriptor = FilterDescriptor(
             relayFilterResult: relayCandidates,
-            settings: settings
+            settings: settings,
+            multihopContext: multihopContext
         )
 
         #expect(

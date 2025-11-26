@@ -1,3 +1,4 @@
+import MullvadTypes
 //
 //  RecentLocationsListView.swift
 //  MullvadVPN

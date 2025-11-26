@@ -13,37 +13,51 @@ import MullvadTypes
 
 final class RelayFilterViewModel {
     @Published var relayFilter: RelayFilter
+    let multihopContext: MultihopContext
 
     private var settings: LatestTunnelSettings
     private let relaySelectorWrapper: RelaySelectorProtocol
     private let relaysWithLocation: LocationRelays
     private var relayCandidatesForAny: RelayCandidates
 
-    init(settings: LatestTunnelSettings, relaySelectorWrapper: RelaySelectorProtocol) {
+    init(
+        settings: LatestTunnelSettings,
+        relaySelectorWrapper: RelaySelectorProtocol,
+        multihopContext: MultihopContext
+    ) {
         self.settings = settings
+        var settingsCopy = settings
+
         self.relaySelectorWrapper = relaySelectorWrapper
-        self.relayFilter = settings.relayConstraints.filter.value ?? RelayFilter()
+        self.multihopContext = multihopContext
+
+        switch multihopContext {
+        case .entry:
+            relayFilter = settings.relayConstraints.entryFilter.value ?? RelayFilter()
+            settingsCopy.relayConstraints.entryFilter = .any
+        case .exit:
+            relayFilter = settings.relayConstraints.exitFilter.value ?? RelayFilter()
+            settingsCopy.relayConstraints.exitFilter = .any
+        }
 
         // Retrieve all available relays that satisfy the `any` constraint.
         // This constraint ensures that the selected relays are associated with the current tunnel settings
         // and serve as the primary source of truth for subsequent filtering operations.
         // Further filtering will be applied based on specific criteria such as `ownership` or `provider`.
-        var copy = settings
-        copy.relayConstraints.filter = .any
-        if let relayCandidatesForAny = try? relaySelectorWrapper.findCandidates(tunnelSettings: copy) {
+        if let relayCandidatesForAny = try? relaySelectorWrapper.findCandidates(tunnelSettings: settingsCopy) {
             self.relayCandidatesForAny = relayCandidatesForAny
         } else {
-            self.relayCandidatesForAny = RelayCandidates(entryRelays: nil, exitRelays: [])
+            relayCandidatesForAny = RelayCandidates(entryRelays: nil, exitRelays: [])
         }
 
         // Directly setting relaysWithLocation in constructor
         if let cachedResponse = try? relaySelectorWrapper.relayCache.read().relays {
-            self.relaysWithLocation = LocationRelays(
+            relaysWithLocation = LocationRelays(
                 relays: cachedResponse.wireguard.relays,
                 locations: cachedResponse.locations
             )
         } else {
-            self.relaysWithLocation = LocationRelays(relays: [], locations: [:])
+            relaysWithLocation = LocationRelays(relays: [], locations: [:])
         }
     }
 
@@ -103,18 +117,16 @@ final class RelayFilterViewModel {
     }
 
     func providerItem(for providerName: String) -> RelayFilterDataSourceItem {
-        let isDaitaEnabled = settings.daita.daitaState.isEnabled
         let isProviderEnabled = isProviderEnabled(for: providerName)
-        let isFilterable = getFilteredRelays(relayFilter).isEnabled
+        let filterDescriptor = getFilteredRelays(relayFilter)
+
         return RelayFilterDataSourceItem(
             name: providerName,
-            description: isDaitaEnabled && isProviderEnabled
+            description: filterDescriptor.shouldShowDaitaDescription && isProviderEnabled
                 ? String(format: NSLocalizedString("%@-enabled", comment: ""), "DAITA")
                 : "",
             type: .provider,
-            // If the current filter is valid, return true immediately.
-            // Otherwise, check if the provider is enabled when filtering specifically by the given provider name.
-            isEnabled: isFilterable || isProviderEnabled
+            isEnabled: filterDescriptor.isEnabled && isProviderEnabled
         )
     }
 
@@ -128,7 +140,8 @@ final class RelayFilterViewModel {
                     RelaySelector.relayMatchesFilter($0.relay, filter: relayFilter)
                 }
             ),
-            settings: settings
+            settings: settings,
+            multihopContext: multihopContext
         )
     }
 

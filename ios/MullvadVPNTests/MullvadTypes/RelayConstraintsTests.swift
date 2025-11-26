@@ -20,10 +20,12 @@ final class RelayConstraintsTests: XCTestCase {
     func testMigratingConstraintsFromV1ToLatest() throws {
         let constraintsFromJson = try parseData(from: constraintsV1)
 
+        let filter: RelayConstraint = .only(RelayFilter(ownership: .rented, providers: .any))
         let constraintsFromInit = RelayConstraints(
             exitLocations: .only(UserSelectedRelays(locations: [.city("se", "got")])),
             port: .only(80),
-            filter: .only(RelayFilter(ownership: .rented, providers: .any))
+            entryFilter: filter,
+            exitFilter: filter
         )
 
         XCTAssertEqual(constraintsFromJson, constraintsFromInit)
