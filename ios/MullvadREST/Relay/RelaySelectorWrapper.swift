@@ -58,12 +58,12 @@ public final class RelaySelectorWrapper: RelaySelectorProtocol, Sendable {
         ).obfuscate()
 
         let findCandidates:
-            (REST.ServerRelaysResponse, Bool) throws
-                -> [RelayWithLocation<REST.ServerRelay>] = { relays, daitaEnabled in
+            (REST.ServerRelaysResponse, Bool, RelayConstraint) throws
+                -> [RelayWithLocation<REST.ServerRelay>] = { relays, daitaEnabled, filter in
                     try RelaySelector.WireGuard.findCandidates(
                         by: .any,
                         in: relays,
-                        filterConstraint: tunnelSettings.relayConstraints.filter,
+                        filterConstraint: filter,
                         daitaEnabled: daitaEnabled
                     )
                 }
@@ -76,12 +76,14 @@ public final class RelaySelectorWrapper: RelaySelectorProtocol, Sendable {
             RelayCandidates(
                 entryRelays: try findCandidates(
                     obfuscation.obfuscatedRelays,
-                    tunnelSettings.daita.daitaState.isEnabled
+                    tunnelSettings.daita.daitaState.isEnabled,
+                    tunnelSettings.relayConstraints.entryFilter
                 ),
                 exitRelays: try findCandidates(
                     // If multihop is explicitly enabled as well, any exit should be viable.
                     tunnelSettings.tunnelMultihopState.isEnabled ? obfuscation.allRelays : obfuscation.obfuscatedRelays,
-                    false
+                    false,
+                    tunnelSettings.relayConstraints.exitFilter
                 )
             )
         } else if tunnelSettings.tunnelMultihopState.isEnabled {
@@ -90,11 +92,13 @@ public final class RelaySelectorWrapper: RelaySelectorProtocol, Sendable {
             RelayCandidates(
                 entryRelays: try findCandidates(
                     obfuscation.obfuscatedRelays,
-                    tunnelSettings.daita.daitaState.isEnabled
+                    tunnelSettings.daita.daitaState.isEnabled,
+                    tunnelSettings.relayConstraints.entryFilter
                 ),
                 exitRelays: try findCandidates(
                     obfuscation.allRelays,
-                    false
+                    false,
+                    tunnelSettings.relayConstraints.exitFilter
                 )
             )
         } else {
@@ -103,7 +107,8 @@ public final class RelaySelectorWrapper: RelaySelectorProtocol, Sendable {
                 entryRelays: nil,
                 exitRelays: try findCandidates(
                     obfuscation.obfuscatedRelays,
-                    tunnelSettings.daita.daitaState.isEnabled
+                    tunnelSettings.daita.daitaState.isEnabled,
+                    tunnelSettings.relayConstraints.exitFilter
                 )
             )
         }

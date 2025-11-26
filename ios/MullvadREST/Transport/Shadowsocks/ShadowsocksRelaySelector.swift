@@ -34,10 +34,16 @@ final public class ShadowsocksRelaySelector: ShadowsocksRelaySelectorProtocol {
             case .off: settings.relayConstraints.exitLocations
             }
 
+        let filter =
+            switch settings.tunnelMultihopState {
+            case .on: settings.relayConstraints.entryFilter
+            case .off: settings.relayConstraints.exitFilter
+            }
+
         return RelaySelector.Shadowsocks.closestRelay(
             location: locationConstraint,
             port: settings.relayConstraints.port,
-            filter: settings.relayConstraints.filter,
+            filter: filter,
             in: cachedRelays
         )
     }

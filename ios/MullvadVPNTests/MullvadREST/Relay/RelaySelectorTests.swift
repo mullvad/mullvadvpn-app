@@ -75,7 +75,7 @@ class RelaySelectorTests: XCTestCase {
 
         let constrainedLocations = try RelaySelector.applyConstraints(
             constraints.exitLocations,
-            filterConstraint: constraints.filter,
+            filterConstraint: constraints.exitFilter,
             daitaEnabled: false,
             relays: relayWithLocations
         )
@@ -158,7 +158,7 @@ class RelaySelectorTests: XCTestCase {
         let selectedRelay = RelaySelector.Shadowsocks.closestRelay(
             location: constraints.exitLocations,
             port: constraints.port,
-            filter: constraints.filter,
+            filter: constraints.exitFilter,
             in: sampleRelays
         )
 
@@ -174,7 +174,7 @@ class RelaySelectorTests: XCTestCase {
             RelaySelector.Shadowsocks.closestRelay(
                 location: constraints.exitLocations,
                 port: constraints.port,
-                filter: constraints.filter,
+                filter: constraints.exitFilter,
                 in: sampleRelays
             ))
 
@@ -186,7 +186,8 @@ class RelaySelectorTests: XCTestCase {
 
         let constraints = RelayConstraints(
             exitLocations: .only(UserSelectedRelays(locations: [.hostname("se", "sto", "se6-wireguard")])),
-            filter: .only(filter)
+            entryFilter: .only(filter),
+            exitFilter: .only(filter)
         )
 
         let result = try pickRelay(by: constraints, in: sampleRelays, failedAttemptCount: 0)
@@ -198,7 +199,8 @@ class RelaySelectorTests: XCTestCase {
 
         let constraints = RelayConstraints(
             exitLocations: .only(UserSelectedRelays(locations: [.hostname("es", "mad", "es1-wireguard")])),
-            filter: .only(filter)
+            entryFilter: .only(filter),
+            exitFilter: .only(filter)
         )
 
         let result = try pickRelay(by: constraints, in: sampleRelays, failedAttemptCount: 0)
@@ -211,7 +213,8 @@ class RelaySelectorTests: XCTestCase {
 
         let constraints = RelayConstraints(
             exitLocations: .only(UserSelectedRelays(locations: [.hostname("se", "sto", "se6-wireguard")])),
-            filter: .only(filter)
+            entryFilter: .only(filter),
+            exitFilter: .only(filter)
         )
 
         let result = try pickRelay(by: constraints, in: sampleRelays, failedAttemptCount: 0)
@@ -224,7 +227,8 @@ class RelaySelectorTests: XCTestCase {
 
         let constraints = RelayConstraints(
             exitLocations: .only(UserSelectedRelays(locations: [.hostname("se", "sto", "se6-wireguard")])),
-            filter: .only(filter)
+            entryFilter: .only(filter),
+            exitFilter: .only(filter)
         )
 
         XCTAssertThrowsError(try pickRelay(by: constraints, in: sampleRelays, failedAttemptCount: 0)) { error in
@@ -278,7 +282,7 @@ extension RelaySelectorTests {
         let candidates = try RelaySelector.WireGuard.findCandidates(
             by: constraints.exitLocations,
             in: relays,
-            filterConstraint: constraints.filter,
+            filterConstraint: constraints.exitFilter,
             daitaEnabled: daitaEnabled
         )
 

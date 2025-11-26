@@ -19,7 +19,13 @@ struct ConnectionViewComponentPreview<Content: View>: View {
         observedState: .connected(
             ObservedConnectionState(
                 selectedRelays: SelectedRelaysStub.selectedRelays,
-                relayConstraints: RelayConstraints(entryLocations: .any, exitLocations: .any, port: .any, filter: .any),
+                relayConstraints: RelayConstraints(
+                    entryLocations: .any,
+                    exitLocations: .any,
+                    port: .any,
+                    entryFilter: .any,
+                    exitFilter: .any
+                ),
                 networkReachability: .reachable,
                 connectionAttemptCount: 0,
                 transportLayer: .udp,

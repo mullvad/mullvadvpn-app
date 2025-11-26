@@ -7,10 +7,12 @@
 //
 import MullvadREST
 import MullvadSettings
+import MullvadTypes
 
 struct FilterDescriptor {
     let relayFilterResult: RelayCandidates
     let settings: LatestTunnelSettings
+    let multihopContext: MultihopContext
 
     var isEnabled: Bool {
         // Check if multihop is enabled via settings
@@ -18,19 +20,16 @@ struct FilterDescriptor {
         let isSmartRoutingEnabled = settings.daita.isAutomaticRouting
 
         /// Closure to check if there are enough relays available for multihoping
-        let hasSufficientRelays: () -> Bool = {
-            (relayFilterResult.entryRelays ?? []).count >= 1 && relayFilterResult.exitRelays.count >= 1
-                && numberOfServers > 1
-        }
+        let hasSufficientRelays = numberOfServers >= 1
 
         if isMultihopEnabled {
             // Multihop mode requires at least one entry relay, one exit relay,
             // and more than one unique server.
-            return hasSufficientRelays()
+            return hasSufficientRelays
         } else if isSmartRoutingEnabled {
             // Smart Routing mode: Enabled only if there is NO daita server in the exit relays
             let isSmartRoutingNeeded = !relayFilterResult.exitRelays.contains { $0.relay.hasDaita }
-            return isSmartRoutingNeeded ? hasSufficientRelays() : true
+            return isSmartRoutingNeeded ? hasSufficientRelays : true
         } else {
             // Single-hop mode: The filter is enabled if at least one available exit relay exists.
             return !relayFilterResult.exitRelays.isEmpty
@@ -51,13 +50,19 @@ struct FilterDescriptor {
         return NSLocalizedString("When using DAITA, one provider with DAITA-enabled servers is required.", comment: "")
     }
 
-    init(relayFilterResult: RelayCandidates, settings: LatestTunnelSettings) {
-        self.settings = settings
+    init(relayFilterResult: RelayCandidates, settings: LatestTunnelSettings, multihopContext: MultihopContext) {
         self.relayFilterResult = relayFilterResult
+        self.settings = settings
+        self.multihopContext = multihopContext
     }
 
     private var numberOfServers: Int {
-        Set(relayFilterResult.entryRelays ?? []).union(relayFilterResult.exitRelays).count
+        switch multihopContext {
+        case .entry:
+            (relayFilterResult.entryRelays ?? []).count
+        case .exit:
+            relayFilterResult.exitRelays.count
+        }
     }
 
     private func createTitleForAvailableServers() -> String {
