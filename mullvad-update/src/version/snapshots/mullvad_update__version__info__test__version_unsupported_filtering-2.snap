@@ -1,5 +1,5 @@
 ---
-source: mullvad-update/src/version/mod.rs
+source: mullvad-update/src/version/info.rs
 expression: info
 ---
 stable:

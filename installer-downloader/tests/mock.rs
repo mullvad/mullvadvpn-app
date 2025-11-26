@@ -11,8 +11,9 @@ use mullvad_update::app::{
 };
 use mullvad_update::fetch::ProgressUpdater;
 use mullvad_update::format::response::{Response, SignedResponse};
-use mullvad_update::version::{Version, VersionInfo, VersionParameters};
+use mullvad_update::version::{Metadata, VersionInfo, VersionParameters};
 use mullvad_update::version_provider::VersionInfoProvider;
+use mullvad_version::Version;
 use std::io;
 use std::marker::PhantomData;
 use std::path::{Path, PathBuf};
@@ -28,7 +29,7 @@ pub struct FakeVersionInfoProvider {
 }
 
 pub static FAKE_VERSION: LazyLock<VersionInfo> = LazyLock::new(|| VersionInfo {
-    stable: Version {
+    stable: Metadata {
         version: "2025.1".parse().unwrap(),
         urls: vec!["https://mullvad.net/fakeapp".to_owned()],
         size: 1234,
@@ -177,8 +178,8 @@ impl<const EXE_SUCCEED: bool, const VERIFY_SUCCEED: bool, const LAUNCH_SUCCEED: 
         }
     }
 
-    fn version(&self) -> &mullvad_version::Version {
-        &mullvad_version::Version {
+    fn version(&self) -> &Version {
+        &Version {
             year: 2042,
             incremental: 1337,
             pre_stable: None,

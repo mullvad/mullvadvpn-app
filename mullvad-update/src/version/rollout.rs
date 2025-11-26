@@ -25,14 +25,6 @@ pub const FULLY_ROLLED_OUT: Rollout = Rollout(1.);
 
 const VALID_ROLLOUT: RangeInclusive<f32> = 0.0..=1.0;
 
-/// Generate a special seed used to calculate at which rollout percentage a client should be
-/// notified about a new release.
-///
-/// See [Rollout::threshold] for details.
-pub fn generate_rollout_seed() -> u32 {
-    rand::random()
-}
-
 impl Rollout {
     /// Calculate the threshold used to determine if a client is included in the current rollout of
     /// some release.
@@ -51,6 +43,14 @@ impl Rollout {
         let mut rng = SmallRng::from_seed(*seed);
         let threshold = rng.random_range(SUPPORTED_VERSION.0..=FULLY_ROLLED_OUT.0);
         Self::try_from(threshold).expect("threshold is within the Rollout domain")
+    }
+
+    /// Generate a special seed used to calculate at which rollout percentage a client should be
+    /// notified about a new release.
+    ///
+    /// See [Rollout::threshold] for details.
+    pub fn seed() -> u32 {
+        rand::random()
     }
 
     /// A full rollout includes all users
