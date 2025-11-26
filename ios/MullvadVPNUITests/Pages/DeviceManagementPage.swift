@@ -25,7 +25,7 @@ class DeviceManagementPage: Page {
     @discardableResult func waitForNoLoading() -> Self {
         XCTAssertTrue(
             app.otherElements[.deviceRemovalProgressView]
-                .waitForNonExistence(timeout: BaseUITestCase.longTimeout)
+                .notExistsAfterWait(timeout: .long)
         )
 
         return self
@@ -35,7 +35,7 @@ class DeviceManagementPage: Page {
         XCTAssertTrue(
             app
                 .collectionViews[AccessibilityIdentifier.deviceManagementView]
-                .waitForExistence(timeout: BaseUITestCase.longTimeout)
+                .existsAfterWait(timeout: .long)
         )
 
         return self
@@ -58,7 +58,7 @@ class DeviceManagementPage: Page {
     @discardableResult public func verifyCurrentDeviceExists() -> Self {
         XCTAssertTrue(
             app.staticTexts["Current device"]
-                .waitForExistence(timeout: BaseUITestCase.defaultTimeout)
+                .existsAfterWait()
         )
 
         return self
