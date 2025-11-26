@@ -464,7 +464,7 @@ impl<'a> PolicyBatch<'a> {
             add_verdict(&mut in_v4, &Verdict::Accept);
             self.batch.add(&in_v4, nftnl::MsgType::Add);
         }
-
+        // Outgoing DHCPv6 request
         for chain in &[&self.out_chain, &self.forward_chain] {
             for dhcpv6_server in super::DHCPV6_SERVER_ADDRS {
                 let mut out_v6 = Rule::new(chain);
@@ -476,6 +476,7 @@ impl<'a> PolicyBatch<'a> {
                 self.batch.add(&out_v6, nftnl::MsgType::Add);
             }
         }
+        // Incoming DHCPv6 response
         for chain in &[&self.in_chain, &self.forward_chain] {
             let mut in_v6 = Rule::new(chain);
             check_net(&mut in_v6, End::Src, super::IPV6_LINK_LOCAL);
