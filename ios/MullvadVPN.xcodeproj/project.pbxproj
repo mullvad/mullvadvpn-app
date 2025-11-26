@@ -723,6 +723,7 @@
 		7AFBE3892D089163002335FC /* TunnelViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AFBE3882D08915D002335FC /* TunnelViewController.swift */; };
 		7AFBE38B2D09AAFF002335FC /* SinglehopPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AFBE38A2D09AAFF002335FC /* SinglehopPicker.swift */; };
 		7AFBE38D2D09AB2E002335FC /* MultihopPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AFBE38C2D09AB2E002335FC /* MultihopPicker.swift */; };
+		7AFE63312ED7526300D27DC7 /* MultihopContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = F99E32412E7AA109004A7EFE /* MultihopContext.swift */; };
 		7AFE63332ED9D10400D27DC7 /* SetUpAccountCompletedPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AFE63322ED9D0FC00D27DC7 /* SetUpAccountCompletedPage.swift */; };
 		7AFE63352EE31BA800D27DC7 /* CustomErrorDescriptionProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AFE63342EE31BA800D27DC7 /* CustomErrorDescriptionProtocol.swift */; };
 		7AFF5B9E2F6007A70088028F /* InvalidShadowsocksCipherInAppNotificationProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AFF5B9D2F60079B0088028F /* InvalidShadowsocksCipherInAppNotificationProvider.swift */; };
@@ -3217,6 +3218,7 @@
 				58A1AA8623F43901009F7EA6 /* Location.swift */,
 				5840250322B11AB700E4CFEC /* MullvadEndpoint.swift */,
 				58D223D7294C8E5E0029F5F8 /* MullvadTypes.h */,
+				F99E32412E7AA109004A7EFE /* MultihopContext.swift */,
 				7A7AD14D2BF21DCE00B30B3C /* NameInputFormatter.swift */,
 				7AB401842DA53D4E00522E17 /* NewAccountData.swift */,
 				F0C2AEFC2A0BB5CC00986207 /* NotificationProviderIdentifier.swift */,
@@ -3367,7 +3369,6 @@
 				F050AE4D2B70D7F8003F4EDB /* LocationCellViewModel.swift */,
 				F9C579C12E8FB55600C90C50 /* LocationSection.swift */,
 				F92C658B2E7A924E00B8E107 /* MockSelectLocationViewModel.swift */,
-				F99E32412E7AA109004A7EFE /* MultihopContext.swift */,
 				F90052552E6EEB290085C80E /* SelectLocationViewModel.swift */,
 				F95A28322E8BBB7400C3F75D /* SelectLocationFilter.swift */,
 				F95A28302E8A8FC300C3F75D /* LocationContext.swift */,
@@ -6867,7 +6868,6 @@
 				F910A4312D4A1B41002FF3BB /* InAppPurchaseCoordinator.swift in Sources */,
 				F0ADF1D12D01B55C00299F09 /* ChipModel.swift in Sources */,
 				F09A297B2A9F8A9B00EA3B6F /* LogoutDialogueView.swift in Sources */,
-				F99E32432E7AA202004A7EFE /* MultihopContext.swift in Sources */,
 				5811DE50239014550011EB53 /* NEVPNStatus+Debug.swift in Sources */,
 				7A21DACF2A30AA3700A787A9 /* UITextField+Appearance.swift in Sources */,
 				585B1FF02AB09F97008AD470 /* VPNConnectionProtocol.swift in Sources */,
@@ -7005,6 +7005,7 @@
 				449EBA262B975B9700DFA4EB /* EphemeralPeerReceiving.swift in Sources */,
 				58D22417294C90210029F5F8 /* FixedWidthInteger+Arithmetics.swift in Sources */,
 				F0F56B092C0E058A009D676B /* ObserverList.swift in Sources */,
+				7AFE63312ED7526300D27DC7 /* MultihopContext.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
