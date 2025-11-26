@@ -22,7 +22,7 @@ vm_pid=$!
 # Sleep to wait until VM is up
 sleep 10
 
-ssh admin@"$(tart ip "$VM_NAME")" bash /dev/stdin < "$SCRIPT"
+ssh -i ~/build/upload-vm-ssh-key admin@"$(tart ip "$VM_NAME")" bash /dev/stdin <"$SCRIPT"
 script_status=$?
 
 kill $vm_pid
