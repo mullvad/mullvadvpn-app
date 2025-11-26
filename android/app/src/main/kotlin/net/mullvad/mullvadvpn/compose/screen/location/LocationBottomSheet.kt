@@ -59,7 +59,6 @@ import org.koin.core.parameter.parametersOf
 @Composable
 internal fun LocationBottomSheets(
     locationBottomSheetState: LocationBottomSheetState?,
-    relayListType: RelayListType,
     onCreateCustomList: (RelayItem.Location?) -> Unit,
     onAddLocationToList: (RelayItem.Location, RelayItem.CustomList) -> Unit,
     onRemoveLocationFromList: (location: RelayItem.Location, parent: CustomListId) -> Unit,
@@ -75,7 +74,7 @@ internal fun LocationBottomSheets(
         val viewModel =
             koinViewModel<LocationBottomSheetViewModel>(
                 key = locationBottomSheetState.toString(),
-                parameters = { parametersOf(locationBottomSheetState, relayListType) },
+                parameters = { parametersOf(locationBottomSheetState) },
             )
 
         val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -598,15 +597,21 @@ internal fun <D : DestinationSpec, R : CustomListActionResultData> ResultRecipie
 
 sealed interface LocationBottomSheetState {
     val item: RelayItem
+    val relayListType: RelayListType
 
     data class ShowCustomListsEntryBottomSheet(
         val customListId: CustomListId,
         override val item: RelayItem.Location,
+        override val relayListType: RelayListType,
     ) : LocationBottomSheetState
 
-    data class ShowLocationBottomSheet(override val item: RelayItem.Location) :
-        LocationBottomSheetState
+    data class ShowLocationBottomSheet(
+        override val item: RelayItem.Location,
+        override val relayListType: RelayListType,
+    ) : LocationBottomSheetState
 
-    data class ShowEditCustomListBottomSheet(override val item: RelayItem.CustomList) :
-        LocationBottomSheetState
+    data class ShowEditCustomListBottomSheet(
+        override val item: RelayItem.CustomList,
+        override val relayListType: RelayListType,
+    ) : LocationBottomSheetState
 }
