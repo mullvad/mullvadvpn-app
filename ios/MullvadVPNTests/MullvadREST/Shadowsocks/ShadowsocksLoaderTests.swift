@@ -31,7 +31,7 @@ class ShadowsocksLoaderTests: XCTestCase {
                 closetRelayTo(
                     location: relayConstraints.exitLocations,
                     port: relayConstraints.port,
-                    filter: relayConstraints.filter,
+                    filter: relayConstraints.exitFilter,
                     in: sampleRelays
                 )))
 
@@ -40,7 +40,7 @@ class ShadowsocksLoaderTests: XCTestCase {
                 closetRelayTo(
                     location: relayConstraints.entryLocations,
                     port: relayConstraints.port,
-                    filter: relayConstraints.filter,
+                    filter: relayConstraints.entryFilter,
                     in: sampleRelays
                 )))
 

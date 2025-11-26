@@ -1,9 +1,9 @@
 import SwiftUI
 
-enum MultihopContext: CaseIterable, CustomStringConvertible, Hashable {
+public enum MultihopContext: CaseIterable, CustomStringConvertible, Hashable, Sendable {
     case entry, exit
 
-    var description: String {
+    public var description: String {
         switch self {
         case .entry:
             NSLocalizedString("Entry", comment: "")

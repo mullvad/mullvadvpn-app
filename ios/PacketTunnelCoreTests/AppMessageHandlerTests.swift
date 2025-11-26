@@ -89,7 +89,7 @@ final class AppMessageHandlerTests: XCTestCase {
         let candidates = try RelaySelector.WireGuard.findCandidates(
             by: relayConstraints.exitLocations,
             in: ServerRelaysResponseStubs.sampleRelays,
-            filterConstraint: relayConstraints.filter,
+            filterConstraint: relayConstraints.exitFilter,
             daitaEnabled: false
         )
 

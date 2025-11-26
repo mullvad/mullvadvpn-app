@@ -23,22 +23,29 @@ public struct RelayConstraints: Codable, Equatable, CustomDebugStringConvertible
 
     // Added in 2023.3
     public var port: RelayConstraint<UInt16>
-    public var filter: RelayConstraint<RelayFilter>
+    @available(*, deprecated, renamed: "entryFilter_exitFilter")
+    public var filter: RelayConstraint<RelayFilter> = .any
+
+    // Added in 2025.9
+    public var entryFilter: RelayConstraint<RelayFilter>
+    public var exitFilter: RelayConstraint<RelayFilter>
 
     public var debugDescription: String {
-        "RelayConstraints { entry locations: \(entryLocations), exit locations: \(exitLocations) , port: \(port), filter: \(filter) }"
+        "RelayConstraints { entryLocations: \(entryLocations), exitLocations: \(exitLocations), port: \(port), entryFilter: \(entryFilter), exitFilter: \(entryFilter) }"
     }
 
     public init(
         entryLocations: RelayConstraint<UserSelectedRelays> = .only(UserSelectedRelays(locations: [.country("se")])),
         exitLocations: RelayConstraint<UserSelectedRelays> = .only(UserSelectedRelays(locations: [.country("se")])),
         port: RelayConstraint<UInt16> = .any,
-        filter: RelayConstraint<RelayFilter> = .any
+        entryFilter: RelayConstraint<RelayFilter> = .any,
+        exitFilter: RelayConstraint<RelayFilter> = .any
     ) {
         self.entryLocations = entryLocations
         self.exitLocations = exitLocations
         self.port = port
-        self.filter = filter
+        self.entryFilter = entryFilter
+        self.exitFilter = exitFilter
     }
 
     public init(from decoder: Decoder) throws {
@@ -46,7 +53,6 @@ public struct RelayConstraints: Codable, Equatable, CustomDebugStringConvertible
 
         // Added in 2023.3
         port = try container.decodeIfPresent(RelayConstraint<UInt16>.self, forKey: .port) ?? .any
-        filter = try container.decodeIfPresent(RelayConstraint<RelayFilter>.self, forKey: .filter) ?? .any
 
         // Added in 2024.5
         entryLocations =
@@ -63,6 +69,17 @@ public struct RelayConstraints: Codable, Equatable, CustomDebugStringConvertible
                 forKey: .locations
             ) ?? Self.migrateRelayLocation(decoder: decoder)
             ?? .only(UserSelectedRelays(locations: [.country("se")]))
+
+        // Added in 2025.9
+        entryFilter =
+            try container.decodeIfPresent(RelayConstraint<RelayFilter>.self, forKey: .entryFilter)
+            ?? container.decodeIfPresent(RelayConstraint<RelayFilter>.self, forKey: .filter)
+            ?? .any
+
+        exitFilter =
+            try container.decodeIfPresent(RelayConstraint<RelayFilter>.self, forKey: .exitFilter)
+            ?? container.decodeIfPresent(RelayConstraint<RelayFilter>.self, forKey: .filter)
+            ?? .any
     }
 }
 
@@ -81,6 +98,29 @@ extension RelayConstraints {
             .any
         case let .only(relay):
             .only(UserSelectedRelays(locations: [relay]))
+        }
+    }
+}
+
+extension RelayConstraints {
+    public func filterConstraint(for multihopContext: MultihopContext) -> RelayConstraint<RelayFilter> {
+        switch multihopContext {
+        case .entry:
+            entryFilter
+        case .exit:
+            exitFilter
+        }
+    }
+
+    public mutating func setFilterConstraint(
+        _ constraint: RelayConstraint<RelayFilter>,
+        for multihopContext: MultihopContext
+    ) {
+        switch multihopContext {
+        case .entry:
+            entryFilter = constraint
+        case .exit:
+            exitFilter = constraint
         }
     }
 }

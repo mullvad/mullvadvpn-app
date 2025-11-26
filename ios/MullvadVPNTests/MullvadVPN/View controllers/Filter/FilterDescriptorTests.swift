@@ -21,37 +21,43 @@ struct FilterDescriptorTests {
                 LatestTunnelSettings(tunnelMultihopState: .on),
                 RelayCandidates(entryRelays: [], exitRelays: createRelayWithLocation()),
                 false,
-                false
+                false,
+                MultihopContext.entry
             ),
             (
                 LatestTunnelSettings(tunnelMultihopState: .on),
                 RelayCandidates(entryRelays: createRelayWithLocation(), exitRelays: createRelayWithLocation()),
                 true,
-                false
+                false,
+                MultihopContext.allCases.randomElement().unsafelyUnwrapped
             ),
             (
                 LatestTunnelSettings(daita: DAITASettings(daitaState: .on, directOnlyState: .off)),
                 RelayCandidates(entryRelays: [], exitRelays: [esMad1]),
                 true,
-                true
+                true,
+                MultihopContext.exit
             ),
             (
                 LatestTunnelSettings(daita: DAITASettings(daitaState: .on, directOnlyState: .off)),
                 RelayCandidates(entryRelays: [esMad1], exitRelays: [seSto6]),
                 true,
-                true
+                true,
+                MultihopContext.allCases.randomElement().unsafelyUnwrapped
             ),
             (
                 LatestTunnelSettings(daita: DAITASettings(daitaState: .on, directOnlyState: .on)),
                 RelayCandidates(entryRelays: nil, exitRelays: [esMad1]),
                 true,
-                true
+                true,
+                MultihopContext.exit
             ),
             (
                 LatestTunnelSettings(daita: DAITASettings(daitaState: .off, directOnlyState: .off)),
                 RelayCandidates(entryRelays: nil, exitRelays: [esMad1, seSto6]),
                 true,
-                false
+                false,
+                MultihopContext.exit
             ),
             (
                 LatestTunnelSettings(
@@ -60,7 +66,8 @@ struct FilterDescriptorTests {
                 ),
                 RelayCandidates(entryRelays: nil, exitRelays: []),
                 false,
-                false
+                false,
+                MultihopContext.allCases.randomElement().unsafelyUnwrapped
             ),
             (
                 LatestTunnelSettings(
@@ -69,7 +76,8 @@ struct FilterDescriptorTests {
                 ),
                 RelayCandidates(entryRelays: nil, exitRelays: []),
                 false,
-                false
+                false,
+                MultihopContext.allCases.randomElement().unsafelyUnwrapped
             ),
             (
                 LatestTunnelSettings(
@@ -78,7 +86,8 @@ struct FilterDescriptorTests {
                 ),
                 RelayCandidates(entryRelays: createRelayWithLocation(), exitRelays: createRelayWithLocation()),
                 true,
-                true
+                true,
+                MultihopContext.allCases.randomElement().unsafelyUnwrapped
             ),
             (
                 LatestTunnelSettings(
@@ -87,7 +96,8 @@ struct FilterDescriptorTests {
                 ),
                 RelayCandidates(entryRelays: createRelayWithLocation(), exitRelays: createRelayWithLocation()),
                 true,
-                true
+                true,
+                MultihopContext.allCases.randomElement().unsafelyUnwrapped
             ),
         ]
     )
@@ -95,11 +105,13 @@ struct FilterDescriptorTests {
         _ settings: LatestTunnelSettings,
         _ relayCandidates: RelayCandidates,
         _ expectedEnabledState: Bool,
-        _ expectedDescription: Bool
+        _ expectedDescription: Bool,
+        _ multihopContext: MultihopContext
     ) {
         let filterDescriptor = FilterDescriptor(
             relayFilterResult: relayCandidates,
-            settings: settings
+            settings: settings,
+            multihopContext: multihopContext
         )
 
         #expect(
