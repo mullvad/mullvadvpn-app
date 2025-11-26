@@ -1,4 +1,16 @@
+import MullvadTypes
 import SwiftUI
+
+extension MultihopContext {
+    var accessibilityIdentifier: AccessibilityIdentifier {
+        switch self {
+        case .entry:
+            .entryLocationButton
+        case .exit:
+            .exitLocationButton
+        }
+    }
+}
 
 private enum ViewPositionIdentifiers: Hashable {
     case internet

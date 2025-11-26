@@ -1,4 +1,5 @@
 import MullvadSettings
+import MullvadTypes
 import SwiftUI
 
 enum SelectLocationFilter: Hashable {
@@ -52,26 +53,14 @@ enum SelectLocationFilter: Hashable {
         [SelectLocationFilter],
         [SelectLocationFilter]
     ) {
-        var activeEntryFilter: [SelectLocationFilter] = []
-        var activeExitFilter: [SelectLocationFilter] = []
+        var activeEntryFilter = [SelectLocationFilter]()
+        add(relayFilter: settings.relayConstraints.entryFilter, to: &activeEntryFilter)
+
+        var activeExitFilter = [SelectLocationFilter]()
+        add(relayFilter: settings.relayConstraints.exitFilter, to: &activeExitFilter)
 
         let isMultihop = settings.tunnelMultihopState.isUserSelected
-        if let ownershipFilter = settings.relayConstraints.filter.value {
-            switch ownershipFilter.ownership {
-            case .any:
-                break
-            case .owned:
-                activeEntryFilter.append(.owned)
-                activeExitFilter.append(.owned)
-            case .rented:
-                activeEntryFilter.append(.rented)
-                activeExitFilter.append(.rented)
-            }
-            if let provider = ownershipFilter.providers.value {
-                activeEntryFilter.append(.provider(provider.count))
-                activeExitFilter.append(.provider(provider.count))
-            }
-        }
+
         if settings.daita.isDirectOnly {
             if isMultihop {
                 activeEntryFilter.append(.daita)
@@ -100,6 +89,25 @@ enum SelectLocationFilter: Hashable {
         }
 
         return (activeEntryFilter, activeExitFilter)
+    }
+
+    private static func add(
+        relayFilter: RelayConstraint<RelayFilter>,
+        to locationFilter: inout [SelectLocationFilter]
+    ) {
+        if let relayFilter = relayFilter.value {
+            switch relayFilter.ownership {
+            case .any:
+                break
+            case .owned:
+                locationFilter.append(.owned)
+            case .rented:
+                locationFilter.append(.rented)
+            }
+            if let provider = relayFilter.providers.value {
+                locationFilter.append(.provider(provider.count))
+            }
+        }
     }
 }
 

@@ -63,8 +63,8 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
                 showIpVersionSettings: { [weak self] in
                     self?.navigateToIpVersionSettings()
                 },
-                showFilterView: { [weak self] in
-                    self?.navigateToFilter()
+                showFilterView: { [weak self] multihopContext in
+                    self?.navigateToFilter(multihopContext: multihopContext)
                 },
                 showEditCustomListView: { [weak self] locations, customList in
                     if let customList {
@@ -177,10 +177,11 @@ extension LocationCoordinator: UIAdaptivePresentationControllerDelegate {
 }
 
 extension LocationCoordinator {
-    func navigateToFilter() {
+    func navigateToFilter(multihopContext: MultihopContext) {
         let relayFilterCoordinator = RelayFilterCoordinator(
             navigationController: CustomNavigationController(),
             tunnelManager: tunnelManager,
+            multihopContext: multihopContext,
             relaySelectorWrapper: relaySelectorWrapper
         )
 
@@ -220,12 +221,6 @@ extension LocationCoordinator {
         tunnelManager.updateSettings([.relayConstraints(relayConstraints)]) {
             self.tunnelManager.startTunnel()
         }
-    }
-
-    func didUpdateFilter(_ filter: RelayFilter) {
-        var relayConstraints = tunnelManager.settings.relayConstraints
-        relayConstraints.filter = .only(filter)
-        tunnelManager.updateSettings([.relayConstraints(relayConstraints)])
     }
 
     func navigateToCustomLists(nodes: [LocationNode]) {

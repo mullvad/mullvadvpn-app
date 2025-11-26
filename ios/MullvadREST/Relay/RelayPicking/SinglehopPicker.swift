@@ -36,7 +36,7 @@ struct SinglehopPicker: RelayPicking {
             let obfuscationBypass = UnsupportedObfuscationProvider(
                 relayConstraint: tunnelSettings.relayConstraints.exitLocations,
                 relays: obfuscation.obfuscatedRelays,
-                filterConstraint: tunnelSettings.relayConstraints.filter,
+                filterConstraint: tunnelSettings.relayConstraints.exitFilter,
                 daitaEnabled: tunnelSettings.daita.daitaState.isEnabled
             )
 
@@ -64,7 +64,7 @@ struct SinglehopPicker: RelayPicking {
         let exitCandidates = try RelaySelector.WireGuard.findCandidates(
             by: tunnelSettings.relayConstraints.exitLocations,
             in: relaysResponse,
-            filterConstraint: tunnelSettings.relayConstraints.filter,
+            filterConstraint: tunnelSettings.relayConstraints.exitFilter,
             daitaEnabled: tunnelSettings.daita.daitaState.isEnabled
         )
 
