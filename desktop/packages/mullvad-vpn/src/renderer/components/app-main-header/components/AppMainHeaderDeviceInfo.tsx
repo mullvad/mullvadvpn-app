@@ -4,6 +4,8 @@ import styled from 'styled-components';
 import { closeToExpiry, formatRemainingTime, hasExpired } from '../../../../shared/account-expiry';
 import { messages } from '../../../../shared/gettext';
 import { Flex, FootnoteMini } from '../../../lib/components';
+import { useInterval } from '../../../lib/hooks';
+import { useRerenderer } from '../../../lib/utility-hooks';
 import { formatDeviceName } from '../../../lib/utils';
 import { useSelector } from '../../../redux/store';
 
@@ -30,6 +32,11 @@ export const AppMainHeaderDeviceInfo = () => {
     : accountExpiry
       ? formatRemainingTime(accountExpiry)
       : '';
+
+  // The "time left" label needs to be updated when time passes. Since no props change when time
+  // passes we need to force a rerender to update.
+  const [rerender] = useRerenderer();
+  useInterval(rerender, 60 * 60 * 1_000);
 
   return (
     <StyledFlex $gap="large" $margin={{ top: 'tiny' }}>
