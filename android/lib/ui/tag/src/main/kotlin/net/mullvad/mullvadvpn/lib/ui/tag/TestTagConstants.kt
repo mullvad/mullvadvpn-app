@@ -8,9 +8,13 @@ const val TOP_BAR_TEST_TAG = "top_bar_test_tag"
 // Settings screen
 const val VPN_SETTINGS_CELL_TEST_TAG = "vpn_settings_cell_test_tag"
 const val DAITA_CELL_TEST_TAG = "data_cell_test_tag"
+const val MULTIHOP_CELL_TEST_TAG = "multihop_cell_test_tag"
 
 // DAITA settings screen
 const val DAITA_SCREEN_TEST_TAG = "daita_screen_test_tag"
+
+// Multihop settings screen
+const val MULTIHOP_SCREEN_TEST_TAG = "multihop_screen_test_tag"
 
 // VpnSettingsScreen
 const val LAZY_LIST_VPN_SETTINGS_TEST_TAG = "lazy_list_vpn_settings_test_tag"

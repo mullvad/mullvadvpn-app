@@ -18,6 +18,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -40,6 +41,7 @@ import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
+import net.mullvad.mullvadvpn.lib.ui.tag.MULTIHOP_SCREEN_TEST_TAG
 import net.mullvad.mullvadvpn.util.Lc
 import net.mullvad.mullvadvpn.viewmodel.MultihopUiState
 import net.mullvad.mullvadvpn.viewmodel.MultihopViewModel
@@ -70,9 +72,10 @@ fun SharedTransitionScope.Multihop(
         state = state,
         modifier =
             Modifier.sharedBounds(
-                rememberSharedContentState(key = FeatureIndicator.MULTIHOP),
-                animatedVisibilityScope = animatedVisibilityScope,
-            ),
+                    rememberSharedContentState(key = FeatureIndicator.MULTIHOP),
+                    animatedVisibilityScope = animatedVisibilityScope,
+                )
+                .testTag(MULTIHOP_SCREEN_TEST_TAG),
         onMultihopClick = viewModel::setMultihop,
         onBackClick = dropUnlessResumed { navigator.navigateUp() },
     )
