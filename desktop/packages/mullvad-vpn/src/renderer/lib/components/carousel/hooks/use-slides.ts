@@ -9,30 +9,28 @@ export function useSlides() {
   const goToSlide = useGoToSlide();
   const getSlideIndex = useGetSlideIndex();
 
-  // These values are only intended to be used for display purposes. Using them when calculating
-  // next or prev slide would increase the risk of race conditions.
-  const hasNext = slideIndex < slides.length - 1;
-  const hasPrev = slideIndex > 0;
+  const isFirstSlide = slideIndex === 0;
+  const isLastSlide = slideIndex === slides.length - 1;
 
   const next = React.useCallback(() => {
-    if (!hasNext) {
+    if (isLastSlide) {
       return;
     }
     return goToSlide(getSlideIndex() + 1);
-  }, [hasNext, goToSlide, getSlideIndex]);
+  }, [isLastSlide, goToSlide, getSlideIndex]);
 
   const prev = React.useCallback(() => {
-    if (!hasPrev) {
+    if (isFirstSlide) {
       return;
     }
     return goToSlide(getSlideIndex() - 1);
-  }, [hasPrev, goToSlide, getSlideIndex]);
+  }, [isFirstSlide, goToSlide, getSlideIndex]);
 
   return {
     goToSlide,
     next,
     prev,
-    hasNext,
-    hasPrev,
+    isFirstSlide,
+    isLastSlide,
   };
 }

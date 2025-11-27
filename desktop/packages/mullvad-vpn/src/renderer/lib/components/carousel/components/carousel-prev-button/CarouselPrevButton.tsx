@@ -5,9 +5,9 @@ import { useSlides } from '../../hooks';
 export type CarouselPrevButtonProps = IconButtonProps;
 
 export function CarouselPrevButton(props: CarouselPrevButtonProps) {
-  const { prev, hasPrev } = useSlides();
+  const { prev, isFirstSlide } = useSlides();
 
-  const disabled = !hasPrev;
+  const disabled = isFirstSlide;
   const tabIndex = disabled ? -1 : 0;
 
   return (
