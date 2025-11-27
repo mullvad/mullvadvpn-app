@@ -23,8 +23,10 @@ fi
 
 
 RELFLAG=
+LOCKEDFLAG=
 if [[ "$CONFIGURATION" == "Release" || "$CONFIGURATION" == "MockRelease" ]]; then
     RELFLAG=--release
+    LOCKEDFLAG=--locked
 fi
 
 # For whatever reason, Xcode includes its toolchain paths in the PATH variable such as
@@ -47,8 +49,8 @@ fi
 for arch in $ARCHS; do
     case "$arch" in
         arm64)
-            "$HOME"/.cargo/bin/cargo build -p "$FFI_TARGET" --lib $RELFLAG --target $TARGET ${FEATURE_FLAGS:+--features "$FEATURE_FLAGS"}
-            "$HOME"/.cargo/bin/cargo build -p "$FFI_TARGET" --lib --target $TARGET ${FEATURE_FLAGS:+--features "$FEATURE_FLAGS"}
+            "$HOME"/.cargo/bin/cargo build $LOCKEDFLAG -p "$FFI_TARGET" --lib $RELFLAG --target $TARGET ${FEATURE_FLAGS:+--features "$FEATURE_FLAGS"}
+            "$HOME"/.cargo/bin/cargo build $LOCKEDFLAG -p "$FFI_TARGET" --lib --target $TARGET ${FEATURE_FLAGS:+--features "$FEATURE_FLAGS"}
             ;;
     esac
 done
