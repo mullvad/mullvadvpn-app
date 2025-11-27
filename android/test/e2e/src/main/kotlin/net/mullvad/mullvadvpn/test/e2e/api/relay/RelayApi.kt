@@ -16,12 +16,12 @@ import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
+import net.mullvad.mullvadvpn.test.common.misc.RelayProvider
 import net.mullvad.mullvadvpn.test.e2e.BuildConfig
 import net.mullvad.mullvadvpn.test.e2e.misc.KermitLogger
-import net.mullvad.mullvadvpn.test.e2e.misc.RelayProvider
 
 class RelayApi {
-    private val relayProvider = RelayProvider()
+    private val relayProvider = RelayProvider(BuildConfig.FLAVOR_billing)
 
     private val client: HttpClient =
         HttpClient(CIO) {
