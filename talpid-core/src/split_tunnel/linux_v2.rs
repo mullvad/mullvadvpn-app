@@ -158,7 +158,7 @@ impl Cgroup2 {
 
     /// Assign a process to this cgroup2.
     fn add_pid(&self, pid: Pid) -> Result<(), Error> {
-        // Format the pid as a string
+        // Format the PID as a string
         let mut pid_buf = [0u8; 16];
         write!(&mut pid_buf[..], "{pid}").expect("buf is large enough");
         let pid_str = CStr::from_bytes_until_nul(&pid_buf).expect("buf contains null");
