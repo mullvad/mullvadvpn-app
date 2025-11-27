@@ -11,6 +11,8 @@ use std::{
     ffi::CStr,
     fs, io,
     net::{IpAddr, Ipv4Addr},
+    os::unix::fs::MetadataExt,
+    path::Path,
     sync::LazyLock,
 };
 use talpid_tunnel::TunnelMetadata;
@@ -380,10 +382,16 @@ impl<'a> PolicyBatch<'a> {
 
         if cfg!(feature = "cgroups_v2") {
             // For cgroups v2, packets from sockets bound by processes in
-            // that cgroup2 are matched on through the cgroup2 name.
-            use talpid_types::cgroup::SPLIT_TUNNEL_CGROUP_NAME_C;
+            // that cgroup2 are matched on through the cgroup2 inode.
+            use talpid_types::cgroup::SPLIT_TUNNEL_CGROUP_NAME;
+
+            let cgroup = {
+                let cgroup_path = Path::new("/sys/fs/cgroup/").join(SPLIT_TUNNEL_CGROUP_NAME);
+                let cgroup_meta = fs::metadata(cgroup_path).expect("cgroup does not exist");
+                cgroup_meta.ino()
+            };
             rule.add_expr(&nft_expr!(socket cgroupv2 level 1));
-            rule.add_expr(&nft_expr!(cmp == SPLIT_TUNNEL_CGROUP_NAME_C));
+            rule.add_expr(&nft_expr!(cmp == cgroup));
         } else {
             // For cgroups v1, processes are assigned to a net_cls.
             // This causes all packets sent by that process to be marked with the
