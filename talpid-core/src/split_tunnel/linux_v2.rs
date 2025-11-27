@@ -51,6 +51,8 @@ struct Cgroup2 {
     /// Absolute path of the cgroup2, e.g. `/run/my_cgroup2_mount/my_cgroup2`
     path: PathBuf,
 
+    rmdir_on_drop: bool,
+
     /// `cgroup.procs` is used to add and list PIDs in the cgroup2.
     procs: File,
 }
@@ -138,7 +140,11 @@ impl Cgroup2 {
             .open(&procs_path)
             .with_context(|| anyhow!("Failed to open {procs_path:?}"))?;
 
-        Ok(Cgroup2 { path, procs })
+        Ok(Cgroup2 {
+            path,
+            procs,
+            rmdir_on_drop: true,
+        })
     }
 
     /// Create or open a child to the current cgroup2 called `name`.
@@ -194,9 +200,11 @@ impl Cgroup2 {
 
 impl Drop for Cgroup2 {
     fn drop(&mut self) {
-        if let Err(err) = unmount_cgroup2_fs(self) {
-            log::error!("{err}");
-        };
+        if self.rmdir_on_drop {
+            if let Err(err) = remove_cgroup2(self) {
+                log::error!("{err}");
+            };
+        }
     }
 }
 
@@ -223,18 +231,18 @@ fn mount_cgroup2_fs() -> Result<Cgroup2, Error> {
     )
     .context("Failed to mount cgroup2 fs")?;
 
-    Cgroup2::open(cgroup2_root)
+    let mut cgroup = Cgroup2::open(cgroup2_root)?;
+    cgroup.rmdir_on_drop = false;
+    Ok(cgroup)
 }
 
-/// Unmount the root cgroup2 at [CGROUP2_MOUNT_PATH].
-///
-/// `cgroup` will have been unmounted when this function returns.
+// Remove a cgroup2 by `rmdir`ing it.
 //
-// TODO: Do we need to migrate all processes in this cgroup before removing it?
+// TODO: We need to migrate all processes in this cgroup before removing it?
 // v1 implemenatation did this by simply propagating all spawned processes into the cgroup's
 // parent, which seems a bit hacky. But maybe it works here as well :shrug: Would be nice to know
 // for sure.
-fn unmount_cgroup2_fs(cgroup: &Cgroup2) -> Result<(), Error> {
+fn remove_cgroup2(cgroup: &Cgroup2) -> Result<(), Error> {
     std::fs::remove_dir(&cgroup.path)
         .context(format!("{cgroup}", cgroup = cgroup.path.display()))
         .context("Failed to unmount cgroup2 fs")
