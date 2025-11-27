@@ -3,7 +3,11 @@ use std::fs;
 use std::os::unix::ffi::OsStrExt;
 use std::path::PathBuf;
 
-pub const SPLIT_TUNNEL_CGROUP_NAME: &CStr = c"mullvad-exclusions";
+pub const SPLIT_TUNNEL_CGROUP_NAME_C: &CStr = c"mullvad-exclusions";
+pub const SPLIT_TUNNEL_CGROUP_NAME: &str = match SPLIT_TUNNEL_CGROUP_NAME_C.to_str() {
+    Ok(str) => str,
+    Err(_) => panic!("String must be UTF-8"),
+};
 
 /// Find the path of the cgroup v1 net_cls controller mount if it exists
 pub fn find_net_cls_mount() -> std::io::Result<Option<PathBuf>> {
