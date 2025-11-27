@@ -376,9 +376,9 @@ impl<'a> PolicyBatch<'a> {
 
         #[cfg(feature = "cgroups_v2")]
         {
-            use talpid_types::cgroup::SPLIT_TUNNEL_CGROUP_NAME;
+            use talpid_types::cgroup::SPLIT_TUNNEL_CGROUP_NAME_C;
             rule.add_expr(&nft_expr!(socket cgroupv2 level 1));
-            rule.add_expr(&nft_expr!(cmp == SPLIT_TUNNEL_CGROUP_NAME));
+            rule.add_expr(&nft_expr!(cmp == SPLIT_TUNNEL_CGROUP_NAME_C));
         }
         #[cfg(not(feature = "cgroups_v2"))]
         {
