@@ -17,7 +17,7 @@ use std::{
 };
 use talpid_tunnel::TunnelMetadata;
 use talpid_types::{
-    cgroup::find_net_cls_mount,
+    cgroup::{CGROUP2_DEFAULT_MOUNT_PATH, find_net_cls_mount},
     net::{
         ALLOWED_LAN_MULTICAST_NETS, ALLOWED_LAN_NETS, AllowedEndpoint, AllowedTunnelTraffic,
         Endpoint, TransportProtocol,
@@ -383,7 +383,8 @@ impl<'a> PolicyBatch<'a> {
             use talpid_types::cgroup::SPLIT_TUNNEL_CGROUP_NAME;
 
             let cgroup = {
-                let cgroup_path = Path::new("/sys/fs/cgroup/").join(SPLIT_TUNNEL_CGROUP_NAME);
+                let cgroup_path =
+                    Path::new(CGROUP2_DEFAULT_MOUNT_PATH).join(SPLIT_TUNNEL_CGROUP_NAME);
                 let cgroup_meta = fs::metadata(cgroup_path).map_err(Error::CgroupStat)?;
                 cgroup_meta.ino()
             };
