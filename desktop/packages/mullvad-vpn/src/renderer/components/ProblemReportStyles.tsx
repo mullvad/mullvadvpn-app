@@ -1,13 +1,7 @@
 import styled from 'styled-components';
 
-import { colors } from '../lib/foundations';
-import { hugeText, measurements, smallText } from './common-styles';
-
-export const StyledContentContainer = styled.div({
-  display: 'flex',
-  flexDirection: 'column',
-  flex: 1,
-});
+import { colors, spacings } from '../lib/foundations';
+import { hugeText, smallText } from './common-styles';
 
 export const StyledContent = styled.div({
   display: 'flex',
@@ -20,7 +14,7 @@ export const StyledForm = styled.div({
   display: 'flex',
   flex: 1,
   flexDirection: 'column',
-  margin: `0 ${measurements.horizontalViewMargin}`,
+  margin: `0 ${spacings.small}`,
 });
 
 export const StyledFormEmailRow = styled.div({

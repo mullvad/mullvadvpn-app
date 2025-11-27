@@ -45,7 +45,7 @@ export function DaitaSettingsView() {
               <SettingsHeader>
                 <HeaderTitle>{strings.daita}</HeaderTitle>
                 {showDaitaMultihopInfo && (
-                  <Flex $gap="small" $alignItems="center">
+                  <Flex gap="small" alignItems="center">
                     <Icon icon="info-circle" color="whiteOnBlue60" size="small" />
                     <Text variant="labelTinySemiBold" color="whiteAlpha60">
                       {messages.pgettext(
@@ -59,7 +59,7 @@ export function DaitaSettingsView() {
                   content={[
                     <React.Fragment key="without-daita">
                       <StyledIllustration source="daita-off-illustration" />
-                      <Flex $flexDirection="column" $gap="medium">
+                      <Flex flexDirection="column" gap="medium">
                         <StyledLabelTinySemiBold>
                           {messages.pgettext(
                             // TRANSLATORS: Information to the user that with this setting enabled
@@ -93,7 +93,7 @@ export function DaitaSettingsView() {
                     </React.Fragment>,
                     <React.Fragment key="with-daita">
                       <StyledIllustration source="daita-on-illustration" />
-                      <Flex $flexDirection="column" $gap="medium">
+                      <Flex flexDirection="column" gap="medium">
                         <StyledLabelTiny>
                           {sprintf(
                             messages.pgettext(

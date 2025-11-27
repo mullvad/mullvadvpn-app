@@ -34,16 +34,16 @@ const AppMainHeader = ({
 
   return (
     <MainHeader variant={variant} size={size} {...props}>
-      <Flex $justifyContent="space-between">
+      <Flex justifyContent="space-between">
         <InitialFocus>
           {logoVariant !== 'none' ? <Logo variant={logoVariant} /> : <div />}
         </InitialFocus>
-        <Flex $gap="medium" $alignItems="center">
+        <Flex gap="medium" alignItems="center">
           {children}
         </Flex>
       </Flex>
       {size == '2' && (
-        <Flex $alignItems="flex-end">
+        <Flex alignItems="flex-end">
           <AppMainHeaderDeviceInfo />
         </Flex>
       )}

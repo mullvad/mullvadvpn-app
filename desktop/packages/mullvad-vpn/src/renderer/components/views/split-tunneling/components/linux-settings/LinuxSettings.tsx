@@ -66,14 +66,14 @@ function LinuxSettingsInner() {
         onSearch={setSearchTerm}
       />
       {showNoSearchResult && <ApplicationSearchNoResult searchTerm={searchTerm} />}
-      <FlexColumn $gap="medium">
+      <FlexColumn gap="medium">
         {showLinuxApplicationList && <LinuxApplicationList />}
         {showSpinner && (
-          <Flex $justifyContent="center" $margin={{ top: 'large' }}>
+          <Flex justifyContent="center" margin={{ top: 'large' }}>
             <Spinner size="big" />
           </Flex>
         )}
-        <Flex $margin={{ horizontal: 'medium', bottom: 'large' }}>
+        <Flex margin={{ horizontal: 'medium', bottom: 'large' }}>
           <OpenFilePickerButton />
         </Flex>
       </FlexColumn>

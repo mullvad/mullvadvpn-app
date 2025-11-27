@@ -28,7 +28,7 @@ export function HeaderDescription() {
   if (splitTunnelingSupported === false) {
     return (
       <FlexRow>
-        <FlexColumn $justifyContent="center" $margin={{ right: 'small' }}>
+        <FlexColumn justifyContent="center" margin={{ right: 'small' }}>
           <Icon size="small" color="whiteAlpha60" icon="info-circle" />
         </FlexColumn>
         <FlexColumn>

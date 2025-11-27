@@ -18,7 +18,7 @@ const AppNavigationHeader = ({ title, children, ...props }: NavigationBarProps) 
       <InitialFocus>
         <NavigationHeader.Title>{title}</NavigationHeader.Title>
       </InitialFocus>
-      <NavigationHeader.ButtonGroup $justifyContent="flex-end">
+      <NavigationHeader.ButtonGroup justifyContent="flex-end">
         {children}
       </NavigationHeader.ButtonGroup>
     </NavigationHeader>

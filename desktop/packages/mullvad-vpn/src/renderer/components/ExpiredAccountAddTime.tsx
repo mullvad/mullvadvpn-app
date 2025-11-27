@@ -12,6 +12,7 @@ import { useAppContext } from '../context';
 import useActions from '../lib/actionsHook';
 import { Button, Flex } from '../lib/components';
 import { FlexColumn } from '../lib/components/flex-column';
+import { View } from '../lib/components/view';
 import { colors } from '../lib/foundations';
 import { TransitionType, useHistory } from '../lib/history';
 import { IconBadge } from '../lib/icon-badge';
@@ -21,7 +22,7 @@ import { useSelector } from '../redux/store';
 import { AppMainHeader } from './app-main-header';
 import { hugeText, measurements, tinyText } from './common-styles';
 import CustomScrollbars from './CustomScrollbars';
-import { Container, Footer, Layout } from './Layout';
+import { Container } from './Layout';
 import {
   RedeemVoucherContainer,
   RedeemVoucherInput,
@@ -85,30 +86,35 @@ export function VoucherInput() {
   }, [history]);
 
   return (
-    <Layout>
+    <View backgroundColor="darkBlue">
       <HeaderBar />
       <StyledCustomScrollbars fillContainer>
-        <StyledContainer>
-          <RedeemVoucherContainer onSuccess={onSuccess}>
-            <StyledBody>
-              <StyledTitle>{messages.pgettext('connect-view', 'Redeem voucher')}</StyledTitle>
-              <StyledLabel>{messages.pgettext('connect-view', 'Enter voucher code')}</StyledLabel>
-              <StyledRedeemVoucherInput />
-              <RedeemVoucherResponse />
-            </StyledBody>
+        <View.Content>
+          <View.Container
+            flexDirection="column"
+            indent="large"
+            justifyContent="space-between"
+            margin={{ top: 'large' }}
+            flexGrow={1}>
+            <RedeemVoucherContainer onSuccess={onSuccess}>
+              <FlexColumn>
+                <StyledTitle>{messages.pgettext('connect-view', 'Redeem voucher')}</StyledTitle>
+                <StyledLabel>{messages.pgettext('connect-view', 'Enter voucher code')}</StyledLabel>
+                <StyledRedeemVoucherInput />
+                <RedeemVoucherResponse />
+              </FlexColumn>
 
-            <Footer>
-              <FlexColumn $gap="medium">
+              <FlexColumn gap="medium">
                 <RedeemVoucherSubmitButton />
                 <Button onClick={navigateBack}>
                   <Button.Text>{messages.gettext('Cancel')}</Button.Text>
                 </Button>
               </FlexColumn>
-            </Footer>
-          </RedeemVoucherContainer>
-        </StyledContainer>
+            </RedeemVoucherContainer>
+          </View.Container>
+        </View.Content>
       </StyledCustomScrollbars>
-    </Layout>
+    </View>
   );
 }
 
@@ -160,40 +166,44 @@ export function TimeAdded(props: ITimeAddedProps) {
   }
 
   return (
-    <Layout>
+    <View backgroundColor="darkBlue">
       <HeaderBar />
       <StyledCustomScrollbars fillContainer>
-        <StyledContainer>
-          <StyledBody>
-            <Flex $justifyContent="center" $margin={{ bottom: 'medium' }}>
-              <IconBadge state="positive" />
-            </Flex>
-            <StyledTitle>
-              {props.title ?? messages.pgettext('connect-view', 'Time was successfully added')}
-            </StyledTitle>
-            <StyledLabel>
-              {duration
-                ? sprintf(
-                    messages.gettext('%(duration)s was added, account paid until %(expiry)s.'),
-                    {
-                      duration,
+        <View.Content>
+          <View.Container
+            flexDirection="column"
+            indent="large"
+            justifyContent="space-between"
+            margin={{ top: 'large' }}
+            flexGrow={1}>
+            <FlexColumn>
+              <Flex justifyContent="center" margin={{ bottom: 'medium' }}>
+                <IconBadge state="positive" />
+              </Flex>
+              <StyledTitle>
+                {props.title ?? messages.pgettext('connect-view', 'Time was successfully added')}
+              </StyledTitle>
+              <StyledLabel>
+                {duration
+                  ? sprintf(
+                      messages.gettext('%(duration)s was added, account paid until %(expiry)s.'),
+                      {
+                        duration,
+                        expiry: newExpiry,
+                      },
+                    )
+                  : sprintf(messages.gettext('Account paid until %(expiry)s.'), {
                       expiry: newExpiry,
-                    },
-                  )
-                : sprintf(messages.gettext('Account paid until %(expiry)s.'), {
-                    expiry: newExpiry,
-                  })}
-            </StyledLabel>
-          </StyledBody>
-
-          <Footer>
+                    })}
+              </StyledLabel>
+            </FlexColumn>
             <Button onClick={navigateToSetupFinished}>
               <Button.Text>{messages.gettext('Next')}</Button.Text>
             </Button>
-          </Footer>
-        </StyledContainer>
+          </View.Container>
+        </View.Content>
       </StyledCustomScrollbars>
-    </Layout>
+    </View>
   );
 }
 
@@ -204,28 +214,33 @@ export function SetupFinished() {
   const openPrivacyLink = useCallback(() => openUrl(urls.privacyGuide), [openUrl]);
 
   return (
-    <Layout>
+    <View backgroundColor="darkBlue">
       <HeaderBar />
       <StyledCustomScrollbars fillContainer>
-        <StyledContainer>
-          <StyledBody>
-            <StyledTitle>{messages.pgettext('connect-view', 'You’re all set!')}</StyledTitle>
-            <StyledLabel>
-              {messages.pgettext(
-                'connect-view',
-                'Go ahead and start using the app to begin reclaiming your online privacy.',
-              )}
-            </StyledLabel>
-            <StyledLabel>
-              {messages.pgettext(
-                'connect-view',
-                'To continue your journey as a privacy ninja, visit our website to pick up other privacy-friendly habits and tools.',
-              )}
-            </StyledLabel>
-          </StyledBody>
+        <View.Content>
+          <View.Container
+            flexDirection="column"
+            indent="large"
+            justifyContent="space-between"
+            margin={{ top: 'large' }}
+            flexGrow={1}>
+            <FlexColumn>
+              <StyledTitle>{messages.pgettext('connect-view', 'You’re all set!')}</StyledTitle>
+              <StyledLabel>
+                {messages.pgettext(
+                  'connect-view',
+                  'Go ahead and start using the app to begin reclaiming your online privacy.',
+                )}
+              </StyledLabel>
+              <StyledLabel>
+                {messages.pgettext(
+                  'connect-view',
+                  'To continue your journey as a privacy ninja, visit our website to pick up other privacy-friendly habits and tools.',
+                )}
+              </StyledLabel>
+            </FlexColumn>
 
-          <Footer>
-            <FlexColumn $gap="medium">
+            <FlexColumn gap="medium">
               <Button
                 onClick={openPrivacyLink}
                 aria-description={messages.pgettext('accessibility', 'Opens externally')}>
@@ -246,10 +261,10 @@ export function SetupFinished() {
                 </Button.Text>
               </Button>
             </FlexColumn>
-          </Footer>
-        </StyledContainer>
+          </View.Container>
+        </View.Content>
       </StyledCustomScrollbars>
-    </Layout>
+    </View>
   );
 }
 

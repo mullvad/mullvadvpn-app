@@ -10,7 +10,7 @@ export function DefaultLaunchFooter() {
 
   return (
     <>
-      <FlexColumn $gap="medium">
+      <FlexColumn gap="medium">
         <FooterText>
           {
             // TRANSLATORS: Message in launch view when the mullvad service cannot be contacted.

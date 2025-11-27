@@ -17,7 +17,7 @@ export function AppInfoListItem() {
 
   return (
     <SettingsNavigationListItem to={RoutePath.appInfo}>
-      <Flex $flexDirection="column">
+      <Flex flexDirection="column">
         <SettingsNavigationListItem.Label>
           {
             // TRANSLATORS: Navigation button to the 'App info' view

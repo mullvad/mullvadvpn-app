@@ -6,7 +6,7 @@ import { StyledButton } from '../lib/components/button';
 export type WrapButtonGroupProps = FlexProps;
 
 const StyledFlex = styled(Flex)`
-  ${({ $gap: gapProp }) => {
+  ${({ gap: gapProp }) => {
     const $gap = gapProp ?? '0px';
     return css`
       && > ${StyledButton} {
@@ -37,9 +37,9 @@ const StyledFlex = styled(Flex)`
   }}
 `;
 
-export function ButtonGroup({ $gap, children, ...props }: WrapButtonGroupProps) {
+export function ButtonGroup({ gap, children, ...props }: WrapButtonGroupProps) {
   return (
-    <StyledFlex $gap={$gap} $flexWrap="wrap" {...props}>
+    <StyledFlex gap={gap} flexWrap="wrap" {...props}>
       {children}
     </StyledFlex>
   );

@@ -294,12 +294,12 @@ class ModalAlertImpl extends React.Component<IModalAlertImplProps, IModalAlertSt
 
               <ModalAlertButtonGroupContainer>
                 {this.props.gridButtons && (
-                  <ButtonGroup $gap="small" $flexWrap="wrap-reverse" $margin={{ right: 'medium' }}>
+                  <ButtonGroup gap="small" flexWrap="wrap-reverse" margin={{ right: 'medium' }}>
                     {this.props.gridButtons}
                   </ButtonGroup>
                 )}
                 {this.props.buttons && (
-                  <FlexColumn $gap="small">
+                  <FlexColumn gap="small">
                     {this.props.buttons.map((button, index) => (
                       <ModalAlertButtonContainer key={index}>{button}</ModalAlertButtonContainer>
                     ))}

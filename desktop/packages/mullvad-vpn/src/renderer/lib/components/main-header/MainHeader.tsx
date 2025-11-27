@@ -40,9 +40,9 @@ const MainHeader = ({ size = '1', variant = 'default', children, ...props }: Hea
   return (
     <StyledHeader $size={size} $variant={variant} {...props}>
       <Flex
-        $flexDirection="column"
-        $justifyContent="center"
-        $margin={{
+        flexDirection="column"
+        justifyContent="center"
+        margin={{
           horizontal: 'medium',
           top: 'medium',
           bottom: 'small',

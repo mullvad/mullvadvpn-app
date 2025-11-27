@@ -21,7 +21,7 @@ export function DeviceNameRow() {
   }, [history]);
 
   return (
-    <Flex $justifyContent="space-between">
+    <Flex justifyContent="space-between">
       <StyledText variant="bodySmallSemibold">{deviceName}</StyledText>
       <Link as="button" onClick={navigateToManageDevices}>
         <Link.Text>

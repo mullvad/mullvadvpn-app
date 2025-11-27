@@ -7,8 +7,8 @@ export function StartUpgrade() {
   const hasUpgrade = useHasUpgrade();
 
   return (
-    <Flex $padding="large" $flexDirection="column">
-      <Flex $flexDirection="column">
+    <Flex padding="large" flexDirection="column">
+      <Flex flexDirection="column">
         <UpgradeButton disabled={!hasUpgrade}>
           {
             // TRANSLATORS: Button text to download and install an update

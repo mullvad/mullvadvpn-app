@@ -9,9 +9,9 @@ export function LaunchFooter() {
   const message = useMessage();
 
   return (
-    <Flex $padding="large" $flexDirection="column">
-      <Flex $gap="medium" $flexDirection="column" $margin={{ bottom: 'medium' }}>
-        <Flex $gap="tiny" $alignItems="center">
+    <Flex padding="large" flexDirection="column">
+      <Flex gap="medium" flexDirection="column" margin={{ bottom: 'medium' }}>
+        <Flex gap="tiny" alignItems="center">
           <Icon icon="checkmark" color="green" size="small" />
           <LabelTinySemiBold>
             {
@@ -22,7 +22,7 @@ export function LaunchFooter() {
         </Flex>
         <DownloadProgress />
       </Flex>
-      <Flex $flexDirection="column">
+      <Flex flexDirection="column">
         <LaunchInstallerButton disabled={disabled}>{message}</LaunchInstallerButton>
       </Flex>
     </Flex>

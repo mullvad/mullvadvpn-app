@@ -17,7 +17,7 @@ export type EmptyStateProps = FlexProps & {
 function EmptyState({ variant = 'error', children, ...props }: EmptyStateProps) {
   return (
     <EmptyStateProvider variant={variant}>
-      <Flex $flexDirection="column" $gap="medium" $alignItems="center" {...props}>
+      <Flex flexDirection="column" gap="medium" alignItems="center" {...props}>
         {children}
       </Flex>
     </EmptyStateProvider>

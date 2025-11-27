@@ -19,29 +19,31 @@ export function WireguardPortView() {
     <View backgroundColor="darkBlue">
       <BackAction action={pop}>
         <NavigationContainer>
-          <AppNavigationHeader
-            title={sprintf(messages.pgettext('wireguard-settings-view', '%(wireGuard)s port'), {
-              wireGuard: strings.wireguard,
-            })}
-          />
+          <View.Content>
+            <AppNavigationHeader
+              title={sprintf(messages.pgettext('wireguard-settings-view', '%(wireGuard)s port'), {
+                wireGuard: strings.wireguard,
+              })}
+            />
 
-          <NavigationScrollbars>
-            <SettingsHeader>
-              <HeaderTitle>
-                {sprintf(
-                  // TRANSLATORS: Page title for WireGuard port view
-                  messages.pgettext('wireguard-settings-view', '%(wireGuard)s port'),
-                  {
-                    wireGuard: strings.wireguard,
-                  },
-                )}
-              </HeaderTitle>
-            </SettingsHeader>
+            <NavigationScrollbars>
+              <SettingsHeader>
+                <HeaderTitle>
+                  {sprintf(
+                    // TRANSLATORS: Page title for WireGuard port view
+                    messages.pgettext('wireguard-settings-view', '%(wireGuard)s port'),
+                    {
+                      wireGuard: strings.wireguard,
+                    },
+                  )}
+                </HeaderTitle>
+              </SettingsHeader>
 
-            <SettingsContent>
-              <PortSetting />
-            </SettingsContent>
-          </NavigationScrollbars>
+              <SettingsContent>
+                <PortSetting />
+              </SettingsContent>
+            </NavigationScrollbars>
+          </View.Content>
         </NavigationContainer>
       </BackAction>
     </View>

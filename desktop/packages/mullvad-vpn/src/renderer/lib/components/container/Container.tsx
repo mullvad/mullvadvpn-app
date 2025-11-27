@@ -1,28 +1,28 @@
-import React from 'react';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 
 import { spacings } from '../../foundations';
 import { Flex, FlexProps } from '../flex';
 
-export interface ContainerProps extends FlexProps {
-  size?: '3' | '4';
-  children: React.ReactNode;
-}
+type Indent = 'small' | 'medium' | 'large';
 
-const sizes: Record<'3' | '4', string> = {
-  '3': `calc(100% - ${spacings.large} * 2)`,
-  '4': `calc(100% - ${spacings.medium} * 2)`,
+export type ContainerProps = FlexProps & {
+  indent: Indent;
 };
 
-const StyledFlex = styled(Flex)<{ $size: string }>((props) => ({
-  width: props.$size,
-  margin: 'auto',
-}));
+const widths: Record<Indent, string> = {
+  small: `calc(100% - ${spacings.small} * 2)`,
+  medium: `calc(100% - ${spacings.medium} * 2)`,
+  large: `calc(100% - ${spacings.large} * 2)`,
+};
 
-export const Container = React.forwardRef<HTMLDivElement, ContainerProps>(
-  ({ size = '4', ...props }, ref) => {
-    return <StyledFlex ref={ref} $size={sizes[size]} {...props} />;
-  },
-);
+export const StyledContainer = styled(Flex)<{ $width: string }>`
+  ${({ $width }) => css`
+    width: ${$width};
+    margin-left: auto;
+    margin-right: auto;
+  `};
+`;
 
-Container.displayName = 'Container';
+export function Container({ indent, ...props }: ContainerProps) {
+  return <StyledContainer $width={widths[indent]} {...props} />;
+}
