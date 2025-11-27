@@ -86,7 +86,7 @@ fn run() -> Result<Infallible, Error> {
     match fs::create_dir(&cgroup_path) {
         Ok(_) => (),
 
-        // cgroup already exists, this is fine
+        // cgroup2 already exists, this is fine
         Err(e) if e.kind() == io::ErrorKind::AlreadyExists => (),
 
         Err(e) => {
