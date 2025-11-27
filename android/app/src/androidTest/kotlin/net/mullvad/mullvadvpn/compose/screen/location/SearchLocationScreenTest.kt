@@ -19,7 +19,11 @@ import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.RelayListItem
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_CUSTOM_LIST_HEADER_TEST_TAG
+import net.mullvad.mullvadvpn.usecase.ModifyMultihopError
+import net.mullvad.mullvadvpn.usecase.MultihopChange
+import net.mullvad.mullvadvpn.usecase.SelectRelayItemError
 import net.mullvad.mullvadvpn.util.Lce
+import net.mullvad.mullvadvpn.viewmodel.location.UndoChangeMultihopAction
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -58,9 +62,9 @@ class SearchLocationScreenTest {
         onDeleteCustomList: (RelayItem.CustomList) -> Unit = {},
         onRemoveOwnershipFilter: () -> Unit = {},
         onRemoveProviderFilter: () -> Unit = {},
-        onSetAsEntry: (RelayItem) -> Unit = {},
-        onSetAsExit: (RelayItem) -> Unit = {},
-        onDisableMultihop: () -> Unit = {},
+        onModifyMultihopError: (ModifyMultihopError, MultihopChange) -> Unit = { _, _ -> },
+        onRelayItemError: (SelectRelayItemError) -> Unit = {},
+        onMultihopChanged: (UndoChangeMultihopAction) -> Unit = {},
         onGoBack: () -> Unit = {},
     ) {
         setContentWithTheme {
@@ -77,9 +81,9 @@ class SearchLocationScreenTest {
                 onDeleteCustomList = onDeleteCustomList,
                 onRemoveOwnershipFilter = onRemoveOwnershipFilter,
                 onRemoveProviderFilter = onRemoveProviderFilter,
-                onSetAsEntry = onSetAsEntry,
-                onSetAsExit = onSetAsExit,
-                onDisableMultihop = onDisableMultihop,
+                onModifyMultihopError = onModifyMultihopError,
+                onMultihopChanged = onMultihopChanged,
+                onRelayItemError = onRelayItemError,
                 onGoBack = onGoBack,
             )
         }

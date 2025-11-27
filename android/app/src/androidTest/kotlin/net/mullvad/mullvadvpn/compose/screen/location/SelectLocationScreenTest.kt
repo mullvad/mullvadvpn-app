@@ -33,10 +33,14 @@ import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_CUSTOM_LIST_BOTTOM_SHEE
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_LOCATION_BOTTOM_SHEET_TEST_TAG
 import net.mullvad.mullvadvpn.onNodeWithTagAndText
 import net.mullvad.mullvadvpn.performLongClick
+import net.mullvad.mullvadvpn.usecase.ModifyMultihopError
+import net.mullvad.mullvadvpn.usecase.MultihopChange
+import net.mullvad.mullvadvpn.usecase.SelectRelayItemError
 import net.mullvad.mullvadvpn.util.Lc
 import net.mullvad.mullvadvpn.util.Lce
 import net.mullvad.mullvadvpn.viewmodel.location.LocationBottomSheetViewModel
 import net.mullvad.mullvadvpn.viewmodel.location.SelectLocationListViewModel
+import net.mullvad.mullvadvpn.viewmodel.location.UndoChangeMultihopAction
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -97,9 +101,10 @@ class SelectLocationScreenTest {
         onRecentsToggleEnableClick: () -> Unit = {},
         onRefreshRelayList: () -> Unit = {},
         onScrollToItem: (ScrollEvent) -> Unit = {},
-        onSetAsEntry: (RelayItem) -> Unit = {},
-        onSetAsExit: (RelayItem) -> Unit = {},
-        toggleMultihop: (Boolean, Boolean) -> Unit = { _, _ -> },
+        toggleMultihop: (Boolean) -> Unit = {},
+        onModifyMultihopError: (ModifyMultihopError, MultihopChange) -> Unit = { _, _ -> },
+        onRelayItemError: (SelectRelayItemError) -> Unit = {},
+        onMultihopChanged: (UndoChangeMultihopAction) -> Unit = {},
     ) {
 
         setContentWithTheme {
@@ -124,8 +129,9 @@ class SelectLocationScreenTest {
                 onRecentsToggleEnableClick = onRecentsToggleEnableClick,
                 onRefreshRelayList = onRefreshRelayList,
                 scrollToItem = onScrollToItem,
-                onSetAsEntry = onSetAsEntry,
-                onSetAsExit = onSetAsExit,
+                onModifyMultihopError = onModifyMultihopError,
+                onMultihopChanged = onMultihopChanged,
+                onRelayItemError = onRelayItemError,
                 toggleMultihop = toggleMultihop,
             )
         }
@@ -524,6 +530,7 @@ class SelectLocationScreenTest {
                             isRecentsEnabled = true,
                             hopSelection = HopSelection.Single(null),
                             tunnelErrorStateCause = null,
+                            entrySelectionAllowed = true,
                         )
                     )
             )
