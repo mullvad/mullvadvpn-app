@@ -74,6 +74,16 @@ fun ConnectPage.toggleInTunnelIpv6Story() {
     uiDevice.pressBackTwice()
 }
 
+fun ConnectPage.enableDeviceIpv6Story() {
+    clickSettings()
+    on<SettingsPage> { clickVpnSettings() }
+    on<VpnSettingsPage> {
+        scrollUntilDeviceIpVersionCell()
+        clickDeviceIpIpv6Cell()
+    }
+    uiDevice.pressBackTwice()
+}
+
 fun ConnectPage.enableServerIpOverrideStory(relay: String, overrideIp: String) {
     setObfuscationStory(ObfuscationOption.Off)
     clickSettings()

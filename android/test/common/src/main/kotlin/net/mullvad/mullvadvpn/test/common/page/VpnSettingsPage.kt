@@ -128,6 +128,10 @@ class VpnSettingsPage internal constructor() : Page() {
         uiDevice.clickObjectAwaitIsChecked(By.res(WIREGUARD_DEVICE_IP_IPV4_CELL_TEST_TAG))
     }
 
+    fun clickDeviceIpIpv6Cell() {
+        uiDevice.clickObjectAwaitIsChecked(By.res(WIREGUARD_DEVICE_IP_IPV6_CELL_TEST_TAG))
+    }
+
     private fun scrollUntilCell(testTag: String) {
         val scrollView2 = uiDevice.findObjectWithTimeout(By.res(LAZY_LIST_VPN_SETTINGS_TEST_TAG))
         scrollView2.scrollUntil(Direction.DOWN, Until.hasObject(By.res(testTag)))

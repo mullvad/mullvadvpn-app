@@ -68,7 +68,7 @@ class ConnectPage internal constructor() : Page() {
     }
 
     /** Extracts the ip address, port and protocol from the connection card. */
-    private fun extractInIpv4Information(): Triple<String, String, String> {
+    private fun extractInIpInformation(): Triple<String, String, String> {
         val inString =
             uiDevice
                 .findObjectWithTimeout(
@@ -78,26 +78,27 @@ class ConnectPage internal constructor() : Page() {
                 .text
 
         val splitString = inString.split(" ")
-        val ipString = splitString[0].split(":")
-        return Triple(ipString[0], ipString[1], splitString[1])
+        val ipString = splitString[0].substringBeforeLast(":", "")
+        val portString = splitString[0].substringAfterLast(":", "")
+        return Triple(ipString, portString, splitString[1])
     }
 
     /**
      * Extracts the in IPv4 address from the connection card. It is a prerequisite that the
      * connection card is in collapsed state.
      */
-    fun extractInIpv4Address(): String {
+    fun extractInIpAddress(): String {
         expandConnectionCard()
-        return extractInIpv4Information().first
+        return extractInIpInformation().first
     }
 
     /**
      * Extracts the in IPv4 port from the connection card. It is a prerequisite that the connection
      * card is in collapsed state.
      */
-    fun extractInIpv4Port(): String {
+    fun extractInIpPort(): String {
         expandConnectionCard()
-        return extractInIpv4Information().second
+        return extractInIpInformation().second
     }
 
     /**

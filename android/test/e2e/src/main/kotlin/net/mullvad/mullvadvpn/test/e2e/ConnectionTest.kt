@@ -1,5 +1,7 @@
 package net.mullvad.mullvadvpn.test.e2e
 
+import android.net.InetAddresses.parseNumericAddress
+import java.net.Inet6Address
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.minutes
 import kotlinx.coroutines.delay
@@ -13,6 +15,7 @@ import net.mullvad.mullvadvpn.test.common.page.ConnectPage
 import net.mullvad.mullvadvpn.test.common.page.ObfuscationOption
 import net.mullvad.mullvadvpn.test.common.page.SelectLocationPage
 import net.mullvad.mullvadvpn.test.common.page.disablePostQuantumStory
+import net.mullvad.mullvadvpn.test.common.page.enableDeviceIpv6Story
 import net.mullvad.mullvadvpn.test.common.page.enableLocalNetworkSharingStory
 import net.mullvad.mullvadvpn.test.common.page.enableMultihopStory
 import net.mullvad.mullvadvpn.test.common.page.enableWireGuardCustomPortStory
@@ -29,6 +32,7 @@ import net.mullvad.mullvadvpn.test.e2e.router.firewall.DropRule
 import net.mullvad.mullvadvpn.test.e2e.router.firewall.FirewallClient
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertInstanceOf
 import org.junit.jupiter.api.extension.RegisterExtension
 
 class ConnectionTest : EndToEndTest() {
@@ -125,7 +129,7 @@ class ConnectionTest : EndToEndTest() {
 
             on<ConnectPage> {
                 waitForConnectedLabel()
-                relayIpAddress = extractInIpv4Address()
+                relayIpAddress = extractInIpAddress()
                 clickDisconnect()
             }
 
@@ -163,7 +167,7 @@ class ConnectionTest : EndToEndTest() {
 
             on<ConnectPage> {
                 waitForConnectedLabel()
-                relayIpAddress = extractInIpv4Address()
+                relayIpAddress = extractInIpAddress()
                 clickDisconnect()
             }
 
@@ -205,7 +209,7 @@ class ConnectionTest : EndToEndTest() {
 
         on<ConnectPage> {
             waitForConnectedLabel()
-            relayIpAddress = extractInIpv4Address()
+            relayIpAddress = extractInIpAddress()
             clickDisconnect()
         }
 
@@ -246,7 +250,7 @@ class ConnectionTest : EndToEndTest() {
 
         on<ConnectPage> {
             waitForConnectedLabel()
-            relayIpAddress = extractInIpv4Address()
+            relayIpAddress = extractInIpAddress()
             clickDisconnect()
         }
 
@@ -288,7 +292,7 @@ class ConnectionTest : EndToEndTest() {
 
         on<ConnectPage> {
             waitForConnectedLabel()
-            relayIpAddress = extractInIpv4Address()
+            relayIpAddress = extractInIpAddress()
             clickDisconnect()
         }
 
@@ -391,7 +395,7 @@ class ConnectionTest : EndToEndTest() {
 
         on<ConnectPage> {
             waitForConnectedLabel()
-            inIpv4Port = extractInIpv4Port()
+            inIpv4Port = extractInIpPort()
         }
 
         // Verify correct port used
@@ -441,6 +445,31 @@ class ConnectionTest : EndToEndTest() {
         // Check IPs match and that the out server is default server
         assertEquals(result.ip, outIpv4Address)
         assertEquals(result.mullvadExitIpHostname, defaultRelay.relay)
+    }
+
+    @Test
+    fun testConnectUsingIpv6() = runTest {
+        // Given
+        app.launchAndLogIn(accountTestRule.validAccountNumber)
+
+        // Set Device IP version
+        on<ConnectPage> { enableDeviceIpv6Story() }
+
+        // Connect
+        on<ConnectPage> { clickConnect() }
+
+        device.acceptVpnPermissionDialog()
+
+        var inIpv6Address = ""
+
+        on<ConnectPage> {
+            waitForConnectedLabel()
+            inIpv6Address = extractInIpAddress()
+        }
+
+        val parsedAddress = parseNumericAddress(inIpv6Address)
+        // Verify that the in address is a IPv6 address
+        assertInstanceOf<Inet6Address>(parsedAddress)
     }
 
     companion object {
