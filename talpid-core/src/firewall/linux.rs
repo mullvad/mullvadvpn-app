@@ -189,8 +189,10 @@ impl Firewall {
 
         // Process acknowledgment messages from netfilter.
         while !expected_seqs.is_empty() {
-            // TODO: unwrap
-            for message in socket.recv(&mut buffer[..]).unwrap() {
+            for message in socket
+                .recv(&mut buffer[..])
+                .map_err(Error::NetlinkSendError)?
+            {
                 let message = message.unwrap();
                 let expected_seq = expected_seqs.next().expect("Unexpected ACK");
                 // Validate sequence number and check for error messages
