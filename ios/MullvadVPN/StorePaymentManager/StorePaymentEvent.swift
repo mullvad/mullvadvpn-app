@@ -36,10 +36,12 @@ enum StorePaymentError: Error {
     /// In this case, the user has already spent money but we failed to upload the receipt to the API.
     /// They should be fine as the API should , but we can still upload the receipt later
     case receiptUpload
+    /// Purchase restoration was unsuccessful.
+    case restorationError
     /// To handle errors we don't recognize.
     case unknown
 
-    var description: String? {
+    var description: String {
         switch self {
         case let .storeKitError(error):
             error.localizedDescription
@@ -49,13 +51,18 @@ enum StorePaymentError: Error {
             NSLocalizedString("Failed to verify transaction receipt", comment: "")
         case .getPaymentToken:
             NSLocalizedString("Failed to reach Mullvad servers to initiate purchase", comment: "")
-        case .unknown:
-            NSLocalizedString("Unexpected error occured.", comment: "")
         case .receiptUpload:
             NSLocalizedString(
                 "Failed to upload one or more receipts to Mullvad servers. Try again later or contact support for help.",
                 comment: ""
             )
+        case .restorationError:
+            NSLocalizedString(
+                "Could not restore previous purchases. Try again later or contact support.",
+                comment: ""
+            )
+        case .unknown:
+            NSLocalizedString("Unexpected error occured.", comment: "")
         }
     }
 }
