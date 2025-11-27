@@ -83,6 +83,7 @@ impl PidManager {
 
     /// Remove a PID from the cgroup2 to have it included in the tunnel.
     pub fn remove(&self, pid: pid_t) -> Result<(), Error> {
+        // PIDs can only be removed from a cgroup2 by adding them to another cgroup2.
         let pid = Pid::from_raw(pid);
         self.inner()?.root_cgroup2.add_pid(pid)
     }
