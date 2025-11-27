@@ -19,8 +19,7 @@ use talpid_types::cgroup::{CGROUP2_DEFAULT_MOUNT_PATH, SPLIT_TUNNEL_CGROUP_NAME}
 pub const NET_CLS_CLASSID: u32 = 0x4d9f41;
 /// Value used to mark packets and associated connections.
 /// This should be an arbitrary but unique integer.
-/// TODO: what is this used for??
-pub const MARK: i32 = 0xf41;
+pub const MARK: u32 = 0xf41;
 
 /// Errors related to split tunneling.
 #[derive(thiserror::Error, Debug)]
