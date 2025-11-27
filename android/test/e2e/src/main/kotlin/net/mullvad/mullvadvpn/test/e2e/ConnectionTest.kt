@@ -14,6 +14,7 @@ import net.mullvad.mullvadvpn.test.common.page.VpnSettingsPage
 import net.mullvad.mullvadvpn.test.common.page.disableObfuscationStory
 import net.mullvad.mullvadvpn.test.common.page.enableLocalNetworkSharingStory
 import net.mullvad.mullvadvpn.test.common.page.enablePostQuantumStory
+import net.mullvad.mullvadvpn.test.common.page.enableServerIpOverrideStory
 import net.mullvad.mullvadvpn.test.common.page.enableShadowsocksStory
 import net.mullvad.mullvadvpn.test.common.page.enableWireGuardCustomPort
 import net.mullvad.mullvadvpn.test.common.page.on
@@ -438,6 +439,35 @@ class ConnectionTest : EndToEndTest() {
 
         // Verify correct port used
         assertEquals("53", inIpv4Port)
+    }
+
+    @Test
+    fun testAttemptToConnectUsingServerIpOverride() = runTest {
+        // Given
+        app.launchAndLogIn(accountTestRule.validAccountNumber)
+
+        // Enable server ip override
+        val mockServerIp = "12.12.12.12"
+        val relay = relayProvider.getDefaultRelay().relay
+        on<ConnectPage> { enableServerIpOverrideStory(relay, mockServerIp) }
+
+        // Select the relay which has an overriden ip
+        on<ConnectPage> { clickSelectLocation() }
+
+        on<SelectLocationPage> {
+            clickLocationExpandButton(relayProvider.getDefaultRelay().country)
+            clickLocationExpandButton(relayProvider.getDefaultRelay().city)
+            clickLocationCell(relayProvider.getDefaultRelay().relay)
+        }
+
+        device.acceptVpnPermissionDialog()
+
+        var inIpv4Address = ""
+
+        on<ConnectPage> { inIpv4Address = extractInIpv4Address() }
+
+        // Verify connection
+        assertEquals(mockServerIp, inIpv4Address)
     }
 
     companion object {
