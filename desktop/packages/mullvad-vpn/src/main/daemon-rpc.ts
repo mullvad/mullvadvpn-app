@@ -356,15 +356,15 @@ export class DaemonRpc extends GrpcClient {
           grpcTypes.ObfuscationSettings.SelectedObfuscation.LWO,
         );
         break;
-      case ObfuscationType.port:
+      case ObfuscationType.wireGuardPort:
         grpcObfuscationSettings.setSelectedObfuscation(
-          grpcTypes.ObfuscationSettings.SelectedObfuscation.PORT,
+          grpcTypes.ObfuscationSettings.SelectedObfuscation.WIREGUARD_PORT,
         );
         break;
     }
 
     if (obfuscationSettings.udp2tcpSettings) {
-      const grpcUdp2tcpSettings = new grpcTypes.Udp2TcpObfuscationSettings();
+      const grpcUdp2tcpSettings = new grpcTypes.ObfuscationSettings.Udp2TcpObfuscation();
       if (obfuscationSettings.udp2tcpSettings.port !== 'any') {
         grpcUdp2tcpSettings.setPort(obfuscationSettings.udp2tcpSettings.port.only);
       }
@@ -372,11 +372,19 @@ export class DaemonRpc extends GrpcClient {
     }
 
     if (obfuscationSettings.shadowsocksSettings) {
-      const shadowsocksSettings = new grpcTypes.ShadowsocksSettings();
+      const shadowsocksSettings = new grpcTypes.ObfuscationSettings.Shadowsocks();
       if (obfuscationSettings.shadowsocksSettings.port !== 'any') {
         shadowsocksSettings.setPort(obfuscationSettings.shadowsocksSettings.port.only);
       }
       grpcObfuscationSettings.setShadowsocks(shadowsocksSettings);
+    }
+
+    if (obfuscationSettings.wireGuardPortSettings) {
+      const wireGuardPortSettings = new grpcTypes.ObfuscationSettings.WireguardPort();
+      if (obfuscationSettings.wireGuardPortSettings.port !== 'any') {
+        wireGuardPortSettings.setPort(obfuscationSettings.wireGuardPortSettings.port.only);
+      }
+      grpcObfuscationSettings.setWireguardPort(wireGuardPortSettings);
     }
 
     await this.call<grpcTypes.ObfuscationSettings, Empty>(

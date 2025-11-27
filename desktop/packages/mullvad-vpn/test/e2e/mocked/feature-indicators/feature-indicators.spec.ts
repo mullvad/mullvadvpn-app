@@ -87,7 +87,7 @@ const featureIndicatorWithOption: FeatureIndicatorWithOptionTestOption[] = [
   },
   {
     testId: 'WireGuard Port',
-    featureIndicator: FeatureIndicator.port,
+    featureIndicator: FeatureIndicator.wireGuardPort,
     route: RoutePath.antiCensorship,
     featureIndicatorLabel: 'WireGuard Port',
     option: { name: 'Method', type: 'listbox' },

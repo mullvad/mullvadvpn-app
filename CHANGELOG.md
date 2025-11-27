@@ -25,6 +25,9 @@ Line wrap the file at 100 chars.                                              Th
 ### Added
 - Add port 443 to list of valid UDP2TCP ports.
 
+### Changed
+- Change `WireGuard port` to no longer affect the port used for LWO.
+
 
 ## [2025.14-beta1] - 2025-11-11
 ### Changed

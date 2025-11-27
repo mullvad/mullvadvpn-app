@@ -20,7 +20,7 @@ mod dns;
 /// latest version that exists in `SettingsVersion`.
 /// This should be bumped when a new version is introduced along with a migration
 /// being added to `mullvad-daemon`.
-pub const CURRENT_SETTINGS_VERSION: SettingsVersion = SettingsVersion::V14;
+pub const CURRENT_SETTINGS_VERSION: SettingsVersion = SettingsVersion::V15;
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Clone, Copy)]
 #[repr(u32)]
@@ -38,6 +38,7 @@ pub enum SettingsVersion {
     V12 = 12,
     V13 = 13,
     V14 = 14,
+    V15 = 15,
 }
 
 impl<'de> Deserialize<'de> for SettingsVersion {
@@ -59,6 +60,7 @@ impl<'de> Deserialize<'de> for SettingsVersion {
             v if v == SettingsVersion::V12 as u32 => Ok(SettingsVersion::V12),
             v if v == SettingsVersion::V13 as u32 => Ok(SettingsVersion::V13),
             v if v == SettingsVersion::V14 as u32 => Ok(SettingsVersion::V14),
+            v if v == SettingsVersion::V15 as u32 => Ok(SettingsVersion::V15),
             v => Err(serde::de::Error::custom(format!(
                 "{v} is not a valid SettingsVersion"
             ))),

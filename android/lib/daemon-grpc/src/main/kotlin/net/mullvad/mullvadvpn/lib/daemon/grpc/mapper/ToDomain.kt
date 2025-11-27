@@ -391,12 +391,6 @@ internal fun List<String>.toDomain(): Constraint<Providers> =
 
 internal fun ManagementInterface.WireguardConstraints.toDomain(): WireguardConstraints =
     WireguardConstraints(
-        port =
-            if (hasPort()) {
-                Constraint.Only(Port(port))
-            } else {
-                Constraint.Any
-            },
         isMultihopEnabled = useMultihop,
         entryLocation = entryLocationOrNull?.toDomain() ?: Constraint.Any,
         ipVersion =
@@ -421,6 +415,7 @@ internal fun ManagementInterface.ObfuscationSettings.toDomain(): ObfuscationSett
         selectedObfuscationMode = selectedObfuscation.toDomain(),
         udp2tcp = udp2Tcp.toDomain(),
         shadowsocks = shadowsocks.toDomain(),
+        wireguardPort = wireguardPort.toDomain(),
     )
 
 internal fun ManagementInterface.ObfuscationSettings.SelectedObfuscation.toDomain():
@@ -434,24 +429,32 @@ internal fun ManagementInterface.ObfuscationSettings.SelectedObfuscation.toDomai
             ObfuscationMode.Shadowsocks
         ManagementInterface.ObfuscationSettings.SelectedObfuscation.QUIC -> ObfuscationMode.Quic
         ManagementInterface.ObfuscationSettings.SelectedObfuscation.LWO -> ObfuscationMode.Lwo
-        ManagementInterface.ObfuscationSettings.SelectedObfuscation.PORT ->
-            throw IllegalArgumentException("PORT is not a support obfuscation")
+        ManagementInterface.ObfuscationSettings.SelectedObfuscation.WIREGUARD_PORT ->
+            throw IllegalArgumentException("WIREGUARD_PORT is not a support obfuscation")
         ManagementInterface.ObfuscationSettings.SelectedObfuscation.UNRECOGNIZED ->
             throw IllegalArgumentException("Unrecognized selected obfuscation")
     }
 
-internal fun ManagementInterface.Udp2TcpObfuscationSettings.toDomain(): Udp2TcpObfuscationSettings =
+internal fun ManagementInterface.ObfuscationSettings.Udp2TcpObfuscation.toDomain():
+    Udp2TcpObfuscationSettings =
     if (hasPort()) {
         Udp2TcpObfuscationSettings(Constraint.Only(Port(port)))
     } else {
         Udp2TcpObfuscationSettings(Constraint.Any)
     }
 
-internal fun ManagementInterface.ShadowsocksSettings.toDomain(): ShadowsocksSettings =
+internal fun ManagementInterface.ObfuscationSettings.Shadowsocks.toDomain(): ShadowsocksSettings =
     if (hasPort()) {
         ShadowsocksSettings(Constraint.Only(Port(port)))
     } else {
         ShadowsocksSettings(Constraint.Any)
+    }
+
+internal fun ManagementInterface.ObfuscationSettings.WireguardPort.toDomain(): Constraint<Port> =
+    if (hasPort()) {
+        Constraint.Only(Port(port))
+    } else {
+        Constraint.Any
     }
 
 internal fun ManagementInterface.CustomList.toDomain(): CustomList =
@@ -723,7 +726,7 @@ internal fun ManagementInterface.FeatureIndicator.toDomain() =
         ManagementInterface.FeatureIndicator.QUIC -> FeatureIndicator.QUIC
         ManagementInterface.FeatureIndicator.LWO -> FeatureIndicator.LWO
         ManagementInterface.FeatureIndicator.LOCKDOWN_MODE,
-        ManagementInterface.FeatureIndicator.PORT,
+        ManagementInterface.FeatureIndicator.WIREGUARD_PORT,
         ManagementInterface.FeatureIndicator.UNRECOGNIZED ->
             error("Feature not supported ${this.name}")
     }
