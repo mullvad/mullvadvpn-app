@@ -338,8 +338,7 @@ impl<'a> PolicyBatch<'a> {
 
     /// Allow split-tunneled traffic outside the tunnel.
     ///
-    /// This is acheived by setting `fwmark` on connections initated by processes in the cgroup
-    /// defined by [split_tunnel::NET_CLS_CLASSID].
+    /// This is acheived by setting `fwmark` on connections initated by processes in the cgroup.
     fn add_split_tunneling_rules(&mut self, policy: &FirewallPolicy, fwmark: u32) -> Result<()> {
         // Send select DNS requests in the tunnel
         if let FirewallPolicy::Connected {
@@ -364,22 +363,23 @@ impl<'a> PolicyBatch<'a> {
             }
         }
 
-        // Split tunneled processes have their PIDs added to a net_cls cgroup.
-        // This causes all packets sent by that process to be marked with the
-        // cgroups classid (`NET_CLS_CLASSID`). This rule checks incoming packets for that classid.
-        // If the packet has the classid set then the packet will have two new marks applied to it.
-        // The `split_tunnel::MARK` as a connection tracking mark and the `fwmark` as packet
-        // metadata.
+        // Split tunneled processes have their PIDs added to a cgroup (v1 or v2).
+        //
+        // This rule matches packets sent by those processes.
+        // Packet will have two new marks applied to it, the `split_tunnel::MARK`
+        // as a connection tracking mark and the `fwmark` as packet metadata.
         let mut rule = Rule::new(&self.mangle_chain);
 
-        #[cfg(feature = "cgroups_v2")]
-        {
+        if cfg!(feature = "cgroups_v2") {
+            // For cgroups v2, packets from sockets bound by processes in
+            // that cgroup2 are matched on through the cgroup2 name.
             use talpid_types::cgroup::SPLIT_TUNNEL_CGROUP_NAME_C;
             rule.add_expr(&nft_expr!(socket cgroupv2 level 1));
             rule.add_expr(&nft_expr!(cmp == SPLIT_TUNNEL_CGROUP_NAME_C));
-        }
-        #[cfg(not(feature = "cgroups_v2"))]
-        {
+        } else {
+            // For cgroups v1, processes are assigned to a net_cls.
+            // This causes all packets sent by that process to be marked with the
+            // cgroups classid (`NET_CLS_CLASSID`), which we can reference in nftables.
             rule.add_expr(&nft_expr!(meta cgroup));
             rule.add_expr(&nft_expr!(cmp == split_tunnel::NET_CLS_CLASSID));
         }
