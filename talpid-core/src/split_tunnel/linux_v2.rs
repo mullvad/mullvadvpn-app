@@ -163,7 +163,7 @@ impl Cgroup2 {
         write!(&mut pid_buf[..], "{pid}").expect("buf is large enough");
         let pid_str = CStr::from_bytes_until_nul(&pid_buf).expect("buf contains null");
 
-        // Write te pid to `cgroup.procs`.
+        // Write PID to `cgroup.procs`.
         nix::unistd::write(&self.procs, pid_str.to_bytes())
             .with_context(|| anyhow!("Failed to add process {pid} to cgroup2"))?;
 
