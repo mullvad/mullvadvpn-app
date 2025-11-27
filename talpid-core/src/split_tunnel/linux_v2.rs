@@ -12,7 +12,7 @@ use std::{
     io::{self, Read, Seek, Write},
     path::PathBuf,
 };
-use talpid_types::cgroup::SPLIT_TUNNEL_CGROUP_NAME;
+use talpid_types::cgroup::{CGROUP2_DEFAULT_MOUNT_PATH, SPLIT_TUNNEL_CGROUP_NAME};
 
 /// Identifies packets coming from the cgroup.
 /// This should be an arbitrary but unique integer.
