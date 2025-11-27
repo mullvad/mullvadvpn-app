@@ -25,6 +25,10 @@ Line wrap the file at 100 chars.                                              Th
 ### Fixed
 - Fix "Time left" label in main view not updating when time passes.
 
+### Changed
+#### Linux
+- Upgrade split-tunneling to use cgroups v2, instead of the deprecated cgroups v1.
+
 
 ## [2025.14-beta3] - 2025-12-01
 ### Fixed
