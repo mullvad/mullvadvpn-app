@@ -28,6 +28,7 @@ test.describe('Time left label', () => {
 
   test.beforeEach(async () => {
     await page.clock.install({ time: START_DATE });
+    await page.reload();
     await util.ipc.account[''].notify(FUTURE_EXPIRY);
   });
 
