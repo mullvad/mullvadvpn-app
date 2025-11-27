@@ -4,10 +4,10 @@ import { useSlides } from '../../hooks';
 export type CarouselPrevButtonProps = IconButtonProps;
 
 export function CarouselPrevButton(props: CarouselPrevButtonProps) {
-  const { prev, hasPrev } = useSlides();
+  const { prev, isFirstSlide } = useSlides();
 
   return (
-    <IconButton disabled={!hasPrev} onClick={prev} {...props}>
+    <IconButton disabled={isFirstSlide} onClick={prev} {...props}>
       <IconButton.Icon icon="chevron-left" />
     </IconButton>
   );
