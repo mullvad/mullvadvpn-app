@@ -17,7 +17,7 @@ use std::{
 };
 use talpid_tunnel::TunnelMetadata;
 use talpid_types::{
-    cgroup::find_net_cls_mount,
+    cgroup::{CGROUP2_DEFAULT_MOUNT_PATH, find_net_cls_mount},
     net::{
         ALLOWED_LAN_MULTICAST_NETS, ALLOWED_LAN_NETS, AllowedEndpoint, AllowedTunnelTraffic,
         Endpoint, TransportProtocol,
@@ -63,6 +63,10 @@ pub enum Error {
     /// Failed to check if the net_cls mount exists.
     #[error("An error occurred when checking for net_cls")]
     FindNetClsMount(#[source] io::Error),
+
+    /// Unable to stat cgroup
+    #[error("Unable to stat cgroup")]
+    CgroupStat(#[source] io::Error),
 }
 
 /// TODO(linus): This crate is not supposed to be Mullvad-aware. So at some point this should be
@@ -311,8 +315,13 @@ impl<'a> PolicyBatch<'a> {
         self.add_loopback_rules()?;
 
         if cfg!(feature = "cgroups_v2") {
-            // TODO: check if the cgroup exist
-            self.add_split_tunneling_rules(policy, fwmark)?;
+            match self.add_split_tunneling_rules(policy, fwmark) {
+                Ok(_) => (),
+                Err(Error::CgroupStat(_)) => {
+                    log::warn!("cgroup2 not found, skipping add_split_tunneling_rules");
+                }
+                Err(err) => return Err(err),
+            }
         } else {
             // if cgroups v1 doesn't exist, split tunneling won't work.
             // checking if the `net_cls` mount exists is a cheeky way of checking this.
@@ -374,8 +383,9 @@ impl<'a> PolicyBatch<'a> {
             use talpid_types::cgroup::SPLIT_TUNNEL_CGROUP_NAME;
 
             let cgroup = {
-                let cgroup_path = Path::new("/sys/fs/cgroup/").join(SPLIT_TUNNEL_CGROUP_NAME);
-                let cgroup_meta = fs::metadata(cgroup_path).expect("cgroup does not exist");
+                let cgroup_path =
+                    Path::new(CGROUP2_DEFAULT_MOUNT_PATH).join(SPLIT_TUNNEL_CGROUP_NAME);
+                let cgroup_meta = fs::metadata(cgroup_path).map_err(Error::CgroupStat)?;
                 cgroup_meta.ino()
             };
             rule.add_expr(&nft_expr!(socket cgroupv2 level 1));
