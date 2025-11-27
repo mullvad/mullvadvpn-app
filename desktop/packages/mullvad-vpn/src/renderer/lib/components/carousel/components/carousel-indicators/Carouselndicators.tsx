@@ -1,5 +1,6 @@
 import { sprintf } from 'sprintf-js';
 
+import { createRange } from '../../../../utils';
 import { useCarouselContext } from '../../CarouselContext';
 import { CarouselControlGroup } from '../carousel-control-group';
 import { CarouselIndicator } from '../carousel-indicator';
@@ -11,9 +12,11 @@ export type CarouselIndicatorsProps = React.ComponentPropsWithRef<'div'> & {
 export function CarouselIndicators({ ariaLabelTemplate, ...props }: CarouselIndicatorsProps) {
   const { numberOfSlides, slideIndex } = useCarouselContext();
 
+  const range = createRange(numberOfSlides);
+
   return (
     <CarouselControlGroup {...props}>
-      {[...Array(numberOfSlides)].map((_, i) => {
+      {range.map((_, i) => {
         const ariaLabel = ariaLabelTemplate
           ? sprintf(ariaLabelTemplate, { index: i + 1 })
           : undefined;
