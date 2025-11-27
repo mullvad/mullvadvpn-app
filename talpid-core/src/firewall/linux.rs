@@ -214,8 +214,10 @@ impl Firewall {
         let mut buffer = vec![0; nftnl::nft_nlmsg_maxsize() as usize];
 
         // Process acknowledgment messages from netfilter.
-        // TODO: unwrap
-        for message in socket.recv(&mut buffer[..]).unwrap() {
+        for message in socket
+            .recv(&mut buffer[..])
+            .map_err(Error::NetlinkRecvError)?
+        {
             let message = message.unwrap();
             // Validate sequence number and check for error messages
             mnl::cb_run2(message, seq, portid, table::get_tables_cb, &mut table_set)
