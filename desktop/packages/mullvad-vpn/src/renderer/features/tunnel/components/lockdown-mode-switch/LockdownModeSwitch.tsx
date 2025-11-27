@@ -1,7 +1,6 @@
 import React from 'react';
 
 import { messages } from '../../../../../shared/gettext';
-import log from '../../../../../shared/logging';
 import { ModalAlert, ModalAlertType, ModalMessage } from '../../../../components/Modal';
 import { Button } from '../../../../lib/components';
 import { Switch, SwitchProps } from '../../../../lib/components/switch';
@@ -11,22 +10,10 @@ import { useLockdownMode } from '../../hooks';
 export type LockdownModeSwitchProp = SwitchProps;
 
 function LockdownModeSwitch({ children, ...props }: LockdownModeSwitchProp) {
-  const { lockdownMode, setLockdownMode: setLockdownModeImpl } = useLockdownMode();
+  const { lockdownMode, setLockdownMode } = useLockdownMode();
 
   const [confirmationDialogVisible, showConfirmationDialog, hideConfirmationDialog] =
     useBoolean(false);
-
-  const setLockdownMode = React.useCallback(
-    async (lockdownMode: boolean) => {
-      try {
-        await setLockdownModeImpl(lockdownMode);
-      } catch (e) {
-        const error = e as Error;
-        log.error('Failed to update lockdown mode', error.message);
-      }
-    },
-    [setLockdownModeImpl],
-  );
 
   const handleOnCheckedChange = React.useCallback(
     async (newValue: boolean) => {

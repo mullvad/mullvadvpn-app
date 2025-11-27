@@ -4,10 +4,10 @@ import { useQuantumResistant } from '../../hooks';
 export type QuantumResistantSwitchProp = SwitchProps;
 
 function QuantumResistantSwitch({ children, ...props }: QuantumResistantSwitchProp) {
-  const { quantumResistant, setWireguardQuantumResistant } = useQuantumResistant();
+  const { quantumResistant, setQuantumResistant } = useQuantumResistant();
 
   return (
-    <Switch checked={quantumResistant} onCheckedChange={setWireguardQuantumResistant} {...props}>
+    <Switch checked={quantumResistant} onCheckedChange={setQuantumResistant} {...props}>
       {children}
     </Switch>
   );

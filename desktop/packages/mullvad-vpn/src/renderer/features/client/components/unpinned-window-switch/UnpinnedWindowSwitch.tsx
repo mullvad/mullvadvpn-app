@@ -5,6 +5,7 @@ export type UnpinnedWindowSwitchProps = SwitchProps;
 
 function UnpinnedWindowSwitch({ children, ...props }: UnpinnedWindowSwitchProps) {
   const { unpinnedWindow, setUnpinnedWindow } = useUnpinnedWindow();
+
   return (
     <Switch checked={unpinnedWindow} onCheckedChange={setUnpinnedWindow} {...props}>
       {children}

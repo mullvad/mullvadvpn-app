@@ -5,13 +5,13 @@ import { useDaitaEnabled } from '../../hooks';
 export type DaitaSwitchProps = SwitchProps;
 
 function DaitaSwitch({ children, ...props }: DaitaSwitchProps) {
-  const { daitaEnabled, setEnableDaita } = useDaitaEnabled();
+  const { daitaEnabled, setDaitaEnabled } = useDaitaEnabled();
 
   const relaySettings = useNormalRelaySettings();
   const disabled = relaySettings === undefined;
 
   return (
-    <Switch checked={daitaEnabled} onCheckedChange={setEnableDaita} disabled={disabled} {...props}>
+    <Switch checked={daitaEnabled} onCheckedChange={setDaitaEnabled} disabled={disabled} {...props}>
       {children}
     </Switch>
   );
