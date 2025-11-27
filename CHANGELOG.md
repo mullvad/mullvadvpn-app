@@ -26,6 +26,9 @@ Line wrap the file at 100 chars.                                              Th
 - Add port 443 to list of valid UDP2TCP ports.
 
 
+### Fixed
+- Fix "Time left" label in main view not updating when time passes.
+
 ## [2025.14-beta1] - 2025-11-11
 ### Changed
 - Change `mullvad reconnect` to print an error message and exit with a non-zero exit code if issued
