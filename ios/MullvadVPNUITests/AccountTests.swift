@@ -18,6 +18,7 @@ class AccountTests: LoggedOutUITestCase {
     func testCreateAccount() throws {
         LoginPage(app)
             .tapCreateAccountButton()
+            .tryConfirmAccountCreation()
 
         // Verify welcome page is shown and get account number from it
         let accountNumber = WelcomePage(app).getAccountNumber()
