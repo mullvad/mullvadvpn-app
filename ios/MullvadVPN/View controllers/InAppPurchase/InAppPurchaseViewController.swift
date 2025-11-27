@@ -65,12 +65,12 @@ class InAppPurchaseViewController: UIViewController, StorePaymentObserver {
     // MARK: StoreKit 2 flow
 
     func handlePaymentAction(_ action: PaymentAction) async {
-        spinnerView.startAnimating()
-
         switch action {
         case .purchase:
-            await startPaymentFlow()
+            await startRestorationBeforePurchaseFlow()
         case .restorePurchase:
+            spinnerView.startAnimating()
+
             do {
                 let outcome = try await storePaymentManager.processOutstandingTransactions()
                 spinnerView.stopAnimating()
@@ -86,7 +86,40 @@ class InAppPurchaseViewController: UIViewController, StorePaymentObserver {
         }
     }
 
+    func startRestorationBeforePurchaseFlow() async {
+        spinnerView.startAnimating()
+
+        do {
+            let outcome = try await storePaymentManager.processOutstandingTransactions()
+            spinnerView.stopAnimating()
+
+            if case .timeAdded = outcome {
+                await withCheckedContinuation { continuation in
+                    errorPresenter.showAlertForOutcome(outcome, context: .restorationBeforePurchase) {
+                        continuation.resume()
+                    }
+                }
+            }
+
+            await startPaymentFlow()
+        } catch {
+            spinnerView.stopAnimating()
+
+            errorPresenter.showAlertForErrorMessage(
+                NSLocalizedString(
+                    "Could not restore previous purchases. Try again later or contact support.",
+                    comment: ""
+                ),
+                context: .purchase
+            ) {
+                self.didFinish?()
+            }
+        }
+    }
+
     func startPaymentFlow() async {
+        spinnerView.startAnimating()
+
         var products: [Product]
         do {
             products = try await storePaymentManager.products()

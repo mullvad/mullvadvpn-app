@@ -412,7 +412,7 @@
 		58F70FE52AEA707800E6890E /* StoreTransactionLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F70FE42AEA707800E6890E /* StoreTransactionLog.swift */; };
 		58F7753D2AB8473200425B47 /* BlockedStateErrorMapperStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F7753C2AB8473200425B47 /* BlockedStateErrorMapperStub.swift */; };
 		58F8AC0E25D3F8CE002BE0ED /* ProblemReportReviewViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F8AC0D25D3F8CE002BE0ED /* ProblemReportReviewViewController.swift */; };
-		58FB865526E8BF3100F188BC /* StorePaymentManagerError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FB865426E8BF3100F188BC /* StorePaymentManagerError.swift */; };
+		58FB865526E8BF3100F188BC /* LegacyStorePaymentManagerError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FB865426E8BF3100F188BC /* LegacyStorePaymentManagerError.swift */; };
 		58FB865A26EA214400F188BC /* RelayCacheTrackerObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FB865926EA214400F188BC /* RelayCacheTrackerObserver.swift */; };
 		58FBFBE9291622580020E046 /* ExponentialBackoffTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FBFBE8291622580020E046 /* ExponentialBackoffTests.swift */; };
 		58FBFBEA291622580020E046 /* MullvadREST.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 06799ABC28F98E1D00ACD94E /* MullvadREST.framework */; };
@@ -804,7 +804,7 @@
 		A9A5FA092ACB05160083449F /* SendStoreReceiptOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585E820227F3285E00939F0E /* SendStoreReceiptOperation.swift */; };
 		A9A5FA0A2ACB05160083449F /* StorePaymentEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5878A27429093A310096FC88 /* StorePaymentEvent.swift */; };
 		A9A5FA0B2ACB05160083449F /* StorePaymentManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58DF28A42417CB4B00E836B0 /* StorePaymentManager.swift */; };
-		A9A5FA0D2ACB05160083449F /* StorePaymentManagerError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FB865426E8BF3100F188BC /* StorePaymentManagerError.swift */; };
+		A9A5FA0D2ACB05160083449F /* LegacyStorePaymentManagerError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FB865426E8BF3100F188BC /* LegacyStorePaymentManagerError.swift */; };
 		A9A5FA0E2ACB05160083449F /* StorePaymentObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5846227226E22A160035F7C2 /* StorePaymentObserver.swift */; };
 		A9A5FA102ACB05160083449F /* PacketTunnelAPITransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 063687B928EB234F00BE7161 /* PacketTunnelAPITransport.swift */; };
 		A9A5FA112ACB05160083449F /* APITransportMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0697D6E628F01513007A9E99 /* APITransportMonitor.swift */; };
@@ -1961,7 +1961,7 @@
 		58F7753C2AB8473200425B47 /* BlockedStateErrorMapperStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockedStateErrorMapperStub.swift; sourceTree = "<group>"; };
 		58F7D26427EB50A300E4D821 /* ResultOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultOperation.swift; sourceTree = "<group>"; };
 		58F8AC0D25D3F8CE002BE0ED /* ProblemReportReviewViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProblemReportReviewViewController.swift; sourceTree = "<group>"; };
-		58FB865426E8BF3100F188BC /* StorePaymentManagerError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorePaymentManagerError.swift; sourceTree = "<group>"; };
+		58FB865426E8BF3100F188BC /* LegacyStorePaymentManagerError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyStorePaymentManagerError.swift; sourceTree = "<group>"; };
 		58FB865926EA214400F188BC /* RelayCacheTrackerObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayCacheTrackerObserver.swift; sourceTree = "<group>"; };
 		58FBFBE6291622580020E046 /* MullvadRESTTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MullvadRESTTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		58FBFBE8291622580020E046 /* ExponentialBackoffTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExponentialBackoffTests.swift; sourceTree = "<group>"; };
@@ -3433,11 +3433,11 @@
 			isa = PBXGroup;
 			children = (
 				7ABB9B922EB207BF006A0EDD /* LegacyStorePaymentManager.swift */,
+				58FB865426E8BF3100F188BC /* LegacyStorePaymentManagerError.swift */,
 				585E820227F3285E00939F0E /* SendStoreReceiptOperation.swift */,
 				5878A27629093A4F0096FC88 /* StorePaymentBlockObserver.swift */,
 				5878A27429093A310096FC88 /* StorePaymentEvent.swift */,
 				58DF28A42417CB4B00E836B0 /* StorePaymentManager.swift */,
-				58FB865426E8BF3100F188BC /* StorePaymentManagerError.swift */,
 				7A9246AA2EB0C75A008FE31A /* StorePaymentManagerInteractor.swift */,
 				5846227226E22A160035F7C2 /* StorePaymentObserver.swift */,
 				06FAE67828F83CA50033DD93 /* StorePaymentOutcome.swift */,
@@ -5904,7 +5904,7 @@
 				A902E7A62D3FB0D9007F844A /* LogFileOutputStreamTests.swift in Sources */,
 				A9A5FA0B2ACB05160083449F /* StorePaymentManager.swift in Sources */,
 				F0FA16092D7F0425007E2546 /* FilterDescriptorTests.swift in Sources */,
-				A9A5FA0D2ACB05160083449F /* StorePaymentManagerError.swift in Sources */,
+				A9A5FA0D2ACB05160083449F /* LegacyStorePaymentManagerError.swift in Sources */,
 				A9A5FA0E2ACB05160083449F /* StorePaymentObserver.swift in Sources */,
 				7A6811542DC8EC6E009CB61A /* UIFont+Weight.swift in Sources */,
 				A9A5FA102ACB05160083449F /* PacketTunnelAPITransport.swift in Sources */,
@@ -6485,7 +6485,7 @@
 				586C0D952B03D92100E7CDD7 /* SocksItemIdentifier.swift in Sources */,
 				F0C6A8432AB08E54000777A8 /* RedeemVoucherViewConfiguration.swift in Sources */,
 				7AF10EB42ADE85BC00C090B9 /* RelayFilterCoordinator.swift in Sources */,
-				58FB865526E8BF3100F188BC /* StorePaymentManagerError.swift in Sources */,
+				58FB865526E8BF3100F188BC /* LegacyStorePaymentManagerError.swift in Sources */,
 				F09D04B32AE919AC003D4F89 /* OutgoingConnectionProxy.swift in Sources */,
 				7A5869BF2B57D0A100640D27 /* IPOverrideStatus.swift in Sources */,
 				44E1F7582D3EA83A003A60FF /* DestinationDescriber.swift in Sources */,
