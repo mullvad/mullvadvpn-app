@@ -388,6 +388,21 @@ impl<'a> PolicyBatch<'a> {
                 let cgroup_meta = fs::metadata(cgroup_path).map_err(Error::CgroupStat)?;
                 cgroup_meta.ino()
             };
+            // 1. From Linux kernel documentation:
+            // cgroup(2) is a mechanism to organize processes hierarchically ... cgroups form a tree structure and
+            // every process in the system belongs to one and only one cgroup ... On creation, all processes are put
+            // in the cgroup that the parent process belongs to at the time.
+            //
+            // 2. From `man nft` on "Socket expression":
+            // .. You can also use it [socket expression] to match on the socket cgroupv2 at a given ancestor level,
+            // e.g. if the socket belongs to cgroupv2 a/b, ancestor level 1 checks for a matching on cgroup a and
+            // ancestor level 2 checks for a matching on cgroup b.
+            //
+            // 3. Since the current split-tunnel implementation spawn each split process into the same cgroup2, the
+            // nftables rule does not have to look at any level of ancestry away *from* `cgroup`. This applies for
+            // any sub-process that a split process may spawn, as per the kernel docs.
+            //
+            // Following from 1,2,3, `socket cgroupv2 level 1` should be fine here.
             rule.add_expr(&nft_expr!(socket cgroupv2 level 1));
             rule.add_expr(&nft_expr!(cmp == cgroup));
         } else {
