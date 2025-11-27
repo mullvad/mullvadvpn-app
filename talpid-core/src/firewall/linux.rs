@@ -220,7 +220,7 @@ impl Firewall {
             .recv(&mut buffer[..])
             .map_err(Error::NetlinkRecvError)?
         {
-            let message = message.unwrap();
+            let message = message.map_err(Error::ProcessNetlinkError)?;
             // Validate sequence number and check for error messages
             mnl::cb_run2(message, seq, portid, table::get_tables_cb, &mut table_set)
                 .map_err(Error::ProcessNetlinkError)?;
