@@ -85,12 +85,12 @@ impl PidManager {
     }
 
     /// Return a list of all PIDs currently in the Cgroup excluded from the tunnel.
-    pub fn list(&self) -> Result<Vec<pid_t>, Error> {
-        self.inner()?.excluded_cgroup2.list_pids()
+    pub fn list(&mut self) -> Result<Vec<pid_t>, Error> {
+        self.inner_mut()?.excluded_cgroup2.list_pids()
     }
 
     /// Removes all PIDs from the Cgroup.
-    pub fn clear(&self) -> Result<(), Error> {
+    pub fn clear(&mut self) -> Result<(), Error> {
         let mut pids = self.list()?;
         while !pids.is_empty() {
             for pid in pids {
@@ -109,6 +109,14 @@ impl PidManager {
     fn inner(&self) -> Result<&Inner, Error> {
         self.inner
             .as_ref()
+            .ok()
+            .context("Split-tunneling is not available")
+            .map_err(Into::into)
+    }
+
+    fn inner_mut(&mut self) -> Result<&mut Inner, Error> {
+        self.inner
+            .as_mut()
             .ok()
             .context("Split-tunneling is not available")
             .map_err(Into::into)
@@ -166,8 +174,8 @@ impl Cgroup2 {
         Ok(())
     }
 
-    // TODO: should probably be &mut self since we mutate `self.file` by seeking
-    fn list_pids(&self) -> Result<Vec<pid_t>, Error> {
+    /// List all PIDs in this cgroup2.
+    fn list_pids(&mut self) -> Result<Vec<pid_t>, Error> {
         let mut file = &self.procs;
         let mut pids = String::new();
 
@@ -183,7 +191,6 @@ impl Cgroup2 {
                     .inspect_err(|e| log::trace!("Failed to parse PID {line:?}: {e}"))
                     .ok()
             })
-            //.map(Pid::from_raw)
             .collect();
         Ok(pids)
     }
