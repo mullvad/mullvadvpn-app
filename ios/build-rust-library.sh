@@ -21,6 +21,10 @@ if [[ "$#" -eq 2 ]] ; then
     echo ${FEATURE_FLAGS:+--features "$FEATURE_FLAGS"}
 fi
 
+LOLARR=()
+LOLARR+=("lol")
+LOLARR+=("array")
+echo "LOLARR: ${LOLARR[@]}"
 
 RELFLAG=
 LOCKEDFLAG=
