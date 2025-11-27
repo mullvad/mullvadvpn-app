@@ -10,6 +10,7 @@ import arrow.core.Either
 import arrow.core.mapOrAccumulate
 import arrow.core.merge
 import arrow.core.raise.either
+import arrow.core.raise.ensure
 import co.touchlab.kermit.Logger
 import java.net.Inet4Address
 import java.net.Inet6Address
@@ -81,6 +82,14 @@ open class TalpidVpnService : LifecycleVpnService() {
         builder.setBlocking(false)
         builder.setMeteredIfSupported(false)
 
+        ensure(config.validIpv6Routes()) {
+            Logger.e("Bad Ipv6 config provided!")
+            Logger.e("IPv6 address: ${config.hasIpv6Address}")
+            Logger.e("IPv6 route: ${config.hasIpv6Route}")
+            Logger.e("IPv6 DnsServer: ${config.hasIpv6DnsServer}")
+            CreateTunResult.InvalidIpv6Config
+        }
+
         config.addresses.forEach { builder.addAddress(it, it.prefixLength()) }
         config.routes.forEach { builder.addRoute(it.address, it.prefixLength.toInt()) }
         config.excludedPackages.forEach { app -> builder.addDisallowedApplication(app) }
@@ -123,6 +132,22 @@ open class TalpidVpnService : LifecycleVpnService() {
 
         CreateTunResult.Success(tunFd)
     }
+
+    // To avoid leaks a config should either fully contain IPv6 or have no IPv6 configuration. A
+    // partial IPv6 configuration, e.g having no address but providing routes, will lead to traffic
+    // routed outside the tunnel
+    private fun TunConfig.validIpv6Routes(): Boolean =
+        hasCompleteIpv6Configuration() || hasNoIpv6Configuration()
+
+    /**
+     * Checks for a complete IPv6 configuration, meaning at least one IPv6 address and one IPv6
+     * route exist.
+     */
+    private fun TunConfig.hasCompleteIpv6Configuration() = hasIpv6Route && hasIpv6Address
+
+    /** Checks that no IPv6 configuration (addresses, routes, or DNS) is present. */
+    private fun TunConfig.hasNoIpv6Configuration() =
+        !hasIpv6Address && !hasIpv6DnsServer && !hasIpv6Route
 
     private fun PrepareError.toCreateTunError() =
         when (this) {

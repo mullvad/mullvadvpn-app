@@ -449,6 +449,7 @@ impl AsFd for VpnServiceTun {
 enum CreateTunResult {
     Success { tun_fd: i32 },
     InvalidDnsServers { addresses: Vec<IpAddr> },
+    InvalidIpv6Config,
     EstablishError,
     OtherLegacyAlwaysOnVpn,
     OtherAlwaysOnApp { app_name: String },
@@ -462,6 +463,7 @@ impl From<CreateTunResult> for Result<RawFd, Error> {
             CreateTunResult::InvalidDnsServers { addresses } => {
                 Err(Error::InvalidDnsServers(addresses))
             }
+            CreateTunResult::InvalidIpv6Config => Err(Error::TunnelDeviceError),
             CreateTunResult::EstablishError => Err(Error::TunnelDeviceError),
             CreateTunResult::OtherLegacyAlwaysOnVpn => Err(Error::OtherLegacyAlwaysOnVpn),
             CreateTunResult::OtherAlwaysOnApp { app_name } => {
