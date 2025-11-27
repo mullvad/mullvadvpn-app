@@ -37,9 +37,12 @@ jnix = { version = "0.5.1", features = ["derive"] }
 
 [target.'cfg(target_os = "linux")'.dependencies]
 nix = { workspace = true, features = ["mount", "fs", "process"] }
-nftnl = { version = "0.9.0", features = ["nftnl-1-2-0"] }
 mnl = { version = "0.2.3", features = ["mnl-1-0-4"] }
 talpid-dbus = { path = "../talpid-dbus" }
+
+# NOTE: the libnftnl version specified in `features`
+# MUST match the version we link in /.cargo/config.toml
+nftnl = { version = "0.9.0", features = ["nftnl-1-2-0"] }
 
 [target.'cfg(target_os = "macos")'.dependencies]
 async-trait = "0.1"
