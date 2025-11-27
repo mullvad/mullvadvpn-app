@@ -95,9 +95,7 @@ fn run() -> Result<Infallible, Error> {
         }
     }
 
-    let procs_path = Path::new(CGROUP2_DEFAULT_MOUNT_PATH)
-        .join(SPLIT_TUNNEL_CGROUP_NAME)
-        .join("cgroup.procs");
+    let procs_path = cgroup_path.join("cgroup.procs");
 
     let procs_file = fs::OpenOptions::new()
         .write(true)
