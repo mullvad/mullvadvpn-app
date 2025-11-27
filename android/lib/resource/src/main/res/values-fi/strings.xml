@@ -11,7 +11,6 @@
     <string name="add_90_days_time_x">Lisää 90 päivää käyttöaikaa (%1$s)</string>
     <string name="add_a_server">Lisää palvelin</string>
     <string name="add_dns_server_dialog_title">Lisää DNS-palvelin</string>
-    <string name="add_location_to_list">Lisää %1$s luetteloon</string>
     <string name="add_locations">Lisää sijainteja</string>
     <string name="add_method">Lisää menetelmä</string>
     <string name="add_time">Lisää käyttöaikaa</string>
