@@ -1,9 +1,0 @@
-/* Bundle display name */
-"CFBundleDisplayName" = "Mullvad VPN";
-
-/* Bundle name */
-"CFBundleName" = "MullvadVPN";
-
-/* Privacy - Local Network Usage Description */
-"NSLocalNetworkUsageDescription" = "The app needs this to connect and test a new method.";
-
