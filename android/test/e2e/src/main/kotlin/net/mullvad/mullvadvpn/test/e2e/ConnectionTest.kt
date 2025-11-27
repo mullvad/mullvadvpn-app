@@ -17,6 +17,7 @@ import net.mullvad.mullvadvpn.test.common.page.enablePostQuantumStory
 import net.mullvad.mullvadvpn.test.common.page.enableShadowsocksStory
 import net.mullvad.mullvadvpn.test.common.page.enableWireGuardCustomPort
 import net.mullvad.mullvadvpn.test.common.page.on
+import net.mullvad.mullvadvpn.test.common.page.toggleInTunnelIpv6Story
 import net.mullvad.mullvadvpn.test.common.rule.ForgetAllVpnAppsInSettingsTestRule
 import net.mullvad.mullvadvpn.test.e2e.annotations.HasDependencyOnLocalAPI
 import net.mullvad.mullvadvpn.test.e2e.api.connectioncheck.ConnectionCheckApi
@@ -438,6 +439,20 @@ class ConnectionTest : EndToEndTest() {
 
         // Verify correct port used
         assertEquals("53", inIpv4Port)
+    }
+
+    @Test
+    fun testConnectWithoutInTunnelIpv6() {
+        // Given
+        app.launchAndLogIn(accountTestRule.validAccountNumber)
+
+        on<ConnectPage> { toggleInTunnelIpv6Story() }
+        on<ConnectPage> { clickConnect() }
+        device.acceptVpnPermissionDialog()
+
+        on<ConnectPage> { waitForConnectedLabel() }
+        on<ConnectPage> { enableLocalNetworkSharingStory() }
+        on<ConnectPage> { waitForConnectedLabel() }
     }
 
     companion object {
