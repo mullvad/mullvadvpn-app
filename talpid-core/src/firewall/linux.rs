@@ -400,6 +400,9 @@ impl<'a> PolicyBatch<'a> {
         rule.add_expr(&nft_expr!(immediate data fwmark));
         // Sets `fwmark` as metadata mark for packet
         rule.add_expr(&nft_expr!(meta mark set));
+        if *ADD_COUNTERS {
+            rule.add_expr(&nft_expr!(counter));
+        }
         self.batch.add(&rule, nftnl::MsgType::Add);
 
         for chain in &[&self.in_chain, &self.out_chain, &self.forward_chain] {
