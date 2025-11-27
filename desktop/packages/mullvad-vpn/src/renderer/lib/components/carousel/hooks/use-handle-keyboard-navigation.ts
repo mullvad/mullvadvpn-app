@@ -3,17 +3,17 @@ import React from 'react';
 import { useSlides } from './use-slides';
 
 export const useHandleKeyboardNavigation = () => {
-  const { next, prev } = useSlides();
+  const { goToNextSlide, goToPreviousSlide } = useSlides();
   return React.useCallback(
     (event: React.KeyboardEvent) => {
       if (event.key === 'ArrowLeft') {
         event.preventDefault();
-        prev();
+        goToPreviousSlide();
       } else if (event.key === 'ArrowRight') {
         event.preventDefault();
-        next();
+        goToNextSlide();
       }
     },
-    [next, prev],
+    [goToNextSlide, goToPreviousSlide],
   );
 };

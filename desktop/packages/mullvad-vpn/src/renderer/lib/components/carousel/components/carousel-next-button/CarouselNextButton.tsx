@@ -4,10 +4,10 @@ import { useSlides } from '../../hooks';
 export type CarouselNextButtonProps = IconButtonProps;
 
 export function CarouselNextButton(props: CarouselNextButtonProps) {
-  const { next, hasNext } = useSlides();
+  const { goToNextSlide, isLastSlide } = useSlides();
 
   return (
-    <IconButton disabled={!hasNext} onClick={next} {...props}>
+    <IconButton disabled={isLastSlide} onClick={goToNextSlide} {...props}>
       <IconButton.Icon icon="chevron-right" />
     </IconButton>
   );
