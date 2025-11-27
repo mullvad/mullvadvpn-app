@@ -7,8 +7,13 @@ import arrow.core.raise.ensureNotNull
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.relaylist.isTheSameAs
 import net.mullvad.mullvadvpn.repository.RelayListRepository
+import net.mullvad.mullvadvpn.repository.SettingsRepository
+import net.mullvad.mullvadvpn.util.isDaitaAndNotDirectOnly
 
-class SelectAndEnableMultihopUseCase(private val relayListRepository: RelayListRepository) {
+class SelectAndEnableMultihopUseCase(
+    private val relayListRepository: RelayListRepository,
+    private val settingsRepository: SettingsRepository,
+) {
     suspend operator fun invoke(
         entry: RelayItem?,
         exit: RelayItem,
@@ -16,7 +21,15 @@ class SelectAndEnableMultihopUseCase(private val relayListRepository: RelayListR
         ensureNotNull(entry) { SelectRelayItemError.GenericError }
         ensure(entry.active) { SelectRelayItemError.RelayInactive(entry) }
         ensure(exit.active) { SelectRelayItemError.RelayInactive(exit) }
-        ensure(!entry.isTheSameAs(exit)) { SelectRelayItemError.EntryAndExitSame }
+        val settings =
+            ensureNotNull(settingsRepository.settingsUpdates.value) {
+                SelectRelayItemError.GenericError
+            }
+        // If the entry selection is selected automatically by the app and not the user we should
+        // not consider if the entry and exit are the same
+        if (!settings.isDaitaAndNotDirectOnly()) {
+            ensure(!entry.isTheSameAs(exit)) { SelectRelayItemError.EntryAndExitSame }
+        }
         relayListRepository
             .updateSelectedRelayLocationMultihop(
                 isMultihopEnabled = true,
