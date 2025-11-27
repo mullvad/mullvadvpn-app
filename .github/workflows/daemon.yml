@@ -12,7 +12,7 @@ on:
       - '!audits/**'
       - '!build.sh'
       - '!ci/**'
-      - 'ci/check-rust.sh'
+      - 'ci/cargo-ci.sh'
       - '!clippy.toml'
       - '!deny.toml'
       - '!docs/**'
@@ -88,8 +88,11 @@ jobs:
         if: ${{ matrix.rust != 'stable' }}
         run: rustup override set ${{ matrix.rust }}
 
-      - name: Build and test crates
-        run: ./ci/check-rust.sh
+      - name: Build crates
+        run: ci/cargo-ci.sh build --workspace
+
+      - name: Test crates
+        run: ci/cargo-ci.sh test --workspace
 
   build-macos:
     runs-on: macos-latest
@@ -99,8 +102,11 @@ jobs:
 
       - uses: ./.github/actions/mullvad-build-env
 
-      - name: Build and test crates
-        run: ./ci/check-rust.sh
+      - name: Build crates
+        run: ci/cargo-ci.sh build --workspace
+
+      - name: Test crates
+        run: ci/cargo-ci.sh test --workspace
 
   build-windows:
     strategy:
@@ -111,6 +117,11 @@ jobs:
           - os: windows-11-arm
             arch: arm64
     runs-on: ${{ matrix.config.os }}
+    env:
+      # On Windows, the checkout is on the D drive, which is very small.
+      # Moving the target directory to the C drive ensures that the runner
+      # doesn't run out of space on the D drive.
+      CARGO_TARGET_DIR: "C:/cargo-target"
     steps:
       # By default, the longest path a filename can have in git on Windows is 260 character.
       - name: Set git config for long paths
@@ -137,11 +148,13 @@ jobs:
         # Cap the number of concurrent processes to something less than 4 to avoid OOM issues.
         run: ./build-windows-modules.sh --max-concurrent-processes 2 build winfw
 
-      - name: Build and test crates
+      # Excluding windows-installer because it builds an actual full installer
+      # at the build step, which is not desired in a CI environment. Instead
+      # we just `cargo check` it below.
+      - name: Build crates
         shell: bash
-        env:
-          # On Windows, the checkout is on the D drive, which is very small.
-          # Moving the target directory to the C drive ensures that the runner
-          # doesn't run out of space on the D drive.
-          CARGO_TARGET_DIR: "C:/cargo-target"
-        run: ./ci/check-rust.sh
+        run: ci/cargo-ci.sh build --workspace --exclude windows-installer
+
+      - name: Test crates
+        shell: bash
+        run: ci/cargo-ci.sh test --workspace  --exclude windows-installer
