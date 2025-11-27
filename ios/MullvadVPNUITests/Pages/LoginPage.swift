@@ -52,6 +52,13 @@ class LoginPage: Page {
         return self
     }
 
+    @discardableResult public func tryConfirmAccountCreation() -> Self {
+        if app.buttons[AccessibilityIdentifier.createAccountConfirmationButton].existsAfterWait(timeout: .short) {
+            return confirmAccountCreation()
+        }
+        return self
+    }
+
     @discardableResult public func verifyFailIconShown() -> Self {
         let predicate = NSPredicate(format: "identifier == 'statusImageView' AND value == 'fail'")
         let elementQuery = app.images.containing(predicate)
