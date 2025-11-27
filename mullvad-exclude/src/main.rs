@@ -83,7 +83,7 @@ fn run() -> Result<Infallible, Error> {
     let cgroup_path = Path::new(CGROUP2_DEFAULT_MOUNT_PATH).join(SPLIT_TUNNEL_CGROUP_NAME);
 
     // Enusure the cgroup2 exists.
-    match create_dir(cgroup_path) {
+    match fs::create_dir(&cgroup_path) {
         Ok(_) => (),
 
         // cgroup already exists, this is fine
