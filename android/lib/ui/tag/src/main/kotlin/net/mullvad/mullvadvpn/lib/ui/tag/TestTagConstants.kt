@@ -7,10 +7,12 @@ const val TOP_BAR_TEST_TAG = "top_bar_test_tag"
 
 // Settings screen
 const val VPN_SETTINGS_CELL_TEST_TAG = "vpn_settings_cell_test_tag"
-const val DAITA_CELL_TEST_TAG = "data_cell_test_tag"
+const val DAITA_CELL_TEST_TAG = "daita_cell_test_tag"
+const val MULTIHOP_CELL_TEST_TAG = "multihop_cell_test_tag"
 
 // DAITA settings screen
 const val DAITA_SCREEN_TEST_TAG = "daita_screen_test_tag"
+const val MULTIHOP_SCREEN_TEST_TAG = "daita_screen_test_tag"
 
 // VpnSettingsScreen
 const val LAZY_LIST_VPN_SETTINGS_TEST_TAG = "lazy_list_vpn_settings_test_tag"
@@ -39,11 +41,14 @@ const val MANAGE_DEVICES_BUTTON_TEST_TAG = "manage_devices_button_test_tag"
 
 // SelectLocationScreen, ConnectScreen, CustomListLocationsScreen
 const val SELECT_LOCATION_SCREEN_TEST_TAG = "select_location_screen_test_tag"
+const val SELECT_LOCATION_MENU_BUTTON_TEST_TAG = "select_location_screen_test_tag"
 
 const val SELECT_LOCATION_LIST_TEST_TAG = "select_location_list_test_tag"
 const val CIRCULAR_PROGRESS_INDICATOR_TEST_TAG = "circular_progress_indicator_test_tag"
 const val EXPAND_BUTTON_TEST_TAG = "expand_button_test_tag"
 const val LOCATION_CELL_TEST_TAG = "location_cell_test_tag"
+const val RECENT_CELL_TEST_TAG = "recent_cell_test_tag"
+const val HOP_SELECTOR_ENTRY_TEST_TAG = "hop_selector_entry_test_tag"
 
 const val GEOLOCATION_NAME_TAG = "geolocation_name_test_tag"
 const val CUSTOM_LIST_NAME_TAG = "custom_list_name_test_tag"
