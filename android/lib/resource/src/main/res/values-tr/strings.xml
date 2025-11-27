@@ -11,7 +11,6 @@
     <string name="add_90_days_time_x">90 gün uzatın (%1$s)</string>
     <string name="add_a_server">Sunucu ekle</string>
     <string name="add_dns_server_dialog_title">DNS sunucusu ekle</string>
-    <string name="add_location_to_list">%1$s konumunu listeye ekle</string>
     <string name="add_locations">Konum ekle</string>
     <string name="add_method">Yöntem ekle</string>
     <string name="add_time">Süre ekle</string>

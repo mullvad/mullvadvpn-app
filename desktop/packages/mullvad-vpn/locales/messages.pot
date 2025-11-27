@@ -2786,9 +2786,6 @@ msgstr ""
 msgid "Account time reminders"
 msgstr ""
 
-msgid "Add %s to list"
-msgstr ""
-
 msgid "Add 30 days time (%s)"
 msgstr ""
 
@@ -2952,9 +2949,6 @@ msgid "Dismiss"
 msgstr ""
 
 msgid "Don’t have an account number?"
-msgstr ""
-
-msgid "Edit custom list"
 msgstr ""
 
 msgid "Edit custom lists"

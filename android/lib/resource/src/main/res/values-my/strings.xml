@@ -11,7 +11,6 @@
     <string name="add_90_days_time_x">အချိန် ရက် 90 တိုးရန် (%1$s)</string>
     <string name="add_a_server">ဆာဗာ ပေါင်းထည့်ရန်</string>
     <string name="add_dns_server_dialog_title">DNS ဆာဗာကို ပေါင်းထည့်ရန်</string>
-    <string name="add_location_to_list">%1$s ကို စာရင်းတွင် ထည့်ပါ</string>
     <string name="add_locations">တည်နေရာများ ပေါင်းထည့်ရန်</string>
     <string name="add_method">နည်းလမ်း ပေါင်းထည့်ရန်</string>
     <string name="add_time">အချိန်တိုးရန်</string>
