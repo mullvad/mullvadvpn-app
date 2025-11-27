@@ -14,10 +14,6 @@ use std::{
 };
 use talpid_types::cgroup::SPLIT_TUNNEL_CGROUP_NAME;
 
-// TODO: move to talpid-types
-/// The path where linux normally mounts the cgroup2 filesystem.
-pub const CGROUP2_DEFAULT_MOUNT_PATH: &str = "/sys/fs/cgroup";
-
 /// Identifies packets coming from the cgroup.
 /// This should be an arbitrary but unique integer.
 pub const NET_CLS_CLASSID: u32 = 0x4d9f41;
