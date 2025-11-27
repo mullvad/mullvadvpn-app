@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 
@@ -32,6 +32,11 @@ export const AppMainHeaderDeviceInfo = () => {
 
   // The time left value must be recalculated recurringly since it should change when time passes.
   useInterval(() => setTimeLeft(formatTimeLeft(accountExpiry)), 60 * 60 * 1_000);
+
+  // The time left value must be updated every time the accountExpiry changes.
+  useEffect(() => {
+    setTimeLeft(formatTimeLeft(accountExpiry));
+  }, [accountExpiry]);
 
   return (
     <StyledFlex $gap="large" $margin={{ top: 'tiny' }}>
