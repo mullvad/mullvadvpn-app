@@ -205,7 +205,7 @@ impl Firewall {
     fn verify_tables(&self, expected_tables: &[&CStr]) -> Result<()> {
         let socket = mnl::Socket::new(mnl::Bus::Netfilter).map_err(Error::NetlinkOpenError)?;
         let portid = socket.portid();
-        let seq = 0;
+        let seq = 1;
 
         let get_tables_msg = table::get_tables_nlmsg(seq);
         socket
@@ -213,18 +213,17 @@ impl Firewall {
             .map_err(Error::NetlinkSendError)?;
 
         let mut table_set = std::collections::HashSet::new();
-        let mut msg_buffer = vec![0; nftnl::nft_nlmsg_maxsize() as usize];
+        let mut buffer = vec![0; nftnl::nft_nlmsg_maxsize() as usize];
 
-        while let Some(message) = Self::socket_recv(&socket, &mut msg_buffer)? {
-            match mnl::cb_run2(message, seq, portid, table::get_tables_cb, &mut table_set)
-                .map_err(Error::ProcessNetlinkError)?
-            {
-                mnl::CbResult::Stop => {
-                    log::trace!("cb_run STOP");
-                    break;
-                }
-                mnl::CbResult::Ok => log::trace!("cb_run OK"),
-            }
+        // Process acknowledgment messages from netfilter.
+        for message in socket
+            .recv(&mut buffer[..])
+            .map_err(Error::NetlinkRecvError)?
+        {
+            let message = message.map_err(Error::ProcessNetlinkError)?;
+            // Validate sequence number and check for error messages
+            mnl::cb_run2(message, seq, portid, table::get_tables_cb, &mut table_set)
+                .map_err(Error::ProcessNetlinkError)?;
         }
 
         for expected_table in expected_tables {
@@ -237,17 +236,6 @@ impl Firewall {
             }
         }
         Ok(())
-    }
-
-    // TODO: remove or fix this function
-    fn socket_recv<'a>(socket: &mnl::Socket, buf: &'a mut [u8]) -> Result<Option<&'a [u8]>> {
-        let ret = socket.recv_raw(buf).map_err(Error::NetlinkRecvError)?;
-        log::trace!("Read {} bytes from netlink", ret);
-        if ret > 0 {
-            Ok(Some(&buf[..ret]))
-        } else {
-            Ok(None)
-        }
     }
 }
 
