@@ -47,7 +47,6 @@ import net.mullvad.mullvadvpn.usecase.HopSelectionUseCase
 import net.mullvad.mullvadvpn.usecase.ModelOwnership
 import net.mullvad.mullvadvpn.usecase.ModifyMultihopUseCase
 import net.mullvad.mullvadvpn.usecase.MultihopChange
-import net.mullvad.mullvadvpn.usecase.SelectAndEnableMultihopUseCase
 import net.mullvad.mullvadvpn.usecase.SelectSinglehopUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
 import net.mullvad.mullvadvpn.util.Lc
