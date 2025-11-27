@@ -70,8 +70,6 @@ fn main() {
 
 #[cfg(target_os = "linux")]
 fn run() -> Result<Infallible, Error> {
-    use std::{fs::create_dir, io::ErrorKind};
-
     let mut args_iter = env::args_os().skip(1);
     let program = args_iter.next().ok_or(Error::InvalidArguments)?;
     let program = CString::new(program.as_bytes()).map_err(Error::ArgumentNul)?;
