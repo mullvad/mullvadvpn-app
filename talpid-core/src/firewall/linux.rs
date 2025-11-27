@@ -320,8 +320,6 @@ impl<'a> PolicyBatch<'a> {
     pub fn finalize(mut self, policy: &FirewallPolicy, fwmark: u32) -> Result<FinalizedBatch> {
         self.add_loopback_rules()?;
 
-        // TODO: cgroups v2
-
         if cfg!(feature = "cgroups_v2") {
             // TODO: check if the cgroup exist
             self.add_split_tunneling_rules(policy, fwmark)?;
