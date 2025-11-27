@@ -196,7 +196,7 @@ impl Firewall {
                 let message = message.map_err(Error::ProcessNetlinkError)?;
                 let expected_seq = expected_seqs.next().expect("Unexpected ACK");
                 // Validate sequence number and check for error messages
-                mnl::cb_run(message, expected_seq, portid).unwrap();
+                mnl::cb_run(message, expected_seq, portid).map_err(Error::ProcessNetlinkError)?;
             }
         }
         Ok(())
