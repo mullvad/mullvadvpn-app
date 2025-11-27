@@ -37,7 +37,7 @@ jnix = { version = "0.5.1", features = ["derive"] }
 
 [target.'cfg(target_os = "linux")'.dependencies]
 nix = { workspace = true, features = ["mount", "fs", "process"] }
-mnl = { version = "0.2.3", features = ["mnl-1-0-4"] }
+mnl = { version = "0.3.0", features = ["mnl-1-0-4"] }
 talpid-dbus = { path = "../talpid-dbus" }
 
 # NOTE: the libnftnl version specified in `features`
