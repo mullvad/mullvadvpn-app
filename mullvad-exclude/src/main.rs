@@ -11,10 +11,11 @@ use std::{
     fs,
     io::{self, BufWriter, Write},
     os::unix::ffi::OsStrExt,
+    path::Path,
 };
 
 #[cfg(target_os = "linux")]
-use talpid_types::cgroup::{SPLIT_TUNNEL_CGROUP_NAME, find_net_cls_mount};
+use talpid_types::cgroup::{CGROUP2_DEFAULT_MOUNT_PATH, SPLIT_TUNNEL_CGROUP_NAME};
 
 #[cfg(target_os = "linux")]
 const PROGRAM_NAME: &str = "mullvad-exclude";
@@ -39,15 +40,6 @@ enum Error {
 
     #[error("An argument contains interior nul bytes")]
     ArgumentNul(#[source] NulError),
-
-    #[error("Error finding net_cls controller")]
-    FindNetClsController(#[source] io::Error),
-
-    #[error(
-        "No net_cls controller found.\n\nThis is likely because cgroups v1 was disabled using the \
-         boot parameter 'cgroup_no_v1' or when your Linux kernel was built"
-    )]
-    NoNetClsController,
 }
 
 fn main() {
@@ -78,6 +70,8 @@ fn main() {
 
 #[cfg(target_os = "linux")]
 fn run() -> Result<Infallible, Error> {
+    use std::{fs::create_dir, io::ErrorKind};
+
     let mut args_iter = env::args_os().skip(1);
     let program = args_iter.next().ok_or(Error::InvalidArguments)?;
     let program = CString::new(program.as_bytes()).map_err(Error::ArgumentNul)?;
@@ -88,25 +82,33 @@ fn run() -> Result<Infallible, Error> {
         .collect::<Result<Vec<CString>, NulError>>()
         .map_err(Error::ArgumentNul)?;
 
-    let cgroup_dir = find_net_cls_mount()
-        .map_err(Error::FindNetClsController)?
-        .ok_or(Error::NoNetClsController)?;
+    let cgroup_path = Path::new(CGROUP2_DEFAULT_MOUNT_PATH).join(SPLIT_TUNNEL_CGROUP_NAME);
 
-    let procs_path = {
-        let cgroup = SPLIT_TUNNEL_CGROUP_NAME
-            .to_str()
-            .expect("SPLIT_TUNNEL_CGROUP_NAME only contain valid UTF-8");
-        cgroup_dir.join(cgroup).join("cgroup.procs")
-    };
+    // Enusure the cgroup2 exists.
+    match create_dir(cgroup_path) {
+        Ok(_) => (),
 
-    let file = fs::OpenOptions::new()
+        // cgroup already exists, this is fine
+        Err(e) if e.kind() == io::ErrorKind::AlreadyExists => (),
+
+        Err(e) => {
+            // Continue anyway. The next step will probably fail.
+            eprintln!("Failed to create mullvad cgroup2 {e}");
+        }
+    }
+
+    let procs_path = Path::new(CGROUP2_DEFAULT_MOUNT_PATH)
+        .join(SPLIT_TUNNEL_CGROUP_NAME)
+        .join("cgroup.procs");
+
+    let procs_file = fs::OpenOptions::new()
         .write(true)
-        .create(true)
+        .create(false)
         .truncate(false)
         .open(procs_path)
         .map_err(Error::AddProcToCGroup)?;
 
-    BufWriter::new(file)
+    BufWriter::new(procs_file)
         .write_all(getpid().to_string().as_bytes())
         .map_err(Error::AddProcToCGroup)?;
 
