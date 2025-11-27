@@ -170,7 +170,7 @@ impl Cgroup2 {
         Ok(())
     }
 
-    // TODO: should probably be &mut self since we mutate `self.file`
+    // TODO: should probably be &mut self since we mutate `self.file` by seeking
     fn list_pids(&self) -> Result<Vec<pid_t>, Error> {
         let mut file = &self.procs;
         let mut pids = String::new();
