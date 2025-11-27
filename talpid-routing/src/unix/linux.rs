@@ -37,6 +37,8 @@ use rtnetlink::{
     sys::SocketAddr,
 };
 
+/// A routing table rule that directs IPv4 packets to look up routes from the main
+/// routing table, but to skip default routes, i.e. routes with prefix length 0.
 static SUPPRESS_RULE_V4: LazyLock<RuleMessage> = LazyLock::new(|| {
     let mut rule_msg = RuleMessage::default();
     let header = RuleHeader {
@@ -53,6 +55,9 @@ static SUPPRESS_RULE_V4: LazyLock<RuleMessage> = LazyLock::new(|| {
     rule_msg.attributes = attributes;
     rule_msg
 });
+
+/// A routing table rule that directs IPv6 packets to look up routes from the main
+/// routing table, but to skip default routes, i.e. routes with prefix length 0.
 static SUPPRESS_RULE_V6: LazyLock<RuleMessage> = LazyLock::new(|| {
     let mut v6_rule = SUPPRESS_RULE_V4.clone();
     v6_rule.header.family = AddressFamily::Inet6;
@@ -68,6 +73,8 @@ fn all_rules(fwmark: u32, table: u32) -> [RuleMessage; 4] {
     ]
 }
 
+/// Create a routing rule that directs IPv4 packets without
+/// `fwmark` set to look up routes from the routing table `table`.
 fn no_fwmark_rule_v4(fwmark: u32, table: u32) -> RuleMessage {
     let mut rule_msg = RuleMessage::default();
     let header = RuleHeader {
@@ -83,6 +90,8 @@ fn no_fwmark_rule_v4(fwmark: u32, table: u32) -> RuleMessage {
     rule_msg
 }
 
+/// Create a routing rule that directs IPv6 packets without
+/// `fwmark` set to look up routes from the routing table `table`.
 fn no_fwmark_rule_v6(fwmark: u32, table: u32) -> RuleMessage {
     let mut v6_rule = no_fwmark_rule_v4(fwmark, table);
     v6_rule.header.family = AddressFamily::Inet6;
