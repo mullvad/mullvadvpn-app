@@ -9,6 +9,9 @@ pub const SPLIT_TUNNEL_CGROUP_NAME: &str = match SPLIT_TUNNEL_CGROUP_NAME_C.to_s
     Err(_) => panic!("String must be UTF-8"),
 };
 
+/// The path where linux normally mounts the cgroup2 filesystem.
+pub const CGROUP2_DEFAULT_MOUNT_PATH: &str = "/sys/fs/cgroup";
+
 /// Find the path of the cgroup v1 net_cls controller mount if it exists
 pub fn find_net_cls_mount() -> std::io::Result<Option<PathBuf>> {
     let mounts = fs::read("/proc/mounts")?;

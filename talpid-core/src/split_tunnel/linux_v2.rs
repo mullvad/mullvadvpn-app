@@ -10,13 +10,13 @@ use std::{
     ffi::CStr,
     fs::{self, File},
     io::{self, Read, Seek, Write},
-    path::{Path, PathBuf},
+    path::PathBuf,
 };
 use talpid_types::cgroup::SPLIT_TUNNEL_CGROUP_NAME;
 
-/// The path where we mount the cgroup2 filesystem.
-// TODO: move out from talpid crate
-pub const CGROUP2_MOUNT_PATH: &str = "/run/mullvad-vpn-cgroups";
+// TODO: move to talpid-types
+/// The path where linux normally mounts the cgroup2 filesystem.
+pub const CGROUP2_DEFAULT_MOUNT_PATH: &str = "/sys/fs/cgroup";
 
 /// Identifies packets coming from the cgroup.
 /// This should be an arbitrary but unique integer.
@@ -51,8 +51,6 @@ struct Cgroup2 {
     /// Absolute path of the cgroup2, e.g. `/run/my_cgroup2_mount/my_cgroup2`
     path: PathBuf,
 
-    rmdir_on_drop: bool,
-
     /// `cgroup.procs` is used to add and list PIDs in the cgroup2.
     procs: File,
 }
@@ -67,7 +65,7 @@ impl PidManager {
     }
 
     fn new_inner() -> Result<Inner, Error> {
-        let root_cgroup2 = mount_cgroup2_fs()?;
+        let root_cgroup2 = Cgroup2::open(CGROUP2_DEFAULT_MOUNT_PATH)?;
         let cgroup = SPLIT_TUNNEL_CGROUP_NAME;
         let excluded_cgroup2 = root_cgroup2.create_or_open_child(cgroup)?;
 
@@ -140,11 +138,7 @@ impl Cgroup2 {
             .open(&procs_path)
             .with_context(|| anyhow!("Failed to open {procs_path:?}"))?;
 
-        Ok(Cgroup2 {
-            path,
-            procs,
-            rmdir_on_drop: true,
-        })
+        Ok(Cgroup2 { path, procs })
     }
 
     /// Create or open a child to the current cgroup2 called `name`.
@@ -196,55 +190,4 @@ impl Cgroup2 {
             .collect();
         Ok(pids)
     }
-}
-
-impl Drop for Cgroup2 {
-    fn drop(&mut self) {
-        if self.rmdir_on_drop {
-            if let Err(err) = remove_cgroup2(self) {
-                log::error!("{err}");
-            };
-        }
-    }
-}
-
-/// Mount the root cgroup2 at [CGROUP2_MOUNT_PATH].
-///
-/// Returns the root [Cgroup2].
-fn mount_cgroup2_fs() -> Result<Cgroup2, Error> {
-    let cgroup2_root = Path::new(CGROUP2_MOUNT_PATH);
-
-    // TODO: dedup
-    match nix::unistd::mkdir(cgroup2_root, nix::sys::stat::Mode::empty()) {
-        Ok(_) | Err(Errno::EEXIST) => {}
-        Err(e) => Err(e).context("Failed to create cgroup2")?,
-    }
-
-    // `mount -t cgroup2 none <cgroup2_root>`
-    // note that this succeeds if the dir is already mounted
-    nix::mount::mount(
-        None::<&str>,
-        cgroup2_root,
-        Some("cgroup2"),
-        nix::mount::MsFlags::empty(),
-        None::<&str>,
-    )
-    .context("Failed to mount cgroup2 fs")?;
-
-    let mut cgroup = Cgroup2::open(cgroup2_root)?;
-    cgroup.rmdir_on_drop = false;
-    Ok(cgroup)
-}
-
-// Remove a cgroup2 by `rmdir`ing it.
-//
-// TODO: We need to migrate all processes in this cgroup before removing it?
-// v1 implemenatation did this by simply propagating all spawned processes into the cgroup's
-// parent, which seems a bit hacky. But maybe it works here as well :shrug: Would be nice to know
-// for sure.
-fn remove_cgroup2(cgroup: &Cgroup2) -> Result<(), Error> {
-    std::fs::remove_dir(&cgroup.path)
-        .context(format!("{cgroup}", cgroup = cgroup.path.display()))
-        .context("Failed to unmount cgroup2 fs")
-        .map_err(Error)
 }
