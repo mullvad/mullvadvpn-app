@@ -46,10 +46,4 @@ if [ "${LLVM_TARGET_TRIPLE_SUFFIX-}" = "-simulator" ]; then
   TARGET=aarch64-apple-ios-sim
 fi
 
-for arch in $ARCHS; do
-    case "$arch" in
-        arm64)
-            "$HOME"/.cargo/bin/cargo build $LOCKEDFLAG -p "$FFI_TARGET" --lib $RELFLAG --target $TARGET ${FEATURE_FLAGS:+--features "$FEATURE_FLAGS"}
-            ;;
-    esac
-done
+"$HOME"/.cargo/bin/cargo build $LOCKEDFLAG -p "$FFI_TARGET" --lib $RELFLAG --target $TARGET ${FEATURE_FLAGS:+--features "$FEATURE_FLAGS"}
