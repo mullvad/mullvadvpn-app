@@ -226,8 +226,6 @@ impl Firewall {
                 .map_err(Error::ProcessNetlinkError)?;
         }
 
-        // while let Some(message) = socket.recv(&mut msg_buffer).map_err()? {}
-
         for expected_table in expected_tables {
             if !table_set.contains(*expected_table) {
                 log::error!(
