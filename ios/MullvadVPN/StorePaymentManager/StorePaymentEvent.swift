@@ -39,7 +39,7 @@ enum StorePaymentError: Error {
     /// To handle errors we don't recognize.
     case unknown
 
-    var description: String? {
+    var description: String {
         switch self {
         case let .storeKitError(error):
             error.localizedDescription

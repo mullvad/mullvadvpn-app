@@ -44,10 +44,18 @@ struct PaymentAlertPresenter {
         context: StorePaymentOutcome.Context,
         completion: (@MainActor @Sendable () -> Void)? = nil
     ) {
+        showAlertForErrorMessage(error.description, context: context, completion: completion)
+    }
+
+    func showAlertForErrorMessage(
+        _ message: String,
+        context: StorePaymentOutcome.Context,
+        completion: (@MainActor @Sendable () -> Void)? = nil
+    ) {
         let presentation = AlertPresentation(
             id: "payment-error-alert",
             title: context.errorTitle,
-            message: error.description,
+            message: message,
             buttons: [
                 AlertAction(
                     title: NSLocalizedString("Got it!", comment: ""),

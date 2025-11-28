@@ -32,7 +32,7 @@ enum StorePaymentOutcome {
 
     func alertMessage(for context: Context) -> String {
         switch context {
-        case .purchase:
+        case .purchase, .restorationBeforePurchase:
             return String(
                 format: NSLocalizedString("%@ have been added to your account.", comment: ""),
                 formattedTimeAdded ?? ""
@@ -58,6 +58,7 @@ extension StorePaymentOutcome {
     enum Context {
         case purchase
         case restoration
+        case restorationBeforePurchase
 
         var alertTitle: String {
             switch self {
@@ -65,6 +66,8 @@ extension StorePaymentOutcome {
                 return NSLocalizedString("Thanks for your purchase", comment: "")
             case .restoration:
                 return NSLocalizedString("Restore purchases", comment: "")
+            case .restorationBeforePurchase:
+                return NSLocalizedString("Previous purchases were found", comment: "")
             }
         }
 
@@ -74,6 +77,8 @@ extension StorePaymentOutcome {
                 return NSLocalizedString("Cannot complete the purchase", comment: "")
             case .restoration:
                 return NSLocalizedString("Cannot restore purchases", comment: "")
+            case .restorationBeforePurchase:
+                return NSLocalizedString("Previous purchases were found", comment: "")
             }
         }
     }
