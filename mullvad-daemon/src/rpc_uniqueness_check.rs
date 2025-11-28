@@ -6,7 +6,7 @@ use talpid_types::ErrorExt;
 /// Tries to connect to another daemon and perform a simple RPC call. If it fails, assumes the
 /// other daemon has stopped.
 pub async fn is_another_instance_running() -> bool {
-    match MullvadProxyClient::new().await {
+    match MullvadProxyClient::new_without_http().await {
         Ok(_) => true,
         Err(error) => {
             let msg =

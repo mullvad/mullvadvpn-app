@@ -81,11 +81,11 @@ use mullvad_types::{
 use mullvad_update::version::rollout::Rollout;
 use relay_list::{RelayListUpdater, RelayListUpdaterHandle};
 use settings::SettingsPersister;
-use std::collections::BTreeSet;
 #[cfg(any(target_os = "windows", target_os = "android", target_os = "macos"))]
 use std::collections::HashSet;
 #[cfg(target_os = "android")]
 use std::os::unix::io::RawFd;
+use std::{collections::BTreeSet, net::SocketAddr};
 use std::{
     marker::PhantomData,
     path::PathBuf,
@@ -706,6 +706,8 @@ impl Daemon {
         #[cfg(target_os = "macos")]
         macos::bump_filehandle_limit();
 
+        let http_socket_address: SocketAddr = "127.0.0.1:3000".parse().unwrap();
+
         let command_sender = daemon_command_channel.sender();
         let app_upgrade_broadcast = tokio::sync::broadcast::channel(32).0;
         let management_interface = ManagementInterfaceServer::start(
@@ -713,6 +715,7 @@ impl Daemon {
             config.rpc_socket_path,
             app_upgrade_broadcast.clone(),
             config.log_handle,
+            http_socket_address,
         )
         .map_err(Error::ManagementInterfaceError)?;
 

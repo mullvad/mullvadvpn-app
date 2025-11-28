@@ -21,7 +21,7 @@ use mullvad_types::{
     version,
     wireguard::{RotationInterval, RotationIntervalError},
 };
-use std::collections::BTreeSet;
+use std::{collections::BTreeSet, net::SocketAddr};
 use std::{
     path::PathBuf,
     str::FromStr,
@@ -1306,7 +1306,8 @@ impl ManagementServiceImpl {
 pub struct ManagementInterfaceServer {
     /// The rpc server spawned by [`Self::start`]. When the underlying join handle yields, the rpc
     /// server has shutdown.
-    rpc_server_join_handle: ServerJoinHandle,
+    uds_rpc_server_join_handle: ServerJoinHandle,
+    http_rpc_server_join_handle: ServerJoinHandle,
     /// Channel used to signal the running gRPC server to shutdown. This needs to be done before
     /// awaiting trying to join [`Self::rpc_server_join_handle`].
     server_abort_tx: mpsc::Sender<()>,
@@ -1321,6 +1322,7 @@ impl ManagementInterfaceServer {
         rpc_socket_path: PathBuf,
         app_upgrade_broadcast: AppUpgradeBroadcast,
         log_reload_handle: crate::logging::LogHandle,
+        http_socket_address: SocketAddr,
     ) -> Result<ManagementInterfaceServer, Error> {
         let subscriptions = Arc::<Mutex<Vec<EventsListenerSender>>>::default();
 
@@ -1330,12 +1332,12 @@ impl ManagementInterfaceServer {
         let (server_abort_tx, server_abort_rx) = mpsc::channel(0);
 
         let server = ManagementServiceImpl {
-            daemon_tx,
+            daemon_tx: daemon_tx.clone(),
             subscriptions: subscriptions.clone(),
-            app_upgrade_broadcast,
-            log_reload_handle,
+            app_upgrade_broadcast: app_upgrade_broadcast.clone(),
+            log_reload_handle: log_reload_handle.clone(),
         };
-        let rpc_server_join_handle = mullvad_management_interface::spawn_rpc_server(
+        let uds_rpc_server_join_handle = mullvad_management_interface::spawn_uds_rpc_server(
             server,
             async move {
                 StreamExt::into_future(server_abort_rx).await;
@@ -1343,6 +1345,16 @@ impl ManagementInterfaceServer {
             rpc_socket_path.clone(),
         )
         .map_err(Error::SetupError)?;
+
+        let server = ManagementServiceImpl {
+            daemon_tx,
+            subscriptions: subscriptions.clone(),
+            app_upgrade_broadcast,
+            log_reload_handle,
+        };
+        let http_rpc_server_join_handle =
+            mullvad_management_interface::spawn_http_rpc_server(server, http_socket_address)
+                .map_err(Error::SetupError)?;
 
         log::info!(
             "Management interface listening on {}",
@@ -1352,7 +1364,8 @@ impl ManagementInterfaceServer {
         let broadcast = ManagementInterfaceEventBroadcaster { subscriptions };
 
         Ok(ManagementInterfaceServer {
-            rpc_server_join_handle,
+            uds_rpc_server_join_handle,
+            http_rpc_server_join_handle,
             server_abort_tx,
             broadcast,
         })
@@ -1366,14 +1379,31 @@ impl ManagementInterfaceServer {
         // Send a singal to the underlying RPC server to shut down.
         let _ = self.server_abort_tx.send(()).await;
 
-        match timeout(RPC_SERVER_SHUTDOWN_TIMEOUT, self.rpc_server_join_handle).await {
+        match timeout(RPC_SERVER_SHUTDOWN_TIMEOUT, self.uds_rpc_server_join_handle).await {
             // Joining the rpc server handle timed out
             Err(timeout) => {
-                log::error!("Timed out while shutting down management server: {timeout}");
+                log::error!("Timed out while shutting down UDS management server: {timeout}");
             }
             Ok(join_result) => {
                 if let Err(_error) = join_result {
-                    log::error!("Management server task failed to execute until completion");
+                    log::error!("UDS Management server task failed to execute until completion");
+                }
+            }
+        }
+
+        match timeout(
+            RPC_SERVER_SHUTDOWN_TIMEOUT,
+            self.http_rpc_server_join_handle,
+        )
+        .await
+        {
+            // Joining the rpc server handle timed out
+            Err(timeout) => {
+                log::error!("Timed out while shutting down HTTP management server: {timeout}");
+            }
+            Ok(join_result) => {
+                if let Err(_error) = join_result {
+                    log::error!("HTTP Management server task failed to execute until completion");
                 }
             }
         }
