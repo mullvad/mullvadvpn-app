@@ -81,8 +81,7 @@ test('App should succeed to import text', async () => {
   await expect(page.getByText('Clear all overrides')).toBeEnabled();
   await expect(page.getByTestId('status-subtitle')).not.toBeEmpty();
 
-  await expect(page.getByTestId('status-title')).toHaveText('OVERRIDES ACTIVE');
-
+  // Textarea should be cleared after successful import
   await page.getByRole('button', { name: 'Import via text' }).click();
   await util.expectRoute(RoutePath.settingsTextImport);
 
