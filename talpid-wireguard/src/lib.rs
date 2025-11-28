@@ -17,7 +17,7 @@ use std::{
     sync::{Arc, mpsc as sync_mpsc},
 };
 #[cfg(not(target_os = "android"))]
-use std::{env, sync::LazyLock};
+use std::{sync::LazyLock};
 #[cfg(not(target_os = "android"))]
 use talpid_routing::{self, RequiredRoute};
 use talpid_tunnel::{EventHook, TunnelArgs, TunnelEvent, TunnelMetadata, tun_provider};
@@ -145,9 +145,11 @@ pub struct WireguardMonitor {
 #[cfg(not(target_os = "android"))]
 /// Overrides the preference for the kernel module for WireGuard.
 static FORCE_USERSPACE_WIREGUARD: LazyLock<bool> = LazyLock::new(|| {
-    env::var("TALPID_FORCE_USERSPACE_WIREGUARD")
-        .map(|v| v != "0")
-        .unwrap_or(false)
+    // HACK: Always use gotatun for OpenWRT builds. Atleast to start.
+    true
+    // std::env::var("TALPID_FORCE_USERSPACE_WIREGUARD")
+    //     .map(|v| v != "0")
+    //     .unwrap_or(false)
 });
 
 impl WireguardMonitor {
