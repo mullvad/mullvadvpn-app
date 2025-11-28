@@ -72,3 +72,10 @@ fun ConnectPage.enableWireGuardCustomPort(port: Int) {
     }
     uiDevice.pressBackTwice()
 }
+
+fun ConnectPage.enableMultihopStory() {
+    clickSettings()
+    on<SettingsPage> { clickMultihop() }
+    on<MultihopSettingsPage> { clickEnableSwitch() }
+    uiDevice.pressBackTwice()
+}

@@ -13,6 +13,7 @@ import net.mullvad.mullvadvpn.test.common.page.SettingsPage
 import net.mullvad.mullvadvpn.test.common.page.VpnSettingsPage
 import net.mullvad.mullvadvpn.test.common.page.disableObfuscationStory
 import net.mullvad.mullvadvpn.test.common.page.enableLocalNetworkSharingStory
+import net.mullvad.mullvadvpn.test.common.page.enableMultihopStory
 import net.mullvad.mullvadvpn.test.common.page.enablePostQuantumStory
 import net.mullvad.mullvadvpn.test.common.page.enableShadowsocksStory
 import net.mullvad.mullvadvpn.test.common.page.enableWireGuardCustomPort
@@ -438,6 +439,39 @@ class ConnectionTest : EndToEndTest() {
 
         // Verify correct port used
         assertEquals("53", inIpv4Port)
+    }
+
+    @Test
+    fun testConnectUsingMultihop() = runTest {
+        // Given
+        app.launchAndLogIn(accountTestRule.validAccountNumber)
+
+        // Enable multihop
+        on<ConnectPage> { enableMultihopStory() }
+
+        // Select default relay as out relay
+        on<ConnectPage> { clickSelectLocation() }
+        val defaultRelay = relayProvider.getDefaultRelay()
+        on<SelectLocationPage> {
+            clickLocationExpandButton(defaultRelay.country)
+            clickLocationExpandButton(defaultRelay.city)
+            scrollUntilCell(defaultRelay.relay)
+            clickLocationCell(defaultRelay.relay)
+        }
+
+        device.acceptVpnPermissionDialog()
+
+        var outIpv4Address = ""
+        on<ConnectPage> {
+            waitForConnectedLabel()
+            outIpv4Address = extractOutIpv4Address()
+        }
+
+        val result = connCheckClient.connectionCheck()
+
+        // Check IPs match and that the out server is default server
+        assertEquals(result.ip, outIpv4Address)
+        assertEquals(result.mullvadExitIpHostname, defaultRelay.relay)
     }
 
     companion object {

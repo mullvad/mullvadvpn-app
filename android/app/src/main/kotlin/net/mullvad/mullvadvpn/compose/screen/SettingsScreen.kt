@@ -51,6 +51,7 @@ import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.lib.ui.tag.DAITA_CELL_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.MULTIHOP_CELL_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.VPN_SETTINGS_CELL_TEST_TAG
 import net.mullvad.mullvadvpn.util.Lc
 import net.mullvad.mullvadvpn.util.appendHideNavOnPlayBuild
@@ -334,6 +335,7 @@ private fun MultihopCell(isMultihopEnabled: Boolean, onMultihopClick: () -> Unit
                 tint = MaterialTheme.colorScheme.onPrimary,
             )
         },
+        modifier = Modifier.testTag(MULTIHOP_CELL_TEST_TAG),
     )
 }
 
