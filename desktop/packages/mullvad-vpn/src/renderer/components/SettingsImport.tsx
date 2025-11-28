@@ -23,6 +23,8 @@ import SettingsHeader, { HeaderSubTitle, HeaderTitle } from './SettingsHeader';
 
 type ImportStatus = { successful: boolean } & ({ type: 'file'; name: string } | { type: 'text' });
 
+const CLEAR_IMPORT_STATUS_DELAY = window.env.e2e ? 1000 : 10_000;
+
 export default function SettingsImport() {
   const history = useHistory();
   const {
@@ -55,7 +57,10 @@ export default function SettingsImport() {
 
       // The status text should be cleared after 10 seconds.
       if (status !== undefined) {
-        importStatusResetScheduler.schedule(() => setImportStatusImpl(undefined), 10_000);
+        importStatusResetScheduler.schedule(
+          () => setImportStatusImpl(undefined),
+          CLEAR_IMPORT_STATUS_DELAY,
+        );
       }
     },
     [importStatusResetScheduler],
