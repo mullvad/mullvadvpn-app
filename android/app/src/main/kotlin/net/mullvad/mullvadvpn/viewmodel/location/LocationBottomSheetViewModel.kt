@@ -122,7 +122,10 @@ class LocationBottomSheetViewModel(
         onUpdateMultihop: (UndoChangeMultihopAction) -> Unit,
     ) {
         viewModelScope.launch(context = Dispatchers.IO) {
-            val previousEntry = hopSelectionUseCase().first().entry()?.getOrNull()
+            val previousEntry =
+                wireguardConstraintsRepository.wireguardConstraints.value
+                    ?.entryLocation
+                    ?.getOrNull()
             val change = MultihopChange.Entry(item)
             val isMultihopEnabled = isMultihopEnabled()
             if (isMultihopEnabled) {
@@ -136,7 +139,7 @@ class LocationBottomSheetViewModel(
                         if (!isMultihopEnabled) {
                             onUpdateMultihop(
                                 if (previousEntry != null) {
-                                    UndoChangeMultihopAction.DisableAndSetEntry(previousEntry.id)
+                                    UndoChangeMultihopAction.DisableAndSetEntry(previousEntry)
                                 } else {
                                     UndoChangeMultihopAction.Disable
                                 }
