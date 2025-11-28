@@ -29,7 +29,7 @@ Line wrap the file at 100 chars.                                              Th
 - Add port 443 to list of valid UDP2TCP ports.
 
 ### Fixed
-- Fix issues where the in-app updates view is not in sync with the daemon after system is supended
+- Fix issues where the in-app updates view is not in sync with the daemon after system is suspended
   or daemon is restarted.
 
 
