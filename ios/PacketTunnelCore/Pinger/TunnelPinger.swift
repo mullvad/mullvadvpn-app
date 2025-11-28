@@ -31,10 +31,11 @@ public final class TunnelPinger: PingerProtocol, @unchecked Sendable {
     }
 
     public func startPinging(destAddress: IPv4Address) throws {
-        return 
-//        stateLock.withLock {
-//            self.destAddress = destAddress
-//        }
+        stateLock.withLock {
+            self.destAddress = destAddress
+        }
+        fakePingSuccess()
+        return
 //        pingReceiveQueue.async { [weak self] in
 //            while let self {
 //                do {
@@ -57,6 +58,16 @@ public final class TunnelPinger: PingerProtocol, @unchecked Sendable {
 //                }
 //            }
 //        }
+    }
+
+    public func fakePingSuccess() {
+        guard let destAddress else { return }
+
+        replyQueue.async { [weak self] in
+            guard let self else { return }
+            self.onReply?(PingerReply.success(destAddress, nextSequenceNumber()))
+        }
+        replyQueue.asyncAfter(deadline: .now() + 1, execute: fakePingSuccess)
     }
 
     public func stopPinging() {

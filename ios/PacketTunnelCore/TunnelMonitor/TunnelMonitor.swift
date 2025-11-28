@@ -360,9 +360,9 @@ public final class TunnelMonitor: TunnelMonitorProtocol, @unchecked Sendable {
     }
 
     private func sendConnectionLostEvent() {
-        eventQueue.async {
-            self.onEvent?(.connectionLost)
-        }
+//        eventQueue.async {
+//            self.onEvent?(.connectionLost)
+//        }
     }
 
     private func getStats() -> WgStats? {

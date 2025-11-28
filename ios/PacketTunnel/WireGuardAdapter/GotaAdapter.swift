@@ -40,8 +40,8 @@ public final class GotaAdapter: TunnelAdapterProtocol, TunnelDeviceInfoProtocol,
 
     /// Returns tunnel statistics.
     public func getStats() throws -> WgStats {
-        bytesReceived += 1
-        bytesSent += 1
+        bytesReceived += 64
+        bytesSent += 64
         return WgStats(bytesReceived: bytesReceived, bytesSent: bytesSent)
     }
 
