@@ -218,7 +218,9 @@ val uiModule = module {
             settingsRepository = get(),
         )
     }
-    single { SelectAndEnableMultihopUseCase(relayListRepository = get()) }
+    single {
+        SelectAndEnableMultihopUseCase(relayListRepository = get(), settingsRepository = get())
+    }
     single {
         RelayItemCanBeSelectedUseCase(
             filteredRelayListUseCase = get(),

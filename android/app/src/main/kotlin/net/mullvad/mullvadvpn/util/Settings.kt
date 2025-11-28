@@ -39,4 +39,6 @@ fun Settings.shadowSocksPort() = obfuscationSettings.shadowsocks.port
 fun Settings.isMultihopEnabled() =
     relaySettings.relayConstraints.wireguardConstraints.isMultihopEnabled
 
+fun Settings.location() = relaySettings.relayConstraints.location
+
 private fun Settings.daitaSettings() = tunnelOptions.daitaSettings

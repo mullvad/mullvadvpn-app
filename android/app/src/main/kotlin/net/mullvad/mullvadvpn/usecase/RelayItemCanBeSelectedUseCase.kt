@@ -26,7 +26,7 @@ class RelayItemCanBeSelectedUseCase(
     operator fun invoke(relayListType: RelayListType) =
         when (relayListType) {
             is RelayListType.Multihop ->
-                validEntries(selectedAs = relayListType.multihopRelayListType).map {
+                validEntries(selectedAs = relayListType.multihopRelayListType.other()).map {
                     when (relayListType.multihopRelayListType) {
                         MultihopRelayListType.ENTRY -> ValidSelection.OnlyExit(exitIds = it)
                         MultihopRelayListType.EXIT -> ValidSelection.OnlyEntry(entryIds = it)
@@ -54,7 +54,7 @@ class RelayItemCanBeSelectedUseCase(
                     if (!relayItem.active) {
                         return@filter false
                     }
-                    // If entry selection, check if entry is blocked
+                    // If exit selection, check if entry is blocked
                     if (
                         selectedAs == MultihopRelayListType.ENTRY &&
                             settings?.entrySelectionBlocked() == true
@@ -92,6 +92,12 @@ class RelayItemCanBeSelectedUseCase(
         }
 
     private fun Settings.entrySelectionBlocked() = isDaitaEnabled() && !isDaitaDirectOnly()
+
+    private fun MultihopRelayListType.other() =
+        when (this) {
+            MultihopRelayListType.ENTRY -> MultihopRelayListType.EXIT
+            MultihopRelayListType.EXIT -> MultihopRelayListType.ENTRY
+        }
 }
 
 sealed interface ValidSelection {
