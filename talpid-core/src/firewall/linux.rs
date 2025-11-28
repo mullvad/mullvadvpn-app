@@ -1,6 +1,6 @@
 use super::{FirewallArguments, FirewallPolicy};
 use crate::split_tunnel;
-use ipnetwork::IpNetwork;
+use ipnetwork::{Ipv4Network, IpNetwork};
 use nftnl::{
     Batch, Chain, FinalizedBatch, ProtoFamily, Rule, Table,
     expr::{self, IcmpCode, Payload, RejectionType, Verdict},
@@ -72,6 +72,7 @@ const FORWARD_CHAIN_NAME: &CStr = c"forward";
 const PREROUTING_CHAIN_NAME: &CStr = c"prerouting";
 const MANGLE_CHAIN_NAME: &CStr = c"mangle";
 const NAT_CHAIN_NAME: &CStr = c"nat";
+const SRCNAT_CHAIN_NAME: &CStr = c"srcnat";
 
 /// Allows controlling whether firewall rules should have packet counters or not from an env
 /// variable. Useful for debugging the rules.
@@ -249,6 +250,8 @@ struct PolicyBatch<'a> {
     prerouting_chain: Chain<'a>,
     mangle_chain: Chain<'a>,
     nat_chain: Chain<'a>,
+    /// Router mode.
+    srcnat_chain: Chain<'a>
 }
 
 impl<'a> PolicyBatch<'a> {
@@ -296,6 +299,13 @@ impl<'a> PolicyBatch<'a> {
         nat_chain.set_policy(nftnl::Policy::Accept);
         batch.add(&nat_chain, nftnl::MsgType::Add);
 
+        // TODO: Router mode
+        let mut srcnat_chain = Chain::new(SRCNAT_CHAIN_NAME, table);
+        srcnat_chain.set_hook(nftnl::Hook::PostRouting, libc::NF_IP_PRI_NAT_SRC);
+        srcnat_chain.set_type(nftnl::ChainType::Nat);
+        srcnat_chain.set_policy(nftnl::Policy::Accept);
+        batch.add(&srcnat_chain, nftnl::MsgType::Add);
+
         PolicyBatch {
             batch,
             in_chain,
@@ -304,6 +314,7 @@ impl<'a> PolicyBatch<'a> {
             prerouting_chain,
             mangle_chain,
             nat_chain,
+            srcnat_chain,
         }
     }
 
@@ -311,6 +322,23 @@ impl<'a> PolicyBatch<'a> {
     /// policy.
     pub fn finalize(mut self, policy: &FirewallPolicy, fwmark: u32) -> Result<FinalizedBatch> {
         self.add_loopback_rules()?;
+
+        // Router mode
+        {
+            let mut rule = Rule::new(&self.srcnat_chain);
+            rule.add_expr(&nft_expr!(payload ipv4 saddr));
+            // TODO: Do not hardcode net.
+            let net_ip = Ipv4Addr::new(192, 168, 1, 0);
+            let net_prefix = 24;
+            let net = Ipv4Network::new(net_ip, net_prefix).unwrap();
+            check_net(&mut rule, End::Src, net);
+            rule.add_expr(&nft_expr!(masquerade));
+            if *ADD_COUNTERS {
+                rule.add_expr(&nft_expr!(counter));
+            }
+            self.batch.add(&rule, nftnl::MsgType::Add);
+        }
+        // / Router mode
 
         // if cgroups v1 doesn't exist, split tunneling won't work.
         // checking if the `net_cls` mount exists is a cheeky way of checking this.
