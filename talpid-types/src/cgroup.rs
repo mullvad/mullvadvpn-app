@@ -1,6 +1,12 @@
-use std::{ffi::OsStr, fs, os::unix::ffi::OsStrExt, path::PathBuf};
+use std::ffi::OsStr;
+use std::fs;
+use std::os::unix::ffi::OsStrExt;
+use std::path::PathBuf;
 
 pub const SPLIT_TUNNEL_CGROUP_NAME: &str = "mullvad-exclusions";
+
+/// The path where linux normally mounts the cgroup2 filesystem.
+pub const CGROUP2_DEFAULT_MOUNT_PATH: &str = "/sys/fs/cgroup";
 
 /// Find the path of the cgroup v1 net_cls controller mount if it exists
 pub fn find_net_cls_mount() -> std::io::Result<Option<PathBuf>> {

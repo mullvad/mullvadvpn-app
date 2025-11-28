@@ -11,11 +11,13 @@ use std::{
     ffi::CStr,
     fs, io,
     net::{IpAddr, Ipv4Addr},
+    os::unix::fs::MetadataExt,
+    path::Path,
     sync::LazyLock,
 };
 use talpid_tunnel::TunnelMetadata;
 use talpid_types::{
-    cgroup::find_net_cls_mount,
+    cgroup::{CGROUP2_DEFAULT_MOUNT_PATH, find_net_cls_mount},
     net::{
         ALLOWED_LAN_MULTICAST_NETS, ALLOWED_LAN_NETS, AllowedEndpoint, AllowedTunnelTraffic,
         Endpoint, TransportProtocol,
@@ -61,6 +63,10 @@ pub enum Error {
     /// Failed to check if the net_cls mount exists.
     #[error("An error occurred when checking for net_cls")]
     FindNetClsMount(#[source] io::Error),
+
+    /// Unable to stat cgroup
+    #[error("Unable to stat cgroup")]
+    CgroupStat(#[source] io::Error),
 }
 
 /// TODO(linus): This crate is not supposed to be Mullvad-aware. So at some point this should be
@@ -174,21 +180,28 @@ impl Firewall {
     }
 
     fn send_and_process(batch: &FinalizedBatch) -> Result<()> {
+        // Create a netlink socket to netfilter.
         let socket = mnl::Socket::new(mnl::Bus::Netfilter).map_err(Error::NetlinkOpenError)?;
+        let portid = socket.portid();
+
+        // Send all the bytes in the batch.
         socket.send_all(batch).map_err(Error::NetlinkSendError)?;
 
-        let portid = socket.portid();
+        // TODO: this buffer must be aligned to nlmsghdr
         let mut buffer = vec![0; nftnl::nft_nlmsg_maxsize() as usize];
+        let mut expected_seqs = batch.sequence_numbers();
 
-        let seq = 0;
-        while let Some(message) = Self::socket_recv(&socket, &mut buffer[..])? {
-            match mnl::cb_run(message, seq, portid).map_err(Error::ProcessNetlinkError)? {
-                mnl::CbResult::Stop => {
-                    log::trace!("cb_run STOP");
-                    break;
-                }
-                mnl::CbResult::Ok => log::trace!("cb_run OK"),
-            };
+        // Process acknowledgment messages from netfilter.
+        while !expected_seqs.is_empty() {
+            for message in socket
+                .recv(&mut buffer[..])
+                .map_err(Error::NetlinkSendError)?
+            {
+                let message = message.map_err(Error::ProcessNetlinkError)?;
+                let expected_seq = expected_seqs.next().expect("Unexpected ACK");
+                // Validate sequence number and check for error messages
+                mnl::cb_run(message, expected_seq, portid).map_err(Error::ProcessNetlinkError)?;
+            }
         }
         Ok(())
     }
@@ -196,7 +209,7 @@ impl Firewall {
     fn verify_tables(&self, expected_tables: &[&CStr]) -> Result<()> {
         let socket = mnl::Socket::new(mnl::Bus::Netfilter).map_err(Error::NetlinkOpenError)?;
         let portid = socket.portid();
-        let seq = 0;
+        let seq = 1;
 
         let get_tables_msg = table::get_tables_nlmsg(seq);
         socket
@@ -204,18 +217,17 @@ impl Firewall {
             .map_err(Error::NetlinkSendError)?;
 
         let mut table_set = std::collections::HashSet::new();
-        let mut msg_buffer = vec![0; nftnl::nft_nlmsg_maxsize() as usize];
+        let mut buffer = vec![0; nftnl::nft_nlmsg_maxsize() as usize];
 
-        while let Some(message) = Self::socket_recv(&socket, &mut msg_buffer)? {
-            match mnl::cb_run2(message, seq, portid, table::get_tables_cb, &mut table_set)
-                .map_err(Error::ProcessNetlinkError)?
-            {
-                mnl::CbResult::Stop => {
-                    log::trace!("cb_run STOP");
-                    break;
-                }
-                mnl::CbResult::Ok => log::trace!("cb_run OK"),
-            }
+        // Process acknowledgment messages from netfilter.
+        for message in socket
+            .recv(&mut buffer[..])
+            .map_err(Error::NetlinkRecvError)?
+        {
+            let message = message.map_err(Error::ProcessNetlinkError)?;
+            // Validate sequence number and check for error messages
+            mnl::cb_run2(message, seq, portid, table::get_tables_cb, &mut table_set)
+                .map_err(Error::ProcessNetlinkError)?;
         }
 
         for expected_table in expected_tables {
@@ -228,16 +240,6 @@ impl Firewall {
             }
         }
         Ok(())
-    }
-
-    fn socket_recv<'a>(socket: &mnl::Socket, buf: &'a mut [u8]) -> Result<Option<&'a [u8]>> {
-        let ret = socket.recv(buf).map_err(Error::NetlinkRecvError)?;
-        log::trace!("Read {} bytes from netlink", ret);
-        if ret > 0 {
-            Ok(Some(&buf[..ret]))
-        } else {
-            Ok(None)
-        }
     }
 }
 
@@ -312,16 +314,26 @@ impl<'a> PolicyBatch<'a> {
     pub fn finalize(mut self, policy: &FirewallPolicy, fwmark: u32) -> Result<FinalizedBatch> {
         self.add_loopback_rules()?;
 
-        // if cgroups v1 doesn't exist, split tunneling won't work.
-        // checking if the `net_cls` mount exists is a cheeky way of checking this.
-        if find_net_cls_mount()
-            .map_err(Error::FindNetClsMount)?
-            .is_some()
-        {
-            self.add_split_tunneling_rules(policy, fwmark)?;
+        if cfg!(feature = "cgroups_v2") {
+            match self.add_split_tunneling_rules(policy, fwmark) {
+                Ok(_) => (),
+                Err(Error::CgroupStat(_)) => {
+                    log::warn!("cgroup2 not found, skipping add_split_tunneling_rules");
+                }
+                Err(err) => return Err(err),
+            }
         } else {
-            // skipping add_split_tunneling_rules as it won't cause traffic to leak
-            log::warn!("net_cls mount not found, skipping add_split_tunneling_rules");
+            // if cgroups v1 doesn't exist, split tunneling won't work.
+            // checking if the `net_cls` mount exists is a cheeky way of checking this.
+            if find_net_cls_mount()
+                .map_err(Error::FindNetClsMount)?
+                .is_some()
+            {
+                self.add_split_tunneling_rules(policy, fwmark)?;
+            } else {
+                // skipping add_split_tunneling_rules as it won't cause traffic to leak
+                log::warn!("net_cls mount not found, skipping add_split_tunneling_rules");
+            }
         }
 
         self.add_dhcp_client_rules();
@@ -333,8 +345,7 @@ impl<'a> PolicyBatch<'a> {
 
     /// Allow split-tunneled traffic outside the tunnel.
     ///
-    /// This is acheived by setting `fwmark` on connections initated by processes in the cgroup
-    /// defined by [split_tunnel::NET_CLS_CLASSID].
+    /// This is acheived by setting `fwmark` on connections initated by processes in the cgroup.
     fn add_split_tunneling_rules(&mut self, policy: &FirewallPolicy, fwmark: u32) -> Result<()> {
         // Send select DNS requests in the tunnel
         if let FirewallPolicy::Connected {
@@ -359,15 +370,49 @@ impl<'a> PolicyBatch<'a> {
             }
         }
 
-        // Split tunneled processes have their PIDs added to a net_cls cgroup.
-        // This causes all packets sent by that process to be marked with the
-        // cgroups classid (`NET_CLS_CLASSID`). This rule checks incoming packets for that classid.
-        // If the packet has the classid set then the packet will have two new marks applied to it.
-        // The `split_tunnel::MARK` as a connection tracking mark and the `fwmark` as packet
-        // metadata.
+        // Split tunneled processes have their PIDs added to a cgroup (v1 or v2).
+        //
+        // This rule matches packets sent by those processes.
+        // Packet will have two new marks applied to it, the `split_tunnel::MARK`
+        // as a connection tracking mark and the `fwmark` as packet metadata.
         let mut rule = Rule::new(&self.mangle_chain);
-        rule.add_expr(&nft_expr!(meta cgroup));
-        rule.add_expr(&nft_expr!(cmp == split_tunnel::NET_CLS_CLASSID));
+
+        if cfg!(feature = "cgroups_v2") {
+            // For cgroups v2, packets from sockets bound by processes in
+            // that cgroup2 are matched on through the cgroup2 inode.
+            use talpid_types::cgroup::SPLIT_TUNNEL_CGROUP_NAME;
+
+            let cgroup = {
+                let cgroup_path =
+                    Path::new(CGROUP2_DEFAULT_MOUNT_PATH).join(SPLIT_TUNNEL_CGROUP_NAME);
+                let cgroup_meta = fs::metadata(cgroup_path).map_err(Error::CgroupStat)?;
+                cgroup_meta.ino()
+            };
+            // 1. From Linux kernel documentation:
+            // cgroup(2) is a mechanism to organize processes hierarchically ... cgroups form a tree structure and
+            // every process in the system belongs to one and only one cgroup ... On creation, all processes are put
+            // in the cgroup that the parent process belongs to at the time.
+            //
+            // 2. From `man nft` on "Socket expression":
+            // .. You can also use it [socket expression] to match on the socket cgroupv2 at a given ancestor level,
+            // e.g. if the socket belongs to cgroupv2 a/b, ancestor level 1 checks for a matching on cgroup a and
+            // ancestor level 2 checks for a matching on cgroup b.
+            //
+            // 3. Since the current split-tunnel implementation spawn each split process into the same cgroup2, the
+            // nftables rule does not have to look at any level of ancestry away *from* `cgroup`. This applies for
+            // any sub-process that a split process may spawn, as per the kernel docs.
+            //
+            // Following from 1,2,3, `socket cgroupv2 level 1` should be fine here.
+            rule.add_expr(&nft_expr!(socket cgroupv2 level 1));
+            rule.add_expr(&nft_expr!(cmp == cgroup));
+        } else {
+            // For cgroups v1, processes are assigned to a net_cls.
+            // This causes all packets sent by that process to be marked with the
+            // cgroups classid (`NET_CLS_CLASSID`), which we can reference in nftables.
+            rule.add_expr(&nft_expr!(meta cgroup));
+            rule.add_expr(&nft_expr!(cmp == split_tunnel::NET_CLS_CLASSID));
+        }
+
         // Loads `split_tunnel::MARK` into first nftnl register
         rule.add_expr(&nft_expr!(immediate data split_tunnel::MARK));
         // Sets `split_tunnel::MARK` as connection tracker mark
@@ -376,6 +421,9 @@ impl<'a> PolicyBatch<'a> {
         rule.add_expr(&nft_expr!(immediate data fwmark));
         // Sets `fwmark` as metadata mark for packet
         rule.add_expr(&nft_expr!(meta mark set));
+        if *ADD_COUNTERS {
+            rule.add_expr(&nft_expr!(counter));
+        }
         self.batch.add(&rule, nftnl::MsgType::Add);
 
         for chain in &[&self.in_chain, &self.out_chain, &self.forward_chain] {
