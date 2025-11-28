@@ -52,6 +52,13 @@ fun ConnectPage.enableDAITAStory() {
     uiDevice.pressBackTwice()
 }
 
+fun ConnectPage.enableMultihopStory() {
+    clickSettings()
+    on<SettingsPage> { clickMultihop() }
+    on<MultihopSettingsPage> { clickEnableSwitch() }
+    uiDevice.pressBackTwice()
+}
+
 fun ConnectPage.enableLocalNetworkSharingStory() {
     clickSettings()
     on<SettingsPage> { clickVpnSettings() }

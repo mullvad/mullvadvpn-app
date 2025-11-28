@@ -34,6 +34,7 @@ import net.mullvad.mullvadvpn.lib.ui.component.relaylist.RelayListItem
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.SelectableRelayListItem
 import net.mullvad.mullvadvpn.lib.ui.designsystem.RelayListHeader
 import net.mullvad.mullvadvpn.lib.ui.tag.LOCATION_CELL_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.RECENT_CELL_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_CUSTOM_LIST_HEADER_TEST_TAG
 
 /** Used by both the select location screen and search select location screen */
@@ -148,7 +149,7 @@ private fun RecentListItem(
             }
         },
         onToggleExpand = { _ -> },
-        modifier = Modifier.positionalPadding(listItem.itemPosition),
+        modifier = Modifier.positionalPadding(listItem.itemPosition).testTag(RECENT_CELL_TEST_TAG),
     )
 }
 

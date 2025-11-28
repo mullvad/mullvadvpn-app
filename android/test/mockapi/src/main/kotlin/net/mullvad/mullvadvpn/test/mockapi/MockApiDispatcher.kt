@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.test.mockapi
 
+import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import co.touchlab.kermit.Logger
 import java.time.ZonedDateTime
 import net.mullvad.mullvadvpn.test.mockapi.constant.ACCOUNT_URL_PATH
@@ -8,6 +9,7 @@ import net.mullvad.mullvadvpn.test.mockapi.constant.CREATE_ACCOUNT_URL_PATH
 import net.mullvad.mullvadvpn.test.mockapi.constant.DEVICES_URL_PATH
 import net.mullvad.mullvadvpn.test.mockapi.constant.DUMMY_ACCESS_TOKEN
 import net.mullvad.mullvadvpn.test.mockapi.constant.DUMMY_ID_1
+import net.mullvad.mullvadvpn.test.mockapi.constant.RELAY_LIST_URL_PATH
 import net.mullvad.mullvadvpn.test.mockapi.util.accessTokenJsonResponse
 import net.mullvad.mullvadvpn.test.mockapi.util.accountCreationJson
 import net.mullvad.mullvadvpn.test.mockapi.util.accountInfoJson
@@ -31,6 +33,14 @@ class MockApiDispatcher : Dispatcher() {
 
     private var cachedPubKeyFromAppUnderTest: String? = null
 
+    private val relayListJson =
+        getInstrumentation()
+            .context
+            .resources
+            .openRawResource(R.raw.relay_list)
+            .bufferedReader()
+            .readText()
+
     @Suppress("CyclomaticComplexMethod", "NestedBlockDepth")
     override fun dispatch(request: RecordedRequest): MockResponse {
         Logger.d("Request: $request (body=${request.body.peek().readUtf8()})")
@@ -47,6 +57,7 @@ class MockApiDispatcher : Dispatcher() {
             }
             ACCOUNT_URL_PATH -> handleAccountInfoRequest()
             CREATE_ACCOUNT_URL_PATH -> handleAccountCreationRequest()
+            RELAY_LIST_URL_PATH -> handleGetRelayListRequest()
             else -> {
                 if (request.path?.contains(DEVICES_URL_PATH) == true) {
                     val deviceId = request.path?.split("/")?.lastOrNull()
@@ -180,4 +191,7 @@ class MockApiDispatcher : Dispatcher() {
                 )
         } ?: MockResponse().setResponseCode(400)
     }
+
+    private fun handleGetRelayListRequest(): MockResponse =
+        MockResponse().setResponseCode(200).addJsonHeader().setBody(relayListJson)
 }

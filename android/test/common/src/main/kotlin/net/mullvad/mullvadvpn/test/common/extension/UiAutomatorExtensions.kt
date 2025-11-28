@@ -38,6 +38,24 @@ fun UiDevice.findObjectWithTimeout(
     return foundObject
 }
 
+fun UiDevice.findOneOrMoreObjectsWithTimeout(
+    selector: BySelector,
+    timeout: Long = DEFAULT_TIMEOUT,
+): List<UiObject2> {
+
+    wait(Until.hasObject(selector), timeout)
+
+    val foundObjects = findObjects(selector)
+
+    if (foundObjects.isEmpty()) {
+        throw UiObjectNotFoundException(
+            "No matches for selector within timeout ($timeout ms): $selector"
+        )
+    }
+
+    return foundObjects
+}
+
 fun UiDevice.expectObjectToDisappearWithTimeout(
     selector: BySelector,
     timeout: Long = DEFAULT_TIMEOUT,
@@ -107,9 +125,17 @@ fun UiObject2.findObjectWithTimeout(
     }
 }
 
-fun UiDevice.acceptVpnPermissionDialog() {
-    findObjectWithTimeout(By.text("Connection request"))
-    // Accept Creating the VPN Permission profile
-    findObjectWithTimeout(By.text("OK")).click()
+fun UiDevice.acceptVpnPermissionDialog(ignoreNotFound: Boolean = false) {
+    try {
+        findObjectWithTimeout(By.text("Connection request"))
+        // Accept Creating the VPN Permission profile
+        findObjectWithTimeout(By.text("OK")).click()
+    } catch (e: UiObjectNotFoundException) {
+        if (ignoreNotFound) Logger.d("Ignoring VPN permission dialog not found") else throw e
+    }
+    waitForAppToBeVisible(currentPackageName)
+}
+
+fun UiDevice.acceptVpnPermissionDialogIgnoreNotFound() {
     waitForAppToBeVisible(currentPackageName)
 }

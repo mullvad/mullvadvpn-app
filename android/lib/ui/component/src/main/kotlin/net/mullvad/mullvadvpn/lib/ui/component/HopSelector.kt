@@ -48,6 +48,7 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.selected
@@ -64,6 +65,7 @@ import androidx.constraintlayout.compose.Visibility
 import androidx.constraintlayout.compose.layoutId
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
+import net.mullvad.mullvadvpn.lib.ui.tag.HOP_SELECTOR_ENTRY_TEST_TAG
 
 private object AnimationKey {
     const val Internet = "internet"
@@ -368,7 +370,8 @@ fun MultihopSelector(
         )
         Hop(
             modifier =
-                Modifier.layoutId(AnimationKey.Entry)
+                Modifier.testTag(HOP_SELECTOR_ENTRY_TEST_TAG)
+                    .layoutId(AnimationKey.Entry)
                     .padding(
                         start = 4.dp,
                         end = 4.dp,
