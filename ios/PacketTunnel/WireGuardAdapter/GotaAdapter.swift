@@ -87,17 +87,30 @@ public final class GotaAdapter: TunnelAdapterProtocol, TunnelDeviceInfoProtocol,
             throw Error.noFileDescriptor
         }
 
-        try gotaTun.start(tunnelFileDescriptor: tunnelFileDescriptor, configuration: try gotaConfig(for: configuration))
+        try gotaTun.start(
+            tunnelFileDescriptor: tunnelFileDescriptor, configuration: try gotaConfig(entry: nil, exit: configuration))
     }
 
-    private func gotaConfig(for configuration: PacketTunnelCore.TunnelAdapterConfiguration) throws -> GotaTunConfig {
-        guard let peer = configuration.peer else {
+    private func gotaConfig(
+        entry: PacketTunnelCore.TunnelAdapterConfiguration?,
+        exit: PacketTunnelCore.TunnelAdapterConfiguration
+    ) throws -> GotaTunConfig {
+        guard let peer = exit.peer else {
             throw Error.noPeer
         }
 
         let config = GotaTunConfig()
+
+        if let entry, let entryPeer = entry.peer {
+            config.addEntry(
+                privateKey: entry.privateKey.rawValue,
+                preSharedKey: entryPeer.preSharedKey?.rawValue,
+                publicKey: entryPeer.publicKey.rawValue,
+                endpoint: entryPeer.endpoint.description)
+        }
+
         config.addExit(
-            privateKey: configuration.privateKey.rawValue,
+            privateKey: exit.privateKey.rawValue,
             preSharedKey: peer.preSharedKey?.rawValue,
             publicKey: peer.publicKey.rawValue,
             endpoint: peer.endpoint.description)
@@ -107,9 +120,20 @@ public final class GotaAdapter: TunnelAdapterProtocol, TunnelDeviceInfoProtocol,
 
     public func startMultihop(
         entryConfiguration: PacketTunnelCore.TunnelAdapterConfiguration?,
-        exitConfiguration: PacketTunnelCore.TunnelAdapterConfiguration, daita: WireGuardKitTypes.DaitaConfiguration?
+        exitConfiguration: PacketTunnelCore.TunnelAdapterConfiguration,
+        daita: WireGuardKitTypes.DaitaConfiguration?
     ) async throws {
-        try await start(configuration: exitConfiguration, daita: nil)
+        // TODO: Should `entryConfiguration` ever be nil here ?
+        try await self.provider.setTunnelNetworkSettings(
+            generateNetworkSettings(for: entryConfiguration ?? exitConfiguration))
+
+        guard let tunnelFileDescriptor = self.tunnelFileDescriptor else {
+            throw Error.noFileDescriptor
+        }
+
+        try gotaTun.start(
+            tunnelFileDescriptor: tunnelFileDescriptor,
+            configuration: try gotaConfig(entry: entryConfiguration, exit: exitConfiguration))
     }
 
     public func stop() async throws {

@@ -5,7 +5,10 @@ use std::{
     str::FromStr,
 };
 
-use boringtun::device::{api::command::{Peer, Set}, peer::AllowedIP};
+use boringtun::device::{
+    api::command::{Peer, Set},
+    peer::AllowedIP,
+};
 use ipnetwork::IpNetwork;
 use libc::c_char;
 use talpid_types::net::wireguard::{PeerConfig, PresharedKey, PrivateKey, PublicKey};
@@ -192,7 +195,7 @@ pub unsafe extern "C" fn mullvad_ios_gotatun_config_set_entry(
 ) -> i32 {
     let cfg = unsafe { config.mut_config() };
     unsafe {
-        cfg.set_exit(
+        cfg.set_entry(
             local_private_key,
             local_ephemeral_key,
             peer_public_key,

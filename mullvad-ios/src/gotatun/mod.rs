@@ -1,5 +1,7 @@
+use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
 use std::ptr;
 
+use boringtun::tun::MtuWatcher;
 use boringtun::udp::UdpTransportFactory;
 use boringtun::{
     device::{
@@ -23,24 +25,44 @@ use tun07::{AbstractDevice, AsyncDevice};
 mod config;
 use config::{ConfigStatus, PeerConfiguration, SwiftGotaTunConfiguration};
 
+use crate::gotatun::config::GotaTunConfiguration;
+
 #[repr(C)]
 pub struct SwiftGotaTun(*mut GotaTun);
 impl SwiftGotaTun {
     unsafe fn get_tunnel(&mut self) -> &mut GotaTun {
-        unsafe {  &mut *self.0 }
+        unsafe { &mut *self.0 }
     }
 }
 
-
-// type SinglehopDevice = DeviceHandle<(UdpFactory, GotaTunDevice)>;
+type SinglehopDevice = DeviceHandle<(UdpSocketFactory, GotaTunDevice)>;
+type EntryDevice = DeviceHandle<(UdpSocketFactory, TunChannelTx, TunChannelRx)>;
+type ExitDevice = DeviceHandle<(UdpChannelFactory, GotaTunDevice)>;
 
 struct GotaTun {
-    device: Option<DeviceHandle<(UdpSocketFactory, GotaTunDevice)>>,
-    device_api: ApiClient,
+    devices: Option<Devices>,
+}
+
+enum Devices {
+    Singlehop {
+        device: SinglehopDevice,
+        api: ApiClient,
+    },
+
+    Multihop {
+        entry_device: EntryDevice,
+        entry_api: ApiClient,
+
+        exit_device: ExitDevice,
+        exit_api: ApiClient,
+    },
 }
 
 impl GotaTun {
-    async fn create_device(tun_fd: i32) -> Result<Self, ConfigStatus> {
+    async fn create_devices(
+        tun_fd: i32,
+        config: &config::GotaTunConfiguration,
+    ) -> Result<Self, ConfigStatus> {
         let mut tun_config = tun07::Configuration::default();
         tun_config.raw_fd(tun_fd);
 
@@ -54,47 +76,157 @@ impl GotaTun {
         let gota_tun_device = GotaTunDevice::from_tun_device(async_device)
             .expect("Failed to fetch MTU for given tunnel device");
 
-        // let tun_device = GotaTunDevice::from_tun_device();
-        let (device_api, device_api_server) = ApiServer::new();
-        let device_config = DeviceConfig {
-            api: Some(device_api_server),
-        };
-        let device = DeviceHandle::new(
-            UdpSocketFactory,
-            gota_tun_device.clone(),
-            gota_tun_device,
-            device_config,
-        )
-        .await;
+        // Single hop config
+        if config.entry.is_none() {
+            // let tun_device = GotaTunDevice::from_tun_device();
+            let (device_api, device_api_server) = ApiServer::new();
+            let device_config = DeviceConfig {
+                api: Some(device_api_server),
+            };
+            let device = DeviceHandle::new(
+                UdpSocketFactory,
+                gota_tun_device.clone(),
+                gota_tun_device,
+                device_config,
+            )
+            .await;
 
-        Ok(Self { device: Some(device), device_api })
+            let singlehop_device = Devices::Singlehop {
+                device,
+                api: device_api,
+            };
+
+            Ok(Self {
+                devices: Some(singlehop_device),
+            })
+        } else {
+            let entry_peer = config.entry.as_ref().unwrap().get_peer();
+            let exit_peer = config.exit.as_ref().unwrap().get_peer();
+
+            let source_v4 = entry_peer
+                .allowed_ip
+                .iter()
+                .find_map(|ip| match &ip.addr {
+                    &IpAddr::V4(ipv4_addr) => Some(ipv4_addr),
+                    IpAddr::V6(..) => None,
+                })
+                .unwrap_or(Ipv4Addr::UNSPECIFIED);
+
+            let source_v6 = entry_peer
+                .allowed_ip
+                .iter()
+                .find_map(|ip| match &ip.addr {
+                    &IpAddr::V6(ipv6_addr) => Some(ipv6_addr),
+                    IpAddr::V4(..) => None,
+                })
+                .unwrap_or(Ipv6Addr::UNSPECIFIED);
+
+            let multihop_overhead = match exit_peer.endpoint.unwrap().ip() {
+                IpAddr::V4(..) => Ipv4Header::LEN + UdpHeader::LEN + WgData::OVERHEAD,
+                IpAddr::V6(..) => Ipv6Header::LEN + UdpHeader::LEN + WgData::OVERHEAD,
+            };
+            let exit_mtu: MtuWatcher = gota_tun_device.mtu();
+            let entry_mtu = exit_mtu.increase(multihop_overhead as u16).unwrap();
+
+            let (tun_channel_tx, tun_channel_rx, udp_channels) =
+                new_udp_tun_channel(100, source_v4, source_v6, entry_mtu);
+
+            let (exit_api, exit_api_server) = ApiServer::new();
+            let exit_device = ExitDevice::new(
+                udp_channels,
+                gota_tun_device.clone(),
+                gota_tun_device,
+                DeviceConfig {
+                    api: Some(exit_api_server),
+                },
+            )
+            .await;
+
+            let (entry_api, entry_api_server) = ApiServer::new();
+            let gotatun_entry_config = DeviceConfig {
+                api: Some(entry_api_server),
+            };
+
+            let entry_device = EntryDevice::new(
+                UdpSocketFactory,
+                tun_channel_tx,
+                tun_channel_rx,
+                gotatun_entry_config,
+            )
+            .await;
+
+            Ok(Self {
+                devices: Some(Devices::Multihop {
+                    entry_device,
+                    entry_api,
+                    exit_device,
+                    exit_api,
+                }),
+            })
+        }
     }
 
-    async fn configure_device(
+    async fn configure_devices(
         &mut self,
-        peer_configuration: &PeerConfiguration,
+        config: &GotaTunConfiguration,
     ) -> Result<(), ConfigStatus> {
-        let Some(device) = &mut self.device else {
-            return Err(ConfigStatus::NotRunning);
-        };
+        match &self.devices {
+            Some(Devices::Singlehop { device: _, api }) => {
+                let exit_configuration = config.exit.as_ref().ok_or(ConfigStatus::InvalidArg)?;
+                let mut set_cmd = exit_configuration.set_command();
+                let peer = exit_configuration.get_peer();
+                set_cmd.peers.push(SetPeer::builder().peer(peer).build());
 
+                if api.send(set_cmd).await.is_err() {
+                    return Err(ConfigStatus::SetConfigFailure);
+                }
 
-        let mut set_cmd = peer_configuration.set_command();
-        let peer = peer_configuration.get_peer();
-        set_cmd.peers.push(SetPeer::builder().peer(peer).build());
+                Ok(())
+            }
+            Some(Devices::Multihop {
+                entry_device: _,
+                entry_api,
+                exit_device: _,
+                exit_api,
+            }) => {
+                let entry_configuration = config.entry.as_ref().ok_or(ConfigStatus::InvalidArg)?;
+                let mut entry_set_cmd = entry_configuration.set_command();
+                let entry_peer = entry_configuration.get_peer();
+                entry_set_cmd
+                    .peers
+                    .push(SetPeer::builder().peer(entry_peer).build());
 
-        if self.device_api.send(set_cmd).await.is_err() {
-            return Err(ConfigStatus::SetConfigFailure);
+                if entry_api.send(entry_set_cmd).await.is_err() {
+                    return Err(ConfigStatus::SetConfigFailure);
+                }
+
+                let exit_configuration = config.exit.as_ref().ok_or(ConfigStatus::InvalidArg)?;
+                let mut exit_set_cmd = exit_configuration.set_command();
+                let exit_peer = exit_configuration.get_peer();
+                exit_set_cmd
+                    .peers
+                    .push(SetPeer::builder().peer(exit_peer).build());
+
+                if exit_api.send(exit_set_cmd).await.is_err() {
+                    return Err(ConfigStatus::SetConfigFailure);
+                }
+                Ok(())
+            }
+            None => todo!(),
         }
-
-        Ok(())
     }
 
     async fn stop(&mut self) {
-        if let Some(device) = self.device.take() {
-            device.stop().await;
+        match self.devices.take() {
+            Some(Devices::Singlehop { device, api: _ }) => device.stop().await,
+            Some(Devices::Multihop {
+                entry_device,
+                entry_api,
+                exit_device,
+                exit_api,
+            }) => todo!(),
+            None => todo!(),
         }
-
     }
 }
 
@@ -115,9 +247,9 @@ pub unsafe extern "C" fn mullvad_ios_gotatun_start(
     };
 
     let result: Result<GotaTun, ConfigStatus> = tokio_handle.block_on(async {
-        let mut device = GotaTun::create_device(tun_fd).await?;
-        device.configure_device(exit).await?;
-        Ok(device)
+        let mut devices = GotaTun::create_devices(tun_fd, config).await?;
+        devices.configure_devices(config).await?;
+        Ok(devices)
     });
 
     match result {
@@ -160,9 +292,7 @@ pub unsafe extern "C" fn mullvad_ios_gotatun_stop(mut tun_ptr: SwiftGotaTun) -> 
         return ConfigStatus::NoTokioRuntime as i32;
     };
 
-    let result = tokio_handle.block_on(async {
-        tun.stop().await
-    });
+    let result = tokio_handle.block_on(async { tun.stop().await });
 
     unsafe { mullvad_ios_gotatun_drop(tun_ptr) };
     return 0;

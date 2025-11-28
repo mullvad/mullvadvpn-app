@@ -39,17 +39,17 @@ public class GotaTunConfig {
 
     public init() {}
 
-    public func addEntry() {
-
+    public func addEntry(privateKey: Data, preSharedKey: Data?, publicKey: Data, endpoint: String) {
+        mullvad_ios_gotatun_config_set_entry(
+            handle, privateKey.map { $0 }, preSharedKeyOr(preSharedKey)?.map { $0 }, publicKey.map { $0 }, endpoint)
+    }
+    public func addExit(privateKey: Data, preSharedKey: Data?, publicKey: Data, endpoint: String) {
+        mullvad_ios_gotatun_config_set_exit(
+            handle, privateKey.map { $0 }, preSharedKeyOr(preSharedKey)?.map { $0 }, publicKey.map { $0 }, endpoint)
     }
 
-    public func addExit(privateKey: Data, preSharedKey: Data?, publicKey: Data, endpoint: String) {
-        var preSharedKey = preSharedKey
-        if preSharedKey == nil {
-            preSharedKey = Data(repeating: 0, count: 32)
-        }
-        mullvad_ios_gotatun_config_set_exit(
-            handle, privateKey.map { $0 }, preSharedKey?.map { $0 }, publicKey.map { $0 }, endpoint)
+    private func preSharedKeyOr(_ key: Data?) -> Data? {
+        return key ?? Data(repeating: 0, count: 32)
     }
 
     deinit {
