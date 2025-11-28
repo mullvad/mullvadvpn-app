@@ -7,6 +7,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.applist.ApplicationsProvider
+import net.mullvad.mullvadvpn.compose.screen.location.LocationBottomSheetState
 import net.mullvad.mullvadvpn.compose.screen.location.RelayListScrollConnection
 import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.compose.util.BackstackObserver
@@ -40,12 +41,15 @@ import net.mullvad.mullvadvpn.usecase.FilteredRelayListUseCase
 import net.mullvad.mullvadvpn.usecase.HopSelectionUseCase
 import net.mullvad.mullvadvpn.usecase.InternetAvailableUseCase
 import net.mullvad.mullvadvpn.usecase.LastKnownLocationUseCase
+import net.mullvad.mullvadvpn.usecase.ModifyAndEnableMultihopUseCase
 import net.mullvad.mullvadvpn.usecase.ModifyMultihopUseCase
 import net.mullvad.mullvadvpn.usecase.OutOfTimeUseCase
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
 import net.mullvad.mullvadvpn.usecase.PlayPaymentUseCase
 import net.mullvad.mullvadvpn.usecase.ProviderToOwnershipsUseCase
 import net.mullvad.mullvadvpn.usecase.RecentsUseCase
+import net.mullvad.mullvadvpn.usecase.RelayItemCanBeSelectedUseCase
+import net.mullvad.mullvadvpn.usecase.SelectAndEnableMultihopUseCase
 import net.mullvad.mullvadvpn.usecase.SelectSinglehopUseCase
 import net.mullvad.mullvadvpn.usecase.SelectedLocationTitleUseCase
 import net.mullvad.mullvadvpn.usecase.SelectedLocationUseCase
@@ -108,6 +112,7 @@ import net.mullvad.mullvadvpn.viewmodel.VoucherDialogViewModel
 import net.mullvad.mullvadvpn.viewmodel.VpnSettingsViewModel
 import net.mullvad.mullvadvpn.viewmodel.WelcomeViewModel
 import net.mullvad.mullvadvpn.viewmodel.WireguardCustomPortDialogViewModel
+import net.mullvad.mullvadvpn.viewmodel.location.LocationBottomSheetViewModel
 import net.mullvad.mullvadvpn.viewmodel.location.SearchLocationViewModel
 import net.mullvad.mullvadvpn.viewmodel.location.SelectLocationListViewModel
 import net.mullvad.mullvadvpn.viewmodel.location.SelectLocationViewModel
@@ -211,6 +216,25 @@ val uiModule = module {
             customListRelayItemUseCase = get(),
             relayListRepository = get(),
             settingsRepository = get(),
+        )
+    }
+    single {
+        SelectAndEnableMultihopUseCase(relayListRepository = get(), settingsRepository = get())
+    }
+    single {
+        RelayItemCanBeSelectedUseCase(
+            filteredRelayListUseCase = get(),
+            hopSelectionUseCase = get(),
+            settingsRepository = get(),
+            relayListRepository = get(),
+        )
+    }
+    single {
+        ModifyAndEnableMultihopUseCase(
+            relayListRepository = get(),
+            settingsRepository = get(),
+            customListsRepository = get(),
+            wireguardConstraintsRepository = get(),
         )
     }
 
@@ -340,6 +364,8 @@ val uiModule = module {
             get(),
             get(),
             get(),
+            get(),
+            get(),
         )
     }
     viewModel { (relayListType: RelayListType) ->
@@ -370,6 +396,19 @@ val uiModule = module {
             apiAccessRepository = get(),
             supportEmailUseCase = get(),
             savedStateHandle = get(),
+        )
+    }
+    viewModel { (locationBottomSheetState: LocationBottomSheetState) ->
+        LocationBottomSheetViewModel(
+            locationBottomSheetState = locationBottomSheetState,
+            canBeSelectedUseCase = get(),
+            customListsRelayItemUseCase = get(),
+            selectedLocationUseCase = get(),
+            modifyMultihopUseCase = get(),
+            wireguardConstraintsRepository = get(),
+            selectAndEnableMultihopUseCase = get(),
+            hopSelectionUseCase = get(),
+            modifyAndEnableMultihopUseCase = get(),
         )
     }
 

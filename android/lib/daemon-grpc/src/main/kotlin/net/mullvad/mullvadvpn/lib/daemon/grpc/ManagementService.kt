@@ -18,6 +18,7 @@ import io.grpc.StatusException
 import io.grpc.android.UdsChannelBuilder
 import java.io.File
 import java.net.InetAddress
+import java.util.Map.entry
 import java.util.logging.Level
 import java.util.logging.Logger as JavaLogger
 import kotlinx.coroutines.CoroutineScope
@@ -128,6 +129,7 @@ import net.mullvad.mullvadvpn.lib.model.UpdateCustomListError
 import net.mullvad.mullvadvpn.lib.model.UpdateRelayLocationsError
 import net.mullvad.mullvadvpn.lib.model.VoucherCode
 import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
+import net.mullvad.mullvadvpn.lib.model.WireguardConstraints
 import net.mullvad.mullvadvpn.lib.model.WireguardEndpointData as ModelWireguardEndpointData
 import net.mullvad.mullvadvpn.lib.model.addresses
 import net.mullvad.mullvadvpn.lib.model.customOptions
@@ -591,7 +593,8 @@ class ManagementService(
             .mapEmpty()
 
     suspend fun setRelayLocationMultihop(
-        entry: RelayItemId,
+        isMultihopEnabled: Boolean,
+        entry: RelayItemId?,
         exit: RelayItemId,
     ): Either<SetRelayLocationError, Unit> =
         Either.catch {
@@ -601,9 +604,12 @@ class ManagementService(
                     currentRelaySettings.copy {
                         inside(RelaySettings.relayConstraints) {
                             RelayConstraints.location set Constraint.Only(exit)
-                            RelayConstraints.wireguardConstraints.entryLocation set
-                                Constraint.Only(entry)
-                            RelayConstraints.wireguardConstraints.isMultihopEnabled set true
+                            if (entry != null) {
+                                RelayConstraints.wireguardConstraints.entryLocation set
+                                    Constraint.Only(entry)
+                            }
+                            RelayConstraints.wireguardConstraints.isMultihopEnabled set
+                                isMultihopEnabled
                         }
                     }
                 grpc.setRelaySettings(updatedRelaySettings.fromDomain())
@@ -899,6 +905,25 @@ class ManagementService(
     suspend fun updateRelayLocations(): Either<UpdateRelayLocationsError, Unit> =
         Either.catch { grpc.updateRelayLocations(Empty.getDefaultInstance()) }
             .mapLeft(UpdateRelayLocationsError::Unknown)
+            .mapEmpty()
+
+    suspend fun setMultihopAndEntryLocation(
+        isMultihopEnabled: Boolean,
+        entryLocation: RelayItemId,
+    ): Either<SetWireguardConstraintsError, Unit> =
+        Either.catch {
+                val currentRelaySettings = getSettings().relaySettings
+                val updatedRelaySettings =
+                    currentRelaySettings.copy {
+                        inside(RelaySettings.relayConstraints.wireguardConstraints) {
+                            WireguardConstraints.entryLocation set Constraint.Only(entryLocation)
+                            WireguardConstraints.isMultihopEnabled set isMultihopEnabled
+                        }
+                    }
+                grpc.setRelaySettings(updatedRelaySettings.fromDomain())
+            }
+            .onLeft { Logger.e("Set multihop error") }
+            .mapLeft(SetWireguardConstraintsError::Unknown)
             .mapEmpty()
 
     private fun <A> Either<A, Empty>.mapEmpty() = map {}

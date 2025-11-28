@@ -11,7 +11,6 @@
     <string name="add_90_days_time_x">Dodaj 90 dni (%1$s)</string>
     <string name="add_a_server">Dodaj serwer</string>
     <string name="add_dns_server_dialog_title">Dodaj serwer DNS</string>
-    <string name="add_location_to_list">Dodaj lokalizację %1$s do listy</string>
     <string name="add_locations">Dodaj lokalizacje</string>
     <string name="add_method">Dodaj metodę</string>
     <string name="add_time">Dodaj czas</string>

@@ -2786,9 +2786,6 @@ msgstr ""
 msgid "Account time reminders"
 msgstr ""
 
-msgid "Add %s to list"
-msgstr ""
-
 msgid "Add 30 days time (%s)"
 msgstr ""
 
@@ -2802,6 +2799,9 @@ msgid "Add locations"
 msgstr ""
 
 msgid "Add time"
+msgstr ""
+
+msgid "Add to list"
 msgstr ""
 
 msgid "Adding method..."
@@ -3089,6 +3089,12 @@ msgstr ""
 msgid "Mullvad services unavailable"
 msgstr ""
 
+msgid "Multihop is disabled"
+msgstr ""
+
+msgid "Multihop is enabled"
+msgstr ""
+
 msgid "Name was changed to %s"
 msgstr ""
 
@@ -3219,6 +3225,18 @@ msgid "Set %s obfuscation to \"Automatic\" or \"Off\" below to activate this set
 msgstr ""
 
 msgid "Set WireGuard MTU value. Valid range: %1$d - %2$d."
+msgstr ""
+
+msgid "Set as multihop entry"
+msgstr ""
+
+msgid "Set as multihop entry (incompatible)"
+msgstr ""
+
+msgid "Set as multihop exit"
+msgstr ""
+
+msgid "Set as multihop exit (incompatible)"
 msgstr ""
 
 msgid "Set port"

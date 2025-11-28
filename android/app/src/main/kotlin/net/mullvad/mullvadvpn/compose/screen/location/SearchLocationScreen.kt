@@ -19,6 +19,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SearchBarDefaults
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -75,9 +76,13 @@ import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.lib.ui.designsystem.RelayListHeader
 import net.mullvad.mullvadvpn.usecase.FilterChip
+import net.mullvad.mullvadvpn.usecase.ModifyMultihopError
+import net.mullvad.mullvadvpn.usecase.MultihopChange
+import net.mullvad.mullvadvpn.usecase.SelectRelayItemError
 import net.mullvad.mullvadvpn.util.Lce
 import net.mullvad.mullvadvpn.viewmodel.location.SearchLocationSideEffect
 import net.mullvad.mullvadvpn.viewmodel.location.SearchLocationViewModel
+import net.mullvad.mullvadvpn.viewmodel.location.UndoChangeMultihopAction
 import org.koin.androidx.compose.koinViewModel
 
 @Preview("Loading|Default|No Locations|Not found|Results")
@@ -101,6 +106,9 @@ private fun PreviewSearchLocationScreen(
             onDeleteCustomList = {},
             onRemoveOwnershipFilter = {},
             onRemoveProviderFilter = {},
+            onModifyMultihopError = { _, _ -> },
+            onRelayItemError = {},
+            onMultihopChanged = {},
             onGoBack = {},
         )
     }
@@ -178,6 +186,25 @@ fun SearchLocation(
                     )
                 }
             }
+            is SearchLocationSideEffect.MultihopChanged -> {
+                launch {
+                    snackbarHostState.showSnackbarImmediately(
+                        message =
+                            context.getString(
+                                when (it.undoChangeMultihopAction) {
+                                    UndoChangeMultihopAction.Disable,
+                                    is UndoChangeMultihopAction.DisableAndSetExit,
+                                    is UndoChangeMultihopAction.DisableAndSetEntry ->
+                                        R.string.multihop_is_enabled
+                                    else -> R.string.multihop_is_disabled
+                                }
+                            ),
+                        actionLabel = context.getString(R.string.undo),
+                        onAction = { viewModel.undoMultihopAction(it.undoChangeMultihopAction) },
+                        duration = SnackbarDuration.Long,
+                    )
+                }
+            }
         }
     }
 
@@ -239,6 +266,9 @@ fun SearchLocation(
             },
         onRemoveOwnershipFilter = viewModel::removeOwnerFilter,
         onRemoveProviderFilter = viewModel::removeProviderFilter,
+        onModifyMultihopError = viewModel::onModifyMultihopError,
+        onRelayItemError = viewModel::onSelectRelayItemError,
+        onMultihopChanged = viewModel::onMultihopChanged,
         onGoBack = dropUnlessResumed { navigator.navigateUp() },
     )
 }
@@ -260,6 +290,9 @@ fun SearchLocationScreen(
     onDeleteCustomList: (RelayItem.CustomList) -> Unit,
     onRemoveOwnershipFilter: () -> Unit,
     onRemoveProviderFilter: () -> Unit,
+    onModifyMultihopError: (ModifyMultihopError, MultihopChange) -> Unit,
+    onRelayItemError: (SelectRelayItemError) -> Unit,
+    onMultihopChanged: (UndoChangeMultihopAction) -> Unit,
     onGoBack: () -> Unit,
 ) {
     val backgroundColor = MaterialTheme.colorScheme.surface
@@ -282,6 +315,9 @@ fun SearchLocationScreen(
             onEditCustomListName = onEditCustomListName,
             onEditLocationsCustomList = onEditLocationsCustomList,
             onDeleteCustomList = onDeleteCustomList,
+            onModifyMultihopError = onModifyMultihopError,
+            onRelayItemError = onRelayItemError,
+            onMultihopChanged = onMultihopChanged,
             onHideBottomSheet = { locationBottomSheetState = null },
         )
         Column(modifier = Modifier.padding(it)) {
@@ -329,7 +365,7 @@ fun SearchLocationScreen(
                     is Lce.Content -> {
                         relayListContent(
                             relayListItems = state.value.relayListItems,
-                            customLists = state.value.customLists,
+                            relayListType = state.value.relayListType,
                             onSelectRelayItem = {
                                 onSelectRelayItem(it, state.value.relayListType)
                             },
