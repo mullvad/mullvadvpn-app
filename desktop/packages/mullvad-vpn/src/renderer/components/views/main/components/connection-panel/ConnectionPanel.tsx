@@ -2,9 +2,11 @@ import { useCallback, useEffect } from 'react';
 import styled from 'styled-components';
 
 import { IconButton } from '../../../../../lib/components';
+import { Image } from '../../../../../lib/components/image/index';
 import { colors } from '../../../../../lib/foundations';
 import { useBoolean } from '../../../../../lib/utility-hooks';
 import { useSelector } from '../../../../../redux/store';
+import { smallText } from '../../../../common-styles';
 import CustomScrollbars from '../../../../CustomScrollbars';
 import { BackAction } from '../../../../KeyboardNavigation';
 import { ConnectionPanelAccordion } from '../../styles';
@@ -70,9 +72,16 @@ const StyledConnectionStatusContainer = styled.div<{
   transitionTimingFunction: 'ease-out',
 }));
 
+export const StyledRemote = styled.span(smallText, {
+  color: 'lightgray',
+  flexShrink: 0,
+  marginBottom: '5px',
+});
+
 export function ConnectionPanel() {
   const [expanded, expandImpl, collapse, toggleExpandedImpl] = useBoolean();
   const tunnelState = useSelector((state) => state.connection.status);
+  const currentRouterIp = useSelector((state) => state.userInterface.currentRouterIp);
 
   const allowExpand = tunnelState.state === 'connected' || tunnelState.state === 'connecting';
 
@@ -104,6 +113,12 @@ export function ConnectionPanel() {
             data-testid="connection-panel-chevron">
             <IconButton.Icon icon={expanded ? 'chevron-down' : 'chevron-up'} />
           </StyledConnectionPanelChevron>
+        )}
+        {currentRouterIp && (
+          <StyledRemote>
+            <span>{`${currentRouterIp}`}&nbsp;&nbsp;&nbsp;</span>
+            <Image source="router" height={15} />
+          </StyledRemote>
         )}
         <StyledConnectionStatusContainer
           $expanded={expanded}

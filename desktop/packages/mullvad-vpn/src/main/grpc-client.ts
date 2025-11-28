@@ -51,7 +51,11 @@ export class GrpcClient {
     private connectionObserver?: ConnectionObserver,
   ) {
     this.isUds = rpcPath.startsWith('unix://');
-    this.client = new ManagementServiceClient(rpcPath, grpc.credentials.createInsecure());
+    this.client = new ManagementServiceClient(
+      rpcPath,
+      grpc.credentials.createInsecure(),
+      this.channelOptions(),
+    );
   }
 
   public get isConnected() {
@@ -61,7 +65,11 @@ export class GrpcClient {
   public reopen(connectionObserver?: ConnectionObserver) {
     if (this.isClosed) {
       this.isClosed = false;
-      this.client = new ManagementServiceClient(this.rpcPath, grpc.credentials.createInsecure());
+      this.client = new ManagementServiceClient(
+        this.rpcPath,
+        grpc.credentials.createInsecure(),
+        this.channelOptions(),
+      );
 
       this.connectionObserver = connectionObserver;
     }

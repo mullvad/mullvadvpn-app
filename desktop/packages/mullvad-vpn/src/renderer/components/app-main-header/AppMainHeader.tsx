@@ -7,6 +7,7 @@ import {
   AppMainHeaderDeviceInfo,
   AppMainHeaderSettingsButton,
 } from './components';
+import { AppMainHeaderRouterButton } from './components/AppMainHeaderRouterButton';
 
 export interface MainHeaderProps extends Omit<HeaderProps, 'variant' | 'size'> {
   variant?: HeaderProps['variant'] | 'basedOnConnectionStatus';
@@ -38,7 +39,7 @@ const AppMainHeader = ({
         <InitialFocus>
           {logoVariant !== 'none' ? <Logo variant={logoVariant} /> : <div />}
         </InitialFocus>
-        <Flex $gap="medium" $alignItems="center">
+        <Flex $gap="tiny" $alignItems="center">
           {children}
         </Flex>
       </Flex>
@@ -54,6 +55,7 @@ const AppMainHeader = ({
 const AppMainHeaderNamespace = Object.assign(AppMainHeader, {
   AccountButton: AppMainHeaderBarAccountButton,
   SettingsButton: AppMainHeaderSettingsButton,
+  RouterButton: AppMainHeaderRouterButton,
 });
 
 export { AppMainHeaderNamespace as AppMainHeader };

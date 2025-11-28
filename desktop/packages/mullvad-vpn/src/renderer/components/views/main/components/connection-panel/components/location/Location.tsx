@@ -7,7 +7,7 @@ import { largeText } from '../../../../../../common-styles';
 import Marquee from '../../../../../../Marquee';
 import { ConnectionPanelAccordion } from '../../../../styles';
 
-const StyledLocation = styled.span(largeText, {
+export const StyledLocation = styled.span(largeText, {
   color: colors.white,
   flexShrink: 0,
 });

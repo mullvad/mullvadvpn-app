@@ -61,6 +61,11 @@ export interface ISetIsMacOs13OrNewer {
   isMacOs13OrNewer: boolean;
 }
 
+export interface ISetCurrentRouterIp {
+  type: 'SET_CURRENT_ROUTER_IP';
+  currentRouterIp?: string;
+}
+
 export type UserInterfaceAction =
   | IUpdateLocaleAction
   | IUpdateWindowArrowPositionAction
@@ -73,7 +78,8 @@ export type UserInterfaceAction =
   | ISetChangelog
   | ISetIsPerformingPostUpgrade
   | ISetSelectLocationView
-  | ISetIsMacOs13OrNewer;
+  | ISetIsMacOs13OrNewer
+  | ISetCurrentRouterIp;
 
 function updateLocale(locale: string): IUpdateLocaleAction {
   return {
@@ -160,6 +166,13 @@ function setIsMacOs13OrNewer(isMacOs13OrNewer: boolean): ISetIsMacOs13OrNewer {
   };
 }
 
+function setCurrenRouterIp(currentRouterIp?: string): ISetCurrentRouterIp {
+  return {
+    type: 'SET_CURRENT_ROUTER_IP',
+    currentRouterIp,
+  };
+}
+
 export default {
   updateLocale,
   updateWindowArrowPosition,
@@ -173,4 +186,5 @@ export default {
   setIsPerformingPostUpgrade,
   setSelectLocationView,
   setIsMacOs13OrNewer,
+  setCurrenRouterIp,
 };

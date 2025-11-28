@@ -52,6 +52,7 @@ export function MainView() {
       <AppMainHeader size="basedOnLoginStatus" variant="basedOnConnectionStatus">
         <AppMainHeader.AccountButton />
         <AppMainHeader.SettingsButton />
+        <AppMainHeader.RouterButton />
       </AppMainHeader>
       <StyledContainer>
         <Map />

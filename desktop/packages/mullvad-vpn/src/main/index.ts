@@ -92,12 +92,17 @@ class ApplicationMain
     SettingsDelegate,
     AccountDelegate
 {
+  // @ts-expect-error "todo"
   private daemonRpc: DaemonRpc;
 
   private notificationController = new NotificationController(this);
+  // @ts-expect-error "todo"
   private version: Version;
+  // @ts-expect-error "todo"
   private settings: Settings;
+  // @ts-expect-error "todo"
   private account: Account;
+  // @ts-expect-error "todo"
   private appUpgrade: AppUpgrade;
   private userInterface?: UserInterface;
   private tunnelState = new TunnelStateHandler(this);
@@ -137,15 +142,15 @@ class ApplicationMain
   // This is to make sure that the daemon is granted full-disk access.
   private needFullDiskAccess = false;
 
-  public constructor() {
-    this.daemonRpc = new DaemonRpc(
-      new ConnectionObserver(this.onDaemonConnected, this.onDaemonDisconnected),
-    );
+  private currentRouterIp?: string;
 
-    this.version = new Version(this, this.daemonRpc, UPDATE_NOTIFICATION_DISABLED);
-    this.settings = new Settings(this, this.daemonRpc, this.version.currentVersion);
-    this.account = new Account(this, this.daemonRpc);
-    this.appUpgrade = new AppUpgrade(this.daemonRpc);
+  public constructor() {
+    const remoteAddressArgIndex = process.argv.indexOf('--remote');
+    const remoteAddress =
+      remoteAddressArgIndex >= 0 ? process.argv[remoteAddressArgIndex + 1] : undefined;
+    this.currentRouterIp = remoteAddress;
+
+    this.initializeDaemon(remoteAddress);
   }
 
   public run() {
@@ -268,6 +273,18 @@ class ApplicationMain
 
     app.quit();
   };
+
+  private initializeDaemon(remoteAddress?: string) {
+    this.daemonRpc = new DaemonRpc(
+      new ConnectionObserver(this.onDaemonConnected, this.onDaemonDisconnected),
+      remoteAddress,
+    );
+
+    this.version = new Version(this, this.daemonRpc, UPDATE_NOTIFICATION_DISABLED);
+    this.settings = new Settings(this, this.daemonRpc, this.version.currentVersion);
+    this.account = new Account(this, this.daemonRpc);
+    this.appUpgrade = new AppUpgrade(this.daemonRpc);
+  }
 
   private addSecondInstanceEventHandler() {
     app.on('second-instance', (_event, _argv, _workingDirectory) => {
@@ -825,7 +842,16 @@ class ApplicationMain
       navigationHistory: this.navigationHistory,
       currentApiAccessMethod: this.currentApiAccessMethod,
       isMacOs13OrNewer: isMacOs13OrNewer(),
+      currentRouterIp: this.currentRouterIp,
     }));
+
+    IpcMainEventChannel.daemon.handleConnectToRouter((address: string) => {
+      this.daemonRpc.disconnect();
+      this.onDaemonDisconnected(true);
+      this.initializeDaemon(address);
+      this.connectToDaemon();
+      IpcMainEventChannel.daemon.notifyCurrentRouterIp?.(address);
+    });
 
     IpcMainEventChannel.map.handleGetData(async () => ({
       landContourIndices: await fs.promises.readFile(path.join(GEO_DIR, 'land_contour_indices.gl')),

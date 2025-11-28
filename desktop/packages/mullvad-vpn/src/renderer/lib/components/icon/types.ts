@@ -32,4 +32,5 @@ export const icons = {
   'settings-filled': 'icon-settings-filled',
   'settings-partial': 'icon-settings-partial',
   show: 'icon-show',
+  router: 'icon-router',
 };

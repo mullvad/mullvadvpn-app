@@ -16,6 +16,7 @@ export interface IUserInterfaceReduxState {
   isPerformingPostUpgrade: boolean;
   selectLocationView: LocationType;
   isMacOs13OrNewer: boolean;
+  currentRouterIp?: string;
 }
 
 const initialState: IUserInterfaceReduxState = {
@@ -85,6 +86,12 @@ export default function (
       return {
         ...state,
         isMacOs13OrNewer: action.isMacOs13OrNewer,
+      };
+
+    case 'SET_CURRENT_ROUTER_IP':
+      return {
+        ...state,
+        currentRouterIp: action.currentRouterIp,
       };
 
     default:

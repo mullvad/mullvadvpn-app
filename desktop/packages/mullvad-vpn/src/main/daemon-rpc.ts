@@ -54,12 +54,6 @@ import {
 const UDS_PATH_PREFIX = 'unix://';
 const UDS_PATH = process.platform === 'win32' ? '//./pipe/Mullvad VPN' : '/var/run/mullvad-vpn';
 
-const remoteArgIndex = process.argv.indexOf('--remote-daemon');
-const DAEMON_RPC_PATH =
-  remoteArgIndex >= 0
-    ? `${process.argv[remoteArgIndex + 1]}:3000`
-    : `${UDS_PATH_PREFIX}${UDS_PATH}`;
-
 export class SubscriptionListener<T> {
   // Only meant to be used by DaemonRpc
   // @internal
@@ -90,8 +84,10 @@ export class DaemonRpc extends GrpcClient {
     grpc.ClientReadableStream<grpcTypes.DaemonEvent | grpcTypes.AppUpgradeEvent>
   > = new Map();
 
-  public constructor(connectionObserver?: ConnectionObserver) {
-    super(DAEMON_RPC_PATH, connectionObserver);
+  public constructor(connectionObserver: ConnectionObserver, remoteAddress?: string) {
+    const rpcAddress =
+      remoteAddress !== undefined ? `${remoteAddress}:3000` : `${UDS_PATH_PREFIX}${UDS_PATH}`;
+    super(rpcAddress, connectionObserver);
   }
 
   public disconnect() {

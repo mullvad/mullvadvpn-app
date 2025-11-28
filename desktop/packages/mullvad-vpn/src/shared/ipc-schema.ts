@@ -81,6 +81,7 @@ export interface IAppStateSnapshot {
   navigationHistory?: IHistoryObject;
   currentApiAccessMethod?: AccessMethodSetting;
   isMacOs13OrNewer: boolean;
+  currentRouterIp?: string;
 }
 
 export type IpcSchema = typeof ipcSchema;
@@ -149,6 +150,8 @@ export const ipcSchema = {
     prepareRestart: send<boolean>(),
     tryStart: send<void>(),
     tryStartEvent: notifyRenderer<DaemonStatus>(),
+    connectToRouter: send<string>(),
+    currentRouterIp: notifyRenderer<string>(),
   },
   relays: {
     '': notifyRenderer<IRelayListWithEndpointData>(),

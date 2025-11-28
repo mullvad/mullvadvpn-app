@@ -288,6 +288,10 @@ export default class AppRenderer {
       });
     });
 
+    IpcRendererEventChannel.daemon.listenCurrentRouterIp((ip: string) => {
+      this.reduxActions.userInterface.setCurrenRouterIp(ip);
+    });
+
     // Request the initial state from the main process
     const initialState = IpcRendererEventChannel.state.get();
 
@@ -305,6 +309,7 @@ export default class AppRenderer {
 
     this.setSettings(initialState.settings);
     this.setIsPerformingPostUpgrade(initialState.isPerformingPostUpgrade);
+    this.reduxActions.userInterface.setCurrenRouterIp(initialState.currentRouterIp);
 
     if (initialState.daemonAllowed !== undefined) {
       this.reduxActions.userInterface.setDaemonAllowed(initialState.daemonAllowed);
@@ -479,6 +484,8 @@ export default class AppRenderer {
     return IpcRendererEventChannel.linuxSplitTunneling.isSplitTunnelingSupported();
   };
   public getAppUpgradeCacheDir = () => IpcRendererEventChannel.app.getUpgradeCacheDir();
+  public connectToRouter = (address: string) =>
+    IpcRendererEventChannel.daemon.connectToRouter(address);
 
   public tryStartDaemon = () => {
     if (window.env.platform === 'win32') IpcRendererEventChannel.daemon.tryStart();

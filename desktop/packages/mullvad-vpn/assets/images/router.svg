@@ -1,0 +1,382 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg
+    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns="http://www.w3.org/2000/svg"
+    xmlns:cc="http://creativecommons.org/ns#"
+    xmlns:dc="http://purl.org/dc/elements/1.1/"
+    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+    xmlns:svg="http://www.w3.org/2000/svg"
+    xmlns:ns1="http://sozi.baierouge.fr"
+    xmlns:xlink="http://www.w3.org/1999/xlink"
+    id="svg3039"
+    sodipodi:docname="Cisco Wireless-8 AP.svg"
+    viewBox="0 0 432.59 326.07"
+    version="1.1"
+    inkscape:version="0.48.2 r9819"
+  >
+  <sodipodi:namedview
+      id="namedview3041"
+      fit-margin-left="10"
+      inkscape:zoom="1.2943447"
+      borderopacity="1"
+      inkscape:current-layer="layer10"
+      inkscape:cx="-62.733813"
+      inkscape:cy="54.74548"
+      inkscape:window-maximized="1"
+      showgrid="false"
+      fit-margin-right="10"
+      bordercolor="#666666"
+      inkscape:window-x="0"
+      guidetolerance="10"
+      objecttolerance="10"
+      inkscape:window-y="24"
+      fit-margin-bottom="10"
+      inkscape:window-width="1920"
+      inkscape:pageopacity="0"
+      inkscape:pageshadow="2"
+      pagecolor="#ffffff"
+      gridtolerance="10"
+      inkscape:window-height="1056"
+      fit-margin-top="10"
+  />
+  <g
+      id="layer17"
+      inkscape:label="ants2"
+      inkscape:groupmode="layer"
+      transform="translate(-124.37 426.14)"
+    >
+    <g
+        id="g42229"
+        transform="translate(14.257 84)"
+      >
+      <g
+          id="g42201"
+        >
+        <path
+            id="path42179"
+            sodipodi:nodetypes="ccccccccc"
+            style="fill:#4d4d4d"
+            inkscape:connector-curvature="0"
+            d="m181.1-296.09 5.463-58.181 2.7315-19.667v-123.74c2.6777-2.9427 5.6094-3.5991 9.014 0v124.56l2.4584 19.394 4.3704 58.181z"
+        />
+        <path
+            id="path42179-1"
+            sodipodi:nodetypes="ccccc"
+            style="fill:#1a1a1a"
+            inkscape:connector-curvature="0"
+            d="m181.1-296.09 5.463-58.181c0.2679 0.0458 14.204 0.5463 14.204 0.5463l4.3704 58.181z"
+        />
+      </g
+      >
+      <g
+          id="g42201-9"
+          transform="matrix(-1 0 0 1 652.81 0)"
+        >
+        <path
+            id="path42179-6"
+            sodipodi:nodetypes="ccccccccc"
+            style="fill:#4d4d4d"
+            inkscape:connector-curvature="0"
+            d="m181.1-296.09 5.463-58.181 2.7315-19.667v-123.74c2.6777-2.9427 5.6094-3.5991 9.014 0v124.56l2.4584 19.394 4.3704 58.181z"
+        />
+        <path
+            id="path42179-1-4"
+            sodipodi:nodetypes="ccccc"
+            style="fill:#1a1a1a"
+            inkscape:connector-curvature="0"
+            d="m181.1-296.09 5.463-58.181c0.2679 0.0458 14.204 0.5463 14.204 0.5463l4.3704 58.181z"
+        />
+      </g
+      >
+    </g
+    >
+  </g
+  >
+  <g
+      id="layer15"
+      inkscape:label="grey top"
+      inkscape:groupmode="layer"
+      transform="translate(-124.37 426.14)"
+    >
+    <path
+        id="path3062-2-9-4"
+        sodipodi:nodetypes="ccccc"
+        style="fill:#4d4d4d"
+        inkscape:connector-curvature="0"
+        d="m211.63-222.92c83.12-4.414 166.24-3.7049 249.36 0l43.847 23.564-328.35-0.57474z"
+    />
+    <g
+        id="g41973-5"
+        style="fill:#4d4d4d"
+        transform="matrix(.81275 0 0 .89489 63.791 -47.57)"
+      >
+      <path
+          id="rect41946-0"
+          d="m138.47-190.93h48.075c2.2699 0 4.0973 1.8274 4.0973 4.0973v65.01c0 8.0695-9.6845 11.879-18.028 11.746l-34.144-0.5463c-2.2696-0.0363-4.0973-1.8274-4.0973-4.0973v-72.112c0-2.2699 1.8274-4.0973 4.0973-4.0973z"
+          sodipodi:nodetypes="sssssssss"
+          style="color:#000000;fill:#4d4d4d"
+          inkscape:connector-curvature="0"
+      />
+      <path
+          id="rect41946-2-9"
+          d="m542.86-190.93h-48.075c-2.2699 0-4.0973 1.8274-4.0973 4.0973v65.01c0 8.0695 9.6845 11.879 18.028 11.746l34.144-0.5463c2.2696-0.0363 4.0973-1.8274 4.0973-4.0973v-72.112c0-2.2699-1.8274-4.0973-4.0973-4.0973z"
+          sodipodi:nodetypes="sssssssss"
+          style="color:#000000;fill:#4d4d4d"
+          inkscape:connector-curvature="0"
+      />
+    </g
+    >
+  </g
+  >
+  <g
+      id="layer9"
+      sodipodi:insensitive="true"
+      inkscape:label="legs"
+      inkscape:groupmode="layer"
+      transform="translate(-124.37 426.14)"
+    >
+    <g
+        id="g41973"
+      >
+      <path
+          id="rect41946"
+          d="m138.47-190.93h48.075c2.2699 0 4.0973 1.8274 4.0973 4.0973v65.01c0 8.0695-9.6845 11.879-18.028 11.746l-34.144-0.5463c-2.2696-0.0363-4.0973-1.8274-4.0973-4.0973v-72.112c0-2.2699 1.8274-4.0973 4.0973-4.0973z"
+          sodipodi:nodetypes="sssssssss"
+          style="color:#000000;fill:#0038ff"
+          inkscape:connector-curvature="0"
+      />
+      <path
+          id="rect41946-2"
+          d="m542.86-190.93h-48.075c-2.2699 0-4.0973 1.8274-4.0973 4.0973v65.01c0 8.0695 9.6845 11.879 18.028 11.746l34.144-0.5463c2.2696-0.0363 4.0973-1.8274 4.0973-4.0973v-72.112c0-2.2699-1.8274-4.0973-4.0973-4.0973z"
+          sodipodi:nodetypes="sssssssss"
+          style="color:#000000;fill:#0038ff"
+          inkscape:connector-curvature="0"
+      />
+    </g
+    >
+  </g
+  >
+  <g
+      id="layer11"
+      sodipodi:insensitive="true"
+      inkscape:label="blue top"
+      inkscape:groupmode="layer"
+      transform="translate(-124.37 426.14)"
+    >
+    <g
+        id="layer12-2"
+        inkscape:label="blue back#1"
+        transform="translate(146.84 27.963)"
+      >
+      <path
+          id="path3062-2-9"
+          sodipodi:nodetypes="ccccc"
+          style="fill:#0038ff"
+          inkscape:connector-curvature="0"
+          d="m44.145-238.54c96.419-4.414 192.84-3.7049 289.26 0l50.863 23.564-380.89-0.57474z"
+      />
+    </g
+    >
+  </g
+  >
+  <g
+      id="layer6"
+      inkscape:label="front"
+      transform="translate(-124.37 426.14)"
+      inkscape:groupmode="layer"
+      sodipodi:insensitive="true"
+    >
+    <path
+        id="rect41934"
+        sodipodi:nodetypes="ccccc"
+        style="color:#000000;fill:#0054ff"
+        inkscape:connector-curvature="0"
+        d="m142.16-185.89c132.89-5.1992 265.77-4.9977 398.66 0 6.6234 23.344 4.9816 43.588 0 62.58-128.36 10.57-261.56 9.8194-398.66 0-10.129-21.781-5.6115-42.23 0-62.58z"
+    />
+  </g
+  >
+  <g
+      id="layer8"
+      inkscape:label="box2"
+      transform="translate(-124.37 426.14)"
+      inkscape:groupmode="layer"
+      sodipodi:insensitive="true"
+    >
+    <path
+        id="rect41941"
+        sodipodi:nodetypes="ccccc"
+        style="color:#000000;fill:#000000"
+        inkscape:connector-curvature="0"
+        d="m149.88-161.94h191.99v44.549c-63.4 0.44267-127.63-1.1726-191.99-6.5794z"
+    />
+  </g
+  >
+  <g
+      id="layer7"
+      inkscape:label="box1"
+      transform="translate(-124.37 426.14)"
+      inkscape:groupmode="layer"
+      sodipodi:insensitive="true"
+    >
+    <path
+        id="rect41938"
+        sodipodi:nodetypes="ccccc"
+        style="color:#000000;fill:#0038ff"
+        inkscape:connector-curvature="0"
+        d="m341.44-161.97h67.196v43.89c-22.286 0.46504-44.425 1.3742-67.196 0.3863z"
+    />
+  </g
+  >
+  <g
+      id="layer10"
+      inkscape:label="lights"
+      transform="translate(-124.37 426.14)"
+      inkscape:groupmode="layer"
+      sodipodi:insensitive="true"
+    >
+    <path
+        id="path4092-6"
+        sodipodi:rx="1.8349054"
+        sodipodi:ry="1.8349054"
+        style="fill:#ffffff"
+        sodipodi:type="arc"
+        d="m130.18-193.33c0 1.0134-0.82152 1.8349-1.8349 1.8349s-1.8349-0.82151-1.8349-1.8349 0.82151-1.8349 1.8349-1.8349 1.8349 0.82152 1.8349 1.8349z"
+        transform="translate(155.08 60.367)"
+        sodipodi:cy="-193.33189"
+        sodipodi:cx="128.3468"
+    />
+    <path
+        id="path4092-6-1"
+        sodipodi:rx="1.8349054"
+        sodipodi:ry="1.8349054"
+        style="fill:#ffffff"
+        sodipodi:type="arc"
+        d="m130.18-193.33c0 1.0134-0.82152 1.8349-1.8349 1.8349s-1.8349-0.82151-1.8349-1.8349 0.82151-1.8349 1.8349-1.8349 1.8349 0.82152 1.8349 1.8349z"
+        transform="translate(177.74 60.367)"
+        sodipodi:cy="-193.33189"
+        sodipodi:cx="128.3468"
+    />
+    <path
+        id="path4092-6-8"
+        sodipodi:rx="1.8349054"
+        sodipodi:ry="1.8349054"
+        style="fill:#ffffff"
+        sodipodi:type="arc"
+        d="m130.18-193.33c0 1.0134-0.82152 1.8349-1.8349 1.8349s-1.8349-0.82151-1.8349-1.8349 0.82151-1.8349 1.8349-1.8349 1.8349 0.82152 1.8349 1.8349z"
+        transform="translate(200.39 60.367)"
+        sodipodi:cy="-193.33189"
+        sodipodi:cx="128.3468"
+    />
+  </g
+  >
+  <metadata
+    >
+    <rdf:RDF
+      >
+      <cc:Work
+        >
+        <dc:format
+          >image/svg+xml</dc:format
+        >
+        <dc:type
+            rdf:resource="http://purl.org/dc/dcmitype/StillImage"
+        />
+        <cc:license
+            rdf:resource="http://creativecommons.org/licenses/publicdomain/"
+        />
+        <dc:publisher
+          >
+          <cc:Agent
+              rdf:about="http://openclipart.org/"
+            >
+            <dc:title
+              >Openclipart</dc:title
+            >
+          </cc:Agent
+          >
+        </dc:publisher
+        >
+        <dc:title
+          >Cisco/Linksys Wireless-8 AP</dc:title
+        >
+        <dc:date
+          >2012-04-17T10:08:51</dc:date
+        >
+        <dc:description
+        />
+        <dc:source
+          >https://openclipart.org/detail/169551/ciscolinksys-wireless-8-ap-by-lalitpatanpur</dc:source
+        >
+        <dc:creator
+          >
+          <cc:Agent
+            >
+            <dc:title
+              >Lalitpatanpur</dc:title
+            >
+          </cc:Agent
+          >
+        </dc:creator
+        >
+        <dc:subject
+          >
+          <rdf:Bag
+            >
+            <rdf:li
+              >access point</rdf:li
+            >
+            <rdf:li
+              >ap</rdf:li
+            >
+            <rdf:li
+              >cisco</rdf:li
+            >
+            <rdf:li
+              >computer</rdf:li
+            >
+            <rdf:li
+              >lan</rdf:li
+            >
+            <rdf:li
+              >linksys</rdf:li
+            >
+            <rdf:li
+              >network</rdf:li
+            >
+            <rdf:li
+              >wan</rdf:li
+            >
+            <rdf:li
+              >wireless</rdf:li
+            >
+            <rdf:li
+              >wlan</rdf:li
+            >
+          </rdf:Bag
+          >
+        </dc:subject
+        >
+      </cc:Work
+      >
+      <cc:License
+          rdf:about="http://creativecommons.org/licenses/publicdomain/"
+        >
+        <cc:permits
+            rdf:resource="http://creativecommons.org/ns#Reproduction"
+        />
+        <cc:permits
+            rdf:resource="http://creativecommons.org/ns#Distribution"
+        />
+        <cc:permits
+            rdf:resource="http://creativecommons.org/ns#DerivativeWorks"
+        />
+      </cc:License
+      >
+    </rdf:RDF
+    >
+  </metadata
+  >
+</svg
+>
