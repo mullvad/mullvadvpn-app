@@ -7,6 +7,7 @@ use std::{env, fs, os::unix::fs::PermissionsExt};
 use std::{
     future::Future,
     io,
+    net::SocketAddr,
     pin::Pin,
     task::{Context, Poll},
 };
@@ -128,20 +129,29 @@ impl From<tonic::Status> for Error {
 
 #[cfg(not(target_os = "android"))]
 #[deprecated(note = "Prefer MullvadProxyClient")]
-pub async fn new_rpc_client() -> Result<ManagementServiceClient, Error> {
+pub async fn new_rpc_client(
+    remote_http_addr: Option<String>,
+) -> Result<ManagementServiceClient, Error> {
     use futures::TryFutureExt;
 
-    let ipc_path = mullvad_paths::get_rpc_socket_path();
+    if let Some(http_address) = remote_http_addr {
+        let management_client = ManagementServiceClient::connect(http_address)
+            .await
+            .unwrap();
+        Ok(management_client)
+    } else {
+        let ipc_path = mullvad_paths::get_rpc_socket_path();
 
-    // The URI will be ignored
-    let channel = Endpoint::from_static("lttp://[::]:50051")
-        .connect_with_connector(service_fn(move |_: Uri| {
-            IpcEndpoint::connect(ipc_path.clone()).map_ok(hyper_util::rt::tokio::TokioIo::new)
-        }))
-        .await
-        .map_err(Error::GrpcTransportError)?;
+        // The URI will be ignored
+        let channel = Endpoint::from_static("lttp://[::]:50051")
+            .connect_with_connector(service_fn(move |_: Uri| {
+                IpcEndpoint::connect(ipc_path.clone()).map_ok(hyper_util::rt::tokio::TokioIo::new)
+            }))
+            .await
+            .map_err(Error::GrpcTransportError)?;
 
-    Ok(ManagementServiceClient::new(channel))
+        Ok(ManagementServiceClient::new(channel))
+    }
 }
 
 #[cfg(not(target_os = "android"))]
@@ -149,7 +159,7 @@ pub use client::MullvadProxyClient;
 
 pub type ServerJoinHandle = tokio::task::JoinHandle<()>;
 
-pub fn spawn_rpc_server<T: ManagementService, F: Future<Output = ()> + Send + 'static>(
+pub fn spawn_uds_rpc_server<T: ManagementService, F: Future<Output = ()> + Send + 'static>(
     service: T,
     abort_rx: F,
     rpc_socket_path: impl AsRef<std::path::Path>,
@@ -184,9 +194,26 @@ pub fn spawn_rpc_server<T: ManagementService, F: Future<Output = ()> + Send + 's
             .await
             .map_err(Error::GrpcTransportError)
         {
-            log::error!("Management server panic: {execution_error}");
+            log::error!("UDP Management server panic: {execution_error}");
         }
-        log::trace!("gRPC server is shutting down");
+        log::trace!("UDP gRPC server is shutting down");
+    }))
+}
+
+pub fn spawn_http_rpc_server<T: ManagementService>(
+    service: T,
+    socket_address: SocketAddr,
+) -> std::result::Result<ServerJoinHandle, Error> {
+    Ok(tokio::spawn(async move {
+        if let Err(execution_error) = Server::builder()
+            .add_service(ManagementServiceServer::new(service))
+            .serve(socket_address)
+            .await
+            .map_err(Error::GrpcTransportError)
+        {
+            log::error!("HTTP Management server panic: {execution_error}");
+        }
+        log::trace!("HTTP gRPC server is shutting down");
     }))
 }
 

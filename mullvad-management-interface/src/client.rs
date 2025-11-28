@@ -88,8 +88,15 @@ impl TryFrom<types::daemon_event::Event> for DaemonEvent {
 #[cfg(not(target_os = "android"))]
 impl MullvadProxyClient {
     pub async fn new() -> Result<Self> {
+        let remote_http_addr = Some("http://127.0.0.1:3000".to_string());
+
         #[allow(deprecated)]
-        super::new_rpc_client().await.map(Self)
+        super::new_rpc_client(remote_http_addr).await.map(Self)
+    }
+
+    pub async fn new_without_http() -> Result<Self> {
+        #[allow(deprecated)]
+        super::new_rpc_client(None).await.map(Self)
     }
 
     pub fn from_rpc_client(client: crate::ManagementServiceClient) -> Self {
