@@ -1,4 +1,5 @@
 import Foundation
+import MullvadTypes
 
 class MockSelectLocationViewModel: SelectLocationViewModel {
     var isMultihopEnabled: Bool = true

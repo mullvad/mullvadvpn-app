@@ -13,24 +13,39 @@ import MullvadTypes
 
 final class RelayFilterViewModel {
     @Published var relayFilter: RelayFilter
+    let multihopContext: MultihopContext
 
     private var settings: LatestTunnelSettings
     private let relaySelectorWrapper: RelaySelectorProtocol
     private let relaysWithLocation: LocationRelays
     private var relayCandidatesForAny: RelayCandidates
 
-    init(settings: LatestTunnelSettings, relaySelectorWrapper: RelaySelectorProtocol) {
+    init(
+        settings: LatestTunnelSettings,
+        relaySelectorWrapper: RelaySelectorProtocol,
+        multihopContext: MultihopContext
+
+    ) {
         self.settings = settings
+        var settingsCopy = settings
+
         self.relaySelectorWrapper = relaySelectorWrapper
-        self.relayFilter = settings.relayConstraints.filter.value ?? RelayFilter()
+        self.multihopContext = multihopContext
+
+        switch multihopContext {
+        case .entry:
+            self.relayFilter = settings.relayConstraints.entryFilter.value ?? RelayFilter()
+            settingsCopy.relayConstraints.entryFilter = .any
+        case .exit:
+            self.relayFilter = settings.relayConstraints.exitFilter.value ?? RelayFilter()
+            settingsCopy.relayConstraints.exitFilter = .any
+        }
 
         // Retrieve all available relays that satisfy the `any` constraint.
         // This constraint ensures that the selected relays are associated with the current tunnel settings
         // and serve as the primary source of truth for subsequent filtering operations.
         // Further filtering will be applied based on specific criteria such as `ownership` or `provider`.
-        var copy = settings
-        copy.relayConstraints.filter = .any
-        if let relayCandidatesForAny = try? relaySelectorWrapper.findCandidates(tunnelSettings: copy) {
+        if let relayCandidatesForAny = try? relaySelectorWrapper.findCandidates(tunnelSettings: settingsCopy) {
             self.relayCandidatesForAny = relayCandidatesForAny
         } else {
             self.relayCandidatesForAny = RelayCandidates(entryRelays: nil, exitRelays: [])

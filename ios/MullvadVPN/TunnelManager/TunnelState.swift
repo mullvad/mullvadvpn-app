@@ -97,13 +97,13 @@ enum TunnelState: Equatable, CustomStringConvertible, Sendable {
         case let .connecting(tunnelRelays, isPostQuantum, isDaita):
             if let tunnelRelays {
                 """
-                connecting \(isPostQuantum ? "(PQ) " : ""), \
+                connecting \(isPostQuantum ? "(PQ)" : ""), \
                 daita: \(isDaita), \
                 to \(tunnelRelays.exit.hostname)\
                 \(tunnelRelays.entry.flatMap { " via \($0.hostname)" } ?? "")
                 """
             } else {
-                "connecting\(isPostQuantum ? " (PQ)" : ""), fetching relay"
+                "connecting \(isPostQuantum ? "(PQ)" : ""), fetching relay"
             }
         case let .connected(tunnelRelays, isPostQuantum, isDaita):
             """

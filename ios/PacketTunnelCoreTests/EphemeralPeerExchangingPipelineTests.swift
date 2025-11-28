@@ -29,7 +29,7 @@ final class EphemeralPeerExchangingPipelineTests: XCTestCase {
             from: try RelaySelector.WireGuard.findCandidates(
                 by: relayConstraints.exitLocations,
                 in: ServerRelaysResponseStubs.sampleRelays,
-                filterConstraint: relayConstraints.filter,
+                filterConstraint: relayConstraints.exitFilter,
                 daitaEnabled: false
             ),
             wireguard: ServerRelaysResponseStubs.sampleRelays.wireguard,
@@ -41,7 +41,7 @@ final class EphemeralPeerExchangingPipelineTests: XCTestCase {
             from: try RelaySelector.WireGuard.findCandidates(
                 by: relayConstraints.entryLocations,
                 in: ServerRelaysResponseStubs.sampleRelays,
-                filterConstraint: relayConstraints.filter,
+                filterConstraint: relayConstraints.entryFilter,
                 daitaEnabled: false
             ),
             wireguard: ServerRelaysResponseStubs.sampleRelays.wireguard,

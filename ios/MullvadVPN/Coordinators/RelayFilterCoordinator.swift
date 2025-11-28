@@ -11,9 +11,14 @@ import MullvadTypes
 import Routing
 import UIKit
 
+enum FilterContext {
+
+}
+
 class RelayFilterCoordinator: Coordinator, Presentable {
     private let tunnelManager: TunnelManager
     private let relaySelectorWrapper: RelaySelectorWrapper
+    private let multihopContext: MultihopContext
     private var tunnelObserver: TunnelObserver?
 
     let navigationController: UINavigationController
@@ -33,25 +38,27 @@ class RelayFilterCoordinator: Coordinator, Presentable {
     init(
         navigationController: UINavigationController,
         tunnelManager: TunnelManager,
+        multihopContext: MultihopContext,
         relaySelectorWrapper: RelaySelectorWrapper
     ) {
         self.navigationController = navigationController
         self.tunnelManager = tunnelManager
+        self.multihopContext = multihopContext
         self.relaySelectorWrapper = relaySelectorWrapper
     }
 
     func start() {
         let relayFilterViewController = RelayFilterViewController(
             settings: tunnelManager.settings,
-            relaySelectorWrapper: relaySelectorWrapper
+            relaySelectorWrapper: relaySelectorWrapper,
+            multihopContext: multihopContext
         )
 
-        relayFilterViewController.onApplyFilter = { [weak self] filter in
+        relayFilterViewController.onApplyFilter = { [weak self] filter, multihopContext in
             guard let self else { return }
 
             var relayConstraints = tunnelManager.settings.relayConstraints
-            relayConstraints.filter = .only(filter)
-
+            relayConstraints.setFilterConstraint(.only(filter), for: multihopContext)
             tunnelManager.updateSettings([.relayConstraints(relayConstraints)])
 
             didFinish?(self, filter)

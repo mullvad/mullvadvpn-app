@@ -28,7 +28,7 @@ protocol SelectLocationViewModel: ObservableObject {
 struct SelectLocationDelegate {
     let showDaitaSettings: () -> Void
     let showObfuscationSettings: () -> Void
-    let showFilterView: () -> Void
+    let showFilterView: (MultihopContext) -> Void
     let showEditCustomListView: ([LocationNode], CustomList?) -> Void
     let showAddCustomListView: ([LocationNode]) -> Void
     let didSelectExitRelayLocations: (UserSelectedRelays) -> Void
@@ -175,7 +175,7 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
     func onFilterTapped(_ filter: SelectLocationFilter) {
         switch filter {
         case .owned, .rented, .provider:
-            delegate.showFilterView()
+            delegate.showFilterView(multihopContext)
         case .daita:
             delegate.showDaitaSettings()
         case .obfuscation:
@@ -184,18 +184,18 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
     }
 
     func onFilterRemoved(_ filter: SelectLocationFilter) {
+        var relayConstraints = tunnelManager.settings.relayConstraints
+
         switch filter {
         case .owned, .rented:
-            var relayConstraints = tunnelManager.settings.relayConstraints
-            guard var filter = relayConstraints.filter.value else { return }
+            guard var filter = relayConstraints.filterConstraint(for: multihopContext).value else { return }
             filter.ownership = .any
-            relayConstraints.filter = .only(filter)
+            relayConstraints.setFilterConstraint(.only(filter), for: multihopContext)
             tunnelManager.updateSettings([.relayConstraints(relayConstraints)])
         case .provider:
-            var relayConstraints = tunnelManager.settings.relayConstraints
-            guard var filter = relayConstraints.filter.value else { return }
+            guard var filter = relayConstraints.filterConstraint(for: multihopContext).value else { return }
             filter.providers = .any
-            relayConstraints.filter = .only(filter)
+            relayConstraints.setFilterConstraint(.only(filter), for: multihopContext)
             tunnelManager.updateSettings([.relayConstraints(relayConstraints)])
         default:
             break
@@ -364,6 +364,6 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
     }
 
     func showFilterView() {
-        delegate.showFilterView()
+        delegate.showFilterView(multihopContext)
     }
 }

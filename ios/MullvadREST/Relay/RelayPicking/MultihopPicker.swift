@@ -22,7 +22,7 @@ struct MultihopPicker: RelayPicking {
         let obfuscationBypass = UnsupportedObfuscationProvider(
             relayConstraint: constraints.entryLocations,
             relays: obfuscation.obfuscatedRelays,
-            filterConstraint: constraints.filter,
+            filterConstraint: constraints.entryFilter,
             daitaEnabled: daitaSettings.daitaState.isEnabled
         )
 
@@ -36,14 +36,14 @@ struct MultihopPicker: RelayPicking {
         let entryCandidates = try RelaySelector.WireGuard.findCandidates(
             by: daitaSettings.isAutomaticRouting ? .any : constraints.entryLocations,
             in: supportedObfuscation.obfuscatedRelays,
-            filterConstraint: constraints.filter,
+            filterConstraint: constraints.entryFilter,
             daitaEnabled: daitaSettings.daitaState.isEnabled
         )
 
         let exitCandidates = try RelaySelector.WireGuard.findCandidates(
             by: constraints.exitLocations,
             in: supportedObfuscation.allRelays,
-            filterConstraint: constraints.filter,
+            filterConstraint: constraints.exitFilter,
             daitaEnabled: false
         )
 
