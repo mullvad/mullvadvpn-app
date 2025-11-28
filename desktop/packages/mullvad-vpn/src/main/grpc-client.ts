@@ -14,8 +14,6 @@ import log from '../shared/logging';
 const NETWORK_CALL_TIMEOUT = 10000;
 const CHANNEL_STATE_TIMEOUT = 1000 * 60 * 60;
 
-const RPC_PATH_PREFIX = 'unix://';
-
 type CallFunctionArgument<T, R> =
   | ((arg: T, callback: (error: Error | null, result: R) => void) => void)
   | undefined;
@@ -46,16 +44,14 @@ export class GrpcClient {
   private isConnectedValue = false;
   private isClosed = false;
   private reconnectionTimeout?: NodeJS.Timeout;
+  private isUds: boolean;
 
   constructor(
     private rpcPath: string,
     private connectionObserver?: ConnectionObserver,
   ) {
-    this.client = new ManagementServiceClient(
-      this.prefixedRpcPath(),
-      grpc.credentials.createInsecure(),
-      this.channelOptions(),
-    );
+    this.isUds = rpcPath.startsWith('unix://');
+    this.client = new ManagementServiceClient(rpcPath, grpc.credentials.createInsecure());
   }
 
   public get isConnected() {
@@ -65,11 +61,7 @@ export class GrpcClient {
   public reopen(connectionObserver?: ConnectionObserver) {
     if (this.isClosed) {
       this.isClosed = false;
-      this.client = new ManagementServiceClient(
-        this.prefixedRpcPath(),
-        grpc.credentials.createInsecure(),
-        this.channelOptions(),
-      );
+      this.client = new ManagementServiceClient(this.rpcPath, grpc.credentials.createInsecure());
 
       this.connectionObserver = connectionObserver;
     }
@@ -88,13 +80,10 @@ export class GrpcClient {
           this.onClose(error);
           this.ensureConnectivity();
           reject(error);
-        } else {
+        } else if (this.isUds) {
           this.verifyOwnership()
             .then(() => {
-              this.reconnectionTimeout = undefined;
-              this.isConnectedValue = true;
-              this.connectionObserver?.onOpen();
-              this.setChannelCallback();
+              this.onOpen();
               resolve();
             })
             .catch((error) => {
@@ -102,6 +91,9 @@ export class GrpcClient {
               this.ensureConnectivity();
               reject(error);
             });
+        } else {
+          this.onOpen();
+          resolve();
         }
       });
     });
@@ -163,8 +155,11 @@ export class GrpcClient {
     }
   }
 
-  private prefixedRpcPath(): string {
-    return `${RPC_PATH_PREFIX}${this.rpcPath}`;
+  private onOpen() {
+    this.reconnectionTimeout = undefined;
+    this.isConnectedValue = true;
+    this.connectionObserver?.onOpen();
+    this.setChannelCallback();
   }
 
   private deadlineFromNow() {
@@ -261,10 +256,12 @@ export class GrpcClient {
 
   // Assert that the gRPC connection is owned by an administrator
   private async verifyOwnership() {
+    const rpcPath = this.rpcPath.replace(/^unix:\/\//, '');
+
     if (process.platform === 'win32') {
       try {
         const { pipeIsAdminOwned } = await import('windows-utils');
-        pipeIsAdminOwned(this.rpcPath);
+        pipeIsAdminOwned(rpcPath);
       } catch (e) {
         if (e && typeof e === 'object' && 'message' in e) {
           throw new Error(`Failed to verify admin ownership of named pipe. ${e.message}`);
@@ -274,7 +271,7 @@ export class GrpcClient {
       }
       log.info('Verified pipe ownership');
     } else {
-      const stat = fs.statSync(this.rpcPath);
+      const stat = fs.statSync(rpcPath);
       if (stat.uid !== 0) {
         throw new Error('Failed to verify root ownership of socket');
       }
