@@ -1,5 +1,5 @@
 use anyhow::Result;
-use clap::Parser;
+use clap::{Parser, Subcommand};
 
 mod cmds;
 mod format;
@@ -10,7 +10,16 @@ pub const BIN_NAME: &str = env!("CARGO_BIN_NAME");
 #[derive(Debug, Parser)]
 #[command(author, version = mullvad_version::VERSION, about, long_about = None)]
 #[command(propagate_version = true)]
-enum Cli {
+struct Cli {
+    #[clap(long, global = true)]
+    remote: Option<String>,
+
+    #[command(subcommand)]
+    subcommands: CliSubcommands,
+}
+
+#[derive(Subcommand, Debug)]
+enum CliSubcommands {
     /// Control and display information about your Mullvad account
     #[clap(subcommand)]
     Account(account::Account),
@@ -160,32 +169,44 @@ async fn main() -> Result<()> {
     #[cfg(unix)]
     handle_sigpipe().unwrap();
 
-    match Cli::parse() {
-        Cli::Account(cmd) => cmd.handle().await,
-        Cli::Connect { wait } => tunnel_state::connect(wait).await,
-        Cli::Reconnect { wait } => tunnel_state::reconnect(wait).await,
-        Cli::Debug(cmd) => cmd.handle().await,
-        Cli::Disconnect { wait } => tunnel_state::disconnect(wait).await,
-        Cli::AutoConnect(cmd) => cmd.handle().await,
-        Cli::BetaProgram(cmd) => cmd.handle().await,
-        Cli::LockdownMode(cmd) => cmd.handle().await,
-        Cli::Dns(cmd) => cmd.handle().await,
-        Cli::Lan(cmd) => cmd.handle().await,
-        Cli::Obfuscation(cmd) => cmd.handle().await,
-        Cli::ApiAccess(cmd) => cmd.handle().await,
-        Cli::Version => version::print().await,
-        Cli::FactoryReset { assume_yes } => reset::handle_factory_reset(assume_yes).await,
-        Cli::ResetSettings { assume_yes } => reset::handle_settings_reset(assume_yes).await,
-        Cli::Relay(cmd) => cmd.handle().await,
-        Cli::Tunnel(cmd) => cmd.handle().await,
-        Cli::SplitTunnel(cmd) => cmd.handle().await,
-        Cli::Status { cmd, args } => status::handle(cmd, args).await,
-        Cli::CustomList(cmd) => cmd.handle().await,
-        Cli::ImportSettings { file } => patch::import(file).await,
-        Cli::ExportSettings { file } => patch::export(file).await,
+    let parsed = Cli::parse();
+
+    if let Some(remote_addr) = parsed.remote {
+        unsafe {
+            std::env::set_var("RPC_REMOTE_ADDR", remote_addr);
+        }
+    }
+
+    match parsed.subcommands {
+        CliSubcommands::Account(cmd) => cmd.handle().await,
+        CliSubcommands::Connect { wait } => tunnel_state::connect(wait).await,
+        CliSubcommands::Reconnect { wait } => tunnel_state::reconnect(wait).await,
+        CliSubcommands::Debug(cmd) => cmd.handle().await,
+        CliSubcommands::Disconnect { wait } => tunnel_state::disconnect(wait).await,
+        CliSubcommands::AutoConnect(cmd) => cmd.handle().await,
+        CliSubcommands::BetaProgram(cmd) => cmd.handle().await,
+        CliSubcommands::LockdownMode(cmd) => cmd.handle().await,
+        CliSubcommands::Dns(cmd) => cmd.handle().await,
+        CliSubcommands::Lan(cmd) => cmd.handle().await,
+        CliSubcommands::Obfuscation(cmd) => cmd.handle().await,
+        CliSubcommands::ApiAccess(cmd) => cmd.handle().await,
+        CliSubcommands::Version => version::print().await,
+        CliSubcommands::FactoryReset { assume_yes } => {
+            reset::handle_factory_reset(assume_yes).await
+        }
+        CliSubcommands::ResetSettings { assume_yes } => {
+            reset::handle_settings_reset(assume_yes).await
+        }
+        CliSubcommands::Relay(cmd) => cmd.handle().await,
+        CliSubcommands::Tunnel(cmd) => cmd.handle().await,
+        CliSubcommands::SplitTunnel(cmd) => cmd.handle().await,
+        CliSubcommands::Status { cmd, args } => status::handle(cmd, args).await,
+        CliSubcommands::CustomList(cmd) => cmd.handle().await,
+        CliSubcommands::ImportSettings { file } => patch::import(file).await,
+        CliSubcommands::ExportSettings { file } => patch::export(file).await,
 
         #[cfg(all(unix, not(target_os = "android")))]
-        Cli::ShellCompletions { shell, dir } => {
+        CliSubcommands::ShellCompletions { shell, dir } => {
             use anyhow::Context;
             use clap::CommandFactory;
 

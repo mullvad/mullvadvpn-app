@@ -88,8 +88,7 @@ impl TryFrom<types::daemon_event::Event> for DaemonEvent {
 #[cfg(not(target_os = "android"))]
 impl MullvadProxyClient {
     pub async fn new() -> Result<Self> {
-        let remote_http_addr = Some("http://127.0.0.1:3000".to_string());
-
+        let remote_http_addr = std::env::var("RPC_REMOTE_ADDR").ok();
         #[allow(deprecated)]
         super::new_rpc_client(remote_http_addr).await.map(Self)
     }

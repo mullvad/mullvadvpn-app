@@ -135,11 +135,14 @@ pub async fn new_rpc_client(
     use futures::TryFutureExt;
 
     if let Some(http_address) = remote_http_addr {
+        println!("<Connecting to remote daemon: {}>", http_address);
+        let http_address = format!("http://{}:3000", http_address);
         let management_client = ManagementServiceClient::connect(http_address)
             .await
             .unwrap();
         Ok(management_client)
     } else {
+        println!("<Connecting to local daemon>");
         let ipc_path = mullvad_paths::get_rpc_socket_path();
 
         // The URI will be ignored
