@@ -1,4 +1,11 @@
 import { messages } from '../../../../shared/gettext';
+import { AutoConnectSetting, AutoStartSetting } from '../../../features/client/components';
+import { AllowLanSetting } from '../../../features/lan-sharing/components';
+import {
+  EnableIpv6Setting,
+  LockdownModeSetting,
+  QuantumResistantSetting,
+} from '../../../features/tunnel/components';
 import { useHistory } from '../../../lib/history';
 import { AppNavigationHeader } from '../..';
 import { BackAction } from '../../KeyboardNavigation';
@@ -13,19 +20,13 @@ import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
 import SettingsHeader, { HeaderTitle } from '../../SettingsHeader';
 import {
-  AllowLanSetting,
   AntiCensorshipListItem,
-  AutoConnectSetting,
-  AutoStartSetting,
   CustomDnsSettings,
   DnsBlockerSettings,
-  EnableIpv6Setting,
   IpOverrideSettings,
   IpVersionSetting,
   KillSwitchSetting,
-  LockdownModeSetting,
   MtuSetting,
-  QuantumResistantSetting,
 } from './components';
 
 export function VpnSettingsView() {

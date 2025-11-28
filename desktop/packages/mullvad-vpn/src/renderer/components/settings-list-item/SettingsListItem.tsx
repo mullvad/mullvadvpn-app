@@ -1,6 +1,7 @@
 import { ScrollToAnchorId } from '../../../shared/ipc-types';
 import { useScrollToListItem } from '../../hooks';
 import { ListItem, ListItemProps } from '../../lib/components/list-item';
+import { SettingsListItemGroup } from './components';
 
 export type SettingsListItemProps = ListItemProps & {
   anchorId?: ScrollToAnchorId;
@@ -18,7 +19,7 @@ function SettingsListItem({ labelId, anchorId, ...props }: SettingsListItemProps
 const SettingsListItemNamespace = Object.assign(SettingsListItem, {
   Content: ListItem.Content,
   Label: ListItem.Label,
-  Group: ListItem.Group,
+  Group: SettingsListItemGroup,
   Text: ListItem.Text,
   Trigger: ListItem.Trigger,
   Item: ListItem.Item,

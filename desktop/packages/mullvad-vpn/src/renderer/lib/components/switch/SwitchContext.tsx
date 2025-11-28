@@ -2,12 +2,7 @@ import React from 'react';
 
 import { SwitchProps } from './Switch';
 
-interface SwitchContextProps {
-  labelId: string;
-  disabled: SwitchProps['disabled'];
-  checked?: SwitchProps['checked'];
-  onCheckedChange?: SwitchProps['onCheckedChange'];
-}
+type SwitchContextProps = SwitchProviderProps;
 
 const SwitchContext = React.createContext<SwitchContextProps | undefined>(undefined);
 
@@ -19,14 +14,30 @@ export const useSwitchContext = (): SwitchContextProps => {
   return context;
 };
 
-interface SwitchProviderProps {
-  labelId: string;
+type SwitchProviderProps = React.PropsWithChildren<{
   disabled: SwitchProps['disabled'];
   checked?: SwitchProps['checked'];
   onCheckedChange?: SwitchProps['onCheckedChange'];
-  children: React.ReactNode;
-}
+  labelId?: SwitchProps['labelId'];
+  descriptionId?: SwitchProps['descriptionId'];
+}>;
 
-export function SwitchProvider({ children, ...props }: SwitchProviderProps) {
-  return <SwitchContext.Provider value={props}>{children}</SwitchContext.Provider>;
+export function SwitchProvider({
+  labelId: labelIdProp,
+  descriptionId: descriptionIdProp,
+  children,
+  ...props
+}: SwitchProviderProps) {
+  const labelId = React.useId();
+  const descriptionId = React.useId();
+  return (
+    <SwitchContext.Provider
+      value={{
+        ...props,
+        labelId: labelIdProp ?? labelId,
+        descriptionId: descriptionIdProp ?? descriptionId,
+      }}>
+      {children}
+    </SwitchContext.Provider>
+  );
 }

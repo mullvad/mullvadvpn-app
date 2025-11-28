@@ -1,32 +1,19 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 
 import { strings } from '../../../../shared/constants';
 import { messages } from '../../../../shared/gettext';
-import { useAppContext } from '../../../context';
-import {
-  Button,
-  Flex,
-  Icon,
-  Image,
-  LabelTiny,
-  LabelTinySemiBold,
-  Text,
-} from '../../../lib/components';
+import { DaitaDirectOnlySetting, DaitaSetting } from '../../../features/daita/components';
+import { Flex, Icon, Image, LabelTiny, LabelTinySemiBold, Text } from '../../../lib/components';
 import { useHistory } from '../../../lib/history';
-import { useBoolean } from '../../../lib/utility-hooks';
-import { useSelector } from '../../../redux/store';
 import { AppNavigationHeader } from '../..';
 import * as Cell from '../../cell';
-import InfoButton from '../../InfoButton';
 import { BackAction } from '../../KeyboardNavigation';
 import { Layout, SettingsContainer } from '../../Layout';
-import { ModalAlert, ModalAlertType, ModalMessage } from '../../Modal';
 import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
 import PageSlider from '../../PageSlider';
-import { SettingsToggleListItem } from '../../settings-toggle-list-item';
 import SettingsHeader, { HeaderTitle } from '../../SettingsHeader';
 import { useShowDaitaMultihopInfo } from './hooks';
 
@@ -151,7 +138,8 @@ export function DaitaSettingsView() {
               </SettingsHeader>
               <SettingsContainer>
                 <Cell.Group>
-                  <DaitaToggle />
+                  <DaitaSetting />
+                  <DaitaDirectOnlySetting />
                 </Cell.Group>
               </SettingsContainer>
             </NavigationScrollbars>
@@ -159,132 +147,5 @@ export function DaitaSettingsView() {
         </SettingsContainer>
       </Layout>
     </BackAction>
-  );
-}
-
-function DaitaToggle() {
-  const { setEnableDaita, setDaitaDirectOnly } = useAppContext();
-  const relaySettings = useSelector((state) => state.settings.relaySettings);
-  const daita = useSelector((state) => state.settings.wireguard.daita?.enabled ?? false);
-  const directOnly = useSelector((state) => state.settings.wireguard.daita?.directOnly ?? false);
-
-  const [confirmationDialogVisible, showConfirmationDialog, hideConfirmationDialog] = useBoolean();
-
-  const unavailable = !('normal' in relaySettings);
-
-  const setDaita = useCallback(
-    (value: boolean) => {
-      void setEnableDaita(value);
-    },
-    [setEnableDaita],
-  );
-
-  const setDirectOnly = useCallback(
-    (value: boolean) => {
-      if (value) {
-        showConfirmationDialog();
-      } else {
-        void setDaitaDirectOnly(value);
-      }
-    },
-    [setDaitaDirectOnly, showConfirmationDialog],
-  );
-
-  const confirmEnableDirectOnly = useCallback(() => {
-    void setDaitaDirectOnly(true);
-    hideConfirmationDialog();
-  }, [hideConfirmationDialog, setDaitaDirectOnly]);
-
-  const directOnlyString = messages.gettext('Direct only');
-
-  return (
-    <>
-      <SettingsToggleListItem
-        anchorId="daita-enable-setting"
-        disabled={unavailable}
-        checked={daita && !unavailable}
-        onCheckedChange={setDaita}
-        description={unavailable ? featureUnavailableMessage() : undefined}>
-        <SettingsToggleListItem.Label>{messages.gettext('Enable')}</SettingsToggleListItem.Label>
-        <SettingsToggleListItem.Switch />
-      </SettingsToggleListItem>
-      <SettingsToggleListItem
-        disabled={!daita || unavailable}
-        checked={directOnly && !unavailable}
-        onCheckedChange={setDirectOnly}>
-        <SettingsToggleListItem.Label>{directOnlyString}</SettingsToggleListItem.Label>
-        <SettingsToggleListItem.Group>
-          <InfoButton>
-            <DirectOnlyModalMessage />
-          </InfoButton>
-          <SettingsToggleListItem.Switch />
-        </SettingsToggleListItem.Group>
-      </SettingsToggleListItem>
-      <ModalAlert
-        isOpen={confirmationDialogVisible}
-        type={ModalAlertType.caution}
-        gridButtons={[
-          <Button key="cancel" onClick={hideConfirmationDialog}>
-            <Button.Text>{messages.pgettext('wireguard-settings-view', 'Cancel')}</Button.Text>
-          </Button>,
-          <Button key="confirm" onClick={confirmEnableDirectOnly}>
-            <Button.Text>
-              {
-                // TRANSLATORS: A toggle that refers to the setting "Direct only".
-                messages.gettext('Enable direct only')
-              }
-            </Button.Text>
-          </Button>,
-        ]}
-        close={hideConfirmationDialog}>
-        <ModalMessage>
-          {sprintf(
-            // TRANSLATORS: Warning text in a dialog that is displayed after a setting is toggled.
-            messages.pgettext(
-              'wireguard-settings-view',
-              'Not all our servers are %(daita)s-enabled. In order to use the internet, you might have to select a new location after enabling.',
-            ),
-            { daita: strings.daita },
-          )}
-        </ModalMessage>
-      </ModalAlert>
-    </>
-  );
-}
-
-function DirectOnlyModalMessage() {
-  const directOnlyString = messages.gettext('Direct only');
-
-  return (
-    <ModalMessage>
-      {sprintf(
-        messages.pgettext(
-          'wireguard-settings-view',
-          'By enabling “%(directOnly)s” you will have to manually select a server that is %(daita)s-enabled. This can cause you to end up in a blocked state until you have selected a compatible server in the “Select location” view.',
-        ),
-        {
-          daita: strings.daita,
-          directOnly: directOnlyString,
-        },
-      )}
-    </ModalMessage>
-  );
-}
-
-function featureUnavailableMessage() {
-  const tunnelProtocol = messages.pgettext('vpn-settings-view', 'Tunnel protocol');
-
-  return sprintf(
-    messages.pgettext(
-      // TRANSLATORS: Informs the user that the feature is only available when WireGuard
-      // TRANSLATORS: is selected.
-      // TRANSLATORS: Available placeholders:
-      // TRANSLATORS: %(wireguard)s - will be replaced with WireGuard
-      // TRANSLATORS: %(tunnelProtocol)s - the name of the tunnel protocol setting
-      // TRANSLATORS: %(setting)s - the name of the setting
-      'wireguard-settings-view',
-      'Switch to “%(wireguard)s” in Settings > %(tunnelProtocol)s to make %(setting)s available.',
-    ),
-    { wireguard: strings.wireguard, tunnelProtocol, setting: strings.daita },
   );
 }
