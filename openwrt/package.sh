@@ -58,11 +58,8 @@ cp -r "$IPK_SCAFFOLDING"/* "$IPK_FILES/"
 mkdir -p "$IPK_FILES/data/usr/bin/" # Ensure that the /data/usr/bin folder exists before copying files.
 cp "$CARGO_TARGET_DIR"/release/{mullvad,mullvad-daemon} "$IPK_FILES/data/usr/bin/"
 
-# Optional: If `--minify` is used, invoke `upx` to compress binaries before packaging.
-case $3 in
-    --minify) upx --best --lzma "$IPK_FILES"/data/usr/bin/* || true ;; # Disregard failure, minify on a best-effort basis.
-    *) ;;
-esac
+# TODO: Make this optional: use `upx` to compress binaries before packaging.
+upx --best --lzma "$IPK_FILES"/data/usr/bin/* || true ;; # Disregard failure, minify on a best-effort basis.
 
 # Then make sure everything is owned by root before creating the .ipk archive.
 chown -R root:root "$IPK_FILES/"
