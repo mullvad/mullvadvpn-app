@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		014449952CA293B100C0C2F2 /* EncryptedDNSProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 014449942CA293B100C0C2F2 /* EncryptedDNSProxy.swift */; };
 		017BF7D02EB4AF9D00783AF6 /* GotaAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 017BF7CF2EB4AF9D00783AF6 /* GotaAdapter.swift */; };
 		017BF7D12EB4AF9D00783AF6 /* GotaAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 017BF7CF2EB4AF9D00783AF6 /* GotaAdapter.swift */; };
 		017BF7D32EB4F54100783AF6 /* GotaTun.swift in Sources */ = {isa = PBXBuildFile; fileRef = 017BF7D22EB4F54100783AF6 /* GotaTun.swift */; };
@@ -3908,6 +3907,7 @@
 				589A454A28DDF59B00565204 /* Shared */,
 				7A83C3FC2A55B39500DFB83A /* TestPlans */,
 				58695A9E2A4ADA9200328DB3 /* TunnelObfuscationTests */,
+				A9F8B32D2ED998CB00AA5DDD /* Recovered References */,
 			);
 			sourceTree = "<group>";
 		};
@@ -4591,6 +4591,14 @@
 				585A02E82A4B283000C6CAFF /* UnsafeListener.swift */,
 			);
 			path = MullvadRustRuntimeTests;
+			sourceTree = "<group>";
+		};
+		A9F8B32D2ED998CB00AA5DDD /* Recovered References */ = {
+			isa = PBXGroup;
+			children = (
+				014449942CA293B100C0C2F2 /* EncryptedDNSProxy.swift */,
+			);
+			name = "Recovered References";
 			sourceTree = "<group>";
 		};
 		F028A5472A336E1900C0CAA3 /* RedeemVoucher */ = {
@@ -6931,8 +6939,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A9D9A4B12C36D10E004088DD /* ShadowSocksProxy.swift in Sources */,
-				014449952CA293B100C0C2F2 /* EncryptedDNSProxy.swift in Sources */,
 				017BF7D32EB4F54100783AF6 /* GotaTun.swift in Sources */,
 				F0A89CB52D9D864B00580C27 /* RustProblemReportRequest.swift in Sources */,
 				7AB931242D43C2CA005FCEBA /* MullvadApiContext.swift in Sources */,

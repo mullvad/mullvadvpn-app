@@ -469,50 +469,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "boringtun"
-version = "0.6.0"
-source = "git+https://github.com/mullvad/gotatun?rev=d8ddd4232c9636aa98ab4bd14093e256f7d09abb#d8ddd4232c9636aa98ab4bd14093e256f7d09abb"
-dependencies = [
- "aead",
- "async-trait",
- "base64 0.13.1",
- "bitfield-struct",
- "blake2",
- "bytes",
- "chacha20poly1305",
- "constant_time_eq 0.4.2",
- "duplicate",
- "either",
- "eyre",
- "futures",
- "hex",
- "hmac",
- "ip_network",
- "ip_network_table",
- "libc",
- "log",
- "maybenot",
- "nix 0.30.1",
- "parking_lot",
- "pcap-file",
- "pnet_packet 0.35.0",
- "rand 0.9.2",
- "rand_chacha 0.9.0",
- "rand_core 0.6.4",
- "ring",
- "socket2 0.6.0",
- "thiserror 1.0.59",
- "tokio",
- "tracing",
- "tun 0.7.13",
- "typed-builder 0.21.0",
- "untrusted",
- "windows-sys 0.61.1",
- "x25519-dalek",
- "zerocopy",
-]
-
-[[package]]
 name = "bumpalo"
 version = "3.16.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2479,6 +2435,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "iprange"
+version = "0.6.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "37209be0ad225457e63814401415e748e2453a5297f9b637338f5fb8afa4ec00"
+dependencies = [
+ "ipnet",
+]
+
+[[package]]
 name = "iri-string"
 version = "0.7.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2619,6 +2584,17 @@ dependencies = [
  "ryu-js",
  "serde",
  "serde_json",
+]
+
+[[package]]
+name = "json5"
+version = "0.4.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "96b0db21af676c1ce64250b5f40f3ce2cf27e4e47cb91ed91eb6fe9350b430c1"
+dependencies = [
+ "pest",
+ "pest_derive",
+ "serde",
 ]
 
 [[package]]
@@ -2778,6 +2754,12 @@ name = "lru-slab"
 version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "112b39cec0b298b6c1999fee3e31427f74f676e4cb9879ed1a121b43661a4154"
+
+[[package]]
+name = "lru_time_cache"
+version = "0.11.11"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9106e1d747ffd48e6be5bb2d97fa706ed25b144fbee4d5c02eae110cd8d6badd"
 
 [[package]]
 name = "malloc_buf"
@@ -3142,7 +3124,7 @@ name = "mullvad-ios"
 version = "0.0.0"
 dependencies = [
  "async-trait",
- "boringtun 0.6.0 (git+https://github.com/mullvad/gotatun?rev=9aa8ec67d4fcd8cd79862a6c48f5c2500c65ef8b)",
+ "boringtun",
  "cbindgen",
  "futures",
  "hyper",
@@ -3156,6 +3138,7 @@ dependencies = [
  "mullvad-types",
  "oslog",
  "serde_json",
+ "shadowsocks-service",
  "talpid-future",
  "talpid-tunnel-config-client",
  "talpid-types",
@@ -3956,6 +3939,49 @@ name = "percent-encoding"
 version = "2.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e3148f5046208a5d56bcfc03053e3ca6334e51da8dfb19b6cdc8b306fae3283e"
+
+[[package]]
+name = "pest"
+version = "2.8.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cbcfd20a6d4eeba40179f05735784ad32bdaef05ce8e8af05f180d45bb3e7e22"
+dependencies = [
+ "memchr",
+ "ucd-trie",
+]
+
+[[package]]
+name = "pest_derive"
+version = "2.8.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "51f72981ade67b1ca6adc26ec221be9f463f2b5839c7508998daa17c23d94d7f"
+dependencies = [
+ "pest",
+ "pest_generator",
+]
+
+[[package]]
+name = "pest_generator"
+version = "2.8.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "dee9efd8cdb50d719a80088b76f81aec7c41ed6d522ee750178f83883d271625"
+dependencies = [
+ "pest",
+ "pest_meta",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.108",
+]
+
+[[package]]
+name = "pest_meta"
+version = "2.8.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bf1d70880e76bdc13ba52eafa6239ce793d85c8e43896507e43dd8984ff05b82"
+dependencies = [
+ "pest",
+ "sha2",
+]
 
 [[package]]
 name = "petgraph"
@@ -5016,6 +5042,43 @@ dependencies = [
 ]
 
 [[package]]
+name = "shadowsocks-service"
+version = "1.20.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c0c0ce5a3a15e2688b7014c37ed3db33dc296d8b8fda36643c053882bf1d5f44"
+dependencies = [
+ "arc-swap",
+ "async-trait",
+ "byte_string",
+ "byteorder",
+ "bytes",
+ "cfg-if",
+ "futures",
+ "http-body-util",
+ "httparse",
+ "hyper",
+ "idna",
+ "ipnet",
+ "iprange",
+ "json5",
+ "libc",
+ "log",
+ "lru_time_cache",
+ "nix 0.29.0",
+ "once_cell",
+ "pin-project",
+ "rand 0.8.5",
+ "regex",
+ "serde",
+ "shadowsocks",
+ "socket2 0.5.8",
+ "spin",
+ "thiserror 1.0.59",
+ "tokio",
+ "windows-sys 0.59.0",
+]
+
+[[package]]
 name = "sharded-slab"
 version = "0.1.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5508,7 +5571,6 @@ version = "0.0.0"
 dependencies = [
  "async-trait",
  "bitflags 1.3.2",
- "boringtun 0.6.0 (git+https://github.com/mullvad/gotatun?rev=d8ddd4232c9636aa98ab4bd14093e256f7d09abb)",
  "byteorder",
  "chrono",
  "futures",
@@ -6145,6 +6207,12 @@ name = "typenum"
 version = "1.17.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "42ff0bf0c66b8238c6f3b578df37d0b7848e55df8577b3f74f92a69acceeb825"
+
+[[package]]
+name = "ucd-trie"
+version = "0.1.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2896d95c02a80c6d6a5d6e953d479f5ddf2dfdb6a244441010e373ac0fb88971"
 
 [[package]]
 name = "udp-over-tcp"
