@@ -139,11 +139,7 @@ class TalpidVpnServiceFallbackDnsTest {
             TunConfig(
                 addresses = arrayListOf(InetAddress.getByName("45.83.223.209")),
                 dnsServers = arrayListOf(),
-                routes =
-                    arrayListOf(
-                        InetNetwork(InetAddress.getByName("0.0.0.0"), 0),
-                        InetNetwork(InetAddress.getByName("::"), 0),
-                    ),
+                routes = arrayListOf(InetNetwork(InetAddress.getByName("0.0.0.0"), 0)),
                 mtu = 1280,
                 excludedPackages = arrayListOf(),
             )

@@ -12,6 +12,7 @@ pub const CLASSES: &[&str] = &[
     "net/mullvad/talpid/model/RouteInfo",
     "net/mullvad/talpid/model/CreateTunResult$Success",
     "net/mullvad/talpid/model/CreateTunResult$InvalidDnsServers",
+    "net/mullvad/talpid/model/CreateTunResult$InvalidIpv6Config",
     "net/mullvad/talpid/model/CreateTunResult$OtherLegacyAlwaysOnVpn",
     "net/mullvad/talpid/model/CreateTunResult$OtherAlwaysOnApp",
     "net/mullvad/talpid/model/CreateTunResult$NotPrepared",

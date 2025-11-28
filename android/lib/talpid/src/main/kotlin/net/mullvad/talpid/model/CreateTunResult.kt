@@ -35,4 +35,8 @@ sealed interface CreateTunResult {
 
         override val isOpen = true
     }
+
+    data object InvalidIpv6Config : Error {
+        override val isOpen = false
+    }
 }

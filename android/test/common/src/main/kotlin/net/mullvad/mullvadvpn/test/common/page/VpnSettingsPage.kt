@@ -22,6 +22,7 @@ import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
 class VpnSettingsPage internal constructor() : Page() {
     private val vpnSettingsSelector = By.text("VPN settings")
     private val localNetworkSharingSelector = By.text("Local network sharing")
+    private val inTunnelIpv6Selector = By.text("In-tunnel IPv6")
 
     override fun assertIsDisplayed() {
         uiDevice.findObjectWithTimeout(vpnSettingsSelector)
@@ -34,6 +35,13 @@ class VpnSettingsPage internal constructor() : Page() {
             localNetworkSharingCell.findObjectWithTimeout(By.res(SWITCH_TEST_TAG))
 
         localNetworkSharingSwitch.click()
+    }
+
+    fun clickInTunnelIpv6Switch() {
+        val inTunnelIpv6Cell = uiDevice.findObjectWithTimeout(inTunnelIpv6Selector).parent
+        val inTunnelIpv6Switch = inTunnelIpv6Cell.findObjectWithTimeout(By.res(SWITCH_TEST_TAG))
+
+        inTunnelIpv6Switch.click()
     }
 
     fun scrollUntilWireGuardObfuscationUdpOverTcpCell() {
