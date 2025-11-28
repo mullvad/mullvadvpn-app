@@ -14,4 +14,5 @@ export const createSelectors = (page: Page) => ({
   notificationTitle: () => page.getByTestId('notificationTitle'),
   notificationSubtitle: () => page.getByTestId('notificationSubTitle'),
   relayHostname: () => page.getByTestId('hostname-line'),
+  timeLeftLabel: () => page.getByText(/^Time left:/),
 });
