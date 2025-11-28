@@ -155,6 +155,10 @@ class ApplicationMain
       app.commandLine.appendSwitch('wm-window-animations-disabled');
     }
 
+    if (process.platform === 'darwin') {
+      app.commandLine.appendSwitch('disable-geolocation');
+    }
+
     if (process.platform === 'linux') {
       // NOTE: Keep in sync with mocked-utils.ts
       app.commandLine.appendSwitch('gtk-version', '3');
