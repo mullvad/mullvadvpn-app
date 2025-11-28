@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.test.common.page
 
+import net.mullvad.mullvadvpn.test.common.extension.pressBackThrice
 import net.mullvad.mullvadvpn.test.common.extension.pressBackTwice
 
 // This file defines extension methods on Page objects that involve multiple actions
@@ -57,6 +58,24 @@ fun ConnectPage.enableLocalNetworkSharingStory() {
     on<SettingsPage> { clickVpnSettings() }
     on<VpnSettingsPage> { clickLocalNetworkSharingSwitch() }
     uiDevice.pressBackTwice()
+}
+
+fun ConnectPage.enableServerIpOverrideStory(relay: String, overrideIp: String) {
+    clickSettings()
+    on<SettingsPage> { clickVpnSettings() }
+    on<VpnSettingsPage> {
+        scrollUntilServerIpOverride()
+        clickServerIpOverrideButton()
+    }
+    on<ServerIpOverridesPage> { clickImportButton() }
+    on<ImportOverridesBottomSheet> { clickText() }
+    on<ImportViaTextPage> {
+        input(
+            "{ \"relay_overrides\": [ { \"hostname\": \"$relay\", \"ipv4_addr_in\": \"$overrideIp\" } ] }"
+        )
+        clickImport()
+    }
+    uiDevice.pressBackThrice()
 }
 
 fun ConnectPage.enableWireGuardCustomPort(port: Int) {

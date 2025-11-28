@@ -127,6 +127,7 @@ import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_WIREGUARD_CUSTOM_PORT_NUMBER_
 import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_WIREGUARD_CUSTOM_PORT_TEXT_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_WIREGUARD_OBFUSCATION_TITLE_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_WIREGUARD_PORT_ITEM_X_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.SERVER_IP_OVERRIDE_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.WIREGUARD_OBFUSCATION_LWO_CELL_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.WIREGUARD_OBFUSCATION_OFF_CELL_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.WIREGUARD_OBFUSCATION_QUIC_CELL_TEST_TAG
@@ -1106,6 +1107,7 @@ private fun ServerIpOverrides(onServerIpOverridesClick: () -> Unit, modifier: Mo
         title = stringResource(id = R.string.server_ip_override),
         modifier = modifier,
         onClick = onServerIpOverridesClick,
+        testTag = SERVER_IP_OVERRIDE_BUTTON_TEST_TAG,
     )
 }
 
