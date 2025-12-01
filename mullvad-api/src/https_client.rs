@@ -1,9 +1,11 @@
+use crate::proxy::DomainFrontingConfig;
 use crate::{
     DnsResolver,
     abortable_stream::{AbortableStream, AbortableStreamHandle},
     proxy::{ApiConnection, ApiConnectionMode, ProxyConfig},
     tls_stream::TlsStream,
 };
+use domain_fronting::ProxyConnection;
 use futures::{StreamExt, channel::mpsc, future, pin_mut};
 #[cfg(target_os = "android")]
 use futures::{channel::oneshot, sink::SinkExt};
@@ -85,6 +87,8 @@ pub(crate) enum InnerConnectionMode {
     /// Connect to the destination via Mullvad Encrypted DNS proxy.
     /// See [`mullvad_encrypted_dns_proxy`] for how the proxy works.
     EncryptedDnsProxy(EncryptedDNSConfig),
+    /// Connect to the destination via domain fronting.
+    DomainFronting(DomainFrontingConfig),
 }
 
 impl InnerConnectionMode {
@@ -183,6 +187,29 @@ impl InnerConnectionMode {
                 )
                 .await
             }
+            InnerConnectionMode::DomainFronting(config) => {
+                let front = config.domain_fronting.front().to_owned();
+                let proxy_host = config.domain_fronting.proxy_host().to_owned();
+                let session_header_key = config.domain_fronting.session_header_key().to_owned();
+                let make_proxy_stream = |tcp_stream| async {
+                    let tls_stream = cdn_tls_connect(tcp_stream, &front).await?;
+                    let forwarder =
+                        ProxyConnection::from_stream(tls_stream, proxy_host, session_header_key)
+                            .await
+                            .map_err(std::io::Error::other)?;
+                    Ok(forwarder)
+                };
+                Self::connect_proxied(
+                    config.addr,
+                    hostname,
+                    make_proxy_stream,
+                    #[cfg(target_os = "android")]
+                    socket_bypass_tx,
+                    #[cfg(any(feature = "api-override", test))]
+                    disable_tls,
+                )
+                .await
+            }
         }
     }
 
@@ -227,6 +254,73 @@ impl InnerConnectionMode {
         let tls_stream = TlsStream::connect_https(proxy, hostname).await?;
         Ok(ApiConnection::new(Box::new(tls_stream)))
     }
+}
+
+/// Establish a TLS connection to the CDN without certificate verification.
+///
+/// Certificate verification is intentionally skipped because the security of domain fronting
+/// does not depend on the CDN TLS — the actual API connection is secured by the inner TLS
+/// layer to `api.mullvad.net`.
+async fn cdn_tls_connect(
+    stream: TcpStream,
+    front_domain: &str,
+) -> io::Result<tokio_rustls::client::TlsStream<TcpStream>> {
+    use std::sync::LazyLock;
+    use tokio_rustls::rustls::{self, client::danger, pki_types};
+
+    #[derive(Debug)]
+    struct NoCertVerification;
+
+    impl danger::ServerCertVerifier for NoCertVerification {
+        fn verify_server_cert(
+            &self,
+            _: &pki_types::CertificateDer<'_>,
+            _: &[pki_types::CertificateDer<'_>],
+            _: &pki_types::ServerName<'_>,
+            _: &[u8],
+            _: pki_types::UnixTime,
+        ) -> Result<danger::ServerCertVerified, rustls::Error> {
+            Ok(danger::ServerCertVerified::assertion())
+        }
+
+        fn verify_tls12_signature(
+            &self,
+            _: &[u8],
+            _: &pki_types::CertificateDer<'_>,
+            _: &rustls::DigitallySignedStruct,
+        ) -> Result<danger::HandshakeSignatureValid, rustls::Error> {
+            Ok(danger::HandshakeSignatureValid::assertion())
+        }
+
+        fn verify_tls13_signature(
+            &self,
+            _: &[u8],
+            _: &pki_types::CertificateDer<'_>,
+            _: &rustls::DigitallySignedStruct,
+        ) -> Result<danger::HandshakeSignatureValid, rustls::Error> {
+            Ok(danger::HandshakeSignatureValid::assertion())
+        }
+
+        fn supported_verify_schemes(&self) -> Vec<rustls::SignatureScheme> {
+            rustls::crypto::ring::default_provider()
+                .signature_verification_algorithms
+                .supported_schemes()
+        }
+    }
+
+    static CDN_TLS_CONFIG: LazyLock<Arc<rustls::ClientConfig>> = LazyLock::new(|| {
+        Arc::new(
+            rustls::ClientConfig::builder()
+                .dangerous()
+                .with_custom_certificate_verifier(Arc::new(NoCertVerification))
+                .with_no_client_auth(),
+        )
+    });
+
+    let connector = tokio_rustls::TlsConnector::from(Arc::clone(&CDN_TLS_CONFIG));
+    let server_name = pki_types::ServerName::try_from(front_domain.to_owned())
+        .map_err(|_| io::Error::new(io::ErrorKind::InvalidInput, "invalid front domain"))?;
+    connector.connect(server_name, stream).await
 }
 
 #[derive(Clone)]
@@ -283,6 +377,7 @@ impl From<ApiConnectionMode> for InnerConnectionMode {
                 ProxyConfig::EncryptedDnsProxy(config) => {
                     InnerConnectionMode::EncryptedDnsProxy(config)
                 }
+                ProxyConfig::DomainFronting(config) => InnerConnectionMode::DomainFronting(config),
             },
         }
     }
@@ -375,8 +470,8 @@ impl HttpsConnector {
             .map_err(|err| io::Error::new(io::ErrorKind::TimedOut, err))?
     }
 
-    /// Resolve the provided `uri` to an IP and port. If the URI contains an IP, that IP will be used.
-    /// Otherwise `dns_resolver` will be used as a fallback.
+    /// Resolve the provided `uri` to an IP and port. If the URI contains an IP, that IP will be
+    /// used. Otherwise `dns_resolver` will be used as a fallback.
     /// If the URI contains a port, then that port will be used.
     async fn resolve_address(dns_resolver: &dyn DnsResolver, uri: Uri) -> io::Result<SocketAddr> {
         const DEFAULT_PORT: u16 = 443;
