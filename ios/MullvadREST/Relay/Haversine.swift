@@ -32,7 +32,6 @@ public enum Haversine {
     ) -> Double {
         let dLat = latitude1.toRadians - latitude2.toRadians
         let dLon = longitude1.toRadians - longitude2.toRadians
-
         let haversine =
             sin(dLat / 2).squared + sin(dLon / 2)
             .squared * cos(latitude1.toRadians) * cos(latitude2.toRadians)

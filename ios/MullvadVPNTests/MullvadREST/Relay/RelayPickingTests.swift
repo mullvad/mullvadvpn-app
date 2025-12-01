@@ -116,7 +116,8 @@ class RelayPickingTests: XCTestCase {
 
         let selectedRelays = try picker.pick()
 
-        XCTAssertEqual(selectedRelays.entry?.hostname, "es1-wireguard")  // Madrid relay is closest to exit relay.
+        // One of the five DAITA relays in Madrid is the closest.
+        XCTAssertEqual(selectedRelays.entry?.location.cityCode, "mad")
         XCTAssertEqual(selectedRelays.exit.hostname, "se10-wireguard")
     }
 
@@ -207,7 +208,8 @@ class RelayPickingTests: XCTestCase {
 
         let selectedRelays = try picker.pick()
 
-        XCTAssertEqual(selectedRelays.entry?.hostname, "es1-wireguard")  // Madrid relay is closest to exit relay.
+        // One of the five DAITA relays in Madrid is the closest.
+        XCTAssertEqual(selectedRelays.entry?.location.cityCode, "mad")
         XCTAssertEqual(selectedRelays.exit.hostname, "se10-wireguard")
     }
 
@@ -232,7 +234,8 @@ class RelayPickingTests: XCTestCase {
 
         let selectedRelays = try picker.pick()
 
-        XCTAssertEqual(selectedRelays.entry?.hostname, "es1-wireguard")  // Madrid relay is closest to exit relay.
+        // One of the five DAITA relays in Madrid is the closest.
+        XCTAssertEqual(selectedRelays.entry?.location.cityCode, "mad")
         XCTAssertEqual(selectedRelays.exit.hostname, "se10-wireguard")
     }
 

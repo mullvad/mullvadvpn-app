@@ -39,7 +39,7 @@ public struct DefaultLocationService {
             locations: relayCache.relays.locations
         )
 
-        let closestRelay = RelaySelector.WireGuard.closestRelay(
+        let closestRelay = RelaySelector.closestRelay(
             to: CLLocationCoordinate2D(latitude: serverLocation.latitude, longitude: serverLocation.longitude),
             using: mappedRelays
         )
