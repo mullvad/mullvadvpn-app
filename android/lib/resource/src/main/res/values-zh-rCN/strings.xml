@@ -255,7 +255,6 @@
     <string name="login_error_too_many_attempts">尝试次数过多，请稍后再试</string>
     <string name="login_fail_description">帐号无效</string>
     <string name="login_fail_title">登录失败</string>
-    <string name="login_title">登录</string>
     <string name="malware_info">警告：恶意软件阻止程序不是防病毒软件，也不应被视为防病毒软件，这只是提供了一层额外的保护。</string>
     <string name="manage_devices">管理设备</string>
     <string name="manage_devices_confirm_removal_description_line1">是否移除“%1$s”？</string>

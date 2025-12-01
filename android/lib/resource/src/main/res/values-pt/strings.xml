@@ -255,7 +255,6 @@
     <string name="login_error_too_many_attempts">Demasiadas tentativas. Tente novamente mais tarde</string>
     <string name="login_fail_description">Número de conta inválido</string>
     <string name="login_fail_title">Erro ao iniciar sessão</string>
-    <string name="login_title">Iniciar sessão</string>
     <string name="malware_info">Aviso: o bloqueador de malware não é um antivírus e não deve ser tratado como tal, é apenas uma camada extra de proteção.</string>
     <string name="manage_devices">Gerir dispositivos</string>
     <string name="manage_devices_confirm_removal_description_line1">Remover %1$s?</string>

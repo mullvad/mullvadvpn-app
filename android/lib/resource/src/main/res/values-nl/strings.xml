@@ -255,7 +255,6 @@
     <string name="login_error_too_many_attempts">Te veel pogingen. Probeer het later opnieuw</string>
     <string name="login_fail_description">Ongeldig accountnummer</string>
     <string name="login_fail_title">Aanmelden mislukt</string>
-    <string name="login_title">Aanmelden</string>
     <string name="malware_info">Waarschuwing: de malwareblocker is geen antivirus en mag niet als zodanig behandeld worden. Dit is slechts een extra beschermingslaag.</string>
     <string name="manage_devices">Apparaten beheren</string>
     <string name="manage_devices_confirm_removal_description_line1">%1$s verwijderen?</string>

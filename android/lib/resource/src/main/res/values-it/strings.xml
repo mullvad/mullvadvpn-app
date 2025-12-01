@@ -255,7 +255,6 @@
     <string name="login_error_too_many_attempts">Troppi tentativi, riprova più tardi</string>
     <string name="login_fail_description">Numero di account non valido</string>
     <string name="login_fail_title">Accesso non riuscito</string>
-    <string name="login_title">Accedi</string>
     <string name="malware_info">Avvertenza: questa protezione dai malware non è un antivirus e non deve essere trattata come tale, è solo un ulteriore livello di protezione.</string>
     <string name="manage_devices">Gestisci dispositivi</string>
     <string name="manage_devices_confirm_removal_description_line1">Rimuovere %1$s?</string>

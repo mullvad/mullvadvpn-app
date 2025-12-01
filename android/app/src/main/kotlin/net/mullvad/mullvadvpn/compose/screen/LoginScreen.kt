@@ -295,7 +295,7 @@ private fun LoginContent(
         VariantButton(
             isEnabled = state.loginButtonEnabled,
             onClick = { onLoginClick(state.accountNumberInput) },
-            text = stringResource(id = R.string.login_title),
+            text = stringResource(id = R.string.log_in),
             modifier = Modifier.padding(bottom = Dimens.mediumPadding),
         )
     }
@@ -413,7 +413,7 @@ private fun LoginState.title(): String =
                         is LoginUiStateError.LoginError -> R.string.login_fail_title
                         is LoginUiStateError.CreateAccountError ->
                             R.string.create_account_fail_title
-                        null -> R.string.login_title
+                        null -> R.string.log_in
                     }
                 is Loading -> R.string.logging_in_title
                 Success -> R.string.logged_in_title
