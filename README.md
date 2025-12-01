@@ -267,8 +267,14 @@ launchctl load -w /Library/LaunchDaemons/net.mullvad.daemon.plist
 
 ## Tray icon on Linux
 
+### Gnome 47 and newer
 If you're using GNOME and do not see the tray icon, try installing the `Status Icons` GNOME Shell extension:
 https://extensions.gnome.org/extension/7332/status-icons/.
+
+### Gnome 46 and older.
+For older versions of Gnome the `Status Icons` extension is unavailable. For those systems we recommend
+`AppIndicator and KStatusNotifierItem Support` instead:
+https://extensions.gnome.org/extension/615/appindicator-support/.
 
 ## Repository structure
 
