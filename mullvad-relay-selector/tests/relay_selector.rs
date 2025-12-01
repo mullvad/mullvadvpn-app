@@ -1,5 +1,6 @@
 //! Tests for verifying that the relay selector works as expected.
 
+use rand::{SeedableRng, rngs::SmallRng, seq::IndexedRandom};
 use std::{
     collections::HashSet,
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
@@ -744,6 +745,29 @@ fn test_selecting_ignore_extra_ips_override_v6() {
         wrong_relay => panic!(
             "Relay selector should have picked a Mullvad relay with Shadowsocks, instead chose {wrong_relay:?}"
         ),
+    }
+}
+
+/// Construct a query for a Wireguard relay with specific port choices.
+#[test]
+fn test_wg_port_selection() {
+    let default_ports = [53, 51820];
+    let relay_selector = default_relay_selector();
+    let mut rng = SmallRng::seed_from_u64(1337);
+
+    for _ in 0..100 {
+        let port = *default_ports.choose(&mut rng).unwrap();
+        let query = RelayQueryBuilder::new().port(port).build();
+
+        let relay = relay_selector.get_relay_by_query(query).unwrap();
+        match relay {
+            GetRelay::Mullvad { endpoint, .. } => {
+                assert_eq!(endpoint.peer.endpoint.port(), port);
+            }
+            wrong_relay => panic!(
+                "Relay selector should have picked a Mullvad relay, instead chose {wrong_relay:?}"
+            ),
+        }
     }
 }
 
