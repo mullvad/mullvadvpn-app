@@ -13,7 +13,6 @@ workspace = true
 [features]
 # Allow the API server to use to be configured via MULLVAD_API_HOST and MULLVAD_API_ADDR.
 api-override = []
-domain-fronting = ["webpki-roots", "clap", "tracing-subscriber"]
 
 [dependencies]
 anyhow = { workspace = true }
@@ -23,7 +22,7 @@ chrono = { workspace = true }
 thiserror = { workspace = true }
 futures = { workspace = true }
 http = "1.1.0"
-hyper = { version = "1.8.1", features = ["client", "http1"] }
+hyper = { version = "1.8.1", features = ["client", "http1", "server"] }
 hyper-util = { workspace = true }
 http-body-util = "0.1.2"
 tower = { workspace = true }
@@ -57,10 +56,14 @@ mullvad-types = { path = "../mullvad-types" }
 mullvad-version = { path = "../mullvad-version" }
 talpid-types = { path = "../talpid-types" }
 talpid-time = { path = "../talpid-time" }
-webpki-roots = { workspace = true, optional = true }
-clap = { workspace = true, features = ["cargo", "derive"], optional = true  }
-tracing-subscriber = { workspace = true, optional = true  }
+webpki-roots = { workspace = true }
+clap = { workspace = true, features = ["cargo", "derive"] }
+tracing-subscriber = { workspace = true }
 shadowsocks = { workspace = true, features = ["stream-cipher"] }
+
+papaya = "0.2"
+# Should follow whatever tokio uses
+bytes = "^1.2"
 
 [target.'cfg(not(target_os = "ios"))'.dependencies]
 mullvad-update = { path = "../mullvad-update", features = ["client"] }
@@ -76,3 +79,9 @@ cbindgen = { version = "0.28.0", default-features = false }
 [lib]
 crate-type = ["rlib", "staticlib"]
 bench = false
+
+[[bin]]
+name = "domain_fronting_server"
+
+[[bin]]
+name = "domain_fronting"
