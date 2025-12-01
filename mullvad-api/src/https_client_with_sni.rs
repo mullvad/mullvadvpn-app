@@ -1,6 +1,7 @@
 use crate::{
     DnsResolver,
     abortable_stream::{AbortableStream, AbortableStreamHandle},
+    domain_fronting::ProxyConfig as DomainFrontingProxyConfig,
     proxy::{ApiConnection, ApiConnectionMode, ProxyConfig},
     tls_stream::TlsStream,
 };
@@ -81,6 +82,8 @@ enum InnerConnectionMode {
     /// Connect to the destination via Mullvad Encrypted DNS proxy.
     /// See [`mullvad-encrypted-dns-proxy`] for how the proxy works.
     EncryptedDnsProxy(EncryptedDNSConfig),
+    /// Connect to the destination via domain fronting.
+    DomainFronting(DomainFrontingProxyConfig),
 }
 
 impl InnerConnectionMode {
@@ -170,6 +173,25 @@ impl InnerConnectionMode {
                 };
                 Self::connect_proxied(
                     first_hop,
+                    hostname,
+                    make_proxy_stream,
+                    #[cfg(target_os = "android")]
+                    socket_bypass_tx,
+                    #[cfg(any(feature = "api-override", test))]
+                    disable_tls,
+                )
+                .await
+            }
+            InnerConnectionMode::DomainFronting(proxy_config) => {
+                let make_proxy_stream = |tcp_stream| async {
+                    let forwarder = proxy_config
+                        .connect_with_socket(tcp_stream)
+                        .await
+                        .map_err(std::io::Error::other)?;
+                    Ok(forwarder)
+                };
+                Self::connect_proxied(
+                    proxy_config.addr,
                     hostname,
                     make_proxy_stream,
                     #[cfg(target_os = "android")]
@@ -288,6 +310,7 @@ impl TryFrom<ApiConnectionMode> for InnerConnectionMode {
                 ProxyConfig::EncryptedDnsProxy(config) => {
                     InnerConnectionMode::EncryptedDnsProxy(config)
                 }
+                ProxyConfig::DomainFronting(config) => InnerConnectionMode::DomainFronting(config),
             },
         })
     }
@@ -399,8 +422,8 @@ impl HttpsConnectorWithSni {
             .map_err(|err| io::Error::new(io::ErrorKind::TimedOut, err))?
     }
 
-    /// Resolve the provided `uri` to an IP and port. If the URI contains an IP, that IP will be used.
-    /// Otherwise `dns_resolver` will be used as a fallback.
+    /// Resolve the provided `uri` to an IP and port. If the URI contains an IP, that IP will be
+    /// used. Otherwise `dns_resolver` will be used as a fallback.
     /// If the URI contains a port, then that port will be used.
     async fn resolve_address(dns_resolver: &dyn DnsResolver, uri: Uri) -> io::Result<SocketAddr> {
         const DEFAULT_PORT: u16 = 443;
