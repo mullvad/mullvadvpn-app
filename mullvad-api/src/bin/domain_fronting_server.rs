@@ -1,16 +1,19 @@
 use clap::Parser;
 use http_body_util::Empty;
-use hyper::body::{Bytes, Incoming};
-use hyper::server::conn::http1;
-use hyper::service::service_fn;
-use hyper::upgrade::Upgraded;
-use hyper::{Method, Request, Response, StatusCode};
+use hyper::{
+    Method, Request, Response, StatusCode,
+    body::{Bytes, Incoming},
+    server::conn::http1,
+    service::service_fn,
+    upgrade::Upgraded,
+};
 use hyper_util::rt::TokioIo;
-use std::convert::Infallible;
-use std::net::SocketAddr;
-use std::path::PathBuf;
-use tokio::io::{AsyncRead, AsyncReadExt, AsyncWrite, AsyncWriteExt};
+use rustls_pemfile::{certs, private_key};
+use std::{
+    convert::Infallible, fs::File, io::BufReader, net::SocketAddr, path::PathBuf, sync::Arc,
+};
 use tokio::net::{TcpListener, TcpStream};
+use tokio_rustls::{TlsAcceptor, rustls::ServerConfig};
 
 #[derive(Parser, Debug)]
 #[clap(name = "domain_fronting_server")]
@@ -19,16 +22,20 @@ struct Args {
     #[clap(short, long)]
     hostname: String,
 
-    /// Path to root certificate file
+    /// Path to certificate file (PEM format)
     #[clap(short = 'c', long)]
     cert_path: PathBuf,
+
+    /// Path to private key file (PEM format)
+    #[clap(short = 'k', long)]
+    key_path: PathBuf,
 
     /// Upstream socket address to forward CONNECT requests to
     #[clap(short = 'u', long)]
     upstream: SocketAddr,
 
     /// Port to listen on
-    #[clap(short, long, default_value = "80")]
+    #[clap(short, long, default_value = "443")]
     port: u16,
 }
 
@@ -71,44 +78,38 @@ async fn handle_connect(
         .unwrap())
 }
 
-async fn proxy_data(upgraded: Upgraded, upstream: SocketAddr) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-    let upstream_stream = TcpStream::connect(upstream).await?;
+async fn proxy_data(
+    upgraded: Upgraded,
+    upstream: SocketAddr,
+) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    let mut upstream_stream = TcpStream::connect(upstream).await?;
 
-    // Split the TCP stream for bidirectional usage
-    let (upstream_read, upstream_write) = upstream_stream.into_split();
-    
-    // Use TokioIo wrapper for the upgraded connection
-    let client = TokioIo::new(upgraded);
-    let (client_read, client_write) = tokio::io::split(client);
-
-    // Spawn two separate futures to forward data bidirectionally
-    let client_to_upstream = copy_data(client_read, upstream_write);
-    let upstream_to_client = copy_data(upstream_read, client_write);
-
-    // Run both copy operations concurrently
-    tokio::try_join!(client_to_upstream, upstream_to_client)?;
-    
+    let mut client = TokioIo::new(upgraded);
+    let _ = tokio::io::copy_bidirectional(&mut upstream_stream, &mut client).await?;
     Ok(())
 }
 
-async fn copy_data<R, W>(mut reader: R, mut writer: W) -> Result<u64, Box<dyn std::error::Error + Send + Sync>>
-where
-    R: AsyncRead + Unpin,
-    W: AsyncWrite + Unpin,
-{
-    let mut buf = vec![0u8; 8192];
-    let mut total = 0u64;
-    
-    loop {
-        let n = reader.read(&mut buf).await?;
-        if n == 0 {
-            break;
-        }
-        writer.write_all(&buf[..n]).await?;
-        total += n as u64;
-    }
-    
-    Ok(total)
+fn load_tls_config(
+    cert_path: &PathBuf,
+    key_path: &PathBuf,
+) -> Result<ServerConfig, Box<dyn std::error::Error>> {
+    // Load certificate chain
+    let cert_file = File::open(cert_path)?;
+    let mut cert_reader = BufReader::new(cert_file);
+    let cert_chain: Result<Vec<_>, _> = certs(&mut cert_reader).collect();
+    let cert_chain = cert_chain?;
+
+    // Load private key
+    let key_file = File::open(key_path)?;
+    let mut key_reader = BufReader::new(key_file);
+    let key = private_key(&mut key_reader)?.ok_or("No private key found in key file")?;
+
+    // Create server configuration
+    let config = ServerConfig::builder()
+        .with_no_client_auth()
+        .with_single_cert(cert_chain, key)?;
+
+    Ok(config)
 }
 
 #[tokio::main]
@@ -118,31 +119,45 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = Args::parse();
     let bind_addr: SocketAddr = format!("0.0.0.0:{}", args.port).parse()?;
 
-    println!("Starting domain fronting server on {}", bind_addr);
+    println!("Starting TLS domain fronting server on {}", bind_addr);
     println!("Hostname: {}", args.hostname);
     println!("Cert path: {}", args.cert_path.display());
+    println!("Key path: {}", args.key_path.display());
     println!("Upstream: {}", args.upstream);
+
+    // Load TLS configuration
+    let tls_config = load_tls_config(&args.cert_path, &args.key_path)?;
+    let tls_acceptor = TlsAcceptor::from(Arc::new(tls_config));
 
     let listener = TcpListener::bind(bind_addr).await?;
 
     loop {
         let (stream, addr) = listener.accept().await?;
         let upstream = args.upstream;
+        let acceptor = tls_acceptor.clone();
 
         println!("Accepted connection from {}", addr);
 
         tokio::spawn(async move {
-            let io = TokioIo::new(stream);
-            let service = service_fn(move |req| handle_connect(req, upstream));
-            
-            if let Err(err) = http1::Builder::new()
-                .preserve_header_case(true)
-                .title_case_headers(true)
-                .serve_connection(io, service)
-                .with_upgrades()
-                .await
-            {
-                eprintln!("Error serving connection from {}: {}", addr, err);
+            // Perform TLS handshake
+            match acceptor.accept(stream).await {
+                Ok(tls_stream) => {
+                    let io = TokioIo::new(tls_stream);
+                    let service = service_fn(move |req| handle_connect(req, upstream));
+
+                    if let Err(err) = http1::Builder::new()
+                        .preserve_header_case(true)
+                        .title_case_headers(true)
+                        .serve_connection(io, service)
+                        .with_upgrades()
+                        .await
+                    {
+                        eprintln!("Error serving connection from {}: {}", addr, err);
+                    }
+                }
+                Err(err) => {
+                    eprintln!("TLS handshake failed for {}: {}", addr, err);
+                }
             }
         });
     }
