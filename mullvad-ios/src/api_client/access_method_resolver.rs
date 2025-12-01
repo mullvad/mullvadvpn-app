@@ -91,6 +91,9 @@ impl AccessMethodResolver for SwiftAccessMethodResolver {
                 };
                 ApiConnectionMode::Proxied(ProxyConfig::from(edp))
             }
+            AccessMethod::BuiltIn(BuiltInAccessMethod::DomainFronting) => {
+                mullvad_api::domain_fronting::resolve().await?
+            }
             AccessMethod::Custom(config) => {
                 ApiConnectionMode::Proxied(ProxyConfig::from(config.clone()))
             }
