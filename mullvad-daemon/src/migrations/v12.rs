@@ -113,4 +113,61 @@ mod test {
         insta::assert_snapshot!(serde_json::to_string_pretty(&old_settings).unwrap());
         Ok(())
     }
+
+    #[test]
+    fn test_v12_to_v13_migration_migrate_filters_to_new_entry_only_filters_insert_if_missing()
+    -> Result<()> {
+        let mut old_settings = serde_json::json!({
+          "relay_settings": {
+            "normal": {
+              "providers": {
+                "only": {
+                  "providers": [
+                    "Blix",
+                    "Creanova"
+                  ]
+                }
+              },
+              "ownership": {
+                "only": "MullvadOwned"
+              },
+              "wireguard_constraints": {}
+            }
+          }
+        });
+
+        migrate_filters_to_new_entry_only_filters(&mut old_settings);
+        insta::assert_snapshot!(serde_json::to_string_pretty(&old_settings).unwrap());
+        Ok(())
+    }
+
+    #[test]
+    fn test_v12_to_v13_migration_migrate_filters_to_new_entry_only_filters_skip_insert_if_exists()
+    -> Result<()> {
+        let mut old_settings = serde_json::json!({
+          "relay_settings": {
+            "normal": {
+              "providers": {
+                "only": {
+                  "providers": [
+                    "MullvadOwned",
+                    "Creanova"
+                  ]
+                }
+              },
+              "ownership": "any",
+              "wireguard_constraints": {
+                "entry_providers": "any",
+                "entry_ownership": {
+                  "only": "MullvadOwned"
+                },
+              },
+            }
+          }
+        });
+
+        migrate_filters_to_new_entry_only_filters(&mut old_settings);
+        insta::assert_snapshot!(serde_json::to_string_pretty(&old_settings).unwrap());
+        Ok(())
+    }
 }

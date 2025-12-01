@@ -1,0 +1,25 @@
+---
+source: mullvad-daemon/src/migrations/v12.rs
+expression: "serde_json::to_string_pretty(&old_settings).unwrap()"
+---
+{
+  "relay_settings": {
+    "normal": {
+      "ownership": "any",
+      "providers": {
+        "only": {
+          "providers": [
+            "MullvadOwned",
+            "Creanova"
+          ]
+        }
+      },
+      "wireguard_constraints": {
+        "entry_ownership": {
+          "only": "MullvadOwned"
+        },
+        "entry_providers": "any"
+      }
+    }
+  }
+}
