@@ -4,7 +4,6 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
-import mullvad_daemon.relay_selector.exitConstraints
 import net.mullvad.mullvadvpn.lib.common.util.isDaitaAndNotDirectOnly
 import net.mullvad.mullvadvpn.lib.common.util.relaylist.filter
 import net.mullvad.mullvadvpn.lib.grpc.ManagementService
