@@ -1,15 +1,17 @@
 package net.mullvad.mullvadvpn.lib.ui.component.listitem
 
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.Column
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import net.mullvad.mullvadvpn.lib.model.Mtu
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
-import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.component.R
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Hierarchy
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadListItem
@@ -34,14 +36,21 @@ fun MtuListItem(
         modifier = modifier,
         hierarchy = hierarchy,
         position = position,
-        backgroundAlpha = backgroundAlpha,
         onClick = onEditMtu,
-        content = { Text(text = stringResource(R.string.wireguard_mtu)) },
-        trailingContent = {
-            Text(
-                modifier = Modifier.align(Alignment.CenterEnd).padding(Dimens.mediumPadding),
-                text = mtuValue?.value?.toString() ?: stringResource(id = R.string.hint_default),
-            )
+        backgroundAlpha = backgroundAlpha,
+        content = {
+            Column {
+                Text(text = stringResource(R.string.mtu))
+                Text(
+                    stringResource(
+                        id = R.string.mtu_x,
+                        mtuValue?.value?.toString() ?: stringResource(id = R.string.hint_default),
+                    ),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
         },
+        trailingContent = { Icon(imageVector = Icons.Default.Edit, contentDescription = null) },
     )
 }

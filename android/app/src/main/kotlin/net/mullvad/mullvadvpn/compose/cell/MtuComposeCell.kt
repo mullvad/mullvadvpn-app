@@ -41,7 +41,7 @@ fun MtuComposeCell(
 @Composable
 private fun MtuTitle(modifier: Modifier) {
     Text(
-        text = stringResource(R.string.wireguard_mtu),
+        text = stringResource(R.string.mtu),
         style = MaterialTheme.typography.titleMedium,
         color = MaterialTheme.colorScheme.onPrimary,
         modifier = modifier,

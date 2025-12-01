@@ -200,7 +200,6 @@
     <string name="failed_to_set_current_unknown_error">Konnte nicht als aktuelle gesetzt werden – Unbekannter Grund</string>
     <string name="faqs_and_guides">Häufig gestellte Fragen &amp; Anleitungen</string>
     <string name="feature_custom_dns">Eigenes DNS</string>
-    <string name="feature_custom_mtu">MTU</string>
     <string name="feature_indicators_show_more">%1$s weitere …</string>
     <string name="feature_quantum_resistant">Quantenresistenz</string>
     <string name="filter">Filter</string>
@@ -270,6 +269,7 @@
     <string name="max_devices_warning_title">Zu viele Geräte</string>
     <string name="more_actions">Weitere Aktionen</string>
     <string name="more_information">Weitere Informationen</string>
+    <string name="mtu">MTU</string>
     <string name="mullvad_owned_only">Nur im Besitz von Mullvad</string>
     <string name="multihop">Multihop</string>
     <string name="multihop_description">Multihop leitet Ihren Traffic in einen WireGuard-Server hinein und aus einem anderen heraus, so dass er schwerer zu verfolgen ist. Dies führt zu einer erhöhten Latenzzeit, erhöht aber die Anonymität im Internet.</string>
@@ -447,7 +447,6 @@
     <string name="we_will_look_into_this">Wir werden uns das anschauen.</string>
     <string name="wg_port_subtitle">%1$s-Verschleierung unten auf „Automatisch“ oder „Aus“ einstellen, um diese Einstellung zu aktivieren.</string>
     <string name="wireguard_custon_port_title">Benutzerdefiniert</string>
-    <string name="wireguard_mtu">WireGuard-MTU</string>
     <string name="wireguard_mtu_footer">WireGuard-MTU-Wert einstellen. Gültiger Bereich: %1$d–%2$d.</string>
     <string name="wireguard_port_info_description">Die automatische Einstellung wählt zufällig aus den unten gezeigten gültigen Portbereichen.</string>
     <string name="wireguard_port_info_port_range">Der benutzerdefinierte Port kann ein beliebiger Wert innerhalb dieser gültigen Bereiche sein: %1$s.</string>

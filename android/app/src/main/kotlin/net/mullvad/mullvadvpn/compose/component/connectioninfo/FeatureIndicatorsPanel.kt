@@ -136,7 +136,7 @@ private fun FeatureIndicator.text(): String {
             FeatureIndicator.DNS_CONTENT_BLOCKERS -> R.string.dns_content_blockers
             FeatureIndicator.CUSTOM_DNS -> R.string.feature_custom_dns
             FeatureIndicator.SERVER_IP_OVERRIDE -> R.string.server_ip_override
-            FeatureIndicator.CUSTOM_MTU -> R.string.feature_custom_mtu
+            FeatureIndicator.CUSTOM_MTU -> R.string.mtu
             FeatureIndicator.DAITA -> R.string.daita
             FeatureIndicator.DAITA_MULTIHOP ->
                 return textResource(R.string.daita_multihop, textResource(R.string.daita))

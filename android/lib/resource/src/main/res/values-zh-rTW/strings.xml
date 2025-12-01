@@ -200,7 +200,6 @@
     <string name="failed_to_set_current_unknown_error">無法設定為目前方式 - 不明原因</string>
     <string name="faqs_and_guides">常見問題集與指南</string>
     <string name="feature_custom_dns">自訂 DNS</string>
-    <string name="feature_custom_mtu">MTU</string>
     <string name="feature_indicators_show_more">其他 %1$s 個…</string>
     <string name="feature_quantum_resistant">抗量子</string>
     <string name="filter">篩選</string>
@@ -270,6 +269,7 @@
     <string name="max_devices_warning_title">裝置過多</string>
     <string name="more_actions">更多操作</string>
     <string name="more_information">更多資訊</string>
+    <string name="mtu">MTU</string>
     <string name="mullvad_owned_only">僅 Mullvad 自有</string>
     <string name="multihop">多點跳躍</string>
     <string name="multihop_description">多點跳躍可將您的流量傳入一個 WireGuard 伺服器，再傳出至另一個伺服器，使其更難以追蹤。雖然這會導致延遲時間增加，卻能提高線上的匿名程度。</string>
@@ -447,7 +447,6 @@
     <string name="we_will_look_into_this">我們會對此進行調查。</string>
     <string name="wg_port_subtitle">若要啟用此設定，請將 %1$s 混淆設為「自動」或「關閉」。</string>
     <string name="wireguard_custon_port_title">自訂</string>
-    <string name="wireguard_mtu">WireGuard MTU</string>
     <string name="wireguard_mtu_footer">設定 WireGuard MTU 值。有效範圍：%1$d - %2$d。</string>
     <string name="wireguard_port_info_description">自動設定將會隨機從下方顯示的有效連接埠範圍中進行選擇。</string>
     <string name="wireguard_port_info_port_range">自訂連接埠可以是有效範圍內的任何值：%1$s。</string>

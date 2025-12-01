@@ -200,7 +200,6 @@
     <string name="failed_to_set_current_unknown_error">Kunne ikke indstilles til aktuel - Ukendt årsag</string>
     <string name="faqs_and_guides">Ofte stillede spørgsmål og vejledninger</string>
     <string name="feature_custom_dns">Brugerdefineret DNS</string>
-    <string name="feature_custom_mtu">MTU</string>
     <string name="feature_indicators_show_more">%1$s mere ...</string>
     <string name="feature_quantum_resistant">Kvantemodstand</string>
     <string name="filter">Filter</string>
@@ -270,6 +269,7 @@
     <string name="max_devices_warning_title">For mange enheder</string>
     <string name="more_actions">Flere handlinger</string>
     <string name="more_information">Mere information</string>
+    <string name="mtu">MTU</string>
     <string name="mullvad_owned_only">Kun ejet af Mullvad</string>
     <string name="multihop">Multihop</string>
     <string name="multihop_description">Multihop dirigerer din trafik ind på en WireGuard-server og ud på en anden, hvilket gør det sværere at spore den. Dette resulterer i øget ventetid, men øger anonymiteten online.</string>
@@ -447,7 +447,6 @@
     <string name="we_will_look_into_this">Vi vil undersøge dette.</string>
     <string name="wg_port_subtitle">Sæt %1$s-tilsløring til \"Automatisk\" eller \"Fra\" nedenfor for at aktivere denne indstilling.</string>
     <string name="wireguard_custon_port_title">Brugerdefineret</string>
-    <string name="wireguard_mtu">WireGuard MTU</string>
     <string name="wireguard_mtu_footer">Indstil WireGuard MTU-værdi. Gyldigt område: %1$d - %2$d.</string>
     <string name="wireguard_port_info_description">Den automatiske indstilling vælger tilfældigt fra de gyldige rækker af porte nedenfor.</string>
     <string name="wireguard_port_info_port_range">Den brugerdefinerede port kan være en hvilken som helst værdi inden for de gyldige intervaller: %1$s.</string>

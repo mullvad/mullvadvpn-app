@@ -200,7 +200,6 @@
     <string name="failed_to_set_current_unknown_error">Kan inte ställas in som aktuell – Okänd anledning</string>
     <string name="faqs_and_guides">Vanliga frågor och guider</string>
     <string name="feature_custom_dns">Anpassad DNS</string>
-    <string name="feature_custom_mtu">MTU</string>
     <string name="feature_indicators_show_more">%1$s till ...</string>
     <string name="feature_quantum_resistant">Kvantresistens</string>
     <string name="filter">Filtrera</string>
@@ -270,6 +269,7 @@
     <string name="max_devices_warning_title">För många enheter</string>
     <string name="more_actions">Fler åtgärder</string>
     <string name="more_information">Mer information</string>
+    <string name="mtu">MTU</string>
     <string name="mullvad_owned_only">Endast Mullvad-ägd</string>
     <string name="multihop">Multihopp</string>
     <string name="multihop_description">Multihopp dirigerar din trafik till en WireGuard-server och ut genom en annan, vilket gör det svårare att spåra. Detta leder till ökad fördröjning men bättre anonymitet online.</string>
@@ -447,7 +447,6 @@
     <string name="we_will_look_into_this">Vi kommer att undersöka detta.</string>
     <string name="wg_port_subtitle">Ställ in %1$s-obfuskering som \"Automatisk\" eller \"Av\" nedan för att aktivera inställningen.</string>
     <string name="wireguard_custon_port_title">Anpassad</string>
-    <string name="wireguard_mtu">WireGuard MTU</string>
     <string name="wireguard_mtu_footer">Ange WireGuard MTU-värde. Giltigt intervall: %1$d–%2$d.</string>
     <string name="wireguard_port_info_description">Den automatiska inställningen väljer slumpmässigt från giltiga portintervall som visas nedan.</string>
     <string name="wireguard_port_info_port_range">Den anpassade porten kan vara ett värde inom de giltiga intervallen: %1$s.</string>

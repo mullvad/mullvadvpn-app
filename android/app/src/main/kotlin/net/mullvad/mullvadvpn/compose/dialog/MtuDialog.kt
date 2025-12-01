@@ -71,7 +71,7 @@ fun MtuDialog(
     onDismiss: () -> Unit,
 ) {
     InputDialog(
-        title = stringResource(id = R.string.wireguard_mtu),
+        title = stringResource(id = R.string.mtu),
         message = stringResource(id = R.string.wireguard_mtu_footer, MTU_MIN_VALUE, MTU_MAX_VALUE),
         confirmButtonEnabled = state.isValidInput,
         onBack = onDismiss,

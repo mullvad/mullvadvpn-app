@@ -200,7 +200,6 @@
     <string name="failed_to_set_current_unknown_error">Nykyisen asetus epäonnistui – Tuntematon syy</string>
     <string name="faqs_and_guides">Usein kysytyt kysymykset ja oppaat</string>
     <string name="feature_custom_dns">Mukautettu DNS</string>
-    <string name="feature_custom_mtu">MTU</string>
     <string name="feature_indicators_show_more">%1$s lisää...</string>
     <string name="feature_quantum_resistant">Kvanttihyökkäysten esto</string>
     <string name="filter">Suodatin</string>
@@ -270,6 +269,7 @@
     <string name="max_devices_warning_title">Liikaa laitteita</string>
     <string name="more_actions">Lisää toimintoja</string>
     <string name="more_information">Lisätietoja</string>
+    <string name="mtu">MTU</string>
     <string name="mullvad_owned_only">Vain Mullvadin omistamat</string>
     <string name="multihop">Multihop</string>
     <string name="multihop_description">Multihop reitittää liikenteesi yhteen WireGuard-palvelimeen ja ulos toisesta palvelimesta, mikä tekee siitä hankalampaa jäljittää. Tuloksena on suurempi viive, mutta se parantaa nimettömyyttä verkossa.</string>
@@ -447,7 +447,6 @@
     <string name="we_will_look_into_this">Tutkimme asiaa.</string>
     <string name="wg_port_subtitle">Jotta voit käyttää tätä asetusta, poista %1$s-hämäysteknologia käytöstä tai säädä sen asetukseksi \"Automaattinen\" alta.</string>
     <string name="wireguard_custon_port_title">Mukautettu</string>
-    <string name="wireguard_mtu">WireGuard MTU</string>
     <string name="wireguard_mtu_footer">Aseta WireGuardin MTU-arvo väliltä %1$d–%2$d.</string>
     <string name="wireguard_port_info_description">Automaattinen asetus valitsee satunnaisesti käytettävissä olevista, alla luetelluista porteista.</string>
     <string name="wireguard_port_info_port_range">Mukautettu portti voi olla mikä tahansa sallittu arvo: %1$s.</string>

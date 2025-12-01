@@ -74,7 +74,9 @@
     <string name="auto_connect_carousel_third_slide_bottom_text">
         <![CDATA[3. To enable Lockdown mode, click on the toggle next to \"Block connections without VPN\".<br /><br /><b>Warning: This setting blocks split apps and the Local Network Sharing feature.</b>]]>
     </string>
-    <string name="wireguard_mtu">WireGuard MTU</string>
+    <string name="mtu">MTU</string>
+
+    <string name="mtu_x">Value: %s</string>
     <string name="wireguard_mtu_footer">Set WireGuard MTU value. Valid range: %1$d - %2$d.</string>
     <string name="hint_default">Default</string>
     <string name="problem_report_description">To help you more effectively, your app’s log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel.</string>
@@ -350,7 +352,6 @@
     <string name="connect_panel_connection_details">Connection details</string>
     <string name="feature_quantum_resistant">Quantum resistance</string>
     <string name="feature_custom_dns">Custom DNS</string>
-    <string name="feature_custom_mtu">MTU</string>
     <string name="dns_content_blockers">DNS content blockers</string>
     <string name="ipv4">IPv4</string>
     <string name="ipv6">IPv6</string>

@@ -200,7 +200,6 @@
     <string name="failed_to_set_current_unknown_error">현재로 설정하지 못함 - 알 수 없는 이유</string>
     <string name="faqs_and_guides">FAQ 및 가이드</string>
     <string name="feature_custom_dns">사용자 지정 DNS</string>
-    <string name="feature_custom_mtu">MTU</string>
     <string name="feature_indicators_show_more">%1$s개 더 보기...</string>
     <string name="feature_quantum_resistant">양자 저항</string>
     <string name="filter">필터</string>
@@ -270,6 +269,7 @@
     <string name="max_devices_warning_title">장치가 너무 많음</string>
     <string name="more_actions">추가 작업</string>
     <string name="more_information">추가 정보</string>
+    <string name="mtu">MTU</string>
     <string name="mullvad_owned_only">Mullvad 소유만</string>
     <string name="multihop">멀티홉</string>
     <string name="multihop_description">멀티홉은 사용자의 트래픽을 하나의 WireGuard 서버로 라우팅하고 다른 서버로 전달하여 추적을 더 어렵게 만듭니다. 그로 인해 대기 시간은 증가하지만 온라인 익명성은 증대됩니다.</string>
@@ -447,7 +447,6 @@
     <string name="we_will_look_into_this">조사해보겠습니다.</string>
     <string name="wg_port_subtitle">이 설정을 활성화하려면 아래 %1$s 난독 처리를 \"자동\" 또는 \"끄기\"로 설정합니다.</string>
     <string name="wireguard_custon_port_title">사용자 지정</string>
-    <string name="wireguard_mtu">WireGuard MTU</string>
     <string name="wireguard_mtu_footer">WireGuard MTU 값을 설정하세요. 유효 범위: %1$d ~ %2$d.</string>
     <string name="wireguard_port_info_description">자동 설정은 아래 표시된 유효한 포트 범위에서 임의로 선택합니다.</string>
     <string name="wireguard_port_info_port_range">사용자 지정 포트는 유효한 범위 내의 모든 값이 될 수 있습니다: %1$s</string>

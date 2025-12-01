@@ -200,7 +200,6 @@
     <string name="failed_to_set_current_unknown_error">လက်ရှိသို့ သတ်မှတ်၍ မရခဲ့ပါ - အကြောင်းအရင်း မသိပါ</string>
     <string name="faqs_and_guides">မေးလေ့ရှိသည့် မေးခွန်းများနှင့် လမ်းညွှန်များ</string>
     <string name="feature_custom_dns">စိတ်ကြိုက် DNS</string>
-    <string name="feature_custom_mtu">MTU</string>
     <string name="feature_indicators_show_more">နောက်ထပ် %1$s ...</string>
     <string name="feature_quantum_resistant">Quantum ခုခံမှု</string>
     <string name="filter">စစ်ထုတ်မှု</string>
@@ -270,6 +269,7 @@
     <string name="max_devices_warning_title">စက်များလွန်းနေသည်</string>
     <string name="more_actions">နောက်ထပ်လုပ်ဆောင်ချက်များ</string>
     <string name="more_information">နောက်ထပ်အချက်အလက်</string>
+    <string name="mtu">MTU</string>
     <string name="mullvad_owned_only">Mullvad ပိုင်ဆိုင်သည်များသာ</string>
     <string name="multihop">မာလ်တီဟော့ပ်</string>
     <string name="multihop_description">မာလ်တီဟော့ပ်သည် သင်၏အသွားအလာကို WireGuard ဆာဗာတစ်ခုသို့ လမ်းကြောင်းပေးပြီး အခြားတစ်နေရာမှ ထွက်စေသောကြောင့် ခြေရာခံရန် ပိုမိုခက်ခဲစေသည်။ ၎င်းသည် အချိန်ကို ပိုမိုကြန့်ကြာစေသော်လည်း အွန်လိုင်းတွင် ပို၍ သိုသိုသိပ်သိပ်ဖြစ်စေသည်။</string>
@@ -447,7 +447,6 @@
     <string name="we_will_look_into_this">ဤသည်ကို စစ်ဆေးလိုက်ပါမည်။</string>
     <string name="wg_port_subtitle">ဤဆက်တင်ကို သက်ဝင်လုပ်ဆောင်ရန် အောက်ရှိ %1$s obfuscation ကို \"အော်တိုမက်တစ်\" သို့မဟုတ် \"ပိတ်\" ဟု သတ်မှတ်ပါ။</string>
     <string name="wireguard_custon_port_title">စိတ်ကြိုက်</string>
-    <string name="wireguard_mtu">WireGuard MTU</string>
     <string name="wireguard_mtu_footer">WireGuard MTU တန်ဖိုးကို သတ်မှတ်ပါ။  အကျုံးဝင်သော အပိုင်းအခြား- %1$d - %2$d ။</string>
     <string name="wireguard_port_info_description">အော်တိုဆက်တင်သည် အောက်တွင် ဖော်ပြထားသည့် အကျုံးဝင် ပေါ့တ် အပိုင်းအခြားများထဲမှ ကျပန်းရွေးချယ်ပါမည်။</string>
     <string name="wireguard_port_info_port_range">စိတ်ကြိုက်ပေါ့တ်သည် အကျုံးဝင် အပိုင်းအခြားများထဲမှ မည်သည့်တန်ဖိုးမဆို ဖြစ်နိုင်ပါသည်- %1$s ။</string>

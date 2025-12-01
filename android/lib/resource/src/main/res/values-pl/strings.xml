@@ -200,7 +200,6 @@
     <string name="failed_to_set_current_unknown_error">Nie udało się ustawić jako bieżącą — przyczyna nieznana</string>
     <string name="faqs_and_guides">Często zadawane pytania i poradniki</string>
     <string name="feature_custom_dns">Niestandardowy serwer DNS</string>
-    <string name="feature_custom_mtu">MTU</string>
     <string name="feature_indicators_show_more">Jeszcze %1$s...</string>
     <string name="feature_quantum_resistant">Odporność na ataki z użyciem komputerów kwantowych</string>
     <string name="filter">Filtruj</string>
@@ -270,6 +269,7 @@
     <string name="max_devices_warning_title">Zbyt wiele urządzeń</string>
     <string name="more_actions">Więcej działań</string>
     <string name="more_information">Więcej informacji</string>
+    <string name="mtu">MTU</string>
     <string name="mullvad_owned_only">Wyłącznie firmy Mullvad</string>
     <string name="multihop">Wielokrotny przeskok</string>
     <string name="multihop_description">Funkcja wielokrotnego przeskoku kieruje Twój ruch przychodzący do jednego serwera WireGuard, a wychodzący wysyła z innego, co utrudnia jego śledzenie. Skutkuje to zwiększoną latencją, ale zwiększa anonimowość online.</string>
@@ -447,7 +447,6 @@
     <string name="we_will_look_into_this">Sprawdzimy to.</string>
     <string name="wg_port_subtitle">Aby aktywować to ustawienie, ustaw poniżej zaciemnianie %1$s na „Automatyczne” lub „Wył.”.</string>
     <string name="wireguard_custon_port_title">Niestandardowy</string>
-    <string name="wireguard_mtu">MTU WireGuard</string>
     <string name="wireguard_mtu_footer">Ustaw wartość MTU WireGuard. Prawidłowy zakres: %1$d–%2$d.</string>
     <string name="wireguard_port_info_description">Ustawienie automatyczne skutkuje wyborem losowym prawidłowego zakresu portów spośród zakresów przedstawionych poniżej.</string>
     <string name="wireguard_port_info_port_range">Port niestandardowy może mieć dowolną wartość z następujących prawidłowych zakresów: %1$s.</string>
