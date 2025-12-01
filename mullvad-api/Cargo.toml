@@ -13,12 +13,13 @@ crate-type = ["rlib", "staticlib"]
 [dependencies]
 anyhow = { workspace = true }
 async-trait = "0.1"
+bytes = "^1.2"
 chrono = { workspace = true }
-clap = { workspace = true, features = ["cargo", "derive"], optional = true }
+clap = { workspace = true, features = ["cargo", "derive"] }
 futures = { workspace = true }
 http = "1.1.0"
 http-body-util = "0.1.2"
-hyper = { version = "1.8.1", features = ["client", "http1"] }
+hyper = { version = "1.8.1", features = ["client", "http1", "server"] }
 hyper-util = { workspace = true }
 ipnetwork = { workspace = true }
 libc = "0.2"
@@ -28,6 +29,7 @@ mullvad-encrypted-dns-proxy = { path = "../mullvad-encrypted-dns-proxy" }
 mullvad-fs = { path = "../mullvad-fs" }
 mullvad-types = { path = "../mullvad-types" }
 mullvad-version = { path = "../mullvad-version" }
+papaya = { version = "0.2" }
 rustls-pki-types.workspace = true
 serde = { workspace = true }
 serde_json = { workspace = true }
@@ -51,10 +53,10 @@ tokio-rustls = { version = "0.26.0", default-features = false, features = [
 ] }
 tokio-socks = "0.5.1"
 tower = { workspace = true }
-tracing-subscriber = { workspace = true, optional = true }
+tracing-subscriber = { workspace = true }
 uuid = { version = "1.4.1", features = ["v4"] }
 vec1 = { workspace = true, features = ["serde"] }
-webpki-roots = { workspace = true, optional = true }
+webpki-roots = { version = "1.0.4" }
 
 [dev-dependencies]
 mockito = "1.6.1"
@@ -70,7 +72,6 @@ mullvad-update = { path = "../mullvad-update", features = ["client"] }
 [features]
 # Allow the API server to use to be configured via MULLVAD_API_HOST and MULLVAD_API_ADDR.
 api-override = []
-domain-fronting = ["clap", "tracing-subscriber", "webpki-roots"]
 
 [lints]
 workspace = true
