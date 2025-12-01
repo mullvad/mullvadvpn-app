@@ -520,6 +520,7 @@ pub mod builder {
         /// Wireguard relay.
         pub const fn port(mut self, port: u16) -> Self {
             self.query.wireguard_constraints.port = Constraint::Only(port);
+            self.query.wireguard_constraints.obfuscation = ObfuscationQuery::Port;
             self
         }
 

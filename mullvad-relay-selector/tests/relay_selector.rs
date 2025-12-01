@@ -756,6 +756,24 @@ fn test_selecting_wireguard_ignore_extra_ips_override_v6() {
     }
 }
 
+/// Construct a query for a Wireguard relay with specific port choices.
+#[test]
+fn test_wg_port_selection() {
+    let relay_selector = default_relay_selector();
+    for port in [53, 51820] {
+        let query = RelayQueryBuilder::wireguard().port(port).build();
+        let relay = relay_selector.get_relay_by_query(query).unwrap();
+        match relay {
+            GetRelay::Wireguard { endpoint, .. } => {
+                assert_eq!(endpoint.peer.endpoint.port(), port);
+            }
+            wrong_relay => panic!(
+                "Relay selector should have picked a Mullvad relay, instead chose {wrong_relay:?}"
+            ),
+        }
+    }
+}
+
 /// Construct a query for a Wireguard configuration where UDP2TCP obfuscation is selected and
 /// multihop is explicitly turned off. Assert that the relay selector always return an obfuscator
 /// configuration.
@@ -815,7 +833,7 @@ fn test_selecting_wireguard_endpoint_with_auto_obfuscation() {
 /// Construct a query for a Wireguard configuration with UDP2TCP obfuscation, and make sure that
 /// all configurations contain a valid port.
 #[test]
-fn test_selected_wireguard_endpoints_use_correct_port_ranges() {
+fn test_udp2tcp_use_correct_port_ranges() {
     const TCP2UDP_PORTS: [u16; 3] = [80, 443, 5001];
     let relay_selector = default_relay_selector();
     // Note that we do *not* specify any port here!
