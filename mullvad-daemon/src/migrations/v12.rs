@@ -38,8 +38,13 @@ fn migrate_filters_to_new_entry_only_filters(settings: &mut serde_json::Value) -
 
     let wireguard_constraints = normal.get_mut("wireguard_constraints")?.as_object_mut()?;
 
-    wireguard_constraints.insert("entry_providers".to_string(), providers);
-    wireguard_constraints.insert("entry_ownership".to_string(), ownership);
+    if !wireguard_constraints.contains_key("entry_providers") {
+        wireguard_constraints.insert("entry_providers".to_string(), providers);
+    }
+
+    if !wireguard_constraints.contains_key("entry_ownership") {
+        wireguard_constraints.insert("entry_ownership".to_string(), ownership);
+    }
 
     Some(())
 }
