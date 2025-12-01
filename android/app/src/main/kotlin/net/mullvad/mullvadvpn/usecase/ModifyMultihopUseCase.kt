@@ -55,7 +55,7 @@ internal fun validate(
 ) = either {
     ensure(change.item.active) { ModifyMultihopError.RelayItemInactive(change.item) }
     val changeId: RelayItemId =
-        change.item.id.convertCustomListWithOnlyHostNameToHostName(customListsRepository).bind()
+        change.item.id.convertCustomListWithOnlyHostnameToHostname(customListsRepository).bind()
     val settings = settingsRepository.settingsUpdates.value
     ensureNotNull(settings) { ModifyMultihopError.GenericError }
     // If DAITA is enabled and direct only is disabled, allow same relay for entry and
@@ -67,13 +67,13 @@ internal fun validate(
                     is MultihopChange.Exit ->
                         settings.wireguardConstraints().entryLocation.getOrNull()
                 }
-                ?.convertCustomListWithOnlyHostNameToHostName(customListsRepository)
+                ?.convertCustomListWithOnlyHostnameToHostname(customListsRepository)
                 ?.bind()
         ensure(!changeId.isSameHost(other)) { ModifyMultihopError.EntrySameAsExit(change.item) }
     }
 }
 
-private fun RelayItemId.convertCustomListWithOnlyHostNameToHostName(
+private fun RelayItemId.convertCustomListWithOnlyHostnameToHostname(
     customListsRepository: CustomListsRepository
 ): Either<ModifyMultihopError.GenericError, RelayItemId> =
     when (this) {
