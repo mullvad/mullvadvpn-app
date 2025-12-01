@@ -4,12 +4,8 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.OpenInNew
-import androidx.compose.material.icons.filled.Error
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -29,8 +25,6 @@ import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.destinations.ChangelogDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.cell.NavigationComposeCell
-import net.mullvad.mullvadvpn.compose.cell.TwoRowCell
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.compose.extensions.safeOpenUri
@@ -40,7 +34,10 @@ import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
+import net.mullvad.mullvadvpn.lib.ui.component.listitem.ExternalLinkListItem
+import net.mullvad.mullvadvpn.lib.ui.component.listitem.NavigationListItem
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
+import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
 import net.mullvad.mullvadvpn.util.Lc
 import net.mullvad.mullvadvpn.viewmodel.AppInfoSideEffect
 import net.mullvad.mullvadvpn.viewmodel.AppInfoUiState
@@ -110,7 +107,7 @@ fun AppInfo(
     ) { modifier ->
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = modifier.animateContentSize(),
+            modifier = modifier.animateContentSize().padding(horizontal = Dimens.sideMarginNew),
         ) {
             when (state) {
                 is Lc.Loading -> Loading()
@@ -141,27 +138,20 @@ private fun AppInfoContent(
 @Composable
 private fun AppVersionRow(state: AppInfoUiState, openAppListing: () -> Unit) {
     Column {
-        TwoRowCell(
-            titleText = stringResource(id = R.string.version),
-            subtitleText = state.version.currentVersion,
-            iconView = {
-                if (!state.version.isSupported) {
-                    Icon(
-                        imageVector = Icons.Default.Error,
-                        modifier = Modifier.padding(end = Dimens.smallPadding),
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.error,
+        ExternalLinkListItem(
+            title = {
+                Column {
+                    Text(stringResource(id = R.string.version))
+                    Text(
+                        text = state.version.currentVersion,
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
             },
-            bodyView = {
-                Icon(
-                    Icons.AutoMirrored.Default.OpenInNew,
-                    contentDescription = stringResource(R.string.app_info),
-                    tint = MaterialTheme.colorScheme.onPrimary,
-                )
-            },
-            onCellClicked = openAppListing,
+            showWarning = !state.version.isSupported,
+            position = Position.Bottom,
+            onClick = openAppListing,
         )
 
         if (!state.version.isSupported) {
@@ -184,9 +174,10 @@ private fun AppVersionRow(state: AppInfoUiState, openAppListing: () -> Unit) {
 
 @Composable
 private fun ChangelogRow(navigateToChangelog: () -> Unit) {
-    NavigationComposeCell(
+    NavigationListItem(
         title = stringResource(R.string.changelog_title),
         onClick = navigateToChangelog,
+        position = Position.Top,
     )
 }
 
