@@ -10,7 +10,7 @@ use mullvad_api::{StatusCode, rest::Error as RestError};
 use mullvad_daemon_relay_selector::relay_selector::{
     RelaySelectorIO, grpc_service::RelaySelectorServer,
 };
-use mullvad_management_interface::types::{BoolValue, FromProtobufTypeError};
+use mullvad_management_interface::types::{BoolValue, StringValue, FromProtobufTypeError};
 use mullvad_management_interface::{
     Code, Request, Response, ServerJoinHandle, Status,
     types::{self, daemon_event, management_service_server::ManagementService},
@@ -114,12 +114,18 @@ impl ManagementService for ManagementServiceImpl {
     //
 
     async fn events_listen(&self, _: Request<()>) -> ServiceResult<Self::EventsListenStream> {
+        log::debug!("LOLZ events_listen 1");
+
         let (tx, rx) = tokio::sync::mpsc::unbounded_channel();
+
+        log::debug!("LOLZ events_listen 2");
 
         let mut subscriptions = self.subscriptions.lock().unwrap();
         subscriptions.push(tx);
 
-        Ok(Response::new(UnboundedReceiverStream::new(rx)))
+        let ret = Ok(Response::new(UnboundedReceiverStream::new(rx)));
+        log::debug!("LOLZ events_listen returned");
+        ret
     }
 
     async fn prepare_restart(&self, _: Request<()>) -> ServiceResult<()> {
@@ -293,7 +299,7 @@ impl ManagementService for ManagementServiceImpl {
     #[cfg(target_os = "android")]
     async fn set_lockdown_mode(&self, request: Request<BoolValue>) -> ServiceResult<()> {
         let lockdown_mode = request.into_inner();
-        log::debug!("set_lockdown_mode({})", lockdown_mode);
+        log::debug!("set_lockdown_mode({})", lockdown_mode.value);
         Err(Status::unimplemented(
             "Setting Lockdown mode on Android is not supported - this is handled by the OS, not the daemon",
         ))
@@ -309,7 +315,7 @@ impl ManagementService for ManagementServiceImpl {
     }
 
     async fn set_wireguard_mtu(&self, request: Request<types::UInt32Value>) -> ServiceResult<()> {
-        let mtu = request.into_inner();
+        let mtu = request.into_inner().value;
         let mtu = if mtu != 0 { Some(mtu as u16) } else { None };
         log::debug!("set_wireguard_mtu({:?})", mtu);
         let (tx, rx) = oneshot::channel();
@@ -327,8 +333,8 @@ impl ManagementService for ManagementServiceImpl {
         Ok(Response::new(()))
     }
 
-    async fn set_userspace_wireguard(&self, request: Request<bool>) -> ServiceResult<()> {
-        let userspace = request.into_inner();
+    async fn set_userspace_wireguard(&self, request: Request<BoolValue>) -> ServiceResult<()> {
+        let userspace = request.into_inner().value;
         log::debug!("set_userspace_wireguard({})", userspace);
         let (tx, rx) = oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::SetUserspaceWireguard(tx, userspace))?;
@@ -350,7 +356,7 @@ impl ManagementService for ManagementServiceImpl {
         Ok(Response::new(()))
     }
 
-    async fn set_enable_daita(&self, Request<BoolValue>) -> ServiceResult<()> {
+    async fn set_enable_daita(&self, request: Request<BoolValue>) -> ServiceResult<()> {
         let daita_enabled = request.into_inner().value;
         log::debug!("set_enable_daita({daita_enabled})");
         let (tx, rx) = oneshot::channel();
@@ -365,7 +371,8 @@ impl ManagementService for ManagementServiceImpl {
     ) -> ServiceResult<()> {
         log::trace!("set_daita_settings");
         let request = request.map(|request| request.enabled);
-        self.set_enable_daita(request).await
+        //self.set_enable_daita(Request<BoolValue> { request }).await
+        Ok(Response::new(()))
     }
 
     async fn set_dns_options(&self, request: Request<types::DnsOptions>) -> ServiceResult<()> {
@@ -424,8 +431,8 @@ impl ManagementService for ManagementServiceImpl {
             .map_err(map_daemon_error)
     }
 
-    async fn logout_account(&self, request: Request<String>) -> ServiceResult<()> {
-        let source = request.into_inner();
+    async fn logout_account(&self, request: Request<StringValue>) -> ServiceResult<()> {
+        let source = request.into_inner().value;
         log::debug!("logout_account (source: {source})");
         let (tx, rx) = oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::LogoutAccount(tx))?;
