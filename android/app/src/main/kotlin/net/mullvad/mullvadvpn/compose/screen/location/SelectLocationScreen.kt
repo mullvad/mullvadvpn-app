@@ -110,6 +110,7 @@ import net.mullvad.mullvadvpn.lib.theme.color.AlphaVisible
 import net.mullvad.mullvadvpn.lib.ui.component.MultihopSelector
 import net.mullvad.mullvadvpn.lib.ui.component.Singlehop
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
+import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_MENU_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_SCREEN_TEST_TAG
 import net.mullvad.mullvadvpn.usecase.FilterChip
 import net.mullvad.mullvadvpn.util.Lc
@@ -525,7 +526,10 @@ private fun SelectLocationDropdownMenu(
 ) {
     var showMenu by remember { mutableStateOf(false) }
 
-    IconButton(onClick = { showMenu = !showMenu }) {
+    IconButton(
+        modifier = Modifier.testTag(SELECT_LOCATION_MENU_BUTTON_TEST_TAG),
+        onClick = { showMenu = !showMenu },
+    ) {
         Icon(
             imageVector = Icons.Default.MoreVert,
             contentDescription = stringResource(R.string.more_actions),

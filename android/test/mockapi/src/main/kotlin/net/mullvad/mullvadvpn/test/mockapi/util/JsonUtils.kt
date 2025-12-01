@@ -21,8 +21,8 @@ fun deviceJson(id: String, name: String, publicKey: String, creationDate: ZonedD
         put("pubkey", publicKey)
         put("hijack_dns", true)
         put("created", creationDate.formatStrictlyAccordingToIso8601AndRfc3339())
-        put("ipv4_address", "127.0.0.1/32")
-        put("ipv6_address", "fc00::1/128")
+        put("ipv4_address", "174.103.124.159/32")
+        put("ipv6_address", "895c:4b01:69f0:f8da:6f53:a027:5eb4:099c/128")
     }
 
 fun accessTokenJsonResponse(accessToken: String, expiry: ZonedDateTime) =
