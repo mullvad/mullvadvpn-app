@@ -12,4 +12,5 @@ data class ConnCheckResult(
     val city: String,
     val longitude: Double,
     val latitude: Double,
+    @SerialName("mullvad_exit_ip_hostname") val mullvadExitIpHostname: String?,
 )

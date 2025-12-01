@@ -12,7 +12,9 @@ const val MULTIHOP_CELL_TEST_TAG = "multihop_cell_test_tag"
 
 // DAITA settings screen
 const val DAITA_SCREEN_TEST_TAG = "daita_screen_test_tag"
-const val MULTIHOP_SCREEN_TEST_TAG = "daita_screen_test_tag"
+
+// Multihop settings screen
+const val MULTIHOP_SCREEN_TEST_TAG = "multihop_screen_test_tag"
 
 // VpnSettingsScreen
 const val LAZY_LIST_VPN_SETTINGS_TEST_TAG = "lazy_list_vpn_settings_test_tag"
