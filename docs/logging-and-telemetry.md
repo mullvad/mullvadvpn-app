@@ -36,7 +36,7 @@ The following is redacted:
 * Home directory - In order to avoid including the current user's username in
   the logs.
 * IPs and MAC addresses.
-* GUIDs.
+* V4 UUIDs. This includes account and device IDs, and network interface GUIDs on Windows.
 
 Just like all other API communication, the problem reports are sent encrypted (TLS) with
 server certificate pinning.
