@@ -12,6 +12,7 @@ pub fn migrate(settings: &mut serde_json::Value) -> Result<()> {
 
     log::info!("Migrating settings format to v12");
 
+    #[cfg(not(target_os = "android"))]
     migrate_block_when_disconnected(settings)?;
     migrate_duplicated_api_access_method_names(settings)?;
 
@@ -26,6 +27,7 @@ fn version(settings: &serde_json::Value) -> Option<SettingsVersion> {
         .and_then(|version| serde_json::from_value(version.clone()).ok())
 }
 
+#[cfg(not(target_os = "android"))]
 fn migrate_block_when_disconnected(settings: &mut serde_json::Value) -> Result<()> {
     let key_name_before = "block_when_disconnected";
     let key_name_after = "lockdown_mode";
