@@ -11,6 +11,7 @@ mod settings {
                 direct: Some(settings.direct().clone().into()),
                 mullvad_bridges: Some(settings.mullvad_bridges().clone().into()),
                 encrypted_dns_proxy: Some(settings.encrypted_dns_proxy().clone().into()),
+                domain_fronting: Some(settings.domain_fronting().clone().into()),
                 custom: settings
                     .iter_custom()
                     .cloned()
@@ -45,6 +46,13 @@ mod settings {
                 ))
                 .and_then(access_method::AccessMethodSetting::try_from)?;
 
+            let domain_fronting = settings
+                .domain_fronting
+                .ok_or(FromProtobufTypeError::invalid_argument(
+                    "Could not deserialize Domain fronting Access Method from protobuf",
+                ))
+                .and_then(access_method::AccessMethodSetting::try_from)?;
+
             let custom = settings
                 .custom
                 .iter()
@@ -55,6 +63,7 @@ mod settings {
                 direct,
                 mullvad_bridges,
                 encrypted_dns_proxy,
+                domain_fronting,
                 custom,
             ))
         }
@@ -130,6 +139,7 @@ mod data {
                 proto::access_method::AccessMethod::EncryptedDnsProxy(proxy) => {
                     AccessMethod::from(proxy)
                 }
+                proto::access_method::AccessMethod::DomainFronting(df) => AccessMethod::from(df),
                 proto::access_method::AccessMethod::Custom(custom) => {
                     CustomProxy::try_from(custom).map(AccessMethod::from)?
                 }
@@ -161,6 +171,12 @@ mod data {
     impl From<proto::access_method::EncryptedDnsProxy> for AccessMethod {
         fn from(_value: proto::access_method::EncryptedDnsProxy) -> Self {
             AccessMethod::from(BuiltInAccessMethod::EncryptedDnsProxy)
+        }
+    }
+
+    impl From<proto::access_method::DomainFronting> for AccessMethod {
+        fn from(_value: proto::access_method::DomainFronting) -> Self {
+            AccessMethod::from(BuiltInAccessMethod::DomainFronting)
         }
     }
 
@@ -208,6 +224,11 @@ mod data {
                 mullvad_types::access_method::BuiltInAccessMethod::EncryptedDnsProxy => {
                     proto::access_method::AccessMethod::EncryptedDnsProxy(
                         proto::access_method::EncryptedDnsProxy {},
+                    )
+                }
+                mullvad_types::access_method::BuiltInAccessMethod::DomainFronting => {
+                    proto::access_method::AccessMethod::DomainFronting(
+                        proto::access_method::DomainFronting {},
                     )
                 }
             }
