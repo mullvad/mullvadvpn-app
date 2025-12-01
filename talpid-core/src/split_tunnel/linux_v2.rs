@@ -5,6 +5,7 @@
 
 use anyhow::{Context, anyhow};
 use libc::pid_t;
+use nftnl::{Batch, Chain, Hook, MsgType, Policy, ProtoFamily, Rule, Table, nft_expr};
 use nix::{errno::Errno, unistd::Pid};
 use std::{
     ffi::CStr,
@@ -14,6 +15,8 @@ use std::{
     path::PathBuf,
 };
 use talpid_types::cgroup::{CGROUP2_DEFAULT_MOUNT_PATH, SPLIT_TUNNEL_CGROUP_NAME};
+
+use crate::firewall;
 
 /// Identifies packets coming from the cgroup.
 /// This should be an arbitrary but unique integer.
@@ -66,6 +69,9 @@ impl PidManager {
         let root_cgroup2 = Cgroup2::open(CGROUP2_DEFAULT_MOUNT_PATH)?;
         let cgroup = SPLIT_TUNNEL_CGROUP_NAME;
         let excluded_cgroup2 = root_cgroup2.create_or_open_child(cgroup)?;
+
+        assert_nft_supports_cgroup2(&excluded_cgroup2)
+            .context("cgroup2 not supported by nftables, are you running an old kernel?")?;
 
         Ok(Inner {
             root_cgroup2,
@@ -123,6 +129,43 @@ impl PidManager {
             .context("Split-tunneling is not available")
             .map_err(Into::into)
     }
+}
+
+/// Try to create an nft table with a `socket cgroupv2 level x` rule.
+///
+/// Assuming that this process has the sufficient privileges, then this function should only fail
+/// when the kernel doesn't support this kind of rule. This is the case for kernels predating 5.12.
+fn assert_nft_supports_cgroup2(cgroup: &Cgroup2) -> Result<(), Error> {
+    let table_name = c"mullvad-test-cgroup2-capability";
+
+    let mut batch = Batch::new();
+    let table = Table::new(table_name, ProtoFamily::Inet);
+    batch.add(&table, MsgType::Add);
+
+    let mut chain = Chain::new(c"test", &table);
+    chain.set_hook(Hook::Out, 0);
+    chain.set_policy(Policy::Accept);
+    batch.add(&chain, MsgType::Add);
+
+    let mut rule = Rule::new(&chain);
+    rule.add_expr(&nft_expr!(socket cgroupv2 level 1));
+    rule.add_expr(&nft_expr!(cmp == cgroup.inode()));
+    rule.add_expr(&nft_expr!(verdict accept));
+    batch.add(&rule, MsgType::Add);
+
+    let batch = batch.finalize();
+    firewall::linux::Firewall::send_and_process(&batch)
+        .context("Failed to create cgroup2 nftables rule")?;
+
+    // Remove table
+    let mut batch = Batch::new();
+    let table = Table::new(table_name, ProtoFamily::Inet);
+    batch.add(&table, MsgType::Del);
+    let batch = batch.finalize();
+    firewall::linux::Firewall::send_and_process(&batch)
+        .context("Failed to remove cgroup2 nftables table")?;
+
+    Ok(())
 }
 
 impl Default for PidManager {
