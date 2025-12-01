@@ -76,3 +76,7 @@ cbindgen = { version = "0.28.0", default-features = false }
 [lib]
 crate-type = ["rlib", "staticlib"]
 bench = false
+
+[[bin]]
+name = "domain_fronting_server"
+required-features = [ "domain-fronting"]
