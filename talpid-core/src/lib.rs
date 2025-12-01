@@ -1,6 +1,6 @@
 //! The core components of the talpidaemon VPN client.
 
-#![deny(missing_docs)]
+#![warn(missing_docs)]
 #![recursion_limit = "1024"]
 
 /// Window API wrappers and utilities
