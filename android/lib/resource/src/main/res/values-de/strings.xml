@@ -256,7 +256,6 @@
     <string name="login_error_too_many_attempts">Zu viele Versuche, bitte versuchen Sie es später erneut</string>
     <string name="login_fail_description">Ungültige Kontonummer</string>
     <string name="login_fail_title">Anmeldung fehlgeschlagen</string>
-    <string name="login_title">Anmelden</string>
     <string name="malware_info">Der Malware-Blocker ist kein Antivirusprogramm und sollte auch nicht als solches behandelt werden. Es dient lediglich als zusätzliche Schutzschicht.</string>
     <string name="manage_devices">Geräte verwalten</string>
     <string name="manage_devices_confirm_removal_description_line1">%1$s entfernen?</string>

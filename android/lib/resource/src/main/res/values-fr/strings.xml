@@ -256,7 +256,6 @@
     <string name="login_error_too_many_attempts">Trop de tentatives, veuillez réessayer plus tard</string>
     <string name="login_fail_description">Numéro de compte non valide</string>
     <string name="login_fail_title">Échec de la connexion</string>
-    <string name="login_title">Connexion</string>
     <string name="malware_info">Avertissement : le bloqueur de malware n\'est pas un anti-virus et ne doit pas être traité comme tel, il s\'agit juste d\'une couche de protection supplémentaire.</string>
     <string name="manage_devices">Gérer les appareils</string>
     <string name="manage_devices_confirm_removal_description_line1">Supprimer %1$s ?</string>

@@ -256,7 +256,6 @@
     <string name="login_error_too_many_attempts">Liian monta yritystä. Yritä myöhemmin uudelleen.</string>
     <string name="login_fail_description">Virheellinen tilin numero</string>
     <string name="login_fail_title">Sisäänkirjautuminen epäonnistui</string>
-    <string name="login_title">Kirjaudu sisään</string>
     <string name="malware_info">Varoitus: haittaohjelmien estotoiminto ei ole virustorjuntaohjelma, eikä sitä pidä käyttää sellaisena – kyseessä on vain ylimääräinen suojauskerros.</string>
     <string name="manage_devices">Hallitse laitteita</string>
     <string name="manage_devices_confirm_removal_description_line1">Poistetaanko %1$s?</string>

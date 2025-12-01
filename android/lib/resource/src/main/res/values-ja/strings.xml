@@ -256,7 +256,6 @@
     <string name="login_error_too_many_attempts">試行回数が多すぎます。後でもう一度お試しください</string>
     <string name="login_fail_description">アカウント番号が無効です</string>
     <string name="login_fail_title">ログインに失敗しました</string>
-    <string name="login_title">ログイン</string>
     <string name="malware_info">警告: マルウェアブロッカーはウィルス対策ではありませんので、そのような用途には使用しないでください。あくまで追加の保護レイヤーに過ぎません。</string>
     <string name="manage_devices">デバイスを管理</string>
     <string name="manage_devices_confirm_removal_description_line1">%1$sを削除しますか？</string>

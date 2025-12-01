@@ -7,7 +7,7 @@
     <string name="account_time_notification_channel_name">Account time reminders</string>
     <string name="account_time_notification_channel_description">Shows reminders when the account time is about to expire</string>
     <string name="connecting_to_daemon">Connecting to Mullvad system service...</string>
-    <string name="login_title">Login</string>
+    <string name="log_in">Log in</string>
     <string name="login_description">Enter your account number</string>
     <string name="logging_in_title">Logging in...</string>
     <string name="logging_in_description">Checking account number</string>

@@ -256,7 +256,6 @@
     <string name="login_error_too_many_attempts">พยายามหลายครั้งเกินไป โปรดลองอีกครั้งในภายหลัง</string>
     <string name="login_fail_description">หมายเลขบัญชีไม่ถูกต้อง</string>
     <string name="login_fail_title">การเข้าสู่ระบบล้มเหลว</string>
-    <string name="login_title">เข้าสู่ระบบ</string>
     <string name="malware_info">คำเตือน: ตัวบล็อกมัลแวร์ไม่ใช่แอนตี้ไวรัส และไม่ควรนำมาใช้ในรูปแบบดังกล่าว นี่เป็นเพียงชั้นการป้องกันเพิ่มเติมเท่านั้น</string>
     <string name="manage_devices">จัดการอุปกรณ์</string>
     <string name="manage_devices_confirm_removal_description_line1">ลบ %1$s หรือไม่</string>

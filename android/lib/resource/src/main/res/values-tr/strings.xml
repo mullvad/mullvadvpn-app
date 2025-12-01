@@ -256,7 +256,6 @@
     <string name="login_error_too_many_attempts">Çok fazla deneme yapıldı. Lütfen daha sonra tekrar deneyin.</string>
     <string name="login_fail_description">Geçersiz hesap numarası</string>
     <string name="login_fail_title">Oturum açma başarısız</string>
-    <string name="login_title">Oturum Aç</string>
     <string name="malware_info">Uyarı: Kötü amaçlı yazılım engelleyici, virüsten koruma yazılımı değildir ve bu şekilde değerlendirilmemelidir. Sadece ek bir koruma seviyesi sağlamaktadır.</string>
     <string name="manage_devices">Cihazları yönet</string>
     <string name="manage_devices_confirm_removal_description_line1">%1$s kaldırılsın mı?</string>

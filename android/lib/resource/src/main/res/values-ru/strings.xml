@@ -256,7 +256,6 @@
     <string name="login_error_too_many_attempts">Слишком много попыток, пожалуйста, попробуйте позже</string>
     <string name="login_fail_description">Недействительный номер учетной записи</string>
     <string name="login_fail_title">Ошибка входа</string>
-    <string name="login_title">Вход</string>
     <string name="malware_info">Внимание! Блокировщик вредоносного ПО — это просто дополнительный уровень защиты, а не антивирус.</string>
     <string name="manage_devices">Управление устройствами</string>
     <string name="manage_devices_confirm_removal_description_line1">Удалить устройство «%1$s»?</string>

@@ -10,7 +10,7 @@ import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
 
 class LoginPage internal constructor() : Page() {
     private val invalidAccountNumberSelector = By.text("Invalid account number")
-    private val loginSelector = By.text("Login")
+    private val loginSelector = By.text("Log in")
 
     fun clickSettings() {
         uiDevice.findObjectWithTimeout(By.res(TOP_BAR_SETTINGS_BUTTON_TEST_TAG)).click()

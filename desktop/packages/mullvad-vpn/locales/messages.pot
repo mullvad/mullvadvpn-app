@@ -3080,6 +3080,9 @@ msgstr ""
 msgid "Locations were changed for \"%s\""
 msgstr ""
 
+msgid "Log in"
+msgstr ""
+
 msgid "Makes sure the device is always on the VPN tunnel."
 msgstr ""
 
