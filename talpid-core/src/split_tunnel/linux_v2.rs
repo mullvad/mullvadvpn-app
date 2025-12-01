@@ -13,10 +13,28 @@ use std::{
     io::{self, Read, Seek, Write},
     os::unix::fs::MetadataExt,
     path::PathBuf,
+    sync::LazyLock,
 };
 use talpid_types::cgroup::{CGROUP2_DEFAULT_MOUNT_PATH, SPLIT_TUNNEL_CGROUP_NAME};
 
 use crate::firewall;
+
+pub static ROOT_CGROUP2: LazyLock<Result<Cgroup2, Error>> =
+    LazyLock::new(|| Cgroup2::open(CGROUP2_DEFAULT_MOUNT_PATH));
+
+pub static EXCLUDED_CGROUP2: LazyLock<Result<Cgroup2, Error>> = LazyLock::new(|| {
+    let excluded_cgroup2 = ROOT_CGROUP2
+        .as_ref()
+        .context("Failed to open root cgroup2")?
+        .create_or_open_child(SPLIT_TUNNEL_CGROUP_NAME)?;
+
+    assert_nft_supports_cgroup2(&excluded_cgroup2)
+        .context("cgroup2 not supported by nftables, are you running an old kernel?")?;
+
+    Ok(excluded_cgroup2)
+});
+
+pub static CGROUPS_V2_IS_AVAILABLE: LazyLock<bool> = LazyLock::new(|| EXCLUDED_CGROUP2.is_ok());
 
 /// Identifies packets coming from the cgroup.
 /// This should be an arbitrary but unique integer.
@@ -27,7 +45,7 @@ pub const MARK: u32 = 0xf41;
 
 /// Errors related to split tunneling.
 #[derive(thiserror::Error, Debug)]
-#[error("split-tunnelinng cgroups v2 error: {0}")]
+#[error("split-tunneling cgroups v2 error: {0}")]
 pub struct Error(#[from] anyhow::Error);
 
 /// Manages PIDs in the linux cgroup2 excluded from the VPN tunnel.
@@ -39,8 +57,8 @@ pub struct PidManager {
 }
 
 struct Inner {
-    root_cgroup2: Cgroup2,
-    excluded_cgroup2: Cgroup2,
+    root_cgroup2: &'static Cgroup2,
+    excluded_cgroup2: &'static Cgroup2,
 }
 
 /// A handle to a cgroup2
@@ -50,6 +68,7 @@ struct Cgroup2 {
     /// Absolute path of the cgroup2, e.g. `/run/my_cgroup2_mount/my_cgroup2`
     path: PathBuf,
 
+    /// inode of the cgroup2 directory
     inode: u64,
 
     /// `cgroup.procs` is used to add and list PIDs in the cgroup2.
@@ -58,24 +77,23 @@ struct Cgroup2 {
 
 impl PidManager {
     fn new() -> Self {
-        let inner = Self::new_inner().inspect_err(|e| {
-            log::error!("Failed to initialize split-tunneling: {e:#?}");
-        });
+        let inner = Self::new_inner();
+
+        if let Err(e) = &inner {
+            log::error!("Failed to initialize split-tunneling: {e:?}");
+        };
 
         PidManager { inner }
     }
 
     fn new_inner() -> Result<Inner, Error> {
-        let root_cgroup2 = Cgroup2::open(CGROUP2_DEFAULT_MOUNT_PATH)?;
-        let cgroup = SPLIT_TUNNEL_CGROUP_NAME;
-        let excluded_cgroup2 = root_cgroup2.create_or_open_child(cgroup)?;
-
-        assert_nft_supports_cgroup2(&excluded_cgroup2)
-            .context("cgroup2 not supported by nftables, are you running an old kernel?")?;
-
         Ok(Inner {
-            root_cgroup2,
-            excluded_cgroup2,
+            root_cgroup2: ROOT_CGROUP2
+                .as_ref()
+                .context("Failed to open root cgroup")?,
+            excluded_cgroup2: EXCLUDED_CGROUP2
+                .as_ref()
+                .context("Failed to open cgroup2")?,
         })
     }
 
