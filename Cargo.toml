@@ -141,6 +141,8 @@ hyper-util = { version = "0.1.8", features = [
   "client-legacy",
   "http2",
   "http1",
+  "server",
+  "server-auto",
 ] }
 
 # Errors and logging
