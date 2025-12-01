@@ -179,7 +179,7 @@ impl Firewall {
         }
     }
 
-    fn send_and_process(batch: &FinalizedBatch) -> Result<()> {
+    pub fn send_and_process(batch: &FinalizedBatch) -> Result<()> {
         // Create a netlink socket to netfilter.
         let socket = mnl::Socket::new(mnl::Bus::Netfilter).map_err(Error::NetlinkOpenError)?;
         let portid = socket.portid();

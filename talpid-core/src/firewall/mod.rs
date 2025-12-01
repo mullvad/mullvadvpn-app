@@ -8,21 +8,25 @@ use talpid_dns::ResolvedDnsConfig;
 use talpid_tunnel::TunnelMetadata;
 use talpid_types::net::{ALLOWED_LAN_NETS, AllowedEndpoint, AllowedTunnelTraffic};
 
-#[cfg(target_os = "macos")]
-#[path = "macos.rs"]
-mod imp;
-
-#[cfg(target_os = "linux")]
-#[path = "linux.rs"]
-mod imp;
-
-#[cfg(windows)]
-#[path = "windows/mod.rs"]
-mod imp;
-
-#[cfg(target_os = "android")]
-#[path = "android.rs"]
-mod imp;
+cfg_if::cfg_if! {
+    if #[cfg(windows)] {
+        /// Firewall implementation for Windows
+        mod windows;
+        use windows as imp;
+    } else if #[cfg(target_os = "macos")] {
+        /// Firewall implementation for macOS
+        mod macos;
+        use macos as imp;
+    } else if #[cfg(target_os = "linux")] {
+        /// Firewall implementation for desktop Linux
+        pub mod linux;
+        use linux as imp;
+    } else if #[cfg(target_os = "android")] {
+        /// Firewall implementation for Android
+        mod android;
+        use android as imp;
+    }
+}
 
 pub use self::imp::Error;
 
