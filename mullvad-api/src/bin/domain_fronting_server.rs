@@ -1,7 +1,15 @@
 use clap::Parser;
+use http_body_util::Empty;
+use hyper::body::{Bytes, Incoming};
+use hyper::server::conn::http1;
+use hyper::service::service_fn;
+use hyper::upgrade::Upgraded;
+use hyper::{Method, Request, Response, StatusCode};
+use hyper_util::rt::TokioIo;
+use std::convert::Infallible;
 use std::net::SocketAddr;
 use std::path::PathBuf;
-use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
+use tokio::io::{AsyncRead, AsyncReadExt, AsyncWrite, AsyncWriteExt};
 use tokio::net::{TcpListener, TcpStream};
 
 #[derive(Parser, Debug)]
@@ -24,57 +32,83 @@ struct Args {
     port: u16,
 }
 
-async fn handle_client(mut client: TcpStream, upstream: SocketAddr) -> Result<(), Box<dyn std::error::Error>> {
-    let mut reader = BufReader::new(&mut client);
-    let mut request_line = String::new();
-
-    // Read the first line (HTTP request line)
-    reader.read_line(&mut request_line).await?;
-
-    if request_line.starts_with("CONNECT ") {
-        // Parse the CONNECT request
-        let parts: Vec<&str> = request_line.trim().split_whitespace().collect();
-        if parts.len() >= 2 {
-            let _target = parts[1]; // The target host:port (not used in this simple implementation)
-
-            // Read and discard headers until empty line
-            let mut line = String::new();
-            loop {
-                line.clear();
-                reader.read_line(&mut line).await?;
-                if line.trim().is_empty() {
-                    break;
-                }
-            }
-
-            // Try to connect to upstream
-            match TcpStream::connect(upstream).await {
-                Ok(upstream_stream) => {
-                    // Send 200 Connection Established
-                    client.write_all(b"HTTP/1.1 200 Connection Established\r\n\r\n").await?;
-
-                    // Start proxying data bidirectionally
-                    let (mut client_read, mut client_write) = client.into_split();
-                    let (mut upstream_read, mut upstream_write) = upstream_stream.into_split();
-
-                    let client_to_upstream = tokio::io::copy(&mut client_read, &mut upstream_write);
-                    let upstream_to_client = tokio::io::copy(&mut upstream_read, &mut client_write);
-
-                    tokio::try_join!(client_to_upstream, upstream_to_client)?;
-                }
-                Err(e) => {
-                    // Send 502 Bad Gateway
-                    client.write_all(b"HTTP/1.1 502 Bad Gateway\r\n\r\n").await?;
-                    return Err(e.into());
-                }
-            }
-        }
-    } else {
-        // Send 405 Method Not Allowed
-        client.write_all(b"HTTP/1.1 405 Method Not Allowed\r\n\r\n").await?;
+async fn handle_connect(
+    req: Request<Incoming>,
+    upstream: SocketAddr,
+) -> Result<Response<Empty<Bytes>>, Infallible> {
+    if req.method() != Method::CONNECT {
+        return Ok(Response::builder()
+            .status(StatusCode::METHOD_NOT_ALLOWED)
+            .body(Empty::new())
+            .unwrap());
     }
 
+    let uri = req.uri();
+    let _host = match uri.authority() {
+        Some(auth) => auth.as_str(),
+        None => {
+            return Ok(Response::builder()
+                .status(StatusCode::BAD_REQUEST)
+                .body(Empty::new())
+                .unwrap());
+        }
+    };
+
+    tokio::spawn(async move {
+        match hyper::upgrade::on(req).await {
+            Ok(upgraded) => {
+                if let Err(e) = proxy_data(upgraded, upstream).await {
+                    eprintln!("Failed to proxy data: {}", e);
+                }
+            }
+            Err(e) => eprintln!("Upgrade error: {}", e),
+        }
+    });
+
+    Ok(Response::builder()
+        .status(StatusCode::OK)
+        .body(Empty::new())
+        .unwrap())
+}
+
+async fn proxy_data(upgraded: Upgraded, upstream: SocketAddr) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    let upstream_stream = TcpStream::connect(upstream).await?;
+
+    // Split the TCP stream for bidirectional usage
+    let (upstream_read, upstream_write) = upstream_stream.into_split();
+    
+    // Use TokioIo wrapper for the upgraded connection
+    let client = TokioIo::new(upgraded);
+    let (client_read, client_write) = tokio::io::split(client);
+
+    // Spawn two separate futures to forward data bidirectionally
+    let client_to_upstream = copy_data(client_read, upstream_write);
+    let upstream_to_client = copy_data(upstream_read, client_write);
+
+    // Run both copy operations concurrently
+    tokio::try_join!(client_to_upstream, upstream_to_client)?;
+    
     Ok(())
+}
+
+async fn copy_data<R, W>(mut reader: R, mut writer: W) -> Result<u64, Box<dyn std::error::Error + Send + Sync>>
+where
+    R: AsyncRead + Unpin,
+    W: AsyncWrite + Unpin,
+{
+    let mut buf = vec![0u8; 8192];
+    let mut total = 0u64;
+    
+    loop {
+        let n = reader.read(&mut buf).await?;
+        if n == 0 {
+            break;
+        }
+        writer.write_all(&buf[..n]).await?;
+        total += n as u64;
+    }
+    
+    Ok(total)
 }
 
 #[tokio::main]
@@ -98,8 +132,17 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         println!("Accepted connection from {}", addr);
 
         tokio::spawn(async move {
-            if let Err(err) = handle_client(stream, upstream).await {
-                eprintln!("Error handling client {}: {}", addr, err);
+            let io = TokioIo::new(stream);
+            let service = service_fn(move |req| handle_connect(req, upstream));
+            
+            if let Err(err) = http1::Builder::new()
+                .preserve_header_case(true)
+                .title_case_headers(true)
+                .serve_connection(io, service)
+                .with_upgrades()
+                .await
+            {
+                eprintln!("Error serving connection from {}: {}", addr, err);
             }
         });
     }
