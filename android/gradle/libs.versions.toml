@@ -74,6 +74,14 @@ kotlinx-serialization-json = "1.9.0"
 protobuf-gradle-plugin = "0.9.5"
 protobuf = "4.33.1"
 
+# Wire
+wire = "5.4.0"
+junixsocket = "2.10.1"
+jnr = "0.38.24"
+
+# OkHttp
+okttp = "5.3.0"
+
 # Misc
 commonsvalidator = "1.10.1"
 dependency-versions = "0.53.0"
@@ -150,6 +158,16 @@ grpc-android = { module = "io.grpc:grpc-android", version.ref = "grpc" }
 grpc-stub = { module = "io.grpc:grpc-stub", version.ref = "grpc" }
 grpc-kotlin-stub = { module = "io.grpc:grpc-kotlin-stub", version.ref = "grpc-kotlin" }
 grpc-protobuf-lite = { module = "io.grpc:grpc-protobuf-lite", version.ref = "grpc" }
+
+# OkHttp
+okhttp-logging-interceptor = { module = "com.squareup.okhttp3:logging-interceptor", version.ref = "okttp" }
+jnr-unixsocket = { module = "com.github.jnr:jnr-unixsocket", version.ref = "jnr" }
+
+# Wire
+wire-runtime = { group = "com.squareup.wire", name = "wire-runtime", version.ref = "wire" }
+wire-grpc = { group = "com.squareup.wire", name = "wire-grpc-client", version.ref = "wire" }
+junixsocket-core = { group = "com.kohlschutter.junixsocket", name = "junixsocket-core", version.ref = "junixsocket" }
+junixsocket-native-android = { group = "com.kohlschutter.junixsocket", name = "junixsocket-native-android", version.ref = "junixsocket" }
 
 # JUnit
 junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit" }
@@ -241,6 +259,8 @@ protobuf-protoc = { id = "com.google.protobuf:protoc", version.ref = "protobuf" 
 grpc-protoc-gen-grpc-java = { id = "io.grpc:protoc-gen-grpc-java", version.ref = "grpc" }
 grpc-protoc-gen-grpc-kotlin = { id = "io.grpc:protoc-gen-grpc-kotlin", version.ref = "grpc-kotlin" }
 
+# Wire
+wire = { id = "com.squareup.wire", version.ref = "wire" }
 
 dependency-versions = { id = "com.github.ben-manes.versions", version.ref = "dependency-versions" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
