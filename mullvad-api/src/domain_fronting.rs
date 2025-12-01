@@ -1,53 +1,29 @@
-//! A module for a POC of domain fronting. See IOS-1316.
-//! This only compiles with the `domain-fronting` feature flag for the time being.
+//! Built-in domain fronting access method configuration.
 
-use std::{io::Error, sync::Arc};
+use crate::proxy::{ApiConnectionMode, DomainFrontingConfig, ProxyConfig};
 
-use tokio::net::TcpStream;
-use tokio_rustls::rustls::{self};
-use webpki_roots::TLS_SERVER_ROOTS;
+const FRONT: &str = "www.phpmyadmin.net";
+const PROXY_HOST: &str = "1105015943.rsc.cdn77.org";
+const SESSION_HEADER: &str = "X-Mullvad-Session";
 
-use crate::{DefaultDnsResolver, DnsResolver, tls_stream::TlsStream};
-
-pub struct DomainFronting {
-    front: String,
-}
-
-impl DomainFronting {
-    pub fn new(front: String) -> Self {
-        DomainFronting { front }
+/// Resolve the built-in domain fronting configuration.
+///
+/// Performs DNS resolution of the front domain and returns the
+/// corresponding [`ApiConnectionMode`].
+pub async fn resolve() -> Option<ApiConnectionMode> {
+    match DomainFrontingConfig::resolve(
+        FRONT.to_string(),
+        PROXY_HOST.to_string(),
+        SESSION_HEADER.to_string(),
+    )
+    .await
+    {
+        Ok(config) => Some(ApiConnectionMode::Proxied(ProxyConfig::DomainFronting(
+            config,
+        ))),
+        Err(error) => {
+            log::warn!("Failed to resolve domain fronting config: {error}");
+            None
+        }
     }
-
-    pub async fn connect(&self) -> Result<TlsStream<TcpStream>, Box<dyn std::error::Error>> {
-        let cert_store = read_cert_store();
-
-        let config = Arc::new(
-            rustls::ClientConfig::builder()
-                .with_root_certificates(cert_store)
-                .with_no_client_auth(),
-        );
-
-        let dns_resolver = DefaultDnsResolver;
-
-        let addrs = dns_resolver.resolve(self.front.clone()).await?;
-        let addr = addrs
-            .first()
-            .ok_or_else(|| Error::other("Empty DNS response"))?;
-        log::debug!(
-            "Resolved addresses {:?} for {:?}, will connect to {:?}",
-            addrs.clone(),
-            self.front,
-            addr.ip()
-        );
-        let stream = TcpStream::connect((addr.ip(), 443)).await?;
-
-        Ok(TlsStream::connect_https_with_client_config(stream, &self.front, config).await?)
-    }
-}
-
-fn read_cert_store() -> rustls::RootCertStore {
-    let mut cert_store = rustls::RootCertStore::empty();
-
-    cert_store.extend(TLS_SERVER_ROOTS.iter().cloned());
-    cert_store
 }
