@@ -20,3 +20,9 @@ if supported_apparmor; then
     cp /opt/Mullvad\ VPN/resources/apparmor_mullvad /etc/apparmor.d/mullvad
     apparmor_parser -r /etc/apparmor.d/mullvad || echo "Failed to reload apparmor profile"
 fi
+
+# Since late 2025, we list the status icons gnome extension as a recommended dependency in our .deb.
+# However, when gnome extension are installed using the system package manager, they are disabled by default.
+# As such, we try to enable the extension in order for the tray icon to display properly. It is not considered
+# a hard error if this fails.
+gnome-extensions enable status-icons@gnome-shell-extensions.gcampax.github.com > /dev/null 2>&1 || true
