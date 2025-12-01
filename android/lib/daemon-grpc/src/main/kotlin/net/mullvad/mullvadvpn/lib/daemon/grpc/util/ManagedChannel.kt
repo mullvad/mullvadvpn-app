@@ -1,16 +1,15 @@
 package net.mullvad.mullvadvpn.lib.daemon.grpc.util
 
-import co.touchlab.kermit.Logger
-import io.grpc.ConnectivityState
-import io.grpc.ManagedChannel
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.isActive
-import kotlinx.coroutines.suspendCancellableCoroutine
+import net.mullvad.mullvadvpn.lib.daemon.grpc.GrpcConnectivityState
+import okhttp3.OkHttpClient
 
-internal fun ManagedChannel.connectivityFlow(): Flow<ConnectivityState> {
+internal fun OkHttpClient.connectivityFlow(): Flow<GrpcConnectivityState> {
     return callbackFlow {
-        var currentState = getState(false)
+        send(GrpcConnectivityState.Ready)
+        /*var currentState = getState(false)
 
         while (isActive) {
             // Check that we are active before sending
@@ -23,6 +22,7 @@ internal fun ManagedChannel.connectivityFlow(): Flow<ConnectivityState> {
                     }
                 }
             }
-        }
+        }*/
+        awaitClose {}
     }
 }

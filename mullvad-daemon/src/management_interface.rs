@@ -107,12 +107,18 @@ impl ManagementService for ManagementServiceImpl {
     //
 
     async fn events_listen(&self, _: Request<()>) -> ServiceResult<Self::EventsListenStream> {
+        log::debug!("LOLZ events_listen 1");
+
         let (tx, rx) = tokio::sync::mpsc::unbounded_channel();
+
+        log::debug!("LOLZ events_listen 2");
 
         let mut subscriptions = self.subscriptions.lock().unwrap();
         subscriptions.push(tx);
 
-        Ok(Response::new(UnboundedReceiverStream::new(rx)))
+        let ret = Ok(Response::new(UnboundedReceiverStream::new(rx)));
+        log::debug!("LOLZ events_listen returned");
+        ret
     }
 
     async fn prepare_restart(&self, _: Request<()>) -> ServiceResult<()> {
@@ -284,7 +290,7 @@ impl ManagementService for ManagementServiceImpl {
     #[cfg(target_os = "android")]
     async fn set_lockdown_mode(&self, request: Request<BoolValue>) -> ServiceResult<()> {
         let lockdown_mode = request.into_inner();
-        log::debug!("set_lockdown_mode({})", lockdown_mode);
+        log::debug!("set_lockdown_mode({})", lockdown_mode.value);
         Err(Status::unimplemented(
             "Setting Lockdown mode on Android is not supported - this is handled by the OS, not the daemon",
         ))
@@ -300,7 +306,7 @@ impl ManagementService for ManagementServiceImpl {
     }
 
     async fn set_wireguard_mtu(&self, request: Request<types::UInt32Value>) -> ServiceResult<()> {
-        let mtu = request.into_inner();
+        let mtu = request.into_inner().value;
         let mtu = if mtu != 0 { Some(mtu as u16) } else { None };
         log::debug!("set_wireguard_mtu({:?})", mtu);
         let (tx, rx) = oneshot::channel();

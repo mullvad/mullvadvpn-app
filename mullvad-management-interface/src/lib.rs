@@ -181,8 +181,6 @@ pub fn spawn_rpc_server<T: ManagementService, F: Future<Output = ()> + Send + 's
             .map_err(Error::PermissionsError)?;
     }
 
-    log::debug!("We got here! 3 LOLZ");
-
     Ok(tokio::spawn(async move {
         if let Err(execution_error) = Server::builder()
             .add_service(ManagementServiceServer::new(service))
