@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -30,8 +31,6 @@ import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.parcelize.Parcelize
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.cell.HeaderSwitchComposeCell
-import net.mullvad.mullvadvpn.compose.cell.SwitchComposeSubtitleCell
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.NavigateCloseIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
@@ -40,6 +39,7 @@ import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
+import net.mullvad.mullvadvpn.lib.ui.component.listitem.SwitchListItem
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.lib.ui.tag.MULTIHOP_SCREEN_TEST_TAG
 import net.mullvad.mullvadvpn.util.Lc
@@ -99,7 +99,10 @@ fun MultihopScreen(
             }
         },
     ) { modifier ->
-        Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = modifier) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = modifier.padding(horizontal = Dimens.sideMarginNew),
+        ) {
             when (state) {
                 is Lc.Loading -> Loading()
                 is Lc.Content -> {
@@ -121,13 +124,12 @@ private fun ColumnScope.MultihopContent(
         modifier =
             Modifier.widthIn(max = Dimens.settingsDetailsImageMaxWidth)
                 .fillMaxWidth()
-                .padding(horizontal = Dimens.mediumPadding)
                 .align(Alignment.CenterHorizontally),
         painter = painterResource(id = R.drawable.multihop_illustration),
         contentDescription = stringResource(R.string.multihop),
     )
     Description()
-    HeaderSwitchComposeCell(
+    SwitchListItem(
         title = stringResource(R.string.enable),
         isToggled = state.enable,
         onCellClicked = onMultihopClick,
@@ -136,9 +138,10 @@ private fun ColumnScope.MultihopContent(
 
 @Composable
 private fun Description() {
-    SwitchComposeSubtitleCell(
+    Text(
         modifier = Modifier.padding(vertical = Dimens.mediumPadding),
         style = MaterialTheme.typography.labelLarge,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
         text = stringResource(R.string.multihop_description),
     )
 }
