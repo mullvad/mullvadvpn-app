@@ -178,8 +178,8 @@ class VpnSettingsScreenTest {
 
             // Assert
             apply {
-                onNodeWithText("WireGuard MTU").assertExists()
-                onNodeWithText("Default").assertExists()
+                onNodeWithText("MTU").assertExists()
+                onNodeWithText("Value: Default").assertExists()
             }
         }
 
@@ -197,7 +197,7 @@ class VpnSettingsScreenTest {
                 .performScrollToNode(hasTestTag(LAZY_LIST_LAST_ITEM_TEST_TAG))
 
             // Assert
-            onNodeWithText(VALID_DUMMY_MTU_VALUE).assertExists()
+            onNodeWithText("Value: $VALID_DUMMY_MTU_VALUE").assertExists()
         }
 
     @Test
@@ -484,7 +484,7 @@ class VpnSettingsScreenTest {
                 .performScrollToNode(hasTestTag(LAZY_LIST_LAST_ITEM_TEST_TAG))
 
             // Act
-            onNodeWithText("WireGuard MTU").performClick()
+            onNodeWithText("MTU").performClick()
 
             // Assert
             verify { mockedClickHandler.invoke(null) }
