@@ -806,7 +806,7 @@ fn test_selecting_endpoint_with_auto_obfuscation() {
 /// Construct a query for a configuration with UDP2TCP obfuscation, and make sure that
 /// all configurations contain a valid port.
 #[test]
-fn test_selected_endpoints_use_correct_port_ranges() {
+fn test_udp2tcp_use_correct_port_ranges() {
     const TCP2UDP_PORTS: [u16; 3] = [80, 443, 5001];
     let relay_selector = default_relay_selector();
     // Note that we do *not* specify any port here!
