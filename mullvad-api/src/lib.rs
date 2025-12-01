@@ -18,6 +18,7 @@ pub mod version;
 
 mod abortable_stream;
 pub mod access_mode;
+pub mod domain_fronting;
 mod https_client;
 pub mod proxy;
 mod tls_stream;
@@ -27,12 +28,11 @@ pub use crate::https_client::SocketBypassRequest;
 mod access;
 mod address_cache;
 pub mod device;
-#[cfg(feature = "domain-fronting")]
-pub mod domain_fronting;
 mod relay_list;
 
 pub use address_cache::Error as AddressCacheError;
 pub use address_cache::{AddressCache, AddressCacheBacking, FileAddressCacheBacking};
+
 pub use device::DevicesProxy;
 pub use hyper::StatusCode;
 pub use relay_list::{CachedRelayList, ETag, RelayListProxy};
