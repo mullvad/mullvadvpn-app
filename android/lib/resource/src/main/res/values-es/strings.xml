@@ -200,7 +200,6 @@
     <string name="failed_to_set_current_unknown_error">Error al establecer el método como actual: Razón desconocida</string>
     <string name="faqs_and_guides">Preguntas frecuentes y guías</string>
     <string name="feature_custom_dns">DNS personalizado</string>
-    <string name="feature_custom_mtu">MTU</string>
     <string name="feature_indicators_show_more">%1$s más...</string>
     <string name="feature_quantum_resistant">Resistencia cuántica</string>
     <string name="filter">Filtrar</string>
@@ -270,6 +269,7 @@
     <string name="max_devices_warning_title">Demasiados dispositivos</string>
     <string name="more_actions">Más acciones</string>
     <string name="more_information">Más información</string>
+    <string name="mtu">MTU</string>
     <string name="mullvad_owned_only">Solo propiedad de Mullvad</string>
     <string name="multihop">Salto múltiple</string>
     <string name="multihop_description">El salto múltiple dirige su tráfico a través de un servidor WireGuard y lo envía a otro, lo que dificulta su rastreo. Esto genera una mayor latencia, pero aumenta el anonimato en Internet.</string>
@@ -447,7 +447,6 @@
     <string name="we_will_look_into_this">Revisaremos esto.</string>
     <string name="wg_port_subtitle">Establezca la ofuscación de %1$s en «Automática» o «Desactivada» a continuación para activar esta configuración.</string>
     <string name="wireguard_custon_port_title">Personalizado</string>
-    <string name="wireguard_mtu">MTU de WireGuard</string>
     <string name="wireguard_mtu_footer">Establezca el valor de MTU de WireGuard. Intervalo válido: %1$d-%2$d.</string>
     <string name="wireguard_port_info_description">El ajuste automático se elegirá al azar entre los rangos de puertos válidos que se muestran a continuación.</string>
     <string name="wireguard_port_info_port_range">El puerto personalizado pueder ser cualquier valor dentro de los rangos válidos: %1$s.</string>

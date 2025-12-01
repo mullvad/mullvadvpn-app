@@ -200,7 +200,6 @@
     <string name="failed_to_set_current_unknown_error">ไม่สามารถตั้งค่าเป็นปัจจุบันได้ - ไม่ทราบสาเหตุ</string>
     <string name="faqs_and_guides">คำถามที่พบบ่อยและคำแนะนำ</string>
     <string name="feature_custom_dns">DNS แบบกำหนดเอง</string>
-    <string name="feature_custom_mtu">MTU</string>
     <string name="feature_indicators_show_more">อีก %1$s...</string>
     <string name="feature_quantum_resistant">การต่อต้านควอนตัม</string>
     <string name="filter">ตัวกรอง</string>
@@ -270,6 +269,7 @@
     <string name="max_devices_warning_title">มีอุปกรณ์มากเกินไป</string>
     <string name="more_actions">การดำเนินการเพิ่มเติม</string>
     <string name="more_information">ข้อมูลเพิ่มเติม</string>
+    <string name="mtu">MTU</string>
     <string name="mullvad_owned_only">ของ Mullvad เท่านั้น</string>
     <string name="multihop">มัลติฮอป</string>
     <string name="multihop_description">มัลติฮอปจะกำหนดเส้นทางการรับส่งข้อมูลของคุณ ไปยังหนึ่งในเซิร์ฟเวอร์ WireGuard และออกไปยังอีกเซิร์ฟเวอร์หนึ่ง ซึ่งทำให้ติดตามได้ยากขึ้น นี่จะส่งผลให้มีเวลาแฝงเพิ่มขึ้น แต่ก็จะช่วยปกปิดตัวตนออนไลน์ได้มากขึ้น</string>
@@ -447,7 +447,6 @@
     <string name="we_will_look_into_this">เราจะตรวจสอบปัญหานี้</string>
     <string name="wg_port_subtitle">ตั้งค่าการทำให้ข้อมูลยุ่งเหยิง %1$s ให้เป็น \"อัตโนมัติ\" หรือ \"ปิด\" ที่ด้านล่าง เพื่อเปิดใช้งานการตั้งค่านี้</string>
     <string name="wireguard_custon_port_title">กำหนดเอง</string>
-    <string name="wireguard_mtu">WireGuard MTU</string>
     <string name="wireguard_mtu_footer">ตั้งค่า WireGuard MTU ช่วงที่ถูกต้อง: %1$d - %2$d</string>
     <string name="wireguard_port_info_description">การตั้งค่าอัตโนมัติจะเป็นการสุ่มเลือกจากช่วงพอร์ตที่ใช้งานได้ต่างๆ ซึ่งแสดงอยู่ด้านล่าง</string>
     <string name="wireguard_port_info_port_range">พอร์ตแบบกำหนดเองอาจมีค่าใดๆ ก็ได้ ภายในช่วงที่ใช้งานได้: %1$s</string>
