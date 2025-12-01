@@ -200,7 +200,6 @@
     <string name="failed_to_set_current_unknown_error">現在の設定に設定できません。原因は不明です</string>
     <string name="faqs_and_guides">よくある質問とガイド</string>
     <string name="feature_custom_dns">カスタムDNS</string>
-    <string name="feature_custom_mtu">MTU</string>
     <string name="feature_indicators_show_more">その他%1$s件…</string>
     <string name="feature_quantum_resistant">耐量子</string>
     <string name="filter">絞り込み</string>
@@ -270,6 +269,7 @@
     <string name="max_devices_warning_title">デバイスが多すぎます</string>
     <string name="more_actions">その他の操作</string>
     <string name="more_information">詳細情報</string>
+    <string name="mtu">MTU</string>
     <string name="mullvad_owned_only">Mullvad 所有サーバーのみ</string>
     <string name="multihop">マルチホップ</string>
     <string name="multihop_description">マルチホップはトラフィックをあるWireGuardサーバーにルーティングし、別サーバーに送出することで追跡を困難にします。これによって遅延が増加しますが、オンラインの匿名性は高まります。</string>
@@ -447,7 +447,6 @@
     <string name="we_will_look_into_this">この問題を調査いたします。</string>
     <string name="wg_port_subtitle">この設定を有効化するには、以下の%1$sの難読化を「自動」または「オフ」に設定してください。</string>
     <string name="wireguard_custon_port_title">カスタム</string>
-    <string name="wireguard_mtu">WireGuard MTU</string>
     <string name="wireguard_mtu_footer">WireGuardのMTU値を設定します。有効範囲: %1$d ～ %2$d</string>
     <string name="wireguard_port_info_description">自動設定では、以下の有効なポート範囲からランダムに選択されます。</string>
     <string name="wireguard_port_info_port_range">カスタムポートは次の有効範囲内の任意の値に設定できます: %1$s。</string>
