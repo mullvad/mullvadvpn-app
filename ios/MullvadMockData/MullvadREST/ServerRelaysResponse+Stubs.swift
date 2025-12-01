@@ -93,6 +93,66 @@ public enum ServerRelaysResponseStubs {
                     features: .init(daita: .init(), quic: nil)
                 ),
                 REST.ServerRelay(
+                    hostname: "es2-wireguard",
+                    active: true,
+                    owned: false,
+                    location: "es-mad",
+                    provider: "100TB",
+                    weight: 500,
+                    ipv4AddrIn: .loopback,
+                    ipv6AddrIn: .loopback,
+                    publicKey: PrivateKey().publicKey.rawValue,
+                    includeInCountry: true,
+                    daita: true,
+                    shadowsocksExtraAddrIn: ["0.0.0.0"],
+                    features: .init(daita: .init(), quic: nil)
+                ),
+                REST.ServerRelay(
+                    hostname: "es3-wireguard",
+                    active: true,
+                    owned: false,
+                    location: "es-mad",
+                    provider: "100TB",
+                    weight: 500,
+                    ipv4AddrIn: .loopback,
+                    ipv6AddrIn: .loopback,
+                    publicKey: PrivateKey().publicKey.rawValue,
+                    includeInCountry: true,
+                    daita: true,
+                    shadowsocksExtraAddrIn: ["0.0.0.0"],
+                    features: .init(daita: .init(), quic: nil)
+                ),
+                REST.ServerRelay(
+                    hostname: "es4-wireguard",
+                    active: true,
+                    owned: false,
+                    location: "es-mad",
+                    provider: "100TB",
+                    weight: 500,
+                    ipv4AddrIn: .loopback,
+                    ipv6AddrIn: .loopback,
+                    publicKey: PrivateKey().publicKey.rawValue,
+                    includeInCountry: true,
+                    daita: true,
+                    shadowsocksExtraAddrIn: ["0.0.0.0"],
+                    features: .init(daita: .init(), quic: nil)
+                ),
+                REST.ServerRelay(
+                    hostname: "es5-wireguard",
+                    active: true,
+                    owned: false,
+                    location: "es-mad",
+                    provider: "100TB",
+                    weight: 500,
+                    ipv4AddrIn: .loopback,
+                    ipv6AddrIn: .loopback,
+                    publicKey: PrivateKey().publicKey.rawValue,
+                    includeInCountry: true,
+                    daita: true,
+                    shadowsocksExtraAddrIn: ["0.0.0.0"],
+                    features: .init(daita: .init(), quic: nil)
+                ),
+                REST.ServerRelay(
                     hostname: "se10-wireguard",
                     active: true,
                     owned: true,
@@ -139,6 +199,21 @@ public enum ServerRelaysResponseStubs {
                     daita: false,
                     shadowsocksExtraAddrIn: ["0.0.0.0"],
                     features: nil
+                ),
+                REST.ServerRelay(
+                    hostname: "jp1-wireguard",
+                    active: true,
+                    owned: false,
+                    location: "jp-tyo",
+                    provider: "100TB",
+                    weight: 500,
+                    ipv4AddrIn: .loopback,
+                    ipv6AddrIn: .loopback,
+                    publicKey: PrivateKey().publicKey.rawValue,
+                    includeInCountry: true,
+                    daita: true,
+                    shadowsocksExtraAddrIn: ["0.0.0.0"],
+                    features: .init(daita: .init(), quic: nil)
                 ),
                 REST.ServerRelay(
                     hostname: "us-dal-wg-001",
@@ -195,6 +270,46 @@ public enum ServerRelaysResponseStubs {
             relays: [
                 REST.BridgeRelay(
                     hostname: "se-sto-br-001",
+                    active: true,
+                    owned: true,
+                    location: "se-sto",
+                    provider: "31173",
+                    ipv4AddrIn: .loopback,
+                    weight: 100,
+                    includeInCountry: true
+                ),
+                REST.BridgeRelay(
+                    hostname: "se-sto-br-002",
+                    active: true,
+                    owned: true,
+                    location: "se-sto",
+                    provider: "31173",
+                    ipv4AddrIn: .loopback,
+                    weight: 100,
+                    includeInCountry: true
+                ),
+                REST.BridgeRelay(
+                    hostname: "se-sto-br-003",
+                    active: true,
+                    owned: true,
+                    location: "se-sto",
+                    provider: "31173",
+                    ipv4AddrIn: .loopback,
+                    weight: 100,
+                    includeInCountry: true
+                ),
+                REST.BridgeRelay(
+                    hostname: "se-sto-br-004",
+                    active: true,
+                    owned: true,
+                    location: "se-sto",
+                    provider: "31173",
+                    ipv4AddrIn: .loopback,
+                    weight: 100,
+                    includeInCountry: true
+                ),
+                REST.BridgeRelay(
+                    hostname: "se-sto-br-005",
                     active: true,
                     owned: true,
                     location: "se-sto",
