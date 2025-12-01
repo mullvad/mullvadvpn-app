@@ -22,6 +22,12 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+### Added
+- Add `gnome-shell-extension-status-icons` as a recommended dependency for `.deb` package.
+
+### Changed
+- Try to enable `status-icons` as part of the `after-install.sh` script.
+
 ### Fixed
 - Fix "Time left" label in main view not updating when time passes.
 
