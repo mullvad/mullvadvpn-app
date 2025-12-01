@@ -70,7 +70,7 @@ public final class ShadowsocksLoader: ShadowsocksLoaderProtocol, SwiftShadowsock
 
     /// Returns a randomly selected shadowsocks configuration.
     private func create() throws -> ShadowsocksConfiguration {
-        let bridgeConfiguration = try relaySelector.getBridges()
+        let bridgeConfiguration = try relaySelector.getBridge()
         let closestRelay = try relaySelector.selectRelay(with: tunnelSettings)
 
         guard let bridgeAddress = closestRelay?.ipv4AddrIn,

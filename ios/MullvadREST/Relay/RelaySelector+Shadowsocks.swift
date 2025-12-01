@@ -14,8 +14,8 @@ extension RelaySelector {
         /**
          Returns random shadowsocks TCP bridge, otherwise `nil` if there are no shadowdsocks bridges.
          */
-        public static func tcpBridge(from relays: REST.ServerRelaysResponse) -> REST.ServerShadowsocks? {
-            relays.bridge.shadowsocks.filter { $0.protocol == "tcp" }.randomElement()
+        public static func randomBridge(from relays: REST.ServerRelaysResponse) -> REST.ServerShadowsocks? {
+            relays.bridge.shadowsocks.randomElement()
         }
 
         /// Return a random Shadowsocks bridge relay, or `nil` if no relay were found.
@@ -23,7 +23,7 @@ extension RelaySelector {
         /// Non `active` relays are filtered out.
         /// - Parameter relays: The list of relays to randomly select from.
         /// - Returns: A Shadowsocks relay or `nil` if no active relay were found.
-        public static func relay(from relaysResponse: REST.ServerRelaysResponse) -> REST.BridgeRelay? {
+        public static func randomActiveRelay(from relaysResponse: REST.ServerRelaysResponse) -> REST.BridgeRelay? {
             relaysResponse.bridge.relays.filter { $0.active }.randomElement()
         }
 
@@ -53,7 +53,7 @@ extension RelaySelector {
                     daitaEnabled: false,
                     relays: mappedBridges
                 )) ?? []
-            guard filteredRelays.isEmpty == false else { return relay(from: relaysResponse) }
+            guard filteredRelays.isEmpty == false else { return randomActiveRelay(from: relaysResponse) }
 
             // Compute the midpoint location from all the filtered relays
             // Take *either* the first five relays, OR the relays below maximum bridge distance

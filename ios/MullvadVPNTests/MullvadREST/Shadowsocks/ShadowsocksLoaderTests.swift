@@ -114,8 +114,8 @@ class ShadowsocksRelaySelectorStub: ShadowsocksRelaySelectorProtocol, @unchecked
         }
     }
 
-    func getBridges() throws -> REST.ServerShadowsocks? {
-        RelaySelector.Shadowsocks.tcpBridge(from: relays)
+    func getBridge() throws -> REST.ServerShadowsocks? {
+        RelaySelector.Shadowsocks.randomBridge(from: relays)
     }
 }
 

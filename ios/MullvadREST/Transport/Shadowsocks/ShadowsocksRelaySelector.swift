@@ -13,7 +13,7 @@ import MullvadTypes
 public protocol ShadowsocksRelaySelectorProtocol: Sendable {
     func selectRelay(with settings: LatestTunnelSettings) throws -> REST.BridgeRelay?
 
-    func getBridges() throws -> REST.ServerShadowsocks?
+    func getBridge() throws -> REST.ServerShadowsocks?
 }
 
 final public class ShadowsocksRelaySelector: ShadowsocksRelaySelectorProtocol {
@@ -42,8 +42,8 @@ final public class ShadowsocksRelaySelector: ShadowsocksRelaySelectorProtocol {
         )
     }
 
-    public func getBridges() throws -> REST.ServerShadowsocks? {
+    public func getBridge() throws -> REST.ServerShadowsocks? {
         let cachedRelays = try relayCache.read()
-        return RelaySelector.Shadowsocks.tcpBridge(from: cachedRelays.relays)
+        return RelaySelector.Shadowsocks.randomBridge(from: cachedRelays.relays)
     }
 }
