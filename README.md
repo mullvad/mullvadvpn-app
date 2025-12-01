@@ -273,12 +273,12 @@ If you're using GNOME, you might have to install additional GNOME shell extensio
 
 #### Gnome 47 and newer
 
-If you're using GNOME and do not see the tray icon, try installing the `Status Icons` GNOME Shell extension:
+If you do not see the tray icon, try installing the `Status Icons` GNOME Shell extension:
 https://extensions.gnome.org/extension/7332/status-icons/.
 
 #### Gnome 46 and older.
 
-For older versions of Gnome the `Status Icons` extension is unavailable. For those systems we recommend
+For older versions of GNOME the `Status Icons` extension is unavailable. For those systems we recommend
 `AppIndicator and KStatusNotifierItem Support` instead:
 https://extensions.gnome.org/extension/615/appindicator-support/.
 
