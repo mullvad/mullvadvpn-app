@@ -10,6 +10,7 @@ use std::{
     ffi::CStr,
     fs::{self, File},
     io::{self, Read, Seek, Write},
+    os::unix::fs::MetadataExt,
     path::PathBuf,
 };
 use talpid_types::cgroup::{CGROUP2_DEFAULT_MOUNT_PATH, SPLIT_TUNNEL_CGROUP_NAME};
@@ -45,6 +46,8 @@ struct Inner {
 struct Cgroup2 {
     /// Absolute path of the cgroup2, e.g. `/run/my_cgroup2_mount/my_cgroup2`
     path: PathBuf,
+
+    inode: u64,
 
     /// `cgroup.procs` is used to add and list PIDs in the cgroup2.
     procs: File,
@@ -134,6 +137,7 @@ impl Cgroup2 {
     /// `path` must be a directory in the `cgroup2` filesystem.
     pub fn open(path: impl Into<PathBuf>) -> Result<Self, Error> {
         let path = path.into();
+
         let procs_path = path.join("cgroup.procs");
         let procs = fs::OpenOptions::new()
             .write(true)
@@ -142,7 +146,13 @@ impl Cgroup2 {
             .open(&procs_path)
             .with_context(|| anyhow!("Failed to open {procs_path:?}"))?;
 
-        Ok(Cgroup2 { path, procs })
+        let meta = fs::metadata(&path).with_context(|| anyhow!("Failed to stat {path:?}"))?;
+
+        Ok(Cgroup2 {
+            path,
+            inode: meta.ino(),
+            procs,
+        })
     }
 
     /// Create or open a child to the current cgroup2 called `name`.
@@ -160,7 +170,7 @@ impl Cgroup2 {
     }
 
     /// Assign a process to this cgroup2.
-    fn add_pid(&self, pid: Pid) -> Result<(), Error> {
+    pub fn add_pid(&self, pid: Pid) -> Result<(), Error> {
         // Format the PID as a string
         let mut pid_buf = [0u8; 16];
         write!(&mut pid_buf[..], "{pid}").expect("buf is large enough");
@@ -174,7 +184,7 @@ impl Cgroup2 {
     }
 
     /// List all PIDs in this cgroup2.
-    fn list_pids(&mut self) -> Result<Vec<pid_t>, Error> {
+    pub fn list_pids(&mut self) -> Result<Vec<pid_t>, Error> {
         let mut file = &self.procs;
         let mut pids = String::new();
 
@@ -192,5 +202,10 @@ impl Cgroup2 {
             })
             .collect();
         Ok(pids)
+    }
+
+    /// Get the inode of the cgroup2
+    pub const fn inode(&self) -> u64 {
+        self.inode
     }
 }
