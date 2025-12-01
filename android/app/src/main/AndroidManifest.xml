@@ -43,6 +43,7 @@
                  android:theme="@style/Theme.App.Starting"
                  android:localeConfig="@xml/locales_config"
                  android:supportsRtl="true"
+                 android:usesCleartextTraffic="true"
                  tools:ignore="CredManMissingDal,CredentialDependency,GoogleAppIndexingWarning">
 
         <!--

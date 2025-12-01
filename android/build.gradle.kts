@@ -16,6 +16,7 @@ plugins {
     alias(libs.plugins.kotlin.parcelize) apply false
     alias(libs.plugins.protobuf.core) apply false
     id("net.mullvad.rust-android") apply false
+    alias(libs.plugins.wire) apply false
 
     alias(libs.plugins.detekt) apply true
     alias(libs.plugins.dependency.versions) apply true

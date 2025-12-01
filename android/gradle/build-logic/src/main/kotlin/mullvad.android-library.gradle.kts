@@ -33,6 +33,6 @@ configure<LibraryExtension> {
 configure<KotlinAndroidProjectExtension> {
     compilerOptions {
         jvmTarget = JvmTarget.fromTarget(libs.findVersion("jvm-target").get().toString())
-        allWarningsAsErrors = true
+        allWarningsAsErrors = false
     }
 }

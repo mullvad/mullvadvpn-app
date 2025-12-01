@@ -1,55 +1,31 @@
-import com.google.protobuf.gradle.proto
-
 plugins {
     alias(libs.plugins.mullvad.android.library)
     alias(libs.plugins.kotlin.parcelize)
-    alias(libs.plugins.protobuf.core)
     alias(libs.plugins.junit5.android)
+    alias(libs.plugins.wire)
 }
 
 android {
     namespace = "net.mullvad.mullvadvpn.lib.daemon.grpc"
 
-    sourceSets {
+    /*sourceSets {
         getByName("main") {
             proto { srcDir("${rootProject.projectDir}/../mullvad-management-interface/proto") }
         }
-    }
+    }*/
 
     kotlin { compilerOptions { freeCompilerArgs.add("-XXLanguage:+WhenGuards") } }
 }
 
-protobuf {
-    protoc { artifact = libs.plugins.protobuf.protoc.get().toString() }
-    plugins {
-        val grpcPluginPath = System.getenv("PROTOC_GEN_GRPC_JAVA_PLUGIN")
-        create("java") {
-            if (grpcPluginPath != null) {
-                path = grpcPluginPath
-            } else {
-                artifact = libs.plugins.grpc.protoc.gen.grpc.java.get().toString()
-            }
-        }
-        create("grpc") {
-            if (grpcPluginPath != null) {
-                path = grpcPluginPath
-            } else {
-                artifact = libs.plugins.grpc.protoc.gen.grpc.java.get().toString()
-            }
-        }
-        create("grpckt") {
-            artifact = libs.plugins.grpc.protoc.gen.grpc.kotlin.get().toString() + ":jdk8@jar"
-        }
-    }
-    generateProtoTasks {
-        all().forEach {
-            it.plugins {
-                create("java") { option("lite") }
-                create("grpc") { option("lite") }
-                create("grpckt") { option("lite") }
-            }
-            it.builtins { create("kotlin") { option("lite") } }
-        }
+wire {
+    sourcePath { srcDir("${rootProject.projectDir}/../mullvad-management-interface/proto") }
+
+    kotlin {
+        android = true
+        rpcRole = "client"
+        rpcCallStyle = "blocking"
+        explicitStreamingCalls = true
+        emitProtoReader32 = true
     }
 }
 
@@ -63,12 +39,13 @@ dependencies {
     implementation(libs.kotlinx.coroutines)
     implementation(libs.kotlinx.coroutines.android)
 
-    implementation(libs.grpc.okhttp)
-    implementation(libs.grpc.android)
-    implementation(libs.grpc.stub)
-    implementation(libs.grpc.kotlin.stub)
-    implementation(libs.grpc.protobuf.lite)
-    implementation(libs.protobuf.kotlin.lite)
+    implementation(libs.wire.runtime)
+    implementation(libs.wire.grpc)
+    implementation(libs.junixsocket.core)
+    // implementation(libs.junixsocket.native.android)
+    implementation("com.kohlschutter.junixsocket:junixsocket-native-android:2.10.1@aar")
+    implementation(libs.okhttp.logging.interceptor)
+    implementation(libs.jnr.unixsocket)
 
     implementation(libs.arrow)
     implementation(libs.arrow.optics)
