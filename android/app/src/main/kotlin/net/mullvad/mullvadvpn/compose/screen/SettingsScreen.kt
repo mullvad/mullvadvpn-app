@@ -1,18 +1,15 @@
 package net.mullvad.mullvadvpn.compose.screen
 
 import androidx.compose.animation.animateContentSize
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material.icons.filled.Error
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -36,9 +33,6 @@ import com.ramcosta.composedestinations.generated.destinations.SplitTunnelingDes
 import com.ramcosta.composedestinations.generated.destinations.VpnSettingsDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.cell.DefaultExternalLinkView
-import net.mullvad.mullvadvpn.compose.cell.NavigationComposeCell
-import net.mullvad.mullvadvpn.compose.cell.TwoRowCell
 import net.mullvad.mullvadvpn.compose.component.NavigateCloseIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.compose.extensions.createUriHook
@@ -48,7 +42,10 @@ import net.mullvad.mullvadvpn.compose.state.SettingsUiState
 import net.mullvad.mullvadvpn.compose.transitions.TopLevelTransition
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
+import net.mullvad.mullvadvpn.lib.ui.component.listitem.ExternalLinkListItem
+import net.mullvad.mullvadvpn.lib.ui.component.listitem.NavigationListItem
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
+import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
 import net.mullvad.mullvadvpn.lib.ui.tag.DAITA_CELL_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.MULTIHOP_CELL_TEST_TAG
@@ -123,7 +120,11 @@ fun SettingsScreen(
     ) { modifier, lazyListState ->
         LazyColumn(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = modifier.testTag(LAZY_LIST_TEST_TAG).animateContentSize(),
+            modifier =
+                modifier
+                    .testTag(LAZY_LIST_TEST_TAG)
+                    .padding(horizontal = Dimens.sideMarginNew)
+                    .animateContentSize(),
             state = lazyListState,
         ) {
             when (state) {
@@ -159,7 +160,7 @@ private fun LazyListScope.content(
 ) {
     if (state.isLoggedIn) {
         itemWithDivider {
-            DaitaCell(isDaitaEnabled = state.isDaitaEnabled, onDaitaClick = onDaitaClick)
+            DaitaListItem(isDaitaEnabled = state.isDaitaEnabled, onDaitaClick = onDaitaClick)
         }
         itemWithDivider {
             MultihopCell(
@@ -168,10 +169,11 @@ private fun LazyListScope.content(
             )
         }
         itemWithDivider {
-            NavigationComposeCell(
+            NavigationListItem(
                 title = stringResource(id = R.string.settings_vpn),
                 onClick = onVpnSettingCellClick,
                 testTag = VPN_SETTINGS_CELL_TEST_TAG,
+                position = Position.Bottom,
             )
         }
         item { Spacer(modifier = Modifier.height(Dimens.cellVerticalSpacing)) }
@@ -180,7 +182,7 @@ private fun LazyListScope.content(
     }
 
     item {
-        NavigationComposeCell(
+        NavigationListItem(
             title = stringResource(id = R.string.settings_api_access),
             onClick = onApiAccessClick,
         )
@@ -189,9 +191,10 @@ private fun LazyListScope.content(
     item { Spacer(modifier = Modifier.height(Dimens.cellVerticalSpacing)) }
 
     itemWithDivider {
-        NavigationComposeCell(
+        NavigationListItem(
             title = stringResource(id = R.string.settings_notifications),
             onClick = onNotificationSettingsCellClick,
+            position = Position.Top,
         )
     }
 
@@ -210,7 +213,7 @@ private fun LazyListScope.content(
 
 @Composable
 private fun SplitTunneling(onSplitTunnelingCellClick: () -> Unit) {
-    NavigationComposeCell(
+    NavigationListItem(
         title = stringResource(id = R.string.split_tunneling),
         onClick = onSplitTunnelingCellClick,
     )
@@ -218,35 +221,25 @@ private fun SplitTunneling(onSplitTunnelingCellClick: () -> Unit) {
 
 @Composable
 private fun AppInfo(navigateToAppInfo: () -> Unit, state: SettingsUiState) {
-    TwoRowCell(
-        titleText = stringResource(id = R.string.app_info),
-        subtitleText = state.appVersion,
-        bodyView = {
-            Row {
-                if (!state.isSupportedVersion) {
-                    Icon(
-                        imageVector = Icons.Default.Error,
-                        modifier = Modifier.padding(end = Dimens.smallPadding),
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.error,
-                    )
-                }
-                Icon(
-                    Icons.AutoMirrored.Default.KeyboardArrowRight,
-                    contentDescription = stringResource(R.string.app_info),
-                    tint = MaterialTheme.colorScheme.onPrimary,
-                )
-            }
+    NavigationListItem(
+        title = {
+            TitleAndSubtitle(
+                title = stringResource(id = R.string.app_info),
+                subtitle = state.appVersion,
+            )
         },
-        onCellClicked = navigateToAppInfo,
+        showWarning = !state.isSupportedVersion,
+        position = Position.Bottom,
+        onClick = navigateToAppInfo,
     )
 }
 
 @Composable
 private fun ReportProblem(onReportProblemCellClick: () -> Unit) {
-    NavigationComposeCell(
+    NavigationListItem(
         title = stringResource(id = R.string.report_a_problem),
         onClick = { onReportProblemCellClick() },
+        position = Position.Top,
     )
 }
 
@@ -256,15 +249,10 @@ private fun FaqAndGuides() {
     val openFaqAndGuides =
         LocalUriHandler.current.createUriHook(stringResource(R.string.faqs_and_guides_url))
 
-    NavigationComposeCell(
+    ExternalLinkListItem(
         title = faqGuideLabel,
         onClick = openFaqAndGuides,
-        bodyView = {
-            DefaultExternalLinkView(
-                chevronContentDescription = faqGuideLabel,
-                tint = MaterialTheme.colorScheme.onPrimary,
-            )
-        },
+        position = Position.Middle,
     )
 }
 
@@ -277,66 +265,69 @@ private fun PrivacyPolicy(state: SettingsUiState) {
             stringResource(R.string.privacy_policy_url).appendHideNavOnPlayBuild(state.isPlayBuild)
         )
 
-    NavigationComposeCell(
+    ExternalLinkListItem(
         title = privacyPolicyLabel,
         onClick = openPrivacyPolicy,
-        bodyView = {
-            DefaultExternalLinkView(
-                chevronContentDescription = privacyPolicyLabel,
-                tint = MaterialTheme.colorScheme.onPrimary,
-            )
-        },
+        position = Position.Bottom,
     )
 }
 
 @Composable
-private fun DaitaCell(isDaitaEnabled: Boolean, onDaitaClick: () -> Unit) {
+private fun DaitaListItem(isDaitaEnabled: Boolean, onDaitaClick: () -> Unit) {
     val title = stringResource(id = R.string.daita)
-    TwoRowCell(
-        titleText = title,
-        subtitleText =
-            stringResource(
-                if (isDaitaEnabled) {
-                    R.string.on
-                } else {
-                    R.string.off
-                }
-            ),
-        onCellClicked = onDaitaClick,
-        bodyView = {
-            Icon(
-                imageVector = Icons.AutoMirrored.Default.KeyboardArrowRight,
-                contentDescription = title,
-                tint = MaterialTheme.colorScheme.onPrimary,
+    NavigationListItem(
+        title = {
+            TitleAndSubtitle(
+                title,
+                stringResource(
+                    if (isDaitaEnabled) {
+                        R.string.on
+                    } else {
+                        R.string.off
+                    }
+                ),
             )
         },
-        modifier = Modifier.testTag(DAITA_CELL_TEST_TAG),
+        contentDescription = title,
+        onClick = onDaitaClick,
+        position = Position.Top,
+        testTag = DAITA_CELL_TEST_TAG,
     )
 }
 
 @Composable
 private fun MultihopCell(isMultihopEnabled: Boolean, onMultihopClick: () -> Unit) {
     val title = stringResource(id = R.string.multihop)
-    TwoRowCell(
-        titleText = title,
-        subtitleText =
-            stringResource(
-                if (isMultihopEnabled) {
-                    R.string.on
-                } else {
-                    R.string.off
-                }
-            ),
-        onCellClicked = onMultihopClick,
-        bodyView = {
-            Icon(
-                imageVector = Icons.AutoMirrored.Default.KeyboardArrowRight,
-                contentDescription = title,
-                tint = MaterialTheme.colorScheme.onPrimary,
+    NavigationListItem(
+        title = {
+            TitleAndSubtitle(
+                title,
+                stringResource(
+                    if (isMultihopEnabled) {
+                        R.string.on
+                    } else {
+                        R.string.off
+                    }
+                ),
             )
         },
-        modifier = Modifier.testTag(MULTIHOP_CELL_TEST_TAG),
+        contentDescription = title,
+        onClick = onMultihopClick,
+        position = Position.Middle,
+        testTag = MULTIHOP_CELL_TEST_TAG,
     )
+}
+
+@Composable
+private fun TitleAndSubtitle(title: String, subtitle: String) {
+    Column {
+        Text(title)
+        Text(
+            text = subtitle,
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
 }
 
 private fun LazyListScope.loading() {

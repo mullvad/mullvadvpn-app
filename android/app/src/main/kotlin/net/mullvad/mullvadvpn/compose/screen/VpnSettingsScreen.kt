@@ -73,7 +73,6 @@ import kotlinx.parcelize.Parcelize
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.cell.BaseSubtitleCell
 import net.mullvad.mullvadvpn.compose.cell.ContentBlockersDisableModeCellSubtitle
-import net.mullvad.mullvadvpn.compose.cell.MtuSubtitle
 import net.mullvad.mullvadvpn.compose.cell.SwitchComposeSubtitleCell
 import net.mullvad.mullvadvpn.compose.communication.DnsDialogResult
 import net.mullvad.mullvadvpn.compose.component.MullvadMediumTopBar
@@ -92,6 +91,8 @@ import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.OnNavResultValue
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
+import net.mullvad.mullvadvpn.constant.MTU_MAX_VALUE
+import net.mullvad.mullvadvpn.constant.MTU_MIN_VALUE
 import net.mullvad.mullvadvpn.constant.SETTINGS_HIGHLIGHT_REPEAT_COUNT
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
@@ -837,8 +838,15 @@ fun VpnSettingsContent(
 
                 VpnSettingItem.MtuInfo ->
                     item(key = it::class.simpleName) {
-                        MtuSubtitle(
-                            modifier = Modifier.testTag(LAZY_LIST_LAST_ITEM_TEST_TAG).animateItem()
+                        Text(
+                            stringResource(
+                                R.string.wireguard_mtu_footer,
+                                MTU_MIN_VALUE,
+                                MTU_MAX_VALUE,
+                            ),
+                            modifier = Modifier.testTag(LAZY_LIST_LAST_ITEM_TEST_TAG).animateItem(),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
 

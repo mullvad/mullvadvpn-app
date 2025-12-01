@@ -4,7 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -23,11 +23,11 @@ import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
 
 @Preview
 @Composable
-private fun PreviewNavigationListItem() {
+private fun PreviewExternalLinkListItem() {
     AppTheme {
         PreviewSpacedColumn(Modifier.background(MaterialTheme.colorScheme.surface)) {
-            NavigationListItem(title = "Navigation sample", showWarning = false, onClick = {})
-            NavigationListItem(
+            ExternalLinkListItem(title = "Navigation sample", showWarning = false, onClick = {})
+            ExternalLinkListItem(
                 hierarchy = Hierarchy.Child1,
                 title = "Navigation sample",
                 showWarning = true,
@@ -38,7 +38,7 @@ private fun PreviewNavigationListItem() {
 }
 
 @Composable
-fun NavigationListItem(
+fun ExternalLinkListItem(
     modifier: Modifier = Modifier,
     hierarchy: Hierarchy = Hierarchy.Parent,
     position: Position = Position.Single,
@@ -47,15 +47,15 @@ fun NavigationListItem(
     isRowEnabled: Boolean = true,
     onClick: () -> Unit,
     testTag: String? = null,
-    icon: @Composable (BoxScope) -> Unit = {
-        Icon(Icons.AutoMirrored.Default.KeyboardArrowRight, contentDescription = title)
+    icon: @Composable ((BoxScope) -> Unit) = {
+        Icon(imageVector = Icons.AutoMirrored.Default.OpenInNew, contentDescription = title)
     },
 ) {
-    NavigationListItem(
+    ExternalLinkListItem(
         modifier = modifier,
         hierarchy = hierarchy,
         position = position,
-        title = { Text(title) },
+        title = @Composable { Text(title) },
         showWarning = showWarning,
         isRowEnabled = isRowEnabled,
         onClick = onClick,
@@ -64,9 +64,8 @@ fun NavigationListItem(
     )
 }
 
-@Suppress("ComposableLambdaParameterNaming")
 @Composable
-fun NavigationListItem(
+fun ExternalLinkListItem(
     modifier: Modifier = Modifier,
     hierarchy: Hierarchy = Hierarchy.Parent,
     position: Position = Position.Single,
@@ -76,8 +75,11 @@ fun NavigationListItem(
     onClick: () -> Unit,
     testTag: String? = null,
     contentDescription: String? = null,
-    icon: @Composable (BoxScope) -> Unit = {
-        Icon(Icons.AutoMirrored.Default.KeyboardArrowRight, contentDescription = contentDescription)
+    icon: @Composable ((BoxScope) -> Unit) = {
+        Icon(
+            imageVector = Icons.AutoMirrored.Default.OpenInNew,
+            contentDescription = contentDescription,
+        )
     },
 ) {
     MullvadListItem(
