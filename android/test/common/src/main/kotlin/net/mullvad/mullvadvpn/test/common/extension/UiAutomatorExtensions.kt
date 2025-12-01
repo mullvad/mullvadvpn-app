@@ -135,7 +135,3 @@ fun UiDevice.acceptVpnPermissionDialog(ignoreNotFound: Boolean = false) {
     }
     waitForAppToBeVisible(currentPackageName)
 }
-
-fun UiDevice.acceptVpnPermissionDialogIgnoreNotFound() {
-    waitForAppToBeVisible(currentPackageName)
-}
