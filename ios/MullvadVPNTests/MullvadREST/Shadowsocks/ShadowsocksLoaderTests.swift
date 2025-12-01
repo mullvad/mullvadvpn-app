@@ -47,6 +47,7 @@ class ShadowsocksLoaderTests: XCTestCase {
         shadowsocksLoader = ShadowsocksLoader(
             cache: shadowsocksConfigurationCache,
             relaySelector: relaySelector,
+            tunnelSettings: LatestTunnelSettings(),
             settingsUpdater: SettingsUpdater(listener: settingsListener)
         )
     }
@@ -87,10 +88,8 @@ class ShadowsocksLoaderTests: XCTestCase {
         filter: RelayConstraint<RelayFilter>,
         in: REST.ServerRelaysResponse
     ) -> REST.BridgeRelay? {
-        RelaySelector.Shadowsocks.closestRelay(
+        RelaySelector.Shadowsocks.closestBridge(
             location: location,
-            port: port,
-            filter: filter,
             in: sampleRelays
         )
     }
@@ -105,7 +104,7 @@ class ShadowsocksRelaySelectorStub: ShadowsocksRelaySelectorProtocol, @unchecked
         self.relays = relays
     }
 
-    func selectRelay(with settings: LatestTunnelSettings) throws -> REST.BridgeRelay? {
+    func selectBridge(with settings: LatestTunnelSettings) throws -> REST.BridgeRelay? {
         switch settings.tunnelMultihopState {
         case .on:
             try entryBridgeResult.get()
@@ -114,8 +113,8 @@ class ShadowsocksRelaySelectorStub: ShadowsocksRelaySelectorProtocol, @unchecked
         }
     }
 
-    func getBridges() throws -> REST.ServerShadowsocks? {
-        RelaySelector.Shadowsocks.tcpBridge(from: relays)
+    func getBridgeConfig() throws -> REST.ServerShadowsocks? {
+        RelaySelector.Shadowsocks.randomBridgeConfig(from: relays)
     }
 }
 
