@@ -16,7 +16,7 @@ public final class ShadowsocksLoader: ShadowsocksLoaderProtocol, SwiftShadowsock
     let settingsUpdater: SettingsUpdater
 
     nonisolated(unsafe) private var observer: SettingsObserverBlock!
-    nonisolated(unsafe) private var tunnelSettings = LatestTunnelSettings()
+    nonisolated(unsafe) private var tunnelSettings: LatestTunnelSettings
     private let settingsStrategy = TunnelSettingsStrategy()
 
     deinit {
@@ -26,10 +26,12 @@ public final class ShadowsocksLoader: ShadowsocksLoaderProtocol, SwiftShadowsock
     public init(
         cache: ShadowsocksConfigurationCacheProtocol,
         relaySelector: ShadowsocksRelaySelectorProtocol,
+        tunnelSettings: LatestTunnelSettings,
         settingsUpdater: SettingsUpdater
     ) {
         self.cache = cache
         self.relaySelector = relaySelector
+        self.tunnelSettings = tunnelSettings
         self.settingsUpdater = settingsUpdater
         self.addObservers()
     }
@@ -70,8 +72,8 @@ public final class ShadowsocksLoader: ShadowsocksLoaderProtocol, SwiftShadowsock
 
     /// Returns a randomly selected shadowsocks configuration.
     private func create() throws -> ShadowsocksConfiguration {
-        let bridgeConfiguration = try relaySelector.getBridges()
-        let closestRelay = try relaySelector.selectRelay(with: tunnelSettings)
+        let bridgeConfiguration = try relaySelector.getBridgeConfig()
+        let closestRelay = try relaySelector.selectBridge(with: tunnelSettings)
 
         guard let bridgeAddress = closestRelay?.ipv4AddrIn,
             let bridgeConfiguration
