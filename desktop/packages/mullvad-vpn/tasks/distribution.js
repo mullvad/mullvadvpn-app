@@ -225,7 +225,6 @@ function newConfig() {
       ],
       afterInstall: distAssets('linux/after-install.sh'),
       afterRemove: distAssets('linux/after-remove.sh'),
-      recommends: ['gnome-shell-extension-status-icons'],
     },
 
     rpm: {
