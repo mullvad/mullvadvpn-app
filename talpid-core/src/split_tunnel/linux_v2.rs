@@ -19,10 +19,10 @@ use talpid_types::cgroup::{CGROUP2_DEFAULT_MOUNT_PATH, SPLIT_TUNNEL_CGROUP_NAME}
 
 use crate::firewall;
 
-pub static ROOT_CGROUP2: LazyLock<Result<Cgroup2, Error>> =
-    LazyLock::new(|| Cgroup2::open(CGROUP2_DEFAULT_MOUNT_PATH));
+pub static ROOT_CGROUP2: LazyLock<Result<CGroup2, Error>> =
+    LazyLock::new(|| CGroup2::open(CGROUP2_DEFAULT_MOUNT_PATH));
 
-pub static EXCLUDED_CGROUP2: LazyLock<Result<Cgroup2, Error>> = LazyLock::new(|| {
+pub static EXCLUDED_CGROUP2: LazyLock<Result<CGroup2, Error>> = LazyLock::new(|| {
     let excluded_cgroup2 = ROOT_CGROUP2
         .as_ref()
         .context("Failed to open root cgroup2")?
@@ -57,14 +57,14 @@ pub struct PidManager {
 }
 
 struct Inner {
-    root_cgroup2: &'static Cgroup2,
-    excluded_cgroup2: &'static Cgroup2,
+    root_cgroup2: CGroup2,
+    excluded_cgroup2: CGroup2,
 }
 
 /// A handle to a cgroup2
 ///
 /// The cgroup is unmounted when droppped.
-struct Cgroup2 {
+pub struct CGroup2 {
     /// Absolute path of the cgroup2, e.g. `/run/my_cgroup2_mount/my_cgroup2`
     path: PathBuf,
 
@@ -87,13 +87,17 @@ impl PidManager {
     }
 
     fn new_inner() -> Result<Inner, Error> {
+        let clone = |static_cgroup: &'static LazyLock<Result<CGroup2, Error>>| {
+            static_cgroup
+                .as_ref()
+                .context("Failed to open cgroup2")
+                .map_err(Error::from)
+                .and_then(|cgroup| cgroup.try_clone())
+        };
+
         Ok(Inner {
-            root_cgroup2: ROOT_CGROUP2
-                .as_ref()
-                .context("Failed to open root cgroup")?,
-            excluded_cgroup2: EXCLUDED_CGROUP2
-                .as_ref()
-                .context("Failed to open cgroup2")?,
+            root_cgroup2: clone(&ROOT_CGROUP2)?,
+            excluded_cgroup2: clone(&EXCLUDED_CGROUP2)?,
         })
     }
 
@@ -132,6 +136,10 @@ impl PidManager {
         matches!(self.inner, Ok(..))
     }
 
+    pub fn excluded_cgroup(&self) -> Result<CGroup2, Error> {
+        self.inner()?.excluded_cgroup2.try_clone()
+    }
+
     fn inner(&self) -> Result<&Inner, Error> {
         self.inner
             .as_ref()
@@ -149,11 +157,14 @@ impl PidManager {
     }
 }
 
-/// Try to create an nft table with a `socket cgroupv2 level x` rule.
+/// Check whether we can create an nft table with a `socket cgroupv2 level x` rule.
 ///
 /// Assuming that this process has the sufficient privileges, then this function should only fail
 /// when the kernel doesn't support this kind of rule. This is the case for kernels predating 5.12.
-fn assert_nft_supports_cgroup2(cgroup: &Cgroup2) -> Result<(), Error> {
+// TODO: this fugly bc
+// - 1. we're doing firewall stuff outside the firewall module
+// - 2. we're creating an invariant that this nft expression is the same as the one we create in the firewall module
+fn assert_nft_supports_cgroup2(cgroup: &CGroup2) -> Result<(), Error> {
     let table_name = c"mullvad-test-cgroup2-capability";
 
     let mut batch = Batch::new();
@@ -171,14 +182,11 @@ fn assert_nft_supports_cgroup2(cgroup: &Cgroup2) -> Result<(), Error> {
     rule.add_expr(&nft_expr!(verdict accept));
     batch.add(&rule, MsgType::Add);
 
-    let batch = batch.finalize();
-    firewall::linux::Firewall::send_and_process(&batch)
-        .context("Failed to create cgroup2 nftables rule")?;
-
-    // Remove table
-    let mut batch = Batch::new();
+    // Remove the table. Since this happens is the same batch, the table will never process any packets.
+    // This makes it effectively a dry-run.
     let table = Table::new(table_name, ProtoFamily::Inet);
     batch.add(&table, MsgType::Del);
+
     let batch = batch.finalize();
     firewall::linux::Firewall::send_and_process(&batch)
         .context("Failed to remove cgroup2 nftables table")?;
@@ -192,7 +200,7 @@ impl Default for PidManager {
     }
 }
 
-impl Cgroup2 {
+impl CGroup2 {
     /// Open the cgroup2 at `path`.
     ///
     /// `path` must be a directory in the `cgroup2` filesystem.
@@ -209,7 +217,7 @@ impl Cgroup2 {
 
         let meta = fs::metadata(&path).with_context(|| anyhow!("Failed to stat {path:?}"))?;
 
-        Ok(Cgroup2 {
+        Ok(CGroup2 {
             path,
             inode: meta.ino(),
             procs,
@@ -228,6 +236,17 @@ impl Cgroup2 {
         }
 
         Self::open(child_path)
+    }
+
+    pub fn try_clone(&self) -> Result<Self, Error> {
+        Ok(Self {
+            path: self.path.clone(),
+            inode: self.inode,
+            procs: self
+                .procs
+                .try_clone()
+                .context("Failed to clone procs file handle")?,
+        })
     }
 
     /// Assign a process to this cgroup2.

@@ -167,6 +167,9 @@ async fn reset_firewall() -> Result<(), Error> {
     Firewall::new(
         #[cfg(target_os = "linux")]
         mullvad_types::TUNNEL_FWMARK,
+        // TODO split-tunneling?
+        #[cfg(target_os = "linux")]
+        None,
     )
     .map_err(Error::FirewallError)?
     .reset_policy()
