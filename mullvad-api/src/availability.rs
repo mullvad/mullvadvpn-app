@@ -7,7 +7,7 @@ use tokio::sync::broadcast;
 
 /// Pause background requests if [ApiAvailabilityHandle::reset_inactivity_timer] hasn't been
 /// called for this long.
-const INACTIVITY_TIME: Duration = Duration::from_secs(3 * 24 * 60 * 60);
+const INACTIVITY_TIME: Duration = Duration::from_hours(3 * 24);
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {

@@ -41,14 +41,14 @@ const DOWNLOAD_TIMEOUT: Duration = Duration::from_secs(15);
 const FIRST_CHECK_INTERVAL: Duration = Duration::from_secs(5);
 /// How long to wait between version checks, regardless of whether they succeed
 #[cfg(not(target_os = "android"))]
-const UPDATE_INTERVAL: Duration = Duration::from_secs(60 * 60);
+const UPDATE_INTERVAL: Duration = Duration::from_hours(1);
 /// How long to wait between version checks, regardless of whether they succeed
 // On Android, be more conservative since we use old endpoint. Retry at most once per 6 hours.
 #[cfg(target_os = "android")]
-const UPDATE_INTERVAL: Duration = Duration::from_secs(60 * 60 * 6);
+const UPDATE_INTERVAL: Duration = Duration::from_hours(6);
 /// Wait this long before sending platform metadata in check
 /// `M-Platform-Version` should only be sent once per 24h to make statistics predictable.
-const PLATFORM_HEADER_INTERVAL: Duration = Duration::from_secs(60 * 60 * 24);
+const PLATFORM_HEADER_INTERVAL: Duration = Duration::from_hours(24);
 /// Retry strategy for `GetVersionInfo`.
 const IMMEDIATE_RETRY_STRATEGY: ConstantInterval = ConstantInterval::new(Duration::ZERO, Some(3));
 

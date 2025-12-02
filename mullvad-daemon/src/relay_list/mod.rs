@@ -20,13 +20,12 @@ use talpid_types::ErrorExt;
 /// How often the updater should wake up to check the cache of the in-memory cache of relays.
 /// This check is very cheap. The only reason to not have it very often is because if downloading
 /// constantly fails it will try very often and fill the logs etc.
-const UPDATE_CHECK_INTERVAL: Duration = Duration::from_secs(60 * 15);
+const UPDATE_CHECK_INTERVAL: Duration = Duration::from_mins(15);
 /// How old the cached relays need to be to trigger an update
-const UPDATE_INTERVAL: Duration = Duration::from_secs(60 * 60);
+const UPDATE_INTERVAL: Duration = Duration::from_hours(1);
 
 const DOWNLOAD_RETRY_STRATEGY: Jittered<ExponentialBackoff> = Jittered::jitter(
-    ExponentialBackoff::new(Duration::from_secs(16), 8)
-        .max_delay(Some(Duration::from_secs(2 * 60 * 60))),
+    ExponentialBackoff::new(Duration::from_secs(16), 8).max_delay(Some(Duration::from_hours(2))),
 );
 
 /// Where the relay list is cached on disk.

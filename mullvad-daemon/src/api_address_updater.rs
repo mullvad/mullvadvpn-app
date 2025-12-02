@@ -5,9 +5,9 @@ use mullvad_api::ApiEndpoint;
 use mullvad_api::{AddressCache, ApiProxy, rest::MullvadRestHandle};
 use std::time::Duration;
 
-const API_IP_CHECK_INITIAL: Duration = Duration::from_secs(15 * 60);
-const API_IP_CHECK_INTERVAL: Duration = Duration::from_secs(24 * 60 * 60);
-const API_IP_CHECK_ERROR_INTERVAL: Duration = Duration::from_secs(15 * 60);
+const API_IP_CHECK_INITIAL: Duration = Duration::from_mins(15);
+const API_IP_CHECK_INTERVAL: Duration = Duration::from_hours(24);
+const API_IP_CHECK_ERROR_INTERVAL: Duration = Duration::from_mins(15);
 
 pub async fn run_api_address_fetcher(
     address_cache: AddressCache,

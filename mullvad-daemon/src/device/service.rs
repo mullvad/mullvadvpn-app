@@ -22,8 +22,7 @@ use talpid_future::retry::{ConstantInterval, ExponentialBackoff, Jittered, retry
 const RETRY_ACTION_STRATEGY: ConstantInterval = ConstantInterval::new(Duration::ZERO, Some(3));
 /// Retry strategy used for background tasks
 const RETRY_BACKOFF_STRATEGY: Jittered<ExponentialBackoff> = Jittered::jitter(
-    ExponentialBackoff::new(Duration::from_secs(4), 5)
-        .max_delay(Some(Duration::from_secs(24 * 60 * 60))),
+    ExponentialBackoff::new(Duration::from_secs(4), 5).max_delay(Some(Duration::from_hours(24))),
 );
 
 #[derive(Clone)]
@@ -206,7 +205,7 @@ impl DeviceService {
         let api_handle = self.api_availability.clone();
         let pubkey = private_key.public_key();
 
-        let rotate_retry_strategy = std::iter::repeat(Duration::from_secs(24 * 60 * 60));
+        let rotate_retry_strategy = std::iter::repeat(Duration::from_hours(24));
 
         let addresses = retry_future(
             move || {
