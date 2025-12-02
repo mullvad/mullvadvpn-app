@@ -16,6 +16,8 @@ use tokio::{
     io::{AsyncRead, AsyncWrite, AsyncWriteExt, ReadBuf},
 };
 
+use crate::domain_fronting;
+
 const CURRENT_CONFIG_FILENAME: &str = "api-endpoint.json";
 
 pub trait ConnectionModeProvider: Send {
@@ -67,23 +69,30 @@ pub enum ProxyConfig {
     Socks5Local(proxy::Socks5Local),
     Socks5Remote(proxy::Socks5Remote),
     EncryptedDnsProxy(mullvad_encrypted_dns_proxy::config::ProxyConfig),
+    DomainFronting(domain_fronting::ProxyConfig),
 }
 
 impl ProxyConfig {
     /// Returns the remote endpoint describing how to reach the proxy.
-    fn get_endpoint(&self) -> Endpoint {
+    fn get_endpoint(&self) -> Option<Endpoint> {
         match self {
-            ProxyConfig::Shadowsocks(shadowsocks) => {
-                Endpoint::from_socket_address(shadowsocks.endpoint, TransportProtocol::Tcp)
-            }
-            ProxyConfig::Socks5Local(local) => local.remote_endpoint,
-            ProxyConfig::Socks5Remote(remote) => {
-                Endpoint::from_socket_address(remote.endpoint, TransportProtocol::Tcp)
-            }
+            ProxyConfig::Shadowsocks(shadowsocks) => Some(Endpoint::from_socket_address(
+                shadowsocks.endpoint,
+                TransportProtocol::Tcp,
+            )),
+            ProxyConfig::Socks5Local(local) => Some(local.remote_endpoint),
+            ProxyConfig::Socks5Remote(remote) => Some(Endpoint::from_socket_address(
+                remote.endpoint,
+                TransportProtocol::Tcp,
+            )),
             ProxyConfig::EncryptedDnsProxy(proxy) => {
                 let addr = SocketAddr::V4(proxy.addr);
-                Endpoint::from_socket_address(addr, TransportProtocol::Tcp)
+                Some(Endpoint::from_socket_address(addr, TransportProtocol::Tcp))
             }
+            ProxyConfig::DomainFronting(proxy) => Some(Endpoint::from_socket_address(
+                proxy.addr,
+                TransportProtocol::Tcp,
+            )),
         }
     }
 }
@@ -169,7 +178,7 @@ impl ApiConnectionMode {
     pub fn get_endpoint(&self) -> Option<Endpoint> {
         match self {
             ApiConnectionMode::Direct => None,
-            ApiConnectionMode::Proxied(proxy_config) => Some(proxy_config.get_endpoint()),
+            ApiConnectionMode::Proxied(proxy_config) => proxy_config.get_endpoint(),
         }
     }
 
