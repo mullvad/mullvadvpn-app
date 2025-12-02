@@ -19,10 +19,10 @@
   "testTargets" : [
     {
       "selectedTests" : [
+        "ScreenshotTests\/testTakeScreenshotOfAQuantumSecuredConnection()",
         "ScreenshotTests\/testTakeScreenshotOfAccount()",
         "ScreenshotTests\/testTakeScreenshotOfCustomListSelected()",
         "ScreenshotTests\/testTakeScreenshotOfDNSSettings()",
-        "ScreenshotTests\/testTakeScreenshotOfQuantumSecuredConnection()",
         "ScreenshotTests\/testTakeScreenshotOfRelayFilter()",
         "ScreenshotTests\/testTakeScreenshotOfVPNSettings()"
       ],

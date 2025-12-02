@@ -22,7 +22,7 @@ class ScreenshotTests: LoggedInWithTimeUITestCase {
         try await super.setUp()
     }
 
-    func testTakeScreenshotOfQuantumSecuredConnection() async throws {
+    func testTakeScreenshotOfAQuantumSecuredConnection() async throws {
         // We can't close banners in the screenshot tests due to how the NotificationController view
         // is overridden, so we need to restart the app once to make sure the "new device" notification
         // isn't visible.
