@@ -440,7 +440,7 @@ impl ProblemReport {
         let out1 = Self::redact_account_number(input);
         let out2 = Self::redact_home_dir(&out1);
         let out3 = Self::redact_network_info(&out2);
-        let out4 = Self::redact_guids(&out3);
+        let out4 = Self::redact_uuid_v4(&out3);
         self.redact_custom_strings(&out4).to_string()
     }
 
@@ -468,7 +468,11 @@ impl ProblemReport {
         RE.replace_all(input, "$start[REDACTED]")
     }
 
-    fn redact_guids(input: &str) -> Cow<'_, str> {
+    /// Redact all v4 UUIDs, including:
+    /// * Account IDs
+    /// * Device IDs
+    /// * Network interface GUIDs on Windows
+    fn redact_uuid_v4(input: &str) -> Cow<'_, str> {
         static RE: LazyLock<Regex> = LazyLock::new(|| {
             Regex::new(r"(?i)\{?[A-F0-9]{8}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{12}\}?")
                 .unwrap()
@@ -678,7 +682,8 @@ mod tests {
     }
 
     #[test]
-    fn redacts_guid() {
+    fn redacts_uuid_v4() {
+        assert_redacts("1248e97e-134b-4820-92e1-abaf191c2840");
         assert_redacts("6B29FC40-CA47-1067-B31D-00DD010662DA");
         assert_redacts("123123ab-12ab-89cd-45ef-012345678901");
         assert_redacts("{123123ab-12ab-89cd-45ef-012345678901}");
@@ -700,7 +705,7 @@ mod tests {
     }
 
     #[test]
-    fn doesnt_redact_not_guid() {
+    fn doesnt_redact_not_uuid_v4() {
         assert_does_not_redact("23123ab-12ab-89cd-45ef-012345678901");
         assert_does_not_redact("GGGGGGGG-GGGG-GGGG-GGGG-GGGGGGGGGGGG");
     }
