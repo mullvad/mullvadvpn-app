@@ -55,12 +55,14 @@ impl IfReq {
             return Err(invalid_input("Interface name contains UTF-8"));
         };
         let interface_name = interface.as_bytes();
-        if interface_name.len() > nix::libc::IF_NAMESIZE {
+        // `ifreq.ifr_name` may only contain max IF_NAMESIZE ASCII characters, including a trailing
+        // null terminator.
+        if interface_name.len() >= nix::libc::IF_NAMESIZE {
             return Err(invalid_input("Interface name too long"));
         };
         // SAFETY: ifreq is a C struct, these can safely be zeroed.
         let mut ifr: ifreq = unsafe { mem::zeroed() };
-        // SAFETY: `interface_name.len()` does not exceed IF_NAMESIZE and `interface_name` only
+        // SAFETY: `interface_name.len()` does not exceed IF_NAMESIZE (+ a trailing null terminator) and `interface_name` only
         // contains ASCII.
         unsafe {
             ptr::copy_nonoverlapping(
