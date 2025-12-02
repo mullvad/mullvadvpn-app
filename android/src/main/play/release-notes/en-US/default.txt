@@ -1,4 +1,1 @@
-- Switched from wireguard go to GotaTun. This will increase speed and stability.
-- Added option to show location in connected notification.
-- Feature indicators are now also showing while connecting.
-- Shows the exact obfuscation method used on the connect screen.
+- Fixed crash related to user preferences.

@@ -21,6 +21,11 @@ Line wrap the file at 100 chars.                                              Th
 * **Fixed**: for any bug fixes.
 * **Security**: in case of vulnerabilities.
 
+## [android/2025.11-beta1] - 2025-12-02
+### Fixed
+- Fix failing settings migrations.
+- Upgrade DataStore to `1.2.0` to fix corruption in user preferences.
+
 ## [android/2025.10] - 2025-11-24
 Identical to `android/2025.10-beta2` except for updated translations.
 
