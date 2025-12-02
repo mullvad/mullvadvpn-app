@@ -1,6 +1,8 @@
 import React from 'react';
+import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 
+import { messages } from '../../../../../../shared/gettext';
 import { colors } from '../../../../foundations';
 import { Dot } from '../../../dot';
 import { useCarouselContext } from '../../CarouselContext';
@@ -84,7 +86,20 @@ export function CarouselIndicator({
   }, [goToSlide, slideToGoTo]);
 
   return (
-    <StyledCarouselIndicator ref={ref} onClick={onClick} disabled={disabled} {...props}>
+    <StyledCarouselIndicator
+      ref={ref}
+      onClick={onClick}
+      disabled={disabled}
+      aria-label={sprintf(
+        // TRANSLATORS: Accessibility label for carousel indicators that allow navigation between slides.
+        // TRANSLATORS: Available placeholders:
+        // TRANSLATORS: %(index)s - Will be replaced with the slide index number.
+        messages.pgettext('accessibility', 'Go to slide %(index)s'),
+        {
+          index: slideToGoTo + 1,
+        },
+      )}
+      {...props}>
       <StyledSlideIndicator size="tiny" />
     </StyledCarouselIndicator>
   );
