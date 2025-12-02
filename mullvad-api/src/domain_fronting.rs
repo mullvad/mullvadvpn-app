@@ -10,12 +10,15 @@ use webpki_roots::TLS_SERVER_ROOTS;
 use crate::{DefaultDnsResolver, DnsResolver, tls_stream::TlsStream};
 
 pub struct DomainFronting {
+    /// Domain that will be used to connect to a CDN, used for SNI
     front: String,
+    /// Host that will be reached via the CDN, i.e. this is the Host header value
+    proxy_host: String,
 }
 
 impl DomainFronting {
-    pub fn new(front: String) -> Self {
-        DomainFronting { front }
+    pub fn new(front: String, proxy_host: String) -> Self {
+        DomainFronting { front, proxy_host }
     }
 
     pub async fn connect(&self) -> Result<TlsStream<TcpStream>, Box<dyn std::error::Error>> {
@@ -39,9 +42,17 @@ impl DomainFronting {
             self.front,
             addr.ip()
         );
-        let stream = TcpStream::connect((addr.ip(), 443)).await?;
+        let connector = tower::service_fn(|_| async move {
+            let stream = TcpStream::connect((addr.ip(), 443)).await?;
+            Ok(TlsStream::connect_https_with_client_config(stream, &self.front, config).await?)
+        });
 
-        Ok(TlsStream::connect_https_with_client_config(stream, &self.front, config).await?)
+        let client =
+            hyper_util::client::legacy::Client::builder(hyper_util::rt::TokioExecutor::new())
+                .build(connector);
+
+        // Ok()
+        unimplemented!()
     }
 }
 
