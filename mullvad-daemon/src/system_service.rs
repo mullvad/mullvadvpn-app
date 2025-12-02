@@ -40,8 +40,8 @@ use windows_sys::Win32::{
 
 static SERVICE_TYPE: ServiceType = ServiceType::OWN_PROCESS;
 
-const SERVICE_RECOVERY_LAST_RESTART_DELAY: Duration = Duration::from_secs(60 * 10);
-const SERVICE_FAILURE_RESET_PERIOD: Duration = Duration::from_secs(60 * 15);
+const SERVICE_RECOVERY_LAST_RESTART_DELAY: Duration = Duration::from_mins(10);
+const SERVICE_FAILURE_RESET_PERIOD: Duration = Duration::from_mins(15);
 
 static SERVICE_ACCESS: LazyLock<ServiceAccess> = LazyLock::new(|| {
     ServiceAccess::QUERY_CONFIG

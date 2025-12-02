@@ -117,7 +117,7 @@ pub mod service {
 }
 
 /// Delay between generating a new WireGuard key and reconnecting
-const WG_RECONNECT_DELAY: Duration = Duration::from_secs(4 * 60);
+const WG_RECONNECT_DELAY: Duration = Duration::from_mins(4);
 
 pub type ResponseTx<T, E> = oneshot::Sender<Result<T, E>>;
 

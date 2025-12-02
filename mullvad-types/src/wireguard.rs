@@ -6,8 +6,8 @@ use talpid_types::net::wireguard;
 
 use crate::Intersection;
 
-pub const MIN_ROTATION_INTERVAL: Duration = Duration::from_secs(1 * 24 * 60 * 60);
-pub const MAX_ROTATION_INTERVAL: Duration = Duration::from_secs(30 * 24 * 60 * 60);
+pub const MIN_ROTATION_INTERVAL: Duration = Duration::from_hours(24);
+pub const MAX_ROTATION_INTERVAL: Duration = Duration::from_hours(30 * 24);
 pub const DEFAULT_ROTATION_INTERVAL: Duration = MAX_ROTATION_INTERVAL;
 
 #[derive(Serialize, Deserialize, Default, Copy, Clone, Debug, PartialEq, Eq)]

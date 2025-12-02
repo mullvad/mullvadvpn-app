@@ -26,7 +26,7 @@ async fn main() {
 
     tokio::spawn(async {
         loop {
-            tokio::time::sleep(Duration::from_secs(60 * 60 * 24)).await;
+            tokio::time::sleep(Duration::from_hours(24)).await;
 
             if let Err(err) = capture::delete_old_captures().await {
                 log::error!("Failed to delete old captures: {err}");

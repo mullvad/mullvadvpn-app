@@ -2,7 +2,7 @@ use std::path::Path;
 use tokio::{fs, time::Duration};
 use uuid::Uuid;
 
-const ONE_DAY_AGO: Duration = Duration::from_secs(24 * 60 * 60); // 86400 seconds in a day
+const ONE_DAY: Duration = Duration::from_hours(24);
 
 pub async fn delete_old_captures() -> std::io::Result<()> {
     delete_old_captures_inner(&super::Capture::capture_dir_path()).await
@@ -49,7 +49,7 @@ async fn should_delete_capture_file(path: &Path) -> bool {
             if let Ok(modified_time) = metadata.modified() {
                 // Calculate the elapsed time since the file was modified
                 if let Ok(duration) = modified_time.elapsed() {
-                    return duration > ONE_DAY_AGO;
+                    return duration > ONE_DAY;
                 }
             }
         }
