@@ -36,7 +36,7 @@ pub async fn test_wireguard_ip_override(
     // make sure udp2tcp is turned off for this test
     mullvad_client
         .set_obfuscation_settings(ObfuscationSettings {
-            selected_obfuscation: SelectedObfuscation::Off,
+            selected_obfuscation: SelectedObfuscation::Port,
             ..Default::default()
         })
         .await
