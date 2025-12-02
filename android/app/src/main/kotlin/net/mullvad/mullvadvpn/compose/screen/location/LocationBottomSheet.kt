@@ -2,6 +2,10 @@ package net.mullvad.mullvadvpn.compose.screen.location
 
 import android.content.Context
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -10,6 +14,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Remove
+import androidx.compose.material.icons.outlined.AddLocationAlt
 import androidx.compose.material.icons.outlined.Dns
 import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material.icons.outlined.WrongLocation
@@ -24,18 +29,20 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
 import com.ramcosta.composedestinations.spec.DestinationSpec
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.cell.HeaderCell
 import net.mullvad.mullvadvpn.compose.cell.IconCell
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
 import net.mullvad.mullvadvpn.compose.communication.CustomListActionResultData
@@ -48,6 +55,7 @@ import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.theme.Dimens
+import net.mullvad.mullvadvpn.lib.ui.designsystem.RelayListHeaderTokens
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_CUSTOM_LIST_BOTTOM_SHEET_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_LOCATION_BOTTOM_SHEET_TEST_TAG
 import net.mullvad.mullvadvpn.relaylist.canAddLocation
@@ -222,38 +230,8 @@ private fun LocationBottomSheet(
     ) { bottomPadding ->
         val scrollState = rememberScrollState()
         Column(modifier = Modifier.verticalScroll(scrollState).padding(bottom = bottomPadding)) {
-            HeaderCell(text = item.name, background = backgroundColor)
+            Header(text = item.name, color = onBackgroundColor)
             HorizontalDivider(color = onBackgroundColor)
-            Text(
-                stringResource(R.string.add_to_list),
-                style = MaterialTheme.typography.labelLarge,
-                color = onBackgroundColor,
-                modifier =
-                    Modifier.padding(
-                        start = Dimens.smallPadding,
-                        end = Dimens.smallPadding,
-                        top = Dimens.smallPadding,
-                    ),
-            )
-            CustomLists(
-                customLists = customLists,
-                item = item,
-                onBackgroundColor = onBackgroundColor,
-                onAddLocationToList = onAddLocationToList,
-                onCreateCustomList = onCreateCustomList,
-                closeBottomSheet = closeBottomSheet,
-            )
-            Text(
-                stringResource(R.string.multihop),
-                style = MaterialTheme.typography.labelLarge,
-                color = onBackgroundColor,
-                modifier =
-                    Modifier.padding(
-                        start = Dimens.smallPadding,
-                        end = Dimens.smallPadding,
-                        top = Dimens.smallPadding,
-                    ),
-            )
             MultihopOptions(
                 item = item,
                 setAsEntryState = setAsEntryState,
@@ -263,6 +241,18 @@ private fun LocationBottomSheet(
                 onSetAsEntry = onSetAsEntry,
                 onSetAsExit = onSetAsExit,
                 onDisableMultihop = onDisableMultihop,
+                closeBottomSheet = closeBottomSheet,
+            )
+            SubHeader(
+                text = stringResource(R.string.add_to_list),
+                onBackgroundColor = onBackgroundColor,
+            )
+            CustomLists(
+                customLists = customLists,
+                item = item,
+                onBackgroundColor = onBackgroundColor,
+                onAddLocationToList = onAddLocationToList,
+                onCreateCustomList = onCreateCustomList,
                 closeBottomSheet = closeBottomSheet,
             )
         }
@@ -294,19 +284,20 @@ private fun EditCustomListBottomSheet(
         onDismissRequest = { closeBottomSheet(false) },
         modifier = Modifier.testTag(SELECT_LOCATION_CUSTOM_LIST_BOTTOM_SHEET_TEST_TAG),
     ) {
-        HeaderCell(text = customList.name, background = backgroundColor)
+        Header(text = customList.name, color = onBackgroundColor)
         HorizontalDivider(color = onBackgroundColor)
-        Text(
-            stringResource(R.string.edit_list),
-            style = MaterialTheme.typography.labelLarge,
-            color = onBackgroundColor,
-            modifier =
-                Modifier.padding(
-                    start = Dimens.smallPadding,
-                    end = Dimens.smallPadding,
-                    top = Dimens.smallPadding,
-                ),
+        MultihopOptions(
+            item = customList,
+            setAsEntryState = setAsEntryState,
+            setAsExitState = setAsExitState,
+            canBeRemovedAsEntry = canBeRemovedAsEntry,
+            onBackgroundColor = onBackgroundColor,
+            onSetAsEntry = onSetAsEntry,
+            onSetAsExit = onSetAsExit,
+            onDisableMultihop = onDisableMultihop,
+            closeBottomSheet = closeBottomSheet,
         )
+        SubHeader(text = stringResource(R.string.edit_list), onBackgroundColor = onBackgroundColor)
         IconCell(
             imageVector = Icons.Default.Edit,
             title = stringResource(id = R.string.edit_name),
@@ -333,28 +324,6 @@ private fun EditCustomListBottomSheet(
                 onDeleteCustomList(customList)
                 closeBottomSheet(true)
             },
-        )
-        Text(
-            stringResource(R.string.multihop),
-            style = MaterialTheme.typography.labelLarge,
-            color = onBackgroundColor,
-            modifier =
-                Modifier.padding(
-                    start = Dimens.smallPadding,
-                    end = Dimens.smallPadding,
-                    top = Dimens.smallPadding,
-                ),
-        )
-        MultihopOptions(
-            item = customList,
-            setAsEntryState = setAsEntryState,
-            setAsExitState = setAsExitState,
-            canBeRemovedAsEntry = canBeRemovedAsEntry,
-            onBackgroundColor = onBackgroundColor,
-            onSetAsEntry = onSetAsEntry,
-            onSetAsExit = onSetAsExit,
-            onDisableMultihop = onDisableMultihop,
-            closeBottomSheet = closeBottomSheet,
         )
     }
 }
@@ -384,19 +353,8 @@ private fun CustomListEntryBottomSheet(
         onDismissRequest = { closeBottomSheet(false) },
         modifier = Modifier.testTag(SELECT_LOCATION_LOCATION_BOTTOM_SHEET_TEST_TAG),
     ) {
-        HeaderCell(text = item.name, background = backgroundColor)
+        Header(text = item.name, color = onBackgroundColor)
         HorizontalDivider(color = onBackgroundColor)
-
-        IconCell(
-            imageVector = Icons.Default.Remove,
-            title =
-                stringResource(id = R.string.remove_location_from_list, item.name, customListName),
-            titleColor = onBackgroundColor,
-            onClick = {
-                onRemoveLocationFromList(item, customListId)
-                closeBottomSheet(true)
-            },
-        )
         MultihopOptions(
             item = item,
             setAsEntryState = setAsEntryState,
@@ -407,6 +365,16 @@ private fun CustomListEntryBottomSheet(
             onSetAsExit = onSetAsExit,
             onDisableMultihop = onDisableMultihop,
             closeBottomSheet = closeBottomSheet,
+        )
+        IconCell(
+            imageVector = Icons.Default.Remove,
+            title =
+                stringResource(id = R.string.remove_location_from_list, item.name, customListName),
+            titleColor = onBackgroundColor,
+            onClick = {
+                onRemoveLocationFromList(item, customListId)
+                closeBottomSheet(true)
+            },
         )
     }
 }
@@ -455,6 +423,37 @@ private fun CustomLists(
 }
 
 @Composable
+private fun SubHeader(text: String, onBackgroundColor: Color) {
+    Row(
+        modifier =
+            Modifier.defaultMinSize(minHeight = SUB_HEADER_HEADER_MIN_HEIGHT)
+                .height(IntrinsicSize.Min)
+                .padding(horizontal = Dimens.mediumPadding),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(text = text, style = MaterialTheme.typography.labelLarge, color = onBackgroundColor)
+        HorizontalDivider(
+            Modifier.weight(1f, true).padding(start = Dimens.smallPadding),
+            color =
+                MaterialTheme.colorScheme.onBackground.copy(
+                    alpha = RelayListHeaderTokens.RelayListHeaderDividerAlpha
+                ),
+        )
+    }
+}
+
+@Composable
+private fun Header(text: String, color: Color) {
+    Text(
+        text = text,
+        color = color,
+        style = MaterialTheme.typography.headlineSmall.merge(fontWeight = FontWeight.Normal),
+        modifier =
+            Modifier.padding(horizontal = Dimens.mediumPadding, vertical = Dimens.smallPadding),
+    )
+}
+
+@Composable
 private fun <T : RelayItem> MultihopOptions(
     item: T,
     setAsEntryState: SetAsState,
@@ -469,7 +468,12 @@ private fun <T : RelayItem> MultihopOptions(
     if (setAsExitState != SetAsState.HIDDEN) {
         val enabled = setAsExitState == SetAsState.ENABLED
         IconCell(
-            imageVector = Icons.Outlined.LocationOn,
+            imageVector =
+                if (setAsEntryState == SetAsState.HIDDEN) {
+                    Icons.Outlined.AddLocationAlt
+                } else {
+                    Icons.Outlined.LocationOn
+                },
             title =
                 stringResource(
                     if (enabled) {
@@ -504,7 +508,12 @@ private fun <T : RelayItem> MultihopOptions(
     } else if (setAsEntryState != SetAsState.HIDDEN) {
         val enabled = setAsEntryState == SetAsState.ENABLED
         IconCell(
-            imageVector = Icons.Outlined.Dns,
+            imageVector =
+                if (setAsExitState == SetAsState.HIDDEN) {
+                    Icons.Outlined.AddLocationAlt
+                } else {
+                    Icons.Outlined.Dns
+                },
             title =
                 stringResource(
                     if (enabled) {
@@ -622,3 +631,5 @@ sealed interface LocationBottomSheetState {
         override val relayListType: RelayListType,
     ) : LocationBottomSheetState
 }
+
+private val SUB_HEADER_HEADER_MIN_HEIGHT = 48.dp
