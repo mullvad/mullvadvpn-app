@@ -48,6 +48,14 @@ public class GotaTunConfig {
             handle, privateKey.map { $0 }, preSharedKeyOr(preSharedKey)?.map { $0 }, publicKey.map { $0 }, endpoint)
     }
 
+    public func addV4Addr(address: IPv4Address) {
+
+    }
+
+    public func addV6Addr(address: IPv6Address) {
+
+    }
+
     private func preSharedKeyOr(_ key: Data?) -> Data? {
         return key ?? Data(repeating: 0, count: 32)
     }

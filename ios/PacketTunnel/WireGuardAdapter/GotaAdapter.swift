@@ -107,6 +107,13 @@ public final class GotaAdapter: TunnelAdapterProtocol, TunnelDeviceInfoProtocol,
                 preSharedKey: entryPeer.preSharedKey?.rawValue,
                 publicKey: entryPeer.publicKey.rawValue,
                 endpoint: entryPeer.endpoint.description)
+
+            if let v4Addr = exit.interfaceAddresses.first(
+                where: { $0.address is IPv4Address }) {
+                config.set
+            }
+
+
         }
 
         config.addExit(

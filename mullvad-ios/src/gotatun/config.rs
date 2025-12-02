@@ -30,6 +30,8 @@ impl SwiftGotaTunConfiguration {
 pub struct GotaTunConfiguration {
     pub exit: Option<PeerConfiguration>,
     pub entry: Option<PeerConfiguration>,
+    pub private_ip_v4: Option<Ipv4Addr>,
+    pub private_ip_v6: Option<Ipv6Addr>,
     // TODO: add DAITA configuration
 }
 
@@ -91,6 +93,24 @@ impl GotaTunConfiguration {
 
     fn set_peer(peer: &mut Option<PeerConfiguration>, config: PeerConfiguration) {
         *peer = Some(config);
+    }
+
+    fn set_ipv4_addr(&mut self, addr: &str) -> ConfigStatus {
+        let Ok(addr) = addr.parse() else {
+            return ConfigStatus::InvalidArg;
+        };
+
+        self.private_ip_v4 = Some(addr);
+        ConfigStatus::Success
+    }
+
+    fn set_ipv6_addr(&mut self, addr: &str) -> ConfigStatus {
+        let Ok(addr) = addr.parse() else {
+            return ConfigStatus::InvalidArg;
+        };
+
+        self.private_ip_v6 = Some(addr);
+        ConfigStatus::Success
     }
 }
 
@@ -182,6 +202,53 @@ pub unsafe extern "C" fn mullvad_ios_gotatun_config_set_exit(
             peer_endpoint,
         ) as i32
     }
+}
+
+///
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn mullvad_ios_gotatun_config_set_private_ipv4(
+    mut config: SwiftGotaTunConfiguration,
+    ipv4: *const u8,
+    peer_endpoint: *const c_char,
+) -> i32 {
+    let cfg = unsafe { config.mut_config() };
+///
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn mullvad_ios_gotatun_config_set_private_ipv4(
+    mut config: SwiftGotaTunConfiguration,
+    ipv4: *const u8,
+    peer_endpoint: *const c_char,
+) -> i32 {
+    let cfg = unsafe { config.mut_config() };
+    let cstr = unsafe { CStr::from_ptr(ptr) };
+    let Ok(s) = cstr.to_str() {
+        return ConfigStatus::InvalidArg;
+    }
+
+    config.set_ipv4_addr(&s);
+}
+    let cstr = unsafe { CStr::from_ptr(ptr) };
+    let Ok(s) = cstr.to_str() else {
+        return ConfigStatus::InvalidArg;
+    }
+
+    config.set_ipv4_addr(&s);
+}
+
+///
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn mullvad_ios_gotatun_config_set_private_ipv6(
+    mut config: SwiftGotaTunConfiguration,
+    ipv4: *const u8,
+    peer_endpoint: *const c_char,
+) -> i32 {
+    let cfg = unsafe { config.mut_config() };
+    let cstr = unsafe { CStr::from_ptr(ptr) };
+    let Ok(s) = cstr.to_str() else {
+        return ConfigStatus::InvalidArg;
+    }
+
+    config.set_ipv6_addr(&s);
 }
 
 ///
