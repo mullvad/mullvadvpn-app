@@ -28,6 +28,9 @@ cfg_if::cfg_if! {
     }
 }
 
+#[cfg(target_os = "linux")]
+use crate::{split_tunnel::CGroup2, tunnel_state_machine::LinuxNetworkingIdentifiers};
+
 pub use self::imp::Error;
 
 #[cfg(any(target_os = "linux", target_os = "macos"))]
@@ -307,10 +310,10 @@ pub struct FirewallArguments {
     pub initial_state: InitialFirewallState,
     /// This argument is required for the blocked state to configure the firewall correctly.
     pub allow_lan: bool,
-    /// Specifies the firewall mark used to identify traffic that is allowed to be excluded from
-    /// the tunnel and _leaked_ during blocked states.
+    /// Specifies the cgroup2 and firewall mark used to identify traffic that is allowed to be
+    /// excluded from the tunnel and _leaked_ during blocked states.
     #[cfg(target_os = "linux")]
-    pub fwmark: u32,
+    pub linux_ids: LinuxNetworkingIdentifiers,
 }
 
 /// State to enter during firewall init.
@@ -330,11 +333,16 @@ impl Firewall {
     }
 
     /// Createsa new firewall instance.
-    pub fn new(#[cfg(target_os = "linux")] fwmark: u32) -> Result<Self, Error> {
+    pub fn new(
+        #[cfg(target_os = "linux")] fwmark: u32,
+        #[cfg(target_os = "linux")] excluded_cgroup: Option<CGroup2>,
+    ) -> Result<Self, Error> {
         Ok(Firewall {
             inner: imp::Firewall::new(
                 #[cfg(target_os = "linux")]
                 fwmark,
+                #[cfg(target_os = "linux")]
+                excluded_cgroup,
             )?,
         })
     }

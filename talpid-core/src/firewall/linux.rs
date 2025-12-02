@@ -1,5 +1,5 @@
 use super::{FirewallArguments, FirewallPolicy};
-use crate::split_tunnel;
+use crate::split_tunnel::{self, CGroup2};
 use ipnetwork::IpNetwork;
 use nftnl::{
     Batch, Chain, FinalizedBatch, ProtoFamily, Rule, Table,
@@ -11,13 +11,11 @@ use std::{
     ffi::CStr,
     fs, io,
     net::{IpAddr, Ipv4Addr},
-    os::unix::fs::MetadataExt,
-    path::Path,
     sync::LazyLock,
 };
 use talpid_tunnel::TunnelMetadata;
 use talpid_types::{
-    cgroup::{CGROUP2_DEFAULT_MOUNT_PATH, find_net_cls_mount},
+    cgroup::find_net_cls_mount,
     net::{
         ALLOWED_LAN_MULTICAST_NETS, ALLOWED_LAN_NETS, AllowedEndpoint, AllowedTunnelTraffic,
         Endpoint, TransportProtocol,
@@ -112,21 +110,28 @@ enum End {
 
 /// The Linux implementation for the firewall and DNS.
 pub struct Firewall {
+    /// Firewall mark is used to mark traffic which should be able to bypass the tunnel
     fwmark: u32,
+    /// The cgroup2 used for split tunneling.
+    /// Traffic from processes in this cgroup2 should allowed outside the tunnel.
+    excluded_cgroup2: Option<CGroup2>,
 }
 
 impl Firewall {
     pub fn from_args(args: FirewallArguments) -> Result<Self> {
-        Firewall::new(args.fwmark)
+        Firewall::new(args.linux_ids.fwmark, args.linux_ids.excluded_cgroup2)
     }
 
-    pub fn new(fwmark: u32) -> Result<Self> {
-        Ok(Firewall { fwmark })
+    pub fn new(fwmark: u32, excluded_cgroup2: Option<CGroup2>) -> Result<Self> {
+        Ok(Firewall {
+            fwmark,
+            excluded_cgroup2,
+        })
     }
 
     pub fn apply_policy(&mut self, policy: FirewallPolicy) -> Result<()> {
         let table = Table::new(TABLE_NAME, ProtoFamily::Inet);
-        let batch = PolicyBatch::new(&table).finalize(&policy, self.fwmark)?;
+        let batch = PolicyBatch::new(&table).finalize(&policy, &self)?;
         Self::send_and_process(&batch)?;
         Self::apply_kernel_config(&policy);
         self.verify_tables(&[TABLE_NAME])
@@ -311,11 +316,15 @@ impl<'a> PolicyBatch<'a> {
 
     /// Finalize the nftnl message batch by adding every firewall rule needed to satisfy the given
     /// policy.
-    pub fn finalize(mut self, policy: &FirewallPolicy, fwmark: u32) -> Result<FinalizedBatch> {
+    pub fn finalize(
+        mut self,
+        policy: &FirewallPolicy,
+        firewall: &Firewall,
+    ) -> Result<FinalizedBatch> {
         self.add_loopback_rules()?;
 
         if cfg!(feature = "cgroups_v2") {
-            match self.add_split_tunneling_rules(policy, fwmark) {
+            match self.add_split_tunneling_rules(policy, firewall) {
                 Ok(_) => (),
                 Err(Error::CgroupStat(_)) => {
                     log::warn!("cgroup2 not found, skipping add_split_tunneling_rules");
@@ -329,7 +338,7 @@ impl<'a> PolicyBatch<'a> {
                 .map_err(Error::FindNetClsMount)?
                 .is_some()
             {
-                self.add_split_tunneling_rules(policy, fwmark)?;
+                self.add_split_tunneling_rules(policy, firewall)?;
             } else {
                 // skipping add_split_tunneling_rules as it won't cause traffic to leak
                 log::warn!("net_cls mount not found, skipping add_split_tunneling_rules");
@@ -338,7 +347,7 @@ impl<'a> PolicyBatch<'a> {
 
         self.add_dhcp_client_rules();
         self.add_ndp_rules();
-        self.add_policy_specific_rules(policy, fwmark)?;
+        self.add_policy_specific_rules(policy, firewall.fwmark)?;
 
         Ok(self.batch.finalize())
     }
@@ -346,7 +355,11 @@ impl<'a> PolicyBatch<'a> {
     /// Allow split-tunneled traffic outside the tunnel.
     ///
     /// This is acheived by setting `fwmark` on connections initated by processes in the cgroup.
-    fn add_split_tunneling_rules(&mut self, policy: &FirewallPolicy, fwmark: u32) -> Result<()> {
+    fn add_split_tunneling_rules(
+        &mut self,
+        policy: &FirewallPolicy,
+        firewall: &Firewall,
+    ) -> Result<()> {
         // Send select DNS requests in the tunnel
         if let FirewallPolicy::Connected {
             tunnel, dns_config, ..
@@ -378,33 +391,25 @@ impl<'a> PolicyBatch<'a> {
         let mut rule = Rule::new(&self.mangle_chain);
 
         if cfg!(feature = "cgroups_v2") {
-            // For cgroups v2, packets from sockets bound by processes in
-            // that cgroup2 are matched on through the cgroup2 inode.
-            use talpid_types::cgroup::SPLIT_TUNNEL_CGROUP_NAME;
-
-            let cgroup = {
-                let cgroup_path =
-                    Path::new(CGROUP2_DEFAULT_MOUNT_PATH).join(SPLIT_TUNNEL_CGROUP_NAME);
-                let cgroup_meta = fs::metadata(cgroup_path).map_err(Error::CgroupStat)?;
-                cgroup_meta.ino()
-            };
-            // 1. From Linux kernel documentation:
-            // cgroup(2) is a mechanism to organize processes hierarchically ... cgroups form a tree structure and
-            // every process in the system belongs to one and only one cgroup ... On creation, all processes are put
-            // in the cgroup that the parent process belongs to at the time.
-            //
-            // 2. From `man nft` on "Socket expression":
-            // .. You can also use it [socket expression] to match on the socket cgroupv2 at a given ancestor level,
-            // e.g. if the socket belongs to cgroupv2 a/b, ancestor level 1 checks for a matching on cgroup a and
-            // ancestor level 2 checks for a matching on cgroup b.
-            //
-            // 3. Since the current split-tunnel implementation spawn each split process into the same cgroup2, the
-            // nftables rule does not have to look at any level of ancestry away *from* `cgroup`. This applies for
-            // any sub-process that a split process may spawn, as per the kernel docs.
-            //
-            // Following from 1,2,3, `socket cgroupv2 level 1` should be fine here.
-            rule.add_expr(&nft_expr!(socket cgroupv2 level 1));
-            rule.add_expr(&nft_expr!(cmp == cgroup));
+            if let Some(cgroup) = &firewall.excluded_cgroup2 {
+                // 1. From Linux kernel documentation:
+                // cgroup(2) is a mechanism to organize processes hierarchically ... cgroups form a tree structure and
+                // every process in the system belongs to one and only one cgroup ... On creation, all processes are put
+                // in the cgroup that the parent process belongs to at the time.
+                //
+                // 2. From `man nft` on "Socket expression":
+                // .. You can also use it [socket expression] to match on the socket cgroupv2 at a given ancestor level,
+                // e.g. if the socket belongs to cgroupv2 a/b, ancestor level 1 checks for a matching on cgroup a and
+                // ancestor level 2 checks for a matching on cgroup b.
+                //
+                // 3. Since the current split-tunnel implementation spawn each split process into the same cgroup2, the
+                // nftables rule does not have to look at any level of ancestry away *from* `cgroup`. This applies for
+                // any sub-process that a split process may spawn, as per the kernel docs.
+                //
+                // Following from 1,2,3, `socket cgroupv2 level 1` should be fine here.
+                rule.add_expr(&nft_expr!(socket cgroupv2 level 1));
+                rule.add_expr(&nft_expr!(cmp == cgroup.inode()));
+            }
         } else {
             // For cgroups v1, processes are assigned to a net_cls.
             // This causes all packets sent by that process to be marked with the
@@ -418,7 +423,7 @@ impl<'a> PolicyBatch<'a> {
         // Sets `split_tunnel::MARK` as connection tracker mark
         rule.add_expr(&nft_expr!(ct mark set));
         // Loads `fwmark` into first nftnl register
-        rule.add_expr(&nft_expr!(immediate data fwmark));
+        rule.add_expr(&nft_expr!(immediate data firewall.fwmark));
         // Sets `fwmark` as metadata mark for packet
         rule.add_expr(&nft_expr!(meta mark set));
         if *ADD_COUNTERS {
@@ -469,7 +474,7 @@ impl<'a> PolicyBatch<'a> {
             check_not_iface(&mut prerouting_rule, Direction::In, &tunnel.interface)?;
             prerouting_rule.add_expr(&nft_expr!(ct mark));
             prerouting_rule.add_expr(&nft_expr!(cmp == split_tunnel::MARK));
-            prerouting_rule.add_expr(&nft_expr!(immediate data fwmark));
+            prerouting_rule.add_expr(&nft_expr!(immediate data firewall.fwmark));
             prerouting_rule.add_expr(&nft_expr!(meta mark set));
             if *ADD_COUNTERS {
                 prerouting_rule.add_expr(&nft_expr!(counter));
