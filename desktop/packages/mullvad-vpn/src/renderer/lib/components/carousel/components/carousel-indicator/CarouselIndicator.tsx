@@ -11,20 +11,35 @@ export type CarouselIndicatorProps = React.ComponentPropsWithoutRef<'button'> & 
 };
 
 const StyledSlideIndicator = styled(Dot)`
-  background-color: ${colors.whiteAlpha80};
+  background-color: ${colors.white};
 `;
 
 const StyledCarouselIndicator = styled.button`
+  --transition-duration: 0.15s;
+
   position: relative;
   display: flex;
   justify-content: center;
   border-radius: 50%;
-  &&:hover ${StyledSlideIndicator} {
+
+  ${StyledSlideIndicator} {
+    transition: background-color var(--transition-duration) ease;
+  }
+
+  &&:not(:disabled):hover ${StyledSlideIndicator} {
+    --transition-duration: 0s;
+    background-color: ${colors.whiteAlpha60};
+  }
+
+  &&:not(:disabled):active ${StyledSlideIndicator} {
+    --transition-duration: 0s;
     background-color: ${colors.whiteAlpha40};
   }
+
   &&:disabled ${StyledSlideIndicator} {
     background-color: ${colors.whiteAlpha40};
   }
+
   &&:focus-visible {
     outline: 2px solid ${colors.white};
     outline-offset: 2px;
