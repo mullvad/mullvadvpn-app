@@ -13,28 +13,10 @@ use std::{
     io::{self, Read, Seek, Write},
     os::unix::fs::MetadataExt,
     path::PathBuf,
-    sync::LazyLock,
 };
 use talpid_types::cgroup::{CGROUP2_DEFAULT_MOUNT_PATH, SPLIT_TUNNEL_CGROUP_NAME};
 
 use crate::firewall;
-
-pub static ROOT_CGROUP2: LazyLock<Result<CGroup2, Error>> =
-    LazyLock::new(|| CGroup2::open(CGROUP2_DEFAULT_MOUNT_PATH));
-
-pub static EXCLUDED_CGROUP2: LazyLock<Result<CGroup2, Error>> = LazyLock::new(|| {
-    let excluded_cgroup2 = ROOT_CGROUP2
-        .as_ref()
-        .context("Failed to open root cgroup2")?
-        .create_or_open_child(SPLIT_TUNNEL_CGROUP_NAME)?;
-
-    assert_nft_supports_cgroup2(&excluded_cgroup2)
-        .context("cgroup2 not supported by nftables, are you running an old kernel?")?;
-
-    Ok(excluded_cgroup2)
-});
-
-pub static CGROUPS_V2_IS_AVAILABLE: LazyLock<bool> = LazyLock::new(|| EXCLUDED_CGROUP2.is_ok());
 
 /// Identifies packets coming from the cgroup.
 /// This should be an arbitrary but unique integer.
@@ -87,17 +69,17 @@ impl PidManager {
     }
 
     fn new_inner() -> Result<Inner, Error> {
-        let clone = |static_cgroup: &'static LazyLock<Result<CGroup2, Error>>| {
-            static_cgroup
-                .as_ref()
-                .context("Failed to open cgroup2")
-                .map_err(Error::from)
-                .and_then(|cgroup| cgroup.try_clone())
-        };
+        let root_cgroup2 =
+            CGroup2::open(CGROUP2_DEFAULT_MOUNT_PATH).context("Failed to open root cgroup2")?;
+
+        let excluded_cgroup2 = root_cgroup2.create_or_open_child(SPLIT_TUNNEL_CGROUP_NAME)?;
+
+        assert_nft_supports_cgroup2(&excluded_cgroup2)
+            .context("cgroup2 not supported by nftables, are you running an old kernel?")?;
 
         Ok(Inner {
-            root_cgroup2: clone(&ROOT_CGROUP2)?,
-            excluded_cgroup2: clone(&EXCLUDED_CGROUP2)?,
+            root_cgroup2,
+            excluded_cgroup2,
         })
     }
 
