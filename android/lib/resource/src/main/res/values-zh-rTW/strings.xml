@@ -177,7 +177,6 @@
     <string name="enable_ipv6">通道內 IPv6</string>
     <string name="enable_location_in_notification">在通知中顯示位置</string>
     <string name="enable_method">啟用方式</string>
-    <string name="enable_multihop">啟用多點跳躍</string>
     <string name="enable_recents">啟用最近使用</string>
     <string name="encrypted_dns_proxy_info_message_part1">使用「加密 DNS 代理伺服器」方法時，應用程式會透過代理伺服器位址和我們的 Mullvad API 通訊。應用程式會先從 DNS over HTTPS (DoH) 伺服器取得一個位址，再利用該位址連線至我們的 API 伺服器。</string>
     <string name="encrypted_dns_proxy_info_message_part2">如果您未連線至我們的 VPN 服務，則加密 DNS 代理伺服器將在連線時使用您本人的非 VPN IP。DoH 伺服器由下列供應商之一負責託管：Quad9 或 CloudFlare。</string>

@@ -177,7 +177,6 @@
     <string name="enable_ipv6">Tünel içi IPv6</string>
     <string name="enable_location_in_notification">Bildirimlerde konumu göster</string>
     <string name="enable_method">Yöntemi etkinleştir</string>
-    <string name="enable_multihop">Çoklu geçişi etkinleştir</string>
     <string name="enable_recents">Son filtreleri etkinleştir</string>
     <string name="encrypted_dns_proxy_info_message_part1">\"Şifreli DNS proxy\'si\" yönteminde, uygulama bir proxy adresi üzerinden Mullvad API ile iletişim kurar. Bunun için bir DNS over HTTPS (DoH) sunucusundan bir adres alır ve bu adresi kullanarak API sunucularımıza bağlanır.</string>
     <string name="encrypted_dns_proxy_info_message_part2">VPN\'imize bağlı değilseniz Şifreli DNS proxy\'si bağlanırken VPN dışı IP\'nizi kullanır. DoH sunucuları şu sağlayıcılardan birinde barındırılır: Quad9 veya CloudFlare.</string>

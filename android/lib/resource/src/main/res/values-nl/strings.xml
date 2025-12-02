@@ -177,7 +177,6 @@
     <string name="enable_ipv6">IPv6 in tunnel</string>
     <string name="enable_location_in_notification">Locatie weergeven in melding</string>
     <string name="enable_method">Methode inschakelen</string>
-    <string name="enable_multihop">Multihop inschakelen</string>
     <string name="enable_recents">Recente inschakelen</string>
     <string name="encrypted_dns_proxy_info_message_part1">Met de methode \"Versleutelde DNS-proxy\" communiceert de app met onze Mullvad-API via een proxyadres. De app doet dit door een adres op te halen van een DoH-server (DNS over HTTPS) en dat te gebruiken om onze API-servers te bereiken.</string>
     <string name="encrypted_dns_proxy_info_message_part2">Als u niet verbonden bent met onze VPN, gebruikt de versleutelde DNS-proxy uw eigen niet-VPN IP-adres bij het verbinden. De DoH-servers worden gehost door een van de volgende aanbieders: Quad9 of CloudFlare.</string>

@@ -177,7 +177,6 @@
     <string name="enable_ipv6">Tunelización IPv6</string>
     <string name="enable_location_in_notification">Mostrar la ubicación en la notificación</string>
     <string name="enable_method">Habilitar método</string>
-    <string name="enable_multihop">Permitir saltos múltiples</string>
     <string name="enable_recents">Habilitar recientes</string>
     <string name="encrypted_dns_proxy_info_message_part1">Con el método «Proxy DNS cifrado», la aplicación se comunicará con nuestra API de Mullvad a través de una dirección proxy. Para ello, recupera una dirección de un servidor DNS sobre HTTPS (DoH) y luego la utiliza para contactar con nuestros servidores API.</string>
     <string name="encrypted_dns_proxy_info_message_part2">Si no está conectado a nuestra VPN, el proxy DNS cifrado utilizará su propia IP no VPN al conectarse. Los servidores de DoH están alojados en uno de los siguientes proveedores: Quad9 o CloudFlare.</string>

@@ -177,7 +177,6 @@
     <string name="enable_ipv6">IPv6 แบบภายในอุโมงค์</string>
     <string name="enable_location_in_notification">แสดงตำแหน่งในการแจ้งเตือน</string>
     <string name="enable_method">เปิดใช้งานวิธีการ</string>
-    <string name="enable_multihop">เปิดใช้มัลติฮอป</string>
     <string name="enable_recents">เปิดใช้งานล่าสุด</string>
     <string name="encrypted_dns_proxy_info_message_part1">การใช้วิธี \"พร็อกซี DNS ที่เข้ารหัส\" จะช่วยให้แอปสื่อสารกับ Mullvad API ของเราผ่านที่อยู่พร็อกซี ซึ่งทำได้โดยดึงที่อยู่จากเซิร์ฟเวอร์ DNS ผ่าน HTTPS (DoH) แล้วจึงใช้ที่อยู่ดังกล่าวเพื่อเข้าถึงเซิร์ฟเวอร์ API ของเรา</string>
     <string name="encrypted_dns_proxy_info_message_part2">หากคุณไม่ได้เชื่อมต่อกับ VPN ของเรา พร็อกซี DNS ที่เข้ารหัสจะใช้ IP ที่ไม่ใช่ VPN ของคุณในขณะที่เชื่อมต่อ เซิร์ฟเวอร์ DoH ได้รับการโฮสต์โดยผู้ให้บริการรายใดรายหนึ่งต่อไปนี้: Quad9 หรือ CloudFlare</string>

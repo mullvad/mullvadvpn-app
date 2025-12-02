@@ -177,7 +177,6 @@
     <string name="enable_ipv6">IPv6 i tunnel</string>
     <string name="enable_location_in_notification">Visa platsen i aviseringarna</string>
     <string name="enable_method">Aktivera metod</string>
-    <string name="enable_multihop">Aktivera multihopp</string>
     <string name="enable_recents">Aktivera senaste</string>
     <string name="encrypted_dns_proxy_info_message_part1">Med metoden \"Krypterad DNS-proxy\" kommunicerar appen med vår Mullvad API via en proxyadress. Den gör det genom att hämta en adress från en DNS over HTTPS-server (DoH) och sedan använda den för att nå våra API-servrar.</string>
     <string name="encrypted_dns_proxy_info_message_part2">Om du inte är ansluten till vår VPN använder den krypterade DNS-proxyn din egen IP-adress utan VPN när du ansluter. En av följande leverantörer är värd för DoH-servrarna: Quad 9 eller CloudFlare.</string>
