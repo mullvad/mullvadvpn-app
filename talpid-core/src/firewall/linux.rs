@@ -28,6 +28,7 @@ const PREROUTING_CHAIN_PRIORITY: i32 = libc::NF_IP_PRI_CONNTRACK + 1;
 const PROC_SYS_NET_IPV4_CONF_SRC_VALID_MARK: &str = "/proc/sys/net/ipv4/conf/all/src_valid_mark";
 const PROC_SYS_NET_IPV4_CONF_ARP_IGNORE: &str = "/proc/sys/net/ipv4/conf/all/arp_ignore";
 
+/// Results returned by functions interacting with Linux netfilter.
 pub type Result<T> = std::result::Result<T, Error>;
 
 /// Errors that can happen when interacting with Linux netfilter.
@@ -118,10 +119,15 @@ pub struct Firewall {
 }
 
 impl Firewall {
+    /// Create a `Firewall` from a `FirewallArguments`.
     pub fn from_args(args: FirewallArguments) -> Result<Self> {
         Firewall::new(args.linux_ids.fwmark, args.linux_ids.excluded_cgroup2)
     }
 
+    /// Create a `Firewall`.
+    ///
+    /// - `fwmark` is the metadata mark used by nft to allow some packets outside the tunnel.
+    /// - `excluded_cgroup2` is the cgroup2 used by nft to apply `fwmark` on some packets.
     pub fn new(fwmark: u32, excluded_cgroup2: Option<CGroup2>) -> Result<Self> {
         Ok(Firewall {
             fwmark,
@@ -129,6 +135,7 @@ impl Firewall {
         })
     }
 
+    /// Apply a [`FirewallPolicy`] by setting up [`TABLE_NAME`] nftable.
     pub fn apply_policy(&mut self, policy: FirewallPolicy) -> Result<()> {
         let table = Table::new(TABLE_NAME, ProtoFamily::Inet);
         let batch = PolicyBatch::new(&table).finalize(&policy, &self)?;
@@ -137,6 +144,7 @@ impl Firewall {
         self.verify_tables(&[TABLE_NAME])
     }
 
+    /// Remove [`TABLE_NAME`] nftable.
     pub fn reset_policy(&mut self) -> Result<()> {
         let table = Table::new(TABLE_NAME, ProtoFamily::Inet);
         let mut batch = Batch::new();
@@ -184,6 +192,7 @@ impl Firewall {
         }
     }
 
+    /// Send a [`nftnl::FinalizedBatch`] to the kernel and process the result.
     pub fn send_and_process(batch: &FinalizedBatch) -> Result<()> {
         // Create a netlink socket to netfilter.
         let socket = mnl::Socket::new(mnl::Bus::Netfilter).map_err(Error::NetlinkOpenError)?;
