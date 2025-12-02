@@ -1,13 +1,23 @@
+import React from 'react';
+
 import { IconButton, IconButtonProps } from '../../../icon-button';
+import { useCarouselContext } from '../../CarouselContext';
 import { useSlides } from '../../hooks';
 
 export type CarouselPrevButtonProps = IconButtonProps;
 
 export function CarouselPrevButton(props: CarouselPrevButtonProps) {
   const { goToPreviousSlide, isFirstSlide } = useSlides();
+  const { prevButtonRef } = useCarouselContext();
+  const [disabled, setDisabled] = React.useState(isFirstSlide);
+
+  // Allow focus to be moved before button is disabled.
+  React.useEffect(() => {
+    setDisabled(isFirstSlide);
+  }, [isFirstSlide]);
 
   return (
-    <IconButton disabled={isFirstSlide} onClick={goToPreviousSlide} {...props}>
+    <IconButton ref={prevButtonRef} disabled={disabled} onClick={goToPreviousSlide} {...props}>
       <IconButton.Icon icon="chevron-left" />
     </IconButton>
   );
