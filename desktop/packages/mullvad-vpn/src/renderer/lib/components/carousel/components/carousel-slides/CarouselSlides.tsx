@@ -30,9 +30,9 @@ export function CarouselSlides({ children, ...props }: CarouselSlidesProps) {
     <StyledSlides
       ref={slidesRef}
       onScrollEnd={handleScroll}
-      tabIndex={-1}
       aria-live="polite"
       aria-atomic="true"
+      tabIndex={-1}
       {...props}>
       {children}
     </StyledSlides>

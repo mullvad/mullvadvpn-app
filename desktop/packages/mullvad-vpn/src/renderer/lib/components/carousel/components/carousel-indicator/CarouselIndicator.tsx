@@ -4,8 +4,9 @@ import styled from 'styled-components';
 import { colors } from '../../../../foundations';
 import { Dot } from '../../../dot';
 import { useSlides } from '../../hooks';
+import { useCarouselIndicatorRef } from './hooks';
 
-export type CarouselIndicatorProps = React.ComponentPropsWithRef<'button'> & {
+export type CarouselIndicatorProps = React.ComponentPropsWithoutRef<'button'> & {
   slideToGoTo: number;
 };
 
@@ -40,15 +41,27 @@ const StyledCarouselIndicator = styled.button`
   }
 `;
 
-export function CarouselIndicator({ slideToGoTo, ...props }: CarouselIndicatorProps) {
+export function CarouselIndicator({
+  slideToGoTo,
+  disabled: disabledProp,
+  ...props
+}: CarouselIndicatorProps) {
   const { goToSlide } = useSlides();
+  const ref = useCarouselIndicatorRef(slideToGoTo);
 
-  const onClick = React.useCallback(() => {
+  const [disabled, setDisabled] = React.useState(disabledProp ?? false);
+
+  // Allow focus to be moved before button is disabled.
+  React.useEffect(() => {
+    setDisabled(disabledProp ?? false);
+  }, [disabledProp]);
+
+  const handleClick = React.useCallback(() => {
     goToSlide(slideToGoTo);
   }, [goToSlide, slideToGoTo]);
 
   return (
-    <StyledCarouselIndicator onClick={onClick} {...props}>
+    <StyledCarouselIndicator ref={ref} onClick={handleClick} disabled={disabled} {...props}>
       <StyledSlideIndicator size="tiny" />
     </StyledCarouselIndicator>
   );

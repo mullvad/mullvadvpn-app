@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 import { Flex } from '../flex';
 import { Gallery } from '../gallery';
-import { CarouselProvider } from './CarouselContext';
+import { CarouselProvider, useCarouselContext } from './CarouselContext';
 import {
   CarouselControlGroup,
   CarouselControls,
@@ -13,7 +13,7 @@ import {
   CarouselSlide,
   CarouselSlides,
 } from './components';
-import { useHandleKeyboardNavigation } from './hooks';
+import { useFocusCarousel, useHandleKeyboardNavigation } from './hooks';
 
 const StyledCarousel = styled(Flex)``;
 
@@ -21,14 +21,19 @@ export type CarouselProps = React.ComponentPropsWithRef<'section'>;
 
 function CarouselImpl({ children, ...props }: CarouselProps) {
   const handleKeyboardNavigation = useHandleKeyboardNavigation();
+  const { carouselRef } = useCarouselContext();
+
+  useFocusCarousel();
 
   return (
     <StyledCarousel
       as={'section'}
+      ref={carouselRef}
       $flexDirection="column"
       $gap="medium"
       onKeyDown={handleKeyboardNavigation}
       aria-roledescription="carousel"
+      tabIndex={-1}
       {...props}>
       {children}
     </StyledCarousel>
