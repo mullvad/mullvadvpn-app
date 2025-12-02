@@ -118,6 +118,9 @@ impl PidManager {
         matches!(self.inner, Ok(..))
     }
 
+    /// Get a handle to the [CGroup2] used for split-tunneling.
+    ///
+    /// Returns an error if we prevously failed to set up the cgroup2, or if cloning it fails.
     pub fn excluded_cgroup(&self) -> Result<CGroup2, Error> {
         self.inner()?.excluded_cgroup2.try_clone()
     }
@@ -220,6 +223,9 @@ impl CGroup2 {
         Self::open(child_path)
     }
 
+    /// Try to clone the cgroup2 handle.
+    ///
+    /// This is fallible because cloning file descriptors can fail.
     pub fn try_clone(&self) -> Result<Self, Error> {
         Ok(Self {
             path: self.path.clone(),
