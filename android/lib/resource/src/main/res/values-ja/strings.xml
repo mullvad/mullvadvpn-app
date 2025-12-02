@@ -177,7 +177,6 @@
     <string name="enable_ipv6">トンネル内のIPv6</string>
     <string name="enable_location_in_notification">通知に場所を表示する</string>
     <string name="enable_method">方法を有効化する</string>
-    <string name="enable_multihop">マルチホップを有効化する</string>
     <string name="enable_recents">最近の項目を有効化</string>
     <string name="encrypted_dns_proxy_info_message_part1">[暗号化DNSプロキシ] 方式を使用すると、アプリはプロキシアドレスを通じてMullvad APIと通信します。これはDNS over HTTPS (DoH) サーバーからアドレスを取得し、APIサーバーへのアクセスに利用することで行われます。</string>
     <string name="encrypted_dns_proxy_info_message_part2">当社のVPNに接続していない場合、暗号化DNSプロキシは接続時に独自の非VPN IPを使用します。DoHサーバーは、Quad9またはCloudFlareのいずれかによってホストされます。</string>

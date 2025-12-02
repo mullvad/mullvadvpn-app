@@ -177,7 +177,6 @@
     <string name="enable_ipv6">IPv6 внутри туннеля</string>
     <string name="enable_location_in_notification">Показывать местоположение в уведомлении</string>
     <string name="enable_method">Включить метод</string>
-    <string name="enable_multihop">Многократный переход</string>
     <string name="enable_recents">Включить недавние</string>
     <string name="encrypted_dns_proxy_info_message_part1">При использовании метода «Прокси через зашифрованный DNS» приложение будет взаимодействовать с API Mullvad через прокси-адрес. Полученный от сервера «DNS по HTTPS» (DoH) адрес будет использоваться для доступа к нашим серверам API.</string>
     <string name="encrypted_dns_proxy_info_message_part2">Если вы не подключены к нашему VPN, функция «Зашифрованный DNS-прокси» при подключении будет использовать ваш IP-адрес, не относящийся к VPN. Серверы DoH размещаются у одного из следующих провайдеров: Quad9 или CloudFlare.</string>

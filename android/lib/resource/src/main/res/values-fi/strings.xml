@@ -177,7 +177,6 @@
     <string name="enable_ipv6">Tunnelin IPv6</string>
     <string name="enable_location_in_notification">Näytä sijainti ilmoituksessa</string>
     <string name="enable_method">Ota menetelmä käyttöön</string>
-    <string name="enable_multihop">Ota multihop käyttöön</string>
     <string name="enable_recents">Ota viimeisimmät käyttöön</string>
     <string name="encrypted_dns_proxy_info_message_part1">Sovellus kommunikoi Mullvad API:n kanssa välityspalvelinosoitteen kautta \"Salattu DNS-välityspalvelin\" -menetelmällä, joka toimii niin, että sovellus hakee osoitteen DNS over HTTPS (DoH) -palvelimelta ja käyttää sitä API-palvelimillemme pääsemiseen.</string>
     <string name="encrypted_dns_proxy_info_message_part2">Jos et ole yhteydessä VPN-verkkoomme, salattu DNS-välityspalvelin käyttää yhdistämiseen omaa, ei-VPN-pohjaista IP-osoitettasi. DoH-palvelimia isännöi joko Quad9 tai CloudFlare.</string>
