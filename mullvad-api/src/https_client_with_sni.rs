@@ -9,8 +9,9 @@ use futures::{StreamExt, channel::mpsc, future, pin_mut};
 #[cfg(target_os = "android")]
 use futures::{channel::oneshot, sink::SinkExt};
 use http::uri::Scheme;
+use http_body_util::Full;
 use hyper::Uri;
-use hyper_util::rt::TokioIo;
+use hyper_util::{client::legacy::Client, rt::TokioIo};
 use mullvad_encrypted_dns_proxy::{
     Forwarder as EncryptedDNSForwarder, config::ProxyConfig as EncryptedDNSConfig,
 };
@@ -525,4 +526,43 @@ impl Service<Uri> for HttpsConnectorWithSni {
 
         Box::pin(fut)
     }
+}
+
+#[tokio::test]
+async fn test_domain_fronting() {
+    use crate::domain_fronting::DomainFronting;
+    use http_body_util::combinators::BoxBody;
+    use hyper::body::Bytes;
+
+    let df = DomainFronting::new("se-got-df-001.devmole.eu".into(), "se-got-df-001.devmole.eu".into());
+
+    let proxy_config = df.proxy_config().await.unwrap();
+
+    let (connector, connector_handle) = HttpsConnectorWithSni::new(
+        Arc::new(crate::DefaultDnsResolver),
+        #[cfg(target_os = "android")]
+        socket_bypass_tx.clone(),
+        #[cfg(any(feature = "api-override", test))]
+        false,
+    );
+
+    connector_handle.set_connection_mode(ApiConnectionMode::Proxied(ProxyConfig::DomainFronting(
+        proxy_config,
+    )));
+
+
+    let client: Client<_, Full<Bytes>> =
+        hyper_util::client::legacy::Client::builder(hyper_util::rt::TokioExecutor::new())
+            .build(connector);
+
+    let response = client
+        .get(
+            "https://api.mullvad.net/app/v1/api-addrs"
+                .try_into()
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+
+    // response.body().await;
 }

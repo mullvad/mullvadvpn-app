@@ -40,7 +40,7 @@ impl DomainFronting {
             .ok_or_else(|| Error::other("Empty DNS response"))?;
 
         Ok(ProxyConfig {
-            addr: *addr,
+            addr: SocketAddr::new(addr.ip(), 443),
             front: self.front.clone(),
             proxy_host: self.proxy_host.clone(),
         })
