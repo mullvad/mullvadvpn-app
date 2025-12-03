@@ -43,6 +43,7 @@ async fn handle_connect(
     req: Request<Incoming>,
     upstream: SocketAddr,
 ) -> Result<Response<Full<Bytes>>, Infallible> {
+    println!("Log all requests {:?}", req);
     if req.method() == &Method::GET {
         println!("Responding to a GET: {:?}", req);
         return Ok(Response::builder()
