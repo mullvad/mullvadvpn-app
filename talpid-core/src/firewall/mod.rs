@@ -9,7 +9,7 @@ use talpid_tunnel::TunnelMetadata;
 use talpid_types::net::{ALLOWED_LAN_NETS, AllowedEndpoint, AllowedTunnelTraffic};
 
 cfg_if::cfg_if! {
-    if #[cfg(windows)] {
+    if #[cfg(target_os = "windows")] {
         /// Firewall implementation for Windows
         mod windows;
         use windows as imp;
