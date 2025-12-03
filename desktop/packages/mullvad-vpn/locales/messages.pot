@@ -2121,7 +2121,7 @@ msgstr ""
 #. Available placeholders:
 #. %(splitTunneling)s - will be replaced with Split tunneling
 msgctxt "split-tunneling-view"
-msgid "To use %(splitTunneling)s, please change to a Linux kernel version that supports cgroup v1."
+msgid "To use %(splitTunneling)s, please update to a Linux kernel version that supports cgroup v2."
 msgstr ""
 
 msgctxt "split-tunneling-view"
