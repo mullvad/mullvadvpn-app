@@ -51,16 +51,6 @@ async fn handle_connect(
             .body(Full::new(Bytes::from_owner("hiya")))
             .unwrap());
     }
-    let uri = req.uri();
-    let _host = match uri.authority() {
-        Some(auth) => auth.as_str(),
-        None => {
-            return Ok(Response::builder()
-                .status(StatusCode::BAD_REQUEST)
-                .body(Full::new(Bytes::new()))
-                .unwrap());
-        }
-    };
 
     tokio::spawn(async move {
         match hyper::upgrade::on(req).await {
