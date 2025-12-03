@@ -19,7 +19,7 @@ pub struct DnsOptions {
 }
 
 /// Default DNS config
-#[derive(Debug, Default, Clone, PartialEq, Eq, Serialize, Deserialize, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Hash)]
 #[serde(default)]
 pub struct DefaultDnsOptions {
     pub block_ads: bool,
@@ -30,15 +30,57 @@ pub struct DefaultDnsOptions {
     pub block_social_media: bool,
 }
 
-/// Custom DNS config
-#[derive(Debug, Default, Clone, PartialEq, Eq, Serialize, Deserialize, Hash)]
-pub struct CustomDnsOptions {
-    pub addresses: Vec<IpAddr>,
-}
-
 impl DefaultDnsOptions {
+    /// Create [`DefaultDnsOptions`] which does not configure DNS.
+    pub const fn new() -> Self {
+        Self {
+            block_ads: false,
+            block_trackers: false,
+            block_malware: false,
+            block_adult_content: false,
+            block_gambling: false,
+            block_social_media: false,
+        }
+    }
+
+    /// Enable ads DNS content blocker.
+    pub const fn block_ads(mut self) -> Self {
+        self.block_ads = true;
+        self
+    }
+
+    /// Enable trackers DNS content blocker.
+    pub const fn block_trackers(mut self) -> Self {
+        self.block_trackers = true;
+        self
+    }
+
+    /// Enable malware DNS content blocker.
+    pub const fn block_malware(mut self) -> Self {
+        self.block_malware = true;
+        self
+    }
+
+    /// Enable adult content DNS content blocker.
+    pub const fn block_adult_content(mut self) -> Self {
+        self.block_adult_content = true;
+        self
+    }
+
+    /// Enable gambling DNS content blocker.
+    pub const fn block_gambling(mut self) -> Self {
+        self.block_gambling = true;
+        self
+    }
+
+    /// Enable social media DNS content blocker.
+    pub const fn block_social_media(mut self) -> Self {
+        self.block_social_media = true;
+        self
+    }
+
     /// Return whether any content blockers are enabled.
-    pub fn any_blockers_enabled(&self) -> bool {
+    pub const fn any_blockers_enabled(&self) -> bool {
         let DefaultDnsOptions {
             block_ads,
             block_trackers,
@@ -55,4 +97,16 @@ impl DefaultDnsOptions {
             || block_gambling
             || block_social_media
     }
+}
+
+impl Default for DefaultDnsOptions {
+    fn default() -> DefaultDnsOptions {
+        DefaultDnsOptions::new()
+    }
+}
+
+/// Custom DNS config
+#[derive(Debug, Default, Clone, PartialEq, Eq, Serialize, Deserialize, Hash)]
+pub struct CustomDnsOptions {
+    pub addresses: Vec<IpAddr>,
 }
