@@ -32,20 +32,17 @@ import net.mullvad.mullvadvpn.lib.model.IpVersion
 import net.mullvad.mullvadvpn.lib.model.Mtu
 import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
 import net.mullvad.mullvadvpn.lib.model.ObfuscationSettings
-import net.mullvad.mullvadvpn.lib.model.Port
-import net.mullvad.mullvadvpn.lib.model.PortRange
 import net.mullvad.mullvadvpn.lib.model.QuantumResistantState
 import net.mullvad.mullvadvpn.lib.model.Recents
 import net.mullvad.mullvadvpn.lib.model.RelayConstraints
 import net.mullvad.mullvadvpn.lib.model.RelaySettings
 import net.mullvad.mullvadvpn.lib.model.Settings
-import net.mullvad.mullvadvpn.lib.model.ShadowsocksSettings
+import net.mullvad.mullvadvpn.lib.model.ShadowsocksObfuscationSettings
 import net.mullvad.mullvadvpn.lib.model.SplitTunnelSettings
 import net.mullvad.mullvadvpn.lib.model.TunnelOptions
 import net.mullvad.mullvadvpn.lib.model.Udp2TcpObfuscationSettings
 import net.mullvad.mullvadvpn.lib.model.WireguardConstraints
 import net.mullvad.mullvadvpn.repository.AutoStartAndConnectOnBootRepository
-import net.mullvad.mullvadvpn.repository.RelayListRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
 import net.mullvad.mullvadvpn.usecase.SystemVpnSettingsAvailableUseCase
@@ -63,14 +60,12 @@ class VpnSettingsViewModelTest {
     private val mockSettingsRepository: SettingsRepository = mockk()
     private val mockSystemVpnSettingsUseCase: SystemVpnSettingsAvailableUseCase =
         mockk(relaxed = true)
-    private val mockRelayListRepository: RelayListRepository = mockk()
     private val mockAutoStartAndConnectOnBootRepository: AutoStartAndConnectOnBootRepository =
         mockk()
     private val mockWireguardConstraintsRepository: WireguardConstraintsRepository = mockk()
     private val mockBackstackObserver: BackstackObserver = mockk()
 
     private val mockSettingsUpdate = MutableStateFlow<Settings?>(null)
-    private val portRangeFlow = MutableStateFlow(emptyList<PortRange>())
     private val autoStartAndConnectOnBootFlow = MutableStateFlow(false)
     private val previousDestinationFlow = MutableStateFlow(ConnectDestination)
 
@@ -79,7 +74,6 @@ class VpnSettingsViewModelTest {
     @BeforeEach
     fun setup() {
         every { mockSettingsRepository.settingsUpdates } returns mockSettingsUpdate
-        every { mockRelayListRepository.portRanges } returns portRangeFlow
         every { mockAutoStartAndConnectOnBootRepository.autoStartAndConnectOnBoot } returns
             autoStartAndConnectOnBootFlow
         every { mockBackstackObserver.previousDestinationFlow } returns previousDestinationFlow
@@ -88,7 +82,6 @@ class VpnSettingsViewModelTest {
             VpnSettingsViewModel(
                 settingsRepository = mockSettingsRepository,
                 systemVpnSettingsUseCase = mockSystemVpnSettingsUseCase,
-                relayListRepository = mockRelayListRepository,
                 dispatcher = UnconfinedTestDispatcher(),
                 autoStartAndConnectOnBootRepository = mockAutoStartAndConnectOnBootRepository,
                 wireguardConstraintsRepository = mockWireguardConstraintsRepository,
@@ -107,19 +100,6 @@ class VpnSettingsViewModelTest {
     fun `initial state should be loading`() = runTest {
         viewModel.uiState.test { assertInstanceOf<Lc.Loading<Boolean>>(awaitItem()) }
     }
-
-    @Test
-    fun `onSelectCustomTcpOverUdpPort should invoke setCustomObfuscationPort on SettingsRepository`() =
-        runTest {
-            val customPort = Port(5001)
-            coEvery {
-                mockSettingsRepository.setCustomUdp2TcpObfuscationPort(Constraint.Only(customPort))
-            } returns Unit.right()
-            viewModel.onObfuscationPortSelected(Constraint.Only(customPort))
-            coVerify(exactly = 1) {
-                mockSettingsRepository.setCustomUdp2TcpObfuscationPort(Constraint.Only(customPort))
-            }
-        }
 
     @Test
     fun `onSelectQuantumResistanceSetting should invoke setWireguardQuantumResistant on SettingsRepository`() =
@@ -165,59 +145,6 @@ class VpnSettingsViewModelTest {
                         .any { it.enabled }
                 )
             }
-        }
-
-    @Test
-    fun `when SettingsRepository emits Constraint Only then uiState should emit custom and selectedWireguardPort with port of Constraint`() =
-        runTest {
-            // Arrange
-            val expectedPort = Constraint.Only(Port(99))
-            val mockSettings: Settings = mockk(relaxed = true)
-
-            every { mockSettings.obfuscationSettings.wireguardPort } returns expectedPort
-            every { mockSettings.tunnelOptions } returns
-                TunnelOptions(
-                    mtu = null,
-                    quantumResistant = QuantumResistantState.Off,
-                    daitaSettings = DaitaSettings(enabled = false, directOnly = false),
-                    dnsOptions = mockk(relaxed = true),
-                    enableIpv6 = true,
-                )
-
-            // Act, Assert
-            viewModel.uiState.test {
-                assertInstanceOf<Lc.Loading<Boolean>>(awaitItem())
-
-                mockSettingsUpdate.value = mockSettings
-
-                with(awaitItem()) {
-                    assertInstanceOf<Lc.Content<VpnSettingsUiState>>(this)
-                    val customPortSetting =
-                        value.settings
-                            .filterIsInstance<
-                                VpnSettingItem.WireguardPortItem.WireguardPortCustom
-                            >()
-                            .first()
-
-                    // Port should be what we expect and be selected
-                    assertEquals(expectedPort.value.value, customPortSetting.customPort!!.value)
-                    assertTrue(customPortSetting.selected)
-                }
-            }
-        }
-
-    @Test
-    fun `onWireguardPortSelected should invoke setWireguardPort with Constraint Only with same port`() =
-        runTest {
-            // Arrange
-            val wireguardPort: Constraint<Port> = Constraint.Only(Port(99))
-            coEvery { mockSettingsRepository.setWireguardPort(any()) } returns Unit.right()
-
-            // Act
-            viewModel.onWireguardPortSelected(wireguardPort)
-
-            // Assert
-            coVerify(exactly = 1) { mockSettingsRepository.setWireguardPort(wireguardPort) }
         }
 
     @Test
@@ -347,7 +274,7 @@ class VpnSettingsViewModelTest {
                     ObfuscationSettings(
                         selectedObfuscationMode = ObfuscationMode.Auto,
                         udp2tcp = Udp2TcpObfuscationSettings(Constraint.Any),
-                        shadowsocks = ShadowsocksSettings(Constraint.Any),
+                        shadowsocks = ShadowsocksObfuscationSettings(Constraint.Any),
                         wireguardPort = Constraint.Any,
                     ),
                 customLists = emptyList(),
