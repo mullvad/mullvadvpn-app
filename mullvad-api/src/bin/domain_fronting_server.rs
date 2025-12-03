@@ -1,5 +1,5 @@
 use clap::Parser;
-use http_body_util::Empty;
+use http_body_util::{Empty, Full};
 use hyper::{
     Method, Request, Response, StatusCode,
     body::{Bytes, Incoming},
@@ -42,12 +42,12 @@ struct Args {
 async fn handle_connect(
     req: Request<Incoming>,
     upstream: SocketAddr,
-) -> Result<Response<Empty<Bytes>>, Infallible> {
+) -> Result<Response<Full<Bytes>>, Infallible> {
     if req.method() == &Method::GET {
         println!("Responding to a GET: {:?}", req);
         return Ok(Response::builder()
             .status(StatusCode::OK)
-            .body("hiya")
+            .body(Full::new(Bytes::from_owner("hiya")))
             .unwrap());
     }
     let uri = req.uri();
@@ -56,7 +56,7 @@ async fn handle_connect(
         None => {
             return Ok(Response::builder()
                 .status(StatusCode::BAD_REQUEST)
-                .body(Empty::new())
+                .body(Full::new(Bytes::new()))
                 .unwrap());
         }
     };
@@ -74,7 +74,7 @@ async fn handle_connect(
 
     Ok(Response::builder()
         .status(StatusCode::OK)
-        .body(Empty::new())
+        .body(Full::new(Bytes::new()))
         .unwrap())
 }
 
