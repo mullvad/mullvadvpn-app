@@ -20,7 +20,7 @@ export function UnsupportedDialog() {
     // TRANSLATORS: %(splitTunneling)s - will be replaced with Split tunneling
     messages.pgettext(
       'split-tunneling-view',
-      'To use %(splitTunneling)s, please change to a Linux kernel version that supports cgroup v1.',
+      'To use %(splitTunneling)s, please update to a Linux kernel version that supports cgroup v2.',
     ),
     {
       splitTunneling: strings.splitTunneling,
