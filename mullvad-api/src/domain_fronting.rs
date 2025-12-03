@@ -3,7 +3,8 @@
 
 use std::{io::Error, net::SocketAddr, sync::Arc};
 
-use http_body_util::Empty;
+use http::header::UPGRADE;
+use http_body_util::{Empty, Full};
 use hyper::{body::Bytes, upgrade::Upgraded};
 use hyper_util::rt::TokioIo;
 use tokio::net::TcpStream;
@@ -72,10 +73,11 @@ impl ProxyConfig {
         });
 
         let request = hyper::Request::connect(&format!("https://{}/", self.proxy_host))
-            .body(Empty::<Bytes>::new())?;
+            .body(Full::<Bytes>::new(Bytes::new()))?;
 
         sender.ready().await?;
         let response = sender.send_request(request).await?;
+        println!("response - {:?}", response);
 
         let upgraded_connection = hyper::upgrade::on(response).await?;
         Ok(TokioIo::new(upgraded_connection))

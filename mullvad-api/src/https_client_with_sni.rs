@@ -534,7 +534,8 @@ async fn test_domain_fronting() {
     use http_body_util::combinators::BoxBody;
     use hyper::body::Bytes;
 
-    let df = DomainFronting::new("se-got-df-001.devmole.eu".into(), "se-got-df-001.devmole.eu".into());
+    let df = DomainFronting::new("www.phpmyadmin.net".into(), "1506917298.rsc.cdn77.org".into());
+    // let df = DomainFronting::new("se-got-df-001.devmole.eu".into(), "se-got-df-001.devmole.eu".into());
 
     let proxy_config = df.proxy_config().await.unwrap();
 
