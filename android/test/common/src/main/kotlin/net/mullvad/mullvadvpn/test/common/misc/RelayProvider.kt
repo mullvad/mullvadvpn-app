@@ -1,10 +1,9 @@
-package net.mullvad.mullvadvpn.test.e2e.misc
+package net.mullvad.mullvadvpn.test.common.misc
 
-import net.mullvad.mullvadvpn.test.e2e.BuildConfig
-import net.mullvad.mullvadvpn.test.e2e.constant.Production
-import net.mullvad.mullvadvpn.test.e2e.constant.Stagemole
+import net.mullvad.mullvadvpn.test.common.constant.Production
+import net.mullvad.mullvadvpn.test.common.constant.Stagemole
 
-class RelayProvider(val currentFlavor: String = BuildConfig.FLAVOR_billing) {
+class RelayProvider(val currentFlavor: String) {
 
     fun getDefaultRelay(): TestRelay {
         return when (currentFlavor) {
@@ -34,6 +33,14 @@ class RelayProvider(val currentFlavor: String = BuildConfig.FLAVOR_billing) {
         return when (currentFlavor) {
             "play" -> Stagemole.LWO_RELAY
             "oss" -> Production.LWO_RELAY
+            else -> error("Invalid flavor: $currentFlavor")
+        }
+    }
+
+    fun getOverrideRelay(): TestRelay {
+        return when (currentFlavor) {
+            "play" -> Stagemole.DEFAULT_RELAY
+            "oss" -> Production.OVERRIDE_RELAY
             else -> error("Invalid flavor: $currentFlavor")
         }
     }

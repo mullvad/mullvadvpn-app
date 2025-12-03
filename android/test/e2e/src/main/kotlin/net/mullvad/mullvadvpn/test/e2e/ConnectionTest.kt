@@ -7,6 +7,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.test.common.constant.EXTREMELY_LONG_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.extension.acceptVpnPermissionDialog
+import net.mullvad.mullvadvpn.test.common.misc.RelayProvider
 import net.mullvad.mullvadvpn.test.common.page.ConnectPage
 import net.mullvad.mullvadvpn.test.common.page.SelectLocationPage
 import net.mullvad.mullvadvpn.test.common.page.SettingsPage
@@ -25,7 +26,6 @@ import net.mullvad.mullvadvpn.test.e2e.api.connectioncheck.ConnectionCheckApi
 import net.mullvad.mullvadvpn.test.e2e.api.relay.RelayApi
 import net.mullvad.mullvadvpn.test.e2e.misc.AccountTestRule
 import net.mullvad.mullvadvpn.test.e2e.misc.ClearFirewallRules
-import net.mullvad.mullvadvpn.test.e2e.misc.RelayProvider
 import net.mullvad.mullvadvpn.test.e2e.router.firewall.DropRule
 import net.mullvad.mullvadvpn.test.e2e.router.firewall.FirewallClient
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -43,7 +43,7 @@ class ConnectionTest : EndToEndTest() {
     private val connCheckClient = ConnectionCheckApi()
     private val relayClient = RelayApi()
     private val firewallClient by lazy { FirewallClient() }
-    private val relayProvider = RelayProvider()
+    private val relayProvider = RelayProvider(BuildConfig.FLAVOR_billing)
 
     @Test
     fun testConnect() {

@@ -7,6 +7,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.test.common.extension.acceptVpnPermissionDialog
 import net.mullvad.mullvadvpn.test.common.misc.Attachment
+import net.mullvad.mullvadvpn.test.common.misc.RelayProvider
 import net.mullvad.mullvadvpn.test.common.page.ConnectPage
 import net.mullvad.mullvadvpn.test.common.page.SelectLocationPage
 import net.mullvad.mullvadvpn.test.common.page.SettingsPage
@@ -24,7 +25,6 @@ import net.mullvad.mullvadvpn.test.e2e.constant.getTrafficGeneratorPort
 import net.mullvad.mullvadvpn.test.e2e.misc.AccountTestRule
 import net.mullvad.mullvadvpn.test.e2e.misc.NetworkTrafficChecker
 import net.mullvad.mullvadvpn.test.e2e.misc.NoTrafficToHostRule
-import net.mullvad.mullvadvpn.test.e2e.misc.RelayProvider
 import net.mullvad.mullvadvpn.test.e2e.misc.SomeTrafficToHostRule
 import net.mullvad.mullvadvpn.test.e2e.misc.SomeTrafficToOtherHostsRule
 import net.mullvad.mullvadvpn.test.e2e.misc.TrafficGenerator
@@ -42,7 +42,7 @@ class LeakTest : EndToEndTest() {
     @JvmField
     val forgetAllVpnAppsInSettingsTestRule = ForgetAllVpnAppsInSettingsTestRule()
 
-    val relayProvider = RelayProvider()
+    val relayProvider = RelayProvider(BuildConfig.FLAVOR_billing)
 
     @BeforeEach
     fun setupVPNSettings() {

@@ -13,6 +13,7 @@ import net.mullvad.mullvadvpn.test.common.page.ConnectPage
 import net.mullvad.mullvadvpn.test.common.page.SelectLocationPage
 import net.mullvad.mullvadvpn.test.common.page.enableMultihopStory
 import net.mullvad.mullvadvpn.test.common.page.on
+import net.mullvad.mullvadvpn.test.common.rule.ForgetAllVpnAppsInSettingsTestRule
 import net.mullvad.mullvadvpn.test.mockapi.constant.DEFAULT_DEVICE_LIST
 import net.mullvad.mullvadvpn.test.mockapi.constant.DUMMY_DEVICE_NAME_2
 import net.mullvad.mullvadvpn.test.mockapi.constant.DUMMY_ID_2
@@ -20,8 +21,13 @@ import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertNotNull
+import org.junit.jupiter.api.extension.RegisterExtension
 
 class RecentsMockApiTest : MockApiTest() {
+
+    @RegisterExtension
+    @JvmField
+    val forgetAllVpnAppsInSettingsTestRule = ForgetAllVpnAppsInSettingsTestRule()
 
     val validAccountNumber = "1234123412341234"
 
@@ -55,7 +61,7 @@ class RecentsMockApiTest : MockApiTest() {
 
             // Connect to a relay we know is visible.
             device.findObjectWithTimeout(By.text("Albania")).click()
-            device.acceptVpnPermissionDialog(ignoreNotFound = true)
+            device.acceptVpnPermissionDialog()
         }
 
         on<ConnectPage> { clickSelectLocation() }

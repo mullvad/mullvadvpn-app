@@ -109,6 +109,10 @@ fun UiDevice.pressBackTwice() {
     pressBack()
 }
 
+fun UiDevice.pressBackThrice() {
+    repeat(3) { pressBack() }
+}
+
 fun UiObject2.findObjectWithTimeout(
     selector: BySelector,
     timeout: Long = DEFAULT_TIMEOUT,

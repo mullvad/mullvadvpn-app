@@ -38,6 +38,7 @@ const val WIREGUARD_OBFUSCATION_UDP_OVER_TCP_CELL_TEST_TAG =
     "wireguard_obfuscation_udp_over_tcp_cell_test_tag"
 const val WIREGUARD_OBFUSCATION_QUIC_CELL_TEST_TAG = "wireguard_obfuscation_quic_cell_test_tag"
 const val WIREGUARD_OBFUSCATION_LWO_CELL_TEST_TAG = "wireguard_obfuscation_lwo_cell_test_tag"
+const val SERVER_IP_OVERRIDE_BUTTON_TEST_TAG = "server_ip_override_button_test_tag"
 // Account screen
 const val MANAGE_DEVICES_BUTTON_TEST_TAG = "manage_devices_button_test_tag"
 
@@ -110,6 +111,9 @@ const val SERVER_IP_OVERRIDE_MORE_VERT_TEST_TAG = "server_ip_override_more_vert_
 const val SERVER_IP_OVERRIDE_RESET_OVERRIDES_TEST_TAG = "server_ip_override_reset_button_test_tag"
 const val SERVER_IP_OVERRIDES_IMPORT_BY_FILE_TEST_TAG = "server_ip_override_import_by_file_test_tag"
 const val SERVER_IP_OVERRIDES_IMPORT_BY_TEXT_TEST_TAG = "server_ip_override_import_by_text_test_tag"
+const val SERVER_IP_OVERRIDES_TEXT_INPUT_TEST_TAG = "server_ip_overrides_text_input_test_tag"
+const val SERVER_IP_OVERRIDES_IMPORT_BY_TEXT_IMPORT_BUTTON_TEST_TAG =
+    "server_ip_overrides_import_by_text_import_button_test_tag"
 
 // ResetServerIpOverridesConfirmationDialog
 const val RESET_SERVER_IP_OVERRIDE_RESET_TEST_TAG = "reset_server_ip_override_reset_button_test_tag"

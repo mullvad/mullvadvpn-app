@@ -19,6 +19,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.tooling.preview.Preview
@@ -31,6 +32,8 @@ import net.mullvad.mullvadvpn.compose.component.MullvadSmallTopBar
 import net.mullvad.mullvadvpn.compose.textfield.mullvadWhiteTextFieldColors
 import net.mullvad.mullvadvpn.compose.transitions.DefaultTransition
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
+import net.mullvad.mullvadvpn.lib.ui.tag.SERVER_IP_OVERRIDES_IMPORT_BY_TEXT_IMPORT_BUTTON_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.SERVER_IP_OVERRIDES_TEXT_INPUT_TEST_TAG
 
 @Preview
 @Composable
@@ -65,6 +68,10 @@ fun ImportOverridesByTextScreen(onNavigateBack: () -> Unit, onImportClicked: (St
                 },
                 actions = {
                     TextButton(
+                        modifier =
+                            Modifier.testTag(
+                                SERVER_IP_OVERRIDES_IMPORT_BY_TEXT_IMPORT_BUTTON_TEST_TAG
+                            ),
                         enabled = text.isNotEmpty(),
                         colors =
                             ButtonDefaults.textButtonColors()
@@ -79,7 +86,7 @@ fun ImportOverridesByTextScreen(onNavigateBack: () -> Unit, onImportClicked: (St
     ) {
         Column(modifier = Modifier.padding(it)) {
             TextField(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier.fillMaxSize().testTag(SERVER_IP_OVERRIDES_TEXT_INPUT_TEST_TAG),
                 value = text,
                 onValueChange = { text = it },
                 placeholder = {
