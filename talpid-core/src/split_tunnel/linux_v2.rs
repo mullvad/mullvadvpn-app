@@ -174,7 +174,7 @@ fn assert_nft_supports_cgroup2(cgroup: &CGroup2) -> Result<(), Error> {
 
     let batch = batch.finalize();
     firewall::linux::Firewall::send_and_process(&batch)
-        .context("Failed to remove cgroup2 nftables table")?;
+        .context("Failed to add nft cgroupv2 rule")?;
 
     Ok(())
 }
