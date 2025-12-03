@@ -130,11 +130,11 @@ export const createHelpers = (page: Page, routes: RoutesObjectModel, utils: Mock
     if (!settings) {
       settings = getDefaultSettings();
     }
-    if ('normal' in settings.relaySettings && settings.tunnelOptions.wireguard.daita) {
+    if ('normal' in settings.relaySettings && settings.tunnelOptions.daita) {
       if (multihop !== undefined)
         settings.relaySettings.normal.wireguardConstraints.useMultihop = multihop;
-      if (daita !== undefined) settings.tunnelOptions.wireguard.daita.enabled = daita;
-      if (directOnly !== undefined) settings.tunnelOptions.wireguard.daita.directOnly = directOnly;
+      if (daita !== undefined) settings.tunnelOptions.daita.enabled = daita;
+      if (directOnly !== undefined) settings.tunnelOptions.daita.directOnly = directOnly;
     }
 
     await utils.ipc.settings[''].notify(settings);
@@ -146,7 +146,7 @@ export const createHelpers = (page: Page, routes: RoutesObjectModel, utils: Mock
     if (!settings) {
       settings = getDefaultSettings();
     }
-    if ('normal' in settings.relaySettings && settings.tunnelOptions.wireguard.daita) {
+    if ('normal' in settings.relaySettings && settings.tunnelOptions.daita) {
       settings.relaySettings.normal.wireguardConstraints.entryLocation = {
         only: {
           hostname: relay.relay.hostname,
