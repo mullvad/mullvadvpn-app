@@ -127,7 +127,7 @@ impl Firewall {
     /// Apply a [`FirewallPolicy`] by setting up [`TABLE_NAME`] nftable.
     pub fn apply_policy(&mut self, policy: FirewallPolicy) -> Result<()> {
         let table = Table::new(TABLE_NAME, ProtoFamily::Inet);
-        let batch = PolicyBatch::new(&table).finalize(&policy, &self)?;
+        let batch = PolicyBatch::new(&table).finalize(&policy, self)?;
         Self::send_and_process(&batch)?;
         Self::apply_kernel_config(&policy);
         self.verify_tables(&[TABLE_NAME])
