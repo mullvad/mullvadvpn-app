@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.lib.ui.component.listitem
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
@@ -33,6 +34,13 @@ private fun PreviewNavigationListItem() {
                 showWarning = true,
                 onClick = {},
             )
+            NavigationListItem(
+                hierarchy = Hierarchy.Child1,
+                title = "Navigation sample",
+                subtitle = "Navigation sample",
+                showWarning = false,
+                onClick = {},
+            )
         }
     }
 }
@@ -44,6 +52,7 @@ fun NavigationListItem(
     hierarchy: Hierarchy = Hierarchy.Parent,
     position: Position = Position.Single,
     title: String,
+    subtitle: String? = null,
     showWarning: Boolean = false,
     isRowEnabled: Boolean = true,
     onClick: () -> Unit,
@@ -69,7 +78,18 @@ fun NavigationListItem(
                 )
             }
         },
-        content = { Text(title) },
+        content = {
+            Column {
+                Text(title)
+                if (subtitle != null) {
+                    Text(
+                        text = subtitle,
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+        },
         trailingContent = icon,
     )
 }

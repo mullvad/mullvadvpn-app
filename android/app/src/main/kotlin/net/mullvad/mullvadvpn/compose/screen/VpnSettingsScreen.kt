@@ -49,6 +49,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
+import com.ramcosta.composedestinations.generated.destinations.AntiCensorshipSettingsDestination
 import com.ramcosta.composedestinations.generated.destinations.AutoConnectAndLockdownModeDestination
 import com.ramcosta.composedestinations.generated.destinations.ConnectOnStartupInfoDestination
 import com.ramcosta.composedestinations.generated.destinations.ContentBlockersInfoDestination
@@ -59,13 +60,8 @@ import com.ramcosta.composedestinations.generated.destinations.Ipv6InfoDestinati
 import com.ramcosta.composedestinations.generated.destinations.LocalNetworkSharingInfoDestination
 import com.ramcosta.composedestinations.generated.destinations.MalwareInfoDestination
 import com.ramcosta.composedestinations.generated.destinations.MtuDestination
-import com.ramcosta.composedestinations.generated.destinations.ObfuscationInfoDestination
 import com.ramcosta.composedestinations.generated.destinations.QuantumResistanceInfoDestination
 import com.ramcosta.composedestinations.generated.destinations.ServerIpOverridesDestination
-import com.ramcosta.composedestinations.generated.destinations.ShadowsocksSettingsDestination
-import com.ramcosta.composedestinations.generated.destinations.Udp2TcpSettingsDestination
-import com.ramcosta.composedestinations.generated.destinations.WireguardCustomPortDestination
-import com.ramcosta.composedestinations.generated.destinations.WireguardPortInfoDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
 import kotlinx.coroutines.launch
@@ -82,8 +78,6 @@ import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.NavigateCloseIconButton
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.component.textResource
-import net.mullvad.mullvadvpn.compose.dialog.CustomPortNavArgs
-import net.mullvad.mullvadvpn.compose.dialog.info.WireguardPortInfoDialogArgument
 import net.mullvad.mullvadvpn.compose.extensions.dropUnlessResumed
 import net.mullvad.mullvadvpn.compose.preview.VpnSettingsUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.VpnSettingItem
@@ -97,9 +91,6 @@ import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
 import net.mullvad.mullvadvpn.lib.model.IpVersion
 import net.mullvad.mullvadvpn.lib.model.Mtu
-import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
-import net.mullvad.mullvadvpn.lib.model.Port
-import net.mullvad.mullvadvpn.lib.model.PortRange
 import net.mullvad.mullvadvpn.lib.model.QuantumResistantState
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
@@ -107,31 +98,22 @@ import net.mullvad.mullvadvpn.lib.theme.color.AlphaInvisible
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaVisible
 import net.mullvad.mullvadvpn.lib.ui.component.DividerButton
-import net.mullvad.mullvadvpn.lib.ui.component.listitem.CustomPortListItem
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.DnsListItem
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.ExpandableListItem
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.InfoListItem
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.MtuListItem
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.NavigationListItem
-import net.mullvad.mullvadvpn.lib.ui.component.listitem.ObfuscationModeListItem
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.SelectableListItem
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.SwitchListItem
+import net.mullvad.mullvadvpn.lib.ui.component.listitem.toTitle
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Hierarchy
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadListItem
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
+import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_ANTI_CENSORSHIP_SETTINGS_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_LAST_ITEM_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_QUANTUM_ITEM_OFF_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_QUANTUM_ITEM_ON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_VPN_SETTINGS_TEST_TAG
-import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_WIREGUARD_CUSTOM_PORT_NUMBER_TEST_TAG
-import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_WIREGUARD_CUSTOM_PORT_TEXT_TEST_TAG
-import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_WIREGUARD_OBFUSCATION_TITLE_TEST_TAG
-import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_WIREGUARD_PORT_ITEM_X_TEST_TAG
-import net.mullvad.mullvadvpn.lib.ui.tag.WIREGUARD_OBFUSCATION_LWO_CELL_TEST_TAG
-import net.mullvad.mullvadvpn.lib.ui.tag.WIREGUARD_OBFUSCATION_OFF_CELL_TEST_TAG
-import net.mullvad.mullvadvpn.lib.ui.tag.WIREGUARD_OBFUSCATION_QUIC_CELL_TEST_TAG
-import net.mullvad.mullvadvpn.lib.ui.tag.WIREGUARD_OBFUSCATION_SHADOWSOCKS_CELL_TEST_TAG
-import net.mullvad.mullvadvpn.lib.ui.tag.WIREGUARD_OBFUSCATION_UDP_OVER_TCP_CELL_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.util.applyIf
 import net.mullvad.mullvadvpn.util.Lc
 import net.mullvad.mullvadvpn.util.indexOfFirstOrNull
@@ -161,21 +143,14 @@ private fun PreviewVpnSettings(
             navigateToDns = { _, _ -> },
             onToggleDnsClick = {},
             onBackClick = {},
-            onSelectObfuscationMode = {},
             onSelectQuantumResistanceSetting = {},
-            onWireguardPortSelected = {},
-            navigateToShadowSocksSettings = {},
-            navigateToUdp2TcpSettings = {},
             onToggleAutoStartAndConnectOnBoot = { _ -> },
             navigateToMalwareInfo = {},
             navigateToContentBlockersInfo = {},
             navigateToAutoConnectScreen = {},
             navigateToCustomDnsInfo = {},
-            navigateToObfuscationInfo = {},
             navigateToQuantumResistanceInfo = {},
-            navigateToWireguardPortInfo = {},
             navigateToLocalNetworkSharingInfo = {},
-            navigateToWireguardPortDialog = { _, _ -> },
             navigateToServerIpOverrides = {},
             onSelectDeviceIpVersion = {},
             onToggleIpv6 = {},
@@ -183,6 +158,7 @@ private fun PreviewVpnSettings(
             navigateToIpv6Info = {},
             navigateToDeviceIpInfo = {},
             navigateToConnectOnDeviceOnStartUpInfo = {},
+            navigateToAntiCensorship = {},
         )
     }
 }
@@ -204,7 +180,6 @@ fun SharedTransitionScope.VpnSettings(
     animatedVisibilityScope: AnimatedVisibilityScope,
     navArgs: VpnSettingsNavArgs,
     dnsDialogResult: ResultRecipient<DnsDestination, DnsDialogResult>,
-    customWgPortResult: ResultRecipient<WireguardCustomPortDestination, Port?>,
     mtuDialogResult: ResultRecipient<MtuDestination, Boolean>,
 ) {
     val vm = koinViewModel<VpnSettingsViewModel>()
@@ -218,14 +193,6 @@ fun SharedTransitionScope.VpnSettings(
             DnsDialogResult.Error -> {
                 vm.showGenericErrorToast()
             }
-        }
-    }
-
-    customWgPortResult.OnNavResultValue { port ->
-        if (port != null) {
-            vm.onWireguardPortSelected(Constraint.Only(port))
-        } else {
-            vm.resetCustomPort()
         }
     }
 
@@ -266,18 +233,8 @@ fun SharedTransitionScope.VpnSettings(
         navigateToCustomDnsInfo =
             dropUnlessResumed { navigator.navigate(CustomDnsInfoDestination) },
         navigateToMalwareInfo = dropUnlessResumed { navigator.navigate(MalwareInfoDestination) },
-        navigateToObfuscationInfo =
-            dropUnlessResumed { navigator.navigate(ObfuscationInfoDestination) },
         navigateToQuantumResistanceInfo =
             dropUnlessResumed { navigator.navigate(QuantumResistanceInfoDestination) },
-        navigateToWireguardPortInfo =
-            dropUnlessResumed { availablePortRanges: List<PortRange> ->
-                navigator.navigate(
-                    WireguardPortInfoDestination(
-                        WireguardPortInfoDialogArgument(availablePortRanges)
-                    )
-                )
-            },
         navigateToLocalNetworkSharingInfo =
             dropUnlessResumed { navigator.navigate(LocalNetworkSharingInfoDestination) },
         navigateToServerIpOverrides =
@@ -296,26 +253,9 @@ fun SharedTransitionScope.VpnSettings(
             dropUnlessResumed { index: Int?, address: String? ->
                 navigator.navigate(DnsDestination(index, address))
             },
-        navigateToWireguardPortDialog =
-            dropUnlessResumed { customPort, availablePortRanges ->
-                navigator.navigate(
-                    WireguardCustomPortDestination(
-                        CustomPortNavArgs(
-                            customPort = customPort,
-                            allowedPortRanges = availablePortRanges,
-                        )
-                    )
-                )
-            },
         onToggleDnsClick = vm::onToggleCustomDns,
         onBackClick = dropUnlessResumed { navigator.navigateUp() },
-        onSelectObfuscationMode = vm::onSelectObfuscationMode,
         onSelectQuantumResistanceSetting = vm::onSelectQuantumResistanceSetting,
-        onWireguardPortSelected = vm::onWireguardPortSelected,
-        navigateToShadowSocksSettings =
-            dropUnlessResumed { navigator.navigate(ShadowsocksSettingsDestination) },
-        navigateToUdp2TcpSettings =
-            dropUnlessResumed { navigator.navigate(Udp2TcpSettingsDestination) },
         onToggleAutoStartAndConnectOnBoot = vm::onToggleAutoStartAndConnectOnBoot,
         onSelectDeviceIpVersion = vm::onDeviceIpVersionSelected,
         onToggleIpv6 = vm::setIpv6Enabled,
@@ -323,6 +263,8 @@ fun SharedTransitionScope.VpnSettings(
         navigateToDeviceIpInfo = dropUnlessResumed { navigator.navigate(DeviceIpInfoDestination) },
         navigateToConnectOnDeviceOnStartUpInfo =
             dropUnlessResumed { navigator.navigate(ConnectOnStartupInfoDestination) },
+        navigateToAntiCensorship =
+            dropUnlessResumed { navigator.navigate(AntiCensorshipSettingsDestination()) },
     )
 }
 
@@ -337,12 +279,9 @@ fun VpnSettingsScreen(
     navigateToAutoConnectScreen: () -> Unit,
     navigateToCustomDnsInfo: () -> Unit,
     navigateToMalwareInfo: () -> Unit,
-    navigateToObfuscationInfo: () -> Unit,
+    navigateToAntiCensorship: () -> Unit,
     navigateToQuantumResistanceInfo: () -> Unit,
-    navigateToWireguardPortInfo: (availablePortRanges: List<PortRange>) -> Unit,
     navigateToLocalNetworkSharingInfo: () -> Unit,
-    navigateToWireguardPortDialog:
-        (customPort: Port?, availablePortRanges: List<PortRange>) -> Unit,
     navigateToServerIpOverrides: () -> Unit,
     onToggleContentBlockersExpanded: () -> Unit,
     onToggleBlockTrackers: (Boolean) -> Unit,
@@ -356,11 +295,7 @@ fun VpnSettingsScreen(
     navigateToDns: (index: Int?, address: String?) -> Unit,
     onToggleDnsClick: (Boolean) -> Unit,
     onBackClick: () -> Unit,
-    onSelectObfuscationMode: (obfuscationMode: ObfuscationMode) -> Unit,
     onSelectQuantumResistanceSetting: (quantumResistant: QuantumResistantState) -> Unit,
-    onWireguardPortSelected: (port: Constraint<Port>) -> Unit,
-    navigateToShadowSocksSettings: () -> Unit,
-    navigateToUdp2TcpSettings: () -> Unit,
     onToggleAutoStartAndConnectOnBoot: (Boolean) -> Unit,
     onSelectDeviceIpVersion: (ipVersion: Constraint<IpVersion>) -> Unit,
     onToggleIpv6: (Boolean) -> Unit,
@@ -410,12 +345,10 @@ fun VpnSettingsScreen(
                             navigateToAutoConnectScreen,
                             navigateToCustomDnsInfo,
                             navigateToMalwareInfo,
-                            navigateToObfuscationInfo,
                             navigateToQuantumResistanceInfo,
-                            navigateToWireguardPortInfo,
                             navigateToLocalNetworkSharingInfo,
-                            navigateToWireguardPortDialog,
                             navigateToServerIpOverrides,
+                            navigateToAntiCensorship,
                             onToggleContentBlockersExpanded,
                             onToggleBlockTrackers,
                             onToggleBlockAds,
@@ -427,11 +360,7 @@ fun VpnSettingsScreen(
                             navigateToMtuDialog,
                             navigateToDns,
                             onToggleDnsClick,
-                            onSelectObfuscationMode,
                             onSelectQuantumResistanceSetting,
-                            onWireguardPortSelected,
-                            navigateToShadowSocksSettings,
-                            navigateToUdp2TcpSettings,
                             onToggleAutoStartAndConnectOnBoot,
                             onSelectDeviceIpVersion,
                             onToggleIpv6,
@@ -455,13 +384,10 @@ fun VpnSettingsContent(
     navigateToAutoConnectScreen: () -> Unit,
     navigateToCustomDnsInfo: () -> Unit,
     navigateToMalwareInfo: () -> Unit,
-    navigateToObfuscationInfo: () -> Unit,
     navigateToQuantumResistanceInfo: () -> Unit,
-    navigateToWireguardPortInfo: (availablePortRanges: List<PortRange>) -> Unit,
     navigateToLocalNetworkSharingInfo: () -> Unit,
-    navigateToWireguardPortDialog:
-        (customPort: Port?, availablePortRanges: List<PortRange>) -> Unit,
     navigateToServerIpOverrides: () -> Unit,
+    navigateToAntiCensorship: () -> Unit,
     onToggleContentBlockersExpanded: () -> Unit,
     onToggleBlockTrackers: (Boolean) -> Unit,
     onToggleBlockAds: (Boolean) -> Unit,
@@ -473,11 +399,7 @@ fun VpnSettingsContent(
     navigateToMtuDialog: (mtu: Mtu?) -> Unit,
     navigateToDns: (index: Int?, address: String?) -> Unit,
     onToggleDnsClick: (Boolean) -> Unit,
-    onSelectObfuscationMode: (obfuscationMode: ObfuscationMode) -> Unit,
     onSelectQuantumResistanceSetting: (quantumResistant: QuantumResistantState) -> Unit,
-    onWireguardPortSelected: (port: Constraint<Port>) -> Unit,
-    navigateToShadowSocksSettings: () -> Unit,
-    navigateToUdp2TcpSettings: () -> Unit,
     onToggleAutoStartAndConnectOnBoot: (Boolean) -> Unit,
     onSelectDeviceIpVersion: (ipVersion: Constraint<IpVersion>) -> Unit,
     onToggleIpv6: (Boolean) -> Unit,
@@ -487,10 +409,6 @@ fun VpnSettingsContent(
 ) {
     val initialIndexFocus =
         when (initialScrollToFeature) {
-            FeatureIndicator.UDP_2_TCP,
-            FeatureIndicator.SHADOWSOCKS,
-            FeatureIndicator.QUIC,
-            FeatureIndicator.LWO -> VpnSettingItem.ObfuscationHeader::class
             FeatureIndicator.LAN_SHARING -> VpnSettingItem.LocalNetworkSharingSetting::class
             FeatureIndicator.QUANTUM_RESISTANCE -> VpnSettingItem.QuantumResistanceHeader::class
             FeatureIndicator.DNS_CONTENT_BLOCKERS -> VpnSettingItem.DnsContentBlockersHeader::class
@@ -841,121 +759,6 @@ fun VpnSettingsContent(
                         )
                     }
 
-                VpnSettingItem.ObfuscationHeader ->
-                    item(key = it::class.simpleName) {
-                        InfoListItem(
-                            modifier = Modifier.animateItem(),
-                            backgroundAlpha =
-                                when (initialScrollToFeature) {
-                                    FeatureIndicator.UDP_2_TCP,
-                                    FeatureIndicator.SHADOWSOCKS,
-                                    FeatureIndicator.QUIC,
-                                    FeatureIndicator.LWO -> highlightAnimation.value
-                                    else -> 1.0f
-                                },
-                            position = Position.Top,
-                            title = stringResource(R.string.obfuscation_title),
-                            onInfoClicked = navigateToObfuscationInfo,
-                            onCellClicked = navigateToObfuscationInfo,
-                            testTag = LAZY_LIST_WIREGUARD_OBFUSCATION_TITLE_TEST_TAG,
-                        )
-                    }
-
-                is VpnSettingItem.ObfuscationItem.Automatic ->
-                    item(key = it::class.simpleName) {
-                        SelectableListItem(
-                            modifier = Modifier.animateItem(),
-                            hierarchy = Hierarchy.Child1,
-                            position = Position.Middle,
-                            title = stringResource(id = R.string.automatic),
-                            isSelected = it.selected,
-                            onClick = { onSelectObfuscationMode(ObfuscationMode.Auto) },
-                        )
-                    }
-
-                is VpnSettingItem.ObfuscationItem.Off ->
-                    item(key = it::class.simpleName) {
-                        SelectableListItem(
-                            modifier = Modifier.animateItem(),
-                            hierarchy = Hierarchy.Child1,
-                            position = Position.Bottom,
-                            title = stringResource(id = R.string.off),
-                            isSelected = it.selected,
-                            onClick = { onSelectObfuscationMode(ObfuscationMode.Off) },
-                            testTag = WIREGUARD_OBFUSCATION_OFF_CELL_TEST_TAG,
-                        )
-                    }
-
-                is VpnSettingItem.ObfuscationItem.Shadowsocks ->
-                    item(key = it::class.simpleName) {
-                        ObfuscationModeListItem(
-                            modifier =
-                                Modifier.animateItem()
-                                    .focusRequester(
-                                        focusRequesters.getValue(FeatureIndicator.SHADOWSOCKS)
-                                    ),
-                            hierarchy = Hierarchy.Child1,
-                            position = Position.Middle,
-                            obfuscationMode = ObfuscationMode.Shadowsocks,
-                            isSelected = it.selected,
-                            port = it.port,
-                            onSelected = onSelectObfuscationMode,
-                            onNavigate = navigateToShadowSocksSettings,
-                            testTag = WIREGUARD_OBFUSCATION_SHADOWSOCKS_CELL_TEST_TAG,
-                        )
-                    }
-
-                is VpnSettingItem.ObfuscationItem.UdpOverTcp ->
-                    item(key = it::class.simpleName) {
-                        ObfuscationModeListItem(
-                            modifier =
-                                Modifier.animateItem()
-                                    .focusRequester(
-                                        focusRequesters.getValue(FeatureIndicator.UDP_2_TCP)
-                                    ),
-                            hierarchy = Hierarchy.Child1,
-                            position = Position.Middle,
-                            obfuscationMode = ObfuscationMode.Udp2Tcp,
-                            isSelected = it.selected,
-                            port = it.port,
-                            onSelected = onSelectObfuscationMode,
-                            onNavigate = navigateToUdp2TcpSettings,
-                            testTag = WIREGUARD_OBFUSCATION_UDP_OVER_TCP_CELL_TEST_TAG,
-                        )
-                    }
-
-                is VpnSettingItem.ObfuscationItem.Quic ->
-                    item(key = it::class.simpleName) {
-                        SelectableListItem(
-                            modifier =
-                                Modifier.animateItem()
-                                    .focusRequester(
-                                        focusRequesters.getValue(FeatureIndicator.QUIC)
-                                    ),
-                            hierarchy = Hierarchy.Child1,
-                            position = Position.Middle,
-                            title = stringResource(id = R.string.quic),
-                            isSelected = it.selected,
-                            testTag = WIREGUARD_OBFUSCATION_QUIC_CELL_TEST_TAG,
-                            onClick = { onSelectObfuscationMode(ObfuscationMode.Quic) },
-                        )
-                    }
-
-                is VpnSettingItem.ObfuscationItem.Lwo ->
-                    item(key = it::class.simpleName) {
-                        SelectableListItem(
-                            modifier =
-                                Modifier.animateItem()
-                                    .focusRequester(focusRequesters.getValue(FeatureIndicator.LWO)),
-                            hierarchy = Hierarchy.Child1,
-                            position = Position.Middle,
-                            title = stringResource(id = R.string.lwo),
-                            isSelected = it.selected,
-                            testTag = WIREGUARD_OBFUSCATION_LWO_CELL_TEST_TAG,
-                            onClick = { onSelectObfuscationMode(ObfuscationMode.Lwo) },
-                        )
-                    }
-
                 is VpnSettingItem.QuantumItem ->
                     item(key = it::class.simpleName + it.quantumResistantState) {
                         SelectableListItem(
@@ -1011,89 +814,21 @@ fun VpnSettingsContent(
                         ServerIpOverrides(navigateToServerIpOverrides, Modifier.animateItem())
                     }
 
+                VpnSettingItem.AntiCensorshipHeader ->
+                    item(key = it::class.simpleName) {
+                        NavigationListItem(
+                            modifier =
+                                Modifier.testTag(LAZY_LIST_ANTI_CENSORSHIP_SETTINGS_TEST_TAG)
+                                    .animateItem(),
+                            title = stringResource(id = R.string.anti_censorship),
+                            subtitle = state.obfuscationMode.toTitle(),
+                            onClick = navigateToAntiCensorship,
+                        )
+                    }
+
                 VpnSettingItem.Spacer ->
                     item(contentType = it::class.simpleName) {
                         Spacer(modifier = Modifier.height(Dimens.cellVerticalSpacing).animateItem())
-                    }
-
-                is VpnSettingItem.WireguardPortHeader ->
-                    item(key = it::class.simpleName) {
-                        InfoListItem(
-                            modifier = Modifier.animateItem(),
-                            position = Position.Top,
-                            title = stringResource(id = R.string.wireguard_port_title),
-                            onInfoClicked = { navigateToWireguardPortInfo(it.availablePortRanges) },
-                            onCellClicked = { navigateToWireguardPortInfo(it.availablePortRanges) },
-                            isEnabled = it.enabled,
-                        )
-                    }
-
-                is VpnSettingItem.WireguardPortItem.Constraint ->
-                    item(key = it::class.simpleName + it.constraint) {
-                        SelectableListItem(
-                            modifier = Modifier.animateItem(),
-                            hierarchy = Hierarchy.Child1,
-                            position = Position.Middle,
-                            title =
-                                when (it.constraint) {
-                                    is Constraint.Only -> it.constraint.value.toString()
-
-                                    is Constraint.Any -> stringResource(id = R.string.automatic)
-                                },
-                            isSelected = it.selected,
-                            isEnabled = it.enabled,
-                            onClick = { onWireguardPortSelected(it.constraint) },
-                            testTag =
-                                when (it.constraint) {
-                                    is Constraint.Only ->
-                                        String.format(
-                                            null,
-                                            LAZY_LIST_WIREGUARD_PORT_ITEM_X_TEST_TAG,
-                                            it.constraint.value.value,
-                                        )
-
-                                    is Constraint.Any -> ""
-                                },
-                        )
-                    }
-
-                is VpnSettingItem.WireguardPortItem.WireguardPortCustom ->
-                    item(key = it::class.simpleName) {
-                        CustomPortListItem(
-                            modifier = Modifier.animateItem(),
-                            hierarchy = Hierarchy.Child1,
-                            position = Position.Bottom,
-                            title = stringResource(id = R.string.wireguard_custon_port_title),
-                            isSelected = it.selected,
-                            port = it.customPort,
-                            onMainCellClicked = {
-                                if (it.customPort != null) {
-                                    onWireguardPortSelected(Constraint.Only(it.customPort))
-                                } else {
-                                    navigateToWireguardPortDialog(null, it.availablePortRanges)
-                                }
-                            },
-                            onPortCellClicked = {
-                                navigateToWireguardPortDialog(it.customPort, it.availablePortRanges)
-                            },
-                            isEnabled = it.enabled,
-                            mainTestTag = LAZY_LIST_WIREGUARD_CUSTOM_PORT_TEXT_TEST_TAG,
-                            numberTestTag = LAZY_LIST_WIREGUARD_CUSTOM_PORT_NUMBER_TEST_TAG,
-                        )
-                    }
-
-                VpnSettingItem.WireguardPortUnavailable ->
-                    item(key = it::class.simpleName) {
-                        BaseSubtitleCell(
-                            modifier = Modifier.animateItem(),
-                            text =
-                                stringResource(
-                                    id = R.string.wg_port_subtitle,
-                                    stringResource(R.string.wireguard),
-                                ),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
                     }
             }
         }
