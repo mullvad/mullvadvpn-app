@@ -407,8 +407,6 @@ export default class AppRenderer {
   public reconnectTunnel = () => IpcRendererEventChannel.tunnel.reconnect();
   public setRelaySettings = (relaySettings: RelaySettings) =>
     IpcRendererEventChannel.settings.setRelaySettings(relaySettings);
-  public updateBridgeSettings = (bridgeSettings: BridgeSettings) =>
-    IpcRendererEventChannel.settings.updateBridgeSettings(bridgeSettings);
   public setDnsOptions = (dnsOptions: IDnsOptions) =>
     IpcRendererEventChannel.settings.setDnsOptions(dnsOptions);
   public clearAccountHistory = () => IpcRendererEventChannel.accountHistory.clear();
