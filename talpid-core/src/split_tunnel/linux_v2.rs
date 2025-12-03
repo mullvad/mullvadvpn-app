@@ -39,17 +39,18 @@ pub struct PidManager {
 }
 
 struct Inner {
-    root_cgroup2: Cgroup2,
-    excluded_cgroup2: Cgroup2,
+    root_cgroup2: CGroup2,
+    excluded_cgroup2: CGroup2,
 }
 
 /// A handle to a cgroup2
 ///
 /// The cgroup is unmounted when droppped.
-struct Cgroup2 {
+pub struct CGroup2 {
     /// Absolute path of the cgroup2, e.g. `/run/my_cgroup2_mount/my_cgroup2`
     path: PathBuf,
 
+    /// inode of the cgroup2 directory
     inode: u64,
 
     /// `cgroup.procs` is used to add and list PIDs in the cgroup2.
@@ -58,17 +59,20 @@ struct Cgroup2 {
 
 impl PidManager {
     fn new() -> Self {
-        let inner = Self::new_inner().inspect_err(|e| {
-            log::error!("Failed to initialize split-tunneling: {e:#?}");
-        });
+        let inner = Self::new_inner();
+
+        if let Err(e) = &inner {
+            log::error!("Failed to initialize split-tunneling: {e:?}");
+        };
 
         PidManager { inner }
     }
 
     fn new_inner() -> Result<Inner, Error> {
-        let root_cgroup2 = Cgroup2::open(CGROUP2_DEFAULT_MOUNT_PATH)?;
-        let cgroup = SPLIT_TUNNEL_CGROUP_NAME;
-        let excluded_cgroup2 = root_cgroup2.create_or_open_child(cgroup)?;
+        let root_cgroup2 =
+            CGroup2::open(CGROUP2_DEFAULT_MOUNT_PATH).context("Failed to open root cgroup2")?;
+
+        let excluded_cgroup2 = root_cgroup2.create_or_open_child(SPLIT_TUNNEL_CGROUP_NAME)?;
 
         assert_nft_supports_cgroup2(&excluded_cgroup2)
             .context("cgroup2 not supported by nftables, are you running an old kernel?")?;
@@ -114,6 +118,13 @@ impl PidManager {
         matches!(self.inner, Ok(..))
     }
 
+    /// Get a handle to the [CGroup2] used for split-tunneling.
+    ///
+    /// Returns an error if we prevously failed to set up the cgroup2, or if cloning it fails.
+    pub fn excluded_cgroup(&self) -> Result<CGroup2, Error> {
+        self.inner()?.excluded_cgroup2.try_clone()
+    }
+
     fn inner(&self) -> Result<&Inner, Error> {
         self.inner
             .as_ref()
@@ -138,7 +149,7 @@ impl PidManager {
 // TODO: this fugly bc
 // - 1. we're doing firewall stuff outside the firewall module
 // - 2. we're creating an invariant that this nft expression is the same as the one we create in the firewall module
-fn assert_nft_supports_cgroup2(cgroup: &Cgroup2) -> Result<(), Error> {
+fn assert_nft_supports_cgroup2(cgroup: &CGroup2) -> Result<(), Error> {
     let table_name = c"mullvad-test-cgroup2-capability";
 
     let mut batch = Batch::new();
@@ -174,7 +185,7 @@ impl Default for PidManager {
     }
 }
 
-impl Cgroup2 {
+impl CGroup2 {
     /// Open the cgroup2 at `path`.
     ///
     /// `path` must be a directory in the `cgroup2` filesystem.
@@ -191,7 +202,7 @@ impl Cgroup2 {
 
         let meta = fs::metadata(&path).with_context(|| anyhow!("Failed to stat {path:?}"))?;
 
-        Ok(Cgroup2 {
+        Ok(CGroup2 {
             path,
             inode: meta.ino(),
             procs,
@@ -210,6 +221,20 @@ impl Cgroup2 {
         }
 
         Self::open(child_path)
+    }
+
+    /// Try to clone the cgroup2 handle.
+    ///
+    /// This is fallible because cloning file descriptors can fail.
+    pub fn try_clone(&self) -> Result<Self, Error> {
+        Ok(Self {
+            path: self.path.clone(),
+            inode: self.inode,
+            procs: self
+                .procs
+                .try_clone()
+                .context("Failed to clone procs file handle")?,
+        })
     }
 
     /// Assign a process to this cgroup2.
