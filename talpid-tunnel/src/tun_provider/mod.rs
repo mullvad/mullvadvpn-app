@@ -108,7 +108,7 @@ pub fn blocking_config() -> TunConfig {
         packet_information: false,
         addresses: vec![
             IpAddr::V4(Ipv4Addr::new(10, 0, 0, 1)),
-            IpAddr::V6(Ipv6Addr::new(0, 0, 0, 0, 0, 0xfd00, 0, 1)),
+            IpAddr::V6(Ipv6Addr::new(0xfd00, 0, 0, 0, 0, 0, 0, 1)),
         ],
         mtu: 1380,
         ipv4_gateway: Ipv4Addr::new(10, 64, 0, 1),
