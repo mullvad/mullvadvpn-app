@@ -124,7 +124,7 @@ pub struct LinuxNetworkingIdentifiers {
     /// tunnel interface.
     pub table_id: u32,
     /// The cgroup2 used for split tunneling.
-    /// Traffic from processes in this cgroup2 should allowed outside the tunnel.
+    /// Traffic from processes in this cgroup2 should be allowed outside the tunnel.
     pub excluded_cgroup2: Option<CGroup2>,
 }
 

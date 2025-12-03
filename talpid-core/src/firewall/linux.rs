@@ -114,7 +114,7 @@ pub struct Firewall {
     /// Firewall mark is used to mark traffic which should be able to bypass the tunnel
     fwmark: u32,
     /// The cgroup2 used for split tunneling.
-    /// Traffic from processes in this cgroup2 should allowed outside the tunnel.
+    /// Traffic from processes in this cgroup2 should be allowed outside the tunnel.
     excluded_cgroup2: Option<CGroup2>,
 }
 
