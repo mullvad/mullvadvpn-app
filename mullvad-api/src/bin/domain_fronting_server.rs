@@ -137,12 +137,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         let upstream = args.upstream;
         let acceptor = tls_acceptor.clone();
 
-        println!("Accepted connection from {}", addr);
+        println!("Accepted connection from {}!", addr);
 
         tokio::spawn(async move {
             // Perform TLS handshake
             match acceptor.accept(stream).await {
                 Ok(tls_stream) => {
+                    println!("lmao what");
                     let io = TokioIo::new(tls_stream);
                     let service = service_fn(move |req| handle_connect(req, upstream));
 
