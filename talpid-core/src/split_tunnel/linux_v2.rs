@@ -27,7 +27,7 @@ pub const MARK: u32 = 0xf41;
 
 /// Errors related to split tunneling.
 #[derive(thiserror::Error, Debug)]
-#[error("split-tunneling cgroups v2 error: {0}")]
+#[error("Error in split tunneling")]
 pub struct Error(#[from] anyhow::Error);
 
 /// Manages PIDs in the linux cgroup2 excluded from the VPN tunnel.
