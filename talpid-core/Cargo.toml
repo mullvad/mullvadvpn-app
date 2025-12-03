@@ -13,8 +13,6 @@ workspace = true
 [features]
 wireguard-go = ["talpid-wireguard/wireguard-go"]
 multihop-pcap = ["talpid-wireguard/multihop-pcap"]
-cgroups_v2 = []
-default = ["cgroups_v2"]
 
 [dependencies]
 anyhow = { workspace = true }

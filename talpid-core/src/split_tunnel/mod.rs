@@ -1,8 +1,4 @@
-#[cfg(all(target_os = "linux", not(feature = "cgroups_v2")))]
-#[path = "linux_v1.rs"]
-mod imp;
-
-#[cfg(all(target_os = "linux", feature = "cgroups_v2"))]
+#[cfg(target_os = "linux")]
 #[path = "linux_v2.rs"]
 mod imp;
 
