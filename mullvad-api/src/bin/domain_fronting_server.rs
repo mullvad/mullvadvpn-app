@@ -3,11 +3,11 @@ use http_body_util::{Empty, Full};
 use hyper::{
     Method, Request, Response, StatusCode,
     body::{Bytes, Incoming},
-    server::conn::http2,
+    server::conn::http1,
     service::service_fn,
     upgrade::Upgraded,
 };
-use hyper_util::rt::{TokioExecutor, TokioIo};
+use hyper_util::rt::TokioIo;
 use rustls_pemfile::{certs, private_key};
 use std::{
     convert::Infallible, fs::File, io::BufReader, net::SocketAddr, path::PathBuf, sync::Arc,
@@ -147,8 +147,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                     let io = TokioIo::new(tls_stream);
                     let service = service_fn(move |req| handle_connect(req, upstream));
 
-                    if let Err(err) = http2::Builder::new(Executor{})
+                    if let Err(err) = http2::Builder::new()
+                        .preserve_header_case(true)
+                        .title_case_headers(true)
                         .serve_connection(io, service)
+                        .with_upgrades()
                         .await
                     {
                         eprintln!("Error serving connection from {}: {}", addr, err);
@@ -159,17 +162,5 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 }
             }
         });
-    }
-}
-
-#[derive(Clone)]
-struct Executor {}
-impl<F> hyper::rt::Executor<F> for Executor
-where
-    F: std::future::Future + Send + 'static,
-    F::Output: Send + 'static,
-{
-    fn execute(&self, fut: F) {
-        tokio::task::spawn(fut);
     }
 }
