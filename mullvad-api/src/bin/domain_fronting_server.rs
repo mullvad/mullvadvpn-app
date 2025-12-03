@@ -43,12 +43,6 @@ async fn handle_connect(
     req: Request<Incoming>,
     upstream: SocketAddr,
 ) -> Result<Response<Empty<Bytes>>, Infallible> {
-    if req.method() != Method::CONNECT {
-        return Ok(Response::builder()
-            .status(StatusCode::METHOD_NOT_ALLOWED)
-            .body(Empty::new())
-            .unwrap());
-    }
 
     let uri = req.uri();
     let _host = match uri.authority() {
