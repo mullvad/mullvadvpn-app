@@ -43,7 +43,12 @@ async fn handle_connect(
     req: Request<Incoming>,
     upstream: SocketAddr,
 ) -> Result<Response<Empty<Bytes>>, Infallible> {
-
+    if req.method() == &Method::GET {
+        return Ok(Response::builder()
+            .status(StatusCode::NO_CONTENT)
+            .body(Empty::new())
+            .unwrap());
+    }
     let uri = req.uri();
     let _host = match uri.authority() {
         Some(auth) => auth.as_str(),
