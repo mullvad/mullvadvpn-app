@@ -2767,9 +2767,6 @@ msgstr ""
 msgid "%s (removed)"
 msgstr ""
 
-msgid "%s custom port"
-msgstr ""
-
 msgid "%s is already selected as entry relay"
 msgstr ""
 
@@ -2798,6 +2795,9 @@ msgid "30 days was added to your account."
 msgstr ""
 
 msgid "90 days was added to your account."
+msgstr ""
+
+msgid "<b>Please note that these methods do not improve performance, and may increase system utilization and battery consumption.</b>"
 msgstr ""
 
 msgid "API reachable, adding method..."
@@ -3265,9 +3265,6 @@ msgstr ""
 msgid "Send email"
 msgstr ""
 
-msgid "Set %s obfuscation to \"Automatic\" or \"Off\" below to activate this setting."
-msgstr ""
-
 msgid "Set WireGuard MTU value. Valid range: %1$d - %2$d."
 msgstr ""
 
@@ -3341,6 +3338,9 @@ msgid "The local DNS server will not work unless you enable \"Local Network Shar
 msgstr ""
 
 msgid "The selected %s port is not supported, please change it under"
+msgstr ""
+
+msgid "These methods may be useful in situations where you are blocked from reaching Mullvad. When “Automatic” is selected, the app will attempt all methods until one works."
 msgstr ""
 
 msgid "This address has already been entered."
@@ -3467,9 +3467,6 @@ msgid "We were unable to start the payment process, please try again later."
 msgstr ""
 
 msgid "Welcome, this device is now called <b>%s</b>."
-msgstr ""
-
-msgid "WireGuard obfuscation"
 msgstr ""
 
 msgid "WireGuard port"

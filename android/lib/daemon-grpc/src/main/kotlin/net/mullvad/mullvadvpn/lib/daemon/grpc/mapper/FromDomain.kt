@@ -23,7 +23,7 @@ import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.model.Providers
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.model.RelaySettings
-import net.mullvad.mullvadvpn.lib.model.ShadowsocksSettings
+import net.mullvad.mullvadvpn.lib.model.ShadowsocksObfuscationSettings
 import net.mullvad.mullvadvpn.lib.model.SocksAuth
 import net.mullvad.mullvadvpn.lib.model.Udp2TcpObfuscationSettings
 import net.mullvad.mullvadvpn.lib.model.WireguardConstraints
@@ -92,6 +92,8 @@ internal fun ObfuscationMode.fromDomain():
             ManagementInterface.ObfuscationSettings.SelectedObfuscation.UDP2TCP
         ObfuscationMode.Shadowsocks ->
             ManagementInterface.ObfuscationSettings.SelectedObfuscation.SHADOWSOCKS
+        ObfuscationMode.WireguardPort ->
+            ManagementInterface.ObfuscationSettings.SelectedObfuscation.WIREGUARD_PORT
         ObfuscationMode.Quic -> ManagementInterface.ObfuscationSettings.SelectedObfuscation.QUIC
         ObfuscationMode.Lwo -> ManagementInterface.ObfuscationSettings.SelectedObfuscation.LWO
         ObfuscationMode.Auto -> ManagementInterface.ObfuscationSettings.SelectedObfuscation.AUTO
@@ -253,7 +255,8 @@ internal fun ApiAccessMethodSetting.fromDomain(): ManagementInterface.AccessMeth
         .setAccessMethod(apiAccessMethod.fromDomain())
         .build()
 
-internal fun ShadowsocksSettings.fromDomain(): ManagementInterface.ObfuscationSettings.Shadowsocks =
+internal fun ShadowsocksObfuscationSettings.fromDomain():
+    ManagementInterface.ObfuscationSettings.Shadowsocks =
     when (val port = port) {
         is Constraint.Any ->
             ManagementInterface.ObfuscationSettings.Shadowsocks.newBuilder().clearPort().build()

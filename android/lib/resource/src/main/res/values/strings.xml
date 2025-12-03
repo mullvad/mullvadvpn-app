@@ -198,7 +198,6 @@
     <string name="custom_dns_disable_mode_subtitle">Disable all \"%s\" above to activate this setting.</string>
     <string name="settings_changes_effect_warning_short">DNS settings might not go into effect immediately</string>
     <string name="settings_changes_effect_warning_content_blocker">Changes to DNS related settings might not go into effect immediately due to cached results.</string>
-    <string name="obfuscation_title">WireGuard obfuscation</string>
     <string name="obfuscation_info">Obfuscation hides the WireGuard traffic inside another protocol. It can be used to help circumvent censorship and other types of filtering, where a plain WireGuard connection would be blocked.</string>
     <string name="automatic">Automatic</string>
     <string name="off">Off</string>
@@ -217,7 +216,6 @@
     <string name="wireguard_port_info_port_range">The custom port can be any value inside the valid ranges: %s.</string>
     <string name="wireguard_custon_port_title">Custom</string>
     <string name="port">Port</string>
-    <string name="custom_port_dialog_title">%s custom port</string>
     <string name="custom_port_dialog_submit">Set port</string>
     <string name="custom_port_dialog_remove">Remove custom port</string>
     <string name="custom_port_dialog_valid_ranges">Valid ranges: %s</string>
@@ -395,7 +393,6 @@
     <string name="search">Search</string>
     <string name="obfuscation_info_shadowsocks_batteryusage">Attention: Shadowsocks can increase battery consumption depending on data usage, such as streaming a video.</string>
     <string name="changelog_empty">No changelog was added for this version</string>
-    <string name="wg_port_subtitle">Set %s obfuscation to \"Automatic\" or \"Off\" below to activate this setting.</string>
     <string name="device_ip_version_title">Device IP version</string>
     <string name="confirm_ipv6_dns">The IPv6 DNS server will not work unless you enable \"IPv6\" under VPN settings.</string>
     <string name="enable_ipv6">In-tunnel IPv6</string>
@@ -481,4 +478,8 @@
     <string name="direct">Direct</string>
     <string name="external_link">External link</string>
     <string name="navigate">Navigate</string>
+    <string name="anti_censorship">Anti-censorship</string>
+    <string name="method">Method</string>
+    <string name="anti_censorship_info_first_paragraph">These methods may be useful in situations where you are blocked from reaching Mullvad. When “Automatic” is selected, the app will attempt all methods until one works.</string>
+    <string name="anti_censorship_info_second_paragraph"><b>Please note that these methods do not improve performance, and may increase system utilization and battery consumption.</b></string>
 </resources>

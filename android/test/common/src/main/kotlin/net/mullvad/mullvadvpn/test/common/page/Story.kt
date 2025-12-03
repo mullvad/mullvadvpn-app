@@ -6,16 +6,6 @@ import net.mullvad.mullvadvpn.test.common.extension.pressBackTwice
 // This file defines extension methods on Page objects that involve multiple actions
 // that navigate multiple pages.
 
-fun ConnectPage.disableObfuscationStory() {
-    clickSettings()
-    on<SettingsPage> { clickVpnSettings() }
-    on<VpnSettingsPage> {
-        scrollUntilWireGuardObfuscationOffCell()
-        clickWireGuardObfuscationOffCell()
-    }
-    uiDevice.pressBackTwice()
-}
-
 fun ConnectPage.disablePostQuantumStory() {
     clickSettings()
     on<SettingsPage> { clickVpnSettings() }
@@ -37,14 +27,33 @@ fun ConnectPage.enablePostQuantumStory() {
     uiDevice.pressBackTwice()
 }
 
-fun ConnectPage.enableShadowsocksStory() {
+enum class ObfuscationOption {
+    WireguardPort,
+    Udp2Tcp,
+    Shadowsocks,
+    Quic,
+    Lwo,
+    Off,
+}
+
+fun ConnectPage.setObfuscationStory(obfuscation: ObfuscationOption) {
     clickSettings()
     on<SettingsPage> { clickVpnSettings() }
     on<VpnSettingsPage> {
-        scrollUntilWireGuardObfuscationShadowsocksCell()
-        clickWireGuardObfuscationShadowsocksCell()
+        scrollUntilAntiCensorshipCell()
+        clickAntiCensorshipCell()
     }
-    uiDevice.pressBackTwice()
+    on<AntiCensorshipSettingsPage> {
+        when (obfuscation) {
+            ObfuscationOption.WireguardPort -> clickWireguardPortCell()
+            ObfuscationOption.Udp2Tcp -> clickUdp2TcpCell()
+            ObfuscationOption.Shadowsocks -> clickShadowsocksCell()
+            ObfuscationOption.Quic -> clickQuicCell()
+            ObfuscationOption.Lwo -> clickLwoCell()
+            ObfuscationOption.Off -> clickObfuscationOffCell()
+        }
+    }
+    repeat(3) { uiDevice.pressBack() }
 }
 
 fun ConnectPage.enableDAITAStory() {
@@ -76,12 +85,10 @@ fun ConnectPage.toggleInTunnelIpv6Story() {
 }
 
 fun ConnectPage.enableServerIpOverrideStory(relay: String, overrideIp: String) {
+    setObfuscationStory(ObfuscationOption.Off)
     clickSettings()
     on<SettingsPage> { clickVpnSettings() }
     on<VpnSettingsPage> {
-        // Disable obfuscation
-        scrollUntilWireGuardObfuscationOffCell()
-        clickWireGuardObfuscationOffCell()
         // Disable IPv6
         scrollUntilDeviceIpVersionCell()
         clickDeviceIpIpv4Cell()
@@ -100,16 +107,19 @@ fun ConnectPage.enableServerIpOverrideStory(relay: String, overrideIp: String) {
     uiDevice.pressBackThrice()
 }
 
-fun ConnectPage.enableWireGuardCustomPort(port: Int) {
+fun ConnectPage.enableWireGuardCustomPortStory(port: Int) {
     if (port != 51820 && port != 53) {
         error("Port needs to be one of the predefined ports")
     }
-
     clickSettings()
     on<SettingsPage> { clickVpnSettings() }
     on<VpnSettingsPage> {
-        scrollUntilWireGuardCustomPort()
-        clickWireguardCustomPort(port)
+        scrollUntilAntiCensorshipCell()
+        clickAntiCensorshipCell()
     }
-    uiDevice.pressBackTwice()
+    on<AntiCensorshipSettingsPage> { clickWireguardSelectPortButton() }
+    on<SelectPortPage> { clickPresetPort(port) }
+    uiDevice.pressBack()
+    on<AntiCensorshipSettingsPage> { clickWireguardPortCell() }
+    repeat(3) { uiDevice.pressBack() }
 }
