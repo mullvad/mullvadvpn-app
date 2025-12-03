@@ -533,6 +533,20 @@ class ManagementService(
             .mapLeft(SetObfuscationOptionsError::Unknown)
             .mapEmpty()
 
+    suspend fun setWireguardObfuscationPort(
+        portConstraint: Constraint<Port>
+    ): Either<SetObfuscationOptionsError, Unit> =
+        Either.catch {
+                val updatedSettings =
+                    ObfuscationSettings.wireguardPort.modify(getSettings().obfuscationSettings) {
+                        portConstraint
+                    }
+                grpc.setObfuscationSettings(updatedSettings.fromDomain())
+            }
+            .onLeft { Logger.e("Set wireguard port error") }
+            .mapLeft(SetObfuscationOptionsError::Unknown)
+            .mapEmpty()
+
     suspend fun setUdp2TcpObfuscationPort(
         portConstraint: Constraint<Port>
     ): Either<SetObfuscationOptionsError, Unit> =
@@ -823,18 +837,6 @@ class ManagementService(
             .map { result ->
                 either { ensure(result.value) { TestApiAccessMethodError.CouldNotAccess } }
             }
-
-    suspend fun setWireguardPort(
-        port: Constraint<Port>
-    ): Either<SetWireguardConstraintsError, Unit> =
-        Either.catch {
-                val obfuscationSettings = getSettings().obfuscationSettings
-                val updated = ObfuscationSettings.wireguardPort.set(obfuscationSettings, port)
-                grpc.setObfuscationSettings(updated.fromDomain())
-            }
-            .onLeft { Logger.e("Set wireguard port error") }
-            .mapLeft(SetWireguardConstraintsError::Unknown)
-            .mapEmpty()
 
     suspend fun setMultihop(enabled: Boolean): Either<SetWireguardConstraintsError, Unit> =
         Either.catch {

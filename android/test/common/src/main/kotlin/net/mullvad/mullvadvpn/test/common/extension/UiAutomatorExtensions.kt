@@ -116,13 +116,16 @@ fun UiObject2.findObjectWithTimeout(
 
     wait(Until.hasObject(selector), timeout)
 
-    return try {
-        findObject(selector)
-    } catch (_: NullPointerException) {
-        throw UiObjectNotFoundException(
+    return findObject(selector)
+        ?: throw UiObjectNotFoundException(
             "No matches for selector within timeout ($timeout ms): $selector"
         )
-    }
+}
+
+fun UiObject2.findAncestor(selector: BySelector): UiObject2 {
+    val p = parent ?: throw UiObjectNotFoundException("No ancestor matches selector: $selector")
+
+    return p.findObject(selector) ?: p.findAncestor(selector)
 }
 
 fun UiDevice.acceptVpnPermissionDialog(ignoreNotFound: Boolean = false) {

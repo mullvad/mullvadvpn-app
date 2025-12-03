@@ -472,4 +472,8 @@
     <string name="enable_multihop">Enable multihop</string>
     <string name="unavailable">Unavailable</string>
     <string name="warning">Warning</string>
+    <string name="anti_censorship">Anti-censorship</string>
+    <string name="method">Method</string>
+    <string name="anti_censorship_info_first_paragraph">These methods may be useful in situations where you are blocked from reaching Mullvad. When “Automatic” is selected, the app will attempt all methods until one works.</string>
+    <string name="anti_censorship_info_second_paragraph"><b>Please note that these methods do not improve performance, and may increase system utilization and battery consumption.</b></string>
 </resources>

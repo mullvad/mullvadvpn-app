@@ -17,6 +17,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.WhileSubscribed
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
@@ -28,21 +29,16 @@ import net.mullvad.mullvadvpn.compose.state.CustomDnsItem
 import net.mullvad.mullvadvpn.compose.state.VpnSettingsUiState
 import net.mullvad.mullvadvpn.compose.util.BackstackObserver
 import net.mullvad.mullvadvpn.constant.VIEW_MODEL_STOP_TIMEOUT
-import net.mullvad.mullvadvpn.constant.WIREGUARD_PRESET_PORTS
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.DefaultDnsOptions
 import net.mullvad.mullvadvpn.lib.model.DnsState
 import net.mullvad.mullvadvpn.lib.model.IpVersion
-import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
-import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.model.QuantumResistantState
 import net.mullvad.mullvadvpn.repository.AutoStartAndConnectOnBootRepository
-import net.mullvad.mullvadvpn.repository.RelayListRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
 import net.mullvad.mullvadvpn.usecase.SystemVpnSettingsAvailableUseCase
 import net.mullvad.mullvadvpn.util.Lc
-import net.mullvad.mullvadvpn.util.combine
 import net.mullvad.mullvadvpn.util.contentBlockersSettings
 import net.mullvad.mullvadvpn.util.customDnsAddresses
 import net.mullvad.mullvadvpn.util.deviceIpVersion
@@ -51,7 +47,6 @@ import net.mullvad.mullvadvpn.util.onFirst
 import net.mullvad.mullvadvpn.util.quantumResistant
 import net.mullvad.mullvadvpn.util.selectedObfuscationMode
 import net.mullvad.mullvadvpn.util.toLc
-import net.mullvad.mullvadvpn.util.wireguardPort
 
 sealed interface VpnSettingsSideEffect {
     sealed interface ShowToast : VpnSettingsSideEffect {
@@ -66,7 +61,6 @@ sealed interface VpnSettingsSideEffect {
 @Suppress("TooManyFunctions")
 class VpnSettingsViewModel(
     private val settingsRepository: SettingsRepository,
-    relayListRepository: RelayListRepository,
     private val systemVpnSettingsUseCase: SystemVpnSettingsAvailableUseCase,
     private val autoStartAndConnectOnBootRepository: AutoStartAndConnectOnBootRepository,
     private val wireguardConstraintsRepository: WireguardConstraintsRepository,
@@ -80,26 +74,13 @@ class VpnSettingsViewModel(
     private val _uiSideEffect = Channel<VpnSettingsSideEffect>()
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
 
-    private val customPort = MutableStateFlow<Option<Port?>>(None)
-
     val uiState =
         combine(
                 settingsRepository.settingsUpdates.filterNotNull().onFirst {
-                    // Initialize wg port and content blockers state expand state
-                    val initialPort = it.wireguardPort().getOrNull()
-                    customPort.value =
-                        Some(
-                            if (initialPort !in WIREGUARD_PRESET_PORTS) {
-                                initialPort
-                            } else {
-                                null
-                            }
-                        )
+                    // Initialize content blockers expand state
                     _mutableIsContentBlockersExpanded.value =
                         Some(it.contentBlockersSettings().isAnyBlockerEnabled())
                 },
-                relayListRepository.portRanges,
-                customPort.filterIsInstance<Some<Port?>>().map { it.value },
                 autoStartAndConnectOnBootRepository.autoStartAndConnectOnBoot,
                 _mutableIsContentBlockersExpanded.filterIsInstance<Some<Boolean>>().map {
                     it.value
@@ -107,8 +88,6 @@ class VpnSettingsViewModel(
                 backstackObserver.previousDestinationFlow.map { it is ConnectDestination },
             ) {
                 settings,
-                portRanges,
-                customWgPort,
                 autoStartAndConnectOnBoot,
                 isContentBlockersExpanded,
                 isScrollToFeatureEnabled ->
@@ -119,13 +98,7 @@ class VpnSettingsViewModel(
                         customDnsItems = settings.customDnsAddresses().asStringAddressList(),
                         contentBlockersOptions = settings.contentBlockersSettings(),
                         obfuscationMode = settings.selectedObfuscationMode(),
-                        selectedUdp2TcpObfuscationPort = settings.obfuscationSettings.udp2tcp.port,
-                        selectedShadowsocksObfuscationPort =
-                            settings.obfuscationSettings.shadowsocks.port,
                         quantumResistant = settings.quantumResistant(),
-                        selectedWireguardPort = settings.wireguardPort(),
-                        customWireguardPort = customWgPort,
-                        availablePortRanges = portRanges,
                         systemVpnSettingsAvailable = systemVpnSettingsUseCase(),
                         autoStartAndConnectOnBoot = autoStartAndConnectOnBoot,
                         deviceIpVersion = settings.deviceIpVersion(),
@@ -200,40 +173,12 @@ class VpnSettingsViewModel(
         it.copy(blockSocialMedia = isEnabled)
     }
 
-    fun onSelectObfuscationMode(obfuscationMode: ObfuscationMode) {
-        viewModelScope.launch(dispatcher) {
-            settingsRepository.setObfuscation(obfuscationMode).onLeft {
-                _uiSideEffect.send(VpnSettingsSideEffect.ShowToast.GenericError)
-            }
-        }
-    }
-
-    fun onObfuscationPortSelected(port: Constraint<Port>) {
-        viewModelScope.launch { settingsRepository.setCustomUdp2TcpObfuscationPort(port) }
-    }
-
     fun onSelectQuantumResistanceSetting(quantumResistant: QuantumResistantState) {
         viewModelScope.launch(dispatcher) {
             settingsRepository.setWireguardQuantumResistant(quantumResistant).onLeft {
                 _uiSideEffect.send(VpnSettingsSideEffect.ShowToast.GenericError)
             }
         }
-    }
-
-    fun onWireguardPortSelected(port: Constraint<Port>) {
-        if (port is Constraint.Only && port.value !in WIREGUARD_PRESET_PORTS) {
-            customPort.update { Some(port.value) }
-        }
-        viewModelScope.launch {
-            settingsRepository.setWireguardPort(port = port).onLeft {
-                _uiSideEffect.send(VpnSettingsSideEffect.ShowToast.GenericError)
-            }
-        }
-    }
-
-    fun resetCustomPort() {
-        customPort.update { Some(null) }
-        viewModelScope.launch { settingsRepository.setWireguardPort(port = Constraint.Any) }
     }
 
     fun onToggleAutoStartAndConnectOnBoot(autoStartAndConnect: Boolean) =

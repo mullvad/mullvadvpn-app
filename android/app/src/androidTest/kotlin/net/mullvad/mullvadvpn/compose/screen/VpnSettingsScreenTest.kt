@@ -20,17 +20,11 @@ import net.mullvad.mullvadvpn.lib.model.DefaultDnsOptions
 import net.mullvad.mullvadvpn.lib.model.IpVersion
 import net.mullvad.mullvadvpn.lib.model.Mtu
 import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
-import net.mullvad.mullvadvpn.lib.model.Port
-import net.mullvad.mullvadvpn.lib.model.PortRange
 import net.mullvad.mullvadvpn.lib.model.QuantumResistantState
 import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_LAST_ITEM_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_QUANTUM_ITEM_OFF_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_QUANTUM_ITEM_ON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_VPN_SETTINGS_TEST_TAG
-import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_WIREGUARD_CUSTOM_PORT_NUMBER_TEST_TAG
-import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_WIREGUARD_CUSTOM_PORT_TEXT_TEST_TAG
-import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_WIREGUARD_OBFUSCATION_TITLE_TEST_TAG
-import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_WIREGUARD_PORT_ITEM_X_TEST_TAG
 import net.mullvad.mullvadvpn.onNodeWithTagAndText
 import net.mullvad.mullvadvpn.util.Lc
 import net.mullvad.mullvadvpn.util.toLc
@@ -54,12 +48,7 @@ class VpnSettingsScreenTest {
         customDnsItems: List<CustomDnsItem> = emptyList(),
         contentBlockersOptions: DefaultDnsOptions = DefaultDnsOptions(),
         obfuscationMode: ObfuscationMode = ObfuscationMode.Auto,
-        selectedUdp2TcpObfuscationPort: Constraint<Port> = Constraint.Any,
-        selectedShadowsocksObfuscationPort: Constraint<Port> = Constraint.Any,
         quantumResistant: QuantumResistantState = QuantumResistantState.On,
-        selectedWireguardPort: Constraint<Port> = Constraint.Any,
-        customWireguardPort: Port? = null,
-        availablePortRanges: List<PortRange> = emptyList(),
         systemVpnSettingsAvailable: Boolean = true,
         autoStartAndConnectOnBoot: Boolean = false,
         deviceIpVersion: Constraint<IpVersion> = Constraint.Any,
@@ -75,12 +64,7 @@ class VpnSettingsScreenTest {
             customDnsItems = customDnsItems,
             contentBlockersOptions = contentBlockersOptions,
             obfuscationMode = obfuscationMode,
-            selectedUdp2TcpObfuscationPort = selectedUdp2TcpObfuscationPort,
-            selectedShadowsocksObfuscationPort = selectedShadowsocksObfuscationPort,
             quantumResistant = quantumResistant,
-            selectedWireguardPort = selectedWireguardPort,
-            customWireguardPort = customWireguardPort,
-            availablePortRanges = availablePortRanges,
             systemVpnSettingsAvailable = systemVpnSettingsAvailable,
             autoStartAndConnectOnBoot = autoStartAndConnectOnBoot,
             deviceIpVersion = deviceIpVersion,
@@ -96,11 +80,8 @@ class VpnSettingsScreenTest {
         navigateToAutoConnectScreen: () -> Unit = {},
         navigateToCustomDnsInfo: () -> Unit = {},
         navigateToMalwareInfo: () -> Unit = {},
-        navigateToObfuscationInfo: () -> Unit = {},
         navigateToQuantumResistanceInfo: () -> Unit = {},
-        navigateToWireguardPortInfo: (availablePortRanges: List<PortRange>) -> Unit = {},
         navigateToLocalNetworkSharingInfo: () -> Unit = {},
-        navigateToWireguardPortDialog: (Port?, List<PortRange>) -> Unit = { _, _ -> },
         navigateToServerIpOverrides: () -> Unit = {},
         onToggleBlockTrackers: (Boolean) -> Unit = {},
         onToggleBlockAds: (Boolean) -> Unit = {},
@@ -113,11 +94,7 @@ class VpnSettingsScreenTest {
         navigateToDns: (index: Int?, address: String?) -> Unit = { _, _ -> },
         onToggleDnsClick: (Boolean) -> Unit = {},
         onBackClick: () -> Unit = {},
-        onSelectObfuscationMode: (obfuscationMode: ObfuscationMode) -> Unit = {},
         onSelectQuantumResistanceSetting: (quantumResistant: QuantumResistantState) -> Unit = {},
-        onWireguardPortSelected: (port: Constraint<Port>) -> Unit = {},
-        navigateToShadowSocksSettings: () -> Unit = {},
-        navigateToUdp2TcpSettings: () -> Unit = {},
         onToggleAutoStartAndConnectOnBoot: (Boolean) -> Unit = {},
         onSelectDeviceIpVersion: (Constraint<IpVersion>) -> Unit = {},
         onToggleIpv6: (Boolean) -> Unit = {},
@@ -125,6 +102,7 @@ class VpnSettingsScreenTest {
         onToggleDnsContentBlockers: () -> Unit = {},
         navigateToDeviceIpInfo: () -> Unit = {},
         navigateToConnectOnDeviceOnStartUpInfo: () -> Unit = {},
+        navigateToAntiCensorship: () -> Unit = {},
     ) {
         setContentWithTheme {
             VpnSettingsScreen(
@@ -133,11 +111,8 @@ class VpnSettingsScreenTest {
                 navigateToAutoConnectScreen = navigateToAutoConnectScreen,
                 navigateToCustomDnsInfo = navigateToCustomDnsInfo,
                 navigateToMalwareInfo = navigateToMalwareInfo,
-                navigateToObfuscationInfo = navigateToObfuscationInfo,
                 navigateToQuantumResistanceInfo = navigateToQuantumResistanceInfo,
-                navigateToWireguardPortInfo = navigateToWireguardPortInfo,
                 navigateToLocalNetworkSharingInfo = navigateToLocalNetworkSharingInfo,
-                navigateToWireguardPortDialog = navigateToWireguardPortDialog,
                 navigateToServerIpOverrides = navigateToServerIpOverrides,
                 onToggleBlockTrackers = onToggleBlockTrackers,
                 onToggleBlockAds = onToggleBlockAds,
@@ -150,11 +125,7 @@ class VpnSettingsScreenTest {
                 navigateToDns = navigateToDns,
                 onToggleDnsClick = onToggleDnsClick,
                 onBackClick = onBackClick,
-                onSelectObfuscationMode = onSelectObfuscationMode,
                 onSelectQuantumResistanceSetting = onSelectQuantumResistanceSetting,
-                onWireguardPortSelected = onWireguardPortSelected,
-                navigateToShadowSocksSettings = navigateToShadowSocksSettings,
-                navigateToUdp2TcpSettings = navigateToUdp2TcpSettings,
                 onToggleAutoStartAndConnectOnBoot = onToggleAutoStartAndConnectOnBoot,
                 onSelectDeviceIpVersion = onSelectDeviceIpVersion,
                 onToggleIpv6 = onToggleIpv6,
@@ -162,6 +133,7 @@ class VpnSettingsScreenTest {
                 onToggleContentBlockersExpanded = onToggleDnsContentBlockers,
                 navigateToDeviceIpInfo = navigateToDeviceIpInfo,
                 navigateToConnectOnDeviceOnStartUpInfo = navigateToConnectOnDeviceOnStartUpInfo,
+                navigateToAntiCensorship = navigateToAntiCensorship,
                 initialScrollToFeature = null,
             )
         }
@@ -378,96 +350,6 @@ class VpnSettingsScreenTest {
             }
         }
 
-    @Test
-    fun testShowWireguardPortOptions() =
-        composeExtension.use {
-            // Arrange
-            initScreen(
-                state =
-                    createDefaultUiState(selectedWireguardPort = Constraint.Only(Port(53))).toLc()
-            )
-
-            // Act
-            onNodeWithTag(LAZY_LIST_VPN_SETTINGS_TEST_TAG)
-                .performScrollToNode(
-                    hasTestTag(String.format(LAZY_LIST_WIREGUARD_PORT_ITEM_X_TEST_TAG, 53))
-                )
-
-            // Assert
-            onNodeWithTagAndText(
-                    testTag = String.format(LAZY_LIST_WIREGUARD_PORT_ITEM_X_TEST_TAG, 51820),
-                    text = "51820",
-                )
-                .assertExists()
-        }
-
-    @Test
-    fun testSelectWireguardPortOption() =
-        composeExtension.use {
-            // Arrange
-            val mockSelectWireguardPortSelectionListener: (Constraint<Port>) -> Unit =
-                mockk(relaxed = true)
-            initScreen(
-                state =
-                    createDefaultUiState(selectedWireguardPort = Constraint.Only(Port(53))).toLc(),
-                onWireguardPortSelected = mockSelectWireguardPortSelectionListener,
-            )
-
-            // Act
-            onNodeWithTag(LAZY_LIST_VPN_SETTINGS_TEST_TAG)
-                .performScrollToNode(
-                    hasTestTag(String.format(LAZY_LIST_WIREGUARD_PORT_ITEM_X_TEST_TAG, 53))
-                )
-            onNodeWithTagAndText(
-                    testTag = String.format(LAZY_LIST_WIREGUARD_PORT_ITEM_X_TEST_TAG, 51820),
-                    text = "51820",
-                )
-                .performClick()
-
-            // Assert
-            verify(exactly = 1) {
-                mockSelectWireguardPortSelectionListener.invoke(Constraint.Only(Port(51820)))
-            }
-        }
-
-    @Test
-    fun testShowWireguardCustomPort() =
-        composeExtension.use {
-            // Arrange
-            initScreen(state = createDefaultUiState(customWireguardPort = Port(4000)).toLc())
-
-            // Act
-            onNodeWithTag(LAZY_LIST_VPN_SETTINGS_TEST_TAG)
-                .performScrollToNode(hasTestTag(LAZY_LIST_WIREGUARD_CUSTOM_PORT_TEXT_TEST_TAG))
-
-            // Assert
-            onNodeWithText("Port: 4000").assertExists()
-        }
-
-    @Test
-    fun testSelectWireguardCustomPort() =
-        composeExtension.use {
-            // Arrange
-            val onWireguardPortSelected: (Constraint<Port>) -> Unit = mockk(relaxed = true)
-            initScreen(
-                state =
-                    createDefaultUiState(
-                            selectedWireguardPort = Constraint.Only(Port(4000)),
-                            customWireguardPort = Port(4000),
-                        )
-                        .toLc(),
-                onWireguardPortSelected = onWireguardPortSelected,
-            )
-
-            // Act
-            onNodeWithTag(LAZY_LIST_VPN_SETTINGS_TEST_TAG)
-                .performScrollToNode(hasTestTag(LAZY_LIST_WIREGUARD_CUSTOM_PORT_TEXT_TEST_TAG))
-            onNodeWithTag(testTag = LAZY_LIST_WIREGUARD_CUSTOM_PORT_TEXT_TEST_TAG).performClick()
-
-            // Assert
-            verify { onWireguardPortSelected.invoke(Constraint.Only(Port(4000))) }
-        }
-
     // Navigation Tests
 
     @Test
@@ -513,26 +395,6 @@ class VpnSettingsScreenTest {
         }
 
     @Test
-    fun testShowObfuscationInfo() =
-        composeExtension.use {
-            val mockedNavigateToObfuscationInfo: () -> Unit = mockk(relaxed = true)
-
-            // Arrange
-            initScreen(
-                state = createDefaultUiState().toLc(),
-                navigateToObfuscationInfo = mockedNavigateToObfuscationInfo,
-            )
-
-            // Act
-            onNodeWithTag(LAZY_LIST_VPN_SETTINGS_TEST_TAG)
-                .performScrollToNode(hasTestTag(LAZY_LIST_WIREGUARD_OBFUSCATION_TITLE_TEST_TAG))
-            onNodeWithText("WireGuard obfuscation").performClick()
-
-            // Assert
-            verify(exactly = 1) { mockedNavigateToObfuscationInfo() }
-        }
-
-    @Test
     fun testShowTunnelQuantumInfo() =
         composeExtension.use {
             val mockedShowTunnelQuantumInfoClick: () -> Unit = mockk(relaxed = true)
@@ -550,95 +412,6 @@ class VpnSettingsScreenTest {
 
             // Assert
             verify(exactly = 1) { mockedShowTunnelQuantumInfoClick() }
-        }
-
-    @Test
-    fun testShowWireguardPortInfo() =
-        composeExtension.use {
-            val mockedClickHandler: (List<PortRange>) -> Unit = mockk(relaxed = true)
-
-            // Arrange
-            initScreen(
-                state = createDefaultUiState().toLc(),
-                navigateToWireguardPortInfo = mockedClickHandler,
-            )
-
-            onNodeWithText("WireGuard port").performClick()
-
-            verify(exactly = 1) { mockedClickHandler.invoke(any()) }
-        }
-
-    @Test
-    fun testShowWireguardCustomPortDialog() =
-        composeExtension.use {
-            val mockedClickHandler: (Port?, List<PortRange>) -> Unit = mockk(relaxed = true)
-
-            val availablePortRanges = listOf(Port(4000)..Port(5000))
-
-            // Arrange
-            initScreen(
-                state = createDefaultUiState(availablePortRanges = availablePortRanges).toLc(),
-                navigateToWireguardPortDialog = mockedClickHandler,
-            )
-
-            onNodeWithTag(LAZY_LIST_VPN_SETTINGS_TEST_TAG, useUnmergedTree = true)
-                .performScrollToNode(hasTestTag(LAZY_LIST_WIREGUARD_CUSTOM_PORT_NUMBER_TEST_TAG))
-            onNodeWithText("Custom").performClick()
-
-            // Assert
-            verify(exactly = 1) { mockedClickHandler.invoke(null, availablePortRanges) }
-        }
-
-    @Test
-    fun testClickWireguardCustomPortMainCell() =
-        composeExtension.use {
-            // Arrange
-            val mockOnShowCustomPortDialog: (Port?, List<PortRange>) -> Unit = mockk(relaxed = true)
-            val availablePortRanges = listOf(Port(4000)..Port(5000))
-            initScreen(
-                state = createDefaultUiState(availablePortRanges = availablePortRanges).toLc(),
-                navigateToWireguardPortDialog = mockOnShowCustomPortDialog,
-            )
-
-            // Act
-            onNodeWithTag(LAZY_LIST_VPN_SETTINGS_TEST_TAG)
-                .performScrollToNode(hasTestTag(LAZY_LIST_WIREGUARD_CUSTOM_PORT_TEXT_TEST_TAG))
-            onNodeWithTag(LAZY_LIST_WIREGUARD_CUSTOM_PORT_TEXT_TEST_TAG).performClick()
-
-            // Assert
-            verify { mockOnShowCustomPortDialog.invoke(null, availablePortRanges) }
-        }
-
-    @Test
-    fun testClickWireguardCustomPortNumberCell() =
-        composeExtension.use {
-            // Arrange
-            val mockOnShowCustomPortDialog: (port: Port?, range: List<PortRange>) -> Unit =
-                mockk(relaxed = true)
-            val customPort = Port(4000)
-            val availablePortRanges = listOf(Port(4000)..Port(5000))
-            initScreen(
-                state =
-                    createDefaultUiState(
-                            selectedWireguardPort = Constraint.Only(customPort),
-                            customWireguardPort = customPort,
-                            availablePortRanges = availablePortRanges,
-                        )
-                        .toLc(),
-                navigateToWireguardPortDialog = mockOnShowCustomPortDialog,
-            )
-
-            // Act
-            onNodeWithTag(LAZY_LIST_VPN_SETTINGS_TEST_TAG)
-                .performScrollToNode(hasTestTag(LAZY_LIST_WIREGUARD_CUSTOM_PORT_TEXT_TEST_TAG))
-            onNodeWithTag(
-                    testTag = LAZY_LIST_WIREGUARD_CUSTOM_PORT_NUMBER_TEST_TAG,
-                    useUnmergedTree = true,
-                )
-                .performClick()
-
-            // Assert
-            verify { mockOnShowCustomPortDialog.invoke(customPort, availablePortRanges) }
         }
 
     @Test

@@ -3,7 +3,7 @@ package net.mullvad.mullvadvpn.viewmodel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ramcosta.composedestinations.generated.destinations.WireguardCustomPortDestination
+import com.ramcosta.composedestinations.generated.destinations.CustomPortDestination
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
@@ -20,16 +20,16 @@ import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.model.PortRange
 import net.mullvad.mullvadvpn.util.inAnyOf
 
-class WireguardCustomPortDialogViewModel(
+class CustomPortDialogViewModel(
     savedStateHandle: SavedStateHandle,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : ViewModel() {
-    private val navArgs = WireguardCustomPortDestination.argsFrom(savedStateHandle).navArg
+    private val navArgs = CustomPortDestination.argsFrom(savedStateHandle).navArg
 
     private val _portInput = MutableStateFlow(navArgs.customPort?.value?.toString() ?: "")
     private val _isValidPort = MutableStateFlow(_portInput.value.isValidPort())
 
-    val uiState: StateFlow<WireguardCustomPortDialogUiState> =
+    val uiState: StateFlow<CustomPortDialogUiState> =
         combine(_portInput, _isValidPort, ::createState)
             .stateIn(
                 viewModelScope,
@@ -37,11 +37,11 @@ class WireguardCustomPortDialogViewModel(
                 createState(_portInput.value, _isValidPort.value),
             )
 
-    private val _uiSideEffect = Channel<WireguardCustomPortDialogSideEffect>()
+    private val _uiSideEffect = Channel<CustomPortDialogSideEffect>()
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
 
     private fun createState(portInput: String, isValidPortInput: Boolean) =
-        WireguardCustomPortDialogUiState(
+        CustomPortDialogUiState(
             portInput = portInput,
             isValidInput = isValidPortInput,
             allowedPortRanges = navArgs.allowedPortRanges,
@@ -56,12 +56,12 @@ class WireguardCustomPortDialogViewModel(
     fun onSaveClick(portValue: String) =
         viewModelScope.launch(dispatcher) {
             val port = portValue.parseValidPort() ?: return@launch
-            _uiSideEffect.send(WireguardCustomPortDialogSideEffect.Success(port))
+            _uiSideEffect.send(CustomPortDialogSideEffect.Success(port))
         }
 
     fun onResetClick() {
         viewModelScope.launch(dispatcher) {
-            _uiSideEffect.send(WireguardCustomPortDialogSideEffect.Success(null))
+            _uiSideEffect.send(CustomPortDialogSideEffect.Success(null))
         }
     }
 
@@ -73,11 +73,11 @@ class WireguardCustomPortDialogViewModel(
         }
 }
 
-sealed interface WireguardCustomPortDialogSideEffect {
-    data class Success(val port: Port?) : WireguardCustomPortDialogSideEffect
+sealed interface CustomPortDialogSideEffect {
+    data class Success(val port: Port?) : CustomPortDialogSideEffect
 }
 
-data class WireguardCustomPortDialogUiState(
+data class CustomPortDialogUiState(
     val portInput: String,
     val isValidInput: Boolean,
     val allowedPortRanges: List<PortRange>,
