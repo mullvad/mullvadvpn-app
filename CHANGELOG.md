@@ -26,6 +26,11 @@ Line wrap the file at 100 chars.                                              Th
 - Fix "Time left" label in main view not updating when time passes.
 
 
+## [2025.14-beta3] - 2025-12-01
+### Fixed
+- Fix a regression introduced in 2025.14-beta1 where the WireGuard port selection was not respected.
+
+
 ## [2025.14-beta2] - 2025-11-26
 ### Added
 - Add port 443 to list of valid UDP2TCP ports.
