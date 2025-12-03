@@ -7,16 +7,17 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.test.common.extension.acceptVpnPermissionDialog
 import net.mullvad.mullvadvpn.test.common.misc.Attachment
+import net.mullvad.mullvadvpn.test.common.page.AntiCensorshipSettingsPage
 import net.mullvad.mullvadvpn.test.common.page.ConnectPage
+import net.mullvad.mullvadvpn.test.common.page.ObfuscationOption
 import net.mullvad.mullvadvpn.test.common.page.SelectLocationPage
+import net.mullvad.mullvadvpn.test.common.page.SelectPortPage
 import net.mullvad.mullvadvpn.test.common.page.SettingsPage
 import net.mullvad.mullvadvpn.test.common.page.VpnSettingsPage
-import net.mullvad.mullvadvpn.test.common.page.WireGuardCustomPortDialog
-import net.mullvad.mullvadvpn.test.common.page.disableObfuscationStory
 import net.mullvad.mullvadvpn.test.common.page.disablePostQuantumStory
 import net.mullvad.mullvadvpn.test.common.page.enableDAITAStory
-import net.mullvad.mullvadvpn.test.common.page.enableShadowsocksStory
 import net.mullvad.mullvadvpn.test.common.page.on
+import net.mullvad.mullvadvpn.test.common.page.setObfuscationStory
 import net.mullvad.mullvadvpn.test.common.rule.ForgetAllVpnAppsInSettingsTestRule
 import net.mullvad.mullvadvpn.test.e2e.annotations.HasDependencyOnLocalAPI
 import net.mullvad.mullvadvpn.test.e2e.constant.getTrafficGeneratorHost
@@ -54,18 +55,19 @@ class LeakTest : EndToEndTest() {
 
         on<VpnSettingsPage> {
             clickLocalNetworkSharingSwitch()
-            clickWireguardCustomPort()
+            scrollUntilAntiCensorshipCell()
+            clickAntiCensorshipCell()
         }
 
-        on<WireGuardCustomPortDialog> {
-            enterCustomPort("51820")
-            clickSetPort()
-        }
+        on<AntiCensorshipSettingsPage> { clickWireguardSelectPortButton() }
 
-        on<VpnSettingsPage> {}
+        on<SelectPortPage> { clickPresetPort(51820) }
 
         device.pressBack()
-        device.pressBack()
+
+        on<AntiCensorshipSettingsPage> { clickWireguardPortCell() }
+
+        repeat(3) { device.pressBack() }
     }
 
     @Test
@@ -176,12 +178,11 @@ class LeakTest : EndToEndTest() {
     }
 
     @Test
-    @HasDependencyOnLocalAPI
     fun testEnsureNoLeaksToSpecificHostWhenSwitchingBetweenVariousVpnSettings() =
         runTest(timeout = 2.minutes) {
             app.launch()
             // Obfuscation and Post-Quantum are by default set to automatic. Explicitly set to off.
-            on<ConnectPage> { disableObfuscationStory() }
+            on<ConnectPage> { setObfuscationStory(ObfuscationOption.Off) }
             on<ConnectPage> { disablePostQuantumStory() }
             on<ConnectPage> { clickSelectLocation() }
 
@@ -207,7 +208,7 @@ class LeakTest : EndToEndTest() {
                         // settings
 
                         on<ConnectPage> { enableDAITAStory() }
-                        on<ConnectPage> { enableShadowsocksStory() }
+                        on<ConnectPage> { setObfuscationStory(ObfuscationOption.Shadowsocks) }
                         on<ConnectPage> { waitForConnectedLabel() }
 
                         delay(

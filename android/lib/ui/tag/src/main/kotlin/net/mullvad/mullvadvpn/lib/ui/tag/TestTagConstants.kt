@@ -27,6 +27,7 @@ const val CUSTOM_PORT_DIALOG_INPUT_TEST_TAG = "custom_port_dialog_input_test_tag
 const val LAZY_LIST_WIREGUARD_OBFUSCATION_TITLE_TEST_TAG =
     "lazy_list_wireguard_obfuscation_title_test_tag"
 const val SWITCH_TEST_TAG = "switch_test_tag"
+const val BUTTON_ARROW_RIGHT_TEST_TAG = "button_arrow_right_test_tag"
 const val WIREGUARD_OBFUSCATION_OFF_CELL_TEST_TAG = "wireguard_obfuscation_off_cell_test_tag"
 const val WIREGUARD_OBFUSCATION_SHADOWSOCKS_CELL_TEST_TAG =
     "wireguard_obfuscation_shadowsocks_cell_test_tag"
@@ -34,8 +35,13 @@ const val WIREGUARD_OBFUSCATION_UDP_OVER_TCP_CELL_TEST_TAG =
     "wireguard_obfuscation_udp_over_tcp_cell_test_tag"
 const val WIREGUARD_OBFUSCATION_QUIC_CELL_TEST_TAG = "wireguard_obfuscation_quic_cell_test_tag"
 const val WIREGUARD_OBFUSCATION_LWO_CELL_TEST_TAG = "wireguard_obfuscation_lwo_cell_test_tag"
+const val WIREGUARD_OBFUSCATION_WG_PORT_TEST_TAG = "wireguard_obfuscation_wg_port_test_tag"
 // Account screen
 const val MANAGE_DEVICES_BUTTON_TEST_TAG = "manage_devices_button_test_tag"
+
+// AntiCensorshipSettingsScreen
+const val LAZY_LIST_ANTI_CENSORSHIP_SETTINGS_TEST_TAG =
+    "lazy_list_anti_censorship_settings_test_tag"
 
 // SelectLocationScreen, ConnectScreen, CustomListLocationsScreen
 const val SELECT_LOCATION_SCREEN_TEST_TAG = "select_location_screen_test_tag"
@@ -130,14 +136,10 @@ const val API_ACCESS_TEST_METHOD_BUTTON_TEST_TAG = "api_access_details_test_meth
 // EditApiAccessMethodScreen
 const val EDIT_API_ACCESS_NAME_INPUT_TEST_TAG = "edit_api_access_name_input_test_tag"
 
-// Udp2TcpSettingScreen
-const val UDP_OVER_TCP_PORT_ITEM_AUTOMATIC_TEST_TAG = "udp_over_tcp_item_automatic_test_tag"
-const val UDP_OVER_TCP_PORT_ITEM_X_TEST_TAG = "udp_over_tcp_item_%d_test_tag"
-
-// ShadowsocksSettingsScreen
-const val SHADOWSOCKS_PORT_ITEM_AUTOMATIC_TEST_TAG = "shadowsocks_item_automatic_test_tag"
-const val SHADOWSOCKS_PORT_ITEM_X_TEST_TAG = "shadowsocks_item_%d_test_tag"
-const val SHADOWSOCKS_CUSTOM_PORT_TEXT_TEST_TAG = "shadowsocks_custom_port_text_test_tag"
+// SelectPortScreen
+const val SELECT_PORT_ITEM_AUTOMATIC_TEST_TAG = "select_port_item_automatic_test_tag"
+const val SELECT_PORT_ITEM_X_TEST_TAG = "select_port_item_%d_test_tag"
+const val SELECT_PORT_CUSTOM_TEST_TAG = "select_port_custom_test_tag"
 
 // AddTimeBottomSheet
 const val ADD_TIME_BOTTOM_SHEET_TITLE_TEST_TAG = "add_time_bottom_sheet_title_test_tag"

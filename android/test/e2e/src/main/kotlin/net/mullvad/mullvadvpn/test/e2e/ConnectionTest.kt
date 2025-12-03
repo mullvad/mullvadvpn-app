@@ -8,15 +8,13 @@ import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.test.common.constant.EXTREMELY_LONG_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.extension.acceptVpnPermissionDialog
 import net.mullvad.mullvadvpn.test.common.page.ConnectPage
+import net.mullvad.mullvadvpn.test.common.page.ObfuscationOption
 import net.mullvad.mullvadvpn.test.common.page.SelectLocationPage
-import net.mullvad.mullvadvpn.test.common.page.SettingsPage
-import net.mullvad.mullvadvpn.test.common.page.VpnSettingsPage
-import net.mullvad.mullvadvpn.test.common.page.disableObfuscationStory
 import net.mullvad.mullvadvpn.test.common.page.enableLocalNetworkSharingStory
 import net.mullvad.mullvadvpn.test.common.page.enablePostQuantumStory
-import net.mullvad.mullvadvpn.test.common.page.enableShadowsocksStory
-import net.mullvad.mullvadvpn.test.common.page.enableWireGuardCustomPort
+import net.mullvad.mullvadvpn.test.common.page.enableWireGuardCustomPortStory
 import net.mullvad.mullvadvpn.test.common.page.on
+import net.mullvad.mullvadvpn.test.common.page.setObfuscationStory
 import net.mullvad.mullvadvpn.test.common.page.toggleInTunnelIpv6Story
 import net.mullvad.mullvadvpn.test.common.rule.ForgetAllVpnAppsInSettingsTestRule
 import net.mullvad.mullvadvpn.test.e2e.annotations.HasDependencyOnLocalAPI
@@ -172,24 +170,13 @@ class ConnectionTest : EndToEndTest() {
             val firewallRule = DropRule.blockUDPTrafficRule(relayIpAddress!!)
             firewallClient.createRule(firewallRule)
 
-            // Enable UDP-over-TCP
-            on<ConnectPage> { clickSettings() }
-
-            on<SettingsPage> { clickVpnSettings() }
-
-            on<VpnSettingsPage> {
-                scrollUntilWireGuardObfuscationOffCell()
-                clickWireGuardObfuscationOffCell()
-            }
-
-            device.pressBack()
-            device.pressBack()
+            on<ConnectPage> { setObfuscationStory(ObfuscationOption.Off) }
 
             on<ConnectPage> {
-                clickConnect() // Ensure it is not possible to connect to relay
-                // Give it some time and then verify still unable to connect. This duration must be
-                // long
-                // enough to ensure all retry attempts have been made.
+                clickConnect()
+                // Ensure it is not possible to connect to relay.
+                // Give it some time and then verify still unable to connect.
+                // This duration must be long enough to ensure all retry attempts have been made.
                 runBlocking { delay(UNSUCCESSFUL_CONNECTION_TIMEOUT.milliseconds) }
                 waitForConnectingLabel()
                 clickCancel()
@@ -226,17 +213,7 @@ class ConnectionTest : EndToEndTest() {
         firewallClient.createRule(firewallRule)
 
         // Enable UDP-over-TCP
-        on<ConnectPage> { clickSettings() }
-
-        on<SettingsPage> { clickVpnSettings() }
-
-        on<VpnSettingsPage> {
-            scrollUntilWireGuardObfuscationUdpOverTcpCell()
-            clickWireguardObfuscationUdpOverTcpCell()
-        }
-
-        device.pressBack()
-        device.pressBack()
+        on<ConnectPage> { setObfuscationStory(ObfuscationOption.Udp2Tcp) }
 
         on<ConnectPage> {
             clickConnect()
@@ -277,17 +254,7 @@ class ConnectionTest : EndToEndTest() {
         firewallClient.createRule(firewallRule)
 
         // Enable QUIC
-        on<ConnectPage> { clickSettings() }
-
-        on<SettingsPage> { clickVpnSettings() }
-
-        on<VpnSettingsPage> {
-            scrollUntilWireGuardObfuscationQuicCell()
-            clickWireguardObfuscationQuicCell()
-        }
-
-        device.pressBack()
-        device.pressBack()
+        on<ConnectPage> { setObfuscationStory(ObfuscationOption.Quic) }
 
         on<ConnectPage> {
             clickConnect()
@@ -327,18 +294,8 @@ class ConnectionTest : EndToEndTest() {
         val firewallRule = DropRule.blockWireGuardTrafficRule(relayIpAddress!!)
         firewallClient.createRule(firewallRule)
 
-        // Enable QUIC
-        on<ConnectPage> { clickSettings() }
-
-        on<SettingsPage> { clickVpnSettings() }
-
-        on<VpnSettingsPage> {
-            scrollUntilWireGuardObfuscationLwoCell()
-            clickWireguardObfuscationLwoCell()
-        }
-
-        device.pressBack()
-        device.pressBack()
+        // Enable LWO
+        on<ConnectPage> { setObfuscationStory(ObfuscationOption.Lwo) }
 
         on<ConnectPage> {
             clickConnect()
@@ -355,7 +312,7 @@ class ConnectionTest : EndToEndTest() {
             app.launchAndLogIn(accountTestRule.validAccountNumber)
             on<ConnectPage> { enableLocalNetworkSharingStory() }
 
-            on<ConnectPage> { disableObfuscationStory() }
+            on<ConnectPage> { setObfuscationStory(ObfuscationOption.Off) }
 
             // Block all WireGuard traffic
             val firewallRule = DropRule.blockWireGuardTrafficRule(ANY_IP_ADDRESS)
@@ -372,7 +329,7 @@ class ConnectionTest : EndToEndTest() {
                 clickCancel()
             }
 
-            on<ConnectPage> { enableShadowsocksStory() }
+            on<ConnectPage> { setObfuscationStory(ObfuscationOption.Shadowsocks) }
 
             // Ensure we can now connect with Shadowsocks enabled
             on<ConnectPage> {
@@ -423,7 +380,7 @@ class ConnectionTest : EndToEndTest() {
         app.launchAndLogIn(accountTestRule.validAccountNumber)
 
         // Set wireguard custom port
-        on<ConnectPage> { enableWireGuardCustomPort(53) }
+        on<ConnectPage> { enableWireGuardCustomPortStory(53) }
 
         // Connect
         on<ConnectPage> { clickConnect() }

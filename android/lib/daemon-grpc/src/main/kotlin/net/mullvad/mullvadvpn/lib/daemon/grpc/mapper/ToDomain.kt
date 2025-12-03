@@ -69,7 +69,7 @@ import net.mullvad.mullvadvpn.lib.model.RelayList
 import net.mullvad.mullvadvpn.lib.model.RelayOverride
 import net.mullvad.mullvadvpn.lib.model.RelaySettings
 import net.mullvad.mullvadvpn.lib.model.Settings
-import net.mullvad.mullvadvpn.lib.model.ShadowsocksSettings
+import net.mullvad.mullvadvpn.lib.model.ShadowsocksObfuscationSettings
 import net.mullvad.mullvadvpn.lib.model.SocksAuth
 import net.mullvad.mullvadvpn.lib.model.SplitTunnelSettings
 import net.mullvad.mullvadvpn.lib.model.TransportProtocol
@@ -430,7 +430,7 @@ internal fun ManagementInterface.ObfuscationSettings.SelectedObfuscation.toDomai
         ManagementInterface.ObfuscationSettings.SelectedObfuscation.QUIC -> ObfuscationMode.Quic
         ManagementInterface.ObfuscationSettings.SelectedObfuscation.LWO -> ObfuscationMode.Lwo
         ManagementInterface.ObfuscationSettings.SelectedObfuscation.WIREGUARD_PORT ->
-            throw IllegalArgumentException("WIREGUARD_PORT is not a support obfuscation")
+            ObfuscationMode.WireguardPort
         ManagementInterface.ObfuscationSettings.SelectedObfuscation.UNRECOGNIZED ->
             throw IllegalArgumentException("Unrecognized selected obfuscation")
     }
@@ -443,11 +443,12 @@ internal fun ManagementInterface.ObfuscationSettings.Udp2TcpObfuscation.toDomain
         Udp2TcpObfuscationSettings(Constraint.Any)
     }
 
-internal fun ManagementInterface.ObfuscationSettings.Shadowsocks.toDomain(): ShadowsocksSettings =
+internal fun ManagementInterface.ObfuscationSettings.Shadowsocks.toDomain():
+    ShadowsocksObfuscationSettings =
     if (hasPort()) {
-        ShadowsocksSettings(Constraint.Only(Port(port)))
+        ShadowsocksObfuscationSettings(Constraint.Only(Port(port)))
     } else {
-        ShadowsocksSettings(Constraint.Any)
+        ShadowsocksObfuscationSettings(Constraint.Any)
     }
 
 internal fun ManagementInterface.ObfuscationSettings.WireguardPort.toDomain(): Constraint<Port> =
@@ -725,8 +726,8 @@ internal fun ManagementInterface.FeatureIndicator.toDomain() =
         ManagementInterface.FeatureIndicator.DAITA_MULTIHOP -> FeatureIndicator.DAITA_MULTIHOP
         ManagementInterface.FeatureIndicator.QUIC -> FeatureIndicator.QUIC
         ManagementInterface.FeatureIndicator.LWO -> FeatureIndicator.LWO
+        ManagementInterface.FeatureIndicator.WIREGUARD_PORT -> FeatureIndicator.WIREGUARD_PORT
         ManagementInterface.FeatureIndicator.LOCKDOWN_MODE,
-        ManagementInterface.FeatureIndicator.WIREGUARD_PORT,
         ManagementInterface.FeatureIndicator.UNRECOGNIZED ->
             error("Feature not supported ${this.name}")
     }

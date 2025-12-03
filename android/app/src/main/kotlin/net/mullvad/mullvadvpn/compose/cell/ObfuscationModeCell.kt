@@ -126,6 +126,7 @@ private fun ObfuscationMode.toTitle() =
         ObfuscationMode.Shadowsocks -> stringResource(id = R.string.shadowsocks)
         ObfuscationMode.Quic -> stringResource(id = R.string.quic)
         ObfuscationMode.Lwo -> stringResource(id = R.string.lwo)
+        ObfuscationMode.WireguardPort -> stringResource(id = R.string.wireguard_port_title)
     }
 
 @Composable
