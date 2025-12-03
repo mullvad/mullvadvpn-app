@@ -8,7 +8,6 @@ import ApiAccessMethods from './ApiAccessMethods';
 import Debug from './Debug';
 import { DeviceRevokedView } from './DeviceRevokedView';
 import { EditApiAccessMethod } from './EditApiAccessMethod';
-import { EditCustomBridge } from './EditCustomBridge';
 import {
   SetupFinished,
   TimeAdded,
@@ -91,7 +90,6 @@ export default function AppRouter() {
           <Route exact path={RoutePath.problemReport} component={ProblemReport} />
           <Route exact path={RoutePath.debug} component={Debug} />
           <Route exact path={RoutePath.selectLocation} component={SelectLocation} />
-          <Route exact path={RoutePath.editCustomBridge} component={EditCustomBridge} />
           <Route exact path={RoutePath.filter} component={Filter} />
           <Route exact path={RoutePath.appInfo} component={AppInfoView} />
           <Route exact path={RoutePath.changelog} component={ChangelogView} />
