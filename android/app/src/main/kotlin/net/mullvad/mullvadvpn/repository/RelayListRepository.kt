@@ -81,8 +81,18 @@ class RelayListRepository(
     suspend fun updateSelectedRelayLocation(value: RelayItemId) =
         managementService.setRelayLocation(value)
 
-    suspend fun updateSelectedRelayLocationMultihop(entry: RelayItemId, exit: RelayItemId) =
-        managementService.setRelayLocationMultihop(entry, exit)
+    suspend fun updateSelectedRelayLocationMultihop(
+        isMultihopEnabled: Boolean,
+        entry: RelayItemId,
+        exit: RelayItemId,
+    ) = managementService.setRelayLocationMultihop(isMultihopEnabled, entry, exit)
+
+    suspend fun updateExitRelayLocationMultihop(isMultihopEnabled: Boolean, exit: RelayItemId) =
+        managementService.setRelayLocationMultihop(
+            isMultihopEnabled = isMultihopEnabled,
+            entry = null,
+            exit = exit,
+        )
 
     suspend fun refreshRelayList() = managementService.updateRelayLocations()
 

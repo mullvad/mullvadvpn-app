@@ -21,6 +21,7 @@ import net.mullvad.mullvadvpn.lib.model.WireguardConstraints
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.RelayListItem
 import net.mullvad.mullvadvpn.repository.CustomListsRepository
 import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
+import net.mullvad.mullvadvpn.repository.RelayListRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
 import net.mullvad.mullvadvpn.usecase.FilterChip
@@ -53,6 +54,7 @@ class SearchLocationViewModelTest {
     private val mockSelectSinglehopUseCase: SelectSinglehopUseCase = mockk()
     private val mockModifyMultihopUseCase: ModifyMultihopUseCase = mockk()
     private val mockSettingsRepository: SettingsRepository = mockk()
+    private val mockRelayListRepository: RelayListRepository = mockk()
 
     private val filteredRelayList = MutableStateFlow<List<RelayItem.Location.Country>>(emptyList())
     private val selectedLocation =
@@ -91,6 +93,8 @@ class SearchLocationViewModelTest {
                 selectSinglehopUseCase = mockSelectSinglehopUseCase,
                 modifyMultihopUseCase = mockModifyMultihopUseCase,
                 settingsRepository = mockSettingsRepository,
+                wireguardConstraintsRepository = mockWireguardConstraintsRepository,
+                relayListRepository = mockRelayListRepository,
                 savedStateHandle =
                     SearchLocationNavArgs(relayListType = RelayListType.Single).toSavedStateHandle(),
             )

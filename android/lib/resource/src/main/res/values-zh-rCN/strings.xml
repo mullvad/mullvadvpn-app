@@ -11,7 +11,6 @@
     <string name="add_90_days_time_x">添加 90 天 (%1$s)</string>
     <string name="add_a_server">添加服务器</string>
     <string name="add_dns_server_dialog_title">添加 DNS 服务器</string>
-    <string name="add_location_to_list">将%1$s添加到列表中</string>
     <string name="add_locations">添加位置</string>
     <string name="add_method">添加方法</string>
     <string name="add_time">添加时间</string>

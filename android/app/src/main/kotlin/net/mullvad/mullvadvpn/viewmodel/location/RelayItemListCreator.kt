@@ -33,9 +33,8 @@ internal fun relayListItems(
         customLists = customLists,
         recents = recents,
         countries = relayCountries,
-    ) {
-        it in expandedItems
-    }
+        isExpanded = { it in expandedItems },
+    )
 }
 
 internal fun relayListItemsSearching(
@@ -69,10 +68,10 @@ internal fun emptyLocationsRelayListItems(
     expandedItems: Set<String>,
 ) =
     createCustomListSection(
-        relayListType,
-        selectedByThisEntryExitList,
-        selectedByOtherEntryExitList,
-        customLists,
+        relayListType = relayListType,
+        selectedByThisEntryExitList = selectedByThisEntryExitList,
+        selectedByOtherEntryExitList = selectedByOtherEntryExitList,
+        customLists = customLists,
     ) {
         it in expandedItems
     } + RelayListItem.LocationHeader + RelayListItem.EmptyRelayList
@@ -88,24 +87,30 @@ private fun createRelayListItems(
     isExpanded: (String) -> Boolean,
 ): List<RelayListItem> = buildList {
     if (recents != null) {
-        addAll(createRecentsSection(recents, selectedItem, relayListType))
+        addAll(
+            createRecentsSection(
+                recents = recents,
+                itemSelection = selectedItem,
+                relayListType = relayListType,
+            )
+        )
     }
     addAll(
         createCustomListSection(
-            relayListType,
-            selectedByThisEntryExitList,
-            selectedByOtherEntryExitList,
-            customLists,
-            isExpanded,
+            relayListType = relayListType,
+            selectedByThisEntryExitList = selectedByThisEntryExitList,
+            selectedByOtherEntryExitList = selectedByOtherEntryExitList,
+            customLists = customLists,
+            isExpanded = isExpanded,
         )
     )
     addAll(
         createLocationSection(
-            selectedByThisEntryExitList,
-            relayListType,
-            selectedByOtherEntryExitList,
-            countries,
-            isExpanded,
+            selectedByThisEntryExitList = selectedByThisEntryExitList,
+            relayListType = relayListType,
+            selectedByOtherEntryExitList = selectedByOtherEntryExitList,
+            countries = countries,
+            isExpanded = isExpanded,
         )
     )
 }
@@ -162,18 +167,18 @@ private fun createRelayListItemsSearching(
     isExpanded: (String) -> Boolean,
 ): List<RelayListItem> =
     createCustomListSectionSearching(
-        relayListType,
-        selectedByThisEntryExitList,
-        selectedByOtherEntryExitList,
-        customLists,
-        isExpanded,
+        relayListType = relayListType,
+        selectedByThisEntryExitList = selectedByThisEntryExitList,
+        selectedByOtherEntryExitList = selectedByOtherEntryExitList,
+        customLists = customLists,
+        isExpanded = isExpanded,
     ) +
         createLocationSectionSearching(
-            selectedByThisEntryExitList,
-            relayListType,
-            selectedByOtherEntryExitList,
-            countries,
-            isExpanded,
+            selectedByThisEntryExitList = selectedByThisEntryExitList,
+            relayListType = relayListType,
+            selectedByOtherEntryExitList = selectedByOtherEntryExitList,
+            countries = countries,
+            isExpanded = isExpanded,
         )
 
 private fun createCustomListSection(
@@ -186,11 +191,11 @@ private fun createCustomListSection(
     add(RelayListItem.CustomListHeader)
     val customListItems =
         createCustomListRelayItems(
-            customLists,
-            relayListType,
-            selectedByThisEntryExitList,
-            selectedByOtherEntryExitList,
-            isExpanded,
+            customLists = customLists,
+            relayListType = relayListType,
+            selectedByThisEntryExitList = selectedByThisEntryExitList,
+            selectedByOtherEntryExitList = selectedByOtherEntryExitList,
+            isExpanded = isExpanded,
         )
     addAll(customListItems)
     add(RelayListItem.CustomListFooter(customListItems.isNotEmpty()))
@@ -207,11 +212,11 @@ private fun createCustomListSectionSearching(
         add(RelayListItem.CustomListHeader)
         val customListItems =
             createCustomListRelayItems(
-                customLists,
-                relayListType,
-                selectedByThisEntryExitList,
-                selectedByOtherEntryExitList,
-                isExpanded,
+                customLists = customLists,
+                relayListType = relayListType,
+                selectedByThisEntryExitList = selectedByThisEntryExitList,
+                selectedByOtherEntryExitList = selectedByOtherEntryExitList,
+                isExpanded = isExpanded,
             )
         addAll(customListItems)
     }

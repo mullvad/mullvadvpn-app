@@ -47,7 +47,7 @@ class SelectLocationListViewModelTest {
     private val mockRelayListRepository: RelayListRepository = mockk()
     private val mockCustomListRelayItemsUseCase: CustomListsRelayItemUseCase = mockk()
     private val mockSettingsRepository: SettingsRepository = mockk()
-    private val recentsUseCase: RecentsUseCase = mockk()
+    private val mockRecentsUseCase: RecentsUseCase = mockk()
 
     private val relayListScrollConnection: RelayListScrollConnection = RelayListScrollConnection()
 
@@ -74,7 +74,7 @@ class SelectLocationListViewModelTest {
             filteredCustomListRelayItems
         every { mockCustomListRelayItemsUseCase() } returns customListRelayItems
         every { mockSettingsRepository.settingsUpdates } returns settings
-        every { recentsUseCase(any()) } returns recentsRelayItems
+        every { mockRecentsUseCase(any()) } returns recentsRelayItems
 
         mockkStatic(RELAY_ITEM_LIST_CREATOR_CLASS)
         mockkStatic(LOCATION_UTIL_CLASS)
@@ -249,8 +249,8 @@ class SelectLocationListViewModelTest {
             relayListRepository = mockRelayListRepository,
             customListsRelayItemUseCase = mockCustomListRelayItemsUseCase,
             settingsRepository = mockSettingsRepository,
-            recentsUseCase = recentsUseCase,
             relayListScrollConnection = relayListScrollConnection,
+            recentsUseCase = mockRecentsUseCase,
         )
 
     private fun RelayListItem.relayItemId() =

@@ -11,13 +11,14 @@ import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
-import net.mullvad.mullvadvpn.lib.model.Settings
 import net.mullvad.mullvadvpn.repository.CustomListsRepository
 import net.mullvad.mullvadvpn.repository.RelayListRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
 import net.mullvad.mullvadvpn.util.isDaitaDirectOnly
 import net.mullvad.mullvadvpn.util.isDaitaEnabled
+import net.mullvad.mullvadvpn.util.location
+import net.mullvad.mullvadvpn.util.wireguardConstraints
 
 class ModifyMultihopUseCase(
     private val relayListRepository: RelayListRepository,
@@ -27,25 +28,12 @@ class ModifyMultihopUseCase(
 ) {
     suspend operator fun invoke(change: MultihopChange): Either<ModifyMultihopError, Unit> =
         either {
-            ensure(change.item.active) { ModifyMultihopError.RelayItemInactive(change.item) }
-            val changeId: RelayItemId =
-                change.item.id.convertCustomListWithOnlyHostNameToHostName().bind()
-            val settings = settingsRepository.settingsUpdates.value
-            ensureNotNull(settings) { ModifyMultihopError.GenericError }
-            val other =
-                when (change) {
-                        is MultihopChange.Entry -> settings.exit()
-                        is MultihopChange.Exit -> settings.entry()
-                    }
-                    ?.convertCustomListWithOnlyHostNameToHostName()
-                    ?.bind()
-            // If DAITA is enabled and direct only is disabled, allow same relay for entry and
-            // exit.
-            if (!settings.isDaitaEnabled() || settings.isDaitaDirectOnly()) {
-                ensure(!changeId.isSameHost(other)) {
-                    ModifyMultihopError.EntrySameAsExit(change.item)
-                }
-            }
+            validate(
+                    change = change,
+                    settingsRepository = settingsRepository,
+                    customListsRepository = customListsRepository,
+                )
+                .bind()
             when (change) {
                     is MultihopChange.Entry ->
                         wireguardConstraintsRepository.setEntryLocation(change.item.id)
@@ -58,35 +46,56 @@ class ModifyMultihopUseCase(
                 }
                 .bind()
         }
-
-    private fun Settings.exit(): RelayItemId? = relaySettings.relayConstraints.location.getOrNull()
-
-    private fun Settings.entry(): RelayItemId? =
-        relaySettings.relayConstraints.wireguardConstraints.entryLocation.getOrNull()
-
-    private fun RelayItemId.convertCustomListWithOnlyHostNameToHostName():
-        Either<ModifyMultihopError.GenericError, RelayItemId> =
-        when (this) {
-            is CustomListId ->
-                customListsRepository
-                    .getCustomListById(this)
-                    .mapLeft {
-                        Logger.e("Failed to get custom list by id: $it")
-                        ModifyMultihopError.GenericError
-                    }
-                    .map {
-                        if (it.locations.size == 1) {
-                            it.locations.first() as? GeoLocationId.Hostname ?: this
-                        } else {
-                            this
-                        }
-                    }
-            else -> this.right()
-        }
-
-    private fun RelayItemId.isSameHost(other: RelayItemId?): Boolean =
-        this is GeoLocationId.Hostname && other == this
 }
+
+internal fun validate(
+    change: MultihopChange,
+    settingsRepository: SettingsRepository,
+    customListsRepository: CustomListsRepository,
+) = either {
+    ensure(change.item.active) { ModifyMultihopError.RelayItemInactive(change.item) }
+    val changeId: RelayItemId =
+        change.item.id.convertCustomListWithOnlyHostnameToHostname(customListsRepository).bind()
+    val settings = settingsRepository.settingsUpdates.value
+    ensureNotNull(settings) { ModifyMultihopError.GenericError }
+    // If DAITA is enabled and direct only is disabled, allow same relay for entry and
+    // exit.
+    if (!settings.isDaitaEnabled() || settings.isDaitaDirectOnly()) {
+        val other =
+            when (change) {
+                    is MultihopChange.Entry -> settings.location().getOrNull()
+                    is MultihopChange.Exit ->
+                        settings.wireguardConstraints().entryLocation.getOrNull()
+                }
+                ?.convertCustomListWithOnlyHostnameToHostname(customListsRepository)
+                ?.bind()
+        ensure(!changeId.isSameHost(other)) { ModifyMultihopError.EntrySameAsExit(change.item) }
+    }
+}
+
+private fun RelayItemId.convertCustomListWithOnlyHostnameToHostname(
+    customListsRepository: CustomListsRepository
+): Either<ModifyMultihopError.GenericError, RelayItemId> =
+    when (this) {
+        is CustomListId ->
+            customListsRepository
+                .getCustomListById(this)
+                .mapLeft {
+                    Logger.e("Failed to get custom list by id: $it")
+                    ModifyMultihopError.GenericError
+                }
+                .map {
+                    if (it.locations.size == 1) {
+                        it.locations.first() as? GeoLocationId.Hostname ?: this
+                    } else {
+                        this
+                    }
+                }
+        else -> this.right()
+    }
+
+private fun RelayItemId.isSameHost(other: RelayItemId?): Boolean =
+    this is GeoLocationId.Hostname && other == this
 
 sealed class MultihopChange {
     abstract val item: RelayItem
