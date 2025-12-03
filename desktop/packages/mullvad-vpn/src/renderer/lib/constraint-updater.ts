@@ -1,20 +1,9 @@
 import { useCallback } from 'react';
 
 import { getDefaultRelaySettingsNormal } from '../../main/default-settings';
-import {
-  BridgeSettings,
-  IBridgeConstraints,
-  IRelaySettingsNormal,
-  Ownership,
-  wrapConstraint,
-} from '../../shared/daemon-rpc-types';
+import { IRelaySettingsNormal, wrapConstraint } from '../../shared/daemon-rpc-types';
 import { useAppContext } from '../context';
-import {
-  BridgeSettingsRedux,
-  NormalBridgeSettingsRedux,
-  NormalRelaySettingsRedux,
-} from '../redux/settings/reducers';
-import { useSelector } from '../redux/store';
+import { NormalRelaySettingsRedux } from '../redux/settings/reducers';
 import { useNormalRelaySettings } from './relay-settings-hooks';
 
 export function wrapRelaySettingsOrDefault(
@@ -66,67 +55,5 @@ export function useRelaySettingsUpdater() {
       await setRelaySettings({ normal: modifiedSettings });
     },
     [setRelaySettings, modifyRelaySettings],
-  );
-}
-
-export function wrapBridgeSettingsOrDefault(bridgeSettings?: BridgeSettingsRedux): BridgeSettings {
-  if (bridgeSettings) {
-    return {
-      type: bridgeSettings.type,
-      normal: wrapNormalBridgeSettingsOrDefault(bridgeSettings.normal),
-      custom: bridgeSettings.custom,
-    };
-  }
-
-  return {
-    type: 'normal',
-    normal: wrapNormalBridgeSettingsOrDefault(),
-  };
-}
-
-function wrapNormalBridgeSettingsOrDefault(
-  bridgeSettings?: NormalBridgeSettingsRedux,
-): IBridgeConstraints {
-  if (bridgeSettings) {
-    const location = wrapConstraint(bridgeSettings.location);
-
-    return {
-      location,
-      providers: [...bridgeSettings.providers],
-      ownership: bridgeSettings.ownership,
-    };
-  }
-
-  return {
-    location: 'any',
-    providers: [],
-    ownership: Ownership.any,
-  };
-}
-
-type BridgeSettingsUpdateFunction = (settings: BridgeSettings) => BridgeSettings;
-
-export function useBridgeSettingsModifier() {
-  const bridgeSettings = useSelector((state) => state.settings.bridgeSettings);
-
-  return useCallback(
-    (fn: BridgeSettingsUpdateFunction) => {
-      const settings = wrapBridgeSettingsOrDefault(bridgeSettings);
-      return fn(settings);
-    },
-    [bridgeSettings],
-  );
-}
-
-export function useBridgeSettingsUpdater() {
-  const { updateBridgeSettings } = useAppContext();
-  const modifyBridgeSettings = useBridgeSettingsModifier();
-
-  return useCallback(
-    async (fn: BridgeSettingsUpdateFunction) => {
-      const modifiedSettings = modifyBridgeSettings(fn);
-      await updateBridgeSettings(modifiedSettings);
-    },
-    [updateBridgeSettings, modifyBridgeSettings],
   );
 }
