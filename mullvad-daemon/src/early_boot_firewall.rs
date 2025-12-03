@@ -14,6 +14,7 @@ pub enum Error {
 }
 
 pub async fn initialize_firewall() -> Result<(), Error> {
+    // TODO split-tunneling?
     let mut firewall = Firewall::new(mullvad_types::TUNNEL_FWMARK, None)?;
     let allow_lan = get_allow_lan().await.unwrap_or_else(|err| {
         log::info!(
