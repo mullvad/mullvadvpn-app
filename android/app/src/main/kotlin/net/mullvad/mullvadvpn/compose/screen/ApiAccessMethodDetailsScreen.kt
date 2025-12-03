@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.compose.screen
 
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -56,6 +57,7 @@ import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.OnNavResultValue
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
+import net.mullvad.mullvadvpn.compose.util.toDisplayName
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethod
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodId
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
@@ -159,7 +161,8 @@ fun ApiAccessMethodDetails(
         if (state.testingAccessMethod()) {
             launch {
                 snackbarHostState.showSnackbarImmediately(
-                    message = context.getString(R.string.testing_name, state.name()),
+                    message =
+                        context.getString(R.string.testing_name, state.name(context = context)),
                     duration = SnackbarDuration.Indefinite,
                     actionLabel = context.getString(R.string.cancel),
                     onAction = viewModel::cancelTestMethod,
@@ -332,3 +335,12 @@ private fun Actions(onDeleteAccessMethod: () -> Unit) {
         }
     }
 }
+
+@Composable
+private fun ApiAccessMethodDetailsUiState.name(): String =
+    (this as? ApiAccessMethodDetailsUiState.Content)?.apiAccessMethodSetting?.toDisplayName() ?: ""
+
+private fun ApiAccessMethodDetailsUiState.name(context: Context): String =
+    (this as? ApiAccessMethodDetailsUiState.Content)
+        ?.apiAccessMethodSetting
+        ?.toDisplayName(context = context) ?: ""
