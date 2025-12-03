@@ -48,7 +48,7 @@ export function DaitaSettingsView() {
                       messages.pgettext('accessibility', 'DAITA information carousel')
                     }>
                     <Carousel.Slides>
-                      <Carousel.Slide key="without-daita">
+                      <Carousel.Slide>
                         <Carousel.Image
                           source="daita-off-illustration"
                           alt={
@@ -90,7 +90,7 @@ export function DaitaSettingsView() {
                           </Carousel.Text>
                         </Carousel.TextGroup>
                       </Carousel.Slide>
-                      <Carousel.Slide key="with-daita">
+                      <Carousel.Slide>
                         <Carousel.Image
                           source="daita-on-illustration"
                           alt={
