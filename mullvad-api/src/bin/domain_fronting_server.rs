@@ -44,9 +44,10 @@ async fn handle_connect(
     upstream: SocketAddr,
 ) -> Result<Response<Empty<Bytes>>, Infallible> {
     if req.method() == &Method::GET {
+        println!("Responding to a GET: {:?}", req);
         return Ok(Response::builder()
-            .status(StatusCode::NO_CONTENT)
-            .body(Empty::new())
+            .status(StatusCode::OK)
+            .body("hiya")
             .unwrap());
     }
     let uri = req.uri();
