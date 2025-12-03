@@ -49,9 +49,6 @@ export default class Settings implements Readonly<ISettings> {
     IpcMainEventChannel.settings.handleSetRelaySettings((relaySettings) =>
       this.daemonRpc.setRelaySettings(relaySettings),
     );
-    IpcMainEventChannel.settings.handleUpdateBridgeSettings((bridgeSettings) => {
-      return this.daemonRpc.setBridgeSettings(bridgeSettings);
-    });
     IpcMainEventChannel.settings.handleSetDnsOptions((dns) => {
       return this.daemonRpc.setDnsOptions(dns);
     });
