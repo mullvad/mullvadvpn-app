@@ -46,13 +46,11 @@ export function getDefaultSettings(): ISettings {
       generic: {
         enableIpv6: false,
       },
-      wireguard: {
-        mtu: undefined,
-        quantumResistant: true,
-        daita: {
-          enabled: false,
-          directOnly: false,
-        },
+      mtu: undefined,
+      quantumResistant: true,
+      daita: {
+        enabled: false,
+        directOnly: false,
       },
       dns: {
         state: 'default',

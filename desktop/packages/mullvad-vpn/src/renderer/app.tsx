@@ -853,11 +853,9 @@ export default class AppRenderer {
     reduxSettings.updateEnableIpv6(newSettings.tunnelOptions.generic.enableIpv6);
     reduxSettings.updateLockdownMode(newSettings.lockdownMode);
     reduxSettings.updateShowBetaReleases(newSettings.showBetaReleases);
-    reduxSettings.updateWireguardMtu(newSettings.tunnelOptions.wireguard.mtu);
-    reduxSettings.updateWireguardQuantumResistant(
-      newSettings.tunnelOptions.wireguard.quantumResistant,
-    );
-    reduxSettings.updateWireguardDaita(newSettings.tunnelOptions.wireguard.daita);
+    reduxSettings.updateWireguardMtu(newSettings.tunnelOptions.mtu);
+    reduxSettings.updateWireguardQuantumResistant(newSettings.tunnelOptions.quantumResistant);
+    reduxSettings.updateWireguardDaita(newSettings.tunnelOptions.daita);
     reduxSettings.updateDnsOptions(newSettings.tunnelOptions.dns);
     reduxSettings.updateSplitTunnelingState(newSettings.splitTunnel.enableExclusions);
     reduxSettings.updateObfuscationSettings(newSettings.obfuscationSettings);

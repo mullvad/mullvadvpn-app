@@ -376,11 +376,9 @@ export type Quic = {
 export type RelayEndpointType = 'wireguard' | 'openvpn' | 'bridge';
 
 export interface ITunnelOptions {
-  wireguard: {
-    mtu?: number;
-    quantumResistant: boolean;
-    daita?: IDaitaSettings;
-  };
+  mtu?: number;
+  quantumResistant: boolean;
+  daita?: IDaitaSettings;
   generic: {
     enableIpv6: boolean;
   };
