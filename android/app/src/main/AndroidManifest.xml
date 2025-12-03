@@ -62,6 +62,7 @@
         -->
         <activity
             android:name="net.mullvad.mullvadvpn.ui.MainActivity"
+            android:enableOnBackInvokedCallback="true"
             android:exported="true" />
         <!-- Default app name and icon -->
         <activity-alias
