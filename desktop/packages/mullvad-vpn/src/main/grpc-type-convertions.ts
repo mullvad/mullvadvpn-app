@@ -614,11 +614,9 @@ function convertFromGeographicConstraint(
 
 function convertFromTunnelOptions(tunnelOptions: grpcTypes.TunnelOptions.AsObject): ITunnelOptions {
   return {
-    wireguard: {
-      mtu: tunnelOptions.mtu,
-      quantumResistant: convertFromQuantumResistantState(tunnelOptions.quantumResistant?.state),
-      daita: tunnelOptions.daita,
-    },
+    mtu: tunnelOptions.mtu,
+    quantumResistant: convertFromQuantumResistantState(tunnelOptions.quantumResistant?.state),
+    daita: tunnelOptions.daita,
     generic: {
       enableIpv6: tunnelOptions.enableIpv6,
     },
