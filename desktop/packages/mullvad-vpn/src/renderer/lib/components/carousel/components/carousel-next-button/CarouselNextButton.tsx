@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { messages } from '../../../../../../shared/gettext';
 import { IconButton, IconButtonProps } from '../../../icon-button';
 import { useCarouselContext } from '../../CarouselContext';
 import { useSlides } from '../../hooks';
@@ -17,7 +18,15 @@ export function CarouselNextButton(props: CarouselNextButtonProps) {
   }, [isLastSlide]);
 
   return (
-    <IconButton ref={nextButtonRef} disabled={disabled} onClick={goToNextSlide} {...props}>
+    <IconButton
+      ref={nextButtonRef}
+      aria-label={
+        // TRANSLATORS: Accessibility label for a button that navigates to the next slide in a carousel.
+        messages.pgettext('accessibility', 'Next slide')
+      }
+      disabled={disabled}
+      onClick={goToNextSlide}
+      {...props}>
       <IconButton.Icon icon="chevron-right" />
     </IconButton>
   );
