@@ -147,7 +147,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                     let io = TokioIo::new(tls_stream);
                     let service = service_fn(move |req| handle_connect(req, upstream));
 
-                    if let Err(err) = http1::Builder::new()
+                    if let Err(err) = http2::Builder::new()
                         .preserve_header_case(true)
                         .title_case_headers(true)
                         .serve_connection(io, service)
