@@ -56,6 +56,9 @@ class SettingsRepository(
 
     suspend fun addCustomDns(address: InetAddress) = managementService.addCustomDns(address)
 
+    suspend fun setCustomWireguardPort(port: Constraint<Port>) =
+        managementService.setWireguardObfuscationPort(port)
+
     suspend fun setCustomUdp2TcpObfuscationPort(constraint: Constraint<Port>) =
         managementService.setUdp2TcpObfuscationPort(constraint)
 
@@ -81,6 +84,4 @@ class SettingsRepository(
     suspend fun setIpv6Enabled(enabled: Boolean) = managementService.setIpv6Enabled(enabled)
 
     suspend fun setRecentsEnabled(enabled: Boolean) = managementService.setRecentsEnabled(enabled)
-
-    suspend fun setWireguardPort(port: Constraint<Port>) = managementService.setWireguardPort(port)
 }

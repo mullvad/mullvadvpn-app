@@ -70,6 +70,7 @@ import net.mullvad.mullvadvpn.util.ChangelogDataProvider
 import net.mullvad.mullvadvpn.util.IChangelogDataProvider
 import net.mullvad.mullvadvpn.viewmodel.AccountViewModel
 import net.mullvad.mullvadvpn.viewmodel.AddTimeViewModel
+import net.mullvad.mullvadvpn.viewmodel.AntiCensorshipSettingsViewModel
 import net.mullvad.mullvadvpn.viewmodel.ApiAccessListViewModel
 import net.mullvad.mullvadvpn.viewmodel.ApiAccessMethodDetailsViewModel
 import net.mullvad.mullvadvpn.viewmodel.ApiUnreachableViewModel
@@ -79,6 +80,7 @@ import net.mullvad.mullvadvpn.viewmodel.ConnectViewModel
 import net.mullvad.mullvadvpn.viewmodel.CreateCustomListDialogViewModel
 import net.mullvad.mullvadvpn.viewmodel.CustomListLocationsViewModel
 import net.mullvad.mullvadvpn.viewmodel.CustomListsViewModel
+import net.mullvad.mullvadvpn.viewmodel.CustomPortDialogViewModel
 import net.mullvad.mullvadvpn.viewmodel.DaitaViewModel
 import net.mullvad.mullvadvpn.viewmodel.DeleteApiAccessMethodConfirmationViewModel
 import net.mullvad.mullvadvpn.viewmodel.DeleteCustomListConfirmationViewModel
@@ -100,18 +102,15 @@ import net.mullvad.mullvadvpn.viewmodel.PrivacyDisclaimerViewModel
 import net.mullvad.mullvadvpn.viewmodel.ReportProblemViewModel
 import net.mullvad.mullvadvpn.viewmodel.ResetServerIpOverridesConfirmationViewModel
 import net.mullvad.mullvadvpn.viewmodel.SaveApiAccessMethodViewModel
+import net.mullvad.mullvadvpn.viewmodel.SelectPortViewModel
 import net.mullvad.mullvadvpn.viewmodel.ServerIpOverridesViewModel
 import net.mullvad.mullvadvpn.viewmodel.SettingsViewModel
-import net.mullvad.mullvadvpn.viewmodel.ShadowsocksCustomPortDialogViewModel
-import net.mullvad.mullvadvpn.viewmodel.ShadowsocksSettingsViewModel
 import net.mullvad.mullvadvpn.viewmodel.SplashViewModel
 import net.mullvad.mullvadvpn.viewmodel.SplitTunnelingViewModel
-import net.mullvad.mullvadvpn.viewmodel.Udp2TcpSettingsViewModel
 import net.mullvad.mullvadvpn.viewmodel.ViewLogsViewModel
 import net.mullvad.mullvadvpn.viewmodel.VoucherDialogViewModel
 import net.mullvad.mullvadvpn.viewmodel.VpnSettingsViewModel
 import net.mullvad.mullvadvpn.viewmodel.WelcomeViewModel
-import net.mullvad.mullvadvpn.viewmodel.WireguardCustomPortDialogViewModel
 import net.mullvad.mullvadvpn.viewmodel.location.LocationBottomSheetViewModel
 import net.mullvad.mullvadvpn.viewmodel.location.SearchLocationViewModel
 import net.mullvad.mullvadvpn.viewmodel.location.SelectLocationListViewModel
@@ -297,7 +296,7 @@ val uiModule = module {
     viewModel { DeviceRevokedViewModel(get(), get(), get(), get()) }
     viewModel { MtuDialogViewModel(get(), get()) }
     viewModel { DnsDialogViewModel(get(), get(), get(), get()) }
-    viewModel { WireguardCustomPortDialogViewModel(get()) }
+    viewModel { CustomPortDialogViewModel(get()) }
     viewModel { LoginViewModel(get(), get(), get(), get(), get()) }
     viewModel { PrivacyDisclaimerViewModel(get(), IS_PLAY_BUILD) }
     viewModel {
@@ -319,7 +318,8 @@ val uiModule = module {
     viewModel { SettingsViewModel(get(), get(), get(), get(), IS_PLAY_BUILD) }
     viewModel { SplashViewModel(get(), get(), get(), get()) }
     viewModel { VoucherDialogViewModel(get()) }
-    viewModel { VpnSettingsViewModel(get(), get(), get(), get(), get(), get(), get()) }
+    viewModel { VpnSettingsViewModel(get(), get(), get(), get(), get(), get()) }
+    viewModel { AntiCensorshipSettingsViewModel(get(), get()) }
     viewModel { WelcomeViewModel(get(), get(), get(), get(), isPlayBuild = IS_PLAY_BUILD) }
     viewModel {
         ReportProblemViewModel(
@@ -345,9 +345,8 @@ val uiModule = module {
     viewModel { SaveApiAccessMethodViewModel(get(), get()) }
     viewModel { ApiAccessMethodDetailsViewModel(get(), get()) }
     viewModel { DeleteApiAccessMethodConfirmationViewModel(get(), get()) }
-    viewModel { Udp2TcpSettingsViewModel(get()) }
-    viewModel { ShadowsocksSettingsViewModel(get()) }
-    viewModel { ShadowsocksCustomPortDialogViewModel(get()) }
+    viewModel { SelectPortViewModel(get(), get(), get(), get()) }
+    viewModel { CustomPortDialogViewModel(get()) }
     viewModel { MultihopViewModel(get(), get()) }
     viewModel { NotificationSettingsViewModel(get()) }
     viewModel {

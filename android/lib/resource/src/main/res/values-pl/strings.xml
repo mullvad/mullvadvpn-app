@@ -114,7 +114,6 @@
     <string name="custom_port_dialog_placeholder">Wprowadź port</string>
     <string name="custom_port_dialog_remove">Usuń port niestandardowy</string>
     <string name="custom_port_dialog_submit">Ustaw port</string>
-    <string name="custom_port_dialog_title">Port niestandardowy %1$s</string>
     <string name="custom_port_dialog_valid_ranges">Prawidłowe zakresy: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Nie można rozpoznać hosta tunelu niestandardowego. Spróbuj zmienić ustawienia.</string>
     <string name="daita_description_slide_1_first_paragraph">Uwaga: zwiększa to ruch sieciowy, a także negatywnie wpływa na szybkość, opóźnienia i zużycie baterii. Używaj ostrożnie w przypadku planów z ograniczeniami.</string>
@@ -292,7 +291,6 @@
     <string name="number_of_providers">Dostawcy: %1$d</string>
     <string name="obfuscation_info">Zaciemnianie ukrywa ruch WireGuard w innym protokole. Można go użyć do obchodzenia cenzury i innych typów filtrowania, w których zwykłe połączenie WireGuard byłoby blokowane.</string>
     <string name="obfuscation_info_shadowsocks_batteryusage">Uwaga: protokół Shadowsocks może zwiększyć zużycie baterii w zależności od wykorzystania danych, takich jak przesyłanie strumieniowe wideo.</string>
-    <string name="obfuscation_title">Zaciemnianie WireGuard</string>
     <string name="off">Wył.</string>
     <string name="on">Wł.</string>
     <string name="open_app_details">Otwórz szczegóły aplikacji</string>
@@ -443,7 +441,6 @@
     <string name="vpn_permission_error_notification_title">Błąd uprawnienia VPN</string>
     <string name="vpn_settings_not_available">Ustawienia VPN są niedostępne na urządzeniu</string>
     <string name="we_will_look_into_this">Sprawdzimy to.</string>
-    <string name="wg_port_subtitle">Aby aktywować to ustawienie, ustaw poniżej zaciemnianie %1$s na „Automatyczne” lub „Wył.”.</string>
     <string name="wireguard_custon_port_title">Niestandardowy</string>
     <string name="wireguard_mtu_footer">Ustaw wartość MTU WireGuard. Prawidłowy zakres: %1$d–%2$d.</string>
     <string name="wireguard_port_info_description">Ustawienie automatyczne skutkuje wyborem losowym prawidłowego zakresu portów spośród zakresów przedstawionych poniżej.</string>
