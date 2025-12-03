@@ -180,3 +180,9 @@ reason = "wireguard-go does not use x/crypto/ssh"
 id = "CVE-2025-47914" # GO-2025-4135
 ignoreUntil = 2026-11-21
 reason = "wireguard-go does not use x/crypto/ssh/agent"
+
+# Excessive resource consumption when printing error string for host certificate validation in crypto/x509
+[[IgnoredVulns]]
+id = "CVE-2025-61729" # GO-2025-4155
+ignoreUntil = 2026-12-03
+reason = "wireguard-go does not use crypto/x509"
