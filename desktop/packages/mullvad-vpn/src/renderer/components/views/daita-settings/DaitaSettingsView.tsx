@@ -143,18 +143,8 @@ export function DaitaSettingsView() {
                     <Carousel.Controls>
                       <Carousel.Indicators />
                       <Carousel.ControlGroup>
-                        <Carousel.PrevButton
-                          aria-label={
-                            // TRANSLATORS: Accessibility label for a button that navigates to the previous slide in a carousel.
-                            messages.pgettext('accessibility', 'Previous slide')
-                          }
-                        />
-                        <Carousel.NextButton
-                          aria-label={
-                            // TRANSLATORS: Accessibility label for a button that navigates to the next slide in a carousel.
-                            messages.pgettext('accessibility', 'Next slide')
-                          }
-                        />
+                        <Carousel.PrevButton />
+                        <Carousel.NextButton />
                       </Carousel.ControlGroup>
                     </Carousel.Controls>
                   </Carousel>

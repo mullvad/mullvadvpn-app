@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { messages } from '../../../../../../shared/gettext';
 import { IconButton, IconButtonProps } from '../../../icon-button';
 import { useCarouselContext } from '../../CarouselContext';
 import { useSlides } from '../../hooks';
@@ -17,7 +18,15 @@ export function CarouselPrevButton(props: CarouselPrevButtonProps) {
   }, [isFirstSlide]);
 
   return (
-    <IconButton ref={prevButtonRef} disabled={disabled} onClick={prev} {...props}>
+    <IconButton
+      ref={prevButtonRef}
+      aria-label={
+        // TRANSLATORS: Accessibility label for a button that navigates to the previous slide in a carousel.
+        messages.pgettext('accessibility', 'Previous slide')
+      }
+      disabled={disabled}
+      onClick={prev}
+      {...props}>
       <IconButton.Icon icon="chevron-left" />
     </IconButton>
   );
