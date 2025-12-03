@@ -114,7 +114,6 @@
     <string name="custom_port_dialog_placeholder">Введите порт</string>
     <string name="custom_port_dialog_remove">Удалить пользовательский порт</string>
     <string name="custom_port_dialog_submit">Установить порт</string>
-    <string name="custom_port_dialog_title">Пользовательский порт %1$s</string>
     <string name="custom_port_dialog_valid_ranges">Допустимые диапазоны: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Не удалось преобразовать имя узла пользовательского туннеля. Попробуйте изменить настройки.</string>
     <string name="daita_description_slide_1_first_paragraph">Внимание! Включение этой функции приведет к увеличению сетевого трафика. Также снизится скорость, увеличится задержка и усилится расход заряда аккумулятора. Будьте внимательны при использовании функции на ограниченных по трафику планах.</string>
@@ -293,7 +292,6 @@
     <string name="number_of_providers">провайдеры: %1$d</string>
     <string name="obfuscation_info">Обфускация скрывает трафик WireGuard внутри другого протокола. Это может использоваться для обхода цензуры и других видов фильтрации, когда обычные соединения WireGuard блокируются.</string>
     <string name="obfuscation_info_shadowsocks_batteryusage">Внимание! Функция Shadowsocks может увеличивать расход заряда аккумулятора в зависимости от использования трафика (например, при потоковой передаче видео).</string>
-    <string name="obfuscation_title">Обфускация WireGuard</string>
     <string name="off">Выкл.</string>
     <string name="on">Вкл.</string>
     <string name="open_app_details">Открыть сведения о приложении</string>
@@ -448,7 +446,6 @@
     <string name="vpn_permission_error_notification_title">Ошибка разрешения для VPN</string>
     <string name="vpn_settings_not_available">Настройки VPN недоступны на устройстве</string>
     <string name="we_will_look_into_this">Мы рассмотрим эту проблему.</string>
-    <string name="wg_port_subtitle">Чтобы активировать эту настройку, установите для параметра обфускации %1$s значение «Автоматически» или «Выкл.» (см. ниже).</string>
     <string name="wireguard_custon_port_title">Пользовательский</string>
     <string name="wireguard_mtu_footer">Установите значение MTU для WireGuard. Диапазон значений: %1$d–%2$d.</string>
     <string name="wireguard_port_info_description">При автоматической настройке порт будет выбираться случайным образом из допустимого диапазона, показанного ниже.</string>

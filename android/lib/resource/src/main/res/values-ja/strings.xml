@@ -114,7 +114,6 @@
     <string name="custom_port_dialog_placeholder">ポートを入力</string>
     <string name="custom_port_dialog_remove">カスタムポートを削除</string>
     <string name="custom_port_dialog_submit">ポートを設定</string>
-    <string name="custom_port_dialog_title">%1$sカスタムポート</string>
     <string name="custom_port_dialog_valid_ranges">有効な範囲: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">カスタムトンネルのホストを解決できません。設定を変更してみてください。</string>
     <string name="daita_description_slide_1_first_paragraph">注意: これによりネットワークトラフィックが増加し、速度、遅延、およびバッテリー使用率に悪影響を及ぼします。上限付きプランでは注意して使用してください。</string>
@@ -293,7 +292,6 @@
     <string name="number_of_providers">プロバイダ数: %1$d</string>
     <string name="obfuscation_info">難読化は、WireGuardトラフィックを別のプロトコル内に隠します。プレーンなWireGuard接続がブロックされる検閲やその他のフィルタリングを回避するために使用できます。</string>
     <string name="obfuscation_info_shadowsocks_batteryusage">注意: Shadowsocksの場合、データ通信の使い方 (動画配信など) によってはバッテリー消費量が増加する可能性があります。</string>
-    <string name="obfuscation_title">WireGuardの難読化</string>
     <string name="off">オフ</string>
     <string name="on">オン</string>
     <string name="open_app_details">アプリの詳細を開く</string>
@@ -448,7 +446,6 @@
     <string name="vpn_permission_error_notification_title">VPN許可エラー</string>
     <string name="vpn_settings_not_available">デバイスのVPN設定を利用できません</string>
     <string name="we_will_look_into_this">この問題を調査いたします。</string>
-    <string name="wg_port_subtitle">この設定を有効化するには、以下の%1$sの難読化を「自動」または「オフ」に設定してください。</string>
     <string name="wireguard_custon_port_title">カスタム</string>
     <string name="wireguard_mtu_footer">WireGuardのMTU値を設定します。有効範囲: %1$d ～ %2$d</string>
     <string name="wireguard_port_info_description">自動設定では、以下の有効なポート範囲からランダムに選択されます。</string>

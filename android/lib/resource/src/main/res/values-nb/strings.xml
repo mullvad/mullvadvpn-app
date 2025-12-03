@@ -114,7 +114,6 @@
     <string name="custom_port_dialog_placeholder">Skriv inn port</string>
     <string name="custom_port_dialog_remove">Fjern tilpasset port</string>
     <string name="custom_port_dialog_submit">Konfigurer port</string>
-    <string name="custom_port_dialog_title">tilpasset %1$s-port</string>
     <string name="custom_port_dialog_valid_ranges">Gyldige verdiområder: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Kunne ikke løse vert for egendefinert tunnel. Forsøk å endre innstillingene dine.</string>
     <string name="daita_description_slide_1_first_paragraph">OBS: Dette vil øke nettverkstrafikken og også ha negativ innvirkning på hastighet, ventetid og batteriforbruk. Bruk med varsomhet hvis du har abonnement med begrenset data.</string>
@@ -293,7 +292,6 @@
     <string name="number_of_providers">Leverandører: %1$d</string>
     <string name="obfuscation_info">Tilsløring skjuler WireGuard-trafikken i en annen protokoll. Man kan på den måten omgå sensur og andre typer filter der en vanlig WireGuard-tilkobling ville blitt blokkert.</string>
     <string name="obfuscation_info_shadowsocks_batteryusage">Merk: Shadowsocks kan øke batteriforbruket avhengig av databruk, for eksempel ved strømming av video.</string>
-    <string name="obfuscation_title">Tilsløring av WireGuard</string>
     <string name="off">Av</string>
     <string name="on">På</string>
     <string name="open_app_details">Åpne appdetaljer</string>
@@ -448,7 +446,6 @@
     <string name="vpn_permission_error_notification_title">Feil med VPN-tillatelse</string>
     <string name="vpn_settings_not_available">VPN-innstillinger ikke tilgjengelig på enhet</string>
     <string name="we_will_look_into_this">Dette skal vi følge opp.</string>
-    <string name="wg_port_subtitle">Angi %1$s-tilsløring til «Automatisk» eller «Av» nedenfor for å aktivere denne innstillingen.</string>
     <string name="wireguard_custon_port_title">Egendefinert</string>
     <string name="wireguard_mtu_footer">Angi WireGuard MTU-verdi. Verdiområde: %1$d–%2$d.</string>
     <string name="wireguard_port_info_description">Den automatiske innstillingen vil tilfeldig velge fra utvalget av gyldige porter vist under.</string>

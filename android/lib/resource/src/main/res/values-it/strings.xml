@@ -114,7 +114,6 @@
     <string name="custom_port_dialog_placeholder">Inserisci porta</string>
     <string name="custom_port_dialog_remove">Rimuovi porta personalizzata</string>
     <string name="custom_port_dialog_submit">Imposta porta</string>
-    <string name="custom_port_dialog_title">Porta personalizzata %1$s</string>
     <string name="custom_port_dialog_valid_ranges">Intervalli validi: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Impossibile risolvere l\'host del tunnel personalizzato. Prova a modificare le impostazioni.</string>
     <string name="daita_description_slide_1_first_paragraph">Attenzione: questo aumenta il traffico di rete e avrà anche effetti negativi su velocità, latenza e consumo della batteria. Da usare con cautela su un piano dati limitato.</string>
@@ -293,7 +292,6 @@
     <string name="number_of_providers">Fornitori: %1$d</string>
     <string name="obfuscation_info">L\'offuscamento nasconde il traffico WireGuard all\'interno di un altro protocollo. Può essere utilizzato per aggirare la censura e altri tipi di filtraggio, in cui una semplice connessione WireGuard verrebbe bloccata.</string>
     <string name="obfuscation_info_shadowsocks_batteryusage">Attenzione: Shadowsocks può aumentare il consumo della batteria a seconda dell\'utilizzo dei dati, ad esempio durante lo streaming di un video.</string>
-    <string name="obfuscation_title">Offuscamento WireGuard</string>
     <string name="off">Off</string>
     <string name="on">On</string>
     <string name="open_app_details">Apri dettagli app</string>
@@ -448,7 +446,6 @@
     <string name="vpn_permission_error_notification_title">Errore di autorizzazione VPN</string>
     <string name="vpn_settings_not_available">Impostazioni VPN non disponibili sul dispositivo</string>
     <string name="we_will_look_into_this">Verificheremo.</string>
-    <string name="wg_port_subtitle">Per attivare, imposta l\'offuscamento %1$s su \"Automatico\" o \"Off\" qui sotto.</string>
     <string name="wireguard_custon_port_title">Personalizzato</string>
     <string name="wireguard_mtu_footer">Imposta il valore MTU WireGuard. Intervallo valido: %1$d - %2$d.</string>
     <string name="wireguard_port_info_description">L\'impostazione automatica sceglierà in modo casuale una porta valida negli intervalli mostrati di seguito.</string>
