@@ -18,9 +18,6 @@ use talpid_types::cgroup::{CGROUP2_DEFAULT_MOUNT_PATH, SPLIT_TUNNEL_CGROUP_NAME}
 
 use crate::firewall;
 
-/// Identifies packets coming from the cgroup.
-/// This should be an arbitrary but unique integer.
-pub const NET_CLS_CLASSID: u32 = 0x4d9f41;
 /// Value used to mark packets and associated connections.
 /// This should be an arbitrary but unique integer.
 pub const MARK: u32 = 0xf41;

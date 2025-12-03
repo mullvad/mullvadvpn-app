@@ -14,12 +14,9 @@ use std::{
     sync::LazyLock,
 };
 use talpid_tunnel::TunnelMetadata;
-use talpid_types::{
-    cgroup::find_net_cls_mount,
-    net::{
-        ALLOWED_LAN_MULTICAST_NETS, ALLOWED_LAN_NETS, AllowedEndpoint, AllowedTunnelTraffic,
-        Endpoint, TransportProtocol,
-    },
+use talpid_types::net::{
+    ALLOWED_LAN_MULTICAST_NETS, ALLOWED_LAN_NETS, AllowedEndpoint, AllowedTunnelTraffic, Endpoint,
+    TransportProtocol,
 };
 
 /// Priority for rules that tag split tunneling packets. Equals NF_IP_PRI_MANGLE.
@@ -58,14 +55,6 @@ pub enum Error {
     /// Unable to translate network interface name into index.
     #[error("Unable to translate network interface name \"{0}\" into index")]
     LookupIfaceIndexError(String, #[source] crate::linux::IfaceIndexLookupError),
-
-    /// Failed to check if the net_cls mount exists.
-    #[error("An error occurred when checking for net_cls")]
-    FindNetClsMount(#[source] io::Error),
-
-    /// Unable to stat cgroup
-    #[error("Unable to stat cgroup")]
-    CgroupStat(#[source] io::Error),
 }
 
 /// TODO(linus): This crate is not supposed to be Mullvad-aware. So at some point this should be
@@ -332,26 +321,10 @@ impl<'a> PolicyBatch<'a> {
     ) -> Result<FinalizedBatch> {
         self.add_loopback_rules()?;
 
-        if cfg!(feature = "cgroups_v2") {
-            match self.add_split_tunneling_rules(policy, firewall) {
-                Ok(_) => (),
-                Err(Error::CgroupStat(_)) => {
-                    log::warn!("cgroup2 not found, skipping add_split_tunneling_rules");
-                }
-                Err(err) => return Err(err),
-            }
+        if let Some(cgroup2) = &firewall.excluded_cgroup2 {
+            self.add_split_tunneling_rules(policy, cgroup2, firewall.fwmark)?;
         } else {
-            // if cgroups v1 doesn't exist, split tunneling won't work.
-            // checking if the `net_cls` mount exists is a cheeky way of checking this.
-            if find_net_cls_mount()
-                .map_err(Error::FindNetClsMount)?
-                .is_some()
-            {
-                self.add_split_tunneling_rules(policy, firewall)?;
-            } else {
-                // skipping add_split_tunneling_rules as it won't cause traffic to leak
-                log::warn!("net_cls mount not found, skipping add_split_tunneling_rules");
-            }
+            log::warn!("no cgroup2, skipping add_split_tunneling_rules");
         }
 
         self.add_dhcp_client_rules();
@@ -367,7 +340,8 @@ impl<'a> PolicyBatch<'a> {
     fn add_split_tunneling_rules(
         &mut self,
         policy: &FirewallPolicy,
-        firewall: &Firewall,
+        cgroup2: &CGroup2,
+        fwmark: u32,
     ) -> Result<()> {
         // Send select DNS requests in the tunnel
         if let FirewallPolicy::Connected {
@@ -399,40 +373,30 @@ impl<'a> PolicyBatch<'a> {
         // as a connection tracking mark and the `fwmark` as packet metadata.
         let mut rule = Rule::new(&self.mangle_chain);
 
-        if cfg!(feature = "cgroups_v2") {
-            if let Some(cgroup) = &firewall.excluded_cgroup2 {
-                // 1. From Linux kernel documentation:
-                // cgroup(2) is a mechanism to organize processes hierarchically ... cgroups form a tree structure and
-                // every process in the system belongs to one and only one cgroup ... On creation, all processes are put
-                // in the cgroup that the parent process belongs to at the time.
-                //
-                // 2. From `man nft` on "Socket expression":
-                // .. You can also use it [socket expression] to match on the socket cgroupv2 at a given ancestor level,
-                // e.g. if the socket belongs to cgroupv2 a/b, ancestor level 1 checks for a matching on cgroup a and
-                // ancestor level 2 checks for a matching on cgroup b.
-                //
-                // 3. Since the current split-tunnel implementation spawn each split process into the same cgroup2, the
-                // nftables rule does not have to look at any level of ancestry away *from* `cgroup`. This applies for
-                // any sub-process that a split process may spawn, as per the kernel docs.
-                //
-                // Following from 1,2,3, `socket cgroupv2 level 1` should be fine here.
-                rule.add_expr(&nft_expr!(socket cgroupv2 level 1));
-                rule.add_expr(&nft_expr!(cmp == cgroup.inode()));
-            }
-        } else {
-            // For cgroups v1, processes are assigned to a net_cls.
-            // This causes all packets sent by that process to be marked with the
-            // cgroups classid (`NET_CLS_CLASSID`), which we can reference in nftables.
-            rule.add_expr(&nft_expr!(meta cgroup));
-            rule.add_expr(&nft_expr!(cmp == split_tunnel::NET_CLS_CLASSID));
-        }
+        // 1. From Linux kernel documentation:
+        // cgroup(2) is a mechanism to organize processes hierarchically ... cgroups form a tree structure and
+        // every process in the system belongs to one and only one cgroup ... On creation, all processes are put
+        // in the cgroup that the parent process belongs to at the time.
+        //
+        // 2. From `man nft` on "Socket expression":
+        // .. You can also use it [socket expression] to match on the socket cgroupv2 at a given ancestor level,
+        // e.g. if the socket belongs to cgroupv2 a/b, ancestor level 1 checks for a matching on cgroup a and
+        // ancestor level 2 checks for a matching on cgroup b.
+        //
+        // 3. Since the current split-tunnel implementation spawn each split process into the same cgroup2, the
+        // nftables rule does not have to look at any level of ancestry away *from* `cgroup`. This applies for
+        // any sub-process that a split process may spawn, as per the kernel docs.
+        //
+        // Following from 1,2,3, `socket cgroupv2 level 1` should be fine here.
+        rule.add_expr(&nft_expr!(socket cgroupv2 level 1));
+        rule.add_expr(&nft_expr!(cmp == cgroup2.inode()));
 
         // Loads `split_tunnel::MARK` into first nftnl register
         rule.add_expr(&nft_expr!(immediate data split_tunnel::MARK));
         // Sets `split_tunnel::MARK` as connection tracker mark
         rule.add_expr(&nft_expr!(ct mark set));
         // Loads `fwmark` into first nftnl register
-        rule.add_expr(&nft_expr!(immediate data firewall.fwmark));
+        rule.add_expr(&nft_expr!(immediate data fwmark));
         // Sets `fwmark` as metadata mark for packet
         rule.add_expr(&nft_expr!(meta mark set));
         if *ADD_COUNTERS {
@@ -483,7 +447,7 @@ impl<'a> PolicyBatch<'a> {
             check_not_iface(&mut prerouting_rule, Direction::In, &tunnel.interface)?;
             prerouting_rule.add_expr(&nft_expr!(ct mark));
             prerouting_rule.add_expr(&nft_expr!(cmp == split_tunnel::MARK));
-            prerouting_rule.add_expr(&nft_expr!(immediate data firewall.fwmark));
+            prerouting_rule.add_expr(&nft_expr!(immediate data fwmark));
             prerouting_rule.add_expr(&nft_expr!(meta mark set));
             if *ADD_COUNTERS {
                 prerouting_rule.add_expr(&nft_expr!(counter));
