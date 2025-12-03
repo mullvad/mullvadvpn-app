@@ -19,7 +19,7 @@ use tokio_rustls::{TlsAcceptor, rustls::ServerConfig};
 #[clap(name = "domain_fronting_server")]
 struct Args {
     /// Hostname for the server
-    #[clap(short, long)]
+    #[clap(short = 'H', long)]
     hostname: String,
 
     /// Path to certificate file (PEM format)
