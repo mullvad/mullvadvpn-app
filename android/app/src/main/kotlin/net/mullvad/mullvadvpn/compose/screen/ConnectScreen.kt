@@ -69,6 +69,7 @@ import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.NavGraphs
 import com.ramcosta.composedestinations.generated.destinations.AccountDestination
 import com.ramcosta.composedestinations.generated.destinations.Android16UpgradeWarningInfoDestination
+import com.ramcosta.composedestinations.generated.destinations.AntiCensorshipSettingsDestination
 import com.ramcosta.composedestinations.generated.destinations.ChangelogDestination
 import com.ramcosta.composedestinations.generated.destinations.DaitaDestination
 import com.ramcosta.composedestinations.generated.destinations.DeviceRevokedDestination
@@ -814,13 +815,16 @@ private fun FeatureIndicator.destination() =
 
         FeatureIndicator.SERVER_IP_OVERRIDE -> ServerIpOverridesDestination(isModal = true)
 
-        FeatureIndicator.QUANTUM_RESISTANCE,
         FeatureIndicator.UDP_2_TCP,
+        FeatureIndicator.QUIC,
+        FeatureIndicator.WIREGUARD_PORT,
         FeatureIndicator.SHADOWSOCKS,
+        FeatureIndicator.LWO -> AntiCensorshipSettingsDestination(isModal = true)
+
+        FeatureIndicator.QUANTUM_RESISTANCE,
         FeatureIndicator.LAN_SHARING,
         FeatureIndicator.DNS_CONTENT_BLOCKERS,
         FeatureIndicator.CUSTOM_DNS,
-        FeatureIndicator.CUSTOM_MTU,
-        FeatureIndicator.QUIC,
-        FeatureIndicator.LWO -> VpnSettingsDestination(scrollToFeature = this, isModal = true)
+        FeatureIndicator.CUSTOM_MTU ->
+            VpnSettingsDestination(scrollToFeature = this, isModal = true)
     }
