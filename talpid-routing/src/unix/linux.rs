@@ -56,7 +56,7 @@ static SUPPRESS_RULE_V4: LazyLock<RuleMessage> = LazyLock::new(|| {
     rule_msg
 });
 
-/// A routing table rule that directs IPv4 packets to look up routes from the main
+/// A routing table rule that directs IPv6 packets to look up routes from the main
 /// routing table, but to skip default routes, i.e. routes with prefix length 0.
 static SUPPRESS_RULE_V6: LazyLock<RuleMessage> = LazyLock::new(|| {
     let mut v6_rule = SUPPRESS_RULE_V4.clone();
