@@ -255,7 +255,6 @@
     <string name="login_error_too_many_attempts">For mange forsøk. Prøv igjen senere</string>
     <string name="login_fail_description">Ugyldig kontonummer</string>
     <string name="login_fail_title">Kunne ikke logge inn</string>
-    <string name="login_title">Logg inn</string>
     <string name="malware_info">Advarsel: Blokkeringen av skadelig programvare er ikke et antivirusprogram og skal ikke brukes som dette. Det er bare et ekstra lag med beskyttelse.</string>
     <string name="manage_devices">Behandle enheter</string>
     <string name="manage_devices_confirm_removal_description_line1">Fjerne %1$s?</string>

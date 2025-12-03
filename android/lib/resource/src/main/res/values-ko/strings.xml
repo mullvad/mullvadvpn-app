@@ -255,7 +255,6 @@
     <string name="login_error_too_many_attempts">시도 횟수가 너무 많습니다. 나중에 다시 시도하세요</string>
     <string name="login_fail_description">유효하지 않은 계정 번호</string>
     <string name="login_fail_title">로그인 실패</string>
-    <string name="login_title">로그인</string>
     <string name="malware_info">경고: 맬웨어 차단기는 안티바이러스가 아니며 하나의 추가 보호 계층일 뿐입니다.</string>
     <string name="manage_devices">장치 관리</string>
     <string name="manage_devices_confirm_removal_description_line1">%1$s을(를) 제거하시겠습니까?</string>

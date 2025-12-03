@@ -255,7 +255,6 @@
     <string name="login_error_too_many_attempts">För många försök, försök igen senare</string>
     <string name="login_fail_description">Ogiltigt kontonummer</string>
     <string name="login_fail_title">Inloggningen misslyckades</string>
-    <string name="login_title">Logga in</string>
     <string name="malware_info">Varning! Blockering av skadlig kod är inte ett antivirusprogram och bör inte behandlas som ett. Det här är bara ett extra skyddslager.</string>
     <string name="manage_devices">Hantera enheter</string>
     <string name="manage_devices_confirm_removal_description_line1">Ta bort %1$s?</string>

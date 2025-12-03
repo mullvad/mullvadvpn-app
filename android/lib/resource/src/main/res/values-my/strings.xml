@@ -255,7 +255,6 @@
     <string name="login_error_too_many_attempts">ကြိုးစားမှု အကြိမ်ရေများသွားသဖြင့် နောက်မှ ထပ်ကြိုးစားပါ</string>
     <string name="login_fail_description">အကောင့်နံပါတ် မမှန်ကန်ပါ</string>
     <string name="login_fail_title">ဝင်ရောက်မှု မအောင်မြင်ပါ</string>
-    <string name="login_title">ဝင်ရန်</string>
     <string name="malware_info">သတိပေးချက်- မဲလ်ဝဲရ် ပိတ်ဆို့မှုသည် အပိုအကာအကွယ်လွှာ တစ်ခုသာဖြစ်ပြီး ဗိုင်းရပ်စ် ကာကွယ်ရေး (anti-virus) မဟုတ်၍ ၎င်းအဖြစ် မမှတ်ယူသင့်ပါ။</string>
     <string name="manage_devices">စက်များကို စီမံရန်</string>
     <string name="manage_devices_confirm_removal_description_line1">%1$s ကို ဖယ်ရှားမလား။</string>

@@ -255,7 +255,6 @@
     <string name="login_error_too_many_attempts">Zbyt wiele prób, spróbuj ponownie później</string>
     <string name="login_fail_description">Nieprawidłowy numer konta</string>
     <string name="login_fail_title">Błąd logowania</string>
-    <string name="login_title">Logowanie</string>
     <string name="malware_info">Ostrzeżenie: funkcja blokowania złośliwego oprogramowania nie jest programem antywirusowym i nie należy jej tak traktować. To jedynie dodatkowa warstwa zabezpieczeń.</string>
     <string name="manage_devices">Zarządzaj urządzeniami</string>
     <string name="manage_devices_confirm_removal_description_line1">Usunąć %1$s?</string>
