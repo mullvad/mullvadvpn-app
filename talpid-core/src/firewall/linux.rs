@@ -127,7 +127,7 @@ impl Firewall {
     /// Create a `Firewall`.
     ///
     /// - `fwmark` is the metadata mark used by nft to allow some packets outside the tunnel.
-    /// - `excluded_cgroup2` is the cgroup2 used by nft apply `fwmark` on some packets.
+    /// - `excluded_cgroup2` is the cgroup2 used by nft to apply `fwmark` on some packets.
     pub fn new(fwmark: u32, excluded_cgroup2: Option<CGroup2>) -> Result<Self> {
         Ok(Firewall {
             fwmark,
