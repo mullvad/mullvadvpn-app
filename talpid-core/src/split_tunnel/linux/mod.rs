@@ -1,4 +1,4 @@
-//! Linux split-tunneling implementation using cgroup2.
+//! Linux split-tunneling implementation using cgroups.
 //!
 //! It's recommended to read the kernel docs before delving into this module:
 //! <https://docs.kernel.org/admin-guide/cgroup-v2.html>
@@ -28,10 +28,10 @@ pub const MARK: u32 = 0xf41;
 #[error("Error in split tunneling")]
 pub struct Error(#[from] anyhow::Error);
 
-/// Manages PIDs in the linux cgroup2 excluded from the VPN tunnel.
+/// Manages PIDs in the linux cgroup used for vpn tunnel exclusion.
 ///
-/// It's recommended to read the kernel docs before delving into this module:
-/// https://docs.kernel.org/admin-guide/cgroup-v2.html
+//! It's recommended to read the kernel docs before delving into this module:
+//! <https://docs.kernel.org/admin-guide/cgroup-v2.html>
 pub struct PidManager {
     inner: Result<Inner, Error>,
 }
@@ -42,9 +42,9 @@ enum Inner {
 }
 
 struct InnerCGroup1 {
-    root_cgroup: CGroup1,
-    excluded_cgroup: CGroup1,
-    net_cls: u32,
+    root_cgroup1: CGroup1,
+    excluded_cgroup1: CGroup1,
+    net_cls_classid: u32,
 }
 
 struct InnerCGroup2 {
@@ -105,9 +105,9 @@ impl PidManager {
         excluded_cgroup.set_net_cls_id(NET_CLS_CLASSID)?;
 
         Ok(InnerCGroup1 {
-            net_cls: NET_CLS_CLASSID, // TODO: set this
-            root_cgroup,
-            excluded_cgroup,
+            net_cls_classid: NET_CLS_CLASSID, // TODO: set this
+            root_cgroup1: root_cgroup,
+            excluded_cgroup1: excluded_cgroup,
         })
     }
 
@@ -139,6 +139,21 @@ impl PidManager {
         matches!(self.inner, Ok(..))
     }
 
+    /// Get a handle to the [CGroup2] used for split-tunneling.
+    ///
+    /// Returns an option if we prevously failed to set up the cgroup2, or if cloning it fails.
+    pub fn excluded_cgroup(&self) -> Option<CGroup2> {
+        self.inner()
+            .ok()?
+            .excluded_cgroup()
+            .inspect_err(|e| log::error!("Failed to clone file handle to cgroup2: {e}"))
+            .ok()
+    }
+
+    pub fn net_cls_classid(&self) -> Option<u32> {
+        self.inner().ok()?.net_cls_classid()
+    }
+
     fn inner(&self) -> Result<&Inner, Error> {
         self.inner
             .as_ref()
@@ -160,7 +175,7 @@ impl Inner {
     /// Add a PID to the cgroup2 to have it excluded from the tunnel.
     fn add(&self, pid: Pid) -> Result<(), Error> {
         match self {
-            Inner::CGroup1(inner) => inner.excluded_cgroup.add_pid(pid),
+            Inner::CGroup1(inner) => inner.excluded_cgroup1.add_pid(pid),
             Inner::CGroup2(inner) => inner.excluded_cgroup2.add_pid(pid),
         }
     }
@@ -169,7 +184,7 @@ impl Inner {
     fn remove(&self, pid: Pid) -> Result<(), Error> {
         // PIDs can only be removed from a cgroup by adding them to another cgroup.
         match self {
-            Inner::CGroup1(inner) => inner.root_cgroup.add_pid(pid),
+            Inner::CGroup1(inner) => inner.root_cgroup1.add_pid(pid),
             Inner::CGroup2(inner) => inner.root_cgroup2.add_pid(pid),
         }
     }
@@ -177,7 +192,7 @@ impl Inner {
     /// Return a list of all PIDs currently in the Cgroup excluded from the tunnel.
     fn list(&mut self) -> Result<Vec<pid_t>, Error> {
         match self {
-            Inner::CGroup1(inner) => inner.excluded_cgroup.list_pids(),
+            Inner::CGroup1(inner) => inner.excluded_cgroup1.list_pids(),
             Inner::CGroup2(inner) => inner.excluded_cgroup2.list_pids(),
         }
     }
@@ -196,36 +211,24 @@ impl Inner {
         Ok(())
     }
 
-    /// Get a handle to the [CGroup2] used for split-tunneling.
+    /// Get a handle to the [CGroup2] used for split-tunneling, if any.
     ///
-    /// Returns an error if we prevously failed to set up the cgroup2, or if cloning it fails.
-    fn excluded_cgroup(&self) -> Result<CGroup2, Error> {
+    /// Returns an error if cloning the cgroup fails.
+    fn excluded_cgroup(&self) -> Result<Option<CGroup2>, Error> {
         match self {
-            Inner::CGroup1(..) => Err(anyhow!("blahaha").into()),
-            Inner::CGroup2(inner) => inner.excluded_cgroup2.try_clone(),
+            Inner::CGroup1(..) => Ok(None),
+            Inner::CGroup2(inner) => inner.excluded_cgroup2.try_clone().map(Some),
         }
     }
 
-    /// Try to clone the cgroup2 handle.
+    /// Get the net_cls classid associated with the v1 cgroup used for split-tunneling, if any.
     ///
-    /// This is fallible because cloning file descriptors can fail.
-    pub fn try_clone(&self) -> Result<Self, Error> {
+    /// This returns none if we're using cgroups v1, or if we failed to create the v1 cgroup.
+    fn net_cls_classid(&self) -> Option<u32> {
         match self {
-            Inner::CGroup1(inner_cgroup1) => todo!(),
-            Inner::CGroup2(inner) => inner.try_clone().map(Inner::CGroup2),
+            Inner::CGroup1(inner) => Some(inner.net_cls_classid),
+            Inner::CGroup2(..) => None,
         }
-    }
-}
-
-impl InnerCGroup2 {
-    /// Try to clone the cgroup2 handle.
-    ///
-    /// This is fallible because cloning file descriptors can fail.
-    pub fn try_clone(&self) -> Result<Self, Error> {
-        Ok(Self {
-            root_cgroup2: self.root_cgroup2.try_clone()?,
-            excluded_cgroup2: self.excluded_cgroup2.try_clone()?,
-        })
     }
 }
 

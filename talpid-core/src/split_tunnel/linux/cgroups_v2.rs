@@ -12,8 +12,6 @@ use std::{
 use super::Error;
 
 /// A handle to a cgroup2
-///
-/// The cgroup is unmounted when droppped.
 pub struct CGroup2 {
     /// Absolute path of the cgroup2, e.g. `/sys/fs/cgroup/foobar`
     path: PathBuf,

@@ -1,13 +1,17 @@
-use std::{
-    env, ffi::CStr, fs::{self, File}, io::{self, BufRead, BufReader, Read, Seek, Write}, path::{Path, PathBuf}
-};
+use anyhow::{Context as _, anyhow};
 use libc::pid_t;
 use nix::{errno::Errno, unistd::Pid};
+use std::{
+    env,
+    ffi::CStr,
+    fs::{self, File},
+    io::{self, BufRead, BufReader, Read, Seek, Write},
+    path::{Path, PathBuf},
+};
 use talpid_types::{
     ErrorExt,
     cgroup::{SPLIT_TUNNEL_CGROUP_NAME, find_net_cls_mount},
 };
-use anyhow::{anyhow, Context as _};
 
 pub const DEFAULT_NET_CLS_DIR: &str = "/sys/fs/cgroup/net_cls";
 
@@ -89,14 +93,13 @@ pub fn setup_exclusion_group(net_cls_path: &Path) -> Result<PathBuf, Error> {
 
     // Assign our unique id to the net_cls
     let classid_path = exclusions_dir.join("net_cls.classid");
-    fs::write(classid_path, NET_CLS_CLASSID.to_string().as_bytes()).map_err(Error::SetCGroupClassId)
+    fs::write(classid_path, NET_CLS_CLASSID.to_string().as_bytes())
+        .map_err(Error::SetCGroupClassId)?;
 
     Ok(exclusions_dir)
 }
 
-/// A handle to a cgroup2
-///
-/// The cgroup is unmounted when droppped.
+/// A handle to a v1 cgroup
 pub struct CGroup1 {
     /// Absolute path of the cgroup, e.g. `/sys/fs/cgroup/net_cls/foobar`
     path: PathBuf,
@@ -120,10 +123,7 @@ impl CGroup1 {
             .open(&procs_path)
             .with_context(|| anyhow!("Failed to open {procs_path:?}"))?;
 
-        Ok(CGroup1 {
-            path,
-            procs,
-        })
+        Ok(CGroup1 { path, procs })
     }
 
     /// Create or open a child to the current cgroup called `name`.
@@ -191,7 +191,8 @@ impl CGroup1 {
     pub fn set_net_cls_id(&self, net_cls_classid: u32) -> Result<(), super::Error> {
         // Assign our unique id to the net_cls
         let classid_path = self.path.join("net_cls.classid");
-        fs::write(classid_path, NET_CLS_CLASSID.to_string().as_bytes()).with_context(|| anyhow!("Failed to write NET_CLS_CLASSID to {classid_path:?}"))?;
+        fs::write(&classid_path, net_cls_classid.to_string().as_bytes())
+            .with_context(|| anyhow!("Failed to write NET_CLS_CLASSID to {classid_path:?}"))?;
         Ok(())
     }
 }
