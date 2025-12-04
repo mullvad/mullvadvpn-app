@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn
 import android.app.Application
 import androidx.compose.runtime.Composer
 import androidx.compose.runtime.ExperimentalComposeRuntimeApi
+import androidx.compose.runtime.tooling.ComposeStackTraceMode
 import co.touchlab.kermit.Logger
 import co.touchlab.kermit.Severity
 import java.io.IOException
@@ -35,7 +36,9 @@ class MullvadApplication : Application() {
         }
         // Improve compose stack traces
         // Comes with a performance penalty, so only enable in debug builds
-        Composer.setDiagnosticStackTraceEnabled(BuildConfig.DEBUG)
+        if (BuildConfig.DEBUG) {
+            Composer.setDiagnosticStackTraceMode(ComposeStackTraceMode.SourceInformation)
+        }
         startKoin { androidContext(this@MullvadApplication) }
         loadKoinModules(listOf(appModule))
         with(getKoin()) {

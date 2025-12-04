@@ -35,7 +35,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -138,7 +138,7 @@ fun SearchLocation(
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
     val snackbarHostState = remember { SnackbarHostState() }
-    val context = LocalContext.current
+    val resources = LocalResources.current
 
     CollectSideEffectWithLifecycle(viewModel.uiSideEffect) {
         when (it) {
@@ -147,7 +147,7 @@ fun SearchLocation(
             is SearchLocationSideEffect.CustomListActionToast ->
                 launch {
                     snackbarHostState.showResultSnackbar(
-                        context = context,
+                        resources = resources,
                         result = it.resultData,
                         onUndo = viewModel::performAction,
                     )
@@ -155,14 +155,14 @@ fun SearchLocation(
             SearchLocationSideEffect.GenericError ->
                 launch {
                     snackbarHostState.showSnackbarImmediately(
-                        message = context.getString(R.string.error_occurred)
+                        message = resources.getString(R.string.error_occurred)
                     )
                 }
             is SearchLocationSideEffect.EntryAlreadySelected ->
                 launch {
                     snackbarHostState.showSnackbarImmediately(
                         message =
-                            context.getString(
+                            resources.getString(
                                 R.string.relay_item_already_selected_as_entry,
                                 it.relayItem.name,
                             )
@@ -172,7 +172,7 @@ fun SearchLocation(
                 launch {
                     snackbarHostState.showSnackbarImmediately(
                         message =
-                            context.getString(
+                            resources.getString(
                                 R.string.relay_item_already_selected_as_exit,
                                 it.relayItem.name,
                             )
@@ -182,7 +182,7 @@ fun SearchLocation(
                 launch {
                     snackbarHostState.showSnackbarImmediately(
                         message =
-                            context.getString(R.string.relayitem_is_inactive, it.relayItem.name)
+                            resources.getString(R.string.relayitem_is_inactive, it.relayItem.name)
                     )
                 }
             }
@@ -190,7 +190,7 @@ fun SearchLocation(
                 launch {
                     snackbarHostState.showSnackbarImmediately(
                         message =
-                            context.getString(
+                            resources.getString(
                                 when (it.undoChangeMultihopAction) {
                                     UndoChangeMultihopAction.Disable,
                                     is UndoChangeMultihopAction.DisableAndSetExit,
@@ -199,7 +199,7 @@ fun SearchLocation(
                                     else -> R.string.multihop_is_disabled
                                 }
                             ),
-                        actionLabel = context.getString(R.string.undo),
+                        actionLabel = resources.getString(R.string.undo),
                         onAction = { viewModel.undoMultihopAction(it.undoChangeMultihopAction) },
                         duration = SnackbarDuration.Long,
                     )
