@@ -52,8 +52,8 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -187,14 +187,14 @@ fun SelectLocation(
     val state = vm.uiState.collectAsStateWithLifecycle()
 
     val snackbarHostState = remember { SnackbarHostState() }
-    val context = LocalContext.current
+    val resources = LocalResources.current
     CollectSideEffectWithLifecycle(vm.uiSideEffect) {
         when (it) {
             SelectLocationSideEffect.CloseScreen -> backNavigator.navigateBack(result = true)
             is SelectLocationSideEffect.CustomListActionToast ->
                 launch {
                     snackbarHostState.showResultSnackbar(
-                        context = context,
+                        resources = resources,
                         result = it.resultData,
                         onUndo = vm::performAction,
                     )
@@ -202,14 +202,14 @@ fun SelectLocation(
             SelectLocationSideEffect.GenericError ->
                 launch {
                     snackbarHostState.showSnackbarImmediately(
-                        message = context.getString(R.string.error_occurred)
+                        message = resources.getString(R.string.error_occurred)
                     )
                 }
             is SelectLocationSideEffect.EntryAlreadySelected ->
                 launch {
                     snackbarHostState.showSnackbarImmediately(
                         message =
-                            context.getString(
+                            resources.getString(
                                 R.string.relay_item_already_selected_as_entry,
                                 it.relayItem.name,
                             )
@@ -219,7 +219,7 @@ fun SelectLocation(
                 launch {
                     snackbarHostState.showSnackbarImmediately(
                         message =
-                            context.getString(
+                            resources.getString(
                                 R.string.relay_item_already_selected_as_exit,
                                 it.relayItem.name,
                             )
@@ -229,26 +229,27 @@ fun SelectLocation(
                 launch {
                     snackbarHostState.showSnackbarImmediately(
                         message =
-                            context.getString(R.string.relayitem_is_inactive, it.relayItem.name)
+                            resources.getString(R.string.relayitem_is_inactive, it.relayItem.name)
                     )
                 }
             SelectLocationSideEffect.EntryAndExitAreSame ->
                 launch {
                     snackbarHostState.showSnackbarImmediately(
-                        message = context.getString(R.string.entry_and_exit_are_same)
+                        message = resources.getString(R.string.entry_and_exit_are_same)
                     )
                 }
             SelectLocationSideEffect.RelayListUpdating ->
                 launch {
                     snackbarHostState.showSnackbarImmediately(
-                        message = context.getString(R.string.updating_server_list_in_the_background)
+                        message =
+                            resources.getString(R.string.updating_server_list_in_the_background)
                     )
                 }
             is SelectLocationSideEffect.MultihopChanged -> {
                 launch {
                     snackbarHostState.showSnackbarImmediately(
                         message =
-                            context.getString(
+                            resources.getString(
                                 when (it.undoChangeMultihopAction) {
                                     UndoChangeMultihopAction.Disable,
                                     is UndoChangeMultihopAction.DisableAndSetExit,
@@ -257,7 +258,7 @@ fun SelectLocation(
                                     else -> R.string.multihop_is_disabled
                                 }
                             ),
-                        actionLabel = context.getString(R.string.undo),
+                        actionLabel = resources.getString(R.string.undo),
                         onAction = { vm.undoMultihopAction(it.undoChangeMultihopAction) },
                         duration = SnackbarDuration.Long,
                     )

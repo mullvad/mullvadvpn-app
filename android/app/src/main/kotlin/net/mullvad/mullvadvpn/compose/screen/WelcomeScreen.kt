@@ -29,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -104,6 +105,7 @@ fun Welcome(navigator: DestinationsNavigator) {
 
     val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
+    val resources = LocalResources.current
     val openAccountPage = LocalUriHandler.current.createOpenAccountPageHook()
     CollectSideEffectWithLifecycle(sideEffect = vm.uiSideEffect, Lifecycle.State.RESUMED) {
         uiSideEffect ->
@@ -116,7 +118,7 @@ fun Welcome(navigator: DestinationsNavigator) {
                 }
             WelcomeViewModel.UiSideEffect.GenericError ->
                 snackbarHostState.showSnackbarImmediately(
-                    message = context.getString(R.string.error_occurred)
+                    message = resources.getString(R.string.error_occurred)
                 )
             is WelcomeViewModel.UiSideEffect.StoreCredentialsRequest -> {
                 // UserId is not allowed to be empty

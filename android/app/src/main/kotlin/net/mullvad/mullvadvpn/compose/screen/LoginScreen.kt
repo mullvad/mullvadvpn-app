@@ -44,6 +44,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -150,7 +151,7 @@ fun Login(
         }
     }
 
-    val context = LocalContext.current
+    val resources = LocalResources.current
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
@@ -161,7 +162,7 @@ fun Login(
             ApiUnreachableInfoDialogResult.Error ->
                 scope.launch {
                     snackbarHostState.showSnackbarImmediately(
-                        message = context.getString(R.string.error_occurred)
+                        message = resources.getString(R.string.error_occurred)
                     )
                 }
             is ApiUnreachableInfoDialogResult.Success -> {
@@ -198,7 +199,7 @@ fun Login(
                 navigator.navigate(CreateAccountConfirmationDestination)
             LoginUiSideEffect.GenericError ->
                 snackbarHostState.showSnackbarImmediately(
-                    message = context.getString(R.string.error_occurred)
+                    message = resources.getString(R.string.error_occurred)
                 )
         }
     }

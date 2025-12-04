@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.13.0" type="baseline" client="gradle" dependencies="true" name="AGP (8.13.0)" variant="all" version="8.13.0">
+<issues format="6" by="lint 8.13.1" type="baseline" client="gradle" dependencies="true" name="AGP (8.13.1)" variant="all" version="8.13.1">
 
     <issue
         id="InvalidPackage"
@@ -14,5 +14,4 @@
         <location
             file="*/caches/modules-2/files-2.1/io.grpc/grpc-core/1.76.0/44e562312b45d848297b80963fe0f93f5b71589c/grpc-core-1.76.0.jar"/>
     </issue>
-
 </issues>
