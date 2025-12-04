@@ -115,7 +115,6 @@
     <string name="custom_port_dialog_placeholder">Ange port</string>
     <string name="custom_port_dialog_remove">Ta bort anpassad port</string>
     <string name="custom_port_dialog_submit">Ställ in port</string>
-    <string name="custom_port_dialog_title">Anpassad %1$s-port</string>
     <string name="custom_port_dialog_valid_ranges">Giltiga intervall: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Det går inte att lösa värd för anpassad tunnel. Försök att ändra inställningarna.</string>
     <string name="daita_description_slide_1_first_paragraph">Obs! Detta ökar nätverkstrafiken men påverkar också hastighet, fördröjning och batterianvändning negativt. Var försiktig om du har ett abonnemang med begränsad datamängd.</string>
@@ -294,7 +293,6 @@
     <string name="number_of_providers">Leverantörer: %1$d</string>
     <string name="obfuscation_info">Obfuskering döljer WireGuard-trafik inne i ett annat protokoll. Det kan användas för att kringgå censur och andra filtertyper där en vanlig WireGuard-anslutning skulle blockeras.</string>
     <string name="obfuscation_info_shadowsocks_batteryusage">Obs! Shadowsocks kan öka batteriförbrukningen beroende på dataanvändningen, som till exempel att strömma en video.</string>
-    <string name="obfuscation_title">WireGuard-obfuskering</string>
     <string name="off">Av</string>
     <string name="on">På</string>
     <string name="open_app_details">Öppna appinformation</string>
@@ -445,7 +443,6 @@
     <string name="vpn_permission_error_notification_title">Behörighetsfel med VPN</string>
     <string name="vpn_settings_not_available">VPN-inställningarna är inte tillgängliga på enheten</string>
     <string name="we_will_look_into_this">Vi kommer att undersöka detta.</string>
-    <string name="wg_port_subtitle">Ställ in %1$s-obfuskering som \"Automatisk\" eller \"Av\" nedan för att aktivera inställningen.</string>
     <string name="wireguard_custon_port_title">Anpassad</string>
     <string name="wireguard_mtu_footer">Ange WireGuard MTU-värde. Giltigt intervall: %1$d–%2$d.</string>
     <string name="wireguard_port_info_description">Den automatiska inställningen väljer slumpmässigt från giltiga portintervall som visas nedan.</string>

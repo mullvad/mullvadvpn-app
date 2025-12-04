@@ -115,7 +115,6 @@
     <string name="custom_port_dialog_placeholder">ป้อนพอร์ต</string>
     <string name="custom_port_dialog_remove">นำพอร์ตแบบกำหนดเองออก</string>
     <string name="custom_port_dialog_submit">ตั้งค่าพอร์ต</string>
-    <string name="custom_port_dialog_title">พอร์ต %1$s แบบกำหนดเอง</string>
     <string name="custom_port_dialog_valid_ranges">ช่วงที่ใช้ได้: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">ไม่พบโฮสต์ของช่องทางแบบกำหนดเอง กรุณาลองเปลี่ยนการตั้งค่าของคุณ</string>
     <string name="daita_description_slide_1_first_paragraph">โปรดทราบ: การดำเนินการนี้จะเพิ่มการรับส่งข้อมูลทางเครือข่าย และส่งผลเสียต่อความเร็ว ความหน่วงแฝง และการใช้งานแบตเตอรี่ โปรดใช้ด้วยความระมัดระวังในขณะที่ใช้แผนบริการแบบจำกัด</string>
@@ -294,7 +293,6 @@
     <string name="number_of_providers">ผู้ให้บริการ: %1$d</string>
     <string name="obfuscation_info">การทำให้ข้อมูลยุ่งเหยิงจะซ่อนการรับส่งข้อมูล WireGuard ภายในอีกโพรโทคอลหนึ่ง ซึ่งใช้เพื่อช่วยหลบเลี่ยงการเซ็นเซอร์ และการกรองประเภทอื่นๆ ที่การเชื่อมต่อ WireGuard แบบธรรมดาจะถูกบล็อกได้</string>
     <string name="obfuscation_info_shadowsocks_batteryusage">โปรดทราบ: Shadowsocks อาจเพิ่มการใช้แบตเตอรี่ โดยขึ้นอยู่กับการใช้งานข้อมูล เช่น การสตรีมวิดีโอ</string>
-    <string name="obfuscation_title">การทำให้ข้อมูลยุ่งเหยิงของ WireGuard</string>
     <string name="off">ปิด</string>
     <string name="on">เปิด</string>
     <string name="open_app_details">เปิดรายละเอียดแอป</string>
@@ -445,7 +443,6 @@
     <string name="vpn_permission_error_notification_title">เกิดข้อผิดพลาดในการอนุญาต VPN</string>
     <string name="vpn_settings_not_available">การตั้งค่า VPN ไม่สามารถใช้งานได้บนอุปกรณ์</string>
     <string name="we_will_look_into_this">เราจะตรวจสอบปัญหานี้</string>
-    <string name="wg_port_subtitle">ตั้งค่าการทำให้ข้อมูลยุ่งเหยิง %1$s ให้เป็น \"อัตโนมัติ\" หรือ \"ปิด\" ที่ด้านล่าง เพื่อเปิดใช้งานการตั้งค่านี้</string>
     <string name="wireguard_custon_port_title">กำหนดเอง</string>
     <string name="wireguard_mtu_footer">ตั้งค่า WireGuard MTU ช่วงที่ถูกต้อง: %1$d - %2$d</string>
     <string name="wireguard_port_info_description">การตั้งค่าอัตโนมัติจะเป็นการสุ่มเลือกจากช่วงพอร์ตที่ใช้งานได้ต่างๆ ซึ่งแสดงอยู่ด้านล่าง</string>
