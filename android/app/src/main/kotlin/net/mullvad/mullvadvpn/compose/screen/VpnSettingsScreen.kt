@@ -489,8 +489,7 @@ fun VpnSettingsContent(
             FeatureIndicator.QUIC,
             FeatureIndicator.LWO -> VpnSettingItem.ObfuscationHeader::class
             FeatureIndicator.LAN_SHARING -> VpnSettingItem.LocalNetworkSharingSetting::class
-            FeatureIndicator.QUANTUM_RESISTANCE ->
-                VpnSettingItem.EnableQuantumResistantSetting::class
+            FeatureIndicator.QUANTUM_RESISTANCE -> VpnSettingItem.QuantumResistantSetting::class
             FeatureIndicator.DNS_CONTENT_BLOCKERS -> VpnSettingItem.DnsContentBlockersHeader::class
             FeatureIndicator.CUSTOM_MTU -> VpnSettingItem.Mtu::class
             FeatureIndicator.CUSTOM_DNS -> VpnSettingItem.CustomDnsServerSetting::class
@@ -948,7 +947,7 @@ fun VpnSettingsContent(
                         )
                     }
 
-                is VpnSettingItem.EnableQuantumResistantSetting ->
+                is VpnSettingItem.QuantumResistantSetting ->
                     item(key = it::class.simpleName) {
                         SwitchListItem(
                             modifier = Modifier.animateItem(),

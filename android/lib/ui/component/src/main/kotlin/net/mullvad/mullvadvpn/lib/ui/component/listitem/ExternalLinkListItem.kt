@@ -47,9 +47,6 @@ fun ExternalLinkListItem(
     isRowEnabled: Boolean = true,
     onClick: () -> Unit,
     testTag: String? = null,
-    icon: @Composable ((BoxScope) -> Unit) = {
-        Icon(imageVector = Icons.AutoMirrored.Default.OpenInNew, contentDescription = title)
-    },
 ) {
     ExternalLinkListItem(
         modifier = modifier,
@@ -60,7 +57,6 @@ fun ExternalLinkListItem(
         isRowEnabled = isRowEnabled,
         onClick = onClick,
         testTag = testTag,
-        icon = icon,
     )
 }
 
@@ -74,13 +70,6 @@ fun ExternalLinkListItem(
     isRowEnabled: Boolean = true,
     onClick: () -> Unit,
     testTag: String? = null,
-    contentDescription: String? = null,
-    icon: @Composable ((BoxScope) -> Unit) = {
-        Icon(
-            imageVector = Icons.AutoMirrored.Default.OpenInNew,
-            contentDescription = contentDescription,
-        )
-    },
 ) {
     MullvadListItem(
         modifier = modifier,
@@ -100,6 +89,11 @@ fun ExternalLinkListItem(
             }
         },
         content = title,
-        trailingContent = icon,
+        trailingContent = {
+            Icon(
+                imageVector = Icons.AutoMirrored.Default.OpenInNew,
+                contentDescription = stringResource(R.string.external_link),
+            )
+        },
     )
 }

@@ -478,4 +478,6 @@
     <string name="multihop_is_disabled">Multihop is disabled</string>
     <string name="set_as_multihop_entry_unavailable">Set as multihop entry (incompatible)</string>
     <string name="set_as_multihop_exit_unavailable">Set as multihop exit (incompatible)</string>
+    <string name="external_link">External link</string>
+    <string name="navigate">Navigate</string>
 </resources>

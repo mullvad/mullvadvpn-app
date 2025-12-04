@@ -47,9 +47,6 @@ fun NavigationListItem(
     isRowEnabled: Boolean = true,
     onClick: () -> Unit,
     testTag: String? = null,
-    icon: @Composable (BoxScope) -> Unit = {
-        Icon(Icons.AutoMirrored.Default.KeyboardArrowRight, contentDescription = title)
-    },
 ) {
     NavigationListItem(
         modifier = modifier,
@@ -60,7 +57,6 @@ fun NavigationListItem(
         isRowEnabled = isRowEnabled,
         onClick = onClick,
         testTag = testTag,
-        icon = icon,
     )
 }
 
@@ -75,10 +71,6 @@ fun NavigationListItem(
     isRowEnabled: Boolean = true,
     onClick: () -> Unit,
     testTag: String? = null,
-    contentDescription: String? = null,
-    icon: @Composable (BoxScope) -> Unit = {
-        Icon(Icons.AutoMirrored.Default.KeyboardArrowRight, contentDescription = contentDescription)
-    },
 ) {
     MullvadListItem(
         modifier = modifier,
@@ -98,6 +90,11 @@ fun NavigationListItem(
             }
         },
         content = title,
-        trailingContent = icon,
+        trailingContent = {
+            Icon(
+                Icons.AutoMirrored.Default.KeyboardArrowRight,
+                contentDescription = stringResource(R.string.navigate),
+            )
+        },
     )
 }

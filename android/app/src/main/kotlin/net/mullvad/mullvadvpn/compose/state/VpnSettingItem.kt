@@ -110,7 +110,7 @@ sealed interface VpnSettingItem {
         data class Off(override val selected: Boolean) : ObfuscationItem
     }
 
-    data class EnableQuantumResistantSetting(val enabled: Boolean) : VpnSettingItem
+    data class QuantumResistantSetting(val enabled: Boolean) : VpnSettingItem
 
     data object DeviceIpVersionHeader : VpnSettingItem
 

@@ -162,7 +162,7 @@ class VpnSettingsViewModelTest {
 
                 assertTrue(
                     content.value.settings
-                        .filterIsInstance<VpnSettingItem.EnableQuantumResistantSetting>()
+                        .filterIsInstance<VpnSettingItem.QuantumResistantSetting>()
                         .any { it.enabled }
                 )
             }
