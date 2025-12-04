@@ -8,7 +8,7 @@ use std::{
 
 /// An Android string value
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize)]
-pub struct StringValue(String);
+pub struct StringValue(pub String);
 
 impl StringValue {
     /// Create a `StringValue` from an unescaped string.
