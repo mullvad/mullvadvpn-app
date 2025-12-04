@@ -21,7 +21,7 @@ android-gradle-aapt = "13719691"
 android-billingclient = "8.0.0"
 
 # AndroidX
-androidx-activitycompose = "1.12.0"
+androidx-activitycompose = "1.12.1"
 androidx-appcompat = "1.7.1"
 androidx-ktx = "1.17.0"
 androidx-credentials = "1.5.0"
