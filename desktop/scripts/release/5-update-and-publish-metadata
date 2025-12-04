@@ -17,11 +17,12 @@ PRODUCT_VERSION=$(cat $PRODUCT_VERSION_PATH)
 $REPO_ROOT/scripts/utils/commit-verification
 "$SCRIPT_DIR/verify-version-is-release"
 
-if [ $# -ne 2 ]; then
+if [ $# -ne 3 ]; then
     echo "Please provide the following arguments:"
     echo "    $(basename "$0") \\"
     echo "        <build server SSH destination> \\"
-    echo "        <metadata server SSH destination>"
+    echo "        <metadata server SSH destination> \\"
+    echo "        <rollout (0-1)>"
     echo ""
     echo "Note that the metadata server SSH destination is part of the rsync command executed on the build server and will be checked against the SSH config of build@\$buildserver_host."
     exit 1
@@ -31,6 +32,8 @@ fi
 BUILDSERVER_HOST=$1
 # The server to upload the metadata to *from* the build server (argument above)
 METADATA_SERVER_HOST=$2
+# The rollout proportion to use
+ROLLOUT=$3
 
 # shellcheck source=desktop/scripts/release/release-config.sh
 source "$SCRIPT_DIR/release-config.sh"
@@ -64,8 +67,8 @@ function publish_metadata {
     log_header "Replacing $work_dir directory with latest published data"
     cp -rf "$signed_dir" "$work_dir"
 
-    log_header "Adding new release $PRODUCT_VERSION (rollout = 1)"
-    $mullvad_release add-release "$PRODUCT_VERSION" --rollout 1 "${platforms[@]}"
+    log_header "Adding new release $PRODUCT_VERSION (rollout = $ROLLOUT)"
+    $mullvad_release add-release "$PRODUCT_VERSION" --rollout "$ROLLOUT" "${platforms[@]}"
 
     log "\nScript paused allow manual edits to the metadata before signing and publishing."
     log "Before continuing, make sure your release metadata signing key in the clipboard."
