@@ -16,7 +16,7 @@ ndk = "27.3.13750724"
 # Find the relevant AAPT version here:
 # https://mvnrepository.com/artifact/com.android.tools.build/aapt2
 
-android-gradle-plugin = "8.13.0"
+android-gradle-plugin = "8.13.1"
 android-gradle-aapt = "13719691"
 android-billingclient = "8.0.0"
 
