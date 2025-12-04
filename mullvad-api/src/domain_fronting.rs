@@ -73,6 +73,7 @@ impl ProxyConfig {
         });
 
         let request = hyper::Request::connect(&format!("https://{}/", self.proxy_host))
+            .header(header::CONTENT_TYPE, "application/octet-stream")
             .body(Full::<Bytes>::new(Bytes::new()))?;
 
         sender.ready().await?;
