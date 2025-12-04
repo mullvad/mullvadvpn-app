@@ -128,6 +128,9 @@ import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_WIREGUARD_CUSTOM_PORT_TEXT_TE
 import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_WIREGUARD_OBFUSCATION_TITLE_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_WIREGUARD_PORT_ITEM_X_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SERVER_IP_OVERRIDE_BUTTON_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.WIREGUARD_DEVICE_IP_AUTO_CELL_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.WIREGUARD_DEVICE_IP_IPV4_CELL_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.WIREGUARD_DEVICE_IP_IPV6_CELL_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.WIREGUARD_OBFUSCATION_LWO_CELL_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.WIREGUARD_OBFUSCATION_OFF_CELL_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.WIREGUARD_OBFUSCATION_QUIC_CELL_TEST_TAG
@@ -678,6 +681,12 @@ fun VpnSettingsContent(
                                 },
                             isSelected = it.selected,
                             onClick = { onSelectDeviceIpVersion(it.constraint) },
+                            testTag =
+                                when (it.constraint.getOrNull()) {
+                                    null -> WIREGUARD_DEVICE_IP_AUTO_CELL_TEST_TAG
+                                    IpVersion.IPV4 -> WIREGUARD_DEVICE_IP_IPV4_CELL_TEST_TAG
+                                    IpVersion.IPV6 -> WIREGUARD_DEVICE_IP_IPV6_CELL_TEST_TAG
+                                },
                         )
                     }
 

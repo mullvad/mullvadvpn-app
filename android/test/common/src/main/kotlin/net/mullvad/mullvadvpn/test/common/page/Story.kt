@@ -78,6 +78,13 @@ fun ConnectPage.enableServerIpOverrideStory(relay: String, overrideIp: String) {
     clickSettings()
     on<SettingsPage> { clickVpnSettings() }
     on<VpnSettingsPage> {
+        // Disable obfuscation
+        scrollUntilWireGuardObfuscationOffCell()
+        clickWireGuardObfuscationOffCell()
+        // Disable IPv6
+        scrollUntilDeviceIpVersionCell()
+        clickDeviceIpIpv4Cell()
+        // Open ServerIPOverrideScreen
         scrollUntilServerIpOverride()
         clickServerIpOverrideButton()
     }

@@ -12,6 +12,8 @@ import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_WIREGUARD_CUSTOM_PORT_TEXT_TE
 import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_WIREGUARD_PORT_ITEM_X_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SERVER_IP_OVERRIDE_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SWITCH_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.WIREGUARD_DEVICE_IP_IPV4_CELL_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.WIREGUARD_DEVICE_IP_IPV6_CELL_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.WIREGUARD_OBFUSCATION_LWO_CELL_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.WIREGUARD_OBFUSCATION_OFF_CELL_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.WIREGUARD_OBFUSCATION_QUIC_CELL_TEST_TAG
@@ -81,6 +83,10 @@ class VpnSettingsPage internal constructor() : Page() {
         scrollUntilCell(SERVER_IP_OVERRIDE_BUTTON_TEST_TAG)
     }
 
+    fun scrollUntilDeviceIpVersionCell() {
+        scrollUntilCell(WIREGUARD_DEVICE_IP_IPV6_CELL_TEST_TAG)
+    }
+
     fun clickWireguardObfuscationUdpOverTcpCell() {
         uiDevice.clickObjectAwaitIsChecked(By.res(WIREGUARD_OBFUSCATION_UDP_OVER_TCP_CELL_TEST_TAG))
     }
@@ -111,6 +117,10 @@ class VpnSettingsPage internal constructor() : Page() {
 
     fun clickServerIpOverrideButton() {
         uiDevice.findObjectWithTimeout(By.res(SERVER_IP_OVERRIDE_BUTTON_TEST_TAG)).click()
+    }
+
+    fun clickDeviceIpIpv4Cell() {
+        uiDevice.clickObjectAwaitIsChecked(By.res(WIREGUARD_DEVICE_IP_IPV4_CELL_TEST_TAG))
     }
 
     private fun scrollUntilCell(testTag: String) {
