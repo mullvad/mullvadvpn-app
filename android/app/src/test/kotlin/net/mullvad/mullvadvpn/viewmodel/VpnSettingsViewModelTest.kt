@@ -66,7 +66,6 @@ class VpnSettingsViewModelTest {
     private val mockBackstackObserver: BackstackObserver = mockk()
 
     private val mockSettingsUpdate = MutableStateFlow<Settings?>(null)
-    //    private val portRangeFlow = MutableStateFlow(emptyList<PortRange>())
     private val autoStartAndConnectOnBootFlow = MutableStateFlow(false)
     private val previousDestinationFlow = MutableStateFlow(ConnectDestination)
 
@@ -75,7 +74,6 @@ class VpnSettingsViewModelTest {
     @BeforeEach
     fun setup() {
         every { mockSettingsRepository.settingsUpdates } returns mockSettingsUpdate
-        //        every { mockRelayListRepository.portRanges } returns portRangeFlow
         every { mockAutoStartAndConnectOnBootRepository.autoStartAndConnectOnBoot } returns
             autoStartAndConnectOnBootFlow
         every { mockBackstackObserver.previousDestinationFlow } returns previousDestinationFlow
@@ -84,7 +82,6 @@ class VpnSettingsViewModelTest {
             VpnSettingsViewModel(
                 settingsRepository = mockSettingsRepository,
                 systemVpnSettingsUseCase = mockSystemVpnSettingsUseCase,
-                //                relayListRepository = mockRelayListRepository,
                 dispatcher = UnconfinedTestDispatcher(),
                 autoStartAndConnectOnBootRepository = mockAutoStartAndConnectOnBootRepository,
                 wireguardConstraintsRepository = mockWireguardConstraintsRepository,

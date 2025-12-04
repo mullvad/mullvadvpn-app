@@ -79,16 +79,14 @@ class AntiCensorshipSettingsScreenTest {
             initScreen()
 
             // Assert
-            apply {
-                onNodeWithText("WireGuard port").assertExists()
-                onNodeWithText("LWO").assertExists()
-                onNodeWithText("QUIC").assertExists()
-                onNodeWithText("WireGuard port").assertExists()
-                onNodeWithText("Shadowsocks").assertExists()
-                onNodeWithText("UDP-over-TCP").assertExists()
-                onNodeWithText("Automatic").assertExists()
-                onNodeWithText("Off").assertExists()
-            }
+            onNodeWithText("WireGuard port").assertExists()
+            onNodeWithText("LWO").assertExists()
+            onNodeWithText("QUIC").assertExists()
+            onNodeWithText("WireGuard port").assertExists()
+            onNodeWithText("Shadowsocks").assertExists()
+            onNodeWithText("UDP-over-TCP").assertExists()
+            onNodeWithText("Automatic").assertExists()
+            onNodeWithText("Off").assertExists()
         }
 
     @Test
