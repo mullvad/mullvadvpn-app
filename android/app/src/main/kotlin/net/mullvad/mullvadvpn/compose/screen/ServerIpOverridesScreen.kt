@@ -1,6 +1,6 @@
 package net.mullvad.mullvadvpn.compose.screen
 
-import android.content.Context
+import android.content.res.Resources
 import android.os.Parcelable
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -41,7 +41,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -128,13 +128,13 @@ fun SharedTransitionScope.ServerIpOverrides(
     val state by vm.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
 
-    val context = LocalContext.current
+    val resources = LocalResources.current
     CollectSideEffectWithLifecycle(vm.uiSideEffect) { sideEffect ->
         when (sideEffect) {
             is ServerIpOverridesUiSideEffect.ImportResult ->
                 launch {
                     snackbarHostState.showSnackbarImmediately(
-                        message = sideEffect.error.toString(context),
+                        message = sideEffect.error.toString(resources),
                         actionLabel = null,
                     )
                 }
@@ -150,9 +150,9 @@ fun SharedTransitionScope.ServerIpOverrides(
             snackbarHostState.showSnackbarImmediately(
                 message =
                     if (clearSuccessful) {
-                        context.getString(R.string.overrides_cleared)
+                        resources.getString(R.string.overrides_cleared)
                     } else {
-                        context.getString(R.string.error_occurred)
+                        resources.getString(R.string.error_occurred)
                     },
                 actionLabel = null,
             )
@@ -369,19 +369,19 @@ private fun Lc<Boolean, ServerIpOverridesUiState>.isModal(): Boolean =
         is Lc.Content -> this.value.isModal
     }
 
-private fun SettingsPatchError?.toString(context: Context) =
+private fun SettingsPatchError?.toString(resources: Resources) =
     when (this) {
         SettingsPatchError.DeserializePatched ->
-            context.getString(R.string.patch_not_matching_specification)
+            resources.getString(R.string.patch_not_matching_specification)
         is SettingsPatchError.InvalidOrMissingValue ->
-            context.getString(R.string.settings_patch_error_invalid_or_missing_value, value)
+            resources.getString(R.string.settings_patch_error_invalid_or_missing_value, value)
         SettingsPatchError.ParsePatch ->
-            context.getString(R.string.settings_patch_error_unable_to_parse)
+            resources.getString(R.string.settings_patch_error_unable_to_parse)
         is SettingsPatchError.UnknownOrProhibitedKey ->
-            context.getString(R.string.settings_patch_error_unknown_or_prohibited_key, value)
+            resources.getString(R.string.settings_patch_error_unknown_or_prohibited_key, value)
         SettingsPatchError.ApplyPatch ->
-            context.getString(R.string.settings_patch_error_failed_to_apply_patch)
+            resources.getString(R.string.settings_patch_error_failed_to_apply_patch)
         SettingsPatchError.RecursionLimit ->
-            context.getString(R.string.settings_patch_error_recursion_limit)
-        null -> context.getString(R.string.settings_patch_success)
+            resources.getString(R.string.settings_patch_error_recursion_limit)
+        null -> resources.getString(R.string.settings_patch_success)
     }

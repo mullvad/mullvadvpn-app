@@ -36,7 +36,7 @@ class MullvadApplication : Application() {
         }
         // Improve compose stack traces
         // Comes with a performance penalty, so only enable in debug builds
-        if(BuildConfig.DEBUG) {
+        if (BuildConfig.DEBUG) {
             Composer.setDiagnosticStackTraceMode(ComposeStackTraceMode.SourceInformation)
         }
         startKoin { androidContext(this@MullvadApplication) }

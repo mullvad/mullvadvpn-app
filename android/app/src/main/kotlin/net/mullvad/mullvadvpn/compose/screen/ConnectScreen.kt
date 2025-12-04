@@ -1,6 +1,6 @@
 package net.mullvad.mullvadvpn.compose.screen
 
-import android.content.Context
+import android.content.res.Resources
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
@@ -52,6 +52,7 @@ import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.testTag
@@ -195,6 +196,7 @@ fun Connect(
 
     val openAccountPage = LocalUriHandler.current.createOpenAccountPageHook()
     val uriHandler = LocalUriHandler.current
+    val resources = LocalResources.current
     CollectSideEffectWithLifecycle(
         connectViewModel.uiSideEffect,
         minActiveState = Lifecycle.State.RESUMED,
@@ -220,14 +222,14 @@ fun Connect(
                     is PrepareError.OtherLegacyAlwaysOnVpn ->
                         launch {
                             snackbarHostState.showSnackbarImmediately(
-                                message = sideEffect.prepareError.toMessage(context)
+                                message = sideEffect.prepareError.toMessage(resources)
                             )
                         }
 
                     is PrepareError.OtherAlwaysOnApp ->
                         launch {
                             snackbarHostState.showSnackbarImmediately(
-                                message = sideEffect.prepareError.toMessage(context)
+                                message = sideEffect.prepareError.toMessage(resources)
                             )
                         }
                     is PrepareError.NotPrepared ->
@@ -236,14 +238,14 @@ fun Connect(
 
             ConnectViewModel.UiSideEffect.ConnectError.Generic ->
                 snackbarHostState.showSnackbarImmediately(
-                    message = context.getString(R.string.error_occurred)
+                    message = resources.getString(R.string.error_occurred)
                 )
 
             is ConnectViewModel.UiSideEffect.ConnectError.PermissionDenied -> {
                 launch {
                     snackbarHostState.showSnackbarImmediately(
                         message =
-                            context.getString(
+                            resources.getString(
                                 if (sideEffect.systemVpnSettingsAvailable) {
                                     R.string.vpn_permission_denied_error
                                 } else {
@@ -252,7 +254,7 @@ fun Connect(
                             ),
                         actionLabel =
                             if (sideEffect.systemVpnSettingsAvailable) {
-                                context.getString(R.string.go_to_vpn_settings)
+                                resources.getString(R.string.go_to_vpn_settings)
                             } else {
                                 null
                             },
@@ -262,7 +264,7 @@ fun Connect(
                                 launch {
                                     snackbarHostState.showSnackbarImmediately(
                                         message =
-                                            context.getString(R.string.vpn_settings_not_available)
+                                            resources.getString(R.string.vpn_settings_not_available)
                                     )
                                 }
                             }
@@ -795,13 +797,13 @@ fun TunnelState.iconTintColor(): Color =
 fun GeoIpLocation.toLatLong() =
     LatLong(Latitude(latitude.toFloat()), Longitude(longitude.toFloat()))
 
-private fun PrepareError.OtherLegacyAlwaysOnVpn.toMessage(context: Context) =
-    context
+private fun PrepareError.OtherLegacyAlwaysOnVpn.toMessage(resources: Resources) =
+    resources
         .getString(R.string.always_on_vpn_error_notification_content, "Legacy app")
         .removeHtmlTags()
 
-private fun PrepareError.OtherAlwaysOnApp.toMessage(context: Context) =
-    context.getString(R.string.always_on_vpn_error_notification_content, appName).removeHtmlTags()
+private fun PrepareError.OtherAlwaysOnApp.toMessage(resources: Resources) =
+    resources.getString(R.string.always_on_vpn_error_notification_content, appName).removeHtmlTags()
 
 private fun FeatureIndicator.destination() =
     when (this) {

@@ -1,6 +1,6 @@
 package net.mullvad.mullvadvpn.compose.screen.location
 
-import android.content.Context
+import android.content.res.Resources
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
@@ -32,7 +32,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -538,15 +538,15 @@ private fun <T : RelayItem> MultihopOptions(
 }
 
 internal suspend fun SnackbarHostState.showResultSnackbar(
-    context: Context,
+    resources: Resources,
     result: CustomListActionResultData,
     onUndo: (CustomListAction) -> Unit,
 ) {
 
     showSnackbarImmediately(
-        message = result.message(context),
+        message = result.message(resources),
         actionLabel =
-            if (result is CustomListActionResultData.Success) context.getString(R.string.undo)
+            if (result is CustomListActionResultData.Success) resources.getString(R.string.undo)
             else {
                 null
             },
@@ -559,29 +559,33 @@ internal suspend fun SnackbarHostState.showResultSnackbar(
     )
 }
 
-private fun CustomListActionResultData.message(context: Context): String =
+private fun CustomListActionResultData.message(resources: Resources): String =
     when (this) {
         is CustomListActionResultData.Success.CreatedWithLocations ->
             if (locationNames.size == 1) {
-                context.getString(
+                resources.getString(
                     R.string.location_was_added_to_list,
                     locationNames.first(),
                     customListName,
                 )
             } else {
-                context.getString(R.string.create_custom_list_message, customListName)
+                resources.getString(R.string.create_custom_list_message, customListName)
             }
         is CustomListActionResultData.Success.Deleted ->
-            context.getString(R.string.delete_custom_list_message, customListName)
+            resources.getString(R.string.delete_custom_list_message, customListName)
         is CustomListActionResultData.Success.LocationAdded ->
-            context.getString(R.string.location_was_added_to_list, locationName, customListName)
+            resources.getString(R.string.location_was_added_to_list, locationName, customListName)
         is CustomListActionResultData.Success.LocationRemoved ->
-            context.getString(R.string.location_was_removed_from_list, locationName, customListName)
+            resources.getString(
+                R.string.location_was_removed_from_list,
+                locationName,
+                customListName,
+            )
         is CustomListActionResultData.Success.LocationChanged ->
-            context.getString(R.string.locations_were_changed_for, customListName)
+            resources.getString(R.string.locations_were_changed_for, customListName)
         is CustomListActionResultData.Success.Renamed ->
-            context.getString(R.string.name_was_changed_to, newName)
-        CustomListActionResultData.GenericError -> context.getString(R.string.error_occurred)
+            resources.getString(R.string.name_was_changed_to, newName)
+        CustomListActionResultData.GenericError -> resources.getString(R.string.error_occurred)
     }
 
 @Composable
@@ -591,7 +595,7 @@ internal fun <D : DestinationSpec, R : CustomListActionResultData> ResultRecipie
     performAction: (action: CustomListAction) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
-    val context = LocalContext.current
+    val resources = LocalResources.current
     this.onNavResult { result ->
         when (result) {
             NavResult.Canceled -> {
@@ -601,7 +605,7 @@ internal fun <D : DestinationSpec, R : CustomListActionResultData> ResultRecipie
                 // Handle result
                 scope.launch {
                     snackbarHostState.showResultSnackbar(
-                        context = context,
+                        resources = resources,
                         result = result.value,
                         onUndo = performAction,
                     )

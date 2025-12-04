@@ -18,7 +18,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -79,7 +79,7 @@ fun CustomLists(
     val viewModel = koinViewModel<CustomListsViewModel>()
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
-    val context = LocalContext.current
+    val resources = LocalResources.current
     val snackbarHostState = remember { SnackbarHostState() }
 
     editCustomListResultRecipient.onNavResult { result ->
@@ -91,11 +91,11 @@ fun CustomLists(
                 scope.launch {
                     snackbarHostState.showSnackbarImmediately(
                         message =
-                            context.getString(
+                            resources.getString(
                                 R.string.delete_custom_list_message,
                                 result.value.customListName,
                             ),
-                        actionLabel = context.getString(R.string.undo),
+                        actionLabel = resources.getString(R.string.undo),
                         duration = SnackbarDuration.Long,
                         onAction = { viewModel.undoDeleteCustomList(result.value.undo) },
                     )
