@@ -336,6 +336,7 @@ impl Firewall {
     pub fn new(
         #[cfg(target_os = "linux")] fwmark: u32,
         #[cfg(target_os = "linux")] excluded_cgroup: Option<CGroup2>,
+        #[cfg(target_os = "linux")] net_cls: Option<u32>,
     ) -> Result<Self, Error> {
         Ok(Firewall {
             inner: imp::Firewall::new(
@@ -343,6 +344,8 @@ impl Firewall {
                 fwmark,
                 #[cfg(target_os = "linux")]
                 excluded_cgroup,
+                #[cfg(target_os = "linux")]
+                net_cls,
             )?,
         })
     }

@@ -170,6 +170,9 @@ async fn reset_firewall() -> Result<(), Error> {
         // TODO split-tunneling?
         #[cfg(target_os = "linux")]
         None,
+        // TODO split-tunneling?
+        #[cfg(target_os = "linux")]
+        None,
     )
     .map_err(Error::FirewallError)?
     .reset_policy()
