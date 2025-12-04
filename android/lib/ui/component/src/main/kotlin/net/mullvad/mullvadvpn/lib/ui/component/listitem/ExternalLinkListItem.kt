@@ -1,14 +1,12 @@
 package net.mullvad.mullvadvpn.lib.ui.component.listitem
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -43,29 +41,7 @@ fun ExternalLinkListItem(
     hierarchy: Hierarchy = Hierarchy.Parent,
     position: Position = Position.Single,
     title: String,
-    showWarning: Boolean = false,
-    isRowEnabled: Boolean = true,
-    onClick: () -> Unit,
-    testTag: String? = null,
-) {
-    ExternalLinkListItem(
-        modifier = modifier,
-        hierarchy = hierarchy,
-        position = position,
-        title = @Composable { Text(title) },
-        showWarning = showWarning,
-        isRowEnabled = isRowEnabled,
-        onClick = onClick,
-        testTag = testTag,
-    )
-}
-
-@Composable
-fun ExternalLinkListItem(
-    modifier: Modifier = Modifier,
-    hierarchy: Hierarchy = Hierarchy.Parent,
-    position: Position = Position.Single,
-    title: @Composable (BoxScope) -> Unit,
+    subtitle: String? = null,
     showWarning: Boolean = false,
     isRowEnabled: Boolean = true,
     onClick: () -> Unit,
@@ -88,7 +64,7 @@ fun ExternalLinkListItem(
                 )
             }
         },
-        content = title,
+        content = { TitleAndSubtitle(title = title, subtitle = subtitle) },
         trailingContent = {
             Icon(
                 imageVector = Icons.AutoMirrored.Default.OpenInNew,

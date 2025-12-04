@@ -139,16 +139,8 @@ private fun AppInfoContent(
 private fun AppVersionRow(state: AppInfoUiState, openAppListing: () -> Unit) {
     Column {
         ExternalLinkListItem(
-            title = {
-                Column {
-                    Text(stringResource(id = R.string.version))
-                    Text(
-                        text = state.version.currentVersion,
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-            },
+            title = stringResource(id = R.string.version),
+            subtitle = state.version.currentVersion,
             showWarning = !state.version.isSupported,
             position = Position.Bottom,
             onClick = openAppListing,

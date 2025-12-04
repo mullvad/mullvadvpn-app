@@ -1,15 +1,12 @@
 package net.mullvad.mullvadvpn.compose.screen
 
 import androidx.compose.animation.animateContentSize
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -224,12 +221,8 @@ private fun SplitTunneling(onSplitTunnelingCellClick: () -> Unit) {
 @Composable
 private fun AppInfo(navigateToAppInfo: () -> Unit, state: SettingsUiState) {
     NavigationListItem(
-        title = {
-            TitleAndSubtitle(
-                title = stringResource(id = R.string.app_info),
-                subtitle = state.appVersion,
-            )
-        },
+        title = stringResource(id = R.string.app_info),
+        subtitle = state.appVersion,
         showWarning = !state.isSupportedVersion,
         position = Position.Bottom,
         onClick = navigateToAppInfo,
@@ -278,19 +271,15 @@ private fun PrivacyPolicy(state: SettingsUiState) {
 private fun DaitaListItem(isDaitaEnabled: Boolean, onDaitaClick: () -> Unit) {
     val title = stringResource(id = R.string.daita)
     NavigationListItem(
-        title = {
-            TitleAndSubtitle(
-                title,
-                stringResource(
-                    if (isDaitaEnabled) {
-                        R.string.on
-                    } else {
-                        R.string.off
-                    }
-                ),
-            )
-        },
-        contentDescription = title,
+        title = title,
+        subtitle =
+            stringResource(
+                if (isDaitaEnabled) {
+                    R.string.on
+                } else {
+                    R.string.off
+                }
+            ),
         onClick = onDaitaClick,
         position = Position.Top,
         testTag = DAITA_CELL_TEST_TAG,
@@ -301,35 +290,19 @@ private fun DaitaListItem(isDaitaEnabled: Boolean, onDaitaClick: () -> Unit) {
 private fun MultihopCell(isMultihopEnabled: Boolean, onMultihopClick: () -> Unit) {
     val title = stringResource(id = R.string.multihop)
     NavigationListItem(
-        title = {
-            TitleAndSubtitle(
-                title,
-                stringResource(
-                    if (isMultihopEnabled) {
-                        R.string.on
-                    } else {
-                        R.string.off
-                    }
-                ),
-            )
-        },
-        contentDescription = title,
+        title = title,
+        subtitle =
+            stringResource(
+                if (isMultihopEnabled) {
+                    R.string.on
+                } else {
+                    R.string.off
+                }
+            ),
         onClick = onMultihopClick,
         position = Position.Middle,
         testTag = MULTIHOP_CELL_TEST_TAG,
     )
-}
-
-@Composable
-private fun TitleAndSubtitle(title: String, subtitle: String) {
-    Column {
-        Text(title)
-        Text(
-            text = subtitle,
-            style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-    }
 }
 
 private fun LazyListScope.loading() {

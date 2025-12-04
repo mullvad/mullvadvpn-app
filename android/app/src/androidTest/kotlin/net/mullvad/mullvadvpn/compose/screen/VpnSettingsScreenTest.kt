@@ -34,6 +34,7 @@ import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_WIREGUARD_CUSTOM_PORT_TEXT_TE
 import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_WIREGUARD_OBFUSCATION_TITLE_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_WIREGUARD_PORT_ITEM_X_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SWITCH_TEST_TAG
+import net.mullvad.mullvadvpn.onNodeWithContentDescriptionAndParentTag
 import net.mullvad.mullvadvpn.onNodeWithTagAndText
 import net.mullvad.mullvadvpn.util.Lc
 import net.mullvad.mullvadvpn.util.toLc
@@ -530,6 +531,30 @@ class VpnSettingsScreenTest {
 
             // Assert
             verify(exactly = 1) { mockedNavigateToObfuscationInfo() }
+        }
+
+    @Test
+    fun testShowTunnelQuantumInfo() =
+        composeExtension.use {
+            val mockedShowTunnelQuantumInfoClick: () -> Unit = mockk(relaxed = true)
+
+            // Arrange
+            initScreen(
+                state = createDefaultUiState().toLc(),
+                navigateToQuantumResistanceInfo = mockedShowTunnelQuantumInfoClick,
+            )
+
+            // Act
+            onNodeWithTag(LAZY_LIST_VPN_SETTINGS_TEST_TAG)
+                .performScrollToNode(hasTestTag(LAZY_LIST_QUANTUM_ITEM_TEST_TAG))
+            onNodeWithContentDescriptionAndParentTag(
+                    "More information",
+                    LAZY_LIST_QUANTUM_ITEM_TEST_TAG,
+                )
+                .performClick()
+
+            // Assert
+            verify(exactly = 1) { mockedShowTunnelQuantumInfoClick() }
         }
 
     @Test

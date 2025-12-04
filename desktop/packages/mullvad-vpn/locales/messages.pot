@@ -3031,6 +3031,9 @@ msgstr ""
 msgid "Expand"
 msgstr ""
 
+msgid "External link"
+msgstr ""
+
 msgid "FAILED TO CONNECT"
 msgstr ""
 
@@ -3134,6 +3137,9 @@ msgid "Multihop is enabled"
 msgstr ""
 
 msgid "Name was changed to %s"
+msgstr ""
+
+msgid "Navigate"
 msgstr ""
 
 msgid "New list"
