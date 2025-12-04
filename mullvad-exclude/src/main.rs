@@ -13,6 +13,7 @@ use std::{
     os::unix::ffi::OsStrExt,
     path::Path,
 };
+use talpid_types::cgroup::find_net_cls_mount;
 
 #[cfg(target_os = "linux")]
 use talpid_types::cgroup::{CGROUP2_DEFAULT_MOUNT_PATH, SPLIT_TUNNEL_CGROUP_NAME};
@@ -40,6 +41,9 @@ enum Error {
 
     #[error("An argument contains interior nul bytes")]
     ArgumentNul(#[source] NulError),
+
+    #[error("Failed to stat /proc/mounts")]
+    NoProcMounts,
 }
 
 fn main() {
@@ -66,6 +70,29 @@ fn main() {
             }
         }
     }
+}
+
+fn add_to_cgroups_v1_if_exists() -> Result<(), Error> {
+    let Some(net_cls_dir) = find_net_cls_mount().map_err(|_| Error::NoProcMounts)? else {
+        return Ok(());
+    };
+
+    let procs_path = net_cls_dir
+        .join(SPLIT_TUNNEL_CGROUP_NAME)
+        .join("cgroup.procs");
+
+    let procs_file = fs::OpenOptions::new()
+        .write(true)
+        .create(false)
+        .truncate(false)
+        .open(procs_path)
+        .map_err(Error::AddProcToCGroup)?;
+
+    BufWriter::new(procs_file)
+        .write_all(getpid().to_string().as_bytes())
+        .map_err(Error::AddProcToCGroup)?;
+
+    Ok(())
 }
 
 #[cfg(target_os = "linux")]
@@ -107,6 +134,10 @@ fn run() -> Result<Infallible, Error> {
     BufWriter::new(procs_file)
         .write_all(getpid().to_string().as_bytes())
         .map_err(Error::AddProcToCGroup)?;
+
+    if let Err(e) = add_to_cgroups_v1_if_exists() {
+        eprintln!("Failed to add process to v1 cgroup: {e}");
+    }
 
     // Drop root privileges
     let real_uid = getuid();
