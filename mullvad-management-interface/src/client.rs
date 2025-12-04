@@ -671,7 +671,7 @@ fn map_reset_settings_error(status: Status) -> Error {
     use crate::ResetSettingsError;
     // TODO: This ought to be converted to error types in the protobuf layer.
     match status.code() {
-        Code::ResourceExhausted => Error::ResetSettings(ResetSettingsError::RemoveFile {
+        Code::FailedPrecondition => Error::ResetSettings(ResetSettingsError::RemoveFile {
             path: status.message().to_owned(),
         }),
         _other => Error::Rpc(Box::new(status)),
