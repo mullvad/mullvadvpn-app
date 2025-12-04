@@ -1,4 +1,5 @@
 use super::{Error, TestContext, config::TEST_CONFIG, helpers};
+use anyhow::{Result, ensure};
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_relay_selector::query::builder::RelayQueryBuilder;
 use std::{
@@ -12,7 +13,7 @@ use test_rpc::{ExecResult, ServiceClient, meta::Os};
 pub async fn run_test<T: AsRef<str> + Debug>(
     rpc: &ServiceClient,
     params: &[T],
-) -> Result<ExecResult, Error> {
+) -> Result<ExecResult> {
     let env: [(&str, T); 0] = [];
     run_test_env(rpc, params, env).await
 }
@@ -25,7 +26,7 @@ pub async fn run_test_env<
     rpc: &ServiceClient,
     params: &[T],
     env: I,
-) -> Result<ExecResult, Error> {
+) -> Result<ExecResult> {
     let new_params: Vec<String>;
     let bin_path;
 
@@ -90,7 +91,7 @@ pub async fn test_ui_tunnel_settings(
     _: TestContext,
     rpc: ServiceClient,
     mut mullvad_client: MullvadProxyClient,
-) -> anyhow::Result<()> {
+) -> Result<()> {
     // tunnel-state.spec precondition: a single WireGuard relay should be selected
     log::info!("Select WireGuard relay");
     let entry =
@@ -110,7 +111,7 @@ pub async fn test_ui_tunnel_settings(
     )
     .await
     .unwrap();
-    assert!(ui_result.success());
+    ensure!(ui_result.success());
 
     Ok(())
 }
@@ -121,7 +122,7 @@ pub async fn test_ui_login(
     _: TestContext,
     rpc: ServiceClient,
     mut mullvad_client: MullvadProxyClient,
-) -> Result<(), Error> {
+) -> Result<()> {
     mullvad_client.logout_account().await?;
     mullvad_client.clear_account_history().await?;
     let ui_result = run_test_env(
@@ -131,7 +132,7 @@ pub async fn test_ui_login(
     )
     .await
     .unwrap();
-    assert!(ui_result.success());
+    ensure!(ui_result.success());
 
     Ok(())
 }
@@ -141,7 +142,7 @@ async fn test_custom_access_methods_gui(
     _: TestContext,
     rpc: ServiceClient,
     mut mullvad_client: MullvadProxyClient,
-) -> anyhow::Result<()> {
+) -> Result<()> {
     use mullvad_api_constants::env;
     use mullvad_relay_selector::{RelaySelector, SelectorConfig};
 
@@ -202,7 +203,7 @@ async fn test_custom_access_methods_gui(
     .await
     .unwrap();
 
-    assert!(ui_result.success());
+    ensure!(ui_result.success());
 
     Ok(())
 }
@@ -213,9 +214,9 @@ pub async fn test_import_settings_ui(
     _: TestContext,
     rpc: ServiceClient,
     _: MullvadProxyClient,
-) -> Result<(), Error> {
+) -> Result<()> {
     let ui_result = run_test(&rpc, &["settings-import.spec"]).await?;
-    assert!(ui_result.success());
+    ensure!(ui_result.success());
     Ok(())
 }
 
@@ -225,9 +226,9 @@ pub async fn test_obfuscation_settings_ui(
     _: TestContext,
     rpc: ServiceClient,
     _: MullvadProxyClient,
-) -> Result<(), Error> {
+) -> Result<()> {
     let ui_result = run_test(&rpc, &["obfuscation.spec"]).await?;
-    assert!(ui_result.success());
+    ensure!(ui_result.success());
     Ok(())
 }
 
@@ -237,9 +238,9 @@ pub async fn test_settings_ui(
     _: TestContext,
     rpc: ServiceClient,
     _: MullvadProxyClient,
-) -> Result<(), Error> {
+) -> Result<()> {
     let ui_result = run_test(&rpc, &["vpn-settings.spec"]).await?;
-    assert!(ui_result.success());
+    ensure!(ui_result.success());
     Ok(())
 }
 
@@ -249,9 +250,9 @@ pub async fn test_daita_ui(
     _: TestContext,
     rpc: ServiceClient,
     _: MullvadProxyClient,
-) -> Result<(), Error> {
+) -> Result<()> {
     let ui_result = run_test(&rpc, &["daita-settings.spec"]).await?;
-    assert!(ui_result.success());
+    ensure!(ui_result.success());
     Ok(())
 }
 
@@ -261,8 +262,8 @@ pub async fn test_multihop_ui(
     _: TestContext,
     rpc: ServiceClient,
     _: MullvadProxyClient,
-) -> Result<(), Error> {
+) -> Result<()> {
     let ui_result = run_test(&rpc, &["multihop-settings.spec"]).await?;
-    assert!(ui_result.success());
+    ensure!(ui_result.success());
     Ok(())
 }
