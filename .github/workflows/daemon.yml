@@ -88,9 +88,6 @@ jobs:
         if: ${{ matrix.rust != 'stable' }}
         run: rustup override set ${{ matrix.rust }}
 
-      - name: Build crates
-        run: ci/cargo-ci.sh build --workspace
-
       - name: Test crates
         run: ci/cargo-ci.sh test --workspace
 
@@ -102,14 +99,13 @@ jobs:
 
       - uses: ./.github/actions/mullvad-build-env
 
-      - name: Build crates
-        run: ci/cargo-ci.sh build --workspace
-
       - name: Test crates
         run: ci/cargo-ci.sh test --workspace
 
   build-windows:
     strategy:
+      # Even if onw of the Windows jobs fail, the other should not be cancelled.
+      fail-fast: false
       matrix:
         config:
           - os: windows-latest
@@ -151,10 +147,6 @@ jobs:
       # Excluding windows-installer because it builds an actual full installer
       # at the build step, which is not desired in a CI environment. Instead
       # we just `cargo check` it below.
-      - name: Build crates
-        shell: bash
-        run: ci/cargo-ci.sh build --workspace --exclude windows-installer
-
       - name: Test crates
         shell: bash
         run: ci/cargo-ci.sh test --workspace  --exclude windows-installer
