@@ -105,22 +105,34 @@ pub struct Firewall {
     /// The cgroup2 used for split tunneling.
     /// Traffic from processes in this cgroup2 should be allowed outside the tunnel.
     excluded_cgroup2: Option<CGroup2>,
+    /// The net_cls id of the v1 cgroup used for split tunneling.
+    /// This is used as a fallback to [`Self::excluded_cgroup2`] since old kernels don't support cgroups v2.
+    net_cls: Option<u32>,
 }
 
 impl Firewall {
     /// Create a `Firewall` from a `FirewallArguments`.
     pub fn from_args(args: FirewallArguments) -> Result<Self> {
-        Firewall::new(args.linux_ids.fwmark, args.linux_ids.excluded_cgroup2)
+        Firewall::new(
+            args.linux_ids.fwmark,
+            args.linux_ids.excluded_cgroup2,
+            args.linux_ids.net_cls,
+        )
     }
 
     /// Create a `Firewall`.
     ///
     /// - `fwmark` is the metadata mark used by nft to allow some packets outside the tunnel.
     /// - `excluded_cgroup2` is the cgroup2 used by nft to apply `fwmark` on some packets.
-    pub fn new(fwmark: u32, excluded_cgroup2: Option<CGroup2>) -> Result<Self> {
+    pub fn new(
+        fwmark: u32,
+        excluded_cgroup2: Option<CGroup2>,
+        net_cls: Option<u32>,
+    ) -> Result<Self> {
         Ok(Firewall {
             fwmark,
             excluded_cgroup2,
+            net_cls,
         })
     }
 
@@ -320,13 +332,7 @@ impl<'a> PolicyBatch<'a> {
         firewall: &Firewall,
     ) -> Result<FinalizedBatch> {
         self.add_loopback_rules()?;
-
-        if let Some(cgroup2) = &firewall.excluded_cgroup2 {
-            self.add_split_tunneling_rules(policy, cgroup2, firewall.fwmark)?;
-        } else {
-            log::warn!("no cgroup2, skipping add_split_tunneling_rules");
-        }
-
+        self.add_split_tunneling_rules(policy, firewall)?; // TODO: Maybe not error out?
         self.add_dhcp_client_rules();
         self.add_ndp_rules();
         self.add_policy_specific_rules(policy, firewall.fwmark)?;
@@ -335,13 +341,53 @@ impl<'a> PolicyBatch<'a> {
     }
 
     /// Allow split-tunneled traffic outside the tunnel.
-    ///
-    /// This is acheived by setting `fwmark` on connections initated by processes in the cgroup.
     fn add_split_tunneling_rules(
         &mut self,
         policy: &FirewallPolicy,
-        cgroup2: &CGroup2,
+        firewall: &Firewall,
+    ) -> Result<()> {
+        if let Some(cgroup2) = &firewall.excluded_cgroup2 {
+            self.add_actual_split_tunneling_rules(policy, firewall.fwmark, |rule| {
+                // 1. From Linux kernel documentation:
+                // cgroup(2) is a mechanism to organize processes hierarchically ... cgroups form a tree structure and
+                // every process in the system belongs to one and only one cgroup ... On creation, all processes are put
+                // in the cgroup that the parent process belongs to at the time.
+                //
+                // 2. From `man nft` on "Socket expression":
+                // .. You can also use it [socket expression] to match on the socket cgroupv2 at a given ancestor level,
+                // e.g. if the socket belongs to cgroupv2 a/b, ancestor level 1 checks for a matching on cgroup a and
+                // ancestor level 2 checks for a matching on cgroup b.
+                //
+                // 3. Since the current split-tunnel implementation spawn each split process into the same cgroup2, the
+                // nftables rule does not have to look at any level of ancestry away *from* `cgroup`. This applies for
+                // any sub-process that a split process may spawn, as per the kernel docs.
+                //
+                // Following from 1,2,3, `socket cgroupv2 level 1` should be fine here.
+                rule.add_expr(&nft_expr!(socket cgroupv2 level 1));
+                rule.add_expr(&nft_expr!(cmp == cgroup2.inode()));
+            })?;
+        } else if let Some(net_cls) = firewall.net_cls {
+            self.add_actual_split_tunneling_rules(policy, firewall.fwmark, |rule| {
+                // For cgroups v1, processes are assigned to a net_cls.                                                                                                      ║
+                // This causes all packets sent by that process to be marked with the                                                                                        ║
+                // cgroups classid (`NET_CLS_CLASSID`), which we can reference in nftables.
+                rule.add_expr(&nft_expr!(meta cgroup));
+                rule.add_expr(&nft_expr!(cmp == net_cls));
+                // rule.add_expr(&nft_expr!(cmp == split_tunnel::NET_CLS_CLASSID));
+            })?;
+        } else {
+            log::warn!("no cgroup2, skipping add_split_tunneling_rules");
+        };
+
+        Ok(())
+    }
+
+    /// Mark connections initated by processes matched by `add_selector_rules` with `fwmark`.
+    fn add_actual_split_tunneling_rules(
+        &mut self,
+        policy: &FirewallPolicy,
         fwmark: u32,
+        mut add_selector_rules: impl FnMut(&mut Rule<'_>),
     ) -> Result<()> {
         // Send select DNS requests in the tunnel
         if let FirewallPolicy::Connected {
@@ -372,25 +418,9 @@ impl<'a> PolicyBatch<'a> {
         // Packet will have two new marks applied to it, the `split_tunnel::MARK`
         // as a connection tracking mark and the `fwmark` as packet metadata.
         let mut rule = Rule::new(&self.mangle_chain);
-
-        // 1. From Linux kernel documentation:
-        // cgroup(2) is a mechanism to organize processes hierarchically ... cgroups form a tree structure and
-        // every process in the system belongs to one and only one cgroup ... On creation, all processes are put
-        // in the cgroup that the parent process belongs to at the time.
-        //
-        // 2. From `man nft` on "Socket expression":
-        // .. You can also use it [socket expression] to match on the socket cgroupv2 at a given ancestor level,
-        // e.g. if the socket belongs to cgroupv2 a/b, ancestor level 1 checks for a matching on cgroup a and
-        // ancestor level 2 checks for a matching on cgroup b.
-        //
-        // 3. Since the current split-tunnel implementation spawn each split process into the same cgroup2, the
-        // nftables rule does not have to look at any level of ancestry away *from* `cgroup`. This applies for
-        // any sub-process that a split process may spawn, as per the kernel docs.
-        //
-        // Following from 1,2,3, `socket cgroupv2 level 1` should be fine here.
-        rule.add_expr(&nft_expr!(socket cgroupv2 level 1));
-        rule.add_expr(&nft_expr!(cmp == cgroup2.inode()));
-
+        // Add rules for matching packets from a cgroup.
+        // This is the only implementation detail of the split tunneling rule that differs between cgroup v1 and v2.
+        add_selector_rules(&mut rule);
         // Loads `split_tunnel::MARK` into first nftnl register
         rule.add_expr(&nft_expr!(immediate data split_tunnel::MARK));
         // Sets `split_tunnel::MARK` as connection tracker mark

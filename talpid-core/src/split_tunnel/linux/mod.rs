@@ -6,17 +6,18 @@
 use anyhow::{Context, anyhow};
 use libc::pid_t;
 use nftnl::{Batch, Chain, Hook, MsgType, Policy, ProtoFamily, Rule, Table, nft_expr};
-use nix::{errno::Errno, unistd::Pid};
-use std::{
-    ffi::CStr,
-    fs::{self, File},
-    io::{self, Read, Seek, Write},
-    os::unix::fs::MetadataExt,
-    path::PathBuf,
-};
+use nix::unistd::Pid;
 use talpid_types::cgroup::{CGROUP2_DEFAULT_MOUNT_PATH, SPLIT_TUNNEL_CGROUP_NAME};
 
-use crate::firewall;
+mod cgroups_v1;
+mod cgroups_v2;
+
+use crate::{
+    firewall,
+    split_tunnel::linux::cgroups_v1::{DEFAULT_NET_CLS_DIR, NET_CLS_CLASSID},
+};
+pub use cgroups_v1::CGroup1;
+pub use cgroups_v2::CGroup2;
 
 /// Value used to mark packets and associated connections.
 /// This should be an arbitrary but unique integer.
@@ -35,23 +36,20 @@ pub struct PidManager {
     inner: Result<Inner, Error>,
 }
 
-struct Inner {
-    root_cgroup2: CGroup2,
-    excluded_cgroup2: CGroup2,
+enum Inner {
+    CGroup1(InnerCGroup1),
+    CGroup2(InnerCGroup2),
 }
 
-/// A handle to a cgroup2
-///
-/// The cgroup is unmounted when droppped.
-pub struct CGroup2 {
-    /// Absolute path of the cgroup2, e.g. `/run/my_cgroup2_mount/my_cgroup2`
-    path: PathBuf,
+struct InnerCGroup1 {
+    root_cgroup: CGroup1,
+    excluded_cgroup: CGroup1,
+    net_cls: u32,
+}
 
-    /// inode of the cgroup2 directory
-    inode: u64,
-
-    /// `cgroup.procs` is used to add and list PIDs in the cgroup2.
-    procs: File,
+struct InnerCGroup2 {
+    root_cgroup2: CGroup2,
+    excluded_cgroup2: CGroup2,
 }
 
 impl PidManager {
@@ -66,6 +64,27 @@ impl PidManager {
     }
 
     fn new_inner() -> Result<Inner, Error> {
+        // Try to create the cgroup2.
+        let inner = match Self::new_cgroup2() {
+            Ok(inner) => Inner::CGroup2(inner),
+            Err(cgroup2_err) => {
+                // If it does not success, the kernel might be too old, so we fallback on the old cgroup1 solution.
+                match Self::new_cgroup1() {
+                    Ok(inner) => Inner::CGroup1(inner),
+                    Err(cgroup1_err) => {
+                        log::error!(
+                            "Failed to initialize split-tunneling: {cgroup2_err:?}, {cgroup1_err:?}"
+                        );
+                        // TODO: Should we try to compose these errors?
+                        return Err(cgroup2_err);
+                    }
+                }
+            } // oh god the indentation ..
+        };
+        Ok(inner)
+    }
+
+    fn new_cgroup2() -> Result<InnerCGroup2, Error> {
         let root_cgroup2 =
             CGroup2::open(CGROUP2_DEFAULT_MOUNT_PATH).context("Failed to open root cgroup2")?;
 
@@ -74,52 +93,50 @@ impl PidManager {
         assert_nft_supports_cgroup2(&excluded_cgroup2)
             .context("cgroup2 not supported by nftables, are you running an old kernel?")?;
 
-        Ok(Inner {
+        Ok(InnerCGroup2 {
             root_cgroup2,
             excluded_cgroup2,
+        })
+    }
+
+    fn new_cgroup1() -> Result<InnerCGroup1, Error> {
+        let root_cgroup = CGroup1::open(DEFAULT_NET_CLS_DIR)?;
+        let excluded_cgroup = root_cgroup.create_or_open_child(SPLIT_TUNNEL_CGROUP_NAME)?;
+        excluded_cgroup.set_net_cls_id(NET_CLS_CLASSID)?;
+
+        Ok(InnerCGroup1 {
+            net_cls: NET_CLS_CLASSID, // TODO: set this
+            root_cgroup,
+            excluded_cgroup,
         })
     }
 
     /// Add a PID to the cgroup2 to have it excluded from the tunnel.
     pub fn add(&self, pid: pid_t) -> Result<(), Error> {
         let pid = Pid::from_raw(pid);
-        self.inner()?.excluded_cgroup2.add_pid(pid)
+        self.inner()?.add(pid)
     }
 
     /// Remove a PID from the cgroup2 to have it included in the tunnel.
     pub fn remove(&self, pid: pid_t) -> Result<(), Error> {
         // PIDs can only be removed from a cgroup2 by adding them to another cgroup2.
         let pid = Pid::from_raw(pid);
-        self.inner()?.root_cgroup2.add_pid(pid)
+        self.inner()?.remove(pid)
     }
 
     /// Return a list of all PIDs currently in the Cgroup excluded from the tunnel.
     pub fn list(&mut self) -> Result<Vec<pid_t>, Error> {
-        self.inner_mut()?.excluded_cgroup2.list_pids()
+        self.inner_mut()?.list()
     }
 
     /// Removes all PIDs from the Cgroup.
     pub fn clear(&mut self) -> Result<(), Error> {
-        let mut pids = self.list()?;
-        while !pids.is_empty() {
-            for pid in pids {
-                self.remove(pid)?;
-            }
-            pids = self.list()?;
-        }
-        Ok(())
+        self.inner_mut()?.clear()
     }
 
     /// Return whether it is enabled
     pub fn is_enabled(&self) -> bool {
         matches!(self.inner, Ok(..))
-    }
-
-    /// Get a handle to the [CGroup2] used for split-tunneling.
-    ///
-    /// Returns an error if we prevously failed to set up the cgroup2, or if cloning it fails.
-    pub fn excluded_cgroup(&self) -> Result<CGroup2, Error> {
-        self.inner()?.excluded_cgroup2.try_clone()
     }
 
     fn inner(&self) -> Result<&Inner, Error> {
@@ -136,6 +153,79 @@ impl PidManager {
             .ok()
             .context("Split-tunneling is not available")
             .map_err(Into::into)
+    }
+}
+
+impl Inner {
+    /// Add a PID to the cgroup2 to have it excluded from the tunnel.
+    fn add(&self, pid: Pid) -> Result<(), Error> {
+        match self {
+            Inner::CGroup1(inner) => inner.excluded_cgroup.add_pid(pid),
+            Inner::CGroup2(inner) => inner.excluded_cgroup2.add_pid(pid),
+        }
+    }
+
+    /// Remove a PID from the cgroup to have it included in the tunnel.
+    fn remove(&self, pid: Pid) -> Result<(), Error> {
+        // PIDs can only be removed from a cgroup by adding them to another cgroup.
+        match self {
+            Inner::CGroup1(inner) => inner.root_cgroup.add_pid(pid),
+            Inner::CGroup2(inner) => inner.root_cgroup2.add_pid(pid),
+        }
+    }
+
+    /// Return a list of all PIDs currently in the Cgroup excluded from the tunnel.
+    fn list(&mut self) -> Result<Vec<pid_t>, Error> {
+        match self {
+            Inner::CGroup1(inner) => inner.excluded_cgroup.list_pids(),
+            Inner::CGroup2(inner) => inner.excluded_cgroup2.list_pids(),
+        }
+    }
+
+    /// Removes all PIDs from the Cgroup.
+    fn clear(&mut self) -> Result<(), Error> {
+        let mut pids = self.list()?;
+        while !pids.is_empty() {
+            for pid in pids {
+                // TODO: We didn't do this before. Should be fine.
+                let pid = Pid::from_raw(pid);
+                self.remove(pid)?;
+            }
+            pids = self.list()?;
+        }
+        Ok(())
+    }
+
+    /// Get a handle to the [CGroup2] used for split-tunneling.
+    ///
+    /// Returns an error if we prevously failed to set up the cgroup2, or if cloning it fails.
+    fn excluded_cgroup(&self) -> Result<CGroup2, Error> {
+        match self {
+            Inner::CGroup1(..) => Err(anyhow!("blahaha").into()),
+            Inner::CGroup2(inner) => inner.excluded_cgroup2.try_clone(),
+        }
+    }
+
+    /// Try to clone the cgroup2 handle.
+    ///
+    /// This is fallible because cloning file descriptors can fail.
+    pub fn try_clone(&self) -> Result<Self, Error> {
+        match self {
+            Inner::CGroup1(inner_cgroup1) => todo!(),
+            Inner::CGroup2(inner) => inner.try_clone().map(Inner::CGroup2),
+        }
+    }
+}
+
+impl InnerCGroup2 {
+    /// Try to clone the cgroup2 handle.
+    ///
+    /// This is fallible because cloning file descriptors can fail.
+    pub fn try_clone(&self) -> Result<Self, Error> {
+        Ok(Self {
+            root_cgroup2: self.root_cgroup2.try_clone()?,
+            excluded_cgroup2: self.excluded_cgroup2.try_clone()?,
+        })
     }
 }
 
@@ -179,98 +269,5 @@ fn assert_nft_supports_cgroup2(cgroup: &CGroup2) -> Result<(), Error> {
 impl Default for PidManager {
     fn default() -> Self {
         Self::new()
-    }
-}
-
-impl CGroup2 {
-    /// Open the cgroup2 at `path`.
-    ///
-    /// `path` must be a directory in the `cgroup2` filesystem.
-    pub fn open(path: impl Into<PathBuf>) -> Result<Self, Error> {
-        let path = path.into();
-
-        let procs_path = path.join("cgroup.procs");
-        let procs = fs::OpenOptions::new()
-            .write(true)
-            .read(true)
-            .create(false)
-            .open(&procs_path)
-            .with_context(|| anyhow!("Failed to open {procs_path:?}"))?;
-
-        let meta = fs::metadata(&path).with_context(|| anyhow!("Failed to stat {path:?}"))?;
-
-        Ok(CGroup2 {
-            path,
-            inode: meta.ino(),
-            procs,
-        })
-    }
-
-    /// Create or open a child to the current cgroup2 called `name`.
-    ///
-    /// If the child alread exists, open it.
-    pub fn create_or_open_child(&self, name: &str) -> Result<Self, Error> {
-        let child_path = self.path.join(name);
-        match nix::unistd::mkdir(&child_path, nix::sys::stat::Mode::from_bits_truncate(0o755)) {
-            Ok(_) => log::debug!("cgroup2 {name:?} created"),
-            Err(Errno::EEXIST) => log::debug!("cgroup2 already exists"),
-            Err(e) => Err(e).context("Failed to create cgroup2")?,
-        }
-
-        Self::open(child_path)
-    }
-
-    /// Try to clone the cgroup2 handle.
-    ///
-    /// This is fallible because cloning file descriptors can fail.
-    pub fn try_clone(&self) -> Result<Self, Error> {
-        Ok(Self {
-            path: self.path.clone(),
-            inode: self.inode,
-            procs: self
-                .procs
-                .try_clone()
-                .context("Failed to clone procs file handle")?,
-        })
-    }
-
-    /// Assign a process to this cgroup2.
-    pub fn add_pid(&self, pid: Pid) -> Result<(), Error> {
-        // Format the PID as a string
-        let mut pid_buf = [0u8; 16];
-        write!(&mut pid_buf[..], "{pid}").expect("buf is large enough");
-        let pid_str = CStr::from_bytes_until_nul(&pid_buf).expect("buf contains null");
-
-        // Write PID to `cgroup.procs`.
-        nix::unistd::write(&self.procs, pid_str.to_bytes())
-            .with_context(|| anyhow!("Failed to add process {pid} to cgroup2"))?;
-
-        Ok(())
-    }
-
-    /// List all PIDs in this cgroup2.
-    pub fn list_pids(&mut self) -> Result<Vec<pid_t>, Error> {
-        let mut file = &self.procs;
-        let mut pids = String::new();
-
-        file.seek(io::SeekFrom::Start(0))
-            .and_then(|_| file.read_to_string(&mut pids))
-            .with_context(|| anyhow!("Failed to read pids from {:?}", self.path))?;
-
-        let pids = pids
-            .lines()
-            .map(|line| line.trim())
-            .filter_map(|line| {
-                line.parse::<pid_t>()
-                    .inspect_err(|e| log::trace!("Failed to parse PID {line:?}: {e}"))
-                    .ok()
-            })
-            .collect();
-        Ok(pids)
-    }
-
-    /// Get the inode of the cgroup2
-    pub const fn inode(&self) -> u64 {
-        self.inode
     }
 }

@@ -1,6 +1,7 @@
 #[cfg(target_os = "linux")]
-#[path = "linux_v2.rs"]
-mod imp;
+mod linux;
+#[cfg(target_os = "linux")]
+use linux as imp;
 
 #[cfg(windows)]
 #[path = "windows/mod.rs"]

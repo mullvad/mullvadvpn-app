@@ -929,6 +929,7 @@ impl Daemon {
                 fwmark: mullvad_types::TUNNEL_FWMARK,
                 table_id: mullvad_types::TUNNEL_TABLE_ID,
                 excluded_cgroup2: split_tunneling_pid_manager.excluded_cgroup().ok(),
+                net_cls: split_tunneling_pid_manager.net_cls().ok(),
             },
         )
         .await
