@@ -212,11 +212,17 @@ class VpnSettingsViewModel(
         viewModelScope.launch { settingsRepository.setCustomUdp2TcpObfuscationPort(port) }
     }
 
-    fun onSelectQuantumResistanceSetting(quantumResistant: QuantumResistantState) {
+    fun onSelectQuantumResistanceSetting(enable: Boolean) {
         viewModelScope.launch(dispatcher) {
-            settingsRepository.setWireguardQuantumResistant(quantumResistant).onLeft {
-                _uiSideEffect.send(VpnSettingsSideEffect.ShowToast.GenericError)
-            }
+            settingsRepository
+                .setWireguardQuantumResistant(
+                    if (enable) {
+                        QuantumResistantState.On
+                    } else {
+                        QuantumResistantState.Off
+                    }
+                )
+                .onLeft { _uiSideEffect.send(VpnSettingsSideEffect.ShowToast.GenericError) }
         }
     }
 

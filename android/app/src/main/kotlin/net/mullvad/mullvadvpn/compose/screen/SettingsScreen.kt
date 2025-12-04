@@ -209,6 +209,8 @@ private fun LazyListScope.content(
     }
 
     itemWithDivider { PrivacyPolicy(state) }
+
+    item { Spacer(modifier = Modifier.height(Dimens.cellVerticalSpacing)) }
 }
 
 @Composable

@@ -222,11 +222,11 @@ data class VpnSettingsUiState(
                     add(VpnSettingItem.Spacer)
 
                     // Quantum Resistance
-                    add(VpnSettingItem.QuantumResistanceHeader)
-                    QuantumResistantState.entries.forEach {
-                        add(VpnSettingItem.Divider)
-                        add(VpnSettingItem.QuantumItem(it, quantumResistant == it))
-                    }
+                    add(
+                        VpnSettingItem.EnableQuantumResistantSetting(
+                            quantumResistant == QuantumResistantState.On
+                        )
+                    )
 
                     add(VpnSettingItem.Spacer)
 
@@ -242,7 +242,7 @@ data class VpnSettingsUiState(
 
                     // MTU
                     add(VpnSettingItem.Mtu(mtu))
-                    add(VpnSettingItem.MtuInfo)
+                    add(VpnSettingItem.Spacer)
 
                     add(VpnSettingItem.ServerIpOverrides)
                     add(VpnSettingItem.Spacer)
