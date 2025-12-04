@@ -3,7 +3,6 @@ package net.mullvad.mullvadvpn.viewmodel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import co.touchlab.kermit.Logger
 import com.ramcosta.composedestinations.generated.destinations.AntiCensorshipSettingsDestination
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -62,7 +61,6 @@ class AntiCensorshipSettingsViewModel(
             )
 
     fun onSelectObfuscationMode(obfuscationMode: ObfuscationMode) {
-        Logger.e("Select obfuscation mode $obfuscationMode")
         viewModelScope.launch(ioDispatcher) {
             settingsRepository.setObfuscation(obfuscationMode).onLeft {
                 _uiSideEffect.send(AntiCensorshipSideEffect.ShowToast.GenericError)
