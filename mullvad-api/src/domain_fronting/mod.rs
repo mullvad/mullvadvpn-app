@@ -13,6 +13,8 @@ use webpki_roots::TLS_SERVER_ROOTS;
 
 use crate::{DefaultDnsResolver, DnsResolver, tls_stream::TlsStream};
 
+pub mod server;
+
 pub struct DomainFronting {
     /// Domain that will be used to connect to a CDN, used for SNI
     front: String,

@@ -62,6 +62,8 @@ clap = { workspace = true, features = ["cargo", "derive"], optional = true  }
 env_logger = { workspace = true, optional = true  }
 shadowsocks = { workspace = true, features = ["stream-cipher"] }
 
+papaya = "0.2"
+
 [target.'cfg(not(target_os = "ios"))'.dependencies]
 mullvad-update = { path = "../mullvad-update", features = ["client"] }
 
