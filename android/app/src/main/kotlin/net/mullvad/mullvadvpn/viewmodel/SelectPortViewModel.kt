@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.state.SelectPortUiState
+import net.mullvad.mullvadvpn.constant.SHADOWSOCKS_AVAILABLE_PORTS
 import net.mullvad.mullvadvpn.constant.SHADOWSOCKS_PRESET_PORTS
 import net.mullvad.mullvadvpn.constant.UDP2TCP_PRESET_PORTS
 import net.mullvad.mullvadvpn.constant.VIEW_MODEL_STOP_TIMEOUT
@@ -134,7 +135,7 @@ class SelectPortViewModel(
             PortType.Shadowsocks ->
                 PortTypeUiState(
                     presetPorts = SHADOWSOCKS_PRESET_PORTS,
-                    allowedPortRanges = shadowsocksPortRanges,
+                    allowedPortRanges = SHADOWSOCKS_AVAILABLE_PORTS,
                     customPortEnabled = true,
                     title = resources.getString(R.string.shadowsocks),
                 )
@@ -153,6 +154,14 @@ class SelectPortViewModel(
                     title = resources.getString(R.string.lwo),
                 )
         }
+
+    private fun ObfuscationSettings.port(portType: PortType): Constraint<Port> =
+        when (portType) {
+            PortType.Udp2Tcp -> udp2tcp.port
+            PortType.Shadowsocks -> shadowsocks.port
+            PortType.Wireguard -> wireguardPort
+            PortType.Lwo -> Constraint.Any
+        }
 }
 
 data class PortTypeUiState(
@@ -162,11 +171,3 @@ data class PortTypeUiState(
     val title: String,
     val infoDestination: Direction? = null,
 )
-
-private fun ObfuscationSettings.port(portType: PortType): Constraint<Port> =
-    when (portType) {
-        PortType.Udp2Tcp -> udp2tcp.port
-        PortType.Shadowsocks -> shadowsocks.port
-        PortType.Wireguard -> wireguardPort
-        PortType.Lwo -> Constraint.Any
-    }
