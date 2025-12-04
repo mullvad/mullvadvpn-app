@@ -7,6 +7,8 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material.icons.outlined.Visibility
+import androidx.compose.material.icons.outlined.VisibilityOff
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -42,8 +44,8 @@ fun CopyableObfuscationView(
             modifier = Modifier.weight(1f),
         )
         AnimatedIconButton(
-            defaultIcon = Icons.Default.Visibility,
-            secondaryIcon = Icons.Default.VisibilityOff,
+            defaultIcon = Icons.Outlined.Visibility,
+            secondaryIcon = Icons.Outlined.VisibilityOff,
             defaultIconTint = MaterialTheme.colorScheme.onSurface,
             secondaryIconTint = MaterialTheme.colorScheme.onSurface,
             isToggleButton = true,
