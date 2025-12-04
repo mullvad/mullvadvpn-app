@@ -37,7 +37,7 @@ import net.mullvad.mullvadvpn.compose.extensions.itemsWithDivider
 import net.mullvad.mullvadvpn.compose.preview.ApiAccessListUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.ApiAccessListUiState
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
-import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodName
+import net.mullvad.mullvadvpn.compose.util.toDisplayName
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodSetting
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
@@ -98,7 +98,7 @@ fun ApiAccessListScreen(
         LazyColumn(modifier = modifier, state = lazyListState) {
             description()
             currentAccessMethod(
-                currentApiAccessMethodName = state.currentApiAccessMethodSetting?.name,
+                currentApiAccessMethodSetting = state.currentApiAccessMethodSetting,
                 onInfoClicked = onApiAccessInfoClick,
             )
             apiAccessMethodItems(
@@ -124,7 +124,7 @@ private fun LazyListScope.description() {
 }
 
 private fun LazyListScope.currentAccessMethod(
-    currentApiAccessMethodName: ApiAccessMethodName?,
+    currentApiAccessMethodSetting: ApiAccessMethodSetting?,
     onInfoClicked: () -> Unit,
 ) {
     item {
@@ -143,7 +143,7 @@ private fun LazyListScope.currentAccessMethod(
                 text =
                     stringResource(
                         id = R.string.current_method,
-                        currentApiAccessMethodName?.value ?: "-",
+                        currentApiAccessMethodSetting.toDisplayName(),
                     ),
             )
             IconButton(
@@ -184,7 +184,7 @@ private fun ApiAccessMethodItem(
     onApiAccessMethodClick: (apiAccessMethodSetting: ApiAccessMethodSetting) -> Unit,
 ) {
     TwoRowCell(
-        titleText = apiAccessMethodSetting.name.value,
+        titleText = apiAccessMethodSetting.toDisplayName(),
         subtitleText =
             stringResource(
                 id =

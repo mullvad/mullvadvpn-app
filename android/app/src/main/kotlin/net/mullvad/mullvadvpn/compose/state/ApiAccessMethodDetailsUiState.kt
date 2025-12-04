@@ -25,8 +25,6 @@ sealed interface ApiAccessMethodDetailsUiState {
         val apiAccessMethod: ApiAccessMethod = apiAccessMethodSetting.apiAccessMethod
     }
 
-    fun name() = (this as? Content)?.name?.value ?: ""
-
     fun canBeEdited() = this is Content && apiAccessMethod is ApiAccessMethod.CustomProxy
 
     fun testingAccessMethod() = this is Content && isTestingAccessMethod

@@ -2924,6 +2924,9 @@ msgstr ""
 msgid "Delete method?"
 msgstr ""
 
+msgid "Direct"
+msgstr ""
+
 msgid "Disable all \"%s\" above to activate this setting."
 msgstr ""
 
