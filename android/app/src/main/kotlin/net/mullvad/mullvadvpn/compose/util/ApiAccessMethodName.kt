@@ -1,6 +1,6 @@
 package net.mullvad.mullvadvpn.compose.util
 
-import android.content.Context
+import android.content.res.Resources
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import net.mullvad.mullvadvpn.R
@@ -17,9 +17,9 @@ fun ApiAccessMethodSetting?.toDisplayName() =
         null -> "-"
     }
 
-fun ApiAccessMethodSetting.toDisplayName(context: Context) =
+fun ApiAccessMethodSetting.toDisplayName(resources: Resources) =
     when (this.apiAccessMethod) {
-        ApiAccessMethod.Direct -> context.getString(R.string.direct)
+        ApiAccessMethod.Direct -> resources.getString(R.string.direct)
         ApiAccessMethod.Bridges,
         ApiAccessMethod.EncryptedDns,
         is ApiAccessMethod.CustomProxy -> this.name.toString()

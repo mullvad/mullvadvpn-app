@@ -23,7 +23,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -119,7 +119,7 @@ fun EditApiAccessMethod(
     val viewModel = koinViewModel<EditApiAccessMethodViewModel>()
 
     val snackbarHostState = remember { SnackbarHostState() }
-    val context = LocalContext.current
+    val resources = LocalResources.current
     val scope = rememberCoroutineScope()
 
     CollectSideEffectWithLifecycle(viewModel.uiSideEffect) {
@@ -138,7 +138,7 @@ fun EditApiAccessMethod(
                 launch {
                     snackbarHostState.showSnackbarImmediately(
                         message =
-                            context.getString(
+                            resources.getString(
                                 if (it.successful) {
                                     R.string.api_reachable
                                 } else {
@@ -158,7 +158,7 @@ fun EditApiAccessMethod(
             // Show error snackbar
             scope.launch {
                 snackbarHostState.showSnackbarImmediately(
-                    message = context.getString(R.string.error_occurred)
+                    message = resources.getString(R.string.error_occurred)
                 )
             }
         }
@@ -172,9 +172,9 @@ fun EditApiAccessMethod(
         if (state.testingApiAccessMethod()) {
             launch {
                 snackbarHostState.showSnackbarImmediately(
-                    message = context.getString(R.string.testing),
+                    message = resources.getString(R.string.testing),
                     duration = SnackbarDuration.Indefinite,
-                    actionLabel = context.getString(R.string.cancel),
+                    actionLabel = resources.getString(R.string.cancel),
                     onAction = viewModel::cancelTestMethod,
                 )
             }

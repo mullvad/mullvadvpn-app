@@ -2,7 +2,7 @@
 
 package net.mullvad.mullvadvpn.compose.screen
 
-import android.content.Context
+import android.content.res.Resources
 import android.os.Parcelable
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
@@ -40,7 +40,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -240,11 +240,13 @@ fun SharedTransitionScope.VpnSettings(
     }
 
     val snackbarHostState = remember { SnackbarHostState() }
-    val context = LocalContext.current
+    val resources = LocalResources.current
     CollectSideEffectWithLifecycle(vm.uiSideEffect) {
         when (it) {
             is VpnSettingsSideEffect.ShowToast ->
-                launch { snackbarHostState.showSnackbarImmediately(message = it.message(context)) }
+                launch {
+                    snackbarHostState.showSnackbarImmediately(message = it.message(resources))
+                }
             VpnSettingsSideEffect.NavigateToDnsDialog ->
                 navigator.navigate(DnsDestination(null, null)) { launchSingleTop = true }
         }
@@ -1120,11 +1122,11 @@ private fun ServerIpOverrides(onServerIpOverridesClick: () -> Unit, modifier: Mo
     )
 }
 
-private fun VpnSettingsSideEffect.ShowToast.message(context: Context) =
+private fun VpnSettingsSideEffect.ShowToast.message(resources: Resources) =
     when (this) {
         VpnSettingsSideEffect.ShowToast.ApplySettingsWarning ->
-            context.getString(R.string.settings_changes_effect_warning_short)
-        VpnSettingsSideEffect.ShowToast.GenericError -> context.getString(R.string.error_occurred)
+            resources.getString(R.string.settings_changes_effect_warning_short)
+        VpnSettingsSideEffect.ShowToast.GenericError -> resources.getString(R.string.error_occurred)
     }
 
 private fun Lc<Boolean, VpnSettingsUiState>.isModal() =

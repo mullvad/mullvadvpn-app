@@ -1,6 +1,6 @@
 package net.mullvad.mullvadvpn.compose.screen
 
-import android.content.Context
+import android.content.res.Resources
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -28,7 +28,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -110,7 +110,7 @@ fun ApiAccessMethodDetails(
     val viewModel = koinViewModel<ApiAccessMethodDetailsViewModel>()
 
     val snackbarHostState = remember { SnackbarHostState() }
-    val context = LocalContext.current
+    val resources = LocalResources.current
     val coroutineScope = rememberCoroutineScope()
 
     CollectSideEffectWithLifecycle(viewModel.uiSideEffect) {
@@ -118,7 +118,7 @@ fun ApiAccessMethodDetails(
             ApiAccessMethodDetailsSideEffect.GenericError ->
                 launch {
                     snackbarHostState.showSnackbarImmediately(
-                        context.getString(R.string.error_occurred)
+                        resources.getString(R.string.error_occurred)
                     )
                 }
             is ApiAccessMethodDetailsSideEffect.OpenEditPage ->
@@ -128,7 +128,7 @@ fun ApiAccessMethodDetails(
             is ApiAccessMethodDetailsSideEffect.TestApiAccessMethodResult -> {
                 launch {
                     snackbarHostState.showSnackbarImmediately(
-                        context.getString(
+                        resources.getString(
                             if (it.successful) {
                                 R.string.api_reachable
                             } else {
@@ -141,7 +141,7 @@ fun ApiAccessMethodDetails(
             is ApiAccessMethodDetailsSideEffect.UnableToSetCurrentMethod ->
                 launch {
                     snackbarHostState.showSnackbarImmediately(
-                        context.getString(
+                        resources.getString(
                             if (it.testMethodFailed) {
                                 R.string.failed_to_set_current_test_error
                             } else {
@@ -161,10 +161,9 @@ fun ApiAccessMethodDetails(
         if (state.testingAccessMethod()) {
             launch {
                 snackbarHostState.showSnackbarImmediately(
-                    message =
-                        context.getString(R.string.testing_name, state.name(context = context)),
+                    message = resources.getString(R.string.testing_name, state.name(resources)),
                     duration = SnackbarDuration.Indefinite,
-                    actionLabel = context.getString(R.string.cancel),
+                    actionLabel = resources.getString(R.string.cancel),
                     onAction = viewModel::cancelTestMethod,
                 )
             }
@@ -183,7 +182,7 @@ fun ApiAccessMethodDetails(
             } else {
                 coroutineScope.launch {
                     snackbarHostState.showSnackbarImmediately(
-                        message = context.getString(R.string.this_is_already_set_as_current)
+                        message = resources.getString(R.string.this_is_already_set_as_current)
                     )
                 }
             }
@@ -340,7 +339,7 @@ private fun Actions(onDeleteAccessMethod: () -> Unit) {
 private fun ApiAccessMethodDetailsUiState.name(): String =
     (this as? ApiAccessMethodDetailsUiState.Content)?.apiAccessMethodSetting?.toDisplayName() ?: ""
 
-private fun ApiAccessMethodDetailsUiState.name(context: Context): String =
+private fun ApiAccessMethodDetailsUiState.name(resources: Resources): String =
     (this as? ApiAccessMethodDetailsUiState.Content)
         ?.apiAccessMethodSetting
-        ?.toDisplayName(context = context) ?: ""
+        ?.toDisplayName(resources = resources) ?: ""
