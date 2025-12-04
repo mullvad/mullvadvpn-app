@@ -1,10 +1,10 @@
 use super::string_value::StringValue;
+use regex::{Captures, Regex};
 use serde::{Deserialize, Serialize};
-use std::fs::File;
-use std::io::BufReader;
 use std::path::Path;
 use std::{
     fmt::{self, Display, Formatter},
+    fs,
     ops::{Deref, DerefMut},
 };
 
@@ -53,12 +53,34 @@ impl TryFrom<&Path> for StringResources {
     type Error = String;
 
     fn try_from(value: &Path) -> Result<Self, Self::Error> {
-        let strings_file =
-            File::open(value).map_err(|e| format!("Failed to open string resources file: {e}"))?;
+        let strings = fs::read_to_string(value)
+            .map_err(|e| format!("Failed to read string resources file: {e}"))?;
 
-        quick_xml::de::from_reader(BufReader::new(strings_file))
+        let strings = pre_process_strings(&strings);
+
+        quick_xml::de::from_str(&strings)
             .map_err(|e| format!("Failed to parse string resources file: {e}"))
     }
+}
+
+fn pre_process_strings(original: &str) -> String {
+    // Android supports embedding simple tags like <b> and <i> directly in a string value
+    // without escaping them, so we must escape them before parsing it as XML.
+
+    let re = Regex::new(r"(?s)<string name.+?>(.+?)</string>").unwrap();
+
+    let result = re.replace_all(original, |caps: &Captures<'_>| {
+        let entry = &caps[0];
+        let text = &caps[1];
+        if text.contains("<![CDATA") {
+            entry.to_string()
+        } else {
+            let escaped = htmlize::escape_text(text);
+            entry.replace(text, &escaped).clone()
+        }
+    });
+
+    result.to_string()
 }
 
 impl Deref for StringResources {
@@ -135,7 +157,7 @@ impl Display for StringResource {
 
 #[cfg(test)]
 mod tests {
-    use super::{StringResource, StringResources, StringValue};
+    use super::{StringResource, StringResources, StringValue, pre_process_strings};
 
     #[test]
     fn deserialization() {
@@ -195,7 +217,7 @@ mod tests {
                     concat!(
                     "Second string is also split but it also has some weird whitespace inside the ",
                     "tags and some indentation",
-                ),
+                    ),
                     None,
                 ),
             },
@@ -203,6 +225,31 @@ mod tests {
 
         let deserialized: StringResources =
             quick_xml::de::from_str(xml_input).expect("malformed XML in test input");
+
+        assert_eq!(deserialized, expected);
+    }
+
+    #[test]
+    fn deserialization_android_supported_styling_tags() {
+        let xml_input = r#"
+        <resources>
+            <string name="styled">
+                <b>bold</b>
+            </string>
+        </resources>"#;
+
+        let mut expected = StringResources::new();
+
+        expected.extend(vec![StringResource {
+            name: "styled".to_owned(),
+            translatable: true,
+            value: StringValue(r#"<b>bold</b>"#.to_string()),
+        }]);
+
+        let processed = pre_process_strings(xml_input);
+
+        let deserialized: StringResources =
+            quick_xml::de::from_str(&processed).expect("malformed XML in test input");
 
         assert_eq!(deserialized, expected);
     }
