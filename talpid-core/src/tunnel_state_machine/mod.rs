@@ -126,6 +126,9 @@ pub struct LinuxNetworkingIdentifiers {
     /// The cgroup2 used for split tunneling.
     /// Traffic from processes in this cgroup2 should be allowed outside the tunnel.
     pub excluded_cgroup2: Option<CGroup2>,
+    /// The net_cls id of the v1 cgroup used for split tunneling.
+    /// This is used as a fallback to [`Self::excluded_cgroup2`] since old kernels don't support cgroups v2.
+    pub net_cls: Option<u32>,
 }
 
 /// Spawn the tunnel state machine thread, returning a channel for sending tunnel commands.
