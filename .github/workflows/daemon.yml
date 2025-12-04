@@ -104,6 +104,8 @@ jobs:
 
   build-windows:
     strategy:
+      # Even if onw of the Windows jobs fail, the other should not be cancelled.
+      fail-fast: false
       matrix:
         config:
           - os: windows-latest
