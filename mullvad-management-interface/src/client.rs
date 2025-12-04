@@ -245,7 +245,10 @@ impl MullvadProxyClient {
     }
 
     pub async fn reset_settings(&mut self) -> Result<()> {
-        self.0.reset_settings(()).await?;
+        self.0
+            .reset_settings(())
+            .await
+            .map_err(map_reset_settings_error)?;
         Ok(())
     }
 
@@ -659,6 +662,18 @@ fn map_device_error(status: Status) -> Error {
         Code::Unauthenticated => Error::InvalidAccount,
         Code::AlreadyExists => Error::AlreadyLoggedIn,
         Code::NotFound => Error::DeviceNotFound,
+        _other => Error::Rpc(Box::new(status)),
+    }
+}
+
+#[cfg(not(target_os = "android"))]
+fn map_reset_settings_error(status: Status) -> Error {
+    use crate::ResetSettingsError;
+    // TODO: This ought to be converted to error types in the protobuf layer.
+    match status.code() {
+        Code::ResourceExhausted => Error::ResetSettings(ResetSettingsError::RemoveFile {
+            path: status.message().to_owned(),
+        }),
         _other => Error::Rpc(Box::new(status)),
     }
 }

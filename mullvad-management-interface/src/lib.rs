@@ -118,6 +118,15 @@ pub enum Error {
 
     #[error("An access method with that name already exists")]
     ApiAccessMethodExists,
+
+    #[error("Failed to reset settings")]
+    ResetSettings(ResetSettingsError),
+}
+
+#[derive(thiserror::Error, Debug)]
+pub enum ResetSettingsError {
+    #[error("Failed to remove settings file {path}")]
+    RemoveFile { path: String },
 }
 
 impl From<tonic::Status> for Error {

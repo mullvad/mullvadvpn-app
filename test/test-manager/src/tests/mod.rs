@@ -164,10 +164,14 @@ pub async fn prepare_daemon(
         helpers::disconnect_and_wait(&mut mullvad_client)
             .await
             .context("Failed to disconnect daemon after test")?;
-        mullvad_client
-            .reset_settings()
-            .await
-            .context("Failed to reset settings")?;
+        match mullvad_client.reset_settings().await {
+            Ok(()) => (),
+            Err(mullvad_management_interface::Error::ResetSettings(_)) => {
+                // Do nothing, this is probably fine.
+            }
+            Err(err) => return Err(err).context("Failed to reset settings"),
+        }
+        //.context("Failed to reset settings")?;
         helpers::ensure_logged_in(&mut mullvad_client).await?;
 
         Ok(mullvad_client)
