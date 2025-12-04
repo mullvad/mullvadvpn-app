@@ -4,7 +4,6 @@ import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.IpVersion
 import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.model.PortRange
-import net.mullvad.mullvadvpn.lib.model.QuantumResistantState
 
 sealed interface VpnSettingItem {
 
@@ -111,12 +110,7 @@ sealed interface VpnSettingItem {
         data class Off(override val selected: Boolean) : ObfuscationItem
     }
 
-    data object QuantumResistanceHeader : VpnSettingItem
-
-    data class QuantumItem(
-        val quantumResistantState: QuantumResistantState,
-        val selected: Boolean,
-    ) : VpnSettingItem
+    data class EnableQuantumResistantSetting(val enabled: Boolean) : VpnSettingItem
 
     data object DeviceIpVersionHeader : VpnSettingItem
 
@@ -124,8 +118,6 @@ sealed interface VpnSettingItem {
         VpnSettingItem
 
     data class Mtu(val mtu: net.mullvad.mullvadvpn.lib.model.Mtu?) : VpnSettingItem
-
-    data object MtuInfo : VpnSettingItem
 
     data object ServerIpOverrides : VpnSettingItem
 

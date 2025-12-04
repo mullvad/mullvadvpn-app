@@ -91,8 +91,6 @@ import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.OnNavResultValue
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
-import net.mullvad.mullvadvpn.constant.MTU_MAX_VALUE
-import net.mullvad.mullvadvpn.constant.MTU_MIN_VALUE
 import net.mullvad.mullvadvpn.constant.SETTINGS_HIGHLIGHT_REPEAT_COUNT
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
@@ -101,7 +99,6 @@ import net.mullvad.mullvadvpn.lib.model.Mtu
 import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
 import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.model.PortRange
-import net.mullvad.mullvadvpn.lib.model.QuantumResistantState
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaInvisible
@@ -121,8 +118,7 @@ import net.mullvad.mullvadvpn.lib.ui.designsystem.Hierarchy
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadListItem
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
 import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_LAST_ITEM_TEST_TAG
-import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_QUANTUM_ITEM_OFF_TEST_TAG
-import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_QUANTUM_ITEM_ON_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_QUANTUM_ITEM_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_VPN_SETTINGS_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_WIREGUARD_CUSTOM_PORT_NUMBER_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_WIREGUARD_CUSTOM_PORT_TEXT_TEST_TAG
@@ -134,7 +130,6 @@ import net.mullvad.mullvadvpn.lib.ui.tag.WIREGUARD_OBFUSCATION_OFF_CELL_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.WIREGUARD_OBFUSCATION_QUIC_CELL_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.WIREGUARD_OBFUSCATION_SHADOWSOCKS_CELL_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.WIREGUARD_OBFUSCATION_UDP_OVER_TCP_CELL_TEST_TAG
-import net.mullvad.mullvadvpn.lib.ui.util.applyIf
 import net.mullvad.mullvadvpn.util.Lc
 import net.mullvad.mullvadvpn.util.indexOfFirstOrNull
 import net.mullvad.mullvadvpn.viewmodel.VpnSettingsSideEffect
@@ -359,7 +354,7 @@ fun VpnSettingsScreen(
     onToggleDnsClick: (Boolean) -> Unit,
     onBackClick: () -> Unit,
     onSelectObfuscationMode: (obfuscationMode: ObfuscationMode) -> Unit,
-    onSelectQuantumResistanceSetting: (quantumResistant: QuantumResistantState) -> Unit,
+    onSelectQuantumResistanceSetting: (Boolean) -> Unit,
     onWireguardPortSelected: (port: Constraint<Port>) -> Unit,
     navigateToShadowSocksSettings: () -> Unit,
     navigateToUdp2TcpSettings: () -> Unit,
@@ -476,7 +471,7 @@ fun VpnSettingsContent(
     navigateToDns: (index: Int?, address: String?) -> Unit,
     onToggleDnsClick: (Boolean) -> Unit,
     onSelectObfuscationMode: (obfuscationMode: ObfuscationMode) -> Unit,
-    onSelectQuantumResistanceSetting: (quantumResistant: QuantumResistantState) -> Unit,
+    onSelectQuantumResistanceSetting: (Boolean) -> Unit,
     onWireguardPortSelected: (port: Constraint<Port>) -> Unit,
     navigateToShadowSocksSettings: () -> Unit,
     navigateToUdp2TcpSettings: () -> Unit,
@@ -494,7 +489,8 @@ fun VpnSettingsContent(
             FeatureIndicator.QUIC,
             FeatureIndicator.LWO -> VpnSettingItem.ObfuscationHeader::class
             FeatureIndicator.LAN_SHARING -> VpnSettingItem.LocalNetworkSharingSetting::class
-            FeatureIndicator.QUANTUM_RESISTANCE -> VpnSettingItem.QuantumResistanceHeader::class
+            FeatureIndicator.QUANTUM_RESISTANCE ->
+                VpnSettingItem.EnableQuantumResistantSetting::class
             FeatureIndicator.DNS_CONTENT_BLOCKERS -> VpnSettingItem.DnsContentBlockersHeader::class
             FeatureIndicator.CUSTOM_MTU -> VpnSettingItem.Mtu::class
             FeatureIndicator.CUSTOM_DNS -> VpnSettingItem.CustomDnsServerSetting::class
@@ -829,24 +825,11 @@ fun VpnSettingsContent(
                                 Modifier.animateItem()
                                     .focusRequester(
                                         focusRequesters.getValue(FeatureIndicator.CUSTOM_MTU)
-                                    ),
+                                    )
+                                    .testTag(LAZY_LIST_LAST_ITEM_TEST_TAG),
                             mtuValue = it.mtu,
                             onEditMtu = { navigateToMtuDialog(it.mtu) },
                             backgroundAlpha = highlightBackgroundAlpha(FeatureIndicator.CUSTOM_DNS),
-                        )
-                    }
-
-                VpnSettingItem.MtuInfo ->
-                    item(key = it::class.simpleName) {
-                        Text(
-                            stringResource(
-                                R.string.wireguard_mtu_footer,
-                                MTU_MIN_VALUE,
-                                MTU_MAX_VALUE,
-                            ),
-                            modifier = Modifier.testTag(LAZY_LIST_LAST_ITEM_TEST_TAG).animateItem(),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
 
@@ -965,53 +948,22 @@ fun VpnSettingsContent(
                         )
                     }
 
-                is VpnSettingItem.QuantumItem ->
-                    item(key = it::class.simpleName + it.quantumResistantState) {
-                        SelectableListItem(
-                            modifier =
-                                Modifier.animateItem().applyIf(
-                                    it.quantumResistantState == QuantumResistantState.On
-                                ) {
-                                    focusRequester(
-                                        focusRequesters.getValue(
-                                            FeatureIndicator.QUANTUM_RESISTANCE
-                                        )
-                                    )
-                                },
-                            hierarchy = Hierarchy.Child1,
-                            position =
-                                when (it.quantumResistantState) {
-                                    QuantumResistantState.Off -> Position.Bottom
-                                    QuantumResistantState.On -> Position.Middle
-                                },
-                            title =
-                                when (it.quantumResistantState) {
-                                    QuantumResistantState.Off -> stringResource(id = R.string.off)
-                                    QuantumResistantState.On -> stringResource(id = R.string.on)
-                                },
-                            isSelected = it.selected,
-                            onClick = {
-                                onSelectQuantumResistanceSetting(it.quantumResistantState)
-                            },
-                            testTag =
-                                when (it.quantumResistantState) {
-                                    QuantumResistantState.On -> LAZY_LIST_QUANTUM_ITEM_ON_TEST_TAG
-
-                                    QuantumResistantState.Off -> LAZY_LIST_QUANTUM_ITEM_OFF_TEST_TAG
-                                },
-                        )
-                    }
-
-                VpnSettingItem.QuantumResistanceHeader ->
+                is VpnSettingItem.EnableQuantumResistantSetting ->
                     item(key = it::class.simpleName) {
-                        InfoListItem(
+                        SwitchListItem(
                             modifier = Modifier.animateItem(),
-                            position = Position.Top,
+                            position = Position.Single,
+                            hierarchy = Hierarchy.Parent,
                             title = stringResource(R.string.quantum_resistant_title),
-                            backgroundAlpha =
-                                highlightBackgroundAlpha(FeatureIndicator.QUANTUM_RESISTANCE),
+                            isToggled = it.enabled,
                             onInfoClicked = navigateToQuantumResistanceInfo,
-                            onCellClicked = navigateToQuantumResistanceInfo,
+                            onCellClicked = onSelectQuantumResistanceSetting,
+                            backgroundAlpha =
+                                when (initialScrollToFeature) {
+                                    FeatureIndicator.QUANTUM_RESISTANCE -> highlightAnimation.value
+                                    else -> 1.0f
+                                },
+                            testTag = LAZY_LIST_QUANTUM_ITEM_TEST_TAG,
                         )
                     }
 
