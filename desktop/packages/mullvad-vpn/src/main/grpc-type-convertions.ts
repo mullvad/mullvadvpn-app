@@ -460,8 +460,6 @@ function convertFromEntryEndpoint(entryEndpoint: grpcTypes.Endpoint.AsObject) {
 
 export function convertFromSettings(settings: grpcTypes.Settings): ISettings | undefined {
   const settingsObject = settings.toObject();
-  // TODO: remove
-  const bridgeState = 'off';
   const relaySettings = convertFromRelaySettings(settings.getRelaySettings())!;
   const bridgeSettings = convertFromBridgeSettings(settings.getBridgeSettings()!);
   const tunnelOptions = convertFromTunnelOptions(settingsObject.tunnelOptions!);
@@ -472,7 +470,6 @@ export function convertFromSettings(settings: grpcTypes.Settings): ISettings | u
   const relayOverrides = settingsObject.relayOverridesList;
   return {
     ...settings.toObject(),
-    bridgeState,
     relaySettings,
     bridgeSettings,
     tunnelOptions,
