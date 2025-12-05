@@ -153,9 +153,6 @@ export default class Settings implements Readonly<ISettings> {
   public get bridgeSettings() {
     return this.settingsValue.bridgeSettings;
   }
-  public get bridgeState() {
-    return this.settingsValue.bridgeState;
-  }
   public get splitTunnel() {
     return this.settingsValue.splitTunnel;
   }
