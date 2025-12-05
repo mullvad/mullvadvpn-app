@@ -64,7 +64,6 @@ function checkout_ref {
     git reset --hard
     git checkout "$ref"
     git submodule update
-    git submodule update --init wireguard-go-rs/libwg/wireguard-go || true
     git clean -df
 }
 
