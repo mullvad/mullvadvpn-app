@@ -72,7 +72,6 @@ import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.cell.BaseSubtitleCell
-import net.mullvad.mullvadvpn.compose.cell.ContentBlockersDisableModeCellSubtitle
 import net.mullvad.mullvadvpn.compose.cell.SwitchComposeSubtitleCell
 import net.mullvad.mullvadvpn.compose.communication.DnsDialogResult
 import net.mullvad.mullvadvpn.compose.component.MullvadMediumTopBar
@@ -796,7 +795,16 @@ fun VpnSettingsContent(
 
                 VpnSettingItem.DnsContentBlockersUnavailable ->
                     item(key = it::class.simpleName) {
-                        ContentBlockersDisableModeCellSubtitle(modifier = Modifier.animateItem())
+                        BaseSubtitleCell(
+                            text =
+                                stringResource(
+                                    id = R.string.dns_content_blockers_subtitle,
+                                    stringResource(id = R.string.enable_custom_dns),
+                                ),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.animateItem(),
+                        )
                     }
 
                 is VpnSettingItem.EnableIpv6Setting ->
