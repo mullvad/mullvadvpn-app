@@ -899,9 +899,16 @@
 		F0164ED12B4F2DCB0020268D /* AccessMethodIterator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0164ED02B4F2DCB0020268D /* AccessMethodIterator.swift */; };
 		F017F8E02D78AC020076EC01 /* RelayFilterDataSourceItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = F017F8DF2D78ABE90076EC01 /* RelayFilterDataSourceItem.swift */; };
 		F01DAE332C2B032A00521E46 /* RelaySelection.swift in Sources */ = {isa = PBXBuildFile; fileRef = F01DAE322C2B032A00521E46 /* RelaySelection.swift */; };
+		F01F38222EE1DE3400A4DC17 /* LocationNodeResolverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F01F38212EE1DE2D00A4DC17 /* LocationNodeResolverTests.swift */; };
 		F022EBA62CF0C6AE009484B9 /* ConsolidatedApplicationLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5871FB95254ADE4E0051A0A4 /* ConsolidatedApplicationLog.swift */; };
+		F02844E22ECF5DB2007EC8F2 /* LocationNodeResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = F02844E12ECF5D9A007EC8F2 /* LocationNodeResolver.swift */; };
+		F02844E32ECF5DB2007EC8F2 /* LocationNodeResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = F02844E12ECF5D9A007EC8F2 /* LocationNodeResolver.swift */; };
 		F028A56A2A34D4E700C0CAA3 /* RedeemVoucherViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F028A5692A34D4E700C0CAA3 /* RedeemVoucherViewController.swift */; };
 		F028A56C2A34D8E600C0CAA3 /* AddCreditSucceededViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F028A56B2A34D8E600C0CAA3 /* AddCreditSucceededViewController.swift */; };
+		F02BFFC92ED5BBF4007CEA69 /* RecentsInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F02BFFC72ED5BBEB007CEA69 /* RecentsInteractor.swift */; };
+		F02BFFCB2ED5D3CB007CEA69 /* MullvadListSectionFooter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F02BFFCA2ED5D3C9007CEA69 /* MullvadListSectionFooter.swift */; };
+		F02BFFCD2ED89886007CEA69 /* RecentLocationListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = F02BFFCC2ED89872007CEA69 /* RecentLocationListItem.swift */; };
+		F02BFFCF2ED89996007CEA69 /* RecentLocationsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F02BFFCE2ED8997D007CEA69 /* RecentLocationsListView.swift */; };
 		F02F41A02B9723AF00625A4F /* AddLocationsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F02F419A2B9723AE00625A4F /* AddLocationsViewController.swift */; };
 		F02F41A12B9723AF00625A4F /* AddLocationsDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = F02F419B2B9723AE00625A4F /* AddLocationsDataSource.swift */; };
 		F02F41A22B9723AF00625A4F /* AddLocationsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F02F419C2B9723AF00625A4F /* AddLocationsCoordinator.swift */; };
@@ -961,6 +968,8 @@
 		F08B6B7D2C528C6300D0A121 /* EphemeralPeerExchangingPipeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = F05919762C453FAF00C301F3 /* EphemeralPeerExchangingPipeline.swift */; };
 		F08B6B7E2C528C6300D0A121 /* MultiHopEphemeralPeerExchanger.swift in Sources */ = {isa = PBXBuildFile; fileRef = F059197C2C454C9200C301F3 /* MultiHopEphemeralPeerExchanger.swift */; };
 		F09084682C6E88ED001CD36E /* DaitaPromptAlert.swift in Sources */ = {isa = PBXBuildFile; fileRef = F09084672C6E88ED001CD36E /* DaitaPromptAlert.swift */; };
+		F09444132ECCA4B30059606A /* RecentListDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = F09444122ECCA4990059606A /* RecentListDataSource.swift */; };
+		F09444142ECCA4B30059606A /* RecentListDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = F09444122ECCA4990059606A /* RecentListDataSource.swift */; };
 		F09A297B2A9F8A9B00EA3B6F /* LogoutDialogueView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F09A29782A9F8A9B00EA3B6F /* LogoutDialogueView.swift */; };
 		F09A297C2A9F8A9B00EA3B6F /* VoucherTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = F09A29792A9F8A9B00EA3B6F /* VoucherTextField.swift */; };
 		F09A297D2A9F8A9B00EA3B6F /* RedeemVoucherContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F09A297A2A9F8A9B00EA3B6F /* RedeemVoucherContentView.swift */; };
@@ -2343,10 +2352,16 @@
 		F01765962E4A324F00262F54 /* fi */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fi; path = fi.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		F017F8DF2D78ABE90076EC01 /* RelayFilterDataSourceItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayFilterDataSourceItem.swift; sourceTree = "<group>"; };
 		F01DAE322C2B032A00521E46 /* RelaySelection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RelaySelection.swift; sourceTree = "<group>"; };
+		F01F38212EE1DE2D00A4DC17 /* LocationNodeResolverTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationNodeResolverTests.swift; sourceTree = "<group>"; };
 		F027E0982E4A325C00090D26 /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = it; path = it.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		F02844E12ECF5D9A007EC8F2 /* LocationNodeResolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationNodeResolver.swift; sourceTree = "<group>"; };
 		F028A5692A34D4E700C0CAA3 /* RedeemVoucherViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RedeemVoucherViewController.swift; sourceTree = "<group>"; };
 		F028A56B2A34D8E600C0CAA3 /* AddCreditSucceededViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddCreditSucceededViewController.swift; sourceTree = "<group>"; };
 		F029DF502E4A328B00143913 /* sv */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sv; path = sv.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		F02BFFC72ED5BBEB007CEA69 /* RecentsInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentsInteractor.swift; sourceTree = "<group>"; };
+		F02BFFCA2ED5D3C9007CEA69 /* MullvadListSectionFooter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadListSectionFooter.swift; sourceTree = "<group>"; };
+		F02BFFCC2ED89872007CEA69 /* RecentLocationListItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentLocationListItem.swift; sourceTree = "<group>"; };
+		F02BFFCE2ED8997D007CEA69 /* RecentLocationsListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentLocationsListView.swift; sourceTree = "<group>"; };
 		F02F419A2B9723AE00625A4F /* AddLocationsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddLocationsViewController.swift; sourceTree = "<group>"; };
 		F02F419B2B9723AE00625A4F /* AddLocationsDataSource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddLocationsDataSource.swift; sourceTree = "<group>"; };
 		F02F419C2B9723AF00625A4F /* AddLocationsCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddLocationsCoordinator.swift; sourceTree = "<group>"; };
@@ -2397,6 +2412,7 @@
 		F07F1BD42E4A361E003FB336 /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
 		F08096FA2E4A325600D8B0CF /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		F09084672C6E88ED001CD36E /* DaitaPromptAlert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DaitaPromptAlert.swift; sourceTree = "<group>"; };
+		F09444122ECCA4990059606A /* RecentListDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentListDataSource.swift; sourceTree = "<group>"; };
 		F09A29782A9F8A9B00EA3B6F /* LogoutDialogueView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LogoutDialogueView.swift; sourceTree = "<group>"; };
 		F09A29792A9F8A9B00EA3B6F /* VoucherTextField.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VoucherTextField.swift; sourceTree = "<group>"; };
 		F09A297A2A9F8A9B00EA3B6F /* RedeemVoucherContentView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RedeemVoucherContentView.swift; sourceTree = "<group>"; };
@@ -3312,6 +3328,7 @@
 				7A0EAE992D01B41500D3EB8B /* MainButtonStyle.swift */,
 				F97C38E72DF025D9006DCB08 /* MullvadAlert.swift */,
 				F91B94A62DC9EB5E00132C28 /* MullvadInfoHeaderView.swift */,
+				F02BFFCA2ED5D3C9007CEA69 /* MullvadListSectionFooter.swift */,
 				F96D04EA2EC317EC004A4D48 /* MullvadListSectionHeader.swift */,
 				F90A988B2E1268510020F64F /* MullvadPrimaryTextField.swift */,
 				F91CCBFB2DFAF5E1007F1925 /* MullvadProgressViewStyle.swift */,
@@ -4365,6 +4382,7 @@
 				7A9BE5AC2B90DF2D00E2A7D0 /* AllLocationsDataSourceTests.swift */,
 				F050AE5B2B73797D003F4EDB /* CustomListRepositoryTests.swift */,
 				7A9BE5A42B90760C00E2A7D0 /* CustomListsDataSourceTests.swift */,
+				F01F38212EE1DE2D00A4DC17 /* LocationNodeResolverTests.swift */,
 				7A9BE5A12B8F88C500E2A7D0 /* LocationNodeTests.swift */,
 				F0F313A62E85320D00D55C43 /* RecentConnectionsRepositoryTests.swift */,
 			);
@@ -4826,6 +4844,8 @@
 				F9C579C52E8FE0D000C90C50 /* LocationDisclosureGroup.swift */,
 				F9C579C32E8FE08600C90C50 /* LocationListItem.swift */,
 				F95AC9E92E5DFAFF00A55B52 /* LocationsListView.swift */,
+				F02BFFCC2ED89872007CEA69 /* RecentLocationListItem.swift */,
+				F02BFFCE2ED8997D007CEA69 /* RecentLocationsListView.swift */,
 				F9C579C72E8FE10400C90C50 /* RelayItemView.swift */,
 				F90052512E6B06AA0085C80E /* SelectLocationView.swift */,
 			);
@@ -4866,12 +4886,15 @@
 			isa = PBXGroup;
 			children = (
 				F050AE5F2B73A41E003F4EDB /* AllLocationDataSource.swift */,
+				F02844E12ECF5D9A007EC8F2 /* LocationNodeResolver.swift */,
 				F04413602BA45CD70018A6EE /* CustomListLocationNodeBuilder.swift */,
 				F050AE612B74DBAC003F4EDB /* CustomListsDataSource.swift */,
 				F050AE5D2B739A73003F4EDB /* LocationDataSourceProtocol.swift */,
 				7A6652B62BB44B120042D848 /* LocationDiffableDataSourceProtocol.swift */,
 				7A6389F72B864CDF008E77E1 /* LocationNode.swift */,
 				7A5468AB2C6A55B100590086 /* LocationRelays.swift */,
+				F09444122ECCA4990059606A /* RecentListDataSource.swift */,
+				F02BFFC72ED5BBEB007CEA69 /* RecentsInteractor.swift */,
 				F01DAE322C2B032A00521E46 /* RelaySelection.swift */,
 			);
 			path = DataSource;
@@ -5989,6 +6012,7 @@
 				A9A5FA0E2ACB05160083449F /* StorePaymentObserver.swift in Sources */,
 				7A6811542DC8EC6E009CB61A /* UIFont+Weight.swift in Sources */,
 				A9A5FA102ACB05160083449F /* PacketTunnelAPITransport.swift in Sources */,
+				F02844E32ECF5DB2007EC8F2 /* LocationNodeResolver.swift in Sources */,
 				7AD63A472CDA666100445268 /* UIntTests.swift in Sources */,
 				A9A5FA112ACB05160083449F /* APITransportMonitor.swift in Sources */,
 				A9B6AC1A2ADE8FBB00F7802A /* InMemorySettingsStore.swift in Sources */,
@@ -6036,6 +6060,7 @@
 				A9A5FA252ACB05160083449F /* UpdateAccountDataOperation.swift in Sources */,
 				A9A5FA262ACB05160083449F /* UpdateDeviceDataOperation.swift in Sources */,
 				A9A5FA272ACB05160083449F /* VPNConnectionProtocol.swift in Sources */,
+				F09444142ECCA4B30059606A /* RecentListDataSource.swift in Sources */,
 				A9A5FA282ACB05160083449F /* WgKeyRotation.swift in Sources */,
 				449872E42B7CB96300094DDC /* TunnelSettingsUpdateTests.swift in Sources */,
 				A9A5FA292ACB05160083449F /* AddressCacheTests.swift in Sources */,
@@ -6056,6 +6081,7 @@
 				7AA513862BC91C6B00D081A4 /* LogRotationTests.swift in Sources */,
 				F04413622BA45CE30018A6EE /* CustomListLocationNodeBuilder.swift in Sources */,
 				A9A5FA302ACB05160083449F /* InputTextFormatterTests.swift in Sources */,
+				F01F38222EE1DE3400A4DC17 /* LocationNodeResolverTests.swift in Sources */,
 				44B02E3B2BC5732D008EDF34 /* LoggingTests.swift in Sources */,
 				F0B0E6972AFE6E7E001DC66B /* XCTest+Async.swift in Sources */,
 				F0FA16102D7F2FC7007E2546 /* RelayFilterViewModelTests.swift in Sources */,
@@ -6289,6 +6315,7 @@
 				F910A4012D3FF23A002FF3BB /* View+Modifier.swift in Sources */,
 				7A6389EB2B7FAD7A008E77E1 /* SettingsFieldValidationErrorContentView.swift in Sources */,
 				440870822D7A00B70038972F /* UIImage+Assets.swift in Sources */,
+				F09444132ECCA4B30059606A /* RecentListDataSource.swift in Sources */,
 				F91CCBF82DFABB75007F1925 /* DeviceManagementView.swift in Sources */,
 				7A8A19282CF603EB000BCB5B /* SettingsViewControllerFactory.swift in Sources */,
 				58B26E2A2943545A00D5980C /* NotificationManagerDelegate.swift in Sources */,
@@ -6339,6 +6366,7 @@
 				58C774BE29A7A249003A1A56 /* CustomNavigationController.swift in Sources */,
 				E1FD0DF528AA7CE400299DB4 /* StatusActivityView.swift in Sources */,
 				7A2960FD2A964BB700389B82 /* AlertPresentation.swift in Sources */,
+				F02BFFCF2ED89996007CEA69 /* RecentLocationsListView.swift in Sources */,
 				0697D6E728F01513007A9E99 /* APITransportMonitor.swift in Sources */,
 				58968FAE28743E2000B799DC /* TunnelInteractor.swift in Sources */,
 				7A1A26472A29CF0800B978AA /* RelayFilterDataSource.swift in Sources */,
@@ -6373,6 +6401,7 @@
 				7A9CCCBD2A96302800DD6A34 /* LoginCoordinator.swift in Sources */,
 				7A7B3AB62C6DE4DA00D4BCCE /* RestorePurchasesView.swift in Sources */,
 				7A0EAE9E2D01BCBF00D3EB8B /* View+Size.swift in Sources */,
+				F02BFFC92ED5BBF4007CEA69 /* RecentsInteractor.swift in Sources */,
 				58293FB125124117005D0BB5 /* CustomTextField.swift in Sources */,
 				F09A29822A9F8AD200EA3B6F /* RedeemVoucherInteractor.swift in Sources */,
 				58138E61294871C600684F0C /* DeviceDataThrottling.swift in Sources */,
@@ -6382,6 +6411,7 @@
 				7A818F1F29F0305800C7F0F4 /* RootConfiguration.swift in Sources */,
 				F91CCBFA2DFAC8ED007F1925 /* DeviceListView.swift in Sources */,
 				7A9CCCBF2A96302800DD6A34 /* SettingsCoordinator.swift in Sources */,
+				F02BFFCD2ED89886007CEA69 /* RecentLocationListItem.swift in Sources */,
 				58F70FE52AEA707800E6890E /* StoreTransactionLog.swift in Sources */,
 				F9394EF02DC0B58D009595EA /* MullvadListNavigationItemView.swift in Sources */,
 				582AE3102440A6CA00E6733A /* InputTextFormatter.swift in Sources */,
@@ -6393,6 +6423,7 @@
 				5823FA5426CE49F700283BF8 /* TunnelObserver.swift in Sources */,
 				F006CCFC2B99CC8400C6C2AC /* EditLocationsCoordinator.swift in Sources */,
 				58293FB3251241B4005D0BB5 /* CustomTextView.swift in Sources */,
+				F02BFFCB2ED5D3CB007CEA69 /* MullvadListSectionFooter.swift in Sources */,
 				586A950E290125F3007BAF2B /* ProductsRequestOperation.swift in Sources */,
 				7AF9BE902A39F26000DBFEDB /* Collection+Sorting.swift in Sources */,
 				F0B495762D02025200CFEC2A /* ChipContainerView.swift in Sources */,
@@ -6573,6 +6604,7 @@
 				F0C6A8432AB08E54000777A8 /* RedeemVoucherViewConfiguration.swift in Sources */,
 				7AF10EB42ADE85BC00C090B9 /* RelayFilterCoordinator.swift in Sources */,
 				58FB865526E8BF3100F188BC /* StorePaymentManagerError.swift in Sources */,
+				F02844E22ECF5DB2007EC8F2 /* LocationNodeResolver.swift in Sources */,
 				F09D04B32AE919AC003D4F89 /* OutgoingConnectionProxy.swift in Sources */,
 				7A5869BF2B57D0A100640D27 /* IPOverrideStatus.swift in Sources */,
 				44E1F7582D3EA83A003A60FF /* DestinationDescriber.swift in Sources */,
@@ -9709,7 +9741,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = "";
-				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = CKG9MXH72F;
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = "";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
@@ -9757,7 +9789,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = "";
-				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = CKG9MXH72F;
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = "";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
@@ -9853,7 +9885,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = "";
-				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = CKG9MXH72F;
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = "";
 				"DEVELOPMENT_TEAM[sdk=macosx*]" = CKG9MXH72F;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;

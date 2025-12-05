@@ -615,11 +615,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                     let locationService = DefaultLocationService(
                         urlSession: URLSession.shared, relayCache: cachedRelays)
                     let locationIdentifier = try? await locationService.fetchCurrentLocationIdentifier()
+                    let userSelectedRelays: UserSelectedRelays =
+                        if let country = locationIdentifier?.country {
+                            UserSelectedRelays(locations: [.country(country)])
+                        } else {
+                            .default
+                        }
 
-                    let constraint = RelayConstraint.only(
-                        UserSelectedRelays(
-                            locations: [.country(locationIdentifier?.country ?? "se")]
-                        ))
+                    let constraint = RelayConstraint.only(userSelectedRelays)
 
                     if !self.appPreferences.hasDoneFirstTimeLogin {
                         self.tunnelManager.updateSettings([

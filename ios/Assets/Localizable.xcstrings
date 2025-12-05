@@ -957,6 +957,9 @@
         }
       }
     },
+    "%@ recents" : {
+
+    },
     "%@ via %@" : {
       "localizations" : {
         "da" : {
@@ -16679,6 +16682,9 @@
         }
       }
     },
+    "Disable" : {
+
+    },
     "Disable all \"%@\" above to activate this setting." : {
       "localizations" : {
         "da" : {
@@ -16914,6 +16920,9 @@
           }
         }
       }
+    },
+    "Disabling recents will also clear history." : {
+
     },
     "Discard changes" : {
       "localizations" : {
@@ -34998,6 +35007,7 @@
       }
     },
     "No matching relays found, check your filter settings." : {
+      "extractionState" : "stale",
       "localizations" : {
         "da" : {
           "stringUnit" : {
@@ -35468,6 +35478,9 @@
           }
         }
       }
+    },
+    "No recent selection history" : {
+
     },
     "No result for \"%@\", please try a different search term." : {
 
@@ -41262,6 +41275,9 @@
           }
         }
       }
+    },
+    "Recents" : {
+
     },
     "RECONNECTING" : {
       "localizations" : {
@@ -52259,6 +52275,7 @@
 
     },
     "To create a custom list, tap on \"...\" " : {
+      "extractionState" : "stale",
       "localizations" : {
         "da" : {
           "stringUnit" : {

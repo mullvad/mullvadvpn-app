@@ -161,7 +161,7 @@ struct MultihopSelectionView: View {
                             selectedLocation: .init(name: "\($0.description)", code: "se"))
                     },
                 selectedMultihopContext: $selectedContext,
-                isExpanded: isExpanded, 
+                isExpanded: isExpanded,
                 deviceLocationName: "Sweden"
             )
             .padding()
@@ -174,7 +174,7 @@ struct MultihopSelectionView: View {
                         )
                     },
                 selectedMultihopContext: $selectedContext,
-                isExpanded: isExpanded, 
+                isExpanded: isExpanded,
                 deviceLocationName: "Sweden"
             )
             .padding()

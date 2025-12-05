@@ -2,7 +2,7 @@ import SwiftUI
 
 struct EntryLocationView<ViewModel: SelectLocationViewModel>: View {
     @ObservedObject var viewModel: ViewModel
-    let onShowsTopOfTheListChange: (Bool) -> Void
+    let onScrollOffsetChange: (CGFloat, CGFloat) -> Void
     var body: some View {
         if viewModel.showDAITAInfo {
             DaitaWarningView {
@@ -11,7 +11,7 @@ struct EntryLocationView<ViewModel: SelectLocationViewModel>: View {
         } else {
             ExitLocationView(
                 viewModel: viewModel, context: $viewModel.entryContext,
-                onShowsTopOfTheListChange: onShowsTopOfTheListChange)
+                onScrollOffsetChange: onScrollOffsetChange)
         }
     }
 }

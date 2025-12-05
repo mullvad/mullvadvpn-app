@@ -111,4 +111,12 @@ class AllLocationDataSource: LocationDataSourceProtocol {
             }
         }
     }
+
+    func node(by selectedRelays: UserSelectedRelays) -> LocationNode? {
+        let rootNode = RootLocationNode(children: nodes)
+        guard let location = selectedRelays.locations.first else {
+            return nil
+        }
+        return descendantNode(in: rootNode, for: location, baseCodes: [])
+    }
 }

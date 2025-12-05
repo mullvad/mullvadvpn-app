@@ -36,7 +36,7 @@ class AddLocationsDataSource:
                 allLocations: self.nodes
             ).customListLocationNode
 
-        let sections: [LocationSection] = [.customLists]
+        let sections: [LocationSection] = [.main]
         self.sections = sections
 
         super.init(tableView: tableView) { _, indexPath, itemIdentifier in
@@ -60,7 +60,7 @@ class AddLocationsDataSource:
         var locationsList: [LocationCellViewModel] = []
         nodes.forEach { node in
             let viewModel = LocationCellViewModel(
-                section: .customLists,
+                section: .main,
                 node: node,
                 isSelected: customListLocationNode.children.contains(node)
             )
@@ -83,7 +83,7 @@ class AddLocationsDataSource:
             locationsList.append(
                 contentsOf: recursivelyCreateCellViewModelTree(
                     for: node,
-                    in: .customLists,
+                    in: .main,
                     indentationLevel: 1
                 ))
         }

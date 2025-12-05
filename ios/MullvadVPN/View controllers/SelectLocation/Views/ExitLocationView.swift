@@ -5,9 +5,8 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
     @Binding var context: LocationContext
     @State var newCustomListAlert: MullvadInputAlert?
     @State var alert: MullvadAlert?
-    let onShowsTopOfTheListChange: (Bool) -> Void
-
-    @State private var isShowingTopOfTheList: Bool = false
+    let onScrollOffsetChange: (CGFloat, CGFloat) -> Void
+    @State private var previousScrollOffset: CGFloat = 0
     var isShowingCustomListsSection: Bool {
         viewModel.searchText.isEmpty
             || (!viewModel.searchText.isEmpty
@@ -18,6 +17,10 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
     }
     var isShowingAllLocationsSection: Bool {
         !context.locations.filter({ !$0.isHiddenFromSearch }).isEmpty
+    }
+
+    var isShowingRecentsSection: Bool {
+        !context.recents.filter({ !$0.isHiddenFromSearch }).isEmpty
     }
 
     var body: some View {
@@ -37,6 +40,9 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
                             .padding(.bottom, 16)
                         }
                         Group {
+                            if viewModel.isRecentsEnabled {
+                                recentsSection(isShowingRecentsSection: isShowingRecentsSection)
+                            }
                             if isShowingCustomListsSection {
                                 customListSection(isShowingHeader: isShowingAllLocationsSection)
                             }
@@ -55,16 +61,14 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
                     .zIndex(3)  // prevent wrong overlapping during animations
                 }
                 .capturePosition(in: .exitLocationScroll) { frame in
-                    isShowingTopOfTheList = frame.minY >= 0
-                }
-                .onChange(of: isShowingTopOfTheList) {
-                    onShowsTopOfTheListChange(isShowingTopOfTheList)
+                    onScrollOffsetChange(previousScrollOffset, frame.minY)
+                    previousScrollOffset = frame.minY
                 }
             }
             .coordinateSpace(.exitLocationScroll)
             .task {
                 guard viewModel.searchText.isEmpty else { return }
-                let selectedLocation = (context.locations + context.customLists)
+                let selectedLocation = (context.locations + context.customLists + context.recents)
                     .flatMap { $0.flattened + [$0] }
                     .first { $0.isSelected }
 
@@ -90,6 +94,25 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
             context.selectLocation(location)
         } contextMenu: { location in
             locationContextMenu(location)
+        }
+    }
+
+    @ViewBuilder
+    func recentsSection(isShowingRecentsSection: Bool) -> some View {
+        MullvadListSectionHeader(title: "Recents")
+        if isShowingRecentsSection {
+            RecentLocationsListView(
+                locations: $context.recents,
+                multihopContext: viewModel.multihopContext,
+            ) { location in
+                context.selectLocation(location)
+            } contextMenu: { location in
+                locationContextMenu(location)
+            }
+        } else {
+            MullvadListSectionFooter(title: "No recent selection history")
+                .padding(.horizontal, context.recents.isEmpty ? 0 : 16)
+                .padding(.top, context.recents.isEmpty ? 0 : 4)
         }
     }
 
@@ -137,12 +160,9 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
             : """
             To add locations to a list, press the pen or long press on a country, city, or server.
             """
-        Text(text)
-            .font(.mullvadMini)
-            .foregroundStyle(Color.mullvadTextPrimary.opacity(0.6))
+        MullvadListSectionFooter(title: text)
             .padding(.horizontal, context.customLists.isEmpty ? 0 : 16)
             .padding(.top, context.customLists.isEmpty ? 0 : 4)
-            .padding(.bottom, 24)
     }
 }
 
@@ -153,7 +173,7 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
         context: $viewModel.exitContext,
         newCustomListAlert: nil,
         alert: nil,
-        onShowsTopOfTheListChange: { _ in }
+        onScrollOffsetChange: { _, _ in }
     )
     .background(Color.mullvadBackground)
 }
@@ -165,7 +185,7 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
         context: $viewModel.entryContext,
         newCustomListAlert: nil,
         alert: nil,
-        onShowsTopOfTheListChange: { _ in }
+        onScrollOffsetChange: { _, _ in }
     )
     .background(Color.mullvadBackground)
 }

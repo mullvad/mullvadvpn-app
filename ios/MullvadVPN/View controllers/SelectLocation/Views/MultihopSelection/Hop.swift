@@ -5,16 +5,13 @@ struct Hop {
     let selectedLocation: LocationNode?
     var noMatchFound: NoMatchFoundReason? {
         if let selectedLocation {
-            if let customListLocation = selectedLocation as? CustomListLocationNode {
-                if customListLocation.children.isEmpty {
-                    return .customListEmpty
-                }
+            let userSelectedRelays = selectedLocation.userSelectedRelays
+            if userSelectedRelays.customListSelection != nil,
+                userSelectedRelays.locations.isEmpty
+            {
+                return .customListEmpty
             }
-            if !selectedLocation.isActive {
-                return .selectionInactive
-            } else {
-                return nil
-            }
+            return selectedLocation.isActive ? nil : .selectionInactive
         }
         return .noSelection
     }

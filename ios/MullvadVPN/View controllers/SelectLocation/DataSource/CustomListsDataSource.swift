@@ -40,4 +40,29 @@ class CustomListsDataSource: LocationDataSourceProtocol {
             return listNode
         }
     }
+
+    func node(by selectedRelays: UserSelectedRelays) -> LocationNode? {
+        let rootNode = RootLocationNode(children: nodes)
+        guard
+            let selection = selectedRelays.customListSelection,
+            let selectedNode = rootNode.children.first(where: {
+                $0.asCustomListNode?.customList.id == selection.listId
+            })
+        else { return nil }
+
+        if selection.isList {
+            return selectedNode
+        }
+
+        if let location = selectedRelays.locations.first {
+            return descendantNode(
+                in: rootNode,
+                for: location,
+                baseCodes: [selectedNode.code]
+            )
+        }
+
+        return nil
+    }
+
 }
