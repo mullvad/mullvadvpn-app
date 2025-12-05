@@ -51,11 +51,7 @@ class ServerIpOverridesMockApiTest : MockApiTest() {
         // Select the relay which has an overriden ip
         on<ConnectPage> { clickSelectLocation() }
 
-        on<SelectLocationPage> {
-            clickLocationExpandButton(relay.country)
-            clickLocationExpandButton(relay.city)
-            clickLocationCell(relay.relay)
-        }
+        on<SelectLocationPage> { expandAndClickRelay(relay) }
 
         device.acceptVpnPermissionDialog()
 
