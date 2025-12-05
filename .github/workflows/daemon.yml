@@ -73,20 +73,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Checkout submodules
-        run: |
-          git config --global --add safe.directory '*'
-          git submodule update --init --depth=1 dist-assets/binaries
-          git submodule update --init wireguard-go-rs/libwg/wireguard-go
-
-      # The container image already has rustup and the pinned version of Rust
-      - name: Install Rust toolchain
-        # When running this job for "stable" test against our pinned rust version
-        # instead of the stable channel.
-        # TODO: Improve this so both "stable" and the pinned version are tested if
-        # they differ.
-        if: ${{ matrix.rust != 'stable' }}
-        run: rustup override set ${{ matrix.rust }}
+      # Caching Rust targets does not work on Linux for some reason
+      - uses: ./.github/actions/mullvad-build-env
+        with:
+          rust-toolchain: ${{ matrix.rust }}
 
       - name: Test crates
         run: ci/cargo-ci.sh test --workspace
@@ -98,6 +88,8 @@ jobs:
         uses: actions/checkout@v4
 
       - uses: ./.github/actions/mullvad-build-env
+        with:
+          rust-cache-targets: "true"
 
       - name: Test crates
         run: ci/cargo-ci.sh test --workspace
@@ -113,11 +105,11 @@ jobs:
           - os: windows-11-arm
             arch: arm64
     runs-on: ${{ matrix.config.os }}
-    env:
-      # On Windows, the checkout is on the D drive, which is very small.
-      # Moving the target directory to the C drive ensures that the runner
-      # doesn't run out of space on the D drive.
-      CARGO_TARGET_DIR: "C:/cargo-target"
+    # env:
+    #   # On Windows, the checkout is on the D drive, which is very small.
+    #   # Moving the target directory to the C drive ensures that the runner
+    #   # doesn't run out of space on the D drive.
+    #   CARGO_TARGET_DIR: "C:/cargo-target"
     steps:
       # By default, the longest path a filename can have in git on Windows is 260 character.
       - name: Set git config for long paths
@@ -128,6 +120,8 @@ jobs:
         uses: actions/checkout@v4
 
       - uses: ./.github/actions/mullvad-build-env
+        with:
+          rust-cache-targets: "true"
 
       - name: Build Windows modules (x86_64)
         if: ${{ matrix.config.arch == 'x64' }}

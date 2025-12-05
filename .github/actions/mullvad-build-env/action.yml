@@ -13,18 +13,14 @@ inputs:
     description: "Token for setup-protoc (defaults to GITHUB_TOKEN)"
     default: "${{ github.token }}"
     required: false
+  rust-cache-targets:
+    description: "Determines whether workspace `target` directories are cached. If `false`, only the cargo registry will be cached."
+    default: "false"
+    required: false
+  # TODO:  add support for the workspaces: "" config of Swatinem/rust-cache@v2 and use it to cache the test folder
 runs:
   using: "composite"
   steps:
-    - name: Cache cargo cache and index
-      uses: actions/cache@v4
-      with:
-        path: |
-          ~/.cargo/registry/index/
-          ~/.cargo/registry/cache/
-          ~/.cargo/git/db/
-        key: ${{ runner.os }}-cargo-${{ inputs.rust-toolchain }}-${{ hashFiles('**/Cargo.lock') }}
-
     - name: Override Rust toolchain
       if: ${{ inputs.rust-toolchain != 'stable' }}
       shell: bash
@@ -40,6 +36,20 @@ runs:
       if: runner.os == 'Windows'
       shell: bash
       run: rustup target add i686-pc-windows-msvc
+
+    - name: Install build dependencies
+      if: runner.os == 'Linux'
+      shell: bash
+      run: |
+        sudo apt-get update
+        sudo apt-get install libdbus-1-dev unzip
+
+    - name: Setup Rust cache
+      uses: Swatinem/rust-cache@v2
+      with:
+        add-job-id-key: "false" # Preserve cache across jobs
+        cache-targets: ${{ inputs.rust-cache-targets }} # Wether to cache `target/`
+        # workspaces: . -> C:/cargo-target # TODO: this too, or remove the custom target dir on windows
 
     - name: Install Protoc
       uses: arduino/setup-protoc@v3
@@ -98,13 +108,6 @@ runs:
       uses: mlugg/setup-zig@v2
       with:
         version: 0.14.1
-
-    - name: Install build dependencies
-      if: runner.os == 'Linux'
-      shell: bash
-      run: |
-        sudo apt-get update
-        sudo apt-get install libdbus-1-dev
 
     - name: Install Go
       uses: actions/setup-go@v6
