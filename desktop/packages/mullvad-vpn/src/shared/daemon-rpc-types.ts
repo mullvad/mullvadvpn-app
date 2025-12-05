@@ -458,7 +458,6 @@ export interface ISettings {
   showBetaReleases: boolean;
   relaySettings: RelaySettings;
   tunnelOptions: ITunnelOptions;
-  bridgeSettings: BridgeSettings;
   splitTunnel: SplitTunnelSettings;
   obfuscationSettings: ObfuscationSettings;
   customLists: CustomLists;
@@ -499,20 +498,6 @@ export type ObfuscationSettings = {
   shadowsocksSettings: ShadowsocksSettings;
   wireGuardPortSettings: WireGuardPortObfuscationSettings;
 };
-
-export interface IBridgeConstraints {
-  location: Constraint<RelayLocation>;
-  providers: string[];
-  ownership: Ownership;
-}
-
-export type BridgeType = 'normal' | 'custom';
-
-export interface BridgeSettings {
-  type: BridgeType;
-  normal: IBridgeConstraints;
-  custom?: CustomProxy;
-}
 
 export interface ISocketAddress {
   host: string;
