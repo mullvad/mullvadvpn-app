@@ -335,6 +335,7 @@ jobs:
           git config --system core.longpaths true
       - name: Checkout repository
         uses: actions/checkout@v4
+        # TODO: enable rust target caching for windows?
       - uses: ./.github/actions/mullvad-build-env
       - name: Build app
         if: ${{ github.event.inputs.gotatun == 'false' }}

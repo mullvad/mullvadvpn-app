@@ -108,6 +108,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # TODO: Should we enable rust target caching for windows here?
       - uses: ./.github/actions/mullvad-build-env
         with:
           rust-toolchain: ${{ env.RUST_NIGHTLY_TOOLCHAIN }}

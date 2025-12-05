@@ -21,6 +21,8 @@ jobs:
         uses: actions/checkout@v4
 
       - uses: ./.github/actions/mullvad-build-env
+        with:
+          rust-cache-targets: "true"
 
       - name: Build mullvad-nsis
         shell: bash
