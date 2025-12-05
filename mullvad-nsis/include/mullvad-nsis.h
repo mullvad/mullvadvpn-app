@@ -56,4 +56,11 @@ Status get_system_version(uint16_t *buffer, uintptr_t *buffer_size);
 /// `version_out` must point to a valid `WindowsVer`
 Status get_system_version_struct(WindowsVer *version_out);
 
+/// Identify processes that may be using files in the install path, and ask the user to close them.
+///
+/// # Safety
+///
+/// * `install_path` must be a null-terminated wide string (UTF-16).
+Status find_in_use_processes(const uint16_t *install_path);
+
 }  // extern "C"
