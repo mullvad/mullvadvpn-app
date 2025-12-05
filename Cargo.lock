@@ -2616,6 +2616,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "libloading"
+version = "0.9.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "754ca22de805bb5744484a5b151a9e1a8e837d5dc232c2d7d8c2e3492edc8b60"
+dependencies = [
+ "cfg-if",
+ "windows-link 0.2.0",
+]
+
+[[package]]
 name = "libm"
 version = "0.2.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3169,8 +3179,10 @@ name = "mullvad-nsis"
 version = "0.0.0"
 dependencies = [
  "cbindgen",
+ "libloading 0.9.0",
  "mullvad-paths",
  "talpid-platform-metadata",
+ "windows-sys 0.61.1",
 ]
 
 [[package]]
@@ -3355,7 +3367,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7d75440242411c87dc39847b0e33e961ec1f10326a9d8ecf9c1ea64a3b3c13dc"
 dependencies = [
  "getrandom 0.2.14",
- "libloading",
+ "libloading 0.8.3",
  "neon-macros",
  "once_cell",
  "semver",
@@ -3853,7 +3865,7 @@ dependencies = [
  "errno 0.2.8",
  "futures",
  "libc",
- "libloading",
+ "libloading 0.8.3",
  "pkg-config",
  "regex",
  "tokio",
@@ -7017,7 +7029,7 @@ dependencies = [
  "blocking",
  "c2rust-bitfields",
  "futures",
- "libloading",
+ "libloading 0.8.3",
  "log",
  "thiserror 2.0.9",
  "windows-sys 0.59.0",
