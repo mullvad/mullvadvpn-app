@@ -73,14 +73,13 @@ impl PidManager {
                 match Self::new_cgroup1() {
                     Ok(inner) => Inner::CGroup1(inner),
                     Err(cgroup1_err) => {
-                        log::error!(
-                            "Failed to initialize split-tunneling: {cgroup2_err:?}, {cgroup1_err:?}"
-                        );
-                        // TODO: Should we try to compose these errors?
+                        log::error!("Failed to initialize split-tunneling");
+                        log::trace!("{cgroup1_err:?}");
+                        log::trace!("{cgroup2_err:?}");
                         return Err(cgroup2_err);
                     }
                 }
-            } // oh god the indentation ..
+            }
         };
         Ok(inner)
     }
@@ -120,7 +119,6 @@ impl PidManager {
 
     /// Remove a PID from the cgroup2 to have it included in the tunnel.
     pub fn remove(&self, pid: pid_t) -> Result<(), Error> {
-        // PIDs can only be removed from a cgroup2 by adding them to another cgroup2.
         let pid = Pid::from_raw(pid);
         self.inner()?.remove(pid)
     }
@@ -208,7 +206,6 @@ impl Inner {
         let mut pids = self.list()?;
         while !pids.is_empty() {
             for pid in pids {
-                // TODO: We didn't do this before. Should be fine.
                 let pid = Pid::from_raw(pid);
                 self.remove(pid)?;
             }
