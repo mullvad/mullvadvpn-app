@@ -1,3 +1,4 @@
+use anyhow::{Context as _, anyhow};
 use std::ffi::OsStr;
 use std::fs;
 use std::os::unix::ffi::OsStrExt;
@@ -19,9 +20,12 @@ pub const DEFAULT_NET_CLS_DIR: &str = "/sys/fs/cgroup/net_cls";
 #[error("CGroup error")]
 pub struct Error(#[from] anyhow::Error);
 
-/// Find the path of the cgroup v1 net_cls controller mount if it exists
-pub fn find_net_cls_mount() -> std::io::Result<Option<PathBuf>> {
-    let mounts = fs::read("/proc/mounts")?;
+/// Find the path of the cgroup v1 net_cls controller mount if it exists.
+///
+/// Returns an error if `/proc/mounts` does not exist.
+pub fn find_net_cls_mount() -> Result<Option<PathBuf>, Error> {
+    let mounts =
+        fs::read("/proc/mounts").with_context(|| anyhow!("Failed to stat `/proc/mounts`"))?;
     Ok(find_net_cls_mount_inner(&mounts))
 }
 
