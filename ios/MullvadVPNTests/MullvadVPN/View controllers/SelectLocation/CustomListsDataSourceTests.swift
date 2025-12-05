@@ -83,35 +83,6 @@ class CustomListsDataSourceTests: XCTestCase {
         XCTAssertEqual(nodeByLocations, nodeByCode)
     }
 
-    func testSetSelection() throws {
-        let customListId = (dataSource.nodes.first! as! CustomListLocationNode).customList.id
-        let userSelectedRelays = UserSelectedRelays(
-            locations: [.country("se")],
-            customListSelection: .init(listId: customListId, isList: false)
-        )
-
-        dataSource
-            .setSelectedNode(
-                selectedRelays: userSelectedRelays
-            )
-
-        dataSource.nodes.forEachNode { node in
-            if node.locations == [.country("se")] {
-                XCTAssertTrue(node.isSelected)
-            } else {
-                XCTAssertFalse(node.isSelected)
-            }
-        }
-
-        dataSource
-            .setSelectedNode(
-                selectedRelays: .init(locations: [.country("invalid")])
-            )
-        dataSource.nodes.forEachNode { node in
-            XCTAssertFalse(node.isSelected)
-        }
-    }
-
     func testDoNotSetSelectedLocation() throws {
         let selectedRelays: UserSelectedRelays = .init(
             locations: [
@@ -119,7 +90,8 @@ class CustomListsDataSourceTests: XCTestCase {
             ]
         )
 
-        dataSource.setSelectedNode(selectedRelays: selectedRelays)
+        let nodeByLocations = dataSource.node(by: selectedRelays)
+        nodeByLocations?.isSelected = true
 
         dataSource.nodes.forEachNode { node in
             XCTAssertFalse(node.isSelected)

@@ -24,6 +24,7 @@ Line wrap the file at 100 chars.                                              Th
 ## UNRELEASED
 ### Added
 - Add support for additional languages.
+- Add recent connections in the Select Location view.
 
 ### Added
 - Allow using port 443 for UDP-over-TCP.

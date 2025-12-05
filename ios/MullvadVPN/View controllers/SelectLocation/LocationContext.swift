@@ -1,10 +1,12 @@
 struct LocationContext {
+    var recents: [LocationNode]
     var locations: [LocationNode]
     var customLists: [LocationNode]
     var filter: [SelectLocationFilter]
     let selectLocation: (LocationNode) -> Void
 
     init(
+        recents: [LocationNode] = [],
         locations: [LocationNode] = [],
         customLists: [LocationNode] = [],
         filter: [SelectLocationFilter] = [],
@@ -12,6 +14,7 @@ struct LocationContext {
         connectedRelayHostname: String? = nil,
         selectLocation: @escaping (LocationNode) -> Void = { _ in }
     ) {
+        self.recents = recents
         self.locations = locations
         self.customLists = customLists
         self.filter = filter

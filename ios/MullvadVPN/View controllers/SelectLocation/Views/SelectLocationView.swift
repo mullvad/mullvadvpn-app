@@ -5,6 +5,7 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
     @ObservedObject var viewModel: ViewModel
 
     var showSearchField: Bool { !viewModel.showDAITAInfo || viewModel.multihopContext == .exit }
+    @State private var disablingRecentConnectionsAlert: MullvadAlert?
 
     var body: some View {
         VStack(spacing: 16) {
@@ -71,6 +72,34 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                             .foregroundStyle(Color.mullvadTextPrimary)
                         }
                         .accessibilityIdentifier(.selectLocationFilterButton)
+
+                        Button {
+                            if viewModel.isRecentsEnabled {
+                                disablingRecentConnectionsAlert = MullvadAlert(
+                                    type: .warning,
+                                    messages: ["Disabling recents will also clear history."],
+                                    action: MullvadAlert.Action(
+                                        type: .danger,
+                                        title: "Disable",
+                                        identifier: .disableRecentConnectionsButton,
+                                        handler: {
+                                            viewModel.toggleRecents()
+                                            disablingRecentConnectionsAlert = nil
+                                        }), dismissButtonTitle: "Cancel")
+
+                            } else {
+                                viewModel.toggleRecents()
+                            }
+
+                        } label: {
+                            HStack {
+                                Image(systemName: "clock")
+                                Text("\(viewModel.isRecentsEnabled ? "Disable" : "Enable") recents")
+                            }
+                            .foregroundStyle(Color.mullvadTextPrimary)
+                        }
+                        .accessibilityIdentifier(.recentConnectionsToggleButton)
+
                     } label: {
                         Image(systemName: "ellipsis.circle.fill")
                             .foregroundStyle(Color.mullvadTextPrimary)
@@ -79,6 +108,7 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                 }
             )
         }
+        .mullvadAlert(item: $disablingRecentConnectionsAlert)
     }
 }
 
