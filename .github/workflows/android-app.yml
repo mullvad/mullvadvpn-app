@@ -138,7 +138,7 @@ jobs:
 
       - name: Build apks
         run: >
-          ./building/container-run.sh android android/gradlew -p android --console plain
+          ./android/gradlew -p android --console plain
           :app:assembleOssProdDebug
           :app:assemblePlayStagemoleDebug
           assembleOssProdAndroidTest
