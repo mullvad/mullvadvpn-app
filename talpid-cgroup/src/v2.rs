@@ -1,4 +1,4 @@
-use anyhow::{Context, anyhow};
+use anyhow::{Context as _, anyhow};
 use libc::pid_t;
 use nix::{errno::Errno, unistd::Pid};
 use std::{
@@ -9,7 +9,7 @@ use std::{
     path::PathBuf,
 };
 
-use super::Error;
+use crate::Error;
 
 /// A handle to a cgroup2
 pub struct CGroup2 {

@@ -1,4 +1,6 @@
 #[cfg(target_os = "linux")]
+use nix::unistd::Pid;
+#[cfg(target_os = "linux")]
 use nix::unistd::{execvp, getgid, getpid, getuid, setgid, setuid};
 #[cfg(target_os = "linux")]
 use std::fmt::Write as _;
@@ -13,10 +15,10 @@ use std::{
     os::unix::ffi::OsStrExt,
     path::Path,
 };
-use talpid_types::cgroup::find_net_cls_mount;
-
 #[cfg(target_os = "linux")]
-use talpid_types::cgroup::{CGROUP2_DEFAULT_MOUNT_PATH, SPLIT_TUNNEL_CGROUP_NAME};
+use talpid_cgroup::SPLIT_TUNNEL_CGROUP_NAME;
+#[cfg(target_os = "linux")]
+use talpid_cgroup::find_net_cls_mount;
 
 #[cfg(target_os = "linux")]
 const PROGRAM_NAME: &str = "mullvad-exclude";
@@ -72,7 +74,7 @@ fn main() {
     }
 }
 
-fn add_to_cgroups_v1_if_exists() -> Result<(), Error> {
+fn add_to_cgroups_v1_if_exists(pid: Pid) -> Result<(), Error> {
     let Some(net_cls_dir) = find_net_cls_mount().map_err(|_| Error::NoProcMounts)? else {
         return Ok(());
     };
@@ -89,7 +91,7 @@ fn add_to_cgroups_v1_if_exists() -> Result<(), Error> {
         .map_err(Error::AddProcToCGroup)?;
 
     BufWriter::new(procs_file)
-        .write_all(getpid().to_string().as_bytes())
+        .write_all(pid.to_string().as_bytes())
         .map_err(Error::AddProcToCGroup)?;
 
     Ok(())
@@ -97,6 +99,8 @@ fn add_to_cgroups_v1_if_exists() -> Result<(), Error> {
 
 #[cfg(target_os = "linux")]
 fn run() -> Result<Infallible, Error> {
+    use talpid_cgroup::{CGROUP2_DEFAULT_MOUNT_PATH, SPLIT_TUNNEL_CGROUP_NAME};
+
     let mut args_iter = env::args_os().skip(1);
     let program = args_iter.next().ok_or(Error::InvalidArguments)?;
     let program = CString::new(program.as_bytes()).map_err(Error::ArgumentNul)?;
@@ -109,7 +113,7 @@ fn run() -> Result<Infallible, Error> {
 
     let cgroup_path = Path::new(CGROUP2_DEFAULT_MOUNT_PATH).join(SPLIT_TUNNEL_CGROUP_NAME);
 
-    // Enusure the cgroup2 exists.
+    // Ensure the cgroup2 exists.
     match fs::create_dir(&cgroup_path) {
         Ok(_) => (),
 
@@ -123,21 +127,26 @@ fn run() -> Result<Infallible, Error> {
     }
 
     let procs_path = cgroup_path.join("cgroup.procs");
-
-    let procs_file = fs::OpenOptions::new()
+    // Add process PID to cgroup2
+    let pid = getpid();
+    let result = fs::OpenOptions::new()
         .write(true)
         .create(false)
         .truncate(false)
         .open(procs_path)
-        .map_err(Error::AddProcToCGroup)?;
+        .map(BufWriter::new)
+        .and_then(|mut file| file.write_all(pid.to_string().as_bytes()))
+        .map_err(Error::AddProcToCGroup);
 
-    BufWriter::new(procs_file)
-        .write_all(getpid().to_string().as_bytes())
-        .map_err(Error::AddProcToCGroup)?;
-
-    if let Err(e) = add_to_cgroups_v1_if_exists() {
-        eprintln!("Failed to add process to v1 cgroup: {e}");
+    // Always add current PID to cgroup1 (deprecated solution). It does not hurt to be in both cgroup1 and cgroup2 at
+    // the same time, the firewall will have to promise to behave appropriately.
+    if let Err(add_err) = add_to_cgroups_v1_if_exists(pid)
+        && result.is_err()
+    {
+        eprintln!("Failed to add process to v1 cgroup: {add_err}");
     }
+
+    result?;
 
     // Drop root privileges
     let real_uid = getuid();

@@ -14,8 +14,6 @@ use self::{
 };
 #[cfg(any(windows, target_os = "android", target_os = "macos"))]
 use crate::split_tunnel;
-#[cfg(target_os = "linux")]
-use crate::split_tunnel::CGroup2;
 use crate::{
     firewall::{Firewall, FirewallArguments, InitialFirewallState},
     mpsc::Sender,
@@ -23,6 +21,8 @@ use crate::{
 };
 #[cfg(any(target_os = "windows", target_os = "macos"))]
 use std::ffi::OsString;
+#[cfg(target_os = "linux")]
+use talpid_cgroup::v2::CGroup2;
 use talpid_dns::{DnsConfig, DnsMonitor};
 use talpid_routing::RouteManagerHandle;
 #[cfg(target_os = "macos")]

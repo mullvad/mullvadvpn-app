@@ -29,7 +29,9 @@ cfg_if::cfg_if! {
 }
 
 #[cfg(target_os = "linux")]
-use crate::{split_tunnel::CGroup2, tunnel_state_machine::LinuxNetworkingIdentifiers};
+use crate::tunnel_state_machine::LinuxNetworkingIdentifiers;
+#[cfg(target_os = "linux")]
+use talpid_cgroup::v2::CGroup2;
 
 pub use self::imp::Error;
 
