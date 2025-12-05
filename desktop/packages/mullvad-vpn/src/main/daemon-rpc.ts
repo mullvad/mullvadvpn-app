@@ -9,7 +9,6 @@ import {
   AccountDataError,
   AccountDataResponse,
   AccountNumber,
-  BridgeSettings,
   CustomListError,
   CustomProxy,
   DaemonAppUpgradeEvent,
@@ -46,7 +45,6 @@ import {
   convertToCustomProxy,
   convertToNewApiAccessMethodSetting,
   convertToNewCustomList,
-  convertToNormalBridgeSettings,
   convertToRelayConstraints,
   ensureExists,
 } from './grpc-type-convertions';
@@ -298,29 +296,6 @@ export class DaemonRpc extends GrpcClient {
 
   public async setLockdownMode(lockdownMode: boolean): Promise<void> {
     await this.callBool(this.client.setLockdownMode, lockdownMode);
-  }
-
-  public async setBridgeSettings(bridgeSettings: BridgeSettings): Promise<void> {
-    const grpcBridgeSettings = new grpcTypes.BridgeSettings();
-
-    grpcBridgeSettings.setBridgeType(
-      bridgeSettings.type === 'normal'
-        ? grpcTypes.BridgeSettings.BridgeType.NORMAL
-        : grpcTypes.BridgeSettings.BridgeType.CUSTOM,
-    );
-
-    const normalSettings = convertToNormalBridgeSettings(bridgeSettings.normal);
-    grpcBridgeSettings.setNormal(normalSettings);
-
-    if (bridgeSettings.custom) {
-      const customProxy = convertToCustomProxy(bridgeSettings.custom);
-      grpcBridgeSettings.setCustom(customProxy);
-    }
-
-    await this.call<grpcTypes.BridgeSettings, Empty>(
-      this.client.setBridgeSettings,
-      grpcBridgeSettings,
-    );
   }
 
   public async setObfuscationSettings(obfuscationSettings: ObfuscationSettings): Promise<void> {
