@@ -459,15 +459,12 @@ export interface ISettings {
   relaySettings: RelaySettings;
   tunnelOptions: ITunnelOptions;
   bridgeSettings: BridgeSettings;
-  bridgeState: BridgeState;
   splitTunnel: SplitTunnelSettings;
   obfuscationSettings: ObfuscationSettings;
   customLists: CustomLists;
   apiAccessMethods: ApiAccessMethodSettings;
   relayOverrides: Array<RelayOverride>;
 }
-
-export type BridgeState = 'auto' | 'on' | 'off';
 
 export type SplitTunnelSettings = {
   enableExclusions: boolean;
