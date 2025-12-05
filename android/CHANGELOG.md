@@ -25,6 +25,8 @@ Line wrap the file at 100 chars.                                              Th
 ### Removed
 - Remove "Automatic" as a setting for the "Quantum-resistant tunnel" option.
 
+### Changed
+- Added new anti-censorship settings screen reachable from VPN settings.
 
 ## [android/2025.11] - 2025-12-08
 Identical to `android/2025.11-beta1`.
