@@ -2,6 +2,11 @@
 //! DBus system connection
 pub use dbus;
 use dbus::blocking::SyncConnection;
+
+pub use zbus;
+// TODO: Convert this module to async.
+use zbus::blocking::Connection;
+
 use std::sync::{Arc, LazyLock, Mutex};
 pub mod network_manager;
 pub mod systemd;
@@ -21,4 +26,12 @@ pub fn get_connection() -> Result<Arc<SyncConnection>, dbus::Error> {
             Ok(new_connection)
         }
     }
+}
+
+/// Reuse or create a system DBus connection to the system-wide message bus.
+pub fn get_connection_zbus() -> Result<Connection, zbus::Error> {
+    // TODO: Cache? Or I don't think it matters. Create it once and then clone seems to be the deal
+    // with zbus. No need to go super-fancy with the LazyLock<Mutex<..> shennanings.
+    let system = Connection::system()?;
+    Ok(system)
 }

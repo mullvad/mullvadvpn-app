@@ -11,6 +11,7 @@ workspace = true
 
 [target.'cfg(target_os = "linux")'.dependencies]
 dbus = "0.9"
+zbus = "5.12"
 thiserror = { workspace = true }
 log = { workspace = true }
 libc = "0.2"

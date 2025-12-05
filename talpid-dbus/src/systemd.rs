@@ -1,66 +1,56 @@
-use dbus::blocking::{Proxy, SyncConnection, stdintf::org_freedesktop_dbus::Properties};
-use std::{sync::Arc, time::Duration};
+use zbus::blocking::{Connection, Proxy}; // TODO: async
 
-type Result<T> = std::result::Result<T, Error>;
+use crate::get_connection_zbus;
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
     #[error("Failed to create a DBus connection")]
-    ConnectError(#[source] dbus::Error),
+    ConnectError(#[source] zbus::Error),
 
     #[error("Failed to read SystemState property")]
-    ReadSystemStateError(#[source] dbus::Error),
+    ReadSystemStateError(#[source] zbus::Error),
 }
 
-const SYSTEMD_BUS: &str = "org.freedesktop.systemd1";
-const SYSTEMD_PATH: &str = "/org/freedesktop/systemd1";
-const MANAGER_INTERFACE: &str = "org.freedesktop.systemd1.Manager";
-const SYSTEM_STATE: &str = "SystemState";
-const SYSTEM_STATE_STARTING: &str = "starting";
-const SYSTEM_STATE_INITIALIZING: &str = "initializing";
-const SYSTEM_STATE_RUNNING: &str = "running";
-const SYSTEM_STATE_DEGRADED: &str = "degraded";
-
-const RPC_TIMEOUT: Duration = Duration::from_secs(1);
+// TODO: Maybe this is important, maybe it's not. I don't think it is if we make this module async.
+// const RPC_TIMEOUT: std::duraction::Duration = std::duration::Duration::from_secs(1);
 
 /// Returns true if the host is not shutting down or entering maintenance mode or some other weird
 /// state.
-pub fn is_host_running() -> Result<bool> {
-    Systemd::new()?.system_is_running()
+pub fn is_host_running() -> Result<bool, Error> {
+    Systemd::new()?
+        .system_is_running()
+        .map_err(Error::ReadSystemStateError)
 }
 
 struct Systemd {
-    pub dbus_connection: Arc<SyncConnection>,
+    pub dbus_connection: Connection,
 }
 
+// TODO: Use proxy macro from zbus crate.
 impl Systemd {
-    fn new() -> Result<Self> {
+    /// Create a new systemd manager.
+    fn new() -> Result<Self, Error> {
         Ok(Self {
-            dbus_connection: crate::get_connection().map_err(Error::ConnectError)?,
+            dbus_connection: get_connection_zbus().map_err(Error::ConnectError)?,
         })
     }
 
-    fn system_is_running(&self) -> Result<bool> {
-        self.as_manager_object()
-            .get(MANAGER_INTERFACE, SYSTEM_STATE)
+    /// TODO: Document me.
+    fn system_is_running(&self) -> Result<bool, zbus::Error> {
+        self.as_manager_object()?
+            .get_property("SystemState")
             .map(|state: String| {
-                ![
-                    SYSTEM_STATE_STARTING,
-                    SYSTEM_STATE_INITIALIZING,
-                    SYSTEM_STATE_RUNNING,
-                    SYSTEM_STATE_DEGRADED,
-                ]
-                .contains(&state.as_str())
+                !["starting", "initializing", "running", "degraded"].contains(&state.as_str())
             })
-            .map_err(Error::ReadSystemStateError)
     }
 
-    fn as_manager_object(&self) -> Proxy<'_, &SyncConnection> {
+    /// TODO: Document me.
+    fn as_manager_object(&self) -> Result<Proxy<'_>, zbus::Error> {
         Proxy::new(
-            SYSTEMD_BUS,
-            SYSTEMD_PATH,
-            RPC_TIMEOUT,
             &self.dbus_connection,
+            "org.freedesktop.systemd1",
+            "/org/freedesktop/systemd1",
+            "org.freedesktop.systemd1.Manager",
         )
     }
 }
