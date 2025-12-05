@@ -13,5 +13,4 @@ workspace = true
 [target.'cfg(target_os = "linux")'.dependencies]
 nix = { workspace = true, features = ["process", "user"] }
 thiserror = { workspace = true }
-talpid-types = { path = "../talpid-types" }
 talpid-cgroup = { path = "../talpid-cgroup" }
