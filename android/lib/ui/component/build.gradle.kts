@@ -29,4 +29,6 @@ dependencies {
     implementation(libs.compose.icons.extended)
     implementation(libs.androidx.ktx)
     implementation(libs.androidx.animation)
+
+    implementation(libs.accompanist.drawablepainter)
 }
