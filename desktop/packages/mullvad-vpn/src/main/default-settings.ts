@@ -32,15 +32,6 @@ export function getDefaultSettings(): ISettings {
     relaySettings: {
       normal: getDefaultRelaySettingsNormal(),
     },
-    bridgeSettings: {
-      type: 'normal',
-      normal: {
-        location: 'any',
-        providers: [],
-        ownership: Ownership.any,
-      },
-      custom: undefined,
-    },
     tunnelOptions: {
       generic: {
         enableIpv6: false,
