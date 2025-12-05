@@ -14,7 +14,6 @@ import { Url } from '../shared/constants';
 import {
   AccessMethodSetting,
   AccountNumber,
-  BridgeSettings,
   CustomProxy,
   DeviceEvent,
   IAccountData,
@@ -776,20 +775,6 @@ export default class AppRenderer {
     }
   }
 
-  private setBridgeSettings(bridgeSettings: BridgeSettings) {
-    const actions = this.reduxActions;
-
-    actions.settings.updateBridgeSettings({
-      type: bridgeSettings.type,
-      normal: {
-        location: liftConstraint(bridgeSettings.normal.location),
-        providers: bridgeSettings.normal.providers,
-        ownership: bridgeSettings.normal.ownership,
-      },
-      custom: bridgeSettings.custom,
-    });
-  }
-
   private onDaemonConnected() {
     this.connectedToDaemon = true;
     this.reduxActions.userInterface.setConnectedToDaemon(true);
@@ -862,7 +847,6 @@ export default class AppRenderer {
     reduxSettings.updateRelayOverrides(newSettings.relayOverrides);
 
     this.setReduxRelaySettings(newSettings.relaySettings);
-    this.setBridgeSettings(newSettings.bridgeSettings);
   }
 
   private setIsPerformingPostUpgrade(isPerformingPostUpgrade: boolean) {

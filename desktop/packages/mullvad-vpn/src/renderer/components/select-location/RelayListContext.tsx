@@ -165,13 +165,11 @@ function useRelayList(
   const selectedLocation = useSelectedLocation();
   const disabledLocation = useDisabledLocation();
 
-  const preventDueToCustomBridgeSelected = usePreventDueToCustomBridgeSelected();
-
   const isLocationSelected = useCallback(
     (location: RelayLocation) => {
-      return preventDueToCustomBridgeSelected ? false : isSelected(location, selectedLocation);
+      return isSelected(location, selectedLocation);
     },
-    [preventDueToCustomBridgeSelected, selectedLocation],
+    [selectedLocation],
   );
 
   return useMemo(() => {
@@ -233,11 +231,6 @@ function useRelayList(
       })
       .sort((a, b) => a.label.localeCompare(b.label, locale));
   }, [locale, expandedLocations, relayList, disabledLocation, isLocationSelected]);
-}
-
-export function usePreventDueToCustomBridgeSelected(): boolean {
-  const bridgeSettings = useSelector((state) => state.settings.bridgeSettings);
-  return bridgeSettings.type === 'custom';
 }
 
 // Return all RelayLocations that should be expanded
