@@ -3,12 +3,14 @@ package net.mullvad.mullvadvpn.test.common.page
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.Direction
 import androidx.test.uiautomator.Until
+import androidx.test.uiautomator.waitForStableInActiveWindow
 import net.mullvad.mullvadvpn.lib.ui.tag.EXPAND_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.GEOLOCATION_NAME_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_LIST_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_MENU_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_SCREEN_TEST_TAG
 import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
+import net.mullvad.mullvadvpn.test.common.misc.TestRelay
 
 class SelectLocationPage internal constructor() : Page() {
     override fun assertIsDisplayed() {
@@ -49,5 +51,13 @@ class SelectLocationPage internal constructor() : Page() {
 
     fun clickEnableRecentsButton() {
         uiDevice.findObjectWithTimeout(By.text("Enable recents")).click()
+    }
+
+    fun expandAndClickRelay(testRelay: TestRelay) {
+        clickLocationExpandButton(testRelay.country)
+        uiDevice.waitForStableInActiveWindow()
+        clickLocationExpandButton(testRelay.city)
+        uiDevice.waitForStableInActiveWindow()
+        clickLocationCell(testRelay.relay)
     }
 }
