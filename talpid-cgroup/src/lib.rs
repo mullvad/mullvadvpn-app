@@ -1,3 +1,4 @@
+#![cfg(target_os = "linux")]
 use anyhow::{Context as _, anyhow};
 use std::ffi::OsStr;
 use std::fs;
