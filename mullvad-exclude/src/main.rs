@@ -8,10 +8,7 @@ use std::{
     fmt::Write as _,
     os::unix::ffi::OsStrExt,
 };
-use talpid_cgroup::{
-    CGROUP2_DEFAULT_MOUNT_PATH, SPLIT_TUNNEL_CGROUP_NAME, find_net_cls_mount, v1::CGroup1,
-    v2::CGroup2,
-};
+use talpid_cgroup::{SPLIT_TUNNEL_CGROUP_NAME, find_net_cls_mount, v1::CGroup1, v2::CGroup2};
 
 #[derive(thiserror::Error, Debug)]
 enum Error {
@@ -37,6 +34,11 @@ enum Error {
     NoProcMounts,
 }
 
+/// Launch a program in a cgroup where traffic will be excluded from the VPN tunnel.
+///
+/// Note: Set the `TALPID_EXCLUSSION_CGROUP` env variable to control where the root cgroup is
+/// mounted. See (README.md)[../../README.md#Environment-variables-used-by-the-service] for
+/// details.
 fn main() {
     let Err(error) = run();
 
@@ -88,7 +90,7 @@ fn run() -> Result<Infallible, Error> {
 
     let pid = getpid();
 
-    let result = CGroup2::open(CGROUP2_DEFAULT_MOUNT_PATH)
+    let result = CGroup2::open_root()
         .and_then(|root_cgroup2| root_cgroup2.create_or_open_child(SPLIT_TUNNEL_CGROUP_NAME))
         .and_then(|exclusion_cgroup2| exclusion_cgroup2.add_pid(pid));
 
