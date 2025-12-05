@@ -428,8 +428,6 @@ dependencies {
     implementation(libs.compose.destinations)
     ksp(libs.compose.destinations.ksp)
 
-    implementation(libs.accompanist.drawablepainter)
-
     implementation(libs.kermit)
     implementation(libs.koin)
     implementation(libs.koin.android)

@@ -33,7 +33,7 @@ import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.ItemPosition
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.RelayListItem
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.SelectableRelayListItem
-import net.mullvad.mullvadvpn.lib.ui.designsystem.RelayListHeader
+import net.mullvad.mullvadvpn.lib.ui.designsystem.ListHeader
 import net.mullvad.mullvadvpn.lib.ui.tag.LOCATION_CELL_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.RECENT_CELL_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_CUSTOM_LIST_HEADER_TEST_TAG
@@ -214,7 +214,7 @@ private fun CustomListEntryItem(
 
 @Composable
 fun CustomListHeader(addCustomList: () -> Unit, editCustomLists: (() -> Unit)?) {
-    RelayListHeader(
+    ListHeader(
         { Text(stringResource(R.string.custom_lists), overflow = TextOverflow.Ellipsis) },
         actions = {
             IconButton(onClick = addCustomList) {
@@ -250,7 +250,7 @@ private fun CustomListFooter(item: RelayListItem.CustomListFooter) {
 
 @Composable
 private fun RelayLocationHeader() {
-    RelayListHeader(
+    ListHeader(
         content = {
             Text(text = stringResource(R.string.all_locations), overflow = TextOverflow.Ellipsis)
         }
@@ -259,7 +259,7 @@ private fun RelayLocationHeader() {
 
 @Composable
 private fun RecentsListHeader() {
-    RelayListHeader(
+    ListHeader(
         content = {
             Text(text = stringResource(id = R.string.recents), overflow = TextOverflow.Ellipsis)
         }
