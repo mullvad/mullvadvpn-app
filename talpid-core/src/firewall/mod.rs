@@ -8,21 +8,30 @@ use talpid_dns::ResolvedDnsConfig;
 use talpid_tunnel::TunnelMetadata;
 use talpid_types::net::{ALLOWED_LAN_NETS, AllowedEndpoint, AllowedTunnelTraffic};
 
-#[cfg(target_os = "macos")]
-#[path = "macos.rs"]
-mod imp;
+cfg_if::cfg_if! {
+    if #[cfg(target_os = "windows")] {
+        /// Firewall implementation for Windows
+        mod windows;
+        use windows as imp;
+    } else if #[cfg(target_os = "macos")] {
+        /// Firewall implementation for macOS
+        mod macos;
+        use macos as imp;
+    } else if #[cfg(target_os = "linux")] {
+        /// Firewall implementation for desktop Linux
+        pub mod linux;
+        use linux as imp;
+    } else if #[cfg(target_os = "android")] {
+        /// Firewall implementation for Android
+        mod android;
+        use android as imp;
+    }
+}
 
 #[cfg(target_os = "linux")]
-#[path = "linux.rs"]
-mod imp;
-
-#[cfg(windows)]
-#[path = "windows/mod.rs"]
-mod imp;
-
-#[cfg(target_os = "android")]
-#[path = "android.rs"]
-mod imp;
+use crate::tunnel_state_machine::LinuxNetworkingIdentifiers;
+#[cfg(target_os = "linux")]
+use talpid_cgroup::v2::CGroup2;
 
 pub use self::imp::Error;
 
@@ -303,10 +312,10 @@ pub struct FirewallArguments {
     pub initial_state: InitialFirewallState,
     /// This argument is required for the blocked state to configure the firewall correctly.
     pub allow_lan: bool,
-    /// Specifies the firewall mark used to identify traffic that is allowed to be excluded from
-    /// the tunnel and _leaked_ during blocked states.
+    /// Specifies the cgroup2 and firewall mark used to identify traffic that is allowed to be
+    /// excluded from the tunnel and _leaked_ during blocked states.
     #[cfg(target_os = "linux")]
-    pub fwmark: u32,
+    pub linux_ids: LinuxNetworkingIdentifiers,
 }
 
 /// State to enter during firewall init.
@@ -326,11 +335,19 @@ impl Firewall {
     }
 
     /// Createsa new firewall instance.
-    pub fn new(#[cfg(target_os = "linux")] fwmark: u32) -> Result<Self, Error> {
+    pub fn new(
+        #[cfg(target_os = "linux")] fwmark: u32,
+        #[cfg(target_os = "linux")] excluded_cgroup: Option<CGroup2>,
+        #[cfg(target_os = "linux")] net_cls: Option<u32>,
+    ) -> Result<Self, Error> {
         Ok(Firewall {
             inner: imp::Firewall::new(
                 #[cfg(target_os = "linux")]
                 fwmark,
+                #[cfg(target_os = "linux")]
+                excluded_cgroup,
+                #[cfg(target_os = "linux")]
+                net_cls,
             )?,
         })
     }

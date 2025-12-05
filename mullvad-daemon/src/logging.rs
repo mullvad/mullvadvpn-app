@@ -39,6 +39,7 @@ pub const SILENCED_CRATES: &[&str] = &[
     "want",
     "ws",
     "mio",
+    "mnl",
     "hyper",
     "hyper_util",
     "rtnetlink",
@@ -52,7 +53,7 @@ pub const SILENCED_CRATES: &[&str] = &[
     "quinn_proto",
     "quinn",
 ];
-const SLIGHTLY_SILENCED_CRATES: &[&str] = &["mnl", "nftnl", "udp_over_tcp"];
+const SLIGHTLY_SILENCED_CRATES: &[&str] = &["nftnl", "udp_over_tcp"];
 
 const COLORS: ColoredLevelConfig = ColoredLevelConfig {
     error: Color::Red,

@@ -49,6 +49,6 @@ export const createSelectors = (page: Page) => ({
     }),
   splitTunnelingUnsupportedDialogText: () =>
     page.getByText(
-      'To use Split tunneling, please change to a Linux kernel version that supports cgroup v1.',
+      'To use Split tunneling, please update to a Linux kernel version that supports cgroup v2.',
     ),
 });
