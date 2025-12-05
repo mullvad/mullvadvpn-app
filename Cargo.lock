@@ -5360,7 +5360,6 @@ name = "talpid-cgroup"
 version = "0.0.0"
 dependencies = [
  "anyhow",
- "libc",
  "log",
  "nix 0.30.1",
  "thiserror 2.0.9",
