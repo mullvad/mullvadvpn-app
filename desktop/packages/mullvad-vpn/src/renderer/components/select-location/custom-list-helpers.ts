@@ -8,11 +8,7 @@ import {
 import { hasValue } from '../../../shared/utils';
 import { searchMatch } from '../../lib/filter-locations';
 import { useSelector } from '../../redux/store';
-import {
-  useDisabledLocation,
-  usePreventDueToCustomBridgeSelected,
-  useSelectedLocation,
-} from './RelayListContext';
+import { useDisabledLocation, useSelectedLocation } from './RelayListContext';
 import {
   formatRowName,
   isCustomListDisabled,
@@ -39,8 +35,6 @@ export function useCustomListsRelayList(
   const { searchTerm } = useSelectLocationContext();
   const customLists = useSelector((state) => state.settings.customLists);
 
-  const preventDueToCustomBridgeSelected = usePreventDueToCustomBridgeSelected();
-
   // Populate all custom lists with the real location trees for the list locations.
   return useMemo(
     () =>
@@ -49,21 +43,12 @@ export function useCustomListsRelayList(
           list,
           relayList,
           searchTerm,
-          preventDueToCustomBridgeSelected,
           selectedLocation,
           disabledLocation,
           expandedLocations,
         ),
       ),
-    [
-      customLists,
-      relayList,
-      searchTerm,
-      preventDueToCustomBridgeSelected,
-      selectedLocation,
-      disabledLocation,
-      expandedLocations,
-    ],
+    [customLists, relayList, searchTerm, selectedLocation, disabledLocation, expandedLocations],
   );
 }
 
@@ -72,7 +57,6 @@ function prepareCustomList(
   list: ICustomList,
   fullRelayList: GeographicalRelayList,
   searchTerm: string,
-  preventDueToCustomBridgeSelected: boolean,
   selectedLocation?: RelayLocation,
   disabledLocation?: { location: RelayLocation; reason: DisabledReason },
   expandedLocations?: Array<RelayLocation>,
@@ -90,7 +74,7 @@ function prepareCustomList(
     disabled: disabledReason !== undefined,
     disabledReason,
     expanded: isExpanded(location, expandedLocations),
-    selected: preventDueToCustomBridgeSelected ? false : isSelected(location, selectedLocation),
+    selected: isSelected(location, selectedLocation),
     visible: searchMatch(searchTerm, list.name),
     locations,
   };
