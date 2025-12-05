@@ -21,7 +21,6 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
-import mullvad_daemon.management_interface.dnsOptions
 import net.mullvad.mullvadvpn.compose.screen.VpnSettingsNavArgs
 import net.mullvad.mullvadvpn.compose.state.VpnSettingItem
 import net.mullvad.mullvadvpn.compose.state.VpnSettingsUiState
@@ -129,7 +128,7 @@ class VpnSettingsViewModelTest {
             coEvery {
                 mockSettingsRepository.setWireguardQuantumResistant(quantumResistantState)
             } returns Unit.right()
-            viewModel.onSelectQuantumResistanceSetting(quantumResistantState)
+            viewModel.onSelectQuantumResistanceSetting(true)
             coVerify(exactly = 1) {
                 mockSettingsRepository.setWireguardQuantumResistant(quantumResistantState)
             }
@@ -163,9 +162,8 @@ class VpnSettingsViewModelTest {
 
                 assertTrue(
                     content.value.settings
-                        .filterIsInstance<VpnSettingItem.QuantumItem>()
-                        .first { it.quantumResistantState == QuantumResistantState.On }
-                        .selected
+                        .filterIsInstance<VpnSettingItem.QuantumResistantSetting>()
+                        .any { it.enabled }
                 )
             }
         }

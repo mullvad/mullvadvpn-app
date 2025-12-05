@@ -4,8 +4,7 @@ import androidx.test.uiautomator.By
 import androidx.test.uiautomator.Direction
 import androidx.test.uiautomator.Until
 import java.util.Locale
-import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_QUANTUM_ITEM_OFF_TEST_TAG
-import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_QUANTUM_ITEM_ON_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_QUANTUM_ITEM_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_VPN_SETTINGS_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_WIREGUARD_CUSTOM_PORT_NUMBER_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_WIREGUARD_CUSTOM_PORT_TEXT_TEST_TAG
@@ -29,6 +28,14 @@ class VpnSettingsPage internal constructor() : Page() {
 
     override fun assertIsDisplayed() {
         uiDevice.findObjectWithTimeout(vpnSettingsSelector)
+    }
+
+    fun assertPostQuantumState(enabled: Boolean) {
+        val postQuantumCell =
+            uiDevice.findObjectWithTimeout(By.res(LAZY_LIST_QUANTUM_ITEM_TEST_TAG))
+        val postQuantumSwitch = postQuantumCell.findObjectWithTimeout(By.res(SWITCH_TEST_TAG))
+
+        assert(postQuantumSwitch.isChecked == enabled)
     }
 
     fun clickLocalNetworkSharingSwitch() {
@@ -63,12 +70,8 @@ class VpnSettingsPage internal constructor() : Page() {
         scrollUntilCell(WIREGUARD_OBFUSCATION_OFF_CELL_TEST_TAG)
     }
 
-    fun scrollUntilPostQuantumOffCell() {
-        scrollUntilCell(LAZY_LIST_QUANTUM_ITEM_OFF_TEST_TAG)
-    }
-
-    fun scrollUntilPostQuantumOnCell() {
-        scrollUntilCell(LAZY_LIST_QUANTUM_ITEM_ON_TEST_TAG)
+    fun scrollUntilPostQuantumCell() {
+        scrollUntilCell(LAZY_LIST_QUANTUM_ITEM_TEST_TAG)
     }
 
     fun scrollUntilWireGuardObfuscationShadowsocksCell() {
@@ -103,12 +106,12 @@ class VpnSettingsPage internal constructor() : Page() {
         uiDevice.clickObjectAwaitIsChecked(By.res(WIREGUARD_OBFUSCATION_OFF_CELL_TEST_TAG))
     }
 
-    fun clickPostQuantumOffCell() {
-        uiDevice.clickObjectAwaitIsChecked(By.res(LAZY_LIST_QUANTUM_ITEM_OFF_TEST_TAG))
-    }
+    fun clickPostQuantumCell() {
+        val postQuantumCell =
+            uiDevice.findObjectWithTimeout(By.res(LAZY_LIST_QUANTUM_ITEM_TEST_TAG))
+        val postQuantumSwitch = postQuantumCell.findObjectWithTimeout(By.res(SWITCH_TEST_TAG))
 
-    fun clickPostQuantumOnCell() {
-        uiDevice.clickObjectAwaitIsChecked(By.res(LAZY_LIST_QUANTUM_ITEM_ON_TEST_TAG))
+        postQuantumSwitch.click()
     }
 
     fun clickWireGuardObfuscationShadowsocksCell() {

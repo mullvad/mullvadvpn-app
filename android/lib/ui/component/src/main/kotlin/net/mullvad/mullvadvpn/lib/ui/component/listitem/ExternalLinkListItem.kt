@@ -3,7 +3,7 @@ package net.mullvad.mullvadvpn.lib.ui.component.listitem
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -21,11 +21,11 @@ import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
 
 @Preview
 @Composable
-private fun PreviewNavigationListItem() {
+private fun PreviewExternalLinkListItem() {
     AppTheme {
         PreviewSpacedColumn(Modifier.background(MaterialTheme.colorScheme.surface)) {
-            NavigationListItem(title = "Navigation sample", showWarning = false, onClick = {})
-            NavigationListItem(
+            ExternalLinkListItem(title = "Navigation sample", showWarning = false, onClick = {})
+            ExternalLinkListItem(
                 hierarchy = Hierarchy.Child1,
                 title = "Navigation sample",
                 showWarning = true,
@@ -35,9 +35,8 @@ private fun PreviewNavigationListItem() {
     }
 }
 
-@Suppress("ComposableLambdaParameterNaming")
 @Composable
-fun NavigationListItem(
+fun ExternalLinkListItem(
     modifier: Modifier = Modifier,
     hierarchy: Hierarchy = Hierarchy.Parent,
     position: Position = Position.Single,
@@ -68,8 +67,8 @@ fun NavigationListItem(
         content = { TitleAndSubtitle(title = title, subtitle = subtitle) },
         trailingContent = {
             Icon(
-                Icons.AutoMirrored.Default.KeyboardArrowRight,
-                contentDescription = stringResource(R.string.navigate),
+                imageVector = Icons.AutoMirrored.Default.OpenInNew,
+                contentDescription = stringResource(R.string.external_link),
             )
         },
     )

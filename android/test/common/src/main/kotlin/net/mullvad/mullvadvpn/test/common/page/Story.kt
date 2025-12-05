@@ -20,8 +20,9 @@ fun ConnectPage.disablePostQuantumStory() {
     clickSettings()
     on<SettingsPage> { clickVpnSettings() }
     on<VpnSettingsPage> {
-        scrollUntilPostQuantumOffCell()
-        clickPostQuantumOffCell()
+        scrollUntilPostQuantumCell()
+        clickPostQuantumCell()
+        assertPostQuantumState(false)
     }
     uiDevice.pressBackTwice()
 }
@@ -30,8 +31,8 @@ fun ConnectPage.enablePostQuantumStory() {
     clickSettings()
     on<SettingsPage> { clickVpnSettings() }
     on<VpnSettingsPage> {
-        scrollUntilPostQuantumOnCell()
-        clickPostQuantumOnCell()
+        scrollUntilPostQuantumCell()
+        assertPostQuantumState(true)
     }
     uiDevice.pressBackTwice()
 }

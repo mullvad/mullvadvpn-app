@@ -1,7 +1,10 @@
 package net.mullvad.mullvadvpn.compose.screen
 
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.hasAnyChild
 import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.isOn
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -24,13 +27,14 @@ import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.model.PortRange
 import net.mullvad.mullvadvpn.lib.model.QuantumResistantState
 import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_LAST_ITEM_TEST_TAG
-import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_QUANTUM_ITEM_OFF_TEST_TAG
-import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_QUANTUM_ITEM_ON_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_QUANTUM_ITEM_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_VPN_SETTINGS_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_WIREGUARD_CUSTOM_PORT_NUMBER_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_WIREGUARD_CUSTOM_PORT_TEXT_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_WIREGUARD_OBFUSCATION_TITLE_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_WIREGUARD_PORT_ITEM_X_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.SWITCH_TEST_TAG
+import net.mullvad.mullvadvpn.onNodeWithContentDescriptionAndParentTag
 import net.mullvad.mullvadvpn.onNodeWithTagAndText
 import net.mullvad.mullvadvpn.util.Lc
 import net.mullvad.mullvadvpn.util.toLc
@@ -114,7 +118,7 @@ class VpnSettingsScreenTest {
         onToggleDnsClick: (Boolean) -> Unit = {},
         onBackClick: () -> Unit = {},
         onSelectObfuscationMode: (obfuscationMode: ObfuscationMode) -> Unit = {},
-        onSelectQuantumResistanceSetting: (quantumResistant: QuantumResistantState) -> Unit = {},
+        onSelectQuantumResistanceSetting: (Boolean) -> Unit = {},
         onWireguardPortSelected: (port: Constraint<Port>) -> Unit = {},
         navigateToShadowSocksSettings: () -> Unit = {},
         navigateToUdp2TcpSettings: () -> Unit = {},
@@ -350,32 +354,29 @@ class VpnSettingsScreenTest {
                 state = createDefaultUiState(quantumResistant = QuantumResistantState.On).toLc()
             )
             onNodeWithTag(LAZY_LIST_VPN_SETTINGS_TEST_TAG)
-                .performScrollToNode(hasTestTag(LAZY_LIST_QUANTUM_ITEM_OFF_TEST_TAG))
+                .performScrollToNode(hasTestTag(LAZY_LIST_QUANTUM_ITEM_TEST_TAG))
 
             // Assert
-            onNodeWithTagAndText(testTag = LAZY_LIST_QUANTUM_ITEM_ON_TEST_TAG, text = "On")
+            onNodeWithTag(testTag = LAZY_LIST_QUANTUM_ITEM_TEST_TAG)
                 .assertExists()
+                .assert(hasAnyChild(hasTestTag(SWITCH_TEST_TAG).and(isOn())))
         }
 
     @Test
     fun testSelectTunnelQuantumOption() =
         composeExtension.use {
             // Arrange
-            val mockSelectQuantumResistantSettingListener: (QuantumResistantState) -> Unit =
-                mockk(relaxed = true)
+            val mockSelectQuantumResistantSettingListener: (Boolean) -> Unit = mockk(relaxed = true)
             initScreen(
                 state = createDefaultUiState(quantumResistant = QuantumResistantState.Off).toLc(),
                 onSelectQuantumResistanceSetting = mockSelectQuantumResistantSettingListener,
             )
             onNodeWithTag(LAZY_LIST_VPN_SETTINGS_TEST_TAG)
-                .performScrollToNode(hasTestTag(LAZY_LIST_QUANTUM_ITEM_OFF_TEST_TAG))
+                .performScrollToNode(hasTestTag(LAZY_LIST_QUANTUM_ITEM_TEST_TAG))
 
             // Assert
-            onNodeWithTagAndText(testTag = LAZY_LIST_QUANTUM_ITEM_ON_TEST_TAG, text = "On")
-                .performClick()
-            verify(exactly = 1) {
-                mockSelectQuantumResistantSettingListener.invoke(QuantumResistantState.On)
-            }
+            onNodeWithTag(testTag = LAZY_LIST_QUANTUM_ITEM_TEST_TAG).performClick()
+            verify(exactly = 1) { mockSelectQuantumResistantSettingListener.invoke(true) }
         }
 
     @Test
@@ -545,8 +546,12 @@ class VpnSettingsScreenTest {
 
             // Act
             onNodeWithTag(LAZY_LIST_VPN_SETTINGS_TEST_TAG)
-                .performScrollToNode(hasTestTag(LAZY_LIST_QUANTUM_ITEM_ON_TEST_TAG))
-            onNodeWithText("Quantum-resistant tunnel").performClick()
+                .performScrollToNode(hasTestTag(LAZY_LIST_QUANTUM_ITEM_TEST_TAG))
+            onNodeWithContentDescriptionAndParentTag(
+                    "More information",
+                    LAZY_LIST_QUANTUM_ITEM_TEST_TAG,
+                )
+                .performClick()
 
             // Assert
             verify(exactly = 1) { mockedShowTunnelQuantumInfoClick() }

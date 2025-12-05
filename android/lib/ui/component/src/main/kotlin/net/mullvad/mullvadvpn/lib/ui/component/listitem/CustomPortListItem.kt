@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -79,16 +78,13 @@ fun CustomPortListItem(
         onClick = onMainCellClicked,
         content = {
             Column {
-                Text(title)
-                if (port != null) {
-                    Text(
-                        stringResource(id = R.string.port_x, port.value),
-                        style = MaterialTheme.typography.labelLarge,
-                        color =
-                            if (isEnabled) MaterialTheme.colorScheme.onSurfaceVariant
-                            else ListItemDefaults.colors().disabledHeadlineColor,
-                    )
-                }
+                TitleAndSubtitle(
+                    title = title,
+                    subtitle = port?.let { stringResource(id = R.string.port_x, port.value) },
+                    subtitleColor =
+                        if (isEnabled) MaterialTheme.colorScheme.onSurfaceVariant
+                        else ListItemDefaults.colors().disabledHeadlineColor,
+                )
             }
         },
         trailingContent = {

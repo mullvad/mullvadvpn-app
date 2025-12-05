@@ -21,6 +21,7 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -42,8 +43,6 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
 import kotlinx.parcelize.Parcelize
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.cell.HeaderSwitchComposeCell
-import net.mullvad.mullvadvpn.compose.cell.SwitchComposeSubtitleCell
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.NavigateCloseIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
@@ -55,7 +54,9 @@ import net.mullvad.mullvadvpn.compose.util.OnNavResultValue
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
+import net.mullvad.mullvadvpn.lib.ui.component.listitem.SwitchListItem
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
+import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
 import net.mullvad.mullvadvpn.lib.ui.tag.DAITA_SCREEN_TEST_TAG
 import net.mullvad.mullvadvpn.util.Lc
 import net.mullvad.mullvadvpn.viewmodel.DaitaViewModel
@@ -163,18 +164,22 @@ private fun DaitaContent(
     val pagerState = rememberPagerState(pageCount = { DaitaPages.entries.size })
     DescriptionPager(pagerState = pagerState)
     PageIndicator(pagerState = pagerState)
-    HeaderSwitchComposeCell(
+    SwitchListItem(
         title = stringResource(R.string.enable),
         isToggled = state.daitaEnabled,
         onCellClicked = onDaitaEnabled,
+        position = Position.Top,
+        modifier = Modifier.padding(horizontal = Dimens.sideMarginNew),
     )
     HorizontalDivider()
-    HeaderSwitchComposeCell(
+    SwitchListItem(
         title = stringResource(R.string.direct_only),
         isToggled = state.directOnly,
         isEnabled = state.daitaEnabled,
         onCellClicked = onDirectOnlyClick,
         onInfoClicked = onDirectOnlyInfoClick,
+        position = Position.Bottom,
+        modifier = Modifier.padding(horizontal = Dimens.sideMarginNew),
     )
 }
 
@@ -193,7 +198,7 @@ private fun DescriptionPager(pagerState: PagerState) {
                 modifier =
                     Modifier.widthIn(max = Dimens.settingsDetailsImageMaxWidth)
                         .fillMaxWidth()
-                        .padding(horizontal = Dimens.mediumPadding)
+                        .padding(horizontal = Dimens.sideMarginNew)
                         .align(Alignment.CenterHorizontally),
                 painter = painterResource(id = page.image),
                 contentDescription = stringResource(R.string.daita),
@@ -213,9 +218,11 @@ private fun DescriptionText(
     secondParagraph: String,
     thirdParagraph: String,
 ) {
-    SwitchComposeSubtitleCell(
-        modifier = Modifier.padding(vertical = Dimens.smallPadding),
+    Text(
+        modifier =
+            Modifier.padding(vertical = Dimens.smallPadding, horizontal = Dimens.sideMarginNew),
         style = MaterialTheme.typography.labelLarge,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
         text =
             buildString {
                 appendLine(firstParagraph)
