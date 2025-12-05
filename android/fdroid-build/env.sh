@@ -5,10 +5,6 @@
 # shellcheck source=/dev/null
 source "$HOME/.cargo/env"
 
-# Ensure Go compiler is accessible (needs to be removed if building locally on macOS)
-export GOROOT="$HOME/go"
-export PATH="$GOROOT/bin:$PATH"
-
 # Set up python3 path for the rust gradle plugin
 export RUST_ANDROID_GRADLE_PYTHON_COMMAND=/usr/bin/python3
 
