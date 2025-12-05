@@ -41,7 +41,6 @@ export function getDefaultSettings(): ISettings {
       },
       custom: undefined,
     },
-    bridgeState: 'auto',
     tunnelOptions: {
       generic: {
         enableIpv6: false,
