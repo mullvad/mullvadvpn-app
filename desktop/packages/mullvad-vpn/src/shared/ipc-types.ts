@@ -27,7 +27,6 @@ export type ScrollToAnchorId =
   | 'mtu-setting'
   | 'obfuscation-setting'
   | 'port-setting'
-  | 'bridge-mode-setting'
   | 'mss-fix-setting'
   | 'quantum-resistant-setting';
 
