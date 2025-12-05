@@ -13139,6 +13139,9 @@
         }
       }
     },
+    "Could not restore previous purchases. Try again later or contact support." : {
+
+    },
     "Create" : {
       "localizations" : {
         "da" : {
@@ -40318,6 +40321,9 @@
           }
         }
       }
+    },
+    "Previous purchases were found" : {
+
     },
     "privacy policy" : {
       "localizations" : {

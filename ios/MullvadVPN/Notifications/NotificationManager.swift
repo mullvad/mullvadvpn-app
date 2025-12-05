@@ -202,7 +202,7 @@ final class NotificationManager: NotificationProviderDelegate {
                             self.logger.error(
                                 """
                                 Failed to add notification request with identifier \
-                                \(request.identifier). Error: \(error.localizedDescription)
+                                \(request.identifier). Error: \(error.description)
                                 """
                             )
                         }

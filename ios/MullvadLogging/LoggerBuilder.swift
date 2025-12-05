@@ -96,7 +96,7 @@ public final class LoggerBuilder: @unchecked Sendable {
                 let rotationLogger = Logger(label: "LogRotation")
 
                 for error in logRotationErrors {
-                    rotationLogger.error(error: error, message: error.localizedDescription)
+                    rotationLogger.error(error: error, message: error.description)
                 }
             }
         }
