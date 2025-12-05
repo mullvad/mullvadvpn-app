@@ -43,28 +43,32 @@ enum Error {
     NoProcMounts,
 }
 
+#[cfg(not(target_os = "linux"))]
 fn main() {
-    #[cfg(target_os = "linux")]
-    // Drop the impossible case
-    if let Err(error) = run().map(drop) {
-        match error {
-            Error::InvalidArguments => {
-                let mut args = env::args();
-                let program = args.next().unwrap_or_else(|| PROGRAM_NAME.to_string());
-                eprintln!("Usage: {program} COMMAND [ARGS]");
-                std::process::exit(1);
-            }
-            e => {
-                let mut s = format!("Error: {e}");
-                let mut source = e.source();
-                while let Some(error) = source {
-                    write!(&mut s, "\nCaused by: {error}").expect("formatting failed");
-                    source = error.source();
-                }
-                eprintln!("{s}");
+    panic!("This program only runs on linux");
+}
 
-                std::process::exit(1);
+#[cfg(target_os = "linux")]
+fn main() {
+    let Err(error) = run();
+
+    match error {
+        Error::InvalidArguments => {
+            let mut args = env::args();
+            let program = args.next().unwrap_or_else(|| PROGRAM_NAME.to_string());
+            eprintln!("Usage: {program} COMMAND [ARGS]");
+            std::process::exit(1);
+        }
+        e => {
+            let mut s = format!("Error: {e}");
+            let mut source = e.source();
+            while let Some(error) = source {
+                write!(&mut s, "\nCaused by: {error}").expect("formatting failed");
+                source = error.source();
             }
+            eprintln!("{s}");
+
+            std::process::exit(1);
         }
     }
 }
