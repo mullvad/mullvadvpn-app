@@ -16,9 +16,6 @@ use talpid_cgroup::{
 };
 
 #[cfg(target_os = "linux")]
-const PROGRAM_NAME: &str = "mullvad-exclude";
-
-#[cfg(target_os = "linux")]
 #[derive(thiserror::Error, Debug)]
 enum Error {
     #[error("Invalid arguments")]
@@ -55,7 +52,9 @@ fn main() {
     match error {
         Error::InvalidArguments => {
             let mut args = env::args();
-            let program = args.next().unwrap_or_else(|| PROGRAM_NAME.to_string());
+            let program = args
+                .next()
+                .unwrap_or_else(|| env!("CARGO_PKG_NAME").to_string());
             eprintln!("Usage: {program} COMMAND [ARGS]");
             std::process::exit(1);
         }
