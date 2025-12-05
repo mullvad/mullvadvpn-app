@@ -3,7 +3,6 @@ import { ISplitTunnelingApplication } from '../../../shared/application-types';
 import {
   AccessMethodSetting,
   ApiAccessMethodSettings,
-  BridgeState,
   BridgeType,
   CustomLists,
   CustomProxy,
@@ -98,7 +97,6 @@ export interface ISettingsReduxState {
   allowLan: boolean;
   enableIpv6: boolean;
   bridgeSettings: BridgeSettingsRedux;
-  bridgeState: BridgeState;
   lockdownMode: boolean;
   showBetaReleases: boolean;
   wireguard: {
@@ -151,7 +149,6 @@ const initialState: ISettingsReduxState = {
     },
     custom: undefined,
   },
-  bridgeState: 'auto',
   lockdownMode: false,
   showBetaReleases: false,
   wireguard: {
