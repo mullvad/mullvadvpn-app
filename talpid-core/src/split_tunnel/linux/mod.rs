@@ -241,7 +241,7 @@ impl Inner {
 /// Check whether we can create an nft table with a `socket cgroupv2 level x` rule.
 ///
 /// Assuming that this process has the sufficient privileges, then this function should only fail
-/// when the kernel doesn't support this kind of rule. This is the case for kernels predating 5.12.
+/// when the kernel doesn't support this kind of rule. This is the case for kernels predating 5.13.
 // TODO: this fugly bc
 // - 1. we're doing firewall stuff outside the firewall module
 // - 2. we're creating an invariant that this nft expression is the same as the one we create in the firewall module
