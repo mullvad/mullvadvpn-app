@@ -1,5 +1,5 @@
 use super::{FirewallArguments, FirewallPolicy};
-use crate::split_tunnel::{self, CGroup2};
+use crate::split_tunnel::{self};
 use ipnetwork::IpNetwork;
 use nftnl::{
     Batch, Chain, FinalizedBatch, ProtoFamily, Rule, Table,
@@ -13,6 +13,7 @@ use std::{
     net::{IpAddr, Ipv4Addr},
     sync::LazyLock,
 };
+use talpid_cgroup::v2::CGroup2;
 use talpid_tunnel::TunnelMetadata;
 use talpid_types::net::{
     ALLOWED_LAN_MULTICAST_NETS, ALLOWED_LAN_NETS, AllowedEndpoint, AllowedTunnelTraffic, Endpoint,

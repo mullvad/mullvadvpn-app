@@ -1,3 +1,4 @@
+use crate::{DEFAULT_NET_CLS_DIR, find_net_cls_mount};
 use anyhow::{Context as _, anyhow};
 use libc::pid_t;
 use nix::{errno::Errno, unistd::Pid};
@@ -6,11 +7,8 @@ use std::{
     ffi::CStr,
     fs::{self, File},
     io::{self, Read, Seek, Write},
-    path::{Path, PathBuf},
+    path::PathBuf,
 };
-use talpid_types::cgroup::{SPLIT_TUNNEL_CGROUP_NAME, find_net_cls_mount};
-
-pub const DEFAULT_NET_CLS_DIR: &str = "/sys/fs/cgroup/net_cls";
 
 // TODO: respect this?
 pub const NET_CLS_DIR_OVERRIDE_ENV_VAR: &str = "TALPID_NET_CLS_MOUNT_DIR";
@@ -19,84 +17,7 @@ pub const NET_CLS_DIR_OVERRIDE_ENV_VAR: &str = "TALPID_NET_CLS_MOUNT_DIR";
 /// This should be an arbitrary but unique integer.
 pub const NET_CLS_CLASSID: u32 = 0x4d9f41;
 
-/// Errors related to split tunneling.
-#[derive(thiserror::Error, Debug)]
-pub enum Error {
-    /// Unable to create cgroup.
-    #[error("Unable to initialize net_cls cgroup instance")]
-    InitNetClsCGroup(#[source] nix::Error),
-
-    /// Unable to create cgroup.
-    #[error("Unable to create cgroup for excluded processes")]
-    CreateCGroup(#[source] io::Error),
-
-    /// Split tunneling is unavailable
-    #[error("Failed to set up split tunneling")]
-    Unavailable,
-
-    /// Unable to set class ID for cgroup.
-    #[error("Unable to set cgroup class ID")]
-    SetCGroupClassId(#[source] io::Error),
-
-    /// Unable to add PID to cgroup.procs.
-    #[error("Unable to add PID to cgroup.procs")]
-    AddCGroupPid(#[source] io::Error),
-
-    /// Unable to remove PID to cgroup.procs.
-    #[error("Unable to remove PID from cgroup")]
-    RemoveCGroupPid(#[source] io::Error),
-
-    /// Unable to read cgroup.procs.
-    #[error("Unable to obtain PIDs from cgroup.procs")]
-    ListCGroupPids(#[source] io::Error),
-
-    /// Unable to read /proc/mounts
-    #[error("Failed to read /proc/mounts")]
-    ListMounts(#[source] io::Error),
-}
-
-/// Set up a v1 cgroup used to track PIDs for split tunneling.
-pub fn create_cgroup_v1() -> Result<PathBuf, Error> {
-    if let Some(net_cls_path) = find_net_cls_mount().map_err(Error::ListMounts)? {
-        return Ok(net_cls_path);
-    }
-
-    let net_cls_dir = env::var(NET_CLS_DIR_OVERRIDE_ENV_VAR)
-        .map(PathBuf::from)
-        .unwrap_or_else(|_| PathBuf::from(DEFAULT_NET_CLS_DIR));
-
-    if !net_cls_dir.exists() {
-        fs::create_dir_all(&net_cls_dir).map_err(Error::CreateCGroup)?;
-    }
-
-    // https://www.kernel.org/doc/Documentation/cgroup-v1/net_cls.txt
-    nix::mount::mount(
-        Some("net_cls"),
-        &net_cls_dir,
-        Some("cgroup"),
-        nix::mount::MsFlags::empty(),
-        Some("net_cls"),
-    )
-    .map_err(Error::InitNetClsCGroup)?;
-
-    Ok(net_cls_dir)
-}
-
-pub fn setup_exclusion_group(net_cls_path: &Path) -> Result<PathBuf, Error> {
-    let exclusions_dir = net_cls_path.join(SPLIT_TUNNEL_CGROUP_NAME);
-    if !exclusions_dir.exists() {
-        fs::create_dir(exclusions_dir.clone()).map_err(Error::CreateCGroup)?;
-    }
-
-    // Assign our unique id to the net_cls
-    let classid_path = exclusions_dir.join("net_cls.classid");
-    fs::write(classid_path, NET_CLS_CLASSID.to_string().as_bytes())
-        .map_err(Error::SetCGroupClassId)?;
-
-    Ok(exclusions_dir)
-}
-
-/// A handle to a v1 cgroup
+/// A handle to a v1 net_cls cgroup
 pub struct CGroup1 {
     /// Absolute path of the cgroup, e.g. `/sys/fs/cgroup/net_cls/foobar`
     path: PathBuf,
@@ -106,13 +27,40 @@ pub struct CGroup1 {
 }
 
 impl CGroup1 {
-    /// Open the cgroup2 at `path`.
+    /// Open the root net_cls cgroup at [`DEFAULT_NET_CLS_DIR`], creating if if it doesn't exist.
+    pub fn open_root() -> Result<Self, super::Error> {
+        // TODO: find_net_cls_mount()??
+
+        // mkdir and mount the net_cls dir if it doesn't exist
+        // https://www.kernel.org/doc/Documentation/cgroup-v1/net_cls.txt
+        let net_cls_dir = env::var(NET_CLS_DIR_OVERRIDE_ENV_VAR)
+            .map(PathBuf::from)
+            .unwrap_or_else(|_| PathBuf::from(DEFAULT_NET_CLS_DIR));
+        if !net_cls_dir.exists() {
+            fs::create_dir(&net_cls_dir).with_context(|| {
+                anyhow!("Unable to create cgroup {net_cls_dir:?} for excluded processes")
+            })?;
+        }
+        nix::mount::mount(
+            Some("net_cls"),
+            &net_cls_dir,
+            Some("cgroup"),
+            nix::mount::MsFlags::empty(),
+            Some("net_cls"),
+        )
+        .with_context(|| anyhow!("Unable to mount net_cls cgroup instance {net_cls_dir:?}"))?;
+        // then open it
+        Self::open(net_cls_dir)
+    }
+
+    /// Open the [`CGroup1`] at `path`.
     ///
     /// `path` must be a directory in the `net_cls` filesystem.
     pub fn open(path: impl Into<PathBuf>) -> Result<Self, super::Error> {
         let path = path.into();
 
         let procs_path = path.join("cgroup.procs");
+
         let procs = fs::OpenOptions::new()
             .write(true)
             .read(true)
@@ -185,6 +133,7 @@ impl CGroup1 {
         Ok(pids)
     }
 
+    /// Set the classid for this net_cls cgroup.
     pub fn set_net_cls_id(&self, net_cls_classid: u32) -> Result<(), super::Error> {
         // Assign our unique id to the net_cls
         let classid_path = self.path.join("net_cls.classid");

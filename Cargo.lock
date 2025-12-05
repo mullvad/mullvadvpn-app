@@ -3094,6 +3094,7 @@ name = "mullvad-exclude"
 version = "0.0.0"
 dependencies = [
  "nix 0.30.1",
+ "talpid-cgroup",
  "talpid-types",
  "thiserror 2.0.9",
 ]
@@ -5355,6 +5356,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "talpid-cgroup"
+version = "0.0.0"
+dependencies = [
+ "anyhow",
+ "libc",
+ "log",
+ "nix 0.30.1",
+ "talpid-types",
+ "thiserror 2.0.9",
+]
+
+[[package]]
 name = "talpid-core"
 version = "0.0.0"
 dependencies = [
@@ -5385,6 +5398,7 @@ dependencies = [
  "serde",
  "serde_json",
  "socket2 0.5.8",
+ "talpid-cgroup",
  "talpid-dbus",
  "talpid-dns",
  "talpid-macos",
