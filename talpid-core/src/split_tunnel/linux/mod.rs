@@ -242,9 +242,12 @@ impl Inner {
 ///
 /// Assuming that this process has the sufficient privileges, then this function should only fail
 /// when the kernel doesn't support this kind of rule. This is the case for kernels predating 5.13.
-// TODO: this fugly bc
-// - 1. we're doing firewall stuff outside the firewall module
-// - 2. we're creating an invariant that this nft expression is the same as the one we create in the firewall module
+//
+// NOTE:
+// Interfacing with firewall outside of the firewall module is spaghetti.
+// Consider either having this module take ownership of setting up the split-tunneling nft rules,
+// or moving this logic into the firewall module and coupling it with the actual firewall rules we
+// set up.
 fn assert_nft_supports_cgroup2(cgroup: &CGroup2) -> Result<(), Error> {
     let table_name = c"mullvad-test-cgroup2-capability";
 
