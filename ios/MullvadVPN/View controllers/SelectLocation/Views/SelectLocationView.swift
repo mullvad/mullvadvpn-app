@@ -4,8 +4,8 @@ import SwiftUI
 struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewModel {
     @ObservedObject var viewModel: ViewModel
 
-    @State private var headerIsExpandedForEntry: Bool = true
-    @State private var headerIsExpandedForExit: Bool = true
+    @State private var headerIsExpandedForEntry: Bool = false
+    @State private var headerIsExpandedForExit: Bool = false
     private var headerIsExpanded: Bool {
         switch viewModel.multihopContext {
         case .entry:
@@ -20,6 +20,8 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
     private var showSearchField: Bool {
         return !viewModel.showDAITAInfo || viewModel.multihopContext == .exit
     }
+
+    @FocusState private var focusSearchField: Bool
 
     var body: some View {
         // Simply animating the MultihopSelectionView while scrolling leads to a slow
@@ -45,6 +47,7 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                         placeholder: "Search for locations or servers",
                         text: $viewModel.searchText
                     )
+                    .focused($focusSearchField)
                     .padding(.horizontal)
                     .transition(.move(edge: .top).combined(with: .opacity))
                 }
@@ -95,6 +98,12 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                         )
                     }
                 }
+                .simultaneousGesture(
+                    DragGesture(minimumDistance: 50)
+                        .onChanged { _ in
+                            focusSearchField = false
+                        }
+                )
                 .geometryGroup()
                 // Adds margin to the top of the scroll content. The scroll views size stays untouched
                 // which seems to be the solution to animation issues.
