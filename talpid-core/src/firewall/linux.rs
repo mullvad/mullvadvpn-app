@@ -371,13 +371,12 @@ impl<'a> PolicyBatch<'a> {
             self.add_actual_split_tunneling_rules(policy, firewall.fwmark, |rule| {
                 // For cgroups v1, processes are assigned to a net_cls.                                                                                                      ║
                 // This causes all packets sent by that process to be marked with the                                                                                        ║
-                // cgroups classid (`NET_CLS_CLASSID`), which we can reference in nftables.
+                // cgroups classid (`net_cls`), which we can reference in nftables.
                 rule.add_expr(&nft_expr!(meta cgroup));
                 rule.add_expr(&nft_expr!(cmp == net_cls));
-                // rule.add_expr(&nft_expr!(cmp == split_tunnel::NET_CLS_CLASSID));
             })?;
         } else {
-            log::warn!("no cgroup2, skipping add_split_tunneling_rules");
+            log::warn!("no cgroups, skipping add_split_tunneling_rules");
         };
 
         Ok(())
