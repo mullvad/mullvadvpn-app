@@ -1,6 +1,5 @@
 use anyhow::{Context as _, anyhow};
-use libc::pid_t;
-use nix::{errno::Errno, unistd::Pid};
+use nix::{errno::Errno, libc::pid_t, unistd::Pid};
 use std::{
     ffi::CStr,
     fs::{self, File},
