@@ -43,6 +43,7 @@ export const InputOptionTrigger = ({ children, ...props }: InputOptionTriggerPro
   const { value } = useListboxOptionContext();
   const {
     inputRef,
+    triggerRef,
     inputState: { value: inputValue, invalid },
   } = useInputOptionContext();
 
@@ -62,6 +63,7 @@ export const InputOptionTrigger = ({ children, ...props }: InputOptionTriggerPro
 
   return (
     <StyledInputOptionTrigger
+      ref={triggerRef}
       role="option"
       data-option
       aria-selected={selected}
