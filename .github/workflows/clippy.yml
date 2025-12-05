@@ -50,6 +50,7 @@ jobs:
       - uses: ./.github/actions/mullvad-build-env
         with:
           rustup-components: clippy
+          rust-cache-targets: ${{ runner.os == 'Windows' }}
 
       - name: Clippy check
         shell: bash

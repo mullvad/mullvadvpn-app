@@ -13,18 +13,16 @@ inputs:
     description: "Token for setup-protoc (defaults to GITHUB_TOKEN)"
     default: "${{ github.token }}"
     required: false
+  rust-cache-targets:
+    description: >-
+      Determines whether workspace `target` directories are cached. If `false`,
+      only the cargo registry will be cached. If `true`, the `target` directories
+      will be cached as well.
+    default: "false"
+    required: false
 runs:
   using: "composite"
   steps:
-    - name: Cache cargo cache and index
-      uses: actions/cache@v4
-      with:
-        path: |
-          ~/.cargo/registry/index/
-          ~/.cargo/registry/cache/
-          ~/.cargo/git/db/
-        key: ${{ runner.os }}-cargo-${{ inputs.rust-toolchain }}-${{ hashFiles('**/Cargo.lock') }}
-
     - name: Override Rust toolchain
       if: ${{ inputs.rust-toolchain != 'stable' }}
       shell: bash
@@ -40,6 +38,21 @@ runs:
       if: runner.os == 'Windows'
       shell: bash
       run: rustup target add i686-pc-windows-msvc
+
+    - name: Set CARGO_TARGET_DIR env
+      shell: bash
+      run: |
+        if [[ -n "$CARGO_TARGET_DIR" ]]; then
+          echo "CARGO_TARGET_DIR=$CARGO_TARGET_DIR" >> $GITHUB_ENV
+        fi
+
+    - name: Setup Rust cache
+      uses: Swatinem/rust-cache@v2
+      with:
+        add-job-id-key: "false" # Preserve cache across jobs
+        cache-directories: >-
+          ${{ inputs.rust-cache-targets == 'true' && env.CARGO_TARGET_DIR || '' }}
+        cache-targets: ${{ inputs.rust-cache-targets }}
 
     - name: Install Protoc
       uses: arduino/setup-protoc@v3
@@ -115,5 +128,5 @@ runs:
       uses: actions/setup-node@v4
       with:
         node-version-file: desktop/package.json
-        cache: 'npm'
+        cache: "npm"
         cache-dependency-path: desktop/package-lock.json
