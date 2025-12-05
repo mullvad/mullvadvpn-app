@@ -6,20 +6,8 @@
 //  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 //
 
-import Foundation
-import MullvadTypes
-
 extension Error {
-    public func logFormatError() -> String {
-        let nsError = self as NSError
-        var message = ""
-
-        let description =
-            (self as? CustomErrorDescriptionProtocol)?
-            .customErrorDescription ?? localizedDescription
-
-        message += "\(description) (domain = \(nsError.domain), code = \(nsError.code))"
-
-        return message
+    public var description: String {
+        (self as NSError).description
     }
 }

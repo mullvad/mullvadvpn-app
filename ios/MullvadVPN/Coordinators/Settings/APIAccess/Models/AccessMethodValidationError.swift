@@ -15,7 +15,7 @@ struct AccessMethodValidationError: LocalizedError, Equatable {
     let fieldErrors: [AccessMethodFieldValidationError]
 
     var errorDescription: String? {
-        fieldErrors.map({ $0.localizedDescription }).joinedParagraphs(lineBreaks: 1)
+        fieldErrors.map({ $0.errorDescription }).joinedParagraphs(lineBreaks: 1)
     }
 }
 
@@ -63,7 +63,7 @@ struct AccessMethodFieldValidationError: LocalizedError, Equatable {
     /// Validation field context.
     let context: Context
 
-    var errorDescription: String? {
+    var errorDescription: String {
         switch kind {
         case .emptyValue:
             String(format: NSLocalizedString("%@ cannot be empty.", comment: ""), field.rawValue)

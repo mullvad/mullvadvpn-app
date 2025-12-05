@@ -415,12 +415,12 @@ extension PacketTunnelProvider {
         case let .failure(error):
             switch error {
             case is DeviceCheckError:
-                providerLogger.error("\(error.localizedDescription) Forcing a log out")
+                providerLogger.error("\(error.description) Forcing a log out")
                 actor.setErrorState(reason: .deviceLoggedOut)
             default:
                 providerLogger
                     .error(
-                        "Device check encountered a network error: \(error.localizedDescription)"
+                        "Device check encountered a network error: \(error.description)"
                     )
             }
 
