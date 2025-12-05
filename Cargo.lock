@@ -3095,7 +3095,6 @@ version = "0.0.0"
 dependencies = [
  "nix 0.30.1",
  "talpid-cgroup",
- "talpid-types",
  "thiserror 2.0.9",
 ]
 
