@@ -29,7 +29,9 @@ pub struct CGroup1 {
 impl CGroup1 {
     /// Open the root net_cls cgroup at [`DEFAULT_NET_CLS_DIR`], creating if if it doesn't exist.
     pub fn open_root() -> Result<Self, super::Error> {
-        // TODO: find_net_cls_mount()??
+        if let Some(net_cls_path) = find_net_cls_mount()? {
+            return Self::open(net_cls_path);
+        }
 
         // mkdir and mount the net_cls dir if it doesn't exist
         // https://www.kernel.org/doc/Documentation/cgroup-v1/net_cls.txt
