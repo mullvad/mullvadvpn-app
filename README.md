@@ -175,8 +175,13 @@ See [this](Release.md) for instructions on how to make a new release.
 
 * `TALPID_DISABLE_OFFLINE_MONITOR` - Forces the daemon to always assume the host is online.
 
+* `TALPID_CGROUP2_FS` - On Linux, forces the daemon to look for the cgroup2 filesystem at the
+  specified path, instead of `/sys/fs/cgroup`. The cgroup2 used for split tunneling will be created
+  in this directory.
+
 * `TALPID_NET_CLS_MOUNT_DIR` - On Linux, forces the daemon to mount the `net_cls` controller in the
-  specified directory if it isn't mounted already.
+  specified directory if it isn't mounted already. This will only have an effect on older systems
+  where cgroup v1 is used for split tunneling.
 
 * `MULLVAD_MANAGEMENT_SOCKET_GROUP` - On Linux and macOS, this restricts access to the management
   interface UDS socket to users in the specified group. This means that only users in that group can
