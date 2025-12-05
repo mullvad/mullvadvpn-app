@@ -12,7 +12,7 @@ workspace = true
 
 [target.'cfg(target_os = "linux")'.dependencies]
 anyhow.workspace = true
-nix = { workspace = true, features = ["fs", "mount"] }
+nix = { workspace = true, features = ["fs", "mount", "process"] }
 libc = "0.2"
 log.workspace = true
 thiserror.workspace = true
