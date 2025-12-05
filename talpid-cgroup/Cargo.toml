@@ -10,7 +10,7 @@ rust-version.workspace = true
 [lints]
 workspace = true
 
-[dependencies]
+[target.'cfg(target_os = "linux")'.dependencies]
 anyhow.workspace = true
 nix = { workspace = true, features = ["fs", "mount"] }
 libc = "0.2"
