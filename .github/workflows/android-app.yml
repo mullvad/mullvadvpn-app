@@ -119,6 +119,8 @@ jobs:
     name: Build app
     needs: [prepare]
     runs-on: [android-sandbox-test-new-runner]
+    container:
+      image: ghcr.io/mullvad/mullvadvpn-app-build-android:6f6ff93a54
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
