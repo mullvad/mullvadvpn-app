@@ -7,8 +7,8 @@ edition = "2024"
 rust-version = "1.91.0"
 
 [patch.crates-io]
-nftnl = { git = "https://github.com/mullvad/nftnl-rs", rev = "de80e60bb5904f00f509984d7e9312c72e3df425" }
-nftnl-sys = { git = "https://github.com/mullvad/nftnl-rs", rev = "de80e60bb5904f00f509984d7e9312c72e3df425" }
+nftnl = { git = "https://github.com/mullvad/nftnl-rs", rev = "fd378ac15164347e725df4038c62da91d0480b35" }
+nftnl-sys = { git = "https://github.com/mullvad/nftnl-rs", rev = "fd378ac15164347e725df4038c62da91d0480b35" }
 
 [workspace]
 resolver = "2"
