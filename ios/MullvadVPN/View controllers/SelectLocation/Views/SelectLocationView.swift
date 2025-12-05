@@ -4,10 +4,20 @@ import SwiftUI
 struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewModel {
     @ObservedObject var viewModel: ViewModel
 
-    @State private var isAtTopOfList: Bool = false
+    @State private var headerIsExpandedForEntry: Bool = true
+    @State private var headerIsExpandedForExit: Bool = true
+    private var headerIsExpanded: Bool {
+        switch viewModel.multihopContext {
+        case .entry:
+            headerIsExpandedForEntry
+        case .exit:
+            headerIsExpandedForExit
+        }
+    }
+
     @State private var headerHeight: CGFloat = 0
 
-    var showSearchField: Bool {
+    private var showSearchField: Bool {
         return !viewModel.showDAITAInfo || viewModel.multihopContext == .exit
     }
 
@@ -27,7 +37,7 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                             )
                         },
                     selectedMultihopContext: $viewModel.multihopContext,
-                    isExpanded: isAtTopOfList
+                    isExpanded: headerIsExpanded
                 )
                 .padding(.horizontal, 16)
                 if showSearchField {
@@ -58,10 +68,13 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                         ExitLocationView(
                             viewModel: viewModel,
                             context: $viewModel.exitContext,
-                            onShowsTopOfTheListChange: { onTop in
-                                withAnimation {
-                                    isAtTopOfList = onTop
-                                }
+                            onScrollOffsetChange: {
+                                prevScrollOffset,
+                                scrollOffset in
+                                expandOrCollapseHeader(
+                                    prevScrollOffset: prevScrollOffset,
+                                    scrollOffset: scrollOffset,
+                                    context: .exit)
                             }
                         )
                         .transition(
@@ -70,10 +83,11 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                     case .entry:
                         EntryLocationView(
                             viewModel: viewModel,
-                            onShowsTopOfTheListChange: { onTop in
-                                withAnimation {
-                                    isAtTopOfList = onTop
-                                }
+                            onScrollOffsetChange: { prevScrollOffset, scrollOffset in
+                                expandOrCollapseHeader(
+                                    prevScrollOffset: prevScrollOffset,
+                                    scrollOffset: scrollOffset,
+                                    context: .entry)
                             }
                         )
                         .transition(
@@ -125,6 +139,45 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                     }
                 }
             )
+        }
+    }
+
+    // Expands when the scroll view is at its top.
+    // Colappses if scroll view scrolls down beyond a certain point.
+    // The dead zone needs to be bigger than the height difference between collapsed and expanded state to avoid false triggering due to the UI frame sizes jumping on collapse/expand
+    private func expandOrCollapseHeader(
+        prevScrollOffset: CGFloat,
+        scrollOffset: CGFloat,
+        context: MultihopContext
+    ) {
+        let isScrollingDown = prevScrollOffset > scrollOffset
+
+        let correctedOffset = abs(min((scrollOffset - headerHeight + 1), 0))
+        if headerIsExpanded && isScrollingDown {
+            if correctedOffset > headerHeight {
+                withAnimation {
+                    switch context {
+                    case .entry:
+                        headerIsExpandedForEntry = false
+                    case .exit:
+                        headerIsExpandedForExit = false
+                    }
+                }
+                return
+            }
+        }
+        if !headerIsExpanded && !isScrollingDown {
+            if correctedOffset == 0 {
+                withAnimation {
+                    switch context {
+                    case .entry:
+                        headerIsExpandedForEntry = true
+                    case .exit:
+                        headerIsExpandedForExit = true
+                    }
+                }
+                return
+            }
         }
     }
 }
