@@ -3,10 +3,21 @@ use std::fs;
 use std::os::unix::ffi::OsStrExt;
 use std::path::PathBuf;
 
+pub mod v1;
+pub mod v2;
+
 pub const SPLIT_TUNNEL_CGROUP_NAME: &str = "mullvad-exclusions";
 
 /// The path where linux normally mounts the cgroup2 filesystem.
 pub const CGROUP2_DEFAULT_MOUNT_PATH: &str = "/sys/fs/cgroup";
+
+/// The path where linux normally mounts the net_cls cgroup v1 filesystem.
+pub const DEFAULT_NET_CLS_DIR: &str = "/sys/fs/cgroup/net_cls";
+
+/// Errors related to cgroups.
+#[derive(thiserror::Error, Debug)]
+#[error("CGroup error")]
+pub struct Error(#[from] anyhow::Error);
 
 /// Find the path of the cgroup v1 net_cls controller mount if it exists
 pub fn find_net_cls_mount() -> std::io::Result<Option<PathBuf>> {

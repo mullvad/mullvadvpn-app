@@ -7,17 +7,13 @@ use anyhow::Context;
 use libc::pid_t;
 use nftnl::{Batch, Chain, Hook, MsgType, Policy, ProtoFamily, Rule, Table, nft_expr};
 use nix::unistd::Pid;
-use talpid_types::cgroup::{CGROUP2_DEFAULT_MOUNT_PATH, SPLIT_TUNNEL_CGROUP_NAME};
-
-mod cgroups_v1;
-mod cgroups_v2;
-
-use crate::{
-    firewall,
-    split_tunnel::linux::cgroups_v1::{DEFAULT_NET_CLS_DIR, NET_CLS_CLASSID},
+use talpid_cgroup::{
+    CGROUP2_DEFAULT_MOUNT_PATH, DEFAULT_NET_CLS_DIR, SPLIT_TUNNEL_CGROUP_NAME,
+    v1::{CGroup1, NET_CLS_CLASSID},
+    v2::CGroup2,
 };
-pub use cgroups_v1::CGroup1;
-pub use cgroups_v2::CGroup2;
+
+use crate::firewall;
 
 /// Value used to mark packets and associated connections.
 /// This should be an arbitrary but unique integer.
@@ -26,7 +22,12 @@ pub const MARK: u32 = 0xf41;
 /// Errors related to split tunneling.
 #[derive(thiserror::Error, Debug)]
 #[error("Error in split tunneling")]
-pub struct Error(#[from] anyhow::Error);
+pub enum Error {
+    /// Errors related to split tunneling.
+    SplitTunnel(#[from] anyhow::Error),
+    /// Errors related to cgroups.
+    CGroup(#[from] talpid_cgroup::Error),
+}
 
 /// Manages PIDs in the linux cgroup used for vpn tunnel exclusion.
 ///
@@ -178,26 +179,28 @@ impl Inner {
     /// Add a PID to the cgroup2 to have it excluded from the tunnel.
     fn add(&self, pid: Pid) -> Result<(), Error> {
         match self {
-            Inner::CGroup1(inner) => inner.excluded_cgroup1.add_pid(pid),
-            Inner::CGroup2(inner) => inner.excluded_cgroup2.add_pid(pid),
+            Inner::CGroup1(inner) => inner.excluded_cgroup1.add_pid(pid)?,
+            Inner::CGroup2(inner) => inner.excluded_cgroup2.add_pid(pid)?,
         }
+        Ok(())
     }
 
     /// Remove a PID from the cgroup to have it included in the tunnel.
     fn remove(&self, pid: Pid) -> Result<(), Error> {
         // PIDs can only be removed from a cgroup by adding them to another cgroup.
         match self {
-            Inner::CGroup1(inner) => inner.root_cgroup1.add_pid(pid),
-            Inner::CGroup2(inner) => inner.root_cgroup2.add_pid(pid),
+            Inner::CGroup1(inner) => inner.root_cgroup1.add_pid(pid)?,
+            Inner::CGroup2(inner) => inner.root_cgroup2.add_pid(pid)?,
         }
+        Ok(())
     }
 
     /// Return a list of all PIDs currently in the Cgroup excluded from the tunnel.
     fn list(&mut self) -> Result<Vec<pid_t>, Error> {
-        match self {
-            Inner::CGroup1(inner) => inner.excluded_cgroup1.list_pids(),
-            Inner::CGroup2(inner) => inner.excluded_cgroup2.list_pids(),
-        }
+        Ok(match self {
+            Inner::CGroup1(inner) => inner.excluded_cgroup1.list_pids()?,
+            Inner::CGroup2(inner) => inner.excluded_cgroup2.list_pids()?,
+        })
     }
 
     /// Removes all PIDs from the Cgroup.
@@ -220,7 +223,7 @@ impl Inner {
     fn excluded_cgroup(&self) -> Result<Option<CGroup2>, Error> {
         match self {
             Inner::CGroup1(..) => Ok(None),
-            Inner::CGroup2(inner) => inner.excluded_cgroup2.try_clone().map(Some),
+            Inner::CGroup2(inner) => Ok(inner.excluded_cgroup2.try_clone().map(Some)?),
         }
     }
 
