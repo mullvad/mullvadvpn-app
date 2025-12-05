@@ -30,7 +30,7 @@ public struct DefaultLocationService {
                 for: URLRequest(url: url, timeoutInterval: REST.defaultAPINetworkTimeout.timeInterval))
             serverLocation = try JSONDecoder().decode(REST.ServerLocation.self, from: data.0)
         } catch {
-            logger.log(level: .error, "Could not fetch server location: \(error.localizedDescription)")
+            logger.log(level: .error, "Could not fetch server location: \(error.description)")
             return nil
         }
 

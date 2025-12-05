@@ -24,15 +24,11 @@ extension Error {
 
     public func logFormatError() -> String {
         let nsError = self as NSError
-        var message = ""
-
         let description =
             (self as? CustomErrorDescriptionProtocol)?
-            .customErrorDescription ?? localizedDescription
+            .customErrorDescription ?? nsError.description
 
-        message += "\(description) (domain = \(nsError.domain), code = \(nsError.code))"
-
-        return message
+        return description
     }
 
     private func getUnderlyingError() -> Error? {
