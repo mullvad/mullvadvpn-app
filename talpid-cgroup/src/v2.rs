@@ -1,6 +1,7 @@
 use anyhow::{Context as _, anyhow};
 use nix::{errno::Errno, libc::pid_t, unistd::Pid};
 use std::{
+    env,
     ffi::CStr,
     fs::{self, File},
     io::{self, Read, Seek, Write},
@@ -9,6 +10,12 @@ use std::{
 };
 
 use crate::Error;
+
+/// Path where we should look for the cgroup2 filesystem. Overrides [`CGROUP2_DEFAULT_MOUNT_PATH`].
+pub const CGROUP2_OVERRIDE_ENV_VAR: &str = "TALPID_CGROUP2_FS";
+
+/// The path where linux normally mounts the cgroup2 filesystem.
+pub const CGROUP2_DEFAULT_MOUNT_PATH: &str = "/sys/fs/cgroup";
 
 /// A handle to a cgroup2
 pub struct CGroup2 {
@@ -23,6 +30,17 @@ pub struct CGroup2 {
 }
 
 impl CGroup2 {
+    /// Open the root cgroup2 at at [`CGROUP2_OVERRIDE_ENV_VAR`] (or [`CGROUP2_DEFAULT_MOUNT_PATH`] if env variable is unset).
+    pub fn open_root() -> Result<Self, Error> {
+        let root = env::var(CGROUP2_OVERRIDE_ENV_VAR)
+            .map(PathBuf::from)
+            .unwrap_or_else(|_| PathBuf::from(CGROUP2_DEFAULT_MOUNT_PATH));
+
+        let cgroup = Self::open(root).context("Failed to open root cgroup2")?;
+
+        Ok(cgroup)
+    }
+
     /// Open the cgroup2 at `path`.
     ///
     /// `path` must be a directory in the `cgroup2` filesystem.
