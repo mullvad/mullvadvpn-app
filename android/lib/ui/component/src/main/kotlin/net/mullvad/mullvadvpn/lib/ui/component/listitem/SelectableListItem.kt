@@ -47,6 +47,13 @@ private fun PreviewSelectableListItem() {
                 isSelected = true,
                 isEnabled = false,
             )
+            SelectableListItem(
+                hierarchy = Hierarchy.Child1,
+                title = "Selected and disabled",
+                subtitle = "Selected and disabled",
+                isSelected = true,
+                isEnabled = false,
+            )
         }
     }
 }
@@ -124,6 +131,45 @@ fun SelectableListItem(
         testTag = testTag,
         onClick = onClick,
         content = { Text(title) },
+        trailingContent = trailingContent,
+    )
+}
+
+@Composable
+fun SelectableListItem(
+    modifier: Modifier = Modifier,
+    hierarchy: Hierarchy = Hierarchy.Parent,
+    position: Position = Position.Single,
+    isSelected: Boolean,
+    isEnabled: Boolean = true,
+    title: String,
+    subtitle: String,
+    iconContentDescription: String? = null,
+    onClick: (() -> Unit)? = null,
+    testTag: String? = null,
+    trailingContent: @Composable ((BoxScope.() -> Unit))? = null,
+) {
+    SelectableListItem(
+        modifier = modifier,
+        hierarchy = hierarchy,
+        position = position,
+        isEnabled = isEnabled,
+        iconContentDescription = iconContentDescription,
+        isSelected = isSelected,
+        testTag = testTag,
+        onClick = onClick,
+        content = {
+            Column {
+                Text(title)
+                Text(
+                    text = subtitle,
+                    style = MaterialTheme.typography.labelLarge,
+                    color =
+                        if (isEnabled) MaterialTheme.colorScheme.onSurfaceVariant
+                        else ListItemDefaults.colors().disabledHeadlineColor,
+                )
+            }
+        },
         trailingContent = trailingContent,
     )
 }

@@ -7,14 +7,11 @@ import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.DefaultDnsOptions
 import net.mullvad.mullvadvpn.lib.model.Mtu
 import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
-import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.model.QuantumResistantState
 import net.mullvad.mullvadvpn.util.Lc
 import net.mullvad.mullvadvpn.util.toLc
 
 private const val MTU = 1337
-@Suppress("MagicNumber") private val PORT1 = Port(9001)
-@Suppress("MagicNumber") private val PORT2 = Port(12433)
 
 class VpnSettingsUiStatePreviewParameterProvider :
     PreviewParameterProvider<Lc<Boolean, VpnSettingsUiState>> {
@@ -36,15 +33,10 @@ class VpnSettingsUiStatePreviewParameterProvider :
                             blockAdultContent = true,
                         ),
                     quantumResistant = QuantumResistantState.On,
-                    selectedWireguardPort = Constraint.Any,
-                    customWireguardPort = PORT1,
-                    availablePortRanges = listOf(PORT1..PORT2),
                     systemVpnSettingsAvailable = true,
                     autoStartAndConnectOnBoot = true,
                     isIpv6Enabled = true,
                     obfuscationMode = ObfuscationMode.Udp2Tcp,
-                    selectedUdp2TcpObfuscationPort = Constraint.Any,
-                    selectedShadowsocksObfuscationPort = Constraint.Any,
                     isContentBlockersExpanded = true,
                     deviceIpVersion = Constraint.Any,
                     isModal = false,

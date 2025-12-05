@@ -31,6 +31,13 @@ private fun PreviewNavigationListItem() {
                 showWarning = true,
                 onClick = {},
             )
+            NavigationListItem(
+                hierarchy = Hierarchy.Child1,
+                title = "Navigation sample",
+                subtitle = "Navigation sample",
+                showWarning = false,
+                onClick = {},
+            )
         }
     }
 }

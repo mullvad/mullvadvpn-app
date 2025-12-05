@@ -114,7 +114,6 @@
     <string name="custom_port_dialog_placeholder">Anna portti</string>
     <string name="custom_port_dialog_remove">Poista mukautettu portti</string>
     <string name="custom_port_dialog_submit">Määritä portti</string>
-    <string name="custom_port_dialog_title">Mukautettu %1$s-portti</string>
     <string name="custom_port_dialog_valid_ranges">Kelvolliset portit: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Muokatun tunnelin isännän selvittäminen ei onnistu. Kokeile muuttaa asetuksiasi.</string>
     <string name="daita_description_slide_1_first_paragraph">Huomio: Toiminto kasvattaa verkkoliikennettä ja vaikuttaa sen vuoksi negatiivisesti sekä nopeuteen, viiveeseen että akun kulumiseen. Käytä harkiten, kun datasopimuksesi on rajoitettu.</string>
@@ -292,7 +291,6 @@
     <string name="number_of_providers">Palveluntarjoajat: %1$d</string>
     <string name="obfuscation_info">Hämäysteknologian käyttäminen piilottaa WireGuard-liikenteen toisen protokollan sisään. Sitä voidaan käyttää kiertämään sensuuria ja muita suodatuksia niissä tapauksissa, kun tavallinen WireGuard-yhteys muutoin estettäisi.</string>
     <string name="obfuscation_info_shadowsocks_batteryusage">Huomio: Shadowsocksin käyttö voi kasvattaa akun kulutusta riippuen tiedonsiirtomääristä (esimerkiksi suoratoistettaessa videoita).</string>
-    <string name="obfuscation_title">WireGuard-obfuskointi</string>
     <string name="off">Pois</string>
     <string name="on">Päällä</string>
     <string name="open_app_details">Avaa sovelluksen tiedot</string>
@@ -443,7 +441,6 @@
     <string name="vpn_permission_error_notification_title">VPN-lupavirhe</string>
     <string name="vpn_settings_not_available">VPN-asetukset eivät olet käytettävissä laitteella</string>
     <string name="we_will_look_into_this">Tutkimme asiaa.</string>
-    <string name="wg_port_subtitle">Jotta voit käyttää tätä asetusta, poista %1$s-hämäysteknologia käytöstä tai säädä sen asetukseksi \"Automaattinen\" alta.</string>
     <string name="wireguard_custon_port_title">Mukautettu</string>
     <string name="wireguard_mtu_footer">Aseta WireGuardin MTU-arvo väliltä %1$d–%2$d.</string>
     <string name="wireguard_port_info_description">Automaattinen asetus valitsee satunnaisesti käytettävissä olevista, alla luetelluista porteista.</string>

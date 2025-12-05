@@ -1,72 +1,71 @@
 package net.mullvad.mullvadvpn.compose.screen
 
 import androidx.compose.ui.test.ExperimentalTestApi
-import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import de.mannodermaus.junit5.compose.ComposeContext
+import io.mockk.coVerify
 import io.mockk.mockk
-import io.mockk.verify
 import net.mullvad.mullvadvpn.compose.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
-import net.mullvad.mullvadvpn.compose.state.ShadowsocksSettingsUiState
+import net.mullvad.mullvadvpn.compose.state.SelectPortUiState
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.Port
-import net.mullvad.mullvadvpn.lib.ui.tag.SHADOWSOCKS_CUSTOM_PORT_TEXT_TEST_TAG
+import net.mullvad.mullvadvpn.lib.model.PortType
 import net.mullvad.mullvadvpn.util.Lc
 import net.mullvad.mullvadvpn.util.toLc
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
 
 @OptIn(ExperimentalTestApi::class)
-class ShadowsocksSettingsScreenTest {
+class SelectPortScreenTest {
     @JvmField @RegisterExtension val composeExtension = createEdgeToEdgeComposeExtension()
 
     private fun ComposeContext.initScreen(
-        state: Lc<Unit, ShadowsocksSettingsUiState>,
-        navigateToCustomPortDialog: (port: Port?) -> Unit = {},
+        state: Lc<Unit, SelectPortUiState>,
         onObfuscationPortSelected: (Constraint<Port>) -> Unit = {},
+        navigateToCustomPortDialog: (Port?) -> Unit = {},
         onBackClick: () -> Unit = {},
     ) {
         setContentWithTheme {
-            ShadowsocksSettingsScreen(
+            SelectPortScreen(
                 state = state,
-                navigateToCustomPortDialog = navigateToCustomPortDialog,
                 onObfuscationPortSelected = onObfuscationPortSelected,
+                navigateToCustomPortDialog = navigateToCustomPortDialog,
                 onBackClick = onBackClick,
             )
         }
     }
 
     @Test
-    fun testShowShadowsocksCustomPort() =
-        composeExtension.use {
-            // Arrange
-            initScreen(state = ShadowsocksSettingsUiState(customPort = Port(4000)).toLc())
-
-            // Assert
-            onNodeWithText("Port: 4000").assertExists()
-        }
-
-    @Test
-    fun testSelectShadowsocksCustomPort() =
+    fun testSelectPresetAndCustomPort() =
         composeExtension.use {
             // Arrange
             val onObfuscationPortSelected: (Constraint<Port>) -> Unit = mockk(relaxed = true)
+            val navigateToCustomPortDialog: (Port?) -> Unit = mockk(relaxed = true)
+
             initScreen(
                 state =
-                    ShadowsocksSettingsUiState(
-                            port = Constraint.Only(Port(4000)),
-                            customPort = Port(4000),
+                    SelectPortUiState(
+                            port = Constraint.Any,
+                            portType = PortType.Wireguard,
+                            customPortEnabled = true,
+                            presetPorts = listOf(Port(5555), Port(5556), Port(5557)),
+                            title = "WireGuard port",
                         )
                         .toLc(),
                 onObfuscationPortSelected = onObfuscationPortSelected,
+                navigateToCustomPortDialog = navigateToCustomPortDialog,
             )
 
             // Act
-            onNodeWithTag(testTag = SHADOWSOCKS_CUSTOM_PORT_TEXT_TEST_TAG).performClick()
+            onNodeWithText("5555").assertExists().performClick()
+
+            onNodeWithText("Custom").assertExists().performClick()
 
             // Assert
-            verify { onObfuscationPortSelected.invoke(Constraint.Only(Port(4000))) }
+            coVerify(exactly = 1) { onObfuscationPortSelected.invoke(Constraint.Only(Port(5555))) }
+
+            coVerify(exactly = 1) { navigateToCustomPortDialog.invoke(null) }
         }
 }

@@ -132,6 +132,7 @@ private fun FeatureIndicator.text(): String {
             FeatureIndicator.UDP_2_TCP -> R.string.udp_over_tcp
             FeatureIndicator.QUIC -> R.string.quic
             FeatureIndicator.LWO -> R.string.lwo
+            FeatureIndicator.WIREGUARD_PORT -> R.string.wireguard_port_title
             FeatureIndicator.LAN_SHARING -> R.string.local_network_sharing
             FeatureIndicator.DNS_CONTENT_BLOCKERS -> R.string.dns_content_blockers
             FeatureIndicator.CUSTOM_DNS -> R.string.feature_custom_dns

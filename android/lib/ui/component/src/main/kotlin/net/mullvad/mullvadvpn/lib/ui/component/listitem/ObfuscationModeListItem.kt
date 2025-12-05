@@ -1,12 +1,10 @@
 package net.mullvad.mullvadvpn.lib.ui.component.listitem
 
-import androidx.compose.foundation.layout.Column
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -19,6 +17,7 @@ import net.mullvad.mullvadvpn.lib.ui.component.R
 import net.mullvad.mullvadvpn.lib.ui.component.preview.SelectObfuscationListItemPreviewParameterProvider
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Hierarchy
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
+import net.mullvad.mullvadvpn.lib.ui.tag.BUTTON_ARROW_RIGHT_TEST_TAG
 
 @Preview
 @Composable
@@ -49,32 +48,30 @@ fun ObfuscationModeListItem(
     onSelected: (ObfuscationMode) -> Unit,
     onNavigate: () -> Unit,
     testTag: String? = null,
+    buttonRightTestTag: String = BUTTON_ARROW_RIGHT_TEST_TAG,
 ) {
     SelectableListItem(
         modifier = modifier,
         hierarchy = hierarchy,
         position = position,
         isSelected = isSelected,
-        testTag = testTag,
+        title = obfuscationMode.toTitle(),
+        subtitle = stringResource(id = R.string.port_x, port.toSubTitle()),
+        iconContentDescription = null,
         onClick = { onSelected(obfuscationMode) },
-        content = {
-            Column {
-                Text(obfuscationMode.toTitle())
-                Text(
-                    stringResource(id = R.string.port_x, port.toSubTitle()),
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-        },
+        testTag = testTag,
         trailingContent = {
-            DividerButton(onClick = onNavigate, icon = Icons.AutoMirrored.Filled.KeyboardArrowRight)
+            DividerButton(
+                modifier = Modifier.testTag(buttonRightTestTag),
+                onClick = onNavigate,
+                icon = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+            )
         },
     )
 }
 
 @Composable
-private fun ObfuscationMode.toTitle() =
+fun ObfuscationMode.toTitle() =
     when (this) {
         ObfuscationMode.Auto -> stringResource(id = R.string.automatic)
         ObfuscationMode.Off -> stringResource(id = R.string.off)
@@ -82,6 +79,7 @@ private fun ObfuscationMode.toTitle() =
         ObfuscationMode.Shadowsocks -> stringResource(id = R.string.shadowsocks)
         ObfuscationMode.Quic -> stringResource(id = R.string.quic)
         ObfuscationMode.Lwo -> stringResource(id = R.string.lwo)
+        ObfuscationMode.WireguardPort -> stringResource(id = R.string.wireguard_port_title)
     }
 
 @Composable

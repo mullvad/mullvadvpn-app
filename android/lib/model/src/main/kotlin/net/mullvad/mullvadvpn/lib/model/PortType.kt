@@ -1,11 +1,8 @@
 package net.mullvad.mullvadvpn.lib.model
 
-enum class ObfuscationMode {
-    Auto,
-    Off,
+enum class PortType {
     Udp2Tcp,
     Shadowsocks,
-    Quic,
+    Wireguard,
     Lwo,
-    WireguardPort,
 }

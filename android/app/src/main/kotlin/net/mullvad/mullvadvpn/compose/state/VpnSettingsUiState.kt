@@ -1,19 +1,17 @@
 package net.mullvad.mullvadvpn.compose.state
 
-import net.mullvad.mullvadvpn.constant.WIREGUARD_PRESET_PORTS
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.DefaultDnsOptions
 import net.mullvad.mullvadvpn.lib.model.IpVersion
 import net.mullvad.mullvadvpn.lib.model.Mtu
 import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
-import net.mullvad.mullvadvpn.lib.model.Port
-import net.mullvad.mullvadvpn.lib.model.PortRange
 import net.mullvad.mullvadvpn.lib.model.QuantumResistantState
 
 data class VpnSettingsUiState(
     val settings: List<VpnSettingItem>,
     val isModal: Boolean,
     val isScrollToFeatureEnabled: Boolean,
+    val obfuscationMode: ObfuscationMode,
 ) {
 
     companion object {
@@ -25,12 +23,7 @@ data class VpnSettingsUiState(
             customDnsItems: List<CustomDnsItem>,
             contentBlockersOptions: DefaultDnsOptions,
             obfuscationMode: ObfuscationMode,
-            selectedUdp2TcpObfuscationPort: Constraint<Port>,
-            selectedShadowsocksObfuscationPort: Constraint<Port>,
             quantumResistant: QuantumResistantState,
-            selectedWireguardPort: Constraint<Port>,
-            customWireguardPort: Port?,
-            availablePortRanges: List<PortRange>,
             systemVpnSettingsAvailable: Boolean,
             autoStartAndConnectOnBoot: Boolean,
             deviceIpVersion: Constraint<IpVersion>,
@@ -150,74 +143,8 @@ data class VpnSettingsUiState(
 
                     add(VpnSettingItem.Spacer)
 
-                    // Wireguard Port
-                    val isWireguardPortEnabled =
-                        obfuscationMode == ObfuscationMode.Auto ||
-                            obfuscationMode == ObfuscationMode.Off
-                    add(
-                        VpnSettingItem.WireguardPortHeader(
-                            isWireguardPortEnabled,
-                            availablePortRanges,
-                        )
-                    )
-                    (listOf(Constraint.Any) + WIREGUARD_PRESET_PORTS.map { Constraint.Only(it) })
-                        .forEach {
-                            add(VpnSettingItem.Divider)
-                            add(
-                                VpnSettingItem.WireguardPortItem.Constraint(
-                                    isWireguardPortEnabled,
-                                    it == selectedWireguardPort,
-                                    it,
-                                )
-                            )
-                        }
-                    add(VpnSettingItem.Divider)
-                    add(
-                        VpnSettingItem.WireguardPortItem.WireguardPortCustom(
-                            isWireguardPortEnabled,
-                            selectedWireguardPort is Constraint.Only &&
-                                selectedWireguardPort.value == customWireguardPort,
-                            customWireguardPort,
-                            availablePortRanges,
-                        )
-                    )
-
-                    if (!isWireguardPortEnabled) {
-                        add(VpnSettingItem.WireguardPortUnavailable)
-                    } else {
-                        add(VpnSettingItem.Spacer)
-                    }
-
-                    // Wireguard Obfuscation
-                    add(VpnSettingItem.ObfuscationHeader)
-                    add(VpnSettingItem.Divider)
-                    add(
-                        VpnSettingItem.ObfuscationItem.Automatic(
-                            obfuscationMode == ObfuscationMode.Auto
-                        )
-                    )
-                    add(VpnSettingItem.Divider)
-                    add(VpnSettingItem.ObfuscationItem.Lwo(obfuscationMode == ObfuscationMode.Lwo))
-                    add(VpnSettingItem.Divider)
-                    add(
-                        VpnSettingItem.ObfuscationItem.Shadowsocks(
-                            obfuscationMode == ObfuscationMode.Shadowsocks,
-                            selectedShadowsocksObfuscationPort,
-                        )
-                    )
-                    add(VpnSettingItem.Divider)
-                    add(
-                        VpnSettingItem.ObfuscationItem.UdpOverTcp(
-                            obfuscationMode == ObfuscationMode.Udp2Tcp,
-                            selectedUdp2TcpObfuscationPort,
-                        )
-                    )
-                    add(VpnSettingItem.Divider)
-                    add(
-                        VpnSettingItem.ObfuscationItem.Quic(obfuscationMode == ObfuscationMode.Quic)
-                    )
-                    add(VpnSettingItem.Divider)
-                    add(VpnSettingItem.ObfuscationItem.Off(obfuscationMode == ObfuscationMode.Off))
+                    // Anti-censorship
+                    add(VpnSettingItem.AntiCensorshipHeader)
 
                     add(VpnSettingItem.Spacer)
 
@@ -244,11 +171,13 @@ data class VpnSettingsUiState(
                     add(VpnSettingItem.Mtu(mtu))
                     add(VpnSettingItem.Spacer)
 
+                    // Server IP override
                     add(VpnSettingItem.ServerIpOverrides)
                     add(VpnSettingItem.Spacer)
                 },
                 isModal = isModal,
                 isScrollToFeatureEnabled = isScrollToFeatureEnabled,
+                obfuscationMode = obfuscationMode,
             )
     }
 }

@@ -2,10 +2,10 @@ package net.mullvad.mullvadvpn.compose.state
 
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.IpVersion
-import net.mullvad.mullvadvpn.lib.model.Port
-import net.mullvad.mullvadvpn.lib.model.PortRange
 
 sealed interface VpnSettingItem {
+
+    data object AntiCensorshipHeader : VpnSettingItem
 
     // Not available on TV devices
     data object AutoConnectAndLockdownMode : VpnSettingItem
@@ -66,49 +66,6 @@ sealed interface VpnSettingItem {
     data object CustomDnsInfo : VpnSettingItem
 
     data class EnableIpv6Setting(val enabled: Boolean) : VpnSettingItem
-
-    data class WireguardPortHeader(val enabled: Boolean, val availablePortRanges: List<PortRange>) :
-        VpnSettingItem
-
-    sealed interface WireguardPortItem : VpnSettingItem {
-        val enabled: Boolean
-        val selected: Boolean
-
-        data class Constraint(
-            override val enabled: Boolean,
-            override val selected: Boolean,
-            val constraint: net.mullvad.mullvadvpn.lib.model.Constraint<Port>,
-        ) : WireguardPortItem
-
-        data class WireguardPortCustom(
-            override val enabled: Boolean,
-            override val selected: Boolean,
-            val customPort: Port?,
-            val availablePortRanges: List<PortRange>,
-        ) : WireguardPortItem
-    }
-
-    data object WireguardPortUnavailable : VpnSettingItem
-
-    data object ObfuscationHeader : VpnSettingItem
-
-    sealed interface ObfuscationItem : VpnSettingItem {
-        val selected: Boolean
-
-        data class Automatic(override val selected: Boolean) : ObfuscationItem
-
-        data class Shadowsocks(override val selected: Boolean, val port: Constraint<Port>) :
-            ObfuscationItem
-
-        data class UdpOverTcp(override val selected: Boolean, val port: Constraint<Port>) :
-            ObfuscationItem
-
-        data class Quic(override val selected: Boolean) : ObfuscationItem
-
-        data class Lwo(override val selected: Boolean) : ObfuscationItem
-
-        data class Off(override val selected: Boolean) : ObfuscationItem
-    }
 
     data class QuantumResistantSetting(val enabled: Boolean) : VpnSettingItem
 
