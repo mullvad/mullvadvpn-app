@@ -113,3 +113,14 @@ fun ConnectPage.enableWireGuardCustomPort(port: Int) {
     }
     uiDevice.pressBackTwice()
 }
+
+fun ConnectPage.disableIPv6Story() {
+    clickSettings()
+    on<SettingsPage> { clickVpnSettings() }
+    on<VpnSettingsPage> {
+        // Disable IPv6
+        scrollUntilDeviceIpVersionCell()
+        clickDeviceIpIpv4Cell()
+    }
+    uiDevice.pressBackTwice()
+}

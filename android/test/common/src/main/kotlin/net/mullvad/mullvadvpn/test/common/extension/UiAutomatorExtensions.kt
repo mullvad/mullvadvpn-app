@@ -15,8 +15,11 @@ import java.util.regex.Pattern
 import net.mullvad.mullvadvpn.test.common.constant.DEFAULT_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.constant.LONG_TIMEOUT
 
-fun UiDevice.findObjectByCaseInsensitiveText(text: String): UiObject2 {
-    return findObjectWithTimeout(By.text(Pattern.compile(text, Pattern.CASE_INSENSITIVE)))
+fun UiDevice.findObjectByCaseInsensitiveText(
+    text: String,
+    timeout: Long = DEFAULT_TIMEOUT,
+): UiObject2 {
+    return findObjectWithTimeout(By.text(Pattern.compile(text, Pattern.CASE_INSENSITIVE)), timeout)
 }
 
 fun UiDevice.hasObjectWithTimeout(selector: BySelector, timeout: Long = DEFAULT_TIMEOUT): Boolean =
