@@ -2,10 +2,12 @@ package net.mullvad.mullvadvpn.compose.screen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
@@ -31,13 +33,11 @@ import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.ApplyButton
-import net.mullvad.mullvadvpn.compose.cell.CheckboxCell
-import net.mullvad.mullvadvpn.compose.cell.ExpandableComposeCell
-import net.mullvad.mullvadvpn.compose.cell.SelectableCell
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithSmallTopBar
 import net.mullvad.mullvadvpn.compose.constant.ContentType
 import net.mullvad.mullvadvpn.compose.extensions.itemWithDivider
+import net.mullvad.mullvadvpn.compose.extensions.itemsIndexedWithDivider
 import net.mullvad.mullvadvpn.compose.extensions.itemsWithDivider
 import net.mullvad.mullvadvpn.compose.preview.FilterUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.RelayFilterUiState
@@ -49,6 +49,11 @@ import net.mullvad.mullvadvpn.lib.model.ProviderId
 import net.mullvad.mullvadvpn.lib.model.Providers
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
+import net.mullvad.mullvadvpn.lib.ui.component.listitem.CheckableListItem
+import net.mullvad.mullvadvpn.lib.ui.component.listitem.ExpandableListItem
+import net.mullvad.mullvadvpn.lib.ui.component.listitem.SelectableListItem
+import net.mullvad.mullvadvpn.lib.ui.designsystem.Hierarchy
+import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
 import net.mullvad.mullvadvpn.viewmodel.FilterScreenSideEffect
 import net.mullvad.mullvadvpn.viewmodel.FilterViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -116,7 +121,7 @@ fun FilterScreen(
             )
         },
     ) { modifier ->
-        LazyColumn(modifier = modifier.fillMaxSize()) {
+        LazyColumn(modifier = modifier.fillMaxSize().padding(horizontal = Dimens.sideMarginNew)) {
             itemWithDivider(key = Keys.OWNERSHIP_TITLE, contentType = ContentType.HEADER) {
                 OwnershipHeader(ownershipExpanded) { ownershipExpanded = it }
             }
@@ -124,13 +129,24 @@ fun FilterScreen(
                 itemWithDivider(key = Keys.OWNERSHIP_ALL, contentType = ContentType.ITEM) {
                     AnyOwnership(state) { onSelectedOwnership(Constraint.Any) }
                 }
-                itemsWithDivider(
-                    key = { it.name },
-                    contentType = { ContentType.ITEM },
+                itemsIndexedWithDivider(
+                    key = { _, item -> item.name },
+                    contentType = { _, _ -> ContentType.ITEM },
                     items = state.selectableOwnerships,
-                ) { ownership ->
-                    Ownership(ownership, state) { onSelectedOwnership(Constraint.Only(it)) }
+                ) { index, ownership ->
+                    val position =
+                        if (index == state.selectableOwnerships.lastIndex) {
+                            Position.Bottom
+                        } else {
+                            Position.Middle
+                        }
+                    Ownership(ownership, state, position) {
+                        onSelectedOwnership(Constraint.Only(ownership))
+                    }
                 }
+            }
+            item(key = Keys.SPACER) {
+                Spacer(modifier = Modifier.height(Dimens.cellVerticalSpacing).animateItem())
             }
             itemWithDivider(key = Keys.PROVIDERS_TITLE, contentType = ContentType.HEADER) {
                 ProvidersHeader(providerExpanded) { providerExpanded = it }
@@ -147,12 +163,18 @@ fun FilterScreen(
                     RemovedProvider(provider, state, onSelectedProvider)
                 }
 
-                itemsWithDivider(
-                    key = { it.value },
-                    contentType = { ContentType.ITEM },
+                itemsIndexedWithDivider(
+                    key = { _, item -> item.value },
+                    contentType = { _, _ -> ContentType.ITEM },
                     items = state.selectableProviders,
-                ) { provider ->
-                    Provider(provider, state, onSelectedProvider)
+                ) { index, provider ->
+                    val position =
+                        if (index == state.selectableProviders.lastIndex) {
+                            Position.Bottom
+                        } else {
+                            Position.Middle
+                        }
+                    Provider(provider, state, position, onSelectedProvider)
                 }
             }
         }
@@ -161,23 +183,31 @@ fun FilterScreen(
 
 @Composable
 private fun LazyItemScope.OwnershipHeader(expanded: Boolean, onToggleExpanded: (Boolean) -> Unit) {
-    ExpandableComposeCell(
+    ExpandableListItem(
         title = stringResource(R.string.ownership),
         isExpanded = expanded,
         isEnabled = true,
         onInfoClicked = null,
         onCellClicked = { onToggleExpanded(!expanded) },
         modifier = Modifier.animateItem(),
+        position =
+            if (expanded) {
+                Position.Top
+            } else {
+                Position.Single
+            },
     )
 }
 
 @Composable
 private fun LazyItemScope.AnyOwnership(state: RelayFilterUiState, onSelectedOwnership: () -> Unit) {
-    SelectableCell(
+    SelectableListItem(
         title = stringResource(id = R.string.any),
         isSelected = state.selectedOwnership is Constraint.Any,
         modifier = Modifier.animateItem(),
-        onCellClicked = { onSelectedOwnership() },
+        onClick = { onSelectedOwnership() },
+        position = Position.Middle,
+        hierarchy = Hierarchy.Child1,
     )
 }
 
@@ -185,25 +215,34 @@ private fun LazyItemScope.AnyOwnership(state: RelayFilterUiState, onSelectedOwne
 private fun LazyItemScope.Ownership(
     ownership: Ownership,
     state: RelayFilterUiState,
+    position: Position,
     onSelectedOwnership: (ownership: Ownership) -> Unit,
 ) {
-    SelectableCell(
+    SelectableListItem(
         title = stringResource(id = ownership.stringResource()),
         isSelected = ownership == state.selectedOwnership.getOrNull(),
         modifier = Modifier.animateItem(),
-        onCellClicked = { onSelectedOwnership(ownership) },
+        onClick = { onSelectedOwnership(ownership) },
+        position = position,
+        hierarchy = Hierarchy.Child1,
     )
 }
 
 @Composable
 private fun LazyItemScope.ProvidersHeader(expanded: Boolean, onToggleExpanded: (Boolean) -> Unit) {
-    ExpandableComposeCell(
+    ExpandableListItem(
         title = stringResource(R.string.providers),
         isExpanded = expanded,
         isEnabled = true,
         onInfoClicked = null,
         onCellClicked = { onToggleExpanded(!expanded) },
         modifier = Modifier.animateItem(),
+        position =
+            if (expanded) {
+                Position.Top
+            } else {
+                Position.Single
+            },
     )
 }
 
@@ -212,10 +251,13 @@ private fun LazyItemScope.AllProviders(
     state: RelayFilterUiState,
     onAllProviderCheckChange: (isChecked: Boolean) -> Unit,
 ) {
-    CheckboxCell(
+    val isChecked = state.isAllProvidersChecked
+    CheckableListItem(
         title = stringResource(R.string.all_providers),
-        checked = state.isAllProvidersChecked,
+        isChecked = isChecked,
         onCheckedChange = { isChecked -> onAllProviderCheckChange(isChecked) },
+        position = Position.Middle,
+        hierarchy = Hierarchy.Child1,
         modifier = Modifier.animateItem(),
     )
 }
@@ -224,13 +266,17 @@ private fun LazyItemScope.AllProviders(
 private fun LazyItemScope.Provider(
     providerId: ProviderId,
     state: RelayFilterUiState,
+    position: Position,
     onSelectedProvider: (checked: Boolean, providerId: ProviderId) -> Unit,
 ) {
-    CheckboxCell(
+    val checked = providerId.isChecked(state.selectedProviders)
+    CheckableListItem(
         title = providerId.value,
-        checked = providerId.isChecked(state.selectedProviders),
+        isChecked = checked,
         onCheckedChange = { checked -> onSelectedProvider(checked, providerId) },
         modifier = Modifier.animateItem(),
+        position = position,
+        hierarchy = Hierarchy.Child1,
     )
 }
 
@@ -248,12 +294,14 @@ private fun LazyItemScope.RemovedProvider(
 ) {
     val checked =
         state.selectedProviders is Constraint.Only && providerId in state.selectedProviders.value
-    CheckboxCell(
+    CheckableListItem(
         title = stringResource(R.string.removed_provider, providerId.value),
-        checked = checked,
-        enabled = checked,
+        isChecked = checked,
+        isEnabled = checked,
+        position = Position.Middle,
         onCheckedChange = { checked -> onSelectedProvider(checked, providerId) },
         modifier = Modifier.animateItem(),
+        hierarchy = Hierarchy.Child1,
     )
 }
 
@@ -286,4 +334,5 @@ private object Keys {
     const val OWNERSHIP_ALL = "ownership_all"
     const val PROVIDERS_TITLE = "providers_title"
     const val PROVIDERS_ALL = "providers_all"
+    const val SPACER = "spacer"
 }
