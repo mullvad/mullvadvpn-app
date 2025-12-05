@@ -1,7 +1,6 @@
 use crate::{DEFAULT_NET_CLS_DIR, find_net_cls_mount};
 use anyhow::{Context as _, anyhow};
-use libc::pid_t;
-use nix::{errno::Errno, unistd::Pid};
+use nix::{errno::Errno, libc::pid_t, unistd::Pid};
 use std::{
     env,
     ffi::CStr,
@@ -10,7 +9,6 @@ use std::{
     path::PathBuf,
 };
 
-// TODO: respect this?
 pub const NET_CLS_DIR_OVERRIDE_ENV_VAR: &str = "TALPID_NET_CLS_MOUNT_DIR";
 
 /// Identifies packets coming from the cgroup.
