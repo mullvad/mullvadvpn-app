@@ -83,7 +83,7 @@ env:
 jobs:
   prepare:
     name: Prepare
-    runs-on: ubuntu-latest
+    runs-on: [android-sandbox-test-new-runner]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -118,7 +118,9 @@ jobs:
   build-app:
     name: Build app
     needs: [prepare]
-    runs-on: [app-gh-build, build]
+    runs-on: [android-sandbox-test-new-runner]
+    container:
+      image: ghcr.io/mullvad/mullvadvpn-app-build-android:6f6ff93a54
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -138,7 +140,7 @@ jobs:
 
       - name: Build apks
         run: >
-          ./building/container-run.sh android android/gradlew -p android --console plain
+          ./android/gradlew -p android --console plain
           :app:assembleOssProdDebug
           :app:assemblePlayStagemoleDebug
           assembleOssProdAndroidTest
@@ -156,7 +158,7 @@ jobs:
   run-lint-and-tests:
     name: Run lint and test tasks
     needs: [prepare]
-    runs-on: ubuntu-latest
+    runs-on: [android-sandbox-test-new-runner]
     container:
       image: ${{ needs.prepare.outputs.container_image }}
     strategy:
