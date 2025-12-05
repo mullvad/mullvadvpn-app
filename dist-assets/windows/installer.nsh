@@ -318,7 +318,7 @@ ManifestSupportedOS "{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"
 
 	log::Log "Removing Split Tunneling driver"
 	nsExec::ExecToStack '"$PLUGINSDIR\driverlogic.exe" st-remove'
-	
+
 	Pop $0
 	Pop $1
 
@@ -328,7 +328,7 @@ ManifestSupportedOS "{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"
 		log::LogWithDetails $R0 $1
 		Goto RemoveSplitTunnelDriver_return
 	${EndIf}
-	
+
 	log::Log "RemoveSplitTunnelDriver() completed successfully"
 
 	Push 0
@@ -873,6 +873,10 @@ ManifestSupportedOS "{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"
 # The error flag is set if the uninstaller failed to run. Otherwise, $R0
 # contains the exit status.
 #
+# Currently, if the uninstaller is completely missing or fails to run, we attempt to wipe the
+# installation directory altogether. Otherwise, we check the return code and abort if the uninstall
+# was not successful.
+#
 !macro customUnInstallCheck
 
 	IfErrors 0 customUnInstallCheck_CheckReturnCode
@@ -1142,6 +1146,25 @@ ManifestSupportedOS "{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"
 	IfErrors 0 customRemoveFiles_final_cleanup
 
 	log::Log "Failed to remove application files"
+
+	${If} ${isUpdated}
+		# Detect processes that are hogging the install dir
+		# NOTE: We perform this check here and not in customUnInstallCheck, or else we cannot preempt the hardcoded message:
+		# https://github.com/electron-userland/electron-builder/blob/05e0bc7becf4057e7f7794597a57f33d23894f4b/packages/app-builder-lib/templates/nsis/include/installUtil.nsh#L219
+		cleanup::FindHoggingProcesses $INSTDIR
+		Pop $0
+		Pop $1
+
+		# NOTE: We should not show the message again before exiting. electron-builder helpfully
+		# reruns the uninstaller multiple times before showing a hardcoded error message (see link
+		# above).
+		# Try removing again just once after the user has (hopefully) closed the processes.
+		# If that does not work, abort and let electron-builder rerun the uninstaller.
+		# Sadly, the user will be pestered multiple times.
+
+		RMDir /r $INSTDIR
+		IfErrors 0 customRemoveFiles_final_cleanup
+	${EndIf}
 
 	customRemoveFiles_abort:
 

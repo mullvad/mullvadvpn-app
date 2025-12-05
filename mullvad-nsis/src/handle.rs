@@ -27,7 +27,7 @@ use windows_sys::Win32::System::Threading::{
 };
 use windows_sys::Win32::System::WindowsProgramming::PUBLIC_OBJECT_TYPE_INFORMATION;
 use windows_sys::Win32::UI::Input::KeyboardAndMouse::GetActiveWindow;
-use windows_sys::Win32::UI::WindowsAndMessaging::{IDRETRY, MB_ICONWARNING, MB_OK, MessageBoxW};
+use windows_sys::Win32::UI::WindowsAndMessaging::{MB_ICONWARNING, MB_OK, MessageBoxW};
 
 use crate::MAX_PATH_SIZE;
 
@@ -105,7 +105,7 @@ Please close these processes before continuing.",
             title_wide.as_ptr(),
             MB_OK | MB_ICONWARNING,
         )
-    }
+    };
 }
 
 /// Return the type of handle that `handle` is using [`NtQueryObject`].
