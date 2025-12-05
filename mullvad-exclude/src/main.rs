@@ -1,6 +1,5 @@
-#[cfg(target_os = "linux")]
+#![cfg(target_os = "linux")]
 use nix::unistd::{Pid, execvp, getgid, getpid, getuid, setgid, setuid};
-#[cfg(target_os = "linux")]
 use std::{
     convert::Infallible,
     env,
@@ -9,13 +8,11 @@ use std::{
     fmt::Write as _,
     os::unix::ffi::OsStrExt,
 };
-#[cfg(target_os = "linux")]
 use talpid_cgroup::{
     CGROUP2_DEFAULT_MOUNT_PATH, SPLIT_TUNNEL_CGROUP_NAME, find_net_cls_mount, v1::CGroup1,
     v2::CGroup2,
 };
 
-#[cfg(target_os = "linux")]
 #[derive(thiserror::Error, Debug)]
 enum Error {
     #[error("Invalid arguments")]
@@ -40,12 +37,6 @@ enum Error {
     NoProcMounts,
 }
 
-#[cfg(not(target_os = "linux"))]
-fn main() {
-    panic!("This program only runs on linux");
-}
-
-#[cfg(target_os = "linux")]
 fn main() {
     let Err(error) = run();
 
@@ -84,7 +75,6 @@ fn add_to_cgroups_v1_if_exists(pid: Pid) -> Result<(), Error> {
         .map_err(Error::from)
 }
 
-#[cfg(target_os = "linux")]
 fn run() -> Result<Infallible, Error> {
     let mut args_iter = env::args_os().skip(1);
     let program = args_iter.next().ok_or(Error::InvalidArguments)?;
