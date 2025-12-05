@@ -44,6 +44,13 @@ final actor StorePaymentManager: @unchecked Sendable {
     func start() async {
         logger.debug("Starting StoreKit 2 transaction listener.")
 
+        #if !DEBUG
+            // Always clean up non-production transactions immediately. Reason for this is that if there
+            // are any old unfinished sandbox transactions that has spilled over from TestFlight, they
+            // will clog up the pipeline since they can never be finished or removed in production.
+            await finishOutstandingSandboxTransactions()
+        #endif
+
         // Disabled so as not to have a parallell listener for SK 1 transactions running at the
         // same time as SK 2 listener. Enable when enabling SK 1 payment flow.
         // legacyStorePaymentManager.start()
@@ -215,6 +222,21 @@ final actor StorePaymentManager: @unchecked Sendable {
         case let .failure(error):
             if !error.isOperationCancellationError {
                 logger.error(error: error, message: "Failed to update account data.")
+            }
+        }
+    }
+
+    private func finishOutstandingSandboxTransactions() async {
+        for await verification in Transaction.unfinished {
+            guard let payload = try? verification.payloadValue else {
+                continue
+            }
+
+            logger.debug("Unfinished transaction environment is '\(payload.environment)'")
+
+            if payload.environment != .production {
+                logger.debug("Finishing transaction with environment '\(payload.environment)'")
+                await payload.finish()
             }
         }
     }
