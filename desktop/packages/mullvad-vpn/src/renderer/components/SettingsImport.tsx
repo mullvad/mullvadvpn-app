@@ -4,7 +4,6 @@ import styled from 'styled-components';
 
 import { messages } from '../../shared/gettext';
 import { RoutePath } from '../../shared/routes';
-import { useScheduler } from '../../shared/scheduler';
 import { useAppContext } from '../context';
 import useActions from '../lib/actionsHook';
 import { Button, Flex, Icon, IconProps, LabelTinySemiBold } from '../lib/components';
@@ -44,22 +43,7 @@ export default function SettingsImport() {
   const [clearDialogVisible, showClearDialog, hideClearDialog] = useBoolean();
 
   // Keeps the status of the last import and is cleared 10 seconds after being set.
-  const [importStatus, setImportStatusImpl] = useState<ImportStatus>();
-  const importStatusResetScheduler = useScheduler();
-
-  const setImportStatus = useCallback(
-    (status?: ImportStatus) => {
-      // Cancel scheduled status clearing.
-      importStatusResetScheduler.cancel();
-      setImportStatusImpl(status);
-
-      // The status text should be cleared after 10 seconds.
-      if (status !== undefined) {
-        importStatusResetScheduler.schedule(() => setImportStatusImpl(undefined), 10_000);
-      }
-    },
-    [importStatusResetScheduler],
-  );
+  const [importStatus, setImportStatus] = useState<ImportStatus>();
 
   const confirmClear = useCallback(() => {
     hideClearDialog();
