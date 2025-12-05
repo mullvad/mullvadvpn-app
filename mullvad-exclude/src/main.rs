@@ -103,7 +103,7 @@ fn run() -> Result<Infallible, Error> {
         .and_then(|exclusion_cgroup2| exclusion_cgroup2.add_pid(pid));
 
     // Always add current PID to cgroup1 (deprecated solution). It does not hurt to be in both cgroup1 and cgroup2 at
-    // the same time, the firewall will have to promise ttypeso behave appropriately.
+    // the same time, the firewall will have to promise to behave appropriately.
     if let Err(add_err) = add_to_cgroups_v1_if_exists(pid)
         && result.is_err()
     {
