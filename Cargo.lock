@@ -5363,7 +5363,6 @@ dependencies = [
  "libc",
  "log",
  "nix 0.30.1",
- "talpid-types",
  "thiserror 2.0.9",
 ]
 
