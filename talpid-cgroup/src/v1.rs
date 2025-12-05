@@ -1,4 +1,4 @@
-use crate::{DEFAULT_NET_CLS_DIR, find_net_cls_mount};
+use crate::find_net_cls_mount;
 use anyhow::{Context as _, anyhow};
 use nix::{errno::Errno, libc::pid_t, unistd::Pid};
 use std::{
@@ -9,7 +9,11 @@ use std::{
     path::PathBuf,
 };
 
+/// Path where cgroup1 will be mounted.
 pub const NET_CLS_DIR_OVERRIDE_ENV_VAR: &str = "TALPID_NET_CLS_MOUNT_DIR";
+
+/// The path where linux normally mounts the net_cls cgroup v1 filesystem.
+pub const DEFAULT_NET_CLS_DIR: &str = "/sys/fs/cgroup/net_cls";
 
 /// Identifies packets coming from the cgroup.
 /// This should be an arbitrary but unique integer.
@@ -25,7 +29,7 @@ pub struct CGroup1 {
 }
 
 impl CGroup1 {
-    /// Open the root net_cls cgroup at [`DEFAULT_NET_CLS_DIR`], creating if if it doesn't exist.
+    /// Open the root net_cls cgroup at [`NET_CLS_DIR_OVERRIDE_ENV_VAR`] (or [`DEFAULT_NET_CLS_DIR`] if env variable is unset), creating if if it doesn't exist.
     pub fn open_root() -> Result<Self, super::Error> {
         if let Some(net_cls_path) = find_net_cls_mount()? {
             return Self::open(net_cls_path);
