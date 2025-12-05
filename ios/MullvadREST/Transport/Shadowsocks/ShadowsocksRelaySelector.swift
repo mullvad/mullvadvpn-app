@@ -11,9 +11,8 @@ import MullvadSettings
 import MullvadTypes
 
 public protocol ShadowsocksRelaySelectorProtocol: Sendable {
-    func selectRelay(with settings: LatestTunnelSettings) throws -> REST.BridgeRelay?
-
-    func getBridges() throws -> REST.ServerShadowsocks?
+    func selectBridge(with settings: LatestTunnelSettings) throws -> REST.BridgeRelay?
+    func getBridgeConfig() throws -> REST.ServerShadowsocks?
 }
 
 final public class ShadowsocksRelaySelector: ShadowsocksRelaySelectorProtocol {
@@ -25,7 +24,7 @@ final public class ShadowsocksRelaySelector: ShadowsocksRelaySelectorProtocol {
         self.relayCache = relayCache
     }
 
-    public func selectRelay(with settings: LatestTunnelSettings) throws -> REST.BridgeRelay? {
+    public func selectBridge(with settings: LatestTunnelSettings) throws -> REST.BridgeRelay? {
         let cachedRelays = try relayCache.read().relays
 
         let locationConstraint =
@@ -34,16 +33,14 @@ final public class ShadowsocksRelaySelector: ShadowsocksRelaySelectorProtocol {
             case .off: settings.relayConstraints.exitLocations
             }
 
-        return RelaySelector.Shadowsocks.closestRelay(
+        return RelaySelector.Shadowsocks.closestBridge(
             location: locationConstraint,
-            port: settings.relayConstraints.port,
-            filter: settings.relayConstraints.filter,
             in: cachedRelays
         )
     }
 
-    public func getBridges() throws -> REST.ServerShadowsocks? {
+    public func getBridgeConfig() throws -> REST.ServerShadowsocks? {
         let cachedRelays = try relayCache.read()
-        return RelaySelector.Shadowsocks.tcpBridge(from: cachedRelays.relays)
+        return RelaySelector.Shadowsocks.randomBridgeConfig(from: cachedRelays.relays)
     }
 }

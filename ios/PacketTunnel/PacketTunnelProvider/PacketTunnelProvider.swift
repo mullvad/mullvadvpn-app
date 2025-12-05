@@ -63,13 +63,19 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
 
         performSettingsMigration()
 
+        let settingsReader = TunnelSettingsManager(settingsReader: SettingsReader()) { [weak self] settings in
+            guard let self = self else { return }
+            tunnelSettingsListener.onNewSettings?(settings.tunnelSettings)
+        }
+
         let accessMethodRepository = AccessMethodRepository()
 
         setUpApiContextAndAccessMethodReceiver(
             appContainerURL: containerURL,
             ipOverrideWrapper: ipOverrideWrapper,
             addressCache: addressCache,
-            accessMethodRepository: accessMethodRepository
+            accessMethodRepository: accessMethodRepository,
+            tunnelSettings: (try? settingsReader.read().tunnelSettings) ?? LatestTunnelSettings()
         )
 
         setUpAccessMethodReceiver(
@@ -112,10 +118,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
             defaultPathObserver: defaultPathObserver,
             blockedStateErrorMapper: BlockedStateErrorMapper(),
             relaySelector: relaySelector,
-            settingsReader: TunnelSettingsManager(settingsReader: SettingsReader()) { [weak self] settings in
-                guard let self = self else { return }
-                tunnelSettingsListener.onNewSettings?(settings.tunnelSettings)
-            },
+            settingsReader: settingsReader,
             protocolObfuscator: ProtocolObfuscator<TunnelObfuscator>()
         )
 
@@ -243,7 +246,8 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
         appContainerURL: URL,
         ipOverrideWrapper: IPOverrideWrapper,
         addressCache: REST.AddressCache,
-        accessMethodRepository: AccessMethodRepository
+        accessMethodRepository: AccessMethodRepository,
+        tunnelSettings: LatestTunnelSettings
     ) {
         let shadowsocksCache = ShadowsocksConfigurationCache(cacheDirectory: appContainerURL)
 
@@ -254,6 +258,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
         let shadowsocksLoader = ShadowsocksLoader(
             cache: shadowsocksCache,
             relaySelector: shadowsocksRelaySelector,
+            tunnelSettings: tunnelSettings,
             settingsUpdater: tunnelSettingsUpdater
         )
 

@@ -6,6 +6,7 @@
 //  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 //
 
+import CoreLocation
 import MullvadSettings
 import MullvadTypes
 
@@ -89,6 +90,40 @@ public enum RelaySelector {
         case .any:
             pickRandomPort(rawPortRanges: rawPortRanges)
         }
+    }
+
+    static func closestRelay(
+        to location: CLLocationCoordinate2D,
+        using relayWithLocations: [RelayWithLocation<some AnyRelay>]
+    ) -> AnyRelay? {
+        let relaysWithDistance = relayWithLocations.map {
+            return RelayWithDistance(
+                relay: $0.relay,
+                distance: Haversine.distance(
+                    location.latitude,
+                    location.longitude,
+                    $0.serverLocation.latitude,
+                    $0.serverLocation.longitude
+                )
+            )
+        }.sorted {
+            $0.distance < $1.distance
+        }.prefix(5)
+
+        var greatestDistance = 0.0
+        relaysWithDistance.forEach {
+            if $0.distance > greatestDistance {
+                greatestDistance = $0.distance
+            }
+        }
+
+        let closestRelay = rouletteSelection(
+            relays: Array(relaysWithDistance),
+            weightFunction: { relay in
+                UInt64(1 + greatestDistance - relay.distance)
+            })
+
+        return closestRelay?.relay ?? relaysWithDistance.randomElement()?.relay
     }
 
     // MARK: - private

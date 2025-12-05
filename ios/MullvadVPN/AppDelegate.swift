@@ -91,6 +91,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         shadowsocksLoader = ShadowsocksLoader(
             cache: shadowsocksCache,
             relaySelector: shadowsocksRelaySelector,
+            tunnelSettings: (try? SettingsManager.readSettings()) ?? LatestTunnelSettings(),
             settingsUpdater: tunnelSettingsUpdater
         )
 
