@@ -333,7 +333,11 @@ impl<'a> PolicyBatch<'a> {
         firewall: &Firewall,
     ) -> Result<FinalizedBatch> {
         self.add_loopback_rules()?;
-        self.add_split_tunneling_rules(policy, firewall)?; // TODO: Maybe not error out?
+        // TODO: Investigate if these rules could/should be handled by PidManager instead.
+        // It would allow for the firewall to be set up in a secure way even though split tunneling
+        // does not work, which is okay. It would also allow us to de-duplicate some copy-paste
+        // code which is present both in this module and in PidManager ..
+        self.add_split_tunneling_rules(policy, firewall)?;
         self.add_dhcp_client_rules();
         self.add_ndp_rules();
         self.add_policy_specific_rules(policy, firewall.fwmark)?;
