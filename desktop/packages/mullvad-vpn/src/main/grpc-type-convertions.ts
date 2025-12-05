@@ -6,9 +6,7 @@ import {
   AfterDisconnect,
   ApiAccessMethodSettings,
   AuthFailedError,
-  BridgeSettings,
   BridgesMethod,
-  BridgeType,
   ConnectionConfig,
   Constraint,
   CustomLists,
@@ -27,7 +25,6 @@ import {
   FirewallPolicyError,
   FirewallPolicyErrorType,
   IAppVersionInfo,
-  IBridgeConstraints,
   ICustomList,
   IDevice,
   IObfuscationEndpoint,
@@ -461,7 +458,6 @@ function convertFromEntryEndpoint(entryEndpoint: grpcTypes.Endpoint.AsObject) {
 export function convertFromSettings(settings: grpcTypes.Settings): ISettings | undefined {
   const settingsObject = settings.toObject();
   const relaySettings = convertFromRelaySettings(settings.getRelaySettings())!;
-  const bridgeSettings = convertFromBridgeSettings(settings.getBridgeSettings()!);
   const tunnelOptions = convertFromTunnelOptions(settingsObject.tunnelOptions!);
   const splitTunnel = settingsObject.splitTunnel ?? { enableExclusions: false, appsList: [] };
   const obfuscationSettings = convertFromObfuscationSettings(settingsObject.obfuscationSettings);
@@ -471,7 +467,6 @@ export function convertFromSettings(settings: grpcTypes.Settings): ISettings | u
   return {
     ...settings.toObject(),
     relaySettings,
-    bridgeSettings,
     tunnelOptions,
     splitTunnel,
     obfuscationSettings,
@@ -525,35 +520,6 @@ function convertFromRelaySettings(
   } else {
     return undefined;
   }
-}
-
-function convertFromBridgeSettings(bridgeSettings: grpcTypes.BridgeSettings): BridgeSettings {
-  const bridgeSettingsObject = bridgeSettings.toObject();
-
-  const detailsMap: Record<grpcTypes.BridgeSettings.BridgeType, BridgeType> = {
-    [grpcTypes.BridgeSettings.BridgeType.NORMAL]: 'normal',
-    [grpcTypes.BridgeSettings.BridgeType.CUSTOM]: 'custom',
-  };
-  const type = detailsMap[bridgeSettingsObject.bridgeType];
-
-  const normalSettings = bridgeSettingsObject.normal;
-  const locationConstraint = convertFromLocationConstraint(
-    bridgeSettings.getNormal()?.getLocation(),
-  );
-  const location = wrapConstraint(locationConstraint);
-  const providers = normalSettings!.providersList;
-  const ownership = convertFromOwnership(normalSettings!.ownership);
-
-  const normal = {
-    location,
-    providers,
-    ownership,
-  };
-
-  const grpcCustom = bridgeSettings.getCustom();
-  const custom = grpcCustom ? convertFromCustomProxy(grpcCustom) : undefined;
-
-  return { type, normal, custom };
 }
 
 function convertFromConnectionConfig(
@@ -877,16 +843,6 @@ export function convertToRelayConstraints(
   relayConstraints.setOwnership(convertToOwnership(constraints.ownership));
 
   return relayConstraints;
-}
-
-export function convertToNormalBridgeSettings(
-  constraints: IBridgeConstraints,
-): grpcTypes.BridgeSettings.BridgeConstraints {
-  const normalBridgeSettings = new grpcTypes.BridgeSettings.BridgeConstraints();
-  normalBridgeSettings.setLocation(convertToLocation(unwrapConstraint(constraints.location)));
-  normalBridgeSettings.setProvidersList(constraints.providers);
-
-  return normalBridgeSettings;
 }
 
 function convertToLocation(
