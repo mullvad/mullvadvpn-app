@@ -22,15 +22,23 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## UNRELEASED
-### Added
+### Add
 - Add support for additional languages.
 
+## [2025.10 - 2025-12-01]
 ### Added
 - Allow using port 443 for UDP-over-TCP.
 
 ### Changed
+- Rework location view.
+
+
+## [2025.9 - 2025-11-24]
+### Changed
 - Bump minimum version to iOS 17.0
 - Quantum-resistant tunnel setting is now on by default through the "Automatic" setting.
+
+### Added
 - Add a checkbox that lets users include their account token in problem reports.
 
 ## [2025.8 - 2025-10-10]
