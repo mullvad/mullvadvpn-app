@@ -25,7 +25,12 @@ import net.mullvad.mullvadvpn.lib.theme.Dimens
 private val LIST_HEADER_MIN_HEIGHT = 48.dp
 
 @Composable
-fun RelayListHeader(
+fun ListHeader(text: String, modifier: Modifier = Modifier) {
+    ListHeader(content = { Text(text = text) }, modifier = modifier)
+}
+
+@Composable
+fun ListHeader(
     content: @Composable () -> Unit,
     modifier: Modifier = Modifier,
     actions: @Composable (RowScope.() -> Unit)? = null,
@@ -60,11 +65,11 @@ object RelayListHeaderTokens {
 
 @Preview(backgroundColor = 0xFF192E45, showBackground = true)
 @Composable
-fun PreviewRelayListHeader() {
+fun PreviewListHeader() {
     AppTheme {
         Column {
-            RelayListHeader(content = { Text("Header") })
-            RelayListHeader(
+            ListHeader(content = { Text("Header") })
+            ListHeader(
                 content = { Text("Header") },
                 actions = {
                     IconButton(onClick = {}) {

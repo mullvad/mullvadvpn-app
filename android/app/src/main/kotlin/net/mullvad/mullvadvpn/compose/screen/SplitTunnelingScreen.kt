@@ -8,14 +8,19 @@ import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.retain.retain
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -31,13 +36,11 @@ import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.applist.AppData
-import net.mullvad.mullvadvpn.compose.cell.HeaderCell
-import net.mullvad.mullvadvpn.compose.cell.HeaderSwitchComposeCell
-import net.mullvad.mullvadvpn.compose.cell.SplitTunnelingCell
-import net.mullvad.mullvadvpn.compose.cell.SwitchComposeSubtitleCell
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.NavigateCloseIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
@@ -49,12 +52,19 @@ import net.mullvad.mullvadvpn.compose.extensions.itemWithDivider
 import net.mullvad.mullvadvpn.compose.extensions.itemsIndexedWithDivider
 import net.mullvad.mullvadvpn.compose.preview.SplitTunnelingUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
+import net.mullvad.mullvadvpn.compose.util.hasValidSize
+import net.mullvad.mullvadvpn.compose.util.isBelowMaxByteSize
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaDisabled
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaVisible
+import net.mullvad.mullvadvpn.lib.ui.component.listitem.IconState
+import net.mullvad.mullvadvpn.lib.ui.component.listitem.SplitTunnelingListItem
+import net.mullvad.mullvadvpn.lib.ui.component.listitem.SwitchListItem
+import net.mullvad.mullvadvpn.lib.ui.designsystem.ListHeader
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
+import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
 import net.mullvad.mullvadvpn.util.Lc
 import net.mullvad.mullvadvpn.util.getApplicationIconOrNull
 import net.mullvad.mullvadvpn.viewmodel.Loading
@@ -139,7 +149,10 @@ fun SplitTunnelingScreen(
         },
     ) { modifier, lazyListState ->
         LazyColumn(
-            modifier = modifier.background(MaterialTheme.colorScheme.surface),
+            modifier =
+                modifier
+                    .background(MaterialTheme.colorScheme.surface)
+                    .padding(horizontal = Dimens.sideMarginNew),
             horizontalAlignment = Alignment.CenterHorizontally,
             state = lazyListState,
         ) {
@@ -148,9 +161,9 @@ fun SplitTunnelingScreen(
                 enabled = state.enabled(),
                 onEnableSplitTunneling = onEnableSplitTunneling,
             )
-            spacer()
             when (state) {
                 is Lc.Loading -> {
+                    spacer()
                     loading()
                 }
                 is Lc.Content -> {
@@ -173,7 +186,7 @@ private fun LazyListScope.enabledToggle(
     onEnableSplitTunneling: (Boolean) -> Unit,
 ) {
     item {
-        HeaderSwitchComposeCell(
+        SwitchListItem(
             title = textResource(id = R.string.enable),
             isToggled = enabled,
             onCellClicked = onEnableSplitTunneling,
@@ -183,13 +196,15 @@ private fun LazyListScope.enabledToggle(
 
 private fun LazyListScope.description() {
     item(key = CommonContentKey.DESCRIPTION, contentType = ContentType.DESCRIPTION) {
-        SwitchComposeSubtitleCell(
+        Text(
             text =
                 buildString {
                     appendLine(stringResource(id = R.string.split_tunneling_description))
                     append(stringResource(id = R.string.split_tunneling_description_warning))
                 },
             style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(bottom = Dimens.mediumPadding),
         )
     }
 }
@@ -222,8 +237,8 @@ private fun LazyListScope.appList(
             enabled = state.enabled,
             excluded = true,
         )
-        spacer()
     }
+    spacer()
     systemAppsToggle(
         showSystemApps = state.showSystemApps,
         onShowSystemAppsClick = onShowSystemAppsClick,
@@ -257,22 +272,40 @@ private fun LazyListScope.appItems(
         key = { _, listItem -> listItem.packageName },
         contentType = { _, _ -> ContentType.ITEM },
     ) { index, listItem ->
-        SplitTunnelingCell(
+        val packageName = listItem.packageName
+        var icon by retain(packageName) { mutableStateOf<IconState>(IconState.Loading) }
+        LaunchedEffect(packageName) {
+            launch(Dispatchers.IO) {
+                val drawable = onResolveIcon(packageName)
+                icon =
+                    if (
+                        drawable != null && drawable.isBelowMaxByteSize() && drawable.hasValidSize()
+                    ) {
+                        IconState.Icon(drawable = drawable)
+                    } else {
+                        IconState.NoIcon
+                    }
+            }
+        }
+        SplitTunnelingListItem(
             title = listItem.name,
-            packageName = listItem.packageName,
+            iconState = icon,
             isSelected = excluded,
-            enabled = enabled,
-            modifier =
-                Modifier.animateItem()
-                    .fillMaxWidth()
-                    .alpha(
-                        if (enabled) {
-                            AlphaVisible
-                        } else {
-                            AlphaDisabled
-                        }
-                    ),
-            onResolveIcon = onResolveIcon,
+            isEnabled = enabled,
+            modifier = Modifier.animateItem(),
+            position =
+                when (index) {
+                    0 if apps.size == 1 -> Position.Single
+                    0 -> Position.Top
+                    apps.lastIndex -> Position.Bottom
+                    else -> Position.Middle
+                },
+            backgroundAlpha =
+                if (enabled) {
+                    AlphaVisible
+                } else {
+                    AlphaDisabled
+                },
         ) {
             // Move focus down unless the clicked item was the last in this
             // section.
@@ -289,7 +322,7 @@ private fun LazyListScope.appItems(
 
 private fun LazyListScope.headerItem(key: String, textId: Int, enabled: Boolean) {
     itemWithDivider(key = key, contentType = ContentType.HEADER) {
-        HeaderCell(
+        ListHeader(
             modifier =
                 Modifier.animateItem()
                     .alpha(
@@ -300,7 +333,6 @@ private fun LazyListScope.headerItem(key: String, textId: Int, enabled: Boolean)
                         }
                     ),
             text = stringResource(id = textId),
-            background = MaterialTheme.colorScheme.primary,
         )
     }
 }
@@ -314,27 +346,26 @@ private fun LazyListScope.systemAppsToggle(
         key = SplitTunnelingContentKey.SHOW_SYSTEM_APPLICATIONS,
         contentType = ContentType.OTHER_ITEM,
     ) {
-        HeaderSwitchComposeCell(
+        SwitchListItem(
             title = stringResource(id = R.string.show_system_apps),
             isToggled = showSystemApps,
             onCellClicked = { newValue -> onShowSystemAppsClick(newValue) },
             isEnabled = enabled,
-            modifier =
-                Modifier.animateItem()
-                    .alpha(
-                        if (enabled) {
-                            AlphaVisible
-                        } else {
-                            AlphaDisabled
-                        }
-                    ),
+            modifier = Modifier.animateItem(),
+            backgroundAlpha =
+                if (enabled) {
+                    AlphaVisible
+                } else {
+                    AlphaDisabled
+                },
+            position = Position.Single,
         )
     }
 }
 
 private fun LazyListScope.spacer() {
     item(contentType = ContentType.SPACER) {
-        Spacer(modifier = Modifier.animateItem().height(Dimens.mediumPadding))
+        Spacer(modifier = Modifier.animateItem().height(Dimens.cellVerticalSpacing))
     }
 }
 
