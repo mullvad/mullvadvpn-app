@@ -16,7 +16,7 @@ fun Settings.contentBlockersSettings() = tunnelOptions.dnsOptions.defaultOptions
 
 fun Settings.selectedObfuscationMode() = obfuscationSettings.selectedObfuscationMode
 
-fun Settings.wireguardPort() = relaySettings.relayConstraints.wireguardConstraints.port
+fun Settings.wireguardPort() = obfuscationSettings.wireguardPort
 
 fun Settings.deviceIpVersion() = relaySettings.relayConstraints.wireguardConstraints.ipVersion
 

@@ -9,7 +9,6 @@ import kotlinx.coroutines.flow.stateIn
 import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.IpVersion
-import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 
 class WireguardConstraintsRepository(
@@ -20,8 +19,6 @@ class WireguardConstraintsRepository(
         managementService.settings
             .mapNotNull { it.relaySettings.relayConstraints.wireguardConstraints }
             .stateIn(CoroutineScope(dispatcher), SharingStarted.Eagerly, null)
-
-    suspend fun setWireguardPort(port: Constraint<Port>) = managementService.setWireguardPort(port)
 
     suspend fun setMultihop(enabled: Boolean) = managementService.setMultihop(enabled)
 

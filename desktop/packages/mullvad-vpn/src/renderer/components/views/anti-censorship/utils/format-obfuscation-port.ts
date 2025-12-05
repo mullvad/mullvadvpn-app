@@ -1,6 +1,8 @@
-import { Constraint } from '../../../../../shared/daemon-rpc-types';
+import { Constraint, liftConstraint } from '../../../../../shared/daemon-rpc-types';
 import { messages } from '../../../../../shared/gettext';
 
 export function formatObfuscationPort(port: Constraint<number>): string {
-  return port === 'any' ? messages.gettext('Automatic') : `${port.only}`;
+  const portLiftedConstraint = liftConstraint(port);
+
+  return portLiftedConstraint === 'any' ? messages.gettext('Automatic') : `${portLiftedConstraint}`;
 }

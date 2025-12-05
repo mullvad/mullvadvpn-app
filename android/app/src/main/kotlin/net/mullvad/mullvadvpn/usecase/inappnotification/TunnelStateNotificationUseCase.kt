@@ -86,5 +86,5 @@ class TunnelStateNotificationUseCase(
         getOrNull()?.takeIf { !it.inAnyOf(availablePortRanges) }
 
     private fun Settings?.wireguardPort() =
-        this?.relaySettings?.relayConstraints?.wireguardConstraints?.port ?: Constraint.Any
+        this?.obfuscationSettings?.wireguardPort ?: Constraint.Any
 }

@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 import { sprintf } from 'sprintf-js';
 
-import { wrapConstraint } from '../../../../../../shared/daemon-rpc-types';
+import { liftConstraint, wrapConstraint } from '../../../../../../shared/daemon-rpc-types';
 import { messages } from '../../../../../../shared/gettext';
 import { removeNonNumericCharacters } from '../../../../../../shared/string-helpers';
 import { useAppContext } from '../../../../../context';
@@ -16,15 +16,12 @@ export function ShadowsocksPortSetting() {
   const descriptionId = React.useId();
 
   const selectedOption = React.useMemo(() => {
-    const port = obfuscationSettings.shadowsocksSettings.port;
-    if (port === 'any')
-      return {
-        port: 'any',
-        value: null,
-      };
+    const port = liftConstraint(obfuscationSettings.shadowsocksSettings.port);
+    const value = port !== 'any' ? 'custom' : null;
+
     return {
-      port: port.only,
-      value: 'custom',
+      port,
+      value,
     };
   }, [obfuscationSettings]);
 

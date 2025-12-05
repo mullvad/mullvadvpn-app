@@ -42,21 +42,13 @@ test.describe('WireGuard port settings', () => {
 
   const setPort = async (port: Constraint<number>) => {
     const defaultSettings = getDefaultSettings();
-    if (!('normal' in defaultSettings.relaySettings)) {
-      throw new Error('Normal relay settings not found in default settings');
-    }
-    const normalRelaySettings = defaultSettings.relaySettings.normal;
 
     await util.ipc.settings[''].notify({
       ...defaultSettings,
-      relaySettings: {
-        ...defaultSettings.relaySettings,
-        normal: {
-          ...normalRelaySettings,
-          wireguardConstraints: {
-            ...normalRelaySettings?.wireguardConstraints,
-            port,
-          },
+      obfuscationSettings: {
+        ...defaultSettings.obfuscationSettings,
+        wireGuardPortSettings: {
+          port,
         },
       },
     });
@@ -72,7 +64,7 @@ test.describe('WireGuard port settings', () => {
     await setPort({ only: 51820 });
 
     const option = routes.wireguardPort.selectors.automaticOption();
-    await Promise.all([util.ipc.settings.setRelaySettings.expect(), option.click()]);
+    await Promise.all([util.ipc.settings.setObfuscationSettings.expect(), option.click()]);
 
     await setPort('any');
     await expect(option).toHaveAttribute('aria-selected', 'true');
@@ -80,14 +72,14 @@ test.describe('WireGuard port settings', () => {
 
   test('Should select port 51820', async () => {
     const option = routes.wireguardPort.selectors.fiveOneEightTwoZeroOption();
-    await Promise.all([util.ipc.settings.setRelaySettings.expect(), option.click()]);
+    await Promise.all([util.ipc.settings.setObfuscationSettings.expect(), option.click()]);
     await setPort({ only: 51820 });
     await expect(option).toHaveAttribute('aria-selected', 'true');
   });
 
   test('Should select port 53', async () => {
     const option = routes.wireguardPort.selectors.fiveThreeOption();
-    await Promise.all([util.ipc.settings.setRelaySettings.expect(), option.click()]);
+    await Promise.all([util.ipc.settings.setObfuscationSettings.expect(), option.click()]);
     await setPort({ only: 53 });
     await expect(option).toHaveAttribute('aria-selected', 'true');
   });
@@ -106,7 +98,7 @@ test.describe('WireGuard port settings', () => {
 
     const input = routes.wireguardPort.selectors.customInput();
     await input.fill(VALID_PORT.toString());
-    await Promise.all([util.ipc.settings.setRelaySettings.expect(), input.press('Enter')]);
+    await Promise.all([util.ipc.settings.setObfuscationSettings.expect(), input.press('Enter')]);
 
     await setPort({ only: VALID_PORT });
     await expect(option).toHaveAttribute('aria-selected', 'true');
@@ -130,7 +122,7 @@ test.describe('WireGuard port settings', () => {
     const input = routes.wireguardPort.selectors.customInput();
     await input.fill(VALID_PORT.toString());
 
-    await Promise.all([util.ipc.settings.setRelaySettings.expect(), option.click()]);
+    await Promise.all([util.ipc.settings.setObfuscationSettings.expect(), option.click()]);
 
     await setPort({ only: VALID_PORT });
     await expect(option).toHaveAttribute('aria-selected', 'true');

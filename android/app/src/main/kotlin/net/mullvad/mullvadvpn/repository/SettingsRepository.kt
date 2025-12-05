@@ -81,4 +81,6 @@ class SettingsRepository(
     suspend fun setIpv6Enabled(enabled: Boolean) = managementService.setIpv6Enabled(enabled)
 
     suspend fun setRecentsEnabled(enabled: Boolean) = managementService.setRecentsEnabled(enabled)
+
+    suspend fun setWireguardPort(port: Constraint<Port>) = managementService.setWireguardPort(port)
 }

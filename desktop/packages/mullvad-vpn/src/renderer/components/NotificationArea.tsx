@@ -64,7 +64,7 @@ export default function NotificationArea(props: IProps) {
   const connection = useSelector((state: IReduxState) => state.connection);
   const version = useSelector((state: IReduxState) => state.version);
   const allowedPortRanges = useSelector((state) => state.settings.wireguardEndpointData.portRanges);
-  const relaySettings = useSelector((state) => state.settings.relaySettings);
+  const obfuscationSettings = useSelector((state) => state.settings.obfuscationSettings);
 
   const lockdownModeSetting = useSelector((state: IReduxState) => state.settings.lockdownMode);
   const hasExcludedApps = useSelector(
@@ -139,7 +139,7 @@ export default function NotificationArea(props: IProps) {
     }),
     new UnsupportedWireGuardPortNotificationProvider({
       connection,
-      relaySettings,
+      obfuscationSettings,
       allowedPortRanges,
     }),
     new ErrorNotificationProvider({

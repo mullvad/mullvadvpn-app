@@ -318,7 +318,7 @@ enum FeatureIndicator {
   MULTIHOP = 1;
   SPLIT_TUNNELING = 2;
   LOCKDOWN_MODE = 3;
-  PORT = 4;
+  WIREGUARD_PORT = 4;
   UDP_2_TCP = 5;
   SHADOWSOCKS = 6;
   QUIC = 7;
@@ -424,24 +424,24 @@ message GeographicLocationConstraint {
   optional string hostname = 3;
 }
 
-message Udp2TcpObfuscationSettings { optional uint32 port = 1; }
-
-message ShadowsocksSettings { optional uint32 port = 1; }
-
 // TODO: Rename to "CensorshipCircumventionSettings"?
 message ObfuscationSettings {
   enum SelectedObfuscation {
     AUTO = 0;
     OFF = 1;
-    PORT = 2;
+    WIREGUARD_PORT = 2;
     UDP2TCP = 3;
     SHADOWSOCKS = 4;
     QUIC = 5;
     LWO = 6;
   }
+  message Udp2TcpObfuscation { optional uint32 port = 1; }
+  message Shadowsocks { optional uint32 port = 1; }
+  message WireguardPort { optional uint32 port = 1; }
   SelectedObfuscation selected_obfuscation = 1;
-  Udp2TcpObfuscationSettings udp2tcp = 2;
-  ShadowsocksSettings shadowsocks = 3;
+  Udp2TcpObfuscation udp2tcp = 2;
+  Shadowsocks shadowsocks = 3;
+  WireguardPort wireguard_port = 4;
 }
 
 message CustomList {
@@ -587,7 +587,6 @@ enum IpVersion {
 }
 
 message WireguardConstraints {
-  optional uint32 port = 1; // value of SelectedObfuscation::PORT
   optional IpVersion ip_version = 2;
   repeated string allowed_ips = 3;
   bool use_multihop = 4;

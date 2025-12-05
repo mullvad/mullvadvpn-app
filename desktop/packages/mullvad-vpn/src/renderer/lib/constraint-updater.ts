@@ -21,7 +21,6 @@ export function wrapRelaySettingsOrDefault(
   relaySettings?: NormalRelaySettingsRedux,
 ): IRelaySettingsNormal {
   if (relaySettings) {
-    const wgPort = wrapConstraint(relaySettings.wireguard.port);
     const wgIpVersion = wrapConstraint(relaySettings.wireguard.ipVersion);
     const wgEntryLocation = wrapConstraint(relaySettings.wireguard.entryLocation);
     const location = wrapConstraint(relaySettings.location);
@@ -30,7 +29,6 @@ export function wrapRelaySettingsOrDefault(
       providers: [...relaySettings.providers],
       ownership: relaySettings.ownership,
       wireguardConstraints: {
-        port: wgPort,
         ipVersion: wgIpVersion,
         useMultihop: relaySettings.wireguard.useMultihop,
         entryLocation: wgEntryLocation,

@@ -170,7 +170,7 @@ export const useGetFeatureIndicator = () => {
       label: strings.lwo,
       onClick: gotoAntiCensorship,
     },
-    [FeatureIndicator.port]: {
+    [FeatureIndicator.wireGuardPort]: {
       label: sprintf(messages.gettext('%(wireguard)s port'), { wireguard: strings.wireguard }),
       onClick: gotoAntiCensorship,
     },

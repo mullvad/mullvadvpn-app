@@ -73,19 +73,19 @@ test.describe('Tunnel state and settings', () => {
     await expect(inIp).toHaveText(new RegExp(':[0-9]+'));
 
     await exec('mullvad obfuscation set mode port');
-    await exec('mullvad relay set port 53');
+    await exec('mullvad obfuscation set port --port 53');
     await expectConnected(page);
     await routes.main.expandConnectionPanel();
 
     await expect(inIp).toHaveText(new RegExp(':53'));
 
-    await exec('mullvad relay set port 51820');
+    await exec('mullvad obfuscation set port --port 51820');
     await expectConnected(page);
     await routes.main.expandConnectionPanel();
 
     await expect(inIp).toHaveText(new RegExp(':51820'));
 
-    await exec('mullvad relay set port any');
+    await exec('mullvad obfuscation set port --port any');
     await exec('mullvad obfuscation set mode auto');
   });
 
