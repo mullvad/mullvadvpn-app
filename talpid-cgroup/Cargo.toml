@@ -16,4 +16,3 @@ nix = { workspace = true, features = ["fs", "mount"] }
 libc = "0.2"
 log.workspace = true
 thiserror.workspace = true
-talpid-types.path = "../talpid-types"
