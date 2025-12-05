@@ -71,6 +71,8 @@ public enum AccessibilityIdentifier: Equatable {
     case acceptLocalNetworkSharingButton
     case selectLocationToolbarMenu
     case locationListItem(String)
+    case entryLocationButton
+    case exitLocationButton
 
     // Cells
     case deviceCell

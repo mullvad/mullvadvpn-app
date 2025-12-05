@@ -19,6 +19,8 @@ struct LocationDisclosureGroup<Label: View, Content: View, ContextMenu: View>: V
         isLastInList && !isExpanded ? 16 : 0
     }
 
+    private let expandAnimation: Animation = .default.speed(3)
+
     init(
         level: Int,
         isLastInList: Bool,
@@ -92,7 +94,16 @@ struct LocationDisclosureGroup<Label: View, Content: View, ContextMenu: View>: V
             contextMenu()
         }
         .padding(.top, level == 0 ? 4 : 1)
-
+        // Hacky solution to disable animations of LazyVStack view recycling.
+        // (Few list items animating over the screen during recycling.)
+        // This removes the animation property when it's not the user initiated expanding/collapsing of the cells.
+        .transaction { t in
+            if let animation = t.animation {
+                if animation != expandAnimation {
+                    t.animation = nil
+                }
+            }
+        }
         if isExpanded {
             content()
         }

@@ -17,4 +17,10 @@ struct LocationContext {
         self.filter = filter
         self.selectLocation = selectLocation
     }
+
+    var selectedLocation: LocationNode? {
+        (locations + customLists)
+            .flatMap { [$0] + $0.flattened }
+            .first { $0.isSelected }
+    }
 }

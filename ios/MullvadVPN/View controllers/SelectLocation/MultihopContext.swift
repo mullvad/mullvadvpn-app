@@ -11,4 +11,13 @@ enum MultihopContext: CaseIterable, CustomStringConvertible, Hashable {
             NSLocalizedString("Exit", comment: "")
         }
     }
+
+    var accessibilityIdentifier: AccessibilityIdentifier {
+        switch self {
+        case .entry:
+            .entryLocationButton
+        case .exit:
+            .exitLocationButton
+        }
+    }
 }

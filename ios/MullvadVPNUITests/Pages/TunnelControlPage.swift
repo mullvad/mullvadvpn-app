@@ -186,6 +186,11 @@ class TunnelControlPage: Page {
         return self
     }
 
+    @discardableResult func verifyConnectedRelays(entry: String, exit: String) -> Self {
+        XCTAssertTrue(app.staticTexts["\(exit) via \(entry)"].exists)
+        return self
+    }
+
     @discardableResult func verifyConnectingToPort(_ port: String) -> Self {
         let connectionAttempts = waitForConnectionAttempts(1, timeout: 10)
         XCTAssertEqual(connectionAttempts.count, 1)

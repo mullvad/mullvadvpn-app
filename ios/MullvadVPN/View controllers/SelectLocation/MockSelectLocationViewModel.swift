@@ -8,7 +8,7 @@ class MockSelectLocationViewModel: SelectLocationViewModel {
     var entryContext: LocationContext
     var exitContext: LocationContext
 
-    @Published var multihopContext: MultihopContext = .entry
+    @Published var multihopContext: MultihopContext = .exit
 
     init() {
         entryContext = LocationContext()
@@ -24,7 +24,7 @@ class MockSelectLocationViewModel: SelectLocationViewModel {
                                 LocationNode(name: sth1, code: sth1),
                                 LocationNode(name: sth2, code: sth2),
                                 LocationNode(name: sth3, code: sth3),
-                            ]
+                            ], showsChildren: true
                         ),
                         LocationNode(
                             name: "Gothenburg", code: "got",
@@ -32,7 +32,7 @@ class MockSelectLocationViewModel: SelectLocationViewModel {
                                 LocationNode(name: got1, code: got1),
                                 LocationNode(name: got2, code: got2),
                                 LocationNode(name: got3, code: got3),
-                            ]),
+                            ], showsChildren: true),
                     ], showsChildren: true),
                 LocationNode(
                     name: "Germany", code: "de",
@@ -43,15 +43,15 @@ class MockSelectLocationViewModel: SelectLocationViewModel {
                                 LocationNode(name: ber1, code: ber1),
                                 LocationNode(name: ber2, code: ber2),
                                 LocationNode(name: ber3, code: ber3),
-                            ]),
+                            ], showsChildren: true),
                         LocationNode(
                             name: "Frankfurt", code: "fra",
                             children: [
                                 LocationNode(name: fra1, code: fra1),
                                 LocationNode(name: fra2, code: fra2),
                                 LocationNode(name: fra3, code: fra3),
-                            ]),
-                    ]),
+                            ], showsChildren: true),
+                    ], showsChildren: true),
                 LocationNode(
                     name: "France", code: "fr",
                     children: [
@@ -61,15 +61,15 @@ class MockSelectLocationViewModel: SelectLocationViewModel {
                                 LocationNode(name: par1, code: par1),
                                 LocationNode(name: par2, code: par2),
                                 LocationNode(name: par3, code: par3),
-                            ]),
+                            ], showsChildren: true),
                         LocationNode(
                             name: "Lyon", code: "lyo",
                             children: [
                                 LocationNode(name: lyo1, code: lyo1),
                                 LocationNode(name: lyo2, code: lyo2),
                                 LocationNode(name: lyo3, code: lyo3),
-                            ]),
-                    ]),
+                            ], showsChildren: true),
+                    ], showsChildren: true),
             ],
             customLists: [
                 LocationNode(

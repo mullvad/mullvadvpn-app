@@ -18,4 +18,9 @@ extension Image {
     static let mullvadIconEdit = Image("IconEdit")
     static let mullvadIconTick = Image("IconTick")
     static let mullvadRedDot = Image("RedDot")
+    static let mullvadIconInternet = Image("IconInternet")
+    static let mullvadServer = Image("IconServer")
+    static let mullvadSmartphone = Image("IconSmartphone")
+    static let mullvadLocation = Image("IconLocation")
+    static let mullvadIconError = Image("IconError")
 }
