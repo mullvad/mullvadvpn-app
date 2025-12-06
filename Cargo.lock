@@ -5641,9 +5641,11 @@ dependencies = [
  "dbus",
  "libc",
  "log",
+ "serde",
  "thiserror 2.0.9",
  "tokio",
  "zbus",
+ "zvariant",
 ]
 
 [[package]]

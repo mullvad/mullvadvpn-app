@@ -10,9 +10,11 @@ rust-version.workspace = true
 workspace = true
 
 [target.'cfg(target_os = "linux")'.dependencies]
-dbus = "0.9"
-zbus = "5.12"
-thiserror = { workspace = true }
+dbus = "0.9" # TODO: Remove
+libc = "0.2" # TODO: Remove
 log = { workspace = true }
-libc = "0.2"
+serde = { workspace = true }
+thiserror = { workspace = true }
 tokio = { workspace = true, features = ["rt"] }
+zbus = "5.12"
+zvariant = "5.8.0"
