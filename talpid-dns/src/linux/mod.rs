@@ -109,7 +109,7 @@ impl DnsMonitorHolder {
             Some("network-manager") => DnsMonitorHolder::NetworkManager(NetworkManager::new()?),
             Some(_) | None => Self::with_detected_dns_manager()?,
         };
-        log::debug!("Managing DNS via {}", manager);
+        log::info!("Managing DNS via {}", manager);
         Ok(manager)
     }
 

@@ -1,26 +1,22 @@
-use dbus::{
-    arg::{self, RefArg},
-    blocking::{
-        Proxy, SyncConnection,
-        stdintf::org_freedesktop_dbus::{Properties, PropertiesPropertiesChanged},
-    },
-    message::{MatchRule, SignalArgs},
-};
-use libc::{AF_INET, AF_INET6};
-use std::{
-    fs, io,
-    net::IpAddr,
-    path::Path,
-    sync::{Arc, LazyLock},
-    time::Duration,
-};
+use std::fs;
+use std::io;
+use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
+use std::path::Path;
+use std::sync::LazyLock;
 
-pub type Result<T> = std::result::Result<T, Error>;
+use libc::AF_INET;
+use libc::AF_INET6;
+use serde::{Deserialize, Serialize};
+use zbus::blocking::{Connection, Proxy};
+use zbus::zvariant::ObjectPath;
+use zvariant::OwnedObjectPath;
+
+// TODO: newtype `interface_index`
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
     #[error("Failed to initialize a connection to D-Bus")]
-    ConnectDBus(#[source] dbus::Error),
+    ConnectDBus(#[source] zbus::Error),
 
     #[error("Failed to read /etc/resolv.conf: {0}")]
     ReadResolvConfError(#[source] io::Error),
@@ -34,29 +30,27 @@ pub enum Error {
     #[error("Static stub file does not point to localhost")]
     StaticStubNotPointingToLocalhost,
 
-    #[error("Systemd resolved not detected")]
-    NoSystemdResolved(#[source] dbus::Error),
+    #[error("systemd-resolved not detected")]
+    NoSystemdResolved(#[source] zbus::Error),
 
     #[error("Failed to find link interface in resolved manager")]
-    GetLinkError(#[source] Box<Error>),
+    GetLinkError(#[source] zbus::Error),
 
     #[error("Failed to configure DNS domains")]
-    SetDomainsError(#[source] dbus::Error),
+    SetDomainsError(#[source] zbus::Error),
+
+    // A Proxy is a helper to interact with an interface on a remote object.
+    #[error("Failed to create proxy for object {0}")]
+    Proxy(#[source] zbus::Error),
 
     #[error("Failed to revert DNS settings of interface: {0}")]
-    RevertDnsError(String, #[source] dbus::Error),
+    RevertDnsError(String, #[source] zbus::Error),
 
     #[error("Failed to replace DNS settings")]
     ReplaceDnsError,
 
     #[error("Failed to perform RPC call on D-Bus")]
-    DBusRpcError(#[source] dbus::Error),
-
-    #[error("Failed to add a match to listen for DNS config updates")]
-    DnsUpdateMatchError(#[source] dbus::Error),
-
-    #[error("Failed to remove a match for DNS config updates")]
-    DnsUpdateRemoveMatchError(#[source] dbus::Error),
+    DBusRpcError(#[source] zbus::Error),
 
     #[error("Async D-Bus task failed")]
     AsyncTaskError(#[source] tokio::task::JoinError),
@@ -71,44 +65,24 @@ static RESOLVED_STUB_PATHS: LazyLock<Vec<&'static Path>> = LazyLock::new(|| {
     ]
 });
 
+// TODO: Link to relevant documentation for all of these constants.
 const RESOLV_CONF_PATH: &str = "/etc/resolv.conf";
-const STATIC_STUB_PATH: &str = "/usr/lib/systemd/resolv.conf";
-
 const RESOLVED_BUS: &str = "org.freedesktop.resolve1";
-const RESOLVED_MANAGER_PATH: &str = "/org/freedesktop/resolve1";
-
-const RPC_TIMEOUT: Duration = Duration::from_secs(1);
-
-const LINK_INTERFACE: &str = "org.freedesktop.resolve1.Link";
-const MANAGER_INTERFACE: &str = "org.freedesktop.resolve1.Manager";
-const DNS_DOMAINS: &str = "Domains";
-const DNS_SERVERS: &str = "DNS";
-const GET_LINK_METHOD: &str = "GetLink";
-const SET_DNS_METHOD: &str = "SetDNS";
-const SET_DNS_OVER_TLS_METHOD: &str = "SetDNSOverTLS";
-const SET_DOMAINS_METHOD: &str = "SetDomains";
-const REVERT_METHOD: &str = "Revert";
 
 #[derive(Clone)]
 pub struct SystemdResolved {
-    pub dbus_connection: Arc<SyncConnection>,
+    pub dbus_connection: Connection,
 }
 
 #[derive(Clone)]
-pub struct DnsState {
-    pub interface_path: dbus::Path<'static>,
-    pub interface_index: u32,
-    pub set_servers: Vec<IpAddr>,
-}
-
-#[derive(Clone)]
+// TODO: Make proper async
 pub struct AsyncHandle {
     dbus_interface: SystemdResolved,
 }
 
 impl SystemdResolved {
-    pub fn new() -> Result<Self> {
-        let dbus_connection = crate::get_connection().map_err(Error::ConnectDBus)?;
+    pub fn new() -> Result<Self, Error> {
+        let dbus_connection = crate::get_connection_zbus().map_err(Error::ConnectDBus)?;
 
         let systemd_resolved = SystemdResolved { dbus_connection };
 
@@ -117,27 +91,15 @@ impl SystemdResolved {
         Ok(systemd_resolved)
     }
 
-    pub fn new_connection() -> Result<Self> {
-        let dbus_connection = SyncConnection::new_system().map_err(Error::ConnectDBus)?;
-        let systemd_resolved = SystemdResolved {
-            dbus_connection: Arc::new(dbus_connection),
-        };
-
-        systemd_resolved.ensure_resolved_exists()?;
-        Self::ensure_resolv_conf_is_resolved_symlink()?;
-        Ok(systemd_resolved)
+    /// Try to look up the DNS property from SystemdResolved.
+    /// If it is set, this function returns Ok(()).
+    pub fn ensure_resolved_exists(&self) -> Result<Vec<DnsServer>, Error> {
+        self.as_manager_object()?
+            .get_property("DNS")
+            .map_err(Error::NoSystemdResolved)
     }
 
-    pub fn ensure_resolved_exists(&self) -> Result<()> {
-        let _: Box<dyn RefArg> = self
-            .as_manager_object()
-            .get(MANAGER_INTERFACE, "DNS")
-            .map_err(Error::NoSystemdResolved)?;
-
-        Ok(())
-    }
-
-    pub fn ensure_resolv_conf_is_resolved_symlink() -> Result<()> {
+    pub fn ensure_resolv_conf_is_resolved_symlink() -> Result<(), Error> {
         match fs::read_link(RESOLV_CONF_PATH) {
             Ok(link_target) => {
                 // if /etc/resolv.conf is not symlinked to the stub resolve.conf file , managing DNS
@@ -165,7 +127,7 @@ impl SystemdResolved {
         }
     }
 
-    fn ensure_resolvconf_contents() -> Result<()> {
+    fn ensure_resolvconf_contents() -> Result<(), Error> {
         let resolv_conf =
             fs::read_to_string(RESOLV_CONF_PATH).map_err(Error::ReadResolvConfError)?;
         if RESOLVED_STUB_PATHS
@@ -201,7 +163,8 @@ impl SystemdResolved {
     /// Checks if path is pointing to the systemd-resolved _static_ resolv.conf file. If it's not,
     /// it returns false, otherwise it checks whether the static stub file points to the local
     /// resolver. If not, the file has been _meddled_ with, so we can't trust it.
-    fn resolv_conf_is_static_stub(link_path: &Path) -> Result<bool> {
+    fn resolv_conf_is_static_stub(link_path: &Path) -> Result<bool, Error> {
+        const STATIC_STUB_PATH: &str = "/usr/lib/systemd/resolv.conf";
         if link_path == AsRef::<Path>::as_ref(STATIC_STUB_PATH) {
             let points_to_localhost = fs::read_to_string(link_path)
                 .map(|contents| {
@@ -222,31 +185,33 @@ impl SystemdResolved {
         }
     }
 
-    fn as_manager_object(&self) -> Proxy<'_, &SyncConnection> {
+    /// TODO: Document mee
+    fn as_manager_object(&self) -> Result<Proxy<'_>, Error> {
+        const RESOLVED_MANAGER_PATH: &str = "/org/freedesktop/resolve1";
+        const MANAGER_INTERFACE: &str = "org.freedesktop.resolve1.Manager";
         Proxy::new(
-            RESOLVED_BUS,
-            "/org/freedesktop/resolve1",
-            RPC_TIMEOUT,
             &self.dbus_connection,
+            RESOLVED_BUS,
+            RESOLVED_MANAGER_PATH,
+            MANAGER_INTERFACE, // TODO: Inline
         )
+        .map_err(Error::Proxy)
     }
 
-    fn as_link_object<'a>(
-        &'a self,
-        link_object_path: dbus::Path<'a>,
-    ) -> Proxy<'a, &'a SyncConnection> {
+    /// TODO: Document mee
+    fn as_link_object<'a>(&self, link_object_path: &ObjectPath<'a>) -> Result<Proxy<'a>, Error> {
+        const LINK_INTERFACE: &str = "org.freedesktop.resolve1.Link";
         Proxy::new(
+            &self.dbus_connection,
             RESOLVED_BUS,
             link_object_path,
-            RPC_TIMEOUT,
-            &self.dbus_connection,
+            LINK_INTERFACE,
         )
+        .map_err(Error::Proxy)
     }
 
-    pub fn get_dns(&self, interface_index: u32) -> Result<DnsState> {
-        let link_object_path = self
-            .fetch_link(interface_index)
-            .map_err(|e| Error::GetLinkError(Box::new(e)))?;
+    pub fn get_dns(&self, interface_index: i32) -> Result<DnsState, Error> {
+        let link_object_path = self.fetch_link(interface_index)?;
         let set_servers = self.get_link_dns(&link_object_path)?;
 
         Ok(DnsState {
@@ -256,209 +221,107 @@ impl SystemdResolved {
         })
     }
 
-    pub fn set_dns_state(&self, state: DnsState) -> Result<()> {
+    pub fn set_dns_state(&self, state: DnsState) -> Result<(), Error> {
         self.set_link_dns(&state.interface_path, &state.set_servers)
     }
 
-    pub fn set_dns(&self, interface_index: u32, servers: Vec<IpAddr>) -> Result<DnsState> {
-        let link_object_path = self
-            .fetch_link(interface_index)
-            .map_err(|e| Error::GetLinkError(Box::new(e)))?;
+    pub fn set_dns(&self, interface_index: i32, servers: Vec<IpAddr>) -> Result<DnsState, Error> {
+        let servers: Vec<_> = servers.into_iter().map(LinkIpAddr::from).collect();
+        let link_object_path = self.fetch_link(interface_index)?;
         self.set_link_dns(&link_object_path, &servers)?;
-        Ok(DnsState {
+        // TODO: can this be automatically derived somehow? I.e. return it from `set_link_dns`?
+        let dns_state = DnsState {
             interface_path: link_object_path,
             interface_index,
             set_servers: servers,
-        })
+        };
+        Ok(dns_state)
     }
 
-    pub fn get_domains(&self, interface_index: u32) -> Result<Vec<(String, bool)>> {
-        let link_object_path = self
-            .fetch_link(interface_index)
-            .map_err(|e| Error::GetLinkError(Box::new(e)))?;
+    pub fn get_domains(&self, interface_index: i32) -> Result<Vec<(String, bool)>, Error> {
+        let link_object_path = self.fetch_link(interface_index)?;
         self.get_link_dns_domains(&link_object_path)
     }
 
-    pub fn set_domains(&self, interface_index: u32, domains: &[(&str, bool)]) -> Result<()> {
-        let link_object_path = self
-            .fetch_link(interface_index)
-            .map_err(|e| Error::GetLinkError(Box::new(e)))?;
+    pub fn set_domains(&self, interface_index: i32, domains: &[(&str, bool)]) -> Result<(), Error> {
+        let link_object_path = self.fetch_link(interface_index)?;
         self.set_link_dns_domains(&link_object_path, domains)
     }
 
-    fn fetch_link(&self, interface_index: u32) -> Result<dbus::Path<'static>> {
-        self.as_manager_object()
-            .method_call(
-                MANAGER_INTERFACE,
-                GET_LINK_METHOD,
-                (interface_index as i32,),
-            )
-            .map_err(Error::DBusRpcError)
-            .map(|result: (dbus::Path<'static>,)| result.0)
+    /// Returns the object path to the `org.freedesktop.resolve1.Link` object corresponding to the
+    /// network interface index.
+    fn fetch_link(&self, interface_index: i32) -> Result<OwnedObjectPath, Error> {
+        // grep `GetLink`:
+        // https://manpages.debian.org/bullseye/systemd/org.freedesktop.resolve1.5.en.html
+        self.as_manager_object()?
+            .call("GetLink", &interface_index)
+            .map_err(Error::GetLinkError)
     }
 
-    fn get_link_dns(&self, link_object_path: &dbus::Path<'static>) -> Result<Vec<IpAddr>> {
-        let servers: Vec<(i32, Vec<u8>)> = self
-            .as_link_object(link_object_path.clone())
-            .get(LINK_INTERFACE, DNS_SERVERS)
-            .map_err(Error::DBusRpcError)?;
-
-        Ok(servers
-            .into_iter()
-            .filter_map(|(_family, addr)| ip_from_bytes(&addr))
-            .collect())
+    fn get_link_dns(&self, link_object_path: &ObjectPath<'_>) -> Result<Vec<LinkIpAddr>, Error> {
+        self.as_link_object(link_object_path)?
+            .get_property("DNS")
+            .map_err(Error::DBusRpcError)
     }
 
     fn set_link_dns(
         &self,
-        link_object_path: &dbus::Path<'static>,
-        servers: &[IpAddr],
-    ) -> Result<()> {
-        let servers = servers
-            .iter()
-            .map(|addr| (ip_version(addr), ip_to_bytes(addr)))
-            .collect::<Vec<_>>();
-        let link_object = self.as_link_object(link_object_path.clone());
-        let mut attempt = 0;
-        loop {
-            // Workaround for bug where old resolvers are not properly
-            // replaced in systemd-resolved.
-            // v248.3
-            link_object
-                .method_call::<(), _, _, _>(
-                    LINK_INTERFACE,
-                    SET_DNS_METHOD,
-                    (Vec::<(i32, Vec<u8>)>::new(),),
-                )
-                .map_err(Error::DBusRpcError)?;
-            let new_servers: Vec<(i32, Vec<u8>)> = link_object
-                .get(LINK_INTERFACE, DNS_SERVERS)
-                .map_err(Error::DBusRpcError)?;
-            if new_servers.is_empty() {
-                break;
-            }
-            if attempt == 10 {
-                return Err(Error::ReplaceDnsError);
-            }
-            attempt += 1;
-        }
-        link_object
-            .method_call(LINK_INTERFACE, SET_DNS_METHOD, (servers,))
+        link_object_path: &ObjectPath<'_>,
+        servers: &[LinkIpAddr],
+    ) -> Result<(), Error> {
+        // TODO: Check if workaround on main is relevant anymore.
+        self.as_link_object(link_object_path)?
+            .call("SetDNS", &servers)
             .map_err(Error::DBusRpcError)
     }
 
-    fn link_disable_dns_over_tls(&self, interface_index: u32) -> Result<()> {
-        let link_object_path = self
-            .fetch_link(interface_index)
-            .map_err(|e| Error::GetLinkError(Box::new(e)))?;
-
-        let link_object = self.as_link_object(link_object_path.clone());
-
-        link_object.method_call(LINK_INTERFACE, SET_DNS_OVER_TLS_METHOD, ("no",))
-            .or_else(|error| {
-            if error.name() == Some("org.freedesktop.DBus.Error.UnknownMethod") {
-                log::debug!(
-                    "Didn't disable DNSOverTLS because systemd-resolved doesn't have 'SetDnsOverTLS' method. {}",
-                    error);
-                Ok(())
-            } else {
-                Err(error)
-            }
-        }).map_err(Error::DBusRpcError)
+    fn link_disable_dns_over_tls(&self, interface_index: i32) -> Result<(), Error> {
+        // TODO: Can these two calls be consolidated?
+        // Yes, most likely. Proxy exposes a `path` function, which would encapsulate
+        // link_object_path.
+        let link_object_path = self.fetch_link(interface_index)?;
+        self.as_link_object(&link_object_path)?
+            // TODO: Handle "org.freedesktop.DBus.Error.UnknownMethod" gracefully.
+            .call("SetDNSOverTLS", &"no")
+            .map_err(Error::DBusRpcError)
     }
 
     fn get_link_dns_domains(
         &self,
-        link_object_path: &dbus::Path<'static>,
-    ) -> Result<Vec<(String, bool)>> {
+        link_object_path: &ObjectPath<'_>,
+    ) -> Result<Vec<(String, bool)>, Error> {
         let domains: Vec<(String, bool)> = self
-            .as_link_object(link_object_path.clone())
-            .get(LINK_INTERFACE, DNS_DOMAINS)
+            .as_link_object(link_object_path)?
+            .get_property("Domains")
             .map_err(Error::DBusRpcError)?;
         Ok(domains)
     }
 
-    pub fn revert_link(&mut self, dns_state: &DnsState) -> std::result::Result<(), dbus::Error> {
-        let link = self.as_link_object(dns_state.interface_path.clone());
-
-        if let Err(error) = link.method_call::<(), _, _, _>(LINK_INTERFACE, REVERT_METHOD, ()) {
-            if error.name() == Some("org.freedesktop.DBus.Error.UnknownObject") {
-                log::trace!(
-                    "Not resetting DNS of interface {} because it no longer exists",
-                    dns_state.interface_index
-                );
-                Ok(())
-            } else {
-                Err(error)
-            }
-        } else {
-            Ok(())
+    pub fn revert_link(&mut self, dns_state: &DnsState) -> std::result::Result<(), Error> {
+        const REVERT_METHOD: &str = "Revert";
+        match self
+            .as_link_object(&dns_state.interface_path)?
+            .call(REVERT_METHOD, &())
+        {
+            Ok(()) => Ok(()),
+            Err(zbus::Error::FDO(fdo)) => match *fdo {
+                zbus::fdo::Error::UnknownObject(_) => todo!(),
+                _ => todo!(),
+            },
+            Err(err) => Err(Error::DBusRpcError(err)),
         }
     }
 
+    /// TODO: Document mee
     fn set_link_dns_domains(
         &self,
-        link_object_path: &dbus::Path<'static>,
+        link_object_path: &ObjectPath<'_>,
         domains: &[(&str, bool)],
-    ) -> Result<()> {
-        Proxy::new(
-            RESOLVED_BUS,
-            link_object_path,
-            RPC_TIMEOUT,
-            &*self.dbus_connection,
-        )
-        .method_call(LINK_INTERFACE, SET_DOMAINS_METHOD, (domains,))
-        .map_err(Error::SetDomainsError)
-    }
-
-    pub fn watch_dns_changes<
-        F: FnMut(Vec<DnsServer>) + Send + Sync + 'static,
-        S: Fn() -> bool + Clone + Send + Sync + 'static,
-    >(
-        &mut self,
-        mut callback: F,
-        should_continue: S,
-    ) -> Result<()> {
-        let mut match_rule =
-            MatchRule::new_signal(PropertiesPropertiesChanged::INTERFACE, DNS_SERVERS);
-        match_rule.member = None;
-        match_rule.path = Some(RESOLVED_MANAGER_PATH.into());
-        let should_continue_outer = should_continue.clone();
-        let dns_matcher = self
-            .dbus_connection
-            .add_match(
-                match_rule,
-                move |mut prop_changed: PropertiesPropertiesChanged, _connection, _message| {
-                    if let Some(dns_change) = prop_changed
-                        .changed_properties
-                        .get_mut(DNS_SERVERS)
-                        .and_then(|dns_change| {
-                            dns_change.as_iter().and_then(|mut iter| iter.next())
-                        })
-                    {
-                        match DnsServer::server_list_from_refarg(dns_change) {
-                            Some(new_server_list) => {
-                                callback(new_server_list);
-                            }
-                            None => {
-                                log::error!("Failed to deserialize message {:?}", dns_change);
-                            }
-                        }
-                    };
-                    should_continue()
-                },
-            )
-            .map_err(Error::DnsUpdateMatchError)?;
-
-        while should_continue_outer() {
-            if let Err(err) = self.dbus_connection.process(RPC_TIMEOUT) {
-                log::error!("Failed to process DBus messages: {}", err);
-            }
-        }
-
-        self.dbus_connection
-            .remove_match(dns_matcher)
-            .map_err(Error::DnsUpdateRemoveMatchError)
+    ) -> Result<(), Error> {
+        const SET_DOMAINS_METHOD: &str = "SetDomains";
+        self.as_link_object(link_object_path)?
+            .call(SET_DOMAINS_METHOD, &domains)
+            .map_err(Error::SetDomainsError)
     }
 
     pub fn async_handle(&self) -> AsyncHandle {
@@ -466,92 +329,39 @@ impl SystemdResolved {
     }
 }
 
-#[derive(Debug)]
-pub struct DnsServer {
-    pub iface_index: i32,
-    pub address_family: i32,
-    pub address: IpAddr,
-}
-
-impl DnsServer {
-    fn from_refarg(refarg: &dyn RefArg) -> Option<Self> {
-        let mut iter = refarg.as_iter()?;
-        let iface_index = *arg::cast(&*iter.next()?.box_clone())?;
-        let address_family = *arg::cast(&*iter.next()?.box_clone())?;
-
-        let ip_bytes = iter.next()?.box_clone();
-        let ip_bytes: &Vec<u8> = arg::cast(&ip_bytes)?;
-        let address = ip_from_bytes(ip_bytes)?;
-        Some(Self {
-            iface_index,
-            address_family,
-            address,
-        })
-    }
-
-    fn server_list_from_refarg(refarg: &dyn RefArg) -> Option<Vec<Self>> {
-        let iter = refarg.as_iter()?;
-        Some(iter.filter_map(DnsServer::from_refarg).collect())
-    }
-}
-
-fn ip_version(address: &IpAddr) -> i32 {
-    match address {
-        IpAddr::V4(_) => AF_INET,
-        IpAddr::V6(_) => AF_INET6,
-    }
-}
-
-fn ip_to_bytes(address: &IpAddr) -> Vec<u8> {
-    match address {
-        IpAddr::V4(v4_address) => v4_address.octets().to_vec(),
-        IpAddr::V6(v6_address) => v6_address.octets().to_vec(),
-    }
-}
-
-fn ip_from_bytes(bytes: &[u8]) -> Option<IpAddr> {
-    match bytes.len() {
-        4 => {
-            let mut ipv4_bytes = [0u8; 4];
-            ipv4_bytes.copy_from_slice(bytes);
-            Some(IpAddr::from(ipv4_bytes))
-        }
-        16 => {
-            let mut ipv6_bytes = [0u8; 16];
-            ipv6_bytes.copy_from_slice(bytes);
-            Some(IpAddr::from(ipv6_bytes))
-        }
-        _ => None,
-    }
-}
-
+// TODO: nuke when the whole module is converted to async-first.
 impl AsyncHandle {
     fn new(dbus_interface: SystemdResolved) -> Self {
         Self { dbus_interface }
     }
 
-    pub async fn get_dns(&self, interface_index: u32) -> Result<DnsState> {
+    pub async fn get_dns(&self, interface_index: i32) -> Result<DnsState, Error> {
         let interface = self.dbus_interface.clone();
         tokio::task::spawn_blocking(move || interface.get_dns(interface_index))
             .await
             .map_err(Error::AsyncTaskError)?
     }
 
-    pub async fn set_dns_state(&self, state: DnsState) -> Result<()> {
+    pub async fn set_dns_state(&self, state: DnsState) -> Result<(), Error> {
         let interface = self.dbus_interface.clone();
         tokio::task::spawn_blocking(move || interface.set_dns_state(state))
             .await
             .map_err(Error::AsyncTaskError)?
     }
 
-    pub async fn set_dns(&self, interface_index: u32, servers: Vec<IpAddr>) -> Result<DnsState> {
+    pub async fn set_dns(
+        &self,
+        interface_index: i32,
+        servers: Vec<IpAddr>,
+    ) -> Result<DnsState, Error> {
+        log::info!("Updating DNS: {servers:#?}");
         let interface = self.dbus_interface.clone();
         tokio::task::spawn_blocking(move || interface.set_dns(interface_index, servers))
             .await
             .map_err(Error::AsyncTaskError)?
     }
 
-    pub async fn disable_dot(&self, interface_index: u32) -> Result<()> {
+    pub async fn disable_dot(&self, interface_index: i32) -> Result<(), Error> {
         let interface = self.dbus_interface.clone();
         tokio::task::spawn_blocking(move || interface.link_disable_dns_over_tls(interface_index))
             .await
@@ -560,9 +370,9 @@ impl AsyncHandle {
 
     pub async fn set_domains(
         &self,
-        interface_index: u32,
+        interface_index: i32,
         domains: &[(&'static str, bool)],
-    ) -> Result<()> {
+    ) -> Result<(), Error> {
         let interface = self.dbus_interface.clone();
         let domains = domains.to_vec();
         tokio::task::spawn_blocking(move || interface.set_domains(interface_index, &domains))
@@ -570,15 +380,81 @@ impl AsyncHandle {
             .map_err(Error::AsyncTaskError)?
     }
 
-    pub async fn revert_link(&self, state: DnsState) -> Result<()> {
+    pub async fn revert_link(&self, state: DnsState) -> Result<(), Error> {
         let mut interface = self.dbus_interface.clone();
         tokio::task::spawn_blocking(move || interface.revert_link(&state))
             .await
             .map_err(Error::AsyncTaskError)?
-            .map_err(Error::DBusRpcError)
     }
 
     pub fn handle(&self) -> &SystemdResolved {
         &self.dbus_interface
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, zvariant::Type)]
+pub struct DnsState {
+    pub interface_path: OwnedObjectPath,
+    pub interface_index: i32,
+    pub set_servers: Vec<LinkIpAddr>,
+}
+
+/// The IP address representation that systemd-resolved communicates back and forth over DBUS.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, zvariant::Type, zvariant::Value)]
+pub struct LinkIpAddr((i32, Vec<u8>));
+
+impl From<IpAddr> for LinkIpAddr {
+    fn from(address: IpAddr) -> LinkIpAddr {
+        match address {
+            IpAddr::V4(address) => {
+                let octects = address.octets();
+                LinkIpAddr((AF_INET, octects.to_vec()))
+            }
+            IpAddr::V6(address) => {
+                let octects = address.octets();
+                LinkIpAddr((AF_INET6, octects.to_vec()))
+            }
+        }
+    }
+}
+
+/// https://manpages.debian.org/bullseye/systemd/org.freedesktop.resolve1.5.en.html:
+///
+/// DNS contain arrays of all DNS servers currently used by systemd-resolved. DNS contains information similar
+/// to the DNS server data in /run/systemd/resolve/resolv.conf.
+///
+/// Each structure in the array consists of
+/// - a numeric network interface index
+/// - an address family
+/// - a byte array containing the DNS server address (either 4 bytes in length for IPv4 or 16 bytes in lengths for IPv6)
+#[derive(Debug, zvariant::Type, zvariant::OwnedValue, zvariant::Value)]
+pub struct DnsServer {
+    pub iface_index: i32,
+    pub address_family: i32, // TODO: c_int
+    pub address: DnsAddress,
+}
+
+#[derive(Debug, zvariant::Type, zvariant::Value)]
+pub struct DnsAddress(Vec<u8>);
+
+impl TryFrom<DnsAddress> for IpAddr {
+    type Error = zvariant::Error;
+    fn try_from(value: DnsAddress) -> Result<Self, Self::Error> {
+        let bytes = value.0;
+        // chop of the leading i32. systemd-resolved be like that.
+        let Some((_, octets)) = bytes.as_slice().split_first_chunk::<4>() else {
+            return Err(zvariant::Error::IncorrectType);
+        };
+        match octets.len() {
+            4 => {
+                let octets = octets.first_chunk::<4>().unwrap();
+                Ok(IpAddr::V4(Ipv4Addr::from(*octets)))
+            }
+            16 => {
+                let octets = octets.first_chunk::<16>().unwrap();
+                Ok(IpAddr::V6(Ipv6Addr::from(*octets)))
+            }
+            _ => Err(zvariant::Error::OutOfBounds),
+        }
     }
 }

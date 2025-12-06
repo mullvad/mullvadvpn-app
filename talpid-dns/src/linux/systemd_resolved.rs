@@ -44,13 +44,17 @@ impl SystemdResolved {
         let tunnel_index = iface_index(interface_name)?;
         self.tunnel_index = tunnel_index;
 
-        if let Err(error) = self.dbus_interface.disable_dot(self.tunnel_index).await {
+        if let Err(error) = self
+            .dbus_interface
+            .disable_dot(self.tunnel_index as i32)
+            .await
+        {
             log::error!("Failed to disable DoT: {}", error.display_chain());
         }
 
         if let Err(error) = self
             .dbus_interface
-            .set_domains(tunnel_index, &[(".", true)])
+            .set_domains(tunnel_index as i32, &[(".", true)])
             .await
         {
             log::error!("Failed to set search domains: {}", error.display_chain());
@@ -58,7 +62,7 @@ impl SystemdResolved {
 
         let _ = self
             .dbus_interface
-            .set_dns(self.tunnel_index, servers.to_vec())
+            .set_dns(self.tunnel_index as i32, servers.to_vec())
             .await?;
 
         Ok(())
@@ -67,7 +71,7 @@ impl SystemdResolved {
     pub async fn reset(&mut self) -> Result<()> {
         if let Err(error) = self
             .dbus_interface
-            .set_domains(self.tunnel_index, &[])
+            .set_domains(self.tunnel_index as i32, &[])
             .await
         {
             log::error!("Failed to set search domains: {}", error.display_chain());
@@ -75,7 +79,7 @@ impl SystemdResolved {
 
         let _ = self
             .dbus_interface
-            .set_dns(self.tunnel_index, vec![])
+            .set_dns(self.tunnel_index as i32, vec![])
             .await?;
 
         Ok(())
