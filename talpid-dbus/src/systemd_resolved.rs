@@ -4,8 +4,7 @@ use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
 use std::path::Path;
 use std::sync::LazyLock;
 
-use libc::AF_INET;
-use libc::AF_INET6;
+use nix::libc::{AF_INET, AF_INET6};
 use serde::{Deserialize, Serialize};
 use zbus::blocking::{Connection, Proxy};
 use zbus::zvariant::ObjectPath;

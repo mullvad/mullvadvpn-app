@@ -10,7 +10,7 @@ rust-version.workspace = true
 workspace = true
 
 [target.'cfg(target_os = "linux")'.dependencies]
-libc = "0.2" # TODO: Remove
+nix = { workspace = true }
 log = { workspace = true }
 serde = { workspace = true }
 thiserror = { workspace = true }
