@@ -40,7 +40,7 @@
         };
 
         desktop-toolchain = import ./nix/desktop-toolchain.nix {
-          inherit pkgs common-toolchain;
+          inherit common-toolchain;
         };
 
         android-toolchain = import ./nix/android-toolchain.nix {

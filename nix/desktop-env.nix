@@ -1,7 +1,4 @@
-{ pkgs }:
+{ ... }:
 [
-  {
-    name = "PKG_CONFIG_PATH";
-    value = "${pkgs.dbus.dev}/lib/pkgconfig";
-  }
+  # If something needs to be in $PATH, add it here.
 ]
