@@ -58,7 +58,7 @@ const MAXIMUM_SUPPORTED_MINOR_VERSION: u32 = 26;
 
 const NM_DEVICE_STATE_CHANGED: &str = "StateChanged";
 
-pub type Result<T> = std::result::Result<T, Error>;
+// This will be nice to type up with zvariant:-)
 type NetworkSettings<'a> = HashMap<String, HashMap<String, Variant<Box<dyn RefArg + 'a>>>>;
 
 #[derive(thiserror::Error, Debug)]
@@ -119,13 +119,13 @@ pub struct NetworkManager {
 }
 
 impl NetworkManager {
-    pub fn new() -> Result<Self> {
+    pub fn new() -> Result<Self, Error> {
         Ok(Self {
             connection: crate::get_connection()?,
         })
     }
 
-    pub fn create_wg_tunnel(&self, config: &DeviceConfig) -> Result<WireguardTunnel> {
+    pub fn create_wg_tunnel(&self, config: &DeviceConfig) -> Result<WireguardTunnel, Error> {
         self.nm_supports_wireguard()?;
         let tunnel = self.create_wg_tunnel_inner(config)?;
         if let Err(err) = self.wait_until_device_is_ready(&tunnel.device_path) {
@@ -141,20 +141,20 @@ impl NetworkManager {
         Ok(tunnel)
     }
 
-    pub fn get_interface_name(&self, tunnel: &WireguardTunnel) -> Result<String> {
+    pub fn get_interface_name(&self, tunnel: &WireguardTunnel) -> Result<String, Error> {
         tunnel
             .device_proxy(&self.connection)
             .get(NM_DEVICE, "Interface")
             .map_err(Error::Dbus)
     }
 
-    pub fn get_device_state(&self, device: &dbus::Path<'_>) -> Result<u32> {
+    pub fn get_device_state(&self, device: &dbus::Path<'_>) -> Result<u32, Error> {
         self.as_path(device)
             .get(NM_DEVICE, "State")
             .map_err(Error::Dbus)
     }
 
-    fn create_wg_tunnel_inner(&self, config: &DeviceConfig) -> Result<WireguardTunnel> {
+    fn create_wg_tunnel_inner(&self, config: &DeviceConfig) -> Result<WireguardTunnel, Error> {
         let config_path: dbus::Path<'static> = match self.add_connection_2(config) {
             Ok((path, _result)) => path,
             Err(Error::Dbus(dbus_error)) if dbus_error.name() == Some(DBUS_UNKNOWN_METHOD) => {
@@ -195,23 +195,23 @@ impl NetworkManager {
         })
     }
 
-    pub fn nm_supports_wireguard(&self) -> Result<()> {
+    pub fn nm_supports_wireguard(&self) -> Result<(), Error> {
         let (major, minor) = self.version()?;
         Self::ensure_nm_is_new_enough_for_wireguard(major, minor)?;
         Self::ensure_nm_is_old_enough_for_dns(major, minor)
     }
 
-    pub fn nm_version_dns_works(&self) -> Result<()> {
+    pub fn nm_version_dns_works(&self) -> Result<(), Error> {
         let (major, minor) = self.version()?;
         Self::ensure_nm_is_old_enough_for_dns(major, minor)
     }
 
-    pub fn version_string(&self) -> Result<String> {
+    pub fn version_string(&self) -> Result<String, Error> {
         let manager = self.nm_manager();
         manager.get(NM_MANAGER, "Version").map_err(Error::Dbus)
     }
 
-    fn ensure_nm_is_new_enough_for_wireguard(major: u32, minor: u32) -> Result<()> {
+    fn ensure_nm_is_new_enough_for_wireguard(major: u32, minor: u32) -> Result<(), Error> {
         if major < MINIMUM_SUPPORTED_MAJOR_VERSION
             || (minor < MINIMUM_SUPPORTED_MINOR_VERSION && major == MINIMUM_SUPPORTED_MAJOR_VERSION)
         {
@@ -221,7 +221,11 @@ impl NetworkManager {
         }
     }
 
-    fn ensure_nm_is_old_enough_for_dns(major_version: u32, minor_version: u32) -> Result<()> {
+    /// TODO: Revisit this, I've seen people complain about it on GitHub.
+    fn ensure_nm_is_old_enough_for_dns(
+        major_version: u32,
+        minor_version: u32,
+    ) -> Result<(), Error> {
         if major_version > MAXIMUM_SUPPORTED_MAJOR_VERSION
             || (minor_version > MAXIMUM_SUPPORTED_MINOR_VERSION
                 && major_version >= MAXIMUM_SUPPORTED_MAJOR_VERSION)
@@ -232,7 +236,8 @@ impl NetworkManager {
         }
     }
 
-    fn version(&self) -> Result<(u32, u32)> {
+    /// Get NetworkMangager version as a tuple of (<major>, <minor>).
+    fn version(&self) -> Result<(u32, u32), Error> {
         let version = self.version_string()?;
         Self::parse_nm_version(&version).ok_or(Error::ParseNmVersionError(version))
     }
@@ -248,7 +253,7 @@ impl NetworkManager {
     fn add_connection_2(
         &self,
         settings_map: &DeviceConfig,
-    ) -> Result<(dbus::Path<'static>, DeviceConfig)> {
+    ) -> Result<(dbus::Path<'static>, DeviceConfig), Error> {
         let args: VariantMap = HashMap::new();
 
         Proxy::new(NM_BUS, NM_SETTINGS_PATH, RPC_TIMEOUT, &*self.connection)
@@ -263,7 +268,7 @@ impl NetworkManager {
     fn add_connection_unsaved(
         &self,
         settings_map: &DeviceConfig,
-    ) -> Result<(dbus::Path<'static>,)> {
+    ) -> Result<(dbus::Path<'static>,), Error> {
         Proxy::new(NM_BUS, NM_SETTINGS_PATH, RPC_TIMEOUT, &*self.connection)
             .method_call(
                 NM_SETTINGS_INTERFACE,
@@ -273,7 +278,7 @@ impl NetworkManager {
             .map_err(Error::Dbus)
     }
 
-    fn wait_until_device_is_ready(&self, device: &dbus::Path<'_>) -> Result<()> {
+    fn wait_until_device_is_ready(&self, device: &dbus::Path<'_>) -> Result<(), Error> {
         let device_state = self.get_device_state(device)?;
 
         if !device_is_ready(device_state) {
@@ -322,8 +327,8 @@ impl NetworkManager {
         Ok(())
     }
 
-    pub fn remove_tunnel(&self, tunnel: WireguardTunnel) -> Result<()> {
-        let deactivation_result: Result<()> = self
+    pub fn remove_tunnel(&self, tunnel: WireguardTunnel) -> Result<(), Error> {
+        let deactivation_result: Result<(), Error> = self
             .nm_manager()
             .method_call(
                 NM_MANAGER,
@@ -332,7 +337,7 @@ impl NetworkManager {
             )
             .map_err(Error::Dbus);
 
-        let config_result: Result<()> = tunnel
+        let config_result: Result<(), Error> = tunnel
             .config_proxy(&self.connection)
             .method_call(NM_SETTINGS_CONNECTION_INTERFACE, "Delete", ())
             .map_err(Error::Dbus);
@@ -379,7 +384,7 @@ impl NetworkManager {
         Proxy::new(NM_BUS, NM_MANAGER_PATH, RPC_TIMEOUT, &*self.connection)
     }
 
-    pub fn ensure_network_manager_exists(&self) -> Result<()> {
+    pub fn ensure_network_manager_exists(&self) -> Result<(), Error> {
         match self
             .as_manager()
             .get::<Box<dyn RefArg>>(NM_MANAGER, "Version")
@@ -392,13 +397,13 @@ impl NetworkManager {
         }
     }
 
-    pub fn ensure_can_be_used_to_manage_dns(&self) -> Result<()> {
+    pub fn ensure_can_be_used_to_manage_dns(&self) -> Result<(), Error> {
         self.ensure_resolv_conf_is_managed()?;
         self.ensure_network_manager_exists()?;
         self.nm_version_dns_works()?;
         Ok(())
     }
-    pub fn ensure_resolv_conf_is_managed(&self) -> Result<()> {
+    pub fn ensure_resolv_conf_is_managed(&self) -> Result<(), Error> {
         // check if NM is set to manage resolv.conf
         let management_mode: String = self
             .as_dns_manager()
@@ -449,7 +454,11 @@ impl NetworkManager {
         Proxy::new(NM_BUS, device, RPC_TIMEOUT, &*self.connection)
     }
 
-    pub fn set_dns(&mut self, interface_name: &str, servers: &[IpAddr]) -> Result<DeviceConfig> {
+    pub fn set_dns(
+        &mut self,
+        interface_name: &str,
+        servers: &[IpAddr],
+    ) -> Result<DeviceConfig, Error> {
         let device_path = self.fetch_device(interface_name)?;
         self.wait_until_device_is_ready(&device_path)?;
 
@@ -575,7 +584,7 @@ impl NetworkManager {
         device: &dbus::Path<'_>,
         settings: Settings,
         version_id: u64,
-    ) -> Result<()> {
+    ) -> Result<(), Error> {
         self.as_path(device).method_call::<(), _, _, _>(
             NM_DEVICE,
             "Reapply",
@@ -614,7 +623,7 @@ impl NetworkManager {
         );
     }
 
-    pub fn fetch_device(&self, interface_name: &str) -> Result<dbus::Path<'static>> {
+    pub fn fetch_device(&self, interface_name: &str) -> Result<dbus::Path<'static>, Error> {
         let devices: Box<dyn RefArg> = self
             .as_manager()
             .get(NM_MANAGER, "Devices")
