@@ -667,7 +667,7 @@ impl SharedTunnelStateValues {
     pub fn disable_connectivity_check(&mut self) {
         if self.connectivity_check_was_enabled.is_none() {
             if let Ok(nm) = talpid_dbus::network_manager::NetworkManager::new() {
-                self.connectivity_check_was_enabled = nm.disable_connectivity_check();
+                self.connectivity_check_was_enabled = nm.ensure_connectivity_check_disabled().ok();
             }
         } else {
             log::trace!("Daemon already disabled connectivity check");
@@ -679,7 +679,10 @@ impl SharedTunnelStateValues {
     pub fn reset_connectivity_check(&mut self) {
         if self.connectivity_check_was_enabled.take() == Some(true) {
             if let Ok(nm) = talpid_dbus::network_manager::NetworkManager::new() {
-                nm.enable_connectivity_check();
+                if let Err(err) = nm.enable_connectivity_check() {
+                    log::debug!("Failed to check network manager connectivity");
+                    log::debug!("{err}");
+                };
             }
         } else {
             log::trace!("Connectivity check wasn't disabled by the daemon");
