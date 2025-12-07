@@ -22,8 +22,16 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+### Changed
+#### Linux
+- Replace `dbus-rs` with `zbus` for IPC with D-Bus clients.
+
 ### Fixed
 - Fix "Time left" label in main view not updating when time passes.
+
+### Removed
+#### Linux
+- Remove `libdbus` as a runtime dependency of `mullvad-daemon`.
 
 
 ## [2025.14-beta3] - 2025-12-01
