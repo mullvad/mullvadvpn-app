@@ -1,6 +1,6 @@
 use zbus::blocking::{Connection, Proxy}; // TODO: async
 
-use crate::get_connection_zbus;
+use crate::get_connection;
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
@@ -31,7 +31,7 @@ impl Systemd {
     /// Create a new systemd manager.
     fn new() -> Result<Self, Error> {
         Ok(Self {
-            dbus_connection: get_connection_zbus().map_err(Error::ConnectError)?,
+            dbus_connection: get_connection().map_err(Error::ConnectError)?,
         })
     }
 

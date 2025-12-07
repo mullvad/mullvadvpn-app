@@ -82,7 +82,7 @@ pub struct AsyncHandle {
 
 impl SystemdResolved {
     pub fn new() -> Result<Self, Error> {
-        let dbus_connection = crate::get_connection_zbus().map_err(Error::ConnectDBus)?;
+        let dbus_connection = crate::get_connection().map_err(Error::ConnectDBus)?;
 
         let systemd_resolved = SystemdResolved { dbus_connection };
 
