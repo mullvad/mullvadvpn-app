@@ -116,6 +116,48 @@ pub enum Error {
 /// - `a{sa{sv}}`: `map<string, map<string, variant>`
 pub type DeviceConfig = HashMap<String, HashMap<String, OwnedValue>>;
 
+//// https://www.networkmanager.dev/docs/api/latest/settings-wireguard
+#[derive(
+    Debug, Clone, PartialEq, Deserialize, zvariant::Type, zvariant::OwnedValue, zvariant::Value,
+)]
+pub struct WireguardDeviceConfig {
+    /// The use of fwmark is optional and is by default off. Setting it to 0 disables it.
+    /// Otherwise, it is a 32-bit fwmark for outgoing packets. Note that "ip4-auto-default-route" or
+    /// "ip6-auto-default-route" enabled, implies to automatically choose a fwmark.
+    #[serde(rename = "fwmark")]
+    fwmark: u32,
+}
+
+impl WireguardDeviceConfig {
+    pub fn new() -> Self {
+        WireguardDeviceConfig { fwmark: 0 }
+    }
+
+    /// Set fwmark on outgoing packets.
+    pub fn fwmark(mut self, fwmark: u32) -> Self {
+        self.fwmark = fwmark;
+        self
+    }
+}
+
+/// TODO: Find the actual name for this.
+/// `connection_config` in nm_tunnel.rs
+#[derive(
+    Debug, Clone, PartialEq, Deserialize, zvariant::Type, zvariant::OwnedValue, zvariant::Value,
+)]
+pub struct NMConnection {
+    #[serde(rename = "id")]
+    id: String,
+}
+
+/*
+impl From<WireguardDeviceConfig> for HashMap<String, OwnedValue> {
+    fn from(config: WireguardDeviceConfig) -> HashMap<String, OwnedValue> {
+        config.0
+    }
+}
+*/
+
 /// https://people.freedesktop.org/~lkundrak/nm-docs/gdbus-org.freedesktop.NetworkManager.Device.html#gdbus-method-org-freedesktop-NetworkManager-Device.GetAppliedConnection
 // TODO: Check if this should be a shared version of [`DeviceConfig`], aka HashMap<String, HashMap<String, Value<'a'>>>;
 type NetworkSettings = DeviceConfig;

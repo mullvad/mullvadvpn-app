@@ -5,10 +5,11 @@ use super::{
     Config, Error as WgKernelError, Handle, Tunnel, TunnelError,
 };
 use futures::Future;
-use std::{collections::HashMap, pin::Pin};
+use std::pin::Pin;
 use talpid_dbus::{
     network_manager::{
-        DeviceConfig, Error as NetworkManagerError, NetworkManager, WireguardTunnel,
+        DeviceConfig, Error as NetworkManagerError, NetworkManager, WireguardDeviceConfig,
+        WireguardTunnel,
     },
     zbus,
 };
@@ -118,8 +119,12 @@ impl Tunnel for NetworkManagerTunnel {
     }
 }
 
-fn convert_config_to_dbus(config: &Config) -> DeviceConfig {
-    todo!()
+fn convert_config_to_dbus(config: &Config) -> WireguardConfig {
+    let mut wireguard_config = WireguardDeviceConfig::new();
+    // TODO: Continue with WireguardDeviceConfig, it works!
+    if let Some(fwmark) = config.fwmark {
+        wireguard_config = wireguard_config.fwmark(fwmark);
+    }
     /*
         let mut ipv6_config = HashMap::new();
         let mut ipv4_config = HashMap::new();
@@ -207,9 +212,12 @@ fn convert_config_to_dbus(config: &Config) -> DeviceConfig {
         if !ipv6_config.is_empty() {
             settings.insert("ipv6".into(), ipv6_config);
         }
-        settings.insert("wireguard".into(), wireguard_config);
-        settings.insert("connection".into(), connection_config);
 
-        settings
     */
+    let mut settings = DeviceConfig::default();
+    // settings.insert("wireguard".into(), wireguard_config);
+    // settings.insert("connection".into(), connection_config);
+
+    todo!()
+    //settings
 }
