@@ -18,6 +18,7 @@ use std::sync::atomic::{AtomicU32, Ordering};
 use std::time::{Duration, Instant};
 
 use zbus::blocking::Connection;
+use zvariant::{ObjectPath, OwnedValue, Value};
 
 const NM_BUS: &str = "org.freedesktop.NetworkManager";
 const NM_MANAGER: &str = "org.freedesktop.NetworkManager";
@@ -55,11 +56,6 @@ const MINIMUM_SUPPORTED_MINOR_VERSION: u32 = 16;
 
 const MAXIMUM_SUPPORTED_MAJOR_VERSION: u32 = 1;
 const MAXIMUM_SUPPORTED_MINOR_VERSION: u32 = 26;
-
-const NM_DEVICE_STATE_CHANGED: &str = "StateChanged";
-
-// This will be nice to type up with zvariant:-)
-type NetworkSettings<'a> = HashMap<String, HashMap<String, Variant<Box<dyn RefArg + 'a>>>>;
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
@@ -108,10 +104,25 @@ pub enum Error {
     ObtainDevices,
 }
 
-pub type VariantRefArg = Variant<Box<dyn RefArg>>;
-pub type VariantMap = HashMap<String, VariantRefArg>;
-// settings are a{sa{sv}}
-pub type DeviceConfig = HashMap<String, VariantMap>;
+/// NetworkManager device configurations. A map from device to configuration options.
+///
+/// ## DBUS
+///
+/// This corresponds to the DBUS type signature `a{sa{sv}}`
+///
+/// ### Breakdown:
+///
+/// - `s`        : `string`
+/// - `v`        : `variant`
+/// - `a{}`      : `map`
+/// - `a{sv}`    : `map<string, variant>`
+/// - `a{sa{sv}}`: `map<string, map<string, variant>`
+pub type DeviceConfig = HashMap<String, HashMap<String, OwnedValue>>;
+
+// TODO: Check if this should be a shared version of [`DeviceConfig`], aka HashMap<String, HashMap<String, Value<'a'>>>;
+//
+// https://people.freedesktop.org/~lkundrak/nm-docs/gdbus-org.freedesktop.NetworkManager.Device.html#gdbus-method-org-freedesktop-NetworkManager-Device.GetAppliedConnection
+type NetworkSettings = DeviceConfig;
 
 /// Implements functionality to control NetworkManager over DBus.
 pub struct NetworkManager {
@@ -148,7 +159,7 @@ impl NetworkManager {
             .map_err(Error::Dbus)
     }
 
-    pub fn get_device_state(&self, device: &dbus::Path<'_>) -> Result<u32, Error> {
+    pub fn get_device_state(&self, device: &ObjectPath<'_>) -> Result<u32, Error> {
         self.as_path(device)
             .get(NM_DEVICE, "State")
             .map_err(Error::Dbus)
@@ -254,13 +265,14 @@ impl NetworkManager {
         &self,
         settings_map: &DeviceConfig,
     ) -> Result<(dbus::Path<'static>, DeviceConfig), Error> {
-        let args: VariantMap = HashMap::new();
+        let args = HashMap::default();
+        let flags = NM_ADD_CONNECTION_VOLATILE;
 
         Proxy::new(NM_BUS, NM_SETTINGS_PATH, RPC_TIMEOUT, &*self.connection)
             .method_call(
                 NM_SETTINGS_INTERFACE,
                 "AddConnection2",
-                (settings_map, NM_ADD_CONNECTION_VOLATILE, args),
+                (settings_map, flags, args),
             )
             .map_err(Error::Dbus)
     }
@@ -464,7 +476,7 @@ impl NetworkManager {
 
         let device = self.as_path(&device_path);
         // Get the last applied connection
-        let (mut settings, version_id): (NetworkSettings<'_>, u64) =
+        let (mut settings, version_id): (NetworkSettings, u64) =
             device.method_call(NM_DEVICE, "GetAppliedConnection", (0u32,))?;
 
         // Keep changed routes.
@@ -594,7 +606,7 @@ impl NetworkManager {
     }
 
     fn update_dns_config<'a, T>(
-        settings: &mut NetworkSettings<'a>,
+        settings: &mut NetworkSettings,
         ip_protocol: &'static str,
         servers: T,
     ) where
