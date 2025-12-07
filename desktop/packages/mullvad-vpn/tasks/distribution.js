@@ -258,7 +258,7 @@ function newConfig() {
       ],
       afterInstall: distAssets('linux/after-install.sh'),
       afterRemove: distAssets('linux/after-remove.sh'),
-      depends: ['libXScrnSaver', 'libnotify', 'dbus-libs'],
+      depends: ['libXScrnSaver', 'libnotify'],
     },
   };
 }
