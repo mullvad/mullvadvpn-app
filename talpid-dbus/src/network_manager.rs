@@ -1,23 +1,23 @@
 //! NetworkManager is the one-stop-shop of network configuration on Linux.
 use super::systemd_resolved;
+/*
 pub use dbus::arg::{RefArg, Variant};
 use dbus::{
     arg,
     blocking::{Proxy, SyncConnection, stdintf::org_freedesktop_dbus::Properties},
     message::MatchRule,
 };
-use std::{
-    collections::HashMap,
-    fs::File,
-    io::{BufRead, BufReader},
-    net::IpAddr,
-    path::Path,
-    sync::{
-        Arc,
-        atomic::{AtomicU32, Ordering},
-    },
-    time::{Duration, Instant},
-};
+*/
+use std::collections::HashMap;
+use std::fs::File;
+use std::io::{BufRead, BufReader};
+use std::net::IpAddr;
+use std::path::Path;
+use std::sync::Arc;
+use std::sync::atomic::{AtomicU32, Ordering};
+use std::time::{Duration, Instant};
+
+use zbus::blocking::Connection;
 
 const NM_BUS: &str = "org.freedesktop.NetworkManager";
 const NM_MANAGER: &str = "org.freedesktop.NetworkManager";
@@ -115,7 +115,7 @@ pub type DeviceConfig = HashMap<String, VariantMap>;
 
 /// Implements functionality to control NetworkManager over DBus.
 pub struct NetworkManager {
-    connection: Arc<SyncConnection>,
+    connection: Connection,
 }
 
 impl NetworkManager {
