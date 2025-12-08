@@ -10,7 +10,9 @@ use mullvad_masque_proxy::MIN_IPV4_MTU;
 use mullvad_masque_proxy::server::AllowedIps;
 use mullvad_masque_proxy::server::ServerParams;
 use rand::RngCore;
-use tokio::fs;
+use rustls_pki_types::CertificateDer;
+use rustls_pki_types::PrivateKeyDer;
+use rustls_pki_types::pem::PemObject;
 
 use mullvad_masque_proxy::client;
 use mullvad_masque_proxy::server;
@@ -146,7 +148,7 @@ async fn setup_masque(mtu: u16) -> anyhow::Result<(UdpSocket, UdpSocket)> {
         .context("Retrieve dest UDP server addr")?;
 
     // Set up MASQUE server
-    let server_tls_config = load_server_test_cert().await?;
+    let server_tls_config = load_server_test_cert()?;
 
     let params = ServerParams::builder()
         .allowed_hosts(AllowedIps::default())
@@ -205,23 +207,16 @@ async fn setup_masque(mtu: u16) -> anyhow::Result<(UdpSocket, UdpSocket)> {
     Ok((proxy_client, destination_udp_server))
 }
 
-async fn load_server_test_cert() -> anyhow::Result<rustls::ServerConfig> {
-    let key = fs::read("tests/test.key").await.context("Read test key")?;
-    let key = rustls_pemfile::private_key(&mut &*key)?.context("Invalid test key")?;
-
-    let cert_chain = fs::read("tests/test.crt")
-        .await
-        .context("Read test certificate")?;
-    let cert_chain = rustls_pemfile::certs(&mut &*cert_chain)
-        .collect::<Result<_, _>>()
-        .context("Invalid test certificate")?;
+fn load_server_test_cert() -> anyhow::Result<rustls::ServerConfig> {
+    let key = PrivateKeyDer::from_pem_file("tests/test.key")?;
+    let cert_chain = CertificateDer::from_pem_file("tests/test.crt")?;
 
     let mut tls_config = rustls::ServerConfig::builder_with_provider(Arc::new(
         rustls::crypto::ring::default_provider(),
     ))
     .with_protocol_versions(&[&rustls::version::TLS13])?
     .with_no_client_auth()
-    .with_single_cert(cert_chain, key)?;
+    .with_single_cert(vec![cert_chain], key)?;
 
     tls_config.max_early_data_size = u32::MAX;
     tls_config.alpn_protocols = vec![b"h3".into()];
