@@ -32,10 +32,17 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                 MultihopSelectionView(
                     hops: (viewModel.isMultihopEnabled ? MultihopContext.allCases : [MultihopContext.exit])
                         .map {
-                            Hop(
+                            let selectedLocation =
+                                switch $0 {
+                                case .entry:
+                                    viewModel.showDAITAInfo
+                                        ? LocationNode(name: "Automatic", code: "")
+                                        : viewModel.entryContext.selectedLocation
+                                case .exit: viewModel.exitContext.selectedLocation
+                                }
+                            return Hop(
                                 multihopContext: $0,
-                                selectedLocation: $0 == .entry
-                                    ? viewModel.entryContext.selectedLocation : viewModel.exitContext.selectedLocation
+                                selectedLocation: selectedLocation
                             )
                         },
                     selectedMultihopContext: $viewModel.multihopContext,
