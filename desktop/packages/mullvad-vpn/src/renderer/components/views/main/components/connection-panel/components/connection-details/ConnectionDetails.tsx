@@ -6,7 +6,6 @@ import {
   EndpointObfuscationType,
   ITunnelEndpoint,
   parseSocketAddress,
-  ProxyType,
   RelayProtocol,
   TunnelState,
 } from '../../../../../../../../shared/daemon-rpc-types';
@@ -19,10 +18,6 @@ interface Endpoint {
   ip: string;
   port: number;
   protocol: RelayProtocol;
-}
-
-interface BridgeData extends Endpoint {
-  bridgeType: ProxyType;
 }
 
 interface ObfuscationData extends Endpoint {
@@ -129,15 +124,12 @@ function getEntryPoint(tunnelState: TunnelState): Endpoint | undefined {
   const endpoint = tunnelState.details.endpoint;
   const inAddress = tunnelEndpointToRelayInAddress(endpoint);
   const entryLocationInAddress = tunnelEndpointToEntryLocationInAddress(endpoint);
-  const bridgeInfo = tunnelEndpointToBridgeData(endpoint);
   const obfuscationEndpoint = tunnelEndpointToObfuscationEndpoint(endpoint);
 
   if (obfuscationEndpoint) {
     return obfuscationEndpoint;
   } else if (entryLocationInAddress && inAddress) {
     return entryLocationInAddress;
-  } else if (bridgeInfo && inAddress) {
-    return bridgeInfo;
   } else {
     return inAddress;
   }
@@ -164,20 +156,6 @@ function tunnelEndpointToEntryLocationInAddress(
     ip: socketAddr.host,
     port: socketAddr.port,
     protocol: tunnelEndpoint.entryEndpoint.transportProtocol,
-  };
-}
-
-function tunnelEndpointToBridgeData(endpoint: ITunnelEndpoint): BridgeData | undefined {
-  if (!endpoint.proxy) {
-    return undefined;
-  }
-
-  const socketAddr = parseSocketAddress(endpoint.proxy.address);
-  return {
-    ip: socketAddr.host,
-    port: socketAddr.port,
-    protocol: endpoint.proxy.protocol,
-    bridgeType: endpoint.proxy.proxyType,
   };
 }
 
