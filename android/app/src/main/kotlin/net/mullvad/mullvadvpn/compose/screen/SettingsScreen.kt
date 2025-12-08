@@ -22,7 +22,7 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.destinations.ApiAccessListDestination
 import com.ramcosta.composedestinations.generated.destinations.AppInfoDestination
-import com.ramcosta.composedestinations.generated.destinations.AppObfusctationDestination
+import com.ramcosta.composedestinations.generated.destinations.AppearanceDestination
 import com.ramcosta.composedestinations.generated.destinations.DaitaDestination
 import com.ramcosta.composedestinations.generated.destinations.MultihopDestination
 import com.ramcosta.composedestinations.generated.destinations.NotificationSettingsDestination
@@ -96,7 +96,7 @@ fun Settings(navigator: DestinationsNavigator) {
         onBackClick = dropUnlessResumed { navigator.navigateUp() },
         onNotificationSettingsCellClick =
             dropUnlessResumed { navigator.navigate(NotificationSettingsDestination()) },
-        onAppObfuscationClick = dropUnlessResumed { navigator.navigate(AppObfusctationDestination) },
+        onAppObfuscationClick = dropUnlessResumed { navigator.navigate(AppearanceDestination) },
     )
 }
 

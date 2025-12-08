@@ -2,8 +2,10 @@ package net.mullvad.mullvadvpn.compose.screen
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -19,22 +21,26 @@ import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.AppIconAndTitleListItem
+import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorMedium
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
 import net.mullvad.mullvadvpn.lib.ui.designsystem.RelayListHeader
 import net.mullvad.mullvadvpn.repository.AppObfuscation
-import net.mullvad.mullvadvpn.viewmodel.AppObfuscationUiState
-import net.mullvad.mullvadvpn.viewmodel.AppObfuscationViewModel
+import net.mullvad.mullvadvpn.util.Lc
+import net.mullvad.mullvadvpn.viewmodel.AppearanceUiState
+import net.mullvad.mullvadvpn.viewmodel.AppearanceViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @Preview
 @Composable
 private fun PreviewAppObfusctionScreen() {
     AppTheme {
-        AppObfuscationScreen(
+        AppearanceScreen(
             uiState =
-                AppObfuscationUiState(
-                    availableObfuscations = AppObfuscation.entries,
-                    currentAppObfuscation = AppObfuscation.DEFAULT,
+                Lc.Content(
+                    AppearanceUiState(
+                        availableObfuscations = AppObfuscation.entries,
+                        currentAppObfuscation = AppObfuscation.DEFAULT,
+                    )
                 )
         )
     }
@@ -42,10 +48,10 @@ private fun PreviewAppObfusctionScreen() {
 
 @Destination<RootGraph>(style = SlideInFromRightTransition::class)
 @Composable
-fun AppObfusctation(navigator: DestinationsNavigator) {
-    val viewModel = koinViewModel<AppObfuscationViewModel>()
+fun Appearance(navigator: DestinationsNavigator) {
+    val viewModel = koinViewModel<AppearanceViewModel>()
     val uiState = viewModel.uiState.collectAsStateWithLifecycle().value
-    AppObfuscationScreen(
+    AppearanceScreen(
         uiState = uiState,
         onObfuscationSelected = viewModel::setAppObfuscation,
         onBackClick = dropUnlessResumed { navigator.navigateUp() },
@@ -53,8 +59,8 @@ fun AppObfusctation(navigator: DestinationsNavigator) {
 }
 
 @Composable
-fun AppObfuscationScreen(
-    uiState: AppObfuscationUiState,
+fun AppearanceScreen(
+    uiState: Lc<Unit, AppearanceUiState>,
     onObfuscationSelected: (AppObfuscation) -> Unit = {},
     onBackClick: () -> Unit = {},
 ) {
@@ -64,28 +70,41 @@ fun AppObfuscationScreen(
     ) { modifier, lazyListState ->
         LazyColumn(
             modifier = modifier.padding(horizontal = Dimens.sideMarginNew),
+            horizontalAlignment = CenterHorizontally,
             state = lazyListState,
         ) {
-            item {
-                RelayListHeader(content = { Text(text = stringResource(R.string.icon_and_title)) })
-            }
-            itemsIndexedWithDivider(
-                items = uiState.availableObfuscations,
-                key = { _, item -> item.path },
-            ) { index, item ->
-                AppIconAndTitleListItem(
-                    appTitle = stringResource(item.labelId),
-                    appIcon = item.iconId,
-                    isSelected = item == uiState.currentAppObfuscation,
-                    onClick = { onObfuscationSelected(item) },
-                    position =
-                        when (index) {
-                            0 -> Position.Top
-                            uiState.availableObfuscations.lastIndex -> Position.Bottom
-                            else -> Position.Middle
-                        },
-                )
+            when (uiState) {
+                is Lc.Content -> content(uiState.value, onObfuscationSelected)
+                is Lc.Loading -> loading()
             }
         }
     }
+}
+
+private fun LazyListScope.content(
+    uiState: AppearanceUiState,
+    onObfuscationSelected: (AppObfuscation) -> Unit = {},
+) {
+    item { RelayListHeader(content = { Text(text = stringResource(R.string.icon_and_title)) }) }
+    itemsIndexedWithDivider(
+        items = uiState.availableObfuscations,
+        key = { _, item -> item.path },
+    ) { index, item ->
+        AppIconAndTitleListItem(
+            appTitle = stringResource(item.labelId),
+            appIcon = item.iconId,
+            isSelected = item == uiState.currentAppObfuscation,
+            onClick = { onObfuscationSelected(item) },
+            position =
+                when (index) {
+                    0 -> Position.Top
+                    uiState.availableObfuscations.lastIndex -> Position.Bottom
+                    else -> Position.Middle
+                },
+        )
+    }
+}
+
+private fun LazyListScope.loading() {
+    item { MullvadCircularProgressIndicatorMedium() }
 }

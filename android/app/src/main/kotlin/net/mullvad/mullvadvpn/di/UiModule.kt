@@ -78,7 +78,7 @@ import net.mullvad.mullvadvpn.viewmodel.ApiAccessListViewModel
 import net.mullvad.mullvadvpn.viewmodel.ApiAccessMethodDetailsViewModel
 import net.mullvad.mullvadvpn.viewmodel.ApiUnreachableViewModel
 import net.mullvad.mullvadvpn.viewmodel.AppInfoViewModel
-import net.mullvad.mullvadvpn.viewmodel.AppObfuscationViewModel
+import net.mullvad.mullvadvpn.viewmodel.AppearanceViewModel
 import net.mullvad.mullvadvpn.viewmodel.ChangelogViewModel
 import net.mullvad.mullvadvpn.viewmodel.ConnectViewModel
 import net.mullvad.mullvadvpn.viewmodel.CreateCustomListDialogViewModel
@@ -421,7 +421,7 @@ val uiModule = module {
             modifyAndEnableMultihopUseCase = get(),
         )
     }
-    viewModel { AppObfuscationViewModel(get()) }
+    viewModel { AppearanceViewModel(get()) }
 
     single { BackstackObserver() }
 

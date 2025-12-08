@@ -8,8 +8,9 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.repository.AppObfuscation
 import net.mullvad.mullvadvpn.repository.AppObfuscationRepository
+import net.mullvad.mullvadvpn.util.Lc
 
-class AppObfuscationViewModel(private val appObfuscationRepository: AppObfuscationRepository) :
+class AppearanceViewModel(private val appObfuscationRepository: AppObfuscationRepository) :
     ViewModel() {
 
     val uiState =
@@ -17,15 +18,17 @@ class AppObfuscationViewModel(private val appObfuscationRepository: AppObfuscati
                 appObfuscationRepository.availableObfuscations,
                 appObfuscationRepository.currentAppObfuscation,
             ) { availableObfuscations, currentAppObfuscation ->
-                AppObfuscationUiState(
-                    availableObfuscations = availableObfuscations,
-                    currentAppObfuscation = currentAppObfuscation,
+                Lc.Content(
+                    AppearanceUiState(
+                        availableObfuscations = availableObfuscations,
+                        currentAppObfuscation = currentAppObfuscation,
+                    )
                 )
             }
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(),
-                initialValue = AppObfuscationUiState(),
+                initialValue = Lc.Loading(Unit),
             )
 
     fun setAppObfuscation(appObfuscation: AppObfuscation) {
@@ -33,7 +36,7 @@ class AppObfuscationViewModel(private val appObfuscationRepository: AppObfuscati
     }
 }
 
-data class AppObfuscationUiState(
+data class AppearanceUiState(
     val availableObfuscations: List<AppObfuscation> = emptyList(),
     val currentAppObfuscation: AppObfuscation? = null,
 )
