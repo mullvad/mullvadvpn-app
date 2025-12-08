@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Thai\n"
 "Language: th_TH\n"
-"PO-Revision-Date: 2025-11-19 13:21\n"
+"PO-Revision-Date: 2025-12-08 09:00\n"
 
 msgid "%(amount)d more..."
 msgstr "อีก %(amount)d..."
@@ -219,6 +219,9 @@ msgstr "ถัดไป"
 msgid "No result for <b>%(searchTerm)s</b>."
 msgstr "ไม่มีผลลัพธ์สำหรับ <b>%(searchTerm)s</b>"
 
+msgid "None"
+msgstr "ไม่มี"
+
 msgid "Off"
 msgstr "ปิด"
 
@@ -302,6 +305,13 @@ msgctxt "accessibility"
 msgid "%(title)s, View loaded"
 msgstr "%(title)s โหลดมุมมองแล้ว"
 
+#. Text for screen readers to describe the WireGuard port settings navigation button.
+#. Available placeholders:
+#. %(wireguard)s - will be replaced with WireGuard
+msgctxt "accessibility"
+msgid "%(wireguard)s port settings"
+msgstr "การตั้งค่าพอร์ต %(wireguard)s"
+
 msgctxt "accessibility"
 msgid "Add new custom bridge"
 msgstr "เพิ่ม Bridge ใหม่แบบกำหนดเอง"
@@ -334,6 +344,14 @@ msgstr "ขยาย %(location)s"
 msgctxt "accessibility"
 msgid "Forget account number %(accountNumber)s"
 msgstr "ลืมหมายเลขบัญชี %(accountNumber)s"
+
+#. Accessibility label for link to VPN settings where
+#. the user can change WireGuard port.
+#. Available placeholders:
+#. %(wireGuard)s - Will be replaced with WireGuard
+msgctxt "accessibility"
+msgid "Go to anti-censorship settings to change %(wireGuard)s port"
+msgstr "ไปที่การตั้งค่าป้องกันการเซ็นเซอร์เพื่อเปลี่ยนพอร์ต %(wireGuard)s"
 
 #. Accessibility label for link to app upgrade view.
 msgctxt "accessibility"
@@ -448,6 +466,26 @@ msgstr "หมดเวลา"
 msgctxt "account-view"
 msgid "Paid until"
 msgstr "ชำระเงินแล้วจนถึง"
+
+#. Page title for anti censorship settings view
+msgctxt "anti-censorship-view"
+msgid "Anti-censorship"
+msgstr "การป้องกันการเซ็นเซอร์"
+
+#. The title for the obfuscation method selector.
+msgctxt "anti-censorship-view"
+msgid "Method"
+msgstr "วิธี"
+
+#. Second paragraph of description text in anti-censorship view
+msgctxt "anti-censorship-view"
+msgid "Please note that these methods do not improve performance, and may increase system utilization and battery consumption."
+msgstr "โปรดทราบว่าวิธีการเหล่านี้ไม่ได้ช่วยปรับปรุงประสิทธิภาพการทำงาน แต่อาจเพิ่มการใช้งานระบบและการใช้งานแบตเตอรี่ได้"
+
+#. First paragraph of description text in anti-censorship view
+msgctxt "anti-censorship-view"
+msgid "These methods may be useful in situations where you are blocked from reaching Mullvad. When \"Automatic\" is selected, the app will attempt all methods until one works."
+msgstr "วิธีการเหล่านี้อาจมีประโยชน์ในสถานการณ์ที่คุณถูกบล็อกไม่ให้เข้าถึง Mullvad เมื่อเลือก \"อัตโนมัติ\" แอปจะพยายามใช้ทุกวิธีจนกว่าจะมีวิธีใดวิธีหนึ่งที่ใช้งานได้"
 
 msgctxt "api-access-methods-view"
 msgid "Add method"
@@ -1318,6 +1356,20 @@ msgctxt "in-app-notifications"
 msgid "The installer did not start successfully."
 msgstr "โปรแกรมติดตั้งไม่สามารถเริ่มต้นได้สำเร็จ"
 
+#. Notification subtitle indicating the user is using an unsupported port for WireGuard.
+#. Available placeholders:
+#. %(wireGuard)s - Will be replaced with WireGuard
+msgctxt "in-app-notifications"
+msgid "The selected %(wireGuard)s port is not supported, please <a>change it under VPN settings.</a>"
+msgstr "ไม่รองรับพอร์ต %(wireGuard)s ที่เลือก โปรด<a>เปลี่ยนแปลงภายใต้การตั้งค่า VPN</a>"
+
+#. Notification text when a new device has been created.
+#. Available placeholders:
+#. - %(deviceName)s: Name of created device.
+msgctxt "in-app-notifications"
+msgid "This device is now named <em>%(deviceName)s</em>. See more under <a>Manage devices</a> in Account."
+msgstr "ตอนนี้อุปกรณ์นี้ได้รับการตั้งชื่อว่า <em>%(deviceName)s</em> แล้ว ดูเพิ่มเติมได้ภายใต้หัวข้อ <a>จัดการอุปกรณ์</a> ในบัญชี"
+
 #. The in-app banner displayed to the user when the app beta update is
 #. available.
 #. Available placeholders:
@@ -1627,6 +1679,16 @@ msgstr "ล้มเหลวในการเปิดใช้การแย
 msgctxt "notifications"
 msgid "Failed to enable split tunneling. Please try reconnecting or disable split tunneling."
 msgstr "ล้มเหลวในการเปิดใช้การแยกอุโมงค์ โปรดลองเชื่อมต่อใหม่อีกครั้ง หรือปิดใช้งานการแยกอุโมงค์"
+
+#. Label for notification when IPv4 is not available.
+msgctxt "notifications"
+msgid "IPv4 is not available, please try changing Device IP version setting."
+msgstr "IPv4 ไม่พร้อมใช้งาน โปรดลองเปลี่ยนการตั้งค่าเวอร์ชัน IP ของอุปกรณ์"
+
+#. Label for notification when IPv6 is not available.
+msgctxt "notifications"
+msgid "IPv6 is not available, please try changing Device IP version setting."
+msgstr "IPv6 ไม่พร้อมใช้งาน โปรดลองเปลี่ยนการตั้งค่าเวอร์ชัน IP ของอุปกรณ์"
 
 msgctxt "notifications"
 msgid "Lockdown mode active, connection blocked"
@@ -2342,6 +2404,12 @@ msgctxt "vpn-settings-view"
 msgid "Adult content"
 msgstr "เนื้อหาสำหรับผู้ใหญ่"
 
+#. Label for list item that navigates to anti-censorship
+#. settings view.
+msgctxt "vpn-settings-view"
+msgid "Anti-censorship"
+msgstr "การป้องกันการเซ็นเซอร์"
+
 msgctxt "vpn-settings-view"
 msgid "Attention: enabling this will always require a Mullvad VPN connection in order to reach the internet."
 msgstr "โปรดทราบ: การเปิดใช้งานสิ่งนี้จะทำให้คุณจำเป็นต้องเชื่อมต่อ Mullvad VPN ไว้ตลอดเวลา เพื่อที่จะเข้าถึงอินเทอร์เน็ต"
@@ -2381,6 +2449,11 @@ msgstr "ตัวบล็อกเนื้อหา DNS"
 msgctxt "vpn-settings-view"
 msgid "Enable to add at least one DNS server."
 msgstr "เปิดเพื่อเพิ่มเซิร์ฟเวอร์ DNS อย่างน้อยหนึ่งรายการ"
+
+#. Description of in-tunnel IPv6 setting.
+msgctxt "vpn-settings-view"
+msgid "Enable to allow IPv6 traffic through the tunnel."
+msgstr "เปิดใช้งานเพื่อให้การรับส่งข้อมูล IPv6 ผ่านอุโมงค์ได้"
 
 msgctxt "vpn-settings-view"
 msgid "Enter IP"
@@ -2869,6 +2942,9 @@ msgstr "ลบวิธีการหรือไม่"
 msgid "Disable all \"%s\" above to activate this setting."
 msgstr "ปิดใช้งาน \"%s\" ด้านบนทั้งหมด เพื่อเปิดใช้งานการตั้งค่านี้"
 
+msgid "Disable multihop"
+msgstr "ปิดใช้งานมัลติฮอป"
+
 msgid "Disable recents"
 msgstr "ปิดใช้งานล่าสุด"
 
@@ -3208,8 +3284,11 @@ msgstr "วิธีการ \"ปัจจุบัน\" แสดงถึง
 msgid "The app is blocking internet, please disconnect first"
 msgstr "แอปกำลังปิดกั้นอินเทอร์เน็ต โปรดตัดการเชื่อมต่อก่อน"
 
-msgid "The app was unable to %s due to not being able to reach the Mullvad API. This might be due to censorship or network issues. Please try to:"
-msgstr "แอปไม่สามารถ %s ได้ เนื่องจากไม่สามารถเข้าถึง Mullvad API ได้ ซึ่งอาจเกิดจากการเซ็นเซอร์ หรือปัญหาเครือข่าย โปรดลอง:"
+msgid "The app was unable to create an account due to not being able to reach the Mullvad API."
+msgstr "แอปไม่สามารถสร้างบัญชีได้ เนื่องจากไม่สามารถเข้าถึง Mullvad API ได้"
+
+msgid "The app was unable to login due to not being able to reach the Mullvad API."
+msgstr "แอปไม่สามารถเข้าสู่ระบบได้ เนื่องจากไม่สามารถเข้าถึง Mullvad API ได้"
 
 msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under VPN settings."
 msgstr "เซิร์ฟเวอร์ DNS ท้องถิ่นจะไม่ทำงาน เว้นแต่คุณจะเปิดใช้งาน \"การแชร์ในเครือข่ายท้องถิ่น\" ซึ่งอยู่ในส่วนการตั้งค่า VPN"
@@ -3228,6 +3307,9 @@ msgstr "สิ่งนี้ส่งผลต่อความไม่เป
 
 msgid "This is already set as current"
 msgstr "นี่ได้รับการตั้งค่าเป็นปัจจุบันแล้ว"
+
+msgid "This might be due to censorship or network issues. Please try to:"
+msgstr "นี่อาจเกิดจากการเซ็นเซอร์หรือปัญหาเครือข่าย โปรดลอง:"
 
 msgid "Time added"
 msgstr "เพิ่มเวลาแล้ว"
@@ -3267,6 +3349,9 @@ msgstr "ไม่สามารถเริ่มการเชื่อมต
 
 msgid "Unable to start tunnel connection. Please disable Always-on VPN for <b>%s</b> before using Mullvad VPN."
 msgstr "ไม่สามารถเริ่มการเชื่อมต่ออุโมงค์ได้ โปรดปิดใช้งาน Always-on VPN เป็นเวลา <b>%s</b> ก่อนที่จะใช้งาน Mullvad VPN"
+
+msgid "Unavailable"
+msgstr "ไม่พร้อมใช้งาน"
 
 msgid "Undo"
 msgstr "เลิกทำ"
@@ -3352,17 +3437,11 @@ msgstr "\"%s\" ถูกลบแล้ว"
 msgid "click here"
 msgstr "คลิกที่นี่"
 
-msgid "create an account"
-msgstr "สร้างบัญชี"
-
 msgid "here"
 msgstr "ที่นี่"
 
 msgid "less than one day"
 msgstr "น้อยกว่าหนึ่งวัน"
-
-msgid "login"
-msgstr "เข้าสู่ระบบ"
 
 msgid "privacy policy"
 msgstr "นโยบายความเป็นส่วนตัว"

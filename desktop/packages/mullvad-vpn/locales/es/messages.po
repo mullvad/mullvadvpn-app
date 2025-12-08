@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Spanish\n"
 "Language: es_ES\n"
-"PO-Revision-Date: 2025-11-19 13:21\n"
+"PO-Revision-Date: 2025-12-08 09:00\n"
 
 msgid "%(amount)d more..."
 msgstr "%(amount)d más..."
@@ -22,7 +22,7 @@ msgstr "Tiempo añadido: %(duration)s. Cuenta pagada hasta el %(expiry)s."
 #. Available placeholders:
 #. %(wireguard)s - will be replaced with WireGuard
 msgid "%(wireguard)s port"
-msgstr "Puerto %(wireguard)s"
+msgstr "Puerto de %(wireguard)s"
 
 msgid "1 day"
 msgid_plural "%d days"
@@ -225,6 +225,9 @@ msgstr "Siguiente"
 msgid "No result for <b>%(searchTerm)s</b>."
 msgstr "No hay resultados para <b>%(searchTerm)s</b>."
 
+msgid "None"
+msgstr "Ninguno"
+
 msgid "Off"
 msgstr "Desactivado"
 
@@ -308,6 +311,13 @@ msgctxt "accessibility"
 msgid "%(title)s, View loaded"
 msgstr "%(title)s, vista cargada"
 
+#. Text for screen readers to describe the WireGuard port settings navigation button.
+#. Available placeholders:
+#. %(wireguard)s - will be replaced with WireGuard
+msgctxt "accessibility"
+msgid "%(wireguard)s port settings"
+msgstr "Configuración de puertos de %(wireguard)s"
+
 msgctxt "accessibility"
 msgid "Add new custom bridge"
 msgstr "Añadir nuevo puente personalizado"
@@ -340,6 +350,14 @@ msgstr "Expandir %(location)s"
 msgctxt "accessibility"
 msgid "Forget account number %(accountNumber)s"
 msgstr "Olvidar el número de cuenta %(accountNumber)s"
+
+#. Accessibility label for link to VPN settings where
+#. the user can change WireGuard port.
+#. Available placeholders:
+#. %(wireGuard)s - Will be replaced with WireGuard
+msgctxt "accessibility"
+msgid "Go to anti-censorship settings to change %(wireGuard)s port"
+msgstr "Vaya a la configuración anticensura para cambiar el puerto de %(wireGuard)s"
 
 #. Accessibility label for link to app upgrade view.
 msgctxt "accessibility"
@@ -454,6 +472,26 @@ msgstr "TIEMPO AGOTADO"
 msgctxt "account-view"
 msgid "Paid until"
 msgstr "Pagado hasta"
+
+#. Page title for anti censorship settings view
+msgctxt "anti-censorship-view"
+msgid "Anti-censorship"
+msgstr "Anticensura"
+
+#. The title for the obfuscation method selector.
+msgctxt "anti-censorship-view"
+msgid "Method"
+msgstr "Método"
+
+#. Second paragraph of description text in anti-censorship view
+msgctxt "anti-censorship-view"
+msgid "Please note that these methods do not improve performance, and may increase system utilization and battery consumption."
+msgstr "Tenga en cuenta que estos métodos no mejoran el rendimiento, y podrían aumentar el uso del sistema y el consumo de batería."
+
+#. First paragraph of description text in anti-censorship view
+msgctxt "anti-censorship-view"
+msgid "These methods may be useful in situations where you are blocked from reaching Mullvad. When \"Automatic\" is selected, the app will attempt all methods until one works."
+msgstr "Estos métodos podrían utilizarse en situaciones en las que tiene bloqueado el acceso a Mullvad. Cuando se selecciona «Automático», la aplicación intentará todos los métodos hasta que funcione alguno."
 
 msgctxt "api-access-methods-view"
 msgid "Add method"
@@ -1324,6 +1362,20 @@ msgctxt "in-app-notifications"
 msgid "The installer did not start successfully."
 msgstr "El instalador no se ha iniciado correctamente."
 
+#. Notification subtitle indicating the user is using an unsupported port for WireGuard.
+#. Available placeholders:
+#. %(wireGuard)s - Will be replaced with WireGuard
+msgctxt "in-app-notifications"
+msgid "The selected %(wireGuard)s port is not supported, please <a>change it under VPN settings.</a>"
+msgstr "El puerto de %(wireGuard)s seleccionado no es compatible, <a>cámbielo en Configuración de VPN.</a>"
+
+#. Notification text when a new device has been created.
+#. Available placeholders:
+#. - %(deviceName)s: Name of created device.
+msgctxt "in-app-notifications"
+msgid "This device is now named <em>%(deviceName)s</em>. See more under <a>Manage devices</a> in Account."
+msgstr "Este dispositivo ahora se llama <em>%(deviceName)s</em>. Encontrará más información en <a>Gestionar dispositivos</a> en la Cuenta."
+
 #. The in-app banner displayed to the user when the app beta update is
 #. available.
 #. Available placeholders:
@@ -1633,6 +1685,16 @@ msgstr "Error al habilitar la tunelización dividida."
 msgctxt "notifications"
 msgid "Failed to enable split tunneling. Please try reconnecting or disable split tunneling."
 msgstr "Error al habilitar la tunelización dividida. Intente reconectar o deshabilitar la tunelización dividida."
+
+#. Label for notification when IPv4 is not available.
+msgctxt "notifications"
+msgid "IPv4 is not available, please try changing Device IP version setting."
+msgstr "IPv4 no disponible. Intente cambiar el ajuste «Versión de IP del dispositivo»."
+
+#. Label for notification when IPv6 is not available.
+msgctxt "notifications"
+msgid "IPv6 is not available, please try changing Device IP version setting."
+msgstr "IPv6 no disponible. Intente cambiar el ajuste «Versión de IP del dispositivo»."
 
 msgctxt "notifications"
 msgid "Lockdown mode active, connection blocked"
@@ -2348,6 +2410,12 @@ msgctxt "vpn-settings-view"
 msgid "Adult content"
 msgstr "Contenido para adultos"
 
+#. Label for list item that navigates to anti-censorship
+#. settings view.
+msgctxt "vpn-settings-view"
+msgid "Anti-censorship"
+msgstr "Anticensura"
+
 msgctxt "vpn-settings-view"
 msgid "Attention: enabling this will always require a Mullvad VPN connection in order to reach the internet."
 msgstr "Atención: Si activa esta opción, tendrá que usar siempre una conexión VPN de Mullvad para acceder a Internet."
@@ -2387,6 +2455,11 @@ msgstr "Bloqueadores de contenido DNS"
 msgctxt "vpn-settings-view"
 msgid "Enable to add at least one DNS server."
 msgstr "Active esta opción para agregar como mínimo un servidor DNS."
+
+#. Description of in-tunnel IPv6 setting.
+msgctxt "vpn-settings-view"
+msgid "Enable to allow IPv6 traffic through the tunnel."
+msgstr "Habilítelo para permitir el tráfico de IPv6 por el túnel."
 
 msgctxt "vpn-settings-view"
 msgid "Enter IP"
@@ -2534,12 +2607,12 @@ msgstr "%(daita)s lo realiza añadiendo con cuidado ruido de red y haciendo que 
 
 msgctxt "wireguard-settings-view"
 msgid "%(wireguard)s port"
-msgstr "Puerto %(wireguard)s"
+msgstr "Puerto de %(wireguard)s"
 
 #. Page title for WireGuard port view
 msgctxt "wireguard-settings-view"
 msgid "%(wireGuard)s port"
-msgstr "Puerto %(wireGuard)s"
+msgstr "Puerto de %(wireGuard)s"
 
 msgctxt "wireguard-settings-view"
 msgid "Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans."
@@ -2874,6 +2947,9 @@ msgstr "¿Eliminar el método?"
 
 msgid "Disable all \"%s\" above to activate this setting."
 msgstr "Deshabilite todos los «%s» de arriba para activar este ajuste."
+
+msgid "Disable multihop"
+msgstr "Deshabilitar salto múltiple"
 
 msgid "Disable recents"
 msgstr "Deshabilitar recientes"
@@ -3214,8 +3290,11 @@ msgstr "El método «Actual» representa el método que la aplicación utiliza p
 msgid "The app is blocking internet, please disconnect first"
 msgstr "La aplicación está bloqueando Internet. Primero desconéctela"
 
-msgid "The app was unable to %s due to not being able to reach the Mullvad API. This might be due to censorship or network issues. Please try to:"
-msgstr "La aplicación no ha podido %s al no ser posible la conexión con la API de Mullvad. Esto puede deberse a problemas de censura o de red. Intente:"
+msgid "The app was unable to create an account due to not being able to reach the Mullvad API."
+msgstr "La aplicación no ha podido crear una cuenta al no poder acceder a la API de Mullvad."
+
+msgid "The app was unable to login due to not being able to reach the Mullvad API."
+msgstr "La aplicación no ha podido iniciar sesión al no poder acceder a la API de Mullvad."
 
 msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under VPN settings."
 msgstr "El servidor DNS local no funcionará a no ser que habilite la opción «Uso compartido de red local» en la configuración de la VPN."
@@ -3234,6 +3313,9 @@ msgstr "Esto afecta a su anonimato"
 
 msgid "This is already set as current"
 msgstr "Este ya está configurado como actual"
+
+msgid "This might be due to censorship or network issues. Please try to:"
+msgstr "Esto podría deberse a problemas de red o de censura. Intente lo siguiente:"
 
 msgid "Time added"
 msgstr "Tiempo añadido"
@@ -3273,6 +3355,9 @@ msgstr "No se puede iniciar la conexión de túnel. Deshabilite la VPN siempre a
 
 msgid "Unable to start tunnel connection. Please disable Always-on VPN for <b>%s</b> before using Mullvad VPN."
 msgstr "No se puede iniciar la conexión de túnel. Deshabilite la VPN siempre activa en <b>%s</b> antes de utilizar la VPN de Mullvad."
+
+msgid "Unavailable"
+msgstr "No disponible"
 
 msgid "Undo"
 msgstr "Deshacer"
@@ -3358,17 +3443,11 @@ msgstr "Se ha eliminado «%s»"
 msgid "click here"
 msgstr "haga clic aquí"
 
-msgid "create an account"
-msgstr "crear una cuenta"
-
 msgid "here"
 msgstr "aquí"
 
 msgid "less than one day"
 msgstr "menos de un día"
-
-msgid "login"
-msgstr "iniciar sesión"
 
 msgid "privacy policy"
 msgstr "política de privacidad"

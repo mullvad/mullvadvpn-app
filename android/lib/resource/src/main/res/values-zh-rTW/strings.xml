@@ -145,6 +145,7 @@
     <string name="device_name_info_third_paragraph">如果您登出，則系統會移除裝置和裝置名稱。當您再次登入時，裝置則會獲得新名稱。</string>
     <string name="direct_only">僅直接連線</string>
     <string name="direct_only_description">我們有些伺服器並未啟用 %1$s。若要使用網際網路，您可能必須在啟用後選取新的位置。</string>
+    <string name="disable_multihop">停用多點跳躍</string>
     <string name="disable_recents">停用最近使用</string>
     <string name="discard">捨棄</string>
     <string name="discard_changes">要捨棄變更嗎？</string>
@@ -412,11 +413,15 @@
     <string name="udp">UDP</string>
     <string name="udp_over_tcp">UDP-over-TCP</string>
     <string name="udp_over_tcp_port_info">UDP-over-TCP 混淆通訊協定應連線到 VPN 伺服器上的哪個 TCP 連接埠。</string>
+    <string name="unable_to_reach_api_dialog_message_first_create_account">由於無法連至 Mullvad API，本應用程式無法建立帳戶。</string>
+    <string name="unable_to_reach_api_dialog_message_first_login">由於無法連至 Mullvad API，本應用程式無法登入。</string>
     <string name="unable_to_reach_api_dialog_message_list_first">重新啟動裝置</string>
     <string name="unable_to_reach_api_dialog_message_list_second">連上其他網路</string>
     <string name="unable_to_reach_api_dialog_message_list_third">啟用應用程式中所有存取方式</string>
+    <string name="unable_to_reach_api_dialog_message_second">這可能是由於審查或網路問題所造成。請嘗試：</string>
     <string name="unable_to_reach_api_dialog_message_third">若以上步驟無效，請使用下方按鈕傳送電子郵件至支援團隊。電子郵件將自動附加已匿名處理的日誌記錄。</string>
     <string name="unable_to_reach_api_dialog_title">無法存取 API</string>
+    <string name="unavailable">無法使用</string>
     <string name="undo">復原</string>
     <string name="unsupported_version">不支援的版本</string>
     <string name="unsupported_version_description">此應用程式版本不受支援，因此您的隱私可能存在風險。請立即更新。</string>

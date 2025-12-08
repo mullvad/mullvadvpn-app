@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Finnish\n"
 "Language: fi_FI\n"
-"PO-Revision-Date: 2025-11-19 13:21\n"
+"PO-Revision-Date: 2025-12-08 09:00\n"
 
 msgid "%(amount)d more..."
 msgstr "%(amount)d lisää..."
@@ -225,6 +225,9 @@ msgstr "Seuraava"
 msgid "No result for <b>%(searchTerm)s</b>."
 msgstr "Ei tuloksia haulle <b>%(searchTerm)s</b>."
 
+msgid "None"
+msgstr "Ei mitään"
+
 msgid "Off"
 msgstr "Pois"
 
@@ -308,6 +311,13 @@ msgctxt "accessibility"
 msgid "%(title)s, View loaded"
 msgstr "%(title)s, Näkymä ladattu"
 
+#. Text for screen readers to describe the WireGuard port settings navigation button.
+#. Available placeholders:
+#. %(wireguard)s - will be replaced with WireGuard
+msgctxt "accessibility"
+msgid "%(wireguard)s port settings"
+msgstr "%(wireguard)s-porttiasetukset"
+
 msgctxt "accessibility"
 msgid "Add new custom bridge"
 msgstr "Lisää uusi mukautettu siltaus"
@@ -340,6 +350,14 @@ msgstr "Näytä enemmän: %(location)s"
 msgctxt "accessibility"
 msgid "Forget account number %(accountNumber)s"
 msgstr "Pyyhi tilin numero %(accountNumber)s"
+
+#. Accessibility label for link to VPN settings where
+#. the user can change WireGuard port.
+#. Available placeholders:
+#. %(wireGuard)s - Will be replaced with WireGuard
+msgctxt "accessibility"
+msgid "Go to anti-censorship settings to change %(wireGuard)s port"
+msgstr "Siirry sensuurinestoasetuksiin vaihtamaan %(wireGuard)s-portti"
 
 #. Accessibility label for link to app upgrade view.
 msgctxt "accessibility"
@@ -454,6 +472,26 @@ msgstr "EI KÄYTTÖAIKAA"
 msgctxt "account-view"
 msgid "Paid until"
 msgstr "Maksu ennen"
+
+#. Page title for anti censorship settings view
+msgctxt "anti-censorship-view"
+msgid "Anti-censorship"
+msgstr "Sensuurinesto"
+
+#. The title for the obfuscation method selector.
+msgctxt "anti-censorship-view"
+msgid "Method"
+msgstr "Tapa"
+
+#. Second paragraph of description text in anti-censorship view
+msgctxt "anti-censorship-view"
+msgid "Please note that these methods do not improve performance, and may increase system utilization and battery consumption."
+msgstr "Huomioithan, että nämä tavat eivät paranna suorituskykyä ja saattavat lisätä järjestelmän ja akun käyttöä."
+
+#. First paragraph of description text in anti-censorship view
+msgctxt "anti-censorship-view"
+msgid "These methods may be useful in situations where you are blocked from reaching Mullvad. When \"Automatic\" is selected, the app will attempt all methods until one works."
+msgstr "Nämä tavat voivat olla hyödyllisiä tilanteissa, joissa sinua on estetty pääsemästä Mullvadiin. Kun \"automaattinen\" valitaan, sovellus kokeilee kaikkia tapoja, kunnes jokin niistä toimii."
 
 msgctxt "api-access-methods-view"
 msgid "Add method"
@@ -1324,6 +1362,20 @@ msgctxt "in-app-notifications"
 msgid "The installer did not start successfully."
 msgstr "Asennusohjelman käynnistys ei onnistunut."
 
+#. Notification subtitle indicating the user is using an unsupported port for WireGuard.
+#. Available placeholders:
+#. %(wireGuard)s - Will be replaced with WireGuard
+msgctxt "in-app-notifications"
+msgid "The selected %(wireGuard)s port is not supported, please <a>change it under VPN settings.</a>"
+msgstr "Valittua %(wireGuard)s-porttia ei tueta. <a>Vaihda se VPN-asetuksissa</a>."
+
+#. Notification text when a new device has been created.
+#. Available placeholders:
+#. - %(deviceName)s: Name of created device.
+msgctxt "in-app-notifications"
+msgid "This device is now named <em>%(deviceName)s</em>. See more under <a>Manage devices</a> in Account."
+msgstr "Tämän laitteen nimi on nyt <em>%(deviceName)s</em>. Katso lisää tililtä kohdasta <a>Hallitse laitteita</a>."
+
 #. The in-app banner displayed to the user when the app beta update is
 #. available.
 #. Available placeholders:
@@ -1633,6 +1685,16 @@ msgstr "Sovelluskohtaisen yhdistämisen käyttöönotto epäonnistui."
 msgctxt "notifications"
 msgid "Failed to enable split tunneling. Please try reconnecting or disable split tunneling."
 msgstr "Sovelluskohtaisen yhdistämisen käyttöönotto epäonnistui. Yritä muodostaa yhteys uudelleen tai poista sovelluskohtainen yhdistäminen käytöstä."
+
+#. Label for notification when IPv4 is not available.
+msgctxt "notifications"
+msgid "IPv4 is not available, please try changing Device IP version setting."
+msgstr "IPv4 ei ole käytettävissä. Kokeile vaihtaa *Laitteen IP-versio* -asetus."
+
+#. Label for notification when IPv6 is not available.
+msgctxt "notifications"
+msgid "IPv6 is not available, please try changing Device IP version setting."
+msgstr "IPv6 ei ole käytettävissä. Kokeile vaihtaa *Laitteen IP-versio* -asetus."
 
 msgctxt "notifications"
 msgid "Lockdown mode active, connection blocked"
@@ -2348,6 +2410,12 @@ msgctxt "vpn-settings-view"
 msgid "Adult content"
 msgstr "Aikuisille suunnattu sisältö"
 
+#. Label for list item that navigates to anti-censorship
+#. settings view.
+msgctxt "vpn-settings-view"
+msgid "Anti-censorship"
+msgstr "Sensuurinesto"
+
 msgctxt "vpn-settings-view"
 msgid "Attention: enabling this will always require a Mullvad VPN connection in order to reach the internet."
 msgstr "Huomio: jos tämä otetaan käyttöön, verkkoon yhdistäminen vaatii aina Mullvad VPN -yhteyden."
@@ -2387,6 +2455,11 @@ msgstr "DNS-sisällönestotoiminnot"
 msgctxt "vpn-settings-view"
 msgid "Enable to add at least one DNS server."
 msgstr "Ota käyttöön lisätäksesi vähintään yhden DNS-palvelimen."
+
+#. Description of in-tunnel IPv6 setting.
+msgctxt "vpn-settings-view"
+msgid "Enable to allow IPv6 traffic through the tunnel."
+msgstr "Kun tämä on käytössä, IPv6-liikenne sallitaan tunnelin kautta."
 
 msgctxt "vpn-settings-view"
 msgid "Enter IP"
@@ -2875,6 +2948,9 @@ msgstr "Poista menetelmä?"
 msgid "Disable all \"%s\" above to activate this setting."
 msgstr "Ota tämä asetus käyttöön poistamalla kaikki %s käytöstä yllä."
 
+msgid "Disable multihop"
+msgstr "Poista multihop käytöstä"
+
 msgid "Disable recents"
 msgstr "Poista viimeisimmät käytöstä"
 
@@ -3214,8 +3290,11 @@ msgstr "\"Nykyinen\" menetelmä edustaa sitä, mitä menetelmää sovellus käyt
 msgid "The app is blocking internet, please disconnect first"
 msgstr "Sovellus estää internetyhteyden, katkaise sen yhteys ensin"
 
-msgid "The app was unable to %s due to not being able to reach the Mullvad API. This might be due to censorship or network issues. Please try to:"
-msgstr "Toiminto %s ei onnistunut sovellukselta, koska se ei saanut yhteyttä Mullvad API:hin. Tämä voi johtua sensuurista tai verkko-ongelmista. Kokeile seuraavia:"
+msgid "The app was unable to create an account due to not being able to reach the Mullvad API."
+msgstr "Sovellus ei voinut luoda tiliä, koska se ei saanut yhteyttä Mullvad API:hin."
+
+msgid "The app was unable to login due to not being able to reach the Mullvad API."
+msgstr "Sovellus ei voinut kirjautua, koska se ei saanut yhteyttä Mullvad API:hin."
 
 msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under VPN settings."
 msgstr "Paikallinen DNS-palvelin ei toimi, ellet ota paikallisen verkon jakamista käyttöön VPN-asetuksista."
@@ -3234,6 +3313,9 @@ msgstr "Tämä vaikuttaa anonymiteettiisi"
 
 msgid "This is already set as current"
 msgstr "Tämä on jo asetettu nykyiseksi"
+
+msgid "This might be due to censorship or network issues. Please try to:"
+msgstr "Tämä voi johtua sensuurista tai verkko-ongelmista. Kokeile seuraavia:"
 
 msgid "Time added"
 msgstr "Käyttöaikaa lisätty"
@@ -3273,6 +3355,9 @@ msgstr "Tunneliyhteyden käynnistäminen ei onnistu. Poista aina päällä oleva
 
 msgid "Unable to start tunnel connection. Please disable Always-on VPN for <b>%s</b> before using Mullvad VPN."
 msgstr "Tunneliyhteyden käynnistäminen ei onnistu. Poista aina päällä oleva VPN käytöstä sovellukselle <b>%s</b> ennen Mullvad VPN:n käyttämistä."
+
+msgid "Unavailable"
+msgstr "Ei saatavilla"
 
 msgid "Undo"
 msgstr "Kumoa"
@@ -3358,17 +3443,11 @@ msgstr "\"%s\" poistettiin"
 msgid "click here"
 msgstr "painamalla tästä"
 
-msgid "create an account"
-msgstr "luo tili"
-
 msgid "here"
 msgstr "täältä"
 
 msgid "less than one day"
 msgstr "alle vuorokausi"
-
-msgid "login"
-msgstr "kirjaudu sisään"
 
 msgid "privacy policy"
 msgstr "tietosuojakäytäntö"

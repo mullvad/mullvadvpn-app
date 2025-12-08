@@ -145,6 +145,7 @@
     <string name="device_name_info_third_paragraph">Hvis du logger ud, fjernes enheden og enhedsnavnet. Når du logger på igen, får enheden et nyt navn.</string>
     <string name="direct_only">Kun direkte</string>
     <string name="direct_only_description">Ikke alle vores servere er %1$s-kompatible. For at kunne bruge internettet skal du muligvis vælge en ny placering efter aktivering.</string>
+    <string name="disable_multihop">Deaktiver multihop</string>
     <string name="disable_recents">Deaktiver nylige</string>
     <string name="discard">Kassér</string>
     <string name="discard_changes">Vil du kassere ændringer?</string>
@@ -412,11 +413,15 @@
     <string name="udp">UDP</string>
     <string name="udp_over_tcp">UDP-over-TCP</string>
     <string name="udp_over_tcp_port_info">Hvilken TCP-port UDP-over-TCP tilsløringsprotokollen skal forbinde til på VPN-serveren.</string>
+    <string name="unable_to_reach_api_dialog_message_first_create_account">Appen kunne ikke oprette en konto, da den ikke kunne nå Mullvad API.</string>
+    <string name="unable_to_reach_api_dialog_message_first_login">Appen kunne ikke logge på, da den ikke kunne nå Mullvad API.</string>
     <string name="unable_to_reach_api_dialog_message_list_first">Genstart din enhed</string>
     <string name="unable_to_reach_api_dialog_message_list_second">Opret forbindelse til et andet netværk</string>
     <string name="unable_to_reach_api_dialog_message_list_third">Aktiver alle adgangsmetoder i appen</string>
+    <string name="unable_to_reach_api_dialog_message_second">Det kan være pga. censur eller netværksproblemer. Prøv at:</string>
     <string name="unable_to_reach_api_dialog_message_third">Hvis disse trin ikke virker, kan du sende en e-mail til support via knappen nedenfor. Den vil automatisk vedhæfte de logfiler, som er blevet anonymiseret.</string>
     <string name="unable_to_reach_api_dialog_title">Kan ikke nå API</string>
+    <string name="unavailable">Ikke tilgængelig</string>
     <string name="undo">Fortryd</string>
     <string name="unsupported_version">IKKE-UNDERSTØTTET VERSION</string>
     <string name="unsupported_version_description">Dit privatliv kan være i fare med denne ikke-understøttede appversion. Opdater den straks.</string>

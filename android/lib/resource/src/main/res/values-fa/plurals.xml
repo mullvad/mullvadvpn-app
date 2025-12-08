@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="days_left">
+        <item quantity="one">1 روز باقی‌مانده</item>
+        <item quantity="other">%1$d روز باقی‌مانده</item>
+    </plurals>
+    <plurals name="years_left">
+        <item quantity="one">1 سال باقی‌مانده</item>
+        <item quantity="other">%1$d سال باقی‌مانده</item>
+    </plurals>
+    <plurals name="days">
+        <item quantity="one">%1$d روز</item>
+        <item quantity="other">%1$d روز</item>
+    </plurals>
+    <plurals name="number_of_locations">
+        <item quantity="one">%1$d مکان</item>
+        <item quantity="other">%1$d مکان</item>
+    </plurals>
+    <plurals name="months">
+        <item quantity="one">%1$d ماه</item>
+        <item quantity="other">%1$d ماه</item>
+    </plurals>
+    <plurals name="account_credit_expires_in_days">
+        <item quantity="one">اعتبار حساب تا یک روز دیگر منقضی می‌شود</item>
+        <item quantity="other">اعتبار حساب تا %1$d روز دیگر منقضی می‌شود</item>
+    </plurals>
+    <plurals name="account_credit_expires_in_hours">
+        <item quantity="one">اعتبار حساب تا یک ساعت دیگر منقضی می‌شود</item>
+        <item quantity="other">اعتبار حساب تا %1$d ساعت دیگر منقضی می‌شود</item>
+    </plurals>
+</resources>

@@ -145,6 +145,7 @@
     <string name="device_name_info_third_paragraph">Oturumu kapatırsanız cihaz ve cihaz adı kaldırılır. Tekrar oturum açtığınızda cihaza yeni bir ad verilir.</string>
     <string name="direct_only">Yalnızca doğrudan</string>
     <string name="direct_only_description">%1$s, tüm sunucularımızda etkin değildir. İnterneti kullanmak için özelliği etkinleştirdikten sonra yeni bir konum seçmeniz gerekir.</string>
+    <string name="disable_multihop">Çoklu geçişi devre dışı bırak</string>
     <string name="disable_recents">Son filtreleri devre dışı bırak</string>
     <string name="discard">İptal et</string>
     <string name="discard_changes">Değişiklikler iptal edilsin mi?</string>
@@ -412,11 +413,15 @@
     <string name="udp">UDP</string>
     <string name="udp_over_tcp">TCP üzerinden UDP</string>
     <string name="udp_over_tcp_port_info">TCP üzerinden UDP gizleme protokolünün VPN sunucusunda hangi TCP portuna bağlanması gerekiyor.</string>
+    <string name="unable_to_reach_api_dialog_message_first_create_account">Uygulama, Mullvad API\'ye erişemediği için hesap oluşturulamadı.</string>
+    <string name="unable_to_reach_api_dialog_message_first_login">Uygulama, Mullvad API\'ye erişemediği için giriş yapılamıyor.</string>
     <string name="unable_to_reach_api_dialog_message_list_first">Cihazınızı yeniden başlatın</string>
     <string name="unable_to_reach_api_dialog_message_list_second">Farklı bir ağa bağlan</string>
     <string name="unable_to_reach_api_dialog_message_list_third">Uygulamadaki tüm erişim yöntemlerini etkinleştir</string>
+    <string name="unable_to_reach_api_dialog_message_second">Bu, sansür veya ağ sorunlarından kaynaklanıyor olabilir. Lütfen şunları deneyin:</string>
     <string name="unable_to_reach_api_dialog_message_third">Bu adımlar işe yaramazsa, lütfen aşağıdaki düğmeyi kullanarak destek ekibine bir e-posta gönderin. Anonimleştirilmiş kayıtlar otomatik olarak eklenerek gönderilir.</string>
     <string name="unable_to_reach_api_dialog_title">API\'ye erişilemiyor</string>
+    <string name="unavailable">Mevcut değil</string>
     <string name="undo">Geri al</string>
     <string name="unsupported_version">DESTEKLENMEYEN SÜRÜM</string>
     <string name="unsupported_version_description">Bu desteklenmeyen uygulama sürümüyle gizliliğiniz risk altında olabilir. Lütfen hemen güncelleyin.</string>

@@ -145,6 +145,7 @@
     <string name="device_name_info_third_paragraph">Если вы выйдете, устройство и его имя удалятся. При повторном входе устройство получит новое имя.</string>
     <string name="direct_only">Только напрямую</string>
     <string name="direct_only_description">%1$s поддерживается не на всех серверах. Поэтому, чтобы выйти онлайн после включения этой функции, вам, возможно, придется выбрать новое местоположение.</string>
+    <string name="disable_multihop">Отключить многократный переход</string>
     <string name="disable_recents">Отключить недавние</string>
     <string name="discard">Сбросить</string>
     <string name="discard_changes">Сбросить изменения?</string>
@@ -412,11 +413,15 @@
     <string name="udp">UDP</string>
     <string name="udp_over_tcp">UDP через TCP</string>
     <string name="udp_over_tcp_port_info">TCP-порт, к которому должен подключаться протокол обфускации UDP через TCP на VPN-сервере.</string>
+    <string name="unable_to_reach_api_dialog_message_first_create_account">Приложению не удалось создать учетную запись из-за отсутствия доступа к API Mullvad.</string>
+    <string name="unable_to_reach_api_dialog_message_first_login">Приложению не удалось выполнить вход из-за отсутствия доступа к API Mullvad.</string>
     <string name="unable_to_reach_api_dialog_message_list_first">Перезагрузить устройство.</string>
     <string name="unable_to_reach_api_dialog_message_list_second">Подключиться к другой сети.</string>
     <string name="unable_to_reach_api_dialog_message_list_third">Включить все методы доступа в приложении</string>
+    <string name="unable_to_reach_api_dialog_message_second">Это могло произойти из-за цензуры или проблем с сетью. Попробуйте следующее:</string>
     <string name="unable_to_reach_api_dialog_message_third">Если описанные выше шаги не помогли, отправьте письмо в службу поддержки, нажав кнопку ниже. К письму будут автоматически прикреплены анонимизированные журналы активности.</string>
     <string name="unable_to_reach_api_dialog_title">Невозможно подключиться к API</string>
+    <string name="unavailable">Недоступно</string>
     <string name="undo">Отменить</string>
     <string name="unsupported_version">НЕПОДДЕРЖИВАЕМАЯ ВЕРСИЯ</string>
     <string name="unsupported_version_description">Эта версия приложения не поддерживается, что может угрожать неприкосновенности ваших данных. Обновите приложение.</string>

@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Chinese Traditional\n"
 "Language: zh_TW\n"
-"PO-Revision-Date: 2025-11-19 13:21\n"
+"PO-Revision-Date: 2025-12-08 09:00\n"
 
 msgid "%(amount)d more..."
 msgstr "其他 %(amount)d 個…"
@@ -22,7 +22,7 @@ msgstr "已新增 %(duration)s，帳戶到期時間為 %(expiry)s。"
 #. Available placeholders:
 #. %(wireguard)s - will be replaced with WireGuard
 msgid "%(wireguard)s port"
-msgstr "%(wireguard)s 連線埠"
+msgstr "%(wireguard)s 連接埠"
 
 msgid "1 day"
 msgid_plural "%d days"
@@ -219,6 +219,9 @@ msgstr "下一步"
 msgid "No result for <b>%(searchTerm)s</b>."
 msgstr "<b>%(searchTerm)s</b> 沒有任何結果。"
 
+msgid "None"
+msgstr "無"
+
 msgid "Off"
 msgstr "關閉"
 
@@ -302,6 +305,13 @@ msgctxt "accessibility"
 msgid "%(title)s, View loaded"
 msgstr "%(title)s，已載入視圖"
 
+#. Text for screen readers to describe the WireGuard port settings navigation button.
+#. Available placeholders:
+#. %(wireguard)s - will be replaced with WireGuard
+msgctxt "accessibility"
+msgid "%(wireguard)s port settings"
+msgstr "%(wireguard)s 連接埠設定"
+
 msgctxt "accessibility"
 msgid "Add new custom bridge"
 msgstr "增添新的自訂橋接"
@@ -334,6 +344,14 @@ msgstr "展開 %(location)s"
 msgctxt "accessibility"
 msgid "Forget account number %(accountNumber)s"
 msgstr "忘記帳號 %(accountNumber)s"
+
+#. Accessibility label for link to VPN settings where
+#. the user can change WireGuard port.
+#. Available placeholders:
+#. %(wireGuard)s - Will be replaced with WireGuard
+msgctxt "accessibility"
+msgid "Go to anti-censorship settings to change %(wireGuard)s port"
+msgstr "前往反審查設定變更 %(wireGuard)s 連接埠"
 
 #. Accessibility label for link to app upgrade view.
 msgctxt "accessibility"
@@ -448,6 +466,26 @@ msgstr "逾時"
 msgctxt "account-view"
 msgid "Paid until"
 msgstr "支付至"
+
+#. Page title for anti censorship settings view
+msgctxt "anti-censorship-view"
+msgid "Anti-censorship"
+msgstr "反審查"
+
+#. The title for the obfuscation method selector.
+msgctxt "anti-censorship-view"
+msgid "Method"
+msgstr "方式"
+
+#. Second paragraph of description text in anti-censorship view
+msgctxt "anti-censorship-view"
+msgid "Please note that these methods do not improve performance, and may increase system utilization and battery consumption."
+msgstr "請注意，這些方式不會提升效能，還可能消耗更多系統資源與電力。"
+
+#. First paragraph of description text in anti-censorship view
+msgctxt "anti-censorship-view"
+msgid "These methods may be useful in situations where you are blocked from reaching Mullvad. When \"Automatic\" is selected, the app will attempt all methods until one works."
+msgstr "當您無法連上 Mullvad 時，這些方式可能會派上用場。選擇「自動」時，應用程式會依序嘗試所有方式，直到其中一種成功為止。"
 
 msgctxt "api-access-methods-view"
 msgid "Add method"
@@ -1318,6 +1356,20 @@ msgctxt "in-app-notifications"
 msgid "The installer did not start successfully."
 msgstr "安裝程式未能順利啟動。"
 
+#. Notification subtitle indicating the user is using an unsupported port for WireGuard.
+#. Available placeholders:
+#. %(wireGuard)s - Will be replaced with WireGuard
+msgctxt "in-app-notifications"
+msgid "The selected %(wireGuard)s port is not supported, please <a>change it under VPN settings.</a>"
+msgstr "不支援所選的 %(wireGuard)s 連接埠，請<a>在 VPN 設定中變更</a>。"
+
+#. Notification text when a new device has been created.
+#. Available placeholders:
+#. - %(deviceName)s: Name of created device.
+msgctxt "in-app-notifications"
+msgid "This device is now named <em>%(deviceName)s</em>. See more under <a>Manage devices</a> in Account."
+msgstr "現在此裝置的名稱是 <em>%(deviceName)s</em>。如需更多資訊，請參閱「帳戶」中的<a>管理裝置</a>。"
+
 #. The in-app banner displayed to the user when the app beta update is
 #. available.
 #. Available placeholders:
@@ -1627,6 +1679,16 @@ msgstr "無法啟用分割通道。"
 msgctxt "notifications"
 msgid "Failed to enable split tunneling. Please try reconnecting or disable split tunneling."
 msgstr "無法啟用分割通道。請嘗試重新連線或停用分割通道。"
+
+#. Label for notification when IPv4 is not available.
+msgctxt "notifications"
+msgid "IPv4 is not available, please try changing Device IP version setting."
+msgstr "無法使用 IPv4，請嘗試變更裝置 IP 版本設定。"
+
+#. Label for notification when IPv6 is not available.
+msgctxt "notifications"
+msgid "IPv6 is not available, please try changing Device IP version setting."
+msgstr "無法使用 IPv6，請嘗試變更裝置 IP 版本設定。"
 
 msgctxt "notifications"
 msgid "Lockdown mode active, connection blocked"
@@ -2342,6 +2404,12 @@ msgctxt "vpn-settings-view"
 msgid "Adult content"
 msgstr "成人內容"
 
+#. Label for list item that navigates to anti-censorship
+#. settings view.
+msgctxt "vpn-settings-view"
+msgid "Anti-censorship"
+msgstr "反審查"
+
 msgctxt "vpn-settings-view"
 msgid "Attention: enabling this will always require a Mullvad VPN connection in order to reach the internet."
 msgstr "注意：啟用此功能，皆需 Mullvad VPN 連線才能上網。"
@@ -2381,6 +2449,11 @@ msgstr "DNS 內容封鎖程式"
 msgctxt "vpn-settings-view"
 msgid "Enable to add at least one DNS server."
 msgstr "啟用以新增至少一個 DNS 伺服器。"
+
+#. Description of in-tunnel IPv6 setting.
+msgctxt "vpn-settings-view"
+msgid "Enable to allow IPv6 traffic through the tunnel."
+msgstr "啟用以允許 IPv6 流量通過此通道。"
 
 msgctxt "vpn-settings-view"
 msgid "Enter IP"
@@ -2528,12 +2601,12 @@ msgstr "%(daita)s 會仔細加入網路噪音，讓所有網路資料封包大�
 
 msgctxt "wireguard-settings-view"
 msgid "%(wireguard)s port"
-msgstr "%(wireguard)s 連線埠"
+msgstr "%(wireguard)s 連接埠"
 
 #. Page title for WireGuard port view
 msgctxt "wireguard-settings-view"
 msgid "%(wireGuard)s port"
-msgstr "%(wireGuard)s 連線埠"
+msgstr "%(wireGuard)s 連接埠"
 
 msgctxt "wireguard-settings-view"
 msgid "Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans."
@@ -2868,6 +2941,9 @@ msgstr "要刪除方式嗎？"
 
 msgid "Disable all \"%s\" above to activate this setting."
 msgstr "停用上方所有「%s」以啟動此設定。"
+
+msgid "Disable multihop"
+msgstr "停用多點跳躍"
 
 msgid "Disable recents"
 msgstr "停用最近使用"
@@ -3208,8 +3284,11 @@ msgstr "「目前」方式表示應用程式正用來存取 API 的方式。"
 msgid "The app is blocking internet, please disconnect first"
 msgstr "此應用程式正在封鎖網際網路，請先中斷連線"
 
-msgid "The app was unable to %s due to not being able to reach the Mullvad API. This might be due to censorship or network issues. Please try to:"
-msgstr "由於無法存取 Mullvad API，應用程式無法 %s。這可能是審查或網路問題所導致。請嘗試："
+msgid "The app was unable to create an account due to not being able to reach the Mullvad API."
+msgstr "由於無法連至 Mullvad API，本應用程式無法建立帳戶。"
+
+msgid "The app was unable to login due to not being able to reach the Mullvad API."
+msgstr "由於無法連至 Mullvad API，本應用程式無法登入。"
 
 msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under VPN settings."
 msgstr "若要使本機 DNS 伺服器運作，需先在 VPN 設定下啟用「本機網路共享」。"
@@ -3228,6 +3307,9 @@ msgstr "這會影響您的匿名性"
 
 msgid "This is already set as current"
 msgstr "已將其設定為目前方式"
+
+msgid "This might be due to censorship or network issues. Please try to:"
+msgstr "這可能是由於審查或網路問題所造成。請嘗試："
 
 msgid "Time added"
 msgstr "已增加時間"
@@ -3267,6 +3349,9 @@ msgstr "無法啟動通道連線。在使用 Mullvad VPN 之前，請停用「�
 
 msgid "Unable to start tunnel connection. Please disable Always-on VPN for <b>%s</b> before using Mullvad VPN."
 msgstr "無法啟動通道連線。在使用 Mullvad VPN 之前，請先為 <b>%s</b> 停用「始終啟用 VPN」。"
+
+msgid "Unavailable"
+msgstr "無法使用"
 
 msgid "Undo"
 msgstr "復原"
@@ -3352,17 +3437,11 @@ msgstr "「%s」已刪除"
 msgid "click here"
 msgstr "按一下此處"
 
-msgid "create an account"
-msgstr "建立帳戶"
-
 msgid "here"
 msgstr "此處"
 
 msgid "less than one day"
 msgstr "不足 1 天"
-
-msgid "login"
-msgstr "登入"
 
 msgid "privacy policy"
 msgstr "隱私權政策"

@@ -145,6 +145,7 @@
     <string name="device_name_info_third_paragraph">หากคุณออกจากระบบ อุปกรณ์และชื่ออุปกรณ์จะถูกลบออก และเมื่อคุณลงชื่อเข้าใช้อีกครั้ง อุปกรณ์จะได้รับชื่อใหม่</string>
     <string name="direct_only">โดยตรงเท่านั้น</string>
     <string name="direct_only_description">ไม่ใช่ทุกเซิร์ฟเวอร์ของเราที่เปิดใช้งาน %1$s คุณอาจต้องเลือกตำแหน่งที่ตั้งใหม่หลังจากเปิดใช้งาน เพื่อใช้งานอินเทอร์เน็ต</string>
+    <string name="disable_multihop">ปิดใช้งานมัลติฮอป</string>
     <string name="disable_recents">ปิดใช้งานล่าสุด</string>
     <string name="discard">ละทิ้ง</string>
     <string name="discard_changes">ละทิ้งการเปลี่ยนแปลงหรือไม่</string>
@@ -412,11 +413,15 @@
     <string name="udp">UDP</string>
     <string name="udp_over_tcp">UDP-ผ่าน-TCP</string>
     <string name="udp_over_tcp_port_info">พอร์ต TCP ใดที่โพรโทคอลการทำให้ข้อมูลยุ่งเหยิง UDP-ผ่าน-TCP ควรเชื่อมต่อบนเซิร์ฟเวอร์ VPN</string>
+    <string name="unable_to_reach_api_dialog_message_first_create_account">แอปไม่สามารถสร้างบัญชีได้ เนื่องจากไม่สามารถเข้าถึง Mullvad API ได้</string>
+    <string name="unable_to_reach_api_dialog_message_first_login">แอปไม่สามารถเข้าสู่ระบบได้ เนื่องจากไม่สามารถเข้าถึง Mullvad API ได้</string>
     <string name="unable_to_reach_api_dialog_message_list_first">รีสตาร์ทอุปกรณ์ของคุณ</string>
     <string name="unable_to_reach_api_dialog_message_list_second">เชื่อมต่อกับเครือข่ายอื่น</string>
     <string name="unable_to_reach_api_dialog_message_list_third">เปิดใช้งานวิธีการเข้าถึงทั้งหมดในแอป</string>
+    <string name="unable_to_reach_api_dialog_message_second">นี่อาจเกิดจากการเซ็นเซอร์หรือปัญหาเครือข่าย โปรดลอง:</string>
     <string name="unable_to_reach_api_dialog_message_third">หากขั้นตอนเหล่านี้ไม่ได้ผล โปรดส่งอีเมลถึงฝ่ายสนับสนุนโดยใช้ปุ่มด้านล่าง ระบบจะแนบบันทึกที่ถูกทำให้ไม่ระบุตัวตนโดยอัตโนมัติ</string>
     <string name="unable_to_reach_api_dialog_title">ไม่สามารถเข้าถึง API ได้</string>
+    <string name="unavailable">ไม่พร้อมใช้งาน</string>
     <string name="undo">เลิกทำ</string>
     <string name="unsupported_version">เวอร์ชันที่ไม่รองรับ</string>
     <string name="unsupported_version_description">ความเป็นส่วนตัวของคุณอาจมีความเสี่ยง ในขณะที่ใช้งานเวอร์ชันแอปที่ไม่ได้รับการสนับสนุนนี้ โปรดอัปเดตตอนนี้เลย</string>

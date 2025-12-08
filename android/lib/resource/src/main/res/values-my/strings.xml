@@ -145,6 +145,7 @@
     <string name="device_name_info_third_paragraph">ထွက်လိုက်ပါက စက်နှင့် စက်အမည်ကို ဖယ်ရှားပါသည်။ နောက်တစ်ကြိမ် ပြန်ဝင်ရောက်သည့်အခါ စက်သည် အမည်သစ်တစ်ခု ရရှိပါမည်။</string>
     <string name="direct_only">တိုက်ရိုက်သာ</string>
     <string name="direct_only_description">ကျွန်ုပ်တို့၏ဆာဗာအားလုံးတွင် %1$s ကိုဖွင့်ထားခြင်းမရှိပါ။ အင်တာနက်အသုံးပြုရန်အတွက် သင်သည် ၎င်းကို ဖွင့်ပြီးနောက် တည်နေရာအသစ်တစ်ခုကို ရွေးချယ်ရပေမည်။</string>
+    <string name="disable_multihop">မာလ်တီဟော့ပ်ကို ပိတ်ရန်</string>
     <string name="disable_recents">လတ်တလောအရာများကို ပိတ်ပါ</string>
     <string name="discard">ပယ်ဖျက်မည်</string>
     <string name="discard_changes">အပြောင်းအလဲများကို ပယ်ဖျက်မည်လား။</string>
@@ -412,11 +413,15 @@
     <string name="udp">UDP</string>
     <string name="udp_over_tcp">UDP-over-TCP</string>
     <string name="udp_over_tcp_port_info">VPN ဆာဗာကို ဖွင့်ရန် ၎င်း TCP ပေါ့တ် UDP-over-TCP Obfuscation ပရိုတိုကောလ်နှင့် ချိတ်ဆက်ထားသင့်ပါသည်။</string>
+    <string name="unable_to_reach_api_dialog_message_first_create_account">Mullvad API သို့ ဆက်သွယ်၍မရနိုင်သောကြောင့် အက်ပ်သည် အကောင့်တစ်ခု ဖန်တီး၍မရပါ။</string>
+    <string name="unable_to_reach_api_dialog_message_first_login">Mullvad API သို့ ဆက်သွယ်၍ မရသောကြောင့် အက်ပ်သည် ဝင်ရောက်၍ မရခဲ့ပါ။</string>
     <string name="unable_to_reach_api_dialog_message_list_first">သင့်စက်ကို ပြန်လည်စတင်ကြည့်ပါ</string>
     <string name="unable_to_reach_api_dialog_message_list_second">အခြားကွန်ရက်တစ်ခုကို ချိတ်ဆက်ကြည့်ပါ</string>
     <string name="unable_to_reach_api_dialog_message_list_third">အက်ပ်တွင် ရယူသုံးစွဲခွင့် နည်းလမ်းအားလုံးကို ဖွင့်ပါ</string>
+    <string name="unable_to_reach_api_dialog_message_second">ဆင်ဆာဖြတ်တောက်မှု သို့မဟုတ် ကွန်ရက်ပြဿနာများကြောင့် ဖြစ်နိုင်သည်။ အောက်ပါတို့ကို လုပ်ဆောင်ကြည့်ပါ-</string>
     <string name="unable_to_reach_api_dialog_message_third">ဤအဆင့်များအတိုင်း လုပ်ဆောင်သော်လည်း မပြေလည်ပါက အောက်ရှိ ခလုတ်ကို သုံး၍ သုံးစွဲသူ အကူအညီပေးရေး အဖွဲ့ထံ အီးမေးလ်တစ်စောင် ပို့ပေးပါ။ အီးမေးလ်တွင် အမည်ဝှက်ထားသော မှတ်တမ်းများကို အော်တို တွဲချိတ်သွားပါမည်။</string>
     <string name="unable_to_reach_api_dialog_title">API ကို ချိတ်ဆက်၍ မရပါ</string>
+    <string name="unavailable">မရနိုင်ပါ</string>
     <string name="undo">မလုပ်တော့ပါ</string>
     <string name="unsupported_version">တွဲဖက်မလုပ်ဆောင်နိုင်သည့် ဗားရှင်း</string>
     <string name="unsupported_version_description">တွဲဖက်မလုပ်ဆောင်နိုင်သည့် ဤအက်ပ်ဗားရှင်းကြောင့် သင့်ကိုယ်ရေးအချက်အလက်များ အန္တရာယ် ရှိနိုင်ပါသည်။ ယခုပင် အပ်ဒိတ်လုပ်ပေးပါ။</string>

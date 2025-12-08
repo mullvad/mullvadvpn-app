@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: German\n"
 "Language: de_DE\n"
-"PO-Revision-Date: 2025-11-19 13:21\n"
+"PO-Revision-Date: 2025-12-08 09:00\n"
 
 msgid "%(amount)d more..."
 msgstr "%(amount)d mehr …"
@@ -225,6 +225,9 @@ msgstr "Weiter"
 msgid "No result for <b>%(searchTerm)s</b>."
 msgstr "Keine Ergebnisse für <b>%(searchTerm)s</b>."
 
+msgid "None"
+msgstr "Keine"
+
 msgid "Off"
 msgstr "Aus"
 
@@ -308,6 +311,13 @@ msgctxt "accessibility"
 msgid "%(title)s, View loaded"
 msgstr "%(title)s, geladene anzeigen"
 
+#. Text for screen readers to describe the WireGuard port settings navigation button.
+#. Available placeholders:
+#. %(wireguard)s - will be replaced with WireGuard
+msgctxt "accessibility"
+msgid "%(wireguard)s port settings"
+msgstr "%(wireguard)s-Port-Einstellungen"
+
 msgctxt "accessibility"
 msgid "Add new custom bridge"
 msgstr "Neue eigene Brücke hinzufügen"
@@ -340,6 +350,14 @@ msgstr "%(location)s ausklappen"
 msgctxt "accessibility"
 msgid "Forget account number %(accountNumber)s"
 msgstr "Kontonummer %(accountNumber)s vergessen"
+
+#. Accessibility label for link to VPN settings where
+#. the user can change WireGuard port.
+#. Available placeholders:
+#. %(wireGuard)s - Will be replaced with WireGuard
+msgctxt "accessibility"
+msgid "Go to anti-censorship settings to change %(wireGuard)s port"
+msgstr "Gehen Sie zu den Anti-Zensur-Einstellungen, um den %(wireGuard)s-Port zu ändern."
 
 #. Accessibility label for link to app upgrade view.
 msgctxt "accessibility"
@@ -454,6 +472,26 @@ msgstr "ZEIT ABGELAUFEN"
 msgctxt "account-view"
 msgid "Paid until"
 msgstr "Bezahlt bis"
+
+#. Page title for anti censorship settings view
+msgctxt "anti-censorship-view"
+msgid "Anti-censorship"
+msgstr "Anti-Zensur"
+
+#. The title for the obfuscation method selector.
+msgctxt "anti-censorship-view"
+msgid "Method"
+msgstr "Methode"
+
+#. Second paragraph of description text in anti-censorship view
+msgctxt "anti-censorship-view"
+msgid "Please note that these methods do not improve performance, and may increase system utilization and battery consumption."
+msgstr "Bitte beachten Sie, dass diese Methoden die Leistung nicht verbessern und möglicherweise zu einem höheren Verbrauch von Systemressourcen und Akku führen."
+
+#. First paragraph of description text in anti-censorship view
+msgctxt "anti-censorship-view"
+msgid "These methods may be useful in situations where you are blocked from reaching Mullvad. When \"Automatic\" is selected, the app will attempt all methods until one works."
+msgstr "Diese Methoden können nützlich sein, wenn Sie daran gehindert werden, Mullvad zu erreichen. Wenn „Automatisch“ ausgewählt ist, probiert die App alle Methoden aus, bis eine funktioniert."
 
 msgctxt "api-access-methods-view"
 msgid "Add method"
@@ -1324,6 +1362,20 @@ msgctxt "in-app-notifications"
 msgid "The installer did not start successfully."
 msgstr "Das Installationsprogramm wurde nicht erfolgreich gestartet."
 
+#. Notification subtitle indicating the user is using an unsupported port for WireGuard.
+#. Available placeholders:
+#. %(wireGuard)s - Will be replaced with WireGuard
+msgctxt "in-app-notifications"
+msgid "The selected %(wireGuard)s port is not supported, please <a>change it under VPN settings.</a>"
+msgstr "Der ausgewählte %(wireGuard)s-Port wird nicht unterstützt, bitte <a>ändern Sie ihn in den VPN-Einstellungen</a>."
+
+#. Notification text when a new device has been created.
+#. Available placeholders:
+#. - %(deviceName)s: Name of created device.
+msgctxt "in-app-notifications"
+msgid "This device is now named <em>%(deviceName)s</em>. See more under <a>Manage devices</a> in Account."
+msgstr "Dieses Gerät heißt jetzt <em>%(deviceName)s</em>. Weitere Informationen finden Sie in Ihrem Konto unter <a>Geräte verwalten</a>."
+
 #. The in-app banner displayed to the user when the app beta update is
 #. available.
 #. Available placeholders:
@@ -1633,6 +1685,16 @@ msgstr "Split Tunneling konnte nicht aktiviert werden."
 msgctxt "notifications"
 msgid "Failed to enable split tunneling. Please try reconnecting or disable split tunneling."
 msgstr "Split Tunneling konnte nicht aktiviert werden. Versuchen Sie, die Verbindung erneut herzustellen oder deaktivieren Sie Split Tunneling."
+
+#. Label for notification when IPv4 is not available.
+msgctxt "notifications"
+msgid "IPv4 is not available, please try changing Device IP version setting."
+msgstr "IPv4 ist nicht verfügbar, bitte versuchen Sie, die Einstellung „Geräte-IP-Version“ zu ändern."
+
+#. Label for notification when IPv6 is not available.
+msgctxt "notifications"
+msgid "IPv6 is not available, please try changing Device IP version setting."
+msgstr "IPv6 ist nicht verfügbar, bitte versuchen Sie, die Einstellung „Geräte-IP-Version“ zu ändern."
 
 msgctxt "notifications"
 msgid "Lockdown mode active, connection blocked"
@@ -2349,6 +2411,12 @@ msgctxt "vpn-settings-view"
 msgid "Adult content"
 msgstr "Inhalte für Erwachsene"
 
+#. Label for list item that navigates to anti-censorship
+#. settings view.
+msgctxt "vpn-settings-view"
+msgid "Anti-censorship"
+msgstr "Anti-Zensur"
+
 msgctxt "vpn-settings-view"
 msgid "Attention: enabling this will always require a Mullvad VPN connection in order to reach the internet."
 msgstr "Achtung: Wenn Sie diese Einstellung aktivieren, wird immer eine Mullvad-VPN-Verbindung erfordert, um das Internet zu erreichen."
@@ -2388,6 +2456,11 @@ msgstr "DNS-Inhaltssperren"
 msgctxt "vpn-settings-view"
 msgid "Enable to add at least one DNS server."
 msgstr "Aktivieren, um mindestens einen DNS-Server hinzuzufügen."
+
+#. Description of in-tunnel IPv6 setting.
+msgctxt "vpn-settings-view"
+msgid "Enable to allow IPv6 traffic through the tunnel."
+msgstr "Aktivieren, um IPv6-Traffic durch den Tunnel zuzulassen."
 
 msgctxt "vpn-settings-view"
 msgid "Enter IP"
@@ -2876,6 +2949,9 @@ msgstr "Methode löschen?"
 msgid "Disable all \"%s\" above to activate this setting."
 msgstr "Deaktivieren Sie oben alle „%s“, um diese Einstellung zu aktivieren."
 
+msgid "Disable multihop"
+msgstr "Multihop deaktivieren"
+
 msgid "Disable recents"
 msgstr "Letzte deaktivieren"
 
@@ -3215,8 +3291,11 @@ msgstr "Die „aktuelle“ Methode gibt an, welche Methode die App verwendet, um
 msgid "The app is blocking internet, please disconnect first"
 msgstr "Die App blockiert das Internet, bitte trennen Sie zuerst die Verbindung"
 
-msgid "The app was unable to %s due to not being able to reach the Mullvad API. This might be due to censorship or network issues. Please try to:"
-msgstr "Die App konnte aufgrund fehlender Zugriffsrechte auf die Mullvad-API keine %s durchführen. Dies kann an Zensur oder Netzwerkproblemen liegen. Versuchen Sie Folgendes:"
+msgid "The app was unable to create an account due to not being able to reach the Mullvad API."
+msgstr "Die App konnte kein Konto erstellen, da sie die Mullvad-API nicht erreichen konnte."
+
+msgid "The app was unable to login due to not being able to reach the Mullvad API."
+msgstr "Die App konnte die Anmeldung nicht durchführen, da sie die Mullvad-API nicht erreichen konnte."
 
 msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under VPN settings."
 msgstr "Der lokale DNS-Server wird nicht funktionieren, solange „Teilen im lokalen Netzwerk“ nicht in den VPN-Einstellungen aktiviert ist."
@@ -3235,6 +3314,9 @@ msgstr "Dies wirkt sich auf Ihre Anonymität aus"
 
 msgid "This is already set as current"
 msgstr "Diese ist bereits die aktuelle"
+
+msgid "This might be due to censorship or network issues. Please try to:"
+msgstr "Das kann an Zensur oder Netzwerkproblemen liegen. Versuchen Sie Folgendes:"
 
 msgid "Time added"
 msgstr "Zeit hinzugefügt"
@@ -3274,6 +3356,9 @@ msgstr "Tunnelverbindung kann nicht gestartet werden. Bitte deaktivieren Sie Alw
 
 msgid "Unable to start tunnel connection. Please disable Always-on VPN for <b>%s</b> before using Mullvad VPN."
 msgstr "Tunnelverbindung kann nicht gestartet werden. Bitte deaktivieren Sie Always-on VPN für <b>%s</b>, bevor Sie Mullvad VPN verwenden."
+
+msgid "Unavailable"
+msgstr "Nicht verfügbar"
 
 msgid "Undo"
 msgstr "Rückgängig"
@@ -3359,17 +3444,11 @@ msgstr "„%s“ wurde gelöscht"
 msgid "click here"
 msgstr "klicken Sie hier"
 
-msgid "create an account"
-msgstr "Kontoerstellung"
-
 msgid "here"
 msgstr "hier"
 
 msgid "less than one day"
 msgstr "weniger als ein Tag"
-
-msgid "login"
-msgstr "Anmeldung"
 
 msgid "privacy policy"
 msgstr "Datenschutzrichtlinie"

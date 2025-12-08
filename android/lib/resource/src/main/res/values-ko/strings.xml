@@ -145,6 +145,7 @@
     <string name="device_name_info_third_paragraph">로그아웃하면 해당 장치와 장치 이름이 제거됩니다. 다시 로그인하면 장치에 새 이름이 부여됩니다.</string>
     <string name="direct_only">직접 전용</string>
     <string name="direct_only_description">일부 서버에는 %1$s가 활성화되어 있지 않습니다. 인터넷 사용을 위해 활성화 후 새 위치를 선택해야 할 수 있습니다.</string>
+    <string name="disable_multihop">멀티홉 비활성화</string>
     <string name="disable_recents">최근 항목 비활성화</string>
     <string name="discard">취소</string>
     <string name="discard_changes">변경 사항을 취소하시겠습니까?</string>
@@ -412,11 +413,15 @@
     <string name="udp">UDP</string>
     <string name="udp_over_tcp">UDP-over-TCP</string>
     <string name="udp_over_tcp_port_info">UDP-over-TCP 난독 처리 프로토콜이 VPN 서버에서 연결해야 하는 TCP 포트입니다.</string>
+    <string name="unable_to_reach_api_dialog_message_first_create_account">앱에서 Mullvad API를 사용할 수 없어 계정을 생성하지 못했습니다.</string>
+    <string name="unable_to_reach_api_dialog_message_first_login">앱에서 Mullvad API를 사용할 수 없어 로그인하지 못했습니다.</string>
     <string name="unable_to_reach_api_dialog_message_list_first">장치 재시작</string>
     <string name="unable_to_reach_api_dialog_message_list_second">다른 네트워크에 연결</string>
     <string name="unable_to_reach_api_dialog_message_list_third">앱의 모든 액세스 방법을 활성화합니다</string>
+    <string name="unable_to_reach_api_dialog_message_second">검열 또는 네트워크 문제가 원인일 수 있습니다. 다음을 시도해 보세요.</string>
     <string name="unable_to_reach_api_dialog_message_third">이 단계가 통하지 않는 경우 아래 버튼을 사용해 지원팀에 이메일로 문의해 주세요. 익명 처리된 로그가 자동으로 첨부됩니다.</string>
     <string name="unable_to_reach_api_dialog_title">API에 연결할 수 없습니다</string>
+    <string name="unavailable">사용할 수 없음</string>
     <string name="undo">실행 취소</string>
     <string name="unsupported_version">지원되지 않는 버전</string>
     <string name="unsupported_version_description">지원되지 않는 이 앱 버전으로 인해 개인 정보가 위험할 수 있습니다. 지금 업데이트하세요.</string>

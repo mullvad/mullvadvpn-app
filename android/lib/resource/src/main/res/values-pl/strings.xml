@@ -145,6 +145,7 @@
     <string name="device_name_info_third_paragraph">Przy wylogowaniu urządzenie i jego nazwa zostają usunięte. Po ponownym zalogowaniu urządzenie otrzymuje nową nazwę.</string>
     <string name="direct_only">Tylko Direct</string>
     <string name="direct_only_description">Nie wszystkie nasze serwery obsługują %1$s. Aby korzystać z Internetu, być może trzeba będzie wybrać nową lokalizację po włączeniu tej funkcji.</string>
+    <string name="disable_multihop">Wyłącz wielokrotne przeskoki</string>
     <string name="disable_recents">Wyłącz ostatnie</string>
     <string name="discard">Odrzuć</string>
     <string name="discard_changes">Odrzucić zmiany?</string>
@@ -412,11 +413,15 @@
     <string name="udp">UDP</string>
     <string name="udp_over_tcp">UDP-przez-TCP</string>
     <string name="udp_over_tcp_port_info">Port TCP, z którym powinien łączyć się protokół zaciemniania UDP-przez-TCP na serwerze VPN.</string>
+    <string name="unable_to_reach_api_dialog_message_first_create_account">Aplikacja nie była w stanie utworzyć konta z powodu braku dostępu do interfejsu API Mullvad.</string>
+    <string name="unable_to_reach_api_dialog_message_first_login">Aplikacja nie była w stanie zalogować, ponieważ nie mogła uzyskać dostępu do interfejsu API Mullvad.</string>
     <string name="unable_to_reach_api_dialog_message_list_first">Ponownie uruchom urządzenie</string>
     <string name="unable_to_reach_api_dialog_message_list_second">Połącz się z inną siecią</string>
     <string name="unable_to_reach_api_dialog_message_list_third">Włącz wszystkie metody dostępu w aplikacji</string>
+    <string name="unable_to_reach_api_dialog_message_second">Może to być spowodowane cenzurą lub problemami z siecią. Spróbuj:</string>
     <string name="unable_to_reach_api_dialog_message_third">Jeśli te kroki nie pomogą, wyślij wiadomość e-mail do działu pomocy technicznej, korzystając z poniższego przycisku. Spowoduje to automatyczne dołączenie zanonimizowanych dzienników.</string>
     <string name="unable_to_reach_api_dialog_title">Nie można osiągnąć interfejsu API</string>
+    <string name="unavailable">Niedostępne</string>
     <string name="undo">Cofnij</string>
     <string name="unsupported_version">WERSJA NIEOBSŁUGIWANA</string>
     <string name="unsupported_version_description">W tej nieobsługiwanej wersji aplikacji prywatność może być zagrożona. Zaktualizuj już teraz.</string>

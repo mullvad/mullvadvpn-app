@@ -145,6 +145,7 @@
     <string name="device_name_info_third_paragraph">Om du loggar ut tas enheten och enhetsnamnet bort. När du loggar in igen får enheten ett nytt namn.</string>
     <string name="direct_only">Endast direkt</string>
     <string name="direct_only_description">Det är inte alla våra servrar som är %1$s-aktiverade. Om du vill använda internet kanske du måste välja en ny plats efter aktivering.</string>
+    <string name="disable_multihop">Inaktivera multihopp</string>
     <string name="disable_recents">Inaktivera senaste</string>
     <string name="discard">Ignorera</string>
     <string name="discard_changes">Ignorera ändringarna?</string>
@@ -412,11 +413,15 @@
     <string name="udp">UDP</string>
     <string name="udp_over_tcp">UDP över TCP</string>
     <string name="udp_over_tcp_port_info">Vilken TCP-port som UDP-över-TCP-obfuskeringsprotokoll bör ansluta till på VPN-servern.</string>
+    <string name="unable_to_reach_api_dialog_message_first_create_account">Appen kunde inte skapa ett konto eftersom det inte gick att nå Mullvad API.</string>
+    <string name="unable_to_reach_api_dialog_message_first_login">Appen kunde inte logga in eftersom det inte gick att nå Mullvad API.</string>
     <string name="unable_to_reach_api_dialog_message_list_first">Starta om enheten</string>
     <string name="unable_to_reach_api_dialog_message_list_second">Anslut till ett annat nätverk</string>
     <string name="unable_to_reach_api_dialog_message_list_third">Aktivera alla åtkomstmetoder i appen</string>
+    <string name="unable_to_reach_api_dialog_message_second">Det kan bero på censur- eller nätverksfel. Försök att:</string>
     <string name="unable_to_reach_api_dialog_message_third">Om dessa steg inte fungerar kan du skicka ett e-postmeddelande till supporten via knappen nedan. Detta bifogar automatisk loggarna som har anonymiserats.</string>
     <string name="unable_to_reach_api_dialog_title">Det går inte att nå API</string>
+    <string name="unavailable">Inte tillgänglig</string>
     <string name="undo">Ångra</string>
     <string name="unsupported_version">VERSION UTAN STÖD</string>
     <string name="unsupported_version_description">Din sekretess kan vara utsatt för risk med den här appversionen som inte stöds. Uppdatera nu.</string>

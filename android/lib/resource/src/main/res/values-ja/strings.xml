@@ -145,6 +145,7 @@
     <string name="device_name_info_third_paragraph">ログアウトすると、デバイスとデバイス名が削除されます。もう一度ログインすると、デバイスに新しい名前が付けられます。</string>
     <string name="direct_only">ダイレクトのみ</string>
     <string name="direct_only_description">すべてのサーバーが%1$sに対応しているわけではありません。インターネットを使用するには、有効化した後に新しい場所を選択する必要がある場合もあります。</string>
+    <string name="disable_multihop">マルチホップを無効化する</string>
     <string name="disable_recents">最近の項目を無効化</string>
     <string name="discard">破棄</string>
     <string name="discard_changes">変更内容を破棄しますか？</string>
@@ -412,11 +413,15 @@
     <string name="udp">UDP</string>
     <string name="udp_over_tcp">UDP-over-TCP</string>
     <string name="udp_over_tcp_port_info">UDP-over-TCP難読化プロトコルで接続する必要のあるVPNサーバーのTCPポートです。</string>
+    <string name="unable_to_reach_api_dialog_message_first_create_account">アプリがMullvad APIに接続できず、アカウントを作成できませんでした。</string>
+    <string name="unable_to_reach_api_dialog_message_first_login">アプリがMullvad APIに接続できず、ログインできませんでした。</string>
     <string name="unable_to_reach_api_dialog_message_list_first">デバイスを再起動する</string>
     <string name="unable_to_reach_api_dialog_message_list_second">別のネットワークに接続する</string>
     <string name="unable_to_reach_api_dialog_message_list_third">アプリですべてのアクセス方法を有効にする</string>
+    <string name="unable_to_reach_api_dialog_message_second">検閲やネットワークの問題が原因である可能性があります。次の操作をお試しください。</string>
     <string name="unable_to_reach_api_dialog_message_third">これらの手順で問題が解決しない場合には、以下のボタンを使ってサポートまでメールをお送りください。匿名化されたログが自動で添付されます。</string>
     <string name="unable_to_reach_api_dialog_title">APIに接続できません</string>
+    <string name="unavailable">使用不可</string>
     <string name="undo">元に戻す</string>
     <string name="unsupported_version">未対応のバージョン</string>
     <string name="unsupported_version_description">このアプリバージョンはサポートされていないため、プライバシーが危険にさらされる可能性があります。今すぐアップデートしてください。</string>

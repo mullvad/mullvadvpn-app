@@ -145,6 +145,7 @@
     <string name="device_name_info_third_paragraph">Si cierra sesión, se quita el dispositivo y el nombre del dispositivo. Cuando vuelve a iniciar sesión, el dispositivo recibirá un nombre nuevo.</string>
     <string name="direct_only">Conexión directa</string>
     <string name="direct_only_description">No todos nuestros servidores están habilitados para %1$s. Para usar Internet, quizá deba seleccionar una nueva ubicación tras habilitar esta característica.</string>
+    <string name="disable_multihop">Deshabilitar salto múltiple</string>
     <string name="disable_recents">Deshabilitar recientes</string>
     <string name="discard">Descartar</string>
     <string name="discard_changes">¿Descartar los cambios?</string>
@@ -412,11 +413,15 @@
     <string name="udp">UDP</string>
     <string name="udp_over_tcp">UDP sobre TCP</string>
     <string name="udp_over_tcp_port_info">El puerto TCP al que se conectará el protocolo de ofuscación de UDP sobre TCP en el servidor VPN.</string>
+    <string name="unable_to_reach_api_dialog_message_first_create_account">La aplicación no ha podido crear una cuenta al no poder acceder a la API de Mullvad.</string>
+    <string name="unable_to_reach_api_dialog_message_first_login">La aplicación no ha podido iniciar sesión al no poder acceder a la API de Mullvad.</string>
     <string name="unable_to_reach_api_dialog_message_list_first">Reiniciar su dispositivo</string>
     <string name="unable_to_reach_api_dialog_message_list_second">Conectarse a una red diferente</string>
     <string name="unable_to_reach_api_dialog_message_list_third">Habilitar todos los métodos de acceso en la aplicación</string>
+    <string name="unable_to_reach_api_dialog_message_second">Esto podría deberse a problemas de red o de censura. Intente lo siguiente:</string>
     <string name="unable_to_reach_api_dialog_message_third">Si no funcionan estos pasos, envíe un correo electrónico al servicio de asistencia usando el botón de abajo. Adjuntará automáticamente los registros que se han anonimizado.</string>
     <string name="unable_to_reach_api_dialog_title">No se puede conectar con la API</string>
+    <string name="unavailable">No disponible</string>
     <string name="undo">Deshacer</string>
     <string name="unsupported_version">VERSIÓN NO ADMITIDA</string>
     <string name="unsupported_version_description">Al usar esta versión obsoleta de la aplicación, es posible que su privacidad esté en riesgo. Actualice ahora.</string>

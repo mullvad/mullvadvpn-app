@@ -145,6 +145,7 @@
     <string name="device_name_info_third_paragraph">Si vous vous déconnectez, l\'appareil et son nom sont supprimés. Lorsque vous vous reconnectez, l\'appareil reçoit un nouveau nom.</string>
     <string name="direct_only">Directe uniquement</string>
     <string name="direct_only_description">Tous nos serveurs ne sont pas compatibles %1$s. Pour utiliser l\'internet, vous devrez peut-être sélectionner une nouvelle localisation après activation.</string>
+    <string name="disable_multihop">Désactiver le multihop</string>
     <string name="disable_recents">Désactiver les récents</string>
     <string name="discard">Annuler</string>
     <string name="discard_changes">Annuler les modifications ?</string>
@@ -412,11 +413,15 @@
     <string name="udp">UDP</string>
     <string name="udp_over_tcp">UDP-over-TCP</string>
     <string name="udp_over_tcp_port_info">Le port TCP auquel le protocole de dissimulation UDP sur TCP doit se connecter sur le serveur VPN.</string>
+    <string name="unable_to_reach_api_dialog_message_first_create_account">L\'application n\'a pas pu créer un compte, car elle n\'a pas réussi à accéder à l\'API Mullvad.</string>
+    <string name="unable_to_reach_api_dialog_message_first_login">L\'application n\'a pas pu se connecter, car elle n\'a pas réussi à accéder à l\'API Mullvad.</string>
     <string name="unable_to_reach_api_dialog_message_list_first">Redémarrez votre appareil</string>
     <string name="unable_to_reach_api_dialog_message_list_second">Connectez-vous à un réseau différent</string>
     <string name="unable_to_reach_api_dialog_message_list_third">Activer tous les modes d\'accès dans l\'application</string>
+    <string name="unable_to_reach_api_dialog_message_second">Cela peut être dû à de la censure ou à des problèmes de réseau. Veuillez essayer :</string>
     <string name="unable_to_reach_api_dialog_message_third">Si ces étapes ne fonctionnent pas, veuillez envoyer un e-mail à l\'assistance à l\'aide du bouton ci-dessous. Les fichiers journaux anonymisés y seront automatiquement joints.</string>
     <string name="unable_to_reach_api_dialog_title">Impossible de joindre l\'API</string>
+    <string name="unavailable">Indisponible</string>
     <string name="undo">Annuler</string>
     <string name="unsupported_version">VERSION NON PRISE EN CHARGE</string>
     <string name="unsupported_version_description">Votre confidentialité peut être en danger avec cette version non prise en charge de l\'application. Veuillez la mettre à jour maintenant.</string>
