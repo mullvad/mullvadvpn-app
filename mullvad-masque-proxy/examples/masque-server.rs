@@ -1,6 +1,7 @@
 use clap::Parser;
 use mullvad_masque_proxy::server::{AllowedIps, ServerParams};
 use rustls::pki_types::{CertificateDer, PrivateKeyDer, PrivatePkcs8KeyDer};
+use rustls_pki_types::pem::PemObject;
 
 use std::{
     fs,
@@ -77,13 +78,13 @@ fn load_server_config(
     let key = if key_path.extension().is_some_and(|x| x == "der") {
         PrivateKeyDer::Pkcs8(PrivatePkcs8KeyDer::from(key))
     } else {
-        rustls_pemfile::private_key(&mut &*key)?.expect("Expected PEM file to contain private key")
+        PrivateKeyDer::from_pem_slice(&key).expect("Expected PEM file to contain private key") //rustls_pemfile::private_key(&mut &*key)?.expect("Expected PEM file to contain private key")
     };
     let cert_chain = fs::read(cert_path)?;
     let cert_chain = if cert_path.extension().is_some_and(|x| x == "der") {
         vec![CertificateDer::from(cert_chain)]
     } else {
-        rustls_pemfile::certs(&mut &*cert_chain).collect::<Result<_, _>>()?
+        CertificateDer::pem_slice_iter(&cert_chain).collect::<Result<_, _>>()?
     };
 
     let mut tls_config = rustls::ServerConfig::builder_with_provider(Arc::new(

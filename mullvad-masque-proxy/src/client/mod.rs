@@ -1,6 +1,7 @@
 use anyhow::{Context, anyhow};
 use bytes::{Bytes, BytesMut};
 use rustls::client::danger::ServerCertVerified;
+use rustls_pki_types::{CertificateDer, pem::PemObject};
 use std::{
     fs::{self},
     future, io,
@@ -119,7 +120,7 @@ pub enum Error {
     #[error("Failed to send datagram to proxy")]
     SendDatagram(#[source] h3::Error),
     #[error("Failed to read certificates")]
-    ReadCerts(#[source] io::Error),
+    ReadCerts(#[source] rustls_pki_types::pem::Error),
     #[error("Failed to parse certificates")]
     ParseCerts,
     #[error("Failed to fragment a packet - it is too large")]
@@ -130,6 +131,8 @@ pub enum Error {
     InvalidHttpRedirect(#[source] anyhow::Error),
     #[error("A tokio task panicked")]
     TaskPanicked(#[source] anyhow::Error),
+    #[error("IO error")]
+    IO(#[source] io::Error),
 }
 
 #[derive(TypedBuilder, Debug)]
@@ -835,19 +838,18 @@ fn read_cert_store() -> rustls::RootCertStore {
 }
 
 pub fn client_tls_config_from_cert_path(path: &Path) -> Result<Arc<rustls::ClientConfig>> {
-    let certs = read_cert_store_from_path(path)?;
-    Ok(client_tls_config_with_certs(certs))
+    read_cert_store_from_path(path).map(client_tls_config_with_certs)
 }
 
 fn read_cert_store_from_path(path: &Path) -> Result<rustls::RootCertStore> {
-    let cert_path = fs::File::open(path).map_err(Error::ReadCerts)?;
+    let cert_path = fs::File::open(path).map_err(Error::IO)?;
     read_cert_store_from_reader(&mut std::io::BufReader::new(cert_path))
 }
 
 fn read_cert_store_from_reader(reader: &mut dyn io::BufRead) -> Result<rustls::RootCertStore> {
     let mut cert_store = rustls::RootCertStore::empty();
 
-    let certs = rustls_pemfile::certs(reader)
+    let certs = CertificateDer::pem_reader_iter(reader)
         .collect::<std::result::Result<Vec<_>, _>>()
         .map_err(Error::ReadCerts)?;
     let (num_certs_added, num_failures) = cert_store.add_parsable_certificates(certs);
