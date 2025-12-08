@@ -3,7 +3,7 @@
 
 use std::{io::Error, net::SocketAddr, sync::Arc};
 
-use http::header::UPGRADE;
+use http::header::{self, UPGRADE};
 use http_body_util::{Empty, Full};
 use hyper::{body::Bytes, upgrade::Upgraded};
 use hyper_util::rt::TokioIo;

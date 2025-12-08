@@ -349,7 +349,7 @@ impl RouteManagerImpl {
         let mut manage_rx = manage_rx.fuse();
         loop {
             futures::select! {
-                command = manage_rx.select_next_some() => {
+                command = manage_rx.recv() => {
                     self.process_command(command).await?;
                 },
                 (route_change, _socket) = self.messages.select_next_some().fuse() => {
