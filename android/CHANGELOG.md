@@ -26,6 +26,10 @@ Line wrap the file at 100 chars.                                              Th
 - Remove "Automatic" as a setting for the "Quantum-resistant tunnel" option.
 
 
+## [android/2025.11] - 2025-12-08
+Identical to `android/2025.11-beta1`.
+
+
 ## [android/2025.11-beta1] - 2025-12-02
 ### Fixed
 - Fix failing settings migrations.
