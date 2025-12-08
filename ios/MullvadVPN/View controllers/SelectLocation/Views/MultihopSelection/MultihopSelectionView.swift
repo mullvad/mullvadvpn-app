@@ -11,13 +11,29 @@ struct MultihopSelectionView: View {
     let isExpanded: Bool
     var deviceLocationName: String?
 
-    @State private var animationId: UUID = .init()
+    @State private var animationIdSelection: UUID = .init()
+    @State private var animationIdBackground: UUID = .init()
     @Namespace private var animation
     @State private var pressedMultihopContext: MultihopContext?
 
     @State private var iconPositions: [AnyHashable: CGRect] = [:]
+
+    var filteredIconPositions: [AnyHashable: CGRect] {
+        let allowedKeys: [AnyHashable] =
+            hops.map { $0.multihopContext }
+            + [
+                ViewPositionIdentifiers.internet as AnyHashable,
+                ViewPositionIdentifiers.yourDevice as AnyHashable,
+            ]
+        return
+            iconPositions
+            .filter {
+                allowedKeys.contains($0.key)
+            }
+    }
+
     private let spacing: CGFloat = 4
-    private var outerHorizontalPadding: CGFloat {
+    private var outerPadding: CGFloat {
         hops.count > 1 ? 4 : 0
     }
 
@@ -34,7 +50,7 @@ struct MultihopSelectionView: View {
                         iconPositions[ViewPositionIdentifiers.internet] = position
                     }
                 )
-                .padding(.horizontal, outerHorizontalPadding + 8 + 2)
+                .padding(.horizontal, outerPadding + 8 + 2)
             }
             VStack(alignment: .leading, spacing: 3) {
                 VStack(alignment: .leading, spacing: spacing) {
@@ -66,7 +82,16 @@ struct MultihopSelectionView: View {
                                             if isSelected {
                                                 RoundedRectangle(cornerRadius: 12)
                                                     .fill(Color.MullvadList.Item.child3)
-                                                    .matchedGeometryEffect(id: animationId, in: animation)
+                                                    .matchedGeometryEffect(id: animationIdSelection, in: animation)
+                                                    .background {
+                                                        if hops.count == 1 {
+                                                            Color.clear
+                                                                .matchedGeometryEffect(
+                                                                    id: animationIdBackground,
+                                                                    in: animation
+                                                                )
+                                                        }
+                                                    }
                                             }
                                             if hop.noMatchFound != nil {
                                                 RoundedRectangle(cornerRadius: 12)
@@ -91,15 +116,20 @@ struct MultihopSelectionView: View {
                                 }
                             }
                         }
+                        .zIndex(1 / Double(index + 1))
+                        .transition(.move(edge: .top).combined(with: .opacity))
                     }
                 }
-                .padding(.horizontal, outerHorizontalPadding)
-                .padding(.vertical, outerHorizontalPadding + 2)
+                .padding(.horizontal, outerPadding)
+                .padding(.vertical, outerPadding)
                 .background {
                     if hops.count > 1 {
                         Color.mullvadContainerBackground
                             .clipShape(RoundedRectangle(cornerRadius: 16))
-                            .padding(.vertical, 2)
+                            .matchedGeometryEffect(
+                                id: animationIdBackground,
+                                in: animation
+                            )
                     }
                 }
                 .zIndex(1)
@@ -115,46 +145,55 @@ struct MultihopSelectionView: View {
                         label: label,
                         image: Image.mullvadSmartphone,
                         onIconPositionChange: { position in
-                            withAnimation {
-                                iconPositions[ViewPositionIdentifiers.yourDevice] = position
-                            }
+                            iconPositions[ViewPositionIdentifiers.yourDevice] = position
                         }
                     )
                     .transition(.move(edge: .top).combined(with: .opacity))
-                    .padding(.horizontal, outerHorizontalPadding + 8 + 2)
+                    .padding(.horizontal, outerPadding + 8 + 2)
                 }
             }
             .geometryGroup()
         }
-        .geometryGroup()
-        .overlay {
+        .coordinateSpace(.multihopSelection)
+        .overlay(alignment: .topLeading) {
             LineOverlayView(
-                iconPositions: iconPositions,
+                iconPositions: filteredIconPositions,
                 isExpanded: isExpanded
             )
+            .animation(nil, value: hops.count)
         }
-        .coordinateSpace(.multihopSelection)
+        .geometryGroup()
+        .animation(.default, value: hops.count)
+        .animation(.default, value: isExpanded)
     }
 }
 
 #Preview {
-    @Previewable @State var selectedContext: MultihopContext = .allCases.first!
+    @Previewable @State var selectedContext: MultihopContext = .exit
     @Previewable @State var isExpanded: Bool = true
+    @Previewable @State var contexts: [MultihopContext] = MultihopContext.allCases
     ScrollView {
         Button("Expanded") {
-            withAnimation(.default.speed(0.2)) {
-                isExpanded.toggle()
+            isExpanded.toggle()
+        }
+        Button("Toggle multihop") {
+            if contexts.count == 1 {
+                contexts = MultihopContext.allCases
+            } else {
+                contexts = [.exit]
             }
         }
-        VStack {
+        VStack(spacing: 8) {
             Spacer()
             MultihopSelectionView(
                 hops: [.init(multihopContext: .exit, selectedLocation: nil)],
                 selectedMultihopContext: .constant(.exit),
                 isExpanded: isExpanded
             )
+            .padding()
             MultihopSelectionView(
-                hops: MultihopContext.allCases
+                hops:
+                    contexts
                     .map {
                         Hop(
                             multihopContext: $0,
@@ -166,7 +205,8 @@ struct MultihopSelectionView: View {
             )
             .padding()
             MultihopSelectionView(
-                hops: MultihopContext.allCases
+                hops:
+                    contexts
                     .map {
                         Hop(
                             multihopContext: $0,
@@ -181,5 +221,5 @@ struct MultihopSelectionView: View {
             Spacer()
         }
     }
-    .background(Color.mullvadBackground)
+    .background(Color.mullvadDarkBackground)
 }

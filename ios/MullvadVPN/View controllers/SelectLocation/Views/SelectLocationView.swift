@@ -120,6 +120,7 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
         }
         .animation(.default, value: showSearchField)
         .animation(.default, value: viewModel.multihopContext)
+        .animation(.default, value: viewModel.isMultihopEnabled)
         .background(Color.mullvadDarkBackground)
         .navigationTitle("Select location")
         .navigationBarTitleDisplayMode(.inline)
@@ -148,6 +149,19 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                             .foregroundStyle(Color.mullvadTextPrimary)
                         }
                         .accessibilityIdentifier(.selectLocationFilterButton)
+                        Button {
+                            viewModel.toggleMultihop()
+                        } label: {
+                            var title: LocalizedStringKey {
+                                viewModel.isMultihopEnabled ? "Disable multihop" : "Enable multihop"
+                            }
+                            HStack {
+                                Image.mullvadIconMultihop
+                                    .renderingMode(.template)
+                                Text(title)
+                            }
+                            .foregroundStyle(Color.mullvadTextPrimary)
+                        }
                     } label: {
                         Image(systemName: "ellipsis.circle.fill")
                             .foregroundStyle(Color.mullvadTextPrimary)
