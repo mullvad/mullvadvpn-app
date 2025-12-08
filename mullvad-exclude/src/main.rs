@@ -36,7 +36,7 @@ enum Error {
 
 /// Launch a program in a cgroup where traffic will be excluded from the VPN tunnel.
 ///
-/// Note: Set the `TALPID_EXCLUSSION_CGROUP` env variable to control where the root cgroup is
+/// Note: Set the `TALPID_EXCLUSION_CGROUP` env variable to control where the root cgroup is
 /// mounted. See (README.md)[../../README.md#Environment-variables-used-by-the-service] for
 /// details.
 fn main() {

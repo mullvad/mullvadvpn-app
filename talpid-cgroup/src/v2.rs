@@ -12,7 +12,7 @@ use std::{
 use crate::Error;
 
 /// Path where cgroup2 will be mounted.
-pub const CGROUP2_OVERRIDE_ENV_VAR: &str = "TALPID_EXCLUSSION_CGROUP2";
+pub const CGROUP2_OVERRIDE_ENV_VAR: &str = "TALPID_EXCLUSION_CGROUP2";
 
 /// The path where linux normally mounts the cgroup2 filesystem.
 pub const CGROUP2_DEFAULT_MOUNT_PATH: &str = "/sys/fs/cgroup";

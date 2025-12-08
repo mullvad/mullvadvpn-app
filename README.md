@@ -178,7 +178,7 @@ See [this](Release.md) for instructions on how to make a new release.
 * `TALPID_NET_CLS_MOUNT_DIR` - On Linux, forces the daemon to mount the `net_cls` controller in the
   specified directory if it isn't mounted already. This will only have an effect on older systems where cgroup v1 is used for split tunneling.
 
-* `TALPID_EXCLUSSION_CGROUP` - On Linux, forces the daemon to mount the cgroup2 used for routing traffic outside the VPN tunnel in the
+* `TALPID_EXCLUSION_CGROUP` - On Linux, forces the daemon to mount the cgroup2 used for routing traffic outside the VPN tunnel in the
   specified directory if it isn't mounted already.
 
 * `MULLVAD_MANAGEMENT_SOCKET_GROUP` - On Linux and macOS, this restricts access to the management
