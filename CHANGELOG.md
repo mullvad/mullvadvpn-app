@@ -24,6 +24,10 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 
 
+## [2025.14] - 2025-12-09
+This release is identical to 2025.14-beta3.
+
+
 ## [2025.14-beta3] - 2025-12-01
 ### Fixed
 - Fix a regression introduced in 2025.14-beta1 where the WireGuard port selection was not respected.
