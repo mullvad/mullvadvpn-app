@@ -63,7 +63,7 @@ tonic-build = { version = "0.13.1", default-features = false }
 tower = "0.5.1"
 prost = "0.13.3"
 prost-types = "0.13.3"
-tarpc = { version = "0.30", features = ["tokio1", "serde-transport", "serde1"] }
+tarpc = { version = "0.31", features = ["tokio1", "serde-transport", "serde1"] }
 hyper-util = { version = "0.1.8", features = [
   "client",
   "client-legacy",
