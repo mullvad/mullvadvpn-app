@@ -110,6 +110,7 @@ ipnetwork = "0.21.1"
 tun = { version = "0.5.5", features = ["async"] }
 socket2 = "0.5.7"
 reqwest = { version = "0.12.23", default-features = false, features = ["rustls-tls"] }
+rustls-pki-types = "1.13.1"
 
 rtnetlink = "0.18"
 netlink-packet-core = "0.8.0"
