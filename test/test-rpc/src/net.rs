@@ -10,7 +10,10 @@ use std::{
     sync::{Arc, LazyLock},
     time::Duration,
 };
-use tokio_rustls::rustls::{self, ClientConfig};
+use tokio_rustls::rustls::{
+    self, ClientConfig,
+    pki_types::{CertificateDer, pem::PemObject},
+};
 
 const LE_ROOT_CERT: &[u8] = include_bytes!("../../../mullvad-api/le_root_cert.pem");
 
@@ -18,7 +21,7 @@ static CLIENT_CONFIG: LazyLock<ClientConfig> = LazyLock::new(|| {
     ClientConfig::builder_with_provider(Arc::new(rustls::crypto::ring::default_provider()))
         .with_safe_default_protocol_versions()
         .unwrap()
-        .with_root_certificates(read_cert_store())
+        .with_root_certificates(read_cert_store().expect("Failed to parse pem file"))
         .with_no_client_auth()
 });
 
@@ -123,16 +126,15 @@ pub async fn http_get_with_timeout<T: DeserializeOwned>(
         .map_err(|_| Error::HttpRequest("Request timed out".into()))?
 }
 
-fn read_cert_store() -> rustls::RootCertStore {
+fn read_cert_store() -> Result<rustls::RootCertStore, rustls_pki_types::pem::Error> {
     let mut cert_store = rustls::RootCertStore::empty();
 
-    let certs = rustls_pemfile::certs(&mut std::io::BufReader::new(LE_ROOT_CERT))
-        .collect::<Result<Vec<_>, _>>()
-        .expect("Failed to parse pem file");
+    let certs = CertificateDer::pem_reader_iter(&mut std::io::BufReader::new(LE_ROOT_CERT))
+        .collect::<Result<Vec<_>, _>>()?;
     let (num_certs_added, num_failures) = cert_store.add_parsable_certificates(certs);
     if num_failures > 0 || num_certs_added != 1 {
         panic!("Failed to add root cert");
     }
 
-    cert_store
+    Ok(cert_store)
 }
