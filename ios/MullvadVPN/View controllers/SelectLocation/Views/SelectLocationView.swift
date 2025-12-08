@@ -162,6 +162,7 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                             }
                             .foregroundStyle(Color.mullvadTextPrimary)
                         }
+                        .accessibilityIdentifier(.toggleMultihopButton)
                     } label: {
                         Image(systemName: "ellipsis.circle.fill")
                             .foregroundStyle(Color.mullvadTextPrimary)
