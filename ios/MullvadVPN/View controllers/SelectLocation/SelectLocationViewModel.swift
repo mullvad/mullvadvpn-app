@@ -23,6 +23,7 @@ protocol SelectLocationViewModel: ObservableObject {
     func showEditCustomListView(locations: [LocationNode])
     func showAddCustomListView(locations: [LocationNode])
     func showFilterView()
+    func toggleMultihop()
 }
 
 struct SelectLocationDelegate {
@@ -170,6 +171,14 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
     deinit {
         guard let tunnelObserver else { return }
         tunnelManager.removeObserver(tunnelObserver)
+    }
+
+    func toggleMultihop() {
+        tunnelManager.updateSettings([.multihop(isMultihopEnabled ? .off : .on)]) {
+            Task { @MainActor in
+                self.isMultihopEnabled = self.tunnelManager.settings.tunnelMultihopState.isEnabled
+            }
+        }
     }
 
     func onFilterTapped(_ filter: SelectLocationFilter) {
