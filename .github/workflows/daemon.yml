@@ -113,11 +113,6 @@ jobs:
           - os: windows-11-arm
             arch: arm64
     runs-on: ${{ matrix.config.os }}
-    env:
-      # On Windows, the checkout is on the D drive, which is very small.
-      # Moving the target directory to the C drive ensures that the runner
-      # doesn't run out of space on the D drive.
-      CARGO_TARGET_DIR: "C:/cargo-target"
     steps:
       # By default, the longest path a filename can have in git on Windows is 260 character.
       - name: Set git config for long paths
