@@ -8,7 +8,6 @@ import {
 import {
   filterLocations,
   filterLocationsByDaita,
-  filterLocationsByEndPointType,
   filterLocationsByLwo,
   filterLocationsByQuic,
   getLocationsExpandedBySearch,
@@ -81,20 +80,9 @@ export function RelayListContextProvider(props: RelayListContextProviderProps) {
   const multihop = relaySettings?.wireguard.useMultihop ?? false;
   const ipVersion = relaySettings?.wireguard.ipVersion ?? 'any';
 
-  // Filters the relays to only keep the ones of the desired endpoint type: "wireguard"
-  const relayListForEndpointType = useMemo(() => {
-    return filterLocationsByEndPointType(fullRelayList);
-  }, [fullRelayList]);
-
   const relayListForDaita = useMemo(() => {
-    return filterLocationsByDaita(
-      relayListForEndpointType,
-      daita,
-      directOnly,
-      locationType,
-      multihop,
-    );
-  }, [daita, directOnly, locationType, relayListForEndpointType, multihop]);
+    return filterLocationsByDaita(fullRelayList, daita, directOnly, locationType, multihop);
+  }, [fullRelayList, daita, directOnly, locationType, multihop]);
 
   // Only show relays that have QUIC endpoints when QUIC obfuscation is enabled.
   const relayListForQuic = useMemo(() => {
