@@ -11,7 +11,7 @@ use crate::{
 use anyhow::{Context, anyhow, bail, ensure};
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_relay_selector::query::builder::{IpVersion, RelayQueryBuilder};
-use mullvad_types::relay_constraints::{ObfuscationSettings, RelayOverride, SelectedObfuscation};
+use mullvad_types::relay_constraints::RelayOverride;
 use scopeguard::ScopeGuard;
 use std::net::{IpAddr, SocketAddr};
 use test_macro::test_function;
@@ -33,21 +33,12 @@ pub async fn test_wireguard_ip_override(
     // Note: This should be a valid port according to the relay list
     const TUNNEL_PORT: u16 = 51819;
 
-    // make sure udp2tcp is turned off for this test
-    mullvad_client
-        .set_obfuscation_settings(ObfuscationSettings {
-            selected_obfuscation: SelectedObfuscation::Port,
-            ..Default::default()
-        })
-        .await
-        .with_context(|| "Failed to set disable obfuscation")?;
-
     let guest_interface = rpc.get_default_interface().await?;
     let IpAddr::V4(guest_ip) = rpc.get_interface_ip(guest_interface).await? else {
         bail!("Guests with IPv6 addresses are not supported.");
     };
 
-    // pick any wireguard_constraints relay to use with the test
+    // Pick any relay to use with the test.
     let query = RelayQueryBuilder::new()
         .port(TUNNEL_PORT)
         .ip_version(IpVersion::V4)
