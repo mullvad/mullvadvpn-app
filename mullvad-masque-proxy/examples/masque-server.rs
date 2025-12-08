@@ -78,7 +78,7 @@ fn load_server_config(
     let key = if key_path.extension().is_some_and(|x| x == "der") {
         PrivateKeyDer::Pkcs8(PrivatePkcs8KeyDer::from(key))
     } else {
-        PrivateKeyDer::from_pem_slice(&key).expect("Expected PEM file to contain private key") //rustls_pemfile::private_key(&mut &*key)?.expect("Expected PEM file to contain private key")
+        PrivateKeyDer::from_pem_slice(&key).expect("Expected PEM file to contain private key")
     };
     let cert_chain = fs::read(cert_path)?;
     let cert_chain = if cert_path.extension().is_some_and(|x| x == "der") {
