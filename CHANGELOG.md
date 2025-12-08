@@ -22,6 +22,10 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+### Changed
+#### Windows
+- Detect processes preventing updates.
+
 ### Fixed
 - Fix "Time left" label in main view not updating when time passes.
 
