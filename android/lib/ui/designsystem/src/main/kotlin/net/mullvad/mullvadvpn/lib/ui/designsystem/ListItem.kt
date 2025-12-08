@@ -61,6 +61,11 @@ enum class Position {
     Bottom,
 }
 
+enum class ListItemClickArea {
+    All,
+    LeadingAndMain,
+}
+
 data class CornerSize(val topStart: Dp, val topEnd: Dp, val bottomStart: Dp, val bottomEnd: Dp)
 
 val Position.cornerSize: CornerSize
@@ -96,6 +101,7 @@ val Hierarchy.containerColor: Color
         }
 
 @Composable
+@Suppress("LongMethod")
 fun MullvadListItem(
     modifier: Modifier = Modifier,
     hierarchy: Hierarchy = Hierarchy.Parent,
@@ -105,6 +111,7 @@ fun MullvadListItem(
     isEnabled: Boolean = true,
     isSelected: Boolean = false,
     testTag: String? = null,
+    mainClickArea: ListItemClickArea = ListItemClickArea.All,
     onClick: (() -> Unit)? = null,
     onLongClick: (() -> Unit)? = null,
     leadingContent: @Composable (BoxScope.() -> Unit)? = null,
@@ -134,33 +141,54 @@ fun MullvadListItem(
             modifier =
                 Modifier.background(hierarchy.containerColor.copy(alpha = backgroundAlpha))
                     .applyIfNotNull(testTag) { testTag(it) }
-                    .applyIfNotNull(onClick, and = isEnabled) {
-                        combinedClickable(enabled = true, onClick = it, onLongClick = onLongClick)
+                    .applyIfNotNull(onClick, and = mainClickArea == ListItemClickArea.All) {
+                        combinedClickable(
+                            enabled = isEnabled,
+                            onClick = it,
+                            onLongClick = onLongClick,
+                        )
                     }
-                    .semantics { selected = isSelected }
-                    .padding(start = ListTokens.listItemPaddingStart + hierarchy.paddingStart),
+                    .semantics { selected = isSelected },
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            if (leadingContent != null) {
+            // This row is needed to prevent the main click ripple from travelling over
+            // the trailing content when that shouldn't happen.
+            Row(
+                modifier =
+                    Modifier.weight(1f)
+                        .applyIfNotNull(
+                            onClick,
+                            and = mainClickArea == ListItemClickArea.LeadingAndMain,
+                        ) {
+                            combinedClickable(
+                                enabled = isEnabled,
+                                onClick = it,
+                                onLongClick = onLongClick,
+                            )
+                        }
+                        .padding(start = ListTokens.listItemPaddingStart + hierarchy.paddingStart)
+            ) {
+                if (leadingContent != null) {
+                    Box(
+                        modifier = Modifier.fillMaxHeight(),
+                        contentAlignment = Alignment.CenterStart,
+                    ) {
+                        ProvideContentColorTextStyle(
+                            colors.headlineColor(isEnabled, isSelected),
+                            MaterialTheme.typography.titleMedium,
+                        ) {
+                            leadingContent(this)
+                        }
+                    }
+                }
+
                 Box(modifier = Modifier.fillMaxHeight(), contentAlignment = Alignment.CenterStart) {
                     ProvideContentColorTextStyle(
                         colors.headlineColor(isEnabled, isSelected),
                         MaterialTheme.typography.titleMedium,
                     ) {
-                        leadingContent(this)
+                        content(this)
                     }
-                }
-            }
-
-            Box(
-                modifier = Modifier.weight(1f, fill = true).fillMaxHeight(),
-                contentAlignment = Alignment.CenterStart,
-            ) {
-                ProvideContentColorTextStyle(
-                    colors.headlineColor(isEnabled, isSelected),
-                    MaterialTheme.typography.titleMedium,
-                ) {
-                    content(this)
                 }
             }
 
