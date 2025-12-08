@@ -16803,6 +16803,9 @@
         }
       }
     },
+    "Disable multihop" : {
+
+    },
     "Disabling" : {
       "localizations" : {
         "da" : {
@@ -19401,6 +19404,9 @@
           }
         }
       }
+    },
+    "Enable multihop" : {
+
     },
     "Enabling" : {
       "localizations" : {
