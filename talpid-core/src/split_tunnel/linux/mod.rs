@@ -71,7 +71,15 @@ impl PidManager {
             Err(cgroup2_err) => {
                 // If it does not success, the kernel might be too old, so we fallback on the old cgroup1 solution.
                 match Self::new_cgroup1() {
-                    Ok(inner) => Inner::CGroup1(inner),
+                    Ok(inner) => {
+                        log::warn!(
+                            "Failed to initialize cgroups v2, falling back to cgroup v1 for split tunneling"
+                        );
+                        log::warn!(
+                            "Note that cgroups v1 is deprecated and will be removed in the future"
+                        );
+                        Inner::CGroup1(inner)
+                    }
                     Err(cgroup1_err) => {
                         log::error!("Failed to initialize split-tunneling");
                         log::trace!("{cgroup1_err:?}");
