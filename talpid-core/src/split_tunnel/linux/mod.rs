@@ -8,7 +8,7 @@ use libc::pid_t;
 use nftnl::{Batch, Chain, Hook, MsgType, Policy, ProtoFamily, Rule, Table, nft_expr};
 use nix::unistd::Pid;
 use talpid_cgroup::{
-    DEFAULT_NET_CLS_DIR, SPLIT_TUNNEL_CGROUP_NAME,
+    SPLIT_TUNNEL_CGROUP_NAME,
     v1::{CGroup1, NET_CLS_CLASSID},
     v2::CGroup2,
 };
@@ -99,7 +99,7 @@ impl PidManager {
     }
 
     fn new_cgroup1() -> Result<InnerCGroup1, Error> {
-        let root_cgroup = CGroup1::open(DEFAULT_NET_CLS_DIR)?;
+        let root_cgroup = CGroup1::open_root()?;
         let excluded_cgroup = root_cgroup.create_or_open_child(SPLIT_TUNNEL_CGROUP_NAME)?;
         excluded_cgroup.set_net_cls_id(NET_CLS_CLASSID)?;
 
