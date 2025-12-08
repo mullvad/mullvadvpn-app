@@ -21,6 +21,10 @@ Line wrap the file at 100 chars.                                              Th
 * **Fixed**: for any bug fixes.
 * **Security**: in case of vulnerabilities.
 
+## [android/2025.11] - 2025-12-08
+Identical to `android/2025.11-beta1`.
+
+
 ## [android/2025.11-beta1] - 2025-12-02
 ### Fixed
 - Fix failing settings migrations.
