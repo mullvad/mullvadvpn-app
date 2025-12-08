@@ -145,6 +145,7 @@
     <string name="device_name_info_third_paragraph">如果您退出登录，设备和设备名称将被移除。当您再次登录时，设备将获得新名称。</string>
     <string name="direct_only">仅直连</string>
     <string name="direct_only_description">我们的部分服务器未启用 %1$s。要使用互联网，您可能需要在启用后选择新位置。</string>
+    <string name="disable_multihop">停用多跳</string>
     <string name="disable_recents">停用最近使用</string>
     <string name="discard">舍弃</string>
     <string name="discard_changes">舍弃更改？</string>
@@ -412,11 +413,15 @@
     <string name="udp">UDP</string>
     <string name="udp_over_tcp">UDP-over-TCP</string>
     <string name="udp_over_tcp_port_info">UDP-over-TCP 混淆协议应连接到 VPN 服务器上的哪个 TCP 端口。</string>
+    <string name="unable_to_reach_api_dialog_message_first_create_account">由于无法访问 Mullvad API，应用无法创建帐户。</string>
+    <string name="unable_to_reach_api_dialog_message_first_login">由于无法访问 Mullvad API，应用无法登录。</string>
     <string name="unable_to_reach_api_dialog_message_list_first">重启您的设备</string>
     <string name="unable_to_reach_api_dialog_message_list_second">连接到其他网络</string>
     <string name="unable_to_reach_api_dialog_message_list_third">启用应用中的所有访问方法</string>
+    <string name="unable_to_reach_api_dialog_message_second">这可能由审查或网络问题造成。请尝试：</string>
     <string name="unable_to_reach_api_dialog_message_third">如果上述步骤无效，请使用下方的按钮发送邮件给支持团队。电子邮件将自动附加经过匿名化处理的日志。</string>
     <string name="unable_to_reach_api_dialog_title">无法访问 API</string>
+    <string name="unavailable">不可用</string>
     <string name="undo">撤消</string>
     <string name="unsupported_version">不受支持的版本</string>
     <string name="unsupported_version_description">此应用版本不受支持，因此您的隐私可能存在风险。请立即更新。</string>

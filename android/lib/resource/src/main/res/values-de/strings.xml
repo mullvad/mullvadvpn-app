@@ -145,6 +145,7 @@
     <string name="device_name_info_third_paragraph">Wenn Sie sich abmelden, werden das Gerät und der Gerätename entfernt. Wenn Sie sich wieder anmelden, erhält das Gerät einen neuen Namen.</string>
     <string name="direct_only">Nur direkt</string>
     <string name="direct_only_description">Nicht alle unsere Server sind %1$s-fähig. Um das Internet nutzen zu können, müssen Sie nach der Aktivierung möglicherweise einen neuen Standort auswählen.</string>
+    <string name="disable_multihop">Multihop deaktivieren</string>
     <string name="disable_recents">Letzte deaktivieren</string>
     <string name="discard">Verwerfen</string>
     <string name="discard_changes">Änderungen verwerfen?</string>
@@ -412,11 +413,15 @@
     <string name="udp">UDP</string>
     <string name="udp_over_tcp">UDP über TCP</string>
     <string name="udp_over_tcp_port_info">Mit welchem TCP-Port sich das UDP-über-TCP-Verschleierungsprotokoll auf dem VPN-Server verbinden soll.</string>
+    <string name="unable_to_reach_api_dialog_message_first_create_account">Die App konnte kein Konto erstellen, da sie die Mullvad-API nicht erreichen konnte.</string>
+    <string name="unable_to_reach_api_dialog_message_first_login">Die App konnte die Anmeldung nicht durchführen, da sie die Mullvad-API nicht erreichen konnte.</string>
     <string name="unable_to_reach_api_dialog_message_list_first">Ihr Gerät neu starten</string>
     <string name="unable_to_reach_api_dialog_message_list_second">Mit einem anderen Netzwerk verbinden</string>
     <string name="unable_to_reach_api_dialog_message_list_third">Alle Zugriffsmethoden in der App aktivieren</string>
+    <string name="unable_to_reach_api_dialog_message_second">Das kann an Zensur oder Netzwerkproblemen liegen. Versuchen Sie Folgendes:</string>
     <string name="unable_to_reach_api_dialog_message_third">Sollten die oben genannten Schritte nicht zum Erfolg führen, senden Sie bitte über die Schaltfläche unten eine E-Mail an unseren Support. Es werden automatisch anonymisierte Protokolle als Anhang beigefügt.</string>
     <string name="unable_to_reach_api_dialog_title">API nicht erreichbar</string>
+    <string name="unavailable">Nicht verfügbar</string>
     <string name="undo">Rückgängig</string>
     <string name="unsupported_version">NICHT UNTERSTÜTZTE VERSION</string>
     <string name="unsupported_version_description">Ihre Privatsphäre könnte mit dieser nicht unterstützen Version der App gefährdet sein. Bitte aktualisieren Sie sie.</string>

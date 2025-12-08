@@ -145,6 +145,7 @@
     <string name="device_name_info_third_paragraph">Jos kirjaudut ulos, laite ja laitteen nimi poistetaan. Kun kirjaudut sisään uudelleen, laitteelle annetaan uusi nimi.</string>
     <string name="direct_only">Vain suora</string>
     <string name="direct_only_description">Kaikissa palvelimissamme ei ole %1$s-tukea. Käyttääksesi internetiä sinun on ehkä valittava uusi sijainti käyttöönoton jälkeen.</string>
+    <string name="disable_multihop">Poista multihop käytöstä</string>
     <string name="disable_recents">Poista viimeisimmät käytöstä</string>
     <string name="discard">Hylkää</string>
     <string name="discard_changes">Hylätäänkö muokkaukset?</string>
@@ -412,11 +413,15 @@
     <string name="udp">UDP</string>
     <string name="udp_over_tcp">UDP TCP:n kautta</string>
     <string name="udp_over_tcp_port_info">Määrittää, mihin VPN-palvelimen TCP-porttiin \"UDP TCP:n kautta\" -hämäysteknologia-protokollan tulee muodostaa yhteys.</string>
+    <string name="unable_to_reach_api_dialog_message_first_create_account">Sovellus ei voinut luoda tiliä, koska se ei saanut yhteyttä Mullvad API:hin.</string>
+    <string name="unable_to_reach_api_dialog_message_first_login">Sovellus ei voinut kirjautua, koska se ei saanut yhteyttä Mullvad API:hin.</string>
     <string name="unable_to_reach_api_dialog_message_list_first">Käynnistä laitteesi uudelleen</string>
     <string name="unable_to_reach_api_dialog_message_list_second">Muodosta yhteys toiseen verkkoon</string>
     <string name="unable_to_reach_api_dialog_message_list_third">Ota kaikki käyttötavat käyttöön sovelluksessa</string>
+    <string name="unable_to_reach_api_dialog_message_second">Tämä voi johtua sensuurista tai verkko-ongelmista. Kokeile seuraavia:</string>
     <string name="unable_to_reach_api_dialog_message_third">Jos nämä vaiheet eivät toimi, lähetä sähköpostiviesti tuelle käyttämällä alla olevaa painiketta. Se liittää automaattisesti anonymisoidut lokit.</string>
     <string name="unable_to_reach_api_dialog_title">Yhteyden muodostaminen API:hin ei onnistu</string>
+    <string name="unavailable">Ei saatavilla</string>
     <string name="undo">Kumoa</string>
     <string name="unsupported_version">EI-TUETTU VERSIO</string>
     <string name="unsupported_version_description">Yksityisyytesi saattaa olla vaarassa tämän sovellusversion, jota ei tueta, vuoksi. Päivitä versio heti.</string>

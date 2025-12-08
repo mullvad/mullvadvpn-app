@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Korean\n"
 "Language: ko_KR\n"
-"PO-Revision-Date: 2025-11-19 13:21\n"
+"PO-Revision-Date: 2025-12-08 09:00\n"
 
 msgid "%(amount)d more..."
 msgstr "%(amount)d개 더 보기..."
@@ -219,6 +219,9 @@ msgstr "다음"
 msgid "No result for <b>%(searchTerm)s</b>."
 msgstr "<b>%(searchTerm)s</b>에 대한 결과가 없습니다."
 
+msgid "None"
+msgstr "없음"
+
 msgid "Off"
 msgstr "끄기"
 
@@ -302,6 +305,13 @@ msgctxt "accessibility"
 msgid "%(title)s, View loaded"
 msgstr "%(title)s, 보기 로드됨"
 
+#. Text for screen readers to describe the WireGuard port settings navigation button.
+#. Available placeholders:
+#. %(wireguard)s - will be replaced with WireGuard
+msgctxt "accessibility"
+msgid "%(wireguard)s port settings"
+msgstr "%(wireguard)s 포트 설정"
+
 msgctxt "accessibility"
 msgid "Add new custom bridge"
 msgstr "새로운 사용자 지정 브리지 추가"
@@ -334,6 +344,14 @@ msgstr "%(location)s 확장"
 msgctxt "accessibility"
 msgid "Forget account number %(accountNumber)s"
 msgstr "계정 번호 %(accountNumber)s 삭제하기"
+
+#. Accessibility label for link to VPN settings where
+#. the user can change WireGuard port.
+#. Available placeholders:
+#. %(wireGuard)s - Will be replaced with WireGuard
+msgctxt "accessibility"
+msgid "Go to anti-censorship settings to change %(wireGuard)s port"
+msgstr "%(wireGuard)s 포트를 변경하려면 검열 방지 설정으로 이동하세요"
 
 #. Accessibility label for link to app upgrade view.
 msgctxt "accessibility"
@@ -448,6 +466,26 @@ msgstr "시간 초과"
 msgctxt "account-view"
 msgid "Paid until"
 msgstr "유효 기간"
+
+#. Page title for anti censorship settings view
+msgctxt "anti-censorship-view"
+msgid "Anti-censorship"
+msgstr "검열 방지"
+
+#. The title for the obfuscation method selector.
+msgctxt "anti-censorship-view"
+msgid "Method"
+msgstr "방법"
+
+#. Second paragraph of description text in anti-censorship view
+msgctxt "anti-censorship-view"
+msgid "Please note that these methods do not improve performance, and may increase system utilization and battery consumption."
+msgstr "이 방법들은 성능을 개선하지 않으며 시스템 활용과 배터리 소모가 늘어날 수 있습니다."
+
+#. First paragraph of description text in anti-censorship view
+msgctxt "anti-censorship-view"
+msgid "These methods may be useful in situations where you are blocked from reaching Mullvad. When \"Automatic\" is selected, the app will attempt all methods until one works."
+msgstr "이 방법들은 Mullvad 사용이 차단된 경우에 유용합니다. \"자동\"을 선택하면 통하는 방법이 있을 때까지 모든 방법을 시도합니다."
 
 msgctxt "api-access-methods-view"
 msgid "Add method"
@@ -1318,6 +1356,20 @@ msgctxt "in-app-notifications"
 msgid "The installer did not start successfully."
 msgstr "설치 프로그램이 시작되지 않았습니다."
 
+#. Notification subtitle indicating the user is using an unsupported port for WireGuard.
+#. Available placeholders:
+#. %(wireGuard)s - Will be replaced with WireGuard
+msgctxt "in-app-notifications"
+msgid "The selected %(wireGuard)s port is not supported, please <a>change it under VPN settings.</a>"
+msgstr "선택한 %(wireGuard)s 포트는 지원되지 않습니다. <a>VPN 설정에서 변경하세요.</a>"
+
+#. Notification text when a new device has been created.
+#. Available placeholders:
+#. - %(deviceName)s: Name of created device.
+msgctxt "in-app-notifications"
+msgid "This device is now named <em>%(deviceName)s</em>. See more under <a>Manage devices</a> in Account."
+msgstr "이 장치의 현재 이름은 <em>%(deviceName)s</em>입니다. 자세한 내용은 계정의 <a>장치 관리</a>에서 확인할 수 있습니다."
+
 #. The in-app banner displayed to the user when the app beta update is
 #. available.
 #. Available placeholders:
@@ -1627,6 +1679,16 @@ msgstr "분할 터널링을 활성화하지 못했습니다."
 msgctxt "notifications"
 msgid "Failed to enable split tunneling. Please try reconnecting or disable split tunneling."
 msgstr "분할 터널링을 활성화하지 못했습니다. 다시 연결하거나 분할 터널링을 비활성화하세요."
+
+#. Label for notification when IPv4 is not available.
+msgctxt "notifications"
+msgid "IPv4 is not available, please try changing Device IP version setting."
+msgstr "IPv4를 사용할 수 없습니다. 장치 IP 버전 설정을 변경해 보세요."
+
+#. Label for notification when IPv6 is not available.
+msgctxt "notifications"
+msgid "IPv6 is not available, please try changing Device IP version setting."
+msgstr "IPv6를 사용할 수 없습니다. 장치 IP 버전 설정을 변경해 보세요."
 
 msgctxt "notifications"
 msgid "Lockdown mode active, connection blocked"
@@ -2342,6 +2404,12 @@ msgctxt "vpn-settings-view"
 msgid "Adult content"
 msgstr "성인 콘텐츠"
 
+#. Label for list item that navigates to anti-censorship
+#. settings view.
+msgctxt "vpn-settings-view"
+msgid "Anti-censorship"
+msgstr "검열 방지"
+
 msgctxt "vpn-settings-view"
 msgid "Attention: enabling this will always require a Mullvad VPN connection in order to reach the internet."
 msgstr "주의: 이 기능을 활성화하려면 인터넷 연결을 위해 항상 Mullvad VPN 연결이 필요합니다."
@@ -2381,6 +2449,11 @@ msgstr "DNS 콘텐츠 차단기"
 msgctxt "vpn-settings-view"
 msgid "Enable to add at least one DNS server."
 msgstr "하나 이상의 DNS 서버를 추가하려면 활성화합니다."
+
+#. Description of in-tunnel IPv6 setting.
+msgctxt "vpn-settings-view"
+msgid "Enable to allow IPv6 traffic through the tunnel."
+msgstr "터널을 통한 IPv6 트래픽 허용을 활성화합니다."
 
 msgctxt "vpn-settings-view"
 msgid "Enter IP"
@@ -2869,6 +2942,9 @@ msgstr "이 방법을 삭제하시겠습니까?"
 msgid "Disable all \"%s\" above to activate this setting."
 msgstr "이 설정을 활성화하려면 위의 모든 \"%s\"를 비활성화하세요."
 
+msgid "Disable multihop"
+msgstr "멀티홉 비활성화"
+
 msgid "Disable recents"
 msgstr "최근 항목 비활성화"
 
@@ -3208,8 +3284,11 @@ msgstr "\"현재\" 방법은 앱이 API에 연결하기 위해 사용하는 방�
 msgid "The app is blocking internet, please disconnect first"
 msgstr "해당 앱이 인터넷을 차단하고 있습니다. 먼저 연결 해제하세요"
 
-msgid "The app was unable to %s due to not being able to reach the Mullvad API. This might be due to censorship or network issues. Please try to:"
-msgstr "Mullvad API에 연결할 수 없어 앱에서 %s이 불가능했습니다. 검열이나 네트워크 이슈가 원인일 수 있습니다. 다음을 시도해 보세요:"
+msgid "The app was unable to create an account due to not being able to reach the Mullvad API."
+msgstr "앱에서 Mullvad API를 사용할 수 없어 계정을 생성하지 못했습니다."
+
+msgid "The app was unable to login due to not being able to reach the Mullvad API."
+msgstr "앱에서 Mullvad API를 사용할 수 없어 로그인하지 못했습니다."
 
 msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under VPN settings."
 msgstr "VPN 설정에서 \"로컬 네트워크 공유\"를 활성화하지 않으면 로컬 DNS 서버가 작동하지 않습니다."
@@ -3228,6 +3307,9 @@ msgstr "이는 사용자의 익명성에 영향을 미칩니다"
 
 msgid "This is already set as current"
 msgstr "이미 현재로 설정되어 있습니다"
+
+msgid "This might be due to censorship or network issues. Please try to:"
+msgstr "검열 또는 네트워크 문제가 원인일 수 있습니다. 다음을 시도해 보세요."
 
 msgid "Time added"
 msgstr "시간 추가됨"
@@ -3267,6 +3349,9 @@ msgstr "터널 연결을 시작할 수 없습니다. Mullvad VPN을 사용하기
 
 msgid "Unable to start tunnel connection. Please disable Always-on VPN for <b>%s</b> before using Mullvad VPN."
 msgstr "터널 연결을 시작할 수 없습니다. Mullvad VPN을 사용하기 전에 <b>%s</b>에 대한 상시 접속 VPN을 비활성화하세요."
+
+msgid "Unavailable"
+msgstr "사용할 수 없음"
 
 msgid "Undo"
 msgstr "실행 취소"
@@ -3352,17 +3437,11 @@ msgstr "\"%s\"이(가) 삭제되었습니다"
 msgid "click here"
 msgstr "여기를 클릭하세요"
 
-msgid "create an account"
-msgstr "계정 생성"
-
 msgid "here"
 msgstr "여기"
 
 msgid "less than one day"
 msgstr "1일 미만"
-
-msgid "login"
-msgstr "로그인"
 
 msgid "privacy policy"
 msgstr "개인 정보 보호 정책"

@@ -1,200 +1,224 @@
 msgid ""
 msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=6; plural=(n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5);\n"
 "X-Crowdin-Project: mullvad-app\n"
 "X-Crowdin-Project-ID: 350815\n"
-"X-Crowdin-Language: da\n"
+"X-Crowdin-Language: ar\n"
 "X-Crowdin-File: messages.pot\n"
 "X-Crowdin-File-ID: 12\n"
 "Project-Id-Version: mullvad-app\n"
-"Language-Team: Danish\n"
-"Language: da_DK\n"
-"PO-Revision-Date: 2025-12-08 09:00\n"
+"Language-Team: Arabic\n"
+"Language: ar_SA\n"
+"PO-Revision-Date: 2025-12-08 14:06\n"
 
 msgid "%(amount)d more..."
-msgstr "%(amount)d mere..."
+msgstr "%(amount)d أكثر..."
 
 msgid "%(duration)s was added, account paid until %(expiry)s."
-msgstr "%(duration)s blev tilføjet, konto betalt indtil %(expiry)s."
+msgstr "تمت إضافة %(duration)s، وتم دفع رسوم الحساب حتى %(expiry)s."
 
 #. The label for the WireGuard port option.
 #. Available placeholders:
 #. %(wireguard)s - will be replaced with WireGuard
 msgid "%(wireguard)s port"
-msgstr "%(wireguard)s-port"
+msgstr "منفذ %(wireguard)s"
 
 msgid "1 day"
 msgid_plural "%d days"
-msgstr[0] "1 dag"
-msgstr[1] "%d dage"
+msgstr[0] "%d يوم"
+msgstr[1] "يوم واحد"
+msgstr[2] "يومان (%d)"
+msgstr[3] "%d أيام"
+msgstr[4] "%d يومًا"
+msgstr[5] "%d يوم"
 
 msgid "1 day left"
 msgid_plural "%d days left"
-msgstr[0] "1 dag tilbage"
-msgstr[1] "%d dage tilbage"
+msgstr[0] "يتبقى %d يوم"
+msgstr[1] "يتبقى يوم واحد"
+msgstr[2] "يتبقى يومان (%d)"
+msgstr[3] "يتبقى %d أيام"
+msgstr[4] "يتبقى %d يومًا"
+msgstr[5] "يتبقى %d يوم"
 
 msgid "1 month"
 msgid_plural "%d months"
-msgstr[0] "1 måned"
-msgstr[1] "%d måneder"
+msgstr[0] "%d شهر"
+msgstr[1] "شهر واحد"
+msgstr[2] "شهران (%d)"
+msgstr[3] "%d أشهر"
+msgstr[4] "%d شهرًا"
+msgstr[5] "%d شهر"
 
 msgid "1 month left"
 msgid_plural "%d months left"
-msgstr[0] "1 måned tilbage"
-msgstr[1] "%d måneder tilbage"
+msgstr[0] "يتبقى %d شهر"
+msgstr[1] "يتبقى شهر واحد"
+msgstr[2] "يتبقى شهران (%d)"
+msgstr[3] "يتبقى %d أشهر"
+msgstr[4] "يتبقى %d شهرًا"
+msgstr[5] "يتبقى %d شهر"
 
 msgid "1 year"
 msgid_plural "%d years"
-msgstr[0] "1 år"
-msgstr[1] "%d år"
+msgstr[0] "%d عام"
+msgstr[1] "عام واحد"
+msgstr[2] "عامان (%d)"
+msgstr[3] "%d أعوام"
+msgstr[4] "%d عامًا"
+msgstr[5] "%d عام"
 
 msgid "1 year left"
 msgid_plural "%d years left"
-msgstr[0] "1 år tilbage"
-msgstr[1] "%d år tilbage"
+msgstr[0] "يتبقى %d عام"
+msgstr[1] "يتبقى عام واحد"
+msgstr[2] "يتبقى عامان (%d)"
+msgstr[3] "يتبقى %d أعوام"
+msgstr[4] "يتبقى %d عامًا"
+msgstr[5] "يتبقى %d عام"
 
 msgid "Account paid until %(expiry)s."
-msgstr "Konto betalt indtil %(expiry)s."
+msgstr "تم دفع رسوم الحساب حتى %(expiry)s."
 
 msgid "Account settings"
-msgstr "Kontoindstillinger"
+msgstr "إعدادات الحساب"
 
 msgid "Add"
-msgstr "Tilføj"
+msgstr "إضافة"
 
 msgid "Any"
-msgstr "Enhver"
+msgstr "أي نوع"
 
 msgid "Apply"
-msgstr "Anvend"
+msgstr "تطبيق"
 
 msgid "Automatic"
-msgstr "Automatisk"
+msgstr "تلقائي"
 
 msgid "Back"
-msgstr "Tilbage"
+msgstr "رجوع"
 
 msgid "BLOCKED CONNECTION"
-msgstr "FORBINDELSE BLOKERET"
+msgstr "اتصال محظور"
 
 msgid "Blocking internet"
-msgstr "Blokerer internettet"
+msgstr "الإنترنت محظور"
 
 msgid "Buy credit"
-msgstr "Køb kredit"
+msgstr "شراء رصيد"
 
 msgid "Buy more credit"
-msgstr "Køb mere kredit"
+msgstr "شراء رصيد إضافي"
 
 msgid "Cancel"
-msgstr "Annuller"
+msgstr "إلغاء"
 
 msgid "Cipher"
-msgstr "Chiffer"
+msgstr "التشفير"
 
 msgid "Clear"
-msgstr "Ryd"
+msgstr "مسح"
 
 msgid "Close"
-msgstr "Luk"
+msgstr "إغلاق"
 
 msgid "Connect"
-msgstr "Tilslut"
+msgstr "الاتصال"
 
 msgid "Connected"
-msgstr "Tilsluttet"
+msgstr "متصل"
 
 msgid "CONNECTED"
-msgstr "FORBUNDET"
+msgstr "متصل"
 
 msgid "Connecting"
-msgstr "Tilslutter"
+msgstr "جارٍ الاتصال"
 
 msgid "CONNECTING..."
-msgstr "OPRETTER FORBINDELSE..."
+msgstr "جارٍ الاتصال..."
 
 #. Creating a secure connection that isn't breakable by quantum computers.
 msgid "CREATING QUANTUM SECURE CONNECTION"
-msgstr "OPRETTER KVANTESIKKER FORBINDELSE"
+msgstr "جارٍ إنشاء اتصال مُؤمَّن ضد هجمات الحواسيب الكمّية"
 
 msgid "CREATING SECURE CONNECTION"
-msgstr "OPRETTER SIKKER FORBINDELSE"
+msgstr "جارٍ إنشاء اتصال آمن"
 
 msgid "Custom"
-msgstr "Brugerdefineret"
+msgstr "مُخصَّص"
 
 #. This refers to the Custom DNS setting in the VPN settings view. This is
 #. displayed when the feature is on.
 msgid "Custom DNS"
-msgstr "Brugerdefineret DNS"
+msgstr "DNS مُخصَّص"
 
 msgid "Default"
-msgstr "Standard"
+msgstr "افتراضي"
 
 msgid "Delete"
-msgstr "Slet"
+msgstr "حذف"
 
 msgid "Delete list"
-msgstr "Slet liste"
+msgstr "حذف القائمة"
 
 msgid "Direct only"
-msgstr "Kun direkte"
+msgstr "المباشر فقط"
 
 msgid "Disable"
-msgstr "Deaktiver"
+msgstr "إيقاف"
 
 msgid "Disconnect"
-msgstr "Afbryd forbindelse"
+msgstr "قطع الاتصال"
 
 msgid "Disconnect & quit"
-msgstr "Afbryd og afslut"
+msgstr "قطع الاتصال والخروج"
 
 msgid "Disconnected"
-msgstr "Afbrudt"
+msgstr "تم قطع الاتصال"
 
 msgid "DISCONNECTED"
-msgstr "AFBRUDT"
+msgstr "تم قطع الاتصال"
 
 msgid "Disconnecting"
-msgstr "Afbryder"
+msgstr "جارٍ قطع الاتصال"
 
 msgid "DISCONNECTING..."
-msgstr "AFBRYDER..."
+msgstr "جارٍ قطع الاتصال..."
 
 msgid "Edit"
-msgstr "Rediger"
+msgstr "تعديل"
 
 msgid "Enable"
-msgstr "Aktiver"
+msgstr "تفعيل"
 
 msgid "Enable anyway"
-msgstr "Aktivér alligevel"
+msgstr "التفعيل على أي حال"
 
 #. A toggle that refers to the setting "Direct only".
 msgid "Enable direct only"
-msgstr "Aktiver kun direkte"
+msgstr "تفعيل \"المباشر فقط\""
 
 #. Error message shown trying to login but the app fails
 #. to fetch the list of registered devices.
 msgid "Failed to fetch list of devices"
-msgstr "Kunne ikke hente listen over enheder"
+msgstr "فشل جلب قائمة الأجهزة"
 
 msgid "FAILED TO SECURE CONNECTION"
-msgstr "KUNNE IKKE SIKRE FORBINDELSEN"
+msgstr "فشل تأمين الاتصال"
 
 msgid "Filter"
-msgstr "Filter"
+msgstr "التصفية"
 
 #. Button label for system settings.
 msgid "Go to System Settings"
-msgstr "Gå til Systemindstillinger"
+msgstr "الانتقال إلى إعدادات النظام"
 
 msgid "Got it!"
-msgstr "Forstået!"
+msgstr "حسنًا!"
 
 msgid "Import"
-msgstr "Importer"
+msgstr "استيراد"
 
 msgid "IPv4"
 msgstr "IPv4"
@@ -203,153 +227,153 @@ msgid "IPv6"
 msgstr "IPv6"
 
 msgid "Learn more"
-msgstr "Lær mere"
+msgstr "معرفة المزيد"
 
 msgid "less than a day"
-msgstr "mindre end én dag"
+msgstr "أقل من يوم"
 
 msgid "less than a day left"
-msgstr "mindre end én dag tilbage"
+msgstr "يتبقى أقل من يوم"
 
 #. This refers to the multihop setting in the VPN settings view. This is
 #. displayed when the feature is on.
 msgid "Multihop"
-msgstr "Multihop"
+msgstr "القفز المتعدد"
 
 msgid "Name"
-msgstr "Navn"
+msgstr "الاسم"
 
 msgid "Next"
-msgstr "Næste"
+msgstr "التالي"
 
 msgid "No result for <b>%(searchTerm)s</b>."
-msgstr "Intet resultat for <b>%(searchTerm)s</b>."
+msgstr "لم يتم العثور على نتائج للبحث عن <b>%(searchTerm)s</b>."
 
 msgid "None"
-msgstr "Ingen"
+msgstr "لا يوجد"
 
 msgid "Off"
-msgstr "Fra"
+msgstr "إيقاف"
 
 msgid "On"
-msgstr "Til"
+msgstr "تشغيل"
 
 msgid "Open URL"
-msgstr "Åbn URL"
+msgstr "فتح عنوان URL"
 
 msgid "Optional"
-msgstr "Valgfri"
+msgstr "اختياري"
 
 msgid "Password"
-msgstr "Adgangskode"
+msgstr "كلمة المرور"
 
 msgid "Port"
-msgstr "Port"
+msgstr "المنفذ"
 
 #. This refers to the quantum resistance setting in the WireGuard settings view.
 #. This is displayed when the feature is on.
 msgid "Quantum resistance"
-msgstr "Kvantemodstand"
+msgstr "مقاومة هجمات الحواسيب الكمّية"
 
 #. The connection is secure and isn't breakable by quantum computers.
 msgid "QUANTUM SECURE CONNECTION"
-msgstr "KVANTESIKKER FORBINDELSE"
+msgstr "اتصال مُؤمَّن ضد هجمات الحواسيب الكمّية"
 
 msgid "Quit"
-msgstr "Afslut"
+msgstr "مغادرة"
 
 msgid "Reconnect"
-msgstr "Genopret forbindelse"
+msgstr "إعادة الاتصال"
 
 #. Button label in confirmation dialog that confirms a remove action.
 msgid "Remove"
-msgstr "Fjern"
+msgstr "إزالة"
 
 msgid "Required"
-msgstr "Påkrævet"
+msgstr "مطلوب"
 
 msgid "Save"
-msgstr "Gem"
+msgstr "حفظ"
 
 msgid "Search for..."
-msgstr "Søg efter..."
+msgstr "ابحث عن..."
 
 msgid "SECURE CONNECTION"
-msgstr "SIKKER TILSLUTNING"
+msgstr "اتصال آمن"
 
 msgid "Settings"
-msgstr "Indstillinger"
+msgstr "الإعدادات"
 
 msgid "System default"
-msgstr "Systemstandard"
+msgstr "الافتراضية للنظام"
 
 msgid "Test"
-msgstr "Test"
+msgstr "اختبار"
 
 msgid "Troubleshoot"
-msgstr "Fejlfinding"
+msgstr "استكشاف الأخطاء وإصلاحها"
 
 msgid "Try a different search."
-msgstr "Prøv en anden søgning."
+msgstr "جرِّب بحثًا آخر."
 
 msgid "Type"
-msgstr "Type"
+msgstr "النوع"
 
 msgid "Unblock"
-msgstr "Fjern blokering"
+msgstr "إلغاء الحظر"
 
 msgid "UNSECURED CONNECTION"
-msgstr "IKKE-SIKRET FORBINDELSE"
+msgstr "اتصال غير آمن"
 
 msgid "Use"
-msgstr "Brug"
+msgstr "استخدام"
 
 msgid "Username"
-msgstr "Brugernavn"
+msgstr "اسم المستخدم"
 
 msgctxt "accessibility"
 msgid "%(title)s, View loaded"
-msgstr "%(title)s, visning indlæst"
+msgstr "%(title)s، تم تحميل الشاشة"
 
 #. Text for screen readers to describe the WireGuard port settings navigation button.
 #. Available placeholders:
 #. %(wireguard)s - will be replaced with WireGuard
 msgctxt "accessibility"
 msgid "%(wireguard)s port settings"
-msgstr "%(wireguard)s-portindstillinger"
+msgstr "إعدادات منفذ %(wireguard)s"
 
 msgctxt "accessibility"
 msgid "Add new custom bridge"
-msgstr "Tilføj ny brugerdefineret bro"
+msgstr "إضافة جسر مُخصَّص جديد"
 
 msgctxt "accessibility"
 msgid "Close notification"
-msgstr "Luk meddelelse"
+msgstr "إغلاق الإشعار"
 
 msgctxt "accessibility"
 msgid "Collapse %(location)s"
-msgstr "Skjul %(location)s"
+msgstr "طي %(location)s"
 
 #. Provided to accessibility tools such as screenreaders to describe a button
 #. which copies the account number to the clipboard.
 msgctxt "accessibility"
 msgid "Copy account number"
-msgstr "Kopiér kontonummer"
+msgstr "نسخ رقم الحساب"
 
 msgctxt "accessibility"
 msgid "Edit custom bridge"
-msgstr "Rediger brugerdefineret bro"
+msgstr "تعديل الجسر المُخصَّص"
 
 msgctxt "accessibility"
 msgid "Expand %(location)s"
-msgstr "Udvid %(location)s"
+msgstr "توسيع %(location)s"
 
 #. This is used by screenreaders to communicate the "x" button next to a saved account number.
 #. Available placeholders:
 #. %(accountNumber)s - the account number to the left of the button
 msgctxt "accessibility"
 msgid "Forget account number %(accountNumber)s"
-msgstr "Glem kontonummer %(accountNumber)s"
+msgstr "نسيت رقم الحساب %(accountNumber)s"
 
 #. Accessibility label for link to VPN settings where
 #. the user can change WireGuard port.
@@ -357,56 +381,56 @@ msgstr "Glem kontonummer %(accountNumber)s"
 #. %(wireGuard)s - Will be replaced with WireGuard
 msgctxt "accessibility"
 msgid "Go to anti-censorship settings to change %(wireGuard)s port"
-msgstr "Gå til indstillinger for anti-censur for at ændre %(wireGuard)s-port"
+msgstr "انتقل إلى إعدادات مكافحة الرقابة لتغيير منفذ %(wireGuard)s"
 
 #. Accessibility label for link to app upgrade view.
 msgctxt "accessibility"
 msgid "Go to app update page"
-msgstr "Gå til appens opdateringsside"
+msgstr "انتقل إلى صفحة تحديث التطبيق"
 
 #. Provided to accessibility tools such as screenreaders to describe
 #. the button which obscures the account number.
 msgctxt "accessibility"
 msgid "Hide account number"
-msgstr "Skjul kontonummer"
+msgstr "إخفاء رقم الحساب"
 
 msgctxt "accessibility"
 msgid "info"
-msgstr "info"
+msgstr "المعلومات"
 
 #. This is used by screenreaders to communicate the login button.
 msgctxt "accessibility"
 msgid "Login"
-msgstr "Log ind"
+msgstr "تسجيل الدخول"
 
 #. This is used by screenreaders to communicate logging in with a saved account number.
 #. Available placeholders:
 #. %(accountNumber)s - the saved account number
 msgctxt "accessibility"
 msgid "Login with account number %(accountNumber)s"
-msgstr "Log ind med kontonummer %(accountNumber)s"
+msgstr "تسجيل الدخول برقم الحساب %(accountNumber)s"
 
 msgctxt "accessibility"
 msgid "More information"
-msgstr "Mere information"
+msgstr "المزيد من المعلومات"
 
 #. Accessibility label for link to go to download page.
 msgctxt "accessibility"
 msgid "New version available, click here to go to download page, opens externally"
-msgstr "Ny version tilgængelig, klik her for at gå til downloadsiden, åbner eksternt"
+msgstr "يتوفَّر إصدار جديد، انقر هنا للانتقال إلى صفحة التنزيل، تفتح خارجيًا"
 
 msgctxt "accessibility"
 msgid "New version available, click here to go to update view"
-msgstr "Ny version tilgængelig, klik her for at se opdateringsvisning"
+msgstr "يتوفَّر إصدار جديد، انقر هنا للانتقال إلى شاشة التحديث"
 
 msgctxt "accessibility"
 msgid "New version installed, click here to see the changelog"
-msgstr "Ny version er installeret. Klik her for at se ændringsloggen"
+msgstr "تم تثبيت الإصدار الجديد، انقر هنا لعرض سجل التغييرات"
 
 #. Accessibility label for the button that opens the browser to buy credit.
 msgctxt "accessibility"
 msgid "Opens externally"
-msgstr "Åbner eksternt"
+msgstr "يفتح خارجيًا"
 
 #. Button action description provided to accessibility tools such as screen
 #. readers.
@@ -414,309 +438,309 @@ msgstr "Åbner eksternt"
 #. %(deviceName)s - The device name to remove.
 msgctxt "accessibility"
 msgid "Remove device named %(deviceName)s"
-msgstr "Fjern enhed med navnet %(deviceName)s"
+msgstr "إزالة الجهاز الذي يحمل اسم %(deviceName)s"
 
 msgctxt "accessibility"
 msgid "Remove item"
-msgstr "Fjern element"
+msgstr "إزالة العنصر"
 
 msgctxt "accessibility"
 msgid "Select location. Current location is %(location)s"
-msgstr "Vælg placering. Nuværende placering er %(location)s"
+msgstr "حدِّد الموقع. الموقع الحالي هو %(location)s"
 
 msgctxt "accessibility"
 msgid "Shadowsocks settings"
-msgstr "Shadowsocks-indstillinger"
+msgstr "إعدادات Shadowsocks"
 
 #. Provided to accessibility tools such as screenreaders to describe
 #. the button which unobscures the account number.
 msgctxt "accessibility"
 msgid "Show account number"
-msgstr "Vis kontonummer"
+msgstr "إظهار رقم الحساب"
 
 msgctxt "accessibility"
 msgid "UDP-over-TCP settings"
-msgstr "UDP-over-TCP-indstillinger"
+msgstr "إعدادات UDP-over-TCP"
 
 msgctxt "accessibility"
 msgid "Use the right arrow key to focus the settings button."
-msgstr "Brug højre pil til at fokusere indstillingsknappen."
+msgstr "استخدم مفتاح السهم الأيمن للتركيز على زر الإعدادات."
 
 #. Title label in navigation bar
 msgctxt "account-view"
 msgid "Account"
-msgstr "Konto"
+msgstr "الحساب"
 
 msgctxt "account-view"
 msgid "Account number"
-msgstr "Kontonummer"
+msgstr "رقم الحساب"
 
 msgctxt "account-view"
 msgid "Currently unavailable"
-msgstr "Ikke tilgængelig i øjeblikket"
+msgstr "غير متاح حاليًا"
 
 #. Button label for logging out.
 msgctxt "account-view"
 msgid "Log out"
-msgstr "Log af"
+msgstr "تسجيل الخروج"
 
 #. Link text in the account view to navigate to the manage devices view.
 msgctxt "account-view"
 msgid "Manage devices"
-msgstr "Administrer enheder"
+msgstr "إدارة الأجهزة"
 
 msgctxt "account-view"
 msgid "OUT OF TIME"
-msgstr "TID UDLØBET"
+msgstr "انتهى الوقت"
 
 msgctxt "account-view"
 msgid "Paid until"
-msgstr "Betalt indtil"
+msgstr "مدفوع حتى"
 
 #. Page title for anti censorship settings view
 msgctxt "anti-censorship-view"
 msgid "Anti-censorship"
-msgstr "Anti-censur"
+msgstr "مكافحة الرقابة"
 
 #. The title for the obfuscation method selector.
 msgctxt "anti-censorship-view"
 msgid "Method"
-msgstr "Metode"
+msgstr "الطريقة"
 
 #. Second paragraph of description text in anti-censorship view
 msgctxt "anti-censorship-view"
 msgid "Please note that these methods do not improve performance, and may increase system utilization and battery consumption."
-msgstr "Bemærk, at disse metoder ikke forbedrer præstationen og kan øge system- og batteriforbruget."
+msgstr "يُرجى ملاحظة أن هذه الطرق لا تعمل على تحسين الأداء، وقد تؤدي إلى زيادة استخدام النظام واستهلاك البطارية."
 
 #. First paragraph of description text in anti-censorship view
 msgctxt "anti-censorship-view"
 msgid "These methods may be useful in situations where you are blocked from reaching Mullvad. When \"Automatic\" is selected, the app will attempt all methods until one works."
-msgstr "Disse metoder kan være nyttige i situationer, hvor du er blokeret fra at nå Mullvad. Når \"Automatisk\" er valgt, vil appen forsøge alle metoder, indtil en virker."
+msgstr "قد تكون هذه الطرق مفيدة في حال تم حظر وصولك إلى Mullvad. عند اختيار \"تلقائي\"، سيحاول التطبيق استخدام جميع الطرق حتى تنجح إحداها."
 
 msgctxt "api-access-methods-view"
 msgid "Add method"
-msgstr "Tilføj metode"
+msgstr "إضافة طريقة"
 
 msgctxt "api-access-methods-view"
 msgid "Adding a new API access method also tests it."
-msgstr "Tilføjelse af en ny API-adgangsmetode tester den også."
+msgstr "إن إضافة طريقة جديدة للوصول إلى واجهة API يُعَدّ أيضًا اختبارًا لها."
 
 msgctxt "api-access-methods-view"
 msgid "API reachable"
-msgstr "API tilgængelig"
+msgstr "واجهة API يمكن الوصول إليها"
 
 msgctxt "api-access-methods-view"
 msgid "API reachable, adding method…"
-msgstr "API tilgængelig. Tilføjer metode…"
+msgstr "واجهة API يمكن الوصول إليها، جارٍ إضافة الطريقة…"
 
 msgctxt "api-access-methods-view"
 msgid "API reachable, saving method…"
-msgstr "API tilgængelig. Gemmer metode…"
+msgstr "واجهة API يمكن الوصول إليها، جارٍ حفظ الطريقة…"
 
 msgctxt "api-access-methods-view"
 msgid "API unreachable"
-msgstr "API utilgængelig"
+msgstr "واجهة API لا يمكن الوصول إليها"
 
 msgctxt "api-access-methods-view"
 msgid "API unreachable, add anyway?"
-msgstr "API utilgængelig. Tilføj alligevel?"
+msgstr "واجهة API لا يمكن الوصول إليها، هل تريد الإضافة على أي حال؟"
 
 msgctxt "api-access-methods-view"
 msgid "API unreachable, save anyway?"
-msgstr "API utilgængelig. Gem alligevel?"
+msgstr "واجهة API لا يمكن الوصول إليها، هل تريد الحفظ على أي حال؟"
 
 msgctxt "api-access-methods-view"
 msgid "Authentication"
-msgstr "Godkendelse"
+msgstr "المصادقة"
 
 #. %(save)s - Will be replaced with the translation for the word "Save".
 msgctxt "api-access-methods-view"
 msgid "Clicking “%(save)s” changes the in use method."
-msgstr "Ved at klikke på \"%(save)s\" ændres den brugte metode."
+msgstr "النقر على \"%(save)s\" يُغيِّر الطريقة المُستخدَمة."
 
 msgctxt "api-access-methods-view"
 msgid "Delete %(name)s?"
-msgstr "Vil du slette %(name)s?"
+msgstr "هل تريد حذف %(name)s؟"
 
 msgctxt "api-access-methods-view"
 msgid "Edit method"
-msgstr "Rediger metode"
+msgstr "تعديل الطريقة"
 
 msgctxt "api-access-methods-view"
 msgid "Editing an API access method also tests it."
-msgstr "Redigering af en API-adgangsmetode tester den også."
+msgstr "إن تعديل طريقة الوصول إلى واجهة API يُعَدّ أيضًا اختبارًا لها."
 
 msgctxt "api-access-methods-view"
 msgid "Enter IP"
-msgstr "Indtast IP"
+msgstr "أدخل IP"
 
 msgctxt "api-access-methods-view"
 msgid "Enter name"
-msgstr "Indtast navn"
+msgstr "أدخل الاسم"
 
 msgctxt "api-access-methods-view"
 msgid "Enter port"
-msgstr "Indtast port"
+msgstr "أدخل المنفذ"
 
 msgctxt "api-access-methods-view"
 msgid "If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad9 or CloudFlare."
-msgstr "Hvis du ikke er tilsluttet vores VPN, vil den krypterede DNS-proxy bruge din egen ikke-VPN IP,-adresse når du opretter forbindelse. DoH-serverne hostes af en af følgende udbydere: Quad9 eller CloudFlare."
+msgstr "إذا لم تكن متصلًا بشبكة VPN لدينا، فسيستخدم خادم وكيل نظام أسماء النطاقات (DNS) المُشفَّر عنوان IP غير المرتبط بشبكة VPN عند الاتصال. يتم استضافة خوادم DoH من قِبل أحد موفري الخدمة التاليين: Quad9 أو CloudFlare."
 
 msgctxt "api-access-methods-view"
 msgid "In use"
-msgstr "I brug"
+msgstr "قيد الاستخدام"
 
 msgctxt "api-access-methods-view"
 msgid "Local SOCKS5 server"
-msgstr "Lokal SOCKS5-server"
+msgstr "خادم SOCKS5 محلي"
 
 msgctxt "api-access-methods-view"
 msgid "Manage and add custom methods to access the Mullvad API."
-msgstr "Administrer og tilføj brugerdefinerede metoder for at få adgang til Mullvad API."
+msgstr "إدارة طرق مُخصَّصة للوصول إلى Mullvad API وإضافتها."
 
 msgctxt "api-access-methods-view"
 msgid "On some networks, where various types of censorship are being used, the API servers might not be directly reachable."
-msgstr "På nogle netværk, hvor der bruges forskellige typer censur, er API-serverne muligvis ikke direkte tilgængelige."
+msgstr "قد لا يكون الوصول المباشر إلى خوادم واجهة API ممكنًا على بعض الشبكات بسبب استخدام أنواع مختلفة من الرقابة."
 
 msgctxt "api-access-methods-view"
 msgid "Please enter a valid IPv4 or IPv6 address."
-msgstr "Indtast en gyldig IPv4- eller IPv6-adresse."
+msgstr "يُرجى إدخال عنوان IPv4 أو IPv6 صالح."
 
 msgctxt "api-access-methods-view"
 msgid "Please enter a valid localhost port."
-msgstr "Indtast en gyldig localhost-port."
+msgstr "يُرجى إدخال منفذ localhost صالح."
 
 msgctxt "api-access-methods-view"
 msgid "Please enter a valid remote server port."
-msgstr "Indtast en gyldig fjernserverport."
+msgstr "يُرجى إدخال منفذ خادم بعيد صالح."
 
 msgctxt "api-access-methods-view"
 msgid "Please select a name for the access method not already in use."
-msgstr "Vælg et navn til den adgangsmetode, der ikke allerede er i brug."
+msgstr "يُرجى تحديد اسم غير مُستخدَم لطريقة الوصول."
 
 msgctxt "api-access-methods-view"
 msgid "Remote Server"
-msgstr "Fjernserver"
+msgstr "الخادم البعيد"
 
 msgctxt "api-access-methods-view"
 msgid "Server"
-msgstr "Server"
+msgstr "الخادم"
 
 msgctxt "api-access-methods-view"
 msgid "Server details"
-msgstr "Info om server"
+msgstr "تفاصيل الخادم"
 
 msgctxt "api-access-methods-view"
 msgid "SOCKS5 local"
-msgstr "SOCKS5 lokal"
+msgstr "خادم SOCKS5 محلي"
 
 msgctxt "api-access-methods-view"
 msgid "SOCKS5 remote"
-msgstr "SOCKS5 fjern"
+msgstr "خادم SOCKS5 بعيد"
 
 msgctxt "api-access-methods-view"
 msgid "Testing method..."
-msgstr "Testmetode..."
+msgstr "جارٍ اختبار الطريقة..."
 
 msgctxt "api-access-methods-view"
 msgid "Testing..."
-msgstr "Tester..."
+msgstr "جارٍ الاختبار..."
 
 msgctxt "api-access-methods-view"
 msgid "The API could not be reached using the %(name)s method."
-msgstr "API'en kunne ikke nås ved hjælp af metoden %(name)s."
+msgstr "تعذَّر الوصول إلى واجهة API باستخدام طريقة %(name)s."
 
 msgctxt "api-access-methods-view"
 msgid "The app needs the remote server details, where your local SOCKS5 server will forward your traffic."
-msgstr "Appen har brug for fjernserveroplysningerne, hvor din lokale SOCKS5-server videresender din trafik."
+msgstr "يحتاج التطبيق إلى تفاصيل الخادم البعيد، حيث سيُعيد خادم SOCKS5 المحلي الخاص بك توجيه حركة بياناتك."
 
 msgctxt "api-access-methods-view"
 msgid "The app needs to communicate with a Mullvad API server to log you in, fetch server lists, and other critical operations."
-msgstr "Appen skal kommunikere med en Mullvad API-server for at kunne logge dig på, hente serverlister og andre kritiske operationer."
+msgstr "يحتاج التطبيق إلى التواصل مع خادم Mullvad API لتسجيل دخولك، وجلب قوائم الخوادم، وغيرها من العمليات المهمة."
 
 msgctxt "api-access-methods-view"
 msgid "The in use API access method will change."
-msgstr "Den anvendte API-adgangsmetode ændres."
+msgstr "ستتغير طريقة الوصول إلى واجهة API المُستخدَمة."
 
 msgctxt "api-access-methods-view"
 msgid "The TCP port where your local SOCKS5 server is listening."
-msgstr "TCP-porten, hvor din lokale SOCKS5-server lytter."
+msgstr "منفذ TCP الذي يستمع عليه خادم SOCKS5 المحلي."
 
 msgctxt "api-access-methods-view"
 msgid "This can be useful if the API is censored but Mullvad’s bridge servers are not."
-msgstr "Dette kan være nyttigt, hvis API'en er censureret, men Mullvads broservere ikke er det."
+msgstr "قد يكون هذا مفيدًا إذا كانت واجهة API خاضعة للرقابة، لكن خوادم جسر Mullvad ليست كذلك."
 
 msgctxt "api-access-methods-view"
 msgid "This can be useful when you are not affected by censorship."
-msgstr "Dette kan være nyttigt, når du ikke er berørt af censur."
+msgstr "قد يكون هذا مفيدًا عندما لا تؤثر عليك الرقابة."
 
 msgctxt "api-access-methods-view"
 msgid "This feature allows you to circumvent that censorship by adding custom ways to access the API via proxies and similar methods."
-msgstr "Denne funktion giver dig mulighed for at omgå denne censur ved at tilføje brugerdefinerede måder at få adgang til API'en via proxyer og lignende metoder."
+msgstr "تتيح لك هذه الميزة تجاوز تلك الرقابة عن طريق إضافة طرق مُخصَّصة للوصول إلى واجهة API عبر الخوادم الوكيلة والطرق المماثلة."
 
 msgctxt "api-access-methods-view"
 msgid "This is needed so our app can allow that traffic in the firewall."
-msgstr "Dette er nødvendigt, så vores app kan tillade denne trafik i firewallen."
+msgstr "هذا ضروري حتى يتمكن تطبيقنا من السماح لهذه البيانات بالمرور عبر جدار الحماية."
 
 msgctxt "api-access-methods-view"
 msgid "Transport protocol"
-msgstr "Transportprotokol"
+msgstr "بروتوكول النقل"
 
 msgctxt "api-access-methods-view"
 msgid "With the “Direct” method, the app communicates with a Mullvad API server directly without any intermediate proxies."
-msgstr "Med \"Direkte\"-metoden kommunikerer appen med en Mullvad API-server direkte uden nogen mellemliggende proxyer."
+msgstr "باستخدام طريقة الوصول \"المباشر\"، يتواصل التطبيق مع خادم Mullvad API مباشرةً دون أي خوادم وكيلة وسيطة."
 
 msgctxt "api-access-methods-view"
 msgid "With the “Encrypted DNS proxy” method, the app will communicate with our Mullvad API through a proxy address. It does this by retrieving an address from a DNS over HTTPS (DoH) server and then using that to reach our API servers."
-msgstr "Med metoden \"krypteret DNS-proxy\" vil appen kommunikere med vores Mullvad API via en proxy-adresse. Det gør den ved at hente en adresse fra en DNS over HTTPS-server (DoH) og derefter bruge den til at få adgang til en vores API-servere."
+msgstr "باستخدام طريقة \"وكيل DNS المُشفَّر\"، سيتواصل التطبيق مع Mullvad API الخاصة بنا عبر عنوان خادم وكيل. وسيفعل ذلك من خلال جلب عنوان من خادم DNS عبر HTTPS (DoH)، ثم استخدام هذا العنوان للوصول إلى خوادم واجهة API الخاصة بنا."
 
 msgctxt "api-access-methods-view"
 msgid "With the “Mullvad bridges” method, the app communicates with a Mullvad API server via a Mullvad bridge server. It does this by sending the traffic obfuscated by Shadowsocks."
-msgstr "Med \"Mullvad-broer\" metoden kommunikerer appen med en Mullvad API-server via en Mullvad-broserver. Det gør den ved at sende trafikken sløret af Shadowsocks."
+msgstr "باستخدام طريقة \"جسور Mullvad\"، يتواصل التطبيق مع خادم Mullvad API عبر خادم جسر Mullvad. ويفعل ذلك من خلال إرسال حركة بيانات مموهة بواسطة بروتوكول Shadowsocks."
 
 #. Title of the app info view.
 msgctxt "app-info-view"
 msgid "App info"
-msgstr "App-oplysninger"
+msgstr "معلومات التطبيق"
 
 #. Description for version list item when app is out of sync.
 msgctxt "app-info-view"
 msgid "App is out of sync. Please quit and restart."
-msgstr "Appen er ikke synkroniseret. Afslut og genstart."
+msgstr "التطبيق غير متزامن. يُرجى إغلاقه وإعادة تشغيله."
 
 #. Label for switch to toggle beta program.
 msgctxt "app-info-view"
 msgid "Beta program"
-msgstr "Betaprogram"
+msgstr "البرنامج التجريبي"
 
 msgctxt "app-info-view"
 msgid "Enable to get notified when new beta versions of the app are released."
-msgstr "Aktiver for at blive underrettet, når nye betaversioner af appen udgives."
+msgstr "فعِّل هذا الخيار لتلقي إشعارات عند طرح إصدارات تجريبية جديدة من التطبيق."
 
 msgctxt "app-info-view"
 msgid "This option is unavailable while using a beta version."
-msgstr "Denne indstilling er ikke tilgængelig, når du bruger en betaversion."
+msgstr "هذا الخيار غير متاح عند استخدام الإصدار التجريبي."
 
 #. Label for update available list item.
 msgctxt "app-info-view"
 msgid "Update available"
-msgstr "Opdatering tilgængelig"
+msgstr "يتوفَّر تحديث جديد"
 
 #. Label for version list item.
 msgctxt "app-info-view"
 msgid "Version"
-msgstr "Version"
+msgstr "الإصدار"
 
 #. Label for changelog list item.
 msgctxt "app-info-view"
 msgid "What’s new"
-msgstr "Nyheder"
+msgstr "آخر المستجدات"
 
 #. Status text displayed below a progress bar when the update is being downloaded
 #. with the estimated time of completion is within a few seconds.
 msgctxt "app-upgrade-view"
 msgid "A few seconds remaining..."
-msgstr "Et par sekunder tilbage ..."
+msgstr "يتبقى بضع ثوانٍ..."
 
 #. Status text displayed below a progress bar when the update is being downloaded
 #. with the estimated time of completion represented in minutes.
@@ -724,7 +748,7 @@ msgstr "Et par sekunder tilbage ..."
 #. %(minutes)s - Will be replaced with remaining minutes until download is complete
 msgctxt "app-upgrade-view"
 msgid "About %(minutes)s minutes remaining..."
-msgstr "Cirka %(minutes)s minutter tilbage ..."
+msgstr "يتبقى %(minutes)s من الدقائق تقريبًا..."
 
 #. Status text displayed below a progress bar when the update is being downloaded
 #. with the estimated time of completion represented in seconds.
@@ -732,185 +756,185 @@ msgstr "Cirka %(minutes)s minutter tilbage ..."
 #. %(second)s - Will be replaced with remaining seconds until download is complete
 msgctxt "app-upgrade-view"
 msgid "About %(seconds)s seconds remaining..."
-msgstr "Cirka %(seconds)s sekunder tilbage ..."
+msgstr "يتبقى حوالي %(seconds)s من الثواني تقريبًا..."
 
 #. Label displayed when an error occurred due to the connection being blocked
 msgctxt "app-upgrade-view"
 msgid "Connection blocked. Try changing server or other settings."
-msgstr "Forbindelsen er blokeret. Prøv at ændre server eller andre indstillinger."
+msgstr "تم حظر الاتصال. جرِّب تغيير الخادم أو أي إعدادات أخرى."
 
 #. Label displayed when an error occurred due to the installer failing to start
 #. and the suggested resolution is to download the update again.
 msgctxt "app-upgrade-view"
 msgid "Could not open installer, please try again or send a problem report."
-msgstr "Kunne ikke åbne installationsprogrammet, prøv igen eller send en fejlrapport."
+msgstr "تعذَّر فتح برنامج التثبيت، يُرجى إعادة المحاولة أو إرسال بلاغ بالمشكلة."
 
 #. Button text to download and install an update
 msgctxt "app-upgrade-view"
 msgid "Download & install"
-msgstr "Download og installer"
+msgstr "التنزيل والتثبيت"
 
 #. Status text displayed below a progress bar when the download of an update is complete
 msgctxt "app-upgrade-view"
 msgid "Download complete!"
-msgstr "Download fuldført!"
+msgstr "اكتمل التنزيل!"
 
 #. Status text displayed below a progress bar when the download of an update fails
 msgctxt "app-upgrade-view"
 msgid "Download failed"
-msgstr "Download mislykkedes"
+msgstr "فشل التنزيل"
 
 #. Label displayed when an error occurred due to the download failing
 msgctxt "app-upgrade-view"
 msgid "Download failed, please check your connection/firewall and try again, or send a problem report."
-msgstr "Download mislykkedes, tjek din forbindelse/firewall og prøv igen, eller send en fejlrapport."
+msgstr "فشل التنزيل، يُرجى التحقُّق من اتصالك/جدار الحماية لديك وإعادة المحاولة، أو إرسال بلاغ بالمشكلة."
 
 #. Status text displayed below a progress bar when the download of an update has been paused
 #. Label displayed above a progress bar when the update is verified successfully
 msgctxt "app-upgrade-view"
 msgid "Download paused"
-msgstr "Download sat på pause"
+msgstr "تم إيقاف التنزيل مؤقتًا"
 
 #. Label displayed above a progress bar informing the user which server
 #. the update is downloading from
 msgctxt "app-upgrade-view"
 msgid "Downloading from: %(server)s"
-msgstr "Downloader fra: %(server)s"
+msgstr "جارٍ التنزيل من: %(server)s"
 
 #. Label displayed above a progress bar when a download is in progress
 msgctxt "app-upgrade-view"
 msgid "Downloading..."
-msgstr "Downloader ..."
+msgstr "جارٍ التنزيل..."
 
 #. Link shown to optionally manually download the update
 #. due to repeated errors in the upgrade process.
 msgctxt "app-upgrade-view"
 msgid "Having problems? Try downloading the app from our website"
-msgstr "Har du problemer? Prøv at downloade appen fra vores hjemmeside"
+msgstr "هل تواجه مشكلات؟ جرِّب تنزيل التطبيق من موقعنا الإلكتروني"
 
 #. Button text to install an update
 msgctxt "app-upgrade-view"
 msgid "Install update"
-msgstr "Installer opdatering"
+msgstr "تثبيت التحديث"
 
 #. Label displayed when an error occurred within the installer
 msgctxt "app-upgrade-view"
 msgid "Installer quit unexpectedly, please try again or send a problem report."
-msgstr "Installationsprogrammet afsluttede uventet, prøv igen eller send en fejlrapport."
+msgstr "تم إغلاق برنامج التثبيت بشكلٍ غير متوقع، يُرجى إعادة المحاولة أو إرسال بلاغ بالمشكلة."
 
 #. Info about which directory the app update will be downloaded to
 msgctxt "app-upgrade-view"
 msgid "Installer will be downloaded to <b>%(cacheDir)s</b>."
-msgstr "Installationsprogrammet bliver downloadet til <b>%(cacheDir)s</b>."
+msgstr "سيتم تنزيل برنامج التثبيت إلى <b>%(cacheDir)s</b>."
 
 msgctxt "app-upgrade-view"
 msgid "Latest version: %(version)s"
-msgstr "Seneste version: %(version)s"
+msgstr "أحدث إصدار: %(version)s"
 
 #. Text displayed when there are no updates for this platform in the next app version
 msgctxt "app-upgrade-view"
 msgid "No updates or changes were made in this release for this platform."
-msgstr "Der er ikke foretaget nogen opdateringer eller ændringer i denne udgave af denne platform."
+msgstr "لم يتم إجراء أي تحديثات أو تغييرات في هذا الإصدار لتلك المنصة."
 
 #. Button text to pause the download of an update
 msgctxt "app-upgrade-view"
 msgid "Pause"
-msgstr "Sæt på pause"
+msgstr "إيقاف مؤقت"
 
 #. Button text to report a problem
 msgctxt "app-upgrade-view"
 msgid "Report a problem"
-msgstr "Rapporter et problem"
+msgstr "الإبلاغ عن مشكلة"
 
 #. Button text to resume updating
 msgctxt "app-upgrade-view"
 msgid "Resume"
-msgstr "Genoptag"
+msgstr "استئناف"
 
 #. Button text to try again
 msgctxt "app-upgrade-view"
 msgid "Retry"
-msgstr "Prøv igen"
+msgstr "إعادة المحاولة"
 
 #. Button text to try download again
 msgctxt "app-upgrade-view"
 msgid "Retry download"
-msgstr "Prøv download igen"
+msgstr "إعادة محاولة التنزيل"
 
 #. Status text displayed below a progress bar when the download of an update is starting
 msgctxt "app-upgrade-view"
 msgid "Starting download..."
-msgstr "Begynder at downloade ..."
+msgstr "جارٍ بدء التنزيل..."
 
 #. Button text to when starting the installer for an update
 msgctxt "app-upgrade-view"
 msgid "Starting installer..."
-msgstr "Starter installationsprogrammet ..."
+msgstr "جارٍ تشغيل أداة التثبيت..."
 
 #. Label displayed when an unknown error occurred
 msgctxt "app-upgrade-view"
 msgid "Unknown error occurred. Please try again or send a problem report."
-msgstr "Ukendt fejl opstod. Prøv igen, eller send en fejlrapport."
+msgstr "حدث خطأ غير مُتوقَّع. يُرجى إعادة المحاولة أو إرسال بلاغ بالمشكلة."
 
 #. Title in navigation bar
 #. Main title for the update available view
 msgctxt "app-upgrade-view"
 msgid "Update available"
-msgstr "Opdatering tilgængelig"
+msgstr "يتوفَّر تحديث جديد"
 
 #. Label displayed when an error occurred due to the installer failed verification
 msgctxt "app-upgrade-view"
 msgid "Verification failed, please try again or send a problem report."
-msgstr "Bekræftelse mislykkedes, prøv igen eller send en fejlrapport."
+msgstr "فشل التحقُّق، يُرجى إعادة المحاولة أو إرسال بلاغ بالمشكلة."
 
 #. Label displayed above a progress bar when the update is verified successfully
 msgctxt "app-upgrade-view"
 msgid "Verification successful!"
-msgstr "Bekræftelse lykkedes!"
+msgstr "تم التحقُّق بنجاح!"
 
 #. Label displayed above a progress bar when the update is being verified
 msgctxt "app-upgrade-view"
 msgid "Verifying installer..."
-msgstr "Bekræfter installationsprogrammet ..."
+msgstr "جارٍ التحقُّق من أداة التثبيت..."
 
 #. Heading which shows the version of the app which can be upgraded to.
 #. Available placeholders:
 #. %(version)s - The new version of the app.
 msgctxt "app-upgrade-view"
 msgid "Version %(version)s"
-msgstr "Version %(version)s"
+msgstr "الإصدار %(version)s"
 
 #. The user has the latest version of the app and does not need to be update
 msgctxt "app-upgrade-view"
 msgid "You are using the latest version"
-msgstr "Du bruger den nyeste version"
+msgstr "أنت تستخدم أحدث إصدار"
 
 msgctxt "auth-failure"
 msgid "Blocking internet: account is out of time"
-msgstr "Blokerer for internet: kontoen er udløbet"
+msgstr "الإنترنت محظور: انتهى وقت الحساب"
 
 msgctxt "auth-failure"
 msgid "Too many simultaneous connections on this account. Disconnect another device or try connecting again shortly."
-msgstr "For mange samtidige forbindelser på denne konto. Afbryd en anden enhed, eller prøv at oprette forbindelse igen snart."
+msgstr "هناك الكثير من الاتصالات المتزامنة على هذا الحساب. يُرجى قطع اتصال جهاز آخر أو محاولة الاتصال مجددًا بعد قليل."
 
 msgctxt "auth-failure"
 msgid "Unable to authenticate account. Please send a problem report."
-msgstr "Kan ikke godkende konto. Indsend en problemrapport."
+msgstr "تتعذَّر مصادقة الحساب. يُرجى إرسال بلاغ بالمشكلة."
 
 msgctxt "auth-failure"
 msgid "You are logged in with an invalid account number. Please log out and try another one."
-msgstr "Du er logget ind med et ugyldigt kontonummer. Log ud og prøv et andet."
+msgstr "لقد سجَّلت دخولك برقم حساب غير صالح. يُرجى تسجيل الخروج وتجربة حساب آخر."
 
 #. Text displayed when there are no updates for this platform in the app version
 msgctxt "changelog-view"
 msgid "No updates or changes were made in this release for this platform."
-msgstr "Der er ikke foretaget nogen opdateringer eller ændringer i denne udgave af denne platform."
+msgstr "لم يتم إجراء أي تحديثات أو تغييرات في هذا الإصدار لتلك المنصة."
 
 #. Heading for the view of the changes and updates in the
 #. current version compared to the old version.
 msgctxt "changelog-view"
 msgid "What’s new"
-msgstr "Nyheder"
+msgstr "آخر المستجدات"
 
 #. The selected location label displayed on the main view, when a user selected a specific host to connect to.
 #. Example: Malmö (se-mma-001)
@@ -927,95 +951,95 @@ msgstr "%(city)s (%(hostname)s)"
 #. %(DAITA)s - Is a non-translatable feature "DAITA"
 msgctxt "connect-view"
 msgid "%(DAITA)s: Multihop"
-msgstr "%(DAITA)s: Multihop"
+msgstr "%(DAITA)s: القفز المتعدد"
 
 msgctxt "connect-view"
 msgid "Active features"
-msgstr "Aktive funktioner"
+msgstr "الميزات النشطة"
 
 msgctxt "connect-view"
 msgid "Congrats!"
-msgstr "Tillykke!"
+msgstr "تهانينا!"
 
 msgctxt "connect-view"
 msgid "Connection details"
-msgstr "Forbindelsesoplysninger"
+msgstr "تفاصيل الاتصال"
 
 #. Button label for disconnecting from the VPN.
 msgctxt "connect-view"
 msgid "Disconnect"
-msgstr "Afbryd forbindelse"
+msgstr "قطع الاتصال"
 
 msgctxt "connect-view"
 msgid "Either buy credit on our website or redeem a voucher."
-msgstr "Køb enten kredit på vores hjemmeside, eller indløs en kupon."
+msgstr "يمكنك إما شراء رصيد على موقعنا أو استرداد القسيمة."
 
 msgctxt "connect-view"
 msgid "Enter voucher code"
-msgstr "Indtast kuponkode"
+msgstr "أدخل رمز القسيمة"
 
 msgctxt "connect-view"
 msgid "Go ahead and start using the app to begin reclaiming your online privacy."
-msgstr "Fortsæt med at bruge appen for at få dit online privatliv tilbage."
+msgstr "انطلق وابدأ في استخدام التطبيق للبدء في استعادة خصوصيتك عبر الإنترنت."
 
 msgctxt "connect-view"
 msgid "Here’s your account number. Save it!"
-msgstr "Her er dit kontonummer. Gem det!"
+msgstr "هذا هو رقم حسابك. احفظه!"
 
 #. Button label for opening privacy information link.
 msgctxt "connect-view"
 msgid "Learn about privacy"
-msgstr "Lær mere om privatlivets fred"
+msgstr "اعرف المزيد عن الخصوصية"
 
 msgctxt "connect-view"
 msgid "Out of time"
-msgstr "Tid udløbet"
+msgstr "انتهى الوقت"
 
 #. Button label for navigating to the voucher redemption view.
 msgctxt "connect-view"
 msgid "Redeem voucher"
-msgstr "Indløs kupon"
+msgstr "استرداد قسيمة"
 
 msgctxt "connect-view"
 msgid "Remember, turning it off will allow network traffic while the VPN is disconnected until you turn it back on under Advanced settings."
-msgstr "Husk, hvis du aktiverer det, tillades netværkstrafik mens VPN'en er slået fra, indtil du aktiverer det igen under Avancerede indstillinger."
+msgstr "تذكَّر أن إيقاف تشغيله سيسمح بمرور حركة البيانات على الشبكة أثناء انقطاع اتصال شبكة VPN حتى تُعيد تشغيله ضمن الإعدادات المتقدمة."
 
 #. Button label for starting the app.
 msgctxt "connect-view"
 msgid "Start using the app"
-msgstr "Begynd at bruge appen"
+msgstr "بدء استخدام التطبيق"
 
 msgctxt "connect-view"
 msgid "Time was successfully added"
-msgstr "Tid blev tilføjet"
+msgstr "تمت إضافة الوقت بنجاح"
 
 msgctxt "connect-view"
 msgid "To add more, you will need to disconnect and access the Internet with an unsecure connection."
-msgstr "For at tilføje mere skal du afbryde forbindelsen og tilgå internettet med en usikker forbindelse."
+msgstr "لإضافة المزيد، ستحتاج إلى قطع الاتصال بالإنترنت والوصول إليه عبر اتصال غير آمن."
 
 msgctxt "connect-view"
 msgid "To continue your journey as a privacy ninja, visit our website to pick up other privacy-friendly habits and tools."
-msgstr "For at fortsætte med at leve som en privatlivs-ninja skal du besøge vores websted for at lære om andre vaner og værktøjer, der værner om fortroligheden."
+msgstr "لمتابعة رحلتك كخبير في الخصوصية، انتقل إلى موقعنا الإلكتروني للتعرُّف على العادات والأدوات الأخرى التي تدعم الخصوصية."
 
 msgctxt "connect-view"
 msgid "To start using the app, you first need to add time to your account."
-msgstr "For at begynde at bruge appen skal du først føje tid til din konto."
+msgstr "للبدء في استخدام التطبيق، عليك أولًا إضافة الوقت إلى حسابك."
 
 msgctxt "connect-view"
 msgid "Voucher was successfully redeemed"
-msgstr "Kupon blev indløst"
+msgstr "تم استرداد القسيمة بنجاح"
 
 msgctxt "connect-view"
 msgid "You have no more VPN time left on this account."
-msgstr "Du har ikke mere VPN-tid tilbage på denne konto."
+msgstr "لم يتبقَّ لديك أي وقت لاستخدام شبكة VPN على هذا الحساب."
 
 msgctxt "connect-view"
 msgid "You need to disable \"Lockdown mode\" in order to access the Internet to add time."
-msgstr "Du skal deaktivere \"Lockdown-tilstand\" for at få adgang til internettet og tilføje tid."
+msgstr "يجب عليك إيقاف \"وضع التأمين\" حتى تتمكن من الوصول إلى الإنترنت لإضافة وقت."
 
 msgctxt "connect-view"
 msgid "You’re all set!"
-msgstr "Du er klar!"
+msgstr "كل شيء جاهز!"
 
 #. The hostname line displayed below the country on the main screen
 #. Available placeholders:
@@ -1023,60 +1047,60 @@ msgstr "Du er klar!"
 #. %(entry)s - the entry relay hostname
 msgctxt "connection-info"
 msgid "%(relay)s via %(entry)s"
-msgstr "%(relay)s via %(entry)s"
+msgstr "%(relay)s عبر %(entry)s"
 
 msgctxt "connection-info"
 msgid "%(relay)s via Custom bridge"
-msgstr "%(relay)s via brugerdefineret bro"
+msgstr "%(relay)s عبر جسر مُخصَّص"
 
 msgctxt "connection-info"
 msgid "In"
-msgstr "Ind"
+msgstr "داخل"
 
 msgctxt "connection-info"
 msgid "Out"
-msgstr "Ud"
+msgstr "خارج"
 
 msgctxt "custom-bridge"
 msgid "Add custom bridge"
-msgstr "Tilføj brugerdefineret bro"
+msgstr "إضافة جسر مُخصَّص"
 
 msgctxt "custom-bridge"
 msgid "Delete custom bridge?"
-msgstr "Vil du slette brugerdefineret bro?"
+msgstr "هل تريد حذف الجسر المُخصَّص؟"
 
 msgctxt "custom-bridge"
 msgid "Deleting the custom bridge will take you back to the select location view and the Automatic option will be selected instead."
-msgstr "Sletning af den brugerdefinerede bro fører dig tilbage til den valgte placeringsvisning, og indstillingen Automatisk vil blive valgt i stedet."
+msgstr "سيؤدي حذف الجسر المُخصَّص إلى إعادتك إلى شاشة الموقع المُحدَّد، وسيتم تحديد الخيار \"تلقائي\" بدلًا من ذلك."
 
 msgctxt "custom-bridge"
 msgid "Edit custom bridge"
-msgstr "Rediger tilpasset bro"
+msgstr "تعديل الجسر المُخصَّص"
 
 #. Button for continuing login process.
 msgctxt "device-management"
 msgid "Continue with login"
-msgstr "Fortsæt med login"
+msgstr "المتابعة بتسجيل الدخول"
 
 #. Label informing the user when a device was created.
 #. Available placeholders:
 #. %(createdDate)s - The creation date of the device.
 msgctxt "device-management"
 msgid "Created: %(createdDate)s"
-msgstr "Oprettet: %(createdDate)s"
+msgstr "تاريخ الإنشاء: %(createdDate)s"
 
 #. Label indicating that this device is the current device.
 msgctxt "device-management"
 msgid "Current device"
-msgstr "Nuværende enhed"
+msgstr "الجهاز الحالي"
 
 msgctxt "device-management"
 msgid "Device is inactive"
-msgstr "Enheden er inaktiv"
+msgstr "الجهاز غير نشط"
 
 msgctxt "device-management"
 msgid "Device name"
-msgstr "Enhedsnavn"
+msgstr "اسم الجهاز"
 
 #. A label that will display the newly created device name to inform the user
 #. about it.
@@ -1084,39 +1108,39 @@ msgstr "Enhedsnavn"
 #. %(deviceName)s - The name of the current device
 msgctxt "device-management"
 msgid "Device name: %(deviceName)s"
-msgstr "Enhedsnavn: %(deviceName)s"
+msgstr "اسم الجهاز: %(deviceName)s"
 
 msgctxt "device-management"
 msgid "Failed to remove device"
-msgstr "Enheden kunne ikke fjernes"
+msgstr "فشلت إزالة الجهاز"
 
 #. Button label for navigating to login.
 msgctxt "device-management"
 msgid "Go to login"
-msgstr "Gå til login"
+msgstr "الانتقال إلى تسجيل الدخول"
 
 msgctxt "device-management"
 msgid "Going to login will unblock the Internet on this device."
-msgstr "Hvis du logger på, ophæves blokeringen af ​​internettet på denne enhed."
+msgstr "سيؤدي تسجيل الدخول إلى إلغاء حظر الإنترنت على هذا الجهاز."
 
 msgctxt "device-management"
 msgid "If you log out, the device and the device name is removed. When you log back in again, the device will get a new name."
-msgstr "Hvis du logger ud, fjernes enheden og enhedsnavnet. Når du logger på igen, får enheden et nyt navn."
+msgstr "عند تسجيل الخروج، سيتم حذف الجهاز واسمه. وعند تسجيل الدخول مجددًا، سيحصل الجهاز على اسم جديد."
 
 #. Title label in navigation bar for the manage devices view.
 #. Title text in the manage devices view
 msgctxt "device-management"
 msgid "Manage devices"
-msgstr "Administrer enheder"
+msgstr "إدارة الأجهزة"
 
 msgctxt "device-management"
 msgid "Please log out of at least one by removing it from the list below. You can find the corresponding device name under the device’s Account settings."
-msgstr "Log ud af mindst én ved at fjerne den fra listen nedenfor. Du kan finde det tilsvarende enhedsnavn under enhedens kontoindstillinger."
+msgstr "يُرجى تسجيل الخروج من جهاز واحد على الأقل عن طريق إزالته من القائمة أدناه. يمكنك العثور على اسم الجهاز المقابل في إعدادات الحساب على ذلك الجهاز."
 
 #. Button label for confirming removing a device.
 msgctxt "device-management"
 msgid "Remove"
-msgstr "Fjern"
+msgstr "إزالة"
 
 #. Text displayed above button which logs out another device.
 #. The text enclosed in "<b></b>" will appear bold.
@@ -1124,257 +1148,257 @@ msgstr "Fjern"
 #. %(deviceName)s - The name of the device to log out.
 msgctxt "device-management"
 msgid "Remove <em>%(deviceName)s?</em>"
-msgstr "Fjern <em>%(deviceName)s?</em>"
+msgstr "هل تريد إزالة <em>%(deviceName)s؟</em>"
 
 #. Page title informing user that enough devices has been removed to continue
 #. login process.
 msgctxt "device-management"
 msgid "Super!"
-msgstr "Super!"
+msgstr "رائع!"
 
 msgctxt "device-management"
 msgid "The device will be removed from the list and logged out."
-msgstr "Enheden fjernes fra listen og logges ud."
+msgstr "ستتم إزالة الجهاز من القائمة وتسجيل الخروج."
 
 msgctxt "device-management"
 msgid "This is the name assigned to the device. Each device logged in on a Mullvad account gets a unique name that helps you identify it when you manage your devices in the app or on the website."
-msgstr "Dette er det navn, der er tildelt enheden. Hver enhed, der er logget på en Mullvad-konto, får et unikt navn, der hjælper dig med at identificere den, når du administrerer dine enheder i appen eller på webstedet."
+msgstr "هذا هو الاسم المُخصَّص للجهاز. يحصل كل جهاز مُسجَّل دخوله إلى حساب Mullvad على اسم فريد يساعدك على تمييزه عند إدارة أجهزتك في التطبيق أو على الموقع الإلكتروني."
 
 msgctxt "device-management"
 msgid "Time left: %(timeLeft)s"
-msgstr "Resterende tid: %(timeLeft)s"
+msgstr "الوقت المتبقي: %(timeLeft)s"
 
 #. Page title informing user that the login failed due to too many registered
 #. devices on account.
 msgctxt "device-management"
 msgid "Too many devices"
-msgstr "For mange enheder"
+msgstr "هناك عدد كبير جدًا من الأجهزة"
 
 #. Button text to retry fetching devices.
 msgctxt "device-management"
 msgid "Try again"
-msgstr "Prøv igen"
+msgstr "إعادة المحاولة"
 
 #. Subtitle text in the manage devices view, explaining
 #. devices and what they can do in the manage devices view.
 msgctxt "device-management"
 msgid "View and manage all your logged in devices. You can have up to 5 devices on one account at a time. Each device gets a name when logged in to help you tell them apart easily."
-msgstr "Vis og administrer alle dine enheder, der er logget på. Du kan have op til 5 enheder på en konto ad gangen. Hver enhed tildeles et navn, når du logger på, så du let kan se forskel på dem."
+msgstr "يمكنك عرض جميع أجهزتك المُسجَّلة وإدارتها. يمكنك ربط ما يصل إلى 5 أجهزة بحسابٍ واحد في الوقت نفسه. يحصل كل جهاز على اسم عند تسجيل الدخول ليسهُل عليك تمييزه."
 
 msgctxt "device-management"
 msgid "You can have up to 5 devices logged in on one Mullvad account."
-msgstr "Du kan have op til 5 enheder logget ind på én Mullvad-konto."
+msgstr "يمكنك تسجيل الدخول إلى ما يصل إلى 5 أجهزة على حساب Mullvad واحد."
 
 msgctxt "device-management"
 msgid "You can now continue logging in on this device."
-msgstr "Du kan nu fortsætte med at logge ind på denne enhed."
+msgstr "يمكنك الآن متابعة تسجيل الدخول على هذا الجهاز."
 
 msgctxt "device-management"
 msgid "You have removed this device. To connect again, you will need to log back in."
-msgstr "Du har fjernet denne enhed. For at oprette forbindelse igen skal du logge ind igen."
+msgstr "لقد أزلت هذا الجهاز. للاتصال مجددًا، ستحتاج إلى تسجيل الدخول مرة أخرى."
 
 #. The message displayed to the user in case of critical error in the GUI
 #. Available placeholders:
 #. %(email)s - support email
 msgctxt "error-boundary-view"
 msgid "Something went wrong. Please contact us at %(email)s"
-msgstr "Noget gik galt. Kontakt os på %(email)s"
+msgstr "حدث خطأ ما. يُرجى التواصل معنا عبر البريد الإلكتروني %(email)s"
 
 #. Title label in navigation bar
 msgctxt "filter-nav"
 msgid "Filter"
-msgstr "Filter"
+msgstr "التصفية"
 
 msgctxt "filter-view"
 msgid "All providers"
-msgstr "Alle udbydere"
+msgstr "جميع موفري الخدمة"
 
 msgctxt "filter-view"
 msgid "Mullvad owned only"
-msgstr "Kun ejet af Mullvad"
+msgstr "مملوك لـ Mullvad فقط"
 
 msgctxt "filter-view"
 msgid "Owned"
-msgstr "Ejet"
+msgstr "مملوك"
 
 msgctxt "filter-view"
 msgid "Ownership"
-msgstr "Ejerskab"
+msgstr "الملكية"
 
 msgctxt "filter-view"
 msgid "Providers"
-msgstr "Udbydere"
+msgstr "موفرو الخدمة"
 
 msgctxt "filter-view"
 msgid "Rented"
-msgstr "Lejet"
+msgstr "مؤجر"
 
 msgctxt "filter-view"
 msgid "Rented only"
-msgstr "Kun lejet"
+msgstr "مؤجر فقط"
 
 msgctxt "in-app-notifications"
 msgid "\"%(lockdownModeSettingName)s\" is enabled."
-msgstr "%(lockdownModeSettingName)s er aktiveret."
+msgstr "تم تفعيل \"%(lockdownModeSettingName)s\"."
 
 msgctxt "in-app-notifications"
 msgid "%(duration)s. Buy more credit."
-msgstr "%(duration)s. Køb mere kredit."
+msgstr "%(duration)s. شراء رصيد إضافي."
 
 #. Notification subtitle when the app upgrade is ready to install.
 #. Available placeholders:
 #. - %(suggestedUpgradeVersion)s: Upgrade version to be installed.
 msgctxt "in-app-notifications"
 msgid "%(suggestedUpgradeVersion)s is ready to be installed."
-msgstr "%(suggestedUpgradeVersion)s er klar til at blive installeret."
+msgstr "%(suggestedUpgradeVersion)s جاهز للتثبيت."
 
 msgctxt "in-app-notifications"
 msgid "ACCOUNT CREDIT EXPIRES SOON"
-msgstr "KONTOKREDIT UDLØBER SNART"
+msgstr "سينتهي رصيد الحساب قريبًا"
 
 msgctxt "in-app-notifications"
 msgid "APP IS OUT OF SYNC"
-msgstr "APP ER IKKE SYNKRONISERET"
+msgstr "التطبيق غير متزامن"
 
 msgctxt "in-app-notifications"
 msgid "BETA UPDATE AVAILABLE"
-msgstr "BETA-OPDATERING TILGÆNGELIG"
+msgstr "يتوفَّر تحديث جديد للإصدار التجريبي"
 
 msgctxt "in-app-notifications"
 msgid "BLOCKING INTERNET"
-msgstr "BLOKERER INTERNETTET"
+msgstr "الإنترنت محظور"
 
 #. Notification subtitle when the app upgrade is ready to install.
 msgctxt "in-app-notifications"
 msgid "Click here to install update."
-msgstr "Klik her for at installere opdateringen."
+msgstr "انقر هنا لتثبيت التحديث."
 
 #. Notification subtitle when the installer failed.
 msgctxt "in-app-notifications"
 msgid "Click here to retry"
-msgstr "Klik her for at prøve igen"
+msgstr "انقر هنا لإعادة المحاولة"
 
 #. Notification subtitle when the download of the installer failed
 #. and the user can try downloading again.
 msgctxt "in-app-notifications"
 msgid "Click here to retry download"
-msgstr "Klik her for at prøve download igen"
+msgstr "انقر هنا لإعادة محاولة التنزيل"
 
 msgctxt "in-app-notifications"
 msgid "Click here to see what’s new."
-msgstr "Klik her for at se nyhederne."
+msgstr "انقر هنا للاطلاع على آخر المستجدات."
 
 #. Link text to go to the app upgrade view
 msgctxt "in-app-notifications"
 msgid "Click here to update"
-msgstr "Klik her for at opdatere"
+msgstr "انقر هنا للتحديث"
 
 #. Notification subtitle when the installer download failed.
 msgctxt "in-app-notifications"
 msgid "Could not download installer."
-msgstr "Kunne ikke downloade installationsprogrammet."
+msgstr "تعذَّر تنزيل أداة التثبيت."
 
 #. Generic notification subtitle when the app upgrade failed.
 msgctxt "in-app-notifications"
 msgid "Could not upgrade the app."
-msgstr "Kunne ikke opgradere appen."
+msgstr "تعذَّرت ترقية التطبيق."
 
 #. Notification title when app upgrade is verifying the installer.
 msgctxt "in-app-notifications"
 msgid "DOWNLOAD COMPLETE! VERIFYING..."
-msgstr "DOWNLOAD FULDFØRT! BEKRÆFTER ..."
+msgstr "اكتمل التنزيل! جارٍ التحقُّق..."
 
 #. Notification title when the installer download failed.
 msgctxt "in-app-notifications"
 msgid "DOWNLOAD FAILED"
-msgstr "DOWNLOAD MISLYKKEDES"
+msgstr "فشل التنزيل"
 
 #. Generic notification title when app upgrade is downloading the installer.
 msgctxt "in-app-notifications"
 msgid "DOWNLOADING UPDATE..."
-msgstr "DOWNLOADER OPDATERING ..."
+msgstr "جارٍ تنزيل التحديث..."
 
 #. Notification title when the app upgrade is in progress.
 #. Available placeholders:
 #. - %(appUpgradeDownloadProgressValue)s: The download progress value.
 msgctxt "in-app-notifications"
 msgid "DOWNLOADING UPDATE... %(appUpgradeDownloadProgressValue)s%%"
-msgstr "DOWNLOADER OPDATERING ... %(appUpgradeDownloadProgressValue)s%%"
+msgstr "جارٍ تنزيل التحديث... %(appUpgradeDownloadProgressValue)s%%"
 
 #. The in-app banner displayed to the user when the app update is available.
 msgctxt "in-app-notifications"
 msgid "Install the latest app version to stay up to date."
-msgstr "Installer den nyeste appversion for at holde dig opdateret."
+msgstr "ثبِّت أحدث إصدار من التطبيق للبقاء على اطلاع دائم بكل جديد."
 
 #. Notification title when the installer failed.
 msgctxt "in-app-notifications"
 msgid "INSTALLER FAILED"
-msgstr "INSTALLATIONSPROGRAMMET MISLYKKEDES"
+msgstr "فشلت أداة التثبيت"
 
 msgctxt "in-app-notifications"
 msgid "NETWORK TRAFFIC MIGHT BE LEAKING"
-msgstr "NETVÆRKSTRAFIK LÆKKES MÅSKE"
+msgstr "قد يكون هناك تسريب في حركة بيانات الشبكة"
 
 msgctxt "in-app-notifications"
 msgid "NEW DEVICE CREATED"
-msgstr "NY ENHED OPRETTET"
+msgstr "تم إنشاء جهاز جديد"
 
 msgctxt "in-app-notifications"
 msgid "NEW VERSION INSTALLED"
-msgstr "NY VERSION INSTALLERET"
+msgstr "تم تثبيت إصدار جديد"
 
 msgctxt "in-app-notifications"
 msgid "Please quit and restart the app."
-msgstr "Afslut og genstart appen."
+msgstr "يُرجى إغلاق التطبيق وإعادة تشغيله."
 
 #. Notification title when the app upgrade is ready to install.
 msgctxt "in-app-notifications"
 msgid "READY TO INSTALL UPDATE"
-msgstr "KLAR TIL AT INSTALLERE OPDATERING"
+msgstr "جاهز لتثبيت التحديث"
 
 #. Accessibility label for the button to retry download of the installer.
 msgctxt "in-app-notifications"
 msgid "Retry download of the installer"
-msgstr "Prøv at downloade installationsprogrammet igen"
+msgstr "إعادة محاولة تنزيل أداة التثبيت"
 
 #. Accessibility label for the button to retry the installation.
 msgctxt "in-app-notifications"
 msgid "Retry installation"
-msgstr "Prøv installationen igen"
+msgstr "إعادة محاولة التثبيت"
 
 #. Button label to send a problem report.
 msgctxt "in-app-notifications"
 msgid "Send problem report"
-msgstr "Send problemrapport"
+msgstr "إرسال بلاغ بالمشكلة"
 
 #. Notification subtitle when the installer verification failed.
 msgctxt "in-app-notifications"
 msgid "The installer could not be verified."
-msgstr "Installationsprogrammet kunne ikke bekræftes."
+msgstr "تعذَّر التحقُّق من أداة التثبيت."
 
 #. Notification subtitle when the installer failed.
 msgctxt "in-app-notifications"
 msgid "The installer did not complete successfully."
-msgstr "Installationsprogrammet blev ikke fuldført."
+msgstr "فشلت أداة التثبيت في الإكمال."
 
 #. Notification subtitle when the installer failed.
 msgctxt "in-app-notifications"
 msgid "The installer did not start successfully."
-msgstr "Installationsprogrammet kunne ikke starte."
+msgstr "لم بنجح تشغيل أداة التثبيت."
 
 #. Notification subtitle indicating the user is using an unsupported port for WireGuard.
 #. Available placeholders:
 #. %(wireGuard)s - Will be replaced with WireGuard
 msgctxt "in-app-notifications"
 msgid "The selected %(wireGuard)s port is not supported, please <a>change it under VPN settings.</a>"
-msgstr "Den valgte %(wireGuard)s-port understøttes ikke, <a>skift den under VPN-indstillinger.</a>"
+msgstr "منفذ %(wireGuard)s المُحدَّد غير مدعوم، يُرجى <a>تغييره ضمن إعدادات شبكة VPN.</a>"
 
 #. Notification text when a new device has been created.
 #. Available placeholders:
 #. - %(deviceName)s: Name of created device.
 msgctxt "in-app-notifications"
 msgid "This device is now named <em>%(deviceName)s</em>. See more under <a>Manage devices</a> in Account."
-msgstr "Denne enhed har nu navnet <em>%(deviceName)s</em>. Få mere at vide under <a>Administrer enheder</a> under Konto."
+msgstr "تم تغيير اسم هذا الجهاز الآن إلى <em>%(deviceName)s</em>. للمزيد من المعلومات، يُرجى مراجعة <a>إدارة الأجهزة</a> في الحساب."
 
 #. The in-app banner displayed to the user when the app beta update is
 #. available.
@@ -1382,110 +1406,110 @@ msgstr "Denne enhed har nu navnet <em>%(deviceName)s</em>. Få mere at vide unde
 #. %(version)s - The version number of the new beta version.
 msgctxt "in-app-notifications"
 msgid "Try out the newest beta version (%(version)s)."
-msgstr "Prøv den nyeste betaversion (%(version)s)."
+msgstr "جرِّب أحدث إصدار تجريبي (%(version)s)."
 
 msgctxt "in-app-notifications"
 msgid "UNSUPPORTED VERSION"
-msgstr "IKKE-UNDERSTØTTET VERSION"
+msgstr "إصدار غير مدعوم"
 
 msgctxt "in-app-notifications"
 msgid "UPDATE AVAILABLE"
-msgstr "OPDATERING TILGÆNGELIG"
+msgstr "يتوفَّر تحديث جديد"
 
 #. Generic notification title when the app upgrade failed.
 msgctxt "in-app-notifications"
 msgid "UPDATE FAILED"
-msgstr "OPDATERING MISLYKKEDES"
+msgstr "فشل التحديث"
 
 #. Notification title when app upgrade is ready for the user to launch the installer.
 msgctxt "in-app-notifications"
 msgid "VERIFICATION COMPLETE! INSTALLER READY!"
-msgstr "BEKRÆFTELSE FULDFØRT! INSTALLATIONSPROGRAMMET ER KLAR!"
+msgstr "اكتمل التحقُّق! أداة التثبيت جاهزة!"
 
 #. Notification title when app upgrade is launching the installer.
 msgctxt "in-app-notifications"
 msgid "VERIFICATION COMPLETE! LAUNCHING INSTALLER..."
-msgstr "BEKRÆFTELSE FULDFØRT! STARTER INSTALLATIONSPROGRAMMET ..."
+msgstr "اكتمل التحقُّق! جارٍ تشغيل أداة التثبيت..."
 
 #. Notification title when the installer verification failed.
 msgctxt "in-app-notifications"
 msgid "VERIFICATION FAILED"
-msgstr "BEKRÆFTELSE MISLYKKEDES"
+msgstr "فشل التحقُّق"
 
 #. Status text app is trying to connect to the system service.
 msgctxt "launch-view"
 msgid "Connecting to Mullvad system service..."
-msgstr "Opretter forbindelse til Mullvad-systemtjeneste..."
+msgstr "جارٍ الاتصال بخدمة نظام Mullvad..."
 
 #. Button label for opening dialog with troubleshooting details.
 msgctxt "launch-view"
 msgid "Details"
-msgstr "Oplysninger"
+msgstr "التفاصيل"
 
 #. List item in troubleshooting modal advising user disable third party antivirus.
 msgctxt "launch-view"
 msgid "Disabling third party antivirus software"
-msgstr "Deaktiver antivirussoftware fra tredjepart"
+msgstr "إيقاف برامج مكافحة الفيروسات التابعة لجهات خارجية"
 
 #. Status text shown when app fails to start.
 msgctxt "launch-view"
 msgid "Failed to start the app, please try again or click “Details” for more info"
-msgstr "Kunne ikke starte appen. Prøv igen, eller klik på \"Oplysninger\" for yderligere oplysninger"
+msgstr "فشل بدء التطبيق، يُرجى إعادة المحاولة أو النقر على \"التفاصيل\" للمزيد من المعلومات"
 
 #. Message in troubleshooting modal advising user to send a problem report if the steps do not work.
 msgctxt "launch-view"
 msgid "If these steps do not work please send a problem report."
-msgstr "Hvis disse trin ikke virker, bedes du indsende en problemrapport."
+msgstr "إذا لم تنجح هذه الخطوات، يُرجى إرسال بلاغ بالمشكلة."
 
 #. Message in launch view when the background process permissions have been revoked.
 msgctxt "launch-view"
 msgid "Permission for the Mullvad VPN service has been revoked. Please go to System Settings and allow Mullvad VPN under the “Allow in the Background” setting."
-msgstr "Tilladelsen til Mullvad VPN-tjenesten er blevet tilbagekaldt. Gå til Systemindstillinger og tillad Mullvad VPN under indstillingen \"Tillad i baggrunden\"."
+msgstr "تم إلغاء إذن خدمة Mullvad VPN. يُرجى الانتقال إلى إعدادات النظام والسماح بشبكة Mullvad VPN ضمن الإعداد \"السماح بالتشغيل في الخلفية\"."
 
 #. List item in troubleshooting modal advising user to reinstall the app.
 msgctxt "launch-view"
 msgid "Reinstalling the app"
-msgstr "Geninstaller appen"
+msgstr "إعادة تثبيت التطبيق"
 
 #. List item in troubleshooting modal advising user to restart background process.
 msgctxt "launch-view"
 msgid "Restarting the Mullvad background process"
-msgstr "Genstart Mullvad-baggrundsprocessen"
+msgstr "إعادة تشغيل عملية Mullvad في الخلفية"
 
 #. List item in troubleshooting modal instructing user how to restart the background process.
 msgctxt "launch-view"
 msgid "Restarting the Mullvad background process by clicking \"Back\", then \"Try again\""
-msgstr "Genstart Mullvad-baggrundsprocessen ved at klikke på \"Tilbage\" og derefter på \"Prøv igen\""
+msgstr "إعادة تشغيل عملية Mullvad في الخلفية بالنقر على \"رجوع\"، ثم \"إعادة المحاولة\""
 
 #. List item in troubleshooting modal advising user to restart their computer.
 msgctxt "launch-view"
 msgid "Restarting your computer"
-msgstr "Genstart din computer"
+msgstr "إعادة تشغيل الكمبيوتر"
 
 #. Button label for sending a problem report.
 msgctxt "launch-view"
 msgid "Send problem report"
-msgstr "Send problemrapport"
+msgstr "إرسال بلاغ بالمشكلة"
 
 #. Status text shown when app is starting.
 msgctxt "launch-view"
 msgid "Starting up...."
-msgstr "Starter …"
+msgstr "جارٍ بدء التشغيل...."
 
 #. Message in troubleshooting modal when the background process failed to start.
 msgctxt "launch-view"
 msgid "The Mullvad background process failed to start. The background process is responsible for the security, kill switch, and the VPN tunnel. Please try:"
-msgstr "Mullvad-baggrundsprocessen kunne ikke starte. Baggrundsprocessen er ansvarlig for sikkerheden, kill-switchen og VPN-tunnellen. Prøv følgende:"
+msgstr "فشل بدء تشغيل عملية Mullvad في الخلفية. هذه العملية مسؤولة عن الأمن، ومفتاح الإيقاف التلقائي، ونفق شبكة VPN. يُرجى تجربة ما يلي:"
 
 #. Button label for trying to restart the daemon again.
 msgctxt "launch-view"
 msgid "Try again"
-msgstr "Prøv igen"
+msgstr "إعادة المحاولة"
 
 #. Message in launch view when the mullvad service cannot be contacted.
 msgctxt "launch-view"
 msgid "Unable to contact the Mullvad system service, your connection might be unsecure. Please troubleshoot or send a problem report by clicking the \"Learn more\" button."
-msgstr "Kan ikke kontakte Mullvad-systemtjenesten. Din forbindelse kan være usikker. Fejlfind eller send en problemrapport ved at klikke på knappen \"Find ud af mere\"."
+msgstr "يتعذَّر الاتصال بخدمة نظام Mullvad، قد يكون اتصالك غير آمن. يُرجى استكشاف المشكلة أو إرسال بلاغ بها من خلال النقر على الزر \"معرفة المزيد\"."
 
 #. This is a warning message shown when the app is blocking the users
 #. internet connection while logged out.
@@ -1493,144 +1517,144 @@ msgstr "Kan ikke kontakte Mullvad-systemtjenesten. Din forbindelse kan være usi
 #. %(lockdownModeSettingName)s - The translation of "Lockdown mode"
 msgctxt "login-view"
 msgid "<b>%(lockdownModeSettingName)s</b> is enabled. Disable it to unblock your connection."
-msgstr "<b>%(lockdownModeSettingName)s</b> er aktiveret. Deaktiver det for at fjerne blokeringen af ​​din forbindelse."
+msgstr "تم تفعيل <b>%(lockdownModeSettingName)s</b>. أوقفه لإلغاء حظر اتصالك."
 
 msgctxt "login-view"
 msgid "Account created"
-msgstr "Konto oprettet"
+msgstr "تم إنشاء الحساب"
 
 msgctxt "login-view"
 msgid "Checking account number"
-msgstr "Kontrollerer kontonummer"
+msgstr "جارٍ التحقُّق من رقم الحساب"
 
 #. Text in button that allows user to create a new account.
 msgctxt "login-view"
 msgid "Create a new account"
-msgstr "Opret en ny konto"
+msgstr "إنشاء حساب جديد"
 
 #. Button which confirms the action to create a new account.
 msgctxt "login-view"
 msgid "Create new account"
-msgstr "Opret ny konto"
+msgstr "إنشاء حساب جديد"
 
 msgctxt "login-view"
 msgid "Creating account..."
-msgstr "Opretter konto..."
+msgstr "جارٍ إنشاء حساب جديد..."
 
 #. Text that asks the user if they really want to create a new account.
 msgctxt "login-view"
 msgid "Do you want to create a new account?"
-msgstr "Vil du oprette en ny konto?"
+msgstr "هل تريد إنشاء حساب جديد؟"
 
 #. Text that asks the user if they really want to remove the saved account.
 msgctxt "login-view"
 msgid "Do you want to remove the saved account number?"
-msgstr "Vil du fjerne det gemte kontonummer?"
+msgstr "هل تريد إزالة رقم الحساب المحفوظ؟"
 
 msgctxt "login-view"
 msgid "Enter your account number"
-msgstr "Indtast dit kontonummer"
+msgstr "أدخل رقم حسابك"
 
 msgctxt "login-view"
 msgid "Error"
-msgstr "Fejl"
+msgstr "خطأ"
 
 msgctxt "login-view"
 msgid "Failed to create account"
-msgstr "Kunne ikke oprette konto"
+msgstr "فشل إنشاء الحساب"
 
 msgctxt "login-view"
 msgid "Finishing upgrade."
-msgstr "Færdiggør opgradering."
+msgstr "جارٍ الانتهاء من الترقية."
 
 #. Error message shown above login input when trying to login with a
 #. non-existent account number.
 msgctxt "login-view"
 msgid "Invalid account number"
-msgstr "Ugyldigt kontonummer"
+msgstr "رقم الحساب غير صالح"
 
 msgctxt "login-view"
 msgid "Logged in"
-msgstr "Logget ind"
+msgstr "مُسجَّل الدخول"
 
 msgctxt "login-view"
 msgid "Logging in..."
-msgstr "Logger ind..."
+msgstr "جارٍ تسجيل الدخول..."
 
 #. Label for the login button.
 msgctxt "login-view"
 msgid "Login"
-msgstr "Log ind"
+msgstr "تسجيل الدخول"
 
 msgctxt "login-view"
 msgid "Login failed"
-msgstr "Login mislykkedes"
+msgstr "فشل تسجيل الدخول"
 
 #. Text shown between two horizontal lines above the "create account" button.
 #. In this context it is used to separate the users alternative of logging in
 #. or creating a new account, "Login or Create a new account".
 msgctxt "login-view"
 msgid "Or"
-msgstr "Eller"
+msgstr "أو"
 
 #. This is a warning message shown when the app is blocking the users
 #. internet connection while logged out.
 msgctxt "login-view"
 msgid "Our kill switch is currently blocking your connection."
-msgstr "Vores kill-switch blokerer i øjeblikket din forbindelse."
+msgstr "مفتاح الإيقاف التلقائي لدينا يحظر اتصالك في الوقت الحالي."
 
 msgctxt "login-view"
 msgid "Please wait"
-msgstr "Vent venligst"
+msgstr "يُرجى الانتظار"
 
 #. Text that informs the user about the consequences of clearing the saved
 #. account number.
 msgctxt "login-view"
 msgid "Removing the saved account number from this device cannot be undone."
-msgstr "Hvis du fjerner det gemte kontonummer fra denne enhed, kan du ikke fortryde det."
+msgstr "لا يمكن التراجع عن إزالة رقم الحساب المحفوظ من هذا الجهاز."
 
 #. Error message shown above login input when trying to login to an account
 #. with too many registered devices.
 msgctxt "login-view"
 msgid "Too many devices"
-msgstr "For mange enheder"
+msgstr "هناك عدد كبير جدًا من الأجهزة"
 
 msgctxt "login-view"
 msgid "Unknown error"
-msgstr "Ukendt fejl"
+msgstr "خطأ غير معروف"
 
 msgctxt "login-view"
 msgid "Upgrading..."
-msgstr "Opgraderer..."
+msgstr "جارٍ الترقية..."
 
 msgctxt "login-view"
 msgid "Valid account number"
-msgstr "Gyldigt kontonummer"
+msgstr "رقم حساب صالح"
 
 #. Text that informs the users about consequences of creating a new account.
 msgctxt "login-view"
 msgid "You already have a saved account number, by creating a new account the saved account number will be removed from this device. This cannot be undone."
-msgstr "Du har allerede et gemt kontonummer, og når du opretter en ny konto, fjernes det gemte kontonummer fra denne enhed. Dette kan ikke fortrydes."
+msgstr "لديك رقم حساب محفوظ بالفعل، بإنشاء حساب جديد، سيتم حذفه من هذا الجهاز. لا يمكن التراجع عن هذا الإجراء."
 
 #. Title label in navigation bar
 msgctxt "navigation-bar"
 msgid "API access"
-msgstr "API-adgang"
+msgstr "الوصول إلى واجهة API"
 
 #. The system notification displayed to the user when the account credit is close to expiry.
 #. Available placeholder:
 #. %(duration)s - remaining time, e.g. "2 days"
 msgctxt "notifications"
 msgid "Account credit expires in %(duration)s. Buy more credit."
-msgstr "Kontokredit udløber om %(duration)s. Køb mere kredit."
+msgstr "ينتهي رصيد الحساب خلال %(duration)s. اشترِ رصيدًا إضافيًا."
 
 msgctxt "notifications"
 msgid "Account is out of time"
-msgstr "Kontoen er udløbet"
+msgstr "انتهى وقت الحساب"
 
 msgctxt "notifications"
 msgid "App is out of sync. Please quit and restart."
-msgstr "Appen er ikke synkroniseret. Afslut og genstart."
+msgstr "التطبيق غير متزامن. يُرجى إغلاقه وإعادة تشغيله."
 
 #. The system notification that notifies the user when a beta update is
 #. available.
@@ -1638,209 +1662,209 @@ msgstr "Appen er ikke synkroniseret. Afslut og genstart."
 #. %(version)s - The version number of the new beta version.
 msgctxt "notifications"
 msgid "Beta update available. Try out the newest beta version (%(version)s)."
-msgstr "Beta-opdatering tilgængelig. Prøv den nyeste betaversion (%(version)s)."
+msgstr "يتوفَّر تحديث جديد للإصدار التجريبي. جرِّب أحدث إصدار تجريبي (%(version)s)."
 
 msgctxt "notifications"
 msgid "Buy more"
-msgstr "Køb mere"
+msgstr "شراء المزيد"
 
 msgctxt "notifications"
 msgid "Connected"
-msgstr "Tilsluttet"
+msgstr "متصل"
 
 #. The message showed when a server has been connected to.
 #. Available placeholder:
 #. %(location) - name of the server location we're connected to (e.g. "se-got-003")
 msgctxt "notifications"
 msgid "Connected to %(location)s"
-msgstr "Tilsluttet %(location)s"
+msgstr "متصل بـ %(location)s"
 
 msgctxt "notifications"
 msgid "Connecting"
-msgstr "Tilslutter"
+msgstr "جارٍ الاتصال"
 
 #. The message showed when a server is being connected to.
 #. Available placeholder:
 #. %(location) - name of the server location we're connecting to (e.g. "se-got-003")
 msgctxt "notifications"
 msgid "Connecting to %(location)s"
-msgstr "Opretter forbindelse til %(location)s"
+msgstr "جارٍ الاتصال بـ %(location)s"
 
 msgctxt "notifications"
 msgid "Connection might be unsecured. App lost contact with system service, please troubleshoot."
-msgstr "Forbindelsen kan være usikker. App mistede kontakten med systemtjenesten, udfør fejlfinding."
+msgstr "قد يكون الاتصال غير آمن. انقطع اتصال التطبيق بخدمة النظام، يُرجى استكشاف المشكلة وإصلاحها."
 
 msgctxt "notifications"
 msgid "Could not configure IPv6. Disable it in the app or enable it on your device."
-msgstr "Kunne ikke konfigurere IPv6. Deaktiver det i appen, eller aktiver det på din enhed."
+msgstr "تعذَّرت تهيئة IPv6. أوقفه في التطبيق أو فعِّله على جهازك."
 
 msgctxt "notifications"
 msgid "Disconnected and unsecure"
-msgstr "Frakoblet og usikker"
+msgstr "غير متصل وغير آمن"
 
 msgctxt "notifications"
 msgid "Failed to enable split tunneling."
-msgstr "Kunne ikke aktivere split tunneling."
+msgstr "فشل تفعيل الانقسام النفقي."
 
 msgctxt "notifications"
 msgid "Failed to enable split tunneling. Please try reconnecting or disable split tunneling."
-msgstr "Kunne ikke aktivere split tunneling. Prøv at oprette forbindelse igen eller deaktiver split tunneling."
+msgstr "فشل تفعيل خاصية الانقسام النفقي. يُرجى محاولة إعادة الاتصال أو إيقاف الانقسام النفقي."
 
 #. Label for notification when IPv4 is not available.
 msgctxt "notifications"
 msgid "IPv4 is not available, please try changing Device IP version setting."
-msgstr "IPv4 er ikke tilgængelig, prøv at ændre indstillingen Enhedens IP-version."
+msgstr "IPv4 غير متاح، يُرجى محاولة تغيير إعداد نسخة عنوان IP للجهاز."
 
 #. Label for notification when IPv6 is not available.
 msgctxt "notifications"
 msgid "IPv6 is not available, please try changing Device IP version setting."
-msgstr "IPv6er ikke tilgængelig, prøv at ændre indstillingen Enhedens IP-version."
+msgstr "IPv6 غير متاح، يُرجى محاولة تغيير إعداد نسخة عنوان IP للجهاز."
 
 msgctxt "notifications"
 msgid "Lockdown mode active, connection blocked"
-msgstr "Låsetilstand aktiv, forbindelse blokeret"
+msgstr "وضع التأمين نشط، تم حظر الاتصال"
 
 msgctxt "notifications"
 msgid "No servers match your settings, try changing server or other settings."
-msgstr "Ingen servere matcher dine indstillinger. Prøv at ændre server eller andre indstillinger."
+msgstr "لا توجد خوادم تتطابق مع إعداداتك، حاول تغيير الخادم أو الإعدادات الأخرى."
 
 #. A link in the in-app banner to encourage the user to update the app.
 #. The in-app banner is is displayed to the user when the running app becomes unsupported.
 msgctxt "notifications"
 msgid "Please click here to update now"
-msgstr "Klik her for at opdatere nu"
+msgstr "يُرجى الضغط هنا للتحديث الآن"
 
 msgctxt "notifications"
 msgid "Reconnecting"
-msgstr "Genopretter forbindelse"
+msgstr "جارٍ إعادة الاتصال"
 
 msgctxt "notifications"
 msgid "The apps excluded with %(splitTunneling)s might not work properly right now."
-msgstr "De apps, der er ekskluderet med %(splitTunneling)s, fungerer muligvis ikke korrekt lige nu."
+msgstr "قد لا تعمل التطبيقات المستثناة باستخدام %(splitTunneling)s بشكلٍ صحيح الآن."
 
 msgctxt "notifications"
 msgid "Unable to apply firewall rules."
-msgstr "Kan ikke anvende firewallregler."
+msgstr "يتعذَّر تطبيق قواعد جدار الحماية."
 
 msgctxt "notifications"
 msgid "Unable to apply firewall rules. Try temporarily disabling any third-party antivirus or security software."
-msgstr "Kan ikke anvende firewall-regler. Prøv midlertidigt at deaktivere antivirus- eller sikkerhedssoftware fra tredjepart."
+msgstr "يتعذَّر تطبيق قواعد جدار الحماية. جرِّب إيقاف أي برنامج مكافحة فيروسات أو حماية تابع لجهة خارجية مؤقتًا."
 
 msgctxt "notifications"
 msgid "Unable to apply firewall rules. Try updating your kernel."
-msgstr "Kan ikke anvende firewallregler. Prøv at opdatere din kerne."
+msgstr "يتعذَّر تطبيق قواعد جدار الحماية. جرِّب تحديث النواة."
 
 msgctxt "notifications"
 msgid "Unable to block all network traffic. Please troubleshoot or send a problem report."
-msgstr "Kan ikke blokere al netværkstrafik. Udfør fejlfinding, eller indsend en problemrapport."
+msgstr "يتعذَّر حظر جميع بيانات الشبكة. يُرجى استكشاف المشكلة وإصلاحها أو إرسال بلاغ بالمشكلة."
 
 msgctxt "notifications"
 msgid "Unable to block all network traffic. Try temporarily disabling any third-party antivirus or security software or send a problem report."
-msgstr "Kan ikke blokere al netværkstrafik. Prøv midlertidigt at deaktivere antivirus- eller sikkerhedssoftware fra tredjepart, eller indsend en problemrapport."
+msgstr "يتعذَّر حظر جميع بيانات الشبكة. جرِّب إيقاف أي برنامج مكافحة فيروسات أو حماية تابع لجهة خارجية مؤقتًا أو إرسال بلاغ بالمشكلة."
 
 msgctxt "notifications"
 msgid "Unable to block all network traffic. Try updating your kernel or send a problem report."
-msgstr "Kan ikke blokere al netværkstrafik. Prøv at opdatere din kerne, eller indsend en problemrapport."
+msgstr "يتعذَّر حظر جميع بيانات الشبكة. حاول تحديث نواة جهازك أو إرسال بلاغ بالمشكلة."
 
 msgctxt "notifications"
 msgid "Unable to communicate with Mullvad kernel driver. Try reconnecting or send a problem report."
-msgstr "Kan ikke kommunikere med Mullvad-kernedriveren. Prøv at oprette forbindelse igen, eller indsend en problemrapport."
+msgstr "يتعذَّر الاتصال ببرنامج تشغيل نواة Mullvad. جرِّب إعادة الاتصال أو إرسال بلاغ بالمشكلة."
 
 msgctxt "notifications"
 msgid "Unable to resolve host of custom tunnel. Try changing your settings."
-msgstr "Kunne ikke fortolke værten for den tilpassede tunnel. Prøv at ændre dine indstillinger."
+msgstr "يتعذَّر حل مشكلة مضيف النفق المُخصَّص. جرِّب تغيير إعداداتك."
 
 msgctxt "notifications"
 msgid "Unable to set system DNS server. Please send a problem report."
-msgstr "Kan ikke indstille systemets DNS-server. Indsend en problemrapport."
+msgstr "يتعذَّر ضبط خادم DNS للنظام. يُرجى إرسال بلاغ بالمشكلة."
 
 msgctxt "notifications"
 msgid "Unable to start tunnel connection. Please send a problem report."
-msgstr "Kan ikke starte tunnelforbindelse. Indsend en problemrapport."
+msgstr "يتعذَّر بدء اتصال النفق. يُرجى إرسال بلاغ بالمشكلة."
 
 msgctxt "notifications"
 msgid "Unable to start tunnel connection. This could be because of conflicts with VMware, please troubleshoot."
-msgstr "Kunne ikke starte tunnelforbindelse. Dette kan være på grund af konflikter med VMware. Udfør fejlfinding."
+msgstr "يتعذَّر بدء اتصال النفق. قد يكون ذلك بسبب تعارض مع VMware، يُرجى استكشاف المشكلة وإصلاحها."
 
 msgctxt "notifications"
 msgid "Update available. Install the latest app version to stay up to date"
-msgstr "Opdatering tilgængelig. Installer den nyeste appversion for at holde dig opdateret"
+msgstr "يتوفَّر تحديث جديد. ثبِّت أحدث إصدار من التطبيق للبقاء على اطلاع دائم بكل جديد"
 
 msgctxt "notifications"
 msgid "Upgrade"
-msgstr "Opgrader"
+msgstr "الترقية"
 
 msgctxt "notifications"
 msgid "Your device is offline. The tunnel will automatically connect once your device is back online."
-msgstr "Din enhed er offline. Tunnelen vil oprette forbindelse automatisk, når din enhed er online igen."
+msgstr "جهازك غير متصل بالإنترنت. سيتصل النفق تلقائيًا بمجرد اتصال جهازك مرة أخرى بالإنترنت."
 
 #. The in-app banner which is displayed to the user when the running app becomes unsupported.
 msgctxt "notifications"
 msgid "Your privacy might be at risk with this unsupported app version."
-msgstr "Dit privatliv kan være i fare med denne ikke-understøttede appversion."
+msgstr "قد تكون خصوصيتك في خطر مع هذا الإصدار غير المدعوم من التطبيق."
 
 #. The system notification which is displayed to the user when the running app becomes unsupported.
 msgctxt "notifications"
 msgid "Your privacy might be at risk with this unsupported app version. Please update now."
-msgstr "Dit privatliv kan være i fare med denne ikke-understøttede appversion. Opdater den straks."
+msgstr "قد تكون خصوصيتك في خطر مع هذا الإصدار غير المدعوم من التطبيق. يُرجى التحديث الآن."
 
 #. Cancel button label for voucher redemption.
 msgctxt "redeem-voucher-alert"
 msgid "Cancel"
-msgstr "Annuller"
+msgstr "إلغاء"
 
 #. Input field label for voucher code.
 msgctxt "redeem-voucher-alert"
 msgid "Enter voucher code"
-msgstr "Indtast kuponkode"
+msgstr "أدخل رمز القسيمة"
 
 #. Button label for redeeming a voucher.
 msgctxt "redeem-voucher-alert"
 msgid "Redeem voucher"
-msgstr "Indløs kupon"
+msgstr "استرداد قسيمة"
 
 msgctxt "redeem-voucher-view"
 msgid "An error occurred."
-msgstr "Der opstod en fejl."
+msgstr "حدث خطأ."
 
 msgctxt "redeem-voucher-view"
 msgid "It looks like you’ve entered an account number instead of a voucher code. If you would like to change the active account, please log out first."
-msgstr "Det lader til, at du har indtastet et kontonummer i stedet for en rabatkuponkode. Hvis du vil ændre den aktive konto, skal du først logge af."
+msgstr "يبدو أنك أدخلت رقم حساب بدلًا من رمز قسيمة. لتغيير الحساب النشط، يُرجى تسجيل الخروج أولًا."
 
 #. Button label for voucher redemption.
 msgctxt "redeem-voucher-view"
 msgid "Redeem"
-msgstr "Indløs"
+msgstr "الاسترداد"
 
 msgctxt "redeem-voucher-view"
 msgid "Verifying voucher..."
-msgstr "Bekræfter kupon..."
+msgstr "جارٍ التحقُّق من القسيمة..."
 
 msgctxt "redeem-voucher-view"
 msgid "Voucher code has already been used."
-msgstr "Kuponkode er allerede brugt."
+msgstr "تم استخدام رمز القسيمة بالفعل."
 
 msgctxt "redeem-voucher-view"
 msgid "Voucher code is invalid."
-msgstr "Kuponkode er ugyldig."
+msgstr "رمز القسيمة غير صالح."
 
 msgctxt "redeem-voucher-view"
 msgid "Voucher was successfully redeemed."
-msgstr "Indløsning af kuponen lykkedes."
+msgstr "تم استرداد القسيمة بنجاح."
 
 #. Title label in navigation bar
 msgctxt "select-language-nav"
 msgid "Select language"
-msgstr "Vælg sprog"
+msgstr "حدِّد اللغة"
 
 #. Title label in navigation bar
 msgctxt "select-location-nav"
 msgid "Select location"
-msgstr "Vælg placering"
+msgstr "حدِّد الموقع"
 
 msgctxt "select-location-view"
 msgid "(Added)"
-msgstr "(Tilføjet)"
+msgstr "(تمت إضافته)"
 
 #. This is used for appending information about a location.
 #. E.g. "Gothenburg (Entry)" if Gothenburg has been selected as the entrypoint.
@@ -1853,278 +1877,278 @@ msgstr "%(location)s (%(info)s)"
 
 msgctxt "select-location-view"
 msgid "A custom bridge server can be used to circumvent censorship when regular Mullvad bridge servers don’t work."
-msgstr "En brugerdefineret broserver kan bruges til at omgå censur, når almindelige Mullvad-broservere ikke virker."
+msgstr "يمكن استخدام خادم جسر مُخصَّص لتجاوز الرقابة عندما لا تعمل خوادم جسر Mullvad العادية."
 
 #. This is a label shown above a list of options.
 #. Available placeholder:
 #. %(locationType) - Could be either "Country", "City" and "Relay"
 msgctxt "select-location-view"
 msgid "Add <b>%(locationType)s</b> to list"
-msgstr "Føj <b>%(locationType)s</b> til listen"
+msgstr "إضافة <b>%(locationType)s</b> إلى القائمة"
 
 msgctxt "select-location-view"
 msgid "All locations"
-msgstr "Alle placeringer"
+msgstr "جميع المواقع"
 
 msgctxt "select-location-view"
 msgid "City"
-msgstr "By"
+msgstr "المدينة"
 
 msgctxt "select-location-view"
 msgid "Country"
-msgstr "Land"
+msgstr "البلد"
 
 msgctxt "select-location-view"
 msgid "Custom bridge"
-msgstr "Brugerdefineret bro"
+msgstr "جسر مُخصَّص"
 
 msgctxt "select-location-view"
 msgid "Custom lists"
-msgstr "Brugerdefinerede lister"
+msgstr "قوائم مُخصَّصة"
 
 msgctxt "select-location-view"
 msgid "Do you want to delete the list <b>%(list)s</b>?"
-msgstr "Vil du slette listen <b>%(list)s</b>?"
+msgstr "هل تريد حذف القائمة <b>%(list)s</b>؟"
 
 msgctxt "select-location-view"
 msgid "Edit list name"
-msgstr "Rediger listenavn"
+msgstr "تعديل اسم القائمة"
 
 msgctxt "select-location-view"
 msgid "Entry"
-msgstr "Indgang"
+msgstr "دخول"
 
 msgctxt "select-location-view"
 msgid "Exit"
-msgstr "Udgang"
+msgstr "خروج"
 
 msgctxt "select-location-view"
 msgid "Filtered:"
-msgstr "Filtreret:"
+msgstr "بعد التصفية:"
 
 msgctxt "select-location-view"
 msgid "List names must be unique."
-msgstr "Listenavne skal være unikke."
+msgstr "يجب أن تكون أسماء القوائم فريدة."
 
 msgctxt "select-location-view"
 msgid "Name is already taken."
-msgstr "Navnet er allerede taget."
+msgstr "الاسم مُستخدَم بالفعل."
 
 #. Label for indicator that shows that obfuscation is being used as a filter.
 #. Available placeholders:
 #. %(obfuscation)s - type of obfuscation in use
 msgctxt "select-location-view"
 msgid "Obfuscation: %(obfuscation)s"
-msgstr "Obfuskering: %(obfuscation)s"
+msgstr "التمويه: %(obfuscation)s"
 
 msgctxt "select-location-view"
 msgid "Open %(daita)s settings"
-msgstr "Åbn indstillinger for %(daita)s"
+msgstr "فتح إعدادات ميزة %(daita)s"
 
 msgctxt "select-location-view"
 msgid "Providers: %(numberOfProviders)d"
-msgstr "Udbydere: %(numberOfProviders)d"
+msgstr "موفرو الخدمات: %(numberOfProviders)d"
 
 msgctxt "select-location-view"
 msgid "Relay"
-msgstr "Relæ"
+msgstr "الخادم الوسيط"
 
 msgctxt "select-location-view"
 msgid "Setting: %(settingName)s"
-msgstr "Indstilling: %(settingName)s"
+msgstr "الإعداد: %(settingName)s"
 
 msgctxt "select-location-view"
 msgid "The app selects a random bridge server, but servers have a higher probability the closer they are to you."
-msgstr "Appen vælger en tilfældig broserver, men jo tættere servere er på dig, jo større er sandsynligheden."
+msgstr "يختار التطبيق خادم جسر عشوائي، لكن احتمالية اختيار الخوادم الأقرب إليك تكون أعلى."
 
 msgctxt "select-location-view"
 msgid "The entry server for %(multihop)s is currently overridden by %(daita)s. To select an entry server, please first enable “%(directOnly)s” or disable \"%(daita)s\" in the settings."
-msgstr "Indgangsserveren for %(multihop)s tilsidesættes i øjeblikket af %(daita)s. Du skal først aktivere \"%(directOnly)s\" eller deaktivere \"%(daita)s\" i indstillingerne for at vælge en indgangsserver."
+msgstr "خادم الدخول لـ %(multihop)s تم تجاوزه حاليًا من قِبل ميزة %(daita)s. لاختيار خادم دخول، يُرجى أولًا تفعيل \"%(directOnly)s\" أو إيقاف \"ميزة %(daita)s\" في الإعدادات."
 
 msgctxt "settings-import"
 msgid "Clear all overrides"
-msgstr "Ryd alle tilsidesættelser"
+msgstr "مسح جميع التجاوزات"
 
 msgctxt "settings-import"
 msgid "Clear all overrides?"
-msgstr "Vil du rydde alle tilsidesættelser?"
+msgstr "هل تريد مسح جميع التجاوزات؟"
 
 msgctxt "settings-import"
 msgid "Clearing the imported overrides changes the server IPs, in the Select location view, back to default."
-msgstr "Rydning af de importerede tilsidesættelser sætter server-IP'erne i visningen Vælg placering tilbage til standard."
+msgstr "يؤدي مسح التجاوزات المستوردة إلى تغيير عناوين IP الخاصة بالخادم في شاشة \"تحديد الموقع\" إلى الإعدادات الافتراضية مرة أخرى."
 
 msgctxt "settings-import"
 msgid "If you are having issues connecting to VPN servers, please contact support."
-msgstr "Hvis du har problemer med at oprette forbindelse til VPN-servere, bedes du kontakte support."
+msgstr "إذا كنت تواجه مشكلات في الاتصال بخوادم شبكة VPN، يُرجى التواصل مع الدعم."
 
 msgctxt "settings-import"
 msgid "Import file"
-msgstr "Importer fil"
+msgstr "استيراد ملف"
 
 msgctxt "settings-import"
 msgid "Import files or text with new IP addresses for the servers in the Select location view."
-msgstr "Importer filer eller tekst med nye IP-adresser til serverne i visningen Vælg placering."
+msgstr "استيراد الملفات أو النصوص باستخدام عناوين IP الجديدة للخوادم الموجودة في شاشة تحديد الموقع."
 
 msgctxt "settings-import"
 msgid "Import of file %(fileName)s was successful, overrides are now active."
-msgstr "Importen af filen %(fileName)s lykkedes. Tilsidesættelser er nu aktive."
+msgstr "تم استيراد الملف %(fileName)s بنجاح، والآن أصبحت التجاوزات نشطة."
 
 msgctxt "settings-import"
 msgid "Import of file %(fileName)s was unsuccessful, please try again."
-msgstr "Importen af filen %(fileName)s mislykkedes. Prøv igen."
+msgstr "لم ينجح استيراد الملف %(fileName)s، يُرجى إعادة المحاولة."
 
 msgctxt "settings-import"
 msgid "Import of text was successful, overrides are now active."
-msgstr "Import af tekst gennemført, tilsidesættelser er nu aktive."
+msgstr "تم استيراد النص بنجاح، والتجاوزات نشطة الآن."
 
 msgctxt "settings-import"
 msgid "Import of text was unsuccessful, please try again."
-msgstr "Import af tekst mislykkedes. Prøv igen."
+msgstr "لم ينجح استيراد النص، يُرجى إعادة المحاولة."
 
 msgctxt "settings-import"
 msgid "IMPORT SUCCESSFUL"
-msgstr "IMPORT GENNEMFØRT"
+msgstr "تم الاستيراد بنجاح"
 
 #. Title label in navigation bar
 msgctxt "settings-import"
 msgid "Import via text"
-msgstr "Importer via tekst"
+msgstr "الاستيراد عبر النص"
 
 msgctxt "settings-import"
 msgid "NO OVERRIDES IMPORTED"
-msgstr "INGEN TILSIDESÆTTELSER IMPORTERET"
+msgstr "لم يتم استيراد أي تجاوزات"
 
 msgctxt "settings-import"
 msgid "On some networks, where various types of censorship are being used, our server IP addresses are sometimes blocked."
-msgstr "På nogle netværk, hvor der bruges forskellige typer censur, er vores server IP-adresser nogle gange blokeret."
+msgstr "يتم حظر عناوين IP الخاصة بخادمنا على بعض الشبكات في بعض الأحيان بسبب استخدام أنواع مختلفة من الرقابة."
 
 msgctxt "settings-import"
 msgid "OVERRIDES ACTIVE"
-msgstr "TILSIDESÆTTELSER AKTIVE"
+msgstr "التجاوزات نشطة"
 
 #. Title label in navigation bar. This is for a feature that lets
 #. users import server IP settings.
 msgctxt "settings-import"
 msgid "Server IP override"
-msgstr "Server IP tilsidesættelse"
+msgstr "تجاوز عنوان IP للخادم"
 
 msgctxt "settings-import"
 msgid "To circumvent this you can import a file or a text, provided by our support team, with new IP addresses that override the default addresses of the servers in the Select location view."
-msgstr "For at omgå dette kan du importere en fil eller en tekst, leveret af vores supportteam, med nye IP-adresser, der tilsidesætter standardadresserne på serverne i visningen Vælg placering."
+msgstr "للتغلب على هذه المشكلة، يمكنك استيراد ملف أو نص، تم توفيره من قِبل فريق الدعم لدينا، مع عناوين IP جديدة تتجاوز العناوين الافتراضية للخوادم في شاشة تحديد الموقع."
 
 #. Navigation button to the 'API access methods' view
 msgctxt "settings-view"
 msgid "API access"
-msgstr "API-adgang"
+msgstr "الوصول إلى واجهة API"
 
 #. Navigation button to the 'App info' view
 msgctxt "settings-view"
 msgid "App info"
-msgstr "App-oplysninger"
+msgstr "معلومات التطبيق"
 
 msgctxt "settings-view"
 msgid "Multihop"
-msgstr "Multihop"
+msgstr "القفز المتعدد"
 
 #. Title label in navigation bar
 msgctxt "settings-view"
 msgid "Settings"
-msgstr "Indstillinger"
+msgstr "الإعدادات"
 
 #. Navigation button to the 'Support' view
 msgctxt "settings-view"
 msgid "Support"
-msgstr "Support"
+msgstr "الدعم"
 
 #. Label for the app info list item indicating that an update is available and can be downloaded
 msgctxt "settings-view"
 msgid "Update available"
-msgstr "Opdatering tilgængelig"
+msgstr "يتوفَّر تحديث جديد"
 
 #. Navigation button to the 'User interface settings' view
 msgctxt "settings-view"
 msgid "User interface settings"
-msgstr "Brugergrænsefladeindstillinger"
+msgstr "إعدادات واجهة المستخدم"
 
 #. Navigation button to the 'VPN settings' view
 msgctxt "settings-view"
 msgid "VPN settings"
-msgstr "VPN-indstillinger"
+msgstr "إعدادات شبكة VPN"
 
 msgctxt "split-tunneling-view"
 msgid "%(applicationName)s is problematic and can’t be excluded from the VPN tunnel."
-msgstr "%(applicationName)s er problematisk og kan ikke udelukkes fra VPN-tunnelen."
+msgstr "%(applicationName)s يُمثِّل مشكلة ولا يمكن استثناؤه من نفق شبكة VPN."
 
 #. Information about split tunneling not being supported on the system.
 #. Available placeholders:
 #. %(splitTunneling)s - will be replaced with Split tunneling
 msgctxt "split-tunneling-view"
 msgid "%(splitTunneling)s is not supported by your system."
-msgstr "%(splitTunneling)s understøttes ikke af dit system."
+msgstr "لا يدعم نظامك %(splitTunneling)s."
 
 msgctxt "split-tunneling-view"
 msgid "Add"
-msgstr "Tilføj"
+msgstr "إضافة"
 
 msgctxt "split-tunneling-view"
 msgid "All apps"
-msgstr "Alle apps"
+msgstr "جميع التطبيقات"
 
 msgctxt "split-tunneling-view"
 msgid "Choose the apps you want to exclude from the VPN tunnel."
-msgstr "Vælg de apps, du vil ekskludere fra VPN-tunnelen."
+msgstr "اختر التطبيقات التي تريد استثناؤها من نفق شبكة VPN."
 
 #. Link for learning more
 msgctxt "split-tunneling-view"
 msgid "Click here to learn more"
-msgstr "Klik her for at få mere at vide"
+msgstr "انقر هنا لمعرفة المزيد"
 
 msgctxt "split-tunneling-view"
 msgid "Click on an app to launch it. Its traffic will bypass the VPN tunnel until you close it."
-msgstr "Klik på en app, når den åbnes. Dens trafik vil blive ført uden om VPN-tunnelen, indtil du lukker den."
+msgstr "انقر على تطبيق لتشغيله. سيتجاوز اتصاله نفق شبكة VPN حتى تُغلقه."
 
 msgctxt "split-tunneling-view"
 msgid "Enabled \"Full disk access\" and still having issues?"
-msgstr "Har du aktiveret \"Fuld diskadgang\" og har stadig problemer?"
+msgstr "هل فعَّلت \"الوصول الكامل للقرص\" ولا تزال تواجه مشكلات؟"
 
 msgctxt "split-tunneling-view"
 msgid "Excluded apps"
-msgstr "Ekskluderede apps"
+msgstr "التطبيقات المستثناة"
 
 #. Button label for browsing applications with split tunneling.
 msgctxt "split-tunneling-view"
 msgid "Find another app"
-msgstr "Find en anden app"
+msgstr "العثور على تطبيق آخر"
 
 msgctxt "split-tunneling-view"
 msgid "If it’s already running, close %(applicationName)s before launching it from here. Otherwise it might not be excluded from the VPN tunnel."
-msgstr "Hvis den allerede kører, skal du lukke %(applicationName)s, før den åbnes herfra. Ellers kan den måske ikke udelukkes fra VPN-tunnelen."
+msgstr "إذا كان التطبيق قيد التشغيل بالفعل، فأغلق %(applicationName)s قبل تشغيله من هنا. وإلا، فقد لا يتم استثناؤه من نفق شبكة VPN."
 
 #. Button label for launching an application with split tunneling.
 msgctxt "split-tunneling-view"
 msgid "Launch"
-msgstr "Start"
+msgstr "تشغيل"
 
 msgctxt "split-tunneling-view"
 msgid "Open System Settings"
-msgstr "Åbn systemindstillinger"
+msgstr "فتح إعدادات النظام"
 
 #. This error message is shown if the user tries to launch a Linux desktop
 #. entry file that doesn't contain the required 'Exec' value.
 msgctxt "split-tunneling-view"
 msgid "Please send a problem report."
-msgstr "Indsend en problemrapport."
+msgstr "يُرجى إرسال بلاغ بالمشكلة."
 
 #. This error message is shown if the user tries to launch an app that
 #. doesn't exist.
 #. This error message is shown if an application fails during startup.
 msgctxt "split-tunneling-view"
 msgid "Please try again or send a problem report."
-msgstr "Prøv igen, eller indsend en problemrapport."
+msgstr "يُرجى إعادة المحاولة أو إرسال بلاغ بالمشكلة."
 
 msgctxt "split-tunneling-view"
 msgid "Restart Mullvad Service"
-msgstr "Genstart Mullvad-tjenesten"
+msgstr "إعادة تشغيل خدمة Mullvad"
 
 #. Information about split tunneling being unavailable due to
 #. missing support in the user's operating system.
@@ -2132,305 +2156,305 @@ msgstr "Genstart Mullvad-tjenesten"
 #. %(splitTunneling)s - will be replaced with Split tunneling
 msgctxt "split-tunneling-view"
 msgid "To use %(splitTunneling)s, please change to a Linux kernel version that supports cgroup v1."
-msgstr "For at bruge %(splitTunneling)s skal du skifte til en Linux-kerneversion, der understøtter cgroup v1."
+msgstr "لاستخدام %(splitTunneling)s، يُرجى التغيير إلى إصدار النواة على Linux الذي يدعم cgroup v1."
 
 msgctxt "split-tunneling-view"
 msgid "To use split tunneling please enable “Full disk access” for “Mullvad VPN” in the macOS system settings."
-msgstr "Du skal aktivere \"Fuld diskadgang\" for \"Mullvad VPN\" i systemindstillinger i MacOS for at bruge split tunneling."
+msgstr "لاستخدام الانقسام النفقي، يُرجى تفعيل \"الوصول الكامل للقرص\" لـ \"Mullvad VPN\" في إعدادات نظام macOS."
 
 #. Error message showed in a dialog when an application fails to launch.
 msgctxt "split-tunneling-view"
 msgid "Unable to launch selection. %(detailedErrorMessage)s"
-msgstr "Kunne ikke starte det valgte. %(detailedErrorMessage)s"
+msgstr "يتعذَّر تشغيل التحديد. %(detailedErrorMessage)s"
 
 #. Button label for continuing problem report submission with an outdated app version.
 msgctxt "support-view"
 msgid "Continue anyway"
-msgstr "Fortsæt alligevel"
+msgstr "المتابعة على أي حال"
 
 #. Button text to edit the message after a failed attempt to send the problem report.
 msgctxt "support-view"
 msgid "Edit message"
-msgstr "Rediger meddelelse"
+msgstr "تعديل الرسالة"
 
 msgctxt "support-view"
 msgid "Failed to send"
-msgstr "Kunne ikke sende"
+msgstr "فشل الإرسال"
 
 #. Link to the webpage
 msgctxt "support-view"
 msgid "FAQs & Guides"
-msgstr "Ofte stillede spørgsmål og vejledninger"
+msgstr "الأسئلة الشائعة والأدلة"
 
 #. The message displayed to the user after submitting the problem report, given that the user left his or her email for us to reach back.
 #. Available placeholders:
 #. %(email)s
 msgctxt "support-view"
 msgid "If needed we will contact you at %(email)s"
-msgstr "Hvis det er nødvendigt, kontakter vi dig på %(email)s"
+msgstr "إذا لزم الأمر، سنتواصل معك على %(email)s"
 
 msgctxt "support-view"
 msgid "If you exit the form and try again later, the information you already entered will still be here."
-msgstr "Hvis du lukker formularen og prøver igen senere, vil de oplysninger, du allerede har indtastet, stadig være her."
+msgstr "إذا خرجت من النموذج وحاولت مرة أخرى لاحقًا، فستظل المعلومات التي أدخلتها موجودة هنا."
 
 #. Title label in navigation bar
 #. Navigation button to the 'Report a problem' help view
 msgctxt "support-view"
 msgid "Report a problem"
-msgstr "Rapporter et problem"
+msgstr "الإبلاغ عن مشكلة"
 
 #. Button label for sending the problem report.
 msgctxt "support-view"
 msgid "Send"
-msgstr "Send"
+msgstr "إرسال"
 
 #. Button label for sending the problem report without an email address.
 msgctxt "support-view"
 msgid "Send anyway"
-msgstr "Send alligevel"
+msgstr "الإرسال على أي حال"
 
 msgctxt "support-view"
 msgid "Sending..."
-msgstr "Sender..."
+msgstr "جارٍ الإرسال..."
 
 msgctxt "support-view"
 msgid "Sent"
-msgstr "Sendt"
+msgstr "تم الإرسال"
 
 #. Title label in navigation bar
 msgctxt "support-view"
 msgid "Support"
-msgstr "Support"
+msgstr "الدعم"
 
 msgctxt "support-view"
 msgid "Thanks!"
-msgstr "Tak!"
+msgstr "شكرًا لك!"
 
 msgctxt "support-view"
 msgid "To assist you better, please write in English or Swedish and include which country you are connecting from."
-msgstr "For at vi bedre kan hjælpe dig, bedes du skrive på engelsk eller svensk og nævne hvilket land, du befinder dig i."
+msgstr "لمساعدتك بشكلٍ أفضل، يُرجى الكتابة باللغة الإنجليزية أو السويدية مع ذكر البلد الذي تتصل منه."
 
 msgctxt "support-view"
 msgid "To help you more effectively, your app’s log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel."
-msgstr "For at vi bedre kan hjælpe dig, bedes du vedhæfte din apps logfil til denne meddelelse. Dine data vil forblive sikre og private, da de anonymiseres, før de sendes via en krypteret kanal."
+msgstr "لمساعدتك بشكلٍ أكثر فعالية، سيتم إرفاق ملف سجل تطبيقك بهذه الرسالة. ستبقى بياناتك آمنة وسرية، حيث يتم إخفاء هويتها قبل إرسالها عبر قناة مشفرة."
 
 #. Button label for retrying problem report submission after a failure.
 msgctxt "support-view"
 msgid "Try again"
-msgstr "Prøv igen"
+msgstr "إعادة المحاولة"
 
 #. Button label for updating the app to the latest version.
 msgctxt "support-view"
 msgid "Update app"
-msgstr "Opdatér app"
+msgstr "تحديث التطبيق"
 
 #. Button label for opening app logs.
 msgctxt "support-view"
 msgid "View app logs"
-msgstr "Se app-logfiler"
+msgstr "عرض سجلات التطبيق"
 
 msgctxt "support-view"
 msgid "We will look into this."
-msgstr "Vi vil undersøge dette."
+msgstr "سوف ننظر في هذا الأمر."
 
 msgctxt "support-view"
 msgid "You are about to send the problem report without a way for us to get back to you. If you want an answer to your report you will have to enter an email address."
-msgstr "Du er ved at sende rapporten om problemet, men har ikke angivet hvordan vi kan kontakte dig. Hvis du ønsker et svar på din rapport, skal du indtaste en e-mail-adresse."
+msgstr "أنت على وشك إرسال بلاغ بالمشكلة دون توفير وسيلة لنا للرد عليك. إذا كنت تريد الرد على بلاغك، فسيتعين عليك إدخال عنوان بريد إلكتروني."
 
 msgctxt "support-view"
 msgid "You are using an old version of the app. Please upgrade and see if the problem still exists before sending a report."
-msgstr "Du bruger en gammel version af appen. Opgrader og se, om problemet stadig opstår, før du sender en rapport."
+msgstr "أنت تستخدم إصدارًا قديمًا من التطبيق. يُرجى تحديثه والتحقُّق من استمرار المشكلة قبل إرسال البلاغ."
 
 msgctxt "support-view"
 msgid "Your email (optional)"
-msgstr "Din e-mail (valgfrit)"
+msgstr "بريدك الإلكتروني (اختياري)"
 
 msgctxt "tray-icon-context-menu"
 msgid "Disconnected from system service"
-msgstr "Afbrudt fra systemtjenesten"
+msgstr "تم قطع الاتصال عن خدمة النظام"
 
 msgctxt "tray-icon-context-menu"
 msgid "Open %(mullvadVpn)s"
-msgstr "Åbn %(mullvadVpn)s"
+msgstr "فتح %(mullvadVpn)s"
 
 msgctxt "tray-icon-tooltip"
 msgid "%(city)s, %(country)s"
-msgstr "%(city)s, %(country)s"
+msgstr "%(city)s، %(country)s"
 
 msgctxt "tray-icon-tooltip"
 msgid "Connected. %(location)s"
-msgstr "Tilsluttet. %(location)s"
+msgstr "متصل. %(location)s"
 
 msgctxt "tray-icon-tooltip"
 msgid "Connecting. %(location)s"
-msgstr "Tilslutter. %(location)s"
+msgstr "جارٍ الاتصال. %(location)s"
 
 msgctxt "troubleshoot"
 msgid "Disable split tunneling"
-msgstr "Deaktiver split tunneling"
+msgstr "إيقاف الانقسام النفقي"
 
 msgctxt "troubleshoot"
 msgid "Enable “Full Disk Access” for “Mullvad VPN” in the macOS system settings."
-msgstr "Aktiver \"Fuld diskadgang\" for \"Mullvad VPN\" i macOS-systemindstillingerne."
+msgstr "فعِّل \"الوصول الكامل للقرص\" لـ \"Mullvad VPN\" في إعدادات نظام macOS."
 
 msgctxt "troubleshoot"
 msgid "Failed to enable split tunneling. This is because the app is missing system permissions. What you can do:"
-msgstr "Kunne ikke aktivere split tunneling. Dette skyldes, at appen mangler systemtilladelser. Hvad du kan gøre:"
+msgstr "فشل تفعيل الانقسام النفقي لأن التطبيق لا يملك أذونات النظام. يمكنك إجراء ما يلي:"
 
 msgctxt "troubleshoot"
 msgid "If these steps do not work please send a problem report."
-msgstr "Hvis disse trin ikke virker, bedes du indsende en problemrapport."
+msgstr "إذا لم تنجح هذه الخطوات، يُرجى إرسال بلاغ بالمشكلة."
 
 msgctxt "troubleshoot"
 msgid "Make sure you have NF tables support."
-msgstr "Sørg for, at der er understøttelse af NFtables."
+msgstr "تأكَّد من أن لديك دعم جداول NF."
 
 msgctxt "troubleshoot"
 msgid "Open system settings"
-msgstr "Åbn systemindstillinger"
+msgstr "فتح إعدادات النظام"
 
 msgctxt "troubleshoot"
 msgid "This error can happen when something other than Mullvad is actively updating the DNS."
-msgstr "Denne fejl kan opstå, når noget andet end Mullvad aktivt opdaterer DNS."
+msgstr "يمكن أن يحدث هذا الخطأ عندما يقوم شيء آخر غير Mullvad بتحديث DNS بشكلٍ نشط."
 
 msgctxt "troubleshoot"
 msgid "This might be caused by an outdated kernel."
-msgstr "Dette kan være forårsaget af en forældet kerne."
+msgstr "قد يكون السبب في ذلك هو نواة قديمة."
 
 msgctxt "troubleshoot"
 msgid "Try reconnecting."
-msgstr "Prøv at oprette forbindelse igen."
+msgstr "حاول إعادة الاتصال."
 
 msgctxt "troubleshoot"
 msgid "Try restarting your device."
-msgstr "Prøv at genstarte din enhed."
+msgstr "جرِّب إعادة تشغيل جهازك."
 
 msgctxt "troubleshoot"
 msgid "Try to reinstall VMware."
-msgstr "Prøv at geninstallere VMware."
+msgstr "جرِّب إعادة تثبيت VMware."
 
 msgctxt "troubleshoot"
 msgid "Try to turn Wi-Fi Calling off in the FaceTime app settings and restart the Mac."
-msgstr "Prøv at slå Wi-Fi-opkald fra i FaceTime-appens indstillinger, og genstart Mac'en."
+msgstr "جرِّب إيقاف تشغيل مكالمات Wi-Fi في إعدادات تطبيق FaceTime، ثم قم بإعادة تشغيل جهاز Mac."
 
 msgctxt "troubleshoot"
 msgid "Try to uninstall VMware."
-msgstr "Prøv at afinstallere VMware."
+msgstr "جرِّب إلغاء تثبيت VMware."
 
 msgctxt "troubleshoot"
 msgid "Unable to communicate with Mullvad kernel driver."
-msgstr "Kan ikke kommunikere med Mullvad-kernedriveren."
+msgstr "يتعذَّر الاتصال ببرنامج تشغيل نواة Mullvad."
 
 msgctxt "troubleshoot"
 msgid "Unable to start tunnel connection because of a failure when creating the tunnel device. This is often caused by conflicts with the VMware Bridge Protocol."
-msgstr "Kunne ikke starte tunnelforbindelse på grund af en fejl under oprettelse af tunnelenheden. Dette er ofte forårsaget af konflikter med VMware Bridge Protocol."
+msgstr "يتعذَّر بدء اتصال النفق بسبب حدوث فشل أثناء إنشاء جهاز النفق. غالبًا ما يحدث ذلك بسبب وجود تعارضات مع بروتوكول جسر VMware."
 
 msgctxt "troubleshoot"
 msgid "Uninstall or disable other DNS, networking and ads/website blocking apps."
-msgstr "Fjern eller deaktiver andre apps, der blokerer DNS, netværk og annoncer/websteder."
+msgstr "قم بإلغاء تثبيت أو إيقاف تطبيقات DNS والشبكات وتطبيقات حظر الإعلانات/المواقع الإلكترونية الأخرى."
 
 msgctxt "troubleshoot"
 msgid "Update your kernel."
-msgstr "Opdater din kerne."
+msgstr "قم بتحديث النواة."
 
 msgctxt "tunnel-control"
 msgid "Connect"
-msgstr "Opret forbindelse"
+msgstr "الاتصال"
 
 msgctxt "tunnel-control"
 msgid "Switch location"
-msgstr "Skift placering"
+msgstr "تبديل الموقع"
 
 msgctxt "user-interface-settings-view"
 msgid "Animate map"
-msgstr "Animer kort"
+msgstr "تحريك الخريطة"
 
 msgctxt "user-interface-settings-view"
 msgid "Animate map movements."
-msgstr "Animer kortbevægelser."
+msgstr "تحريك انتقالات الخريطة."
 
 msgctxt "user-interface-settings-view"
 msgid "Enable or disable system notifications. The critical notifications will always be displayed."
-msgstr "Aktiver eller deaktiver systemmeddelelser. De kritiske meddelelser vises altid."
+msgstr "فعِّل إشعارات النظام أو أوقفها. سيتم عرض الإشعارات المهمة دائمًا."
 
 msgctxt "user-interface-settings-view"
 msgid "Enable to move the app around as a free-standing window."
-msgstr "Aktiver for at flytte appen rundt som et fritstående vindue."
+msgstr "قم بالتفعيل لنقل التطبيق كنافذة مستقلة."
 
 #. Navigation button to the 'Language' settings view
 msgctxt "user-interface-settings-view"
 msgid "Language"
-msgstr "Sprog"
+msgstr "اللغة"
 
 msgctxt "user-interface-settings-view"
 msgid "Monochromatic tray icon"
-msgstr "Monokromatisk bakkeikon"
+msgstr "أيقونة أحادية اللون في لوحة النظام"
 
 msgctxt "user-interface-settings-view"
 msgid "Notifications"
-msgstr "Meddelelser"
+msgstr "الإشعارات"
 
 msgctxt "user-interface-settings-view"
 msgid "Show only the tray icon when the app starts."
-msgstr "Vis kun bakkeikonet, når appen starter."
+msgstr "أظهر الأيقونة في لوحة النظام عند بدء تشغيل التطبيق فقط."
 
 msgctxt "user-interface-settings-view"
 msgid "Start minimized"
-msgstr "Start minimeret"
+msgstr "البدء في نافذة مُصغَّرة"
 
 msgctxt "user-interface-settings-view"
 msgid "Unpin app from taskbar"
-msgstr "Fjern app fra proceslinjen"
+msgstr "إلغاء تثبيت التطبيق من شريط المهام"
 
 msgctxt "user-interface-settings-view"
 msgid "Use a monochromatic tray icon instead of a colored one."
-msgstr "Brug et monokromatisk bakkeikon i stedet for et farvet."
+msgstr "استخدم أيقونة أحادية اللون في لوحة النظام بدلًا من أيقونة مُلوَّنة."
 
 #. Title label in navigation bar
 msgctxt "user-interface-settings-view"
 msgid "User interface settings"
-msgstr "Brugergrænsefladeindstillinger"
+msgstr "إعدادات واجهة المستخدم"
 
 msgctxt "vpn-settings-view"
 msgid "Add a server"
-msgstr "Tilføj en server"
+msgstr "إضافة خادم"
 
 #. Button label to add a private IP DNS server despite warning.
 msgctxt "vpn-settings-view"
 msgid "Add anyway"
-msgstr "Tilføj alligevel"
+msgstr "الإضافة على أي حال"
 
 #. Label for settings that enables ad blocking.
 msgctxt "vpn-settings-view"
 msgid "Ads"
-msgstr "Annoncer"
+msgstr "الإعلانات"
 
 #. Label for settings that enables block of adult content.
 msgctxt "vpn-settings-view"
 msgid "Adult content"
-msgstr "Voksenindhold"
+msgstr "المحتوى المُخصَّص للبالغين"
 
 #. Label for list item that navigates to anti-censorship
 #. settings view.
 msgctxt "vpn-settings-view"
 msgid "Anti-censorship"
-msgstr "Anti-censur"
+msgstr "مكافحة الرقابة"
 
 msgctxt "vpn-settings-view"
 msgid "Attention: enabling this will always require a Mullvad VPN connection in order to reach the internet."
-msgstr "Bemærk: aktivering af dette medfører, at der altid kræves en Mullvad VPN-forbindelse for at oprette forbindelse til internettet."
+msgstr "انتبه: سيتطلَّب تفعيل هذا الإعداد اتصال Mullvad VPN دائمًا للوصول إلى الإنترنت."
 
 msgctxt "vpn-settings-view"
 msgid "Attention: this setting cannot be used in combination with <b>%(customDnsFeatureName)s</b>"
-msgstr "Bemærk: denne indstilling kan ikke bruges i kombination med <b>%(customDnsFeatureName)s</b>"
+msgstr "انتبه: لا يمكن استخدام هذا الإعداد مع <b>%(customDnsFeatureName)s</b>"
 
 msgctxt "vpn-settings-view"
 msgid "Auto-connect"
-msgstr "Auto-tilslutning"
+msgstr "الاتصال التلقائي"
 
 msgctxt "vpn-settings-view"
 msgid "Automatically connect to a server when the app launches."
-msgstr "Opret automatisk forbindelse til en server, når appen starter."
+msgstr "اتصل تلقائيًا بالخادم عند تشغيل التطبيق."
 
 #. This is displayed when the custom DNS setting is turned on which makes the block
 #. ads/trackers settings disabled. The text enclosed in "<b></b>" will appear bold.
@@ -2438,7 +2462,7 @@ msgstr "Opret automatisk forbindelse til en server, når appen starter."
 #. %(customDnsFeatureName)s - The name displayed next to the custom DNS toggle.
 msgctxt "vpn-settings-view"
 msgid "Disable \"%(customDnsFeatureName)s\" below to activate these settings."
-msgstr "Deaktiver \"%(customDnsFeatureName)s\" nedenfor for at aktivere disse indstillinger."
+msgstr "أوقف \"%(customDnsFeatureName)s\" أدناه لتنشيط هذه الإعدادات."
 
 #. This is displayed when either or both of the block ads/trackers settings are
 #. turned on which makes the custom DNS setting disabled.
@@ -2446,146 +2470,146 @@ msgstr "Deaktiver \"%(customDnsFeatureName)s\" nedenfor for at aktivere disse in
 #. %(preferencesPageName)s - The page title showed on top in the preferences page.
 msgctxt "vpn-settings-view"
 msgid "Disable all <b>DNS content blockers</b> above to activate this setting."
-msgstr "Deaktiver alle <b>DNS-indholdsblokkere</b> ovenfor for at aktivere denne indstilling."
+msgstr "أوقف جميع <b>أدوات حظر محتوى DNS</b> أعلاه لتنشيط هذا الإعداد."
 
 msgctxt "vpn-settings-view"
 msgid "DNS content blockers"
-msgstr "DNS-indholdsblokkere"
+msgstr "أدوات حظر محتوى DNS"
 
 msgctxt "vpn-settings-view"
 msgid "Enable to add at least one DNS server."
-msgstr "Aktiver for at tilføje mindst én DNS-server."
+msgstr "قم بالتفعيل لإضافة خادم DNS واحد على الأقل."
 
 #. Description of in-tunnel IPv6 setting.
 msgctxt "vpn-settings-view"
 msgid "Enable to allow IPv6 traffic through the tunnel."
-msgstr "Aktiver for at tillade IPv6-trafik gennem tunnelen."
+msgstr "قم بالتفعيل للسماح لحركة بيانات IPv6 عبر النفق."
 
 msgctxt "vpn-settings-view"
 msgid "Enter IP"
-msgstr "Indtast IP"
+msgstr "أدخل IP"
 
 #. Label for settings that enables block of gamling related websites.
 msgctxt "vpn-settings-view"
 msgid "Gambling"
-msgstr "Hasardspil"
+msgstr "المقامرة"
 
 #. Title of in-tunnel IPv6 setting.
 msgctxt "vpn-settings-view"
 msgid "In-tunnel IPv6"
-msgstr "IPv6 i tunnel"
+msgstr "IPv6 في النفق"
 
 msgctxt "vpn-settings-view"
 msgid "IPv4 is always enabled and the majority of websites and applications use this protocol. We do not recommend enabling IPv6 unless you know you need it."
-msgstr "IPv4 er altid aktiveret, og de fleste websteder og programmer bruger denne protokol. Vi anbefaler ikke at aktivere IPv6, medmindre du ved, at du har brug for det."
+msgstr "يتم تفعيل IPv4 دائمًا، وتستخدم غالبية المواقع والتطبيقات هذا البروتوكول. لا ننصح بتفعيل IPv6 ما لم تكن متأكدًا من حاجتك إليه."
 
 #. A complimentary description for the setting Device IP version,
 #. explaining why the user might want to configure the setting.
 msgctxt "vpn-settings-view"
 msgid "It can be useful when you are aware of problems caused by a certain IP version."
-msgstr "Det kan være brugbart, hvis man opdager problemer, der skyldes en bestemt IP-version."
+msgstr "يمكن أن يكون هذا مفيدًا عندما تكون على دراية بالمشكلات التي تسببها نسخة عنوان IP مُعيَّنة."
 
 msgctxt "vpn-settings-view"
 msgid "It does this by allowing network communication outside the tunnel to local multicast and broadcast ranges as well as to and from these private IP ranges:"
-msgstr "Det opnås ved at tillade netværkskommunikation uden for tunnelen til lokale multicast- og broadcast-områder samt til og fra disse private IP-intervaller:"
+msgstr "ويفعل ذلك من خلال السماح لاتصال الشبكة خارج النفق بالوصول إلى نطاقات الإرسال المتعدد والبث المحلية، وكذلك بإرسال واستقبال حركة البيانات من نطاقات عناوين IP الخاصة التالية:"
 
 msgctxt "vpn-settings-view"
 msgid "Kill switch"
-msgstr "Kill-switch"
+msgstr "مفتاح الإيقاف التلقائي"
 
 msgctxt "vpn-settings-view"
 msgid "Launch app on start-up"
-msgstr "Start app ved opstart"
+msgstr "تشغيل التطبيق عند بدء التشغيل"
 
 msgctxt "vpn-settings-view"
 msgid "Local network sharing"
-msgstr "Lokal netværksdeling"
+msgstr "مشاركة الشبكة المحلية"
 
 msgctxt "vpn-settings-view"
 msgid "Lockdown mode"
-msgstr "Lockdown-tilstand"
+msgstr "وضع التأمين"
 
 #. Label for settings that enables malware blocking.
 msgctxt "vpn-settings-view"
 msgid "Malware"
-msgstr "Malware"
+msgstr "برامج خبيثة"
 
 msgctxt "vpn-settings-view"
 msgid "Server IP override"
-msgstr "Tilsidesættelse af server-IP"
+msgstr "تجاوز عنوان IP للخادم"
 
 #. Label for settings that enables block of social media.
 msgctxt "vpn-settings-view"
 msgid "Social media"
-msgstr "Sociale medier"
+msgstr "شبكات التواصل الاجتماعي"
 
 msgctxt "vpn-settings-view"
 msgid "The app’s built-in kill switch is always on. This setting will additionally block the internet if clicking Disconnect or Quit."
-msgstr "Appens indbyggede kill-switch er altid slået til. Denne indstilling blokerer desuden internettet, hvis du klikker på Afbryd forbindelse eller Afslut."
+msgstr "مفتاح الإيقاف التلقائي المدمج في التطبيق قيد التشغيل دائمًا. يضيف هذا الإعداد حظرًا للإنترنت أيضًا عند النقر على \"قطع الاتصال\" أو \"إنهاء\"."
 
 msgctxt "vpn-settings-view"
 msgid "The difference between the Kill Switch and Lockdown Mode is that the Kill Switch will prevent any leaks from happening during automatic tunnel reconnects, software crashes and similar accidents."
-msgstr "Forskellen mellem kill-switch og Lockdown-tilstand er, at kill-switch vil forhindre enhver lækage under automatiske tunnelgenopkoblinger, softwarenedbrud og lignende ulykker."
+msgstr "يكمن الفرق بين مفتاح الإيقاف التلقائي ووضع التأمين في أن مفتاح الإيقاف التلقائي سيمنع حدوث أي تسريبات أثناء عمليات إعادة الاتصال التلقائية للنفق، أو تعطُّل البرنامج، أو الحوادث المماثلة."
 
 msgctxt "vpn-settings-view"
 msgid "The difference between the Kill Switch and Lockdown Mode is that the Kill Switch will prevent any leaks from happening during automatic tunnel reconnects, software crashes and similar accidents. With Lockdown Mode enabled, you must be connected to a Mullvad VPN server to be able to reach the internet. Manually disconnecting or quitting the app will block your connection."
-msgstr "Forskellen mellem kill-switch og Lockdown-tilstand er, at kill-switch vil forhindre enhver lækage i at ske under automatiske tunnelgenopkoblinger, softwarenedbrud og lignende ulykker. Med Lockdown-tilstand aktiveret, skal du være forbundet til en Mullvad VPN-server for at kunne nå internettet. Manuel afbrydelse eller nedlukning af appen vil blokere din forbindelse."
+msgstr "يكمن الفرق بين مفتاح الإيقاف التلقائي ووضع التأمين في أن مفتاح الإيقاف التلقائي سيمنع حدوث أي تسريبات أثناء عمليات إعادة الاتصال التلقائية للنفق، أو تعطُّل البرنامج، أو الحوادث المماثلة. مع تفعيل وضع التأمين، يجب أن تكون متصلًا بخادم Mullvad VPN لتتمكن من الوصول إلى الإنترنت. وسيؤدي قطع الاتصال يدويًا أو مغادرة التطبيق إلى حظر اتصالك."
 
 msgctxt "vpn-settings-view"
 msgid "The DNS server you want to add is a private IP. You must ensure that your network interfaces are configured to use it."
-msgstr "Den DNS-server, du ønsker at tilføje, er en privat IP. Du skal sikre, at dine netværksgrænseflader er konfigureret til at bruge den."
+msgstr "خادم DNS الذي ترغب في إضافته هو عنوان IP خاص. يجب عليك التأكد من أن واجهات شبكتك مهيأة لاستخدامه."
 
 msgctxt "vpn-settings-view"
 msgid "This built-in feature prevents your traffic from leaking outside of the VPN tunnel if your network suddenly stops working or if the tunnel fails, it does this by blocking your traffic until your connection is reestablished."
-msgstr "Denne indbyggede funktion forhindrer din trafik i at lække uden for VPN-tunnelen, hvis dit netværk pludselig holder op med at fungere, eller hvis tunnelen svigter, gør den dette ved at blokere din trafik, indtil forbindelsen er genetableret."
+msgstr "تعمل هذه الميزة المدمجة على منع تسريب حركة بياناتك خارج نفق شبكة VPN إذا توقفت شبكتك فجأة عن العمل أو إذا فشل النفق، وتفعل ذلك من خلال حظر حركة البيانات لديك حتى يتم إعادة إنشاء اتصالك."
 
 msgctxt "vpn-settings-view"
 msgid "This feature allows access to other devices on the local network, such as for sharing, printing, streaming, etc."
-msgstr "Denne funktion giver adgang til andre enheder på det lokale netværk, såsom til deling, udskrivning, streaming osv."
+msgstr "تتيح هذه الميزة الوصول إلى أجهزة أخرى على الشبكة المحلية، مثل المشاركة والطباعة والبث وما إلى ذلك."
 
 #. A description for the setting Device IP version,
 #. explaining how the user can configure the setting.
 msgctxt "vpn-settings-view"
 msgid "This feature allows you to choose whether to use only IPv4, only IPv6, or allow the app to automatically decide the best option when connecting to a server."
-msgstr "Denne funktion lader dig vælge, om du kun vil bruge IPv4, kun IPv6 eller om du vil lade appen automatisk vælge den bedste løsning, når du opretter forbindelse til en server."
+msgstr "تتيح لك هذه الميزة اختيار ما إذا كنت تريد استخدام IPv4 فقط، أو IPv6 فقط، أو السماح للتطبيق بتحديد الخيار الأفضل تلقائيًا عند الاتصال بالخادم."
 
 msgctxt "vpn-settings-view"
 msgid "This might cause issues on certain websites, services, and apps."
-msgstr "Dette kan forårsage problemer på visse websteder, tjenester og apps."
+msgstr "قد يؤدي ذلك إلى حدوث مشكلات في بعض المواقع الإلكترونية والخدمات والتطبيقات."
 
 #. Label for settings that enables tracker blocking.
 msgctxt "vpn-settings-view"
 msgid "Trackers"
-msgstr "Trackere"
+msgstr "أدوات التتبُّع"
 
 msgctxt "vpn-settings-view"
 msgid "Tunnel protocol"
-msgstr "Tunnelprotokol"
+msgstr "بروتوكول النفق"
 
 msgctxt "vpn-settings-view"
 msgid "Use custom DNS server"
-msgstr "Brug brugerdefineret DNS-server"
+msgstr "استخدام خادم DNS مُخصَّص"
 
 #. Title label in navigation bar
 msgctxt "vpn-settings-view"
 msgid "VPN settings"
-msgstr "VPN-indstillinger"
+msgstr "إعدادات شبكة VPN"
 
 msgctxt "vpn-settings-view"
 msgid "Warning: The malware blocker is not an anti-virus and should not be treated as such, this is just an extra layer of protection."
-msgstr "Advarsel: Malware-blokkeren er ikke antivirus og bør ikke behandles som sådan. Dette er blot et ekstra lag af beskyttelse."
+msgstr "تحذير: أداة حظر البرامج الضارة ليست برنامجًا مضادًا للفيروسات ولا ينبغي التعامل معها على هذا النحو، فهي مجرد طبقة حماية إضافية."
 
 msgctxt "vpn-settings-view"
 msgid "When this feature is enabled it stops the device from contacting certain domains or websites known for distributing ads, malware, trackers and more."
-msgstr "Når denne funktion er aktiveret, forhindrer den enheden i at kontakte bestemte domæner eller websteder, der er kendt for at distribuere annoncer, malware, trackere og lignende."
+msgstr "عندما يتم تفعيل هذه الميزة، فإنها تمنع الجهاز من الاتصال بمجالات أو مواقع إلكترونية مُعيَّنة معروفة بتوزيع الإعلانات والبرامج الضارة وأدوات التتبُّع وغيرها."
 
 msgctxt "vpn-settings-view"
 msgid "When this feature is enabled, IPv6 can be used alongside IPv4 in the VPN tunnel to communicate with internet services."
-msgstr "Når denne funktion er aktiveret, kan IPv6 bruges sammen med IPv4 i VPN-tunnelen til at kommunikere med internettjenester."
+msgstr "عندما يتم تفعيل هذه الميزة، يمكن استخدام IPv6 جنبًا إلى جنب مع IPv4 في نفق VPN للاتصال بخدمات الإنترنت."
 
 msgctxt "vpn-settings-view"
 msgid "With Lockdown Mode enabled, you must be connected to a Mullvad VPN server to be able to reach the internet. Manually disconnecting or quitting the app will block your connection."
-msgstr "Med Lockdown-tilstand aktiveret, skal du være forbundet til en Mullvad VPN-server for at kunne nå internettet. Manuel afbrydelse eller nedlukning af appen vil blokere din forbindelse."
+msgstr "عند تفعيل وضع التأمين، يجب أن تكون متصلًا بخادم Mullvad VPN لتتمكن من الوصول إلى الإنترنت. سيؤدي قطع اتصال التطبيق أو إغلاقه يدويًا إلى حظر اتصالك."
 
 #. Title label in navigation bar
 msgctxt "wireguard-settings-nav"
@@ -2599,49 +2623,49 @@ msgstr "UDP-over-TCP"
 
 msgctxt "wireguard-settings-view"
 msgid "%(daita)s (%(daitaFull)s) hides patterns in your encrypted VPN traffic."
-msgstr "%(daita)s (%(daitaFull)s) skjuler mønstre i din krypterede VPN-trafik."
+msgstr "يقوم ميزة %(daita)s (%(daitaFull)s) بإخفاء الأنماط في حركة بيانات VPN المُشفَّرة لديك."
 
 msgctxt "wireguard-settings-view"
 msgid "%(daita)s does this by carefully adding network noise and making all network packets the same size."
-msgstr "%(daita)s gør dette ved omhyggeligt at tilføje netværksstøj og gøre alle netværkspakker lige store."
+msgstr "تُجرى ميزة %(daita)s ذلك من خلال إضافة ضوضاء الشبكة بعناية وجعل جميع حزم الشبكة بالحجم نفسه."
 
 msgctxt "wireguard-settings-view"
 msgid "%(wireguard)s port"
-msgstr "%(wireguard)s-port"
+msgstr "منفذ %(wireguard)s"
 
 #. Page title for WireGuard port view
 msgctxt "wireguard-settings-view"
 msgid "%(wireGuard)s port"
-msgstr "%(wireGuard)s-port"
+msgstr "منفذ %(wireGuard)s"
 
 msgctxt "wireguard-settings-view"
 msgid "Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans."
-msgstr "Bemærk: Dette øger netværkstrafikken og vil også påvirke hastighed, ventetid og batteriforbrug negativt. Brug det varsomt på abonnementer med begrænsninger."
+msgstr "تنبيه: يزيد ذلك من حركة بيانات الشبكة، ويؤثر سلبًا على السرعة وزمن الوصول واستهلاك البطارية. يُرجى توخي الحذر عند استخدام الباقات المحدودة."
 
 msgctxt "wireguard-settings-view"
 msgid "By enabling “%(directOnly)s” you will have to manually select a server that is %(daita)s-enabled. This can cause you to end up in a blocked state until you have selected a compatible server in the “Select location” view."
-msgstr "Hvis du aktiverer \"%(directOnly)s\", skal du manuelt vælge en server, der er %(daita)s-aktiveret. Det kan medføre, at du ender i en blokeret tilstand, indtil du har valgt en kompatibel server i visningen \"Vælg placering\"."
+msgstr "بتفعيل \"%(directOnly)s\"، سيتعين عليك اختيار خادم مُفعَّل عليه ميزة %(daita)s يدويًا. قد يؤدي ذلك إلى حظرك حتى تختار خادمًا متوافقًا في شاشة \"تحديد الموقع\"."
 
 msgctxt "wireguard-settings-view"
 msgid "By using sophisticated AI it’s possible to analyze the traffic of data packets going in and out of your device (even if the traffic is encrypted)."
-msgstr "Ved at bruge sofistikeret AI er det muligt at analysere trafikken af datapakker, der går ind og ud af din enhed (selv hvis trafikken er krypteret)."
+msgstr "من خلال استخدام الذكاء الاصطناعي المتطور، من الممكن تحليل حركة حزم البيانات الداخلة والخارجة من جهازك (حتى لو كانت حركة البيانات مشفرة)."
 
 msgctxt "wireguard-settings-view"
 msgid "Cancel"
-msgstr "Annuller"
+msgstr "إلغاء"
 
 #. Title for device IP version setting.
 msgctxt "wireguard-settings-view"
 msgid "Device IP version"
-msgstr "Enhedens IP-version"
+msgstr "نسخة عنوان IP للجهاز"
 
 msgctxt "wireguard-settings-view"
 msgid "If an observer monitors these data packets, %(daita)s makes it significantly harder for them to identify which websites you are visiting or with whom you are communicating."
-msgstr "Hvis en observatør overvåger disse datapakker, gør %(daita)s det betydeligt sværere for dem at identificere, hvilke hjemmesider du besøger, eller hvem du kommunikerer med."
+msgstr "إذا رصد مراقب حزم البيانات هذه، فإن ميزة %(daita)s تجعل من الصعب عليه بشكلٍ كبير تحديد المواقع الإلكترونية التي تزورها أو الأشخاص الذين تتواصل معهم."
 
 msgctxt "wireguard-settings-view"
 msgid "It does this by performing an extra key exchange using a quantum safe algorithm and mixing the result into WireGuard’s regular encryption. This extra step uses approximately 500 kiB of traffic every time a new tunnel is established."
-msgstr "Det gør den ved at udføre en ekstra nøgleudveksling ved hjælp af en kvantesikker algoritme og blande resultatet med WireGuards almindelige kryptering. Dette ekstra trin bruger cirka 500 kB trafik, hver gang en ny tunnel etableres."
+msgstr "وتفعل ذلك من خلال إجراء تبادل مفتاح إضافي باستخدام خوارزمية آمنة ضد هجمات الحواسيب الكميّة، ودمج النتيجة في تشفير WireGuard الاعتيادي. تستهلك هذه الخطوة الإضافية حوالي 500 كيلو بايت من حركة البيانات في كل مرة يتم فيها إنشاء نفق جديد."
 
 #. The title for the WireGuard MTU setting. MTU stands for Maximum
 #. Transmission Unit and controls the maximum size of packets sent over
@@ -2652,43 +2676,43 @@ msgstr "MTU"
 
 msgctxt "wireguard-settings-view"
 msgid "Multihop"
-msgstr "Multihop"
+msgstr "القفز المتعدد"
 
 msgctxt "wireguard-settings-view"
 msgid "Multihop is being used to enable DAITA for your selected location"
-msgstr "Multihop bruges til at aktivere DAITA for din valgte placering"
+msgstr "يتم استخدام القفز المتعدد لتفعيل DAITA لموقعك المُحدَّد"
 
 msgctxt "wireguard-settings-view"
 msgid "Multihop routes your traffic into one WireGuard server and out another, making it harder to trace. This results in increased latency but increases anonymity online."
-msgstr "Multihop dirigerer din trafik ind på en WireGuard-server og ud på en anden, hvilket gør det sværere at spore den. Dette resulterer i øget ventetid, men øger anonymiteten online."
+msgstr "يوجِّه القفز المتعدد حركة البيانات لديك من خادم WireGuard إلى آخر، مما يجعل من الصعب تتبُّعها. ويؤدي ذلك إلى زيادة زمن الوصول، لكنه يزيد من إخفاء الهوية على الإنترنت."
 
 #. Warning text in a dialog that is displayed after a setting is toggled.
 msgctxt "wireguard-settings-view"
 msgid "Not all our servers are %(daita)s-enabled. In order to use the internet, you might have to select a new location after enabling."
-msgstr "Ikke alle vores servere er %(daita)s-kompatible. For at kunne bruge internettet skal du muligvis vælge en ny placering efter aktivering."
+msgstr "ليست كل خوادمنا تدعم ميزة %(daita)s. قد تحتاج إلى اختيار موقع جديد بعد تفعيلها لاستخدام الإنترنت."
 
 msgctxt "wireguard-settings-view"
 msgid "Not all our servers are %(daita)s-enabled. Therefore, we use multihop automatically to enable %(daita)s with any server."
-msgstr "Ikke alle vores servere er %(daita)s-kompatible. Derfor bruger vi automatisk multihop til at aktivere %(daita)s med enhver server."
+msgstr "لم يتم تفعيل ميزة %(daita)s لكل خوادمنا. لذلك، فإننا نستخدم القفز المتعدد تلقائيًا لتفعيل ميزة %(daita)s مع أي خادم."
 
 #. The title for the WireGuard port selector.
 msgctxt "wireguard-settings-view"
 msgid "Port"
-msgstr "Port"
+msgstr "المنفذ"
 
 #. Text showing currently selected port.
 #. Available placeholders:
 #. %(port)s - Can be either a number between 1 and 65535 or the text "Automatic".
 msgctxt "wireguard-settings-view"
 msgid "Port: %(port)s"
-msgstr "Port: %(port)s"
+msgstr "المنفذ: %(port)s"
 
 #. The title for the WireGuard quantum resistance selector. This setting
 #. makes the cryptography resistant to the future abilities of quantum
 #. computers.
 msgctxt "wireguard-settings-view"
 msgid "Quantum-resistant tunnel"
-msgstr "Kvante-modstandsdygtig tunnel"
+msgstr "النفق المقاوم لهجمات الحواسيب الكمّية"
 
 #. The hint displayed below the WireGuard MTU input field.
 #. Available placeholders:
@@ -2697,7 +2721,7 @@ msgstr "Kvante-modstandsdygtig tunnel"
 #. %(min)d - the minimum possible wireguard mtu value
 msgctxt "wireguard-settings-view"
 msgid "Set %(wireguard)s MTU value. Valid range: %(min)d - %(max)d."
-msgstr "Indstil %(wireguard)s MTU-værdi. Gyldigt område: %(min)d - %(max)d."
+msgstr "قم بتعيين قيمة MTU %(wireguard)s. النطاق الصالح: %(min)d - %(max)d."
 
 msgctxt "wireguard-settings-view"
 msgid "Shadowsocks"
@@ -2705,19 +2729,19 @@ msgstr "Shadowsocks"
 
 msgctxt "wireguard-settings-view"
 msgid "Switch to “%(wireguard)s” in Settings > %(tunnelProtocol)s to make %(setting)s available."
-msgstr "Skift til \"%(wireguard)s\" i Indstillinger > %(tunnelProtocol)s for at gøre %(setting)s tilgængelig."
+msgstr "انتقل إلى \"%(wireguard)s\" في الإعدادات > %(tunnelProtocol)s لجعل %(setting)s متاحًا."
 
 msgctxt "wireguard-settings-view"
 msgid "The automatic setting will randomly choose from the valid port ranges shown below."
-msgstr "Den automatiske indstilling vælger tilfældigt fra de gyldige rækker af porte nedenfor."
+msgstr "سيختار الإعداد التلقائي عشوائيًا من نطاقات المنافذ الصالحة المُوضَّحة أدناه."
 
 msgctxt "wireguard-settings-view"
 msgid "The custom port can be any value inside the valid ranges: %(portRanges)s."
-msgstr "Den brugerdefinerede port kan være en hvilken som helst værdi inden for de gyldige intervaller: %(portRanges)s."
+msgstr "يمكن أن يكون المنفذ المُخصَّص أي قيمة ضمن النطاقات الصالحة: %(portRanges)s."
 
 msgctxt "wireguard-settings-view"
 msgid "This feature makes the WireGuard tunnel resistant to potential attacks from quantum computers."
-msgstr "Denne funktion gør WireGuard-tunnelen modstandsdygtig over for potentielle angreb fra kvantecomputere."
+msgstr "تجعل هذه الميزة نفق WireGuard مقاومًا للهجمات المحتملة من الحواسيب الكمّية."
 
 msgctxt "wireguard-settings-view"
 msgid "UDP-over-TCP"
@@ -2726,757 +2750,777 @@ msgstr "UDP-over-TCP"
 #. Text describing the valid port range for a port selector.
 msgctxt "wireguard-settings-view"
 msgid "Valid range: %(min)s - %(max)s"
-msgstr "Gyldigt interval: %(min)s - %(max)s"
+msgstr "النطاق الصالح: %(min)s - %(max)s"
 
 msgctxt "wireguard-settings-view"
 msgid "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server."
-msgstr "Hvilken TCP-port UDP-over-TCP tilsløringsprotokollen skal forbinde til på VPN-serveren."
+msgstr "أي منفذ TCP ينبغي أن يتصل به بروتوكول تمويه UDP-over-TCP على خادم شبكة VPN."
 
 msgid "%1$s more..."
-msgstr "%1$s mere ..."
+msgstr "%1$s أكثر..."
 
 msgid "%1$s was added to \"%2$s\""
-msgstr "%1$s blev tilføjet til \"%2$s\""
+msgstr "تمت إضافة %1$s إلى \"%2$s\""
 
 msgid "%1$s was removed from \"%2$s\""
-msgstr "%1$s blev fjernet fra \"%2$s\""
+msgstr "تمت إزالة %1$s من \"%2$s\""
 
 msgid "%s (Entry)"
-msgstr "%s (indgang)"
+msgstr "%s (دخول)"
 
 msgid "%s (Exit)"
-msgstr "%s (udgang)"
+msgstr "%s (خروج)"
 
 msgid "%s (added)"
-msgstr "%s (tilføjet)"
+msgstr "%s (تمت إضافته)"
 
 msgid "%s (removed)"
-msgstr "%s (er fjernet)"
+msgstr "%s (تمت إزالته)"
 
 msgid "%s custom port"
-msgstr "%s brugerdefineret port"
+msgstr "منفذ %s مُخصَّص"
 
 msgid "%s is already selected as entry relay"
-msgstr "%s er allerede valgt som indgangsrelæ"
+msgstr "تم بالفعل تحديد %s كخادم دخول وسيط"
 
 msgid "%s is already selected as exit relay"
-msgstr "%s er allerede valgt som udgangsrelæ"
+msgstr "تم بالفعل تحديد %s كخادم خروج وسيط"
 
 msgid "%s is unavailable"
-msgstr "%s er ikke tilgængelig"
+msgstr "%s غير متاح"
 
 msgid "%s settings."
-msgstr "%s-indstillinger."
+msgstr "إعدادات %s."
 
 msgid "%s was added to your account."
-msgstr "%s blev føjet til din konto."
+msgstr "تمت إضافة %s إلى حسابك."
 
 msgid "1. After clicking on the \"Go to VPN settings\" button below, click on the cogwheel next to the \"Mullvad VPN\" name."
-msgstr "1. Når du har klikket på knappen \"Gå til VPN-indstillinger \"nedenfor, skal du klikke på tandhjulet ved siden af navnet \"Mullvad VPN\"."
+msgstr "1. بعد النقر على الزر \"الانتقال إلى إعدادات VPN\" أدناه، انقر على الترس الموجود بجوار اسم \"Mullvad VPN\"."
 
 msgid "2. To enable Auto-connect, click on the toggle next to \"Always-on VPN\"."
-msgstr "2. For at aktivere automatisk forbindelse skal du klikke på knappen ved siden af \"Altid-til VPN\"."
+msgstr "2. لتفعيل الاتصال التلقائي، انقر على زر التبديل بجوار \"تشغيل VPN دائمًا\"."
 
 msgid "3. To enable Lockdown mode, click on the toggle next to \"Block connections without VPN\".<br /><br /><b>Warning: This setting blocks split apps and the Local Network Sharing feature.</b>"
-msgstr "3. For at aktivere Lockdown-tilstand skal du klikke på knappen ved siden af \"Bloker forbindelser uden VPN\".<br /><br /><b>Advarsel: Denne indstilling blokerer delte apps og funktionen Lokal netværksdeling.</b>"
+msgstr "3. لتفعيل وضع التأمين، انقر على زر التبديل بجوار \"حظر الاتصالات دون VPN\". <br /><br /><b>تحذير: يحظر هذا الإعداد التطبيقات المُقسَّمة وميزة مشاركة الشبكة المحلية.</b>"
 
 msgid "30 days was added to your account."
-msgstr "30 dage blev føjet til din konto."
+msgstr "تمت إضافة 30 يومًا إلى حسابك."
 
 msgid "90 days was added to your account."
-msgstr "90 dage blev føjet til din konto."
+msgstr "تمت إضافة 90 يومًا إلى حسابك."
 
 msgid "API reachable, adding method..."
-msgstr "API tilgængelig, tilføjer metode..."
+msgstr "واجهة API يمكن الوصول إليها، جارٍ إضافة الطريقة..."
 
 msgid "API unreachable, save method anyway?"
-msgstr "API utilgængelig, gemme metode alligevel?"
+msgstr "واجهة API لا يمكن الوصول إليها، هل تريد حفظ الطريقة على أي حال؟"
 
 msgid "Account credit expires in a few minutes"
-msgstr "Kontokredit udløber om få minutter"
+msgstr "سينتهي رصيد الحساب خلال دقائق قليلة"
 
 msgid "Account credit expires soon"
-msgstr "Kontokredit udløber snart"
+msgstr "سينتهي رصيد الحساب قريبًا"
 
 msgid "Account number is too long, please enter a valid number"
-msgstr "Kontonummeret er for langt. Indtast et gyldigt nummer"
+msgstr "رقم الحساب طويل جدًا، يُرجى إدخال رقم صالح"
 
 msgid "Account time reminders"
-msgstr "Påmindelser om kontotid"
+msgstr "تذكيرات بوقت الحساب"
 
 msgid "Add %s to list"
-msgstr "Føj %s til listen"
+msgstr "إضافة %s إلى القائمة"
 
 msgid "Add 30 days time (%s)"
-msgstr "Tilføj 30 dages tid (%s)"
+msgstr "إضافة 30 يومًا (%s)"
 
 msgid "Add 90 days time (%s)"
-msgstr "Tilføj 90 dages tid (%s)"
+msgstr "إضافة 90 يومًا (%s)"
 
 msgid "Add DNS server"
-msgstr "Tilføj DNS-server"
+msgstr "إضافة خادم DNS"
 
 msgid "Add locations"
-msgstr "Tilføj placeringer"
+msgstr "إضافة المواقع"
 
 msgid "Add time"
-msgstr "Tilføj tid"
+msgstr "إضافة وقت"
 
 msgid "Adding method..."
-msgstr "Tilføjer metode..."
+msgstr "جارٍ إضافة الطريقة..."
 
 msgid "After updating a VPN app on Android 16, devices might end up in a state where VPN apps are no longer able to reach the internet."
-msgstr "Når en VPN-app er blevet opdateret på Android 16, kan enheder ende i en tilstand, hvor VPN-apps ikke længere kan få kontakt til internettet."
+msgstr "بعد تحديث تطبيق VPN على نظام التشغيل Android 16، قد تصل الأجهزة إلى حالة تفقد فيها تطبيقات VPN قدرتها على الوصول إلى الإنترنت."
 
 msgid "Agree and continue"
-msgstr "Accepter og fortsæt"
+msgstr "الموافقة والمتابعة"
 
 msgid "All applications"
-msgstr "Alle applikationer"
+msgstr "جميع التطبيقات"
 
 msgid "All overrides will be reset and servers IP addresses, in the Select location view, will go back to default."
-msgstr "Alle tilsidesættelser vil blive nulstillet, og servernes IP-adresser i visningen Vælg placering vil blive sat tilbage til standard."
+msgstr "ستتم إعادة تعيين كل التجاوزات، وستعود عناوين IP الخاصة بالخوادم في شاشة تحديد الموقع إلى الإعدادات الافتراضية."
 
 msgid "Always-on VPN assigned to %s"
-msgstr "Altid-til VPN tildelt %s"
+msgstr "تم تعيين \"تشغيل VPN دائمًا\" إلى %s"
 
 msgid "Always-on VPN assigned to other VPN"
-msgstr "Altid-til VPN tildelt en anden VPN"
+msgstr "تم تعيين \"تشغيل VPN دائمًا\" إلى شبكة VPN أخرى"
 
 msgid "Android 16 has a known issue. Please restart your device and try again. To learn more,"
-msgstr "Android 16 har et kendt problem. Genstart din enhed, og prøv igen. For at få mere at vide"
+msgstr "هناك مشكلة معروفة في نظام Android 16. يُرجى إعادة تشغيل جهازك وإعادة المحاولة. لمعرفة المزيد،"
 
 msgid "Are you sure you want to log <b>%s</b> out?"
-msgstr "Er du sikker på, at du vil logge <b>%s</b> af?"
+msgstr "هل تريد بالتأكيد تسجيل خروج <b>%s</b>؟"
 
 msgid "At least one method needs to be enabled"
-msgstr "Mindst én metode skal aktiveres"
+msgstr "يجب تفعيل طريقة واحدة على الأقل"
 
 msgid "Attention: If \"Block connections without VPN\" is enabled, \"Local network sharing\" will not work."
-msgstr "Bemærk: Hvis \"Bloker forbindelser uden VPN\" er aktiveret, vil \"Lokal netværksdeling\" ikke fungere."
+msgstr "انتبه: إذا تم تفعيل \"حظر الاتصالات دون VPN\"، فلن تعمل \"مشاركة الشبكة المحلية\"."
 
 msgid "Attention: If \"Block connections without VPN\" is enabled, split apps will not have Internet. Always keep in mind that split tunneling is a privacy risk."
-msgstr "Bemærk: Hvis \"Bloker forbindelser uden VPN\" er aktiveret, vil delte apps ikke have internet. Husk altid, at delt tunnelføring er en risiko for privatlivets fred."
+msgstr "تنبيه: في حال تفعيل \"حظر الاتصالات دون VPN\"، لن تتمكن التطبيقات المُقسَّمة من الاتصال بالإنترنت. تذكَّر دائمًا أن الانقسام النفقي يُشكِّل خطرًا على الخصوصية."
 
 msgid "Attention: Shadowsocks can increase battery consumption depending on data usage, such as streaming a video."
-msgstr "Bemærk: Shadowsocks kan øge batteriforbruget afhængigt af dataforbruget, f.eks. under streaming af en video."
+msgstr "انتبه: قد يؤدي استخدام بروتوكول Shadowsocks إلى زيادة استهلاك البطارية بناءً على استخدام البيانات، مثل بث فيديو."
 
 msgid "Attention: this setting cannot be used in combination with \"Use custom DNS server\"."
-msgstr "Bemærk: Denne indstilling kan ikke bruges i kombination med \"Brug brugerdefineret DNS-server\"."
+msgstr "انتبه: لا يمكن استخدام هذا الإعداد مع \"استخدام خادم DNS مُخصَّص\"."
 
 msgid "Auto-connect & Lockdown mode"
-msgstr "Auto-tilslutning og Lockdown-tilstand"
+msgstr "الاتصال التلقائي ووضع التأمين"
 
 msgid "Auto-connect is called Always-on VPN in the Android system settings and it makes sure you are constantly connected to the VPN tunnel and auto connects after restart."
-msgstr "Auto-tilslutning kaldes Altid-til VPN i Android-systemindstillingerne, og det sørger for, at du konstant er forbundet til VPN-tunnelen og automatisk forbinder efter genstart."
+msgstr "يُطلق على الاتصال التلقائي اسم \"تشغيل VPN دائمًا\" في إعدادات نظام Android، ويتأكد من اتصالك الدائم بنفق VPN ويتصل تلقائيًا بعد إعادة التشغيل."
 
 msgid "Automatically connect on device start-up."
-msgstr "Forbind automatisk, når enheden startes."
+msgstr "الاتصال تلقائيًا عند بدء تشغيل الجهاز."
 
 msgid "Blocking internet (device offline)"
-msgstr "Blokering af internet (enhed offline)"
+msgstr "حظر الإنترنت (الجهاز غير متصل بالإنترنت)"
 
 msgid "Blocking..."
-msgstr "Blokerer ..."
+msgstr "جارٍ الحظر..."
 
 msgid "By attaching your account token it links this report to your account, which helps us resolve your issue quicker. All reports are automatically deleted after a period of time."
-msgstr "Ved at vedhæfte dit konto-token knyttes denne rapport til din konto, og det hjælper os med at løse dit problem hurtigere. Alle rapporter bliver automatisk slettet efter noget tid."
+msgstr "من خلال ربط رمز حسابك، يتم ربط هذا البلاغ بحسابك، مما يساعدنا على حل مشكلتك بشكلٍ أسرع. يتم حذف جميع البلاغات تلقائيًا بعد فترة زمنية مُحدَّدة."
 
 msgid "Can't connect?"
-msgstr "Kan du ikke oprette forbindelse?"
+msgstr "هل يتعذَّر الاتصال؟"
 
 msgid "Changes to DNS related settings might not go into effect immediately due to cached results."
-msgstr "Ændringer af DNS-relaterede indstillinger træder muligvis ikke i kraft med det samme på grund af cachelagrede resultater."
+msgstr "قد لا تدخل التغييرات المتعلقة بإعدادات DNS حيز التنفيذ فورًا بسبب النتائج المُخزَّنة مؤقتًا."
 
 msgid "Clear input"
-msgstr "Ryd input"
+msgstr "مسح الإدخال"
 
 msgid "Collapse"
-msgstr "Skjul"
+msgstr "طي"
 
 msgid "Connect on device start-up"
-msgstr "Opret forbindelse ved opstart af enheden"
+msgstr "الاتصال عند بدء تشغيل الجهاز"
 
 msgid "Connect to a different network"
-msgstr "Opret forbindelse til et andet netværk"
+msgstr "الاتصال بشبكة مختلفة"
 
 msgid "Connecting..."
-msgstr "Tilslutter..."
+msgstr "جارٍ الاتصال..."
 
 msgid "Copied Mullvad account number to clipboard"
-msgstr "Kopierede Mullvad-kontonummer til udklipsholder"
+msgstr "تم نسخ رقم حساب Mullvad إلى الحافظة"
 
 msgid "Copied logs to clipboard"
-msgstr "Kopierede logfiler til udklipsholder"
+msgstr "تم نسخ السجلات إلى الحافظة"
 
 msgid "Copy"
-msgstr "Kopiér"
+msgstr "نسخ"
 
 msgid "Create"
-msgstr "Opret"
+msgstr "إنشاء"
 
 msgid "Create account"
-msgstr "Opret konto"
+msgstr "إنشاء حساب"
 
 msgid "Create new list"
-msgstr "Opret ny liste"
+msgstr "إنشاء قائمة جديدة"
 
 msgid "Creating account failed"
-msgstr "Oprettelse af konto mislykkedes"
+msgstr "فشل إنشاء الحساب"
 
 msgid "Critical error (your attention is required)"
-msgstr "Kritisk fejl (som kræver din opmærksomhed)"
+msgstr "خطأ فادح (يتطلَّب انتباهك)"
 
 msgid "Current: %s"
-msgstr "Aktuel: %s"
+msgstr "الحالي: %s"
 
 msgid "Custom DNS server addresses %1$s are invalid"
-msgstr "Tilpassede DNS-serveradresser %1$s er ugyldige"
+msgstr "عناوين خادم DNS المُخصَّصة %1$s غير صالحة"
 
 msgid "DNS settings might not go into effect immediately"
-msgstr "DNS-indstillinger træder muligvis ikke i kraft med det samme"
+msgstr "قد لا يتم تطبيق إعدادات DNS على الفور"
 
 msgid "Delete \"%s\"?"
-msgstr "Vil du slette \"%s\"?"
+msgstr "هل تريد حذف \"%s\"؟"
 
 msgid "Delete method"
-msgstr "Slet metode"
+msgstr "حذف الطريقة"
 
 msgid "Delete method?"
-msgstr "Vil du slette metoden?"
+msgstr "هل تريد حذف الطريقة؟"
 
 msgid "Disable all \"%s\" above to activate this setting."
-msgstr "Deaktiver alle \"%s\" ovenfor for at aktivere denne indstilling."
+msgstr "إيقاف كل \"%s\" أعلاه لتنشيط هذا الإعداد."
 
 msgid "Disable multihop"
-msgstr "Deaktiver multihop"
+msgstr "إيقاف القفز المتعدد"
 
 msgid "Disable recents"
-msgstr "Deaktiver nylige"
+msgstr "إيقاف المواقع الحديثة"
 
 msgid "Discard"
-msgstr "Kassér"
+msgstr "تجاهل"
 
 msgid "Discard changes?"
-msgstr "Vil du kassere ændringer?"
+msgstr "هل تريد تجاهل التغييرات؟"
 
 msgid "Disconnected (No VPN permission)"
-msgstr "Afbrudt (ingen VPN-tilladelse)"
+msgstr "تم قطع الاتصال (لا يوجد إذن VPN)"
 
 msgid "Disconnecting..."
-msgstr "Afbryder..."
+msgstr "جارٍ قطع الاتصال..."
 
 msgid "Dismiss"
-msgstr "Afvis"
+msgstr "تجاهل"
 
 msgid "Don’t have an account number?"
-msgstr "Har du ikke noget kontonummer?"
+msgstr "ليس لديك رقم حساب؟"
 
 msgid "Edit custom lists"
-msgstr "Rediger tilpassede lister"
+msgstr "تعديل القوائم المُخصَّصة"
 
 msgid "Edit list"
-msgstr "Rediger liste"
+msgstr "تعديل القائمة"
 
 msgid "Edit lists"
-msgstr "Rediger lister"
+msgstr "تعديل القوائم"
 
 msgid "Edit locations"
-msgstr "Rediger placeringer"
+msgstr "تعديل المواقع"
 
 msgid "Edit name"
-msgstr "Rediger navn"
+msgstr "تعديل الاسم"
 
 msgid "Enable %1$s"
-msgstr "Aktivér %1$s"
+msgstr "تفعيل %1$s"
 
 msgid "Enable all & retry"
-msgstr "Aktiver alle og prøv igen"
+msgstr "تفعيل الكل وإعادة المحاولة"
 
 msgid "Enable all access methods in the app"
-msgstr "Aktiver alle adgangsmetoder i appen"
+msgstr "تفعيل جميع طرق الوصول في التطبيق"
 
 msgid "Enable method"
-msgstr "Aktiver metode"
+msgstr "تفعيل الطريقة"
 
 msgid "Enable multihop"
-msgstr "Aktivér multihop"
+msgstr "تفعيل القفز المتعدد"
 
 msgid "Enable recents"
-msgstr "Aktivér nylige"
+msgstr "تفعيل المواقع الحديثة"
 
 msgid "Enter MTU"
-msgstr "Indtast MTU"
+msgstr "أدخل MTU"
 
 msgid "Entry relay is the same as exit relay"
-msgstr "Indgangsrelæ er det samme som udgangsrelæ"
+msgstr "الخادم الوسيط للدخول هو نفسه الخادم الوسيط للخروج"
 
 msgid "Excluded applications"
-msgstr "Ekskluderede applikationer"
+msgstr "التطبيقات المستثناة"
 
 msgid "Expand"
-msgstr "Udvid"
+msgstr "توسيع"
 
 msgid "FAILED TO CONNECT"
-msgstr "KUNNE IKKE OPRETTE FORBINDELSE"
+msgstr "فشل الاتصال"
 
 msgid "Failed to apply patch"
-msgstr "Det lykkedes ikke at anvende patch"
+msgstr "فشل تطبيق التصحيح"
 
 msgid "Failed to load products, please try again"
-msgstr "Kunne ikke indlæse produkter, prøv igen"
+msgstr "فشل تحميل المنتجات، يُرجى إعادة المحاولة"
 
 msgid "Failed to set to current - API not reachable"
-msgstr "Kunne ikke indstilles til aktuel - API ikke tilgængelig"
+msgstr "فشل التعيين إلى الحالي - واجهة API غير قابلة للوصول"
 
 msgid "Failed to set to current - Unknown reason"
-msgstr "Kunne ikke indstilles til aktuel - Ukendt årsag"
+msgstr "فشل التعيين إلى الطريقة الحالية - السبب غير معروف"
 
 msgid "File"
-msgstr "Fil"
+msgstr "ملف"
 
 msgid "For details, please see our %s."
-msgstr "Se vores %s for at få flere oplysninger."
+msgstr "للحصول على التفاصيل، يُرجى الاطلاع على %s لدينا."
 
 msgid "For the VPN to connect automatically on device startup, the app must have VPN permissions. You can grant these by clicking “Connect” in the map view and selecting “OK” if prompted. Additionally, ensure the app is installed on the internal storage by checking the storage information in the app details in system settings."
-msgstr "For at VPN kan forbindes automatisk, når enheden startes, skal appen have VPN-tilladelser. Du kan tildele disse ved at klikke på \"Forbind\" i kortvisningen og vælge \"OK\", hvis du bliver bedt om det. Sørg desuden for, at appen er installeret på interne lager ved at tjekke lageroplysninger i appdetaljerne i systemindstillinger."
+msgstr "لكي تتصل شبكة VPN تلقائيًا عند بدء تشغيل الجهاز، يجب أن يمتلك التطبيق أذونات شبكة VPN. يمكنك منحها بالنقر على \"اتصال\" في عرض الخريطة واختيار \"موافق\" عند الطلب. بالإضافة إلى ذلك، تأكَّد من تثبيت التطبيق على وحدة التخزين الداخلية من خلال التحقُّق من معلومات التخزين في قسم \"تفاصيل التطبيق\" ضمن إعدادات النظام."
 
 msgid "Go to VPN settings"
-msgstr "Gå til VPN-indstillinger"
+msgstr "الانتقال إلى إعدادات VPN"
 
 msgid "Going to login will unblock the internet on this device."
-msgstr "Hvis du logger på, ophæves blokeringen af internettet på denne enhed."
+msgstr "سيؤدي تسجيل الدخول إلى إلغاء حظر الإنترنت على هذا الجهاز."
 
 msgid "Google Play payment pending"
-msgstr "Google Play-betaling afventer"
+msgstr "الدفع من خلال Google Play مُعلَّق"
 
 msgid "Google Play payment pending, this might take some time"
-msgstr "Google Play-betaling afventer, det kan tage lidt tid"
+msgstr "الدفع من خلال Google Play مُعلَّق، قد يستغرق هذا بعض الوقت"
 
 msgid "Google Play unavailable"
-msgstr "Google Play er ikke tilgængelig"
+msgstr "Google Play غير متاح"
 
 msgid "IPv4 is not available, please try changing \"Device IP version\" setting."
-msgstr "IPv4 er ikke tilgængelig, prøv at ændre indstillingen \"Enhedens IP-version\"."
+msgstr "IPv4 غير متاح، يُرجى محاولة تغيير إعداد \"نسخة عنوان IP للجهاز\"."
 
 msgid "IPv6 is not available, please try changing \"Device IP version\" setting."
-msgstr "IPv6 er ikke tilgængelig, prøv at ændre indstillingen \"Enhedens IP-version\"."
+msgstr "IPv6 غير متاح، يُرجى محاولة تغيير إعداد \"نسخة عنوان IP للجهاز\"."
 
 msgid "If the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
-msgstr "Hvis funktionen split tunneling bruges, beder appen dit system om en liste over alle installerede programmer. Denne liste hentes kun i split tunnel-visningen. Listen over installerede programmer sendes aldrig fra enheden."
+msgstr "في حال استخدام ميزة الانقسام النفقي، يستعلم التطبيق من نظامك للحصول على قائمة بجميع التطبيقات المُثبَّتة. يتم استدعاء هذه القائمة في شاشة الانقسام النفقي فقط. ولا يتم إرسال قائمة التطبيقات المُثبَّتة من الجهاز أبدًا."
 
 msgid "If these steps don’t work, please send an email to support using the button below. It will automatically attach the logs which have been anonymized."
-msgstr "Hvis disse trin ikke virker, kan du sende en e-mail til support via knappen nedenfor. Den vil automatisk vedhæfte de logfiler, som er blevet anonymiseret."
+msgstr "إذا لم تنجح هذه الخطوات في حال المشكلة، يُرجى مراسلة فريق الدعم عبر البريد الإلكتروني باستخدام الزر أدناه. سيتم تلقائيًا إرفاق السجلات التي تم إخفاء هويتها."
 
 msgid "Import new overrides by"
-msgstr "Importer nye tilsidesættelser med"
+msgstr "استيراد تجاوزات جديدة بواسطة"
 
 msgid "Import successful, overrides active"
-msgstr "Importen lykkedes, tilsidesættelser aktive"
+msgstr "تم الاستيراد بنجاح، التجاوزات نشطة"
 
 msgid "Importing new overrides might replace some previously imported overrides."
-msgstr "Import af nye tilsidesættelser vil muligvis erstatte nogle tidligere importerede tilsidesættelser."
+msgstr "قد يحل استيراد التجاوزات الجديدة محل بعض التجاوزات التي تم استيرادها سابقًا."
 
 msgid "In-app products unavailable, please make sure you have the latest version of Google Play."
-msgstr "Produkter i appen er ikke tilgængelige, sørg for at du har den nyeste version af Google Play."
+msgstr "المنتجات داخل التطبيق غير متاحة، يُرجى التأكد من تثبيت أحدث إصدار من Google Play."
 
 msgid "Include my account token for faster help with payment or account related issues"
-msgstr "Inkluder min konto-token for hurtigere hjælp med betalings- eller kontorelaterede problemer"
+msgstr "تضمين رمز حسابي للحصول على مساعدة أسرع فيما يتعلق بالدفع أو المشكلات المتعلقة بالحساب"
 
 msgid "Invalid or missing value \"%1$s\""
-msgstr "Ugyldig eller manglende værdi \"%1$s\""
+msgstr "القيمة \"%1$s\" غير صالحة أو مفقودة"
 
 msgid "Lets you select apps that should access the Internet directly without going through the VPN tunnel."
-msgstr "Giver dig mulighed for at vælge apps, der skal have direkte adgang til internettet uden at gå gennem VPN-tunnelen."
+msgstr "يتيح لك تحديد التطبيقات التي يجب أن تصل إلى الإنترنت مباشرةً دون المرور عبر نفق VPN."
 
 msgid "List name"
-msgstr "Listenavn"
+msgstr "اسم القائمة"
 
 msgid "Loading products"
-msgstr "Indlæser produkter"
+msgstr "جارٍ تحميل المنتجات"
 
 msgid "Locations"
-msgstr "Placeringer"
+msgstr "المواقع"
 
 msgid "Locations were changed for \"%s\""
-msgstr "Placeringer blev ændret for \"%s\""
+msgstr "تم تغيير المواقع لـ \"%s\""
 
 msgid "Makes sure the device is always on the VPN tunnel."
-msgstr "Sørger for, at enheden altid er på VPN-tunnelen."
+msgstr "يضمن هذا الخيار بقاء الجهاز متصلًا دائمًا بنفق VPN."
 
 msgid "More actions"
-msgstr "Flere handlinger"
+msgstr "إجراءات إضافية"
 
 msgid "Mullvad services unavailable"
-msgstr "Mullvad-tjenester er ikke tilgængelige"
+msgstr "خدمات Mullvad غير متاحة"
 
 msgid "Name was changed to %s"
-msgstr "Navnet blev ændret til %s"
+msgstr "تم تغيير الاسم إلى %s"
 
 msgid "New list"
-msgstr "Ny liste"
+msgstr "قائمة جديدة"
 
 msgid "No Android app store installed, could not open link"
-msgstr "Der er ikke installeret nogen Android-appbutik, og linket kunne ikke åbnes"
+msgstr "لم يتم تثبيت متجر تطبيقات Android، تعذَّر فتح الرابط"
 
 msgid "No browser app installed, could not open link"
-msgstr "Der er ikke installeret nogen browser-app, så linket kunne ikke åbnes"
+msgstr "لم يتم تثبيت تطبيق متصفح، تعذَّر فتح الرابط"
 
 msgid "No changelog was added for this version"
-msgstr "Der blev ikke føjet nogen ændringslog til denne version"
+msgstr "لم تتم إضافة سجل تغييرات لهذا الإصدار"
 
 msgid "No custom lists available"
-msgstr "Ingen brugerdefinerede lister tilgængelige"
+msgstr "لا توجد قوائم مُخصَّصة متاحة"
 
 msgid "No email app available on the device"
-msgstr "Ingen e-mailapp tilgængelig på enheden"
+msgstr "لا يتوفَّر تطبيق بريد إلكتروني على الجهاز"
 
 msgid "No entry server match your settings, try changing server or other settings."
-msgstr "Ingen indgangsserver matcher dine indstillinger. Prøv at ændre server eller andre indstillinger."
+msgstr "لا يوجد خادم دخول متطابق مع إعداداتك، جرِّب تغيير الخادم أو أي إعدادات أخرى."
 
 msgid "No exit server match your settings, try changing server or other settings."
-msgstr "Ingen udgangsserver matcher dine indstillinger. Prøv at ændre server eller andre indstillinger."
+msgstr "لا يوجد خادم خروج متطابق مع إعداداتك، جرِّب تغيير الخادم أو أي إعدادات أخرى."
 
 msgid "No internet connection"
-msgstr "Ingen internetforbindelse"
+msgstr "لا يتوفَّر اتصال بالإنترنت"
 
 msgid "No matching servers found."
-msgstr "Der blev ikke fundet nogen matchende servere."
+msgstr "لم يتم العثور على خوادم مطابقة."
 
 msgid "No recent selection history"
-msgstr "Ingen nylig valghistorik"
+msgstr "لا يوجد سجل اختيارات حديث"
 
 msgid "No result for \"%s\", please try a different search"
-msgstr "Intet resultat for \"%s\". Prøv en anden søgning"
+msgstr "لم يتم العثور على نتائج للبحث عن \"%s\"، يُرجى تجربة بحث مختلف"
 
 msgid "Not found"
-msgstr "Ikke fundet"
+msgstr "غير موجود"
 
 msgid "Obfuscation hides the WireGuard traffic inside another protocol. It can be used to help circumvent censorship and other types of filtering, where a plain WireGuard connection would be blocked."
-msgstr "Tilsløring skjuler WireGuard-trafikken inden i en anden protokol. Det kan bruges til at hjælpe med at omgå censur og andre typer filtrering, hvor en almindelig WireGuard-forbindelse ville blive blokeret."
+msgstr "يُخفي التمويه حركة بيانات WireGuard داخل بروتوكول آخر. ويمكن استخدامه للمساعدة في تجاوز الرقابة وأنواع التصفية الأخرى، حيث يتم حظر اتصال WireGuard العادي."
 
 msgid "Open app details"
-msgstr "Se oplysninger om app"
+msgstr "فتح تفاصيل التطبيق"
 
 msgid "Overrides active"
-msgstr "Tilsidesættelser aktive"
+msgstr "التجاوزات نشطة"
 
 msgid "Overrides cleared"
-msgstr "Tilsidesættelser ryddet"
+msgstr "تم مسح التجاوزات"
 
 msgid "Overrides inactive"
-msgstr "Tilsidesættelser inaktive"
+msgstr "التجاوزات غير نشطة"
 
 msgid "Password (optional)"
-msgstr "Adgangskode (valgfrit)"
+msgstr "كلمة المرور (اختيارية)"
 
 msgid "Paste or write overrides to be imported"
-msgstr "Indsæt eller skriv tilsidesættelser, der skal importeres"
+msgstr "الصق أو اكتب التجاوزات المراد استيرادها"
 
 msgid "Patch not matching specification"
-msgstr "Patch matcher ikke specifikationen"
+msgstr "التصحيح لا يطابق المواصفات"
 
 msgid "Please enter a valid IPv4 or IPv6 address"
-msgstr "Indtast en gyldig IPv4- eller IPv6-adresse"
+msgstr "يُرجى إدخال عنوان IPv4 أو IPv6 صالح"
 
 msgid "Please enter a valid remote server port"
-msgstr "Indtast en gyldig fjernserverport"
+msgstr "يُرجى إدخال منفذ خادم بعيد صالح"
 
 msgid "Please press connect to request VPN permission"
-msgstr "Tryk på Opret forbindelse for at anmode om VPN-tilladelse"
+msgstr "يُرجى الضغط على \"اتصال\" لطلب إذن VPN"
 
 msgid "Please restart your device and try connecting again. If this does not work, please write an email to %s in Swedish or English."
-msgstr "Genstart din enhed, og prøv at oprette forbindelse igen. Hvis det ikke hjælper, kan du skrive en e-mail til %s på svensk eller engelsk."
+msgstr "يُرجى إعادة تشغيل جهازك ومحاولة الاتصال مرة أخرى. إذا لم ينجح ذلك، يُرجى إرسال رسالة بريد إلكتروني إلى %s باللغة السويدية أو الإنجليزية."
 
 msgid "Please try changing your filters."
-msgstr "Prøv at ændre dine filtre."
+msgstr "يُرجى محاولة تغيير عوامل التصفية لديك."
 
 msgid "Privacy"
-msgstr "Privatliv"
+msgstr "الخصوصية"
 
 msgid "Privacy policy"
-msgstr "Fortrolighedspolitik"
+msgstr "سياسة الخصوصية"
 
 msgid "Recents"
-msgstr "Nylige"
+msgstr "المواقع الحديثة"
 
 msgid "Recents disabled and history cleared"
-msgstr "Nylige er deaktiveret og historikken ryddet"
+msgstr "تم إيقاف المواقع الحديثة ومسح السجل"
 
 msgid "Recursion limit"
-msgstr "Rekursionsgrænse"
+msgstr "حد التكرار"
 
 msgid "Remove %1$s from %2$s"
-msgstr "Fjern %1$s fra %2$s"
+msgstr "إزالة %1$s من %2$s"
 
 msgid "Remove %s?"
-msgstr "Fjern %s?"
+msgstr "هل تريد إزالة %s؟"
 
 msgid "Remove custom port"
-msgstr "Fjern brugerdefineret port"
+msgstr "إزالة المنفذ المُخصَّص"
 
 msgid "Reset"
-msgstr "Nulstil"
+msgstr "إعادة التعيين"
 
 msgid "Reset all overrides"
-msgstr "Nulstil alle tilsidesættelser"
+msgstr "إعادة تعيين كل التجاوزات"
 
 msgid "Reset overrides"
-msgstr "Nulstil tilsidesættelser"
+msgstr "إعادة تعيين التجاوزات"
 
 msgid "Reset to default"
-msgstr "Nulstil til standard"
+msgstr "إعادة التعيين إلى الإعدادات الافتراضية"
 
 msgid "Restart your device"
-msgstr "Genstart din enhed"
+msgstr "إعادة تشغيل الجهاز"
 
 msgid "Search"
-msgstr "Søg"
+msgstr "بحث"
 
 msgid "Send email"
-msgstr "Send e-mail"
+msgstr "إرسال رسالة بريد إلكتروني"
 
 msgid "Set %s obfuscation to \"Automatic\" or \"Off\" below to activate this setting."
-msgstr "Sæt %s-tilsløring til \"Automatisk\" eller \"Fra\" nedenfor for at aktivere denne indstilling."
+msgstr "قم بتعيين تمويه %s على \"تلقائي\" أو \"إيقاف\" أدناه لتنشيط هذا الإعداد."
 
 msgid "Set WireGuard MTU value. Valid range: %1$d - %2$d."
-msgstr "Indstil WireGuard MTU-værdi. Gyldigt område: %1$d - %2$d."
+msgstr "قم بتعيين قيمة WireGuard MTU. النطاق الصالح: %1$d - %2$d."
 
 msgid "Set port"
-msgstr "Indstil port"
+msgstr "تعيين المنفذ"
 
 msgid "Share…"
-msgstr "Del…"
+msgstr "مشاركة…"
 
 msgid "Show location in notification"
-msgstr "Vis placering i notifikation"
+msgstr "إظهار الموقع في الإشعار"
 
 msgid "Show system apps"
-msgstr "Vis systemapps"
+msgstr "إظهار تطبيقات النظام"
 
 msgid "Shows current VPN tunnel status"
-msgstr "Viser den aktuelle VPN-tunnelstatus"
+msgstr "يظهر حالة نفق VPN الحالية"
 
 msgid "Shows reminders when the account time is about to expire"
-msgstr "Viser påmindelser, når kontotiden er ved at udløbe"
+msgstr "يظهر تذكيرات عندما يكون وقت الحساب على وشك الانتهاء"
 
 msgid "Submit"
-msgstr "Indsend"
+msgstr "إرسال"
 
 msgid "TCP"
 msgstr "TCP"
 
 msgid "Test method"
-msgstr "Testmetode"
+msgstr "طريقة الاختبار"
 
 msgid "Testing %s..."
-msgstr "Tester %s..."
+msgstr "جارٍ اختبار %s..."
 
 msgid "Text"
-msgstr "Tekst"
+msgstr "نص"
 
 msgid "The Auto-connect and Lockdown mode settings can be found in the Android system settings, follow this guide to enable one or both."
-msgstr "Indstillingerne for automatisk forbindelse og Lockdown-tilstand kan findes i Android- systemindstillingerne. Følg denne vejledning for at aktivere en eller begge."
+msgstr "يمكن العثور على إعدادات \"الاتصال التلقائي\" و\"وضع التأمين\" في إعدادات نظام Android. اتَّبع هذا الدليل لتفعيل أحدهما أو كليهما."
 
 msgid "The IPv6 DNS server will not work unless you enable \"IPv6\" under VPN settings."
-msgstr "IPv6 DNS-serveren fungerer ikke, medmindre du aktiverer \"IPv6\" under VPN-indstillinger."
+msgstr "لن يعمل خادم IPv6 DNS ما لم يتم تفعيل \"IPv6\" ضمن إعدادات VPN."
 
 msgid "The Lockdown mode is called \"Block connections without VPN\" in the Android system settings. It helps minimize leaks, however it has some known limitations which you can read more about"
-msgstr "Lockdown-tilstanden kaldes \"Bloker forbindelser uden VPN\" i Android-systemindstillingerne. Det hjælper med at minimere lækager, men det har nogle kendte begrænsninger, som du kan læse mere om"
+msgstr "يُسمَّى \"وضع التأمين\" باسم \"حظر الاتصالات دون VPN\" في إعدادات نظام Android. يساعد هذا الوضع في تقليل التسريبات، لكن لديه بعض القيود المعروفة التي يمكنك قراءة المزيد عنها"
 
 msgid "The \"Current\" method represent which method the app is using to reach the API."
-msgstr "Den \"aktuelle\" metode er den metode, som appen bruger til at nå API'en."
+msgstr "تُمثِّل الطريقة \"الحالية\" الطريقة التي يستخدمها التطبيق للوصول إلى واجهة API."
 
 msgid "The app is blocking internet, please disconnect first"
-msgstr "Appen blokerer for internet, afbryd først forbindelsen"
+msgstr "التطبيق يحظر الإنترنت، يُرجي قطع الاتصال أولًا"
 
 msgid "The app was unable to create an account due to not being able to reach the Mullvad API."
-msgstr "Appen kunne ikke oprette en konto, da den ikke kunne nå Mullvad API."
+msgstr "لم يتمكن التطبيق من إنشاء حساب لعدم قدرته على الوصول إلى Mullvad API."
 
 msgid "The app was unable to login due to not being able to reach the Mullvad API."
-msgstr "Appen kunne ikke logge på, da den ikke kunne nå Mullvad API."
+msgstr "لم يتمكن التطبيق من تسجيل الدخول بسبب عدم قدرته على الوصول إلى Mullvad API."
 
 msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under VPN settings."
-msgstr "Den lokale DNS-server fungerer ikke, medmindre du aktiverer \"Lokal netværksdeling\" under VPN-indstillinger."
+msgstr "لن يعمل خادم DNS المحلي ما لم يتم تفعيل خاصية \"مشاركة الشبكة المحلية\" ضمن إعدادات شبكة VPN."
 
 msgid "The selected %s port is not supported, please change it under"
-msgstr "Den valgte port til %s understøttes ikke, ændr den under"
+msgstr "المنفذ المُحدَّد %s غير مدعوم، يُرجى تغييره ضمن"
 
 msgid "This address has already been entered."
-msgstr "Denne adresse er allerede blevet indtastet."
+msgstr "لقد تم إدخال هذا العنوان بالفعل."
 
 msgid "This field is required"
-msgstr "Dette felt er påkrævet"
+msgstr "هذا الحقل مطلوب"
 
 msgid "This impacts your anonymity"
-msgstr "Dette påvirker din anonymitet"
+msgstr "يؤثر ذلك على إخفاء هويتك"
 
 msgid "This is already set as current"
-msgstr "Den er allerede indstillet som aktuel"
+msgstr "تم بالفعل تعيين هذه الطريقة كالطريقة الحالية"
 
 msgid "This might be due to censorship or network issues. Please try to:"
-msgstr "Det kan være pga. censur eller netværksproblemer. Prøv at:"
+msgstr "قد يكون هذا بسبب الرقابة أو مشكلات في الشبكة. يُرجى تجربة ما يلي:"
 
 msgid "Time added"
-msgstr "Tid tilføjet"
+msgstr "تمت إضافة الوقت"
 
 msgid "To add locations to a list, press the pen or long press on a country, city, or server."
-msgstr "For at føje placeringer til en liste kan du trykke på pennen eller foretage et langt tryk på et land, en by eller en server."
+msgstr "لإضافة مواقع إلى قائمة، اضغط على القلم أو اضغط مطولًا على اسم البلد أو المدينة أو الخادم."
 
 msgid "To create a custom list press the \"+\""
-msgstr "For at oprette en brugerdefineret liste kan du trykke på \"+\""
+msgstr "لإنشاء قائمة مُخصَّصة، اضغط على \"+\""
 
 msgid "To make sure that you have the most secure version and to inform you of any issues with the current version that is running, the app performs version checks automatically. This sends the app version and Android system version to Mullvad servers. Mullvad keeps counters on number of used app versions and Android versions. The data is never stored or used in any way that can identify you."
-msgstr "For at sørge for, at du har den mest sikre version og for at informere dig om eventuelle problemer med den aktuelle version, der kører, udfører appen automatisk versionstjek. Dette sender app-versionen og Android-systemversionen til Mullvad-servere. Mullvad holder tal på antallet af brugte app-versioner og Android-versioner. Dataene bliver aldrig opbevaret eller brugt på nogen måde, der kan identificere dig."
+msgstr "للتأكد من استخدامك للإصدار الأكثر أمانًا وإبلاغك بأي مشكلات في الإصدار الحالي قيد التشغيل، يُجري التطبيق عمليات فحص للإصدار تلقائيًا يتم خلالها إرسال إصدار التطبيق وإصدار نظام Android إلى خوادم Mullvad. تحتفظ Mullvad بعدادات لعدد إصدارات التطبيق وإصدارات Android المُستخدَمة. لا يتم تخزين البيانات أو استخدامها بأي طريقة يمكن من خلالها تحديد هويتك."
 
 msgid "Toggle VPN"
-msgstr "Slå VPN til/fra"
+msgstr "زر تبديل VPN"
 
 msgid "Too many attempts, please try again later"
-msgstr "For mange forsøg, prøv igen senere"
+msgstr "تم إجراء عدد كبير جدًا من المحاولات، يُرجى إعادة المحاولة لاحقًا"
 
 msgid "UDP"
 msgstr "UDP"
 
 msgid "Unable to apply firewall rules. Please troubleshoot or send a problem report."
-msgstr "Kan ikke anvende firewallregler. Fejlfind eller send en problemrapport."
+msgstr "يتعذَّر تطبيق قواعد جدار الحماية. يُرجى استكشاف الأخطاء وإصلاحها أو إرسال بلاغ بالمشكلة."
 
 msgid "Unable to parse patch"
-msgstr "Kan ikke fortolke patch"
+msgstr "يتعذَّر تحليل التصحيح"
 
 msgid "Unable to reach API"
-msgstr "Kan ikke nå API"
+msgstr "يتعذَّر الوصول إلى واجهة API"
 
 msgid "Unable to reach API, %s"
-msgstr "Kan ikke nå API, %s"
+msgstr "يتعذَّر الوصول إلى واجهة API، %s"
 
 msgid "Unable to start tunnel connection. Please disable Always-on VPN before using Mullvad VPN."
-msgstr "Kunne ikke starte tunnelforbindelse. Deaktiver Altid-til VPN før brug af Mullvad VPN."
+msgstr "يتعذَّر بدء اتصال النفق. يُرجى إيقاف \"تشغيل VPN دائمًا\" قبل استخدام Mullvad VPN."
 
 msgid "Unable to start tunnel connection. Please disable Always-on VPN for <b>%s</b> before using Mullvad VPN."
-msgstr "Kunne ikke starte tunnelforbindelse. Deaktiver Altid-til VPN for <b>%s</b>."
+msgstr "يتعذَّر بدء اتصال النفق. يُرجى إيقاف \"تشغيل VPN دائمًا\" لـ <b>%s</b> قبل استخدام Mullvad VPN."
 
 msgid "Unavailable"
-msgstr "Ikke tilgængelig"
+msgstr "غير متوفر"
 
 msgid "Undo"
-msgstr "Fortryd"
+msgstr "تراجع"
 
 msgid "Unknown or prohibited key \"%1$s\""
-msgstr "Ukendt eller ikke-tilladt nøgle \"%1$s\""
+msgstr "مفتاح غير معروف أو محظور \"%1$s\""
 
 msgid "Update DNS server"
-msgstr "Opdater DNS-server"
+msgstr "تحديث خادم DNS"
 
 msgid "Update list name"
-msgstr "Opdater listenavn"
+msgstr "تحديث اسم القائمة"
 
 msgid "Update server list"
-msgstr "Opdater serverlisten"
+msgstr "تحديث قائمة الخوادم"
 
 msgid "Updating server list in the background..."
-msgstr "Opdaterer serverlisten i baggrunden ..."
+msgstr "جارٍ تحديث قائمة الخوادم في الخلفية..."
 
 msgid "Use method"
-msgstr "Brug metode"
+msgstr "استخدام الطريقة"
 
 msgid "VPN Settings not available on device"
-msgstr "VPN-indstillinger er ikke tilgængelige på enheden"
+msgstr "إعدادات شبكة VPN غير متاحة على الجهاز"
 
 msgid "VPN permission error"
-msgstr "VPN-tilladelsesfejl"
+msgstr "خطأ في إذن شبكة VPN"
 
 msgid "VPN permission was denied"
-msgstr "VPN-tilladelse blev afvist"
+msgstr "تم رفض إذن شبكة VPN"
 
 msgid "VPN permission was denied or another app has \"Always-on VPN\" enabled"
-msgstr "VPN-tilladelse blev afvist, eller en anden app har \"VPN altid aktiveret\""
+msgstr "تم رفض إذن شبكة VPN أو يوجد تطبيق آخر تم تفعيل خيار \"تشغيل VPN دائمًا\" عليه"
 
 msgid "VPN tunnel status"
-msgstr "VPN-tunnelstatus"
+msgstr "حالة نفق شبكة VPN"
 
 msgid "Valid ranges: %s"
-msgstr "Gyldige områder: %s"
+msgstr "النطاقات الصالحة: %s"
 
 msgid "Verifying API method..."
-msgstr "Bekræfter API-metode..."
+msgstr "جار التحقُّق من طريقة واجهة API..."
 
 msgid "Verifying purchase"
-msgstr "Bekræfter køb"
+msgstr "جارٍ التحقُّق من عملية الشراء"
 
 msgid "Verifying purchase..."
-msgstr "Bekræfter køb..."
+msgstr "جارٍ التحقُّق من عملية الشراء..."
 
 msgid "Verifying voucher…"
-msgstr "Bekræfter kupon…"
+msgstr "جارٍ التحقُّق من القسيمة…"
 
 msgid "We are still verifying your purchase, this might take some time. Your time will be added if the verification is successful."
-msgstr "Vi er stadig ved at bekræfte dit køb, det kan tage noget tid. Din tid vil blive tilføjet, hvis bekræftelsen lykkes."
+msgstr "ما زلنا نتحقَّق من عملية الشراء، قد يستغرق ذلك بعض الوقت. ستتم إضافة مدتك في حال نجاح التحقُّق."
 
 msgid "We were unable to start the payment process, please make sure you have the latest version of Google Play."
-msgstr "Vi kunne ikke starte betalingsprocessen. Sørg for, at du har den nyeste version af Google Play."
+msgstr "لم نتمكن من بدء عملية الدفع، يُرجى التأكد من أن لديك الإصدار الأحدث من Google Play."
 
 msgid "We were unable to start the payment process, please try again later."
-msgstr "Vi kunne ikke starte betalingsprocessen. Prøv igen senere."
+msgstr "لم نتمكن من بدء عملية الدفع، يُرجى إعادة المحاولة لاحقًا."
 
 msgid "Welcome, this device is now called <b>%s</b>."
-msgstr "Velkommen, denne enhed har nu fået navnet <b>%s</b>."
+msgstr "مرحبًا، يُسمَّى هذا الجهاز الآن <b>%s</b>."
 
 msgid "WireGuard MTU"
 msgstr "WireGuard MTU"
 
 msgid "WireGuard obfuscation"
-msgstr "WireGuard-tilsløring"
+msgstr "تمويه WireGuard"
 
 msgid "WireGuard port"
-msgstr "WireGuard-port"
+msgstr "منفذ WireGuard"
 
 msgid "Yes, log out device"
-msgstr "Ja, log enhed af"
+msgstr "نعم، تسجيل الخروج من الجهاز"
 
 msgid "\"%s\" was created"
-msgstr "\"%s\" blev oprettet"
+msgstr "تم إنشاء \"%s\""
 
 msgid "\"%s\" was deleted"
-msgstr "\"%s\" blev slettet"
+msgstr "تم حذف \"%s\""
 
 msgid "click here"
-msgstr "klik her"
+msgstr "انقر هنا"
 
 msgid "here"
-msgstr "her"
+msgstr "هنا"
 
 msgid "less than one day"
-msgstr "mindre end én dag"
+msgstr "أقل من يوم"
 
 msgid "privacy policy"
-msgstr "fortrolighedspolitik"
+msgstr "سياسة الخصوصية"
 
 msgid "read more here"
-msgstr "læs mere her"
+msgstr "أقرأ المزيد هنا"
 
 msgid "%d day"
 msgid_plural "%d days"
-msgstr[0] "%d dag"
-msgstr[1] "%d dage"
+msgstr[0] "%d يوم"
+msgstr[1] "يوم واحد (%d)"
+msgstr[2] "يومان (%d)"
+msgstr[3] "%d أيام"
+msgstr[4] "%d يومًا"
+msgstr[5] "%d يوم"
 
 msgid "%d location"
 msgid_plural "%d locations"
-msgstr[0] "%d placering"
-msgstr[1] "%d placeringer"
+msgstr[0] "%d موقع"
+msgstr[1] "موقع واحد (%d)"
+msgstr[2] "موقعان (%d)"
+msgstr[3] "%d مواقع"
+msgstr[4] "%d موقعًا"
+msgstr[5] "%d موقع"
 
 msgid "%d month"
 msgid_plural "%d months"
-msgstr[0] "%d måned"
-msgstr[1] "%d måneder"
+msgstr[0] "%d شهر"
+msgstr[1] "شهر واحد (%d)"
+msgstr[2] "شهران (%d)"
+msgstr[3] "%d أشهر"
+msgstr[4] "%d شهرًا"
+msgstr[5] "%d شهر"
 
 msgid "Account credit expires in a day"
 msgid_plural "Account credit expires in %d days"
-msgstr[0] "Kontokredit udløber om en dag"
-msgstr[1] "Kontokredit udløber om %d dage"
+msgstr[0] "ستنتهي صلاحية رصيد الحساب بعد %d يوم"
+msgstr[1] "ستنتهي صلاحية رصيد الحساب بعد يوم واحد"
+msgstr[2] "ستنتهي صلاحية رصيد الحساب بعد يومين (%d)"
+msgstr[3] "ستنتهي صلاحية رصيد الحساب بعد %d أيام"
+msgstr[4] "ستنتهي صلاحية رصيد الحساب بعد %d يومًا"
+msgstr[5] "ستنتهي صلاحية رصيد الحساب بعد %d يوم"
 
 msgid "Account credit expires in an hour"
 msgid_plural "Account credit expires in %d hours"
-msgstr[0] "Kontokredit udløber om en time"
-msgstr[1] "Kontokredit udløber om %d timer"
+msgstr[0] "ستنتهي صلاحية رصيد الحساب بعد %d ساعة"
+msgstr[1] "ستنتهي صلاحية رصيد الحساب بعد ساعة واحدة"
+msgstr[2] "ستنتهي صلاحية رصيد الحساب بعد ساعتين (%d)"
+msgstr[3] "ستنتهي صلاحية رصيد الحساب بعد %d ساعات"
+msgstr[4] "ستنتهي صلاحية رصيد الحساب بعد %d ساعة"
+msgstr[5] "ستنتهي صلاحية رصيد الحساب بعد %d ساعة"
 
