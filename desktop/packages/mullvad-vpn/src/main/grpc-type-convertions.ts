@@ -28,7 +28,6 @@ import {
   ICustomList,
   IDevice,
   IObfuscationEndpoint,
-  IProxyEndpoint,
   IRelayListCity,
   IRelayListCountry,
   IRelayListHostname,
@@ -46,7 +45,6 @@ import {
   ObfuscationSettings,
   ObfuscationType,
   Ownership,
-  ProxyType,
   Quic,
   RelayLocation,
   RelayLocationGeographical,
@@ -342,7 +340,6 @@ function convertFromTunnelStateRelayInfo(
       endpoint: {
         ...state.tunnelEndpoint,
         protocol: convertFromTransportProtocol(state.tunnelEndpoint.protocol),
-        proxy: state.tunnelEndpoint.proxy && convertFromProxyEndpoint(state.tunnelEndpoint.proxy),
         obfuscationEndpoint:
           state.tunnelEndpoint.obfuscation &&
           state.tunnelEndpoint.obfuscation.single &&
@@ -404,19 +401,6 @@ function convertFromFeatureIndicator(
     case grpcTypes.FeatureIndicator.WIREGUARD_PORT:
       return FeatureIndicator.wireGuardPort;
   }
-}
-
-function convertFromProxyEndpoint(proxyEndpoint: grpcTypes.ProxyEndpoint.AsObject): IProxyEndpoint {
-  const proxyTypeMap: Record<grpcTypes.ProxyEndpoint.ProxyType, ProxyType> = {
-    [grpcTypes.ProxyEndpoint.ProxyType.CUSTOM]: 'custom',
-    [grpcTypes.ProxyEndpoint.ProxyType.SHADOWSOCKS]: 'shadowsocks',
-  };
-
-  return {
-    ...proxyEndpoint,
-    protocol: convertFromTransportProtocol(proxyEndpoint.protocol),
-    proxyType: proxyTypeMap[proxyEndpoint.proxyType],
-  };
 }
 
 function convertFromObfuscationEndpoint(
