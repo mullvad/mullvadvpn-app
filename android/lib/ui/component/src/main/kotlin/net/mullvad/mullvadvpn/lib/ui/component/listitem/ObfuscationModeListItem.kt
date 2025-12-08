@@ -16,6 +16,7 @@ import net.mullvad.mullvadvpn.lib.ui.component.DividerButton
 import net.mullvad.mullvadvpn.lib.ui.component.R
 import net.mullvad.mullvadvpn.lib.ui.component.preview.SelectObfuscationListItemPreviewParameterProvider
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Hierarchy
+import net.mullvad.mullvadvpn.lib.ui.designsystem.ListItemClickArea
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
 import net.mullvad.mullvadvpn.lib.ui.tag.BUTTON_ARROW_RIGHT_TEST_TAG
 
@@ -60,6 +61,7 @@ fun ObfuscationModeListItem(
         iconContentDescription = null,
         onClick = { onSelected(obfuscationMode) },
         testTag = testTag,
+        mainClickArea = ListItemClickArea.LeadingAndMain,
         trailingContent = {
             DividerButton(
                 modifier = Modifier.testTag(buttonRightTestTag),

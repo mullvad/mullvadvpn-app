@@ -23,6 +23,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Hierarchy
+import net.mullvad.mullvadvpn.lib.ui.designsystem.ListItemClickArea
 import net.mullvad.mullvadvpn.lib.ui.designsystem.ListItemDefaults
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadListItem
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
@@ -66,6 +67,7 @@ fun SelectableListItem(
     isSelected: Boolean,
     isEnabled: Boolean = true,
     iconContentDescription: String? = null,
+    mainClickArea: ListItemClickArea = ListItemClickArea.All,
     onClick: (() -> Unit)? = null,
     testTag: String? = null,
     content: @Composable ((BoxScope.() -> Unit)),
@@ -78,6 +80,7 @@ fun SelectableListItem(
         isEnabled = isEnabled,
         isSelected = isSelected,
         testTag = testTag,
+        mainClickArea = mainClickArea,
         onClick = onClick,
         leadingContent = {
             AnimatedVisibility(
@@ -117,6 +120,7 @@ fun SelectableListItem(
     isEnabled: Boolean = true,
     title: String,
     iconContentDescription: String? = null,
+    mainClickArea: ListItemClickArea = ListItemClickArea.All,
     onClick: (() -> Unit)? = null,
     testTag: String? = null,
     trailingContent: @Composable ((BoxScope.() -> Unit))? = null,
@@ -129,6 +133,7 @@ fun SelectableListItem(
         isEnabled = isEnabled,
         iconContentDescription = iconContentDescription,
         testTag = testTag,
+        mainClickArea = mainClickArea,
         onClick = onClick,
         content = { Text(title) },
         trailingContent = trailingContent,
@@ -145,6 +150,7 @@ fun SelectableListItem(
     title: String,
     subtitle: String,
     iconContentDescription: String? = null,
+    mainClickArea: ListItemClickArea = ListItemClickArea.All,
     onClick: (() -> Unit)? = null,
     testTag: String? = null,
     trailingContent: @Composable ((BoxScope.() -> Unit))? = null,
@@ -157,6 +163,7 @@ fun SelectableListItem(
         iconContentDescription = iconContentDescription,
         isSelected = isSelected,
         testTag = testTag,
+        mainClickArea = mainClickArea,
         onClick = onClick,
         content = {
             Column {

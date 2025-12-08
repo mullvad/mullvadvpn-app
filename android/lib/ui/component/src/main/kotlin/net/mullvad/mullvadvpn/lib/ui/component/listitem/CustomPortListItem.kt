@@ -16,6 +16,7 @@ import net.mullvad.mullvadvpn.lib.ui.component.DividerButton
 import net.mullvad.mullvadvpn.lib.ui.component.R
 import net.mullvad.mullvadvpn.lib.ui.component.preview.PreviewSpacedColumn
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Hierarchy
+import net.mullvad.mullvadvpn.lib.ui.designsystem.ListItemClickArea
 import net.mullvad.mullvadvpn.lib.ui.designsystem.ListItemDefaults
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
 import net.mullvad.mullvadvpn.lib.ui.util.applyIfNotNull
@@ -76,6 +77,7 @@ fun CustomPortListItem(
         isSelected = isSelected,
         testTag = mainTestTag,
         onClick = onMainCellClicked,
+        mainClickArea = ListItemClickArea.LeadingAndMain,
         content = {
             Column {
                 TitleAndSubtitle(
