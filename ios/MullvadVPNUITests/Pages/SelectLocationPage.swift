@@ -64,6 +64,11 @@ class SelectLocationPage: Page {
         return self
     }
 
+    @discardableResult func tapToggleMultihop() -> Self {
+        app.buttons[AccessibilityIdentifier.toggleMultihopButton].tap()
+        return self
+    }
+
     func locationCellIsExpanded(_ name: String) -> Bool {
         let matchingCells = app.cells.containing(.any, identifier: name)
         return matchingCells.buttons[AccessibilityIdentifier.expandButton].exists ? false : true
@@ -73,4 +78,21 @@ class SelectLocationPage: Page {
         let editCustomListsButton = app.buttons[AccessibilityIdentifier.editCustomListButton]
         XCTAssertTrue(editCustomListsButton.isEnabled == enabled)
     }
+
+    @discardableResult func verifyMultihopOff() -> Self {
+        let textElement = app.buttons["Enable multihop"]
+
+        XCTAssertTrue(textElement.exists)
+
+        return self
+    }
+
+    @discardableResult func verifyMultihopOn() -> Self {
+        let textElement = app.buttons["Disable multihop"]
+
+        XCTAssertTrue(textElement.exists)
+
+        return self
+    }
+
 }
