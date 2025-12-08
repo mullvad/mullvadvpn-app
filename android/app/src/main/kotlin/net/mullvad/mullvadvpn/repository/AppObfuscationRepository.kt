@@ -66,5 +66,9 @@ class AppObfuscationRepository(
 
 enum class AppObfuscation(val path: String, val iconId: Int, val labelId: Int) {
     DEFAULT(".ui.obfuscation.MainActivityDefault", R.drawable.logo_icon, R.string.app_name),
-    GAME(".ui.obfuscation.MainActivityAltGame", R.drawable.ic_launcher_game_preview, R.string.app_name_game),
+    GAME(
+        ".ui.obfuscation.MainActivityAltGame",
+        R.drawable.ic_launcher_game_preview,
+        R.string.app_name_game,
+    ),
 }

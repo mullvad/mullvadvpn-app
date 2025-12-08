@@ -486,4 +486,6 @@
     <string name="custom_port_recommended_range_first"><b>Attention:</b> Only some servers support the full port range.</string>
     <string name="custom_port_recommended_range_second">Valid range for all servers: %s</string>
     <string name="app_obfuscation">App obfuscation</string>
+    <string name="appearance">Appearance</string>
+    <string name="icon_and_title">Icon and title</string>
 </resources>

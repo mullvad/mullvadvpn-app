@@ -22,10 +22,10 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.destinations.ApiAccessListDestination
 import com.ramcosta.composedestinations.generated.destinations.AppInfoDestination
+import com.ramcosta.composedestinations.generated.destinations.AppObfusctationDestination
 import com.ramcosta.composedestinations.generated.destinations.DaitaDestination
 import com.ramcosta.composedestinations.generated.destinations.MultihopDestination
 import com.ramcosta.composedestinations.generated.destinations.NotificationSettingsDestination
-import com.ramcosta.composedestinations.generated.destinations.AppObfusctationDestination
 import com.ramcosta.composedestinations.generated.destinations.ReportProblemDestination
 import com.ramcosta.composedestinations.generated.destinations.SplitTunnelingDestination
 import com.ramcosta.composedestinations.generated.destinations.VpnSettingsDestination
@@ -96,8 +96,7 @@ fun Settings(navigator: DestinationsNavigator) {
         onBackClick = dropUnlessResumed { navigator.navigateUp() },
         onNotificationSettingsCellClick =
             dropUnlessResumed { navigator.navigate(NotificationSettingsDestination()) },
-        onAppObfuscationClick =
-            dropUnlessResumed { navigator.navigate(AppObfusctationDestination) },
+        onAppObfuscationClick = dropUnlessResumed { navigator.navigate(AppObfusctationDestination) },
     )
 }
 
@@ -202,10 +201,11 @@ private fun LazyListScope.content(
     }
 
     itemWithDivider {
-            NavigationComposeCell(
-                title = stringResource(id = R.string.app_obfuscation),
-                onClick = onAppObfuscationClick,
-            )
+        NavigationListItem(
+            title = stringResource(id = R.string.appearance),
+            onClick = onAppObfuscationClick,
+            position = Position.Middle,
+        )
     }
 
     item { AppInfo(onAppInfoClick, state) }
