@@ -102,22 +102,20 @@ function convertFromRelayListCity(city: grpcTypes.RelayListCity): IRelayListCity
   const cityObject = city.toObject();
   return {
     ...cityObject,
-    relays: city.getRelaysList().map(convertFromRelayListRelay),
+    relays: city
+      .getRelaysList()
+      .map(convertFromRelayListRelay)
+      // TODO: Remove once daemon only sends wireguard relays.
+      .filter((relay) => relay !== undefined),
   };
 }
 
-function convertFromRelayListRelay(relay: grpcTypes.Relay): IRelayListHostname {
+function convertFromRelayListRelay(relay: grpcTypes.Relay): IRelayListHostname | undefined {
   const relayObject = relay.toObject();
 
-  // The relay type is determined by the variant of the extra endpoint data
+  // TODO: This should be removed once daemon only sends wireguard relays.
   const wireguard = relayObject.endpointData?.wireguard;
-  const bridge = relayObject.endpointData?.bridge;
-
-  const endpointType = wireguard
-    ? 'wireguard'
-    : bridge
-      ? 'bridge'
-      : /*This case should never happen ..*/ 'bridge';
+  if (!wireguard) return undefined;
 
   const daita = wireguard ? wireguard.daita : false;
   const quic = wireguard?.quic ? quicFromRelayType(wireguard.quic) : undefined;
@@ -125,7 +123,6 @@ function convertFromRelayListRelay(relay: grpcTypes.Relay): IRelayListHostname {
 
   return {
     ...relayObject,
-    endpointType,
     daita,
     quic,
     lwo,

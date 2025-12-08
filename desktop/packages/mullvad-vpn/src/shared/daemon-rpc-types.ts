@@ -358,7 +358,6 @@ export interface IRelayListHostname {
   active: boolean;
   weight: number;
   owned: boolean;
-  endpointType: RelayEndpointType;
   daita: boolean;
   // The absence of this value signals that the relay does not deploy QUIC.
   quic?: Quic;
@@ -370,8 +369,6 @@ export type Quic = {
   token: string;
   addrIn: string[];
 };
-
-export type RelayEndpointType = 'wireguard' | 'openvpn' | 'bridge';
 
 export interface ITunnelOptions {
   mtu?: number;
