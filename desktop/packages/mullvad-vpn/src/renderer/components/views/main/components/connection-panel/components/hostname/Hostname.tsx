@@ -36,13 +36,7 @@ export function Hostname() {
 
 function getHostnameText(connection: IConnectionReduxState) {
   let hostname = '';
-
-  if (connection.hostname && connection.bridgeHostname) {
-    hostname = sprintf(messages.pgettext('connection-info', '%(relay)s via %(entry)s'), {
-      relay: connection.hostname,
-      entry: connection.bridgeHostname,
-    });
-  } else if (connection.hostname && connection.entryHostname) {
+  if (connection.hostname && connection.entryHostname) {
     hostname = sprintf(
       // TRANSLATORS: The hostname line displayed below the country on the main screen
       // TRANSLATORS: Available placeholders:
