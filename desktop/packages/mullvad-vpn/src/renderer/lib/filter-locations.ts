@@ -19,18 +19,6 @@ import {
 } from '../redux/settings/reducers';
 import { IpAddress, IPv4Address, IPv6Address } from './ip';
 
-export enum EndpointType {
-  any,
-  entry,
-  exit,
-}
-
-export function filterLocationsByEndPointType(
-  locations: IRelayLocationCountryRedux[],
-): IRelayLocationCountryRedux[] {
-  return filterLocationsImpl(locations, getTunnelProtocolFilter());
-}
-
 export function filterLocationsByQuic(
   locations: IRelayLocationCountryRedux[],
   quic: boolean,
@@ -122,10 +110,6 @@ function containsIpVersionAddr(addrs: string[], version: LiftedConstraint<IpVers
       return false;
     }
   });
-}
-
-function getTunnelProtocolFilter(): (relay: IRelayLocationRelayRedux) => boolean {
-  return (relay) => ['wireguard'].includes(relay.endpointType);
 }
 
 function getOwnershipFilter(

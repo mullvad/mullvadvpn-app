@@ -13,7 +13,6 @@ import {
   ObfuscationType,
   Ownership,
   Quic,
-  RelayEndpointType,
   RelayLocation,
   RelayOverride,
   RelayProtocol,
@@ -52,7 +51,6 @@ export interface IRelayLocationRelayRedux {
   active: boolean;
   owned: boolean;
   weight: number;
-  endpointType: RelayEndpointType;
   daita: boolean;
   quic?: Quic;
   lwo: boolean;
