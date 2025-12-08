@@ -8,6 +8,7 @@ use std::{
     time::Duration,
 };
 
+use anyhow::Context;
 use reqwest::header::{CONTENT_LENGTH, HeaderValue, RANGE};
 use tokio::{
     fs::{self, File},
@@ -182,12 +183,12 @@ pub async fn get_to_file(
         get_to_writer(&mut file, url, progress_updater, size_hint, read_timeout).await
     {
         if !err.should_retry() {
-            anyhow::bail!(err);
+            return Err(err.into());
         }
         attempts += 1;
         read_timeout *= 2;
         if attempts >= MAX_RETRY_ATTEMPTS {
-            anyhow::bail!("Max retry attempts reached: {err}");
+            return Err(err).context("Max retry attempts reached");
         }
         log::warn!("Download failed: {err}. Retrying in with timeout: {read_timeout:?}");
     }
