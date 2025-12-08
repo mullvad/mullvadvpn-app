@@ -17,16 +17,6 @@ fun ConnectPage.disablePostQuantumStory() {
     uiDevice.pressBackTwice()
 }
 
-fun ConnectPage.enablePostQuantumStory() {
-    clickSettings()
-    on<SettingsPage> { clickVpnSettings() }
-    on<VpnSettingsPage> {
-        scrollUntilPostQuantumCell()
-        assertPostQuantumState(true)
-    }
-    uiDevice.pressBackTwice()
-}
-
 enum class ObfuscationOption {
     WireguardPort,
     Udp2Tcp,
