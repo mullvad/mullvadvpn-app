@@ -97,6 +97,7 @@
     <string name="copy_account_number">Копировать номер учетной записи</string>
     <string name="create">Создать</string>
     <string name="create_account">Создать учетную запись</string>
+    <string name="create_account_fail_title">Не удалось создать учетную запись</string>
     <string name="create_custom_list_message">Список «%1$s» создан</string>
     <string name="create_new_account">Создать учетную запись</string>
     <string name="create_new_account_warning_paragraph1">У вас уже есть сохраненный номер учетной записи. При создании новой учетной записи сохраненный номер удалится с этого устройства. Это действие нельзя будет отменить.</string>
@@ -169,10 +170,12 @@
     <string name="edit_method">Изменение метода</string>
     <string name="edit_name">Изменить имя</string>
     <string name="enable">Включить</string>
+    <string name="enable_all_methods">Включить все и повторить попытку</string>
     <string name="enable_anyway">Всё равно включить</string>
     <string name="enable_custom_dns">Пользовательский DNS-сервер</string>
     <string name="enable_direct_only">Включить режим %1$s</string>
     <string name="enable_ipv6">IPv6 внутри туннеля</string>
+    <string name="enable_location_in_notification">Показывать местоположение в уведомлении</string>
     <string name="enable_method">Включить метод</string>
     <string name="enable_recents">Включить недавние</string>
     <string name="encrypted_dns_proxy_info_message_part1">При использовании метода «Прокси через зашифрованный DNS» приложение будет взаимодействовать с API Mullvad через прокси-адрес. Полученный от сервера «DNS по HTTPS» (DoH) адрес будет использоваться для доступа к нашим серверам API.</string>
@@ -214,6 +217,10 @@
     <string name="import_overrides_import">Импортировать</string>
     <string name="import_overrides_text_title">Импортировать через текст</string>
     <string name="in_app_products_unavailable">Встроенные покупки недоступны — убедитесь, что у вас установлена последняя версия Google Play.</string>
+    <string name="include_account_token_checkbox_text">Прикрепить токен моей учетной записи для ускоренной помощи по вопросам, связанным с оплатой или учетной записью</string>
+    <string name="include_account_token_warning_message_first">Прикрепляя токен своей учетной записи, вы привяжете это сообщение к своей учетной записи, что поможет нам быстрее решить вашу проблему. Все сообщения автоматически удаляются через определенный период времени.</string>
+    <string name="include_account_token_warning_message_second">Подробнее смотрите здесь: %1$s.</string>
+    <string name="include_account_token_warning_title">Это влияет на вашу анонимность</string>
     <string name="invalid_dns_servers">Недопустимые пользовательские адреса DNS-серверов %1$s</string>
     <string name="invalid_voucher">Код ваучера недействителен.</string>
     <string name="ip_version_v4_unavailable">Протокол IPv4 недоступен, попробуйте изменить настройку «Версия IP на устройстве».</string>
@@ -245,6 +252,9 @@
     <string name="logging_in_description">Проверка номера учетной записи</string>
     <string name="logging_in_title">Выполняется вход...</string>
     <string name="login_description">Введите номер учетной записи</string>
+    <string name="login_error_api_unreachable">Невозможно подключиться к API, %1$s</string>
+    <string name="login_error_invalid_input">Номер учетной записи слишком длинный, введите действительный номер</string>
+    <string name="login_error_too_many_attempts">Слишком много попыток, пожалуйста, попробуйте позже</string>
     <string name="login_fail_description">Недействительный номер учетной записи</string>
     <string name="login_fail_title">Ошибка входа</string>
     <string name="login_title">Вход</string>
@@ -272,8 +282,11 @@
     <string name="new_device_notification_title">СОЗДАНО НОВОЕ УСТРОЙСТВО</string>
     <string name="new_list">Новый список</string>
     <string name="no_custom_lists_available">Нет своих списков</string>
+    <string name="no_email_app_available">На устройстве нет приложения для работы с электронной почтой</string>
     <string name="no_internet_connection">Нет подключения к Интернету</string>
     <string name="no_matching_relay">Нет серверов, соответствующих вашим настройкам. Попробуйте изменить сервер или задайте другие настройки.</string>
+    <string name="no_matching_relay_entry">Нет серверов входа, соответствующих вашим настройкам. Попробуйте изменить сервер или задайте другие настройки.</string>
+    <string name="no_matching_relay_exit">Нет серверов выхода, соответствующих вашим настройкам. Попробуйте изменить сервер или задайте другие настройки.</string>
     <string name="no_matching_servers_found_first_line">Подходящих серверов не найдено.</string>
     <string name="no_matching_servers_found_second_line">Попробуйте изменить фильтры.</string>
     <string name="no_recent_selection">Нет истории недавнего выбора</string>
@@ -311,11 +324,13 @@
     <string name="privacy_disclaimer_body_second_paragraph">Если используется функция раздельного туннелирования, то приложение запрашивает в системе список всех установленных приложений. Этот список запрашивается только на  экране настройки раздельного туннелирования. Список установленных приложений никогда не передается за пределы устройства.</string>
     <string name="privacy_disclaimer_title">Конфиденциальность</string>
     <string name="privacy_policy_label">Политика конфиденциальности</string>
+    <string name="privacy_policy_lower_case">политика конфиденциальности</string>
     <string name="problem_report_description">Чтобы помощь была эффективнее, к этому сообщению будет прикреплен файл журнала из приложения. Ваши данные останутся защищенными и конфиденциальными: они обезличиваются и отправляются по зашифрованному каналу.</string>
     <string name="providers">Провайдеры</string>
     <string name="quantum_resistant_info_first_paragaph">Эта функция делает туннель WireGuard устойчивым к потенциальным атакам с использованием квантовых компьютеров.</string>
     <string name="quantum_resistant_info_second_paragaph">Для этого функция выполняет дополнительный обмен ключами с использованием квантово-устойчивого алгоритма и добавляет результат к обычному шифрованию WireGuard. Эта дополнительная мера использует примерно 500 КиБ трафика при каждом создании нового туннеля.</string>
     <string name="quantum_resistant_title">Квантово-устойчивый туннель</string>
+    <string name="read_more_here">читать дальше здесь</string>
     <string name="recents">Недавние</string>
     <string name="recents_disabled">Недавние отключены, история очищена</string>
     <string name="reconnect">Переподключить</string>
@@ -340,6 +355,7 @@
     <string name="select_location">Выбор местоположения</string>
     <string name="send">Отправить</string>
     <string name="send_anyway">Все равно отправить</string>
+    <string name="send_email">Отправить письмо</string>
     <string name="sending">Идет отправка...</string>
     <string name="sent">Отправлено</string>
     <string name="sent_contact">При необходимости мы свяжемся с вами по адресу %1$s</string>
@@ -398,6 +414,11 @@
     <string name="udp">UDP</string>
     <string name="udp_over_tcp">UDP через TCP</string>
     <string name="udp_over_tcp_port_info">TCP-порт, к которому должен подключаться протокол обфускации UDP через TCP на VPN-сервере.</string>
+    <string name="unable_to_reach_api_dialog_message_list_first">Перезагрузить устройство.</string>
+    <string name="unable_to_reach_api_dialog_message_list_second">Подключиться к другой сети.</string>
+    <string name="unable_to_reach_api_dialog_message_list_third">Включить все методы доступа в приложении</string>
+    <string name="unable_to_reach_api_dialog_message_second">Если описанные выше шаги не помогли, отправьте письмо в службу поддержки, нажав кнопку ниже. К письму будут автоматически прикреплены анонимизированные журналы активности.</string>
+    <string name="unable_to_reach_api_dialog_title">Невозможно подключиться к API</string>
     <string name="undo">Отменить</string>
     <string name="unsupported_version">НЕПОДДЕРЖИВАЕМАЯ ВЕРСИЯ</string>
     <string name="unsupported_version_description">Эта версия приложения не поддерживается, что может угрожать неприкосновенности ваших данных. Обновите приложение.</string>
@@ -432,7 +453,7 @@
     <string name="wireguard_port_info_port_range">Пользовательский порт может принимать любое значение внутри допустимых диапазонов: %1$s.</string>
     <string name="wireguard_port_is_not_supported">Выбранный порт %1$s не поддерживается. Измените его в</string>
     <string name="wireguard_port_title">Порт WireGuard</string>
-    <string name="wireguard_settings">настройках %1$s.</string>
+    <string name="wireguard_settings">Настройки %1$s.</string>
     <string name="x_entry">%1$s (вход)</string>
     <string name="x_exit">%1$s (выход)</string>
     <string name="x_via_x">%1$s через %2$s</string>

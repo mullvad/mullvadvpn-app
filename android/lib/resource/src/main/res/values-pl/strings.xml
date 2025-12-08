@@ -97,6 +97,7 @@
     <string name="copy_account_number">Kopiuj numer konta</string>
     <string name="create">Utwórz</string>
     <string name="create_account">Utwórz konto</string>
+    <string name="create_account_fail_title">Nie udało się utworzyć konta</string>
     <string name="create_custom_list_message">Utworzono „%1$s”</string>
     <string name="create_new_account">Utwórz nowe konto</string>
     <string name="create_new_account_warning_paragraph1">Masz już zapisany numer konta. Zapisany numer w takiej sytuacji zostanie usunięty z tego urządzenia. Nie można tego cofnąć.</string>
@@ -169,10 +170,12 @@
     <string name="edit_method">Edytuj metodę</string>
     <string name="edit_name">Edytuj nazwę</string>
     <string name="enable">Włącz</string>
+    <string name="enable_all_methods">Włącz wszystko i spróbuj ponownie</string>
     <string name="enable_anyway">Mimo to włącz</string>
     <string name="enable_custom_dns">Użyj niestandardowego serwera DNS</string>
     <string name="enable_direct_only">Włącz %1$s</string>
     <string name="enable_ipv6">Protokół IPv6 w tunelu</string>
+    <string name="enable_location_in_notification">Pokaż lokalizację w powiadomieniu</string>
     <string name="enable_method">Włącz metodę</string>
     <string name="enable_recents">Włącz ostatnie</string>
     <string name="encrypted_dns_proxy_info_message_part1">Dzięki metodzie „szyfrowany serwer proxy DNS” aplikacja będzie komunikować się z naszym interfejsem API Mullvad za pośrednictwem adresu serwera proxy. Odbywa się to poprzez pobranie adresu z serwera DNS over HTTPS (DoH), a następnie użycie go do połączenia z naszymi serwerami interfejsu API.</string>
@@ -214,6 +217,10 @@
     <string name="import_overrides_import">Importuj</string>
     <string name="import_overrides_text_title">Import tekstowy</string>
     <string name="in_app_products_unavailable">Produkty w aplikacji są niedostępne. Upewnij się, że masz najnowszą wersję Google Play.</string>
+    <string name="include_account_token_checkbox_text">Dodaj token mojego konta, aby przyspieszyć pomoc w kwestiach związanych z płatnościami lub kontem</string>
+    <string name="include_account_token_warning_message_first">Dołączenie tokena konta powoduje połączenie raportu z kontem, co pomaga nam szybciej rozwiązać problem. Wszystkie raporty są automatycznie usuwane po pewnym czasie.</string>
+    <string name="include_account_token_warning_message_second">Szczegółowe informacje znajdziesz w naszej %1$s.</string>
+    <string name="include_account_token_warning_title">Ma to wpływ na anonimowość</string>
     <string name="invalid_dns_servers">Niestandardowe adresy serwerów DNS %1$s są nieprawidłowe</string>
     <string name="invalid_voucher">Nieprawidłowy kod kuponu.</string>
     <string name="ip_version_v4_unavailable">Protokół IPv4 jest niedostępny, spróbuj zmienić ustawienie „Wersja protokołu IP urządzenia”.</string>
@@ -245,6 +252,9 @@
     <string name="logging_in_description">Sprawdzanie numeru konta</string>
     <string name="logging_in_title">Logowanie...</string>
     <string name="login_description">Wprowadź numer konta</string>
+    <string name="login_error_api_unreachable">Nie można osiągnąć interfejsu API, %1$s</string>
+    <string name="login_error_invalid_input">Numer konta jest zbyt długi, wprowadź prawidłowy numer</string>
+    <string name="login_error_too_many_attempts">Zbyt wiele prób, spróbuj ponownie później</string>
     <string name="login_fail_description">Nieprawidłowy numer konta</string>
     <string name="login_fail_title">Błąd logowania</string>
     <string name="login_title">Logowanie</string>
@@ -272,8 +282,11 @@
     <string name="new_device_notification_title">UTWORZONO NOWE URZĄDZENIE</string>
     <string name="new_list">Nowa lista</string>
     <string name="no_custom_lists_available">Brak dostępnych list niestandardowych</string>
+    <string name="no_email_app_available">Na urządzeniu nie ma dostępnej aplikacji poczty elektronicznej</string>
     <string name="no_internet_connection">Brak połączenia z Internetem</string>
     <string name="no_matching_relay">Żaden serwer nie odpowiada ustawieniom. Spróbuj zmienić serwer lub inne ustawienia.</string>
+    <string name="no_matching_relay_entry">Żaden serwer wejściowy nie odpowiada ustawieniom. Spróbuj zmienić serwer lub inne ustawienia.</string>
+    <string name="no_matching_relay_exit">Żaden serwer wyjściowy nie odpowiada ustawieniom. Spróbuj zmienić serwer lub inne ustawienia.</string>
     <string name="no_matching_servers_found_first_line">Nie znaleziono pasujących serwerów.</string>
     <string name="no_matching_servers_found_second_line">Spróbuj zmienić filtry.</string>
     <string name="no_recent_selection">Brak historii ostatnich wyborów</string>
@@ -311,11 +324,13 @@
     <string name="privacy_disclaimer_body_second_paragraph">Jeśli używana jest funkcja dzielonego tunelowania, aplikacja wysyła do systemu zapytanie o listę wszystkich zainstalowanych aplikacji. Lista ta jest pobierana wyłącznie w widoku dzielonego tunelowania. Lista zainstalowanych aplikacji nigdy nie jest wysyłana z urządzenia.</string>
     <string name="privacy_disclaimer_title">Prywatność</string>
     <string name="privacy_policy_label">Polityka prywatności</string>
+    <string name="privacy_policy_lower_case">polityka prywatności</string>
     <string name="problem_report_description">Aby można było pomóc Ci skuteczniej, do tej wiadomości dołączony zostanie plik dziennika aplikacji. Twoje dane pozostaną bezpieczne i prywatne, ponieważ przed wysłaniem zaszyfrowanym kanałem zostają one zanonimizowane.</string>
     <string name="providers">Dostawcy</string>
     <string name="quantum_resistant_info_first_paragaph">Ta funkcja sprawia, że tunel WireGuard jest odporny na potencjalne ataki ze strony komputerów kwantowych.</string>
     <string name="quantum_resistant_info_second_paragaph">Jest to wykonywane poprzez dodatkową wymianę kluczy przy użyciu algorytmu odpornego na ataki z użyciem komputerów kwantowych i zmieszanie wyniku ze zwykłym szyfrowaniem WireGuard. Ten dodatkowy krok zużywa około 500 kB ruchu za każdym razem, gdy ustanawiany jest nowy tunel.</string>
     <string name="quantum_resistant_title">Tunel odporny na ataki z użyciem komputerów kwantowych</string>
+    <string name="read_more_here">przeczytaj więcej tutaj</string>
     <string name="recents">Ostatnie</string>
     <string name="recents_disabled">Ostatnie: wyłączono i wyczyszczono historię</string>
     <string name="reconnect">Połącz ponownie</string>
@@ -340,6 +355,7 @@
     <string name="select_location">Wybierz lokalizację</string>
     <string name="send">Wyślij</string>
     <string name="send_anyway">Mimo to wyślij</string>
+    <string name="send_email">Wyślij wiadomość e-mail</string>
     <string name="sending">Wysyłanie...</string>
     <string name="sent">Wysłano</string>
     <string name="sent_contact">W razie potrzeby skontaktujemy się z Tobą pod adresem %1$s</string>
@@ -398,6 +414,11 @@
     <string name="udp">UDP</string>
     <string name="udp_over_tcp">UDP-przez-TCP</string>
     <string name="udp_over_tcp_port_info">Port TCP, z którym powinien łączyć się protokół zaciemniania UDP-przez-TCP na serwerze VPN.</string>
+    <string name="unable_to_reach_api_dialog_message_list_first">Ponownie uruchom urządzenie</string>
+    <string name="unable_to_reach_api_dialog_message_list_second">Połącz się z inną siecią</string>
+    <string name="unable_to_reach_api_dialog_message_list_third">Włącz wszystkie metody dostępu w aplikacji</string>
+    <string name="unable_to_reach_api_dialog_message_second">Jeśli te kroki nie pomogą, wyślij wiadomość e-mail do działu pomocy technicznej, korzystając z poniższego przycisku. Spowoduje to automatyczne dołączenie zanonimizowanych dzienników.</string>
+    <string name="unable_to_reach_api_dialog_title">Nie można osiągnąć interfejsu API</string>
     <string name="undo">Cofnij</string>
     <string name="unsupported_version">WERSJA NIEOBSŁUGIWANA</string>
     <string name="unsupported_version_description">W tej nieobsługiwanej wersji aplikacji prywatność może być zagrożona. Zaktualizuj już teraz.</string>

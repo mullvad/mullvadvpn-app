@@ -8,6 +8,7 @@ pub enum PluralForm {
     SingularForZeroAndOne,
     Polish,
     Russian,
+    Arabic,
 }
 
 impl PluralForm {
@@ -26,6 +27,9 @@ impl PluralForm {
             }
             "nplurals=4; plural=((n%10==1 && n%100!=11) ? 0 : ((n%10 >= 2 && n%10 <=4 && (n%100 < 12 || n%100 > 14)) ? 1 : ((n%10 == 0 || (n%10 >= 5 && n%10 <=9)) || (n%100 >= 11 && n%100 <= 14)) ? 2 : 3))" => {
                 Some(PluralForm::Russian)
+            }
+            "nplurals=6; plural=(n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5)" => {
+                Some(PluralForm::Arabic)
             }
             _ => None,
         }
