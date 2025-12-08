@@ -7,7 +7,6 @@ export interface IConnectionReduxState {
   ipv4?: Ip;
   ipv6?: Ip;
   hostname?: string;
-  bridgeHostname?: string;
   entryHostname?: string;
   latitude?: number;
   longitude?: number;
@@ -21,7 +20,6 @@ const initialState: IConnectionReduxState = {
   ipv4: undefined,
   ipv6: undefined,
   hostname: undefined,
-  bridgeHostname: undefined,
   entryHostname: undefined,
   latitude: undefined,
   longitude: undefined,
@@ -44,7 +42,6 @@ export default function (
         latitude: action.newLocation.latitude,
         longitude: action.newLocation.longitude,
         hostname: action.newLocation.hostname,
-        bridgeHostname: action.newLocation.bridgeHostname,
         entryHostname: action.newLocation.entryHostname,
       };
 
