@@ -131,7 +131,6 @@ export interface ITunnelEndpoint {
   address: string;
   protocol: RelayProtocol;
   quantumResistant: boolean;
-  proxy?: IProxyEndpoint;
   obfuscationEndpoint?: IObfuscationEndpoint;
   entryEndpoint?: IEndpoint;
   daita: boolean;
