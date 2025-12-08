@@ -101,9 +101,7 @@ test.describe('Select location', () => {
       const entryButton = routes.selectLocation.getEntryButton();
       await entryButton.click();
 
-      const wireguardRelays = relayList.countries[0].cities[0].relays.filter(
-        (relay) => relay.endpointType === 'wireguard',
-      );
+      const wireguardRelays = relayList.countries[0].cities[0].relays;
       const hostnames = wireguardRelays.map((relay) => relay.hostname);
       const locatedRelays = helpers.locateRelaysByHostnames(relayList, hostnames);
 
@@ -117,9 +115,7 @@ test.describe('Select location', () => {
       const exitButton = routes.selectLocation.getExitButton();
       await exitButton.click();
 
-      const wireguardRelays = relayList.countries[0].cities[0].relays.filter(
-        (relay) => relay.endpointType === 'wireguard',
-      );
+      const wireguardRelays = relayList.countries[0].cities[0].relays;
       const hostnames = wireguardRelays.map((relay) => relay.hostname);
       const locatedRelays = helpers.locateRelaysByHostnames(relayList, hostnames);
 
@@ -143,9 +139,7 @@ test.describe('Select location', () => {
       await entryButton.click();
 
       // Get first wireguard relay
-      const [entryRelay, exitRelay] = relayList.countries[0].cities[0].relays.filter(
-        (relay) => relay.endpointType === 'wireguard',
-      );
+      const [entryRelay, exitRelay] = relayList.countries[0].cities[0].relays;
 
       if (!entryRelay) {
         throw new Error('No wireguard relay found in mocked data');
@@ -200,7 +194,7 @@ test.describe('Select location', () => {
               ...country,
               cities: cities.map(({ relays, ...city }) => ({
                 ...city,
-                relays: relays.filter((relay) => relay.endpointType === 'wireguard'),
+                relays,
               })),
             })),
           };
