@@ -22,7 +22,6 @@ export interface ILocation {
   longitude: number;
   mullvadExitIp: boolean;
   hostname?: string;
-  bridgeHostname?: string;
   entryHostname?: string;
   provider?: string;
 }
