@@ -97,6 +97,7 @@
     <string name="copy_account_number">Copier le numéro de compte</string>
     <string name="create">Créer</string>
     <string name="create_account">Créer un compte</string>
+    <string name="create_account_fail_title">Échec de la création du compte</string>
     <string name="create_custom_list_message">« %1$s » a été créé</string>
     <string name="create_new_account">Créer un nouveau compte</string>
     <string name="create_new_account_warning_paragraph1">Vous avez déjà un numéro de compte enregistré. Si vous créez un nouveau compte, le numéro de compte enregistré sera supprimé de cet appareil. Cette action est irréversible.</string>
@@ -169,10 +170,12 @@
     <string name="edit_method">Modifier le mode</string>
     <string name="edit_name">Modifier le nom</string>
     <string name="enable">Activer</string>
+    <string name="enable_all_methods">Tout activer et réessayer</string>
     <string name="enable_anyway">Activer quand même</string>
     <string name="enable_custom_dns">Utiliser un serveur DNS personnalisé</string>
     <string name="enable_direct_only">Activer %1$s</string>
     <string name="enable_ipv6">IPv6 en tunnel</string>
+    <string name="enable_location_in_notification">Afficher la localisation dans les notifications</string>
     <string name="enable_method">Activer la méthode</string>
     <string name="enable_recents">Activer les récents</string>
     <string name="encrypted_dns_proxy_info_message_part1">Avec la méthode « proxy DNS chiffré », l\'application communiquera avec notre API Mullvad par le biais d\'une adresse proxy. Pour ce faire, elle récupère une adresse auprès d\'un serveur DNS over HTTPS (DoH) et l\'utilise pour atteindre nos serveurs API.</string>
@@ -214,6 +217,10 @@
     <string name="import_overrides_import">Importer</string>
     <string name="import_overrides_text_title">Importer par texte</string>
     <string name="in_app_products_unavailable">Produits dans l\'application indisponibles. Veuillez vous assurer que vous avez la dernière version de Google Play.</string>
+    <string name="include_account_token_checkbox_text">Inclure mon jeton de compte pour recevoir plus rapidement de l\'aide avec les problèmes relatifs aux paiements ou à mon compte</string>
+    <string name="include_account_token_warning_message_first">Joindre votre jeton de compte rattachera ce rapport à votre compte, ce qui nous aidera à résoudre votre problème plus vite. Tous les rapports sont automatiquement supprimés après une certaine période.</string>
+    <string name="include_account_token_warning_message_second">Pour plus d\'informations, veuillez consulter notre %1$s.</string>
+    <string name="include_account_token_warning_title">Ceci affecte votre anonymat</string>
     <string name="invalid_dns_servers">Les adresses de serveur DNS personnalisées %1$s ne sont pas valides</string>
     <string name="invalid_voucher">Le code du bon n\'est pas valide.</string>
     <string name="ip_version_v4_unavailable">L\'IPv4 n\'est pas disponible. Veuillez essayer de modifier le paramètre « Version de l\'IP de l\'appareil ».</string>
@@ -245,6 +252,9 @@
     <string name="logging_in_description">Vérification du numéro de compte</string>
     <string name="logging_in_title">Connexion...</string>
     <string name="login_description">Saisissez votre numéro de compte</string>
+    <string name="login_error_api_unreachable">Impossible de joindre l\'API, %1$s</string>
+    <string name="login_error_invalid_input">Le numéro de compte est trop long, veuillez saisir un numéro valide</string>
+    <string name="login_error_too_many_attempts">Trop de tentatives, veuillez réessayer plus tard</string>
     <string name="login_fail_description">Numéro de compte non valide</string>
     <string name="login_fail_title">Échec de la connexion</string>
     <string name="login_title">Connexion</string>
@@ -272,8 +282,11 @@
     <string name="new_device_notification_title">NOUVEL APPAREIL CRÉÉ</string>
     <string name="new_list">Nouvelle liste</string>
     <string name="no_custom_lists_available">Aucune liste personnalisée disponible</string>
+    <string name="no_email_app_available">Aucune application d\'e-mail disponible sur cet appareil</string>
     <string name="no_internet_connection">Aucune connexion à Internet</string>
     <string name="no_matching_relay">Aucun serveur ne correspond à vos paramètres, essayez de modifier les paramètres du serveur ou d\'autres paramètres.</string>
+    <string name="no_matching_relay_entry">Aucun serveur d\'entrée ne correspond à vos paramètres, essayez de modifier les paramètres du serveur ou d\'autres paramètres.</string>
+    <string name="no_matching_relay_exit">Aucun serveur de sortie ne correspond à vos paramètres, essayez de modifier les paramètres du serveur ou d\'autres paramètres.</string>
     <string name="no_matching_servers_found_first_line">Aucun serveur correspondant trouvé.</string>
     <string name="no_matching_servers_found_second_line">Veuillez essayer de changer vos filtres.</string>
     <string name="no_recent_selection">Aucun historique des sélections récentes</string>
@@ -311,11 +324,13 @@
     <string name="privacy_disclaimer_body_second_paragraph">Si la fonctionnalité de split tunneling est utilisée, l\'application demande à votre système la liste de toutes les applications installées. Cette liste n\'est récupérée que dans la vue de split tunneling. La liste des applications installées n\'est jamais envoyée par l\'appareil.</string>
     <string name="privacy_disclaimer_title">Confidentialité</string>
     <string name="privacy_policy_label">Politique de confidentialité</string>
+    <string name="privacy_policy_lower_case">politique de confidentialité</string>
     <string name="problem_report_description">Pour mieux vous aider, le fichier journal de l\'application est joint à ce message. Vos données restent privées et en sécurité dans la mesure où elles sont rendues anonymes avant d\'être envoyées via un canal chiffré.</string>
     <string name="providers">Fournisseurs</string>
     <string name="quantum_resistant_info_first_paragaph">Cette fonctionnalité rend le tunnel WireGuard résistant aux attaques potentielles des ordinateurs quantiques.</string>
     <string name="quantum_resistant_info_second_paragaph">Pour ce faire, il effectue un échange de clés supplémentaire à l\'aide d\'un algorithme à sécurité quantique et mélange le résultat au chiffrement habituel de WireGuard. Cette étape supplémentaire utilise environ 500 kiB de trafic chaque fois qu\'un nouveau tunnel est établi.</string>
     <string name="quantum_resistant_title">Tunnel résistant aux attaques quantiques</string>
+    <string name="read_more_here">en savoir plus</string>
     <string name="recents">Récents</string>
     <string name="recents_disabled">Récents désactivés et historique effacé</string>
     <string name="reconnect">Reconnexion</string>
@@ -340,6 +355,7 @@
     <string name="select_location">Sélectionner une localisation</string>
     <string name="send">Envoyer</string>
     <string name="send_anyway">Envoyer quand même</string>
+    <string name="send_email">Envoyer un e-mail</string>
     <string name="sending">Envoi...</string>
     <string name="sent">Envoyé</string>
     <string name="sent_contact">Si nécessaire, nous vous contacterons à l\'adresse %1$s</string>
@@ -398,6 +414,11 @@
     <string name="udp">UDP</string>
     <string name="udp_over_tcp">UDP-over-TCP</string>
     <string name="udp_over_tcp_port_info">Le port TCP auquel le protocole de dissimulation UDP sur TCP doit se connecter sur le serveur VPN.</string>
+    <string name="unable_to_reach_api_dialog_message_list_first">Redémarrez votre appareil</string>
+    <string name="unable_to_reach_api_dialog_message_list_second">Connectez-vous à un réseau différent</string>
+    <string name="unable_to_reach_api_dialog_message_list_third">Activer tous les modes d\'accès dans l\'application</string>
+    <string name="unable_to_reach_api_dialog_message_second">Si ces étapes ne fonctionnent pas, veuillez envoyer un e-mail à l\'assistance à l\'aide du bouton ci-dessous. Les fichiers journaux anonymisés y seront automatiquement joints.</string>
+    <string name="unable_to_reach_api_dialog_title">Impossible de joindre l\'API</string>
     <string name="undo">Annuler</string>
     <string name="unsupported_version">VERSION NON PRISE EN CHARGE</string>
     <string name="unsupported_version_description">Votre confidentialité peut être en danger avec cette version non prise en charge de l\'application. Veuillez la mettre à jour maintenant.</string>

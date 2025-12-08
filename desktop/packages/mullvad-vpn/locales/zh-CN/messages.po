@@ -10,13 +10,19 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Chinese Simplified\n"
 "Language: zh_CN\n"
-"PO-Revision-Date: 2025-10-20 06:58\n"
+"PO-Revision-Date: 2025-12-08 09:00\n"
 
 msgid "%(amount)d more..."
 msgstr "其他 %(amount)d 个…"
 
 msgid "%(duration)s was added, account paid until %(expiry)s."
 msgstr "已添加 %(duration)s，帐户到期时间为 %(expiry)s。"
+
+#. The label for the WireGuard port option.
+#. Available placeholders:
+#. %(wireguard)s - will be replaced with WireGuard
+msgid "%(wireguard)s port"
+msgstr "%(wireguard)s 端口"
 
 msgid "1 day"
 msgid_plural "%d days"
@@ -130,7 +136,7 @@ msgid "Direct only"
 msgstr "仅直连"
 
 msgid "Disable"
-msgstr "禁用"
+msgstr "停用"
 
 msgid "Disconnect"
 msgstr "断开连接"
@@ -213,6 +219,9 @@ msgstr "下一步"
 msgid "No result for <b>%(searchTerm)s</b>."
 msgstr "没有关于<b>%(searchTerm)s</b>的结果。"
 
+msgid "None"
+msgstr "无"
+
 msgid "Off"
 msgstr "关"
 
@@ -268,14 +277,8 @@ msgstr "设置"
 msgid "System default"
 msgstr "系统默认值"
 
-msgid "TCP"
-msgstr "TCP"
-
 msgid "Test"
 msgstr "测试"
-
-msgid "This setting increases latency. Use only if needed."
-msgstr "此设置会增大延迟。仅在需要时使用。"
 
 msgid "Troubleshoot"
 msgstr "故障排除"
@@ -285,9 +288,6 @@ msgstr "尝试其他搜索词。"
 
 msgid "Type"
 msgstr "类型"
-
-msgid "UDP"
-msgstr "UDP"
 
 msgid "Unblock"
 msgstr "解除阻止"
@@ -304,6 +304,13 @@ msgstr "用户名"
 msgctxt "accessibility"
 msgid "%(title)s, View loaded"
 msgstr "%(title)s，已加载视图"
+
+#. Text for screen readers to describe the WireGuard port settings navigation button.
+#. Available placeholders:
+#. %(wireguard)s - will be replaced with WireGuard
+msgctxt "accessibility"
+msgid "%(wireguard)s port settings"
+msgstr "%(wireguard)s 端口设置"
 
 msgctxt "accessibility"
 msgid "Add new custom bridge"
@@ -338,28 +345,18 @@ msgctxt "accessibility"
 msgid "Forget account number %(accountNumber)s"
 msgstr "忘记帐号 %(accountNumber)s"
 
-#. Accessibility label for link to wireguard settings.
+#. Accessibility label for link to VPN settings where
+#. the user can change WireGuard port.
 #. Available placeholders:
 #. %(wireGuard)s - Will be replaced with WireGuard
 msgctxt "accessibility"
-msgid "Go to %(wireGuard)s settings."
-msgstr "前往 %(wireGuard)s 设置。"
+msgid "Go to anti-censorship settings to change %(wireGuard)s port"
+msgstr "前往反审查设置以更改 %(wireGuard)s 端口"
 
 #. Accessibility label for link to app upgrade view.
 msgctxt "accessibility"
 msgid "Go to app update page"
 msgstr "前往应用更新页面"
-
-#. Accessibility label for link to blog post about OpenVPN support ending.
-msgctxt "accessibility"
-msgid "Go to blog post to read more, opens externally"
-msgstr "前往博文阅读更多内容，在外部打开"
-
-#. Accessibility label for link to VPN settings where
-#. the user can change tunnel protocol.
-msgctxt "accessibility"
-msgid "Go to VPN settings to change tunnel protocol"
-msgstr "前往 VPN 设置以更改隧道协议"
 
 #. Provided to accessibility tools such as screenreaders to describe
 #. the button which obscures the account number.
@@ -387,7 +384,7 @@ msgctxt "accessibility"
 msgid "More information"
 msgstr "更多信息"
 
-#. Accessbility label for link to go to download page.
+#. Accessibility label for link to go to download page.
 msgctxt "accessibility"
 msgid "New version available, click here to go to download page, opens externally"
 msgstr "有可用的新版本，点击此处前往下载页面，在外部打开"
@@ -469,6 +466,26 @@ msgstr "已没有时间"
 msgctxt "account-view"
 msgid "Paid until"
 msgstr "到期时间"
+
+#. Page title for anti censorship settings view
+msgctxt "anti-censorship-view"
+msgid "Anti-censorship"
+msgstr "反审查"
+
+#. The title for the obfuscation method selector.
+msgctxt "anti-censorship-view"
+msgid "Method"
+msgstr "方法"
+
+#. Second paragraph of description text in anti-censorship view
+msgctxt "anti-censorship-view"
+msgid "Please note that these methods do not improve performance, and may increase system utilization and battery consumption."
+msgstr "请注意，这些方法并不能提高性能，反而可能会增加系统资源占用率和电量消耗。"
+
+#. First paragraph of description text in anti-censorship view
+msgctxt "anti-censorship-view"
+msgid "These methods may be useful in situations where you are blocked from reaching Mullvad. When \"Automatic\" is selected, the app will attempt all methods until one works."
+msgstr "这些方法在您无法连接到 Mullvad 时可能会有所帮助。选择“自动”时，应用将尝试所有方法，直到其中一种方法生效。"
 
 msgctxt "api-access-methods-view"
 msgid "Add method"
@@ -775,9 +792,14 @@ msgctxt "app-upgrade-view"
 msgid "Installer quit unexpectedly, please try again or send a problem report."
 msgstr "安装程序意外退出，请重试或发送问题报告。"
 
+#. Info about which directory the app update will be downloaded to
 msgctxt "app-upgrade-view"
 msgid "Installer will be downloaded to <b>%(cacheDir)s</b>."
 msgstr "安装程序将下载到 <b>%(cacheDir)s</b>。"
+
+msgctxt "app-upgrade-view"
+msgid "Latest version: %(version)s"
+msgstr "最新版本：%(version)s"
 
 #. Text displayed when there are no updates for this platform in the next app version
 msgctxt "app-upgrade-view"
@@ -851,6 +873,11 @@ msgstr "正在验证安装程序…"
 msgctxt "app-upgrade-view"
 msgid "Version %(version)s"
 msgstr "版本 %(version)s"
+
+#. The user has the latest version of the app and does not need to be update
+msgctxt "app-upgrade-view"
+msgid "You are using the latest version"
+msgstr "您正在使用最新版本"
 
 msgctxt "auth-failure"
 msgid "Blocking internet: account is out of time"
@@ -978,7 +1005,7 @@ msgstr "此帐户没有更多的 VPN 时间了。"
 
 msgctxt "connect-view"
 msgid "You need to disable \"Lockdown mode\" in order to access the Internet to add time."
-msgstr "您需要禁用“锁定模式”来访问网络以增加时间。"
+msgstr "您需要停用“锁定模式”来访问网络以增加时间。"
 
 msgctxt "connect-view"
 msgid "You’re all set!"
@@ -1188,42 +1215,12 @@ msgctxt "in-app-notifications"
 msgid "%(duration)s. Buy more credit."
 msgstr "%(duration)s。购买更多额度。"
 
-#. First part of notification subtitle when there are no openVPN servers available.
-#. Will be followed by a link to VPN settings.
-#. Available placeholders:
-#. %(openVpn)s - Will be replaced with OpenVPN
-msgctxt "in-app-notifications"
-msgid "%(openVpn)s support has ended. Please update the app or"
-msgstr "%(openVpn)s 支持已结束。请升级应用或"
-
-#. Notification title indicating that OpenVPN support is ending.
-#. Available placeholders:
-#. %(openVpn)s - Will be replaced with OPENVPN
-msgctxt "in-app-notifications"
-msgid "%(openVpn)s SUPPORT IS ENDING"
-msgstr "%(openVpn)s 支持即将结束"
-
-#. First part of notification subtitle when there are no openVPN servers
-#. matching current settings. Will be followed by a link to VPN settings.
-#. Available placeholders:
-#. %(openVpn)s - Will be replaced with OpenVPN
-msgctxt "in-app-notifications"
-msgid "%(openVpn)s support is ending. Switch location or"
-msgstr "%(openVpn)s 支持即将结束。请切换位置或"
-
 #. Notification subtitle when the app upgrade is ready to install.
 #. Available placeholders:
 #. - %(suggestedUpgradeVersion)s: Upgrade version to be installed.
 msgctxt "in-app-notifications"
 msgid "%(suggestedUpgradeVersion)s is ready to be installed."
 msgstr "%(suggestedUpgradeVersion)s 已准备好安装。"
-
-#. Link in notication to go to WireGuard settings.
-#. Available placeholders:
-#. %(wireGuard)s - Will be replaced with WireGuard
-msgctxt "in-app-notifications"
-msgid "%(wireGuard)s settings."
-msgstr "%(wireGuard)s 设置。"
 
 msgctxt "in-app-notifications"
 msgid "ACCOUNT CREDIT EXPIRES SOON"
@@ -1240,14 +1237,6 @@ msgstr "有可用 BETA 更新"
 msgctxt "in-app-notifications"
 msgid "BLOCKING INTERNET"
 msgstr "正在阻止网络"
-
-#. Link following the first part of the notification subtitle.
-#. Will navigate the user to the VPN settings.
-#. Available placeholders:
-#. %(wireGuard)s - Will be replaced with WireGuard
-msgctxt "in-app-notifications"
-msgid "change tunnel protocol to %(wireGuard)s."
-msgstr "将隧道协议更改为 %(wireGuard)s。"
 
 #. Notification subtitle when the app upgrade is ready to install.
 msgctxt "in-app-notifications"
@@ -1328,36 +1317,9 @@ msgctxt "in-app-notifications"
 msgid "NEW VERSION INSTALLED"
 msgstr "已安装新版本"
 
-#. Notification title when there are no openVPN servers
-#. matching current settings.
-#. Available placeholders:
-#. %(openVpn)s - Will be replaced with OPENVPN
-msgctxt "in-app-notifications"
-msgid "NO %(openVpn)s SERVER AVAILABLE"
-msgstr "无可用 %(openVpn)s 服务器"
-
-#. Notification title when there are no openVPN servers available.
-#. Available placeholders:
-#. %(openVpn)s - Will be replaced with OPENVPN
-msgctxt "in-app-notifications"
-msgid "NO %(openVpn)s SERVERS AVAILABLE"
-msgstr "无可用 %(openVpn)s 服务器"
-
-#. Notification subtitle indicating that OpenVPN support is ending.
-#. Available placeholders:
-#. %(wireGuard)s - Will be replaced with WireGuard
-msgctxt "in-app-notifications"
-msgid "Please change tunnel protocol to %(wireGuard)s."
-msgstr "请将隧道协议更改为 %(wireGuard)s。"
-
 msgctxt "in-app-notifications"
 msgid "Please quit and restart the app."
 msgstr "请退出后重新启动应用。"
-
-#. Link in notication to a blog post about OpenVPN support ending.
-msgctxt "in-app-notifications"
-msgid "Read more"
-msgstr "阅读更多内容"
 
 #. Notification title when the app upgrade is ready to install.
 msgctxt "in-app-notifications"
@@ -1398,15 +1360,15 @@ msgstr "安装程序未能成功启动。"
 #. Available placeholders:
 #. %(wireGuard)s - Will be replaced with WireGuard
 msgctxt "in-app-notifications"
-msgid "The selected %(wireGuard)s port is not supported, please change it under "
-msgstr "所选 %(wireGuard)s 端口不受支持，请在以下位置更改："
+msgid "The selected %(wireGuard)s port is not supported, please <a>change it under VPN settings.</a>"
+msgstr "所选 %(wireGuard)s 端口不受支持，请<a>在“VPN 设置”下更改</a>。"
 
 #. Notification text when a new device has been created.
 #. Available placeholders:
 #. - %(deviceName)s: Name of created device.
 msgctxt "in-app-notifications"
-msgid "This device is now named <em>%(deviceName)s</em>. See more under \"Manage devices\" in Account."
-msgstr "此设备现已命名为 <em>%(deviceName)s</em>。请在“帐户”中的“管理设备”下查看更多信息。"
+msgid "This device is now named <em>%(deviceName)s</em>. See more under <a>Manage devices</a> in Account."
+msgstr "此设备现已被命名为 <em>%(deviceName)s</em>。请在“帐户”中的<a>管理设备</a>下查看更多信息。"
 
 #. The in-app banner displayed to the user when the app beta update is
 #. available.
@@ -1457,7 +1419,7 @@ msgstr "详细信息"
 #. List item in troubleshooting modal advising user disable third party antivirus.
 msgctxt "launch-view"
 msgid "Disabling third party antivirus software"
-msgstr "禁用第三方防病毒软件"
+msgstr "停用第三方防病毒软件"
 
 #. Status text shown when app fails to start.
 msgctxt "launch-view"
@@ -1525,7 +1487,7 @@ msgstr "无法联系 Mullvad 系统服务，您的连接可能不安全。请点
 #. %(lockdownModeSettingName)s - The translation of "Lockdown mode"
 msgctxt "login-view"
 msgid "<b>%(lockdownModeSettingName)s</b> is enabled. Disable it to unblock your connection."
-msgstr "<b>%(lockdownModeSettingName)s</b>已启用。将其禁用以解除阻止您的连接。"
+msgstr "<b>%(lockdownModeSettingName)s</b>已启用。将其停用以解除阻止您的连接。"
 
 msgctxt "login-view"
 msgid "Account created"
@@ -1704,7 +1666,7 @@ msgstr "连接可能不安全。应用与系统服务失去联系，请排查故
 
 msgctxt "notifications"
 msgid "Could not configure IPv6. Disable it in the app or enable it on your device."
-msgstr "无法配置 IPv6。请在应用中将其禁用或在您的设备上将其启用。"
+msgstr "无法配置 IPv6。请在应用中将其停用或在您的设备上将其启用。"
 
 msgctxt "notifications"
 msgid "Disconnected and unsecure"
@@ -1716,17 +1678,17 @@ msgstr "无法启用分割隧道。"
 
 msgctxt "notifications"
 msgid "Failed to enable split tunneling. Please try reconnecting or disable split tunneling."
-msgstr "无法启用分割隧道。请尝试重新连接或禁用分割隧道。"
+msgstr "无法启用分割隧道。请尝试重新连接或停用分割隧道。"
 
 #. Label for notification when IPv4 is not available.
 msgctxt "notifications"
-msgid "IPv4 is not available, please try changing <b>%(ipVersionFeatureName)s</b> setting."
-msgstr "IPv4 不可用，请尝试更改 <b>%(ipVersionFeatureName)s</b> 设置。"
+msgid "IPv4 is not available, please try changing Device IP version setting."
+msgstr "IPv4 不可用，请尝试更改“设备 IP 版本”设置。"
 
 #. Label for notification when IPv6 is not available.
 msgctxt "notifications"
-msgid "IPv6 is not available, please try changing <b>%(ipVersionFeatureName)s</b> setting."
-msgstr "IPv6 不可用，请尝试更改 <b>%(ipVersionFeatureName)s</b> 设置。"
+msgid "IPv6 is not available, please try changing Device IP version setting."
+msgstr "IPv6 不可用，请尝试更改“设备 IP 版本”设置。"
 
 msgctxt "notifications"
 msgid "Lockdown mode active, connection blocked"
@@ -1756,7 +1718,7 @@ msgstr "无法应用防火墙规则。"
 
 msgctxt "notifications"
 msgid "Unable to apply firewall rules. Try temporarily disabling any third-party antivirus or security software."
-msgstr "无法应用防火墙规则。请尝试暂时禁用任何第三方防病毒软件或安全软件。"
+msgstr "无法应用防火墙规则。请尝试暂时停用任何第三方防病毒软件或安全软件。"
 
 msgctxt "notifications"
 msgid "Unable to apply firewall rules. Try updating your kernel."
@@ -1768,7 +1730,7 @@ msgstr "无法阻止所有网络流量。请排查问题或发送问题报告。
 
 msgctxt "notifications"
 msgid "Unable to block all network traffic. Try temporarily disabling any third-party antivirus or security software or send a problem report."
-msgstr "无法阻止所有网络流量。请尝试暂时禁用任何第三方防病毒软件或安全软件，或者发送问题报告。"
+msgstr "无法阻止所有网络流量。请尝试暂时停用任何第三方防病毒软件或安全软件，或者发送问题报告。"
 
 msgctxt "notifications"
 msgid "Unable to block all network traffic. Try updating your kernel or send a problem report."
@@ -1802,12 +1764,6 @@ msgctxt "notifications"
 msgid "Upgrade"
 msgstr "升级"
 
-#. Available placeholders:
-#. %(wireguard)s - will be replaced with "WireGuard"
-msgctxt "notifications"
-msgid "Valid %(wireguard)s key is missing. Manage keys under Advanced settings."
-msgstr "缺少有效的 %(wireguard)s 密钥。在“高级”设置下管理密钥。"
-
 msgctxt "notifications"
 msgid "Your device is offline. The tunnel will automatically connect once your device is back online."
 msgstr "您的设备已离线。在您的设备重新上线后，隧道将自动连接。"
@@ -1821,86 +1777,6 @@ msgstr "此应用版本不受支持，因此您的隐私可能存在风险。"
 msgctxt "notifications"
 msgid "Your privacy might be at risk with this unsupported app version. Please update now."
 msgstr "此应用版本不受支持，因此您的隐私可能存在风险。请立即更新。"
-
-#. Title label in navigation bar
-#. Available placeholders:
-#. %(openvpn)s - Will be replaced with "OpenVPN"
-msgctxt "openvpn-settings-nav"
-msgid "%(openvpn)s settings"
-msgstr "%(openvpn)s 设置"
-
-#. %(openvpn)s will be replaced with "OpenVPN"
-msgctxt "openvpn-settings-view"
-msgid "%(openvpn)s settings"
-msgstr "%(openvpn)s 设置"
-
-#. The title for the port selector section.
-#. Available placeholders:
-#. %(portType)s - a selected protocol (either TCP or UDP)
-msgctxt "openvpn-settings-view"
-msgid "%(portType)s port"
-msgstr "%(portType)s 端口"
-
-#. The title for the shadowsocks bridge selector section.
-msgctxt "openvpn-settings-view"
-msgid "Bridge mode"
-msgstr "桥接模式"
-
-#. This is used as a description for the bridge mode
-#. setting.
-#. Available placeholders:
-#. %(openvpn)s - will be replaced with OpenVPN
-msgctxt "openvpn-settings-view"
-msgid "Helps circumvent censorship, by routing your traffic through a bridge server before reaching an %(openvpn)s server. Obfuscation is added to make fingerprinting harder."
-msgstr "通过在到达 %(openvpn)s 服务器之前将您的流量经过桥接服务器，帮助规避审查。添加了混淆以使指纹识别更加困难。"
-
-msgctxt "openvpn-settings-view"
-msgid "Mssfix"
-msgstr "Mssfix"
-
-#. The hint displayed below the Mssfix input field.
-#. Available placeholders:
-#. %(openvpn)s - will be replaced with "OpenVPN"
-#. %(max)d - the maximum possible mssfix value
-#. %(min)d - the minimum possible mssfix value
-msgctxt "openvpn-settings-view"
-msgid "Set %(openvpn)s MSS value. Valid range: %(min)d - %(max)d."
-msgstr "设置 %(openvpn)s MSS 值。值范围：%(min)d - %(max)d。"
-
-#. This is used to instruct users how to make the bridge mode setting
-#. available.
-#. Available placeholders:
-#. %(transportProtocol)s - the name of the transport protocol setting
-#. %(automatic)s - the translation of "Automatic"
-#. %(tcp)s - the translation of "TCP"
-msgctxt "openvpn-settings-view"
-msgid "To activate Bridge mode, change <b>%(transportProtocol)s</b> to <b>%(automatic)s</b> or <b>%(tcp)s</b>."
-msgstr "要激活桥接模式，请将<b>%(transportProtocol)s</b>更改为<b>%(automatic)s</b>或 <b>%(tcp)s</b>。"
-
-#. This is used to instruct users how to make the bridge mode setting
-#. available.
-#. Available placeholders:
-#. %(tunnelProtocol)s - the name of the tunnel protocol setting
-#. %(openvpn)s - will be replaced with OpenVPN
-msgctxt "openvpn-settings-view"
-msgid "To activate Bridge mode, go back and change <b>%(tunnelProtocol)s</b> to <b>%(openvpn)s</b>."
-msgstr "要激活桥接模式，请返回并将<b>%(tunnelProtocol)s</b>更改为 <b>%(openvpn)s</b>。"
-
-#. This is used to instruct users how to make UDP mode
-#. available.
-msgctxt "openvpn-settings-view"
-msgid "To activate UDP, change <b>Bridge mode</b> to <b>Automatic</b> or <b>Off</b>."
-msgstr "要激活 UDP，请将<b>桥接模式</b>更改为<b>自动</b>或<b>关</b>。"
-
-#. This text is shown beneath the bridge mode setting to instruct users how to
-#. configure the feature further.
-msgctxt "openvpn-settings-view"
-msgid "To select a specific bridge server, go to the Select location view."
-msgstr "要选择特定桥接服务器，请转到“选择位置”视图。"
-
-msgctxt "openvpn-settings-view"
-msgid "Transport protocol"
-msgstr "传输协议"
 
 #. Cancel button label for voucher redemption.
 msgctxt "redeem-voucher-alert"
@@ -2057,7 +1933,7 @@ msgstr "应用会随机选择一个桥接服务器，但服务器离您越近，
 
 msgctxt "select-location-view"
 msgid "The entry server for %(multihop)s is currently overridden by %(daita)s. To select an entry server, please first enable “%(directOnly)s” or disable \"%(daita)s\" in the settings."
-msgstr "%(multihop)s的入口服务器目前被 %(daita)s 覆盖。要选择入口服务器，请先在设置中启用“%(directOnly)s”或禁用“%(daita)s”。"
+msgstr "%(multihop)s的入口服务器目前被 %(daita)s 覆盖。要选择入口服务器，请先在设置中启用“%(directOnly)s”或停用“%(daita)s”。"
 
 msgctxt "settings-import"
 msgid "Clear all overrides"
@@ -2385,7 +2261,7 @@ msgstr "正在连接。%(location)s"
 
 msgctxt "troubleshoot"
 msgid "Disable split tunneling"
-msgstr "禁用分割隧道"
+msgstr "停用分割隧道"
 
 msgctxt "troubleshoot"
 msgid "Enable “Full Disk Access” for “Mullvad VPN” in the macOS system settings."
@@ -2445,7 +2321,7 @@ msgstr "由于创建隧道设备失败，无法启动隧道连接。这通常是
 
 msgctxt "troubleshoot"
 msgid "Uninstall or disable other DNS, networking and ads/website blocking apps."
-msgstr "卸载或禁用其他 DNS、联网和广告/网站拦截应用。"
+msgstr "卸载或停用其他 DNS、联网和广告/网站拦截应用。"
 
 msgctxt "troubleshoot"
 msgid "Update your kernel."
@@ -2469,7 +2345,7 @@ msgstr "为地图移动添加动画效果。"
 
 msgctxt "user-interface-settings-view"
 msgid "Enable or disable system notifications. The critical notifications will always be displayed."
-msgstr "启用或禁用系统通知。将始终显示关键通知。"
+msgstr "启用或停用系统通知。将始终显示关键通知。"
 
 msgctxt "user-interface-settings-view"
 msgid "Enable to move the app around as a free-standing window."
@@ -2509,16 +2385,6 @@ msgctxt "user-interface-settings-view"
 msgid "User interface settings"
 msgstr "用户界面设置"
 
-#. %(openvpn)s will be replaced with the string "OpenVPN"
-msgctxt "vpn-settings-view"
-msgid "%(openvpn)s settings"
-msgstr "%(openvpn)s 设置"
-
-#. %(wireguard)s will be replaced with the string "WireGuard"
-msgctxt "vpn-settings-view"
-msgid "%(wireguard)s settings"
-msgstr "%(wireguard)s 设置"
-
 msgctxt "vpn-settings-view"
 msgid "Add a server"
 msgstr "添加服务器"
@@ -2538,6 +2404,12 @@ msgctxt "vpn-settings-view"
 msgid "Adult content"
 msgstr "成人内容"
 
+#. Label for list item that navigates to anti-censorship
+#. settings view.
+msgctxt "vpn-settings-view"
+msgid "Anti-censorship"
+msgstr "反审查"
+
 msgctxt "vpn-settings-view"
 msgid "Attention: enabling this will always require a Mullvad VPN connection in order to reach the internet."
 msgstr "注意：启用此选项后，将始终需要 Mullvad VPN 才能连接到网络。"
@@ -2545,13 +2417,6 @@ msgstr "注意：启用此选项后，将始终需要 Mullvad VPN 才能连接�
 msgctxt "vpn-settings-view"
 msgid "Attention: this setting cannot be used in combination with <b>%(customDnsFeatureName)s</b>"
 msgstr "注意：此设置不能与<b>%(customDnsFeatureName)s</b>结合使用"
-
-#. Footer text for tunnel protocol selector when OpenVPN is selected.
-#. Available placeholders:
-#. %(openvpn)s - Will be replaced with OpenVPN
-msgctxt "vpn-settings-view"
-msgid "Attention: We are removing support for %(openVpn)s."
-msgstr "注意：我们即将移除对 %(openVpn)s 的支持。"
 
 msgctxt "vpn-settings-view"
 msgid "Auto-connect"
@@ -2567,7 +2432,7 @@ msgstr "在应用启动时自动连接到服务器。"
 #. %(customDnsFeatureName)s - The name displayed next to the custom DNS toggle.
 msgctxt "vpn-settings-view"
 msgid "Disable \"%(customDnsFeatureName)s\" below to activate these settings."
-msgstr "禁用下方的“%(customDnsFeatureName)s”以激活这些设置。"
+msgstr "停用下方的“%(customDnsFeatureName)s”以激活这些设置。"
 
 #. This is displayed when either or both of the block ads/trackers settings are
 #. turned on which makes the custom DNS setting disabled.
@@ -2575,19 +2440,20 @@ msgstr "禁用下方的“%(customDnsFeatureName)s”以激活这些设置。"
 #. %(preferencesPageName)s - The page title showed on top in the preferences page.
 msgctxt "vpn-settings-view"
 msgid "Disable all <b>DNS content blockers</b> above to activate this setting."
-msgstr "禁用上方的所有 <b>DNS 内容阻止程序</b>以激活此设置。"
+msgstr "停用上方的所有 <b>DNS 内容阻止程序</b>以激活此设置。"
 
 msgctxt "vpn-settings-view"
 msgid "DNS content blockers"
 msgstr "DNS 内容阻止程序"
 
 msgctxt "vpn-settings-view"
-msgid "Enable IPv6"
-msgstr "启用 IPv6"
-
-msgctxt "vpn-settings-view"
 msgid "Enable to add at least one DNS server."
 msgstr "启用以添加至少一个 DNS 服务器。"
+
+#. Description of in-tunnel IPv6 setting.
+msgctxt "vpn-settings-view"
+msgid "Enable to allow IPv6 traffic through the tunnel."
+msgstr "启用以允许 IPv6 流量通过隧道。"
 
 msgctxt "vpn-settings-view"
 msgid "Enter IP"
@@ -2598,9 +2464,20 @@ msgctxt "vpn-settings-view"
 msgid "Gambling"
 msgstr "博彩"
 
+#. Title of in-tunnel IPv6 setting.
+msgctxt "vpn-settings-view"
+msgid "In-tunnel IPv6"
+msgstr "隧道内 IPv6"
+
 msgctxt "vpn-settings-view"
 msgid "IPv4 is always enabled and the majority of websites and applications use this protocol. We do not recommend enabling IPv6 unless you know you need it."
 msgstr "IPv4 始终处于启用状态，大多数网站和应用程序都使用此协议。不建议启用 IPv6，除非您知道自己需要使用该协议。"
+
+#. A complimentary description for the setting Device IP version,
+#. explaining why the user might want to configure the setting.
+msgctxt "vpn-settings-view"
+msgid "It can be useful when you are aware of problems caused by a certain IP version."
+msgstr "当您了解某个 IP 版本导致的问题时，这会很有用。"
 
 msgctxt "vpn-settings-view"
 msgid "It does this by allowing network communication outside the tunnel to local multicast and broadcast ranges as well as to and from these private IP ranges:"
@@ -2626,12 +2503,6 @@ msgstr "锁定模式"
 msgctxt "vpn-settings-view"
 msgid "Malware"
 msgstr "恶意软件"
-
-#. Link in tunnel protocol selector footer to blog post
-#. about OpenVPN support ending.
-msgctxt "vpn-settings-view"
-msgid "Read more"
-msgstr "阅读更多内容"
 
 msgctxt "vpn-settings-view"
 msgid "Server IP override"
@@ -2666,13 +2537,15 @@ msgctxt "vpn-settings-view"
 msgid "This feature allows access to other devices on the local network, such as for sharing, printing, streaming, etc."
 msgstr "此功能允许访问本地网络中的其他设备，以实现共享、打印、流式传输等"
 
+#. A description for the setting Device IP version,
+#. explaining how the user can configure the setting.
+msgctxt "vpn-settings-view"
+msgid "This feature allows you to choose whether to use only IPv4, only IPv6, or allow the app to automatically decide the best option when connecting to a server."
+msgstr "此功能允许您选择仅使用 IPv4、仅使用 IPv6，还是允许应用在连接到服务器时自动决定最佳选项。"
+
 msgctxt "vpn-settings-view"
 msgid "This might cause issues on certain websites, services, and apps."
 msgstr "这可能会导致某些网站、服务和应用出现问题。"
-
-msgctxt "vpn-settings-view"
-msgid "To select %(openvpn)s, please disable these settings: %(featureList)s."
-msgstr "要选择 %(openvpn)s，请禁用这些设置：%(featureList)s。"
 
 #. Label for settings that enables tracker blocking.
 msgctxt "vpn-settings-view"
@@ -2709,13 +2582,6 @@ msgid "With Lockdown Mode enabled, you must be connected to a Mullvad VPN server
 msgstr "启用锁定模式后，您必须连接到 Mullvad VPN 服务器才能访问网络。手动断开或退出应用将阻止您的连接。"
 
 #. Title label in navigation bar
-#. Available placeholders:
-#. %(wireguard)s - Will be replaced with the string "WireGuard"
-msgctxt "wireguard-settings-nav"
-msgid "%(wireguard)s settings"
-msgstr "%(wireguard)s 设置"
-
-#. Title label in navigation bar
 msgctxt "wireguard-settings-nav"
 msgid "Shadowsocks"
 msgstr "Shadowsocks"
@@ -2733,15 +2599,18 @@ msgctxt "wireguard-settings-view"
 msgid "%(daita)s does this by carefully adding network noise and making all network packets the same size."
 msgstr "%(daita)s 的实现方法是精心添加网络噪声并将所有网络数据包处理为相同的大小。"
 
-#. Available placeholders:
-#. %(wireguard)s - Will be replaced with the string "WireGuard"
 msgctxt "wireguard-settings-view"
-msgid "%(wireguard)s settings"
-msgstr "%(wireguard)s 设置"
+msgid "%(wireguard)s port"
+msgstr "%(wireguard)s 端口"
+
+#. Page title for WireGuard port view
+msgctxt "wireguard-settings-view"
+msgid "%(wireGuard)s port"
+msgstr "%(wireGuard)s 端口"
 
 msgctxt "wireguard-settings-view"
-msgid "Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans. Only works with %(wireguard)s."
-msgstr "注意：这会增加网络流量，还会对速度、延迟和电池用量产生负面影响。如果套餐流量有限，请谨慎使用。仅可以与 %(wireguard)s 搭配使用。"
+msgid "Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans."
+msgstr "注意：这会增加网络流量，还会对速度、延迟和电池使用产生负面影响。如果套餐流量有限，请谨慎使用。"
 
 msgctxt "wireguard-settings-view"
 msgid "By enabling “%(directOnly)s” you will have to manually select a server that is %(daita)s-enabled. This can cause you to end up in a blocked state until you have selected a compatible server in the “Select location” view."
@@ -2755,22 +2624,18 @@ msgctxt "wireguard-settings-view"
 msgid "Cancel"
 msgstr "取消"
 
+#. Title for device IP version setting.
+msgctxt "wireguard-settings-view"
+msgid "Device IP version"
+msgstr "设备 IP 版本"
+
 msgctxt "wireguard-settings-view"
 msgid "If an observer monitors these data packets, %(daita)s makes it significantly harder for them to identify which websites you are visiting or with whom you are communicating."
 msgstr "如果某个观察者监视这些数据包，%(daita)s 会大大提高他们识别您所访问的网站或您沟通对象的难度。"
 
-#. The title for the WireGuard IP version selector.
-msgctxt "wireguard-settings-view"
-msgid "IP version"
-msgstr "IP 版本"
-
 msgctxt "wireguard-settings-view"
 msgid "It does this by performing an extra key exchange using a quantum safe algorithm and mixing the result into WireGuard’s regular encryption. This extra step uses approximately 500 kiB of traffic every time a new tunnel is established."
 msgstr "实现方法是使用量子安全算法执行额外的密钥交换，并将结果混合到 WireGuard 的常规加密中。每次建立新隧道时，这一额外步骤都会使用约 500 kiB 的流量。"
-
-msgctxt "wireguard-settings-view"
-msgid "LWO"
-msgstr "LWO"
 
 #. The title for the WireGuard MTU setting. MTU stands for Maximum
 #. Transmission Unit and controls the maximum size of packets sent over
@@ -2800,17 +2665,6 @@ msgctxt "wireguard-settings-view"
 msgid "Not all our servers are %(daita)s-enabled. Therefore, we use multihop automatically to enable %(daita)s with any server."
 msgstr "我们的部分服务器未启用 %(daita)s。因此，我们使用多跳自动为任何服务器启用 %(daita)s。"
 
-#. The title for the WireGuard obfuscation selector.
-msgctxt "wireguard-settings-view"
-msgid "Obfuscation"
-msgstr "混淆"
-
-#. Describes what WireGuard obfuscation does, how it works and when
-#. it would be useful to enable it.
-msgctxt "wireguard-settings-view"
-msgid "Obfuscation hides the WireGuard traffic inside another protocol. It can be used to help circumvent censorship and other types of filtering, where a plain WireGuard connection would be blocked."
-msgstr "混淆会将 WireGuard 流量隐藏在其他协议中。这有助于规避审查和其他类型的过滤，在这些过滤中，普通 WireGuard 连接将被阻止。"
-
 #. The title for the WireGuard port selector.
 msgctxt "wireguard-settings-view"
 msgid "Port"
@@ -2829,10 +2683,6 @@ msgstr "端口：%(port)s"
 msgctxt "wireguard-settings-view"
 msgid "Quantum-resistant tunnel"
 msgstr "抗量子隧道"
-
-msgctxt "wireguard-settings-view"
-msgid "QUIC"
-msgstr "QUIC"
 
 #. The hint displayed below the WireGuard MTU input field.
 #. Available placeholders:
@@ -2858,13 +2708,6 @@ msgstr "自动设置将从下方显示的有效端口范围中随机选择。"
 msgctxt "wireguard-settings-view"
 msgid "The custom port can be any value inside the valid ranges: %(portRanges)s."
 msgstr "自定义端口可以是有效范围内的任何值：%(portRanges)s。"
-
-#. The hint displayed below the WireGuard IP version selector.
-#. Available placeholders:
-#. %(wireguard)s - Will be replaced with the string "WireGuard"
-msgctxt "wireguard-settings-view"
-msgid "This allows access to %(wireguard)s for devices that only support IPv6."
-msgstr "这可以让仅支持 IPv6 的设备访问 %(wireguard)s。"
 
 msgctxt "wireguard-settings-view"
 msgid "This feature makes the WireGuard tunnel resistant to potential attacks from quantum computers."
@@ -2916,6 +2759,9 @@ msgstr "%s 已被选为出口中继"
 msgid "%s is unavailable"
 msgstr "%s 不可用"
 
+msgid "%s settings."
+msgstr "%s 设置."
+
 msgid "%s was added to your account."
 msgstr "%s已添加到您的帐户中。"
 
@@ -2945,6 +2791,9 @@ msgstr "帐户额度将在几分钟后到期"
 
 msgid "Account credit expires soon"
 msgstr "帐户额度即将到期"
+
+msgid "Account number is too long, please enter a valid number"
+msgstr "帐号过长，请输入有效帐号"
 
 msgid "Account time reminders"
 msgstr "帐户时间提醒"
@@ -3006,9 +2855,6 @@ msgstr "注意：如果启用了“屏蔽未使用 VPN 的所有连接”，分�
 msgid "Attention: Shadowsocks can increase battery consumption depending on data usage, such as streaming a video."
 msgstr "注意：根据数据使用情况（例如流式传输视频），Shadowsocks 可能会增加电量消耗。"
 
-msgid "Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans."
-msgstr "注意：这会增加网络流量，还会对速度、延迟和电池使用产生负面影响。如果套餐流量有限，请谨慎使用。"
-
 msgid "Attention: this setting cannot be used in combination with \"Use custom DNS server\"."
 msgstr "注意：此设置不能与“使用自定义 DNS 服务器”结合使用。"
 
@@ -3027,6 +2873,9 @@ msgstr "正在阻止网络（设备离线）"
 msgid "Blocking..."
 msgstr "正在屏蔽…"
 
+msgid "By attaching your account token it links this report to your account, which helps us resolve your issue quicker. All reports are automatically deleted after a period of time."
+msgstr "通过附加您的帐户令牌，此报告将与您的帐户关联，这有助于我们更快地解决您的问题。所有报告会在一段时间后自动删除。"
+
 msgid "Can't connect?"
 msgstr "无法连接？"
 
@@ -3041,6 +2890,9 @@ msgstr "收起"
 
 msgid "Connect on device start-up"
 msgstr "设备启动时连接"
+
+msgid "Connect to a different network"
+msgstr "连接到其他网络"
 
 msgid "Connecting..."
 msgstr "正在连接…"
@@ -3063,6 +2915,9 @@ msgstr "创建帐户"
 msgid "Create new list"
 msgstr "创建新列表"
 
+msgid "Creating account failed"
+msgstr "创建帐户失败"
+
 msgid "Critical error (your attention is required)"
 msgstr "严重错误（需要注意）"
 
@@ -3084,14 +2939,14 @@ msgstr "删除方法"
 msgid "Delete method?"
 msgstr "是否删除方法？"
 
-msgid "Device IP version"
-msgstr "设备 IP 版本"
-
 msgid "Disable all \"%s\" above to activate this setting."
-msgstr "禁用上方的所有“%s”以激活此设置。"
+msgstr "停用上方的所有“%s”以激活此设置。"
+
+msgid "Disable multihop"
+msgstr "停用多跳"
 
 msgid "Disable recents"
-msgstr "禁用最近使用"
+msgstr "停用最近使用"
 
 msgid "Discard"
 msgstr "舍弃"
@@ -3129,8 +2984,17 @@ msgstr "编辑名称"
 msgid "Enable %1$s"
 msgstr "启用“%1$s”"
 
+msgid "Enable all & retry"
+msgstr "全部启用并重试"
+
+msgid "Enable all access methods in the app"
+msgstr "启用应用中的所有访问方法"
+
 msgid "Enable method"
 msgstr "启用方法"
+
+msgid "Enable multihop"
+msgstr "启用多跳"
 
 msgid "Enable recents"
 msgstr "启用最近使用"
@@ -3165,6 +3029,9 @@ msgstr "无法设置为当前方法 – 未知原因"
 msgid "File"
 msgstr "文件"
 
+msgid "For details, please see our %s."
+msgstr "有关详情，请参阅我们的%s。"
+
 msgid "For the VPN to connect automatically on device startup, the app must have VPN permissions. You can grant these by clicking “Connect” in the map view and selecting “OK” if prompted. Additionally, ensure the app is installed on the internal storage by checking the storage information in the app details in system settings."
 msgstr "为了让 VPN 在设备启动时自动连接，应用必须拥有 VPN 权限。您可以通过点击地图视图中的“连接”并在弹出提示时选择“确定”来授予这些权限。此外，请通过检查系统设置中应用详细信息内的存储信息，确保该应用已安装在内部存储空间中。"
 
@@ -3192,6 +3059,9 @@ msgstr "IPv6 不可用，请尝试更改“设备 IP 版本”设置。"
 msgid "If the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
 msgstr "如果使用分割隧道功能，应用会向您的系统查询所有已安装应用程序的列表。此列表仅在分割隧道视图中检索。有关已安装应用程序的信息永远不会离开设备。"
 
+msgid "If these steps don’t work, please send an email to support using the button below. It will automatically attach the logs which have been anonymized."
+msgstr "如果上述步骤无效，请使用下方的按钮发送邮件给支持团队。电子邮件将自动附加经过匿名化处理的日志。"
+
 msgid "Import new overrides by"
 msgstr "导入新覆盖设置的方式"
 
@@ -3204,14 +3074,11 @@ msgstr "导入新覆盖设置可能会替换一些先前导入的覆盖设置。
 msgid "In-app products unavailable, please make sure you have the latest version of Google Play."
 msgstr "应用内商品不可用，请确保您的 Google Play 是最新版本。"
 
-msgid "In-tunnel IPv6"
-msgstr "隧道内 IPv6"
+msgid "Include my account token for faster help with payment or account related issues"
+msgstr "包含我的帐户令牌，以便在处理付款或帐户相关问题时获得更快的帮助"
 
 msgid "Invalid or missing value \"%1$s\""
 msgstr "值“%1$s”无效或者缺失"
-
-msgid "It can be useful when you are aware of problems caused by a certain IP version."
-msgstr "当您了解某个 IP 版本导致的问题时，这会很有用。"
 
 msgid "Lets you select apps that should access the Internet directly without going through the VPN tunnel."
 msgstr "允许您选择不经过 VPN 隧道而直接访问互联网的应用。"
@@ -3255,6 +3122,15 @@ msgstr "没有为此版本添加更新日志"
 msgid "No custom lists available"
 msgstr "有可用的自定义列表"
 
+msgid "No email app available on the device"
+msgstr "设备上没有可用的电子邮件应用"
+
+msgid "No entry server match your settings, try changing server or other settings."
+msgstr "没有与您的设置匹配的入口服务器，请尝试更改服务器或其他设置。"
+
+msgid "No exit server match your settings, try changing server or other settings."
+msgstr "没有与您的设置匹配的出口服务器，请尝试更改服务器或其他设置。"
+
 msgid "No internet connection"
 msgstr "没有互联网连接"
 
@@ -3269,6 +3145,9 @@ msgstr "“%s”无结果，请尝试其他搜索"
 
 msgid "Not found"
 msgstr "找不到"
+
+msgid "Obfuscation hides the WireGuard traffic inside another protocol. It can be used to help circumvent censorship and other types of filtering, where a plain WireGuard connection would be blocked."
+msgstr "混淆会将 WireGuard 流量隐藏在其他协议中。这有助于规避审查和其他类型的过滤，在这些过滤中，普通 WireGuard 连接将被阻止。"
 
 msgid "Open app details"
 msgstr "打开应用详细信息"
@@ -3316,7 +3195,7 @@ msgid "Recents"
 msgstr "最近使用"
 
 msgid "Recents disabled and history cleared"
-msgstr "最近使用已禁用，历史记录已清除"
+msgstr "最近使用已停用，历史记录已清除"
 
 msgid "Recursion limit"
 msgstr "递归限制"
@@ -3342,8 +3221,14 @@ msgstr "重置覆盖设置"
 msgid "Reset to default"
 msgstr "重置为默认值"
 
+msgid "Restart your device"
+msgstr "重启您的设备"
+
 msgid "Search"
 msgstr "搜索"
+
+msgid "Send email"
+msgstr "发送电子邮件"
 
 msgid "Set %s obfuscation to \"Automatic\" or \"Off\" below to activate this setting."
 msgstr "将下方的“%s 混淆”设为“自动”或“关”可激活此设置。"
@@ -3357,6 +3242,9 @@ msgstr "设置端口"
 msgid "Share…"
 msgstr "共享…"
 
+msgid "Show location in notification"
+msgstr "在通知中显示位置"
+
 msgid "Show system apps"
 msgstr "显示系统应用"
 
@@ -3368,6 +3256,9 @@ msgstr "在帐户时间即将到期时显示提醒"
 
 msgid "Submit"
 msgstr "提交"
+
+msgid "TCP"
+msgstr "TCP"
 
 msgid "Test method"
 msgstr "测试方法"
@@ -3393,6 +3284,12 @@ msgstr "“当前”方法表示应用用来访问 API 的方法。"
 msgid "The app is blocking internet, please disconnect first"
 msgstr "应用正在阻止互联网，请先断开连接"
 
+msgid "The app was unable to create an account due to not being able to reach the Mullvad API."
+msgstr "由于无法访问 Mullvad API，应用无法创建帐户。"
+
+msgid "The app was unable to login due to not being able to reach the Mullvad API."
+msgstr "由于无法访问 Mullvad API，应用无法登录。"
+
 msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under VPN settings."
 msgstr "除非您在 VPN 设置下启用“本地网络共享”，否则本地 DNS 服务器将不会运行。"
 
@@ -3402,14 +3299,17 @@ msgstr "所选 %s 端口不受支持，请在以下位置更改："
 msgid "This address has already been entered."
 msgstr "此地址已输入过。"
 
-msgid "This feature allows you to choose whether to use only IPv4, only IPv6, or allow the app to automatically decide the best option when connecting to a server."
-msgstr "此功能允许您选择仅使用 IPv4、仅使用 IPv6，还是允许应用在连接到服务器时自动决定最佳选项。"
-
 msgid "This field is required"
 msgstr "此字段为必填项"
 
+msgid "This impacts your anonymity"
+msgstr "这会影响您的匿名性"
+
 msgid "This is already set as current"
 msgstr "它已被设置为当前方法"
+
+msgid "This might be due to censorship or network issues. Please try to:"
+msgstr "这可能由审查或网络问题造成。请尝试："
 
 msgid "Time added"
 msgstr "时间已添加"
@@ -3426,17 +3326,32 @@ msgstr "为确保您使用的是最安全的版本并通知您当前运行的版
 msgid "Toggle VPN"
 msgstr "切换 VPN"
 
+msgid "Too many attempts, please try again later"
+msgstr "尝试次数过多，请稍后再试"
+
+msgid "UDP"
+msgstr "UDP"
+
 msgid "Unable to apply firewall rules. Please troubleshoot or send a problem report."
 msgstr "无法应用防火墙规则。请排查问题或发送问题报告。"
 
 msgid "Unable to parse patch"
 msgstr "无法解析补丁"
 
+msgid "Unable to reach API"
+msgstr "无法访问 API"
+
+msgid "Unable to reach API, %s"
+msgstr "无法访问 API，%s"
+
 msgid "Unable to start tunnel connection. Please disable Always-on VPN before using Mullvad VPN."
-msgstr "无法启动隧道连接。在使用 Mullvad VPN 之前，请禁用“始终开启 VPN”。"
+msgstr "无法启动隧道连接。在使用 Mullvad VPN 之前，请停用“始终开启 VPN”。"
 
 msgid "Unable to start tunnel connection. Please disable Always-on VPN for <b>%s</b> before using Mullvad VPN."
-msgstr "无法启动隧道连接。在使用 Mullvad VPN 之前，请为 <b>%s</b> 禁用“始终开启 VPN”。"
+msgstr "无法启动隧道连接。在使用 Mullvad VPN 之前，请为 <b>%s</b> 停用“始终开启 VPN”。"
+
+msgid "Unavailable"
+msgstr "不可用"
 
 msgid "Undo"
 msgstr "撤消"
@@ -3473,9 +3388,6 @@ msgstr "VPN 权限被拒绝，或其他应用已启用“始终开启 VPN”"
 
 msgid "VPN tunnel status"
 msgstr "VPN 隧道状态"
-
-msgid "Valid WireGuard key is missing. Manage keys under Advanced settings."
-msgstr "缺少有效的 WireGuard 密钥。在“高级”设置下管理密钥。"
 
 msgid "Valid ranges: %s"
 msgstr "有效范围：%s"
@@ -3530,6 +3442,12 @@ msgstr "（点击此处）"
 
 msgid "less than one day"
 msgstr "不足 1 天"
+
+msgid "privacy policy"
+msgstr "隐私政策"
+
+msgid "read more here"
+msgstr "点击此处了解详情"
 
 msgid "%d day"
 msgid_plural "%d days"

@@ -97,6 +97,7 @@
     <string name="copy_account_number">Accountnummer kopiëren</string>
     <string name="create">Maken</string>
     <string name="create_account">Account aanmaken</string>
+    <string name="create_account_fail_title">Account maken is mislukt</string>
     <string name="create_custom_list_message">\"%1$s\" is gemaakt</string>
     <string name="create_new_account">Nieuw account aanmaken</string>
     <string name="create_new_account_warning_paragraph1">U hebt al een opgeslagen accountnummer. Als u een nieuw account aanmaakt, wordt het opgeslagen accountnummer verwijderd van dit apparaat. Dit kan niet ongedaan worden gemaakt.</string>
@@ -169,10 +170,12 @@
     <string name="edit_method">Methode bewerken</string>
     <string name="edit_name">Naam bewerken</string>
     <string name="enable">Inschakelen</string>
+    <string name="enable_all_methods">Alles inschakelen en opnieuw proberen</string>
     <string name="enable_anyway">Toch inschakelen</string>
     <string name="enable_custom_dns">Aangepaste DNS-server gebruiken</string>
     <string name="enable_direct_only">%1$s inschakelen</string>
     <string name="enable_ipv6">IPv6 in tunnel</string>
+    <string name="enable_location_in_notification">Locatie weergeven in melding</string>
     <string name="enable_method">Methode inschakelen</string>
     <string name="enable_recents">Recente inschakelen</string>
     <string name="encrypted_dns_proxy_info_message_part1">Met de methode \"Versleutelde DNS-proxy\" communiceert de app met onze Mullvad-API via een proxyadres. De app doet dit door een adres op te halen van een DoH-server (DNS over HTTPS) en dat te gebruiken om onze API-servers te bereiken.</string>
@@ -214,6 +217,10 @@
     <string name="import_overrides_import">Importeren</string>
     <string name="import_overrides_text_title">Importeren via tekst</string>
     <string name="in_app_products_unavailable">Producten in de app zijn niet beschikbaar. Controleer dat u de nieuwste versie van Google Play heeft.</string>
+    <string name="include_account_token_checkbox_text">Mijn accounttoken opnemen voor snellere hulp bij problemen rond betalingen of mijn account</string>
+    <string name="include_account_token_warning_message_first">Als u uw accounttoken bijvoegt, wordt dit rapport gekoppeld aan uw account. We kunnen het probleem dan sneller oplossen. Alle rapporten worden automatisch na een bepaalde tijd verwijderd.</string>
+    <string name="include_account_token_warning_message_second">Zie ons %1$s voor meer informatie.</string>
+    <string name="include_account_token_warning_title">Dit heeft gevolgen voor uw anonimiteit</string>
     <string name="invalid_dns_servers">Aangepaste DNS-serveradressen %1$s zijn ongeldig</string>
     <string name="invalid_voucher">Vouchercode is ongeldig.</string>
     <string name="ip_version_v4_unavailable">IPv4 is niet beschikbaar. Probeer de instelling \"IP-versie apparaat\" te wijzigen.</string>
@@ -245,6 +252,9 @@
     <string name="logging_in_description">Accountnummer wordt gecontroleerd</string>
     <string name="logging_in_title">Aanmelden...</string>
     <string name="login_description">Voer uw accountnummer in</string>
+    <string name="login_error_api_unreachable">Kan API niet bereiken, %1$s</string>
+    <string name="login_error_invalid_input">Accountnummer is te lang. Voer een geldig nummer in</string>
+    <string name="login_error_too_many_attempts">Te veel pogingen. Probeer het later opnieuw</string>
     <string name="login_fail_description">Ongeldig accountnummer</string>
     <string name="login_fail_title">Aanmelden mislukt</string>
     <string name="login_title">Aanmelden</string>
@@ -272,8 +282,11 @@
     <string name="new_device_notification_title">NIEUW APPARAAT GEMAAKT</string>
     <string name="new_list">Nieuwe lijst</string>
     <string name="no_custom_lists_available">Geen aangepaste lijsten beschikbaar</string>
+    <string name="no_email_app_available">Er staat geen e-mailprogramma op het apparaat</string>
     <string name="no_internet_connection">Geen internetverbinding</string>
     <string name="no_matching_relay">Er zijn geen servers die overeenkomen met uw instellingen. Probeer een andere server of andere instellingen.</string>
+    <string name="no_matching_relay_entry">Er zijn geen inkomende servers die overeenkomen met uw instellingen. Probeer een andere server of andere instellingen.</string>
+    <string name="no_matching_relay_exit">Er zijn geen uitgaande servers die overeenkomen met uw instellingen. Probeer een andere server of andere instellingen.</string>
     <string name="no_matching_servers_found_first_line">Geen overeenkomende servers gevonden.</string>
     <string name="no_matching_servers_found_second_line">Probeer de filters te veranderen.</string>
     <string name="no_recent_selection">Geen recente selectiegeschiedenis</string>
@@ -311,11 +324,13 @@
     <string name="privacy_disclaimer_body_second_paragraph">Als de split-tunnelingfunctie wordt gebruikt, vraagt de app het systeem om een lijst van alle geïnstalleerde toepassingen. Deze lijst wordt alleen opgehaald in de split-tunnelingweergave. De lijst van geïnstalleerde toepassingen wordt nooit verzonden vanaf het apparaat.</string>
     <string name="privacy_disclaimer_title">Privacy</string>
     <string name="privacy_policy_label">Privacybeleid</string>
+    <string name="privacy_policy_lower_case">privacybeleid</string>
     <string name="problem_report_description">Het logboekbestand van uw app wordt aan dit bericht gekoppeld zodat we u beter kunnen helpen. Uw gegevens blijven veilig en privé, omdat ze worden geanonimiseerd voordat ze over een versleuteld kanaal worden verzonden.</string>
     <string name="providers">Aanbieders</string>
     <string name="quantum_resistant_info_first_paragaph">Deze eigenschap maakt de WireGuard-tunnel bestand tegen mogelijke aanvallen met kwantumcomputers.</string>
     <string name="quantum_resistant_info_second_paragaph">Het doet dit door een extra sleuteluitwisseling uit te voeren met een kwantumveilig algoritme en het resultaat te mengen met de reguliere versleuteling van WireGuard. Deze extra stap gebruikt ongeveer 500 kiB aan verkeer elke keer dat een nieuwe tunnel wordt opgezet.</string>
     <string name="quantum_resistant_title">Kwantumbestendige tunnel</string>
+    <string name="read_more_here">lees hier meer</string>
     <string name="recents">Recente</string>
     <string name="recents_disabled">Recente uitgeschakeld en geschiedenis gewist</string>
     <string name="reconnect">Opnieuw verbinden</string>
@@ -340,6 +355,7 @@
     <string name="select_location">Locatie selecteren</string>
     <string name="send">Verzenden</string>
     <string name="send_anyway">Toch verzenden</string>
+    <string name="send_email">E-mail versturen</string>
     <string name="sending">Verzenden...</string>
     <string name="sent">Verzonden</string>
     <string name="sent_contact">Indien nodig nemen we u contact op via %1$s</string>
@@ -398,6 +414,11 @@
     <string name="udp">UDP</string>
     <string name="udp_over_tcp">UDP-over-TCP</string>
     <string name="udp_over_tcp_port_info">Met welke TCP-poort moet het UDP-over-TCP-obfuscatieprotocol verbinding maken op de VPN-server.</string>
+    <string name="unable_to_reach_api_dialog_message_list_first">Start het apparaat opnieuw op</string>
+    <string name="unable_to_reach_api_dialog_message_list_second">Verbinding maken met een ander netwerk</string>
+    <string name="unable_to_reach_api_dialog_message_list_third">Schakel alle toegangsmethoden in de app in</string>
+    <string name="unable_to_reach_api_dialog_message_second">Als deze stappen niet werken, kunt u het ondersteuningsteam een e-mail sturen via de knop hieronder. De (geanonimiseerde) logboeken worden automatisch bijgevoegd.</string>
+    <string name="unable_to_reach_api_dialog_title">Kan API niet bereiken</string>
     <string name="undo">Ongedaan maken</string>
     <string name="unsupported_version">NIET-ONDERSTEUNDE VERSIE</string>
     <string name="unsupported_version_description">Uw privacy kan risico lopen met deze niet-ondersteunde appversie. Werk de app nu bij.</string>

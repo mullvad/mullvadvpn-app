@@ -10,13 +10,19 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Korean\n"
 "Language: ko_KR\n"
-"PO-Revision-Date: 2025-10-20 06:58\n"
+"PO-Revision-Date: 2025-12-08 09:00\n"
 
 msgid "%(amount)d more..."
 msgstr "%(amount)d개 더 보기..."
 
 msgid "%(duration)s was added, account paid until %(expiry)s."
 msgstr "%(duration)s 추가됨, %(expiry)s까지 계정 결제함"
+
+#. The label for the WireGuard port option.
+#. Available placeholders:
+#. %(wireguard)s - will be replaced with WireGuard
+msgid "%(wireguard)s port"
+msgstr "%(wireguard)s 포트"
 
 msgid "1 day"
 msgid_plural "%d days"
@@ -213,6 +219,9 @@ msgstr "다음"
 msgid "No result for <b>%(searchTerm)s</b>."
 msgstr "<b>%(searchTerm)s</b>에 대한 결과가 없습니다."
 
+msgid "None"
+msgstr "없음"
+
 msgid "Off"
 msgstr "끄기"
 
@@ -268,14 +277,8 @@ msgstr "설정"
 msgid "System default"
 msgstr "시스템 기본값"
 
-msgid "TCP"
-msgstr "TCP"
-
 msgid "Test"
 msgstr "테스트"
-
-msgid "This setting increases latency. Use only if needed."
-msgstr "이 설정을 사용하면 대기 시간이 길어집니다. 필요한 경우에만 사용하세요."
 
 msgid "Troubleshoot"
 msgstr "문제 해결"
@@ -285,9 +288,6 @@ msgstr "다른 검색어를 시도하세요."
 
 msgid "Type"
 msgstr "유형"
-
-msgid "UDP"
-msgstr "UDP"
 
 msgid "Unblock"
 msgstr "차단 해제"
@@ -304,6 +304,13 @@ msgstr "사용자 이름"
 msgctxt "accessibility"
 msgid "%(title)s, View loaded"
 msgstr "%(title)s, 보기 로드됨"
+
+#. Text for screen readers to describe the WireGuard port settings navigation button.
+#. Available placeholders:
+#. %(wireguard)s - will be replaced with WireGuard
+msgctxt "accessibility"
+msgid "%(wireguard)s port settings"
+msgstr "%(wireguard)s 포트 설정"
 
 msgctxt "accessibility"
 msgid "Add new custom bridge"
@@ -338,28 +345,18 @@ msgctxt "accessibility"
 msgid "Forget account number %(accountNumber)s"
 msgstr "계정 번호 %(accountNumber)s 삭제하기"
 
-#. Accessibility label for link to wireguard settings.
+#. Accessibility label for link to VPN settings where
+#. the user can change WireGuard port.
 #. Available placeholders:
 #. %(wireGuard)s - Will be replaced with WireGuard
 msgctxt "accessibility"
-msgid "Go to %(wireGuard)s settings."
-msgstr "%(wireGuard)s 설정으로 이동합니다."
+msgid "Go to anti-censorship settings to change %(wireGuard)s port"
+msgstr "%(wireGuard)s 포트를 변경하려면 검열 방지 설정으로 이동하세요"
 
 #. Accessibility label for link to app upgrade view.
 msgctxt "accessibility"
 msgid "Go to app update page"
 msgstr "앱 업데이트 페이지로 이동"
-
-#. Accessibility label for link to blog post about OpenVPN support ending.
-msgctxt "accessibility"
-msgid "Go to blog post to read more, opens externally"
-msgstr "블로그 게시물로 이동해 더 자세한 내용을 읽어보세요. 외부에서 열립니다."
-
-#. Accessibility label for link to VPN settings where
-#. the user can change tunnel protocol.
-msgctxt "accessibility"
-msgid "Go to VPN settings to change tunnel protocol"
-msgstr "터널 프로토콜을 변경하려면 VPN 설정으로 이동하세요"
 
 #. Provided to accessibility tools such as screenreaders to describe
 #. the button which obscures the account number.
@@ -387,7 +384,7 @@ msgctxt "accessibility"
 msgid "More information"
 msgstr "추가 정보"
 
-#. Accessbility label for link to go to download page.
+#. Accessibility label for link to go to download page.
 msgctxt "accessibility"
 msgid "New version available, click here to go to download page, opens externally"
 msgstr "새 버전이 준비되었습니다. 다운로드 페이지로 이동하려면 여기를 클릭하세요. 별도 창에서 열립니다"
@@ -469,6 +466,26 @@ msgstr "시간 초과"
 msgctxt "account-view"
 msgid "Paid until"
 msgstr "유효 기간"
+
+#. Page title for anti censorship settings view
+msgctxt "anti-censorship-view"
+msgid "Anti-censorship"
+msgstr "검열 방지"
+
+#. The title for the obfuscation method selector.
+msgctxt "anti-censorship-view"
+msgid "Method"
+msgstr "방법"
+
+#. Second paragraph of description text in anti-censorship view
+msgctxt "anti-censorship-view"
+msgid "Please note that these methods do not improve performance, and may increase system utilization and battery consumption."
+msgstr "이 방법들은 성능을 개선하지 않으며 시스템 활용과 배터리 소모가 늘어날 수 있습니다."
+
+#. First paragraph of description text in anti-censorship view
+msgctxt "anti-censorship-view"
+msgid "These methods may be useful in situations where you are blocked from reaching Mullvad. When \"Automatic\" is selected, the app will attempt all methods until one works."
+msgstr "이 방법들은 Mullvad 사용이 차단된 경우에 유용합니다. \"자동\"을 선택하면 통하는 방법이 있을 때까지 모든 방법을 시도합니다."
 
 msgctxt "api-access-methods-view"
 msgid "Add method"
@@ -775,9 +792,14 @@ msgctxt "app-upgrade-view"
 msgid "Installer quit unexpectedly, please try again or send a problem report."
 msgstr "설치 프로그램이 예기치 않게 종료되었습니다. 다시 시도하거나 문제 보고서를 전송하세요."
 
+#. Info about which directory the app update will be downloaded to
 msgctxt "app-upgrade-view"
 msgid "Installer will be downloaded to <b>%(cacheDir)s</b>."
 msgstr "설치 프로그램은 <b>%(cacheDir)s</b>에 다운로드됩니다."
+
+msgctxt "app-upgrade-view"
+msgid "Latest version: %(version)s"
+msgstr "최신 버전: %(version)s"
 
 #. Text displayed when there are no updates for this platform in the next app version
 msgctxt "app-upgrade-view"
@@ -851,6 +873,11 @@ msgstr "설치 프로그램을 확인하는 중..."
 msgctxt "app-upgrade-view"
 msgid "Version %(version)s"
 msgstr "버전 %(version)s"
+
+#. The user has the latest version of the app and does not need to be update
+msgctxt "app-upgrade-view"
+msgid "You are using the latest version"
+msgstr "최신 버전을 사용 중입니다"
 
 msgctxt "auth-failure"
 msgid "Blocking internet: account is out of time"
@@ -1188,42 +1215,12 @@ msgctxt "in-app-notifications"
 msgid "%(duration)s. Buy more credit."
 msgstr "%(duration)s. 추가 크레딧을 구매하세요."
 
-#. First part of notification subtitle when there are no openVPN servers available.
-#. Will be followed by a link to VPN settings.
-#. Available placeholders:
-#. %(openVpn)s - Will be replaced with OpenVPN
-msgctxt "in-app-notifications"
-msgid "%(openVpn)s support has ended. Please update the app or"
-msgstr "%(openVpn)s의 지원이 종료되었습니다. 앱을 업데이트하거나"
-
-#. Notification title indicating that OpenVPN support is ending.
-#. Available placeholders:
-#. %(openVpn)s - Will be replaced with OPENVPN
-msgctxt "in-app-notifications"
-msgid "%(openVpn)s SUPPORT IS ENDING"
-msgstr "%(openVpn)s 지원이 종료됩니다"
-
-#. First part of notification subtitle when there are no openVPN servers
-#. matching current settings. Will be followed by a link to VPN settings.
-#. Available placeholders:
-#. %(openVpn)s - Will be replaced with OpenVPN
-msgctxt "in-app-notifications"
-msgid "%(openVpn)s support is ending. Switch location or"
-msgstr "%(openVpn)s 지원이 종료됩니다. 위치를 전환하거나"
-
 #. Notification subtitle when the app upgrade is ready to install.
 #. Available placeholders:
 #. - %(suggestedUpgradeVersion)s: Upgrade version to be installed.
 msgctxt "in-app-notifications"
 msgid "%(suggestedUpgradeVersion)s is ready to be installed."
 msgstr "%(suggestedUpgradeVersion)s 버전 설치 준비가 완료되었습니다."
-
-#. Link in notication to go to WireGuard settings.
-#. Available placeholders:
-#. %(wireGuard)s - Will be replaced with WireGuard
-msgctxt "in-app-notifications"
-msgid "%(wireGuard)s settings."
-msgstr "%(wireGuard)s 설정."
 
 msgctxt "in-app-notifications"
 msgid "ACCOUNT CREDIT EXPIRES SOON"
@@ -1240,14 +1237,6 @@ msgstr "베타 업데이트 사용 가능"
 msgctxt "in-app-notifications"
 msgid "BLOCKING INTERNET"
 msgstr "인터넷 차단"
-
-#. Link following the first part of the notification subtitle.
-#. Will navigate the user to the VPN settings.
-#. Available placeholders:
-#. %(wireGuard)s - Will be replaced with WireGuard
-msgctxt "in-app-notifications"
-msgid "change tunnel protocol to %(wireGuard)s."
-msgstr "%(wireGuard)s로 터널 프로토콜을 변경하세요."
 
 #. Notification subtitle when the app upgrade is ready to install.
 msgctxt "in-app-notifications"
@@ -1328,36 +1317,9 @@ msgctxt "in-app-notifications"
 msgid "NEW VERSION INSTALLED"
 msgstr "새 버전 설치 완료"
 
-#. Notification title when there are no openVPN servers
-#. matching current settings.
-#. Available placeholders:
-#. %(openVpn)s - Will be replaced with OPENVPN
-msgctxt "in-app-notifications"
-msgid "NO %(openVpn)s SERVER AVAILABLE"
-msgstr "사용 가능한 %(openVpn)s 서버 없음"
-
-#. Notification title when there are no openVPN servers available.
-#. Available placeholders:
-#. %(openVpn)s - Will be replaced with OPENVPN
-msgctxt "in-app-notifications"
-msgid "NO %(openVpn)s SERVERS AVAILABLE"
-msgstr "사용 가능한 %(openVpn)s 서버 없음"
-
-#. Notification subtitle indicating that OpenVPN support is ending.
-#. Available placeholders:
-#. %(wireGuard)s - Will be replaced with WireGuard
-msgctxt "in-app-notifications"
-msgid "Please change tunnel protocol to %(wireGuard)s."
-msgstr "%(wireGuard)s로 터널 프로토콜을 변경하세요."
-
 msgctxt "in-app-notifications"
 msgid "Please quit and restart the app."
 msgstr "앱을 종료한 후 다시 시작하세요."
-
-#. Link in notication to a blog post about OpenVPN support ending.
-msgctxt "in-app-notifications"
-msgid "Read more"
-msgstr "자세히 알아보기"
 
 #. Notification title when the app upgrade is ready to install.
 msgctxt "in-app-notifications"
@@ -1398,15 +1360,15 @@ msgstr "설치 프로그램이 시작되지 않았습니다."
 #. Available placeholders:
 #. %(wireGuard)s - Will be replaced with WireGuard
 msgctxt "in-app-notifications"
-msgid "The selected %(wireGuard)s port is not supported, please change it under "
-msgstr "선택한 %(wireGuard)s 포트는 지원되지 않습니다. 다음에서 변경하세요: "
+msgid "The selected %(wireGuard)s port is not supported, please <a>change it under VPN settings.</a>"
+msgstr "선택한 %(wireGuard)s 포트는 지원되지 않습니다. <a>VPN 설정에서 변경하세요.</a>"
 
 #. Notification text when a new device has been created.
 #. Available placeholders:
 #. - %(deviceName)s: Name of created device.
 msgctxt "in-app-notifications"
-msgid "This device is now named <em>%(deviceName)s</em>. See more under \"Manage devices\" in Account."
-msgstr "이 장치의 현재 이름은 <em>%(deviceName)s</em>입니다. 자세한 내용은 계정의 \"장치 관리\"에서 확인할 수 있습니다."
+msgid "This device is now named <em>%(deviceName)s</em>. See more under <a>Manage devices</a> in Account."
+msgstr "이 장치의 현재 이름은 <em>%(deviceName)s</em>입니다. 자세한 내용은 계정의 <a>장치 관리</a>에서 확인할 수 있습니다."
 
 #. The in-app banner displayed to the user when the app beta update is
 #. available.
@@ -1720,13 +1682,13 @@ msgstr "분할 터널링을 활성화하지 못했습니다. 다시 연결하거
 
 #. Label for notification when IPv4 is not available.
 msgctxt "notifications"
-msgid "IPv4 is not available, please try changing <b>%(ipVersionFeatureName)s</b> setting."
-msgstr "IPv4를 사용할 수 없습니다. <b>%(ipVersionFeatureName)s</b> 설정을 변경해 보세요."
+msgid "IPv4 is not available, please try changing Device IP version setting."
+msgstr "IPv4를 사용할 수 없습니다. 장치 IP 버전 설정을 변경해 보세요."
 
 #. Label for notification when IPv6 is not available.
 msgctxt "notifications"
-msgid "IPv6 is not available, please try changing <b>%(ipVersionFeatureName)s</b> setting."
-msgstr "IPv6를 사용할 수 없습니다. <b>%(ipVersionFeatureName)s</b> 설정을 변경해 보세요."
+msgid "IPv6 is not available, please try changing Device IP version setting."
+msgstr "IPv6를 사용할 수 없습니다. 장치 IP 버전 설정을 변경해 보세요."
 
 msgctxt "notifications"
 msgid "Lockdown mode active, connection blocked"
@@ -1802,12 +1764,6 @@ msgctxt "notifications"
 msgid "Upgrade"
 msgstr "업그레이드"
 
-#. Available placeholders:
-#. %(wireguard)s - will be replaced with "WireGuard"
-msgctxt "notifications"
-msgid "Valid %(wireguard)s key is missing. Manage keys under Advanced settings."
-msgstr "유효한 %(wireguard)s 키가 없습니다. 고급 설정에서 키를 관리하세요."
-
 msgctxt "notifications"
 msgid "Your device is offline. The tunnel will automatically connect once your device is back online."
 msgstr "장치가 오프라인 상태입니다. 장치가 다시 온라인 상태가 되면 터널이 자동으로 연결됩니다."
@@ -1821,86 +1777,6 @@ msgstr "해당 앱 버전은 지원되지 않으므로 개인 정보가 위험�
 msgctxt "notifications"
 msgid "Your privacy might be at risk with this unsupported app version. Please update now."
 msgstr "지원되지 않는 이 앱 버전으로 인해 개인 정보가 위험할 수 있습니다. 지금 업데이트하세요."
-
-#. Title label in navigation bar
-#. Available placeholders:
-#. %(openvpn)s - Will be replaced with "OpenVPN"
-msgctxt "openvpn-settings-nav"
-msgid "%(openvpn)s settings"
-msgstr "%(openvpn)s 설정"
-
-#. %(openvpn)s will be replaced with "OpenVPN"
-msgctxt "openvpn-settings-view"
-msgid "%(openvpn)s settings"
-msgstr "%(openvpn)s 설정"
-
-#. The title for the port selector section.
-#. Available placeholders:
-#. %(portType)s - a selected protocol (either TCP or UDP)
-msgctxt "openvpn-settings-view"
-msgid "%(portType)s port"
-msgstr "%(portType)s 포트"
-
-#. The title for the shadowsocks bridge selector section.
-msgctxt "openvpn-settings-view"
-msgid "Bridge mode"
-msgstr "브리지 모드"
-
-#. This is used as a description for the bridge mode
-#. setting.
-#. Available placeholders:
-#. %(openvpn)s - will be replaced with OpenVPN
-msgctxt "openvpn-settings-view"
-msgid "Helps circumvent censorship, by routing your traffic through a bridge server before reaching an %(openvpn)s server. Obfuscation is added to make fingerprinting harder."
-msgstr "%(openvpn)s 서버에 도달하기 전에 브리지 서버를 통해 트래픽을 라우팅하여 검열을 피할 수 있습니다. 지문 채취를 어렵게 만들기 위해 난독 처리가 추가되었습니다."
-
-msgctxt "openvpn-settings-view"
-msgid "Mssfix"
-msgstr "Mssfix"
-
-#. The hint displayed below the Mssfix input field.
-#. Available placeholders:
-#. %(openvpn)s - will be replaced with "OpenVPN"
-#. %(max)d - the maximum possible mssfix value
-#. %(min)d - the minimum possible mssfix value
-msgctxt "openvpn-settings-view"
-msgid "Set %(openvpn)s MSS value. Valid range: %(min)d - %(max)d."
-msgstr "%(openvpn)s MSS 값을 설정하세요. 유효 범위: %(min)d ~ %(max)d"
-
-#. This is used to instruct users how to make the bridge mode setting
-#. available.
-#. Available placeholders:
-#. %(transportProtocol)s - the name of the transport protocol setting
-#. %(automatic)s - the translation of "Automatic"
-#. %(tcp)s - the translation of "TCP"
-msgctxt "openvpn-settings-view"
-msgid "To activate Bridge mode, change <b>%(transportProtocol)s</b> to <b>%(automatic)s</b> or <b>%(tcp)s</b>."
-msgstr "브리지 모드를 활성화하려면 <b>%(transportProtocol)s</b>을(를) <b>%(automatic)s</b> 또는 <b>%(tcp)s</b>(으)로 변경합니다."
-
-#. This is used to instruct users how to make the bridge mode setting
-#. available.
-#. Available placeholders:
-#. %(tunnelProtocol)s - the name of the tunnel protocol setting
-#. %(openvpn)s - will be replaced with OpenVPN
-msgctxt "openvpn-settings-view"
-msgid "To activate Bridge mode, go back and change <b>%(tunnelProtocol)s</b> to <b>%(openvpn)s</b>."
-msgstr "브리지 모드를 활성화하려면 되돌아가서 <b>%(tunnelProtocol)s</b>을(를) <b>%(openvpn)s</b>(으)로 변경합니다."
-
-#. This is used to instruct users how to make UDP mode
-#. available.
-msgctxt "openvpn-settings-view"
-msgid "To activate UDP, change <b>Bridge mode</b> to <b>Automatic</b> or <b>Off</b>."
-msgstr "UDP를 활성화하려면 <b>브리지 모드</b>를 <b>자동</b> 또는 <b>끄기</b>로 변경합니다."
-
-#. This text is shown beneath the bridge mode setting to instruct users how to
-#. configure the feature further.
-msgctxt "openvpn-settings-view"
-msgid "To select a specific bridge server, go to the Select location view."
-msgstr "특정 브리지 서버를 선택하려면 위치 선택 보기로 이동합니다."
-
-msgctxt "openvpn-settings-view"
-msgid "Transport protocol"
-msgstr "전송 프로토콜"
 
 #. Cancel button label for voucher redemption.
 msgctxt "redeem-voucher-alert"
@@ -2509,16 +2385,6 @@ msgctxt "user-interface-settings-view"
 msgid "User interface settings"
 msgstr "사용자 인터페이스 설정"
 
-#. %(openvpn)s will be replaced with the string "OpenVPN"
-msgctxt "vpn-settings-view"
-msgid "%(openvpn)s settings"
-msgstr "%(openvpn)s 설정"
-
-#. %(wireguard)s will be replaced with the string "WireGuard"
-msgctxt "vpn-settings-view"
-msgid "%(wireguard)s settings"
-msgstr "%(wireguard)s 설정"
-
 msgctxt "vpn-settings-view"
 msgid "Add a server"
 msgstr "서버 추가"
@@ -2538,6 +2404,12 @@ msgctxt "vpn-settings-view"
 msgid "Adult content"
 msgstr "성인 콘텐츠"
 
+#. Label for list item that navigates to anti-censorship
+#. settings view.
+msgctxt "vpn-settings-view"
+msgid "Anti-censorship"
+msgstr "검열 방지"
+
 msgctxt "vpn-settings-view"
 msgid "Attention: enabling this will always require a Mullvad VPN connection in order to reach the internet."
 msgstr "주의: 이 기능을 활성화하려면 인터넷 연결을 위해 항상 Mullvad VPN 연결이 필요합니다."
@@ -2545,13 +2417,6 @@ msgstr "주의: 이 기능을 활성화하려면 인터넷 연결을 위해 항�
 msgctxt "vpn-settings-view"
 msgid "Attention: this setting cannot be used in combination with <b>%(customDnsFeatureName)s</b>"
 msgstr "주의: 이 설정은 <b>%(customDnsFeatureName)s</b>과(와) 함께 사용할 수 없습니다."
-
-#. Footer text for tunnel protocol selector when OpenVPN is selected.
-#. Available placeholders:
-#. %(openvpn)s - Will be replaced with OpenVPN
-msgctxt "vpn-settings-view"
-msgid "Attention: We are removing support for %(openVpn)s."
-msgstr "주의: %(openVpn)s 지원을 중단할 예정입니다."
 
 msgctxt "vpn-settings-view"
 msgid "Auto-connect"
@@ -2582,12 +2447,13 @@ msgid "DNS content blockers"
 msgstr "DNS 콘텐츠 차단기"
 
 msgctxt "vpn-settings-view"
-msgid "Enable IPv6"
-msgstr "IPv6 사용"
-
-msgctxt "vpn-settings-view"
 msgid "Enable to add at least one DNS server."
 msgstr "하나 이상의 DNS 서버를 추가하려면 활성화합니다."
+
+#. Description of in-tunnel IPv6 setting.
+msgctxt "vpn-settings-view"
+msgid "Enable to allow IPv6 traffic through the tunnel."
+msgstr "터널을 통한 IPv6 트래픽 허용을 활성화합니다."
 
 msgctxt "vpn-settings-view"
 msgid "Enter IP"
@@ -2598,9 +2464,20 @@ msgctxt "vpn-settings-view"
 msgid "Gambling"
 msgstr "도박"
 
+#. Title of in-tunnel IPv6 setting.
+msgctxt "vpn-settings-view"
+msgid "In-tunnel IPv6"
+msgstr "터널 내 IPv6"
+
 msgctxt "vpn-settings-view"
 msgid "IPv4 is always enabled and the majority of websites and applications use this protocol. We do not recommend enabling IPv6 unless you know you need it."
 msgstr "IPv4는 항상 활성화되어 있으며 대부분의 웹사이트와 애플리케이션이 이 프로토콜을 사용합니다. IPv6이 필요하다고 확신하지 않는 한 IPv6을 활성화하지 않는 것이 좋습니다."
+
+#. A complimentary description for the setting Device IP version,
+#. explaining why the user might want to configure the setting.
+msgctxt "vpn-settings-view"
+msgid "It can be useful when you are aware of problems caused by a certain IP version."
+msgstr "특정 IP 버전으로 인해 발생하는 문제를 알고 있는 경우 유용합니다."
 
 msgctxt "vpn-settings-view"
 msgid "It does this by allowing network communication outside the tunnel to local multicast and broadcast ranges as well as to and from these private IP ranges:"
@@ -2626,12 +2503,6 @@ msgstr "잠금 모드"
 msgctxt "vpn-settings-view"
 msgid "Malware"
 msgstr "맬웨어"
-
-#. Link in tunnel protocol selector footer to blog post
-#. about OpenVPN support ending.
-msgctxt "vpn-settings-view"
-msgid "Read more"
-msgstr "자세히 알아보기"
 
 msgctxt "vpn-settings-view"
 msgid "Server IP override"
@@ -2666,13 +2537,15 @@ msgctxt "vpn-settings-view"
 msgid "This feature allows access to other devices on the local network, such as for sharing, printing, streaming, etc."
 msgstr "이 기능을 사용하면 공유, 인쇄, 스트리밍 등을 위해 로컬 네트워크의 다른 장치에 액세스할 수 있습니다."
 
+#. A description for the setting Device IP version,
+#. explaining how the user can configure the setting.
+msgctxt "vpn-settings-view"
+msgid "This feature allows you to choose whether to use only IPv4, only IPv6, or allow the app to automatically decide the best option when connecting to a server."
+msgstr "이 기능을 사용하면 IPv4만 사용할지, IPv6만 사용할지, 서버 연결 시 앱이 자동으로 최적의 옵션을 결정하게 허용할지 선택할 수 있습니다."
+
 msgctxt "vpn-settings-view"
 msgid "This might cause issues on certain websites, services, and apps."
 msgstr "이 기능을 사용하면 특정 웹 사이트, 서비스 및 앱에서 문제가 발생할 수 있습니다."
-
-msgctxt "vpn-settings-view"
-msgid "To select %(openvpn)s, please disable these settings: %(featureList)s."
-msgstr "%(openvpn)s 선택을 원하는 경우 %(featureList)s 설정을 비활성화하세요."
 
 #. Label for settings that enables tracker blocking.
 msgctxt "vpn-settings-view"
@@ -2709,13 +2582,6 @@ msgid "With Lockdown Mode enabled, you must be connected to a Mullvad VPN server
 msgstr "잠금 모드가 활성화된 상태에서 인터넷에 연결하려면 Mullvad VPN 서버에 연결해야 합니다. 앱을 수동으로 연결 해제하거나 종료하면 연결이 차단됩니다."
 
 #. Title label in navigation bar
-#. Available placeholders:
-#. %(wireguard)s - Will be replaced with the string "WireGuard"
-msgctxt "wireguard-settings-nav"
-msgid "%(wireguard)s settings"
-msgstr "%(wireguard)s 설정"
-
-#. Title label in navigation bar
 msgctxt "wireguard-settings-nav"
 msgid "Shadowsocks"
 msgstr "Shadowsocks"
@@ -2733,15 +2599,18 @@ msgctxt "wireguard-settings-view"
 msgid "%(daita)s does this by carefully adding network noise and making all network packets the same size."
 msgstr "%(daita)s는 정교하게 네트워크 노이즈를 추가하고 모든 네트워크 패킷을 동일한 크기로 만들어 이를 달성합니다."
 
-#. Available placeholders:
-#. %(wireguard)s - Will be replaced with the string "WireGuard"
 msgctxt "wireguard-settings-view"
-msgid "%(wireguard)s settings"
-msgstr "%(wireguard)s 설정"
+msgid "%(wireguard)s port"
+msgstr "%(wireguard)s 포트"
+
+#. Page title for WireGuard port view
+msgctxt "wireguard-settings-view"
+msgid "%(wireGuard)s port"
+msgstr "%(wireGuard)s 포트"
 
 msgctxt "wireguard-settings-view"
-msgid "Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans. Only works with %(wireguard)s."
-msgstr "주의: 이 기능은 네트워크 트래픽을 증가시키며 속도, 대기 시간, 배터리 사용에도 부정적인 영향을 미칩니다. 제한된 데이터 플랜 사용 시에는 유의하시기 바랍니다. %(wireguard)s에 대해서만 작동됩니다."
+msgid "Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans."
+msgstr "주의: 이 기능은 네트워크 트래픽을 증가시키며 속도, 대기 시간, 배터리 사용에도 부정적인 영향을 미칩니다. 제한된 데이터 플랜 사용 시에는 유의하시기 바랍니다."
 
 msgctxt "wireguard-settings-view"
 msgid "By enabling “%(directOnly)s” you will have to manually select a server that is %(daita)s-enabled. This can cause you to end up in a blocked state until you have selected a compatible server in the “Select location” view."
@@ -2755,22 +2624,18 @@ msgctxt "wireguard-settings-view"
 msgid "Cancel"
 msgstr "취소"
 
+#. Title for device IP version setting.
+msgctxt "wireguard-settings-view"
+msgid "Device IP version"
+msgstr "장치 IP 버전"
+
 msgctxt "wireguard-settings-view"
 msgid "If an observer monitors these data packets, %(daita)s makes it significantly harder for them to identify which websites you are visiting or with whom you are communicating."
 msgstr "이러한 데이터 패킷을 모니터링하고 있는 관찰자가 있는 경우, %(daita)s는 사용자가 어느 웹사이트를 방문하고 있는지, 누구와 대화하고 있는지 아주 식별하기 어렵게 만듭니다."
 
-#. The title for the WireGuard IP version selector.
-msgctxt "wireguard-settings-view"
-msgid "IP version"
-msgstr "IP 버전"
-
 msgctxt "wireguard-settings-view"
 msgid "It does this by performing an extra key exchange using a quantum safe algorithm and mixing the result into WireGuard’s regular encryption. This extra step uses approximately 500 kiB of traffic every time a new tunnel is established."
 msgstr "이를 위해 양자 안전 알고리즘을 사용하여 추가 키 교환을 수행하고 결과를 WireGuard의 일반 암호화에 혼합하는 방법이 이용됩니다. 이 추가 단계는 새 터널이 설정될 때마다 약 500kiB의 트래픽을 사용합니다."
-
-msgctxt "wireguard-settings-view"
-msgid "LWO"
-msgstr "LWO"
 
 #. The title for the WireGuard MTU setting. MTU stands for Maximum
 #. Transmission Unit and controls the maximum size of packets sent over
@@ -2800,17 +2665,6 @@ msgctxt "wireguard-settings-view"
 msgid "Not all our servers are %(daita)s-enabled. Therefore, we use multihop automatically to enable %(daita)s with any server."
 msgstr "일부 서버에는 %(daita)s가 활성화되어 있지 않습니다. 따라서 당사는 모든 서버에서 %(daita)s를 활성화하기 위해 자동으로 멀티홉을 사용합니다."
 
-#. The title for the WireGuard obfuscation selector.
-msgctxt "wireguard-settings-view"
-msgid "Obfuscation"
-msgstr "난독 처리"
-
-#. Describes what WireGuard obfuscation does, how it works and when
-#. it would be useful to enable it.
-msgctxt "wireguard-settings-view"
-msgid "Obfuscation hides the WireGuard traffic inside another protocol. It can be used to help circumvent censorship and other types of filtering, where a plain WireGuard connection would be blocked."
-msgstr "난독 처리는 다른 프로토콜 내에서 WireGuard 트래픽을 숨깁니다. 일반 WireGuard 연결이 차단되는 상황에서 검열 및 기타 유형의 필터링을 우회하는 데 사용할 수 있습니다."
-
 #. The title for the WireGuard port selector.
 msgctxt "wireguard-settings-view"
 msgid "Port"
@@ -2829,10 +2683,6 @@ msgstr "포트: %(port)s"
 msgctxt "wireguard-settings-view"
 msgid "Quantum-resistant tunnel"
 msgstr "양자 저항 터널"
-
-msgctxt "wireguard-settings-view"
-msgid "QUIC"
-msgstr "QUIC"
 
 #. The hint displayed below the WireGuard MTU input field.
 #. Available placeholders:
@@ -2858,13 +2708,6 @@ msgstr "자동 설정은 아래 표시된 유효한 포트 범위에서 임의�
 msgctxt "wireguard-settings-view"
 msgid "The custom port can be any value inside the valid ranges: %(portRanges)s."
 msgstr "사용자 지정 포트는 유효한 범위 내의 모든 값이 될 수 있습니다: %(portRanges)s"
-
-#. The hint displayed below the WireGuard IP version selector.
-#. Available placeholders:
-#. %(wireguard)s - Will be replaced with the string "WireGuard"
-msgctxt "wireguard-settings-view"
-msgid "This allows access to %(wireguard)s for devices that only support IPv6."
-msgstr "이를 통해 IPv6만 지원하는 장치에서 %(wireguard)s에 액세스할 수 있습니다."
 
 msgctxt "wireguard-settings-view"
 msgid "This feature makes the WireGuard tunnel resistant to potential attacks from quantum computers."
@@ -2916,6 +2759,9 @@ msgstr "%s이(가) 이미 출구 릴레이로 선택되었습니다"
 msgid "%s is unavailable"
 msgstr "%s 사용 불가"
 
+msgid "%s settings."
+msgstr "%s 설정."
+
 msgid "%s was added to your account."
 msgstr "%s이(가) 계정에 추가되었습니다."
 
@@ -2945,6 +2791,9 @@ msgstr "계정 크레딧이 몇 분 후에 만료됨"
 
 msgid "Account credit expires soon"
 msgstr "계정 크레딧이 곧 만료됨"
+
+msgid "Account number is too long, please enter a valid number"
+msgstr "계정 번호가 너무 깁니다. 유효한 번호를 입력해 주세요"
 
 msgid "Account time reminders"
 msgstr "계정 시간 알림"
@@ -3006,9 +2855,6 @@ msgstr "주의: \"VPN 없이 연결 차단\"이 활성화되면, 분할 앱에 �
 msgid "Attention: Shadowsocks can increase battery consumption depending on data usage, such as streaming a video."
 msgstr "주의: Shadowsocks는 비디오 스트리밍 등 데이터 사용량에 따라 배터리 소모량이 증가할 수 있습니다."
 
-msgid "Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans."
-msgstr "주의: 이 기능은 네트워크 트래픽을 증가시키며 속도, 대기 시간, 배터리 사용에도 부정적인 영향을 미칩니다. 제한된 데이터 플랜 사용 시에는 유의하시기 바랍니다."
-
 msgid "Attention: this setting cannot be used in combination with \"Use custom DNS server\"."
 msgstr "주의: 이 설정은 \"사용자 지정 DNS 서버 사용\"과 함께 사용할 수 없습니다."
 
@@ -3027,6 +2873,9 @@ msgstr "인터넷 차단(장치 오프라인)"
 msgid "Blocking..."
 msgstr "차단 중..."
 
+msgid "By attaching your account token it links this report to your account, which helps us resolve your issue quicker. All reports are automatically deleted after a period of time."
+msgstr "계정 토큰을 첨부하여 이 보고서를 계정에 연결하며, 이는 문제를 더 빨리 해결하는 데 도움이 됩니다. 모든 보고서는 일정 시간 후 자동으로 삭제됩니다."
+
 msgid "Can't connect?"
 msgstr "연결이 되지 않나요?"
 
@@ -3041,6 +2890,9 @@ msgstr "접기"
 
 msgid "Connect on device start-up"
 msgstr "장치 시작 시 연결"
+
+msgid "Connect to a different network"
+msgstr "다른 네트워크에 연결"
 
 msgid "Connecting..."
 msgstr "연결 중..."
@@ -3063,6 +2915,9 @@ msgstr "계정 생성"
 msgid "Create new list"
 msgstr "새 목록 생성"
 
+msgid "Creating account failed"
+msgstr "계정을 생성하지 못했습니다"
+
 msgid "Critical error (your attention is required)"
 msgstr "심각한 오류(주의가 필요함)"
 
@@ -3084,11 +2939,11 @@ msgstr "방법 삭제"
 msgid "Delete method?"
 msgstr "이 방법을 삭제하시겠습니까?"
 
-msgid "Device IP version"
-msgstr "장치 IP 버전"
-
 msgid "Disable all \"%s\" above to activate this setting."
 msgstr "이 설정을 활성화하려면 위의 모든 \"%s\"를 비활성화하세요."
+
+msgid "Disable multihop"
+msgstr "멀티홉 비활성화"
 
 msgid "Disable recents"
 msgstr "최근 항목 비활성화"
@@ -3129,8 +2984,17 @@ msgstr "이름 편집"
 msgid "Enable %1$s"
 msgstr "%1$s 활성화"
 
+msgid "Enable all & retry"
+msgstr "모두 활성화 후 재시도"
+
+msgid "Enable all access methods in the app"
+msgstr "앱의 모든 액세스 방법을 활성화합니다"
+
 msgid "Enable method"
 msgstr "방법 활성화"
+
+msgid "Enable multihop"
+msgstr "멀티홉 사용"
 
 msgid "Enable recents"
 msgstr "최근 항목 활성화"
@@ -3165,6 +3029,9 @@ msgstr "현재로 설정하지 못함 - 알 수 없는 이유"
 msgid "File"
 msgstr "파일"
 
+msgid "For details, please see our %s."
+msgstr "자세한 내용은 %s에서 확인해 주시기 바랍니다."
+
 msgid "For the VPN to connect automatically on device startup, the app must have VPN permissions. You can grant these by clicking “Connect” in the map view and selecting “OK” if prompted. Additionally, ensure the app is installed on the internal storage by checking the storage information in the app details in system settings."
 msgstr "장치 시작 시 VPN이 자동으로 연결되려면 앱에 VPN 권한이 있어야 합니다. 지도 보기에서 \"연결\"을 클릭하고, 메시지가 표시되는 경우 \"확인\"을 선택하면, 해당 권한이 부여됩니다. 또한 시스템 설정의 앱 세부 정보에서 저장소 정보를 보고 앱이 내부 저장소에 설치되어 있는지 확인하세요."
 
@@ -3192,6 +3059,9 @@ msgstr "IPv6를 사용할 수 없습니다. \"장치 IP 버전\" 설정을 변�
 msgid "If the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
 msgstr "분할 터널링 기능을 사용하는 경우, 이 앱은 설치된 모든 애플리케이션 목록을 시스템에 쿼리합니다. 이 목록은 분할 터널링 보기에서만 검색됩니다. 설치된 애플리케이션 목록은 장치에서 전송되지 않습니다."
 
+msgid "If these steps don’t work, please send an email to support using the button below. It will automatically attach the logs which have been anonymized."
+msgstr "이 단계가 통하지 않는 경우 아래 버튼을 사용해 지원팀에 이메일로 문의해 주세요. 익명 처리된 로그가 자동으로 첨부됩니다."
+
 msgid "Import new overrides by"
 msgstr "다음으로 새로운 재정의 가져오기:"
 
@@ -3204,14 +3074,11 @@ msgstr "새로운 재정의를 가져오면 이전에 가져온 일부 재정의
 msgid "In-app products unavailable, please make sure you have the latest version of Google Play."
 msgstr "인앱 제품을 사용할 수 없습니다. Google Play의 최신 버전을 사용 중인지 확인해 주세요."
 
-msgid "In-tunnel IPv6"
-msgstr "터널 내 IPv6"
+msgid "Include my account token for faster help with payment or account related issues"
+msgstr "결제 또는 계정 관련 문제에 대해 더 빠른 도움을 받을 수 있도록 계정 토큰을 포함합니다"
 
 msgid "Invalid or missing value \"%1$s\""
 msgstr "\"%1$s\" 값이 유효하지 않거나 누락되었습니다"
-
-msgid "It can be useful when you are aware of problems caused by a certain IP version."
-msgstr "특정 IP 버전으로 인해 발생하는 문제를 알고 있는 경우 유용합니다."
 
 msgid "Lets you select apps that should access the Internet directly without going through the VPN tunnel."
 msgstr "VPN 터널을 거치지 않고 인터넷에서 바로 액세스할 앱을 선택할 수 있습니다."
@@ -3255,6 +3122,15 @@ msgstr "이 버전에 추가된 변경 로그 없음"
 msgid "No custom lists available"
 msgstr "이용 가능한 사용자 지정 목록 없음"
 
+msgid "No email app available on the device"
+msgstr "이 장치에서 사용할 수 있는 이메일 앱이 없습니다"
+
+msgid "No entry server match your settings, try changing server or other settings."
+msgstr "설정과 일치하는 진입 서버가 없습니다. 서버나 다른 설정을 변경해 주세요."
+
+msgid "No exit server match your settings, try changing server or other settings."
+msgstr "설정과 일치하는 종료 서버가 없습니다. 서버나 다른 설정을 변경해 주세요."
+
 msgid "No internet connection"
 msgstr "인터넷에 연결되지 않음"
 
@@ -3269,6 +3145,9 @@ msgstr "\"%s\" 검색 결과가 없습니다. 다른 검색어를 시도하세�
 
 msgid "Not found"
 msgstr "찾을 수 없음"
+
+msgid "Obfuscation hides the WireGuard traffic inside another protocol. It can be used to help circumvent censorship and other types of filtering, where a plain WireGuard connection would be blocked."
+msgstr "난독 처리는 다른 프로토콜 내에서 WireGuard 트래픽을 숨깁니다. 일반 WireGuard 연결이 차단되는 상황에서 검열 및 기타 유형의 필터링을 우회하는 데 사용할 수 있습니다."
 
 msgid "Open app details"
 msgstr "앱 세부 정보 열기"
@@ -3342,8 +3221,14 @@ msgstr "재정의 초기화"
 msgid "Reset to default"
 msgstr "기본값으로 재설정"
 
+msgid "Restart your device"
+msgstr "장치 재시작"
+
 msgid "Search"
 msgstr "검색"
+
+msgid "Send email"
+msgstr "이메일 전송"
 
 msgid "Set %s obfuscation to \"Automatic\" or \"Off\" below to activate this setting."
 msgstr "이 설정을 활성화하려면 아래 %s 난독 처리를 \"자동\" 또는 \"끄기\"로 설정합니다."
@@ -3357,6 +3242,9 @@ msgstr "포트 설정"
 msgid "Share…"
 msgstr "공유…"
 
+msgid "Show location in notification"
+msgstr "알림에 위치 표시"
+
 msgid "Show system apps"
 msgstr "시스템 앱 표시"
 
@@ -3368,6 +3256,9 @@ msgstr "계정 시간이 만료되려고 할 때 알림 표시"
 
 msgid "Submit"
 msgstr "제출"
+
+msgid "TCP"
+msgstr "TCP"
 
 msgid "Test method"
 msgstr "방법 테스트"
@@ -3393,6 +3284,12 @@ msgstr "\"현재\" 방법은 앱이 API에 연결하기 위해 사용하는 방�
 msgid "The app is blocking internet, please disconnect first"
 msgstr "해당 앱이 인터넷을 차단하고 있습니다. 먼저 연결 해제하세요"
 
+msgid "The app was unable to create an account due to not being able to reach the Mullvad API."
+msgstr "앱에서 Mullvad API를 사용할 수 없어 계정을 생성하지 못했습니다."
+
+msgid "The app was unable to login due to not being able to reach the Mullvad API."
+msgstr "앱에서 Mullvad API를 사용할 수 없어 로그인하지 못했습니다."
+
 msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under VPN settings."
 msgstr "VPN 설정에서 \"로컬 네트워크 공유\"를 활성화하지 않으면 로컬 DNS 서버가 작동하지 않습니다."
 
@@ -3402,14 +3299,17 @@ msgstr "선택한 %s 포트는 지원되지 않습니다. 다음에서 변경하
 msgid "This address has already been entered."
 msgstr "이 주소는 이미 입력되었습니다."
 
-msgid "This feature allows you to choose whether to use only IPv4, only IPv6, or allow the app to automatically decide the best option when connecting to a server."
-msgstr "이 기능을 사용하면 IPv4만 사용할지, IPv6만 사용할지, 서버 연결 시 앱이 자동으로 최적의 옵션을 결정하게 허용할지 선택할 수 있습니다."
-
 msgid "This field is required"
 msgstr "이 필드는 필수입니다"
 
+msgid "This impacts your anonymity"
+msgstr "이는 사용자의 익명성에 영향을 미칩니다"
+
 msgid "This is already set as current"
 msgstr "이미 현재로 설정되어 있습니다"
+
+msgid "This might be due to censorship or network issues. Please try to:"
+msgstr "검열 또는 네트워크 문제가 원인일 수 있습니다. 다음을 시도해 보세요."
 
 msgid "Time added"
 msgstr "시간 추가됨"
@@ -3426,17 +3326,32 @@ msgstr "가장 안전한 버전인지 확인하고 현재 실행 중인 버전�
 msgid "Toggle VPN"
 msgstr "VPN 전환"
 
+msgid "Too many attempts, please try again later"
+msgstr "시도 횟수가 너무 많습니다. 나중에 다시 시도하세요"
+
+msgid "UDP"
+msgstr "UDP"
+
 msgid "Unable to apply firewall rules. Please troubleshoot or send a problem report."
 msgstr "방화벽 규칙을 적용할 수 없습니다. 문제를 해결하거나 문제 보고서를 보내주세요."
 
 msgid "Unable to parse patch"
 msgstr "패치를 파싱할 수 없음"
 
+msgid "Unable to reach API"
+msgstr "API에 연결할 수 없습니다"
+
+msgid "Unable to reach API, %s"
+msgstr "API에 연결할 수 없습니다. %s"
+
 msgid "Unable to start tunnel connection. Please disable Always-on VPN before using Mullvad VPN."
 msgstr "터널 연결을 시작할 수 없습니다. Mullvad VPN을 사용하기 전에 상시 접속 VPN을 비활성화하세요."
 
 msgid "Unable to start tunnel connection. Please disable Always-on VPN for <b>%s</b> before using Mullvad VPN."
 msgstr "터널 연결을 시작할 수 없습니다. Mullvad VPN을 사용하기 전에 <b>%s</b>에 대한 상시 접속 VPN을 비활성화하세요."
+
+msgid "Unavailable"
+msgstr "사용할 수 없음"
 
 msgid "Undo"
 msgstr "실행 취소"
@@ -3473,9 +3388,6 @@ msgstr "VPN 권한이 거부되었거나 다른 앱에 \"상시 접속 VPN\"이 
 
 msgid "VPN tunnel status"
 msgstr "VPN 터널 상태"
-
-msgid "Valid WireGuard key is missing. Manage keys under Advanced settings."
-msgstr "유효한 WireGuard 키가 없습니다. 고급 설정에서 키를 관리하세요."
 
 msgid "Valid ranges: %s"
 msgstr "유효한 범위: %s"
@@ -3530,6 +3442,12 @@ msgstr "여기"
 
 msgid "less than one day"
 msgstr "1일 미만"
+
+msgid "privacy policy"
+msgstr "개인 정보 보호 정책"
+
+msgid "read more here"
+msgstr "여기서 더 읽기"
 
 msgid "%d day"
 msgid_plural "%d days"

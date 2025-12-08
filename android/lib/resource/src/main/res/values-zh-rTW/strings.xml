@@ -97,6 +97,7 @@
     <string name="copy_account_number">複製帳號</string>
     <string name="create">建立</string>
     <string name="create_account">建立帳戶</string>
+    <string name="create_account_fail_title">建立帳戶失敗</string>
     <string name="create_custom_list_message">已建立「%1$s」</string>
     <string name="create_new_account">建立新帳戶</string>
     <string name="create_new_account_warning_paragraph1">您已儲存一組帳號。若建立新帳戶，該已儲存的帳號將會從此裝置移除；此動作無法復原。</string>
@@ -169,10 +170,12 @@
     <string name="edit_method">編輯方式</string>
     <string name="edit_name">編輯名稱</string>
     <string name="enable">啟用</string>
+    <string name="enable_all_methods">全部啟用並重試</string>
     <string name="enable_anyway">仍然啟用</string>
     <string name="enable_custom_dns">使用自訂 DNS 伺服器</string>
     <string name="enable_direct_only">啟用 %1$s</string>
     <string name="enable_ipv6">通道內 IPv6</string>
+    <string name="enable_location_in_notification">在通知中顯示位置</string>
     <string name="enable_method">啟用方式</string>
     <string name="enable_recents">啟用最近使用</string>
     <string name="encrypted_dns_proxy_info_message_part1">使用「加密 DNS 代理伺服器」方法時，應用程式會透過代理伺服器位址和我們的 Mullvad API 通訊。應用程式會先從 DNS over HTTPS (DoH) 伺服器取得一個位址，再利用該位址連線至我們的 API 伺服器。</string>
@@ -214,6 +217,10 @@
     <string name="import_overrides_import">匯入</string>
     <string name="import_overrides_text_title">透過文字匯入</string>
     <string name="in_app_products_unavailable">無法取得應用程式內產品，請確認您是否擁有最新版本的 Google Play。</string>
+    <string name="include_account_token_checkbox_text">加入我的帳戶權杖，就能更快取得付款或帳戶相關問題的協助</string>
+    <string name="include_account_token_warning_message_first">附加您的帳戶權杖後，此回報就會和您的帳戶相連，這能讓我們更快為您解決問題。所有回報都會在一段時間後自動刪除。</string>
+    <string name="include_account_token_warning_message_second">如需詳細資訊，請參閱我們的 %1$s。</string>
+    <string name="include_account_token_warning_title">這會影響您的匿名性</string>
     <string name="invalid_dns_servers">自訂 DNS 伺服器位址 %1$s 無效</string>
     <string name="invalid_voucher">憑證兌換碼無效。</string>
     <string name="ip_version_v4_unavailable">無法使用 IPv4，請嘗試變更「裝置 IP 版本」設定。</string>
@@ -245,6 +252,9 @@
     <string name="logging_in_description">檢查帳號中</string>
     <string name="logging_in_title">登入中…</string>
     <string name="login_description">輸入您的帳號</string>
+    <string name="login_error_api_unreachable">無法存取 API，%1$s</string>
+    <string name="login_error_invalid_input">帳號過長，請輸入有效的帳號</string>
+    <string name="login_error_too_many_attempts">嘗試次數過多，請稍後再試</string>
     <string name="login_fail_description">帳號無效</string>
     <string name="login_fail_title">登入失敗</string>
     <string name="login_title">登入</string>
@@ -272,8 +282,11 @@
     <string name="new_device_notification_title">已建立新裝置</string>
     <string name="new_list">新清單</string>
     <string name="no_custom_lists_available">有可用的自訂清單</string>
+    <string name="no_email_app_available">裝置上沒有可用的電子郵件應用程式</string>
     <string name="no_internet_connection">沒有網際網路連線</string>
     <string name="no_matching_relay">沒有與您的設定相符的伺服器，請嘗試變更伺服器或其他設定。</string>
+    <string name="no_matching_relay_entry">沒有與您的設定相符的入口伺服器，請嘗試變更伺服器或其他設定。</string>
+    <string name="no_matching_relay_exit">沒有與您的設定相符的出口伺服器，請嘗試變更伺服器或其他設定。</string>
     <string name="no_matching_servers_found_first_line">找不到相符的伺服器。</string>
     <string name="no_matching_servers_found_second_line">請變更您的篩選器試試。</string>
     <string name="no_recent_selection">無最近選擇歷史</string>
@@ -311,11 +324,13 @@
     <string name="privacy_disclaimer_body_second_paragraph">如果使用了分割通道功能，該應用程式會查詢您的系統，以取得所有已安裝應用程式的清單。我們只會在分割通道視圖中擷取這份清單，絕不會傳送至他處。</string>
     <string name="privacy_disclaimer_title">隱私權</string>
     <string name="privacy_policy_label">隱私權政策</string>
+    <string name="privacy_policy_lower_case">隱私權政策</string>
     <string name="problem_report_description">為了更有效協助您，會將應用程式的日誌檔將附加到此郵件。您的資料會保持安全和私密性，因為這些資料會先經過匿名處理，再透過加密通道傳送。</string>
     <string name="providers">供應商</string>
     <string name="quantum_resistant_info_first_paragaph">借助此功能，WireGuard 通道便能夠抵抗可能從量子電腦發起的攻擊。</string>
     <string name="quantum_resistant_info_second_paragaph">實現方法是使用量子安全演算法執行額外的金鑰交換，並將結果混合至 WireGuard 的常規加密。每次建立新通道時，這一額外步驟都會使用約 500 kiB 流量。</string>
     <string name="quantum_resistant_title">抗量子通道</string>
+    <string name="read_more_here">在此處了解詳情</string>
     <string name="recents">最近使用</string>
     <string name="recents_disabled">已停用最近使用，並已清除歷史</string>
     <string name="reconnect">重新連線</string>
@@ -340,6 +355,7 @@
     <string name="select_location">選擇位置</string>
     <string name="send">傳送</string>
     <string name="send_anyway">仍要傳送</string>
+    <string name="send_email">傳送電子郵件</string>
     <string name="sending">傳送中…</string>
     <string name="sent">已傳送</string>
     <string name="sent_contact">如有需要，我們將透過 %1$s 與您聯絡</string>
@@ -398,6 +414,11 @@
     <string name="udp">UDP</string>
     <string name="udp_over_tcp">UDP-over-TCP</string>
     <string name="udp_over_tcp_port_info">UDP-over-TCP 混淆通訊協定應連線到 VPN 伺服器上的哪個 TCP 連接埠。</string>
+    <string name="unable_to_reach_api_dialog_message_list_first">重新啟動裝置</string>
+    <string name="unable_to_reach_api_dialog_message_list_second">連上其他網路</string>
+    <string name="unable_to_reach_api_dialog_message_list_third">啟用應用程式中所有存取方式</string>
+    <string name="unable_to_reach_api_dialog_message_second">若以上步驟無效，請使用下方按鈕傳送電子郵件至支援團隊。電子郵件將自動附加已匿名處理的日誌記錄。</string>
+    <string name="unable_to_reach_api_dialog_title">無法存取 API</string>
     <string name="undo">復原</string>
     <string name="unsupported_version">不支援的版本</string>
     <string name="unsupported_version_description">此應用程式版本不受支援，因此您的隱私可能存在風險。請立即更新。</string>
@@ -432,7 +453,7 @@
     <string name="wireguard_port_info_port_range">自訂連接埠可以是有效範圍內的任何值：%1$s。</string>
     <string name="wireguard_port_is_not_supported">不支援所選的 %1$s 連接埠，請至下列位置變更：</string>
     <string name="wireguard_port_title">WireGuard 連接埠</string>
-    <string name="wireguard_settings">%1$s 設定。</string>
+    <string name="wireguard_settings">%1$s 設定.</string>
     <string name="x_entry">%1$s (入口)</string>
     <string name="x_exit">%1$s (出口)</string>
     <string name="x_via_x">%1$s，經由 %2$s</string>

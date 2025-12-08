@@ -10,13 +10,19 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Swedish\n"
 "Language: sv_SE\n"
-"PO-Revision-Date: 2025-10-20 12:26\n"
+"PO-Revision-Date: 2025-12-08 09:00\n"
 
 msgid "%(amount)d more..."
 msgstr "%(amount)d till ..."
 
 msgid "%(duration)s was added, account paid until %(expiry)s."
 msgstr "%(duration)s har lagts till. Kontot är betalt till och med %(expiry)s."
+
+#. The label for the WireGuard port option.
+#. Available placeholders:
+#. %(wireguard)s - will be replaced with WireGuard
+msgid "%(wireguard)s port"
+msgstr "%(wireguard)s-port"
 
 msgid "1 day"
 msgid_plural "%d days"
@@ -219,6 +225,9 @@ msgstr "Nästa"
 msgid "No result for <b>%(searchTerm)s</b>."
 msgstr "Inga resultat för <b>%(searchTerm)s</b>."
 
+msgid "None"
+msgstr "Inget"
+
 msgid "Off"
 msgstr "Av"
 
@@ -274,14 +283,8 @@ msgstr "Inställningar"
 msgid "System default"
 msgstr "Systemstandard"
 
-msgid "TCP"
-msgstr "TCP"
-
 msgid "Test"
 msgstr "Testa"
-
-msgid "This setting increases latency. Use only if needed."
-msgstr "Den här inställningen ökar fördröjningen. Använd bara vid behov."
 
 msgid "Troubleshoot"
 msgstr "Felsök"
@@ -291,9 +294,6 @@ msgstr "Testa en annan sökning."
 
 msgid "Type"
 msgstr "Typ"
-
-msgid "UDP"
-msgstr "UDP"
 
 msgid "Unblock"
 msgstr "Avblockera"
@@ -310,6 +310,13 @@ msgstr "Användarnamn"
 msgctxt "accessibility"
 msgid "%(title)s, View loaded"
 msgstr "%(title)s, visa laddad"
+
+#. Text for screen readers to describe the WireGuard port settings navigation button.
+#. Available placeholders:
+#. %(wireguard)s - will be replaced with WireGuard
+msgctxt "accessibility"
+msgid "%(wireguard)s port settings"
+msgstr "%(wireguard)s-portinställningar"
 
 msgctxt "accessibility"
 msgid "Add new custom bridge"
@@ -344,28 +351,18 @@ msgctxt "accessibility"
 msgid "Forget account number %(accountNumber)s"
 msgstr "Glöm kontonumret %(accountNumber)s"
 
-#. Accessibility label for link to wireguard settings.
+#. Accessibility label for link to VPN settings where
+#. the user can change WireGuard port.
 #. Available placeholders:
 #. %(wireGuard)s - Will be replaced with WireGuard
 msgctxt "accessibility"
-msgid "Go to %(wireGuard)s settings."
-msgstr "Gå till %(wireGuard)s-inställningarna."
+msgid "Go to anti-censorship settings to change %(wireGuard)s port"
+msgstr "Gå till inställningar för anti-censur för att ändra %(wireGuard)s-port"
 
 #. Accessibility label for link to app upgrade view.
 msgctxt "accessibility"
 msgid "Go to app update page"
 msgstr "Gå till appens uppdateringssida"
-
-#. Accessibility label for link to blog post about OpenVPN support ending.
-msgctxt "accessibility"
-msgid "Go to blog post to read more, opens externally"
-msgstr "Gå till blogginlägget för att läsa mer (öppnas externt)"
-
-#. Accessibility label for link to VPN settings where
-#. the user can change tunnel protocol.
-msgctxt "accessibility"
-msgid "Go to VPN settings to change tunnel protocol"
-msgstr "Gå till VPN-inställningarna för att ändra tunnelprotokoll"
 
 #. Provided to accessibility tools such as screenreaders to describe
 #. the button which obscures the account number.
@@ -393,7 +390,7 @@ msgctxt "accessibility"
 msgid "More information"
 msgstr "Mer information"
 
-#. Accessbility label for link to go to download page.
+#. Accessibility label for link to go to download page.
 msgctxt "accessibility"
 msgid "New version available, click here to go to download page, opens externally"
 msgstr "Ny version tillgänglig, klicka här för att gå till nedladdningssidan som öppnas externt"
@@ -475,6 +472,26 @@ msgstr "INGEN TID KVAR"
 msgctxt "account-view"
 msgid "Paid until"
 msgstr "Betalat till"
+
+#. Page title for anti censorship settings view
+msgctxt "anti-censorship-view"
+msgid "Anti-censorship"
+msgstr "Anti-censur"
+
+#. The title for the obfuscation method selector.
+msgctxt "anti-censorship-view"
+msgid "Method"
+msgstr "Metod"
+
+#. Second paragraph of description text in anti-censorship view
+msgctxt "anti-censorship-view"
+msgid "Please note that these methods do not improve performance, and may increase system utilization and battery consumption."
+msgstr "Observera att dessa metoder inte förbättrar resultatet och kan komma att öka systemanvändningen och batteriförbrukningen."
+
+#. First paragraph of description text in anti-censorship view
+msgctxt "anti-censorship-view"
+msgid "These methods may be useful in situations where you are blocked from reaching Mullvad. When \"Automatic\" is selected, the app will attempt all methods until one works."
+msgstr "Dessa metoder kan vara användbara i situationer där du blockeras från att nå Mullvad. När \"Automatiskt\" är valt försöker appen med alla metoder tills en fungerar."
 
 msgctxt "api-access-methods-view"
 msgid "Add method"
@@ -781,9 +798,14 @@ msgctxt "app-upgrade-view"
 msgid "Installer quit unexpectedly, please try again or send a problem report."
 msgstr "Installationsprogrammet avslutades oväntat. Försök igen eller skicka en problemrapport."
 
+#. Info about which directory the app update will be downloaded to
 msgctxt "app-upgrade-view"
 msgid "Installer will be downloaded to <b>%(cacheDir)s</b>."
 msgstr "Installationsprogrammet kan laddas ner till <b>%(cacheDir)s</b>."
+
+msgctxt "app-upgrade-view"
+msgid "Latest version: %(version)s"
+msgstr "Senaste version: %(version)s"
 
 #. Text displayed when there are no updates for this platform in the next app version
 msgctxt "app-upgrade-view"
@@ -857,6 +879,11 @@ msgstr "Verifierar installationsprogrammet ..."
 msgctxt "app-upgrade-view"
 msgid "Version %(version)s"
 msgstr "Version %(version)s"
+
+#. The user has the latest version of the app and does not need to be update
+msgctxt "app-upgrade-view"
+msgid "You are using the latest version"
+msgstr "Du använder den senaste versionen"
 
 msgctxt "auth-failure"
 msgid "Blocking internet: account is out of time"
@@ -1194,42 +1221,12 @@ msgctxt "in-app-notifications"
 msgid "%(duration)s. Buy more credit."
 msgstr "%(duration)s. Köp mer kredit."
 
-#. First part of notification subtitle when there are no openVPN servers available.
-#. Will be followed by a link to VPN settings.
-#. Available placeholders:
-#. %(openVpn)s - Will be replaced with OpenVPN
-msgctxt "in-app-notifications"
-msgid "%(openVpn)s support has ended. Please update the app or"
-msgstr "%(openVpn)s-supporten har avslutats. Uppdatera appen eller"
-
-#. Notification title indicating that OpenVPN support is ending.
-#. Available placeholders:
-#. %(openVpn)s - Will be replaced with OPENVPN
-msgctxt "in-app-notifications"
-msgid "%(openVpn)s SUPPORT IS ENDING"
-msgstr "%(openVpn)s-SUPPORTEN AVSLUTAS"
-
-#. First part of notification subtitle when there are no openVPN servers
-#. matching current settings. Will be followed by a link to VPN settings.
-#. Available placeholders:
-#. %(openVpn)s - Will be replaced with OpenVPN
-msgctxt "in-app-notifications"
-msgid "%(openVpn)s support is ending. Switch location or"
-msgstr "%(openVpn)s-supporten avslutas. Byt plats eller"
-
 #. Notification subtitle when the app upgrade is ready to install.
 #. Available placeholders:
 #. - %(suggestedUpgradeVersion)s: Upgrade version to be installed.
 msgctxt "in-app-notifications"
 msgid "%(suggestedUpgradeVersion)s is ready to be installed."
 msgstr "%(suggestedUpgradeVersion)s är klar att installeras."
-
-#. Link in notication to go to WireGuard settings.
-#. Available placeholders:
-#. %(wireGuard)s - Will be replaced with WireGuard
-msgctxt "in-app-notifications"
-msgid "%(wireGuard)s settings."
-msgstr "%(wireGuard)s-inställningarna."
 
 msgctxt "in-app-notifications"
 msgid "ACCOUNT CREDIT EXPIRES SOON"
@@ -1246,14 +1243,6 @@ msgstr "BETAUPPDATERING TILLGÄNGLIG"
 msgctxt "in-app-notifications"
 msgid "BLOCKING INTERNET"
 msgstr "BLOCKERAR INTERNET"
-
-#. Link following the first part of the notification subtitle.
-#. Will navigate the user to the VPN settings.
-#. Available placeholders:
-#. %(wireGuard)s - Will be replaced with WireGuard
-msgctxt "in-app-notifications"
-msgid "change tunnel protocol to %(wireGuard)s."
-msgstr "ändra tunnelprotokoll till %(wireGuard)s."
 
 #. Notification subtitle when the app upgrade is ready to install.
 msgctxt "in-app-notifications"
@@ -1334,36 +1323,9 @@ msgctxt "in-app-notifications"
 msgid "NEW VERSION INSTALLED"
 msgstr "NY VERSION INSTALLERAD"
 
-#. Notification title when there are no openVPN servers
-#. matching current settings.
-#. Available placeholders:
-#. %(openVpn)s - Will be replaced with OPENVPN
-msgctxt "in-app-notifications"
-msgid "NO %(openVpn)s SERVER AVAILABLE"
-msgstr "INGEN TILLGÄNGLIG %(openVpn)s-SERVER"
-
-#. Notification title when there are no openVPN servers available.
-#. Available placeholders:
-#. %(openVpn)s - Will be replaced with OPENVPN
-msgctxt "in-app-notifications"
-msgid "NO %(openVpn)s SERVERS AVAILABLE"
-msgstr "INGA TILLGÄNGLIGA %(openVpn)s-SERVRAR"
-
-#. Notification subtitle indicating that OpenVPN support is ending.
-#. Available placeholders:
-#. %(wireGuard)s - Will be replaced with WireGuard
-msgctxt "in-app-notifications"
-msgid "Please change tunnel protocol to %(wireGuard)s."
-msgstr "Ändra tunnelprotokoll till %(wireGuard)s."
-
 msgctxt "in-app-notifications"
 msgid "Please quit and restart the app."
 msgstr "Avsluta och starta om appen."
-
-#. Link in notication to a blog post about OpenVPN support ending.
-msgctxt "in-app-notifications"
-msgid "Read more"
-msgstr "Läs mer"
 
 #. Notification title when the app upgrade is ready to install.
 msgctxt "in-app-notifications"
@@ -1404,15 +1366,15 @@ msgstr "Det gick inte att starta installationsprogrammet."
 #. Available placeholders:
 #. %(wireGuard)s - Will be replaced with WireGuard
 msgctxt "in-app-notifications"
-msgid "The selected %(wireGuard)s port is not supported, please change it under "
-msgstr "Den valda %(wireGuard)s-porten stöds inte, ändra den i "
+msgid "The selected %(wireGuard)s port is not supported, please <a>change it under VPN settings.</a>"
+msgstr "Den valda %(wireGuard)s-porten stöds inte. <a>Ändra den i VPN-inställningarna.</a>"
 
 #. Notification text when a new device has been created.
 #. Available placeholders:
 #. - %(deviceName)s: Name of created device.
 msgctxt "in-app-notifications"
-msgid "This device is now named <em>%(deviceName)s</em>. See more under \"Manage devices\" in Account."
-msgstr "Den här enheten heter nu <em>%(deviceName)s</em>. Du hittar mer information i \"Hantera enheter\" under Konto."
+msgid "This device is now named <em>%(deviceName)s</em>. See more under <a>Manage devices</a> in Account."
+msgstr "Den här enheten heter nu <em>%(deviceName)s</em>. Du hittar mer information i <a>Hantera enheter</a> under Konto."
 
 #. The in-app banner displayed to the user when the app beta update is
 #. available.
@@ -1726,13 +1688,13 @@ msgstr "Det gick inte att aktivera split tunneling. Anslut igen eller inaktivera
 
 #. Label for notification when IPv4 is not available.
 msgctxt "notifications"
-msgid "IPv4 is not available, please try changing <b>%(ipVersionFeatureName)s</b> setting."
-msgstr "IPv4 är inte tillgängligt. Prova att ändra inställningen <b>%(ipVersionFeatureName)s</b>."
+msgid "IPv4 is not available, please try changing Device IP version setting."
+msgstr "IPv4 är inte tillgängligt, prova att ändra inställningen Enhetens IP-version."
 
 #. Label for notification when IPv6 is not available.
 msgctxt "notifications"
-msgid "IPv6 is not available, please try changing <b>%(ipVersionFeatureName)s</b> setting."
-msgstr "IPv6 är inte tillgängligt. Prova att ändra inställningen <b>%(ipVersionFeatureName)s</b>."
+msgid "IPv6 is not available, please try changing Device IP version setting."
+msgstr "IPv6 är inte tillgängligt, prova att ändra inställningen Enhetens IP-version."
 
 msgctxt "notifications"
 msgid "Lockdown mode active, connection blocked"
@@ -1808,12 +1770,6 @@ msgctxt "notifications"
 msgid "Upgrade"
 msgstr "Uppgradera"
 
-#. Available placeholders:
-#. %(wireguard)s - will be replaced with "WireGuard"
-msgctxt "notifications"
-msgid "Valid %(wireguard)s key is missing. Manage keys under Advanced settings."
-msgstr "Giltig %(wireguard)s-nyckel saknas. Hantera nycklar i Avancerade inställningar."
-
 msgctxt "notifications"
 msgid "Your device is offline. The tunnel will automatically connect once your device is back online."
 msgstr "Din enhet är offline. Tunneln ansluts automatiskt när din enhet är online igen."
@@ -1827,86 +1783,6 @@ msgstr "Din sekretess kan vara utsatt för risk med den här appversionen som sa
 msgctxt "notifications"
 msgid "Your privacy might be at risk with this unsupported app version. Please update now."
 msgstr "Din sekretess kan vara utsatt för risk med den här appversionen som inte stöds. Uppdatera nu."
-
-#. Title label in navigation bar
-#. Available placeholders:
-#. %(openvpn)s - Will be replaced with "OpenVPN"
-msgctxt "openvpn-settings-nav"
-msgid "%(openvpn)s settings"
-msgstr "%(openvpn)s-inställningar"
-
-#. %(openvpn)s will be replaced with "OpenVPN"
-msgctxt "openvpn-settings-view"
-msgid "%(openvpn)s settings"
-msgstr "%(openvpn)s-inställningar"
-
-#. The title for the port selector section.
-#. Available placeholders:
-#. %(portType)s - a selected protocol (either TCP or UDP)
-msgctxt "openvpn-settings-view"
-msgid "%(portType)s port"
-msgstr "%(portType)s-port"
-
-#. The title for the shadowsocks bridge selector section.
-msgctxt "openvpn-settings-view"
-msgid "Bridge mode"
-msgstr "Broläge"
-
-#. This is used as a description for the bridge mode
-#. setting.
-#. Available placeholders:
-#. %(openvpn)s - will be replaced with OpenVPN
-msgctxt "openvpn-settings-view"
-msgid "Helps circumvent censorship, by routing your traffic through a bridge server before reaching an %(openvpn)s server. Obfuscation is added to make fingerprinting harder."
-msgstr "Hjälper till att kringgå censur genom att dirigera din trafik genom en bryggserver innan den når en %(openvpn)s-server. Obfuskering läggs till för att göra det svårare att ta fingeravtryck."
-
-msgctxt "openvpn-settings-view"
-msgid "Mssfix"
-msgstr "Mssfix"
-
-#. The hint displayed below the Mssfix input field.
-#. Available placeholders:
-#. %(openvpn)s - will be replaced with "OpenVPN"
-#. %(max)d - the maximum possible mssfix value
-#. %(min)d - the minimum possible mssfix value
-msgctxt "openvpn-settings-view"
-msgid "Set %(openvpn)s MSS value. Valid range: %(min)d - %(max)d."
-msgstr "Ange värde för %(openvpn)s MSS. Giltigt intervall: %(min)d–%(max)d."
-
-#. This is used to instruct users how to make the bridge mode setting
-#. available.
-#. Available placeholders:
-#. %(transportProtocol)s - the name of the transport protocol setting
-#. %(automatic)s - the translation of "Automatic"
-#. %(tcp)s - the translation of "TCP"
-msgctxt "openvpn-settings-view"
-msgid "To activate Bridge mode, change <b>%(transportProtocol)s</b> to <b>%(automatic)s</b> or <b>%(tcp)s</b>."
-msgstr "För att aktivera Bryggläge ska du ändra <b>%(transportProtocol)s</b> till <b>%(automatic)s</b> eller <b>%(tcp)s</b>."
-
-#. This is used to instruct users how to make the bridge mode setting
-#. available.
-#. Available placeholders:
-#. %(tunnelProtocol)s - the name of the tunnel protocol setting
-#. %(openvpn)s - will be replaced with OpenVPN
-msgctxt "openvpn-settings-view"
-msgid "To activate Bridge mode, go back and change <b>%(tunnelProtocol)s</b> to <b>%(openvpn)s</b>."
-msgstr "För att aktivera Bryggläge ska du gå tillbaka och ändra <b>%(tunnelProtocol)s</b> till <b>%(openvpn)s</b>."
-
-#. This is used to instruct users how to make UDP mode
-#. available.
-msgctxt "openvpn-settings-view"
-msgid "To activate UDP, change <b>Bridge mode</b> to <b>Automatic</b> or <b>Off</b>."
-msgstr "För att aktivera UDP ska du ändra <b>Bryggläge</b> till <b>Automatisk</b> eller <b>Av</b>."
-
-#. This text is shown beneath the bridge mode setting to instruct users how to
-#. configure the feature further.
-msgctxt "openvpn-settings-view"
-msgid "To select a specific bridge server, go to the Select location view."
-msgstr "Gå till vyn Välj plats för att välja en specifik bryggserver."
-
-msgctxt "openvpn-settings-view"
-msgid "Transport protocol"
-msgstr "Transportprotokoll"
 
 #. Cancel button label for voucher redemption.
 msgctxt "redeem-voucher-alert"
@@ -2515,16 +2391,6 @@ msgctxt "user-interface-settings-view"
 msgid "User interface settings"
 msgstr "Inställningar för användargränssnitt"
 
-#. %(openvpn)s will be replaced with the string "OpenVPN"
-msgctxt "vpn-settings-view"
-msgid "%(openvpn)s settings"
-msgstr "%(openvpn)s-inställningar"
-
-#. %(wireguard)s will be replaced with the string "WireGuard"
-msgctxt "vpn-settings-view"
-msgid "%(wireguard)s settings"
-msgstr "%(wireguard)s-inställningar"
-
 msgctxt "vpn-settings-view"
 msgid "Add a server"
 msgstr "Lägg till en server"
@@ -2544,6 +2410,12 @@ msgctxt "vpn-settings-view"
 msgid "Adult content"
 msgstr "Vuxet innehåll"
 
+#. Label for list item that navigates to anti-censorship
+#. settings view.
+msgctxt "vpn-settings-view"
+msgid "Anti-censorship"
+msgstr "Anti-censur"
+
 msgctxt "vpn-settings-view"
 msgid "Attention: enabling this will always require a Mullvad VPN connection in order to reach the internet."
 msgstr "Obs! Om du aktiverar detta behöver du alltid en Mullvad VPN-anslutning för att nå internet."
@@ -2551,13 +2423,6 @@ msgstr "Obs! Om du aktiverar detta behöver du alltid en Mullvad VPN-anslutning 
 msgctxt "vpn-settings-view"
 msgid "Attention: this setting cannot be used in combination with <b>%(customDnsFeatureName)s</b>"
 msgstr "Obs! Den här inställningen kan inte användas tillsammans med <b>%(customDnsFeatureName)s</b>"
-
-#. Footer text for tunnel protocol selector when OpenVPN is selected.
-#. Available placeholders:
-#. %(openvpn)s - Will be replaced with OpenVPN
-msgctxt "vpn-settings-view"
-msgid "Attention: We are removing support for %(openVpn)s."
-msgstr "Obs! Vi tar bort supporten för %(openVpn)s."
 
 msgctxt "vpn-settings-view"
 msgid "Auto-connect"
@@ -2588,12 +2453,13 @@ msgid "DNS content blockers"
 msgstr "DNS-innehållsblockerare"
 
 msgctxt "vpn-settings-view"
-msgid "Enable IPv6"
-msgstr "Aktivera IPv6"
-
-msgctxt "vpn-settings-view"
 msgid "Enable to add at least one DNS server."
 msgstr "Aktivera för att lägga till minst en DNS-server."
+
+#. Description of in-tunnel IPv6 setting.
+msgctxt "vpn-settings-view"
+msgid "Enable to allow IPv6 traffic through the tunnel."
+msgstr "Aktivera för att tillåta IPv6-trafik genom tunneln."
 
 msgctxt "vpn-settings-view"
 msgid "Enter IP"
@@ -2604,9 +2470,20 @@ msgctxt "vpn-settings-view"
 msgid "Gambling"
 msgstr "Hasardspel"
 
+#. Title of in-tunnel IPv6 setting.
+msgctxt "vpn-settings-view"
+msgid "In-tunnel IPv6"
+msgstr "IPv6 i tunnel"
+
 msgctxt "vpn-settings-view"
 msgid "IPv4 is always enabled and the majority of websites and applications use this protocol. We do not recommend enabling IPv6 unless you know you need it."
 msgstr "IPv4 är alltid aktiverat och de flesta webbplatserna och applikationerna använder det här protokollet. Vi rekommenderar inte att du aktiverar IPv6 om du vet att du inte behöver det."
+
+#. A complimentary description for the setting Device IP version,
+#. explaining why the user might want to configure the setting.
+msgctxt "vpn-settings-view"
+msgid "It can be useful when you are aware of problems caused by a certain IP version."
+msgstr "Det kan vara användbart när du känner till problem som orsakas av en viss IP-version."
 
 msgctxt "vpn-settings-view"
 msgid "It does this by allowing network communication outside the tunnel to local multicast and broadcast ranges as well as to and from these private IP ranges:"
@@ -2632,12 +2509,6 @@ msgstr "Låsningsläge"
 msgctxt "vpn-settings-view"
 msgid "Malware"
 msgstr "Skadlig kod"
-
-#. Link in tunnel protocol selector footer to blog post
-#. about OpenVPN support ending.
-msgctxt "vpn-settings-view"
-msgid "Read more"
-msgstr "Läs mer"
 
 msgctxt "vpn-settings-view"
 msgid "Server IP override"
@@ -2672,13 +2543,15 @@ msgctxt "vpn-settings-view"
 msgid "This feature allows access to other devices on the local network, such as for sharing, printing, streaming, etc."
 msgstr "Funktionen tillåter åtkomst till andra enheter på det lokala nätverket, t.ex. för att dela, skriva ut, streama osv."
 
+#. A description for the setting Device IP version,
+#. explaining how the user can configure the setting.
+msgctxt "vpn-settings-view"
+msgid "This feature allows you to choose whether to use only IPv4, only IPv6, or allow the app to automatically decide the best option when connecting to a server."
+msgstr "Med den här funktionen kan du välja om du enbart ska använda IPv4, enbart IPv6 eller om appen automatiskt får avgöra vilket alternativ som är bäst när du ansluter till en server."
+
 msgctxt "vpn-settings-view"
 msgid "This might cause issues on certain websites, services, and apps."
 msgstr "Detta kan orsaka problem på vissa webbplatser, tjänster och appar."
-
-msgctxt "vpn-settings-view"
-msgid "To select %(openvpn)s, please disable these settings: %(featureList)s."
-msgstr "För att välja %(openvpn)s måste du inaktivera dessa inställningar: %(featureList)s."
 
 #. Label for settings that enables tracker blocking.
 msgctxt "vpn-settings-view"
@@ -2715,13 +2588,6 @@ msgid "With Lockdown Mode enabled, you must be connected to a Mullvad VPN server
 msgstr "När Låsningsläge är aktiverat måste du vara ansluten till en Mullvad VPN-server för att kunna nå internet. Om du kopplar från automatiskt eller avslutar appen blockeras din anslutning."
 
 #. Title label in navigation bar
-#. Available placeholders:
-#. %(wireguard)s - Will be replaced with the string "WireGuard"
-msgctxt "wireguard-settings-nav"
-msgid "%(wireguard)s settings"
-msgstr "%(wireguard)s-inställningar"
-
-#. Title label in navigation bar
 msgctxt "wireguard-settings-nav"
 msgid "Shadowsocks"
 msgstr "Shadowsocks"
@@ -2739,15 +2605,18 @@ msgctxt "wireguard-settings-view"
 msgid "%(daita)s does this by carefully adding network noise and making all network packets the same size."
 msgstr "%(daita)s gör det genom att noggrant lägga till nätverksbrus och se till så att alla nätverkspaket har samma storlek."
 
-#. Available placeholders:
-#. %(wireguard)s - Will be replaced with the string "WireGuard"
 msgctxt "wireguard-settings-view"
-msgid "%(wireguard)s settings"
-msgstr "%(wireguard)s-inställningar"
+msgid "%(wireguard)s port"
+msgstr "%(wireguard)s-port"
+
+#. Page title for WireGuard port view
+msgctxt "wireguard-settings-view"
+msgid "%(wireGuard)s port"
+msgstr "%(wireGuard)s-port"
 
 msgctxt "wireguard-settings-view"
-msgid "Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans. Only works with %(wireguard)s."
-msgstr "Obs! Detta ökar nätverkstrafiken men påverkar också hastighet, fördröjning och batterianvändning negativt. Var försiktig om du har ett abonnemang med begränsad datamängd. Fungerar bara med %(wireguard)s."
+msgid "Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans."
+msgstr "Obs! Detta ökar nätverkstrafiken men påverkar också hastighet, fördröjning och batterianvändning negativt. Var försiktig om du har ett abonnemang med begränsad datamängd."
 
 msgctxt "wireguard-settings-view"
 msgid "By enabling “%(directOnly)s” you will have to manually select a server that is %(daita)s-enabled. This can cause you to end up in a blocked state until you have selected a compatible server in the “Select location” view."
@@ -2761,22 +2630,18 @@ msgctxt "wireguard-settings-view"
 msgid "Cancel"
 msgstr "Avbryt"
 
+#. Title for device IP version setting.
+msgctxt "wireguard-settings-view"
+msgid "Device IP version"
+msgstr "Enhetens IP-version"
+
 msgctxt "wireguard-settings-view"
 msgid "If an observer monitors these data packets, %(daita)s makes it significantly harder for them to identify which websites you are visiting or with whom you are communicating."
 msgstr "Om dessa datapaket övervakas av en observatör, gör %(daita)s det svårare för dem att identifiera vilka webbplatser du besöker eller vem du kommunicerar med."
 
-#. The title for the WireGuard IP version selector.
-msgctxt "wireguard-settings-view"
-msgid "IP version"
-msgstr "IP-version"
-
 msgctxt "wireguard-settings-view"
 msgid "It does this by performing an extra key exchange using a quantum safe algorithm and mixing the result into WireGuard’s regular encryption. This extra step uses approximately 500 kiB of traffic every time a new tunnel is established."
 msgstr "Den gör det genom att göra ett extra nyckelutbyte med en kvantsäker algoritm och kombinera resultatet med WireGuards vanliga kryptering. Det här extra steget använder ungefär 500 KiB i trafik varje gång en ny tunnel upprättas."
-
-msgctxt "wireguard-settings-view"
-msgid "LWO"
-msgstr "LWO"
 
 #. The title for the WireGuard MTU setting. MTU stands for Maximum
 #. Transmission Unit and controls the maximum size of packets sent over
@@ -2806,17 +2671,6 @@ msgctxt "wireguard-settings-view"
 msgid "Not all our servers are %(daita)s-enabled. Therefore, we use multihop automatically to enable %(daita)s with any server."
 msgstr "Det är inte alla våra servrar som är %(daita)s-aktiverade. Därför använder vi multihopp automatiskt för att aktivera %(daita)s med alla servrar."
 
-#. The title for the WireGuard obfuscation selector.
-msgctxt "wireguard-settings-view"
-msgid "Obfuscation"
-msgstr "Obfuskering"
-
-#. Describes what WireGuard obfuscation does, how it works and when
-#. it would be useful to enable it.
-msgctxt "wireguard-settings-view"
-msgid "Obfuscation hides the WireGuard traffic inside another protocol. It can be used to help circumvent censorship and other types of filtering, where a plain WireGuard connection would be blocked."
-msgstr "Obfuskering döljer WireGuard-trafik inne i ett annat protokoll. Det kan användas för att kringgå censur och andra filtertyper där en vanlig WireGuard-anslutning skulle blockeras."
-
 #. The title for the WireGuard port selector.
 msgctxt "wireguard-settings-view"
 msgid "Port"
@@ -2835,10 +2689,6 @@ msgstr "Port: %(port)s"
 msgctxt "wireguard-settings-view"
 msgid "Quantum-resistant tunnel"
 msgstr "Kvantresistent tunnel"
-
-msgctxt "wireguard-settings-view"
-msgid "QUIC"
-msgstr "QUIC"
 
 #. The hint displayed below the WireGuard MTU input field.
 #. Available placeholders:
@@ -2864,13 +2714,6 @@ msgstr "Den automatiska inställningen väljer slumpmässigt från giltiga porti
 msgctxt "wireguard-settings-view"
 msgid "The custom port can be any value inside the valid ranges: %(portRanges)s."
 msgstr "Den anpassade porten kan vara ett värde inom de giltiga intervallen: %(portRanges)s."
-
-#. The hint displayed below the WireGuard IP version selector.
-#. Available placeholders:
-#. %(wireguard)s - Will be replaced with the string "WireGuard"
-msgctxt "wireguard-settings-view"
-msgid "This allows access to %(wireguard)s for devices that only support IPv6."
-msgstr "Detta ger %(wireguard)s åtkomst till enheter som bara stöder IPv6."
 
 msgctxt "wireguard-settings-view"
 msgid "This feature makes the WireGuard tunnel resistant to potential attacks from quantum computers."
@@ -2922,6 +2765,9 @@ msgstr "%s har redan valts som utgångsrelä"
 msgid "%s is unavailable"
 msgstr "%s är inte tillgänglig"
 
+msgid "%s settings."
+msgstr "%s-inställningar."
+
 msgid "%s was added to your account."
 msgstr "%s har lagts till i ditt konto."
 
@@ -2951,6 +2797,9 @@ msgstr "Kontokrediten slutar gälla om några minuter"
 
 msgid "Account credit expires soon"
 msgstr "Kontokrediten slutar snart gälla"
+
+msgid "Account number is too long, please enter a valid number"
+msgstr "Kontonumret är för långt, ange ett giltigt nummer"
 
 msgid "Account time reminders"
 msgstr "Påminnelser om kontotid"
@@ -3012,9 +2861,6 @@ msgstr "Obs! Om \"Blockera anslutningar utan VPN\" är aktiverat kommer inte del
 msgid "Attention: Shadowsocks can increase battery consumption depending on data usage, such as streaming a video."
 msgstr "Obs! Shadowsocks kan öka batteriförbrukningen beroende på dataanvändningen, som till exempel att strömma en video."
 
-msgid "Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans."
-msgstr "Obs! Detta ökar nätverkstrafiken men påverkar också hastighet, fördröjning och batterianvändning negativt. Var försiktig om du har ett abonnemang med begränsad datamängd."
-
 msgid "Attention: this setting cannot be used in combination with \"Use custom DNS server\"."
 msgstr "Obs! Den här inställningen kan inte användas tillsammans med \"Använd anpassad DNS-server\"."
 
@@ -3033,6 +2879,9 @@ msgstr "Blockerar internet (enheten är offline)"
 msgid "Blocking..."
 msgstr "Blockerar ..."
 
+msgid "By attaching your account token it links this report to your account, which helps us resolve your issue quicker. All reports are automatically deleted after a period of time."
+msgstr "Om du bifogar din kontotoken länkas den här rapporten till ditt konto, vilket hjälper oss att lösa problemet snabbare. Alla rapporter tas bort automatiskt efter ett tag."
+
 msgid "Can't connect?"
 msgstr "Kan du inte ansluta?"
 
@@ -3047,6 +2896,9 @@ msgstr "Dölj"
 
 msgid "Connect on device start-up"
 msgstr "Anslut när enheten startas"
+
+msgid "Connect to a different network"
+msgstr "Anslut till ett annat nätverk"
 
 msgid "Connecting..."
 msgstr "Ansluter ..."
@@ -3069,6 +2921,9 @@ msgstr "Skapa konto"
 msgid "Create new list"
 msgstr "Skapa ny lista"
 
+msgid "Creating account failed"
+msgstr "Det gick inte att skapa konto"
+
 msgid "Critical error (your attention is required)"
 msgstr "Kritiskt fel (kräver din uppmärksamhet)"
 
@@ -3090,11 +2945,11 @@ msgstr "Radera metod"
 msgid "Delete method?"
 msgstr "Radera metod?"
 
-msgid "Device IP version"
-msgstr "Enhetens IP-version"
-
 msgid "Disable all \"%s\" above to activate this setting."
 msgstr "Inaktivera alla \"%s\" ovan för att aktivera inställningen."
+
+msgid "Disable multihop"
+msgstr "Inaktivera multihopp"
 
 msgid "Disable recents"
 msgstr "Inaktivera senaste"
@@ -3135,8 +2990,17 @@ msgstr "Redigera namn"
 msgid "Enable %1$s"
 msgstr "Aktivera %1$s"
 
+msgid "Enable all & retry"
+msgstr "Aktivera alla och försök igen"
+
+msgid "Enable all access methods in the app"
+msgstr "Aktivera alla åtkomstmetoder i appen"
+
 msgid "Enable method"
 msgstr "Aktivera metod"
+
+msgid "Enable multihop"
+msgstr "Aktivera multihopp"
 
 msgid "Enable recents"
 msgstr "Aktivera senaste"
@@ -3171,6 +3035,9 @@ msgstr "Kan inte ställas in som aktuell – Okänd anledning"
 msgid "File"
 msgstr "Fil"
 
+msgid "For details, please see our %s."
+msgstr "Du hittar mer information i vår %s."
+
 msgid "For the VPN to connect automatically on device startup, the app must have VPN permissions. You can grant these by clicking “Connect” in the map view and selecting “OK” if prompted. Additionally, ensure the app is installed on the internal storage by checking the storage information in the app details in system settings."
 msgstr "För att VPN ska anslutas automatiskt när enheten startas måste appen ha VPN-behörighet. Du kan bevilja dessa genom att klicka på \"Anslut\" i kartvisningen och välja \"OK\" om du uppmanas till det. Dessutom ska du säkerställa att appen har installerats på det interna lagringsutrymmet genom att kontrollera lagringsinformationen i appinformationen i systeminställningarna."
 
@@ -3198,6 +3065,9 @@ msgstr "IPv6 är inte tillgängligt, prova att ändra inställningen \"Enhetens 
 msgid "If the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
 msgstr "Om delade tunnlar används, frågar appen ditt system om en lista med alla installerade applikationer. Listan hämtas bara i vyn för delade tunnlar. Listan med installerade applikationer skickas aldrig från enheten."
 
+msgid "If these steps don’t work, please send an email to support using the button below. It will automatically attach the logs which have been anonymized."
+msgstr "Om dessa steg inte fungerar kan du skicka ett e-postmeddelande till supporten via knappen nedan. Detta bifogar automatisk loggarna som har anonymiserats."
+
 msgid "Import new overrides by"
 msgstr "Importera nya åsidosättningar med"
 
@@ -3210,14 +3080,11 @@ msgstr "Om du importerar nya åsidosättningar kan tidigare importerade åsidos�
 msgid "In-app products unavailable, please make sure you have the latest version of Google Play."
 msgstr "Produkterna i appen är inte tillgängliga. Se till att du har den senaste versionen av Google Play."
 
-msgid "In-tunnel IPv6"
-msgstr "IPv6 i tunnel"
+msgid "Include my account token for faster help with payment or account related issues"
+msgstr "Inkludera min kontotoken för snabbare hjälp med betalnings- eller kontoproblem"
 
 msgid "Invalid or missing value \"%1$s\""
 msgstr "Värdet \"%1$s\" är ogiltigt eller saknas"
-
-msgid "It can be useful when you are aware of problems caused by a certain IP version."
-msgstr "Det kan vara användbart när du känner till problem som orsakas av en viss IP-version."
 
 msgid "Lets you select apps that should access the Internet directly without going through the VPN tunnel."
 msgstr "Låter dig välja appar som ska ge dig direktåtkomst till internet utan att gå igenom VPN-tunneln."
@@ -3261,6 +3128,15 @@ msgstr "Ingen ändringslogg har lagts till för versionen"
 msgid "No custom lists available"
 msgstr "Inga anpassade listor är tillgängliga"
 
+msgid "No email app available on the device"
+msgstr "Ingen e-postapp finns tillgänglig på enheten"
+
+msgid "No entry server match your settings, try changing server or other settings."
+msgstr "Ingen startserver matchar dina inställningar. Försök att byta server eller med andra inställningar."
+
+msgid "No exit server match your settings, try changing server or other settings."
+msgstr "Ingen slutserver matchar dina inställningar. Försök att byta server eller med andra inställningar."
+
 msgid "No internet connection"
 msgstr "Ingen internetanslutning"
 
@@ -3275,6 +3151,9 @@ msgstr "Inga resultat hittades för \"%s\", försök med en annan sökning"
 
 msgid "Not found"
 msgstr "Hittades inte"
+
+msgid "Obfuscation hides the WireGuard traffic inside another protocol. It can be used to help circumvent censorship and other types of filtering, where a plain WireGuard connection would be blocked."
+msgstr "Obfuskering döljer WireGuard-trafik inne i ett annat protokoll. Det kan användas för att kringgå censur och andra filtertyper där en vanlig WireGuard-anslutning skulle blockeras."
 
 msgid "Open app details"
 msgstr "Öppna appinformation"
@@ -3348,8 +3227,14 @@ msgstr "Återställ åsidosättningar"
 msgid "Reset to default"
 msgstr "Återställ till standard"
 
+msgid "Restart your device"
+msgstr "Starta om enheten"
+
 msgid "Search"
 msgstr "Sök"
+
+msgid "Send email"
+msgstr "Skicka e-post"
 
 msgid "Set %s obfuscation to \"Automatic\" or \"Off\" below to activate this setting."
 msgstr "Ställ in %s-obfuskering som \"Automatisk\" eller \"Av\" nedan för att aktivera inställningen."
@@ -3363,6 +3248,9 @@ msgstr "Ställ in port"
 msgid "Share…"
 msgstr "Dela …"
 
+msgid "Show location in notification"
+msgstr "Visa platsen i aviseringarna"
+
 msgid "Show system apps"
 msgstr "Visa systemappar"
 
@@ -3374,6 +3262,9 @@ msgstr "Visar påminnelser när kontots tidsgräns uppnås"
 
 msgid "Submit"
 msgstr "Skicka"
+
+msgid "TCP"
+msgstr "TCP"
 
 msgid "Test method"
 msgstr "Testmetod"
@@ -3399,6 +3290,12 @@ msgstr "\"Aktuell\" metod representerar vilken metod appen använder för att n�
 msgid "The app is blocking internet, please disconnect first"
 msgstr "Appen blockerar internet, koppla först från anslutningen"
 
+msgid "The app was unable to create an account due to not being able to reach the Mullvad API."
+msgstr "Appen kunde inte skapa ett konto eftersom det inte gick att nå Mullvad API."
+
+msgid "The app was unable to login due to not being able to reach the Mullvad API."
+msgstr "Appen kunde inte logga in eftersom det inte gick att nå Mullvad API."
+
 msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under VPN settings."
 msgstr "Den lokala DNS-servern fungerar inte om du inte aktiverar \"Lokal nätverksdelning\" under VPN-inställningar."
 
@@ -3408,14 +3305,17 @@ msgstr "Den valda %s-porten stöds inte, ändra den i"
 msgid "This address has already been entered."
 msgstr "Adressen har redan angetts."
 
-msgid "This feature allows you to choose whether to use only IPv4, only IPv6, or allow the app to automatically decide the best option when connecting to a server."
-msgstr "Med den här funktionen kan du välja om du enbart ska använda IPv4, enbart IPv6 eller om appen automatiskt får avgöra vilket alternativ som är bäst när du ansluter till en server."
-
 msgid "This field is required"
 msgstr "Fältet är obligatoriskt"
 
+msgid "This impacts your anonymity"
+msgstr "Detta påverkar din anonymitet"
+
 msgid "This is already set as current"
 msgstr "Den har redan ställts in som aktuell"
+
+msgid "This might be due to censorship or network issues. Please try to:"
+msgstr "Det kan bero på censur- eller nätverksfel. Försök att:"
 
 msgid "Time added"
 msgstr "Tid har lagts till"
@@ -3432,17 +3332,32 @@ msgstr "Appen genomför automatiska versionskontroller för att se till att du h
 msgid "Toggle VPN"
 msgstr "Växla VPN"
 
+msgid "Too many attempts, please try again later"
+msgstr "För många försök, försök igen senare"
+
+msgid "UDP"
+msgstr "UDP"
+
 msgid "Unable to apply firewall rules. Please troubleshoot or send a problem report."
 msgstr "Det går inte att tillämpa brandväggsregler. Felsök eller skicka en problemrapport."
 
 msgid "Unable to parse patch"
 msgstr "Det går inte att parsa korrigering"
 
+msgid "Unable to reach API"
+msgstr "Det går inte att nå API"
+
+msgid "Unable to reach API, %s"
+msgstr "Det går inte att nå API, %s"
+
 msgid "Unable to start tunnel connection. Please disable Always-on VPN before using Mullvad VPN."
 msgstr "Det går inte att starta tunnelanslutning. Inaktivera Alltid på-VPN innan du använder Mullvad VPN."
 
 msgid "Unable to start tunnel connection. Please disable Always-on VPN for <b>%s</b> before using Mullvad VPN."
 msgstr "Det går inte att starta tunnelanslutning. Inaktivera Alltid på-VPN för <b>%s</b> innan du använder Mullvad VPN."
+
+msgid "Unavailable"
+msgstr "Inte tillgänglig"
 
 msgid "Undo"
 msgstr "Ångra"
@@ -3479,9 +3394,6 @@ msgstr "VPN-behörighet avvisades eller så har en annan app aktiverat \"Alltid 
 
 msgid "VPN tunnel status"
 msgstr "VPN-tunnelstatus"
-
-msgid "Valid WireGuard key is missing. Manage keys under Advanced settings."
-msgstr "Giltig WireGuard-nyckel saknas. Hantera nycklar i Avancerade inställningar."
 
 msgid "Valid ranges: %s"
 msgstr "Giltiga intervall: %s"
@@ -3536,6 +3448,12 @@ msgstr "här"
 
 msgid "less than one day"
 msgstr "mindre än en dag"
+
+msgid "privacy policy"
+msgstr "integritetspolicy"
+
+msgid "read more here"
+msgstr "läs mer här"
 
 msgid "%d day"
 msgid_plural "%d days"
