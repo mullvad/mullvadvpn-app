@@ -47,12 +47,13 @@ class SelectPortViewModel(
     private val navArgs = SelectPortDestination.argsFrom(savedStateHandle)
     private val portType = navArgs.portType
 
-    private val customPort = MutableStateFlow<Port?>(null)
+    private val initialOrCustomPort = MutableStateFlow<Port?>(null)
 
     init {
         viewModelScope.launch {
             val initialSettings = settingsRepository.settingsUpdates.filterNotNull().first()
-            customPort.value = initialSettings.obfuscationSettings.port(portType).getOrNull()
+            initialOrCustomPort.value =
+                initialSettings.obfuscationSettings.port(portType).getOrNull()
         }
     }
 
@@ -60,9 +61,12 @@ class SelectPortViewModel(
         combine(
                 settingsRepository.settingsUpdates.filterNotNull(),
                 relayListRepository.portRanges,
-                customPort,
-            ) { settings, wireguardPortRanges, customPort ->
+                initialOrCustomPort,
+            ) { settings, wireguardPortRanges, initialOrCustomPort ->
                 val portTypeState = portType.uiState(wireguardPortRanges = wireguardPortRanges)
+                val customPort =
+                    if (initialOrCustomPort !in portTypeState.presetPorts) initialOrCustomPort
+                    else null
 
                 SelectPortUiState(
                         portType = portType,
@@ -88,7 +92,7 @@ class SelectPortViewModel(
                 .onRight {
                     val presets = uiState.value.contentOrNull()?.presetPorts ?: emptyList()
                     if (port is Constraint.Only && port.value !in presets) {
-                        customPort.update { port.getOrNull() }
+                        initialOrCustomPort.update { port.getOrNull() }
                     }
                 }
         }
@@ -106,12 +110,10 @@ class SelectPortViewModel(
 
     fun resetCustomPort() {
         val isCustom = uiState.value.contentOrNull()?.isCustom == true
-        customPort.update { null }
+        initialOrCustomPort.update { null }
         // If custom port was selected, update selection to be any.
         if (isCustom) {
-            viewModelScope.launch {
-                settingsRepository.setCustomShadowsocksObfuscationPort(Constraint.Any)
-            }
+            viewModelScope.launch { updatePort(Constraint.Any) }
         }
     }
 
