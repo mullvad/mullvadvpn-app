@@ -20,6 +20,7 @@ use futures::{
 };
 
 use hickory_proto::{
+    ProtoErrorKind,
     op::LowerQuery,
     rr::{LowerName, RecordType},
 };
@@ -33,10 +34,10 @@ use hickory_server::{
         rr::{Record, domain::Name, rdata, record_data::RData},
     },
     resolver::{
-        TokioAsyncResolver,
+        ResolveError, ResolveErrorKind, TokioResolver,
         config::{NameServerConfigGroup, ResolverConfig, ResolverOpts},
-        error::{ResolveError, ResolveErrorKind},
         lookup::Lookup,
+        name_server::TokioConnectionProvider,
     },
     server::{Request, RequestHandler, ResponseHandler, ResponseInfo},
 };
@@ -199,7 +200,7 @@ enum Resolver {
 
     /// Forward DNS queries to a configured server
     Forwarding {
-        resolver: TokioAsyncResolver,
+        resolver: Box<TokioResolver>,
         filter_out_aaaa: bool,
     },
 }
@@ -221,7 +222,7 @@ impl Resolver {
                 let resolver = resolver.clone();
                 let filter_out_aaaa = *filter_out_aaaa && !*NEVER_FILTER_AAAA_QUERIES;
                 tokio::spawn(async move {
-                    let lookup = Self::resolve_forward(resolver, query, filter_out_aaaa);
+                    let lookup = Self::resolve_forward(*resolver, query, filter_out_aaaa);
                     let _ = tx.send(lookup.await);
                 });
             }
@@ -237,12 +238,12 @@ impl Resolver {
         }
 
         let return_query = query.original().clone();
-        let mut return_record = Record::with(
+        let mut return_record = Record::update0(
             return_query.name().clone(),
-            return_query.query_type(),
             TTL_SECONDS,
+            return_query.query_type(),
         );
-        return_record.set_data(Some(RData::A(rdata::A(RESOLVED_ADDR))));
+        return_record.set_data(RData::A(rdata::A(RESOLVED_ADDR)));
 
         log::debug!(
             "Spoofing query for captive portal domain: {}",
@@ -265,7 +266,7 @@ impl Resolver {
 
     /// Forward DNS queries to the specified DNS resolver.
     async fn resolve_forward(
-        resolver: TokioAsyncResolver,
+        resolver: TokioResolver,
         query: LowerQuery,
         filter_out_aaaa: bool,
     ) -> std::result::Result<Box<dyn LookupObject>, ResolveError> {
@@ -593,10 +594,13 @@ impl LocalResolver {
         let forward_config = ResolverConfig::from_parts(None, vec![], forward_server_config);
         let resolver_opts = ResolverOpts::default();
 
-        let resolver = TokioAsyncResolver::tokio(forward_config, resolver_opts);
+        let resolver =
+            TokioResolver::builder_with_config(forward_config, TokioConnectionProvider::default())
+                .with_options(resolver_opts)
+                .build();
 
         self.inner_resolver = Resolver::Forwarding {
-            resolver,
+            resolver: Box::new(resolver),
             filter_out_aaaa,
         };
     }
@@ -704,36 +708,40 @@ impl ResolverImpl {
     async fn lookup<R: ResponseHandler>(&self, message: &Request, mut response_handler: R) {
         if let Some(tx_ref) = self.tx.upgrade() {
             let mut tx = (*tx_ref).clone();
-            let query = message.query();
-            let (response_tx, response_rx) = oneshot::channel();
-            let _ = tx
-                .send(ResolverMessage::Query {
-                    dns_query: query.clone(),
-                    response_tx,
-                })
-                .await;
+            // Flush all DNS queries
+            for query in message.queries() {
+                let (response_tx, response_rx) = oneshot::channel();
+                let _ = tx
+                    .send(ResolverMessage::Query {
+                        dns_query: query.clone(),
+                        response_tx,
+                    })
+                    .await;
 
-            let lookup_result = response_rx.await;
-            let response_result = match lookup_result {
-                Ok(Ok(ref lookup)) => {
-                    let response = Self::build_response(message, lookup.as_ref());
-                    response_handler.send_response(response).await
+                let lookup_result = response_rx.await;
+                let response_result = match lookup_result {
+                    Ok(Ok(ref lookup)) => {
+                        let response = Self::build_response(message, lookup.as_ref());
+                        response_handler.send_response(response).await
+                    }
+                    Err(_error) => return,
+                    Ok(Err(resolve_err)) => {
+                        if let ResolveErrorKind::Proto(proto) = resolve_err.kind()
+                            && let ProtoErrorKind::NoRecordsFound { response_code, .. } =
+                                proto.kind()
+                        {
+                            let response = MessageResponseBuilder::from_message_request(message)
+                                .error_msg(message.header(), *response_code);
+                            response_handler.send_response(response).await
+                        } else {
+                            let response = Self::build_response(message, &EmptyLookup);
+                            response_handler.send_response(response).await
+                        }
+                    }
+                };
+                if let Err(err) = response_result {
+                    log::error!("Failed to send response: {err}");
                 }
-                Err(_error) => return,
-                Ok(Err(resolve_err)) => match resolve_err.kind() {
-                    ResolveErrorKind::NoRecordsFound { response_code, .. } => {
-                        let response = MessageResponseBuilder::from_message_request(message)
-                            .error_msg(message.header(), *response_code);
-                        response_handler.send_response(response).await
-                    }
-                    _other => {
-                        let response = Self::build_response(message, &EmptyLookup);
-                        response_handler.send_response(response).await
-                    }
-                },
-            };
-            if let Err(err) = response_result {
-                log::error!("Failed to send response: {err}");
             }
         }
     }
@@ -786,10 +794,7 @@ impl LookupObject for ForwardLookup {
 #[cfg(test)]
 mod test {
     use super::*;
-    use hickory_server::resolver::{
-        TokioAsyncResolver,
-        config::{NameServerConfigGroup, ResolverConfig, ResolverOpts},
-    };
+    use hickory_server::resolver::config::{NameServerConfigGroup, ResolverConfig};
     use std::{net::UdpSocket, sync::Mutex, thread};
     use typed_builder::TypedBuilder;
 
@@ -807,13 +812,14 @@ mod test {
         .unwrap()
     }
 
-    fn get_test_resolver(addr: SocketAddr) -> hickory_server::resolver::TokioAsyncResolver {
+    fn get_test_resolver(addr: SocketAddr) -> hickory_server::resolver::TokioResolver {
         let resolver_config = ResolverConfig::from_parts(
             None,
             vec![],
             NameServerConfigGroup::from_ips_clear(&[addr.ip()], addr.port(), true),
         );
-        TokioAsyncResolver::tokio(resolver_config, ResolverOpts::default())
+        TokioResolver::builder_with_config(resolver_config, TokioConnectionProvider::default())
+            .build()
     }
 
     /// Test whether we can successfully bind the socket even if the address is already used to
@@ -884,7 +890,7 @@ mod test {
             for domain in &*ALLOWED_DOMAINS {
                 test_resolver.lookup(domain, RecordType::A).await?;
             }
-            Ok::<(), hickory_server::resolver::error::ResolveError>(())
+            Ok::<(), ResolveError>(())
         })
         .expect("Resolution of domains failed");
     }
