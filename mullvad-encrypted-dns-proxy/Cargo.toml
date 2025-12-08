@@ -13,10 +13,11 @@ workspace = true
 [dependencies]
 tokio = { workspace = true, features = [ "macros" ] }
 log = { workspace = true }
-hickory-resolver = { workspace = true, features = [ "dns-over-https-rustls" ]}
+hickory-resolver = { workspace = true, features = [ "https-ring", "tls-ring" ]}
 serde = { workspace = true, features = ["derive"] }
-webpki-roots = "0.25.0"
-rustls = "0.21"
+webpki-roots.workspace = true
+rustls.workspace = true
+rustls-pki-types.workspace = true
 
 [dev-dependencies]
 env_logger = { workspace = true }

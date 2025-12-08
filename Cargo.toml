@@ -110,7 +110,9 @@ ipnetwork = "0.21.1"
 tun = { version = "0.5.5", features = ["async"] }
 socket2 = "0.5.7"
 reqwest = { version = "0.12.23", default-features = false, features = ["rustls-tls"] }
+rustls = { version = "0.23", default-features = false }
 rustls-pki-types = "1.13.1"
+webpki-roots = "1.0.4"
 
 rtnetlink = "0.18"
 netlink-packet-core = "0.8.0"
@@ -121,9 +123,9 @@ netlink-sys = "0.8.3"
 zerocopy = "0.8.27"
 
 # Hickory & DNS
-hickory-proto = "0.24.3"
-hickory-resolver = "0.24.3"
-hickory-server = { version = "0.24.3", features = ["resolver"] }
+hickory-proto = "0.25.2"
+hickory-resolver = "0.25.2"
+hickory-server = { version = "0.25.2", features = ["resolver"] }
 
 # Tonic and related crates
 tonic = "0.13.1"

@@ -2,9 +2,11 @@
 //!
 use crate::config;
 use core::fmt;
-use hickory_resolver::{TokioAsyncResolver, config::*, error::ResolveError};
+use hickory_resolver::{
+    ResolveError, TokioResolver, config::*, name_server::TokioConnectionProvider,
+};
 use rustls::ClientConfig;
-use std::{net::IpAddr, sync::Arc, time::Duration};
+use std::{net::IpAddr, time::Duration};
 use tokio::time::error::Elapsed;
 
 /// The port to connect to the DoH resolvers over.
@@ -82,8 +84,8 @@ pub async fn resolve_configs(
         }
     }
 
-    nameservers.set_tls_client_config(Arc::new(client_config_tls12()));
     let mut resolver_config: ResolverOpts = Default::default();
+    resolver_config.tls_config = client_config_tls12();
 
     resolver_config.timeout = Duration::from_secs(5);
     resolve_config_with_resolverconfig(nameservers, resolver_config, domain, DEFAULT_TIMEOUT).await
@@ -95,7 +97,11 @@ pub async fn resolve_config_with_resolverconfig(
     domain: &str,
     timeout: Duration,
 ) -> Result<Vec<config::ProxyConfig>, Error> {
-    let resolver = TokioAsyncResolver::tokio(resolver_config, options);
+    let provider = TokioConnectionProvider::default();
+    let resolver = TokioResolver::builder_with_config(resolver_config, provider)
+        .with_options(options)
+        .build();
+
     let lookup = tokio::time::timeout(timeout, resolver.ipv6_lookup(domain))
         .await
         .map_err(Error::Timeout)?
@@ -119,21 +125,10 @@ pub async fn resolve_config_with_resolverconfig(
 }
 
 fn client_config_tls12() -> ClientConfig {
-    use rustls::RootCertStore;
-    let mut root_store = RootCertStore::empty();
-    root_store.add_trust_anchors(webpki_roots::TLS_SERVER_ROOTS.iter().map(|ta| {
-        rustls::OwnedTrustAnchor::from_subject_spki_name_constraints(
-            ta.subject,
-            ta.spki,
-            ta.name_constraints,
-        )
-    }));
-
+    let root_store = rustls::RootCertStore {
+        roots: webpki_roots::TLS_SERVER_ROOTS.to_vec(),
+    };
     ClientConfig::builder()
-        .with_safe_default_cipher_suites()
-        .with_safe_default_kx_groups()
-        .with_safe_default_protocol_versions() // this enables TLS 1.2 and 1.3
-        .unwrap()
         .with_root_certificates(root_store)
         .with_no_client_auth()
 }
