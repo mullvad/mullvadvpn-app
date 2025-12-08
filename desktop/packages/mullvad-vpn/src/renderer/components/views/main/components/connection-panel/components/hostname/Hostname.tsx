@@ -48,13 +48,6 @@ function getHostnameText(connection: IConnectionReduxState) {
         entry: connection.entryHostname,
       },
     );
-  } else if (
-    (connection.status.state === 'connecting' || connection.status.state === 'connected') &&
-    connection.status.details?.endpoint.proxy !== undefined
-  ) {
-    hostname = sprintf(messages.pgettext('connection-info', '%(relay)s via Custom bridge'), {
-      relay: connection.hostname,
-    });
   } else if (connection.hostname) {
     hostname = connection.hostname;
   }
