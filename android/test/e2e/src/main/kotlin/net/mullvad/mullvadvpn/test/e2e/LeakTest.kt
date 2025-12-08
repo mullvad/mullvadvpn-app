@@ -5,20 +5,19 @@ import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.minutes
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
+import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
+import net.mullvad.mullvadvpn.lib.model.QuantumResistantState
 import net.mullvad.mullvadvpn.test.common.extension.acceptVpnPermissionDialog
 import net.mullvad.mullvadvpn.test.common.misc.Attachment
 import net.mullvad.mullvadvpn.test.common.misc.RelayProvider
 import net.mullvad.mullvadvpn.test.common.page.AntiCensorshipSettingsPage
 import net.mullvad.mullvadvpn.test.common.page.ConnectPage
-import net.mullvad.mullvadvpn.test.common.page.ObfuscationOption
 import net.mullvad.mullvadvpn.test.common.page.SelectLocationPage
 import net.mullvad.mullvadvpn.test.common.page.SelectPortPage
 import net.mullvad.mullvadvpn.test.common.page.SettingsPage
 import net.mullvad.mullvadvpn.test.common.page.VpnSettingsPage
-import net.mullvad.mullvadvpn.test.common.page.disablePostQuantumStory
 import net.mullvad.mullvadvpn.test.common.page.enableDAITAStory
 import net.mullvad.mullvadvpn.test.common.page.on
-import net.mullvad.mullvadvpn.test.common.page.setObfuscationStory
 import net.mullvad.mullvadvpn.test.common.rule.ForgetAllVpnAppsInSettingsTestRule
 import net.mullvad.mullvadvpn.test.e2e.annotations.HasDependencyOnLocalAPI
 import net.mullvad.mullvadvpn.test.e2e.constant.getTrafficGeneratorHost
@@ -178,12 +177,13 @@ class LeakTest : EndToEndTest() {
     }
 
     @Test
+    @HasDependencyOnLocalAPI
     fun testEnsureNoLeaksToSpecificHostWhenSwitchingBetweenVariousVpnSettings() =
         runTest(timeout = 2.minutes) {
             app.launch()
             // Obfuscation and Post-Quantum are by default set to automatic. Explicitly set to off.
-            on<ConnectPage> { setObfuscationStory(ObfuscationOption.Off) }
-            on<ConnectPage> { disablePostQuantumStory() }
+            app.applySettings(pq = QuantumResistantState.Off, obfuscationMode = ObfuscationMode.Off)
+
             on<ConnectPage> { clickSelectLocation() }
 
             on<SelectLocationPage> {
@@ -208,7 +208,7 @@ class LeakTest : EndToEndTest() {
                         // settings
 
                         on<ConnectPage> { enableDAITAStory() }
-                        on<ConnectPage> { setObfuscationStory(ObfuscationOption.Shadowsocks) }
+                        app.applySettings(obfuscationMode = ObfuscationMode.Shadowsocks)
                         on<ConnectPage> { waitForConnectedLabel() }
 
                         delay(

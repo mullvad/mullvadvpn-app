@@ -69,7 +69,10 @@ androidComponents {
 dependencies {
     implementation(projects.lib.endpoint)
     implementation(projects.lib.ui.tag)
+    implementation(projects.lib.daemonGrpc)
+    implementation(projects.lib.model)
 
+    implementation(libs.arrow)
     implementation(libs.androidx.test.core)
     implementation(libs.androidx.test.runner)
     implementation(libs.androidx.test.rules)

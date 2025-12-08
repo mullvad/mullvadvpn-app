@@ -4,6 +4,7 @@ import androidx.test.uiautomator.By
 import androidx.test.uiautomator.Direction
 import androidx.test.uiautomator.waitForStableInActiveWindow
 import java.time.ZonedDateTime
+import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.lib.ui.tag.HOP_SELECTOR_ENTRY_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.RECENT_CELL_TEST_TAG
 import net.mullvad.mullvadvpn.test.common.extension.acceptVpnPermissionDialog
@@ -11,7 +12,6 @@ import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
 import net.mullvad.mullvadvpn.test.common.extension.findOneOrMoreObjectsWithTimeout
 import net.mullvad.mullvadvpn.test.common.page.ConnectPage
 import net.mullvad.mullvadvpn.test.common.page.SelectLocationPage
-import net.mullvad.mullvadvpn.test.common.page.enableMultihopStory
 import net.mullvad.mullvadvpn.test.common.page.on
 import net.mullvad.mullvadvpn.test.common.rule.ForgetAllVpnAppsInSettingsTestRule
 import net.mullvad.mullvadvpn.test.mockapi.constant.DEFAULT_DEVICE_LIST
@@ -42,8 +42,7 @@ class RecentsMockApiTest : MockApiTest() {
     }
 
     @Test
-    fun testRecentsEnableDisable() {
-
+    fun testRecentsEnableDisable() = runTest {
         app.launchAndLogIn(validAccountNumber)
 
         on<ConnectPage> { clickSelectLocation() }
@@ -80,14 +79,13 @@ class RecentsMockApiTest : MockApiTest() {
     }
 
     @Test
-    fun testRecentsWithMultihop() {
-
+    fun testRecentsWithMultihop() = runTest {
         app.launchAndLogIn(validAccountNumber)
 
         // Enable Multihop
-        on<ConnectPage> {
-            enableMultihopStory()
+        app.applySettings(multihop = true)
 
+        on<ConnectPage> {
             clickConnect()
             device.acceptVpnPermissionDialog(ignoreNotFound = true)
 

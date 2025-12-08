@@ -3,12 +3,21 @@ package net.mullvad.mullvadvpn.test.common.interactor
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
 import co.touchlab.kermit.Logger
+import java.io.File
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
+import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointOverride
 import net.mullvad.mullvadvpn.lib.endpoint.putApiEndpointConfigurationExtra
+import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
+import net.mullvad.mullvadvpn.lib.model.QuantumResistantState
 import net.mullvad.mullvadvpn.test.common.constant.DEFAULT_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.constant.LONG_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
@@ -70,6 +79,35 @@ class AppInteractor(
             device.findObjectWithTimeout(selector).click()
         } catch (e: IllegalArgumentException) {
             Logger.e("Failed to allow notification permission within timeout ($timeout ms)", e)
+        }
+    }
+
+    suspend fun applySettings(
+        pq: QuantumResistantState? = null,
+        obfuscationMode: ObfuscationMode? = null,
+        localNetworkSharing: Boolean? = null,
+        daita: Boolean? = null,
+        multihop: Boolean? = null,
+    ) = coroutineScope {
+        try {
+            val job = launch {
+                val socket =
+                    File(
+                        InstrumentationRegistry.getInstrumentation().targetContext.noBackupFilesDir,
+                        "rpc-socket",
+                    )
+                val service = ManagementService(socket, false, this)
+
+                pq?.let { service.setWireguardQuantumResistant(it) }
+                obfuscationMode?.let { service.setObfuscation(it) }
+                localNetworkSharing?.let { service.setAllowLan(it) }
+                daita?.let { service.setDaitaEnabled(it) }
+                multihop?.let { service.setMultihop(it) }
+                cancel()
+            }
+            job.join()
+        } catch (_: CancellationException) {
+            // Ignore cancel, we are just stopped ManagementService
         }
     }
 }

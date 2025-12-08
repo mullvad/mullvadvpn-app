@@ -5,15 +5,16 @@ import kotlin.time.Duration.Companion.minutes
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
+import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
 import net.mullvad.mullvadvpn.test.common.constant.EXTREMELY_LONG_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.extension.acceptVpnPermissionDialog
 import net.mullvad.mullvadvpn.test.common.misc.RelayProvider
 import net.mullvad.mullvadvpn.test.common.page.ConnectPage
 import net.mullvad.mullvadvpn.test.common.page.ObfuscationOption
 import net.mullvad.mullvadvpn.test.common.page.SelectLocationPage
+import net.mullvad.mullvadvpn.test.common.page.disablePostQuantumStory
 import net.mullvad.mullvadvpn.test.common.page.enableLocalNetworkSharingStory
 import net.mullvad.mullvadvpn.test.common.page.enableMultihopStory
-import net.mullvad.mullvadvpn.test.common.page.enablePostQuantumStory
 import net.mullvad.mullvadvpn.test.common.page.enableWireGuardCustomPortStory
 import net.mullvad.mullvadvpn.test.common.page.on
 import net.mullvad.mullvadvpn.test.common.page.setObfuscationStory
@@ -78,12 +79,11 @@ class ConnectionTest : EndToEndTest() {
     }
 
     @Test
-    fun testConnectUsingPostQuantum() = runTest {
+    fun testConnectingWithoutPostQuantum() = runTest {
         // Given
         app.launchAndLogIn(accountTestRule.validAccountNumber)
 
-        // Enable post quantum
-        on<ConnectPage> { enablePostQuantumStory() }
+        on<ConnectPage> { disablePostQuantumStory() }
 
         // Connect
         on<ConnectPage> { clickConnect() }
@@ -147,7 +147,7 @@ class ConnectionTest : EndToEndTest() {
     fun testWireGuardObfuscationOff() =
         runTest(timeout = 2.minutes) {
             app.launchAndLogIn(accountTestRule.validAccountNumber)
-            on<ConnectPage> { enableLocalNetworkSharingStory() }
+            app.applySettings(localNetworkSharing = true)
 
             on<ConnectPage> { clickSelectLocation() }
 
@@ -189,7 +189,7 @@ class ConnectionTest : EndToEndTest() {
     @ClearFirewallRules
     fun testUDPOverTCP() = runTest {
         app.launchAndLogIn(accountTestRule.validAccountNumber)
-        on<ConnectPage> { enableLocalNetworkSharingStory() }
+        app.applySettings(localNetworkSharing = true)
 
         on<ConnectPage> { clickSelectLocation() }
 
@@ -228,7 +228,7 @@ class ConnectionTest : EndToEndTest() {
     @ClearFirewallRules
     fun testQuic() = runTest {
         app.launchAndLogIn(accountTestRule.validAccountNumber)
-        on<ConnectPage> { enableLocalNetworkSharingStory() }
+        app.applySettings(localNetworkSharing = true)
 
         on<ConnectPage> { clickSelectLocation() }
 
@@ -269,7 +269,8 @@ class ConnectionTest : EndToEndTest() {
     @ClearFirewallRules
     fun testLwo() = runTest {
         app.launchAndLogIn(accountTestRule.validAccountNumber)
-        on<ConnectPage> { enableLocalNetworkSharingStory() }
+
+        app.applySettings(localNetworkSharing = true)
 
         on<ConnectPage> { clickSelectLocation() }
 
@@ -311,9 +312,7 @@ class ConnectionTest : EndToEndTest() {
     fun testShadowsocks() =
         runTest(timeout = 2.minutes) {
             app.launchAndLogIn(accountTestRule.validAccountNumber)
-            on<ConnectPage> { enableLocalNetworkSharingStory() }
-
-            on<ConnectPage> { setObfuscationStory(ObfuscationOption.Off) }
+            app.applySettings(localNetworkSharing = true, obfuscationMode = ObfuscationMode.Off)
 
             // Block all WireGuard traffic
             val firewallRule = DropRule.blockWireGuardTrafficRule(ANY_IP_ADDRESS)
@@ -400,7 +399,7 @@ class ConnectionTest : EndToEndTest() {
     }
 
     @Test
-    fun testConnectWithoutInTunnelIpv6() {
+    fun testConnectWithoutInTunnelIpv6() = runTest {
         // Given
         app.launchAndLogIn(accountTestRule.validAccountNumber)
 
@@ -408,8 +407,6 @@ class ConnectionTest : EndToEndTest() {
         on<ConnectPage> { clickConnect() }
         device.acceptVpnPermissionDialog()
 
-        on<ConnectPage> { waitForConnectedLabel() }
-        on<ConnectPage> { enableLocalNetworkSharingStory() }
         on<ConnectPage> { waitForConnectedLabel() }
     }
 
