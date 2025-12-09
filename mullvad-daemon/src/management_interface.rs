@@ -23,7 +23,7 @@ use mullvad_types::{
 };
 use std::collections::BTreeSet;
 use std::{
-    path::Path,
+    path::PathBuf,
     str::FromStr,
     sync::{Arc, Mutex},
     time::Duration,
@@ -1291,7 +1291,7 @@ pub struct ManagementInterfaceServer {
 impl ManagementInterfaceServer {
     pub fn start(
         daemon_tx: DaemonCommandSender,
-        rpc_socket_path: impl AsRef<Path>,
+        rpc_socket_path: PathBuf,
         app_upgrade_broadcast: tokio::sync::broadcast::Sender<version::AppUpgradeEvent>,
     ) -> Result<ManagementInterfaceServer, Error> {
         let subscriptions = Arc::<Mutex<Vec<EventsListenerSender>>>::default();
@@ -1311,13 +1311,13 @@ impl ManagementInterfaceServer {
             async move {
                 StreamExt::into_future(server_abort_rx).await;
             },
-            &rpc_socket_path,
+            rpc_socket_path.clone(),
         )
         .map_err(Error::SetupError)?;
 
         log::info!(
             "Management interface listening on {}",
-            rpc_socket_path.as_ref().display()
+            rpc_socket_path.display()
         );
 
         let broadcast = ManagementInterfaceEventBroadcaster { subscriptions };

@@ -26,7 +26,7 @@ prost-types = { workspace = true }
 futures = { workspace = true }
 tokio = { workspace = true, features =  ["rt"] }
 vec1 = { workspace = true }
-parity-tokio-ipc = { workspace = true }
+tipsy = { workspace = true }
 
 [target.'cfg(unix)'.dependencies]
 nix = { workspace = true, features = ["user", "fs"] }

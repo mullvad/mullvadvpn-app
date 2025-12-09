@@ -1,15 +1,16 @@
 pub mod client;
 pub mod types;
 
-use parity_tokio_ipc::Endpoint as IpcEndpoint;
 #[cfg(unix)]
 use std::{env, fs, os::unix::fs::PermissionsExt};
 use std::{
     future::Future,
     io,
+    path::PathBuf,
     pin::Pin,
     task::{Context, Poll},
 };
+use tipsy::Endpoint as IpcEndpoint;
 use tokio::io::{AsyncRead, AsyncWrite, ReadBuf};
 #[cfg(not(target_os = "android"))]
 use tonic::transport::{Endpoint, Uri};
@@ -152,18 +153,19 @@ pub type ServerJoinHandle = tokio::task::JoinHandle<()>;
 pub fn spawn_rpc_server<T: ManagementService, F: Future<Output = ()> + Send + 'static>(
     service: T,
     abort_rx: F,
-    rpc_socket_path: impl AsRef<std::path::Path>,
+    rpc_socket_path: PathBuf,
 ) -> std::result::Result<ServerJoinHandle, Error> {
     use futures::stream::TryStreamExt;
-    use parity_tokio_ipc::SecurityAttributes;
+    use tipsy::SecurityAttributes;
 
-    let mut endpoint = IpcEndpoint::new(rpc_socket_path.as_ref().to_string_lossy().to_string());
-    endpoint.set_security_attributes(
-        SecurityAttributes::allow_everyone_create()
-            .map_err(Error::SecurityAttributes)?
-            .set_mode(0o766)
-            .map_err(Error::SecurityAttributes)?,
-    );
+    let endpoint = IpcEndpoint::new(rpc_socket_path.clone(), tipsy::OnConflict::Error)
+        .map_err(Error::StartServerError)?
+        .security_attributes(
+            SecurityAttributes::allow_everyone_create()
+                .map_err(Error::SecurityAttributes)?
+                .mode(0o766)
+                .map_err(Error::SecurityAttributes)?,
+        );
     let incoming = endpoint.incoming().map_err(Error::StartServerError)?;
 
     #[cfg(unix)]
@@ -171,8 +173,7 @@ pub fn spawn_rpc_server<T: ManagementService, F: Future<Output = ()> + Send + 's
         let group = nix::unistd::Group::from_name(group_name)
             .map_err(Error::ObtainGidError)?
             .ok_or(Error::NoGidError)?;
-        nix::unistd::chown(rpc_socket_path.as_ref(), None, Some(group.gid))
-            .map_err(Error::SetGidError)?;
+        nix::unistd::chown(&rpc_socket_path, None, Some(group.gid)).map_err(Error::SetGidError)?;
         fs::set_permissions(rpc_socket_path, PermissionsExt::from_mode(0o760))
             .map_err(Error::PermissionsError)?;
     }
