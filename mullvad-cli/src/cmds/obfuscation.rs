@@ -50,12 +50,9 @@ impl Obfuscation {
             Obfuscation::Get => {
                 let mut rpc = MullvadProxyClient::new().await?;
                 let obfuscation_settings = rpc.get_settings().await?.obfuscation_settings;
-                println!(
-                    "Obfuscation mode: {}",
-                    obfuscation_settings.selected_obfuscation
-                );
+                println!("mode: {}", obfuscation_settings.selected_obfuscation);
                 println!("udp2tcp settings: {}", obfuscation_settings.udp2tcp);
-                println!("Shadowsocks settings: {}", obfuscation_settings.shadowsocks);
+                println!("shadowsocks settings: {}", obfuscation_settings.shadowsocks);
                 Ok(())
             }
             Obfuscation::Set(subcmd) => Self::set(subcmd).await,
