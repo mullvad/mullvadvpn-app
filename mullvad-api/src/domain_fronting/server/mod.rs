@@ -1,5 +1,9 @@
 use std::{io, net::SocketAddr, sync::Arc, time::Duration};
 
+use bytes::BytesMut;
+use http::{Request, Response, StatusCode, header};
+use http_body_util::{BodyExt, Full};
+use hyper::body::{Bytes, Incoming};
 use tokio::{
     io::{AsyncReadExt, AsyncWriteExt},
     net::TcpStream,
@@ -8,9 +12,11 @@ use tokio::{
 };
 use uuid::Uuid;
 
+use crate::domain_fronting::SESSION_HEADER_KEY;
+
 const TIMEOUT: Duration = Duration::from_secs(30);
 
-struct Sessions {
+pub struct Sessions {
     sessions: papaya::HashMap<Uuid, mpsc::Sender<SessionCommand>>,
     configuration: Configuration,
 }
@@ -20,23 +26,127 @@ pub struct Configuration {
 }
 
 impl Sessions {
-    pub async fn handle_request(self: Arc<Self>, label: Uuid, data: Option<Vec<u8>>) {
-        let map = self.sessions.pin();
-        if let Some(session) = map.get(label) {
-            let (cmd, rx) = SessionCommand::new(data);
-            session.send()
-        } else {
-        }
+    pub fn new(configuration: Configuration) -> Arc<Self> {
+        let sessions = Sessions {
+            configuration,
+            sessions: Default::default(),
+        };
+        Arc::new(sessions)
     }
 
-    fn remove_session(&self, session: &Uuid) {
+    async fn handle_request(self: Arc<Self>, request: Request<Incoming>) -> Response<Full<Bytes>> {
+        let session_id = request
+            .headers()
+            .get(SESSION_HEADER_KEY)
+            .and_then(|value| Uuid::try_parse_ascii(value.as_ref()).ok());
+        let Some(conent_length_header) = request.headers().get(header::CONTENT_LENGTH) else {
+            return self.handle_request_inner(session_id, None).await;
+        };
+
+        let Ok(content_length) = conent_length_header.to_str() else {
+            return Self::handle_session_error();
+        };
+
+        let Ok(content_length) = content_length.parse::<u64>() else {
+            return Self::handle_session_error();
+        };
+
+        let body = match content_length {
+            0 => None,
+            _any_other_value => {
+                let Ok(body) = request.collect().await.map(|b| b.to_bytes()) else {
+                    return Self::handle_session_error();
+                };
+                Some(body)
+            }
+        };
+
+        return self.handle_request_inner(session_id, body).await;
+    }
+
+    async fn handle_request_inner(
+        self: Arc<Self>,
+        maybe_label: Option<Uuid>,
+        data: Option<Bytes>,
+    ) -> Response<Full<Bytes>> {
+        let Some(label) = maybe_label else {
+            return self.handle_new_session(data).await;
+        };
+
+        let map = self.sessions.pin();
+        let Some(cmd_tx) = map.get(&label) else {
+            return Self::handle_session_error();
+        };
+
+        return self
+            .clone()
+            .handle_existing_session_request(cmd_tx, data)
+            .await;
+    }
+
+    async fn handle_existing_session_request(
+        self: Arc<Self>,
+        cmd_tx: &mpsc::Sender<SessionCommand>,
+        data: Option<Bytes>,
+    ) -> Response<Full<Bytes>> {
+        let Ok(return_payload) = SessionCommand::send(data, &cmd_tx).await else {
+            return Self::handle_session_error();
+        };
+        let body = return_payload
+            .map(Bytes::from_owner)
+            .unwrap_or(Bytes::new());
+
+        return Response::builder()
+            .status(StatusCode::OK)
+            .header(header::CONTENT_TYPE, "application/octet-stream")
+            .body(Full::new(body))
+            .unwrap();
+    }
+
+    async fn handle_new_session(self: Arc<Self>, data: Option<Bytes>) -> Response<Full<Bytes>> {
+        let new_label = Uuid::new_v4();
+
+        let sessions = self.clone();
+        let session_id = new_label.clone();
+        let (cmd_tx, cmd_rx) = mpsc::channel(1);
+        self.sessions.pin().insert(new_label, cmd_tx.clone());
+        tokio::spawn(async move {
+            let Ok(mut session) = Session::connect(cmd_rx, session_id, sessions).await else {
+                return;
+            };
+            session.run().await;
+        });
+
+        let Ok(return_payload) = SessionCommand::send(data, &cmd_tx).await else {
+            return Self::handle_session_error();
+        };
+        let body = return_payload
+            .map(Bytes::from_owner)
+            .unwrap_or(Bytes::new());
+
+        return Response::builder()
+            .status(StatusCode::CREATED)
+            .header(SESSION_HEADER_KEY, new_label.hyphenated().to_string())
+            .header(header::CONTENT_TYPE, "application/octet-stream")
+            .body(Full::new(body))
+            .unwrap();
+    }
+
+    fn handle_session_error() -> Response<Full<Bytes>> {
+        return Response::builder()
+            .status(StatusCode::BAD_REQUEST)
+            .body(Full::new(Bytes::new()))
+            .unwrap();
+    }
+
+    pub fn remove_session(self: Arc<Self>, session: &Uuid) {
         let _ = self.sessions.pin().remove(session);
     }
 }
 
 struct Session {
     connection: TcpStream,
-    upstream_rx_bytes: Option<Vec<u8>>,
+    upstream_rx_bytes: Option<BytesMut>,
     cmd_rx: mpsc::Receiver<SessionCommand>,
     session_id: Uuid,
     sessions: Arc<Sessions>,
@@ -44,23 +154,26 @@ struct Session {
 
 impl Session {
     pub async fn connect(
-        addr: SocketAddr,
+        cmd_rx: mpsc::Receiver<SessionCommand>,
         session_id: Uuid,
         sessions: Arc<Sessions>,
-    ) -> io::Result<(Self, mpsc::Sender<SessionCommand>)> {
-        let connection = TcpStream::connect(addr).await?;
-        let (tx, cmd_rx) = mpsc::channel(1);
+    ) -> io::Result<Self> {
+        let connection = match TcpStream::connect(sessions.configuration.upstream_address).await {
+            Ok(conn) => conn,
+            Err(err) => {
+                log::error!("Failed to connect to upstream server: {err}");
+                sessions.remove_session(&session_id);
+                return Err(err);
+            }
+        };
 
-        Ok((
-            Self {
-                connection,
-                session_id,
-                cmd_rx,
-                upstream_rx_bytes: None,
-                sessions,
-            },
-            tx,
-        ))
+        Ok(Self {
+            connection,
+            session_id,
+            cmd_rx,
+            upstream_rx_bytes: None,
+            sessions,
+        })
     }
 
     pub async fn run(&mut self) {
@@ -68,8 +181,8 @@ impl Session {
             connection,
             upstream_rx_bytes,
             cmd_rx,
-            sessions,
-            session_id,
+            sessions: _,
+            session_id: _,
         } = self;
         let mut deadline = sleep(TIMEOUT);
         let mut read_buffer = vec![0u8; 8192];
@@ -84,15 +197,15 @@ impl Session {
                             log::error!("Failed to send data to upstream: {err}");
                         }
                     }
-                    cmd.respond_with(upstream_rx_bytes.take());
+                    cmd.respond_with(upstream_rx_bytes.take().map(BytesMut::freeze));
                 },
 
                 read_result = connection.read(&mut read_buffer) => {
                     match read_result {
                         Ok(bytes_received) => {
                             upstream_rx_bytes
-                                .get_or_insert(vec![])
-                                .extend(&read_buffer[..bytes_received]);
+                                .get_or_insert(BytesMut::new())
+                                .extend_from_slice(&read_buffer[..bytes_received]);
                         },
                         Err(err) => {
                             log::error!("Failed to receive data from upstream: {err}");
@@ -110,24 +223,32 @@ impl Session {
             }
             deadline = sleep(TIMEOUT);
         }
-
-        // *sessions.pin().remove()
     }
 }
 
 impl Drop for Session {
     fn drop(&mut self) {
-        self.sessions.remove_session(&self.session_id);
+        self.sessions.clone().remove_session(&self.session_id);
     }
 }
 
 struct SessionCommand {
-    tx_payload: Option<Vec<u8>>,
-    return_tx: oneshot::Sender<Option<Vec<u8>>>,
+    tx_payload: Option<Bytes>,
+    return_tx: oneshot::Sender<Option<Bytes>>,
 }
 
 impl SessionCommand {
-    fn new(tx_payload: Option<Vec<u8>>) -> (Self, oneshot::Receiver<Option<Vec<u8>>>) {
+    async fn send(
+        payload: Option<Bytes>,
+        cmd_tx: &mpsc::Sender<SessionCommand>,
+    ) -> anyhow::Result<Option<Bytes>> {
+        let (cmd, rx) = Self::new(payload);
+        cmd_tx.send(cmd).await?;
+        let payload = rx.await?;
+        Ok(payload)
+    }
+
+    fn new(tx_payload: Option<Bytes>) -> (Self, oneshot::Receiver<Option<Bytes>>) {
         let (return_tx, rx) = oneshot::channel();
         (
             Self {
@@ -137,11 +258,11 @@ impl SessionCommand {
             rx,
         )
     }
-    fn take_payload(&mut self) -> Option<Vec<u8>> {
+    fn take_payload(&mut self) -> Option<Bytes> {
         self.tx_payload.take()
     }
 
-    fn respond_with(mut self, received_bytes: Option<Vec<u8>>) {
+    fn respond_with(mut self, received_bytes: Option<Bytes>) {
         let _ = self.return_tx.send(received_bytes);
     }
 }

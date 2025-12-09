@@ -2954,6 +2954,7 @@ version = "0.0.0"
 dependencies = [
  "anyhow",
  "async-trait",
+ "bytes",
  "cbindgen",
  "chrono",
  "clap",

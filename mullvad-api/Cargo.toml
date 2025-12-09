@@ -63,6 +63,8 @@ env_logger = { workspace = true, optional = true  }
 shadowsocks = { workspace = true, features = ["stream-cipher"] }
 
 papaya = "0.2"
+# Should follow whatever tokio uses
+bytes = "^1.2"
 
 [target.'cfg(not(target_os = "ios"))'.dependencies]
 mullvad-update = { path = "../mullvad-update", features = ["client"] }
