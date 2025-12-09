@@ -27,6 +27,7 @@
     <string name="android_16_upgrade_warning_dialog_second_message">لطفاً دستگاه‌تان را دوباره راه‌اندازی کنید و دوباره تلاش کنید وصل شوید. اگر مشکل برطرف نشد، لطفاً یک ایمیل به %1$s به زبان سوئدی یا انگلیسی بنویسید.</string>
     <string name="android_16_upgrade_warning_message">‏اندروید 16 یک مشکل شناخته‌شده دارد. لطفاً دستگاه‌تان را مجدد راه‌اندازی کرده و دوباره امتحان کنید. برای کسب اطلاعات بیشتر،</string>
     <string name="android_16_upgrade_warning_title">اتصال برقرار نمی‌شود؟</string>
+    <string name="anti_censorship">ضد سانسور</string>
     <string name="any">هر کدام</string>
     <string name="api_access_description">مدیریت و افزودن روش‌های سفارشی برای دسترسی به ‏Mullvad API.</string>
     <string name="api_access_method_info_first_line">اپلیکیشن برای ورود شما، دریافت فهرست سرورها و انجام دیگر عملیات ضروری، باید با یک سرور Mullvad API ارتباط برقرار کند.</string>
@@ -114,7 +115,6 @@
     <string name="custom_port_dialog_placeholder">پورت را وارد کنید</string>
     <string name="custom_port_dialog_remove">حذف پورت سفارشی</string>
     <string name="custom_port_dialog_submit">تنظیم پورت</string>
-    <string name="custom_port_dialog_title">%1$s پورت سفارشی</string>
     <string name="custom_port_dialog_valid_ranges">دامنه‌های معتبر: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">قادر به شناسایی میزبان تونل سفارشی نیست. لطفاً تنظیمات خود را تغییر دهید و دوباره تلاش کنید.</string>
     <string name="daita_description_slide_1_first_paragraph">توجه: این کار باعث افزایش ترافیک شبکه می‌شود و همچنین سرعت، تأخیر و مصرف باتری را تحت تأثیر منفی قرار می‌دهد. در طرح‌های اینترنتی محدود با احتیاط استفاده کنید.</string>
@@ -266,6 +266,7 @@
     <string name="max_devices_resolved_title">عالی!</string>
     <string name="max_devices_warning_description">لطفاً حداقل یکی از دستگاه‌ها را با حذف آن از فهرست زیر خارج کنید. نام دستگاه مربوطه را می‌توانید در تنظیمات حساب همان دستگاه پیدا کنید.</string>
     <string name="max_devices_warning_title">تعداد دستگاه‌ها بیش از حد مجاز است</string>
+    <string name="method">روش</string>
     <string name="more_actions">اقدامات بیشتر</string>
     <string name="more_information">اطلاعات بیشتر</string>
     <string name="mtu">MTU</string>
@@ -293,7 +294,6 @@
     <string name="number_of_providers">ارائه‌دهندگان: %1$d</string>
     <string name="obfuscation_info">پنهان‌سازی ترافیک WireGuard را درون یک پروتکل دیگر مخفی می‌کند. زمانی‌که یک اتصال معمولی WireGuard مسدود می‌شود، این قابلیت می‌تواند برای دور زدن سانسور و انواع دیگر فیلترینگ مفید باشد.</string>
     <string name="obfuscation_info_shadowsocks_batteryusage">توجه: Shadowsocks می‌تواند بسته به میزان استفاده از داده، مانند تماشای ویدیو، مصرف باتری را افزایش دهد.</string>
-    <string name="obfuscation_title">پنهان‌سازی WireGuard</string>
     <string name="off">خاموش</string>
     <string name="on">روشن</string>
     <string name="open_app_details">باز کردن جزئیات اپلیکیشن</string>
@@ -448,7 +448,6 @@
     <string name="vpn_permission_error_notification_title">خطای اجازهٔ VPN</string>
     <string name="vpn_settings_not_available">تنظیمات VPN روی این دستگاه در دسترس نیست</string>
     <string name="we_will_look_into_this">ما این موضوع را بررسی خواهیم کرد.</string>
-    <string name="wg_port_subtitle">برای فعال‌کردن این تنظیم، مبهم‌سازیِ %1$s را در پایین روی «خودکار» یا «خاموش» قرار دهید.</string>
     <string name="wireguard_custon_port_title">سفارشی</string>
     <string name="wireguard_mtu_footer">مقدار MTU مربوط به WireGuard را تنظیم کنید. دامنهٔ معتبر: %1$d تا %2$d.</string>
     <string name="wireguard_port_info_description">تنظیم خودکار به‌صورت تصادفی از بازه‌های پورت معتبرِ نشان‌داده‌شده در زیر انتخاب می‌کند.</string>

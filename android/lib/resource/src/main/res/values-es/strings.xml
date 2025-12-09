@@ -27,6 +27,7 @@
     <string name="android_16_upgrade_warning_dialog_second_message">Reinicie su dispositivo e intente conectarse de nuevo. Si esto no funciona, escriba un correo electrónico a %1$s en sueco o inglés.</string>
     <string name="android_16_upgrade_warning_message">Android 16 tiene un problema conocido. Reinicie su dispositivo e inténtelo de nuevo. Para obtener más información,</string>
     <string name="android_16_upgrade_warning_title">¿No se puede conectar?</string>
+    <string name="anti_censorship">Anticensura</string>
     <string name="any">Cualquiera</string>
     <string name="api_access_description">Gestione y añada métodos personalizados para acceder a la API de Mullvad.</string>
     <string name="api_access_method_info_first_line">La aplicación necesita comunicarse con un servidor API de Mullvad para iniciar su sesión, obtener las listas de servidores y otras operaciones críticas.</string>
@@ -265,6 +266,7 @@
     <string name="max_devices_resolved_title">¡Genial!</string>
     <string name="max_devices_warning_description">Cierre la sesión como mínimo en un dispositivo (para hacerlo, quítelo de la lista siguiente). Consulte el nombre del dispositivo en la configuración de la cuenta del dispositivo.</string>
     <string name="max_devices_warning_title">Demasiados dispositivos</string>
+    <string name="method">Método</string>
     <string name="more_actions">Más acciones</string>
     <string name="more_information">Más información</string>
     <string name="mtu">MTU</string>

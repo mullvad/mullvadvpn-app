@@ -27,6 +27,7 @@
     <string name="android_16_upgrade_warning_dialog_second_message">Genstart din enhed, og prøv at oprette forbindelse igen. Hvis det ikke hjælper, kan du skrive en e-mail til %1$s på svensk eller engelsk.</string>
     <string name="android_16_upgrade_warning_message">Android 16 har et kendt problem. Genstart din enhed, og prøv igen. For at få mere at vide</string>
     <string name="android_16_upgrade_warning_title">Kan du ikke oprette forbindelse?</string>
+    <string name="anti_censorship">Anti-censur</string>
     <string name="any">Enhver</string>
     <string name="api_access_description">Administrer og tilføj brugerdefinerede metoder for at få adgang til Mullvad API.</string>
     <string name="api_access_method_info_first_line">Appen skal kommunikere med en Mullvad API-server for at kunne logge dig på, hente serverlister og andre kritiske operationer.</string>
@@ -265,6 +266,7 @@
     <string name="max_devices_resolved_title">Super!</string>
     <string name="max_devices_warning_description">Log ud af mindst én ved at fjerne den fra listen nedenfor. Du kan finde det tilsvarende enhedsnavn under enhedens kontoindstillinger.</string>
     <string name="max_devices_warning_title">For mange enheder</string>
+    <string name="method">Metode</string>
     <string name="more_actions">Flere handlinger</string>
     <string name="more_information">Mere information</string>
     <string name="mtu">MTU</string>

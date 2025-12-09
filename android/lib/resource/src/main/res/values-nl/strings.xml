@@ -27,6 +27,7 @@
     <string name="android_16_upgrade_warning_dialog_second_message">Start uw apparaat opnieuw op en probeer het opnieuw. Als dat niet werkt, kun u een e-mail schrijven naar %1$s (in het Zweeds of in het Engels).</string>
     <string name="android_16_upgrade_warning_message">Er is een bekend probleem met Android 16. Start uw apparaat opnieuw op en probeer het opnieuw. Voor meer informatie:</string>
     <string name="android_16_upgrade_warning_title">Krijgt u geen verbinding?</string>
+    <string name="anti_censorship">Anti-censuur</string>
     <string name="any">Elke</string>
     <string name="api_access_description">Beheer en voeg aangepaste methoden toe om toegang te krijgen tot de Mullvad-API.</string>
     <string name="api_access_method_info_first_line">De app moet communiceren met een Mullvad-API-server om u aan te melden, serverlijsten op te halen en andere belangrijke handelingen uit te voeren.</string>
@@ -265,6 +266,7 @@
     <string name="max_devices_resolved_title">Super!</string>
     <string name="max_devices_warning_description">Meld u bij minstens één apparaat af door het te verwijderen uit de onderstaande lijst. U kunt de bijbehorende apparaatnaam vinden in de accountinstellingen van het apparaat.</string>
     <string name="max_devices_warning_title">Te veel apparaten</string>
+    <string name="method">Methode</string>
     <string name="more_actions">Andere acties</string>
     <string name="more_information">Meer informatie</string>
     <string name="mtu">MTU</string>
