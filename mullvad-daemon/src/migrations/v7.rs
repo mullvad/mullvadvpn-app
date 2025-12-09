@@ -1,8 +1,10 @@
 use super::{Error, Result};
 use mullvad_types::{
-    relay_constraints::{BridgeConstraints, BridgeSettings as NewBridgeSettings, BridgeType},
+    constraints::Constraint,
+    relay_constraints::{LocationConstraint, Ownership, Providers},
     settings::SettingsVersion,
 };
+use serde::{Deserialize, Serialize};
 use talpid_types::net::{
     Endpoint, TransportProtocol,
     proxy::{CustomProxy, Shadowsocks, Socks5Local, Socks5Remote, SocksAuth},
@@ -14,6 +16,37 @@ use talpid_types::net::{
 
 // ======================================================
 // This is a closed migration.
+
+/// Specifies a specific endpoint or [`BridgeConstraints`] to use when `mullvad-daemon` selects a
+/// bridge server.
+#[derive(Default, Debug, Clone, Deserialize, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub struct NewBridgeSettings {
+    bridge_type: BridgeType,
+    normal: BridgeConstraints,
+    custom: Option<CustomProxy>,
+}
+
+/// Limits the set of bridge servers to use in `mullvad-daemon`.
+#[derive(Debug, Default, Clone, Deserialize, Serialize)]
+#[serde(default)]
+#[serde(rename_all = "snake_case")]
+pub struct BridgeConstraints {
+    location: Constraint<LocationConstraint>,
+    providers: Constraint<Providers>,
+    ownership: Constraint<Ownership>,
+}
+
+#[derive(Default, Debug, Clone, Deserialize, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum BridgeType {
+    /// Let the relay selection algorithm decide on bridges, based on the relay list
+    /// and normal bridge constraints.
+    #[default]
+    Normal,
+    /// Use custom bridge configuration.
+    Custom,
+}
 
 /// We change bridge settings to no longer be an enum with custom and normal variants. It now is a
 /// struct which contains a bridge type, a normal relay constraint and optional custom constraints.

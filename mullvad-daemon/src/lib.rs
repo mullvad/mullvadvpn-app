@@ -29,7 +29,9 @@ mod target_state;
 mod tunnel;
 pub mod version;
 
-use crate::target_state::PersistentTargetState;
+use crate::{
+    relay_list::parsed_relays::parse_relays_from_file, target_state::PersistentTargetState,
+};
 use api::DaemonAccessMethodResolver;
 use device::{AccountEvent, PrivateAccountAndDevice, PrivateDeviceEvent};
 use futures::{
@@ -45,9 +47,6 @@ use mullvad_encrypted_dns_proxy::state::EncryptedDnsProxyState;
 use mullvad_relay_selector::{RelaySelector, SelectorConfig};
 #[cfg(target_os = "android")]
 use mullvad_types::account::{PlayPurchase, PlayPurchasePaymentToken};
-use mullvad_types::relay_constraints::{
-    GeographicLocationConstraint, LocationConstraint, RelayConstraints, WireguardConstraints,
-};
 #[cfg(any(target_os = "windows", target_os = "android", target_os = "macos"))]
 use mullvad_types::settings::SplitApp;
 #[cfg(daita)]
@@ -62,8 +61,7 @@ use mullvad_types::{
     features::{FeatureIndicator, FeatureIndicators, compute_feature_indicators},
     location::{GeoIpLocation, LocationEventData},
     relay_constraints::{
-        BridgeSettings, BridgeType, ObfuscationSettings, RelayOverride, RelaySettings,
-        allowed_ip::AllowedIps,
+        ObfuscationSettings, RelayOverride, RelaySettings, allowed_ip::AllowedIps,
     },
     relay_list::RelayList,
     settings::{DnsOptions, Settings},
@@ -71,11 +69,17 @@ use mullvad_types::{
     version::AppVersionInfo,
     wireguard::{PublicKey, QuantumResistantState, RotationInterval},
 };
+use mullvad_types::{
+    relay_constraints::{
+        GeographicLocationConstraint, LocationConstraint, RelayConstraints, WireguardConstraints,
+    },
+    relay_list::BridgeList,
+};
 #[cfg(not(target_os = "android"))]
 use mullvad_update::version::Rollout;
 #[cfg(target_os = "android")]
 use mullvad_update::version::SUPPORTED_VERSION;
-use relay_list::{RELAYS_FILENAME, RelayListUpdater, RelayListUpdaterHandle};
+use relay_list::{RelayListUpdater, RelayListUpdaterHandle};
 use settings::SettingsPersister;
 use std::collections::BTreeSet;
 #[cfg(any(target_os = "windows", target_os = "android", target_os = "macos"))]
@@ -257,6 +261,8 @@ pub enum DaemonCommand {
     /// Trigger an asynchronous relay list update. This returns before the relay list is actually
     /// updated.
     UpdateRelayLocations,
+    /// Get the list of bridges.
+    GetBridges(oneshot::Sender<BridgeList>),
     /// Log in with a given account and create a new device.
     LoginAccount(ResponseTx<(), Error>, AccountNumber),
     /// Log out of the current account and remove the device, if they exist.
@@ -280,8 +286,6 @@ pub enum DaemonCommand {
     SetLockdownMode(ResponseTx<(), settings::Error>, bool),
     /// Set the auto-connect setting.
     SetAutoConnect(ResponseTx<(), settings::Error>, bool),
-    /// Set proxy details for Bridges
-    SetBridgeSettings(ResponseTx<(), Error>, BridgeSettings),
     /// Set if IPv6 should be enabled in the tunnel
     SetEnableIpv6(ResponseTx<(), settings::Error>, bool),
     /// Set if recents should be enabled
@@ -754,20 +758,19 @@ impl Daemon {
             settings_event_listener.notify_settings(settings.to_owned());
         });
 
+        let (initial_relay_list, initial_bridge_list, etag) =
+            parse_relays_from_file(&config.cache_dir, &config.resource_dir)
+                .inspect_err(|err| log::error!("{err}"))
+                .unwrap_or_default();
+        // TODO: This should preferably be done once, by the relay list updater.
+        let initial_relay_list =
+            initial_relay_list.apply_overrides(settings.relay_overrides.clone());
         let initial_selector_config = SelectorConfig::from_settings(&settings);
         let relay_selector = RelaySelector::new(
             initial_selector_config,
-            config.resource_dir.join(RELAYS_FILENAME),
-            config.cache_dir.join(RELAYS_FILENAME),
+            initial_relay_list.clone(),
+            initial_bridge_list.clone(),
         );
-
-        let settings_relay_selector = relay_selector.clone();
-        settings.register_change_listener(move |settings| {
-            // Notify relay selector of changes to the settings/selector config
-            settings_relay_selector
-                .clone()
-                .set_config(SelectorConfig::from_settings(settings));
-        });
 
         let encrypted_dns_proxy_cache = EncryptedDnsProxyState::default();
         let method_resolver = DaemonAccessMethodResolver::new(
@@ -951,8 +954,27 @@ impl Daemon {
             relay_selector.clone(),
             api_handle.clone(),
             &config.cache_dir,
+            etag,
+            settings.relay_overrides.clone(),
             on_relay_list_update,
         );
+
+        // Notify the relay list updater when new relay IP overrides are available.
+        let relay_list_updater_handle = relay_list_updater.clone();
+        settings.register_change_listener(move |settings| {
+            // Notify relay selector of changes to the settings/selector config
+            let mut relay_list_updater = relay_list_updater_handle.clone();
+            let overrides = settings.relay_overrides.clone();
+            tokio::spawn(async move {
+                relay_list_updater.update_overrides(overrides).await;
+            });
+        });
+
+        let settings_relay_selector = relay_selector.clone();
+        settings.register_change_listener(move |settings| {
+            // Notify relay selector of changes to the settings/selector config
+            settings_relay_selector.set_config(SelectorConfig::from_settings(settings));
+        });
 
         #[cfg(not(target_os = "android"))]
         let rollout = {
@@ -1475,9 +1497,6 @@ impl Daemon {
                 self.on_set_lockdown_mode(tx, lockdown_mode).await
             }
             SetAutoConnect(tx, auto_connect) => self.on_set_auto_connect(tx, auto_connect).await,
-            SetBridgeSettings(tx, bridge_settings) => {
-                self.on_set_bridge_settings(tx, bridge_settings).await
-            }
             SetEnableIpv6(tx, enable_ipv6) => self.on_set_enable_ipv6(tx, enable_ipv6).await,
             SetEnableRecents(tx, enable_recents) => {
                 self.on_set_enable_recents(tx, enable_recents).await
@@ -1589,6 +1608,7 @@ impl Daemon {
             AppUpgrade(tx) => self.on_app_upgrade(tx).await,
             AppUpgradeAbort(tx) => self.on_app_upgrade_abort(tx).await,
             GetAppUpgradeCacheDir(tx) => self.on_get_app_upgrade_cache_dir(tx).await,
+            GetBridges(tx) => self.on_get_bridges(tx),
         }
     }
 
@@ -1937,6 +1957,10 @@ impl Daemon {
         Self::oneshot_send(tx, self.relay_selector.get_relays(), "relay locations");
     }
 
+    fn on_get_bridges(&mut self, tx: oneshot::Sender<BridgeList>) {
+        Self::oneshot_send(tx, self.relay_selector.get_bridges(), "bridges");
+    }
+
     async fn on_update_relay_locations(&mut self) {
         self.relay_list_updater.update().await;
     }
@@ -1949,7 +1973,7 @@ impl Daemon {
 
         if self.settings.update_default_location
             && let Some(location) = self.tunnel_state.get_location()
-            && let Some(country_code) = self.relay_selector.access_relays(|relays| {
+            && let Some(country_code) = self.relay_selector.relay_list(|relays| {
                 relays
                     .lookup_country_code_by_name(&location.country)
                     .or_else(|| relays.get_nearest_country_with_relay(location))
@@ -2550,49 +2574,6 @@ impl Daemon {
             Err(e) => {
                 log::error!("{}", e.display_chain_with_msg("Unable to save settings"));
                 Self::oneshot_send(tx, Err(e), "set auto-connect response");
-            }
-        }
-    }
-
-    async fn on_set_bridge_settings(
-        &mut self,
-        tx: ResponseTx<(), Error>,
-        new_settings: BridgeSettings,
-    ) {
-        if new_settings.custom.is_none() && new_settings.bridge_type == BridgeType::Custom {
-            log::info!("Tried to select custom bridge but no custom bridge settings exist");
-            Self::oneshot_send(
-                tx,
-                Err(Error::NoCustomProxySaved),
-                "set_bridge_settings response",
-            );
-            return;
-        }
-
-        match self
-            .settings
-            .update(move |settings| settings.bridge_settings = new_settings)
-            .await
-        {
-            Ok(settings_changes) => {
-                if settings_changes {
-                    let access_mode_handler = self.access_mode_handler.clone();
-                    tokio::spawn(async move {
-                        if let Err(error) = access_mode_handler.rotate().await {
-                            log::error!("Failed to rotate API endpoint: {error}");
-                        }
-                    });
-                    self.reconnect_tunnel();
-                };
-                Self::oneshot_send(tx, Ok(()), "set_bridge_settings");
-            }
-
-            Err(e) => {
-                log::error!(
-                    "{}",
-                    e.display_chain_with_msg("Failed to set new bridge settings")
-                );
-                Self::oneshot_send(tx, Err(Error::SettingsError(e)), "set_bridge_settings");
             }
         }
     }
@@ -3408,16 +3389,8 @@ impl Daemon {
                     for city in &mut country.cities {
                         let matching_city = relay == city.name;
                         for settings_relay in &mut city.relays {
-                            // `relay` can also be a VPN protocol. This is arbitrary, but useful.
-                            let matching_protocol = relay.to_lowercase().eq("wireguard")
-                                && settings_relay.is_wireguard();
                             let matching_relay = relay == settings_relay.hostname;
-
-                            if matching_relay
-                                || matching_city
-                                || matching_country
-                                || matching_protocol
-                            {
+                            if matching_relay || matching_city || matching_country {
                                 settings_relay.active = active;
                             }
                         }
