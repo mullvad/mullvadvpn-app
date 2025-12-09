@@ -319,7 +319,6 @@ impl Relay {
         Ok(())
     }
 
-    /// Get active relays which are not bridges.
     async fn update_constraints(update_fn: impl FnOnce(&mut RelayConstraints)) -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
         let settings = rpc.get_settings().await?;
@@ -547,6 +546,7 @@ impl Relay {
 
         if warn_non_existent_hostname {
             let relay_list = rpc.get_relay_locations().await?;
+            // TODO: bridges should not be visible to cli
             if !relay_list.relays().any(|relay| {
                 relay.active
                     && relay.endpoint_data != RelayEndpointData::Bridge
@@ -772,6 +772,7 @@ pub async fn get_active_relays() -> Result<Vec<RelayListCountry>> {
                 .into_iter()
                 .filter_map(|mut city| {
                     city.relays.retain(|relay| {
+                        // TODO: bridges should not be visible to cli
                         relay.active && relay.endpoint_data != RelayEndpointData::Bridge
                     });
                     if !city.relays.is_empty() {

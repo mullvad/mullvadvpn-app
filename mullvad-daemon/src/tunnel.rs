@@ -82,7 +82,6 @@ impl ParametersGenerator {
         let entry_hostname = take_hostname(&relays.entry);
         let hostname = relays.exit.hostname.clone();
         let obfuscator_hostname = take_hostname(&relays.obfuscator);
-        let bridge_hostname = None;
         let location = relays.exit.location.clone();
 
         Some(GeoIpLocation {
@@ -94,7 +93,6 @@ impl ParametersGenerator {
             longitude: location.longitude,
             mullvad_exit_ip: true,
             hostname: Some(hostname),
-            bridge_hostname,
             entry_hostname,
             obfuscator_hostname,
         })
