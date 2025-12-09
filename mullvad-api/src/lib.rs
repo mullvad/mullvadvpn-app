@@ -343,7 +343,7 @@ impl Runtime {
     ) -> Self {
         Runtime {
             handle,
-            address_cache: AddressCache::<FileAddressCacheBacking>::new(endpoint, None),
+            address_cache: AddressCache::new(endpoint, None),
             api_availability: ApiAvailability::default(),
             endpoint: endpoint.clone(),
             #[cfg(target_os = "android")]
@@ -379,7 +379,7 @@ impl Runtime {
             None
         };
 
-        let address_cache = match AddressCache::<FileAddressCacheBacking>::from_file(
+        let address_cache = match AddressCache::from_file(
             &cache_file,
             write_file.clone(),
             endpoint.host().to_owned(),
@@ -396,7 +396,7 @@ impl Runtime {
                         )
                     );
                 }
-                AddressCache::<FileAddressCacheBacking>::new(endpoint, write_file)
+                AddressCache::new(endpoint, write_file)
             }
         };
 

@@ -71,7 +71,7 @@ impl AddressCacheBacking for FileAddressCacheBacking {
 
 /// A DNS resolver which resolves using `AddressCache`.
 #[async_trait]
-impl DnsResolver for AddressCache {
+impl DnsResolver for GenericAddressCache {
     async fn resolve(&self, host: String) -> Result<Vec<SocketAddr>, io::Error> {
         self.resolve_hostname(&host)
             .await
@@ -81,13 +81,15 @@ impl DnsResolver for AddressCache {
 }
 
 #[derive(Clone)]
-pub struct AddressCache<Backing: AddressCacheBacking = FileAddressCacheBacking> {
+pub struct GenericAddressCache<Backing: AddressCacheBacking = FileAddressCacheBacking> {
     hostname: String,
     inner: Arc<Mutex<AddressCacheInner>>,
     backing: Backing,
 }
 
-impl<Backing: AddressCacheBacking> AddressCache<Backing> {
+pub type AddressCache = GenericAddressCache<FileAddressCacheBacking>;
+
+impl<Backing: AddressCacheBacking> GenericAddressCache<Backing> {
     /// Initialise cache using a hardcoded address and a Backing for writing to
     pub fn new_with_address(endpoint: &ApiEndpoint, backing: Backing) -> Self {
         Self::new_inner(endpoint.address(), endpoint.host().to_owned(), backing)
@@ -97,8 +99,8 @@ impl<Backing: AddressCacheBacking> AddressCache<Backing> {
     pub fn new(
         endpoint: &ApiEndpoint,
         write_path: Option<Box<Path>>,
-    ) -> AddressCache<FileAddressCacheBacking> {
-        AddressCache::<FileAddressCacheBacking>::new_with_address(
+    ) -> AddressCache {
+        AddressCache::new_with_address(
             endpoint,
             FileAddressCacheBacking {
                 read_path: None,
@@ -117,9 +119,9 @@ impl<Backing: AddressCacheBacking> AddressCache<Backing> {
         read_path: &Path,
         write_path: Option<Box<Path>>,
         hostname: String,
-    ) -> Result<AddressCache<FileAddressCacheBacking>, Error> {
+    ) -> Result<AddressCache, Error> {
         log::debug!("Loading API addresses from {}", read_path.display());
-        AddressCache::<FileAddressCacheBacking>::from_backing(
+        AddressCache::from_backing(
             hostname,
             FileAddressCacheBacking {
                 read_path: Some(Arc::from(read_path)),
