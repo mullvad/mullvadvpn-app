@@ -24,7 +24,7 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 ### Changed
 #### Windows
-- Detect processes preventing updates.
+- Detect and show which processes are preventing an update.
 
 ### Fixed
 - Fix "Time left" label in main view not updating when time passes.
