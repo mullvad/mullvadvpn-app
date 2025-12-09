@@ -1,3 +1,9 @@
 # See repository root `osv-scanner.toml` for instructions and rules for this file.
 #
 # Keep this file in sync with test/deny.toml
+
+# Logging user input may result in poisoning logs with ANSI escape sequences
+[[IgnoredVulns]]
+id = "RUSTSEC-2025-0055" # CVE-2025-58160
+ignoreUntil = 2026-12-08
+reason = "test-rpc does not deal with random user input"

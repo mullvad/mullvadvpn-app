@@ -20,6 +20,9 @@ yanked = "deny"
 ignore = [
     # Ignored audit issues. This list should be kept short, and effort should be
     # put into removing items from the list.
+
+    # test-rpc does not deal with random user input
+    "RUSTSEC-2025-0055"
 ]
 
 
