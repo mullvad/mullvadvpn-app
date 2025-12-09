@@ -226,9 +226,15 @@ impl ObfuscationQuery {
         let selected_obfuscation = match self {
             ObfuscationQuery::Off => SelectedObfuscation::Off,
             ObfuscationQuery::Auto => SelectedObfuscation::Auto,
-            ObfuscationQuery::Port(_) => SelectedObfuscation::WireguardPort,
             ObfuscationQuery::Quic => SelectedObfuscation::Quic,
             ObfuscationQuery::Lwo => SelectedObfuscation::Lwo,
+            ObfuscationQuery::Port(wireguard_port) => {
+                return ObfuscationSettings {
+                    selected_obfuscation: SelectedObfuscation::WireguardPort,
+                    wireguard_port,
+                    ..Default::default()
+                };
+            }
             ObfuscationQuery::Udp2tcp(settings) => {
                 return ObfuscationSettings {
                     selected_obfuscation: SelectedObfuscation::Udp2Tcp,
