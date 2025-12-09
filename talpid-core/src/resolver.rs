@@ -93,7 +93,7 @@ const DNS_PORT: u16 = if cfg!(test) {
 };
 
 const ALLOWED_RECORD_TYPES: &[RecordType] = &[RecordType::A, RecordType::CNAME];
-const CAPTIVE_PORTAL_DOMAINS: &[&str] = &["captive.apple.com", "netcts.cdn-apple.com"];
+const CAPTIVE_PORTAL_DOMAINS: &[&str] = &["captive.apple.com.", "netcts.cdn-apple.com."];
 
 static ALLOWED_DOMAINS: LazyLock<Vec<LowerName>> = LazyLock::new(|| {
     CAPTIVE_PORTAL_DOMAINS
@@ -847,7 +847,7 @@ mod test {
             let handle = start_resolver().await;
             let test_resolver = get_test_resolver(handle.listening_addr());
             test_resolver
-                .lookup(&ALLOWED_DOMAINS[0], RecordType::A)
+                .ipv4_lookup(&ALLOWED_DOMAINS[0])
                 .await
                 .expect("lookup should succeed");
             drop(_sock);
@@ -867,7 +867,7 @@ mod test {
             let handle = start_resolver().await;
             let test_resolver = get_test_resolver(handle.listening_addr());
             test_resolver
-                .lookup(&ALLOWED_DOMAINS[0], RecordType::A)
+                .ipv4_lookup(&ALLOWED_DOMAINS[0])
                 .await
                 .expect("lookup should succeed");
             drop(_sock);
