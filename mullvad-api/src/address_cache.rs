@@ -96,10 +96,7 @@ impl<Backing: AddressCacheBacking> GenericAddressCache<Backing> {
     }
 
     /// Initialize cache using the hardcoded address, and write changes to `write_path`.
-    pub fn new(
-        endpoint: &ApiEndpoint,
-        write_path: Option<Box<Path>>,
-    ) -> AddressCache {
+    pub fn new(endpoint: &ApiEndpoint, write_path: Option<Box<Path>>) -> AddressCache {
         AddressCache::new_with_address(
             endpoint,
             FileAddressCacheBacking {
