@@ -1824,8 +1824,8 @@ impl Daemon {
         tx: oneshot::Sender<bool>,
         new_target_state: TargetState,
     ) {
-        let state_change_initated = self.set_target_state(new_target_state).await;
-        Self::oneshot_send(tx, state_change_initated, "state change initiated");
+        let state_change_initiated = self.set_target_state(new_target_state).await;
+        Self::oneshot_send(tx, state_change_initiated, "state change initiated");
     }
 
     fn on_reconnect(&mut self, tx: oneshot::Sender<bool>) {

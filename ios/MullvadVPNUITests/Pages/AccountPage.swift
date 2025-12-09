@@ -53,7 +53,7 @@ class AccountPage: Page {
     }
 
     @discardableResult func verifyPaidUntil(_ date: Date) -> Self {
-        // Strip seconds from date, since the app don't display seconds
+        // Strip seconds from date, since the app doesn't display seconds
         let calendar = Calendar.current
         var components = calendar.dateComponents([.year, .month, .day, .hour, .minute], from: date)
         components.second = 0
