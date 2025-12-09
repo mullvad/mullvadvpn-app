@@ -171,11 +171,11 @@ fn check_ip_addrs(rule: &mut Rule, src: IpNetwork, dst: Option<IpNetwork>) {
         // an incoming packet IP address 34.117.105.189.
         match network {
             IpNetwork::V4(addr) => {
-                rule.add_expr(&nft_expr!(bitwise mask addr.mask(), xor 0x0));
+                rule.add_expr(&nft_expr!(bitwise mask addr.mask(), xor 0u32));
                 rule.add_expr(&nft_expr!(cmp == addr.ip() & addr.mask()));
             }
             IpNetwork::V6(addr) => {
-                rule.add_expr(&nft_expr!(bitwise mask addr.mask(), xor 0x0));
+                rule.add_expr(&nft_expr!(bitwise mask addr.mask(), xor &[0u16; 8][..]));
                 rule.add_expr(&nft_expr!(cmp == addr.ip() & addr.mask()));
             }
         };
