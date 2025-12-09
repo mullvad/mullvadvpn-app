@@ -1,10 +1,32 @@
-use std::{ffi::OsStr, fs, os::unix::ffi::OsStrExt, path::PathBuf};
+#![cfg(target_os = "linux")]
+use anyhow::{Context as _, anyhow};
+use std::ffi::OsStr;
+use std::fs;
+use std::os::unix::ffi::OsStrExt;
+use std::path::PathBuf;
+
+pub mod v1;
+pub mod v2;
 
 pub const SPLIT_TUNNEL_CGROUP_NAME: &str = "mullvad-exclusions";
 
-/// Find the path of the cgroup v1 net_cls controller mount if it exists
-pub fn find_net_cls_mount() -> std::io::Result<Option<PathBuf>> {
-    let mounts = fs::read("/proc/mounts")?;
+/// The path where linux normally mounts the cgroup2 filesystem.
+pub const CGROUP2_DEFAULT_MOUNT_PATH: &str = "/sys/fs/cgroup";
+
+/// The path where linux normally mounts the net_cls cgroup v1 filesystem.
+pub const DEFAULT_NET_CLS_DIR: &str = "/sys/fs/cgroup/net_cls";
+
+/// Errors related to cgroups.
+#[derive(thiserror::Error, Debug)]
+#[error("CGroup error")]
+pub struct Error(#[from] anyhow::Error);
+
+/// Find the path of the cgroup v1 net_cls controller mount if it exists.
+///
+/// Returns an error if `/proc/mounts` does not exist.
+pub fn find_net_cls_mount() -> Result<Option<PathBuf>, Error> {
+    let mounts =
+        fs::read("/proc/mounts").with_context(|| anyhow!("Failed to stat `/proc/mounts`"))?;
     Ok(find_net_cls_mount_inner(&mounts))
 }
 

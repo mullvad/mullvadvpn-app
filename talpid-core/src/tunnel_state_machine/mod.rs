@@ -21,6 +21,8 @@ use crate::{
 };
 #[cfg(any(target_os = "windows", target_os = "macos"))]
 use std::ffi::OsString;
+#[cfg(target_os = "linux")]
+use talpid_cgroup::v2::CGroup2;
 use talpid_dns::{DnsConfig, DnsMonitor};
 use talpid_routing::RouteManagerHandle;
 #[cfg(target_os = "macos")]
@@ -121,6 +123,12 @@ pub struct LinuxNetworkingIdentifiers {
     /// The table ID will be used for the routing table that will route all traffic through the
     /// tunnel interface.
     pub table_id: u32,
+    /// The cgroup2 used for split tunneling.
+    /// Traffic from processes in this cgroup2 should be allowed outside the tunnel.
+    pub excluded_cgroup2: Option<CGroup2>,
+    /// The net_cls id of the v1 cgroup used for split tunneling.
+    /// This is used as a fallback to [`Self::excluded_cgroup2`] since old kernels don't support cgroups v2.
+    pub net_cls: Option<u32>,
 }
 
 /// Spawn the tunnel state machine thread, returning a channel for sending tunnel commands.
@@ -378,6 +386,9 @@ impl TunnelStateMachine {
         let split_tunnel =
             split_tunnel::SplitTunnel::spawn(args.command_tx.clone(), args.route_manager.clone());
 
+        #[cfg(target_os = "linux")]
+        let fwmark = args.linux_ids.fwmark;
+
         let fw_args = FirewallArguments {
             #[cfg(not(target_os = "android"))]
             initial_state: if args.settings.lockdown_mode.bool() || !args.settings.reset_firewall {
@@ -391,7 +402,7 @@ impl TunnelStateMachine {
             initial_state: InitialFirewallState::None,
             allow_lan: args.settings.allow_lan,
             #[cfg(target_os = "linux")]
-            fwmark: args.linux_ids.fwmark,
+            linux_ids: args.linux_ids,
         };
 
         let firewall = Firewall::from_args(fw_args).map_err(Error::InitFirewallError)?;
@@ -421,7 +432,7 @@ impl TunnelStateMachine {
             #[cfg(not(target_os = "android"))]
             args.route_manager.clone(),
             #[cfg(target_os = "linux")]
-            Some(args.linux_ids.fwmark),
+            Some(fwmark),
             #[cfg(target_os = "android")]
             connectivity_listener,
         )

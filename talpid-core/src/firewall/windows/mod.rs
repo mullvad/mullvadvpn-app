@@ -12,10 +12,11 @@ use self::winfw::*;
 use super::{FirewallArguments, FirewallPolicy, InitialFirewallState};
 use talpid_dns::ResolvedDnsConfig;
 
+#[macro_use] // must come before other mod declarations
+mod ffi;
+
 mod hyperv;
 mod winfw;
-#[macro_use]
-mod ffi;
 
 const HYPERV_LEAK_WARNING_MSG: &str = "Hyper-V (e.g. WSL machines) may leak in blocked states.";
 

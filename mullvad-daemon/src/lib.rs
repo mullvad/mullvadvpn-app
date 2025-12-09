@@ -856,6 +856,9 @@ impl Daemon {
             vec![]
         };
 
+        #[cfg(target_os = "linux")]
+        let split_tunneling_pid_manager = split_tunnel::PidManager::default();
+
         let parameters_generator = tunnel::ParametersGenerator::new(
             account_manager.clone(),
             relay_selector.clone(),
@@ -925,6 +928,8 @@ impl Daemon {
             tunnel_state_machine::LinuxNetworkingIdentifiers {
                 fwmark: mullvad_types::TUNNEL_FWMARK,
                 table_id: mullvad_types::TUNNEL_TABLE_ID,
+                excluded_cgroup2: split_tunneling_pid_manager.excluded_cgroup(),
+                net_cls: split_tunneling_pid_manager.net_cls_classid(),
             },
         )
         .await
@@ -1011,7 +1016,7 @@ impl Daemon {
             },
             target_state,
             #[cfg(target_os = "linux")]
-            exclude_pids: split_tunnel::PidManager::default(),
+            exclude_pids: split_tunneling_pid_manager,
             rx: internal_event_rx,
             tx: internal_event_tx,
             reconnection_job: None,

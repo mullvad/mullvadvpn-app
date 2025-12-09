@@ -561,9 +561,9 @@ checksum = "6d43a04d8753f35258c91f8ec639f792891f748a1edbd759cf1dcea3382ad83c"
 
 [[package]]
 name = "cfg-if"
-version = "1.0.0"
+version = "1.0.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
+checksum = "9330f8b2ff13f34540b44e946ef35111825727b38d33286ef986142615121801"
 
 [[package]]
 name = "cfg_aliases"
@@ -2905,9 +2905,9 @@ dependencies = [
 
 [[package]]
 name = "mnl"
-version = "0.2.3"
+version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f15c13b46a48d07ffae279f54a43ebfb0badee28a59a32aacdddc67effa2c4db"
+checksum = "5d3a616a69f9e3b7c5c3c9f707fe146bea1d2eef93b706271a9bc3f1070f71fb"
 dependencies = [
  "libc",
  "log",
@@ -3094,7 +3094,7 @@ name = "mullvad-exclude"
 version = "0.0.0"
 dependencies = [
  "nix 0.30.1",
- "talpid-types",
+ "talpid-cgroup",
  "thiserror 2.0.9",
 ]
 
@@ -3481,20 +3481,21 @@ dependencies = [
 
 [[package]]
 name = "nftnl"
-version = "0.9.0"
+version = "0.9.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e65c1365321c197bc2c7b3c858d87ad9db235632622278f19a2eff0de704b968"
+checksum = "a530f904e31675dc9d2e3a5c166a844dffc3dad644205fe5abb638f4e9e75d9b"
 dependencies = [
  "bitflags 2.9.0",
  "log",
  "nftnl-sys",
+ "nix 0.30.1",
 ]
 
 [[package]]
 name = "nftnl-sys"
-version = "0.6.3"
+version = "0.6.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "38d8e4f1cfbbeb744087d1f22debb590266417eb0a2e8a171800ae3694bdac81"
+checksum = "cffa28b4c81eea6a8a4fd454634d425e1a559250a50a926de4517dd9607fe9a4"
 dependencies = [
  "cfg-if",
  "libc",
@@ -5357,12 +5358,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "talpid-cgroup"
+version = "0.0.0"
+dependencies = [
+ "anyhow",
+ "log",
+ "nix 0.30.1",
+ "thiserror 2.0.9",
+]
+
+[[package]]
 name = "talpid-core"
 version = "0.0.0"
 dependencies = [
  "anyhow",
  "async-trait",
  "bitflags 2.9.0",
+ "cfg-if",
  "chrono",
  "csv",
  "either",
@@ -5386,6 +5398,7 @@ dependencies = [
  "serde",
  "serde_json",
  "socket2 0.5.8",
+ "talpid-cgroup",
  "talpid-dbus",
  "talpid-dns",
  "talpid-macos",

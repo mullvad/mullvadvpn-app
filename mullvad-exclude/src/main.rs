@@ -1,63 +1,59 @@
-#[cfg(target_os = "linux")]
-use nix::unistd::{execvp, getgid, getpid, getuid, setgid, setuid};
-#[cfg(target_os = "linux")]
-use std::fmt::Write as _;
-#[cfg(target_os = "linux")]
-use std::{
-    convert::Infallible,
-    env,
-    error::Error as StdError,
-    ffi::{CString, NulError},
-    fs,
-    io::{self, BufWriter, Write},
-    os::unix::ffi::OsStrExt,
-};
-
-#[cfg(target_os = "linux")]
-use talpid_types::cgroup::{SPLIT_TUNNEL_CGROUP_NAME, find_net_cls_mount};
-
-#[cfg(target_os = "linux")]
-const PROGRAM_NAME: &str = "mullvad-exclude";
-
-#[cfg(target_os = "linux")]
-#[derive(thiserror::Error, Debug)]
-enum Error {
-    #[error("Invalid arguments")]
-    InvalidArguments,
-
-    #[error("Cannot set the cgroup")]
-    AddProcToCGroup(#[source] io::Error),
-
-    #[error("Failed to drop root user privileges for the process")]
-    DropRootUid(#[source] nix::Error),
-
-    #[error("Failed to drop root group privileges for the process")]
-    DropRootGid(#[source] nix::Error),
-
-    #[error("Failed to launch the process")]
-    Exec(#[source] nix::Error),
-
-    #[error("An argument contains interior nul bytes")]
-    ArgumentNul(#[source] NulError),
-
-    #[error("Error finding net_cls controller")]
-    FindNetClsController(#[source] io::Error),
-
-    #[error(
-        "No net_cls controller found.\n\nThis is likely because cgroups v1 was disabled using the \
-         boot parameter 'cgroup_no_v1' or when your Linux kernel was built"
-    )]
-    NoNetClsController,
-}
-
 fn main() {
     #[cfg(target_os = "linux")]
-    // Drop the impossible case
-    if let Err(error) = run().map(drop) {
+    inner::main();
+}
+
+#[cfg(target_os = "linux")]
+mod inner {
+    use nix::unistd::{Pid, execvp, getgid, getpid, getuid, setgid, setuid};
+    use std::{
+        convert::Infallible,
+        env,
+        error::Error as StdError,
+        ffi::{CString, NulError},
+        fmt::Write as _,
+        os::unix::ffi::OsStrExt,
+    };
+    use talpid_cgroup::{SPLIT_TUNNEL_CGROUP_NAME, find_net_cls_mount, v1::CGroup1, v2::CGroup2};
+
+    #[derive(thiserror::Error, Debug)]
+    enum Error {
+        #[error("Invalid arguments")]
+        InvalidArguments,
+
+        #[error("Cannot assing process to cgroup")]
+        AddProcToCGroup(#[from] talpid_cgroup::Error),
+
+        #[error("Failed to drop root user privileges for the process")]
+        DropRootUid(#[source] nix::Error),
+
+        #[error("Failed to drop root group privileges for the process")]
+        DropRootGid(#[source] nix::Error),
+
+        #[error("Failed to launch the process")]
+        Exec(#[source] nix::Error),
+
+        #[error("An argument contains interior nul bytes")]
+        ArgumentNul(#[source] NulError),
+
+        #[error("Failed to stat /proc/mounts")]
+        NoProcMounts,
+    }
+
+    /// Launch a program in a cgroup where traffic will be excluded from the VPN tunnel.
+    ///
+    /// Note: Set the `TALPID_EXCLUSION_CGROUP` env variable to control where the root cgroup is
+    /// mounted. See (README.md)[../../README.md#Environment-variables-used-by-the-service] for
+    /// details.
+    pub fn main() {
+        let Err(error) = run();
+
         match error {
             Error::InvalidArguments => {
                 let mut args = env::args();
-                let program = args.next().unwrap_or_else(|| PROGRAM_NAME.to_string());
+                let program = args
+                    .next()
+                    .unwrap_or_else(|| env!("CARGO_PKG_NAME").to_string());
                 eprintln!("Usage: {program} COMMAND [ARGS]");
                 std::process::exit(1);
             }
@@ -74,45 +70,53 @@ fn main() {
             }
         }
     }
-}
 
-#[cfg(target_os = "linux")]
-fn run() -> Result<Infallible, Error> {
-    let mut args_iter = env::args_os().skip(1);
-    let program = args_iter.next().ok_or(Error::InvalidArguments)?;
-    let program = CString::new(program.as_bytes()).map_err(Error::ArgumentNul)?;
+    fn add_to_cgroups_v1_if_exists(pid: Pid) -> Result<(), Error> {
+        let Some(net_cls_dir) = find_net_cls_mount().map_err(|_| Error::NoProcMounts)? else {
+            return Ok(());
+        };
 
-    let args: Vec<CString> = env::args_os()
-        .skip(1)
-        .map(|arg| CString::new(arg.as_bytes()))
-        .collect::<Result<Vec<CString>, NulError>>()
-        .map_err(Error::ArgumentNul)?;
+        let cgroup_path = net_cls_dir.join(SPLIT_TUNNEL_CGROUP_NAME);
 
-    let cgroup_dir = find_net_cls_mount()
-        .map_err(Error::FindNetClsController)?
-        .ok_or(Error::NoNetClsController)?;
+        CGroup1::open(cgroup_path)
+            .and_then(|cgroup| cgroup.add_pid(pid))
+            .map_err(Error::from)
+    }
 
-    let procs_path = cgroup_dir
-        .join(SPLIT_TUNNEL_CGROUP_NAME)
-        .join("cgroup.procs");
+    fn run() -> Result<Infallible, Error> {
+        let mut args_iter = env::args_os().skip(1);
+        let program = args_iter.next().ok_or(Error::InvalidArguments)?;
+        let program = CString::new(program.as_bytes()).map_err(Error::ArgumentNul)?;
 
-    let file = fs::OpenOptions::new()
-        .write(true)
-        .create(true)
-        .truncate(false)
-        .open(procs_path)
-        .map_err(Error::AddProcToCGroup)?;
+        let args: Vec<CString> = env::args_os()
+            .skip(1)
+            .map(|arg| CString::new(arg.as_bytes()))
+            .collect::<Result<Vec<CString>, NulError>>()
+            .map_err(Error::ArgumentNul)?;
 
-    BufWriter::new(file)
-        .write_all(getpid().to_string().as_bytes())
-        .map_err(Error::AddProcToCGroup)?;
+        let pid = getpid();
 
-    // Drop root privileges
-    let real_uid = getuid();
-    setuid(real_uid).map_err(Error::DropRootUid)?;
-    let real_gid = getgid();
-    setgid(real_gid).map_err(Error::DropRootGid)?;
+        let result = CGroup2::open_root()
+            .and_then(|root_cgroup2| root_cgroup2.create_or_open_child(SPLIT_TUNNEL_CGROUP_NAME))
+            .and_then(|exclusion_cgroup2| exclusion_cgroup2.add_pid(pid));
 
-    // Launch the process
-    execvp(&program, &args).map_err(Error::Exec)
+        // Always add current PID to cgroup1 (deprecated solution). It does not hurt to be in both cgroup1 and cgroup2 at
+        // the same time, the firewall will have to promise to behave appropriately.
+        if let Err(add_err) = add_to_cgroups_v1_if_exists(pid)
+            && result.is_err()
+        {
+            eprintln!("Failed to add process to v1 cgroup: {add_err}");
+        }
+
+        result?;
+
+        // Drop root privileges
+        let real_uid = getuid();
+        setuid(real_uid).map_err(Error::DropRootUid)?;
+        let real_gid = getgid();
+        setgid(real_gid).map_err(Error::DropRootGid)?;
+
+        // Launch the process
+        execvp(&program, &args).map_err(Error::Exec)
+    }
 }
