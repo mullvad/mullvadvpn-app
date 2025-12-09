@@ -309,10 +309,6 @@ msgid "%(wireguard)s port settings"
 msgstr ""
 
 msgctxt "accessibility"
-msgid "Add new custom bridge"
-msgstr ""
-
-msgctxt "accessibility"
 msgid "Close notification"
 msgstr ""
 
@@ -329,10 +325,6 @@ msgstr ""
 #. Accessibility label for a carousel that explains the DAITA feature to the user.
 msgctxt "accessibility"
 msgid "DAITA information carousel"
-msgstr ""
-
-msgctxt "accessibility"
-msgid "Edit custom bridge"
 msgstr ""
 
 msgctxt "accessibility"
@@ -380,10 +372,6 @@ msgstr ""
 #. Alt text for an illustration showing VPN traffic without DAITA.
 msgctxt "accessibility"
 msgid "Illustration showing VPN traffic without DAITA"
-msgstr ""
-
-msgctxt "accessibility"
-msgid "info"
 msgstr ""
 
 #. This is used by screenreaders to communicate the login button.
@@ -1048,31 +1036,11 @@ msgid "%(relay)s via %(entry)s"
 msgstr ""
 
 msgctxt "connection-info"
-msgid "%(relay)s via Custom bridge"
-msgstr ""
-
-msgctxt "connection-info"
 msgid "In"
 msgstr ""
 
 msgctxt "connection-info"
 msgid "Out"
-msgstr ""
-
-msgctxt "custom-bridge"
-msgid "Add custom bridge"
-msgstr ""
-
-msgctxt "custom-bridge"
-msgid "Delete custom bridge?"
-msgstr ""
-
-msgctxt "custom-bridge"
-msgid "Deleting the custom bridge will take you back to the select location view and the Automatic option will be selected instead."
-msgstr ""
-
-msgctxt "custom-bridge"
-msgid "Edit custom bridge"
 msgstr ""
 
 #. Button for continuing login process.
@@ -1873,10 +1841,6 @@ msgctxt "select-location-view"
 msgid "%(location)s (%(info)s)"
 msgstr ""
 
-msgctxt "select-location-view"
-msgid "A custom bridge server can be used to circumvent censorship when regular Mullvad bridge servers don’t work."
-msgstr ""
-
 #. This is a label shown above a list of options.
 #. Available placeholder:
 #. %(locationType) - Could be either "Country", "City" and "Relay"
@@ -1894,10 +1858,6 @@ msgstr ""
 
 msgctxt "select-location-view"
 msgid "Country"
-msgstr ""
-
-msgctxt "select-location-view"
-msgid "Custom bridge"
 msgstr ""
 
 msgctxt "select-location-view"
@@ -1953,10 +1913,6 @@ msgstr ""
 
 msgctxt "select-location-view"
 msgid "Setting: %(settingName)s"
-msgstr ""
-
-msgctxt "select-location-view"
-msgid "The app selects a random bridge server, but servers have a higher probability the closer they are to you."
 msgstr ""
 
 msgctxt "select-location-view"
