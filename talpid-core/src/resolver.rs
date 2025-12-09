@@ -93,6 +93,9 @@ const DNS_PORT: u16 = if cfg!(test) {
 };
 
 const ALLOWED_RECORD_TYPES: &[RecordType] = &[RecordType::A, RecordType::CNAME];
+/// Note: These domains need to be fully qualified domain names.
+/// - https://en.wikipedia.org/wiki/Fully_qualified_domain_name
+/// - https://github.com/hickory-dns/hickory-dns/issues/2932
 const CAPTIVE_PORTAL_DOMAINS: &[&str] = &["captive.apple.com.", "netcts.cdn-apple.com."];
 
 static ALLOWED_DOMAINS: LazyLock<Vec<LowerName>> = LazyLock::new(|| {
