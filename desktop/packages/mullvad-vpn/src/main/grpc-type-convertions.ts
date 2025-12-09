@@ -77,7 +77,7 @@ export function convertFromRelayList(relayList: grpcTypes.RelayList): IRelayList
         .getCountriesList()
         .map((country: grpcTypes.RelayListCountry) => convertFromRelayListCountry(country)),
     },
-    wireguardEndpointData: convertWireguardEndpointData(relayList.getWireguard()!),
+    wireguardEndpointData: convertWireguardEndpointData(relayList.getEndpointData()!),
   };
 }
 
@@ -102,24 +102,18 @@ function convertFromRelayListCity(city: grpcTypes.RelayListCity): IRelayListCity
   const cityObject = city.toObject();
   return {
     ...cityObject,
-    relays: city
-      .getRelaysList()
-      .map(convertFromRelayListRelay)
-      // TODO: Remove once daemon only sends wireguard relays.
-      .filter((relay) => relay !== undefined),
+    relays: city.getRelaysList().map(convertFromRelayListRelay),
   };
 }
 
-function convertFromRelayListRelay(relay: grpcTypes.Relay): IRelayListHostname | undefined {
+function convertFromRelayListRelay(relay: grpcTypes.Relay): IRelayListHostname {
   const relayObject = relay.toObject();
 
-  // TODO: This should be removed once daemon only sends wireguard relays.
-  const wireguard = relayObject.endpointData?.wireguard;
-  if (!wireguard) return undefined;
+  const endpointData = relayObject.endpointData;
 
-  const daita = wireguard ? wireguard.daita : false;
-  const quic = wireguard?.quic ? quicFromRelayType(wireguard.quic) : undefined;
-  const lwo = wireguard ? wireguard.lwo : false;
+  const daita = endpointData ? endpointData.daita : false;
+  const quic = endpointData?.quic ? quicFromRelayType(endpointData.quic) : undefined;
+  const lwo = endpointData ? endpointData.lwo : false;
 
   return {
     ...relayObject,
@@ -129,7 +123,7 @@ function convertFromRelayListRelay(relay: grpcTypes.Relay): IRelayListHostname |
   };
 }
 
-function quicFromRelayType(quic: grpcTypes.Relay.RelayData.Wireguard.Quic.AsObject): Quic {
+function quicFromRelayType(quic: grpcTypes.Relay.WireguardEndpoint.Quic.AsObject): Quic {
   return {
     domain: quic.domain,
     token: quic.token,

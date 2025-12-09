@@ -15,13 +15,11 @@ default = []
 staggered-obfuscation = []
 
 [dependencies]
-chrono = { workspace = true }
 thiserror = { workspace = true }
 ipnetwork = { workspace = true }
 itertools = { workspace = true }
 log = { workspace = true }
 rand = { workspace = true }
-serde_json = { workspace = true }
 
 talpid-types = { path = "../talpid-types" }
 mullvad-types = { path = "../mullvad-types" }

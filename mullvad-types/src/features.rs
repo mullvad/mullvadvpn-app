@@ -218,10 +218,7 @@ pub fn compute_feature_indicators(
 mod tests {
     use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 
-    use talpid_types::net::{
-        Endpoint, ObfuscationEndpoint, TransportProtocol,
-        proxy::{ProxyEndpoint, ProxyType},
-    };
+    use talpid_types::net::{Endpoint, ObfuscationEndpoint, TransportProtocol};
 
     use crate::relay_constraints::{RelaySettings, SelectedObfuscation};
 
@@ -236,7 +233,6 @@ mod tests {
                 protocol: TransportProtocol::Udp,
             },
             quantum_resistant: Default::default(),
-            proxy: Default::default(),
             obfuscation: Default::default(),
             entry_endpoint: Default::default(),
             tunnel_interface: Default::default(),
@@ -278,24 +274,6 @@ mod tests {
         settings.allow_lan = true;
 
         expected_indicators.0.insert(FeatureIndicator::LanSharing);
-
-        assert_eq!(
-            compute_feature_indicators(&settings, &endpoint, false),
-            expected_indicators
-        );
-
-        assert_eq!(
-            compute_feature_indicators(&settings, &endpoint, false),
-            expected_indicators
-        );
-
-        endpoint.proxy = Some(ProxyEndpoint {
-            endpoint: Endpoint {
-                address: SocketAddr::from(([1, 2, 3, 4], 443)),
-                protocol: TransportProtocol::Tcp,
-            },
-            proxy_type: ProxyType::Shadowsocks,
-        });
 
         assert_eq!(
             compute_feature_indicators(&settings, &endpoint, false),
