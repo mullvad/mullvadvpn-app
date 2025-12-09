@@ -161,11 +161,11 @@ fn get_handle_type(handle: HANDLE) -> Option<String> {
         return None;
     }
 
-    // SAFETY: `TypeName` is a valid UTF-16 string.
+    // SAFETY: `Length` is the size in bytes of `Buffer`.
     let slice = unsafe {
         std::slice::from_raw_parts(
             type_info.TypeName.Buffer,
-            (type_info.TypeName.Length / 2) as usize,
+            type_info.TypeName.Length as usize / size_of::<u16>(),
         )
     };
 
