@@ -32,14 +32,13 @@ use mullvad_types::{
     Intersection,
     constraints::Constraint,
     relay_constraints::{
-        BridgeConstraints, LocationConstraint, ObfuscationSettings, Ownership, Providers,
-        RelayConstraints, RelaySettings, SelectedObfuscation, ShadowsocksSettings,
-        Udp2TcpObfuscationSettings, WireguardConstraints, WireguardPortSettings,
-        allowed_ip::AllowedIps,
+        LocationConstraint, ObfuscationSettings, Ownership, Providers, RelayConstraints,
+        RelaySettings, SelectedObfuscation, ShadowsocksSettings, Udp2TcpObfuscationSettings,
+        WireguardConstraints, allowed_ip::AllowedIps,
     },
     wireguard::QuantumResistantState,
 };
-use talpid_types::net::{IpVersion, proxy::CustomProxy};
+use talpid_types::net::IpVersion;
 
 /// Represents a query for a relay based on various constraints.
 ///
@@ -347,59 +346,6 @@ impl From<WireguardRelayQuery> for WireguardConstraints {
     }
 }
 
-/// This is the reflection of [`BridgeState`] + [`BridgeSettings`] in the "universe of relay
-/// queries".
-///
-/// [`BridgeState`]: mullvad_types::relay_constraints::BridgeState
-/// [`BridgeSettings`]: mullvad_types::relay_constraints::BridgeSettings
-#[derive(Debug, Default, Clone, Eq, PartialEq)]
-pub enum BridgeQuery {
-    /// Bridges should not be used.
-    Off,
-    /// Don't care, let the relay selector choose!
-    ///
-    /// If this variant is intersected with another [`BridgeQuery`] `bq`,
-    /// `bq` is always preferred.
-    #[default]
-    Auto,
-    /// Bridges should be used.
-    Normal(BridgeConstraints),
-    /// Bridges should be used.
-    Custom(Option<CustomProxy>),
-}
-
-impl BridgeQuery {
-    /// `settings` will be used to decide if bridges should be used. See [`BridgeQuery`]
-    /// for more details, but the algorithm beaks down to this:
-    ///
-    /// * `BridgeQuery::Off`: bridges will not be used
-    /// * otherwise: bridges should be used
-    pub const fn should_use_bridge(settings: &BridgeQuery) -> bool {
-        match settings {
-            BridgeQuery::Normal(_) | BridgeQuery::Custom(_) => true,
-            BridgeQuery::Off | BridgeQuery::Auto => false,
-        }
-    }
-}
-
-impl Intersection for BridgeQuery {
-    fn intersection(self, other: Self) -> Option<Self>
-    where
-        Self: PartialEq,
-        Self: Sized,
-    {
-        match (self, other) {
-            (BridgeQuery::Normal(left), BridgeQuery::Normal(right)) => {
-                Some(BridgeQuery::Normal(left.intersection(right)?))
-            }
-            (BridgeQuery::Auto, right) => Some(right),
-            (left, BridgeQuery::Auto) => Some(left),
-            (left, right) if left == right => Some(left),
-            _ => None,
-        }
-    }
-}
-
 #[allow(unused)]
 pub mod builder {
     //! Strongly typed Builder pattern for of relay constraints though the use of the Typestate
@@ -407,13 +353,13 @@ pub mod builder {
     use mullvad_types::{
         constraints::Constraint,
         relay_constraints::{
-            BridgeConstraints, LocationConstraint, RelayConstraints, SelectedObfuscation,
-            ShadowsocksSettings, TransportPort, Udp2TcpObfuscationSettings, WireguardPortSettings,
+            LocationConstraint, RelayConstraints, SelectedObfuscation, ShadowsocksSettings,
+            TransportPort, Udp2TcpObfuscationSettings,
         },
         wireguard::QuantumResistantState,
     };
 
-    use super::{BridgeQuery, ObfuscationQuery, RelayQuery};
+    use super::{ObfuscationQuery, RelayQuery};
 
     // Re-exports
     pub use mullvad_types::relay_constraints::{

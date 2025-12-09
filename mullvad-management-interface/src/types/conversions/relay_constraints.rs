@@ -205,23 +205,10 @@ impl From<mullvad_types::relay_constraints::BridgeSettings> for proto::BridgeSet
             }
         };
 
-        let normal = bridge_settings::BridgeConstraints {
-            location: settings
-                .normal
-                .location
-                .clone()
-                .option()
-                .map(proto::LocationConstraint::from),
-            providers: convert_providers_constraint(&settings.normal.providers),
-            ownership: i32::from(convert_ownership_constraint(&settings.normal.ownership)),
-        };
-
-        let custom = settings.custom.map(proto::CustomProxy::from);
-
         proto::BridgeSettings {
             bridge_type: i32::from(mode),
-            normal: Some(normal),
-            custom,
+            normal: todo!("Remove Option<BridgeConstraints> from protobuf"),
+            custom: settings.custom.map(proto::CustomProxy::from),
         }
     }
 }
@@ -400,34 +387,13 @@ impl TryFrom<proto::BridgeSettings> for mullvad_types::relay_constraints::Bridge
     type Error = FromProtobufTypeError;
 
     fn try_from(settings: proto::BridgeSettings) -> Result<Self, Self::Error> {
-        use mullvad_types::relay_constraints::{BridgeConstraints, BridgeSettings};
-
-        // convert normal bridge settings
-        let constraints = settings
-            .normal
-            .ok_or(FromProtobufTypeError::InvalidArgument(
-                "missing normal bridge constraints",
-            ))?;
-        let location = match constraints.location {
-            None => Constraint::Any,
-            Some(location) => {
-                Constraint::<mullvad_types::relay_constraints::LocationConstraint>::try_from(
-                    location,
-                )?
-            }
-        };
-        let normal = BridgeConstraints {
-            location,
-            providers: try_providers_constraint_from_proto(&constraints.providers)?,
-            ownership: try_ownership_constraint_from_i32(constraints.ownership)?,
-        };
+        use mullvad_types::relay_constraints::BridgeSettings;
 
         // convert custom bridge settings
         let custom = settings.custom.map(CustomProxy::try_from).transpose()?;
 
         Ok(BridgeSettings {
             bridge_type: try_bridge_mode_from_i32(settings.bridge_type)?,
-            normal,
             custom,
         })
     }
