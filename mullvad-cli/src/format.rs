@@ -154,12 +154,6 @@ fn connection_information(
         .and_then(|endpoint| endpoint.tunnel_interface.clone());
     info.insert("Tunnel interface", tunnel_interface_fmt);
 
-    let bridge_type_fmt = endpoint
-        .filter(|_| verbose)
-        .and_then(|endpoint| endpoint.proxy)
-        .map(|bridge| bridge.proxy_type.to_string());
-    info.insert("Bridge type", bridge_type_fmt);
-
     info.insert("Visible location", location.map(format_location));
     let features_fmt = feature_indicators
         .filter(|f| !f.is_empty())
@@ -232,16 +226,6 @@ fn format_relay_connection(
         format!(" via {endpoint}")
     });
 
-    let bridge = endpoint.proxy.as_ref().map(|proxy| {
-        let proxy_endpoint = format_endpoint(
-            location.and_then(|l| l.bridge_hostname.as_deref()),
-            &proxy.endpoint,
-            verbose,
-        );
-
-        format!(" via {proxy_endpoint}")
-    });
-
     let exit_endpoint = format_endpoints(
         location.and_then(|l| l.hostname.as_deref()),
         // Check if we *actually* want to print an obfuscator endpoint ..
@@ -254,9 +238,8 @@ fn format_relay_connection(
     );
 
     format!(
-        "{exit_endpoint}{first_hop}{bridge}",
+        "{exit_endpoint}{first_hop}",
         first_hop = first_hop.unwrap_or_default(),
-        bridge = bridge.unwrap_or_default(),
     )
 }
 

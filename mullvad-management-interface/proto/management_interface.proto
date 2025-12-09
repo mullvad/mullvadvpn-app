@@ -34,7 +34,6 @@ service ManagementService {
   rpc UpdateRelayLocations(google.protobuf.Empty) returns (google.protobuf.Empty) {}
   rpc GetRelayLocations(google.protobuf.Empty) returns (RelayList) {}
   rpc SetRelaySettings(RelaySettings) returns (google.protobuf.Empty) {}
-  rpc SetBridgeSettings(BridgeSettings) returns (google.protobuf.Empty) {}
   rpc SetObfuscationSettings(ObfuscationSettings) returns (google.protobuf.Empty) {}
 
   // Settings
@@ -93,6 +92,9 @@ service ManagementService {
   rpc GetCurrentApiAccessMethod(google.protobuf.Empty) returns (AccessMethodSetting) {}
   rpc TestCustomApiAccessMethod(CustomProxy) returns (google.protobuf.BoolValue) {}
   rpc TestApiAccessMethodById(UUID) returns (google.protobuf.BoolValue) {}
+
+  // Bridges (Used for reaching the API)
+  rpc GetBridges(google.protobuf.Empty) returns (BridgeList) {}
 
   // Split tunneling (Linux)
   rpc SplitTunnelIsSupported(google.protobuf.Empty) returns (google.protobuf.BoolValue) {}
@@ -307,11 +309,10 @@ message TunnelEndpoint {
   string address = 1;
   TransportProtocol protocol = 2;
   bool quantum_resistant = 3;
-  ProxyEndpoint proxy = 4;
-  ObfuscationInfo obfuscation = 5;
-  Endpoint entry_endpoint = 6;
-  TunnelMetadata tunnel_metadata = 7;
-  bool daita = 8;
+  ObfuscationInfo obfuscation = 4;
+  Endpoint entry_endpoint = 5;
+  TunnelMetadata tunnel_metadata = 6;
+  bool daita = 7;
 }
 
 message FeatureIndicators { repeated FeatureIndicator active_features = 1; }
@@ -365,17 +366,6 @@ message Endpoint {
   TransportProtocol protocol = 2;
 }
 
-message ProxyEndpoint {
-  enum ProxyType {
-    SHADOWSOCKS = 0;
-    CUSTOM = 1;
-  }
-
-  string address = 1;
-  TransportProtocol protocol = 2;
-  ProxyType proxy_type = 3;
-}
-
 message GeoIpLocation {
   optional string ipv4 = 1;
   optional string ipv6 = 2;
@@ -385,7 +375,6 @@ message GeoIpLocation {
   double longitude = 6;
   bool mullvad_exit_ip = 7;
   optional string hostname = 8;
-  optional string bridge_hostname = 9;
   optional string entry_hostname = 10;
   optional string obfuscator_hostname = 11;
 }
@@ -396,22 +385,6 @@ enum Ownership {
   ANY = 0;
   MULLVAD_OWNED = 1;
   RENTED = 2;
-}
-
-message BridgeSettings {
-  enum BridgeType {
-    NORMAL = 0;
-    CUSTOM = 1;
-  }
-  message BridgeConstraints {
-    LocationConstraint location = 1;
-    repeated string providers = 2;
-    Ownership ownership = 3;
-  }
-
-  BridgeType bridge_type = 1;
-  BridgeConstraints normal = 2;
-  CustomProxy custom = 3;
 }
 
 message LocationConstraint {
@@ -524,8 +497,6 @@ message ApiAccessMethodSettings {
 
 message Settings {
   RelaySettings relay_settings = 1;
-  // TODO: remove
-  BridgeSettings bridge_settings = 2;
   bool allow_lan = 3;
   bool lockdown_mode = 4;
   bool auto_connect = 5;
@@ -704,26 +675,17 @@ message RelayListCity {
 }
 
 message Relay {
-  message RelayData {
-    message Bridge {}
-    message Wireguard {
-      message Quic {
-        string domain = 1;
-        string token = 2;
-        repeated string addr_in = 3;
-      }
-
-      bytes public_key = 1;
-      bool daita = 2;
-      Quic quic = 3;
-      repeated string shadowsocks_extra_addr_in = 4;
-      bool lwo = 5;
+  message WireguardEndpoint {
+    message Quic {
+      string domain = 1;
+      string token = 2;
+      repeated string addr_in = 3;
     }
-
-    oneof data {
-      Wireguard wireguard = 1;
-      Bridge bridge = 2;
-    }
+    bytes public_key = 1;
+    bool daita = 2;
+    Quic quic = 3;
+    repeated string shadowsocks_extra_addr_in = 4;
+    bool lwo = 5;
   }
 
   string hostname = 1;
@@ -734,7 +696,7 @@ message Relay {
   bool owned = 6;
   string provider = 7;
   fixed64 weight = 8;
-  RelayData endpoint_data = 9;
+  WireguardEndpoint endpoint_data = 9;
   Location location = 10;
 }
 
@@ -764,12 +726,28 @@ message DaemonEvent {
   }
 }
 
+// List of VPN relays
 message RelayList {
   repeated RelayListCountry countries = 1;
-  BridgeEndpointData bridge = 2;
-  WireguardEndpointData wireguard = 3;
+  WireguardEndpointData endpoint_data = 2;
 }
 
+// List of bridge servers
+message BridgeList {
+  repeated Bridge bridges = 1;
+  BridgeEndpointData endpoint_data = 2;
+}
+
+message Bridge {
+  string hostname = 1;
+  string ipv4_addr_in = 2;
+  optional string ipv6_addr_in = 3;
+  bool active = 4;
+  fixed64 weight = 5;
+  Location location = 6;
+}
+
+// Shadowsocks endpoints reachable on all bridge servers
 message BridgeEndpointData { repeated ShadowsocksEndpointData shadowsocks = 1; }
 
 message ShadowsocksEndpointData {
@@ -779,6 +757,7 @@ message ShadowsocksEndpointData {
   TransportProtocol protocol = 4;
 }
 
+// Endpoints reachable on all WireGuard servers
 message WireguardEndpointData {
   repeated PortRange port_ranges = 1;
   string ipv4_gateway = 2;
