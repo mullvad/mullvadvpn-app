@@ -13,7 +13,7 @@ use mullvad_types::relay_constraints::GeographicLocationConstraint;
 use mullvad_types::{
     account::AccountNumber,
     relay_constraints::{
-        BridgeSettings, ObfuscationSettings, RelayOverride, RelaySettings, allowed_ip::AllowedIps,
+        ObfuscationSettings, RelayOverride, RelaySettings, allowed_ip::AllowedIps,
     },
     relay_list::RelayList,
     settings::{DnsOptions, Settings},
@@ -208,17 +208,9 @@ impl ManagementService for ManagementServiceImpl {
 
     async fn set_bridge_settings(
         &self,
-        request: Request<types::BridgeSettings>,
+        _request: Request<types::BridgeSettings>,
     ) -> ServiceResult<()> {
-        let settings =
-            BridgeSettings::try_from(request.into_inner()).map_err(map_protobuf_type_err)?;
-
-        log::debug!("set_bridge_settings({:?})", settings);
-
-        let (tx, rx) = oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::SetBridgeSettings(tx, settings))?;
-        self.wait_for_result(rx).await?.map_err(map_daemon_error)?;
-        Ok(Response::new(()))
+        todo!("remove this")
     }
 
     async fn set_obfuscation_settings(
