@@ -28,8 +28,7 @@ use mullvad_types::{
     endpoint::MullvadEndpoint,
     location::{Coordinates, Location},
     relay_constraints::{
-        BridgeSettings, ObfuscationSettings, RelayConstraints, RelayOverride, RelaySettings,
-        WireguardConstraints,
+        ObfuscationSettings, RelayConstraints, RelayOverride, RelaySettings, WireguardConstraints,
     },
     relay_list::{Relay, RelayList},
     settings::Settings,
@@ -92,8 +91,6 @@ pub struct SelectorConfig {
     pub relay_overrides: Vec<RelayOverride>,
     // Wireguard specific data
     pub obfuscation_settings: ObfuscationSettings,
-    // Bridge specific data
-    pub bridge_settings: BridgeSettings,
 }
 
 impl SelectorConfig {
@@ -121,7 +118,6 @@ impl SelectorConfig {
         Self {
             relay_settings: settings.relay_settings.clone(),
             additional_constraints,
-            bridge_settings: settings.bridge_settings.clone(),
             obfuscation_settings: settings.obfuscation_settings.clone(),
             custom_lists: settings.custom_lists.clone(),
             relay_overrides: settings.relay_overrides.clone(),
@@ -219,7 +215,6 @@ impl Default for SelectorConfig {
         SelectorConfig {
             relay_settings: default_settings.relay_settings,
             additional_constraints: AdditionalRelayConstraints::default(),
-            bridge_settings: default_settings.bridge_settings,
             obfuscation_settings: default_settings.obfuscation_settings,
             custom_lists: default_settings.custom_lists,
             relay_overrides: default_settings.relay_overrides,
