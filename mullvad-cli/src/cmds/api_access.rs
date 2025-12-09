@@ -31,8 +31,6 @@ pub enum ApiAccess {
     ///
     /// Selecting "Direct" will connect to the Mullvad API without going through any proxy. This
     /// connection use https and is therefore encrypted.
-    ///
-    /// Selecting "Mullvad Bridges" respects your current bridge settings
     Use(SelectItem),
     /// Try to reach the Mullvad API using a specific access method
     Test(SelectItem),

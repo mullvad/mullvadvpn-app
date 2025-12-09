@@ -1,6 +1,6 @@
 use super::{Error, Result};
 use mullvad_types::{
-    relay_constraints::{BridgeConstraints, BridgeSettings as NewBridgeSettings, BridgeType},
+    relay_constraints::{BridgeSettings as NewBridgeSettings, BridgeType},
     settings::SettingsVersion,
 };
 use talpid_types::net::{
@@ -161,7 +161,6 @@ fn migrate_bridge_settings(settings: &mut serde_json::Value) -> Result<()> {
     {
         NewBridgeSettings {
             bridge_type: BridgeType::Custom,
-            normal: BridgeConstraints::default(),
             custom: Some(CustomProxy::Socks5Local(Socks5Local {
                 remote_endpoint: Endpoint {
                     address: extract_str(custom_bridge_local.get("peer"))?
@@ -185,7 +184,6 @@ fn migrate_bridge_settings(settings: &mut serde_json::Value) -> Result<()> {
     {
         NewBridgeSettings {
             bridge_type: BridgeType::Custom,
-            normal: BridgeConstraints::default(),
             custom: Some(CustomProxy::Socks5Remote(Socks5Remote {
                 endpoint: extract_str(custom_bridge_remote.get("address"))?
                     .parse()
@@ -204,7 +202,6 @@ fn migrate_bridge_settings(settings: &mut serde_json::Value) -> Result<()> {
     {
         NewBridgeSettings {
             bridge_type: BridgeType::Custom,
-            normal: BridgeConstraints::default(),
             custom: Some(CustomProxy::Shadowsocks(Shadowsocks {
                 endpoint: extract_str(custom_bridge_shadowsocks.get("peer"))?
                     .parse()
@@ -213,13 +210,13 @@ fn migrate_bridge_settings(settings: &mut serde_json::Value) -> Result<()> {
                 cipher: extract_str(custom_bridge_shadowsocks.get("cipher"))?.to_string(),
             })),
         }
-    } else if let Some(normal_bridge) = settings
+    } else if settings
         .get_mut("bridge_settings")
         .and_then(|bridge_settings| bridge_settings.get_mut("normal"))
+        .is_some()
     {
         NewBridgeSettings {
             bridge_type: BridgeType::Normal,
-            normal: serde_json::from_value(normal_bridge.clone()).map_err(Error::Serialize)?,
             custom: None,
         }
     } else {
@@ -477,11 +474,6 @@ mod test {
   },
   "bridge_settings": {
     "bridge_type": "custom",
-    "normal": {
-        "location": "any",
-        "providers": "any",
-        "ownership": "any"
-    },
     "custom": {
       "socks5_local": {
         "local_port": 1080,
@@ -631,11 +623,6 @@ mod test {
 {
   "bridge_settings": {
     "bridge_type": "custom",
-    "normal": {
-      "location": "any",
-      "providers": "any",
-      "ownership": "any"
-    },
     "custom": {
       "socks5_local": {
         "local_port": 1080,
@@ -676,11 +663,6 @@ mod test {
 {
   "bridge_settings": {
     "bridge_type": "custom",
-    "normal": {
-      "location": "any",
-      "providers": "any",
-      "ownership": "any"
-    },
     "custom": {
       "socks5_remote": {
         "endpoint": "1.3.3.7:1080",
@@ -720,11 +702,6 @@ mod test {
 {
   "bridge_settings": {
     "bridge_type": "custom",
-    "normal": {
-      "location": "any",
-      "providers": "any",
-      "ownership": "any"
-    },
     "custom": {
       "shadowsocks": {
         "endpoint": "1.3.3.7:1080",
@@ -767,17 +744,6 @@ mod test {
 {
   "bridge_settings": {
     "bridge_type": "normal",
-    "normal": {
-      "location": {
-        "only": {
-          "location": {
-            "country": "se"
-          }
-        }
-      },
-      "providers": "any",
-      "ownership": "any"
-    },
     "custom": null
   }
 }"#,
@@ -814,17 +780,6 @@ mod test {
 {
   "bridge_settings": {
     "bridge_type": "normal",
-    "normal": {
-      "location": {
-        "only": {
-          "location": {
-            "country": "se"
-          }
-        }
-      },
-      "providers": "any",
-      "ownership": "any"
-    },
     "custom": null
   }
 }"#,
