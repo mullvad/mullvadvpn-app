@@ -5,8 +5,7 @@ use mullvad_types::{
     constraints::{Constraint, Match},
     custom_list::CustomListsSettings,
     relay_constraints::{
-        GeographicLocationConstraint, InternalBridgeConstraints, LocationConstraint, Ownership,
-        Providers, ShadowsocksSettings,
+        GeographicLocationConstraint, LocationConstraint, Ownership, Providers, ShadowsocksSettings,
     },
     relay_list::{Relay, RelayEndpointData, RelayList, WireguardRelayEndpointData},
 };
@@ -52,28 +51,6 @@ pub fn filter_matching_relay_list_include_all(
             .filter(|relay| filter_on_daita(&query.wireguard_constraints().daita, relay))
             // Filter by obfuscation support
             .filter(|relay| filter_on_obfuscation(query.wireguard_constraints(), relay_list, relay)).cloned().collect()
-}
-
-pub fn filter_matching_bridges<'a, R: Iterator<Item = &'a Relay> + Clone>(
-    constraints: &InternalBridgeConstraints,
-    relays: R,
-    custom_lists: &CustomListsSettings,
-) -> Vec<Relay> {
-    let locations =
-        ResolvedLocationConstraint::from_constraint(&constraints.location, custom_lists);
-    relays
-            // Filter on active relays
-            .filter(|relay| filter_on_active(relay))
-            // Filter on bridge type
-            .filter(|relay| filter_bridge(relay))
-            // Filter by location
-            .filter(|relay| filter_on_location(&locations, relay))
-            // Filter by ownership
-            .filter(|relay| filter_on_ownership(&constraints.ownership, relay))
-            // Filter by providers
-            .filter(|relay| filter_on_providers(&constraints.providers, relay))
-            .cloned()
-            .collect()
 }
 
 // --- Define relay filters as simple functions / predicates ---

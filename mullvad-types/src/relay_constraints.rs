@@ -561,19 +561,18 @@ pub struct MissingCustomBridgeSettings(());
 #[serde(rename_all = "snake_case")]
 pub struct BridgeSettings {
     pub bridge_type: BridgeType,
-    pub normal: BridgeConstraints,
     pub custom: Option<CustomProxy>,
 }
 
 pub enum ResolvedBridgeSettings<'a> {
-    Normal(&'a BridgeConstraints),
+    Normal,
     Custom(&'a CustomProxy),
 }
 
 impl BridgeSettings {
     pub fn resolve(&self) -> Result<ResolvedBridgeSettings<'_>, MissingCustomBridgeSettings> {
         match (self.bridge_type, &self.custom) {
-            (BridgeType::Normal, _) => Ok(ResolvedBridgeSettings::Normal(&self.normal)),
+            (BridgeType::Normal, _) => Ok(ResolvedBridgeSettings::Normal),
             (BridgeType::Custom, Some(custom)) => Ok(ResolvedBridgeSettings::Custom(custom)),
             (BridgeType::Custom, None) => Err(MissingCustomBridgeSettings(())),
         }
@@ -704,47 +703,36 @@ pub struct ObfuscationSettings {
     pub wireguard_port: WireguardPortSettings,
 }
 
-/// Limits the set of bridge servers to use in `mullvad-daemon`.
-#[derive(Debug, Default, Clone, Eq, PartialEq, Deserialize, Serialize, Intersection)]
-#[serde(default)]
-#[serde(rename_all = "snake_case")]
-pub struct BridgeConstraints {
-    pub location: Constraint<LocationConstraint>,
-    pub providers: Constraint<Providers>,
-    pub ownership: Constraint<Ownership>,
-}
+// pub struct BridgeConstraintsFormatter<'a> {
+//     pub custom_lists: &'a CustomListsSettings,
+// }
 
-pub struct BridgeConstraintsFormatter<'a> {
-    pub constraints: &'a BridgeConstraints,
-    pub custom_lists: &'a CustomListsSettings,
-}
-
-impl fmt::Display for BridgeConstraintsFormatter<'_> {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self.constraints.location {
-            Constraint::Any => write!(f, "any location")?,
-            Constraint::Only(ref constraint) => write!(
-                f,
-                "{}",
-                LocationConstraintFormatter {
-                    constraint,
-                    custom_lists: self.custom_lists,
-                }
-            )?,
-        }
-        write!(f, " using ")?;
-        match self.constraints.providers {
-            Constraint::Any => write!(f, "any provider")?,
-            Constraint::Only(ref constraint) => write!(f, "{constraint}")?,
-        }
-        match self.constraints.ownership {
-            Constraint::Any => Ok(()),
-            Constraint::Only(ref constraint) => {
-                write!(f, " and {constraint}")
-            }
-        }
-    }
-}
+// impl fmt::Display for BridgeConstraintsFormatter<'_> {
+//     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+//         match self.constraints.location {
+//             Constraint::Any => write!(f, "any location")?,
+//             Constraint::Only(ref constraint) => write!(
+//                 f,
+//                 "{}",
+//                 LocationConstraintFormatter {
+//                     constraint,
+//                     custom_lists: self.custom_lists,
+//                 }
+//             )?,
+//         }
+//         write!(f, " using ")?;
+//         match self.constraints.providers {
+//             Constraint::Any => write!(f, "any provider")?,
+//             Constraint::Only(ref constraint) => write!(f, "{constraint}")?,
+//         }
+//         match self.constraints.ownership {
+//             Constraint::Any => Ok(()),
+//             Constraint::Only(ref constraint) => {
+//                 write!(f, " and {constraint}")
+//             }
+//         }
+//     }
+// }
 
 /// Setting indicating whether to connect to a bridge server, or to handle it automatically.
 // TODO: remove
@@ -769,14 +757,6 @@ impl fmt::Display for BridgeState {
             }
         )
     }
-}
-
-#[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
-pub struct InternalBridgeConstraints {
-    pub location: Constraint<LocationConstraint>,
-    pub providers: Constraint<Providers>,
-    pub ownership: Constraint<Ownership>,
-    pub transport_protocol: Constraint<TransportProtocol>,
 }
 
 /// Options to override for a particular relay to use instead of the ones specified in the relay

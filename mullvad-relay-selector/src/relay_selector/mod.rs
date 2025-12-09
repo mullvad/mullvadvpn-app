@@ -8,15 +8,14 @@ pub mod query;
 pub mod relays;
 
 use detailer::resolve_ip_version;
-use matcher::{
-    filter_matching_bridges, filter_matching_relay_list, filter_matching_relay_list_include_all,
-};
+use matcher::{filter_matching_relay_list, filter_matching_relay_list_include_all};
 use parsed_relays::ParsedRelays;
 use relays::{Multihop, Singlehop, WireguardConfig};
 
 use crate::{
     detailer::wireguard_endpoint,
     error::{EndpointErrorDetails, Error},
+    matcher::{filter_bridge, filter_on_active},
     query::{ObfuscationQuery, RelayQuery, RelayQueryExt, WireguardRelayQuery},
 };
 
@@ -29,8 +28,8 @@ use mullvad_types::{
     endpoint::MullvadEndpoint,
     location::{Coordinates, Location},
     relay_constraints::{
-        BridgeSettings, InternalBridgeConstraints, ObfuscationSettings, RelayConstraints,
-        RelayOverride, RelaySettings, ResolvedBridgeSettings, WireguardConstraints,
+        BridgeSettings, ObfuscationSettings, RelayConstraints, RelayOverride, RelaySettings,
+        WireguardConstraints,
     },
     relay_list::{Relay, RelayList},
     settings::Settings,
@@ -44,7 +43,7 @@ use std::{
 use talpid_types::{
     ErrorExt,
     net::{
-        IpAvailability, IpVersion, TransportProtocol,
+        IpAvailability, IpVersion,
         obfuscation::{ObfuscatorConfig, Obfuscators},
         proxy::Shadowsocks,
     },
@@ -391,6 +390,7 @@ impl RelaySelector {
         self.parsed_relays.lock().unwrap().last_updated()
     }
 
+    // TODO: Rename the concept of bridges for this use case
     /// Returns a non-custom bridge based on the relay and bridge constraints, ignoring the bridge
     /// state.
     pub fn get_bridge_forced(&self) -> Option<Shadowsocks> {
@@ -407,24 +407,7 @@ impl RelaySelector {
             SpecializedSelectorConfig::Custom(_) => None,
         };
 
-        let bridge_settings = &config.bridge_settings;
-        let constraints = match bridge_settings.resolve() {
-            Ok(ResolvedBridgeSettings::Normal(settings)) => InternalBridgeConstraints {
-                location: settings.location.clone(),
-                providers: settings.providers.clone(),
-                ownership: settings.ownership,
-                transport_protocol: Constraint::Only(TransportProtocol::Tcp),
-            },
-            _ => InternalBridgeConstraints {
-                location: Constraint::Any,
-                providers: Constraint::Any,
-                ownership: Constraint::Any,
-                transport_protocol: Constraint::Only(TransportProtocol::Tcp),
-            },
-        };
-
-        let custom_lists = &config.custom_lists;
-        Self::get_proxy_settings(parsed_relays, &constraints, near_location, custom_lists)
+        Self::get_proxy_settings(parsed_relays, near_location)
             .map(|(settings, _relay)| settings)
             .inspect_err(|error| log::error!("Failed to get bridge: {error}"))
             .ok()
@@ -869,19 +852,23 @@ impl RelaySelector {
     /// The connection details are returned alongside the relay hosting the bridge.
     fn get_proxy_settings<T: Into<Coordinates>>(
         relay_list: &RelayList,
-        constraints: &InternalBridgeConstraints,
         location: Option<T>,
-        custom_lists: &CustomListsSettings,
     ) -> Result<(Shadowsocks, Relay), Error> {
-        let bridges = filter_matching_bridges(constraints, relay_list.relays(), custom_lists);
-        let bridge_data = &relay_list.bridge;
+        // Filter on active relays
+        let bridges = relay_list.relays()
+                    .filter(|relay| filter_on_active(relay))
+                    // Filter on bridge type
+                    .filter(|relay| filter_bridge(relay))
+                    .cloned()
+                    .collect();
         let bridge = match location {
             Some(location) => Self::get_proximate_bridge(bridges, location),
             None => helpers::pick_random_relay(&bridges)
                 .cloned()
                 .ok_or(Error::NoBridge),
         }?;
-        let endpoint = detailer::bridge_endpoint(bridge_data, &bridge).ok_or(Error::NoBridge)?;
+        let endpoint =
+            detailer::bridge_endpoint(&relay_list.bridge, &bridge).ok_or(Error::NoBridge)?;
         Ok((endpoint, bridge))
     }
 
