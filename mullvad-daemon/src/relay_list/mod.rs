@@ -1,19 +1,24 @@
 //! Relay list updater
 
-use futures::{
-    Future, FutureExt, SinkExt, StreamExt,
-    channel::mpsc,
-    future::{Fuse, FusedFuture},
-};
-use std::{
-    path::{Path, PathBuf},
-    time::{Duration, SystemTime, UNIX_EPOCH},
-};
+pub mod error;
+pub(crate) mod parsed_relays;
+
+use error::Error;
+use mullvad_types::relay_constraints::RelayOverride;
+
+use std::path::{Path, PathBuf};
+use std::time::{Duration, SystemTime, UNIX_EPOCH};
+
+use futures::channel::mpsc;
+use futures::future::{Fuse, FusedFuture};
+use futures::{Future, FutureExt, SinkExt, StreamExt};
 use tokio::fs::File;
 
-use mullvad_api::{RelayListProxy, availability::ApiAvailability, rest::MullvadRestHandle};
+use mullvad_api::{
+    CachedRelayList, ETag, RelayListProxy, availability::ApiAvailability, rest::MullvadRestHandle,
+};
 use mullvad_relay_selector::RelaySelector;
-use mullvad_types::relay_list::RelayList;
+use mullvad_types::relay_list::{BridgeList, RelayList};
 use talpid_future::retry::{ExponentialBackoff, Jittered, retry_future};
 use talpid_types::ErrorExt;
 
@@ -29,27 +34,26 @@ const DOWNLOAD_RETRY_STRATEGY: Jittered<ExponentialBackoff> = Jittered::jitter(
 );
 
 /// Where the relay list is cached on disk.
-pub(crate) const RELAYS_FILENAME: &str = "relays.json";
-
-#[derive(thiserror::Error, Debug)]
-pub enum Error {
-    #[error("Downloader already shut down")]
-    DownloaderShutdown,
-
-    #[error("Mullvad relay selector error")]
-    RelaySelector(#[from] mullvad_relay_selector::Error),
-}
+const RELAYS_FILENAME: &str = "relays.json";
 
 #[derive(Clone)]
 pub struct RelayListUpdaterHandle {
-    tx: mpsc::Sender<()>,
+    tx: mpsc::Sender<Event>,
+}
+
+/// Possible events that occur in the [RelayListUpdater] life cycle.
+enum Event {
+    /// Trigger a relay list refresh.
+    Update,
+    /// Register new relay IP overrides.
+    Override(Vec<RelayOverride>),
 }
 
 impl RelayListUpdaterHandle {
     pub async fn update(&mut self) {
         if let Err(error) = self
             .tx
-            .send(())
+            .send(Event::Update)
             .await
             .map_err(|_| Error::DownloaderShutdown)
         {
@@ -59,15 +63,30 @@ impl RelayListUpdaterHandle {
             );
         }
     }
+
+    /// Update relay overrides.
+    pub async fn update_overrides(&mut self, overrides: Vec<RelayOverride>) {
+        if let Err(_err) = self.tx.send(Event::Override(overrides)).await {
+            log::error!("Failed to apply new relay overrides");
+        };
+    }
 }
 
-pub struct RelayListUpdater {
+pub(crate) struct RelayListUpdater {
     api_client: RelayListProxy,
     cache_path: PathBuf,
-    relay_selector: RelaySelector,
     on_update: Box<dyn Fn(&RelayList) + Send + 'static>,
     last_check: SystemTime,
     api_availability: ApiAvailability,
+    etag: Option<ETag>,
+    // Keep tabs on the up-to-date relay list.
+    // Use [RelayListUpdater::get_final_relay_list] when exposing the relay list to other parts of
+    // the app.
+    relay_list: RelayList,
+    bridge_list: BridgeList,
+    overrides: Vec<RelayOverride>,
+    // The relay selector will only ever see the relay list with IP overrides applied.
+    relay_selector: RelaySelector,
 }
 
 impl RelayListUpdater {
@@ -75,18 +94,32 @@ impl RelayListUpdater {
         selector: RelaySelector,
         api_handle: MullvadRestHandle,
         cache_dir: &Path,
+        overrides: Vec<RelayOverride>,
         on_update: impl Fn(&RelayList) + Send + 'static,
+        cached_relay_list: Option<CachedRelayList>,
     ) -> RelayListUpdaterHandle {
         let (tx, cmd_rx) = mpsc::channel(1);
         let api_availability = api_handle.availability.clone();
         let api_client = RelayListProxy::new(api_handle);
+
+        let (relay_list, bridge_list, etag) = cached_relay_list
+            .map(|cached_relay_list| {
+                let etag = cached_relay_list.etag().cloned();
+                let (relay_list, bridge_list) = cached_relay_list.into_internal_repr();
+                (relay_list, bridge_list, etag)
+            })
+            .unwrap_or_default();
         let updater = RelayListUpdater {
             api_client,
             cache_path: cache_dir.join(RELAYS_FILENAME),
             relay_selector: selector,
             on_update: Box::new(on_update),
             last_check: UNIX_EPOCH,
+            etag,
+            overrides,
             api_availability,
+            relay_list,
+            bridge_list,
         };
 
         tokio::spawn(updater.run(cmd_rx));
@@ -94,17 +127,18 @@ impl RelayListUpdater {
         RelayListUpdaterHandle { tx }
     }
 
-    async fn run(mut self, mut cmd_rx: mpsc::Receiver<()>) {
+    async fn run(mut self, mut internal_events: mpsc::Receiver<Event>) {
         let mut download_future = Box::pin(Fuse::terminated());
         loop {
             let next_check = tokio::time::sleep(UPDATE_CHECK_INTERVAL).fuse();
             tokio::pin!(next_check);
 
+            let etag = self.etag.clone();
+
             futures::select! {
                 _check_update = next_check => {
                     if download_future.is_terminated() && self.should_update() {
-                        let tag = self.relay_selector.etag();
-                        download_future = Box::pin(Self::download_relay_list(self.api_availability.clone(), self.api_client.clone(), tag).fuse());
+                        download_future = Box::pin(Self::download_relay_list(self.api_availability.clone(), self.api_client.clone(), etag).fuse());
                         self.last_check = SystemTime::now();
                     }
                 },
@@ -113,16 +147,19 @@ impl RelayListUpdater {
                     self.consume_new_relay_list(new_relay_list).await;
                 },
 
-                cmd = cmd_rx.next() => {
-                    match cmd {
-                        Some(()) => {
-                            let tag = self.relay_selector.etag();
-                            download_future = Box::pin(Self::download_relay_list(self.api_availability.clone(), self.api_client.clone(), tag).fuse());
-                            self.last_check = SystemTime::now();
-                        },
-                        None => {
+                cmd = internal_events.next() => {
+                    let Some(event) = cmd else {
                             log::trace!("Relay list updater shutting down");
                             return;
+                    };
+                    match event {
+                        Event::Update => {
+                            download_future = Box::pin(Self::download_relay_list(self.api_availability.clone(), self.api_client.clone(), etag).fuse());
+                            self.last_check = SystemTime::now();
+                        },
+                        Event::Override(overrides) => {
+                            self.overrides = overrides;
+                            self.update_relay_selector();
                         }
                     }
                 }
@@ -133,14 +170,10 @@ impl RelayListUpdater {
 
     async fn consume_new_relay_list(
         &mut self,
-        result: Result<Option<RelayList>, mullvad_api::Error>,
+        result: Result<Option<CachedRelayList>, mullvad_api::Error>,
     ) {
         match result {
-            Ok(Some(relay_list)) => {
-                if let Err(err) = self.update_cache(relay_list).await {
-                    log::error!("Failed to update relay list cache: {}", err);
-                }
-            }
+            Ok(Some(relay_list)) => self.update_cache(relay_list).await,
             Ok(None) => log::debug!("Relay list is up-to-date"),
             Err(error) => log::error!(
                 "{}",
@@ -149,10 +182,9 @@ impl RelayListUpdater {
         }
     }
 
-    /// Returns true if the current parsed_relays is older than UPDATE_INTERVAL
+    /// Returns true if the current relay list is older than [`UPDATE_INTERVAL`].
     fn should_update(&mut self) -> bool {
-        let last_check = std::cmp::max(self.relay_selector.last_updated(), self.last_check);
-        match SystemTime::now().duration_since(last_check) {
+        match SystemTime::now().duration_since(self.last_check) {
             Ok(duration) => duration >= UPDATE_INTERVAL,
             // If the clock is skewed we have no idea by how much or when the last update
             // actually was, better download again to get in sync and get a `last_updated`
@@ -164,13 +196,13 @@ impl RelayListUpdater {
     fn download_relay_list(
         api_handle: ApiAvailability,
         proxy: RelayListProxy,
-        tag: Option<String>,
-    ) -> impl Future<Output = Result<Option<RelayList>, mullvad_api::Error>> + use<> {
+        tag: Option<ETag>,
+    ) -> impl Future<Output = Result<Option<CachedRelayList>, mullvad_api::Error>> + use<> {
         async fn download_future(
             api_handle: ApiAvailability,
             proxy: RelayListProxy,
-            tag: Option<String>,
-        ) -> Result<Option<RelayList>, mullvad_api::Error> {
+            tag: Option<ETag>,
+        ) -> Result<Option<CachedRelayList>, mullvad_api::Error> {
             let available = api_handle.wait_background();
             let req = proxy.relay_list(tag);
             available.await?;
@@ -187,31 +219,51 @@ impl RelayListUpdater {
         )
     }
 
-    async fn update_cache(&mut self, new_relay_list: RelayList) -> Result<(), Error> {
+    async fn update_cache(&mut self, new_relay_list: CachedRelayList) {
+        // Save the new relay list to the cache file
         if let Err(error) = Self::cache_relays(&self.cache_path, &new_relay_list).await {
             log::error!(
                 "{}",
                 error.display_chain_with_msg("Failed to update relay cache on disk")
             );
         }
-
-        self.relay_selector.set_relays(new_relay_list.clone());
-        (self.on_update)(&new_relay_list);
-        Ok(())
+        // Cache the ETag so that we send the correct one in the next request
+        self.etag = new_relay_list.etag().cloned();
+        // Propagate the new relay list to the relay selector
+        let (relay_list, bridge_list) = new_relay_list.into_internal_repr();
+        self.relay_list = relay_list;
+        self.bridge_list = bridge_list;
+        self.update_relay_selector();
     }
 
-    /// Write a `RelayList` to the cache file.
-    async fn cache_relays(cache_path: &Path, relays: &RelayList) -> Result<(), Error> {
+    /// Update the relay selector state, applying IP overrides.
+    fn update_relay_selector(&self) {
+        let relay_list = self.get_final_relay_list();
+        let bridge_list = self.bridge_list.clone();
+        // Announce new relay list
+        (self.on_update)(&relay_list);
+        self.relay_selector.set_relays(relay_list);
+        self.relay_selector.set_bridges(bridge_list);
+    }
+
+    /// Write a [`CachedRelayList`] to the file at `cache_path`.
+    async fn cache_relays(cache_path: &Path, relays: &CachedRelayList) -> Result<(), Error> {
         log::debug!("Writing relays cache to {}", cache_path.display());
         let mut file = File::create(cache_path)
             .await
-            .map_err(mullvad_relay_selector::Error::OpenRelayCache)?;
-        let bytes =
-            serde_json::to_vec_pretty(relays).map_err(mullvad_relay_selector::Error::Serialize)?;
+            .map_err(Error::OpenRelayCache)?;
+        let bytes = serde_json::to_vec_pretty(relays)?;
         let mut slice: &[u8] = bytes.as_slice();
         let _ = tokio::io::copy(&mut slice, &mut file)
             .await
-            .map_err(mullvad_relay_selector::Error::WriteRelayCache)?;
+            .map_err(Error::WriteRelayCache)?;
         Ok(())
+    }
+
+    /// Return a version of the [`RelayList`] where [`RelayOverride`]s have been applied.
+    fn get_final_relay_list(&self) -> RelayList {
+        self.relay_list
+            .clone()
+            .apply_overrides(self.overrides.clone())
     }
 }

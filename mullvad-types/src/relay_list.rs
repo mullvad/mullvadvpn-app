@@ -1,7 +1,10 @@
-use crate::location::{CityCode, Coordinates, CountryCode, Location};
+use crate::{
+    location::{CityCode, Coordinates, CountryCode, Location},
+    relay_constraints::RelayOverride,
+};
 use serde::{Deserialize, Serialize};
 use std::{
-    collections::HashSet,
+    collections::{HashMap, HashSet},
     net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr},
     ops::RangeInclusive,
 };
@@ -12,10 +15,18 @@ use vec1::Vec1;
 /// `mullvad_api::RelayListProxy`. This can also be passed to frontends.
 #[derive(Default, Debug, Clone, Deserialize, Serialize)]
 pub struct RelayList {
-    pub etag: Option<String>,
     pub countries: Vec<RelayListCountry>,
-    pub bridge: BridgeEndpointData,
+    // TODO: Rename to `endpoint(s)`
     pub wireguard: EndpointData,
+}
+
+/// Stores a list of bridges for each country obtained from the API using
+/// `mullvad_api::RelayListProxy`.
+#[derive(Default, Debug, Clone, Deserialize, Serialize)]
+pub struct BridgeList {
+    pub bridges: Vec<Bridge>,
+    // TODO: Rename to `endpoint(s)`
+    pub bridge_endpoint: BridgeEndpointData,
 }
 
 impl RelayList {
@@ -53,7 +64,7 @@ impl RelayList {
         for country in &self.countries {
             for city in &country.cities {
                 for relay in &city.relays {
-                    let distance = relay.location.distance_from(location);
+                    let distance = relay.inner.location.distance_from(location);
                     if distance < min_dist {
                         min_dist = distance;
                         min_dist_country = country;
@@ -65,7 +76,7 @@ impl RelayList {
     }
 
     /// Return a flat iterator of all [`Relay`]s
-    pub fn relays(&self) -> impl Iterator<Item = &Relay> + Clone + '_ {
+    pub fn relays(&self) -> impl Iterator<Item = &WireguardRelay> + Clone + '_ {
         self.countries
             .iter()
             .flat_map(|country| country.cities.iter())
@@ -73,11 +84,53 @@ impl RelayList {
     }
 
     /// Return a consuming flat iterator of all [`Relay`]s
-    pub fn into_relays(self) -> impl Iterator<Item = Relay> + Clone {
+    pub fn into_relays(self) -> impl Iterator<Item = WireguardRelay> + Clone {
         self.countries
             .into_iter()
             .flat_map(|country| country.cities)
             .flat_map(|city| city.relays)
+    }
+
+    /// Apply [overrides][`RelayOverride`] to [relay_list][`RelayList`], yielding an updated relay
+    /// list.
+    pub fn apply_overrides(mut self, overrides: Vec<RelayOverride>) -> Self {
+        let mut remaining_overrides = HashMap::new();
+        for relay_override in overrides {
+            remaining_overrides.insert(relay_override.hostname.clone(), relay_override);
+        }
+
+        // Add location and override relay data
+        for country in &mut self.countries {
+            for city in &mut country.cities {
+                for relay in &mut city.relays {
+                    // Append location data
+                    relay.location = Location {
+                        country: country.name.clone(),
+                        country_code: country.code.clone(),
+                        city: city.name.clone(),
+                        city_code: city.code.clone(),
+                        latitude: city.latitude,
+                        longitude: city.longitude,
+                    };
+
+                    // Append overrides
+                    if let Some(overrides) = remaining_overrides.remove(&relay.hostname) {
+                        overrides.apply_to_relay(relay);
+                    }
+                }
+            }
+        }
+
+        self
+    }
+}
+
+impl BridgeList {
+    pub fn empty() -> Self {
+        Self::default()
+    }
+    pub fn bridges(&self) -> &[Bridge] {
+        &self.bridges
     }
 }
 
@@ -102,39 +155,110 @@ pub struct RelayListCity {
     pub code: CityCode,
     pub latitude: f64,
     pub longitude: f64,
-    pub relays: Vec<Relay>,
+    pub relays: Vec<WireguardRelay>,
 }
 
 /// Stores information for a relay returned by the API at `v1/relays` using
 /// `mullvad_api::RelayListProxy`.
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct Relay {
-    pub hostname: String,
-    pub ipv4_addr_in: Ipv4Addr,
-    pub ipv6_addr_in: Option<Ipv6Addr>,
+pub struct WireguardRelay {
     // NOTE: Probably a better design choice would be to store the overridden IP addresses
     // instead of a boolean override flags. This would allow us to access the original IPs.
     pub overridden_ipv4: bool,
     pub overridden_ipv6: bool,
     pub include_in_country: bool,
-    pub active: bool,
     pub owned: bool,
     pub provider: String,
-    pub weight: u64,
-    pub endpoint_data: RelayEndpointData,
-    pub location: Location,
+    pub endpoint_data: WireguardRelayEndpointData,
+    pub inner: Relay,
 }
 
-impl Relay {
-    /// If self is a Wireguard relay, we sometimes want to peek on its extra data.
-    pub fn wireguard(&self) -> Option<&WireguardRelayEndpointData> {
-        match &self.endpoint_data {
-            RelayEndpointData::Wireguard(wireguard_relay_endpoint_data) => {
-                Some(wireguard_relay_endpoint_data)
-            }
-            RelayEndpointData::Bridge => None,
+impl WireguardRelay {
+    pub fn new(
+        overridden_ipv4: bool,
+        overridden_ipv6: bool,
+        include_in_country: bool,
+        owned: bool,
+        provider: String,
+        endpoint_data: WireguardRelayEndpointData,
+        inner: Relay,
+    ) -> Self {
+        Self {
+            overridden_ipv4,
+            overridden_ipv6,
+            include_in_country,
+            owned,
+            provider,
+            endpoint_data,
+            inner,
         }
     }
+
+    /// If self is a Wireguard relay, we sometimes want to peek on its extra data.
+    pub fn endpoint(&self) -> &WireguardRelayEndpointData {
+        &self.endpoint_data
+    }
+
+    pub fn override_ipv4(&mut self, new_ipv4: Ipv4Addr) {
+        self.inner.ipv4_addr_in = new_ipv4;
+        self.overridden_ipv4 = true;
+    }
+
+    pub fn override_ipv6(&mut self, new_ipv6: Ipv6Addr) {
+        self.inner.ipv6_addr_in = Some(new_ipv6);
+        self.overridden_ipv6 = true;
+    }
+}
+
+impl PartialEq for WireguardRelay {
+    fn eq(&self, other: &Self) -> bool {
+        self.inner == other.inner
+    }
+}
+
+impl Eq for WireguardRelay {}
+
+impl std::hash::Hash for WireguardRelay {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        self.inner.hash(state)
+    }
+}
+
+impl std::ops::Deref for WireguardRelay {
+    type Target = Relay;
+
+    fn deref(&self) -> &Self::Target {
+        &self.inner
+    }
+}
+
+impl std::ops::DerefMut for WireguardRelay {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.inner
+    }
+}
+
+/// Stores information for a bridge returned by the API at `v1/relays` using
+/// `mullvad_api::RelayListProxy`.
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct Bridge(pub Relay);
+
+impl std::ops::Deref for Bridge {
+    type Target = Relay;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct Relay {
+    pub hostname: String,
+    pub ipv4_addr_in: Ipv4Addr,
+    pub ipv6_addr_in: Option<Ipv6Addr>,
+    pub active: bool,
+    pub weight: u64,
+    pub location: Location,
 }
 
 /// Parameters for setting up a QUIC obfuscator (connecting to a masque-proxy running on a relay).
@@ -204,22 +328,6 @@ impl Quic {
     }
 }
 
-impl Relay {
-    pub fn override_ipv4(&mut self, new_ipv4: Ipv4Addr) {
-        self.ipv4_addr_in = new_ipv4;
-        self.overridden_ipv4 = true;
-    }
-
-    pub fn override_ipv6(&mut self, new_ipv6: Ipv6Addr) {
-        self.ipv6_addr_in = Some(new_ipv6);
-        self.overridden_ipv6 = true;
-    }
-
-    pub const fn is_wireguard(&self) -> bool {
-        matches!(self.endpoint_data, RelayEndpointData::Wireguard(_))
-    }
-}
-
 impl PartialEq for Relay {
     /// Hostnames are assumed to be unique per relay, i.e. a relay can be uniquely identified by its
     /// hostname.
@@ -234,23 +342,8 @@ impl PartialEq for Relay {
     ///     hostname: "se9-wireguard".to_string(),
     ///     ipv4_addr_in: "185.213.154.68".parse().unwrap(),
     ///     # ipv6_addr_in: None,
-    ///     # overridden_ipv4: false,
-    ///     # overridden_ipv6: false,
-    ///     # include_in_country: true,
     ///     # active: true,
-    ///     # owned: true,
-    ///     # provider: "provider0".to_string(),
     ///     # weight: 1,
-    ///     # endpoint_data: RelayEndpointData::Wireguard(WireguardRelayEndpointData {
-    ///     #   public_key: PublicKey::from_base64(
-    ///     #       "BLNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=",
-    ///     #   )
-    ///     #   .unwrap(),
-    ///     #   daita: false,
-    ///     #   shadowsocks_extra_addr_in: Default::default(),
-    ///     #   quic: None,
-    ///     #   lwo: false,
-    ///     # }),
     ///     # location: mullvad_types::location::Location {
     ///     #   country: "Sweden".to_string(),
     ///     #   country_code: "se".to_string(),
@@ -467,26 +560,24 @@ mod test {
                     code: "got".to_string(),
                     latitude: 57.70887,
                     longitude: 11.97456,
-                    relays: vec![Relay {
-                        hostname: "se9-wireguard".to_string(),
-                        ipv4_addr_in: "185.213.154.68".parse().unwrap(),
-                        ipv6_addr_in: Some("2a03:1b20:5:f011::a09f".parse().unwrap()),
+                    relays: vec![WireguardRelay {
+                        inner: Relay {
+                            hostname: "se9-wireguard".to_string(),
+                            ipv4_addr_in: "185.213.154.68".parse().unwrap(),
+                            ipv6_addr_in: Some("2a03:1b20:5:f011::a09f".parse().unwrap()),
+                            active: true,
+                            location: location_sweden.clone(),
+                            weight: 1,
+                        },
                         overridden_ipv4: false,
                         overridden_ipv6: false,
                         include_in_country: true,
-                        active: true,
                         owned: true,
                         provider: "provider0".to_string(),
-                        weight: 1,
-                        endpoint_data: RelayEndpointData::Wireguard(
-                            WireguardRelayEndpointData::new(
-                                PublicKey::from_base64(
-                                    "BLNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=",
-                                )
+                        endpoint_data: WireguardRelayEndpointData::new(
+                            PublicKey::from_base64("BLNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=")
                                 .unwrap(),
-                            ),
                         ),
-                        location: location_sweden.clone(),
                     }],
                 }],
             },
@@ -499,26 +590,24 @@ mod test {
                     code: "osa".to_string(),
                     latitude: 34.672314,
                     longitude: 135.484802,
-                    relays: vec![Relay {
-                        hostname: "jp9-wireguard".to_string(),
-                        ipv4_addr_in: "194.114.136.3".parse().unwrap(),
-                        ipv6_addr_in: Some("2404:1b20:5:f011::a09f".parse().unwrap()),
+                    relays: vec![WireguardRelay {
+                        inner: Relay {
+                            hostname: "jp9-wireguard".to_string(),
+                            ipv4_addr_in: "194.114.136.3".parse().unwrap(),
+                            ipv6_addr_in: Some("2404:1b20:5:f011::a09f".parse().unwrap()),
+                            active: true,
+                            weight: 1,
+                            location: location_japan.clone(),
+                        },
                         overridden_ipv4: false,
                         overridden_ipv6: false,
                         include_in_country: true,
-                        active: true,
                         owned: true,
                         provider: "provider0".to_string(),
-                        weight: 1,
-                        endpoint_data: RelayEndpointData::Wireguard(
-                            WireguardRelayEndpointData::new(
-                                PublicKey::from_base64(
-                                    "BLNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=",
-                                )
+                        endpoint_data: WireguardRelayEndpointData::new(
+                            PublicKey::from_base64("BLNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=")
                                 .unwrap(),
-                            ),
                         ),
-                        location: location_japan.clone(),
                     }],
                 }],
             },

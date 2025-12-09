@@ -29,9 +29,6 @@ impl From<&mullvad_types::settings::Settings> for proto::Settings {
 
         Self {
             relay_settings: Some(proto::RelaySettings::from(settings.get_relay_settings())),
-            bridge_settings: Some(proto::BridgeSettings::from(
-                settings.bridge_settings.clone(),
-            )),
             allow_lan: settings.allow_lan,
             #[cfg(not(target_os = "android"))]
             lockdown_mode: settings.lockdown_mode,
@@ -120,12 +117,6 @@ impl TryFrom<proto::Settings> for mullvad_types::settings::Settings {
                 .ok_or(FromProtobufTypeError::InvalidArgument(
                     "missing relay settings",
                 ))?;
-        let bridge_settings =
-            settings
-                .bridge_settings
-                .ok_or(FromProtobufTypeError::InvalidArgument(
-                    "missing bridge settings",
-                ))?;
         let tunnel_options =
             settings
                 .tunnel_options
@@ -160,9 +151,6 @@ impl TryFrom<proto::Settings> for mullvad_types::settings::Settings {
         Ok(Self {
             relay_settings: mullvad_types::relay_constraints::RelaySettings::try_from(
                 relay_settings,
-            )?,
-            bridge_settings: mullvad_types::relay_constraints::BridgeSettings::try_from(
-                bridge_settings,
             )?,
             allow_lan: settings.allow_lan,
             #[cfg(not(target_os = "android"))]
