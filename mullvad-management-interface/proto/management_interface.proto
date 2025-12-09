@@ -34,6 +34,7 @@ service ManagementService {
   rpc UpdateRelayLocations(google.protobuf.Empty) returns (google.protobuf.Empty) {}
   rpc GetRelayLocations(google.protobuf.Empty) returns (RelayList) {}
   rpc SetRelaySettings(RelaySettings) returns (google.protobuf.Empty) {}
+  // TODO: remove
   rpc SetBridgeSettings(BridgeSettings) returns (google.protobuf.Empty) {}
   rpc SetObfuscationSettings(ObfuscationSettings) returns (google.protobuf.Empty) {}
 
@@ -382,6 +383,7 @@ message GeoIpLocation {
   double longitude = 6;
   bool mullvad_exit_ip = 7;
   optional string hostname = 8;
+  // TODO: remove
   optional string bridge_hostname = 9;
   optional string entry_hostname = 10;
   optional string obfuscator_hostname = 11;
@@ -395,11 +397,13 @@ enum Ownership {
   RENTED = 2;
 }
 
+// TODO: remove
 message BridgeSettings {
   enum BridgeType {
     NORMAL = 0;
     CUSTOM = 1;
   }
+  // TODO: remove
   message BridgeConstraints {
     LocationConstraint location = 1;
     repeated string providers = 2;
@@ -407,6 +411,7 @@ message BridgeSettings {
   }
 
   BridgeType bridge_type = 1;
+  // TODO: remove
   BridgeConstraints normal = 2;
   CustomProxy custom = 3;
 }
@@ -702,6 +707,7 @@ message RelayListCity {
 
 message Relay {
   message RelayData {
+    // TODO: remove
     message Bridge {}
     message Wireguard {
       message Quic {
@@ -717,6 +723,7 @@ message Relay {
       bool lwo = 5;
     }
 
+    // TODO: flatten
     oneof data {
       Wireguard wireguard = 1;
       Bridge bridge = 2;
@@ -763,10 +770,12 @@ message DaemonEvent {
 
 message RelayList {
   repeated RelayListCountry countries = 1;
+  // TODO: remove
   BridgeEndpointData bridge = 2;
   WireguardEndpointData wireguard = 3;
 }
 
+// TODO: remove
 message BridgeEndpointData { repeated ShadowsocksEndpointData shadowsocks = 1; }
 
 message ShadowsocksEndpointData {
