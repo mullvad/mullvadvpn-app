@@ -265,9 +265,8 @@ fn get_system_handles() -> io::Result<Vec<SYSTEM_HANDLE_TABLE_ENTRY_INFO>> {
     // SAFETY: The signature is correct.
     // See https://learn.microsoft.com/en-us/windows/win32/api/winternl/nf-winternl-ntquerysysteminformation
     unsafe { ntdll.get(b"NtQuerySystemInformation\0") }
-        .map_err(|_err| io::Error::other("Failed to load ntdll.dll"))?;
+        .map_err(|_err| io::Error::other("Could not find symbol for NtQuerySystemInformation"))?;
 
-    // Query system handle information with increasing buffer size
     loop {
         let mut return_length: u32 = 0;
 
