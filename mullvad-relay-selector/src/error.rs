@@ -2,7 +2,6 @@
 #![allow(dead_code)]
 
 use crate::{detailer, query::RelayQuery, relay_selector::relays::WireguardConfig};
-use mullvad_types::relay_constraints::MissingCustomProxy;
 use talpid_types::net::IpVersion;
 
 #[derive(thiserror::Error, Debug)]
@@ -39,9 +38,6 @@ pub enum Error {
 
     #[error("Failure in serialization of the relay list")]
     Serialize(#[from] serde_json::Error),
-
-    #[error("Invalid bridge settings")]
-    MissingCustomProxy(#[from] MissingCustomProxy),
 
     #[error("The requested IP version ({family}) does not match ip availability")]
     IpVersionUnavailable { family: IpVersion },
