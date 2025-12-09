@@ -3,28 +3,28 @@ name: Daemon+CLI - Build and test
 on:
   pull_request:
     paths:
-      - '**'
-      - '!**/**.md'
-      - '!.github/workflows/**'
-      - '.github/workflows/daemon.yml'
-      - '!.github/CODEOWNERS'
-      - '!android/**'
-      - '!audits/**'
-      - '!build.sh'
-      - '!ci/**'
-      - 'ci/cargo-ci.sh'
-      - '!clippy.toml'
-      - '!deny.toml'
-      - '!docs/**'
-      - '!graphics/**'
-      - '!desktop/**'
-      - '!ios/**'
-      - '!scripts/**'
-      - '!.*ignore'
-      - '!prepare-release.sh'
-      - '!rustfmt.toml'
-      - '!.yamllint'
-      - '!**/osv-scanner.toml'
+      - "**"
+      - "!**/**.md"
+      - "!.github/workflows/**"
+      - ".github/workflows/daemon.yml"
+      - "!.github/CODEOWNERS"
+      - "!android/**"
+      - "!audits/**"
+      - "!build.sh"
+      - "!ci/**"
+      - "ci/cargo-ci.sh"
+      - "!clippy.toml"
+      - "!deny.toml"
+      - "!docs/**"
+      - "!graphics/**"
+      - "!desktop/**"
+      - "!ios/**"
+      - "!scripts/**"
+      - "!.*ignore"
+      - "!prepare-release.sh"
+      - "!rustfmt.toml"
+      - "!.yamllint"
+      - "!**/osv-scanner.toml"
 
   workflow_dispatch:
     inputs:
@@ -44,7 +44,8 @@ jobs:
 
       - name: Use custom container image if specified
         if: ${{ github.event.inputs.override_container_image != '' }}
-        run: echo "inner_container_image=${{ github.event.inputs.override_container_image }}"
+        run:
+          echo "inner_container_image=${{ github.event.inputs.override_container_image }}"
           >> $GITHUB_ENV
 
       - name: Use default container image and resolve digest
@@ -88,6 +89,12 @@ jobs:
         if: ${{ matrix.rust != 'stable' }}
         run: rustup override set ${{ matrix.rust }}
 
+      - name: Setup Rust cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          add-job-id-key: "false" # Preserve cache across jobs
+          cache-targets: "false" # Only cache cargo registry
+
       - name: Test crates
         run: ci/cargo-ci.sh test --workspace
 
@@ -113,11 +120,6 @@ jobs:
           - os: windows-11-arm
             arch: arm64
     runs-on: ${{ matrix.config.os }}
-    env:
-      # On Windows, the checkout is on the D drive, which is very small.
-      # Moving the target directory to the C drive ensures that the runner
-      # doesn't run out of space on the D drive.
-      CARGO_TARGET_DIR: "C:/cargo-target"
     steps:
       # By default, the longest path a filename can have in git on Windows is 260 character.
       - name: Set git config for long paths
@@ -128,6 +130,8 @@ jobs:
         uses: actions/checkout@v4
 
       - uses: ./.github/actions/mullvad-build-env
+        with:
+          rust-cache-targets: "true"
 
       - name: Build Windows modules (x86_64)
         if: ${{ matrix.config.arch == 'x64' }}
