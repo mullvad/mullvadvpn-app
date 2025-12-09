@@ -8,25 +8,25 @@
 
 # Container images used for building the app are owned by respective team leads and tech lead
 /building/android-container-image.txt @faern @albin-mullvad @rawa
-/building/linux-container-image.txt @faern @raksooo
+/building/linux-container-image.txt @faern @raksooo @tobias-jarvelov
 
 # Developer signing keys must be approved by team/tech leads
 /ci/keys/ @faern @raksooo @pinkisemils @rawa
 /mullvad-update/trusted-metadata-signing-pubkeys @faern @raksooo @pinkisemils @rawa
 
 # Desktop build server files owned by desktop leads
-/ci/buildserver* @faern @raksooo
-/ci/linux-repository-builder/ @faern @raksooo
+/ci/buildserver* @faern @raksooo @tobias-jarvelov
+/ci/linux-repository-builder/ @faern @raksooo @tobias-jarvelov
 
 # Desktop release config specifying code signing key fingerprint
 /desktop/scripts/release/release-config.sh
 
 # Cargo deny config must be approved by tech lead or desktop team lead
-**/deny.toml @faern @raksooo
+**/deny.toml @faern @raksooo @tobias-jarvelov
 
 # Changes to what CVEs are ignored must be approved by leads
-**/osv-scanner.toml @faern @raksooo @pinkisemils @albin-mullvad @rawa
-/.github/workflows/osv-scanner*.yml @faern @raksooo @pinkisemils @rawa
+**/osv-scanner.toml @faern @raksooo @pinkisemils @albin-mullvad @rawa @tobias-jarvelov
+/.github/workflows/osv-scanner*.yml @faern @raksooo @pinkisemils @rawa @tobias-jarvelov
 
 # Security related github action workflow changes must be approved by leads
 /.github/workflows/verify-locked-down-signatures.yml @faern @raksooo @pinkisemils @rawa
@@ -34,8 +34,8 @@
 /.github/workflows/unicop.yml @faern @raksooo @pinkisemils @rawa
 
 # Our own code ownership mapping and automation must be approved by leads
-/.github/workflows/code-owner-approval.yml @faern @raksooo @pinkisemils @rawa
-/code-owners.json @faern @raksooo @pinkisemils @rawa
+/.github/workflows/code-owner-approval.yml @faern @raksooo @pinkisemils @rawa @tobias-jarvelov
+/code-owners.json @faern @raksooo @pinkisemils @rawa @tobias-jarvelov
 
 # The CODEOWNERS itself must be protected from unauthorized changes,
 # otherwise the protection becomes quite moot.
