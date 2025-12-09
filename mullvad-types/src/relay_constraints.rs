@@ -655,62 +655,6 @@ pub struct ObfuscationSettings {
     pub wireguard_port: WireguardPortSettings,
 }
 
-// pub struct BridgeConstraintsFormatter<'a> {
-//     pub custom_lists: &'a CustomListsSettings,
-// }
-
-// impl fmt::Display for BridgeConstraintsFormatter<'_> {
-//     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-//         match self.constraints.location {
-//             Constraint::Any => write!(f, "any location")?,
-//             Constraint::Only(ref constraint) => write!(
-//                 f,
-//                 "{}",
-//                 LocationConstraintFormatter {
-//                     constraint,
-//                     custom_lists: self.custom_lists,
-//                 }
-//             )?,
-//         }
-//         write!(f, " using ")?;
-//         match self.constraints.providers {
-//             Constraint::Any => write!(f, "any provider")?,
-//             Constraint::Only(ref constraint) => write!(f, "{constraint}")?,
-//         }
-//         match self.constraints.ownership {
-//             Constraint::Any => Ok(()),
-//             Constraint::Only(ref constraint) => {
-//                 write!(f, " and {constraint}")
-//             }
-//         }
-//     }
-// }
-
-/// Setting indicating whether to connect to a bridge server, or to handle it automatically.
-// TODO: remove
-#[derive(Debug, Clone, Copy, Eq, PartialEq, Deserialize, Serialize)]
-#[serde(rename_all = "snake_case")]
-#[cfg_attr(feature = "clap", derive(clap::ValueEnum))]
-pub enum BridgeState {
-    Auto,
-    On,
-    Off,
-}
-
-impl fmt::Display for BridgeState {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(
-            f,
-            "{}",
-            match self {
-                BridgeState::Auto => "auto",
-                BridgeState::On => "on",
-                BridgeState::Off => "off",
-            }
-        )
-    }
-}
-
 /// Options to override for a particular relay to use instead of the ones specified in the relay
 /// list
 #[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]

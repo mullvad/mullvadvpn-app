@@ -1,5 +1,9 @@
 use super::{Error, Result};
-use mullvad_types::settings::SettingsVersion;
+use mullvad_types::{
+    constraints::Constraint,
+    relay_constraints::{LocationConstraint, Ownership, Providers},
+    settings::SettingsVersion,
+};
 use serde::{Deserialize, Serialize};
 use talpid_types::net::{
     Endpoint, TransportProtocol,
@@ -18,8 +22,19 @@ use talpid_types::net::{
 #[derive(Default, Debug, Clone, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub struct NewBridgeSettings {
-    pub bridge_type: BridgeType,
-    pub custom: Option<CustomProxy>,
+    bridge_type: BridgeType,
+    normal: BridgeConstraints,
+    custom: Option<CustomProxy>,
+}
+
+/// Limits the set of bridge servers to use in `mullvad-daemon`.
+#[derive(Debug, Default, Clone, Deserialize, Serialize)]
+#[serde(default)]
+#[serde(rename_all = "snake_case")]
+pub struct BridgeConstraints {
+    location: Constraint<LocationConstraint>,
+    providers: Constraint<Providers>,
+    ownership: Constraint<Ownership>,
 }
 
 #[derive(Default, Debug, Clone, Deserialize, Serialize)]
