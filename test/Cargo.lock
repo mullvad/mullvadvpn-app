@@ -2093,14 +2093,12 @@ dependencies = [
 name = "mullvad-relay-selector"
 version = "0.0.0"
 dependencies = [
- "chrono",
  "intersection-derive",
  "ipnetwork",
  "itertools 0.14.0",
  "log",
  "mullvad-types",
  "rand 0.9.1",
- "serde_json",
  "talpid-types",
  "thiserror 2.0.3",
  "vec1",

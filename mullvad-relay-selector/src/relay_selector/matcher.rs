@@ -5,10 +5,9 @@ use mullvad_types::{
     constraints::{Constraint, Match},
     custom_list::CustomListsSettings,
     relay_constraints::{
-        GeographicLocationConstraint, InternalBridgeConstraints, LocationConstraint, Ownership,
-        Providers, ShadowsocksSettings,
+        GeographicLocationConstraint, LocationConstraint, Ownership, Providers, ShadowsocksSettings,
     },
-    relay_list::{Relay, RelayEndpointData, RelayList, WireguardRelayEndpointData},
+    relay_list::{RelayList, WireguardRelay, WireguardRelayEndpointData},
 };
 use talpid_types::net::IpVersion;
 
@@ -22,7 +21,7 @@ pub fn filter_matching_relay_list(
     query: &RelayQuery,
     relay_list: &RelayList,
     custom_lists: &CustomListsSettings,
-) -> Vec<Relay> {
+) -> Vec<WireguardRelay> {
     let relays = filter_matching_relay_list_include_all(query, relay_list, custom_lists);
     let locations = ResolvedLocationConstraint::from_constraint(query.location(), custom_lists);
     filter_on_include_in_country(locations, relays)
@@ -34,12 +33,10 @@ pub fn filter_matching_relay_list_include_all(
     query: &RelayQuery,
     relay_list: &RelayList,
     custom_lists: &CustomListsSettings,
-) -> Vec<Relay> {
+) -> Vec<WireguardRelay> {
     let relays = relay_list.relays();
     let locations = ResolvedLocationConstraint::from_constraint(query.location(), custom_lists);
     relays
-            // Filter on relay type (ignore bridge relays)
-            .filter(|relay| filter_wireguard(relay))
             // Filter on active relays
             .filter(|relay| filter_on_active(relay))
             // Filter by location
@@ -54,62 +51,37 @@ pub fn filter_matching_relay_list_include_all(
             .filter(|relay| filter_on_obfuscation(query.wireguard_constraints(), relay_list, relay)).cloned().collect()
 }
 
-pub fn filter_matching_bridges<'a, R: Iterator<Item = &'a Relay> + Clone>(
-    constraints: &InternalBridgeConstraints,
-    relays: R,
-    custom_lists: &CustomListsSettings,
-) -> Vec<Relay> {
-    let locations =
-        ResolvedLocationConstraint::from_constraint(&constraints.location, custom_lists);
-    relays
-            // Filter on active relays
-            .filter(|relay| filter_on_active(relay))
-            // Filter on bridge type
-            .filter(|relay| filter_bridge(relay))
-            // Filter by location
-            .filter(|relay| filter_on_location(&locations, relay))
-            // Filter by ownership
-            .filter(|relay| filter_on_ownership(&constraints.ownership, relay))
-            // Filter by providers
-            .filter(|relay| filter_on_providers(&constraints.providers, relay))
-            .cloned()
-            .collect()
-}
-
 // --- Define relay filters as simple functions / predicates ---
 // The intent is to make it easier to re-use in iterator chains.
 
 /// Returns whether `relay` is active.
-pub const fn filter_on_active(relay: &Relay) -> bool {
+pub fn filter_on_active(relay: &WireguardRelay) -> bool {
     relay.active
 }
 
 /// Returns whether `relay` satisfy the location constraint posed by `filter`.
 pub fn filter_on_location(
     filter: &Constraint<ResolvedLocationConstraint<'_>>,
-    relay: &Relay,
+    relay: &WireguardRelay,
 ) -> bool {
     filter.matches(relay)
 }
 
 /// Returns whether `relay` satisfy the ownership constraint posed by `filter`.
-pub fn filter_on_ownership(filter: &Constraint<Ownership>, relay: &Relay) -> bool {
+pub fn filter_on_ownership(filter: &Constraint<Ownership>, relay: &WireguardRelay) -> bool {
     filter.matches(relay)
 }
 
 /// Returns whether `relay` satisfy the providers constraint posed by `filter`.
-pub fn filter_on_providers(filter: &Constraint<Providers>, relay: &Relay) -> bool {
+pub fn filter_on_providers(filter: &Constraint<Providers>, relay: &WireguardRelay) -> bool {
     filter.matches(relay)
 }
 
 /// Returns whether `relay` satisfy the daita constraint posed by `filter`.
-pub fn filter_on_daita(filter: &Constraint<bool>, relay: &Relay) -> bool {
+pub fn filter_on_daita(filter: &Constraint<bool>, relay: &WireguardRelay) -> bool {
     match (filter, &relay.endpoint_data) {
         // Only a subset of relays support DAITA, so filter out ones that don't.
-        (
-            Constraint::Only(true),
-            RelayEndpointData::Wireguard(WireguardRelayEndpointData { daita, .. }),
-        ) => *daita,
+        (Constraint::Only(true), WireguardRelayEndpointData { daita, .. }) => *daita,
         // If we don't require DAITA, any relay works.
         _ => true,
     }
@@ -119,13 +91,9 @@ pub fn filter_on_daita(filter: &Constraint<bool>, relay: &Relay) -> bool {
 fn filter_on_obfuscation(
     query: &WireguardRelayQuery,
     relay_list: &RelayList,
-    relay: &Relay,
+    relay: &WireguardRelay,
 ) -> bool {
     use ObfuscationQuery::*;
-    let Some(endpoint_data) = relay.wireguard() else {
-        return true;
-    };
-
     match &query.obfuscation {
         // Shadowsocks has relay-specific constraints
         Shadowsocks(settings) => {
@@ -134,11 +102,11 @@ fn filter_on_obfuscation(
                 &wg_data.shadowsocks_port_ranges,
                 &query.ip_version,
                 settings,
-                endpoint_data,
+                relay.endpoint(),
             )
         }
         // QUIC is only enabled on some relays
-        Quic => match endpoint_data.quic() {
+        Quic => match relay.endpoint().quic() {
             Some(quic) => match query.ip_version {
                 Constraint::Any => true,
                 Constraint::Only(IpVersion::V4) => quic.in_ipv4().next().is_some(),
@@ -147,7 +115,7 @@ fn filter_on_obfuscation(
             None => false,
         },
         // LWO is only enabled on some relays
-        Lwo => endpoint_data.lwo,
+        Lwo => relay.endpoint().lwo,
         // Other relays are compatible with this query
         Off | Auto | Port(_) | Udp2tcp(_) => true,
     }
@@ -189,8 +157,8 @@ fn filter_on_shadowsocks(
 /// if there are no other candidates left.
 fn filter_on_include_in_country(
     locations: Constraint<ResolvedLocationConstraint<'_>>,
-    relays: Vec<Relay>,
-) -> Vec<Relay> {
+    relays: Vec<WireguardRelay>,
+) -> Vec<WireguardRelay> {
     match locations {
         Constraint::Any => relays,
         Constraint::Only(locations) => {
@@ -210,16 +178,6 @@ fn filter_on_include_in_country(
             }
         }
     }
-}
-
-/// Returns whether the relay is a Wireguard relay.
-pub const fn filter_wireguard(relay: &Relay) -> bool {
-    matches!(relay.endpoint_data, RelayEndpointData::Wireguard(_))
-}
-
-/// Returns whether the relay is a bridge.
-pub const fn filter_bridge(relay: &Relay) -> bool {
-    matches!(relay.endpoint_data, RelayEndpointData::Bridge)
 }
 
 /// Wrapper around [`GeographicLocationConstraint`].
@@ -265,8 +223,8 @@ impl<'a> IntoIterator for &'a ResolvedLocationConstraint<'a> {
     }
 }
 
-impl Match<Relay> for ResolvedLocationConstraint<'_> {
-    fn matches(&self, relay: &Relay) -> bool {
+impl Match<WireguardRelay> for ResolvedLocationConstraint<'_> {
+    fn matches(&self, relay: &WireguardRelay) -> bool {
         self.into_iter().any(|location| location.matches(relay))
     }
 }
