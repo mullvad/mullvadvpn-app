@@ -164,21 +164,17 @@ fn check_ip_addrs(rule: &mut Rule, src: IpNetwork, dst: Option<IpNetwork>) {
     }
 
     fn check_matches_prefix(rule: &mut Rule, network: IpNetwork) {
-        // Compute the bitwise AND of the incoming packet IP address and the mask, and then
-        // compare this value to the bitwise AND of the rule IP address and the mask.
-        // This will match when the network prefixes of the IP address to filter and rule
-        // IP address matches. E.g. the rule IP address/network 34.117.0.0/16 will match
-        // an incoming packet IP address 34.117.105.189.
+        // Check that the IP address matches the given IP network.
+        // E.g. the IP network 34.117.0.0/16 will match an incoming packet IP 34.117.105.189.
         match network {
             IpNetwork::V4(addr) => {
-                rule.add_expr(&nft_expr!(bitwise mask addr.mask(), xor 0x0));
-                rule.add_expr(&nft_expr!(cmp == addr.ip() & addr.mask()));
+                rule.add_expr(&nft_expr!(bitwise mask addr.mask(), xor 0u32));
             }
             IpNetwork::V6(addr) => {
-                rule.add_expr(&nft_expr!(bitwise mask addr.mask(), xor 0x0));
-                rule.add_expr(&nft_expr!(cmp == addr.ip() & addr.mask()));
+                rule.add_expr(&nft_expr!(bitwise mask addr.mask(), xor &[0u16; 8][..]));
             }
         };
+        rule.add_expr(&nft_expr!(cmp == network.ip()));
     }
 }
 
