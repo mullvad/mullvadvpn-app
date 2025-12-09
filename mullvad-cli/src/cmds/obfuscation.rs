@@ -37,6 +37,7 @@ pub enum SetCommands {
         #[arg(long, short = 'p')]
         port: Constraint<u16>,
     },
+    /// Configure WireGuard port obfuscation.
     WireguardPort {
         /// Port to use
         #[arg(long, short = 'p')]
