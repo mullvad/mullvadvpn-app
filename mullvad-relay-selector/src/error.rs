@@ -2,7 +2,7 @@
 #![allow(dead_code)]
 
 use crate::{detailer, query::RelayQuery, relay_selector::relays::WireguardConfig};
-use mullvad_types::relay_constraints::MissingCustomBridgeSettings;
+use mullvad_types::relay_constraints::MissingCustomProxy;
 use talpid_types::net::IpVersion;
 
 #[derive(thiserror::Error, Debug)]
@@ -41,7 +41,7 @@ pub enum Error {
     Serialize(#[from] serde_json::Error),
 
     #[error("Invalid bridge settings")]
-    InvalidBridgeSettings(#[from] MissingCustomBridgeSettings),
+    MissingCustomProxy(#[from] MissingCustomProxy),
 
     #[error("The requested IP version ({family}) does not match ip availability")]
     IpVersionUnavailable { family: IpVersion },
