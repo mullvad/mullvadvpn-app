@@ -8,7 +8,7 @@ use mullvad_types::{
     },
 };
 use std::str::FromStr;
-use talpid_types::net::{proxy::CustomProxy, wireguard::ConnectionConfig};
+use talpid_types::net::wireguard::ConnectionConfig;
 
 impl TryFrom<&proto::WireguardConstraints>
     for mullvad_types::relay_constraints::WireguardConstraints
@@ -192,40 +192,6 @@ impl From<&mullvad_types::relay_constraints::WireguardPortSettings>
     }
 }
 
-impl From<mullvad_types::relay_constraints::BridgeSettings> for proto::BridgeSettings {
-    fn from(settings: mullvad_types::relay_constraints::BridgeSettings) -> Self {
-        use proto::bridge_settings;
-
-        let mode = match settings.bridge_type {
-            mullvad_types::relay_constraints::BridgeType::Normal => {
-                bridge_settings::BridgeType::Normal
-            }
-            mullvad_types::relay_constraints::BridgeType::Custom => {
-                bridge_settings::BridgeType::Custom
-            }
-        };
-
-        let normal = bridge_settings::BridgeConstraints {
-            location: settings
-                .normal
-                .location
-                .clone()
-                .option()
-                .map(proto::LocationConstraint::from),
-            providers: convert_providers_constraint(&settings.normal.providers),
-            ownership: i32::from(convert_ownership_constraint(&settings.normal.ownership)),
-        };
-
-        let custom = settings.custom.map(proto::CustomProxy::from);
-
-        proto::BridgeSettings {
-            bridge_type: i32::from(mode),
-            normal: Some(normal),
-            custom,
-        }
-    }
-}
-
 impl From<mullvad_types::relay_constraints::RelaySettings> for proto::RelaySettings {
     fn from(settings: mullvad_types::relay_constraints::RelaySettings) -> Self {
         use mullvad_types::relay_constraints::RelaySettings as MullvadRelaySettings;
@@ -374,62 +340,6 @@ impl TryFrom<proto::GeographicLocationConstraint> for GeographicLocationConstrai
                 "Relay location contains hostname but no city",
             )),
         }
-    }
-}
-
-pub fn try_bridge_mode_from_i32(
-    mode: i32,
-) -> Result<mullvad_types::relay_constraints::BridgeType, FromProtobufTypeError> {
-    proto::bridge_settings::BridgeType::try_from(mode)
-        .map(mullvad_types::relay_constraints::BridgeType::from)
-        .map_err(|_| FromProtobufTypeError::InvalidArgument("invalid bridge mode argument"))
-}
-
-impl From<proto::bridge_settings::BridgeType> for mullvad_types::relay_constraints::BridgeType {
-    fn from(value: proto::bridge_settings::BridgeType) -> Self {
-        use mullvad_types::relay_constraints::BridgeType;
-
-        match value {
-            proto::bridge_settings::BridgeType::Normal => BridgeType::Normal,
-            proto::bridge_settings::BridgeType::Custom => BridgeType::Custom,
-        }
-    }
-}
-
-impl TryFrom<proto::BridgeSettings> for mullvad_types::relay_constraints::BridgeSettings {
-    type Error = FromProtobufTypeError;
-
-    fn try_from(settings: proto::BridgeSettings) -> Result<Self, Self::Error> {
-        use mullvad_types::relay_constraints::{BridgeConstraints, BridgeSettings};
-
-        // convert normal bridge settings
-        let constraints = settings
-            .normal
-            .ok_or(FromProtobufTypeError::InvalidArgument(
-                "missing normal bridge constraints",
-            ))?;
-        let location = match constraints.location {
-            None => Constraint::Any,
-            Some(location) => {
-                Constraint::<mullvad_types::relay_constraints::LocationConstraint>::try_from(
-                    location,
-                )?
-            }
-        };
-        let normal = BridgeConstraints {
-            location,
-            providers: try_providers_constraint_from_proto(&constraints.providers)?,
-            ownership: try_ownership_constraint_from_i32(constraints.ownership)?,
-        };
-
-        // convert custom bridge settings
-        let custom = settings.custom.map(CustomProxy::try_from).transpose()?;
-
-        Ok(BridgeSettings {
-            bridge_type: try_bridge_mode_from_i32(settings.bridge_type)?,
-            normal,
-            custom,
-        })
     }
 }
 
