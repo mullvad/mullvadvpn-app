@@ -343,25 +343,6 @@ impl TryFrom<proto::GeographicLocationConstraint> for GeographicLocationConstrai
     }
 }
 
-pub fn try_bridge_mode_from_i32(
-    mode: i32,
-) -> Result<mullvad_types::relay_constraints::BridgeType, FromProtobufTypeError> {
-    proto::bridge_settings::BridgeType::try_from(mode)
-        .map(mullvad_types::relay_constraints::BridgeType::from)
-        .map_err(|_| FromProtobufTypeError::InvalidArgument("invalid bridge mode argument"))
-}
-
-impl From<proto::bridge_settings::BridgeType> for mullvad_types::relay_constraints::BridgeType {
-    fn from(value: proto::bridge_settings::BridgeType) -> Self {
-        use mullvad_types::relay_constraints::BridgeType;
-
-        match value {
-            proto::bridge_settings::BridgeType::Normal => BridgeType::Normal,
-            proto::bridge_settings::BridgeType::Custom => BridgeType::Custom,
-        }
-    }
-}
-
 impl TryFrom<proto::ObfuscationSettings> for mullvad_types::relay_constraints::ObfuscationSettings {
     type Error = FromProtobufTypeError;
 

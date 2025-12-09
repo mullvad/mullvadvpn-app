@@ -15,7 +15,7 @@ use std::{
     net::{Ipv4Addr, Ipv6Addr},
     str::FromStr,
 };
-use talpid_types::net::{IpVersion, TransportProtocol, proxy::CustomProxy};
+use talpid_types::net::{IpVersion, TransportProtocol};
 
 /// Specifies a specific endpoint or [`RelayConstraints`] to use when `mullvad-daemon` selects a
 /// relay.
@@ -528,54 +528,6 @@ impl fmt::Display for WireguardConstraintsFormatter<'_> {
             write!(f, ", multihop entry {location}")?;
         }
         Ok(())
-    }
-}
-
-#[derive(Default, Debug, Clone, Copy, Eq, PartialEq, Deserialize, Serialize)]
-#[serde(rename_all = "snake_case")]
-pub enum BridgeType {
-    /// Let the relay selection algorithm decide on bridges, based on the relay list
-    /// and normal bridge constraints.
-    #[default]
-    Normal,
-    /// Use custom bridge configuration.
-    Custom,
-}
-
-impl fmt::Display for BridgeType {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
-        match self {
-            BridgeType::Normal => f.write_str("normal"),
-            BridgeType::Custom => f.write_str("custom"),
-        }
-    }
-}
-
-#[derive(thiserror::Error, Debug)]
-#[error("Missing custom bridge settings")]
-pub struct MissingCustomProxy(());
-
-/// Specifies a specific endpoint or [`BridgeConstraints`] to use when `mullvad-daemon` selects a
-/// bridge server.
-#[derive(Default, Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
-#[serde(rename_all = "snake_case")]
-pub struct BridgeSettings {
-    pub bridge_type: BridgeType,
-    pub custom: Option<CustomProxy>,
-}
-
-pub enum ResolvedBridgeSettings<'a> {
-    Normal,
-    Custom(&'a CustomProxy),
-}
-
-impl BridgeSettings {
-    pub fn resolve(&self) -> Result<ResolvedBridgeSettings<'_>, MissingCustomProxy> {
-        match (self.bridge_type, &self.custom) {
-            (BridgeType::Normal, _) => Ok(ResolvedBridgeSettings::Normal),
-            (BridgeType::Custom, Some(custom)) => Ok(ResolvedBridgeSettings::Custom(custom)),
-            (BridgeType::Custom, None) => Err(MissingCustomProxy(())),
-        }
     }
 }
 
