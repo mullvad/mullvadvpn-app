@@ -3,7 +3,11 @@
 use crate::rest;
 
 use hyper::{StatusCode, body::Incoming, header};
-use mullvad_types::{location, relay_list};
+use mullvad_types::{
+    location,
+    relay_list::{self, BridgeList, RelayListCountry},
+};
+use serde::{Deserialize, Serialize};
 use talpid_types::net::wireguard;
 use vec1::Vec1;
 
@@ -32,27 +36,41 @@ impl RelayListProxy {
     /// Fetch the relay list
     pub fn relay_list(
         &self,
-        etag: Option<String>,
-    ) -> impl Future<Output = Result<Option<relay_list::RelayList>, rest::Error>> {
-        let request = self.relay_list_response(etag.clone());
+        prev_etag: Option<ETag>,
+    ) -> impl Future<Output = Result<Option<CachedRelayList>, rest::Error>> {
+        let request = self.relay_list_response(prev_etag.clone());
 
         async move {
             let response = request.await?;
 
-            if etag.is_some() && response.status() == StatusCode::NOT_MODIFIED {
-                return Ok(None);
+            match prev_etag {
+                Some(_) if response.status() == StatusCode::NOT_MODIFIED => {
+                    log::trace!("Relay list API returned 304 - not modified");
+                    Ok(None)
+                }
+                _ => {
+                    // If the API returns a response, it *should* contain an ETag. But this might not be the case.
+                    let etag = Self::extract_etag(&response);
+                    let relay_list: ServerRelayList =
+                        response.deserialize().await.inspect_err(|_err| {
+                            log::error!("Failed to deserialize API response of relay list")
+                        })?;
+
+                    match etag {
+                        Some(etag) => Ok(Some(relay_list.cache(etag))),
+                        None => {
+                            log::trace!("Relay list API response did not contain an etag");
+                            Ok(Some(relay_list.uncacheable()))
+                        }
+                    }
+                }
             }
-
-            let etag = Self::extract_etag(&response);
-
-            let relay_list: ServerRelayList = response.deserialize().await?;
-            Ok(Some(relay_list.into_relay_list(etag)))
         }
     }
 
     pub fn relay_list_response(
         &self,
-        etag: Option<String>,
+        prev_etag: Option<ETag>,
     ) -> impl Future<Output = Result<rest::Response<Incoming>, rest::Error>> {
         let service = self.handle.service.clone();
         let request = self.handle.factory.get("app/v1/relays");
@@ -62,74 +80,125 @@ impl RelayListProxy {
                 .timeout(RELAY_LIST_TIMEOUT)
                 .expected_status(&[StatusCode::NOT_MODIFIED, StatusCode::OK]);
 
-            if let Some(ref tag) = etag {
-                request = request.header(header::IF_NONE_MATCH, tag)?;
+            if let Some(ref prev_tag) = prev_etag {
+                request = request.header(header::IF_NONE_MATCH, &prev_tag.0)?;
             }
 
-            let response = service.request(request).await?;
-
-            Ok(response)
+            service.request(request).await
         }
     }
 
-    pub fn extract_etag(response: &rest::Response<Incoming>) -> Option<String> {
+    pub fn extract_etag(response: &rest::Response<Incoming>) -> Option<ETag> {
         response
             .headers()
             .get(header::ETAG)
-            .and_then(|tag| match tag.to_str() {
-                Ok(tag) => Some(tag.to_string()),
-                Err(_) => {
-                    log::error!("Ignoring invalid tag from server: {:?}", tag.as_bytes());
-                    None
-                }
-            })
+            .and_then(|s| s.to_str().ok())
+            .map(|s| ETag(s.to_owned()))
     }
 }
 
-#[derive(Debug, serde::Deserialize)]
-struct ServerRelayList {
+/// Relay list as served by the API.
+///
+/// This stuct should conform to the API response 1-1.
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct ServerRelayList {
     locations: BTreeMap<String, Location>,
     wireguard: Wireguard,
     bridge: Bridges,
 }
 
+/// Relay list as served by the API, paired with the corresponding [`ETag`] from the response header.
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct CachedRelayList {
+    #[serde(flatten)]
+    relay_list: ServerRelayList,
+    etag: Option<ETag>,
+}
+
+/// An (ETag header)[https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/ETag] returned by the relay list API.
+/// The etag is used to version the API response, and is used to check if the response has changed since the last request.
+/// This can potentially save some bandwidth, especially important for the server side.
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct ETag(pub String);
+
 impl ServerRelayList {
-    fn into_relay_list(self, etag: Option<String>) -> relay_list::RelayList {
-        let mut countries = BTreeMap::new();
+    /// Associate this relay list with a specific [`ETag`].
+    const fn cache(self, etag: ETag) -> CachedRelayList {
+        CachedRelayList {
+            relay_list: self,
+            etag: Some(etag),
+        }
+    }
+
+    /// There is no associated [`ETag`].
+    const fn uncacheable(self) -> CachedRelayList {
+        CachedRelayList {
+            relay_list: self,
+            etag: None,
+        }
+    }
+
+    // Convert a relay list response to internal mullvad types.
+    //
+    // - `self`: on-disk / network representation
+    pub fn into_internal_repr(self) -> (relay_list::RelayList, relay_list::BridgeList) {
         let Self {
             locations,
             wireguard,
             bridge,
         } = self;
 
-        for (code, location) in locations.into_iter() {
-            match split_location_code(&code) {
-                Some((country_code, city_code)) => {
-                    let country_code = country_code.to_lowercase();
-                    let city_code = city_code.to_lowercase();
-                    let country = countries
-                        .entry(country_code.clone())
-                        .or_insert_with(|| location_to_country(&location, country_code));
-                    country.cities.push(location_to_city(&location, city_code));
-                }
-                None => {
-                    log::error!("Bad location code:{}", code);
-                    continue;
+        let countries = {
+            let mut countries = BTreeMap::new();
+            for (code, location) in locations.into_iter() {
+                match split_location_code(&code) {
+                    Some((country_code, city_code)) => {
+                        let country_code = country_code.to_lowercase();
+                        let city_code = city_code.to_lowercase();
+                        let country = countries
+                            .entry(country_code.clone())
+                            .or_insert_with(|| location_to_country(&location, country_code));
+                        country.cities.push(location_to_city(&location, city_code));
+                    }
+                    None => {
+                        log::error!("Bad location code:{}", code);
+                        continue;
+                    }
                 }
             }
-        }
+            countries
+        };
 
-        relay_list::RelayList {
-            etag: etag.map(|mut tag| {
-                if tag.starts_with('"') {
-                    tag.insert_str(0, "W/");
-                }
-                tag
-            }),
-            wireguard: wireguard.extract_relays(&mut countries),
-            bridge: bridge.extract_relays(&mut countries),
+        let wireguard_endpointdata = {
+            const UDP2TCP_PORTS: [u16; 3] = [80, 443, 5001];
+            let mut data = wireguard.endpoint_data();
+            // Append data for obfuscation protocols ourselves, since the API does not provide it.
+            if data.udp2tcp_ports.is_empty() {
+                data.udp2tcp_ports.extend(UDP2TCP_PORTS);
+            }
+
+            data
+        };
+        let countries = wireguard.extract_relays(countries);
+        let bridge_list = bridge.extract_relays(&countries);
+        let relay_list = relay_list::RelayList {
+            wireguard: wireguard_endpointdata,
             countries: countries.into_values().collect(),
-        }
+        };
+
+        (relay_list, bridge_list)
+    }
+}
+
+impl CachedRelayList {
+    /// Read the [`ETag`] of the cached relay list.
+    pub const fn etag(&self) -> Option<&ETag> {
+        self.etag.as_ref()
+    }
+
+    /// See [`ServerRelayList::into_internal_repr`].
+    pub fn into_internal_repr(self) -> (relay_list::RelayList, BridgeList) {
+        self.relay_list.into_internal_repr()
     }
 }
 
@@ -161,28 +230,7 @@ fn location_to_city(location: &Location, code: String) -> relay_list::RelayListC
     }
 }
 
-fn into_mullvad_relay(
-    relay: Relay,
-    location: location::Location,
-    endpoint_data: relay_list::RelayEndpointData,
-) -> relay_list::Relay {
-    relay_list::Relay {
-        hostname: relay.hostname,
-        ipv4_addr_in: relay.ipv4_addr_in,
-        ipv6_addr_in: relay.ipv6_addr_in,
-        overridden_ipv4: false,
-        overridden_ipv6: false,
-        include_in_country: relay.include_in_country,
-        active: relay.active,
-        owned: relay.owned,
-        provider: relay.provider,
-        weight: relay.weight,
-        endpoint_data,
-        location,
-    }
-}
-
-#[derive(Debug, serde::Deserialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 struct Location {
     city: String,
     country: String,
@@ -190,7 +238,7 @@ struct Location {
     longitude: f64,
 }
 
-#[derive(Debug, serde::Deserialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 struct Relay {
     hostname: String,
     active: bool,
@@ -204,8 +252,30 @@ struct Relay {
 }
 
 impl Relay {
-    fn into_bridge_mullvad_relay(self, location: location::Location) -> relay_list::Relay {
-        into_mullvad_relay(self, location, relay_list::RelayEndpointData::Bridge)
+    fn into_bridge_mullvad_relay(self, location: location::Location) -> relay_list::Bridge {
+        let Self {
+            hostname,
+            active,
+            ipv4_addr_in,
+            ipv6_addr_in,
+            weight,
+            // Since bridges are not a user-facing concept (and is only used for API traffic),
+            // we dont really care about their location, who provides them etc. We treat the transport
+            // of API traffic as insecure anyway.
+            include_in_country: _,
+            owned: _,
+            location: _,
+            provider: _,
+        } = self;
+
+        relay_list::Bridge(relay_list::Relay {
+            hostname,
+            ipv4_addr_in,
+            ipv6_addr_in,
+            active,
+            weight,
+            location,
+        })
     }
 
     fn convert_to_lowercase(&mut self) {
@@ -214,7 +284,7 @@ impl Relay {
     }
 }
 
-#[derive(Debug, serde::Deserialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 struct Wireguard {
     port_ranges: Vec<(u16, u16)>,
     ipv4_gateway: Ipv4Addr,
@@ -251,12 +321,11 @@ fn inclusive_range_from_pair<T>(pair: (T, T)) -> RangeInclusive<T> {
 }
 
 impl Wireguard {
-    /// Consumes `self` and appends all its relays to `countries`.
+    /// Consumes `self` and group all relays with their geographical location, keyed by country code.
     fn extract_relays(
         self,
-        countries: &mut BTreeMap<String, relay_list::RelayListCountry>,
-    ) -> relay_list::EndpointData {
-        let endpoint_data = relay_list::EndpointData::from(&self);
+        mut countries: BTreeMap<String, RelayListCountry>,
+    ) -> BTreeMap<String, RelayListCountry> {
         let relays = self.relays;
 
         for mut wireguard_relay in relays {
@@ -283,11 +352,15 @@ impl Wireguard {
             };
         }
 
-        endpoint_data
+        countries
+    }
+
+    fn endpoint_data(&self) -> relay_list::EndpointData {
+        relay_list::EndpointData::from(self)
     }
 }
 
-#[derive(Debug, serde::Deserialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 struct WireGuardRelay {
     #[serde(flatten)]
     relay: Relay,
@@ -301,7 +374,7 @@ struct WireGuardRelay {
 }
 
 impl WireGuardRelay {
-    fn into_mullvad_relay(self, location: location::Location) -> relay_list::Relay {
+    fn into_mullvad_relay(self, location: location::Location) -> relay_list::WireguardRelay {
         // Sanity check that new 'features' key is in sync with the old, superceded keys.
         // TODO: Remove `self.daita` (and this check 👇) when `features` key has been completely
         // rolled out to production.
@@ -309,24 +382,38 @@ impl WireGuardRelay {
             debug_assert!(self.daita)
         }
 
-        let relay = self.relay;
-        let endpoint_data =
-            relay_list::RelayEndpointData::Wireguard(relay_list::WireguardRelayEndpointData {
-                public_key: self.public_key,
-                // FIXME: This hack is forward-compatible with 'features' being rolled out.
-                //        Should unwrap to 'false' once 'daita' field is removed.
-                daita: self.features.daita.map(|_| true).unwrap_or(self.daita),
-                shadowsocks_extra_addr_in: HashSet::from_iter(self.shadowsocks_extra_addr_in),
-                quic: self.features.quic.map(relay_list::Quic::from),
-                lwo: self.features.lwo.is_some(),
-            });
+        let relay = relay_list::Relay {
+            hostname: self.relay.hostname,
+            ipv4_addr_in: self.relay.ipv4_addr_in,
+            ipv6_addr_in: self.relay.ipv6_addr_in,
+            active: self.relay.active,
+            weight: self.relay.weight,
+            location,
+        };
+        let endpoint_data = relay_list::WireguardRelayEndpointData {
+            public_key: self.public_key,
+            // FIXME: This hack is forward-compatible with 'features' being rolled out.
+            //        Should unwrap to 'false' once 'daita' field is removed.
+            daita: self.features.daita.map(|_| true).unwrap_or(self.daita),
+            shadowsocks_extra_addr_in: HashSet::from_iter(self.shadowsocks_extra_addr_in),
+            quic: self.features.quic.map(relay_list::Quic::from),
+            lwo: self.features.lwo.is_some(),
+        };
 
-        into_mullvad_relay(relay, location, endpoint_data)
+        relay_list::WireguardRelay::new(
+            false,
+            false,
+            self.relay.include_in_country,
+            self.relay.owned,
+            self.relay.provider,
+            endpoint_data,
+            relay,
+        )
     }
 }
 
 /// Extra features enabled on some (Wireguard) relay, such as obfuscation daemons or Daita.
-#[derive(Debug, Default, Clone, serde::Deserialize)]
+#[derive(Debug, Default, Clone, Deserialize, Serialize)]
 struct Features {
     daita: Option<Daita>,
     quic: Option<Quic>,
@@ -336,11 +423,11 @@ struct Features {
 /// DAITA doesn't have any configuration options (exposed by the API).
 ///
 /// Note, an empty struct is not the same as an empty tuple struct according to serde_json!
-#[derive(Debug, Clone, serde::Deserialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 struct Daita {}
 
 /// Parameters for setting up a QUIC obfuscator (connecting to a masque-proxy running on a relay).
-#[derive(Debug, Clone, serde::Deserialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 struct Quic {
     /// In-addresses for the QUIC obfuscator.
     ///
@@ -365,46 +452,59 @@ impl From<Quic> for relay_list::Quic {
 /// LWO doesn't have any configuration options (exposed by the API).
 ///
 /// Note, an empty struct is not the same as an empty tuple struct according to serde_json!
-#[derive(Debug, Clone, serde::Deserialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 struct Lwo {}
 
-#[derive(Debug, serde::Deserialize)]
+/// Mullvad Bridge servers are used for the Bridge API access method.
+///
+/// The were previously also used for proxying traffic to OpenVPN servers.
+///
+/// See [Relay] for details.
+#[derive(Debug, Clone, Deserialize, Serialize)]
 struct Bridges {
     shadowsocks: Vec<relay_list::ShadowsocksEndpointData>,
+    /// The physical bridge servers and generic connnection details.
     relays: Vec<Relay>,
 }
 
 impl Bridges {
-    /// Consumes `self` and appends all its relays to `countries`.
+    /// Pluck out all servers from a relay list.
+    ///
+    /// See [Bridges] for details.
     fn extract_relays(
         self,
-        countries: &mut BTreeMap<String, relay_list::RelayListCountry>,
-    ) -> relay_list::BridgeEndpointData {
-        for mut bridge_relay in self.relays {
-            bridge_relay.convert_to_lowercase();
-            if let Some((country_code, city_code)) = split_location_code(&bridge_relay.location)
-                && let Some(country) = countries.get_mut(country_code)
-                && let Some(city) = country
-                    .cities
-                    .iter_mut()
-                    .find(|city| city.code == city_code)
-            {
-                let location = location::Location {
-                    country: country.name.clone(),
-                    country_code: country.code.clone(),
-                    city: city.name.clone(),
-                    city_code: city.code.clone(),
-                    latitude: city.latitude,
-                    longitude: city.longitude,
-                };
+        countries: &BTreeMap<String, relay_list::RelayListCountry>,
+    ) -> BridgeList {
+        let bridges = self
+            .relays
+            .into_iter()
+            .filter_map(|mut bridge_relay| {
+                bridge_relay.convert_to_lowercase();
+                if let Some((country_code, city_code)) = split_location_code(&bridge_relay.location)
+                    && let Some(country) = countries.get(country_code)
+                    && let Some(city) = country.cities.iter().find(|city| city.code == city_code)
+                {
+                    let location = location::Location {
+                        country: country.name.clone(),
+                        country_code: country.code.clone(),
+                        city: city.name.clone(),
+                        city_code: city.code.clone(),
+                        latitude: city.latitude,
+                        longitude: city.longitude,
+                    };
 
-                let relay = bridge_relay.into_bridge_mullvad_relay(location);
-                city.relays.push(relay);
-            };
-        }
+                    Some(bridge_relay.into_bridge_mullvad_relay(location))
+                } else {
+                    None
+                }
+            })
+            .collect();
 
-        relay_list::BridgeEndpointData {
-            shadowsocks: self.shadowsocks,
+        BridgeList {
+            bridges,
+            bridge_endpoint: relay_list::BridgeEndpointData {
+                shadowsocks: self.shadowsocks,
+            },
         }
     }
 }
