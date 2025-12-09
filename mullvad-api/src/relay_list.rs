@@ -370,7 +370,7 @@ struct Lwo {}
 
 /// Mullvad Bridge servers are used for the Bridge API access method.
 ///
-/// The used to also be used for proxying to OpenVPN servers.
+/// The were previously also used for proxying to traffic OpenVPN servers.
 #[derive(Debug, serde::Deserialize)]
 struct Bridges {
     shadowsocks: Vec<relay_list::ShadowsocksEndpointData>,
