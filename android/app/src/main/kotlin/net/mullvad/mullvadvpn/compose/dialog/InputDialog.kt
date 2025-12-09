@@ -37,7 +37,7 @@ private fun PreviewInputDialog() {
                     keyboardType = KeyboardType.Text,
                     onValueChanged = {},
                     onSubmit = {},
-                    placeholderText = "Placeholder",
+                    placeholder = { Text("Placeholder") },
                     isValidValue = true,
                     isDigitsOnlyAllowed = false,
                 )

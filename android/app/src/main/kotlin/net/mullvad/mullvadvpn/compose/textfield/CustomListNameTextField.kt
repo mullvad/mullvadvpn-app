@@ -40,7 +40,6 @@ fun CustomListNameTextField(
                 onSubmit(it)
             }
         },
-        placeholderText = null,
         maxCharLength = CustomListName.MAX_LENGTH,
         isValidValue = error == null,
         isDigitsOnlyAllowed = false,
