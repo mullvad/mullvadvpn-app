@@ -62,8 +62,7 @@ use mullvad_types::{
     features::{FeatureIndicator, FeatureIndicators, compute_feature_indicators},
     location::{GeoIpLocation, LocationEventData},
     relay_constraints::{
-        BridgeSettings, BridgeType, ObfuscationSettings, RelayOverride, RelaySettings,
-        allowed_ip::AllowedIps,
+        ObfuscationSettings, RelayOverride, RelaySettings, allowed_ip::AllowedIps,
     },
     relay_list::RelayList,
     settings::{DnsOptions, Settings},
@@ -280,8 +279,6 @@ pub enum DaemonCommand {
     SetLockdownMode(ResponseTx<(), settings::Error>, bool),
     /// Set the auto-connect setting.
     SetAutoConnect(ResponseTx<(), settings::Error>, bool),
-    /// Set proxy details for Bridges
-    SetBridgeSettings(ResponseTx<(), Error>, BridgeSettings),
     /// Set if IPv6 should be enabled in the tunnel
     SetEnableIpv6(ResponseTx<(), settings::Error>, bool),
     /// Set if recents should be enabled
@@ -1475,9 +1472,6 @@ impl Daemon {
                 self.on_set_lockdown_mode(tx, lockdown_mode).await
             }
             SetAutoConnect(tx, auto_connect) => self.on_set_auto_connect(tx, auto_connect).await,
-            SetBridgeSettings(tx, bridge_settings) => {
-                self.on_set_bridge_settings(tx, bridge_settings).await
-            }
             SetEnableIpv6(tx, enable_ipv6) => self.on_set_enable_ipv6(tx, enable_ipv6).await,
             SetEnableRecents(tx, enable_recents) => {
                 self.on_set_enable_recents(tx, enable_recents).await
@@ -2550,49 +2544,6 @@ impl Daemon {
             Err(e) => {
                 log::error!("{}", e.display_chain_with_msg("Unable to save settings"));
                 Self::oneshot_send(tx, Err(e), "set auto-connect response");
-            }
-        }
-    }
-
-    async fn on_set_bridge_settings(
-        &mut self,
-        tx: ResponseTx<(), Error>,
-        new_settings: BridgeSettings,
-    ) {
-        if new_settings.custom.is_none() && new_settings.bridge_type == BridgeType::Custom {
-            log::info!("Tried to select custom bridge but no custom bridge settings exist");
-            Self::oneshot_send(
-                tx,
-                Err(Error::NoCustomProxySaved),
-                "set_bridge_settings response",
-            );
-            return;
-        }
-
-        match self
-            .settings
-            .update(move |settings| settings.bridge_settings = new_settings)
-            .await
-        {
-            Ok(settings_changes) => {
-                if settings_changes {
-                    let access_mode_handler = self.access_mode_handler.clone();
-                    tokio::spawn(async move {
-                        if let Err(error) = access_mode_handler.rotate().await {
-                            log::error!("Failed to rotate API endpoint: {error}");
-                        }
-                    });
-                    self.reconnect_tunnel();
-                };
-                Self::oneshot_send(tx, Ok(()), "set_bridge_settings");
-            }
-
-            Err(e) => {
-                log::error!(
-                    "{}",
-                    e.display_chain_with_msg("Failed to set new bridge settings")
-                );
-                Self::oneshot_send(tx, Err(Error::SettingsError(e)), "set_bridge_settings");
             }
         }
     }
