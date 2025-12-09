@@ -11,7 +11,7 @@ use mullvad_types::{
         Provider, Providers, RelayConstraints, RelayOverride, RelaySettings, WireguardConstraints,
         allowed_ip::AllowedIps,
     },
-    relay_list::{RelayEndpointData, RelayListCountry},
+    relay_list::RelayListCountry,
 };
 use std::{
     collections::HashMap,
@@ -283,10 +283,6 @@ impl Relay {
                     city.name, city.code, city.latitude, city.longitude
                 );
                 for relay in &city.relays {
-                    let support_msg = match relay.endpoint_data {
-                        RelayEndpointData::Wireguard(_) => "WireGuard",
-                        _ => unreachable!("Bug in relay filtering earlier on"),
-                    };
                     let ownership = if relay.owned {
                         "Mullvad-owned"
                     } else {
@@ -297,10 +293,9 @@ impl Relay {
                         addresses.push(ipv6_addr.into());
                     }
                     println!(
-                        "\t\t{} ({}) - {}, hosted by {} ({ownership})",
+                        "\t\t{} ({}) - hosted by {} ({ownership})",
                         relay.hostname,
                         addresses.iter().join(", "),
-                        support_msg,
                         relay.provider
                     );
                 }
@@ -319,7 +314,6 @@ impl Relay {
         Ok(())
     }
 
-    /// Get active relays which are not bridges.
     async fn update_constraints(update_fn: impl FnOnce(&mut RelayConstraints)) -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
         let settings = rpc.get_settings().await?;
@@ -375,13 +369,11 @@ impl Relay {
 
                 match entry_args {
                     EntryArgs::Location(location_args) => {
-                        let relay_filter = |relay: &mullvad_types::relay_list::Relay| {
-                            relay.active
-                                && matches!(relay.endpoint_data, RelayEndpointData::Wireguard(_))
-                        };
                         let location_constraint =
-                            resolve_location_constraint(&mut rpc, location_args, relay_filter)
-                                .await?;
+                            resolve_location_constraint(&mut rpc, location_args, |relay| {
+                                relay.active
+                            })
+                            .await?;
 
                         wireguard_constraints.entry_location =
                             location_constraint.map(LocationConstraint::from);
@@ -484,10 +476,8 @@ impl Relay {
         }
 
         let location_constraint =
-            resolve_location_constraint(&mut rpc, location_constraint_args, |relay| {
-                relay.active && matches!(relay.endpoint_data, RelayEndpointData::Wireguard(_))
-            })
-            .await?;
+            resolve_location_constraint(&mut rpc, location_constraint_args, |relay| relay.active)
+                .await?;
 
         Self::update_constraints(|constraints| {
             constraints.location = location_constraint.map(LocationConstraint::from);
@@ -548,9 +538,7 @@ impl Relay {
         if warn_non_existent_hostname {
             let relay_list = rpc.get_relay_locations().await?;
             if !relay_list.relays().any(|relay| {
-                relay.active
-                    && relay.endpoint_data != RelayEndpointData::Bridge
-                    && relay.hostname.to_lowercase() == hostname.to_lowercase()
+                relay.active && relay.hostname.to_lowercase() == hostname.to_lowercase()
             }) {
                 eprintln!("Warning: Setting overrides for an unrecognized server");
             };
@@ -701,12 +689,12 @@ impl Relay {
 }
 
 fn relay_to_geographical_constraint(
-    relay: mullvad_types::relay_list::Relay,
+    relay: mullvad_types::relay_list::WireguardRelay,
 ) -> GeographicLocationConstraint {
     GeographicLocationConstraint::Hostname(
-        relay.location.country_code,
-        relay.location.city_code,
-        relay.hostname,
+        relay.location.country_code.clone(),
+        relay.location.city_code.clone(),
+        relay.hostname.clone(),
     )
 }
 
@@ -721,7 +709,7 @@ fn relay_to_geographical_constraint(
 pub async fn resolve_location_constraint(
     rpc: &mut MullvadProxyClient,
     location_constraint_args: LocationArgs,
-    relay_filter: impl FnOnce(&mullvad_types::relay_list::Relay) -> bool,
+    relay_filter: impl FnOnce(&mullvad_types::relay_list::WireguardRelay) -> bool,
 ) -> Result<Constraint<GeographicLocationConstraint>> {
     let relay_iter = rpc.get_relay_locations().await?.into_relays();
     match relay_iter
@@ -771,9 +759,7 @@ pub async fn get_active_relays() -> Result<Vec<RelayListCountry>> {
                 .cities
                 .into_iter()
                 .filter_map(|mut city| {
-                    city.relays.retain(|relay| {
-                        relay.active && relay.endpoint_data != RelayEndpointData::Bridge
-                    });
+                    city.relays.retain(|relay| relay.active);
                     if !city.relays.is_empty() {
                         Some(city)
                     } else {

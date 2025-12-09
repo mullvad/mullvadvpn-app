@@ -32,7 +32,7 @@ impl SwiftMullvadApiResponse {
         let etag = match maybe_etag {
             Some(etag) => {
                 let header_value =
-                    CString::new(etag).map_err(|_| rest::Error::InvalidHeaderError)?;
+                    CString::new(etag.0).map_err(|_| rest::Error::InvalidHeaderError)?;
                 header_value.into_raw()
             }
             None => ptr::null_mut(),
