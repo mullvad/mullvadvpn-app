@@ -145,6 +145,7 @@
     <string name="device_name_info_third_paragraph">Se terminar a sessão, o dispositivo e o nome do dispositivo são removidos. Quando voltar a iniciar sessão, o dispositivo recebe um novo nome.</string>
     <string name="direct_only">Apenas direta</string>
     <string name="direct_only_description">Nem todos os servidores suportam %1$s. Para utilizar a Internet, pode ter de selecionar uma nova localização após ativar esta funcionalidade.</string>
+    <string name="disable_multihop">Desativar multihop</string>
     <string name="disable_recents">Desativar recentes</string>
     <string name="discard">Descartar</string>
     <string name="discard_changes">Descartar alterações?</string>
@@ -412,11 +413,15 @@
     <string name="udp">UDP</string>
     <string name="udp_over_tcp">UDP sobre TCP</string>
     <string name="udp_over_tcp_port_info">A que porta TCP o protocolo de ofuscação UDP sobre TCP deve ligar-se no servidor VPN.</string>
+    <string name="unable_to_reach_api_dialog_message_first_create_account">Não foi possível à aplicação criar uma conta devido a falta de acesso à API da Mullvad.</string>
+    <string name="unable_to_reach_api_dialog_message_first_login">Não foi possível à aplicação iniciar sessão devido a falta de acesso à API da Mullvad.</string>
     <string name="unable_to_reach_api_dialog_message_list_first">Reiniciar o seu dispositivo</string>
     <string name="unable_to_reach_api_dialog_message_list_second">Ligar a uma rede diferente</string>
     <string name="unable_to_reach_api_dialog_message_list_third">Ativar todos os métodos de acesso na aplicação</string>
+    <string name="unable_to_reach_api_dialog_message_second">Isto pode dever-se a censura ou a problemas de rede. Tente o seguinte:</string>
     <string name="unable_to_reach_api_dialog_message_third">Se estes passos não resultarem, envie um e-mail para o suporte através do botão abaixo. Anexará automaticamente os registos, que foram anonimizados.</string>
     <string name="unable_to_reach_api_dialog_title">Não é possível aceder à API</string>
+    <string name="unavailable">Indisponível</string>
     <string name="undo">Anular</string>
     <string name="unsupported_version">VERSÃO NÃO SUPORTADA</string>
     <string name="unsupported_version_description">A sua privacidade pode estar comprometida com uma versão não suportada da aplicação. Por favor efetue a atualização agora.</string>

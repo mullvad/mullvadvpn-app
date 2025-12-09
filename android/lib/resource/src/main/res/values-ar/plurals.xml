@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="days_left">
+        <item quantity="zero">يتبقى %1$d يوم</item>
+        <item quantity="one">يتبقى يوم واحد</item>
+        <item quantity="two">يتبقى يومان (%1$d)</item>
+        <item quantity="few">يتبقى %1$d أيام</item>
+        <item quantity="many">يتبقى %1$d يومًا</item>
+        <item quantity="other">يتبقى %1$d يوم</item>
+    </plurals>
+    <plurals name="years_left">
+        <item quantity="zero">يتبقى %1$d عام</item>
+        <item quantity="one">يتبقى عام واحد</item>
+        <item quantity="two">يتبقى عامان (%1$d)</item>
+        <item quantity="few">يتبقى %1$d أعوام</item>
+        <item quantity="many">يتبقى %1$d عامًا</item>
+        <item quantity="other">يتبقى %1$d عام</item>
+    </plurals>
+    <plurals name="days">
+        <item quantity="zero">%1$d يوم</item>
+        <item quantity="one">يوم واحد (%1$d)</item>
+        <item quantity="two">يومان (%1$d)</item>
+        <item quantity="few">%1$d أيام</item>
+        <item quantity="many">%1$d يومًا</item>
+        <item quantity="other">%1$d يوم</item>
+    </plurals>
+    <plurals name="number_of_locations">
+        <item quantity="zero">%1$d موقع</item>
+        <item quantity="one">موقع واحد (%1$d)</item>
+        <item quantity="two">موقعان (%1$d)</item>
+        <item quantity="few">%1$d مواقع</item>
+        <item quantity="many">%1$d موقعًا</item>
+        <item quantity="other">%1$d موقع</item>
+    </plurals>
+    <plurals name="months">
+        <item quantity="zero">%1$d شهر</item>
+        <item quantity="one">شهر واحد (%1$d)</item>
+        <item quantity="two">شهران (%1$d)</item>
+        <item quantity="few">%1$d أشهر</item>
+        <item quantity="many">%1$d شهرًا</item>
+        <item quantity="other">%1$d شهر</item>
+    </plurals>
+    <plurals name="account_credit_expires_in_days">
+        <item quantity="zero">ستنتهي صلاحية رصيد الحساب بعد %1$d يوم</item>
+        <item quantity="one">ستنتهي صلاحية رصيد الحساب بعد يوم واحد</item>
+        <item quantity="two">ستنتهي صلاحية رصيد الحساب بعد يومين (%1$d)</item>
+        <item quantity="few">ستنتهي صلاحية رصيد الحساب بعد %1$d أيام</item>
+        <item quantity="many">ستنتهي صلاحية رصيد الحساب بعد %1$d يومًا</item>
+        <item quantity="other">ستنتهي صلاحية رصيد الحساب بعد %1$d يوم</item>
+    </plurals>
+    <plurals name="account_credit_expires_in_hours">
+        <item quantity="zero">ستنتهي صلاحية رصيد الحساب بعد %1$d ساعة</item>
+        <item quantity="one">ستنتهي صلاحية رصيد الحساب بعد ساعة واحدة</item>
+        <item quantity="two">ستنتهي صلاحية رصيد الحساب بعد ساعتين (%1$d)</item>
+        <item quantity="few">ستنتهي صلاحية رصيد الحساب بعد %1$d ساعات</item>
+        <item quantity="many">ستنتهي صلاحية رصيد الحساب بعد %1$d ساعة</item>
+        <item quantity="other">ستنتهي صلاحية رصيد الحساب بعد %1$d ساعة</item>
+    </plurals>
+</resources>

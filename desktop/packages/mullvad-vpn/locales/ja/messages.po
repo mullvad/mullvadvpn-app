@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Japanese\n"
 "Language: ja_JP\n"
-"PO-Revision-Date: 2025-11-19 13:21\n"
+"PO-Revision-Date: 2025-12-08 09:00\n"
 
 msgid "%(amount)d more..."
 msgstr "その他%(amount)d件..."
@@ -219,6 +219,9 @@ msgstr "次へ"
 msgid "No result for <b>%(searchTerm)s</b>."
 msgstr "<b>%(searchTerm)s</b>に該当する検索結果はありません。"
 
+msgid "None"
+msgstr "なし"
+
 msgid "Off"
 msgstr "オフ"
 
@@ -302,6 +305,13 @@ msgctxt "accessibility"
 msgid "%(title)s, View loaded"
 msgstr "%(title)s、ビューが読み込まれました"
 
+#. Text for screen readers to describe the WireGuard port settings navigation button.
+#. Available placeholders:
+#. %(wireguard)s - will be replaced with WireGuard
+msgctxt "accessibility"
+msgid "%(wireguard)s port settings"
+msgstr "%(wireguard)sポートの設定"
+
 msgctxt "accessibility"
 msgid "Add new custom bridge"
 msgstr "新規カスタムブリッジの追加"
@@ -334,6 +344,14 @@ msgstr "%(location)sを展開する"
 msgctxt "accessibility"
 msgid "Forget account number %(accountNumber)s"
 msgstr "アカウント番号 %(accountNumber)s との連携を解除します"
+
+#. Accessibility label for link to VPN settings where
+#. the user can change WireGuard port.
+#. Available placeholders:
+#. %(wireGuard)s - Will be replaced with WireGuard
+msgctxt "accessibility"
+msgid "Go to anti-censorship settings to change %(wireGuard)s port"
+msgstr "%(wireGuard)sポートを変更するには、検閲回避設定に移動してください"
 
 #. Accessibility label for link to app upgrade view.
 msgctxt "accessibility"
@@ -448,6 +466,26 @@ msgstr "時間切れ"
 msgctxt "account-view"
 msgid "Paid until"
 msgstr "次の日時まで支払い済み"
+
+#. Page title for anti censorship settings view
+msgctxt "anti-censorship-view"
+msgid "Anti-censorship"
+msgstr "検閲回避"
+
+#. The title for the obfuscation method selector.
+msgctxt "anti-censorship-view"
+msgid "Method"
+msgstr "方式"
+
+#. Second paragraph of description text in anti-censorship view
+msgctxt "anti-censorship-view"
+msgid "Please note that these methods do not improve performance, and may increase system utilization and battery consumption."
+msgstr "これらの方式はパフォーマンスを向上させるものではなく、システム使用率やバッテリー消費量を増加させる可能性がありますのでご注意ください。"
+
+#. First paragraph of description text in anti-censorship view
+msgctxt "anti-censorship-view"
+msgid "These methods may be useful in situations where you are blocked from reaching Mullvad. When \"Automatic\" is selected, the app will attempt all methods until one works."
+msgstr "これらの方式は、Mullvadへの接続がブロックされている状況で役立つ可能性があります。「自動」を選択すると、アプリは有効な方法が見つかるまですべての方式を試します。"
 
 msgctxt "api-access-methods-view"
 msgid "Add method"
@@ -1318,6 +1356,20 @@ msgctxt "in-app-notifications"
 msgid "The installer did not start successfully."
 msgstr "インストーラーが正常に起動しませんでした。"
 
+#. Notification subtitle indicating the user is using an unsupported port for WireGuard.
+#. Available placeholders:
+#. %(wireGuard)s - Will be replaced with WireGuard
+msgctxt "in-app-notifications"
+msgid "The selected %(wireGuard)s port is not supported, please <a>change it under VPN settings.</a>"
+msgstr "選択した%(wireGuard)sポートには対応していません。<a>VPN設定で変更</a>してください。"
+
+#. Notification text when a new device has been created.
+#. Available placeholders:
+#. - %(deviceName)s: Name of created device.
+msgctxt "in-app-notifications"
+msgid "This device is now named <em>%(deviceName)s</em>. See more under <a>Manage devices</a> in Account."
+msgstr "このデバイス名は<em>「%(deviceName)s」</em>に変更されました。詳細はアカウントの <a>[デバイスを管理]</a> でご確認ください。"
+
 #. The in-app banner displayed to the user when the app beta update is
 #. available.
 #. Available placeholders:
@@ -1627,6 +1679,16 @@ msgstr "スプリットトンネリングを有効化できませんでした。
 msgctxt "notifications"
 msgid "Failed to enable split tunneling. Please try reconnecting or disable split tunneling."
 msgstr "スプリットトンネリングを有効化できませんでした。もう一度接続するか、スプリットトンネリングを無効化してください。"
+
+#. Label for notification when IPv4 is not available.
+msgctxt "notifications"
+msgid "IPv4 is not available, please try changing Device IP version setting."
+msgstr "IPv4は利用できません。[デバイスのIPバージョン] 設定を変更してみてください。"
+
+#. Label for notification when IPv6 is not available.
+msgctxt "notifications"
+msgid "IPv6 is not available, please try changing Device IP version setting."
+msgstr "IPv6は利用できません。[デバイスのIPバージョン] 設定を変更してみてください。"
 
 msgctxt "notifications"
 msgid "Lockdown mode active, connection blocked"
@@ -2342,6 +2404,12 @@ msgctxt "vpn-settings-view"
 msgid "Adult content"
 msgstr "アダルトコンテンツ"
 
+#. Label for list item that navigates to anti-censorship
+#. settings view.
+msgctxt "vpn-settings-view"
+msgid "Anti-censorship"
+msgstr "検閲回避"
+
 msgctxt "vpn-settings-view"
 msgid "Attention: enabling this will always require a Mullvad VPN connection in order to reach the internet."
 msgstr "注意: この設定を有効にすると、インターネットにアクセスするために常にMullvad VPNへの接続が必要になります。"
@@ -2381,6 +2449,11 @@ msgstr "DNSコンテンツブロッカー"
 msgctxt "vpn-settings-view"
 msgid "Enable to add at least one DNS server."
 msgstr "1つ以上のDNSサーバーを追加するには有効にしてください。"
+
+#. Description of in-tunnel IPv6 setting.
+msgctxt "vpn-settings-view"
+msgid "Enable to allow IPv6 traffic through the tunnel."
+msgstr "有効にすると、トンネル経由でIPv6トラフィックを許可します。"
 
 msgctxt "vpn-settings-view"
 msgid "Enter IP"
@@ -2869,6 +2942,9 @@ msgstr "方法を削除しますか？"
 msgid "Disable all \"%s\" above to activate this setting."
 msgstr "この設定を有効にするには、上の [%s] をすべて無効にしてください。"
 
+msgid "Disable multihop"
+msgstr "マルチホップを無効化する"
+
 msgid "Disable recents"
 msgstr "最近の項目を無効化"
 
@@ -3208,8 +3284,11 @@ msgstr "\"現在の設定\" の方法は、アプリが API に到達するた�
 msgid "The app is blocking internet, please disconnect first"
 msgstr "アプリがインターネットをブロックしています。先に切断してください"
 
-msgid "The app was unable to %s due to not being able to reach the Mullvad API. This might be due to censorship or network issues. Please try to:"
-msgstr "Mullvad APIに接続できなかったため、アプリは%sできませんでした。検閲やネットワークに関するエラーが原因である可能性があります。次の操作をお試しください。"
+msgid "The app was unable to create an account due to not being able to reach the Mullvad API."
+msgstr "アプリがMullvad APIに接続できず、アカウントを作成できませんでした。"
+
+msgid "The app was unable to login due to not being able to reach the Mullvad API."
+msgstr "アプリがMullvad APIに接続できず、ログインできませんでした。"
 
 msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under VPN settings."
 msgstr "VPN設定で [ローカルネットワーク共有] を有効にしない限り、ローカルDNSサーバーは機能しません。"
@@ -3228,6 +3307,9 @@ msgstr "これはあなたの匿名性に影響を与えます"
 
 msgid "This is already set as current"
 msgstr "これはすでに現在の設定として設定されています"
+
+msgid "This might be due to censorship or network issues. Please try to:"
+msgstr "検閲やネットワークの問題が原因である可能性があります。次の操作をお試しください。"
 
 msgid "Time added"
 msgstr "時間が追加されました"
@@ -3267,6 +3349,9 @@ msgstr "トンネル接続を開始できません。Mullvad VPNを使用する�
 
 msgid "Unable to start tunnel connection. Please disable Always-on VPN for <b>%s</b> before using Mullvad VPN."
 msgstr "トンネル接続を開始できません。Mullvad VPNを使用する前に<b>%s</b>のAlways-on VPNを無効にしてください。"
+
+msgid "Unavailable"
+msgstr "使用不可"
 
 msgid "Undo"
 msgstr "元に戻す"
@@ -3352,17 +3437,11 @@ msgstr "\"%s\" は削除されました"
 msgid "click here"
 msgstr "ここをクリックしてください"
 
-msgid "create an account"
-msgstr "アカウントを作成"
-
 msgid "here"
 msgstr "こちらをご覧ください。"
 
 msgid "less than one day"
 msgstr "1日未満"
-
-msgid "login"
-msgstr "ログイン"
 
 msgid "privacy policy"
 msgstr "プライバシーポリシー"
