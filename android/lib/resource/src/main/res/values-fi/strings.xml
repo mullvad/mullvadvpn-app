@@ -27,6 +27,7 @@
     <string name="android_16_upgrade_warning_dialog_second_message">Käynnistä laitteesi uudelleen ja yritä muodostaa yhteys uudelleen. Jos tämä ei toimi, lähetä sähköpostiviesti osoitteeseen %1$s ruotsiksi tai englanniksi.</string>
     <string name="android_16_upgrade_warning_message">Android 16:ssa on tunnettu ongelma. Käynnistä laitteesi uudelleen ja yritä uudelleen. Saat lisätietoja</string>
     <string name="android_16_upgrade_warning_title">Eikö yhteyden muodostaminen onnistu?</string>
+    <string name="anti_censorship">Sensuurinesto</string>
     <string name="any">Mikä tahansa</string>
     <string name="api_access_description">Hallitse ja lisää mukautettuja menetelmiä Mullvadin ohjelmointirajapinnan käyttämiseksi.</string>
     <string name="api_access_method_info_first_line">Sovelluksen on kommunikoitava Mullvadin ohjelmointirajapinnan palvelimen kanssa, jotta sinut voidaan kirjata sisään, palvelinluetteloiden hakemiseksi sekä muiden tärkeiden toimintojen suorittamiseksi.</string>
@@ -265,6 +266,7 @@
     <string name="max_devices_resolved_title">Mahtavaa!</string>
     <string name="max_devices_warning_description">Kirjaudu ulos vähintään yhdestä luettelon laitteesta poistamalla se. Löydät vastaavan laitteen nimen laitteen tiliasetuksista.</string>
     <string name="max_devices_warning_title">Liikaa laitteita</string>
+    <string name="method">Tapa</string>
     <string name="more_actions">Lisää toimintoja</string>
     <string name="more_information">Lisätietoja</string>
     <string name="mtu">MTU</string>

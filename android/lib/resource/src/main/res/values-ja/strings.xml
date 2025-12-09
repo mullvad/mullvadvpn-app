@@ -27,6 +27,7 @@
     <string name="android_16_upgrade_warning_dialog_second_message">デバイスを再起動して再接続してください。それでも問題が解決しない場合は、%1$sにスウェーデン語か英語のメールでお問い合わせください。</string>
     <string name="android_16_upgrade_warning_message">Android 16には既知の問題があります。デバイスを再起動して再試行してください。詳細は、</string>
     <string name="android_16_upgrade_warning_title">接続できませんか？</string>
+    <string name="anti_censorship">検閲回避</string>
     <string name="any">すべて</string>
     <string name="api_access_description">Mullvad APIへのカスタムのアクセス方法を管理・追加します。</string>
     <string name="api_access_method_info_first_line">アプリはユーザーのログイン、サーバーリストの取得、およびその他の重要な操作を行うためにMullvad APIサーバーと通信する必要があります。</string>
@@ -265,6 +266,7 @@
     <string name="max_devices_resolved_title">素晴らしい！</string>
     <string name="max_devices_warning_description">以下のリストから少なくとも1つを削除してログアウトしてください。対応するデバイス名はデバイスのアカウント設定で確認できます。</string>
     <string name="max_devices_warning_title">デバイスが多すぎます</string>
+    <string name="method">方式</string>
     <string name="more_actions">その他の操作</string>
     <string name="more_information">詳細情報</string>
     <string name="mtu">MTU</string>

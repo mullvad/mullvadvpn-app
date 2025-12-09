@@ -27,6 +27,7 @@
     <string name="android_16_upgrade_warning_dialog_second_message">请重新启动您的设备，然后再次尝试连接。如果仍然无法连接，请用瑞典语或英语发送电子邮件至 %1$s。</string>
     <string name="android_16_upgrade_warning_message">Android 16 存在已知问题。请重启您的设备并重试。如需了解详情，</string>
     <string name="android_16_upgrade_warning_title">无法连接？</string>
+    <string name="anti_censorship">反审查</string>
     <string name="any">任何</string>
     <string name="api_access_description">管理和添加访问 Mulvad API 的自定义方法。</string>
     <string name="api_access_method_info_first_line">该应用需要与 Mulvad API 服务器通信，以便您登录、获取服务器列表和执行其他关键操作。</string>
@@ -265,6 +266,7 @@
     <string name="max_devices_resolved_title">太棒了！</string>
     <string name="max_devices_warning_description">请通过从以下列表中移除的方式退出至少一个帐户。您可以在设备的帐户设置下找到相应设备名称。</string>
     <string name="max_devices_warning_title">设备过多</string>
+    <string name="method">方法</string>
     <string name="more_actions">更多操作</string>
     <string name="more_information">更多信息</string>
     <string name="mtu">MTU</string>
