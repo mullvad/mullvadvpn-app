@@ -77,8 +77,8 @@ log = "0.4"
 colored = "2.0.0"
 
 # Proxy protocols
-shadowsocks = "1.20.3"
-shadowsocks-service = "1.20.3"
+shadowsocks = "1.23.2"
+shadowsocks-service = "1.23.2"
 
 windows-sys = "0.52.0"
 chrono = { version = "0.4.26", default-features = false }
