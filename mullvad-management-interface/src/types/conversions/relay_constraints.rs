@@ -8,7 +8,7 @@ use mullvad_types::{
     },
 };
 use std::str::FromStr;
-use talpid_types::net::{proxy::CustomProxy, wireguard::ConnectionConfig};
+use talpid_types::net::wireguard::ConnectionConfig;
 
 impl TryFrom<&proto::WireguardConstraints>
     for mullvad_types::relay_constraints::WireguardConstraints
@@ -192,27 +192,6 @@ impl From<&mullvad_types::relay_constraints::WireguardPortSettings>
     }
 }
 
-impl From<mullvad_types::relay_constraints::BridgeSettings> for proto::BridgeSettings {
-    fn from(settings: mullvad_types::relay_constraints::BridgeSettings) -> Self {
-        use proto::bridge_settings;
-
-        let mode = match settings.bridge_type {
-            mullvad_types::relay_constraints::BridgeType::Normal => {
-                bridge_settings::BridgeType::Normal
-            }
-            mullvad_types::relay_constraints::BridgeType::Custom => {
-                bridge_settings::BridgeType::Custom
-            }
-        };
-
-        proto::BridgeSettings {
-            bridge_type: i32::from(mode),
-            normal: todo!("Remove Option<BridgeConstraints> from protobuf"),
-            custom: settings.custom.map(proto::CustomProxy::from),
-        }
-    }
-}
-
 impl From<mullvad_types::relay_constraints::RelaySettings> for proto::RelaySettings {
     fn from(settings: mullvad_types::relay_constraints::RelaySettings) -> Self {
         use mullvad_types::relay_constraints::RelaySettings as MullvadRelaySettings;
@@ -380,22 +359,6 @@ impl From<proto::bridge_settings::BridgeType> for mullvad_types::relay_constrain
             proto::bridge_settings::BridgeType::Normal => BridgeType::Normal,
             proto::bridge_settings::BridgeType::Custom => BridgeType::Custom,
         }
-    }
-}
-
-impl TryFrom<proto::BridgeSettings> for mullvad_types::relay_constraints::BridgeSettings {
-    type Error = FromProtobufTypeError;
-
-    fn try_from(settings: proto::BridgeSettings) -> Result<Self, Self::Error> {
-        use mullvad_types::relay_constraints::BridgeSettings;
-
-        // convert custom bridge settings
-        let custom = settings.custom.map(CustomProxy::try_from).transpose()?;
-
-        Ok(BridgeSettings {
-            bridge_type: try_bridge_mode_from_i32(settings.bridge_type)?,
-            custom,
-        })
     }
 }
 
