@@ -31,7 +31,7 @@ pub enum Error {
 
 #[async_trait]
 pub trait AddressCacheBacking: Sync {
-    async fn read(&self) -> Result<String, Error>;
+    async fn read(&self) -> Result<Vec<u8>, Error>;
     async fn write(&self, data: &[u8]) -> Result<(), Error>;
 }
 
@@ -43,16 +43,14 @@ pub struct FileAddressCacheBacking {
 
 #[async_trait]
 impl AddressCacheBacking for FileAddressCacheBacking {
-    async fn read(&self) -> Result<String, Error> {
+    async fn read(&self) -> Result<Vec<u8>, Error> {
         let read_path = match self.read_path.as_ref() {
             Some(read_path) => read_path,
             None => return Err(Error::NoPath),
         };
         let mut file = fs::File::open(read_path).await.map_err(Error::Open)?;
-        let mut result = String::new();
-        file.read_to_string(&mut result)
-            .await
-            .map_err(Error::Read)?;
+        let mut result = vec![];
+        file.read(&mut result).await.map_err(Error::Read)?;
         Ok(result)
     }
 
@@ -184,5 +182,6 @@ async fn read_address_backing<T: AddressCacheBacking>(backing: &T) -> Result<Soc
     backing
         .read()
         .await
+        .and_then(|bytes| String::from_utf8(bytes).map_err(|_| Error::Parse))
         .and_then(|a| a.trim().parse().map_err(|_| Error::Parse))
 }
