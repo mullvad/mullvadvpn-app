@@ -27,6 +27,7 @@
     <string name="android_16_upgrade_warning_dialog_second_message">Перезагрузите устройство и снова попробуйте подключиться. Если это не поможет, отправьте письмо на %1$s на английском или шведском.</string>
     <string name="android_16_upgrade_warning_message">В Android 16 есть известная проблема. Перезагрузите устройство и попробуйте снова. Чтобы узнать больше,</string>
     <string name="android_16_upgrade_warning_title">Проблемы с подключением?</string>
+    <string name="anti_censorship">Обход цензуры</string>
     <string name="any">Все</string>
     <string name="api_access_description">Добавление пользовательских методов для доступа к API Mullvad и управление ими.</string>
     <string name="api_access_method_info_first_line">Приложение должно взаимодействовать с сервером API Mullvad для входа в учетную запись, получения списков серверов и других важных операций.</string>
@@ -265,6 +266,7 @@
     <string name="max_devices_resolved_title">Отлично!</string>
     <string name="max_devices_warning_description">Выйдите из учетной записи хотя бы на одном из устройств, удалив его из списка ниже. Имя устройства указано в настройках учетной записи.</string>
     <string name="max_devices_warning_title">Слишком много устройств</string>
+    <string name="method">Метод</string>
     <string name="more_actions">Дополнительные действия</string>
     <string name="more_information">Подробнее</string>
     <string name="mtu">MTU</string>

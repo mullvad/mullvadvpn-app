@@ -27,6 +27,7 @@
     <string name="android_16_upgrade_warning_dialog_second_message">يُرجى إعادة تشغيل جهازك ومحاولة الاتصال مرة أخرى. إذا لم ينجح ذلك، يُرجى إرسال رسالة بريد إلكتروني إلى %1$s باللغة السويدية أو الإنجليزية.</string>
     <string name="android_16_upgrade_warning_message">هناك مشكلة معروفة في نظام Android 16. يُرجى إعادة تشغيل جهازك وإعادة المحاولة. لمعرفة المزيد،</string>
     <string name="android_16_upgrade_warning_title">هل يتعذَّر الاتصال؟</string>
+    <string name="anti_censorship">مكافحة الرقابة</string>
     <string name="any">أي نوع</string>
     <string name="api_access_description">إدارة طرق مُخصَّصة للوصول إلى Mullvad API وإضافتها.</string>
     <string name="api_access_method_info_first_line">يحتاج التطبيق إلى التواصل مع خادم Mullvad API لتسجيل دخولك، وجلب قوائم الخوادم، وغيرها من العمليات المهمة.</string>
@@ -114,7 +115,6 @@
     <string name="custom_port_dialog_placeholder">أدخل المنفذ</string>
     <string name="custom_port_dialog_remove">إزالة المنفذ المُخصَّص</string>
     <string name="custom_port_dialog_submit">تعيين المنفذ</string>
-    <string name="custom_port_dialog_title">منفذ %1$s مُخصَّص</string>
     <string name="custom_port_dialog_valid_ranges">النطاقات الصالحة: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">يتعذَّر حل مشكلة مضيف النفق المُخصَّص. جرِّب تغيير إعداداتك.</string>
     <string name="daita_description_slide_1_first_paragraph">تنبيه: يزيد ذلك من حركة بيانات الشبكة، ويؤثر سلبًا على السرعة وزمن الوصول واستهلاك البطارية. يُرجى توخي الحذر عند استخدام الباقات المحدودة.</string>
@@ -266,6 +266,7 @@
     <string name="max_devices_resolved_title">رائع!</string>
     <string name="max_devices_warning_description">يُرجى تسجيل الخروج من جهاز واحد على الأقل عن طريق إزالته من القائمة أدناه. يمكنك العثور على اسم الجهاز المقابل في إعدادات الحساب على ذلك الجهاز.</string>
     <string name="max_devices_warning_title">هناك عدد كبير جدًا من الأجهزة</string>
+    <string name="method">الطريقة</string>
     <string name="more_actions">إجراءات إضافية</string>
     <string name="more_information">المزيد من المعلومات</string>
     <string name="mtu">MTU</string>
@@ -293,7 +294,6 @@
     <string name="number_of_providers">موفرو الخدمات: %1$d</string>
     <string name="obfuscation_info">يُخفي التمويه حركة بيانات WireGuard داخل بروتوكول آخر. ويمكن استخدامه للمساعدة في تجاوز الرقابة وأنواع التصفية الأخرى، حيث يتم حظر اتصال WireGuard العادي.</string>
     <string name="obfuscation_info_shadowsocks_batteryusage">انتبه: قد يؤدي استخدام بروتوكول Shadowsocks إلى زيادة استهلاك البطارية بناءً على استخدام البيانات، مثل بث فيديو.</string>
-    <string name="obfuscation_title">تمويه WireGuard</string>
     <string name="off">إيقاف</string>
     <string name="on">تشغيل</string>
     <string name="open_app_details">فتح تفاصيل التطبيق</string>
@@ -448,7 +448,6 @@
     <string name="vpn_permission_error_notification_title">خطأ في إذن شبكة VPN</string>
     <string name="vpn_settings_not_available">إعدادات شبكة VPN غير متاحة على الجهاز</string>
     <string name="we_will_look_into_this">سوف ننظر في هذا الأمر.</string>
-    <string name="wg_port_subtitle">قم بتعيين تمويه %1$s على \"تلقائي\" أو \"إيقاف\" أدناه لتنشيط هذا الإعداد.</string>
     <string name="wireguard_custon_port_title">مُخصَّص</string>
     <string name="wireguard_mtu_footer">قم بتعيين قيمة WireGuard MTU. النطاق الصالح: %1$d - %2$d.</string>
     <string name="wireguard_port_info_description">سيختار الإعداد التلقائي عشوائيًا من نطاقات المنافذ الصالحة المُوضَّحة أدناه.</string>
