@@ -553,7 +553,7 @@ impl fmt::Display for BridgeType {
 
 #[derive(thiserror::Error, Debug)]
 #[error("Missing custom bridge settings")]
-pub struct MissingCustomBridgeSettings(());
+pub struct MissingCustomProxy(());
 
 /// Specifies a specific endpoint or [`BridgeConstraints`] to use when `mullvad-daemon` selects a
 /// bridge server.
@@ -570,11 +570,11 @@ pub enum ResolvedBridgeSettings<'a> {
 }
 
 impl BridgeSettings {
-    pub fn resolve(&self) -> Result<ResolvedBridgeSettings<'_>, MissingCustomBridgeSettings> {
+    pub fn resolve(&self) -> Result<ResolvedBridgeSettings<'_>, MissingCustomProxy> {
         match (self.bridge_type, &self.custom) {
             (BridgeType::Normal, _) => Ok(ResolvedBridgeSettings::Normal),
             (BridgeType::Custom, Some(custom)) => Ok(ResolvedBridgeSettings::Custom(custom)),
-            (BridgeType::Custom, None) => Err(MissingCustomBridgeSettings(())),
+            (BridgeType::Custom, None) => Err(MissingCustomProxy(())),
         }
     }
 }
