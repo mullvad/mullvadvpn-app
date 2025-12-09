@@ -368,6 +368,9 @@ impl From<Quic> for relay_list::Quic {
 #[derive(Debug, Clone, serde::Deserialize)]
 struct Lwo {}
 
+/// Mullvad Bridge servers are used for the Bridge API access method.
+///
+/// The used to also be used for proxying to OpenVPN servers.
 #[derive(Debug, serde::Deserialize)]
 struct Bridges {
     shadowsocks: Vec<relay_list::ShadowsocksEndpointData>,
