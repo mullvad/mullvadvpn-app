@@ -134,7 +134,7 @@ class SelectPortViewModelTest {
         }
 
     @Test
-    fun `setting custom Shadowsocks port should invoke setWireguardPort on SettingsRepository`() =
+    fun `setting custom Shadowsocks port should invoke setCustomShadowsocksObfuscationPort on SettingsRepository`() =
         runTest {
             // Arrange
             setViewModel(SelectPortNavArgs(portType = PortType.Shadowsocks))
@@ -150,6 +150,29 @@ class SelectPortViewModelTest {
                 mockSettingsRepository.setCustomShadowsocksObfuscationPort(customPort)
             }
         }
+
+    @Test
+    fun `resetting the custom wireguard port should should set the port to any`() = runTest {
+        // Arrange
+        coEvery { mockSettingsRepository.setCustomWireguardPort(any()) } returns Unit.right()
+
+        setViewModel(SelectPortNavArgs(portType = PortType.Wireguard))
+        val mockSettings: Settings = mockk()
+        val port = Port(60000)
+        every { mockSettings.obfuscationSettings.wireguardPort } returns Constraint.Only(port)
+
+        settingsFlow.update { mockSettings }
+
+        // Act, Assert
+        viewModel.uiState.test {
+            awaitItem()
+            viewModel.resetCustomPort()
+            awaitItem()
+        }
+
+        // Assert
+        coVerify(exactly = 1) { mockSettingsRepository.setCustomWireguardPort(Constraint.Any) }
+    }
 
     @Test
     fun `when reset custom port is called should reset custom port`() = runTest {
