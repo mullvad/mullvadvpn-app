@@ -53,6 +53,10 @@ impl Obfuscation {
                 println!("mode: {}", obfuscation_settings.selected_obfuscation);
                 println!("udp2tcp settings: {}", obfuscation_settings.udp2tcp);
                 println!("shadowsocks settings: {}", obfuscation_settings.shadowsocks);
+                println!(
+                    "wireguard-port settings: {}",
+                    obfuscation_settings.wireguard_port
+                );
                 Ok(())
             }
             Obfuscation::Set(subcmd) => Self::set(subcmd).await,
