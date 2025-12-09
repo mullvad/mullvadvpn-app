@@ -22,6 +22,9 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+### Added
+- Add Arabic and Persian as new languages in the app with full RTL support.
+
 ### Removed
 - Remove "Automatic" as a setting for the "Quantum-resistant tunnel" option.
 
