@@ -113,9 +113,7 @@ function convertFromRelayListCity(city: grpcTypes.RelayListCity): IRelayListCity
 function convertFromRelayListRelay(relay: grpcTypes.Relay): IRelayListHostname | undefined {
   const relayObject = relay.toObject();
 
-  // TODO: This should be removed once daemon only sends wireguard relays.
-  const wireguard = relayObject.endpointData?.wireguard;
-  if (!wireguard) return undefined;
+  const wireguard = relayObject.endpointData;
 
   const daita = wireguard ? wireguard.daita : false;
   const quic = wireguard?.quic ? quicFromRelayType(wireguard.quic) : undefined;
@@ -129,7 +127,7 @@ function convertFromRelayListRelay(relay: grpcTypes.Relay): IRelayListHostname |
   };
 }
 
-function quicFromRelayType(quic: grpcTypes.Relay.RelayData.Wireguard.Quic.AsObject): Quic {
+function quicFromRelayType(quic: grpcTypes.Relay.WireguardEndpoint.Quic.AsObject): Quic {
   return {
     domain: quic.domain,
     token: quic.token,
