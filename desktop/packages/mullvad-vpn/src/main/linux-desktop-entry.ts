@@ -174,9 +174,7 @@ function getDesktopEntryDirectories() {
 // https://specifications.freedesktop.org/desktop-entry-spec/desktop-entry-spec-latest.html
 // TODO: Respect "TryExec"
 export function shouldShowApplication(application: DesktopEntry): application is ILinuxApplication {
-  const originalXdgCurrentDesktop = process.env.ORIGINAL_XDG_CURRENT_DESKTOP?.split(':') ?? [];
-  const xdgCurrentDesktop = process.env.XDG_CURRENT_DESKTOP?.split(':') ?? [];
-  const desktopEnvironments = originalXdgCurrentDesktop.concat(xdgCurrentDesktop);
+  const desktopEnvironments = process.env.XDG_CURRENT_DESKTOP?.split(':') ?? [];
 
   const notShowIn =
     typeof application.notShowIn === 'string' ? [application.notShowIn] : application.notShowIn;
@@ -260,9 +258,7 @@ function getGtkThemeDirectories(): Promise<DirectoryDescription[]> {
   // continued in other themes.
   const themes = ['hicolor', /.*/];
   return new Promise((resolve, _reject) => {
-    // Electron modifies XDG_CURRENT_DESKTOP and saves the old value in ORIGINAL_XDG_CURRENT_DESKTOP
-    const xdgCurrentDesktop =
-      process.env.ORIGINAL_XDG_CURRENT_DESKTOP ?? process.env.XDG_CURRENT_DESKTOP ?? '';
+    const xdgCurrentDesktop = process.env.XDG_CURRENT_DESKTOP ?? '';
     child_process.exec(
       'gsettings get org.gnome.desktop.interface icon-theme',
       { env: { XDG_CURRENT_DESKTOP: xdgCurrentDesktop } },
