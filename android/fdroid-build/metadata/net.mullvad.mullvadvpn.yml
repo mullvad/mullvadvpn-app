@@ -37,7 +37,7 @@ Builds:
       - building/sigstore
       - android/lib/billing
     prebuild:
-      - git -C ../.. submodule update --init --recursive --depth=1 wireguard-go-rs android/rust-android-gradle-plugin
+      - git -C ../.. submodule update --init android/rust-android-gradle-plugin
       - sed -i -e 's|Repositories.GradlePlugins|"https://plugins.gradle.org/m2/"|'
         ../build.gradle.kts
       - sed -i '/\"desktop\//d' ../../Cargo.toml
