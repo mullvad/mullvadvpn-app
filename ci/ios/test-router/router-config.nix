@@ -253,11 +253,4 @@ in
         ${raas}/bin/raas ${listenAddress}:80
       '';
     };
-
-  services.shadowsocks = {
-    enable = true;
-    port = 443;
-    encryptionMethod = "aes-256-gcm";
-    password = "mullvad";
-  };
 }
