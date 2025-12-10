@@ -11,7 +11,6 @@ impl From<mullvad_types::location::GeoIpLocation> for proto::GeoIpLocation {
             longitude: geoip.longitude,
             mullvad_exit_ip: geoip.mullvad_exit_ip,
             hostname: geoip.hostname,
-            bridge_hostname: todo!("remove"),
             entry_hostname: geoip.entry_hostname,
             obfuscator_hostname: geoip.obfuscator_hostname,
         }
