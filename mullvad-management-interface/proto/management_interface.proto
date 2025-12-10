@@ -681,22 +681,17 @@ message RelayListCity {
 }
 
 message Relay {
-  message RelayData {
-    message Wireguard {
+  message WireguardEndpoint {
       message Quic {
-        string domain = 1;
-        string token = 2;
-        repeated string addr_in = 3;
+          string domain = 1;
+          string token = 2;
+          repeated string addr_in = 3;
       }
-
       bytes public_key = 1;
       bool daita = 2;
       Quic quic = 3;
       repeated string shadowsocks_extra_addr_in = 4;
       bool lwo = 5;
-    }
-
-    Wireguard data = 1;
   }
 
   string hostname = 1;
@@ -707,7 +702,7 @@ message Relay {
   bool owned = 6;
   string provider = 7;
   fixed64 weight = 8;
-  RelayData endpoint_data = 9;
+  WireguardEndpoint endpoint_data = 9;
   Location location = 10;
 }
 
