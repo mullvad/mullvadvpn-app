@@ -7,7 +7,8 @@ on:
       - '**'
       - '!**/**.md'
       - '!.github/workflows/**'
-      - '.github/workflows/daemon.yml'
+      - '.github/workflows/testframework.yml'
+      - "!.github/CODEOWNERS"
       - '!android/**'
       - '!audits/**'
       - '!build.sh'
