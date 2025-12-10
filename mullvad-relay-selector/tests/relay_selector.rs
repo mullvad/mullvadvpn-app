@@ -22,8 +22,9 @@ use mullvad_types::{
     location::Location,
     relay_constraints::{GeographicLocationConstraint, Ownership, Providers, RelayOverride},
     relay_list::{
-        BridgeEndpointData, EndpointData, Quic, Relay, RelayEndpointData, RelayList, RelayListCity,
-        RelayListCountry, ShadowsocksEndpointData, WireguardRelayEndpointData,
+        Bridge, BridgeEndpointData, EndpointData, Quic, Relay, RelayEndpointData, RelayList,
+        RelayListCity, RelayListCountry, ShadowsocksEndpointData, WireguardRelay,
+        WireguardRelayEndpointData,
     },
 };
 use vec1::vec1;
@@ -52,7 +53,7 @@ static RELAYS: LazyLock<RelayList> = LazyLock::new(|| RelayList {
             latitude: 57.70887,
             longitude: 11.97456,
             relays: vec![
-                Relay {
+                WireguardRelay {
                     hostname: "se9-wireguard".to_string(),
                     ipv4_addr_in: "185.213.154.68".parse().unwrap(),
                     ipv6_addr_in: Some("2a03:1b20:5:f011::a09f".parse().unwrap()),
@@ -78,56 +79,44 @@ static RELAYS: LazyLock<RelayList> = LazyLock::new(|| RelayList {
                     ),
                     location: DUMMY_LOCATION.clone(),
                 },
-                Relay {
-                    hostname: "se10-wireguard".to_string(),
-                    ipv4_addr_in: "185.213.154.69".parse().unwrap(),
-                    ipv6_addr_in: Some("2a03:1b20:5:f011::a10f".parse().unwrap()),
+                WireguardRelay {
                     overridden_ipv4: false,
                     overridden_ipv6: false,
                     include_in_country: true,
-                    active: true,
                     owned: false,
                     provider: "provider1".to_string(),
-                    weight: 1,
-                    endpoint_data: RelayEndpointData::Wireguard(WireguardRelayEndpointData::new(
+                    endpoint_data: WireguardRelayEndpointData::new(
                         PublicKey::from_base64("BLNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=")
                             .unwrap(),
-                    )),
-                    location: DUMMY_LOCATION.clone(),
+                    ),
+                    inner: Relay {
+                        hostname: "se10-wireguard".to_string(),
+                        location: DUMMY_LOCATION.clone(),
+                        weight: 1,
+                        active: true,
+                        ipv4_addr_in: "185.213.154.69".parse().unwrap(),
+                        ipv6_addr_in: Some("2a03:1b20:5:f011::a10f".parse().unwrap()),
+                    },
                 },
-                Relay {
-                    hostname: "se11-wireguard".to_string(),
-                    ipv4_addr_in: "185.213.154.69".parse().unwrap(),
-                    ipv6_addr_in: Some("2a03:1b20:5:f011::a11f".parse().unwrap()),
+                WireguardRelay {
                     overridden_ipv4: false,
                     overridden_ipv6: false,
                     include_in_country: true,
-                    active: true,
                     owned: false,
                     provider: "provider2".to_string(),
-                    weight: 1,
-                    endpoint_data: RelayEndpointData::Wireguard(
-                        WireguardRelayEndpointData::new(
-                            PublicKey::from_base64("BLNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=")
-                                .unwrap(),
-                        )
-                        .set_daita(true),
-                    ),
-                    location: DUMMY_LOCATION.clone(),
-                },
-                Relay {
-                    hostname: "se-got-br-001".to_string(),
-                    ipv4_addr_in: "1.3.3.7".parse().unwrap(),
-                    ipv6_addr_in: None,
-                    overridden_ipv4: false,
-                    overridden_ipv6: false,
-                    include_in_country: true,
-                    active: true,
-                    owned: true,
-                    provider: "provider3".to_string(),
-                    weight: 1,
-                    endpoint_data: RelayEndpointData::Bridge,
-                    location: DUMMY_LOCATION.clone(),
+                    endpoint_data: WireguardRelayEndpointData::new(
+                        PublicKey::from_base64("BLNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=")
+                            .unwrap(),
+                    )
+                    .set_daita(true),
+                    inner: Relay {
+                        location: DUMMY_LOCATION.clone(),
+                        weight: 1,
+                        active: true,
+                        hostname: "se11-wireguard".to_string(),
+                        ipv4_addr_in: "185.213.154.69".parse().unwrap(),
+                        ipv6_addr_in: Some("2a03:1b20:5:f011::a11f".parse().unwrap()),
+                    },
                 },
                 SHADOWSOCKS_RELAY.clone(),
             ],
@@ -168,6 +157,15 @@ static RELAYS: LazyLock<RelayList> = LazyLock::new(|| RelayList {
         udp2tcp_ports: vec![],
         shadowsocks_port_ranges: vec![100..=200, 1000..=2000],
     },
+    bridges: vec![Bridge(Relay {
+        hostname: "se-got-br-001".to_string(),
+        ipv4_addr_in: "1.3.3.7".parse().unwrap(),
+        ipv6_addr_in: None,
+        include_in_country: true,
+        active: true,
+        weight: 1,
+        location: DUMMY_LOCATION.clone(),
+    })],
 });
 
 static DAITA_RELAY_LOCATION: LazyLock<GeographicLocationConstraint> =
@@ -176,27 +174,28 @@ static NON_DAITA_RELAY_LOCATION: LazyLock<GeographicLocationConstraint> =
     LazyLock::new(|| GeographicLocationConstraint::hostname("se", "got", "se10-wireguard"));
 
 /// A Shadowsocks relay with additional addresses
-static SHADOWSOCKS_RELAY: LazyLock<Relay> = LazyLock::new(|| Relay {
-    hostname: SHADOWSOCKS_RELAY_LOCATION
-        .get_hostname()
-        .unwrap()
-        .to_owned(),
-    ipv4_addr_in: SHADOWSOCKS_RELAY_IPV4,
-    ipv6_addr_in: Some(SHADOWSOCKS_RELAY_IPV6),
+static SHADOWSOCKS_RELAY: LazyLock<WireguardRelay> = LazyLock::new(|| WireguardRelay {
     overridden_ipv4: false,
     overridden_ipv6: false,
     include_in_country: true,
-    active: true,
     owned: true,
     provider: "provider0".to_string(),
-    weight: 1,
-    endpoint_data: RelayEndpointData::Wireguard(
-        WireguardRelayEndpointData::new(
-            PublicKey::from_base64("eaNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=").unwrap(),
-        )
-        .add_shadowsocks_extra_in_addrs(SHADOWSOCKS_RELAY_EXTRA_ADDRS.iter().copied()),
-    ),
-    location: DUMMY_LOCATION.clone(),
+    endpoint_data: WireguardRelayEndpointData::new(
+        PublicKey::from_base64("eaNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=").unwrap(),
+    )
+    .add_shadowsocks_extra_in_addrs(SHADOWSOCKS_RELAY_EXTRA_ADDRS.iter().copied()),
+
+    inner: Relay {
+        location: DUMMY_LOCATION.clone(),
+        hostname: SHADOWSOCKS_RELAY_LOCATION
+            .get_hostname()
+            .unwrap()
+            .to_owned(),
+        ipv4_addr_in: SHADOWSOCKS_RELAY_IPV4,
+        ipv6_addr_in: Some(SHADOWSOCKS_RELAY_IPV6),
+        active: true,
+        weight: 1,
+    },
 });
 const SHADOWSOCKS_RELAY_IPV4: Ipv4Addr = Ipv4Addr::new(123, 123, 123, 1);
 const SHADOWSOCKS_RELAY_IPV6: Ipv6Addr = Ipv6Addr::new(0x123, 0, 0, 0, 0, 0, 0, 2);
@@ -208,7 +207,7 @@ static SHADOWSOCKS_RELAY_LOCATION: LazyLock<GeographicLocationConstraint> =
     LazyLock::new(|| GeographicLocationConstraint::hostname("se", "got", "se1337-wireguard"));
 
 // Helper functions
-fn unwrap_relay(get_result: GetRelay) -> Relay {
+fn unwrap_relay(get_result: GetRelay) -> WireguardRelay {
     match get_result {
         GetRelay::Mullvad { inner, .. } => match inner {
             crate::WireguardConfig::Singlehop { exit } => exit,
@@ -220,7 +219,7 @@ fn unwrap_relay(get_result: GetRelay) -> Relay {
     }
 }
 
-fn unwrap_entry_relay(get_result: GetRelay) -> Relay {
+fn unwrap_entry_relay(get_result: GetRelay) -> WireguardRelay {
     match get_result {
         GetRelay::Mullvad { inner, .. } => match inner {
             crate::WireguardConfig::Singlehop { exit } => exit,
@@ -232,7 +231,7 @@ fn unwrap_entry_relay(get_result: GetRelay) -> Relay {
     }
 }
 
-fn unwrap_multihop_entry_exit_relays(get_result: GetRelay) -> (Relay, Relay) {
+fn unwrap_multihop_entry_exit_relays(get_result: GetRelay) -> (WireguardRelay, WireguardRelay) {
     match get_result {
         GetRelay::Mullvad {
             inner: crate::WireguardConfig::Multihop { entry, exit },
@@ -257,7 +256,7 @@ fn default_relay_selector() -> RelaySelector {
     RelaySelector::from_list(SelectorConfig::default(), RELAYS.clone())
 }
 
-fn supports_daita(relay: &Relay) -> bool {
+fn supports_daita(relay: &WireguardRelay) -> bool {
     match relay.endpoint_data {
         RelayEndpointData::Wireguard(WireguardRelayEndpointData { daita, .. }) => daita,
         _ => false,

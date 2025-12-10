@@ -29,11 +29,12 @@ use mullvad_types::{
     relay_constraints::{
         ObfuscationSettings, RelayConstraints, RelayOverride, RelaySettings, WireguardConstraints,
     },
-    relay_list::{BridgeRelay, Relay, RelayList},
+    relay_list::{Bridge, Relay, RelayList, WireguardRelay},
     settings::Settings,
     wireguard::QuantumResistantState,
 };
 use std::{
+    ops::Deref,
     path::Path,
     sync::{Arc, LazyLock, Mutex},
     time::SystemTime,
@@ -196,11 +197,11 @@ pub enum GetRelay {
 #[derive(Clone, Debug)]
 pub struct SelectedObfuscator {
     pub config: Obfuscators,
-    pub relay: Relay,
+    pub relay: WireguardRelay,
 }
 
-impl From<(ObfuscatorConfig, Relay)> for SelectedObfuscator {
-    fn from((config, relay): (ObfuscatorConfig, Relay)) -> Self {
+impl From<(ObfuscatorConfig, WireguardRelay)> for SelectedObfuscator {
+    fn from((config, relay): (ObfuscatorConfig, WireguardRelay)) -> Self {
         SelectedObfuscator {
             config: Obfuscators::Single(config),
             relay,
@@ -735,9 +736,9 @@ impl RelaySelector {
     /// choosing the other.
     fn pick_working_entry_exit_combo<'a>(
         query: &RelayQuery,
-        exit_candidates: &'a [Relay],
-        entry_candidates: &'a [Relay],
-    ) -> Result<(&'a Relay, &'a Relay), Error> {
+        exit_candidates: &'a [WireguardRelay],
+        entry_candidates: &'a [WireguardRelay],
+    ) -> Result<(&'a WireguardRelay, &'a WireguardRelay), Error> {
         match (exit_candidates, entry_candidates) {
             // In the case where there is only one entry to choose from, we have to pick it before
             // the exit
@@ -849,7 +850,7 @@ impl RelaySelector {
     fn get_proxy_settings<T: Into<Coordinates>>(
         relay_list: &RelayList,
         location: Option<T>,
-    ) -> Result<(Shadowsocks, Relay), Error> {
+    ) -> Result<(Shadowsocks, Bridge), Error> {
         // Filter on active relays
         let bridges = relay_list
             .bridges()
@@ -871,15 +872,15 @@ impl RelaySelector {
 
     /// Try to get a bridge which is close to `location`.
     fn get_proximate_bridge<T: Into<Coordinates>>(
-        relays: Vec<BridgeRelay>,
+        relays: Vec<Bridge>,
         location: T,
-    ) -> Result<BridgeRelay, Error> {
+    ) -> Result<Bridge, Error> {
         /// Number of bridges to keep for selection by distance.
         const MIN_BRIDGE_COUNT: usize = 5;
         let location = location.into();
 
         // Filter out all candidate bridges.
-        let matching_bridges: Vec<RelayWithDistance> = relays
+        let matching_bridges: Vec<RelayWithDistance<_>> = relays
             .into_iter()
             .map(|relay| RelayWithDistance::new_with_distance_from(relay, location))
             .sorted_unstable_by_key(|relay| relay.distance as usize)
@@ -893,7 +894,8 @@ impl RelaySelector {
             .reduce(f64::max)
             .ok_or(Error::NoBridge)?;
         // Define the weight function to prioritize bridges which are closer to `location`.
-        let weight_fn = |relay: &RelayWithDistance| 1 + (greatest_distance - relay.distance) as u64;
+        let weight_fn =
+            |relay: &RelayWithDistance<_>| 1 + (greatest_distance - relay.distance) as u64;
 
         helpers::pick_random_relay_weighted(matching_bridges.iter(), weight_fn)
             .cloned()
@@ -958,14 +960,20 @@ fn apply_ip_availability(
 }
 
 #[derive(Clone)]
-struct RelayWithDistance {
+struct RelayWithDistance<T> {
     distance: f64,
-    relay: Relay,
+    relay: T,
 }
 
-impl RelayWithDistance {
-    fn new_with_distance_from(relay: Relay, from: impl Into<Coordinates>) -> Self {
-        let distance = relay.inner.location.distance_from(from);
-        RelayWithDistance { relay, distance }
+impl<T> RelayWithDistance<T> {
+    fn new_with_distance_from(relay: T, from: impl Into<Coordinates>) -> Self
+    where
+        T: Deref<Target = Relay> + Clone,
+    {
+        let distance = relay.location.distance_from(from);
+        RelayWithDistance {
+            relay: relay.clone(),
+            distance,
+        }
     }
 }
