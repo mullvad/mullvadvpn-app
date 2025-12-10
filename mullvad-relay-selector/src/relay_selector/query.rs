@@ -34,7 +34,7 @@ use mullvad_types::{
     relay_constraints::{
         LocationConstraint, ObfuscationSettings, Ownership, Providers, RelayConstraints,
         RelaySettings, SelectedObfuscation, ShadowsocksSettings, Udp2TcpObfuscationSettings,
-        WireguardConstraints, allowed_ip::AllowedIps,
+        WireguardConstraints, WireguardPortSettings, allowed_ip::AllowedIps,
     },
     wireguard::QuantumResistantState,
 };
@@ -354,7 +354,7 @@ pub mod builder {
         constraints::Constraint,
         relay_constraints::{
             LocationConstraint, RelayConstraints, SelectedObfuscation, ShadowsocksSettings,
-            TransportPort, Udp2TcpObfuscationSettings,
+            TransportPort, Udp2TcpObfuscationSettings, WireguardPortSettings,
         },
         wireguard::QuantumResistantState,
     };
