@@ -206,13 +206,6 @@ impl ManagementService for ManagementServiceImpl {
             .map(|relays| Response::new(types::RelayList::from(relays)))
     }
 
-    async fn set_bridge_settings(
-        &self,
-        _request: Request<types::BridgeSettings>,
-    ) -> ServiceResult<()> {
-        todo!("remove this")
-    }
-
     async fn set_obfuscation_settings(
         &self,
         request: Request<types::ObfuscationSettings>,
