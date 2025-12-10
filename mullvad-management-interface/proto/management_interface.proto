@@ -393,7 +393,6 @@ enum Ownership {
   RENTED = 2;
 }
 
-
 message LocationConstraint {
   oneof type {
     string custom_list = 1;
@@ -683,8 +682,6 @@ message RelayListCity {
 
 message Relay {
   message RelayData {
-    // TODO: remove
-    message Bridge {}
     message Wireguard {
       message Quic {
         string domain = 1;
@@ -699,11 +696,7 @@ message Relay {
       bool lwo = 5;
     }
 
-    // TODO: flatten
-    oneof data {
-      Wireguard wireguard = 1;
-      Bridge bridge = 2;
-    }
+    Wireguard data = 1;
   }
 
   string hostname = 1;
@@ -746,13 +739,8 @@ message DaemonEvent {
 
 message RelayList {
   repeated RelayListCountry countries = 1;
-  // TODO: remove
-  BridgeEndpointData bridge = 2;
   WireguardEndpointData wireguard = 3;
 }
-
-// TODO: remove
-message BridgeEndpointData { repeated ShadowsocksEndpointData shadowsocks = 1; }
 
 message ShadowsocksEndpointData {
   uint32 port = 1;

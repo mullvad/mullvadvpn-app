@@ -15,7 +15,6 @@ impl From<mullvad_types::relay_list::RelayList> for proto::RelayList {
     fn from(relay_list: mullvad_types::relay_list::RelayList) -> Self {
         let mut proto_list = proto::RelayList {
             countries: vec![],
-            bridge: Some(proto::BridgeEndpointData::from(relay_list.bridge)),
             wireguard: Some(proto::WireguardEndpointData::from(relay_list.wireguard)),
         };
         proto_list.countries = relay_list
@@ -24,23 +23,6 @@ impl From<mullvad_types::relay_list::RelayList> for proto::RelayList {
             .map(proto::RelayListCountry::from)
             .collect();
         proto_list
-    }
-}
-
-impl From<mullvad_types::relay_list::BridgeEndpointData> for proto::BridgeEndpointData {
-    fn from(bridge: mullvad_types::relay_list::BridgeEndpointData) -> Self {
-        proto::BridgeEndpointData {
-            shadowsocks: bridge
-                .shadowsocks
-                .into_iter()
-                .map(|endpoint| proto::ShadowsocksEndpointData {
-                    port: u32::from(endpoint.port),
-                    cipher: endpoint.cipher,
-                    password: endpoint.password,
-                    protocol: proto::TransportProtocol::from(endpoint.protocol) as i32,
-                })
-                .collect(),
-        }
     }
 }
 
@@ -110,7 +92,7 @@ impl From<mullvad_types::relay_list::Relay> for proto::Relay {
             weight: relay.weight,
             endpoint_data: {
                 use proto::relay::RelayData;
-                use proto::relay::relay_data::{Bridge, Data, Wireguard, wireguard};
+                use proto::relay::relay_data::{Wireguard, wireguard};
                 let data = match relay.endpoint_data {
                     MullvadEndpointData::Wireguard(data) => {
                         let shadowsocks_extra_addr_in = data
@@ -120,15 +102,15 @@ impl From<mullvad_types::relay_list::Relay> for proto::Relay {
                         let public_key = data.public_key.as_bytes().to_vec();
                         let daita = data.daita;
                         let quic = data.quic.map(wireguard::Quic::from);
-                        Data::Wireguard(Wireguard {
+                        Wireguard {
                             public_key,
                             daita,
                             shadowsocks_extra_addr_in,
                             quic,
                             lwo: data.lwo,
-                        })
+                        }
                     }
-                    MullvadEndpointData::Bridge => Data::Bridge(Bridge {}),
+                    _ => todo!(),
                 };
                 Some(RelayData { data: Some(data) })
             },
@@ -187,9 +169,6 @@ impl TryFrom<proto::RelayList> for mullvad_types::relay_list::RelayList {
             .ok_or(FromProtobufTypeError::InvalidArgument(
                 "missing wireguard data",
             ))?;
-        let bridge = value.bridge.ok_or(FromProtobufTypeError::InvalidArgument(
-            "missing bridge data",
-        ))?;
 
         let countries = value
             .countries
@@ -200,7 +179,7 @@ impl TryFrom<proto::RelayList> for mullvad_types::relay_list::RelayList {
         Ok(mullvad_types::relay_list::RelayList {
             etag: None,
             countries,
-            bridge: mullvad_types::relay_list::BridgeEndpointData::try_from(bridge)?,
+            bridge: todo!("Remove this entire impl"),
             wireguard: mullvad_types::relay_list::EndpointData::try_from(wireguard)?,
         })
     }
@@ -254,43 +233,37 @@ impl TryFrom<proto::Relay> for mullvad_types::relay_list::Relay {
         };
 
         let endpoint_data = {
-            let data = relay
+            let wireguard = relay
                 .endpoint_data
                 .and_then(|endpoint| endpoint.data)
                 .ok_or(FromProtobufTypeError::InvalidArgument(
                     "invalid relay endpoint type",
                 ))?;
-            match data {
-                proto::relay::relay_data::Data::Bridge(_bridge) => MullvadEndpointData::Bridge,
-                proto::relay::relay_data::Data::Wireguard(wireguard) => {
-                    fn parse_addr(addr: &str) -> Result<IpAddr, FromProtobufTypeError> {
-                        addr.parse().map_err(|_err| {
-                            FromProtobufTypeError::InvalidArgument("Invalid IP address")
-                        })
-                    }
-
-                    let public_key = bytes_to_pubkey(&wireguard.public_key)?;
-                    let daita = wireguard.daita;
-                    let quic = wireguard
-                        .quic
-                        .map(mullvad_types::relay_list::Quic::try_from)
-                        .transpose()?;
-                    let shadowsocks_extra_addr_in = wireguard
-                        .shadowsocks_extra_addr_in
-                        .iter()
-                        .map(String::as_ref)
-                        .map(parse_addr)
-                        .collect::<Result<HashSet<IpAddr>, FromProtobufTypeError>>()?;
-                    let data = mullvad_types::relay_list::WireguardRelayEndpointData {
-                        public_key,
-                        daita,
-                        quic,
-                        lwo: wireguard.lwo,
-                        shadowsocks_extra_addr_in,
-                    };
-                    MullvadEndpointData::Wireguard(data)
-                }
+            fn parse_addr(addr: &str) -> Result<IpAddr, FromProtobufTypeError> {
+                addr.parse()
+                    .map_err(|_err| FromProtobufTypeError::InvalidArgument("Invalid IP address"))
             }
+
+            let public_key = bytes_to_pubkey(&wireguard.public_key)?;
+            let daita = wireguard.daita;
+            let quic = wireguard
+                .quic
+                .map(mullvad_types::relay_list::Quic::try_from)
+                .transpose()?;
+            let shadowsocks_extra_addr_in = wireguard
+                .shadowsocks_extra_addr_in
+                .iter()
+                .map(String::as_ref)
+                .map(parse_addr)
+                .collect::<Result<HashSet<IpAddr>, FromProtobufTypeError>>()?;
+            let data = mullvad_types::relay_list::WireguardRelayEndpointData {
+                public_key,
+                daita,
+                quic,
+                lwo: wireguard.lwo,
+                shadowsocks_extra_addr_in,
+            };
+            MullvadEndpointData::Wireguard(data)
         };
 
         let ipv6_addr_in = relay
@@ -331,20 +304,6 @@ impl TryFrom<proto::Relay> for mullvad_types::relay_list::Relay {
         };
 
         Ok(relay)
-    }
-}
-
-impl TryFrom<proto::BridgeEndpointData> for mullvad_types::relay_list::BridgeEndpointData {
-    type Error = FromProtobufTypeError;
-
-    fn try_from(bridge: proto::BridgeEndpointData) -> Result<Self, FromProtobufTypeError> {
-        let shadowsocks = bridge
-            .shadowsocks
-            .into_iter()
-            .map(mullvad_types::relay_list::ShadowsocksEndpointData::try_from)
-            .collect::<Result<Vec<_>, FromProtobufTypeError>>()?;
-
-        Ok(mullvad_types::relay_list::BridgeEndpointData { shadowsocks })
     }
 }
 
