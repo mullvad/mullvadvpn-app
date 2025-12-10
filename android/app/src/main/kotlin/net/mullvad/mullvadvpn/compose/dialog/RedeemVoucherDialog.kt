@@ -12,9 +12,11 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
@@ -23,6 +25,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.SecureFlagPolicy
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -234,23 +237,30 @@ private fun EnterVoucherBody(
     onVoucherInputChange: (String) -> Unit,
     onRedeem: (voucherCode: String) -> Unit,
 ) {
-    CustomTextField(
-        value = state.voucherInput,
-        keyboardType = KeyboardType.Password,
-        modifier = Modifier.testTag(VOUCHER_INPUT_TEST_TAG),
-        onValueChanged = { input -> onVoucherInputChange(input) },
-        onSubmit = { input ->
-            if (state.voucherInput.length == VOUCHER_LENGTH) {
-                onRedeem(input)
-            }
-        },
-        placeholderText = stringResource(id = R.string.voucher_hint),
-        isValidValue =
-            state.voucherInput.isEmpty() || state.voucherInput.length == MAX_VOUCHER_LENGTH,
-        isDigitsOnlyAllowed = false,
-        visualTransformation = vouchersVisualTransformation(),
-        textStyle = MaterialTheme.typography.titleMedium.copy(textDirection = TextDirection.Ltr),
-    )
+    CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
+        CustomTextField(
+            value = state.voucherInput,
+            keyboardType = KeyboardType.Password,
+            modifier = Modifier.testTag(VOUCHER_INPUT_TEST_TAG),
+            onValueChanged = { input -> onVoucherInputChange(input) },
+            onSubmit = { input ->
+                if (state.voucherInput.length == VOUCHER_LENGTH) {
+                    onRedeem(input)
+                }
+            },
+            placeholder = {
+                Text(
+                    text = stringResource(id = R.string.voucher_hint),
+                    style = MaterialTheme.typography.titleMedium,
+                )
+            },
+            isValidValue =
+                state.voucherInput.isEmpty() || state.voucherInput.length == MAX_VOUCHER_LENGTH,
+            isDigitsOnlyAllowed = false,
+            visualTransformation = vouchersVisualTransformation(),
+            textStyle = MaterialTheme.typography.titleMedium.copy(textDirection = TextDirection.Ltr),
+        )
+    }
     Spacer(modifier = Modifier.height(Dimens.smallPadding))
     Row(
         verticalAlignment = Alignment.CenterVertically,

@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.compose.textfield
 
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
@@ -24,7 +25,9 @@ fun MtuTextField(
         onValueChanged = onValueChanged,
         onSubmit = onSubmit,
         isEnabled = isEnabled,
-        placeholderText = placeholderText,
+        placeholder = {
+            Text(text = placeholderText, style = MaterialTheme.typography.titleMedium)
+        },
         maxCharLength = maxCharLength,
         isValidValue = isValidValue,
         isDigitsOnlyAllowed = true,

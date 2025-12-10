@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.compose.textfield
 
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -23,7 +24,12 @@ fun CustomPortTextField(
         modifier = modifier,
         onValueChanged = onValueChanged,
         onSubmit = onSubmit,
-        placeholderText = stringResource(id = R.string.custom_port_dialog_placeholder),
+        placeholder = {
+            Text(
+                stringResource(id = R.string.custom_port_dialog_placeholder),
+                style = MaterialTheme.typography.titleMedium,
+            )
+        },
         maxCharLength = maxCharLength,
         isValidValue = isValidValue,
         isDigitsOnlyAllowed = true,

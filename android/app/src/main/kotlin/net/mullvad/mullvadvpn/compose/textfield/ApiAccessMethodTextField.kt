@@ -42,7 +42,6 @@ fun ApiAccessMethodTextField(
                 focusManager.clearFocus()
             }
         },
-        placeholderText = null,
         labelText = labelText,
         maxCharLength = maxCharLength,
         isValidValue = isValidValue,

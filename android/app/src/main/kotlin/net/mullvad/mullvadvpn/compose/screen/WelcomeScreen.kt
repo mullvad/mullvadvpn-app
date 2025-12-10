@@ -252,9 +252,8 @@ private fun WelcomeInfo(
                 CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
                     // Account number
                     AccountNumberRow(snackbarHostState, state.value)
-
-                    DeviceNameRow(deviceName = state.value.deviceName, navigateToDeviceInfoDialog)
                 }
+                DeviceNameRow(deviceName = state.value.deviceName, navigateToDeviceInfoDialog)
             }
         }
 
