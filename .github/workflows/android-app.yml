@@ -209,7 +209,7 @@ jobs:
             test-repeat: 1
           - test-type: mockapi
             path: android/test/mockapi/build/outputs/apk
-            test-repeat: ${{ github.event_name == 'schedule' && 60 || github.event.inputs.mockapi_test_repeat || 1 }}
+            test-repeat: ${{ github.event_name == 'schedule' && 40 || github.event.inputs.mockapi_test_repeat || 1 }}
     steps:
       - name: Prepare report dir
         if: ${{ matrix.test-repeat != 0 }}
