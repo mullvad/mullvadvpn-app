@@ -243,6 +243,7 @@ in
       enable = true;
       description = "Web service to apply blocking firewall rules";
       bindsTo = [ "sys-subsystem-net-devices-lan.device" ];
+      wants = [ "network-online.target" ];
       after = [
         "systemd-networkd.service"
         "network-online.target"
@@ -252,11 +253,4 @@ in
         ${raas}/bin/raas ${listenAddress}:80
       '';
     };
-
-  services.shadowsocks = {
-    enable = true;
-    port = 443;
-    encryptionMethod = "aes-256-gcm";
-    password = "mullvad";
-  };
 }
