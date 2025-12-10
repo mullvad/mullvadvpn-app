@@ -27,6 +27,7 @@
     <string name="android_16_upgrade_warning_dialog_second_message">Lütfen cihazınızı yeniden başlatın ve tekrar bağlanmayı deneyin. Bu işe yaramazsa lütfen %1$s adresine İsveççe veya İngilizce bir e-posta yazın.</string>
     <string name="android_16_upgrade_warning_message">Android 16\'da bilinen bir sorun mevcut. Lütfen cihazınızı yeniden başlatıp tekrar deneyin. Daha fazla bilgi için</string>
     <string name="android_16_upgrade_warning_title">Bağlanamıyor musunuz?</string>
+    <string name="anti_censorship">Sansürü önleme</string>
     <string name="any">Tümü</string>
     <string name="api_access_description">Mullvad API\'sine erişim için özel yöntemler ekleyip yönetin.</string>
     <string name="api_access_method_info_first_line">Uygulamanın oturumunuzu açmak, sunucu listelerini almak ve diğer kritik işlemleri yapmak için bir Mullvad API sunucusuyla iletişim kurması gerekir.</string>
@@ -114,7 +115,6 @@
     <string name="custom_port_dialog_placeholder">Portu girin</string>
     <string name="custom_port_dialog_remove">Özel portu kaldır</string>
     <string name="custom_port_dialog_submit">Portu ayarla</string>
-    <string name="custom_port_dialog_title">%1$s özel portu</string>
     <string name="custom_port_dialog_valid_ranges">Geçerli aralıklar: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Özel tünel ana bilgisayarı çözülemedi. Ayarlarınızı değiştirmeyi deneyin.</string>
     <string name="daita_description_slide_1_first_paragraph">Dikkat: Bu, ağ trafiğini artırır ve hızı, gecikmeyi ve pil kullanımını da olumsuz bir şekilde etkiler. Sınırlı planlarda dikkatli kullanın.</string>
@@ -266,6 +266,7 @@
     <string name="max_devices_resolved_title">Süper!</string>
     <string name="max_devices_warning_description">Lütfen aşağıdaki listeden en az bir cihazı kaldırarak çıkış yapın. İlgili cihaz adını cihazın Hesap ayarları altında bulabilirsiniz.</string>
     <string name="max_devices_warning_title">Cihaz sayısı çok fazla</string>
+    <string name="method">Yöntem</string>
     <string name="more_actions">Diğer işlemler</string>
     <string name="more_information">Daha fazla bilgi</string>
     <string name="mtu">MTU</string>
@@ -293,7 +294,6 @@
     <string name="number_of_providers">Hizmet sağlayıcılar: %1$d</string>
     <string name="obfuscation_info">Gizleme, WireGuard trafiğini başka bir protokolün içinde gizler. Normal bir WireGuard bağlantısının engelleneceği sansürü ve diğer filtreleme türlerini aşmaya yardımcı olmak için kullanılabilir.</string>
     <string name="obfuscation_info_shadowsocks_batteryusage">Dikkat: Shadowsocks, video oynatma gibi işlemler için veri kullanımına bağlı olarak pil tüketimini artırabilir.</string>
-    <string name="obfuscation_title">WireGuard gizlemesi</string>
     <string name="off">Kapalı</string>
     <string name="on">Açık</string>
     <string name="open_app_details">Uygulama ayrıntılarını aç</string>
@@ -448,7 +448,6 @@
     <string name="vpn_permission_error_notification_title">VPN izin hatası</string>
     <string name="vpn_settings_not_available">Cihazda VPN Ayarları mevcut değil</string>
     <string name="we_will_look_into_this">Bunu araştıracağız.</string>
-    <string name="wg_port_subtitle">Bu ayarı etkinleştirmek için aşağıdaki %1$s gizlemeyi \"Otomatik\" veya \"Kapalı\" olarak ayarlayın.</string>
     <string name="wireguard_custon_port_title">Özel</string>
     <string name="wireguard_mtu_footer">WireGuard MTU değerini ayarlayın. Geçerli aralık: %1$d - %2$d.</string>
     <string name="wireguard_port_info_description">Otomatik ayar, aşağıda gösterilen geçerli port aralıklarından rastgele seçim yapar.</string>

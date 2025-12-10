@@ -139,7 +139,6 @@ import net.mullvad.mullvadvpn.lib.model.ipVersion
 import net.mullvad.mullvadvpn.lib.model.isMultihopEnabled
 import net.mullvad.mullvadvpn.lib.model.location
 import net.mullvad.mullvadvpn.lib.model.ownership
-import net.mullvad.mullvadvpn.lib.model.port
 import net.mullvad.mullvadvpn.lib.model.providers
 import net.mullvad.mullvadvpn.lib.model.relayConstraints
 import net.mullvad.mullvadvpn.lib.model.selectedObfuscationMode
@@ -147,6 +146,7 @@ import net.mullvad.mullvadvpn.lib.model.shadowsocks
 import net.mullvad.mullvadvpn.lib.model.state
 import net.mullvad.mullvadvpn.lib.model.udp2tcp
 import net.mullvad.mullvadvpn.lib.model.wireguardConstraints
+import net.mullvad.mullvadvpn.lib.model.wireguardPort
 
 @Suppress("TooManyFunctions", "LargeClass")
 class ManagementService(
@@ -535,6 +535,20 @@ class ManagementService(
             .mapLeft(SetObfuscationOptionsError::Unknown)
             .mapEmpty()
 
+    suspend fun setWireguardObfuscationPort(
+        portConstraint: Constraint<Port>
+    ): Either<SetObfuscationOptionsError, Unit> =
+        Either.catch {
+                val updatedSettings =
+                    ObfuscationSettings.wireguardPort.modify(getSettings().obfuscationSettings) {
+                        portConstraint
+                    }
+                grpc.setObfuscationSettings(updatedSettings.fromDomain())
+            }
+            .onLeft { Logger.e("Set wireguard port error") }
+            .mapLeft(SetObfuscationOptionsError::Unknown)
+            .mapEmpty()
+
     suspend fun setUdp2TcpObfuscationPort(
         portConstraint: Constraint<Port>
     ): Either<SetObfuscationOptionsError, Unit> =
@@ -829,22 +843,6 @@ class ManagementService(
             .map { result ->
                 either { ensure(result.value) { TestApiAccessMethodError.CouldNotAccess } }
             }
-
-    suspend fun setWireguardPort(
-        port: Constraint<Port>
-    ): Either<SetWireguardConstraintsError, Unit> =
-        Either.catch {
-                val relaySettings = getSettings().relaySettings
-                val updated =
-                    RelaySettings.relayConstraints.wireguardConstraints.port.set(
-                        relaySettings,
-                        port,
-                    )
-                grpc.setRelaySettings(updated.fromDomain())
-            }
-            .onLeft { Logger.e("Set wireguard port error") }
-            .mapLeft(SetWireguardConstraintsError::Unknown)
-            .mapEmpty()
 
     suspend fun setMultihop(enabled: Boolean): Either<SetWireguardConstraintsError, Unit> =
         Either.catch {

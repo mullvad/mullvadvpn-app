@@ -8,7 +8,6 @@ import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.CustomDnsOptions
 import net.mullvad.mullvadvpn.lib.model.CustomList
 import net.mullvad.mullvadvpn.lib.model.CustomListId
-import net.mullvad.mullvadvpn.lib.model.DaitaSettings
 import net.mullvad.mullvadvpn.lib.model.DefaultDnsOptions
 import net.mullvad.mullvadvpn.lib.model.DnsOptions
 import net.mullvad.mullvadvpn.lib.model.DnsState
@@ -20,12 +19,12 @@ import net.mullvad.mullvadvpn.lib.model.ObfuscationSettings
 import net.mullvad.mullvadvpn.lib.model.Ownership
 import net.mullvad.mullvadvpn.lib.model.PlayPurchase
 import net.mullvad.mullvadvpn.lib.model.PlayPurchasePaymentToken
+import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.model.Providers
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.model.RelaySettings
-import net.mullvad.mullvadvpn.lib.model.ShadowsocksSettings
+import net.mullvad.mullvadvpn.lib.model.ShadowsocksObfuscationSettings
 import net.mullvad.mullvadvpn.lib.model.SocksAuth
-import net.mullvad.mullvadvpn.lib.model.TransportProtocol
 import net.mullvad.mullvadvpn.lib.model.Udp2TcpObfuscationSettings
 import net.mullvad.mullvadvpn.lib.model.WireguardConstraints
 
@@ -83,6 +82,7 @@ internal fun ObfuscationSettings.fromDomain(): ManagementInterface.ObfuscationSe
         .setSelectedObfuscation(selectedObfuscationMode.fromDomain())
         .setUdp2Tcp(udp2tcp.fromDomain())
         .setShadowsocks(shadowsocks.fromDomain())
+        .setWireguardPort(wireguardPort.fromDomain())
         .build()
 
 internal fun ObfuscationMode.fromDomain():
@@ -92,6 +92,8 @@ internal fun ObfuscationMode.fromDomain():
             ManagementInterface.ObfuscationSettings.SelectedObfuscation.UDP2TCP
         ObfuscationMode.Shadowsocks ->
             ManagementInterface.ObfuscationSettings.SelectedObfuscation.SHADOWSOCKS
+        ObfuscationMode.WireguardPort ->
+            ManagementInterface.ObfuscationSettings.SelectedObfuscation.WIREGUARD_PORT
         ObfuscationMode.Quic -> ManagementInterface.ObfuscationSettings.SelectedObfuscation.QUIC
         ObfuscationMode.Lwo -> ManagementInterface.ObfuscationSettings.SelectedObfuscation.LWO
         ObfuscationMode.Auto -> ManagementInterface.ObfuscationSettings.SelectedObfuscation.AUTO
@@ -99,15 +101,26 @@ internal fun ObfuscationMode.fromDomain():
     }
 
 internal fun Udp2TcpObfuscationSettings.fromDomain():
-    ManagementInterface.Udp2TcpObfuscationSettings =
+    ManagementInterface.ObfuscationSettings.Udp2TcpObfuscation =
     when (val port = port) {
         is Constraint.Any ->
-            ManagementInterface.Udp2TcpObfuscationSettings.newBuilder().clearPort().build()
+            ManagementInterface.ObfuscationSettings.Udp2TcpObfuscation.newBuilder()
+                .clearPort()
+                .build()
         is Constraint.Only ->
-            ManagementInterface.Udp2TcpObfuscationSettings.newBuilder()
+            ManagementInterface.ObfuscationSettings.Udp2TcpObfuscation.newBuilder()
                 .setPort(port.value.value)
                 .build()
     }
+
+internal fun Constraint<Port>.fromDomain(): ManagementInterface.ObfuscationSettings.WireguardPort =
+    when (this) {
+        is Constraint.Any ->
+            ManagementInterface.ObfuscationSettings.WireguardPort.newBuilder().clearPort()
+        is Constraint.Only ->
+            ManagementInterface.ObfuscationSettings.WireguardPort.newBuilder()
+                .setPort(this.value.value)
+    }.build()
 
 internal fun GeoLocationId.fromDomain(): ManagementInterface.GeographicLocationConstraint =
     ManagementInterface.GeographicLocationConstraint.newBuilder()
@@ -132,12 +145,6 @@ internal fun WireguardConstraints.fromDomain(): ManagementInterface.WireguardCon
     ManagementInterface.WireguardConstraints.newBuilder()
         .setUseMultihop(isMultihopEnabled)
         .setEntryLocation(entryLocation.fromDomain())
-        .apply {
-            when (val port = this@fromDomain.port) {
-                is Constraint.Any -> clearPort()
-                is Constraint.Only -> setPort(port.value.value)
-            }
-        }
         .apply {
             when (val ipVersion = this@fromDomain.ipVersion) {
                 is Constraint.Any -> clearIpVersion()
@@ -237,12 +244,6 @@ internal fun ApiAccessMethod.CustomProxy.Shadowsocks.fromDomain(): ManagementInt
             it.build()
         }
 
-internal fun TransportProtocol.fromDomain(): ManagementInterface.TransportProtocol =
-    when (this) {
-        TransportProtocol.Tcp -> ManagementInterface.TransportProtocol.TCP
-        TransportProtocol.Udp -> ManagementInterface.TransportProtocol.UDP
-    }
-
 internal fun ApiAccessMethodId.fromDomain(): ManagementInterface.UUID =
     ManagementInterface.UUID.newBuilder().setValue(value.toString()).build()
 
@@ -254,19 +255,16 @@ internal fun ApiAccessMethodSetting.fromDomain(): ManagementInterface.AccessMeth
         .setAccessMethod(apiAccessMethod.fromDomain())
         .build()
 
-internal fun ShadowsocksSettings.fromDomain(): ManagementInterface.ShadowsocksSettings =
+internal fun ShadowsocksObfuscationSettings.fromDomain():
+    ManagementInterface.ObfuscationSettings.Shadowsocks =
     when (val port = port) {
         is Constraint.Any ->
-            ManagementInterface.ShadowsocksSettings.newBuilder().clearPort().build()
+            ManagementInterface.ObfuscationSettings.Shadowsocks.newBuilder().clearPort().build()
         is Constraint.Only ->
-            ManagementInterface.ShadowsocksSettings.newBuilder().setPort(port.value.value).build()
+            ManagementInterface.ObfuscationSettings.Shadowsocks.newBuilder()
+                .setPort(port.value.value)
+                .build()
     }
-
-internal fun DaitaSettings.fromDomain(): ManagementInterface.DaitaSettings =
-    ManagementInterface.DaitaSettings.newBuilder()
-        .setEnabled(enabled)
-        .setDirectOnly(directOnly)
-        .build()
 
 internal fun IpVersion.fromDomain(): ManagementInterface.IpVersion =
     when (this) {

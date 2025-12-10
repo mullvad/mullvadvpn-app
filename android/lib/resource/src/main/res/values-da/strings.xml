@@ -27,6 +27,7 @@
     <string name="android_16_upgrade_warning_dialog_second_message">Genstart din enhed, og prøv at oprette forbindelse igen. Hvis det ikke hjælper, kan du skrive en e-mail til %1$s på svensk eller engelsk.</string>
     <string name="android_16_upgrade_warning_message">Android 16 har et kendt problem. Genstart din enhed, og prøv igen. For at få mere at vide</string>
     <string name="android_16_upgrade_warning_title">Kan du ikke oprette forbindelse?</string>
+    <string name="anti_censorship">Anti-censur</string>
     <string name="any">Enhver</string>
     <string name="api_access_description">Administrer og tilføj brugerdefinerede metoder for at få adgang til Mullvad API.</string>
     <string name="api_access_method_info_first_line">Appen skal kommunikere med en Mullvad API-server for at kunne logge dig på, hente serverlister og andre kritiske operationer.</string>
@@ -114,7 +115,6 @@
     <string name="custom_port_dialog_placeholder">Indtast port</string>
     <string name="custom_port_dialog_remove">Fjern brugerdefineret port</string>
     <string name="custom_port_dialog_submit">Indstil port</string>
-    <string name="custom_port_dialog_title">%1$s brugerdefineret port</string>
     <string name="custom_port_dialog_valid_ranges">Gyldige områder: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Kunne ikke fortolke værten for den tilpassede tunnel. Prøv at ændre dine indstillinger.</string>
     <string name="daita_description_slide_1_first_paragraph">Bemærk: Dette øger netværkstrafikken og vil også påvirke hastighed, ventetid og batteriforbrug negativt. Brug det varsomt på abonnementer med begrænsninger.</string>
@@ -266,6 +266,7 @@
     <string name="max_devices_resolved_title">Super!</string>
     <string name="max_devices_warning_description">Log ud af mindst én ved at fjerne den fra listen nedenfor. Du kan finde det tilsvarende enhedsnavn under enhedens kontoindstillinger.</string>
     <string name="max_devices_warning_title">For mange enheder</string>
+    <string name="method">Metode</string>
     <string name="more_actions">Flere handlinger</string>
     <string name="more_information">Mere information</string>
     <string name="mtu">MTU</string>
@@ -293,7 +294,6 @@
     <string name="number_of_providers">Udbydere: %1$d</string>
     <string name="obfuscation_info">Tilsløring skjuler WireGuard-trafikken inden i en anden protokol. Det kan bruges til at hjælpe med at omgå censur og andre typer filtrering, hvor en almindelig WireGuard-forbindelse ville blive blokeret.</string>
     <string name="obfuscation_info_shadowsocks_batteryusage">Bemærk: Shadowsocks kan øge batteriforbruget afhængigt af dataforbruget, f.eks. under streaming af en video.</string>
-    <string name="obfuscation_title">WireGuard-tilsløring</string>
     <string name="off">Fra</string>
     <string name="on">Til</string>
     <string name="open_app_details">Se oplysninger om app</string>
@@ -448,7 +448,6 @@
     <string name="vpn_permission_error_notification_title">VPN-tilladelsesfejl</string>
     <string name="vpn_settings_not_available">VPN-indstillinger er ikke tilgængelige på enheden</string>
     <string name="we_will_look_into_this">Vi vil undersøge dette.</string>
-    <string name="wg_port_subtitle">Sæt %1$s-tilsløring til \"Automatisk\" eller \"Fra\" nedenfor for at aktivere denne indstilling.</string>
     <string name="wireguard_custon_port_title">Brugerdefineret</string>
     <string name="wireguard_mtu_footer">Indstil WireGuard MTU-værdi. Gyldigt område: %1$d - %2$d.</string>
     <string name="wireguard_port_info_description">Den automatiske indstilling vælger tilfældigt fra de gyldige rækker af porte nedenfor.</string>

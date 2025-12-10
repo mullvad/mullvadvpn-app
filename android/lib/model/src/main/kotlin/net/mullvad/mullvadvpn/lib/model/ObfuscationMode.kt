@@ -7,4 +7,5 @@ enum class ObfuscationMode {
     Shadowsocks,
     Quic,
     Lwo,
+    WireguardPort,
 }

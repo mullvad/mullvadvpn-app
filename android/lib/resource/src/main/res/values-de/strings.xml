@@ -27,6 +27,7 @@
     <string name="android_16_upgrade_warning_dialog_second_message">Bitte starten Sie Ihr Gerät neu und versuchen Sie erneut, sich zu verbinden. Wenn dies nicht funktioniert, schreiben Sie bitte eine E-Mail an %1$s auf Schwedisch oder Englisch.</string>
     <string name="android_16_upgrade_warning_message">Android 16 hat einen bekannten Fehler. Bitte starten Sie Ihr Gerät neu und versuchen Sie es erneut. Um mehr darüber zu erfahren,</string>
     <string name="android_16_upgrade_warning_title">Keine Verbindung möglich?</string>
+    <string name="anti_censorship">Anti-Zensur</string>
     <string name="any">Beliebige</string>
     <string name="api_access_description">Verwaltung und Hinzufügen benutzerdefinierter Methoden für den Zugriff auf die Mullvad-API.</string>
     <string name="api_access_method_info_first_line">Die App muss mit einem Mullvad API-Server kommunizieren, um Sie anzumelden, Serverlisten abzurufen und andere wichtige Vorgänge durchzuführen.</string>
@@ -114,7 +115,6 @@
     <string name="custom_port_dialog_placeholder">Port eingeben</string>
     <string name="custom_port_dialog_remove">Eigenen Port entfernen</string>
     <string name="custom_port_dialog_submit">Port festlegen</string>
-    <string name="custom_port_dialog_title">%1$s – eigener Port</string>
     <string name="custom_port_dialog_valid_ranges">Gültige Bereiche: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Der Host des benutzerdefinierten Tunnels konnte nicht aufgelöst werden. Versuchen Sie, Ihre Einstellungen zu ändern.</string>
     <string name="daita_description_slide_1_first_paragraph">Achtung! Dies erhöht den Netzwerkverkehr und wirkt sich auch negativ auf die Geschwindigkeit, die Latenz und den Akkuverbrauch aus. Bei begrenzten Tarifen ist Vorsicht geboten.</string>
@@ -266,6 +266,7 @@
     <string name="max_devices_resolved_title">Super!</string>
     <string name="max_devices_warning_description">Bitte melden Sie sich von mindestens einem Gerät ab, indem Sie es aus der Liste unten entfernen. Sie finden den entsprechenden Gerätenamen unter den Kontoeinstellungen des Geräts.</string>
     <string name="max_devices_warning_title">Zu viele Geräte</string>
+    <string name="method">Methode</string>
     <string name="more_actions">Weitere Aktionen</string>
     <string name="more_information">Weitere Informationen</string>
     <string name="mtu">MTU</string>
@@ -293,7 +294,6 @@
     <string name="number_of_providers">Provider: %1$d</string>
     <string name="obfuscation_info">Bei der Verschleierung wird der WireGuard-Datenverkehr in einem anderen Protokoll versteckt. Sie kann dazu verwendet werden, Zensur und andere Arten von Filtern zu umgehen, bei denen eine reine WireGuard-Verbindung blockiert würde.</string>
     <string name="obfuscation_info_shadowsocks_batteryusage">Achtung! Shadowsocks kann den Akkuverbrauch je nach Datennutzung erhöhen, z. B. beim Streaming eines Videos.</string>
-    <string name="obfuscation_title">WireGuard-Verschleierung</string>
     <string name="off">Aus</string>
     <string name="on">Ein</string>
     <string name="open_app_details">App-Details öffnen</string>
@@ -448,7 +448,6 @@
     <string name="vpn_permission_error_notification_title">VPN-Berechtigungsfehler</string>
     <string name="vpn_settings_not_available">VPN-Einstellungen auf dem Gerät nicht verfügbar</string>
     <string name="we_will_look_into_this">Wir werden uns das anschauen.</string>
-    <string name="wg_port_subtitle">%1$s-Verschleierung unten auf „Automatisch“ oder „Aus“ einstellen, um diese Einstellung zu aktivieren.</string>
     <string name="wireguard_custon_port_title">Benutzerdefiniert</string>
     <string name="wireguard_mtu_footer">WireGuard-MTU-Wert einstellen. Gültiger Bereich: %1$d–%2$d.</string>
     <string name="wireguard_port_info_description">Die automatische Einstellung wählt zufällig aus den unten gezeigten gültigen Portbereichen.</string>

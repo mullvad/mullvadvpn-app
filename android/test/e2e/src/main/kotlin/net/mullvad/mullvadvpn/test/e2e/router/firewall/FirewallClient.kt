@@ -24,10 +24,12 @@ class FirewallClient(private val httpClient: HttpClient = defaultHttpClient()) {
         Logger.v(
             "Requesting firewall API to block ${rule.protocols} traffic from ${rule.source} to ${rule.destination}"
         )
-        httpClient.post("rule") {
-            contentType(ContentType.Application.Json)
-            setBody(Json.encodeToString(DropRule.serializer(), rule))
-        }
+        val response =
+            httpClient.post("rule") {
+                contentType(ContentType.Application.Json)
+                setBody(Json.encodeToString(DropRule.serializer(), rule))
+            }
+        Logger.v("Create rule response: ${response.status.value}")
     }
 
     suspend fun removeAllRules() {

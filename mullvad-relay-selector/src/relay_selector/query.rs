@@ -34,7 +34,8 @@ use mullvad_types::{
     relay_constraints::{
         BridgeConstraints, LocationConstraint, ObfuscationSettings, Ownership, Providers,
         RelayConstraints, RelaySettings, SelectedObfuscation, ShadowsocksSettings,
-        Udp2TcpObfuscationSettings, WireguardConstraints, allowed_ip::AllowedIps,
+        Udp2TcpObfuscationSettings, WireguardConstraints, WireguardPortSettings,
+        allowed_ip::AllowedIps,
     },
     wireguard::QuantumResistantState,
 };
@@ -196,7 +197,6 @@ impl From<RelayQuery> for RelaySettings {
 /// to define [`Intersection`] on it, so it is fine.
 #[derive(Debug, Clone, Eq, PartialEq, Intersection)]
 pub struct WireguardRelayQuery {
-    pub port: Constraint<u16>,
     pub ip_version: Constraint<IpVersion>,
     pub allowed_ips: Constraint<AllowedIps>,
     pub use_multihop: Constraint<bool>,
@@ -214,7 +214,7 @@ pub enum ObfuscationQuery {
     Off,
     #[default]
     Auto,
-    Port, // If this is enabled, we should respect the port contstraint.
+    Port(WireguardPortSettings),
     Udp2tcp(Udp2TcpObfuscationSettings),
     Shadowsocks(ShadowsocksSettings),
     Quic,
@@ -226,9 +226,15 @@ impl ObfuscationQuery {
         let selected_obfuscation = match self {
             ObfuscationQuery::Off => SelectedObfuscation::Off,
             ObfuscationQuery::Auto => SelectedObfuscation::Auto,
-            ObfuscationQuery::Port => SelectedObfuscation::Port,
             ObfuscationQuery::Quic => SelectedObfuscation::Quic,
             ObfuscationQuery::Lwo => SelectedObfuscation::Lwo,
+            ObfuscationQuery::Port(wireguard_port) => {
+                return ObfuscationSettings {
+                    selected_obfuscation: SelectedObfuscation::WireguardPort,
+                    wireguard_port,
+                    ..Default::default()
+                };
+            }
             ObfuscationQuery::Udp2tcp(settings) => {
                 return ObfuscationSettings {
                     selected_obfuscation: SelectedObfuscation::Udp2Tcp,
@@ -261,7 +267,7 @@ impl From<ObfuscationSettings> for ObfuscationQuery {
         match obfuscation.selected_obfuscation {
             Off => ObfuscationQuery::Off,
             Auto => ObfuscationQuery::Auto,
-            Port => ObfuscationQuery::Port,
+            WireguardPort => ObfuscationQuery::Port(obfuscation.wireguard_port),
             Udp2Tcp => ObfuscationQuery::Udp2tcp(obfuscation.udp2tcp),
             Shadowsocks => ObfuscationQuery::Shadowsocks(obfuscation.shadowsocks),
             Quic => ObfuscationQuery::Quic,
@@ -295,7 +301,6 @@ impl WireguardRelayQuery {
 impl WireguardRelayQuery {
     pub fn new() -> WireguardRelayQuery {
         WireguardRelayQuery {
-            port: Constraint::Any,
             ip_version: Constraint::Any,
             allowed_ips: Constraint::Any,
             use_multihop: Constraint::Any,
@@ -312,7 +317,6 @@ impl WireguardRelayQuery {
     /// The mapping from [`WireguardRelayQuery`] to [`WireguardConstraints`].
     fn into_constraints(self) -> WireguardConstraints {
         WireguardConstraints {
-            port: self.port,
             ip_version: self.ip_version,
             allowed_ips: self.allowed_ips,
             entry_location: self.entry_location,
@@ -333,7 +337,6 @@ impl From<WireguardRelayQuery> for WireguardConstraints {
     /// The mapping from [`WireguardRelayQuery`] to [`WireguardConstraints`].
     fn from(value: WireguardRelayQuery) -> Self {
         WireguardConstraints {
-            port: value.port,
             ip_version: value.ip_version,
             allowed_ips: value.allowed_ips,
             entry_location: value.entry_location,
@@ -405,7 +408,7 @@ pub mod builder {
         constraints::Constraint,
         relay_constraints::{
             BridgeConstraints, LocationConstraint, RelayConstraints, SelectedObfuscation,
-            ShadowsocksSettings, TransportPort, Udp2TcpObfuscationSettings,
+            ShadowsocksSettings, TransportPort, Udp2TcpObfuscationSettings, WireguardPortSettings,
         },
         wireguard::QuantumResistantState,
     };
@@ -528,14 +531,6 @@ pub mod builder {
     impl<Multihop, Obfuscation, Daita, QuantumResistant>
         RelayQueryBuilder<Multihop, Obfuscation, Daita, QuantumResistant>
     {
-        /// Specify the port to ues when connecting to the selected
-        /// Wireguard relay.
-        pub const fn port(mut self, port: u16) -> Self {
-            self.query.wireguard_constraints.port = Constraint::Only(port);
-            self.query.wireguard_constraints.obfuscation = ObfuscationQuery::Port;
-            self
-        }
-
         /// Set the [`IpVersion`] to use when connecting to the selected
         /// Wireguard relay.
         pub const fn ip_version(mut self, ip_version: IpVersion) -> Self {
@@ -645,6 +640,25 @@ pub mod builder {
     }
 
     impl<Multihop, Daita, QuantumResistant> RelayQueryBuilder<Multihop, Any, Daita, QuantumResistant> {
+        /// Set a custom port for the WireGuard connection.
+        pub fn port(
+            mut self,
+            port: u16,
+        ) -> RelayQueryBuilder<Multihop, WireguardPortSettings, Daita, QuantumResistant> {
+            let port = WireguardPortSettings::from(port);
+            let settings = Settings {
+                multihop: self.settings.multihop,
+                obfuscation: port,
+                daita: self.settings.daita,
+                quantum_resistant: self.settings.quantum_resistant,
+            };
+            self.query.wireguard_constraints.obfuscation = ObfuscationQuery::Port(port);
+            RelayQueryBuilder {
+                query: self.query,
+                settings,
+            }
+        }
+
         /// Enable `UDP2TCP` obufscation. This will in turn enable the option to configure the
         /// `UDP2TCP` port.
         pub fn udp2tcp(
@@ -861,6 +875,7 @@ mod test {
                 shadowsocks: ShadowsocksSettings {
                     port: port2,
                 },
+                wireguard_port: port1.into(),
             });
             assert_eq!(query, ObfuscationQuery::Auto);
         }

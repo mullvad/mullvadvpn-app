@@ -47,7 +47,6 @@ class SelectedLocationUseCaseTest {
             WireguardConstraints(
                 isMultihopEnabled = true,
                 entryLocation = entryLocation,
-                port = Constraint.Any,
                 ipVersion = Constraint.Any,
             )
         selectedLocation.value = exitLocation

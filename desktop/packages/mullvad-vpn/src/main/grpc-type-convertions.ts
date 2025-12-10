@@ -404,8 +404,8 @@ function convertFromFeatureIndicator(
       return FeatureIndicator.quic;
     case grpcTypes.FeatureIndicator.LWO:
       return FeatureIndicator.lwo;
-    case grpcTypes.FeatureIndicator.PORT:
-      return FeatureIndicator.port;
+    case grpcTypes.FeatureIndicator.WIREGUARD_PORT:
+      return FeatureIndicator.wireGuardPort;
   }
 }
 
@@ -671,8 +671,8 @@ function convertFromObfuscationSettings(
     case grpcTypes.ObfuscationSettings.SelectedObfuscation.LWO:
       selectedObfuscationType = ObfuscationType.lwo;
       break;
-    case grpcTypes.ObfuscationSettings.SelectedObfuscation.PORT:
-      selectedObfuscationType = ObfuscationType.port;
+    case grpcTypes.ObfuscationSettings.SelectedObfuscation.WIREGUARD_PORT:
+      selectedObfuscationType = ObfuscationType.wireGuardPort;
       break;
   }
 
@@ -683,6 +683,9 @@ function convertFromObfuscationSettings(
       : { port: 'any' },
     shadowsocksSettings: obfuscationSettings?.shadowsocks
       ? { port: convertFromConstraint(obfuscationSettings.shadowsocks.port) }
+      : { port: 'any' },
+    wireGuardPortSettings: obfuscationSettings?.wireguardPort
+      ? { port: convertFromConstraint(obfuscationSettings.wireguardPort.port) }
       : { port: 'any' },
   };
 }
@@ -832,16 +835,10 @@ function convertFromWireguardConstraints(
   constraints: grpcTypes.WireguardConstraints,
 ): IWireguardConstraints {
   const result: IWireguardConstraints = {
-    port: 'any',
     ipVersion: 'any',
     useMultihop: constraints.getUseMultihop(),
     entryLocation: 'any',
   };
-
-  const port = constraints.getPort();
-  if (port) {
-    result.port = { only: port };
-  }
 
   // `getIpVersion()` is not falsy if type is 'any'
   if (constraints.hasIpVersion()) {
@@ -934,11 +931,6 @@ function convertToWireguardConstraints(
 ): grpcTypes.WireguardConstraints | undefined {
   if (constraint) {
     const wireguardConstraints = new grpcTypes.WireguardConstraints();
-
-    const port = unwrapConstraint(constraint.port);
-    if (port) {
-      wireguardConstraints.setPort(port);
-    }
 
     const ipVersion = unwrapConstraint(constraint.ipVersion);
     if (ipVersion) {

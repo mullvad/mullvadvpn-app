@@ -220,7 +220,7 @@ export enum FeatureIndicator {
   shadowsocks,
   quic,
   lwo,
-  port,
+  wireGuardPort,
   lanSharing,
   dnsContentBlockers,
   customDns,
@@ -281,7 +281,6 @@ export type RelayLocationGeographical =
 export type RelayLocation = RelayLocationGeographical | RelayLocationCustomList;
 
 export interface IWireguardConstraints {
-  port: Constraint<number>;
   ipVersion: Constraint<IpVersion>;
   useMultihop: boolean;
   entryLocation: Constraint<RelayLocation>;
@@ -477,6 +476,10 @@ export type SplitTunnelSettings = {
   appsList: string[];
 };
 
+export type WireGuardPortObfuscationSettings = {
+  port: Constraint<number>;
+};
+
 export type Udp2TcpObfuscationSettings = {
   port: Constraint<number>;
 };
@@ -492,13 +495,14 @@ export enum ObfuscationType {
   shadowsocks,
   quic,
   lwo,
-  port,
+  wireGuardPort,
 }
 
 export type ObfuscationSettings = {
   selectedObfuscation: ObfuscationType;
   udp2tcpSettings: Udp2TcpObfuscationSettings;
   shadowsocksSettings: ShadowsocksSettings;
+  wireGuardPortSettings: WireGuardPortObfuscationSettings;
 };
 
 export interface IBridgeConstraints {

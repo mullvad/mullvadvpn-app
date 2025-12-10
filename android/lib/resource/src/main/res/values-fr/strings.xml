@@ -27,6 +27,7 @@
     <string name="android_16_upgrade_warning_dialog_second_message">Veuillez redémarrer votre appareil et réessayer de vous connecter. Si cela ne fonctionne pas, veuillez envoyer un e-mail à %1$s en suédois ou en anglais.</string>
     <string name="android_16_upgrade_warning_message">Android 16 présente un problème connu. Veuillez redémarrer votre appareil et réessayer. Pour en savoir plus,</string>
     <string name="android_16_upgrade_warning_title">Connexion impossible ?</string>
+    <string name="anti_censorship">Anti-censure</string>
     <string name="any">N\'importe lequel</string>
     <string name="api_access_description">Gérez et ajoutez des modes d\'accès personnalisés à l\'API Mullvad.</string>
     <string name="api_access_method_info_first_line">L\'application doit communiquer avec un serveur d\'API Mullvad pour vous connecter, récupérer des listes de serveurs et effectuer d\'autres opérations critiques.</string>
@@ -114,7 +115,6 @@
     <string name="custom_port_dialog_placeholder">Saisir le port</string>
     <string name="custom_port_dialog_remove">Supprimer le port personnalisé</string>
     <string name="custom_port_dialog_submit">Définir le port</string>
-    <string name="custom_port_dialog_title">Port %1$s personnalisé</string>
     <string name="custom_port_dialog_valid_ranges">Plages valides : %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Échec de la résolution de l\'hôte du tunnel personnalisé. Essayez de modifier vos paramètres.</string>
     <string name="daita_description_slide_1_first_paragraph">Attention : cette option augmente le trafic sur le réseau et peut avoir un impact négatif sur la vitesse, la latence et l\'utilisation de la batterie. À utiliser avec précaution pour les forfaits limités.</string>
@@ -266,6 +266,7 @@
     <string name="max_devices_resolved_title">Super !</string>
     <string name="max_devices_warning_description">Merci de vous déconnecter d\'au moins un appareil en le supprimant de la liste ci-dessous. Vous trouverez le nom de l\'appareil correspondant dans les paramètres du compte de l\'appareil.</string>
     <string name="max_devices_warning_title">Trop d\'appareils</string>
+    <string name="method">Méthode</string>
     <string name="more_actions">Plus d\'actions</string>
     <string name="more_information">Plus d\'informations</string>
     <string name="mtu">MTU</string>
@@ -293,7 +294,6 @@
     <string name="number_of_providers">Fournisseurs : %1$d</string>
     <string name="obfuscation_info">La dissimulation cache le trafic WireGuard à l\'intérieur d\'un autre protocole. Elle peut être utilisée pour aider à contourner la censure et d\'autres types de filtrage, où une connexion WireGuard simple serait bloquée.</string>
     <string name="obfuscation_info_shadowsocks_batteryusage">Attention : Shadowsocks peut augmenter la consommation de la batterie en fonction de l\'utilisation des données, comme la diffusion d\'une vidéo.</string>
-    <string name="obfuscation_title">Obfuscation WireGuard</string>
     <string name="off">Désactivé</string>
     <string name="on">Activé</string>
     <string name="open_app_details">Ouvrir les détails de l\'application</string>
@@ -448,7 +448,6 @@
     <string name="vpn_permission_error_notification_title">Erreur de permission VPN</string>
     <string name="vpn_settings_not_available">Les paramètres VPN ne sont pas disponibles sur l\'appareil</string>
     <string name="we_will_look_into_this">Nous allons nous pencher dessus.</string>
-    <string name="wg_port_subtitle">Pour activer ce paramètre, réglez l\'offuscation de %1$s sur « Automatique » ou « Désactivée » ci-dessous.</string>
     <string name="wireguard_custon_port_title">Personnalisé</string>
     <string name="wireguard_mtu_footer">Définir la valeur MTU WireGuard. Plage valide : %1$d - %2$d.</string>
     <string name="wireguard_port_info_description">Le réglage automatique choisira au hasard parmi la plage de ports valide affichée ci-dessous.</string>

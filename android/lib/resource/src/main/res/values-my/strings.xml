@@ -27,6 +27,7 @@
     <string name="android_16_upgrade_warning_dialog_second_message">စက်ကို ရီစတက်ချပြီး ထပ်မံချိတ်ဆက်ကြည့်ပါ။ ချိတ်၍မရသေးလျှင် %1$s သို့ ဆွီဒင် သို့မဟုတ် အင်္ဂလိပ်ဘာသာစကားဖြင့် အီးမေးလ်ပို့ပါ။</string>
     <string name="android_16_upgrade_warning_message">Android 16 တွင် သိထားပြီးသား ပြဿနာရှိသည်။ သင့်စက်ကို ရီစတက်ချပြီး ထပ်မံကြိုးစားပါ။ ပိုမိုလေ့လာရန်၊ </string>
     <string name="android_16_upgrade_warning_title">ချိတ်မရဘူးလား။</string>
+    <string name="anti_censorship">ဆင်ဆာဖြတ်တောက်မှု ကျော်လွှားရေး</string>
     <string name="any">တစ်ခုခု</string>
     <string name="api_access_description">Mullvad API ကို ရယူသုံးစွဲရန် စိတ်ကြိုက် နည်းလမ်းများကို ပေါင်းထည့်၍ စီမံပါ။</string>
     <string name="api_access_method_info_first_line">Mullvad API ဆာဗာသို့ သင်ဝင်ရောက်ရန်၊ ဆာဗာစာရင်းများ ရယူရန်နှင့် အလွန်အရေးပါသည့် အခြားလုပ်ဆောင်မှုများအတွက် ဤအက်ပ်သည် ၎င်းနှင့်ဆက်သွယ်ရန် လိုအပ်ပါသည်။</string>
@@ -114,7 +115,6 @@
     <string name="custom_port_dialog_placeholder">ပေါ့တ် ရိုက်ထည့်ရန်</string>
     <string name="custom_port_dialog_remove">စိတ်ကြိုက် ပေါ့တ်ကို ဖယ်ရှားရန်</string>
     <string name="custom_port_dialog_submit">ပေါ့တ် သတ်မှတ်ရန်</string>
-    <string name="custom_port_dialog_title">%1$s စိတ်ကြိုက်ပေါ့တ်</string>
     <string name="custom_port_dialog_valid_ranges">အကျုံးဝင်သည့် အပိုင်းအခြား- %1$s</string>
     <string name="custom_tunnel_host_resolution_error">စိတ်ကြိုက်ပြုလုပ်ထားသည့် Tunnel ၏ Host ကို ဖြေရှင်း၍ မရနိုင်ပါ။ သင့်ဆက်တင်ကို ပြောင်းကြည့်ပါ။</string>
     <string name="daita_description_slide_1_first_paragraph">သတိပြုပါ- ဤသည်က ကွန်ရက် ကူးလူးမှုကို မြင့်တက်စေပြီး အမြန်နှုန်း၊ တုံ့ပြန်မှုနှောင့်နှေးခြင်း (Latency) နှင့် ဘက်ထရီ သုံးစွဲမှုကိုလည်း ထိခိုက်စေပါလိမ့်မည်။ အကန့်အသတ်ရှိသော ပလန်များကို သတိဖြင့် သုံးစွဲပါ။</string>
@@ -266,6 +266,7 @@
     <string name="max_devices_resolved_title">အလွန်ကောင်း။</string>
     <string name="max_devices_warning_description">အောက်ပါစာရင်းမှ အနည်းဆုံး တစ်ခုကို ဖယ်ရှားခြင်းဖြင့် ၎င်းမှ ထွက်ပါ။ စက်၏ အကောင့်ဆက်တင်အောက်တွင် သက်ဆိုင်သော စက်အမည်ကို သင် ရှာနိုင်သည်။</string>
     <string name="max_devices_warning_title">စက်များလွန်းနေသည်</string>
+    <string name="method">နည်းလမ်း</string>
     <string name="more_actions">နောက်ထပ်လုပ်ဆောင်ချက်များ</string>
     <string name="more_information">နောက်ထပ်အချက်အလက်</string>
     <string name="mtu">MTU</string>
@@ -293,7 +294,6 @@
     <string name="number_of_providers">ပံ့ပိုးသူများ- %1$d</string>
     <string name="obfuscation_info">Obfuscation သည် အခြားပရိုတိုကောလ်အတွင်းရှိ WireGuard ကူးလူးမှုကို ဝှက်ထားပေးပါသည်။ သာမန် WireGuard ချိတ်ဆက်မှုကို ပိတ်ဆို့မည့် အခြားသော စစ်ထုတ်မှု အမျိုးအစားများနှင့် ဆင်ဆာဖြတ်တောက်ခြင်းကို ရှောင်လွှဲနိုင်စေရာတွင် ကူညီနိုင်စေရန် ၎င်းကို သုံးနိုင်ပါသည်။</string>
     <string name="obfuscation_info_shadowsocks_batteryusage">သတိပြုရန်- Shadowsocks သည် ဗီဒီယိုတစ်ခုကို တိုက်ရိုက်ကြည့်ရှုနားဆင်ခြင်းကဲ့သို့ ဒေတာသုံးစွဲမှုပေါ် မူတည်၍ ဘက်ထရီသုံးစွဲမှု တိုးလာနိုင်ပါသည်။</string>
-    <string name="obfuscation_title">WireGuard Obfuscation\\n</string>
     <string name="off">ပိတ်</string>
     <string name="on">ဖွင့်</string>
     <string name="open_app_details">အက်ပ်အသေးစိတ်အချက်အလက်များကို ဖွင့်ပါ</string>
@@ -448,7 +448,6 @@
     <string name="vpn_permission_error_notification_title">VPN ခွင့်ပြုချက် ချို့ယွင်းချက်</string>
     <string name="vpn_settings_not_available">VPN ဆက်တင်များကို စက်တွင် မရရှိနိုင်ပါ</string>
     <string name="we_will_look_into_this">ဤသည်ကို စစ်ဆေးလိုက်ပါမည်။</string>
-    <string name="wg_port_subtitle">ဤဆက်တင်ကို သက်ဝင်လုပ်ဆောင်ရန် အောက်ရှိ %1$s obfuscation ကို \"အော်တိုမက်တစ်\" သို့မဟုတ် \"ပိတ်\" ဟု သတ်မှတ်ပါ။</string>
     <string name="wireguard_custon_port_title">စိတ်ကြိုက်</string>
     <string name="wireguard_mtu_footer">WireGuard MTU တန်ဖိုးကို သတ်မှတ်ပါ။  အကျုံးဝင်သော အပိုင်းအခြား- %1$d - %2$d ။</string>
     <string name="wireguard_port_info_description">အော်တိုဆက်တင်သည် အောက်တွင် ဖော်ပြထားသည့် အကျုံးဝင် ပေါ့တ် အပိုင်းအခြားများထဲမှ ကျပန်းရွေးချယ်ပါမည်။</string>
