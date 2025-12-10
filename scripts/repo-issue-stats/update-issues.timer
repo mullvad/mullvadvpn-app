@@ -1,0 +1,14 @@
+[Unit]
+Description=Run GitHub issues update nightly
+Requires=update-issues.service
+
+[Timer]
+# Run at 2 AM every night
+OnCalendar=daily
+OnCalendar=*-*-* 02:00:00
+
+# Run 5 minutes after boot if the system was off during scheduled time
+Persistent=true
+
+[Install]
+WantedBy=timers.target

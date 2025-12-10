@@ -1,0 +1,20 @@
+[Unit]
+Description=Update GitHub issues for mullvadvpn-app and generate visualization
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=/usr/local/mullvadvpn-app.issues/
+
+# Environment variables
+Environment="OUTPUT_HTML_PATH=/var/www/html/issues_timeline.html"
+
+# Step 1: Update issues from GitHub API
+ExecStart=/usr/bin/python3 update_issues.py mullvad/mullvadvpn-app mullvadvpn-app.issues/
+
+# Step 2: Generate HTML visualization
+ExecStart=/usr/bin/python3 visualize_issues_timeline.py mullvadvpn-app.issues/ ${OUTPUT_HTML_PATH}
+
+StandardOutput=journal
+StandardError=journal
