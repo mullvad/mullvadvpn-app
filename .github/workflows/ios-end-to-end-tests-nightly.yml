@@ -22,3 +22,18 @@ jobs:
     with:
       arg_tests_json_key: "nightly"
     secrets: inherit
+
+  notify-on-failure:
+    if: failure()
+    name: Notify team on nightly E2E failure
+    runs-on: [self-hosted, macOS, ios-test]
+    needs: reuse-e2e-workflow
+    timeout-minutes: 5
+    steps:
+      - name: Send custom event details to a Slack workflow
+        uses: slackapi/slack-github-action@v2.1.1
+        with:
+          webhook: ${{ secrets.IOS_SLACK_WEBHOOK_URL }}
+          webhook-type: webhook-trigger
+          payload: |
+            run_url: "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
