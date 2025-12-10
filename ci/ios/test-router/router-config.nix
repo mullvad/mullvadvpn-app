@@ -47,17 +47,10 @@ in
 
   system.stateVersion = "24.11";
 
-  systemd.network.netdevs."1-lanBridge" = {
-    netdevConfig = {
-      Kind = "bridge";
-      Name = "lan";
-    };
-  };
-
   systemd.network.links = {
-    "1-lanIface" = ifNotNull lanMac {
+    "1-lanIface" = {
       matchConfig.PermanentMACAddress = args.lanMac;
-      linkConfig.Name = "lanEth";
+      linkConfig.Name = "lan";
     };
 
     "1-wanIface" = {
@@ -69,6 +62,7 @@ in
   networking = {
     firewall.enable = false;
   };
+
   hardware.bluetooth.enable = false;
 
   boot.kernel.sysctl = {
@@ -125,7 +119,7 @@ in
 
   systemd.network.enable = true;
 
-  systemd.network.networks.wan = {
+  systemd.network.networks."1-wan" = {
     name = "wan";
     DHCP = "yes";
 
@@ -157,13 +151,10 @@ in
   #  org.freedesktop.network1.DHCPServer \
   #  Leases
 
-  systemd.network.networks."lanEth" = ifNotNull lanMac {
-    matchConfig.Name = "lanEth";
-    networkConfig.Bridge = "lan";
-    linkConfig.RequiredForOnline = "enslaved";
-  };
-
-  systemd.network.networks.lan = {
+  # if the network name is not prefix by a number lower than 99, then the
+  # default ethernet dhcp network config will apply and this configuration will be ignored.systemd
+  # That is the reason why this network is called "1-lan" instead of "lan".
+  systemd.network.networks."1-lan" = {
     name = "lan";
     address = [ "192.168.105.1/24" ];
 
