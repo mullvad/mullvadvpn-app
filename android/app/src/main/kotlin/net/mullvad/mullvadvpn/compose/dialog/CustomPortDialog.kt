@@ -7,6 +7,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
@@ -18,6 +19,7 @@ import kotlinx.parcelize.Parcelize
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.textfield.CustomPortTextField
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
+import net.mullvad.mullvadvpn.compose.util.annotatedStringResource
 import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.model.PortRange
 import net.mullvad.mullvadvpn.lib.model.PortType
@@ -37,6 +39,7 @@ private fun PreviewWireguardCustomPortDialog() {
             portInput = "",
             isValidInput = false,
             allowedPortRanges = listOf(PortRange(10..10), PortRange(40..50)),
+            recommendedPortRanges = listOf(PortRange(10..10)),
             showResetToDefault = false,
             onInputChanged = {},
             onSavePort = {},
@@ -50,6 +53,7 @@ private fun PreviewWireguardCustomPortDialog() {
 data class CustomPortDialogNavArgs(
     val portType: PortType,
     val allowedPortRanges: List<PortRange>,
+    val recommendedPortRanges: List<PortRange>,
     val customPort: Port?,
 ) : Parcelable
 
@@ -80,6 +84,7 @@ fun CustomPort(navArg: CustomPortDialogNavArgs, backNavigator: ResultBackNavigat
         isValidInput = uiState.isValidInput,
         showResetToDefault = uiState.showResetToDefault,
         allowedPortRanges = uiState.allowedPortRanges,
+        recommendedPortRanges = uiState.recommendedPortRanges,
         onInputChanged = viewModel::onInputChanged,
         onSavePort = viewModel::onSaveClick,
         onResetPort = viewModel::onResetClick,
@@ -93,6 +98,7 @@ fun CustomPortDialog(
     portInput: String,
     isValidInput: Boolean,
     allowedPortRanges: List<PortRange>,
+    recommendedPortRanges: List<PortRange>,
     showResetToDefault: Boolean,
     onInputChanged: (String) -> Unit,
     onSavePort: (String) -> Unit,
@@ -102,10 +108,23 @@ fun CustomPortDialog(
     InputDialog(
         title = title,
         message =
-            stringResource(
-                id = R.string.custom_port_dialog_valid_ranges,
-                allowedPortRanges.asString(),
-            ),
+            buildAnnotatedString {
+                appendLine(
+                    stringResource(
+                        id = R.string.custom_port_dialog_valid_ranges,
+                        allowedPortRanges.asString(),
+                    )
+                )
+                if (recommendedPortRanges.isNotEmpty()) {
+                    append(annotatedStringResource(R.string.custom_port_recommended_range_first))
+                    append(
+                        stringResource(
+                            id = R.string.custom_port_recommended_range_second,
+                            recommendedPortRanges.asString(),
+                        )
+                    )
+                }
+            },
         confirmButtonEnabled = isValidInput,
         confirmButtonText = stringResource(id = R.string.custom_port_dialog_submit),
         onResetButtonText = stringResource(R.string.custom_port_dialog_remove),

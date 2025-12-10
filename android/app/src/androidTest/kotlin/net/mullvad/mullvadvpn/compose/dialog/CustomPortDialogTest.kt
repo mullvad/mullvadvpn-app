@@ -2,7 +2,6 @@ package net.mullvad.mullvadvpn.compose.dialog
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsEnabled
@@ -40,6 +39,7 @@ class CustomPortDialogTest {
         portInput: String = "",
         isValidInput: Boolean = false,
         allowedPortRanges: List<PortRange> = emptyList(),
+        recommendedPortRanges: List<PortRange> = emptyList(),
         showResetToDefault: Boolean = false,
         onInputChanged: (String) -> Unit = { _ -> },
         onSavePort: (String) -> Unit = { _ -> },
@@ -52,6 +52,7 @@ class CustomPortDialogTest {
                 portInput = portInput,
                 isValidInput = isValidInput,
                 allowedPortRanges = allowedPortRanges,
+                recommendedPortRanges = recommendedPortRanges,
                 showResetToDefault = showResetToDefault,
                 onInputChanged = onInputChanged,
                 onSavePort = onSavePort,
@@ -68,20 +69,14 @@ class CustomPortDialogTest {
             // crash the app
 
             // Arrange
-            setContentWithTheme {
-                var input by remember { mutableStateOf("") }
-                CustomPortDialog(
-                    title = "",
-                    portInput = input,
-                    isValidInput = false,
-                    allowedPortRanges = emptyList(),
-                    showResetToDefault = false,
-                    onInputChanged = { input = it },
-                    onSavePort = {},
-                    onDismiss = {},
-                    onResetPort = {},
-                )
-            }
+            var input by mutableStateOf("")
+            initDialog(
+                title = "",
+                portInput = input,
+                isValidInput = false,
+                showResetToDefault = false,
+                onInputChanged = { input = it },
+            )
 
             // Act
             onNodeWithTag(CUSTOM_PORT_DIALOG_INPUT_TEST_TAG).performTextInput(INVALID_PORT_INPUT)

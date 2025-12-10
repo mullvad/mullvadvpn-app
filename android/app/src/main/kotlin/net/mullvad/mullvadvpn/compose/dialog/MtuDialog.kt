@@ -5,6 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
@@ -72,7 +73,10 @@ fun MtuDialog(
 ) {
     InputDialog(
         title = stringResource(id = R.string.mtu),
-        message = stringResource(id = R.string.wireguard_mtu_footer, MTU_MIN_VALUE, MTU_MAX_VALUE),
+        message =
+            AnnotatedString(
+                stringResource(id = R.string.wireguard_mtu_footer, MTU_MIN_VALUE, MTU_MAX_VALUE)
+            ),
         confirmButtonEnabled = state.isValidInput,
         onBack = onDismiss,
         onConfirm = { onSaveMtu(state.mtuInput) },

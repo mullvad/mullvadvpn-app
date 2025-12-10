@@ -61,9 +61,14 @@ class SelectPortViewModel(
         combine(
                 settingsRepository.settingsUpdates.filterNotNull(),
                 relayListRepository.portRanges,
+                relayListRepository.shadowsocksPortRanges,
                 initialOrCustomPort,
-            ) { settings, wireguardPortRanges, initialOrCustomPort ->
-                val portTypeState = portType.uiState(wireguardPortRanges = wireguardPortRanges)
+            ) { settings, wireguardPortRanges, shadowsocksPortRanges, initialOrCustomPort ->
+                val portTypeState =
+                    portType.uiState(
+                        wireguardPortRanges = wireguardPortRanges,
+                        shadowsocksPortRanges = shadowsocksPortRanges,
+                    )
                 val customPort =
                     if (initialOrCustomPort !in portTypeState.presetPorts) initialOrCustomPort
                     else null
@@ -75,6 +80,7 @@ class SelectPortViewModel(
                         customPortEnabled = portTypeState.customPortEnabled,
                         title = portTypeState.title,
                         allowedPortRanges = portTypeState.allowedPortRanges,
+                        recommendedPortRanges = portTypeState.recommendedPortRanges,
                         customPort = customPort,
                     )
                     .toLc<Unit, SelectPortUiState>()
@@ -117,12 +123,16 @@ class SelectPortViewModel(
         }
     }
 
-    private fun PortType.uiState(wireguardPortRanges: List<PortRange>): PortTypeUiState =
+    private fun PortType.uiState(
+        wireguardPortRanges: List<PortRange>,
+        shadowsocksPortRanges: List<PortRange>,
+    ): PortTypeUiState =
         when (this) {
             PortType.Udp2Tcp ->
                 PortTypeUiState(
                     presetPorts = UDP2TCP_PRESET_PORTS,
                     allowedPortRanges = emptyList(),
+                    recommendedPortRanges = emptyList(),
                     customPortEnabled = false,
                     title = resources.getString(R.string.udp_over_tcp),
                 )
@@ -130,6 +140,7 @@ class SelectPortViewModel(
                 PortTypeUiState(
                     presetPorts = SHADOWSOCKS_PRESET_PORTS,
                     allowedPortRanges = SHADOWSOCKS_AVAILABLE_PORTS,
+                    recommendedPortRanges = shadowsocksPortRanges,
                     customPortEnabled = true,
                     title = resources.getString(R.string.shadowsocks),
                 )
@@ -137,6 +148,7 @@ class SelectPortViewModel(
                 PortTypeUiState(
                     presetPorts = WIREGUARD_PRESET_PORTS,
                     allowedPortRanges = wireguardPortRanges,
+                    recommendedPortRanges = emptyList(),
                     customPortEnabled = true,
                     title = resources.getString(R.string.wireguard_port_title),
                 )
@@ -144,6 +156,7 @@ class SelectPortViewModel(
                 PortTypeUiState(
                     presetPorts = emptyList(),
                     allowedPortRanges = emptyList(),
+                    recommendedPortRanges = emptyList(),
                     customPortEnabled = false,
                     title = resources.getString(R.string.lwo),
                 )
@@ -161,6 +174,7 @@ class SelectPortViewModel(
 data class PortTypeUiState(
     val presetPorts: List<Port>,
     val allowedPortRanges: List<PortRange>,
+    val recommendedPortRanges: List<PortRange>,
     val customPortEnabled: Boolean,
     val title: String,
     val infoDestination: Direction? = null,
