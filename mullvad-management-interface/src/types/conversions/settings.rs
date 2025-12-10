@@ -29,7 +29,6 @@ impl From<&mullvad_types::settings::Settings> for proto::Settings {
 
         Self {
             relay_settings: Some(proto::RelaySettings::from(settings.get_relay_settings())),
-            bridge_settings: todo!("remove"),
             allow_lan: settings.allow_lan,
             #[cfg(not(target_os = "android"))]
             lockdown_mode: settings.lockdown_mode,
