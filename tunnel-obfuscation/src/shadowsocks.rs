@@ -9,7 +9,7 @@ use super::Obfuscator;
 use async_trait::async_trait;
 use shadowsocks::{
     ProxySocket,
-    config::{ServerConfig, ServerType},
+    config::{ServerConfig, ServerConfigError, ServerType},
     context::Context,
     crypto::CipherKind,
     relay::{
@@ -28,6 +28,8 @@ const SHADOWSOCKS_PASSWORD: &str = "mullvad";
 
 type Result<T> = std::result::Result<T, Error>;
 
+type ShadowSocket = ProxySocket<shadowsocks::net::UdpSocket>;
+
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
     /// Failed to bind local UDP socket
@@ -39,6 +41,9 @@ pub enum Error {
     /// Failed to wait for UDP client
     #[error("Failed to wait for UDP client")]
     WaitForUdpClient(#[source] io::Error),
+    /// Server config error
+    #[error("Server config error")]
+    ServerConfig(#[from] ServerConfigError),
 }
 
 pub struct Shadowsocks {
@@ -110,7 +115,7 @@ async fn run_forwarding(
         .await
         .map_err(Error::WaitForUdpClient)?;
 
-    let shadowsocks = connect_shadowsocks(remote_socket, shadowsocks_endpoint);
+    let shadowsocks = connect_shadowsocks(remote_socket, shadowsocks_endpoint)?;
     let shadowsocks = Arc::new(shadowsocks);
 
     let local_udp = Arc::new(local_udp_socket);
@@ -144,14 +149,24 @@ async fn run_forwarding(
     Ok(())
 }
 
-fn connect_shadowsocks(remote_socket: UdpSocket, shadowsocks_endpoint: SocketAddr) -> ProxySocket {
+fn connect_shadowsocks(
+    remote_socket: UdpSocket,
+    shadowsocks_endpoint: SocketAddr,
+) -> Result<ShadowSocket> {
     let ss_context = Context::new_shared(ServerType::Local);
-    let ss_config: ServerConfig = ServerConfig::new(
+    let ss_config = ServerConfig::new(
         shadowsocks_endpoint,
         SHADOWSOCKS_PASSWORD,
         SHADOWSOCKS_CIPHER,
+    )?;
+    let socket = ProxySocket::from_socket(
+        UdpSocketType::Client,
+        ss_context,
+        &ss_config,
+        // wrap the tokio socket
+        shadowsocks::net::UdpSocket::from(remote_socket),
     );
-    ProxySocket::from_socket(UdpSocketType::Client, ss_context, &ss_config, remote_socket)
+    Ok(socket)
 }
 
 async fn create_local_udp_socket(ipv4: bool) -> Result<(UdpSocket, SocketAddr)> {
@@ -180,7 +195,7 @@ async fn wait_for_local_udp_client(udp_listener: &UdpSocket) -> io::Result<()> {
 }
 
 async fn handle_outgoing(
-    ss_write: Arc<ProxySocket>,
+    ss_write: Arc<ShadowSocket>,
     local_udp_read: Arc<UdpSocket>,
     ss_addr: SocketAddr,
     wg_addr: Address,
@@ -210,7 +225,7 @@ async fn handle_outgoing(
 }
 
 async fn handle_incoming(
-    ss_read: Arc<ProxySocket>,
+    ss_read: Arc<ShadowSocket>,
     local_udp_write: Arc<UdpSocket>,
     ss_addr: SocketAddr,
     wg_addr: Address,

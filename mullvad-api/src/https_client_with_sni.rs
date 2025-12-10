@@ -15,7 +15,7 @@ use mullvad_encrypted_dns_proxy::{
 };
 use shadowsocks::{
     ServerConfig,
-    config::ServerType,
+    config::{ServerConfigError, ServerType},
     context::{Context as SsContext, SharedContext},
     crypto::CipherKind,
     relay::tcprelay::ProxyClientStream,
@@ -114,7 +114,8 @@ impl InnerConnectionMode {
                     Ok(ProxyClientStream::from_stream(
                         shadowsocks.proxy_context,
                         tcp_stream,
-                        &ServerConfig::from(shadowsocks.params),
+                        &ServerConfig::try_from(shadowsocks.params)
+                            .map_err(|_| std::io::Error::other("Invalid shadowsocks config"))?,
                         *addr,
                     ))
                 };
@@ -237,8 +238,10 @@ struct ParsedShadowsocksConfig {
     cipher: CipherKind,
 }
 
-impl From<ParsedShadowsocksConfig> for ServerConfig {
-    fn from(config: ParsedShadowsocksConfig) -> Self {
+impl TryFrom<ParsedShadowsocksConfig> for ServerConfig {
+    type Error = ServerConfigError;
+
+    fn try_from(config: ParsedShadowsocksConfig) -> Result<Self, Self::Error> {
         ServerConfig::new(config.peer, config.password, config.cipher)
     }
 }
