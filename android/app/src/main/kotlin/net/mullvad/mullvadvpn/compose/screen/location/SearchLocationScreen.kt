@@ -73,8 +73,8 @@ import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
+import net.mullvad.mullvadvpn.lib.ui.designsystem.ListHeader
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
-import net.mullvad.mullvadvpn.lib.ui.designsystem.RelayListHeader
 import net.mullvad.mullvadvpn.usecase.FilterChip
 import net.mullvad.mullvadvpn.usecase.ModifyMultihopError
 import net.mullvad.mullvadvpn.usecase.MultihopChange
@@ -374,7 +374,7 @@ fun SearchLocationScreen(
                                 locationBottomSheetState = newSheetState
                             },
                             customListHeader = {
-                                RelayListHeader(
+                                ListHeader(
                                     content = {
                                         Text(
                                             text = stringResource(R.string.custom_lists),
@@ -384,7 +384,7 @@ fun SearchLocationScreen(
                                 )
                             },
                             locationHeader = {
-                                RelayListHeader(
+                                ListHeader(
                                     content = {
                                         Text(
                                             text = stringResource(R.string.locations),

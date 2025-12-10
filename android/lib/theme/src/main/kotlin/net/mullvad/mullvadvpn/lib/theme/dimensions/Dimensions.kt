@@ -6,9 +6,6 @@ import androidx.compose.ui.unit.dp
 data class Dimensions(
     val accountRowMinHeight: Dp = 48.dp,
     val accountRowSpacing: Dp = 24.dp,
-    val addIconSize: Dp = 24.dp,
-    val bigIconSize: Dp = 40.dp,
-    val borderWidth: Dp = 2.dp,
     val bottomPadding: Dp = 4.dp,
     val buttonHeight: Dp = 44.dp,
     val buttonSpacing: Dp = 8.dp,
@@ -19,7 +16,6 @@ data class Dimensions(
     val cellStartPadding: Dp = 16.dp,
     val cellVerticalSpacing: Dp = 24.dp,
     val chipSpace: Dp = 8.dp,
-    val chipVerticalPadding: Dp = 4.dp,
     val circularProgressBarLargeSize: Dp = 40.dp,
     val circularProgressBarLargeStrokeWidth: Dp = 8.dp,
     val circularProgressBarMediumSize: Dp = 32.dp,
@@ -28,7 +24,6 @@ data class Dimensions(
     val circularProgressBarSmallStrokeWidth: Dp = 4.dp,
     val connectButtonExtraPadding: Dp = 4.dp,
     val connectionCardMaxWidth: Dp = 480.dp,
-    val customPortBoxMinWidth: Dp = 56.dp,
     val deleteIconSize: Dp = 24.dp,
     val dialogIconHeight: Dp = 48.dp,
     val fabSpacing: Dp = 16.dp, // Copied from the private val FabSpacing in Scaffold.kt
@@ -84,7 +79,6 @@ data class Dimensions(
     val switchLocationRetryMinWidth: Dp = 48.dp,
     val thinBorderWidth: Dp = 1.dp,
     val tinyPadding: Dp = 4.dp,
-    val titleIconSize: Dp = 48.dp,
     val tvDrawerHeaderStartPadding: Dp = 12.dp,
     val tvDrawerHeaderWithFocusStartPadding: Dp = 16.dp,
     val tvDrawerHorizontalPadding: Dp = 12.dp,
@@ -92,9 +86,7 @@ data class Dimensions(
     val tvMullvadLogoTextHeight: Dp = 13.dp,
     // Required to get the logo to look visually correct on TV
     val tvMullvadLogoTextStartPadding: Dp = 6.dp,
-    val verticalDividerPadding: Dp = 16.dp,
     val verticalSpace: Dp = 16.dp,
-    val verticalSpacer: Dp = 1.dp,
 )
 
 val defaultDimensions = Dimensions()
