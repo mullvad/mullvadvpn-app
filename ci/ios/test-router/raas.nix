@@ -1,5 +1,4 @@
 {
-  pkgs,
   rustPlatform,
   pkg-config,
   libmnl,
