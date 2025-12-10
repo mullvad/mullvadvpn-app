@@ -290,6 +290,7 @@
     <string name="no_matching_servers_found_first_line">لم يتم العثور على خوادم مطابقة.</string>
     <string name="no_matching_servers_found_second_line">يُرجى محاولة تغيير عوامل التصفية لديك.</string>
     <string name="no_recent_selection">لا يوجد سجل اختيارات حديث</string>
+    <string name="none">لا يوجد</string>
     <string name="not_found">غير موجود</string>
     <string name="number_of_providers">موفرو الخدمات: %1$d</string>
     <string name="obfuscation_info">يُخفي التمويه حركة بيانات WireGuard داخل بروتوكول آخر. ويمكن استخدامه للمساعدة في تجاوز الرقابة وأنواع التصفية الأخرى، حيث يتم حظر اتصال WireGuard العادي.</string>

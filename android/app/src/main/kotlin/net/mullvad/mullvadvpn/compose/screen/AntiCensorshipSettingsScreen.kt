@@ -3,6 +3,8 @@ package net.mullvad.mullvadvpn.compose.screen
 import android.os.Parcelable
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
@@ -246,7 +248,7 @@ private fun LazyListScope.content(
                     SelectableListItem(
                         hierarchy = Hierarchy.Child1,
                         position = Position.Bottom,
-                        title = stringResource(id = R.string.off),
+                        title = stringResource(id = R.string.none),
                         isSelected = it.selected,
                         onClick = { onSelectObfuscationMode(ObfuscationMode.Off) },
                         testTag = WIREGUARD_OBFUSCATION_OFF_CELL_TEST_TAG,
@@ -259,6 +261,7 @@ private fun LazyListScope.content(
             }
         }
     }
+    item { Spacer(Modifier.height(Dimens.screenBottomMarginNew)) }
 }
 
 private fun LazyListScope.loading() {

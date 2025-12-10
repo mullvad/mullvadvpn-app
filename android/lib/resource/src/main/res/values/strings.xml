@@ -201,6 +201,7 @@
     <string name="obfuscation_info">Obfuscation hides the WireGuard traffic inside another protocol. It can be used to help circumvent censorship and other types of filtering, where a plain WireGuard connection would be blocked.</string>
     <string name="automatic">Automatic</string>
     <string name="off">Off</string>
+    <string name="none">None</string>
     <string name="udp_over_tcp_port_info">Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server.</string>
     <string name="created_x">Created: %s</string>
     <string name="local_network_sharing_info">This feature allows access to other devices on the local network, such as for sharing, printing, streaming, etc.</string>

@@ -290,6 +290,7 @@
     <string name="no_matching_servers_found_first_line">Aucun serveur correspondant trouvé.</string>
     <string name="no_matching_servers_found_second_line">Veuillez essayer de changer vos filtres.</string>
     <string name="no_recent_selection">Aucun historique des sélections récentes</string>
+    <string name="none">Aucun</string>
     <string name="not_found">Introuvable</string>
     <string name="number_of_providers">Fournisseurs : %1$d</string>
     <string name="obfuscation_info">La dissimulation cache le trafic WireGuard à l\'intérieur d\'un autre protocole. Elle peut être utilisée pour aider à contourner la censure et d\'autres types de filtrage, où une connexion WireGuard simple serait bloquée.</string>

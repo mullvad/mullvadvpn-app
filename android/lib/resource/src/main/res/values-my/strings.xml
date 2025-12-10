@@ -290,6 +290,7 @@
     <string name="no_matching_servers_found_first_line">ကိုက်ညီသည့် ဆာဗာများ မတွေ့ပါ။</string>
     <string name="no_matching_servers_found_second_line">စစ်ထုတ်မှုများကို ပြောင်းကြည့်ပါ။</string>
     <string name="no_recent_selection">လတ်တလောရွေးချယ်မှု မှတ်တမ်း မရှိပါ</string>
+    <string name="none">မရှိ</string>
     <string name="not_found">ရှာမတွေ့ပါ</string>
     <string name="number_of_providers">ပံ့ပိုးသူများ- %1$d</string>
     <string name="obfuscation_info">Obfuscation သည် အခြားပရိုတိုကောလ်အတွင်းရှိ WireGuard ကူးလူးမှုကို ဝှက်ထားပေးပါသည်။ သာမန် WireGuard ချိတ်ဆက်မှုကို ပိတ်ဆို့မည့် အခြားသော စစ်ထုတ်မှု အမျိုးအစားများနှင့် ဆင်ဆာဖြတ်တောက်ခြင်းကို ရှောင်လွှဲနိုင်စေရာတွင် ကူညီနိုင်စေရန် ၎င်းကို သုံးနိုင်ပါသည်။</string>
