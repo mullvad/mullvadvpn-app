@@ -381,8 +381,6 @@ message GeoIpLocation {
   double longitude = 6;
   bool mullvad_exit_ip = 7;
   optional string hostname = 8;
-  // TODO: remove
-  optional string bridge_hostname = 9;
   optional string entry_hostname = 10;
   optional string obfuscator_hostname = 11;
 }
