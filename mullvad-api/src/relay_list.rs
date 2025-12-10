@@ -3,7 +3,10 @@
 use crate::rest;
 
 use hyper::{StatusCode, body::Incoming, header};
-use mullvad_types::{location, relay_list};
+use mullvad_types::{
+    location,
+    relay_list::{self, BridgeRelay, WireguardRelayEndpointData},
+};
 use talpid_types::net::wireguard;
 use vec1::Vec1;
 
@@ -119,6 +122,7 @@ impl ServerRelayList {
             }
         }
 
+        let (bridge_endpoint, bridges) = bridge.extract_relays();
         relay_list::RelayList {
             etag: etag.map(|mut tag| {
                 if tag.starts_with('"') {
@@ -127,7 +131,8 @@ impl ServerRelayList {
                 tag
             }),
             wireguard: wireguard.extract_relays(&mut countries),
-            bridge: bridge.extract_relays(&mut countries),
+            bridges,
+            bridge_endpoint,
             countries: countries.into_values().collect(),
         }
     }
@@ -164,7 +169,7 @@ fn location_to_city(location: &Location, code: String) -> relay_list::RelayListC
 fn into_mullvad_relay(
     relay: Relay,
     location: location::Location,
-    endpoint_data: relay_list::RelayEndpointData,
+    endpoint_data: WireguardRelayEndpointData,
 ) -> relay_list::Relay {
     relay_list::Relay {
         hostname: relay.hostname,
@@ -178,6 +183,17 @@ fn into_mullvad_relay(
         provider: relay.provider,
         weight: relay.weight,
         endpoint_data,
+        location,
+    }
+}
+
+fn into_bridge_relay(relay: Relay, location: location::Location) -> relay_list::BridgeRelay {
+    relay_list::BridgeRelay {
+        hostname: relay.hostname,
+        ipv4_addr_in: relay.ipv4_addr_in,
+        ipv6_addr_in: relay.ipv6_addr_in,
+        active: relay.active,
+        weight: relay.weight,
         location,
     }
 }
@@ -204,8 +220,8 @@ struct Relay {
 }
 
 impl Relay {
-    fn into_bridge_mullvad_relay(self, location: location::Location) -> relay_list::Relay {
-        into_mullvad_relay(self, location, relay_list::RelayEndpointData::Bridge)
+    fn into_bridge_mullvad_relay(self, location: location::Location) -> relay_list::BridgeRelay {
+        into_bridge_relay(self, location)
     }
 
     fn convert_to_lowercase(&mut self) {
@@ -310,16 +326,15 @@ impl WireGuardRelay {
         }
 
         let relay = self.relay;
-        let endpoint_data =
-            relay_list::RelayEndpointData::Wireguard(relay_list::WireguardRelayEndpointData {
-                public_key: self.public_key,
-                // FIXME: This hack is forward-compatible with 'features' being rolled out.
-                //        Should unwrap to 'false' once 'daita' field is removed.
-                daita: self.features.daita.map(|_| true).unwrap_or(self.daita),
-                shadowsocks_extra_addr_in: HashSet::from_iter(self.shadowsocks_extra_addr_in),
-                quic: self.features.quic.map(relay_list::Quic::from),
-                lwo: self.features.lwo.is_some(),
-            });
+        let endpoint_data = relay_list::WireguardRelayEndpointData {
+            public_key: self.public_key,
+            // FIXME: This hack is forward-compatible with 'features' being rolled out.
+            //        Should unwrap to 'false' once 'daita' field is removed.
+            daita: self.features.daita.map(|_| true).unwrap_or(self.daita),
+            shadowsocks_extra_addr_in: HashSet::from_iter(self.shadowsocks_extra_addr_in),
+            quic: self.features.quic.map(relay_list::Quic::from),
+            lwo: self.features.lwo.is_some(),
+        };
 
         into_mullvad_relay(relay, location, endpoint_data)
     }
@@ -374,40 +389,51 @@ struct Lwo {}
 #[derive(Debug, serde::Deserialize)]
 struct Bridges {
     shadowsocks: Vec<relay_list::ShadowsocksEndpointData>,
-    relays: Vec<Relay>,
+    relays: Vec<Relay>, // ??
 }
 
 impl Bridges {
     /// Consumes `self` and appends all its relays to `countries`.
     fn extract_relays(
         self,
-        countries: &mut BTreeMap<String, relay_list::RelayListCountry>,
-    ) -> relay_list::BridgeEndpointData {
-        for mut bridge_relay in self.relays {
-            bridge_relay.convert_to_lowercase();
-            if let Some((country_code, city_code)) = split_location_code(&bridge_relay.location)
-                && let Some(country) = countries.get_mut(country_code)
-                && let Some(city) = country
-                    .cities
-                    .iter_mut()
-                    .find(|city| city.code == city_code)
-            {
-                let location = location::Location {
-                    country: country.name.clone(),
-                    country_code: country.code.clone(),
-                    city: city.name.clone(),
-                    city_code: city.code.clone(),
-                    latitude: city.latitude,
-                    longitude: city.longitude,
-                };
+        countries: &BTreeMap<String, relay_list::RelayListCountry>,
+    ) -> (relay_list::BridgeEndpointData, Vec<BridgeRelay>) {
+        let relays = self
+            .relays
+            .into_iter()
+            .filter_map(|mut bridge_relay| {
+                bridge_relay.convert_to_lowercase();
 
-                let relay = bridge_relay.into_bridge_mullvad_relay(location);
-                city.relays.push(relay);
-            };
-        }
+                // TODO:  remove this logic, we canbnot possibly need it for bridges, right?
+                if let Some((country_code, city_code)) = split_location_code(&bridge_relay.location)
+                    && let Some(country) = countries.get(country_code)
+                    && let Some(city) = country
+                        .cities
+                        .iter_mut()
+                        .find(|city| city.code == city_code)
+                {
+                    let location = location::Location {
+                        country: country.name.clone(),
+                        country_code: country.code.clone(),
+                        city: city.name.clone(),
+                        city_code: city.code.clone(),
+                        latitude: city.latitude,
+                        longitude: city.longitude,
+                    };
 
-        relay_list::BridgeEndpointData {
-            shadowsocks: self.shadowsocks,
-        }
+                    let relay = bridge_relay.into_bridge_mullvad_relay(location);
+                    Some(relay)
+                } else {
+                    None
+                }
+            })
+            .collect();
+
+        (
+            relay_list::BridgeEndpointData {
+                shadowsocks: self.shadowsocks,
+            },
+            relays,
+        )
     }
 }

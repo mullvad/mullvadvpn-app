@@ -3360,8 +3360,8 @@ impl Daemon {
                         let matching_city = relay == city.name;
                         for settings_relay in &mut city.relays {
                             // `relay` can also be a VPN protocol. This is arbitrary, but useful.
-                            let matching_protocol = relay.to_lowercase().eq("wireguard")
-                                && settings_relay.is_wireguard();
+                            // TODO: Should this be kept?
+                            let matching_protocol = relay.to_lowercase().eq("wireguard");
                             let matching_relay = relay == settings_relay.hostname;
 
                             if matching_relay

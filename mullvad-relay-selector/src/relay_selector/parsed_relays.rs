@@ -165,7 +165,7 @@ impl ParsedRelays {
             for city in &mut country.cities {
                 for relay in &mut city.relays {
                     // Append location data
-                    relay.location = Location {
+                    relay.inner.location = Location {
                         country: country.name.clone(),
                         country_code: country.code.clone(),
                         city: city.name.clone(),
@@ -175,7 +175,7 @@ impl ParsedRelays {
                     };
 
                     // Append overrides
-                    if let Some(overrides) = remaining_overrides.remove(&relay.hostname) {
+                    if let Some(overrides) = remaining_overrides.remove(&relay.inner.hostname) {
                         overrides.apply_to_relay(relay);
                     }
                 }

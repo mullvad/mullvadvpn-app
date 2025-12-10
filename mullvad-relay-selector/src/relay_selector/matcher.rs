@@ -37,8 +37,6 @@ pub fn filter_matching_relay_list_include_all(
     let relays = relay_list.relays();
     let locations = ResolvedLocationConstraint::from_constraint(query.location(), custom_lists);
     relays
-            // Filter on relay type (ignore bridge relays)
-            .filter(|relay| filter_wireguard(relay))
             // Filter on active relays
             .filter(|relay| filter_on_active(relay))
             // Filter by location
@@ -83,10 +81,7 @@ pub fn filter_on_providers(filter: &Constraint<Providers>, relay: &Relay) -> boo
 pub fn filter_on_daita(filter: &Constraint<bool>, relay: &Relay) -> bool {
     match (filter, &relay.endpoint_data) {
         // Only a subset of relays support DAITA, so filter out ones that don't.
-        (
-            Constraint::Only(true),
-            RelayEndpointData::Wireguard(WireguardRelayEndpointData { daita, .. }),
-        ) => *daita,
+        (Constraint::Only(true), WireguardRelayEndpointData { daita, .. }) => *daita,
         // If we don't require DAITA, any relay works.
         _ => true,
     }
@@ -99,10 +94,6 @@ fn filter_on_obfuscation(
     relay: &Relay,
 ) -> bool {
     use ObfuscationQuery::*;
-    let Some(endpoint_data) = relay.wireguard() else {
-        return true;
-    };
-
     match &query.obfuscation {
         // Shadowsocks has relay-specific constraints
         Shadowsocks(settings) => {
@@ -111,11 +102,11 @@ fn filter_on_obfuscation(
                 &wg_data.shadowsocks_port_ranges,
                 &query.ip_version,
                 settings,
-                endpoint_data,
+                relay.endpoint(),
             )
         }
         // QUIC is only enabled on some relays
-        Quic => match endpoint_data.quic() {
+        Quic => match relay.endpoint().quic() {
             Some(quic) => match query.ip_version {
                 Constraint::Any => true,
                 Constraint::Only(IpVersion::V4) => quic.in_ipv4().next().is_some(),
@@ -124,7 +115,7 @@ fn filter_on_obfuscation(
             None => false,
         },
         // LWO is only enabled on some relays
-        Lwo => endpoint_data.lwo,
+        Lwo => relay.endpoint().lwo,
         // Other relays are compatible with this query
         Off | Auto | Port(_) | Udp2tcp(_) => true,
     }
@@ -187,16 +178,6 @@ fn filter_on_include_in_country(
             }
         }
     }
-}
-
-/// Returns whether the relay is a Wireguard relay.
-pub const fn filter_wireguard(relay: &Relay) -> bool {
-    matches!(relay.endpoint_data, RelayEndpointData::Wireguard(_))
-}
-
-/// Returns whether the relay is a bridge.
-pub const fn filter_bridge(relay: &Relay) -> bool {
-    matches!(relay.endpoint_data, RelayEndpointData::Bridge)
 }
 
 /// Wrapper around [`GeographicLocationConstraint`].
