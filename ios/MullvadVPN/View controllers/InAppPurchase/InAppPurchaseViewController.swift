@@ -162,7 +162,6 @@ class InAppPurchaseViewController: UIViewController, StorePaymentObserver {
                 }
             )
 
-            action.accessibilityIdentifier = action.accessibilityIdentifier
             sheetController.addAction(action)
         }
 
@@ -172,6 +171,7 @@ class InAppPurchaseViewController: UIViewController, StorePaymentObserver {
         cancelAction.accessibilityIdentifier = "action-sheet-cancel-button"
 
         sheetController.addAction(cancelAction)
+
         present(sheetController, animated: true)
     }
 
@@ -292,7 +292,6 @@ class InAppPurchaseViewController: UIViewController, StorePaymentObserver {
                 }
             )
 
-            action.accessibilityIdentifier = action.accessibilityIdentifier
             sheetController.addAction(action)
         }
 
@@ -300,8 +299,8 @@ class InAppPurchaseViewController: UIViewController, StorePaymentObserver {
             self.didFinish?()
         }
         cancelAction.accessibilityIdentifier = "action-sheet-cancel-button"
-
         sheetController.addAction(cancelAction)
+
         present(sheetController, animated: true)
     }
 
