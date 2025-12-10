@@ -5,7 +5,7 @@ use tokio::sync::Mutex;
 
 use mullvad_relay_selector::{GetRelay, RelaySelector, WireguardConfig};
 use mullvad_types::{
-    endpoint::MullvadEndpoint, location::GeoIpLocation, relay_list::Relay, settings::TunnelOptions,
+    endpoint::MullvadEndpoint, location::GeoIpLocation, relay_list::WireguardRelay, settings::TunnelOptions,
 };
 use talpid_core::tunnel_state_machine::TunnelParametersGenerator;
 use talpid_types::net::{obfuscation::Obfuscators, wireguard};
@@ -77,7 +77,7 @@ impl ParametersGenerator {
         let relays = inner.last_generated_relays.as_ref()?;
 
         let take_hostname =
-            |relay: &Option<Relay>| relay.as_ref().map(|relay| relay.hostname.clone());
+            |relay: &Option<WireguardRelay>| relay.as_ref().map(|relay| relay.hostname.clone());
 
         let entry_hostname = take_hostname(&relays.entry);
         let hostname = relays.exit.hostname.clone();
@@ -248,8 +248,8 @@ impl From<Error> for ParameterGenerationError {
 /// But for most users, it will look like this:
 ///     client -> entry -> internet
 struct LastSelectedRelays {
-    entry: Option<Relay>,
-    exit: Relay,
-    obfuscator: Option<Relay>,
+    entry: Option<WireguardRelay>,
+    exit: WireguardRelay,
+    obfuscator: Option<WireguardRelay>,
     server_override: bool,
 }

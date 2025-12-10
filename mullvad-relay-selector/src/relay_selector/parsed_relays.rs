@@ -17,7 +17,7 @@ use std::{
 use mullvad_types::{
     location::Location,
     relay_constraints::RelayOverride,
-    relay_list::{Relay, RelayList},
+    relay_list::{WireguardRelay, RelayList},
 };
 
 use crate::{constants::UDP2TCP_PORTS, error::Error};
@@ -34,7 +34,7 @@ pub(crate) struct ParsedRelays {
 
 impl ParsedRelays {
     /// Return a flat iterator with all relays
-    pub fn relays(&self) -> impl Iterator<Item = &Relay> + Clone + '_ {
+    pub fn relays(&self) -> impl Iterator<Item = &WireguardRelay> + Clone + '_ {
         self.parsed_list.relays()
     }
 
@@ -165,7 +165,7 @@ impl ParsedRelays {
             for city in &mut country.cities {
                 for relay in &mut city.relays {
                     // Append location data
-                    relay.inner.location = Location {
+                    relay.location = Location {
                         country: country.name.clone(),
                         country_code: country.code.clone(),
                         city: city.name.clone(),
@@ -175,7 +175,7 @@ impl ParsedRelays {
                     };
 
                     // Append overrides
-                    if let Some(overrides) = remaining_overrides.remove(&relay.inner.hostname) {
+                    if let Some(overrides) = remaining_overrides.remove(&relay.hostname) {
                         overrides.apply_to_relay(relay);
                     }
                 }
