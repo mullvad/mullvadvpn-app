@@ -54,7 +54,7 @@ impl AddressCacheBacking for FileAddressCacheBacking {
     }
 
     async fn write(&self, data: &[u8]) -> Result<(), Error> {
-        let Some(write_path) =  self.write_path.as_ref() else {
+        let Some(write_path) = self.write_path.as_ref() else {
             return Err(Error::NoPath);
         };
         let mut file = mullvad_fs::AtomicFile::new(&**write_path)
@@ -154,7 +154,7 @@ impl<Backing: AddressCacheBacking> GenericAddressCache<Backing> {
         if address != inner.address {
             match self.save_to_backing(&address).await {
                 Ok(()) | Err(Error::NoPath) => (),
-                 Err(err) => return Err(err),
+                Err(err) => return Err(err),
             };
             inner.address = address;
         }
