@@ -24,6 +24,9 @@
 # Cargo deny config must be approved by tech lead or desktop team lead
 **/deny.toml @faern @raksooo @tobias-jarvelov
 
+# Android build server files owned by android
+/ci/buildserver-build-android.sh @faern @rawa @albin-mullvad
+
 # Changes to what CVEs are ignored must be approved by leads
 **/osv-scanner.toml @faern @raksooo @pinkisemils @albin-mullvad @rawa @tobias-jarvelov
 /.github/workflows/osv-scanner*.yml @faern @raksooo @pinkisemils @rawa @tobias-jarvelov
