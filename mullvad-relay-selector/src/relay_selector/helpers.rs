@@ -2,14 +2,14 @@
 
 use std::{
     net::{IpAddr, SocketAddr},
-    ops::{RangeBounds, RangeInclusive},
+    ops::{Deref, RangeBounds, RangeInclusive},
 };
 
 use mullvad_types::{
     constraints::Constraint,
     endpoint::MullvadEndpoint,
     relay_constraints::{ShadowsocksSettings, Udp2TcpObfuscationSettings},
-    relay_list::Relay,
+    relay_list::{Relay, WireguardRelay},
 };
 use rand::{
     Rng,
@@ -31,17 +31,20 @@ pub enum Error {
 }
 
 /// Picks a relay at random from `relays`, but don't pick `exclude`.
-pub fn pick_random_relay_excluding<'a>(
-    relays: &'a [Relay],
-    exclude: &'_ Relay,
-) -> Option<&'a Relay> {
-    let filtered_relays = relays.iter().filter(|&a| a != exclude);
-    pick_random_relay_weighted(filtered_relays, |relay: &Relay| relay.weight)
+pub fn pick_random_relay_excluding<'a, T>(relays: &'a [T], exclude: &'_ T) -> Option<&'a T>
+where
+    T: Deref<Target = Relay>,
+{
+    let filtered_relays = relays.iter().filter(|&a| a.deref() != exclude.deref());
+    pick_random_relay_weighted(filtered_relays, |relay: &T| relay.weight)
 }
 
 /// Picks a relay using [pick_random_relay_weighted], using the `weight` member of each relay
 /// as the weight function.
-pub fn pick_random_relay(relays: &[Relay]) -> Option<&Relay> {
+pub fn pick_random_relay<T>(relays: &[T]) -> Option<&T>
+where
+    T: Deref<Target = Relay>,
+{
     pick_random_relay_weighted(relays.iter(), |relay| relay.weight)
 }
 
@@ -95,7 +98,7 @@ pub fn pick_random_relay_weighted<'a, RelayType>(
 pub fn get_multiplexer_obfuscator(
     udp2tcp_ports: &[u16],
     shadowsocks_ports: &[RangeInclusive<u16>],
-    obfuscator_relay: Relay,
+    obfuscator_relay: WireguardRelay,
     endpoint: &MullvadEndpoint,
 ) -> Result<SelectedObfuscator, Error> {
     use talpid_types::net::obfuscation::Obfuscators;
@@ -142,9 +145,9 @@ pub fn get_multiplexer_obfuscator(
 pub fn get_udp2tcp_obfuscator(
     obfuscation_settings_constraint: &Udp2TcpObfuscationSettings,
     udp2tcp_ports: &[u16],
-    relay: Relay,
+    relay: WireguardRelay,
     endpoint: &MullvadEndpoint,
-) -> Result<(ObfuscatorConfig, Relay), Error> {
+) -> Result<(ObfuscatorConfig, WireguardRelay), Error> {
     let udp2tcp_endpoint_port =
         get_udp2tcp_obfuscator_port(obfuscation_settings_constraint, udp2tcp_ports)?;
     let config = ObfuscatorConfig::Udp2Tcp {
@@ -173,9 +176,9 @@ fn get_udp2tcp_obfuscator_port(
 pub fn get_shadowsocks_obfuscator(
     settings: &ShadowsocksSettings,
     non_extra_port_ranges: &[RangeInclusive<u16>],
-    relay: Relay,
+    relay: WireguardRelay,
     endpoint: &MullvadEndpoint,
-) -> Result<(ObfuscatorConfig, Relay), Error> {
+) -> Result<(ObfuscatorConfig, WireguardRelay), Error> {
     let port = settings.port;
     let extra_addrs = relay.endpoint_data.shadowsocks_extra_in_addrs();
 
@@ -190,9 +193,9 @@ pub fn get_shadowsocks_obfuscator(
 }
 
 pub fn get_quic_obfuscator(
-    relay: Relay,
+    relay: WireguardRelay,
     ip_version: IpVersion,
-) -> Option<(ObfuscatorConfig, Relay)> {
+) -> Option<(ObfuscatorConfig, WireguardRelay)> {
     let quic = relay.endpoint().quic()?;
     let config = {
         let hostname = quic.hostname().to_string();
@@ -214,9 +217,9 @@ pub fn get_quic_obfuscator(
 }
 
 pub fn get_lwo_obfuscator(
-    relay: Relay,
+    relay: WireguardRelay,
     endpoint: &MullvadEndpoint,
-) -> Option<(ObfuscatorConfig, Relay)> {
+) -> Option<(ObfuscatorConfig, WireguardRelay)> {
     if !relay.endpoint().lwo {
         return None;
     }

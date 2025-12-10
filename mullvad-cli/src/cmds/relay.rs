@@ -374,7 +374,7 @@ impl Relay {
 
                 match entry_args {
                     EntryArgs::Location(location_args) => {
-                        let relay_filter = |relay: &mullvad_types::relay_list::Relay| {
+                        let relay_filter = |relay: &mullvad_types::relay_list::WireguardRelay| {
                             relay.active
                                 && matches!(relay.endpoint_data, RelayEndpointData::Wireguard(_))
                         };
@@ -701,7 +701,7 @@ impl Relay {
 }
 
 fn relay_to_geographical_constraint(
-    relay: mullvad_types::relay_list::Relay,
+    relay: mullvad_types::relay_list::WireguardRelay,
 ) -> GeographicLocationConstraint {
     GeographicLocationConstraint::Hostname(
         relay.location.country_code,
@@ -721,7 +721,7 @@ fn relay_to_geographical_constraint(
 pub async fn resolve_location_constraint(
     rpc: &mut MullvadProxyClient,
     location_constraint_args: LocationArgs,
-    relay_filter: impl FnOnce(&mullvad_types::relay_list::Relay) -> bool,
+    relay_filter: impl FnOnce(&mullvad_types::relay_list::WireguardRelay) -> bool,
 ) -> Result<Constraint<GeographicLocationConstraint>> {
     let relay_iter = rpc.get_relay_locations().await?.into_relays();
     match relay_iter
