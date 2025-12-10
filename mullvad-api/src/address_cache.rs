@@ -44,7 +44,7 @@ pub struct FileAddressCacheBacking {
 #[async_trait]
 impl AddressCacheBacking for FileAddressCacheBacking {
     async fn read(&self) -> Result<Vec<u8>, Error> {
-        let read_path = self.read_path.as_ref() else {
+        let Some(read_path) = self.read_path.as_ref() else {
             return Err(Error::NoPath);
         };
         let mut file = fs::File::open(read_path).await.map_err(Error::Open)?;
@@ -54,9 +54,8 @@ impl AddressCacheBacking for FileAddressCacheBacking {
     }
 
     async fn write(&self, data: &[u8]) -> Result<(), Error> {
-        let write_path = match self.write_path.as_ref() {
-            Some(write_path) => write_path,
-            None => return Ok(()),
+        let Some(write_path) =  self.write_path.as_ref() else {
+            return Err(Error::NoPath);
         };
         let mut file = mullvad_fs::AtomicFile::new(&**write_path)
             .await
@@ -153,7 +152,10 @@ impl<Backing: AddressCacheBacking> GenericAddressCache<Backing> {
     pub async fn set_address(&self, address: SocketAddr) -> Result<(), Error> {
         let mut inner = self.inner.lock().await;
         if address != inner.address {
-            self.save_to_backing(&address).await?;
+            match self.save_to_backing(&address).await {
+                Ok(()) | Err(Error::NoPath) => (),
+                 Err(err) => return Err(err),
+            };
             inner.address = address;
         }
         Ok(())
