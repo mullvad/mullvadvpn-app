@@ -31,9 +31,7 @@ Line wrap the file at 100 chars.                                              Th
 #### Windows
 - Update split tunnel driver to 1.2.5.0. This fixes audit issue `MLLVD-CR-24-102`,
   and a BSOD when the driver was improperly unloaded.
-
-#### Windows
-- Detect and show which processes are preventing an update.
+- Detect and kill processes preventing updates.
 
 ### Changed
 #### Linux
