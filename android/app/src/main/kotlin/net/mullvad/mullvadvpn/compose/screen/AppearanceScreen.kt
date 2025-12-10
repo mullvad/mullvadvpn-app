@@ -31,9 +31,9 @@ import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.AppIconAndTitleListItem
 import net.mullvad.mullvadvpn.lib.ui.component.text.Description
+import net.mullvad.mullvadvpn.lib.ui.designsystem.ListHeader
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorMedium
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
-import net.mullvad.mullvadvpn.lib.ui.designsystem.RelayListHeader
 import net.mullvad.mullvadvpn.repository.AppObfuscation
 import net.mullvad.mullvadvpn.util.Lc
 import net.mullvad.mullvadvpn.viewmodel.AppearanceUiState
@@ -116,7 +116,7 @@ private fun LazyListScope.content(
     onObfuscationSelected: (AppObfuscation) -> Unit = {},
 ) {
     description()
-    item { RelayListHeader(content = { Text(text = stringResource(R.string.icon_and_title)) }) }
+    item { ListHeader(content = { Text(text = stringResource(R.string.icon_and_title)) }) }
     itemsIndexedWithDivider(
         items = uiState.availableObfuscations,
         key = { _, item -> item.path },
