@@ -14,7 +14,8 @@ use vec1::Vec1;
 pub struct RelayList {
     pub etag: Option<String>,
     pub countries: Vec<RelayListCountry>,
-    pub bridge: BridgeEndpointData,
+    pub bridges: Vec<BridgeRelay>,
+    pub bridge_endpoint: BridgeEndpointData,
     pub wireguard: EndpointData,
 }
 
@@ -53,7 +54,7 @@ impl RelayList {
         for country in &self.countries {
             for city in &country.cities {
                 for relay in &city.relays {
-                    let distance = relay.location.distance_from(location);
+                    let distance = relay.inner.location.distance_from(location);
                     if distance < min_dist {
                         min_dist = distance;
                         min_dist_country = country;
@@ -70,6 +71,10 @@ impl RelayList {
             .iter()
             .flat_map(|country| country.cities.iter())
             .flat_map(|city| city.relays.iter())
+    }
+
+    pub fn bridges(&self) -> &[BridgeRelay] {
+        &self.bridges
     }
 
     /// Return a consuming flat iterator of all [`Relay`]s
@@ -109,31 +114,38 @@ pub struct RelayListCity {
 /// `mullvad_api::RelayListProxy`.
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Relay {
-    pub hostname: String,
-    pub ipv4_addr_in: Ipv4Addr,
-    pub ipv6_addr_in: Option<Ipv6Addr>,
     // NOTE: Probably a better design choice would be to store the overridden IP addresses
     // instead of a boolean override flags. This would allow us to access the original IPs.
     pub overridden_ipv4: bool,
     pub overridden_ipv6: bool,
     pub include_in_country: bool,
-    pub active: bool,
     pub owned: bool,
     pub provider: String,
+    pub endpoint_data: WireguardRelayEndpointData,
+    pub inner: RelayInner,
+}
+
+/// Stores information for a bridge returned by the API at `v1/relays` using
+/// `mullvad_api::RelayListProxy`.
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct BridgeRelay {
+    pub inner: RelayInner,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct RelayInner {
+    pub hostname: String,
+    pub ipv4_addr_in: Ipv4Addr,
+    pub ipv6_addr_in: Option<Ipv6Addr>,
+    pub active: bool,
     pub weight: u64,
-    pub endpoint_data: RelayEndpointData,
     pub location: Location,
 }
 
 impl Relay {
     /// If self is a Wireguard relay, we sometimes want to peek on its extra data.
-    pub fn wireguard(&self) -> Option<&WireguardRelayEndpointData> {
-        match &self.endpoint_data {
-            RelayEndpointData::Wireguard(wireguard_relay_endpoint_data) => {
-                Some(wireguard_relay_endpoint_data)
-            }
-            RelayEndpointData::Bridge => None,
-        }
+    pub fn endpoint(&self) -> &WireguardRelayEndpointData {
+        &self.endpoint_data
     }
 }
 
@@ -206,17 +218,13 @@ impl Quic {
 
 impl Relay {
     pub fn override_ipv4(&mut self, new_ipv4: Ipv4Addr) {
-        self.ipv4_addr_in = new_ipv4;
+        self.inner.ipv4_addr_in = new_ipv4;
         self.overridden_ipv4 = true;
     }
 
     pub fn override_ipv6(&mut self, new_ipv6: Ipv6Addr) {
-        self.ipv6_addr_in = Some(new_ipv6);
+        self.inner.ipv6_addr_in = Some(new_ipv6);
         self.overridden_ipv6 = true;
-    }
-
-    pub const fn is_wireguard(&self) -> bool {
-        matches!(self.endpoint_data, RelayEndpointData::Wireguard(_))
     }
 }
 
@@ -271,7 +279,7 @@ impl PartialEq for Relay {
     /// assert_ne!(relay, different_relay);
     /// ```
     fn eq(&self, other: &Self) -> bool {
-        self.hostname == other.hostname
+        self.inner.hostname == other.inner.hostname
     }
 }
 
@@ -283,7 +291,7 @@ impl Eq for Relay {}
 /// hostname.
 impl std::hash::Hash for Relay {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
-        self.hostname.hash(state)
+        self.inner.hostname.hash(state)
     }
 }
 
@@ -468,25 +476,23 @@ mod test {
                     latitude: 57.70887,
                     longitude: 11.97456,
                     relays: vec![Relay {
-                        hostname: "se9-wireguard".to_string(),
-                        ipv4_addr_in: "185.213.154.68".parse().unwrap(),
-                        ipv6_addr_in: Some("2a03:1b20:5:f011::a09f".parse().unwrap()),
+                        inner: RelayInner {
+                            hostname: "se9-wireguard".to_string(),
+                            ipv4_addr_in: "185.213.154.68".parse().unwrap(),
+                            ipv6_addr_in: Some("2a03:1b20:5:f011::a09f".parse().unwrap()),
+                            active: true,
+                            location: location_sweden.clone(),
+                            weight: 1,
+                        },
                         overridden_ipv4: false,
                         overridden_ipv6: false,
                         include_in_country: true,
-                        active: true,
                         owned: true,
                         provider: "provider0".to_string(),
-                        weight: 1,
-                        endpoint_data: RelayEndpointData::Wireguard(
-                            WireguardRelayEndpointData::new(
-                                PublicKey::from_base64(
-                                    "BLNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=",
-                                )
+                        endpoint_data: WireguardRelayEndpointData::new(
+                            PublicKey::from_base64("BLNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=")
                                 .unwrap(),
-                            ),
                         ),
-                        location: location_sweden.clone(),
                     }],
                 }],
             },
@@ -500,25 +506,23 @@ mod test {
                     latitude: 34.672314,
                     longitude: 135.484802,
                     relays: vec![Relay {
-                        hostname: "jp9-wireguard".to_string(),
-                        ipv4_addr_in: "194.114.136.3".parse().unwrap(),
-                        ipv6_addr_in: Some("2404:1b20:5:f011::a09f".parse().unwrap()),
+                        inner: RelayInner {
+                            hostname: "jp9-wireguard".to_string(),
+                            ipv4_addr_in: "194.114.136.3".parse().unwrap(),
+                            ipv6_addr_in: Some("2404:1b20:5:f011::a09f".parse().unwrap()),
+                            active: true,
+                            weight: 1,
+                            location: location_japan.clone(),
+                        },
                         overridden_ipv4: false,
                         overridden_ipv6: false,
                         include_in_country: true,
-                        active: true,
                         owned: true,
                         provider: "provider0".to_string(),
-                        weight: 1,
-                        endpoint_data: RelayEndpointData::Wireguard(
-                            WireguardRelayEndpointData::new(
-                                PublicKey::from_base64(
-                                    "BLNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=",
-                                )
+                        endpoint_data: WireguardRelayEndpointData::new(
+                            PublicKey::from_base64("BLNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=")
                                 .unwrap(),
-                            ),
                         ),
-                        location: location_japan.clone(),
                     }],
                 }],
             },
