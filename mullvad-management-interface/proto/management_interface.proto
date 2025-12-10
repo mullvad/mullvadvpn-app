@@ -393,24 +393,6 @@ enum Ownership {
   RENTED = 2;
 }
 
-// TODO: remove
-message BridgeSettings {
-  enum BridgeType {
-    NORMAL = 0;
-    CUSTOM = 1;
-  }
-  // TODO: remove
-  message BridgeConstraints {
-    LocationConstraint location = 1;
-    repeated string providers = 2;
-    Ownership ownership = 3;
-  }
-
-  BridgeType bridge_type = 1;
-  // TODO: remove
-  BridgeConstraints normal = 2;
-  CustomProxy custom = 3;
-}
 
 message LocationConstraint {
   oneof type {
@@ -522,8 +504,6 @@ message ApiAccessMethodSettings {
 
 message Settings {
   RelaySettings relay_settings = 1;
-  // TODO: remove
-  BridgeSettings bridge_settings = 2;
   bool allow_lan = 3;
   bool lockdown_mode = 4;
   bool auto_connect = 5;
