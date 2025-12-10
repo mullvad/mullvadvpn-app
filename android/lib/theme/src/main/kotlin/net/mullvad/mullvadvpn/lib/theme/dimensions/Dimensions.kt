@@ -58,7 +58,9 @@ data class Dimensions(
     val relayCirclePadding: Dp = 8.dp,
     val relayCircleSize: Dp = 16.dp,
     val relayItemCornerRadius: Dp = 16.dp,
+    // These two should be consolidated into one value when OK'd with design.
     val screenBottomMargin: Dp = 16.dp,
+    val screenBottomMarginNew: Dp = 24.dp,
     val screenTopMargin: Dp = 24.dp,
     val searchFieldHeight: Dp = 42.dp,
     val searchFieldHeightExpanded: Dp = 72.dp,

@@ -86,7 +86,7 @@ class AntiCensorshipSettingsScreenTest {
             onNodeWithText("Shadowsocks").assertExists()
             onNodeWithText("UDP-over-TCP").assertExists()
             onNodeWithText("Automatic").assertExists()
-            onNodeWithText("Off").assertExists()
+            onNodeWithText("None").assertExists()
         }
 
     @Test

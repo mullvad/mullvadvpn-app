@@ -290,6 +290,7 @@
     <string name="no_matching_servers_found_first_line">找不到相符的伺服器。</string>
     <string name="no_matching_servers_found_second_line">請變更您的篩選器試試。</string>
     <string name="no_recent_selection">無最近選擇歷史</string>
+    <string name="none">無</string>
     <string name="not_found">找不到</string>
     <string name="number_of_providers">供應商：%1$d</string>
     <string name="obfuscation_info">藉由混淆，WireGuard 的流量能隱藏在另一個通訊協定中。這有助於規避審查或其他類型的篩選。在這類篩選中，普通 WireGuard 連線將遭到封鎖。</string>
