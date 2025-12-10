@@ -18,6 +18,9 @@
 /ci/buildserver* @faern @raksooo @tobias-jarvelov
 /ci/linux-repository-builder/ @faern @raksooo @tobias-jarvelov
 
+# Android build server files owned by android
+/ci/buildserver-build-android.sh @faern @rawa @albin-mullvad
+
 # Desktop release config specifying code signing key fingerprint
 /desktop/scripts/release/release-config.sh
 
