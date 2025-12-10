@@ -14,7 +14,7 @@ use mullvad_types::{
     constraints::Constraint,
     endpoint::MullvadEndpoint,
     relay_constraints::allowed_ip::resolve_from_constraint,
-    relay_list::{BridgeEndpointData, BridgeRelay, EndpointData, Relay},
+    relay_list::{Bridge, BridgeEndpointData, EndpointData, WireguardRelay},
 };
 use rand::seq::IndexedRandom;
 use talpid_types::net::{
@@ -34,7 +34,7 @@ pub enum Error {
     #[error("Bridges do not have a public key. Expected a Wireguard relay")]
     MissingPublicKey,
     #[error("The selected relay does not support IPv6")]
-    NoIPv6(Box<Relay>),
+    NoIPv6(Box<WireguardRelay>),
     #[error("Failed to select port ({port})")]
     PortSelectionError { port: Constraint<u16> },
 }
@@ -63,7 +63,7 @@ pub fn wireguard_endpoint(
 fn wireguard_singlehop_endpoint(
     query: &WireguardRelayQuery,
     data: &EndpointData,
-    exit: &Relay,
+    exit: &WireguardRelay,
 ) -> Result<MullvadEndpoint, Error> {
     let endpoint = {
         let host = get_address_for_wireguard_relay(query, exit)?;
@@ -102,8 +102,8 @@ fn wireguard_singlehop_endpoint(
 fn wireguard_multihop_endpoint(
     query: &WireguardRelayQuery,
     data: &EndpointData,
-    exit: &Relay,
-    entry: &Relay,
+    exit: &WireguardRelay,
+    entry: &WireguardRelay,
 ) -> Result<MullvadEndpoint, Error> {
     /// The standard port on which an exit relay accepts connections from an entry relay in a
     /// multihop circuit.
@@ -161,7 +161,7 @@ fn wireguard_multihop_endpoint(
 /// Get the correct IP address for the given relay.
 fn get_address_for_wireguard_relay(
     query: &WireguardRelayQuery,
-    relay: &Relay,
+    relay: &WireguardRelay,
 ) -> Result<IpAddr, Error> {
     match resolve_ip_version(query.ip_version) {
         IpVersion::V4 => Ok(relay.ipv4_addr_in.into()),
@@ -196,12 +196,12 @@ fn get_port_for_wireguard_relay(
 
 /// Read the [`PublicKey`] of a relay. This will only succeed if [relay][`Relay`] is a
 /// [Wireguard][`RelayEndpointData::Wireguard`] relay.
-const fn get_public_key(relay: &Relay) -> &PublicKey {
+const fn get_public_key(relay: &WireguardRelay) -> &PublicKey {
     &relay.endpoint_data.public_key
 }
 
 /// Picks a random bridge from a relay.
-pub fn bridge_endpoint(data: &BridgeEndpointData, relay: &BridgeRelay) -> Option<Shadowsocks> {
+pub fn bridge_endpoint(data: &BridgeEndpointData, relay: &Bridge) -> Option<Shadowsocks> {
     data.shadowsocks
         .choose(&mut rand::rng())
         .inspect(|shadowsocks_endpoint| {

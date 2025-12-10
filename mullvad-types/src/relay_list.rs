@@ -14,9 +14,10 @@ use vec1::Vec1;
 pub struct RelayList {
     pub etag: Option<String>,
     pub countries: Vec<RelayListCountry>,
-    pub bridges: Vec<BridgeRelay>,
-    pub bridge_endpoint: BridgeEndpointData,
     pub wireguard: EndpointData,
+    // TODO: Group these
+    pub bridge: Vec<Bridge>,
+    pub bridge_endpoint: BridgeEndpointData,
 }
 
 impl RelayList {
@@ -66,19 +67,19 @@ impl RelayList {
     }
 
     /// Return a flat iterator of all [`Relay`]s
-    pub fn relays(&self) -> impl Iterator<Item = &Relay> + Clone + '_ {
+    pub fn relays(&self) -> impl Iterator<Item = &WireguardRelay> + Clone + '_ {
         self.countries
             .iter()
             .flat_map(|country| country.cities.iter())
             .flat_map(|city| city.relays.iter())
     }
 
-    pub fn bridges(&self) -> &[BridgeRelay] {
-        &self.bridges
+    pub fn bridges(&self) -> &[Bridge] {
+        &self.bridge
     }
 
     /// Return a consuming flat iterator of all [`Relay`]s
-    pub fn into_relays(self) -> impl Iterator<Item = Relay> + Clone {
+    pub fn into_relays(self) -> impl Iterator<Item = WireguardRelay> + Clone {
         self.countries
             .into_iter()
             .flat_map(|country| country.cities)
@@ -107,13 +108,13 @@ pub struct RelayListCity {
     pub code: CityCode,
     pub latitude: f64,
     pub longitude: f64,
-    pub relays: Vec<Relay>,
+    pub relays: Vec<WireguardRelay>,
 }
 
 /// Stores information for a relay returned by the API at `v1/relays` using
 /// `mullvad_api::RelayListProxy`.
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct Relay {
+pub struct WireguardRelay {
     // NOTE: Probably a better design choice would be to store the overridden IP addresses
     // instead of a boolean override flags. This would allow us to access the original IPs.
     pub overridden_ipv4: bool,
@@ -122,31 +123,95 @@ pub struct Relay {
     pub owned: bool,
     pub provider: String,
     pub endpoint_data: WireguardRelayEndpointData,
-    pub inner: RelayInner,
+    pub inner: Relay,
+}
+
+impl WireguardRelay {
+    pub fn new(
+        overridden_ipv4: bool,
+        overridden_ipv6: bool,
+        include_in_country: bool,
+        owned: bool,
+        provider: String,
+        endpoint_data: WireguardRelayEndpointData,
+        inner: Relay,
+    ) -> Self {
+        Self {
+            overridden_ipv4,
+            overridden_ipv6,
+            include_in_country,
+            owned,
+            provider,
+            endpoint_data,
+            inner,
+        }
+    }
+
+    /// If self is a Wireguard relay, we sometimes want to peek on its extra data.
+    pub fn endpoint(&self) -> &WireguardRelayEndpointData {
+        &self.endpoint_data
+    }
+
+    pub fn override_ipv4(&mut self, new_ipv4: Ipv4Addr) {
+        self.inner.ipv4_addr_in = new_ipv4;
+        self.overridden_ipv4 = true;
+    }
+
+    pub fn override_ipv6(&mut self, new_ipv6: Ipv6Addr) {
+        self.inner.ipv6_addr_in = Some(new_ipv6);
+        self.overridden_ipv6 = true;
+    }
+}
+
+impl PartialEq for WireguardRelay {
+    fn eq(&self, other: &Self) -> bool {
+        self.inner == other.inner
+    }
+}
+
+impl Eq for WireguardRelay {}
+
+impl std::hash::Hash for WireguardRelay {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        self.inner.hash(state)
+    }
+}
+
+impl std::ops::Deref for WireguardRelay {
+    type Target = Relay;
+
+    fn deref(&self) -> &Self::Target {
+        &self.inner
+    }
+}
+
+impl std::ops::DerefMut for WireguardRelay {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.inner
+    }
 }
 
 /// Stores information for a bridge returned by the API at `v1/relays` using
 /// `mullvad_api::RelayListProxy`.
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct BridgeRelay {
-    pub inner: RelayInner,
+pub struct Bridge(pub Relay);
+
+impl std::ops::Deref for Bridge {
+    type Target = Relay;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct RelayInner {
+pub struct Relay {
     pub hostname: String,
     pub ipv4_addr_in: Ipv4Addr,
     pub ipv6_addr_in: Option<Ipv6Addr>,
     pub active: bool,
     pub weight: u64,
     pub location: Location,
-}
-
-impl Relay {
-    /// If self is a Wireguard relay, we sometimes want to peek on its extra data.
-    pub fn endpoint(&self) -> &WireguardRelayEndpointData {
-        &self.endpoint_data
-    }
 }
 
 /// Parameters for setting up a QUIC obfuscator (connecting to a masque-proxy running on a relay).
@@ -216,18 +281,6 @@ impl Quic {
     }
 }
 
-impl Relay {
-    pub fn override_ipv4(&mut self, new_ipv4: Ipv4Addr) {
-        self.inner.ipv4_addr_in = new_ipv4;
-        self.overridden_ipv4 = true;
-    }
-
-    pub fn override_ipv6(&mut self, new_ipv6: Ipv6Addr) {
-        self.inner.ipv6_addr_in = Some(new_ipv6);
-        self.overridden_ipv6 = true;
-    }
-}
-
 impl PartialEq for Relay {
     /// Hostnames are assumed to be unique per relay, i.e. a relay can be uniquely identified by its
     /// hostname.
@@ -279,7 +332,7 @@ impl PartialEq for Relay {
     /// assert_ne!(relay, different_relay);
     /// ```
     fn eq(&self, other: &Self) -> bool {
-        self.inner.hostname == other.inner.hostname
+        self.hostname == other.hostname
     }
 }
 
@@ -291,7 +344,7 @@ impl Eq for Relay {}
 /// hostname.
 impl std::hash::Hash for Relay {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
-        self.inner.hostname.hash(state)
+        self.hostname.hash(state)
     }
 }
 
@@ -475,8 +528,8 @@ mod test {
                     code: "got".to_string(),
                     latitude: 57.70887,
                     longitude: 11.97456,
-                    relays: vec![Relay {
-                        inner: RelayInner {
+                    relays: vec![WireguardRelay {
+                        inner: Relay {
                             hostname: "se9-wireguard".to_string(),
                             ipv4_addr_in: "185.213.154.68".parse().unwrap(),
                             ipv6_addr_in: Some("2a03:1b20:5:f011::a09f".parse().unwrap()),
@@ -505,8 +558,8 @@ mod test {
                     code: "osa".to_string(),
                     latitude: 34.672314,
                     longitude: 135.484802,
-                    relays: vec![Relay {
-                        inner: RelayInner {
+                    relays: vec![WireguardRelay {
+                        inner: Relay {
                             hostname: "jp9-wireguard".to_string(),
                             ipv4_addr_in: "194.114.136.3".parse().unwrap(),
                             ipv6_addr_in: Some("2404:1b20:5:f011::a09f".parse().unwrap()),

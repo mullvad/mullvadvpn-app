@@ -733,9 +733,16 @@ message DaemonEvent {
 }
 
 message RelayList {
+  // These are actual VPN relays
   repeated RelayListCountry countries = 1;
+  // These are not
+  repeated Bridge bridges = 1;
+  // TODO: combine Bridge & BridgeEndpointData
+  BridgeEndpointData bridge = 2;
   WireguardEndpointData wireguard = 3;
 }
+
+message BridgeEndpointData { repeated ShadowsocksEndpointData shadowsocks = 1; }
 
 message ShadowsocksEndpointData {
   uint32 port = 1;

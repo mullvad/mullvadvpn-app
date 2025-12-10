@@ -5,7 +5,7 @@ use crate::rest;
 use hyper::{StatusCode, body::Incoming, header};
 use mullvad_types::{
     location,
-    relay_list::{self, BridgeRelay, WireguardRelayEndpointData},
+    relay_list::{self, Bridge, WireguardRelayEndpointData},
 };
 use talpid_types::net::wireguard;
 use vec1::Vec1;
@@ -122,7 +122,9 @@ impl ServerRelayList {
             }
         }
 
-        let (bridge_endpoint, bridges) = bridge.extract_relays();
+        // Note: Wireguard::extract_relays needs to be called before Bridges::extract_relays because <TODO>
+        let wireguard = wireguard.extract_relays(&mut countries);
+        let (bridge_endpoint, bridge) = bridge.extract_relays(&countries);
         relay_list::RelayList {
             etag: etag.map(|mut tag| {
                 if tag.starts_with('"') {
@@ -130,8 +132,8 @@ impl ServerRelayList {
                 }
                 tag
             }),
-            wireguard: wireguard.extract_relays(&mut countries),
-            bridges,
+            wireguard,
+            bridge,
             bridge_endpoint,
             countries: countries.into_values().collect(),
         }
@@ -170,32 +172,23 @@ fn into_mullvad_relay(
     relay: Relay,
     location: location::Location,
     endpoint_data: WireguardRelayEndpointData,
-) -> relay_list::Relay {
-    relay_list::Relay {
-        hostname: relay.hostname,
-        ipv4_addr_in: relay.ipv4_addr_in,
-        ipv6_addr_in: relay.ipv6_addr_in,
-        overridden_ipv4: false,
-        overridden_ipv6: false,
-        include_in_country: relay.include_in_country,
-        active: relay.active,
-        owned: relay.owned,
-        provider: relay.provider,
-        weight: relay.weight,
+) -> relay_list::WireguardRelay {
+    relay_list::WireguardRelay::new(
+        false,
+        false,
+        relay.include_in_country,
+        relay.owned,
+        relay.provider,
         endpoint_data,
-        location,
-    }
-}
-
-fn into_bridge_relay(relay: Relay, location: location::Location) -> relay_list::BridgeRelay {
-    relay_list::BridgeRelay {
-        hostname: relay.hostname,
-        ipv4_addr_in: relay.ipv4_addr_in,
-        ipv6_addr_in: relay.ipv6_addr_in,
-        active: relay.active,
-        weight: relay.weight,
-        location,
-    }
+        relay_list::Relay {
+            hostname: relay.hostname,
+            ipv4_addr_in: relay.ipv4_addr_in,
+            ipv6_addr_in: relay.ipv6_addr_in,
+            active: relay.active,
+            weight: relay.weight,
+            location,
+        },
+    )
 }
 
 #[derive(Debug, serde::Deserialize)]
@@ -220,7 +213,7 @@ struct Relay {
 }
 
 impl Relay {
-    fn into_bridge_mullvad_relay(self, location: location::Location) -> relay_list::BridgeRelay {
+    fn into_bridge_mullvad_relay(self, location: location::Location) -> relay_list::Bridge {
         into_bridge_relay(self, location)
     }
 
@@ -317,7 +310,7 @@ struct WireGuardRelay {
 }
 
 impl WireGuardRelay {
-    fn into_mullvad_relay(self, location: location::Location) -> relay_list::Relay {
+    fn into_mullvad_relay(self, location: location::Location) -> relay_list::WireguardRelay {
         // Sanity check that new 'features' key is in sync with the old, superceded keys.
         // TODO: Remove `self.daita` (and this check 👇) when `features` key has been completely
         // rolled out to production.
@@ -397,20 +390,15 @@ impl Bridges {
     fn extract_relays(
         self,
         countries: &BTreeMap<String, relay_list::RelayListCountry>,
-    ) -> (relay_list::BridgeEndpointData, Vec<BridgeRelay>) {
+    ) -> (relay_list::BridgeEndpointData, Vec<Bridge>) {
         let relays = self
             .relays
             .into_iter()
             .filter_map(|mut bridge_relay| {
                 bridge_relay.convert_to_lowercase();
-
-                // TODO:  remove this logic, we canbnot possibly need it for bridges, right?
                 if let Some((country_code, city_code)) = split_location_code(&bridge_relay.location)
                     && let Some(country) = countries.get(country_code)
-                    && let Some(city) = country
-                        .cities
-                        .iter_mut()
-                        .find(|city| city.code == city_code)
+                    && let Some(city) = country.cities.iter().find(|city| city.code == city_code)
                 {
                     let location = location::Location {
                         country: country.name.clone(),

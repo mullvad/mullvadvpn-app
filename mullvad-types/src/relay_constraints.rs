@@ -6,7 +6,7 @@ use crate::{
     constraints::{Constraint, Match},
     custom_list::{CustomListsSettings, Id},
     location::{CityCode, CountryCode, Hostname},
-    relay_list::Relay,
+    relay_list::WireguardRelay,
 };
 use serde::{Deserialize, Serialize};
 use std::{
@@ -188,21 +188,21 @@ impl GeographicLocationConstraint {
     }
 }
 
-impl Match<Relay> for GeographicLocationConstraint {
-    fn matches(&self, relay: &Relay) -> bool {
+impl Match<WireguardRelay> for GeographicLocationConstraint {
+    fn matches(&self, relay: &WireguardRelay) -> bool {
         match self {
             GeographicLocationConstraint::Country(country) => {
-                relay.inner.location.country_code == *country
+                relay.location.country_code == *country
             }
             GeographicLocationConstraint::City(country, city) => {
-                let loc = &relay.inner.location;
+                let loc = &relay.location;
                 loc.country_code == *country && loc.city_code == *city
             }
             GeographicLocationConstraint::Hostname(country, city, hostname) => {
-                let loc = &relay.inner.location;
+                let loc = &relay.location;
                 loc.country_code == *country
                     && loc.city_code == *city
-                    && relay.inner.hostname == *hostname
+                    && relay.hostname == *hostname
             }
         }
     }
@@ -237,8 +237,8 @@ pub enum Ownership {
     Rented,
 }
 
-impl Match<Relay> for Ownership {
-    fn matches(&self, relay: &Relay) -> bool {
+impl Match<WireguardRelay> for Ownership {
+    fn matches(&self, relay: &WireguardRelay) -> bool {
         match self {
             Ownership::MullvadOwned => relay.owned,
             Ownership::Rented => !relay.owned,
@@ -309,8 +309,8 @@ impl Providers {
     }
 }
 
-impl Match<Relay> for Providers {
-    fn matches(&self, relay: &Relay) -> bool {
+impl Match<WireguardRelay> for Providers {
+    fn matches(&self, relay: &WireguardRelay) -> bool {
         self.providers.contains(&relay.provider)
     }
 }
@@ -680,18 +680,18 @@ impl RelayOverride {
         self == &Self::empty(self.hostname.clone())
     }
 
-    pub fn apply_to_relay(&self, relay: &mut Relay) {
+    pub fn apply_to_relay(&self, relay: &mut WireguardRelay) {
         if let Some(ipv4_addr_in) = self.ipv4_addr_in {
             log::debug!(
                 "Overriding ipv4_addr_in for {}: {ipv4_addr_in}",
-                relay.inner.hostname
+                relay.hostname
             );
             relay.override_ipv4(ipv4_addr_in);
         }
         if let Some(ipv6_addr_in) = self.ipv6_addr_in {
             log::debug!(
                 "Overriding ipv6_addr_in for {}: {ipv6_addr_in}",
-                relay.inner.hostname
+                relay.hostname
             );
             relay.override_ipv6(ipv6_addr_in);
         }
