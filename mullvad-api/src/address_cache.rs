@@ -44,9 +44,8 @@ pub struct FileAddressCacheBacking {
 #[async_trait]
 impl AddressCacheBacking for FileAddressCacheBacking {
     async fn read(&self) -> Result<Vec<u8>, Error> {
-        let read_path = match self.read_path.as_ref() {
-            Some(read_path) => read_path,
-            None => return Err(Error::NoPath),
+        let read_path = self.read_path.as_ref() else {
+            return Err(Error::NoPath);
         };
         let mut file = fs::File::open(read_path).await.map_err(Error::Open)?;
         let mut result = vec![];
