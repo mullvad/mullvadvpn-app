@@ -79,8 +79,6 @@ impl From<mullvad_types::relay_list::RelayListCountry> for proto::RelayListCount
 
 impl From<mullvad_types::relay_list::Relay> for proto::Relay {
     fn from(relay: mullvad_types::relay_list::Relay) -> Self {
-        use mullvad_types::relay_list::RelayEndpointData as MullvadEndpointData;
-
         Self {
             hostname: relay.hostname,
             ipv4_addr_in: relay.ipv4_addr_in.to_string(),
@@ -92,26 +90,26 @@ impl From<mullvad_types::relay_list::Relay> for proto::Relay {
             weight: relay.weight,
             endpoint_data: {
                 use proto::relay::RelayData;
-                use proto::relay::relay_data::{Wireguard, wireguard};
-                let data = match relay.endpoint_data {
-                    MullvadEndpointData::Wireguard(data) => {
-                        let shadowsocks_extra_addr_in = data
-                            .shadowsocks_extra_in_addrs()
-                            .map(|addr| addr.to_string())
-                            .collect();
-                        let public_key = data.public_key.as_bytes().to_vec();
-                        let daita = data.daita;
-                        let quic = data.quic.map(wireguard::Quic::from);
-                        Wireguard {
-                            public_key,
-                            daita,
-                            shadowsocks_extra_addr_in,
-                            quic,
-                            lwo: data.lwo,
-                        }
-                    }
-                    _ => todo!(),
-                };
+                use proto::relay::relay_data::{Data, Wireguard, wireguard};
+
+                let mullvad_types::relay_list::WireguardRelayEndpointData {
+                    public_key,
+                    daita,
+                    quic,
+                    lwo,
+                    shadowsocks_extra_addr_in,
+                } = relay.endpoint_data;
+                let data = Data::Wireguard(Wireguard {
+                    public_key: public_key.as_bytes().to_vec(),
+                    daita,
+                    shadowsocks_extra_addr_in: shadowsocks_extra_addr_in
+                        .iter()
+                        .map(|addr| addr.to_string())
+                        .collect(),
+                    quic: quic.map(wireguard::Quic::from),
+                    lwo,
+                });
+
                 Some(RelayData { data: Some(data) })
             },
             location: Some(proto::Location {
@@ -159,32 +157,6 @@ impl TryFrom<proto::relay::relay_data::wireguard::Quic> for mullvad_types::relay
         Ok(Self::new(addr_in, token, domain))
     }
 }
-
-impl TryFrom<proto::RelayList> for mullvad_types::relay_list::RelayList {
-    type Error = FromProtobufTypeError;
-
-    fn try_from(value: proto::RelayList) -> Result<Self, Self::Error> {
-        let wireguard = value
-            .wireguard
-            .ok_or(FromProtobufTypeError::InvalidArgument(
-                "missing wireguard data",
-            ))?;
-
-        let countries = value
-            .countries
-            .into_iter()
-            .map(mullvad_types::relay_list::RelayListCountry::try_from)
-            .collect::<Result<Vec<_>, _>>()?;
-
-        Ok(mullvad_types::relay_list::RelayList {
-            etag: None,
-            countries,
-            bridge: todo!("Remove this entire impl"),
-            wireguard: mullvad_types::relay_list::EndpointData::try_from(wireguard)?,
-        })
-    }
-}
-
 impl TryFrom<proto::RelayListCountry> for mullvad_types::relay_list::RelayListCountry {
     type Error = FromProtobufTypeError;
 
@@ -228,8 +200,7 @@ impl TryFrom<proto::Relay> for mullvad_types::relay_list::Relay {
 
     fn try_from(relay: proto::Relay) -> Result<Self, Self::Error> {
         use mullvad_types::{
-            location::Location as MullvadLocation,
-            relay_list::{Relay as MullvadRelay, RelayEndpointData as MullvadEndpointData},
+            location::Location as MullvadLocation, relay_list::Relay as MullvadRelay,
         };
 
         let endpoint_data = {

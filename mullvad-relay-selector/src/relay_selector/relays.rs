@@ -1,7 +1,7 @@
 //! This module defines wrapper types around [`Relay`], often to provide certain runtime guarantees
 //! or disambiguate the type of relay which is used in the relay selector's internal APIs.
 
-use mullvad_types::relay_list::{Relay, RelayEndpointData};
+use mullvad_types::relay_list::Relay;
 
 /// - [`WireguardConfig::Singlehop`]: A wireguard relay where VPN traffic enters and exits.
 /// - [`WireguardConfig::Multihop`]: Two wireguard relays to be used in a multihop circuit. VPN
@@ -55,27 +55,12 @@ impl From<Multihop> for WireguardConfig {
 
 impl Singlehop {
     pub const fn new(exit: Relay) -> Self {
-        // FIXME: This assert would be better to encode at the type level.
-        assert!(matches!(
-            exit.endpoint_data,
-            RelayEndpointData::Wireguard(_)
-        ));
         Self(exit)
     }
 }
 
 impl Multihop {
     pub const fn new(entry: Relay, exit: Relay) -> Self {
-        // FIXME: This assert would be better to encode at the type level.
-        assert!(matches!(
-            exit.endpoint_data,
-            RelayEndpointData::Wireguard(_)
-        ));
-        // FIXME: This assert would be better to encode at the type level.
-        assert!(matches!(
-            entry.endpoint_data,
-            RelayEndpointData::Wireguard(_)
-        ));
         Multihop { exit, entry }
     }
 }
