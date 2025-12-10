@@ -6,7 +6,7 @@ use crate::{
     constraints::{Constraint, Match},
     custom_list::{CustomListsSettings, Id},
     location::{CityCode, CountryCode, Hostname},
-    relay_list::Relay,
+    relay_list::{Relay, RelayEndpointData},
 };
 use serde::{Deserialize, Serialize};
 use std::{
