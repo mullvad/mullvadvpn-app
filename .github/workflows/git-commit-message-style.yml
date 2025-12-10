@@ -27,12 +27,13 @@ jobs:
       # Git commit messages should follow our guidelines. This action enforces that.
       # Guidelines:  https://github.com/mullvad/coding-guidelines/blob/main/README.md#git
       - name: Check against guidelines
-        uses: mristin/opinionated-commit-message@f3b9cec249cabffbae7cd564542fd302cc576827 #v3.1.1
+        uses: mristin/opinionated-commit-message@d50df0f84391a481867d2982506853a9a654fc04 #master @ 2025-12-10
         with:
           # Commit messages are allowed to be subject only, no body
           allow-one-liners: 'true'
           # This action defaults to 50 char subjects, but 72 is fine.
           max-subject-line-length: '72'
-          # The action's wordlist is a bit short. Add more accepted verbs
-          additional-verbs: 'tidy, wrap, obfuscate, bias, prohibit, forbid, revert, slim, impl, disregard, reproduce,
-            signal, guarantee, cap, parallelize, clone'
+          # All commit message verbs we have used in this repository up until 2025-12-10 are upstreamed
+          # to the action's allowed verb list. Consider if you can easily reword your commit message.
+          # Otherwise add your new *imperative verb* here. We then try to upstream all new verbs periodically.
+          additional-verbs: 'clone'
