@@ -3178,10 +3178,13 @@ dependencies = [
 name = "mullvad-nsis"
 version = "0.0.0"
 dependencies = [
+ "anyhow",
  "cbindgen",
  "libloading 0.9.0",
  "mullvad-paths",
  "talpid-platform-metadata",
+ "talpid-types",
+ "widestring",
  "windows-sys 0.61.1",
 ]
 

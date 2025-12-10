@@ -2,7 +2,8 @@ LIBRARY cleanup
 
 EXPORTS
 
-FindHoggingProcesses
+CloseHoggingProcesses
+IsEmptyDir
 MigrateCache
 RemoveLogsAndCache
 RemoveSettings

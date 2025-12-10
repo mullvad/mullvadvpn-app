@@ -10,6 +10,8 @@ enum class Status {
   InsufficientBufferSize,
   OsError,
   Panic,
+  Cancelled,
+  FileExists,
 };
 
 /// Windows version details
@@ -57,10 +59,26 @@ Status get_system_version(uint16_t *buffer, uintptr_t *buffer_size);
 Status get_system_version_struct(WindowsVer *version_out);
 
 /// Identify processes that may be using files in the install path, and ask the user to close them.
+/// If `allow_cancellation` is true, the function will not let the user cancel.
 ///
 /// # Safety
 ///
 /// * `install_path` must be a null-terminated wide string (UTF-16).
-Status find_in_use_processes(const uint16_t *install_path);
+/// * `error_message_out` must be a valid buffer of at least size `max_error_message_size` (characters).
+Status close_hogging_processes(const uint16_t *install_path,
+                               bool allow_cancellation,
+                               uint16_t *error_message_out,
+                               uintptr_t max_error_message_size);
+
+/// Return whether is empty or contains only directories and no files.
+///
+/// If the directory is empty or contains only directories, this returns `Status::Ok`.
+/// If the directory contains files, this returns `Status::FileExists`.
+/// If it fails for any other reason, this returns `Status::OsError`.
+///
+/// # Safety
+///
+/// * `path` must be a null-terminated wide string (UTF-16).
+Status is_empty_dir(const uint16_t *path);
 
 }  // extern "C"

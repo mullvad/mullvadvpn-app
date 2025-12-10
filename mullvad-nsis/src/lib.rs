@@ -1,6 +1,8 @@
 #![cfg(all(target_arch = "x86", target_os = "windows"))]
 
+use core::slice;
 use std::{
+    cmp::min,
     ffi::OsString,
     iter,
     os::windows::ffi::{OsStrExt, OsStringExt},
@@ -18,10 +20,9 @@ pub enum Status {
     InsufficientBufferSize,
     OsError,
     Panic,
+    Cancelled,
+    FileExists,
 }
-
-/// Max path size allowed
-const MAX_PATH_SIZE: usize = 32_767;
 
 /// Creates a privileged directory at the specified Windows path.
 ///
@@ -160,19 +161,82 @@ pub unsafe extern "C" fn get_system_version_struct(version_out: *mut WindowsVer)
 }
 
 /// Identify processes that may be using files in the install path, and ask the user to close them.
+/// If `allow_cancellation` is true, the function will not let the user cancel.
 ///
 /// # Safety
 ///
 /// * `install_path` must be a null-terminated wide string (UTF-16).
+/// * `error_message_out` must be a valid buffer of at least size `max_error_message_size` (characters).
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn find_in_use_processes(install_path: *const u16) -> Status {
+pub unsafe extern "C" fn close_hogging_processes(
+    install_path: *const u16,
+    allow_cancellation: bool,
+    error_message_out: *mut u16,
+    max_error_message_size: usize,
+) -> Status {
     catch_and_log_unwind(|| {
         // SAFETY: `install_path` is a null-terminated wide string.
         let path = unsafe { osstr_from_wide(install_path) };
-        if handle::ask_terminate_processes(&path).is_err() {
-            return Status::OsError;
+        match handle::terminate_processes(path, allow_cancellation) {
+            Ok(true) => Status::Ok,
+            Ok(false) => {
+                if max_error_message_size > 0 {
+                    // SAFETY: `error_message_out` is valid for `max_error_message_size` chars.
+                    unsafe { *error_message_out = 0 };
+                }
+                Status::Cancelled
+            }
+            Err(err) => {
+                // SAFETY: `error_message_out` is valid for `max_error_message_size` chars.
+                unsafe { write_error_into(err, error_message_out, max_error_message_size) };
+                Status::OsError
+            }
         }
-        Status::Ok
+    })
+}
+
+/// Write error chain for `err` into `error_message_out`.
+///
+/// # Safety
+///
+/// * `error_message_out` must be a valid buffer of at least size `max_error_message_size` (characters).
+unsafe fn write_error_into(
+    err: anyhow::Error,
+    error_message_out: *mut u16,
+    max_error_message_size: usize,
+) {
+    if max_error_message_size == 0 {
+        return;
+    }
+
+    let error_message_out: &mut [u16] =
+        unsafe { slice::from_raw_parts_mut(error_message_out, max_error_message_size) };
+    let err = format!("{err:?}");
+    let err = widestring::WideString::from(err);
+    let len = min(max_error_message_size - 1, err.len());
+    error_message_out[..len].copy_from_slice(&err.as_slice()[..len]);
+    error_message_out[len] = 0; // null terminator
+}
+
+/// Return whether is empty or contains only directories and no files.
+///
+/// If the directory is empty or contains only directories, this returns `Status::Ok`.
+/// If the directory contains files, this returns `Status::FileExists`.
+/// If it fails for any other reason, this returns `Status::OsError`.
+///
+/// # Safety
+///
+/// * `path` must be a null-terminated wide string (UTF-16).
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn is_empty_dir(path: *const u16) -> Status {
+    catch_and_log_unwind(|| {
+        // SAFETY: `path` is a null-terminated wide string.
+        let path = unsafe { osstr_from_wide(path) };
+        match handle::is_empty_dir(path) {
+            Ok(true) => Status::Ok,
+            Ok(false) => Status::FileExists,
+            Err(_err) => Status::OsError,
+        }
     })
 }
 
