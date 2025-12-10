@@ -74,7 +74,7 @@ fun ObfuscationModeListItem(
 fun ObfuscationMode.toTitle() =
     when (this) {
         ObfuscationMode.Auto -> stringResource(id = R.string.automatic)
-        ObfuscationMode.Off -> stringResource(id = R.string.off)
+        ObfuscationMode.Off -> stringResource(id = R.string.none)
         ObfuscationMode.Udp2Tcp -> stringResource(id = R.string.udp_over_tcp)
         ObfuscationMode.Shadowsocks -> stringResource(id = R.string.shadowsocks)
         ObfuscationMode.Quic -> stringResource(id = R.string.quic)

@@ -290,6 +290,7 @@
     <string name="no_matching_servers_found_first_line">هیچ سرور مطابقت‌دهنده‌ای پیدا نشد.</string>
     <string name="no_matching_servers_found_second_line">لطفاً فیلترهای خود را تغییر دهید.</string>
     <string name="no_recent_selection">هیچ سابقهٔ انتخاب اخیر وجود ندارد</string>
+    <string name="none">هیچکدام</string>
     <string name="not_found">پیدا نشد</string>
     <string name="number_of_providers">ارائه‌دهندگان: %1$d</string>
     <string name="obfuscation_info">پنهان‌سازی ترافیک WireGuard را درون یک پروتکل دیگر مخفی می‌کند. زمانی‌که یک اتصال معمولی WireGuard مسدود می‌شود، این قابلیت می‌تواند برای دور زدن سانسور و انواع دیگر فیلترینگ مفید باشد.</string>
