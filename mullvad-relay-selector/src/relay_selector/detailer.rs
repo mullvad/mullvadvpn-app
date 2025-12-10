@@ -14,7 +14,7 @@ use mullvad_types::{
     constraints::Constraint,
     endpoint::MullvadEndpoint,
     relay_constraints::allowed_ip::resolve_from_constraint,
-    relay_list::{BridgeEndpointData, EndpointData, Relay, RelayEndpointData},
+    relay_list::{BridgeEndpointData, BridgeRelay, EndpointData, Relay},
 };
 use rand::seq::IndexedRandom;
 use talpid_types::net::{
@@ -71,7 +71,7 @@ fn wireguard_singlehop_endpoint(
         SocketAddr::new(host, port)
     };
     let peer_config = PeerConfig {
-        public_key: get_public_key(exit)?.clone(),
+        public_key: get_public_key(exit).clone(),
         endpoint,
         // The peer should be able to route incoming VPN traffic to the given user given IP
         // ranges, if any, else the rest of the internet.
@@ -116,7 +116,7 @@ fn wireguard_multihop_endpoint(
         SocketAddr::from((ip, port))
     };
     let exit = PeerConfig {
-        public_key: get_public_key(exit)?.clone(),
+        public_key: get_public_key(exit).clone(),
         endpoint: exit_endpoint,
         // The exit peer should be able to route incoming VPN traffic to the given user given IP
         // ranges, if any, else the rest of the internet.
@@ -138,7 +138,7 @@ fn wireguard_multihop_endpoint(
         SocketAddr::from((host, port))
     };
     let entry = PeerConfig {
-        public_key: get_public_key(entry)?.clone(),
+        public_key: get_public_key(entry).clone(),
         endpoint: entry_endpoint,
         // The entry peer should only be able to route incoming VPN traffic to the
         // exit peer.
@@ -196,18 +196,12 @@ fn get_port_for_wireguard_relay(
 
 /// Read the [`PublicKey`] of a relay. This will only succeed if [relay][`Relay`] is a
 /// [Wireguard][`RelayEndpointData::Wireguard`] relay.
-const fn get_public_key(relay: &Relay) -> Result<&PublicKey, Error> {
-    match &relay.endpoint_data {
-        RelayEndpointData::Wireguard(endpoint) => Ok(&endpoint.public_key),
-        RelayEndpointData::Bridge => Err(Error::MissingPublicKey),
-    }
+const fn get_public_key(relay: &Relay) -> &PublicKey {
+    &relay.endpoint_data.public_key
 }
 
 /// Picks a random bridge from a relay.
-pub fn bridge_endpoint(data: &BridgeEndpointData, relay: &Relay) -> Option<Shadowsocks> {
-    if relay.endpoint_data != RelayEndpointData::Bridge {
-        return None;
-    }
+pub fn bridge_endpoint(data: &BridgeEndpointData, relay: &BridgeRelay) -> Option<Shadowsocks> {
     data.shadowsocks
         .choose(&mut rand::rng())
         .inspect(|shadowsocks_endpoint| {

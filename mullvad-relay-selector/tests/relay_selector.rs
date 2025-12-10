@@ -133,7 +133,7 @@ static RELAYS: LazyLock<RelayList> = LazyLock::new(|| RelayList {
             ],
         }],
     }],
-    bridge: BridgeEndpointData {
+    bridge_endpoint: BridgeEndpointData {
         shadowsocks: vec![
             ShadowsocksEndpointData {
                 port: 443,
@@ -401,7 +401,7 @@ fn test_entry() {
                 ],
             }],
         }],
-        bridge: BridgeEndpointData {
+        bridge_endpoint: BridgeEndpointData {
             shadowsocks: vec![],
         },
         wireguard: EndpointData {
@@ -1046,7 +1046,7 @@ fn test_include_in_country() {
                 ],
             }],
         }],
-        bridge: BridgeEndpointData {
+        bridge_endpoint: BridgeEndpointData {
             shadowsocks: vec![],
         },
         wireguard: EndpointData {

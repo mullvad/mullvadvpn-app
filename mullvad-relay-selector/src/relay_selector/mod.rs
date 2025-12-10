@@ -15,7 +15,6 @@ use relays::{Multihop, Singlehop, WireguardConfig};
 use crate::{
     detailer::wireguard_endpoint,
     error::{EndpointErrorDetails, Error},
-    matcher::{filter_bridge, filter_on_active},
     query::{ObfuscationQuery, RelayQuery, RelayQueryExt, WireguardRelayQuery},
 };
 
@@ -30,7 +29,7 @@ use mullvad_types::{
     relay_constraints::{
         ObfuscationSettings, RelayConstraints, RelayOverride, RelaySettings, WireguardConstraints,
     },
-    relay_list::{Relay, RelayList},
+    relay_list::{BridgeRelay, Relay, RelayList},
     settings::Settings,
     wireguard::QuantumResistantState,
 };
@@ -393,6 +392,8 @@ impl RelaySelector {
         let config = self.config.lock().unwrap();
         let specialized_config = SpecializedSelectorConfig::from(&*config);
 
+        // TODO: It may not be optimal to use the selected relay location for API access bridges anymore.
+        // Perhaps we should switch to the users disconnected geolication instead?
         let near_location = match specialized_config {
             SpecializedSelectorConfig::Normal(config) => RelayQuery::try_from(config.clone())
                 .ok()
@@ -850,28 +851,29 @@ impl RelaySelector {
         location: Option<T>,
     ) -> Result<(Shadowsocks, Relay), Error> {
         // Filter on active relays
-        let bridges = relay_list.relays()
-                    .filter(|relay| filter_on_active(relay))
-                    // Filter on bridge type
-                    .filter(|relay| filter_bridge(relay))
-                    .cloned()
-                    .collect();
+        let bridges = relay_list
+            .bridges()
+            .iter()
+            .filter(|relay| relay.active)
+            .cloned()
+            .collect();
         let bridge = match location {
             Some(location) => Self::get_proximate_bridge(bridges, location),
+            // TODO: make this generic, or remove it if the weight is not important for bridges
             None => helpers::pick_random_relay(&bridges)
                 .cloned()
                 .ok_or(Error::NoBridge),
         }?;
-        let endpoint =
-            detailer::bridge_endpoint(&relay_list.bridge, &bridge).ok_or(Error::NoBridge)?;
+        let endpoint = detailer::bridge_endpoint(&relay_list.bridge_endpoint, &bridge)
+            .ok_or(Error::NoBridge)?;
         Ok((endpoint, bridge))
     }
 
     /// Try to get a bridge which is close to `location`.
     fn get_proximate_bridge<T: Into<Coordinates>>(
-        relays: Vec<Relay>,
+        relays: Vec<BridgeRelay>,
         location: T,
-    ) -> Result<Relay, Error> {
+    ) -> Result<BridgeRelay, Error> {
         /// Number of bridges to keep for selection by distance.
         const MIN_BRIDGE_COUNT: usize = 5;
         let location = location.into();
@@ -915,7 +917,7 @@ impl RelaySelector {
         let matching_locations: Vec<Location> =
             filter_matching_relay_list(query, parsed_relays, custom_lists)
                 .into_iter()
-                .map(|relay| relay.location)
+                .map(|relay| relay.inner.location)
                 .unique_by(|location| location.city.clone())
                 .collect();
 
@@ -963,7 +965,7 @@ struct RelayWithDistance {
 
 impl RelayWithDistance {
     fn new_with_distance_from(relay: Relay, from: impl Into<Coordinates>) -> Self {
-        let distance = relay.location.distance_from(from);
+        let distance = relay.inner.location.distance_from(from);
         RelayWithDistance { relay, distance }
     }
 }

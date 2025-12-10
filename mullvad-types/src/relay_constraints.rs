@@ -6,7 +6,7 @@ use crate::{
     constraints::{Constraint, Match},
     custom_list::{CustomListsSettings, Id},
     location::{CityCode, CountryCode, Hostname},
-    relay_list::{Relay, RelayEndpointData},
+    relay_list::Relay,
 };
 use serde::{Deserialize, Serialize};
 use std::{
@@ -192,17 +192,17 @@ impl Match<Relay> for GeographicLocationConstraint {
     fn matches(&self, relay: &Relay) -> bool {
         match self {
             GeographicLocationConstraint::Country(country) => {
-                relay.location.country_code == *country
+                relay.inner.location.country_code == *country
             }
             GeographicLocationConstraint::City(country, city) => {
-                let loc = &relay.location;
+                let loc = &relay.inner.location;
                 loc.country_code == *country && loc.city_code == *city
             }
             GeographicLocationConstraint::Hostname(country, city, hostname) => {
-                let loc = &relay.location;
+                let loc = &relay.inner.location;
                 loc.country_code == *country
                     && loc.city_code == *city
-                    && relay.hostname == *hostname
+                    && relay.inner.hostname == *hostname
             }
         }
     }
@@ -684,28 +684,29 @@ impl RelayOverride {
         if let Some(ipv4_addr_in) = self.ipv4_addr_in {
             log::debug!(
                 "Overriding ipv4_addr_in for {}: {ipv4_addr_in}",
-                relay.hostname
+                relay.inner.hostname
             );
             relay.override_ipv4(ipv4_addr_in);
         }
         if let Some(ipv6_addr_in) = self.ipv6_addr_in {
             log::debug!(
                 "Overriding ipv6_addr_in for {}: {ipv6_addr_in}",
-                relay.hostname
+                relay.inner.hostname
             );
             relay.override_ipv6(ipv6_addr_in);
         }
 
         // Additional IPs should be ignored when overrides are present
-        if let RelayEndpointData::Wireguard(data) = &mut relay.endpoint_data {
-            data.shadowsocks_extra_addr_in.retain(|addr| {
+        relay
+            .endpoint_data
+            .shadowsocks_extra_addr_in
+            .retain(|addr| {
                 let not_overridden_v4 = self.ipv4_addr_in.is_none() && addr.is_ipv4();
                 let not_overridden_v6 = self.ipv6_addr_in.is_none() && addr.is_ipv6();
 
                 // Keep address if it's not overridden
                 not_overridden_v4 || not_overridden_v6
             });
-        }
     }
 }
 

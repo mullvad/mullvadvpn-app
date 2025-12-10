@@ -177,12 +177,7 @@ pub fn get_shadowsocks_obfuscator(
     endpoint: &MullvadEndpoint,
 ) -> Result<(ObfuscatorConfig, Relay), Error> {
     let port = settings.port;
-    let extra_addrs = match &relay.endpoint_data {
-        mullvad_types::relay_list::RelayEndpointData::Wireguard(wg) => {
-            wg.shadowsocks_extra_in_addrs()
-        }
-        _ => panic!("expected wireguard relay"),
-    };
+    let extra_addrs = relay.endpoint_data.shadowsocks_extra_in_addrs();
 
     let endpoint = get_shadowsocks_obfuscator_inner(
         endpoint.peer.endpoint.ip(),
@@ -198,7 +193,7 @@ pub fn get_quic_obfuscator(
     relay: Relay,
     ip_version: IpVersion,
 ) -> Option<(ObfuscatorConfig, Relay)> {
-    let quic = relay.wireguard()?.quic()?;
+    let quic = relay.endpoint().quic()?;
     let config = {
         let hostname = quic.hostname().to_string();
         let addrs: Vec<IpAddr> = match ip_version {
@@ -222,7 +217,7 @@ pub fn get_lwo_obfuscator(
     relay: Relay,
     endpoint: &MullvadEndpoint,
 ) -> Option<(ObfuscatorConfig, Relay)> {
-    if !relay.wireguard()?.lwo {
+    if !relay.endpoint().lwo {
         return None;
     }
     let ip = match endpoint.peer.endpoint {
