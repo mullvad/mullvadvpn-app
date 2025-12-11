@@ -48,7 +48,7 @@ const fn ctl_code(device_type: u32, function: u32, method: u32, access: u32) -> 
 }
 
 #[repr(u32)]
-#[allow(dead_code)]
+#[expect(dead_code)]
 pub enum DriverIoctlCode {
     Initialize = ctl_code(ST_DEVICE_TYPE, 1, METHOD_NEITHER, FILE_ANY_ACCESS),
     DequeEvent = ctl_code(ST_DEVICE_TYPE, 2, METHOD_BUFFERED, FILE_ANY_ACCESS),
@@ -65,7 +65,6 @@ pub enum DriverIoctlCode {
 
 #[derive(Debug, PartialEq)]
 #[repr(u32)]
-#[allow(dead_code)]
 pub enum DriverState {
     // Default state after being loaded.
     None = 0,
@@ -107,7 +106,6 @@ impl TryFrom<u64> for DriverState {
 
 #[repr(u32)]
 #[derive(Clone, Copy)]
-#[allow(dead_code)]
 pub enum EventId {
     StartSplittingProcess = 0,
     StopSplittingProcess,
