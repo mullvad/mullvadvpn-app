@@ -16,7 +16,7 @@ final class LocationNodeResolver {
     }
 
     func setSelectedNodeExpanded(_ isExpanded: Bool) {
-        let selectedNode = first { provider in
+        let selectedNode = providers[1...].firstNode { provider in
             let rootNode = RootLocationNode(children: provider.nodes)
             return rootNode
                 .flattened
@@ -27,10 +27,12 @@ final class LocationNodeResolver {
 
     func setSelectedNode(selectedRelays: UserSelectedRelays) {
         resetSelection()
-        let selectedNodes = filter(where: { provider in
+        providers[0].node(by: selectedRelays)?.isSelected = true
+        let selectedNode = providers[1...].firstNode { provider in
             provider.node(by: selectedRelays)
-        })
-        selectedNodes?.forEach({ $0.isSelected = true })
+        }
+        selectedNode?.isSelected = true
+
     }
 
     func setConnectedRelay(hostname: String?) {
@@ -63,26 +65,6 @@ final class LocationNodeResolver {
         }
 
     }
-    private func first(where predicate: (LocationDataSourceProtocol) -> LocationNode?) -> LocationNode? {
-        for provider in providers {
-            if let node = predicate(provider) {
-                return node
-            }
-        }
-        return nil
-    }
-
-    private func filter(where predicate: (LocationDataSourceProtocol) -> LocationNode?) -> [LocationNode]? {
-        let nodes = providers.compactMap(predicate)
-        return nodes
-        //        for provider in providers {
-        //            if let node = predicate(provider) {
-        //                return node
-        //            }
-        //        }
-        //        return nil
-    }
-
     private func resetSelection() {
         providers.forEach { provider in
             provider.nodes.forEachNode { node in
@@ -100,3 +82,19 @@ final class LocationNodeResolver {
         }
     }
 }
+
+private extension Collection where Element == LocationDataSourceProtocol {
+    func firstNode(where predicate: (LocationDataSourceProtocol) -> LocationNode?) -> LocationNode? {
+        for provider in self {
+            if let node = predicate(provider) {
+                return node
+            }
+        }
+        return nil
+    }
+
+    func filterNodes(where predicate: (LocationDataSourceProtocol) -> LocationNode?) -> [LocationNode] {
+        self.compactMap(predicate)
+    }
+}
+
