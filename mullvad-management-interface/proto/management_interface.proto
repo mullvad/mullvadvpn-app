@@ -732,19 +732,31 @@ message DaemonEvent {
   }
 }
 
-// These are actual VPN relays
+// List of VPN relays
 message RelayList {
   repeated RelayListCountry countries = 1;
-  WireguardEndpointData wireguard = 3;
+  WireguardEndpointData wireguard = 2;
 }
 
+// List of bridge servers
 message BridgeList {
-  // These are not
   repeated Bridge bridges = 1;
-  // TODO: combine Bridge & BridgeEndpointData
   BridgeEndpointData bridge = 2;
 }
 
+message Bridge {
+  string hostname = 1;
+  string ipv4_addr_in = 2;
+  optional string ipv6_addr_in = 3;
+  bool include_in_country = 4;
+  bool active = 5;
+  bool owned = 6;
+  string provider = 7;
+  fixed64 weight = 8;
+  Location location = 9;
+}
+
+// Configuration of the bridge servers
 message BridgeEndpointData { repeated ShadowsocksEndpointData shadowsocks = 1; }
 
 message ShadowsocksEndpointData {

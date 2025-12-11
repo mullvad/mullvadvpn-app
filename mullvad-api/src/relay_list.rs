@@ -5,7 +5,7 @@ use crate::rest;
 use hyper::{StatusCode, body::Incoming, header};
 use mullvad_types::{
     location,
-    relay_list::{self, Bridge, WireguardRelayEndpointData},
+    relay_list::{self, Bridge, BridgeList, WireguardRelayEndpointData},
 };
 use talpid_types::net::wireguard;
 use vec1::Vec1;
@@ -89,6 +89,7 @@ impl RelayListProxy {
     }
 }
 
+/// Relay list as served by the API.
 #[derive(Debug, serde::Deserialize)]
 struct ServerRelayList {
     locations: BTreeMap<String, Location>,
@@ -124,8 +125,10 @@ impl ServerRelayList {
 
         // Note: Wireguard::extract_relays needs to be called before Bridges::extract_relays because <TODO>
         let wireguard = wireguard.extract_relays(&mut countries);
-        let (bridge_endpoint, bridge) = bridge.extract_relays(&countries);
+        // TODO: Move to BridgeList struct thingy
+        // let (bridge_endpoint, bridge) = bridge.extract_relays(&countries);
         relay_list::RelayList {
+            // TODO: Move to on-disk repr
             etag: etag.map(|mut tag| {
                 if tag.starts_with('"') {
                     tag.insert_str(0, "W/");
@@ -133,8 +136,8 @@ impl ServerRelayList {
                 tag
             }),
             wireguard,
-            bridge,
-            bridge_endpoint,
+            // bridge,
+            // bridge_endpoint,
             countries: countries.into_values().collect(),
         }
     }
@@ -214,7 +217,26 @@ struct Relay {
 
 impl Relay {
     fn into_bridge_mullvad_relay(self, location: location::Location) -> relay_list::Bridge {
-        into_bridge_relay(self, location)
+        let Self {
+            hostname,
+            active,
+            owned,
+            location: _,
+            provider,
+            ipv4_addr_in,
+            ipv6_addr_in,
+            weight,
+            include_in_country,
+        } = self;
+
+        relay_list::Bridge(relay_list::Relay {
+            hostname,
+            ipv4_addr_in,
+            ipv6_addr_in,
+            active,
+            weight,
+            location,
+        })
     }
 
     fn convert_to_lowercase(&mut self) {
@@ -376,6 +398,7 @@ impl From<Quic> for relay_list::Quic {
 #[derive(Debug, Clone, serde::Deserialize)]
 struct Lwo {}
 
+/// TODO: Remove?
 /// Mullvad Bridge servers are used for the Bridge API access method.
 ///
 /// The were previously also used for proxying to traffic OpenVPN servers.
@@ -390,7 +413,7 @@ impl Bridges {
     fn extract_relays(
         self,
         countries: &BTreeMap<String, relay_list::RelayListCountry>,
-    ) -> (relay_list::BridgeEndpointData, Vec<Bridge>) {
+    ) -> BridgeList {
         let relays = self
             .relays
             .into_iter()
@@ -417,11 +440,24 @@ impl Bridges {
             })
             .collect();
 
-        (
-            relay_list::BridgeEndpointData {
+        BridgeList {
+            bridges: relays,
+            bridge_endpoint: relay_list::BridgeEndpointData {
                 shadowsocks: self.shadowsocks,
             },
-            relays,
-        )
+        }
     }
+
+    // fn into_bridge_mullvad_relay(self, location: location::Location) -> relay_list::Bridge {
+    //     let Bridges { relays }
+
+    //     relay_list::Bridge(relay_list::Relay {
+    //         hostname: todo!(),
+    //         ipv4_addr_in: todo!(),
+    //         ipv6_addr_in: todo!(),
+    //         active: todo!(),
+    //         weight: todo!(),
+    //         location,
+    //     })
+    // }
 }

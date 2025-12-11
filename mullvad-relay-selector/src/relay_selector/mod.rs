@@ -29,7 +29,7 @@ use mullvad_types::{
     relay_constraints::{
         ObfuscationSettings, RelayConstraints, RelayOverride, RelaySettings, WireguardConstraints,
     },
-    relay_list::{Bridge, Relay, RelayList, WireguardRelay},
+    relay_list::{Bridge, BridgeList, Relay, RelayList, WireguardRelay},
     settings::Settings,
     wireguard::QuantumResistantState,
 };
@@ -340,11 +340,12 @@ impl RelaySelector {
 
     pub fn from_list(config: SelectorConfig, relay_list: RelayList) -> Self {
         RelaySelector {
-            parsed_relays: Arc::new(Mutex::new(ParsedRelays::from_relay_list(
-                relay_list,
-                SystemTime::now(),
-                &config.relay_overrides,
-            ))),
+            // parsed_relays: Arc::new(Mutex::new(ParsedRelays::from_relay_list(
+            //     relay_list,
+            //     SystemTime::now(),
+            //     &config.relay_overrides,
+            // ))),
+            parsed_relays: todo!("bring back"),
             config: Arc::new(Mutex::new(config)),
         }
     }
@@ -389,22 +390,26 @@ impl RelaySelector {
     /// Returns a non-custom bridge based on the relay and bridge constraints, ignoring the bridge
     /// state.
     pub fn get_bridge_forced(&self) -> Option<Shadowsocks> {
-        let parsed_relays = &self.parsed_relays.lock().unwrap().parsed_list().clone();
+        let bridge_list = &self.parsed_relays.lock().unwrap().bridge_list().clone();
         let config = self.config.lock().unwrap();
         let specialized_config = SpecializedSelectorConfig::from(&*config);
 
         // TODO: It may not be optimal to use the selected relay location for API access bridges anymore.
         // Perhaps we should switch to the users disconnected geolication instead?
         let near_location = match specialized_config {
-            SpecializedSelectorConfig::Normal(config) => RelayQuery::try_from(config.clone())
-                .ok()
-                .and_then(|user_preferences| {
-                    Self::get_relay_midpoint(&user_preferences, parsed_relays, config.custom_lists)
-                }),
+            SpecializedSelectorConfig::Normal(config) => Some(Coordinates {
+                latitude: todo!("get_relay_midpoint"),
+                longitude: todo!(),
+            }),
+            // SpecializedSelectorConfig::Normal(config) => RelayQuery::try_from(config.clone())
+            //     .ok()
+            //     .and_then(|user_preferences| {
+            //         //Self::get_relay_midpoint(&user_preferences, parsed_relays, config.custom_lists)
+            //     }),
             SpecializedSelectorConfig::Custom(_) => None,
         };
 
-        Self::get_proxy_settings(parsed_relays, near_location)
+        Self::get_proxy_settings(bridge_list, near_location)
             .map(|(settings, _relay)| settings)
             .inspect_err(|error| log::error!("Failed to get bridge: {error}"))
             .ok()
@@ -848,11 +853,11 @@ impl RelaySelector {
     ///
     /// The connection details are returned alongside the relay hosting the bridge.
     fn get_proxy_settings<T: Into<Coordinates>>(
-        relay_list: &RelayList,
+        bridge_list: &BridgeList,
         location: Option<T>,
     ) -> Result<(Shadowsocks, Bridge), Error> {
         // Filter on active relays
-        let bridges = relay_list
+        let bridges = bridge_list
             .bridges()
             .iter()
             .filter(|relay| relay.active)
@@ -865,7 +870,7 @@ impl RelaySelector {
                 .cloned()
                 .ok_or(Error::NoBridge),
         }?;
-        let endpoint = detailer::bridge_endpoint(&relay_list.bridge_endpoint, &bridge)
+        let endpoint = detailer::bridge_endpoint(&bridge_list.bridge_endpoint, &bridge)
             .ok_or(Error::NoBridge)?;
         Ok((endpoint, bridge))
     }
