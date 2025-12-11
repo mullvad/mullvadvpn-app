@@ -161,7 +161,6 @@ impl ConnectivityListener {
 
 /// Entry point for Android Java code to notify the connectivity status.
 #[unsafe(no_mangle)]
-#[expect(non_snake_case)]
 pub extern "system" fn Java_net_mullvad_talpid_ConnectivityListener_notifyConnectivityChange(
     env: JNIEnv<'_>,
     _obj: JObject<'_>,

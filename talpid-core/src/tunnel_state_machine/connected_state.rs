@@ -32,7 +32,6 @@ pub struct ConnectedState {
 }
 
 impl ConnectedState {
-    #[cfg_attr(target_os = "android", expect(unused_variables))]
     pub(super) fn enter(
         shared_values: &mut SharedTunnelStateValues,
         metadata: TunnelMetadata,
