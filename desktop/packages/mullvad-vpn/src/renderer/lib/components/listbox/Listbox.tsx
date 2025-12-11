@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { ListItem, ListItemProps } from '../list-item';
-import { ListboxLabel, ListboxOption, ListboxOptions } from './components';
+import { ListboxItem, ListboxLabel, ListboxOption, ListboxOptions } from './components';
 import { ListboxProvider } from './ListboxContext';
 
 export type ListboxProps<T> = ListItemProps & {
@@ -21,13 +21,15 @@ function Listbox<T>({
 
   return (
     <ListboxProvider labelId={labelIdProp ?? labelId} value={value} onValueChange={onValueChange}>
-      <ListItem {...props}>{children}</ListItem>
+      <ListItem position="first" {...props}>
+        {children}
+      </ListItem>
     </ListboxProvider>
   );
 }
 
 const ListboxNamespace = Object.assign(Listbox, {
-  Item: ListItem.Item,
+  Item: ListboxItem,
   Content: ListItem.Content,
   Label: ListboxLabel,
   Group: ListItem.Group,
