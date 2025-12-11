@@ -30,7 +30,7 @@ pub async fn start_app() -> Result<(), test_rpc::Error> {
     Ok(())
 }
 
-#[allow(clippy::unused_async)]
+#[expect(clippy::unused_async)]
 pub async fn set_daemon_log_level(_verbosity_level: Verbosity) -> Result<(), test_rpc::Error> {
     // TODO: Not implemented
     log::warn!("Setting log level is not implemented on macOS");
