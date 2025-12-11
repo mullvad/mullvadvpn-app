@@ -93,6 +93,9 @@ service ManagementService {
   rpc TestCustomApiAccessMethod(CustomProxy) returns (google.protobuf.BoolValue) {}
   rpc TestApiAccessMethodById(UUID) returns (google.protobuf.BoolValue) {}
 
+  // Bridges (Used for reacing the API)
+  rpc GetBridges(google.protobuf.Empty) returns (BridgeList) {}
+
   // Split tunneling (Linux)
   rpc SplitTunnelIsEnabled(google.protobuf.Empty) returns (google.protobuf.BoolValue) {}
   rpc GetSplitTunnelProcesses(google.protobuf.Empty) returns (stream google.protobuf.Int32Value) {}
