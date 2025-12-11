@@ -180,7 +180,6 @@ fn configured_routes(state: &NetworkState) -> HashSet<Route> {
 
 /// Entry point for Android Java code to notify the current default network state.
 #[unsafe(no_mangle)]
-#[expect(non_snake_case)]
 pub extern "system" fn Java_net_mullvad_talpid_ConnectivityListener_notifyDefaultNetworkChange(
     env: JNIEnv<'_>,
     _: JObject<'_>,
