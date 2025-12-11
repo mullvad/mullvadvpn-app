@@ -10,6 +10,7 @@
 use anyhow::{Context, anyhow, ensure};
 
 use mullvad_management_interface::MullvadProxyClient;
+use mullvad_types::relay_list::RelayList;
 use talpid_types::net::proxy::CustomProxy;
 use test_macro::test_function;
 use test_rpc::ServiceClient;
@@ -31,8 +32,9 @@ async fn test_access_method_shadowsocks(
     //
     // Since Mullvad's bridge servers host Shadowsocks relays, we can simply
     // select a bridge server to derive all the needed parameters.
-    let relay_list = mullvad_client.get_relay_locations().await.unwrap();
-    let relay_selector = RelaySelector::from_list(SelectorConfig::default(), relay_list);
+    let bridge_list = mullvad_client.get_bridges().await.unwrap();
+    let relay_selector =
+        RelaySelector::from_list(SelectorConfig::default(), RelayList::default(), bridge_list);
     let access_method = relay_selector
         .get_bridge_forced()
         .context("`test_shadowsocks` needs at least one shadowsocks relay to execute. Found none in relay list.")?;

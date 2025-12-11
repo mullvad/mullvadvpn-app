@@ -22,6 +22,7 @@ use mullvad_types::{
     device::{Device, DeviceId, DeviceState},
     features::FeatureIndicators,
     relay_constraints::{AllowedIps, ObfuscationSettings, RelayOverride, RelaySettings},
+    relay_list::BridgeList,
     settings::DnsOptions,
     wireguard::{PublicKey, QuantumResistantState, RotationInterval},
 };
@@ -155,6 +156,11 @@ impl MullvadProxyClient {
     pub async fn get_relay_locations(&mut self) -> Result<RelayList> {
         let list = self.0.get_relay_locations(()).await?.into_inner();
         mullvad_types::relay_list::RelayList::try_from(list).map_err(Error::InvalidResponse)
+    }
+
+    pub async fn get_bridges(&mut self) -> Result<BridgeList> {
+        let list = self.0.get_bridges(()).await?.into_inner();
+        mullvad_types::relay_list::BridgeList::try_from(list).map_err(Error::InvalidResponse)
     }
 
     pub async fn get_api_access_methods(&mut self) -> Result<Vec<AccessMethodSetting>> {
