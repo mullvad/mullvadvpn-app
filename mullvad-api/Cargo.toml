@@ -84,3 +84,7 @@ bench = false
 [[bin]]
 name = "domain_fronting_server"
 required-features = [ "domain-fronting"]
+
+[[bin]]
+name = "domain_fronting"
+required-features = ["domain-fronting"]

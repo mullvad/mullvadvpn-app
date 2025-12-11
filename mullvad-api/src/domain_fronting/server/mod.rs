@@ -8,13 +8,14 @@ use tokio::{
     io::{AsyncReadExt, AsyncWriteExt},
     net::TcpStream,
     sync::{mpsc, oneshot},
-    time::{Timeout, sleep},
+    time::{Timeout, sleep, timeout},
 };
 use uuid::Uuid;
 
 use crate::domain_fronting::SESSION_HEADER_KEY;
 
-const TIMEOUT: Duration = Duration::from_secs(30);
+const CONNECTION_TIMEOUT: Duration = Duration::from_secs(30);
+const READ_TIMEOUT: Duration = Duration::from_secs(30);
 
 pub struct Sessions {
     sessions: papaya::HashMap<Uuid, mpsc::Sender<SessionCommand>>,
@@ -22,19 +23,22 @@ pub struct Sessions {
 }
 
 pub struct Configuration {
-    pub upstream_address: SocketAddr,
+    pub upstream: SocketAddr,
 }
 
 impl Sessions {
-    pub fn new(configuration: Configuration) -> Arc<Self> {
+    pub fn new(upstream: SocketAddr) -> Arc<Self> {
         let sessions = Sessions {
-            configuration,
+            configuration: Configuration { upstream },
             sessions: Default::default(),
         };
         Arc::new(sessions)
     }
 
-    async fn handle_request(self: Arc<Self>, request: Request<Incoming>) -> Response<Full<Bytes>> {
+    pub async fn handle_request(
+        self: Arc<Self>,
+        request: Request<Incoming>,
+    ) -> Response<Full<Bytes>> {
         let session_id = request
             .headers()
             .get(SESSION_HEADER_KEY)
@@ -73,14 +77,17 @@ impl Sessions {
             return self.handle_new_session(data).await;
         };
 
-        let map = self.sessions.pin();
-        let Some(cmd_tx) = map.get(&label) else {
-            return Self::handle_session_error();
+        let cmd_tx = {
+            let map = self.sessions.pin();
+            let Some(cmd_tx) = map.get(&label) else {
+                return Self::handle_session_error();
+            };
+            cmd_tx.clone()
         };
 
         return self
             .clone()
-            .handle_existing_session_request(cmd_tx, data)
+            .handle_existing_session_request(&cmd_tx, data)
             .await;
     }
 
@@ -158,7 +165,7 @@ impl Session {
         session_id: Uuid,
         sessions: Arc<Sessions>,
     ) -> io::Result<Self> {
-        let connection = match TcpStream::connect(sessions.configuration.upstream_address).await {
+        let connection = match TcpStream::connect(sessions.configuration.upstream).await {
             Ok(conn) => conn,
             Err(err) => {
                 log::error!("Failed to connect to upstream server: {err}");
@@ -184,44 +191,39 @@ impl Session {
             sessions: _,
             session_id: _,
         } = self;
-        let mut deadline = sleep(TIMEOUT);
+        let mut deadline = sleep(CONNECTION_TIMEOUT);
         let mut read_buffer = vec![0u8; 8192];
+
         loop {
             tokio::select! {
                 maybe_cmd = cmd_rx.recv() => {
                     let Some(mut cmd) = maybe_cmd else {
                         return;
                     };
+
                     if let Some(tx_bytes) = cmd.take_payload() {
                         if let Err(err) =  connection.write_all(&tx_bytes).await {
                             log::error!("Failed to send data to upstream: {err}");
                         }
                     }
-                    cmd.respond_with(upstream_rx_bytes.take().map(BytesMut::freeze));
-                },
-
-                read_result = connection.read(&mut read_buffer) => {
-                    match read_result {
-                        Ok(bytes_received) => {
-                            upstream_rx_bytes
-                                .get_or_insert(BytesMut::new())
-                                .extend_from_slice(&read_buffer[..bytes_received]);
+                    // drop everything on read error
+                    let response_bytes = match timeout(READ_TIMEOUT, connection.read(&mut read_buffer)).await {
+                        Ok(Ok(bytes_read)) => {
+                            Some(Bytes::copy_from_slice(&read_buffer[..bytes_read]))
                         },
-                        Err(err) => {
-                            log::error!("Failed to receive data from upstream: {err}");
+                        Ok(Err(connection_error)) => {
+                            log::error!("Failed to receive data from upstream {connection_error}");
                             return;
                         },
-                    }
+                        Err(timeout) => None,
+                    };
 
-
+                    cmd.respond_with(response_bytes);
                 },
 
-                _ = deadline => {
-
-
-                }
+                _ = deadline => {}
             }
-            deadline = sleep(TIMEOUT);
+            deadline = sleep(CONNECTION_TIMEOUT);
         }
     }
 }

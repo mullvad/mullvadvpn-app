@@ -4,16 +4,18 @@
 use std::{
     io::{self, Error},
     net::SocketAddr,
+    pin::Pin,
     sync::Arc,
     task::{Poll, ready},
 };
 
+use bytes::BufMut;
 use http::{
     Request, Response,
     header::{self, UPGRADE},
     status::StatusCode,
 };
-use http_body_util::{Empty, Full};
+use http_body_util::{BodyExt, Empty, Full};
 use hyper::{
     body::{Bytes, Incoming},
     client::conn::http1::SendRequest,
@@ -109,9 +111,8 @@ struct ProxyConnection {
     sender: SendRequest<Full<Bytes>>,
     proxy_host: String,
     session_id: Uuid,
-    request: Option<Box<dyn Future<Output = io::Result<Vec<u8>>>>>,
+    request: Option<Pin<Box<dyn Future<Output = io::Result<Vec<u8>>>>>>,
     last_response: Option<Vec<u8>>,
-    only_reading: bool,
 }
 
 impl ProxyConnection {
@@ -136,7 +137,6 @@ impl ProxyConnection {
             proxy_host,
             session_id,
             last_response: None,
-            only_reading: false,
             request: None,
         })
     }
@@ -152,82 +152,112 @@ impl ProxyConnection {
     fn create_request(
         &mut self,
         buffer: Option<&[u8]>,
-    ) -> Box<dyn Future<Output = io::Result<Vec<u8>>>> {
+    ) -> Pin<Box<dyn Future<Output = io::Result<Vec<u8>>> + 'static>> {
         let bytes = buffer
             .as_ref()
             .map(|buffer| Bytes::copy_from_slice(*buffer))
             .unwrap_or(Bytes::new());
+        let content_length = bytes.len();
         let body = Full::new(bytes);
 
         let mut request = hyper::Request::connect(&format!("https://{}/", self.proxy_host));
         if buffer.is_some() {
             request = request
                 .header(header::CONTENT_TYPE, "application/octet-stream")
-                .header(header::CONTENT_LENGTH, &format!("{}", bytes.len()));
+                .header(header::CONTENT_LENGTH, &format!("{}", content_length));
         }
         let request = request.body(body).unwrap();
 
-        let request_future = self.sender.send(request);
+        let request_future = self.sender.send_request(request);
 
-        let future = async move {
-            let response = request_future.await?;
+        Box::pin(async move {
+            let response = request_future.await.map_err(io::Error::other)?;
             if response.status() != StatusCode::OK && response.status() != StatusCode::CREATED {
                 return Err(io::Error::other(format!(
                     "Unexpected response status code: {}",
                     response.status()
                 )));
             };
-            let body = response.collect().map_err(io::Error::other)?;
+            let body = response.collect().await.map_err(io::Error::other)?;
 
             Ok(body.to_bytes().to_vec())
-        };
+        })
+    }
 
-        Box::new(request_future)
+    fn drain_buffer(
+        &mut self,
+        buf: &mut tokio::io::ReadBuf<'_>,
+        last_response: Vec<u8>,
+    ) -> std::task::Poll<io::Result<()>> {
+        let read_slice = match buf.remaining_mut() {
+            buffer_length if buffer_length < last_response.len() => &last_response[..],
+            buffer_length => {
+                self.last_response = Some(last_response[buffer_length..].to_vec());
+                &last_response[..buffer_length]
+            }
+        };
+        buf.put_slice(read_slice);
+        return Poll::Ready(Ok(()));
+    }
+
+    fn fill_recv_buffer(&mut self, response: Vec<u8>) {
+        if !response.is_empty() {
+            self.last_response.get_or_insert(vec![]).extend(response);
+        }
     }
 }
 
 impl AsyncRead for ProxyConnection {
     fn poll_read(
-        self: std::pin::Pin<&mut Self>,
+        mut self: std::pin::Pin<&mut Self>,
         cx: &mut std::task::Context<'_>,
         buf: &mut tokio::io::ReadBuf<'_>,
     ) -> std::task::Poll<std::io::Result<()>> {
-        if self.request.is_none() {
-            self.only_reading = true;
-            self.request = Some(self.create_request(None));
-        }
-        let response = ready!(self.request.poll_ready(cx));
-        self.only_reading = false;
+        // Consume previously received bytes
 
-        todo!()
+        if let Some(last_response) = self.last_response.take() {
+            return self.drain_buffer(buf, last_response);
+        };
+
+        // self.request.get_or_insert_with would be cool, but mutable borrows prevent that.
+        let request = match self.request.as_mut() {
+            None => {
+                self.request = Some(self.create_request(None));
+                self.request.as_mut().unwrap()
+            }
+            Some(request) => request,
+        };
+
+        // Empty response implies that no data was received from upstream.
+        let response = ready!(request.as_mut().poll(cx))?;
+        if response.is_empty() {
+            return Poll::Pending;
+        }
+
+        self.drain_buffer(buf, response)
     }
 }
 
 impl AsyncWrite for ProxyConnection {
     fn poll_write(
-        self: std::pin::Pin<&mut Self>,
+        mut self: std::pin::Pin<&mut Self>,
         cx: &mut std::task::Context<'_>,
         buf: &[u8],
     ) -> std::task::Poll<Result<usize, std::io::Error>> {
-        // if there's a request in flight, then don't bother writing anything.
-        if self.request.is_some() && self.only_reading {
-            return Poll::Pending;
-        }
-
-        let requst = match self.request.as_mut() {
+        let request = match self.request.as_mut() {
             Some(request) => request,
             None => {
-                ready!(self.sender.poll_ready(cx))?;
-                self.request = Some(self.get_mut().create_future(buf));
+                ready!(self.sender.poll_ready(cx)).map_err(io::Error::other)?;
+                let mut pin = self.get_mut();
+                let request = pin.create_request(Some(buf));
+                pin.request = Some(request);
                 return Poll::Ready(Ok(buf.len()));
             }
         };
 
-        let response = ready!(self.request.poll_ready(cx))?;
+        let response = ready!(request.as_mut().poll(cx))?;
+        self.fill_recv_buffer(response);
 
-        if !response.empty() {
-            self.last_response = Some(response);
-        }
         return Poll::Pending;
     }
 

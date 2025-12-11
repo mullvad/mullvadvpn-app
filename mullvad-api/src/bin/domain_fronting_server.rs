@@ -1,4 +1,5 @@
 use clap::Parser;
+use futures::FutureExt;
 use http_body_util::{Empty, Full};
 use hyper::{
     Method, Request, Response, StatusCode,
@@ -8,6 +9,7 @@ use hyper::{
     upgrade::Upgraded,
 };
 use hyper_util::rt::TokioIo;
+use mullvad_api::domain_fronting::server::Sessions;
 use rustls_pemfile::{certs, private_key};
 use std::{
     convert::Infallible, fs::File, io::BufReader, net::SocketAddr, path::PathBuf, sync::Arc,
@@ -38,7 +40,6 @@ struct Args {
     #[clap(short, long, default_value = "443")]
     port: u16,
 }
-
 
 async fn handle_connect(
     req: Request<Incoming>,
@@ -129,14 +130,16 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         let acceptor = tls_acceptor.clone();
 
         println!("Accepted connection from {}!", addr);
+        let sessions = Sessions::new(upstream);
 
         tokio::spawn(async move {
             // Perform TLS handshake
             match acceptor.accept(stream).await {
                 Ok(tls_stream) => {
-                    println!("lmao what");
                     let io = TokioIo::new(tls_stream);
-                    let service = service_fn(move |req| handle_connect(req, upstream));
+                    let service = service_fn(move |req| {
+                        sessions.clone().handle_request(req).map(Ok::<_, String>)
+                    });
 
                     if let Err(err) = http1::Builder::new()
                         .serve_connection(io, service)
@@ -153,5 +156,3 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         });
     }
 }
-
-
