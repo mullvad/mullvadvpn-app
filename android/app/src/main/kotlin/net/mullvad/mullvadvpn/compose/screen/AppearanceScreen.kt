@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.compose.screen
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -111,7 +112,7 @@ fun AppearanceScreen(
 }
 
 @Composable
-private fun Content(
+private fun ColumnScope.Content(
     uiState: AppearanceUiState,
     onObfuscationSelected: (AppObfuscation) -> Unit = {},
 ) {
@@ -119,7 +120,7 @@ private fun Content(
     Description()
     ListHeader(content = { Text(text = stringResource(R.string.icon_and_title)) })
     LazyVerticalGrid(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth().weight(1f),
         state = lazyGridState,
         columns = GridCells.Fixed(3),
     ) {
@@ -141,9 +142,9 @@ private fun Description() {
         text =
             buildAnnotatedString {
                 appendLine(stringResource(R.string.appearance_description))
-                appendLine(stringResource(R.string.appearance_description_warning))
+                append(stringResource(R.string.appearance_description_warning))
             },
-        modifier = Modifier.padding(bottom = Dimens.mediumPadding),
+        modifier = Modifier.padding(bottom = Dimens.smallPadding),
     )
 }
 
