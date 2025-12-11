@@ -206,6 +206,17 @@ impl ManagementService for ManagementServiceImpl {
             .map(|relays| Response::new(types::RelayList::from(relays)))
     }
 
+    async fn get_bridges(&self, _: Request<()>) -> ServiceResult<types::BridgeList> {
+        log::debug!("get_bridges");
+
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::GetBridges(tx))?;
+        self.wait_for_result(rx)
+            .await
+            .map(types::BridgeList::from)
+            .map(Response::new)
+    }
+
     async fn set_obfuscation_settings(
         &self,
         request: Request<types::ObfuscationSettings>,

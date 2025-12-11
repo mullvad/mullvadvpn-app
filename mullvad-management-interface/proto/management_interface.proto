@@ -751,12 +751,9 @@ message Bridge {
   string hostname = 1;
   string ipv4_addr_in = 2;
   optional string ipv6_addr_in = 3;
-  bool include_in_country = 4;
-  bool active = 5;
-  bool owned = 6;
-  string provider = 7;
-  fixed64 weight = 8;
-  Location location = 9;
+  bool active = 4;
+  fixed64 weight = 5;
+  Location location = 6;
 }
 
 // Configuration of the bridge servers
