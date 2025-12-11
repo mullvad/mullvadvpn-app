@@ -206,8 +206,9 @@ impl RelayListUpdater {
 
         // Propagate the new relay list to the relay selector
         let (relay_list, bridge_list) = new_relay_list.relay_list.into_internal_repr();
-        self.relay_selector.set_relays(relay_list.clone());
         (self.on_update)(&relay_list);
+        self.relay_selector.set_relays(relay_list);
+        self.relay_selector.set_bridges(bridge_list);
         Ok(())
     }
 

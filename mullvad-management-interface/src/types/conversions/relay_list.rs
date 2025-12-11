@@ -5,7 +5,10 @@ use std::{
     str::FromStr,
 };
 
-use mullvad_types::relay_list::{EndpointData, Relay, RelayList, RelayListCountry, WireguardRelay};
+use mullvad_types::{
+    location::Location,
+    relay_list::{EndpointData, Relay, RelayList, RelayListCountry, WireguardRelay},
+};
 use vec1::Vec1;
 
 use super::net::try_transport_protocol_from_i32;
@@ -258,10 +261,6 @@ impl TryFrom<proto::Relay> for mullvad_types::relay_list::WireguardRelay {
     type Error = FromProtobufTypeError;
 
     fn try_from(relay: proto::Relay) -> Result<Self, Self::Error> {
-        use mullvad_types::{
-            location::Location as MullvadLocation, relay_list::WireguardRelay as MullvadRelay,
-        };
-
         let endpoint_data = {
             let wireguard = relay
                 .endpoint_data
@@ -320,7 +319,7 @@ impl TryFrom<proto::Relay> for mullvad_types::relay_list::WireguardRelay {
                 weight: relay.weight,
                 location: relay
                     .location
-                    .map(|location| MullvadLocation {
+                    .map(|location| Location {
                         country: location.country,
                         country_code: location.country_code,
                         city: location.city,
