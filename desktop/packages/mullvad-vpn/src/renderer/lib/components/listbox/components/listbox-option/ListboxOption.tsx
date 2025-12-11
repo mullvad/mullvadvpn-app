@@ -14,7 +14,9 @@ export type ListboxOptionProps<T> = ListItemProps & {
 function ListboxOption<T>({ value, children, ...props }: ListboxOptionProps<T>) {
   return (
     <ListboxOptionProvider value={value}>
-      <ListItem {...props}>{children}</ListItem>
+      <ListItem level={1} {...props}>
+        {children}
+      </ListItem>
     </ListboxOptionProvider>
   );
 }
