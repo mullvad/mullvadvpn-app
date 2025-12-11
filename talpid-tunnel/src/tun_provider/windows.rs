@@ -57,7 +57,6 @@ impl WindowsTunProvider {
             .unwrap_or((None, &[]));
 
         let mut tunnel_device = {
-            #[allow(unused_mut)]
             let mut builder = TunnelDeviceBuilder::default();
             // TODO: set alias
             // TODO: have tun either not use netsh or not set any default address at all

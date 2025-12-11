@@ -699,7 +699,6 @@ impl WireguardMonitor {
         Ok(())
     }
 
-    #[allow(clippy::too_many_arguments)]
     #[cfg(target_os = "windows")]
     fn open_tunnel(
         runtime: tokio::runtime::Handle,
