@@ -45,9 +45,6 @@ use mullvad_encrypted_dns_proxy::state::EncryptedDnsProxyState;
 use mullvad_relay_selector::{RelaySelector, SelectorConfig};
 #[cfg(target_os = "android")]
 use mullvad_types::account::{PlayPurchase, PlayPurchasePaymentToken};
-use mullvad_types::relay_constraints::{
-    GeographicLocationConstraint, LocationConstraint, RelayConstraints, WireguardConstraints,
-};
 #[cfg(any(target_os = "windows", target_os = "android", target_os = "macos"))]
 use mullvad_types::settings::SplitApp;
 #[cfg(daita)]
@@ -69,6 +66,12 @@ use mullvad_types::{
     states::{Secured, TargetState, TargetStateStrict, TunnelState},
     version::AppVersionInfo,
     wireguard::{PublicKey, QuantumResistantState, RotationInterval},
+};
+use mullvad_types::{
+    relay_constraints::{
+        GeographicLocationConstraint, LocationConstraint, RelayConstraints, WireguardConstraints,
+    },
+    relay_list::BridgeList,
 };
 #[cfg(not(target_os = "android"))]
 use mullvad_update::version::Rollout;
@@ -256,6 +259,8 @@ pub enum DaemonCommand {
     /// Trigger an asynchronous relay list update. This returns before the relay list is actually
     /// updated.
     UpdateRelayLocations,
+    /// Get the list of bridges.
+    GetBridges(oneshot::Sender<BridgeList>),
     /// Log in with a given account and create a new device.
     LoginAccount(ResponseTx<(), Error>, AccountNumber),
     /// Log out of the current account and remove the device, if they exist.
@@ -1583,6 +1588,7 @@ impl Daemon {
             AppUpgrade(tx) => self.on_app_upgrade(tx).await,
             AppUpgradeAbort(tx) => self.on_app_upgrade_abort(tx).await,
             GetAppUpgradeCacheDir(tx) => self.on_get_app_upgrade_cache_dir(tx).await,
+            GetBridges(tx) => self.on_get_bridges(tx),
         }
     }
 
@@ -1929,6 +1935,10 @@ impl Daemon {
 
     fn on_get_relay_locations(&mut self, tx: oneshot::Sender<RelayList>) {
         Self::oneshot_send(tx, self.relay_selector.get_relays(), "relay locations");
+    }
+
+    fn on_get_bridges(&mut self, tx: oneshot::Sender<BridgeList>) {
+        Self::oneshot_send(tx, self.relay_selector.get_bridges(), "bridges");
     }
 
     async fn on_update_relay_locations(&mut self) {

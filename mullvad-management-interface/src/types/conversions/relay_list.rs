@@ -7,7 +7,10 @@ use std::{
 
 use mullvad_types::{
     location::Location,
-    relay_list::{EndpointData, Relay, RelayList, RelayListCountry, WireguardRelay},
+    relay_list::{
+        Bridge, BridgeEndpointData, BridgeList, EndpointData, Relay, RelayList, RelayListCountry,
+        WireguardRelay,
+    },
 };
 use vec1::Vec1;
 
@@ -87,6 +90,97 @@ impl TryFrom<proto::RelayList> for mullvad_types::relay_list::RelayList {
             countries,
             wireguard: EndpointData::try_from(wireguard)?,
         })
+    }
+}
+
+impl From<BridgeList> for proto::BridgeList {
+    fn from(bridge_list: BridgeList) -> Self {
+        let BridgeList {
+            bridges,
+            bridge_endpoint,
+        } = bridge_list;
+
+        let bridges = bridges.into_iter().map(proto::Bridge::from).collect();
+
+        let bridge_endpoint = Some(proto::BridgeEndpointData::from(bridge_endpoint));
+
+        proto::BridgeList {
+            bridges,
+            bridge: bridge_endpoint,
+        }
+    }
+}
+
+impl TryFrom<proto::BridgeList> for BridgeList {
+    type Error = FromProtobufTypeError;
+
+    fn try_from(bridge_list: proto::BridgeList) -> Result<Self, Self::Error> {
+        let bridges = bridge_list
+            .bridges
+            .into_iter()
+            .map(Bridge::try_from)
+            .collect::<Result<Vec<_>, _>>()?;
+
+        let bridge_endpoint = bridge_list
+            .bridge
+            .map(BridgeEndpointData::try_from)
+            .ok_or(FromProtobufTypeError::InvalidArgument("missing bridges"))??;
+
+        Ok(BridgeList {
+            bridges,
+            bridge_endpoint,
+        })
+    }
+}
+
+impl TryFrom<proto::Bridge> for Bridge {
+    type Error = FromProtobufTypeError;
+
+    fn try_from(bridge: proto::Bridge) -> Result<Self, Self::Error> {
+        let r = Relay {
+            hostname: bridge.hostname.clone(),
+            ipv4_addr_in: bridge.ipv4_addr_in.parse().map_err(|_err| {
+                FromProtobufTypeError::InvalidArgument("invalid relay IPv4 address")
+            })?,
+            ipv6_addr_in: bridge
+                .ipv6_addr_in
+                .map(|addr| {
+                    addr.parse().map_err(|_err| {
+                        FromProtobufTypeError::InvalidArgument("invalid relay IPv6 address")
+                    })
+                })
+                .transpose()?,
+            active: bridge.active,
+            weight: bridge.weight,
+            location: bridge
+                .location
+                .map(|location| Location {
+                    country: location.country,
+                    country_code: location.country_code,
+                    city: location.city,
+                    city_code: location.city_code,
+                    latitude: location.latitude,
+                    longitude: location.longitude,
+                })
+                .ok_or("missing relay location")
+                .map_err(FromProtobufTypeError::InvalidArgument)?,
+        };
+
+        Ok(Bridge(r))
+    }
+}
+
+impl From<Bridge> for proto::Bridge {
+    fn from(bridge: Bridge) -> Self {
+        let location = proto::Location::from(bridge.location.clone());
+        proto::Bridge {
+            hostname: bridge.hostname.clone(),
+            ipv4_addr_in: bridge.ipv4_addr_in.to_string(),
+            ipv6_addr_in: bridge.ipv6_addr_in.map(|ipv6| ipv6.to_string()),
+            active: bridge.active,
+            weight: bridge.weight,
+            location: Some(location),
+        }
     }
 }
 
@@ -174,14 +268,20 @@ impl From<mullvad_types::relay_list::WireguardRelay> for proto::Relay {
 
                 Some(data)
             },
-            location: Some(proto::Location {
-                country: relay.location.country.clone(),
-                country_code: relay.location.country_code.clone(),
-                city: relay.location.city.clone(),
-                city_code: relay.location.city_code.clone(),
-                latitude: relay.location.latitude,
-                longitude: relay.location.longitude,
-            }),
+            location: Some(proto::Location::from(relay.location.clone())),
+        }
+    }
+}
+
+impl From<Location> for proto::Location {
+    fn from(value: Location) -> Self {
+        proto::Location {
+            country: value.country,
+            country_code: value.country_code,
+            city: value.city,
+            city_code: value.city_code,
+            latitude: value.latitude,
+            longitude: value.longitude,
         }
     }
 }
