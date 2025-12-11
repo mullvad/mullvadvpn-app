@@ -54,7 +54,7 @@ impl DisconnectedState {
         Self::construct_state_transition(shared_values)
     }
 
-    #[cfg_attr(target_os = "android", allow(unused_variables))]
+    #[cfg_attr(target_os = "android", expect(unused_variables))]
     fn construct_state_transition(
         shared_values: &mut SharedTunnelStateValues,
     ) -> (Box<dyn TunnelState>, TunnelStateTransition) {

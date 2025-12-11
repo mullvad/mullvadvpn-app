@@ -3,7 +3,7 @@
 #![allow(rustdoc::private_intra_doc_links)]
 mod constants;
 mod error;
-#[cfg_attr(target_os = "android", allow(unused))]
+#[cfg_attr(target_os = "android", expect(unused))]
 mod relay_selector;
 
 // Re-exports
