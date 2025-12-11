@@ -87,6 +87,7 @@ impl Sessions {
         let cmd_tx = {
             let map = self.sessions.pin();
             let Some(cmd_tx) = map.get(&label) else {
+                println!("no session?");
                 return Self::handle_session_error();
             };
             cmd_tx.clone()
