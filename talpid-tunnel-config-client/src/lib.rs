@@ -21,7 +21,7 @@ mod socket;
 #[cfg(not(target_os = "ios"))]
 mod socket_sniffer;
 
-#[allow(clippy::derive_partial_eq_without_eq)]
+#[expect(clippy::derive_partial_eq_without_eq)]
 mod proto {
     tonic::include_proto!("ephemeralpeer");
 }

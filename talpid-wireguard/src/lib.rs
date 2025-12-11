@@ -858,7 +858,7 @@ impl WireguardMonitor {
     }
 
     /// Returns routes to the peer endpoints (through the physical interface).
-    #[cfg_attr(target_os = "linux", allow(unused_variables))]
+    #[cfg_attr(target_os = "linux", expect(unused_variables))]
     #[cfg(not(target_os = "android"))]
     fn get_endpoint_routes(
         endpoints: &[std::net::IpAddr],
@@ -877,7 +877,7 @@ impl WireguardMonitor {
         })
     }
 
-    #[cfg_attr(not(target_os = "windows"), allow(unused_variables))]
+    #[cfg_attr(not(target_os = "windows"), expect(unused_variables))]
     #[cfg(not(target_os = "android"))]
     fn get_tunnel_nodes(
         iface_name: &str,
@@ -906,7 +906,7 @@ impl WireguardMonitor {
     fn get_pre_tunnel_routes<'a>(
         iface_name: &str,
         config: &'a Config,
-        #[allow(unused_variables)] userspace_wireguard: bool,
+        #[expect(unused_variables)] userspace_wireguard: bool,
     ) -> impl Iterator<Item = RequiredRoute> + 'a {
         // e.g. utun4
         let gateway_node = talpid_routing::Node::device(iface_name.to_string());
@@ -948,7 +948,7 @@ impl WireguardMonitor {
     fn get_post_tunnel_routes<'a>(
         iface_name: &str,
         config: &'a Config,
-        #[allow(unused_variables)] userspace_wireguard: bool,
+        #[expect(unused_variables)] userspace_wireguard: bool,
     ) -> impl Iterator<Item = RequiredRoute> + 'a {
         let (node_v4, node_v6) = Self::get_tunnel_nodes(iface_name, config);
         let iter = config
@@ -1071,7 +1071,7 @@ enum CloseMsg {
     ObfuscatorFailed(Error),
 }
 
-#[allow(unused)]
+#[expect(unused)]
 #[async_trait::async_trait]
 pub(crate) trait Tunnel: Send + Sync {
     fn get_interface_name(&self) -> String;
@@ -1173,7 +1173,7 @@ pub enum TunnelError {
 }
 
 #[cfg(target_os = "linux")]
-#[allow(dead_code)]
+#[expect(dead_code)]
 fn will_nm_manage_dns() -> bool {
     use talpid_dbus::network_manager::NetworkManager;
 

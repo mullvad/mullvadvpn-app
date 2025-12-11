@@ -132,7 +132,7 @@ pub struct LinuxNetworkingIdentifiers {
 }
 
 /// Spawn the tunnel state machine thread, returning a channel for sending tunnel commands.
-#[allow(clippy::too_many_arguments)]
+#[expect(clippy::too_many_arguments)]
 pub async fn spawn(
     initial_settings: InitialTunnelState,
     tunnel_parameters_generator: impl TunnelParametersGenerator,

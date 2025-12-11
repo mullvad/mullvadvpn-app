@@ -203,7 +203,7 @@ impl State {
     }
 }
 
-#[cfg_attr(not(in_app_upgrade), allow(unused_variables))]
+#[cfg_attr(not(in_app_upgrade), expect(unused_variables))]
 pub(crate) fn spawn_version_router(
     api_handle: MullvadRestHandle,
     availability_handle: ApiAvailability,
@@ -551,7 +551,7 @@ where
 
 /// Wait for the update to finish. In case no update is in progress (or the platform does not
 /// support in-app upgrades), then the future will never resolve as to not escape the select statement.
-#[allow(clippy::unused_async, unused_variables)]
+#[expect(unused_variables)]
 async fn wait_for_update(state: &mut State) -> Option<AppVersionInfo> {
     #[cfg(in_app_upgrade)]
     match state {

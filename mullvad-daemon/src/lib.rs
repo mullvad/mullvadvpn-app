@@ -3442,7 +3442,7 @@ impl Daemon {
         Self::oneshot_send(tx, (), "on_toggle_relay response");
     }
 
-    #[cfg_attr(not(in_app_upgrade), allow(clippy::unused_async))]
+    #[cfg_attr(not(in_app_upgrade), expect(clippy::unused_async))]
     async fn on_app_upgrade(&self, tx: ResponseTx<(), version::Error>) {
         #[cfg(in_app_upgrade)]
         {
@@ -3456,7 +3456,7 @@ impl Daemon {
         };
     }
 
-    #[cfg_attr(not(in_app_upgrade), allow(clippy::unused_async))]
+    #[cfg_attr(not(in_app_upgrade), expect(clippy::unused_async))]
     async fn on_app_upgrade_abort(&self, tx: ResponseTx<(), version::Error>) {
         #[cfg(in_app_upgrade)]
         {
@@ -3473,7 +3473,7 @@ impl Daemon {
         };
     }
 
-    #[cfg_attr(not(in_app_upgrade), allow(clippy::unused_async))]
+    #[cfg_attr(not(in_app_upgrade), expect(clippy::unused_async))]
     async fn on_get_app_upgrade_cache_dir(&self, tx: ResponseTx<PathBuf, version::Error>) {
         #[cfg(in_app_upgrade)]
         {

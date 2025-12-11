@@ -102,7 +102,7 @@ pub type Result<T> = std::result::Result<T, Error>;
 
 /// Errors that can happen in the Linux routing integration
 #[derive(thiserror::Error, Debug)]
-#[allow(missing_docs)]
+#[expect(missing_docs)]
 pub enum Error {
     #[error("Failed to open a netlink connection")]
     Connect(#[source] io::Error),
