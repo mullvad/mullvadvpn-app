@@ -12,7 +12,6 @@ use vec1::Vec1;
 /// `mullvad_api::RelayListProxy`. This can also be passed to frontends.
 #[derive(Default, Debug, Clone, Deserialize, Serialize)]
 pub struct RelayList {
-    pub etag: Option<String>,
     pub countries: Vec<RelayListCountry>,
     // TODO: Rename to `endpoint(s)`
     pub wireguard: EndpointData,
