@@ -15,13 +15,15 @@ use uuid::Uuid;
 use crate::domain_fronting::SESSION_HEADER_KEY;
 
 const CONNECTION_TIMEOUT: Duration = Duration::from_secs(30);
-const READ_TIMEOUT: Duration = Duration::from_secs(1);
+const READ_TIMEOUT: Duration = Duration::from_millis(50);
 
+#[derive(Debug)]
 pub struct Sessions {
     sessions: papaya::HashMap<Uuid, mpsc::Sender<SessionCommand>>,
     configuration: Configuration,
 }
 
+#[derive(Debug)]
 pub struct Configuration {
     pub upstream: SocketAddr,
 }
@@ -39,6 +41,7 @@ impl Sessions {
         self: Arc<Self>,
         request: Request<Incoming>,
     ) -> Response<Full<Bytes>> {
+        println!("NUMBER OF ENTRIES IN MAP: {}", self.sessions.pin().len());
         let session_id = request
             .headers()
             .get(SESSION_HEADER_KEY)
@@ -70,6 +73,7 @@ impl Sessions {
             }
         };
 
+        println!("Handling request with some body");
         return self.handle_request_inner(session_id, body).await;
     }
 
@@ -127,7 +131,9 @@ impl Sessions {
         let session_id = new_label.clone();
         let (cmd_tx, cmd_rx) = mpsc::channel(1);
         self.sessions.pin().insert(new_label, cmd_tx.clone());
+        println!("NUMBER OF ENTRIES IN MAP after insert: {}", self.sessions.pin().len());
         println!("Aded session {:?}", new_label);
+        dbg!(&self);
         tokio::spawn(async move {
             let Ok(mut session) = Session::connect(cmd_rx, session_id, sessions).await else {
                 return;
@@ -159,6 +165,7 @@ impl Sessions {
     }
 
     pub fn remove_session(self: Arc<Self>, session: &Uuid) {
+        println!("Removing session {session}");
         let _ = self.sessions.pin().remove(session);
     }
 }
@@ -181,6 +188,7 @@ impl Session {
             Ok(conn) => conn,
             Err(err) => {
                 log::error!("Failed to connect to upstream server: {err}");
+                println!("Failed to connect to upstream server: {err}");
                 sessions.remove_session(&session_id);
                 return Err(err);
             }
@@ -235,7 +243,9 @@ impl Session {
                     cmd.respond_with(response_bytes);
                 },
 
-                _ = deadline => {}
+                _ = deadline => {
+                    return;
+                }
             }
             deadline = sleep(CONNECTION_TIMEOUT);
         }
@@ -248,6 +258,7 @@ impl Drop for Session {
     }
 }
 
+#[derive(Debug)]
 struct SessionCommand {
     tx_payload: Option<Bytes>,
     return_tx: oneshot::Sender<Option<Bytes>>,

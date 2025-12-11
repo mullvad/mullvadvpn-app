@@ -124,14 +124,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let listener = TcpListener::bind(bind_addr).await?;
 
+    let sessions = Sessions::new(args.upstream);
     loop {
         let (stream, addr) = listener.accept().await?;
         let upstream = args.upstream;
         let acceptor = tls_acceptor.clone();
 
         println!("Accepted connection from {}!", addr);
-        let sessions = Sessions::new(upstream);
 
+        let sessions = sessions.clone();
         tokio::spawn(async move {
             // Perform TLS handshake
             match acceptor.accept(stream).await {
