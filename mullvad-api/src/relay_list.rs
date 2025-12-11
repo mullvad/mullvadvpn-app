@@ -7,6 +7,7 @@ use mullvad_types::{
     location,
     relay_list::{self, Bridge, BridgeList, WireguardRelayEndpointData},
 };
+use serde::{Deserialize, Serialize};
 use talpid_types::net::wireguard;
 use vec1::Vec1;
 
@@ -36,7 +37,6 @@ impl RelayListProxy {
     pub fn relay_list(
         &self,
         prev_etag: Option<ETag>,
-        //) -> impl Future<Output = Result<Option<(relay_list::RelayList, relay_list::BridgeList)>, rest::Error>>
     ) -> impl Future<Output = Result<Option<DiskRelayList>, rest::Error>> {
         let request = self.relay_list_response(prev_etag);
 
@@ -73,56 +73,56 @@ impl RelayListProxy {
                 Some(_) if response.status() == StatusCode::NOT_MODIFIED => Ok(None),
                 _ => {
                     // If the API returns a response, it should contain an ETag.
-                    let etag =
-                        Self::extract_etag(&response).ok_or(rest::Error::InvalidHeaderError)?;
+                    let etag = Self::extract_etag(&response)?;
                     Ok(Some((response, etag)))
                 }
             }
         }
     }
 
-    pub fn extract_etag(response: &rest::Response<Incoming>) -> Option<ETag> {
+    pub fn extract_etag(response: &rest::Response<Incoming>) -> Result<ETag, rest::Error> {
         response
             .headers()
             .get(header::ETAG)
             .and_then(|s| s.to_str().ok())
             .map(|s| ETag(s.to_owned()))
+            .ok_or(rest::Error::InvalidHeaderError)
     }
 }
 
 /// Relay list as served by the API.
 ///
 /// This stuct should conform to the API response 1-1.
-#[derive(Debug, serde::Deserialize)]
-struct ServerRelayList {
+#[derive(Debug, Deserialize, Serialize)]
+pub struct ServerRelayList {
     locations: BTreeMap<String, Location>,
     wireguard: Wireguard,
     bridge: Bridges,
 }
 
 /// Relay list as served by the API, and the corresponding etag given by the header.
-#[derive(Debug, serde::Deserialize)]
-struct DiskRelayList {
+#[derive(Debug, Deserialize, Serialize)]
+pub struct DiskRelayList {
     #[serde(flatten)]
-    relay_list: ServerRelayList,
-    etag: Option<ETag>,
+    pub relay_list: ServerRelayList,
+    pub etag: Option<ETag>,
 }
 
 /// TODO: Document my purpose
-#[derive(Debug, Clone, serde::Deserialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct ETag(String);
 
 impl ServerRelayList {
     fn cache(self, etag: ETag) -> DiskRelayList {
         DiskRelayList {
             relay_list: self,
-            etag,
+            etag: Some(etag),
         }
     }
 
     // Convert a relay list response to internal mullvad types.
     // self: on-disk / network representation
-    fn into_internal_repr(self) -> (relay_list::RelayList, relay_list::BridgeList) {
+    pub fn into_internal_repr(self) -> (relay_list::RelayList, relay_list::BridgeList) {
         let mut countries = BTreeMap::new();
         let Self {
             locations,
@@ -147,20 +147,12 @@ impl ServerRelayList {
             }
         }
 
-        let relay_list = {
-            // Note: Wireguard::extract_relays needs to be called before Bridges::extract_relays because <TODO>
-            let wireguard = wireguard.extract_relays(&mut countries);
-            relay_list::RelayList {
-                wireguard,
-                countries: countries.into_values().collect(),
-            }
-        };
-        let bridge_list = {
-            let (bridge_endpoint, bridges) = bridge.extract_relays(&countries);
-            relay_list::BridgeList {
-                bridges,
-                bridge_endpoint,
-            }
+        // Note: Wireguard::extract_relays needs to be called before Bridges::extract_relays because <TODO>
+        let wireguard = wireguard.extract_relays(&mut countries);
+        let bridge_list = bridge.extract_relays(&countries);
+        let relay_list = relay_list::RelayList {
+            wireguard,
+            countries: countries.into_values().collect(),
         };
 
         (relay_list, bridge_list)
@@ -218,7 +210,7 @@ fn into_mullvad_relay(
     )
 }
 
-#[derive(Debug, serde::Deserialize)]
+#[derive(Debug, Deserialize, Serialize)]
 struct Location {
     city: String,
     country: String,
@@ -226,7 +218,7 @@ struct Location {
     longitude: f64,
 }
 
-#[derive(Debug, serde::Deserialize)]
+#[derive(Debug, Deserialize, Serialize)]
 struct Relay {
     hostname: String,
     active: bool,
@@ -269,7 +261,7 @@ impl Relay {
     }
 }
 
-#[derive(Debug, serde::Deserialize)]
+#[derive(Debug, Deserialize, Serialize)]
 struct Wireguard {
     port_ranges: Vec<(u16, u16)>,
     ipv4_gateway: Ipv4Addr,
@@ -342,7 +334,7 @@ impl Wireguard {
     }
 }
 
-#[derive(Debug, serde::Deserialize)]
+#[derive(Debug, Deserialize, Serialize)]
 struct WireGuardRelay {
     #[serde(flatten)]
     relay: Relay,
@@ -380,7 +372,7 @@ impl WireGuardRelay {
 }
 
 /// Extra features enabled on some (Wireguard) relay, such as obfuscation daemons or Daita.
-#[derive(Debug, Default, Clone, serde::Deserialize)]
+#[derive(Debug, Default, Clone, Deserialize, Serialize)]
 struct Features {
     daita: Option<Daita>,
     quic: Option<Quic>,
@@ -390,11 +382,11 @@ struct Features {
 /// DAITA doesn't have any configuration options (exposed by the API).
 ///
 /// Note, an empty struct is not the same as an empty tuple struct according to serde_json!
-#[derive(Debug, Clone, serde::Deserialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 struct Daita {}
 
 /// Parameters for setting up a QUIC obfuscator (connecting to a masque-proxy running on a relay).
-#[derive(Debug, Clone, serde::Deserialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 struct Quic {
     /// In-addresses for the QUIC obfuscator.
     ///
@@ -419,14 +411,14 @@ impl From<Quic> for relay_list::Quic {
 /// LWO doesn't have any configuration options (exposed by the API).
 ///
 /// Note, an empty struct is not the same as an empty tuple struct according to serde_json!
-#[derive(Debug, Clone, serde::Deserialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 struct Lwo {}
 
 /// TODO: Remove?
 /// Mullvad Bridge servers are used for the Bridge API access method.
 ///
 /// The were previously also used for proxying to traffic OpenVPN servers.
-#[derive(Debug, serde::Deserialize)]
+#[derive(Debug, Deserialize, Serialize)]
 struct Bridges {
     shadowsocks: Vec<relay_list::ShadowsocksEndpointData>,
     relays: Vec<Relay>, // ??
@@ -471,17 +463,4 @@ impl Bridges {
             },
         }
     }
-
-    // fn into_bridge_mullvad_relay(self, location: location::Location) -> relay_list::Bridge {
-    //     let Bridges { relays }
-
-    //     relay_list::Bridge(relay_list::Relay {
-    //         hostname: todo!(),
-    //         ipv4_addr_in: todo!(),
-    //         ipv6_addr_in: todo!(),
-    //         active: todo!(),
-    //         weight: todo!(),
-    //         location,
-    //     })
-    // }
 }

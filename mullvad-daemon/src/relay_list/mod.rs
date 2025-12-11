@@ -11,7 +11,9 @@ use std::{
 };
 use tokio::fs::File;
 
-use mullvad_api::{RelayListProxy, availability::ApiAvailability, rest::MullvadRestHandle};
+use mullvad_api::{
+    DiskRelayList, ETag, RelayListProxy, availability::ApiAvailability, rest::MullvadRestHandle,
+};
 use mullvad_relay_selector::RelaySelector;
 use mullvad_types::relay_list::RelayList;
 use talpid_future::retry::{ExponentialBackoff, Jittered, retry_future};
@@ -62,12 +64,15 @@ impl RelayListUpdaterHandle {
 }
 
 pub struct RelayListUpdater {
+    // TODO: Put etag somewhere
     api_client: RelayListProxy,
     cache_path: PathBuf,
     relay_selector: RelaySelector,
+    // TODO: Can we lift the relay list to this daemon state? Would be nice.
     on_update: Box<dyn Fn(&RelayList) + Send + 'static>,
     last_check: SystemTime,
     api_availability: ApiAvailability,
+    etag: Option<ETag>,
 }
 
 impl RelayListUpdater {
@@ -87,6 +92,7 @@ impl RelayListUpdater {
             on_update: Box::new(on_update),
             last_check: UNIX_EPOCH,
             api_availability,
+            etag: None,
         };
 
         tokio::spawn(updater.run(cmd_rx));
@@ -100,11 +106,12 @@ impl RelayListUpdater {
             let next_check = tokio::time::sleep(UPDATE_CHECK_INTERVAL).fuse();
             tokio::pin!(next_check);
 
+            let etag = self.etag.as_ref().cloned();
+
             futures::select! {
                 _check_update = next_check => {
                     if download_future.is_terminated() && self.should_update() {
-                        let tag = self.relay_selector.etag();
-                        download_future = Box::pin(Self::download_relay_list(self.api_availability.clone(), self.api_client.clone(), tag).fuse());
+                        download_future = Box::pin(Self::download_relay_list(self.api_availability.clone(), self.api_client.clone(), etag).fuse());
                         self.last_check = SystemTime::now();
                     }
                 },
@@ -116,8 +123,7 @@ impl RelayListUpdater {
                 cmd = cmd_rx.next() => {
                     match cmd {
                         Some(()) => {
-                            let tag = self.relay_selector.etag();
-                            download_future = Box::pin(Self::download_relay_list(self.api_availability.clone(), self.api_client.clone(), tag).fuse());
+                            download_future = Box::pin(Self::download_relay_list(self.api_availability.clone(), self.api_client.clone(), etag).fuse());
                             self.last_check = SystemTime::now();
                         },
                         None => {
@@ -133,7 +139,7 @@ impl RelayListUpdater {
 
     async fn consume_new_relay_list(
         &mut self,
-        result: Result<Option<RelayList>, mullvad_api::Error>,
+        result: Result<Option<DiskRelayList>, mullvad_api::Error>,
     ) {
         match result {
             Ok(Some(relay_list)) => {
@@ -164,13 +170,13 @@ impl RelayListUpdater {
     fn download_relay_list(
         api_handle: ApiAvailability,
         proxy: RelayListProxy,
-        tag: Option<String>,
-    ) -> impl Future<Output = Result<Option<RelayList>, mullvad_api::Error>> + use<> {
+        tag: Option<ETag>,
+    ) -> impl Future<Output = Result<Option<DiskRelayList>, mullvad_api::Error>> + use<> {
         async fn download_future(
             api_handle: ApiAvailability,
             proxy: RelayListProxy,
-            tag: Option<String>,
-        ) -> Result<Option<RelayList>, mullvad_api::Error> {
+            tag: Option<ETag>,
+        ) -> Result<Option<DiskRelayList>, mullvad_api::Error> {
             let available = api_handle.wait_background();
             let req = proxy.relay_list(tag);
             available.await?;
@@ -187,21 +193,26 @@ impl RelayListUpdater {
         )
     }
 
-    async fn update_cache(&mut self, new_relay_list: RelayList) -> Result<(), Error> {
+    async fn update_cache(&mut self, new_relay_list: DiskRelayList) -> Result<(), Error> {
+        // Save the new relay list to the cache file
         if let Err(error) = Self::cache_relays(&self.cache_path, &new_relay_list).await {
             log::error!(
                 "{}",
                 error.display_chain_with_msg("Failed to update relay cache on disk")
             );
         }
+        // Cache the ETag so that we send the correct one in the next request
+        self.etag = new_relay_list.etag;
 
-        self.relay_selector.set_relays(new_relay_list.clone());
-        (self.on_update)(&new_relay_list);
+        // Propagate the new relay list to the relay selector
+        let (relay_list, bridge_list) = new_relay_list.relay_list.into_internal_repr();
+        self.relay_selector.set_relays(relay_list.clone());
+        (self.on_update)(&relay_list);
         Ok(())
     }
 
     /// Write a `RelayList` to the cache file.
-    async fn cache_relays(cache_path: &Path, relays: &RelayList) -> Result<(), Error> {
+    async fn cache_relays(cache_path: &Path, relays: &DiskRelayList) -> Result<(), Error> {
         log::debug!("Writing relays cache to {}", cache_path.display());
         let mut file = File::create(cache_path)
             .await
