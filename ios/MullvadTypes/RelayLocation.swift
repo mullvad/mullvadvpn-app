@@ -118,6 +118,7 @@ public struct UserSelectedRelays: Codable, Equatable, Sendable {
 }
 
 extension UserSelectedRelays {
+    public static let `default`: UserSelectedRelays = UserSelectedRelays(locations: [.country("se")])
     public struct CustomListSelection: Codable, Equatable, Sendable {
         /// The ID of the custom list that the selected relays belong to.
         public let listId: UUID

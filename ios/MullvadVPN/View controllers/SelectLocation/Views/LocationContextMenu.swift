@@ -106,4 +106,15 @@ extension ExitLocationView {
             }
         }
     }
+
+    @ViewBuilder
+    func menuForRecentLocation(_ location: LocationNode) -> some View {
+        if let customList = location.userSelectedRelays.customListSelection,
+            customList.isList
+        {
+            customListContextMenu(location)
+        } else {
+            locationContextMenu(location)
+        }
+    }
 }

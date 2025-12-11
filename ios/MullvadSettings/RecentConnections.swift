@@ -8,7 +8,17 @@
 import MullvadTypes
 
 public struct RecentConnections: Codable, Sendable, Equatable {
-    let isEnabled: Bool
-    let entryLocations: [UserSelectedRelays]
-    let exitLocations: [UserSelectedRelays]
+    public let isEnabled: Bool
+    public let entryLocations: [UserSelectedRelays]
+    public let exitLocations: [UserSelectedRelays]
+
+    public init(
+        isEnabled: Bool = true,
+        entryLocations: [UserSelectedRelays] = [],
+        exitLocations: [UserSelectedRelays] = []
+    ) {
+        self.isEnabled = isEnabled
+        self.entryLocations = entryLocations
+        self.exitLocations = exitLocations
+    }
 }

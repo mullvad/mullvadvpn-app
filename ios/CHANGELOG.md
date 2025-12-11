@@ -24,6 +24,7 @@ Line wrap the file at 100 chars.                                              Th
 ## UNRELEASED
 ### Add
 - Add support for additional languages.
+- Add recent connections in the Select Location view.
 
 ## [2025.10 - 2025-12-01]
 ### Added

@@ -530,7 +530,8 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
             navigationController: navigationController,
             tunnelManager: tunnelManager,
             relaySelectorWrapper: relaySelectorWrapper,
-            customListRepository: CustomListRepository()
+            customListRepository: CustomListRepository(),
+            recentConnectionsRepository: RecentConnectionsRepository(store: SettingsManager.store, maxLimit: 50)
         )
 
         locationCoordinator.didFinish = { [weak self] _ in
