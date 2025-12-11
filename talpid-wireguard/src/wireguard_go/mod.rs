@@ -49,7 +49,7 @@ type Result<T> = std::result::Result<T, TunnelError>;
 
 struct LoggingContext {
     ordinal: u64,
-    #[expect(dead_code)]
+    #[cfg_attr(not(target_os = "android"), expect(dead_code))]
     path: Option<PathBuf>,
 }
 
@@ -130,7 +130,7 @@ pub(crate) async fn open_wireguard_go_tunnel(
         .await?
     } else {
         WgGoTunnel::start_tunnel(
-            #[expect(clippy::needless_borrow)]
+            #[cfg_attr(not(target_os = "android"), expect(clippy::needless_borrow))]
             &config,
             log_path,
             tun_provider,
