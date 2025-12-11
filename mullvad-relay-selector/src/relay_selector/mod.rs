@@ -387,6 +387,11 @@ impl RelaySelector {
         parsed_relays.original_list().clone()
     }
 
+    /// Returns all bridgees.
+    pub fn get_bridges(&mut self) -> BridgeList {
+        self.parsed_relays.lock().unwrap().bridge_list().clone()
+    }
+
     pub fn access_relays<T>(&mut self, access_fn: impl Fn(&RelayList) -> T) -> T {
         let parsed_relays = self.parsed_relays.lock().unwrap();
         access_fn(parsed_relays.original_list())
