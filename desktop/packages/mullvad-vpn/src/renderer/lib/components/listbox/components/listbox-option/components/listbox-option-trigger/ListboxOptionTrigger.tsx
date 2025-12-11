@@ -5,7 +5,7 @@ import { colors } from '../../../../../../foundations';
 import { useListItemContext } from '../../../../../list-item/ListItemContext';
 import { useListboxContext } from '../../../../';
 import { useListboxOptionContext } from '../../';
-import { StyledListItemOptionItem } from '../';
+import { StyledListboxOptionItem } from '../';
 
 export type ListboxOptionTriggerProps = React.ComponentPropsWithRef<'li'>;
 
@@ -24,32 +24,14 @@ export const StyledListItemOptionTrigger = styled.li<{ $disabled?: boolean }>`
     if (!$disabled) {
       return css`
         &&:hover {
-          ${StyledListItemOptionItem} {
+          ${StyledListboxOptionItem} {
             background-color: ${colors.whiteOnBlue10};
           }
         }
 
         &&:active {
-          ${StyledListItemOptionItem} {
+          ${StyledListboxOptionItem} {
             background-color: ${colors.whiteOnBlue20};
-          }
-        }
-
-        &&[aria-selected='true'] {
-          ${StyledListItemOptionItem} {
-            ${StyledListItemOptionItem} {
-              background-color: ${colors.green};
-            }
-          }
-          &&:hover {
-            ${StyledListItemOptionItem} {
-              background-color: ${colors.green};
-            }
-          }
-          &&:active {
-            ${StyledListItemOptionItem} {
-              background-color: ${colors.green};
-            }
           }
         }
       `;
