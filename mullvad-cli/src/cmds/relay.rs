@@ -11,7 +11,7 @@ use mullvad_types::{
         Provider, Providers, RelayConstraints, RelayOverride, RelaySettings, WireguardConstraints,
         allowed_ip::AllowedIps,
     },
-    relay_list::{RelayEndpointData, RelayListCountry},
+    relay_list::RelayListCountry,
 };
 use std::{
     collections::HashMap,

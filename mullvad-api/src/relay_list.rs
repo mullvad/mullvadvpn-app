@@ -5,7 +5,7 @@ use crate::rest;
 use hyper::{StatusCode, body::Incoming, header};
 use mullvad_types::{
     location,
-    relay_list::{self, Bridge, BridgeList, WireguardRelayEndpointData},
+    relay_list::{self, BridgeList, WireguardRelayEndpointData},
 };
 use serde::{Deserialize, Serialize};
 use talpid_types::net::wireguard;
@@ -108,7 +108,9 @@ pub struct DiskRelayList {
     pub etag: Option<ETag>,
 }
 
-/// TODO: Document my purpose
+/// An (ETag header)[https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/ETag] returned by the relay list API.
+/// The etag is used to version the API response, and is used to check if the response has changed since the last request.
+/// This can potentially save some bandwidth, especially important for the server side.
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct ETag(String);
 
@@ -236,13 +238,16 @@ impl Relay {
         let Self {
             hostname,
             active,
-            owned,
-            location: _,
-            provider,
             ipv4_addr_in,
             ipv6_addr_in,
             weight,
-            include_in_country,
+            // Since bridges are not a user-facing concept (and is only used for API traffic),
+            // we dont really care about their location, who provides them etc. We treat the transport
+            // of API traffic as insecure anyway.
+            include_in_country: _,
+            owned: _,
+            location: _,
+            provider: _,
         } = self;
 
         relay_list::Bridge(relay_list::Relay {
@@ -414,14 +419,14 @@ impl From<Quic> for relay_list::Quic {
 #[derive(Debug, Clone, Deserialize, Serialize)]
 struct Lwo {}
 
-/// TODO: Remove?
 /// Mullvad Bridge servers are used for the Bridge API access method.
 ///
 /// The were previously also used for proxying to traffic OpenVPN servers.
 #[derive(Debug, Deserialize, Serialize)]
 struct Bridges {
     shadowsocks: Vec<relay_list::ShadowsocksEndpointData>,
-    relays: Vec<Relay>, // ??
+    /// The physical bridge servers and generic connnection details.
+    relays: Vec<Relay>,
 }
 
 impl Bridges {
