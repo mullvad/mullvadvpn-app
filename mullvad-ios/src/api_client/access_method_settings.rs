@@ -110,7 +110,7 @@ fn convert_builtin_access_method_setting_inner(
 }
 
 /// Used by Swift to instruct which access method kind it is trying to convert
-#[allow(dead_code)]
+#[expect(dead_code)]
 #[repr(u8)]
 pub enum SwiftAccessMethodKind {
     KindDirect = 0,

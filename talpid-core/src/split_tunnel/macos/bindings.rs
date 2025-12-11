@@ -11,7 +11,7 @@ pub struct timeval32 {
     pub tv_sec: __int32_t,
     pub tv_usec: __int32_t,
 }
-#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+#[expect(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
     ["Size of timeval32"][::std::mem::size_of::<timeval32>() - 8usize];
     ["Alignment of timeval32"][::std::mem::align_of::<timeval32>() - 4usize];
@@ -43,7 +43,7 @@ pub struct pktap_header {
     pub pth_uuid: uuid_t,
     pub pth_euuid: uuid_t,
 }
-#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+#[expect(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
     ["Size of pktap_header"][::std::mem::size_of::<pktap_header>() - 156usize];
     ["Alignment of pktap_header"][::std::mem::align_of::<pktap_header>() - 4usize];

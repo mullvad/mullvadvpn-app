@@ -55,7 +55,7 @@ pub struct RouteManagerImpl {
 }
 
 impl RouteManagerImpl {
-    #[allow(clippy::unused_async)]
+    #[expect(clippy::unused_async)]
     pub async fn new(android_context: AndroidContext) -> Result<Self, Error> {
         // Create a channel between the kotlin client and route manager
         let (tx, rx) = futures::channel::mpsc::unbounded();
@@ -180,7 +180,7 @@ fn configured_routes(state: &NetworkState) -> HashSet<Route> {
 
 /// Entry point for Android Java code to notify the current default network state.
 #[unsafe(no_mangle)]
-#[allow(non_snake_case)]
+#[expect(non_snake_case)]
 pub extern "system" fn Java_net_mullvad_talpid_ConnectivityListener_notifyDefaultNetworkChange(
     env: JNIEnv<'_>,
     _: JObject<'_>,

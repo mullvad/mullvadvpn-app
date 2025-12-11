@@ -143,7 +143,7 @@ pub mod arbitrary {
     /// Generate *any* arbitrary [Rollout] values.
     ///
     /// This generator assume that [VALID_ROLLOUT] represent all valid rollouts.
-    #[allow(dead_code)]
+    #[expect(dead_code)]
     pub fn arb_any_rollout() -> impl Strategy<Value = Rollout> {
         VALID_ROLLOUT.prop_map(Rollout)
     }
@@ -151,7 +151,7 @@ pub mod arbitrary {
     /// Generate an arbitrary [Rollout] values.
     ///
     /// This generator is heavily biased towards edge cases such as zero rollout, full rollout etc.
-    #[allow(dead_code)]
+    #[expect(dead_code)]
     pub fn arb_rollout() -> impl Strategy<Value = Rollout> {
         let any = arb_any_rollout();
         let edge_cases = prop_oneof![

@@ -49,7 +49,7 @@ type Result<T> = std::result::Result<T, TunnelError>;
 
 struct LoggingContext {
     ordinal: u64,
-    #[allow(dead_code)]
+    #[expect(dead_code)]
     path: Option<PathBuf>,
 }
 
@@ -81,7 +81,7 @@ enum Circuit {
 }
 
 /// Configure and start a Wireguard-go tunnel.
-#[allow(clippy::unused_async)]
+#[expect(clippy::unused_async)]
 pub(crate) async fn open_wireguard_go_tunnel(
     config: &Config,
     log_path: Option<&Path>,
@@ -130,7 +130,7 @@ pub(crate) async fn open_wireguard_go_tunnel(
         .await?
     } else {
         WgGoTunnel::start_tunnel(
-            #[allow(clippy::needless_borrow)]
+            #[expect(clippy::needless_borrow)]
             &config,
             log_path,
             tun_provider,
@@ -165,7 +165,7 @@ impl WgGoTunnel {
     }
 
     #[cfg(not(target_os = "android"))]
-    #[allow(clippy::unused_async)]
+    #[expect(clippy::unused_async)]
     async fn set_config(&mut self, config: Config) -> Result<()> {
         self.handle_mut().set_config(config)
     }
