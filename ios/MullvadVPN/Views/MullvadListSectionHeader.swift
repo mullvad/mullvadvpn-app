@@ -3,7 +3,7 @@ import SwiftUI
 struct MullvadListSectionHeader: View {
     let title: LocalizedStringKey
     let subtitle: LocalizedStringKey?
-    
+
     init(title: LocalizedStringKey, subtitle: LocalizedStringKey? = nil) {
         self.title = title
         self.subtitle = subtitle
