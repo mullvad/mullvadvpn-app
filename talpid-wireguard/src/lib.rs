@@ -957,7 +957,7 @@ impl WireguardMonitor {
     fn get_post_tunnel_routes<'a>(
         iface_name: &str,
         config: &'a Config,
-        #[cfg(target_os = "linux")] userspace_wireguard: bool,
+        #[cfg(any(target_os = "linux", target_os = "macos"))] userspace_wireguard: bool,
     ) -> impl Iterator<Item = RequiredRoute> + 'a {
         let (node_v4, node_v6) = Self::get_tunnel_nodes(iface_name, config);
         let iter = config
