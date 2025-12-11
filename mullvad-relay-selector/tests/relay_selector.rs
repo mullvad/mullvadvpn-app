@@ -1382,6 +1382,7 @@ fn include_in_country_with_few_relays() -> Result<(), Error> {
         };
         let wireguard = EndpointData {
             port_ranges: vec![443..=443],
+            shadowsocks_port_ranges: vec![100..=200, 1000..=2000],
             ..Default::default()
         };
         RelayList {
