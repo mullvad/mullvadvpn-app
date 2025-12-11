@@ -17,7 +17,7 @@ use std::{
 use mullvad_types::{
     location::Location,
     relay_constraints::RelayOverride,
-    relay_list::{WireguardRelay, RelayList},
+    relay_list::{BridgeList, RelayList, WireguardRelay},
 };
 
 use crate::{constants::UDP2TCP_PORTS, error::Error};
@@ -27,6 +27,8 @@ pub(crate) struct ParsedRelays {
     last_updated: SystemTime,
     /// The current list of relays, after applying [overrides][`RelayOverride`].
     parsed_list: RelayList,
+    /// The current list of bridges.
+    bridge_list: BridgeList,
     /// The original list of relays, as returned by the Mullvad relays API.
     original_list: RelayList,
     overrides: Vec<RelayOverride>,
@@ -41,7 +43,8 @@ impl ParsedRelays {
     /// Replace `self` with a new [`ParsedRelays`] based on [new_relays][`ParsedRelays`],
     /// bumping `self.last_updated` to the current system time.
     pub fn update(&mut self, new_relays: RelayList) {
-        *self = Self::from_relay_list(new_relays, SystemTime::now(), &self.overrides);
+        // TODO: Bring back
+        //*self = Self::from_relay_list(new_relays, SystemTime::now(), &self.overrides);
 
         log::info!(
             "Updated relay inventory has {} relays",
@@ -70,6 +73,11 @@ impl ParsedRelays {
         &self.parsed_list
     }
 
+    /// Known bridge servers.
+    pub const fn bridge_list(&self) -> &BridgeList {
+        &self.bridge_list
+    }
+
     /// Replace the previous set of [overrides][`RelayOverride`] with `new_overrides`.
     /// This will update `self.parsed_list` as a side-effect.
     pub(crate) fn set_overrides(&mut self, new_overrides: &[RelayOverride]) {
@@ -81,6 +89,7 @@ impl ParsedRelays {
         ParsedRelays {
             last_updated: UNIX_EPOCH,
             parsed_list: RelayList::empty(),
+            bridge_list: BridgeList::empty(),
             original_list: RelayList::empty(),
             overrides: vec![],
         }
@@ -120,7 +129,13 @@ impl ParsedRelays {
             Self::open_file(path.as_ref()).map_err(Error::OpenRelayCache)?;
         let relay_list = serde_json::from_reader(BufReader::new(file)).map_err(Error::Serialize)?;
 
-        Ok(Self::from_relay_list(relay_list, last_modified, overrides))
+        let bridge_list = BridgeList::empty(); // TODO
+        Ok(Self::from_relay_list(
+            relay_list,
+            bridge_list,
+            last_modified,
+            overrides,
+        ))
     }
 
     fn open_file(path: &Path) -> io::Result<(SystemTime, std::fs::File)> {
@@ -129,17 +144,19 @@ impl ParsedRelays {
         Ok((last_modified, file))
     }
 
-    /// Create a new [`ParsedRelays`] from [relay_list][`RelayList`] and
+    /// Create a new [`ParsedRelays`] from [relay_list][`RelayList`], [bridge_list][`BridgeList`] and
     /// [overrides][`RelayOverride`]. This will apply `overrides` to `relay_list` and store the
     /// result in `self.parsed_list`.
     pub(crate) fn from_relay_list(
         relay_list: RelayList,
+        bridge_list: BridgeList,
         last_updated: SystemTime,
         overrides: &[RelayOverride],
     ) -> Self {
         ParsedRelays {
             last_updated,
             parsed_list: Self::parse_relay_list(&relay_list, overrides),
+            bridge_list,
             original_list: relay_list,
             overrides: overrides.to_vec(),
         }

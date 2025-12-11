@@ -14,9 +14,16 @@ use vec1::Vec1;
 pub struct RelayList {
     pub etag: Option<String>,
     pub countries: Vec<RelayListCountry>,
+    // TODO: Rename to `endpoint(s)`
     pub wireguard: EndpointData,
-    // TODO: Group these
-    pub bridge: Vec<Bridge>,
+}
+
+/// Stores a list of bridges for each country obtained from the API using
+/// `mullvad_api::RelayListProxy`.
+#[derive(Default, Debug, Clone, Deserialize, Serialize)]
+pub struct BridgeList {
+    pub bridges: Vec<Bridge>,
+    // TODO: Rename to `endpoint(s)`
     pub bridge_endpoint: BridgeEndpointData,
 }
 
@@ -74,16 +81,21 @@ impl RelayList {
             .flat_map(|city| city.relays.iter())
     }
 
-    pub fn bridges(&self) -> &[Bridge] {
-        &self.bridge
-    }
-
     /// Return a consuming flat iterator of all [`Relay`]s
     pub fn into_relays(self) -> impl Iterator<Item = WireguardRelay> + Clone {
         self.countries
             .into_iter()
             .flat_map(|country| country.cities)
             .flat_map(|city| city.relays)
+    }
+}
+
+impl BridgeList {
+    pub fn empty() -> Self {
+        Self::default()
+    }
+    pub fn bridges(&self) -> &[Bridge] {
+        &self.bridges
     }
 }
 

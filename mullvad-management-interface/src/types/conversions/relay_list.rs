@@ -5,27 +5,31 @@ use std::{
     str::FromStr,
 };
 
-use mullvad_types::relay_list::{Relay, WireguardRelay};
+use mullvad_types::relay_list::{EndpointData, Relay, RelayList, RelayListCountry, WireguardRelay};
 use vec1::Vec1;
 
+use super::net::try_transport_protocol_from_i32;
 use crate::types::{FromProtobufTypeError, conversions::bytes_to_pubkey, proto};
 
-use super::net::try_transport_protocol_from_i32;
-
-impl From<mullvad_types::relay_list::RelayList> for proto::RelayList {
+impl From<RelayList> for proto::RelayList {
     fn from(relay_list: mullvad_types::relay_list::RelayList) -> Self {
-        let mut proto_list = proto::RelayList {
-            countries: vec![],
-            bridge: vec![],
-            bridge_endpoint: Some(proto::BridgeEndpointData::from(relay_list.bridge_endpoint)),
-            wireguard: Some(proto::WireguardEndpointData::from(relay_list.wireguard)),
-        };
-        proto_list.countries = relay_list
-            .countries
+        let RelayList {
+            countries,
+            wireguard,
+            ..
+        } = relay_list;
+
+        let countries = countries
             .into_iter()
             .map(proto::RelayListCountry::from)
             .collect();
-        proto_list
+
+        let wireguard = Some(proto::WireguardEndpointData::from(wireguard));
+
+        proto::RelayList {
+            countries,
+            wireguard,
+        }
     }
 }
 
@@ -70,22 +74,16 @@ impl TryFrom<proto::RelayList> for mullvad_types::relay_list::RelayList {
                 "missing wireguard data",
             ))?;
 
-        let bridge = value.bridge.ok_or(FromProtobufTypeError::InvalidArgument(
-            "missing bridge data",
-        ))?;
-
         let countries = value
             .countries
             .into_iter()
-            .map(mullvad_types::relay_list::RelayListCountry::try_from)
+            .map(RelayListCountry::try_from)
             .collect::<Result<Vec<_>, _>>()?;
 
-        Ok(mullvad_types::relay_list::RelayList {
+        Ok(RelayList {
             etag: None,
             countries,
-            bridge: todo!(),
-            bridge_endpoint: mullvad_types::relay_list::BridgeEndpointData::try_from(bridge)?,
-            wireguard: mullvad_types::relay_list::EndpointData::try_from(wireguard)?,
+            wireguard: EndpointData::try_from(wireguard)?,
         })
     }
 }
