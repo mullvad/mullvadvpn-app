@@ -7,6 +7,7 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
     @State var alert: MullvadAlert?
     let onScrollOffsetChange: (CGFloat, CGFloat) -> Void
     @State private var previousScrollOffset: CGFloat = 0
+
     var isShowingCustomListsSection: Bool {
         viewModel.searchText.isEmpty
             || (!viewModel.searchText.isEmpty
@@ -17,6 +18,10 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
     }
     var isShowingAllLocationsSection: Bool {
         !context.locations.filter({ !$0.isHiddenFromSearch }).isEmpty
+    }
+
+    var isShowingRecentsSection: Bool {
+        viewModel.searchText.isEmpty && viewModel.isRecentsEnabled
     }
 
     var body: some View {
@@ -36,6 +41,9 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
                             .padding(.bottom, 16)
                         }
                         Group {
+                            if viewModel.isRecentsEnabled {
+                                recentsSection(isShowingHeader: isShowingRecentsSection)
+                            }
                             if isShowingCustomListsSection {
                                 customListSection(isShowingHeader: isShowingAllLocationsSection)
                             }
@@ -61,14 +69,14 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
             .coordinateSpace(.exitLocationScroll)
             .task {
                 guard viewModel.searchText.isEmpty else { return }
-                let selectedLocation = (context.locations + context.customLists)
-                    .flatMap { $0.flattened + [$0] }
-                    .first { $0.isSelected }
-
-                if let selectedLocation {
-                    scrollProxy.scrollTo(selectedLocation.code, anchor: .center)
-                }
+                scrollToSelectedLocation(scrollProxy)
             }
+            .onChange(
+                of: viewModel.isRecentsEnabled,
+                {
+                    scrollToSelectedLocation(scrollProxy)
+                }
+            )
             .accessibilityIdentifier(.selectLocationView)
         }
         .mullvadInputAlert(item: $newCustomListAlert)
@@ -87,6 +95,29 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
             context.selectLocation(location)
         } contextMenu: { location in
             locationContextMenu(location)
+        }
+    }
+
+    @ViewBuilder
+    func recentsSection(isShowingHeader: Bool) -> some View {
+        if isShowingHeader {
+            MullvadListSectionHeader(title: "Recents")
+            if !$context.recents.isEmpty {
+                RecentLocationsListView(
+                    locations: $context.recents,
+                    multihopContext: viewModel.multihopContext,
+                    onSelectLocation: { location in
+                        context.selectLocation(location)
+                    },
+                    contextMenu: { location in
+                        menuForRecentLocation(location)
+                    }
+                )
+            } else {
+                MullvadListSectionFooter(title: "No recent selection history")
+                    .padding(.horizontal, context.recents.isEmpty ? 0 : 16)
+                    .padding(.top, context.recents.isEmpty ? 0 : 4)
+            }
         }
     }
 
@@ -134,12 +165,15 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
             : """
             To add locations to a list, press the pen or long press on a country, city, or server.
             """
-        Text(text)
-            .font(.mullvadMini)
-            .foregroundStyle(Color.mullvadTextPrimary.opacity(0.6))
+        MullvadListSectionFooter(title: text)
             .padding(.horizontal, context.customLists.isEmpty ? 0 : 16)
             .padding(.top, context.customLists.isEmpty ? 0 : 4)
-            .padding(.bottom, 24)
+    }
+
+    private func scrollToSelectedLocation(_ scrollProxy: ScrollViewProxy) {
+        if let selectedLocation = context.selectedLocation {
+            scrollProxy.scrollTo(selectedLocation.code, anchor: .center)
+        }
     }
 }
 

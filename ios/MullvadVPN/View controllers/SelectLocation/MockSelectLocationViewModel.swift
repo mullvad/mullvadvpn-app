@@ -1,6 +1,9 @@
 import Foundation
 
 class MockSelectLocationViewModel: SelectLocationViewModel {
+
+    var isRecentsEnabled: Bool = true
+
     var isMultihopEnabled: Bool = true
 
     var showDAITAInfo = false
@@ -13,6 +16,17 @@ class MockSelectLocationViewModel: SelectLocationViewModel {
     init() {
         entryContext = LocationContext()
         exitContext = LocationContext(
+            recents: [
+                LocationNode(
+                    name: "Stockholm",
+                    code: "sth",
+                    children: [
+                        LocationNode(name: sth1, code: sth1),
+                        LocationNode(name: sth2, code: sth2),
+                        LocationNode(name: sth3, code: sth3),
+                    ]
+                )
+            ],
             locations: [
                 LocationNode(
                     name: "Sweden", code: "se",
@@ -175,6 +189,8 @@ class MockSelectLocationViewModel: SelectLocationViewModel {
     func showFilterView() {}
 
     func expandSelectedLocation() {}
+
+    func toggleRecents() {}
 
     private var got1 = "se-got-001"
     private let got2 = "se-got-002"

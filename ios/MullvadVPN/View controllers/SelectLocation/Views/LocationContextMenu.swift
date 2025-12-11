@@ -6,8 +6,8 @@ extension ExitLocationView {
     @ViewBuilder
     func customListContextMenu(_ location: LocationNode) -> some View {
         VStack {
-            switch location {
-            case let location as CustomListLocationNode:
+            let isList = location.userSelectedRelays.customListSelection?.isList ?? false
+            if isList {
                 Button("Edit") {
                     viewModel.showEditCustomList(name: location.name)
                 }
@@ -28,8 +28,7 @@ extension ExitLocationView {
                         dismissButtonTitle: "Cancel"
                     )
                 }
-
-            default:
+            } else {
                 if let customListNode = location.parent?.asCustomListNode {
                     Button("Remove") {
                         viewModel
@@ -104,6 +103,22 @@ extension ExitLocationView {
             } label: {
                 Label("New list", systemImage: "plus")
             }
+        }
+    }
+
+    @ViewBuilder
+    func menuForRecentLocation(_ location: LocationNode) -> some View {
+        // If this location’s selected node still belongs to an existing custom list,
+        // show the custom-list context menu. Otherwise, show the default menu so the
+        // user can assign the location to a new custom list (prevents dangling selections
+        // if a custom list was deleted).
+        if let customListSelection = location.userSelectedRelays.customListSelection,
+            let customLists = context.customLists as? [CustomListLocationNode],
+            customLists.contains(where: { $0.customList.id == customListSelection.listId })
+        {
+            customListContextMenu(location)
+        } else {
+            locationContextMenu(location)
         }
     }
 }

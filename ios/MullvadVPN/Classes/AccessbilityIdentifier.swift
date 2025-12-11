@@ -74,6 +74,8 @@ public enum AccessibilityIdentifier: Equatable {
     case locationListItem(String)
     case entryLocationButton
     case exitLocationButton
+    case recentConnectionsToggleButton
+    case disableRecentConnectionsButton
 
     // Cells
     case deviceCell
