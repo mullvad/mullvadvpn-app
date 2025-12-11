@@ -1261,7 +1261,7 @@ impl ManagementService for ManagementServiceImpl {
     }
 }
 
-#[allow(clippy::result_large_err)]
+#[expect(clippy::result_large_err)]
 impl ManagementServiceImpl {
     /// Sends a command to the daemon and maps the error to an RPC error.
     fn send_command_to_daemon(&self, command: DaemonCommand) -> Result<(), Status> {

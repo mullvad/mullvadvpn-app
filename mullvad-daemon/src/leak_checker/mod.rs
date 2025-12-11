@@ -153,7 +153,7 @@ impl Task {
 }
 
 #[cfg(target_os = "android")]
-#[allow(clippy::unused_async)]
+#[expect(clippy::unused_async)]
 async fn check_for_leaks(
     _route_manager: &RouteManagerHandle,
     _destination: Endpoint,

@@ -8,7 +8,7 @@ use tokio::{fs, io};
 use mullvad_update::format::key;
 use mullvad_update::format::response::{Response, SignedResponse};
 
-#[allow(dead_code)]
+#[expect(dead_code)]
 const DEFAULT_EXPIRY_MONTHS: u32 = 6;
 
 /// A tool that generates signed Mullvad version metadata.

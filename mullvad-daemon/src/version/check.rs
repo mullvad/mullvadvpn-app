@@ -127,7 +127,6 @@ impl VersionUpdater {
 impl VersionUpdaterInner {
     /// Update [Self::last_app_version_info] and write it to disk cache, and notify the `update`
     /// callback.
-    #[allow(unused_mut)]
     async fn update_version_info(
         &mut self,
         update: &impl Fn(VersionCache) -> BoxFuture<'static, Result<(), Error>>,

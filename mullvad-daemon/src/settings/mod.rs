@@ -115,7 +115,7 @@ fn handle_custom_list_error(
 pub struct SettingsPersister {
     settings: Settings,
     path: PathBuf,
-    #[allow(clippy::type_complexity)]
+    #[expect(clippy::type_complexity)]
     on_change_listeners: Vec<Box<dyn Fn(&Settings) + Send + Sync>>,
 }
 

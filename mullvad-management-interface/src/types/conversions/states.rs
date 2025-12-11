@@ -443,7 +443,7 @@ impl TryFrom<proto::TunnelState> for mullvad_types::states::TunnelState {
     }
 }
 
-#[cfg_attr(not(target_os = "windows"), allow(unused_variables))]
+#[cfg_attr(not(target_os = "windows"), expect(unused_variables))]
 fn try_firewall_policy_error_from_i32(
     policy_error: i32,
     lock_pid: u32,

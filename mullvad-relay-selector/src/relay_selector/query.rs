@@ -400,7 +400,7 @@ impl Intersection for BridgeQuery {
     }
 }
 
-#[allow(unused)]
+#[expect(unused)]
 pub mod builder {
     //! Strongly typed Builder pattern for of relay constraints though the use of the Typestate
     //! pattern.
