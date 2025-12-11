@@ -54,6 +54,7 @@ async fn test_server_and_client_forwarding() -> anyhow::Result<()> {
 /// reach their destinations when fragmentation *should* be present.
 #[tokio::test]
 async fn test_server_and_client_fragmentation() -> anyhow::Result<()> {
+    #[cfg_attr(target_os = "macos", expect(unused_mut))]
     let mut valid_send_packet_sizes = vec![0u16, 1, 10, 100, 1280, 5000];
 
     // Maximum packet size sans UDP and QUIC headers, sans 1 byte context ID.
