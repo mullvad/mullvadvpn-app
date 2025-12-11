@@ -1071,7 +1071,6 @@ enum CloseMsg {
     ObfuscatorFailed(Error),
 }
 
-#[expect(unused)]
 #[async_trait::async_trait]
 pub(crate) trait Tunnel: Send + Sync {
     fn get_interface_name(&self) -> String;
@@ -1173,7 +1172,6 @@ pub enum TunnelError {
 }
 
 #[cfg(target_os = "linux")]
-#[expect(dead_code)]
 fn will_nm_manage_dns() -> bool {
     use talpid_dbus::network_manager::NetworkManager;
 
