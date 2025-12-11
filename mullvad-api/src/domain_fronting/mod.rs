@@ -105,7 +105,7 @@ pub struct ProxyConnection {
     proxy_host: String,
     session_id: Uuid,
     request: Option<Pin<Box<dyn Future<Output = io::Result<Vec<u8>>> + Send>>>,
-    last_response: Option<Vec<u8>>,
+    recv_buffer: Option<Vec<u8>>,
 }
 
 impl ProxyConnection {
@@ -129,7 +129,7 @@ impl ProxyConnection {
             sender,
             proxy_host,
             session_id,
-            last_response: None,
+            recv_buffer: None,
             request: None,
         })
     }
@@ -184,13 +184,18 @@ impl ProxyConnection {
     fn drain_buffer(
         &mut self,
         buf: &mut tokio::io::ReadBuf<'_>,
-        last_response: Vec<u8>,
     ) -> std::task::Poll<io::Result<()>> {
+        let Some(received_bytes) = self.recv_buffer.take() else {
+            if self.request.is_none() {
+                self.create_request(None);
+            }
+            return Poll::Pending;
+        };
         let read_slice = match buf.remaining_mut() {
-            buffer_length if buffer_length > last_response.len() => &last_response[..],
+            buffer_length if buffer_length > received_bytes.len() => &received_bytes[..],
             buffer_length => {
-                self.last_response = Some(last_response[buffer_length..].to_vec());
-                &last_response[..buffer_length]
+                self.recv_buffer = Some(received_bytes[buffer_length..].to_vec());
+                &received_bytes[..buffer_length]
             }
         };
         buf.put_slice(read_slice);
@@ -199,7 +204,7 @@ impl ProxyConnection {
 
     fn fill_recv_buffer(&mut self, response: Vec<u8>) {
         if !response.is_empty() {
-            self.last_response.get_or_insert(vec![]).extend(response);
+            self.recv_buffer.get_or_insert(vec![]).extend(response);
         }
     }
 }
@@ -210,12 +215,6 @@ impl AsyncRead for ProxyConnection {
         cx: &mut std::task::Context<'_>,
         buf: &mut tokio::io::ReadBuf<'_>,
     ) -> std::task::Poll<std::io::Result<()>> {
-        // Consume previously received bytes
-        if let Some(last_response) = self.last_response.take() {
-            println!("lmao");
-            return self.drain_buffer(buf, last_response);
-        };
-
         // self.request.get_or_insert_with would be cool, but mutable borrows prevent that.
         let request = match self.request.as_mut() {
             None => self.create_request(None),
@@ -224,15 +223,9 @@ impl AsyncRead for ProxyConnection {
 
         let response = ready!(request.as_mut().poll(cx))?;
         self.request = None;
+        self.fill_recv_buffer(response);
 
-        // Empty response implies that no data was received from upstream.
-        if response.is_empty() {
-            let request = self.create_request(None);
-            cx.waker().wake_by_ref();
-            return Poll::Pending;
-        }
-
-        self.drain_buffer(buf, response)
+        self.drain_buffer(buf)
     }
 }
 
@@ -246,16 +239,19 @@ impl AsyncWrite for ProxyConnection {
             Some(request) => (request, false),
             None => {
                 self.create_request(Some(buf));
-                println!("ACtually sent request");
+                cx.waker().wake_by_ref();
+                println!("from none ACtually sent request traffic");
                 return Poll::Ready(Ok(buf.len()));
             }
         };
 
         let response = ready!(request.as_mut().poll(cx))?;
+        self.request = None;
         self.fill_recv_buffer(response);
 
         self.create_request(Some(buf));
-                println!("ACtually sent request");
+        cx.waker().wake_by_ref();
+        println!("from end ACtually sent request traffic");
         return Poll::Ready(Ok(buf.len()));
     }
 
