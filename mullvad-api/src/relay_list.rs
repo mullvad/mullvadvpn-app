@@ -5,7 +5,7 @@ use crate::rest;
 use hyper::{StatusCode, body::Incoming, header};
 use mullvad_types::{
     location,
-    relay_list::{self, BridgeList},
+    relay_list::{self, BridgeList, RelayListCountry},
 };
 use serde::{Deserialize, Serialize};
 use talpid_types::net::wireguard;
@@ -125,35 +125,39 @@ impl ServerRelayList {
     // Convert a relay list response to internal mullvad types.
     // self: on-disk / network representation
     pub fn into_internal_repr(self) -> (relay_list::RelayList, relay_list::BridgeList) {
-        let mut countries = BTreeMap::new();
         let Self {
             locations,
             wireguard,
             bridge,
         } = self;
 
-        for (code, location) in locations.into_iter() {
-            match split_location_code(&code) {
-                Some((country_code, city_code)) => {
-                    let country_code = country_code.to_lowercase();
-                    let city_code = city_code.to_lowercase();
-                    let country = countries
-                        .entry(country_code.clone())
-                        .or_insert_with(|| location_to_country(&location, country_code));
-                    country.cities.push(location_to_city(&location, city_code));
-                }
-                None => {
-                    log::error!("Bad location code:{}", code);
-                    continue;
+        let countries = {
+            let mut countries = BTreeMap::new();
+            for (code, location) in locations.into_iter() {
+                match split_location_code(&code) {
+                    Some((country_code, city_code)) => {
+                        let country_code = country_code.to_lowercase();
+                        let city_code = city_code.to_lowercase();
+                        let country = countries
+                            .entry(country_code.clone())
+                            .or_insert_with(|| location_to_country(&location, country_code));
+                        country.cities.push(location_to_city(&location, city_code));
+                    }
+                    None => {
+                        log::error!("Bad location code:{}", code);
+                        continue;
+                    }
                 }
             }
-        }
+            countries
+        };
 
         // Note: Wireguard::extract_relays needs to be called before Bridges::extract_relays because <TODO>
-        let wireguard = wireguard.extract_relays(&mut countries);
+        let wireguard_endpointdata = wireguard.endpoint_data();
+        let countries = wireguard.extract_relays(countries);
         let bridge_list = bridge.extract_relays(&countries);
         let relay_list = relay_list::RelayList {
-            wireguard,
+            wireguard: wireguard_endpointdata,
             countries: countries.into_values().collect(),
         };
 
@@ -280,12 +284,11 @@ fn inclusive_range_from_pair<T>(pair: (T, T)) -> RangeInclusive<T> {
 }
 
 impl Wireguard {
-    /// Consumes `self` and appends all its relays to `countries`.
+    /// Consumes `self` and return all its relays to as a map from X to [`RelayListCountry`]
     fn extract_relays(
         self,
-        countries: &mut BTreeMap<String, relay_list::RelayListCountry>,
-    ) -> relay_list::EndpointData {
-        let endpoint_data = relay_list::EndpointData::from(&self);
+        mut countries: BTreeMap<String, RelayListCountry>,
+    ) -> BTreeMap<String, RelayListCountry> {
         let relays = self.relays;
 
         for mut wireguard_relay in relays {
@@ -312,7 +315,11 @@ impl Wireguard {
             };
         }
 
-        endpoint_data
+        countries
+    }
+
+    fn endpoint_data(&self) -> relay_list::EndpointData {
+        relay_list::EndpointData::from(self)
     }
 }
 
