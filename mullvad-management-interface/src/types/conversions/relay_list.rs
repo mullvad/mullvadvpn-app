@@ -30,11 +30,11 @@ impl From<RelayList> for proto::RelayList {
             .map(proto::RelayListCountry::from)
             .collect();
 
-        let wireguard = Some(proto::WireguardEndpointData::from(wireguard));
+        let endpoint_data = Some(proto::WireguardEndpointData::from(wireguard));
 
         proto::RelayList {
             countries,
-            wireguard,
+            endpoint_data,
         }
     }
 }
@@ -75,7 +75,7 @@ impl TryFrom<proto::RelayList> for mullvad_types::relay_list::RelayList {
 
     fn try_from(value: proto::RelayList) -> Result<Self, Self::Error> {
         let wireguard = value
-            .wireguard
+            .endpoint_data
             .ok_or(FromProtobufTypeError::InvalidArgument(
                 "missing wireguard data",
             ))?;
@@ -102,11 +102,11 @@ impl From<BridgeList> for proto::BridgeList {
 
         let bridges = bridges.into_iter().map(proto::Bridge::from).collect();
 
-        let bridge_endpoint = Some(proto::BridgeEndpointData::from(bridge_endpoint));
+        let endpoint_data = Some(proto::BridgeEndpointData::from(bridge_endpoint));
 
         proto::BridgeList {
             bridges,
-            bridge: bridge_endpoint,
+            endpoint_data,
         }
     }
 }
@@ -122,7 +122,7 @@ impl TryFrom<proto::BridgeList> for BridgeList {
             .collect::<Result<Vec<_>, _>>()?;
 
         let bridge_endpoint = bridge_list
-            .bridge
+            .endpoint_data
             .map(BridgeEndpointData::try_from)
             .ok_or(FromProtobufTypeError::InvalidArgument("missing bridges"))??;
 
