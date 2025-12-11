@@ -27,6 +27,8 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Fixed
 - Fix "Time left" label in main view not updating when time passes.
+- Update split tunnel driver to 1.2.5.0. This fixes audit issue `MLLVD-CR-24-102`,
+  and a BSOD when the driver was improperly unloaded.
 
 ### Changed
 #### Linux
