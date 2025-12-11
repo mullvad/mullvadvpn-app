@@ -130,6 +130,7 @@ impl VersionUpdaterInner {
     async fn update_version_info(
         &mut self,
         update: &impl Fn(VersionCache) -> BoxFuture<'static, Result<(), Error>>,
+        #[cfg_attr(target_os = "android", expect(unused_mut))]
         mut new_version_info: VersionCache,
     ) {
         #[cfg(not(target_os = "android"))]
