@@ -738,13 +738,13 @@ message DaemonEvent {
 // List of VPN relays
 message RelayList {
   repeated RelayListCountry countries = 1;
-  WireguardEndpointData wireguard = 2;
+  WireguardEndpointData endpoint_data = 2;
 }
 
 // List of bridge servers
 message BridgeList {
   repeated Bridge bridges = 1;
-  BridgeEndpointData bridge = 2;
+  BridgeEndpointData endpoint_data = 2;
 }
 
 message Bridge {
