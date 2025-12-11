@@ -21,7 +21,7 @@ struct MullvadListSectionHeader: View {
             if let subtitle {
                 Text(subtitle)
                     .font(.mullvadTiny)
-                    .foregroundStyle(Color.mullvadTextPrimary)
+                    .foregroundStyle(Color.mullvadTextSecondary)
                     .layoutPriority(1)
             }
         }
