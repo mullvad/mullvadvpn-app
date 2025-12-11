@@ -1,20 +1,25 @@
 package net.mullvad.mullvadvpn.compose.screen
 
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
@@ -24,16 +29,14 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
-import net.mullvad.mullvadvpn.compose.extensions.itemsIndexedWithDivider
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
-import net.mullvad.mullvadvpn.lib.ui.component.listitem.AppIconAndTitleListItem
+import net.mullvad.mullvadvpn.lib.ui.component.griditem.AppIconAndTitleGridItem
 import net.mullvad.mullvadvpn.lib.ui.component.text.Description
 import net.mullvad.mullvadvpn.lib.ui.designsystem.ListHeader
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorMedium
-import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
 import net.mullvad.mullvadvpn.repository.AppObfuscation
 import net.mullvad.mullvadvpn.util.Lc
 import net.mullvad.mullvadvpn.viewmodel.AppearanceUiState
@@ -97,58 +100,54 @@ fun AppearanceScreen(
         snackbarHostState = snackbarHostState,
         appBarTitle = stringResource(id = R.string.appearance),
         navigationIcon = { NavigateBackIconButton(onNavigateBack = onBackClick) },
-    ) { modifier, lazyListState ->
-        LazyColumn(
-            modifier = modifier.padding(horizontal = Dimens.sideMarginNew),
-            horizontalAlignment = CenterHorizontally,
-            state = lazyListState,
-        ) {
+    ) { modifier ->
+        Column(modifier = modifier.fillMaxSize().padding(horizontal = Dimens.sideMarginNew)) {
             when (uiState) {
-                is Lc.Content -> content(uiState.value, onObfuscationSelected)
-                is Lc.Loading -> loading()
+                is Lc.Content -> Content(uiState.value, onObfuscationSelected)
+                is Lc.Loading -> Loading()
             }
         }
     }
 }
 
-private fun LazyListScope.content(
+@Composable
+private fun Content(
     uiState: AppearanceUiState,
     onObfuscationSelected: (AppObfuscation) -> Unit = {},
 ) {
-    description()
-    item { ListHeader(content = { Text(text = stringResource(R.string.icon_and_title)) }) }
-    itemsIndexedWithDivider(
-        items = uiState.availableObfuscations,
-        key = { _, item -> item.path },
-    ) { index, item ->
-        AppIconAndTitleListItem(
-            appTitle = stringResource(item.labelId),
-            appIcon = item.iconId,
-            isSelected = item == uiState.currentAppObfuscation,
-            onClick = { onObfuscationSelected(item) },
-            position =
-                when (index) {
-                    0 -> Position.Top
-                    uiState.availableObfuscations.lastIndex -> Position.Bottom
-                    else -> Position.Middle
-                },
-        )
+    val lazyGridState = rememberLazyGridState()
+    Description()
+    ListHeader(content = { Text(text = stringResource(R.string.icon_and_title)) })
+    LazyVerticalGrid(
+        modifier = Modifier.fillMaxWidth(),
+        state = lazyGridState,
+        columns = GridCells.Fixed(3),
+    ) {
+        items(items = uiState.availableObfuscations, key = { it.path }) { item ->
+            AppIconAndTitleGridItem(
+                modifier = Modifier.padding(bottom = 24.dp),
+                appTitle = stringResource(item.labelId),
+                appIcon = item.iconId,
+                isSelected = item == uiState.currentAppObfuscation,
+                onClick = { onObfuscationSelected(item) },
+            )
+        }
     }
 }
 
-private fun LazyListScope.description() {
-    item {
-        Description(
-            text =
-                buildAnnotatedString {
-                    appendLine(stringResource(R.string.appearance_description))
-                    appendLine(stringResource(R.string.appearance_description_warning))
-                },
-            modifier = Modifier.padding(bottom = Dimens.mediumPadding),
-        )
-    }
+@Composable
+private fun Description() {
+    Description(
+        text =
+            buildAnnotatedString {
+                appendLine(stringResource(R.string.appearance_description))
+                appendLine(stringResource(R.string.appearance_description_warning))
+            },
+        modifier = Modifier.padding(bottom = Dimens.mediumPadding),
+    )
 }
 
-private fun LazyListScope.loading() {
-    item { MullvadCircularProgressIndicatorMedium() }
+@Composable
+private fun Loading() {
+    MullvadCircularProgressIndicatorMedium()
 }

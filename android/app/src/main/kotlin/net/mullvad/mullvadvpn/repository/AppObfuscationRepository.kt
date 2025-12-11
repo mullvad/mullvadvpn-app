@@ -71,4 +71,24 @@ enum class AppObfuscation(val path: String, val iconId: Int, val labelId: Int) {
         R.drawable.ic_launcher_game_preview,
         R.string.app_name_game,
     ),
+    NEWS(
+        ".ui.obfuscation.MainActivityAltNews",
+        R.drawable.ic_launcher_game_preview,
+        R.string.app_name_news,
+    ),
+    MESSAGING(
+        ".ui.obfuscation.MainActivityAltMessaging",
+        R.drawable.ic_launcher_game_preview,
+        R.string.app_name_messaging,
+    ),
+    BROWSER(
+        ".ui.obfuscation.MainActivityAltBrowser",
+        R.drawable.ic_launcher_game_preview,
+        R.string.app_name_browser,
+    ),
+    WEATHER(
+        ".ui.obfuscation.MainActivityAltWeather",
+        R.drawable.ic_launcher_game_preview,
+        R.string.app_name_weather,
+    ),
 }

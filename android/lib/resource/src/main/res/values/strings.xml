@@ -491,4 +491,8 @@
     <string name="appearance_description">Change the title and icon of the app in the Android system. This will not change the ui of the app nor will it change icon of any notification.</string>
     <string name="appearance_description_warning"><b>Note!</b> After selecting a new title and icon the app will close automatically. This will not affect the VPN connection.</string>
     <string name="applying_changes">Applying changes...</string>
+    <string name="app_name_weather">Weather</string>
+    <string name="app_name_news">News</string>
+    <string name="app_name_browser">Browser</string>
+    <string name="app_name_messaging">Messaging</string>
 </resources>

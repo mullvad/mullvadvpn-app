@@ -194,16 +194,16 @@ private fun LazyListScope.content(
 
     itemWithDivider {
         NavigationListItem(
-            title = stringResource(id = R.string.settings_notifications),
-            onClick = onNotificationSettingsCellClick,
+            title = stringResource(id = R.string.appearance),
+            onClick = onAppObfuscationClick,
             position = Position.Top,
         )
     }
 
     itemWithDivider {
         NavigationListItem(
-            title = stringResource(id = R.string.appearance),
-            onClick = onAppObfuscationClick,
+            title = stringResource(id = R.string.settings_notifications),
+            onClick = onNotificationSettingsCellClick,
             position = Position.Middle,
         )
     }

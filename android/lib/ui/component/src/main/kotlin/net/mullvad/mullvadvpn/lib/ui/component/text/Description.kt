@@ -6,9 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.AnnotatedString
 
-/**
- * Text that is used at the top of the screen, it gives information about the screen.
- */
+/** Text that is used at the top of the screen, it gives information about the screen. */
 @Composable
 fun Description(text: AnnotatedString, modifier: Modifier = Modifier) {
     Text(
@@ -21,8 +19,5 @@ fun Description(text: AnnotatedString, modifier: Modifier = Modifier) {
 
 @Composable
 fun Description(text: String, modifier: Modifier = Modifier) {
-    Description(
-        text = AnnotatedString(text),
-        modifier = modifier,
-    )
+    Description(text = AnnotatedString(text), modifier = modifier)
 }
