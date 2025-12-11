@@ -33,7 +33,7 @@ pub struct TestConfig {
 }
 
 impl TestConfig {
-    #[allow(clippy::too_many_arguments)]
+    #[expect(clippy::too_many_arguments)]
     // TODO: This argument list is very long, we should strive to shorten it if possible.
     pub const fn new(
         account_number: String,

@@ -836,7 +836,7 @@ pub fn into_constraint(relay: &Relay) -> Constraint<LocationConstraint> {
 /// To customize [`Pinger`] before the pinging and network monitoring starts,
 /// see [`PingerBuilder`]. Call [`start`](Pinger::start) to start pinging, and
 /// [`stop`](Pinger::stop) to get the leak test results.
-#[allow(dead_code)]
+#[expect(dead_code)]
 pub struct Pinger {
     // These values can be configured with [`PingerBuilder`].
     destination: SocketAddr,
@@ -884,7 +884,7 @@ impl Pinger {
         // Create some network activity for the network monitor to sniff.
         let ping_rpc = rpc.clone();
         let mut interval = tokio::time::interval(builder.interval.period());
-        #[allow(clippy::async_yields_async)]
+        #[expect(clippy::async_yields_async)]
         let ping_task = AbortOnDrop::new(tokio::spawn(async move {
             loop {
                 send_guest_probes_without_monitor(ping_rpc.clone(), None, builder.destination)
@@ -933,7 +933,7 @@ pub struct PingerBuilder {
     interval: tokio::time::Interval,
 }
 
-#[allow(dead_code)]
+#[expect(dead_code)]
 impl PingerBuilder {
     /// Create a default [`PingerBuilder`].
     ///
