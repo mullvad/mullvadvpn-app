@@ -273,7 +273,6 @@ mod tun07_imp {
         /// Open a tunnel using the current tunnel config.
         pub fn open_tun(&mut self) -> Result<UnixTun, Error> {
             let mut tunnel_device = {
-                #[expect(unused_mut)]
                 let mut builder = TunnelDeviceBuilder::default();
                 #[cfg(target_os = "linux")]
                 {
