@@ -42,7 +42,7 @@ pub type uid_t = __darwin_uid_t;
 pub struct fsid {
     pub val: [i32; 2usize],
 }
-#[expect(clippy::unnecessary_operation, clippy::identity_op)]
+#[expect(clippy::identity_op)]
 const _: () = {
     ["Size of fsid"][::std::mem::size_of::<fsid>() - 8usize];
     ["Alignment of fsid"][::std::mem::align_of::<fsid>() - 4usize];
@@ -58,7 +58,7 @@ pub struct proc_fileinfo {
     pub fi_type: i32,
     pub fi_guardflags: u32,
 }
-#[expect(clippy::unnecessary_operation, clippy::identity_op)]
+#[expect(clippy::identity_op)]
 const _: () = {
     ["Size of proc_fileinfo"][::std::mem::size_of::<proc_fileinfo>() - 24usize];
     ["Alignment of proc_fileinfo"][::std::mem::align_of::<proc_fileinfo>() - 8usize];
@@ -98,7 +98,7 @@ pub struct vinfo_stat {
     pub vst_rdev: u32,
     pub vst_qspare: [i64; 2usize],
 }
-#[expect(clippy::unnecessary_operation, clippy::identity_op)]
+#[expect(clippy::identity_op)]
 const _: () = {
     ["Size of vinfo_stat"][::std::mem::size_of::<vinfo_stat>() - 136usize];
     ["Alignment of vinfo_stat"][::std::mem::align_of::<vinfo_stat>() - 8usize];
@@ -149,7 +149,7 @@ pub struct vnode_info {
     pub vi_pad: ::std::os::raw::c_int,
     pub vi_fsid: fsid_t,
 }
-#[expect(clippy::unnecessary_operation, clippy::identity_op)]
+#[expect(clippy::identity_op)]
 const _: () = {
     ["Size of vnode_info"][::std::mem::size_of::<vnode_info>() - 152usize];
     ["Alignment of vnode_info"][::std::mem::align_of::<vnode_info>() - 8usize];
@@ -166,7 +166,7 @@ pub struct vnode_info_path {
     pub vip_vi: vnode_info,
     pub vip_path: [::std::os::raw::c_char; 1024usize],
 }
-#[expect(clippy::unnecessary_operation, clippy::identity_op)]
+#[expect(clippy::identity_op)]
 const _: () = {
     ["Size of vnode_info_path"][::std::mem::size_of::<vnode_info_path>() - 1176usize];
     ["Alignment of vnode_info_path"][::std::mem::align_of::<vnode_info_path>() - 8usize];
@@ -181,7 +181,7 @@ pub struct vnode_fdinfowithpath {
     pub pfi: proc_fileinfo,
     pub pvip: vnode_info_path,
 }
-#[expect(clippy::unnecessary_operation, clippy::identity_op)]
+#[expect(clippy::identity_op)]
 const _: () = {
     ["Size of vnode_fdinfowithpath"][::std::mem::size_of::<vnode_fdinfowithpath>() - 1200usize];
     ["Alignment of vnode_fdinfowithpath"][::std::mem::align_of::<vnode_fdinfowithpath>() - 8usize];
