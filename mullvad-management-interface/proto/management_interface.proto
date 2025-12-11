@@ -685,16 +685,16 @@ message RelayListCity {
 
 message Relay {
   message WireguardEndpoint {
-      message Quic {
-          string domain = 1;
-          string token = 2;
-          repeated string addr_in = 3;
-      }
-      bytes public_key = 1;
-      bool daita = 2;
-      Quic quic = 3;
-      repeated string shadowsocks_extra_addr_in = 4;
-      bool lwo = 5;
+    message Quic {
+        string domain = 1;
+        string token = 2;
+        repeated string addr_in = 3;
+    }
+    bytes public_key = 1;
+    bool daita = 2;
+    Quic quic = 3;
+    repeated string shadowsocks_extra_addr_in = 4;
+    bool lwo = 5;
   }
 
   string hostname = 1;
