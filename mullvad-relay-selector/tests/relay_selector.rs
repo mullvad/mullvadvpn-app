@@ -22,8 +22,8 @@ use mullvad_types::{
     location::Location,
     relay_constraints::{GeographicLocationConstraint, Ownership, Providers, RelayOverride},
     relay_list::{
-        Bridge, BridgeEndpointData, BridgeList, EndpointData, Quic, Relay,
-        RelayList, RelayListCity, RelayListCountry, ShadowsocksEndpointData, WireguardRelay,
+        Bridge, BridgeEndpointData, BridgeList, EndpointData, Quic, Relay, RelayList,
+        RelayListCity, RelayListCountry, ShadowsocksEndpointData, WireguardRelay,
         WireguardRelayEndpointData,
     },
 };
