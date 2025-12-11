@@ -44,7 +44,7 @@ struct SpawnedProcess {
     stdout: Option<ChildStdout>,
     stdin: Option<ChildStdin>,
 
-    #[allow(dead_code)]
+    #[expect(dead_code)]
     abort_handle: OnDrop,
 }
 
@@ -598,7 +598,7 @@ impl Service for TestServer {
         sys::get_os_version()
     }
 
-    #[cfg_attr(not(target_os = "macos"), allow(unused_variables))]
+    #[cfg_attr(not(target_os = "macos"), expect(unused_variables))]
     async fn ifconfig_alias_add(
         self,
         _: context::Context,
@@ -615,7 +615,7 @@ impl Service for TestServer {
             .map_err(test_rpc::Error::Other)
     }
 
-    #[cfg_attr(not(target_os = "macos"), allow(unused_variables))]
+    #[cfg_attr(not(target_os = "macos"), expect(unused_variables))]
     async fn ifconfig_alias_remove(
         self,
         _: context::Context,
