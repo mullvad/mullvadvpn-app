@@ -580,11 +580,7 @@ internal fun ManagementInterface.RelayListCity.toDomain(
     return RelayItem.Location.City(
         name = name,
         id = cityCode,
-        relays =
-            relaysList
-                .filter { it.endpointData.hasWireguard() }
-                .map { it.toDomain(cityCode) }
-                .sortedWith(RelayNameComparator),
+        relays = relaysList.map { it.toDomain(cityCode) }.sortedWith(RelayNameComparator),
     )
 }
 
@@ -596,17 +592,17 @@ internal fun ManagementInterface.Relay.toDomain(
         active = active,
         provider = ProviderId(provider),
         ownership = if (owned) Ownership.MullvadOwned else Ownership.Rented,
-        daita = endpointData.wireguard.daita,
+        daita = endpointData.daita,
         quic =
-            if (endpointData.wireguard.hasQuic()) {
-                endpointData.wireguard.quic.toDomain()
+            if (endpointData.hasQuic()) {
+                endpointData.quic.toDomain()
             } else {
                 null
             },
-        lwo = endpointData.wireguard.lwo,
+        lwo = endpointData.lwo,
     )
 
-private fun ManagementInterface.Relay.RelayData.Wireguard.Quic.toDomain(): Quic =
+private fun ManagementInterface.Relay.WireguardEndpoint.Quic.toDomain(): Quic =
     Quic(inAddresses = addrInList.map { it.toInetAddress() })
 
 private fun Instant.atDefaultZone() = atZone(ZoneId.systemDefault())
