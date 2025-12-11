@@ -1,8 +1,3 @@
-<<<<<<< Updated upstream
-#[tokio::main]
-async fn main() -> anyhow::Result<()> {
-    Ok(())
-=======
 use clap::Parser;
 use http::{Method, Request};
 use http_body_util::{BodyExt, Empty};
@@ -19,29 +14,28 @@ pub struct Arguments {
     /// The host being reached via `front`.
     #[arg(long)]
     host: String,
->>>>>>> Stashed changes
 }
 
-pub async fn main() -> anyhow::Result<()> {
+#[tokio::main]
+async fn main() -> anyhow::Result<()> {
     env_logger::builder()
         .filter_level(log::LevelFilter::Info)
         .parse_default_env()
         .init();
 
-<<<<<<< Updated upstream
-
-=======
     let Arguments { front, host } = Arguments::parse();
     println!("front: {:?} host: {:?}", front, host);
-    let domain_front = DomainFronting::new(front.clone());
-    let tls_stream = domain_front
+    let domain_front = DomainFronting::new(front.clone(), host.clone());
+    let connection = domain_front
+        .proxy_config()
+        .await
+        .expect("Could not resolve {front}")
         .connect()
         .await
-        .expect("Could not resolve {front}");
+        .expect("Failed to connect to CDN");
 
-    let io = TokioIo::new(tls_stream);
-
-    let (mut sender, conn) = hyper::client::conn::http1::handshake(io).await?;
+    let (mut sender, conn) =
+        hyper::client::conn::http1::handshake(TokioIo::new(connection)).await?;
 
     tokio::task::spawn(async move {
         if let Err(err) = conn.await {
@@ -56,13 +50,13 @@ pub async fn main() -> anyhow::Result<()> {
         .header(hyper::header::ACCEPT, "*/*")
         .body(Empty::<Bytes>::new())?;
     println!("request: {:?}", req);
-    let res = sender.send_request(req).await?;
+    let response = sender.send_request(req).await?;
 
-    println!("Response: {}", res.status());
-    println!("Headers: {:#?}\n", res.headers());
+    println!("Response: {}", response.status());
+    println!("Headers: {:#?}\n", response.headers());
 
     // Print the response to stdout
-    let body = res.collect().await?.to_bytes();
+    let body: Bytes = response.collect().await?.to_bytes();
     tokio::io::copy(&mut body.as_ref(), &mut tokio::io::stdout()).await?;
 
     println!("\n\nDone!");
@@ -70,4 +64,3 @@ pub async fn main() -> anyhow::Result<()> {
 }
 #[cfg(feature = "domain-fronting")]
 mod imp {}
->>>>>>> Stashed changes

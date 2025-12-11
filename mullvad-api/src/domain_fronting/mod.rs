@@ -72,10 +72,15 @@ impl DomainFronting {
 }
 
 impl ProxyConfig {
+    pub async fn connect(&self) -> anyhow::Result<ProxyConnection> {
+        let connection = TcpStream::connect(self.addr).await?;
+        self.connect_with_socket(connection).await
+    }
+
     pub async fn connect_with_socket(
         &self,
         tcp_stream: TcpStream,
-    ) -> anyhow::Result<TokioIo<Upgraded>> {
+    ) -> anyhow::Result<ProxyConnection> {
         let config = Arc::new(
             rustls::ClientConfig::builder()
                 .with_root_certificates(read_cert_store())
@@ -95,23 +100,15 @@ impl ProxyConfig {
             }
         });
 
-        let request = hyper::Request::connect(&format!("https://{}/", self.proxy_host))
-            .header(header::CONTENT_TYPE, "application/octet-stream")
-            .header(header::CONTENT_LENGTH, "0")
-            .body(Full::<Bytes>::new(Bytes::new()))?;
-
-        sender.ready().await?;
-        let response = sender.send_request(request).await?;
-
-        unimplemented!()
+        ProxyConnection::initialize(sender, self.proxy_host.clone()).await
     }
 }
 
-struct ProxyConnection {
+pub struct ProxyConnection {
     sender: SendRequest<Full<Bytes>>,
     proxy_host: String,
     session_id: Uuid,
-    request: Option<Pin<Box<dyn Future<Output = io::Result<Vec<u8>>>>>>,
+    request: Option<Pin<Box<dyn Future<Output = io::Result<Vec<u8>>> + Send>>>,
     last_response: Option<Vec<u8>>,
 }
 
@@ -124,10 +121,12 @@ impl ProxyConnection {
         let response = sender
             .send_request(Self::initial_request(&proxy_host))
             .await?;
+        panic!("{:?}", response);
+
         let session_header = response
             .headers()
             .get(SESSION_HEADER_KEY)
-            .ok_or(anyhow::bail!(
+            .ok_or(anyhow::anyhow!(
                 "Proxy server didn't include session ID inresponse"
             ))?;
         let session_id = Uuid::try_parse_ascii(session_header.as_bytes())?;
@@ -142,7 +141,7 @@ impl ProxyConnection {
     }
 
     fn initial_request(proxy_host: &str) -> Request<Full<Bytes>> {
-        hyper::Request::connect(&format!("https://{}/", proxy_host))
+        hyper::Request::post(&format!("https://{}/", proxy_host))
             .header(header::CONTENT_TYPE, "application/octet-stream")
             .header(header::CONTENT_LENGTH, "0")
             .body(Full::<Bytes>::new(Bytes::new()))
@@ -152,7 +151,7 @@ impl ProxyConnection {
     fn create_request(
         &mut self,
         buffer: Option<&[u8]>,
-    ) -> Pin<Box<dyn Future<Output = io::Result<Vec<u8>>> + 'static>> {
+    ) -> Pin<Box<dyn Future<Output = io::Result<Vec<u8>>> + 'static + Send>> {
         let bytes = buffer
             .as_ref()
             .map(|buffer| Bytes::copy_from_slice(*buffer))
@@ -160,7 +159,7 @@ impl ProxyConnection {
         let content_length = bytes.len();
         let body = Full::new(bytes);
 
-        let mut request = hyper::Request::connect(&format!("https://{}/", self.proxy_host));
+        let mut request = hyper::Request::post(&format!("https://{}/", self.proxy_host));
         if buffer.is_some() {
             request = request
                 .header(header::CONTENT_TYPE, "application/octet-stream")

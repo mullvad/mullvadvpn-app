@@ -43,15 +43,19 @@ impl Sessions {
             .headers()
             .get(SESSION_HEADER_KEY)
             .and_then(|value| Uuid::try_parse_ascii(value.as_ref()).ok());
+        println!("Handling the request");
         let Some(conent_length_header) = request.headers().get(header::CONTENT_LENGTH) else {
+            println!("Handling request with ID and no data");
             return self.handle_request_inner(session_id, None).await;
         };
 
         let Ok(content_length) = conent_length_header.to_str() else {
+            println!("No content length");
             return Self::handle_session_error();
         };
 
         let Ok(content_length) = content_length.parse::<u64>() else {
+            println!("Invalid content length: {content_length}");
             return Self::handle_session_error();
         };
 
@@ -59,6 +63,7 @@ impl Sessions {
             0 => None,
             _any_other_value => {
                 let Ok(body) = request.collect().await.map(|b| b.to_bytes()) else {
+                    println!("failed to read body");
                     return Self::handle_session_error();
                 };
                 Some(body)
@@ -73,7 +78,9 @@ impl Sessions {
         maybe_label: Option<Uuid>,
         data: Option<Bytes>,
     ) -> Response<Full<Bytes>> {
+        println!("get here");
         let Some(label) = maybe_label else {
+            println!("Creating a new session");
             return self.handle_new_session(data).await;
         };
 
@@ -96,7 +103,9 @@ impl Sessions {
         cmd_tx: &mpsc::Sender<SessionCommand>,
         data: Option<Bytes>,
     ) -> Response<Full<Bytes>> {
+        println!("Handling existing session");
         let Ok(return_payload) = SessionCommand::send(data, &cmd_tx).await else {
+            println!("Failed to do thing");
             return Self::handle_session_error();
         };
         let body = return_payload
