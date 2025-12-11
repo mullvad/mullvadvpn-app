@@ -77,7 +77,7 @@ export function convertFromRelayList(relayList: grpcTypes.RelayList): IRelayList
         .getCountriesList()
         .map((country: grpcTypes.RelayListCountry) => convertFromRelayListCountry(country)),
     },
-    wireguardEndpointData: convertWireguardEndpointData(relayList.getWireguard()!),
+    wireguardEndpointData: convertWireguardEndpointData(relayList.getEndpointData()!),
   };
 }
 
