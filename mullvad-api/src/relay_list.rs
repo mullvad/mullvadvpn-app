@@ -35,28 +35,26 @@ impl RelayListProxy {
     /// Fetch the relay list
     pub fn relay_list(
         &self,
-        etag: Option<String>,
-    ) -> impl Future<Output = Result<Option<relay_list::RelayList>, rest::Error>> {
-        let request = self.relay_list_response(etag.clone());
+        prev_etag: Option<ETag>,
+        //) -> impl Future<Output = Result<Option<(relay_list::RelayList, relay_list::BridgeList)>, rest::Error>>
+    ) -> impl Future<Output = Result<Option<DiskRelayList>, rest::Error>> {
+        let request = self.relay_list_response(prev_etag);
 
         async move {
-            let response = request.await?;
-
-            if etag.is_some() && response.status() == StatusCode::NOT_MODIFIED {
+            let Some((response, etag)) = request.await? else {
                 return Ok(None);
-            }
-
-            let etag = Self::extract_etag(&response);
+            };
 
             let relay_list: ServerRelayList = response.deserialize().await?;
-            Ok(Some(relay_list.into_relay_list(etag)))
+
+            Ok(Some(relay_list.cache(etag)))
         }
     }
 
     pub fn relay_list_response(
         &self,
-        etag: Option<String>,
-    ) -> impl Future<Output = Result<rest::Response<Incoming>, rest::Error>> {
+        prev_etag: Option<ETag>,
+    ) -> impl Future<Output = Result<Option<(rest::Response<Incoming>, ETag)>, rest::Error>> {
         let service = self.handle.service.clone();
         let request = self.handle.factory.get("app/v1/relays");
 
@@ -65,31 +63,36 @@ impl RelayListProxy {
                 .timeout(RELAY_LIST_TIMEOUT)
                 .expected_status(&[StatusCode::NOT_MODIFIED, StatusCode::OK]);
 
-            if let Some(ref tag) = etag {
-                request = request.header(header::IF_NONE_MATCH, tag)?;
+            if let Some(ref prev_tag) = prev_etag {
+                request = request.header(header::IF_NONE_MATCH, &prev_tag.0)?;
             }
 
             let response = service.request(request).await?;
 
-            Ok(response)
+            match prev_etag {
+                Some(_) if response.status() == StatusCode::NOT_MODIFIED => Ok(None),
+                _ => {
+                    // If the API returns a response, it should contain an ETag.
+                    let etag =
+                        Self::extract_etag(&response).ok_or(rest::Error::InvalidHeaderError)?;
+                    Ok(Some((response, etag)))
+                }
+            }
         }
     }
 
-    pub fn extract_etag(response: &rest::Response<Incoming>) -> Option<String> {
+    pub fn extract_etag(response: &rest::Response<Incoming>) -> Option<ETag> {
         response
             .headers()
             .get(header::ETAG)
-            .and_then(|tag| match tag.to_str() {
-                Ok(tag) => Some(tag.to_string()),
-                Err(_) => {
-                    log::error!("Ignoring invalid tag from server: {:?}", tag.as_bytes());
-                    None
-                }
-            })
+            .and_then(|s| s.to_str().ok())
+            .map(|s| ETag(s.to_owned()))
     }
 }
 
 /// Relay list as served by the API.
+///
+/// This stuct should conform to the API response 1-1.
 #[derive(Debug, serde::Deserialize)]
 struct ServerRelayList {
     locations: BTreeMap<String, Location>,
@@ -97,8 +100,29 @@ struct ServerRelayList {
     bridge: Bridges,
 }
 
+/// Relay list as served by the API, and the corresponding etag given by the header.
+#[derive(Debug, serde::Deserialize)]
+struct DiskRelayList {
+    #[serde(flatten)]
+    relay_list: ServerRelayList,
+    etag: Option<ETag>,
+}
+
+/// TODO: Document my purpose
+#[derive(Debug, Clone, serde::Deserialize)]
+pub struct ETag(String);
+
 impl ServerRelayList {
-    fn into_relay_list(self, etag: Option<String>) -> relay_list::RelayList {
+    fn cache(self, etag: ETag) -> DiskRelayList {
+        DiskRelayList {
+            relay_list: self,
+            etag,
+        }
+    }
+
+    // Convert a relay list response to internal mullvad types.
+    // self: on-disk / network representation
+    fn into_internal_repr(self) -> (relay_list::RelayList, relay_list::BridgeList) {
         let mut countries = BTreeMap::new();
         let Self {
             locations,
@@ -123,23 +147,23 @@ impl ServerRelayList {
             }
         }
 
-        // Note: Wireguard::extract_relays needs to be called before Bridges::extract_relays because <TODO>
-        let wireguard = wireguard.extract_relays(&mut countries);
-        // TODO: Move to BridgeList struct thingy
-        // let (bridge_endpoint, bridge) = bridge.extract_relays(&countries);
-        relay_list::RelayList {
-            // TODO: Move to on-disk repr
-            etag: etag.map(|mut tag| {
-                if tag.starts_with('"') {
-                    tag.insert_str(0, "W/");
-                }
-                tag
-            }),
-            wireguard,
-            // bridge,
-            // bridge_endpoint,
-            countries: countries.into_values().collect(),
-        }
+        let relay_list = {
+            // Note: Wireguard::extract_relays needs to be called before Bridges::extract_relays because <TODO>
+            let wireguard = wireguard.extract_relays(&mut countries);
+            relay_list::RelayList {
+                wireguard,
+                countries: countries.into_values().collect(),
+            }
+        };
+        let bridge_list = {
+            let (bridge_endpoint, bridges) = bridge.extract_relays(&countries);
+            relay_list::BridgeList {
+                bridges,
+                bridge_endpoint,
+            }
+        };
+
+        (relay_list, bridge_list)
     }
 }
 
