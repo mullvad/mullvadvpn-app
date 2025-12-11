@@ -121,8 +121,10 @@ impl VmConfig {
 #[derive(clap::ValueEnum, Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
 pub enum VmType {
+    #[cfg(target_os = "linux")]
     /// QEMU VM
     Qemu,
+    #[cfg(target_os = "macos")]
     /// Tart VM
     Tart,
 }
