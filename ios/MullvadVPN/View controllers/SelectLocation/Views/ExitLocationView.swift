@@ -78,7 +78,10 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
     @ViewBuilder
     func allLocationsSection(isShowingHeader: Bool) -> some View {
         if isShowingHeader {
-            MullvadListSectionHeader(title: "All locations")
+            MullvadListSectionHeader(
+                title: "All locations",
+                subtitle: "Showing \(context.visibleLocations.count) of \($context.allLocations.count)"
+            )
         }
         LocationsListView(
             locations: $context.locations,

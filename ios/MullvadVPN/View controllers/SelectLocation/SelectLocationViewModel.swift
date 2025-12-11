@@ -46,6 +46,7 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
     @Published var searchText: String = ""
     @Published var showDAITAInfo: Bool
 
+    private let allLocationsDataSource = AllLocationDataSource()
     private let exitLocationsDataSource = AllLocationDataSource()
     private let entryLocationsDataSource = AllLocationDataSource()
     private let entryCustomListsDataSource: CustomListsDataSource
@@ -266,6 +267,16 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
         relaysCandidates = try? relaySelectorWrapper.findCandidates(
             tunnelSettings: tunnelManager.settings
         )
+        if let allRelaysCandidates = try? relaySelectorWrapper.findCandidates(
+            tunnelSettings: .init()
+        ) {
+            allLocationsDataSource.reload(allRelaysCandidates.exitRelays.toLocationRelays())
+            entryContext.allLocations = allLocationsDataSource.nodes
+            exitContext.allLocations = allLocationsDataSource.nodes
+        } else {
+            entryContext.allLocations = []
+            exitContext.allLocations = []
+        }
         if let relaysCandidates {
             exitLocationsDataSource
                 .reload(relaysCandidates.exitRelays.toLocationRelays())
