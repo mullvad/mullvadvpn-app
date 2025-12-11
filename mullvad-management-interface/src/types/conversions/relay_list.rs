@@ -81,7 +81,6 @@ impl TryFrom<proto::RelayList> for mullvad_types::relay_list::RelayList {
             .collect::<Result<Vec<_>, _>>()?;
 
         Ok(RelayList {
-            etag: None,
             countries,
             wireguard: EndpointData::try_from(wireguard)?,
         })

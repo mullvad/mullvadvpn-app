@@ -378,10 +378,6 @@ impl RelaySelector {
         access_fn(parsed_relays.original_list())
     }
 
-    pub fn etag(&self) -> Option<String> {
-        self.parsed_relays.lock().unwrap().etag()
-    }
-
     pub fn last_updated(&self) -> SystemTime {
         self.parsed_relays.lock().unwrap().last_updated()
     }
