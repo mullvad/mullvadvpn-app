@@ -269,9 +269,14 @@ impl WireguardMonitor {
                 .map_err(Error::SetupRoutingError)
                 .map_err(CloseMsg::SetupError)?;
 
-            let routes = Self::get_pre_tunnel_routes(&iface_name, &config, userspace_wireguard)
-                .chain(Self::get_endpoint_routes(&endpoint_addrs))
-                .collect();
+            let routes = Self::get_pre_tunnel_routes(
+                &iface_name,
+                &config,
+                #[cfg(any(target_os = "linux", target_os = "macos"))]
+                userspace_wireguard,
+            )
+            .chain(Self::get_endpoint_routes(&endpoint_addrs))
+            .collect();
 
             args.route_manager
                 .add_routes(routes)
@@ -362,8 +367,13 @@ impl WireguardMonitor {
             // Add any default route(s) that may exist.
             args.route_manager
                 .add_routes(
-                    Self::get_post_tunnel_routes(&iface_name, &config, userspace_wireguard)
-                        .collect(),
+                    Self::get_post_tunnel_routes(
+                        &iface_name,
+                        &config,
+                        #[cfg(target_os = "linux")]
+                        userspace_wireguard,
+                    )
+                    .collect(),
                 )
                 .await
                 .map_err(Error::SetupRoutingError)
@@ -906,7 +916,7 @@ impl WireguardMonitor {
     fn get_pre_tunnel_routes<'a>(
         iface_name: &str,
         config: &'a Config,
-        #[expect(unused_variables)] userspace_wireguard: bool,
+        #[cfg(any(target_os = "linux", target_os = "macos"))] userspace_wireguard: bool,
     ) -> impl Iterator<Item = RequiredRoute> + 'a {
         // e.g. utun4
         let gateway_node = talpid_routing::Node::device(iface_name.to_string());
@@ -948,7 +958,7 @@ impl WireguardMonitor {
     fn get_post_tunnel_routes<'a>(
         iface_name: &str,
         config: &'a Config,
-        #[expect(unused_variables)] userspace_wireguard: bool,
+        #[cfg(target_os = "linux")] userspace_wireguard: bool,
     ) -> impl Iterator<Item = RequiredRoute> + 'a {
         let (node_v4, node_v6) = Self::get_tunnel_nodes(iface_name, config);
         let iter = config
