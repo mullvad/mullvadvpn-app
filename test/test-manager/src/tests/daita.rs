@@ -3,8 +3,7 @@ use futures::StreamExt;
 use mullvad_management_interface::{MullvadProxyClient, client::DaemonEvent};
 use mullvad_relay_selector::query::builder::RelayQueryBuilder;
 use mullvad_types::{
-    constraints::Constraint, relay_constraints::GeographicLocationConstraint,
-    relay_list::RelayEndpointData, states::TunnelState,
+    constraints::Constraint, relay_constraints::GeographicLocationConstraint, states::TunnelState,
 };
 use talpid_types::tunnel::ActionAfterDisconnect;
 use talpid_types::{net::TunnelEndpoint, tunnel::ErrorStateCause};
@@ -31,16 +30,11 @@ pub async fn test_daita(
     mut mullvad_client: MullvadProxyClient,
 ) -> anyhow::Result<()> {
     let relays = helpers::get_all_pickable_relays(&mut mullvad_client).await?;
-    let wg_relays = relays.iter().flat_map(|relay| match &relay.endpoint_data {
-        RelayEndpointData::Wireguard(wireguard) => Some((relay, wireguard)),
-        _ => None,
-    });
 
     // Select two relays to use for the test, one with DAITA and one without.
-    let daita_relay = wg_relays
-        .clone()
-        .find(|(_relay, wireguard_data)| wireguard_data.daita)
-        .map(|(relay, _)| relay)
+    let daita_relay = relays
+        .iter()
+        .find(|relay| relay.endpoint_data.daita)
         .context("Failed to find a daita wireguard relay")?;
     log::info!("Selected daita relay: {}", daita_relay.hostname);
     let daita_relay_location = GeographicLocationConstraint::hostname(
@@ -49,10 +43,9 @@ pub async fn test_daita(
         &daita_relay.hostname,
     );
 
-    let non_daita_relay = wg_relays
-        .clone()
-        .find(|(_relay, wireguard_data)| !wireguard_data.daita)
-        .map(|(relay, _)| relay)
+    let non_daita_relay = relays
+        .iter()
+        .find(|relay| !relay.endpoint_data.daita)
         .context("Failed to find a non-daita wireguard relay")?;
     let non_daita_relay_location = GeographicLocationConstraint::hostname(
         &non_daita_relay.location.country_code,

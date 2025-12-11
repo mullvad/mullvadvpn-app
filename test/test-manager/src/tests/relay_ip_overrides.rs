@@ -72,7 +72,7 @@ pub async fn test_wireguard_ip_override(
     log::info!("adding proxy to relay ip overrides");
     mullvad_client
         .set_relay_override(RelayOverride {
-            hostname: relay.hostname,
+            hostname: relay.hostname.clone(),
             ipv4_addr_in: Some(TEST_CONFIG.host_bridge_ip),
             ipv6_addr_in: None,
         })
