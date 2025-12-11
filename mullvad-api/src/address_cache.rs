@@ -11,6 +11,9 @@ use tokio::{
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
+    #[error("Attempt to read without a path specified")]
+    NoPath,
+
     #[error("Failed to open the address cache file")]
     Open(#[source] io::Error),
 
@@ -24,9 +27,47 @@ pub enum Error {
     Write(#[source] io::Error),
 }
 
+/// a backing store for an AddressCache.
+
+#[async_trait]
+pub trait AddressCacheBacking: Sync {
+    async fn read(&self) -> Result<Vec<u8>, Error>;
+    async fn write(&self, data: &[u8]) -> Result<(), Error>;
+}
+
+#[derive(Clone)]
+pub struct FileAddressCacheBacking {
+    read_path: Option<Arc<Path>>,
+    write_path: Option<Arc<Path>>,
+}
+
+#[async_trait]
+impl AddressCacheBacking for FileAddressCacheBacking {
+    async fn read(&self) -> Result<Vec<u8>, Error> {
+        let Some(read_path) = self.read_path.as_ref() else {
+            return Err(Error::NoPath);
+        };
+        let mut file = fs::File::open(read_path).await.map_err(Error::Open)?;
+        let mut result = vec![];
+        file.read(&mut result).await.map_err(Error::Read)?;
+        Ok(result)
+    }
+
+    async fn write(&self, data: &[u8]) -> Result<(), Error> {
+        let Some(write_path) = self.write_path.as_ref() else {
+            return Err(Error::NoPath);
+        };
+        let mut file = mullvad_fs::AtomicFile::new(&**write_path)
+            .await
+            .map_err(Error::Open)?;
+        file.write_all(data).await.map_err(Error::Write)?;
+        file.finalize().await.map_err(Error::Write)
+    }
+}
+
 /// A DNS resolver which resolves using `AddressCache`.
 #[async_trait]
-impl DnsResolver for AddressCache {
+impl DnsResolver for GenericAddressCache {
     async fn resolve(&self, host: String) -> Result<Vec<SocketAddr>, io::Error> {
         self.resolve_hostname(&host)
             .await
@@ -36,16 +77,34 @@ impl DnsResolver for AddressCache {
 }
 
 #[derive(Clone)]
-pub struct AddressCache {
+pub struct GenericAddressCache<Backing: AddressCacheBacking = FileAddressCacheBacking> {
     hostname: String,
     inner: Arc<Mutex<AddressCacheInner>>,
-    write_path: Option<Arc<Path>>,
+    backing: Backing,
 }
 
-impl AddressCache {
+pub type AddressCache = GenericAddressCache<FileAddressCacheBacking>;
+
+impl<Backing: AddressCacheBacking> GenericAddressCache<Backing> {
+    /// Initialise cache using a hardcoded address and a Backing for writing to
+    pub fn new_with_address(endpoint: &ApiEndpoint, backing: Backing) -> Self {
+        Self::new_inner(endpoint.address(), endpoint.host().to_owned(), backing)
+    }
+
     /// Initialize cache using the hardcoded address, and write changes to `write_path`.
-    pub fn new(endpoint: &ApiEndpoint, write_path: Option<Box<Path>>) -> Self {
-        Self::new_inner(endpoint.address(), endpoint.host().to_owned(), write_path)
+    pub fn new(endpoint: &ApiEndpoint, write_path: Option<Box<Path>>) -> AddressCache {
+        AddressCache::new_with_address(
+            endpoint,
+            FileAddressCacheBacking {
+                read_path: None,
+                write_path: write_path.map(Arc::from),
+            },
+        )
+    }
+
+    pub async fn from_backing(hostname: String, backing: Backing) -> Result<Self, Error> {
+        let address = read_address_backing(&backing).await?;
+        Ok(Self::new_inner(address, hostname, backing))
     }
 
     /// Initialize cache using `read_path`, and write changes to `write_path`.
@@ -53,20 +112,26 @@ impl AddressCache {
         read_path: &Path,
         write_path: Option<Box<Path>>,
         hostname: String,
-    ) -> Result<Self, Error> {
+    ) -> Result<AddressCache, Error> {
         log::debug!("Loading API addresses from {}", read_path.display());
-        let address = read_address_file(read_path).await?;
-        Ok(Self::new_inner(address, hostname, write_path))
+        AddressCache::from_backing(
+            hostname,
+            FileAddressCacheBacking {
+                read_path: Some(Arc::from(read_path)),
+                write_path: write_path.map(Arc::from),
+            },
+        )
+        .await
     }
 
-    fn new_inner(address: SocketAddr, hostname: String, write_path: Option<Box<Path>>) -> Self {
+    fn new_inner(address: SocketAddr, hostname: String, backing: Backing) -> Self {
         let cache = AddressCacheInner::from_address(address);
         log::debug!("Using API address: {}", cache.address);
 
         Self {
             inner: Arc::new(Mutex::new(cache)),
-            write_path: write_path.map(Arc::from),
             hostname,
+            backing,
         }
     }
 
@@ -87,27 +152,19 @@ impl AddressCache {
     pub async fn set_address(&self, address: SocketAddr) -> Result<(), Error> {
         let mut inner = self.inner.lock().await;
         if address != inner.address {
-            self.save_to_disk(&address).await?;
+            match self.save_to_backing(&address).await {
+                Ok(()) | Err(Error::NoPath) => (),
+                Err(err) => return Err(err),
+            };
             inner.address = address;
         }
         Ok(())
     }
 
-    async fn save_to_disk(&self, address: &SocketAddr) -> Result<(), Error> {
-        let write_path = match self.write_path.as_ref() {
-            Some(write_path) => write_path,
-            None => return Ok(()),
-        };
-
-        let mut file = mullvad_fs::AtomicFile::new(&**write_path)
-            .await
-            .map_err(Error::Open)?;
+    async fn save_to_backing(&self, address: &SocketAddr) -> Result<(), Error> {
         let mut contents = address.to_string();
         contents += "\n";
-        file.write_all(contents.as_bytes())
-            .await
-            .map_err(Error::Write)?;
-        file.finalize().await.map_err(Error::Write)
+        self.backing.write(contents.as_bytes()).await
     }
 }
 
@@ -122,11 +179,10 @@ impl AddressCacheInner {
     }
 }
 
-async fn read_address_file(path: &Path) -> Result<SocketAddr, Error> {
-    let mut file = fs::File::open(path).await.map_err(Error::Open)?;
-    let mut address = String::new();
-    file.read_to_string(&mut address)
+async fn read_address_backing<T: AddressCacheBacking>(backing: &T) -> Result<SocketAddr, Error> {
+    backing
+        .read()
         .await
-        .map_err(Error::Read)?;
-    address.trim().parse().map_err(|_| Error::Parse)
+        .and_then(|bytes| String::from_utf8(bytes).map_err(|_| Error::Parse))
+        .and_then(|a| a.trim().parse().map_err(|_| Error::Parse))
 }
