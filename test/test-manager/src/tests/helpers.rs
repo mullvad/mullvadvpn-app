@@ -22,7 +22,7 @@ use mullvad_types::{
     relay_constraints::{
         GeographicLocationConstraint, LocationConstraint, RelayConstraints, RelaySettings,
     },
-    relay_list::Relay,
+    relay_list::{Relay, WireguardRelay},
     states::TunnelState,
 };
 use pcap::Direction;
@@ -694,7 +694,7 @@ pub async fn get_app_env() -> anyhow::Result<HashMap<String, String>> {
 pub async fn constrain_to_relay(
     mullvad_client: &mut MullvadProxyClient,
     query: RelayQuery,
-) -> anyhow::Result<Relay> {
+) -> anyhow::Result<WireguardRelay> {
     let intersect_query = intersect_with_current_location(mullvad_client, query).await?;
     let (exit, relay_constraints) =
         get_single_relay_location_contraint(mullvad_client, intersect_query).await?;
@@ -752,7 +752,7 @@ async fn get_query_from_current_settings(
 
 pub async fn get_all_pickable_relays(
     mullvad_client: &mut MullvadProxyClient,
-) -> anyhow::Result<Vec<Relay>> {
+) -> anyhow::Result<Vec<WireguardRelay>> {
     let settings = mullvad_client.get_settings().await?;
     let relay_list = mullvad_client.get_relay_locations().await?;
     let relays = mullvad_relay_selector::filter_matching_relay_list(
@@ -773,12 +773,12 @@ pub async fn get_all_pickable_relays(
 async fn get_single_relay_location_contraint(
     mullvad_client: &mut MullvadProxyClient,
     query: RelayQuery,
-) -> anyhow::Result<(Relay, RelayConstraints)> {
+) -> anyhow::Result<(WireguardRelay, RelayConstraints)> {
     /// Convert the result of invoking the relay selector to a relay constraint.
     fn convert_to_relay_constraints(
         query: RelayQuery,
         selected_relay: GetRelay,
-    ) -> anyhow::Result<(Relay, RelayConstraints)> {
+    ) -> anyhow::Result<(WireguardRelay, RelayConstraints)> {
         match selected_relay {
             GetRelay::Mullvad {
                 inner: WireguardConfig::Singlehop { exit },
@@ -794,7 +794,8 @@ async fn get_single_relay_location_contraint(
     }
     let settings = mullvad_client.get_settings().await?;
     let relay_list = mullvad_client.get_relay_locations().await?;
-    let relay_selector = get_daemon_relay_selector(&settings, relay_list);
+    let bridge_list = mullvad_client.get_bridges().await?;
+    let relay_selector = get_daemon_relay_selector(&settings, relay_list, bridge_list);
     let relay = relay_selector.get_relay_by_query(query.clone())?;
     convert_to_relay_constraints(query, relay)
 }
@@ -806,8 +807,13 @@ async fn get_single_relay_location_contraint(
 pub fn get_daemon_relay_selector(
     settings: &mullvad_types::settings::Settings,
     relay_list: mullvad_types::relay_list::RelayList,
+    bridge_list: mullvad_types::relay_list::BridgeList,
 ) -> RelaySelector {
-    RelaySelector::from_list(SelectorConfig::from_settings(settings), relay_list)
+    RelaySelector::from_list(
+        SelectorConfig::from_settings(settings),
+        relay_list,
+        bridge_list,
+    )
 }
 
 /// Convenience function for constructing a constraint from a given [`Relay`].
@@ -1311,15 +1317,10 @@ pub async fn set_location(
     location: impl Into<LocationConstraint>,
 ) -> anyhow::Result<()> {
     let location_constraint: LocationConstraint = location.into();
-    let mut settings = mullvad_client
+    let settings = mullvad_client
         .get_settings()
         .await
         .map_err(|error| Error::Daemon(format!("Failed to set relay settings: {error}")))?;
-
-    settings.bridge_settings.normal.location = Constraint::Only(location_constraint.clone());
-    mullvad_client
-        .set_bridge_settings(settings.bridge_settings)
-        .await?;
 
     let RelaySettings::Normal(mut constraint) = settings.relay_settings else {
         unimplemented!("Setting location for a custom endpoint is not supported");
