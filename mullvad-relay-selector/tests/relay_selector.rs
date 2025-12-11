@@ -1442,7 +1442,6 @@ fn include_in_country_with_few_relays() -> Result<(), Error> {
                 }],
             }],
             wireguard,
-            ..Default::default()
         }
     };
     let relay_selector =
