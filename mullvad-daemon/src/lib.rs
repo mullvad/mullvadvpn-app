@@ -3273,7 +3273,7 @@ impl Daemon {
         }
     }
 
-    #[cfg_attr(target_os = "android", allow(unused_variables))]
+    #[cfg_attr(target_os = "android", expect(unused_variables))]
     fn on_trigger_shutdown(&mut self, user_init_shutdown: bool) {
         // Block all traffic before shutting down to ensure that no traffic can leak on boot or
         // shutdown.
