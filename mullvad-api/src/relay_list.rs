@@ -5,7 +5,7 @@ use crate::rest;
 use hyper::{StatusCode, body::Incoming, header};
 use mullvad_types::{
     location,
-    relay_list::{self, BridgeList, WireguardRelayEndpointData},
+    relay_list::{self, BridgeList},
 };
 use serde::{Deserialize, Serialize};
 use talpid_types::net::wireguard;
@@ -189,29 +189,6 @@ fn location_to_city(location: &Location, code: String) -> relay_list::RelayListC
     }
 }
 
-fn into_mullvad_relay(
-    relay: Relay,
-    location: location::Location,
-    endpoint_data: WireguardRelayEndpointData,
-) -> relay_list::WireguardRelay {
-    relay_list::WireguardRelay::new(
-        false,
-        false,
-        relay.include_in_country,
-        relay.owned,
-        relay.provider,
-        endpoint_data,
-        relay_list::Relay {
-            hostname: relay.hostname,
-            ipv4_addr_in: relay.ipv4_addr_in,
-            ipv6_addr_in: relay.ipv6_addr_in,
-            active: relay.active,
-            weight: relay.weight,
-            location,
-        },
-    )
-}
-
 #[derive(Debug, Deserialize, Serialize)]
 struct Location {
     city: String,
@@ -361,7 +338,14 @@ impl WireGuardRelay {
             debug_assert!(self.daita)
         }
 
-        let relay = self.relay;
+        let relay = relay_list::Relay {
+            hostname: self.relay.hostname,
+            ipv4_addr_in: self.relay.ipv4_addr_in,
+            ipv6_addr_in: self.relay.ipv6_addr_in,
+            active: self.relay.active,
+            weight: self.relay.weight,
+            location,
+        };
         let endpoint_data = relay_list::WireguardRelayEndpointData {
             public_key: self.public_key,
             // FIXME: This hack is forward-compatible with 'features' being rolled out.
@@ -372,7 +356,15 @@ impl WireGuardRelay {
             lwo: self.features.lwo.is_some(),
         };
 
-        into_mullvad_relay(relay, location, endpoint_data)
+        relay_list::WireguardRelay::new(
+            false,
+            false,
+            self.relay.include_in_country,
+            self.relay.owned,
+            self.relay.provider,
+            endpoint_data,
+            relay,
+        )
     }
 }
 
@@ -430,7 +422,7 @@ struct Bridges {
 }
 
 impl Bridges {
-    /// Consumes `self` and appends all its relays to `countries`.
+    /// TODO
     fn extract_relays(
         self,
         countries: &BTreeMap<String, relay_list::RelayListCountry>,
