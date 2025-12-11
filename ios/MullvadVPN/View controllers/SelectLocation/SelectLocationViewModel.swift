@@ -274,16 +274,29 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
         relaysCandidates = try? relaySelectorWrapper.findCandidates(
             tunnelSettings: tunnelManager.settings
         )
+        if let allRelaysCandidates = try? relaySelectorWrapper.findCandidates(
+            tunnelSettings: .init(
+                tunnelMultihopState: tunnelManager.settings.tunnelMultihopState
+            )
+        ) {
+            entryContext.totalRelayCount = allRelaysCandidates.entryRelays?.count ?? 0
+            exitContext.totalRelayCount = allRelaysCandidates.exitRelays.count
+        } else {
+            entryContext.totalRelayCount = 0
+            exitContext.totalRelayCount = 0
+        }
         if let relaysCandidates {
             exitLocationsDataSource
                 .reload(relaysCandidates.exitRelays.toLocationRelays())
             exitContext.locations = exitLocationsDataSource.nodes
+            exitContext.availableRelayCount = relaysCandidates.exitRelays.count
 
             if let entryRelays = relaysCandidates.entryRelays {
                 entryLocationsDataSource
                     .reload(entryRelays.toLocationRelays())
                 entryContext.locations =
                     entryLocationsDataSource.nodes
+                entryContext.availableRelayCount = entryRelays.count
             }
         } else {
             entryContext.locations = []
