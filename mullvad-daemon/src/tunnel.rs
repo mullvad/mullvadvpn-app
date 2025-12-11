@@ -5,7 +5,8 @@ use tokio::sync::Mutex;
 
 use mullvad_relay_selector::{GetRelay, RelaySelector, WireguardConfig};
 use mullvad_types::{
-    endpoint::MullvadEndpoint, location::GeoIpLocation, relay_list::WireguardRelay, settings::TunnelOptions,
+    endpoint::MullvadEndpoint, location::GeoIpLocation, relay_list::WireguardRelay,
+    settings::TunnelOptions,
 };
 use talpid_core::tunnel_state_machine::TunnelParametersGenerator;
 use talpid_types::net::{obfuscation::Obfuscators, wireguard};

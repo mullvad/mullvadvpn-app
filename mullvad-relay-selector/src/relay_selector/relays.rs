@@ -12,7 +12,10 @@ pub enum WireguardConfig {
     /// An exit relay.
     Singlehop { exit: WireguardRelay },
     /// An entry and an exit relay.
-    Multihop { exit: WireguardRelay, entry: WireguardRelay },
+    Multihop {
+        exit: WireguardRelay,
+        entry: WireguardRelay,
+    },
 }
 
 /// A type representing single Wireguard relay.
