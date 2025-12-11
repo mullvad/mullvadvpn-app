@@ -29,7 +29,6 @@ struct Args {
 }
 
 #[derive(clap::Subcommand, Debug)]
-#[expect(clippy::large_enum_variant)]
 enum Commands {
     /// Manage configuration for tests and VMs
     #[clap(subcommand)]
