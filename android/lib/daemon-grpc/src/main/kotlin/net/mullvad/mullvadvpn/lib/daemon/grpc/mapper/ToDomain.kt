@@ -540,7 +540,7 @@ internal fun ConnectivityState.toDomain(): GrpcConnectivityState =
     }
 
 internal fun ManagementInterface.RelayList.toDomain(): RelayList =
-    RelayList(countriesList.toDomain(), wireguard.toDomain())
+    RelayList(countriesList.toDomain(), endpointData.toDomain())
 
 internal fun ManagementInterface.WireguardEndpointData.toDomain(): WireguardEndpointData =
     WireguardEndpointData(
