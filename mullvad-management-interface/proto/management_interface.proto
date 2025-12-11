@@ -686,9 +686,9 @@ message RelayListCity {
 message Relay {
   message WireguardEndpoint {
     message Quic {
-        string domain = 1;
-        string token = 2;
-        repeated string addr_in = 3;
+      string domain = 1;
+      string token = 2;
+      repeated string addr_in = 3;
     }
     bytes public_key = 1;
     bool daita = 2;
