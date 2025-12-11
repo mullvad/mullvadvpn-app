@@ -87,7 +87,7 @@ impl Sessions {
         let cmd_tx = {
             let map = self.sessions.pin();
             let Some(cmd_tx) = map.get(&label) else {
-                println!("no session?");
+                println!("no session? Failed to find session {label}");
                 return Self::handle_session_error();
             };
             cmd_tx.clone()
@@ -127,6 +127,7 @@ impl Sessions {
         let session_id = new_label.clone();
         let (cmd_tx, cmd_rx) = mpsc::channel(1);
         self.sessions.pin().insert(new_label, cmd_tx.clone());
+        println!("Aded session {:?}", new_label);
         tokio::spawn(async move {
             let Ok(mut session) = Session::connect(cmd_rx, session_id, sessions).await else {
                 return;

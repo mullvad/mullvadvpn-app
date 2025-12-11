@@ -1,9 +1,15 @@
+use std::{io::Write, sync::Arc};
+
 use clap::Parser;
 use http::{Method, Request};
-use http_body_util::{BodyExt, Empty};
+use http_body_util::{BodyExt, Empty, Full, combinators::BoxBody};
 use hyper::body::Bytes;
-use hyper_util::rt::TokioIo;
-use mullvad_api::domain_fronting::DomainFronting;
+use hyper_util::{client::legacy::Client, rt::TokioIo};
+use mullvad_api::{
+    domain_fronting::DomainFronting,
+    https_client_with_sni::HttpsConnectorWithSni,
+    proxy::{ApiConnectionMode, ProxyConfig},
+};
 
 #[derive(Parser, Debug)]
 pub struct Arguments {
@@ -24,43 +30,43 @@ async fn main() -> anyhow::Result<()> {
         .init();
 
     let Arguments { front, host } = Arguments::parse();
-    println!("front: {:?} host: {:?}", front, host);
-    let domain_front = DomainFronting::new(front.clone(), host.clone());
-    let connection = domain_front
-        .proxy_config()
+
+    let df = DomainFronting::new(front, host);
+
+    let proxy_config = df.proxy_config().await.unwrap();
+
+    let (connector, connector_handle) = HttpsConnectorWithSni::new(
+        Arc::new(mullvad_api::DefaultDnsResolver),
+        #[cfg(any(feature = "api-override", test))]
+        false,
+    );
+
+    connector_handle.set_connection_mode(ApiConnectionMode::Proxied(ProxyConfig::DomainFronting(
+        proxy_config,
+    )));
+
+    let client: Client<_, Full<Bytes>> =
+        hyper_util::client::legacy::Client::builder(hyper_util::rt::TokioExecutor::new())
+            .build(connector);
+
+    let response = client
+        .get(
+            "https://api.mullvad.net/app/v1/api-addrs"
+                .try_into()
+                .unwrap(),
+        )
         .await
-        .expect("Could not resolve {front}")
-        .connect()
+        .unwrap();
+    println!("response: {:?}", response);
+    let body = response
+        .collect()
         .await
-        .expect("Failed to connect to CDN");
-
-    let (mut sender, conn) =
-        hyper::client::conn::http1::handshake(TokioIo::new(connection)).await?;
-
-    tokio::task::spawn(async move {
-        if let Err(err) = conn.await {
-            println!("Connection failed: {:?}", err);
-        }
-    });
-
-    // Build the request
-    let req = Request::builder()
-        .method(Method::GET)
-        .header(hyper::header::HOST, host)
-        .header(hyper::header::ACCEPT, "*/*")
-        .body(Empty::<Bytes>::new())?;
-    println!("request: {:?}", req);
-    let response = sender.send_request(req).await?;
-
-    println!("Response: {}", response.status());
-    println!("Headers: {:#?}\n", response.headers());
-
-    // Print the response to stdout
-    let body: Bytes = response.collect().await?.to_bytes();
-    tokio::io::copy(&mut body.as_ref(), &mut tokio::io::stdout()).await?;
-
-    println!("\n\nDone!");
+        .expect("failed to fetch response body")
+        .to_bytes();
+    let _ = std::io::stdout().write(&body);
+    println!("");
     Ok(())
 }
+
 #[cfg(feature = "domain-fronting")]
 mod imp {}

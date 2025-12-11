@@ -18,7 +18,7 @@ pub mod version;
 
 mod abortable_stream;
 pub mod access_mode;
-mod https_client_with_sni;
+pub mod https_client_with_sni;
 pub mod proxy;
 mod tls_stream;
 #[cfg(target_os = "android")]

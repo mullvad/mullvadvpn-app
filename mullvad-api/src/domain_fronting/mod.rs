@@ -10,9 +10,7 @@ use std::{
 };
 
 use bytes::BufMut;
-use http::{
-    header, status::StatusCode, Request, Response
-};
+use http::{Request, Response, header, status::StatusCode};
 use http_body_util::{BodyExt, Empty, Full};
 use hyper::{
     body::{Bytes, Incoming},
@@ -31,6 +29,7 @@ use crate::{DefaultDnsResolver, DnsResolver, tls_stream::TlsStream};
 
 pub mod server;
 
+const SESSION_HEADER_KEY_CLIENT: &str = "X-Mullvad-Session";
 const SESSION_HEADER_KEY: &str = "X-Mullvad-Session";
 
 pub struct DomainFronting {
@@ -118,8 +117,6 @@ impl ProxyConnection {
         let response = sender
             .send_request(Self::initial_request(&proxy_host))
             .await?;
-        panic!("{:?}", response);
-
         let session_header = response
             .headers()
             .get(SESSION_HEADER_KEY)
@@ -138,13 +135,11 @@ impl ProxyConnection {
     }
 
     fn initial_request(proxy_host: &str) -> Request<Full<Bytes>> {
-       let req=  hyper::Request::get(&format!("https://{}/hey", proxy_host))
-            .header(header::USER_AGENT, "curl/8.14.1")
+        hyper::Request::get(&format!("https://{}/hey", proxy_host))
+            .header(header::HOST, proxy_host.clone())
             .header(header::ACCEPT, "*/*")
             .body(Full::<Bytes>::new(Bytes::new()))
-            .unwrap();
-        dbg!(&req);
-        req
+            .unwrap()
     }
 
     fn create_request(
@@ -158,12 +153,16 @@ impl ProxyConnection {
         let content_length = bytes.len();
         let body = Full::new(bytes);
 
-        let mut request = hyper::Request::post(&format!("https://{}/", self.proxy_host));
+        let mut request = hyper::Request::post(&format!("https://{}/", self.proxy_host))
+            .header(header::HOST, self.proxy_host.clone())
+            .header(header::ACCEPT, "*/*")
+            .header(SESSION_HEADER_KEY, &format!("{}", self.session_id));
         if buffer.is_some() {
             request = request
                 .header(header::CONTENT_TYPE, "application/octet-stream")
                 .header(header::CONTENT_LENGTH, &format!("{}", content_length));
         }
+        dbg!(&request);
         let request = request.body(body).unwrap();
 
         let request_future = self.sender.send_request(request);
