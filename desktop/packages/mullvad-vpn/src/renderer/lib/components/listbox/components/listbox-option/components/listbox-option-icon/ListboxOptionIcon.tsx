@@ -2,7 +2,6 @@ import styled from 'styled-components';
 
 import { ListItem } from '../../../../../list-item';
 import { ListItemIconProps } from '../../../../../list-item/components';
-import { useListboxContext } from '../../../../';
 import { useListboxOptionContext } from '../../';
 
 export type ListboxOptionIconProps = ListItemIconProps;
@@ -12,9 +11,9 @@ export const StyledListboxOptionIcon = styled(ListItem.Icon)<{ $selected: boolea
 `;
 
 export function ListboxOptionIcon(props: ListboxOptionIconProps) {
-  const { value: selectedValue } = useListboxContext();
-  const { value } = useListboxOptionContext();
-  const selected = value === selectedValue;
+  const { selected } = useListboxOptionContext();
 
-  return <StyledListboxOptionIcon $selected={selected} {...props} />;
+  return (
+    <StyledListboxOptionIcon color={selected ? 'green' : 'white'} $selected={selected} {...props} />
+  );
 }
