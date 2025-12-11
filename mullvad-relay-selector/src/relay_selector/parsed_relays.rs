@@ -42,9 +42,8 @@ impl ParsedRelays {
 
     /// Replace `self` with a new [`ParsedRelays`] based on [new_relays][`ParsedRelays`],
     /// bumping `self.last_updated` to the current system time.
-    pub fn update(&mut self, new_relays: RelayList) {
-        // TODO: Bring back
-        //*self = Self::from_relay_list(new_relays, SystemTime::now(), &self.overrides);
+    pub fn update(&mut self, new_relays: RelayList, bridge_list: BridgeList) {
+        *self = Self::from_relay_list(new_relays, bridge_list, SystemTime::now(), &self.overrides);
 
         log::info!(
             "Updated relay inventory has {} relays",

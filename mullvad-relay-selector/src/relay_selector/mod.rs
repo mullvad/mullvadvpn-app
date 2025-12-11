@@ -25,7 +25,7 @@ use mullvad_types::{
     constraints::Constraint,
     custom_list::CustomListsSettings,
     endpoint::MullvadEndpoint,
-    location::{Coordinates, Location},
+    location::Coordinates,
     relay_constraints::{
         ObfuscationSettings, RelayConstraints, RelayOverride, RelaySettings, WireguardConstraints,
     },
@@ -338,14 +338,19 @@ impl RelaySelector {
         }
     }
 
-    pub fn from_list(config: SelectorConfig, relay_list: RelayList) -> Self {
+    pub fn from_list(
+        config: SelectorConfig,
+        relay_list: RelayList,
+        bridge_list: BridgeList,
+    ) -> Self {
+        let relays = ParsedRelays::from_relay_list(
+            relay_list,
+            bridge_list,
+            SystemTime::now(),
+            &config.relay_overrides,
+        );
         RelaySelector {
-            // parsed_relays: Arc::new(Mutex::new(ParsedRelays::from_relay_list(
-            //     relay_list,
-            //     SystemTime::now(),
-            //     &config.relay_overrides,
-            // ))),
-            parsed_relays: todo!("bring back"),
+            parsed_relays: Arc::new(Mutex::new(relays)),
             config: Arc::new(Mutex::new(config)),
         }
     }
@@ -356,9 +361,18 @@ impl RelaySelector {
         *config_mutex = config;
     }
 
+    /// TODO: Document
     pub fn set_relays(&self, relays: RelayList) {
         let mut parsed_relays = self.parsed_relays.lock().unwrap();
-        parsed_relays.update(relays);
+        let bridges = parsed_relays.bridge_list().clone();
+        parsed_relays.update(relays, bridges);
+    }
+
+    /// TODO: Document
+    pub fn set_bridges(&self, bridges: BridgeList) {
+        let mut parsed_relays = self.parsed_relays.lock().unwrap();
+        let relays = parsed_relays.parsed_list().clone();
+        parsed_relays.update(relays, bridges);
     }
 
     fn set_overrides(&mut self, relay_overrides: &[RelayOverride]) {
@@ -387,26 +401,23 @@ impl RelaySelector {
     /// state.
     pub fn get_bridge_forced(&self) -> Option<Shadowsocks> {
         let bridge_list = &self.parsed_relays.lock().unwrap().bridge_list().clone();
-        let config = self.config.lock().unwrap();
-        let specialized_config = SpecializedSelectorConfig::from(&*config);
+        // TODO :Do we even care about this anymore? Bridges are not used for VPN traffic anyway.
+        // let specialized_config = SpecializedSelectorConfig::from(&*config);
+        // let config = self.config.lock().unwrap();
+        // // TODO: It may not be optimal to use the selected relay location for API access bridges anymore.
+        // // Perhaps we should switch to the users disconnected geolication instead?
+        // let near_location = match specialized_config {
+        //     SpecializedSelectorConfig::Normal(config) => RelayQuery::try_from(config.clone())
+        //         .ok()
+        //         .and_then(|user_preferences| {
+        //             Self::get_relay_midpoint(&user_preferences, bridge_list, config.custom_lists)
+        //         }),
+        //     SpecializedSelectorConfig::Custom(_) => None,
+        // };
 
-        // TODO: It may not be optimal to use the selected relay location for API access bridges anymore.
-        // Perhaps we should switch to the users disconnected geolication instead?
-        let near_location = match specialized_config {
-            SpecializedSelectorConfig::Normal(config) => Some(Coordinates {
-                latitude: todo!("get_relay_midpoint"),
-                longitude: todo!(),
-            }),
-            // SpecializedSelectorConfig::Normal(config) => RelayQuery::try_from(config.clone())
-            //     .ok()
-            //     .and_then(|user_preferences| {
-            //         //Self::get_relay_midpoint(&user_preferences, parsed_relays, config.custom_lists)
-            //     }),
-            SpecializedSelectorConfig::Custom(_) => None,
-        };
-
-        Self::get_proxy_settings(bridge_list, near_location)
-            .map(|(settings, _relay)| settings)
+        //Self::get_proxy_settings(bridge_list, near_location)
+        Self::get_proxy_settings(bridge_list)
+            .map(|(settings, _bridge)| settings)
             .inspect_err(|error| log::error!("Failed to get bridge: {error}"))
             .ok()
     }
@@ -848,87 +859,94 @@ impl RelaySelector {
     /// Try to get a bridge that matches the given `constraints`.
     ///
     /// The connection details are returned alongside the relay hosting the bridge.
-    fn get_proxy_settings<T: Into<Coordinates>>(
+    //fn get_proxy_settings<T: Into<Coordinates>>(
+    fn get_proxy_settings(
         bridge_list: &BridgeList,
-        location: Option<T>,
+        // location: Option<T>,
     ) -> Result<(Shadowsocks, Bridge), Error> {
         // Filter on active relays
-        let bridges = bridge_list
+        let bridges: Vec<Bridge> = bridge_list
             .bridges()
             .iter()
-            .filter(|relay| relay.active)
+            .filter(|bridge| bridge.active)
             .cloned()
             .collect();
-        let bridge = match location {
-            Some(location) => Self::get_proximate_bridge(bridges, location),
-            // TODO: make this generic, or remove it if the weight is not important for bridges
-            None => helpers::pick_random_relay(&bridges)
-                .cloned()
-                .ok_or(Error::NoBridge),
-        }?;
+        // let bridge = match location {
+        //     Some(location) => Self::get_proximate_bridge(bridges, location),
+        //     // TODO: make this generic, or remove it if the weight is not important for bridges
+        //     None => helpers::pick_random_relay(&bridges)
+        //         .cloned()
+        //         .ok_or(Error::NoBridge),
+        // }?;
+        //
+        let bridge = helpers::pick_random_relay(&bridges)
+            .cloned()
+            .ok_or(Error::NoBridge)?;
         let endpoint = detailer::bridge_endpoint(&bridge_list.bridge_endpoint, &bridge)
             .ok_or(Error::NoBridge)?;
         Ok((endpoint, bridge))
     }
 
-    /// Try to get a bridge which is close to `location`.
-    fn get_proximate_bridge<T: Into<Coordinates>>(
-        relays: Vec<Bridge>,
-        location: T,
-    ) -> Result<Bridge, Error> {
-        /// Number of bridges to keep for selection by distance.
-        const MIN_BRIDGE_COUNT: usize = 5;
-        let location = location.into();
+    // TODO: Remove?
+    // /// Try to get a bridge which is close to `location`.
+    // fn get_proximate_bridge<T: Into<Coordinates>>(
+    //     relays: Vec<Bridge>,
+    //     location: T,
+    // ) -> Result<Bridge, Error> {
+    //     /// Number of bridges to keep for selection by distance.
+    //     const MIN_BRIDGE_COUNT: usize = 5;
+    //     let location = location.into();
 
-        // Filter out all candidate bridges.
-        let matching_bridges: Vec<RelayWithDistance<_>> = relays
-            .into_iter()
-            .map(|relay| RelayWithDistance::new_with_distance_from(relay, location))
-            .sorted_unstable_by_key(|relay| relay.distance as usize)
-            .take(MIN_BRIDGE_COUNT)
-            .collect();
+    //     // Filter out all candidate bridges.
+    //     let matching_bridges: Vec<RelayWithDistance<_>> = relays
+    //         .into_iter()
+    //         .map(|relay| RelayWithDistance::new_with_distance_from(relay, location))
+    //         .sorted_unstable_by_key(|relay| relay.distance as usize)
+    //         .take(MIN_BRIDGE_COUNT)
+    //         .collect();
 
-        // Calculate the maximum distance from `location` among the candidates.
-        let greatest_distance: f64 = matching_bridges
-            .iter()
-            .map(|relay| relay.distance)
-            .reduce(f64::max)
-            .ok_or(Error::NoBridge)?;
-        // Define the weight function to prioritize bridges which are closer to `location`.
-        let weight_fn =
-            |relay: &RelayWithDistance<_>| 1 + (greatest_distance - relay.distance) as u64;
+    //     // Calculate the maximum distance from `location` among the candidates.
+    //     let greatest_distance: f64 = matching_bridges
+    //         .iter()
+    //         .map(|relay| relay.distance)
+    //         .reduce(f64::max)
+    //         .ok_or(Error::NoBridge)?;
+    //     // Define the weight function to prioritize bridges which are closer to `location`.
+    //     let weight_fn =
+    //         |relay: &RelayWithDistance<_>| 1 + (greatest_distance - relay.distance) as u64;
 
-        helpers::pick_random_relay_weighted(matching_bridges.iter(), weight_fn)
-            .cloned()
-            .map(|relay_with_distance| relay_with_distance.relay)
-            .ok_or(Error::NoBridge)
-    }
+    //     helpers::pick_random_relay_weighted(matching_bridges.iter(), weight_fn)
+    //         .cloned()
+    //         .map(|relay_with_distance| relay_with_distance.relay)
+    //         .ok_or(Error::NoBridge)
+    // }
 
-    /// Returns the average location of relays that match the given constraints.
-    /// This returns `None` if the location is [`Constraint::Any`] or if no
-    /// relays match the constraints.
-    fn get_relay_midpoint(
-        query: &RelayQuery,
-        parsed_relays: &RelayList,
-        custom_lists: &CustomListsSettings,
-    ) -> Option<Coordinates> {
-        use std::ops::Not;
-        if query.location().is_any() {
-            return None;
-        }
+    // Returns the average location of relays that match the given constraints.
+    // This returns `None` if the location is [`Constraint::Any`] or if no
+    // relays match the constraints.
+    // This might still be good for VPN relays.
+    // fn get_relay_midpoint(
+    //     query: &RelayQuery,
+    //     relays: &RelayList,
+    //     custom_lists: &CustomListsSettings,
+    // ) -> Option<Coordinates> {
+    //     use std::ops::Not;
+    //     if query.location().is_any() {
+    //         return None;
+    //     }
 
-        let matching_locations: Vec<Location> =
-            filter_matching_relay_list(query, parsed_relays, custom_lists)
-                .into_iter()
-                .map(|relay| relay.inner.location)
-                .unique_by(|location| location.city.clone())
-                .collect();
+    //     let matching_locations: Vec<Location> =
+    //         filter_matching_relay_list(query, relays, custom_lists)
+    //             .into_iter()
+    //             .map(|relay| relay.inner.location)
+    //             .unique_by(|location| location.city.clone())
+    //             .collect();
 
-        matching_locations
-            .is_empty()
-            .not()
-            .then(|| Coordinates::midpoint(&matching_locations))
-    }
+    //     matching_locations
+    //         .is_empty()
+    //         .not()
+    //         .then(|| Coordinates::midpoint(&matching_locations))
+    // }
 }
 
 fn apply_ip_availability(

@@ -7,7 +7,7 @@ use mullvad_types::{
     relay_constraints::{
         GeographicLocationConstraint, LocationConstraint, Ownership, Providers, ShadowsocksSettings,
     },
-    relay_list::{RelayEndpointData, RelayList, WireguardRelay, WireguardRelayEndpointData},
+    relay_list::{RelayList, WireguardRelay, WireguardRelayEndpointData},
 };
 use talpid_types::net::IpVersion;
 
