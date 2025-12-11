@@ -1033,7 +1033,7 @@ impl TryFrom<&RouteMessage> for RouteDestination {
 }
 
 /// Types from C headers that may not be available in libc crate
-#[allow(non_camel_case_types)]
+#[expect(non_camel_case_types)]
 pub mod ffi {
     use std::ffi::{c_int, c_uchar, c_ushort};
 

@@ -128,7 +128,7 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_initial
 
 /// Shut down Mullvad daemon that was initialized using `MullvadDaemon.initialize`.
 #[unsafe(no_mangle)]
-#[allow(non_snake_case)]
+#[expect(non_snake_case)]
 pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_shutdown(
     _: JNIEnv<'_>,
     _class: JClass<'_>,

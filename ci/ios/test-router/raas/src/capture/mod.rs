@@ -94,7 +94,7 @@ impl Capture {
         let mut stream = capture.stream(CloneCodec).map_err(Error::CreateStream)?;
 
         let capture = tokio::spawn(async move {
-            #[allow(clippy::type_complexity)]
+            #[expect(clippy::type_complexity)]
             let (pcap_tx, pcap_rx): (
                 _,
                 sync_mpsc::Receiver<(PacketHeader, Box<[u8]>)>,
