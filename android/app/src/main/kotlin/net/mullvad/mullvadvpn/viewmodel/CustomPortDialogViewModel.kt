@@ -45,6 +45,7 @@ class CustomPortDialogViewModel(
             portInput = portInput,
             isValidInput = isValidPortInput,
             allowedPortRanges = navArgs.allowedPortRanges,
+            recommendedPortRanges = navArgs.recommendedPortRanges,
             showResetToDefault = navArgs.customPort != null,
         )
 
@@ -81,5 +82,6 @@ data class CustomPortDialogUiState(
     val portInput: String,
     val isValidInput: Boolean,
     val allowedPortRanges: List<PortRange>,
+    val recommendedPortRanges: List<PortRange>,
     val showResetToDefault: Boolean,
 )

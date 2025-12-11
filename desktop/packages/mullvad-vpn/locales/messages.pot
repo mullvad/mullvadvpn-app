@@ -2797,6 +2797,9 @@ msgstr ""
 msgid "90 days was added to your account."
 msgstr ""
 
+msgid "<b>Attention:</b> Only some servers support the full port range."
+msgstr ""
+
 msgid "<b>Please note that these methods do not improve performance, and may increase system utilization and battery consumption.</b>"
 msgstr ""
 
@@ -3434,6 +3437,9 @@ msgid "VPN permission was denied or another app has \"Always-on VPN\" enabled"
 msgstr ""
 
 msgid "VPN tunnel status"
+msgstr ""
+
+msgid "Valid range for all servers: %s"
 msgstr ""
 
 msgid "Valid ranges: %s"

@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import net.mullvad.mullvadvpn.R
@@ -27,7 +28,7 @@ private fun PreviewInputDialog() {
     AppTheme {
         InputDialog(
             title = "Input here",
-            message = "Lorem ipsum",
+            message = AnnotatedString("Lorem ipsum"),
             onBack = {},
             onConfirm = {},
             onReset = {},
@@ -50,7 +51,7 @@ private fun PreviewInputDialog() {
 @Composable
 fun InputDialog(
     title: String,
-    message: String? = null,
+    message: AnnotatedString? = null,
     confirmButtonEnabled: Boolean = true,
     confirmButtonText: String = stringResource(R.string.submit_button),
     onResetButtonText: String = stringResource(R.string.reset_to_default_button),

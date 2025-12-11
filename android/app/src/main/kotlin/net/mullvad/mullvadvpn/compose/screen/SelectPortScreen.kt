@@ -96,6 +96,7 @@ fun SelectPort(
                         CustomPortDialogNavArgs(
                             portType = state.portType,
                             allowedPortRanges = state.allowedPortRanges,
+                            recommendedPortRanges = state.recommendedPortRanges,
                             customPort = customPort,
                         )
                     )

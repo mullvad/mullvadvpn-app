@@ -13,6 +13,7 @@ data class SelectPortUiState(
     val customPortEnabled: Boolean,
     val title: String,
     val allowedPortRanges: List<PortRange> = emptyList(),
+    val recommendedPortRanges: List<PortRange> = emptyList(),
     val presetPorts: List<Port> = emptyList(),
     val infoDestination: BaseRoute? = null,
 ) {
