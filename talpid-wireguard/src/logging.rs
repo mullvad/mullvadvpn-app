@@ -45,8 +45,8 @@ pub fn clean_up_logging(ordinal: u64) {
     state.map.remove(&ordinal);
 }
 
-#[expect(dead_code)]
 pub enum LogLevel {
+    #[expect(dead_code)]
     Verbose,
     #[cfg_attr(feature = "wireguard-go", allow(dead_code))]
     Info,
