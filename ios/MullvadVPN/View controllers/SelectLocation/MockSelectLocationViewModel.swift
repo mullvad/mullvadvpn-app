@@ -72,7 +72,6 @@ class MockSelectLocationViewModel: SelectLocationViewModel {
         ]
         exitContext = LocationContext(
             locations: exitLocations,
-            allLocations: exitLocations,
             customLists: [
                 LocationNode(
                     name: "MyList1", code: "mylist1",
