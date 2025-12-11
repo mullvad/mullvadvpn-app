@@ -7,8 +7,12 @@
 //
 import SwiftUI
 
+struct RecentLocation {
+    var node: LocationNode
+    let info: LocalizedStringKey?
+}
 struct RecentLocationsListView<ContextMenu>: View where ContextMenu: View {
-    @Binding var locations: [LocationNode]
+    @Binding var locations: [RecentLocation]
     let multihopContext: MultihopContext
     let onSelectLocation: (LocationNode) -> Void
     let contextMenu: (LocationNode) -> ContextMenu
@@ -16,7 +20,7 @@ struct RecentLocationsListView<ContextMenu>: View where ContextMenu: View {
     var filteredLocationIndices: [Int] {
         locations
             .enumerated()
-            .filter { $0.element.isHiddenFromSearch }
+            .filter { $0.element.node.isHiddenFromSearch }
             .map { $0.offset }
     }
 
@@ -27,30 +31,24 @@ struct RecentLocationsListView<ContextMenu>: View where ContextMenu: View {
         ) { index, indexInLocationList in
             let location = $locations[indexInLocationList]
             RecentLocationListItem(
-                location: location,
+                location: location.node,
                 multihopContext: multihopContext,
+                subtitle: location.wrappedValue.info,
                 onSelect: onSelectLocation,
-                contextMenu: { location in contextMenu(location) }
+                contextMenu: { location in contextMenu(location) },
             )
             .padding(.bottom, index == filteredLocationIndices.count - 1 ? 24 : 0)
         }
     }
 }
 
-#Preview {
-    @Previewable @StateObject var viewModel = MockSelectLocationViewModel()
-    ScrollView {
-        LazyVStack(spacing: 0) {
-            RecentLocationsListView(
-                locations: $viewModel.exitContext.customLists,
-                multihopContext: .exit,
-                onSelectLocation: { location in
-                    print("Selected: \(location.name)")
-                },
-                contextMenu: { location in Text("Add \(location.name) to list") }
-            )
-            .padding(.horizontal)
-        }
-    }
-    .background(Color.mullvadBackground)
-}
+//var subtitle: LocalizedStringKey? {
+//    // Get the full path to this node and drop the last element (which is the node itself)
+//    if let parent = location.parent,
+//        let locations = parent.root.pathToNode(matchingCode: parent.code),
+//        !locations.dropLast().isEmpty
+//    {
+//        return "\(locations.dropLast().joined(separator: ", "))"
+//    }
+//    return nil
+//}

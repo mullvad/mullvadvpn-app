@@ -148,6 +148,18 @@ extension LocationNode {
             }
     }
 
+    func pathToNode(matchingCode code: String) -> [String]? {
+        if self.code == code {
+            return [NSLocalizedString(name, comment: "")]
+        }
+        for child in children {
+            if let childPath = child.pathToNode(matchingCode: code) {
+                return [NSLocalizedString(name, comment: "")] + childPath
+            }
+        }
+        return nil
+    }
+
     fileprivate func recursivelyCopyChildren(withParent parent: LocationNode) -> [LocationNode] {
         children.map { $0.copy(withParent: parent) }
     }

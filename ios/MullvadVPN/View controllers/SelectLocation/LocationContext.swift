@@ -1,12 +1,12 @@
 struct LocationContext {
-    var recents: [LocationNode]
+    var recents: [RecentLocation]
     var locations: [LocationNode]
     var customLists: [LocationNode]
     var filter: [SelectLocationFilter]
     let selectLocation: (LocationNode) -> Void
 
     init(
-        recents: [LocationNode] = [],
+        recents: [RecentLocation] = [],
         locations: [LocationNode] = [],
         customLists: [LocationNode] = [],
         filter: [SelectLocationFilter] = [],
@@ -22,7 +22,7 @@ struct LocationContext {
     }
 
     var selectedLocation: LocationNode? {
-        (recents + customLists + locations)
+        (recents.compactMap(\.node) + customLists + locations)
             .flatMap { $0.flattened + [$0] }
             .first { $0.isSelected }
     }

@@ -2,6 +2,7 @@ import Combine
 import MullvadREST
 import MullvadSettings
 import MullvadTypes
+import SwiftUICore
 
 @MainActor
 protocol SelectLocationViewModel: ObservableObject {
@@ -134,7 +135,7 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
                 guard let self else { return }
                 reloadAllDataSources()
                 updateSelections()
-                setSelectedNodeExpanded(!isEnabled)
+                //setSelectedNodeExpanded(!isEnabled)
                 isRecentsEnabled = isEnabled
             })
             .store(in: &cancellables)
@@ -205,7 +206,7 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
         reloadAllDataSources()
         updateSelections()
         updateConnectedLocations(tunnelManager.tunnelStatus)
-        setSelectedNodeExpanded(!isRecentsEnabled)
+        setSelectedNodeExpanded(true)
     }
 
     deinit {
@@ -302,8 +303,24 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
     private func refreshRecents() {
         entryRecentsDataSource.reload(recentsInteractor.fetch(context: .entry))
         exitRecentsDataSource.reload(recentsInteractor.fetch(context: .exit))
-        entryContext.recents = entryRecentsDataSource.nodes
-        exitContext.recents = exitRecentsDataSource.nodes
+        let subtitle: (LocationNode, AllLocationDataSource) -> LocalizedStringKey? = { node, dataSource in
+            guard
+                let rootNode = dataSource.node(by: UserSelectedRelays(locations: node.locations)),
+                let path = rootNode.root.pathToNode(matchingCode: node.code)?.dropLast(),
+                !path.isEmpty
+            else {
+                return nil
+            }
+            return "\(path.joined(separator: ", "))"
+        }
+
+        entryContext.recents = entryRecentsDataSource.nodes.map({
+            return RecentLocation(node: $0, info: subtitle($0, entryLocationsDataSource))
+        })
+
+        exitContext.recents = exitRecentsDataSource.nodes.map({
+            return RecentLocation(node: $0, info: subtitle($0, exitLocationsDataSource))
+        })
     }
 
     private func refreshCustomLists() {

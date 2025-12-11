@@ -17,15 +17,16 @@ class MockSelectLocationViewModel: SelectLocationViewModel {
         entryContext = LocationContext()
         exitContext = LocationContext(
             recents: [
-                LocationNode(
-                    name: "Stockholm",
-                    code: "sth",
-                    children: [
-                        LocationNode(name: sth1, code: sth1),
-                        LocationNode(name: sth2, code: sth2),
-                        LocationNode(name: sth3, code: sth3),
-                    ]
-                )
+                RecentLocation(
+                    node: LocationNode(
+                        name: "Stockholm",
+                        code: "sth",
+                        children: [
+                            LocationNode(name: sth1, code: sth1),
+                            LocationNode(name: sth2, code: sth2),
+                            LocationNode(name: sth3, code: sth3),
+                        ]
+                    ), info: "Sweden, Stockholm")
             ],
             locations: [
                 LocationNode(
