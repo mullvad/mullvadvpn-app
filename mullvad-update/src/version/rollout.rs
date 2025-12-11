@@ -133,7 +133,7 @@ impl Serialize for Rollout {
     }
 }
 
-#[cfg(feature = "arbitrary")]
+#[cfg(all(feature = "arbitrary", test))]
 /// Generators for [Rollout].
 pub mod arbitrary {
     use super::*;
