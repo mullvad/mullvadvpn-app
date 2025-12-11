@@ -59,10 +59,6 @@ impl ParsedRelays {
         self.last_updated
     }
 
-    pub fn etag(&self) -> Option<String> {
-        self.parsed_list.etag.clone()
-    }
-
     /// The original list of relays, as returned by the Mullvad relays API.
     pub const fn original_list(&self) -> &RelayList {
         &self.original_list
