@@ -11,7 +11,7 @@ export function BaseOption<T>({
   ...props
 }: BaseOptionProps<T>) {
   return (
-    <Listbox.Option level={1} value={value} animation={animation} disabled={disabled} {...props}>
+    <Listbox.Option value={value} animation={animation} disabled={disabled} {...props}>
       <Listbox.Option.Trigger>
         <Listbox.Option.Item>
           <Listbox.Option.Content>

@@ -1,4 +1,5 @@
 import React from 'react';
+import styled from 'styled-components';
 
 import { useRovingFocus } from '../../../../hooks';
 import { useListboxContext } from '../../';
@@ -6,6 +7,11 @@ import { useListboxContext } from '../../';
 export type ListboxOptionsProps = {
   children: React.ReactNode[];
 };
+
+export const StyledListboxOptions = styled.ul`
+  display: flex;
+  flex-direction: column;
+`;
 
 export function ListboxOptions({ children }: ListboxOptionsProps) {
   const { labelId, optionsRef, focusedIndex, setFocusedIndex } = useListboxContext();
@@ -24,7 +30,7 @@ export function ListboxOptions({ children }: ListboxOptionsProps) {
   );
 
   return (
-    <ul
+    <StyledListboxOptions
       ref={optionsRef}
       role="listbox"
       aria-labelledby={labelId}
@@ -33,6 +39,6 @@ export function ListboxOptions({ children }: ListboxOptionsProps) {
       onFocus={handleFocus}
       tabIndex={tabIndex}>
       {children}
-    </ul>
+    </StyledListboxOptions>
   );
 }
