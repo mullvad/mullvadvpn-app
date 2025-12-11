@@ -306,23 +306,8 @@ impl PartialEq for Relay {
     ///     hostname: "se9-wireguard".to_string(),
     ///     ipv4_addr_in: "185.213.154.68".parse().unwrap(),
     ///     # ipv6_addr_in: None,
-    ///     # overridden_ipv4: false,
-    ///     # overridden_ipv6: false,
-    ///     # include_in_country: true,
     ///     # active: true,
-    ///     # owned: true,
-    ///     # provider: "provider0".to_string(),
     ///     # weight: 1,
-    ///     # endpoint_data: RelayEndpointData::Wireguard(WireguardRelayEndpointData {
-    ///     #   public_key: PublicKey::from_base64(
-    ///     #       "BLNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=",
-    ///     #   )
-    ///     #   .unwrap(),
-    ///     #   daita: false,
-    ///     #   shadowsocks_extra_addr_in: Default::default(),
-    ///     #   quic: None,
-    ///     #   lwo: false,
-    ///     # }),
     ///     # location: mullvad_types::location::Location {
     ///     #   country: "Sweden".to_string(),
     ///     #   country_code: "se".to_string(),
