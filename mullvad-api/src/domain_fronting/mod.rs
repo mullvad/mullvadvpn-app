@@ -11,15 +11,12 @@ use std::{
 
 use bytes::BufMut;
 use http::{
-    Request, Response,
-    header::{self, UPGRADE},
-    status::StatusCode,
+    header, status::StatusCode, Request, Response
 };
 use http_body_util::{BodyExt, Empty, Full};
 use hyper::{
     body::{Bytes, Incoming},
     client::conn::http1::SendRequest,
-    upgrade::Upgraded,
 };
 use hyper_util::rt::TokioIo;
 use tokio::{
@@ -95,7 +92,7 @@ impl ProxyConfig {
 
         let (mut sender, conn) = hyper::client::conn::http1::handshake(io).await?;
         tokio::task::spawn(async move {
-            if let Err(err) = conn.with_upgrades().await {
+            if let Err(err) = conn.await {
                 log::trace!("Domain fronting connection failed: {:?}", err);
             }
         });
@@ -141,11 +138,13 @@ impl ProxyConnection {
     }
 
     fn initial_request(proxy_host: &str) -> Request<Full<Bytes>> {
-        hyper::Request::post(&format!("https://{}/", proxy_host))
-            .header(header::CONTENT_TYPE, "application/octet-stream")
-            .header(header::CONTENT_LENGTH, "0")
+       let req=  hyper::Request::get(&format!("https://{}/hey", proxy_host))
+            .header(header::USER_AGENT, "curl/8.14.1")
+            .header(header::ACCEPT, "*/*")
             .body(Full::<Bytes>::new(Bytes::new()))
-            .unwrap()
+            .unwrap();
+        dbg!(&req);
+        req
     }
 
     fn create_request(

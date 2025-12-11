@@ -105,7 +105,7 @@ impl Sessions {
     ) -> Response<Full<Bytes>> {
         println!("Handling existing session");
         let Ok(return_payload) = SessionCommand::send(data, &cmd_tx).await else {
-            println!("Failed to do thing");
+            println!("Failed send command");
             return Self::handle_session_error();
         };
         let body = return_payload
@@ -202,6 +202,7 @@ impl Session {
         } = self;
         let mut deadline = sleep(CONNECTION_TIMEOUT);
         let mut read_buffer = vec![0u8; 8192];
+        println!("Starting session loop");
 
         loop {
             tokio::select! {
