@@ -370,7 +370,7 @@ impl WireguardMonitor {
                     Self::get_post_tunnel_routes(
                         &iface_name,
                         &config,
-                        #[cfg(target_os = "linux")]
+                        #[cfg(any(target_os = "linux", target_os = "macos"))]
                         userspace_wireguard,
                     )
                     .collect(),
