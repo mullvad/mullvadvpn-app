@@ -46,7 +46,7 @@ pub fn clean_up_logging(ordinal: u64) {
 }
 
 pub enum LogLevel {
-    #[cfg_attr(feature = "wireguard-go", expect(dead_code))]
+    #[expect(dead_code)]
     Verbose,
     #[cfg_attr(feature = "wireguard-go", expect(dead_code))]
     Info,
