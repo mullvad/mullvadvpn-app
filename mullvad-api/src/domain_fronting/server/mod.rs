@@ -15,7 +15,7 @@ use uuid::Uuid;
 use crate::domain_fronting::SESSION_HEADER_KEY;
 
 const CONNECTION_TIMEOUT: Duration = Duration::from_secs(30);
-const READ_TIMEOUT: Duration = Duration::from_secs(30);
+const READ_TIMEOUT: Duration = Duration::from_secs(1);
 
 pub struct Sessions {
     sessions: papaya::HashMap<Uuid, mpsc::Sender<SessionCommand>>,
@@ -133,6 +133,7 @@ impl Sessions {
             session.run().await;
         });
 
+        println!("got here");
         let Ok(return_payload) = SessionCommand::send(data, &cmd_tx).await else {
             return Self::handle_session_error();
         };
@@ -211,6 +212,7 @@ impl Session {
                         return;
                     };
 
+                    println!("Received msg");
                     if let Some(tx_bytes) = cmd.take_payload() {
                         if let Err(err) =  connection.write_all(&tx_bytes).await {
                             log::error!("Failed to send data to upstream: {err}");
