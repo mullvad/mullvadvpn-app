@@ -424,7 +424,9 @@ impl WireguardMonitor {
     pub fn start(
         params: &TunnelParameters,
         args: TunnelArgs<'_>,
-        #[expect(unused_variables)] log_path: Option<&Path>,
+        #[cfg_attr(not(feature = "wireguard-go"), expect(unused_variables))] log_path: Option<
+            &Path,
+        >,
     ) -> Result<WireguardMonitor> {
         let route_mtu = args
             .runtime
