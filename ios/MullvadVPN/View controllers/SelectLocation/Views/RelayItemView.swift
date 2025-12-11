@@ -23,19 +23,19 @@ struct RelayItemView: View {
             switch multihopContext {
             case .entry:
                 return """
-                    \(location.name) (\(String(localized:
+                    \("\(location.name) (\(location.searchWeight))") (\(String(localized:
                     String
                     .LocalizationValue(MultihopContext.exit.description))))
                     """
             case .exit:
                 return """
-                    \(location.name) (\(String(localized:
+                    \("\(location.name) (\(location.searchWeight))") (\(String(localized:
                     String
                     .LocalizationValue(MultihopContext.entry.description))))
                     """
             }
         }
-        return "\(location.name)"
+        return "\(location.name) (\(location.searchWeight))"
     }
 
     var body: some View {

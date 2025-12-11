@@ -2,6 +2,7 @@ import SwiftUI
 
 struct EntryLocationView<ViewModel: SelectLocationViewModel>: View {
     @ObservedObject var viewModel: ViewModel
+    let isSearching: Bool
     let onScrollOffsetChange: (CGFloat, CGFloat) -> Void
     var body: some View {
         if viewModel.showDAITAInfo {
@@ -11,7 +12,7 @@ struct EntryLocationView<ViewModel: SelectLocationViewModel>: View {
         } else {
             ExitLocationView(
                 viewModel: viewModel, context: $viewModel.entryContext,
-                onScrollOffsetChange: onScrollOffsetChange)
+                isSearching: isSearching, onScrollOffsetChange: onScrollOffsetChange)
         }
     }
 }

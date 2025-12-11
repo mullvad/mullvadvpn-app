@@ -9,6 +9,7 @@ struct LocationsListView<ContextMenu>: View where ContextMenu: View {
     var filteredLocationIndices: [Int] {
         locations
             .enumerated()
+            .sorted { $0.element.searchWeight > $1.element.searchWeight }
             .filter { !$0.element.isHiddenFromSearch }
             .map { $0.offset }
     }

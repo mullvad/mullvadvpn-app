@@ -29,31 +29,34 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
         // view, the top margin of the content is changed which solves the animation issues.
         ZStack(alignment: .topLeading) {
             VStack(spacing: 16) {
-                MultihopSelectionView(
-                    hops: (viewModel.isMultihopEnabled ? MultihopContext.allCases : [MultihopContext.exit])
-                        .map {
-                            let selectedLocation =
-                                switch $0 {
-                                case .entry:
-                                    viewModel.showDAITAInfo
-                                        ? LocationNode(name: "Automatic", code: "")
-                                        : viewModel.entryContext.selectedLocation
-                                case .exit: viewModel.exitContext.selectedLocation
-                                }
-                            return Hop(
-                                multihopContext: $0,
-                                selectedLocation: selectedLocation
-                            )
-                        },
-                    selectedMultihopContext: $viewModel.multihopContext,
-                    isExpanded: headerIsExpanded
-                )
-                .padding(.horizontal, 16)
+                if !focusSearchField && viewModel.searchText.isEmpty {
+                    MultihopSelectionView(
+                        hops: (viewModel.isMultihopEnabled ? MultihopContext.allCases : [MultihopContext.exit])
+                            .map {
+                                let selectedLocation =
+                                    switch $0 {
+                                    case .entry:
+                                        viewModel.showDAITAInfo
+                                            ? LocationNode(name: "Automatic", code: "")
+                                            : viewModel.entryContext.selectedLocation
+                                    case .exit: viewModel.exitContext.selectedLocation
+                                    }
+                                return Hop(
+                                    multihopContext: $0,
+                                    selectedLocation: selectedLocation
+                                )
+                            },
+                        selectedMultihopContext: $viewModel.multihopContext,
+                        isExpanded: headerIsExpanded
+                    )
+                    .padding(.horizontal, 16)
+                }
                 if showSearchField {
                     MullvadSecondaryTextField(
                         placeholder: "Search for locations or servers",
                         text: $viewModel.searchText
                     )
+                    .autocorrectionDisabled()
                     .focused($focusSearchField)
                     .padding(.horizontal)
                     .transition(.move(edge: .top).combined(with: .opacity))
@@ -78,6 +81,7 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                         ExitLocationView(
                             viewModel: viewModel,
                             context: $viewModel.exitContext,
+                            isSearching: focusSearchField,
                             onScrollOffsetChange: {
                                 prevScrollOffset,
                                 scrollOffset in
@@ -93,6 +97,7 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                     case .entry:
                         EntryLocationView(
                             viewModel: viewModel,
+                            isSearching: focusSearchField,
                             onScrollOffsetChange: { prevScrollOffset, scrollOffset in
                                 expandOrCollapseHeader(
                                     prevScrollOffset: prevScrollOffset,

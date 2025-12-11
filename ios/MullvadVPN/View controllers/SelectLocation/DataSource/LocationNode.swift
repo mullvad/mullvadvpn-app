@@ -17,6 +17,7 @@ class LocationNode: @unchecked Sendable {
     weak var parent: LocationNode?
     var children: [LocationNode]
     var showsChildren: Bool
+    var searchWeight: Int
     var isHiddenFromSearch: Bool
     var isConnected: Bool
     var isSelected: Bool
@@ -30,6 +31,7 @@ class LocationNode: @unchecked Sendable {
         parent: LocationNode? = nil,
         children: [LocationNode] = [],
         showsChildren: Bool = false,
+        searchWeight: Int = 0,
         isHiddenFromSearch: Bool = false,
         isConnected: Bool = false,
         isSelected: Bool = false,
@@ -42,6 +44,7 @@ class LocationNode: @unchecked Sendable {
         self.parent = parent
         self.children = children
         self.showsChildren = showsChildren
+        self.searchWeight = searchWeight
         self.isHiddenFromSearch = isHiddenFromSearch
         self.isConnected = isConnected
         self.isSelected = isSelected

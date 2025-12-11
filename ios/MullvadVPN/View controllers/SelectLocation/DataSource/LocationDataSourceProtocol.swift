@@ -70,8 +70,11 @@ extension LocationDataSourceProtocol {
     func search(by text: String) {
         nodes.forEachNode { node in
             node.isHiddenFromSearch = false
+            node.searchWeight = 0
             node.showsChildren = false
         }
+        let text = text.trimmingCharacters(in: .whitespaces)
+
         guard !text.isEmpty else {
             return
         }
@@ -84,10 +87,21 @@ extension LocationDataSourceProtocol {
     }
 
     private func hideInSearch(node: LocationNode, searchText: String) -> Bool {
-        let matchesSelf = node.name.fuzzyMatch(searchText)
+        var searchWeight = 0
+        if node.name.lowercased().hasPrefix(searchText.lowercased()) {
+            searchWeight = 3
+        } else if node.name.lowercased().contains(" \(searchText.lowercased())") {
+            searchWeight = 2
+        } else if node.name.lowercased().contains(searchText.lowercased()) {
+            searchWeight = 1
+        }
+        print(node.name, node.searchWeight)
+        let matchesSelf = searchWeight > 0
         var childMatches = false
+        var maxChildWeight = searchWeight
         for child in node.children where !hideInSearch(node: child, searchText: searchText) {
             childMatches = true
+            maxChildWeight = max(maxChildWeight, child.searchWeight)
         }
         if matchesSelf && !childMatches {
             node.forEachDescendant { child in
@@ -96,6 +110,7 @@ extension LocationDataSourceProtocol {
             }
         }
         node.isHiddenFromSearch = !matchesSelf && !childMatches
+        node.searchWeight = maxChildWeight
         node.showsChildren = childMatches
         return node.isHiddenFromSearch
     }

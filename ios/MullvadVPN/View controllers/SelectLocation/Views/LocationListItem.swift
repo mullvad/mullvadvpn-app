@@ -61,7 +61,7 @@ struct LocationListItem<ContextMenu>: View where ContextMenu: View {
                             Image.mullvadIconTick
                                 .foregroundStyle(Color.mullvadSuccessColor)
                         }
-                        Text(location.name)
+                        Text("\(location.name) (\(location.searchWeight))")
                             .foregroundStyle(
                                 location.isActive && !location.isExcluded
                                     ? location.isSelected

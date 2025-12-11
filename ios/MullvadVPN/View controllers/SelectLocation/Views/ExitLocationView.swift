@@ -5,15 +5,11 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
     @Binding var context: LocationContext
     @State var newCustomListAlert: MullvadInputAlert?
     @State var alert: MullvadAlert?
+    let isSearching: Bool
     let onScrollOffsetChange: (CGFloat, CGFloat) -> Void
     @State private var previousScrollOffset: CGFloat = 0
     var isShowingCustomListsSection: Bool {
-        viewModel.searchText.isEmpty
-            || (!viewModel.searchText.isEmpty
-                && !context.customLists
-                    .filter {
-                        !$0.isHiddenFromSearch
-                    }.isEmpty)
+        viewModel.searchText.isEmpty && !isSearching
     }
     var isShowingAllLocationsSection: Bool {
         !context.locations.filter({ !$0.isHiddenFromSearch }).isEmpty
@@ -53,6 +49,7 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
                     }
                     .zIndex(3)  // prevent wrong overlapping during animations
                 }
+                .id("container")
                 .capturePosition(in: .exitLocationScroll) { frame in
                     onScrollOffsetChange(previousScrollOffset, frame.minY)
                     previousScrollOffset = frame.minY
@@ -67,6 +64,13 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
 
                 if let selectedLocation {
                     scrollProxy.scrollTo(selectedLocation.code, anchor: .center)
+                }
+            }
+            .onChange(of: isSearching) {
+                if isSearching {
+                    withAnimation {
+                        scrollProxy.scrollTo("container", anchor: .top)
+                    }
                 }
             }
             .accessibilityIdentifier(.selectLocationView)
@@ -149,7 +153,7 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
         viewModel: viewModel,
         context: $viewModel.exitContext,
         newCustomListAlert: nil,
-        alert: nil,
+        alert: nil, isSearching: false,
         onScrollOffsetChange: { _, _ in }
     )
     .background(Color.mullvadBackground)
@@ -161,7 +165,7 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
         viewModel: viewModel,
         context: $viewModel.entryContext,
         newCustomListAlert: nil,
-        alert: nil,
+        alert: nil, isSearching: false,
         onScrollOffsetChange: { _, _ in }
     )
     .background(Color.mullvadBackground)
