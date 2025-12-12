@@ -87,7 +87,7 @@ unused_async = "deny"
 dirs = "6.0.0"
 tokio = { version = "1.44" }
 tokio-util = "0.7"
-parity-tokio-ipc = "0.9"
+tipsy = "0.6.5"
 futures = "0.3.15"
 vec1 = "1.12"
 sha2 = "0.10"
