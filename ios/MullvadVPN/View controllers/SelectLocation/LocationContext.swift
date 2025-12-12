@@ -30,9 +30,3 @@ struct LocationContext {
             .first { $0.isSelected }
     }
 }
-
-extension LocationContext {
-    var visibleLocations: [LocationNode] {
-        locations.filter { !$0.isHiddenFromSearch }
-    }
-}
