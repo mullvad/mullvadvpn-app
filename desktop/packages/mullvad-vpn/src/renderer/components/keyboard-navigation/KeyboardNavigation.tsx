@@ -45,8 +45,7 @@ interface IBackActionProps {
   children: React.ReactNode;
 }
 
-// Component for registering back actions, e.g. navigate back or close modal. These are called
-// either by pressing the back button in the navigation bar or by pressing escape.
+// Component for registering back actions, e.g. navigate back or close modal.
 export function BackAction(props: IBackActionProps) {
   const { registerBackAction, removeBackAction } = useContext(BackActionContext);
   const [childrenBackAction, setChildrenBackActionImpl] = useState<BackActionFn>();
