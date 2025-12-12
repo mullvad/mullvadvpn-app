@@ -37,6 +37,10 @@ Line wrap the file at 100 chars.                                              Th
 - Upgrade split-tunneling to use cgroups v2, instead of the deprecated cgroups v1.
   Users on Linux kernels prior to 5.13 will not be able to use split tunneling.
 
+#### Windows
+- Make Mullvad service run in case the
+  [split tunnel driver](https://github.com/mullvad/win-split-tunnel) fails to load.
+
 ### Security
 #### Windows
 - Warn user before clearing firewall rules during failed downgrades. This fix only applies to
