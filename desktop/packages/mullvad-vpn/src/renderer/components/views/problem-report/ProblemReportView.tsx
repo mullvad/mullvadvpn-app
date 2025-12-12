@@ -27,7 +27,7 @@ import { useEffectEvent } from '../../../lib/utility-hooks';
 import { useSelector } from '../../../redux/store';
 import support from '../../../redux/support/actions';
 import { AppNavigationHeader } from '../..';
-import { BackAction } from '../../KeyboardNavigation';
+import { BackAction } from '../../keyboard-navigation';
 import { ModalAlert, ModalAlertType } from '../../Modal';
 import {
   StyledContent,

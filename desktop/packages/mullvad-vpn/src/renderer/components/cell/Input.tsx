@@ -5,7 +5,7 @@ import { IconButton } from '../../lib/components';
 import { colors } from '../../lib/foundations';
 import { useBoolean, useCombinedRefs, useEffectEvent, useStyledRef } from '../../lib/utility-hooks';
 import { normalText } from '../common-styles';
-import { BackAction } from '../KeyboardNavigation';
+import { BackAction } from '../keyboard-navigation';
 import { CellDisabledContext, Container } from './Container';
 
 const inputTextStyles: React.CSSProperties = {

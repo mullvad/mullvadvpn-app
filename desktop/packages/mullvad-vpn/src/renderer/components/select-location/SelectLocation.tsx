@@ -21,7 +21,7 @@ import { useNormalRelaySettings } from '../../lib/relay-settings-hooks';
 import { useSelector } from '../../redux/store';
 import { AppNavigationHeader } from '../';
 import * as Cell from '../cell';
-import { BackAction } from '../KeyboardNavigation';
+import { BackAction } from '../keyboard-navigation';
 import { NavigationContainer } from '../NavigationContainer';
 import { NavigationScrollbars } from '../NavigationScrollbars';
 import { useFilteredProviders } from '../views/filter/FilterView';

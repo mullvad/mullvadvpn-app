@@ -1,14 +1,14 @@
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
-import { useHistory } from '../lib/history';
-import { useEffectEvent } from '../lib/utility-hooks';
+import { useHistory } from '../../lib/history';
+import { useEffectEvent } from '../../lib/utility-hooks';
 
 interface IKeyboardNavigationProps {
   children: React.ReactElement | Array<React.ReactElement>;
 }
 
 // Listens for and handles keyboard shortcuts
-export default function KeyboardNavigation(props: IKeyboardNavigationProps) {
+export function KeyboardNavigation(props: IKeyboardNavigationProps) {
   const { pop } = useHistory();
   const [backAction, setBackActionImpl] = useState<BackActionFn>();
 

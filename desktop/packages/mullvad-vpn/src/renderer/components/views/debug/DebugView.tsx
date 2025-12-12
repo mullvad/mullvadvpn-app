@@ -5,7 +5,7 @@ import { View } from '../../../lib/components/view';
 import { useHistory } from '../../../lib/history';
 import { useBoolean } from '../../../lib/utility-hooks';
 import { AppNavigationHeader } from '../..';
-import { BackAction } from '../../KeyboardNavigation';
+import { BackAction } from '../../keyboard-navigation';
 import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
 import SettingsHeader, { HeaderTitle } from '../../SettingsHeader';
