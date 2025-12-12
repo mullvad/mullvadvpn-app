@@ -64,7 +64,6 @@ impl RelayListUpdaterHandle {
 }
 
 pub struct RelayListUpdater {
-    // TODO: Put etag somewhere
     api_client: RelayListProxy,
     cache_path: PathBuf,
     relay_selector: RelaySelector,
