@@ -12,3 +12,4 @@ export * from './useScrollToListItem';
 export * from './useInitialFocus';
 export * from './useFocusReferenceAfterPaint';
 export * from './useFocusReferenceBeforePaint';
+export * from './useIsPlatform';
