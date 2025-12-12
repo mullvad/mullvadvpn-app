@@ -21,6 +21,7 @@ class LocationNode: @unchecked Sendable {
     var isConnected: Bool
     var isSelected: Bool
     var isExcluded: Bool
+    let id = UUID()
 
     init(
         name: String,

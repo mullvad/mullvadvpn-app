@@ -89,7 +89,7 @@ struct LocationListItem<ContextMenu>: View where ContextMenu: View {
             }
         }
         .zIndex(level == 0 ? 2 : 1 / Double(level))  // prevent wrong overlapping during animations
-        .id(location.code)  // to be able to scroll to this item programmatically
+        .id(location.id)  // to be able to scroll to this item programmatically
     }
 }
 

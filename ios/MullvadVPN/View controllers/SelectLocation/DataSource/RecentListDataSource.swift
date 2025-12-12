@@ -43,7 +43,7 @@ class RecentListDataSource: LocationDataSourceProtocol {
 
     func node(by selectedRelays: UserSelectedRelays) -> LocationNode? {
         nodes.first { node in
-            node.locations == selectedRelays.locations
+            node.userSelectedRelays == selectedRelays
         }
     }
 }

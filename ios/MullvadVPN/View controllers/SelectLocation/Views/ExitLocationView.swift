@@ -171,10 +171,8 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
     }
 
     private func scrollToCurrentSelection(_ scrollProxy: ScrollViewProxy) {
-        if viewModel.isRecentsEnabled {
-            scrollProxy.scrollTo(0, anchor: .top)
-        } else if let selectedLocation = context.selectedLocation {
-            scrollProxy.scrollTo(selectedLocation.code, anchor: .center)
+        if let selectedLocation = context.selectedLocation {
+            scrollProxy.scrollTo(selectedLocation.id, anchor: .center)
         }
     }
 }
