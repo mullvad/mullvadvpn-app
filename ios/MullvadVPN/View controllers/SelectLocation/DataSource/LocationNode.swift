@@ -159,6 +159,19 @@ extension LocationNode {
         }
         return nil
     }
+    
+    func pathToRoot() -> [String] {
+        var path: [String] = []
+        var current: LocationNode? = self
+
+        while let node = current {
+            path.insert(NSLocalizedString(node.name, comment: ""), at: 0)
+            current = node.parent
+        }
+
+        return path
+    }
+
 
     fileprivate func recursivelyCopyChildren(withParent parent: LocationNode) -> [LocationNode] {
         children.map { $0.copy(withParent: parent) }

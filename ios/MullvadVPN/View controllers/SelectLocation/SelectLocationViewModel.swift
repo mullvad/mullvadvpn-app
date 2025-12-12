@@ -135,7 +135,7 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
                 guard let self else { return }
                 reloadAllDataSources()
                 updateSelections()
-                //setSelectedNodeExpanded(!isEnabled)
+                setSelectedNodeExpanded(true)
                 isRecentsEnabled = isEnabled
             })
             .store(in: &cancellables)
@@ -291,6 +291,7 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
         refreshCustomLists()
         refreshRecents()
         updateSelections()
+        setSelectedNodeExpanded(true)
         updateConnectedLocations(tunnelManager.tunnelStatus)
     }
 
@@ -304,14 +305,12 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
         entryRecentsDataSource.reload(recentsInteractor.fetch(context: .entry))
         exitRecentsDataSource.reload(recentsInteractor.fetch(context: .exit))
         let subtitle: (LocationNode, AllLocationDataSource) -> LocalizedStringKey? = { node, dataSource in
-            guard
-                let rootNode = dataSource.node(by: UserSelectedRelays(locations: node.locations)),
-                let path = rootNode.root.pathToNode(matchingCode: node.code)?.dropLast(),
-                !path.isEmpty
-            else {
+            guard let selectedRoot = dataSource.node(by: UserSelectedRelays(locations: node.locations)) else {
                 return nil
             }
-            return "\(path.joined(separator: ", "))"
+            let ancestors = selectedRoot.pathToRoot().dropLast()
+            guard ancestors.isEmpty == false else { return nil }
+            return "\(ancestors.joined(separator: ", "))"
         }
 
         entryContext.recents = entryRecentsDataSource.nodes.map({
