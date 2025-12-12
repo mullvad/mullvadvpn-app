@@ -121,10 +121,9 @@ final public class RecentConnectionsRepository: RecentConnectionsRepositoryProto
 
     public func update(_ deletedCustomList: UUID) {
         do {
-            var current = try read()
+            let current = try read()
             let removeDuplicates: ([UserSelectedRelays], UUID) -> [UserSelectedRelays] = { recents, id in
-                var currentRecents = recents.map({
-                    var new = $0
+                let currentRecents = recents.map({
                     if $0.customListSelection?.listId == id {
                         return UserSelectedRelays(locations: $0.locations)
                     }
