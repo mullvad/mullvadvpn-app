@@ -21,9 +21,9 @@ function SettingsHeader(props: SettingsHeaderProps, forwardRef: React.Ref<HTMLDi
   return (
     <Flex
       ref={forwardRef}
-      $flexDirection="column"
-      $gap="small"
-      $margin={{ horizontal: 'medium', bottom: 'medium' }}
+      flexDirection="column"
+      gap="small"
+      margin={{ horizontal: 'medium', bottom: 'medium' }}
       className={props.className}>
       {props.children}
     </Flex>

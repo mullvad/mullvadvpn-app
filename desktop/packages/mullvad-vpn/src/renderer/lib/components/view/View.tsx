@@ -1,8 +1,9 @@
 import styled from 'styled-components';
 
 import { Colors, colors, ColorVariables } from '../../foundations';
+import { Container } from '../container';
 import { Flex, FlexProps } from '../flex';
-import { Container } from './components';
+import { ViewContent } from './components';
 
 export type ViewProps = FlexProps & {
   backgroundColor?: Colors;
@@ -10,17 +11,20 @@ export type ViewProps = FlexProps & {
 
 export const StyledView = styled(Flex)<{ $backgroundColor?: ColorVariables }>`
   height: 100vh;
-  max-width: 100%;
+  width: 100vw;
+  overflow: hidden;
+  box-sizing: border-box;
   background-color: ${({ $backgroundColor }) => $backgroundColor || undefined};
 `;
 
 function View({ backgroundColor = 'blue', ...props }: ViewProps) {
   return (
-    <StyledView $backgroundColor={colors[backgroundColor]} $flexDirection="column" {...props} />
+    <StyledView $backgroundColor={colors[backgroundColor]} flexDirection="column" {...props} />
   );
 }
 
 const ViewNamespace = Object.assign(View, {
+  Content: ViewContent,
   Container: Container,
 });
 

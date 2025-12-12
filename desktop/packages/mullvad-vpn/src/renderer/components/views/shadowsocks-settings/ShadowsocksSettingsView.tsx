@@ -1,8 +1,8 @@
 import { messages } from '../../../../shared/gettext';
+import { View } from '../../../lib/components/view';
 import { useHistory } from '../../../lib/history';
 import { AppNavigationHeader } from '../..';
 import { BackAction } from '../../KeyboardNavigation';
-import { Layout, SettingsContainer } from '../../Layout';
 import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
 import SettingsHeader, { HeaderTitle } from '../../SettingsHeader';
@@ -12,10 +12,10 @@ export function ShadowsocksSettingsView() {
   const { pop } = useHistory();
 
   return (
-    <BackAction action={pop}>
-      <Layout>
-        <SettingsContainer>
-          <NavigationContainer>
+    <View backgroundColor="darkBlue">
+      <BackAction action={pop}>
+        <NavigationContainer>
+          <View.Content>
             <AppNavigationHeader
               title={
                 // TRANSLATORS: Title label in navigation bar
@@ -32,9 +32,9 @@ export function ShadowsocksSettingsView() {
 
               <ShadowsocksPortSetting />
             </NavigationScrollbars>
-          </NavigationContainer>
-        </SettingsContainer>
-      </Layout>
-    </BackAction>
+          </View.Content>
+        </NavigationContainer>
+      </BackAction>
+    </View>
   );
 }

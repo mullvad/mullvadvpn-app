@@ -13,7 +13,7 @@ const StyledLaunchFooter = styled(Flex)`
 export function Footer() {
   const content = useContent();
   return (
-    <StyledLaunchFooter $flexDirection="column" $padding="medium">
+    <StyledLaunchFooter flexDirection="column" padding="medium">
       {content}
     </StyledLaunchFooter>
   );

@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { strings } from '../../shared/constants';
 import { messages } from '../../shared/gettext';
 import log from '../../shared/logging';
-import ErrorView from './ErrorView';
+import { ErrorView } from './views';
 
 interface IProps {
   children?: React.ReactNode;

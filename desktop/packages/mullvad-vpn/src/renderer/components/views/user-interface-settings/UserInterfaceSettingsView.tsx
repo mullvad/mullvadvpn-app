@@ -8,23 +8,18 @@ import {
   StartMinimizedSetting,
   UnpinnedWindowSetting,
 } from '../../../features/client/components';
+import { FlexColumn } from '../../../lib/components/flex-column';
+import { View } from '../../../lib/components/view';
 import { useHistory } from '../../../lib/history';
 import { useSelector } from '../../../redux/store';
 import { AppNavigationHeader } from '../..';
 import { BackAction } from '../../KeyboardNavigation';
-import {
-  Layout,
-  SettingsContainer,
-  SettingsContent,
-  SettingsGroup,
-  SettingsStack,
-} from '../../Layout';
 import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
 import SettingsHeader, { HeaderTitle } from '../../SettingsHeader';
 import { LanguageListItem } from './components';
 
-const StyledAnimateMapCellGroup = styled(SettingsGroup)({
+const AnimateMapContainer = styled.div({
   '@media (prefers-reduced-motion: reduce)': {
     display: 'none',
   },
@@ -35,59 +30,43 @@ export function UserInterfaceSettingsView() {
   const unpinnedWindow = useSelector((state) => state.settings.guiSettings.unpinnedWindow);
 
   return (
-    <BackAction action={pop}>
-      <Layout>
-        <SettingsContainer>
-          <NavigationContainer>
-            <AppNavigationHeader
-              title={
-                // TRANSLATORS: Title label in navigation bar
-                messages.pgettext('user-interface-settings-view', 'User interface settings')
-              }
-            />
+    <View backgroundColor="darkBlue">
+      <BackAction action={pop}>
+        <NavigationContainer>
+          <AppNavigationHeader
+            title={
+              // TRANSLATORS: Title label in navigation bar
+              messages.pgettext('user-interface-settings-view', 'User interface settings')
+            }
+          />
 
-            <NavigationScrollbars>
+          <NavigationScrollbars>
+            <View.Content>
               <SettingsHeader>
                 <HeaderTitle>
                   {messages.pgettext('user-interface-settings-view', 'User interface settings')}
                 </HeaderTitle>
               </SettingsHeader>
 
-              <SettingsContent>
-                <SettingsStack>
-                  <SettingsGroup>
-                    <NotificationsSetting />
-                  </SettingsGroup>
-                  <SettingsGroup>
-                    <MonochromaticTrayIconSetting />
-                  </SettingsGroup>
+              <FlexColumn gap="medium">
+                <NotificationsSetting />
+                <MonochromaticTrayIconSetting />
+                <LanguageListItem />
 
-                  <SettingsGroup>
-                    <LanguageListItem />
-                  </SettingsGroup>
+                {(window.env.platform === 'win32' ||
+                  (window.env.platform === 'darwin' && window.env.development)) && (
+                  <UnpinnedWindowSetting />
+                )}
 
-                  {(window.env.platform === 'win32' ||
-                    (window.env.platform === 'darwin' && window.env.development)) && (
-                    <SettingsGroup>
-                      <UnpinnedWindowSetting />
-                    </SettingsGroup>
-                  )}
-
-                  {unpinnedWindow && (
-                    <SettingsGroup>
-                      <StartMinimizedSetting />
-                    </SettingsGroup>
-                  )}
-
-                  <StyledAnimateMapCellGroup>
-                    <AnimateMapSetting />
-                  </StyledAnimateMapCellGroup>
-                </SettingsStack>
-              </SettingsContent>
-            </NavigationScrollbars>
-          </NavigationContainer>
-        </SettingsContainer>
-      </Layout>
-    </BackAction>
+                {unpinnedWindow && <StartMinimizedSetting />}
+                <AnimateMapContainer>
+                  <AnimateMapSetting />
+                </AnimateMapContainer>
+              </FlexColumn>
+            </View.Content>
+          </NavigationScrollbars>
+        </NavigationContainer>
+      </BackAction>
+    </View>
   );
 }

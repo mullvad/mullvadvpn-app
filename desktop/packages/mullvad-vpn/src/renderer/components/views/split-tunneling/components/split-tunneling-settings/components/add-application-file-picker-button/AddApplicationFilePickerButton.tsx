@@ -7,7 +7,7 @@ export function AddApplicationFilePickerButton() {
   const addWithFilePicker = useAddWithFilePicker();
 
   return (
-    <Container size="3">
+    <Container indent="large">
       <Button onClick={addWithFilePicker}>
         <Button.Text>{messages.pgettext('split-tunneling-view', 'Find another app')}</Button.Text>
       </Button>

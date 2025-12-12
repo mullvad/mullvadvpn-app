@@ -9,12 +9,12 @@ export function DownloadFooter() {
   const showResumeDownloadButton = useShowResumeDownloadButton();
 
   return (
-    <Flex $padding="large" $flexDirection="column">
-      <Flex $gap="medium" $flexDirection="column" $margin={{ bottom: 'medium' }}>
+    <Flex padding="large" flexDirection="column">
+      <Flex gap="medium" flexDirection="column" margin={{ bottom: 'medium' }}>
         {showConnectionBlockedLabel ? <ConnectionBlockedLabel /> : <DownloadLabel />}
         <DownloadProgress />
       </Flex>
-      <Flex $flexDirection="column">
+      <Flex flexDirection="column">
         {showResumeDownloadButton ? <ResumeDownloadButton /> : <PauseDownloadButton />}
       </Flex>
     </Flex>

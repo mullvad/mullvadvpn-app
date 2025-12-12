@@ -19,7 +19,7 @@ export function RestartDaemonFooter() {
 
   return (
     <>
-      <FlexColumn $gap="medium">
+      <FlexColumn gap="medium">
         <Button onClick={handleTryAgain} disabled={daemonStatus && daemonStatus !== 'stopped'}>
           <Button.Text>
             {

@@ -1,14 +1,15 @@
 import styled from 'styled-components';
 
 import { Spinner } from '../../../lib/components';
+import { FlexColumn } from '../../../lib/components/flex-column';
+import { View } from '../../../lib/components/view';
 import { useSelector } from '../../../redux/store';
 import { AppMainHeader } from '../../app-main-header';
-import { Container, Layout } from '../../Layout';
 import Map from '../../Map';
 import NotificationArea from '../../NotificationArea';
 import { ConnectionPanel } from './components';
 
-const StyledContainer = styled(Container)({
+const StyledFlexColumn = styled(FlexColumn)({
   position: 'relative',
 });
 
@@ -48,12 +49,12 @@ export function MainView() {
     connection.status.state === 'connecting' || connection.status.state === 'disconnecting';
 
   return (
-    <Layout>
+    <View>
       <AppMainHeader size="basedOnLoginStatus" variant="basedOnConnectionStatus">
         <AppMainHeader.AccountButton />
         <AppMainHeader.SettingsButton />
       </AppMainHeader>
-      <StyledContainer>
+      <StyledFlexColumn flexGrow={1}>
         <Map />
         <Content>
           <StyledNotificationArea />
@@ -64,7 +65,7 @@ export function MainView() {
             <ConnectionPanel />
           </StyledMain>
         </Content>
-      </StyledContainer>
-    </Layout>
+      </StyledFlexColumn>
+    </View>
   );
 }

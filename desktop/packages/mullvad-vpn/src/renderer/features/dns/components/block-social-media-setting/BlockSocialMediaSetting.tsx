@@ -9,7 +9,7 @@ export function BlockSocialMediaSetting() {
       <ListItem.Item>
         <ListItem.Content>
           <BlockSocialMediaSwitch>
-            <FlexRow $padding={{ left: 'medium' }}>
+            <FlexRow padding={{ left: 'medium' }}>
               <BlockSocialMediaSwitch.Label variant="bodySmall">
                 {
                   // TRANSLATORS: Label for settings that enables block of social media.

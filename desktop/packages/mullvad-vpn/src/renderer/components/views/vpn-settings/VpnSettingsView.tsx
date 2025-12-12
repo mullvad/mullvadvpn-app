@@ -6,16 +6,11 @@ import {
   LockdownModeSetting,
   QuantumResistantSetting,
 } from '../../../features/tunnel/components';
+import { FlexColumn } from '../../../lib/components/flex-column';
+import { View } from '../../../lib/components/view';
 import { useHistory } from '../../../lib/history';
 import { AppNavigationHeader } from '../..';
 import { BackAction } from '../../KeyboardNavigation';
-import {
-  Layout,
-  SettingsContainer,
-  SettingsContent,
-  SettingsGroup,
-  SettingsStack,
-} from '../../Layout';
 import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
 import SettingsHeader, { HeaderTitle } from '../../SettingsHeader';
@@ -33,72 +28,48 @@ export function VpnSettingsView() {
   const { pop } = useHistory();
 
   return (
-    <BackAction action={pop}>
-      <Layout>
-        <SettingsContainer>
-          <NavigationContainer>
-            <AppNavigationHeader
-              title={
-                // TRANSLATORS: Title label in navigation bar
-                messages.pgettext('vpn-settings-view', 'VPN settings')
-              }
-            />
+    <View backgroundColor="darkBlue">
+      <BackAction action={pop}>
+        <NavigationContainer>
+          <AppNavigationHeader
+            title={
+              // TRANSLATORS: Title label in navigation bar
+              messages.pgettext('vpn-settings-view', 'VPN settings')
+            }
+          />
 
-            <NavigationScrollbars>
+          <NavigationScrollbars>
+            <View.Content>
               <SettingsHeader>
                 <HeaderTitle>{messages.pgettext('vpn-settings-view', 'VPN settings')}</HeaderTitle>
               </SettingsHeader>
 
-              <SettingsContent>
-                <SettingsStack>
-                  <SettingsGroup>
-                    <AutoStartSetting />
-                    <AutoConnectSetting />
-                  </SettingsGroup>
+              <FlexColumn gap="medium">
+                <FlexColumn>
+                  <AutoStartSetting />
+                  <AutoConnectSetting />
+                </FlexColumn>
 
-                  <SettingsGroup>
-                    <AllowLanSetting />
-                  </SettingsGroup>
+                <AllowLanSetting />
 
-                  <SettingsGroup>
-                    <DnsBlockerSettings />
-                    <CustomDnsSettings />
-                  </SettingsGroup>
+                <FlexColumn>
+                  <DnsBlockerSettings />
+                  <CustomDnsSettings />
+                </FlexColumn>
 
-                  <SettingsGroup>
-                    <EnableIpv6Setting />
-                  </SettingsGroup>
-
-                  <SettingsGroup>
-                    <KillSwitchSetting />
-                    <LockdownModeSetting />
-                  </SettingsGroup>
-
-                  <SettingsGroup>
-                    <AntiCensorshipListItem />
-                  </SettingsGroup>
-
-                  <SettingsGroup>
-                    <QuantumResistantSetting />
-                  </SettingsGroup>
-
-                  <SettingsGroup>
-                    <IpVersionSetting />
-                  </SettingsGroup>
-
-                  <SettingsGroup>
-                    <MtuSetting />
-                  </SettingsGroup>
-
-                  <SettingsGroup>
-                    <IpOverrideSettings />
-                  </SettingsGroup>
-                </SettingsStack>
-              </SettingsContent>
-            </NavigationScrollbars>
-          </NavigationContainer>
-        </SettingsContainer>
-      </Layout>
-    </BackAction>
+                <EnableIpv6Setting />
+                <KillSwitchSetting />
+                <LockdownModeSetting />
+                <AntiCensorshipListItem />
+                <QuantumResistantSetting />
+                <IpVersionSetting />
+                <MtuSetting />
+                <IpOverrideSettings />
+              </FlexColumn>
+            </View.Content>
+          </NavigationScrollbars>
+        </NavigationContainer>
+      </BackAction>
+    </View>
   );
 }

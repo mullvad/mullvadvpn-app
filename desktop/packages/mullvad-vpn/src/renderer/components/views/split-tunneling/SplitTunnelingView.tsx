@@ -1,10 +1,10 @@
 import styled from 'styled-components';
 
 import { strings } from '../../../../shared/constants';
+import { View } from '../../../lib/components/view';
 import { useHistory } from '../../../lib/history';
 import { AppNavigationHeader } from '../..';
 import { BackAction } from '../../KeyboardNavigation';
-import { Layout, SettingsContainer } from '../../Layout';
 import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
 import { LinuxSettings, Settings } from './components';
@@ -33,18 +33,16 @@ function SplitTunnelingInner() {
   return (
     <>
       <StyledPageCover $show={browsing} />
-      <BackAction action={pop}>
-        <Layout>
-          <SettingsContainer>
-            <NavigationContainer>
-              <AppNavigationHeader title={strings.splitTunneling} />
-              <StyledNavigationScrollbars ref={scrollbarsRef}>
-                {showLinuxSettings ? <LinuxSettings /> : <Settings />}
-              </StyledNavigationScrollbars>
-            </NavigationContainer>
-          </SettingsContainer>
-        </Layout>
-      </BackAction>
+      <View backgroundColor="darkBlue">
+        <BackAction action={pop}>
+          <NavigationContainer>
+            <AppNavigationHeader title={strings.splitTunneling} />
+            <StyledNavigationScrollbars ref={scrollbarsRef}>
+              <View.Content>{showLinuxSettings ? <LinuxSettings /> : <Settings />}</View.Content>
+            </StyledNavigationScrollbars>
+          </NavigationContainer>
+        </BackAction>
+      </View>
     </>
   );
 }

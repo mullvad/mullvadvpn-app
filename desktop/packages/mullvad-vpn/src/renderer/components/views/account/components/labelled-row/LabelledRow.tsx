@@ -7,7 +7,7 @@ type LabelledRowProps = FlexColumnProps & {
 
 export function LabelledRow({ label, children, ...props }: LabelledRowProps) {
   return (
-    <FlexColumn $gap="tiny" {...props}>
+    <FlexColumn gap="tiny" {...props}>
       <Text variant="labelTiny" color="whiteAlpha60">
         {label}
       </Text>

@@ -51,7 +51,7 @@ export default function ClipboardLabel(props: IProps) {
       <StyledLabel aria-hidden={obscured} {...otherProps}>
         {obscured ? '●●●● ●●●● ●●●● ●●●●' : (displayValue ?? value)}
       </StyledLabel>
-      <Flex $gap="medium">
+      <Flex gap="medium">
         {obscureValue !== false && (
           <IconButton
             onClick={toggleObscured}

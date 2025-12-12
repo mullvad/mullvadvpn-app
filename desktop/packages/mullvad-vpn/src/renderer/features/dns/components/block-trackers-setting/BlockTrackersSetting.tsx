@@ -9,7 +9,7 @@ export function BlockTrackersSetting() {
       <ListItem.Item>
         <ListItem.Content>
           <BlockTrackersSwitch>
-            <FlexRow $padding={{ left: 'medium' }}>
+            <FlexRow padding={{ left: 'medium' }}>
               <BlockTrackersSwitch.Label variant="bodySmall">
                 {
                   // TRANSLATORS: Label for settings that enables tracker blocking.

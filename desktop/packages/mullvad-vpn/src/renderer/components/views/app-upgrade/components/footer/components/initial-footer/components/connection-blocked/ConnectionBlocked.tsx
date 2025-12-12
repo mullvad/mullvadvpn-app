@@ -5,11 +5,11 @@ import { UpgradeButton } from '../../../../../upgrade-button';
 
 export function ConnectionBlocked() {
   return (
-    <Flex $padding="large" $flexDirection="column">
-      <Flex $gap="medium" $flexDirection="column" $margin={{ bottom: 'medium' }}>
+    <Flex padding="large" flexDirection="column">
+      <Flex gap="medium" flexDirection="column" margin={{ bottom: 'medium' }}>
         <ConnectionBlockedLabel />
       </Flex>
-      <Flex $flexDirection="column">
+      <Flex flexDirection="column">
         <UpgradeButton disabled>
           {
             // TRANSLATORS: Button text to download and install an update

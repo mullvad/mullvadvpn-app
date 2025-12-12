@@ -18,7 +18,7 @@ export type ChangelogListProps = {
 
 export function ChangelogList({ changelog }: ChangelogListProps) {
   return (
-    <StyledList as="ul" $flexDirection="column" $gap="medium">
+    <StyledList as="ul" flexDirection="column" gap="medium">
       {changelog.map((item, i) => (
         <BodySmall as="li" key={`${item}${i}`} color="whiteAlpha60">
           {item}

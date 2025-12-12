@@ -167,7 +167,7 @@ export function RedeemVoucherResponse() {
 
   if (submitting) {
     return (
-      <Flex $alignItems="center" $margin={{ top: 'small' }} $gap="small">
+      <Flex alignItems="center" margin={{ top: 'small' }} gap="small">
         <Spinner size="medium" />
         <StyledProgressResponse>
           {messages.pgettext('redeem-voucher-view', 'Verifying voucher...')}
@@ -255,7 +255,7 @@ export function RedeemVoucherAlert(props: IRedeemVoucherAlertProps) {
           </Button>,
         ]}
         close={props.onClose}>
-        <Flex $justifyContent="center" $margin={{ top: 'large', bottom: 'medium' }}>
+        <Flex justifyContent="center" margin={{ top: 'large', bottom: 'medium' }}>
           <IconBadge state="positive" />
         </Flex>
         <StyledTitle>

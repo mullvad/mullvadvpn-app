@@ -38,7 +38,7 @@ export function ApplicationList<T extends IApplication>({
     const items = applications.slice().sort((a, b) => a.name.localeCompare(b.name));
 
     return (
-      <Flex $flexDirection="column" data-testid={props['data-testid']}>
+      <Flex flexDirection="column" data-testid={props['data-testid']}>
         <List items={items} getKey={applicationGetKey}>
           {rowRenderer}
         </List>

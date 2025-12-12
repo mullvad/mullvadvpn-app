@@ -15,7 +15,7 @@ export function MacOsPermissionFooter() {
 
   return (
     <>
-      <FlexColumn $gap="medium">
+      <FlexColumn gap="medium">
         <FooterText>
           {
             // TRANSLATORS: Message in launch view when the background process permissions have been revoked.
