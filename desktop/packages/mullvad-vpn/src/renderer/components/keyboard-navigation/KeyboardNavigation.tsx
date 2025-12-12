@@ -1,7 +1,7 @@
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
-import { useHistory } from '../../lib/history';
 import { useEffectEvent } from '../../lib/utility-hooks';
+import { useEffectRegisterEventListener } from './hooks';
 
 interface IKeyboardNavigationProps {
   children: React.ReactElement | Array<React.ReactElement>;
@@ -9,7 +9,6 @@ interface IKeyboardNavigationProps {
 
 // Listens for and handles keyboard shortcuts
 export function KeyboardNavigation(props: IKeyboardNavigationProps) {
-  const { pop } = useHistory();
   const [backAction, setBackActionImpl] = useState<BackActionFn>();
 
   // Since the backaction is now a function we need to make sure it's not called when setting the
@@ -18,28 +17,12 @@ export function KeyboardNavigation(props: IKeyboardNavigationProps) {
     setBackActionImpl(() => backAction);
   }, []);
 
-  const handleKeyDown = useCallback(
-    (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        if (event.shiftKey && window.env.development) {
-          pop(true);
-        } else {
-          backAction?.();
-        }
-      }
-    },
-    [pop, backAction],
-  );
-
-  useEffect(() => {
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [handleKeyDown]);
+  useEffectRegisterEventListener(backAction);
 
   return <BackActionTracker registerBackAction={setBackAction}>{props.children}</BackActionTracker>;
 }
 
-type BackActionFn = () => void;
+export type BackActionFn = () => void;
 
 interface IBackActionContext {
   parentBackAction?: BackActionFn;
