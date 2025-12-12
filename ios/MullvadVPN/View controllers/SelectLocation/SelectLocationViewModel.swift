@@ -305,10 +305,9 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
         entryRecentsDataSource.reload(recentsInteractor.fetch(context: .entry))
         exitRecentsDataSource.reload(recentsInteractor.fetch(context: .exit))
         let subtitle: (LocationNode, AllLocationDataSource) -> LocalizedStringKey? = { node, dataSource in
-            guard (node.userSelectedRelays.customListSelection?.isList ?? false) == false else {
-                return nil
-            }
-            guard let selectedRoot = dataSource.node(by: UserSelectedRelays(locations: node.locations))
+            guard
+                node.userSelectedRelays.customListSelection?.isList != true,
+                let selectedRoot = dataSource.node(by: UserSelectedRelays(locations: node.locations))
             else {
                 return nil
             }
