@@ -352,7 +352,6 @@ pub async fn test_connected_state(
                             protocol: TransportProtocol::Udp,
                         },
                     quantum_resistant: _,
-                    proxy: None,
                     obfuscation: _,
                     entry_endpoint: None,
                     tunnel_interface: _,
