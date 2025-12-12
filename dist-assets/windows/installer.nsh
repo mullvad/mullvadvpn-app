@@ -673,6 +673,55 @@ ManifestSupportedOS "{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"
 
 !define RemoveCurrentDevice '!insertmacro "RemoveCurrentDevice"'
 
+#
+# RemoveInstallDirContents
+#
+# Deletes $INSTDIR without failing if the directory still exists but is empty.
+# This works around an annoying issue where apps keep open file handles to the directory.
+#
+!macro RemoveInstallDirContents
+
+	log::Log "RemoveInstallDirContents()"
+
+	Push $0
+	Push $1
+
+	RMDir /r "$INSTDIR"
+	IfErrors 0 RemoveInstallDirContents_done
+	ClearErrors
+
+	FindFirst $0 $1 "$INSTDIR\*"
+	ClearErrors
+	StrCmp $1 "" RemoveInstallDirContents_done
+
+RemoveInstallDirContents_check:
+
+	${If} $1 != "."
+	${AndIf} $1 != ".."
+		log::Log "Failed to remove non-empty directory"
+		SetErrors
+		Goto RemoveInstallDirContents_findClose
+	${EndIf}
+
+	FindNext $0 $1
+	IfErrors 0 RemoveInstallDirContents_check
+
+	# If error flag is set, we are done
+	ClearErrors
+
+RemoveInstallDirContents_findClose:
+
+	FindClose $0
+
+RemoveInstallDirContents_done:
+
+	Pop $1
+	Pop $0
+
+!macroend
+
+!define RemoveInstallDirContents '!insertmacro "RemoveInstallDirContents"'
+
 
 #
 # customInit
@@ -1138,7 +1187,7 @@ ManifestSupportedOS "{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"
 	# Remove application files
 	log::Log "Deleting $INSTDIR"
 	ClearErrors
-	RMDir /r $INSTDIR
+	${RemoveInstallDirContents}
 	IfErrors 0 customRemoveFiles_final_cleanup
 
 	log::Log "Failed to remove application files"
