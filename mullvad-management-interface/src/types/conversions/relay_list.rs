@@ -247,7 +247,6 @@ impl From<mullvad_types::relay_list::WireguardRelay> for proto::Relay {
             provider: relay.provider.clone(),
             weight: relay.weight,
             endpoint_data: {
-                // TODO: Rename this type
                 let mullvad_types::relay_list::WireguardRelayEndpointData {
                     public_key,
                     daita,
