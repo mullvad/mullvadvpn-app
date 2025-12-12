@@ -11,6 +11,7 @@ let util: MockedTestUtils;
 let routes: RoutesObjectModel;
 
 const VALID_PORT = 12345;
+const INVALID_PORT = 123;
 
 test.describe('WireGuard port settings', () => {
   const startup = async () => {
@@ -138,5 +139,21 @@ test.describe('WireGuard port settings', () => {
 
     const automaticOption = routes.wireguardPort.selectors.automaticOption();
     await expect(automaticOption).toHaveAttribute('aria-selected', 'true');
+  });
+
+  test('Should reset custom port on blur', async () => {
+    const input = routes.wireguardPort.selectors.customInput();
+
+    await input.fill(VALID_PORT.toString());
+    await expect(input).toHaveAttribute('aria-invalid', 'false');
+    await input.blur();
+
+    await expect(input).toHaveValue('');
+
+    await input.fill(INVALID_PORT.toString());
+    await expect(input).toHaveAttribute('aria-invalid', 'true');
+    await input.blur();
+
+    await expect(input).toHaveValue('');
   });
 });

@@ -4,6 +4,7 @@ import { UseTextFieldState } from '../../../../lib/components/text-field';
 
 type InputOptionContextType = {
   inputRef: React.RefObject<HTMLInputElement | null>;
+  triggerRef: React.RefObject<HTMLLIElement | null>;
   labelId: string | undefined;
   inputState: UseTextFieldState;
 };

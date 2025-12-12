@@ -20,6 +20,7 @@ function InputOption<T>({
   ...props
 }: InputOptionProps<T>) {
   const inputRef = React.useRef<HTMLInputElement>(null);
+  const triggerRef = React.useRef<HTMLLIElement>(null);
   const labelId = React.useId();
   const inputState = useTextField({
     inputRef,
@@ -29,7 +30,11 @@ function InputOption<T>({
   });
 
   return (
-    <InputOptionProvider inputRef={inputRef} labelId={labelId} inputState={inputState}>
+    <InputOptionProvider
+      inputRef={inputRef}
+      triggerRef={triggerRef}
+      labelId={labelId}
+      inputState={inputState}>
       <Listbox.Option level={1} {...props}>
         <InputOptionTrigger>
           <Listbox.Option.Item>
