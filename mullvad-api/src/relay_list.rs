@@ -38,23 +38,30 @@ impl RelayListProxy {
         &self,
         prev_etag: Option<ETag>,
     ) -> impl Future<Output = Result<Option<DiskRelayList>, rest::Error>> {
-        let request = self.relay_list_response(prev_etag);
+        let request = self.relay_list_response(prev_etag.clone());
 
         async move {
-            let Some((response, etag)) = request.await? else {
-                return Ok(None);
-            };
+            let response = request.await?;
 
-            let relay_list: ServerRelayList = response.deserialize().await?;
+            match prev_etag {
+                Some(_) if response.status() == StatusCode::NOT_MODIFIED => Ok(None),
+                _ => {
+                    // If the API returns a response, it should contain an ETag.
+                    let etag =
+                        Self::extract_etag(&response).ok_or(rest::Error::InvalidHeaderError)?;
 
-            Ok(Some(relay_list.cache(etag)))
+                    let relay_list: ServerRelayList = response.deserialize().await?;
+
+                    Ok(Some(relay_list.cache(etag)))
+                }
+            }
         }
     }
 
     pub fn relay_list_response(
         &self,
         prev_etag: Option<ETag>,
-    ) -> impl Future<Output = Result<Option<(rest::Response<Incoming>, ETag)>, rest::Error>> {
+    ) -> impl Future<Output = Result<rest::Response<Incoming>, rest::Error>> {
         let service = self.handle.service.clone();
         let request = self.handle.factory.get("app/v1/relays");
 
@@ -67,26 +74,16 @@ impl RelayListProxy {
                 request = request.header(header::IF_NONE_MATCH, &prev_tag.0)?;
             }
 
-            let response = service.request(request).await?;
-
-            match prev_etag {
-                Some(_) if response.status() == StatusCode::NOT_MODIFIED => Ok(None),
-                _ => {
-                    // If the API returns a response, it should contain an ETag.
-                    let etag = Self::extract_etag(&response)?;
-                    Ok(Some((response, etag)))
-                }
-            }
+            service.request(request).await
         }
     }
 
-    pub fn extract_etag(response: &rest::Response<Incoming>) -> Result<ETag, rest::Error> {
+    pub fn extract_etag(response: &rest::Response<Incoming>) -> Option<ETag> {
         response
             .headers()
             .get(header::ETAG)
             .and_then(|s| s.to_str().ok())
             .map(|s| ETag(s.to_owned()))
-            .ok_or(rest::Error::InvalidHeaderError)
     }
 }
 
@@ -112,7 +109,7 @@ pub struct DiskRelayList {
 /// The etag is used to version the API response, and is used to check if the response has changed since the last request.
 /// This can potentially save some bandwidth, especially important for the server side.
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct ETag(String);
+pub struct ETag(pub String);
 
 impl ServerRelayList {
     fn cache(self, etag: ETag) -> DiskRelayList {
