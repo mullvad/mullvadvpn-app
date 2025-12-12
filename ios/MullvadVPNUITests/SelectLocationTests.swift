@@ -51,4 +51,44 @@ class SelectLocationTests: LoggedInWithTimeUITestCase {
 
         XCTAssertTrue(app.buttons[AccessibilityIdentifier.obfuscationFilterPill.asString].exists)
     }
+
+    func testMultihopToggle() {
+        addTeardownBlock {
+            HeaderBar(self.app)
+                .tapSettingsButton()
+
+            SettingsPage(self.app)
+                .tapMultihopCell()
+
+            MultihopPage(self.app)
+                .tapEnableSwitchIfOn()
+                .tapBackButton()
+
+            SettingsPage(self.app)
+                .tapDoneButton()
+        }
+
+        HeaderBar(app)
+            .tapSettingsButton()
+
+        SettingsPage(app)
+            .verifyMultihopOff()
+            .tapDoneButton()
+
+        TunnelControlPage(app)
+            .tapSelectLocationButton()
+
+        SelectLocationPage(app)
+            .tapMenuButton()
+            .verifyMultihopOff()
+            .tapToggleMultihop()
+            .tapDoneButton()
+
+        HeaderBar(app)
+            .tapSettingsButton()
+
+        SettingsPage(app)
+            .verifyMultihopOn()
+            .tapDoneButton()
+    }
 }

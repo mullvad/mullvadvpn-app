@@ -138,6 +138,8 @@ class MockSelectLocationViewModel: SelectLocationViewModel {
         }
     }
 
+    func toggleMultihop() { isMultihopEnabled.toggle() }
+
     func onFilterTapped(_ filter: SelectLocationFilter) {
         print("show filter: \(filter)")
     }

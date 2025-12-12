@@ -3,7 +3,8 @@ import SwiftUI
 struct LineOverlayView: View {
     var iconPositions: [AnyHashable: CGRect]
     let isExpanded: Bool
-
+    private let iconPadding: CGFloat = 2
+    private let lineWidth: CGFloat = 1
     // icon position pairs from top to bottom
     var iconPositionPairs: [((AnyHashable, CGRect), (AnyHashable, CGRect))] {
         let sorted =
@@ -17,40 +18,30 @@ struct LineOverlayView: View {
             }
     }
     var body: some View {
-        ZStack {
+        ZStack(alignment: .topLeading) {
             ForEach(
                 iconPositionPairs,
                 id: \.0.0
             ) { (curr, next) in
-                Line(top: curr.1.bottomCenter, bottom: next.1.topCenter)
-                    .stroke(Color.mullvadTextPrimary.opacity(0.6))
+                let length = max(next.1.topCenter.y - curr.1.bottomCenter.y - 2 * iconPadding, 0)
+                Color.mullvadTextPrimary.opacity(0.6)
+                    .frame(
+                        width: lineWidth,
+                        height: length
+                    )
+                    .padding(.top, curr.1.bottomCenter.y + iconPadding)
+                    .padding(.leading, curr.1.midX - lineWidth / 2)
                     .opacity(isExpanded ? 1 : 0)
+                    .animation(.default, value: curr.1.midX)
                     .id(curr.0)
+                    .transition(
+                        .asymmetric(
+                            insertion: .opacity.animation(.default.delay(0.2)),
+                            removal: .identity
+                        )
+                    )
             }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .geometryGroup()
-    }
-}
-
-private struct Line: Shape {
-    var top: CGPoint
-    var bottom: CGPoint
-    private let iconPadding: CGFloat = 2
-
-    var animatableData: AnimatablePair<CGFloat, CGFloat> {
-        get {
-            AnimatablePair(top.y, bottom.y)
-        }
-        set {
-            top = CGPoint(x: top.x, y: newValue.first)
-            bottom = CGPoint(x: bottom.x, y: newValue.second)
-        }
-    }
-    func path(in rect: CGRect) -> Path {
-        var path = Path()
-        path.move(to: top.applying(.init(translationX: 0, y: iconPadding)))
-        path.addLine(to: bottom.applying(.init(translationX: 0, y: -iconPadding)))
-        return path
+        .animation(.default, value: iconPositionPairs.count)
     }
 }
