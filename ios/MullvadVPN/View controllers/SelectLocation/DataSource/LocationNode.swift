@@ -159,7 +159,7 @@ extension LocationNode {
         }
         return nil
     }
-    
+
     func pathToRoot() -> [String] {
         var path: [String] = []
         var current: LocationNode? = self
@@ -171,7 +171,6 @@ extension LocationNode {
 
         return path
     }
-
 
     fileprivate func recursivelyCopyChildren(withParent parent: LocationNode) -> [LocationNode] {
         children.map { $0.copy(withParent: parent) }

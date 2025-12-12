@@ -97,4 +97,3 @@ private extension Collection where Element == LocationDataSourceProtocol {
         self.compactMap(predicate)
     }
 }
-
