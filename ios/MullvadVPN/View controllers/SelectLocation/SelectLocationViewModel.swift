@@ -46,7 +46,6 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
     @Published var searchText: String = ""
     @Published var showDAITAInfo: Bool
 
-    private let allLocationsDataSource = AllLocationDataSource()
     private let exitLocationsDataSource = AllLocationDataSource()
     private let entryLocationsDataSource = AllLocationDataSource()
     private let entryCustomListsDataSource: CustomListsDataSource
