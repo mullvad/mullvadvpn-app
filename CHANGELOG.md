@@ -39,6 +39,11 @@ Line wrap the file at 100 chars.                                              Th
 ## [2025.14] - 2025-12-09
 This release is identical to 2025.14-beta3.
 
+### Security
+#### Windows
+- Warn user before clearing firewall rules during failed downgrades. This fix only applies to
+  downgrades to this version and future versions.
+
 
 ## [2025.14-beta3] - 2025-12-01
 ### Fixed
