@@ -34,8 +34,10 @@ import net.mullvad.mullvadvpn.repository.SplitTunnelingRepository
 import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
 import net.mullvad.mullvadvpn.ui.MainActivity
 import net.mullvad.mullvadvpn.ui.obfuscation.MainActivityAltBrowser
+import net.mullvad.mullvadvpn.ui.obfuscation.MainActivityAltBrowserNight
 import net.mullvad.mullvadvpn.ui.obfuscation.MainActivityAltGame
 import net.mullvad.mullvadvpn.ui.obfuscation.MainActivityAltNews
+import net.mullvad.mullvadvpn.ui.obfuscation.MainActivityAltNinja
 import net.mullvad.mullvadvpn.ui.obfuscation.MainActivityAltNotes
 import net.mullvad.mullvadvpn.ui.obfuscation.MainActivityAltWeather
 import net.mullvad.mullvadvpn.ui.obfuscation.MainActivityDefault
@@ -148,6 +150,8 @@ val uiModule = module {
             ComponentName(androidContext(), MainActivityAltWeather::class.java),
             ComponentName(androidContext(), MainActivityAltBrowser::class.java),
             ComponentName(androidContext(), MainActivityAltNotes::class.java),
+            ComponentName(androidContext(), MainActivityAltBrowserNight::class.java),
+            ComponentName(androidContext(), MainActivityAltNinja::class.java),
         )
     }
     single { ApplicationsProvider(get(), get(named(SELF_PACKAGE_NAME))) }

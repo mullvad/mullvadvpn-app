@@ -83,4 +83,14 @@ enum class AppObfuscation(val path: String, val iconId: Int, val labelId: Int) {
         R.drawable.weather_preview,
         R.string.app_name_weather,
     ),
+    NINJA(
+        ".ui.obfuscation.MainActivityAltNinja",
+        R.drawable.ninja_preview,
+        R.string.app_name_ninja,
+    ),
+    NIGHT_BROWSER(
+        ".ui.obfuscation.MainActivityAltBrowserNight",
+        R.drawable.browser_night_preview,
+        R.string.app_name_browser,
+    ),
 }

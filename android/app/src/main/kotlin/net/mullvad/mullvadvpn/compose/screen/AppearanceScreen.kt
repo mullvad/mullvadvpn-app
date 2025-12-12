@@ -9,12 +9,16 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
@@ -122,16 +126,27 @@ private fun ColumnScope.Content(
     LazyVerticalGrid(
         modifier = Modifier.fillMaxWidth().weight(1f),
         state = lazyGridState,
-        columns = GridCells.Fixed(3),
+        columns = GridCells.Adaptive(GRID_MIN_WIDTH),
     ) {
         items(items = uiState.availableObfuscations, key = { it.path }) { item ->
-            AppIconAndTitleGridItem(
-                modifier = Modifier.padding(bottom = 24.dp),
-                appTitle = stringResource(item.labelId),
-                appIcon = item.iconId,
-                isSelected = item == uiState.currentAppObfuscation,
+            Card(
                 onClick = { onObfuscationSelected(item) },
-            )
+                colors =
+                    if (item == uiState.currentAppObfuscation) {
+                        CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiary)
+                    } else {
+                        CardDefaults.cardColors()
+                    },
+                modifier = Modifier.padding(all = Dimens.smallPadding),
+            ) {
+                AppIconAndTitleGridItem(
+                    modifier =
+                        Modifier.align(Alignment.CenterHorizontally)
+                            .padding(all = Dimens.smallPadding),
+                    appTitle = stringResource(item.labelId),
+                    appIcon = item.iconId,
+                )
+            }
         }
     }
 }
@@ -152,3 +167,5 @@ private fun Description() {
 private fun Loading() {
     MullvadCircularProgressIndicatorMedium()
 }
+
+private val GRID_MIN_WIDTH = 120.dp
