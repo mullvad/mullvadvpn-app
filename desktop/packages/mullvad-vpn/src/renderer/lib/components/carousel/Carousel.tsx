@@ -15,7 +15,7 @@ import {
 } from './components';
 import { useFocusCarousel, useHandleKeyboardNavigation } from './hooks';
 
-const StyledCarousel = styled(Flex)``;
+export const StyledCarousel = styled.section``;
 
 export type CarouselProps = React.ComponentPropsWithRef<'section'>;
 
@@ -27,15 +27,14 @@ function CarouselImpl({ children, ...props }: CarouselProps) {
 
   return (
     <StyledCarousel
-      as={'section'}
       ref={carouselRef}
-      flexDirection="column"
-      gap="medium"
       onKeyDown={handleKeyboardNavigation}
       aria-roledescription="carousel"
       tabIndex={-1}
       {...props}>
-      {children}
+      <Flex flexDirection="column" gap="medium">
+        {children}
+      </Flex>
     </StyledCarousel>
   );
 }
