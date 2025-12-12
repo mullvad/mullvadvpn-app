@@ -35,6 +35,9 @@ Line wrap the file at 100 chars.                                              Th
 - Upgrade split-tunneling to use cgroups v2, instead of the deprecated cgroups v1.
   Users on Linux kernels prior to 5.13 will not be able to use split tunneling.
 
+#### Windows
+- Make Mullvad service run with split tunneling unavailable.
+
 
 ## [2025.14] - 2025-12-09
 This release is identical to 2025.14-beta3.
