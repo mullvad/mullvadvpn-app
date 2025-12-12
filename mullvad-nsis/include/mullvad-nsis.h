@@ -70,9 +70,9 @@ Status close_hogging_processes(const uint16_t *install_path,
                                uint16_t *error_message_out,
                                uintptr_t max_error_message_size);
 
-/// Return whether is empty or contains only directories and no files.
+/// Return whether directory is empty or contains only directories/symlinks and no files.
 ///
-/// If the directory is empty or contains only directories, this returns `Status::Ok`.
+/// If the directory is empty or contains only directories or symlinks, this returns `Status::Ok`.
 /// If the directory contains files, this returns `Status::FileExists`.
 /// If it fails for any other reason, this returns `Status::OsError`.
 ///

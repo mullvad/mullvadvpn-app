@@ -26,6 +26,8 @@ struct RMSession {
 
 impl Drop for RMSession {
     fn drop(&mut self) {
+        // SAFETY: This is definitely safe assuming we are the sole owner of the handle.
+        // It is likely safe with invalid handles too.
         unsafe { RestartManager::RmEndSession(self.handle) };
         // NOTE: Ignoring error here
     }
@@ -36,7 +38,7 @@ impl Drop for RMSession {
 ///
 /// On success, this returns whether to continue. If the user decides to cancel, it returns false.
 ///
-/// This also returns false if Restart Manager refuses to continue without a reboot.
+/// This fails if Restart Manager refuses to continue without a reboot.
 ///
 /// # Note
 ///
@@ -54,6 +56,7 @@ pub fn terminate_processes(
     let mut strsessionkey: [u16; RestartManager::CCH_RM_SESSION_KEY as usize + 1] = [0; _];
     let mut handle = 0;
 
+    // SAFETY: `strsessionkey` has a length of `RestartManager::CCH_RM_SESSION_KEY + 1`
     let status =
         unsafe { RestartManager::RmStartSession(&raw mut handle, 0, strsessionkey.as_mut_ptr()) };
     if status != ERROR_SUCCESS {
@@ -71,6 +74,7 @@ pub fn terminate_processes(
 
     // Don't stop the Mullvad VPN service
     // TODO: consider letting RestartManager stopping the service
+    // SAFETY: `MULLVAD_SERVICE` is a valid pointer to a null-terminated UTF-16 string
     let status = unsafe {
         RestartManager::RmAddFilter(
             handle,
@@ -118,6 +122,8 @@ pub fn terminate_processes(
         vec![RestartManager::RM_PROCESS_INFO::default(); n_affected_apps as usize];
 
     loop {
+        // SAFETY: `rg_affected_apps` points to a valid array of `n_affected_apps` `RM_PROCESS_INFO`
+        // structs
         let status = unsafe {
             RestartManager::RmGetList(
                 handle,
@@ -161,11 +167,9 @@ pub fn terminate_processes(
         return Ok(false);
     }
 
+    // SAFETY: Trivially safe, probably even if handle is invalid
     let result =
         unsafe { RestartManager::RmShutdown(handle, RestartManager::RmForceShutdown as _, None) };
-
-    // TODO: Handle different results differently?
-    // https://learn.microsoft.com/en-us/windows/win32/api/restartmanager/nf-restartmanager-rmshutdown
 
     if result == ERROR_SUCCESS {
         Ok(true)
@@ -194,6 +198,7 @@ fn ask_for_confirmation(
         message.push(s);
         message.push(widestr!("\nDo you wish to continue?"));
         let message = WideCString::from_ustr(message).expect("does not contain null");
+        // SAFETY: The title and `message` are valid pointers to null-terminated UTF-16 strings
         let result = unsafe {
             MessageBoxW(
                 GetActiveWindow(),
@@ -207,6 +212,7 @@ fn ask_for_confirmation(
         let mut message = widestr!("Some applications must be closed:\n\n").to_owned();
         message.push(s);
         let message = WideCString::from_ustr(message).expect("does not contain null");
+        // SAFETY: The title and `message` are valid pointers to null-terminated UTF-16 strings
         unsafe {
             MessageBoxW(
                 GetActiveWindow(),

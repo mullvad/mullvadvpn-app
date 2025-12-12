@@ -31,7 +31,7 @@ Line wrap the file at 100 chars.                                              Th
   and a BSOD when the driver was improperly unloaded.
 
 #### Windows
-- Detect and show which processes are preventing an update.
+- Detect and kill processes are preventing an update.
 
 ### Changed
 #### Linux

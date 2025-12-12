@@ -209,6 +209,7 @@ unsafe fn write_error_into(
         return;
     }
 
+    // SAFETY: `error_message_out` is valid for writes of `max_error_message_size` chars
     let error_message_out: &mut [u16] =
         unsafe { slice::from_raw_parts_mut(error_message_out, max_error_message_size) };
     let err = format!("{err:?}");
@@ -218,9 +219,9 @@ unsafe fn write_error_into(
     error_message_out[len] = 0; // null terminator
 }
 
-/// Return whether is empty or contains only directories and no files.
+/// Return whether directory is empty or contains only directories/symlinks and no files.
 ///
-/// If the directory is empty or contains only directories, this returns `Status::Ok`.
+/// If the directory is empty or contains only directories or symlinks, this returns `Status::Ok`.
 /// If the directory contains files, this returns `Status::FileExists`.
 /// If it fails for any other reason, this returns `Status::OsError`.
 ///
