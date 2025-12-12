@@ -12,7 +12,7 @@ use std::{
 use tokio::fs::File;
 
 use mullvad_api::{
-    DiskRelayList, ETag, RelayListProxy, availability::ApiAvailability, rest::MullvadRestHandle,
+    CachedRelayList, ETag, RelayListProxy, availability::ApiAvailability, rest::MullvadRestHandle,
 };
 use mullvad_relay_selector::RelaySelector;
 use mullvad_types::relay_list::RelayList;
@@ -139,7 +139,7 @@ impl RelayListUpdater {
 
     async fn consume_new_relay_list(
         &mut self,
-        result: Result<Option<DiskRelayList>, mullvad_api::Error>,
+        result: Result<Option<CachedRelayList>, mullvad_api::Error>,
     ) {
         match result {
             Ok(Some(relay_list)) => {
@@ -171,12 +171,12 @@ impl RelayListUpdater {
         api_handle: ApiAvailability,
         proxy: RelayListProxy,
         tag: Option<ETag>,
-    ) -> impl Future<Output = Result<Option<DiskRelayList>, mullvad_api::Error>> + use<> {
+    ) -> impl Future<Output = Result<Option<CachedRelayList>, mullvad_api::Error>> + use<> {
         async fn download_future(
             api_handle: ApiAvailability,
             proxy: RelayListProxy,
             tag: Option<ETag>,
-        ) -> Result<Option<DiskRelayList>, mullvad_api::Error> {
+        ) -> Result<Option<CachedRelayList>, mullvad_api::Error> {
             let available = api_handle.wait_background();
             let req = proxy.relay_list(tag);
             available.await?;
@@ -193,7 +193,7 @@ impl RelayListUpdater {
         )
     }
 
-    async fn update_cache(&mut self, new_relay_list: DiskRelayList) -> Result<(), Error> {
+    async fn update_cache(&mut self, new_relay_list: CachedRelayList) -> Result<(), Error> {
         // Save the new relay list to the cache file
         if let Err(error) = Self::cache_relays(&self.cache_path, &new_relay_list).await {
             log::error!(
@@ -202,10 +202,10 @@ impl RelayListUpdater {
             );
         }
         // Cache the ETag so that we send the correct one in the next request
-        self.etag = new_relay_list.etag;
+        self.etag = new_relay_list.etag().cloned();
 
         // Propagate the new relay list to the relay selector
-        let (relay_list, bridge_list) = new_relay_list.relay_list.into_internal_repr();
+        let (relay_list, bridge_list) = new_relay_list.into_internal_repr();
         (self.on_update)(&relay_list);
         self.relay_selector.set_relays(relay_list);
         self.relay_selector.set_bridges(bridge_list);
@@ -213,7 +213,7 @@ impl RelayListUpdater {
     }
 
     /// Write a `RelayList` to the cache file.
-    async fn cache_relays(cache_path: &Path, relays: &DiskRelayList) -> Result<(), Error> {
+    async fn cache_relays(cache_path: &Path, relays: &CachedRelayList) -> Result<(), Error> {
         log::debug!("Writing relays cache to {}", cache_path.display());
         let mut file = File::create(cache_path)
             .await
