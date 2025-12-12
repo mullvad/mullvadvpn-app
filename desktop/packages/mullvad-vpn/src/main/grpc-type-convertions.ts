@@ -6,9 +6,7 @@ import {
   AfterDisconnect,
   ApiAccessMethodSettings,
   AuthFailedError,
-  BridgeSettings,
   BridgesMethod,
-  BridgeType,
   ConnectionConfig,
   Constraint,
   CustomLists,
@@ -27,11 +25,9 @@ import {
   FirewallPolicyError,
   FirewallPolicyErrorType,
   IAppVersionInfo,
-  IBridgeConstraints,
   ICustomList,
   IDevice,
   IObfuscationEndpoint,
-  IProxyEndpoint,
   IRelayListCity,
   IRelayListCountry,
   IRelayListHostname,
@@ -49,7 +45,6 @@ import {
   ObfuscationSettings,
   ObfuscationType,
   Ownership,
-  ProxyType,
   Quic,
   RelayLocation,
   RelayLocationGeographical,
@@ -107,22 +102,20 @@ function convertFromRelayListCity(city: grpcTypes.RelayListCity): IRelayListCity
   const cityObject = city.toObject();
   return {
     ...cityObject,
-    relays: city.getRelaysList().map(convertFromRelayListRelay),
+    relays: city
+      .getRelaysList()
+      .map(convertFromRelayListRelay)
+      // TODO: Remove once daemon only sends wireguard relays.
+      .filter((relay) => relay !== undefined),
   };
 }
 
-function convertFromRelayListRelay(relay: grpcTypes.Relay): IRelayListHostname {
+function convertFromRelayListRelay(relay: grpcTypes.Relay): IRelayListHostname | undefined {
   const relayObject = relay.toObject();
 
-  // The relay type is determined by the variant of the extra endpoint data
+  // TODO: This should be removed once daemon only sends wireguard relays.
   const wireguard = relayObject.endpointData?.wireguard;
-  const bridge = relayObject.endpointData?.bridge;
-
-  const endpointType = wireguard
-    ? 'wireguard'
-    : bridge
-      ? 'bridge'
-      : /*This case should never happen ..*/ 'bridge';
+  if (!wireguard) return undefined;
 
   const daita = wireguard ? wireguard.daita : false;
   const quic = wireguard?.quic ? quicFromRelayType(wireguard.quic) : undefined;
@@ -130,7 +123,6 @@ function convertFromRelayListRelay(relay: grpcTypes.Relay): IRelayListHostname {
 
   return {
     ...relayObject,
-    endpointType,
     daita,
     quic,
     lwo,
@@ -345,7 +337,6 @@ function convertFromTunnelStateRelayInfo(
       endpoint: {
         ...state.tunnelEndpoint,
         protocol: convertFromTransportProtocol(state.tunnelEndpoint.protocol),
-        proxy: state.tunnelEndpoint.proxy && convertFromProxyEndpoint(state.tunnelEndpoint.proxy),
         obfuscationEndpoint:
           state.tunnelEndpoint.obfuscation &&
           state.tunnelEndpoint.obfuscation.single &&
@@ -409,19 +400,6 @@ function convertFromFeatureIndicator(
   }
 }
 
-function convertFromProxyEndpoint(proxyEndpoint: grpcTypes.ProxyEndpoint.AsObject): IProxyEndpoint {
-  const proxyTypeMap: Record<grpcTypes.ProxyEndpoint.ProxyType, ProxyType> = {
-    [grpcTypes.ProxyEndpoint.ProxyType.CUSTOM]: 'custom',
-    [grpcTypes.ProxyEndpoint.ProxyType.SHADOWSOCKS]: 'shadowsocks',
-  };
-
-  return {
-    ...proxyEndpoint,
-    protocol: convertFromTransportProtocol(proxyEndpoint.protocol),
-    proxyType: proxyTypeMap[proxyEndpoint.proxyType],
-  };
-}
-
 function convertFromObfuscationEndpoint(
   obfuscationType: grpcTypes.ObfuscationEndpoint.ObfuscationType,
   obfuscationEndpoint: grpcTypes.Endpoint.AsObject,
@@ -460,10 +438,7 @@ function convertFromEntryEndpoint(entryEndpoint: grpcTypes.Endpoint.AsObject) {
 
 export function convertFromSettings(settings: grpcTypes.Settings): ISettings | undefined {
   const settingsObject = settings.toObject();
-  // TODO: remove
-  const bridgeState = 'off';
   const relaySettings = convertFromRelaySettings(settings.getRelaySettings())!;
-  const bridgeSettings = convertFromBridgeSettings(settings.getBridgeSettings()!);
   const tunnelOptions = convertFromTunnelOptions(settingsObject.tunnelOptions!);
   const splitTunnel = settingsObject.splitTunnel ?? { enableExclusions: false, appsList: [] };
   const obfuscationSettings = convertFromObfuscationSettings(settingsObject.obfuscationSettings);
@@ -472,9 +447,7 @@ export function convertFromSettings(settings: grpcTypes.Settings): ISettings | u
   const relayOverrides = settingsObject.relayOverridesList;
   return {
     ...settings.toObject(),
-    bridgeState,
     relaySettings,
-    bridgeSettings,
     tunnelOptions,
     splitTunnel,
     obfuscationSettings,
@@ -528,35 +501,6 @@ function convertFromRelaySettings(
   } else {
     return undefined;
   }
-}
-
-function convertFromBridgeSettings(bridgeSettings: grpcTypes.BridgeSettings): BridgeSettings {
-  const bridgeSettingsObject = bridgeSettings.toObject();
-
-  const detailsMap: Record<grpcTypes.BridgeSettings.BridgeType, BridgeType> = {
-    [grpcTypes.BridgeSettings.BridgeType.NORMAL]: 'normal',
-    [grpcTypes.BridgeSettings.BridgeType.CUSTOM]: 'custom',
-  };
-  const type = detailsMap[bridgeSettingsObject.bridgeType];
-
-  const normalSettings = bridgeSettingsObject.normal;
-  const locationConstraint = convertFromLocationConstraint(
-    bridgeSettings.getNormal()?.getLocation(),
-  );
-  const location = wrapConstraint(locationConstraint);
-  const providers = normalSettings!.providersList;
-  const ownership = convertFromOwnership(normalSettings!.ownership);
-
-  const normal = {
-    location,
-    providers,
-    ownership,
-  };
-
-  const grpcCustom = bridgeSettings.getCustom();
-  const custom = grpcCustom ? convertFromCustomProxy(grpcCustom) : undefined;
-
-  return { type, normal, custom };
 }
 
 function convertFromConnectionConfig(
@@ -614,11 +558,9 @@ function convertFromGeographicConstraint(
 
 function convertFromTunnelOptions(tunnelOptions: grpcTypes.TunnelOptions.AsObject): ITunnelOptions {
   return {
-    wireguard: {
-      mtu: tunnelOptions.mtu,
-      quantumResistant: convertFromQuantumResistantState(tunnelOptions.quantumResistant?.state),
-      daita: tunnelOptions.daita,
-    },
+    mtu: tunnelOptions.mtu,
+    quantumResistant: convertFromQuantumResistantState(tunnelOptions.quantumResistant?.state),
+    daita: tunnelOptions.daita,
     generic: {
       enableIpv6: tunnelOptions.enableIpv6,
     },
@@ -882,16 +824,6 @@ export function convertToRelayConstraints(
   relayConstraints.setOwnership(convertToOwnership(constraints.ownership));
 
   return relayConstraints;
-}
-
-export function convertToNormalBridgeSettings(
-  constraints: IBridgeConstraints,
-): grpcTypes.BridgeSettings.BridgeConstraints {
-  const normalBridgeSettings = new grpcTypes.BridgeSettings.BridgeConstraints();
-  normalBridgeSettings.setLocation(convertToLocation(unwrapConstraint(constraints.location)));
-  normalBridgeSettings.setProvidersList(constraints.providers);
-
-  return normalBridgeSettings;
 }
 
 function convertToLocation(

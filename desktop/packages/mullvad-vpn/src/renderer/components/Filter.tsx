@@ -5,7 +5,7 @@ import { Ownership } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import { Button, Icon } from '../lib/components';
 import { useRelaySettingsUpdater } from '../lib/constraint-updater';
-import { filterLocations, filterLocationsByEndPointType } from '../lib/filter-locations';
+import { filterLocations } from '../lib/filter-locations';
 import { colors } from '../lib/foundations';
 import { useHistory } from '../lib/history';
 import { useNormalRelaySettings } from '../lib/relay-settings-hooks';
@@ -112,8 +112,7 @@ function useFilteredOwnershipOptions(providers: string[], ownership: Ownership):
   const locations = useSelector((state) => state.settings.relayLocations);
 
   const availableOwnershipOptions = useMemo(() => {
-    const relayListForEndpointType = filterLocationsByEndPointType(locations);
-    const relaylistForFilters = filterLocations(relayListForEndpointType, ownership, providers);
+    const relaylistForFilters = filterLocations(locations, ownership, providers);
 
     const filteredRelayOwnership = relaylistForFilters.flatMap((country) =>
       country.cities.flatMap((city) => city.relays.map((relay) => relay.owned)),
@@ -138,8 +137,7 @@ export function useFilteredProviders(providers: string[], ownership: Ownership):
   const locations = useSelector((state) => state.settings.relayLocations);
 
   const availableProviders = useMemo(() => {
-    const relayListForEndpointType = filterLocationsByEndPointType(locations);
-    const relaylistForFilters = filterLocations(relayListForEndpointType, ownership, providers);
+    const relaylistForFilters = filterLocations(locations, ownership, providers);
     return providersFromRelays(relaylistForFilters);
   }, [locations, ownership, providers]);
 
@@ -156,11 +154,10 @@ function providersFromRelays(relays: IRelayLocationCountryRedux[]) {
 
 function useProviders(): Record<string, boolean> {
   const relaySettings = useNormalRelaySettings();
-  const relayLocations = useSelector((state) => state.settings.relayLocations);
+  const locations = useSelector((state) => state.settings.relayLocations);
   const providerConstraint = relaySettings?.providers ?? [];
 
-  const relays = filterLocationsByEndPointType(relayLocations);
-  const providers = providersFromRelays(relays);
+  const providers = providersFromRelays(locations);
 
   // Empty containt array means that all providers are selected. No selection isn't possible.
   return Object.fromEntries(

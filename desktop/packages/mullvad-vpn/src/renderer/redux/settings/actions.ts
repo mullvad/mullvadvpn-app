@@ -10,7 +10,7 @@ import {
   RelayOverride,
 } from '../../../shared/daemon-rpc-types';
 import { IGuiSettingsState } from '../../../shared/gui-settings-state';
-import { BridgeSettingsRedux, IRelayLocationCountryRedux, RelaySettingsRedux } from './reducers';
+import { IRelayLocationCountryRedux, RelaySettingsRedux } from './reducers';
 
 export interface IUpdateGuiSettingsAction {
   type: 'UPDATE_GUI_SETTINGS';
@@ -50,11 +50,6 @@ export interface IUpdateLockdownModeAction {
 export interface IUpdateShowBetaReleasesAction {
   type: 'UPDATE_SHOW_BETA_NOTIFICATIONS';
   showBetaReleases: boolean;
-}
-
-export interface IUpdateBridgeSettingsAction {
-  type: 'UPDATE_BRIDGE_SETTINGS';
-  bridgeSettings: BridgeSettingsRedux;
 }
 
 export interface IUpdateWireguardMtuAction {
@@ -126,7 +121,6 @@ export type SettingsAction =
   | IUpdateEnableIpv6Action
   | IUpdateLockdownModeAction
   | IUpdateShowBetaReleasesAction
-  | IUpdateBridgeSettingsAction
   | IUpdateWireguardMtuAction
   | IUpdateWireguardQuantumResistantAction
   | IUpdateWireguardDaitaAction
@@ -197,13 +191,6 @@ function updateShowBetaReleases(showBetaReleases: boolean): IUpdateShowBetaRelea
   return {
     type: 'UPDATE_SHOW_BETA_NOTIFICATIONS',
     showBetaReleases,
-  };
-}
-
-function updateBridgeSettings(bridgeSettings: BridgeSettingsRedux): IUpdateBridgeSettingsAction {
-  return {
-    type: 'UPDATE_BRIDGE_SETTINGS',
-    bridgeSettings,
   };
 }
 
@@ -306,7 +293,6 @@ export default {
   updateEnableIpv6,
   updateLockdownMode,
   updateShowBetaReleases,
-  updateBridgeSettings,
   updateWireguardMtu,
   updateWireguardQuantumResistant,
   updateWireguardDaita,

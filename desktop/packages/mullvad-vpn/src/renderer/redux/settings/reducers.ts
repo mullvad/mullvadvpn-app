@@ -3,10 +3,7 @@ import { ISplitTunnelingApplication } from '../../../shared/application-types';
 import {
   AccessMethodSetting,
   ApiAccessMethodSettings,
-  BridgeState,
-  BridgeType,
   CustomLists,
-  CustomProxy,
   IDaitaSettings,
   IDnsOptions,
   IpVersion,
@@ -16,7 +13,6 @@ import {
   ObfuscationType,
   Ownership,
   Quic,
-  RelayEndpointType,
   RelayLocation,
   RelayOverride,
   RelayProtocol,
@@ -35,14 +31,6 @@ export type NormalRelaySettingsRedux = {
   };
 };
 
-export type NormalBridgeSettingsRedux = {
-  location: LiftedConstraint<RelayLocation>;
-  /** Providers are used to filter bridges and as bridge constraints for the daemon. */
-  providers: string[];
-  /** Ownership is used to filter bridges and as bridge constraints for the daemon. */
-  ownership: Ownership;
-};
-
 export type RelaySettingsRedux =
   | {
       normal: NormalRelaySettingsRedux;
@@ -55,12 +43,6 @@ export type RelaySettingsRedux =
       };
     };
 
-export type BridgeSettingsRedux = {
-  type: BridgeType;
-  normal: NormalBridgeSettingsRedux;
-  custom?: CustomProxy;
-};
-
 export interface IRelayLocationRelayRedux {
   hostname: string;
   provider: string;
@@ -69,7 +51,6 @@ export interface IRelayLocationRelayRedux {
   active: boolean;
   owned: boolean;
   weight: number;
-  endpointType: RelayEndpointType;
   daita: boolean;
   quic?: Quic;
   lwo: boolean;
@@ -97,8 +78,6 @@ export interface ISettingsReduxState {
   wireguardEndpointData: IWireguardEndpointData;
   allowLan: boolean;
   enableIpv6: boolean;
-  bridgeSettings: BridgeSettingsRedux;
-  bridgeState: BridgeState;
   lockdownMode: boolean;
   showBetaReleases: boolean;
   wireguard: {
@@ -142,16 +121,6 @@ const initialState: ISettingsReduxState = {
   wireguardEndpointData: { portRanges: [], udp2tcpPorts: [] },
   allowLan: false,
   enableIpv6: true,
-  bridgeSettings: {
-    type: 'normal',
-    normal: {
-      location: 'any',
-      providers: [],
-      ownership: Ownership.any,
-    },
-    custom: undefined,
-  },
-  bridgeState: 'auto',
   lockdownMode: false,
   showBetaReleases: false,
   wireguard: {
@@ -274,12 +243,6 @@ export default function (
       return {
         ...state,
         autoStart: action.autoStart,
-      };
-
-    case 'UPDATE_BRIDGE_SETTINGS':
-      return {
-        ...state,
-        bridgeSettings: action.bridgeSettings,
       };
 
     case 'UPDATE_DNS_OPTIONS':

@@ -32,27 +32,15 @@ export function getDefaultSettings(): ISettings {
     relaySettings: {
       normal: getDefaultRelaySettingsNormal(),
     },
-    bridgeSettings: {
-      type: 'normal',
-      normal: {
-        location: 'any',
-        providers: [],
-        ownership: Ownership.any,
-      },
-      custom: undefined,
-    },
-    bridgeState: 'auto',
     tunnelOptions: {
       generic: {
         enableIpv6: false,
       },
-      wireguard: {
-        mtu: undefined,
-        quantumResistant: true,
-        daita: {
-          enabled: false,
-          directOnly: false,
-        },
+      mtu: undefined,
+      quantumResistant: true,
+      daita: {
+        enabled: false,
+        directOnly: false,
       },
       dns: {
         state: 'default',
