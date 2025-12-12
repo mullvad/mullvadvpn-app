@@ -1193,6 +1193,11 @@ ManifestSupportedOS "{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"
 		Pop $0
 		Pop $1
 
+		${If} $0 != ${MULLVAD_SUCCESS}
+			log::Log "CloseHoggingProcesses failed:\n\n$1"
+			MessageBox MB_OK|MB_ICONSTOP "Failed to close conflicting processes:\n\n$1"
+		${EndIf}
+
 		# NOTE: We should not show the message again before exiting. electron-builder helpfully
 		# reruns the uninstaller multiple times before showing a hardcoded error message (see link
 		# above).
