@@ -116,6 +116,29 @@ final public class RecentConnectionsRepository: RecentConnectionsRepositoryProto
             recentConnectionsSubject.send(.failure(error))
         }
     }
+    
+    public func update(_ customList: UUID){
+        do {
+            var current = try read()
+            let removeDuplicates: ([UserSelectedRelays], UUID) -> [UserSelectedRelays] = { recents, id in
+                var currentRecents = recents.map({
+                    var new = $0
+                    if $0.customListSelection?.listId == id {
+                        return UserSelectedRelays(locations: $0.locations)
+                    }
+                    return $0
+                })
+                return Array(currentRecents.prefix(Int(self.maxLimit)))
+            }
+            let new = RecentConnections(
+                entryLocations: removeDuplicates(current.entryLocations, customList),
+                exitLocations: removeDuplicates(current.exitLocations, customList))
+            try write(new)
+            recentConnectionsSubject.send(.success(new))
+        } catch {
+            recentConnectionsSubject.send(.failure(error))
+        }
+    }
 }
 
 private extension RecentConnectionsRepository {

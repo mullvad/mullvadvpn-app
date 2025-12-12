@@ -248,8 +248,14 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
         guard let customList = customListInteractor.fetchAll().first(where: { $0.name == name }) else {
             return
         }
-        customListInteractor.delete(customList: customList)
-        customListsChanged()
+        recentsInteractor.deleteInvalid(customList.id)
+        refreshRecents()
+//        let entryRecentNode = entryRecentsDataSource.node(by: tunnelManager.settings.selectedEntryRelays)
+//        let exitRecentNode = entryRecentsDataSource.node(by: tunnelManager.settings.selectedEntryRelays)
+//
+//        tunnelManager.updateSettings([.relayConstraints(RelayConstraints(entryLocations: .only(entryRecentNode?.userSelectedRelays ?? [])))])
+//        customListInteractor.delete(customList: customList, with: <#[RelayLocation]#>)
+//        customListsChanged()
     }
 
     func showEditCustomList(name: String) {

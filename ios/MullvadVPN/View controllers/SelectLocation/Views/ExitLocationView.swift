@@ -174,7 +174,7 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
         if viewModel.isRecentsEnabled {
             scrollProxy.scrollTo(0, anchor: .top)
         } else if let selectedLocation = context.selectedLocation {
-            scrollProxy.scrollTo(selectedLocation, anchor: .center)
+            scrollProxy.scrollTo(selectedLocation.code, anchor: .center)
         }
     }
 }
