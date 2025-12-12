@@ -17,4 +17,6 @@ enum NsisStatus
 {
 	GENERAL_ERROR = 0,
 	SUCCESS,
+	FILE_EXISTS,
+	CANCELLED
 };

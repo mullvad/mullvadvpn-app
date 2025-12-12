@@ -2,6 +2,8 @@ LIBRARY cleanup
 
 EXPORTS
 
+CloseHoggingProcesses
+IsEmptyDir
 MigrateCache
 RemoveLogsAndCache
 RemoveSettings
