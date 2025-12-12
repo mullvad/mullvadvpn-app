@@ -25,6 +25,9 @@ Line wrap the file at 100 chars.                                              Th
 ### Add
 - Add support for additional languages.
 
+### Changed
+- Improve reliability of the bridge API connection method.
+
 ## [2025.10 - 2025-12-01]
 ### Added
 - Allow using port 443 for UDP-over-TCP.

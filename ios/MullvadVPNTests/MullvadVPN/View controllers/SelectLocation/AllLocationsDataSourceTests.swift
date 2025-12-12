@@ -83,16 +83,18 @@ class AllLocationsDataSourceTests: XCTestCase {
     }
 
     func testNodeByLocation() throws {
+        let rootNode = RootLocationNode(children: dataSource.nodes)
+
         var nodeByLocation = dataSource.node(by: .init(locations: [.country("es")]))
-        var nodeByCode = dataSource.nodes.first?.descendantNodeFor(codes: ["es"])
+        var nodeByCode = rootNode.descendantNodeFor(codes: ["es"])
         XCTAssertEqual(nodeByLocation, nodeByCode)
 
         nodeByLocation = dataSource.node(by: .init(locations: [.city("es", "mad")]))
-        nodeByCode = dataSource.nodes.first?.descendantNodeFor(codes: ["es", "mad"])
+        nodeByCode = rootNode.descendantNodeFor(codes: ["es", "mad"])
         XCTAssertEqual(nodeByLocation, nodeByCode)
 
         nodeByLocation = dataSource.node(by: .init(locations: [.hostname("es", "mad", "es1-wireguard")]))
-        nodeByCode = dataSource.nodes.first?.descendantNodeFor(codes: ["es1-wireguard"])
+        nodeByCode = rootNode.descendantNodeFor(codes: ["es1-wireguard"])
         XCTAssertEqual(nodeByLocation, nodeByCode)
     }
 
@@ -163,7 +165,7 @@ class AllLocationsDataSourceTests: XCTestCase {
     }
 
     func testExcludeLocationIncludesAncestors() throws {
-        let excludedRelays = UserSelectedRelays(locations: [.hostname("es", "mad", "es1-wireguard")])
+        let excludedRelays = UserSelectedRelays(locations: [.hostname("jp", "tyo", "jp1-wireguard")])
         dataSource.setExcludedNode(excludedSelection: excludedRelays)
         let excludedNode = dataSource.node(by: excludedRelays)!
 

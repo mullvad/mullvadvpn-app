@@ -44,6 +44,7 @@ class TunnelManagerTests: XCTestCase {
         let shadowsocksLoader = ShadowsocksLoader(
             cache: ShadowsocksConfigurationCacheStub(),
             relaySelector: ShadowsocksRelaySelectorStub(relays: .mock()),
+            tunnelSettings: LatestTunnelSettings(),
             settingsUpdater: SettingsUpdater(listener: TunnelSettingsListener())
         )
         addressCache = REST.AddressCache(

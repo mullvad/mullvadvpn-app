@@ -23,11 +23,11 @@ class RelaySelectorTests: XCTestCase {
 
     func testCountryConstraint() throws {
         let constraints = RelayConstraints(
-            exitLocations: .only(UserSelectedRelays(locations: [.country("es")]))
+            exitLocations: .only(UserSelectedRelays(locations: [.country("jp")]))
         )
 
         let result = try pickRelay(by: constraints, in: sampleRelays, failedAttemptCount: 0)
-        XCTAssertEqual(result.relay.hostname, "es1-wireguard")
+        XCTAssertEqual(result.relay.hostname, "jp1-wireguard")
     }
 
     func testCityConstraint() throws {
@@ -141,13 +141,14 @@ class RelaySelectorTests: XCTestCase {
             return RelayWithLocation(relay: $0, serverLocation: location)
         }
 
-        let sampleLocation = try XCTUnwrap(sampleRelays.locations["se-got"])
-        let selectedRelay = RelaySelector.WireGuard.closestRelay(
+        let sampleLocation = try XCTUnwrap(sampleRelays.locations["es-mad"])
+        let selectedRelay = RelaySelector.closestRelay(
             to: CLLocationCoordinate2D(latitude: sampleLocation.latitude, longitude: sampleLocation.longitude),
             using: relayWithLocations
         )
 
-        XCTAssertEqual(selectedRelay?.hostname, "se10-wireguard")
+        // One of the five relays in Madrid is the closest.
+        XCTAssertEqual(selectedRelay?.location, "es-mad")
     }
 
     func testClosestShadowsocksRelay() throws {
@@ -155,30 +156,13 @@ class RelaySelectorTests: XCTestCase {
             exitLocations: .only(UserSelectedRelays(locations: [.city("se", "sto")]))
         )
 
-        let selectedRelay = RelaySelector.Shadowsocks.closestRelay(
+        let selectedRelay = RelaySelector.Shadowsocks.closestBridge(
             location: constraints.exitLocations,
-            port: constraints.port,
-            filter: constraints.filter,
             in: sampleRelays
         )
 
-        XCTAssertEqual(selectedRelay?.hostname, "se-sto-br-001")
-    }
-
-    func testClosestShadowsocksRelayIsRandomWhenNoContraintsAreSatisfied() throws {
-        let constraints = RelayConstraints(
-            exitLocations: .only(UserSelectedRelays(locations: [.country("INVALID COUNTRY")]))
-        )
-
-        let selectedRelay = try XCTUnwrap(
-            RelaySelector.Shadowsocks.closestRelay(
-                location: constraints.exitLocations,
-                port: constraints.port,
-                filter: constraints.filter,
-                in: sampleRelays
-            ))
-
-        XCTAssertTrue(sampleRelays.bridge.relays.contains(selectedRelay))
+        // One of the five relays in Stockholm is the closest.
+        XCTAssertEqual(selectedRelay?.location, "se-sto")
     }
 
     func testRelayFilterConstraintWithOwnedOwnership() throws {
