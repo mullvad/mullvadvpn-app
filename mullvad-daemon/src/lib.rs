@@ -3370,7 +3370,7 @@ impl Daemon {
                         let matching_city = relay == city.name;
                         for settings_relay in &mut city.relays {
                             let matching_relay = relay == settings_relay.hostname;
-                            if matching_city || matching_country || matching_protocol {
+                            if matching_relay || matching_city || matching_country {
                                 settings_relay.active = active;
                             }
                         }
