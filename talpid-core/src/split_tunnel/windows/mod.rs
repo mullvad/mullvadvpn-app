@@ -105,10 +105,192 @@ pub enum Error {
     /// Resetting in the engaged state risks leaking into the tunnel
     #[error("Failed to reset driver because it is engaged")]
     CannotResetEngaged,
+
+    /// Split tunneling is unavailable
+    #[error("Split tunneling is unavailable. Review logs for details.")]
+    Unavailable,
 }
 
 /// Manages applications whose traffic to exclude from the tunnel.
 pub struct SplitTunnel {
+    state: SplitTunnelState,
+}
+
+enum SplitTunnelState {
+    Active(ActiveSplitTunnelState),
+    Inactive(InactiveSplitTunnelState),
+}
+
+impl SplitTunnel {
+    /// Initialize the split tunnel device.
+    ///
+    /// If initialization fails, split tunneling will be disabled/unavailable.
+    pub fn new(
+        runtime: tokio::runtime::Handle,
+        resource_dir: PathBuf,
+        daemon_tx: Weak<mpsc::UnboundedSender<TunnelCommand>>,
+        volume_update_rx: mpsc::UnboundedReceiver<()>,
+        route_manager: RouteManagerHandle,
+    ) -> Self {
+        let state = ActiveSplitTunnelState::new(
+            runtime,
+            resource_dir,
+            daemon_tx,
+            volume_update_rx,
+            route_manager,
+        )
+        .map(SplitTunnelState::Active)
+        .unwrap_or_else(|err| {
+            log::error!(
+                "{}",
+                err.display_chain_with_msg("Failed to initialize split tunneling")
+            );
+            SplitTunnelState::Inactive(InactiveSplitTunnelState::new())
+        });
+
+        Self { state }
+    }
+
+    /// Set a list of applications to exclude from the tunnel.
+    pub fn set_paths<T: AsRef<OsStr>>(
+        &mut self,
+        paths: &[T],
+        result_tx: oneshot::Sender<Result<(), Error>>,
+    ) {
+        match &mut self.state {
+            SplitTunnelState::Active(state) => state.set_paths(paths, result_tx),
+            SplitTunnelState::Inactive(state) => state.set_paths(paths, result_tx),
+        }
+    }
+
+    /// Set a list of applications to exclude from the tunnel.
+    pub fn set_paths_sync<T: AsRef<OsStr>>(&mut self, paths: &[T]) -> Result<(), Error> {
+        match &mut self.state {
+            SplitTunnelState::Active(state) => state.set_paths_sync(paths),
+            SplitTunnelState::Inactive(state) => state.set_paths_sync(paths),
+        }
+    }
+
+    /// Instructs the driver to redirect traffic from sockets bound to 0.0.0.0, ::, or the
+    /// tunnel addresses (if any) to the default route.
+    pub fn set_tunnel_addresses(&mut self, metadata: Option<&TunnelMetadata>) -> Result<(), Error> {
+        match &mut self.state {
+            SplitTunnelState::Active(state) => state.set_tunnel_addresses(metadata),
+            SplitTunnelState::Inactive(state) => state.set_tunnel_addresses(metadata),
+        }
+    }
+
+    /// Instructs the driver to stop redirecting tunnel traffic and INADDR_ANY.
+    pub fn clear_tunnel_addresses(&mut self) -> Result<(), Error> {
+        match &mut self.state {
+            SplitTunnelState::Active(state) => state.clear_tunnel_addresses(),
+            SplitTunnelState::Inactive(state) => state.clear_tunnel_addresses(),
+        }
+    }
+
+    /// Returns a handle used for interacting with the split tunnel module.
+    pub fn handle(&self) -> SplitTunnelHandle {
+        match &self.state {
+            SplitTunnelState::Active(state) => state.handle(),
+            SplitTunnelState::Inactive(state) => state.handle(),
+        }
+    }
+}
+
+/// Dummy implementation of split tunneling that fails in the "engaged" state.
+///
+/// The fake implementation can be considered _engaged_ when two conditions are met:
+/// 1. There is a tunnel (i.e., there are tunnel IP addresses registered).
+/// 2. There are paths to exclude.
+///
+/// Otherwise, it is _non-engaged_.
+///
+/// This is used to fail when split tunneling should be engaged due to user settings,
+/// but work when we would not have been in the engaged state anyway (e.g.
+/// when the user is not excluding any apps, has no tunnel, or has disabled split tunneling).
+struct InactiveSplitTunnelState {
+    paths: Vec<OsString>,
+    tunnel_addresses: Vec<IpAddr>,
+}
+
+#[derive(PartialEq, Eq)]
+enum InactiveSplitTunnelStateState {
+    NonEngaged,
+    Engaged,
+}
+
+impl InactiveSplitTunnelState {
+    pub fn new() -> Self {
+        Self {
+            paths: vec![],
+            tunnel_addresses: vec![],
+        }
+    }
+
+    pub fn set_paths<T: AsRef<OsStr>>(
+        &mut self,
+        paths: &[T],
+        result_tx: oneshot::Sender<Result<(), Error>>,
+    ) {
+        let _ = result_tx.send(self.set_paths_sync(paths));
+    }
+
+    pub fn set_paths_sync<T: AsRef<OsStr>>(&mut self, paths: &[T]) -> Result<(), Error> {
+        self.paths = paths.iter().map(|p| p.as_ref().to_owned()).collect();
+        self.get_action_result()
+    }
+
+    pub fn set_tunnel_addresses(&mut self, metadata: Option<&TunnelMetadata>) -> Result<(), Error> {
+        self.tunnel_addresses = metadata.map(|m| m.ips.clone()).unwrap_or_default();
+        self.get_action_result()
+    }
+
+    pub fn clear_tunnel_addresses(&mut self) -> Result<(), Error> {
+        self.tunnel_addresses.clear();
+        self.get_action_result()
+    }
+
+    pub fn handle(&self) -> SplitTunnelHandle {
+        SplitTunnelHandle {
+            excluded_processes: None,
+        }
+    }
+
+    /// Current inactive split tunnel state state.
+    ///
+    /// # Non-engaged state
+    ///
+    /// If there is no tunnel or no paths to exclude, then split tunneling is supposed to be
+    /// inactive.
+    ///
+    /// In this case, no action should fail (unless it causes a transition to 'engaged').
+    ///
+    /// # Engaged state
+    ///
+    /// If there is a tunnel as well as paths to exclude, then split tunneling is supposed to be
+    /// active.
+    ///
+    /// In this case, any action should fail (unless it causes a transition to 'non-engaged').
+    fn current_state(&self) -> InactiveSplitTunnelStateState {
+        if self.tunnel_addresses.is_empty() || self.paths.is_empty() {
+            InactiveSplitTunnelStateState::NonEngaged
+        } else {
+            InactiveSplitTunnelStateState::Engaged
+        }
+    }
+
+    /// Result of an action based on the current state.
+    fn get_action_result(&self) -> Result<(), Error> {
+        if self.current_state() == InactiveSplitTunnelStateState::NonEngaged {
+            Ok(())
+        } else {
+            Err(Error::Unavailable)
+        }
+    }
+}
+
+/// Manages applications whose traffic to exclude from the tunnel.
+struct ActiveSplitTunnelState {
     runtime: tokio::runtime::Handle,
     request_tx: RequestTx,
     event_thread: Option<std::thread::JoinHandle<()>>,
@@ -141,17 +323,17 @@ struct InterfaceAddresses {
 /// Cloneable handle for interacting with the split tunnel module.
 #[derive(Debug, Clone)]
 pub struct SplitTunnelHandle {
-    excluded_processes: Weak<RwLock<HashMap<usize, ExcludedProcess>>>,
+    excluded_processes: Option<Weak<RwLock<HashMap<usize, ExcludedProcess>>>>,
 }
 
 impl SplitTunnelHandle {
     /// Return processes that are currently being excluded, including
     /// their pids, paths, and reason for being excluded.
     pub fn get_processes(&self) -> Result<Vec<ExcludedProcess>, Error> {
-        let processes = self
-            .excluded_processes
-            .upgrade()
-            .ok_or(Error::SplitTunnelDown)?;
+        let Some(excluded_procs) = &self.excluded_processes else {
+            return Ok(vec![]);
+        };
+        let processes = excluded_procs.upgrade().ok_or(Error::SplitTunnelDown)?;
         let processes = processes.read().unwrap();
         Ok(processes.values().cloned().collect())
     }
@@ -164,7 +346,7 @@ enum EventResult {
     Quit,
 }
 
-impl SplitTunnel {
+impl ActiveSplitTunnelState {
     /// Initialize the split tunnel device.
     pub fn new(
         runtime: tokio::runtime::Handle,
@@ -181,7 +363,7 @@ impl SplitTunnel {
         let (event_thread, quit_event) =
             Self::spawn_event_listener(handle, excluded_processes.clone())?;
 
-        Ok(SplitTunnel {
+        Ok(ActiveSplitTunnelState {
             runtime,
             request_tx,
             event_thread: Some(event_thread),
@@ -573,7 +755,7 @@ impl SplitTunnel {
     }
 
     /// Set a list of applications to exclude from the tunnel.
-    pub fn set_paths_sync<T: AsRef<OsStr>>(&self, paths: &[T]) -> Result<(), Error> {
+    pub fn set_paths_sync<T: AsRef<OsStr>>(&mut self, paths: &[T]) -> Result<(), Error> {
         self.send_request(Request::SetPaths(
             paths
                 .iter()
@@ -584,7 +766,7 @@ impl SplitTunnel {
 
     /// Set a list of applications to exclude from the tunnel.
     pub fn set_paths<T: AsRef<OsStr>>(
-        &self,
+        &mut self,
         paths: &[T],
         result_tx: oneshot::Sender<Result<(), Error>>,
     ) {
@@ -690,12 +872,12 @@ impl SplitTunnel {
     /// Returns a handle used for interacting with the split tunnel module.
     pub fn handle(&self) -> SplitTunnelHandle {
         SplitTunnelHandle {
-            excluded_processes: Arc::downgrade(&self.excluded_processes),
+            excluded_processes: Some(Arc::downgrade(&self.excluded_processes)),
         }
     }
 }
 
-impl Drop for SplitTunnel {
+impl Drop for ActiveSplitTunnelState {
     fn drop(&mut self) {
         if let Some(_event_thread) = self.event_thread.take()
             && let Err(error) = self.quit_event.set()
@@ -742,7 +924,7 @@ impl SplitTunnelDefaultRouteChangeHandlerContext {
     }
 
     pub fn register_ips(&self) -> Result<(), Error> {
-        SplitTunnel::send_request_inner(
+        ActiveSplitTunnelState::send_request_inner(
             &self.request_tx,
             Request::RegisterIps(self.addresses.clone()),
         )
