@@ -16,7 +16,7 @@ protocol RecentsInteractorProtocol {
     func toggle()
     func fetch(context: MultihopContext) -> [UserSelectedRelays]
     func updateSelectedLocations(_ selectedLocations: UserSelectedRelays, for context: MultihopContext)
-    func deleteInvalid(_ customList: UUID)
+    func cleanup(_ customList: UUID)
 }
 
 class RecentsInteractor: RecentsInteractorProtocol {
@@ -109,7 +109,7 @@ class RecentsInteractor: RecentsInteractorProtocol {
         )
     }
     
-    func deleteInvalid(_ customList: UUID) {
+    func cleanup(_ customList: UUID) {
         repository.update(customList)
     }
 }

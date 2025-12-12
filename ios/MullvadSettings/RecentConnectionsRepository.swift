@@ -118,8 +118,8 @@ final public class RecentConnectionsRepository: RecentConnectionsRepositoryProto
             recentConnectionsSubject.send(.failure(error))
         }
     }
-    
-    public func update(_ customList: UUID){
+
+    public func update(_ deletedCustomList: UUID) {
         do {
             var current = try read()
             let removeDuplicates: ([UserSelectedRelays], UUID) -> [UserSelectedRelays] = { recents, id in
@@ -133,8 +133,8 @@ final public class RecentConnectionsRepository: RecentConnectionsRepositoryProto
                 return Array(currentRecents.prefix(Int(self.maxLimit)))
             }
             let new = RecentConnections(
-                entryLocations: removeDuplicates(current.entryLocations, customList),
-                exitLocations: removeDuplicates(current.exitLocations, customList))
+                entryLocations: removeDuplicates(current.entryLocations, deletedCustomList),
+                exitLocations: removeDuplicates(current.exitLocations, deletedCustomList))
             try write(new)
             recentConnectionsSubject.send(.success(new))
         } catch {

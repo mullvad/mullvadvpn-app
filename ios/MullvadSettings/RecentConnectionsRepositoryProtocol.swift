@@ -18,6 +18,6 @@ public protocol RecentConnectionsRepositoryProtocol {
     func disable()
     func enable(_ selectedEntryRelays: UserSelectedRelays?, selectedExitRelays: UserSelectedRelays)
     func add(_ selectedEntryRelays: UserSelectedRelays, selectedExitRelays: UserSelectedRelays)
-    func update(_ customList: UUID)
+    func update(_ deletedCustomList: UUID)
     func initiate()
 }
