@@ -3,9 +3,9 @@ use crate::{
     constraints::Constraint,
     custom_list::CustomListsSettings,
     relay_constraints::{
-        BridgeSettings, GeographicLocationConstraint, LocationConstraint, ObfuscationSettings,
-        RelayConstraints, RelayOverride, RelaySettings, RelaySettingsFormatter,
-        SelectedObfuscation, WireguardConstraints,
+        GeographicLocationConstraint, LocationConstraint, ObfuscationSettings, RelayConstraints,
+        RelayOverride, RelaySettings, RelaySettingsFormatter, SelectedObfuscation,
+        WireguardConstraints,
     },
     wireguard,
 };
@@ -82,8 +82,6 @@ impl Serialize for SettingsVersion {
 #[serde(default)]
 pub struct Settings {
     pub relay_settings: RelaySettings,
-    // TODO: remove
-    pub bridge_settings: BridgeSettings,
     pub obfuscation_settings: ObfuscationSettings,
     /// All of the custom relay lists
     pub custom_lists: CustomListsSettings,
@@ -275,7 +273,6 @@ impl Default for Settings {
                 ..Default::default()
             }),
             update_default_location: false,
-            bridge_settings: BridgeSettings::default(),
             obfuscation_settings: ObfuscationSettings {
                 selected_obfuscation: SelectedObfuscation::Auto,
                 ..Default::default()

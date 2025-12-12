@@ -175,7 +175,9 @@ async fn test_custom_access_methods_gui(
 
     let gui_test = "api-access-methods.spec";
     let relay_list = mullvad_client.get_relay_locations().await.unwrap();
-    let relay_selector = RelaySelector::from_list(SelectorConfig::default(), relay_list);
+    let bridge_list = mullvad_client.get_bridges().await.unwrap();
+    let relay_selector =
+        RelaySelector::from_list(SelectorConfig::default(), relay_list, bridge_list);
     let access_method = relay_selector
         .get_bridge_forced()
         .expect("`test_shadowsocks` needs at least one shadowsocks relay to execute. Found none in relay list.");
