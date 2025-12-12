@@ -151,7 +151,6 @@ impl ServerRelayList {
             countries
         };
 
-        // Note: Wireguard::extract_relays needs to be called before Bridges::extract_relays because <TODO>
         let wireguard_endpointdata = wireguard.endpoint_data();
         let countries = wireguard.extract_relays(countries);
         let bridge_list = bridge.extract_relays(&countries);
@@ -295,7 +294,7 @@ fn inclusive_range_from_pair<T>(pair: (T, T)) -> RangeInclusive<T> {
 }
 
 impl Wireguard {
-    /// Consumes `self` and return all its relays to as a map from X to [`RelayListCountry`]
+    /// Consumes `self` and group all relays with their geographical location, keyed by country code.
     fn extract_relays(
         self,
         mut countries: BTreeMap<String, RelayListCountry>,
@@ -432,6 +431,8 @@ struct Lwo {}
 /// Mullvad Bridge servers are used for the Bridge API access method.
 ///
 /// The were previously also used for proxying to traffic OpenVPN servers.
+///
+/// See [Relay] for details.
 #[derive(Debug, Deserialize, Serialize)]
 struct Bridges {
     shadowsocks: Vec<relay_list::ShadowsocksEndpointData>,
@@ -440,7 +441,9 @@ struct Bridges {
 }
 
 impl Bridges {
-    /// TODO
+    /// Pluck out all servers from a relay list.
+    ///
+    /// See [Bridges] for details.
     fn extract_relays(
         self,
         countries: &BTreeMap<String, relay_list::RelayListCountry>,
