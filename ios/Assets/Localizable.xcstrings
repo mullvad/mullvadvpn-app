@@ -45766,6 +45766,16 @@
         }
       }
     },
+    "Showing %lld of %lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Showing %1$lld of %2$lld"
+          }
+        }
+      }
+    },
     "Singapore" : {
       "localizations" : {
         "da" : {

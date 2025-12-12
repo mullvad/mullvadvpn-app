@@ -3,6 +3,8 @@ struct LocationContext {
     var customLists: [LocationNode]
     var filter: [SelectLocationFilter]
     let selectLocation: (LocationNode) -> Void
+    var totalRelayCount: Int
+    var availableRelayCount: Int
 
     init(
         locations: [LocationNode] = [],
@@ -10,11 +12,15 @@ struct LocationContext {
         filter: [SelectLocationFilter] = [],
         selectedLocation: LocationNode? = nil,
         connectedRelayHostname: String? = nil,
+        totalRelayCount: Int = 0,
+        availableRelayCount: Int = 0,
         selectLocation: @escaping (LocationNode) -> Void = { _ in }
     ) {
         self.locations = locations
         self.customLists = customLists
         self.filter = filter
+        self.totalRelayCount = totalRelayCount
+        self.availableRelayCount = availableRelayCount
         self.selectLocation = selectLocation
     }
 
