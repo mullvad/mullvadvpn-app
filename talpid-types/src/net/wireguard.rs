@@ -38,7 +38,6 @@ impl TunnelParameters {
                 .connection
                 .get_exit_endpoint()
                 .unwrap_or_else(|| self.connection.get_endpoint()),
-            proxy: None,
             obfuscation: self.obfuscation.as_ref().map(ObfuscationInfo::from),
             entry_endpoint: self
                 .connection

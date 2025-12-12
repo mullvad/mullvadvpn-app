@@ -226,12 +226,6 @@ fn format_relay_connection(
         format!(" via {endpoint}")
     });
 
-    let bridge = endpoint.proxy.as_ref().map(|proxy| {
-        let proxy_endpoint = format_endpoint(None, &proxy.endpoint, verbose);
-
-        format!(" via {proxy_endpoint}")
-    });
-
     let exit_endpoint = format_endpoints(
         location.and_then(|l| l.hostname.as_deref()),
         // Check if we *actually* want to print an obfuscator endpoint ..
@@ -244,9 +238,8 @@ fn format_relay_connection(
     );
 
     format!(
-        "{exit_endpoint}{first_hop}{bridge}",
+        "{exit_endpoint}{first_hop}",
         first_hop = first_hop.unwrap_or_default(),
-        bridge = bridge.unwrap_or_default(),
     )
 }
 

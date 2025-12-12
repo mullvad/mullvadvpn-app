@@ -2,24 +2,10 @@ use crate::types::{FromProtobufTypeError, conversions::arg_from_str, proto};
 
 impl From<talpid_types::net::TunnelEndpoint> for proto::TunnelEndpoint {
     fn from(endpoint: talpid_types::net::TunnelEndpoint) -> Self {
-        use talpid_types::net;
-
         proto::TunnelEndpoint {
             address: endpoint.endpoint.address.to_string(),
             protocol: i32::from(proto::TransportProtocol::from(endpoint.endpoint.protocol)),
             quantum_resistant: endpoint.quantum_resistant,
-            proxy: endpoint.proxy.map(|proxy_ep| proto::ProxyEndpoint {
-                address: proxy_ep.endpoint.address.to_string(),
-                protocol: i32::from(proto::TransportProtocol::from(proxy_ep.endpoint.protocol)),
-                proxy_type: match proxy_ep.proxy_type {
-                    net::proxy::ProxyType::Shadowsocks => {
-                        i32::from(proto::proxy_endpoint::ProxyType::Shadowsocks)
-                    }
-                    net::proxy::ProxyType::Custom => {
-                        i32::from(proto::proxy_endpoint::ProxyType::Custom)
-                    }
-                },
-            }),
             obfuscation: endpoint.obfuscation.map(proto::ObfuscationInfo::from),
             entry_endpoint: endpoint.entry_endpoint.map(proto::Endpoint::from),
             tunnel_metadata: endpoint
@@ -149,35 +135,6 @@ impl TryFrom<proto::TunnelEndpoint> for talpid_types::net::TunnelEndpoint {
                 protocol: try_transport_protocol_from_i32(endpoint.protocol)?,
             },
             quantum_resistant: endpoint.quantum_resistant,
-            proxy: endpoint
-                .proxy
-                .map(|proxy_ep| {
-                    Ok(talpid_net::proxy::ProxyEndpoint {
-                        endpoint: talpid_net::Endpoint {
-                            address: arg_from_str(
-                                &proxy_ep.address,
-                                "invalid proxy endpoint address",
-                            )?,
-                            protocol: try_transport_protocol_from_i32(proxy_ep.protocol)?,
-                        },
-                        proxy_type: match proto::proxy_endpoint::ProxyType::try_from(
-                            proxy_ep.proxy_type,
-                        ) {
-                            Ok(proto::proxy_endpoint::ProxyType::Shadowsocks) => {
-                                talpid_net::proxy::ProxyType::Shadowsocks
-                            }
-                            Ok(proto::proxy_endpoint::ProxyType::Custom) => {
-                                talpid_net::proxy::ProxyType::Custom
-                            }
-                            Err(_) => {
-                                return Err(FromProtobufTypeError::InvalidArgument(
-                                    "unknown proxy type",
-                                ));
-                            }
-                        },
-                    })
-                })
-                .transpose()?,
             obfuscation: endpoint
                 .obfuscation
                 .map(|info| match info.r#type {
