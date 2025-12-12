@@ -87,7 +87,7 @@ impl TryFrom<f32> for Rollout {
 
 impl Eq for Rollout {}
 
-#[allow(clippy::derive_ord_xor_partial_ord)] // we impl Ord in terms of PartalOrd, so it's fine
+#[expect(clippy::derive_ord_xor_partial_ord)] // we impl Ord in terms of PartalOrd, so it's fine
 impl Ord for Rollout {
     fn cmp(&self, other: &Self) -> Ordering {
         debug_assert!(self.0.is_finite());
@@ -133,7 +133,7 @@ impl Serialize for Rollout {
     }
 }
 
-#[cfg(feature = "arbitrary")]
+#[cfg(all(feature = "arbitrary", test))]
 /// Generators for [Rollout].
 pub mod arbitrary {
     use super::*;
@@ -143,7 +143,6 @@ pub mod arbitrary {
     /// Generate *any* arbitrary [Rollout] values.
     ///
     /// This generator assume that [VALID_ROLLOUT] represent all valid rollouts.
-    #[allow(dead_code)]
     pub fn arb_any_rollout() -> impl Strategy<Value = Rollout> {
         VALID_ROLLOUT.prop_map(Rollout)
     }
@@ -151,7 +150,6 @@ pub mod arbitrary {
     /// Generate an arbitrary [Rollout] values.
     ///
     /// This generator is heavily biased towards edge cases such as zero rollout, full rollout etc.
-    #[allow(dead_code)]
     pub fn arb_rollout() -> impl Strategy<Value = Rollout> {
         let any = arb_any_rollout();
         let edge_cases = prop_oneof![

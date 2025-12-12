@@ -152,7 +152,7 @@ where
             vec![]
         }
     }
-    #[allow(clippy::manual_async_fn)]
+    #[expect(clippy::manual_async_fn)]
     fn get_metadata(
         &self,
     ) -> impl std::future::Future<Output = anyhow::Result<SignedResponse>> + Send {

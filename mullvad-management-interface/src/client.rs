@@ -88,7 +88,7 @@ impl TryFrom<types::daemon_event::Event> for DaemonEvent {
 #[cfg(not(target_os = "android"))]
 impl MullvadProxyClient {
     pub async fn new() -> Result<Self> {
-        #[allow(deprecated)]
+        #[expect(deprecated)]
         super::new_rpc_client().await.map(Self)
     }
 

@@ -10,7 +10,8 @@ use tokio::sync::{mpsc, oneshot};
 
 use self::process::ExclusionStatus;
 
-#[allow(non_camel_case_types)]
+#[expect(non_camel_case_types)]
+#[expect(clippy::allow_attributes)]
 mod bindings;
 mod bpf;
 mod default;

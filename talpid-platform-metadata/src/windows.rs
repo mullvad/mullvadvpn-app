@@ -19,7 +19,7 @@ use windows_sys::Win32::{
     },
 };
 
-#[allow(non_camel_case_types)]
+#[expect(non_camel_case_types)]
 type RTL_OSVERSIONINFOEXW = OSVERSIONINFOEXW;
 
 pub fn version() -> String {

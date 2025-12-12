@@ -135,7 +135,7 @@ impl<T: PartialEq> Constraint<T> {
 }
 
 // Using the default attribute fails on Android
-#[allow(clippy::derivable_impls)]
+#[expect(clippy::derivable_impls)]
 impl<T> Default for Constraint<T> {
     fn default() -> Self {
         Constraint::Any

@@ -267,7 +267,7 @@ async fn install_nsis_exe(path: &Path) -> Result<()> {
 }
 
 #[cfg(target_os = "linux")]
-#[allow(unused)]
+#[expect(unused)]
 enum Distribution {
     Debian,
     Ubuntu,
