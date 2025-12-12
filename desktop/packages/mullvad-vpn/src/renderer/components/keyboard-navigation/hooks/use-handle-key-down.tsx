@@ -1,21 +1,24 @@
 import React from 'react';
 
+import { useIsPlatform } from '../../../hooks';
 import { useHistory } from '../../../lib/history';
 import { BackActionFn } from '../KeyboardNavigation';
 
 export function useHandleKeyDown(backAction: BackActionFn | undefined) {
   const { pop } = useHistory();
+  const isMacOS = useIsPlatform('darwin');
 
   return React.useCallback(
     (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        if (event.shiftKey && window.env.development) {
+      const modifierKey = isMacOS ? event.metaKey : event.ctrlKey;
+      if ((event.key === '[' || event.key === 'ArrowLeft') && modifierKey) {
+        backAction?.();
+      } else if (window.env.development) {
+        if (event.key === 'h' && event.shiftKey && modifierKey) {
           pop(true);
-        } else {
-          backAction?.();
         }
       }
     },
-    [pop, backAction],
+    [isMacOS, backAction, pop],
   );
 }
