@@ -44,6 +44,8 @@ Line wrap the file at 100 chars.                                              Th
 
 #### Windows
 - Change "Go back" keyboard shortcut from `Esc` to `Alt + Left Arrow` or `Alt + [`.
+- Make Mullvad service run in case the
+  [split tunnel driver](https://github.com/mullvad/win-split-tunnel) fails to load.
 
 ### Security
 #### Windows
