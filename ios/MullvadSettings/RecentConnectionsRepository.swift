@@ -72,6 +72,8 @@ final public class RecentConnectionsRepository: RecentConnectionsRepositoryProto
                 currentRecents.removeAll(where: { item in
                     let recentCustomList = recent.customListSelection
                     let itemCustomList = item.customListSelection
+                    let isCurrentItemListNode: Bool = itemCustomList?.isList ?? false
+                    let isRecentItemListNode: Bool = recentCustomList?.isList ?? false
 
                     // Both have custom lists & same listId
                     if let recentCL = recentCustomList,
@@ -88,7 +90,7 @@ final public class RecentConnectionsRepository: RecentConnectionsRepositoryProto
 
                     // Locations match and neither entry is a list node
                     if recent.locations == item.locations {
-                        return !(recentCustomList?.isList == true || itemCustomList?.isList == true)
+                        return isCurrentItemListNode == false && isRecentItemListNode == false
                     }
 
                     // No match

@@ -24,14 +24,8 @@ class RecentListDataSource: LocationDataSourceProtocol {
     func reload(_ recents: [UserSelectedRelays]) {
         nodes = Array(
             recents.compactMap { userSelectedRelays in
-                let node =
-                    if userSelectedRelays.customListSelection != nil {
-                        customListsDataSource.node(by: userSelectedRelays)
-                    } else {
-                        allLocationDataSource.node(by: userSelectedRelays)
-                    }
-
-                guard let copiedNode = node?.copy() else { return nil }
+                let node = customListsDataSource.node(by: userSelectedRelays) ?? allLocationDataSource.node(by: userSelectedRelays)
+                guard let copiedNode = node?.copy(withParent: node?.parent) else { return nil }
                 copiedNode.isHiddenFromSearch = true
                 copiedNode.showsChildren = false
                 return copiedNode
