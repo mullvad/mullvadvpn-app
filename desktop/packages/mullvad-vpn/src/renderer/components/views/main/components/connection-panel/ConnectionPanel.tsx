@@ -6,7 +6,7 @@ import { colors } from '../../../../../lib/foundations';
 import { useBoolean } from '../../../../../lib/utility-hooks';
 import { useSelector } from '../../../../../redux/store';
 import CustomScrollbars from '../../../../CustomScrollbars';
-import { BackAction } from '../../../../KeyboardNavigation';
+import { BackAction } from '../../../../keyboard-navigation';
 import { ConnectionPanelAccordion } from '../../styles';
 import {
   ConnectionActionButton,

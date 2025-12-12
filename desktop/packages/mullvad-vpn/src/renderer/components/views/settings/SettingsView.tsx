@@ -6,7 +6,7 @@ import { Flex, TitleBig } from '../../../lib/components';
 import { spacings } from '../../../lib/foundations';
 import { AppNavigationHeader } from '../../';
 import { measurements } from '../../common-styles';
-import { BackAction } from '../../KeyboardNavigation';
+import { BackAction } from '../../keyboard-navigation';
 import { SettingsContainer, SettingsNavigationScrollbars } from '../../Layout';
 import { NavigationContainer } from '../../NavigationContainer';
 import {

@@ -8,7 +8,7 @@ import { useSelector } from '../../../redux/store';
 import { AppNavigationHeader } from '../..';
 import { SelectorItem } from '../../cell/Selector';
 import { CustomScrollbarsRef } from '../../CustomScrollbars';
-import { BackAction } from '../../KeyboardNavigation';
+import { BackAction } from '../../keyboard-navigation';
 import { Layout, SettingsContainer } from '../../Layout';
 import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';

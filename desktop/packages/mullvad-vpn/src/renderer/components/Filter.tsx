@@ -17,7 +17,7 @@ import * as Cell from './cell';
 import Selector from './cell/Selector';
 import { normalText } from './common-styles';
 import { FilterAccordion } from './FilterAccordion';
-import { BackAction } from './KeyboardNavigation';
+import { BackAction } from './keyboard-navigation';
 import { Footer, Layout, SettingsContainer } from './Layout';
 import { NavigationContainer } from './NavigationContainer';
 import { NavigationScrollbars } from './NavigationScrollbars';

@@ -16,7 +16,7 @@ import { useSelector } from '../redux/store';
 import { AppNavigationHeader } from './';
 import { ButtonGroup } from './ButtonGroup';
 import { measurements, normalText } from './common-styles';
-import { BackAction } from './KeyboardNavigation';
+import { BackAction } from './keyboard-navigation';
 import { Footer, Layout, SettingsContainer } from './Layout';
 import { ModalAlert, ModalAlertType } from './Modal';
 import SettingsHeader, { HeaderSubTitle, HeaderTitle } from './SettingsHeader';

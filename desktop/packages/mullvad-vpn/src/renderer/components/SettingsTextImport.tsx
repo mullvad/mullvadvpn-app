@@ -10,7 +10,7 @@ import { useCombinedRefs, useRefCallback, useStyledRef } from '../lib/utility-ho
 import settingsImportActions from '../redux/settings-import/actions';
 import { useSelector } from '../redux/store';
 import { AppNavigationHeader } from './';
-import { BackAction } from './KeyboardNavigation';
+import { BackAction } from './keyboard-navigation';
 import { Layout, SettingsContainer } from './Layout';
 
 const StyledTextArea = styled.textarea({

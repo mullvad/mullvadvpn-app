@@ -12,7 +12,7 @@ import { useExclusiveTask } from '../../../lib/hooks/use-exclusive-task';
 import { useEffectEvent } from '../../../lib/utility-hooks';
 import { useSelector } from '../../../redux/store';
 import { AppNavigationHeader } from '../..';
-import { BackAction } from '../../KeyboardNavigation';
+import { BackAction } from '../../keyboard-navigation';
 import { SettingsContainer } from '../../Layout';
 import { RedeemVoucherButton } from '../../RedeemVoucher';
 import { HeaderTitle } from '../../SettingsHeader';

@@ -23,7 +23,7 @@ import {
   ContextMenuTrigger,
 } from './ContextMenu';
 import InfoButton from './InfoButton';
-import { BackAction } from './KeyboardNavigation';
+import { BackAction } from './keyboard-navigation';
 import { Layout, SettingsContainer, SettingsContent, SettingsNavigationScrollbars } from './Layout';
 import { ModalAlert, ModalAlertType } from './Modal';
 import { NavigationContainer } from './NavigationContainer';

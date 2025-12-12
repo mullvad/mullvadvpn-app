@@ -14,7 +14,7 @@ import { useBoolean, useStyledRef } from '../../lib/utility-hooks';
 import Accordion from '../Accordion';
 import * as Cell from '../cell';
 import { measurements } from '../common-styles';
-import { BackAction } from '../KeyboardNavigation';
+import { BackAction } from '../keyboard-navigation';
 import SimpleInput from '../SimpleInput';
 import { useRelayListContext } from './RelayListContext';
 import RelayLocationList from './RelayLocationList';

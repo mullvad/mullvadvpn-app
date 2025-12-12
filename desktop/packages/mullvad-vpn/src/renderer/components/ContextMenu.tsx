@@ -5,7 +5,7 @@ import { IconButton } from '../lib/components';
 import { colors } from '../lib/foundations';
 import { useBoolean, useStyledRef } from '../lib/utility-hooks';
 import { smallText } from './common-styles';
-import { BackAction } from './KeyboardNavigation';
+import { BackAction } from './keyboard-navigation';
 
 const BORDER_WIDTH = 1;
 const PADDING_VERTICAL = 10;
