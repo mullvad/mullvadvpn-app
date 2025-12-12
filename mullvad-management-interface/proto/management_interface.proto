@@ -306,11 +306,10 @@ message TunnelEndpoint {
   string address = 1;
   TransportProtocol protocol = 2;
   bool quantum_resistant = 3;
-  ProxyEndpoint proxy = 4;
-  ObfuscationInfo obfuscation = 5;
-  Endpoint entry_endpoint = 6;
-  TunnelMetadata tunnel_metadata = 7;
-  bool daita = 8;
+  ObfuscationInfo obfuscation = 4;
+  Endpoint entry_endpoint = 5;
+  TunnelMetadata tunnel_metadata = 6;
+  bool daita = 7;
 }
 
 message FeatureIndicators { repeated FeatureIndicator active_features = 1; }
@@ -362,17 +361,6 @@ message ObfuscationEndpoint {
 message Endpoint {
   string address = 1;
   TransportProtocol protocol = 2;
-}
-
-message ProxyEndpoint {
-  enum ProxyType {
-    SHADOWSOCKS = 0;
-    CUSTOM = 1;
-  }
-
-  string address = 1;
-  TransportProtocol protocol = 2;
-  ProxyType proxy_type = 3;
 }
 
 message GeoIpLocation {
