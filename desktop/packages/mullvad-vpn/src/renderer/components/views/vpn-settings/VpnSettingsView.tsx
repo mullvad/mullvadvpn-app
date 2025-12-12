@@ -8,7 +8,7 @@ import {
 } from '../../../features/tunnel/components';
 import { useHistory } from '../../../lib/history';
 import { AppNavigationHeader } from '../..';
-import { BackAction } from '../../KeyboardNavigation';
+import { BackAction } from '../../keyboard-navigation';
 import {
   Layout,
   SettingsContainer,

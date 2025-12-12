@@ -47,7 +47,7 @@ import { RoutePath } from '../shared/routes';
 import { Scheduler } from '../shared/scheduler';
 import AppRouter from './components/AppRouter';
 import ErrorBoundary from './components/ErrorBoundary';
-import KeyboardNavigation from './components/KeyboardNavigation';
+import { KeyboardNavigation } from './components/keyboard-navigation';
 import Lang from './components/Lang';
 import MacOsScrollbarDetection from './components/MacOsScrollbarDetection';
 import { ModalContainer } from './components/Modal';

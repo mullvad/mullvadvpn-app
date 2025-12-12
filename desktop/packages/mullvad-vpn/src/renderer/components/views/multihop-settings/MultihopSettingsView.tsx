@@ -7,7 +7,7 @@ import { FlexColumn } from '../../../lib/components/flex-column';
 import { useHistory } from '../../../lib/history';
 import { AppNavigationHeader } from '../..';
 import * as Cell from '../../cell';
-import { BackAction } from '../../KeyboardNavigation';
+import { BackAction } from '../../keyboard-navigation';
 import { Layout, SettingsContainer } from '../../Layout';
 import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';

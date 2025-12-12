@@ -8,7 +8,7 @@ import { useHistory } from '../lib/history';
 import { useBoolean } from '../lib/utility-hooks';
 import { AppNavigationHeader } from './';
 import { measurements } from './common-styles';
-import { BackAction } from './KeyboardNavigation';
+import { BackAction } from './keyboard-navigation';
 import { Layout, SettingsContainer } from './Layout';
 import { NavigationContainer } from './NavigationContainer';
 import { NavigationScrollbars } from './NavigationScrollbars';

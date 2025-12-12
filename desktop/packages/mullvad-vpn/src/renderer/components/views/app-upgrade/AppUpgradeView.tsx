@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { messages } from '../../../../shared/gettext';
 import { useHistory } from '../../../lib/history';
 import { AppNavigationHeader } from '../../app-navigation-header';
-import { BackAction } from '../../KeyboardNavigation';
+import { BackAction } from '../../keyboard-navigation';
 import { SettingsContainer } from '../../Layout';
 import { Layout } from '../../Layout';
 import { NavigationContainer } from '../../NavigationContainer';

@@ -11,7 +11,7 @@ import {
 import { useHistory } from '../../../lib/history';
 import { useSelector } from '../../../redux/store';
 import { AppNavigationHeader } from '../..';
-import { BackAction } from '../../KeyboardNavigation';
+import { BackAction } from '../../keyboard-navigation';
 import {
   Layout,
   SettingsContainer,

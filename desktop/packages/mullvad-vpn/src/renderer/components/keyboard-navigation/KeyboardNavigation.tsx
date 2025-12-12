@@ -1,15 +1,14 @@
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
-import { useHistory } from '../lib/history';
-import { useEffectEvent } from '../lib/utility-hooks';
+import { useEffectEvent } from '../../lib/utility-hooks';
+import { useEffectRegisterEventListener } from './hooks';
 
 interface IKeyboardNavigationProps {
   children: React.ReactElement | Array<React.ReactElement>;
 }
 
 // Listens for and handles keyboard shortcuts
-export default function KeyboardNavigation(props: IKeyboardNavigationProps) {
-  const { pop } = useHistory();
+export function KeyboardNavigation(props: IKeyboardNavigationProps) {
   const [backAction, setBackActionImpl] = useState<BackActionFn>();
 
   // Since the backaction is now a function we need to make sure it's not called when setting the
@@ -18,28 +17,12 @@ export default function KeyboardNavigation(props: IKeyboardNavigationProps) {
     setBackActionImpl(() => backAction);
   }, []);
 
-  const handleKeyDown = useCallback(
-    (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        if (event.shiftKey && window.env.development) {
-          pop(true);
-        } else {
-          backAction?.();
-        }
-      }
-    },
-    [pop, backAction],
-  );
-
-  useEffect(() => {
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [handleKeyDown]);
+  useEffectRegisterEventListener(backAction);
 
   return <BackActionTracker registerBackAction={setBackAction}>{props.children}</BackActionTracker>;
 }
 
-type BackActionFn = () => void;
+export type BackActionFn = () => void;
 
 interface IBackActionContext {
   parentBackAction?: BackActionFn;
@@ -62,8 +45,7 @@ interface IBackActionProps {
   children: React.ReactNode;
 }
 
-// Component for registering back actions, e.g. navigate back or close modal. These are called
-// either by pressing the back button in the navigation bar or by pressing escape.
+// Component for registering back actions, e.g. navigate back or close modal.
 export function BackAction(props: IBackActionProps) {
   const { registerBackAction, removeBackAction } = useContext(BackActionContext);
   const [childrenBackAction, setChildrenBackActionImpl] = useState<BackActionFn>();

@@ -21,7 +21,7 @@ import { useSelector } from '../../redux/store';
 import { AppNavigationHeader } from '../';
 import * as Cell from '../cell';
 import { useFilteredProviders } from '../Filter';
-import { BackAction } from '../KeyboardNavigation';
+import { BackAction } from '../keyboard-navigation';
 import { Layout, SettingsContainer } from '../Layout';
 import { NavigationContainer } from '../NavigationContainer';
 import { NavigationScrollbars } from '../NavigationScrollbars';

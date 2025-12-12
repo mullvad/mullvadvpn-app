@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { strings } from '../../../../shared/constants';
 import { useHistory } from '../../../lib/history';
 import { AppNavigationHeader } from '../..';
-import { BackAction } from '../../KeyboardNavigation';
+import { BackAction } from '../../keyboard-navigation';
 import { Layout, SettingsContainer } from '../../Layout';
 import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';

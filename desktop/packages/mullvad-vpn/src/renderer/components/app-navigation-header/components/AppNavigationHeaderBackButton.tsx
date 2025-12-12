@@ -3,7 +3,7 @@ import { useContext, useMemo } from 'react';
 import { messages } from '../../../../shared/gettext';
 import { IconButton } from '../../../lib/components';
 import { TransitionType, useHistory } from '../../../lib/history';
-import { BackActionContext } from '../../KeyboardNavigation';
+import { BackActionContext } from '../../keyboard-navigation';
 
 export const AppNavigationHeaderBackButton = () => {
   const history = useHistory();
