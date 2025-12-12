@@ -37,7 +37,7 @@ impl RelayListProxy {
     pub fn relay_list(
         &self,
         prev_etag: Option<ETag>,
-    ) -> impl Future<Output = Result<Option<DiskRelayList>, rest::Error>> {
+    ) -> impl Future<Output = Result<Option<CachedRelayList>, rest::Error>> {
         let request = self.relay_list_response(prev_etag.clone());
 
         async move {
@@ -97,12 +97,12 @@ pub struct ServerRelayList {
     bridge: Bridges,
 }
 
-/// Relay list as served by the API, and the corresponding etag given by the header.
+/// Relay list as served by the API, paired with the corresponding [`ETag`] from the response header.
 #[derive(Debug, Deserialize, Serialize)]
-pub struct DiskRelayList {
+pub struct CachedRelayList {
     #[serde(flatten)]
-    pub relay_list: ServerRelayList,
-    pub etag: Option<ETag>,
+    relay_list: ServerRelayList,
+    etag: Option<ETag>,
 }
 
 /// An (ETag header)[https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/ETag] returned by the relay list API.
@@ -112,15 +112,17 @@ pub struct DiskRelayList {
 pub struct ETag(pub String);
 
 impl ServerRelayList {
-    fn cache(self, etag: ETag) -> DiskRelayList {
-        DiskRelayList {
+    /// Associate this relay list with a specific [ETag].
+    fn cache(self, etag: ETag) -> CachedRelayList {
+        CachedRelayList {
             relay_list: self,
             etag: Some(etag),
         }
     }
 
     // Convert a relay list response to internal mullvad types.
-    // self: on-disk / network representation
+    //
+    // - `self`: on-disk / network representation
     pub fn into_internal_repr(self) -> (relay_list::RelayList, relay_list::BridgeList) {
         let Self {
             locations,
@@ -159,6 +161,18 @@ impl ServerRelayList {
         };
 
         (relay_list, bridge_list)
+    }
+}
+
+impl CachedRelayList {
+    /// Read the [`ETag`] of the cached relay list.
+    pub const fn etag(&self) -> Option<&ETag> {
+        self.etag.as_ref()
+    }
+
+    /// See [`ServerRelayList::into_internal_repr`].
+    pub fn into_internal_repr(self) -> (relay_list::RelayList, BridgeList) {
+        self.relay_list.into_internal_repr()
     }
 }
 
