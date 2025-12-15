@@ -7,6 +7,7 @@ mod error;
 mod relay_selector;
 
 // Re-exports
+pub use constants::*;
 pub use error::Error;
 pub use relay_selector::{
     AdditionalRelayConstraints, AdditionalWireguardConstraints, GetRelay, RETRY_ORDER,

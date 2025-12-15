@@ -3,13 +3,11 @@
 pub mod detailer;
 mod helpers;
 pub mod matcher;
-mod parsed_relays;
 pub mod query;
 pub mod relays;
 
 use detailer::resolve_ip_version;
 use matcher::{filter_matching_relay_list, filter_matching_relay_list_include_all};
-use parsed_relays::ParsedRelays;
 use relays::{Multihop, Singlehop, WireguardConfig};
 
 use crate::{
@@ -18,7 +16,6 @@ use crate::{
     query::{ObfuscationQuery, RelayQuery, RelayQueryExt, WireguardRelayQuery},
 };
 
-use chrono::{DateTime, Local};
 use itertools::Itertools;
 use mullvad_types::{
     CustomTunnelEndpoint, Intersection,
@@ -27,25 +24,18 @@ use mullvad_types::{
     endpoint::MullvadEndpoint,
     location::Coordinates,
     relay_constraints::{
-        ObfuscationSettings, RelayConstraints, RelayOverride, RelaySettings, WireguardConstraints,
+        ObfuscationSettings, RelayConstraints, RelaySettings, WireguardConstraints,
     },
     relay_list::{Bridge, BridgeList, Relay, RelayList, WireguardRelay},
     settings::Settings,
     wireguard::QuantumResistantState,
 };
-use std::{
-    ops::Deref,
-    path::Path,
-    sync::{Arc, LazyLock, Mutex},
-    time::SystemTime,
-};
-use talpid_types::{
-    ErrorExt,
-    net::{
-        IpAvailability, IpVersion,
-        obfuscation::{ObfuscatorConfig, Obfuscators},
-        proxy::Shadowsocks,
-    },
+use std::ops::Deref;
+use std::sync::{Arc, LazyLock, Mutex, RwLock};
+use talpid_types::net::{
+    IpAvailability, IpVersion,
+    obfuscation::{ObfuscatorConfig, Obfuscators},
+    proxy::Shadowsocks,
 };
 
 /// [`RETRY_ORDER`] defines an ordered set of relay parameters which the relay selector
@@ -79,16 +69,18 @@ pub static RETRY_ORDER: LazyLock<Vec<RelayQuery>> = LazyLock::new(|| {
 #[derive(Clone)]
 pub struct RelaySelector {
     config: Arc<Mutex<SelectorConfig>>,
-    parsed_relays: Arc<Mutex<ParsedRelays>>,
+    // Relays are updated very infrequenly, but might conceivably be accessed by multiple readers at
+    // the same time.
+    relays: Arc<RwLock<Selectables>>,
 }
 
+// TODO: Rename to simply `Config`
 #[derive(Clone)]
 pub struct SelectorConfig {
     // Normal relay settings
     pub relay_settings: RelaySettings,
     pub additional_constraints: AdditionalRelayConstraints,
     pub custom_lists: CustomListsSettings,
-    pub relay_overrides: Vec<RelayOverride>,
     // Wireguard specific data
     pub obfuscation_settings: ObfuscationSettings,
 }
@@ -120,9 +112,14 @@ impl SelectorConfig {
             additional_constraints,
             obfuscation_settings: settings.obfuscation_settings.clone(),
             custom_lists: settings.custom_lists.clone(),
-            relay_overrides: settings.relay_overrides.clone(),
         }
     }
+}
+
+/// TODO: Document me
+struct Selectables {
+    relays: RelayList,
+    bridges: BridgeList,
 }
 
 /// Extra relay constraints not specified in `relay_settings`.
@@ -217,7 +214,6 @@ impl Default for SelectorConfig {
             additional_constraints: AdditionalRelayConstraints::default(),
             obfuscation_settings: default_settings.obfuscation_settings,
             custom_lists: default_settings.custom_lists,
-            relay_overrides: default_settings.relay_overrides,
         }
     }
 }
@@ -309,101 +305,56 @@ impl<'a> TryFrom<NormalSelectorConfig<'a>> for RelayQuery {
 }
 
 impl RelaySelector {
-    /// Returns a new `RelaySelector` backed by relays cached on disk.
-    pub fn new(
-        config: SelectorConfig,
-        resource_path: impl AsRef<Path>,
-        cache_path: impl AsRef<Path>,
-    ) -> Self {
-        const DATE_TIME_FORMAT_STR: &str = "%Y-%m-%d %H:%M:%S%.3f";
-        let unsynchronized_parsed_relays =
-            ParsedRelays::from_file(&cache_path, &resource_path, &config.relay_overrides)
-                .inspect_err(|error| {
-                    log::error!(
-                        "{}",
-                        error.display_chain_with_msg("Unable to load cached and bundled relays")
-                    );
-                })
-                .unwrap_or(ParsedRelays::empty());
-        log::info!(
-            "Initialized with {} cached relays from {}",
-            unsynchronized_parsed_relays.relays().count(),
-            DateTime::<Local>::from(unsynchronized_parsed_relays.last_updated())
-                .format(DATE_TIME_FORMAT_STR)
-        );
-
+    /// Create a new `RelaySelector` from a set of relays and bridges.
+    pub fn new(config: SelectorConfig, relays: RelayList, bridges: BridgeList) -> Self {
+        let selectabes = Selectables { relays, bridges };
         RelaySelector {
             config: Arc::new(Mutex::new(config)),
-            parsed_relays: Arc::new(Mutex::new(unsynchronized_parsed_relays)),
+            relays: Arc::new(RwLock::new(selectabes)),
         }
     }
 
-    pub fn from_list(
-        config: SelectorConfig,
-        relay_list: RelayList,
-        bridge_list: BridgeList,
-    ) -> Self {
-        let relays = ParsedRelays::from_relay_list(
-            relay_list,
-            bridge_list,
-            SystemTime::now(),
-            &config.relay_overrides,
-        );
-        RelaySelector {
-            parsed_relays: Arc::new(Mutex::new(relays)),
-            config: Arc::new(Mutex::new(config)),
-        }
+    /// Update the relay selector config.
+    pub fn set_config(&self, config: SelectorConfig) {
+        *self.config.lock().unwrap() = config;
     }
 
-    pub fn set_config(&mut self, config: SelectorConfig) {
-        self.set_overrides(&config.relay_overrides);
-        let mut config_mutex = self.config.lock().unwrap();
-        *config_mutex = config;
+    /// Peek the relay list.
+    pub fn relay_list<T>(&self, access_fn: impl Fn(&RelayList) -> T) -> T {
+        let relays = &self.relays.read().unwrap().relays;
+        access_fn(relays)
     }
 
     /// Update the list of relays
     pub fn set_relays(&self, relays: RelayList) {
-        let mut parsed_relays = self.parsed_relays.lock().unwrap();
-        let bridges = parsed_relays.bridge_list().clone();
-        parsed_relays.update(relays, bridges);
+        let mut key = self.relays.write().unwrap();
+        let bridges = key.bridges.clone();
+        *key = Selectables { relays, bridges };
     }
 
     /// Update the list of bridges
     pub fn set_bridges(&self, bridges: BridgeList) {
-        let mut parsed_relays = self.parsed_relays.lock().unwrap();
-        let relays = parsed_relays.parsed_list().clone();
-        parsed_relays.update(relays, bridges);
-    }
-
-    fn set_overrides(&mut self, relay_overrides: &[RelayOverride]) {
-        let mut parsed_relays = self.parsed_relays.lock().unwrap();
-        parsed_relays.set_overrides(relay_overrides);
+        let mut key = self.relays.write().unwrap();
+        let relays = key.relays.clone();
+        *key = Selectables { relays, bridges };
     }
 
     /// Returns all countries and cities. The cities in the object returned does not have any
     /// relays in them.
-    pub fn get_relays(&mut self) -> RelayList {
-        let parsed_relays = self.parsed_relays.lock().unwrap();
-        parsed_relays.original_list().clone()
+    pub fn get_relays(&self) -> RelayList {
+        // TODO: Now when the relay list is guarded behind an RwLock, it might be overkill to clone
+        // the relay list willy-nilly.
+        self.relays.read().unwrap().relays.clone()
     }
 
     /// Returns all bridgees.
-    pub fn get_bridges(&mut self) -> BridgeList {
-        self.parsed_relays.lock().unwrap().bridge_list().clone()
-    }
-
-    pub fn access_relays<T>(&mut self, access_fn: impl Fn(&RelayList) -> T) -> T {
-        let parsed_relays = self.parsed_relays.lock().unwrap();
-        access_fn(parsed_relays.original_list())
-    }
-
-    pub fn last_updated(&self) -> SystemTime {
-        self.parsed_relays.lock().unwrap().last_updated()
+    pub fn get_bridges(&self) -> BridgeList {
+        self.relays.read().unwrap().bridges.clone()
     }
 
     /// Returns a shadowsocks endpoint for any [`Bridge`] in [`BridgeList`].
     pub fn get_bridge_forced(&self) -> Option<Shadowsocks> {
-        let bridge_list = &self.parsed_relays.lock().unwrap().bridge_list().clone();
+        let bridge_list = &self.relays.read().unwrap().bridges;
         Self::get_proxy_settings(bridge_list)
             .map(|(endpoint, _bridge)| endpoint)
             .inspect_err(|error| log::error!("Failed to get bridge: {error}"))
@@ -419,8 +370,8 @@ impl RelaySelector {
                 Ok(GetRelay::Custom(custom_config.clone()))
             }
             SpecializedSelectorConfig::Normal(normal_config) => {
-                let relay_list = &self.parsed_relays.lock().unwrap().parsed_list().clone();
-                Self::get_relay_inner(&query, relay_list, normal_config.custom_lists)
+                let relay_list = self.get_relays();
+                Self::get_relay_inner(&query, &relay_list, normal_config.custom_lists)
             }
         }
     }
@@ -468,7 +419,7 @@ impl RelaySelector {
                 Ok(GetRelay::Custom(custom_config.clone()))
             }
             SpecializedSelectorConfig::Normal(normal_config) => {
-                let parsed_relays = self.parsed_relays.lock().unwrap().parsed_list().clone();
+                let parsed_relays = self.get_relays();
                 // Merge user preferences with the relay selector's default preferences.
                 let custom_lists = normal_config.custom_lists;
                 let mut user_query = RelayQuery::try_from(normal_config)?;
