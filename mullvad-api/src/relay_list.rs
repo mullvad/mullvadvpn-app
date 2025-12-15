@@ -448,7 +448,7 @@ impl Bridges {
         self,
         countries: &BTreeMap<String, relay_list::RelayListCountry>,
     ) -> BridgeList {
-        let relays = self
+        let bridges = self
             .relays
             .into_iter()
             .filter_map(|mut bridge_relay| {
@@ -466,8 +466,7 @@ impl Bridges {
                         longitude: city.longitude,
                     };
 
-                    let relay = bridge_relay.into_bridge_mullvad_relay(location);
-                    Some(relay)
+                    Some(bridge_relay.into_bridge_mullvad_relay(location))
                 } else {
                     None
                 }
@@ -475,7 +474,7 @@ impl Bridges {
             .collect();
 
         BridgeList {
-            bridges: relays,
+            bridges,
             bridge_endpoint: relay_list::BridgeEndpointData {
                 shadowsocks: self.shadowsocks,
             },
