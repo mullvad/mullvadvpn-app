@@ -55,7 +55,7 @@ import org.koin.androidx.compose.koinViewModel
 private fun PreviewAppObfusctionScreen() {
     AppTheme {
         AppearanceScreen(
-            uiState =
+            state =
                 Lc.Content(
                     AppearanceUiState(
                         availableObfuscations = AppObfuscation.entries,
@@ -89,7 +89,7 @@ fun Appearance(navigator: DestinationsNavigator) {
     }
 
     AppearanceScreen(
-        uiState = uiState,
+        state = uiState,
         snackbarHostState = snackbarHostState,
         onObfuscationSelected = viewModel::setAppObfuscation,
         onBackClick = dropUnlessResumed { navigator.navigateUp() },
@@ -98,7 +98,7 @@ fun Appearance(navigator: DestinationsNavigator) {
 
 @Composable
 fun AppearanceScreen(
-    uiState: Lc<Unit, AppearanceUiState>,
+    state: Lc<Unit, AppearanceUiState>,
     snackbarHostState: SnackbarHostState,
     onObfuscationSelected: (AppObfuscation) -> Unit,
     onBackClick: () -> Unit,
@@ -109,8 +109,8 @@ fun AppearanceScreen(
         navigationIcon = { NavigateBackIconButton(onNavigateBack = onBackClick) },
     ) { modifier ->
         Column(modifier = modifier.fillMaxSize().padding(horizontal = Dimens.sideMarginNew)) {
-            when (uiState) {
-                is Lc.Content -> Content(uiState.value, onObfuscationSelected)
+            when (state) {
+                is Lc.Content -> Content(state.value, onObfuscationSelected)
                 is Lc.Loading -> Loading()
             }
         }
@@ -119,7 +119,7 @@ fun AppearanceScreen(
 
 @Composable
 private fun ColumnScope.Content(
-    uiState: AppearanceUiState,
+    state: AppearanceUiState,
     onObfuscationSelected: (AppObfuscation) -> Unit = {},
 ) {
     val lazyGridState = rememberLazyGridState()
@@ -130,14 +130,14 @@ private fun ColumnScope.Content(
         state = lazyGridState,
         columns = GridCells.Adaptive(GRID_MIN_WIDTH),
     ) {
-        items(items = uiState.availableObfuscations, key = { it.path }) { item ->
+        items(items = state.availableObfuscations, key = { it.path }) { item ->
             Card(
                 shape = MaterialTheme.shapes.large,
                 onClick = { onObfuscationSelected(item) },
                 colors =
                     CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceDim),
                 border =
-                    if (item == uiState.currentAppObfuscation) {
+                    if (item == state.currentAppObfuscation) {
                         BorderStroke(
                             width = BORDER_WIDTH,
                             color = MaterialTheme.colorScheme.tertiary,

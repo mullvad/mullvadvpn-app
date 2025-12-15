@@ -485,7 +485,6 @@
     <string name="anti_censorship_info_second_paragraph"><b>Please note that these methods do not improve performance, and may increase system utilization and battery consumption.</b></string>
     <string name="custom_port_recommended_range_first"><b>Attention:</b> Only some servers support the full port range.</string>
     <string name="custom_port_recommended_range_second">Valid range for all servers: %s</string>
-    <string name="app_obfuscation">App obfuscation</string>
     <string name="appearance">Appearance</string>
     <string name="icon_and_title">Icon and title</string>
     <string name="appearance_description">Change the title and icon of the Mullvad VPN app on your Android device. This will not change the icon for any Mullvad VPN related notifications.</string>
