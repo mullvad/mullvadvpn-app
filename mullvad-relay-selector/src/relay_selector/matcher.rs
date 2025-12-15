@@ -56,7 +56,6 @@ pub fn filter_matching_relay_list_include_all(
 
 /// Returns whether `relay` is active.
 pub fn filter_on_active(relay: &WireguardRelay) -> bool {
-    // relay.active
     relay.active
 }
 
