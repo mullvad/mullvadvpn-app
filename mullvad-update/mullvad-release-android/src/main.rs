@@ -1,7 +1,4 @@
 //! See [Opt].
-//!
-//! The tool can be installed using `cargo install --locked --path .`, after which it can be invoked
-//! with `mullvad-release-android ...`.
 
 use anyhow::{Context, bail};
 use clap::Parser;
@@ -18,14 +15,12 @@ mod platform;
 /// Filename for latest.json metadata
 const LATEST_FILENAME: &str = "latest.json";
 
-/// A tool that generates signed Mullvad version metadata.
-///
-/// Unsigned work is stored in `work/`, and signed work is stored in `signed/`
+/// A tool that generates signed Mullvad version metadata for Android.
 #[derive(Parser)]
 pub enum Opt {
     /// Download version metadata from releases.mullvad.net or API endpoint
     Pull {
-        /// Replace signed files without asking for confirmation
+        /// Replace files without asking for confirmation
         #[arg(long, short = 'y')]
         assume_yes: bool,
         /// Also update the latest.json file
@@ -48,7 +43,7 @@ pub enum Opt {
         version: mullvad_version::Version,
     },
 
-    /// Return the latest releases in `signed/` based on the given parameters.
+    /// Return the latest releases.
     /// The output is in JSON format.
     QueryLatest,
 }
