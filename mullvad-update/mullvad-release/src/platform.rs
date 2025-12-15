@@ -420,6 +420,31 @@ impl Platform {
         })
     }
 
+    /// Return the latest release for platforms in `signed/`
+    pub async fn query_latest_android(&self, rollout: Rollout) -> anyhow::Result<VersionQueryOutput> {
+        let response = self.read_signed().await?;
+
+        // Grab version info for all architectures
+        let params = VersionParameters {
+            // hack
+            architecture: Architecture::X86,
+            rollout,
+            // NOTE: Empty versions are allowed on Linux
+            allow_empty: self == &Platform::,
+            lowest_metadata_version: MIN_VERIFY_METADATA_VERSION,
+        };
+        let mut version_info = vec![];
+        version_info.push(VersionInfo::try_from_response(
+            &params,
+            response.signed.clone(),
+        )?);
+
+        Ok(VersionQueryOutput {
+            stable: version_info.stable.version,
+            beta: version_info.beta.map(|v| v.version),
+        })
+    }
+
     /// Reads the metadata for `platform` in the work directory.
     /// If the file doesn't exist, this returns a new, empty response.
     async fn read_work(&self) -> anyhow::Result<SignedResponse> {

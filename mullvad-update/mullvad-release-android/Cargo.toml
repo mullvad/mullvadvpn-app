@@ -1,0 +1,24 @@
+[package]
+name = "mullvad-release-android"
+description = "Tools for managing Mullvad release metadata for Android"
+authors.workspace = true
+repository.workspace = true
+license.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+anyhow = "1.0"
+chrono = { workspace = true, features = ["serde", "now"] }
+clap = { workspace = true }
+reqwest = { workspace = true }
+serde_json = { workspace = true }
+serde = { workspace = true }
+strum = { workspace = true }
+tokio = { version = "1", features = ["full"] }
+
+mullvad-version = { path = "../../mullvad-version", features = ["serde"] }
+mullvad-update = { path = "../", features = ["client", "sign", "strum"] }

@@ -33,6 +33,7 @@ members = [
   "mullvad-types/intersection-derive",
   "mullvad-update",
   "mullvad-update/mullvad-release",
+  "mullvad-update/mullvad-release-android",
   "mullvad-version",
   "talpid-core",
   "talpid-dbus",
