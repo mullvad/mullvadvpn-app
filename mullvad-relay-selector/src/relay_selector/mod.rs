@@ -401,28 +401,11 @@ impl RelaySelector {
         self.parsed_relays.lock().unwrap().last_updated()
     }
 
-    // TODO: Rename the concept of bridges for this use case
-    /// Returns a non-custom bridge based on the relay and bridge constraints, ignoring the bridge
-    /// state.
+    /// Returns a shadowsocks endpoint for any [`Bridge`] in [`BridgeList`].
     pub fn get_bridge_forced(&self) -> Option<Shadowsocks> {
         let bridge_list = &self.parsed_relays.lock().unwrap().bridge_list().clone();
-        // TODO :Do we even care about this anymore? Bridges are not used for VPN traffic anyway.
-        // let specialized_config = SpecializedSelectorConfig::from(&*config);
-        // let config = self.config.lock().unwrap();
-        // // TODO: It may not be optimal to use the selected relay location for API access bridges anymore.
-        // // Perhaps we should switch to the users disconnected geolication instead?
-        // let near_location = match specialized_config {
-        //     SpecializedSelectorConfig::Normal(config) => RelayQuery::try_from(config.clone())
-        //         .ok()
-        //         .and_then(|user_preferences| {
-        //             Self::get_relay_midpoint(&user_preferences, bridge_list, config.custom_lists)
-        //         }),
-        //     SpecializedSelectorConfig::Custom(_) => None,
-        // };
-
-        //Self::get_proxy_settings(bridge_list, near_location)
         Self::get_proxy_settings(bridge_list)
-            .map(|(settings, _bridge)| settings)
+            .map(|(endpoint, _bridge)| endpoint)
             .inspect_err(|error| log::error!("Failed to get bridge: {error}"))
             .ok()
     }
@@ -864,11 +847,7 @@ impl RelaySelector {
     /// Try to get a bridge that matches the given `constraints`.
     ///
     /// The connection details are returned alongside the relay hosting the bridge.
-    //fn get_proxy_settings<T: Into<Coordinates>>(
-    fn get_proxy_settings(
-        bridge_list: &BridgeList,
-        // location: Option<T>,
-    ) -> Result<(Shadowsocks, Bridge), Error> {
+    fn get_proxy_settings(bridge_list: &BridgeList) -> Result<(Shadowsocks, Bridge), Error> {
         // Filter on active relays
         let bridges: Vec<Bridge> = bridge_list
             .bridges()
@@ -876,14 +855,7 @@ impl RelaySelector {
             .filter(|bridge| bridge.active)
             .cloned()
             .collect();
-        // let bridge = match location {
-        //     Some(location) => Self::get_proximate_bridge(bridges, location),
-        //     // TODO: make this generic, or remove it if the weight is not important for bridges
-        //     None => helpers::pick_random_relay(&bridges)
-        //         .cloned()
-        //         .ok_or(Error::NoBridge),
-        // }?;
-        //
+
         let bridge = helpers::pick_random_relay(&bridges)
             .cloned()
             .ok_or(Error::NoBridge)?;
@@ -891,67 +863,6 @@ impl RelaySelector {
             .ok_or(Error::NoBridge)?;
         Ok((endpoint, bridge))
     }
-
-    // TODO: Remove?
-    // /// Try to get a bridge which is close to `location`.
-    // fn get_proximate_bridge<T: Into<Coordinates>>(
-    //     relays: Vec<Bridge>,
-    //     location: T,
-    // ) -> Result<Bridge, Error> {
-    //     /// Number of bridges to keep for selection by distance.
-    //     const MIN_BRIDGE_COUNT: usize = 5;
-    //     let location = location.into();
-
-    //     // Filter out all candidate bridges.
-    //     let matching_bridges: Vec<RelayWithDistance<_>> = relays
-    //         .into_iter()
-    //         .map(|relay| RelayWithDistance::new_with_distance_from(relay, location))
-    //         .sorted_unstable_by_key(|relay| relay.distance as usize)
-    //         .take(MIN_BRIDGE_COUNT)
-    //         .collect();
-
-    //     // Calculate the maximum distance from `location` among the candidates.
-    //     let greatest_distance: f64 = matching_bridges
-    //         .iter()
-    //         .map(|relay| relay.distance)
-    //         .reduce(f64::max)
-    //         .ok_or(Error::NoBridge)?;
-    //     // Define the weight function to prioritize bridges which are closer to `location`.
-    //     let weight_fn =
-    //         |relay: &RelayWithDistance<_>| 1 + (greatest_distance - relay.distance) as u64;
-
-    //     helpers::pick_random_relay_weighted(matching_bridges.iter(), weight_fn)
-    //         .cloned()
-    //         .map(|relay_with_distance| relay_with_distance.relay)
-    //         .ok_or(Error::NoBridge)
-    // }
-
-    // Returns the average location of relays that match the given constraints.
-    // This returns `None` if the location is [`Constraint::Any`] or if no
-    // relays match the constraints.
-    // This might still be good for VPN relays.
-    // fn get_relay_midpoint(
-    //     query: &RelayQuery,
-    //     relays: &RelayList,
-    //     custom_lists: &CustomListsSettings,
-    // ) -> Option<Coordinates> {
-    //     use std::ops::Not;
-    //     if query.location().is_any() {
-    //         return None;
-    //     }
-
-    //     let matching_locations: Vec<Location> =
-    //         filter_matching_relay_list(query, relays, custom_lists)
-    //             .into_iter()
-    //             .map(|relay| relay.inner.location)
-    //             .unique_by(|location| location.city.clone())
-    //             .collect();
-
-    //     matching_locations
-    //         .is_empty()
-    //         .not()
-    //         .then(|| Coordinates::midpoint(&matching_locations))
-    // }
 }
 
 fn apply_ip_availability(
