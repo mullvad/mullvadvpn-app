@@ -374,45 +374,28 @@ impl TryFrom<proto::Relay> for mullvad_types::relay_list::WireguardRelay {
 
     fn try_from(relay: proto::Relay) -> Result<Self, Self::Error> {
         let endpoint_data = {
-            let wireguard = relay
-                .endpoint_data
-                .ok_or(FromProtobufTypeError::InvalidArgument(
+            let Some(wireguard) = relay.endpoint_data else {
+                return Err(FromProtobufTypeError::InvalidArgument(
                     "invalid relay endpoint type",
-                ))?;
-            fn parse_addr(addr: &str) -> Result<IpAddr, FromProtobufTypeError> {
-                addr.parse()
-                    .map_err(|_err| FromProtobufTypeError::InvalidArgument("Invalid IP address"))
-            }
+                ));
+            };
 
-            let public_key = bytes_to_pubkey(&wireguard.public_key)?;
-            let daita = wireguard.daita;
-            let quic = wireguard
-                .quic
-                .map(mullvad_types::relay_list::Quic::try_from)
-                .transpose()?;
-            let shadowsocks_extra_addr_in = wireguard
-                .shadowsocks_extra_addr_in
-                .iter()
-                .map(String::as_ref)
-                .map(parse_addr)
-                .collect::<Result<HashSet<IpAddr>, FromProtobufTypeError>>()?;
             mullvad_types::relay_list::WireguardRelayEndpointData {
-                public_key,
-                daita,
-                quic,
+                public_key: bytes_to_pubkey(&wireguard.public_key)?,
+                daita: wireguard.daita,
+                quic: wireguard
+                    .quic
+                    .map(mullvad_types::relay_list::Quic::try_from)
+                    .transpose()?,
                 lwo: wireguard.lwo,
-                shadowsocks_extra_addr_in,
+                shadowsocks_extra_addr_in: wireguard
+                    .shadowsocks_extra_addr_in
+                    .into_iter()
+                    .map(|addr| addr.parse())
+                    .collect::<Result<HashSet<IpAddr>, _>>()
+                    .map_err(|_err| FromProtobufTypeError::InvalidArgument("Invalid IP address"))?,
             }
         };
-
-        let ipv6_addr_in = relay
-            .ipv6_addr_in
-            .map(|addr| {
-                addr.parse().map_err(|_err| {
-                    FromProtobufTypeError::InvalidArgument("invalid relay IPv6 address")
-                })
-            })
-            .transpose()?;
 
         let relay = WireguardRelay::new(
             false,
@@ -426,7 +409,14 @@ impl TryFrom<proto::Relay> for mullvad_types::relay_list::WireguardRelay {
                 ipv4_addr_in: relay.ipv4_addr_in.parse().map_err(|_err| {
                     FromProtobufTypeError::InvalidArgument("invalid relay IPv4 address")
                 })?,
-                ipv6_addr_in,
+                ipv6_addr_in: relay
+                    .ipv6_addr_in
+                    .map(|addr| {
+                        addr.parse().map_err(|_err| {
+                            FromProtobufTypeError::InvalidArgument("invalid relay IPv6 address")
+                        })
+                    })
+                    .transpose()?,
                 active: relay.active,
                 weight: relay.weight,
                 location: relay
