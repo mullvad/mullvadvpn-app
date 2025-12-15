@@ -74,7 +74,7 @@ pub fn terminate_processes(
     }
 
     // Don't stop the Mullvad VPN service
-    // TODO: consider letting RestartManager stopping the service
+    // TODO: consider letting RestartManager stop the service
     // SAFETY: `MULLVAD_SERVICE` is a valid pointer to a null-terminated UTF-16 string
     let status = unsafe {
         RestartManager::RmAddFilter(
