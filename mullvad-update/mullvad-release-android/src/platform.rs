@@ -45,14 +45,14 @@ pub async fn pull(assume_yes: bool) -> anyhow::Result<()> {
 
     let work_path = work_path();
 
-    // Require confirmation if a signed file exists
+    // Require confirmation if a file exists
     if !assume_yes && work_path.exists() {
         let msg = format!(
             "This will replace the existing file at {}. Continue?",
             work_path.display()
         );
         if !wait_for_confirm(&msg).await {
-            bail!("Aborted signing");
+            bail!("Aborted update");
         }
     }
 

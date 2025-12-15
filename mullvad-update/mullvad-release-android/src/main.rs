@@ -15,7 +15,7 @@ mod platform;
 /// Filename for latest.json metadata
 const LATEST_FILENAME: &str = "latest.json";
 
-/// A tool that generates signed Mullvad version metadata for Android.
+/// A tool that generates Mullvad version metadata for Android.
 #[derive(Parser)]
 pub enum Opt {
     /// Download version metadata from releases.mullvad.net or API endpoint
