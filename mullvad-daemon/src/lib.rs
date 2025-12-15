@@ -40,7 +40,9 @@ use futures::{
 use geoip::GeoIpHandler;
 use leak_checker::{LeakChecker, LeakInfo};
 use management_interface::ManagementInterfaceServer;
-use mullvad_api::{ApiEndpoint, access_mode::AccessMethodEvent, proxy::ApiConnectionMode};
+use mullvad_api::{
+    ApiEndpoint, CachedRelayList, access_mode::AccessMethodEvent, proxy::ApiConnectionMode,
+};
 use mullvad_encrypted_dns_proxy::state::EncryptedDnsProxyState;
 use mullvad_relay_selector::{RelaySelector, SelectorConfig};
 #[cfg(target_os = "android")]
@@ -757,6 +759,8 @@ impl Daemon {
         });
 
         let initial_selector_config = SelectorConfig::from_settings(&settings);
+        // TODO: read relay list from disk.
+        let relay_list: CachedRelayList = todo!();
         let relay_selector = RelaySelector::new(
             initial_selector_config,
             config.resource_dir.join(RELAYS_FILENAME),
@@ -953,6 +957,7 @@ impl Daemon {
             relay_selector.clone(),
             api_handle.clone(),
             &config.cache_dir,
+            relay_list.etag().cloned(),
             on_relay_list_update,
         );
 

@@ -318,13 +318,13 @@ impl RelaySelector {
         const DATE_TIME_FORMAT_STR: &str = "%Y-%m-%d %H:%M:%S%.3f";
         let unsynchronized_parsed_relays =
             ParsedRelays::from_file(&cache_path, &resource_path, &config.relay_overrides)
-                .unwrap_or_else(|error| {
+                .inspect_err(|error| {
                     log::error!(
                         "{}",
                         error.display_chain_with_msg("Unable to load cached and bundled relays")
                     );
-                    ParsedRelays::empty()
-                });
+                })
+                .unwrap_or(ParsedRelays::empty());
         log::info!(
             "Initialized with {} cached relays from {}",
             unsynchronized_parsed_relays.relays().count(),

@@ -79,6 +79,7 @@ impl RelayListUpdater {
         selector: RelaySelector,
         api_handle: MullvadRestHandle,
         cache_dir: &Path,
+        etag: Option<ETag>,
         on_update: impl Fn(&RelayList) + Send + 'static,
     ) -> RelayListUpdaterHandle {
         let (tx, cmd_rx) = mpsc::channel(1);
@@ -91,7 +92,7 @@ impl RelayListUpdater {
             on_update: Box::new(on_update),
             last_check: UNIX_EPOCH,
             api_availability,
-            etag: None,
+            etag,
         };
 
         tokio::spawn(updater.run(cmd_rx));

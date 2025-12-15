@@ -76,7 +76,7 @@ impl ParsedRelays {
     /// Replace the previous set of [overrides][`RelayOverride`] with `new_overrides`.
     /// This will update `self.parsed_list` as a side-effect.
     pub(crate) fn set_overrides(&mut self, new_overrides: &[RelayOverride]) {
-        self.parsed_list = Self::parse_relay_list(&self.original_list, new_overrides);
+        self.parsed_list = Self::apply_overrides(&self.original_list, new_overrides);
         self.overrides = new_overrides.to_vec();
     }
 
@@ -150,7 +150,7 @@ impl ParsedRelays {
     ) -> Self {
         ParsedRelays {
             last_updated,
-            parsed_list: Self::parse_relay_list(&relay_list, overrides),
+            parsed_list: Self::apply_overrides(&relay_list, overrides),
             bridge_list,
             original_list: relay_list,
             overrides: overrides.to_vec(),
@@ -159,7 +159,7 @@ impl ParsedRelays {
 
     /// Apply [overrides][`RelayOverride`] to [relay_list][`RelayList`], yielding an updated relay
     /// list.
-    fn parse_relay_list(relay_list: &RelayList, overrides: &[RelayOverride]) -> RelayList {
+    fn apply_overrides(relay_list: &RelayList, overrides: &[RelayOverride]) -> RelayList {
         let mut remaining_overrides = HashMap::new();
         for relay_override in overrides {
             remaining_overrides.insert(relay_override.hostname.clone(), relay_override.to_owned());
