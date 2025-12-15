@@ -361,14 +361,14 @@ impl RelaySelector {
         *config_mutex = config;
     }
 
-    /// TODO: Document
+    /// Update the list of relays
     pub fn set_relays(&self, relays: RelayList) {
         let mut parsed_relays = self.parsed_relays.lock().unwrap();
         let bridges = parsed_relays.bridge_list().clone();
         parsed_relays.update(relays, bridges);
     }
 
-    /// TODO: Document
+    /// Update the list of bridges
     pub fn set_bridges(&self, bridges: BridgeList) {
         let mut parsed_relays = self.parsed_relays.lock().unwrap();
         let relays = parsed_relays.parsed_list().clone();
