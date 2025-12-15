@@ -1,14 +1,16 @@
 //! Relay list updater
 
-use futures::{
-    Future, FutureExt, SinkExt, StreamExt,
-    channel::mpsc,
-    future::{Fuse, FusedFuture},
-};
-use std::{
-    path::{Path, PathBuf},
-    time::{Duration, SystemTime, UNIX_EPOCH},
-};
+pub mod error;
+pub(crate) mod parsed_relays;
+
+use error::Error;
+
+use std::path::{Path, PathBuf};
+use std::time::{Duration, SystemTime, UNIX_EPOCH};
+
+use futures::channel::mpsc;
+use futures::future::{Fuse, FusedFuture};
+use futures::{Future, FutureExt, SinkExt, StreamExt};
 use tokio::fs::File;
 
 use mullvad_api::{
@@ -31,16 +33,7 @@ const DOWNLOAD_RETRY_STRATEGY: Jittered<ExponentialBackoff> = Jittered::jitter(
 );
 
 /// Where the relay list is cached on disk.
-pub(crate) const RELAYS_FILENAME: &str = "relays.json";
-
-#[derive(thiserror::Error, Debug)]
-pub enum Error {
-    #[error("Downloader already shut down")]
-    DownloaderShutdown,
-
-    #[error("Mullvad relay selector error")]
-    RelaySelector(#[from] mullvad_relay_selector::Error),
-}
+const RELAYS_FILENAME: &str = "relays.json";
 
 #[derive(Clone)]
 pub struct RelayListUpdaterHandle {
@@ -63,15 +56,14 @@ impl RelayListUpdaterHandle {
     }
 }
 
-pub struct RelayListUpdater {
+pub(crate) struct RelayListUpdater {
     api_client: RelayListProxy,
     cache_path: PathBuf,
-    relay_selector: RelaySelector,
-    // TODO: Can we lift the relay list to this daemon state? Would be nice.
     on_update: Box<dyn Fn(&RelayList) + Send + 'static>,
     last_check: SystemTime,
     api_availability: ApiAvailability,
     etag: Option<ETag>,
+    relay_selector: RelaySelector,
 }
 
 impl RelayListUpdater {
@@ -79,6 +71,7 @@ impl RelayListUpdater {
         selector: RelaySelector,
         api_handle: MullvadRestHandle,
         cache_dir: &Path,
+        etag: Option<ETag>,
         on_update: impl Fn(&RelayList) + Send + 'static,
     ) -> RelayListUpdaterHandle {
         let (tx, cmd_rx) = mpsc::channel(1);
@@ -90,8 +83,8 @@ impl RelayListUpdater {
             relay_selector: selector,
             on_update: Box::new(on_update),
             last_check: UNIX_EPOCH,
+            etag,
             api_availability,
-            etag: None,
         };
 
         tokio::spawn(updater.run(cmd_rx));
@@ -105,7 +98,7 @@ impl RelayListUpdater {
             let next_check = tokio::time::sleep(UPDATE_CHECK_INTERVAL).fuse();
             tokio::pin!(next_check);
 
-            let etag = self.etag.as_ref().cloned();
+            let etag = self.etag.clone();
 
             futures::select! {
                 _check_update = next_check => {
@@ -154,10 +147,9 @@ impl RelayListUpdater {
         }
     }
 
-    /// Returns true if the current parsed_relays is older than UPDATE_INTERVAL
+    /// Returns true if the current relay list is older than [`UPDATE_INTERVAL`].
     fn should_update(&mut self) -> bool {
-        let last_check = std::cmp::max(self.relay_selector.last_updated(), self.last_check);
-        match SystemTime::now().duration_since(last_check) {
+        match SystemTime::now().duration_since(self.last_check) {
             Ok(duration) => duration >= UPDATE_INTERVAL,
             // If the clock is skewed we have no idea by how much or when the last update
             // actually was, better download again to get in sync and get a `last_updated`
@@ -211,18 +203,17 @@ impl RelayListUpdater {
         Ok(())
     }
 
-    /// Write a `RelayList` to the cache file.
+    /// Write a [`CachedRelayList`] to the file at `cache_path`.
     async fn cache_relays(cache_path: &Path, relays: &CachedRelayList) -> Result<(), Error> {
         log::debug!("Writing relays cache to {}", cache_path.display());
         let mut file = File::create(cache_path)
             .await
-            .map_err(mullvad_relay_selector::Error::OpenRelayCache)?;
-        let bytes =
-            serde_json::to_vec_pretty(relays).map_err(mullvad_relay_selector::Error::Serialize)?;
+            .map_err(Error::OpenRelayCache)?;
+        let bytes = serde_json::to_vec_pretty(relays)?;
         let mut slice: &[u8] = bytes.as_slice();
         let _ = tokio::io::copy(&mut slice, &mut file)
             .await
-            .map_err(mullvad_relay_selector::Error::WriteRelayCache)?;
+            .map_err(Error::WriteRelayCache)?;
         Ok(())
     }
 }

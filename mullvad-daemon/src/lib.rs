@@ -29,7 +29,7 @@ mod target_state;
 mod tunnel;
 pub mod version;
 
-use crate::target_state::PersistentTargetState;
+use crate::{relay_list::parsed_relays::ParseRelays, target_state::PersistentTargetState};
 use api::DaemonAccessMethodResolver;
 use device::{AccountEvent, PrivateAccountAndDevice, PrivateDeviceEvent};
 use futures::{
@@ -77,7 +77,7 @@ use mullvad_types::{
 use mullvad_update::version::Rollout;
 #[cfg(target_os = "android")]
 use mullvad_update::version::SUPPORTED_VERSION;
-use relay_list::{RELAYS_FILENAME, RelayListUpdater, RelayListUpdaterHandle};
+use relay_list::{RelayListUpdater, RelayListUpdaterHandle};
 use settings::SettingsPersister;
 use std::collections::BTreeSet;
 #[cfg(any(target_os = "windows", target_os = "android", target_os = "macos"))]
@@ -756,20 +756,15 @@ impl Daemon {
             settings_event_listener.notify_settings(settings.to_owned());
         });
 
+        let (relay_list, bridge_list, etag) = ParseRelays::from_file(
+            &config.cache_dir,
+            &config.resource_dir,
+            settings.relay_overrides.clone(),
+        )
+        .inspect_err(|err| log::error!("{err}"))
+        .unwrap_or_default();
         let initial_selector_config = SelectorConfig::from_settings(&settings);
-        let relay_selector = RelaySelector::new(
-            initial_selector_config,
-            config.resource_dir.join(RELAYS_FILENAME),
-            config.cache_dir.join(RELAYS_FILENAME),
-        );
-
-        let settings_relay_selector = relay_selector.clone();
-        settings.register_change_listener(move |settings| {
-            // Notify relay selector of changes to the settings/selector config
-            settings_relay_selector
-                .clone()
-                .set_config(SelectorConfig::from_settings(settings));
-        });
+        let relay_selector = RelaySelector::new(initial_selector_config, relay_list, bridge_list);
 
         let encrypted_dns_proxy_cache = EncryptedDnsProxyState::default();
         let method_resolver = DaemonAccessMethodResolver::new(
@@ -953,8 +948,17 @@ impl Daemon {
             relay_selector.clone(),
             api_handle.clone(),
             &config.cache_dir,
+            etag,
             on_relay_list_update,
         );
+
+        let settings_relay_selector = relay_selector.clone();
+        settings.register_change_listener(move |settings| {
+            // Notify relay selector of changes to the settings/selector config
+            settings_relay_selector
+                .clone()
+                .set_config(SelectorConfig::from_settings(settings));
+        });
 
         #[cfg(not(target_os = "android"))]
         let rollout = {
@@ -1953,7 +1957,7 @@ impl Daemon {
 
         if self.settings.update_default_location
             && let Some(location) = self.tunnel_state.get_location()
-            && let Some(country_code) = self.relay_selector.access_relays(|relays| {
+            && let Some(country_code) = self.relay_selector.relay_list(|relays| {
                 relays
                     .lookup_country_code_by_name(&location.country)
                     .or_else(|| relays.get_nearest_country_with_relay(location))
