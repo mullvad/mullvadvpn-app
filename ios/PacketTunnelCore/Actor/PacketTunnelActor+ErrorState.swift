@@ -132,7 +132,10 @@ extension PacketTunnelActor {
             try? await tunnelAdapter.stop()
             try await tunnelAdapter.start(configuration: config, daita: nil)
         } catch {
-            logger.error(error: error, message: "Unable to configure the tunnel for error state.")
+            // If we can't configure the error state tunnel (e.g., setNetworkSettings fails),
+            // log it but don't propagate the error. We're already in error state.
+            // The system will remain in error state without traffic blocking via WireGuard.
+            logger.error(error: error, message: "Unable to configure the tunnel for error state. Traffic blocking may not be active.")
         }
     }
 
