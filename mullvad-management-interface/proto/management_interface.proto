@@ -744,7 +744,7 @@ message Bridge {
   Location location = 6;
 }
 
-// Configuration of the bridge servers
+// Shadowsocks endpoints reachable on all bridge servers
 message BridgeEndpointData { repeated ShadowsocksEndpointData shadowsocks = 1; }
 
 message ShadowsocksEndpointData {
@@ -754,6 +754,7 @@ message ShadowsocksEndpointData {
   TransportProtocol protocol = 4;
 }
 
+// Endpoints reachable on all WireGuard servers
 message WireguardEndpointData {
   repeated PortRange port_ranges = 1;
   string ipv4_gateway = 2;
