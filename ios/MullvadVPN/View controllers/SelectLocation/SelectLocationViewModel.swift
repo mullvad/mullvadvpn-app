@@ -288,7 +288,7 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
                     .reload(entryRelays.toLocationRelays())
                 entryContext.locations =
                     entryLocationsDataSource.nodes
-                entryContext.availableRelayCount = relaysCandidates.entryRelays?.count ?? 0
+                entryContext.availableRelayCount = entryRelays.count
             }
         } else {
             entryContext.locations = []
