@@ -237,37 +237,50 @@ impl From<mullvad_types::relay_list::RelayListCountry> for proto::RelayListCount
 
 impl From<mullvad_types::relay_list::WireguardRelay> for proto::Relay {
     fn from(relay: mullvad_types::relay_list::WireguardRelay) -> Self {
-        Self {
-            hostname: relay.hostname.clone(),
-            ipv4_addr_in: relay.ipv4_addr_in.to_string(),
-            ipv6_addr_in: relay.ipv6_addr_in.map(|addr| addr.to_string()),
-            include_in_country: relay.include_in_country,
-            active: relay.active,
-            owned: relay.owned,
-            provider: relay.provider.clone(),
-            weight: relay.weight,
-            endpoint_data: {
-                let mullvad_types::relay_list::WireguardRelayEndpointData {
+        let mullvad_types::relay_list::WireguardRelay {
+            overridden_ipv4: _,
+            overridden_ipv6: _,
+            include_in_country,
+            owned,
+            provider,
+            endpoint_data:
+                mullvad_types::relay_list::WireguardRelayEndpointData {
                     public_key,
                     daita,
                     quic,
                     lwo,
                     shadowsocks_extra_addr_in,
-                } = relay.endpoint_data.clone();
-                let data = proto::relay::WireguardEndpoint {
-                    public_key: public_key.as_bytes().to_vec(),
-                    daita,
-                    shadowsocks_extra_addr_in: shadowsocks_extra_addr_in
-                        .iter()
-                        .map(|addr| addr.to_string())
-                        .collect(),
-                    quic: quic.map(proto::relay::wireguard_endpoint::Quic::from),
-                    lwo,
-                };
-
-                Some(data)
-            },
-            location: Some(proto::Location::from(relay.location.clone())),
+                },
+            inner:
+                mullvad_types::relay_list::Relay {
+                    hostname,
+                    ipv4_addr_in,
+                    ipv6_addr_in,
+                    active,
+                    weight,
+                    location,
+                },
+        } = relay;
+        Self {
+            hostname,
+            ipv4_addr_in: ipv4_addr_in.to_string(),
+            ipv6_addr_in: ipv6_addr_in.map(|addr| addr.to_string()),
+            include_in_country,
+            active,
+            owned,
+            provider,
+            weight,
+            endpoint_data: Some(proto::relay::WireguardEndpoint {
+                public_key: public_key.as_bytes().to_vec(),
+                daita,
+                shadowsocks_extra_addr_in: shadowsocks_extra_addr_in
+                    .iter()
+                    .map(|addr| addr.to_string())
+                    .collect(),
+                quic: quic.map(proto::relay::wireguard_endpoint::Quic::from),
+                lwo,
+            }),
+            location: Some(proto::Location::from(location)),
         }
     }
 }
