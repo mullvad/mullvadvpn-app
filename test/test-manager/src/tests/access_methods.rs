@@ -34,7 +34,7 @@ async fn test_access_method_shadowsocks(
     // select a bridge server to derive all the needed parameters.
     let bridge_list = mullvad_client.get_bridges().await.unwrap();
     let relay_selector =
-        RelaySelector::from_list(SelectorConfig::default(), RelayList::default(), bridge_list);
+        RelaySelector::new(SelectorConfig::default(), RelayList::default(), bridge_list);
     let access_method = relay_selector
         .get_bridge_forced()
         .context("`test_shadowsocks` needs at least one shadowsocks relay to execute. Found none in relay list.")?;

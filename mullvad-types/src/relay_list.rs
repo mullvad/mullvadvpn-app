@@ -1,7 +1,10 @@
-use crate::location::{CityCode, Coordinates, CountryCode, Location};
+use crate::{
+    location::{CityCode, Coordinates, CountryCode, Location},
+    relay_constraints::RelayOverride,
+};
 use serde::{Deserialize, Serialize};
 use std::{
-    collections::HashSet,
+    collections::{HashMap, HashSet},
     net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr},
     ops::RangeInclusive,
 };
@@ -86,6 +89,39 @@ impl RelayList {
             .into_iter()
             .flat_map(|country| country.cities)
             .flat_map(|city| city.relays)
+    }
+
+    /// Apply [overrides][`RelayOverride`] to [relay_list][`RelayList`], yielding an updated relay
+    /// list.
+    pub fn apply_overrides(mut self, overrides: Vec<RelayOverride>) -> Self {
+        let mut remaining_overrides = HashMap::new();
+        for relay_override in overrides {
+            remaining_overrides.insert(relay_override.hostname.clone(), relay_override);
+        }
+
+        // Add location and override relay data
+        for country in &mut self.countries {
+            for city in &mut country.cities {
+                for relay in &mut city.relays {
+                    // Append location data
+                    relay.location = Location {
+                        country: country.name.clone(),
+                        country_code: country.code.clone(),
+                        city: city.name.clone(),
+                        city_code: city.code.clone(),
+                        latitude: city.latitude,
+                        longitude: city.longitude,
+                    };
+
+                    // Append overrides
+                    if let Some(overrides) = remaining_overrides.remove(&relay.hostname) {
+                        overrides.apply_to_relay(relay);
+                    }
+                }
+            }
+        }
+
+        self
     }
 }
 

@@ -809,7 +809,7 @@ pub fn get_daemon_relay_selector(
     relay_list: mullvad_types::relay_list::RelayList,
     bridge_list: mullvad_types::relay_list::BridgeList,
 ) -> RelaySelector {
-    RelaySelector::from_list(
+    RelaySelector::new(
         SelectorConfig::from_settings(settings),
         relay_list,
         bridge_list,

@@ -6,12 +6,6 @@ use talpid_types::net::IpVersion;
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
-    #[error("Failed to open relay cache file")]
-    OpenRelayCache(#[source] std::io::Error),
-
-    #[error("Failed to write relay cache file to disk")]
-    WriteRelayCache(#[source] std::io::Error),
-
     #[error("The combination of relay constraints is invalid")]
     InvalidConstraints,
 
@@ -35,9 +29,6 @@ pub enum Error {
         internal: detailer::Error,
         relay: EndpointErrorDetails,
     },
-
-    #[error("Failure in serialization of the relay list")]
-    Serialize(#[from] serde_json::Error),
 
     #[error("The requested IP version ({family}) does not match ip availability")]
     IpVersionUnavailable { family: IpVersion },
