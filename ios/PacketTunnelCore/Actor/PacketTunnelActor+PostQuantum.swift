@@ -30,6 +30,13 @@ extension PacketTunnelActor {
      Called on receipt of the new PQ-negotiated key, to reconnect to the relay, in PQ-secure mode.
      */
     internal func connectWithEphemeralPeer() async {
+        // Don't reconnect if we're in error state - stay in error state
+        // The error occurred during configuration, not negotiation
+        if case .error = state {
+            logger.error("Cannot connect with ephemeral peer: actor is in error state. Staying in error state.")
+            return
+        }
+
         guard let connectionData = state.connectionData else {
             logger.error("Could not create connection state in PostQuantumConnect")
             eventChannel.send(.reconnect(.current))
