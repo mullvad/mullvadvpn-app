@@ -36,6 +36,8 @@ impl Drop for RMSession {
 /// Show a message box asking the user to close processes that prevent us from updating the files
 /// in `dir_path`. If none are found, no message is shown.
 ///
+/// If `allow_cancellation` is true, the user is given the option to cancel.
+///
 /// On success, this returns whether to continue. If the user decides to cancel, it returns false.
 ///
 /// This fails if Restart Manager refuses to continue without a reboot.
