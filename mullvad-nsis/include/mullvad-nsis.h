@@ -59,7 +59,7 @@ Status get_system_version(uint16_t *buffer, uintptr_t *buffer_size);
 Status get_system_version_struct(WindowsVer *version_out);
 
 /// Identify processes that may be using files in the install path, and ask the user to close them.
-/// If `allow_cancellation` is true, the function will not let the user cancel.
+/// If `allow_cancellation` is true, the function will let the user cancel.
 ///
 /// # Safety
 ///
