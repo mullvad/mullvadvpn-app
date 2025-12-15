@@ -161,7 +161,7 @@ pub unsafe extern "C" fn get_system_version_struct(version_out: *mut WindowsVer)
 }
 
 /// Identify processes that may be using files in the install path, and ask the user to close them.
-/// If `allow_cancellation` is true, the function will not let the user cancel.
+/// If `allow_cancellation` is true, the function will let the user cancel.
 ///
 /// # Safety
 ///
