@@ -165,7 +165,11 @@ public actor PacketTunnelActor {
         do {
             try await updateEphemeralPeerNegotiationState(configuration: configuration)
         } catch {
-            logger.error(error: error, message: "Failed to reconfigure tunnel after each hop negotiation.")
+            logger.error(error: error, message: "Failed to reconfigure tunnel after ephemeral peer negotiation. Entering error state.")
+            // Log the specific error type for debugging
+            if let adapterError = error as? WireGuardAdapterError {
+                logger.debug("WireGuardAdapterError: \(adapterError)")
+            }
             await setErrorStateInternal(with: error)
         }
         semaphore.send()
