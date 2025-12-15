@@ -180,6 +180,10 @@ pub fn terminate_processes(
 }
 
 /// Ask the user to confirm shutdown of the apps in `rg_affected_apps`.
+///
+/// If `allow_cancellation` is true, the user is given the option to cancel.
+/// If it is false, then the applications will be killed after the user clicks "OK".
+///
 /// This returns `true` if the user wishes to continue, `false` otherwise.
 fn ask_for_confirmation(
     rg_affected_apps: &[RestartManager::RM_PROCESS_INFO],
