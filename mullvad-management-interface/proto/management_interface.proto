@@ -95,7 +95,7 @@ service ManagementService {
   rpc TestApiAccessMethodById(UUID) returns (google.protobuf.BoolValue) {}
 
   // Split tunneling (Linux)
-  rpc SplitTunnelIsEnabled(google.protobuf.Empty) returns (google.protobuf.BoolValue) {}
+  rpc SplitTunnelIsSupported(google.protobuf.Empty) returns (google.protobuf.BoolValue) {}
   rpc GetSplitTunnelProcesses(google.protobuf.Empty) returns (stream google.protobuf.Int32Value) {}
   rpc AddSplitTunnelProcess(google.protobuf.Int32Value) returns (google.protobuf.Empty) {}
   rpc RemoveSplitTunnelProcess(google.protobuf.Int32Value) returns (google.protobuf.Empty) {}
