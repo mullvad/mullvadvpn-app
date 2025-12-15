@@ -199,14 +199,14 @@ impl SplitTunnel {
 
 /// Dummy implementation of split tunneling that fails in the "engaged" state.
 ///
-/// It allows us to fail when split tunneling should be active due to user settings,
-/// but pretend to work when we would not have been in the engaged state anyway (e.g.
+/// This is used to fail when split tunneling should be active due to user settings,
+/// but work when we would not have been in the engaged state anyway (e.g.
 /// when the user is not excluding any apps, has no tunnel, or has disabled split tunneling).
 ///
-/// The actual split tunneling device is a state machine with four states:
-/// * Started, initialized, ready, and engaged.
-/// We can amortize these states into states, "non-engaged" and "engaged", fail whenever we enter
-/// the engaged state.
+/// The actual split tunneling device is a state machine with four states: Started, initialized,
+/// ready, and engaged.
+/// These can be collapsed into two states, _non-engaged_ and _engaged_. The state is engaged
+/// when there are paths to exclude and a tunnel (tunnel addresses).
 struct InactiveSplitTunnelInner {
     paths: Vec<OsString>,
     tunnel_addresses: Vec<IpAddr>,
