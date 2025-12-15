@@ -46,7 +46,6 @@ impl Drop for RMSession {
 ///
 /// This function intentionally does not kill the Mullvad VPN service. The installer must manually
 /// shut this down.
-// TODO: Would it be better to keep the session active until it's been destroyed?
 pub fn terminate_processes(
     dir_path: impl AsRef<Path>,
     allow_cancellation: bool,
