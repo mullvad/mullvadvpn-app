@@ -745,7 +745,8 @@ fun VpnSettingsContent(
                                     .focusRequester(
                                         focusRequesters.getValue(FeatureIndicator.LAN_SHARING)
                                     ),
-                            backgroundAlpha = highlightBackgroundAlpha(FeatureIndicator.CUSTOM_DNS),
+                            backgroundAlpha =
+                                highlightBackgroundAlpha(FeatureIndicator.LAN_SHARING),
                             title = stringResource(R.string.local_network_sharing),
                             isToggled = it.enabled,
                             isEnabled = true,
@@ -765,7 +766,7 @@ fun VpnSettingsContent(
                                     .testTag(LAZY_LIST_LAST_ITEM_TEST_TAG),
                             mtuValue = it.mtu,
                             onEditMtu = { navigateToMtuDialog(it.mtu) },
-                            backgroundAlpha = highlightBackgroundAlpha(FeatureIndicator.CUSTOM_DNS),
+                            backgroundAlpha = highlightBackgroundAlpha(FeatureIndicator.CUSTOM_MTU),
                         )
                     }
 
@@ -780,10 +781,7 @@ fun VpnSettingsContent(
                             onInfoClicked = navigateToQuantumResistanceInfo,
                             onCellClicked = onSelectQuantumResistanceSetting,
                             backgroundAlpha =
-                                when (initialScrollToFeature) {
-                                    FeatureIndicator.QUANTUM_RESISTANCE -> highlightAnimation.value
-                                    else -> 1.0f
-                                },
+                                highlightBackgroundAlpha(FeatureIndicator.QUANTUM_RESISTANCE),
                             testTag = LAZY_LIST_QUANTUM_ITEM_TEST_TAG,
                         )
                     }
