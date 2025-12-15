@@ -113,11 +113,11 @@ function convertFromRelayListCity(city: grpcTypes.RelayListCity): IRelayListCity
 function convertFromRelayListRelay(relay: grpcTypes.Relay): IRelayListHostname | undefined {
   const relayObject = relay.toObject();
 
-  const wireguard = relayObject.endpointData;
+  const endpointData = relayObject.endpointData;
 
-  const daita = wireguard ? wireguard.daita : false;
-  const quic = wireguard?.quic ? quicFromRelayType(wireguard.quic) : undefined;
-  const lwo = wireguard ? wireguard.lwo : false;
+  const daita = endpointData ? endpointData.daita : false;
+  const quic = endpointData?.quic ? quicFromRelayType(endpointData.quic) : undefined;
+  const lwo = endpointData ? endpointData.lwo : false;
 
   return {
     ...relayObject,
