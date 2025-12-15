@@ -90,7 +90,7 @@ impl RelayListProxy {
 /// Relay list as served by the API.
 ///
 /// This stuct should conform to the API response 1-1.
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct ServerRelayList {
     locations: BTreeMap<String, Location>,
     wireguard: Wireguard,
@@ -98,7 +98,7 @@ pub struct ServerRelayList {
 }
 
 /// Relay list as served by the API, paired with the corresponding [`ETag`] from the response header.
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct CachedRelayList {
     #[serde(flatten)]
     relay_list: ServerRelayList,
@@ -151,7 +151,16 @@ impl ServerRelayList {
             countries
         };
 
-        let wireguard_endpointdata = wireguard.endpoint_data();
+        let wireguard_endpointdata = {
+            const UDP2TCP_PORTS: [u16; 3] = [80, 443, 5001];
+            let mut data = wireguard.endpoint_data();
+            // Append data for obfuscation protocols ourselves, since the API does not provide it.
+            if data.udp2tcp_ports.is_empty() {
+                data.udp2tcp_ports.extend(UDP2TCP_PORTS);
+            }
+
+            data
+        };
         let countries = wireguard.extract_relays(countries);
         let bridge_list = bridge.extract_relays(&countries);
         let relay_list = relay_list::RelayList {
@@ -203,7 +212,7 @@ fn location_to_city(location: &Location, code: String) -> relay_list::RelayListC
     }
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 struct Location {
     city: String,
     country: String,
@@ -211,7 +220,7 @@ struct Location {
     longitude: f64,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 struct Relay {
     hostname: String,
     active: bool,
@@ -257,7 +266,7 @@ impl Relay {
     }
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 struct Wireguard {
     port_ranges: Vec<(u16, u16)>,
     ipv4_gateway: Ipv4Addr,
@@ -333,7 +342,7 @@ impl Wireguard {
     }
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 struct WireGuardRelay {
     #[serde(flatten)]
     relay: Relay,
@@ -433,7 +442,7 @@ struct Lwo {}
 /// The were previously also used for proxying traffic to OpenVPN servers.
 ///
 /// See [Relay] for details.
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 struct Bridges {
     shadowsocks: Vec<relay_list::ShadowsocksEndpointData>,
     /// The physical bridge servers and generic connnection details.
