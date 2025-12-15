@@ -430,7 +430,7 @@ struct Lwo {}
 
 /// Mullvad Bridge servers are used for the Bridge API access method.
 ///
-/// The were previously also used for proxying to traffic OpenVPN servers.
+/// The were previously also used for proxying traffic to OpenVPN servers.
 ///
 /// See [Relay] for details.
 #[derive(Debug, Deserialize, Serialize)]
