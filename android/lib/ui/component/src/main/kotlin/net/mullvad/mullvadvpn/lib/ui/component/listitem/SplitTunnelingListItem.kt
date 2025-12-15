@@ -39,21 +39,21 @@ private fun PreviewSplitTunnelingListItem() {
     AppTheme {
         PreviewSpacedColumn {
             SplitTunnelingListItem(
-                title = "Expandable row title",
+                title = "Removable App",
                 isEnabled = true,
                 onCellClicked = {},
                 isSelected = true,
                 iconState = IconState.Loading,
             )
             SplitTunnelingListItem(
-                title = "Expandable row title",
+                title = "Addable App",
                 isEnabled = true,
                 onCellClicked = {},
                 isSelected = false,
                 iconState = IconState.Loading,
             )
             SplitTunnelingListItem(
-                title = "Expandable row title",
+                title = "Disabled App",
                 isEnabled = false,
                 onCellClicked = {},
                 isSelected = false,
@@ -84,7 +84,7 @@ fun SplitTunnelingListItem(
         backgroundAlpha = backgroundAlpha,
         colors = ListItemDefaults.colors(),
         content = { Text(title) },
-        leadingContent = { Icon(iconState = iconState) },
+        leadingContent = { Icon(iconState = iconState, isEnabled) },
         trailingContent = {
             Icon(
                 imageVector =
@@ -94,7 +94,10 @@ fun SplitTunnelingListItem(
                         Icons.Default.Add
                     },
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurface,
+                tint =
+                    MaterialTheme.colorScheme.onSurface.copy(
+                        alpha = if (isEnabled) 1f else AlphaDisabled
+                    ),
                 modifier = Modifier.size(size = iconSize),
             )
         },
@@ -102,7 +105,7 @@ fun SplitTunnelingListItem(
 }
 
 @Composable
-private fun BoxScope.Icon(iconState: IconState) {
+private fun BoxScope.Icon(iconState: IconState, isEnabled: Boolean) {
     when (iconState) {
         IconState.Loading ->
             Box(
@@ -117,6 +120,7 @@ private fun BoxScope.Icon(iconState: IconState) {
             Image(
                 painter = rememberDrawablePainter(drawable = iconState.drawable),
                 contentDescription = null,
+                alpha = if (isEnabled) 1f else AlphaDisabled,
                 modifier =
                     Modifier.align(Alignment.Center)
                         .padding(end = Dimens.smallPadding)
@@ -127,6 +131,7 @@ private fun BoxScope.Icon(iconState: IconState) {
             Image(
                 imageVector = Icons.Default.Android,
                 contentDescription = null,
+                alpha = if (isEnabled) 1f else AlphaDisabled,
                 modifier =
                     Modifier.align(Alignment.Center)
                         .padding(end = Dimens.smallPadding)
