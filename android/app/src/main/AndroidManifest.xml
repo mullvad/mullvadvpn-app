@@ -69,6 +69,7 @@
         <!-- Default app name and icon -->
         <activity-alias
             android:name="net.mullvad.mullvadvpn.ui.obfuscation.MainActivityDefault"
+            android:launchMode="singleInstance"
             android:enabled="true"
             android:exported="true"
             android:icon="@mipmap/ic_launcher"
@@ -92,6 +93,7 @@
         <!-- Game -->
         <activity-alias
             android:name="net.mullvad.mullvadvpn.ui.obfuscation.MainActivityAltGame"
+            android:launchMode="singleInstance"
             android:enabled="false"
             android:exported="true"
             android:icon="@mipmap/ic_launcher_game"
@@ -114,6 +116,7 @@
         <!-- Weather -->
         <activity-alias
             android:name="net.mullvad.mullvadvpn.ui.obfuscation.MainActivityAltWeather"
+            android:launchMode="singleInstance"
             android:enabled="false"
             android:exported="true"
             android:icon="@mipmap/ic_launcher_weather"
@@ -136,6 +139,7 @@
         <!-- News -->
         <activity-alias
             android:name="net.mullvad.mullvadvpn.ui.obfuscation.MainActivityAltNews"
+            android:launchMode="singleInstance"
             android:enabled="false"
             android:exported="true"
             android:icon="@mipmap/ic_launcher_news"
@@ -158,6 +162,7 @@
         <!-- Browser -->
         <activity-alias
             android:name="net.mullvad.mullvadvpn.ui.obfuscation.MainActivityAltBrowser"
+            android:launchMode="singleInstance"
             android:enabled="false"
             android:exported="true"
             android:icon="@mipmap/ic_launcher_browser"
@@ -180,6 +185,7 @@
         <!-- Notes -->
         <activity-alias
             android:name="net.mullvad.mullvadvpn.ui.obfuscation.MainActivityAltNotes"
+            android:launchMode="singleInstance"
             android:enabled="false"
             android:exported="true"
             android:icon="@mipmap/ic_launcher_notes"
@@ -202,6 +208,7 @@
         <!-- Ninja -->
         <activity-alias
             android:name="net.mullvad.mullvadvpn.ui.obfuscation.MainActivityAltNinja"
+            android:launchMode="singleInstance"
             android:enabled="false"
             android:exported="true"
             android:icon="@mipmap/ic_launcher_ninja"
@@ -224,6 +231,7 @@
         <!-- Browser night -->
         <activity-alias
             android:name="net.mullvad.mullvadvpn.ui.obfuscation.MainActivityAltBrowserNight"
+            android:launchMode="singleInstance"
             android:enabled="false"
             android:exported="true"
             android:icon="@mipmap/ic_launcher_browser_night"

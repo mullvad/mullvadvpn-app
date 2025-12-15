@@ -2866,9 +2866,6 @@ msgstr ""
 msgid "Android 16 has a known issue. Please restart your device and try again. To learn more,"
 msgstr ""
 
-msgid "App obfuscation"
-msgstr ""
-
 msgid "Appearance"
 msgstr ""
 
