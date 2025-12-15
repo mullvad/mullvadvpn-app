@@ -356,17 +356,20 @@ extension PacketTunnelProvider {
         stateObserverTask = Task {
             let stateStream = await self.actor.observedStates
             var lastConnectionAttempt: UInt = 0
+            // We shouldn't set the reasserting flag if we never connect in the first place
+            let firstConnection = true
 
             for await newState in stateStream {
                 // Tell packet tunnel when reconnection begins.
                 // Packet tunnel moves to `NEVPNStatus.reasserting` state once `reasserting` flag is set to `true`.
-                if case .reconnecting = newState, !self.reasserting {
-                    self.reasserting = true
-                }
+//                if case .reconnecting = newState, !self.reasserting {
+//                    self.reasserting = true
+//                }
 
                 // Tell packet tunnel when reconnection ends.
                 // Packet tunnel moves to `NEVPNStatus.connected` state once `reasserting` flag is set to `false`.
                 if case .connected = newState, self.reasserting {
+                    self.reasserting = true
                     self.reasserting = false
                 }
 
