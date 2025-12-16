@@ -262,14 +262,14 @@ impl InactiveSplitTunnelState {
     /// If there is no tunnel or no paths to exclude, then split tunneling is supposed to be
     /// inactive.
     ///
-    /// In this case, no action should fail (unless it causes a transition to `Self::Engaged`).
+    /// In this case, no action should fail (unless it causes a transition to 'engaged').
     ///
     /// # Engaged state
     ///
     /// If there is a tunnel as well as paths to exclude, then split tunneling is supposed to be
     /// active.
     ///
-    /// In this case, any action should fail (unless it causes a transition to `Self::NonEngaged`).
+    /// In this case, any action should fail (unless it causes a transition to 'non-engaged').
     fn current_state(&self) -> InactiveSplitTunnelStateState {
         if self.tunnel_addresses.is_empty() || self.paths.is_empty() {
             InactiveSplitTunnelStateState::NonEngaged
