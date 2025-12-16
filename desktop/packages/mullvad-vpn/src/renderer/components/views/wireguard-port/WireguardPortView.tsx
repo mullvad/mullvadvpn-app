@@ -8,7 +8,7 @@ import { AppNavigationHeader } from '../..';
 import { BackAction } from '../../keyboard-navigation';
 import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
-import SettingsHeader, { HeaderTitle } from '../../SettingsHeader';
+import { HeaderTitle } from '../../SettingsHeader';
 import { PortSetting } from './components';
 
 export function WireguardPortView() {
@@ -26,7 +26,7 @@ export function WireguardPortView() {
             />
 
             <NavigationScrollbars>
-              <SettingsHeader>
+              <View.Container horizontalMargin="medium" flexDirection="column" gap="medium">
                 <HeaderTitle>
                   {sprintf(
                     // TRANSLATORS: Page title for WireGuard port view
@@ -36,9 +36,8 @@ export function WireguardPortView() {
                     },
                   )}
                 </HeaderTitle>
-              </SettingsHeader>
-
-              <PortSetting />
+                <PortSetting />
+              </View.Container>
             </NavigationScrollbars>
           </View.Content>
         </NavigationContainer>

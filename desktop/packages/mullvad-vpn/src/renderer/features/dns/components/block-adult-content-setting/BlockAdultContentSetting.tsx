@@ -1,5 +1,4 @@
 import { messages } from '../../../../../shared/gettext';
-import { FlexRow } from '../../../../lib/components/flex-row';
 import { ListItem } from '../../../../lib/components/list-item';
 import { BlockAdultContentSwitch } from '../block-adult-content-switch/BlockAdultContentSwitch';
 
@@ -9,14 +8,12 @@ export function BlockAdultContentSetting() {
       <ListItem.Item>
         <ListItem.Content>
           <BlockAdultContentSwitch>
-            <FlexRow padding={{ left: 'medium' }}>
-              <BlockAdultContentSwitch.Label variant="bodySmall">
-                {
-                  // TRANSLATORS: Label for settings that enables block of adult content.
-                  messages.pgettext('vpn-settings-view', 'Adult content')
-                }
-              </BlockAdultContentSwitch.Label>
-            </FlexRow>
+            <BlockAdultContentSwitch.Label variant="bodySmall">
+              {
+                // TRANSLATORS: Label for settings that enables block of adult content.
+                messages.pgettext('vpn-settings-view', 'Adult content')
+              }
+            </BlockAdultContentSwitch.Label>
             <BlockAdultContentSwitch.Trigger>
               <BlockAdultContentSwitch.Thumb />
             </BlockAdultContentSwitch.Trigger>
