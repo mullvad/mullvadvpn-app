@@ -1,15 +1,13 @@
 package net.mullvad.mullvadvpn.compose.screen
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyGridScope
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
@@ -107,54 +105,47 @@ fun AppearanceScreen(
         snackbarHostState = snackbarHostState,
         appBarTitle = stringResource(id = R.string.appearance),
         navigationIcon = { NavigateBackIconButton(onNavigateBack = onBackClick) },
-    ) { modifier ->
-        Column(modifier = modifier.fillMaxSize().padding(horizontal = Dimens.sideMarginNew)) {
+    ) { modifier, lazyGridState: LazyGridState ->
+        LazyVerticalGrid(
+            state = lazyGridState,
+            modifier = modifier.padding(horizontal = Dimens.sideMarginNew),
+            columns = GridCells.Adaptive(GRID_MIN_WIDTH),
+        ) {
             when (state) {
-                is Lc.Content -> Content(state.value, onObfuscationSelected)
-                is Lc.Loading -> Loading()
+                is Lc.Content -> content(state.value, onObfuscationSelected)
+                is Lc.Loading -> loading()
             }
         }
     }
 }
 
-@Composable
-private fun ColumnScope.Content(
+private fun LazyGridScope.content(
     state: AppearanceUiState,
     onObfuscationSelected: (AppObfuscation) -> Unit = {},
 ) {
-    val lazyGridState = rememberLazyGridState()
-    Description()
-    ListHeader(content = { Text(text = stringResource(R.string.icon_and_title)) })
-    LazyVerticalGrid(
-        modifier = Modifier.fillMaxWidth().weight(1f),
-        state = lazyGridState,
-        columns = GridCells.Adaptive(GRID_MIN_WIDTH),
-    ) {
-        items(items = state.availableObfuscations, key = { it.path }) { item ->
-            Card(
-                shape = MaterialTheme.shapes.large,
-                onClick = { onObfuscationSelected(item) },
-                colors =
-                    CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceDim),
-                border =
-                    if (item == state.currentAppObfuscation) {
-                        BorderStroke(
-                            width = BORDER_WIDTH,
-                            color = MaterialTheme.colorScheme.tertiary,
-                        )
-                    } else {
-                        null
-                    },
-                modifier = Modifier.padding(all = Dimens.tinyPadding),
-            ) {
-                AppIconAndTitleGridItem(
-                    modifier =
-                        Modifier.align(Alignment.CenterHorizontally)
-                            .padding(all = Dimens.smallPadding),
-                    appTitle = stringResource(item.labelId),
-                    appIcon = item.iconId,
-                )
-            }
+    item(span = { GridItemSpan(this.maxLineSpan) }) { Description() }
+    item(span = { GridItemSpan(this.maxLineSpan) }) {
+        ListHeader(content = { Text(text = stringResource(R.string.icon_and_title)) })
+    }
+    items(items = state.availableObfuscations, key = { it.path }) { item ->
+        Card(
+            shape = MaterialTheme.shapes.large,
+            onClick = { onObfuscationSelected(item) },
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceDim),
+            border =
+                if (item == state.currentAppObfuscation) {
+                    BorderStroke(width = BORDER_WIDTH, color = MaterialTheme.colorScheme.tertiary)
+                } else {
+                    null
+                },
+            modifier = Modifier.padding(all = Dimens.tinyPadding),
+        ) {
+            AppIconAndTitleGridItem(
+                modifier =
+                    Modifier.align(Alignment.CenterHorizontally).padding(all = Dimens.smallPadding),
+                appTitle = stringResource(item.labelId),
+                appIcon = item.iconId,
+            )
         }
     }
 }
@@ -172,9 +163,8 @@ private fun Description() {
     )
 }
 
-@Composable
-private fun Loading() {
-    MullvadCircularProgressIndicatorMedium()
+private fun LazyGridScope.loading() {
+    item { MullvadCircularProgressIndicatorMedium() }
 }
 
 private val GRID_MIN_WIDTH = 110.dp

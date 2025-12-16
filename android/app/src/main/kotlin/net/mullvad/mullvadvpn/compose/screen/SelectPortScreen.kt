@@ -4,6 +4,7 @@ import android.os.Parcelable
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -117,7 +118,7 @@ fun SelectPortScreen(
     ScaffoldWithMediumTopBar(
         appBarTitle = state.contentOrNull()?.title ?: "",
         navigationIcon = { NavigateBackIconButton(onNavigateBack = onBackClick) },
-    ) { modifier, lazyListState ->
+    ) { modifier, lazyListState: LazyListState ->
         LazyColumn(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = modifier.padding(horizontal = Dimens.sideMarginNew),

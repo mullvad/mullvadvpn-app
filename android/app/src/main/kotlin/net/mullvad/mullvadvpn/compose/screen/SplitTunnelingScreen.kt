@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -147,7 +148,7 @@ fun SplitTunnelingScreen(
                 NavigateBackIconButton(onNavigateBack = onBackClick)
             }
         },
-    ) { modifier, lazyListState ->
+    ) { modifier, lazyListState: LazyListState ->
         LazyColumn(
             modifier =
                 modifier

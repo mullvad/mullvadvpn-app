@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -117,7 +118,7 @@ fun SettingsScreen(
     ScaffoldWithMediumTopBar(
         appBarTitle = stringResource(id = R.string.settings),
         navigationIcon = { NavigateCloseIconButton(onBackClick) },
-    ) { modifier, lazyListState ->
+    ) { modifier, lazyListState: LazyListState ->
         LazyColumn(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier =
