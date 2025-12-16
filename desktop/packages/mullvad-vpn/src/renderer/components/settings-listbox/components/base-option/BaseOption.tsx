@@ -16,7 +16,6 @@ export function BaseOption<T>({
         <Listbox.Option.Item>
           <Listbox.Option.Content>
             <Listbox.Option.Group>
-              <Listbox.Option.Icon icon="checkmark" />
               <Listbox.Option.Label>{children}</Listbox.Option.Label>
             </Listbox.Option.Group>
           </Listbox.Option.Content>
