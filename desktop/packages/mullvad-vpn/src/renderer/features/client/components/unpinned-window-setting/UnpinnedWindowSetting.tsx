@@ -14,7 +14,7 @@ export function UnpinnedWindowSetting(props: UnpinnedWindowSettingProps) {
       <SettingsListItem.Item>
         <SettingsListItem.Content>
           <UnpinnedWindowSwitch>
-            <UnpinnedWindowSwitch.Label variant="titleMedium">
+            <UnpinnedWindowSwitch.Label>
               {messages.pgettext('user-interface-settings-view', 'Unpin app from taskbar')}
             </UnpinnedWindowSwitch.Label>
             <UnpinnedWindowSwitch.Trigger aria-describedby={descriptionId}>
