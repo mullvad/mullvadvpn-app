@@ -16,7 +16,7 @@ import WireGuardKitTypes
 
 class RotateKeyOperation: ResultOperation<Void>, @unchecked Sendable {
     private let logger = Logger(label: "RotateKeyOperation")
-    private let interactor: TunnelInteractor
+    private weak var interactor: TunnelInteractor?
     private let devicesProxy: DeviceHandling
     private var task: Cancellable?
 
@@ -29,7 +29,7 @@ class RotateKeyOperation: ResultOperation<Void>, @unchecked Sendable {
 
     override func main() {
         // Extract login metadata.
-        guard case let .loggedIn(accountData, deviceData) = interactor.deviceState else {
+        guard case let .loggedIn(accountData, deviceData) = interactor?.deviceState else {
             finish(result: .failure(InvalidDeviceStateError()))
             return
         }
@@ -50,7 +50,7 @@ class RotateKeyOperation: ResultOperation<Void>, @unchecked Sendable {
         let publicKey = keyRotation.beginAttempt()
 
         // Persist mutated device data.
-        interactor.setDeviceState(.loggedIn(accountData, keyRotation.data), persist: true)
+        interactor?.setDeviceState(.loggedIn(accountData, keyRotation.data), persist: true)
 
         // Send REST request to rotate the device key.
         logger.debug("Replacing old key with new key on server...")
@@ -86,10 +86,10 @@ class RotateKeyOperation: ResultOperation<Void>, @unchecked Sendable {
         _ = keyRotation.setCompleted(with: fetchedDevice)
 
         // Persist changes.
-        interactor.setDeviceState(.loggedIn(accountData, keyRotation.data), persist: true)
+        interactor?.setDeviceState(.loggedIn(accountData, keyRotation.data), persist: true)
 
         // Notify the tunnel that key rotation took place and that it should reload VPN configuration.
-        if let tunnel = interactor.tunnel {
+        if let tunnel = interactor?.tunnel {
             _ = tunnel.notifyKeyRotation { [weak self] _ in
                 self?.finish(result: .success(()))
             }
@@ -103,7 +103,7 @@ class RotateKeyOperation: ResultOperation<Void>, @unchecked Sendable {
             logger.error(error: error, message: "Failed to rotate device key.")
         }
 
-        interactor.handleRestError(error)
+        interactor?.handleRestError(error)
         finish(result: .failure(error))
     }
 }

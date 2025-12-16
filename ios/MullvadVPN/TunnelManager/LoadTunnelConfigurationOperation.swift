@@ -14,7 +14,7 @@ import Operations
 
 class LoadTunnelConfigurationOperation: ResultOperation<Void>, @unchecked Sendable {
     private let logger = Logger(label: "LoadTunnelConfigurationOperation")
-    private let interactor: TunnelInteractor
+    private weak var interactor: TunnelInteractor?
 
     init(dispatchQueue: DispatchQueue, interactor: TunnelInteractor) {
         self.interactor = interactor
@@ -26,13 +26,13 @@ class LoadTunnelConfigurationOperation: ResultOperation<Void>, @unchecked Sendab
         let settingsResult = readSettings()
         let deviceStateResult = readDeviceState()
 
-        let persistentTunnels = interactor.getPersistentTunnels()
-        let tunnel = persistentTunnels.first
+        let persistentTunnels = interactor?.getPersistentTunnels()
+        let tunnel = persistentTunnels?.first
         let settings = settingsResult.flattenValue()
         let deviceState = deviceStateResult.flattenValue()
 
-        interactor.setSettings(settings ?? LatestTunnelSettings(), persist: false)
-        interactor.setDeviceState(deviceState ?? .loggedOut, persist: false)
+        interactor?.setSettings(settings ?? LatestTunnelSettings(), persist: false)
+        interactor?.setDeviceState(deviceState ?? .loggedOut, persist: false)
 
         if let tunnel, deviceState == nil {
             logger.debug("Remove orphaned VPN configuration.")
@@ -52,8 +52,8 @@ class LoadTunnelConfigurationOperation: ResultOperation<Void>, @unchecked Sendab
     }
 
     private func finishOperation(tunnel: (any TunnelProtocol)?) {
-        interactor.setTunnel(tunnel, shouldRefreshTunnelState: true)
-        interactor.setConfigurationLoaded()
+        interactor?.setTunnel(tunnel, shouldRefreshTunnelState: true)
+        interactor?.setConfigurationLoaded()
 
         finish(result: .success(()))
     }

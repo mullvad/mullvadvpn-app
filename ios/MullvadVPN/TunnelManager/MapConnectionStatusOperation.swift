@@ -15,7 +15,7 @@ import Operations
 import PacketTunnelCore
 
 class MapConnectionStatusOperation: AsyncOperation, @unchecked Sendable {
-    private let interactor: TunnelInteractor
+    private weak var interactor: TunnelInteractor?
     private let connectionStatus: NEVPNStatus
     private var request: Cancellable?
     private var pathStatus: Network.NWPath.Status?
@@ -36,14 +36,14 @@ class MapConnectionStatusOperation: AsyncOperation, @unchecked Sendable {
     }
 
     override func main() {
-        guard let tunnel = interactor.tunnel else {
+        guard let tunnel = interactor?.tunnel,
+            let tunnelState = interactor?.tunnelStatus.state
+        else {
             setTunnelDisconnectedStatus()
 
             finish()
             return
         }
-
-        let tunnelState = interactor.tunnelStatus.state
 
         switch connectionStatus {
         case .connecting, .reasserting, .connected:
@@ -115,7 +115,7 @@ class MapConnectionStatusOperation: AsyncOperation, @unchecked Sendable {
         case .disconnecting:
             break
         default:
-            interactor.updateTunnelStatus { tunnelStatus in
+            interactor?.updateTunnelStatus { tunnelStatus in
                 // Avoid displaying waiting for connectivity banners if the tunnel in a blocked state when disconnecting
                 if tunnelStatus.observedState.blockedState != nil {
                     tunnelStatus.state = .disconnecting(.nothing)
@@ -137,11 +137,11 @@ class MapConnectionStatusOperation: AsyncOperation, @unchecked Sendable {
 
         case .disconnecting(.reconnect):
             logger.debug("Restart the tunnel on disconnect.")
-            interactor.updateTunnelStatus { tunnelStatus in
+            interactor?.updateTunnelStatus { tunnelStatus in
                 tunnelStatus = TunnelStatus()
                 tunnelStatus.state = .pendingReconnect
             }
-            interactor.startTunnel()
+            interactor?.startTunnel()
 
         default:
             setTunnelDisconnectedStatus()
@@ -149,7 +149,7 @@ class MapConnectionStatusOperation: AsyncOperation, @unchecked Sendable {
     }
 
     private func setTunnelDisconnectedStatus() {
-        interactor.updateTunnelStatus { tunnelStatus in
+        interactor?.updateTunnelStatus { tunnelStatus in
             tunnelStatus = TunnelStatus()
             tunnelStatus.state =
                 pathStatus == .unsatisfied
@@ -167,7 +167,7 @@ class MapConnectionStatusOperation: AsyncOperation, @unchecked Sendable {
 
             dispatchQueue.async {
                 if case let .success(observedState) = result, !self.isCancelled {
-                    self.interactor.updateTunnelStatus { tunnelStatus in
+                    self.interactor?.updateTunnelStatus { tunnelStatus in
                         tunnelStatus.observedState = observedState
 
                         if let newState = mapToState(observedState) {

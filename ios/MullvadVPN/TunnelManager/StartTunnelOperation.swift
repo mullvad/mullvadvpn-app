@@ -17,7 +17,7 @@ import PacketTunnelCore
 class StartTunnelOperation: ResultOperation<Void>, @unchecked Sendable {
     typealias EncodeErrorHandler = (Error) -> Void
 
-    private let interactor: TunnelInteractor
+    private weak var interactor: TunnelInteractor?
     private let logger = Logger(label: "StartTunnelOperation")
 
     init(
@@ -35,14 +35,14 @@ class StartTunnelOperation: ResultOperation<Void>, @unchecked Sendable {
     }
 
     override func main() {
-        guard case .loggedIn = interactor.deviceState else {
+        guard case .loggedIn = interactor?.deviceState else {
             finish(result: .failure(InvalidDeviceStateError()))
             return
         }
 
-        switch interactor.tunnelStatus.state {
+        switch interactor?.tunnelStatus.state {
         case .disconnecting(.nothing):
-            interactor.updateTunnelStatus { tunnelStatus in
+            interactor?.updateTunnelStatus { tunnelStatus in
                 tunnelStatus = TunnelStatus()
                 tunnelStatus.state = .disconnecting(.reconnect)
             }
@@ -73,7 +73,7 @@ class StartTunnelOperation: ResultOperation<Void>, @unchecked Sendable {
     }
 
     private func startTunnel(tunnel: any TunnelProtocol) throws {
-        let selectedRelays = try? interactor.selectRelays()
+        let selectedRelays = try? interactor?.selectRelays()
         var tunnelOptions = PacketTunnelOptions()
 
         do {
@@ -87,14 +87,16 @@ class StartTunnelOperation: ResultOperation<Void>, @unchecked Sendable {
             )
         }
 
-        interactor.setTunnel(tunnel, shouldRefreshTunnelState: false)
-
-        interactor.updateTunnelStatus { tunnelStatus in
+        interactor?.setTunnel(tunnel, shouldRefreshTunnelState: false)
+        interactor?.updateTunnelStatus { tunnelStatus in
+            guard let settings = interactor?.settings else {
+                return
+            }
             tunnelStatus = TunnelStatus()
             tunnelStatus.state = .connecting(
                 selectedRelays,
-                isPostQuantum: interactor.settings.tunnelQuantumResistance.isEnabled,
-                isDaita: interactor.settings.daita.daitaState.isEnabled
+                isPostQuantum: settings.tunnelQuantumResistance.isEnabled,
+                isDaita: settings.daita.daitaState.isEnabled
             )
         }
 
@@ -106,6 +108,9 @@ class StartTunnelOperation: ResultOperation<Void>, @unchecked Sendable {
             @escaping @Sendable (Result<any TunnelProtocol, Error>)
             -> Void
     ) {
+        guard let interactor else {
+            return
+        }
         let persistentTunnels = interactor.getPersistentTunnels()
         let tunnel = persistentTunnels.first ?? interactor.createNewTunnel()
         let configuration = TunnelConfiguration(

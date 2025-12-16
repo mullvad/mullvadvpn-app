@@ -28,7 +28,7 @@ private let establishedTunnelStatusPollInterval: Duration = .seconds(5)
 
 /// A class that provides a convenient interface for VPN tunnels configuration, manipulation and
 /// monitoring.
-final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
+final class TunnelManager: StorePaymentObserver, TunnelInteractor, @unchecked Sendable {
     private enum OperationCategory: String, Sendable {
         case manageTunnel
         case deviceStateUpdate
@@ -185,7 +185,7 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
     func loadConfiguration(completionHandler: @escaping @Sendable () -> Void) {
         let loadTunnelOperation = LoadTunnelConfigurationOperation(
             dispatchQueue: internalQueue,
-            interactor: TunnelInteractorProxy(self)
+            interactor: self
         )
         loadTunnelOperation.completionQueue = .main
         loadTunnelOperation.completionHandler = { [weak self] completion in
@@ -222,7 +222,7 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
     func startTunnel(completionHandler: ((Error?) -> Void)? = nil) {
         let operation = StartTunnelOperation(
             dispatchQueue: internalQueue,
-            interactor: TunnelInteractorProxy(self),
+            interactor: self,
             completionHandler: { [weak self] result in
                 guard let self else { return }
                 if let error = result.error {
@@ -256,7 +256,7 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
     func stopTunnel(isOnDemandEnabled: Bool = false, completionHandler: ((Error?) -> Void)? = nil) {
         let operation = StopTunnelOperation(
             dispatchQueue: internalQueue,
-            interactor: TunnelInteractorProxy(self)
+            interactor: self
         ) { [weak self] result in
             guard let self else { return }
 
@@ -382,7 +382,7 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
     ) {
         let operation = SetAccountOperation(
             dispatchQueue: internalQueue,
-            interactor: TunnelInteractorProxy(self),
+            interactor: self,
             accountsProxy: accountsProxy,
             devicesProxy: devicesProxy,
             action: action
@@ -440,7 +440,7 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
     func updateAccountData(_ completionHandler: (@Sendable (Error?) -> Void)? = nil) {
         let operation = UpdateAccountDataOperation(
             dispatchQueue: internalQueue,
-            interactor: TunnelInteractorProxy(self),
+            interactor: self,
             accountsProxy: accountsProxy
         )
 
@@ -470,7 +470,7 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
     ) -> Cancellable {
         let operation = RedeemVoucherOperation(
             dispatchQueue: internalQueue,
-            interactor: TunnelInteractorProxy(self),
+            interactor: self,
             voucherCode: voucherCode,
             apiProxy: apiProxy
         )
@@ -499,7 +499,7 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
     func updateDeviceData(_ completionHandler: (@Sendable (Error?) -> Void)? = nil) {
         let operation = UpdateDeviceDataOperation(
             dispatchQueue: internalQueue,
-            interactor: TunnelInteractorProxy(self),
+            interactor: self,
             devicesProxy: devicesProxy
         )
 
@@ -526,7 +526,7 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
     func rotatePrivateKey(completionHandler: @MainActor @escaping @Sendable (Error?) -> Void) -> Cancellable {
         let operation = RotateKeyOperation(
             dispatchQueue: internalQueue,
-            interactor: TunnelInteractorProxy(self),
+            interactor: self,
             devicesProxy: devicesProxy
         )
 
@@ -640,7 +640,7 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
         return _isConfigurationLoaded
     }
 
-    fileprivate var tunnel: (any TunnelProtocol)? {
+    var tunnel: (any TunnelProtocol)? {
         nslock.lock()
         defer { nslock.unlock() }
 
@@ -668,7 +668,27 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
         return _deviceState
     }
 
-    fileprivate func setConfigurationLoaded() {
+    func getPersistentTunnels() -> [any TunnelProtocol] {
+        tunnelStore.getPersistentTunnels()
+    }
+
+    func createNewTunnel() -> any TunnelProtocol {
+        tunnelStore.createNewTunnel()
+    }
+
+    func updateTunnelStatus(_ block: @Sendable (inout TunnelStatus) -> Void) -> TunnelStatus {
+        setTunnelStatus(block)
+    }
+
+    func startTunnel() {
+        startTunnel(completionHandler: nil)
+    }
+
+    func selectRelays() throws -> SelectedRelays {
+        try selectRelays(tunnelSettings: settings)
+    }
+
+    func setConfigurationLoaded() {
         nslock.lock()
         defer { nslock.unlock() }
 
@@ -685,7 +705,10 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
         }
     }
 
-    fileprivate func setTunnel(_ tunnel: (any TunnelProtocol)?, shouldRefreshTunnelState: Bool) {
+    func setTunnel(
+        _ tunnel: (any TunnelProtocol)?,
+        shouldRefreshTunnelState: Bool
+    ) {
         nslock.lock()
         defer { nslock.unlock() }
 
@@ -761,7 +784,7 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
         return newTunnelStatus
     }
 
-    fileprivate func setSettings(_ settings: LatestTunnelSettings, persist: Bool) {
+    func setSettings(_ settings: LatestTunnelSettings, persist: Bool) {
         nslock.lock()
         defer { nslock.unlock() }
 
@@ -836,7 +859,7 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
         updateTunnelStatus(tunnel?.status ?? .disconnected)
     }
 
-    fileprivate func prepareForVPNConfigurationDeletion() {
+    func prepareForVPNConfigurationDeletion() {
         nslock.lock()
         defer { nslock.unlock() }
 
@@ -963,7 +986,7 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
 
         let operation = MapConnectionStatusOperation(
             queue: internalQueue,
-            interactor: TunnelInteractorProxy(self),
+            interactor: self,
             connectionStatus: connectionStatus,
             networkStatus: networkMonitor?.currentPath.status
         )
@@ -1094,7 +1117,7 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
         isPolling = false
     }
 
-    fileprivate func removeLastUsedAccount() {
+    func removeLastUsedAccount() {
         do {
             try SettingsManager.setLastUsedAccount(nil)
         } catch {
@@ -1254,82 +1277,82 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
 
 #endif
 
-private struct TunnelInteractorProxy: TunnelInteractor {
-    private let tunnelManager: TunnelManager
-
-    init(_ tunnelManager: TunnelManager) {
-        self.tunnelManager = tunnelManager
-    }
-
-    var tunnel: (any TunnelProtocol)? {
-        tunnelManager.tunnel
-    }
-
-    var backgroundTaskProvider: BackgroundTaskProviding {
-        tunnelManager.backgroundTaskProvider
-    }
-
-    func getPersistentTunnels() -> [any TunnelProtocol] {
-        tunnelManager.tunnelStore.getPersistentTunnels()
-    }
-
-    func createNewTunnel() -> any TunnelProtocol {
-        tunnelManager.tunnelStore.createNewTunnel()
-    }
-
-    func setTunnel(_ tunnel: (any TunnelProtocol)?, shouldRefreshTunnelState: Bool) {
-        tunnelManager.setTunnel(tunnel, shouldRefreshTunnelState: shouldRefreshTunnelState)
-    }
-
-    var tunnelStatus: TunnelStatus {
-        tunnelManager.tunnelStatus
-    }
-
-    func updateTunnelStatus(_ block: @Sendable (inout TunnelStatus) -> Void) -> TunnelStatus {
-        tunnelManager.setTunnelStatus(block)
-    }
-
-    var isConfigurationLoaded: Bool {
-        tunnelManager.isConfigurationLoaded
-    }
-
-    var settings: LatestTunnelSettings {
-        tunnelManager.settings
-    }
-
-    var deviceState: DeviceState {
-        tunnelManager.deviceState
-    }
-
-    func setConfigurationLoaded() {
-        tunnelManager.setConfigurationLoaded()
-    }
-
-    func setSettings(_ settings: LatestTunnelSettings, persist: Bool) {
-        tunnelManager.setSettings(settings, persist: persist)
-    }
-
-    func setDeviceState(_ deviceState: DeviceState, persist: Bool) {
-        tunnelManager.setDeviceState(deviceState, persist: persist)
-    }
-
-    func removeLastUsedAccount() {
-        tunnelManager.removeLastUsedAccount()
-    }
-
-    func startTunnel() {
-        tunnelManager.startTunnel()
-    }
-
-    func prepareForVPNConfigurationDeletion() {
-        tunnelManager.prepareForVPNConfigurationDeletion()
-    }
-
-    func selectRelays() throws -> SelectedRelays {
-        try tunnelManager.selectRelays(tunnelSettings: tunnelManager.settings)
-    }
-
-    func handleRestError(_ error: Error) {
-        tunnelManager.handleRestError(error)
-    }
-}
+//private class TunnelInteractorProxy: TunnelInteractor {
+//    private unowned var tunnelManager: TunnelManager
+//
+//    init(_ tunnelManager: TunnelManager) {
+//        self.tunnelManager = tunnelManager
+//    }
+//
+//    var tunnel: (any TunnelProtocol)? {
+//        tunnelManager.tunnel
+//    }
+//
+//    var backgroundTaskProvider: BackgroundTaskProviding {
+//        tunnelManager.backgroundTaskProvider
+//    }
+//
+//    func getPersistentTunnels() -> [any TunnelProtocol] {
+//        tunnelManager.tunnelStore.getPersistentTunnels()
+//    }
+//
+//    func createNewTunnel() -> any TunnelProtocol {
+//        tunnelManager.tunnelStore.createNewTunnel()
+//    }
+//
+//    func setTunnel(_ tunnel: (any TunnelProtocol)?, shouldRefreshTunnelState: Bool) {
+//        tunnelManager.setTunnel(tunnel, shouldRefreshTunnelState: shouldRefreshTunnelState)
+//    }
+//
+//    var tunnelStatus: TunnelStatus {
+//        tunnelManager.tunnelStatus
+//    }
+//
+//    func updateTunnelStatus(_ block: @Sendable (inout TunnelStatus) -> Void) -> TunnelStatus {
+//        tunnelManager.setTunnelStatus(block)
+//    }
+//
+//    var isConfigurationLoaded: Bool {
+//        tunnelManager.isConfigurationLoaded
+//    }
+//
+//    var settings: LatestTunnelSettings {
+//        tunnelManager.settings
+//    }
+//
+//    var deviceState: DeviceState {
+//        tunnelManager.deviceState
+//    }
+//
+//    func setConfigurationLoaded() {
+//        tunnelManager.setConfigurationLoaded()
+//    }
+//
+//    func setSettings(_ settings: LatestTunnelSettings, persist: Bool) {
+//        tunnelManager.setSettings(settings, persist: persist)
+//    }
+//
+//    func setDeviceState(_ deviceState: DeviceState, persist: Bool) {
+//        tunnelManager.setDeviceState(deviceState, persist: persist)
+//    }
+//
+//    func removeLastUsedAccount() {
+//        tunnelManager.removeLastUsedAccount()
+//    }
+//
+//    func startTunnel() {
+//        tunnelManager.startTunnel()
+//    }
+//
+//    func prepareForVPNConfigurationDeletion() {
+//        tunnelManager.prepareForVPNConfigurationDeletion()
+//    }
+//
+//    func selectRelays() throws -> SelectedRelays {
+//        try tunnelManager.selectRelays(tunnelSettings: tunnelManager.settings)
+//    }
+//
+//    func handleRestError(_ error: Error) {
+//        tunnelManager.handleRestError(error)
+//    }
+//}

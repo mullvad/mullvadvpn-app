@@ -10,7 +10,7 @@ import Foundation
 import Operations
 
 class StopTunnelOperation: ResultOperation<Void>, @unchecked Sendable {
-    private let interactor: TunnelInteractor
+    private weak var interactor: TunnelInteractor?
     var isOnDemandEnabled = false
 
     init(
@@ -28,6 +28,9 @@ class StopTunnelOperation: ResultOperation<Void>, @unchecked Sendable {
     }
 
     override func main() {
+        guard let interactor else {
+            return
+        }
         switch interactor.tunnelStatus.state {
         case .disconnecting(.reconnect):
             interactor.updateTunnelStatus { tunnelStatus in
@@ -46,7 +49,7 @@ class StopTunnelOperation: ResultOperation<Void>, @unchecked Sendable {
     }
 
     private func doShutDownTunnel() {
-        guard let tunnel = interactor.tunnel else {
+        guard let tunnel = interactor?.tunnel else {
             finish(result: .failure(UnsetTunnelError()))
             return
         }

@@ -15,7 +15,7 @@ import Operations
 import WireGuardKitTypes
 
 class UpdateDeviceDataOperation: ResultOperation<StoredDeviceData>, @unchecked Sendable {
-    private let interactor: TunnelInteractor
+    private weak var interactor: TunnelInteractor?
     private let devicesProxy: DeviceHandling
 
     private var task: Cancellable?
@@ -32,7 +32,7 @@ class UpdateDeviceDataOperation: ResultOperation<StoredDeviceData>, @unchecked S
     }
 
     override func main() {
-        guard case let .loggedIn(accountData, deviceData) = interactor.deviceState else {
+        guard case let .loggedIn(accountData, deviceData) = interactor?.deviceState else {
             finish(result: .failure(InvalidDeviceStateError()))
             return
         }
@@ -56,11 +56,11 @@ class UpdateDeviceDataOperation: ResultOperation<StoredDeviceData>, @unchecked S
 
     private func didReceiveDeviceResponse(result: Result<Device, Error>) {
         let result = result.tryMap { device -> StoredDeviceData in
-            switch interactor.deviceState {
+            switch interactor?.deviceState {
             case .loggedIn(let storedAccount, var storedDevice):
                 storedDevice.update(from: device)
                 let newDeviceState = DeviceState.loggedIn(storedAccount, storedDevice)
-                interactor.setDeviceState(newDeviceState, persist: true)
+                interactor?.setDeviceState(newDeviceState, persist: true)
 
                 return storedDevice
 
@@ -70,7 +70,7 @@ class UpdateDeviceDataOperation: ResultOperation<StoredDeviceData>, @unchecked S
         }
 
         if let error = result.error {
-            interactor.handleRestError(error)
+            interactor?.handleRestError(error)
         }
 
         finish(result: result)

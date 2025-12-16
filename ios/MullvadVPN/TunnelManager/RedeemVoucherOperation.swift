@@ -15,7 +15,7 @@ import Operations
 
 class RedeemVoucherOperation: ResultOperation<REST.SubmitVoucherResponse>, @unchecked Sendable {
     private let logger = Logger(label: "RedeemVoucherOperation")
-    private let interactor: TunnelInteractor
+    private weak var interactor: TunnelInteractor?
 
     private let voucherCode: String
     private let apiProxy: APIQuerying
@@ -35,7 +35,7 @@ class RedeemVoucherOperation: ResultOperation<REST.SubmitVoucherResponse>, @unch
     }
 
     override func main() {
-        guard case let .loggedIn(accountData, _) = interactor.deviceState else {
+        guard case let .loggedIn(accountData, _) = interactor?.deviceState else {
             finish(result: .failure(InvalidDeviceStateError()))
             return
         }
@@ -64,13 +64,13 @@ class RedeemVoucherOperation: ResultOperation<REST.SubmitVoucherResponse>, @unch
                 message: "Failed to redeem voucher."
             )
         }.tryMap { voucherResponse in
-            switch interactor.deviceState {
+            switch interactor?.deviceState {
             case .loggedIn(var storedAccountData, let storedDeviceData):
                 storedAccountData.expiry = voucherResponse.newExpiry
 
                 let newDeviceState = DeviceState.loggedIn(storedAccountData, storedDeviceData)
 
-                interactor.setDeviceState(newDeviceState, persist: true)
+                interactor?.setDeviceState(newDeviceState, persist: true)
 
                 return voucherResponse
 

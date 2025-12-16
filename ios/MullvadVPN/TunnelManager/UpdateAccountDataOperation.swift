@@ -15,7 +15,7 @@ import Operations
 
 class UpdateAccountDataOperation: ResultOperation<Void>, @unchecked Sendable {
     private let logger = Logger(label: "UpdateAccountDataOperation")
-    private let interactor: TunnelInteractor
+    private weak var interactor: TunnelInteractor?
     private let accountsProxy: RESTAccountHandling
     private var task: Cancellable?
 
@@ -31,7 +31,7 @@ class UpdateAccountDataOperation: ResultOperation<Void>, @unchecked Sendable {
     }
 
     override func main() {
-        guard case let .loggedIn(accountData, _) = interactor.deviceState else {
+        guard case let .loggedIn(accountData, _) = interactor?.deviceState else {
             finish(result: .failure(InvalidDeviceStateError()))
             return
         }
@@ -61,13 +61,13 @@ class UpdateAccountDataOperation: ResultOperation<Void>, @unchecked Sendable {
                 message: "Failed to fetch account expiry."
             )
         }.tryMap { accountData in
-            switch interactor.deviceState {
+            switch interactor?.deviceState {
             case .loggedIn(var storedAccountData, let storedDeviceData):
                 storedAccountData.expiry = accountData.expiry
 
                 let newDeviceState = DeviceState.loggedIn(storedAccountData, storedDeviceData)
 
-                interactor.setDeviceState(newDeviceState, persist: true)
+                interactor?.setDeviceState(newDeviceState, persist: true)
 
             default:
                 throw InvalidDeviceStateError()

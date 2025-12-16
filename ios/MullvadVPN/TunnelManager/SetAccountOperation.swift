@@ -38,7 +38,7 @@ enum SetAccountAction {
 }
 
 class SetAccountOperation: ResultOperation<StoredAccountData?>, @unchecked Sendable {
-    private let interactor: TunnelInteractor
+    private weak var interactor: TunnelInteractor?
     private let accountsProxy: RESTAccountHandling
     private let devicesProxy: DeviceHandling
     private let action: SetAccountAction
@@ -109,6 +109,9 @@ class SetAccountOperation: ResultOperation<StoredAccountData?>, @unchecked Senda
      Does nothing if device is already logged out.
      */
     private func startLogoutFlow(completion: @escaping @Sendable () -> Void) {
+        guard let interactor else {
+            return
+        }
         switch interactor.deviceState {
         case let .loggedIn(accountData, deviceData):
             deleteDevice(accountNumber: accountData.number, deviceIdentifier: deviceData.identifier) { [self] _ in
@@ -163,7 +166,7 @@ class SetAccountOperation: ResultOperation<StoredAccountData?>, @unchecked Senda
     ) {
         deleteAccount(accountNumber: accountNumber) { [self] result in
             if result.isSuccess {
-                interactor.removeLastUsedAccount()
+                interactor?.removeLastUsedAccount()
                 unsetDeviceState {
                     completion(result)
                 }
@@ -235,7 +238,7 @@ class SetAccountOperation: ResultOperation<StoredAccountData?>, @unchecked Senda
         )
 
         // Transition device state to logged in.
-        interactor.setDeviceState(.loggedIn(accountData, storedDeviceData), persist: true)
+        interactor?.setDeviceState(.loggedIn(accountData, storedDeviceData), persist: true)
     }
 
     /// Create new account and produce `StoredAccountData` upon success.
@@ -361,17 +364,17 @@ class SetAccountOperation: ResultOperation<StoredAccountData?>, @unchecked Senda
      */
     private func unsetDeviceState(completion: @escaping @Sendable () -> Void) {
         // Tell the caller to unsubscribe from VPN status notifications.
-        interactor.prepareForVPNConfigurationDeletion()
+        interactor?.prepareForVPNConfigurationDeletion()
 
         // Reset tunnel and device state.
-        interactor.updateTunnelStatus { tunnelStatus in
+        interactor?.updateTunnelStatus { tunnelStatus in
             tunnelStatus = TunnelStatus()
             tunnelStatus.state = .disconnected
         }
-        interactor.setDeviceState(.loggedOut, persist: true)
+        interactor?.setDeviceState(.loggedOut, persist: true)
 
         // Finish immediately if tunnel provider is not set.
-        guard let tunnel = interactor.tunnel else {
+        guard let tunnel = interactor?.tunnel else {
             completion()
             return
         }
@@ -384,7 +387,7 @@ class SetAccountOperation: ResultOperation<StoredAccountData?>, @unchecked Senda
                     logger.error(error: error, message: "Failed to remove VPN configuration.")
                 }
 
-                interactor.setTunnel(nil, shouldRefreshTunnelState: false)
+                interactor?.setTunnel(nil, shouldRefreshTunnelState: false)
 
                 completion()
             }
