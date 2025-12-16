@@ -17,6 +17,7 @@ const StyledCustomScrollbars = styled.div({
   flexDirection: 'column',
   position: 'relative',
   overflow: 'hidden',
+  height: '100%',
 });
 
 const StyledScrollable = styled.div<{ $fillContainer?: boolean }>((props) => ({

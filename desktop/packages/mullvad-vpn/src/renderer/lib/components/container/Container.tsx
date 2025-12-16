@@ -1,28 +1,22 @@
-import React from 'react';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 
-import { spacings } from '../../foundations';
+import { Spacings, spacings } from '../../foundations';
 import { Flex, FlexProps } from '../flex';
 
-export interface ContainerProps extends FlexProps {
-  size?: '3' | '4';
-  children: React.ReactNode;
-}
+type HorizontalMargin = Extract<Spacings, 'small' | 'medium' | 'large'>;
 
-const sizes: Record<'3' | '4', string> = {
-  '3': `calc(100% - ${spacings.large} * 2)`,
-  '4': `calc(100% - ${spacings.medium} * 2)`,
+export type ContainerProps = FlexProps & {
+  horizontalMargin: HorizontalMargin;
 };
 
-const StyledFlex = styled(Flex)<{ $size: string }>((props) => ({
-  width: props.$size,
-  margin: 'auto',
-}));
+export const StyledContainer = styled(Flex)<{ $horizontalMargin: string }>`
+  ${({ $horizontalMargin }) => css`
+    margin-left: ${$horizontalMargin};
+    margin-right: ${$horizontalMargin};
+  `}
+`;
 
-export const Container = React.forwardRef<HTMLDivElement, ContainerProps>(
-  ({ size = '4', ...props }, ref) => {
-    return <StyledFlex ref={ref} $size={sizes[size]} {...props} />;
-  },
-);
-
-Container.displayName = 'Container';
+export function Container({ horizontalMargin, ...props }: ContainerProps) {
+  const spacing = spacings[horizontalMargin];
+  return <StyledContainer $horizontalMargin={spacing} {...props} />;
+}

@@ -17,7 +17,7 @@ export const useStatusText = () => {
   if (window.env.platform === 'win32') {
     if (daemonStatus === 'start-requested') {
       statusMessage = (
-        <FlexColumn $alignItems="center" $gap="big">
+        <FlexColumn alignItems="center" gap="big">
           <BodySmall color="whiteAlpha40" textAlign="center" role="alert">
             {
               // TRANSLATORS: Status text shown when app is starting.
@@ -42,5 +42,5 @@ export const useStatusText = () => {
     }
   }
 
-  return <Flex $justifyContent="center">{statusMessage}</Flex>;
+  return <Flex justifyContent="center">{statusMessage}</Flex>;
 };

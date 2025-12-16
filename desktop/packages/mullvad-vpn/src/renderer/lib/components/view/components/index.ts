@@ -1,1 +1,1 @@
-export * from './Container';
+export * from './view-content';

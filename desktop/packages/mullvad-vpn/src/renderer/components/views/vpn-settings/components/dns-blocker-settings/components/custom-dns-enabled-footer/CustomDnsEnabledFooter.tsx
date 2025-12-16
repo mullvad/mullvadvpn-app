@@ -16,7 +16,7 @@ export function CustomDnsEnabledFooter() {
   );
 
   return (
-    <Flex $padding={{ top: 'tiny', horizontal: 'medium' }}>
+    <Flex padding={{ top: 'tiny', horizontal: 'medium' }}>
       <Text variant="labelTinySemiBold" color="whiteAlpha60">
         {sprintf(blockingDisabledText, { customDnsFeatureName })}
       </Text>

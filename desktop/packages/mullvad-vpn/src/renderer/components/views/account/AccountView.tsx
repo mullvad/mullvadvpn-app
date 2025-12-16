@@ -13,7 +13,6 @@ import { useEffectEvent } from '../../../lib/utility-hooks';
 import { useSelector } from '../../../redux/store';
 import { AppNavigationHeader } from '../..';
 import { BackAction } from '../../KeyboardNavigation';
-import { SettingsContainer } from '../../Layout';
 import { RedeemVoucherButton } from '../../RedeemVoucher';
 import { HeaderTitle } from '../../SettingsHeader';
 import { AccountExpiryRow, AccountNumberRow, DeviceNameRow, LabelledRow } from './components';
@@ -23,7 +22,7 @@ const StyledViewContainer = styled(View.Container)`
   justify-content: space-between;
 `;
 
-export function Account() {
+export function AccountView() {
   const history = useHistory();
   const isOffline = useSelector((state) => state.connection.isBlocked);
   const { updateAccountData, openUrlWithAuth, logout } = useAppContext();
@@ -47,23 +46,23 @@ export function Account() {
   }, [logout]);
 
   return (
-    <BackAction action={history.pop}>
-      <View>
-        <SettingsContainer>
-          <AppNavigationHeader
-            title={
-              // TRANSLATORS: Title label in navigation bar
-              messages.pgettext('account-view', 'Account')
-            }
-          />
+    <View backgroundColor="darkBlue">
+      <BackAction action={history.pop}>
+        <AppNavigationHeader
+          title={
+            // TRANSLATORS: Title label in navigation bar
+            messages.pgettext('account-view', 'Account')
+          }
+        />
 
-          <StyledViewContainer>
-            <FlexColumn $gap="medium">
+        <View.Content>
+          <StyledViewContainer flexDirection="column" horizontalMargin="medium">
+            <FlexColumn gap="medium">
               <Text variant="titleBig">
                 <HeaderTitle>{messages.pgettext('account-view', 'Account')}</HeaderTitle>
               </Text>
 
-              <FlexColumn $gap="large">
+              <FlexColumn gap="large">
                 <LabelledRow label={messages.pgettext('device-management', 'Device name')}>
                   <DeviceNameRow />
                 </LabelledRow>
@@ -72,13 +71,13 @@ export function Account() {
                   <AccountNumberRow />
                 </LabelledRow>
 
-                <LabelledRow $gap="tiny" label={messages.pgettext('account-view', 'Paid until')}>
+                <LabelledRow gap="tiny" label={messages.pgettext('account-view', 'Paid until')}>
                   <AccountExpiryRow />
                 </LabelledRow>
               </FlexColumn>
             </FlexColumn>
 
-            <FlexColumn $gap="medium" $padding={{ bottom: 'large' }}>
+            <FlexColumn gap="medium">
               <Button
                 variant="success"
                 disabled={isOffline}
@@ -100,8 +99,8 @@ export function Account() {
               </Button>
             </FlexColumn>
           </StyledViewContainer>
-        </SettingsContainer>
-      </View>
-    </BackAction>
+        </View.Content>
+      </BackAction>
+    </View>
   );
 }

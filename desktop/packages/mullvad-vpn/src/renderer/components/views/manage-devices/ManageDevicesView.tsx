@@ -19,8 +19,8 @@ export function ManageDevicesView() {
 
   return (
     <ManageDevicesProvider isLoading={isLoading} isFetching={isFetching} refetchDevices={refetch}>
-      <BackAction action={pop}>
-        <View backgroundColor="darkBlue">
+      <View backgroundColor="darkBlue">
+        <BackAction action={pop}>
           <NavigationContainer>
             <AppNavigationHeader
               title={
@@ -29,9 +29,9 @@ export function ManageDevicesView() {
               }
             />
             <NavigationScrollbars>
-              <FlexColumn $gap="medium">
-                <View.Container>
-                  <FlexColumn $gap="small">
+              <View.Content>
+                <FlexColumn gap="medium">
+                  <View.Container horizontalMargin="medium" flexDirection="column" gap="small">
                     <Text variant="titleBig">
                       {
                         // TRANSLATORS: Title text in the manage devices view
@@ -48,14 +48,14 @@ export function ManageDevicesView() {
                         )
                       }
                     </Text>
-                  </FlexColumn>
-                </View.Container>
-                {showDeviceList ? <DeviceList devices={devices} /> : <DevicesState />}
-              </FlexColumn>
+                  </View.Container>
+                  {showDeviceList ? <DeviceList devices={devices} /> : <DevicesState />}
+                </FlexColumn>
+              </View.Content>
             </NavigationScrollbars>
           </NavigationContainer>
-        </View>
-      </BackAction>
+        </BackAction>
+      </View>
     </ManageDevicesProvider>
   );
 }

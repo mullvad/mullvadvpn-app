@@ -8,7 +8,7 @@ export function ApplicationLists() {
   const hasSplitApplications = useHasSplitApplications();
 
   return (
-    <Flex $flexDirection="column" $gap="medium">
+    <Flex flexDirection="column" gap="medium">
       <Accordion expanded={hasSplitApplications}>
         <SplitApplicationSection />
       </Accordion>

@@ -6,12 +6,12 @@ import { ResumeButton } from '../../../../../resume-button';
 
 export function ConnectionBlocked() {
   return (
-    <Flex $padding="large" $flexDirection="column">
-      <Flex $gap="medium" $flexDirection="column" $margin={{ bottom: 'medium' }}>
+    <Flex padding="large" flexDirection="column">
+      <Flex gap="medium" flexDirection="column" margin={{ bottom: 'medium' }}>
         <ConnectionBlockedLabel />
         <DownloadProgress />
       </Flex>
-      <Flex $flexDirection="column">
+      <Flex flexDirection="column">
         <ResumeButton disabled>
           {
             // TRANSLATORS: Button text to resume updating

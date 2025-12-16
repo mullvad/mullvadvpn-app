@@ -2,36 +2,34 @@ import { createContext, ReactNode, useCallback, useContext, useMemo, useState } 
 import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 
-import { urls } from '../../shared/constants';
-import { messages } from '../../shared/gettext';
-import log from '../../shared/logging';
-import { RoutePath } from '../../shared/routes';
-import { useAppContext } from '../context';
-import { LockdownModeSwitch } from '../features/tunnel/components';
-import { Button, Flex } from '../lib/components';
-import { FlexColumn } from '../lib/components/flex-column';
-import { spacings } from '../lib/foundations';
-import { useHistory } from '../lib/history';
-import { useExclusiveTask } from '../lib/hooks/use-exclusive-task';
-import { IconBadge } from '../lib/icon-badge';
-import { formatDeviceName } from '../lib/utils';
-import { useSelector } from '../redux/store';
-import { AppMainHeader } from './app-main-header';
-import DeviceInfoButton from './DeviceInfoButton';
+import { urls } from '../../../../shared/constants';
+import { messages } from '../../../../shared/gettext';
+import log from '../../../../shared/logging';
+import { RoutePath } from '../../../../shared/routes';
+import { useAppContext } from '../../../context';
+import { LockdownModeSwitch } from '../../../features/tunnel/components';
+import { Button, Flex } from '../../../lib/components';
+import { FlexColumn } from '../../../lib/components/flex-column';
+import { View } from '../../../lib/components/view';
+import { spacings } from '../../../lib/foundations';
+import { useHistory } from '../../../lib/history';
+import { useExclusiveTask } from '../../../lib/hooks/use-exclusive-task';
+import { IconBadge } from '../../../lib/icon-badge';
+import { formatDeviceName } from '../../../lib/utils';
+import { useSelector } from '../../../redux/store';
+import { AppMainHeader } from '../../app-main-header';
+import DeviceInfoButton from '../../DeviceInfoButton';
 import {
   StyledAccountNumberContainer,
   StyledAccountNumberLabel,
   StyledAccountNumberMessage,
-  StyledBody,
-  StyledContainer,
   StyledCustomScrollbars,
   StyledDeviceLabel,
   StyledMessage,
   StyledTitle,
-} from './ExpiredAccountErrorViewStyles';
-import { Footer, Layout } from './Layout';
-import { ModalAlert, ModalAlertType, ModalMessage } from './Modal';
-import { SettingsListItem } from './settings-list-item';
+} from '../../ExpiredAccountErrorViewStyles';
+import { ModalAlert, ModalAlertType, ModalMessage } from '../../Modal';
+import { SettingsListItem } from '../../settings-list-item';
 
 enum RecoveryAction {
   openBrowser,
@@ -43,7 +41,7 @@ const StyledSettingsToggleListItem = styled(SettingsListItem)`
   margin-top: ${spacings.medium};
 `;
 
-export default function ExpiredAccountErrorView() {
+export function ExpiredAccountErrorView() {
   return (
     <ExpiredAccountContextProvider>
       <ExpiredAccountErrorViewComponent />
@@ -72,7 +70,7 @@ function ExpiredAccountErrorViewComponent() {
   }, [push]);
 
   return (
-    <Layout>
+    <View backgroundColor="darkBlue">
       <AppMainHeader
         variant={isNewAccount ? 'default' : 'basedOnConnectionStatus'}
         size="basedOnLoginStatus">
@@ -80,11 +78,16 @@ function ExpiredAccountErrorViewComponent() {
         <AppMainHeader.SettingsButton />
       </AppMainHeader>
       <StyledCustomScrollbars fillContainer>
-        <StyledContainer>
-          <StyledBody>{isNewAccount ? <WelcomeView /> : <Content />}</StyledBody>
+        <View.Content>
+          <View.Container
+            flexDirection="column"
+            horizontalMargin="large"
+            margin={{ top: 'large' }}
+            flexGrow={1}
+            justifyContent="space-between">
+            <FlexColumn>{isNewAccount ? <WelcomeView /> : <Content />}</FlexColumn>
 
-          <Footer>
-            <FlexColumn $gap="medium">
+            <FlexColumn gap="medium">
               {recoveryAction === RecoveryAction.disconnect && (
                 <Button variant="destructive" disabled={disconnecting} onClick={disconnect}>
                   <Button.Text>
@@ -107,12 +110,12 @@ function ExpiredAccountErrorViewComponent() {
                 </Button.Text>
               </Button>
             </FlexColumn>
-          </Footer>
 
-          <LockdownModeAlert />
-        </StyledContainer>
+            <LockdownModeAlert />
+          </View.Container>
+        </View.Content>
       </StyledCustomScrollbars>
-    </Layout>
+    </View>
   );
 }
 
@@ -135,7 +138,7 @@ function WelcomeView() {
         </StyledAccountNumberContainer>
       </StyledAccountNumberMessage>
 
-      <Flex $alignItems="center" $gap="tiny" $margin={{ bottom: 'medium' }}>
+      <Flex alignItems="center" gap="tiny" margin={{ bottom: 'medium' }}>
         <StyledDeviceLabel>
           {sprintf(
             // TRANSLATORS: A label that will display the newly created device name to inform the user
@@ -169,7 +172,7 @@ function Content() {
 
   return (
     <>
-      <Flex $justifyContent="center" $margin={{ bottom: 'medium' }}>
+      <Flex justifyContent="center" margin={{ bottom: 'medium' }}>
         <IconBadge state="negative" />
       </Flex>
       <StyledTitle data-testid="title">

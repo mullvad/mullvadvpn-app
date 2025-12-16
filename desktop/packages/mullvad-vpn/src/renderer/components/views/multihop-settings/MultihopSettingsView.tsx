@@ -2,13 +2,12 @@ import styled from 'styled-components';
 
 import { messages } from '../../../../shared/gettext';
 import { MultihopSetting } from '../../../features/multihop/components';
-import { Flex, Image, Text } from '../../../lib/components';
+import { Image, Text } from '../../../lib/components';
 import { FlexColumn } from '../../../lib/components/flex-column';
+import { View } from '../../../lib/components/view';
 import { useHistory } from '../../../lib/history';
 import { AppNavigationHeader } from '../..';
-import * as Cell from '../../cell';
 import { BackAction } from '../../KeyboardNavigation';
-import { Layout, SettingsContainer } from '../../Layout';
 import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
 import SettingsHeader, { HeaderTitle } from '../../SettingsHeader';
@@ -21,19 +20,19 @@ export function MultihopSettingsView() {
   const { pop } = useHistory();
 
   return (
-    <BackAction action={pop}>
-      <Layout>
-        <SettingsContainer>
-          <NavigationContainer>
-            <AppNavigationHeader title={messages.pgettext('wireguard-settings-view', 'Multihop')} />
+    <View backgroundColor="darkBlue">
+      <BackAction action={pop}>
+        <NavigationContainer>
+          <AppNavigationHeader title={messages.pgettext('wireguard-settings-view', 'Multihop')} />
 
-            <NavigationScrollbars>
+          <NavigationScrollbars>
+            <View.Content>
               <SettingsHeader>
-                <FlexColumn $gap="medium">
+                <FlexColumn gap="medium">
                   <HeaderTitle>
                     {messages.pgettext('wireguard-settings-view', 'Multihop')}
                   </HeaderTitle>
-                  <FlexColumn $gap="small">
+                  <FlexColumn gap="small">
                     <StyledIllustration source="multihop-illustration" />
                     <Text variant="labelTiny" color="whiteAlpha60">
                       {messages.pgettext(
@@ -45,15 +44,11 @@ export function MultihopSettingsView() {
                 </FlexColumn>
               </SettingsHeader>
 
-              <Flex $flexDirection="column" $flex={1}>
-                <Cell.Group>
-                  <MultihopSetting />
-                </Cell.Group>
-              </Flex>
-            </NavigationScrollbars>
-          </NavigationContainer>
-        </SettingsContainer>
-      </Layout>
-    </BackAction>
+              <MultihopSetting />
+            </View.Content>
+          </NavigationScrollbars>
+        </NavigationContainer>
+      </BackAction>
+    </View>
   );
 }
