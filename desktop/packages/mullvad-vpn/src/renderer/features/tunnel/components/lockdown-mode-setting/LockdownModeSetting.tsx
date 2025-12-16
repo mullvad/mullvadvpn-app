@@ -13,7 +13,7 @@ export function LockdownModeSetting(props: LockdownModeSettingProps) {
       <SettingsListItem.Item>
         <SettingsListItem.Content>
           <LockdownModeSwitch>
-            <LockdownModeSwitch.Label variant="titleMedium">
+            <LockdownModeSwitch.Label>
               {messages.pgettext('vpn-settings-view', 'Lockdown mode')}
             </LockdownModeSwitch.Label>
             <SettingsListItem.Group>
