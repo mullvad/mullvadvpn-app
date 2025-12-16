@@ -234,7 +234,7 @@ impl InactiveSplitTunnelInner {
     }
 
     pub fn set_tunnel_addresses(&mut self, metadata: Option<&TunnelMetadata>) -> Result<(), Error> {
-        self.tunnel_addresses = metadata.map(|m| m.ips.clone()).unwrap_or(vec![]);
+        self.tunnel_addresses = metadata.map(|m| m.ips.clone()).unwrap_or_default();
         self.result()
     }
 
