@@ -78,7 +78,7 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
     private var lastPacketTunnelKeyRotation: Date?
 
     private var observer: TunnelObserver?
-
+    private var applicationDidBecomeActiveObserver: Any?
     // MARK: - Initialization
 
     init(
@@ -100,11 +100,13 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
         self.operationQueue.underlyingQueue = internalQueue
         self.relaySelector = relaySelector
 
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(applicationDidBecomeActive),
-            name: UIApplication.didBecomeActiveNotification,
-            object: nil
+        applicationDidBecomeActiveObserver = NotificationCenter.default.addObserver(
+            forName: UIApplication.didBecomeActiveNotification,
+            object: nil,
+            queue: .main,
+            using: { [weak self] _ in
+                self?.applicationDidBecomeActive()
+            }
         )
     }
 
