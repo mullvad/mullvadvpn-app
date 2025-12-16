@@ -19,7 +19,6 @@ import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import java.util.UUID
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import net.mullvad.mullvadvpn.test.e2e.constant.getRaasHost
 import net.mullvad.mullvadvpn.test.e2e.misc.Networking
@@ -107,7 +106,7 @@ class PacketCaptureClient(private val httpClient: HttpClient = defaultHttpClient
     }
 
     suspend fun sendGetCapturedPacketsRequest(session: PacketCaptureSession): HttpResponse {
-        val testDeviceIpAddress = Networking.getDeviceIpv4Address()
+        val testDeviceIpAddress = Networking.getDeviceIpAddrs().ipv4
         return httpClient.put("parse-capture/${session.value}") {
             contentType(ContentType.Application.Json)
             accept(ContentType.Application.Json)

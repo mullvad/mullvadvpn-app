@@ -130,8 +130,7 @@ class ConnectionTest : EndToEndTest() {
             }
 
             // Block UDP traffic to the relay
-            val firewallRule = DropRule.blockUDPTrafficRule(relayIpAddress!!)
-            firewallClient.createRule(firewallRule)
+            createFirewallRules { DropRule.blockUDPTrafficRule(relayIpAddress!!) }
 
             on<ConnectPage> {
                 clickConnect()
@@ -168,8 +167,7 @@ class ConnectionTest : EndToEndTest() {
             }
 
             // Block UDP traffic to the relay
-            val firewallRule = DropRule.blockUDPTrafficRule(relayIpAddress!!)
-            firewallClient.createRule(firewallRule)
+            createFirewallRules { DropRule.blockUDPTrafficRule(relayIpAddress!!) }
 
             on<ConnectPage> { setObfuscationStory(ObfuscationOption.Off) }
 
@@ -210,8 +208,7 @@ class ConnectionTest : EndToEndTest() {
         }
 
         // Block UDP traffic to the relay
-        val firewallRule = DropRule.blockUDPTrafficRule(relayIpAddress!!)
-        firewallClient.createRule(firewallRule)
+        createFirewallRules { DropRule.blockUDPTrafficRule(relayIpAddress!!) }
 
         // Enable UDP-over-TCP
         on<ConnectPage> { setObfuscationStory(ObfuscationOption.Udp2Tcp) }
@@ -251,8 +248,7 @@ class ConnectionTest : EndToEndTest() {
         }
 
         // Block UDP traffic to the relay
-        val firewallRule = DropRule.blockWireGuardTrafficRule(relayIpAddress!!)
-        firewallClient.createRule(firewallRule)
+        createFirewallRules { DropRule.blockWireGuardTrafficRule(relayIpAddress!!) }
 
         // Enable QUIC
         on<ConnectPage> { setObfuscationStory(ObfuscationOption.Quic) }
@@ -293,8 +289,7 @@ class ConnectionTest : EndToEndTest() {
         }
 
         // Block UDP traffic to the relay
-        val firewallRule = DropRule.blockWireGuardTrafficRule(relayIpAddress!!)
-        firewallClient.createRule(firewallRule)
+        createFirewallRules { DropRule.blockWireGuardTrafficRule(relayIpAddress!!) }
 
         // Enable LWO
         on<ConnectPage> { setObfuscationStory(ObfuscationOption.Lwo) }
@@ -315,8 +310,7 @@ class ConnectionTest : EndToEndTest() {
             app.applySettings(localNetworkSharing = true, obfuscationMode = ObfuscationMode.Off)
 
             // Block all WireGuard traffic
-            val firewallRule = DropRule.blockWireGuardTrafficRule(ANY_IP_ADDRESS)
-            firewallClient.createRule(firewallRule)
+            createFirewallRules { DropRule.blockWireGuardTrafficRule(ANY_IPV4_ADDRESS) }
 
             on<ConnectPage> { clickConnect() }
 
@@ -349,8 +343,7 @@ class ConnectionTest : EndToEndTest() {
         on<ConnectPage>()
 
         // Block everything except the default relay IP. After this the API is no longer reachable.
-        val firewallRule = DropRule.blockAllTrafficExceptToDestinationRule(testRelayIp)
-        firewallClient.createRule(firewallRule)
+        createFirewallRules { DropRule.blockAllTrafficExceptToDestinationRule(testRelayIp) }
 
         // Restarting the activity will re-create the daemon which will try to reach the API.
         targetActivity.finishAffinity()
@@ -443,9 +436,12 @@ class ConnectionTest : EndToEndTest() {
         assertEquals(result.mullvadExitIpHostname, defaultRelay.relay)
     }
 
+    private suspend fun createFirewallRules(block: () -> List<DropRule>) =
+        block().forEach { firewallClient.createRule(it) }
+
     companion object {
         const val VERY_FORGIVING_WIREGUARD_OFF_CONNECTION_TIMEOUT = 60000L
         const val UNSUCCESSFUL_CONNECTION_TIMEOUT = 30000L
-        const val ANY_IP_ADDRESS = "0.0.0.0/0"
+        const val ANY_IPV4_ADDRESS = "0.0.0.0/0"
     }
 }
