@@ -6,7 +6,7 @@ use mullvad_version::PreStableType;
 
 use crate::format::installer::Installer;
 use crate::format::release::Release;
-use crate::format::response::Response;
+use crate::format::response::{AndroidReleases, Response};
 use crate::version::parameters::VersionParameters;
 
 /// Lowest version to accept using 'verify'
@@ -87,6 +87,10 @@ impl VersionInfo {
                 })
         }).try_collect()?;
 
+        Self::try_from_metadata(available_versions)
+    }
+
+    pub fn try_from_metadata(available_versions: Vec<Metadata>) -> anyhow::Result<Self> {
         // Find latest stable version
         let stable = available_versions
             .iter()
@@ -113,6 +117,16 @@ impl VersionInfo {
 pub fn is_version_supported(
     current_version: mullvad_version::Version,
     response: &Response,
+) -> bool {
+    response
+        .releases
+        .iter()
+        .any(|release| release.version.eq(&current_version))
+}
+
+pub fn is_version_supported_android(
+    current_version: mullvad_version::Version,
+    response: &AndroidReleases,
 ) -> bool {
     response
         .releases
