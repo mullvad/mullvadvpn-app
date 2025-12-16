@@ -199,17 +199,23 @@ impl SplitTunnel {
 
 /// Dummy implementation of split tunneling that fails in the "engaged" state.
 ///
-/// This is used to fail when split tunneling should be active due to user settings,
+/// The fake implementation can be considered _engaged_ when two conditions are met:
+/// 1. There is a tunnel (i.e., there are tunnel IP addresses registered).
+/// 2. There are paths to exclude.
+/// Otherwise, it is _non-engaged_.
+///
+/// This is used to fail when split tunneling should be engaged due to user settings,
 /// but work when we would not have been in the engaged state anyway (e.g.
 /// when the user is not excluding any apps, has no tunnel, or has disabled split tunneling).
-///
-/// The actual split tunneling device is a state machine with four states: Started, initialized,
-/// ready, and engaged.
-/// These can be collapsed into two states, _non-engaged_ and _engaged_. The state is engaged
-/// when there are paths to exclude and a tunnel (tunnel addresses).
 struct InactiveSplitTunnelState {
     paths: Vec<OsString>,
     tunnel_addresses: Vec<IpAddr>,
+}
+
+#[derive(PartialEq, Eq)]
+enum InactiveSplitTunnelStateState {
+    NonEngaged,
+    Engaged,
 }
 
 impl InactiveSplitTunnelState {
@@ -230,17 +236,17 @@ impl InactiveSplitTunnelState {
 
     pub fn set_paths_sync<T: AsRef<OsStr>>(&mut self, paths: &[T]) -> Result<(), Error> {
         self.paths = paths.iter().map(|p| p.as_ref().to_owned()).collect();
-        self.action_result()
+        self.get_action_result()
     }
 
     pub fn set_tunnel_addresses(&mut self, metadata: Option<&TunnelMetadata>) -> Result<(), Error> {
         self.tunnel_addresses = metadata.map(|m| m.ips.clone()).unwrap_or_default();
-        self.action_result()
+        self.get_action_result()
     }
 
     pub fn clear_tunnel_addresses(&mut self) -> Result<(), Error> {
         self.tunnel_addresses.clear();
-        self.action_result()
+        self.get_action_result()
     }
 
     pub fn handle(&self) -> SplitTunnelHandle {
@@ -249,23 +255,32 @@ impl InactiveSplitTunnelState {
         }
     }
 
-    /// Result of an action based on the current state.
+    /// Current inactive split tunnel state state.
     ///
     /// # Non-engaged state
     ///
-    /// There is no tunnel or no paths to exclude, then split tunneling is supposed to be
+    /// If there is no tunnel or no paths to exclude, then split tunneling is supposed to be
     /// inactive.
     ///
-    /// In this case, the action should not fail.
+    /// In this case, no action should fail (unless it causes a transition to `Self::Engaged`).
     ///
     /// # Engaged state
     ///
-    /// There is a tunnel as well as paths to exclude, then split tunneling is supposed to be
+    /// If there is a tunnel as well as paths to exclude, then split tunneling is supposed to be
     /// active.
     ///
-    /// In this case, the action should fail.
-    fn action_result(&self) -> Result<(), Error> {
+    /// In this case, any action should fail (unless it causes a transition to `Self::NonEngaged`).
+    fn current_state(&self) -> InactiveSplitTunnelStateState {
         if self.tunnel_addresses.is_empty() || self.paths.is_empty() {
+            InactiveSplitTunnelStateState::NonEngaged
+        } else {
+            InactiveSplitTunnelStateState::Engaged
+        }
+    }
+
+    /// Result of an action based on the current state.
+    fn get_action_result(&self) -> Result<(), Error> {
+        if self.current_state() == InactiveSplitTunnelStateState::NonEngaged {
             Ok(())
         } else {
             Err(Error::Unavailable)
