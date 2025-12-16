@@ -57,13 +57,15 @@ export function TooManyDevicesView() {
             </View.Container>
             {devices !== undefined && (
               <>
-                <View.Container flexDirection="column" horizontalMargin="medium" gap="small">
-                  <Text variant="titleLarge" data-testid="title">
-                    {title}
-                  </Text>
-                  <Text variant="labelTiny">{subtitle}</Text>
+                <View.Container flexDirection="column" horizontalMargin="medium" gap="large">
+                  <FlexColumn gap="small">
+                    <Text variant="titleLarge" data-testid="title">
+                      {title}
+                    </Text>
+                    <Text variant="labelTiny">{subtitle}</Text>
+                  </FlexColumn>
+                  <DeviceList devices={devices} />
                 </View.Container>
-                <DeviceList devices={devices} />
               </>
             )}
 

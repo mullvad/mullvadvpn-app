@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { messages } from '../../../../../../shared/gettext';
 import { useDns } from '../../../../../features/dns/hooks';
 import { Button, IconButton } from '../../../../../lib/components';
-import { Accordion, AccordionProps } from '../../../../../lib/components/accordion';
+import { AccordionProps } from '../../../../../lib/components/accordion';
 import { Switch } from '../../../../../lib/components/switch';
 import { formatHtml } from '../../../../../lib/html-formatter';
 import { IpAddress } from '../../../../../lib/ip';
@@ -12,12 +12,12 @@ import { AriaDescribed, AriaDescription, AriaDescriptionGroup } from '../../../.
 import * as Cell from '../../../../cell';
 import List, { stringValueAsKey } from '../../../../List';
 import { ModalAlert, ModalAlertType } from '../../../../Modal';
+import { SettingsAccordion } from '../../../../settings-accordion';
 import { SettingsListItem } from '../../../../settings-list-item';
 import {
   AddServerContainer,
   StyledAddCustomDnsLabel,
   StyledButton,
-  StyledCustomDnsFooter,
   StyledItemContainer,
   StyledLabel,
 } from './CustomDnsSettingsStyles';
@@ -188,76 +188,76 @@ export function CustomDnsSettings(props: CustomDnsSettingsProps) {
   const listExpanded = featureAvailable && (dns.state === 'custom' || inputVisible || savingAdd);
 
   return (
-    <>
-      <SettingsListItem anchorId="custom-dns-settings" disabled={!featureAvailable} {...props}>
-        <SettingsListItem.Item>
-          <SettingsListItem.Content>
-            <Switch
-              checked={dns.state === 'custom' || inputVisible}
-              onCheckedChange={setCustomDnsEnabled}
-              disabled={!featureAvailable}>
-              <Switch.Label variant="titleMedium">
-                {messages.pgettext('vpn-settings-view', 'Use custom DNS server')}
-              </Switch.Label>
-              <Switch.Trigger ref={switchRef} aria-describedby={descriptionId}>
-                <Switch.Thumb />
-              </Switch.Trigger>
-            </Switch>
-          </SettingsListItem.Content>
-        </SettingsListItem.Item>
-      </SettingsListItem>
-      <Accordion expanded={listExpanded} disabled={!featureAvailable}>
-        <Accordion.Content>
-          <Cell.Section role="listbox">
-            <List
-              items={dns.customOptions.addresses}
-              getKey={stringValueAsKey}
-              skipAddTransition={true}
-              skipRemoveTransition={savingEdit}>
-              {(item) => (
-                <CellListItem
-                  onRemove={onRemove}
-                  onChange={onEdit}
-                  willShowConfirmationDialog={willShowConfirmationDialog}>
-                  {item}
-                </CellListItem>
-              )}
-            </List>
-          </Cell.Section>
+    <SettingsAccordion
+      accordionId="custom-dns-settings"
+      anchorId="custom-dns-settings"
+      expanded={listExpanded}
+      disabled={!featureAvailable}
+      {...props}>
+      <SettingsAccordion.Header>
+        <Switch
+          checked={dns.state === 'custom' || inputVisible}
+          onCheckedChange={setCustomDnsEnabled}
+          disabled={!featureAvailable}>
+          <Switch.Label>
+            {messages.pgettext('vpn-settings-view', 'Use custom DNS server')}
+          </Switch.Label>
+          <Switch.Trigger ref={switchRef} aria-describedby={descriptionId}>
+            <Switch.Thumb />
+          </Switch.Trigger>
+        </Switch>
+      </SettingsAccordion.Header>
 
-          {inputVisible && (
-            <div ref={inputContainerRef}>
-              <Cell.RowInput
-                placeholder={messages.pgettext('vpn-settings-view', 'Enter IP')}
-                onSubmit={onAdd}
-                onChange={setValid}
-                invalid={invalid}
-                paddingLeft={32}
-                onBlur={onInputBlur}
-                autofocus
-              />
-            </div>
-          )}
+      <SettingsAccordion.Content>
+        <Cell.Section role="listbox">
+          <List
+            items={dns.customOptions.addresses}
+            getKey={stringValueAsKey}
+            skipAddTransition={true}
+            skipRemoveTransition={savingEdit}>
+            {(item) => (
+              <CellListItem
+                onRemove={onRemove}
+                onChange={onEdit}
+                willShowConfirmationDialog={willShowConfirmationDialog}>
+                {item}
+              </CellListItem>
+            )}
+          </List>
+        </Cell.Section>
 
-          <AddServerContainer>
-            <StyledButton
-              ref={addButtonRef}
-              onClick={showInput}
-              disabled={inputVisible}
-              tabIndex={-1}>
-              <StyledAddCustomDnsLabel tabIndex={-1}>
-                {messages.pgettext('vpn-settings-view', 'Add a server')}
-              </StyledAddCustomDnsLabel>
-            </StyledButton>
-            <IconButton variant="secondary" onClick={showInput}>
-              <IconButton.Icon icon="add-circle" />
-            </IconButton>
-          </AddServerContainer>
-        </Accordion.Content>
-      </Accordion>
+        {inputVisible && (
+          <div ref={inputContainerRef}>
+            <Cell.RowInput
+              placeholder={messages.pgettext('vpn-settings-view', 'Enter IP')}
+              onSubmit={onAdd}
+              onChange={setValid}
+              invalid={invalid}
+              paddingLeft={32}
+              onBlur={onInputBlur}
+              autofocus
+            />
+          </div>
+        )}
 
-      <StyledCustomDnsFooter>
-        <Cell.CellFooterText id={descriptionId}>
+        <AddServerContainer>
+          <StyledButton
+            ref={addButtonRef}
+            onClick={showInput}
+            disabled={inputVisible}
+            tabIndex={-1}>
+            <StyledAddCustomDnsLabel tabIndex={-1}>
+              {messages.pgettext('vpn-settings-view', 'Add a server')}
+            </StyledAddCustomDnsLabel>
+          </StyledButton>
+          <IconButton variant="secondary" onClick={showInput}>
+            <IconButton.Icon icon="add-circle" />
+          </IconButton>
+        </AddServerContainer>
+      </SettingsAccordion.Content>
+
+      <SettingsListItem.Footer>
+        <SettingsListItem.Text id={descriptionId}>
           {featureAvailable
             ? messages.pgettext('vpn-settings-view', 'Enable to add at least one DNS server.')
             : formatHtml(
@@ -270,15 +270,15 @@ export function CustomDnsSettings(props: CustomDnsSettingsProps) {
                   'Disable all <b>DNS content blockers</b> above to activate this setting.',
                 ),
               )}
-        </Cell.CellFooterText>
-      </StyledCustomDnsFooter>
+        </SettingsListItem.Text>
+      </SettingsListItem.Footer>
 
       <ConfirmationDialog
         isOpen={confirmAction !== undefined}
         confirm={confirm}
         abort={abortConfirmation}
       />
-    </>
+    </SettingsAccordion>
   );
 }
 
