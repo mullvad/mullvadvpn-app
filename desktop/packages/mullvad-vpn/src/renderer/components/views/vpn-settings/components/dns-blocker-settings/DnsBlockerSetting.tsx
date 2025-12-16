@@ -25,7 +25,7 @@ export function DnsBlockerSettings(props: DnsBlockerSettingsProps) {
   const customDnsFeatureName = messages.pgettext('vpn-settings-view', 'Use custom DNS server');
 
   return (
-    <>
+    <div>
       <SettingsAccordion
         accordionId="dns-blocker-setting"
         anchorId="dns-blocker-setting"
@@ -33,7 +33,7 @@ export function DnsBlockerSettings(props: DnsBlockerSettingsProps) {
         disabled={dns.state === 'custom'}
         {...props}>
         <SettingsAccordion.Header>
-          <SettingsAccordion.Title>
+          <SettingsAccordion.Title variant="bodySmallSemibold">
             {messages.pgettext('vpn-settings-view', 'DNS content blockers')}
           </SettingsAccordion.Title>
           <FlexRow gap="medium">
@@ -77,6 +77,6 @@ export function DnsBlockerSettings(props: DnsBlockerSettingsProps) {
         </SettingsAccordion.Content>
       </SettingsAccordion>
       {dns.state === 'custom' && <CustomDnsEnabledFooter />}
-    </>
+    </div>
   );
 }
