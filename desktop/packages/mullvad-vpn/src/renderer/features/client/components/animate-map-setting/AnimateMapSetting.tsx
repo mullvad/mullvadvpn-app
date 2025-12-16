@@ -11,7 +11,7 @@ export function AnimateMapSetting() {
       <ListItem.Item>
         <ListItem.Content>
           <AnimateMapSwitch>
-            <AnimateMapSwitch.Label variant="titleMedium">
+            <AnimateMapSwitch.Label>
               {messages.pgettext('user-interface-settings-view', 'Animate map')}
             </AnimateMapSwitch.Label>
             <AnimateMapSwitch.Trigger aria-describedby={descriptionId}>
