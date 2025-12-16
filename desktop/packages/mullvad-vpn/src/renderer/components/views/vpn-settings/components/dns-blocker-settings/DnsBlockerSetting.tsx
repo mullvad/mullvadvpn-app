@@ -1,4 +1,5 @@
 import { sprintf } from 'sprintf-js';
+import styled from 'styled-components';
 
 import { messages } from '../../../../../../shared/gettext';
 import {
@@ -11,11 +12,21 @@ import {
 } from '../../../../../features/dns/components';
 import { useDns } from '../../../../../features/dns/hooks';
 import { FlexRow } from '../../../../../lib/components/flex-row';
+import { StyledListItem } from '../../../../../lib/components/list-item';
+import { StyledListItemItem } from '../../../../../lib/components/list-item/components';
+import { ListItemGroup } from '../../../../../lib/components/list-item-group';
 import { formatHtml } from '../../../../../lib/html-formatter';
 import InfoButton from '../../../../InfoButton';
 import { ModalMessage } from '../../../../Modal';
 import { SettingsAccordion } from '../../../../settings-accordion';
 import { CustomDnsEnabledFooter } from './components';
+
+const StyledListItemGroup = styled(ListItemGroup)`
+  && > ${StyledListItem}:first-child ${StyledListItemItem} {
+    border-top-left-radius: unset;
+    border-top-right-radius: unset;
+  }
+`;
 
 export function DnsBlockerSettings() {
   const { dns } = useDns();
@@ -29,7 +40,7 @@ export function DnsBlockerSettings() {
         aria-label={messages.pgettext('vpn-settings-view', 'DNS content blockers')}
         disabled={dns.state === 'custom'}>
         <SettingsAccordion.Header>
-          <SettingsAccordion.Title>
+          <SettingsAccordion.Title variant="bodySmallSemibold">
             {messages.pgettext('vpn-settings-view', 'DNS content blockers')}
           </SettingsAccordion.Title>
           <FlexRow gap="medium">
@@ -64,12 +75,14 @@ export function DnsBlockerSettings() {
           </FlexRow>
         </SettingsAccordion.Header>
         <SettingsAccordion.Content>
-          <BlockAdsSetting />
-          <BlockTrackersSetting />
-          <BlockMalwareSetting />
-          <BlockGamblingSetting />
-          <BlockAdultContentSetting />
-          <BlockSocialMediaSetting />
+          <StyledListItemGroup variant="grouped">
+            <BlockAdsSetting />
+            <BlockTrackersSetting />
+            <BlockMalwareSetting />
+            <BlockGamblingSetting />
+            <BlockAdultContentSetting />
+            <BlockSocialMediaSetting />
+          </StyledListItemGroup>
         </SettingsAccordion.Content>
       </SettingsAccordion>
       {dns.state === 'custom' && <CustomDnsEnabledFooter />}
