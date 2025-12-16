@@ -2,7 +2,6 @@ import styled, { css } from 'styled-components';
 
 import { ListItem, ListItemPositions, ListItemProps, StyledListItemRoot } from '../../../list-item';
 import {
-  ListboxOptionIcon,
   ListboxOptionItem,
   ListboxOptionLabel,
   ListboxOptionTrigger,
@@ -54,7 +53,6 @@ const ListboxOptionNamespace = Object.assign(ListboxOption, {
   Trigger: ListboxOptionTrigger,
   Item: ListboxOptionItem,
   Footer: ListItem.Footer,
-  Icon: ListboxOptionIcon,
   Label: ListboxOptionLabel,
 });
 

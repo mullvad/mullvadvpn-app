@@ -7,10 +7,5 @@ export type InputOptionLabelProps = {
 
 export function InputOptionLabel({ children }: InputOptionLabelProps) {
   const { labelId } = useInputOptionContext();
-  return (
-    <Listbox.Option.Group>
-      <Listbox.Option.Icon icon="checkmark" />
-      <Listbox.Option.Label id={labelId}>{children}</Listbox.Option.Label>
-    </Listbox.Option.Group>
-  );
+  return <Listbox.Option.Label id={labelId}>{children}</Listbox.Option.Label>;
 }
