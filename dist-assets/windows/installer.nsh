@@ -633,7 +633,7 @@ ManifestSupportedOS "{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"
 
 	${If} $1 == 0
 	${OrIf} $2 == 0
-		MessageBox MB_ICONEXCLAMATION|MB_OK "Installation failed. Your internet access will be unblocked."
+		MessageBox MB_ICONEXCLAMATION|MB_OK "Install/uninstall failed. Your internet access will be unblocked."
 	${EndIf}
 
 	Pop $2
@@ -1148,7 +1148,18 @@ ManifestSupportedOS "{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"
 	# Break the install due to inconsistent state
 	Delete "$INSTDIR\mullvad vpn.exe"
 
+	# If an error occurs during a downgrade or full uninstall, clear the firewall rules anyway
 	${If} $FullUninstall == 1
+		# Check if this is a downgrade (which, confusingly, is true if $isUpdated is true).
+		# In case of a downgrade, we do want to clear the firewall rules. There is no migration path
+		# for downgrades. This state can be very difficult to get out of, so we try to clean up
+		# even if uninstalling fails.
+		# But we have to warn the user first.
+		# Note: For updates, 'customUnInstallCheck' takes care of cleanup.
+		${If} ${isUpdated}
+			${FirewallWarningCheck}
+		${EndIf}
+
 		${ClearFirewallRules}
 	${EndIf}
 

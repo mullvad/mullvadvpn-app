@@ -27,6 +27,8 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Fixed
 - Fix "Time left" label in main view not updating when time passes.
+
+#### Windows
 - Update split tunnel driver to 1.2.5.0. This fixes audit issue `MLLVD-CR-24-102`,
   and a BSOD when the driver was improperly unloaded.
 
@@ -34,6 +36,11 @@ Line wrap the file at 100 chars.                                              Th
 #### Linux
 - Upgrade split-tunneling to use cgroups v2, instead of the deprecated cgroups v1.
   Users on Linux kernels prior to 5.13 will not be able to use split tunneling.
+
+### Security
+#### Windows
+- Warn user before clearing firewall rules during failed downgrades. This fix only applies to
+  downgrades to this version and future versions.
 
 
 ## [2025.14] - 2025-12-09
