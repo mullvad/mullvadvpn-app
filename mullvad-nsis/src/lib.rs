@@ -1,6 +1,8 @@
 #![cfg(all(target_arch = "x86", target_os = "windows"))]
 
+use core::slice;
 use std::{
+    cmp::min,
     ffi::OsString,
     iter,
     os::windows::ffi::{OsStrExt, OsStringExt},
@@ -9,6 +11,8 @@ use std::{
     ptr,
 };
 
+mod handle;
+
 #[repr(C)]
 pub enum Status {
     Ok,
@@ -16,10 +20,9 @@ pub enum Status {
     InsufficientBufferSize,
     OsError,
     Panic,
+    Cancelled,
+    FileExists,
 }
-
-/// Max path size allowed
-const MAX_PATH_SIZE: isize = 32_767;
 
 /// Creates a privileged directory at the specified Windows path.
 ///
@@ -29,22 +32,8 @@ const MAX_PATH_SIZE: isize = 32_767;
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn create_privileged_directory(path: *const u16) -> Status {
     catch_and_log_unwind(|| {
-        let mut i = 0;
-        // Calculate the length of the path by checking when the first u16 == 0
-        let len = loop {
-            // SAFETY: We assume that `path` is a valid pointer to a u16 array,
-            // ending with a null terminator.
-            if unsafe { *(path.offset(i)) } == 0 {
-                break i;
-            } else if i >= MAX_PATH_SIZE {
-                return Status::InvalidArguments;
-            }
-            i += 1;
-        };
-        // SAFETY: Because we checked the length, we can safely create a slice
-        // from the raw pointer.
-        let path = unsafe { std::slice::from_raw_parts(path, len as usize) };
-        let path = OsString::from_wide(path);
+        // SAFETY: `path` is a null-terminated UTF-16 string
+        let path = unsafe { osstr_from_wide(path) };
         let path = Path::new(&path);
 
         match mullvad_paths::windows::create_privileged_directory(path) {
@@ -171,9 +160,107 @@ pub unsafe extern "C" fn get_system_version_struct(version_out: *mut WindowsVer)
     })
 }
 
+/// Identify processes that may be using files in the install path, and ask the user to close them.
+/// If `allow_cancellation` is true, the function will let the user cancel.
+///
+/// # Safety
+///
+/// * `install_path` must be a null-terminated wide string (UTF-16).
+/// * `error_message_out` must be a valid buffer of at least size `max_error_message_size` (characters).
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn close_hogging_processes(
+    install_path: *const u16,
+    allow_cancellation: bool,
+    error_message_out: *mut u16,
+    max_error_message_size: usize,
+) -> Status {
+    catch_and_log_unwind(|| {
+        // SAFETY: `install_path` is a null-terminated wide string.
+        let path = unsafe { osstr_from_wide(install_path) };
+        match handle::terminate_processes(path, allow_cancellation) {
+            Ok(true) => Status::Ok,
+            Ok(false) => {
+                if max_error_message_size > 0 {
+                    // SAFETY: `error_message_out` is valid for `max_error_message_size` chars.
+                    unsafe { *error_message_out = 0 };
+                }
+                Status::Cancelled
+            }
+            Err(err) => {
+                // SAFETY: `error_message_out` is valid for `max_error_message_size` chars.
+                unsafe { write_error_into(err, error_message_out, max_error_message_size) };
+                Status::OsError
+            }
+        }
+    })
+}
+
+/// Write error chain for `err` into `error_message_out`.
+///
+/// # Safety
+///
+/// * `error_message_out` must be a valid buffer of at least size `max_error_message_size` (characters).
+unsafe fn write_error_into(
+    err: anyhow::Error,
+    error_message_out: *mut u16,
+    max_error_message_size: usize,
+) {
+    if max_error_message_size == 0 {
+        return;
+    }
+
+    // SAFETY: `error_message_out` is valid for writes of `max_error_message_size` chars
+    let error_message_out: &mut [u16] =
+        unsafe { slice::from_raw_parts_mut(error_message_out, max_error_message_size) };
+    let err = format!("{err:?}");
+    let err = widestring::WideString::from(err);
+    let len = min(max_error_message_size - 1, err.len());
+    error_message_out[..len].copy_from_slice(&err.as_slice()[..len]);
+    error_message_out[len] = 0; // null terminator
+}
+
+/// Return whether directory is empty or contains only directories/symlinks and no files.
+///
+/// If the directory is empty or contains only directories or symlinks, this returns `Status::Ok`.
+/// If the directory contains files, this returns `Status::FileExists`.
+/// If it fails for any other reason, this returns `Status::OsError`.
+///
+/// # Safety
+///
+/// * `path` must be a null-terminated wide string (UTF-16).
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn is_empty_dir(path: *const u16) -> Status {
+    catch_and_log_unwind(|| {
+        // SAFETY: `path` is a null-terminated wide string.
+        let path = unsafe { osstr_from_wide(path) };
+        match handle::is_empty_dir(path) {
+            Ok(true) => Status::Ok,
+            Ok(false) => Status::FileExists,
+            Err(_err) => Status::OsError,
+        }
+    })
+}
+
 fn catch_and_log_unwind(func: impl FnOnce() -> Status + UnwindSafe) -> Status {
     match std::panic::catch_unwind(func) {
         Ok(status) => status,
         Err(_) => Status::Panic,
     }
+}
+
+/// Convert a null-terminated wide string (UTF-16) to an `OsString`.
+///
+/// # Safety
+///
+/// * `wide_str` must be a null-terminated.
+unsafe fn osstr_from_wide(wide_str: *const u16) -> OsString {
+    let mut len = 0;
+    // SAFETY: `wide_str` is a valid pointer to a null-terminated wide string.
+    while unsafe { *wide_str.offset(len) } != 0 {
+        len += 1;
+    }
+    // SAFETY: Because we checked the length, we can safely create a slice
+    // from the raw pointer.
+    let s = unsafe { std::slice::from_raw_parts(wide_str, len as usize) };
+    OsString::from_wide(s)
 }
