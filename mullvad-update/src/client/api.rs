@@ -4,6 +4,7 @@ use std::net::IpAddr;
 use std::path::PathBuf;
 
 use anyhow::Context;
+use serde::{Deserialize, Serialize};
 use tokio::fs;
 #[cfg(test)]
 use vec1::Vec1;
@@ -41,7 +42,7 @@ impl MetaRepositoryPlatform {
 
     /// Return complete URL used for the metadata
     pub fn url(&self) -> String {
-        format!("{}/{}", defaults::RELEASES_URL, self.filename())
+        format!("{}{}", defaults::RELEASES_URL, self.filename())
     }
 
     fn filename(&self) -> &str {
@@ -111,7 +112,7 @@ impl HttpVersionInfoProvider {
     /// Retrieve released versions for Android.
     pub async fn get_android_releases() -> anyhow::Result<AndroidReleases> {
         let info_provider = HttpVersionInfoProvider {
-            url: format!("{}/android.json", defaults::RELEASES_URL),
+            url: format!("{}android.json", defaults::RELEASES_URL),
             resolve: Some((API_HOST_DEFAULT, API_IP_DEFAULT)),
             pinned_certificate: Some(defaults::PINNED_CERTIFICATE.clone()),
             dump_to_path: None,
@@ -191,7 +192,7 @@ impl HttpVersionInfoProvider {
     /// - The JSON response is not signed.
     pub async fn get_latest_android_versions_file() -> anyhow::Result<String> {
         Self::get(
-            &format!("{}/latest.json", defaults::ANDROID_METADATA_URL),
+            &format!("{}latest.json", defaults::ANDROID_METADATA_URL),
             Some(defaults::PINNED_CERTIFICATE.clone()),
             None,
         )
