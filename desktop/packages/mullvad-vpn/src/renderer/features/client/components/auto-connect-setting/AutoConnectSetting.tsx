@@ -14,7 +14,7 @@ export function AutoConnectSetting(props: AutoConnectSettingProps) {
       <SettingsListItem.Item>
         <SettingsListItem.Content>
           <AutoConnectSwitch>
-            <AutoConnectSwitch.Label variant="titleMedium">
+            <AutoConnectSwitch.Label>
               {messages.pgettext('vpn-settings-view', 'Auto-connect')}
             </AutoConnectSwitch.Label>
             <AutoConnectSwitch.Trigger aria-describedby={descriptionId}>

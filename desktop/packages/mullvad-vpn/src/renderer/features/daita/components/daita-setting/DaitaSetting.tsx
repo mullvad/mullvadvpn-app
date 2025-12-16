@@ -16,9 +16,7 @@ export function DaitaSetting() {
       <SettingsListItem.Item>
         <SettingsListItem.Content>
           <DaitaSwitch descriptionId={descriptionId}>
-            <DaitaSwitch.Label variant="titleMedium">
-              {messages.gettext('Enable')}
-            </DaitaSwitch.Label>
+            <DaitaSwitch.Label>{messages.gettext('Enable')}</DaitaSwitch.Label>
             <DaitaSwitch.Trigger>
               <DaitaSwitch.Thumb />
             </DaitaSwitch.Trigger>
