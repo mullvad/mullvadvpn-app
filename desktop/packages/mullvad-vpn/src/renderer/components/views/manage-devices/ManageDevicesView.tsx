@@ -30,8 +30,8 @@ export function ManageDevicesView() {
             />
             <NavigationScrollbars>
               <View.Content>
-                <FlexColumn gap="medium">
-                  <View.Container horizontalMargin="medium" flexDirection="column" gap="small">
+                <View.Container horizontalMargin="medium" flexDirection="column" gap="medium">
+                  <FlexColumn gap="small">
                     <Text variant="titleBig">
                       {
                         // TRANSLATORS: Title text in the manage devices view
@@ -48,9 +48,9 @@ export function ManageDevicesView() {
                         )
                       }
                     </Text>
-                  </View.Container>
+                  </FlexColumn>
                   {showDeviceList ? <DeviceList devices={devices} /> : <DevicesState />}
-                </FlexColumn>
+                </View.Container>
               </View.Content>
             </NavigationScrollbars>
           </NavigationContainer>

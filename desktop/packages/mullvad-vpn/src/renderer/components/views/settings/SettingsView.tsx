@@ -41,7 +41,7 @@ export function SettingsView() {
 
           <SettingsNavigationScrollbars fillContainer>
             <View.Content>
-              <FlexColumn gap="large">
+              <View.Container horizontalMargin="medium" gap="large" flexDirection="column">
                 <FlexColumn gap="medium">
                   {showSubSettings ? (
                     <>
@@ -51,13 +51,13 @@ export function SettingsView() {
                         <VpnSettingsListItem />
                         <UserInterfaceSettingsListItem />
                       </FlexColumn>
-                      {showSplitTunneling && <SplitTunnelingListItem />}
+                      {showSplitTunneling && <SplitTunnelingListItem position="solo" />}
                     </>
                   ) : (
-                    <UserInterfaceSettingsListItem />
+                    <UserInterfaceSettingsListItem position="solo" />
                   )}
 
-                  <ApiAccessMethodsListItem />
+                  <ApiAccessMethodsListItem position="solo" />
 
                   <FlexColumn>
                     <SupportListItem />
@@ -66,10 +66,8 @@ export function SettingsView() {
 
                   {showDebug && <DebugListItem />}
                 </FlexColumn>
-                <View.Container horizontalMargin="medium">
-                  <QuitButton />
-                </View.Container>
-              </FlexColumn>
+                <QuitButton />
+              </View.Container>
             </View.Content>
           </SettingsNavigationScrollbars>
         </NavigationContainer>

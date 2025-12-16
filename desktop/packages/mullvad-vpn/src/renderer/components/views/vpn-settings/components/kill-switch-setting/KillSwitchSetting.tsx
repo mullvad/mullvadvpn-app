@@ -15,7 +15,7 @@ export function KillSwitchSetting(props: KillSwitchSettingProps) {
           <SettingsListItem.Label>
             {messages.pgettext('vpn-settings-view', 'Kill switch')}
           </SettingsListItem.Label>
-          <SettingsListItem.Group gap="medium">
+          <SettingsListItem.Group>
             <InfoButton>
               <ModalMessage>
                 {messages.pgettext(
