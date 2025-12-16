@@ -140,8 +140,8 @@ impl PidManager {
         self.inner_mut()?.clear()
     }
 
-    /// Return whether it is enabled
-    pub fn is_enabled(&self) -> bool {
+    /// Return whether it is supported/available
+    pub fn is_supported(&self) -> bool {
         matches!(self.inner, Ok(..))
     }
 

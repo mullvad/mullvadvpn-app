@@ -816,17 +816,17 @@ impl ManagementService for ManagementServiceImpl {
     // Split tunneling
     //
 
-    async fn split_tunnel_is_enabled(&self, _: Request<()>) -> ServiceResult<bool> {
+    async fn split_tunnel_is_supported(&self, _: Request<()>) -> ServiceResult<bool> {
         #[cfg(target_os = "linux")]
         {
-            log::debug!("split_tunnel_is_enabled");
+            log::debug!("split_tunnel_is_supported");
             let (tx, rx) = oneshot::channel();
-            self.send_command_to_daemon(DaemonCommand::SplitTunnelIsEnabled(tx))?;
+            self.send_command_to_daemon(DaemonCommand::SplitTunnelIsSupported(tx))?;
             Ok(self.wait_for_result(rx).await.map(Response::new)?)
         }
         #[cfg(not(target_os = "linux"))]
         {
-            log::error!("split_tunnel_is_enabled is only available on Linux");
+            log::error!("split_tunnel_is_supported is only available on Linux");
             Ok(Response::new(false))
         }
     }
