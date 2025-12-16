@@ -21,7 +21,7 @@ export function DaitaDirectOnlySetting() {
       <SettingsListItem.Item>
         <SettingsListItem.Content>
           <DaitaDirectOnlySwitch>
-            <DaitaDirectOnlySwitch.Label variant="titleMedium">
+            <DaitaDirectOnlySwitch.Label>
               {messages.gettext('Direct only')}
             </DaitaDirectOnlySwitch.Label>
             <SettingsListItem.Group>
