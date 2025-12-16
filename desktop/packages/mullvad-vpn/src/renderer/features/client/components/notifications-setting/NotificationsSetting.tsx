@@ -11,7 +11,7 @@ export function NotificationsSetting() {
       <SettingsListItem.Item>
         <SettingsListItem.Content>
           <NotificationsSwitch>
-            <NotificationsSwitch.Label variant="titleMedium">
+            <NotificationsSwitch.Label>
               {messages.pgettext('user-interface-settings-view', 'Notifications')}
             </NotificationsSwitch.Label>
             <NotificationsSwitch.Trigger aria-describedby={descriptionId}>

@@ -7,7 +7,11 @@ export function SwitchLabel({ children, ...props }: SwitchLabelProps) {
   const { labelId, disabled } = useSwitchContext();
 
   return (
-    <Text id={labelId} color={disabled ? 'whiteAlpha40' : 'white'} {...props}>
+    <Text
+      id={labelId}
+      variant="bodySmallSemibold"
+      color={disabled ? 'whiteAlpha40' : 'white'}
+      {...props}>
       {children}
     </Text>
   );

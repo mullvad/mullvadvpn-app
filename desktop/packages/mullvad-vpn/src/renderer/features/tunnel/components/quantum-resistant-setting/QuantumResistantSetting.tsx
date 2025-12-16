@@ -10,7 +10,7 @@ export function QuantumResistantSetting() {
       <SettingsListItem.Item>
         <SettingsListItem.Content>
           <QuantumResistantSwitch>
-            <QuantumResistantSwitch.Label variant="titleMedium">
+            <QuantumResistantSwitch.Label>
               {
                 // TRANSLATORS: The title for the WireGuard quantum resistance selector. This setting
                 // TRANSLATORS: makes the cryptography resistant to the future abilities of quantum

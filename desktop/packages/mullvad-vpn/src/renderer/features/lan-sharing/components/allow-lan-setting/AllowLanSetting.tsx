@@ -18,7 +18,7 @@ export function AllowLanSetting() {
       <SettingsListItem.Item>
         <SettingsListItem.Content>
           <AllowLanSwitch>
-            <AllowLanSwitch.Label variant="titleMedium">
+            <AllowLanSwitch.Label>
               {messages.pgettext('vpn-settings-view', 'Local network sharing')}
             </AllowLanSwitch.Label>
             <SettingsListItem.Group>
