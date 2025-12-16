@@ -67,10 +67,7 @@ export function SelectLanguageView() {
                       <Listbox.Option.Trigger>
                         <Listbox.Option.Item>
                           <Listbox.Option.Content>
-                            <Listbox.Option.Group>
-                              <Listbox.Option.Icon icon="checkmark" />
-                              <Listbox.Option.Label>{locale.label}</Listbox.Option.Label>
-                            </Listbox.Option.Group>
+                            <Listbox.Option.Label>{locale.label}</Listbox.Option.Label>
                           </Listbox.Option.Content>
                         </Listbox.Option.Item>
                       </Listbox.Option.Trigger>
