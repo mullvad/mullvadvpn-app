@@ -7,10 +7,7 @@ export function SplitOptionItem({ children, ...props }: ListBoxOptionWithNavigat
     <Listbox.Option.Trigger data-option data-split-button {...props}>
       <Listbox.Option.Item>
         <Listbox.Option.Content>
-          <Listbox.Option.Group>
-            <Listbox.Option.Icon icon="checkmark" />
-            {children}
-          </Listbox.Option.Group>
+          <Listbox.Option.Group>{children}</Listbox.Option.Group>
         </Listbox.Option.Content>
       </Listbox.Option.Item>
     </Listbox.Option.Trigger>
