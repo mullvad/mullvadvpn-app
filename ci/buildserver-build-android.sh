@@ -14,6 +14,7 @@ BUILD_DIR="$SCRIPT_DIR/mullvadvpn-app"
 LAST_BUILT_DIR="$SCRIPT_DIR/last-built"
 UPLOAD_DIR="/home/upload/upload"
 ANDROID_CREDENTIALS_DIR="$SCRIPT_DIR/credentials-android"
+ANDROID_SCRIPTS_DIR="$BUILD_DIR/android/scripts/release"
 
 BRANCHES_TO_BUILD=("origin/main")
 TAG_PATTERN_TO_BUILD="^android/"

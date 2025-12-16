@@ -40,8 +40,8 @@ pub async fn pull(assume_yes: bool) -> anyhow::Result<()> {
         .await
         .context("Failed to retrieve versions")?;
 
-    let json = serde_json::to_string_pretty(&releases)
-        .context("Failed to serialize updated metadata")?;
+    let json =
+        serde_json::to_string_pretty(&releases).context("Failed to serialize updated metadata")?;
 
     let work_path = work_path();
 
