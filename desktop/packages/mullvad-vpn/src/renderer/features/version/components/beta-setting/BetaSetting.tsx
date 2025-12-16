@@ -19,7 +19,7 @@ export function BetaSetting(props: BetaSettingProps) {
       <SettingsListItem.Item>
         <SettingsListItem.Content>
           <BetaSwitch labelId={labelId} descriptionId={descriptionId}>
-            <BetaSwitch.Label variant="titleMedium">
+            <BetaSwitch.Label>
               {
                 // TRANSLATORS: Label for switch to toggle beta program.
                 messages.pgettext('app-info-view', 'Beta program')
