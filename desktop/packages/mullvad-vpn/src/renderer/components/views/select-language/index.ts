@@ -1,1 +1,1 @@
-export * from './SelectLanguage';
+export * from './SelectLanguageView';
