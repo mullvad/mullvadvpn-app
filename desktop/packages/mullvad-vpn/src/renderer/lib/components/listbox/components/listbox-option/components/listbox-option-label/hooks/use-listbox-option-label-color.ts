@@ -1,7 +1,8 @@
+import { Colors } from '../../../../../../../foundations';
 import { useListItemContext } from '../../../../../../list-item/ListItemContext';
 import { useListboxOptionContext } from '../../../ListboxOptionContext';
 
-const colors = {
+const colors: Record<string, Colors> = {
   default: 'white',
   disabled: 'whiteAlpha40',
   selected: 'green',

@@ -1,10 +1,5 @@
 import { ListItem, ListItemProps } from '../../../list-item';
-import {
-  ListboxOptionIcon,
-  ListboxOptionItem,
-  ListboxOptionLabel,
-  ListboxOptionTrigger,
-} from './components';
+import { ListboxOptionItem, ListboxOptionLabel, ListboxOptionTrigger } from './components';
 import { ListboxOptionProvider } from './ListboxOptionContext';
 
 export type ListboxOptionProps<T> = ListItemProps & {
@@ -27,7 +22,6 @@ const ListboxOptionNamespace = Object.assign(ListboxOption, {
   Trigger: ListboxOptionTrigger,
   Item: ListboxOptionItem,
   Footer: ListItem.Footer,
-  Icon: ListboxOptionIcon,
   Label: ListboxOptionLabel,
 });
 
