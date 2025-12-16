@@ -57,7 +57,7 @@ class ServerIpOverridesMockApiTest : MockApiTest() {
 
         var inIpv4Address = ""
 
-        on<ConnectPage> { inIpv4Address = extractInIpv4Address() }
+        on<ConnectPage> { inIpv4Address = extractInIpAddress() }
 
         // Verify connection
         assertEquals(mockServerIp, inIpv4Address)
