@@ -6,6 +6,7 @@ import { DaitaDirectOnlySetting, DaitaSetting } from '../../../features/daita/co
 import { Flex, Icon, Text } from '../../../lib/components';
 import { Carousel } from '../../../lib/components/carousel';
 import { FlexColumn } from '../../../lib/components/flex-column';
+import { ListItemGroup } from '../../../lib/components/list-item-group';
 import { View } from '../../../lib/components/view';
 import { useHistory } from '../../../lib/history';
 import { AppNavigationHeader } from '../..';
@@ -27,22 +28,21 @@ export function DaitaSettingsView() {
 
           <NavigationScrollbars>
             <View.Content>
-              <Flex flexDirection="column" gap="medium">
-                <View.Container horizontalMargin="medium" flexDirection="column">
-                  <FlexColumn gap="medium">
-                    <HeaderTitle>{strings.daita}</HeaderTitle>
-                    {showDaitaMultihopInfo && (
-                      <Flex gap="small" alignItems="center">
-                        <Icon icon="info-circle" color="whiteOnBlue60" size="small" />
-                        <Text variant="labelTinySemiBold" color="whiteAlpha60">
-                          {messages.pgettext(
-                            'wireguard-settings-view',
-                            'Multihop is being used to enable DAITA for your selected location',
-                          )}
-                        </Text>
-                      </Flex>
-                    )}
-
+              <FlexColumn gap="medium">
+                <View.Container horizontalMargin="medium" flexDirection="column" gap="medium">
+                  <HeaderTitle>{strings.daita}</HeaderTitle>
+                  {showDaitaMultihopInfo && (
+                    <Flex gap="small" alignItems="center">
+                      <Icon icon="info-circle" color="whiteOnBlue60" size="small" />
+                      <Text variant="labelTinySemiBold" color="whiteAlpha60">
+                        {messages.pgettext(
+                          'wireguard-settings-view',
+                          'Multihop is being used to enable DAITA for your selected location',
+                        )}
+                      </Text>
+                    </Flex>
+                  )}
+                  <FlexColumn gap="large">
                     <Carousel
                       aria-label={
                         // TRANSLATORS: Accessibility label for a carousel that explains the DAITA feature to the user.
@@ -149,13 +149,13 @@ export function DaitaSettingsView() {
                         </Carousel.ControlGroup>
                       </Carousel.Controls>
                     </Carousel>
+                    <ListItemGroup variant="grouped">
+                      <DaitaSetting />
+                      <DaitaDirectOnlySetting />
+                    </ListItemGroup>
                   </FlexColumn>
                 </View.Container>
-                <FlexColumn>
-                  <DaitaSetting />
-                  <DaitaDirectOnlySetting />
-                </FlexColumn>
-              </Flex>
+              </FlexColumn>
             </View.Content>
           </NavigationScrollbars>
         </NavigationContainer>
