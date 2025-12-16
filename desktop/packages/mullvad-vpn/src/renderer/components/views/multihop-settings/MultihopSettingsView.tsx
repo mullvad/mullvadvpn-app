@@ -10,7 +10,7 @@ import { AppNavigationHeader } from '../..';
 import { BackAction } from '../../keyboard-navigation';
 import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
-import SettingsHeader, { HeaderTitle } from '../../SettingsHeader';
+import { HeaderTitle } from '../../SettingsHeader';
 
 const StyledIllustration = styled(Image)({
   width: '100%',
@@ -27,11 +27,11 @@ export function MultihopSettingsView() {
 
           <NavigationScrollbars>
             <View.Content>
-              <SettingsHeader>
-                <FlexColumn gap="medium">
-                  <HeaderTitle>
-                    {messages.pgettext('wireguard-settings-view', 'Multihop')}
-                  </HeaderTitle>
+              <View.Container horizontalMargin="medium" flexDirection="column" gap="medium">
+                <HeaderTitle>
+                  {messages.pgettext('wireguard-settings-view', 'Multihop')}
+                </HeaderTitle>
+                <FlexColumn gap="large">
                   <FlexColumn gap="small">
                     <StyledIllustration source="multihop-illustration" />
                     <Text variant="labelTiny" color="whiteAlpha60">
@@ -41,10 +41,9 @@ export function MultihopSettingsView() {
                       )}
                     </Text>
                   </FlexColumn>
+                  <MultihopSetting />
                 </FlexColumn>
-              </SettingsHeader>
-
-              <MultihopSetting />
+              </View.Container>
             </View.Content>
           </NavigationScrollbars>
         </NavigationContainer>

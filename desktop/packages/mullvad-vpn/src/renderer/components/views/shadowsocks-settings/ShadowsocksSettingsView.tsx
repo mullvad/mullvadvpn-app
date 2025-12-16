@@ -5,7 +5,7 @@ import { AppNavigationHeader } from '../..';
 import { BackAction } from '../../keyboard-navigation';
 import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
-import SettingsHeader, { HeaderTitle } from '../../SettingsHeader';
+import { HeaderTitle } from '../../SettingsHeader';
 import { ShadowsocksPortSetting } from './components';
 
 export function ShadowsocksSettingsView() {
@@ -24,13 +24,12 @@ export function ShadowsocksSettingsView() {
             />
 
             <NavigationScrollbars>
-              <SettingsHeader>
+              <View.Container horizontalMargin="medium" flexDirection="column">
                 <HeaderTitle>
                   {messages.pgettext('wireguard-settings-view', 'Shadowsocks')}
                 </HeaderTitle>
-              </SettingsHeader>
-
-              <ShadowsocksPortSetting />
+                <ShadowsocksPortSetting />
+              </View.Container>
             </NavigationScrollbars>
           </View.Content>
         </NavigationContainer>

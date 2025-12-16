@@ -33,7 +33,7 @@ export function DnsBlockerSettings(props: DnsBlockerSettingsProps) {
         disabled={dns.state === 'custom'}
         {...props}>
         <SettingsAccordion.Header>
-          <SettingsAccordion.Title>
+          <SettingsAccordion.Title variant="bodySmallSemibold">
             {messages.pgettext('vpn-settings-view', 'DNS content blockers')}
           </SettingsAccordion.Title>
           <FlexRow gap="medium">

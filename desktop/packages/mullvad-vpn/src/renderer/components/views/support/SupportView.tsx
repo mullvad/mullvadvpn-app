@@ -6,7 +6,7 @@ import { AppNavigationHeader } from '../..';
 import { BackAction } from '../../keyboard-navigation';
 import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
-import SettingsHeader, { HeaderTitle } from '../../SettingsHeader';
+import { HeaderTitle } from '../../SettingsHeader';
 import { FaqButton, ProblemReportButton } from './components';
 
 export function SupportView() {
@@ -24,14 +24,15 @@ export function SupportView() {
           />
 
           <NavigationScrollbars>
-            <SettingsHeader>
-              <HeaderTitle>{messages.pgettext('support-view', 'Support')}</HeaderTitle>
-            </SettingsHeader>
-
-            <FlexColumn>
-              <ProblemReportButton />
-              <FaqButton />
-            </FlexColumn>
+            <View.Content>
+              <View.Container horizontalMargin="medium" flexDirection="column" gap="medium">
+                <HeaderTitle>{messages.pgettext('support-view', 'Support')}</HeaderTitle>
+                <FlexColumn>
+                  <ProblemReportButton />
+                  <FaqButton />
+                </FlexColumn>
+              </View.Container>
+            </View.Content>
           </NavigationScrollbars>
         </NavigationContainer>
       </BackAction>

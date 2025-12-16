@@ -82,7 +82,7 @@ export function MtuSetting(props: MtuSettingProps) {
   );
 
   return (
-    <SettingsListItem anchorId="mtu-setting" aria-labelledby={labelId} {...props}>
+    <SettingsListItem anchorId="mtu-setting" aria-labelledby={labelId} position="solo" {...props}>
       <SettingsListItem.Item>
         <SettingsListItem.Content>
           <SettingsListItem.Label id={labelId}>
