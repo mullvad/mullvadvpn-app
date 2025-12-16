@@ -1,0 +1,169 @@
+#!/usr/bin/env bash
+
+# These scripts are for the release process of the android app.
+# They are:
+# 1. add_release, should be called from automated build script but can be called manually.
+#   It will add a new release to the android.json file.
+# 2. update_latest, update the latest.json file with the latest release from android.json
+# 3. remove_release, removes a release from android.json, marking it as unsupported.
+
+set -eu
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cd "$SCRIPT_DIR"
+
+REPO_ROOT=../../../
+
+# $REPO_ROOT/scripts/utils/commit-verification
+# "$SCRIPT_DIR/verify-version-is-release"
+
+# The hostname (can be the alias in your ~/.ssh/config) of the build server
+BUILDSERVER_HOST=$1
+# The server to upload the metadata to *from* the build server (argument above)
+METADATA_SERVER_HOST=$2
+
+# shellcheck source=android/scripts/release/release-config.sh
+source "$SCRIPT_DIR/release-config.sh"
+source $REPO_ROOT/scripts/utils/log
+
+print_usage() {
+  log "Usage: release <option>"
+  log "Where option is one of the following flags:"
+  log "    -a, --add-release"
+  log "              Add new release to the metada file and publish it to releases.mullvad.net"
+  log "    -u, --update-latest"
+  log "              Update the latest.json file on release.mullvad.net"
+  log "    -r, --remove-release"
+  log "              Remove release to the metadata file and publish it to release.mullvad.net."
+  log "              This will cause this release to be shown as unsupported."
+  log "    -h, --help"
+  log "              Show this help page."
+}
+
+function main {
+    if [[ $# -eq 0 ]]; then
+        print_usage
+        exit 1
+    fi
+
+    if [[ $# -gt 5 ]]; then
+        log_error "Too many arguments"
+        print_usage
+        exit 1
+    fi
+
+    case "$3" in
+    "-a"|"--add-release")
+        add_release $4
+        ;;
+    "-u"|"--update-latest")
+        update_latest
+        ;;
+    "-r"|"--remove-release")
+        remove_release $4
+        ;;
+    "-h"|"--help")
+        print_usage
+        exit 0
+        ;;
+    *)
+        log_error "Invalid argument: \`$1\`"
+        print_usage
+        exit 1
+        ;;
+    esac
+}
+
+function add_release {
+    version=$1
+
+    local work_dir="$DATA_DIR/work/"
+    local published_dir="$DATA_DIR/currently_published/"
+
+    local mullvad_release="cargo run -q --package mullvad-release-android --"
+
+    rm -rf "$work_dir"
+    rm -rf "$published_dir"
+
+    mkdir -p "$DATA_DIR"
+
+    log_header "Fetching current version metadata"
+    $mullvad_release pull --assume-yes
+
+    log_header "Backing up released data"
+    cp -r "$work_dir" "$published_dir"
+
+    log_header "Adding new release $version"
+    $mullvad_release add-release "$version"
+
+    log_header "New metadata including $version"
+    git --no-pager diff --no-index -- "$published_dir" "$work_dir" || true
+
+    read -rp "Press enter to upload if the diffs look good "
+    ./publish-metadata-to-api "$work_dir" "$BUILDSERVER_HOST" "$METADATA_SERVER_HOST"
+}
+
+function update_latest {
+    local work_dir="$DATA_DIR/work/"
+    local published_dir="$DATA_DIR/currently_published/"
+    local upload_dir="$DATA_DIR/upload/"
+    local latest_filename="latest.json"
+
+    local mullvad_release="cargo run -q --package mullvad-release-android --"
+
+    rm -rf "$work_dir"
+    rm -rf "$published_dir"
+    rm -rf "$upload_dir"
+
+    mkdir -p "$DATA_DIR"
+    mkdir -p "$published_dir" #Should not be required?
+    mkdir -p "$upload_dir" #Should not be required?
+
+    log_header "Fetching current version metadata"
+    $mullvad_release pull --assume-yes --latest-file
+
+    log_header "Backing up released data"
+    cp -r "$work_dir" "$published_dir"
+    cp -r "$DATA_DIR/$latest_filename" "$published_dir/$latest_filename"
+
+    log_header "Generating $latest_filename for current version metadata"
+    $mullvad_release query-latest > "$upload_dir/$latest_filename"
+
+    log_header "New latest file"
+    git --no-pager diff --no-index -- "$published_dir" "$upload_dir" || true
+
+    read -rp "Press enter to upload if the diffs look good "
+    ./publish-metadata-to-api "$upload_dir" "$BUILDSERVER_HOST" "$METADATA_SERVER_HOST"
+}
+
+function remove_release {
+    version=$1
+
+    local work_dir="$DATA_DIR/work/"
+    local published_dir="$DATA_DIR/currently_published/"
+
+    local mullvad_release="cargo run -q --package mullvad-release-android --"
+
+    rm -rf "$work_dir"
+    rm -rf "$published_dir"
+
+    mkdir -p "$DATA_DIR"
+
+    log_header "Fetching current version metadata"
+    $mullvad_release pull --assume-yes
+
+    log_header "Backing up released data"
+    cp -r "$work_dir" "$published_dir"
+
+    log_header "Removing new release $version"
+    $mullvad_release remove-release "$version"
+
+    log_header "New metadata without $version"
+    git --no-pager diff --no-index -- "$published_dir" "$work_dir" || true
+
+    read -rp "Press enter to upload if the diffs look good "
+    ./publish-metadata-to-api "$work_dir" "$BUILDSERVER_HOST" "$METADATA_SERVER_HOST"
+}
+
+# Run script
+main "$@"
