@@ -35,7 +35,6 @@ const DOWNLOAD_RETRY_STRATEGY: Jittered<ExponentialBackoff> = Jittered::jitter(
 /// Where the relay list is cached on disk.
 const RELAYS_FILENAME: &str = "relays.json";
 
-/// TODO: Document my purpose
 #[derive(Clone)]
 pub struct RelayListUpdaterHandle {
     tx: mpsc::Sender<()>,
@@ -57,14 +56,12 @@ impl RelayListUpdaterHandle {
     }
 }
 
-/// TODO: Hide this struct?
-pub struct RelayListUpdater {
+pub(crate) struct RelayListUpdater {
     api_client: RelayListProxy,
     cache_path: PathBuf,
     on_update: Box<dyn Fn(&RelayList) + Send + 'static>,
     last_check: SystemTime,
     api_availability: ApiAvailability,
-    // TODO: Document
     etag: Option<ETag>,
     relay_selector: RelaySelector,
 }
