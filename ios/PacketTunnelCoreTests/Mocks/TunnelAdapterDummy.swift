@@ -13,6 +13,8 @@ import PacketTunnelCore
 
 /// Dummy tunnel adapter that does nothing and reports no errors.
 class TunnelAdapterDummy: TunnelAdapterProtocol, @unchecked Sendable {
+    func apply(settings: PacketTunnelCore.TunnelInterfaceSettings) async throws {}
+
     func startMultihop(
         entryConfiguration: TunnelAdapterConfiguration?,
         exitConfiguration: TunnelAdapterConfiguration,
