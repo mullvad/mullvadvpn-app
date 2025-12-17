@@ -42,6 +42,23 @@ public struct Settings: Equatable, Sendable {
         self.interfaceAddresses = interfaceAddresses
         self.tunnelSettings = tunnelSettings
     }
+
+    public func interfaceSettings() -> TunnelInterfaceSettings {
+        let dnsServers: [IPAddress] =
+            switch self.dnsServers {
+            case .gateway:
+                [IPv4Address("10.64.0.1")!]
+            case let .blocking(server):
+                [server]
+            case let .custom(servers):
+                servers
+            }
+        return TunnelInterfaceSettings(
+            interfaceAddresses: self.interfaceAddresses,
+            dns: dnsServers
+        )
+
+    }
 }
 
 extension Settings {
