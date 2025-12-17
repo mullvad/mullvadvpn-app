@@ -1955,7 +1955,6 @@ impl Daemon {
             &self.settings.update_default_location
         );
 
-        // TODO: Figure out what this does, and why it needs access to the relay list.
         if self.settings.update_default_location
             && let Some(location) = self.tunnel_state.get_location()
             && let Some(country_code) = self.relay_selector.relay_list(|relays| {

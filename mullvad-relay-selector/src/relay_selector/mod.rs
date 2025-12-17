@@ -320,9 +320,9 @@ impl RelaySelector {
     }
 
     /// Peek the relay list.
-    pub fn relay_list<T>(&self, access_fn: impl Fn(&RelayList) -> T) -> T {
+    pub fn relay_list<T>(&self, f: impl Fn(&RelayList) -> T) -> T {
         let relays = &self.relays.read().unwrap().relays;
-        access_fn(relays)
+        f(relays)
     }
 
     /// Update the list of relays
@@ -342,8 +342,6 @@ impl RelaySelector {
     /// Returns all countries and cities. The cities in the object returned does not have any
     /// relays in them.
     pub fn get_relays(&self) -> RelayList {
-        // TODO: Now when the relay list is guarded behind an RwLock, it might be overkill to clone
-        // the relay list willy-nilly.
         self.relays.read().unwrap().relays.clone()
     }
 
