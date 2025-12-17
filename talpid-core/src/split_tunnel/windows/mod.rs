@@ -202,6 +202,7 @@ impl SplitTunnel {
 /// The fake implementation can be considered _engaged_ when two conditions are met:
 /// 1. There is a tunnel (i.e., there are tunnel IP addresses registered).
 /// 2. There are paths to exclude.
+///
 /// Otherwise, it is _non-engaged_.
 ///
 /// This is used to fail when split tunneling should be engaged due to user settings,
