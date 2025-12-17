@@ -13,32 +13,32 @@ import java.time.OffsetDateTime
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
+import java.util.concurrent.Executors
 import kotlin.io.path.createFile
 import kotlin.io.path.deleteExisting
 import kotlin.io.path.exists
 import kotlin.io.path.fileSize
 import kotlin.io.path.getLastModifiedTime
 import kotlin.io.path.listDirectoryEntries
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 
 /**
  * THREAD SAFETY: This class must be thread-safe because any thread can call the Kermit logger
- * (which is itself thread-safe). This is done by only accessing mutable state via a Mutex.
+ * (which is itself thread-safe). Thread safety is achieved by only accessing mutable state via a
+ * single thread by using Executors.newSingleThreadExecutor().asCoroutineDispatcher().
  */
 class FileLogWriter(
     private val logDir: Path,
     private val scope: CoroutineScope,
-    private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
     private val maxFileCount: Int = MAX_FILE_COUNT,
     private val maxTotalSizeBytes: Long = MAX_TOTAL_SIZE_BYTES,
     private val truncateKeepPercentage: Double = TRUNCATE_KEEP_PERCENTAGE,
     private val checkSizeLimitAfter: Int = SIZE_CHECK_AFTER,
 ) : LogWriter() {
+
+    private val singleThreadDispatcher = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
 
     private var log: FileAndWriter
 
@@ -46,38 +46,33 @@ class FileLogWriter(
 
     private var sizeCheckCounter: Int
 
-    private val mutex = Mutex()
-
     init {
-        // The synchronized here is to guarantee field visibility for all threads.
-        synchronized(this) {
-            Files.createDirectories(logDir)
-            currentDateComponents = DateComponents.utcNow()
-            log = FileAndWriter.create(logDir.logFile(currentDateComponents))
-            sizeCheckCounter = 0
-            checkRemoveOldLog()
-            // If the app exited while truncating we may have temporary files we should delete
-            logDir.listDirectoryEntries("*.tmp").forEach { it.deleteExisting() }
-        }
+        Files.createDirectories(logDir)
+        currentDateComponents = DateComponents.utcNow()
+        log = FileAndWriter.create(logDir.logFile(currentDateComponents))
+        sizeCheckCounter = 0
+        checkRemoveOldLog()
+        // If the app exited while truncating we may have temporary files we should delete
+        logDir.listDirectoryEntries("*.tmp").forEach { it.deleteExisting() }
     }
 
     override fun log(severity: Severity, message: String, tag: String, throwable: Throwable?) {
 
-        scope.launch(dispatcher) {
+        scope.launch(singleThreadDispatcher) {
             val logTimeStamp = DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(ZonedDateTime.now())
-
-            mutex.withLock {
-                try {
-                    checkLogRotation()
-                    log.writer.appendLine("$logTimeStamp ${severity.name.first()}: $message")
-                    throwable?.let { log.writer.appendLine(it.stackTraceToString()) }
-                    log.writer.flush()
-                } catch (e: IOException) {
-                    android.util.Log.e("mullvad", "Error writing to log file", e)
-                }
+            try {
+                checkLogRotation()
+                log.writer.appendLine("$logTimeStamp ${severity.name.first()}: $message")
+                throwable?.let { log.writer.appendLine(it.stackTraceToString()) }
+                log.writer.flush()
+            } catch (e: IOException) {
+                android.util.Log.e("mullvad", "Error writing to log file", e)
             }
         }
     }
+
+    // Suspends until all logs have been written to disk.
+    suspend fun flushAllLogWrites() = scope.launch(singleThreadDispatcher) {}.join()
 
     private fun checkLogRotation() {
 
