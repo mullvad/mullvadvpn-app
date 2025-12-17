@@ -7,6 +7,8 @@ import kotlin.time.Duration.Companion.minutes
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
+import net.mullvad.mullvadvpn.lib.model.Constraint
+import net.mullvad.mullvadvpn.lib.model.IpVersion
 import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
 import net.mullvad.mullvadvpn.test.common.constant.EXTREMELY_LONG_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.extension.acceptVpnPermissionDialog
@@ -173,7 +175,10 @@ class ConnectionTest : EndToEndTest() {
             // Block UDP traffic to the relay
             createFirewallRules { DropRule.blockUDPTrafficRule(relayIpAddress!!) }
 
-            on<ConnectPage> { setObfuscationStory(ObfuscationOption.Off) }
+            app.applySettings(
+                obfuscationMode = ObfuscationMode.Off,
+                deviceIpVersion = Constraint.Only(IpVersion.IPV4),
+            )
 
             on<ConnectPage> {
                 clickConnect()
