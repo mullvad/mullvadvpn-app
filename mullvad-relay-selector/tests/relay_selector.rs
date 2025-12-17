@@ -132,7 +132,7 @@ static RELAYS: LazyLock<RelayList> = LazyLock::new(|| RelayList {
         ],
         ipv4_gateway: "10.64.0.1".parse().unwrap(),
         ipv6_gateway: "fc00:bbbb:bbbb:bb01::1".parse().unwrap(),
-        udp2tcp_ports: vec![],
+        udp2tcp_ports: vec![80, 443, 5001],
         shadowsocks_port_ranges: vec![100..=200, 1000..=2000],
     },
 });

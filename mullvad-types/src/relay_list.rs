@@ -99,12 +99,6 @@ impl RelayList {
             remaining_overrides.insert(relay_override.hostname.clone(), relay_override);
         }
 
-        // TODO: This logic should really live in the daemon/api/relay-selector crate.
-        // // Append data for obfuscation protocols ourselves, since the API does not provide it.
-        // if self.wireguard.udp2tcp_ports.is_empty() {
-        //     self.wireguard.udp2tcp_ports.extend(UDP2TCP_PORTS);
-        // }
-
         // Add location and override relay data
         for country in &mut self.countries {
             for city in &mut country.cities {

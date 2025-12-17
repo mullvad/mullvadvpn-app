@@ -151,7 +151,16 @@ impl ServerRelayList {
             countries
         };
 
-        let wireguard_endpointdata = wireguard.endpoint_data();
+        let wireguard_endpointdata = {
+            const UDP2TCP_PORTS: [u16; 3] = [80, 443, 5001];
+            let mut data = wireguard.endpoint_data();
+            // Append data for obfuscation protocols ourselves, since the API does not provide it.
+            if data.udp2tcp_ports.is_empty() {
+                data.udp2tcp_ports.extend(UDP2TCP_PORTS);
+            }
+
+            data
+        };
         let countries = wireguard.extract_relays(countries);
         let bridge_list = bridge.extract_relays(&countries);
         let relay_list = relay_list::RelayList {
