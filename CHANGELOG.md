@@ -37,6 +37,7 @@ Line wrap the file at 100 chars.                                              Th
 #### Linux
 - Upgrade split-tunneling to use cgroups v2, instead of the deprecated cgroups v1.
   Users on Linux kernels prior to 5.13 will not be able to use split tunneling.
+- Clicking on the tray icon will toggle the window instead of just showing it
 
 ### Security
 #### Windows
