@@ -201,13 +201,13 @@ extension BlockedStateReason {
      */
     var shouldRestartAutomatically: Bool {
         switch self {
-        case .deviceLocked, .tunnelAdapter:
+        case .deviceLocked:
             return true
         case .noRelaysSatisfyingConstraints, .noRelaysSatisfyingFilterConstraints,
             .multihopEntryEqualsExit, .noRelaysSatisfyingObfuscationSettings,
             .noRelaysSatisfyingDaitaConstraints, .readSettings, .invalidAccount, .accountExpired, .deviceRevoked,
             .unknown, .deviceLoggedOut, .outdatedSchema, .invalidRelayPublicKey,
-            .noRelaysSatisfyingPortConstraints:
+            .noRelaysSatisfyingPortConstraints, .tunnelAdapter:
             return false
         }
     }
