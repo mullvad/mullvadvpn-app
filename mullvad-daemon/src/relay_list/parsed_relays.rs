@@ -1,14 +1,11 @@
 //! This module provides functionality for parsing the local relay list,
 //! including support for loading these lists from disk & applying [overrides][`RelayOverride`].
 
-use std::collections::HashMap;
 use std::io::{self, BufReader};
 use std::path::Path;
 use std::time::SystemTime;
 
 use mullvad_api::{CachedRelayList, ETag};
-use mullvad_relay_selector::UDP2TCP_PORTS;
-use mullvad_types::location::Location;
 use mullvad_types::relay_constraints::RelayOverride;
 use mullvad_types::relay_list::{BridgeList, RelayList};
 
@@ -47,8 +44,8 @@ impl ParseRelays {
         let etag = relay_list.etag().cloned();
         let (relay_list, bridge_list) = relay_list.into_internal_repr();
         // Apply overrides at this point
-        let parsed_list = Self::apply_overrides(relay_list.clone(), overrides.clone());
-        Ok((parsed_list, bridge_list, etag))
+        let relay_list = relay_list.apply_overrides(overrides);
+        Ok((relay_list, bridge_list, etag))
     }
 
     fn from_file_inner(path: impl AsRef<Path>) -> Result<(CachedRelayList, SystemTime), Error> {
@@ -65,43 +62,5 @@ impl ParseRelays {
         let file = std::fs::File::open(path)?;
         let last_modified = file.metadata()?.modified()?;
         Ok((file, last_modified))
-    }
-
-    /// Apply [overrides][`RelayOverride`] to [relay_list][`RelayList`], yielding an updated relay
-    /// list.
-    fn apply_overrides(mut parsed_list: RelayList, overrides: Vec<RelayOverride>) -> RelayList {
-        let mut remaining_overrides = HashMap::new();
-        for relay_override in overrides {
-            remaining_overrides.insert(relay_override.hostname.clone(), relay_override);
-        }
-
-        // Append data for obfuscation protocols ourselves, since the API does not provide it.
-        if parsed_list.wireguard.udp2tcp_ports.is_empty() {
-            parsed_list.wireguard.udp2tcp_ports.extend(UDP2TCP_PORTS);
-        }
-
-        // Add location and override relay data
-        for country in &mut parsed_list.countries {
-            for city in &mut country.cities {
-                for relay in &mut city.relays {
-                    // Append location data
-                    relay.location = Location {
-                        country: country.name.clone(),
-                        country_code: country.code.clone(),
-                        city: city.name.clone(),
-                        city_code: city.code.clone(),
-                        latitude: city.latitude,
-                        longitude: city.longitude,
-                    };
-
-                    // Append overrides
-                    if let Some(overrides) = remaining_overrides.remove(&relay.hostname) {
-                        overrides.apply_to_relay(relay);
-                    }
-                }
-            }
-        }
-
-        parsed_list
     }
 }

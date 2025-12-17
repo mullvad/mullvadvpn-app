@@ -255,7 +255,7 @@ fn unwrap_endpoint(get_result: GetRelay) -> MullvadEndpoint {
 }
 
 fn default_relay_selector() -> RelaySelector {
-    RelaySelector::from_list(SelectorConfig::default(), RELAYS.clone(), BRIDGES.clone())
+    RelaySelector::new(SelectorConfig::default(), RELAYS.clone(), BRIDGES.clone())
 }
 
 fn supports_daita(relay: &WireguardRelay) -> bool {
@@ -415,7 +415,7 @@ fn test_entry() {
 
     let bridges = BridgeList::default();
 
-    let relay_selector = RelaySelector::from_list(SelectorConfig::default(), relays, bridges);
+    let relay_selector = RelaySelector::new(SelectorConfig::default(), relays, bridges);
     let specific_hostname = "se10-wireguard";
     let specific_location = GeographicLocationConstraint::hostname("se", "got", specific_hostname);
     let general_location = GeographicLocationConstraint::city("se", "got");
@@ -541,7 +541,7 @@ fn test_selecting_location_will_consider_multihop() {
 #[test]
 fn test_selecting_over_shadowsocks() {
     let relay_selector =
-        RelaySelector::from_list(SelectorConfig::default(), RELAYS.clone(), BRIDGES.clone());
+        RelaySelector::new(SelectorConfig::default(), RELAYS.clone(), BRIDGES.clone());
 
     let query = RelayQueryBuilder::new().shadowsocks().build();
     assert!(!query.wireguard_constraints().multihop());
@@ -568,7 +568,7 @@ fn test_selecting_over_shadowsocks() {
 #[test]
 fn test_selecting_over_shadowsocks_extra_ips() {
     let relay_selector =
-        RelaySelector::from_list(SelectorConfig::default(), RELAYS.clone(), BRIDGES.clone());
+        RelaySelector::new(SelectorConfig::default(), RELAYS.clone(), BRIDGES.clone());
 
     let query = RelayQueryBuilder::new()
         .location(SHADOWSOCKS_RELAY_LOCATION.clone())
@@ -604,7 +604,7 @@ fn test_selecting_over_shadowsocks_extra_ips() {
 #[test]
 fn test_selecting_over_quic() {
     let relay_selector =
-        RelaySelector::from_list(SelectorConfig::default(), RELAYS.clone(), BRIDGES.clone());
+        RelaySelector::new(SelectorConfig::default(), RELAYS.clone(), BRIDGES.clone());
 
     let query = RelayQueryBuilder::new().quic().build();
     assert!(!query.wireguard_constraints().multihop());
@@ -631,7 +631,7 @@ fn test_selecting_over_quic() {
 #[test]
 fn test_selecting_over_lwo() {
     let relay_selector =
-        RelaySelector::from_list(SelectorConfig::default(), RELAYS.clone(), BRIDGES.clone());
+        RelaySelector::new(SelectorConfig::default(), RELAYS.clone(), BRIDGES.clone());
 
     let query = RelayQueryBuilder::new().lwo().build();
     assert!(!query.wireguard_constraints().multihop());
@@ -659,16 +659,13 @@ fn test_selecting_over_lwo() {
 fn test_selecting_ignore_extra_ips_override_v4() {
     const OVERRIDE_IPV4: Ipv4Addr = Ipv4Addr::new(1, 3, 3, 7);
 
-    let config = mullvad_relay_selector::SelectorConfig {
-        relay_overrides: vec![RelayOverride {
-            hostname: SHADOWSOCKS_RELAY_LOCATION.get_hostname().unwrap().clone(),
-            ipv4_addr_in: Some(OVERRIDE_IPV4),
-            ipv6_addr_in: None,
-        }],
-        ..Default::default()
-    };
+    let relay_list = RELAYS.clone().apply_overrides(vec![RelayOverride {
+        hostname: SHADOWSOCKS_RELAY_LOCATION.get_hostname().unwrap().clone(),
+        ipv4_addr_in: Some(OVERRIDE_IPV4),
+        ipv6_addr_in: None,
+    }]);
 
-    let relay_selector = RelaySelector::from_list(config, RELAYS.clone(), BRIDGES.clone());
+    let relay_selector = RelaySelector::new(SelectorConfig::default(), relay_list, BRIDGES.clone());
 
     let query_v4 = RelayQueryBuilder::new()
         .location(SHADOWSOCKS_RELAY_LOCATION.clone())
@@ -703,16 +700,13 @@ fn test_selecting_ignore_extra_ips_override_v4() {
 fn test_selecting_ignore_extra_ips_override_v6() {
     const OVERRIDE_IPV6: Ipv6Addr = Ipv6Addr::new(1, 0, 0, 0, 0, 0, 10, 10);
 
-    let config = SelectorConfig {
-        relay_overrides: vec![RelayOverride {
-            hostname: SHADOWSOCKS_RELAY_LOCATION.get_hostname().unwrap().clone(),
-            ipv4_addr_in: None,
-            ipv6_addr_in: Some(OVERRIDE_IPV6),
-        }],
-        ..Default::default()
-    };
+    let relay_list = RELAYS.clone().apply_overrides(vec![RelayOverride {
+        hostname: SHADOWSOCKS_RELAY_LOCATION.get_hostname().unwrap().clone(),
+        ipv4_addr_in: None,
+        ipv6_addr_in: Some(OVERRIDE_IPV6),
+    }]);
 
-    let relay_selector = RelaySelector::from_list(config, RELAYS.clone(), BRIDGES.clone());
+    let relay_selector = RelaySelector::new(SelectorConfig::default(), relay_list, BRIDGES.clone());
 
     let query_v6 = RelayQueryBuilder::new()
         .location(SHADOWSOCKS_RELAY_LOCATION.clone())
@@ -1055,7 +1049,7 @@ fn test_include_in_country() {
     };
 
     // If include_in_country is false for all relays, a relay must be selected anyway.
-    let relay_selector = RelaySelector::from_list(
+    let relay_selector = RelaySelector::new(
         SelectorConfig::default(),
         relay_list.clone(),
         BridgeList::default(),
@@ -1070,7 +1064,7 @@ fn test_include_in_country() {
     relay_list.countries[0].cities[0].relays[0].include_in_country = true;
     let expected_hostname = relay_list.countries[0].cities[0].relays[0].hostname.clone();
     let relay_selector =
-        RelaySelector::from_list(SelectorConfig::default(), relay_list, BridgeList::default());
+        RelaySelector::new(SelectorConfig::default(), relay_list, BridgeList::default());
     let relay = unwrap_relay(
         relay_selector
             .get_relay(0, talpid_types::net::IpAvailability::Ipv4)
@@ -1089,7 +1083,7 @@ fn test_include_in_country() {
 #[test]
 fn test_daita_smart_routing_overrides_multihop() {
     let relay_selector =
-        RelaySelector::from_list(SelectorConfig::default(), RELAYS.clone(), BRIDGES.clone());
+        RelaySelector::new(SelectorConfig::default(), RELAYS.clone(), BRIDGES.clone());
     let query = RelayQueryBuilder::
         new()
         .daita()
@@ -1142,7 +1136,7 @@ fn test_daita_smart_routing_overrides_multihop() {
 #[test]
 fn test_daita() {
     let relay_selector =
-        RelaySelector::from_list(SelectorConfig::default(), RELAYS.clone(), BRIDGES.clone());
+        RelaySelector::new(SelectorConfig::default(), RELAYS.clone(), BRIDGES.clone());
 
     // Only pick relays that support DAITA
     let query = RelayQueryBuilder::new()
@@ -1284,7 +1278,7 @@ fn valid_user_setting_should_yield_relay() {
         relay_settings: user_constraints.into(),
         ..SelectorConfig::default()
     };
-    let relay_selector = RelaySelector::from_list(config, RELAYS.clone(), BRIDGES.clone());
+    let relay_selector = RelaySelector::new(config, RELAYS.clone(), BRIDGES.clone());
     let user_result = relay_selector.get_relay_by_query(user_query.clone());
     for retry_attempt in 0..RETRY_ORDER.len() {
         let post_unification_result =
@@ -1313,7 +1307,7 @@ fn test_shadowsocks_runtime_ipv4_unavailable() {
         obfuscation_settings: obfs_settings,
         ..SelectorConfig::default()
     };
-    let relay_selector = RelaySelector::from_list(config, RELAYS.clone(), BRIDGES.clone());
+    let relay_selector = RelaySelector::new(config, RELAYS.clone(), BRIDGES.clone());
     let runtime_parameters = talpid_types::net::IpAvailability::Ipv6;
     let user_result = relay_selector.get_relay(0, runtime_parameters).unwrap();
     assert!(
@@ -1341,7 +1335,7 @@ fn test_runtime_ipv4_unavailable() {
         relay_settings: relay_constraints.into(),
         ..SelectorConfig::default()
     };
-    let relay_selector = RelaySelector::from_list(config, RELAYS.clone(), BRIDGES.clone());
+    let relay_selector = RelaySelector::new(config, RELAYS.clone(), BRIDGES.clone());
     let runtime_parameters = talpid_types::net::IpAvailability::Ipv6;
     let relay = relay_selector.get_relay(0, runtime_parameters).unwrap();
     match relay {
@@ -1446,7 +1440,7 @@ fn include_in_country_with_few_relays() -> Result<(), Error> {
         }
     };
     let relay_selector =
-        RelaySelector::from_list(SelectorConfig::default(), relays, BridgeList::default());
+        RelaySelector::new(SelectorConfig::default(), relays, BridgeList::default());
 
     relay_selector.get_relay_by_query(query)?;
     Ok(())
