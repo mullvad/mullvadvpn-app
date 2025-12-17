@@ -10,7 +10,6 @@ import kotlin.io.path.writeText
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.util.FileLogWriter
@@ -34,9 +33,10 @@ class FileLogWriterTest {
     fun `a log file with the current date should be written to`(@TempDir tempDir: Path) = runTest {
         val log1 = tempDir.resolve("app_log_2025-10-26.txt").createFile()
 
-        val writer = FileLogWriter(tempDir, scope = this, dispatcher = Dispatchers.Main)
+        val writer = FileLogWriter(tempDir, scope = this)
 
         writer.log(Severity.Debug, "test", "test")
+        writer.flushAllLogWrites()
 
         val new = tempDir.listDirectoryEntries().toSet() - setOf(log1)
 
@@ -56,7 +56,7 @@ class FileLogWriterTest {
         Thread.sleep(10)
         tempDir.resolve("app_log_2025-10-28.txt").createFile()
 
-        FileLogWriter(tempDir, maxFileCount = 3, scope = this, dispatcher = Dispatchers.Main)
+        FileLogWriter(tempDir, maxFileCount = 3, scope = this)
 
         val logFiles = tempDir.listDirectoryEntries()
 
@@ -71,7 +71,7 @@ class FileLogWriterTest {
         tempDir.resolve("app_log_2025-10-26.txt").createFile()
         val tmp = tempDir.resolve("app_log_2025-10-26.txt.tmp").createFile()
 
-        FileLogWriter(tempDir, scope = this, dispatcher = Dispatchers.Main)
+        FileLogWriter(tempDir, scope = this)
 
         val logFiles = tempDir.listDirectoryEntries()
 
@@ -90,7 +90,6 @@ class FileLogWriterTest {
                     truncateKeepPercentage = 0.5,
                     checkSizeLimitAfter = 20,
                     scope = this,
-                    dispatcher = Dispatchers.Main,
                 )
             val logFile = tempDir.listDirectoryEntries().first()
 
@@ -100,10 +99,12 @@ class FileLogWriterTest {
             while (logFile.fileSize() < writeTo) {
                 writer.log(Severity.Debug, "x", "x")
                 writes += 1
+                writer.flushAllLogWrites()
             }
 
             // Write another 60% of the way to the max size to push over the limit
             repeat(writes) { writer.log(Severity.Debug, "z", "z") }
+            writer.flushAllLogWrites()
 
             // Check that the file was truncated
             assertTrue(
@@ -141,7 +142,6 @@ class FileLogWriterTest {
                 maxTotalSizeBytes = maxBytes,
                 checkSizeLimitAfter = 20,
                 scope = this,
-                dispatcher = Dispatchers.Main,
             )
         val logFile = tempDir.listDirectoryEntries().find { it != log1 && it != log2 }!!
 
@@ -150,6 +150,7 @@ class FileLogWriterTest {
         val writeTo = (maxBytes * 0.3).toInt()
         while (logFile.fileSize() < writeTo) {
             writer.log(Severity.Debug, "x", "x")
+            writer.flushAllLogWrites()
         }
 
         val logFiles = tempDir.listDirectoryEntries()
@@ -180,7 +181,6 @@ class FileLogWriterTest {
                 maxTotalSizeBytes = maxBytes,
                 checkSizeLimitAfter = 20,
                 scope = this,
-                dispatcher = Dispatchers.Main,
             )
         val logFile = tempDir.listDirectoryEntries().find { it != log1 && it != log2 }!!
 
@@ -189,6 +189,7 @@ class FileLogWriterTest {
         val writeTo = (maxBytes * 0.3).toInt()
         while (logFile.fileSize() < writeTo) {
             writer.log(Severity.Debug, "x", "x")
+            writer.flushAllLogWrites()
         }
 
         val logFiles = tempDir.listDirectoryEntries()
@@ -199,4 +200,26 @@ class FileLogWriterTest {
         // Also check that the second oldest log was truncated.
         assertTrue(log2OrigSize > log2.fileSize())
     }
+
+    @Test
+    fun `writes to the log file should be sequential in the log order`(@TempDir tempDir: Path) =
+        runTest {
+            val writer =
+                FileLogWriter(
+                    tempDir,
+                    maxTotalSizeBytes = 1024L * 10,
+                    checkSizeLimitAfter = 20,
+                    scope = this,
+                )
+
+            for (i in 1..200) {
+                writer.log(Severity.Debug, "$i", "x")
+            }
+            writer.flushAllLogWrites()
+
+            val lines = tempDir.listDirectoryEntries().first().readLines()
+            val linesSorted = lines.sortedBy { it.split("D: ")[1].toInt() }
+
+            assertEquals(linesSorted, lines)
+        }
 }
