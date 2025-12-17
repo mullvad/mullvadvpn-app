@@ -71,7 +71,8 @@ pub struct RelaySelector {
     config: Arc<Mutex<SelectorConfig>>,
     // Relays are updated very infrequenly, but might conceivably be accessed by multiple readers at
     // the same time.
-    relays: Arc<RwLock<Selectables>>,
+    relays: Arc<RwLock<RelayList>>,
+    bridges: Arc<RwLock<BridgeList>>,
 }
 
 // TODO: Rename to simply `Config`
@@ -114,12 +115,6 @@ impl SelectorConfig {
             custom_lists: settings.custom_lists.clone(),
         }
     }
-}
-
-/// TODO: Document me
-struct Selectables {
-    relays: RelayList,
-    bridges: BridgeList,
 }
 
 /// Extra relay constraints not specified in `relay_settings`.
@@ -307,10 +302,10 @@ impl<'a> TryFrom<NormalSelectorConfig<'a>> for RelayQuery {
 impl RelaySelector {
     /// Create a new `RelaySelector` from a set of relays and bridges.
     pub fn new(config: SelectorConfig, relays: RelayList, bridges: BridgeList) -> Self {
-        let selectabes = Selectables { relays, bridges };
         RelaySelector {
             config: Arc::new(Mutex::new(config)),
-            relays: Arc::new(RwLock::new(selectabes)),
+            relays: Arc::new(RwLock::new(relays)),
+            bridges: Arc::new(RwLock::new(bridges)),
         }
     }
 
@@ -321,39 +316,41 @@ impl RelaySelector {
 
     /// Peek the relay list.
     pub fn relay_list<T>(&self, f: impl Fn(&RelayList) -> T) -> T {
-        let relays = &self.relays.read().unwrap().relays;
+        let relays = &self.relays.read().unwrap();
         f(relays)
+    }
+
+    pub fn bridge_list<T>(&self, f: impl Fn(&BridgeList) -> T) -> T {
+        let bridges = &self.bridges.read().unwrap();
+        f(bridges)
     }
 
     /// Update the list of relays
     pub fn set_relays(&self, relays: RelayList) {
         let mut key = self.relays.write().unwrap();
-        let bridges = key.bridges.clone();
-        *key = Selectables { relays, bridges };
+        *key = relays;
     }
 
     /// Update the list of bridges
     pub fn set_bridges(&self, bridges: BridgeList) {
-        let mut key = self.relays.write().unwrap();
-        let relays = key.relays.clone();
-        *key = Selectables { relays, bridges };
+        let mut key = self.bridges.write().unwrap();
+        *key = bridges;
     }
 
     /// Returns all countries and cities. The cities in the object returned does not have any
     /// relays in them.
     pub fn get_relays(&self) -> RelayList {
-        self.relays.read().unwrap().relays.clone()
+        self.relays.read().unwrap().clone()
     }
 
     /// Returns all bridgees.
     pub fn get_bridges(&self) -> BridgeList {
-        self.relays.read().unwrap().bridges.clone()
+        self.bridges.read().unwrap().clone()
     }
 
     /// Returns a shadowsocks endpoint for any [`Bridge`] in [`BridgeList`].
     pub fn get_bridge_forced(&self) -> Option<Shadowsocks> {
-        let bridge_list = &self.relays.read().unwrap().bridges;
-        Self::get_proxy_settings(bridge_list)
+        self.bridge_list(Self::get_proxy_settings)
             .map(|(endpoint, _bridge)| endpoint)
             .inspect_err(|error| log::error!("Failed to get bridge: {error}"))
             .ok()
