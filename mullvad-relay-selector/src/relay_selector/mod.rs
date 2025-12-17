@@ -340,12 +340,12 @@ impl RelaySelector {
     /// Returns all countries and cities. The cities in the object returned does not have any
     /// relays in them.
     pub fn get_relays(&self) -> RelayList {
-        self.relays.read().unwrap().clone()
+        self.relay_list(RelayList::clone)
     }
 
     /// Returns all bridgees.
     pub fn get_bridges(&self) -> BridgeList {
-        self.bridges.read().unwrap().clone()
+        self.bridge_list(BridgeList::clone)
     }
 
     /// Returns a shadowsocks endpoint for any [`Bridge`] in [`BridgeList`].
