@@ -605,7 +605,7 @@ export default class UserInterface implements WindowControllerDelegate {
         });
         break;
       case 'linux':
-        this.tray?.on('click', () => this.windowController.show());
+        this.tray?.on('click', () => this.windowController.toggle());
         break;
     }
   }
