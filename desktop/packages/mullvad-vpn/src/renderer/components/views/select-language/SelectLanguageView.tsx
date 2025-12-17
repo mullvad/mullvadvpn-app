@@ -1,32 +1,22 @@
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 
 import { messages } from '../../../../shared/gettext';
-import { useAppContext } from '../../../context';
+import { useLocale } from '../../../features/client/hooks';
 import { Listbox } from '../../../lib/components/listbox';
 import { View } from '../../../lib/components/view';
 import { useHistory } from '../../../lib/history';
-import { useSelector } from '../../../redux/store';
 import { AppNavigationHeader } from '../..';
-import { SelectorItem } from '../../cell/Selector';
 import { CustomScrollbarsRef } from '../../CustomScrollbars';
 import { BackAction } from '../../keyboard-navigation';
 import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
-import SettingsHeader, { HeaderTitle } from '../../SettingsHeader';
+import { HeaderTitle } from '../../SettingsHeader';
 
 export function SelectLanguageView() {
   const { pop } = useHistory();
-  const { preferredLocale, preferredLocalesList, setPreferredLocale } = usePreferredLocale();
   const scrollView = useRef<CustomScrollbarsRef>(null);
   const selectedCellRef = useRef<HTMLButtonElement>(null);
-
-  const selectLocale = useCallback(
-    async (locale: string) => {
-      await setPreferredLocale(locale);
-      pop();
-    },
-    [pop, setPreferredLocale],
-  );
+  const { preferredLocale, setPreferredLocale, locales } = useLocale();
 
   const scrollToSelectedCell = () => {
     const ref = selectedCellRef.current;
@@ -55,42 +45,34 @@ export function SelectLanguageView() {
 
           <NavigationScrollbars ref={scrollView}>
             <View.Content>
-              <SettingsHeader>
+              <View.Container horizontalMargin="medium" flexDirection="column" gap="medium">
                 <HeaderTitle>
                   {messages.pgettext('select-language-nav', 'Select language')}
                 </HeaderTitle>
-              </SettingsHeader>
-              <Listbox value={preferredLocale} onValueChange={selectLocale}>
-                <Listbox.Options>
-                  {preferredLocalesList.map((locale) => (
-                    <Listbox.Option key={locale.value} level={1} value={locale.value}>
-                      <Listbox.Option.Trigger>
-                        <Listbox.Option.Item>
-                          <Listbox.Option.Content>
-                            <Listbox.Option.Label>{locale.label}</Listbox.Option.Label>
-                          </Listbox.Option.Content>
-                        </Listbox.Option.Item>
-                      </Listbox.Option.Trigger>
-                    </Listbox.Option>
-                  ))}
-                </Listbox.Options>
-              </Listbox>
+                <Listbox value={preferredLocale} onValueChange={setPreferredLocale}>
+                  <Listbox.Options>
+                    {locales.map(({ code, name }, idx) => (
+                      <Listbox.Option
+                        key={code}
+                        level={1}
+                        value={code}
+                        position={idx === 0 ? 'first' : undefined}>
+                        <Listbox.Option.Trigger>
+                          <Listbox.Option.Item>
+                            <Listbox.Option.Content>
+                              <Listbox.Option.Label>{name}</Listbox.Option.Label>
+                            </Listbox.Option.Content>
+                          </Listbox.Option.Item>
+                        </Listbox.Option.Trigger>
+                      </Listbox.Option>
+                    ))}
+                  </Listbox.Options>
+                </Listbox>
+              </View.Container>
             </View.Content>
           </NavigationScrollbars>
         </NavigationContainer>
       </BackAction>
     </View>
   );
-}
-
-function usePreferredLocale() {
-  const preferredLocale = useSelector((state) => state.settings.guiSettings.preferredLocale);
-
-  const { getPreferredLocaleList, setPreferredLocale } = useAppContext();
-
-  const preferredLocalesList: SelectorItem<string>[] = useMemo(() => {
-    return [...getPreferredLocaleList().map(({ name, code }) => ({ label: name, value: code }))];
-  }, [getPreferredLocaleList]);
-
-  return { preferredLocale, preferredLocalesList, setPreferredLocale };
 }
