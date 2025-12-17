@@ -81,6 +81,7 @@ extension PacketTunnelActor {
             if settings.daita.daitaState.isEnabled, let daitaSettings = hop.configuration.daitaParameters {
                 daitaConfiguration = DaitaConfiguration(daita: daitaSettings)
             }
+            try await tunnelAdapter.apply(settings: exitConfiguration.asTunnelSettings())
             try await tunnelAdapter.start(configuration: exitConfiguration, daita: daitaConfiguration)
 
         case let .multi(firstHop, secondHop):
@@ -94,6 +95,11 @@ extension PacketTunnelActor {
                 daitaConfiguration = DaitaConfiguration(daita: daitaSettings)
             }
 
+            try await tunnelAdapter
+                .apply(
+                    settings: connectionConfiguration.exitConfiguration
+                        .asTunnelSettings()
+                )
             try await tunnelAdapter.startMultihop(
                 entryConfiguration: connectionConfiguration.entryConfiguration,
                 exitConfiguration: connectionConfiguration.exitConfiguration, daita: daitaConfiguration
