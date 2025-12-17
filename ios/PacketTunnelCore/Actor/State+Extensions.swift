@@ -137,7 +137,7 @@ extension State {
     /// Apply a mutating function to the connection/error state's associated data if this state has one,
     /// and replace its value. If not, this is a no-op.
     /// - parameter modifier: A function that takes an `inout ConnectionOrBlockedState` and modifies it
-    mutating func mutateAssociatedData(_ modifier: (inout StateAssociatedData) -> Void) {
+    mutating func mutateAssociatedData<T>(_ modifier: (inout StateAssociatedData) -> T) -> T? {
         switch self {
         case let .connecting(connState),
             let .connected(connState),
@@ -145,16 +145,18 @@ extension State {
             let .negotiatingEphemeralPeer(connState, _),
             let .disconnecting(connState):
             var associatedData: StateAssociatedData = connState
-            modifier(&associatedData)
+            let returnValue = modifier(&associatedData)
             self = self.replacingConnectionData(with: associatedData as! ConnectionData)
+            return returnValue
 
         case let .error(blockedState):
             var associatedData: StateAssociatedData = blockedState
-            modifier(&associatedData)
+            let returnValue = modifier(&associatedData)
             self = .error(associatedData as! BlockingData)
+            return returnValue
 
         default:
-            break
+            return nil
         }
     }
 
