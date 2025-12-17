@@ -5,8 +5,6 @@ pub enum Error {
     #[error("Downloader already shut down")]
     DownloaderShutdown,
 
-    // #[error("Mullvad relay selector error")]
-    // RelaySelector(#[from] mullvad_relay_selector::Error),
     #[error("Failed to open relay cache file")]
     OpenRelayCache(#[source] std::io::Error),
 
