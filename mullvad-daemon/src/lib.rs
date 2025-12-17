@@ -756,16 +756,15 @@ impl Daemon {
             settings_event_listener.notify_settings(settings.to_owned());
         });
 
-        let (relay_list, bridge_list, etag) = {
-            // TODO: Replace with actual overrides
-            // TODO: Do not unwrap
-            ParseRelays::from_file(&config.cache_dir, &config.resource_dir, vec![]).unwrap()
-        };
+        let (relay_list, bridge_list, etag) = ParseRelays::from_file(
+            &config.cache_dir,
+            &config.resource_dir,
+            settings.relay_overrides.clone(),
+        )
+        .inspect_err(|err| log::error!("{err}"))
+        .unwrap_or_default();
         let initial_selector_config = SelectorConfig::from_settings(&settings);
-        let relay_selector = {
-            // let (relay_list, bridge_list) = relay_list.clone().into_internal_repr();
-            RelaySelector::new(initial_selector_config, relay_list, bridge_list)
-        };
+        let relay_selector = RelaySelector::new(initial_selector_config, relay_list, bridge_list);
 
         let encrypted_dns_proxy_cache = EncryptedDnsProxyState::default();
         let method_resolver = DaemonAccessMethodResolver::new(
