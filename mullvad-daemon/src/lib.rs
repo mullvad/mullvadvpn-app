@@ -29,7 +29,9 @@ mod target_state;
 mod tunnel;
 pub mod version;
 
-use crate::{relay_list::parsed_relays::ParseRelays, target_state::PersistentTargetState};
+use crate::{
+    relay_list::parsed_relays::parse_relays_from_file, target_state::PersistentTargetState,
+};
 use api::DaemonAccessMethodResolver;
 use device::{AccountEvent, PrivateAccountAndDevice, PrivateDeviceEvent};
 use futures::{
@@ -756,7 +758,7 @@ impl Daemon {
             settings_event_listener.notify_settings(settings.to_owned());
         });
 
-        let (relay_list, bridge_list, etag) = ParseRelays::from_file(
+        let (relay_list, bridge_list, etag) = parse_relays_from_file(
             &config.cache_dir,
             &config.resource_dir,
             settings.relay_overrides.clone(),
