@@ -35,6 +35,9 @@ Line wrap the file at 100 chars.                                              Th
 #### macOS
 - Use arch-specific installers to deliver updates. This makes updates around 50% smaller.
 
+#### Linux
+- Clicking on the tray icon will toggle the window instead of just showing it
+
 ### Fixed
 - Align ciphers for custom shadowsocks API access methods between clients and `mullvad-daemon`. Any
   existing, invalid access method is removed with a settings migration.
