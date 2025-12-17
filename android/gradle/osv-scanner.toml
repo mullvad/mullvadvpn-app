@@ -96,3 +96,10 @@ reason = "No impact on this app since it uses UDS rather than HTTP2."
 id = "CVE-2021-33813" #  GHSA-2363-cqg2-863c
 ignoreUntil = 2026-02-01
 reason = "JDOM is used by AGP and not the app directly"
+
+# Netty has a CRLF Injection vulnerability in io.netty.handler.codec.http.HttpRequestEncoder 
+[[IgnoredVulns]]
+id = "CVE-2025-67735" #  GHSA-84h7-rjj3-6jx4
+ignoreUntil = 2026-02-01
+reason = "No impact on this app since it does not use HttpRequestEncoder"
+
