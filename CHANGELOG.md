@@ -27,6 +27,8 @@ Line wrap the file at 100 chars.                                              Th
 - `installer-downloader` logs are aggregated by `mullvad-problem-report`.
 
 ### Changed
+- Clicking on the tray icon will toggle the window instead of just showing it
+
 #### Windows
 - Update `wireguard-nt` to version 1.1. This retires the Mullvad fork at
   <https://github.com/mullvad/wireguard-nt>.
