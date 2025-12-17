@@ -41,7 +41,7 @@ impl ParseRelays {
             (Ok(_), Ok((bundled_relays, _))) => bundled_relays,
             (Ok((cached_relays, _)), _) => cached_relays,
             (_, Ok((bundled_relays, _))) => bundled_relays,
-            (Err(l), Err(_r)) => return Err(l), // TODO: Does it matter which error we return?
+            (Err(_cached_error), Err(bundled_error)) => return Err(bundled_error),
         };
 
         let etag = relay_list.etag().cloned();
