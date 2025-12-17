@@ -62,13 +62,15 @@ class LoginPage: Page {
     @discardableResult public func verifyFailIconShown() -> Self {
         let predicate = NSPredicate(format: "identifier == 'statusImageView' AND value == 'fail'")
         let elementQuery = app.images.containing(predicate)
-        let elementExists = elementQuery.firstMatch.existsAfterWait(timeout: .veryLong)
+        let elementExists = elementQuery.firstMatch.existsAfterWait(
+            timeout: .longerThanMullvadAPITimeout
+        )
         XCTAssertTrue(elementExists, "Fail icon shown")
         return self
     }
 
     /// Checks whether success icon is being shown
     func getSuccessIconShown() -> Bool {
-        app.images[.statusImageView].existsAfterWait(timeout: .long)
+        app.images[.statusImageView].existsAfterWait(timeout: .longerThanMullvadAPITimeout)
     }
 }

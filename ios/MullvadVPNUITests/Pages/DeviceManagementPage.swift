@@ -25,7 +25,7 @@ class DeviceManagementPage: Page {
     @discardableResult func waitForNoLoading() -> Self {
         XCTAssertTrue(
             app.otherElements[.deviceRemovalProgressView]
-                .notExistsAfterWait(timeout: .long)
+                .notExistsAfterWait(timeout: .longerThanMullvadAPITimeout)
         )
 
         return self
