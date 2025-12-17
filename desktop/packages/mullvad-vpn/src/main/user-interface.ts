@@ -271,7 +271,11 @@ export default class UserInterface implements WindowControllerDelegate {
   };
 
   private createTray(): Tray {
-    const tray = new Tray(nativeImage.createEmpty());
+    const basePath = path.resolve(__dirname, 'assets/images/menubar-icons');
+    const extension = process.platform === 'win32' ? 'ico' : 'png';
+    const iconPath = path.join(basePath, process.platform, `lock-start.${extension}`);
+
+    const tray = new Tray(iconPath);
     tray.setToolTip('Mullvad VPN');
 
     // disable double click on tray icon since it causes weird delay
