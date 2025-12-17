@@ -955,9 +955,7 @@ impl Daemon {
         let settings_relay_selector = relay_selector.clone();
         settings.register_change_listener(move |settings| {
             // Notify relay selector of changes to the settings/selector config
-            settings_relay_selector
-                .clone()
-                .set_config(SelectorConfig::from_settings(settings));
+            settings_relay_selector.set_config(SelectorConfig::from_settings(settings));
         });
 
         #[cfg(not(target_os = "android"))]
