@@ -138,6 +138,9 @@ extension XCUIElement {
         case `default` = 5
         case long = 15
         case veryLong = 20
+        // API calls with `RetryStrategy.default` have a maximum timeout of 36 seconds
+        // 10 sec * 3 tries + 2 sec + 2 sec ^ 2 = 36
+        case longerThanMullvadAPITimeout = 37
         case extremelyLong = 180
     }
 
