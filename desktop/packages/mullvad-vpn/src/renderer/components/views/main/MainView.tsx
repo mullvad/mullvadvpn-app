@@ -9,38 +9,36 @@ import Map from '../../Map';
 import NotificationArea from '../../NotificationArea';
 import { ConnectionPanel } from './components';
 
-const StyledFlexColumn = styled(FlexColumn)({
-  position: 'relative',
-});
+const StyledContent = styled(FlexColumn)`
+  position: relative;
+  overflow: hidden;
+`;
 
-const Content = styled.div({
-  display: 'flex',
-  flex: 1,
-  flexDirection: 'column',
-  position: 'relative', // need this for z-index to work to cover the map
-  zIndex: 1,
-  maxHeight: '100%',
-});
+const StyledMapOverlay = styled(FlexColumn)`
+  position: relative;
+  z-index: 1;
+  max-height: 100%;
+`;
 
-const StatusIcon = styled(Spinner)({
-  position: 'absolute',
-  alignSelf: 'center',
-  marginTop: 94,
-});
+const StatusIcon = styled(Spinner)`
+  position: absolute;
+  align-self: center;
+  margin-top: 94px;
+`;
 
-const StyledNotificationArea = styled(NotificationArea)({
-  position: 'absolute',
-  left: 0,
-  top: 0,
-  right: 0,
-});
+const StyledNotificationArea = styled(NotificationArea)`
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+`;
 
-const StyledMain = styled.main({
-  display: 'flex',
-  flexDirection: 'column',
-  flex: 1,
-  maxHeight: '100%',
-});
+const StyledMain = styled.main`
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  max-height: 100%;
+`;
 
 export function MainView() {
   const connection = useSelector((state) => state.connection);
@@ -54,18 +52,17 @@ export function MainView() {
         <AppMainHeader.AccountButton />
         <AppMainHeader.SettingsButton />
       </AppMainHeader>
-      <StyledFlexColumn flexGrow={1}>
+      <StyledContent flexGrow={1}>
         <Map />
-        <Content>
+        <StyledMapOverlay flexGrow={1}>
           <StyledNotificationArea />
-
           <StyledMain>
             {showSpinner ? <StatusIcon size="big" /> : null}
 
             <ConnectionPanel />
           </StyledMain>
-        </Content>
-      </StyledFlexColumn>
+        </StyledMapOverlay>
+      </StyledContent>
     </View>
   );
 }
