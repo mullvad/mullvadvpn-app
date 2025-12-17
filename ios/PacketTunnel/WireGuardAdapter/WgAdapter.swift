@@ -16,10 +16,12 @@ import PacketTunnelCore
 class WgAdapter: TunnelAdapterProtocol, @unchecked Sendable {
     let logger = Logger(label: "WgAdapter")
     let adapter: WireGuardAdapter
+    let provider: NEPacketTunnelProvider
 
     init(packetTunnelProvider: NEPacketTunnelProvider) {
         let wgGoLogger = Logger(label: "WireGuard")
 
+        provider = packetTunnelProvider
         adapter = WireGuardAdapter(
             with: packetTunnelProvider,
             shouldHandleReasserting: false,
@@ -72,6 +74,12 @@ class WgAdapter: TunnelAdapterProtocol, @unchecked Sendable {
     func stop() async throws {
         try await adapter.stop()
     }
+
+    func apply(settings: TunnelInterfaceSettings) async throws {
+        try await self.provider
+            .setTunnelNetworkSettings(settings.asTunnelSettings())
+    }
+
 
     public var icmpPingProvider: ICMPPingProvider {
         adapter

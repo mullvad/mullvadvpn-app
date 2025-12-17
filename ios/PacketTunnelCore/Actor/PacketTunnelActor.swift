@@ -48,6 +48,7 @@ public actor PacketTunnelActor {
     public let relaySelector: RelaySelectorProtocol
     let settingsReader: SettingsReaderProtocol
     let protocolObfuscator: ProtocolObfuscation
+    var lastAppliedTunnelSettings: TunnelInterfaceSettings?
 
     nonisolated let eventChannel = EventChannel()
 
@@ -260,11 +261,20 @@ extension PacketTunnelActor {
         reason: ActorReconnectReason = .userInitiated
     ) async throws {
         let settings: Settings = try settingsReader.read()
+        try await self.applyNetworkSettingsIfNeeded(settings: settings)
 
         if settings.quantumResistance.isEnabled || settings.daita.daitaState.isEnabled {
             try await tryStartEphemeralPeerNegotiation(withSettings: settings, nextRelays: nextRelays, reason: reason)
         } else {
             try await tryStartConnection(withSettings: settings, nextRelays: nextRelays, reason: reason)
+        }
+    }
+
+    private func applyNetworkSettingsIfNeeded(settings: Settings) async throws {
+        let tunnelSettings = settings.interfaceSettings()
+        if self.lastAppliedTunnelSettings != tunnelSettings {
+            try await tunnelAdapter.apply(settings: tunnelSettings)
+            self.lastAppliedTunnelSettings = tunnelSettings
         }
     }
 
