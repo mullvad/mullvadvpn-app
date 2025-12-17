@@ -77,6 +77,13 @@ public actor PacketTunnelActor {
         eventChannel.finish()
     }
 
+    public func isErrorState() async -> Bool {
+        if case .error =  self.state {
+            return true
+        }
+        return false
+    }
+
     /**
      Spawn a detached task that consumes events from the channel indefinitely until the channel is closed.
      Events are processed one at a time, so no suspensions should affect the order of execution and thus guarantee transactional execution.
@@ -109,7 +116,7 @@ public actor PacketTunnelActor {
         case .stopTunnelMonitor:
             tunnelMonitor.stop()
         case let .updateTunnelMonitorPath(networkPath):
-            handleDefaultPathChange(networkPath)
+            await handleDefaultPathChange(networkPath)
         case let .startConnection(nextRelays):
             await handleStartConnection(nextRelays: nextRelays)
         case let .restartConnection(nextRelays, reason):
@@ -167,20 +174,24 @@ public actor PacketTunnelActor {
         } catch {
             logger.error(error: error, message: "Failed to reconfigure tunnel after ephemeral peer negotiation. Entering error state.")
             // Log the specific error type for debugging
-            if let adapterError = error as? WireGuardAdapterError {
-                logger.debug("WireGuardAdapterError: \(adapterError)")
-            }
             await setErrorStateInternal(with: error)
         }
         semaphore.send()
     }
 
-    private func handleDefaultPathChange(_ networkPath: Network.NWPath.Status) {
+    private func handleDefaultPathChange(_ networkPath: Network.NWPath.Status) async {
         tunnelMonitor.handleNetworkPathUpdate(networkPath)
 
         let newReachability = networkPath.networkReachability
 
-        state.mutateAssociatedData { $0.networkReachability = newReachability }
+        let reachabilityChanged = state.mutateAssociatedData {
+            let reachabilityChanged = $0.networkReachability != newReachability
+            $0.networkReachability = newReachability
+            return reachabilityChanged
+        }
+        if case .reachable = newReachability, case .error = state, reachabilityChanged ?? false {
+            await self.handleRestartConnection(nextRelays: .random, reason: .userInitiated)
+        }
     }
 }
 
