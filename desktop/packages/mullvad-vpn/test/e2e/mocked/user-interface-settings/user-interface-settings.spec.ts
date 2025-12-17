@@ -164,8 +164,7 @@ test.describe('User interface settings', () => {
       test(`Should change language to ${language}`, async () => {
         await routes.userInterfaceSettings.gotoSelectLanguage();
         await routes.selectLanguage.selectLanguage(language);
-
-        await routes.userInterfaceSettings.waitForRoute();
+        await routes.selectLanguage.goBack();
 
         await expect(
           routes.userInterfaceSettings.getLocalizedLanguageButton(language),
