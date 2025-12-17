@@ -7,7 +7,6 @@ pub enum Error {
 
     // #[error("Mullvad relay selector error")]
     // RelaySelector(#[from] mullvad_relay_selector::Error),
-
     #[error("Failed to open relay cache file")]
     OpenRelayCache(#[source] std::io::Error),
 
