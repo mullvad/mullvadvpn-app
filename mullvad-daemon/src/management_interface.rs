@@ -47,7 +47,7 @@ struct ManagementServiceImpl {
     daemon_tx: DaemonCommandSender,
     subscriptions: Arc<Mutex<Vec<EventsListenerSender>>>,
     pub app_upgrade_broadcast: AppUpgradeBroadcast,
-    log_reload_handle: crate::logging::ReloadHandle,
+    log_reload_handle: crate::logging::LogHandle,
 }
 
 pub type ServiceResult<T> = std::result::Result<Response<T>, Status>;
@@ -65,6 +65,7 @@ impl ManagementService for ManagementServiceImpl {
     type GetSplitTunnelProcessesStream = UnboundedReceiverStream<Result<i32, Status>>;
     type EventsListenStream = EventsListenerReceiver;
     type AppUpgradeEventsListenStream = AppUpgradeEventListenerReceiver;
+    type LogListenStream = UnboundedReceiverStream<Result<types::LogMessage, Status>>;
 
     // Control and get the tunnel state
     //
@@ -1322,8 +1323,8 @@ impl ManagementInterfaceServer {
     pub fn start(
         daemon_tx: DaemonCommandSender,
         rpc_socket_path: PathBuf,
-        app_upgrade_broadcast: tokio::sync::broadcast::Sender<version::AppUpgradeEvent>,
-        log_reload_handle: crate::logging::ReloadHandle,
+        app_upgrade_broadcast: AppUpgradeBroadcast,
+        log_reload_handle: crate::logging::LogHandle,
     ) -> Result<ManagementInterfaceServer, Error> {
         let subscriptions = Arc::<Mutex<Vec<EventsListenerSender>>>::default();
 
