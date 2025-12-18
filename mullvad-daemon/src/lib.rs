@@ -951,8 +951,20 @@ impl Daemon {
             api_handle.clone(),
             &config.cache_dir,
             etag,
+            settings.relay_overrides.clone(),
             on_relay_list_update,
         );
+
+        // Notify the relay list updater when new relay IP overrides are available.
+        let relay_list_updater_handle = relay_list_updater.clone();
+        settings.register_change_listener(move |settings| {
+            // Notify relay selector of changes to the settings/selector config
+            let mut relay_list_updater = relay_list_updater_handle.clone();
+            let overrides = settings.relay_overrides.clone();
+            tokio::spawn(async move {
+                relay_list_updater.update_overrides(overrides).await;
+            });
+        });
 
         let settings_relay_selector = relay_selector.clone();
         settings.register_change_listener(move |settings| {
