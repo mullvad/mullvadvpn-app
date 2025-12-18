@@ -5274,6 +5274,7 @@ dependencies = [
  "test-log",
  "thiserror 2.0.9",
  "tokio",
+ "tracing",
  "tun 0.5.5",
  "typed-builder 0.20.1",
  "widestring",

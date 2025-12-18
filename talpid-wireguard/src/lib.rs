@@ -315,7 +315,7 @@ impl WireguardMonitor {
                     if config.daita {
                         // TODO: For now, we assume the MTU during the tunnel lifetime.
                         // We could instead poke maybenot whenever we detect changes to it.
-                        log::warn!("MTU detection is not supported with DAITA. Skipping");
+                        tracing::warn!("MTU detection is not supported with DAITA. Skipping");
                         return;
                     }
 
@@ -328,7 +328,7 @@ impl WireguardMonitor {
                     )
                     .await
                     {
-                        log::error!(
+                        tracing::error!(
                             "{}",
                             e.display_chain_with_msg(
                                 "Failed to automatically adjust MTU based on dropped packets"
@@ -346,11 +346,11 @@ impl WireguardMonitor {
             {
                 Ok(true) => Ok(()),
                 Ok(false) => {
-                    log::warn!("Timeout while checking tunnel connection");
+                    tracing::warn!("Timeout while checking tunnel connection");
                     Err(CloseMsg::PingErr)
                 }
                 Err(error) => {
-                    log::error!(
+                    tracing::error!(
                         "{}",
                         error.display_chain_with_msg("Failed to check tunnel connection")
                     );
@@ -376,7 +376,7 @@ impl WireguardMonitor {
                 .run(Arc::downgrade(&tunnel))
                 .await
             {
-                log::error!(
+                tracing::error!(
                     "{}",
                     error.display_chain_with_msg("Connectivity monitor failed")
                 );
@@ -768,10 +768,10 @@ impl WireguardMonitor {
         userspace_wireguard: bool,
         _log_path: Option<&Path>,
     ) -> Result<TunnelType> {
-        log::debug!("Tunnel MTU: {}", config.mtu);
+        tracing::debug!("Tunnel MTU: {}", config.mtu);
 
         if userspace_wireguard {
-            log::debug!("Using userspace WireGuard implementation");
+            tracing::debug!("Using userspace WireGuard implementation");
 
             #[cfg(feature = "wireguard-go")]
             let f = wireguard_go::open_wireguard_go_tunnel(config, _log_path, tun_provider);
@@ -783,17 +783,17 @@ impl WireguardMonitor {
             Ok(tunnel)
         } else {
             let res = if will_nm_manage_dns() {
-                log::debug!("Using kernel WireGuard implementation through NetworkManager");
+                tracing::debug!("Using kernel WireGuard implementation through NetworkManager");
                 wireguard_kernel::NetworkManagerTunnel::new(runtime.clone(), config)
                     .map(|tunnel| Box::new(tunnel) as TunnelType)
             } else {
-                log::debug!("Using kernel WireGuard implementation through netlink");
+                tracing::debug!("Using kernel WireGuard implementation through netlink");
                 wireguard_kernel::NetlinkTunnel::new(runtime.clone(), config)
                     .map(|tunnel| Box::new(tunnel) as TunnelType)
             };
 
             res.or_else(|err| {
-                    log::warn!("Failed to initialize kernel WireGuard tunnel, falling back to userspace WireGuard implementation:\n{}",err.display_chain() );
+                    tracing::warn!("Failed to initialize kernel WireGuard tunnel, falling back to userspace WireGuard implementation:\n{}",err.display_chain() );
 
                     #[cfg(feature = "wireguard-go")]
                     {
@@ -848,11 +848,11 @@ impl WireguardMonitor {
         match self.tunnel.blocking_lock().take() {
             Some(tunnel) => {
                 if let Err(e) = tunnel.stop() {
-                    log::error!("{}", e.display_chain_with_msg("Failed to stop tunnel"));
+                    tracing::error!("{}", e.display_chain_with_msg("Failed to stop tunnel"));
                 }
             }
             None => {
-                log::debug!("Tunnel already stopped");
+                tracing::debug!("Tunnel already stopped");
             }
         }
     }
@@ -1030,11 +1030,11 @@ async fn log_tunnel_data_usage(config: &Config, tunnel: &Arc<AsyncMutex<Option<T
         .map(|peer| peer.public_key.as_bytes())
         .and_then(|pubkey| tunnel_stats.get(pubkey))
     {
-        log::warn!("Exit peer stats: {:?}", stats);
+        tracing::warn!("Exit peer stats: {:?}", stats);
     };
     let pubkey = config.entry_peer.public_key.as_bytes();
     if let Some(stats) = tunnel_stats.get(pubkey) {
-        log::warn!("Entry peer stats: {:?}", stats);
+        tracing::warn!("Entry peer stats: {:?}", stats);
     }
 }
 
@@ -1055,7 +1055,7 @@ async fn log_daita_overhead(tunnel: &TunnelType) {
         let constant_size_padding_out = bytes_to_mib(daita.tx_padding_bytes);
         let constant_size_padding_in = bytes_to_mib(daita.rx_padding_bytes);
 
-        log::info!("DAITA overhead stats:
+        tracing::info!("DAITA overhead stats:
 Outgoing: {total_out} MiB total, {padding_packet_out} MiB padding packets, {constant_size_padding_out} MiB constant size padding
 Incoming: {total_in} MiB total, {padding_packet_in} MiB padding packets, {constant_size_padding_in} MiB constant size padding");
     }

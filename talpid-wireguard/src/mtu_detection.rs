@@ -50,7 +50,7 @@ pub async fn automatic_mtu_correction(
     #[cfg(windows)] ipv6: bool,
 ) -> Result<(), Error> {
     let span = debug_span!("MTU Detection");
-    log::debug!("Starting MTU detection");
+    tracing::debug!("Starting MTU detection");
     let verified_mtu = detect_mtu(
         gateway,
         #[cfg(any(target_os = "macos", target_os = "linux"))]
@@ -61,14 +61,14 @@ pub async fn automatic_mtu_correction(
     .await?;
 
     if verified_mtu != current_tunnel_mtu {
-        log::warn!("Lowering MTU from {} to {verified_mtu}", current_tunnel_mtu);
+        tracing::warn!("Lowering MTU from {} to {verified_mtu}", current_tunnel_mtu);
 
         #[cfg(any(target_os = "linux", target_os = "macos"))]
         talpid_net::unix::set_mtu(&iface_name, verified_mtu).map_err(Error::SetMtu)?;
         #[cfg(windows)]
         set_mtu_windows(verified_mtu, iface_name, ipv6).map_err(Error::SetMtu)?;
     } else {
-        log::debug!("MTU {verified_mtu} verified to not drop packets");
+        tracing::debug!("MTU {verified_mtu} verified to not drop packets");
     };
     Ok(())
 }
