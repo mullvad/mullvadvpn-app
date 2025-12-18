@@ -33,9 +33,7 @@ export function getDefaultSettings(): ISettings {
       normal: getDefaultRelaySettingsNormal(),
     },
     tunnelOptions: {
-      generic: {
-        enableIpv6: false,
-      },
+      enableIpv6: false,
       mtu: undefined,
       quantumResistant: true,
       daita: {
