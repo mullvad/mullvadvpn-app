@@ -35,7 +35,7 @@ private val APP_ICON_SIZE = 60.dp
 @Composable
 private fun PreviewAppIconAndTitleGridItem() {
     AppTheme {
-        FlowRow(Modifier.background(MaterialTheme.colorScheme.surface)) {
+        FlowRow(Modifier.background(MaterialTheme.colorScheme.surfaceDim)) {
             AppIconAndTitleGridItem(
                 appTitle = "Obfuscation",
                 appIcon = R.mipmap.ic_launcher_notes,
