@@ -35,6 +35,7 @@ import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.compose.util.annotatedStringResource
+import net.mullvad.mullvadvpn.compose.util.isTv
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
@@ -144,7 +145,11 @@ private fun LazyGridScope.content(
                 modifier =
                     Modifier.align(Alignment.CenterHorizontally).padding(all = Dimens.smallPadding),
                 appTitle = stringResource(item.labelId),
-                appIcon = item.iconId,
+                appIcon = if(isTv()) {
+                    item.bannerId
+                } else {
+                    item.iconId
+                },
             )
         }
     }

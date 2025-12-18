@@ -66,25 +66,53 @@ class AppObfuscationRepository(
     private fun AppObfuscation.toComponentName() = ComponentName(context, clazz)
 }
 
-enum class AppObfuscation(val clazz: Class<*>, val iconId: Int, val labelId: Int) {
-    DEFAULT(MainActivity::class.java, R.drawable.icon_android, R.string.app_name),
-    GAME(MainActivityAltGame::class.java, R.drawable.game_preview, R.string.app_name_game),
-    NINJA(MainActivityAltNinja::class.java, R.drawable.ninja_preview, R.string.app_name_ninja),
+enum class AppObfuscation(
+    val clazz: Class<*>,
+    val iconId: Int,
+    val bannerId: Int,
+    val labelId: Int,
+) {
+    DEFAULT(MainActivity::class.java, R.mipmap.ic_launcher, R.mipmap.ic_banner, R.string.app_name),
+    GAME(
+        MainActivityAltGame::class.java,
+        R.mipmap.ic_launcher_game,
+        R.mipmap.ic_banner,
+        R.string.app_name_game,
+    ),
+    NINJA(
+        MainActivityAltNinja::class.java,
+        R.mipmap.ic_launcher_ninja,
+        R.mipmap.ic_banner,
+        R.string.app_name_ninja,
+    ),
     BROWSER(
         MainActivityAltBrowser::class.java,
-        R.drawable.browser_preview,
+        R.mipmap.ic_launcher_browser,
+        R.mipmap.ic_banner,
         R.string.app_name_browser,
     ),
-    NEWS(MainActivityAltNews::class.java, R.drawable.news_preview, R.string.app_name_news),
+    NEWS(
+        MainActivityAltNews::class.java,
+        R.mipmap.ic_launcher_news,
+        R.mipmap.ic_banner,
+        R.string.app_name_news,
+    ),
     WEATHER(
         MainActivityAltWeather::class.java,
-        R.drawable.weather_preview,
+        R.mipmap.ic_launcher_weather,
+        R.mipmap.ic_banner,
         R.string.app_name_weather,
     ),
-    NOTES(MainActivityAltNotes::class.java, R.drawable.notes_preview, R.string.app_name_notes),
+    NOTES(
+        MainActivityAltNotes::class.java,
+        R.mipmap.ic_launcher_notes,
+        R.mipmap.ic_banner,
+        R.string.app_name_notes,
+    ),
     NIGHT_BROWSER(
         MainActivityAltBrowserNight::class.java,
-        R.drawable.browser_night_preview,
+        R.mipmap.ic_launcher_browser_night,
+        R.mipmap.ic_banner,
         R.string.app_name_browser,
     ),
 }

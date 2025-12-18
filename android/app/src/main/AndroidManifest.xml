@@ -25,7 +25,6 @@
                   android:required="false" />
 
     <application android:name=".MullvadApplication"
-                 android:banner="@mipmap/ic_banner"
                  android:allowBackup="false"
                  tools:targetApi="33"
                  android:memtagMode="async"
@@ -68,6 +67,7 @@
             android:enabled="true"
             android:exported="true"
             android:icon="@mipmap/ic_launcher"
+            android:banner="@mipmap/ic_banner"
             android:targetActivity="net.mullvad.mullvadvpn.ui.MainActivity"
             tools:ignore="DiscouragedApi,UnusedAttribute">
             <intent-filter>
@@ -85,7 +85,7 @@
         </activity>
         <!-- Alternative icons names -->
         <!-- Game -->
-        <!-- mobsf-ignore: android_tapjacking -->
+        <!-- mobsf-ignore: android_task_hijacking2 -->
         <activity-alias
             android:name="net.mullvad.mullvadvpn.ui.obfuscation.MainActivityAltGame"
             android:enabled="false"
@@ -108,7 +108,7 @@
             </intent-filter>
         </activity-alias>
         <!-- Weather -->
-        <!-- mobsf-ignore: android_tapjacking -->
+        <!-- mobsf-ignore: android_task_hijacking2 -->
         <activity-alias
             android:name="net.mullvad.mullvadvpn.ui.obfuscation.MainActivityAltWeather"
             android:enabled="false"
@@ -131,7 +131,7 @@
             </intent-filter>
         </activity-alias>
         <!-- News -->
-        <!-- mobsf-ignore: android_tapjacking -->
+        <!-- mobsf-ignore: android_task_hijacking2 -->
         <activity-alias
             android:name="net.mullvad.mullvadvpn.ui.obfuscation.MainActivityAltNews"
             android:enabled="false"
@@ -154,7 +154,7 @@
             </intent-filter>
         </activity-alias>
         <!-- Browser -->
-        <!-- mobsf-ignore: android_tapjacking -->
+        <!-- mobsf-ignore: android_task_hijacking2 -->
         <activity-alias
             android:name="net.mullvad.mullvadvpn.ui.obfuscation.MainActivityAltBrowser"
             android:enabled="false"
@@ -177,7 +177,7 @@
             </intent-filter>
         </activity-alias>
         <!-- Notes -->
-        <!-- mobsf-ignore: android_tapjacking -->
+        <!-- mobsf-ignore: android_task_hijacking2 -->
         <activity-alias
             android:name="net.mullvad.mullvadvpn.ui.obfuscation.MainActivityAltNotes"
             android:enabled="false"
@@ -200,7 +200,7 @@
             </intent-filter>
         </activity-alias>
         <!-- Ninja -->
-        <!-- mobsf-ignore: android_tapjacking -->
+        <!-- mobsf-ignore: android_task_hijacking2 -->
         <activity-alias
             android:name="net.mullvad.mullvadvpn.ui.obfuscation.MainActivityAltNinja"
             android:enabled="false"
@@ -223,7 +223,7 @@
             </intent-filter>
         </activity-alias>
         <!-- Browser night -->
-        <!-- mobsf-ignore: android_tapjacking -->
+        <!-- mobsf-ignore: android_task_hijacking2 -->
         <activity-alias
             android:name="net.mullvad.mullvadvpn.ui.obfuscation.MainActivityAltBrowserNight"
             android:enabled="false"

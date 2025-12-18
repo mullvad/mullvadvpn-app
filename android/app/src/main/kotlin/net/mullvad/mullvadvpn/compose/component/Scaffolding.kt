@@ -195,15 +195,7 @@ fun ScaffoldWithMediumTopBar(
                 snackbar = { snackbarData -> MullvadSnackbar(snackbarData = snackbarData) },
             )
         },
-        content = {
-            content(
-                Modifier.fillMaxSize().padding(it),
-                // Disabled scrollbar since it only works with fixed span count
-                // .drawVerticalScrollbar(state = lazyGridState, color = scrollbarColor, spanCount =
-                // 3),
-                lazyGridState,
-            )
-        },
+        content = { content(Modifier.fillMaxSize().padding(it), lazyGridState) },
     )
 }
 
