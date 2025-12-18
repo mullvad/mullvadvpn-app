@@ -5,8 +5,8 @@ use std::{
 };
 use talpid_core::logging::rotate_log;
 use tracing_subscriber::{
-    EnvFilter, Registry, filter, filter::LevelFilter, fmt::format::FmtSpan, prelude::*,
-    reload::Handle, util::SubscriberInitExt,
+    EnvFilter, Registry, filter::LevelFilter, fmt::format::FmtSpan, prelude::*, reload::Handle,
+    util::SubscriberInitExt,
 };
 
 #[derive(thiserror::Error, Debug)]
@@ -137,7 +137,10 @@ pub fn init_logger(
 
     let stdout_formatter = tracing_subscriber::fmt::layer()
         .with_ansi(true)
-        .with_span_events(FmtSpan::NEW | FmtSpan::CLOSE);
+        .with_span_events(FmtSpan::NEW | FmtSpan::CLOSE)
+        .with_timer(tracing_subscriber::fmt::time::ChronoUtc::new(
+            DATE_TIME_FORMAT_STR.to_string(),
+        ));
 
     let (user_filter, reload_handle) = tracing_subscriber::reload::Layer::new(env_filter);
     let reload_handle = LogHandle {
@@ -145,16 +148,17 @@ pub fn init_logger(
         log_stream: log_stream.clone(),
     };
 
-    let reg = tracing_subscriber::registry()
-        .with(user_filter)
-        .with(default_filter);
+    let json_layer = binary_logger::JsonLogLayer::new(binary_logger::LOG_PATH).unwrap();
 
-    reg.with(
-        stdout_formatter.with_timer(tracing_subscriber::fmt::time::ChronoUtc::new(
-            DATE_TIME_FORMAT_STR.to_string(),
-        )),
-    )
-    .init();
+    let reg = tracing_subscriber::registry()
+        .with(
+            stdout_formatter
+                .with_filter(user_filter)
+                .with_filter(default_filter),
+        )
+        .with(json_layer);
+
+    reg.init();
 
     #[cfg(all(target_os = "android", debug_assertions))]
     {
@@ -199,5 +203,60 @@ fn one_level_quieter(level: LevelFilter) -> LevelFilter {
         LevelFilter::INFO => LevelFilter::WARN,
         LevelFilter::DEBUG => LevelFilter::INFO,
         LevelFilter::TRACE => LevelFilter::DEBUG,
+    }
+}
+
+pub mod binary_logger {
+    use std::{
+        fs::File,
+        io::{BufWriter, Write},
+        sync::Mutex,
+    };
+
+    use tracing::{Event, Subscriber};
+    use tracing_serde_structured::AsSerde;
+    use tracing_subscriber::{Layer, layer::Context, registry::LookupSpan};
+
+    pub const LOG_PATH: &str = "structured_log"; // per request; JSONL text inside
+
+    pub struct JsonLogLayer {
+        writer: Mutex<BufWriter<File>>, // interior mutability for on_event(&self, ...)
+    }
+
+    impl Drop for JsonLogLayer {
+        fn drop(&mut self) {
+            self.writer.lock().unwrap().flush().unwrap();
+        }
+    }
+
+    impl JsonLogLayer {
+        pub fn new(path: &str) -> std::io::Result<Self> {
+            let file = File::create(path)?;
+            Ok(Self {
+                writer: Mutex::new(BufWriter::new(file)),
+            })
+        }
+    }
+
+    impl<S> Layer<S> for JsonLogLayer
+    where
+        S: Subscriber + for<'a> LookupSpan<'a>,
+    {
+        fn on_event(&self, event: &Event<'_>, _ctx: Context<'_, S>) {
+            // // Timestamp in milliseconds since UNIX epoch (simple, stable)
+            // let ts_ms = SystemTime::now()
+            //     .duration_since(UNIX_EPOCH)
+            //     .map(|d| d.as_millis())
+            //     .unwrap_or(0);
+
+            // Serialize the tracing event via tracing-serde to JSON Value
+            let event_val = serde_json::to_value(event.as_serde()).unwrap();
+
+            if let Ok(mut w) = self.writer.lock() {
+                // single critical section to avoid interleaving
+                serde_json::to_writer(&mut *w, &event_val).unwrap();
+                writeln!(&mut *w).unwrap();
+            }
+        }
     }
 }

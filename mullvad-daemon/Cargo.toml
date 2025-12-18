@@ -58,6 +58,9 @@ clap = { workspace = true }
 log-panics = "2.0.0"
 mullvad-management-interface = { path = "../mullvad-management-interface" }
 tracing-appender = "0.2.3"
+tracing-serde-structured = { version = "0.4.0", features = ["postcard-schema"] }
+tracing-serde = "0.2.0"
+tracing-core = "0.1.34"
 
 [dev-dependencies]
 insta = { workspace = true, features = ["json"] }
@@ -116,3 +119,7 @@ CompanyName = "Mullvad VPN AB"
 LegalCopyright = "(c) 2025 Mullvad VPN AB"
 InternalName = "mullvad-daemon"
 OriginalFilename = "mullvad-daemon.exe"
+
+[[bin]]
+name = "print_logs"
+path = "bin/trace_printer.rs"
