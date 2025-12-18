@@ -266,7 +266,7 @@ impl Check {
     async fn get_stats(tunnel_handle: &dyn Tunnel) -> Result<Option<StatsMap>, TunnelError> {
         let stats = tunnel_handle.get_tunnel_stats().await?;
         if stats.is_empty() {
-            log::error!("Tunnel unexpectedly shut down");
+            tracing::error!("Tunnel unexpectedly shut down");
             Ok(None)
         } else {
             Ok(Some(stats))

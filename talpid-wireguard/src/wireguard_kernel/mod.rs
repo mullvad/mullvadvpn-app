@@ -278,7 +278,7 @@ impl WireguardConnection {
                     }
                 }
                 anything_else => {
-                    log::error!("Received unexpected response: {:?}", anything_else);
+                    tracing::error!("Received unexpected response: {:?}", anything_else);
                     Err(Error::NoResponse)
                 }
             },

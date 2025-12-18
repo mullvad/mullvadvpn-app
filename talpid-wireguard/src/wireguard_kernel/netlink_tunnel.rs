@@ -37,7 +37,7 @@ impl NetlinkTunnel {
                     .delete_device(interface_index)
                     .await
                 {
-                    log::error!(
+                    tracing::error!(
                         "Failed to tear down WireGuard interface after failing to apply config: {}",
                         teardown_err
                     );
@@ -82,7 +82,7 @@ impl Tunnel for NetlinkTunnel {
         match result {
             Ok(name) => name.to_string_lossy().to_string(),
             Err(err) => {
-                log::error!(
+                tracing::error!(
                     "Failed to deduce interface name at runtime, will attempt to use the default name. {}",
                     err
                 );
@@ -99,7 +99,7 @@ impl Tunnel for NetlinkTunnel {
         } = *self;
         tokio_handle.block_on(async move {
             if let Err(err) = netlink_connections.delete_device(interface_index).await {
-                log::error!("Failed to remove WireGuard device: {}", err);
+                tracing::error!("Failed to remove WireGuard device: {}", err);
                 Err(TunnelError::FatalStartWireguardError(Box::new(err)))
             } else {
                 Ok(())
@@ -111,7 +111,7 @@ impl Tunnel for NetlinkTunnel {
         let interface_index = self.interface_index;
         let mut wg = self.netlink_connections.wg_handle.clone();
         let device = wg.get_by_index(interface_index).await.map_err(|err| {
-            log::error!("Failed to fetch WireGuard device config: {}", err);
+            tracing::error!("Failed to fetch WireGuard device config: {}", err);
             TunnelError::GetConfigError
         })?;
         Ok(Stats::parse_device_message(&device))
@@ -133,7 +133,7 @@ impl Tunnel for NetlinkTunnel {
             wg.set_config(interface_index, &config)
                 .await
                 .map_err(|err| {
-                    log::error!("Failed to set WireGuard device config: {}", err);
+                    tracing::error!("Failed to set WireGuard device config: {}", err);
                     TunnelError::SetConfigError
                 })
         })

@@ -21,6 +21,7 @@ futures = { workspace = true }
 ipnetwork = { workspace = true }
 libc = "0.2"
 log = { workspace = true }
+tracing = { workspace = true }
 rand = { workspace = true }
 talpid-dns = { path = "../talpid-dns" }
 talpid-routing = { path = "../talpid-routing" }
