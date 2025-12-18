@@ -30,7 +30,7 @@ case ${1-:""} in
     ;;
     android)
         container_image_name=$(cat "$SCRIPT_DIR/android-container-image.txt")
-        optional_gradle_cache_volume=(-v "$GRADLE_CACHE_VOLUME_NAME:/root/.gradle:Z")
+        optional_gradle_cache_volume=(-v "$GRADLE_CACHE_VOLUME_NAME:/home/runner1/.gradle:Z")
 
         if [ -n "$ANDROID_CREDENTIALS_DIR" ]; then
             optional_android_credentials_volume=(-v "$ANDROID_CREDENTIALS_DIR:$REPO_MOUNT_TARGET/android/credentials:Z")
@@ -47,7 +47,11 @@ set -x
 exec "$CONTAINER_RUNNER" run --rm \
     -v "/$REPO_DIR:$REPO_MOUNT_TARGET:Z" \
     -v "$CARGO_TARGET_VOLUME_NAME:/cargo-target:Z" \
-    -v "$CARGO_REGISTRY_VOLUME_NAME:/root/.cargo/registry:Z" \
+    -v "$CARGO_REGISTRY_VOLUME_NAME:/home/runner1/.cargo/registry:Z" \
+    -v "/etc/passwd:/etc/passwd" \
+    -v "/etc/group:/etc/group" \
+    -v "$HOME:$HOME" \
+    --user $(id -u):$(id -g) \
     "${optional_gradle_cache_volume[@]}" \
     "${optional_android_credentials_volume[@]}" \
-    "$container_image_name" bash -c "$*"
+    "$container_image_name" bash -c "echo $USER; $*"
