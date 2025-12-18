@@ -102,9 +102,7 @@ function convertFromRelayListCity(city: grpcTypes.RelayListCity): IRelayListCity
   const cityObject = city.toObject();
   return {
     ...cityObject,
-    relays: city
-      .getRelaysList()
-      .map(convertFromRelayListRelay)
+    relays: city.getRelaysList().map(convertFromRelayListRelay),
   };
 }
 
