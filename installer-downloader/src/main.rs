@@ -14,7 +14,7 @@ mod inner {
     pub use installer_downloader::resource;
 
     pub fn run() {
-        log::init().expect("failed to set up logger");
+        log::init();
 
         ::log::debug!("Installer downloader version: {}", resource::VERSION);
 
