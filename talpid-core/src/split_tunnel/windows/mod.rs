@@ -125,12 +125,13 @@ impl SplitTunnel {
     /// Initialize the split tunnel device.
     ///
     /// If initialization fails, split tunneling will be disabled/unavailable.
-    pub fn new(
+    pub fn new<T: AsRef<OsStr>>(
         runtime: tokio::runtime::Handle,
         resource_dir: PathBuf,
         daemon_tx: Weak<mpsc::UnboundedSender<TunnelCommand>>,
         volume_update_rx: mpsc::UnboundedReceiver<()>,
         route_manager: RouteManagerHandle,
+        initial_paths: &[T],
     ) -> Self {
         let state = ActiveSplitTunnelState::new(
             runtime,
@@ -148,7 +149,24 @@ impl SplitTunnel {
             SplitTunnelState::Inactive(InactiveSplitTunnelState::new())
         });
 
-        Self { state }
+        let mut split_tunnel = Self { state };
+
+        // If we fail to exclude anything and later connect, we may end up with a working
+        // tunnel but no split tunneling, meaning apps may appear excluded despite not being so.
+        // Rather than silently risking that, fail loudly instead.
+        if let Err(error) = split_tunnel.set_paths_sync(&initial_paths) {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg("Failed to set initial split tunnel paths")
+            );
+            // This will deinitialize split tunneling
+            split_tunnel.state = SplitTunnelState::Inactive(InactiveSplitTunnelState::new());
+            split_tunnel
+                .set_paths_sync(initial_paths)
+                .expect("inactive tunnel cannot fail without VPN addrs set");
+        }
+
+        split_tunnel
     }
 
     /// Set a list of applications to exclude from the tunnel.
@@ -164,7 +182,7 @@ impl SplitTunnel {
     }
 
     /// Set a list of applications to exclude from the tunnel.
-    pub fn set_paths_sync<T: AsRef<OsStr>>(&mut self, paths: &[T]) -> Result<(), Error> {
+    fn set_paths_sync<T: AsRef<OsStr>>(&mut self, paths: &[T]) -> Result<(), Error> {
         match &mut self.state {
             SplitTunnelState::Active(state) => state.set_paths_sync(paths),
             SplitTunnelState::Inactive(state) => state.set_paths_sync(paths),
@@ -235,7 +253,7 @@ impl InactiveSplitTunnelState {
         let _ = result_tx.send(self.set_paths_sync(paths));
     }
 
-    pub fn set_paths_sync<T: AsRef<OsStr>>(&mut self, paths: &[T]) -> Result<(), Error> {
+    fn set_paths_sync<T: AsRef<OsStr>>(&mut self, paths: &[T]) -> Result<(), Error> {
         self.paths = paths.iter().map(|p| p.as_ref().to_owned()).collect();
         self.get_action_result()
     }
@@ -755,7 +773,7 @@ impl ActiveSplitTunnelState {
     }
 
     /// Set a list of applications to exclude from the tunnel.
-    pub fn set_paths_sync<T: AsRef<OsStr>>(&mut self, paths: &[T]) -> Result<(), Error> {
+    fn set_paths_sync<T: AsRef<OsStr>>(&mut self, paths: &[T]) -> Result<(), Error> {
         self.send_request(Request::SetPaths(
             paths
                 .iter()
