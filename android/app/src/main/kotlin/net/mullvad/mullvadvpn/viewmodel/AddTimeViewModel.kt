@@ -93,14 +93,17 @@ class AddTimeViewModel(
     private fun handlePurchaseResultTerminatingState() {
         viewModelScope.launch {
             paymentUseCase.purchaseResult
+                // Terminating states are either errors or completed purchases.
                 .filter { it?.isTerminatingState() == true }
                 .collect {
-                    // Terminating states are either errors or completed purchases.
-                    if (it is PurchaseResult.Completed) {
+                    // If did a successful purchase we should fetch the new added time
+                    if (it is PurchaseResult.Completed.Success) {
                         updateAccountExpiry()
                     } else {
+                        // Otherwise update payment availability to check for pending purchases
                         fetchPaymentAvailability()
-                        verifyPurchases() // Attempt to verify again
+                        // Check if we have any non-verified purchase
+                        verifyPurchases()
                     }
                 }
         }
