@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.repository
 
 import android.content.ComponentName
+import android.content.Context
 import android.content.pm.PackageManager
 import android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_DEFAULT
 import android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_DISABLED
@@ -11,21 +12,29 @@ import android.content.pm.PackageManager.DONT_KILL_APP
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.ui.MainActivity
+import net.mullvad.mullvadvpn.ui.obfuscation.MainActivityAltBrowser
+import net.mullvad.mullvadvpn.ui.obfuscation.MainActivityAltBrowserNight
+import net.mullvad.mullvadvpn.ui.obfuscation.MainActivityAltGame
+import net.mullvad.mullvadvpn.ui.obfuscation.MainActivityAltNews
+import net.mullvad.mullvadvpn.ui.obfuscation.MainActivityAltNinja
+import net.mullvad.mullvadvpn.ui.obfuscation.MainActivityAltNotes
+import net.mullvad.mullvadvpn.ui.obfuscation.MainActivityAltWeather
 
 class AppObfuscationRepository(
     private val packageManager: PackageManager,
-    private val obfuscationComponents: List<ComponentName>,
+    private val context: Context,
 ) {
     private val _currentAppObfuscation = MutableStateFlow(getObfuscation())
     val currentAppObfuscation: StateFlow<AppObfuscation> = _currentAppObfuscation
 
     val availableObfuscations: StateFlow<List<AppObfuscation>> =
-        MutableStateFlow(obfuscationComponents.map { it.toAppObfuscation() })
+        MutableStateFlow(AppObfuscation.entries)
 
     fun setAppObfuscation(appObfuscation: AppObfuscation) {
-        obfuscationComponents.forEach {
+        AppObfuscation.entries.forEach {
             packageManager.setComponentEnabledSetting(
-                it,
+                it.toComponentName(),
                 COMPONENT_ENABLED_STATE_DISABLED,
                 DONT_KILL_APP,
             )
@@ -40,21 +49,12 @@ class AppObfuscationRepository(
     }
 
     private fun getObfuscation(): AppObfuscation =
-        obfuscationComponents
-            .filter { packageManager.isComponentEnabled(it) }
-            .map { it.toAppObfuscation() }
-            .first()
-
-    private fun ComponentName.toAppObfuscation(): AppObfuscation =
-        AppObfuscation.entries.first { this.shortClassName == it.path }
-
-    private fun AppObfuscation.toComponentName(): ComponentName =
-        obfuscationComponents.first { it.shortClassName == this.path }
+        AppObfuscation.entries.first { packageManager.isComponentEnabled(it.toComponentName()) }
 
     private fun PackageManager.isComponentEnabled(componentName: ComponentName): Boolean =
         when (this.getComponentEnabledSetting(componentName)) {
             COMPONENT_ENABLED_STATE_DEFAULT ->
-                componentName.shortClassName == AppObfuscation.DEFAULT.path
+                componentName == AppObfuscation.DEFAULT.toComponentName()
             COMPONENT_ENABLED_STATE_ENABLED -> true
             COMPONENT_ENABLED_STATE_DISABLED -> false
             COMPONENT_ENABLED_STATE_DISABLED_USER,
@@ -62,34 +62,28 @@ class AppObfuscationRepository(
                 error("Enabled setting only applicable for application")
             else -> error("Unknown component enabled setting")
         }
+
+    private fun AppObfuscation.toComponentName() = ComponentName(context, clazz)
 }
 
-enum class AppObfuscation(val path: String, val iconId: Int, val labelId: Int) {
-    DEFAULT(".ui.MainActivity", R.drawable.icon_android, R.string.app_name),
-    GAME(".ui.obfuscation.MainActivityAltGame", R.drawable.game_preview, R.string.app_name_game),
-    NINJA(
-        ".ui.obfuscation.MainActivityAltNinja",
-        R.drawable.ninja_preview,
-        R.string.app_name_ninja,
-    ),
+enum class AppObfuscation(val clazz: Class<*>, val iconId: Int, val labelId: Int) {
+    DEFAULT(MainActivity::class.java, R.drawable.icon_android, R.string.app_name),
+    GAME(MainActivityAltGame::class.java, R.drawable.game_preview, R.string.app_name_game),
+    NINJA(MainActivityAltNinja::class.java, R.drawable.ninja_preview, R.string.app_name_ninja),
     BROWSER(
-        ".ui.obfuscation.MainActivityAltBrowser",
+        MainActivityAltBrowser::class.java,
         R.drawable.browser_preview,
         R.string.app_name_browser,
     ),
-    NEWS(".ui.obfuscation.MainActivityAltNews", R.drawable.news_preview, R.string.app_name_news),
+    NEWS(MainActivityAltNews::class.java, R.drawable.news_preview, R.string.app_name_news),
     WEATHER(
-        ".ui.obfuscation.MainActivityAltWeather",
+        MainActivityAltWeather::class.java,
         R.drawable.weather_preview,
         R.string.app_name_weather,
     ),
-    NOTES(
-        ".ui.obfuscation.MainActivityAltNotes",
-        R.drawable.notes_preview,
-        R.string.app_name_notes,
-    ),
+    NOTES(MainActivityAltNotes::class.java, R.drawable.notes_preview, R.string.app_name_notes),
     NIGHT_BROWSER(
-        ".ui.obfuscation.MainActivityAltBrowserNight",
+        MainActivityAltBrowserNight::class.java,
         R.drawable.browser_night_preview,
         R.string.app_name_browser,
     ),

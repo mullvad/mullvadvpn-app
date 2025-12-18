@@ -141,18 +141,6 @@ val uiModule = module {
 
     viewModel { SplitTunnelingViewModel(get(), get(), get(), Dispatchers.Default) }
 
-    single<List<ComponentName>>(named(APP_OBFUSCATION_COMPONENTS_NAME)) {
-        listOf(
-            ComponentName(androidContext(), MainActivity::class.java),
-            ComponentName(androidContext(), MainActivityAltGame::class.java),
-            ComponentName(androidContext(), MainActivityAltNinja::class.java),
-            ComponentName(androidContext(), MainActivityAltBrowser::class.java),
-            ComponentName(androidContext(), MainActivityAltNews::class.java),
-            ComponentName(androidContext(), MainActivityAltWeather::class.java),
-            ComponentName(androidContext(), MainActivityAltNotes::class.java),
-            ComponentName(androidContext(), MainActivityAltBrowserNight::class.java),
-        )
-    }
     single { ApplicationsProvider(get(), get(named(SELF_PACKAGE_NAME))) }
     scope<MainActivity> { scoped { ServiceConnectionManager(androidContext()) } }
     single { InetAddressValidator.getInstance() }
@@ -187,7 +175,7 @@ val uiModule = module {
         )
     }
     single { WireguardConstraintsRepository(get()) }
-    single { AppObfuscationRepository(get(), get(named(APP_OBFUSCATION_COMPONENTS_NAME))) }
+    single { AppObfuscationRepository(get(), androidContext()) }
 
     single { AccountExpiryInAppNotificationUseCase(get()) } bind InAppNotificationUseCase::class
     single { TunnelStateNotificationUseCase(get(), get(), get()) } bind

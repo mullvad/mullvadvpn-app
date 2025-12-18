@@ -127,7 +127,7 @@ private fun LazyGridScope.content(
     item(span = { GridItemSpan(this.maxLineSpan) }) {
         ListHeader(content = { Text(text = stringResource(R.string.icon_and_title)) })
     }
-    items(items = state.availableObfuscations, key = { it.path }) { item ->
+    items(items = state.availableObfuscations, key = { it.clazz.name }) { item ->
         Card(
             shape = MaterialTheme.shapes.large,
             onClick = { onObfuscationSelected(item) },
