@@ -105,12 +105,10 @@ function convertFromRelayListCity(city: grpcTypes.RelayListCity): IRelayListCity
     relays: city
       .getRelaysList()
       .map(convertFromRelayListRelay)
-      // TODO: Remove once daemon only sends wireguard relays.
-      .filter((relay) => relay !== undefined),
   };
 }
 
-function convertFromRelayListRelay(relay: grpcTypes.Relay): IRelayListHostname | undefined {
+function convertFromRelayListRelay(relay: grpcTypes.Relay): IRelayListHostname {
   const relayObject = relay.toObject();
 
   const endpointData = relayObject.endpointData;
