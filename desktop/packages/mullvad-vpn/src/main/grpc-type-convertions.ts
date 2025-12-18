@@ -555,9 +555,7 @@ function convertFromTunnelOptions(tunnelOptions: grpcTypes.TunnelOptions.AsObjec
     mtu: tunnelOptions.mtu,
     quantumResistant: convertFromQuantumResistantState(tunnelOptions.quantumResistant?.state),
     daita: tunnelOptions.daita,
-    generic: {
-      enableIpv6: tunnelOptions.enableIpv6,
-    },
+    enableIpv6: tunnelOptions.enableIpv6,
     dns: {
       state:
         tunnelOptions.dnsOptions?.state === grpcTypes.DnsOptions.DnsState.CUSTOM
