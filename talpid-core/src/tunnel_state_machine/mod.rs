@@ -365,15 +365,6 @@ impl TunnelStateMachine {
         #[cfg(target_os = "macos")]
         let filtering_resolver = crate::resolver::start_resolver(Default::default()).await?;
 
-        #[cfg(windows)]
-        let mut split_tunnel = split_tunnel::SplitTunnel::new(
-            runtime.clone(),
-            args.resource_dir.clone(),
-            args.command_tx.clone(),
-            volume_update_rx,
-            args.route_manager.clone(),
-        );
-
         #[cfg(target_os = "macos")]
         let split_tunnel =
             split_tunnel::SplitTunnel::spawn(args.command_tx.clone(), args.route_manager.clone());
@@ -409,9 +400,10 @@ impl TunnelStateMachine {
 
         let (offline_tx, mut offline_rx) = mpsc::unbounded();
         let initial_offline_state_tx = args.offline_state_tx.clone();
+        let command_tx = args.command_tx.clone();
         tokio::spawn(async move {
             while let Some(connectivity) = offline_rx.next().await {
-                if let Some(tx) = args.command_tx.upgrade() {
+                if let Some(tx) = command_tx.upgrade() {
                     let _ = tx.unbounded_send(TunnelCommand::Connectivity(connectivity));
                 } else {
                     break;
@@ -432,14 +424,15 @@ impl TunnelStateMachine {
         let connectivity = offline_monitor.connectivity().await;
         let _ = initial_offline_state_tx.unbounded_send(connectivity);
 
-        // TODO: Unsure if fine to ignore error
         #[cfg(windows)]
-        if let Err(error) = split_tunnel.set_paths_sync(&args.settings.exclude_paths) {
-            log::error!(
-                "{}",
-                error.display_chain_with_msg("Failed to set initial split tunnel paths")
-            );
-        }
+        let split_tunnel = split_tunnel::SplitTunnel::new(
+            runtime.clone(),
+            args.resource_dir.clone(),
+            args.command_tx.clone(),
+            volume_update_rx,
+            args.route_manager.clone(),
+            &args.settings.exclude_paths,
+        );
 
         #[cfg(target_os = "macos")]
         if let Err(error) = split_tunnel
