@@ -6,11 +6,7 @@ import android.app.Activity
 
 class MainActivityAltBrowser : Activity()
 
-class MainActivityAltBrowserNight : Activity()
-
 class MainActivityAltGame : Activity()
-
-class MainActivityAltNews : Activity()
 
 class MainActivityAltNinja : Activity()
 

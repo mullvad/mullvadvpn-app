@@ -145,11 +145,12 @@ private fun LazyGridScope.content(
                 modifier =
                     Modifier.align(Alignment.CenterHorizontally).padding(all = Dimens.smallPadding),
                 appTitle = stringResource(item.labelId),
-                appIcon = if(isTv()) {
-                    item.bannerId
-                } else {
-                    item.iconId
-                },
+                appIcon =
+                    if (isTv()) {
+                        item.bannerId
+                    } else {
+                        item.iconId
+                    },
             )
         }
     }

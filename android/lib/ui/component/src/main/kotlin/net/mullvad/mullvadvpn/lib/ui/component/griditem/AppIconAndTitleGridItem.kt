@@ -23,6 +23,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.drawable.toBitmap
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
@@ -68,7 +69,8 @@ fun AppIconAndTitleGridItem(
                 .applyIfNotNull(testTag) { testTag(it) }
                 .applyIfNotNull(onClick) { clickable(onClick = it) },
     ) {
-        val adaptiveIconDrawable = resources.getDrawable(appIcon, null) as? AdaptiveIconDrawable
+        val adaptiveIconDrawable =
+            ResourcesCompat.getDrawable(resources, appIcon, null) as? AdaptiveIconDrawable
         if (adaptiveIconDrawable != null) {
             Icon(
                 bitmap = adaptiveIconDrawable.toBitmap().asImageBitmap(),

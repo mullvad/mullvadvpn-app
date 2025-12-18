@@ -14,9 +14,7 @@ import kotlinx.coroutines.flow.StateFlow
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.ui.MainActivity
 import net.mullvad.mullvadvpn.ui.obfuscation.MainActivityAltBrowser
-import net.mullvad.mullvadvpn.ui.obfuscation.MainActivityAltBrowserNight
 import net.mullvad.mullvadvpn.ui.obfuscation.MainActivityAltGame
-import net.mullvad.mullvadvpn.ui.obfuscation.MainActivityAltNews
 import net.mullvad.mullvadvpn.ui.obfuscation.MainActivityAltNinja
 import net.mullvad.mullvadvpn.ui.obfuscation.MainActivityAltNotes
 import net.mullvad.mullvadvpn.ui.obfuscation.MainActivityAltWeather
@@ -85,18 +83,6 @@ enum class AppObfuscation(
         R.mipmap.ic_banner,
         R.string.app_name_ninja,
     ),
-    BROWSER(
-        MainActivityAltBrowser::class.java,
-        R.mipmap.ic_launcher_browser,
-        R.mipmap.ic_banner,
-        R.string.app_name_browser,
-    ),
-    NEWS(
-        MainActivityAltNews::class.java,
-        R.mipmap.ic_launcher_news,
-        R.mipmap.ic_banner,
-        R.string.app_name_news,
-    ),
     WEATHER(
         MainActivityAltWeather::class.java,
         R.mipmap.ic_launcher_weather,
@@ -109,9 +95,9 @@ enum class AppObfuscation(
         R.mipmap.ic_banner,
         R.string.app_name_notes,
     ),
-    NIGHT_BROWSER(
-        MainActivityAltBrowserNight::class.java,
-        R.mipmap.ic_launcher_browser_night,
+    BROWSER(
+        MainActivityAltBrowser::class.java,
+        R.mipmap.ic_launcher_browser,
         R.mipmap.ic_banner,
         R.string.app_name_browser,
     ),
