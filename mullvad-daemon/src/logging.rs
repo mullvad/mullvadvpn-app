@@ -1,13 +1,14 @@
-use fern::{
-    Output,
-    colors::{Color, ColoredLevelConfig},
-};
 use std::{
-    fmt, io,
+    io,
     path::PathBuf,
     sync::atomic::{AtomicBool, Ordering},
 };
 use talpid_core::logging::rotate_log;
+use tracing_appender::non_blocking;
+use tracing_subscriber::{
+    self, filter::LevelFilter, fmt::format::FmtSpan, layer::SubscriberExt, util::SubscriberInitExt,
+    EnvFilter,
+};
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
@@ -27,6 +28,7 @@ pub enum Error {
 }
 
 pub const WARNING_SILENCED_CRATES: &[&str] = &["netlink_proto", "quinn_udp"];
+const DAEMON_LOG_FILENAME: &str = "daemon.log";
 pub const SILENCED_CRATES: &[&str] = &[
     "h2",
     "tokio_core",
@@ -55,20 +57,6 @@ pub const SILENCED_CRATES: &[&str] = &[
 ];
 const SLIGHTLY_SILENCED_CRATES: &[&str] = &["nftnl", "udp_over_tcp"];
 
-const COLORS: ColoredLevelConfig = ColoredLevelConfig {
-    error: Color::Red,
-    warn: Color::Yellow,
-    info: Color::Green,
-    debug: Color::Blue,
-    trace: Color::Black,
-};
-
-#[cfg(not(windows))]
-const LINE_SEPARATOR: &str = "\n";
-
-#[cfg(windows)]
-const LINE_SEPARATOR: &str = "\r\n";
-
 const DATE_TIME_FORMAT_STR: &str = "[%Y-%m-%d %H:%M:%S%.3f]";
 
 /// Whether a [log] logger has been initialized.
@@ -80,120 +68,169 @@ pub fn is_enabled() -> bool {
     LOG_ENABLED.load(Ordering::SeqCst)
 }
 
+pub struct LogHandle {
+    _file_appender_guard: non_blocking::WorkerGuard,
+}
+
+/// A simple, asynchronous log sink.
+///
+/// To read from a [`LogStreamer`] sink, check out the associated [`LogHandle`] and [`LogHandle::get_log_stream`].
+#[derive(Clone)]
+struct LogStreamer {
+    tx: tokio::sync::broadcast::Sender<String>,
+}
+
+impl io::Write for LogStreamer {
+    /// Will always write the entire `buf` or nothing (`0` bytes) in case there are no subscribers.
+    ///
+    /// See [`std::io::Write`].
+    fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
+        match self.tx.send(String::from_utf8(buf.to_vec()).unwrap()) {
+            Ok(_n_subscribers) => Ok(buf.len()),
+            // From the docs of `std::io::Write`:
+            // "A return value of Ok(0) typically means that the underlying object is no longer able to accept bytes
+            // and will likely not be able to in the future as well, or that the buffer provided is empty."
+            // =>
+            // Thus, returning `Ok(0)` is correct if no-one is subscribed and can received the `buf` message.
+            Err(_e) => Ok(0),
+        }
+    }
+
+    /// There is no intermediately buffered content, so `flush` will always succeed and is always
+    /// a NOOP.
+    fn flush(&mut self) -> io::Result<()> {
+        Ok(())
+    }
+}
+
+impl LogHandle {
+    /// Adjust the log level.
+    ///
+    /// - `level_filter`: A `RUST_LOG` string. See `env_logger` for more information:
+    ///   https://docs.rs/env_logger/latest/env_logger/
+    pub fn set_log_filter(
+        &self,
+        level_filter: impl AsRef<str>,
+    ) -> Result<(), tracing_subscriber::reload::Error> {
+        let new = silence_crates(EnvFilter::new(level_filter));
+        self.env_filter.modify(|env_filter| *env_filter = new)
+    }
+
+    /// Subscribe to new log events.
+    pub fn get_log_stream(&self) -> tokio::sync::broadcast::Receiver<String> {
+        self.log_stream.tx.subscribe()
+    }
+}
+
 pub fn init_logger(
     log_level: log::LevelFilter,
-    log_file: Option<&PathBuf>,
+    log_dir: Option<&PathBuf>,
     output_timestamp: bool,
 ) -> Result<(), Error> {
-    let mut top_dispatcher = fern::Dispatch::new().level(log_level);
-    for silenced_crate in WARNING_SILENCED_CRATES {
-        top_dispatcher = top_dispatcher.level_for(*silenced_crate, log::LevelFilter::Error);
-    }
-    for silenced_crate in SILENCED_CRATES {
-        top_dispatcher = top_dispatcher.level_for(*silenced_crate, log::LevelFilter::Warn);
-    }
-    for silenced_crate in SLIGHTLY_SILENCED_CRATES {
-        top_dispatcher = top_dispatcher.level_for(*silenced_crate, one_level_quieter(log_level));
-    }
-
-    let stdout_formatter = Formatter {
-        output_timestamp,
-        output_color: true,
+    let level_filter = match log_level {
+        log::LevelFilter::Off => LevelFilter::OFF,
+        log::LevelFilter::Error => LevelFilter::ERROR,
+        log::LevelFilter::Warn => LevelFilter::WARN,
+        log::LevelFilter::Info => LevelFilter::INFO,
+        log::LevelFilter::Debug => LevelFilter::DEBUG,
+        log::LevelFilter::Trace => LevelFilter::TRACE,
     };
-    let stdout_dispatcher = fern::Dispatch::new()
-        .format(move |out, message, record| stdout_formatter.output_msg(out, message, record))
-        .chain(io::stdout());
-    top_dispatcher = top_dispatcher.chain(stdout_dispatcher);
 
-    if let Some(ref log_file) = log_file {
-        rotate_log(log_file).map_err(Error::RotateLog)?;
-        let file_formatter = Formatter {
-            output_timestamp: true,
-            output_color: false,
-        };
-        let f = fern::log_file(log_file).map_err(|source| Error::WriteFile {
-            path: log_file.display().to_string(),
-            source,
-        })?;
-        let file_dispatcher = fern::Dispatch::new()
-            .format(move |out, message, record| file_formatter.output_msg(out, message, record))
-            .chain(Output::file(f, LINE_SEPARATOR));
-        top_dispatcher = top_dispatcher.chain(file_dispatcher);
+    let env_filter = EnvFilter::try_from_default_env()
+        .unwrap_or_else(|_| EnvFilter::from_default_env().add_directive(level_filter.into()));
+
+    let default_filter = get_default_filter(level_filter);
+
+    // TODO: Switch this to a rolling appender, likely daily or hourly
+    let file_appender = tracing_appender::rolling::never(log_dir.unwrap(), DAEMON_LOG_FILENAME);
+    let (non_blocking_file_appender, _file_appender_guard) = non_blocking(file_appender);
+
+    let (tx, _) = tokio::sync::broadcast::channel(128);
+    let log_stream = LogStreamer { tx };
+
+    let (user_filter, reload_handle) = tracing_subscriber::reload::Layer::new(default_filter);
+    let reload_handle = LogHandle {
+        env_filter: reload_handle,
+        log_stream: log_stream.clone(),
+        _file_appender_guard,
+    };
+
+    let reg = tracing_subscriber::registry().with(user_filter);
+    let stdout_formatter = tracing_subscriber::fmt::layer()
+        .with_ansi(true)
+        .with_span_events(FmtSpan::NEW | FmtSpan::CLOSE);
+
+    let reg = tracing_subscriber::registry()
+        .with(env_filter)
+        .with(default_filter);
+
+    if let Some(log_dir) = dbg!(log_dir) {
+        rotate_log(&log_dir.join(DAEMON_LOG_FILENAME)).map_err(Error::RotateLog)?;
     }
+
     #[cfg(all(target_os = "android", debug_assertions))]
-    {
-        use android_logger::{AndroidLogger, Config};
-        let logger: Box<dyn log::Log> = Box::new(AndroidLogger::new(
-            Config::default().with_tag("mullvad-daemon"),
-        ));
-        top_dispatcher = top_dispatcher.chain(logger);
+    let reg = {
+        let android_layer = paranoid_android::layer("mullvad-daemon");
+        reg.with(android_layer)
+    };
+
+    if output_timestamp {
+        let file_formatter = tracing_subscriber::fmt::layer()
+            .with_ansi(false)
+            .with_writer(non_blocking_file_appender);
+        reg.with(
+            stdout_formatter.with_timer(tracing_subscriber::fmt::time::ChronoUtc::new(
+                DATE_TIME_FORMAT_STR.to_string(),
+            )),
+        )
+        .with(
+            file_formatter.with_timer(tracing_subscriber::fmt::time::ChronoUtc::new(
+                DATE_TIME_FORMAT_STR.to_string(),
+            )),
+        )
+        .init();
+    } else {
+        let file_formatter = tracing_subscriber::fmt::layer()
+            .with_ansi(false)
+            .with_writer(non_blocking_file_appender);
+        reg.with(stdout_formatter.without_time())
+            .with(file_formatter.without_time())
+            .init();
     }
-    top_dispatcher.apply().map_err(Error::SetLoggerError)?;
 
     LOG_ENABLED.store(true, Ordering::SeqCst);
 
     Ok(())
 }
 
-fn one_level_quieter(level: log::LevelFilter) -> log::LevelFilter {
-    use log::LevelFilter::*;
+fn get_default_filter(level_filter: LevelFilter) -> EnvFilter {
+    let mut env_filter = EnvFilter::builder().parse("trace").unwrap();
+    for silenced_crate in WARNING_SILENCED_CRATES {
+        env_filter = env_filter.add_directive(format!("{silenced_crate}=error").parse().unwrap());
+    }
+    for silenced_crate in SILENCED_CRATES {
+        env_filter = env_filter.add_directive(format!("{silenced_crate}=warn").parse().unwrap());
+    }
+
+    // NOTE: the levels set here will never be overwritten, since the default filter cannot be
+    // reloaded
+    for silenced_crate in SLIGHTLY_SILENCED_CRATES {
+        env_filter = env_filter.add_directive(
+            format!("{silenced_crate}={}", one_level_quieter(level_filter))
+                .parse()
+                .unwrap(),
+        );
+    }
+    env_filter
+}
+
+fn one_level_quieter(level: LevelFilter) -> LevelFilter {
     match level {
-        Off => Off,
-        Error => Off,
-        Warn => Error,
-        Info => Warn,
-        Debug => Info,
-        Trace => Debug,
+        LevelFilter::OFF => LevelFilter::OFF,
+        LevelFilter::ERROR => LevelFilter::OFF,
+        LevelFilter::WARN => LevelFilter::ERROR,
+        LevelFilter::INFO => LevelFilter::WARN,
+        LevelFilter::DEBUG => LevelFilter::INFO,
+        LevelFilter::TRACE => LevelFilter::DEBUG,
     }
-}
-
-#[derive(Default, Debug)]
-struct Formatter {
-    pub output_timestamp: bool,
-    pub output_color: bool,
-}
-
-impl Formatter {
-    fn get_timetsamp_fmt(&self) -> &str {
-        if self.output_timestamp {
-            DATE_TIME_FORMAT_STR
-        } else {
-            ""
-        }
-    }
-
-    fn get_record_level(&self, level: log::Level) -> Box<dyn fmt::Display> {
-        if self.output_color && cfg!(not(windows)) {
-            Box::new(COLORS.color(level))
-        } else {
-            Box::new(level)
-        }
-    }
-
-    pub fn output_msg(
-        &self,
-        out: fern::FormatCallback<'_>,
-        message: &fmt::Arguments<'_>,
-        record: &log::Record<'_>,
-    ) {
-        let message = escape_newlines(format!("{message}"));
-
-        out.finish(format_args!(
-            "{}[{}][{}] {}",
-            chrono::Local::now().format(self.get_timetsamp_fmt()),
-            record.target(),
-            self.get_record_level(record.level()),
-            message,
-        ))
-    }
-}
-
-#[cfg(not(windows))]
-fn escape_newlines(text: String) -> String {
-    text
-}
-
-#[cfg(windows)]
-fn escape_newlines(text: String) -> String {
-    text.replace('\n', LINE_SEPARATOR)
 }
