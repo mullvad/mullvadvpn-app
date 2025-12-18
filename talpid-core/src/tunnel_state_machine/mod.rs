@@ -502,6 +502,7 @@ impl TunnelStateMachine {
         .unwrap()
     }
 
+    #[tracing::instrument(skip_all, name = "State transition")]
     fn run(mut self, change_listener: impl Sender<TunnelStateTransition> + Send + 'static) {
         use EventConsequence::*;
 
