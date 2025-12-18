@@ -69,17 +69,38 @@ pub fn is_enabled() -> bool {
     LOG_ENABLED.load(Ordering::SeqCst)
 }
 
-pub struct ReloadHandle {
-    handle: Handle<EnvFilter, Registry>,
+pub struct LogHandle {
+    level_filter: Handle<EnvFilter, Registry>,
+    log_stream: LogStreamer,
     _file_appender_guard: non_blocking::WorkerGuard,
 }
 
-impl ReloadHandle {
+#[derive(Clone)]
+struct LogStreamer {
+    tx: tokio::sync::broadcast::Sender<String>,
+    // buffer: String,
+}
+
+impl io::Write for LogStreamer {
+    fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
+        match self.tx.send(String::from_utf8(buf.to_vec()).unwrap()) {
+            Ok(_n) => {}
+            Err(_e) => {}
+        };
+        Ok(buf.len())
+    }
+
+    fn flush(&mut self) -> io::Result<()> {
+        todo!()
+    }
+}
+
+impl LogHandle {
     pub fn set_log_filter(
         &self,
         level_filter: impl AsRef<str>,
     ) -> Result<(), tracing_subscriber::reload::Error> {
-        self.handle
+        self.level_filter
             .modify(|filter| *filter = tracing_subscriber::EnvFilter::new(level_filter))
     }
 }
@@ -88,7 +109,7 @@ pub fn init_logger(
     log_level: log::LevelFilter,
     log_dir: Option<&PathBuf>,
     output_timestamp: bool,
-) -> Result<ReloadHandle, Error> {
+) -> Result<LogHandle, Error> {
     let level_filter = match log_level {
         log::LevelFilter::Off => LevelFilter::OFF,
         log::LevelFilter::Error => LevelFilter::ERROR,
@@ -107,13 +128,20 @@ pub fn init_logger(
     let file_appender = tracing_appender::rolling::never(log_dir.unwrap(), DAEMON_LOG_FILENAME);
     let (non_blocking_file_appender, _file_appender_guard) = non_blocking(file_appender);
 
+    let (tx, _) = tokio::sync::broadcast::channel(128);
+    let log_stream = LogStreamer {
+        tx,
+        // buffer: String::with_capacity(1024),
+    };
+
     let stdout_formatter = tracing_subscriber::fmt::layer()
         .with_ansi(true)
         .with_span_events(FmtSpan::NEW | FmtSpan::CLOSE);
 
     let (user_filter, reload_handle) = tracing_subscriber::reload::Layer::new(env_filter);
-    let reload_handle = ReloadHandle {
-        handle: reload_handle,
+    let reload_handle = LogHandle {
+        level_filter: reload_handle,
+        log_stream: log_stream.clone(),
         _file_appender_guard,
     };
 
@@ -121,10 +149,6 @@ pub fn init_logger(
         .with(user_filter)
         .with(default_filter);
 
-    // This is how you would hot reload the log level, give the handle to the proto server
-    // handle
-    //     .modify(|filter| *filter = EnvFilter::new(LevelFilter::ERROR.to_string()))
-    //     .unwrap();
     if let Some(log_dir) = log_dir {
         rotate_log(&log_dir.join(DAEMON_LOG_FILENAME)).map_err(Error::RotateLog)?;
     }
@@ -133,8 +157,17 @@ pub fn init_logger(
         let file_formatter = tracing_subscriber::fmt::layer()
             .with_ansi(false)
             .with_writer(non_blocking_file_appender);
+        let grpc_formatter = tracing_subscriber::fmt::layer()
+            .with_ansi(true)
+            .with_span_events(FmtSpan::NEW | FmtSpan::CLOSE)
+            .with_writer(std::sync::Mutex::new(log_stream));
         reg.with(
             stdout_formatter.with_timer(tracing_subscriber::fmt::time::ChronoUtc::new(
+                DATE_TIME_FORMAT_STR.to_string(),
+            )),
+        )
+        .with(
+            grpc_formatter.with_timer(tracing_subscriber::fmt::time::ChronoUtc::new(
                 DATE_TIME_FORMAT_STR.to_string(),
             )),
         )
@@ -145,11 +178,16 @@ pub fn init_logger(
         )
         .init();
     } else {
+        let grpc_formatter = tracing_subscriber::fmt::layer()
+            .with_ansi(true)
+            .with_span_events(FmtSpan::NEW | FmtSpan::CLOSE)
+            .with_writer(std::sync::Mutex::new(log_stream));
         let file_formatter = tracing_subscriber::fmt::layer()
             .with_ansi(false)
             .with_writer(non_blocking_file_appender);
         reg.with(stdout_formatter.without_time())
             .with(file_formatter.without_time())
+            .with(grpc_formatter.without_time())
             .init();
     }
 
