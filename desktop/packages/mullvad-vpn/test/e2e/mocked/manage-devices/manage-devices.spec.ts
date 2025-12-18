@@ -23,6 +23,7 @@ let devices = mockDevices;
 
 test.describe('Manage devices view', () => {
   const currentDevice = mockDevices[0];
+  const nonCurrentDevices = mockDevices.filter((device) => device.id !== currentDevice.id);
 
   test.beforeAll(async () => {
     ({ page, util } = await startMockedApp());
@@ -47,8 +48,11 @@ test.describe('Manage devices view', () => {
   });
 
   test('Should display all account devices', async () => {
+    const currentDeviceText = routes.manageDevices.selectors.currentDeviceText();
+    await expect(currentDeviceText).toBeVisible();
+
     const deviceListItems = routes.manageDevices.selectors.deviceListItems();
-    for (const device of devices) {
+    for (const device of nonCurrentDevices) {
       await expect(deviceListItems.filter({ hasText: device.name })).toBeVisible();
     }
   });
@@ -59,7 +63,6 @@ test.describe('Manage devices view', () => {
   });
 
   test('Should be able to delete non-current devices', async () => {
-    const nonCurrentDevices = devices.filter((device) => device.id !== currentDevice.id);
     for (const device of nonCurrentDevices) {
       const deviceItem = routes.manageDevices.selectors.deviceListItem(device.name);
       const removeButton = routes.manageDevices.selectors.removeDeviceButton(device.name);
