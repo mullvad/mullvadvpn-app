@@ -16,6 +16,8 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointOverride
 import net.mullvad.mullvadvpn.lib.endpoint.putApiEndpointConfigurationExtra
+import net.mullvad.mullvadvpn.lib.model.Constraint
+import net.mullvad.mullvadvpn.lib.model.IpVersion
 import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
 import net.mullvad.mullvadvpn.lib.model.QuantumResistantState
 import net.mullvad.mullvadvpn.test.common.constant.DEFAULT_TIMEOUT
@@ -88,6 +90,7 @@ class AppInteractor(
         localNetworkSharing: Boolean? = null,
         daita: Boolean? = null,
         multihop: Boolean? = null,
+        deviceIpVersion: Constraint<IpVersion>? = null,
     ) = coroutineScope {
         try {
             val job = launch {
@@ -103,11 +106,12 @@ class AppInteractor(
                 localNetworkSharing?.let { service.setAllowLan(it) }
                 daita?.let { service.setDaitaEnabled(it) }
                 multihop?.let { service.setMultihop(it) }
+                deviceIpVersion?.let { service.setDeviceIpVersion(deviceIpVersion) }
                 cancel()
             }
             job.join()
         } catch (_: CancellationException) {
-            // Ignore cancel, we are just stopped ManagementService
+            // Ignore cancel, we have just stopped ManagementService
         }
     }
 }
