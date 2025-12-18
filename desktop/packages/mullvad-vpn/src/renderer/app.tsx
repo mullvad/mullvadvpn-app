@@ -833,7 +833,7 @@ export default class AppRenderer {
     const reduxSettings = this.reduxActions.settings;
 
     reduxSettings.updateAllowLan(newSettings.allowLan);
-    reduxSettings.updateEnableIpv6(newSettings.tunnelOptions.generic.enableIpv6);
+    reduxSettings.updateEnableIpv6(newSettings.tunnelOptions.enableIpv6);
     reduxSettings.updateLockdownMode(newSettings.lockdownMode);
     reduxSettings.updateShowBetaReleases(newSettings.showBetaReleases);
     reduxSettings.updateWireguardMtu(newSettings.tunnelOptions.mtu);

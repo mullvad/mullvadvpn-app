@@ -374,9 +374,7 @@ export interface ITunnelOptions {
   mtu?: number;
   quantumResistant: boolean;
   daita?: IDaitaSettings;
-  generic: {
-    enableIpv6: boolean;
-  };
+  enableIpv6: boolean;
   dns: IDnsOptions;
 }
 
