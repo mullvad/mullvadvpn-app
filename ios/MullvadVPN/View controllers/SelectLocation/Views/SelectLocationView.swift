@@ -79,12 +79,10 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                             viewModel: viewModel,
                             context: $viewModel.exitContext,
                             onScrollOffsetChange: {
-                                prevScrollOffset,
-                                scrollOffset in
-                                expandOrCollapseHeader(
-                                    prevScrollOffset: prevScrollOffset,
-                                    scrollOffset: scrollOffset,
-                                    context: .exit)
+                                expandHeader in
+                                withAnimation {
+                                    headerIsExpandedForExit = expandHeader
+                                }
                             }
                         )
                         .transition(
@@ -93,11 +91,11 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                     case .entry:
                         EntryLocationView(
                             viewModel: viewModel,
-                            onScrollOffsetChange: { prevScrollOffset, scrollOffset in
-                                expandOrCollapseHeader(
-                                    prevScrollOffset: prevScrollOffset,
-                                    scrollOffset: scrollOffset,
-                                    context: .entry)
+                            onScrollOffsetChange: {
+                                expandHeader in
+                                withAnimation {
+                                    headerIsExpandedForEntry = expandHeader
+                                }
                             }
                         )
                         .transition(
@@ -182,8 +180,9 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
         context: MultihopContext
     ) {
         let isScrollingDown = prevScrollOffset > scrollOffset
-
+        print(isScrollingDown)
         let correctedOffset = abs(min((scrollOffset - headerHeight + 1), 0))
+        print(correctedOffset)
         if headerIsExpanded && isScrollingDown {
             if correctedOffset > headerHeight {
                 withAnimation {
