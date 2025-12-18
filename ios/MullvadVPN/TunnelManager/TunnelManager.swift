@@ -55,7 +55,7 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
     private let internalQueue = DispatchQueue(label: "TunnelManager.internalQueue")
 
     private var statusObserver: TunnelStatusBlockObserver?
-    private var lastMapConnectionStatusOperation: Operation?
+    private weak var lastMapConnectionStatusOperation: Operation?
     private let observerList = ObserverList<TunnelObserver>()
     private var networkMonitor: NWPathMonitor?
     private let relaySelector: RelaySelectorProtocol
