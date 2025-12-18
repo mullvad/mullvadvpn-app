@@ -53,7 +53,7 @@ runs:
         cache-directories: >-
           ${{ inputs.rust-cache-targets == 'true' && env.CARGO_TARGET_DIR || '' }}
         cache-targets: ${{ inputs.rust-cache-targets }}
-        # `cache-bin` causes `~/.cargo/rustup` to be deleted for self-hosted runners
+        # `cache-bin` causes `~/.cargo/bin/rustup` to be deleted for self-hosted runners
         # See https://github.com/Swatinem/rust-cache/issues/16
         cache-bin: false
 
