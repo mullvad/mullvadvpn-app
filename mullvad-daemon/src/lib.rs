@@ -758,15 +758,19 @@ impl Daemon {
             settings_event_listener.notify_settings(settings.to_owned());
         });
 
-        let (relay_list, bridge_list, etag) = parse_relays_from_file(
-            &config.cache_dir,
-            &config.resource_dir,
-            settings.relay_overrides.clone(),
-        )
-        .inspect_err(|err| log::error!("{err}"))
-        .unwrap_or_default();
+        let (initial_relay_list, initial_bridge_list, etag) =
+            parse_relays_from_file(&config.cache_dir, &config.resource_dir)
+                .inspect_err(|err| log::error!("{err}"))
+                .unwrap_or_default();
+        // TODO: This should preferably be done once, by the relay list updater.
+        let initial_relay_list =
+            initial_relay_list.apply_overrides(settings.relay_overrides.clone());
         let initial_selector_config = SelectorConfig::from_settings(&settings);
-        let relay_selector = RelaySelector::new(initial_selector_config, relay_list, bridge_list);
+        let relay_selector = RelaySelector::new(
+            initial_selector_config,
+            initial_relay_list.clone(),
+            initial_bridge_list.clone(),
+        );
 
         let encrypted_dns_proxy_cache = EncryptedDnsProxyState::default();
         let method_resolver = DaemonAccessMethodResolver::new(

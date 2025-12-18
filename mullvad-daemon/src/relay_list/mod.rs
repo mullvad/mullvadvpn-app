@@ -79,7 +79,13 @@ pub(crate) struct RelayListUpdater {
     last_check: SystemTime,
     api_availability: ApiAvailability,
     etag: Option<ETag>,
+    // Keep tabs on the up-to-date relay list.
+    // Use [RelayListUpdater::get_final_relay_list] when exposing the relay list to other parts of
+    // the app.
+    relay_list: RelayList,
+    bridge_list: BridgeList,
     overrides: Vec<RelayOverride>,
+    // The relay selector will only ever see the relay list with IP overrides applied.
     relay_selector: RelaySelector,
 }
 
@@ -104,6 +110,8 @@ impl RelayListUpdater {
             etag,
             overrides,
             api_availability,
+            relay_list: RelayList::empty(),
+            bridge_list: BridgeList::empty(),
         };
 
         tokio::spawn(updater.run(cmd_rx));
@@ -139,9 +147,7 @@ impl RelayListUpdater {
                         },
                         Some(Event::Override(overrides)) => {
                             self.overrides = overrides;
-                            let relay_list = self.relay_selector.get_relays();
-                            let bridge_list = self.relay_selector.get_bridges();
-                            self.update_relay_selector(relay_list, bridge_list);
+                            self.update_relay_selector();
                         }
                         None => {
                             log::trace!("Relay list updater shutting down");
@@ -217,13 +223,15 @@ impl RelayListUpdater {
         self.etag = new_relay_list.etag().cloned();
         // Propagate the new relay list to the relay selector
         let (relay_list, bridge_list) = new_relay_list.into_internal_repr();
-        self.update_relay_selector(relay_list, bridge_list);
+        self.relay_list = relay_list;
+        self.bridge_list = bridge_list;
+        self.update_relay_selector();
     }
 
     /// Update the relay selector state, applying IP overrides.
-    fn update_relay_selector(&mut self, relay_list: RelayList, bridge_list: BridgeList) {
-        // Apply overrides
-        let relay_list = relay_list.apply_overrides(self.overrides.clone());
+    fn update_relay_selector(&self) {
+        let relay_list = self.get_final_relay_list();
+        let bridge_list = self.bridge_list.clone();
         // Announce new relay list
         (self.on_update)(&relay_list);
         self.relay_selector.set_relays(relay_list);
@@ -242,5 +250,12 @@ impl RelayListUpdater {
             .await
             .map_err(Error::WriteRelayCache)?;
         Ok(())
+    }
+
+    /// Return a version of the [`RelayList`] where [`RelayOverride`]s have been applied.
+    fn get_final_relay_list(&self) -> RelayList {
+        self.relay_list
+            .clone()
+            .apply_overrides(self.overrides.clone())
     }
 }

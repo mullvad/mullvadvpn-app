@@ -6,7 +6,6 @@ use std::path::Path;
 use std::time::SystemTime;
 
 use mullvad_api::{CachedRelayList, ETag};
-use mullvad_types::relay_constraints::RelayOverride;
 use mullvad_types::relay_list::{BridgeList, RelayList};
 
 use crate::relay_list::RELAYS_FILENAME;
@@ -16,7 +15,6 @@ use crate::relay_list::error::Error;
 pub fn parse_relays_from_file(
     cache_dir: impl AsRef<Path>,
     resource_dir: impl AsRef<Path>,
-    overrides: Vec<RelayOverride>,
 ) -> Result<(RelayList, BridgeList, Option<ETag>), Error> {
     let relay_list = match (
         from_file_inner(cache_dir.as_ref().join(RELAYS_FILENAME)),
@@ -37,8 +35,6 @@ pub fn parse_relays_from_file(
 
     let etag = relay_list.etag().cloned();
     let (relay_list, bridge_list) = relay_list.into_internal_repr();
-    // Apply overrides at this point
-    let relay_list = relay_list.apply_overrides(overrides);
     Ok((relay_list, bridge_list, etag))
 }
 
