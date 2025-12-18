@@ -13,13 +13,13 @@ inputs:
     description: "Token for setup-protoc (defaults to GITHUB_TOKEN)"
     default: "${{ github.token }}"
     required: false
-  rust-cache-targets:
-    description: >-
-      Determines whether workspace `target` directories are cached. If `false`,
-      only the cargo registry will be cached. If `true`, the `target` directories
-      will be cached as well.
-    default: "false"
-    required: false
+  #rust-cache-targets:
+  #  description: >-
+  #    Determines whether workspace `target` directories are cached. If `false`,
+  #    only the cargo registry will be cached. If `true`, the `target` directories
+  #    will be cached as well.
+  #  default: "false"
+  #  required: false
 runs:
   using: "composite"
   steps:
@@ -46,13 +46,13 @@ runs:
           echo "CARGO_TARGET_DIR=$CARGO_TARGET_DIR" >> $GITHUB_ENV
         fi
 
-    - name: Setup Rust cache
-      uses: Swatinem/rust-cache@v2
-      with:
-        add-job-id-key: "false" # Preserve cache across jobs
-        cache-directories: >-
-          ${{ inputs.rust-cache-targets == 'true' && env.CARGO_TARGET_DIR || '' }}
-        cache-targets: ${{ inputs.rust-cache-targets }}
+    #- name: Setup Rust cache
+    #  uses: Swatinem/rust-cache@v2
+    #  with:
+    #    add-job-id-key: "false" # Preserve cache across jobs
+    #    cache-directories: >-
+    #      ${{ inputs.rust-cache-targets == 'true' && env.CARGO_TARGET_DIR || '' }}
+    #    cache-targets: ${{ inputs.rust-cache-targets }}
 
     - name: Install Protoc
       uses: arduino/setup-protoc@v3
