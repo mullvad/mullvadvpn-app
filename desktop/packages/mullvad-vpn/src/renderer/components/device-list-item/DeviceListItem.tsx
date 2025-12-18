@@ -7,7 +7,6 @@ import { Text } from '../../lib/components';
 import { FlexColumn } from '../../lib/components/flex-column';
 import { ListItem, ListItemProps } from '../../lib/components/list-item';
 import { spacings } from '../../lib/foundations';
-import { useBoolean } from '../../lib/utility-hooks';
 import { formatDeviceName } from '../../lib/utils';
 import { DeviceListItemProvider, useDeviceListItemContext } from './';
 import { ConfirmDialog, ErrorDialog, RemoveButton } from './components';
@@ -76,22 +75,8 @@ function DeviceListItemInner({ ...props }: Omit<SettingsToggleListItemProps, 'de
 }
 
 export function DeviceListItem({ device, ...props }: SettingsToggleListItemProps) {
-  const [confirmDialogVisible, showConfirmDialog, hideConfirmDialog] = useBoolean(false);
-  const [error, setError, resetError] = useBoolean(false);
-  const [deleting, setDeleting, resetDeleting] = useBoolean(false);
-
   return (
-    <DeviceListItemProvider
-      device={device}
-      deleting={deleting}
-      setDeleting={setDeleting}
-      resetDeleting={resetDeleting}
-      confirmDialogVisible={confirmDialogVisible}
-      showConfirmDialog={showConfirmDialog}
-      hideConfirmDialog={hideConfirmDialog}
-      error={error}
-      resetError={resetError}
-      setError={setError}>
+    <DeviceListItemProvider device={device}>
       <DeviceListItemInner {...props} />
     </DeviceListItemProvider>
   );
