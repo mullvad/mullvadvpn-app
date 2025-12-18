@@ -91,6 +91,7 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
             rootView: SelectLocationView(
                 viewModel: selectLocationViewModelImpl)
         )
+        hostingController.view.setAccessibilityIdentifier(.selectLocationView)
 
         navigationController.pushViewController(hostingController, animated: false)
     }

@@ -153,7 +153,6 @@ public enum AccessibilityIdentifier: Equatable {
     case outOfTimeView
     case termsOfServiceView
     case selectLocationView
-    case selectLocationViewWrapper
     case selectLocationTableView
     case settingsTableView
     case vpnSettingsTableView
