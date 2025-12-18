@@ -3166,9 +3166,6 @@ msgstr ""
 msgid "New list"
 msgstr ""
 
-msgid "News"
-msgstr ""
-
 msgid "No Android app store installed, could not open link"
 msgstr ""
 
