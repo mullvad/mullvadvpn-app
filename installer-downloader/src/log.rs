@@ -4,7 +4,7 @@ const LOG_FILENAME: &str = "mullvad-loader.log";
 const DATE_TIME_FORMAT_STR: &str = "[%Y-%m-%d %H:%M:%S%.3f]";
 
 pub fn init() {
-    let file_appender = tracing_appender::rolling::never(log_dir.unwrap(), DAEMON_LOG_FILENAME);
+    let file_appender = tracing_appender::rolling::never(std::env::temp_dir(), LOG_FILENAME);
     let (non_blocking_file_appender, _file_appender_guard) =
         tracing_appender::non_blocking(file_appender);
 
