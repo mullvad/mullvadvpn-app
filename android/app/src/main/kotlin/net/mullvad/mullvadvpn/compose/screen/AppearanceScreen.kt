@@ -39,6 +39,7 @@ import net.mullvad.mullvadvpn.compose.util.isTv
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
+import net.mullvad.mullvadvpn.lib.ui.component.SPACE_CHAR
 import net.mullvad.mullvadvpn.lib.ui.component.griditem.AppIconAndTitleGridItem
 import net.mullvad.mullvadvpn.lib.ui.component.text.ScreenDescription
 import net.mullvad.mullvadvpn.lib.ui.designsystem.ListHeader
@@ -164,6 +165,10 @@ private fun Description() {
                 appendLine(stringResource(R.string.appearance_description))
                 appendLine()
                 append(annotatedStringResource(R.string.appearance_description_warning))
+                if(isTv()) {
+                    append(SPACE_CHAR)
+                    append(stringResource(R.string.appearance_description_warning_tv))
+                }
             },
         modifier = Modifier.padding(bottom = Dimens.smallPadding),
     )
