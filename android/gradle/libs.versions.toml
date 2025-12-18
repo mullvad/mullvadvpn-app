@@ -83,7 +83,7 @@ konsist = "0.17.3"
 ktfmt = "0.25.0"
 leakcanary = "2.14"
 
-mockk = "1.14.6"
+mockk = "1.14.7"
 mockwebserver = "5.1.0"
 play-publisher = "3.12.1"
 turbine = "1.2.1"
