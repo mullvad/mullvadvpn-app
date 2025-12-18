@@ -38,8 +38,10 @@ class AppearanceViewModel(private val appObfuscationRepository: AppObfuscationRe
 
     fun setAppObfuscation(appObfuscation: AppObfuscation) {
         viewModelScope.launch {
-            applying.emit(true)
-            appObfuscationRepository.setAppObfuscation(appObfuscation)
+            if (appObfuscation != appObfuscationRepository.currentAppObfuscation.value) {
+                applying.emit(true)
+                appObfuscationRepository.setAppObfuscation(appObfuscation)
+            }
         }
     }
 }

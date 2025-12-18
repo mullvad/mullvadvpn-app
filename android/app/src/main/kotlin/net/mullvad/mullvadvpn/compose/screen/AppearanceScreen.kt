@@ -39,7 +39,7 @@ import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.component.griditem.AppIconAndTitleGridItem
-import net.mullvad.mullvadvpn.lib.ui.component.text.Description
+import net.mullvad.mullvadvpn.lib.ui.component.text.ScreenDescription
 import net.mullvad.mullvadvpn.lib.ui.designsystem.ListHeader
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorMedium
 import net.mullvad.mullvadvpn.repository.AppObfuscation
@@ -152,7 +152,7 @@ private fun LazyGridScope.content(
 
 @Composable
 private fun Description() {
-    Description(
+    ScreenDescription(
         text =
             buildAnnotatedString {
                 appendLine(stringResource(R.string.appearance_description))

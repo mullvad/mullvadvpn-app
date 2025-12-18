@@ -40,7 +40,6 @@ import net.mullvad.mullvadvpn.ui.obfuscation.MainActivityAltNews
 import net.mullvad.mullvadvpn.ui.obfuscation.MainActivityAltNinja
 import net.mullvad.mullvadvpn.ui.obfuscation.MainActivityAltNotes
 import net.mullvad.mullvadvpn.ui.obfuscation.MainActivityAltWeather
-import net.mullvad.mullvadvpn.ui.obfuscation.MainActivityDefault
 import net.mullvad.mullvadvpn.ui.serviceconnection.AppVersionInfoRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.usecase.DeleteCustomDnsUseCase
@@ -144,7 +143,7 @@ val uiModule = module {
 
     single<List<ComponentName>>(named(APP_OBFUSCATION_COMPONENTS_NAME)) {
         listOf(
-            ComponentName(androidContext(), MainActivityDefault::class.java),
+            ComponentName(androidContext(), MainActivity::class.java),
             ComponentName(androidContext(), MainActivityAltGame::class.java),
             ComponentName(androidContext(), MainActivityAltNinja::class.java),
             ComponentName(androidContext(), MainActivityAltBrowser::class.java),

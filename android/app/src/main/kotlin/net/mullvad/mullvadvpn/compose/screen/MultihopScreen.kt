@@ -38,7 +38,7 @@ import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.SwitchListItem
-import net.mullvad.mullvadvpn.lib.ui.component.text.Description
+import net.mullvad.mullvadvpn.lib.ui.component.text.ScreenDescription
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.lib.ui.tag.MULTIHOP_SCREEN_TEST_TAG
 import net.mullvad.mullvadvpn.util.Lc
@@ -137,7 +137,7 @@ private fun ColumnScope.MultihopContent(
 
 @Composable
 private fun Description() {
-    Description(
+    ScreenDescription(
         modifier = Modifier.padding(vertical = Dimens.mediumPadding),
         text = stringResource(R.string.multihop_description),
     )

@@ -43,7 +43,7 @@ import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.InfoListItem
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.ObfuscationModeListItem
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.SelectableListItem
-import net.mullvad.mullvadvpn.lib.ui.component.text.Description
+import net.mullvad.mullvadvpn.lib.ui.component.text.ScreenDescription
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Hierarchy
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
@@ -153,8 +153,8 @@ private fun LazyListScope.content(
 ) {
     item {
         Column {
-            Description(stringResource(R.string.anti_censorship_info_first_paragraph) + "\n")
-            Description(
+            ScreenDescription(stringResource(R.string.anti_censorship_info_first_paragraph) + "\n")
+            ScreenDescription(
                 annotatedStringResource(R.string.anti_censorship_info_second_paragraph),
                 modifier = Modifier.padding(bottom = Dimens.mediumPadding),
             )

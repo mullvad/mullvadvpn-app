@@ -8,7 +8,7 @@ import androidx.compose.ui.text.AnnotatedString
 
 /** Text that is used at the top of the screen, it gives information about the screen. */
 @Composable
-fun Description(text: AnnotatedString, modifier: Modifier = Modifier) {
+fun ScreenDescription(text: AnnotatedString, modifier: Modifier = Modifier) {
     Text(
         text = text,
         style = MaterialTheme.typography.labelLarge,
@@ -18,6 +18,6 @@ fun Description(text: AnnotatedString, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun Description(text: String, modifier: Modifier = Modifier) {
-    Description(text = AnnotatedString(text), modifier = modifier)
+fun ScreenDescription(text: String, modifier: Modifier = Modifier) {
+    ScreenDescription(text = AnnotatedString(text), modifier = modifier)
 }

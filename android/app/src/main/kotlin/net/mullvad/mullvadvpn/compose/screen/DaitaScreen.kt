@@ -54,7 +54,7 @@ import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.SwitchListItem
-import net.mullvad.mullvadvpn.lib.ui.component.text.Description
+import net.mullvad.mullvadvpn.lib.ui.component.text.ScreenDescription
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
 import net.mullvad.mullvadvpn.lib.ui.tag.DAITA_SCREEN_TEST_TAG
@@ -218,7 +218,7 @@ private fun DescriptionText(
     secondParagraph: String,
     thirdParagraph: String,
 ) {
-    Description(
+    ScreenDescription(
         modifier =
             Modifier.padding(vertical = Dimens.smallPadding, horizontal = Dimens.sideMarginNew),
         text =

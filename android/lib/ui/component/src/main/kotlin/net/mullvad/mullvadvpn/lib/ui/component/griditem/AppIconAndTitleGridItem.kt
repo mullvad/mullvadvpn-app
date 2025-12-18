@@ -25,6 +25,8 @@ import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.component.R
 import net.mullvad.mullvadvpn.lib.ui.util.applyIfNotNull
 
+private val APP_ICON_SIZE = 80.dp
+
 @Preview
 @Composable
 private fun PreviewAppIconAndTitleGridItem() {
@@ -76,5 +78,3 @@ fun AppIconAndTitleGridItem(
         )
     }
 }
-
-private val APP_ICON_SIZE = 80.dp

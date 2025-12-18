@@ -62,7 +62,7 @@ import net.mullvad.mullvadvpn.lib.theme.color.AlphaVisible
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.IconState
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.SplitTunnelingListItem
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.SwitchListItem
-import net.mullvad.mullvadvpn.lib.ui.component.text.Description
+import net.mullvad.mullvadvpn.lib.ui.component.text.ScreenDescription
 import net.mullvad.mullvadvpn.lib.ui.designsystem.ListHeader
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
@@ -197,7 +197,7 @@ private fun LazyListScope.enabledToggle(
 
 private fun LazyListScope.description() {
     item(key = CommonContentKey.DESCRIPTION, contentType = ContentType.DESCRIPTION) {
-        Description(
+        ScreenDescription(
             text =
                 buildString {
                     appendLine(stringResource(id = R.string.split_tunneling_description))
