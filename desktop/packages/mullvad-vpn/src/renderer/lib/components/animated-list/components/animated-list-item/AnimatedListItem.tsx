@@ -21,7 +21,7 @@ export function AnimatedListItem({ children, ...props }: AnimatedListItemProps) 
       initial="hidden"
       animate="show"
       exit="exit"
-      transition={{ duration: 0.1, ease: 'easeOut' }}
+      transition={{ duration: 0.15, ease: 'easeOut' }}
       {...props}>
       {children}
     </StyledLi>
