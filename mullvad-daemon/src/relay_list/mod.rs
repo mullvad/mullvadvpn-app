@@ -141,10 +141,7 @@ impl RelayListUpdater {
                             self.overrides = overrides;
                             let relay_list = self.relay_selector.get_relays();
                             let bridge_list = self.relay_selector.get_bridges();
-                            if let Err(err) = self.update_relay_selector(relay_list, bridge_list) {
-                                log::trace!("Failed to update relay list");
-                                log::trace!("{err}");
-                            };
+                            self.update_relay_selector(relay_list, bridge_list);
                         }
                         None => {
                             log::trace!("Relay list updater shutting down");
@@ -224,22 +221,18 @@ impl RelayListUpdater {
         self.etag = new_relay_list.etag().cloned();
         // Propagate the new relay list to the relay selector
         let (relay_list, bridge_list) = new_relay_list.into_internal_repr();
-        self.update_relay_selector(relay_list, bridge_list)
+        self.update_relay_selector(relay_list, bridge_list);
+        Ok(())
     }
 
     /// Update the relay selector state, applying IP overrides.
-    fn update_relay_selector(
-        &mut self,
-        relay_list: RelayList,
-        bridge_list: BridgeList,
-    ) -> Result<(), Error> {
+    fn update_relay_selector(&mut self, relay_list: RelayList, bridge_list: BridgeList) {
         // Apply overrides
         let relay_list = relay_list.apply_overrides(self.overrides.clone());
         // Announce new relay list
         (self.on_update)(&relay_list);
         self.relay_selector.set_relays(relay_list);
         self.relay_selector.set_bridges(bridge_list);
-        Ok(())
     }
 
     /// Write a [`CachedRelayList`] to the file at `cache_path`.
