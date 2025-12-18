@@ -44,14 +44,14 @@ pub fn parse_relays_from_file(
 
 fn from_file_inner(path: impl AsRef<Path>) -> Result<(CachedRelayList, SystemTime), Error> {
     log::debug!("Reading relays from {}", path.as_ref().display());
-    let (file, last_modified) = open_file(path.as_ref()).map_err(Error::OpenRelayCache)?;
+    let (file, last_modified) = open_file(path).map_err(Error::OpenRelayCache)?;
     let cached_relay_list =
         serde_json::from_reader(BufReader::new(file)).map_err(Error::Serialize)?;
 
     Ok((cached_relay_list, last_modified))
 }
 
-fn open_file(path: &Path) -> io::Result<(std::fs::File, SystemTime)> {
+fn open_file(path: impl AsRef<Path>) -> io::Result<(std::fs::File, SystemTime)> {
     let file = std::fs::File::open(path)?;
     let last_modified = file.metadata()?.modified()?;
     Ok((file, last_modified))
