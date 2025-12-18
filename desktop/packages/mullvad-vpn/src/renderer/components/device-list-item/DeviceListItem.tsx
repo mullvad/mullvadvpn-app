@@ -1,12 +1,10 @@
 import { sprintf } from 'sprintf-js';
-import styled, { css } from 'styled-components';
 
 import { IDevice } from '../../../shared/daemon-rpc-types';
 import { messages } from '../../../shared/gettext';
 import { Text } from '../../lib/components';
 import { FlexColumn } from '../../lib/components/flex-column';
 import { ListItem, ListItemProps } from '../../lib/components/list-item';
-import { spacings } from '../../lib/foundations';
 import { formatDeviceName } from '../../lib/utils';
 import { DeviceListItemProvider, useDeviceListItemContext } from './';
 import { ConfirmDialog, ErrorDialog, RemoveButton } from './components';
@@ -16,19 +14,6 @@ export type SettingsToggleListItemProps = {
   device: IDevice;
 } & Omit<ListItemProps, 'children'>;
 
-const StyledListItem = styled(ListItem)<{ $isCurrentDevice: boolean }>(
-  ({ $isCurrentDevice }) => css`
-    ${() => {
-      if ($isCurrentDevice) {
-        return css`
-          margin-bottom: ${spacings.medium};
-        `;
-      }
-      return null;
-    }}
-  `,
-);
-
 function DeviceListItemInner({ ...props }: Omit<SettingsToggleListItemProps, 'device'>) {
   const { device, deleting, confirmDialogVisible, error } = useDeviceListItemContext();
   const createdDate = useFormattedDate(device.created);
@@ -36,7 +21,7 @@ function DeviceListItemInner({ ...props }: Omit<SettingsToggleListItemProps, 'de
 
   return (
     <>
-      <StyledListItem disabled={deleting} $isCurrentDevice={isCurrentDevice} {...props}>
+      <ListItem disabled={deleting} {...props}>
         <ListItem.Item>
           <ListItem.Content>
             <FlexColumn>
@@ -67,7 +52,7 @@ function DeviceListItemInner({ ...props }: Omit<SettingsToggleListItemProps, 'de
             </ListItem.Group>
           </ListItem.Content>
         </ListItem.Item>
-      </StyledListItem>
+      </ListItem>
       <ConfirmDialog isOpen={confirmDialogVisible} />
       <ErrorDialog isOpen={error} />
     </>

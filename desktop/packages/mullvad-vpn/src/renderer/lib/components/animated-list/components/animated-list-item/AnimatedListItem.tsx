@@ -1,7 +1,7 @@
-import { motion } from 'motion/react';
+import { HTMLMotionProps, motion } from 'motion/react';
 import styled from 'styled-components';
 
-export type AnimatedListItemProps = React.ComponentPropsWithRef<'li'>;
+export type AnimatedListItemProps = HTMLMotionProps<'li'>;
 
 const StyledLi = styled(motion.li)`
   overflow: hidden;
@@ -13,7 +13,7 @@ const itemVariants = {
   exit: { height: 0 },
 };
 
-export function AnimatedListItem({ children }: AnimatedListItemProps) {
+export function AnimatedListItem({ children, ...props }: AnimatedListItemProps) {
   return (
     <StyledLi
       layout
@@ -21,7 +21,8 @@ export function AnimatedListItem({ children }: AnimatedListItemProps) {
       initial="hidden"
       animate="show"
       exit="exit"
-      transition={{ duration: 0.1, ease: 'easeOut' }}>
+      transition={{ duration: 0.1, ease: 'easeOut' }}
+      {...props}>
       {children}
     </StyledLi>
   );
