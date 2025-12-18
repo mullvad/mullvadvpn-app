@@ -79,12 +79,10 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                             viewModel: viewModel,
                             context: $viewModel.exitContext,
                             onScrollOffsetChange: {
-                                prevScrollOffset,
-                                scrollOffset in
-                                expandOrCollapseHeader(
-                                    prevScrollOffset: prevScrollOffset,
-                                    scrollOffset: scrollOffset,
-                                    context: .exit)
+                                expandHeader in
+                                withAnimation {
+                                    headerIsExpandedForExit = expandHeader
+                                }
                             }
                         )
                         .transition(
@@ -93,11 +91,11 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                     case .entry:
                         EntryLocationView(
                             viewModel: viewModel,
-                            onScrollOffsetChange: { prevScrollOffset, scrollOffset in
-                                expandOrCollapseHeader(
-                                    prevScrollOffset: prevScrollOffset,
-                                    scrollOffset: scrollOffset,
-                                    context: .entry)
+                            onScrollOffsetChange: {
+                                expandHeader in
+                                withAnimation {
+                                    headerIsExpandedForEntry = expandHeader
+                                }
                             }
                         )
                         .transition(
@@ -170,45 +168,6 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                     }
                 }
             )
-        }
-    }
-
-    // Expands when the scroll view is at its top.
-    // Colappses if scroll view scrolls down beyond a certain point.
-    // The dead zone needs to be bigger than the height difference between collapsed and expanded state to avoid false triggering due to the UI frame sizes jumping on collapse/expand
-    private func expandOrCollapseHeader(
-        prevScrollOffset: CGFloat,
-        scrollOffset: CGFloat,
-        context: MultihopContext
-    ) {
-        let isScrollingDown = prevScrollOffset > scrollOffset
-
-        let correctedOffset = abs(min((scrollOffset - headerHeight + 1), 0))
-        if headerIsExpanded && isScrollingDown {
-            if correctedOffset > headerHeight {
-                withAnimation {
-                    switch context {
-                    case .entry:
-                        headerIsExpandedForEntry = false
-                    case .exit:
-                        headerIsExpandedForExit = false
-                    }
-                }
-                return
-            }
-        }
-        if !headerIsExpanded && !isScrollingDown {
-            if correctedOffset == 0 {
-                withAnimation {
-                    switch context {
-                    case .entry:
-                        headerIsExpandedForEntry = true
-                    case .exit:
-                        headerIsExpandedForExit = true
-                    }
-                }
-                return
-            }
         }
     }
 }
