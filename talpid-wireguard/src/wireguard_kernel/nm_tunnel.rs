@@ -48,7 +48,7 @@ impl NetworkManagerTunnel {
         let interface_name = match network_manager.get_interface_name(&tunnel) {
             Ok(name) => name,
             Err(error) => {
-                log::error!("Failed to fetch interface name from NM: {}", error);
+                tracing::error!("Failed to fetch interface name from NM: {}", error);
                 MULLVAD_INTERFACE_NAME.to_string()
             }
         };
@@ -72,7 +72,7 @@ impl Tunnel for NetworkManagerTunnel {
     fn stop(mut self: Box<Self>) -> std::result::Result<(), TunnelError> {
         if let Some(tunnel) = self.tunnel.take() {
             if let Err(err) = self.network_manager.remove_tunnel(tunnel) {
-                log::error!("Failed to remove WireGuard tunnel via NM: {}", err);
+                tracing::error!("Failed to remove WireGuard tunnel via NM: {}", err);
                 Err(TunnelError::StopWireguardError(Box::new(err)))
             } else {
                 Ok(())
@@ -88,7 +88,7 @@ impl Tunnel for NetworkManagerTunnel {
             .get_by_name(self.interface_name.clone())
             .await
             .map_err(|err| {
-                log::error!("Failed to fetch WireGuard device config: {}", err);
+                tracing::error!("Failed to fetch WireGuard device config: {}", err);
                 TunnelError::GetConfigError
             })?;
         Ok(Stats::parse_device_message(&device))
@@ -108,11 +108,11 @@ impl Tunnel for NetworkManagerTunnel {
             }
 
             let index = iface_index(&interface_name).map_err(|err| {
-                log::error!("Failed to fetch WireGuard device index: {}", err);
+                tracing::error!("Failed to fetch WireGuard device index: {}", err);
                 TunnelError::SetConfigError
             })?;
             wg.set_config(index, &config).await.map_err(|err| {
-                log::error!("Failed to apply WireGuard config: {}", err);
+                tracing::error!("Failed to apply WireGuard config: {}", err);
                 TunnelError::SetConfigError
             })
         })

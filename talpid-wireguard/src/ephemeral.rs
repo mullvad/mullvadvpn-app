@@ -121,7 +121,7 @@ async fn config_ephemeral_peers_inner(
 
     let mut daita = exit_ephemeral_peer.daita;
 
-    log::debug!("Retrieved ephemeral peer");
+    tracing::debug!("Retrieved ephemeral peer");
 
     if config.is_multihop() {
         // Set up tunnel to lead to entry
@@ -153,7 +153,7 @@ async fn config_ephemeral_peers_inner(
             config.daita,
         )
         .await?;
-        log::debug!("Successfully exchanged PSK with entry peer");
+        tracing::debug!("Successfully exchanged PSK with entry peer");
 
         config.entry_peer.psk = entry_ephemeral_peer.psk;
         daita = entry_ephemeral_peer.daita;
@@ -162,7 +162,7 @@ async fn config_ephemeral_peers_inner(
     config.exit_peer_mut().psk = exit_ephemeral_peer.psk;
     if config.daita {
         // NOTE: this option does nothing for GotaTun, and should be removed in future.
-        log::trace!("Enabling constant packet size for entry peer");
+        tracing::trace!("Enabling constant packet size for entry peer");
         config.entry_peer.constant_packet_size = true;
     }
 
@@ -270,7 +270,7 @@ async fn request_ephemeral_peer(
     enable_pq: bool,
     enable_daita: bool,
 ) -> std::result::Result<EphemeralPeer, CloseMsg> {
-    log::debug!("Requesting ephemeral peer");
+    tracing::debug!("Requesting ephemeral peer");
 
     let timeout = std::cmp::min(
         MAX_PSK_EXCHANGE_TIMEOUT,
@@ -290,7 +290,7 @@ async fn request_ephemeral_peer(
     )
     .await
     .map_err(|_timeout_err| {
-        log::warn!("Timeout while negotiating ephemeral peer");
+        tracing::warn!("Timeout while negotiating ephemeral peer");
         CloseMsg::EphemeralPeerNegotiationTimeout
     })?
     .map_err(Error::EphemeralPeerNegotiationError)

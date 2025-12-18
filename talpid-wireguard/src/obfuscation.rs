@@ -45,7 +45,7 @@ pub async fn apply_obfuscation_config(
         config.fwmark,
     );
 
-    log::trace!("Obfuscation settings: {settings:?}");
+    tracing::trace!("Obfuscation settings: {settings:?}");
 
     let obfuscator = create_obfuscator(&settings)
         .await
@@ -64,7 +64,7 @@ pub async fn apply_obfuscation_config(
                 let _ = close_msg_sender.send(CloseMsg::ObfuscatorExpired);
             }
             Err(error) => {
-                log::error!(
+                tracing::error!(
                     "{}",
                     error.display_chain_with_msg("Obfuscation controller failed")
                 );
@@ -82,7 +82,7 @@ pub async fn apply_obfuscation_config(
 
 /// Patch the first peer in the WireGuard configuration to use the local proxy endpoint
 fn patch_endpoint(config: &mut Config, endpoint: SocketAddr) {
-    log::trace!("Patching first WireGuard peer to become {endpoint}");
+    tracing::trace!("Patching first WireGuard peer to become {endpoint}");
     config.entry_peer.endpoint = endpoint;
 }
 

@@ -20,7 +20,7 @@ pub fn parse_ip_addr(bytes: &[u8]) -> Result<IpAddr, DecodeError> {
         ipv6_bytes.copy_from_slice(bytes);
         Ok(IpAddr::from(ipv6_bytes))
     } else {
-        log::error!("Expected either 4 or 16 bytes, got {} bytes", bytes.len());
+        tracing::error!("Expected either 4 or 16 bytes, got {} bytes", bytes.len());
         Err(format!("Invalid bytes for IP address: {bytes:?}").into())
     }
 }

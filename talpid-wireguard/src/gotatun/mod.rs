@@ -186,10 +186,10 @@ pub async fn open_gotatun_tunnel(
     #[cfg(target_os = "android")] route_manager_handle: talpid_routing::RouteManagerHandle,
     #[cfg(target_os = "android")] gateway_only: bool,
 ) -> super::Result<GotaTun> {
-    log::info!("GotaTun::start_tunnel");
+    tracing::info!("GotaTun::start_tunnel");
     let routes = config.get_tunnel_destinations();
 
-    log::trace!("calling get_tunnel_for_userspace");
+    tracing::trace!("calling get_tunnel_for_userspace");
     #[cfg(not(target_os = "android"))]
     let async_tun = {
         let tun = get_tunnel_for_userspace(tun_provider, config, routes)?;
@@ -249,7 +249,7 @@ pub async fn open_gotatun_tunnel(
         false => config,
     };
 
-    log::trace!("passing tunnel dev to gotatun");
+    tracing::trace!("passing tunnel dev to gotatun");
     let gotatun = GotaTun::new(
         async_tun,
         #[cfg(target_os = "android")]
@@ -258,9 +258,9 @@ pub async fn open_gotatun_tunnel(
         interface_name,
     )
     .await
-    .inspect_err(|e| log::error!("Failed to open GotaTun: {e:?}"))?;
+    .inspect_err(|e| tracing::error!("Failed to open GotaTun: {e:?}"))?;
 
-    log::info!(
+    tracing::info!(
         r#"This tunnel was brought to you by...
            _______   _ __       ______
           / ____(_)_(_) /_____ /_  __/_  ______
@@ -382,7 +382,7 @@ async fn configure_devices(
     daita: Option<&DaitaSettings>,
 ) -> Result<(), TunnelError> {
     if let Some(exit_peer) = &config.exit_peer {
-        log::trace!(
+        tracing::trace!(
             "configuring gotatun multihop device (daita={})",
             daita.is_some()
         );
@@ -408,7 +408,7 @@ async fn configure_devices(
             daita,
         );
         entry_api.send(set_cmd).await.map_err(|err| {
-            log::error!("Failed to set gotatun config: {err:#}");
+            tracing::error!("Failed to set gotatun config: {err:#}");
             TunnelError::SetConfigError
         })?;
 
@@ -420,11 +420,11 @@ async fn configure_devices(
             None, // exit peer never has daita
         );
         exit_api.send(set_cmd).await.map_err(|err| {
-            log::error!("Failed to set gotatun config: {err:#}");
+            tracing::error!("Failed to set gotatun config: {err:#}");
             TunnelError::SetConfigError
         })?;
     } else {
-        log::trace!(
+        tracing::trace!(
             "configuring gotatun singlehop device (daita={})",
             daita.is_some()
         );
@@ -445,7 +445,7 @@ async fn configure_devices(
             daita,
         );
         api.send(set_cmd).await.map_err(|err| {
-            log::error!("Failed to set gotatun config: {err:#}");
+            tracing::error!("Failed to set gotatun config: {err:#}");
             TunnelError::SetConfigError
         })?;
     }
