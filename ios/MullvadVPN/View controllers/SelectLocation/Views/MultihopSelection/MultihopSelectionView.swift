@@ -164,7 +164,6 @@ struct MultihopSelectionView: View {
         }
         .geometryGroup()
         .animation(.default, value: hops.count)
-        .animation(.default, value: isExpanded)
     }
 }
 
