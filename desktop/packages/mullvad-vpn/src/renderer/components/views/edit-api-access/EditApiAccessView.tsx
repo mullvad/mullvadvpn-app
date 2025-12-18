@@ -19,7 +19,7 @@ import { useLastDefinedValue } from '../../../lib/utility-hooks';
 import { useSelector } from '../../../redux/store';
 import { AppNavigationHeader } from '../../app-navigation-header';
 import { SettingsForm } from '../../cell/SettingsForm';
-import { BackAction } from '../../KeyboardNavigation';
+import { BackAction } from '../../keyboard-navigation';
 import { ModalAlert, ModalAlertType } from '../../Modal';
 import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';

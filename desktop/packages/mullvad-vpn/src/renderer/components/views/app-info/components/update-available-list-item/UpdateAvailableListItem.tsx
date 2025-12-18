@@ -1,11 +1,11 @@
 import styled from 'styled-components';
 
 import { messages } from '../../../../../../shared/gettext';
-import { useIsPlatformLinux } from '../../../../../hooks';
 import { Flex, Icon } from '../../../../../lib/components';
 import { Dot } from '../../../../../lib/components/dot';
 import { ListItem } from '../../../../../lib/components/list-item';
 import { useVersionSuggestedUpgrade } from '../../../../../redux/hooks';
+import { isPlatform } from '../../../../../utils';
 import { useHandleClick } from './hooks';
 
 const StyledText = styled(ListItem.Text)`
@@ -15,7 +15,7 @@ const StyledText = styled(ListItem.Text)`
 export function UpdateAvailableListItem() {
   const { suggestedUpgrade } = useVersionSuggestedUpgrade();
 
-  const isLinux = useIsPlatformLinux();
+  const isLinux = isPlatform('linux');
   const handleClick = useHandleClick();
 
   return (

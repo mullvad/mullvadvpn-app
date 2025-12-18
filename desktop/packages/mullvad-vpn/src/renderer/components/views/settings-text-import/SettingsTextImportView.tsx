@@ -11,7 +11,7 @@ import { useCombinedRefs, useRefCallback, useStyledRef } from '../../../lib/util
 import settingsImportActions from '../../../redux/settings-import/actions';
 import { useSelector } from '../../../redux/store';
 import { AppNavigationHeader } from '../..';
-import { BackAction } from '../../KeyboardNavigation';
+import { BackAction } from '../../keyboard-navigation';
 
 const StyledTextArea = styled.textarea({
   width: '100%',

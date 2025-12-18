@@ -25,7 +25,7 @@ import {
   ContextMenuTrigger,
 } from '../../ContextMenu';
 import InfoButton from '../../InfoButton';
-import { BackAction } from '../../KeyboardNavigation';
+import { BackAction } from '../../keyboard-navigation';
 import { ModalAlert, ModalAlertType } from '../../Modal';
 import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';

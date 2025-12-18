@@ -5,7 +5,6 @@ export * from './useHasAppUpgradeEvent';
 export * from './useHasAppUpgradeInitiated';
 export * from './useHasAppUpgradeVerifiedInstallerPath';
 export * from './useIsDefaultActiveElementAfterMount';
-export * from './useIsPlatformLinux';
 export * from './useMeasure';
 export * from './useScrollToReference';
 export * from './useScrollToListItem';

@@ -5,7 +5,7 @@ import { useHistory } from '../../../lib/history';
 import { useVersionCurrent } from '../../../redux/hooks';
 import { AppNavigationHeader } from '../../';
 import { ChangelogList } from '../../changelog-list';
-import { BackAction } from '../../KeyboardNavigation';
+import { BackAction } from '../../keyboard-navigation';
 import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
 import { NoChangelogUpdates } from './components';

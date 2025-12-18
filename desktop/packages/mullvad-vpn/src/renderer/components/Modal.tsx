@@ -11,7 +11,7 @@ import { useEffectEvent } from '../lib/utility-hooks';
 import { ButtonGroup } from './ButtonGroup';
 import { measurements, normalText, tinyText } from './common-styles';
 import CustomScrollbars from './CustomScrollbars';
-import { BackAction } from './KeyboardNavigation';
+import { BackAction } from './keyboard-navigation';
 
 const MODAL_CONTAINER_ID = 'modal-container';
 

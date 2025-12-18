@@ -3,7 +3,7 @@ import { usePop } from '../../../history/hooks';
 import { FlexColumn } from '../../../lib/components/flex-column';
 import { View } from '../../../lib/components/view';
 import { AppNavigationHeader } from '../../';
-import { BackAction } from '../../KeyboardNavigation';
+import { BackAction } from '../../keyboard-navigation';
 import { SettingsNavigationScrollbars } from '../../Layout';
 import { NavigationContainer } from '../../NavigationContainer';
 import {
