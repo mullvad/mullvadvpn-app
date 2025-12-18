@@ -1,4 +1,6 @@
 <!-- mobsf-ignore: android_task_hijacking2 -->
+<!-- This is added due to requiring launchMode="singleInstance" on activity aliases,
+  but launchMode does nothing on activity aliases -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -86,7 +88,6 @@
         </activity>
         <!-- Alternative icons names -->
         <!-- Game -->
-        <!-- mobsf-ignore: android_task_hijacking2 -->
         <activity-alias
             android:name="net.mullvad.mullvadvpn.ui.obfuscation.MainActivityAltGame"
             android:enabled="false"
@@ -109,7 +110,6 @@
             </intent-filter>
         </activity-alias>
         <!-- Weather -->
-        <!-- mobsf-ignore: android_task_hijacking2 -->
         <activity-alias
             android:name="net.mullvad.mullvadvpn.ui.obfuscation.MainActivityAltWeather"
             android:enabled="false"
@@ -132,7 +132,6 @@
             </intent-filter>
         </activity-alias>
         <!-- News -->
-        <!-- mobsf-ignore: android_task_hijacking2 -->
         <activity-alias
             android:name="net.mullvad.mullvadvpn.ui.obfuscation.MainActivityAltNews"
             android:enabled="false"
@@ -155,7 +154,6 @@
             </intent-filter>
         </activity-alias>
         <!-- Browser -->
-        <!-- mobsf-ignore: android_task_hijacking2 -->
         <activity-alias
             android:name="net.mullvad.mullvadvpn.ui.obfuscation.MainActivityAltBrowser"
             android:enabled="false"
@@ -178,7 +176,6 @@
             </intent-filter>
         </activity-alias>
         <!-- Notes -->
-        <!-- mobsf-ignore: android_task_hijacking2 -->
         <activity-alias
             android:name="net.mullvad.mullvadvpn.ui.obfuscation.MainActivityAltNotes"
             android:enabled="false"
@@ -201,7 +198,6 @@
             </intent-filter>
         </activity-alias>
         <!-- Ninja -->
-        <!-- mobsf-ignore: android_task_hijacking2 -->
         <activity-alias
             android:name="net.mullvad.mullvadvpn.ui.obfuscation.MainActivityAltNinja"
             android:enabled="false"
@@ -224,7 +220,6 @@
             </intent-filter>
         </activity-alias>
         <!-- Browser night -->
-        <!-- mobsf-ignore: android_task_hijacking2 -->
         <activity-alias
             android:name="net.mullvad.mullvadvpn.ui.obfuscation.MainActivityAltBrowserNight"
             android:enabled="false"
