@@ -111,7 +111,7 @@ pub fn init_logger(
     log_level: log::LevelFilter,
     log_dir: Option<&PathBuf>,
     output_timestamp: bool,
-) -> Result<ReloadHandle, Error> {
+) -> Result<LogHandle, Error> {
     let level_filter = match log_level {
         log::LevelFilter::Off => LevelFilter::OFF,
         log::LevelFilter::Error => LevelFilter::ERROR,
@@ -145,10 +145,6 @@ pub fn init_logger(
         .with_ansi(true)
         .with_span_events(FmtSpan::NEW | FmtSpan::CLOSE);
 
-    // This is how you would hot reload the log level, give the handle to the proto server
-    // handle
-    //     .modify(|filter| *filter = EnvFilter::new(LevelFilter::ERROR.to_string()))
-    //     .unwrap();
     if let Some(log_dir) = log_dir {
         rotate_log(&log_dir.join(DAEMON_LOG_FILENAME)).map_err(Error::RotateLog)?;
     }
@@ -163,8 +159,17 @@ pub fn init_logger(
         let file_formatter = tracing_subscriber::fmt::layer()
             .with_ansi(false)
             .with_writer(non_blocking_file_appender);
+        let grpc_formatter = tracing_subscriber::fmt::layer()
+            .with_ansi(true)
+            .with_span_events(FmtSpan::NEW | FmtSpan::CLOSE)
+            .with_writer(std::sync::Mutex::new(log_stream));
         reg.with(
             stdout_formatter.with_timer(tracing_subscriber::fmt::time::ChronoUtc::new(
+                DATE_TIME_FORMAT_STR.to_string(),
+            )),
+        )
+        .with(
+            grpc_formatter.with_timer(tracing_subscriber::fmt::time::ChronoUtc::new(
                 DATE_TIME_FORMAT_STR.to_string(),
             )),
         )
@@ -175,11 +180,16 @@ pub fn init_logger(
         )
         .init();
     } else {
+        let grpc_formatter = tracing_subscriber::fmt::layer()
+            .with_ansi(true)
+            .with_span_events(FmtSpan::NEW | FmtSpan::CLOSE)
+            .with_writer(std::sync::Mutex::new(log_stream));
         let file_formatter = tracing_subscriber::fmt::layer()
             .with_ansi(false)
             .with_writer(non_blocking_file_appender);
         reg.with(stdout_formatter.without_time())
             .with(file_formatter.without_time())
+            .with(grpc_formatter.without_time())
             .init();
     }
 
