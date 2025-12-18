@@ -4,6 +4,8 @@ use futures::{Future, TryStreamExt, future, stream::FuturesUnordered};
 use surge_ping::{Client, Config, PingIdentifier, PingSequence, SurgeError};
 use talpid_tunnel::{ICMP_HEADER_SIZE, IPV4_HEADER_SIZE, MIN_IPV4_MTU};
 use tokio_stream::StreamExt;
+use tracing::debug_span;
+use tracing_futures::Instrument;
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
@@ -47,6 +49,7 @@ pub async fn automatic_mtu_correction(
     current_tunnel_mtu: u16,
     #[cfg(windows)] ipv6: bool,
 ) -> Result<(), Error> {
+    let span = debug_span!("MTU Detection");
     log::debug!("Starting MTU detection");
     let verified_mtu = detect_mtu(
         gateway,
@@ -54,6 +57,7 @@ pub async fn automatic_mtu_correction(
         iface_name.clone(),
         current_tunnel_mtu,
     )
+    .instrument(span)
     .await?;
 
     if verified_mtu != current_tunnel_mtu {
@@ -138,13 +142,14 @@ async fn detect_mtu(
             // Return a future that sends a ping of size MTU, receives the result, and returns the
             // validated MTU
             async move {
-                log::trace!("Sending ICMP ping of total size {mtu}");
+                tracing::trace!(name: "Sending ICMP ping", mtu);
                 let (packet, _duration) = client
                     .pinger(IpAddr::V4(gateway), PingIdentifier(0))
                     .await
                     .timeout(PING_TIMEOUT)
                     .ping(PingSequence(sequence as u16), payload)
-                    .await?;
+                    .await
+                    .inspect_err(|_e| tracing::trace!("Never got back response"))?;
 
                 // Validate the received ping response
                 {
@@ -154,7 +159,7 @@ async fn detect_mtu(
                     let size = u16::try_from(packet.get_size())
                         .expect("ICMP packet size should fit in u16")
                         + IPV4_HEADER_SIZE;
-                    log::trace!("Got ICMP ping response of total size {size}");
+                    tracing::trace!("Got response {}", size);
                     debug_assert_eq!(
                         size, mtu,
                         "Ping response should be of identical size to request"

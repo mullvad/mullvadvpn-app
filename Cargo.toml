@@ -146,6 +146,7 @@ thiserror = "2.0"
 anyhow = "1.0"
 log = "0.4"
 tracing = "0.1.40"
+tracing-futures = "0.2.5"
 
 # Shadowsocks
 shadowsocks = "1.23.2"

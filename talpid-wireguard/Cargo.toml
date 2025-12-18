@@ -15,6 +15,7 @@ wireguard-go = ["dep:wireguard-go-rs", "talpid-tunnel/wireguard-go", "dep:chrono
 multihop-pcap = ["gotatun/pcap"]
 
 [dependencies]
+
 async-trait = "0.1"
 thiserror = { workspace = true }
 futures = { workspace = true }
