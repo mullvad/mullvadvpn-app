@@ -16,12 +16,12 @@ ndk = "27.3.13750724"
 # Find the relevant AAPT version here:
 # https://mvnrepository.com/artifact/com.android.tools.build/aapt2
 
-android-gradle-plugin = "8.13.1"
-android-gradle-aapt = "13719691"
+android-gradle-plugin = "8.13.2"
+android-gradle-aapt = "14304508"
 android-billingclient = "8.0.0"
 
 # AndroidX
-androidx-activitycompose = "1.12.1"
+androidx-activitycompose = "1.12.2"
 androidx-appcompat = "1.7.1"
 androidx-ktx = "1.17.0"
 androidx-credentials = "1.5.0"
@@ -37,7 +37,7 @@ androidx-uiautomator = "2.4.0-alpha07"
 androidx-tv = "1.0.1"
 
 # Arrow
-arrow = "2.2.0"
+arrow = "2.2.1.1"
 
 # Compose
 compose = "1.10.0"
@@ -65,14 +65,14 @@ ktor = "3.3.3"
 # Kotlin
 # Bump kotlin and kotlin-ksp together, find matching release here:
 # https://github.com/google/ksp/releases
-kotlin = "2.2.21"
-kotlin-ksp = "2.3.0"
+kotlin = "2.3.0"
+kotlin-ksp = "2.3.4"
 kotlinx = "1.10.2"
 kotlinx-serialization-json = "1.9.0"
 
 # Protobuf
 protobuf-gradle-plugin = "0.9.5"
-protobuf = "4.33.1"
+protobuf = "4.33.2"
 
 # Misc
 commonsvalidator = "1.10.1"
@@ -83,7 +83,7 @@ konsist = "0.17.3"
 ktfmt = "0.25.0"
 leakcanary = "2.14"
 
-mockk = "1.14.6"
+mockk = "1.14.7"
 mockwebserver = "5.1.0"
 play-publisher = "3.12.1"
 turbine = "1.2.1"

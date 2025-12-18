@@ -50,7 +50,7 @@ fun CharSequence.toAnnotatedString(): AnnotatedString =
     if (this is Spanned) {
         buildAnnotatedString {
             append(this@toAnnotatedString.toString())
-            val spans = getSpans(0, length, Object::class.java)
+            val spans = getSpans(0, length, Any::class.java)
 
             spans.forEach { span ->
                 val start = getSpanStart(span)
