@@ -47,6 +47,7 @@ struct ManagementServiceImpl {
     daemon_tx: DaemonCommandSender,
     subscriptions: Arc<Mutex<Vec<EventsListenerSender>>>,
     pub app_upgrade_broadcast: AppUpgradeBroadcast,
+    log_reload_handle: crate::logging::ReloadHandle,
 }
 
 pub type ServiceResult<T> = std::result::Result<Response<T>, Status>;
@@ -1259,6 +1260,15 @@ impl ManagementService for ManagementServiceImpl {
         self.wait_for_result(rx).await??;
         Ok(Response::new(()))
     }
+
+    async fn set_log_settings(&self, request: Request<types::LogSettings>) -> ServiceResult<()> {
+        let log_filter = types::log_settings::LogLevel::try_from(request.into_inner().level)
+            .map_err(|error| Status::invalid_argument(error.to_string()))?;
+        self.log_reload_handle
+            .set_log_filter(log_filter.as_str_name())
+            .map_err(|error| Status::invalid_argument(error.to_string()))?;
+        Ok(Response::new(()))
+    }
 }
 
 #[allow(clippy::result_large_err)]
@@ -1293,6 +1303,7 @@ impl ManagementInterfaceServer {
         daemon_tx: DaemonCommandSender,
         rpc_socket_path: PathBuf,
         app_upgrade_broadcast: tokio::sync::broadcast::Sender<version::AppUpgradeEvent>,
+        log_reload_handle: crate::logging::ReloadHandle,
     ) -> Result<ManagementInterfaceServer, Error> {
         let subscriptions = Arc::<Mutex<Vec<EventsListenerSender>>>::default();
 
@@ -1305,6 +1316,7 @@ impl ManagementInterfaceServer {
             daemon_tx,
             subscriptions: subscriptions.clone(),
             app_upgrade_broadcast,
+            log_reload_handle,
         };
         let rpc_server_join_handle = mullvad_management_interface::spawn_rpc_server(
             server,

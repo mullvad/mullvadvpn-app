@@ -691,12 +691,14 @@ pub struct DaemonConfig {
     pub endpoint: ApiEndpoint,
     #[cfg(target_os = "android")]
     pub android_context: AndroidContext,
+    pub log_reload_handle: logging::ReloadHandle,
 }
 
 impl Daemon {
     pub async fn start(
         config: DaemonConfig,
         daemon_command_channel: DaemonCommandChannel,
+        #[cfg(target_os = "android")] android_context: AndroidContext,
     ) -> Result<Self, Error> {
         #[cfg(target_os = "macos")]
         macos::bump_filehandle_limit();
@@ -707,6 +709,7 @@ impl Daemon {
             command_sender,
             config.rpc_socket_path,
             app_upgrade_broadcast.clone(),
+            config.log_reload_handle,
         )
         .map_err(Error::ManagementInterfaceError)?;
 

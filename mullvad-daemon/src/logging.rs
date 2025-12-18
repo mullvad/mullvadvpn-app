@@ -6,8 +6,8 @@ use std::{
 use talpid_core::logging::rotate_log;
 use tracing_appender::non_blocking;
 use tracing_subscriber::{
-    self, filter::LevelFilter, fmt::format::FmtSpan, layer::SubscriberExt, util::SubscriberInitExt,
-    EnvFilter,
+    self, filter::LevelFilter, fmt::format::FmtSpan, layer::SubscriberExt, reload::Handle,
+    util::SubscriberInitExt, EnvFilter, Registry,
 };
 
 #[derive(thiserror::Error, Debug)]
@@ -69,15 +69,26 @@ pub fn is_enabled() -> bool {
     LOG_ENABLED.load(Ordering::SeqCst)
 }
 
-pub struct LogHandle {
+pub struct ReloadHandle {
+    handle: Handle<EnvFilter, Registry>,
     _file_appender_guard: non_blocking::WorkerGuard,
+}
+
+impl ReloadHandle {
+    pub fn set_log_filter(
+        &self,
+        level_filter: impl AsRef<str>,
+    ) -> Result<(), tracing_subscriber::reload::Error> {
+        self.handle
+            .modify(|filter| *filter = tracing_subscriber::EnvFilter::new(level_filter))
+    }
 }
 
 pub fn init_logger(
     log_level: log::LevelFilter,
     log_dir: Option<&PathBuf>,
     output_timestamp: bool,
-) -> Result<(), Error> {
+) -> Result<ReloadHandle, Error> {
     let level_filter = match log_level {
         log::LevelFilter::Off => LevelFilter::OFF,
         log::LevelFilter::Error => LevelFilter::ERROR,
@@ -100,7 +111,11 @@ pub fn init_logger(
         .with_ansi(true)
         .with_span_events(FmtSpan::NEW | FmtSpan::CLOSE);
 
-    let (user_filter, handle) = tracing_subscriber::reload::Layer::new(env_filter);
+    let (user_filter, reload_handle) = tracing_subscriber::reload::Layer::new(env_filter);
+    let reload_handle = ReloadHandle {
+        handle: reload_handle,
+        _file_appender_guard,
+    };
 
     let reg = tracing_subscriber::registry()
         .with(user_filter)
@@ -149,7 +164,7 @@ pub fn init_logger(
 
     LOG_ENABLED.store(true, Ordering::SeqCst);
 
-    Ok(())
+    Ok(reload_handle)
 }
 
 fn get_default_filter(level_filter: LevelFilter) -> EnvFilter {
