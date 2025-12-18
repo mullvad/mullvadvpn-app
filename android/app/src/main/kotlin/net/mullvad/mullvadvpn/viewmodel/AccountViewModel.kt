@@ -65,6 +65,7 @@ class AccountViewModel(
 
     init {
         verifyPurchases()
+        fetchPaymentAvailability()
     }
 
     private fun accountData(): Flow<AccountData?> =
@@ -103,6 +104,10 @@ class AccountViewModel(
                 updateAccountExpiry()
             }
         }
+    }
+
+    private fun fetchPaymentAvailability() {
+        viewModelScope.launch { paymentUseCase.queryPaymentAvailability() }
     }
 
     sealed class UiSideEffect {
