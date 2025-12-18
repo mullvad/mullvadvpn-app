@@ -117,8 +117,8 @@ pub struct SplitTunnel {
 }
 
 enum SplitTunnelState {
-    Active(ActiveSplitTunnelState),
-    Inactive(InactiveSplitTunnelState),
+    Initialized(InitializedSplitTunnelState),
+    Failed(FailedSplitTunnelState),
 }
 
 impl SplitTunnel {
@@ -133,20 +133,20 @@ impl SplitTunnel {
         route_manager: RouteManagerHandle,
         initial_paths: &[T],
     ) -> Self {
-        let state = ActiveSplitTunnelState::new(
+        let state = InitializedSplitTunnelState::new(
             runtime,
             resource_dir,
             daemon_tx,
             volume_update_rx,
             route_manager,
         )
-        .map(SplitTunnelState::Active)
+        .map(SplitTunnelState::Initialized)
         .unwrap_or_else(|err| {
             log::error!(
                 "{}",
                 err.display_chain_with_msg("Failed to initialize split tunneling")
             );
-            SplitTunnelState::Inactive(InactiveSplitTunnelState::new())
+            SplitTunnelState::Failed(FailedSplitTunnelState::new())
         });
 
         let mut split_tunnel = Self { state };
@@ -160,10 +160,12 @@ impl SplitTunnel {
                 error.display_chain_with_msg("Failed to set initial split tunnel paths")
             );
             // This will deinitialize split tunneling
-            split_tunnel.state = SplitTunnelState::Inactive(InactiveSplitTunnelState::new());
+            // TODO: We may want to make it possible to retry initialization instead of
+            //       failing permanently.
+            split_tunnel.state = SplitTunnelState::Failed(FailedSplitTunnelState::new());
             split_tunnel
                 .set_paths_sync(initial_paths)
-                .expect("inactive tunnel cannot fail without VPN addrs set");
+                .expect("failed tunnel cannot fail without VPN addrs set");
         }
 
         split_tunnel
@@ -176,16 +178,16 @@ impl SplitTunnel {
         result_tx: oneshot::Sender<Result<(), Error>>,
     ) {
         match &mut self.state {
-            SplitTunnelState::Active(state) => state.set_paths(paths, result_tx),
-            SplitTunnelState::Inactive(state) => state.set_paths(paths, result_tx),
+            SplitTunnelState::Initialized(state) => state.set_paths(paths, result_tx),
+            SplitTunnelState::Failed(state) => state.set_paths(paths, result_tx),
         }
     }
 
     /// Set a list of applications to exclude from the tunnel.
     fn set_paths_sync<T: AsRef<OsStr>>(&mut self, paths: &[T]) -> Result<(), Error> {
         match &mut self.state {
-            SplitTunnelState::Active(state) => state.set_paths_sync(paths),
-            SplitTunnelState::Inactive(state) => state.set_paths_sync(paths),
+            SplitTunnelState::Initialized(state) => state.set_paths_sync(paths),
+            SplitTunnelState::Failed(state) => state.set_paths_sync(paths),
         }
     }
 
@@ -193,24 +195,24 @@ impl SplitTunnel {
     /// tunnel addresses (if any) to the default route.
     pub fn set_tunnel_addresses(&mut self, metadata: Option<&TunnelMetadata>) -> Result<(), Error> {
         match &mut self.state {
-            SplitTunnelState::Active(state) => state.set_tunnel_addresses(metadata),
-            SplitTunnelState::Inactive(state) => state.set_tunnel_addresses(metadata),
+            SplitTunnelState::Initialized(state) => state.set_tunnel_addresses(metadata),
+            SplitTunnelState::Failed(state) => state.set_tunnel_addresses(metadata),
         }
     }
 
     /// Instructs the driver to stop redirecting tunnel traffic and INADDR_ANY.
     pub fn clear_tunnel_addresses(&mut self) -> Result<(), Error> {
         match &mut self.state {
-            SplitTunnelState::Active(state) => state.clear_tunnel_addresses(),
-            SplitTunnelState::Inactive(state) => state.clear_tunnel_addresses(),
+            SplitTunnelState::Initialized(state) => state.clear_tunnel_addresses(),
+            SplitTunnelState::Failed(state) => state.clear_tunnel_addresses(),
         }
     }
 
     /// Returns a handle used for interacting with the split tunnel module.
     pub fn handle(&self) -> SplitTunnelHandle {
         match &self.state {
-            SplitTunnelState::Active(state) => state.handle(),
-            SplitTunnelState::Inactive(state) => state.handle(),
+            SplitTunnelState::Initialized(state) => state.handle(),
+            SplitTunnelState::Failed(state) => state.handle(),
         }
     }
 }
@@ -226,7 +228,7 @@ impl SplitTunnel {
 /// This is used to fail when split tunneling should be engaged due to user settings,
 /// but work when we would not have been in the engaged state anyway (e.g.
 /// when the user is not excluding any apps, has no tunnel, or has disabled split tunneling).
-struct InactiveSplitTunnelState {
+struct FailedSplitTunnelState {
     paths: Vec<OsString>,
     tunnel_addresses: Vec<IpAddr>,
 }
@@ -237,7 +239,7 @@ enum InactiveSplitTunnelStateState {
     Engaged,
 }
 
-impl InactiveSplitTunnelState {
+impl FailedSplitTunnelState {
     pub fn new() -> Self {
         Self {
             paths: vec![],
@@ -308,7 +310,7 @@ impl InactiveSplitTunnelState {
 }
 
 /// Manages applications whose traffic to exclude from the tunnel.
-struct ActiveSplitTunnelState {
+struct InitializedSplitTunnelState {
     runtime: tokio::runtime::Handle,
     request_tx: RequestTx,
     event_thread: Option<std::thread::JoinHandle<()>>,
@@ -364,7 +366,7 @@ enum EventResult {
     Quit,
 }
 
-impl ActiveSplitTunnelState {
+impl InitializedSplitTunnelState {
     /// Initialize the split tunnel device.
     pub fn new(
         runtime: tokio::runtime::Handle,
@@ -381,7 +383,7 @@ impl ActiveSplitTunnelState {
         let (event_thread, quit_event) =
             Self::spawn_event_listener(handle, excluded_processes.clone())?;
 
-        Ok(ActiveSplitTunnelState {
+        Ok(InitializedSplitTunnelState {
             runtime,
             request_tx,
             event_thread: Some(event_thread),
@@ -895,7 +897,7 @@ impl ActiveSplitTunnelState {
     }
 }
 
-impl Drop for ActiveSplitTunnelState {
+impl Drop for InitializedSplitTunnelState {
     fn drop(&mut self) {
         if let Some(_event_thread) = self.event_thread.take()
             && let Err(error) = self.quit_event.set()
@@ -942,7 +944,7 @@ impl SplitTunnelDefaultRouteChangeHandlerContext {
     }
 
     pub fn register_ips(&self) -> Result<(), Error> {
-        ActiveSplitTunnelState::send_request_inner(
+        InitializedSplitTunnelState::send_request_inner(
             &self.request_tx,
             Request::RegisterIps(self.addresses.clone()),
         )
