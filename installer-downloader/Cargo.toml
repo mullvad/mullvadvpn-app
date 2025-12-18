@@ -21,11 +21,12 @@ windows-sys = { workspace = true, features = ["Win32_System", "Win32_System_Libr
 anyhow = { workspace = true }
 async-trait = "0.1"
 chrono = { workspace = true, features = ["clock"] }
-fern = { workspace = true }
 log = { workspace = true }
 rand = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
 tokio = { workspace = true, features = ["rt-multi-thread", "fs"] }
+tracing-subscriber = { workspace = true, features = [ "chrono" ] }
+tracing-appender = { workspace = true }
 
 talpid-platform-metadata = { path = "../talpid-platform-metadata" }
 mullvad-update = { path = "../mullvad-update", features = ["client"] }
