@@ -1,7 +1,6 @@
 package net.mullvad.mullvadvpn.repository
 
 import android.content.ComponentName
-import android.content.Context
 import android.content.pm.PackageManager
 import android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_DEFAULT
 import android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_DISABLED
@@ -21,7 +20,7 @@ import net.mullvad.mullvadvpn.ui.obfuscation.MainActivityAltWeather
 
 class AppObfuscationRepository(
     private val packageManager: PackageManager,
-    private val context: Context,
+    private val packageName: String,
 ) {
     private val _currentAppObfuscation = MutableStateFlow(getObfuscation())
     val currentAppObfuscation: StateFlow<AppObfuscation> = _currentAppObfuscation
@@ -61,7 +60,7 @@ class AppObfuscationRepository(
             else -> error("Unknown component enabled setting")
         }
 
-    private fun AppObfuscation.toComponentName() = ComponentName(context, clazz)
+    private fun AppObfuscation.toComponentName() = ComponentName(packageName, clazz.name)
 }
 
 enum class AppObfuscation(
@@ -74,31 +73,31 @@ enum class AppObfuscation(
     GAME(
         MainActivityAltGame::class.java,
         R.mipmap.ic_launcher_game,
-        R.mipmap.ic_banner,
+        R.mipmap.ic_banner_game,
         R.string.app_name_game,
     ),
     NINJA(
         MainActivityAltNinja::class.java,
         R.mipmap.ic_launcher_ninja,
-        R.mipmap.ic_banner,
+        R.mipmap.ic_banner_ninja,
         R.string.app_name_ninja,
     ),
     WEATHER(
         MainActivityAltWeather::class.java,
         R.mipmap.ic_launcher_weather,
-        R.mipmap.ic_banner,
+        R.mipmap.ic_banner_weather,
         R.string.app_name_weather,
     ),
     NOTES(
         MainActivityAltNotes::class.java,
         R.mipmap.ic_launcher_notes,
-        R.mipmap.ic_banner,
+        R.mipmap.ic_banner_notes,
         R.string.app_name_notes,
     ),
     BROWSER(
         MainActivityAltBrowser::class.java,
         R.mipmap.ic_launcher_browser,
-        R.mipmap.ic_banner,
+        R.mipmap.ic_banner_browser,
         R.string.app_name_browser,
     ),
 }

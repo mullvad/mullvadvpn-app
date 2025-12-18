@@ -168,7 +168,7 @@ val uiModule = module {
         )
     }
     single { WireguardConstraintsRepository(get()) }
-    single { AppObfuscationRepository(get(), androidContext()) }
+    single { AppObfuscationRepository(get(), get(named(SELF_PACKAGE_NAME))) }
 
     single { AccountExpiryInAppNotificationUseCase(get()) } bind InAppNotificationUseCase::class
     single { TunnelStateNotificationUseCase(get(), get(), get()) } bind
