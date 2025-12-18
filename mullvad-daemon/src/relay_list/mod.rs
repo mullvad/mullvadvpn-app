@@ -18,7 +18,7 @@ use mullvad_api::{
     CachedRelayList, ETag, RelayListProxy, availability::ApiAvailability, rest::MullvadRestHandle,
 };
 use mullvad_relay_selector::RelaySelector;
-use mullvad_types::relay_list::RelayList;
+use mullvad_types::relay_list::{BridgeList, RelayList};
 use talpid_future::retry::{ExponentialBackoff, Jittered, retry_future};
 use talpid_types::ErrorExt;
 
@@ -139,6 +139,12 @@ impl RelayListUpdater {
                         },
                         Some(Event::Override(overrides)) => {
                             self.overrides = overrides;
+                            let relay_list = self.relay_selector.get_relays();
+                            let bridge_list = self.relay_selector.get_bridges();
+                            if let Err(err) = self.update_relay_selector(relay_list, bridge_list) {
+                                log::trace!("Failed to update relay list");
+                                log::trace!("{err}");
+                            };
                         }
                         None => {
                             log::trace!("Relay list updater shutting down");
@@ -216,13 +222,19 @@ impl RelayListUpdater {
         }
         // Cache the ETag so that we send the correct one in the next request
         self.etag = new_relay_list.etag().cloned();
-
         // Propagate the new relay list to the relay selector
         let (relay_list, bridge_list) = new_relay_list.into_internal_repr();
+        self.update_relay_selector(relay_list, bridge_list)
+    }
 
+    /// Update the relay selector state, applying IP overrides.
+    fn update_relay_selector(
+        &mut self,
+        relay_list: RelayList,
+        bridge_list: BridgeList,
+    ) -> Result<(), Error> {
         // Apply overrides
         let relay_list = relay_list.apply_overrides(self.overrides.clone());
-
         // Announce new relay list
         (self.on_update)(&relay_list);
         self.relay_selector.set_relays(relay_list);
