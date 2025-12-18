@@ -76,17 +76,18 @@ fun AppIconAndTitleGridItem(
                 modifier = Modifier.size(APP_ICON_SIZE),
                 tint = Color.Unspecified,
             )
-        } else
-            (Icon(
+        } else {
+            Icon(
                 painter = painterResource(appIcon),
                 contentDescription = appIconContentDescription,
                 modifier = Modifier.size(APP_ICON_SIZE),
                 tint = Color.Unspecified,
-            ))
+            )
+        }
         Spacer(modifier = Modifier.height(Dimens.tinyPadding))
         Text(
             text = appTitle,
-            style = MaterialTheme.typography.labelLarge,
+            style = MaterialTheme.typography.bodyMedium,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )
