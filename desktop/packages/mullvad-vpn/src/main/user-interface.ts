@@ -288,9 +288,9 @@ export default class UserInterface implements WindowControllerDelegate {
       useContentSize: true,
       width,
       height,
-      resizable: false,
-      maximizable: false,
-      fullscreenable: false,
+      resizable: true,
+      maximizable: true,
+      fullscreenable: true,
       show: false,
       frame: unpinnedWindow,
       webPreferences: {
