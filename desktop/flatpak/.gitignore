@@ -1,0 +1,4 @@
+builddir
+repo
+*.flatpak
+*.deb
