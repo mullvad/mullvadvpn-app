@@ -180,13 +180,19 @@ struct CustomListInteractor: CustomListInteractorProtocol {
                 if selectedConstraintIsRemovedFromList {
                     // remove location from constraint if it is removed from the custom list
                     // this will lead to the blocked state
-                    relayConstraint = .only(UserSelectedRelays(locations: []))
+                    relayConstraint = .only(UserSelectedRelays(locations: relayConstraint.value?.locations ?? []))
                 }
             }
         case .delete:
-            // remove list from constraint
-            // this will lead to the blocked state
-            relayConstraint = .only(UserSelectedRelays(locations: []))
+            // update constraint to custom list
+            if customListSelection.isList {
+                // remove list from constraint
+                // this will lead to the blocked state
+                relayConstraint = .only(UserSelectedRelays(locations: []))
+            } else {
+                // fallback to all locations
+                relayConstraint = .only(UserSelectedRelays(locations: relayConstraint.value?.locations ?? []))
+            }
         }
 
         return relayConstraint

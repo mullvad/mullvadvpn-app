@@ -117,6 +117,21 @@ final class TunnelSettingsStrategyTests: XCTestCase {
             ))
     }
 
+    func testNoReconnectWhenOnlyLocationIsEqual() {
+        let se = UserSelectedRelays(locations: [.country("se")])
+        let currentSettings = LatestTunnelSettings(
+            relayConstraints: RelayConstraints(entryLocations: .only(se), exitLocations: .only(se)))
+        var updatedSettings = currentSettings
+        updatedSettings.relayConstraints.exitLocations = .only(
+            .init(locations: [.country("se")], customListSelection: .init(listId: UUID(), isList: true)))
+        let tunnelSettingsStrategy = TunnelSettingsStrategy()
+        XCTAssertEqual(
+            tunnelSettingsStrategy.getReconnectionStrategy(
+                oldSettings: currentSettings,
+                newSettings: updatedSettings
+            ), .none)
+    }
+
     func testHardReconnectWhenIncludeAllNetworksChange() {
         let currentSettings = LatestTunnelSettings()
         var updatedSettings = currentSettings

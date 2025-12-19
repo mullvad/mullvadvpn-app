@@ -21,6 +21,7 @@ class LocationNode: @unchecked Sendable {
     var isConnected: Bool
     var isSelected: Bool
     var isExcluded: Bool
+    let id = UUID()
 
     init(
         name: String,
@@ -47,6 +48,28 @@ class LocationNode: @unchecked Sendable {
         self.isSelected = isSelected
         self.isExcluded = isExcluded
     }
+
+    /// Recursively copies a node, its parent and its descendants from another
+    /// node (tree), with an optional custom root parent.
+    func copy(withParent parent: LocationNode? = nil) -> LocationNode {
+        let node = LocationNode(
+            name: name,
+            code: code,
+            locations: locations,
+            isActive: isActive,
+            parent: parent,
+            children: [],
+            showsChildren: showsChildren,
+            isHiddenFromSearch: isHiddenFromSearch,
+            isConnected: isConnected,
+            isSelected: false,  // explicity set to false since it's a different node
+            isExcluded: isExcluded
+        )
+
+        node.children = recursivelyCopyChildren(withParent: node)
+
+        return node
+    }
 }
 
 extension LocationNode {
@@ -54,6 +77,9 @@ extension LocationNode {
         parent?.root ?? self
     }
 
+    var asRecentLocationNode: RecentLocationNode? {
+        self as? RecentLocationNode
+    }
     var asCustomListNode: CustomListLocationNode? {
         self as? CustomListLocationNode
     }
@@ -125,36 +151,35 @@ extension LocationNode {
                 }
             }
     }
-}
 
-extension LocationNode {
-    /// Recursively copies a node, its parent and its descendants from another
-    /// node (tree), with an optional custom root parent.
-    func copy(withParent parent: LocationNode? = nil) -> LocationNode {
-        let node = LocationNode(
-            name: name,
-            code: code,
-            locations: locations,
-            isActive: isActive,
-            parent: parent,
-            children: [],
-            showsChildren: showsChildren,
-            isHiddenFromSearch: isHiddenFromSearch,
-            isConnected: isConnected,
-            isSelected: false,  // explicity set to false since it's a different node
-            isExcluded: isExcluded
-        )
-
-        node.children = recursivelyCopyChildren(withParent: node)
-
-        return node
+    func pathToNode(matchingCode code: String) -> [String]? {
+        if self.code == code {
+            return [NSLocalizedString(name, comment: "")]
+        }
+        for child in children {
+            if let childPath = child.pathToNode(matchingCode: code) {
+                return [NSLocalizedString(name, comment: "")] + childPath
+            }
+        }
+        return nil
     }
 
-    private func recursivelyCopyChildren(withParent parent: LocationNode) -> [LocationNode] {
+    func pathToRoot() -> [String] {
+        var path: [String] = []
+        var current: LocationNode? = self
+
+        while let node = current {
+            path.insert(NSLocalizedString(node.name, comment: ""), at: 0)
+            current = node.parent
+        }
+
+        return path
+    }
+
+    fileprivate func recursivelyCopyChildren(withParent parent: LocationNode) -> [LocationNode] {
         children.map { $0.copy(withParent: parent) }
     }
 }
-
 extension LocationNode: Hashable {
     func hash(into hasher: inout Hasher) {
         hasher.combine(code)
@@ -202,6 +227,56 @@ class CustomListLocationNode: LocationNode, @unchecked Sendable {
         customList: CustomList
     ) {
         self.customList = customList
+
+        super.init(
+            name: name,
+            code: code,
+            locations: locations,
+            isActive: isActive,
+            parent: parent,
+            children: children,
+            showsChildren: showsChildren,
+            isHiddenFromSearch: isHiddenFromSearch
+        )
+    }
+
+    /// Recursively copies a node, its parent and its descendants from another
+    /// node (tree), with an optional custom root parent.
+    override func copy(withParent parent: LocationNode? = nil) -> LocationNode {
+        let node = CustomListLocationNode(
+            name: name,
+            code: code,
+            locations: locations,
+            isActive: isActive,
+            parent: parent,
+            children: [],
+            showsChildren: showsChildren,
+            isHiddenFromSearch: isHiddenFromSearch,
+            customList: customList
+        )
+
+        node.children = recursivelyCopyChildren(withParent: node)
+
+        return node
+    }
+
+}
+
+class RecentLocationNode: LocationNode, @unchecked Sendable {
+    let locationInfo: [String]?
+
+    init(
+        name: String,
+        code: String,
+        locations: [RelayLocation] = [],
+        isActive: Bool = true,
+        parent: LocationNode? = nil,
+        children: [LocationNode] = [],
+        showsChildren: Bool = false,
+        isHiddenFromSearch: Bool = false,
+        locationInfo: [String]?
+    ) {
+        self.locationInfo = locationInfo
 
         super.init(
             name: name,

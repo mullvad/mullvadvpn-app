@@ -1001,6 +1001,8 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
                 self.reconnectTunnel(selectNewRelay: true)
             case .hardReconnect:
                 self.reapplyTunnelConfiguration()
+            case .none:
+                break
             }
         }
 

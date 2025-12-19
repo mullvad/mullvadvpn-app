@@ -10,12 +10,47 @@ import Foundation
 import MullvadREST
 import MullvadTypes
 
+protocol SearchableLocationDataSource: LocationDataSourceProtocol {}
+
 protocol LocationDataSourceProtocol {
     var nodes: [LocationNode] { get }
+    func node(by selectedRelays: UserSelectedRelays) -> LocationNode?
 }
+extension SearchableLocationDataSource {
+    func search(by text: String) {
+        nodes.forEachNode { node in
+            node.isHiddenFromSearch = false
+            node.showsChildren = false
+        }
+        guard !text.isEmpty else {
+            return
+        }
+        nodes.forEach { node in
+            _ = hideInSearch(
+                node: node,
+                searchText: text
+            )
+        }
+    }
 
+    private func hideInSearch(node: LocationNode, searchText: String) -> Bool {
+        let matchesSelf = node.name.fuzzyMatch(searchText)
+        var childMatches = false
+        for child in node.children where !hideInSearch(node: child, searchText: searchText) {
+            childMatches = true
+        }
+        if matchesSelf && !childMatches {
+            node.forEachDescendant { child in
+                child.isHiddenFromSearch = false
+                child.showsChildren = false
+            }
+        }
+        node.isHiddenFromSearch = !matchesSelf && !childMatches
+        node.showsChildren = childMatches
+        return node.isHiddenFromSearch
+    }
+}
 extension LocationDataSourceProtocol {
-
     func setConnectedRelay(hostname: String?) {
         nodes.forEachNode { node in
             node.isConnected = node.name == hostname
@@ -100,13 +135,12 @@ extension LocationDataSourceProtocol {
         return node.isHiddenFromSearch
     }
 
-    func node(by selectedRelays: UserSelectedRelays) -> LocationNode? {
-        let rootNode = RootLocationNode(children: nodes)
-
+    func descendantNode(
+        in rootNode: LocationNode,
+        for location: RelayLocation,
+        baseCodes: [String]
+    ) -> LocationNode? {
         let descendantNodeFor: ([String]) -> LocationNode? = { codes in
-            guard let location = selectedRelays.locations.first else {
-                return nil
-            }
             return switch location {
             case let .country(countryCode):
                 rootNode.descendantNodeFor(codes: codes + [countryCode])
@@ -116,21 +150,6 @@ extension LocationDataSourceProtocol {
                 rootNode.descendantNodeFor(codes: codes + [hostCode])
             }
         }
-
-        if let customListSelection = selectedRelays.customListSelection {
-            let selectedCustomListNode = nodes.first(where: {
-                $0.asCustomListNode?.customList.id == customListSelection.listId
-            })
-
-            guard let selectedCustomListNode else { return nil }
-
-            if customListSelection.isList {
-                return selectedCustomListNode
-            }
-
-            return descendantNodeFor([selectedCustomListNode.code])
-        } else {
-            return descendantNodeFor([])
-        }
+        return descendantNodeFor(baseCodes)
     }
 }
