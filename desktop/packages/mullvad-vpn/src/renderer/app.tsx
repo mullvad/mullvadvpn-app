@@ -345,10 +345,10 @@ export default class AppRenderer {
       void this.onDaemonConnected();
     }
 
-    this.checkContentHeight(false);
-    window.addEventListener('resize', () => {
-      this.checkContentHeight(true);
-    });
+    // this.checkContentHeight(false);
+    // window.addEventListener('resize', () => {
+    //   this.checkContentHeight(true);
+    // });
 
     if (initialState.splitTunnelingApplications) {
       this.reduxActions.settings.setSplitTunnelingApplications(
@@ -742,20 +742,20 @@ export default class AppRenderer {
     }
   }
 
-  // Make sure that the content height is correct and log if it isn't. This is mostly for debugging
-  // purposes since there's a bug in Electron that causes the app height to be another value than
-  // the one we have set.
-  // https://github.com/electron/electron/issues/28777
-  private checkContentHeight(resize: boolean): void {
-    const expectedContentHeight = 568;
-    const contentHeight = window.innerHeight;
-    if (contentHeight !== expectedContentHeight) {
-      log.verbose(
-        resize ? 'Resize:' : 'Initial:',
-        `Wrong content height: ${contentHeight}, expected ${expectedContentHeight}`,
-      );
-    }
-  }
+  // // Make sure that the content height is correct and log if it isn't. This is mostly for debugging
+  // // purposes since there's a bug in Electron that causes the app height to be another value than
+  // // the one we have set.
+  // // https://github.com/electron/electron/issues/28777
+  // private checkContentHeight(resize: boolean): void {
+  //   const expectedContentHeight = 568;
+  //   const contentHeight = window.innerHeight;
+  //   if (contentHeight !== expectedContentHeight) {
+  //     log.verbose(
+  //       resize ? 'Resize:' : 'Initial:',
+  //       `Wrong content height: ${contentHeight}, expected ${expectedContentHeight}`,
+  //     );
+  //   }
+  // }
 
   private setLocale(locale: string) {
     this.reduxActions.userInterface.updateLocale(locale);
