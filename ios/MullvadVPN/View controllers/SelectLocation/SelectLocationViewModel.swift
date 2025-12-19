@@ -152,6 +152,10 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
             .sink { [weak self] prevValue, newValue in
                 if prevValue == newValue { return }
                 if prevValue == nil && newValue == "" { return }
+                // to avoid all relays being expanded
+                if !newValue.isEmpty && "wg-".hasPrefix(newValue.lowercased()) {
+                    return
+                }
                 self?.search(searchText: newValue)
                 if newValue == "" {
                     self?.expandSelectedLocation()

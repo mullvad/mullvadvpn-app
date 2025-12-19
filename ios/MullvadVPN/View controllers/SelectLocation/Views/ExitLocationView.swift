@@ -23,7 +23,7 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
         ScrollViewReader { scrollProxy in
             // All items in the list are arranged in a flat hierarchy
             ScrollView {
-                LazyVStack(spacing: 0) {
+                VStack(spacing: 0) {
                     Group {
                         if !context.filter.isEmpty {
                             ActiveFilterView(
