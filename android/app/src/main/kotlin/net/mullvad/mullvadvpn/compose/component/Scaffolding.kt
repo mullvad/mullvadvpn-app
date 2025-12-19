@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.grid.LazyGridState
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -158,6 +160,42 @@ fun ScaffoldWithMediumTopBar(
                 lazyListState,
             )
         },
+    )
+}
+
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+fun ScaffoldWithMediumTopBar(
+    appBarTitle: String,
+    modifier: Modifier = Modifier,
+    navigationIcon: @Composable () -> Unit = {},
+    actions: @Composable RowScope.() -> Unit = {},
+    lazyGridState: LazyGridState = rememberLazyGridState(),
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
+    content: @Composable (modifier: Modifier, lazyGridState: LazyGridState) -> Unit,
+) {
+
+    val appBarState = rememberTopAppBarState()
+    val canScroll = lazyGridState.canScrollForward || lazyGridState.canScrollBackward
+    val scrollBehavior =
+        TopAppBarDefaults.exitUntilCollapsedScrollBehavior(appBarState, canScroll = { canScroll })
+    Scaffold(
+        modifier = modifier.fillMaxSize().nestedScroll(scrollBehavior.nestedScrollConnection),
+        topBar = {
+            MullvadMediumTopBar(
+                title = appBarTitle,
+                navigationIcon = navigationIcon,
+                actions,
+                scrollBehavior = scrollBehavior,
+            )
+        },
+        snackbarHost = {
+            SnackbarHost(
+                snackbarHostState,
+                snackbar = { snackbarData -> MullvadSnackbar(snackbarData = snackbarData) },
+            )
+        },
+        content = { content(Modifier.fillMaxSize().padding(it), lazyGridState) },
     )
 }
 

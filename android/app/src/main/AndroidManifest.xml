@@ -1,5 +1,8 @@
+<!-- mobsf-ignore: android_task_hijacking2 -->
+<!-- This is added due to requiring launchMode="singleInstance" on activity aliases,
+  but launchMode does nothing on activity aliases -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          xmlns:tools="http://schemas.android.com/tools">
+    xmlns:tools="http://schemas.android.com/tools">
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -25,7 +28,6 @@
                   android:required="false" />
 
     <application android:name=".MullvadApplication"
-                 android:banner="@mipmap/ic_banner"
                  android:allowBackup="false"
                  tools:targetApi="33"
                  android:memtagMode="async"
@@ -59,15 +61,21 @@
             This can be disregarded when the minimum supported version is 28 or higher
             since after that it has been patched on a OS level.
         -->
-        <activity android:name="net.mullvad.mullvadvpn.ui.MainActivity"
-                  android:exported="true"
-                  android:launchMode="singleInstance"
-                  android:screenOrientation="fullUser"
-                  android:windowSoftInputMode="adjustResize"
-                  android:enableOnBackInvokedCallback="true"
-                  tools:ignore="DiscouragedApi,UnusedAttribute">
+        <activity
+            android:name="net.mullvad.mullvadvpn.ui.MainActivity"
+            android:enableOnBackInvokedCallback="true"
+            android:launchMode="singleInstance"
+            android:screenOrientation="fullUser"
+            android:windowSoftInputMode="adjustResize"
+            android:enabled="true"
+            android:exported="true"
+            android:icon="@mipmap/ic_launcher"
+            android:banner="@mipmap/ic_banner"
+            android:targetActivity="net.mullvad.mullvadvpn.ui.MainActivity"
+            tools:ignore="DiscouragedApi,UnusedAttribute">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
                 <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
             </intent-filter>
@@ -78,6 +86,122 @@
                 <action android:name="net.mullvad.mullvadvpn.request_vpn_permission" />
             </intent-filter>
         </activity>
+        <!-- Alternative icons names -->
+        <!-- Game -->
+        <activity-alias
+            android:name="net.mullvad.mullvadvpn.ui.obfuscation.MainActivityAltGame"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_launcher_game"
+            android:banner="@mipmap/ic_banner_game"
+            android:label="@string/app_name_game"
+            android:targetActivity="net.mullvad.mullvadvpn.ui.MainActivity"
+            tools:ignore="DiscouragedApi,UnusedAttribute">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE_PREFERENCES" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="net.mullvad.mullvadvpn.request_vpn_permission" />
+            </intent-filter>
+        </activity-alias>
+        <!-- Weather -->
+        <activity-alias
+            android:name="net.mullvad.mullvadvpn.ui.obfuscation.MainActivityAltWeather"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_launcher_weather"
+            android:banner="@mipmap/ic_banner_weather"
+            android:label="@string/app_name_weather"
+            android:targetActivity="net.mullvad.mullvadvpn.ui.MainActivity"
+            tools:ignore="DiscouragedApi,UnusedAttribute">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE_PREFERENCES" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="net.mullvad.mullvadvpn.request_vpn_permission" />
+            </intent-filter>
+        </activity-alias>
+        <!-- Notes -->
+        <activity-alias
+            android:name="net.mullvad.mullvadvpn.ui.obfuscation.MainActivityAltNotes"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_launcher_notes"
+            android:banner="@mipmap/ic_banner_notes"
+            android:label="@string/app_name_notes"
+            android:targetActivity="net.mullvad.mullvadvpn.ui.MainActivity"
+            tools:ignore="DiscouragedApi,UnusedAttribute">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE_PREFERENCES" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="net.mullvad.mullvadvpn.request_vpn_permission" />
+            </intent-filter>
+        </activity-alias>
+        <!-- Ninja -->
+        <activity-alias
+            android:name="net.mullvad.mullvadvpn.ui.obfuscation.MainActivityAltNinja"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_launcher_ninja"
+            android:banner="@mipmap/ic_banner_ninja"
+            android:label="@string/app_name_ninja"
+            android:targetActivity="net.mullvad.mullvadvpn.ui.MainActivity"
+            tools:ignore="DiscouragedApi,UnusedAttribute">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE_PREFERENCES" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="net.mullvad.mullvadvpn.request_vpn_permission" />
+            </intent-filter>
+        </activity-alias>
+        <!-- Browser -->
+        <activity-alias
+            android:name="net.mullvad.mullvadvpn.ui.obfuscation.MainActivityAltBrowser"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_launcher_browser"
+            android:banner="@mipmap/ic_banner_browser"
+            android:label="@string/app_name_browser"
+            android:targetActivity="net.mullvad.mullvadvpn.ui.MainActivity"
+            tools:ignore="DiscouragedApi,UnusedAttribute">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE_PREFERENCES" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="net.mullvad.mullvadvpn.request_vpn_permission" />
+            </intent-filter>
+        </activity-alias>
         <!--
             foregroundServiceType="systemExempted" is required in Android 14+
             https://developer.android.com/guide/components/fg-service-types#system-exempted

@@ -18,6 +18,7 @@ import net.mullvad.mullvadvpn.lib.payment.PaymentProvider
 import net.mullvad.mullvadvpn.lib.repository.VoucherRepository
 import net.mullvad.mullvadvpn.receiver.AutoStartVpnBootCompletedReceiver
 import net.mullvad.mullvadvpn.repository.ApiAccessRepository
+import net.mullvad.mullvadvpn.repository.AppObfuscationRepository
 import net.mullvad.mullvadvpn.repository.AutoStartAndConnectOnBootRepository
 import net.mullvad.mullvadvpn.repository.ChangelogRepository
 import net.mullvad.mullvadvpn.repository.CustomListsRepository
@@ -75,6 +76,7 @@ import net.mullvad.mullvadvpn.viewmodel.ApiAccessListViewModel
 import net.mullvad.mullvadvpn.viewmodel.ApiAccessMethodDetailsViewModel
 import net.mullvad.mullvadvpn.viewmodel.ApiUnreachableViewModel
 import net.mullvad.mullvadvpn.viewmodel.AppInfoViewModel
+import net.mullvad.mullvadvpn.viewmodel.AppearanceViewModel
 import net.mullvad.mullvadvpn.viewmodel.ChangelogViewModel
 import net.mullvad.mullvadvpn.viewmodel.ConnectViewModel
 import net.mullvad.mullvadvpn.viewmodel.CreateCustomListDialogViewModel
@@ -166,6 +168,7 @@ val uiModule = module {
         )
     }
     single { WireguardConstraintsRepository(get()) }
+    single { AppObfuscationRepository(get(), get(named(SELF_PACKAGE_NAME))) }
 
     single { AccountExpiryInAppNotificationUseCase(get()) } bind InAppNotificationUseCase::class
     single { TunnelStateNotificationUseCase(get(), get(), get()) } bind
@@ -410,6 +413,7 @@ val uiModule = module {
             modifyAndEnableMultihopUseCase = get(),
         )
     }
+    viewModel { AppearanceViewModel(get()) }
 
     single { BackstackObserver() }
 
@@ -421,3 +425,5 @@ const val SELF_PACKAGE_NAME = "SELF_PACKAGE_NAME"
 const val APP_PREFERENCES_NAME = "${BuildConfig.APPLICATION_ID}.app_preferences"
 const val BOOT_COMPLETED_RECEIVER_COMPONENT_NAME = "BOOT_COMPLETED_RECEIVER_COMPONENT_NAME"
 const val KERMIT_FILE_LOG_DIR_NAME = "android_app_logs"
+// App obfuscations
+const val APP_OBFUSCATION_COMPONENTS_NAME = "APP_OBFUSCATION_COMPONENTS_NAME"

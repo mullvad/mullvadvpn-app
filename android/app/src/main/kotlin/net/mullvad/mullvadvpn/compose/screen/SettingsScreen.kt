@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -22,6 +23,7 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.destinations.ApiAccessListDestination
 import com.ramcosta.composedestinations.generated.destinations.AppInfoDestination
+import com.ramcosta.composedestinations.generated.destinations.AppearanceDestination
 import com.ramcosta.composedestinations.generated.destinations.DaitaDestination
 import com.ramcosta.composedestinations.generated.destinations.MultihopDestination
 import com.ramcosta.composedestinations.generated.destinations.NotificationSettingsDestination
@@ -95,6 +97,7 @@ fun Settings(navigator: DestinationsNavigator) {
         onBackClick = dropUnlessResumed { navigator.navigateUp() },
         onNotificationSettingsCellClick =
             dropUnlessResumed { navigator.navigate(NotificationSettingsDestination()) },
+        onAppObfuscationClick = dropUnlessResumed { navigator.navigate(AppearanceDestination) },
     )
 }
 
@@ -110,11 +113,12 @@ fun SettingsScreen(
     onDaitaClick: () -> Unit,
     onBackClick: () -> Unit,
     onNotificationSettingsCellClick: () -> Unit,
+    onAppObfuscationClick: () -> Unit = {},
 ) {
     ScaffoldWithMediumTopBar(
         appBarTitle = stringResource(id = R.string.settings),
         navigationIcon = { NavigateCloseIconButton(onBackClick) },
-    ) { modifier, lazyListState ->
+    ) { modifier, lazyListState: LazyListState ->
         LazyColumn(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier =
@@ -137,6 +141,7 @@ fun SettingsScreen(
                         onMultihopClick = onMultihopClick,
                         onDaitaClick = onDaitaClick,
                         onNotificationSettingsCellClick = onNotificationSettingsCellClick,
+                        onAppObfuscationClick = onAppObfuscationClick,
                     )
                 }
             }
@@ -154,6 +159,7 @@ private fun LazyListScope.content(
     onMultihopClick: () -> Unit,
     onDaitaClick: () -> Unit,
     onNotificationSettingsCellClick: () -> Unit,
+    onAppObfuscationClick: () -> Unit = {},
 ) {
     if (state.isLoggedIn) {
         itemWithDivider {
@@ -189,9 +195,17 @@ private fun LazyListScope.content(
 
     itemWithDivider {
         NavigationListItem(
+            title = stringResource(id = R.string.appearance),
+            onClick = onAppObfuscationClick,
+            position = Position.Top,
+        )
+    }
+
+    itemWithDivider {
+        NavigationListItem(
             title = stringResource(id = R.string.settings_notifications),
             onClick = onNotificationSettingsCellClick,
-            position = Position.Top,
+            position = Position.Middle,
         )
     }
 
