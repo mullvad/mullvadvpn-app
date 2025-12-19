@@ -37,7 +37,7 @@ mnl = { version = "0.3.0", features = ["mnl-1-0-4"] }
 nftnl = { version = "0.9.1", features = ["nftnl-1-2-0"] }
 nix = { workspace = true, features = ["fs", "mount", "process"] }
 talpid-cgroup = { path = "../talpid-cgroup" }
-talpid-dbus = { path = "../talpid-dbus" }
+talpid-dbus = { workspace = true }
 
 [target.'cfg(target_os = "macos")'.dependencies]
 async-trait = "0.1"
