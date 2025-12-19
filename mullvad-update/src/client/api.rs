@@ -4,7 +4,6 @@ use std::net::IpAddr;
 use std::path::PathBuf;
 
 use anyhow::Context;
-use serde::{Deserialize, Serialize};
 use tokio::fs;
 #[cfg(test)]
 use vec1::Vec1;

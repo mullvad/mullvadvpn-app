@@ -54,13 +54,13 @@ function main {
 
     case "$3" in
     "-a"|"--add-release")
-        add_release $4
+        add_release "$4"
         ;;
     "-u"|"--update-latest")
         update_latest
         ;;
     "-r"|"--remove-release")
-        remove_release $4
+        remove_release "$4"
         ;;
     "-h"|"--help")
         print_usage
