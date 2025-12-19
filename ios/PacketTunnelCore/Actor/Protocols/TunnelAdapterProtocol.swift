@@ -57,7 +57,7 @@ public struct TunnelInterfaceSettings: Equatable, Sendable {
     public func asTunnelSettings() -> NEPacketTunnelNetworkSettings {
         let networkSettings = NEPacketTunnelNetworkSettings(tunnelRemoteAddress: "127.0.0.1")
 
-        let dnsSettings = NEDNSSettings(servers: ["10.64.0.1"])
+        let dnsSettings = NEDNSSettings(servers: self.dns.map({ "\($0)" }))
         dnsSettings.matchDomains = [""]  // All DNS queries must first go through the tunnel's DNS
         networkSettings.dnsSettings = dnsSettings
         networkSettings.mtu = NSNumber(value: 1280)
