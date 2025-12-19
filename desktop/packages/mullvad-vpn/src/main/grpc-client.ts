@@ -10,11 +10,14 @@ import { ManagementServiceClient } from 'management-interface';
 import { promisify } from 'util';
 
 import log from '../shared/logging';
+import { app } from 'electron';
 
 const NETWORK_CALL_TIMEOUT = 10000;
 const CHANNEL_STATE_TIMEOUT = 1000 * 60 * 60;
 
 const RPC_PATH_PREFIX = 'unix://';
+
+const CHECK_SOCKET_UID = !app.commandLine.hasSwitch('dont-check-socket-uid');
 
 type CallFunctionArgument<T, R> =
   | ((arg: T, callback: (error: Error | null, result: R) => void) => void)
@@ -261,6 +264,11 @@ export class GrpcClient {
 
   // Assert that the gRPC connection is owned by an administrator
   private async verifyOwnership() {
+    if (!CHECK_SOCKET_UID) {
+      log.info('Pipe ownership check is disabled');
+      return;
+    }
+
     if (process.platform === 'win32') {
       try {
         const { pipeIsAdminOwned } = await import('windows-utils');
