@@ -9,6 +9,7 @@
 import MullvadSettings
 import MullvadTypes
 
+@Observable
 class LocationNode: @unchecked Sendable {
     let name: String
     var code: String
