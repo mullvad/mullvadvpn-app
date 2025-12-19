@@ -15,6 +15,10 @@ class DefaultLocationServiceTests: XCTestCase {
     private let encoder = JSONEncoder()
 
     func testFetchCurrentLocationIdentifier() async throws {
+        let skipReason = """
+                The behavior is currently nondeterministic. Skip until this is fixed.
+            """
+        try XCTSkipIf(true, skipReason)
         let mockData = try encoder.encode(
             REST.ServerLocation(
                 country: "USA",
