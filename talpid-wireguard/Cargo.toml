@@ -55,7 +55,7 @@ netlink-packet-core = { workspace = true }
 netlink-packet-route = { workspace = true }
 netlink-proto = { workspace = true }
 zerocopy = { workspace = true, features = ["derive"] }
-talpid-dbus = { path = "../talpid-dbus" }
+talpid-dbus = { workspace = true }
 
 [target.'cfg(windows)'.dependencies]
 bitflags = "1.2"
