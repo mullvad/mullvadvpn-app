@@ -1,0 +1,75 @@
+id: net.mullvad.MullvadVPN
+runtime: org.freedesktop.Platform
+runtime-version: '25.08'
+sdk: org.freedesktop.Sdk
+base: org.electronjs.Electron2.BaseApp
+base-version: '25.08'
+
+# expose the cli when using `flatpak run net.mullvad.MullvadVPN`
+# the GUI is started from the .desktop file
+command: 'mullvad'
+modules:
+  - name: hello
+    buildsystem: simple
+    sources:
+      - type: script
+        dest-filename: gui
+        commands:
+          # run the electron app with the builtin zypak-wrapper to make chrome sandboxing work
+          - /app/bin/zypak-wrapper /app/mullvad-vpn/mullvad-gui --ignore-socket-uid-check "$@"
+      - type: file
+        path: ./net.mullvad.MullvadVPN.desktop
+      - type: file
+        url: https://releases.mullvad.net/desktop/builds/2025.14-dev-857512/MullvadVPN-2025.14-dev-857512_amd64.deb
+        dest-filename: mullvad-vpn.deb
+        sha256: 5acb515fc94dc4b075d856e6d70dee6c424feeb233e89e1f7d0409e061848206
+      # - type: file
+      #   path: ../../dist/MullvadVPN-2025.14-dev-857512_amd64.deb
+      #   dest-filename: mullvad-vpn.deb
+    build-commands:
+      - ar x mullvad-vpn.deb # extract data.tar.xz from .deb
+      - tar -xvf data.tar.xz
+
+      # CLIs
+      - install -Dm755 usr/bin/mullvad                                    /app/bin/
+      # TODO mullvad-problem-report collect is broken due to limited fs permissions
+      - install -Dm755 "opt/Mullvad VPN/resources/mullvad-problem-report" /app/bin/
+
+      # Desktop entry
+      - install -Dm644 net.mullvad.MullvadVPN.desktop /app/share/applications/net.mullvad.MullvadVPN.desktop
+
+      # Icons (max size is 512x512)
+      - install -Dm644 usr/share/icons/hicolor/16x16/apps/mullvad-vpn.png   /app/share/icons/hicolor/16x16/apps/net.mullvad.MullvadVPN.png
+      - install -Dm644 usr/share/icons/hicolor/32x32/apps/mullvad-vpn.png   /app/share/icons/hicolor/32x32/apps/net.mullvad.MullvadVPN.png
+      - install -Dm644 usr/share/icons/hicolor/48x48/apps/mullvad-vpn.png   /app/share/icons/hicolor/48x48/apps/net.mullvad.MullvadVPN.png
+      - install -Dm644 usr/share/icons/hicolor/64x64/apps/mullvad-vpn.png   /app/share/icons/hicolor/64x64/apps/net.mullvad.MullvadVPN.png
+      - install -Dm644 usr/share/icons/hicolor/128x128/apps/mullvad-vpn.png /app/share/icons/hicolor/128x128/apps/net.mullvad.MullvadVPN.png
+      - install -Dm644 usr/share/icons/hicolor/256x256/apps/mullvad-vpn.png /app/share/icons/hicolor/256x256/apps/net.mullvad.MullvadVPN.png
+      - install -Dm644 usr/share/icons/hicolor/512x512/apps/mullvad-vpn.png /app/share/icons/hicolor/512x512/apps/net.mullvad.MullvadVPN.png
+
+      # Dump the electron app and related files here
+      - mv "opt/Mullvad VPN" /app/mullvad-vpn
+      - chmod 4755 /app/mullvad-vpn/chrome-sandbox
+
+      # Runner script
+      - install -Dm755 gui /app/bin/
+
+finish-args:
+  # X11 + XShm access
+  # - --share=ipc
+  # - --socket=fallback-x11
+  # Wayland access
+  - --socket=wayland
+  # GPU acceleration if needed
+  - --device=dri
+  # Needs to talk to the network:
+  - --share=network
+  # Needs to save files locally
+  - --filesystem=xdg-documents
+
+  # Full dbus access
+  # TODO: limit this
+  - --socket=system-bus
+  # Mullvad gRPC socket
+  - --filesystem=/run/mullvad-vpn
+

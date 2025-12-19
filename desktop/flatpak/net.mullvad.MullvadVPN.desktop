@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Mullvad VPN
+Exec=gui %U
+Terminal=false
+Type=Application
+Icon=net.mullvad.MullvadVPN
+StartupWMClass=Mullvad VPN
+Comment=Mullvad VPN client (flatpak)
+Categories=Network;
