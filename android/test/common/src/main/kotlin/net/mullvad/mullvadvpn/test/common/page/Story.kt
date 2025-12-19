@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.test.common.page
 
+import androidx.test.uiautomator.waitForStableInActiveWindow
 import net.mullvad.mullvadvpn.test.common.extension.pressBackThrice
 import net.mullvad.mullvadvpn.test.common.extension.pressBackTwice
 
@@ -102,8 +103,10 @@ fun ConnectPage.enableServerIpOverrideStory(relay: String, overrideIp: String) {
         input(
             "{ \"relay_overrides\": [ { \"hostname\": \"$relay\", \"ipv4_addr_in\": \"$overrideIp\" } ] }"
         )
+        uiDevice.waitForStableInActiveWindow()
         clickImport()
     }
+    on<ServerIpOverridesPage> { assertOverrideActive() }
     uiDevice.pressBackThrice()
 }
 
