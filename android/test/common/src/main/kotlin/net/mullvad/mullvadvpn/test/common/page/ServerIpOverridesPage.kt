@@ -14,4 +14,8 @@ class ServerIpOverridesPage internal constructor() : Page() {
     fun clickImportButton() {
         uiDevice.findObjectWithTimeout(By.res(SERVER_IP_OVERRIDE_IMPORT_TEST_TAG)).click()
     }
+
+    fun assertOverrideActive() {
+        uiDevice.findObjectWithTimeout(By.text("Overrides active"))
+    }
 }
