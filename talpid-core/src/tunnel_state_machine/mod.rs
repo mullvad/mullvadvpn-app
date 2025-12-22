@@ -365,23 +365,6 @@ impl TunnelStateMachine {
         #[cfg(target_os = "macos")]
         let filtering_resolver = crate::resolver::start_resolver(Default::default()).await?;
 
-        #[cfg(windows)]
-        let split_tunnel = {
-            let result = split_tunnel::SplitTunnel::new(
-                runtime.clone(),
-                args.resource_dir.clone(),
-                args.command_tx.clone(),
-                volume_update_rx,
-                args.route_manager.clone(),
-            )
-            .map_err(Error::InitSplitTunneling);
-
-            // NOTE: Do not spawn any processes here. There is a bug in the split tunnel driver that
-            // can trigger a bug check/BSOD if processes are spawned or killed during a failed init.
-
-            result?
-        };
-
         #[cfg(target_os = "macos")]
         let split_tunnel =
             split_tunnel::SplitTunnel::spawn(args.command_tx.clone(), args.route_manager.clone());
@@ -417,9 +400,10 @@ impl TunnelStateMachine {
 
         let (offline_tx, mut offline_rx) = mpsc::unbounded();
         let initial_offline_state_tx = args.offline_state_tx.clone();
+        let command_tx = args.command_tx.clone();
         tokio::spawn(async move {
             while let Some(connectivity) = offline_rx.next().await {
-                if let Some(tx) = args.command_tx.upgrade() {
+                if let Some(tx) = command_tx.upgrade() {
                     let _ = tx.unbounded_send(TunnelCommand::Connectivity(connectivity));
                 } else {
                     break;
@@ -441,9 +425,14 @@ impl TunnelStateMachine {
         let _ = initial_offline_state_tx.unbounded_send(connectivity);
 
         #[cfg(windows)]
-        split_tunnel
-            .set_paths_sync(&args.settings.exclude_paths)
-            .map_err(Error::InitSplitTunneling)?;
+        let split_tunnel = split_tunnel::SplitTunnel::new(
+            runtime.clone(),
+            args.resource_dir.clone(),
+            args.command_tx.clone(),
+            volume_update_rx,
+            args.route_manager.clone(),
+            &args.settings.exclude_paths,
+        );
 
         #[cfg(target_os = "macos")]
         if let Err(error) = split_tunnel
