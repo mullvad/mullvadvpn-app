@@ -8,15 +8,20 @@ else
     SANDBOX_FLAG=""
 fi
 
-SUPPORTED_COMPOSITORS="sway river Hyprland niri"
-if [ "${XDG_SESSION_TYPE:-""}"  = "wayland" ] && \
-    echo " $SUPPORTED_COMPOSITORS " | \
-    grep -qi -e " ${XDG_CURRENT_DESKTOP:-""} " -e " ${XDG_SESSION_DESKTOP:-""} "
-then
-    WAYLAND_FLAGS=( "--ozone-platform=wayland" "--enable-features=WaylandWindowDecorations" )
+if [ "${XDG_SESSION_TYPE:-""}"  = "wayland" ]; then
+    # If running wayland ensure a supported compositor is used,
+    # otherwise force use of X11.
+    WAYLAND_SUPPORTED_COMPOSITORS="sway river Hyprland niri"
+    if [ echo " $WAYLAND_SUPPORTED_COMPOSITORS " | grep -qi -e " ${XDG_CURRENT_DESKTOP:-""} " -e " ${XDG_SESSION_DESKTOP:-""} " ]
+    then
+        COMPOSITOR_FLAGS=( "--ozone-platform=wayland" "--enable-features=WaylandWindowDecorations" )
+    else
+        COMPOSITOR_FLAGS=( "--ozone-platform=x11" )
+    fi
 else
-    WAYLAND_FLAGS=()
+    # If not running wayland then we do not need to set any flags.
+    COMPOSITOR_FLAGS=()
 fi
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-exec "$SCRIPT_DIR/mullvad-gui" "$SANDBOX_FLAG" "${WAYLAND_FLAGS[@]}" "$@"
+exec "$SCRIPT_DIR/mullvad-gui" "$SANDBOX_FLAG" "${COMPOSITOR_FLAGS[@]}" "$@"
