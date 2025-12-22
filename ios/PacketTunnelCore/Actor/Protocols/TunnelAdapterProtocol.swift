@@ -15,9 +15,13 @@ import NetworkExtension
 /// Protocol describing interface for any kind of adapter implementing a VPN tunnel.
 public protocol TunnelAdapterProtocol: Sendable {
     /// Start tunnel adapter or update active configuration.
+    /// # Important
+    /// Call `apply` at least once with a valid configuration for the tunnel to receive any user traffic.
     func start(configuration: TunnelAdapterConfiguration, daita: DaitaConfiguration?) async throws
 
     /// Start tunnel adapter or update active configuration.
+    /// # Important
+    /// Call `apply` at least once with a valid configuration for the tunnel to receive any user traffic.
     func startMultihop(
         entryConfiguration: TunnelAdapterConfiguration?,
         exitConfiguration: TunnelAdapterConfiguration,
