@@ -1,7 +1,7 @@
 use super::TunConfig;
 use std::{io, net::IpAddr, ops::Deref};
-use tun07 as tun;
-use tun07::{AbstractDevice, AsyncDevice, Configuration};
+use tun08 as tun;
+use tun08::{AbstractDevice, AsyncDevice, Configuration};
 
 /// Errors that can occur while setting up a tunnel device.
 #[derive(Debug, thiserror::Error)]

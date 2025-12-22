@@ -30,7 +30,7 @@ jnix = { version = "0.5.1", features = ["derive"] }
 log = { workspace = true }
 
 [target.'cfg(not(target_os = "android"))'.dependencies]
-tun07 = { package = "tun", version = "0.7.11", features = [
+tun08 = { package = "tun", default-features = false, version = "0.8.5", features = [
   "async",
 ] }
 
