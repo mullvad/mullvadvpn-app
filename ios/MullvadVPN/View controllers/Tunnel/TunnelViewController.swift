@@ -124,9 +124,11 @@ class TunnelViewController: UIViewController, RootContainment {
         connectionView.action = { [weak self] action in
             switch action {
             case .connect:
+                self?.logger.debug("User tapped connect button")
                 self?.interactor.startTunnel()
 
             case .cancel:
+                self?.logger.debug("User tapped cancel button")
                 if case .waitingForConnectivity(.noConnection) = self?.interactor.tunnelStatus.state {
                     self?.shouldShowCancelTunnelAlert?()
                 } else {
@@ -134,9 +136,11 @@ class TunnelViewController: UIViewController, RootContainment {
                 }
 
             case .disconnect:
+                self?.logger.debug("User tapped disconnect button")
                 self?.interactor.stopTunnel()
 
             case .reconnect:
+                self?.logger.debug("User tapped reconnect button")
                 self?.interactor.reconnectTunnel(selectNewRelay: true)
 
             case .selectLocation:
