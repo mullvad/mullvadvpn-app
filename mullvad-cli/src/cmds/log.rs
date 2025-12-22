@@ -10,7 +10,7 @@ pub enum Log {
         /// The log level to set
         level: String,
     },
-
+    /// Follow live updates to the daemon log file. Analogue to running `tail -f` on the daemon log file.
     Listen,
 }
 
@@ -30,7 +30,7 @@ async fn on_listen() -> std::result::Result<(), anyhow::Error> {
         .for_each(|log| async {
             match log {
                 Ok(log) => print!("{log}"), // newlines?
-                Err(e) => eprint!("Error: {e}"),
+                Err(e) => eprint!("{e}"),
             }
         })
         .await;
