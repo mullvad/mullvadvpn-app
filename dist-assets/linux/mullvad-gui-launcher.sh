@@ -12,7 +12,7 @@ if [ "${XDG_SESSION_TYPE:-""}"  = "wayland" ]; then
     # If running wayland ensure a supported compositor is used,
     # otherwise force use of X11.
     WAYLAND_SUPPORTED_COMPOSITORS="sway river Hyprland niri"
-    if [ echo " $WAYLAND_SUPPORTED_COMPOSITORS " | grep -qi -e " ${XDG_CURRENT_DESKTOP:-""} " -e " ${XDG_SESSION_DESKTOP:-""} " ]
+    if echo " $WAYLAND_SUPPORTED_COMPOSITORS " | grep -qi -e " ${XDG_CURRENT_DESKTOP:-""} " -e " ${XDG_SESSION_DESKTOP:-""} "
     then
         COMPOSITOR_FLAGS=( "--ozone-platform=wayland" "--enable-features=WaylandWindowDecorations" )
     else
