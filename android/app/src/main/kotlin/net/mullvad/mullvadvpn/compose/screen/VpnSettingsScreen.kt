@@ -7,7 +7,6 @@ import android.os.Parcelable
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
-import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
@@ -452,8 +451,7 @@ fun VpnSettingsContent(
                     state = lazyListState,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaScrollbar),
                 )
-                .padding(horizontal = Dimens.sideMarginNew)
-                .animateContentSize(),
+                .padding(horizontal = Dimens.sideMarginNew),
         state = lazyListState,
     ) {
         state.settings.forEach {
