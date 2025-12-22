@@ -74,26 +74,42 @@ pub struct LogHandle {
     _file_appender_guard: non_blocking::WorkerGuard,
 }
 
+/// A simple, asynchronous log sink.
+///
+/// To read from a [`LogStreamer`] sink, check out the associated [`LogHandle`] and [`LogHandle::get_log_stream`].
 #[derive(Clone)]
 struct LogStreamer {
     tx: tokio::sync::broadcast::Sender<String>,
 }
 
 impl io::Write for LogStreamer {
+    /// Will always write the entire `buf` or nothing (`0` bytes) in case there are no subscribers.
+    ///
+    /// See [`std::io::Write`].
     fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
         match self.tx.send(String::from_utf8(buf.to_vec()).unwrap()) {
-            Ok(_n) => {}
-            Err(_e) => {}
-        };
-        Ok(buf.len())
+            Ok(_n_subscribers) => Ok(buf.len()),
+            // From the docs of `std::io::Write`:
+            // "A return value of Ok(0) typically means that the underlying object is no longer able to accept bytes
+            // and will likely not be able to in the future as well, or that the buffer provided is empty."
+            // =>
+            // Thus, returning `Ok(0)` is correct if no-one is subscribed and can received the `buf` message.
+            Err(_e) => Ok(0),
+        }
     }
 
+    /// There is no intermediately buffered content, so `flush` will always succeed and is always
+    /// a NOOP.
     fn flush(&mut self) -> io::Result<()> {
-        todo!()
+        Ok(())
     }
 }
 
 impl LogHandle {
+    /// Adjust the log level.
+    ///
+    /// - `level_filter`: A `RUST_LOG` string. See `env_logger` for more information:
+    /// https://docs.rs/env_logger/latest/env_logger/
     pub fn set_log_filter(
         &self,
         level_filter: impl AsRef<str>,
@@ -102,6 +118,7 @@ impl LogHandle {
         self.env_filter.modify(|env_filter| *env_filter = new)
     }
 
+    /// Subscribe to new log events.
     pub fn get_log_stream(&self) -> tokio::sync::broadcast::Receiver<String> {
         self.log_stream.tx.subscribe()
     }
