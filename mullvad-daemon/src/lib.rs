@@ -952,6 +952,7 @@ impl Daemon {
         let on_relay_list_update = move |relay_list: &RelayList| {
             relay_list_listener.notify_relay_list(relay_list.clone());
             let (tx, _) = oneshot::channel();
+            log::info!("Broadcasting `UpdateDefaultLocationCountry` event to all subscribers");
             let _ = internal_event_tx_clone.send(InternalDaemonEvent::Command(
                 DaemonCommand::UpdateDefaultLocationCountry(tx),
             ));

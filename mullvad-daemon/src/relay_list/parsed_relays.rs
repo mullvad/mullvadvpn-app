@@ -40,7 +40,7 @@ pub fn parse_relays_from_file(
 }
 
 fn from_file_inner(path: impl AsRef<Path>) -> Result<(CachedRelayList, SystemTime), Error> {
-    log::trace!("Reading relays from {}", path.as_ref().display());
+    log::info!("Reading relays from {}", path.as_ref().display());
     let (file, last_modified) = open_file(path).map_err(Error::OpenRelayCache)?;
     let cached_relay_list =
         serde_json::from_reader(BufReader::new(file)).map_err(Error::Serialize)?;

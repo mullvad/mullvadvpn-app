@@ -327,14 +327,18 @@ impl RelaySelector {
 
     /// Update the list of relays
     pub fn set_relays(&self, relays: RelayList) {
+        log::info!("Taking lock for relay list");
         let mut key = self.relays.write().unwrap();
         *key = relays;
+        log::info!("Wrote relay list to relay selector. Dropping write lock.");
     }
 
     /// Update the list of bridges
     pub fn set_bridges(&self, bridges: BridgeList) {
+        log::info!("Taking lock for bridge list");
         let mut key = self.bridges.write().unwrap();
         *key = bridges;
+        log::info!("Wrote bridge list to relay selector. Dropping write lock.");
     }
 
     /// Returns all countries and cities. The cities in the object returned does not have any

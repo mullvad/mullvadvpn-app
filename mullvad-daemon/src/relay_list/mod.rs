@@ -42,6 +42,7 @@ pub struct RelayListUpdaterHandle {
 }
 
 /// Possible events that occur in the [RelayListUpdater] life cycle.
+#[derive(Debug)]
 enum Event {
     /// Trigger a relay list refresh.
     Update,
@@ -128,6 +129,7 @@ impl RelayListUpdater {
     }
 
     async fn run(mut self, mut internal_events: mpsc::Receiver<Event>) {
+        log::info!("Spawning relay list updater");
         let mut download_future = Box::pin(Fuse::terminated());
         loop {
             let next_check = tokio::time::sleep(UPDATE_CHECK_INTERVAL).fuse();
@@ -137,6 +139,7 @@ impl RelayListUpdater {
 
             futures::select! {
                 _check_update = next_check => {
+                    log::info!("Received `next_check` event");
                     if download_future.is_terminated() && self.should_update() {
                         download_future = Box::pin(Self::download_relay_list(self.api_availability.clone(), self.api_client.clone(), etag).fuse());
                         self.last_check = SystemTime::now();
@@ -144,10 +147,13 @@ impl RelayListUpdater {
                 },
 
                 new_relay_list = download_future => {
+                    log::info!("Finished downloading a new relay list");
                     self.consume_new_relay_list(new_relay_list).await;
                 },
 
                 cmd = internal_events.next() => {
+                    log::info!("Received `internal` event");
+                    log::info!("{cmd:#?}");
                     let Some(event) = cmd else {
                             log::trace!("Relay list updater shutting down");
                             return;
@@ -172,9 +178,13 @@ impl RelayListUpdater {
         &mut self,
         result: Result<Option<CachedRelayList>, mullvad_api::Error>,
     ) {
+        log::info!("Consuming new relay list result");
         match result {
-            Ok(Some(relay_list)) => self.update_cache(relay_list).await,
-            Ok(None) => log::debug!("Relay list is up-to-date"),
+            Ok(Some(relay_list)) => {
+                log::info!("Updating relay list cache");
+                self.update_cache(relay_list).await
+            }
+            Ok(None) => log::info!("Relay list is up-to-date"),
             Err(error) => log::error!(
                 "{}",
                 error.display_chain_with_msg("Failed to fetch new relay list")
@@ -184,6 +194,7 @@ impl RelayListUpdater {
 
     /// Returns true if the current relay list is older than [`UPDATE_INTERVAL`].
     fn should_update(&mut self) -> bool {
+        // TODO: This needs to be updated (with mtime I guess?)
         match SystemTime::now().duration_since(self.last_check) {
             Ok(duration) => duration >= UPDATE_INTERVAL,
             // If the clock is skewed we have no idea by how much or when the last update
@@ -204,9 +215,13 @@ impl RelayListUpdater {
             tag: Option<ETag>,
         ) -> Result<Option<CachedRelayList>, mullvad_api::Error> {
             let available = api_handle.wait_background();
+            log::info!("Starting download of relay list");
             let req = proxy.relay_list(tag);
             available.await?;
-            req.await.map_err(mullvad_api::Error::from)
+            log::info!("API runtime is available. Starting fetch for relay list");
+            let response = req.await.map_err(mullvad_api::Error::from);
+            log::info!("API relay list response: {response:#?}");
+            response
         }
 
         let download_futures =
@@ -241,14 +256,17 @@ impl RelayListUpdater {
         let relay_list = self.get_final_relay_list();
         let bridge_list = self.bridge_list.clone();
         // Announce new relay list
-        (self.on_update)(&relay_list);
-        self.relay_selector.set_relays(relay_list);
+        log::info!("Updating relay selector");
+        self.relay_selector.set_relays(relay_list.clone());
         self.relay_selector.set_bridges(bridge_list);
+        // Note: It is important that dependants are updated after relay selector state has been
+        // updated, since they might depend on the relay selector's state ..
+        (self.on_update)(&relay_list);
     }
 
     /// Write a [`CachedRelayList`] to the file at `cache_path`.
     async fn cache_relays(cache_path: &Path, relays: &CachedRelayList) -> Result<(), Error> {
-        log::debug!("Writing relays cache to {}", cache_path.display());
+        log::info!("Writing relays cache to {}", cache_path.display());
         let mut file = File::create(cache_path)
             .await
             .map_err(Error::OpenRelayCache)?;
