@@ -1,7 +1,7 @@
 #[cfg(feature = "wireguard-go")]
 pub use tun05_imp::{Error, UnixTun, UnixTunProvider};
 #[cfg(not(feature = "wireguard-go"))]
-pub use tun07_imp::{Error, UnixTun, UnixTunProvider};
+pub use tun08_imp::{Error, UnixTun, UnixTunProvider};
 #[cfg(feature = "wireguard-go")]
 mod tun05_imp {
     use std::{
@@ -219,14 +219,14 @@ mod tun05_imp {
 }
 
 #[cfg(not(feature = "wireguard-go"))]
-mod tun07_imp {
+mod tun08_imp {
     use std::net::IpAddr;
     use std::os::fd::{AsRawFd, RawFd};
     use std::process::Command;
 
     use std::ops::Deref;
 
-    use tun07::{AbstractDevice, AsyncDevice};
+    use tun08::{AbstractDevice, AsyncDevice};
 
     use crate::tun_provider::TunConfig;
 
@@ -235,7 +235,7 @@ mod tun07_imp {
     pub enum Error {
         /// Failed to set IPv4 address on tunnel device
         #[error("Failed to set IPv4 address")]
-        SetIpv4(#[source] tun07::Error),
+        SetIpv4(#[source] tun08::Error),
 
         /// Failed to set IPv6 address on tunnel device
         #[error("Failed to set IPv6 address")]
@@ -243,15 +243,15 @@ mod tun07_imp {
 
         /// Unable to open a tunnel device
         #[error("Unable to open a tunnel device")]
-        CreateDevice(#[source] tun07::Error),
+        CreateDevice(#[source] tun08::Error),
 
         /// Failed to enable/disable link device
         #[error("Failed to enable/disable link device")]
-        ToggleDevice(#[source] tun07::Error),
+        ToggleDevice(#[source] tun08::Error),
 
         /// Failed to get device name
         #[error("Failed to get tunnel device name")]
-        GetDeviceName(#[source] tun07::Error),
+        GetDeviceName(#[source] tun08::Error),
     }
 
     /// Factory of tunnel devices on Unix systems.
@@ -325,7 +325,7 @@ mod tun07_imp {
 
     /// A tunnel device
     pub struct TunnelDevice {
-        pub(crate) dev: tun07::AsyncDevice,
+        pub(crate) dev: tun08::AsyncDevice,
     }
 
     /// A tunnel device builder.
@@ -333,13 +333,13 @@ mod tun07_imp {
     /// Call [`Self::create`] to create [`TunnelDevice`] from the config.
     #[derive(Default)]
     pub struct TunnelDeviceBuilder {
-        pub(crate) config: tun07::Configuration,
+        pub(crate) config: tun08::Configuration,
     }
 
     impl TunnelDeviceBuilder {
         /// Create a [`TunnelDevice`] from this builder.
         pub fn create(self) -> Result<TunnelDevice, Error> {
-            let dev = tun07::create_as_async(&self.config).map_err(Error::CreateDevice)?;
+            let dev = tun08::create_as_async(&self.config).map_err(Error::CreateDevice)?;
             Ok(TunnelDevice { dev })
         }
 
