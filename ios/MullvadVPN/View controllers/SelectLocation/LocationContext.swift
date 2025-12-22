@@ -29,4 +29,6 @@ struct LocationContext {
             .flatMap { [$0] + $0.flattened }
             .first { $0.isSelected }
     }
+
+    var relaysAreFiltered: Bool { availableRelayCount < totalRelayCount }
 }
