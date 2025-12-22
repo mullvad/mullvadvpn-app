@@ -20,6 +20,10 @@ import WireGuardKitC
 // - DAITA
 
 public final class GotaAdapter: TunnelAdapterProtocol, TunnelDeviceInfoProtocol, Sendable {
+    public func apply(settings: PacketTunnelCore.TunnelInterfaceSettings) async throws {
+        try await self.provider.setTunnelNetworkSettings(settings.asTunnelSettings())
+    }
+
 
     public enum Error: Swift.Error {
         case noPeer
@@ -81,8 +85,6 @@ public final class GotaAdapter: TunnelAdapterProtocol, TunnelDeviceInfoProtocol,
     public func start(
         configuration: PacketTunnelCore.TunnelAdapterConfiguration, daita: WireGuardKitTypes.DaitaConfiguration?
     ) async throws {
-        try await self.provider.setTunnelNetworkSettings(generateNetworkSettings(for: configuration))
-
         guard let tunnelFileDescriptor = self.tunnelFileDescriptor else {
             throw Error.noFileDescriptor
         }
@@ -108,11 +110,17 @@ public final class GotaAdapter: TunnelAdapterProtocol, TunnelDeviceInfoProtocol,
                 publicKey: entryPeer.publicKey.rawValue,
                 endpoint: entryPeer.endpoint.description)
 
-            if let v4Addr = exit.interfaceAddresses.first(
-                where: { $0.address is IPv4Address }) {
-                config.set
+            if let v4Addr = exit.interfaceAddresses.compactMap({ range in
+                range.address as? IPv4Address
+            }).first {
+                config.addV4Addr(address: v4Addr)
             }
 
+            if let v6Addr = exit.interfaceAddresses.compactMap({ range in
+                range.address as? IPv6Address
+            }).first {
+                config.addV6Addr(address: v6Addr)
+            }
 
         }
 
@@ -130,10 +138,6 @@ public final class GotaAdapter: TunnelAdapterProtocol, TunnelDeviceInfoProtocol,
         exitConfiguration: PacketTunnelCore.TunnelAdapterConfiguration,
         daita: WireGuardKitTypes.DaitaConfiguration?
     ) async throws {
-        // TODO: Should `entryConfiguration` ever be nil here ?
-        try await self.provider.setTunnelNetworkSettings(
-            generateNetworkSettings(for: entryConfiguration ?? exitConfiguration))
-
         guard let tunnelFileDescriptor = self.tunnelFileDescriptor else {
             throw Error.noFileDescriptor
         }

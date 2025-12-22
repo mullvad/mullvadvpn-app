@@ -8,6 +8,7 @@
 
 import Foundation
 import MullvadRustRuntimeProxy
+import Network
 
 public class GotaTun {
     public enum Error: Swift.Error {
@@ -49,11 +50,11 @@ public class GotaTunConfig {
     }
 
     public func addV4Addr(address: IPv4Address) {
-
+        mullvad_ios_gotatun_config_set_private_ipv4(handle, "\(address)")
     }
 
     public func addV6Addr(address: IPv6Address) {
-
+        mullvad_ios_gotatun_config_set_private_ipv6(handle, "\(address)")
     }
 
     private func preSharedKeyOr(_ key: Data?) -> Data? {

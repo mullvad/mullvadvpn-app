@@ -2418,9 +2418,9 @@ dependencies = [
 
 [[package]]
 name = "ipnet"
-version = "2.9.0"
+version = "2.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8f518f335dce6725a761382244631d86cf0ccb2863413590b31338feb467f9c3"
+checksum = "469fb0b9cefa57e3ef31275ee7cacb78f2fdca44e4765491884a2b119d4eb130"
 dependencies = [
  "serde",
 ]
@@ -5043,17 +5043,18 @@ dependencies = [
 
 [[package]]
 name = "shadowsocks-service"
-version = "1.20.4"
+version = "1.23.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c0c0ce5a3a15e2688b7014c37ed3db33dc296d8b8fda36643c053882bf1d5f44"
+checksum = "b94cc39b669a8e67f405bd1d386170b2aaac654c156837e76940958c1608c61b"
 dependencies = [
  "arc-swap",
- "async-trait",
  "byte_string",
  "byteorder",
  "bytes",
  "cfg-if",
  "futures",
+ "hickory-resolver",
+ "http",
  "http-body-util",
  "httparse",
  "hyper",
@@ -5064,18 +5065,18 @@ dependencies = [
  "libc",
  "log",
  "lru_time_cache",
- "nix 0.29.0",
- "once_cell",
+ "nix 0.30.1",
  "pin-project",
- "rand 0.8.5",
+ "rand 0.9.2",
  "regex",
  "serde",
  "shadowsocks",
  "socket2 0.5.8",
  "spin",
- "thiserror 1.0.59",
+ "thiserror 2.0.9",
  "tokio",
- "windows-sys 0.59.0",
+ "trait-variant",
+ "windows-sys 0.60.2",
 ]
 
 [[package]]

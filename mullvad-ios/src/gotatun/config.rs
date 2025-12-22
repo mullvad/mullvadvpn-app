@@ -208,47 +208,30 @@ pub unsafe extern "C" fn mullvad_ios_gotatun_config_set_exit(
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn mullvad_ios_gotatun_config_set_private_ipv4(
     mut config: SwiftGotaTunConfiguration,
-    ipv4: *const u8,
-    peer_endpoint: *const c_char,
+    ipv4: *const c_char,
 ) -> i32 {
     let cfg = unsafe { config.mut_config() };
-///
-#[unsafe(no_mangle)]
-pub unsafe extern "C" fn mullvad_ios_gotatun_config_set_private_ipv4(
-    mut config: SwiftGotaTunConfiguration,
-    ipv4: *const u8,
-    peer_endpoint: *const c_char,
-) -> i32 {
-    let cfg = unsafe { config.mut_config() };
-    let cstr = unsafe { CStr::from_ptr(ptr) };
-    let Ok(s) = cstr.to_str() {
-        return ConfigStatus::InvalidArg;
-    }
-
-    config.set_ipv4_addr(&s);
-}
-    let cstr = unsafe { CStr::from_ptr(ptr) };
+    let cstr = unsafe { CStr::from_ptr(ipv4) };
     let Ok(s) = cstr.to_str() else {
-        return ConfigStatus::InvalidArg;
-    }
+        return ConfigStatus::InvalidArg as i32;
+    };
 
-    config.set_ipv4_addr(&s);
+    cfg.set_ipv4_addr(&s) as i32
 }
 
 ///
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn mullvad_ios_gotatun_config_set_private_ipv6(
     mut config: SwiftGotaTunConfiguration,
-    ipv4: *const u8,
-    peer_endpoint: *const c_char,
+    ipv6: *const c_char,
 ) -> i32 {
     let cfg = unsafe { config.mut_config() };
-    let cstr = unsafe { CStr::from_ptr(ptr) };
+    let cstr = unsafe { CStr::from_ptr(ipv6) };
     let Ok(s) = cstr.to_str() else {
-        return ConfigStatus::InvalidArg;
-    }
+        return ConfigStatus::InvalidArg as i32;
+    };
 
-    config.set_ipv6_addr(&s);
+    cfg.set_ipv6_addr(&s) as i32
 }
 
 ///

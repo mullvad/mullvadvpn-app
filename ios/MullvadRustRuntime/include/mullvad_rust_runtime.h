@@ -907,6 +907,18 @@ int32_t mullvad_ios_gotatun_config_set_exit(struct SwiftGotaTunConfiguration con
 /**
  *
  */
+int32_t mullvad_ios_gotatun_config_set_private_ipv4(struct SwiftGotaTunConfiguration config,
+                                                    const char *ipv4);
+
+/**
+ *
+ */
+int32_t mullvad_ios_gotatun_config_set_private_ipv6(struct SwiftGotaTunConfiguration config,
+                                                    const char *ipv6);
+
+/**
+ *
+ */
 int32_t mullvad_ios_gotatun_config_set_entry(struct SwiftGotaTunConfiguration config,
                                              const uint8_t *local_private_key,
                                              const uint8_t *local_ephemeral_key,

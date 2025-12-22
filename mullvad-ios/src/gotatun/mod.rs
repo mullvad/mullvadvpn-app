@@ -103,23 +103,9 @@ impl GotaTun {
             let entry_peer = config.entry.as_ref().unwrap().get_peer();
             let exit_peer = config.exit.as_ref().unwrap().get_peer();
 
-            let source_v4 = entry_peer
-                .allowed_ip
-                .iter()
-                .find_map(|ip| match &ip.addr {
-                    &IpAddr::V4(ipv4_addr) => Some(ipv4_addr),
-                    IpAddr::V6(..) => None,
-                })
-                .unwrap_or(Ipv4Addr::UNSPECIFIED);
+            let source_v4 = config.private_ip_v4.unwrap_or(Ipv4Addr::UNSPECIFIED);
+            let source_v6 = config.private_ip_v6.unwrap_or(Ipv6Addr::UNSPECIFIED);
 
-            let source_v6 = entry_peer
-                .allowed_ip
-                .iter()
-                .find_map(|ip| match &ip.addr {
-                    &IpAddr::V6(ipv6_addr) => Some(ipv6_addr),
-                    IpAddr::V4(..) => None,
-                })
-                .unwrap_or(Ipv6Addr::UNSPECIFIED);
 
             let multihop_overhead = match exit_peer.endpoint.unwrap().ip() {
                 IpAddr::V4(..) => Ipv4Header::LEN + UdpHeader::LEN + WgData::OVERHEAD,
