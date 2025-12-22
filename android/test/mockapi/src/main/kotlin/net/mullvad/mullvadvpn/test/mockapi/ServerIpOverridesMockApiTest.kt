@@ -1,7 +1,11 @@
 package net.mullvad.mullvadvpn.test.mockapi
 
 import java.time.ZonedDateTime
+import kotlin.time.Duration.Companion.minutes
 import kotlinx.coroutines.test.runTest
+import net.mullvad.mullvadvpn.lib.model.Constraint
+import net.mullvad.mullvadvpn.lib.model.IpVersion
+import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
 import net.mullvad.mullvadvpn.test.common.extension.acceptVpnPermissionDialog
 import net.mullvad.mullvadvpn.test.common.misc.RelayProvider
 import net.mullvad.mullvadvpn.test.common.page.ConnectPage
@@ -39,27 +43,35 @@ class ServerIpOverridesMockApiTest : MockApiTest() {
     }
 
     @Test
-    fun testAttemptToConnectUsingServerIpOverride() = runTest {
-        // Arrange
-        app.launchAndLogIn(validAccountNumber)
+    fun testAttemptToConnectUsingServerIpOverride() =
+        runTest(timeout = 2.minutes) {
+            // Arrange
+            app.launchAndLogIn(validAccountNumber)
+            app.applySettings(
+                obfuscationMode = ObfuscationMode.Off,
+                deviceIpVersion = Constraint.Only(IpVersion.IPV4),
+            )
 
-        // Enable server ip override
-        val mockServerIp = "12.12.12.12"
-        val relay = relayProvider.getOverrideRelay()
-        on<ConnectPage> { enableServerIpOverrideStory(relay.relay, mockServerIp) }
+            // Enable server ip override
+            val mockServerIp = "12.12.12.12"
+            val relay = relayProvider.getOverrideRelay()
+            on<ConnectPage> { enableServerIpOverrideStory(relay.relay, mockServerIp) }
 
-        // Select the relay which has an overriden ip
-        on<ConnectPage> { clickSelectLocation() }
+            // Select the relay which has an overriden ip
+            on<ConnectPage> { clickSelectLocation() }
 
-        on<SelectLocationPage> { expandAndClickRelay(relay) }
+            on<SelectLocationPage> { expandAndClickRelay(relay) }
 
-        device.acceptVpnPermissionDialog()
+            device.acceptVpnPermissionDialog()
 
-        var inIpv4Address = ""
+            var inIpv4Address = ""
 
-        on<ConnectPage> { inIpv4Address = extractInIpAddress() }
+            on<ConnectPage> {
+                waitForConnectingLabel()
+                inIpv4Address = extractInIpAddress()
+            }
 
-        // Verify connection
-        assertEquals(mockServerIp, inIpv4Address)
-    }
+            // Verify connection
+            assertEquals(mockServerIp, inIpv4Address)
+        }
 }
