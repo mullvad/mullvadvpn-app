@@ -20,6 +20,7 @@ use hyper_util::rt::TokioIo;
 use tokio::{
     io::{AsyncRead, AsyncWrite},
     net::TcpStream,
+    sync::mpsc,
 };
 use tokio_rustls::rustls::{self};
 use uuid::Uuid;
@@ -103,9 +104,10 @@ impl ProxyConfig {
 pub struct ProxyConnection {
     sender: SendRequest<Full<Bytes>>,
     proxy_host: String,
-    session_id: Uuid,
-    request: Option<Pin<Box<dyn Future<Output = io::Result<Vec<u8>>> + Send>>>,
-    recv_buffer: Option<Vec<u8>>,
+    recv_buffer: Option<Bytes>,
+    ongoing_request: bool,
+    request_tx: mpsc::Sender<Bytes>,
+    response_tx: mpsc::Receiver<Bytes>,
 }
 
 impl ProxyConnection {
@@ -114,71 +116,19 @@ impl ProxyConnection {
         proxy_host: String,
     ) -> anyhow::Result<Self> {
         sender.ready().await?;
-        let response = sender
-            .send_request(Self::initial_request(&proxy_host))
-            .await?;
-        let session_header = response
-            .headers()
-            .get(SESSION_HEADER_KEY)
-            .ok_or(anyhow::anyhow!(
-                "Proxy server didn't include session ID inresponse"
-            ))?;
-        let session_id = Uuid::try_parse_ascii(session_header.as_bytes())?;
+        let (response_tx, response_rx) = mpsc::channel(1);
+        let (request_tx, request_rx) = mpsc::channel(1);
+        let actor = ProxyActor::new(sender, proxy_host, request_rx, response_tx);
+        tokio::spawn(actor.run());
 
         Ok(Self {
             sender,
             proxy_host,
-            session_id,
             recv_buffer: None,
-            request: None,
+            ongoing_request: false,
+            request_tx,
+            response_rx,
         })
-    }
-
-    fn initial_request(proxy_host: &str) -> Request<Full<Bytes>> {
-        hyper::Request::get(&format!("https://{}/hey", proxy_host))
-            .header(header::HOST, proxy_host.clone())
-            .header(header::ACCEPT, "*/*")
-            .body(Full::<Bytes>::new(Bytes::new()))
-            .unwrap()
-    }
-
-    fn create_request(
-        &mut self,
-        buffer: Option<&[u8]>,
-    ) -> &mut Pin<Box<dyn Future<Output = io::Result<Vec<u8>>> + 'static + Send>> {
-        let bytes = buffer
-            .as_ref()
-            .map(|buffer| Bytes::copy_from_slice(*buffer))
-            .unwrap_or(Bytes::new());
-        let content_length = bytes.len();
-        let body = Full::new(bytes);
-
-        let mut request = hyper::Request::post(&format!("https://{}/", self.proxy_host))
-            .header(header::HOST, self.proxy_host.clone())
-            .header(header::ACCEPT, "*/*")
-            .header(SESSION_HEADER_KEY, &format!("{}", self.session_id));
-        if buffer.is_some() {
-            request = request
-                .header(header::CONTENT_TYPE, "application/octet-stream")
-                .header(header::CONTENT_LENGTH, &format!("{}", content_length));
-        }
-        let request = request.body(body).unwrap();
-
-        let request_future = self.sender.send_request(request);
-
-        let future = Box::pin(async move {
-            let response = request_future.await.map_err(io::Error::other)?;
-            if response.status() != StatusCode::OK && response.status() != StatusCode::CREATED {
-                return Err(io::Error::other(format!(
-                    "Unexpected response status code: {}",
-                    response.status()
-                )));
-            };
-            let body = response.collect().await.map_err(io::Error::other)?;
-
-            Ok(body.to_bytes().to_vec())
-        });
-        self.request.insert(future)
     }
 
     fn drain_buffer(
@@ -186,11 +136,9 @@ impl ProxyConnection {
         buf: &mut tokio::io::ReadBuf<'_>,
     ) -> std::task::Poll<io::Result<()>> {
         let Some(received_bytes) = self.recv_buffer.take() else {
-            if self.request.is_none() {
-                self.create_request(None);
-            }
             return Poll::Pending;
         };
+        received_bytes.copy_to_slice(buf);
         let read_slice = match buf.remaining_mut() {
             buffer_length if buffer_length > received_bytes.len() => &received_bytes[..],
             buffer_length => {
@@ -275,4 +223,90 @@ fn read_cert_store() -> rustls::RootCertStore {
 
     cert_store.extend(TLS_SERVER_ROOTS.iter().cloned());
     cert_store
+}
+
+struct Payload {
+    payload: Bytes,
+    // permit: OwnedPermit
+}
+
+struct ProxyActor {
+    sender: SendRequest<Full<Bytes>>,
+    session_id: Uuid,
+    proxy_host: String,
+    request_rx: mpsc::Receiver<Bytes>,
+    response_tx: mpsc::Sender<Bytes>,
+}
+
+impl ProxyActor {
+    fn new(
+        sender: SendRequest<Full<Bytes>>,
+        proxy_host: String,
+        request_rx: mpsc::Receiver<Bytes>,
+        response_tx: mpsc::Sender<Bytes>,
+    ) -> Self {
+        Self {
+            sender,
+            session_id: Uuid::new_v4(),
+            proxy_host,
+            request_rx,
+            response_tx,
+        }
+    }
+    async fn run(mut self) {
+        loop {
+            let Some(msg) = self.request_rx.recv().await else {
+                log::trace!("Shutting down proxy - rx channel has no writers");
+                return;
+            };
+
+            let request = self.create_request(msg);
+            if let Err(err) = self.sender.ready().await {
+                log::trace!(
+                    "Dropping proxy actor due to error when waiting for connection to be ready: {err}"
+                );
+                return;
+            };
+            let response = match self.sender.send_request(request).await {
+                Ok(response) => response,
+                Err(err) => {
+                    log::trace!(
+                        "Dropping proxy actor due to error when waiting for connection to be ready: {err}"
+                    );
+                    return;
+                }
+            };
+
+            if response.status() != StatusCode::OK {
+                log::debug!("Unexpected status code from proxy: {}", response.status());
+                return;
+            }
+
+            let body = match response.collect().await {
+                Ok(body) => body,
+                Err(err) => {
+                    log::debug!("Failed to read whole body of reqsponse: {err}");
+                    return;
+                }
+            };
+            if self.response_tx.send(body.to_bytes()).await.is_err() {
+                log::trace!("Response receiver down, shutting down actor");
+                return;
+            }
+        }
+    }
+
+    fn create_request(&mut self, buffer: Bytes) -> http::Request<Full<Bytes>> {
+        let content_length = buffer.len();
+        let body = Full::new(buffer);
+
+        hyper::Request::post(&format!("https://{}/", self.proxy_host))
+            .header(header::HOST, self.proxy_host.clone())
+            .header(header::ACCEPT, "*/*")
+            .header(SESSION_HEADER_KEY, &format!("{}", self.session_id))
+            .header(header::CONTENT_TYPE, "application/octet-stream")
+            .header(header::CONTENT_LENGTH, &format!("{}", content_length))
+            .body(body)
+            .unwrap()
+    }
 }
