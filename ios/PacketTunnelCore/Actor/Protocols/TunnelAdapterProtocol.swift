@@ -27,7 +27,10 @@ public protocol TunnelAdapterProtocol: Sendable {
     /// Stop tunnel adapter with the given configuration.
     func stop() async throws
 
-    /// Applies tunnel interface settings, without configuring WireGuard. Call this before calling `start` or `startMultihop`.
+    /// Applies tunnel interface settings, without configuring WireGuard.
+    /// # Important
+    ///  Applying tunnel interface settings should be done at least once before starting the tunnel via `start` or `startMultihop`.
+    ///  Without applying tunnel interface settings, iOS will not route traffic through the tunnel, so it is important to call this function as soon as possible.
     func apply(settings: TunnelInterfaceSettings) async throws
 
 }
@@ -55,7 +58,8 @@ public struct TunnelInterfaceSettings: Equatable, Sendable {
     public var dns: [IPAddress]
 
     public func asTunnelSettings() -> NEPacketTunnelNetworkSettings {
-        let networkSettings = NEPacketTunnelNetworkSettings(tunnelRemoteAddress: "127.0.0.1")
+        let networkSettings = NEPacketTunnelNetworkSettings(
+            tunnelRemoteAddress: "\(IPv4Address.loopback)")
 
         let dnsSettings = NEDNSSettings(servers: self.dns.map({ "\($0)" }))
         dnsSettings.matchDomains = [""]  // All DNS queries must first go through the tunnel's DNS
@@ -74,18 +78,16 @@ public struct TunnelInterfaceSettings: Equatable, Sendable {
         var routes = [NEIPv4Route]()
         routes.append(NEIPv4Route.default())
 
-        for range in self.interfaceAddresses {
-            if range.address is IPv4Address {
-                addresses.append("\(range.address)")
-                subnetMasks.append("\(range.subnetMask())")
+        for range in self.interfaceAddresses where range.address is IPv4Address {
+            addresses.append("\(range.address)")
+            subnetMasks.append("\(range.subnetMask())")
 
-                let route = NEIPv4Route(
-                    destinationAddress: "\(range.maskedAddress())",
-                    subnetMask: "\(range.subnetMask())"
-                )
-                route.gatewayAddress = "\(range.address)"
-                routes.append(route)
-            }
+            let route = NEIPv4Route(
+                destinationAddress: "\(range.maskedAddress())",
+                subnetMask: "\(range.subnetMask())"
+            )
+            route.gatewayAddress = "\(range.address)"
+            routes.append(route)
         }
 
         let settings = NEIPv4Settings(addresses: addresses, subnetMasks: subnetMasks)
@@ -98,17 +100,15 @@ public struct TunnelInterfaceSettings: Equatable, Sendable {
         var prefixLengths = [NSNumber]()
         var routes = [NEIPv6Route]()
 
-        for range in self.interfaceAddresses {
-            if range.address is IPv6Address {
-                addresses.append("\(range.address)")
-                prefixLengths.append(NSNumber(value: min(120, range.networkPrefixLength)))
+        for range in self.interfaceAddresses where range.address is IPv6Address {
+            addresses.append("\(range.address)")
+            prefixLengths.append(NSNumber(value: min(120, range.networkPrefixLength)))
 
-                let route = NEIPv6Route(
-                    destinationAddress: "\(range.maskedAddress())",
-                    networkPrefixLength: NSNumber(value: range.networkPrefixLength))
-                route.gatewayAddress = "\(range.address)"
-                routes.append(route)
-            }
+            let route = NEIPv6Route(
+                destinationAddress: "\(range.maskedAddress())",
+            networkPrefixLength: NSNumber(value: range.networkPrefixLength))
+            route.gatewayAddress = "\(range.address)"
+            routes.append(route)
         }
 
         let settings = NEIPv6Settings(

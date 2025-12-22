@@ -47,7 +47,7 @@ public struct Settings: Equatable, Sendable {
         let dnsServers: [IPAddress] =
             switch self.dnsServers {
             case .gateway:
-                [IPv4Address("10.64.0.1")!]
+                [IPv4Address(LocalNetworkIPs.gatewayAddress.rawValue)!]
             case let .blocking(server):
                 [server]
             case let .custom(servers):
