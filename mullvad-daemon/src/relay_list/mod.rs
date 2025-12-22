@@ -94,13 +94,21 @@ impl RelayListUpdater {
         selector: RelaySelector,
         api_handle: MullvadRestHandle,
         cache_dir: &Path,
-        etag: Option<ETag>,
         overrides: Vec<RelayOverride>,
         on_update: impl Fn(&RelayList) + Send + 'static,
+        cached_relay_list: Option<CachedRelayList>,
     ) -> RelayListUpdaterHandle {
         let (tx, cmd_rx) = mpsc::channel(1);
         let api_availability = api_handle.availability.clone();
         let api_client = RelayListProxy::new(api_handle);
+
+        let (relay_list, bridge_list, etag) = cached_relay_list
+            .map(|cached_relay_list| {
+                let etag = cached_relay_list.etag().cloned();
+                let (relay_list, bridge_list) = cached_relay_list.into_internal_repr();
+                (relay_list, bridge_list, etag)
+            })
+            .unwrap_or_default();
         let updater = RelayListUpdater {
             api_client,
             cache_path: cache_dir.join(RELAYS_FILENAME),
@@ -110,8 +118,8 @@ impl RelayListUpdater {
             etag,
             overrides,
             api_availability,
-            relay_list: RelayList::empty(),
-            bridge_list: BridgeList::empty(),
+            relay_list,
+            bridge_list,
         };
 
         tokio::spawn(updater.run(cmd_rx));

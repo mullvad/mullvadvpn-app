@@ -5,8 +5,7 @@ use std::io::{self, BufReader};
 use std::path::Path;
 use std::time::SystemTime;
 
-use mullvad_api::{CachedRelayList, ETag};
-use mullvad_types::relay_list::{BridgeList, RelayList};
+use mullvad_api::CachedRelayList;
 
 use crate::relay_list::RELAYS_FILENAME;
 use crate::relay_list::error::Error;
@@ -15,7 +14,7 @@ use crate::relay_list::error::Error;
 pub fn parse_relays_from_file(
     cache_dir: impl AsRef<Path>,
     resource_dir: impl AsRef<Path>,
-) -> Result<(RelayList, BridgeList, Option<ETag>), Error> {
+) -> Result<CachedRelayList, Error> {
     let relay_list = match (
         from_file_inner(cache_dir.as_ref().join(RELAYS_FILENAME)),
         from_file_inner(resource_dir.as_ref().join(RELAYS_FILENAME)),
@@ -30,16 +29,18 @@ pub fn parse_relays_from_file(
         (Ok(_), Ok((bundled_relays, _))) => bundled_relays,
         (Ok((cached_relays, _)), _) => cached_relays,
         (_, Ok((bundled_relays, _))) => bundled_relays,
-        (Err(_cached_error), Err(bundled_error)) => return Err(bundled_error),
+        (Err(cached_error), Err(bundled_error)) => {
+            log::error!("{cached_error}");
+            log::error!("{bundled_error}");
+            return Err(bundled_error);
+        }
     };
 
-    let etag = relay_list.etag().cloned();
-    let (relay_list, bridge_list) = relay_list.into_internal_repr();
-    Ok((relay_list, bridge_list, etag))
+    Ok(relay_list)
 }
 
 fn from_file_inner(path: impl AsRef<Path>) -> Result<(CachedRelayList, SystemTime), Error> {
-    log::debug!("Reading relays from {}", path.as_ref().display());
+    log::trace!("Reading relays from {}", path.as_ref().display());
     let (file, last_modified) = open_file(path).map_err(Error::OpenRelayCache)?;
     let cached_relay_list =
         serde_json::from_reader(BufReader::new(file)).map_err(Error::Serialize)?;

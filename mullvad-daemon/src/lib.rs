@@ -42,7 +42,9 @@ use futures::{
 use geoip::GeoIpHandler;
 use leak_checker::{LeakChecker, LeakInfo};
 use management_interface::ManagementInterfaceServer;
-use mullvad_api::{ApiEndpoint, access_mode::AccessMethodEvent, proxy::ApiConnectionMode};
+use mullvad_api::{
+    ApiEndpoint, CachedRelayList, access_mode::AccessMethodEvent, proxy::ApiConnectionMode,
+};
 use mullvad_encrypted_dns_proxy::state::EncryptedDnsProxyState;
 use mullvad_relay_selector::{RelaySelector, SelectorConfig};
 #[cfg(target_os = "android")]
@@ -758,19 +760,24 @@ impl Daemon {
             settings_event_listener.notify_settings(settings.to_owned());
         });
 
-        let (initial_relay_list, initial_bridge_list, etag) =
-            parse_relays_from_file(&config.cache_dir, &config.resource_dir)
-                .inspect_err(|err| log::error!("{err}"))
+        let initial_relay_list = parse_relays_from_file(&config.cache_dir, &config.resource_dir)
+            .inspect_err(|err| log::error!("{err}"))
+            .ok();
+        let relay_selector = {
+            let (initial_relay_list, initial_bridge_list) = initial_relay_list
+                .clone()
+                .map(CachedRelayList::into_internal_repr)
                 .unwrap_or_default();
-        // TODO: This should preferably be done once, by the relay list updater.
-        let initial_relay_list =
-            initial_relay_list.apply_overrides(settings.relay_overrides.clone());
-        let initial_selector_config = SelectorConfig::from_settings(&settings);
-        let relay_selector = RelaySelector::new(
-            initial_selector_config,
-            initial_relay_list.clone(),
-            initial_bridge_list.clone(),
-        );
+            // TODO: This should preferably be done once, by the relay list updater.
+            let initial_relay_list =
+                initial_relay_list.apply_overrides(settings.relay_overrides.clone());
+            let initial_selector_config = SelectorConfig::from_settings(&settings);
+            RelaySelector::new(
+                initial_selector_config,
+                initial_relay_list.clone(),
+                initial_bridge_list.clone(),
+            )
+        };
 
         let encrypted_dns_proxy_cache = EncryptedDnsProxyState::default();
         let method_resolver = DaemonAccessMethodResolver::new(
@@ -954,9 +961,9 @@ impl Daemon {
             relay_selector.clone(),
             api_handle.clone(),
             &config.cache_dir,
-            etag,
             settings.relay_overrides.clone(),
             on_relay_list_update,
+            initial_relay_list,
         );
 
         // Notify the relay list updater when new relay IP overrides are available.
