@@ -64,9 +64,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             launchArguments = overriddenLaunchArguments
         }
 
-        if launchArguments.areAnimationsDisabled {
-            UIView.setAnimationsEnabled(false)
-        }
+        UIView.setAnimationsEnabled(false)
+//        if launchArguments.areAnimationsDisabled {
+//        }
 
         let containerURL = ApplicationConfiguration.containerURL
         migrationManager = MigrationManager(cacheDirectory: containerURL)
