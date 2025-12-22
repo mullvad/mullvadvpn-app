@@ -79,7 +79,7 @@ public actor PacketTunnelActor {
     }
 
     public func isErrorState() async -> Bool {
-        if case .error = self.state {
+        if case .error = state {
             return true
         }
         return false
