@@ -327,12 +327,14 @@ impl RelaySelector {
 
     /// Update the list of relays
     pub fn set_relays(&self, relays: RelayList) {
+        log::trace!("Updating relay list");
         let mut key = self.relays.write().unwrap();
         *key = relays;
     }
 
     /// Update the list of bridges
     pub fn set_bridges(&self, bridges: BridgeList) {
+        log::trace!("Updating bridge list");
         let mut key = self.bridges.write().unwrap();
         *key = bridges;
     }

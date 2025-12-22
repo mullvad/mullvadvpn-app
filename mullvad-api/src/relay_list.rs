@@ -44,15 +44,25 @@ impl RelayListProxy {
             let response = request.await?;
 
             match prev_etag {
-                Some(_) if response.status() == StatusCode::NOT_MODIFIED => Ok(None),
+                Some(_) if response.status() == StatusCode::NOT_MODIFIED => {
+                    log::trace!("Relay list API returned 304 - not modified");
+                    Ok(None)
+                }
                 _ => {
-                    // If the API returns a response, it should contain an ETag.
-                    let etag =
-                        Self::extract_etag(&response).ok_or(rest::Error::InvalidHeaderError)?;
+                    // If the API returns a response, it *should* contain an ETag. But this might not be the case.
+                    let etag = Self::extract_etag(&response);
+                    let relay_list: ServerRelayList =
+                        response.deserialize().await.inspect_err(|_err| {
+                            log::error!("Failed to deserialize API response of relay list")
+                        })?;
 
-                    let relay_list: ServerRelayList = response.deserialize().await?;
-
-                    Ok(Some(relay_list.cache(etag)))
+                    match etag {
+                        Some(etag) => Ok(Some(relay_list.cache(etag))),
+                        None => {
+                            log::trace!("Relay list API response did not contain an etag");
+                            Ok(Some(relay_list.uncacheable()))
+                        }
+                    }
                 }
             }
         }
@@ -112,11 +122,19 @@ pub struct CachedRelayList {
 pub struct ETag(pub String);
 
 impl ServerRelayList {
-    /// Associate this relay list with a specific [ETag].
-    fn cache(self, etag: ETag) -> CachedRelayList {
+    /// Associate this relay list with a specific [`ETag`].
+    const fn cache(self, etag: ETag) -> CachedRelayList {
         CachedRelayList {
             relay_list: self,
             etag: Some(etag),
+        }
+    }
+
+    /// There is no associated [`ETag`].
+    const fn uncacheable(self) -> CachedRelayList {
+        CachedRelayList {
+            relay_list: self,
+            etag: None,
         }
     }
 

@@ -42,6 +42,7 @@ pub struct RelayListUpdaterHandle {
 }
 
 /// Possible events that occur in the [RelayListUpdater] life cycle.
+#[derive(Debug)]
 enum Event {
     /// Trigger a relay list refresh.
     Update,
@@ -137,6 +138,7 @@ impl RelayListUpdater {
 
             futures::select! {
                 _check_update = next_check => {
+                    log::trace!("Received `next_check` event");
                     if download_future.is_terminated() && self.should_update() {
                         download_future = Box::pin(Self::download_relay_list(self.api_availability.clone(), self.api_client.clone(), etag).fuse());
                         self.last_check = SystemTime::now();
@@ -144,10 +146,12 @@ impl RelayListUpdater {
                 },
 
                 new_relay_list = download_future => {
+                    log::trace!("Finished downloading a new relay list");
                     self.consume_new_relay_list(new_relay_list).await;
                 },
 
                 cmd = internal_events.next() => {
+                    log::trace!("Received {cmd:#?}");
                     let Some(event) = cmd else {
                             log::trace!("Relay list updater shutting down");
                             return;
@@ -173,7 +177,10 @@ impl RelayListUpdater {
         result: Result<Option<CachedRelayList>, mullvad_api::Error>,
     ) {
         match result {
-            Ok(Some(relay_list)) => self.update_cache(relay_list).await,
+            Ok(Some(relay_list)) => {
+                log::trace!("Updating relay list cache");
+                self.update_cache(relay_list).await
+            }
             Ok(None) => log::debug!("Relay list is up-to-date"),
             Err(error) => log::error!(
                 "{}",
@@ -241,9 +248,11 @@ impl RelayListUpdater {
         let relay_list = self.get_final_relay_list();
         let bridge_list = self.bridge_list.clone();
         // Announce new relay list
-        (self.on_update)(&relay_list);
-        self.relay_selector.set_relays(relay_list);
+        self.relay_selector.set_relays(relay_list.clone());
         self.relay_selector.set_bridges(bridge_list);
+        // Note: It is important that dependants are updated after relay selector state has been
+        // updated, since they might depend on the relay selector's state ..
+        (self.on_update)(&relay_list);
     }
 
     /// Write a [`CachedRelayList`] to the file at `cache_path`.
