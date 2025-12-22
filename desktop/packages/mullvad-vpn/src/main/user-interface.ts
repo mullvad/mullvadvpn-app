@@ -1,5 +1,5 @@
 import { exec, spawn } from 'child_process';
-import { app, BrowserWindow, dialog, Menu, nativeImage, screen, Tray } from 'electron';
+import { app, BrowserWindow, dialog, Menu, screen, Tray } from 'electron';
 import path from 'path';
 import { sprintf } from 'sprintf-js';
 import { promisify } from 'util';
