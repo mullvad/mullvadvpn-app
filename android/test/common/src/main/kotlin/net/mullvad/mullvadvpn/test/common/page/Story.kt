@@ -1,7 +1,6 @@
 package net.mullvad.mullvadvpn.test.common.page
 
 import androidx.test.uiautomator.waitForStableInActiveWindow
-import net.mullvad.mullvadvpn.test.common.extension.pressBackThrice
 import net.mullvad.mullvadvpn.test.common.extension.pressBackTwice
 
 // This file defines extension methods on Page objects that involve multiple actions
@@ -86,13 +85,9 @@ fun ConnectPage.enableDeviceIpv6Story() {
 }
 
 fun ConnectPage.enableServerIpOverrideStory(relay: String, overrideIp: String) {
-    setObfuscationStory(ObfuscationOption.Off)
     clickSettings()
     on<SettingsPage> { clickVpnSettings() }
     on<VpnSettingsPage> {
-        // Disable IPv6
-        scrollUntilDeviceIpVersionCell()
-        clickDeviceIpIpv4Cell()
         // Open ServerIPOverrideScreen
         scrollUntilServerIpOverride()
         clickServerIpOverrideButton()
@@ -107,7 +102,7 @@ fun ConnectPage.enableServerIpOverrideStory(relay: String, overrideIp: String) {
         clickImport()
     }
     on<ServerIpOverridesPage> { assertOverrideActive() }
-    uiDevice.pressBackThrice()
+    repeat(3) { uiDevice.pressBack() }
 }
 
 fun ConnectPage.enableWireGuardCustomPortStory(port: Int) {
