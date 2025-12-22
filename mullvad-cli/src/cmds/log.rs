@@ -29,7 +29,7 @@ async fn on_listen() -> std::result::Result<(), anyhow::Error> {
     log_stream
         .for_each(|log| async {
             match log {
-                Ok(log) => print!("{log}"), // newlines?
+                Ok(log) => print!("{log}"),
                 Err(e) => eprint!("{e}"),
             }
         })
