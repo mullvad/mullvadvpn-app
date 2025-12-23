@@ -59,12 +59,27 @@ impl WindowsTunProvider {
         let mut tunnel_device = {
             #[allow(unused_mut)]
             let mut builder = TunnelDeviceBuilder::default();
-            // TODO: set alias
             // TODO: have tun either not use netsh or not set any default address at all
             // TODO: tun can only set a single address
             if let Some(addr) = first_addr {
                 builder.config.address(*addr);
             }
+
+            /// Tunnel adapter name
+            const ADAPTER_NAME: &str = "Mullvad";
+            /// Tunnel adapter GUID.
+            /// Reuse the same ID, if possible. This prevents Windows from thinking it's a
+            /// "new network".
+            // {AFE43773-E1F8-4EBB-8536-576AB86AFE9A}
+            const ADAPTER_GUID: u128 = 0xAFE4_3773_E1F8_4EBB_8536_576A_B86A_FE9A;
+
+            builder.config.tun_name(ADAPTER_NAME);
+            builder
+                .config
+                .platform_config(|cfg: &mut tun08::PlatformConfig| {
+                    cfg.device_guid(ADAPTER_GUID);
+                });
+
             builder.create()?
         };
 
