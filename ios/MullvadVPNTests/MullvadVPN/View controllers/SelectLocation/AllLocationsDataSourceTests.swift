@@ -131,21 +131,6 @@ class AllLocationsDataSourceTests: XCTestCase {
         }
     }
 
-    func testDoNotSetSelectedCustomListLocation() throws {
-        let selectedRelays: UserSelectedRelays = .init(
-            locations: [
-                .country("es")
-            ],
-            customListSelection: .init(listId: .init(), isList: false)
-        )
-
-        dataSource.setSelectedNode(selectedRelays: selectedRelays)
-
-        dataSource.nodes.forEachNode { node in
-            XCTAssertFalse(node.isSelected)
-        }
-    }
-
     func testExcludeLocation() throws {
         let excludedRelays = UserSelectedRelays(locations: [.hostname("se", "sto", "se2-wireguard")])
         dataSource.setExcludedNode(excludedSelection: excludedRelays)

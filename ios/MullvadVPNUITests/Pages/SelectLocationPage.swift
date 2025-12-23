@@ -77,6 +77,17 @@ class SelectLocationPage: Page {
         return self
     }
 
+    @discardableResult func tapToggleRecents() -> Self {
+        app.buttons[AccessibilityIdentifier.recentConnectionsToggleButton].tap()
+        return self
+    }
+
+    @discardableResult func verifyRecentIsDisabled() -> Self {
+        let textElement = app.buttons["Enable recents"]
+        XCTAssertTrue(textElement.exists)
+        return self
+    }
+
     func locationCellIsExpanded(_ name: String) -> Bool {
         let matchingCells = app.cells.containing(.any, identifier: name)
         return matchingCells.buttons[AccessibilityIdentifier.expandButton].exists ? false : true
@@ -103,4 +114,36 @@ class SelectLocationPage: Page {
         return self
     }
 
+    @discardableResult func enableRecents() -> Self {
+        let recentButton = app.buttons[AccessibilityIdentifier.recentConnectionsToggleButton]
+        if recentButton.label.contains("Enable") {
+            recentButton.tap()
+        }
+        return self
+    }
+
+    @discardableResult func disableRecents() -> Self {
+        let recentButton = app.buttons[AccessibilityIdentifier.recentConnectionsToggleButton]
+        if recentButton.label.contains("Disable") {
+            recentButton.tap()
+            DisableRecentsConfirmationAlert(app)
+                .tapDisableRecentConnectionsButton()
+        }
+        return self
+    }
+
+}
+
+/// Confirmation alert displayed when disabling recents
+private class DisableRecentsConfirmationAlert: Page {
+    override init(_ app: XCUIApplication) {
+        super.init(app)
+        self.pageElement = app.otherElements[.alertContainerView]
+        waitForPageToBeShown()
+    }
+
+    @discardableResult func tapDisableRecentConnectionsButton() -> Self {
+        app.buttons[AccessibilityIdentifier.disableRecentConnectionsButton].tap()
+        return self
+    }
 }

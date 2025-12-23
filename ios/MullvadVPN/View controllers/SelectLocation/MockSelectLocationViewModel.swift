@@ -1,6 +1,9 @@
 import Foundation
 
 class MockSelectLocationViewModel: SelectLocationViewModel {
+
+    var isRecentsEnabled: Bool = true
+
     var isMultihopEnabled: Bool = true
 
     var showDAITAInfo = false
@@ -71,7 +74,75 @@ class MockSelectLocationViewModel: SelectLocationViewModel {
                 ], showsChildren: true),
         ]
         exitContext = LocationContext(
-            locations: exitLocations,
+            recents: [
+                LocationNode(
+                    name: "Stockholm",
+                    code: "sth",
+                    children: [
+                        LocationNode(name: sth1, code: sth1),
+                        LocationNode(name: sth2, code: sth2),
+                        LocationNode(name: sth3, code: sth3),
+                    ]
+                )
+            ],
+            locations: [
+                LocationNode(
+                    name: "Sweden", code: "se",
+                    children: [
+                        LocationNode(
+                            name: "Stockholm",
+                            code: "sth",
+                            children: [
+                                LocationNode(name: sth1, code: sth1),
+                                LocationNode(name: sth2, code: sth2),
+                                LocationNode(name: sth3, code: sth3),
+                            ], showsChildren: true
+                        ),
+                        LocationNode(
+                            name: "Gothenburg", code: "got",
+                            children: [
+                                LocationNode(name: got1, code: got1),
+                                LocationNode(name: got2, code: got2),
+                                LocationNode(name: got3, code: got3),
+                            ], showsChildren: true),
+                    ], showsChildren: true),
+                LocationNode(
+                    name: "Germany", code: "de",
+                    children: [
+                        LocationNode(
+                            name: "Berlin", code: "ber",
+                            children: [
+                                LocationNode(name: ber1, code: ber1),
+                                LocationNode(name: ber2, code: ber2),
+                                LocationNode(name: ber3, code: ber3),
+                            ], showsChildren: true),
+                        LocationNode(
+                            name: "Frankfurt", code: "fra",
+                            children: [
+                                LocationNode(name: fra1, code: fra1),
+                                LocationNode(name: fra2, code: fra2),
+                                LocationNode(name: fra3, code: fra3),
+                            ], showsChildren: true),
+                    ], showsChildren: true),
+                LocationNode(
+                    name: "France", code: "fr",
+                    children: [
+                        LocationNode(
+                            name: "Paris", code: "par",
+                            children: [
+                                LocationNode(name: par1, code: par1),
+                                LocationNode(name: par2, code: par2),
+                                LocationNode(name: par3, code: par3),
+                            ], showsChildren: true),
+                        LocationNode(
+                            name: "Lyon", code: "lyo",
+                            children: [
+                                LocationNode(name: lyo1, code: lyo1),
+                                LocationNode(name: lyo2, code: lyo2),
+                                LocationNode(name: lyo3, code: lyo3),
+                            ], showsChildren: true),
+                    ], showsChildren: true),
+            ],
             customLists: [
                 LocationNode(
                     name: "MyList1", code: "mylist1",
@@ -178,6 +249,8 @@ class MockSelectLocationViewModel: SelectLocationViewModel {
     func showFilterView() {}
 
     func expandSelectedLocation() {}
+
+    func toggleRecents() {}
 
     private var got1 = "se-got-001"
     private let got2 = "se-got-002"

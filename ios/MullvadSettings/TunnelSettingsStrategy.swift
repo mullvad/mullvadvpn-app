@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import MullvadTypes
 
 public protocol TunnelSettingsStrategyProtocol: Sendable {
     func shouldReconnectToNewRelay(oldSettings: LatestTunnelSettings, newSettings: LatestTunnelSettings) -> Bool
@@ -33,25 +34,47 @@ public struct TunnelSettingsStrategy: TunnelSettingsStrategyProtocol, Sendable {
         oldSettings: LatestTunnelSettings,
         newSettings: LatestTunnelSettings
     ) -> TunnelSettingsReconnectionStrategy {
+        // Hard reconnect if critical flags changed
         if oldSettings.localNetworkSharing != newSettings.localNetworkSharing
             || oldSettings.includeAllNetworks != newSettings.includeAllNetworks
         {
             return .hardReconnect
         }
-        switch (oldSettings, newSettings) {
-        case let (old, new) where old != new:
-            return .newRelayReconnect
-        default:
+
+        // If all non-location fields are equal, retry only when location settings change
+        if oldSettings.withoutLocation == newSettings.withoutLocation
+            && (oldSettings.relayConstraints.entryLocations.value?.locations
+                == newSettings.relayConstraints.entryLocations.value?.locations)
+            && (oldSettings.relayConstraints.exitLocations.value?.locations
+                == newSettings.relayConstraints.exitLocations.value?.locations)
+        {
+            return .none
+        }
+
+        // If settings did not change, reconnect to the current relay
+        guard oldSettings != newSettings else {
             return .currentRelayReconnect
         }
+
+        return .newRelayReconnect
     }
 }
 
-/// This enum representes reconnection strategies.
+/// This enum represents reconnection strategies.
 /// > Warning: `hardReconnect` will disconnect and reconnect which
 /// > potentially leads to traffic leaking outside the tunnel.
 public enum TunnelSettingsReconnectionStrategy {
     case currentRelayReconnect
     case newRelayReconnect
     case hardReconnect
+    case none
+}
+
+extension LatestTunnelSettings {
+    var withoutLocation: LatestTunnelSettings {
+        var copy = self
+        copy.relayConstraints.exitLocations = .any
+        copy.relayConstraints.entryLocations = .any
+        return copy
+    }
 }
