@@ -51,7 +51,7 @@ async fn main() -> anyhow::Result<()> {
 
     let response = client
         .get(
-            "https://api.mullvad.net/app/v1/api-addrs"
+            "https://api.mullvad.net/app/v1/relays"
                 .try_into()
                 .unwrap(),
         )
