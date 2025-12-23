@@ -34,7 +34,7 @@ version = 2 # https://github.com/EmbarkStudios/cargo-deny/pull/611
 
 # Adding a license here has to be done carefully. Should only be done by team leads.
 allow = [
-    "GPL-3.0",
+    "GPL-3.0-only",
     "Apache-2.0",
     "MIT",
     "MPL-2.0",
