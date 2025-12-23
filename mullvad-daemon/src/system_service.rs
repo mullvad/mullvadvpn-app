@@ -1,6 +1,6 @@
 #![allow(clippy::undocumented_unsafe_blocks)] // Remove me if you dare.
 
-use crate::cli;
+use crate::{cli, init_daemon_logging};
 use mullvad_daemon::{
     DaemonShutdownHandle,
     runtime::new_multi_thread,
@@ -61,6 +61,9 @@ pub fn run() -> Result<(), String> {
 windows_service::define_windows_service!(service_main, handle_service_main);
 
 pub fn handle_service_main(_arguments: Vec<OsString>) {
+    let config = cli::get_config();
+    let (log_dir, reload_handle) =
+        init_daemon_logging(config).expect("Failed to initialize logging");
     log::info!("Service started.");
 
     let (event_tx, event_rx) = mpsc::channel();
@@ -100,8 +103,6 @@ pub fn handle_service_main(_arguments: Vec<OsString>) {
 
     let should_restart = Arc::new(AtomicBool::new(true));
 
-    let log_dir = crate::get_log_dir(cli::get_config()).expect("Log dir should be available here");
-
     let runtime = new_multi_thread().build();
     let runtime = match runtime {
         Err(error) => {
@@ -114,7 +115,7 @@ pub fn handle_service_main(_arguments: Vec<OsString>) {
         Ok(runtime) => runtime,
     };
 
-    let result = runtime.block_on(crate::create_daemon(log_dir));
+    let result = runtime.block_on(crate::create_daemon(log_dir, reload_handle));
     let result = if let Ok(daemon) = result {
         let shutdown_handle = daemon.shutdown_handle();
 

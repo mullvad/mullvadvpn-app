@@ -14,7 +14,7 @@ use jnix::{
 use mullvad_api::ApiEndpoint;
 use mullvad_daemon::{
     Daemon, DaemonCommandChannel, DaemonCommandSender, DaemonConfig, cleanup_old_rpc_socket,
-    exception_logging, logging, runtime::new_multi_thread, version,
+    exception_logging, logging, logging::LogHandle, runtime::new_multi_thread, version,
 };
 use std::collections::HashMap;
 use std::{
@@ -22,7 +22,7 @@ use std::{
     io,
     os::unix::ffi::OsStrExt,
     path::{Path, PathBuf},
-    sync::{Arc, Mutex, Once, OnceLock},
+    sync::{Arc, Mutex, Once},
 };
 use talpid_types::{ErrorExt, android::AndroidContext};
 
@@ -92,7 +92,7 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_initial
 
     let env = JnixEnv::from(env);
     let files_dir = pathbuf_from_java(&env, files_directory);
-    start_logging(&files_dir)
+    let log_handle = start_logging(&files_dir)
         .map_err(Error::InitializeLogging)
         .unwrap();
     version::log_version();
@@ -120,6 +120,7 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_initial
             files_dir,
             cache_dir,
             api_endpoint,
+            log_handle
         )
     );
 
@@ -148,6 +149,7 @@ fn start(
     files_dir: PathBuf,
     cache_dir: PathBuf,
     api_endpoint: Option<ApiEndpoint>,
+    log_handle: LogHandle,
 ) -> Result<DaemonContext, Error> {
     #[cfg(not(feature = "api-override"))]
     if api_endpoint.is_some() {
@@ -160,6 +162,7 @@ fn start(
         files_dir,
         cache_dir,
         api_endpoint.unwrap_or(ApiEndpoint::from_env_vars()),
+        log_handle,
     )
 }
 
@@ -169,6 +172,7 @@ fn spawn_daemon(
     files_dir: PathBuf,
     cache_dir: PathBuf,
     endpoint: ApiEndpoint,
+    log_handle: LogHandle,
 ) -> Result<DaemonContext, Error> {
     let daemon_command_channel = DaemonCommandChannel::new();
     let daemon_command_tx = daemon_command_channel.sender();
@@ -183,6 +187,7 @@ fn spawn_daemon(
         cache_dir,
         android_context,
         endpoint,
+        log_handle,
     };
 
     let running_daemon =
@@ -218,17 +223,10 @@ async fn spawn_daemon_inner(
     Ok(running_daemon)
 }
 
-fn start_logging(log_dir: &Path) -> Result<(), String> {
-    static LOGGER_RESULT: OnceLock<Result<(), String>> = OnceLock::new();
-    LOGGER_RESULT
-        .get_or_init(|| start_logging_inner(log_dir))
-        .to_owned()
-}
-
-fn start_logging_inner(log_dir: &Path) -> Result<(), String> {
+fn start_logging(log_dir: &Path) -> Result<LogHandle, String> {
     let log_file = log_dir.join(LOG_FILENAME);
 
-    logging::init_logger(log::LevelFilter::Debug, Some(&log_file), true)
+    let log_handle = logging::init_logger(log::LevelFilter::Debug, Some(&log_file), true)
         .map_err(|e| e.display_chain())?;
     log_panics::init();
     exception_logging::set_log_file(
@@ -237,7 +235,7 @@ fn start_logging_inner(log_dir: &Path) -> Result<(), String> {
     );
     exception_logging::enable();
 
-    Ok(())
+    Ok(log_handle)
 }
 
 fn create_android_context(
