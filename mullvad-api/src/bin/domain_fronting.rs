@@ -1,10 +1,9 @@
 use std::{io::Write, sync::Arc};
 
 use clap::Parser;
-use http::{Method, Request};
-use http_body_util::{BodyExt, Empty, Full, combinators::BoxBody};
+use http_body_util::{BodyExt, Full};
 use hyper::body::Bytes;
-use hyper_util::{client::legacy::Client, rt::TokioIo};
+use hyper_util::client::legacy::Client;
 use mullvad_api::{
     domain_fronting::DomainFronting,
     https_client_with_sni::HttpsConnectorWithSni,

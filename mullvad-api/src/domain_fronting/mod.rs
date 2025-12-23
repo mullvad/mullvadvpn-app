@@ -2,19 +2,18 @@
 //! This only compiles with the `domain-fronting` feature flag for the time being.
 
 use std::{
-    io::{self, BufRead, Error, Read},
+    io::{self, Read},
     net::SocketAddr,
     pin::{Pin, pin},
     sync::Arc,
     task::{Poll, Waker, ready},
 };
 
-use bytes::{Buf, BufMut, BytesMut, buf::Reader};
-use futures::channel::mpsc::SendError;
-use http::{Request, Response, header, status::StatusCode};
-use http_body_util::{BodyExt, Empty, Full};
+use bytes::{Buf, BytesMut, buf::Reader};
+use http::{header, status::StatusCode};
+use http_body_util::{BodyExt, Full};
 use hyper::{
-    body::{Bytes, Incoming},
+    body::Bytes,
     client::conn::http1::SendRequest,
 };
 use hyper_util::rt::TokioIo;
@@ -31,7 +30,6 @@ use crate::{DefaultDnsResolver, DnsResolver, tls_stream::TlsStream};
 
 pub mod server;
 
-const SESSION_HEADER_KEY_CLIENT: &str = "X-Mullvad-Session";
 const SESSION_HEADER_KEY: &str = "X-Mullvad-Session";
 
 pub struct DomainFronting {
@@ -91,7 +89,7 @@ impl ProxyConfig {
             TlsStream::connect_https_with_client_config(tcp_stream, &front, config).await?,
         );
 
-        let (mut sender, conn) = hyper::client::conn::http1::handshake(io).await?;
+        let (sender, conn) = hyper::client::conn::http1::handshake(io).await?;
         tokio::task::spawn(async move {
             if let Err(err) = conn.await {
                 log::trace!("Domain fronting connection failed: {:?}", err);
@@ -106,7 +104,6 @@ pub struct ProxyConnection {
     bytes_received: usize,
     reader: Reader<BytesMut>,
     send_future: Option<Pin<Box<dyn Future<Output = Result<(), ()>> + Send>>>,
-    ongoing_request: bool,
     request_tx: mpsc::Sender<Bytes>,
     response_rx: mpsc::Receiver<Bytes>,
     // call waker whenever the send_future resolves.
@@ -129,7 +126,6 @@ impl ProxyConnection {
         Ok(Self {
             bytes_received: 0,
             reader: BytesMut::new().reader(),
-            ongoing_request: false,
             request_tx,
             response_rx,
             send_future: None,
@@ -288,14 +284,14 @@ impl AsyncWrite for ProxyConnection {
 
     fn poll_flush(
         self: std::pin::Pin<&mut Self>,
-        cx: &mut std::task::Context<'_>,
+        _cx: &mut std::task::Context<'_>,
     ) -> std::task::Poll<Result<(), std::io::Error>> {
         Poll::Ready(Ok(()))
     }
 
     fn poll_shutdown(
         self: std::pin::Pin<&mut Self>,
-        cx: &mut std::task::Context<'_>,
+        _cx: &mut std::task::Context<'_>,
     ) -> std::task::Poll<Result<(), std::io::Error>> {
         Poll::Ready(Ok(()))
     }

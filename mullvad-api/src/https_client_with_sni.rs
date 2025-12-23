@@ -9,9 +9,8 @@ use futures::{StreamExt, channel::mpsc, future, pin_mut};
 #[cfg(target_os = "android")]
 use futures::{channel::oneshot, sink::SinkExt};
 use http::uri::Scheme;
-use http_body_util::Full;
 use hyper::Uri;
-use hyper_util::{client::legacy::Client, rt::TokioIo};
+use hyper_util::rt::TokioIo;
 use mullvad_encrypted_dns_proxy::{
     Forwarder as EncryptedDNSForwarder, config::ProxyConfig as EncryptedDNSConfig,
 };

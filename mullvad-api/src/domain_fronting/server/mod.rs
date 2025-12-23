@@ -1,6 +1,5 @@
 use std::{hash::RandomState, io, net::SocketAddr, pin::pin, sync::Arc, time::Duration};
 
-use bytes::BytesMut;
 use http::{Request, Response, StatusCode, header};
 use http_body_util::{BodyExt, Full};
 use hyper::body::{Bytes, Incoming};
@@ -9,7 +8,7 @@ use tokio::{
     io::{AsyncReadExt, AsyncWriteExt},
     net::TcpStream,
     sync::{mpsc, oneshot},
-    time::{Timeout, sleep, timeout},
+    time::{sleep, timeout},
 };
 use uuid::Uuid;
 
@@ -203,7 +202,7 @@ impl Session {
                             log::error!("Failed to receive data from upstream {connection_error}");
                             return;
                         },
-                        Err(timeout) => Bytes::new(),
+                        Err(_timeout) => Bytes::new(),
                     };
 
 
@@ -253,7 +252,7 @@ impl SessionCommand {
         self.tx_payload.take()
     }
 
-    fn respond_with(mut self, received_bytes: Bytes) {
+    fn respond_with(self, received_bytes: Bytes) {
         let _ = self.return_tx.send(received_bytes);
     }
 }
