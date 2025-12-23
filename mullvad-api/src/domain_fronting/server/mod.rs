@@ -83,7 +83,6 @@ impl Sessions {
         cmd_tx: &mpsc::Sender<SessionCommand>,
         data: Bytes,
     ) -> Response<Full<Bytes>> {
-        println!("Handling existing session");
         let Ok(body) = SessionCommand::send(data, &cmd_tx).await else {
             println!("Failed send command");
             return Self::handle_session_error();
@@ -184,12 +183,13 @@ impl Session {
                         return;
                     };
 
-                    println!("Received msg");
                     if let Some(tx_bytes) = cmd.take_payload() {
                         log::debug!("Received {} bytes for session {}", tx_bytes.len(), session_id);
                         if let Err(err) =  connection.write_all(&tx_bytes).await {
                             log::error!("Failed to send data to upstream: {err}");
                         }
+                    } else {
+                        log::debug!("Received no payload for session {}", session_id);
                     }
                     // drop everything on read error
                     let response_bytes = match timeout(READ_TIMEOUT, connection.read(&mut read_buffer)).await {
