@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { Ownership } from '../../../../shared/daemon-rpc-types';
 import { messages } from '../../../../shared/gettext';
 import { Button, Icon } from '../../../lib/components';
+import { ListItemGroup } from '../../../lib/components/list-item-group';
 import { View } from '../../../lib/components/view';
 import { useRelaySettingsUpdater } from '../../../lib/constraint-updater';
 import { filterLocations, filterLocationsByEndPointType } from '../../../lib/filter-locations';
@@ -21,11 +22,6 @@ import { FilterAccordion } from '../../FilterAccordion';
 import { BackAction } from '../../keyboard-navigation';
 import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
-
-const StyledNavigationScrollbars = styled(NavigationScrollbars)({
-  backgroundColor: colors.darkBlue,
-  flex: 1,
-});
 
 const StyledViewContent = styled(View.Content)`
   margin-bottom: 0;
@@ -84,18 +80,22 @@ export function FilterView() {
               }
               titleVisible
             />
-            <StyledNavigationScrollbars>
-              <FilterByOwnership
-                ownership={ownership}
-                availableOptions={availableOwnershipOptions}
-                setOwnership={setOwnership}
-              />
-              <FilterByProvider
-                providers={providers}
-                availableOptions={availableProviders}
-                setProviders={setProviders}
-              />
-            </StyledNavigationScrollbars>
+            <NavigationScrollbars>
+              <View.Container horizontalMargin="medium" flexDirection="column">
+                <ListItemGroup gap="small">
+                  <FilterByOwnership
+                    ownership={ownership}
+                    availableOptions={availableOwnershipOptions}
+                    setOwnership={setOwnership}
+                  />
+                  <FilterByProvider
+                    providers={providers}
+                    availableOptions={availableProviders}
+                    setProviders={setProviders}
+                  />
+                </ListItemGroup>
+              </View.Container>
+            </NavigationScrollbars>
             <View.Container horizontalMargin="medium" padding={{ vertical: 'large' }}>
               <Button
                 variant="success"

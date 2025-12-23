@@ -11,7 +11,7 @@ export function MonochromaticTrayIconSetting() {
       <SettingsListItem.Item>
         <SettingsListItem.Content>
           <MonochromaticTrayIconSwitch>
-            <MonochromaticTrayIconSwitch.Label variant="titleMedium">
+            <MonochromaticTrayIconSwitch.Label>
               {messages.pgettext('user-interface-settings-view', 'Monochromatic tray icon')}
             </MonochromaticTrayIconSwitch.Label>
             <MonochromaticTrayIconSwitch.Trigger aria-describedby={descriptionId}>

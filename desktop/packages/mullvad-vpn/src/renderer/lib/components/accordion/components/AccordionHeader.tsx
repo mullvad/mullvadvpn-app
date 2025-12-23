@@ -1,35 +1,33 @@
-import styled, { css, RuleSet } from 'styled-components';
+import styled, { css } from 'styled-components';
 
-import { colors } from '../../../foundations';
-import { Flex } from '../../flex';
 import { ListItem } from '../../list-item';
+import { ListItemItemProps } from '../../list-item/components';
+import { useAccordionContext } from '../AccordionContext';
 
-export type AccordionHeaderProps = {
-  children?: React.ReactNode;
-};
+export type AccordionHeaderProps = ListItemItemProps;
 
-export const StyledAccordionHeader = styled(Flex)<{
-  $animation?: RuleSet<object>;
-  $disabled?: boolean;
-}>`
-  ${({ $animation, $disabled }) => {
-    const backgroundColor = $disabled ? colors.blue40 : colors.blue;
+export const StyledAccordionHeader = styled(ListItem.Item)<{ $expanded?: boolean }>`
+  ${({ $expanded }) => {
     return css`
-      --background-color: ${backgroundColor};
-
-      margin-bottom: 1px;
-      background-color: var(--background-color);
-      min-height: 48px;
-      width: 100%;
-      ${$animation}
+      transition: border-radius 0.15s ease-out;
+      ${() => {
+        if ($expanded) {
+          return css`
+            border-bottom-right-radius: 0;
+            border-bottom-left-radius: 0;
+          `;
+        }
+        return null;
+      }}
     `;
   }}
 `;
 
-export function AccordionHeader({ children }: AccordionHeaderProps) {
+export function AccordionHeader({ children, ...props }: AccordionHeaderProps) {
+  const { expanded } = useAccordionContext();
   return (
-    <ListItem.Item>
+    <StyledAccordionHeader $expanded={expanded} {...props}>
       <ListItem.Content>{children}</ListItem.Content>
-    </ListItem.Item>
+    </StyledAccordionHeader>
   );
 }
