@@ -27,7 +27,6 @@ pub struct TunnelEndpoint {
     #[serde(flatten)]
     pub endpoint: Endpoint,
     pub quantum_resistant: bool,
-    pub proxy: Option<proxy::ProxyEndpoint>,
     pub obfuscation: Option<ObfuscationInfo>,
     pub entry_endpoint: Option<Endpoint>,
     pub tunnel_interface: Option<String>,

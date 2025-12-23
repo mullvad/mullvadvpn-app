@@ -1,17 +1,11 @@
 import { useCallback } from 'react';
 
-import {
-  BridgeSettings,
-  RelayLocation,
-  RelaySettings,
-  wrapConstraint,
-} from '../../../shared/daemon-rpc-types';
+import { RelayLocation, RelaySettings, wrapConstraint } from '../../../shared/daemon-rpc-types';
 import log from '../../../shared/logging';
 import { useAppContext } from '../../context';
 import { useRelaySettingsModifier } from '../../lib/constraint-updater';
-import { useBridgeSettingsModifier } from '../../lib/constraint-updater';
 import { useHistory } from '../../lib/history';
-import { LocationType, SpecialBridgeLocationType } from './select-location-types';
+import { LocationType } from './select-location-types';
 import { useSelectLocationContext } from './SelectLocationContainer';
 
 export function useOnSelectExitLocation() {
@@ -86,63 +80,4 @@ function useOnSelectLocation() {
     },
     [setRelaySettings],
   );
-}
-
-export function useOnSelectBridgeLocation() {
-  const { updateBridgeSettings } = useAppContext();
-  const { setLocationType } = useSelectLocationContext();
-  const bridgeSettingsModifier = useBridgeSettingsModifier();
-
-  const setLocation = useCallback(
-    async (bridgeUpdate: BridgeSettings) => {
-      if (bridgeUpdate) {
-        setLocationType(LocationType.exit);
-        try {
-          await updateBridgeSettings(bridgeUpdate);
-        } catch (e) {
-          const error = e as Error;
-          log.error(`Failed to select the bridge location: ${error.message}`);
-        }
-      }
-    },
-    [setLocationType, updateBridgeSettings],
-  );
-
-  const onSelectRelay = useCallback(
-    (location: RelayLocation) => {
-      return setLocation(
-        bridgeSettingsModifier((bridgeSettings) => {
-          bridgeSettings.type = 'normal';
-          bridgeSettings.normal.location = wrapConstraint(location);
-          return bridgeSettings;
-        }),
-      );
-    },
-    [bridgeSettingsModifier, setLocation],
-  );
-
-  const onSelectSpecial = useCallback(
-    (location: SpecialBridgeLocationType) => {
-      switch (location) {
-        case SpecialBridgeLocationType.closestToExit:
-          return setLocation(
-            bridgeSettingsModifier((bridgeSettings) => {
-              bridgeSettings.type = 'normal';
-              bridgeSettings.normal.location = 'any';
-              return bridgeSettings;
-            }),
-          );
-        case SpecialBridgeLocationType.custom:
-          return setLocation(
-            bridgeSettingsModifier((bridgeSettings) => {
-              bridgeSettings.type = 'custom';
-              return bridgeSettings;
-            }),
-          );
-      }
-    },
-    [bridgeSettingsModifier, setLocation],
-  );
-
-  return [onSelectRelay, onSelectSpecial] as const;
 }
