@@ -169,7 +169,7 @@ impl Session {
             session_id,
         } = self;
         let mut deadline = pin!(sleep(CONNECTION_TIMEOUT));
-        let mut read_buffer = vec![0u8; 8192];
+        let mut read_buffer = vec![0u8; 1024 * 64];
 
         loop {
             let deadline_ref = deadline.as_mut();
