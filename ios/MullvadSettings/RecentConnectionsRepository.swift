@@ -5,6 +5,8 @@
 //  Created by Mojgan on 2025-10-15.
 //  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 //
+
+import Combine
 import MullvadTypes
 
 public enum RecentConnectionsRepositoryError: LocalizedError, Hashable {
@@ -18,55 +20,161 @@ public enum RecentConnectionsRepositoryError: LocalizedError, Hashable {
     }
 }
 
-final class RecentConnectionsRepository: RecentConnectionsRepositoryProtocol {
+final public class RecentConnectionsRepository: RecentConnectionsRepositoryProtocol {
     private let store: SettingsStore
     private let maxLimit: UInt
+    private let recentConnectionsSubject: PassthroughSubject<RecentConnectionsResult, Never> = .init()
 
     private let settingsParser: SettingsParser = {
         SettingsParser(decoder: JSONDecoder(), encoder: JSONEncoder())
     }()
 
-    init(store: SettingsStore, maxLimit: UInt = 50) {
+    public var recentConnectionsPublisher: AnyPublisher<RecentConnectionsResult, Never> {
+        recentConnectionsSubject.eraseToAnyPublisher()
+    }
+
+    public init(store: SettingsStore, maxLimit: UInt = 50) {
         self.store = store
         self.maxLimit = maxLimit
     }
 
-    func setRecentsEnabled(_ isEnabled: Bool) throws {
-        // Clear all recents whenever the recents feature status changes.
-        try write(RecentConnections(isEnabled: isEnabled, entryLocations: [], exitLocations: []))
+    public func disable() {
+        do {
+            // Clear all recents whenever the recents feature status changes.
+            let value = RecentConnections(isEnabled: false, entryLocations: [], exitLocations: [])
+            try write(value)
+            recentConnectionsSubject.send(.success(value))
+        } catch {
+            recentConnectionsSubject.send(.failure(error))
+        }
+    }
+    
+    public func enable(_ selectedEntryRelays: UserSelectedRelays?, selectedExitRelays: UserSelectedRelays) {
+        do {
+            // Enable recents with the last selected locations for entry and exit.
+            let value = RecentConnections(
+                entryLocations: (selectedEntryRelays != nil) ? [selectedEntryRelays!] : [],
+                exitLocations: [selectedExitRelays])
+            try write(value)
+            recentConnectionsSubject.send(.success(value))
+        } catch {
+            recentConnectionsSubject.send(.failure(error))
+        }
     }
 
-    func add(_ location: UserSelectedRelays, as type: RecentLocationType) throws {
-        let current = try read()
-        guard current.isEnabled else { throw RecentConnectionsRepositoryError.recentsDisabled }
-        var currentList = current[keyPath: keyPath(for: type)]
-        if let idx = currentList.firstIndex(of: location) { currentList.remove(at: idx) }
-        currentList.insert(location, at: 0)
-        currentList = Array(currentList.prefix(Int(maxLimit)))
+    public func add(_ selectedEntryRelays: UserSelectedRelays, selectedExitRelays: UserSelectedRelays) {
+        do {
+            let current = try read()
+            guard current.isEnabled else { throw RecentConnectionsRepositoryError.recentsDisabled }
 
-        let new =
-            (type == .entry)
-            ? RecentConnections(
-                isEnabled: current.isEnabled, entryLocations: currentList, exitLocations: current.exitLocations)
-            : RecentConnections(
-                isEnabled: current.isEnabled, entryLocations: current.entryLocations, exitLocations: currentList)
+            let insertAtZero: ([UserSelectedRelays], UserSelectedRelays) -> [UserSelectedRelays] = { recents, recent in
+                var result: [UserSelectedRelays] = []
 
-        try write(new)
+                // Insert the new item first
+                result.append(recent)
+                for item in recents where !self.isDuplicate(result, recent: item) {
+                    result.append(item)
+                }
+                return Array(result.prefix(Int(self.maxLimit)))
+            }
+            let new = RecentConnections(
+                entryLocations: insertAtZero(current.entryLocations, selectedEntryRelays),
+                exitLocations: insertAtZero(current.exitLocations, selectedExitRelays))
+            try write(new)
+            recentConnectionsSubject.send(.success(new))
+
+        } catch {
+            recentConnectionsSubject.send(.failure(error))
+        }
     }
 
-    func all() throws -> RecentConnections {
-        try read()
+    public func load() {
+        do {
+            let value = try read()
+            recentConnectionsSubject.send(.success(value))
+        } catch {
+            recentConnectionsSubject.send(.failure(error))
+        }
+    }
+
+    public func deleteCustomList(_ id: UUID) {
+        do {
+            let current = try read()
+
+            // Clear custom-list selection for items that referenced the deleted ID
+            let clearCustomList: ([UserSelectedRelays], UUID) -> [UserSelectedRelays] = { recents, id in
+                let new = recents.compactMap { item in
+                    guard item.customListSelection?.listId == id else {
+                        return item
+                    }
+
+                    let isList = item.customListSelection?.isList ?? false
+                    if isList {
+                        return nil  // Remove the list
+                    }
+
+                    // Keep item but clear the custom list
+                    return UserSelectedRelays(locations: item.locations)
+                }
+                return Array(new.prefix(Int(self.maxLimit)))
+            }
+
+            // Remove duplicates using the existing isDuplicate logic
+            let removeDuplicates: ([UserSelectedRelays]) -> [UserSelectedRelays] = { recents in
+                var result: [UserSelectedRelays] = []
+                for item in recents where !self.isDuplicate(result, recent: item) {
+                    result.append(item)
+                }
+                return result
+            }
+
+            let updatedList: ([UserSelectedRelays], UUID) -> [UserSelectedRelays] = { recents, id in
+                let cleared = clearCustomList(recents, id)  // same call
+                let deduped = removeDuplicates(cleared)  // same logic
+                return Array(deduped.prefix(Int(self.maxLimit)))  // same limit rule
+            }
+
+            let new = RecentConnections(
+                entryLocations: updatedList(current.entryLocations, id),
+                exitLocations: updatedList(current.exitLocations, id))
+            try write(new)
+            recentConnectionsSubject.send(.success(new))
+        } catch {
+            recentConnectionsSubject.send(.failure(error))
+        }
+    }
+
+    private func isDuplicate(_ currentRecents: [UserSelectedRelays], recent: UserSelectedRelays) -> Bool {
+        currentRecents.contains(where: { item in
+
+            let isItemList: Bool = item.customListSelection?.isList ?? false
+            let isRecentList: Bool = recent.customListSelection?.isList ?? false
+
+            // Both items reference the same custom list (same listId).
+            // If both are lists, always treat them as equal (override).
+            // Otherwise, remove only when the two items are exactly equal.
+            if let recentCustomList = recent.customListSelection,
+                let itemCustomList = item.customListSelection,
+                recentCustomList.listId == itemCustomList.listId
+            {
+                if isItemList, isRecentList {
+                    return true
+                }
+                return recent == item
+            }
+
+            // Neither is a list, locations equal
+            if recent.locations == item.locations {
+                return !(isItemList == true || isRecentList == true)
+            }
+
+            // No match
+            return false
+        })
     }
 }
 
 private extension RecentConnectionsRepository {
-    private func keyPath(for type: RecentLocationType) -> KeyPath<RecentConnections, [UserSelectedRelays]> {
-        switch type {
-        case .entry: return \.entryLocations
-        case .exit: return \.exitLocations
-        }
-    }
-
     private func read() throws -> RecentConnections {
         let data = try store.read(key: .recentConnections)
         return try settingsParser.parseUnversionedPayload(as: RecentConnections.self, from: data)

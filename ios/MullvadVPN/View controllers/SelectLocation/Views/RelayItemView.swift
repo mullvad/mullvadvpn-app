@@ -4,18 +4,12 @@ struct RelayItemView: View {
     let location: LocationNode
     let multihopContext: MultihopContext
     let level: Int
+    let subtitle: LocalizedStringKey?
     var isLastInList = true
     let onSelect: () -> Void
 
     var disabled: Bool {
         !location.isActive || location.isExcluded
-    }
-
-    var subtitle: LocalizedStringKey? {
-        if location.isConnected && !location.isSelected {
-            return "Connected server"
-        }
-        return nil
     }
 
     var title: String {
@@ -101,6 +95,7 @@ struct RelayItemView: View {
         ),
         multihopContext: .exit,
         level: 0,
+        subtitle: nil,
         onSelect: {}
     )
 }

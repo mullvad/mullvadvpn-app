@@ -10,7 +10,7 @@ import Foundation
 import MullvadREST
 import MullvadTypes
 
-class AllLocationDataSource: LocationDataSourceProtocol {
+class AllLocationDataSource: SearchableLocationDataSource {
     private(set) var nodes = [LocationNode]()
 
     /// Constructs a collection of node trees from relays fetched from the API.
@@ -110,5 +110,13 @@ class AllLocationDataSource: LocationDataSourceProtocol {
                 })
             }
         }
+    }
+
+    func node(by selectedRelays: UserSelectedRelays) -> LocationNode? {
+        let rootNode = RootLocationNode(children: nodes)
+        guard let location = selectedRelays.locations.first else {
+            return nil
+        }
+        return descendantNode(in: rootNode, for: location, baseCodes: [])
     }
 }
