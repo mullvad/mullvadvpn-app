@@ -71,7 +71,7 @@ nix = { workspace = true, features = ["signal", "user"] }
 simple-signal = "1.1"
 
 [target.'cfg(target_os="linux")'.dependencies]
-talpid-dbus = { path = "../talpid-dbus" }
+talpid-dbus = { workspace = true }
 
 [target.'cfg(target_os="macos")'.dependencies]
 objc2-foundation = { version = "0.3.1", features = ["NSProcessInfo", "NSString", "NSURL"] }
