@@ -356,17 +356,12 @@ extension PacketTunnelProvider {
         stateObserverTask = Task {
             let stateStream = await self.actor.observedStates
             var lastConnectionAttempt: UInt = 0
+            // We shouldn't set the reasserting flag if we never connect in the first place
+            let firstConnection = true
 
             for await newState in stateStream {
-                // Tell packet tunnel when reconnection begins.
-                // Packet tunnel moves to `NEVPNStatus.reasserting` state once `reasserting` flag is set to `true`.
-                if case .reconnecting = newState, !self.reasserting {
+                if case .connected = newState {
                     self.reasserting = true
-                }
-
-                // Tell packet tunnel when reconnection ends.
-                // Packet tunnel moves to `NEVPNStatus.connected` state once `reasserting` flag is set to `false`.
-                if case .connected = newState, self.reasserting {
                     self.reasserting = false
                 }
 
@@ -475,7 +470,11 @@ extension PacketTunnelProvider: EphemeralPeerReceiving {
         if defaultPathObserver.currentPathStatus.networkReachability == .reachable {
             // Do not try reconnecting to the `.current` relay, else the actor's `State` equality check will fail
             // and it will not try to reconnect
-            actor.reconnect(to: .random, reconnectReason: .connectionLoss)
+            Task {
+                if await !actor.isErrorState() {
+                    actor.reconnect(to: .random, reconnectReason: .connectionLoss)
+                }
+            }
         }
     }
 }

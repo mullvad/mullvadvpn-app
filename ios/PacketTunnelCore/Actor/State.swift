@@ -241,6 +241,19 @@ public enum BlockedStateReason: String, Codable, Equatable, Sendable {
 
     /// Unidentified reason.
     case unknown
+
+    /// Indicates if this error state is recoverable, i.e., if at any point should the packet tunnel try to reconnect from this state.
+    public func recoverableError() -> Bool {
+        switch self {
+        case .deviceLocked, .multihopEntryEqualsExit, .outdatedSchema, .noRelaysSatisfyingConstraints,
+            .noRelaysSatisfyingPortConstraints, .noRelaysSatisfyingDaitaConstraints,
+            .noRelaysSatisfyingFilterConstraints, .noRelaysSatisfyingObfuscationSettings, .readSettings,
+            .invalidRelayPublicKey:
+            return true
+        case .deviceRevoked, .deviceLoggedOut, .tunnelAdapter, .accountExpired, .invalidAccount, .unknown:
+            return false
+        }
+    }
 }
 
 extension State.BlockingData {
