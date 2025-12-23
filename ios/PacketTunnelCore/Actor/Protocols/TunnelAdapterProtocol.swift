@@ -110,7 +110,7 @@ public struct TunnelInterfaceSettings: Equatable, Sendable {
 
             let route = NEIPv6Route(
                 destinationAddress: "\(range.maskedAddress())",
-            networkPrefixLength: NSNumber(value: range.networkPrefixLength))
+                networkPrefixLength: NSNumber(value: range.networkPrefixLength))
             route.gatewayAddress = "\(range.address)"
             routes.append(route)
         }
