@@ -61,7 +61,7 @@ impl WindowsTunProvider {
             #[allow(unused_mut)]
             let mut builder = TunnelDeviceBuilder::default();
 
-            // When routing, metric of a route is equal to the sum of the interface metric and
+            // When routing, the metric of a route is equal to the sum of the interface metric and
             // metric value set for the route itself. Setting the interface metric to 1 gives tunnel
             // routes the highest possible priority.
             builder.config.metric(1);
