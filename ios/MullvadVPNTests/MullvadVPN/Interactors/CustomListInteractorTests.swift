@@ -274,7 +274,7 @@ struct CustomListInteractorTests {
             tunnelManager.updateCalled == true
         )
         #expect(
-            tunnelManager.settings.relayConstraints.exitLocations == .only(.init(locations: []))
+            tunnelManager.settings.relayConstraints.exitLocations == .only(.init(locations: [location1]))
         )
     }
 }

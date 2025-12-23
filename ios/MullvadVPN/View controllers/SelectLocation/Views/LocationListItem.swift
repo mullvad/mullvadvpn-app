@@ -15,6 +15,13 @@ struct LocationListItem<ContextMenu>: View where ContextMenu: View {
             .map { $0.offset }
     }
 
+    var subtitle: LocalizedStringKey? {
+        if location.isConnected && !location.isSelected {
+            return "Connected server"
+        }
+        return nil
+    }
+
     var body: some View {
         Group {
             if location.children.isEmpty {
@@ -22,6 +29,7 @@ struct LocationListItem<ContextMenu>: View where ContextMenu: View {
                     location: location,
                     multihopContext: multihopContext,
                     level: level,
+                    subtitle: subtitle,
                     isLastInList: isLastInList,
                     onSelect: { onSelect(location) }
                 )
@@ -81,7 +89,7 @@ struct LocationListItem<ContextMenu>: View where ContextMenu: View {
             }
         }
         .zIndex(level == 0 ? 2 : 1 / Double(level))  // prevent wrong overlapping during animations
-        .id(location.code)  // to be able to scroll to this item programmatically
+        .id(location.id)  // to be able to scroll to this item programmatically
     }
 }
 

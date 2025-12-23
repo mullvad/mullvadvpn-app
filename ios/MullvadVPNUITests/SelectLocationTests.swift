@@ -91,4 +91,24 @@ class SelectLocationTests: LoggedInWithTimeUITestCase {
             .verifyMultihopOn()
             .tapDoneButton()
     }
+
+    func testRecentsEnabled() {
+        TunnelControlPage(app)
+            .tapSelectLocationButton()
+
+        SelectLocationPage(app)
+            .tapMenuButton()
+            .disableRecents()
+
+        SelectLocationPage(app)
+            .tapMenuButton()
+            .verifyRecentIsDisabled()
+            .enableRecents()
+
+        let firstRecentLocationItem = SelectLocationPage(app)
+            .cellWithIdentifier(identifier: .recentListItem(SelectLocationTests.testsDefaultCountryName))
+
+        XCTAssertTrue(firstRecentLocationItem.exists)
+
+    }
 }
