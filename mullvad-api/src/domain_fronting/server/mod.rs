@@ -46,12 +46,10 @@ impl Sessions {
             .get(SESSION_HEADER_KEY)
             .and_then(|value| Uuid::try_parse_ascii(value.as_ref()).ok())
         else {
-            log::trace!("Failed to read session header");
             return Self::handle_session_error();
         };
 
         let Ok(body) = request.collect().await.map(|b| b.to_bytes()) else {
-            log::trace!("failed to read body");
             return Self::handle_session_error();
         };
 
@@ -149,8 +147,7 @@ impl Session {
         let connection = match TcpStream::connect(sessions.configuration.upstream).await {
             Ok(conn) => conn,
             Err(err) => {
-                log::error!("Failed to connect to upstream server: {err}");
-                println!("Failed to connect to upstream server: {err}");
+                log::error!("Failed to connect to upstream server {err}");
                 sessions.remove_session(&session_id);
                 return Err(err);
             }
@@ -173,7 +170,6 @@ impl Session {
         } = self;
         let mut deadline = pin!(sleep(CONNECTION_TIMEOUT));
         let mut read_buffer = vec![0u8; 8192];
-        log::trace!("Starting session loop");
 
         loop {
             let deadline_ref = deadline.as_mut();
@@ -189,24 +185,20 @@ impl Session {
                             log::error!("Failed to send data to upstream: {err}");
                         }
 
-                    } else {
-                        log::debug!("Received no payload for session {}", session_id);
                     }
-                    // drop everything on read error
+
                     let response_bytes = match timeout(READ_TIMEOUT, connection.read(&mut read_buffer)).await {
                         Ok(Ok(bytes_read)) => {
                             deadline.set(sleep(CONNECTION_TIMEOUT));
                             Bytes::copy_from_slice(&read_buffer[..bytes_read])
                         },
+                        // drop everything on read error
                         Ok(Err(connection_error)) => {
                             log::error!("Failed to receive data from upstream {connection_error}");
                             return;
                         },
                         Err(_timeout) => Bytes::new(),
                     };
-
-
-                    log::debug!("Responding with {} bytes for session {}", response_bytes.len(), session_id);
                     cmd.respond_with(response_bytes);
                 },
 
