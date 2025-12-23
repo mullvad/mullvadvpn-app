@@ -688,23 +688,26 @@ pub async fn get_app_env() -> anyhow::Result<HashMap<String, String>> {
     ]))
 }
 
-/// Constrain the daemon to only select the relay compatible with `query` and the current relay
-/// settings when establishing all future tunnels (until relay settings are updated, see [`set_relay_settings`]).
+/// Constrain the daemon to only select the relay compatible with `query` and the currently
+/// connected-to relay when establishing all future tunnels (until relay settings are updated, see
+/// [`set_relay_settings`]).
 /// Returns the selected [`Relay`] for future reference.
 pub async fn constrain_to_relay(
     mullvad_client: &mut MullvadProxyClient,
     query: RelayQuery,
 ) -> anyhow::Result<Relay> {
-    let intersect_query = intersect_with_current_location(mullvad_client, query).await?;
+    let intersect_query = intersect_with_current_location(mullvad_client, query.clone()).await?;
     let (exit, relay_constraints) =
-        get_single_relay_location_contraint(mullvad_client, intersect_query).await?;
-
-    update_relay_constraints(mullvad_client, |current_constraints| {
-        *current_constraints = relay_constraints
-    })
-    .await
-    .unwrap();
-
+        get_single_relay_location_contraint(mullvad_client, intersect_query.clone()).await?;
+    let (_relay_constraints, obfuscation) = intersect_query.into_settings();
+    mullvad_client
+        .set_relay_settings(RelaySettings::Normal(relay_constraints))
+        .await
+        .context("Failed to set relay settings")?;
+    mullvad_client
+        .set_obfuscation_settings(obfuscation)
+        .await
+        .context("Failed to set obfuscation settings")?;
     Ok(exit)
 }
 
