@@ -698,13 +698,7 @@ pub async fn constrain_to_relay(
     let intersect_query = intersect_with_current_location(mullvad_client, query).await?;
     let (exit, relay_constraints) =
         get_single_relay_location_contraint(mullvad_client, intersect_query).await?;
-
-    update_relay_constraints(mullvad_client, |current_constraints| {
-        *current_constraints = relay_constraints
-    })
-    .await
-    .unwrap();
-
+    apply_settings_from_relay_query(mullvad_client, query).await?;
     Ok(exit)
 }
 
