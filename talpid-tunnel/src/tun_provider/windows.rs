@@ -59,6 +59,12 @@ impl WindowsTunProvider {
         let mut tunnel_device = {
             #[allow(unused_mut)]
             let mut builder = TunnelDeviceBuilder::default();
+
+            // When routing, metric of a route is equal to the sum of the interface metric and
+            // metric value set for the route itself. Setting the interface metric to 1 gives tunnel
+            // routes the highest possible priority.
+            builder.config.metric(1);
+
             // TODO: have tun either not use netsh or not set any default address at all
             // TODO: tun can only set a single address
             if let Some(addr) = first_addr {
