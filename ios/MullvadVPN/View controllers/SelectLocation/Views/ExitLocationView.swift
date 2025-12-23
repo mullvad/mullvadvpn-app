@@ -80,7 +80,8 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
         if isShowingHeader {
             MullvadListSectionHeader(
                 title: "All locations",
-                subtitle: "Showing \(context.availableRelayCount) of \(context.totalRelayCount)"
+                subtitle: context.relaysAreFiltered
+                    ? ("Showing \(context.availableRelayCount) of \(context.totalRelayCount)") : nil
             )
         }
         LocationsListView(
