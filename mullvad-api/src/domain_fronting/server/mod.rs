@@ -188,12 +188,14 @@ impl Session {
                         if let Err(err) =  connection.write_all(&tx_bytes).await {
                             log::error!("Failed to send data to upstream: {err}");
                         }
+
                     } else {
                         log::debug!("Received no payload for session {}", session_id);
                     }
                     // drop everything on read error
                     let response_bytes = match timeout(READ_TIMEOUT, connection.read(&mut read_buffer)).await {
                         Ok(Ok(bytes_read)) => {
+                            deadline = sleep(CONNECTION_TIMEOUT);
                             Bytes::copy_from_slice(&read_buffer[..bytes_read])
                         },
                         Ok(Err(connection_error)) => {
@@ -212,7 +214,6 @@ impl Session {
                     return;
                 }
             }
-            deadline = sleep(CONNECTION_TIMEOUT);
         }
     }
 }
