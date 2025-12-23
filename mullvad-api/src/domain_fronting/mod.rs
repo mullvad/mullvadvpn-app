@@ -166,7 +166,7 @@ impl ProxyConnection {
     }
 
     fn recv_buffer_empty(self: Pin<&Self>) -> bool {
-        self.reader.get_ref().remaining() > 0
+        self.reader.get_ref().remaining() == 0
     }
 
     fn create_send_future(
@@ -208,12 +208,13 @@ impl AsyncRead for ProxyConnection {
 
         let buffer_empty = self.as_ref().recv_buffer_empty();
         if !buffer_empty {
+            log::debug!("attempting to read");
             match self.reader.read(buf.initialize_unfilled()) {
                 Ok(0) => (),
                 Ok(n) => {
                     buf.advance(n);
                     self.bytes_received += n;
-                    println!("Received in total {} bytes", self.bytes_received);
+                    log::debug!("Received in total {} bytes", self.bytes_received);
                     return Poll::Ready(Ok(()));
                 }
                 Err(err) => {
@@ -252,7 +253,7 @@ impl AsyncWrite for ProxyConnection {
         cx: &mut std::task::Context<'_>,
         buf: &[u8],
     ) -> std::task::Poll<Result<usize, std::io::Error>> {
-        log::trace!("call to poll_write");
+        log::debug!("call to poll_write");
         self.as_mut().update_write_waker(cx);
         if self.send_future.is_none() {
             let request_tx = self.request_tx.clone();
@@ -266,10 +267,13 @@ impl AsyncWrite for ProxyConnection {
         if let Some(future) = &mut self.send_future {
             match ready!(pin!(future).poll(cx)) {
                 Ok(_) => {
-                    self.as_mut().resolve_read_waker();
                     self.as_mut().resolve_write_waker();
+                    self.as_mut().resolve_read_waker();
+                    self.send_future = None;
+                    return Poll::Pending;
                 }
                 Err(_) => {
+                    self.send_future = None;
                     self.as_mut().resolve_read_waker();
                     return Poll::Ready(Err(io::Error::new(
                         io::ErrorKind::BrokenPipe,
@@ -278,6 +282,7 @@ impl AsyncWrite for ProxyConnection {
                 }
             }
         };
+
         return Poll::Pending;
     }
 
