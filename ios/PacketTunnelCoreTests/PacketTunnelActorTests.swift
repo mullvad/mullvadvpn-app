@@ -453,7 +453,6 @@ final class PacketTunnelActorTests: XCTestCase {
     func testAdapterErrorStateStaysInErrorState() async throws {
         let errorStateExpectation = expectation(description: "Expect error state")
         let connectingStateExpectation = expectation(description: "Expect connecting state")
-        connectingStateExpectation.expectedFulfillmentCount = 1
 
         let blockedStateMapper = BlockedStateErrorMapperStub { error in
             if error is TunnelAdapterErrorStub {
