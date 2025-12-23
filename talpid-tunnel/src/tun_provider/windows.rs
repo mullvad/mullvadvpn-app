@@ -75,7 +75,7 @@ impl WindowsTunProvider {
             /// Reuse the same ID, if possible. This prevents Windows from thinking it's a
             /// "new network".
             // {AFE43773-E1F8-4EBB-8536-576AB86AFE9A}
-            const ADAPTER_GUID: u128 = 0xAFE43773_E1F8_4EBB_8536576AB86AFE9A;
+            const ADAPTER_GUID: u128 = 0xAFE4_3773_E1F8_4EBB_8536_576A_B86A_FE9A;
 
             builder.config.tun_name(ADAPTER_NAME);
             builder
