@@ -1,7 +1,8 @@
 use super::TunConfig;
 use std::{io, net::IpAddr, ops::Deref};
-use tun07 as tun;
-use tun07::{AbstractDevice, AsyncDevice, Configuration};
+use tun08::{self as tun, AbstractDeviceExt};
+use tun08::{AbstractDevice, AsyncDevice, Configuration};
+use windows_sys::Win32::NetworkManagement::Ndis::NET_LUID_LH;
 
 /// Errors that can occur while setting up a tunnel device.
 #[derive(Debug, thiserror::Error)]
@@ -59,12 +60,36 @@ impl WindowsTunProvider {
         let mut tunnel_device = {
             #[allow(unused_mut)]
             let mut builder = TunnelDeviceBuilder::default();
-            // TODO: set alias
+
+            // When routing, the metric of a route is equal to the sum of the interface metric and
+            // metric value set for the route itself. Setting the interface metric to 1 gives tunnel
+            // routes the highest possible priority.
+            builder.config.metric(1);
+
             // TODO: have tun either not use netsh or not set any default address at all
             // TODO: tun can only set a single address
             if let Some(addr) = first_addr {
                 builder.config.address(*addr);
             }
+
+            /// Tunnel adapter name
+            const ADAPTER_NAME: &str = "Mullvad";
+            /// Tunnel adapter GUID.
+            /// Reuse the same ID, if possible. This prevents Windows from thinking it's a
+            /// "new network".
+            // {AFE43773-E1F8-4EBB-8536-576AB86AFE9A}
+            const ADAPTER_GUID: u128 = 0xAFE4_3773_E1F8_4EBB_8536_576A_B86A_FE9A;
+
+            builder.config.tun_name(ADAPTER_NAME);
+            builder
+                .config
+                .platform_config(|cfg: &mut tun08::PlatformConfig| {
+                    cfg.device_guid(ADAPTER_GUID);
+
+                    let wintun_path = self.config.resource_dir.join("wintun.dll");
+                    cfg.wintun_file(wintun_path);
+                });
+
             builder.create()?
         };
 
@@ -131,10 +156,8 @@ impl Default for TunnelDeviceBuilder {
 
 impl TunnelDevice {
     fn set_ip(&mut self, ip: IpAddr) -> Result<(), Error> {
-        // TODO: Expose luid from wintun-bindings.
-        // Also, maybe, update wintun-bindings to use Windows APIs instead of netsh
-        let name = self.get_name()?;
-        let luid = talpid_windows::net::luid_from_alias(&name).map_err(Error::GetDeviceLuid)?;
+        let luid = self.dev.tun_luid();
+        let luid = NET_LUID_LH { Value: luid };
         talpid_windows::net::add_ip_address_for_interface(luid, ip).map_err(Error::SetIp)
     }
 

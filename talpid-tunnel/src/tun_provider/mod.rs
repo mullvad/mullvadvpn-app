@@ -73,6 +73,10 @@ pub struct TunConfig {
 
     /// Applications to exclude from the tunnel.
     pub excluded_packages: Vec<String>,
+
+    /// Path to resource directory
+    #[cfg(target_os = "windows")]
+    pub resource_dir: std::path::PathBuf,
 }
 
 impl TunConfig {
@@ -100,7 +104,9 @@ impl TunConfig {
 ///
 /// Most values except the routes are nonsensical. This is mostly used as a reasonable default on
 /// Android to route all traffic inside the tunnel.
-pub fn blocking_config() -> TunConfig {
+pub fn blocking_config(
+    #[cfg(target_os = "windows")] resource_dir: std::path::PathBuf,
+) -> TunConfig {
     TunConfig {
         #[cfg(target_os = "linux")]
         name: None,
@@ -117,6 +123,8 @@ pub fn blocking_config() -> TunConfig {
         allow_lan: false,
         dns_servers: None,
         excluded_packages: vec![],
+        #[cfg(target_os = "windows")]
+        resource_dir,
     }
 }
 
