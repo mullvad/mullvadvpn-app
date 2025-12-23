@@ -89,6 +89,9 @@ This release is identical to 2025.14-beta3.
 ## [2025.13] - 2025-11-06
 This release is identical to 2025.13-beta2.
 
+#### Linux
+- Harden systemd unit files.
+
 
 ## [2025.13-beta2] - 2025-10-28
 ### Fixed
