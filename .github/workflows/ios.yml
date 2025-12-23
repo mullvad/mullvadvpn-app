@@ -51,6 +51,7 @@ jobs:
           -testPlan MullvadVPNUITestsAll \
           -clonedSourcePackagesDirPath "$SOURCE_PACKAGES_PATH" \
           -disableAutomaticPackageResolution \
+          -allowProvisioningUpdates \
           -destination "platform=iOS Simulator,name=iPhone 16" \
           clean build-for-testing 2>&1 | xcbeautify
         working-directory: ios/
@@ -76,6 +77,7 @@ jobs:
             -destination "platform=iOS Simulator,name=iPhone 16" \
             -clonedSourcePackagesDirPath "$SOURCE_PACKAGES_PATH" \
             -disableAutomaticPackageResolution \
+            -allowProvisioningUpdates \
             -resultBundlePath xcode-test-report \
             test 2>&1 | xcbeautify
         working-directory: ios/

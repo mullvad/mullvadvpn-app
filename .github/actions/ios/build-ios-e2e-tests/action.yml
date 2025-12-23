@@ -91,6 +91,7 @@ runs:
           -testPlan MullvadVPNUITestsAll $TEST_NAME_ARGUMENT \
           -destination "platform=iOS,id=$TEST_DEVICE_UDID" \
           -derivedDataPath derived-data \
+          -allowProvisioningUpdates \
           clean build-for-testing 2>&1
       shell: bash
       working-directory: ios/

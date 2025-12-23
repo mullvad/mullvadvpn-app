@@ -62,6 +62,7 @@ runs:
           -testPlan MullvadVPNUITestsAll $TEST_NAME_ARGUMENT \
           -resultBundlePath ${{ env.TEST_OUTPUT_DIRECTORY }}/xcode-test-report \
           -derivedDataPath derived-data \
+          -allowProvisioningUpdates \
           -destination "platform=iOS,id=$TEST_DEVICE_UDID" \
           test-without-building 2>&1 | xcbeautify --report junit \
           --report-path ${{ env.TEST_OUTPUT_DIRECTORY }}/junit-test-report
