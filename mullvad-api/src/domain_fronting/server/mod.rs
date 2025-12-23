@@ -137,7 +137,6 @@ impl Sessions {
 
 struct Session {
     connection: TcpStream,
-    upstream_rx_bytes: Option<BytesMut>,
     cmd_rx: mpsc::Receiver<SessionCommand>,
     session_id: Uuid,
     sessions: Arc<Sessions>,
@@ -163,7 +162,6 @@ impl Session {
             connection,
             session_id,
             cmd_rx,
-            upstream_rx_bytes: None,
             sessions,
         })
     }
@@ -171,14 +169,13 @@ impl Session {
     pub async fn run(&mut self) {
         let Self {
             connection,
-            upstream_rx_bytes,
             cmd_rx,
             sessions: _,
-            session_id: _,
+            session_id,
         } = self;
         let mut deadline = sleep(CONNECTION_TIMEOUT);
         let mut read_buffer = vec![0u8; 8192];
-        println!("Starting session loop");
+        log::trace!("Starting session loop");
 
         loop {
             tokio::select! {
@@ -189,6 +186,7 @@ impl Session {
 
                     println!("Received msg");
                     if let Some(tx_bytes) = cmd.take_payload() {
+                        log::debug!("Received {} bytes for session {}", tx_bytes.len(), session_id);
                         if let Err(err) =  connection.write_all(&tx_bytes).await {
                             log::error!("Failed to send data to upstream: {err}");
                         }
@@ -205,6 +203,8 @@ impl Session {
                         Err(timeout) => Bytes::new(),
                     };
 
+
+                    log::debug!("Responding with {} bytes for session {}", response_bytes.len(), session_id);
                     cmd.respond_with(response_bytes);
                 },
 

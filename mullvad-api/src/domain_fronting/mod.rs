@@ -103,6 +103,7 @@ impl ProxyConfig {
 }
 
 pub struct ProxyConnection {
+    bytes_received: usize,
     reader: Reader<BytesMut>,
     send_future: Option<Pin<Box<dyn Future<Output = Result<(), ()>> + Send>>>,
     ongoing_request: bool,
@@ -126,6 +127,7 @@ impl ProxyConnection {
         tokio::spawn(actor.run());
 
         Ok(Self {
+            bytes_received: 0,
             reader: BytesMut::new().reader(),
             ongoing_request: false,
             request_tx,
@@ -159,6 +161,7 @@ impl ProxyConnection {
     }
 
     fn fill_recv_buffer(mut self: Pin<&mut Self>, response: Bytes) {
+        log::debug!("Received {} bytes", response.len());
         self.reader.get_mut().extend(response);
     }
 
@@ -170,7 +173,10 @@ impl ProxyConnection {
         request_tx: mpsc::Sender<Bytes>,
         payload: Bytes,
     ) -> Pin<Box<dyn Future<Output = Result<(), ()>> + Send>> {
-        let send_future = async move { request_tx.send(payload).await.map_err(|_| ()) };
+        let send_future = async move {
+            let result = request_tx.send(payload).await.map_err(|_| ());
+            result
+        };
         Box::pin(send_future)
     }
 
@@ -183,27 +189,31 @@ impl AsyncRead for ProxyConnection {
         cx: &mut std::task::Context<'_>,
         buf: &mut tokio::io::ReadBuf<'_>,
     ) -> std::task::Poll<std::io::Result<()>> {
+        log::trace!("call to poll_read");
         self.as_mut().update_read_waker(cx);
         match self.as_mut().response_rx.poll_recv(cx) {
             // indicate that the reader is shut down by reading 0 bytes.
             Poll::Ready(None) => {
                 if self.as_ref().recv_buffer_empty() {
+                    self.as_mut().resolve_write_waker();
+                    self.as_mut().resolve_read_waker();
                     return Poll::Ready(Ok(()));
                 }
             }
             Poll::Ready(Some(response)) => {
                 self.as_mut().fill_recv_buffer(response);
             }
-            Poll::Pending => {
-                return Poll::Pending;
-            }
+            Poll::Pending => (),
         };
+
         let buffer_empty = self.as_ref().recv_buffer_empty();
         if !buffer_empty {
             match self.reader.read(buf.initialize_unfilled()) {
                 Ok(0) => (),
                 Ok(n) => {
                     buf.advance(n);
+                    self.bytes_received += n;
+                    println!("Received in total {} bytes", self.bytes_received);
                     return Poll::Ready(Ok(()));
                 }
                 Err(err) => {
@@ -242,11 +252,14 @@ impl AsyncWrite for ProxyConnection {
         cx: &mut std::task::Context<'_>,
         buf: &[u8],
     ) -> std::task::Poll<Result<usize, std::io::Error>> {
+        log::trace!("call to poll_write");
         self.as_mut().update_write_waker(cx);
         if self.send_future.is_none() {
             let request_tx = self.request_tx.clone();
             let payload = Bytes::copy_from_slice(buf);
             self.send_future = Some(Self::create_send_future(request_tx, payload));
+            self.as_mut().resolve_read_waker();
+            self.as_mut().resolve_write_waker();
             return Poll::Ready(Ok(buf.len()));
         }
 
@@ -314,6 +327,7 @@ impl ProxyActor {
         }
     }
     async fn run(mut self) {
+        log::debug!("Starting proxy actor with session {}", self.session_id);
         loop {
             let Some(msg) = self.request_rx.recv().await else {
                 log::trace!("Shutting down proxy - rx channel has no writers");
@@ -349,10 +363,14 @@ impl ProxyActor {
                     return;
                 }
             };
-            if self.response_tx.send(body.to_bytes()).await.is_err() {
-                log::trace!("Response receiver down, shutting down actor");
-                return;
+            let payload = body.to_bytes();
+            if payload.len() != 0 {
+                if self.response_tx.send(payload).await.is_err() {
+                    log::trace!("Response receiver down, shutting down actor");
+                    return;
+                }
             }
+
         }
     }
 
