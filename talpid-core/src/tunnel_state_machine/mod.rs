@@ -152,7 +152,10 @@ pub async fn spawn(
     let tun_provider = TunProvider::new(
         #[cfg(target_os = "android")]
         android_context.clone(),
-        talpid_tunnel::tun_provider::blocking_config(),
+        talpid_tunnel::tun_provider::blocking_config(
+            #[cfg(target_os = "windows")]
+            resource_dir.clone(),
+        ),
     );
 
     let (shutdown_tx, shutdown_rx) = oneshot::channel();
