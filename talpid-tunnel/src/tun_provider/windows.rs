@@ -1,7 +1,8 @@
 use super::TunConfig;
 use std::{io, net::IpAddr, ops::Deref};
-use tun08 as tun;
+use tun08::{self as tun, AbstractDeviceExt};
 use tun08::{AbstractDevice, AsyncDevice, Configuration};
+use windows_sys::Win32::NetworkManagement::Ndis::NET_LUID_LH;
 
 /// Errors that can occur while setting up a tunnel device.
 #[derive(Debug, thiserror::Error)]
@@ -155,10 +156,8 @@ impl Default for TunnelDeviceBuilder {
 
 impl TunnelDevice {
     fn set_ip(&mut self, ip: IpAddr) -> Result<(), Error> {
-        // TODO: Expose luid from wintun-bindings.
-        // Also, maybe, update wintun-bindings to use Windows APIs instead of netsh
-        let name = self.get_name()?;
-        let luid = talpid_windows::net::luid_from_alias(&name).map_err(Error::GetDeviceLuid)?;
+        let luid = self.dev.tun_luid();
+        let luid = NET_LUID_LH { Value: luid };
         talpid_windows::net::add_ip_address_for_interface(luid, ip).map_err(Error::SetIp)
     }
 
