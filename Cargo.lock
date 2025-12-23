@@ -3247,6 +3247,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "mullvad-release-android"
+version = "0.0.0"
+dependencies = [
+ "anyhow",
+ "chrono",
+ "clap",
+ "mullvad-update",
+ "mullvad-version",
+ "serde",
+ "serde_json",
+ "tokio",
+]
+
+[[package]]
 name = "mullvad-setup"
 version = "0.0.0"
 dependencies = [
