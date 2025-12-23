@@ -93,8 +93,8 @@ public actor PacketTunnelActor {
      */
     private nonisolated func consumeEvents(channel: EventChannel) {
         Task.detached { [weak self] in
-            guard let self else { return }
             for await event in channel {
+                guard let self else { return }
                 await self.handleEvent(event)
             }
         }
