@@ -78,6 +78,9 @@ impl WindowsTunProvider {
                 .config
                 .platform_config(|cfg: &mut tun08::PlatformConfig| {
                     cfg.device_guid(ADAPTER_GUID);
+
+                    let wintun_path = self.config.resource_dir.join("wintun.dll");
+                    cfg.wintun_file(wintun_path);
                 });
 
             builder.create()?
