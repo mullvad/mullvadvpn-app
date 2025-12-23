@@ -450,11 +450,10 @@ final class PacketTunnelActorTests: XCTestCase {
         await fulfillment(of: [stopMonitorExpectation], timeout: .UnitTest.timeout)
     }
 
-    func testRecoveringConnectionAfterTunnelAdaptorError() async throws {
+    func testAdapterErrorStateStaysInErrorState() async throws {
         let errorStateExpectation = expectation(description: "Expect error state")
         let connectingStateExpectation = expectation(description: "Expect connecting state")
-        connectingStateExpectation.expectedFulfillmentCount = 2
-        let connectedStateExpectation = expectation(description: "Expect connected state")
+        connectingStateExpectation.expectedFulfillmentCount = 1
 
         let blockedStateMapper = BlockedStateErrorMapperStub { error in
             if error is TunnelAdapterErrorStub {
@@ -480,7 +479,7 @@ final class PacketTunnelActorTests: XCTestCase {
                 case .connecting:
                     connectingStateExpectation.fulfill()
                 case .connected:
-                    connectedStateExpectation.fulfill()
+                    fatalError("Unexpected connected state")
                 default:
                     break
                 }
@@ -489,7 +488,7 @@ final class PacketTunnelActorTests: XCTestCase {
         actor.setErrorState(reason: .tunnelAdapter)
 
         await fulfillment(
-            of: [errorStateExpectation, connectingStateExpectation, connectedStateExpectation],
+            of: [connectingStateExpectation, errorStateExpectation],
             timeout: .UnitTest.timeout,
             enforceOrder: true
         )
