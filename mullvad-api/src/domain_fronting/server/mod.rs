@@ -1,4 +1,4 @@
-use std::{hash::RandomState, io, net::SocketAddr, sync::Arc, time::Duration};
+use std::{hash::RandomState, io, net::SocketAddr, pin::pin, sync::Arc, time::Duration};
 
 use bytes::BytesMut;
 use http::{Request, Response, StatusCode, header};
@@ -172,11 +172,12 @@ impl Session {
             sessions: _,
             session_id,
         } = self;
-        let mut deadline = sleep(CONNECTION_TIMEOUT);
+        let mut deadline = pin!(sleep(CONNECTION_TIMEOUT));
         let mut read_buffer = vec![0u8; 8192];
         log::trace!("Starting session loop");
 
         loop {
+            let deadline_ref = deadline.as_mut();
             tokio::select! {
                 maybe_cmd = cmd_rx.recv() => {
                     let Some(mut cmd) = maybe_cmd else {
@@ -195,7 +196,7 @@ impl Session {
                     // drop everything on read error
                     let response_bytes = match timeout(READ_TIMEOUT, connection.read(&mut read_buffer)).await {
                         Ok(Ok(bytes_read)) => {
-                            deadline = sleep(CONNECTION_TIMEOUT);
+                            deadline.set(sleep(CONNECTION_TIMEOUT));
                             Bytes::copy_from_slice(&read_buffer[..bytes_read])
                         },
                         Ok(Err(connection_error)) => {
@@ -210,7 +211,7 @@ impl Session {
                     cmd.respond_with(response_bytes);
                 },
 
-                _ = deadline => {
+                _ = deadline_ref => {
                     return;
                 }
             }
