@@ -9,7 +9,7 @@ use super::{Error, WideCString};
 pub const LOGGING_CONTEXT: &CStr = c"WinFw";
 
 #[repr(C)]
-#[allow(non_snake_case)]
+#[expect(non_snake_case)]
 pub struct WinFwSettings {
     permitDhcp: bool,
     permitLan: bool,
@@ -24,7 +24,7 @@ impl WinFwSettings {
     }
 }
 
-#[allow(dead_code)]
+#[expect(dead_code)]
 #[repr(u32)]
 #[derive(Clone, Copy)]
 pub enum WinFwCleanupPolicy {
@@ -34,7 +34,6 @@ pub enum WinFwCleanupPolicy {
 }
 
 #[derive(Debug)]
-#[allow(dead_code)]
 #[repr(u32)]
 pub enum WinFwPolicyStatus {
     Success = 0,

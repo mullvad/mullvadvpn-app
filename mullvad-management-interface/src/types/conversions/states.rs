@@ -272,7 +272,7 @@ impl TryFrom<proto::TunnelState> for mullvad_types::states::TunnelState {
         use talpid_types::{net as talpid_net, tunnel as talpid_tunnel};
 
         let state = match state.state {
-            #[cfg_attr(target_os = "android", allow(unused_variables))]
+            #[cfg_attr(target_os = "android", expect(unused_variables))]
             Some(proto::tunnel_state::State::Disconnected(proto::tunnel_state::Disconnected {
                 disconnected_location,
                 locked_down,
@@ -443,7 +443,7 @@ impl TryFrom<proto::TunnelState> for mullvad_types::states::TunnelState {
     }
 }
 
-#[cfg_attr(not(target_os = "windows"), allow(unused_variables))]
+#[cfg_attr(not(target_os = "windows"), expect(unused_variables))]
 fn try_firewall_policy_error_from_i32(
     policy_error: i32,
     lock_pid: u32,

@@ -188,7 +188,7 @@ struct NormalSelectorConfig<'a> {
 /// The return type of [`RelaySelector::get_relay`].
 // There won't ever be many instances of GetRelay floating around, so the 'large' difference in
 // size between its variants is negligible.
-#[allow(clippy::large_enum_variant)]
+#[expect(clippy::large_enum_variant)]
 #[derive(Clone, Debug)]
 pub enum GetRelay {
     Mullvad {

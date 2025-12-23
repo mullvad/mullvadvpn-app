@@ -127,11 +127,10 @@ impl VersionUpdater {
 impl VersionUpdaterInner {
     /// Update [Self::last_app_version_info] and write it to disk cache, and notify the `update`
     /// callback.
-    #[allow(unused_mut)]
     async fn update_version_info(
         &mut self,
         update: &impl Fn(VersionCache) -> BoxFuture<'static, Result<(), Error>>,
-        mut new_version_info: VersionCache,
+        #[cfg_attr(target_os = "android", expect(unused_mut))] mut new_version_info: VersionCache,
     ) {
         #[cfg(not(target_os = "android"))]
         {

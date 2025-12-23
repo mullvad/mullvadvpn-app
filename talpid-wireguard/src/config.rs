@@ -219,7 +219,7 @@ impl WgConfigBuffer {
 }
 
 /// Returns a CString with the appropriate config for WireGuard-go
-#[allow(single_use_lifetimes)]
+#[expect(single_use_lifetimes)]
 pub fn userspace_format<'a>(
     private_key: &PrivateKey,
     peers: impl Iterator<Item = &'a PeerConfig>,

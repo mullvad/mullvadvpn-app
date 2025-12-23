@@ -15,7 +15,7 @@
 //! PSK: 7JJijIxl+oO4lnPzFjBYpeZwp/0Bf83UWSAdh+GGgN8=
 //! ```
 
-#[allow(clippy::derive_partial_eq_without_eq)]
+#[expect(clippy::allow_attributes)]
 mod proto {
     tonic::include_proto!("ephemeralpeer");
 }

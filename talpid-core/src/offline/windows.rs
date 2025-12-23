@@ -134,7 +134,7 @@ impl BroadcastListener {
         state.apply_change(change);
     }
 
-    #[allow(clippy::unused_async)]
+    #[expect(clippy::unused_async)]
     pub async fn connectivity(&self) -> Connectivity {
         let state = self.system_state.lock();
         state.connectivity.into_connectivity()

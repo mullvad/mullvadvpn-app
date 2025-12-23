@@ -191,7 +191,7 @@ pub(super) fn apply_policy_connecting(
         .as_ref()
         .map_or(ptr::null(), |ip| ip.as_ptr());
 
-    #[allow(clippy::undocumented_unsafe_blocks)] // Remove me if you dare.
+    #[expect(clippy::undocumented_unsafe_blocks)] // Remove me if you dare.
     let res = unsafe {
         WinFw_ApplyPolicyConnecting(
             winfw_settings,
@@ -208,9 +208,9 @@ pub(super) fn apply_policy_connecting(
     // SAFETY: All of these must remain allocated until `WinFw_ApplyPolicyConnecting` has returned.
     drop(endpoint1_ip);
     drop(endpoint2_ip);
-    #[allow(clippy::drop_non_drop)]
+    #[expect(clippy::drop_non_drop)]
     drop(endpoint1);
-    #[allow(clippy::drop_non_drop)]
+    #[expect(clippy::drop_non_drop)]
     drop(endpoint2);
     drop(relay_client_wstrs);
     drop(exit_endpoint_ip_wstr);
@@ -292,7 +292,7 @@ pub(super) fn apply_policy_connected(
         .as_ref()
         .map_or(ptr::null(), |ip| ip.as_ptr());
 
-    #[allow(clippy::undocumented_unsafe_blocks)] // Remove me if you dare.
+    #[expect(clippy::undocumented_unsafe_blocks)] // Remove me if you dare.
     let result = unsafe {
         WinFw_ApplyPolicyConnected(
             winfw_settings,
