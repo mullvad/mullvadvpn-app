@@ -2,14 +2,15 @@
 //! This only compiles with the `domain-fronting` feature flag for the time being.
 
 use std::{
-    io::{self, Error},
+    io::{self, BufRead, Error, Read},
     net::SocketAddr,
-    pin::Pin,
+    pin::{Pin, pin},
     sync::Arc,
-    task::{Poll, ready},
+    task::{Poll, Waker, ready},
 };
 
-use bytes::BufMut;
+use bytes::{Buf, BufMut, BytesMut, buf::Reader};
+use futures::channel::mpsc::SendError;
 use http::{Request, Response, header, status::StatusCode};
 use http_body_util::{BodyExt, Empty, Full};
 use hyper::{
@@ -102,12 +103,15 @@ impl ProxyConfig {
 }
 
 pub struct ProxyConnection {
-    sender: SendRequest<Full<Bytes>>,
-    proxy_host: String,
-    recv_buffer: Option<Bytes>,
+    reader: Reader<BytesMut>,
+    send_future: Option<Pin<Box<dyn Future<Output = Result<(), ()>> + Send>>>,
     ongoing_request: bool,
     request_tx: mpsc::Sender<Bytes>,
-    response_tx: mpsc::Receiver<Bytes>,
+    response_rx: mpsc::Receiver<Bytes>,
+    // call waker whenever the send_future resolves.
+    read_waker: Option<Waker>,
+    // call waker whenever the send_future resolves.
+    write_waker: Option<Waker>,
 }
 
 impl ProxyConnection {
@@ -122,39 +126,55 @@ impl ProxyConnection {
         tokio::spawn(actor.run());
 
         Ok(Self {
-            sender,
-            proxy_host,
-            recv_buffer: None,
+            reader: BytesMut::new().reader(),
             ongoing_request: false,
             request_tx,
             response_rx,
+            send_future: None,
+            read_waker: None,
+            write_waker: None,
         })
     }
 
-    fn drain_buffer(
-        &mut self,
-        buf: &mut tokio::io::ReadBuf<'_>,
-    ) -> std::task::Poll<io::Result<()>> {
-        let Some(received_bytes) = self.recv_buffer.take() else {
-            return Poll::Pending;
-        };
-        received_bytes.copy_to_slice(buf);
-        let read_slice = match buf.remaining_mut() {
-            buffer_length if buffer_length > received_bytes.len() => &received_bytes[..],
-            buffer_length => {
-                self.recv_buffer = Some(received_bytes[buffer_length..].to_vec());
-                &received_bytes[..buffer_length]
-            }
-        };
-        buf.put_slice(read_slice);
-        return Poll::Ready(Ok(()));
+    fn update_write_waker(mut self: Pin<&mut Self>, cx: &mut std::task::Context<'_>) {
+        let waker = cx.waker();
+        let stored_waker = self.write_waker.get_or_insert_with(|| waker.clone());
+        stored_waker.clone_from(waker);
     }
 
-    fn fill_recv_buffer(&mut self, response: Vec<u8>) {
-        if !response.is_empty() {
-            self.recv_buffer.get_or_insert(vec![]).extend(response);
+    fn update_read_waker(mut self: Pin<&mut Self>, cx: &mut std::task::Context<'_>) {
+        let waker = cx.waker();
+        let stored_waker = self.read_waker.get_or_insert_with(|| waker.clone());
+        stored_waker.clone_from(waker);
+    }
+    fn resolve_write_waker(mut self: Pin<&mut Self>) {
+        if let Some(waker) = self.write_waker.take() {
+            waker.wake();
         }
     }
+    fn resolve_read_waker(mut self: Pin<&mut Self>) {
+        if let Some(waker) = self.read_waker.take() {
+            waker.wake();
+        }
+    }
+
+    fn fill_recv_buffer(mut self: Pin<&mut Self>, response: Bytes) {
+        self.reader.get_mut().extend(response);
+    }
+
+    fn recv_buffer_empty(self: Pin<&Self>) -> bool {
+        self.reader.get_ref().remaining() > 0
+    }
+
+    fn create_send_future(
+        request_tx: mpsc::Sender<Bytes>,
+        payload: Bytes,
+    ) -> Pin<Box<dyn Future<Output = Result<(), ()>> + Send>> {
+        let send_future = async move { request_tx.send(payload).await.map_err(|_| ()) };
+        Box::pin(send_future)
+    }
+
+    // fn poll_send_future(self: Pin<&mut Self>) -> Poll<io::Result<
 }
 
 impl AsyncRead for ProxyConnection {
@@ -163,17 +183,56 @@ impl AsyncRead for ProxyConnection {
         cx: &mut std::task::Context<'_>,
         buf: &mut tokio::io::ReadBuf<'_>,
     ) -> std::task::Poll<std::io::Result<()>> {
-        // self.request.get_or_insert_with would be cool, but mutable borrows prevent that.
-        let request = match self.request.as_mut() {
-            None => self.create_request(None),
-            Some(request) => request,
+        self.as_mut().update_read_waker(cx);
+        match self.as_mut().response_rx.poll_recv(cx) {
+            // indicate that the reader is shut down by reading 0 bytes.
+            Poll::Ready(None) => {
+                if self.as_ref().recv_buffer_empty() {
+                    return Poll::Ready(Ok(()));
+                }
+            }
+            Poll::Ready(Some(response)) => {
+                self.as_mut().fill_recv_buffer(response);
+            }
+            Poll::Pending => {
+                return Poll::Pending;
+            }
         };
+        let buffer_empty = self.as_ref().recv_buffer_empty();
+        if !buffer_empty {
+            match self.reader.read(buf.initialize_unfilled()) {
+                Ok(0) => (),
+                Ok(n) => {
+                    buf.advance(n);
+                    return Poll::Ready(Ok(()));
+                }
+                Err(err) => {
+                    return Poll::Ready(Err(err));
+                }
+            };
+        }
 
-        let response = ready!(request.as_mut().poll(cx))?;
-        self.request = None;
-        self.fill_recv_buffer(response);
+        let request_tx = self.request_tx.clone();
+        let send_future = self
+            .send_future
+            .get_or_insert_with(|| Self::create_send_future(request_tx, Bytes::new()));
 
-        self.drain_buffer(buf)
+        match pin!(send_future).poll(cx) {
+            Poll::Pending => Poll::Pending,
+            Poll::Ready(Ok(_)) => {
+                self.as_mut().resolve_write_waker();
+                self.as_mut().resolve_read_waker();
+                self.send_future = None;
+                Poll::Pending
+            }
+            Poll::Ready(Err(_)) => {
+                self.as_mut().resolve_write_waker();
+                Poll::Ready(Err(io::Error::new(
+                    io::ErrorKind::BrokenPipe,
+                    "Actor shut down",
+                )))
+            }
+        }
     }
 }
 
@@ -183,24 +242,30 @@ impl AsyncWrite for ProxyConnection {
         cx: &mut std::task::Context<'_>,
         buf: &[u8],
     ) -> std::task::Poll<Result<usize, std::io::Error>> {
-        let (request, sent_request) = match self.request.as_mut() {
-            Some(request) => (request, false),
-            None => {
-                self.create_request(Some(buf));
-                cx.waker().wake_by_ref();
-                println!("from none ACtually sent request traffic");
-                return Poll::Ready(Ok(buf.len()));
+        self.as_mut().update_write_waker(cx);
+        if self.send_future.is_none() {
+            let request_tx = self.request_tx.clone();
+            let payload = Bytes::copy_from_slice(buf);
+            self.send_future = Some(Self::create_send_future(request_tx, payload));
+            return Poll::Ready(Ok(buf.len()));
+        }
+
+        if let Some(future) = &mut self.send_future {
+            match ready!(pin!(future).poll(cx)) {
+                Ok(_) => {
+                    self.as_mut().resolve_read_waker();
+                    self.as_mut().resolve_write_waker();
+                }
+                Err(_) => {
+                    self.as_mut().resolve_read_waker();
+                    return Poll::Ready(Err(io::Error::new(
+                        io::ErrorKind::BrokenPipe,
+                        "Actor shut down",
+                    )));
+                }
             }
         };
-
-        let response = ready!(request.as_mut().poll(cx))?;
-        self.request = None;
-        self.fill_recv_buffer(response);
-
-        self.create_request(Some(buf));
-        cx.waker().wake_by_ref();
-        println!("from end ACtually sent request traffic");
-        return Poll::Ready(Ok(buf.len()));
+        return Poll::Pending;
     }
 
     fn poll_flush(
@@ -223,11 +288,6 @@ fn read_cert_store() -> rustls::RootCertStore {
 
     cert_store.extend(TLS_SERVER_ROOTS.iter().cloned());
     cert_store
-}
-
-struct Payload {
-    payload: Bytes,
-    // permit: OwnedPermit
 }
 
 struct ProxyActor {
