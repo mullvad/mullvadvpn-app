@@ -59,6 +59,9 @@ impl WindowsTunProvider {
         let mut tunnel_device = {
             #[allow(unused_mut)]
             let mut builder = TunnelDeviceBuilder::default();
+
+            builder.config.metric(1);
+
             // TODO: have tun either not use netsh or not set any default address at all
             // TODO: tun can only set a single address
             if let Some(addr) = first_addr {
