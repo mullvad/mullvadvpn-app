@@ -47,7 +47,7 @@ pub struct SwiftAddressCacheProviderContext {
 /// Use the `deallocate_ptr` function on `ptr` to call the custom deallocator provided by Swift.
 #[repr(C)]
 pub struct LateStringDeallocator {
-    ptr: *const c_char,
+    pub(crate) ptr: *const c_char,
     deallocate_ptr: unsafe extern "C" fn(*const c_char),
 }
 
