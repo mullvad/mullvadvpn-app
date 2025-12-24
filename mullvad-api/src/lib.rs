@@ -33,7 +33,8 @@ mod relay_list;
 
 pub mod ffi;
 
-pub use address_cache::{AddressCache, FileAddressCacheBacking};
+pub use address_cache::{AddressCache, AddressCacheBacking, FileAddressCacheBacking};
+pub use address_cache::Error as AddressCacheError;
 pub use device::DevicesProxy;
 pub use hyper::StatusCode;
 pub use relay_list::RelayListProxy;
