@@ -2,6 +2,8 @@ use mullvad_api::{
     ApiEndpoint,
     access_mode::AccessMethodResolver,
     proxy::{ApiConnectionMode, ProxyConfig},
+    AddressCacheBacking,
+    AddressCacheError,
 };
 use mullvad_encrypted_dns_proxy::state::EncryptedDnsProxyState;
 use mullvad_types::access_method::{AccessMethod, BuiltInAccessMethod};
@@ -9,6 +11,8 @@ use talpid_types::net::{
     AllowedClients, AllowedEndpoint, Endpoint, TransportProtocol, proxy::CustomProxy,
 };
 use tonic::async_trait;
+
+use crate::get_string;
 
 use super::{
     address_cache_provider::LateStringDeallocator,    
@@ -20,6 +24,23 @@ unsafe extern "C" {
     pub fn swift_store_address_cache(data: *const u8, data_size: u64);
 
     pub fn swift_read_address_cache() -> LateStringDeallocator;
+}
+
+#[derive(Clone)]
+struct IOSAddressCacheBacking {}
+
+#[async_trait]
+impl AddressCacheBacking for IOSAddressCacheBacking {
+    async fn read(&self) -> Result<Vec<u8>, AddressCacheError> {
+        let lsd = unsafe { swift_read_address_cache() };
+        let val = unsafe { get_string(lsd.ptr)};
+        Ok(val.as_bytes().to_vec())
+    }
+
+    async fn write(&self, data: &[u8]) -> Result<(), AddressCacheError> {
+        unsafe { swift_store_address_cache(data.as_ptr(), data.len().try_into().unwrap()) };
+        Ok(())
+    }
 }
 
 #[derive(Debug)]
