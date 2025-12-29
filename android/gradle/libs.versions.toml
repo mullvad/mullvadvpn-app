@@ -31,6 +31,7 @@ androidx-testorchestrator = "1.6.1"
 androidx-testrunner = "1.7.0"
 androidx-uiautomator = "2.4.0-alpha07"
 androidx-tv = "1.0.1"
+androidx-work = "2.11.0"
 # Arrow
 arrow = "2.2.1.1"
 # Compose
@@ -105,6 +106,7 @@ androidx-test-uiautomator = { module = "androidx.test.uiautomator:uiautomator", 
 androidx-test-orchestrator = { module = "androidx.test:orchestrator", version.ref = "androidx-testorchestrator" }
 androidx-tv = { module = "androidx.tv:tv-material", version.ref = "androidx-tv" }
 androidx-ui-test = { module = "androidx.compose.ui:ui-test", version.ref = "compose" }
+androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "androidx-work" }
 # Arrow
 arrow = { module = "io.arrow-kt:arrow-core", version.ref = "arrow" }
 arrow-optics = { module = "io.arrow-kt:arrow-optics", version.ref = "arrow" }
