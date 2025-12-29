@@ -403,19 +403,15 @@ async fn version_check_inner(
     #[cfg(not(target_os = "android"))] rollout: Rollout,
 ) -> Result<VersionCache, Error> {
     #[cfg(not(target_os = "android"))]
+    let architecture = match talpid_platform_metadata::get_native_arch()
+        .expect("IO error while getting native architecture")
+        .expect("Failed to get native architecture")
     {
-        let architecture = match talpid_platform_metadata::get_native_arch()
-            .expect("IO error while getting native architecture")
-            .expect("Failed to get native architecture")
-        {
-            talpid_platform_metadata::Architecture::X86 => {
-                mullvad_update::format::Architecture::X86
-            }
-            talpid_platform_metadata::Architecture::Arm64 => {
-                mullvad_update::format::Architecture::Arm64
-            }
-        };
-    }
+        talpid_platform_metadata::Architecture::X86 => mullvad_update::format::Architecture::X86,
+        talpid_platform_metadata::Architecture::Arm64 => {
+            mullvad_update::format::Architecture::Arm64
+        }
+    };
 
     let (response, last_platform_header_check) = match cache {
         // Cache available
