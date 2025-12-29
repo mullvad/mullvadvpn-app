@@ -79,7 +79,7 @@ class VpnSettingsViewModel(
                 settingsRepository.settingsUpdates.filterNotNull().onFirst {
                     // Initialize content blockers expand state
                     _mutableIsContentBlockersExpanded.value =
-                        Some(it.contentBlockersSettings().isAnyBlockerEnabled())
+                        Some(it.contentBlockersSettings().isAnyBlockerEnabled)
                 },
                 autoStartAndConnectOnBootRepository.autoStartAndConnectOnBoot,
                 _mutableIsContentBlockersExpanded.filterIsInstance<Some<Boolean>>().map {
@@ -148,6 +148,17 @@ class VpnSettingsViewModel(
 
     fun onToggleContentBlockersExpand() =
         _mutableIsContentBlockersExpanded.update { it.map { expand -> !expand } }
+
+    fun onToggleAllBlockers(isEnabled: Boolean) = updateContentBlockersAndNotify {
+        DefaultDnsOptions(
+            blockAds = isEnabled,
+            blockTrackers = isEnabled,
+            blockMalware = isEnabled,
+            blockAdultContent = isEnabled,
+            blockGambling = isEnabled,
+            blockSocialMedia = isEnabled,
+        )
+    }
 
     fun onToggleBlockAds(isEnabled: Boolean) = updateContentBlockersAndNotify {
         it.copy(blockAds = isEnabled)

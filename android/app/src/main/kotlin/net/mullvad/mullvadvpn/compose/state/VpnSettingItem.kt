@@ -17,12 +17,18 @@ sealed interface VpnSettingItem {
 
     data class LocalNetworkSharingSetting(val enabled: Boolean) : VpnSettingItem
 
-    data class DnsContentBlockersHeader(val featureEnabled: Boolean, val expanded: Boolean) :
-        VpnSettingItem
+    data class DnsContentBlockersHeader(
+        val featureEnabled: Boolean,
+        val expanded: Boolean,
+        val numberOfContentBlockersEnabled: Int,
+    ) : VpnSettingItem
 
     sealed interface DnsContentBlockerItem : VpnSettingItem {
         val enabled: Boolean
         val featureEnabled: Boolean
+
+        data class All(override val enabled: Boolean, override val featureEnabled: Boolean) :
+            DnsContentBlockerItem
 
         data class Ads(override val enabled: Boolean, override val featureEnabled: Boolean) :
             DnsContentBlockerItem

@@ -11,13 +11,31 @@ data class DefaultDnsOptions(
     val blockGambling: Boolean = false,
     val blockSocialMedia: Boolean = false,
 ) {
-    fun isAnyBlockerEnabled(): Boolean {
-        return blockAds ||
+    val isAnyBlockerEnabled: Boolean =
+        blockAds ||
             blockTrackers ||
             blockMalware ||
             blockAdultContent ||
             blockGambling ||
             blockSocialMedia
+
+    val isAllBlockersEnabled: Boolean =
+        blockAds &&
+            blockTrackers &&
+            blockMalware &&
+            blockAdultContent &&
+            blockGambling &&
+            blockSocialMedia
+
+    fun numberOfBlockersEnabled(): Int {
+        var blocked = 0
+        if (blockAds) blocked++
+        if (blockTrackers) blocked++
+        if (blockMalware) blocked++
+        if (blockAdultContent) blocked++
+        if (blockGambling) blocked++
+        if (blockSocialMedia) blocked++
+        return blocked
     }
 
     companion object
