@@ -1,0 +1,29 @@
+---
+name: RaaS - Build (Nix)
+on:
+  pull_request:
+    paths:
+      - .github/workflows/raas-build.yml
+      - ci/ios/test-router/flake.nix
+      - ci/ios/test-router/raas.nix
+      - 'ci/ios/test-router/raas/**'
+  push:
+    branches:
+      - main
+
+permissions: {}
+
+jobs:
+  build:
+    name: Build raas
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@main
+
+      - name: Build raas
+        run: nix build ./ci/ios/test-router#raas --print-build-logs
