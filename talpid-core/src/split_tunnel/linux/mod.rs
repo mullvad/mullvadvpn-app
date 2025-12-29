@@ -5,17 +5,12 @@
 
 use anyhow::Context;
 use libc::pid_t;
-#[cfg(feature = "cgroup2")]
-use nftnl::{Batch, Chain, Hook, MsgType, Policy, ProtoFamily, Rule, Table, nft_expr};
 use nix::unistd::Pid;
 use talpid_cgroup::{
     SPLIT_TUNNEL_CGROUP_NAME,
     v1::{CGroup1, NET_CLS_CLASSID},
     v2::CGroup2,
 };
-
-#[cfg(feature = "cgroup2")]
-use crate::firewall;
 
 /// Value used to mark packets and associated connections.
 /// This should be an arbitrary but unique integer.
@@ -68,28 +63,8 @@ impl PidManager {
         PidManager { inner }
     }
 
+    #[cfg(not(feature = "cgroup2"))]
     fn new_inner() -> Result<Inner, Error> {
-        #[cfg(feature = "cgroup2")]
-        return Self::new_cgroup2()
-            .map(Inner::CGroup2)
-            .or_else(|cgroup2_err| {
-                log::warn!(
-                    "Failed to initialize cgroups v2, falling back to cgroup v1 for split tunneling"
-                );
-                log::warn!("Note that cgroups v1 is deprecated and will be removed in the future");
-
-                // If it does not succeed, the kernel might be too old, so we fallback on the old cgroup1 solution.
-                Self::new_cgroup1()
-                    .map(Inner::CGroup1)
-                    .map_err(|cgroup1_err| {
-                        log::error!("Failed to initialize split-tunneling");
-                        log::trace!("{cgroup1_err:?}");
-                        log::trace!("{cgroup2_err:?}");
-                        cgroup2_err
-                    })
-            });
-
-        #[cfg(not(feature = "cgroup2"))]
         Self::new_cgroup1().map(Inner::CGroup1).inspect_err(|err| {
             log::error!("Failed to initialize split-tunneling");
             log::trace!("{err:?}");
@@ -97,13 +72,49 @@ impl PidManager {
     }
 
     #[cfg(feature = "cgroup2")]
+    fn new_inner() -> Result<Inner, Error> {
+        let mut cgroup2_err = None;
+
+        if talpid_cgroup::is_systemd_managed() {
+            log::info!("systemd is managing the root cgroup2 on this system");
+
+            // Try to create the cgroup2.
+            match Self::new_cgroup2() {
+                Ok(inner) => {
+                    return Ok(Inner::CGroup2(inner));
+                }
+                Err(err) => {
+                    log::warn!(
+                        "Failed to initialize cgroups v2, falling back to cgroup v1 for split tunneling"
+                    );
+                    log::trace!("{err:?}");
+                    cgroup2_err = Some(err);
+                }
+            }
+        } else {
+            log::info!(
+                "systemd is not managing the root cgroup2 on this system, falling back to cgroups v1 for split tunneling"
+            );
+        };
+
+        // If it fails, the kernel might be too old, so we fallback on the old cgroup1 solution.
+        log::warn!("Note that cgroups v1 is deprecated and will be removed in the future");
+
+        match Self::new_cgroup1() {
+            Ok(inner) => Ok(Inner::CGroup1(inner)),
+            Err(cgroup1_err) => {
+                log::error!("Failed to initialize split-tunneling");
+                log::trace!("{cgroup1_err:?}");
+                Err(cgroup2_err.unwrap_or(cgroup1_err))
+            }
+        }
+    }
+
+    #[cfg(feature = "cgroup2")]
     fn new_cgroup2() -> Result<InnerCGroup2, Error> {
         let root_cgroup2 = CGroup2::open_root()?;
 
         let excluded_cgroup2 = root_cgroup2.create_or_open_child(SPLIT_TUNNEL_CGROUP_NAME)?;
-
-        assert_nft_supports_cgroup2(&excluded_cgroup2)
-            .context("cgroup2 not supported by nftables, are you running an old kernel?")?;
 
         Ok(InnerCGroup2 {
             root_cgroup2,
@@ -250,47 +261,6 @@ impl Inner {
             Inner::CGroup2(..) => None,
         }
     }
-}
-
-/// Check whether we can create an nft table with a `socket cgroupv2 level x` rule.
-///
-/// Assuming that this process has the sufficient privileges, then this function should only fail
-/// when the kernel doesn't support this kind of rule. This is the case for kernels predating 5.13.
-//
-// NOTE:
-// Interfacing with firewall outside of the firewall module is spaghetti.
-// Consider either having this module take ownership of setting up the split-tunneling nft rules,
-// or moving this logic into the firewall module and coupling it with the actual firewall rules we
-// set up.
-#[cfg(feature = "cgroup2")]
-fn assert_nft_supports_cgroup2(cgroup: &CGroup2) -> Result<(), Error> {
-    let table_name = c"mullvad-test-cgroup2-capability";
-
-    let mut batch = Batch::new();
-    let table = Table::new(table_name, ProtoFamily::Inet);
-    batch.add(&table, MsgType::Add);
-
-    let mut chain = Chain::new(c"test", &table);
-    chain.set_hook(Hook::Out, 0);
-    chain.set_policy(Policy::Accept);
-    batch.add(&chain, MsgType::Add);
-
-    let mut rule = Rule::new(&chain);
-    rule.add_expr(&nft_expr!(socket cgroupv2 level 1));
-    rule.add_expr(&nft_expr!(cmp == cgroup.inode()));
-    rule.add_expr(&nft_expr!(verdict accept));
-    batch.add(&rule, MsgType::Add);
-
-    // Remove the table. Since this happens is the same batch, the table will never process any packets.
-    // This makes it effectively a dry-run.
-    let table = Table::new(table_name, ProtoFamily::Inet);
-    batch.add(&table, MsgType::Del);
-
-    let batch = batch.finalize();
-    firewall::linux::Firewall::send_and_process(&batch)
-        .context("Failed to add nft cgroupv2 rule")?;
-
-    Ok(())
 }
 
 impl Default for PidManager {
