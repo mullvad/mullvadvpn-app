@@ -1,10 +1,14 @@
+#[cfg(target_os = "android")]
 use anyhow::Context;
 use http::StatusCode;
 use http::header;
+#[cfg(target_os = "android")]
 use mullvad_update::format::response::AndroidReleases;
 #[cfg(not(target_os = "android"))]
 use mullvad_update::format::response::SignedResponse;
-use mullvad_update::version::{Metadata, VersionInfo, is_version_supported_android};
+#[cfg(target_os = "android")]
+use mullvad_update::version::{Metadata, is_version_supported_android};
+use mullvad_update::version::VersionInfo;
 #[cfg(not(target_os = "android"))]
 use mullvad_update::version::{Rollout, VersionParameters, is_version_supported};
 use std::future::Future;
@@ -141,8 +145,6 @@ impl AppVersionProxy {
 
             let bytes = response.body_with_max_size(Self::SIZE_LIMIT).await?;
 
-            //let response = AndroidReleases::deserialize_and_verify(&bytes, lowest_metadata_version)
-            //    .map_err(|err| rest::Error::FetchVersions(Arc::new(err)))?;
             let response: AndroidReleases = serde_json::from_slice(&bytes)
                 .context("Invalid version JSON")
                 .map_err(|err| rest::Error::FetchVersions(Arc::new(err)))?;
