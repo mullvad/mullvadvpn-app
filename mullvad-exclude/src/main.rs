@@ -5,118 +5,208 @@ fn main() {
 
 #[cfg(target_os = "linux")]
 mod inner {
-    use nix::unistd::{Pid, execvp, getgid, getpid, getuid, setgid, setuid};
+    use anyhow::{Context, anyhow, bail};
+    use nftnl::{Batch, Chain, FinalizedBatch, ProtoFamily, Rule, Table, nft_expr};
+    use nix::unistd::{execvp, getgid, getuid, setgid, setuid};
     use std::{
-        convert::Infallible,
-        env,
-        error::Error as StdError,
-        ffi::{CString, NulError},
+        env::args_os,
+        ffi::{CStr, CString, OsString},
         fmt::Write as _,
-        os::unix::ffi::OsStrExt,
+        os::unix::ffi::OsStringExt,
+        path::Path,
+        process::Command,
     };
-    use talpid_cgroup::{SPLIT_TUNNEL_CGROUP_NAME, find_net_cls_mount, v1::CGroup1, v2::CGroup2};
+    use talpid_cgroup::v2::CGroup2;
 
-    #[derive(thiserror::Error, Debug)]
-    enum Error {
-        #[error("Invalid arguments")]
-        InvalidArguments,
-
-        #[error("Cannot assing process to cgroup")]
-        AddProcToCGroup(#[from] talpid_cgroup::Error),
-
-        #[error("Failed to drop root user privileges for the process")]
-        DropRootUid(#[source] nix::Error),
-
-        #[error("Failed to drop root group privileges for the process")]
-        DropRootGid(#[source] nix::Error),
-
-        #[error("Failed to launch the process")]
-        Exec(#[source] nix::Error),
-
-        #[error("An argument contains interior nul bytes")]
-        ArgumentNul(#[source] NulError),
-
-        #[error("Failed to stat /proc/mounts")]
-        NoProcMounts,
-    }
-
-    /// Launch a program in a cgroup where traffic will be excluded from the VPN tunnel.
-    ///
-    /// Note: Set the `TALPID_EXCLUSION_CGROUP` env variable to control where the root cgroup is
-    /// mounted. See (README.md)[../../README.md#Environment-variables-used-by-the-service] for
-    /// details.
+    // TODO: comment
     pub fn main() {
-        let Err(error) = run();
-
-        match error {
-            Error::InvalidArguments => {
-                let mut args = env::args();
-                let program = args
-                    .next()
-                    .unwrap_or_else(|| env!("CARGO_PKG_NAME").to_string());
-                eprintln!("Usage: {program} COMMAND [ARGS]");
-                std::process::exit(1);
-            }
-            e => {
-                let mut s = format!("Error: {e}");
-                let mut source = e.source();
-                while let Some(error) = source {
-                    write!(&mut s, "\nCaused by: {error}").expect("formatting failed");
-                    source = error.source();
-                }
-                eprintln!("{s}");
-
-                std::process::exit(1);
-            }
-        }
-    }
-
-    fn add_to_cgroups_v1_if_exists(pid: Pid) -> Result<(), Error> {
-        let Some(net_cls_dir) = find_net_cls_mount().map_err(|_| Error::NoProcMounts)? else {
-            return Ok(());
+        let Err(e) = run() else {
+            return;
         };
 
-        let cgroup_path = net_cls_dir.join(SPLIT_TUNNEL_CGROUP_NAME);
+        let mut s = format!("Error: {e}");
+        let mut source = e.source();
+        while let Some(error) = source {
+            write!(&mut s, "\nCaused by: {error}").expect("formatting failed");
+            source = error.source();
+        }
+        eprintln!("{s}");
 
-        CGroup1::open(cgroup_path)
-            .and_then(|cgroup| cgroup.add_pid(pid))
-            .map_err(Error::from)
+        std::process::exit(1);
     }
 
-    fn run() -> Result<Infallible, Error> {
-        let mut args_iter = env::args_os().skip(1);
-        let program = args_iter.next().ok_or(Error::InvalidArguments)?;
-        let program = CString::new(program.as_bytes()).map_err(Error::ArgumentNul)?;
+    fn get_current_cgroup() -> anyhow::Result<(CGroup2, u32)> {
+        let cgroup_file = std::fs::read_to_string("/proc/self/cgroup")
+            .context("Failed to read /proc/self/cgroup")?;
 
-        let args: Vec<CString> = env::args_os()
-            .skip(1)
-            .map(|arg| CString::new(arg.as_bytes()))
-            .collect::<Result<Vec<CString>, NulError>>()
-            .map_err(Error::ArgumentNul)?;
+        // /proc/self/cgroup contains a line that looks like this:
+        // 0::/user.slice/user-1000.slice/user@1000.service/app.slice/app-launcher-appname-1234.scope
+        let cgroup_path = cgroup_file
+            .lines()
+            .filter_map(|line| line.strip_prefix("0::/"))
+            .next()
+            .context("Expected a line starting with '0::/' containing the cgroup path")
+            .context("Failed to parse /proc/self/cgroup")?
+            .trim();
+        let cgroup_path = Path::new(cgroup_path);
+        let cgroup_depth = cgroup_path.components().count() as u32;
+        let cgroup_fs_path = Path::new("/sys/fs/cgroup").join(cgroup_path);
+        let cgroup = CGroup2::open(cgroup_fs_path).context("Failed to open cgroup")?;
 
-        let pid = getpid();
+        Ok((cgroup, cgroup_depth))
+    }
 
-        let result = CGroup2::open_root()
-            .and_then(|root_cgroup2| root_cgroup2.create_or_open_child(SPLIT_TUNNEL_CGROUP_NAME))
-            .and_then(|exclusion_cgroup2| exclusion_cgroup2.add_pid(pid));
+    fn add_nft_table(cgroup: &CGroup2, cgroup_depth: u32) -> anyhow::Result<CString> {
+        let mut batch = Batch::new();
+        let cgroup_name = cgroup
+            .name()
+            .to_str()
+            .context("cgroup name must be utf-8")?;
+        let table_name = CString::new(format!("mullvad-exclude-{cgroup_name}",))
+            .context("Invalid table name")?;
+        let table = Table::new(&table_name, ProtoFamily::Inet);
+        batch.add(&table, nftnl::MsgType::Add);
+        let mut out_chain = Chain::new(c"chain", &table);
+        out_chain.set_type(nftnl::ChainType::Route);
+        out_chain.set_hook(nftnl::Hook::Out, nix::libc::NF_IP_PRI_MANGLE);
+        out_chain.set_policy(nftnl::Policy::Accept);
+        batch.add(&out_chain, nftnl::MsgType::Add);
 
-        // Always add current PID to cgroup1 (deprecated solution). It does not hurt to be in both cgroup1 and cgroup2 at
-        // the same time, the firewall will have to promise to behave appropriately.
-        if let Err(add_err) = add_to_cgroups_v1_if_exists(pid)
-            && result.is_err()
-        {
-            eprintln!("Failed to add process to v1 cgroup: {add_err}");
+        // === ADD CGROUPV2 RULE  ===
+        let mut rule = Rule::new(&out_chain);
+        rule.add_expr(&nft_expr!(socket cgroupv2 level cgroup_depth));
+        rule.add_expr(&nft_expr!(cmp == cgroup.inode()));
+        pub const MARK: u32 = 0xf41;
+        pub const FWMARK: u32 = 0x6d6f6c65;
+        rule.add_expr(&nft_expr!(immediate data MARK));
+        rule.add_expr(&nft_expr!(ct mark set));
+        rule.add_expr(&nft_expr!(immediate data FWMARK));
+        rule.add_expr(&nft_expr!(meta mark set));
+        // rule.add_expr(&nft_expr!(counter));
+        batch.add(&rule, nftnl::MsgType::Add);
+
+        let finalized_batch = batch.finalize();
+        send_and_process(&finalized_batch)?;
+        Ok(table_name)
+    }
+
+    // TODO: clean up nft table after program exits
+    fn del_nft_table(table_name: &CStr) -> anyhow::Result<()> {
+        let mut batch = Batch::new();
+        let table = Table::new(table_name, ProtoFamily::Inet);
+        batch.add(&table, nftnl::MsgType::Del);
+        let finalized_batch = batch.finalize();
+        send_and_process(&finalized_batch)?;
+        Ok(())
+    }
+
+    fn send_and_process(batch: &FinalizedBatch) -> anyhow::Result<()> {
+        // Create a netlink socket to netfilter.
+        let socket = mnl::Socket::new(mnl::Bus::Netfilter)?;
+        let portid = socket.portid();
+
+        // Send all the bytes in the batch.
+        socket.send_all(batch)?;
+
+        // TODO: this buffer must be aligned to nlmsghdr
+        let mut buffer = vec![0; nftnl::nft_nlmsg_maxsize() as usize];
+        let mut expected_seqs = batch.sequence_numbers();
+
+        // Process acknowledgment messages from netfilter.
+        while !expected_seqs.is_empty() {
+            for message in socket.recv(&mut buffer[..])? {
+                let message = message?;
+                let expected_seq = expected_seqs.next().expect("Unexpected ACK");
+                // Validate sequence number and check for error messages
+                mnl::cb_run(message, expected_seq, portid)?;
+            }
+        }
+        Ok(())
+    }
+
+    fn exclude_current_cgroup() -> anyhow::Result<()> {
+        let (cgroup, depth) = get_current_cgroup().context("Failed to get current cgroup")?;
+        add_nft_table(&cgroup, depth)?;
+        Ok(())
+    }
+
+    fn run() -> anyhow::Result<()> {
+        let args_os: Vec<OsString> = args_os().skip(1).collect();
+        let flags: Vec<&str> = args_os
+            .iter()
+            .map_while(|arg| arg.to_str())
+            .take_while(|arg| arg.starts_with("-"))
+            .collect();
+        let command: Vec<OsString> = args_os.iter().skip(flags.len()).cloned().collect();
+
+        let mut current_cgroup = false;
+        for flag in flags {
+            match flag {
+                "-h" | "--help" => return print_usage(None),
+                "--current-cgroup" => current_cgroup = true,
+                f => return print_usage(Some(f)),
+            }
         }
 
-        result?;
-
-        // Drop root privileges
         let real_uid = getuid();
-        setuid(real_uid).map_err(Error::DropRootUid)?;
         let real_gid = getgid();
-        setgid(real_gid).map_err(Error::DropRootGid)?;
 
-        // Launch the process
-        execvp(&program, &args).map_err(Error::Exec)
+        if current_cgroup {
+            let args: Vec<_> = command
+                .into_iter()
+                .map(OsString::into_vec)
+                .map(CString::new)
+                .collect::<Result<_, _>>()
+                .context("Argument contains nul byte")?;
+
+            let [program, ..] = &args[..] else {
+                bail!("No command specified");
+            };
+
+            exclude_current_cgroup()?;
+
+            setuid(real_uid).context("Failed to drop UID")?;
+            setgid(real_gid).context("Failed to drop GID")?;
+
+            let Err(e) = execvp(&program, &args);
+            eprintln!("Failed to exec {program:?}: {e}");
+            std::process::exit(e as i32)
+        } else {
+            setuid(real_uid).context("Failed to drop UID")?;
+            setgid(real_gid).context("Failed to drop GID")?;
+
+            let [program, args @ ..] = &command[..] else {
+                bail!("No command specified");
+            };
+
+            let is_not_root = !real_uid.is_root();
+
+            let status = Command::new("/usr/bin/systemd-run")
+                .args(is_not_root.then_some("--user"))
+                .arg("--scope")
+                .args(["mullvad-exclude", "--current-cgroup"])
+                .arg(program)
+                .args(args)
+                .spawn()
+                .with_context(|| anyhow!("Failed to spawn {program:?}"))?
+                .wait()
+                .expect("wait failed");
+
+            if !status.success() {
+                bail!("program errored");
+            }
+        }
+
+        Ok(())
+    }
+
+    fn print_usage(invalid_arg: Option<&str>) -> Result<(), anyhow::Error> {
+        println!("{}", include_str!("../usage.txt"));
+
+        if let Some(arg) = invalid_arg {
+            bail!("Invalid argument: {arg:?}");
+        }
+
+        Ok(())
     }
 }

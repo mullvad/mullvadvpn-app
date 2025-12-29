@@ -1,0 +1,10 @@
+Execute a program and never tunnel its network traffic through Mullvad VPN
+
+Usage: mullvad-exclude [OPTIONS] [COMMAND]...
+
+Arguments:
+  [COMMAND]...
+
+Options:
+      --current-cgroup  Exclude the current cgroup instead of creating a new one
+  -h, --help            Print help
