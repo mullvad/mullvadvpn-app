@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="account_credit_expires_in_a_few_minutes">اعتبار حساب در چند دقیقهٔ آینده منقضی می‌شود</string>
-    <string name="account_credit_expires_soon">اعتبار حساب به‌زودی منقضی می‌شود</string>
     <string name="account_credit_has_expired">شما هیچگونه زمان VPN باقیمانده دیگری در این حساب ندارید.</string>
     <string name="account_number">شماره حساب</string>
     <string name="account_time_notification_channel_description">هنگام نزدیک شدن زمان پایان اعتبار حساب، یادآورها را نشان می‌دهد</string>
@@ -231,7 +230,6 @@
     <string name="is_offline">دستگاه شما آفلاین است. تونل به‌طور خودکار زمانی که دستگاه آنلاین شود، متصل خواهد شد.</string>
     <string name="legacy_always_on_vpn_error_notification_content">نمی‌توان اتصال تونل را آغاز کرد. لطفاً قبل از استفاده از Mullvad VPN، گزینهٔ «VPN همیشه‌فعال» را غیرفعال کنید.</string>
     <string name="legacy_always_on_vpn_error_notification_title">VPN همیشه‌فعال به یک VPN دیگر اختصاص داده شده است</string>
-    <string name="less_than_a_day_left">کمتر از یک روز باقی‌مانده</string>
     <string name="less_than_one_day">کمتر از یک روز</string>
     <string name="list_name">نام فهرست</string>
     <string name="loading_products">در حال بارگذاری محصولات</string>

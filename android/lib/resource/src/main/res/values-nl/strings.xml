@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="account_credit_expires_in_a_few_minutes">Accountkrediet verloopt over enkele minuten</string>
-    <string name="account_credit_expires_soon">Accountkrediet verloopt binnenkort</string>
     <string name="account_credit_has_expired">U hebt geen VPN-tijd meer op dit account.</string>
     <string name="account_number">Accountnummer</string>
     <string name="account_time_notification_channel_description">Toont herinneringen wanneer de accounttijd op het punt staat te verlopen</string>
@@ -231,7 +230,6 @@
     <string name="is_offline">Uw apparaat is offline. De tunnel wordt automatisch verbonden wanneer uw apparaat weer online is.</string>
     <string name="legacy_always_on_vpn_error_notification_content">Kan de tunnelverbinding niet starten. Schakel Altijd-aan VPN uit voordat u Mullvad VPN gebruikt.</string>
     <string name="legacy_always_on_vpn_error_notification_title">Altijd-aan VPN toegewezen aan andere VPN</string>
-    <string name="less_than_a_day_left">minder dan een dag over</string>
     <string name="less_than_one_day">minder dan één dag</string>
     <string name="list_name">Lijstnaam</string>
     <string name="loading_products">Producten worden geladen</string>

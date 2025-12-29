@@ -1,13 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <plurals name="days_left">
-        <item quantity="one">1 dia restante</item>
-        <item quantity="other">%1$d dias restantes</item>
-    </plurals>
-    <plurals name="years_left">
-        <item quantity="one">1 ano restante</item>
-        <item quantity="other">%1$d anos restantes</item>
-    </plurals>
     <plurals name="days">
         <item quantity="one">%1$d dia</item>
         <item quantity="other">%1$d dias</item>

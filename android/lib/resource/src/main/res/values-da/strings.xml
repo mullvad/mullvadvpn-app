@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="account_credit_expires_in_a_few_minutes">Kontokredit udløber om få minutter</string>
-    <string name="account_credit_expires_soon">Kontokredit udløber snart</string>
     <string name="account_credit_has_expired">Du har ikke mere VPN-tid tilbage på denne konto.</string>
     <string name="account_number">Kontonummer</string>
     <string name="account_time_notification_channel_description">Viser påmindelser, når kontotiden er ved at udløbe</string>
@@ -231,7 +230,6 @@
     <string name="is_offline">Din enhed er offline. Tunnelen vil oprette forbindelse automatisk, når din enhed er online igen.</string>
     <string name="legacy_always_on_vpn_error_notification_content">Kunne ikke starte tunnelforbindelse. Deaktiver Altid-til VPN før brug af Mullvad VPN.</string>
     <string name="legacy_always_on_vpn_error_notification_title">Altid-til VPN tildelt en anden VPN</string>
-    <string name="less_than_a_day_left">mindre end én dag tilbage</string>
     <string name="less_than_one_day">mindre end én dag</string>
     <string name="list_name">Listenavn</string>
     <string name="loading_products">Indlæser produkter</string>

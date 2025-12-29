@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="account_credit_expires_in_a_few_minutes">帳戶點數將在數分鐘後到期</string>
-    <string name="account_credit_expires_soon">帳戶點數即將到期</string>
     <string name="account_credit_has_expired">您這個帳戶已經沒有剩餘的 VPN 時間了。</string>
     <string name="account_number">帳戶編號</string>
     <string name="account_time_notification_channel_description">在帳戶時間即將到期時顯示提醒</string>
@@ -231,7 +230,6 @@
     <string name="is_offline">您的裝置已離線。在您的裝置重新上線後，通道將自動連線。</string>
     <string name="legacy_always_on_vpn_error_notification_content">無法啟動通道連線。在使用 Mullvad VPN 之前，請停用「一律啟用 VPN」。</string>
     <string name="legacy_always_on_vpn_error_notification_title">「一律啟用 VPN」已指派給其他 VPN</string>
-    <string name="less_than_a_day_left">剩餘時間不足 1 天</string>
     <string name="less_than_one_day">不足 1 天</string>
     <string name="list_name">清單名稱</string>
     <string name="loading_products">正在載入產品</string>

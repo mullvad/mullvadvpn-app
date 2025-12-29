@@ -1,11 +1,11 @@
 <resources>
     <plurals name="years_left">
-        <item quantity="one">1 year left</item>
-        <item quantity="other">%d years left</item>
+        <item quantity="one">1 year left on this account</item>
+        <item quantity="other">%d years left on this account</item>
     </plurals>
     <plurals name="days_left">
-        <item quantity="one">1 day left</item>
-        <item quantity="other">%d days left</item>
+        <item quantity="one">1 day left on this account</item>
+        <item quantity="other">%d days left on this account</item>
     </plurals>
     <plurals name="account_credit_expires_in_days">
         <item quantity="one">Account credit expires in a day</item>

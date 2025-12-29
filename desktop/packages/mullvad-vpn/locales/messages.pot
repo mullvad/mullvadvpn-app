@@ -2815,9 +2815,6 @@ msgstr ""
 msgid "Account credit expires in a few minutes"
 msgstr ""
 
-msgid "Account credit expires soon"
-msgstr ""
-
 msgid "Account number is too long, please enter a valid number"
 msgstr ""
 
@@ -3122,6 +3119,9 @@ msgid "Include my account token for faster help with payment or account related 
 msgstr ""
 
 msgid "Invalid or missing value \"%1$s\""
+msgstr ""
+
+msgid "Less than a day left on this account"
 msgstr ""
 
 msgid "Lets you select apps that should access the Internet directly without going through the VPN tunnel."
@@ -3508,6 +3508,12 @@ msgstr ""
 msgid "Yes, log out device"
 msgstr ""
 
+msgid "You can add more time via the account view or website to continue using the VPN."
+msgstr ""
+
+msgid "You can add more time via the account view to continue using the VPN."
+msgstr ""
+
 msgid "\"%s\" was created"
 msgstr ""
 
@@ -3541,6 +3547,16 @@ msgstr[1] ""
 
 msgid "%d month"
 msgid_plural "%d months"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "1 day left on this account"
+msgid_plural "%d days left on this account"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "1 year left on this account"
+msgid_plural "%d years left on this account"
 msgstr[0] ""
 msgstr[1] ""
 

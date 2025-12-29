@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="account_credit_expires_in_a_few_minutes">سينتهي رصيد الحساب خلال دقائق قليلة</string>
-    <string name="account_credit_expires_soon">سينتهي رصيد الحساب قريبًا</string>
     <string name="account_credit_has_expired">لم يتبقَّ لديك أي وقت لاستخدام شبكة VPN على هذا الحساب.</string>
     <string name="account_number">رقم الحساب</string>
     <string name="account_time_notification_channel_description">يظهر تذكيرات عندما يكون وقت الحساب على وشك الانتهاء</string>
@@ -231,7 +230,6 @@
     <string name="is_offline">جهازك غير متصل بالإنترنت. سيتصل النفق تلقائيًا بمجرد اتصال جهازك مرة أخرى بالإنترنت.</string>
     <string name="legacy_always_on_vpn_error_notification_content">يتعذَّر بدء اتصال النفق. يُرجى إيقاف \"تشغيل VPN دائمًا\" قبل استخدام Mullvad VPN.</string>
     <string name="legacy_always_on_vpn_error_notification_title">تم تعيين \"تشغيل VPN دائمًا\" إلى شبكة VPN أخرى</string>
-    <string name="less_than_a_day_left">يتبقى أقل من يوم</string>
     <string name="less_than_one_day">أقل من يوم</string>
     <string name="list_name">اسم القائمة</string>
     <string name="loading_products">جارٍ تحميل المنتجات</string>

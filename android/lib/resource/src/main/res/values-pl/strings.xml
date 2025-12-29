@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="account_credit_expires_in_a_few_minutes">Doładowanie konta wygasa za kilka minut</string>
-    <string name="account_credit_expires_soon">Doładowanie konta wkrótce wygasa</string>
     <string name="account_credit_has_expired">Na tym koncie nie masz już czasu VPN.</string>
     <string name="account_number">Numer konta</string>
     <string name="account_time_notification_channel_description">Pokazuje przypomnienia, gdy kończy się czas na koncie</string>
@@ -231,7 +230,6 @@
     <string name="is_offline">Twoje urządzenie jest offline. Tunel zostanie automatycznie połączony, gdy urządzenie ponownie przejdzie w tryb online.</string>
     <string name="legacy_always_on_vpn_error_notification_content">Nie można uruchomić połączenia tunelowego. Przed rozpoczęciem użytkowania usługi Mullvad VPN wyłącz opcję „Zawsze włączony VPN”.</string>
     <string name="legacy_always_on_vpn_error_notification_title">Opcja „Zawsze włączony VPN” przypisana jest do innej aplikacji VPN</string>
-    <string name="less_than_a_day_left">pozostał mniej niż jeden dzień</string>
     <string name="less_than_one_day">mniej niż jeden dzień</string>
     <string name="list_name">Nazwa listy</string>
     <string name="loading_products">Ładowanie produktów</string>
