@@ -566,8 +566,9 @@ class ConnectScreenTest {
             )
 
             // Assert
-            onNodeWithText("ACCOUNT CREDIT EXPIRES SOON").assertExists()
-            onNodeWithText("Out of time").assertExists()
+            onNodeWithText("OUT OF TIME").assertExists()
+            onNodeWithText("You can add more time via the account view", substring = true)
+                .assertExists()
         }
     }
 

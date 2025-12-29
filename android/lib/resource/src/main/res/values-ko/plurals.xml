@@ -1,11 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <plurals name="days_left">
-        <item quantity="other">%1$d일 남음</item>
-    </plurals>
-    <plurals name="years_left">
-        <item quantity="other">%1$d년 남음</item>
-    </plurals>
     <plurals name="days">
         <item quantity="other">%1$d일</item>
     </plurals>

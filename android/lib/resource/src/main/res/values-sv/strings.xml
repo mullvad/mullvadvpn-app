@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="account_credit_expires_in_a_few_minutes">Kontokrediten slutar gälla om några minuter</string>
-    <string name="account_credit_expires_soon">Kontokrediten slutar snart gälla</string>
     <string name="account_credit_has_expired">Du har ingen VPN-tid kvar på det här kontot.</string>
     <string name="account_number">Kontonummer</string>
     <string name="account_time_notification_channel_description">Visar påminnelser när kontots tidsgräns uppnås</string>
@@ -231,7 +230,6 @@
     <string name="is_offline">Din enhet är offline. Tunneln ansluts automatiskt när din enhet är online igen.</string>
     <string name="legacy_always_on_vpn_error_notification_content">Det går inte att starta tunnelanslutning. Inaktivera Alltid på-VPN innan du använder Mullvad VPN.</string>
     <string name="legacy_always_on_vpn_error_notification_title">Alltid på-VPN har tilldelats en annan VPN</string>
-    <string name="less_than_a_day_left">mindre än en dag kvar</string>
     <string name="less_than_one_day">mindre än en dag</string>
     <string name="list_name">Listnamn</string>
     <string name="loading_products">Läser in produkter</string>

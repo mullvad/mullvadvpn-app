@@ -1,17 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <plurals name="days_left">
-        <item quantity="one">Pozostał 1 dzień</item>
-        <item quantity="few">Pozostały %1$d dni</item>
-        <item quantity="many">Pozostało %1$d dni</item>
-        <item quantity="other">Pozostało %1$d dnia</item>
-    </plurals>
-    <plurals name="years_left">
-        <item quantity="one">Pozostał 1 rok</item>
-        <item quantity="few">Pozostały %1$d lata</item>
-        <item quantity="many">Pozostało %1$d lat</item>
-        <item quantity="other">Pozostało %1$d roku</item>
-    </plurals>
     <plurals name="days">
         <item quantity="one">%1$d dzień</item>
         <item quantity="few">%1$d dni</item>

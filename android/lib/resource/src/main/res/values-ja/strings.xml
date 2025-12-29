@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="account_credit_expires_in_a_few_minutes">アカウントのクレジットが数分後に無効になります</string>
-    <string name="account_credit_expires_soon">アカウントのクレジットがもうすぐ無効になります</string>
     <string name="account_credit_has_expired">このアカウントには、もう残っているVPN時間がありません。</string>
     <string name="account_number">アカウント番号</string>
     <string name="account_time_notification_channel_description">アカウントの期限切れが迫っているときにリマインダーを表示します</string>
@@ -231,7 +230,6 @@
     <string name="is_offline">デバイスがオフラインになっています。トンネルはデバイスがオンラインに戻ると自動的に接続されます。</string>
     <string name="legacy_always_on_vpn_error_notification_content">トンネル接続を開始できません。Mullvad VPNを使用する前にAlways-on VPNを無効にしてください。</string>
     <string name="legacy_always_on_vpn_error_notification_title">Always-on VPNは他のVPNに割り当てられました</string>
-    <string name="less_than_a_day_left">残り1日未満</string>
     <string name="less_than_one_day">1日未満</string>
     <string name="list_name">リスト名</string>
     <string name="loading_products">製品を読み込み中</string>

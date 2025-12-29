@@ -1,17 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <plurals name="days_left">
-        <item quantity="one">Остался %1$d день</item>
-        <item quantity="few">Осталось %1$d дня</item>
-        <item quantity="many">Осталось %1$d дней</item>
-        <item quantity="other">Осталось %1$d дня</item>
-    </plurals>
-    <plurals name="years_left">
-        <item quantity="one">Остался %1$d год</item>
-        <item quantity="few">Осталось %1$d года</item>
-        <item quantity="many">Осталось %1$d лет</item>
-        <item quantity="other">Осталось %1$d года</item>
-    </plurals>
     <plurals name="days">
         <item quantity="one">%1$d сутки</item>
         <item quantity="few">%1$d суток</item>

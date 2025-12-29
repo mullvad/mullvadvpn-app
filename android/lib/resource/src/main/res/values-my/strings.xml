@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="account_credit_expires_in_a_few_minutes">မိနစ်အနည်းငယ်အကြာတွင် အကောင့်ခရက်ဒစ် သက်တမ်းကုန်ပါတော့မည်</string>
-    <string name="account_credit_expires_soon">မကြာမီ အကောင့် ခရက်ဒစ် သက်တမ်းကုန်ပါတော့မည်</string>
     <string name="account_credit_has_expired">ဤအကောင့်တွင် နောက်ထပ် VPN သုံးနိုင်ချိန် မကျန်တော့ပါ။</string>
     <string name="account_number">အကောင့် နံပါတ်</string>
     <string name="account_time_notification_channel_description">အကောင့်အချိန် သက်တမ်းကုန်ခါနီးချိန်၌ သတိပေးချက်များ ပြသပေးပါသည်</string>
@@ -231,7 +230,6 @@
     <string name="is_offline">သင့်စက်သည် အော့ဖ်လိုင်း ဖြစ်နေပါသည်။ သင့်စက် အွန်လိုင်း ပြန်ဖြစ်သည်နှင့် Tunnel သည် အော်တို ချိတ်ဆက်သွားပါမည်။</string>
     <string name="legacy_always_on_vpn_error_notification_content">Tunnel ချိတ်ဆက်မှုကို စတင်၍ မရနိုင်ပါ။ Mullvad VPN ကို မသုံးမီ အတွက် VPN အမြဲဖွင့်ထားမှုကို ပိတ်ပေးပါ။</string>
     <string name="legacy_always_on_vpn_error_notification_title">အမြဲဖွင့် VPN ကို အခြား VPN တစ်ခုသို့ သတ်မှတ်ထားပါသည်</string>
-    <string name="less_than_a_day_left">တစ်ရက်အောက်သာ ကျန်တော့သည်</string>
     <string name="less_than_one_day">တစ်ရက်အောက် နည်းသည်။</string>
     <string name="list_name">စာရင်း အမည်</string>
     <string name="loading_products">ထုတ်ကုန်များကို လုပ်ဆောင်နေသည်</string>

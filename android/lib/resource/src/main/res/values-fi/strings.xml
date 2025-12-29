@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="account_credit_expires_in_a_few_minutes">Tilin käyttöaika päättyy muutaman minuutin kuluttua</string>
-    <string name="account_credit_expires_soon">Tilin käyttöaika päättyy pian</string>
     <string name="account_credit_has_expired">Sinulla ei ole enempää VPN-aikaa jäljellä tällä tilillä.</string>
     <string name="account_number">Tilin numero</string>
     <string name="account_time_notification_channel_description">Näyttää muistutuksia, kun tilin käyttöaika on umpeutumassa</string>
@@ -231,7 +230,6 @@
     <string name="is_offline">Laitteesi on offline-tilassa. Kun laitteesi on taas online-tilassa, tunneli muodostaa yhteyden automaattisesti.</string>
     <string name="legacy_always_on_vpn_error_notification_content">Tunneliyhteyden käynnistäminen ei onnistu. Poista aina päällä oleva VPN käytöstä ennen Mullvad VPN:n käyttämistä.</string>
     <string name="legacy_always_on_vpn_error_notification_title">Aina päällä oleva VPN on määritetty toiselle VPN:lle</string>
-    <string name="less_than_a_day_left">alle vuorokausi jäljellä</string>
     <string name="less_than_one_day">alle vuorokausi</string>
     <string name="list_name">Luettelon nimi</string>
     <string name="loading_products">Ladataan tuotteita</string>
