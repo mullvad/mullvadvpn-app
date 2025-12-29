@@ -25,3 +25,18 @@ jobs:
         run: |-
           rustfmt --version
           cargo fmt -- --check
+
+  check-formatting-raas:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - uses: ./.github/actions/mullvad-build-env
+        with:
+          rustup-components: rustfmt
+
+      - name: Check formatting
+        run: |-
+          cd ci/ios/test-router/raas && rustfmt --version
+          cd ci/ios/test-router/raas && cargo fmt -- --check

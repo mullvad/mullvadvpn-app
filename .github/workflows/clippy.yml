@@ -58,6 +58,33 @@ jobs:
           time ci/cargo-ci.sh clippy --workspace --all-targets --no-default-features
           time ci/cargo-ci.sh clippy --workspace --all-targets --all-features
 
+  clippy-check-raas:
+    name: Clippy linting, desktop
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      # By default, the longest path a filename can have in git on Windows is 260 character.
+      - name: Set git config for long paths
+        if: runner.os == 'Windows'
+        run: |
+          git config --system core.longpaths true
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - uses: ./.github/actions/mullvad-build-env
+        with:
+          rustup-components: clippy
+          rust-cache-targets: ${{ runner.os == 'Windows' }}
+
+      - name: Clippy check
+        shell: bash
+        run: |
+          cd ci/ios/test-router/raas && time ci/cargo-ci.sh clippy --workspace --all-targets --no-default-features
+          cd ci/ios/test-router/raas && time ci/cargo-ci.sh clippy --workspace --all-targets --all-features
+
   clippy-check-android:
     name: Clippy linting, Android
     needs: prepare-android
