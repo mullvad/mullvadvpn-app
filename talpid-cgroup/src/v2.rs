@@ -2,7 +2,7 @@ use anyhow::{Context as _, anyhow};
 use nix::{errno::Errno, libc::pid_t, unistd::Pid};
 use std::{
     env,
-    ffi::CStr,
+    ffi::{CStr, OsStr},
     fs::{self, File},
     io::{self, Read, Seek, Write},
     os::unix::fs::MetadataExt,
@@ -130,5 +130,9 @@ impl CGroup2 {
     /// Get the inode of the cgroup2
     pub const fn inode(&self) -> u64 {
         self.inode
+    }
+
+    pub fn name(&self) -> &OsStr {
+        self.path.file_name().expect("cgroup can't be at /")
     }
 }
