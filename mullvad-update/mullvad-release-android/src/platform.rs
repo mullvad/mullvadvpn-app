@@ -165,8 +165,7 @@ pub async fn query_latest() -> anyhow::Result<VersionQueryOutput> {
         allow_empty: true,
         lowest_metadata_version: MIN_VERIFY_METADATA_VERSION,
     };
-    let mut version_info = vec![];
-    version_info.push(VersionInfo::try_from_response(
+    let version_info = vec![VersionInfo::try_from_response(
         &params,
         // TODO: :(
         Response {
@@ -174,7 +173,7 @@ pub async fn query_latest() -> anyhow::Result<VersionQueryOutput> {
             metadata_version: usize::MAX,
             releases: response.releases,
         },
-    )?);
+    )?];
 
     let version_info = version_info
         .into_iter()
