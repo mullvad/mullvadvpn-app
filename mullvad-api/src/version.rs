@@ -6,9 +6,9 @@ use http::header;
 use mullvad_update::format::response::AndroidReleases;
 #[cfg(not(target_os = "android"))]
 use mullvad_update::format::response::SignedResponse;
+use mullvad_update::version::VersionInfo;
 #[cfg(target_os = "android")]
 use mullvad_update::version::{Metadata, is_version_supported_android};
-use mullvad_update::version::VersionInfo;
 #[cfg(not(target_os = "android"))]
 use mullvad_update::version::{Rollout, VersionParameters, is_version_supported};
 use std::future::Future;
