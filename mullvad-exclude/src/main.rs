@@ -14,7 +14,6 @@ mod inner {
     use std::{
         env::args_os,
         ffi::{CString, OsString},
-        fmt::Write as _,
         fs::remove_file,
         io,
         os::{fd::AsRawFd, unix::ffi::OsStringExt as _},
@@ -29,19 +28,10 @@ mod inner {
 
     // TODO: comment
     pub fn main() {
-        let Err(e) = run() else {
-            return;
-        };
-
-        let mut s = format!("Error: {e}");
-        let mut source = e.source();
-        while let Some(error) = source {
-            write!(&mut s, "\nCaused by: {error}").expect("formatting failed");
-            source = error.source();
+        if let Err(e) = run() {
+            eprintln!("{e:?}");
+            std::process::exit(1);
         }
-        eprintln!("{s}");
-
-        std::process::exit(1);
     }
 
     fn get_current_cgroup() -> anyhow::Result<CGroup2> {
