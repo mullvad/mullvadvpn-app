@@ -20,5 +20,6 @@ talpid-cgroup = { path = "../talpid-cgroup" }
 
 [dependencies]
 anyhow.workspace = true
+libbpf-rs = { version = "0.25.0", features = ["libbpf-sys"] }
 mnl = "0.3.0"
 nftnl = { version = "0.9.1", features = ["nftnl-1-3-0"] }
