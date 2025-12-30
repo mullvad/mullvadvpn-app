@@ -422,6 +422,18 @@ impl<'a> PolicyBatch<'a> {
             }
         }
 
+        // HACK: this makes eBPF split tunneling work
+        // set `ct mark` on packets with `meta mark`/`fwmark`
+        let mut ct_mark_from_fwmark = Rule::new(&self.mangle_chain);
+        ct_mark_from_fwmark.add_expr(&nft_expr!(meta mark));
+        ct_mark_from_fwmark.add_expr(&nft_expr!(cmp == fwmark));
+        ct_mark_from_fwmark.add_expr(&nft_expr!(immediate data split_tunnel::MARK));
+        ct_mark_from_fwmark.add_expr(&nft_expr!(ct mark set));
+        if *ADD_COUNTERS {
+            ct_mark_from_fwmark.add_expr(&nft_expr!(counter));
+        }
+        self.batch.add(&ct_mark_from_fwmark, nftnl::MsgType::Add);
+
         // Split tunneled processes have their PIDs added to a cgroup (v1 or v2).
         //
         // This rule matches packets sent by those processes.
