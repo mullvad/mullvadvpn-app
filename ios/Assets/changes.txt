@@ -1,2 +1,1 @@
-New location view.
-Allow using port 443 with UDP-over-TCP.
+Improve tunnel stability.
