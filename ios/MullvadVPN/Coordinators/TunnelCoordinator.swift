@@ -65,6 +65,8 @@ class TunnelCoordinator: Coordinator, Presenting {
                 self?.showFeatureSetting?(.dnsSettings)
             case .ipOverrides:
                 self?.showFeatureSetting?(.ipOverrides)
+            case .ipVersion:
+                self?.showFeatureSetting?(.vpnSettings(.ipVersion))
             }
         }
     }
