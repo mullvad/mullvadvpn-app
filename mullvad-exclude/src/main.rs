@@ -49,6 +49,7 @@ mod inner {
         let cgroup_file = std::fs::read_to_string("/proc/self/cgroup")
             .context("Failed to read /proc/self/cgroup")?;
 
+        // TODO: is there a nicer way to get current cgroup?
         // /proc/self/cgroup contains a line that looks like this:
         // 0::/user.slice/user-1000.slice/user@1000.service/app.slice/app-launcher-appname-1234.scope
         let cgroup_path = cgroup_file
