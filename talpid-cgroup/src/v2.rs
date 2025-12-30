@@ -5,7 +5,7 @@ use std::{
     ffi::{CStr, OsStr},
     fs::{self, File},
     io::{self, Read, Seek, Write},
-    os::unix::fs::MetadataExt,
+    os::{fd::OwnedFd, unix::fs::MetadataExt},
     path::PathBuf,
 };
 
@@ -24,6 +24,9 @@ pub struct CGroup2 {
 
     /// inode of the cgroup2 directory
     inode: u64,
+
+    /// File descriptor of the cgroup folder.
+    pub fd: OwnedFd,
 
     /// `cgroup.procs` is used to add and list PIDs in the cgroup2.
     procs: File,
@@ -47,17 +50,22 @@ impl CGroup2 {
     pub fn open(path: impl Into<PathBuf>) -> Result<Self, Error> {
         let path = path.into();
 
+        let fd = fs::OpenOptions::new()
+            .read(true)
+            .open(&path)
+            .with_context(|| anyhow!("Failed to open {path:?}"))?;
+
         let procs_path = path.join("cgroup.procs");
         let procs = fs::OpenOptions::new()
             .write(true)
             .read(true)
-            .create(false)
             .open(&procs_path)
             .with_context(|| anyhow!("Failed to open {procs_path:?}"))?;
 
         let meta = fs::metadata(&path).with_context(|| anyhow!("Failed to stat {path:?}"))?;
 
         Ok(CGroup2 {
+            fd: fd.into(),
             path,
             inode: meta.ino(),
             procs,
@@ -83,6 +91,10 @@ impl CGroup2 {
     /// This is fallible because cloning file descriptors can fail.
     pub fn try_clone(&self) -> Result<Self, Error> {
         Ok(Self {
+            fd: self
+                .fd
+                .try_clone()
+                .context("Failed to clone cgroup file handle")?,
             path: self.path.clone(),
             inode: self.inode,
             procs: self
