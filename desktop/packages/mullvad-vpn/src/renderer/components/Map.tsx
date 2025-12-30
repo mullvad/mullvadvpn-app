@@ -97,7 +97,7 @@ function MapInner(props: MapInnerProps) {
 
   const width = applyPixelRatio(canvasRef.current?.clientWidth ?? window.innerWidth);
 
-  // This constant is used for the height the first frame that is rendered only.
+  // The constant is only used for the height for the first frame that is rendered.
   const height = applyPixelRatio(canvasRef.current?.clientHeight ?? 493);
 
   // Hack to rerender when window size changes or when ref is set.
