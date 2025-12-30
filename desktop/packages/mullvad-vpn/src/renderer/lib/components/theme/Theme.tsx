@@ -3,6 +3,7 @@ import { createGlobalStyle } from 'styled-components';
 
 import {
   colorPrimitives,
+  colors,
   fontFamilies,
   fontSizes,
   fontWeights,
@@ -13,7 +14,7 @@ import {
 
 type VariablesProps = React.PropsWithChildren<object>;
 
-const VariablesGlobalStyle = createGlobalStyle`
+const GlobalStyle = createGlobalStyle`
   :root {
     ${Object.entries({
       ...spacingPrimitives,
@@ -25,12 +26,16 @@ const VariablesGlobalStyle = createGlobalStyle`
       ...lineHeights,
     }).reduce((styleString, [key, value]) => ({ ...styleString, [key]: value }), {})}
   }
+
+  body {
+    background-color: ${colors.darkBlue};
+  }
 `;
 
 export const Theme = ({ children }: VariablesProps) => {
   return (
     <>
-      <VariablesGlobalStyle />
+      <GlobalStyle />
       {children}
     </>
   );
