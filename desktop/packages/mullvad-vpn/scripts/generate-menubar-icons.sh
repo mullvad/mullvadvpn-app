@@ -187,8 +187,8 @@ function generate() {
     local linux_target_base_path="$LINUX_DIR/$icon_name"
     local windows_target_base_path="$WINDOWS_DIR/$icon_name"
 
-    sed -E 's/#[0-9a-fA-f]{6}/#000000/g' "$monochrome_svg_source_path" > "$black_svg_source_path"
-    sed -E 's/#[0-9a-fA-f]{6}/#FFFFFF/g' "$monochrome_svg_source_path" > "$white_svg_source_path"
+    sed -E 's/#[0-9a-fA-F]{6}/#000000/g' "$monochrome_svg_source_path" > "$black_svg_source_path"
+    sed -E 's/#[0-9a-fA-F]{6}/#FFFFFF/g' "$monochrome_svg_source_path" > "$white_svg_source_path"
 
     # MacOS colored
     generate_rectangle "$svg_source_path" "$macos_target_base_path.png" \
