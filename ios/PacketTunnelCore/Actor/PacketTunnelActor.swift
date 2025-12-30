@@ -48,6 +48,7 @@ public actor PacketTunnelActor {
     public let relaySelector: RelaySelectorProtocol
     let settingsReader: SettingsReaderProtocol
     let protocolObfuscator: ProtocolObfuscation
+    var lastAppliedTunnelSettings: TunnelInterfaceSettings?
 
     nonisolated let eventChannel = EventChannel()
 
@@ -77,6 +78,13 @@ public actor PacketTunnelActor {
         eventChannel.finish()
     }
 
+    public func isErrorState() async -> Bool {
+        if case .error = self.state {
+            return true
+        }
+        return false
+    }
+
     /**
      Spawn a detached task that consumes events from the channel indefinitely until the channel is closed.
      Events are processed one at a time, so no suspensions should affect the order of execution and thus guarantee transactional execution.
@@ -85,8 +93,8 @@ public actor PacketTunnelActor {
      */
     private nonisolated func consumeEvents(channel: EventChannel) {
         Task.detached { [weak self] in
-            guard let self else { return }
             for await event in channel {
+                guard let self else { return }
                 await self.handleEvent(event)
             }
         }
@@ -109,7 +117,7 @@ public actor PacketTunnelActor {
         case .stopTunnelMonitor:
             tunnelMonitor.stop()
         case let .updateTunnelMonitorPath(networkPath):
-            handleDefaultPathChange(networkPath)
+            await handleDefaultPathChange(networkPath)
         case let .startConnection(nextRelays):
             await handleStartConnection(nextRelays: nextRelays)
         case let .restartConnection(nextRelays, reason):
@@ -165,18 +173,35 @@ public actor PacketTunnelActor {
         do {
             try await updateEphemeralPeerNegotiationState(configuration: configuration)
         } catch {
-            logger.error(error: error, message: "Failed to reconfigure tunnel after each hop negotiation.")
+            logger.error(
+                error: error,
+                message: "Failed to reconfigure tunnel after ephemeral peer negotiation. Entering error state.")
+            // Log the specific error type for debugging
             await setErrorStateInternal(with: error)
         }
         semaphore.send()
     }
 
-    private func handleDefaultPathChange(_ networkPath: Network.NWPath.Status) {
+    private func handleDefaultPathChange(_ networkPath: Network.NWPath.Status) async {
         tunnelMonitor.handleNetworkPathUpdate(networkPath)
 
         let newReachability = networkPath.networkReachability
 
-        state.mutateAssociatedData { $0.networkReachability = newReachability }
+        let reachabilityChanged =
+            state.mutateAssociatedData {
+                let reachabilityChanged = $0.networkReachability != newReachability
+                $0.networkReachability = newReachability
+                return reachabilityChanged
+            } ?? false
+        if case .reachable = newReachability,
+            case let .error(
+                errorState
+            ) = state,
+            errorState.reason
+                .recoverableError(), reachabilityChanged
+        {
+            await handleRestartConnection(nextRelays: .random, reason: .userInitiated)
+        }
     }
 }
 
@@ -245,11 +270,20 @@ extension PacketTunnelActor {
         reason: ActorReconnectReason = .userInitiated
     ) async throws {
         let settings: Settings = try settingsReader.read()
+        try await self.applyNetworkSettingsIfNeeded(settings: settings)
 
         if settings.quantumResistance.isEnabled || settings.daita.daitaState.isEnabled {
             try await tryStartEphemeralPeerNegotiation(withSettings: settings, nextRelays: nextRelays, reason: reason)
         } else {
             try await tryStartConnection(withSettings: settings, nextRelays: nextRelays, reason: reason)
+        }
+    }
+
+    private func applyNetworkSettingsIfNeeded(settings: Settings) async throws {
+        let tunnelSettings = settings.interfaceSettings()
+        if self.lastAppliedTunnelSettings != tunnelSettings {
+            try await tunnelAdapter.apply(settings: tunnelSettings)
+            self.lastAppliedTunnelSettings = tunnelSettings
         }
     }
 

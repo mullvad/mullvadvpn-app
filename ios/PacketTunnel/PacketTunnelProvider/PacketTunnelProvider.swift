@@ -353,15 +353,9 @@ extension PacketTunnelProvider {
             var lastConnectionAttempt: UInt = 0
 
             for await newState in stateStream {
-                // Tell packet tunnel when reconnection begins.
-                // Packet tunnel moves to `NEVPNStatus.reasserting` state once `reasserting` flag is set to `true`.
-                if case .reconnecting = newState, !self.reasserting {
+                if case .connected = newState {
+                    // Instead of setting the `reasserting` flag to true when we lose connectivity, we can wait until we restore connectivity. This will decrease the amount of path updates that are issued. There's also no need to signal to the system that anything is broken - instead we just want to invalidate old sockets when a new relay connection is up - the only way to do that is to toggle this flag.
                     self.reasserting = true
-                }
-
-                // Tell packet tunnel when reconnection ends.
-                // Packet tunnel moves to `NEVPNStatus.connected` state once `reasserting` flag is set to `false`.
-                if case .connected = newState, self.reasserting {
                     self.reasserting = false
                 }
 
@@ -470,7 +464,11 @@ extension PacketTunnelProvider: EphemeralPeerReceiving {
         if defaultPathObserver.currentPathStatus.networkReachability == .reachable {
             // Do not try reconnecting to the `.current` relay, else the actor's `State` equality check will fail
             // and it will not try to reconnect
-            actor.reconnect(to: .random, reconnectReason: .connectionLoss)
+            Task {
+                if await !actor.isErrorState() {
+                    actor.reconnect(to: .random, reconnectReason: .connectionLoss)
+                }
+            }
         }
     }
 }
