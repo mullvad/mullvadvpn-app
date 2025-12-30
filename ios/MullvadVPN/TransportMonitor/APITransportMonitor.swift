@@ -41,12 +41,16 @@ final class APITransportMonitor: APITransportProviderProtocol {
     private func shouldRouteThroughTunnel(tunnel: any TunnelProtocol) -> Bool {
         switch tunnel.status {
         case .connected:
-            // Use tunnel if the tunnel is connected but the tunnel manager reports an error
-            if case .error = tunnelManager.tunnelStatus.state {
+            switch tunnelManager.tunnelStatus.state {
+            // Use tunnel if the tunnel is connected but the tunnel manager
+            // reports an error or the tunnel is still connecting
+            case .error, .connecting, .negotiatingEphemeralPeer:
                 return true
-            }
             // Also use tunnel if configuration is loaded and device is revoked
-            return tunnelManager.isConfigurationLoaded && tunnelManager.deviceState == .revoked
+            default:
+                return tunnelManager.isConfigurationLoaded && tunnelManager.deviceState == .revoked
+
+            }
 
         case .connecting, .reasserting:
             // Use tunnel while it's in a transitional connecting state
