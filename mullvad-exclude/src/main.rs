@@ -6,17 +6,27 @@ fn main() {
 #[cfg(target_os = "linux")]
 mod inner {
     use anyhow::{Context, anyhow, bail};
-    use nftnl::{Batch, Chain, FinalizedBatch, ProtoFamily, Rule, Table, nft_expr};
+    use libbpf_rs::{
+        ObjectBuilder, Program,
+        libbpf_sys::{bpf_attach_type, bpf_prog_attach},
+    };
     use nix::unistd::{execvp, getgid, getuid, setgid, setuid};
     use std::{
         env::args_os,
-        ffi::{CStr, CString, OsString},
+        ffi::{CString, OsString},
         fmt::Write as _,
-        os::unix::ffi::OsStringExt,
+        fs::remove_file,
+        io,
+        os::{fd::AsRawFd, unix::ffi::OsStringExt as _},
         path::Path,
         process::Command,
     };
     use talpid_cgroup::v2::CGroup2;
+
+    mod bpf_programs {
+        pub static EXCLUDE_CGROUP_SOCK: &[u8] =
+            include_bytes!("../bpf/mullvad-exclude.cgroup-sock-create.bpf.x86_64");
+    }
 
     // TODO: comment
     pub fn main() {
@@ -35,7 +45,7 @@ mod inner {
         std::process::exit(1);
     }
 
-    fn get_current_cgroup() -> anyhow::Result<(CGroup2, u32)> {
+    fn get_current_cgroup() -> anyhow::Result<CGroup2> {
         let cgroup_file = std::fs::read_to_string("/proc/self/cgroup")
             .context("Failed to read /proc/self/cgroup")?;
 
@@ -48,85 +58,76 @@ mod inner {
             .context("Expected a line starting with '0::/' containing the cgroup path")
             .context("Failed to parse /proc/self/cgroup")?
             .trim();
-        let cgroup_path = Path::new(cgroup_path);
-        let cgroup_depth = cgroup_path.components().count() as u32;
         let cgroup_fs_path = Path::new("/sys/fs/cgroup").join(cgroup_path);
         let cgroup = CGroup2::open(cgroup_fs_path).context("Failed to open cgroup")?;
 
-        Ok((cgroup, cgroup_depth))
+        Ok(cgroup)
     }
 
-    fn add_nft_table(cgroup: &CGroup2, cgroup_depth: u32) -> anyhow::Result<CString> {
-        let mut batch = Batch::new();
-        let cgroup_name = cgroup
-            .name()
-            .to_str()
-            .context("cgroup name must be utf-8")?;
-        let table_name = CString::new(format!("mullvad-exclude-{cgroup_name}",))
-            .context("Invalid table name")?;
-        let table = Table::new(&table_name, ProtoFamily::Inet);
-        batch.add(&table, nftnl::MsgType::Add);
-        let mut out_chain = Chain::new(c"chain", &table);
-        out_chain.set_type(nftnl::ChainType::Route);
-        out_chain.set_hook(nftnl::Hook::Out, nix::libc::NF_IP_PRI_MANGLE);
-        out_chain.set_policy(nftnl::Policy::Accept);
-        batch.add(&out_chain, nftnl::MsgType::Add);
+    /// Attach [`bpf_programs::EXCLUDE_CGROUP_SOCK`]
+    fn install_exclusion_bpf_for_cgroup(cgroup: &CGroup2) -> anyhow::Result<()> {
+        // Load the eBPF ELF-file into the kernel.
+        let program = ObjectBuilder::default()
+            .debug(false)
+            .open_memory(bpf_programs::EXCLUDE_CGROUP_SOCK)?
+            .load()
+            .context("Failed to load eBPF program")?;
 
-        // === ADD CGROUPV2 RULE  ===
-        let mut rule = Rule::new(&out_chain);
-        rule.add_expr(&nft_expr!(socket cgroupv2 level cgroup_depth));
-        rule.add_expr(&nft_expr!(cmp == cgroup.inode()));
-        pub const MARK: u32 = 0xf41;
-        pub const FWMARK: u32 = 0x6d6f6c65;
-        rule.add_expr(&nft_expr!(immediate data MARK));
-        rule.add_expr(&nft_expr!(ct mark set));
-        rule.add_expr(&nft_expr!(immediate data FWMARK));
-        rule.add_expr(&nft_expr!(meta mark set));
-        // rule.add_expr(&nft_expr!(counter));
-        batch.add(&rule, nftnl::MsgType::Add);
+        for mut program in program.progs_mut() {
+            let path = format!(
+                "/sys/fs/bpf/mullvad-exclude-{}-{}",
+                program.name().to_string_lossy(),
+                cgroup.inode()
+            );
 
-        let finalized_batch = batch.finalize();
-        send_and_process(&finalized_batch)?;
-        Ok(table_name)
-    }
+            // We could do program.attach_cgroup() now, but then the program will be detached
+            // and unloaded when this process exits. To work around this, we temporarily "pin"
+            // the program to a file, and attach it to the cgroup.
+            //
+            // program.attach_cgroup(cgroup.fd.as_raw_fd());
 
-    // TODO: clean up nft table after program exits
-    fn del_nft_table(table_name: &CStr) -> anyhow::Result<()> {
-        let mut batch = Batch::new();
-        let table = Table::new(table_name, ProtoFamily::Inet);
-        batch.add(&table, nftnl::MsgType::Del);
-        let finalized_batch = batch.finalize();
-        send_and_process(&finalized_batch)?;
-        Ok(())
-    }
+            // "Pin" eBPF program to a file in /sys/fs/bpf/
+            program
+                .pin(&path)
+                .with_context(|| anyhow!("Failed to pin eBPF program {:?}", program.name()))?;
 
-    fn send_and_process(batch: &FinalizedBatch) -> anyhow::Result<()> {
-        // Create a netlink socket to netfilter.
-        let socket = mnl::Socket::new(mnl::Bus::Netfilter)?;
-        let portid = socket.portid();
+            let attach_type = program.attach_type();
 
-        // Send all the bytes in the batch.
-        socket.send_all(batch)?;
+            // Get a file descriptor to the pinned file.
+            let program = Program::fd_from_pinned_path(&path)?;
 
-        // TODO: this buffer must be aligned to nlmsghdr
-        let mut buffer = vec![0; nftnl::nft_nlmsg_maxsize() as usize];
-        let mut expected_seqs = batch.sequence_numbers();
-
-        // Process acknowledgment messages from netfilter.
-        while !expected_seqs.is_empty() {
-            for message in socket.recv(&mut buffer[..])? {
-                let message = message?;
-                let expected_seq = expected_seqs.next().expect("Unexpected ACK");
-                // Validate sequence number and check for error messages
-                mnl::cb_run(message, expected_seq, portid)?;
+            // Attach the program to the excluded cgroup.
+            // TODO: safety comment
+            let code = unsafe {
+                bpf_prog_attach(
+                    program.as_raw_fd(),
+                    cgroup.fd.as_raw_fd(),
+                    attach_type as bpf_attach_type,
+                    0,
+                )
+            };
+            if code != 0 {
+                return Err(io::Error::last_os_error()).context("bpf_prog_attach");
             }
+
+            // We can now safely remove the pinned eBPF file.
+            // The program will persist until the cgroup is removed.
+            remove_file(&path)
+                .with_context(|| anyhow!("Failed to clean up temporary eBPF file at {path:?}"))?;
         }
+
         Ok(())
     }
-
     fn exclude_current_cgroup() -> anyhow::Result<()> {
-        let (cgroup, depth) = get_current_cgroup().context("Failed to get current cgroup")?;
-        add_nft_table(&cgroup, depth)?;
+        let cgroup = get_current_cgroup().context("Failed to get current cgroup")?;
+
+        install_exclusion_bpf_for_cgroup(&cgroup).with_context(|| {
+            anyhow!(
+                "Failed to install mullvad-exclude eBPF into cgroup {:?}",
+                cgroup.name()
+            )
+        })?;
+
         Ok(())
     }
 
