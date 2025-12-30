@@ -31,6 +31,16 @@ export default class TrayIconController {
     void this.updateTheme();
   }
 
+  public static getInitialIcon() {
+    if (process.platform === 'linux') {
+      const iconPath = TrayIconController.getIconPath('lock-placeholder');
+
+      return nativeImage.createFromPath(iconPath);
+    }
+
+    return nativeImage.createEmpty();
+  }
+
   public dispose() {
     if (this.animation) {
       this.animation.stop();
@@ -83,6 +93,15 @@ export default class TrayIconController {
     const frame = this.targetFrame();
 
     animation.play({ end: frame });
+  }
+
+  private static getIconPath(fileName: string) {
+    const basePath = path.resolve(__dirname, 'assets/images/menubar-icons');
+    const extension = process.platform === 'win32' ? 'ico' : 'png';
+
+    const iconPath = path.join(basePath, process.platform, `${fileName}.${extension}`);
+
+    return iconPath;
   }
 
   private async updateThemeImpl() {
@@ -153,9 +172,9 @@ export default class TrayIconController {
   }
 
   private getImagePath(frame: number, suffix?: string) {
-    const basePath = path.resolve(__dirname, 'assets/images/menubar-icons');
-    const extension = process.platform === 'win32' ? 'ico' : 'png';
-    return path.join(basePath, process.platform, `lock-${frame}${suffix}.${extension}`);
+    const fileName = `lock-${frame}${suffix}`;
+
+    return TrayIconController.getIconPath(fileName);
   }
 
   private async getSystemUsesLightTheme(): Promise<boolean | undefined> {
