@@ -184,6 +184,8 @@ mod inner {
             let status = Command::new("/usr/bin/systemd-run")
                 .args(is_not_root.then_some("--user"))
                 .arg("--scope")
+                .arg("--quiet")
+                .arg("--expand-environment=no")
                 .args(["mullvad-exclude", "--current-cgroup"])
                 .arg(program)
                 .args(args)
