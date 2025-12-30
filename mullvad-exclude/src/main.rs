@@ -276,7 +276,7 @@ mod inner {
                         .deserialize()
                         .context("Failed to deserialize JobRemoved() message")?;
 
-                if bus_path.as_str() == job_path.as_str() {
+                if bus_path == job_path {
                     if result != "done" {
                         bail!(
                             "systemd job {job_id} did not complete successfully for scope {unit_name}: {result}"
