@@ -10,7 +10,7 @@ mod inner {
         ObjectBuilder, Program,
         libbpf_sys::{bpf_attach_type, bpf_prog_attach},
     };
-    use nix::unistd::{execvp, getgid, getuid, setgid, setuid};
+    use nix::unistd::{execvp, getgid, getuid, setegid, seteuid, setgid, setuid};
     use std::{
         env::args_os,
         ffi::{CString, OsString},
@@ -19,7 +19,6 @@ mod inner {
         io,
         os::{fd::AsRawFd, unix::ffi::OsStringExt as _},
         path::Path,
-        process::Command,
     };
     use talpid_cgroup::v2::CGroup2;
 
@@ -141,11 +140,9 @@ mod inner {
             .collect();
         let command: Vec<OsString> = args_os.iter().skip(flags.len()).cloned().collect();
 
-        let mut current_cgroup = false;
         for flag in flags {
             match flag {
                 "-h" | "--help" => return print_usage(None),
-                "--current-cgroup" => current_cgroup = true,
                 f => return print_usage(Some(f)),
             }
         }
@@ -153,55 +150,35 @@ mod inner {
         let real_uid = getuid();
         let real_gid = getgid();
 
-        if current_cgroup {
-            let args: Vec<_> = command
-                .into_iter()
-                .map(OsString::into_vec)
-                .map(CString::new)
-                .collect::<Result<_, _>>()
-                .context("Argument contains nul byte")?;
+        let args: Vec<_> = command
+            .into_iter()
+            .map(OsString::into_vec)
+            .map(CString::new)
+            .collect::<Result<_, _>>()
+            .context("Argument contains nul byte")?;
 
-            let [program, ..] = &args[..] else {
-                bail!("No command specified");
-            };
+        let [program, ..] = &args[..] else {
+            bail!("No command specified");
+        };
 
-            exclude_current_cgroup()?;
+        // Not strictly necessary, but temporarily drop privileges before interacting with D-Bus
+        seteuid(real_uid).context("Failed to drop EUID")?;
+        setegid(real_gid).context("Failed to drop EGID")?;
 
-            setuid(real_uid).context("Failed to drop UID")?;
-            setgid(real_gid).context("Failed to drop GID")?;
+        systemd::join_scope_unit(real_uid.is_root())
+            .context("Failed to join systemd scope unit")?;
 
-            let Err(e) = execvp(&program, &args);
-            eprintln!("Failed to exec {program:?}: {e}");
-            std::process::exit(e as i32)
-        } else {
-            setuid(real_uid).context("Failed to drop UID")?;
-            setgid(real_gid).context("Failed to drop GID")?;
+        seteuid(0.into()).context("Failed to regain root EUID")?;
+        setegid(0.into()).context("Failed to regain root EGID")?;
 
-            let [program, args @ ..] = &command[..] else {
-                bail!("No command specified");
-            };
+        exclude_current_cgroup()?;
 
-            let is_not_root = !real_uid.is_root();
+        setuid(real_uid).context("Failed to drop UID")?;
+        setgid(real_gid).context("Failed to drop GID")?;
 
-            let status = Command::new("/usr/bin/systemd-run")
-                .args(is_not_root.then_some("--user"))
-                .arg("--scope")
-                .arg("--quiet")
-                .arg("--expand-environment=no")
-                .args(["mullvad-exclude", "--current-cgroup"])
-                .arg(program)
-                .args(args)
-                .spawn()
-                .with_context(|| anyhow!("Failed to spawn {program:?}"))?
-                .wait()
-                .expect("wait failed");
-
-            if !status.success() {
-                bail!("program errored");
-            }
-        }
-
-        Ok(())
+        let Err(e) = execvp(&program, &args);
+        eprintln!("Failed to exec {program:?}: {e}");
+        std::process::exit(e as i32)
     }
 
     fn print_usage(invalid_arg: Option<&str>) -> Result<(), anyhow::Error> {
@@ -212,5 +189,71 @@ mod inner {
         }
 
         Ok(())
+    }
+
+    mod systemd {
+        use anyhow::Context;
+        use zbus::{
+            blocking::Connection,
+            zvariant::{OwnedObjectPath, OwnedValue, Value},
+        };
+
+        // TODO: Document
+        #[zbus::proxy(
+            interface = "org.freedesktop.systemd1.Manager",
+            default_service = "org.freedesktop.systemd1",
+            default_path = "/org/freedesktop/systemd1"
+        )]
+        trait SystemdManager {
+            fn start_transient_unit(
+                &self,
+                name: &str,
+                mode: &str,
+                properties: Vec<(&str, Value<'_>)>,
+                aux: Vec<(String, Vec<(String, OwnedValue)>)>,
+            ) -> zbus::Result<OwnedObjectPath>;
+        }
+
+        /// Create and join new scope unit in systemd for the current process. This also moves it
+        /// into a new cgroup.
+        ///
+        /// This is approximately equivalent to `systemd-run --scope [--user] ...`, except that it
+        /// applies to the current process.
+        ///
+        /// References:
+        /// - system-run: https://github.com/systemd/systemd/blob/f76f0f99354b0485e3e13c2608bc26f969312687/src/run/run.c#L1671-L1699
+        /// - man org.freedesktop.systemd1 - https://www.man7.org/linux/man-pages/man5/org.freedesktop.systemd1.5.html
+        pub fn join_scope_unit(is_root: bool) -> anyhow::Result<()> {
+            let connection = if is_root {
+                Connection::system().context("Failed to connect to system bus")?
+            } else {
+                Connection::session().context("Failed to connect to user/session bus")?
+            };
+
+            let proxy = SystemdManagerProxyBlocking::new(&connection)
+                .context("Failed to create proxy to systemd manager")?;
+
+            let properties = vec![
+                // systemd will move these processes into the new scope/cgroup.
+                // We only want to move the current process.
+                ("PIDs", Value::new(vec![std::process::id()])),
+                // Pin the unit(?).
+                // TODO: Not sure what this actually adds. Taken from systemd-run:
+                // https://github.com/systemd/systemd/blob/f76f0f99354b0485e3e13c2608bc26f969312687/src/run/run.c#L1671-L1699
+                // https://github.com/systemd/systemd/blob/f76f0f99354b0485e3e13c2608bc26f969312687/src/run/run.c#L1346-L1350
+                ("AddRef", Value::Bool(true)),
+            ];
+
+            let _reply = proxy
+                .start_transient_unit(
+                    &format!("mullvad-exclude-{}.scope", std::process::id()),
+                    "fail",
+                    properties,
+                    vec![],
+                )
+                .context("StartTransientUnit failed")?;
+
+            Ok(())
+        }
     }
 }

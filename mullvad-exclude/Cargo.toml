@@ -14,6 +14,7 @@ workspace = true
 nix = { workspace = true, features = ["process", "user"] }
 thiserror = { workspace = true }
 talpid-cgroup = { path = "../talpid-cgroup" }
+zbus = { version = "5.2", default-features = false, features = ["blocking-api", "tokio"] }
 
 [dependencies]
 anyhow.workspace = true
