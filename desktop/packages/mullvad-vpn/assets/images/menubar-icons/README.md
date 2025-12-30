@@ -4,10 +4,10 @@ This directory contains the images for the menubar/traybar. The content consists
   manually.
 
 ## Build script
-The png/ico files are generated using the script `../../scripts/build-menubar-icons.sh` which can be
+The png/ico files are generated using the script `../../scripts/generate-menubar-icons.sh` which can be
 run from the `desktop/packages/mullvad-vpn`-directory using
 ```sh
-./scripts/build-menubar-icons.sh
+./scripts/generate-menubar-icons.sh
 ```
 
 The script crates all menubar images for all platforms including the monochrome ones.
