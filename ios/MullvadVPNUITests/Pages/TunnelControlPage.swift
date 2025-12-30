@@ -231,7 +231,7 @@ class TunnelControlPage: Page {
 
     /// Verify that the app does not attempt to connect using quantum resistance.
     @discardableResult func verifyNotConnectingUsingQuantumResistance() -> Self {
-        XCTAssertFalse(app.buttons["Quantum resistance"].exists)
+        XCTAssertTrue(app.buttons["Quantum resistance"].notExistsAfterWait())
         return self
     }
 
