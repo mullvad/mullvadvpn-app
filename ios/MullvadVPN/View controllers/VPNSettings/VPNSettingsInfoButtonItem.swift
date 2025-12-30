@@ -16,6 +16,7 @@ enum VPNSettingsInfoButtonItem: CustomStringConvertible {
     case wireGuardObfuscation
     case wireGuardObfuscationPort
     case quantumResistance
+    case ipVersion
     case multihop
 
     var description: String {
@@ -96,6 +97,13 @@ enum VPNSettingsInfoButtonItem: CustomStringConvertible {
                     comment: ""
                 ),
             ].joinedParagraphs(lineBreaks: 1)
+
+        case .ipVersion:
+            NSLocalizedString(
+                "This setting controls whether the app connects to VPN servers using IPv4 or IPv6. "
+                    + "The Automatic option defaults to IPv4 for maximum compatibility.",
+                comment: ""
+            )
 
         case .multihop:
             NSLocalizedString(

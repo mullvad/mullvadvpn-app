@@ -30,6 +30,7 @@ extension RelayPicking {
                 ? obfuscation.port
                 : tunnelSettings.relayConstraints.port,
             numberOfFailedAttempts: connectionAttemptCount,
+            ipVersion: tunnelSettings.ipVersion,
             closeTo: location
         )
 

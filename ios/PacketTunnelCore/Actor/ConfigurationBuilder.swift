@@ -67,8 +67,16 @@ public struct ConfigurationBuilder {
                 throw PublicKeyError(endpoint: endpoint)
             }
 
+            // Use IPv6 endpoint if available, otherwise use IPv4
+            let peerEndpoint: AnyIPEndpoint
+            if let ipv6Relay = endpoint.ipv6Relay {
+                peerEndpoint = .ipv6(ipv6Relay)
+            } else {
+                peerEndpoint = .ipv4(endpoint.ipv4Relay)
+            }
+
             return TunnelPeer(
-                endpoint: .ipv4(endpoint.ipv4Relay),
+                endpoint: peerEndpoint,
                 publicKey: publicKey,
                 preSharedKey: preSharedKey
             )
