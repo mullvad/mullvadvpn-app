@@ -29,6 +29,7 @@ public struct ConfigurationBuilder {
     var allowedIPs: [IPAddressRange]
     var preSharedKey: PreSharedKey?
     var pingableGateway: IPv4Address
+    private let allowV6: Bool
 
     public init(
         privateKey: PrivateKey,
@@ -37,7 +38,8 @@ public struct ConfigurationBuilder {
         endpoint: MullvadEndpoint? = nil,
         allowedIPs: [IPAddressRange],
         preSharedKey: PreSharedKey? = nil,
-        pingableGateway: IPv4Address
+        pingableGateway: IPv4Address,
+        allowV6: Bool,
     ) {
         self.privateKey = privateKey
         self.interfaceAddresses = interfaceAddresses
@@ -46,10 +48,12 @@ public struct ConfigurationBuilder {
         self.allowedIPs = allowedIPs
         self.preSharedKey = preSharedKey
         self.pingableGateway = pingableGateway
+        self.allowV6 = allowV6
     }
 
+
     public func makeConfiguration() throws -> TunnelAdapterConfiguration {
-        return TunnelAdapterConfiguration(
+        var config =  TunnelAdapterConfiguration(
             privateKey: privateKey,
             interfaceAddresses: interfaceAddresses,
             dns: dnsServers,
@@ -57,6 +61,8 @@ public struct ConfigurationBuilder {
             allowedIPs: allowedIPs,
             pingableGateway: pingableGateway
         )
+
+        return config
     }
 
     private var peer: TunnelPeer? {
@@ -69,7 +75,7 @@ public struct ConfigurationBuilder {
 
             // Use IPv6 endpoint if available, otherwise use IPv4
             let peerEndpoint: AnyIPEndpoint
-            if let ipv6Relay = endpoint.ipv6Relay {
+            if let ipv6Relay = endpoint.ipv6Relay, allowV6 {
                 peerEndpoint = .ipv6(ipv6Relay)
             } else {
                 peerEndpoint = .ipv4(endpoint.ipv4Relay)
