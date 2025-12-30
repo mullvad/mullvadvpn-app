@@ -6,12 +6,14 @@
             "CustomListsTests",
             "LeakTests",
             "RelayTests",
-            "SettingsTests"
+            "SettingsTests",
+            "PaymentTests"
         ],
         "pr-merge-to-main": [
             "AccountTests/testLogin",
             "AccountTests/testCreateAccount",
-            "RelayTests"
+            "RelayTests",
+            "PaymentTests"
         ],
         "api-tests": [
             "AccountTests"
@@ -19,7 +21,8 @@
         "pr-opened": [
             "AccountTests/testLogin",
             "AccountTests/testCreateAccount",
-            "RelayTests"
+            "RelayTests",
+            "PaymentTests",
         ]
     }
 }
