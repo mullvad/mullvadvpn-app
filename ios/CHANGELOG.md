@@ -24,6 +24,7 @@ Line wrap the file at 100 chars.                                              Th
 ## UNRELEASED
 ### Add
 - Add support for additional languages.
+- Add recent connections in the Select location view.
 
 ### Changed
 - Improve reliability of the bridge API connection method.
