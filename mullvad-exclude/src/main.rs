@@ -192,9 +192,10 @@ mod inner {
     }
 
     mod systemd {
-        use anyhow::Context;
+        use anyhow::{Context, bail};
         use zbus::{
-            blocking::Connection,
+            MatchRule,
+            blocking::{Connection, MessageIterator},
             zvariant::{OwnedObjectPath, OwnedValue, Value},
         };
 
@@ -230,6 +231,18 @@ mod inner {
                 Connection::session().context("Failed to connect to user/session bus")?
             };
 
+            // Create a match rule to listen for JobRemoved() signals
+            // Must be done before calling StartTransientUnit().
+            // TODO: Not sure if fine to wait before calling `next`. See docs on MessageIterator.
+            let rule = MatchRule::builder()
+                .sender("org.freedesktop.systemd1")?
+                .interface("org.freedesktop.systemd1.Manager")?
+                .member("JobRemoved")?
+                .build();
+            let mut msg_iter = MessageIterator::for_match_rule(rule, &connection, None)
+                .context("Failed to create message iterator")?;
+
+            // Now create the scope unit by calling StartTransientUnit()
             let proxy = SystemdManagerProxyBlocking::new(&connection)
                 .context("Failed to create proxy to systemd manager")?;
 
@@ -244,7 +257,7 @@ mod inner {
                 ("AddRef", Value::Bool(true)),
             ];
 
-            let _reply = proxy
+            let job_path = proxy
                 .start_transient_unit(
                     &format!("mullvad-exclude-{}.scope", std::process::id()),
                     "fail",
@@ -252,6 +265,26 @@ mod inner {
                     vec![],
                 )
                 .context("StartTransientUnit failed")?;
+
+            // StartTransientUnit() returns a path to a job object. We can wait for its JobRemoved()
+            // signal to know when it is done.
+            while let Some(msg) = msg_iter.next() {
+                // Return value: job ID, bus path, primary unit name, result
+                let (job_id, bus_path, unit_name, result): (u32, OwnedObjectPath, String, String) =
+                    msg.context("Failed to get D-Bus message")?
+                        .body()
+                        .deserialize()
+                        .context("Failed to deserialize JobRemoved() message")?;
+
+                if bus_path.as_str() == job_path.as_str() {
+                    if result != "done" {
+                        bail!(
+                            "systemd job {job_id} did not complete successfully for scope {unit_name}: {result}"
+                        );
+                    }
+                    break;
+                }
+            }
 
             Ok(())
         }
