@@ -6,9 +6,14 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiObjectNotFoundException
+import androidx.test.uiautomator.waitForStableInActiveWindow
 import net.mullvad.mullvadvpn.test.common.interactor.AppInteractor
+import net.mullvad.mullvadvpn.test.common.page.AccountPage
+import net.mullvad.mullvadvpn.test.common.page.ConnectPage
 import net.mullvad.mullvadvpn.test.common.page.LoginPage
 import net.mullvad.mullvadvpn.test.common.page.PrivacyPage
+import net.mullvad.mullvadvpn.test.common.page.WelcomePage
+import net.mullvad.mullvadvpn.test.common.page.dismissStorePasswordPromptIfShown
 import net.mullvad.mullvadvpn.test.common.page.on
 import org.junit.Rule
 import org.junit.Test
@@ -38,6 +43,8 @@ class BaselineProfileGenerator {
             // See:
             // https://d.android.com/topic/performance/baselineprofiles/dex-layout-optimizations
             includeInStartupProfile = true,
+            // We will rate limited if we create more than 3 new accounts
+            maxIterations = 3,
         ) {
             pressHome()
             startActivityAndWait()
@@ -50,13 +57,37 @@ class BaselineProfileGenerator {
 
             ignoreNotFound { on<PrivacyPage> { clickAgreeOnPrivacyDisclaimer() } }
             ignoreNotFound { app.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove() }
-            on<LoginPage>()
+            on<LoginPage> { clickCreateAccount() }
+            device.dismissStorePasswordPromptIfShown()
+            on<WelcomePage> { clickAccount() }
+            on<AccountPage> { clickLogOut() }
+            on<LoginPage> {
+                deleteAccountHistory()
+                enterAccountNumber(getValidAccountNumber())
+                device.waitForStableInActiveWindow()
+                clickLoginButton()
+            }
+            // Clean up for next run
+            on<ConnectPage> {
+                clickAccount()
+            }
+            on<AccountPage> {
+                clickLogOut()
+            }
+            on<LoginPage> {
+                deleteAccountHistory()
+            }
         }
     }
 
-    fun ignoreNotFound(block: () -> Unit) {
+    private fun ignoreNotFound(block: () -> Unit) {
         try {
             block()
         } catch (_: UiObjectNotFoundException) {}
     }
+
+    private fun getValidAccountNumber() =
+        InstrumentationRegistry.getArguments()
+            .getString("mullvad.test.baseline.accountNumber.valid")
+            ?: error("Requires a valid prod account number")
 }

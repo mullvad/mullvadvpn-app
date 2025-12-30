@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.test.common.page
 import android.widget.Button
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.Until
+import net.mullvad.mullvadvpn.lib.ui.tag.LOGIN_SCREEN_DELETE_ACCOUNT_HISTORY_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.TOP_BAR_SETTINGS_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.test.common.constant.DEFAULT_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.constant.EXTREMELY_LONG_TIMEOUT
@@ -39,6 +40,10 @@ class LoginPage internal constructor() : Page() {
         // This can be improved, if we've entered the same account number in the TextField we might
         // get a false positive.
         uiDevice.findObjectWithTimeout(By.text(accountNumber))
+    }
+
+    fun deleteAccountHistory() {
+        uiDevice.findObjectWithTimeout(By.res(LOGIN_SCREEN_DELETE_ACCOUNT_HISTORY_TEST_TAG)).click()
     }
 
     override fun assertIsDisplayed() {

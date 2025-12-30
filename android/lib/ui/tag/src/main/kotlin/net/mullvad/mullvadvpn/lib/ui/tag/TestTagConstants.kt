@@ -156,3 +156,7 @@ const val SELECT_PORT_CUSTOM_TEST_TAG = "select_port_custom_test_tag"
 
 // AddTimeBottomSheet
 const val ADD_TIME_BOTTOM_SHEET_TITLE_TEST_TAG = "add_time_bottom_sheet_title_test_tag"
+
+// LoginScreen
+const val LOGIN_SCREEN_DELETE_ACCOUNT_HISTORY_TEST_TAG =
+    "login_screen_delete_account_history_test_tag"
