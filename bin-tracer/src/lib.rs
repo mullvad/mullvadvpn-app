@@ -1,13 +1,14 @@
 pub mod utils;
 
 use std::{
+    collections::HashMap,
     io::Write,
     sync::{Mutex, OnceLock, RwLock, atomic::AtomicU64},
 };
 
 use serde::{Deserialize, Serialize};
 use tracing_core::{
-    Callsite, Dispatch, Event, Kind, Metadata, Subscriber,
+    Callsite, Dispatch, Event, Interest, Kind, Metadata, Subscriber,
     callsite::{self, DefaultCallsite},
     field::{self, FieldSet},
     identify_callsite, span,
@@ -16,17 +17,17 @@ use tracing_serde_structured::{AsSerde, SerializeFieldSet, SerializeId, Serializ
 
 pub const LOG_PATH: &str = "structured_log";
 
-pub struct BinarySubscriber {
+pub struct SerdeSubscriber {
     callsites: RwLock<Vec<&'static Metadata<'static>>>,
     span_id_counter: AtomicU64, // must be non-zero
-    actions: Mutex<Vec<TracingAction>>,
+    entries: Mutex<Vec<TracingEntries>>,
 }
 
 #[derive(Serialize, Deserialize)]
 #[serde(bound(deserialize = "'de: 'a"))]
-pub struct BinaryLog<'a> {
-    metadata_list: Vec<SerializeMetadata<'a>>,
-    actions: Vec<TracingAction>,
+pub struct TraceStore<'a> {
+    callsites: Vec<SerializeMetadata<'a>>,
+    entries: Vec<TracingEntries>,
 }
 
 struct LateInitCallsite(OnceLock<DefaultCallsite>);
@@ -47,9 +48,12 @@ impl Callsite for LateInitCallsite {
     }
 }
 
-impl BinaryLog<'static> {
+impl TraceStore<'static> {
     pub fn replay_to_subscriber<S: Subscriber>(&mut self, subscriber: &S) {
-        for metadata in self.metadata_list.drain(..) {
+        // TODO: don't heap allocate?
+        let mut interests = Vec::with_capacity(self.callsites.len());
+        let mut callsites = Vec::with_capacity(self.callsites.len());
+        for metadata in &self.callsites {
             let callsite = Box::leak(Box::new(LateInitCallsite(OnceLock::new())));
 
             let SerializeFieldSet::De(cow_strings) = metadata.fields else {
@@ -84,38 +88,32 @@ impl BinaryLog<'static> {
                 },
             );
             let metadata = Box::leak(Box::new(metadata));
-            callsite.0.get_or_init(|| DefaultCallsite::new(metadata));
-            // TODO: Figure out how to map SerializeMetadata<'static> to a &'static Metadata<'static>
-            // TODO: Respect the returned Interest
-            let _ = subscriber.register_callsite(metadata);
+            callsite.0.set(DefaultCallsite::new(metadata)).unwrap();
+            callsites.push(callsite);
+
+            let interest = subscriber.register_callsite(metadata);
+            // callsite.set_interest(interest); // Should we use the default callsites interest cache here?
+            interests.push(interest);
         }
         let mut id_map = std::collections::HashMap::new();
-        for action in &self.actions {
+        for action in &self.entries {
             match action {
-                TracingAction::NewSpan {
+                TracingEntries::NewSpan {
                     id,
                     metadata_id,
                     values,
                     parent,
                 } => {
-                    let metadata: &'static Metadata<'static> = todo!(); // TODO: lookup by metadata_id
-                    let values = todo!(); // TODO: convert Values to ValueSet
-                    // TODO: create a map entry from the returned Id to SerializeId, use it later
-                    let span = span::Attributes::new(metadata, values);
-                    let new_id = subscriber.new_span(&span);
-                    id_map.insert(id.id, new_id);
-                }
-                TracingAction::Event {
-                    metadata_id,
-                    values,
-                    parent,
-                } => {
-                    // let metadata = callsite.metadata();
-                    let metadata: &'static Metadata<'static> = todo!(); // TODO: lookup by metadata_id
+                    let interest = &interests[*metadata_id];
+                    let metadata = callsites[*metadata_id].0.get().unwrap().metadata();
+                    // let metadata: &'static Metadata<'static> = todo!(); // TODO: lookup by metadata_id
+                    if interest.is_never()
+                        || interest.is_sometimes() && !subscriber.enabled(metadata)
+                    {
+                        continue;
+                    }
+
                     let fields = metadata.fields();
-                    // TODO: values must be an array of constant size to implement ValidLen
-                    // impl<'a, const N: usize> ValidLen<'a> for [(&'a Field, Option<&'a (dyn Value + 'a)>); N] {}
-                    // How am I supposed to get that?
                     let values = fields
                         .iter()
                         .zip(values)
@@ -137,30 +135,78 @@ impl BinaryLog<'static> {
                     // because there is no other way of obtaining a `ValueSet`.
                     // It's not entirely clear why it is private. See this issue:
                     // https://github.com/tokio-rs/tracing/issues/2363
+                    // TODO: values must be an array of constant size to implement ValidLen
+                    // impl<'a, const N: usize> ValidLen<'a> for [(&'a Field, Option<&'a (dyn Value + 'a)>); N] {}
+                    // How am I supposed to get that?
+                    let values = fields.value_set(&values[..]);
+                    // TODO: create a map entry from the returned Id to SerializeId, use it later
+                    let span = span::Attributes::new(metadata, &values);
+                    let new_id = subscriber.new_span(&span);
+                    id_map.insert(id.id, new_id);
+                }
+                TracingEntries::Event {
+                    metadata_id,
+                    values,
+                    parent,
+                } => {
+                    let interest = &interests[*metadata_id];
+                    let metadata = callsites[*metadata_id].0.get().unwrap().metadata();
+                    // let metadata: &'static Metadata<'static> = todo!(); // TODO: lookup by metadata_id
+                    if interest.is_never()
+                        || interest.is_sometimes() && !subscriber.enabled(metadata)
+                    {
+                        continue;
+                    }
+
+                    let fields = metadata.fields();
+                    let values = fields
+                        .iter()
+                        .zip(values)
+                        .map(|(field, value)| {
+                            (
+                                &field,
+                                value.as_ref().map(|v| v as &dyn tracing_core::field::Value),
+                            )
+                        })
+                        .collect::<Vec<_>>();
+                    // let message_field = fields.field("message").unwrap();
+                    // #[allow(trivial_casts)] // The compiler is lying, it can't infer this cast
+                    // let values = [(
+                    //     &message_field,
+                    //     Some(&message as &dyn tracing_core::field::Value),
+                    // )];
+
+                    // This function is hidden from docs, but we have to use it
+                    // because there is no other way of obtaining a `ValueSet`.
+                    // It's not entirely clear why it is private. See this issue:
+                    // https://github.com/tokio-rs/tracing/issues/2363
+                    // TODO: values must be an array of constant size to implement ValidLen
+                    // impl<'a, const N: usize> ValidLen<'a> for [(&'a Field, Option<&'a (dyn Value + 'a)>); N] {}
+                    // How am I supposed to get that?
                     let values = fields.value_set(&values[..]);
                     let event = Event::new(metadata, &values);
                     subscriber.event(&event);
                 }
-                TracingAction::Enter { span } => {
+                TracingEntries::Enter { span } => {
                     let id = id_map[&span.id];
                     subscriber.enter(&id);
                 }
-                TracingAction::Exit { span } => {
+                TracingEntries::Exit { span } => {
                     let id = id_map[&span.id];
                     subscriber.exit(&id);
                 }
-                TracingAction::Record { span, values } => todo!(),
-                TracingAction::RecordFollowsFrom { span, follows } => {
+                TracingEntries::Record { span, values } => todo!(),
+                TracingEntries::RecordFollowsFrom { span, follows } => {
                     let id = id_map[&span.id];
                     let follows_id = id_map[&follows.id];
                     subscriber.record_follows_from(&id, &follows_id);
                 }
-                TracingAction::CloneSpan { id } => {
+                TracingEntries::CloneSpan { id } => {
                     let original_id = id_map[&id.id];
                     let _same_id = subscriber.clone_span(&original_id);
                     // id_map.insert(id.id, _same_id); // This should be the same ID
                 }
-                TracingAction::TryClose { id } => {
+                TracingEntries::TryClose { id } => {
                     let span_id = id_map.remove(&id.id).unwrap();
                     subscriber.try_close(span_id);
                 }
@@ -182,11 +228,11 @@ fn make_field_set(metadata: SerializeMetadata<'_>) -> FieldSet {
     let field_names = Box::new(field_names).leak();
 
     let fields = FieldSet::new(&field_names[..], identify_callsite!(callsite));
-    callsite.0.get_or_init(|| DefaultCallsite::new(metadata));
+    callsite.0.set(DefaultCallsite::new(metadata));
     fields
 }
 
-impl Drop for BinarySubscriber {
+impl Drop for SerdeSubscriber {
     fn drop(&mut self) {
         let callsites = self
             .callsites
@@ -195,10 +241,10 @@ impl Drop for BinarySubscriber {
             .iter()
             .map(|m| m.as_serde())
             .collect();
-        let actions = self.actions.lock().unwrap().drain(..).collect();
-        let log = BinaryLog {
-            metadata_list: callsites,
-            actions,
+        let actions = self.entries.lock().unwrap().drain(..).collect();
+        let log = TraceStore {
+            callsites,
+            entries: actions,
         };
         let file = std::fs::File::create(LOG_PATH).unwrap();
         let mut writer = std::io::BufWriter::new(file);
@@ -207,12 +253,12 @@ impl Drop for BinarySubscriber {
     }
 }
 
-impl Default for BinarySubscriber {
+impl Default for SerdeSubscriber {
     fn default() -> Self {
         Self {
             callsites: RwLock::new(Vec::new()),
             span_id_counter: AtomicU64::new(1),
-            actions: Mutex::new(Vec::new()),
+            entries: Mutex::new(Vec::new()),
         }
     }
 }
@@ -229,7 +275,7 @@ type Parent = Option<SerializeId>;
 type Values = Vec<Option<String>>;
 
 #[derive(Serialize, Deserialize, Debug)]
-pub enum TracingAction {
+pub enum TracingEntries {
     NewSpan {
         id: SerializeId,
         metadata_id: usize,
@@ -274,7 +320,7 @@ impl tracing_core::field::Visit for FieldVisitor {
     // implement visit methods
 }
 
-impl Subscriber for BinarySubscriber {
+impl Subscriber for SerdeSubscriber {
     // Not used by us, we want all events and spans
     fn enabled(&self, _: &Metadata<'_>) -> bool {
         true
@@ -293,7 +339,7 @@ impl Subscriber for BinarySubscriber {
                 .fetch_add(1, std::sync::atomic::Ordering::SeqCst),
         );
 
-        self.actions.lock().unwrap().push(TracingAction::NewSpan {
+        self.entries.lock().unwrap().push(TracingEntries::NewSpan {
             id: id.as_serde(),
             metadata_id: self
                 .callsites
@@ -316,7 +362,7 @@ impl Subscriber for BinarySubscriber {
     }
 
     fn record(&self, span: &span::Id, values: &span::Record<'_>) {
-        self.actions.lock().unwrap().push(TracingAction::Record {
+        self.entries.lock().unwrap().push(TracingEntries::Record {
             span: span.as_serde(),
             values: {
                 let len = values.len();
@@ -330,10 +376,10 @@ impl Subscriber for BinarySubscriber {
     }
 
     fn record_follows_from(&self, span: &span::Id, follows: &span::Id) {
-        self.actions
+        self.entries
             .lock()
             .unwrap()
-            .push(TracingAction::RecordFollowsFrom {
+            .push(TracingEntries::RecordFollowsFrom {
                 span: span.as_serde(),
                 follows: follows.as_serde(),
             });
@@ -355,7 +401,7 @@ impl Subscriber for BinarySubscriber {
         };
         event.record(&mut visitor);
 
-        self.actions.lock().unwrap().push(TracingAction::Event {
+        self.entries.lock().unwrap().push(TracingEntries::Event {
             metadata_id,
             values: visitor.fields,
             parent: event.parent().map(|p| p.as_serde()),
@@ -363,30 +409,30 @@ impl Subscriber for BinarySubscriber {
     }
 
     fn enter(&self, span: &span::Id) {
-        self.actions.lock().unwrap().push(TracingAction::Enter {
+        self.entries.lock().unwrap().push(TracingEntries::Enter {
             span: span.as_serde(),
         });
     }
 
     fn exit(&self, span: &span::Id) {
-        self.actions.lock().unwrap().push(TracingAction::Exit {
+        self.entries.lock().unwrap().push(TracingEntries::Exit {
             span: span.as_serde(),
         });
     }
 
     fn clone_span(&self, id: &span::Id) -> span::Id {
-        self.actions
+        self.entries
             .lock()
             .unwrap()
-            .push(TracingAction::CloneSpan { id: id.as_serde() });
+            .push(TracingEntries::CloneSpan { id: id.as_serde() });
         id.clone()
     }
 
     fn try_close(&self, id: span::Id) -> bool {
-        self.actions
+        self.entries
             .lock()
             .unwrap()
-            .push(TracingAction::TryClose { id: id.as_serde() });
+            .push(TracingEntries::TryClose { id: id.as_serde() });
         false
     }
 
