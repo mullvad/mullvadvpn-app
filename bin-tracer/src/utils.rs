@@ -1,12 +1,11 @@
+#[cfg(feature = "sentry")]
+use std::borrow::ToOwned;
 use std::{
     collections::BTreeMap,
     sync::{Arc, Mutex, OnceLock as OnceCell},
 };
 
-// use once_cell::sync::OnceCell;
-use tracing_core::{
-    Callsite, Level, LevelFilter, Metadata, callsite::DefaultCallsite, field::FieldSet,
-};
+use tracing::{Callsite, callsite::DefaultCallsite, debug, error, field::FieldSet};
 use tracing_core::{identify_callsite, metadata::Kind as MetadataKind};
 
 /// Log an event.
@@ -39,17 +38,14 @@ fn log_event(file: String, line: Option<u32>, level: LogLevel, target: String, m
         let fields = metadata.fields();
         let message_field = fields.field("message").unwrap();
         #[allow(trivial_casts)] // The compiler is lying, it can't infer this cast
-        let values = [(
-            &message_field,
-            Some(&message as &dyn tracing_core::field::Value),
-        )];
+        let values = [(&message_field, Some(&message as &dyn tracing::Value))];
 
         // This function is hidden from docs, but we have to use it
         // because there is no other way of obtaining a `ValueSet`.
         // It's not entirely clear why it is private. See this issue:
         // https://github.com/tokio-rs/tracing/issues/2363
         let values = fields.value_set(&values);
-        tracing_core::Event::dispatch(metadata, &values);
+        tracing::Event::dispatch(metadata, &values);
     }
 }
 
@@ -63,7 +59,7 @@ fn get_or_init_metadata(
 ) -> &'static DefaultCallsite {
     mutex.lock().unwrap().entry(id).or_insert_with_key(|id| {
         let callsite = Box::leak(Box::new(LateInitCallsite(OnceCell::new())));
-        let metadata = Box::leak(Box::new(Metadata::new(
+        let metadata = Box::leak(Box::new(tracing::Metadata::new(
             Box::leak(
                 id.name
                     .clone()
@@ -85,9 +81,12 @@ fn get_or_init_metadata(
     })
 }
 
-const STATIC_MAX_LEVEL: Level = Level::TRACE;
-
 fn span_or_event_enabled(callsite: &'static DefaultCallsite) -> bool {
+    use tracing::{
+        dispatcher,
+        level_filters::{LevelFilter, STATIC_MAX_LEVEL},
+    };
+
     let meta = callsite.metadata();
     let level = *meta.level();
 
@@ -96,12 +95,13 @@ fn span_or_event_enabled(callsite: &'static DefaultCallsite) -> bool {
     } else {
         let interest = callsite.interest();
         interest.is_always()
-            || !interest.is_never()
-                && tracing_core::dispatcher::get_default(|default| default.enabled(meta))
+            || !interest.is_never() && dispatcher::get_default(|default| default.enabled(meta))
     }
 }
 
-pub struct Span(tracing_core::span::Span);
+pub struct Span(tracing::Span);
+
+pub(crate) const BRIDGE_SPAN_NAME: &str = "<sdk_bridge_span>";
 
 impl Span {
     /// Create a span originating at the given callsite (file, line and column).
@@ -134,6 +134,7 @@ impl Span {
         level: LogLevel,
         target: String,
         name: String,
+        bridge_trace_id: Option<String>,
     ) -> Arc<Self> {
         static CALLSITES: Mutex<BTreeMap<MetadataId, &'static DefaultCallsite>> =
             Mutex::new(BTreeMap::new());
@@ -145,22 +146,56 @@ impl Span {
             target,
             name: Some(name),
         };
-        let callsite = get_or_init_metadata(&CALLSITES, loc, &[], MetadataKind::SPAN);
+
+        // If sentry isn't enabled, ignore bridge_trace_id's contents
+        let bridge_trace_id = if cfg!(feature = "sentry") {
+            bridge_trace_id
+        } else {
+            None
+        };
+
+        let callsite = if cfg!(feature = "sentry") {
+            get_or_init_metadata(
+                &CALLSITES,
+                loc,
+                &["sentry", "sentry.trace"],
+                MetadataKind::SPAN,
+            )
+        } else {
+            get_or_init_metadata(&CALLSITES, loc, &[], MetadataKind::SPAN)
+        };
+
         let metadata = callsite.metadata();
 
         let span = if span_or_event_enabled(callsite) {
             // This function is hidden from docs, but we have to use it (see above).
-            let values = metadata.fields().value_set(&[]);
-            Span::new(metadata, &values)
+            let fields = metadata.fields();
+
+            if let Some(parent_trace_id) = bridge_trace_id {
+                debug!("Adding fields | sentry:true, sentry.trace={parent_trace_id}");
+                let sentry_field = fields.field("sentry").unwrap();
+                let sentry_trace_field = fields.field("sentry.trace").unwrap();
+                #[allow(trivial_casts)] // The compiler is lying, it can't infer this cast
+                let values = [
+                    (&sentry_field, Some(&true as &dyn tracing::Value)),
+                    (
+                        &sentry_trace_field,
+                        Some(&parent_trace_id as &dyn tracing::Value),
+                    ),
+                ];
+                tracing::Span::new(metadata, &fields.value_set(&values))
+            } else {
+                tracing::Span::new(metadata, &fields.value_set(&[]))
+            }
         } else {
-            Span::none()
+            tracing::Span::none()
         };
 
         Arc::new(Self(span))
     }
 
     pub fn current() -> Arc<Self> {
-        Arc::new(Self(Span::current()))
+        Arc::new(Self(tracing::Span::current()))
     }
 
     fn enter(&self) {
@@ -174,6 +209,26 @@ impl Span {
     fn is_none(&self) -> bool {
         self.0.is_none()
     }
+
+    /// Creates a [`Span`] that acts as a bridge between the client spans and
+    /// the SDK ones, allowing them to be joined in Sentry. This function
+    /// will only return a valid span if the `sentry` feature is enabled,
+    /// otherwise it will return a noop span.
+    pub fn new_bridge_span(target: String, parent_trace_id: Option<String>) -> Arc<Self> {
+        if cfg!(feature = "sentry") {
+            Self::new(
+                "Bridge".to_owned(),
+                None,
+                LogLevel::Info,
+                target,
+                BRIDGE_SPAN_NAME.to_owned(),
+                parent_trace_id,
+            )
+        } else {
+            error!("Sentry is not enabled!");
+            Arc::new(Self(tracing::Span::none()))
+        }
+    }
 }
 
 #[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy)]
@@ -186,13 +241,13 @@ pub enum LogLevel {
 }
 
 impl LogLevel {
-    fn to_tracing_level(self) -> Level {
+    fn to_tracing_level(self) -> tracing::Level {
         match self {
-            LogLevel::Error => Level::ERROR,
-            LogLevel::Warn => Level::WARN,
-            LogLevel::Info => Level::INFO,
-            LogLevel::Debug => Level::DEBUG,
-            LogLevel::Trace => Level::TRACE,
+            LogLevel::Error => tracing::Level::ERROR,
+            LogLevel::Warn => tracing::Level::WARN,
+            LogLevel::Info => tracing::Level::INFO,
+            LogLevel::Debug => tracing::Level::DEBUG,
+            LogLevel::Trace => tracing::Level::TRACE,
         }
     }
 
@@ -226,7 +281,7 @@ impl Callsite for LateInitCallsite {
             .set_interest(interest)
     }
 
-    fn metadata(&self) -> &Metadata<'_> {
+    fn metadata(&self) -> &tracing::Metadata<'_> {
         self.0
             .get()
             .expect("Callsite impl must not be used before initialization")
