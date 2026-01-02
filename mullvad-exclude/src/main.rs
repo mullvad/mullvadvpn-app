@@ -176,7 +176,7 @@ mod inner {
         seteuid(real_uid).context("Failed to drop EUID")?;
         setegid(real_gid).context("Failed to drop EGID")?;
 
-        systemd::join_scope_unit(real_uid.is_root())
+        systemd::join_scope_unit(real_uid.is_root(), program)
             .context("Failed to join systemd scope unit")?;
 
         seteuid(0.into()).context("Failed to regain root EUID")?;
@@ -204,6 +204,8 @@ mod inner {
 
     mod systemd {
         use anyhow::{Context, bail};
+        use rand::{Rng as _, distr::Alphanumeric};
+        use std::ffi::CStr;
         use zbus::{
             MatchRule,
             blocking::{Connection, MessageIterator},
@@ -235,7 +237,7 @@ mod inner {
         /// References:
         /// - system-run: https://github.com/systemd/systemd/blob/f76f0f99354b0485e3e13c2608bc26f969312687/src/run/run.c#L1671-L1699
         /// - man org.freedesktop.systemd1 - https://www.man7.org/linux/man-pages/man5/org.freedesktop.systemd1.5.html
-        pub fn join_scope_unit(is_root: bool) -> anyhow::Result<()> {
+        pub fn join_scope_unit(is_root: bool, program: &CStr) -> anyhow::Result<()> {
             let connection = if is_root {
                 Connection::system().context("Failed to connect to system bus")?
             } else {
@@ -268,14 +270,16 @@ mod inner {
                 ("AddRef", Value::Bool(true)),
             ];
 
+            // Generate a unique scope name according to systemds convention for DEs,
+            // `app-<launcher>-<app_id>-<random>.scope`
+            // See https://systemd.io/DESKTOP_ENVIRONMENTS/
+            let mut rng = rand::rng();
+            let random: String = (0..8).map(|_| rng.sample(Alphanumeric) as char).collect();
+            let app_name = program_path_to_unit_name(program);
+            let unit_name = format!("app-mullvadexclude-{app_name}-{random}.scope");
+
             let job_path = proxy
-                .start_transient_unit(
-                    // TODO: pid might be too likely to collide
-                    &format!("mullvad-exclude-{}.scope", std::process::id()),
-                    "fail",
-                    properties,
-                    vec![],
-                )
+                .start_transient_unit(&unit_name, "fail", properties, vec![])
                 .context("StartTransientUnit failed")?;
 
             // StartTransientUnit() returns a path to a job object. We can wait for its JobRemoved()
@@ -299,6 +303,17 @@ mod inner {
             }
 
             Ok(())
+        }
+
+        /// Convert a program file path to an alphanumeric+underscores string.
+        /// For example, "/bin/mullvad-exclude" becomes "mullvad_exclude"
+        fn program_path_to_unit_name(program: &CStr) -> String {
+            let program = program.to_string_lossy();
+            let (_path, file_name) = program.rsplit_once('/').unwrap_or(("", &program));
+            file_name
+                .chars()
+                .map(|c| if c.is_ascii_alphanumeric() { c } else { '_' })
+                .collect()
         }
     }
 }
