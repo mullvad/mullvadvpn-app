@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import MullvadTypes
 
 public protocol TunnelSettingsStrategyProtocol: Sendable {
     func shouldReconnectToNewRelay(oldSettings: LatestTunnelSettings, newSettings: LatestTunnelSettings) -> Bool
@@ -47,7 +48,7 @@ public struct TunnelSettingsStrategy: TunnelSettingsStrategyProtocol, Sendable {
     }
 }
 
-/// This enum representes reconnection strategies.
+/// This enum represents reconnection strategies.
 /// > Warning: `hardReconnect` will disconnect and reconnect which
 /// > potentially leads to traffic leaking outside the tunnel.
 public enum TunnelSettingsReconnectionStrategy {

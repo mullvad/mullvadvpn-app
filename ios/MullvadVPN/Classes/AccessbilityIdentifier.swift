@@ -75,6 +75,9 @@ public enum AccessibilityIdentifier: Equatable {
     case toggleMultihopButton
     case entryLocationButton
     case exitLocationButton
+    case recentConnectionsToggleButton
+    case disableRecentConnectionsButton
+    case recentListItem(String)
 
     // Cells
     case deviceCell
