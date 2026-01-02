@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { colors, Radius, spacings } from '../../foundations';
 import { Alert } from '../alert';
 import { Button } from '../button';
-import { DialogButtonGroup, DialogTitle } from './components';
+import { DialogButtonGroup, DialogFocusTrap, DialogTitle } from './components';
 import { DialogProvider, useDialogContext } from './DialogContext';
 import { useAddEventListeners, useHandleClick, useHandleKeydown, useOpenSync } from './hooks';
 
@@ -79,15 +79,17 @@ function DialogImpl({ children, ...props }: Omit<DialogProps, 'open' | 'onOpenCh
   const handleClick = useHandleClick();
 
   return (
-    <StyledDialog
-      ref={dialogRef}
-      onKeyDown={handleKeydown}
-      onClick={handleClick}
-      aria-modal="true"
-      aria-labelledby={titleId}
-      {...props}>
-      {children}
-    </StyledDialog>
+    <DialogFocusTrap>
+      <StyledDialog
+        ref={dialogRef}
+        onKeyDown={handleKeydown}
+        onClick={handleClick}
+        aria-modal="true"
+        aria-labelledby={titleId}
+        {...props}>
+        {children}
+      </StyledDialog>
+    </DialogFocusTrap>
   );
 }
 
