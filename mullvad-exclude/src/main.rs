@@ -63,7 +63,10 @@ mod inner {
         Ok(cgroup)
     }
 
-    /// Attach [`bpf_programs::EXCLUDE_CGROUP_SOCK`]
+    /// Load [`bpf_programs::EXCLUDE_CGROUP_SOCK`] into the kernel and attach it to `cgroup`.
+    ///
+    /// The program will stay loaded and attached until the cgroup is destroyed when the last
+    /// grouped process exits.
     fn install_exclusion_bpf_for_cgroup(cgroup: &CGroup2) -> anyhow::Result<()> {
         // Load the eBPF ELF-file into the kernel.
         let program = ObjectBuilder::default()
@@ -96,17 +99,26 @@ mod inner {
             let program = Program::fd_from_pinned_path(&path)?;
 
             // Attach the program to the excluded cgroup.
-            // TODO: safety comment
+            // SAFETY:
+            // - `OwnedFd` and `BorrowedFd` are always valid file descriptors.
+            // - bpf_prog_attach is trivially safe to call.
             let code = unsafe {
                 bpf_prog_attach(
                     program.as_raw_fd(),
-                    cgroup.fd.as_raw_fd(),
+                    cgroup.fd().as_raw_fd(),
                     attach_type as bpf_attach_type,
                     0,
                 )
             };
             if code != 0 {
-                return Err(io::Error::last_os_error()).context("bpf_prog_attach");
+                return Err(io::Error::last_os_error())
+                    .context("bpf_prog_attach returned error")
+                    .with_context(|| {
+                        anyhow!(
+                            "Failed to attach eBPF program to cgroup at {:?}",
+                            cgroup.path()
+                        )
+                    });
             }
 
             // We can now safely remove the pinned eBPF file.
