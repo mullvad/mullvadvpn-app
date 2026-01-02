@@ -186,19 +186,12 @@ public actor PacketTunnelActor {
         tunnelMonitor.handleNetworkPathUpdate(networkPath)
 
         let newReachability = networkPath.networkReachability
-
-        let reachabilityChanged =
-            state.mutateAssociatedData {
-                let reachabilityChanged = $0.networkReachability != newReachability
-                $0.networkReachability = newReachability
-                return reachabilityChanged
-            } ?? false
         if case .reachable = newReachability,
             case let .error(
                 errorState
             ) = state,
             errorState.reason
-                .recoverableError(), reachabilityChanged
+                .recoverableError()
         {
             await handleRestartConnection(nextRelays: .random, reason: .userInitiated)
         }
