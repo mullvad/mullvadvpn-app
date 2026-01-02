@@ -14,6 +14,7 @@
   "dependencies": {
     "@grpc/grpc-js": "^1.12.2",
     "argv-split": "^2.0.1",
+    "focus-trap-react": "^11.0.4",
     "gettext-parser": "^6.0.0",
     "gl-matrix": "^3.4.3",
     "google-protobuf": "^3.21.0",
