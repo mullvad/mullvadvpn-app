@@ -6,5 +6,4 @@ Arguments:
   [COMMAND]...
 
 Options:
-      --current-cgroup  Exclude the current cgroup instead of creating a new one
   -h, --help            Print help
