@@ -1,8 +1,8 @@
 use clap::Parser;
 use mullvad_api::ApiEndpoint;
-use mullvad_problem_report::{Error, collect_report};
+use mullvad_problem_report::{Error, collect_report, open_output_file};
 use std::{
-    env,
+    env, io,
     path::{Path, PathBuf},
     process,
 };
@@ -30,7 +30,7 @@ enum Cli {
     Collect {
         /// The destination path for saving the collected report
         #[arg(required = true, long, short = 'o')]
-        output: PathBuf,
+        output: String,
         /// Paths to additional log files to be included
         extra_logs: Vec<PathBuf>,
         /// List of strings to remove from the report
@@ -61,12 +61,20 @@ fn run() -> Result<(), Error> {
             extra_logs,
             redact,
         } => {
-            collect_report(&extra_logs, &output, redact)?;
+            if output != "-" {
+                let out_path = Path::new(&output).display().to_string();
+                let out = open_output_file(&output)?;
 
-            println!("Problem report written to {}", output.display());
-            println!();
-            println!("Send the problem report to support via the send subcommand. See:");
-            println!(" $ {} send --help", env::args().next().unwrap());
+                collect_report(&extra_logs, (out, out_path.clone()), redact)?;
+
+                println!("Problem report written to {}", out_path);
+                println!();
+                println!("Send the problem report to support via the send subcommand. See:");
+                println!(" $ {} send --help", env::args().next().unwrap());
+            } else {
+                // Write logs to stdout
+                collect_report(&extra_logs, (io::stdout(), "stdout".to_owned()), redact)?;
+            }
         }
         Cli::Send {
             report,

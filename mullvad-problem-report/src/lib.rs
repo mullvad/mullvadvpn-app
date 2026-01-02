@@ -107,7 +107,7 @@ pub enum LogError {
 
 pub fn collect_report<P: AsRef<Path>>(
     extra_logs: &[P],
-    output_path: &Path,
+    output: (impl Write, String),
     redact_custom_strings: Vec<String>,
     #[cfg(target_os = "android")] android_log_dir: &Path,
     #[cfg(target_os = "android")] extra_logs_dir: &Path,
@@ -188,10 +188,12 @@ pub fn collect_report<P: AsRef<Path>>(
 
     problem_report.add_logs(extra_logs);
 
-    write_problem_report(output_path, &problem_report).map_err(|source| Error::WriteReportError {
-        path: output_path.display().to_string(),
-        source,
-    })
+    problem_report
+        .write_to(output.0)
+        .map_err(|source| Error::WriteReportError {
+            path: output.1,
+            source,
+        })
 }
 
 /// Returns an iterator over all files in the given directory that has the `.log` extension.
@@ -361,13 +363,22 @@ async fn send_problem_report_inner(
     Err(Error::SendFailedTooManyTimes)
 }
 
-fn write_problem_report(path: &Path, problem_report: &ProblemReport) -> io::Result<()> {
-    let file = File::create(path)?;
-    let mut permissions = file.metadata()?.permissions();
-    permissions.set_readonly(true);
-    file.set_permissions(permissions)?;
-    problem_report.write_to(BufWriter::new(file))?;
-    Ok(())
+/// Open a file to write the problem report to.
+pub fn open_output_file(path: impl AsRef<Path>) -> Result<BufWriter<File>, Error> {
+    fn inner(path: impl AsRef<Path>) -> io::Result<BufWriter<File>> {
+        let file = File::create(path)?;
+        let mut permissions = file.metadata()?.permissions();
+        permissions.set_readonly(true);
+        file.set_permissions(permissions)?;
+        Ok(BufWriter::new(file))
+    }
+
+    let path_display = path.as_ref().display().to_string();
+
+    inner(path).map_err(|source| Error::WriteReportError {
+        path: path_display,
+        source,
+    })
 }
 
 #[derive(Debug)]
