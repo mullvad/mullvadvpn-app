@@ -22,8 +22,11 @@ mod inner {
     use talpid_cgroup::v2::CGroup2;
 
     mod bpf_programs {
-        pub static EXCLUDE_CGROUP_SOCK: &[u8] =
-            include_bytes!("../bpf/mullvad-exclude.cgroup-sock-create.bpf.x86_64");
+        // TODO: move to dist-assets/binaries
+        pub static EXCLUDE_CGROUP_SOCK: &[u8] = include_bytes!(concat!(
+            "../bpf/mullvad-exclude.cgroup-sock-create.bpf.",
+            env!("CARGO_CFG_TARGET_ARCH"),
+        ));
     }
 
     // TODO: comment
