@@ -62,30 +62,41 @@ impl PidManager {
     }
 
     fn new_inner() -> Result<Inner, Error> {
-        // Try to create the cgroup2.
-        let inner = match Self::new_cgroup2() {
-            Ok(inner) => Inner::CGroup2(inner),
-            Err(cgroup2_err) => {
-                // If it does not success, the kernel might be too old, so we fallback on the old cgroup1 solution.
-                match Self::new_cgroup1() {
-                    Ok(inner) => {
-                        log::warn!(
-                            "Failed to initialize cgroups v2, falling back to cgroup v1 for split tunneling"
-                        );
-                        log::warn!(
-                            "Note that cgroups v1 is deprecated and will be removed in the future"
-                        );
-                        Inner::CGroup1(inner)
-                    }
-                    Err(cgroup1_err) => {
-                        log::error!("Failed to initialize split-tunneling");
-                        log::trace!("{cgroup1_err:?}");
-                        log::trace!("{cgroup2_err:?}");
-                        return Err(cgroup2_err);
+        let inner = if talpid_cgroup::is_systemd_managed() {
+            log::info!("systemd is managing root cgroups v2 on this system");
+
+            // Try to create the cgroup2.
+            match Self::new_cgroup2() {
+                Ok(inner) => Inner::CGroup2(inner),
+                Err(cgroup2_err) => {
+                    // If it does not success, the kernel might be too old, so we fallback on the old cgroup1 solution.
+                    match Self::new_cgroup1() {
+                        Ok(inner) => {
+                            log::warn!(
+                                "Failed to initialize cgroups v2, falling back to cgroup v1 for split tunneling"
+                            );
+                            log::warn!(
+                                "Note that cgroups v1 is deprecated and will be removed in the future"
+                            );
+                            Inner::CGroup1(inner)
+                        }
+                        Err(cgroup1_err) => {
+                            log::error!("Failed to initialize split-tunneling");
+                            log::trace!("{cgroup1_err:?}");
+                            log::trace!("{cgroup2_err:?}");
+                            return Err(cgroup2_err);
+                        }
                     }
                 }
             }
+        } else {
+            log::info!(
+                "systemd is not managing cgroups on this system, falling back to cgroups v1 for split tunneling"
+            );
+            log::warn!("Note that cgroups v1 is deprecated and will be removed in the future");
+            Inner::CGroup1(Self::new_cgroup1()?)
         };
+
         Ok(inner)
     }
 
