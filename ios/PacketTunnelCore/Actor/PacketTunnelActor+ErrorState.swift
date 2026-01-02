@@ -121,7 +121,6 @@ extension PacketTunnelActor {
                 interfaceAddresses: [],
                 allowedIPs: [],
                 pingableGateway: IPv4Address(LocalNetworkIPs.gatewayAddress.rawValue)!,
-                allowV6: false,
             )
             var config = try configurationBuilder.makeConfiguration()
             config.dns = [IPv4Address.loopback]

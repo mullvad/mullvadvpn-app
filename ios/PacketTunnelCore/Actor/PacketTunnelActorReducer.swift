@@ -89,6 +89,7 @@ extension PacketTunnelActor {
                     return [.updateTunnelMonitorPath(defaultPath)]
 
                 }
+                return []
             case let .ephemeralPeerNegotiationStateChanged(configuration, reconfigurationSemaphore):
                 return [.reconfigureForEphemeralPeer(configuration, reconfigurationSemaphore)]
 

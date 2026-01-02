@@ -31,3 +31,14 @@ following components need changing:
 An IPv6 end-to-end test must be added to RelayTests.
 
 
+## Work done so far
+- Connections work in all manners
+
+## Work not done so fwmark
+QUIC IPv6 only works with extra IPs, so have to filter for that in relay selector.
+
+Relay selector is a bit messy, should be reworked.
+
+Tests bork
+
+

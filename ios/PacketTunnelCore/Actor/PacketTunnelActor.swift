@@ -372,8 +372,7 @@ extension PacketTunnelActor {
             connectionState.selectedRelays = selectedRelays
             connectionState.relayConstraints = settings.relayConstraints
             connectionState.connectedEndpoint = connectedRelay.endpoint
-            connectionState.remotePort = connectedRelay.endpoint.ipv4Relay.port
-            connectionState.obfuscationMethod = selectedRelays.obfuscation
+            connectionState.remotePort = connectedRelay.endpoint.socketAddress.port
 
             return connectionState
         case var .connecting(connectionState), var .reconnecting(connectionState):
@@ -391,8 +390,7 @@ extension PacketTunnelActor {
             connectionState.relayConstraints = settings.relayConstraints
             connectionState.currentKey = settings.privateKey
             connectionState.connectedEndpoint = connectedRelay.endpoint
-            connectionState.remotePort = connectedRelay.endpoint.ipv4Relay.port
-            connectionState.obfuscationMethod = selectedRelays.obfuscation
+            connectionState.remotePort = connectedRelay.endpoint.socketAddress.port
             return connectionState
         case let .error(blockedState):
             keyPolicy = blockedState.keyPolicy
@@ -412,10 +410,9 @@ extension PacketTunnelActor {
                 lastKeyRotation: lastKeyRotation,
                 connectedEndpoint: connectedRelay.endpoint,
                 transportLayer: .udp,
-                remotePort: connectedRelay.endpoint.ipv4Relay.port,
+                remotePort: connectedRelay.endpoint.socketAddress.port,
                 isPostQuantum: settings.quantumResistance.isEnabled,
-                isDaitaEnabled: settings.daita.daitaState.isEnabled,
-                obfuscationMethod: selectedRelays.obfuscation
+                isDaitaEnabled: settings.daita.daitaState.isEnabled
             )
         case .disconnecting, .disconnected:
             return nil
@@ -439,12 +436,7 @@ extension PacketTunnelActor {
         guard let connectionState = try makeConnectionState(nextRelays: nextRelays, settings: settings, reason: reason)
         else { return nil }
 
-        let obfuscated = protocolObfuscator.obfuscate(
-            connectionState.connectedEndpoint,
-            relayFeatures: connectionState.selectedRelays.entry?.features
-                ?? connectionState.selectedRelays.exit
-                .features, obfuscationMethod: connectionState.obfuscationMethod
-        )
+        let obfuscated = protocolObfuscator.obfuscate(connectionState.connectedEndpoint)
         let transportLayer = protocolObfuscator.transportLayer.map { $0 } ?? .udp
 
         return State.ConnectionData(
@@ -459,8 +451,7 @@ extension PacketTunnelActor {
             transportLayer: transportLayer,
             remotePort: protocolObfuscator.remotePort,
             isPostQuantum: settings.quantumResistance.isEnabled,
-            isDaitaEnabled: settings.daita.daitaState.isEnabled,
-            obfuscationMethod: obfuscated.method
+            isDaitaEnabled: settings.daita.daitaState.isEnabled
         )
     }
 

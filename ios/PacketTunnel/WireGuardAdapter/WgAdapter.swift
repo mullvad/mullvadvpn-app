@@ -18,6 +18,9 @@ class WgAdapter: TunnelAdapterProtocol, @unchecked Sendable {
     let adapter: WireGuardAdapter
     let provider: NEPacketTunnelProvider
 
+    public struct MultihopV6Unsupported: Error {
+    }
+
     init(packetTunnelProvider: NEPacketTunnelProvider) {
         let wgGoLogger = Logger(label: "WireGuard")
 
@@ -46,8 +49,14 @@ class WgAdapter: TunnelAdapterProtocol, @unchecked Sendable {
         exitConfiguration: TunnelAdapterConfiguration,
         daita: DaitaConfiguration?
     ) async throws {
+
+        if exitConfiguration.peer?.endpoint.ip is IPv6Address, entryConfiguration != nil {
+            throw MultihopV6Unsupported()
+        }
+
         let exitConfiguration = exitConfiguration.asWgConfig
         let entryConfiguration = entryConfiguration?.asWgConfig
+
 
         logger.info("\(exitConfiguration.peers)")
 

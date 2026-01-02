@@ -13,7 +13,7 @@ import WireGuardKitTypes
 
 /// Error returned when there is an endpoint but its public key is invalid.
 public struct PublicKeyError: LocalizedError {
-    let endpoint: MullvadEndpoint
+    let endpoint: SelectedEndpoint
 
     public var errorDescription: String? {
         "Public key is invalid, endpoint: \(endpoint)"
@@ -25,21 +25,19 @@ public struct ConfigurationBuilder {
     var privateKey: PrivateKey
     var interfaceAddresses: [IPAddressRange]
     var dns: SelectedDNSServers?
-    var endpoint: MullvadEndpoint?
+    var endpoint: SelectedEndpoint?
     var allowedIPs: [IPAddressRange]
     var preSharedKey: PreSharedKey?
     var pingableGateway: IPv4Address
-    private let allowV6: Bool
 
     public init(
         privateKey: PrivateKey,
         interfaceAddresses: [IPAddressRange],
         dns: SelectedDNSServers? = nil,
-        endpoint: MullvadEndpoint? = nil,
+        endpoint: SelectedEndpoint? = nil,
         allowedIPs: [IPAddressRange],
         preSharedKey: PreSharedKey? = nil,
-        pingableGateway: IPv4Address,
-        allowV6: Bool,
+        pingableGateway: IPv4Address
     ) {
         self.privateKey = privateKey
         self.interfaceAddresses = interfaceAddresses
@@ -48,12 +46,10 @@ public struct ConfigurationBuilder {
         self.allowedIPs = allowedIPs
         self.preSharedKey = preSharedKey
         self.pingableGateway = pingableGateway
-        self.allowV6 = allowV6
     }
 
-
     public func makeConfiguration() throws -> TunnelAdapterConfiguration {
-        var config =  TunnelAdapterConfiguration(
+        let config = TunnelAdapterConfiguration(
             privateKey: privateKey,
             interfaceAddresses: interfaceAddresses,
             dns: dnsServers,
@@ -73,16 +69,9 @@ public struct ConfigurationBuilder {
                 throw PublicKeyError(endpoint: endpoint)
             }
 
-            // Use IPv6 endpoint if available, otherwise use IPv4
-            let peerEndpoint: AnyIPEndpoint
-            if let ipv6Relay = endpoint.ipv6Relay, allowV6 {
-                peerEndpoint = .ipv6(ipv6Relay)
-            } else {
-                peerEndpoint = .ipv4(endpoint.ipv4Relay)
-            }
-
+            // Socket address is already resolved (IPv4 or IPv6) during relay selection
             return TunnelPeer(
-                endpoint: peerEndpoint,
+                endpoint: endpoint.socketAddress,
                 publicKey: publicKey,
                 preSharedKey: preSharedKey
             )
