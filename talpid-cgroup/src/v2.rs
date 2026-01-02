@@ -12,7 +12,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use crate::Error;
+use crate::{Error, find_cgroup2_mount};
 
 /// Path where we should look for the cgroup2 filesystem. Overrides [`CGROUP2_DEFAULT_MOUNT_PATH`].
 pub const CGROUP2_OVERRIDE_ENV_VAR: &str = "TALPID_CGROUP2_FS";
@@ -38,6 +38,10 @@ pub struct CGroup2 {
 impl CGroup2 {
     /// Open the root cgroup2 at at [`CGROUP2_OVERRIDE_ENV_VAR`] (or [`CGROUP2_DEFAULT_MOUNT_PATH`] if env variable is unset).
     pub fn open_root() -> Result<Self, Error> {
+        if let Some(cgroup2_path) = find_cgroup2_mount()? {
+            return Self::open(cgroup2_path);
+        }
+
         let root = env::var(CGROUP2_OVERRIDE_ENV_VAR)
             .map(PathBuf::from)
             .unwrap_or_else(|_| PathBuf::from(CGROUP2_DEFAULT_MOUNT_PATH));
