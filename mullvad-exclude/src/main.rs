@@ -10,7 +10,7 @@ mod inner {
         ObjectBuilder, Program,
         libbpf_sys::{bpf_attach_type, bpf_prog_attach},
     };
-    use nix::unistd::{execvp, getgid, getuid, setegid, seteuid, setgid, setuid};
+    use nix::unistd::{Pid, execvp, getgid, getuid, setegid, seteuid, setgid, setuid};
     use std::{
         env::args_os,
         ffi::{CString, OsString},
@@ -19,7 +19,7 @@ mod inner {
         os::{fd::AsRawFd, unix::ffi::OsStringExt as _},
         path::Path,
     };
-    use talpid_cgroup::v2::CGroup2;
+    use talpid_cgroup::{SPLIT_TUNNEL_CGROUP_NAME, find_net_cls_mount, v1::CGroup1, v2::CGroup2};
 
     mod bpf_programs {
         // TODO: move to dist-assets/binaries
@@ -142,6 +142,18 @@ mod inner {
         Ok(())
     }
 
+    fn add_to_cgroups_v1(pid: Pid) -> anyhow::Result<()> {
+        let net_cls_dir = find_net_cls_mount()
+            .context("Failed to find net_cls mount")?
+            .context("No net_cls mount found")?;
+
+        let cgroup_path = net_cls_dir.join(SPLIT_TUNNEL_CGROUP_NAME);
+
+        CGroup1::open(cgroup_path)
+            .and_then(|cgroup| cgroup.add_pid(pid))
+            .context("Failed to add process to net_cls cgroup")
+    }
+
     fn run() -> anyhow::Result<()> {
         let args_os: Vec<OsString> = args_os().skip(1).collect();
         let flags: Vec<&str> = args_os
@@ -172,17 +184,23 @@ mod inner {
             bail!("No command specified");
         };
 
-        // Not strictly necessary, but temporarily drop privileges before interacting with D-Bus
-        seteuid(real_uid).context("Failed to drop EUID")?;
-        setegid(real_gid).context("Failed to drop EGID")?;
+        // If systemd manages the root cgroup2, use that.
+        // Otherwise, use cgroups v1.
+        if talpid_cgroup::is_systemd_managed() {
+            // Not strictly necessary, but temporarily drop privileges before interacting with D-Bus
+            seteuid(real_uid).context("Failed to drop EUID")?;
+            setegid(real_gid).context("Failed to drop EGID")?;
 
-        systemd::join_scope_unit(real_uid.is_root(), program)
-            .context("Failed to join systemd scope unit")?;
+            systemd::join_scope_unit(real_uid.is_root(), program)
+                .context("Failed to join systemd scope unit")?;
 
-        seteuid(0.into()).context("Failed to regain root EUID")?;
-        setegid(0.into()).context("Failed to regain root EGID")?;
+            seteuid(0.into()).context("Failed to regain root EUID")?;
+            setegid(0.into()).context("Failed to regain root EGID")?;
 
-        exclude_current_cgroup()?;
+            exclude_current_cgroup()?;
+        } else {
+            add_to_cgroups_v1(Pid::this())?;
+        }
 
         setuid(real_uid).context("Failed to drop UID")?;
         setgid(real_gid).context("Failed to drop GID")?;
