@@ -63,7 +63,7 @@ impl PidManager {
 
     fn new_inner() -> Result<Inner, Error> {
         let inner = if talpid_cgroup::is_systemd_managed() {
-            log::info!("systemd is managing root cgroups v2 on this system");
+            log::info!("systemd is managing the root cgroup2 on this system");
 
             // Try to create the cgroup2.
             match Self::new_cgroup2() {
@@ -91,7 +91,7 @@ impl PidManager {
             }
         } else {
             log::info!(
-                "systemd is not managing cgroups on this system, falling back to cgroups v1 for split tunneling"
+                "systemd is not managing the root cgroup2 on this system, falling back to cgroups v1 for split tunneling"
             );
             log::warn!("Note that cgroups v1 is deprecated and will be removed in the future");
             Inner::CGroup1(Self::new_cgroup1()?)
