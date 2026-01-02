@@ -5,8 +5,11 @@ use std::{
     ffi::{CStr, OsStr},
     fs::{self, File},
     io::{self, Read, Seek, Write},
-    os::{fd::OwnedFd, unix::fs::MetadataExt},
-    path::PathBuf,
+    os::{
+        fd::{AsFd, BorrowedFd, OwnedFd},
+        unix::fs::MetadataExt,
+    },
+    path::{Path, PathBuf},
 };
 
 use crate::Error;
@@ -26,7 +29,7 @@ pub struct CGroup2 {
     inode: u64,
 
     /// File descriptor of the cgroup folder.
-    pub fd: OwnedFd,
+    fd: OwnedFd,
 
     /// `cgroup.procs` is used to add and list PIDs in the cgroup2.
     procs: File,
@@ -146,5 +149,15 @@ impl CGroup2 {
 
     pub fn name(&self) -> &OsStr {
         self.path.file_name().expect("cgroup can't be at /")
+    }
+
+    /// Get the file descriptor of the cgroup2 folder
+    pub fn fd(&self) -> BorrowedFd<'_> {
+        self.fd.as_fd()
+    }
+
+    /// Get absolute path to the cgroup2 folder, including e.g. `/sys/fs/cgroup`.
+    pub fn path(&self) -> &Path {
+        &self.path
     }
 }
