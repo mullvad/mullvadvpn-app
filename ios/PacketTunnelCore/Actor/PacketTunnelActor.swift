@@ -194,12 +194,11 @@ public actor PacketTunnelActor {
                 .recoverableError()
         {
             await handleRestartConnection(nextRelays: .random, reason: .userInitiated)
-            return;
+            return
         }
 
-        if case .unreachable = newReachability {
-            setErrorStateInternal(with: .offline)
-        }
+        // if network reachability didn't update, just enter offline state
+        await setErrorStateInternal(with: .offline)
     }
 }
 
