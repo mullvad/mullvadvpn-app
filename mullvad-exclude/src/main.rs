@@ -37,22 +37,28 @@ mod inner {
         }
     }
 
+    /// Get the [`CGroup2`] of the current process.
     fn get_current_cgroup() -> anyhow::Result<CGroup2> {
         let cgroup_file = std::fs::read_to_string("/proc/self/cgroup")
             .context("Failed to read /proc/self/cgroup")?;
 
-        // TODO: is there a nicer way to get current cgroup?
-        // /proc/self/cgroup contains a line that looks like this:
-        // 0::/user.slice/user-1000.slice/user@1000.service/app.slice/app-launcher-appname-1234.scope
-        let cgroup_path = cgroup_file
+        /// Parse a line from /proc/<pid>/cgroup. See `man cgroup(7)`
+        fn parse_line(line: &str) -> Option<(&str, &str, &str)> {
+            let line = line.trim();
+            let (hierarchy_id, line) = line.split_once(':')?;
+            let (controller_list, cgroup_path) = line.split_once(':')?;
+            Some((hierarchy_id, controller_list, cgroup_path))
+        }
+
+        let (_, _, cgroup_path) = cgroup_file
             .lines()
-            .filter_map(|line| line.strip_prefix("0::/"))
+            .filter_map(parse_line)
+            .filter(|&(hierarchy_id, _, _)| hierarchy_id == "0") // cgroup2 hierarchy_id is 0
             .next()
-            .context("Expected a line starting with '0::/' containing the cgroup path")
-            .context("Failed to parse /proc/self/cgroup")?
-            .trim();
-        let cgroup_fs_path = Path::new("/sys/fs/cgroup").join(cgroup_path);
-        let cgroup = CGroup2::open(cgroup_fs_path).context("Failed to open cgroup")?;
+            .context("Expected a line starting with '0::/' containing the cgroup2 path")
+            .context("Failed to parse /proc/self/cgroup")?;
+        let cgroup_fs_path = Path::new("/sys/fs/cgroup").join(cgroup_path.trim_start_matches('/'));
+        let cgroup = CGroup2::open(cgroup_fs_path).context("Failed to open cgroup2")?;
 
         Ok(cgroup)
     }
