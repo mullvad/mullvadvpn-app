@@ -56,6 +56,9 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
                 showObfuscationSettings: { [weak self] in
                     self?.navigateToObfuscationSettings()
                 },
+                showIpVersionSettings: { [weak self] in
+                    self?.navigateToIpVersionSettings()
+                },
                 showFilterView: { [weak self] in
                     self?.navigateToFilter()
                 },
@@ -200,6 +203,10 @@ extension LocationCoordinator {
 
     func navigateToObfuscationSettings() {
         applicationRouter?.present(.vpnSettings(.obfuscation))
+    }
+
+    func navigateToIpVersionSettings() {
+        applicationRouter?.present(.vpnSettings(.ipVersion))
     }
 
     func didSelectExitRelays(_ relays: UserSelectedRelays) {

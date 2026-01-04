@@ -4,13 +4,14 @@ import SwiftUI
 enum SelectLocationFilter: Hashable {
     case daita
     case obfuscation
+    case ipv6
     case owned
     case rented
     case provider(Int)
 
     var isRemovable: Bool {
         switch self {
-        case .daita, .obfuscation:
+        case .daita, .obfuscation, .ipv6:
             false
         case .provider, .owned, .rented:
             true
@@ -23,6 +24,8 @@ enum SelectLocationFilter: Hashable {
             "Setting: \("DAITA")"
         case .obfuscation:
             "Setting: \("Obfuscation")"
+        case .ipv6:
+            "Setting: \("IPv6")"
         case .owned:
             "Owned"
         case .rented:
@@ -38,6 +41,8 @@ enum SelectLocationFilter: Hashable {
             .daitaFilterPill
         case .obfuscation:
             .obfuscationFilterPill
+        case .ipv6:
+            .ipv6FilterPill
         case .owned, .rented, .provider:
             .selectLocationFilterButton
         }
@@ -83,6 +88,17 @@ enum SelectLocationFilter: Hashable {
                 activeExitFilter.append(.obfuscation)
             }
         }
+
+        // Show IPv6 filter when IPv6 is selected AND obfuscation (shadowsocks/quic) is active
+        // because regular entry IPv6 addresses don't work with these obfuscation methods
+        if settings.ipVersion.isIPv6 && isObfuscation {
+            if isMultihop {
+                activeEntryFilter.append(.ipv6)
+            } else {
+                activeExitFilter.append(.ipv6)
+            }
+        }
+
         return (activeEntryFilter, activeExitFilter)
     }
 }
