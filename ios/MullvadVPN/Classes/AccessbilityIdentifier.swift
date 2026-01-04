@@ -116,6 +116,7 @@ public enum AccessibilityIdentifier: Equatable {
     case daitaCell
     case daitaFilterPill
     case obfuscationFilterPill
+    case ipv6FilterPill
     case languageCell
 
     // Labels
