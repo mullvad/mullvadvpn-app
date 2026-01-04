@@ -1,11 +1,11 @@
 use anyhow::{Context, bail, ensure};
-use std::str::FromStr;
 use std::time::Duration;
+use std::{path::PathBuf, str::FromStr};
 
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::{constraints::Constraint, relay_constraints};
 use test_macro::test_function;
-use test_rpc::{ServiceClient, mullvad_daemon::ServiceStatus};
+use test_rpc::{ServiceClient, meta::Os, mullvad_daemon::ServiceStatus};
 
 use crate::tests::helpers;
 
@@ -15,6 +15,7 @@ use super::{
     helpers::{
         Pinger, connect_and_wait, get_app_env, get_package_desc, install_app, wait_for_tunnel_state,
     },
+    ui::run_test,
 };
 
 /// Upgrade to the "version under test". This test fails if:
@@ -360,6 +361,88 @@ pub async fn test_installation_idempotency(
         0,
         "observed unexpected packets from {guest_ip}"
     );
+
+    Ok(())
+}
+
+/// Test that mullvad-problem-report includes the expected logs
+#[test_function]
+pub async fn test_problem_report_collect(
+    _ctx: TestContext,
+    rpc: ServiceClient,
+    _mullvad_client: MullvadProxyClient,
+) -> anyhow::Result<()> {
+    // Run some UI test to generate GUI logs.
+    // We do not care about the result here.
+    let _result = run_test(&rpc, &["disconnected.spec"]).await;
+
+    //
+    // Collect log paths from 'mullvad-problem-report collect --output -'
+    //
+    let problem_report_bin = if TEST_CONFIG.os == Os::Windows {
+        "mullvad-problem-report.exe"
+    } else {
+        "mullvad-problem-report"
+    };
+
+    let result = rpc
+        .exec(problem_report_bin, ["collect", "--output", "-"])
+        .await
+        .context("Failed to execute mullvad-problem-report")?;
+
+    ensure!(
+        result.success(),
+        "mullvad-problem-report failed with exit code: {:?}. stdout: {}. stderr: {}",
+        result.code,
+        String::from_utf8_lossy(&result.stdout),
+        String::from_utf8_lossy(&result.stderr)
+    );
+
+    let content = String::from_utf8_lossy(&result.stdout);
+
+    let mut log_paths = vec![];
+    for line in content.lines() {
+        if let Some(log_path_str) = line.strip_prefix("Log: ") {
+            let log_path = PathBuf::from(log_path_str.trim());
+            log_paths.push(log_path);
+        }
+    }
+
+    log::info!("Found {} log paths in problem report:", log_paths.len());
+    for path in &log_paths {
+        log::info!("- {}", path.display());
+    }
+
+    //
+    // Ensure we find expected log files
+    //
+
+    let found_filenames = log_paths
+        .iter()
+        .filter_map(|path| path.file_name().and_then(|name| name.to_str()))
+        .collect::<Vec<_>>();
+
+    // Files that should be present if we have installed the daemon and started the UI
+    // at least once.
+    let mut required_filenames = vec!["daemon.log", "frontend-renderer.log", "frontend-main.log"];
+
+    // NOTE: Not looking for *.old.log files because they may not be present
+    // NOTE: Not looking for early-boot-fw.log because we may not have rebooted
+
+    if TEST_CONFIG.os == Os::Windows {
+        required_filenames.push("install.log");
+    }
+
+    for expected_filename in required_filenames {
+        let found = found_filenames
+            .iter()
+            .any(|path| *path == expected_filename);
+        ensure!(
+            found,
+            "Expected log file '{}' not found in problem report",
+            expected_filename
+        );
+    }
 
     Ok(())
 }
