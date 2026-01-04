@@ -36,6 +36,7 @@ struct ShadowsocksObfuscator: RelayObfuscating {
         let portRanges = RelaySelector.parseRawPortRanges(relays.wireguard.shadowsocksPortRanges)
 
         // If the selected port is within the shadowsocks port ranges we can select from all relays.
+        // Standard ports can use regular ipv6AddrIn for IPv6.
         guard
             case let .custom(port) = port,
             !portRanges.contains(where: { $0.contains(port) })
@@ -43,8 +44,13 @@ struct ShadowsocksObfuscator: RelayObfuscating {
             return relays
         }
 
-        let filteredRelays = relays.wireguard.relays.filter { relay in
-            relay.shadowsocksExtraAddrIn != nil
+        // Custom port outside standard ranges - require shadowsocksExtraAddrIn.
+        // If IPv6 is enabled, also require IPv6 addresses in shadowsocksExtraAddrIn.
+        let filteredRelays: [REST.ServerRelay]
+        if tunnelSettings.ipVersion.isIPv6 {
+            filteredRelays = relays.wireguard.relays.filter { $0.hasShadowsocksIpv6 }
+        } else {
+            filteredRelays = relays.wireguard.relays.filter { $0.shadowsocksExtraAddrIn != nil }
         }
 
         return REST.ServerRelaysResponse(
