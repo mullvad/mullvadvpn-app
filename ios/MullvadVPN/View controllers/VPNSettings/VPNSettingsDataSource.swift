@@ -279,6 +279,7 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
             switch section {
             case .obfuscation: .wireGuardObfuscation
             case .quantumResistance: .quantumResistance
+            case .ipVersion: .ipVersion
             default: nil
             }
 
@@ -577,6 +578,12 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
                 .appendItems(
                     Item.quantumResistance,
                     toSection: .quantumResistance
+                )
+        } else if onlyShowSection == .ipVersion {
+            snapshot
+                .appendItems(
+                    Item.ipVersion,
+                    toSection: .ipVersion
                 )
         }
 
