@@ -47,6 +47,10 @@ Line wrap the file at 100 chars.                                              Th
   and a BSOD when the driver was improperly unloaded.
 - Detect and kill processes preventing updates.
 
+#### macOS
+- Ignore utun interfaces when figuring out default routes. This prevents split tunneling from
+  failing when running some other software.
+
 ### Security
 #### Windows
 - Warn user before clearing firewall rules during failed downgrades. This fix only applies to
