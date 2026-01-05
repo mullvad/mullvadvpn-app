@@ -169,3 +169,21 @@ struct LocalNetworkSharingFeature: ChipFeature {
         NSLocalizedString("Local network sharing", comment: "")
     }
 }
+
+struct IPVersionFeature: ChipFeature {
+    let id: FeatureType = .ipVersion
+    let state: TunnelState
+
+    var isEnabled: Bool {
+        // Show IPv6 indicator when the ingress endpoint is using IPv6
+        guard let endpoint = state.relays?.ingress.endpoint else { return false }
+        if case .ipv6 = endpoint.socketAddress {
+            return true
+        }
+        return false
+    }
+
+    var name: String {
+        NSLocalizedString("IPv6", comment: "")
+    }
+}
