@@ -71,7 +71,7 @@ private struct NormalConnectionConfiguration: Configuration {
                     dns: settings.dnsServers,
                     endpoint: connectionData.connectedEndpoint,
                     allowedIPs: [
-                        IPAddressRange(from: "\(connectionData.selectedRelays.exit.endpoint.ipv4Relay.ip)/32")!
+                        IPAddressRange(from: "\(connectionData.selectedRelays.exit.endpoint.socketAddress.ip)/32")!
                     ],
                     pingableGateway: IPv4Address(LocalNetworkIPs.gatewayAddress.rawValue)!
                 ).makeConfiguration()

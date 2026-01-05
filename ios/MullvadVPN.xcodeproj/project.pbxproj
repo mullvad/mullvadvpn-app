@@ -6788,6 +6788,7 @@
 				F0ADF1CD2CFDFF3100299F09 /* StringConversionError.swift in Sources */,
 				A9A8A8EB2A262AB30086D569 /* FileCache.swift in Sources */,
 				A90C48692C36BF3900DCB94C /* TunnelProvider.swift in Sources */,
+				01FFF95F2F0BE13900BDAF45 /* SelectedEndpoint.swift in Sources */,
 				44EC6C5A2E3BB3F60087F54A /* PersistentProxyConfiguration.swift in Sources */,
 				A98207EF2D9192A300654558 /* ShadowsocksBridgeProviding.swift in Sources */,
 				58D2240E294C90210029F5F8 /* Error+Chain.swift in Sources */,
