@@ -50,6 +50,9 @@ const viteConfig = defineConfig({
   build: {
     outDir: OUT_DIR,
   },
+  resolve: {
+    dedupe: ['react', 'react-dom'],
+  },
   plugins: [
     electron({
       main: {
