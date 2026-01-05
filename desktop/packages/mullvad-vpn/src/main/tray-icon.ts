@@ -5,7 +5,7 @@ export class TrayIcon {
   constructor(public fileName?: string) {}
 
   public get basePath() {
-    const basePath = path.resolve(__dirname, 'assets/images/menubar-icons');
+    const basePath = path.resolve(import.meta.dirname, 'assets/images/menubar-icons');
 
     return basePath;
   }
