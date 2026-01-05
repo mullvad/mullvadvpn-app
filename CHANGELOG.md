@@ -28,6 +28,10 @@ Line wrap the file at 100 chars.                                              Th
 ### Fixed
 - Fix "Time left" label in main view not updating when time passes.
 
+#### macOS
+- Ignore utun interfaces when figuring out default routes. This prevents split tunneling
+  from failing when running some other software.
+
 #### Windows
 - Update split tunnel driver to 1.2.5.0. This fixes audit issue `MLLVD-CR-24-102`,
   and a BSOD when the driver was improperly unloaded.
