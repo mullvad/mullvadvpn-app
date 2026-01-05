@@ -44,6 +44,7 @@ class FeatureIndicatorsViewModel: ChipViewModelProtocol {
                 IPOverrideFeature(state: tunnelState, overrides: ipOverrides),
                 IncludeAllNetworksFeature(settings: tunnelSettings),
                 LocalNetworkSharingFeature(settings: tunnelSettings),
+                IPVersionFeature(state: tunnelState),
             ]
 
         case .error, .waitingForConnectivity:

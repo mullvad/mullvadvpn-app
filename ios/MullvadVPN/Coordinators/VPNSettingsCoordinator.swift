@@ -14,6 +14,7 @@ import UIKit
 enum VPNSettingsSection: Equatable {
     case quantumResistance
     case obfuscation
+    case ipVersion
 }
 
 class VPNSettingsCoordinator: Coordinator, Presenting, Presentable, SettingsChildCoordinator {
