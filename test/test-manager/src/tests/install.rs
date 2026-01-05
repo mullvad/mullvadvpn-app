@@ -434,9 +434,7 @@ pub async fn test_problem_report_collect(
     }
 
     for expected_filename in required_filenames {
-        let found = found_filenames
-            .iter()
-            .any(|path| *path == expected_filename);
+        let found = found_filenames.contains(&expected_filename);
         ensure!(
             found,
             "Expected log file '{}' not found in problem report",
