@@ -25,6 +25,7 @@ enum FeatureType {
     case ipOverrides
     case includeAllNetworks
     case localNetworkSharing
+    case ipVersion
 }
 
 struct DaitaFeature: ChipFeature {
