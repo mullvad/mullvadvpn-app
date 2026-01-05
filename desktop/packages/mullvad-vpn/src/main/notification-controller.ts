@@ -76,7 +76,7 @@ export default class NotificationController {
     }
 
     if (usePngIcon) {
-      const imagePath = path.join(__dirname, 'assets/images/icon-notification.png');
+      const imagePath = path.join(import.meta.dirname, 'assets/images/icon-notification.png');
       // `nativeImage` is undefined when running tests
       this.notificationIcon = nativeImage?.createFromPath(imagePath);
     }
