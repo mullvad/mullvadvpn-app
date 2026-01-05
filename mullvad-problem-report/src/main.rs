@@ -1,6 +1,6 @@
 use clap::Parser;
 use mullvad_api::ApiEndpoint;
-use mullvad_problem_report::{Error, collect_report, open_output_file};
+use mullvad_problem_report::{Error, WriteSource, collect_report, collect_report_for_path};
 use std::{
     env, io,
     path::{Path, PathBuf},
@@ -62,18 +62,19 @@ fn run() -> Result<(), Error> {
             redact,
         } => {
             if output != "-" {
-                let out_path = Path::new(&output).display().to_string();
-                let out = open_output_file(&output)?;
+                collect_report_for_path(&extra_logs, &output, redact)?;
 
-                collect_report(&extra_logs, (out, out_path.clone()), redact)?;
-
-                println!("Problem report written to {}", out_path);
+                println!("Problem report written to {output}");
                 println!();
                 println!("Send the problem report to support via the send subcommand. See:");
                 println!(" $ {} send --help", env::args().next().unwrap());
             } else {
                 // Write logs to stdout
-                collect_report(&extra_logs, (io::stdout(), "stdout".to_owned()), redact)?;
+                collect_report(
+                    &extra_logs,
+                    WriteSource::from((io::stdout(), "stdout".to_owned())),
+                    redact,
+                )?;
             }
         }
         Cli::Send {
