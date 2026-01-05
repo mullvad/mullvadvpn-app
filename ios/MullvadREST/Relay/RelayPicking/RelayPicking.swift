@@ -30,9 +30,14 @@ extension RelayPicking {
                 ? obfuscation.port
                 : tunnelSettings.relayConstraints.port,
             numberOfFailedAttempts: connectionAttemptCount,
+            ipVersion: tunnelSettings.ipVersion,
             closeTo: location
         )
 
+
+        let v6Endpoint: IPv6Endpoint? = if let v6Relay = match.endpoint.ipv6Relay { IPv6Endpoint(ip: applyObfuscatedIps ? applyObfuscatedIpV6Addresses(match: match) ?? v6Relay.ip : v6Relay.ip, port: v6Relay.port) } else {
+            nil
+        };
         return SelectedRelay(
             endpoint: match.endpoint.override(
                 ipv4Relay: IPv4Endpoint(
@@ -40,7 +45,10 @@ extension RelayPicking {
                         ? applyObfuscatedIpAddresses(match: match)
                         : match.endpoint.ipv4Relay.ip,
                     port: match.endpoint.ipv4Relay.port
-                )),
+                ),
+                ipv6Relay: v6Endpoint,
+
+            ),
             hostname: match.relay.hostname,
             location: match.location,
             features: match.relay.features
@@ -58,9 +66,34 @@ extension RelayPicking {
         }
     }
 
+    private func applyObfuscatedIpV6Addresses(match: RelaySelectorMatch) -> IPv6Address? {
+
+        switch obfuscation.method {
+        case .shadowsocks:
+            applyShadowsocksIpv6Address(in: match)
+        case .quic:
+            applyQuicIpv6Address(in: match)
+        case .off, .automatic, .on, .udpOverTcp:
+            match.endpoint.ipv6Relay?.ip
+        }
+    }
+
+//    private func pickIpForEndpoint(endoint: MullvadEndpoint) -> AnyIPAddress {
+//         tunnelSettings.ipVersion.isIPv6 {
+//
+//        }
+//    }
+
     private func applyQuicIpAddress(in match: RelaySelectorMatch) -> IPv4Address {
         let defaultIpv4Address = match.endpoint.ipv4Relay.ip
         return match.relay.features?.quic?.addrIn.compactMap({ IPv4Address($0) }).randomElement() ?? defaultIpv4Address
+    }
+
+    private func applyQuicIpv6Address(in match: RelaySelectorMatch) -> IPv6Address? {
+        let defaultIpv6Address = match.endpoint.ipv6Relay?.ip
+        return match.relay.features?.quic?.addrIn
+            .compactMap({ IPv6Address($0) })
+            .randomElement() ?? defaultIpv6Address
     }
 
     private func applyShadowsocksIpAddress(in match: RelaySelectorMatch) -> IPv4Address {
@@ -79,6 +112,21 @@ extension RelayPicking {
             (extraAddresses + [defaultIpv4Address]).randomElement().unsafelyUnwrapped
         }
     }
+
+    private func applyShadowsocksIpv6Address(in match: RelaySelectorMatch) -> IPv6Address? {
+        let defaultIpv6Address = match.endpoint.ipv6Relay?.ip
+        let extraAddresses = match.relay.shadowsocksExtraAddrIn?.compactMap({ IPv6Address($0) }) ?? []
+
+        guard let port = match.endpoint.ipv6Relay?.port else {
+            return nil
+        }
+        return if !shadowsocksPortIsWithinRange(port) {
+            extraAddresses.randomElement() ?? defaultIpv6Address
+        } else {
+            extraAddresses.randomElement()
+        }
+    }
+
 
     private func shadowsocksPortIsWithinRange(_ port: UInt16) -> Bool {
         let portRanges = RelaySelector.parseRawPortRanges(obfuscation.allRelays.wireguard.shadowsocksPortRanges)

@@ -38,6 +38,7 @@ extension RelaySelector {
             wireguard: REST.ServerWireguardTunnels,
             portConstraint: RelayConstraint<UInt16>,
             numberOfFailedAttempts: UInt,
+            ipVersion: IPVersion = .automatic,
             closeTo referenceLocation: Location? = nil
         ) throws -> RelaySelectorMatch {
             let port = try evaluatePort(
@@ -63,7 +64,7 @@ extension RelaySelector {
                 throw NoRelaysSatisfyingConstraintsError(.relayConstraintNotMatching)
             }
 
-            return createMatch(for: relayWithLocation, port: port, wireguard: wireguard)
+            return createMatch(for: relayWithLocation, port: port, wireguard: wireguard, ipVersion: ipVersion)
         }
     }
 
@@ -88,14 +89,22 @@ extension RelaySelector {
     private static func createMatch(
         for relayWithLocation: RelayWithLocation<REST.ServerRelay>,
         port: UInt16,
-        wireguard: REST.ServerWireguardTunnels
+        wireguard: REST.ServerWireguardTunnels,
+        ipVersion: IPVersion
     ) -> RelaySelectorMatch {
+        // Populate IPv6 relay endpoint when IPv6 is enabled
+        // The packet tunnel provider will decide which endpoint to use based on the IP version setting
+        let ipv6Relay = ipVersion.isIPv6 ? IPv6Endpoint(
+            ip: relayWithLocation.relay.ipv6AddrIn,
+            port: port
+        ) : nil
+
         let endpoint = MullvadEndpoint(
             ipv4Relay: IPv4Endpoint(
                 ip: relayWithLocation.relay.ipv4AddrIn,
                 port: port
             ),
-            ipv6Relay: nil,
+            ipv6Relay: ipv6Relay,
             ipv4Gateway: wireguard.ipv4Gateway,
             ipv6Gateway: wireguard.ipv6Gateway,
             publicKey: relayWithLocation.relay.publicKey
