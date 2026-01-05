@@ -31,6 +31,9 @@ public struct TunnelSettingsV8: Codable, Equatable, TunnelSettings, Sendable {
     /// IAN settings.
     public var includeAllNetworks: IncludeAllNetworksSettings
 
+    /// IP version preference for relay connections.
+    public var ipVersion: IPVersion
+
     public init(
         relayConstraints: RelayConstraints = RelayConstraints(),
         dnsSettings: DNSSettings = DNSSettings(),
@@ -38,7 +41,8 @@ public struct TunnelSettingsV8: Codable, Equatable, TunnelSettings, Sendable {
         tunnelQuantumResistance: TunnelQuantumResistance = .on,
         tunnelMultihopState: MultihopStateV2 = .never,
         daita: DAITASettings = DAITASettings(),
-        includeAllNetworks: IncludeAllNetworksSettings = IncludeAllNetworksSettings()
+        includeAllNetworks: IncludeAllNetworksSettings = IncludeAllNetworksSettings(),
+        ipVersion: IPVersion = .automatic
     ) {
         self.relayConstraints = relayConstraints
         self.dnsSettings = dnsSettings
@@ -47,6 +51,7 @@ public struct TunnelSettingsV8: Codable, Equatable, TunnelSettings, Sendable {
         self.tunnelMultihopState = tunnelMultihopState
         self.daita = daita
         self.includeAllNetworks = includeAllNetworks
+        self.ipVersion = ipVersion
     }
 
     public init(from decoder: any Decoder) throws {
@@ -67,6 +72,9 @@ public struct TunnelSettingsV8: Codable, Equatable, TunnelSettings, Sendable {
         self.includeAllNetworks =
             (try? container.decode(IncludeAllNetworksSettings.self, forKey: .includeAllNetworks))
             ?? IncludeAllNetworksSettings()
+        self.ipVersion =
+            (try? container.decode(IPVersion.self, forKey: .ipVersion))
+            ?? .automatic
     }
 
     public func upgradeToNextVersion() -> any TunnelSettings {
