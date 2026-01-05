@@ -198,7 +198,7 @@ export default class UserInterface implements WindowControllerDelegate {
       if (process.env.NODE_ENV === 'development' && process.env.VITE_DEV_SERVER_URL) {
         await window.loadURL(process.env.VITE_DEV_SERVER_URL);
       } else {
-        await window.loadFile(path.join(__dirname, 'index.html'));
+        await window.loadFile(path.join(import.meta.dirname, 'index.html'));
       }
     } catch (e) {
       const error = e as Error;
@@ -294,7 +294,7 @@ export default class UserInterface implements WindowControllerDelegate {
       show: false,
       frame: unpinnedWindow,
       webPreferences: {
-        preload: path.join(__dirname, 'preload.js'),
+        preload: path.join(import.meta.dirname, 'preload.js'),
         nodeIntegration: false,
         nodeIntegrationInWorker: false,
         nodeIntegrationInSubFrames: false,
