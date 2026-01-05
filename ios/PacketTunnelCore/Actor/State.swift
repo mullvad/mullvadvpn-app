@@ -142,7 +142,9 @@ extension State {
         }
 
         /// The actual endpoint fed to WireGuard, can be a local endpoint if obfuscation is used.
-        public var connectedEndpoint: MullvadEndpoint
+        /// Contains the socket address, gateway info, public key, and obfuscation method.
+        public var connectedEndpoint: SelectedEndpoint
+
         /// Via which transport protocol was the connection made to the relay
         public let transportLayer: TransportLayer
 
@@ -154,9 +156,6 @@ extension State {
 
         /// True if Daita is enabled
         public let isDaitaEnabled: Bool
-
-        /// The obfuscation method in force on the connection
-        public var obfuscationMethod: WireGuardObfuscationState
     }
 
     /// Data associated with error state.
