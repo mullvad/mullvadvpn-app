@@ -52,14 +52,14 @@ struct OneToOne: MultihopDecisionFlow {
         let entryMatch = try relayPicker.findBestMatch(
             from: entryCandidates,
             closeTo: daitaAutomaticRouting ? exitMatch.location : nil,
-            applyObfuscatedIps: true
+            applyObfuscatedIps: true,
+            forceV4: true,
         )
 
         return SelectedRelays(
             entry: entryMatch,
             exit: exitMatch,
-            retryAttempt: relayPicker.connectionAttemptCount,
-            obfuscation: relayPicker.obfuscation.method
+            retryAttempt: relayPicker.connectionAttemptCount
         )
     }
 
@@ -101,14 +101,14 @@ struct OneToMany: MultihopDecisionFlow {
         let exitMatch = try multihopPicker.exclude(
             relay: entryMatch,
             from: exitCandidates,
-            applyObfuscatedIps: false
+            applyObfuscatedIps: false,
+            forceV4Address: true,
         )
 
         return SelectedRelays(
             entry: entryMatch,
             exit: exitMatch,
-            retryAttempt: relayPicker.connectionAttemptCount,
-            obfuscation: relayPicker.obfuscation.method
+            retryAttempt: relayPicker.connectionAttemptCount
         )
     }
 
@@ -146,7 +146,11 @@ struct ManyToOne: MultihopDecisionFlow {
             )
         }
 
-        let exitMatch = try multihopPicker.findBestMatch(from: exitCandidates, applyObfuscatedIps: false)
+        let exitMatch = try multihopPicker.findBestMatch(
+            from: exitCandidates,
+            applyObfuscatedIps: false,
+            forceV4: true,
+        )
         let entryMatch = try multihopPicker.exclude(
             relay: exitMatch,
             from: entryCandidates,
@@ -157,8 +161,7 @@ struct ManyToOne: MultihopDecisionFlow {
         return SelectedRelays(
             entry: entryMatch,
             exit: exitMatch,
-            retryAttempt: relayPicker.connectionAttemptCount,
-            obfuscation: relayPicker.obfuscation.method
+            retryAttempt: relayPicker.connectionAttemptCount
         )
     }
 
@@ -196,7 +199,7 @@ struct ManyToMany: MultihopDecisionFlow {
             )
         }
 
-        let exitMatch = try multihopPicker.findBestMatch(from: exitCandidates, applyObfuscatedIps: false)
+        let exitMatch = try multihopPicker.findBestMatch(from: exitCandidates, applyObfuscatedIps: false, forceV4: true)
         let entryMatch = try multihopPicker.exclude(
             relay: exitMatch,
             from: entryCandidates,
@@ -207,8 +210,7 @@ struct ManyToMany: MultihopDecisionFlow {
         return SelectedRelays(
             entry: entryMatch,
             exit: exitMatch,
-            retryAttempt: relayPicker.connectionAttemptCount,
-            obfuscation: relayPicker.obfuscation.method
+            retryAttempt: relayPicker.connectionAttemptCount
         )
     }
 

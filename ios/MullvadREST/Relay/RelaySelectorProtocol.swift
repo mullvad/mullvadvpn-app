@@ -24,8 +24,8 @@ public protocol RelaySelectorProtocol {
 
 /// Struct describing the selected relay.
 public struct SelectedRelay: Equatable, Codable, Sendable {
-    /// Selected relay endpoint.
-    public let endpoint: MullvadEndpoint
+    /// Selected relay endpoint with resolved socket address and obfuscation.
+    public let endpoint: SelectedEndpoint
 
     /// Relay hostname.
     public let hostname: String
@@ -37,7 +37,7 @@ public struct SelectedRelay: Equatable, Codable, Sendable {
     public let features: REST.ServerRelay.Features?
 
     /// Designated initializer.
-    public init(endpoint: MullvadEndpoint, hostname: String, location: Location, features: REST.ServerRelay.Features?) {
+    public init(endpoint: SelectedEndpoint, hostname: String, location: Location, features: REST.ServerRelay.Features?) {
         self.endpoint = endpoint
         self.hostname = hostname
         self.location = location
@@ -47,7 +47,7 @@ public struct SelectedRelay: Equatable, Codable, Sendable {
 
 extension SelectedRelay: CustomDebugStringConvertible {
     public var debugDescription: String {
-        "\(hostname) -> \(endpoint.ipv4Relay.description)"
+        "\(hostname) -> \(endpoint.socketAddress)"
     }
 }
 
@@ -55,28 +55,30 @@ public struct SelectedRelays: Equatable, Codable, Sendable {
     public let entry: SelectedRelay?
     public let exit: SelectedRelay
     public let retryAttempt: UInt
-    public let obfuscation: WireGuardObfuscationState
 
     public var ingress: SelectedRelay {
         entry ?? exit
     }
 
+    /// The obfuscation method, accessed from the ingress relay's endpoint.
+    public var obfuscation: ObfuscationMethod {
+        ingress.endpoint.obfuscation
+    }
+
     public init(
         entry: SelectedRelay?,
         exit: SelectedRelay,
-        retryAttempt: UInt,
-        obfuscation: WireGuardObfuscationState
+        retryAttempt: UInt
     ) {
         self.entry = entry
         self.exit = exit
         self.retryAttempt = retryAttempt
-        self.obfuscation = obfuscation
     }
 }
 
 extension SelectedRelays: CustomDebugStringConvertible {
     public var debugDescription: String {
-        "Entry: \(entry?.hostname ?? "-") -> \(entry?.endpoint.ipv4Relay.description ?? "-"), "
-            + "Exit: \(exit.hostname) -> \(exit.endpoint.ipv4Relay.description), obfuscation: \(obfuscation)"
+        "Entry: \(entry?.hostname ?? "-") -> \(entry?.endpoint.socketAddress.description ?? "-"), "
+            + "Exit: \(exit.hostname) -> \(exit.endpoint.socketAddress), obfuscation: \(obfuscation)"
     }
 }
