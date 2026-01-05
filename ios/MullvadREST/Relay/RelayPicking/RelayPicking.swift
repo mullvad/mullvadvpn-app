@@ -36,7 +36,7 @@ extension RelayPicking {
         )
 
         // Resolve the socket address based on IP version preference
-        let socketAddress = resolveSocketAddress(
+        let socketAddress = try resolveSocketAddress(
             match: match,
             applyObfuscatedIps: applyObfuscatedIps,
             forceV4: forceV4,
@@ -62,18 +62,26 @@ extension RelayPicking {
     }
 
     /// Resolves a single socket address based on IP version preference and obfuscation settings.
+    /// Throws an error if IPv6 is required but no IPv6 endpoint is available.
     private func resolveSocketAddress(
         match: RelaySelectorMatch,
         applyObfuscatedIps: Bool,
         forceV4: Bool,
-    ) -> AnyIPEndpoint {
+    ) throws -> AnyIPEndpoint {
         let ipVersion = tunnelSettings.ipVersion
 
         // Try IPv6 first if preferred and available
-        if ipVersion.isIPv6, let ipv6Relay = match.endpoint.ipv6Relay, !forceV4 {
+        if ipVersion.isIPv6, !forceV4 {
+            guard let ipv6Relay = match.endpoint.ipv6Relay else {
+                throw NoRelaysSatisfyingConstraintsError(.noIPv6RelayFound)
+            }
+
             let ipv6Address: IPv6Address
             if applyObfuscatedIps {
-                ipv6Address = applyObfuscatedIpV6Addresses(match: match) ?? ipv6Relay.ip
+                guard let obfuscatedIpv6 = applyObfuscatedIpV6Addresses(match: match) else {
+                    throw NoRelaysSatisfyingConstraintsError(.noIPv6RelayFound)
+                }
+                ipv6Address = obfuscatedIpv6
             } else {
                 ipv6Address = ipv6Relay.ip
             }
