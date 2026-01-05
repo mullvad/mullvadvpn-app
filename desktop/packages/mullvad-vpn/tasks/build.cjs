@@ -1,5 +1,5 @@
-const { copyAssetsToBuildDirectory, removeRecursively, runNpmScript } = require('./utils');
-const { BUILD_DIR } = require('./constants');
+const { copyAssetsToBuildDirectory, removeRecursively, runNpmScript } = require('./utils.cjs');
+const { BUILD_DIR } = require('./constants.cjs');
 
 async function build() {
   await removeRecursively(BUILD_DIR);
