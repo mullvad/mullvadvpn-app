@@ -1,6 +1,6 @@
 use std::{
     io,
-    net::{Ipv4Addr, SocketAddr},
+    net::{Ipv4Addr, Ipv6Addr, SocketAddr},
 };
 use tokio::task::JoinHandle;
 use tunnel_obfuscation::{
@@ -22,15 +22,24 @@ impl TunnelObfuscatorRuntime {
     }
 
     pub fn new_shadowsocks(peer: SocketAddr) -> Self {
+        let wireguard_endpoint = if peer.is_ipv4() {
+            SocketAddr::from((Ipv4Addr::LOCALHOST, 51820))
+        } else {
+            SocketAddr::from((Ipv6Addr::LOCALHOST, 51820))
+        };
         let settings = ObfuscationSettings::Shadowsocks(shadowsocks::Settings {
             shadowsocks_endpoint: peer,
-            wireguard_endpoint: SocketAddr::from((Ipv4Addr::LOCALHOST, 51820)),
+            wireguard_endpoint,
         });
         Self { settings }
     }
 
     pub fn new_quic(peer: SocketAddr, hostname: String, token: String) -> Self {
-        let wireguard_endpoint = SocketAddr::from((Ipv4Addr::LOCALHOST, 51820));
+        let wireguard_endpoint = if peer.is_ipv4() {
+            SocketAddr::from((Ipv4Addr::LOCALHOST, 51820))
+        } else {
+            SocketAddr::from((Ipv6Addr::LOCALHOST, 51820))
+        };
         let token: quic::AuthToken = token.parse().unwrap();
         let quic = quic::Settings::new(peer, hostname, token, wireguard_endpoint);
         let settings = ObfuscationSettings::Quic(quic);
