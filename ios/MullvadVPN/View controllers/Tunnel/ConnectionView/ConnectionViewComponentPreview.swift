@@ -18,7 +18,7 @@ struct ConnectionViewComponentPreview<Content: View>: View {
     let connectedTunnelStatus = TunnelStatus(
         observedState: .connected(
             ObservedConnectionState(
-                selectedRelays: SelectedRelaysStub.selectedRelays,
+                selectedRelays: RelaySelectorStub.selectedRelays,
                 relayConstraints: RelayConstraints(entryLocations: .any, exitLocations: .any, port: .any, filter: .any),
                 networkReachability: .reachable,
                 connectionAttemptCount: 0,
@@ -27,7 +27,12 @@ struct ConnectionViewComponentPreview<Content: View>: View {
                 isPostQuantum: true,
                 isDaitaEnabled: true
             )),
-        state: .connected(SelectedRelaysStub.selectedRelays, isPostQuantum: true, isDaita: true)
+        state:
+            .connected(
+                RelaySelectorStub.selectedRelays,
+                isPostQuantum: true,
+                isDaita: true
+            )
     )
 
     private var tunnelSettings: LatestTunnelSettings {

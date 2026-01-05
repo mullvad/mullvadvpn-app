@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import MullvadTypes
 
 /// Whether obfuscation is enabled and which method is used.
 ///
