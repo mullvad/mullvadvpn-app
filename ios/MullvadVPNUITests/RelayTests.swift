@@ -837,4 +837,39 @@ extension RelayTests {
 
         return (IPAddress, port, stream)
     }
+
+    func testIPv6Connection() throws {
+        HeaderBar(app)
+            .tapSettingsButton()
+
+        SettingsPage(app)
+            .tapVPNSettingsCell()
+
+        VPNSettingsPage(app)
+            .tapIPVersionExpandButton()
+            .tapIPVersionIPv6Cell()
+            .tapBackButton()
+
+        SettingsPage(app)
+            .tapDoneButton()
+
+        TunnelControlPage(app)
+            .tapConnectButton()
+
+        allowAddVPNConfigurationsIfAsked()
+
+        TunnelControlPage(app)
+            .waitForConnectedLabel()
+
+        // Verify connection works
+        try Networking.verifyCanAccessInternet()
+        try Networking.verifyConnectedThroughMullvad()
+
+        // Verify IPv6 feature indicator is shown
+        TunnelControlPage(app)
+            .verifyFeatureIndicatorVisible(feature: "IPv6")
+
+        TunnelControlPage(app)
+            .tapDisconnectButton()
+    }
 }
