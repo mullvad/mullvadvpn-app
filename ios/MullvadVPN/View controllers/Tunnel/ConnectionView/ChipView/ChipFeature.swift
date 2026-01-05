@@ -22,6 +22,7 @@ enum FeatureType {
     case obfuscation
     case dns
     case ipOverrides
+    case ipVersion
 }
 
 struct DaitaFeature: ChipFeature {
@@ -132,5 +133,19 @@ struct IPOverrideFeature: ChipFeature {
 
     var name: String {
         NSLocalizedString("Server IP override", comment: "")
+    }
+}
+
+struct IPVersionFeature: ChipFeature {
+    let id: FeatureType = .ipVersion
+    let state: TunnelState
+
+    var isEnabled: Bool {
+        // Show IPv6 indicator when the ingress endpoint is using IPv6
+        state.relays?.ingress.endpoint.ipv6Relay != nil
+    }
+
+    var name: String {
+        NSLocalizedString("IPv6", comment: "")
     }
 }

@@ -40,6 +40,7 @@ class FeatureIndicatorsViewModel: ChipViewModelProtocol {
                 ObfuscationFeature(settings: tunnelSettings, state: observedState),
                 DNSFeature(settings: tunnelSettings),
                 IPOverrideFeature(state: tunnelState, overrides: ipOverrides),
+                IPVersionFeature(state: tunnelState),
             ]
 
             return

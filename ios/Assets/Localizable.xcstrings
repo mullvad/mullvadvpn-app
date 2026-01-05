@@ -27457,6 +27457,15 @@
         }
       }
     },
+    "IP version" : {
+
+    },
+    "IPv4" : {
+
+    },
+    "IPv6" : {
+
+    },
     "Ireland" : {
       "localizations" : {
         "da" : {
@@ -51585,6 +51594,9 @@
           }
         }
       }
+    },
+    "This setting controls whether the app connects to VPN servers using IPv4 or IPv6. The Automatic option defaults to IPv4 for maximum compatibility." : {
+
     },
     "Time left: %@" : {
       "localizations" : {
