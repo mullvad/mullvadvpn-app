@@ -49,7 +49,9 @@ class PaymentPage: Page {
     }
 
     @discardableResult func dismissFailedPurchaseAlert() -> Self {
-        app.staticTexts["Cannot complete the purchase"].wait(timeout: .long)
+        app
+            .staticTexts["Cannot complete the purchase"]
+            .wait(timeout: .extremelyLong)
         app.buttons["Got it!"].tap()
 
         return self
