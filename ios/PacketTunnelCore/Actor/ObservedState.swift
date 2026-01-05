@@ -37,7 +37,11 @@ public struct ObservedConnectionState: Equatable, Codable, Sendable {
     public var lastKeyRotation: Date?
     public let isPostQuantum: Bool
     public let isDaitaEnabled: Bool
-    public let obfuscationMethod: WireGuardObfuscationState
+
+    /// The obfuscation method, derived from the selected relays' ingress endpoint.
+    public var obfuscationMethod: ObfuscationMethod {
+        selectedRelays.obfuscation
+    }
 
     public var isNetworkReachable: Bool {
         networkReachability != .unreachable
@@ -52,8 +56,7 @@ public struct ObservedConnectionState: Equatable, Codable, Sendable {
         remotePort: UInt16,
         lastKeyRotation: Date? = nil,
         isPostQuantum: Bool,
-        isDaitaEnabled: Bool,
-        obfuscationMethod: WireGuardObfuscationState = .off
+        isDaitaEnabled: Bool
     ) {
         self.selectedRelays = selectedRelays
         self.relayConstraints = relayConstraints
@@ -64,7 +67,6 @@ public struct ObservedConnectionState: Equatable, Codable, Sendable {
         self.lastKeyRotation = lastKeyRotation
         self.isPostQuantum = isPostQuantum
         self.isDaitaEnabled = isDaitaEnabled
-        self.obfuscationMethod = obfuscationMethod
     }
 }
 
@@ -115,8 +117,7 @@ extension State.ConnectionData {
             remotePort: remotePort,
             lastKeyRotation: lastKeyRotation,
             isPostQuantum: isPostQuantum,
-            isDaitaEnabled: isDaitaEnabled,
-            obfuscationMethod: obfuscationMethod
+            isDaitaEnabled: isDaitaEnabled
         )
     }
 }

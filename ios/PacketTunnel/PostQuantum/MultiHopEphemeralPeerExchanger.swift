@@ -124,7 +124,7 @@ final class MultiHopEphemeralPeerExchanger: EphemeralPeerExchangingProtocol {
                     configuration: EphemeralPeerConfiguration(
                         privateKey: entryPeerKey.ephemeralKey,
                         preSharedKey: entryPeerKey.preSharedKey,
-                        allowedIPs: [IPAddressRange(from: "\(exit.endpoint.ipv4Relay.ip)/32")!],
+                        allowedIPs: [IPAddressRange(from: "\(exit.endpoint.socketAddress.ip)/32")!],
                         daitaParameters: self.daitaParameters
                     )
                 ),
@@ -154,7 +154,7 @@ final class MultiHopEphemeralPeerExchanger: EphemeralPeerExchangingProtocol {
                     configuration: EphemeralPeerConfiguration(
                         privateKey: entryPeerKey.ephemeralKey,
                         preSharedKey: entryPeerKey.preSharedKey,
-                        allowedIPs: [IPAddressRange(from: "\(exit.endpoint.ipv4Relay.ip)/32")!],
+                        allowedIPs: [IPAddressRange(from: "\(exit.endpoint.socketAddress.ip)/32")!],
                         daitaParameters: self.daitaParameters
                     )
                 ),
