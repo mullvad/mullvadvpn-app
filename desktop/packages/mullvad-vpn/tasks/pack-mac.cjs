@@ -1,5 +1,5 @@
-const { build } = require('./build');
-const { packMac } = require('./distribution');
+const { build } = require('./build.cjs');
+const { packMac } = require('./distribution.cjs');
 
 async function buildAndPackage() {
   await build();
