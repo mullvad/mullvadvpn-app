@@ -1,5 +1,5 @@
-const { build } = require('./build');
-const { setNodeEnvironment } = require('./utils');
+const { build } = require('./build.cjs');
+const { setNodeEnvironment } = require('./utils.cjs');
 
 async function buildProduction() {
   setNodeEnvironment('production');
