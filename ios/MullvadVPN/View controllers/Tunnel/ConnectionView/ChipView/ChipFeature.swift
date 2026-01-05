@@ -23,6 +23,7 @@ enum FeatureType {
     case obfuscation
     case dns
     case ipOverrides
+    case ipVersion
 }
 
 struct DaitaFeature: ChipFeature {

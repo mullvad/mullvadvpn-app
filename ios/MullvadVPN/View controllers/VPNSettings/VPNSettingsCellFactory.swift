@@ -213,6 +213,27 @@ final class VPNSettingsCellFactory: @preconcurrency CellFactoryProtocol {
             cell.titleLabel.text = NSLocalizedString("Off", comment: "")
             cell.setAccessibilityIdentifier(item.accessibilityIdentifier)
             cell.applySubCellStyling()
+
+        case .ipVersionAutomatic:
+            guard let cell = cell as? SelectableSettingsCell else { return }
+
+            cell.titleLabel.text = NSLocalizedString("Automatic", comment: "")
+            cell.setAccessibilityIdentifier(item.accessibilityIdentifier)
+            cell.applySubCellStyling()
+
+        case .ipVersionIPv4:
+            guard let cell = cell as? SelectableSettingsCell else { return }
+
+            cell.titleLabel.text = NSLocalizedString("IPv4", comment: "")
+            cell.setAccessibilityIdentifier(item.accessibilityIdentifier)
+            cell.applySubCellStyling()
+
+        case .ipVersionIPv6:
+            guard let cell = cell as? SelectableSettingsCell else { return }
+
+            cell.titleLabel.text = NSLocalizedString("IPv6", comment: "")
+            cell.setAccessibilityIdentifier(item.accessibilityIdentifier)
+            cell.applySubCellStyling()
         }
     }
 }

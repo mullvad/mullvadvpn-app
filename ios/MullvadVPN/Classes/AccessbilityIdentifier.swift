@@ -240,6 +240,12 @@ public enum AccessibilityIdentifier: Equatable {
     case quantumResistanceOff
     case quantumResistanceOn
 
+    // IP version
+    case ipVersionCell
+    case ipVersionAutomatic
+    case ipVersionIPv4
+    case ipVersionIPv6
+
     // Multihop
     case multihopSwitch
 
