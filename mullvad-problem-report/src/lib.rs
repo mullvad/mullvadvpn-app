@@ -105,6 +105,114 @@ pub enum LogError {
     NoLocalAppDataDir,
 }
 
+/// Problem report collector
+#[derive(Debug, Default)]
+pub struct ProblemReportCollector {
+    pub extra_logs: Vec<PathBuf>,
+    pub redact_custom_strings: Vec<String>,
+
+    #[cfg(target_os = "android")]
+    pub android_log_dir: PathBuf,
+    #[cfg(target_os = "android")]
+    pub extra_logs_dir: PathBuf,
+    #[cfg(target_os = "android")]
+    pub unverified_purchases: i32,
+    #[cfg(target_os = "android")]
+    pub pending_purchases: i32,
+}
+
+impl ProblemReportCollector {
+    /// Collect the problem report and writes it to the specified path
+    pub fn write_to_path(self, path: impl AsRef<Path>) -> Result<(), Error> {
+        self.write(open_output_file(path)?)
+    }
+
+    /// Collect the problem report and writes it to the specified output
+    pub fn write(self, output: WriteSource<impl Write>) -> Result<(), Error> {
+        let mut problem_report = ProblemReport::new(self.redact_custom_strings);
+
+        let daemon_logs_dir = {
+            #[cfg(target_os = "android")]
+            {
+                Ok(&self.android_log_dir)
+            }
+            #[cfg(not(target_os = "android"))]
+            {
+                mullvad_paths::get_log_dir().map_err(LogError::GetLogDir)
+            }
+        };
+
+        let daemon_logs = daemon_logs_dir.and_then(list_logs);
+        match daemon_logs {
+            Ok(daemon_logs) => {
+                for log in daemon_logs {
+                    match log {
+                        Ok(path) => problem_report.add_log(&path),
+                        Err(error) => problem_report.add_error("Unable to get log path", &error),
+                    }
+                }
+            }
+            Err(error) => {
+                problem_report.add_error("Failed to list logs in daemon log directory", &error)
+            }
+        };
+        match frontend_log_dir().map(|dir| dir.and_then(list_logs)) {
+            Some(Ok(frontend_logs)) => {
+                for log in frontend_logs {
+                    match log {
+                        Ok(path) => problem_report.add_log(&path),
+                        Err(error) => problem_report.add_error("Unable to get log path", &error),
+                    }
+                }
+            }
+            Some(Err(error)) => {
+                problem_report.add_error("Failed to list logs in frontend log directory", &error)
+            }
+            None => {}
+        }
+        #[cfg(target_os = "android")]
+        {
+            match write_logcat_to_file(&self.android_log_dir) {
+                Ok(logcat_path) => problem_report.add_log(&logcat_path),
+                Err(error) => problem_report.add_error("Failed to collect logcat", &error),
+            }
+
+            match list_logs(self.extra_logs_dir) {
+                Ok(android_app_logs) => {
+                    for log in android_app_logs {
+                        match log {
+                            Ok(path) => problem_report.add_log(&path),
+                            Err(error) => {
+                                problem_report.add_error("Unable to get log path", &error)
+                            }
+                        }
+                    }
+                }
+                Err(error) => problem_report
+                    .add_error("Failed to list logs in android app log directory", &error),
+            }
+
+            problem_report.add_metadata(
+                "unverified-purchases".to_string(),
+                self.unverified_purchases.to_string(),
+            );
+            problem_report.add_metadata(
+                "pending-purchases".to_string(),
+                self.pending_purchases.to_string(),
+            );
+        }
+
+        problem_report.add_logs(self.extra_logs);
+
+        problem_report
+            .write_to(output.write)
+            .map_err(|source| Error::WriteReportError {
+                path: output.source,
+                source,
+            })
+    }
+}
+
 /// A [Write] with a named source.
 pub struct WriteSource<W: Write> {
     pub write: W,
@@ -138,121 +246,6 @@ impl<W: Write> From<(W, String)> for WriteSource<W> {
     fn from((write, source): (W, String)) -> Self {
         WriteSource { write, source }
     }
-}
-
-pub fn collect_report_for_path<P: AsRef<Path>>(
-    extra_logs: &[P],
-    output_path: impl AsRef<Path>,
-    redact_custom_strings: Vec<String>,
-    #[cfg(target_os = "android")] android_log_dir: &Path,
-    #[cfg(target_os = "android")] extra_logs_dir: &Path,
-    #[cfg(target_os = "android")] unverified_purchases: i32,
-    #[cfg(target_os = "android")] pending_purchases: i32,
-) -> Result<(), Error> {
-    collect_report(
-        extra_logs,
-        open_output_file(output_path)?,
-        redact_custom_strings,
-        #[cfg(target_os = "android")]
-        android_log_dir,
-        #[cfg(target_os = "android")]
-        extra_logs_dir,
-        #[cfg(target_os = "android")]
-        unverified_purchases,
-        #[cfg(target_os = "android")]
-        pending_purchases,
-    )
-}
-
-pub fn collect_report<P: AsRef<Path>>(
-    extra_logs: &[P],
-    output: WriteSource<impl Write>,
-    redact_custom_strings: Vec<String>,
-    #[cfg(target_os = "android")] android_log_dir: &Path,
-    #[cfg(target_os = "android")] extra_logs_dir: &Path,
-    #[cfg(target_os = "android")] unverified_purchases: i32,
-    #[cfg(target_os = "android")] pending_purchases: i32,
-) -> Result<(), Error> {
-    let mut problem_report = ProblemReport::new(redact_custom_strings);
-
-    let daemon_logs_dir = {
-        #[cfg(target_os = "android")]
-        {
-            Ok(android_log_dir)
-        }
-        #[cfg(not(target_os = "android"))]
-        {
-            mullvad_paths::get_log_dir().map_err(LogError::GetLogDir)
-        }
-    };
-
-    let daemon_logs = daemon_logs_dir.and_then(list_logs);
-    match daemon_logs {
-        Ok(daemon_logs) => {
-            for log in daemon_logs {
-                match log {
-                    Ok(path) => problem_report.add_log(&path),
-                    Err(error) => problem_report.add_error("Unable to get log path", &error),
-                }
-            }
-        }
-        Err(error) => {
-            problem_report.add_error("Failed to list logs in daemon log directory", &error)
-        }
-    };
-    match frontend_log_dir().map(|dir| dir.and_then(list_logs)) {
-        Some(Ok(frontend_logs)) => {
-            for log in frontend_logs {
-                match log {
-                    Ok(path) => problem_report.add_log(&path),
-                    Err(error) => problem_report.add_error("Unable to get log path", &error),
-                }
-            }
-        }
-        Some(Err(error)) => {
-            problem_report.add_error("Failed to list logs in frontend log directory", &error)
-        }
-        None => {}
-    }
-    #[cfg(target_os = "android")]
-    {
-        match write_logcat_to_file(android_log_dir) {
-            Ok(logcat_path) => problem_report.add_log(&logcat_path),
-            Err(error) => problem_report.add_error("Failed to collect logcat", &error),
-        }
-
-        match list_logs(extra_logs_dir) {
-            Ok(android_app_logs) => {
-                for log in android_app_logs {
-                    match log {
-                        Ok(path) => problem_report.add_log(&path),
-                        Err(error) => problem_report.add_error("Unable to get log path", &error),
-                    }
-                }
-            }
-            Err(error) => {
-                problem_report.add_error("Failed to list logs in android app log directory", &error)
-            }
-        }
-
-        problem_report.add_metadata(
-            "unverified-purchases".to_string(),
-            unverified_purchases.to_string(),
-        );
-        problem_report.add_metadata(
-            "pending-purchases".to_string(),
-            pending_purchases.to_string(),
-        );
-    }
-
-    problem_report.add_logs(extra_logs);
-
-    problem_report
-        .write_to(output.write)
-        .map_err(|source| Error::WriteReportError {
-            path: output.source,
-            source,
-        })
 }
 
 /// Returns an iterator over all files in the given directory that has the `.log` extension.
