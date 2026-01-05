@@ -61,12 +61,12 @@ fn run() -> Result<(), Error> {
             extra_logs,
             redact,
         } => {
+            let collector = ProblemReportCollector {
+                extra_logs,
+                redact_custom_strings: redact,
+            };
             if output != "-" {
-                ProblemReportCollector {
-                    extra_logs,
-                    redact_custom_strings: redact,
-                }
-                .write_to_path(&output)?;
+                collector.write_to_path(&output)?;
 
                 println!("Problem report written to {output}");
                 println!();
@@ -74,11 +74,7 @@ fn run() -> Result<(), Error> {
                 println!(" $ {} send --help", env::args().next().unwrap());
             } else {
                 // Write logs to stdout
-                ProblemReportCollector {
-                    extra_logs,
-                    redact_custom_strings: redact,
-                }
-                .write(WriteSource::from((io::stdout(), "stdout".to_owned())))?;
+                collector.write(WriteSource::from((io::stdout(), "stdout".to_owned())))?;
             }
         }
         Cli::Send {
