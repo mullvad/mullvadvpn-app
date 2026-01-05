@@ -7,11 +7,18 @@
 
 char LICENSE[] SEC("license") = "GPL";
 
+// Set FWMARK on all newly created sockets to exclude them from the tunnel.
 SEC("cgroup/sock_create")
-int sock(struct bpf_sock *ctx)
-{
-    if (ctx->mark == 0) {
-        ctx->mark = FWMARK;
+int mullvad_exclude_sock_create(struct bpf_sock *ctx) {
+    ctx->mark = FWMARK;
+    return 1;
+}
+
+// Forbid applications in the cgroup from setting SO_MARK and breaking split-tunneling.
+SEC("cgroup/setsockopt")
+int mullvad_exclude_deny_so_mark(struct bpf_sockopt *ctx) {
+    if (ctx->level == SOL_SOCKET && ctx->optname == SO_MARK) {
+        return 0; // forbid applications from setting SO_MARK
     }
 
     return 1;
