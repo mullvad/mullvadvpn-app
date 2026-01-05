@@ -39,7 +39,7 @@ public enum SchemaVersion: Int, Equatable, Sendable {
     /// V6 format with Local network sharing, stored as `TunnelSettingsV7`.
     case v7 = 7
 
-    /// V8 format, with tristate multihop settings, stored as `TunnelSettingsV8`
+    /// V8 format, with tristate multihop settings and IP version preference, stored as `TunnelSettingsV8`
     case v8 = 8
 
     var settingsType: any TunnelSettings.Type {

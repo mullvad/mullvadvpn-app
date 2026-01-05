@@ -23,6 +23,7 @@ public enum TunnelSettingsUpdate: Sendable {
     case multihop(MultihopState)
     case daita(DAITASettings)
     case includeAllNetworks(IncludeAllNetworksSettings)
+    case ipVersion(IPVersion)
 }
 
 extension TunnelSettingsUpdate {
@@ -44,6 +45,8 @@ extension TunnelSettingsUpdate {
             settings.daita = newDAITASettings
         case let .includeAllNetworks(newIncludeAllNetworksSettings):
             settings.includeAllNetworks = newIncludeAllNetworksSettings
+        case let .ipVersion(newIPVersion):
+            settings.ipVersion = newIPVersion
         }
     }
 
@@ -57,6 +60,7 @@ extension TunnelSettingsUpdate {
         case .multihop: "multihop"
         case .daita: "daita"
         case .includeAllNetworks: "include all networks"
+        case .ipVersion: "IP version"
         }
     }
 }
