@@ -21,7 +21,7 @@ extension RelayPicking {
     func findBestMatch(
         from candidates: [RelayWithLocation<REST.ServerRelay>],
         closeTo location: Location? = nil,
-        applyObfuscatedIps: Bool
+        applyObfuscatedIps: Bool,
     ) throws -> SelectedRelay {
         let match = try RelaySelector.WireGuard.pickCandidate(
             from: candidates,
@@ -33,18 +33,64 @@ extension RelayPicking {
             closeTo: location
         )
 
+        // Resolve the socket address based on IP version preference
+        let socketAddress = resolveSocketAddress(
+            match: match,
+            applyObfuscatedIps: applyObfuscatedIps,
+        )
+
+        // Convert WireGuardObfuscationState to ObfuscationMethod
+        let obfuscationMethod = resolveObfuscationMethod(features: match.relay.features)
+
+        let selectedEndpoint = SelectedEndpoint(
+            socketAddress: socketAddress,
+            ipv4Gateway: match.endpoint.ipv4Gateway,
+            ipv6Gateway: match.endpoint.ipv6Gateway,
+            publicKey: match.endpoint.publicKey,
+            obfuscation: obfuscationMethod
+        )
+
         return SelectedRelay(
-            endpoint: match.endpoint.override(
-                ipv4Relay: IPv4Endpoint(
-                    ip: applyObfuscatedIps
-                        ? applyObfuscatedIpAddresses(match: match)
-                        : match.endpoint.ipv4Relay.ip,
-                    port: match.endpoint.ipv4Relay.port
-                )),
+            endpoint: selectedEndpoint,
             hostname: match.relay.hostname,
             location: match.location,
             features: match.relay.features
         )
+    }
+
+    /// Resolves a single socket address based on IP version preference and obfuscation settings.
+    private func resolveSocketAddress(
+        match: RelaySelectorMatch,
+        applyObfuscatedIps: Bool,
+    ) -> AnyIPEndpoint {
+        let ipv4Address: IPv4Address
+        if applyObfuscatedIps {
+            ipv4Address = applyObfuscatedIpAddresses(match: match)
+        } else {
+            ipv4Address = match.endpoint.ipv4Relay.ip
+        }
+        return .ipv4(IPv4Endpoint(ip: ipv4Address, port: match.endpoint.ipv4Relay.port))
+    }
+
+    /// Converts WireGuardObfuscationState to ObfuscationMethod.
+    private func resolveObfuscationMethod(features: REST.ServerRelay.Features?) -> ObfuscationMethod {
+        switch obfuscation.method {
+        case .off, .automatic:
+            return .off
+        case .on:
+            // `.on` is a legacy state that shouldn't occur in practice
+            return .off
+        case .udpOverTcp:
+            return .udpOverTcp
+        case .shadowsocks:
+            return .shadowsocks
+        case .quic:
+            if let quicFeatures = features?.quic {
+                return .quic(hostname: quicFeatures.domain, token: quicFeatures.token)
+            }
+            // Fall back to off if QUIC features not available
+            return .off
+        }
     }
 
     private func applyObfuscatedIpAddresses(match: RelaySelectorMatch) -> IPv4Address {

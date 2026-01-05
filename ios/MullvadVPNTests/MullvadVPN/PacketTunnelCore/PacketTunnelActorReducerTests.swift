@@ -37,8 +37,7 @@ final class PacketTunnelActorReducerTests: XCTestCase {
             transportLayer: .udp,
             remotePort: 12345,
             isPostQuantum: false,
-            isDaitaEnabled: false,
-            obfuscationMethod: .off
+            isDaitaEnabled: false
         )
     }
 
