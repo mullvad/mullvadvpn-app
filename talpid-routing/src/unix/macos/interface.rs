@@ -351,6 +351,8 @@ fn is_link_local_v6(addr: &Ipv6Addr) -> bool {
     (addr.segments()[0] & 0xffc0) == 0xfe80
 }
 
+/// Get details about the primary interface, unless it should be ignored (see
+/// [`should_skip_interface`]).
 fn get_primary_interface(
     store: &SCDynamicStore,
     family: Family,
@@ -386,6 +388,11 @@ fn get_primary_interface(
         None
     })?;
 
+    if should_skip_interface(&name) {
+        log::trace!("Ignoring primary interface \"{name}\" ({family})");
+        return None;
+    }
+
     Some(PrimaryInterfaceDetails { name, service_id })
 }
 
@@ -397,7 +404,8 @@ fn get_primary_interface_service(
     get_network_service(store, &primary_interface.service_id, family)
 }
 
-/// Get details about a specific network interface.
+/// Get details about a specific network interface, unless it should be ignored
+/// (see `should_skip_interface`).
 ///
 /// Will return `None` and log a message on any error.
 fn get_network_service(
@@ -417,6 +425,12 @@ fn get_network_service(
                 None
             },
         )?;
+
+    if should_skip_interface(&interface_name) {
+        log::trace!("Ignoring interface \"{interface_name}\" for service {service_key} ({family})");
+        return None;
+    }
+
     let router_ip = get_service_router_ip(&service_dict, family).or_else(|| {
         log::debug!("Missing router IP for {service_key} ({interface_name}, {family})");
         None
@@ -470,4 +484,10 @@ fn get_dict_elem_as_string(dict: &CFDictionary, key: CFStringRef) -> Option<Stri
         .map(|s| unsafe { CFType::wrap_under_get_rule(*s) })
         .and_then(|s| s.downcast::<CFString>())
         .map(|s| s.to_string())
+}
+
+/// Ignore tunnel interfaces (utun*) when determining the primary interface or enumerating the
+/// service order.
+fn should_skip_interface(name: &str) -> bool {
+    name.starts_with("utun")
 }
