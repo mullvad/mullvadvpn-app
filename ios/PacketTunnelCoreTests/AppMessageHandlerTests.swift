@@ -103,13 +103,18 @@ final class AppMessageHandlerTests: XCTestCase {
         let selectedRelays = SelectedRelays(
             entry: nil,
             exit: SelectedRelay(
-                endpoint: match.endpoint,
+                endpoint: SelectedEndpoint(
+                    socketAddress: .ipv4(match.endpoint.ipv4Relay),
+                    ipv4Gateway: match.endpoint.ipv4Gateway,
+                    ipv6Gateway: match.endpoint.ipv6Gateway,
+                    publicKey: match.endpoint.publicKey,
+                    obfuscation: .off
+                ),
                 hostname: match.relay.hostname,
                 location: match.location,
                 features: nil
             ),
-            retryAttempt: 0,
-            obfuscation: .off
+            retryAttempt: 0
         )
 
         _ = try? await appMessageHandler.handleAppMessage(
