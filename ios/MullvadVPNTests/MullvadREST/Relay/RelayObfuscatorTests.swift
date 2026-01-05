@@ -556,6 +556,66 @@ extension RelayObfuscatorTests {
         )
     }
 
+    // MARK: - IPv6 Error Cases
+
+    func testQuicWithIPv6ThrowsErrorWhenNoIPv6RelaysAvailable() throws {
+        // Create relays with only IPv4 QUIC addresses
+        let ipv4OnlyQuicRelay = REST.ServerRelay(
+            hostname: "ipv4-only-quic",
+            active: true,
+            owned: true,
+            location: "se-sto",
+            provider: "Test",
+            weight: 100,
+            ipv4AddrIn: .loopback,
+            ipv6AddrIn: .loopback,
+            publicKey: PrivateKey().publicKey.rawValue,
+            includeInCountry: true,
+            daita: false,
+            shadowsocksExtraAddrIn: nil,
+            features: .init(
+                daita: nil,
+                quic: .init(addrIn: ["192.168.1.1"], domain: "quic.test", token: "token") // IPv4 only
+            )
+        )
+
+        let response = REST.ServerRelaysResponse(
+            locations: [
+                "se-sto": REST.ServerLocation(
+                    country: "Sweden",
+                    city: "Stockholm",
+                    latitude: 59.3289,
+                    longitude: 18.0649
+                )
+            ],
+            wireguard: REST.ServerWireguardTunnels(
+                ipv4Gateway: .loopback,
+                ipv6Gateway: .loopback,
+                portRanges: ServerRelaysResponseStubs.wireguardPortRanges,
+                relays: [ipv4OnlyQuicRelay],
+                shadowsocksPortRanges: ServerRelaysResponseStubs.shadowsocksPortRanges
+            ),
+            bridge: REST.ServerBridges(shadowsocks: [], relays: [])
+        )
+
+        var settings = LatestTunnelSettings()
+        settings.wireGuardObfuscation = WireGuardObfuscationSettings(state: .quic)
+        settings.ipVersion = .ipv6
+
+        let obfuscationResult = RelayObfuscator(
+            relays: response,
+            tunnelSettings: settings,
+            connectionAttemptCount: 0,
+            obfuscationBypass: IdentityObfuscationProvider()
+        ).obfuscate()
+
+        // With IPv6 and QUIC, but no IPv6 QUIC addresses, the filtered relays should be empty
+        XCTAssertTrue(
+            obfuscationResult.obfuscatedRelays.wireguard.relays.isEmpty,
+            "QUIC with IPv6 should filter out relays without IPv6 QUIC addresses"
+        )
+    }
+
     // MARK: - UDP over TCP (should not filter by IPv6)
 
     func testUdpOverTcpWithIPv6DoesNotFilterByIPv6Addresses() throws {
