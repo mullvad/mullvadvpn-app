@@ -94,7 +94,7 @@ class ApplicationMain {
       frame: true,
       webPreferences: {
         offscreen: CI_E2E && !TEST_SHOW_WINDOW,
-        preload: path.join(__dirname, 'preload.js'),
+        preload: path.join(import.meta.dirname, 'preload.js'),
         nodeIntegration: false,
         nodeIntegrationInWorker: false,
         nodeIntegrationInSubFrames: false,
@@ -109,7 +109,7 @@ class ApplicationMain {
 
     this.registerIpcListeners();
 
-    await window.loadFile(path.join(__dirname, 'index.html'));
+    await window.loadFile(path.join(import.meta.dirname, 'index.html'));
 
     if (process.argv.includes('--show-window')) {
       window.show();
