@@ -32,7 +32,7 @@ workspace = true
 features = ["Win32", "Win32_Foundation", "Win32_Networking", "Win32_Networking_WinSock"]
 
 [dev-dependencies]
-env_logger = { workspace = true }
+tracing-subscriber = { workspace = true, features = ["env-filter"] }
 tokio = { workspace = true, features = ["fs", "macros", "io-util", "rt-multi-thread"] }
 clap = { workspace = true }
 rand = { workspace = true }

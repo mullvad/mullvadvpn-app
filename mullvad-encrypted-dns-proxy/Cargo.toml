@@ -19,4 +19,4 @@ webpki-roots.workspace = true
 rustls.workspace = true
 
 [dev-dependencies]
-env_logger = { workspace = true }
+tracing-subscriber = { workspace = true }
