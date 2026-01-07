@@ -13,6 +13,7 @@ class CustomDNSViewController: UITableViewController {
     private let interactor: VPNSettingsInteractor
     private var dataSource: CustomDNSDataSource?
     private let alertPresenter: AlertPresenter
+    private let editButton = AppButton(style: .default)
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
         .lightContent
@@ -39,17 +40,28 @@ class CustomDNSViewController: UITableViewController {
         tableView.estimatedRowHeight = 60
         tableView.estimatedSectionHeaderHeight = tableView.estimatedRowHeight
 
+        let footerView = UIView(
+            frame: .init(
+                x: 0,
+                y: 0,
+                width: tableView.frame.width,
+                height: UIMetrics.Button.minimumTappableAreaSize.height
+            ))
+        footerView.addConstrainedSubviews([editButton]) {
+            editButton.pinEdgesToSuperview(
+                .init([
+                    .top(0),
+                    .leading(UIMetrics.contentInsets.left),
+                    .bottom(0),
+                    .trailing(UIMetrics.contentInsets.right),
+                ]))
+        }
+        tableView.tableFooterView = footerView
+
         dataSource = CustomDNSDataSource(tableView: tableView)
         dataSource?.delegate = self
 
         navigationItem.title = NSLocalizedString("DNS settings", comment: "")
-        if navigationItem.rightBarButtonItem != nil {
-            navigationItem.leftBarButtonItem = editButtonItem
-            navigationItem.leftBarButtonItem?.setAccessibilityIdentifier(.dnsSettingsEditButton)
-        } else {
-            navigationItem.rightBarButtonItem = editButtonItem
-            navigationItem.rightBarButtonItem?.setAccessibilityIdentifier(.dnsSettingsEditButton)
-        }
 
         interactor.tunnelSettingsDidChange = { [weak self] newSettings in
             self?.dataSource?.update(from: newSettings)
@@ -61,6 +73,10 @@ class CustomDNSViewController: UITableViewController {
                 origin: .zero,
                 size: CGSize(width: 0, height: UIMetrics.TableView.emptyHeaderHeight)
             ))
+
+        editButton.setAccessibilityIdentifier(.dnsSettingsEditButton)
+        editButton.addTarget(self, action: #selector(didPressEditButton), for: .touchUpInside)
+        setEditButtonTitle()
     }
 
     override func setEditing(_ editing: Bool, animated: Bool) {
@@ -75,6 +91,19 @@ class CustomDNSViewController: UITableViewController {
 
         // Disable swipe to dismiss when editing
         isModalInPresentation = editing
+    }
+
+    @objc private func didPressEditButton() {
+        setEditing(!isEditing, animated: true)
+        setEditButtonTitle()
+    }
+
+    private func setEditButtonTitle() {
+        if isEditing {
+            editButton.setTitle(NSLocalizedString("Done", comment: ""), for: .normal)
+        } else {
+            editButton.setTitle(NSLocalizedString("Edit", comment: ""), for: .normal)
+        }
     }
 
     private func showInfo(with message: NSAttributedString) {
