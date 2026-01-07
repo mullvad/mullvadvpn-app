@@ -13,7 +13,7 @@ workspace = true
 [features]
 # Allow the API server to use to be configured via MULLVAD_API_HOST and MULLVAD_API_ADDR.
 api-override = []
-domain-fronting = ["webpki-roots", "clap", "env_logger"]
+domain-fronting = ["webpki-roots", "clap", "tracing-subscriber"]
 
 [dependencies]
 anyhow = { workspace = true }
@@ -59,7 +59,7 @@ talpid-types = { path = "../talpid-types" }
 talpid-time = { path = "../talpid-time" }
 webpki-roots = { workspace = true, optional = true }
 clap = { workspace = true, features = ["cargo", "derive"], optional = true  }
-env_logger = { workspace = true, optional = true  }
+tracing-subscriber = { workspace = true, optional = true  }
 shadowsocks = { workspace = true, features = ["stream-cipher"] }
 
 [target.'cfg(not(target_os = "ios"))'.dependencies]

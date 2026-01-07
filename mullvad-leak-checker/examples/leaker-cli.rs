@@ -1,5 +1,6 @@
 use clap::{Parser, Subcommand};
 use mullvad_leak_checker::traceroute::TracerouteOpt;
+use tracing_subscriber::EnvFilter;
 
 #[derive(Parser)]
 pub struct Opt {
@@ -19,9 +20,8 @@ pub enum LeakMethod {
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-    env_logger::builder()
-        .filter_level(log::LevelFilter::Debug)
-        .parse_default_env()
+    tracing_subscriber::fmt()
+        .with_env_filter(EnvFilter::new("info"))
         .init();
 
     let opt = Opt::parse();
