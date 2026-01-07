@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.lib.ui.component.listitem
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -49,13 +50,36 @@ fun ExpandableListItem(
     onCellClicked: (Boolean) -> Unit,
     onInfoClicked: (() -> Unit)? = null,
 ) {
+    ExpandableListItem(
+        modifier = modifier,
+        hierarchy = hierarchy,
+        position = position,
+        content = { Text(title) },
+        isExpanded = isExpanded,
+        isEnabled = isEnabled,
+        onCellClicked = onCellClicked,
+        onInfoClicked = onInfoClicked,
+    )
+}
+
+@Composable
+fun ExpandableListItem(
+    modifier: Modifier = Modifier,
+    hierarchy: Hierarchy = Hierarchy.Parent,
+    position: Position = Position.Single,
+    content: @Composable (BoxScope) -> Unit,
+    isExpanded: Boolean,
+    isEnabled: Boolean = true,
+    onCellClicked: (Boolean) -> Unit,
+    onInfoClicked: (() -> Unit)? = null,
+) {
     MullvadListItem(
         modifier = modifier,
         hierarchy = hierarchy,
         position = position,
         isEnabled = isEnabled,
         onClick = { onCellClicked(!isExpanded) },
-        content = { Text(title) },
+        content = content,
         trailingContent = {
             Row(modifier = modifier.fillMaxSize()) {
                 if (onInfoClicked != null) {

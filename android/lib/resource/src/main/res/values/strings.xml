@@ -494,4 +494,6 @@
     <string name="app_name_weather">Weather</string>
     <string name="app_name_browser">Browser</string>
     <string name="app_name_notes">Notes</string>
+    <string name="all">All</string>
+    <string name="number_parentheses">(%d)</string>
 </resources>

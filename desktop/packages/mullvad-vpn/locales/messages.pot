@@ -2782,6 +2782,9 @@ msgstr ""
 msgid "%s was added to your account."
 msgstr ""
 
+msgid "(%d)"
+msgstr ""
+
 msgid "1. After clicking on the \"Go to VPN settings\" button below, click on the cogwheel next to the \"Mullvad VPN\" name."
 msgstr ""
 
@@ -2849,6 +2852,9 @@ msgid "After updating a VPN app on Android 16, devices might end up in a state w
 msgstr ""
 
 msgid "Agree and continue"
+msgstr ""
+
+msgid "All"
 msgstr ""
 
 msgid "All applications"

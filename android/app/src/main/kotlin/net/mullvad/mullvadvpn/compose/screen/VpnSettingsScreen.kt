@@ -9,6 +9,7 @@ import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -94,6 +95,7 @@ import net.mullvad.mullvadvpn.lib.theme.color.AlphaInvisible
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaVisible
 import net.mullvad.mullvadvpn.lib.ui.component.DividerButton
+import net.mullvad.mullvadvpn.lib.ui.component.SPACE_CHAR
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.DnsListItem
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.ExpandableListItem
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.InfoListItem
@@ -130,6 +132,7 @@ private fun PreviewVpnSettings(
             state = state,
             initialScrollToFeature = null,
             snackbarHostState = SnackbarHostState(),
+            onToggleAllBlockers = {},
             onToggleBlockTrackers = {},
             onToggleBlockAds = {},
             onToggleBlockMalware = {},
@@ -240,6 +243,7 @@ fun SharedTransitionScope.VpnSettings(
         navigateToServerIpOverrides =
             dropUnlessResumed { navigator.navigate(ServerIpOverridesDestination()) },
         onToggleContentBlockersExpanded = vm::onToggleContentBlockersExpand,
+        onToggleAllBlockers = vm::onToggleAllBlockers,
         onToggleBlockTrackers = vm::onToggleBlockTrackers,
         onToggleBlockAds = vm::onToggleBlockAds,
         onToggleBlockMalware = vm::onToggleBlockMalware,
@@ -284,6 +288,7 @@ fun VpnSettingsScreen(
     navigateToLocalNetworkSharingInfo: () -> Unit,
     navigateToServerIpOverrides: () -> Unit,
     onToggleContentBlockersExpanded: () -> Unit,
+    onToggleAllBlockers: (Boolean) -> Unit,
     onToggleBlockTrackers: (Boolean) -> Unit,
     onToggleBlockAds: (Boolean) -> Unit,
     onToggleBlockMalware: (Boolean) -> Unit,
@@ -350,6 +355,7 @@ fun VpnSettingsScreen(
                             navigateToServerIpOverrides,
                             navigateToAntiCensorship,
                             onToggleContentBlockersExpanded,
+                            onToggleAllBlockers,
                             onToggleBlockTrackers,
                             onToggleBlockAds,
                             onToggleBlockMalware,
@@ -389,6 +395,7 @@ fun VpnSettingsContent(
     navigateToServerIpOverrides: () -> Unit,
     navigateToAntiCensorship: () -> Unit,
     onToggleContentBlockersExpanded: () -> Unit,
+    onToggleAllBlockers: (Boolean) -> Unit,
     onToggleBlockTrackers: (Boolean) -> Unit,
     onToggleBlockAds: (Boolean) -> Unit,
     onToggleBlockMalware: (Boolean) -> Unit,
@@ -612,6 +619,19 @@ fun VpnSettingsContent(
                     }
                 }
 
+                is VpnSettingItem.DnsContentBlockerItem.All ->
+                    item(key = it::class.simpleName) {
+                        SwitchListItem(
+                            modifier = Modifier.animateItem(),
+                            position = Position.Middle,
+                            hierarchy = Hierarchy.Child1,
+                            title = stringResource(R.string.all),
+                            isToggled = it.enabled,
+                            isEnabled = it.featureEnabled,
+                            onCellClicked = { onToggleAllBlockers(it) },
+                        )
+                    }
+
                 is VpnSettingItem.DnsContentBlockerItem.Ads ->
                     item(key = it::class.simpleName) {
                         SwitchListItem(
@@ -701,7 +721,21 @@ fun VpnSettingsContent(
                                         )
                                     ),
                             position = if (it.expanded) Position.Top else Position.Single,
-                            title = stringResource(R.string.dns_content_blockers),
+                            content = { _ ->
+                                Row {
+                                    Text(stringResource(R.string.dns_content_blockers))
+                                    if (it.numberOfContentBlockersEnabled > 0) {
+                                        Text(SPACE_CHAR.toString())
+                                        Text(
+                                            stringResource(
+                                                R.string.number_parentheses,
+                                                it.numberOfContentBlockersEnabled,
+                                            ),
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        )
+                                    }
+                                }
+                            },
                             isExpanded = it.expanded,
                             isEnabled = it.featureEnabled,
                             onInfoClicked = { navigateToContentBlockersInfo() },

@@ -49,14 +49,23 @@ data class VpnSettingsUiState(
                     // Dns Content Blockers
                     add(
                         VpnSettingItem.DnsContentBlockersHeader(
-                            !isCustomDnsEnabled,
-                            isContentBlockersExpanded,
+                            featureEnabled = !isCustomDnsEnabled,
+                            expanded = isContentBlockersExpanded,
+                            numberOfContentBlockersEnabled =
+                                contentBlockersOptions.numberOfBlockersEnabled(),
                         )
                     )
                     add(VpnSettingItem.Divider)
 
                     if (isContentBlockersExpanded) {
                         with(contentBlockersOptions) {
+                            add(
+                                VpnSettingItem.DnsContentBlockerItem.All(
+                                    enabled = isAllBlockersEnabled,
+                                    !isCustomDnsEnabled,
+                                )
+                            )
+                            add(VpnSettingItem.Divider)
                             add(
                                 VpnSettingItem.DnsContentBlockerItem.Ads(
                                     blockAds,
@@ -109,7 +118,7 @@ data class VpnSettingsUiState(
                     add(
                         VpnSettingItem.CustomDnsServerSetting(
                             isCustomDnsEnabled,
-                            !contentBlockersOptions.isAnyBlockerEnabled(),
+                            !contentBlockersOptions.isAnyBlockerEnabled,
                         )
                     )
                     if (isCustomDnsEnabled) {
@@ -130,7 +139,7 @@ data class VpnSettingsUiState(
                         }
                     }
 
-                    if (contentBlockersOptions.isAnyBlockerEnabled()) {
+                    if (contentBlockersOptions.isAnyBlockerEnabled) {
                         add(VpnSettingItem.CustomDnsUnavailable)
                     } else if (customDnsItems.isEmpty()) {
                         add(VpnSettingItem.CustomDnsInfo)
