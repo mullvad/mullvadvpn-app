@@ -34,6 +34,9 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
                         .onAppear {
                             onScrollOffsetChange(true)
                         }
+                        .onDisappear {
+                            onScrollOffsetChange(false)
+                        }
                     if !context.filter.isEmpty {
                         ActiveFilterView(
                             activeFilter: context.filter
@@ -45,15 +48,11 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
                         .padding(.bottom, 16)
                     }
                     Group {
-                        if isShowingCustomListsSection {
-                            customListSection(isShowingHeader: isShowingAllLocationsSection)
-                        }
-                        Color.clear.frame(height: 0)
-                            .onDisappear {
-                                onScrollOffsetChange(false)
-                            }
                         if viewModel.isRecentsEnabled {
                             recentsSection(isShowingHeader: isShowingRecentsSection)
+                        }
+                        if isShowingCustomListsSection {
+                            customListSection(isShowingHeader: isShowingAllLocationsSection)
                         }
                         if isShowingAllLocationsSection {
                             allLocationsSection(isShowingHeader: isShowingCustomListsSection)
