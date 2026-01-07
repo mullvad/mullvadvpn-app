@@ -5,10 +5,8 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
     @Binding var context: LocationContext
     @State var newCustomListAlert: MullvadInputAlert?
     @State var alert: MullvadAlert?
-    @State private var previousScrollOffset: CGFloat = 0
-
-    let onScrollOffsetChange: (CGFloat, CGFloat) -> Void
     private let scrollToTop = "ScrollPosition.top"
+    let onScrollOffsetChange: (Bool) -> Void
 
     var isShowingCustomListsSection: Bool {
         viewModel.searchText.isEmpty
@@ -18,6 +16,7 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
                         !$0.isHiddenFromSearch
                     }.isEmpty)
     }
+
     var isShowingAllLocationsSection: Bool {
         !context.locations.filter({ !$0.isHiddenFromSearch }).isEmpty
     }
@@ -29,62 +28,59 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
     var body: some View {
         ScrollViewReader { scrollProxy in
             // All items in the list are arranged in a flat hierarchy
-            ScrollView {
-                LazyVStack(spacing: 0) {
-                    // Invisible anchor used by ScrollViewReader to scroll back to the top
-                    Color.clear
-                        .frame(height: 1)
-                        .id(scrollToTop)
-
-                    Group {
-                        if !context.filter.isEmpty {
-                            ActiveFilterView(
-                                activeFilter: context.filter
-                            ) { filter in
-                                viewModel.onFilterTapped(filter)
-                            } onRemove: { filter in
-                                viewModel.onFilterRemoved(filter)
-                            }
-                            .padding(.bottom, 16)
+            List {
+                Group {
+                    Color.clear.frame(height: 0)
+                        .onAppear {
+                            onScrollOffsetChange(true)
                         }
-                        Group {
-                            if viewModel.isRecentsEnabled {
-                                recentsSection(isShowingHeader: isShowingRecentsSection)
-                            }
-                            if isShowingCustomListsSection {
-                                customListSection(isShowingHeader: isShowingAllLocationsSection)
-                            }
-                            if isShowingAllLocationsSection {
-                                allLocationsSection(isShowingHeader: isShowingCustomListsSection)
-                            }
-                            if !isShowingCustomListsSection && !isShowingAllLocationsSection {
-                                Text("No result for \"\(viewModel.searchText)\", please try a different search term.")
-                                    .font(.mullvadMiniSemiBold)
-                                    .foregroundStyle(Color.mullvadTextPrimary.opacity(0.6))
-                                    .padding(.vertical)
-                            }
+                    if !context.filter.isEmpty {
+                        ActiveFilterView(
+                            activeFilter: context.filter
+                        ) { filter in
+                            viewModel.onFilterTapped(filter)
+                        } onRemove: { filter in
+                            viewModel.onFilterRemoved(filter)
                         }
-                        .padding(.horizontal, 16)
+                        .padding(.bottom, 16)
                     }
-                    .zIndex(3)  // prevent wrong overlapping during animations
+                    Group {
+                        if isShowingCustomListsSection {
+                            customListSection(isShowingHeader: isShowingAllLocationsSection)
+                        }
+                        Color.clear.frame(height: 0)
+                            .onDisappear {
+                                onScrollOffsetChange(false)
+                            }
+                        if viewModel.isRecentsEnabled {
+                            recentsSection(isShowingHeader: isShowingRecentsSection)
+                        }
+                        if isShowingAllLocationsSection {
+                            allLocationsSection(isShowingHeader: isShowingCustomListsSection)
+                        }
+                        if !isShowingCustomListsSection && !isShowingAllLocationsSection {
+                            Text("No result for \"\(viewModel.searchText)\", please try a different search term.")
+                                .font(.mullvadMiniSemiBold)
+                                .foregroundStyle(Color.mullvadTextPrimary.opacity(0.6))
+                                .padding(.vertical)
+                        }
+                    }
+                    .padding(.horizontal, 16)
                 }
-                .capturePosition(in: .exitLocationScroll) { frame in
-                    onScrollOffsetChange(previousScrollOffset, frame.minY)
-                    previousScrollOffset = frame.minY
-                }
+                .listRowSpacing(0)
+                .listRowInsets(.init())
+                .listRowSeparator(.hidden)
+                .listRowBackground(Color.clear)
+                .buttonStyle(PlainButtonStyle())
+                .zIndex(3)  // prevent wrong overlapping during animations
             }
+            .environment(\.defaultMinListRowHeight, 0)
+            .listStyle(.plain)
             .coordinateSpace(.exitLocationScroll)
             .onAppear {
                 guard viewModel.searchText.isEmpty else { return }
                 scrollToCurrentSelection(scrollProxy)
             }
-            .onChange(
-                of: viewModel.isRecentsEnabled,
-                {
-                    scrollToCurrentSelection(scrollProxy)
-                }
-            )
-            .accessibilityIdentifier(.selectLocationView)
         }
         .mullvadInputAlert(item: $newCustomListAlert)
         .mullvadAlert(item: $alert)
@@ -197,7 +193,7 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
         context: $viewModel.exitContext,
         newCustomListAlert: nil,
         alert: nil,
-        onScrollOffsetChange: { _, _ in }
+        onScrollOffsetChange: { _ in }
     )
     .background(Color.mullvadBackground)
 }
@@ -209,7 +205,7 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
         context: $viewModel.entryContext,
         newCustomListAlert: nil,
         alert: nil,
-        onScrollOffsetChange: { _, _ in }
+        onScrollOffsetChange: { _ in }
     )
     .background(Color.mullvadBackground)
 }
