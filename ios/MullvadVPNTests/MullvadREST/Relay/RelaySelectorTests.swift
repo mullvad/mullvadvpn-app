@@ -142,7 +142,7 @@ class RelaySelectorTests: XCTestCase {
         }
 
         let sampleLocation = try XCTUnwrap(sampleRelays.locations["es-mad"])
-        let selectedRelay = RelaySelector.closestRelay(
+        let selectedRelay = RelaySelector.randomCloseRelay(
             to: CLLocationCoordinate2D(latitude: sampleLocation.latitude, longitude: sampleLocation.longitude),
             using: relayWithLocations
         )

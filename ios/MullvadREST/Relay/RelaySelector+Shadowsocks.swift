@@ -55,7 +55,7 @@ extension RelaySelector {
                 return mappedBridges.randomElement()?.relay
             }
 
-            return RelaySelector.closestRelay(
+            return RelaySelector.randomCloseRelay(
                 to: selectedRelay.serverLocation.geoCoordinate,
                 using: mappedBridges
             ) as? REST.BridgeRelay
