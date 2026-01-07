@@ -103,3 +103,8 @@ id = "CVE-2025-67735" #  GHSA-84h7-rjj3-6jx4
 ignoreUntil = 2026-02-01
 reason = "No impact on this app since it does not use HttpRequestEncoder"
 
+# jose4j: Jose4j is vulnerable to DoS via compressed JWE content
+[[IgnoredVulns]]
+id = "CVE-2024-29371" #  GHSA-3677-xxcr-wjqv
+ignoreUntil = 2026-02-01
+reason = "Denial-of-Service condition is not relevant."
