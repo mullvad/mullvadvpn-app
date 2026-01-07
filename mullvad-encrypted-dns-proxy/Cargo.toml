@@ -20,4 +20,4 @@ rustls.workspace = true
 rustls-pki-types.workspace = true
 
 [dev-dependencies]
-env_logger = { workspace = true }
+tracing-subscriber = { workspace = true }
