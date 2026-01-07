@@ -79,7 +79,6 @@ single_use_lifetimes = "warn"
 [workspace.lints.clippy]
 as_ptr_cast_mut = "warn"
 as_underscore = "warn"
-assertions_on_result_states = "warn"
 borrow_as_ptr = "warn"
 implicit_clone = "warn"
 undocumented_unsafe_blocks = "warn"
