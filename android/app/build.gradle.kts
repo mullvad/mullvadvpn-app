@@ -270,6 +270,16 @@ android {
             inputs.dir(rustJniLibsDir)
             dependsOn("cargoBuild")
         }
+
+        tasks.findByPath("generate${capitalizedVariantName}BaselineProfile")?.let {
+            it.doLast {
+                val baselineFile = "baseline-prof.txt"
+                val sourceDir = "${rootProject.projectDir}/app/src"
+                val fromDir = "$sourceDir/$variantName/generated/baselineProfiles"
+                val toDir = "$sourceDir/main"
+                file("$fromDir/$baselineFile").renameTo(file("$toDir/$baselineFile"))
+            }
+        }
     }
 }
 

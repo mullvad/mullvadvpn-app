@@ -103,6 +103,7 @@ import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.lib.ui.tag.LOGIN_INPUT_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.LOGIN_SCREEN_DELETE_ACCOUNT_HISTORY_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.LOGIN_TITLE_TEST_TAG
 import net.mullvad.mullvadvpn.viewmodel.LoginUiSideEffect
 import net.mullvad.mullvadvpn.viewmodel.LoginViewModel
@@ -526,7 +527,11 @@ private fun AccountDropDownItem(
                 style = MaterialTheme.typography.bodyLarge,
             )
         }
-        IconButton(enabled = enabled, onClick = onDeleteClick) {
+        IconButton(
+            modifier = Modifier.testTag(LOGIN_SCREEN_DELETE_ACCOUNT_HISTORY_TEST_TAG),
+            enabled = enabled,
+            onClick = onDeleteClick,
+        ) {
             Icon(
                 imageVector = Icons.Default.Clear,
                 contentDescription = null,

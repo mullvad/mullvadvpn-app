@@ -42,7 +42,17 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        testInstrumentationRunnerArguments += mapOf("clearPackageData" to "true")
+        testInstrumentationRunnerArguments += buildMap {
+            put("clearPackageData", "true")
+
+            // Add all properties starting with "mullvad.test.baseline" to the
+            // testInstrumentationRunnerArguments
+            properties.forEach {
+                if (it.key.startsWith("mullvad.test.baseline")) {
+                    put(it.key, it.value.toString())
+                }
+            }
+        }
     }
 
     targetProjectPath = ":app"
