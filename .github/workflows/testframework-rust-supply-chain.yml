@@ -20,7 +20,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Run cargo deny (test workspace)
-        uses: EmbarkStudios/cargo-deny-action@v1
+        uses: EmbarkStudios/cargo-deny-action@v2
         with:
           manifest-path: ./test/Cargo.toml
           log-level: warn
