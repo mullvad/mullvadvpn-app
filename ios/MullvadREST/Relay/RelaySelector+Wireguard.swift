@@ -49,7 +49,7 @@ extension RelaySelector {
             var relayWithLocation: RelayWithLocation<REST.ServerRelay>?
             if let referenceLocation {
                 let relay =
-                    closestRelay(
+                    randomCloseRelay(
                         to: CLLocationCoordinate2D(
                             latitude: referenceLocation.latitude, longitude: referenceLocation.longitude),
                         using: relayWithLocations

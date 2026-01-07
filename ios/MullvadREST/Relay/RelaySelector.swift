@@ -92,10 +92,10 @@ public enum RelaySelector {
         }
     }
 
-    static func closestRelay(
+    static func closestRelays(
         to location: CLLocationCoordinate2D,
         using relayWithLocations: [RelayWithLocation<some AnyRelay>]
-    ) -> AnyRelay? {
+    ) -> [RelayWithDistance<some AnyRelay>] {
         let relaysWithDistance = relayWithLocations.map {
             return RelayWithDistance(
                 relay: $0.relay,
@@ -109,6 +109,15 @@ public enum RelaySelector {
         }.sorted {
             $0.distance < $1.distance
         }.prefix(5)
+
+        return Array(relaysWithDistance)
+    }
+
+    static func randomCloseRelay(
+        to location: CLLocationCoordinate2D,
+        using relayWithLocations: [RelayWithLocation<some AnyRelay>]
+    ) -> AnyRelay? {
+        let relaysWithDistance = closestRelays(to: location, using: relayWithLocations)
 
         var greatestDistance = 0.0
         relaysWithDistance.forEach {
@@ -125,8 +134,6 @@ public enum RelaySelector {
 
         return closestRelay?.relay ?? relaysWithDistance.randomElement()?.relay
     }
-
-    // MARK: - private
 
     static func parseRawPortRanges(_ rawPortRanges: [[UInt16]]) -> [ClosedRange<UInt16>] {
         rawPortRanges.compactMap { inputRange -> ClosedRange<UInt16>? in
@@ -165,6 +172,8 @@ public enum RelaySelector {
 
         return nil
     }
+
+    // MARK: - private
 
     private static func filterByActive<T: AnyRelay>(
         relays: [RelayWithLocation<T>]
