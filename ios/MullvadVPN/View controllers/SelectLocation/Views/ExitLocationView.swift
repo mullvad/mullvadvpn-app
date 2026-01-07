@@ -6,7 +6,7 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
     @State var newCustomListAlert: MullvadInputAlert?
     @State var alert: MullvadAlert?
     private let scrollToTop = "ScrollPosition.top"
-    let onScrollOffsetChange: (Bool) -> Void
+    let onScrollVisibilityChange: (Bool) -> Void
 
     var isShowingCustomListsSection: Bool {
         viewModel.searchText.isEmpty
@@ -32,7 +32,10 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
                 Group {
                     Color.clear.frame(height: 0)
                         .onAppear {
-                            onScrollOffsetChange(true)
+                            onScrollVisibilityChange(true)
+                        }
+                        .onDisappear {
+                            onScrollVisibilityChange(false)
                         }
                     if !context.filter.isEmpty {
                         ActiveFilterView(
@@ -45,15 +48,11 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
                         .padding(.bottom, 16)
                     }
                     Group {
-                        if isShowingCustomListsSection {
-                            customListSection(isShowingHeader: isShowingAllLocationsSection)
-                        }
-                        Color.clear.frame(height: 0)
-                            .onDisappear {
-                                onScrollOffsetChange(false)
-                            }
                         if viewModel.isRecentsEnabled {
                             recentsSection(isShowingHeader: isShowingRecentsSection)
+                        }
+                        if isShowingCustomListsSection {
+                            customListSection(isShowingHeader: isShowingAllLocationsSection)
                         }
                         if isShowingAllLocationsSection {
                             allLocationsSection(isShowingHeader: isShowingCustomListsSection)
@@ -193,7 +192,7 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
         context: $viewModel.exitContext,
         newCustomListAlert: nil,
         alert: nil,
-        onScrollOffsetChange: { _ in }
+        onScrollVisibilityChange: { _ in }
     )
     .background(Color.mullvadBackground)
 }
@@ -205,7 +204,7 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
         context: $viewModel.entryContext,
         newCustomListAlert: nil,
         alert: nil,
-        onScrollOffsetChange: { _ in }
+        onScrollVisibilityChange: { _ in }
     )
     .background(Color.mullvadBackground)
 }

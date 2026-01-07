@@ -13,7 +13,7 @@ class SelectLocationPage: Page {
     @discardableResult override init(_ app: XCUIApplication) {
         super.init(app)
 
-        self.pageElement = app.scrollViews[.selectLocationView]
+        self.pageElement = app.otherElements[.selectLocationView]
         waitForPageToBeShown()
     }
 
@@ -24,13 +24,15 @@ class SelectLocationPage: Page {
     }
 
     @discardableResult func tapLocationCell(withName name: String) -> Self {
-        app.buttons[AccessibilityIdentifier.locationListItem(name)]
-            .tap()
+        let cell = app.buttons[AccessibilityIdentifier.locationListItem(name)]
+        app.scrollDownToElement(element: cell)
+        cell.tap()
         return self
     }
 
     @discardableResult func tapLocationCellExpandButton(withName name: String) -> Self {
         let cell = app.buttons[AccessibilityIdentifier.locationListItem(name)]
+        app.scrollDownToElement(element: cell)
         cell.wait()
         let expandButton = cell.buttons[AccessibilityIdentifier.expandButton]
         expandButton.wait()
