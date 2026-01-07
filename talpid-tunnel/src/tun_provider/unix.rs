@@ -275,6 +275,11 @@ mod tun08_imp {
             let mut tunnel_device = {
                 #[allow(unused_mut)]
                 let mut builder = TunnelDeviceBuilder::default();
+                #[cfg(target_os = "macos")]
+                builder.config.platform_config(|cfg| {
+                    // Routing is managed by the tunnel state machine
+                    cfg.enable_routing(false);
+                });
                 #[cfg(target_os = "linux")]
                 {
                     if self.config.packet_information {
