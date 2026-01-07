@@ -1260,7 +1260,6 @@ dependencies = [
  "anstream",
  "anstyle",
  "env_filter",
- "jiff",
  "log",
 ]
 
@@ -2375,30 +2374,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "49f1f14873335454500d59611f1cf4a4b0f786f9ac11f4312a78e4cf2566695b"
 
 [[package]]
-name = "jiff"
-version = "0.2.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d699bc6dfc879fb1bf9bdff0d4c56f0884fc6f0d0eb0fba397a6d00cd9a6b85e"
-dependencies = [
- "jiff-static",
- "log",
- "portable-atomic",
- "portable-atomic-util",
- "serde",
-]
-
-[[package]]
-name = "jiff-static"
-version = "0.2.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8d16e75759ee0aa64c57a56acbf43916987b20c77373cb7e808979e02b93c9f9"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn 2.0.108",
-]
-
-[[package]]
 name = "jni"
 version = "0.19.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2836,7 +2811,6 @@ dependencies = [
  "cbindgen",
  "chrono",
  "clap",
- "env_logger 0.11.7",
  "futures",
  "http",
  "http-body-util",
@@ -2863,6 +2837,7 @@ dependencies = [
  "tokio-rustls",
  "tokio-socks",
  "tower",
+ "tracing-subscriber",
  "uuid",
  "vec1",
  "webpki-roots 1.0.4",
@@ -2900,7 +2875,6 @@ dependencies = [
 name = "mullvad-daemon"
 version = "0.0.0"
 dependencies = [
- "android_logger",
  "anyhow",
  "async-trait",
  "chrono",
@@ -2959,12 +2933,12 @@ dependencies = [
 name = "mullvad-encrypted-dns-proxy"
 version = "0.0.0"
 dependencies = [
- "env_logger 0.11.7",
  "hickory-resolver",
  "log",
  "rustls",
  "serde",
  "tokio",
+ "tracing-subscriber",
  "webpki-roots 1.0.4",
 ]
 
@@ -3033,7 +3007,6 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "clap",
- "env_logger 0.11.7",
  "futures",
  "log",
  "nix 0.30.1",
@@ -3043,6 +3016,7 @@ dependencies = [
  "socket2 0.5.8",
  "talpid-windows",
  "tokio",
+ "tracing-subscriber",
  "windows-sys 0.61.2",
 ]
 
@@ -3077,7 +3051,6 @@ dependencies = [
  "bytes",
  "clap",
  "criterion",
- "env_logger 0.11.7",
  "h3",
  "h3-datagram",
  "h3-quinn",
@@ -3092,6 +3065,7 @@ dependencies = [
  "talpid-tunnel",
  "thiserror 2.0.17",
  "tokio",
+ "tracing-subscriber",
  "typed-builder 0.21.0",
  "windows-sys 0.61.2",
 ]
@@ -3125,7 +3099,6 @@ version = "0.0.0"
 dependencies = [
  "clap",
  "dirs",
- "env_logger 0.11.7",
  "log",
  "mullvad-api",
  "mullvad-paths",
@@ -3135,6 +3108,7 @@ dependencies = [
  "talpid-types",
  "thiserror 2.0.17",
  "tokio",
+ "tracing-subscriber",
  "uuid",
  "windows-sys 0.61.2",
  "winres",
@@ -3180,7 +3154,6 @@ name = "mullvad-setup"
 version = "0.0.0"
 dependencies = [
  "clap",
- "env_logger 0.11.7",
  "mullvad-api",
  "mullvad-daemon",
  "mullvad-management-interface",
@@ -3192,6 +3165,7 @@ dependencies = [
  "talpid-types",
  "thiserror 2.0.17",
  "tokio",
+ "tracing-subscriber",
  "windows-service",
  "windows-sys 0.61.2",
 ]
@@ -4078,15 +4052,6 @@ name = "portable-atomic"
 version = "1.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "350e9b48cbc6b0e028b0473b114454c6316e57336ee184ceab6e53f72c178b3e"
-
-[[package]]
-name = "portable-atomic-util"
-version = "0.2.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d8a2f0d8d040d7848a709caf78912debcc3f33ee4b3cac47d73d1e1069e83507"
-dependencies = [
- "portable-atomic",
-]
 
 [[package]]
 name = "powerfmt"
@@ -5425,7 +5390,7 @@ version = "0.2.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e7f46083d221181166e5b6f6b1e5f1d499f3a76888826e6cb1d057554157cd0f"
 dependencies = [
- "env_logger 0.11.7",
+ "env_logger",
  "test-log-macros",
  "tracing-subscriber",
 ]
