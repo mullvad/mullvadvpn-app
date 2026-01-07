@@ -105,66 +105,47 @@ pub enum LogError {
     NoLocalAppDataDir,
 }
 
-pub fn collect_report<P: AsRef<Path>>(
-    extra_logs: &[P],
-    output_path: &Path,
-    redact_custom_strings: Vec<String>,
-    #[cfg(target_os = "android")] android_log_dir: &Path,
-    #[cfg(target_os = "android")] extra_logs_dir: &Path,
-    #[cfg(target_os = "android")] unverified_purchases: i32,
-    #[cfg(target_os = "android")] pending_purchases: i32,
-) -> Result<(), Error> {
-    let mut problem_report = ProblemReport::new(redact_custom_strings);
+/// Problem report collector
+#[derive(Debug, Default)]
+pub struct ProblemReportCollector {
+    pub extra_logs: Vec<PathBuf>,
+    pub redact_custom_strings: Vec<String>,
 
-    let daemon_logs_dir = {
-        #[cfg(target_os = "android")]
-        {
-            Ok(android_log_dir)
-        }
-        #[cfg(not(target_os = "android"))]
-        {
-            mullvad_paths::get_log_dir().map_err(LogError::GetLogDir)
-        }
-    };
-
-    let daemon_logs = daemon_logs_dir.and_then(list_logs);
-    match daemon_logs {
-        Ok(daemon_logs) => {
-            for log in daemon_logs {
-                match log {
-                    Ok(path) => problem_report.add_log(&path),
-                    Err(error) => problem_report.add_error("Unable to get log path", &error),
-                }
-            }
-        }
-        Err(error) => {
-            problem_report.add_error("Failed to list logs in daemon log directory", &error)
-        }
-    };
-    match frontend_log_dir().map(|dir| dir.and_then(list_logs)) {
-        Some(Ok(frontend_logs)) => {
-            for log in frontend_logs {
-                match log {
-                    Ok(path) => problem_report.add_log(&path),
-                    Err(error) => problem_report.add_error("Unable to get log path", &error),
-                }
-            }
-        }
-        Some(Err(error)) => {
-            problem_report.add_error("Failed to list logs in frontend log directory", &error)
-        }
-        None => {}
-    }
     #[cfg(target_os = "android")]
-    {
-        match write_logcat_to_file(android_log_dir) {
-            Ok(logcat_path) => problem_report.add_log(&logcat_path),
-            Err(error) => problem_report.add_error("Failed to collect logcat", &error),
-        }
+    pub android_log_dir: PathBuf,
+    #[cfg(target_os = "android")]
+    pub extra_logs_dir: PathBuf,
+    #[cfg(target_os = "android")]
+    pub unverified_purchases: i32,
+    #[cfg(target_os = "android")]
+    pub pending_purchases: i32,
+}
 
-        match list_logs(extra_logs_dir) {
-            Ok(android_app_logs) => {
-                for log in android_app_logs {
+impl ProblemReportCollector {
+    /// Collect the problem report and writes it to the specified path
+    pub fn write_to_path(self, path: impl AsRef<Path>) -> Result<(), Error> {
+        self.write(open_output_file(path)?)
+    }
+
+    /// Collect the problem report and writes it to the specified output
+    pub fn write(self, output: WriteSource<impl Write>) -> Result<(), Error> {
+        let mut problem_report = ProblemReport::new(self.redact_custom_strings);
+
+        let daemon_logs_dir = {
+            #[cfg(target_os = "android")]
+            {
+                Ok(&self.android_log_dir)
+            }
+            #[cfg(not(target_os = "android"))]
+            {
+                mullvad_paths::get_log_dir().map_err(LogError::GetLogDir)
+            }
+        };
+
+        let daemon_logs = daemon_logs_dir.and_then(list_logs);
+        match daemon_logs {
+            Ok(daemon_logs) => {
+                for log in daemon_logs {
                     match log {
                         Ok(path) => problem_report.add_log(&path),
                         Err(error) => problem_report.add_error("Unable to get log path", &error),
@@ -172,26 +153,99 @@ pub fn collect_report<P: AsRef<Path>>(
                 }
             }
             Err(error) => {
-                problem_report.add_error("Failed to list logs in android app log directory", &error)
+                problem_report.add_error("Failed to list logs in daemon log directory", &error)
             }
+        };
+        match frontend_log_dir().map(|dir| dir.and_then(list_logs)) {
+            Some(Ok(frontend_logs)) => {
+                for log in frontend_logs {
+                    match log {
+                        Ok(path) => problem_report.add_log(&path),
+                        Err(error) => problem_report.add_error("Unable to get log path", &error),
+                    }
+                }
+            }
+            Some(Err(error)) => {
+                problem_report.add_error("Failed to list logs in frontend log directory", &error)
+            }
+            None => {}
+        }
+        #[cfg(target_os = "android")]
+        {
+            match write_logcat_to_file(&self.android_log_dir) {
+                Ok(logcat_path) => problem_report.add_log(&logcat_path),
+                Err(error) => problem_report.add_error("Failed to collect logcat", &error),
+            }
+
+            match list_logs(self.extra_logs_dir) {
+                Ok(android_app_logs) => {
+                    for log in android_app_logs {
+                        match log {
+                            Ok(path) => problem_report.add_log(&path),
+                            Err(error) => {
+                                problem_report.add_error("Unable to get log path", &error)
+                            }
+                        }
+                    }
+                }
+                Err(error) => problem_report
+                    .add_error("Failed to list logs in android app log directory", &error),
+            }
+
+            problem_report.add_metadata(
+                "unverified-purchases".to_string(),
+                self.unverified_purchases.to_string(),
+            );
+            problem_report.add_metadata(
+                "pending-purchases".to_string(),
+                self.pending_purchases.to_string(),
+            );
         }
 
-        problem_report.add_metadata(
-            "unverified-purchases".to_string(),
-            unverified_purchases.to_string(),
-        );
-        problem_report.add_metadata(
-            "pending-purchases".to_string(),
-            pending_purchases.to_string(),
-        );
+        problem_report.add_logs(self.extra_logs);
+
+        problem_report
+            .write_to(output.write)
+            .map_err(|source| Error::WriteReportError {
+                path: output.source,
+                source,
+            })
+    }
+}
+
+/// A [Write] with a named source.
+pub struct WriteSource<W: Write> {
+    pub write: W,
+    pub source: String,
+}
+
+/// Open a file to write the problem report to.
+pub fn open_output_file(path: impl AsRef<Path>) -> Result<WriteSource<BufWriter<File>>, Error> {
+    fn inner(path: impl AsRef<Path>) -> io::Result<BufWriter<File>> {
+        let file = File::create(path)?;
+        let mut permissions = file.metadata()?.permissions();
+        permissions.set_readonly(true);
+        file.set_permissions(permissions)?;
+        Ok(BufWriter::new(file))
     }
 
-    problem_report.add_logs(extra_logs);
+    let file_path = path.as_ref().display().to_string();
 
-    write_problem_report(output_path, &problem_report).map_err(|source| Error::WriteReportError {
-        path: output_path.display().to_string(),
+    let write = inner(path).map_err(|source| Error::WriteReportError {
+        path: file_path.clone(),
         source,
+    })?;
+
+    Ok(WriteSource {
+        write,
+        source: file_path,
     })
+}
+
+impl<W: Write> From<(W, String)> for WriteSource<W> {
+    fn from((write, source): (W, String)) -> Self {
+        WriteSource { write, source }
+    }
 }
 
 /// Returns an iterator over all files in the given directory that has the `.log` extension.
@@ -359,15 +413,6 @@ async fn send_problem_report_inner(
         }
     }
     Err(Error::SendFailedTooManyTimes)
-}
-
-fn write_problem_report(path: &Path, problem_report: &ProblemReport) -> io::Result<()> {
-    let file = File::create(path)?;
-    let mut permissions = file.metadata()?.permissions();
-    permissions.set_readonly(true);
-    file.set_permissions(permissions)?;
-    problem_report.write_to(BufWriter::new(file))?;
-    Ok(())
 }
 
 #[derive(Debug)]

@@ -8,6 +8,7 @@ use jnix::{
 };
 use mullvad_api::ApiEndpoint;
 use std::path::Path;
+use std::path::PathBuf;
 use talpid_types::ErrorExt;
 
 #[unsafe(no_mangle)]
@@ -23,23 +24,23 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_dataproxy_MullvadProblemRepor
 ) -> jboolean {
     let env = JnixEnv::from(env);
     let log_dir_string = String::from_java(&env, logDirectory);
-    let log_dir = Path::new(&log_dir_string);
+    let log_dir = PathBuf::from(log_dir_string);
     let extra_logs_dir_string = String::from_java(&env, extraAppLogsDirectory);
-    let extra_logs_dir = Path::new(&extra_logs_dir_string);
-    let output_path_string = String::from_java(&env, outputPath);
-    let output_path = Path::new(&output_path_string);
+    let extra_logs_dir = PathBuf::from(extra_logs_dir_string);
+    let output_path = String::from_java(&env, outputPath);
     let unverified_purchases = i32::from_java(&env, unverifiedPurchases);
     let pending_purchases = i32::from_java(&env, pendingPurchases);
 
-    match mullvad_problem_report::collect_report::<&str>(
-        &[],
-        output_path,
-        Vec::new(),
-        log_dir,
+    let collector = mullvad_problem_report::ProblemReportCollector {
+        extra_logs: vec![],
+        redact_custom_strings: vec![],
+        android_log_dir: log_dir,
         extra_logs_dir,
         unverified_purchases,
         pending_purchases,
-    ) {
+    };
+
+    match collector.write_to_path(&output_path) {
         Ok(()) => JNI_TRUE,
         Err(error) => {
             log::error!(
