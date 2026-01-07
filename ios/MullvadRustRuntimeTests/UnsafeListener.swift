@@ -9,7 +9,7 @@
 import Network
 
 /// > Warning: Do not use this implementation in production code. See the warning in `start()`.
-class UnsafeListener<T: Connection>: @unchecked Sendable {
+class UnsafeListener<T>: @unchecked Sendable where T: Connection & Sendable & SendableMetatype {
     private let dispatchQueue = DispatchQueue(label: "com.test.unsafeListener")
     private let listener: NWListener
 
@@ -78,3 +78,4 @@ class UnsafeListener<T: Connection>: @unchecked Sendable {
         listener.cancel()
     }
 }
+
