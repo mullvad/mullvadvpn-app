@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="account_credit_expires_in_a_few_minutes">Kontokreditt utløper om noen få minutter</string>
-    <string name="account_credit_expires_soon">Kontokreditt utløper snart</string>
     <string name="account_credit_has_expired">Du har ikke mer VPN-tid igjen på kontoen.</string>
     <string name="account_number">Kontonummer</string>
     <string name="account_time_notification_channel_description">Viser påminnelser når tidsavbrudd for kontoen er i ferd med å inntreffe</string>
@@ -231,7 +230,6 @@
     <string name="is_offline">Enheten er frakoblet. Tunnelen vil koble til automatisk når enheten er tilkoblet internett igjen.</string>
     <string name="legacy_always_on_vpn_error_notification_content">Kunne ikke starte tunneltilkobling. Deaktiver VPN som alltid er på, før du bruker Mullvad VPN.</string>
     <string name="legacy_always_on_vpn_error_notification_title">VPN som alltid er på, er tilordnet en annen VPN</string>
-    <string name="less_than_a_day_left">mindre enn én dag igjen</string>
     <string name="less_than_one_day">mindre enn én dag</string>
     <string name="list_name">Listenavn</string>
     <string name="loading_products">Laster inn produkter</string>

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="account_credit_expires_in_a_few_minutes">El crédito de la cuenta caduca en unos minutos</string>
-    <string name="account_credit_expires_soon">El crédito de la cuenta caduca pronto</string>
     <string name="account_credit_has_expired">No queda tiempo de uso de VPN en la cuenta.</string>
     <string name="account_number">Número de cuenta</string>
     <string name="account_time_notification_channel_description">Muestra avisos cuando el tiempo de la cuenta está a punto de caducar</string>
@@ -231,7 +230,6 @@
     <string name="is_offline">El dispositivo está sin conexión. El túnel se conectará automáticamente cuando el dispositivo vuelva a estar en línea.</string>
     <string name="legacy_always_on_vpn_error_notification_content">No se puede iniciar la conexión de túnel. Deshabilite la VPN siempre activa antes de utilizar la Mullvad VPN.</string>
     <string name="legacy_always_on_vpn_error_notification_title">La VPN siempre activa se ha asignado a otra VPN</string>
-    <string name="less_than_a_day_left">queda menos de un día</string>
     <string name="less_than_one_day">menos de un día</string>
     <string name="list_name">Nombre de la lista</string>
     <string name="loading_products">Cargando productos</string>

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="account_credit_expires_in_a_few_minutes">Les crédits du compte expirent dans quelques minutes</string>
-    <string name="account_credit_expires_soon">Les crédits du compte expirent bientôt</string>
     <string name="account_credit_has_expired">Vous n\'avez plus de temps de VPN sur ce compte.</string>
     <string name="account_number">Numéro de compte</string>
     <string name="account_time_notification_channel_description">Affiche des rappels lorsque le temps du compte va expirer</string>
@@ -231,7 +230,6 @@
     <string name="is_offline">Votre appareil est hors ligne. Le tunnel se connectera automatiquement une fois votre appareil à nouveau en ligne.</string>
     <string name="legacy_always_on_vpn_error_notification_content">Impossible de démarrer la connexion au tunnel. Veuillez désactiver Toujours exiger un VPN avant d\'utiliser Mullvad VPN.</string>
     <string name="legacy_always_on_vpn_error_notification_title">« Toujours exiger un VPN » est assigné à un autre VPN</string>
-    <string name="less_than_a_day_left">moins d\'un jour restant</string>
     <string name="less_than_one_day">moins d\'un jour</string>
     <string name="list_name">Nom de la liste</string>
     <string name="loading_products">Chargement des produits</string>

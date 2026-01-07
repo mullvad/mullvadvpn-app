@@ -105,8 +105,15 @@ fun InAppNotification.toNotificationData(
             )
         is InAppNotification.AccountExpiry ->
             NotificationData(
-                title = stringResource(id = R.string.account_credit_expires_soon),
-                message = LocalResources.current.getExpiryQuantityString(expiry),
+                title = LocalResources.current.getExpiryQuantityString(expiry),
+                message =
+                    stringResource(
+                        if (isPlayBuild) {
+                            R.string.you_can_add_more_time_play
+                        } else {
+                            R.string.you_can_add_more_time_oss
+                        }
+                    ),
                 statusLevel = statusLevel,
                 action =
                     if (isPlayBuild) null

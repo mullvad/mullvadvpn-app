@@ -34,7 +34,6 @@
     <string name="settings">Settings</string>
     <string name="no_internet_connection">No internet connection</string>
     <string name="settings_account">Account</string>
-    <string name="less_than_a_day_left">less than a day left</string>
     <string name="account_credit_expires_in_a_few_minutes">Account credit expires in a few minutes</string>
     <string name="account_credit_has_expired">You have no more VPN time left on this account.</string>
     <string name="out_of_time">Out of time</string>
@@ -123,7 +122,6 @@
     <string name="is_offline">Your device is offline. The tunnel will automatically connect once your device is back online.</string>
     <string name="unsupported_version">UNSUPPORTED VERSION</string>
     <string name="unsupported_version_description">Your privacy might be at risk with this unsupported app version. Please update now.</string>
-    <string name="account_credit_expires_soon">Account credit expires soon</string>
     <string name="select_location">Select location</string>
     <string name="filter">Filter</string>
     <string name="split_tunneling_description">Lets you select apps that should access the Internet directly without going through the VPN tunnel.</string>
@@ -496,4 +494,7 @@
     <string name="app_name_notes">Notes</string>
     <string name="all">All</string>
     <string name="number_parentheses">(%d)</string>
+    <string name="less_than_a_day_left">Less than a day left on this account</string>
+    <string name="you_can_add_more_time_play">You can add more time via the account view to continue using the VPN.</string>
+    <string name="you_can_add_more_time_oss">You can add more time via the account view or website to continue using the VPN.</string>
 </resources>

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="account_credit_expires_in_a_few_minutes">Il credito dell\'account scadrà tra pochi minuti</string>
-    <string name="account_credit_expires_soon">Il credito dell\'account scadrà presto</string>
     <string name="account_credit_has_expired">Hai esaurito il tempo VPN su questo account.</string>
     <string name="account_number">Numero di account</string>
     <string name="account_time_notification_channel_description">Mostra promemoria quando il tempo dell\'account sta per scadere</string>
@@ -231,7 +230,6 @@
     <string name="is_offline">Il tuo dispositivo è offline. Il tunnel si connetterà automaticamente una volta che il tuo dispositivo sarà di nuovo online.</string>
     <string name="legacy_always_on_vpn_error_notification_content">Impossibile avviare la connessione tunnel. Disabilita VPN sempre attiva prima di utilizzare Mullvad VPN.</string>
     <string name="legacy_always_on_vpn_error_notification_title">VPN sempre attiva assegnata a un\'altra VPN</string>
-    <string name="less_than_a_day_left">meno di un giorno rimanente</string>
     <string name="less_than_one_day">meno di un giorno</string>
     <string name="list_name">Nome dell\'elenco</string>
     <string name="loading_products">Caricamento prodotti</string>
