@@ -87,7 +87,7 @@ private fun PreviewRedeemVoucherDialogError() {
             state =
                 VoucherDialogUiState(
                     "",
-                    VoucherDialogState.Error(RedeemVoucherError.InvalidVoucher),
+                    VoucherDialogState.Error.DaemonError(RedeemVoucherError.InvalidVoucher),
                 ),
             onVoucherInputChange = {},
             onRedeem = {},
@@ -266,24 +266,36 @@ private fun EnterVoucherBody(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.height(Dimens.listIconSize).fillMaxWidth(),
     ) {
-        if (state.voucherState is VoucherDialogState.Verifying) {
-            MullvadCircularProgressIndicatorSmall()
-            Text(
-                text = stringResource(id = R.string.verifying_voucher),
-                modifier = Modifier.padding(start = Dimens.smallPadding),
-                color = MaterialTheme.colorScheme.onSurface,
-                style = MaterialTheme.typography.bodySmall,
-            )
-        } else if (state.voucherState is VoucherDialogState.Error) {
-            Text(
-                text = stringResource(id = state.voucherState.error.message()),
-                color = MaterialTheme.colorScheme.error,
-                style = MaterialTheme.typography.bodySmall,
-            )
+        when (state.voucherState) {
+            VoucherDialogState.Default,
+            is VoucherDialogState.Success -> {
+                // Do nothing
+            }
+            is VoucherDialogState.Error.DaemonError ->
+                Text(
+                    text = stringResource(id = state.voucherState.error.message()),
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
+                )
+            VoucherDialogState.Error.NoInternet ->
+                Text(
+                    text = stringResource(id = R.string.no_internet_connection),
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
+                )
+            VoucherDialogState.Verifying -> {
+                MullvadCircularProgressIndicatorSmall()
+                Text(
+                    text = stringResource(id = R.string.verifying_voucher),
+                    modifier = Modifier.padding(start = Dimens.smallPadding),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    style = MaterialTheme.typography.bodySmall,
+                )
+            }
         }
     }
     if (
-        state.voucherState is VoucherDialogState.Error &&
+        state.voucherState is VoucherDialogState.Error.DaemonError &&
             state.voucherState.error is RedeemVoucherError.EnteredAccountNumber
     ) {
         Text(
@@ -301,6 +313,6 @@ private fun RedeemVoucherError.message(): Int =
         RedeemVoucherError.EnteredAccountNumber,
         RedeemVoucherError.InvalidVoucher -> R.string.invalid_voucher
         RedeemVoucherError.VoucherAlreadyUsed -> R.string.voucher_already_used
-        RedeemVoucherError.RpcError,
+        RedeemVoucherError.ApiUnreachable -> R.string.api_unreachable
         is RedeemVoucherError.Unknown -> R.string.error_occurred
     }

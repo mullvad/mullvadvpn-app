@@ -748,7 +748,7 @@ class ManagementService(
                     Status.Code.NOT_FOUND -> RedeemVoucherError.InvalidVoucher
                     Status.Code.ALREADY_EXISTS,
                     Status.Code.RESOURCE_EXHAUSTED -> RedeemVoucherError.VoucherAlreadyUsed
-                    Status.Code.UNAVAILABLE -> RedeemVoucherError.RpcError
+                    Status.Code.UNAVAILABLE -> RedeemVoucherError.ApiUnreachable
                     else -> {
                         Logger.e("Unknown submit voucher error")
                         RedeemVoucherError.Unknown(it)

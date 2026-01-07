@@ -9,7 +9,7 @@ sealed class RedeemVoucherError {
 
     data object EnteredAccountNumber : RedeemVoucherError()
 
-    data object RpcError : RedeemVoucherError()
+    data object ApiUnreachable : RedeemVoucherError()
 
     data class Unknown(val error: Throwable) : RedeemVoucherError()
 }

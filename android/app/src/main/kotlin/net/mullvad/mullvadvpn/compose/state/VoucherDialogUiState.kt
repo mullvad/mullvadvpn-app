@@ -19,5 +19,9 @@ sealed interface VoucherDialogState {
 
     data class Success(val addedTime: Long) : VoucherDialogState
 
-    data class Error(val error: RedeemVoucherError) : VoucherDialogState
+    sealed interface Error : VoucherDialogState {
+        data object NoInternet : Error
+
+        data class DaemonError(val error: RedeemVoucherError) : Error
+    }
 }

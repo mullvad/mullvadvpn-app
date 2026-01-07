@@ -9,9 +9,7 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.unmockkAll
 import java.time.ZonedDateTime
-import kotlin.test.assertEquals
 import kotlin.test.assertIs
-import kotlin.test.assertTrue
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.compose.state.VoucherDialogState
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
@@ -19,6 +17,7 @@ import net.mullvad.mullvadvpn.lib.model.RedeemVoucherError
 import net.mullvad.mullvadvpn.lib.model.RedeemVoucherSuccess
 import net.mullvad.mullvadvpn.lib.model.VoucherCode
 import net.mullvad.mullvadvpn.lib.repository.VoucherRepository
+import net.mullvad.mullvadvpn.usecase.InternetAvailableUseCase
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -31,11 +30,17 @@ class VoucherDialogViewModelTest {
 
     private val mockVoucherRepository: VoucherRepository = mockk()
 
+    private val mockInternetAvailableUseCase: InternetAvailableUseCase = mockk()
+
     private lateinit var viewModel: VoucherDialogViewModel
 
     @BeforeEach
     fun setup() {
-        viewModel = VoucherDialogViewModel(voucherRepository = mockVoucherRepository)
+        viewModel =
+            VoucherDialogViewModel(
+                voucherRepository = mockVoucherRepository,
+                internetAvailableUseCase = mockInternetAvailableUseCase,
+            )
     }
 
     @AfterEach
@@ -74,12 +79,59 @@ class VoucherDialogViewModelTest {
 
         // Act, Assert
         viewModel.uiState.test {
-            assertEquals(viewModel.uiState.value, awaitItem())
+            assertIs<VoucherDialogState.Default>(awaitItem().voucherState)
             viewModel.onRedeem(voucher)
-            assertTrue { awaitItem().voucherState is VoucherDialogState.Verifying }
-            assertTrue { awaitItem().voucherState is VoucherDialogState.Error }
+            assertIs<VoucherDialogState.Verifying>(awaitItem().voucherState)
+            val errorState = awaitItem().voucherState
+            assertIs<VoucherDialogState.Error.DaemonError>(errorState)
+            assertIs<RedeemVoucherError.InvalidVoucher>(errorState.error)
         }
     }
+
+    @Test
+    fun `given api unreachable error and internet is available should show api unreachable error`() =
+        runTest {
+            val voucher = DUMMY_INVALID_VOUCHER
+
+            // Arrange
+            every { mockVoucherSubmission.timeAdded } returns 0
+            coEvery {
+                mockVoucherRepository.submitVoucher(VoucherCode.fromString(voucher).getOrNull()!!)
+            } returns RedeemVoucherError.ApiUnreachable.left()
+            every { mockInternetAvailableUseCase() } returns true
+
+            // Act, Assert
+            viewModel.uiState.test {
+                assertIs<VoucherDialogState.Default>(awaitItem().voucherState)
+                viewModel.onRedeem(voucher)
+                assertIs<VoucherDialogState.Verifying>(awaitItem().voucherState)
+                val error = awaitItem()
+                assertIs<VoucherDialogState.Error.DaemonError>(error.voucherState)
+                assertIs<RedeemVoucherError.ApiUnreachable>(error.voucherState.error)
+            }
+        }
+
+    @Test
+    fun `given api unreachable error and internet is not available should show no internet error`() =
+        runTest {
+            val voucher = DUMMY_INVALID_VOUCHER
+
+            // Arrange
+            every { mockVoucherSubmission.timeAdded } returns 0
+            coEvery {
+                mockVoucherRepository.submitVoucher(VoucherCode.fromString(voucher).getOrNull()!!)
+            } returns RedeemVoucherError.ApiUnreachable.left()
+            every { mockInternetAvailableUseCase() } returns false
+
+            // Act, Assert
+            viewModel.uiState.test {
+                assertIs<VoucherDialogState.Default>(awaitItem().voucherState)
+                viewModel.onRedeem(voucher)
+                assertIs<VoucherDialogState.Verifying>(awaitItem().voucherState)
+                val error = awaitItem()
+                assertIs<VoucherDialogState.Error.NoInternet>(error.voucherState)
+            }
+        }
 
     @Test
     fun `given valid voucher when redeeming then show success`() = runTest {
@@ -93,10 +145,10 @@ class VoucherDialogViewModelTest {
 
         // Act, Assert
         viewModel.uiState.test {
-            assertEquals(viewModel.uiState.value, awaitItem())
+            assertIs<VoucherDialogState.Default>(awaitItem().voucherState)
             viewModel.onRedeem(voucher)
-            assertTrue { awaitItem().voucherState is VoucherDialogState.Verifying }
-            assertTrue { awaitItem().voucherState is VoucherDialogState.Success }
+            assertIs<VoucherDialogState.Verifying>(awaitItem().voucherState)
+            assertIs<VoucherDialogState.Success>(awaitItem().voucherState)
         }
     }
 
@@ -112,12 +164,12 @@ class VoucherDialogViewModelTest {
 
         // Act, Assert
         viewModel.uiState.test {
-            assertEquals(viewModel.uiState.value, awaitItem())
+            assertIs<VoucherDialogState.Default>(awaitItem().voucherState)
             viewModel.onRedeem(voucher)
-            assertTrue { awaitItem().voucherState is VoucherDialogState.Verifying }
-            assertTrue { awaitItem().voucherState is VoucherDialogState.Error }
+            assertIs<VoucherDialogState.Verifying>(awaitItem().voucherState)
+            assertIs<VoucherDialogState.Error>(awaitItem().voucherState)
             viewModel.onVoucherInputChange(DUMMY_VALID_VOUCHER)
-            assertTrue { awaitItem().voucherState is VoucherDialogState.Default }
+            assertIs<VoucherDialogState.Default>(awaitItem().voucherState)
         }
     }
 

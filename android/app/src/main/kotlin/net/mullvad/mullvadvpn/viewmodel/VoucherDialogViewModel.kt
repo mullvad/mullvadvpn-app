@@ -18,9 +18,13 @@ import net.mullvad.mullvadvpn.lib.model.ParseVoucherCodeError
 import net.mullvad.mullvadvpn.lib.model.RedeemVoucherError
 import net.mullvad.mullvadvpn.lib.model.VoucherCode
 import net.mullvad.mullvadvpn.lib.repository.VoucherRepository
+import net.mullvad.mullvadvpn.usecase.InternetAvailableUseCase
 import net.mullvad.mullvadvpn.util.VoucherRegexHelper
 
-class VoucherDialogViewModel(private val voucherRepository: VoucherRepository) : ViewModel() {
+class VoucherDialogViewModel(
+    private val voucherRepository: VoucherRepository,
+    private val internetAvailableUseCase: InternetAvailableUseCase,
+) : ViewModel() {
 
     private val vmState = MutableStateFlow<VoucherDialogState>(VoucherDialogState.Default)
     private val voucherInput = MutableStateFlow("")
@@ -65,9 +69,7 @@ class VoucherDialogViewModel(private val voucherRepository: VoucherRepository) :
         if (VoucherRegexHelper.validate(voucherString)) {
             val trimmedVoucher = VoucherRegexHelper.trim(voucherString)
             voucherInput.value =
-                trimmedVoucher
-                    .substring(0, Integer.min(VOUCHER_LENGTH, trimmedVoucher.length))
-                    .uppercase()
+                trimmedVoucher.take(Integer.min(VOUCHER_LENGTH, trimmedVoucher.length)).uppercase()
         }
     }
 
@@ -76,6 +78,14 @@ class VoucherDialogViewModel(private val voucherRepository: VoucherRepository) :
     }
 
     private fun setError(error: RedeemVoucherError) {
-        viewModelScope.launch { vmState.update { VoucherDialogState.Error(error) } }
+        viewModelScope.launch {
+            vmState.update {
+                if (error is RedeemVoucherError.ApiUnreachable && !internetAvailableUseCase()) {
+                    VoucherDialogState.Error.NoInternet
+                } else {
+                    VoucherDialogState.Error.DaemonError(error)
+                }
+            }
+        }
     }
 }
