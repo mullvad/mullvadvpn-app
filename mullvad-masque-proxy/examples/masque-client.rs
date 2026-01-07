@@ -2,6 +2,7 @@ use anyhow::Context;
 use clap::Parser;
 use mullvad_masque_proxy::client::{ClientConfig, Error};
 use tokio::net::UdpSocket;
+use tracing_subscriber::EnvFilter;
 
 use std::{
     net::{Ipv4Addr, SocketAddr},
@@ -54,9 +55,8 @@ fn duration_from_seconds(s: &str) -> anyhow::Result<Duration> {
 
 #[tokio::main]
 async fn main() {
-    env_logger::builder()
-        .filter_level(log::LevelFilter::Info)
-        .parse_default_env()
+    tracing_subscriber::fmt()
+        .with_env_filter(EnvFilter::new("info"))
         .init();
 
     let ClientArgs {

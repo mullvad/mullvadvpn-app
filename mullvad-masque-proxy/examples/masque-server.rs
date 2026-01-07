@@ -2,6 +2,7 @@ use clap::Parser;
 use mullvad_masque_proxy::server::{AllowedIps, ServerParams};
 use rustls::pki_types::{CertificateDer, PrivateKeyDer, PrivatePkcs8KeyDer};
 use rustls_pki_types::pem::PemObject;
+use tracing_subscriber::EnvFilter;
 
 use std::{
     fs,
@@ -46,9 +47,8 @@ pub struct ServerArgs {
 
 #[tokio::main]
 async fn main() {
-    env_logger::builder()
-        .filter_level(log::LevelFilter::Info)
-        .parse_default_env()
+    tracing_subscriber::fmt()
+        .with_env_filter(EnvFilter::new("info"))
         .init();
 
     let args = ServerArgs::parse();

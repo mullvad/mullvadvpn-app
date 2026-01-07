@@ -20,6 +20,7 @@ mod imp {
     use hyper::body::Bytes;
     use hyper_util::rt::TokioIo;
     use mullvad_api::domain_fronting::DomainFronting;
+    use tracing_subscriber::EnvFilter;
 
     #[derive(Parser, Debug)]
     pub struct Arguments {
@@ -33,9 +34,8 @@ mod imp {
     }
 
     pub async fn main() -> anyhow::Result<()> {
-        env_logger::builder()
-            .filter_level(log::LevelFilter::Info)
-            .parse_default_env()
+        tracing_subscriber::fmt()
+            .with_env_filter(EnvFilter::new("info"))
             .init();
 
         let Arguments { front, host } = Arguments::parse();
