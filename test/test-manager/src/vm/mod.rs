@@ -6,6 +6,7 @@ use crate::config::{Config, ConfigFile, VmConfig, VmType};
 mod logging;
 pub mod network;
 pub mod provision;
+#[cfg(target_os = "linux")]
 mod qemu;
 mod ssh;
 #[cfg(target_os = "macos")]
@@ -40,19 +41,19 @@ pub async fn run(config: &Config, name: &str) -> Result<Box<dyn VmInstance>> {
     log::info!("Starting VM \"{name}\"");
 
     let instance = match vm_conf.vm_type {
+        #[cfg(target_os = "linux")]
         VmType::Qemu => Box::new(
             qemu::run(config, vm_conf)
                 .await
                 .context("Failed to run QEMU VM")?,
         ) as Box<_>,
+
         #[cfg(target_os = "macos")]
         VmType::Tart => Box::new(
             tart::run(config, vm_conf)
                 .await
                 .context("Failed to run Tart VM")?,
         ) as Box<_>,
-        #[cfg(not(target_os = "macos"))]
-        VmType::Tart => return Err(anyhow::anyhow!("Failed to run Tart VM on a non-macOS host")),
     };
 
     log::debug!("Started instance of \"{name}\" vm");
