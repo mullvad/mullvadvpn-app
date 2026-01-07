@@ -4,23 +4,19 @@ This document provides an overview of the Mullvad VPN Android application test s
 
 ## Test Structure
 
-The tests are located in three main directories:
+The test suite is composed of the following test types:
 
-1. __Compose UI tests:__ `app/androidTest`
-2. __Unit tests__: `app/test`
-3. __End-to-end-tests__: `test`
-
-### Compose UI tests (`app/androidTest`)
+### 1. Compose UI tests (`app/androidTest`)
 
 Contains Compose UI tests that test specific UI screens, dialog and components.
 These tests invoke composables directly with a given input, so they do not use repositories,
 use-cases and viewmodels.
 
-### Unit tests (`app/test`)
+### 2. Unit tests (`app/test`, `service/test`, `lib/billing/test`, `lib/daemon-grpc/test`, `lib/repository/test`)
 
-Contains unit tests that test specific use-cases, viewmodels and repositories.
+Contains unit tests that test specific use-cases, viewmodels and repositories, etc.
 
-### End-to-End Tests (`test/e2e/`)
+### 3. End-to-End Tests (`test/e2e/`)
 
 Various tests that simulate a user interacting with the app using the Android UI automation framework.
 The e2e tests require a real API backend and real relays that the tests can connect to. The tests can be set
@@ -52,7 +48,7 @@ mullvad.test.e2e.config.raas.host=INSERT_RAAS_HOST_HERE
 mullvad.test.e2e.config.raas.enable=true
 ```
 
-### Mock API Tests (`test/mockapi/`)
+### 4. Mock API Tests (`test/mockapi/`)
 
 The mock-api tests are also E2E tests, with the difference being that the API responses are mocked to return pre-defined responses.
 The main benefit of this is to speed up the tests as much as a possible as the normal E2E tests can be slow, and to test things
@@ -62,7 +58,7 @@ that are difficult to test with the real API, such as account expiry notificatio
 - Testing that the out-of-time notification is shown.
 - Testing that the too many devices screen/flow works as expected.
 
-### Architecture Tests (`test/arch/`)
+### 5. Architecture Tests (`test/arch/`)
 
 These tests ensure that the codebase follows architectural rules and conventions using the `Konsist` library.
 
@@ -71,19 +67,26 @@ These tests ensure that the codebase follows architectural rules and conventions
 - All Compose previews are private functions and must start with `Preview`
 - Ensures data classes only use immutable properties (`val` not `var`)
 
-### 5. Static analysis with detekt (`test/detekt/`)
+### 6. Detekt static analysis (`test/detekt/`)
 
-Detekt is used for static analysis using the configuration in `config/detekt.yml`.
+Detekt is used for static analysis using the configuration in `config/detekt.yml` and `config/detekt-baseline.xml`.
 The `test/detekt` directory contains custom detekt rules. Currently the only custom rule
 checks that `Screen` and `Dialog` composable functions only use named arguments.
 
-### Baseline Profile Generation (`test/baselineprofile/`)
+### 7. Android Lint static analysis
+
+Android Lint is enabled for static analysis using the configuration in `config/lint.yml` and
+`config/lint-baseline.xml`.`
+
+### Other modules in the `test` directory
+
+#### Baseline Profile Generation (`test/baselineprofile/`)
 
 The baseline profile generation code is only used to generate baseline profiles and not to test the app, but the code lives
 in the `test` directory because it needs to use the Android UI automation framework to interact with the app when generating
 the baseline profile.
 
-### Common Test Utilities (`test/common/`)
+#### Common Test Utilities (`test/common/`)
 
 This module contains various helpers and abstractions that make navigating and testing the app using
 the Android UI automation framework easier.
@@ -143,9 +146,14 @@ they only work when running on the `stagemole` backend):
 ./gradlew :test:mockapi:connectedOssDebugAndroidTest
 ```
 
-### Static analysis (Detekt)
+### Detekt
 ```bash
 ./gradlew detekt
+```
+
+### Android lint
+```bash
+./gradlew lint
 ```
 
 ### Architecture tests (Konsist)
@@ -155,8 +163,11 @@ they only work when running on the `stagemole` backend):
 
 ## Continuous Integration
 
-Our CI runs via Github actions. The unit, arch, detekt and Compose UI tests must all pass before
+Our CI runs via Github actions. The unit, arch, detekt, lint and Compose UI tests must all pass before
 a pull request can be merged to `main`.
 
 The end-to-end tests are not run for each pull request because they take too long to complete, but
-are run multiple times in a separate nightly Github action.
+are run multiple times every night in a separate Github action.
+
+Some E2E tests are sometimes flaky, but we aim to always have a fully working test suite, so a flaky E2E test
+is considered a bug that should be fixed.
