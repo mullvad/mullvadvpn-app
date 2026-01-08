@@ -44,14 +44,13 @@ class SpinnerActivityIndicatorView: UIView {
 
     init(style: Style) {
         self.style = style
+        super.init(frame: .zero)
 
-        let size = style == .custom ? .zero : style.intrinsicSize
-
-        super.init(frame: CGRect(origin: .zero, size: size))
+        backgroundColor = .clear
+        isHidden = true
+        imageView.contentMode = .scaleAspectFit
 
         addSubview(imageView)
-        isHidden = true
-        backgroundColor = UIColor.clear
     }
 
     required init?(coder: NSCoder) {
@@ -80,7 +79,8 @@ class SpinnerActivityIndicatorView: UIView {
 
         let size = style == .custom ? frame.size : style.intrinsicSize
 
-        imageView.frame = CGRect(origin: .zero, size: size)
+        imageView.bounds = CGRect(origin: .zero, size: size)
+        imageView.center = CGPoint(x: bounds.midX, y: bounds.midY)
     }
 
     func startAnimating() {
@@ -100,11 +100,11 @@ class SpinnerActivityIndicatorView: UIView {
     }
 
     private func addAnimation() {
-        layer.add(createAnimation(), forKey: Self.rotationAnimationKey)
+        imageView.layer.add(createAnimation(), forKey: Self.rotationAnimationKey)
     }
 
     private func removeAnimation() {
-        layer.removeAnimation(forKey: Self.rotationAnimationKey)
+        imageView.layer.removeAnimation(forKey: Self.rotationAnimationKey)
     }
 
     private func registerSceneActivationObserver() {
@@ -140,12 +140,10 @@ class SpinnerActivityIndicatorView: UIView {
 
     private func createAnimation() -> CABasicAnimation {
         let animation = CABasicAnimation(keyPath: "transform.rotation")
-        animation.toValue = NSNumber(value: Double.pi * 2)
+        animation.toValue = Double.pi * 2
         animation.duration = Self.animationDuration
-        animation.repeatCount = Float.infinity
+        animation.repeatCount = .infinity
         animation.timingFunction = CAMediaTimingFunction(name: .linear)
-        animation.timeOffset = layer.convertTime(CACurrentMediaTime(), from: nil)
-
         return animation
     }
 }
