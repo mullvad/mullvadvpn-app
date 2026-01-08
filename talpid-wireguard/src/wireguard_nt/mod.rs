@@ -75,7 +75,7 @@ type WireGuardSetStateFn =
     unsafe extern "system" fn(adapter: RawHandle, state: WgAdapterState) -> bool;
 
 #[repr(C)]
-#[allow(dead_code)]
+#[expect(dead_code)]
 enum LogLevel {
     Info = 0,
     Warn = 1,
@@ -96,7 +96,7 @@ type WireGuardLoggerCb = extern "system" fn(LogLevel, timestamp: u64, *const u16
 type WireGuardSetLoggerFn = extern "system" fn(Option<WireGuardLoggerCb>);
 
 #[repr(C)]
-#[allow(dead_code)]
+#[expect(dead_code)]
 enum WireGuardAdapterLogState {
     Off = 0,
     On = 1,
@@ -400,7 +400,7 @@ struct WgInterface {
 /// See `WIREGUARD_ADAPTER_LOG_STATE` at <https://git.zx2c4.com/wireguard-nt/tree/api/wireguard.h>.
 #[derive(Debug, Eq, PartialEq, Clone, Copy)]
 #[repr(C)]
-#[allow(dead_code)]
+#[expect(dead_code)]
 enum WgAdapterState {
     Down = 0,
     Up = 1,
@@ -595,7 +595,7 @@ impl WgNtAdapter {
         }
     }
 
-    #[allow(clippy::type_complexity)]
+    #[expect(clippy::type_complexity)]
     fn get_config(&self) -> Result<(WgInterface, Vec<(WgPeer, Vec<WgAllowedIp>)>)> {
         unsafe {
             deserialize_config(
@@ -854,7 +854,7 @@ fn serialize_config(config: &Config) -> Result<Vec<MaybeUninit<u8>>> {
     Ok(buffer)
 }
 
-#[allow(clippy::type_complexity)]
+#[expect(clippy::type_complexity)]
 unsafe fn deserialize_config(
     config: &[MaybeUninit<u8>],
 ) -> Result<(WgInterface, Vec<(WgPeer, Vec<WgAllowedIp>)>)> {

@@ -113,7 +113,7 @@ pub enum RouteManagerCommand {
 
 impl RouteManagerHandle {
     /// Create a new route manager
-    #[allow(clippy::unused_async)]
+    #[expect(clippy::unused_async)]
     pub async fn spawn() -> Result<Self> {
         let internal = RouteManagerInternal::new().map_err(|_| Error::FailedToStartManager)?;
         let (tx, rx) = mpsc::unbounded();

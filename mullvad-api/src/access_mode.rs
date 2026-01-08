@@ -244,7 +244,7 @@ pub struct AccessModeSelector<B: AccessMethodResolver> {
 impl<B: AccessMethodResolver + 'static> AccessModeSelector<B> {
     pub async fn spawn(
         mut method_resolver: B,
-        #[cfg_attr(not(feature = "api-override"), allow(unused_mut))]
+        #[cfg_attr(not(feature = "api-override"), expect(unused_mut))]
         mut access_method_settings: Settings,
         #[cfg(feature = "api-override")] api_endpoint: ApiEndpoint,
         access_method_event_sender: mpsc::UnboundedSender<(AccessMethodEvent, oneshot::Sender<()>)>,
