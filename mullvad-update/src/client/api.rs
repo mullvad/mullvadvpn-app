@@ -110,18 +110,12 @@ impl HttpVersionInfoProvider {
 
     /// Retrieve released versions for Android.
     pub async fn get_android_releases() -> anyhow::Result<AndroidReleases> {
-        let info_provider = HttpVersionInfoProvider {
-            url: format!("{}android.json", defaults::RELEASES_URL),
-            resolve: Some((API_HOST_DEFAULT, API_IP_DEFAULT)),
-            pinned_certificate: Some(defaults::PINNED_CERTIFICATE.clone()),
-            dump_to_path: None,
-        };
-        let raw_json = Self::get(
-            &info_provider.url,
-            info_provider.pinned_certificate.clone(),
-            info_provider.resolve,
-        )
-        .await?;
+        let info_provider = HttpVersionInfoProvider::from(MetaRepositoryPlatform::Android);
+        info_provider.get_android_releases_inner().await
+    }
+
+    async fn get_android_releases_inner(&self) -> anyhow::Result<AndroidReleases> {
+        let raw_json = Self::get(&self.url, self.pinned_certificate.clone(), self.resolve).await?;
         serde_json::from_slice(&raw_json).context("Failed to deserialize Android releases")
     }
 
