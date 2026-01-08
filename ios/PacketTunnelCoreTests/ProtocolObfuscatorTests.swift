@@ -7,6 +7,7 @@
 //
 
 import Network
+import WireGuardKitTypes
 import XCTest
 
 @testable import MullvadREST
@@ -65,7 +66,6 @@ final class ProtocolObfuscatorTests: XCTestCase {
 
         validate(obfuscated.endpoint, against: obfuscationProtocol)
     }
-
 }
 
 extension ProtocolObfuscatorTests {

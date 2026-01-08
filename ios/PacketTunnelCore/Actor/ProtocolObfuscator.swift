@@ -7,10 +7,12 @@
 //
 
 import Foundation
+import MullvadLogging
 import MullvadREST
 import MullvadRustRuntime
 import MullvadSettings
 import MullvadTypes
+import WireGuardKitTypes
 
 public struct ProtocolObfuscationResult {
     public let endpoint: SelectedEndpoint
@@ -24,6 +26,7 @@ public protocol ProtocolObfuscation {
 
 public class ProtocolObfuscator<Obfuscator: TunnelObfuscation>: ProtocolObfuscation {
     var tunnelObfuscator: TunnelObfuscation?
+    var logger = Logger(label: "ProtocolObfuscator")
 
     public init() {}
 
@@ -63,10 +66,18 @@ public class ProtocolObfuscator<Obfuscator: TunnelObfuscation>: ProtocolObfuscat
             return .init(endpoint: endpoint)
         }
 
+        guard let publicKey = PublicKey(rawValue: endpoint.publicKey) else {
+            logger.error("Could not create public key from endpoint data")
+
+            tunnelObfuscator = nil
+            return .init(endpoint: endpoint)
+        }
+
         let obfuscator = Obfuscator(
             remoteAddress: endpoint.socketAddress.ip,
             tcpPort: remotePort,
-            obfuscationProtocol: obfuscationProtocol
+            obfuscationProtocol: obfuscationProtocol,
+            clientPublicKey: publicKey
         )
 
         obfuscator.start()
