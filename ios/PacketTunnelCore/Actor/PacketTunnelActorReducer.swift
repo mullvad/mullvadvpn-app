@@ -83,9 +83,13 @@ extension PacketTunnelActor {
 
             case let .networkReachability(defaultPath):
                 let newReachability = defaultPath.networkReachability
-                state.mutateAssociatedData { $0.networkReachability = newReachability }
-                return [.updateTunnelMonitorPath(defaultPath)]
+                let reachabilityChanged = state.connectionData?.networkReachability != newReachability
+                if reachabilityChanged {
+                    state.mutateAssociatedData { $0.networkReachability = newReachability }
+                    return [.updateTunnelMonitorPath(defaultPath)]
 
+                }
+                return []
             case let .ephemeralPeerNegotiationStateChanged(configuration, reconfigurationSemaphore):
                 return [.reconfigureForEphemeralPeer(configuration, reconfigurationSemaphore)]
 
