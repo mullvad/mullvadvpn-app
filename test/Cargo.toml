@@ -55,7 +55,6 @@ tokio-serial = "5.4.1"
 # Serde and related crates
 serde = "1.0"
 serde_json = "1.0"
-tokio-serde = { version = "0.8.0", features = ["json"] }
 
 # Tonic and related crates
 tonic = "0.13.1"
