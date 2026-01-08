@@ -22,17 +22,17 @@ use std::collections::HashSet;
 #[cfg(target_os = "linux")]
 use std::net::IpAddr;
 
-#[allow(clippy::module_inception)]
+#[expect(clippy::module_inception)]
 #[cfg(target_os = "macos")]
 #[path = "macos/mod.rs"]
 pub mod imp;
 
-#[allow(clippy::module_inception)]
+#[expect(clippy::module_inception)]
 #[cfg(target_os = "linux")]
 #[path = "linux.rs"]
 mod imp;
 
-#[allow(clippy::module_inception)]
+#[expect(clippy::module_inception)]
 #[cfg(target_os = "android")]
 #[path = "android.rs"]
 mod imp;

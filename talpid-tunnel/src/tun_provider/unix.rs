@@ -273,7 +273,6 @@ mod tun08_imp {
         /// Open a tunnel using the current tunnel config.
         pub fn open_tun(&mut self) -> Result<UnixTun, Error> {
             let mut tunnel_device = {
-                #[allow(unused_mut)]
                 let mut builder = TunnelDeviceBuilder::default();
                 #[cfg(target_os = "macos")]
                 builder.config.platform_config(|cfg| {
@@ -366,7 +365,7 @@ mod tun08_imp {
         #[cfg(target_os = "linux")]
         pub fn enable_packet_information(&mut self) -> &mut Self {
             self.config.platform_config(|config| {
-                #[allow(deprecated)]
+                #[expect(deprecated)]
                 // NOTE: This function does seemingly have an effect on Linux, despite what the deprecation
                 // warning says.
                 config.packet_information(true);

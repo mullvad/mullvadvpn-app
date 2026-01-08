@@ -645,7 +645,7 @@ impl ConnectingState {
     }
 }
 
-#[cfg_attr(not(target_os = "windows"), allow(unused_variables))]
+#[cfg_attr(not(target_os = "windows"), expect(unused_variables))]
 fn should_retry(error: &tunnel_monitor::Error, retry_attempt: u32) -> bool {
     #[cfg(target_os = "windows")]
     if error.get_tunnel_device_error().is_some() {

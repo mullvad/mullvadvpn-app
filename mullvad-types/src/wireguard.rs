@@ -237,7 +237,7 @@ pub struct TunnelOptions {
     pub rotation_interval: Option<RotationInterval>,
 }
 
-#[allow(clippy::derivable_impls)]
+#[expect(clippy::derivable_impls)]
 impl Default for TunnelOptions {
     fn default() -> Self {
         TunnelOptions {

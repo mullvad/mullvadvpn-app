@@ -239,7 +239,7 @@ pub struct AccessMethodSetting {
 pub struct Id(uuid::Uuid);
 
 impl Id {
-    #[allow(clippy::new_without_default)]
+    #[expect(clippy::new_without_default)]
     pub fn new() -> Self {
         Self(uuid::Uuid::new_v4())
     }
