@@ -585,7 +585,7 @@ struct ESProcess {
 /// https://developer.apple.com/documentation/endpointsecurity/es_message_t?language=objc
 #[derive(Debug, Deserialize)]
 struct ESMessage {
-    #[allow(dead_code)]
+    #[expect(dead_code)]
     version: SupportedVersion,
     event: ESEvent,
     process: ESProcess,
@@ -593,7 +593,7 @@ struct ESMessage {
 
 /// An `i32`-wrapper that verifies that the [ESMessage] version is supported.
 #[derive(Debug)]
-#[allow(dead_code)]
+#[expect(dead_code)]
 struct SupportedVersion(i32);
 
 impl<'de> Deserialize<'de> for SupportedVersion {

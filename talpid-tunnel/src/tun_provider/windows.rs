@@ -58,7 +58,6 @@ impl WindowsTunProvider {
             .unwrap_or((None, &[]));
 
         let mut tunnel_device = {
-            #[allow(unused_mut)]
             let mut builder = TunnelDeviceBuilder::default();
 
             // When routing, the metric of a route is equal to the sum of the interface metric and
