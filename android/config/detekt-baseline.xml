@@ -1,40 +1,5 @@
 <?xml version="1.0" ?>
 <SmellBaseline>
   <ManuallySuppressedIssues/>
-  <CurrentIssues>
-    <ID>CyclomaticComplexMethod:CargoBuildTask.kt$CargoBuildTask$private inline fun &lt;reified T : BaseExtension&gt; buildProjectForTarget(project: Project, toolchain: Toolchain, ndk: Ndk, cargoExtension: CargoExtension)</ID>
-    <ID>CyclomaticComplexMethod:RustAndroidPlugin.kt$RustAndroidPlugin$private inline fun &lt;reified T : BaseExtension&gt; configurePlugin(project: Project)</ID>
-    <ID>EmptyDefaultConstructor:CargoExtension.kt$Features.All$()</ID>
-    <ID>ImplicitDefaultLocale:VersionNumber.kt$VersionNumber.Companion.&lt;no name provided&gt;$String.format( "%d.%d.%d%s", versionNumber.major, versionNumber.minor, versionNumber.micro, if (versionNumber.qualifier.isEmpty()) { "" } else { "-" + versionNumber.qualifier } )</ID>
-    <ID>ImplicitDefaultLocale:VersionNumber.kt$VersionNumber.Companion.&lt;no name provided&gt;$String.format( "%d.%d.%d.%d%s", versionNumber.major, versionNumber.minor, versionNumber.micro, versionNumber.patch, if (versionNumber.qualifier.isEmpty()) { "" } else { "-" + versionNumber.qualifier } )</ID>
-    <ID>LongMethod:CargoBuildTask.kt$CargoBuildTask$private inline fun &lt;reified T : BaseExtension&gt; buildProjectForTarget(project: Project, toolchain: Toolchain, ndk: Ndk, cargoExtension: CargoExtension)</ID>
-    <ID>LongMethod:RustAndroidPlugin.kt$RustAndroidPlugin$private inline fun &lt;reified T : BaseExtension&gt; configurePlugin(project: Project)</ID>
-    <ID>MagicNumber:GenerateToolchainsTask.kt$GenerateToolchainsTask$21</ID>
-    <ID>MagicNumber:RustAndroidPlugin.kt$RustAndroidPlugin$19</ID>
-    <ID>MagicNumber:RustAndroidPlugin.kt$Toolchain$23</ID>
-    <ID>MagicNumber:VersionNumber.kt$VersionNumber.AbstractScheme$3</ID>
-    <ID>MaxLineLength:CargoBuildTask.kt$CargoBuildTask$private inline</ID>
-    <ID>MaxLineLength:CargoBuildTask.kt$CargoBuildTask$project.logger.info("Passing through project properties with prefix '${prefix}' (environment variables with prefix 'ORG_GRADLE_PROJECT_${prefix}'")</ID>
-    <ID>MaxLineLength:CargoExtension.kt$CargoExtension$throw GradleException("Illegal value for property \"$camelCaseName\" / \"$snakeCaseName\". Must be 0/1/true/false if set")</ID>
-    <ID>MaxLineLength:Extensions.kt$inline operator fun&lt;reified T : Any&gt; Property&lt;T&gt;.setValue(thisRef: Any?, property: KProperty&lt;*&gt;, value: T)</ID>
-    <ID>MaxLineLength:RustAndroidPlugin.kt$"android/armeabi-v7a"</ID>
-    <ID>MaxLineLength:RustAndroidPlugin.kt$RustAndroidPlugin$from(rootProject.zipTree(File(RustAndroidPlugin::class.java.protectionDomain.codeSource.location.toURI()).path))</ID>
-    <ID>MaxLineLength:RustAndroidPlugin.kt$RustAndroidPlugin$throw GradleException("Target $target is not recognized (recognized targets: ${toolchains.map { it.platform }.sorted()}). Check `local.properties` and `build.gradle`.")</ID>
-    <ID>NewLineAtEndOfFile:CargoBuildTest.kt$com.nishtahir.CargoBuildTest.kt</ID>
-    <ID>NewLineAtEndOfFile:NdkVersionTest.kt$com.nishtahir.NdkVersionTest.kt</ID>
-    <ID>NewLineAtEndOfFile:RunGradleTask.kt$com.nishtahir.RunGradleTask.kt</ID>
-    <ID>NewLineAtEndOfFile:SimpleAndroidApp.kt$com.nishtahir.SimpleAndroidApp.kt</ID>
-    <ID>NewLineAtEndOfFile:SimpleCargoProject.kt$com.nishtahir.SimpleCargoProject.kt</ID>
-    <ID>NewLineAtEndOfFile:TestVersions.kt$com.nishtahir.TestVersions.kt</ID>
-    <ID>NewLineAtEndOfFile:build.gradle.kts$.build.gradle.kts</ID>
-    <ID>NewLineAtEndOfFile:settings.gradle.kts$.settings.gradle.kts</ID>
-    <ID>ReturnCount:CargoExtension.kt$CargoExtension$fun getFlagProperty(camelCaseName: String, snakeCaseName: String, ifUnset: Boolean): Boolean</ID>
-    <ID>ReturnCount:CargoExtension.kt$CargoExtension$internal fun getProperty(camelCaseName: String, snakeCaseName: String): String?</ID>
-    <ID>ReturnCount:VersionNumber.kt$VersionNumber$override fun compareTo(other: VersionNumber): Int</ID>
-    <ID>ReturnCount:VersionNumber.kt$VersionNumber.AbstractScheme$override fun parse(value: String?): VersionNumber</ID>
-    <ID>UnusedParameter:TempDirectory.kt$suffix: String? = null</ID>
-    <ID>WildcardImport:CargoBuildTask.kt$import com.android.build.gradle.*</ID>
-    <ID>WildcardImport:GenerateToolchainsTask.kt$import com.android.build.gradle.*</ID>
-    <ID>WildcardImport:RustAndroidPlugin.kt$import com.android.build.gradle.*</ID>
-  </CurrentIssues>
+  <CurrentIssues/>
 </SmellBaseline>
