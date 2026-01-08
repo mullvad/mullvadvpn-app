@@ -104,7 +104,7 @@ impl VersionInfo {
         // Find latest stable version
         let stable = iter
             .clone()
-            .filter(|e| version_from_elem(e).pre_stable.is_none())
+            .filter(|e| version_from_elem(e).is_stable())
             .max_by(|a, b| {
                 version_from_elem(a)
                     .partial_cmp(version_from_elem(b))
