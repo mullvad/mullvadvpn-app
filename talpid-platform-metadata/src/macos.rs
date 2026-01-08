@@ -1,6 +1,4 @@
-mod command;
-
-use command::command_stdout_lossy;
+use crate::command::command_stdout_lossy;
 use std::{cmp::Ordering, fmt, fmt::Formatter, io};
 
 pub fn version() -> String {

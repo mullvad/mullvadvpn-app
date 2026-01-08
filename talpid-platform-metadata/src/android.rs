@@ -1,8 +1,6 @@
+use crate::command::command_stdout_lossy;
 use std::collections::{BTreeMap, HashMap};
 use std::sync::{LazyLock, RwLock};
-
-mod command;
-use command::command_stdout_lossy;
 
 pub fn version() -> String {
     let version = os_version();
