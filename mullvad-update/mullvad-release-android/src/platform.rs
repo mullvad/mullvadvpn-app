@@ -2,11 +2,10 @@
 
 use anyhow::{Context, anyhow, bail};
 use mullvad_update::api::{HttpVersionInfoProvider, MetaRepositoryPlatform};
-use mullvad_update::format::Architecture;
 use mullvad_update::format::release::Release;
 use mullvad_update::format::response::AndroidReleases;
-use mullvad_update::version::{MIN_VERIFY_METADATA_VERSION, VersionInfo, VersionParameters};
-use mullvad_update::version::{Response, Rollout};
+use mullvad_update::version::Rollout;
+use mullvad_update::version::VersionInfo;
 use std::{cmp::Ordering, path::PathBuf};
 use tokio::{fs, io};
 
