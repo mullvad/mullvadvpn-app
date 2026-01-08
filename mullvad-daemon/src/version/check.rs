@@ -426,18 +426,32 @@ async fn version_check_inner(
                 }
             };
 
+            #[cfg(not(target_os = "android"))]
             let Some(response) = api
                 .version_proxy
-                .version_check_2(
-                    #[cfg(not(target_os = "android"))]
+                .version_check(
                     PLATFORM,
-                    #[cfg(not(target_os = "android"))]
                     architecture,
-                    #[cfg(not(target_os = "android"))]
                     prev_cache.metadata_version,
                     add_platform_headers.then(|| api.platform_version.clone()),
-                    #[cfg(not(target_os = "android"))]
                     rollout,
+                    prev_cache.etag.clone(),
+                )
+                .await
+                .map_err(Error::Download)?
+            else {
+                // ETag is up to date
+                log::trace!("Version data unchanged");
+                return Ok(VersionCache {
+                    last_platform_header_check: get_last_platform_header_check(),
+                    ..prev_cache
+                });
+            };
+            #[cfg(target_os = "android")]
+            let Some(response) = api
+                .version_proxy
+                .version_check_android(
+                    add_platform_headers.then(|| api.platform_version.clone()),
                     prev_cache.etag.clone(),
                 )
                 .await
@@ -454,20 +468,24 @@ async fn version_check_inner(
         }
         // No cache available
         None => {
+            #[cfg(not(target_os = "android"))]
             let response = api
                 .version_proxy
-                .version_check_2(
-                    #[cfg(not(target_os = "android"))]
+                .version_check(
                     PLATFORM,
-                    #[cfg(not(target_os = "android"))]
                     architecture,
-                    #[cfg(not(target_os = "android"))]
                     mullvad_update::version::MIN_VERIFY_METADATA_VERSION,
                     Some(api.platform_version),
-                    #[cfg(not(target_os = "android"))]
                     rollout,
                     None,
                 )
+                .await
+                .map_err(Error::Download)?
+                .expect("function must return body if no etag was set");
+            #[cfg(target_os = "android")]
+            let response = api
+                .version_proxy
+                .version_check_android(Some(api.platform_version), None)
                 .await
                 .map_err(Error::Download)?
                 .expect("function must return body if no etag was set");
