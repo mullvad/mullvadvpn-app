@@ -2070,7 +2070,6 @@ dependencies = [
  "serde_json",
  "talpid-types",
  "thiserror 2.0.3",
- "vec1",
 ]
 
 [[package]]

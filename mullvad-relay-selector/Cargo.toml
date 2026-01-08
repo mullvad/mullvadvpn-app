@@ -24,8 +24,8 @@ rand = { workspace = true }
 serde_json = { workspace = true }
 
 talpid-types = { path = "../talpid-types" }
-vec1 = { workspace = true }
 mullvad-types = { path = "../mullvad-types" }
 
 [dev-dependencies]
 proptest = { workspace = true }
+vec1 = { workspace = true }
