@@ -90,7 +90,7 @@ impl VersionInfo {
         Self::try_from_metadata(available_versions)
     }
 
-    fn try_from_metadata(available_versions: Vec<Metadata>) -> anyhow::Result<Self> {
+    pub fn try_from_metadata(available_versions: Vec<Metadata>) -> anyhow::Result<Self> {
         let (stable, beta) =
             Self::find_latest_versions(available_versions.into_iter(), |release| &release.version)?;
         Ok(Self { stable, beta })
