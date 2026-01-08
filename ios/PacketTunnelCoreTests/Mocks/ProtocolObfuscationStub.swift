@@ -6,6 +6,8 @@
 //  Copyright © 2026 Mullvad VPN AB. All rights reserved.
 //
 
+import WireGuardKitTypes
+
 @testable import MullvadREST
 @testable import MullvadSettings
 @testable import MullvadTypes
