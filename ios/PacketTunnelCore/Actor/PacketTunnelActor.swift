@@ -447,7 +447,8 @@ extension PacketTunnelActor {
             connectionState.connectedEndpoint,
             relayFeatures: connectionState.selectedRelays.entry?.features
                 ?? connectionState.selectedRelays.exit
-                .features, obfuscationMethod: connectionState.obfuscationMethod
+                .features, obfuscationMethod: connectionState.obfuscationMethod,
+            clientPublicKey: settings.privateKey.publicKey
         )
         let transportLayer = protocolObfuscator.transportLayer.map { $0 } ?? .udp
 

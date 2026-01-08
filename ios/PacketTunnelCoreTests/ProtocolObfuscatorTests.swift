@@ -7,6 +7,7 @@
 //
 
 import Network
+import WireGuardKitTypes
 import XCTest
 
 @testable import MullvadREST
@@ -17,6 +18,7 @@ import XCTest
 final class ProtocolObfuscatorTests: XCTestCase {
     var obfuscator: ProtocolObfuscator<TunnelObfuscationStub>!
     var endpoint: MullvadEndpoint!
+    let testPublicKey = PrivateKey().publicKey
 
     override func setUpWithError() throws {
         let address = try XCTUnwrap(IPv4Address("1.2.3.4"))
@@ -34,33 +36,46 @@ final class ProtocolObfuscatorTests: XCTestCase {
     }
 
     func testObfuscateOffDoesNotChangeEndpoint() {
-        let settings = settings(.off, obfuscationPort: .automatic)
-        let nonObfuscated = obfuscator.obfuscate(endpoint, relayFeatures: nil, obfuscationMethod: .off)
+        let nonObfuscated = obfuscator.obfuscate(
+            endpoint,
+            relayFeatures: nil,
+            obfuscationMethod: .off,
+            clientPublicKey: testPublicKey
+        )
 
         XCTAssertEqual(endpoint, nonObfuscated.endpoint)
     }
 
     func testObfuscateUdpOverTcp() throws {
-        let settings = settings(.udpOverTcp, obfuscationPort: .automatic)
-        let obfuscated = obfuscator.obfuscate(endpoint, relayFeatures: nil, obfuscationMethod: .udpOverTcp)
+        let obfuscated = obfuscator.obfuscate(
+            endpoint,
+            relayFeatures: nil,
+            obfuscationMethod: .udpOverTcp,
+            clientPublicKey: testPublicKey
+        )
         let obfuscationProtocol = try XCTUnwrap(obfuscator.tunnelObfuscator as? TunnelObfuscationStub)
 
         validate(obfuscated.endpoint, against: obfuscationProtocol)
     }
 
     func testObfuscateShadowsocks() throws {
-        let settings = settings(.shadowsocks, obfuscationPort: .automatic)
-        let obfuscated = obfuscator.obfuscate(endpoint, relayFeatures: nil, obfuscationMethod: .shadowsocks)
+        let obfuscated = obfuscator.obfuscate(
+            endpoint,
+            relayFeatures: nil,
+            obfuscationMethod: .shadowsocks,
+            clientPublicKey: testPublicKey
+        )
         let obfuscationProtocol = try XCTUnwrap(obfuscator.tunnelObfuscator as? TunnelObfuscationStub)
 
         validate(obfuscated.endpoint, against: obfuscationProtocol)
     }
 
     func testObfuscateQuic() throws {
-        let settings = settings(.quic, obfuscationPort: .automatic)
         let obfuscated = obfuscator.obfuscate(
             endpoint,
-            relayFeatures: .init(daita: nil, quic: .init(addrIn: [], domain: "", token: "")), obfuscationMethod: .quic
+            relayFeatures: .init(daita: nil, quic: .init(addrIn: [], domain: "", token: "")),
+            obfuscationMethod: .quic,
+            clientPublicKey: testPublicKey
         )
         let obfuscationProtocol = try XCTUnwrap(obfuscator.tunnelObfuscator as? TunnelObfuscationStub)
 
@@ -71,7 +86,8 @@ final class ProtocolObfuscatorTests: XCTestCase {
         let obfuscated = obfuscator.obfuscate(
             endpoint,
             relayFeatures: .init(daita: nil, quic: .init(addrIn: [], domain: "", token: "")),
-            obfuscationMethod: .automatic
+            obfuscationMethod: .automatic,
+            clientPublicKey: testPublicKey
         )
 
         XCTAssertEqual(endpoint, obfuscated.endpoint)

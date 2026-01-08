@@ -6,6 +6,8 @@
 //  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 //
 
+import WireGuardKitTypes
+
 @testable import MullvadREST
 @testable import MullvadSettings
 @testable import MullvadTypes
@@ -17,7 +19,8 @@ struct ProtocolObfuscationStub: ProtocolObfuscation {
     func obfuscate(
         _ endpoint: MullvadEndpoint,
         relayFeatures: REST.ServerRelay.Features?,
-        obfuscationMethod: WireGuardObfuscationState
+        obfuscationMethod: WireGuardObfuscationState,
+        clientPublicKey: PublicKey
     ) -> ProtocolObfuscationResult {
         .init(endpoint: endpoint, method: .off)
     }

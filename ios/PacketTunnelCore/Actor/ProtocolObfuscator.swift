@@ -11,6 +11,7 @@ import MullvadREST
 import MullvadRustRuntime
 import MullvadSettings
 import MullvadTypes
+import WireGuardKitTypes
 
 public struct ProtocolObfuscationResult {
     let endpoint: MullvadEndpoint
@@ -21,7 +22,8 @@ public protocol ProtocolObfuscation {
     func obfuscate(
         _ endpoint: MullvadEndpoint,
         relayFeatures: REST.ServerRelay.Features?,
-        obfuscationMethod: WireGuardObfuscationState
+        obfuscationMethod: WireGuardObfuscationState,
+        clientPublicKey: PublicKey
     ) -> ProtocolObfuscationResult
     var transportLayer: TransportLayer? { get }
     var remotePort: UInt16 { get }
@@ -46,7 +48,8 @@ public class ProtocolObfuscator<Obfuscator: TunnelObfuscation>: ProtocolObfuscat
     public func obfuscate(
         _ endpoint: MullvadEndpoint,
         relayFeatures: REST.ServerRelay.Features?,
-        obfuscationMethod: WireGuardObfuscationState
+        obfuscationMethod: WireGuardObfuscationState,
+        clientPublicKey: PublicKey
     ) -> ProtocolObfuscationResult {
         remotePort = endpoint.ipv4Relay.port
 
@@ -74,7 +77,8 @@ public class ProtocolObfuscator<Obfuscator: TunnelObfuscation>: ProtocolObfuscat
         let obfuscator = Obfuscator(
             remoteAddress: endpoint.ipv4Relay.ip,
             tcpPort: remotePort,
-            obfuscationProtocol: obfuscationProtocol
+            obfuscationProtocol: obfuscationProtocol,
+            clientPublicKey: clientPublicKey
         )
 
         obfuscator.start()
