@@ -5425,7 +5425,6 @@ dependencies = [
  "parking_lot",
  "proptest",
  "rand 0.9.2",
- "rand_chacha 0.3.1",
  "rtnetlink",
  "socket2 0.5.8",
  "surge-ping",
