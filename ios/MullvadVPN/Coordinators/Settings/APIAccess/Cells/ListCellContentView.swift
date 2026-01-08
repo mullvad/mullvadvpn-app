@@ -104,12 +104,16 @@ class ListCellContentView: UIView, UIContentView, UITextFieldDelegate {
         secondaryTextLabel.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
 
         addConstrainedSubviews([leadingTextContainer, secondaryTextLabel]) {
-            leadingTextContainer.pinEdgesToSuperviewMargins(.all().excluding(.trailing))
-            secondaryTextLabel.pinEdgesToSuperviewMargins(.all().excluding(.leading))
-            secondaryTextLabel.leadingAnchor.constraint(
-                greaterThanOrEqualToSystemSpacingAfter: leadingTextContainer.trailingAnchor,
-                multiplier: 1
-            )
+            if actualConfiguration.secondaryText == nil {
+                leadingTextContainer.pinEdgesToSuperviewMargins(.all())
+            } else {
+                leadingTextContainer.pinEdgesToSuperviewMargins(.all().excluding(.trailing))
+                secondaryTextLabel.pinEdgesToSuperviewMargins(.all().excluding(.leading))
+                secondaryTextLabel.leadingAnchor.constraint(
+                    greaterThanOrEqualToSystemSpacingAfter: leadingTextContainer.trailingAnchor,
+                    multiplier: 1
+                )
+            }
         }
     }
 }

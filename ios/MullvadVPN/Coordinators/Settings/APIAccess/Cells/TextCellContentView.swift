@@ -12,6 +12,7 @@ import UIKit
 class TextCellContentView: UIView, UIContentView, UIGestureRecognizerDelegate, Sendable {
     private var textLabel = UILabel()
     private var textField = CustomTextField()
+    private var containerView = UIStackView()
 
     var configuration: UIContentConfiguration {
         get {
@@ -39,7 +40,6 @@ class TextCellContentView: UIView, UIContentView, UIGestureRecognizerDelegate, S
         actualConfiguration = configuration
 
         super.init(frame: CGRect(x: 0, y: 0, width: 100, height: 44))
-
         configureSubviews()
         addSubviews()
         addTapGestureRecognizer()
@@ -51,7 +51,6 @@ class TextCellContentView: UIView, UIContentView, UIGestureRecognizerDelegate, S
 
     private func configureSubviews(previousConfiguration: TextCellContentConfiguration? = nil) {
         guard actualConfiguration != previousConfiguration else { return }
-
         configureTextLabel()
         configureTextField()
         configureLayoutMargins()
@@ -86,17 +85,43 @@ class TextCellContentView: UIView, UIContentView, UIGestureRecognizerDelegate, S
     }
 
     private func addSubviews() {
-        textField.setContentHuggingPriority(.defaultLow, for: .horizontal)
-        textField.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
+        containerView.addArrangedSubview(textLabel)
+        containerView.addArrangedSubview(textField)
+        containerView.spacing = 8.0
+        textLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
 
-        textLabel.setContentHuggingPriority(.defaultHigh, for: .horizontal)
-        textLabel.setContentCompressionResistancePriority(.defaultHigh + 1, for: .horizontal)
-
-        addConstrainedSubviews([textLabel, textField]) {
-            textField.pinEdgesToSuperviewMargins(.all().excluding(.leading))
-            textLabel.pinEdgesToSuperviewMargins(.all().excluding(.trailing))
-            textField.leadingAnchor.constraint(equalToSystemSpacingAfter: textLabel.trailingAnchor, multiplier: 1)
+        addConstrainedSubviews([containerView]) {
+            containerView.pinEdgesToSuperviewMargins()
         }
+    }
+
+    override func didMoveToSuperview() {
+        super.didMoveToSuperview()
+        DispatchQueue.main.async {
+            self.updateAxisIfNeeded()
+        }
+    }
+
+    private func updateAxisIfNeeded() {
+        let newAxis: NSLayoutConstraint.Axis = isVertical ? .vertical : .horizontal
+        guard newAxis != containerView.axis else { return }
+        containerView.axis = newAxis
+        invalidateIntrinsicContentSize()
+        setNeedsLayout()
+        superview?.setNeedsLayout()
+    }
+
+    var isVertical: Bool {
+        let availableSize = containerView.bounds
+        guard containerView.bounds.width > 0 else { return false }
+        let fittingSize = containerView.systemLayoutSizeFitting(
+            CGSize(
+                width: CGFloat.greatestFiniteMagnitude,
+                height: availableSize.height),
+            withHorizontalFittingPriority: .fittingSizeLevel,
+            verticalFittingPriority: .fittingSizeLevel
+        )
+        return fittingSize.width > availableSize.width
     }
 
     // MARK: - Gesture recognition
