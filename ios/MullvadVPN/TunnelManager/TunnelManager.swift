@@ -730,11 +730,11 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
             // while the tunnel process is trying to connect.
             startPollingTunnelStatus(interval: establishingTunnelStatusPollInterval)
 
-        case .connected, .waitingForConnectivity(.noConnection):
+        case .connected, .waitingForConnectivity(.noConnection), .waitingForConnectivity(.noNetwork):
             // Start polling tunnel status to keep connectivity status up to date.
             startPollingTunnelStatus(interval: establishedTunnelStatusPollInterval)
 
-        case .pendingReconnect, .disconnecting, .disconnected, .waitingForConnectivity(.noNetwork):
+        case .pendingReconnect, .disconnecting, .disconnected:
             // Stop polling tunnel status once connection moved to final state.
             cancelPollingTunnelStatus()
 
@@ -742,12 +742,10 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
             switch blockedStateReason {
             case .deviceRevoked, .invalidAccount:
                 handleBlockedState(reason: blockedStateReason)
+                cancelPollingTunnelStatus()
             default:
                 break
             }
-
-            // Stop polling tunnel status once blocked state has been determined.
-            cancelPollingTunnelStatus()
         }
 
         DispatchQueue.main.async {
