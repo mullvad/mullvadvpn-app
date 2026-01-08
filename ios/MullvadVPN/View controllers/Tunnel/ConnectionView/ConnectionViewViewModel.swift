@@ -82,7 +82,7 @@ extension ConnectionViewViewModel {
     var textColorForSecureLabel: UIColor {
         switch tunnelStatus.state {
         case .connecting, .reconnecting, .waitingForConnectivity(.noConnection), .negotiatingEphemeralPeer,
-            .pendingReconnect, .disconnecting:
+            .pendingReconnect, .disconnecting, .error(.offline):
             .white
         case .connected:
             .successColor
