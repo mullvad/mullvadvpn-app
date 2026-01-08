@@ -27,7 +27,6 @@ talpid-routing = { path = "../talpid-routing" }
 talpid-types = { path = "../talpid-types" }
 talpid-tunnel-config-client = { path = "../talpid-tunnel-config-client" }
 talpid-tunnel = { path = "../talpid-tunnel" }
-zeroize = "1"
 chrono = { workspace = true, features = ["clock"], optional = true }
 tokio = { workspace = true, features = ["process", "rt-multi-thread", "fs"] }
 tunnel-obfuscation = { path = "../tunnel-obfuscation" }

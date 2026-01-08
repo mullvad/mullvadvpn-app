@@ -31,8 +31,6 @@ serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true, features = ["std"] }
 tokio = { workspace = true, features =  ["fs", "io-util", "rt-multi-thread", "sync", "time"] }
 tokio-stream = { version = "0.1", features = ["sync"]}
-socket2 = { workspace = true }
-ipnetwork = { workspace = true }
 rand = { workspace = true }
 
 mullvad-relay-selector = { path = "../mullvad-relay-selector" }

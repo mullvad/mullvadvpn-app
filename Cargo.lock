@@ -2974,7 +2974,6 @@ dependencies = [
  "futures",
  "hickory-resolver",
  "insta",
- "ipnetwork",
  "libc",
  "log",
  "log-panics",
@@ -2997,7 +2996,6 @@ dependencies = [
  "serde",
  "serde_json",
  "simple-signal",
- "socket2 0.5.8",
  "talpid-core",
  "talpid-dbus",
  "talpid-dns",
@@ -3025,7 +3023,6 @@ dependencies = [
  "hickory-resolver",
  "log",
  "rustls",
- "rustls-pki-types",
  "serde",
  "tokio",
  "webpki-roots 1.0.4",
@@ -3214,7 +3211,6 @@ name = "mullvad-relay-selector"
 version = "0.0.0"
 dependencies = [
  "chrono",
- "intersection-derive",
  "ipnetwork",
  "itertools 0.14.0",
  "log",
@@ -3240,7 +3236,6 @@ dependencies = [
  "reqwest",
  "serde",
  "serde_json",
- "sha2",
  "strum",
  "tokio",
  "toml 0.8.19",
@@ -5218,7 +5213,6 @@ dependencies = [
  "talpid-platform-metadata",
  "talpid-routing",
  "talpid-tunnel",
- "talpid-tunnel-config-client",
  "talpid-types",
  "talpid-windows",
  "talpid-wireguard",
@@ -5456,7 +5450,6 @@ dependencies = [
  "windows-sys 0.61.2",
  "wireguard-go-rs",
  "zerocopy",
- "zeroize",
 ]
 
 [[package]]
@@ -6001,7 +5994,6 @@ dependencies = [
  "nix 0.30.1",
  "rand 0.8.5",
  "shadowsocks",
- "socket2 0.5.8",
  "talpid-types",
  "thiserror 2.0.17",
  "tokio",
