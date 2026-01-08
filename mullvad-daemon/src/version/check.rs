@@ -667,13 +667,13 @@ mod test {
 
     /// Platform timestamp and etag must be updated even if metadata version is unchanged
     #[tokio::test]
+    #[cfg(not(target_os = "android"))]
     async fn test_platform_timestamp_update() {
         // If the metadata version is unchanged, we should keep the existing metadata
         // But update the etag and platform timestamp anyway
         let prev_cache = VersionCache {
             last_platform_header_check: SystemTime::now() - PLATFORM_HEADER_INTERVAL,
             current_version_supported: true,
-            #[cfg(not(target_os = "android"))]
             metadata_version: 11,
             ..dev_version_cache()
         };
@@ -681,7 +681,6 @@ mod test {
             last_platform_header_check: SystemTime::now(),
             etag: Some("etag2".to_owned()),
             current_version_supported: false,
-            #[cfg(not(target_os = "android"))]
             metadata_version: 11,
             ..dev_version_cache()
         };
@@ -707,7 +706,6 @@ mod test {
         let prev_cache = VersionCache {
             last_platform_header_check: SystemTime::now() - PLATFORM_HEADER_INTERVAL,
             current_version_supported: true,
-            #[cfg(not(target_os = "android"))]
             metadata_version: 11,
             ..dev_version_cache()
         };
@@ -715,7 +713,6 @@ mod test {
             last_platform_header_check: SystemTime::now(),
             etag: Some("etag2".to_owned()),
             current_version_supported: false,
-            #[cfg(not(target_os = "android"))]
             metadata_version: 12,
             ..dev_version_cache()
         };
