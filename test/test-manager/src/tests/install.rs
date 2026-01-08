@@ -419,6 +419,7 @@ pub async fn test_problem_report_collect(
 
     let found_filenames = log_paths
         .iter()
+        // Take the part of `path` that follows its last `/` or `\` (i.e., its filename).
         // Since this path is for the guest runner, we cannot use `file_name` here.
         // It likely won't even exist on the host, and the host OS may differ.
         .filter_map(|path| path.to_str().and_then(|s| s.rsplit(['\\', '/']).next()))
