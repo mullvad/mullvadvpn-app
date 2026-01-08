@@ -3051,7 +3051,6 @@ dependencies = [
 name = "mullvad-ios"
 version = "0.0.0"
 dependencies = [
- "async-trait",
  "cbindgen",
  "futures",
  "hyper",
@@ -3063,7 +3062,6 @@ dependencies = [
  "mullvad-encrypted-dns-proxy",
  "mullvad-types",
  "oslog",
- "serde_json",
  "talpid-future",
  "talpid-tunnel-config-client",
  "talpid-types",

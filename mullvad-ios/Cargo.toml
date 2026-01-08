@@ -31,9 +31,7 @@ talpid-tunnel-config-client = { path = "../talpid-tunnel-config-client" }
 mullvad-encrypted-dns-proxy = { path = "../mullvad-encrypted-dns-proxy" }
 mullvad-api = { path = "../mullvad-api", default-features = false }
 mullvad-types = { path = "../mullvad-types" }
-serde_json = { workspace = true }
 mockito = "1.6.1"
-async-trait = "0.1"
 
 [target.'cfg(target_os = "macos")'.build-dependencies]
 cbindgen = { version = "0.28.0", default-features = false }
