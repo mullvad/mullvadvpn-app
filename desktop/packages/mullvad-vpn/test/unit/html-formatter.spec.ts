@@ -1,5 +1,5 @@
-import { describe, it } from 'mocha';
 import React from 'react';
+import { describe, it } from 'vitest';
 
 import { formatHtml } from '../../src/renderer/lib/html-formatter';
 import { createFragment, expectChildrenToMatch, expectChildrenToMatchElements } from './utils';
