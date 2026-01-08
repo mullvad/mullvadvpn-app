@@ -5362,7 +5362,6 @@ dependencies = [
  "log",
  "ml-kem",
  "nix 0.30.1",
- "oslog",
  "pqcrypto-hqc",
  "pqcrypto-traits",
  "prost",
