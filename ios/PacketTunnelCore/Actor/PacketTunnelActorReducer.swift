@@ -55,7 +55,7 @@ extension PacketTunnelActor {
             case let .start(options):
                 guard case .initial = state else { return [] }
                 return [
-                    .startConnection(options.selectedRelays.map { .preSelected($0) } ?? .random),
+                    .startConnection(options.selectedRelays.map { .preSelected($0) } ?? .random)
                 ]
             case .stop:
                 return subreducerForStop(&state)
