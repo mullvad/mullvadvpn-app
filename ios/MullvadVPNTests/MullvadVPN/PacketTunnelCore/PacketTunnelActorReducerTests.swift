@@ -53,7 +53,6 @@ final class PacketTunnelActorReducerTests: XCTestCase {
         XCTAssertEqual(
             effects,
             [
-                .startTunnelMonitor,
                 .startConnection(.random),
             ])
     }
@@ -70,7 +69,6 @@ final class PacketTunnelActorReducerTests: XCTestCase {
         XCTAssertEqual(
             effects,
             [
-                .startTunnelMonitor,
                 .startConnection(.preSelected(selectedRelays)),
             ])
     }
