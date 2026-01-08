@@ -4,8 +4,9 @@ use std::{
 };
 use tokio::task::JoinHandle;
 use tunnel_obfuscation::{
-    Settings as ObfuscationSettings, create_obfuscator, quic, shadowsocks, udp2tcp,
+    Settings as ObfuscationSettings, create_obfuscator, quic, shadowsocks, udp2tcp, lwo,
 };
+use talpid_types::net::wireguard::PublicKey;
 
 mod ffi;
 
@@ -34,6 +35,19 @@ impl TunnelObfuscatorRuntime {
         let token: quic::AuthToken = token.parse().unwrap();
         let quic = quic::Settings::new(peer, hostname, token, wireguard_endpoint);
         let settings = ObfuscationSettings::Quic(quic);
+        Self { settings }
+    }
+
+    pub fn new_lwo(
+        peer: SocketAddr,
+        client_public_key: PublicKey,
+        server_public_key: PublicKey,
+    ) -> Self {
+        let settings = ObfuscationSettings::Lwo(lwo::Settings {
+            server_addr: peer,
+            client_public_key,
+            server_public_key,
+        });
         Self { settings }
     }
 
