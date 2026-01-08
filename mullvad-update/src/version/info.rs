@@ -2,7 +2,6 @@ use std::cmp::Ordering;
 
 use anyhow::Context;
 use itertools::Itertools;
-use mullvad_version::PreStableType;
 
 use crate::format::installer::Installer;
 use crate::format::release::Release;
