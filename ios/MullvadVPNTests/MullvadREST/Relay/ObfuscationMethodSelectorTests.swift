@@ -30,7 +30,9 @@ class ObfuscationMethodSelectorTests: XCTestCase {
                 connectionAttemptCount: attempt,
                 tunnelSettings: tunnelSettings, obfuscationBypass: IdentityObfuscationProvider()
             )
-            if attempt.isOrdered(nth: 1, forEverySetOf: 4) {
+
+            let attemptIndex = Int(attempt) % ObfuscationMethodSelector.obfuscationOrder.count
+            if attemptIndex == 0 {
                 XCTAssertEqual(method, .off)
             } else {
                 XCTAssertNotEqual(method, .off)
@@ -54,7 +56,9 @@ class ObfuscationMethodSelectorTests: XCTestCase {
                 connectionAttemptCount: attempt,
                 tunnelSettings: tunnelSettings, obfuscationBypass: IdentityObfuscationProvider()
             )
-            if attempt.isOrdered(nth: 2, forEverySetOf: 4) {
+
+            let attemptIndex = Int(attempt) % ObfuscationMethodSelector.obfuscationOrder.count
+            if attemptIndex == 1 {
                 XCTAssertEqual(method, .shadowsocks)
             } else {
                 XCTAssertNotEqual(method, .shadowsocks)
@@ -78,7 +82,9 @@ class ObfuscationMethodSelectorTests: XCTestCase {
                 connectionAttemptCount: attempt,
                 tunnelSettings: tunnelSettings, obfuscationBypass: IdentityObfuscationProvider()
             )
-            if attempt.isOrdered(nth: 3, forEverySetOf: 4) {
+
+            let attemptIndex = Int(attempt) % ObfuscationMethodSelector.obfuscationOrder.count
+            if attemptIndex == 2 {
                 XCTAssertEqual(method, .quic)
             } else {
                 XCTAssertNotEqual(method, .quic)
@@ -102,10 +108,40 @@ class ObfuscationMethodSelectorTests: XCTestCase {
                 connectionAttemptCount: attempt,
                 tunnelSettings: tunnelSettings, obfuscationBypass: IdentityObfuscationProvider()
             )
-            if attempt.isOrdered(nth: 4, forEverySetOf: 4) {
+
+            let attemptIndex = Int(attempt) % ObfuscationMethodSelector.obfuscationOrder.count
+            if attemptIndex == 3 {
                 XCTAssertEqual(method, .udpOverTcp)
             } else {
                 XCTAssertNotEqual(method, .udpOverTcp)
+            }
+        }
+    }
+
+    func testMethodSelectionLwoManual() throws {
+        tunnelSettings.wireGuardObfuscation = WireGuardObfuscationSettings(state: .lwo)
+
+        let method = ObfuscationMethodSelector.obfuscationMethodBy(
+            connectionAttemptCount: 0,
+            tunnelSettings: tunnelSettings, obfuscationBypass: IdentityObfuscationProvider()
+        )
+        XCTAssertEqual(method, .lwo)
+    }
+
+    func testMethodSelectionLwoAutomatic() throws {
+        tunnelSettings.wireGuardObfuscation = WireGuardObfuscationSettings(state: .automatic)
+
+        (UInt(0)...10).forEach { attempt in
+            let method = ObfuscationMethodSelector.obfuscationMethodBy(
+                connectionAttemptCount: attempt,
+                tunnelSettings: tunnelSettings, obfuscationBypass: IdentityObfuscationProvider()
+            )
+
+            let attemptIndex = Int(attempt) % ObfuscationMethodSelector.obfuscationOrder.count
+            if attemptIndex == 4 {
+                XCTAssertEqual(method, .lwo)
+            } else {
+                XCTAssertNotEqual(method, .lwo)
             }
         }
     }

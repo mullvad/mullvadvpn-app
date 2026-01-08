@@ -29,7 +29,7 @@ struct FilterDescriptor {
             return hasSufficientRelays()
         } else if isSmartRoutingEnabled {
             // Smart Routing mode: Enabled only if there is NO daita server in the exit relays
-            let isSmartRoutingNeeded = !relayFilterResult.exitRelays.contains { $0.relay.hasDaita }
+            let isSmartRoutingNeeded = !relayFilterResult.exitRelays.contains { $0.relay.supportsDaita }
             return isSmartRoutingNeeded ? hasSufficientRelays() : true
         } else {
             // Single-hop mode: The filter is enabled if at least one available exit relay exists.

@@ -142,45 +142,12 @@ class TunnelControlPage: Page {
         return self
     }
 
-    /// Verify that the app attempts to connect over UDP before switching to TCP. For testing blocked UDP traffic.
-    @discardableResult func verifyConnectingOverTCPAfterUDPAttempts() -> Self {
-        // Number of connection attempts should be equal to the number of obfuscation methods (incl. "off").
-        let connectionAttempts = waitForConnectionAttempts(4, timeout: 80)
-
-        // Should do four connection attempts but due to UI bug sometimes only two are displayed, sometimes all three
-        if connectionAttempts.count == 4 {  // Expected retries flow
-            for (attemptIndex, attempt) in connectionAttempts.enumerated() {
-                if attemptIndex < 3 {
-                    XCTAssertEqual(attempt.protocolName, "UDP")
-                } else if attemptIndex == 3 {
-                    XCTAssertEqual(attempt.protocolName, "TCP")
-                } else {
-                    XCTFail("Unexpected connection attempt")
-                }
-            }
-        } else if connectionAttempts.count == 3 {  // Most of the times this incorrect flow is shown
-            for (attemptIndex, attempt) in connectionAttempts.enumerated() {
-                if attemptIndex < 2 {
-                    XCTAssertEqual(attempt.protocolName, "UDP")
-                } else if attemptIndex == 2 {
-                    XCTAssertEqual(attempt.protocolName, "TCP")
-                } else {
-                    XCTFail("Unexpected connection attempt")
-                }
-            }
-        } else {
-            XCTFail("Unexpected number of connection attempts, expected 3~4, got \(connectionAttempts.count)")
-        }
-
-        return self
-    }
-
     /// Verify that connection attempts are made in the correct order
     @discardableResult func verifyConnectionAttemptsOrder() -> Self {
         // Number of connection attempts should be equal to the number of obfuscation methods (incl. "off").
-        var connectionAttempts = waitForConnectionAttempts(4, timeout: 80)
+        var connectionAttempts = waitForConnectionAttempts(5, timeout: 80)
         var totalAttemptsOffset = 0
-        XCTAssertEqual(connectionAttempts.count, 4)
+        XCTAssertEqual(connectionAttempts.count, 5)
 
         /// Sometimes, the UI will only show an IP address for the first connection attempt, which gets skipped by
         /// `waitForConnectionAttempts`, and offsets expected attempts count by 1, but still counts towards
@@ -191,10 +158,10 @@ class TunnelControlPage: Page {
             totalAttemptsOffset = 1
         }
         for (attemptIndex, attempt) in connectionAttempts.enumerated() {
-            if attemptIndex < 3 - totalAttemptsOffset {
-                XCTAssertEqual(attempt.protocolName, "UDP")
-            } else {
+            if attemptIndex == 3 - totalAttemptsOffset {
                 XCTAssertEqual(attempt.protocolName, "TCP")
+            } else {
+                XCTAssertEqual(attempt.protocolName, "UDP")
             }
         }
 

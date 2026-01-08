@@ -10,15 +10,21 @@ import Foundation
 import MullvadRustRuntimeProxy
 import MullvadTypes
 import Network
+import WireGuardKitTypes
 
 public enum TunnelObfuscationProtocol {
     case udpOverTcp
     case shadowsocks
     case quic(hostname: String, token: String)
+    case lwo(serverPublicKey: PublicKey, clientPublicKey: PublicKey)
 }
 
 public protocol TunnelObfuscation {
-    init(remoteAddress: IPAddress, tcpPort: UInt16, obfuscationProtocol: TunnelObfuscationProtocol)
+    init(
+        remoteAddress: IPAddress,
+        remotePort: UInt16,
+        obfuscationProtocol: TunnelObfuscationProtocol
+    )
     func start()
     func stop()
     var localUdpPort: UInt16 { get }
@@ -28,14 +34,11 @@ public protocol TunnelObfuscation {
 }
 
 /// Class that implements obfuscation by accepting traffic on a local port and proxying it to the remote endpoint.
-///
-/// The obfuscation happens either by wrapping UDP traffic into TCP traffic, or by using a local shadowsocks server
-/// to encrypt the UDP traffic sent.
 public final class TunnelObfuscator: TunnelObfuscation {
     private let stateLock = NSLock()
     private let remoteAddress: IPAddress
-    internal let tcpPort: UInt16
-    internal let obfuscationProtocol: TunnelObfuscationProtocol
+    private let port: UInt16
+    private let obfuscationProtocol: TunnelObfuscationProtocol
 
     private var proxyHandle = ProxyHandle(context: nil, port: 0)
     private var isStarted = false
@@ -46,23 +49,25 @@ public final class TunnelObfuscator: TunnelObfuscation {
         return stateLock.withLock { proxyHandle.port }
     }
 
-    public var remotePort: UInt16 { tcpPort }
+    public var remotePort: UInt16 { port }
 
     public var transportLayer: TransportLayer {
         switch obfuscationProtocol {
         case .udpOverTcp:
             .tcp
-        case .shadowsocks:
-            .udp
-        case .quic:
+        case .shadowsocks, .quic, .lwo:
             .udp
         }
     }
 
-    /// Initialize tunnel obfuscator with remote server address and TCP port where udp2tcp is running.
-    public init(remoteAddress: IPAddress, tcpPort: UInt16, obfuscationProtocol: TunnelObfuscationProtocol) {
+    /// Initialize tunnel obfuscator with remote server address and port where obfuscation is running.
+    public init(
+        remoteAddress: IPAddress,
+        remotePort: UInt16,
+        obfuscationProtocol: TunnelObfuscationProtocol,
+    ) {
         self.remoteAddress = remoteAddress
-        self.tcpPort = tcpPort
+        self.port = remotePort
         self.obfuscationProtocol = obfuscationProtocol
     }
 
@@ -82,25 +87,38 @@ public final class TunnelObfuscator: TunnelObfuscation {
                     start_udp2tcp_obfuscator_proxy(
                         addressData.map { $0 },
                         UInt(addressData.count),
-                        tcpPort,
+                        port,
                         proxyHandlePointer
                     )
                 case .shadowsocks:
                     start_shadowsocks_obfuscator_proxy(
                         addressData.map { $0 },
                         UInt(addressData.count),
-                        tcpPort,
+                        port,
                         proxyHandlePointer
                     )
                 case let .quic(hostname, token):
                     start_quic_obfuscator_proxy(
                         addressData.map { $0 },
                         UInt(addressData.count),
-                        tcpPort,
+                        port,
                         hostname,
                         token,
                         proxyHandlePointer
                     )
+                case let .lwo(serverPublicKey, clientPublicKey):
+                    clientPublicKey.rawValue.withUnsafeBytes { clientKeyPtr in
+                        serverPublicKey.rawValue.withUnsafeBytes { serverKeyPtr in
+                            start_lwo_obfuscator_proxy(
+                                addressData.map { $0 },
+                                UInt(addressData.count),
+                                port,
+                                clientKeyPtr.baseAddress?.assumingMemoryBound(to: UInt8.self),
+                                serverKeyPtr.baseAddress?.assumingMemoryBound(to: UInt8.self),
+                                proxyHandlePointer
+                            )
+                        }
+                    }
                 }
             }
 

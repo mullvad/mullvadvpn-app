@@ -1,4 +1,5 @@
 use libc::c_char;
+use talpid_types::net::wireguard;
 
 use super::{TunnelObfuscatorHandle, TunnelObfuscatorRuntime};
 use crate::ProxyHandle;
@@ -57,6 +58,33 @@ pub unsafe extern "C" fn start_quic_obfuscator_proxy(
     let hostname = unsafe { get_string(hostname) };
     let token = unsafe { get_string(token) };
     let result = TunnelObfuscatorRuntime::new_quic(peer_sock_addr, hostname, token).run();
+
+    unsafe { start(proxy_handle, result) }
+}
+
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn start_lwo_obfuscator_proxy(
+    peer_address: *const u8,
+    peer_address_len: usize,
+    peer_port: u16,
+    client_public_key: *const u8,
+    server_public_key: *const u8,
+    proxy_handle: *mut ProxyHandle,
+) -> i32 {
+    let peer_sock_addr =
+        throw_int_error!(unsafe { get_socket_address(peer_address, peer_address_len, peer_port) });
+
+    // Safety: `client_public_key` must be a valid pointer to 32 bytes.
+    let client_key: [u8; 32] = unsafe { std::ptr::read(client_public_key as *const [u8; 32]) };
+    // Safety: `server_public_key` must be a valid pointer to 32 bytes.
+    let server_key: [u8; 32] = unsafe { std::ptr::read(server_public_key as *const [u8; 32]) };
+
+    let result = TunnelObfuscatorRuntime::new_lwo(
+        peer_sock_addr,
+        wireguard::PublicKey::from(client_key),
+        wireguard::PublicKey::from(server_key),
+    )
+    .run();
 
     unsafe { start(proxy_handle, result) }
 }

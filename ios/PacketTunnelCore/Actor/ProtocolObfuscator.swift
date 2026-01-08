@@ -11,13 +11,14 @@ import MullvadREST
 import MullvadRustRuntime
 import MullvadSettings
 import MullvadTypes
+import WireGuardKitTypes
 
 public struct ProtocolObfuscationResult {
     public let endpoint: SelectedEndpoint
 }
 
 public protocol ProtocolObfuscation {
-    func obfuscate(_ endpoint: SelectedEndpoint) -> ProtocolObfuscationResult
+    func obfuscate(_ endpoint: SelectedEndpoint, clientPublicKey: PublicKey) -> ProtocolObfuscationResult
     var transportLayer: TransportLayer? { get }
     var remotePort: UInt16 { get }
 }
@@ -37,11 +38,13 @@ public class ProtocolObfuscator<Obfuscator: TunnelObfuscation>: ProtocolObfuscat
     ///
     /// - Parameters:
     ///   - endpoint: The endpoint to obfuscate. Contains socket address and obfuscation method.
+    ///   - clientPublicKey: The client public key. Can be device key or - if post quantum is enabled - the
+    ///   ephemeral key.
     /// - Returns: The endpoint (possibly modified) with obfuscation applied.
     ///
     /// Note: Obfuscation currently only supports IPv4. If the endpoint uses IPv6,
     /// obfuscation is skipped and the endpoint is returned as-is with obfuscation disabled.
-    public func obfuscate(_ endpoint: SelectedEndpoint) -> ProtocolObfuscationResult {
+    public func obfuscate(_ endpoint: SelectedEndpoint, clientPublicKey: PublicKey) -> ProtocolObfuscationResult {
         remotePort = endpoint.socketAddress.port
 
         // Extract obfuscation protocol from the bundled obfuscation method
@@ -55,6 +58,12 @@ public class ProtocolObfuscator<Obfuscator: TunnelObfuscation>: ProtocolObfuscat
                 .shadowsocks
             case let .quic(hostname, token):
                 .quic(hostname: hostname, token: token)
+            case .lwo:
+                if let key = PublicKey(rawValue: endpoint.publicKey) {
+                    .lwo(serverPublicKey: key, clientPublicKey: clientPublicKey)
+                } else {
+                    nil
+                }
             }
 
         // If obfuscation is disabled, return endpoint as-is
@@ -65,7 +74,7 @@ public class ProtocolObfuscator<Obfuscator: TunnelObfuscation>: ProtocolObfuscat
 
         let obfuscator = Obfuscator(
             remoteAddress: endpoint.socketAddress.ip,
-            tcpPort: remotePort,
+            remotePort: remotePort,
             obfuscationProtocol: obfuscationProtocol
         )
 

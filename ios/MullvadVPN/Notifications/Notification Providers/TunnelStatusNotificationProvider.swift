@@ -148,7 +148,7 @@ final class TunnelStatusNotificationProvider: NotificationProvider, InAppNotific
 
         let tapAction: InAppNotificationAction? =
             switch packetTunnelError {
-            case .noRelaysSatisfyingPortConstraints:
+            case .noRelaysSatisfyingPortConstraints, .noRelaysSatisfyingObfuscationPortConstraints:
                 InAppNotificationAction {
                     NotificationManager.shared
                         .notificationProvider(
