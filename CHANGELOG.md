@@ -24,6 +24,8 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 ### Changed
 - Change `WireGuard port` to no longer affect the port used for LWO.
+- Change `Mullvad Bridges` access method to randomly pick any Mullvad-owned bridge. Previously the access method was
+  constrained to the five bridges closest to the exit relay.
 
 ### Fixed
 - Fix "Time left" label in main view not updating when time passes.
