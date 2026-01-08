@@ -82,3 +82,9 @@ socket2 = "0.5.7"
 surge-ping = "0.8"
 nix = { version = "0.30.1", features = ["ioctl", "socket", "net", "signal"] }
 rand = "0.9"
+
+# Configuration for the helper tool https://crates.io/crates/cargo-shear
+[workspace.metadata.cargo-shear]
+# The way prost is only used by generated code makes it really hard for dependency
+# usage checkers to see that it's not unused
+ignored = ["prost"]

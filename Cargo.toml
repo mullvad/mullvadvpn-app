@@ -175,3 +175,9 @@ ring.opt-level = 3
 inherits = "release"
 debug = true
 strip = false
+
+# Configuration for the helper tool https://crates.io/crates/cargo-shear
+[workspace.metadata.cargo-shear]
+# The way prost is only used by generated code makes it really hard for dependency
+# usage checkers to see that it's not unused
+ignored = ["prost"]
