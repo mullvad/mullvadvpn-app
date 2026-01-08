@@ -140,6 +140,11 @@ final class TunnelStatusNotificationProvider: NotificationProvider, InAppNotific
     }
 
     private func notificationDescription(for packetTunnelError: BlockedStateReason) -> InAppNotificationDescriptor {
+        // Show the same notification for offline error as for the noNetwork state
+        if packetTunnelError == .offline {
+            return connectivityNotificationDescription()
+        }
+
         let tapAction: InAppNotificationAction? =
             switch packetTunnelError {
             case .noRelaysSatisfyingPortConstraints:
