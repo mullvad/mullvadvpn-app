@@ -71,6 +71,7 @@ public actor PacketTunnelActor {
         self.settingsReader = settingsReader
         self.protocolObfuscator = protocolObfuscator
 
+        Task { await setTunnelMonitorEventHandler() }
         consumeEvents(channel: eventChannel)
     }
 
@@ -112,8 +113,6 @@ public actor PacketTunnelActor {
 
     func executeEffect(_ effect: Effect) async {
         switch effect {
-        case .startTunnelMonitor:
-            setTunnelMonitorEventHandler()
         case .stopTunnelMonitor:
             tunnelMonitor.stop()
         case let .updateTunnelMonitorPath(networkPath):
@@ -183,6 +182,9 @@ public actor PacketTunnelActor {
     }
 
     private func handleDefaultPathChange(_ networkPath: Network.NWPath.Status) async {
+        guard self.state != .initial else {
+            return
+        }
         tunnelMonitor.handleNetworkPathUpdate(networkPath)
 
         let newReachability = networkPath.networkReachability
