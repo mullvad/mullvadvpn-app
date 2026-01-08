@@ -91,7 +91,10 @@ detekt {
     }
 }
 
-val detektExcludedPaths = listOf("**/build/**", "**/mullvad_daemon/management_interface/**")
+val detektExcludedPaths = listOf("**/build/**",
+    "**/mullvad_daemon/management_interface/**",
+    "rust-android-gradle-plugin/**",
+    )
 
 tasks.withType<Detekt>().configureEach {
     dependsOn(":test:detekt:assemble")
