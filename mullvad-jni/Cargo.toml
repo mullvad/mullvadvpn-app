@@ -29,7 +29,5 @@ log-panics = "2"
 mullvad-api = { path = "../mullvad-api" }
 mullvad-daemon = { path = "../mullvad-daemon" }
 mullvad-problem-report = { path = "../mullvad-problem-report" }
-mullvad-types = { path = "../mullvad-types" }
-talpid-tunnel = { path = "../talpid-tunnel" }
 talpid-types = { path = "../talpid-types" }
 talpid-platform-metadata = { path = "../talpid-platform-metadata" }

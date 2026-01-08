@@ -22,7 +22,6 @@ shadowsocks = { workspace = true }
 mullvad-masque-proxy = { path = "../mullvad-masque-proxy" }
 talpid-types = { path = "../talpid-types" }
 rand = { version = "0.8.5", features = ["small_rng"] }
-socket2 = { workspace = true, features = ["all"] }
 
 [target.'cfg(target_os="linux")'.dependencies]
 nix = { workspace = true, features = ["socket"]}
