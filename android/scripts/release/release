@@ -14,9 +14,6 @@ cd "$SCRIPT_DIR"
 
 REPO_ROOT=../../../
 
-# $REPO_ROOT/scripts/utils/commit-verification
-# "$SCRIPT_DIR/verify-version-is-release"
-
 # The hostname (can be the alias in your ~/.ssh/config) of the build server
 BUILDSERVER_HOST=$1
 # The server to upload the metadata to *from* the build server (argument above)
