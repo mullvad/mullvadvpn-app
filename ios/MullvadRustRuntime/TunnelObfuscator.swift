@@ -10,15 +10,22 @@ import Foundation
 import MullvadRustRuntimeProxy
 import MullvadTypes
 import Network
+import WireGuardKitTypes
 
 public enum TunnelObfuscationProtocol {
     case udpOverTcp
     case shadowsocks
     case quic(hostname: String, token: String)
+    case lwo(serverPublicKey: PublicKey)
 }
 
 public protocol TunnelObfuscation {
-    init(remoteAddress: IPAddress, tcpPort: UInt16, obfuscationProtocol: TunnelObfuscationProtocol)
+    init(
+        remoteAddress: IPAddress,
+        tcpPort: UInt16,
+        obfuscationProtocol: TunnelObfuscationProtocol,
+        clientPublicKey: PublicKey
+    )
     func start()
     func stop()
     var localUdpPort: UInt16 { get }
@@ -36,6 +43,7 @@ public final class TunnelObfuscator: TunnelObfuscation {
     private let remoteAddress: IPAddress
     internal let tcpPort: UInt16
     internal let obfuscationProtocol: TunnelObfuscationProtocol
+    private let clientPublicKey: PublicKey
 
     private var proxyHandle = ProxyHandle(context: nil, port: 0)
     private var isStarted = false
@@ -56,14 +64,22 @@ public final class TunnelObfuscator: TunnelObfuscation {
             .udp
         case .quic:
             .udp
+        case .lwo:
+            .udp
         }
     }
 
     /// Initialize tunnel obfuscator with remote server address and TCP port where udp2tcp is running.
-    public init(remoteAddress: IPAddress, tcpPort: UInt16, obfuscationProtocol: TunnelObfuscationProtocol) {
+    public init(
+        remoteAddress: IPAddress,
+        tcpPort: UInt16,
+        obfuscationProtocol: TunnelObfuscationProtocol,
+        clientPublicKey: PublicKey
+    ) {
         self.remoteAddress = remoteAddress
         self.tcpPort = tcpPort
         self.obfuscationProtocol = obfuscationProtocol
+        self.clientPublicKey = clientPublicKey
     }
 
     deinit {
@@ -101,6 +117,19 @@ public final class TunnelObfuscator: TunnelObfuscation {
                         token,
                         proxyHandlePointer
                     )
+                case let .lwo(serverPublicKey):
+                    clientPublicKey.rawValue.withUnsafeBytes { clientKeyPtr in
+                        serverPublicKey.rawValue.withUnsafeBytes { serverKeyPtr in
+                            start_lwo_obfuscator_proxy(
+                                addressData.map { $0 },
+                                UInt(addressData.count),
+                                tcpPort,
+                                clientKeyPtr.baseAddress?.assumingMemoryBound(to: UInt8.self),
+                                serverKeyPtr.baseAddress?.assumingMemoryBound(to: UInt8.self),
+                                proxyHandlePointer
+                            )
+                        }
+                    }
                 }
             }
 
