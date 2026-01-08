@@ -1,5 +1,4 @@
-mod command;
-use command::command_stdout_lossy;
+use crate::command::command_stdout_lossy;
 
 pub fn version() -> String {
     // The OS version information is obtained first from the os-release file. If that
