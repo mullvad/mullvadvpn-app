@@ -13,7 +13,6 @@ workspace = true
 [dependencies]
 futures = { workspace = true }
 tokio = { workspace = true }
-tokio-serde = { workspace = true }
 tarpc = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
@@ -21,7 +20,6 @@ bytes = { workspace = true }
 thiserror = { workspace = true }
 log = { workspace = true }
 colored = { workspace = true }
-async-trait = { workspace = true }
 
 hyper = { version = "1.4.1", features = ["client", "http2"] }
 hyper-rustls = { version = "0.27.3", features = ["logging", "webpki-roots", "http1", "ring"], default-features = false}

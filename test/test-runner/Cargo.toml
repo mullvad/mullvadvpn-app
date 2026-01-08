@@ -20,9 +20,7 @@ thiserror = { workspace = true }
 log = { workspace = true }
 parity-tokio-ipc = "0.9"
 bytes = { workspace = true }
-serde = { workspace = true }
 serde_json = { workspace = true }
-tokio-serde = { workspace = true }
 surge-ping = { workspace = true }
 rand = { workspace = true }
 

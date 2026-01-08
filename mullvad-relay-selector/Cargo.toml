@@ -26,7 +26,6 @@ serde_json = { workspace = true }
 talpid-types = { path = "../talpid-types" }
 vec1 = { workspace = true }
 mullvad-types = { path = "../mullvad-types" }
-intersection-derive = { path = "../mullvad-types/intersection-derive"}
 
 [dev-dependencies]
 proptest = { workspace = true }

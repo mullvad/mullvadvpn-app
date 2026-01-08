@@ -38,8 +38,5 @@ tonic-build = { workspace = true, default-features = false, features = [
     "prost",
 ] }
 
-[target.'cfg(target_os = "ios")'.dependencies]
-oslog = "0.2"
-
 [lib]
 crate-type = ["staticlib", "rlib"]

@@ -17,7 +17,6 @@ hickory-resolver = { workspace = true, features = [ "https-ring", "tls-ring" ]}
 serde = { workspace = true, features = ["derive"] }
 webpki-roots.workspace = true
 rustls.workspace = true
-rustls-pki-types.workspace = true
 
 [dev-dependencies]
 env_logger = { workspace = true }
