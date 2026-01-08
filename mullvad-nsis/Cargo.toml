@@ -16,7 +16,6 @@ crate-type = ["staticlib"]
 [target.i686-pc-windows-msvc.dependencies]
 anyhow.workspace = true
 mullvad-paths = { path = "../mullvad-paths" }
-talpid-types = { path = "../talpid-types" }
 talpid-platform-metadata = { path = "../talpid-platform-metadata" }
 windows-sys = { workspace = true, features = [
     "Wdk_Foundation",
@@ -31,7 +30,6 @@ windows-sys = { workspace = true, features = [
     "Win32_UI_WindowsAndMessaging",
     "Win32_UI_Input_KeyboardAndMouse",
 ] }
-libloading = { version = "0.9.0" }
 widestring.workspace = true
 
 [target.'cfg(target_os = "windows")'.build-dependencies]
