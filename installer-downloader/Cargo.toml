@@ -22,10 +22,8 @@ anyhow = { workspace = true }
 async-trait = "0.1"
 chrono = { workspace = true, features = ["clock"] }
 fern = { workspace = true }
-hex = "0.4"
 log = { workspace = true }
 rand = { workspace = true }
-reqwest = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
 tokio = { workspace = true, features = ["rt-multi-thread", "fs"] }
 
