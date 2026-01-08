@@ -156,33 +156,14 @@ pub async fn remove_release(version: &mullvad_version::Version) -> anyhow::Resul
 pub async fn query_latest() -> anyhow::Result<VersionQueryOutput> {
     let response = read_work().await?;
 
-    // Grab version info for all architectures
-    let params = VersionParameters {
-        // TODO: hack
-        architecture: Architecture::X86,
-        rollout: Rollout::complete(),
-        // NOTE: Empty versions are allowed on Android
-        allow_empty: true,
-        lowest_metadata_version: MIN_VERIFY_METADATA_VERSION,
-    };
-    let version_info = vec![VersionInfo::try_from_response(
-        &params,
-        // TODO: :(
-        Response {
-            metadata_expiry: chrono::DateTime::<chrono::Utc>::MAX_UTC,
-            metadata_version: usize::MAX,
-            releases: response.releases,
-        },
-    )?];
-
-    let version_info = version_info
-        .into_iter()
-        .next()
-        .expect("at least one version exists");
+    let version_info =
+        VersionInfo::find_latest_versions(response.releases.into_iter(), |release| {
+            &release.version
+        })?;
 
     Ok(VersionQueryOutput {
-        stable: version_info.stable.version,
-        beta: version_info.beta.map(|v| v.version),
+        stable: version_info.0.version,
+        beta: version_info.1.map(|release| release.version),
     })
 }
 
