@@ -114,7 +114,8 @@ impl VersionInfo {
 
         // Find the latest beta version
         let beta = iter
-            .filter(|e| matches!(version_from_elem(e).pre_stable, Some(PreStableType::Beta(_))))
+            .filter(|e| version_from_elem(e).is_beta())
+            .filter(|e| !version_from_elem(e).is_dev())
             // If the latest beta version is older than latest stable, dispose of it
             .filter(|e| version_from_elem(e) > version_from_elem(&stable))
             .max_by(|a, b| version_from_elem(a).partial_cmp(version_from_elem(b)).unwrap_or(Ordering::Equal));
