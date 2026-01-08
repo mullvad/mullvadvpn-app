@@ -77,7 +77,7 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                         ExitLocationView(
                             viewModel: viewModel,
                             context: $viewModel.exitContext,
-                            onScrollOffsetChange: {
+                            onScrollVisibilityChange: {
                                 expandHeader in
                                 withAnimation {
                                     headerIsExpandedForExit = expandHeader
@@ -90,7 +90,7 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                     case .entry:
                         EntryLocationView(
                             viewModel: viewModel,
-                            onScrollOffsetChange: {
+                            onScrollVisibilityChange: {
                                 expandHeader in
                                 withAnimation {
                                     headerIsExpandedForEntry = expandHeader
