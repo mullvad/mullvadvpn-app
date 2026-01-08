@@ -301,7 +301,11 @@ final class CustomDNSDataSource: UITableViewDiffableDataSource<
     }
 
     func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
-        0
+        if snapshot().itemIdentifiers.contains(.dnsServerInfo) {
+            0
+        } else {
+            16
+        }
     }
 
     func tableView(
