@@ -23,11 +23,12 @@ pub struct AppVersionProxy {
 }
 
 /// Reply from `/app/releases/<platform>.json` endpoint
-pub struct AppVersionResponse2 {
+pub struct AppVersionResponse {
     /// Information about available versions for the current target
     pub version_info: VersionInfo,
     /// Index of the metadata version used to sign the response.
     /// Used to prevent replay/downgrade attacks.
+    #[cfg(not(target_os = "android"))]
     pub metadata_version: usize,
     /// Whether or not the current app version (mullvad_version::VERSION) is supported.
     pub current_version_supported: bool,
@@ -36,7 +37,7 @@ pub struct AppVersionResponse2 {
 }
 
 impl AppVersionProxy {
-    /// Maximum size of `version_check_2` response
+    /// Maximum size of `version_check` response
     const SIZE_LIMIT: usize = 1024 * 1024;
 
     pub fn new(handle: rest::MullvadRestHandle) -> Self {
@@ -47,7 +48,7 @@ impl AppVersionProxy {
     ///
     /// This returns `None` if the server responds with 304 (version is same as etag).
     #[cfg(not(target_os = "android"))]
-    pub fn version_check_2(
+    pub fn version_check(
         &self,
         platform: &str,
         architecture: mullvad_update::format::Architecture,
@@ -55,7 +56,7 @@ impl AppVersionProxy {
         platform_version: Option<String>,
         rollout: Rollout,
         etag: Option<String>,
-    ) -> impl Future<Output = Result<Option<AppVersionResponse2>, rest::Error>> + use<> {
+    ) -> impl Future<Output = Result<Option<AppVersionResponse>, rest::Error>> + use<> {
         let service = self.handle.service.clone();
         let path = format!("app/releases/{platform}.json");
         let request = self.handle.factory.get(&path);
@@ -100,7 +101,7 @@ impl AppVersionProxy {
             let current_version_supported = is_version_supported(current_version, &response.signed);
 
             let metadata_version = response.signed.metadata_version;
-            Ok(Some(AppVersionResponse2 {
+            Ok(Some(AppVersionResponse {
                 version_info: VersionInfo::try_from_response(&params, response.signed)
                     .map_err(Arc::new)
                     .map_err(rest::Error::FetchVersions)?,
@@ -112,11 +113,11 @@ impl AppVersionProxy {
     }
 
     #[cfg(target_os = "android")]
-    pub fn version_check_2(
+    pub fn version_check_android(
         &self,
         platform_version: Option<String>,
         etag: Option<String>,
-    ) -> impl Future<Output = Result<Option<AppVersionResponse2>, rest::Error>> + use<> {
+    ) -> impl Future<Output = Result<Option<AppVersionResponse>, rest::Error>> + use<> {
         let service = self.handle.service.clone();
         let path = "app/releases/android.json".to_string();
         let request = self.handle.factory.get(&path);
@@ -166,11 +167,10 @@ impl AppVersionProxy {
                 })
                 .collect::<Vec<_>>();
 
-            Ok(Some(AppVersionResponse2 {
+            Ok(Some(AppVersionResponse {
                 version_info: VersionInfo::try_from_metadata(params)
                     .map_err(Arc::new)
                     .map_err(rest::Error::FetchVersions)?,
-                metadata_version: 0, // Not applicable on android
                 current_version_supported,
                 etag,
             }))
