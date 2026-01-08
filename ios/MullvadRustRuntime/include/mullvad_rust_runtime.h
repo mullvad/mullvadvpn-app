@@ -873,4 +873,11 @@ int32_t start_quic_obfuscator_proxy(const uint8_t *peer_address,
                                     const char *token,
                                     struct ProxyHandle *proxy_handle);
 
+int32_t start_lwo_obfuscator_proxy(const uint8_t *peer_address,
+                                   uintptr_t peer_address_len,
+                                   uint16_t peer_port,
+                                   const uint8_t *client_public_key,
+                                   const uint8_t *server_public_key,
+                                   struct ProxyHandle *proxy_handle);
+
 int32_t stop_tunnel_obfuscator_proxy(struct ProxyHandle *proxy_handle);
