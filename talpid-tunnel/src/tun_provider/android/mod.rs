@@ -106,7 +106,7 @@ impl AndroidTunProvider {
         let config = VpnServiceConfig::new(self.config.clone());
 
         // i have no idea why this is/isn't safe.
-        #[allow(clippy::undocumented_unsafe_blocks)]
+        #[expect(clippy::undocumented_unsafe_blocks)]
         let jvm = unsafe { JavaVM::from_raw(self.jvm.get_java_vm_pointer()) }
             .map_err(Error::CloneJavaVm)?;
 
@@ -132,7 +132,7 @@ impl AndroidTunProvider {
         let config = VpnServiceConfig::new(self.config.clone());
 
         // i have no idea why this is/isn't safe.
-        #[allow(clippy::undocumented_unsafe_blocks)]
+        #[expect(clippy::undocumented_unsafe_blocks)]
         let jvm = unsafe { JavaVM::from_raw(self.jvm.get_java_vm_pointer()) }
             .map_err(Error::CloneJavaVm)?;
 
@@ -437,7 +437,7 @@ impl AsRawFd for VpnServiceTun {
 impl AsFd for VpnServiceTun {
     fn as_fd(&self) -> BorrowedFd<'_> {
         // TODO: ensure we uphold the safety requirements of BorrowedFd
-        #[allow(clippy::undocumented_unsafe_blocks)]
+        #[expect(clippy::undocumented_unsafe_blocks)]
         unsafe {
             BorrowedFd::borrow_raw(self.as_raw_fd())
         }

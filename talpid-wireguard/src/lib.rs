@@ -1209,8 +1209,7 @@ async fn get_route_mtu(
 
 /// Get MTU based on the physical interface route
 #[cfg(any(target_os = "macos", target_os = "android"))]
-#[allow(clippy::unused_async)]
-#[allow(unused_variables)]
+#[expect(clippy::unused_async, unused_variables)]
 async fn get_route_mtu(
     params: &TunnelParameters,
     route_manager: &talpid_routing::RouteManagerHandle,

@@ -105,7 +105,7 @@ pub enum DadStateError {
     Unknown(i32),
 }
 
-#[allow(non_upper_case_globals)]
+#[expect(non_upper_case_globals)]
 impl From<NL_DAD_STATE> for DadStateError {
     fn from(state: NL_DAD_STATE) -> DadStateError {
         match state {
@@ -139,7 +139,7 @@ impl AddressFamily {
 /// Context for [`notify_ip_interface_change`]. When it is dropped,
 /// the callback is unregistered.
 pub struct IpNotifierHandle<'a> {
-    #[allow(clippy::type_complexity)]
+    #[expect(clippy::type_complexity)]
     callback: Mutex<Box<dyn FnMut(&MIB_IPINTERFACE_ROW, i32) + Send + 'a>>,
     handle: HANDLE,
 }

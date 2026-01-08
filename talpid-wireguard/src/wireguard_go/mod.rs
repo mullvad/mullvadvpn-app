@@ -49,7 +49,7 @@ type Result<T> = std::result::Result<T, TunnelError>;
 
 struct LoggingContext {
     ordinal: u64,
-    #[allow(dead_code)]
+    #[cfg_attr(not(target_os = "android"), expect(dead_code))]
     path: Option<PathBuf>,
 }
 
@@ -165,7 +165,7 @@ impl WgGoTunnel {
     }
 
     #[cfg(not(target_os = "android"))]
-    #[allow(clippy::unused_async)]
+    #[expect(clippy::unused_async)]
     async fn set_config(&mut self, config: Config) -> Result<()> {
         self.handle_mut().set_config(config)
     }
