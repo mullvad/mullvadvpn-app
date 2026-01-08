@@ -239,9 +239,6 @@ public enum BlockedStateReason: String, Codable, Equatable, Sendable {
     /// Invalid public key.
     case invalidRelayPublicKey
 
-    /// Device is offline
-    case offline
-
     /// Unidentified reason.
     case unknown
 
@@ -251,7 +248,7 @@ public enum BlockedStateReason: String, Codable, Equatable, Sendable {
         case .deviceLocked, .multihopEntryEqualsExit, .outdatedSchema, .noRelaysSatisfyingConstraints,
             .noRelaysSatisfyingPortConstraints, .noRelaysSatisfyingDaitaConstraints,
             .noRelaysSatisfyingFilterConstraints, .noRelaysSatisfyingObfuscationSettings, .readSettings,
-            .invalidRelayPublicKey, .offline:
+            .invalidRelayPublicKey:
             return true
         case .deviceRevoked, .deviceLoggedOut, .tunnelAdapter, .accountExpired, .invalidAccount, .unknown:
             return false

@@ -206,7 +206,7 @@ extension BlockedStateReason {
             .multihopEntryEqualsExit, .noRelaysSatisfyingObfuscationSettings,
             .noRelaysSatisfyingDaitaConstraints, .readSettings, .invalidAccount, .accountExpired, .deviceRevoked,
             .unknown, .deviceLoggedOut, .outdatedSchema, .invalidRelayPublicKey,
-            .noRelaysSatisfyingPortConstraints, .tunnelAdapter, .offline:
+            .noRelaysSatisfyingPortConstraints, .tunnelAdapter:
             return false
         }
     }
