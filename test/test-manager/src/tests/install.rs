@@ -421,7 +421,7 @@ pub async fn test_problem_report_collect(
         .iter()
         // Since this path is for the guest runner, we cannot use `file_name` here.
         // It likely won't even exist on the host, and the host OS may differ.
-        .filter_map(|path| path.to_str().and_then(|s| s.rsplit(|c| c == '\\' || c == '/').next()))
+        .filter_map(|path| path.to_str().and_then(|s| s.rsplit(['\\', '/']).next()))
         .collect::<Vec<_>>();
 
     // Files that should be present if we have installed the daemon and started the UI
