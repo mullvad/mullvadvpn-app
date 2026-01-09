@@ -260,7 +260,7 @@ mod windows {
         },
     };
 
-    #[allow(non_camel_case_types)]
+    #[expect(non_camel_case_types)]
     type SECURITY_INFORMATION = u32;
 
     const MIGRATION_DIRNAME: &str = "windows.old";

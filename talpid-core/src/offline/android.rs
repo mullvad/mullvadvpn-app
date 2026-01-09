@@ -13,13 +13,13 @@ impl MonitorHandle {
         }
     }
 
-    #[allow(clippy::unused_async)]
+    #[expect(clippy::unused_async)]
     pub async fn connectivity(&self) -> Connectivity {
         self.connectivity_listener.connectivity()
     }
 }
 
-#[allow(clippy::unused_async)]
+#[expect(clippy::unused_async)]
 pub async fn spawn_monitor(
     sender: UnboundedSender<Connectivity>,
     connectivity_listener: ConnectivityListener,

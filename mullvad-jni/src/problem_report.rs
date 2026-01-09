@@ -12,7 +12,7 @@ use std::path::PathBuf;
 use talpid_types::ErrorExt;
 
 #[unsafe(no_mangle)]
-#[allow(non_snake_case)]
+#[expect(non_snake_case)]
 pub extern "system" fn Java_net_mullvad_mullvadvpn_dataproxy_MullvadProblemReport_collectReport(
     env: JNIEnv<'_>,
     _: JObject<'_>,
@@ -53,7 +53,7 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_dataproxy_MullvadProblemRepor
 }
 
 #[unsafe(no_mangle)]
-#[allow(non_snake_case)]
+#[expect(non_snake_case)]
 pub extern "system" fn Java_net_mullvad_mullvadvpn_dataproxy_MullvadProblemReport_sendProblemReport(
     env: JNIEnv<'_>,
     _: JObject<'_>,
