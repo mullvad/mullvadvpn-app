@@ -161,9 +161,14 @@ impl RelayListUpdater {
                             download_future = Box::pin(Self::download_relay_list(self.api_availability.clone(), self.api_client.clone(), etag).fuse());
                             self.last_check = SystemTime::now();
                         },
-                        Event::Override(overrides) => {
+                        // Only update the relay list with new overrides if they are actually new.
+                        Event::Override(overrides) if self.overrides != overrides => {
                             self.overrides = overrides;
                             self.update_relay_selector();
+                        }
+                        Event::Override(overrides) => {
+                            log::trace!("New overrides match the old overrides.");
+                            log::trace!("{overrides:#?}");
                         }
                     }
                 }
