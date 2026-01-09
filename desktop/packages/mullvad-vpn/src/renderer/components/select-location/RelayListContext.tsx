@@ -8,7 +8,6 @@ import {
 import {
   filterLocations,
   filterLocationsByDaita,
-  filterLocationsByEndPointType,
   filterLocationsByLwo,
   filterLocationsByQuic,
   getLocationsExpandedBySearch,
@@ -81,20 +80,9 @@ export function RelayListContextProvider(props: RelayListContextProviderProps) {
   const multihop = relaySettings?.wireguard.useMultihop ?? false;
   const ipVersion = relaySettings?.wireguard.ipVersion ?? 'any';
 
-  // Filters the relays to only keep the ones of the desired endpoint type: "wireguard"
-  const relayListForEndpointType = useMemo(() => {
-    return filterLocationsByEndPointType(fullRelayList);
-  }, [fullRelayList]);
-
   const relayListForDaita = useMemo(() => {
-    return filterLocationsByDaita(
-      relayListForEndpointType,
-      daita,
-      directOnly,
-      locationType,
-      multihop,
-    );
-  }, [daita, directOnly, locationType, relayListForEndpointType, multihop]);
+    return filterLocationsByDaita(fullRelayList, daita, directOnly, locationType, multihop);
+  }, [fullRelayList, daita, directOnly, locationType, multihop]);
 
   // Only show relays that have QUIC endpoints when QUIC obfuscation is enabled.
   const relayListForQuic = useMemo(() => {
@@ -165,13 +153,11 @@ function useRelayList(
   const selectedLocation = useSelectedLocation();
   const disabledLocation = useDisabledLocation();
 
-  const preventDueToCustomBridgeSelected = usePreventDueToCustomBridgeSelected();
-
   const isLocationSelected = useCallback(
     (location: RelayLocation) => {
-      return preventDueToCustomBridgeSelected ? false : isSelected(location, selectedLocation);
+      return isSelected(location, selectedLocation);
     },
-    [preventDueToCustomBridgeSelected, selectedLocation],
+    [selectedLocation],
   );
 
   return useMemo(() => {
@@ -233,11 +219,6 @@ function useRelayList(
       })
       .sort((a, b) => a.label.localeCompare(b.label, locale));
   }, [locale, expandedLocations, relayList, disabledLocation, isLocationSelected]);
-}
-
-export function usePreventDueToCustomBridgeSelected(): boolean {
-  const bridgeSettings = useSelector((state) => state.settings.bridgeSettings);
-  return bridgeSettings.type === 'custom';
 }
 
 // Return all RelayLocations that should be expanded

@@ -14,7 +14,6 @@ import { Url } from '../shared/constants';
 import {
   AccessMethodSetting,
   AccountNumber,
-  BridgeSettings,
   CustomProxy,
   DeviceEvent,
   IAccountData,
@@ -407,8 +406,6 @@ export default class AppRenderer {
   public reconnectTunnel = () => IpcRendererEventChannel.tunnel.reconnect();
   public setRelaySettings = (relaySettings: RelaySettings) =>
     IpcRendererEventChannel.settings.setRelaySettings(relaySettings);
-  public updateBridgeSettings = (bridgeSettings: BridgeSettings) =>
-    IpcRendererEventChannel.settings.updateBridgeSettings(bridgeSettings);
   public setDnsOptions = (dnsOptions: IDnsOptions) =>
     IpcRendererEventChannel.settings.setDnsOptions(dnsOptions);
   public clearAccountHistory = () => IpcRendererEventChannel.accountHistory.clear();
@@ -778,20 +775,6 @@ export default class AppRenderer {
     }
   }
 
-  private setBridgeSettings(bridgeSettings: BridgeSettings) {
-    const actions = this.reduxActions;
-
-    actions.settings.updateBridgeSettings({
-      type: bridgeSettings.type,
-      normal: {
-        location: liftConstraint(bridgeSettings.normal.location),
-        providers: bridgeSettings.normal.providers,
-        ownership: bridgeSettings.normal.ownership,
-      },
-      custom: bridgeSettings.custom,
-    });
-  }
-
   private onDaemonConnected() {
     this.connectedToDaemon = true;
     this.reduxActions.userInterface.setConnectedToDaemon(true);
@@ -850,14 +833,12 @@ export default class AppRenderer {
     const reduxSettings = this.reduxActions.settings;
 
     reduxSettings.updateAllowLan(newSettings.allowLan);
-    reduxSettings.updateEnableIpv6(newSettings.tunnelOptions.generic.enableIpv6);
+    reduxSettings.updateEnableIpv6(newSettings.tunnelOptions.enableIpv6);
     reduxSettings.updateLockdownMode(newSettings.lockdownMode);
     reduxSettings.updateShowBetaReleases(newSettings.showBetaReleases);
-    reduxSettings.updateWireguardMtu(newSettings.tunnelOptions.wireguard.mtu);
-    reduxSettings.updateWireguardQuantumResistant(
-      newSettings.tunnelOptions.wireguard.quantumResistant,
-    );
-    reduxSettings.updateWireguardDaita(newSettings.tunnelOptions.wireguard.daita);
+    reduxSettings.updateWireguardMtu(newSettings.tunnelOptions.mtu);
+    reduxSettings.updateWireguardQuantumResistant(newSettings.tunnelOptions.quantumResistant);
+    reduxSettings.updateWireguardDaita(newSettings.tunnelOptions.daita);
     reduxSettings.updateDnsOptions(newSettings.tunnelOptions.dns);
     reduxSettings.updateSplitTunnelingState(newSettings.splitTunnel.enableExclusions);
     reduxSettings.updateObfuscationSettings(newSettings.obfuscationSettings);
@@ -866,7 +847,6 @@ export default class AppRenderer {
     reduxSettings.updateRelayOverrides(newSettings.relayOverrides);
 
     this.setReduxRelaySettings(newSettings.relaySettings);
-    this.setBridgeSettings(newSettings.bridgeSettings);
   }
 
   private setIsPerformingPostUpgrade(isPerformingPostUpgrade: boolean) {

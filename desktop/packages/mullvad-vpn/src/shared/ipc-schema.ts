@@ -1,13 +1,13 @@
 import { GetTextTranslations } from 'gettext-parser';
 
+import { MapData } from '../renderer/lib/3dmap';
+import { AppUpgradeError, AppUpgradeEvent } from './app-upgrade';
 import { ILinuxSplitTunnelingApplication, ISplitTunnelingApplication } from './application-types';
 import {
   AccessMethodExistsError,
   AccessMethodSetting,
   AccountDataError,
   AccountNumber,
-  BridgeSettings,
-  BridgeState,
   CustomListError,
   CustomProxy,
   DeviceEvent,
@@ -28,14 +28,6 @@ import {
   VoucherResponse,
 } from './daemon-rpc-types';
 import { IGuiSettingsState } from './gui-settings-state';
-import { LogLevel } from './logging-types';
-
-interface ILogEntry {
-  level: LogLevel;
-  message: string;
-}
-import { MapData } from '../renderer/lib/3dmap';
-import { AppUpgradeError, AppUpgradeEvent } from './app-upgrade';
 import { invoke, invokeSync, notifyRenderer, send } from './ipc-helpers';
 import {
   DaemonStatus,
@@ -44,7 +36,13 @@ import {
   IHistoryObject,
   IWindowShapeParameters,
 } from './ipc-types';
+import { LogLevel } from './logging-types';
 import { RoutePath } from './routes';
+
+interface ILogEntry {
+  level: LogLevel;
+  message: string;
+}
 
 export interface ITranslations {
   locale: string;
@@ -196,11 +194,9 @@ export const ipcSchema = {
     setShowBetaReleases: invoke<boolean, void>(),
     setEnableIpv6: invoke<boolean, void>(),
     setLockdownMode: invoke<boolean, void>(),
-    setBridgeState: invoke<BridgeState, void>(),
     setWireguardMtu: invoke<number | undefined, void>(),
     setWireguardQuantumResistant: invoke<boolean, void>(),
     setRelaySettings: invoke<RelaySettings, void>(),
-    updateBridgeSettings: invoke<BridgeSettings, void>(),
     setDnsOptions: invoke<IDnsOptions, void>(),
     setObfuscationSettings: invoke<ObfuscationSettings, void>(),
     addApiAccessMethod: invoke<NewAccessMethodSetting, string | AccessMethodExistsError>(),

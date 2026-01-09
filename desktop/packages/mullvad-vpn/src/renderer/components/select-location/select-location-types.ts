@@ -21,11 +21,6 @@ export enum LocationType {
 export type RelayList = GeographicalRelayList | Array<CustomListSpecification>;
 export type GeographicalRelayList = Array<CountrySpecification>;
 
-export enum SpecialBridgeLocationType {
-  closestToExit,
-  custom,
-}
-
 export interface LocationVisibility {
   visible: boolean;
 }

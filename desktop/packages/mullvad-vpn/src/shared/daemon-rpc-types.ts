@@ -22,7 +22,6 @@ export interface ILocation {
   longitude: number;
   mullvadExitIp: boolean;
   hostname?: string;
-  bridgeHostname?: string;
   entryHostname?: string;
   provider?: string;
 }
@@ -132,7 +131,6 @@ export interface ITunnelEndpoint {
   address: string;
   protocol: RelayProtocol;
   quantumResistant: boolean;
-  proxy?: IProxyEndpoint;
   obfuscationEndpoint?: IObfuscationEndpoint;
   entryEndpoint?: IEndpoint;
   daita: boolean;
@@ -360,7 +358,6 @@ export interface IRelayListHostname {
   active: boolean;
   weight: number;
   owned: boolean;
-  endpointType: RelayEndpointType;
   daita: boolean;
   // The absence of this value signals that the relay does not deploy QUIC.
   quic?: Quic;
@@ -373,17 +370,11 @@ export type Quic = {
   addrIn: string[];
 };
 
-export type RelayEndpointType = 'wireguard' | 'openvpn' | 'bridge';
-
 export interface ITunnelOptions {
-  wireguard: {
-    mtu?: number;
-    quantumResistant: boolean;
-    daita?: IDaitaSettings;
-  };
-  generic: {
-    enableIpv6: boolean;
-  };
+  mtu?: number;
+  quantumResistant: boolean;
+  daita?: IDaitaSettings;
+  enableIpv6: boolean;
   dns: IDnsOptions;
 }
 
@@ -460,16 +451,12 @@ export interface ISettings {
   showBetaReleases: boolean;
   relaySettings: RelaySettings;
   tunnelOptions: ITunnelOptions;
-  bridgeSettings: BridgeSettings;
-  bridgeState: BridgeState;
   splitTunnel: SplitTunnelSettings;
   obfuscationSettings: ObfuscationSettings;
   customLists: CustomLists;
   apiAccessMethods: ApiAccessMethodSettings;
   relayOverrides: Array<RelayOverride>;
 }
-
-export type BridgeState = 'auto' | 'on' | 'off';
 
 export type SplitTunnelSettings = {
   enableExclusions: boolean;
@@ -504,20 +491,6 @@ export type ObfuscationSettings = {
   shadowsocksSettings: ShadowsocksSettings;
   wireGuardPortSettings: WireGuardPortObfuscationSettings;
 };
-
-export interface IBridgeConstraints {
-  location: Constraint<RelayLocation>;
-  providers: string[];
-  ownership: Ownership;
-}
-
-export type BridgeType = 'normal' | 'custom';
-
-export interface BridgeSettings {
-  type: BridgeType;
-  normal: IBridgeConstraints;
-  custom?: CustomProxy;
-}
 
 export interface ISocketAddress {
   host: string;
