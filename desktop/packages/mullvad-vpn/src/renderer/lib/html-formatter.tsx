@@ -1,17 +1,14 @@
 import React, { JSX } from 'react';
 import styled from 'styled-components';
 
-import { type ValueOfArray } from '../../shared/utility-types';
+import type { AllowedTag } from '../../shared/constants';
 import { colors } from './foundations';
 
 const Bold = styled.span({ fontWeight: 700 });
 const Emphasis = styled.em({ color: colors.white, fontWeight: 600 });
 
-export const ALLOWED_TAGS = ['b', 'br', 'em', 'a'] as const;
-export type AllowedTags = ValueOfArray<typeof ALLOWED_TAGS>;
-
 export type Transformer = (value: string) => React.ReactElement;
-export type TransformerMap = Record<AllowedTags, Transformer>;
+export type TransformerMap = Record<AllowedTag, Transformer>;
 
 const defaultTransformers: Partial<TransformerMap> = {
   b: (value) => <Bold>{value}</Bold>,
