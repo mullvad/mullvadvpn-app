@@ -64,6 +64,8 @@ shadowsocks = { workspace = true, features = ["stream-cipher"] }
 
 [target.'cfg(not(target_os = "ios"))'.dependencies]
 mullvad-update = { path = "../mullvad-update", features = ["client"] }
+[target.'cfg(target_os = "android")'.dependencies]
+mullvad-release-android = { path = "../mullvad-release-android" }
 
 [dev-dependencies]
 talpid-time = { path = "../talpid-time", features = ["test"] }

@@ -79,8 +79,6 @@ use mullvad_types::{
 };
 #[cfg(not(target_os = "android"))]
 use mullvad_update::version::Rollout;
-#[cfg(target_os = "android")]
-use mullvad_update::version::SUPPORTED_VERSION;
 use relay_list::{RelayListUpdater, RelayListUpdaterHandle};
 use settings::SettingsPersister;
 use std::collections::BTreeSet;
@@ -1003,14 +1001,13 @@ impl Daemon {
                 .expect("App version to be parsable");
             Rollout::threshold(seed, version)
         };
-        #[cfg(target_os = "android")]
-        let rollout = SUPPORTED_VERSION;
         let version_handle = version::router::spawn_version_router(
             api_handle.clone(),
             api_handle.availability.clone(),
             config.cache_dir.clone(),
             internal_event_tx.to_specialized_sender(),
             settings.show_beta_releases,
+            #[cfg(not(target_os = "android"))]
             rollout,
             app_upgrade_broadcast,
         );
