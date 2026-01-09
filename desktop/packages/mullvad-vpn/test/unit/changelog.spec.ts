@@ -1,5 +1,4 @@
-import { expect } from 'chai';
-import { after, describe, it } from 'mocha';
+import { afterEach, describe, expect, it } from 'vitest';
 
 import { parseChangelog } from '../../src/main/changelog';
 
@@ -23,7 +22,7 @@ const mockPlatform = (platform: string) => {
 describe('Changelog parser', () => {
   const platform = process.platform;
 
-  after(() => {
+  afterEach(() => {
     mockPlatform(platform);
   });
 

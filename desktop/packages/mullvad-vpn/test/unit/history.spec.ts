@@ -1,5 +1,4 @@
-import { expect, spy } from 'chai';
-import { beforeEach, describe, it } from 'mocha';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import History from '../../src/renderer/lib/history';
 import { RoutePath } from '../../src/shared/routes';
@@ -71,27 +70,27 @@ describe('History', () => {
   });
 
   it('should add a listener', () => {
-    const listenerA = spy();
+    const listenerA = vi.fn();
     history.listen(listenerA);
     history.pop();
     history.push(FIFTH_PATH);
 
-    const listenerB = spy();
+    const listenerB = vi.fn();
     history.listen(listenerB);
     history.pop(true);
     history.push(FIRST_PATH);
 
-    expect(listenerA).to.have.been.called.exactly(4);
-    expect(listenerB).to.have.been.called.exactly(2);
+    expect(listenerA).toHaveBeenCalledTimes(4);
+    expect(listenerB).toHaveBeenCalledTimes(2);
   });
 
   it('should remove a listener', () => {
-    const listenerA = spy();
+    const listenerA = vi.fn();
     const removeListenerA = history.listen(listenerA);
     history.pop();
     history.push(FIFTH_PATH);
 
-    const listenerB = spy();
+    const listenerB = vi.fn();
     history.listen(listenerB);
     history.pop(true);
 
@@ -99,7 +98,7 @@ describe('History', () => {
     history.push(FIRST_PATH);
     history.reset(SECOND_PATH);
 
-    expect(listenerA).to.have.been.called.exactly(3);
-    expect(listenerB).to.have.been.called.exactly(3);
+    expect(listenerA).toHaveBeenCalledTimes(3);
+    expect(listenerB).toHaveBeenCalledTimes(3);
   });
 });

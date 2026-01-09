@@ -1,5 +1,4 @@
-import { expect, spy } from 'chai';
-import sinon from 'sinon';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import AccountDataCache, { AccountFetchError } from '../../src/main/account-data-cache';
 import { AccountDataResponse, IAccountData } from '../../src/shared/daemon-rpc-types';
@@ -11,14 +10,12 @@ describe('IAccountData cache', () => {
     expiry: new Date('2038-01-01').toISOString(),
   };
 
-  let clock: sinon.SinonFakeTimers;
-
   beforeEach(() => {
-    clock = sinon.useFakeTimers({ shouldAdvanceTime: true });
+    vi.useFakeTimers({ shouldAdvanceTime: true });
   });
 
   afterEach(() => {
-    clock.restore();
+    vi.useRealTimers();
   });
 
   it('should notify when fetch succeeds on the first attempt', async () => {
@@ -34,7 +31,7 @@ describe('IAccountData cache', () => {
       });
     });
 
-    return expect(watcher).to.eventually.be.fulfilled;
+    return expect(watcher).resolves.toBe(void 0);
   });
 
   it('should notify when fetch fails on the first attempt', async () => {
@@ -50,7 +47,7 @@ describe('IAccountData cache', () => {
       });
     });
 
-    return expect(watcher).to.eventually.be.rejected;
+    await expect(watcher).rejects.toBe(void 0);
   });
 
   it('should update when fetch succeeds on the first attempt', async () => {
@@ -66,7 +63,7 @@ describe('IAccountData cache', () => {
       });
     });
 
-    return expect(update).to.eventually.be.fulfilled;
+    return expect(update).resolves.toBe(void 0);
   });
 
   it('should update when fetch succeeds on the second attempt', async () => {
@@ -75,7 +72,7 @@ describe('IAccountData cache', () => {
       const fetch = () => {
         if (firstAttempt) {
           firstAttempt = false;
-          setTimeout(() => clock.tick(9000), 0);
+          setTimeout(() => vi.advanceTimersByTime(9000), 0);
           return Promise.reject(new Error('First attempt fails'));
         } else {
           resolve();
@@ -91,12 +88,12 @@ describe('IAccountData cache', () => {
       });
     });
 
-    return expect(update).to.eventually.be.fulfilled;
+    return expect(update).resolves.toBe(undefined);
   });
 
   it('should cancel first fetch', async () => {
-    const firstError = spy((_error: AccountFetchError) => {});
-    const secondSuccess = spy();
+    const firstError = vi.fn((_error: AccountFetchError) => {});
+    const secondSuccess = vi.fn();
 
     const update = new Promise<IAccountData | void>((resolve, reject) => {
       let firstAttempt = true;
@@ -130,17 +127,19 @@ describe('IAccountData cache', () => {
       });
     });
 
-    return expect(update).to.eventually.be.fulfilled.then(() => {
-      expect(firstError).to.have.been.called.once;
-      expect(secondSuccess).to.have.been.called.once;
-      return;
-    });
+    return expect(update)
+      .resolves.toBe(undefined)
+      .then(() => {
+        expect(firstError).toHaveBeenCalledOnce();
+        expect(secondSuccess).toHaveBeenCalledOnce();
+        return;
+      });
   });
 
   it('should clear scheduled retry if another fetch is performed', async () => {
-    const firstError = spy();
-    const secondSuccess = spy();
-    const updateHandler = spy();
+    const firstError = vi.fn();
+    const secondSuccess = vi.fn();
+    const updateHandler = vi.fn();
 
     const update = new Promise((resolve, reject) => {
       let attempts = 0;
@@ -149,7 +148,7 @@ describe('IAccountData cache', () => {
         if (attempts === 1) {
           return Promise.resolve({ type: 'error', error: 'invalid-account' });
         } else if (attempts === 2) {
-          setTimeout(() => clock.tick(8000));
+          setTimeout(() => vi.advanceTimersByTime(8000));
           return Promise.resolve(dummyAccountData);
         } else {
           reject();
@@ -174,15 +173,17 @@ describe('IAccountData cache', () => {
       });
     });
 
-    return expect(update).to.eventually.be.fulfilled.then(() => {
-      expect(firstError).to.have.been.called.once;
-      expect(secondSuccess).to.have.been.called.once;
-      expect(updateHandler).to.have.been.called.twice;
-    });
+    return expect(update)
+      .resolves.toBe(void 0)
+      .then(() => {
+        expect(firstError).toHaveBeenCalledOnce();
+        expect(secondSuccess).toHaveBeenCalledOnce();
+        expect(updateHandler).toHaveBeenCalledTimes(2);
+      });
   });
 
   it('should not perform a fetch if called twice synchronously', async () => {
-    const fetchSpy = spy();
+    const fetchSpy = vi.fn();
     const update = new Promise<void>((resolve, _reject) => {
       const fetch = () => {
         fetchSpy();
@@ -195,9 +196,11 @@ describe('IAccountData cache', () => {
       cache.fetch(dummyAccountNumber, { onFinish: () => resolve(), onError });
     });
 
-    return expect(update).to.eventually.be.fulfilled.then(() => {
-      expect(fetchSpy).to.have.been.called.once;
-    });
+    return expect(update)
+      .resolves.toBe(void 0)
+      .then(() => {
+        expect(fetchSpy).toHaveBeenCalledOnce();
+      });
   });
 
   it('should refetch one minute before expiry', async () => {
@@ -210,7 +213,7 @@ describe('IAccountData cache', () => {
       const fetch = (_accountNumber: string): Promise<AccountDataResponse> => {
         if (firstAttempt) {
           firstAttempt = false;
-          setTimeout(() => clock.tick(120_000), 0);
+          setTimeout(() => vi.advanceTimersByTime(120_000), 0);
           return Promise.resolve({ type: 'success', expiry });
         } else {
           resolve();
@@ -226,11 +229,11 @@ describe('IAccountData cache', () => {
       });
     });
 
-    return expect(update).to.eventually.be.fulfilled;
+    return expect(update).resolves.toBe(void 0);
   });
 
   it('should invalidate after 60 seconds', async () => {
-    const fetchSpy = spy();
+    const fetchSpy = vi.fn();
     const expiry = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
 
     const update = new Promise<void>((resolve, reject) => {
@@ -244,13 +247,13 @@ describe('IAccountData cache', () => {
 
       cache.fetch(dummyAccountNumber, {
         onFinish: async () => {
-          clock.tick(59_000);
+          vi.advanceTimersByTime(59_000);
           // Timeout to let asynchronous tasks finish
           await new Promise((resolve) => setTimeout(resolve));
 
           cache.fetch(dummyAccountNumber, {
             onFinish: async () => {
-              clock.tick(1_000);
+              vi.advanceTimersByTime(1_000);
               // Timeout to let asynchronous tasks finish
               await new Promise((resolve) => setTimeout(resolve));
 
@@ -266,13 +269,15 @@ describe('IAccountData cache', () => {
       });
     });
 
-    return expect(update).to.eventually.be.fulfilled.then(() => {
-      expect(fetchSpy).to.have.been.called.twice;
-    });
+    return expect(update)
+      .resolves.toBe(void 0)
+      .then(() => {
+        expect(fetchSpy).toHaveBeenCalledTimes(2);
+      });
   });
 
   it('should invalidate after 10 seconds when epired', async () => {
-    const fetchSpy = spy();
+    const fetchSpy = vi.fn();
     const expiry = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
 
     const update = new Promise<void>((resolve, reject) => {
@@ -286,13 +291,13 @@ describe('IAccountData cache', () => {
 
       cache.fetch(dummyAccountNumber, {
         onFinish: async () => {
-          clock.tick(9_000);
+          vi.advanceTimersByTime(9_000);
           // Timeout to let asynchronous tasks finish
           await new Promise((resolve) => setTimeout(resolve));
 
           cache.fetch(dummyAccountNumber, {
             onFinish: async () => {
-              clock.tick(1_000);
+              vi.advanceTimersByTime(1_000);
               // Timeout to let asynchronous tasks finish
               await new Promise((resolve) => setTimeout(resolve));
 
@@ -308,8 +313,10 @@ describe('IAccountData cache', () => {
       });
     });
 
-    return expect(update).to.eventually.be.fulfilled.then(() => {
-      expect(fetchSpy).to.have.been.called.twice;
-    });
+    return expect(update)
+      .resolves.toBe(void 0)
+      .then(() => {
+        expect(fetchSpy).toHaveBeenCalledTimes(2);
+      });
   });
 });

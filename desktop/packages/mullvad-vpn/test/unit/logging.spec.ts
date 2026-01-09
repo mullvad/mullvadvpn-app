@@ -1,8 +1,6 @@
-import { expect, spy } from 'chai';
 import fs from 'fs';
-import { after, before, beforeEach, describe, it } from 'mocha';
 import path from 'path';
-import sinon from 'sinon';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { backupLogFile, rotateOrDeleteFile } from '../../src/main/logging';
 import { Logger } from '../../src/shared/logging';
@@ -19,42 +17,39 @@ const initialFileState = {
   [oldBPath]: 'old b',
 };
 
-describe('Logging', () => {
-  let files: Record<string, string>;
-  let sandbox: sinon.SinonSandbox;
+let files: Record<string, string>;
 
-  before(() => {
-    sandbox = sinon.createSandbox();
-
-    sandbox.stub(fs, 'accessSync').callsFake((filePath) => {
-      const normalizedPath = path.normalize(filePath as string);
+vi.mock('fs', () => {
+  const fsMock = {
+    accessSync: (filePath: string) => {
+      const normalizedPath = path.normalize(filePath);
       if (files[normalizedPath] === undefined) {
         throw Error('File not found');
       }
-    });
-
-    sandbox.stub(fs, 'renameSync').callsFake((oldPath, newPath) => {
-      const normalizedOldPath = path.normalize(oldPath as string);
-      const normalizedNewPath = path.normalize(newPath as string);
+    },
+    renameSync: (oldPath: string, newPath: string) => {
+      const normalizedOldPath = path.normalize(oldPath);
+      const normalizedNewPath = path.normalize(newPath);
       files[normalizedNewPath] = files[normalizedOldPath];
       fs.unlinkSync(normalizedOldPath);
-    });
-
-    sandbox.stub(fs, 'unlinkSync').callsFake((filePath) => {
-      const normalizedPath = path.normalize(filePath as string);
+    },
+    unlinkSync: (filePath: string) => {
+      const normalizedPath = path.normalize(filePath);
       delete files[normalizedPath];
-    });
+    },
 
-    sandbox.stub(fs, 'readFileSync').callsFake((filePath) => {
-      const normalizedPath = path.normalize(filePath as string);
+    readFileSync: (filePath: string) => {
+      const normalizedPath = path.normalize(filePath);
       return files[normalizedPath] ?? '';
-    });
-  });
+    },
+  };
 
-  after(() => {
-    sandbox.restore();
-  });
+  return {
+    default: fsMock,
+  };
+});
 
+describe('Logging', () => {
   beforeEach(() => {
     files = { ...initialFileState };
   });
@@ -91,11 +86,11 @@ describe('Logging', () => {
   it('should only log for the correct log level', () => {
     const logger = new Logger();
 
-    const errorSpy = spy();
-    const warningSpy = spy();
-    const infoSpy = spy();
-    const verboseSpy = spy();
-    const debugSpy = spy();
+    const errorSpy = vi.fn();
+    const warningSpy = vi.fn();
+    const infoSpy = vi.fn();
+    const verboseSpy = vi.fn();
+    const debugSpy = vi.fn();
 
     logger.addOutput({ level: LogLevel.error, write: errorSpy });
     logger.addOutput({ level: LogLevel.warning, write: warningSpy });
@@ -109,11 +104,11 @@ describe('Logging', () => {
     logger.verbose();
     logger.debug();
 
-    expect(errorSpy).to.have.been.called.exactly(1);
-    expect(warningSpy).to.have.been.called.exactly(2);
-    expect(infoSpy).to.have.been.called.exactly(3);
-    expect(verboseSpy).to.have.been.called.exactly(4);
-    expect(debugSpy).to.have.been.called.exactly(5);
+    expect(errorSpy).toHaveBeenCalledTimes(1);
+    expect(warningSpy).toHaveBeenCalledTimes(2);
+    expect(infoSpy).toHaveBeenCalledTimes(3);
+    expect(verboseSpy).toHaveBeenCalledTimes(4);
+    expect(debugSpy).toHaveBeenCalledTimes(5);
   });
 
   it('should format JavaScript types correctly', async () => {
@@ -130,10 +125,8 @@ describe('Logging', () => {
       nine: 10,
       eleven: [true],
     });
-    await expect(promise).to.eventually.be.fulfilled.then((result) => {
-      expect(result).to.equal(
-        'zero one two 3 [4,5,"six",{"seven":"eight"}] {"nine":10,"eleven":[true]}',
-      );
-    });
+    await expect(promise).resolves.toEqual(
+      'zero one two 3 [4,5,"six",{"seven":"eight"}] {"nine":10,"eleven":[true]}',
+    );
   });
 });

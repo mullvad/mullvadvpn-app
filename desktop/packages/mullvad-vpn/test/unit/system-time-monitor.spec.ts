@@ -1,29 +1,26 @@
-import { expect, spy } from 'chai';
-import sinon from 'sinon';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { systemTimeMonitor } from '../../src/main/system-time-monitor';
 
 describe('IAccountData cache', () => {
-  let clock: sinon.SinonFakeTimers;
-
   beforeEach(() => {
-    clock = sinon.useFakeTimers({ shouldAdvanceTime: true });
+    vi.useFakeTimers();
   });
 
   afterEach(() => {
-    clock.restore();
+    vi.useRealTimers();
   });
 
   it('should notify when system clock changes', () => {
-    const systemTimeListener = spy();
+    const systemTimeListener = vi.fn();
 
-    clock.setSystemTime(new Date('2025-01-01'));
+    vi.setSystemTime(new Date('2025-01-01'));
     systemTimeMonitor(systemTimeListener);
-    clock.setSystemTime(new Date('2025-01-02'));
-    clock.tick(1001);
-    clock.setSystemTime(new Date('2025-01-01'));
-    clock.tick(1900);
+    vi.setSystemTime(new Date('2025-01-02'));
+    vi.advanceTimersByTime(1001);
+    vi.setSystemTime(new Date('2025-01-01'));
+    vi.advanceTimersByTime(1900);
 
-    expect(systemTimeListener).to.have.been.called.twice;
+    expect(systemTimeListener).toHaveBeenCalledTimes(2);
   });
 });
