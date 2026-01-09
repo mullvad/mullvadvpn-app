@@ -10191,7 +10191,7 @@
 			repositoryURL = "https://github.com/apple/swift-log.git";
 			requirement = {
 				kind = exactVersion;
-				version = 1.4.0;
+				version = 1.8.0;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
