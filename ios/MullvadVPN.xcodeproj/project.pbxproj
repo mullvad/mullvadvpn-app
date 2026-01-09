@@ -1027,6 +1027,7 @@
 		F0C3333C2B31A29C00D1A478 /* MullvadSettings.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 58B2FDD32AA71D2A003EB5C6 /* MullvadSettings.framework */; };
 		F0C6A8432AB08E54000777A8 /* RedeemVoucherViewConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0C6A8422AB08E54000777A8 /* RedeemVoucherViewConfiguration.swift */; };
 		F0C6FA852A6A733700F521F0 /* InAppPurchaseInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0C6FA842A6A733700F521F0 /* InAppPurchaseInteractor.swift */; };
+		F0C9CE3E2F110C3B00EF41CE /* UIStackView+Contentsize.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0C9CE3D2F110C2A00EF41CE /* UIStackView+Contentsize.swift */; };
 		F0CFB9372ECDBA5300776BA3 /* InfoPlist.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F0CFB9362ECDBA5300776BA3 /* InfoPlist.xcstrings */; };
 		F0D5591E2D38051C0072B63F /* LatestChangesNotificationProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0D5591D2D3805050072B63F /* LatestChangesNotificationProvider.swift */; };
 		F0D5591F2D38051C0072B63F /* LatestChangesNotificationProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0D5591D2D3805050072B63F /* LatestChangesNotificationProvider.swift */; };
@@ -2465,6 +2466,7 @@
 		F0C5C38F2E4A3261005C6A6B /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		F0C6A8422AB08E54000777A8 /* RedeemVoucherViewConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedeemVoucherViewConfiguration.swift; sourceTree = "<group>"; };
 		F0C6FA842A6A733700F521F0 /* InAppPurchaseInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InAppPurchaseInteractor.swift; sourceTree = "<group>"; };
+		F0C9CE3D2F110C2A00EF41CE /* UIStackView+Contentsize.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIStackView+Contentsize.swift"; sourceTree = "<group>"; };
 		F0CB96302E4A324000206149 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		F0CFB9362ECDBA5300776BA3 /* InfoPlist.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; name = InfoPlist.xcstrings; path = "MullvadVPN/Supporting Files/InfoPlist.xcstrings"; sourceTree = SOURCE_ROOT; };
 		F0D5591D2D3805050072B63F /* LatestChangesNotificationProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LatestChangesNotificationProvider.swift; sourceTree = "<group>"; };
@@ -3388,14 +3390,14 @@
 		583FE02329C1AC9F006E85F9 /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
-				F95CDD9F2EE02B2F000E9D97 /* CoordinateSpace+Names.swift */,
-				F947D9FF2ED5AC8600C9D728 /* CGRect+Properties.swift */,
 				5891BF1B25E3E3EB006D6FB0 /* Bundle+ProductVersion.swift */,
+				F947D9FF2ED5AC8600C9D728 /* CGRect+Properties.swift */,
 				F06200092CB7EB42002E6DB9 /* CGSize+Helpers.swift */,
 				587EB669270EFACB00123C75 /* CharacterSet+IPAddress.swift */,
 				58E511E528DDDEAC00B0BCDE /* CodingErrors+CustomErrorDescription.swift */,
 				7AF9BE8F2A39F26000DBFEDB /* Collection+Sorting.swift */,
 				7A0EAE9F2D0333CB00D3EB8B /* Color+Helpers.swift */,
+				F95CDD9F2EE02B2F000E9D97 /* CoordinateSpace+Names.swift */,
 				7A0C0F622A979C4A0058EFCE /* Coordinator+Router.swift */,
 				F97C38E42DEEDFD2006DCB08 /* Image+Assets.swift */,
 				5811DE4F239014550011EB53 /* NEVPNStatus+Debug.swift */,
@@ -3417,6 +3419,7 @@
 				7ABE318C2A1CDD4500DF4963 /* UIFont+Weight.swift */,
 				440870812D7A00B00038972F /* UIImage+Assets.swift */,
 				F062000B2CB7EB5D002E6DB9 /* UIImage+Helpers.swift */,
+				F0C9CE3D2F110C2A00EF41CE /* UIStackView+Contentsize.swift */,
 				58CEB2FC2AFD19D300E6E088 /* UITableView+ReuseIdentifier.swift */,
 				7A58699A2B482FE200640D27 /* UITableViewCell+Disable.swift */,
 				7A21DACE2A30AA3700A787A9 /* UITextField+Appearance.swift */,
@@ -6444,6 +6447,7 @@
 				58F19E35228C15BA00C7710B /* SpinnerActivityIndicatorView.swift in Sources */,
 				7A0EAE9A2D01B41500D3EB8B /* MainButtonStyle.swift in Sources */,
 				58CEB3022AFD365600E6E088 /* SwitchCellContentConfiguration.swift in Sources */,
+				F0C9CE3E2F110C3B00EF41CE /* UIStackView+Contentsize.swift in Sources */,
 				7AA130A12D01B1E200640DF9 /* SplitMainButton.swift in Sources */,
 				F97C38E82DF025D9006DCB08 /* MullvadAlert.swift in Sources */,
 				7AA1309F2D007B2500640DF9 /* VisualEffectView.swift in Sources */,
