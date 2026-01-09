@@ -20,11 +20,11 @@ import WireGuardKitTypes
 
 /// Interval used for periodic polling of tunnel relay status when tunnel is establishing
 /// connection.
-private let establishingTunnelStatusPollInterval: Duration = .seconds(1)
+private let establishingTunnelStatusPollInterval: Duration = .milliseconds(100)
 
 /// Interval used for periodic polling of tunnel connectivity status once the tunnel connection
 /// is established.
-private let establishedTunnelStatusPollInterval: Duration = .seconds(5)
+private let establishedTunnelStatusPollInterval: Duration = .milliseconds(100)
 
 /// A class that provides a convenient interface for VPN tunnels configuration, manipulation and
 /// monitoring.
@@ -745,12 +745,9 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
             cancelPollingTunnelStatus()
 
         case let .error(blockedStateReason):
-            switch blockedStateReason {
-            case .deviceRevoked, .invalidAccount:
+            if !blockedStateReason.recoverableError() {
                 handleBlockedState(reason: blockedStateReason)
                 cancelPollingTunnelStatus()
-            default:
-                break
             }
         }
 
