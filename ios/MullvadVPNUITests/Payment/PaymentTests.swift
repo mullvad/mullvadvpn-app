@@ -107,6 +107,8 @@ class PaymentTests: LoggedOutUITestCase {
             firewallAPIClient.removeRules()
         }
 
+        disableBridgesAccessMethod()
+
         login(accountNumber: accountNumberWithTime)
 
         HeaderBar(app)
@@ -145,6 +147,7 @@ class PaymentTests: LoggedOutUITestCase {
 
 @available(iOS 26.0, *)
 extension PaymentTests {
+
     private func createAndLogInToNewAccount() -> String {
         LoginPage(app)
             .tapCreateAccountButton()
