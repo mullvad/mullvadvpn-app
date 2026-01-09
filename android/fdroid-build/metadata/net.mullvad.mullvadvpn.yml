@@ -40,15 +40,14 @@ Builds:
       - git -C ../.. submodule update --init android/rust-android-gradle-plugin
       - sed -i -e 's|Repositories.GradlePlugins|"https://plugins.gradle.org/m2/"|'
         ../build.gradle.kts
+      - sed -i -e '/foojay/d' ../rust-android-gradle-plugin/settings.gradle.kts
+      - sed -i -e '/billing/d' ../settings.gradle.kts
+      - sed -i -e '/projects.lib.billing/d' build.gradle.kts
       - sed -i '/\"desktop\//d' ../../Cargo.toml
-      - sed -i '/^android-billingclient/d' ../gradle/libs.versions.toml
-      - sed -i '/":lib:billing"/d' ../settings.gradle.kts
-      - sed -i '/playImplementation(projects.lib.billing)/d' ../app/build.gradle.kts
-      - sed -i '/^val localRepo = file/,/^}/d' ../rust-android-gradle-plugin/plugin/build.gradle.kts
-      - sed -i '/systemProperty("local\.repo",/d' ../rust-android-gradle-plugin/plugin/build.gradle.kts
+    scanignore:
+      - android/rust-android-gradle-plugin/plugin/build.gradle.kts
     build:
       - NDK_PATH="$$NDK$$" source ../fdroid-build/env.sh
-      - cargo install --force cbindgen --version "0.26.0" --locked
       - echo $NDK_TOOLCHAIN_DIR "$$NDK$$"
       - ../build.sh --fdroid
     ndk: 27.3.13750724

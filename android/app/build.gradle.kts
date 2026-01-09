@@ -307,7 +307,6 @@ cargo {
         } else {
             "debug"
         }
-    prebuiltToolchains = true
     targetDirectory = "$repoRootPath/target"
     features {
         val enabledFeatures =
@@ -328,11 +327,9 @@ cargo {
         add("--package=mullvad-jni")
         add("--locked")
     }
-    exec = { spec, _ ->
-        println("Executing Cargo: ${spec.commandLine.joinToString(" ")}")
 
-        if (getBooleanProperty("mullvad.app.build.replaceRustPathPrefix"))
-            spec.environment("RUSTFLAGS", generateRemapArguments())
+    if (getBooleanProperty("mullvad.app.build.replaceRustPathPrefix")) {
+        environmentalOverrides["RUSTFLAGS"] = generateRemapArguments()
     }
 }
 
