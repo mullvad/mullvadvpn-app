@@ -1,5 +1,5 @@
 import fs from 'fs';
-import { GetTextTranslation, po } from 'gettext-parser';
+import { type GetTextTranslation, po } from 'gettext-parser';
 import path from 'path';
 
 import {
