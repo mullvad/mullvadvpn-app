@@ -16,7 +16,7 @@ path = "src/main.rs"
 
 [dependencies]
 clap = { workspace = true }
-env_logger = { workspace = true }
+tracing-subscriber = { workspace = true }
 thiserror = { workspace = true }
 
 mullvad-management-interface = { path = "../mullvad-management-interface" }

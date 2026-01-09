@@ -47,6 +47,7 @@ struct ManagementServiceImpl {
     daemon_tx: DaemonCommandSender,
     subscriptions: Arc<Mutex<Vec<EventsListenerSender>>>,
     pub app_upgrade_broadcast: AppUpgradeBroadcast,
+    log_reload_handle: crate::logging::LogHandle,
 }
 
 pub type ServiceResult<T> = std::result::Result<Response<T>, Status>;
@@ -64,6 +65,7 @@ impl ManagementService for ManagementServiceImpl {
     type GetSplitTunnelProcessesStream = UnboundedReceiverStream<Result<i32, Status>>;
     type EventsListenStream = EventsListenerReceiver;
     type AppUpgradeEventsListenStream = AppUpgradeEventListenerReceiver;
+    type LogListenStream = UnboundedReceiverStream<Result<types::LogMessage, Status>>;
 
     // Control and get the tunnel state
     //
@@ -1122,6 +1124,35 @@ impl ManagementService for ManagementServiceImpl {
         Ok(Response::new(feature_indicators))
     }
 
+    async fn set_log_filter(&self, request: Request<types::LogFilter>) -> ServiceResult<()> {
+        self.log_reload_handle
+            .set_log_filter(request.into_inner().log_filter)
+            .map_err(|error| Status::invalid_argument(error.to_string()))?;
+        Ok(Response::new(()))
+    }
+
+    async fn log_listen(&self, _request: Request<()>) -> ServiceResult<Self::LogListenStream> {
+        let mut log_stream = self.log_reload_handle.get_log_stream();
+
+        let (tx, rx) = tokio::sync::mpsc::unbounded_channel();
+        tokio::spawn(async move {
+            loop {
+                match log_stream.recv().await {
+                    Ok(log) => {
+                        let _ = tx.send(Ok(types::LogMessage { message: log }));
+                    }
+                    Err(tokio::sync::broadcast::error::RecvError::Lagged(n)) => {
+                        let _ = tx.send(Err(Status::internal(format!("{n} lagged messages"))));
+                    }
+                    Err(tokio::sync::broadcast::error::RecvError::Closed) => {
+                        break;
+                    }
+                }
+            }
+        });
+
+        Ok(Response::new(UnboundedReceiverStream::new(rx)))
+    }
     // Debug features
 
     async fn disable_relay(&self, relay: Request<String>) -> ServiceResult<()> {
@@ -1292,7 +1323,8 @@ impl ManagementInterfaceServer {
     pub fn start(
         daemon_tx: DaemonCommandSender,
         rpc_socket_path: PathBuf,
-        app_upgrade_broadcast: tokio::sync::broadcast::Sender<version::AppUpgradeEvent>,
+        app_upgrade_broadcast: AppUpgradeBroadcast,
+        log_reload_handle: crate::logging::LogHandle,
     ) -> Result<ManagementInterfaceServer, Error> {
         let subscriptions = Arc::<Mutex<Vec<EventsListenerSender>>>::default();
 
@@ -1305,6 +1337,7 @@ impl ManagementInterfaceServer {
             daemon_tx,
             subscriptions: subscriptions.clone(),
             app_upgrade_broadcast,
+            log_reload_handle,
         };
         let rpc_server_join_handle = mullvad_management_interface::spawn_rpc_server(
             server,

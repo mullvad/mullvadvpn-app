@@ -53,7 +53,7 @@ enum Cli {
 }
 
 fn run() -> Result<(), Error> {
-    env_logger::init();
+    tracing_subscriber::fmt::init();
 
     match Cli::parse() {
         Cli::Collect {

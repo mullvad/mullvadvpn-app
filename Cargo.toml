@@ -141,11 +141,11 @@ hyper-util = { version = "0.1.8", features = [
 ] }
 
 # Errors and logging
-env_logger = "0.11.7"
+tracing-subscriber = { version = "0.3.22", features = ["env-filter"] }
+tracing-appender = "0.2.4"
 thiserror = "2.0"
 anyhow = "1.0"
 log = "0.4"
-fern = { version = "0.6", default-features = false }
 
 # Shadowsocks
 shadowsocks = "1.23.2"

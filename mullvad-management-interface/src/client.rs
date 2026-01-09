@@ -650,6 +650,17 @@ impl MullvadProxyClient {
             .await?;
         Ok(())
     }
+
+    pub async fn set_log_filter(&mut self, level: String) -> Result<()> {
+        self.0.set_log_filter(types::LogFilter::from(level)).await?;
+        Ok(())
+    }
+
+    pub async fn log_listen(&mut self) -> Result<impl Stream<Item = Result<String>>> {
+        let listener = self.0.log_listen(()).await?.into_inner();
+
+        Ok(listener.map(|item| Ok(item?.message)))
+    }
 }
 
 #[cfg(not(target_os = "android"))]
