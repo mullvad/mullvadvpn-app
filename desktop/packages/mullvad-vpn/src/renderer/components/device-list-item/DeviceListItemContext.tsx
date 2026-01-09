@@ -1,9 +1,9 @@
 import { createContext, useContext } from 'react';
 
 import { IDevice } from '../../../shared/daemon-rpc-types';
+import { useBoolean } from '../../lib/utility-hooks';
 
-type DeviceListItemContextType = {
-  device: IDevice;
+type DeviceListItemContextType = Omit<DeviceListItemContextProviderProps, 'children'> & {
   deleting: boolean;
   setDeleting: () => void;
   resetDeleting: () => void;
@@ -17,13 +17,34 @@ type DeviceListItemContextType = {
 
 const DeviceListItemContext = createContext<DeviceListItemContextType | undefined>(undefined);
 
-type DeviceListItemContextProviderProps = React.PropsWithChildren<DeviceListItemContextType>;
+type DeviceListItemContextProviderProps = React.PropsWithChildren<{
+  device: IDevice;
+}>;
 
 export const DeviceListItemProvider = ({
   children,
   ...props
 }: DeviceListItemContextProviderProps) => {
-  return <DeviceListItemContext.Provider value={props}>{children}</DeviceListItemContext.Provider>;
+  const [confirmDialogVisible, showConfirmDialog, hideConfirmDialog] = useBoolean(false);
+  const [error, setError, resetError] = useBoolean(false);
+  const [deleting, setDeleting, resetDeleting] = useBoolean(false);
+  return (
+    <DeviceListItemContext.Provider
+      value={{
+        deleting,
+        setDeleting,
+        resetDeleting,
+        confirmDialogVisible,
+        showConfirmDialog,
+        hideConfirmDialog,
+        error,
+        setError,
+        resetError,
+        ...props,
+      }}>
+      {children}
+    </DeviceListItemContext.Provider>
+  );
 };
 
 export const useDeviceListItemContext = (): DeviceListItemContextType => {

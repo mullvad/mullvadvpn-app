@@ -9,7 +9,7 @@ export type SettingsListboxProps<T> = Omit<ListboxProps<T>, 'animation'> & {
   anchorId?: ScrollToAnchorId;
 };
 
-function SettingsListbox<T>({ anchorId, ...props }: SettingsListboxProps<T>) {
+function SettingsListbox<T>({ anchorId, children, ...props }: SettingsListboxProps<T>) {
   const { ref, animation } = useScrollToListItem(anchorId);
   const labelId = React.useId();
 
@@ -21,8 +21,9 @@ function SettingsListbox<T>({ anchorId, ...props }: SettingsListboxProps<T>) {
       labelId={labelId}
       aria-labelledby={labelId}
       animation={animation}
-      {...props}
-    />
+      {...props}>
+      {children}
+    </Listbox>
   );
 }
 

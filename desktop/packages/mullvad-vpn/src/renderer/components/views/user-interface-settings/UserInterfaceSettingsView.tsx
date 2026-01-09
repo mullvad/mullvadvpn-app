@@ -8,7 +8,6 @@ import {
   StartMinimizedSetting,
   UnpinnedWindowSetting,
 } from '../../../features/client/components';
-import { FlexColumn } from '../../../lib/components/flex-column';
 import { View } from '../../../lib/components/view';
 import { useHistory } from '../../../lib/history';
 import { useSelector } from '../../../redux/store';
@@ -16,7 +15,7 @@ import { AppNavigationHeader } from '../..';
 import { BackAction } from '../../keyboard-navigation';
 import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
-import SettingsHeader, { HeaderTitle } from '../../SettingsHeader';
+import { HeaderTitle } from '../../SettingsHeader';
 import { LanguageListItem } from './components';
 
 const AnimateMapContainer = styled.div({
@@ -42,13 +41,11 @@ export function UserInterfaceSettingsView() {
 
           <NavigationScrollbars>
             <View.Content>
-              <SettingsHeader>
+              <View.Container horizontalMargin="medium" flexDirection="column" gap="medium">
                 <HeaderTitle>
                   {messages.pgettext('user-interface-settings-view', 'User interface settings')}
                 </HeaderTitle>
-              </SettingsHeader>
 
-              <FlexColumn gap="medium">
                 <NotificationsSetting />
                 <MonochromaticTrayIconSetting />
                 <LanguageListItem />
@@ -62,7 +59,7 @@ export function UserInterfaceSettingsView() {
                 <AnimateMapContainer>
                   <AnimateMapSetting />
                 </AnimateMapContainer>
-              </FlexColumn>
+              </View.Container>
             </View.Content>
           </NavigationScrollbars>
         </NavigationContainer>

@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { ListItem, ListItemProps } from '../list-item';
-import { ListboxLabel, ListboxOption, ListboxOptions } from './components';
+import { ListboxItem, ListboxLabel, ListboxOption, ListboxOptions } from './components';
 import { ListboxProvider } from './ListboxContext';
 
 export type ListboxProps<T> = ListItemProps & {
@@ -27,7 +27,7 @@ function Listbox<T>({
 }
 
 const ListboxNamespace = Object.assign(Listbox, {
-  Item: ListItem.Item,
+  Item: ListboxItem,
   Content: ListItem.Content,
   Label: ListboxLabel,
   Group: ListItem.Group,

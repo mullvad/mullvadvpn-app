@@ -1,6 +1,7 @@
 import { messages } from '../../../../shared/gettext';
 import { usePop } from '../../../history/hooks';
 import { FlexColumn } from '../../../lib/components/flex-column';
+import { ListItemGroup } from '../../../lib/components/list-item-group';
 import { View } from '../../../lib/components/view';
 import { AppNavigationHeader } from '../../';
 import { BackAction } from '../../keyboard-navigation';
@@ -41,16 +42,16 @@ export function SettingsView() {
 
           <SettingsNavigationScrollbars fillContainer>
             <View.Content>
-              <FlexColumn gap="large">
+              <View.Container horizontalMargin="medium" gap="large" flexDirection="column">
                 <FlexColumn gap="medium">
                   {showSubSettings ? (
                     <>
-                      <FlexColumn>
+                      <ListItemGroup variant="grouped">
                         <DaitaListItem />
                         <MultihopListItem />
                         <VpnSettingsListItem />
                         <UserInterfaceSettingsListItem />
-                      </FlexColumn>
+                      </ListItemGroup>
                       {showSplitTunneling && <SplitTunnelingListItem />}
                     </>
                   ) : (
@@ -59,17 +60,15 @@ export function SettingsView() {
 
                   <ApiAccessMethodsListItem />
 
-                  <FlexColumn>
+                  <ListItemGroup variant="grouped">
                     <SupportListItem />
                     <AppInfoListItem />
-                  </FlexColumn>
+                  </ListItemGroup>
 
                   {showDebug && <DebugListItem />}
                 </FlexColumn>
-                <View.Container horizontalMargin="medium">
-                  <QuitButton />
-                </View.Container>
-              </FlexColumn>
+                <QuitButton />
+              </View.Container>
             </View.Content>
           </SettingsNavigationScrollbars>
         </NavigationContainer>

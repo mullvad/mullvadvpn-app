@@ -8,7 +8,7 @@ export function StartMinimizedSetting() {
       <SettingsListItem.Item>
         <SettingsListItem.Content>
           <StartMinimizedSwitch>
-            <StartMinimizedSwitch.Label variant="titleMedium">
+            <StartMinimizedSwitch.Label>
               {messages.pgettext('user-interface-settings-view', 'Start minimized')}
             </StartMinimizedSwitch.Label>
             <StartMinimizedSwitch.Trigger>

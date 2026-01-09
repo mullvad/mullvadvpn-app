@@ -13,7 +13,7 @@ export function EnableIpv6Setting() {
       <SettingsListItem.Item>
         <SettingsListItem.Content>
           <EnableIpv6Switch>
-            <EnableIpv6Switch.Label variant="titleMedium">
+            <EnableIpv6Switch.Label>
               {
                 // TRANSLATORS: Title of in-tunnel IPv6 setting.
                 messages.pgettext('vpn-settings-view', 'In-tunnel IPv6')

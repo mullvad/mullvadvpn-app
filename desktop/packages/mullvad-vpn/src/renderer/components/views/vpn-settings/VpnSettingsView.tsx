@@ -7,13 +7,14 @@ import {
   QuantumResistantSetting,
 } from '../../../features/tunnel/components';
 import { FlexColumn } from '../../../lib/components/flex-column';
+import { ListItemGroup } from '../../../lib/components/list-item-group';
 import { View } from '../../../lib/components/view';
 import { useHistory } from '../../../lib/history';
 import { AppNavigationHeader } from '../..';
 import { BackAction } from '../../keyboard-navigation';
 import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
-import SettingsHeader, { HeaderTitle } from '../../SettingsHeader';
+import { HeaderTitle } from '../../SettingsHeader';
 import {
   AntiCensorshipListItem,
   CustomDnsSettings,
@@ -40,32 +41,34 @@ export function VpnSettingsView() {
 
           <NavigationScrollbars>
             <View.Content>
-              <SettingsHeader>
+              <View.Container horizontalMargin="medium" gap="medium" flexDirection="column">
                 <HeaderTitle>{messages.pgettext('vpn-settings-view', 'VPN settings')}</HeaderTitle>
-              </SettingsHeader>
 
-              <FlexColumn gap="medium">
-                <FlexColumn>
-                  <AutoStartSetting />
-                  <AutoConnectSetting />
+                <FlexColumn gap="medium">
+                  <ListItemGroup variant="grouped">
+                    <AutoStartSetting />
+                    <AutoConnectSetting />
+                  </ListItemGroup>
+
+                  <AllowLanSetting />
+
+                  <ListItemGroup gap="small">
+                    <DnsBlockerSettings />
+                    <CustomDnsSettings />
+                  </ListItemGroup>
+
+                  <EnableIpv6Setting />
+                  <ListItemGroup variant="grouped">
+                    <KillSwitchSetting />
+                    <LockdownModeSetting />
+                  </ListItemGroup>
+                  <AntiCensorshipListItem />
+                  <QuantumResistantSetting />
+                  <IpVersionSetting />
+                  <MtuSetting />
+                  <IpOverrideSettings />
                 </FlexColumn>
-
-                <AllowLanSetting />
-
-                <FlexColumn>
-                  <DnsBlockerSettings />
-                  <CustomDnsSettings />
-                </FlexColumn>
-
-                <EnableIpv6Setting />
-                <KillSwitchSetting />
-                <LockdownModeSetting />
-                <AntiCensorshipListItem />
-                <QuantumResistantSetting />
-                <IpVersionSetting />
-                <MtuSetting />
-                <IpOverrideSettings />
-              </FlexColumn>
+              </View.Container>
             </View.Content>
           </NavigationScrollbars>
         </NavigationContainer>

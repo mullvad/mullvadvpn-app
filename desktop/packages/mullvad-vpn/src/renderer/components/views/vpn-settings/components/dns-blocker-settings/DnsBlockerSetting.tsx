@@ -11,6 +11,7 @@ import {
 } from '../../../../../features/dns/components';
 import { useDns } from '../../../../../features/dns/hooks';
 import { FlexRow } from '../../../../../lib/components/flex-row';
+import { ListItemGroup } from '../../../../../lib/components/list-item-group';
 import { formatHtml } from '../../../../../lib/html-formatter';
 import InfoButton from '../../../../InfoButton';
 import { ModalMessage } from '../../../../Modal';
@@ -29,7 +30,7 @@ export function DnsBlockerSettings() {
         aria-label={messages.pgettext('vpn-settings-view', 'DNS content blockers')}
         disabled={dns.state === 'custom'}>
         <SettingsAccordion.Header>
-          <SettingsAccordion.Title>
+          <SettingsAccordion.Title variant="bodySmallSemibold">
             {messages.pgettext('vpn-settings-view', 'DNS content blockers')}
           </SettingsAccordion.Title>
           <FlexRow gap="medium">
@@ -64,12 +65,14 @@ export function DnsBlockerSettings() {
           </FlexRow>
         </SettingsAccordion.Header>
         <SettingsAccordion.Content>
-          <BlockAdsSetting />
-          <BlockTrackersSetting />
-          <BlockMalwareSetting />
-          <BlockGamblingSetting />
-          <BlockAdultContentSetting />
-          <BlockSocialMediaSetting />
+          <ListItemGroup variant="grouped" unsetCornerRadius="top">
+            <BlockAdsSetting />
+            <BlockTrackersSetting />
+            <BlockMalwareSetting />
+            <BlockGamblingSetting />
+            <BlockAdultContentSetting />
+            <BlockSocialMediaSetting />
+          </ListItemGroup>
         </SettingsAccordion.Content>
       </SettingsAccordion>
       {dns.state === 'custom' && <CustomDnsEnabledFooter />}
