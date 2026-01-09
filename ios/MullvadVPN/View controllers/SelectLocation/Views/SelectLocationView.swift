@@ -184,7 +184,7 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                         } label: {
                             HStack {
                                 Image(systemName: "clock")
-                                Text("\(viewModel.isRecentsEnabled ? "Disable" : "Enable") recents")
+                                Text(viewModel.isRecentsEnabled ? "Disable recents" : "Enable recents")
                             }
                             .foregroundStyle(Color.mullvadTextPrimary)
                         }

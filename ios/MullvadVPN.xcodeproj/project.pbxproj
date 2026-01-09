@@ -944,6 +944,7 @@
 		F05769BB2C6661EE00D9778B /* TunnelSettingsStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = F05769BA2C6661EE00D9778B /* TunnelSettingsStrategy.swift */; };
 		F05919752C45194B00C301F3 /* EphemeralPeerKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = F05919742C45194B00C301F3 /* EphemeralPeerKey.swift */; };
 		F05919802C45515200C301F3 /* EphemeralPeerExchangeActor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A948809A2BC9308D0090A44C /* EphemeralPeerExchangeActor.swift */; };
+		F05BDEB12F112C6F00B3CEEC /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F05BDEB02F112C6F00B3CEEC /* Localizable.xcstrings */; };
 		F05F39972B21C735006E60A7 /* RelayCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5820675A26E6576800655B05 /* RelayCache.swift */; };
 		F05F39982B21C73C006E60A7 /* CachedRelays.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585DA87626B024A600B8C587 /* CachedRelays.swift */; };
 		F06045E62B231EB700B2D37A /* URLSessionTaskWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = F06045E52B231EB700B2D37A /* URLSessionTaskWrapper.swift */; };
@@ -2400,6 +2401,7 @@
 		F059197C2C454C9200C301F3 /* MultiHopEphemeralPeerExchanger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiHopEphemeralPeerExchanger.swift; sourceTree = "<group>"; };
 		F059197E2C454CE000C301F3 /* EphemeralPeerExchangingProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EphemeralPeerExchangingProtocol.swift; sourceTree = "<group>"; };
 		F05AEE6D2E4A35DE004F266A /* my */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = my; path = my.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		F05BDEB02F112C6F00B3CEEC /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; name = Localizable.xcstrings; path = PacketTunnel/Localizable.xcstrings; sourceTree = SOURCE_ROOT; };
 		F06045E52B231EB700B2D37A /* URLSessionTaskWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLSessionTaskWrapper.swift; sourceTree = "<group>"; };
 		F06045EB2B2322A500B2D37A /* Jittered.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Jittered.swift; sourceTree = "<group>"; };
 		F06200092CB7EB42002E6DB9 /* CGSize+Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CGSize+Helpers.swift"; sourceTree = "<group>"; };
@@ -3973,6 +3975,7 @@
 		58CE5E7A224146470008646E /* PacketTunnel */ = {
 			isa = PBXGroup;
 			children = (
+				F05BDEB02F112C6F00B3CEEC /* Localizable.xcstrings */,
 				58915D662A25F9F20066445B /* DeviceCheck */,
 				58CE5E7D224146470008646E /* Info.plist */,
 				58CE5E7E224146470008646E /* PacketTunnel.entitlements */,
@@ -5654,6 +5657,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F05BDEB12F112C6F00B3CEEC /* Localizable.xcstrings in Resources */,
 				A9BA08322BA32FB6005A7A2D /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
