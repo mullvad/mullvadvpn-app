@@ -2242,7 +2242,6 @@ dependencies = [
  "anyhow",
  "async-trait",
  "cacao",
- "chrono",
  "insta",
  "log",
  "mullvad-paths",
