@@ -77,7 +77,7 @@
     "@rollup/rollup-win32-x64-msvc": "4.34.6"
   },
   "scripts": {
-    "preinstall": "node -e \"const fs=require('fs'); if(!fs.existsSync('node_modules'))fs.mkdirSync('node_modules')\"",
+    "preinstall": "bash -c \"test -d node_modules || mkdir node_modules\"",
     "build": "node tasks/build-production.js",
     "build:vite": "vite build",
     "build:test": "node tasks/build-test.js",
