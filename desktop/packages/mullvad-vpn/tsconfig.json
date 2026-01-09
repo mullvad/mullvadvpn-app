@@ -1,6 +1,8 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
     "moduleResolution": "bundler",
     "esModuleInterop": true,
     "jsx": "react-jsx",
