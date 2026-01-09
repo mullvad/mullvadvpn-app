@@ -71,7 +71,7 @@ pub fn is_enabled() -> bool {
 pub struct LogHandle {
     env_filter: Handle<EnvFilter, Registry>,
     log_stream: LogStreamer,
-    _file_appender_guard: non_blocking::WorkerGuard,
+    _file_appender_guard: Option<non_blocking::WorkerGuard>,
 }
 
 /// A simple, asynchronous log sink.
@@ -144,8 +144,13 @@ pub fn init_logger(
     let default_filter = silence_crates(env_filter);
 
     // TODO: Switch this to a rolling appender, likely daily or hourly
-    let file_appender = tracing_appender::rolling::never(log_dir.unwrap(), DAEMON_LOG_FILENAME);
-    let (non_blocking_file_appender, _file_appender_guard) = non_blocking(file_appender);
+    let (non_blocking_file_appender, _file_appender_guard) = if let Some(log_dir) = log_dir {
+        let file_appender = tracing_appender::rolling::never(log_dir, DAEMON_LOG_FILENAME);
+        let (appender, guard) = non_blocking(file_appender);
+        (Some(appender), Some(guard))
+    } else {
+        (None, None)
+    };
 
     let (tx, _) = tokio::sync::broadcast::channel(128);
     let log_stream = LogStreamer { tx };
@@ -172,42 +177,71 @@ pub fn init_logger(
         reg.with(android_layer)
     };
 
-    if output_timestamp {
-        let file_formatter = tracing_subscriber::fmt::layer()
-            .with_ansi(false)
-            .with_writer(non_blocking_file_appender);
-        let grpc_formatter = tracing_subscriber::fmt::layer()
-            .with_ansi(true)
-            .with_span_events(FmtSpan::NEW | FmtSpan::CLOSE)
-            .with_writer(std::sync::Mutex::new(log_stream));
-        reg.with(
-            stdout_formatter.with_timer(tracing_subscriber::fmt::time::ChronoUtc::new(
-                DATE_TIME_FORMAT_STR.to_string(),
-            )),
-        )
-        .with(
-            grpc_formatter.with_timer(tracing_subscriber::fmt::time::ChronoUtc::new(
-                DATE_TIME_FORMAT_STR.to_string(),
-            )),
-        )
-        .with(
-            file_formatter.with_timer(tracing_subscriber::fmt::time::ChronoUtc::new(
-                DATE_TIME_FORMAT_STR.to_string(),
-            )),
-        )
-        .init();
-    } else {
-        let grpc_formatter = tracing_subscriber::fmt::layer()
-            .with_ansi(true)
-            .with_span_events(FmtSpan::NEW | FmtSpan::CLOSE)
-            .with_writer(std::sync::Mutex::new(log_stream));
-        let file_formatter = tracing_subscriber::fmt::layer()
-            .with_ansi(false)
-            .with_writer(non_blocking_file_appender);
-        reg.with(stdout_formatter.without_time())
-            .with(file_formatter.without_time())
-            .with(grpc_formatter.without_time())
+    match (non_blocking_file_appender, output_timestamp) {
+        (Some(non_blocking_file_appender), true) => {
+            let file_formatter = tracing_subscriber::fmt::layer()
+                .with_ansi(false)
+                .with_writer(non_blocking_file_appender);
+            let grpc_formatter = tracing_subscriber::fmt::layer()
+                .with_ansi(true)
+                .with_span_events(FmtSpan::NEW | FmtSpan::CLOSE)
+                .with_writer(std::sync::Mutex::new(log_stream));
+            reg.with(
+                stdout_formatter.with_timer(tracing_subscriber::fmt::time::ChronoUtc::new(
+                    DATE_TIME_FORMAT_STR.to_string(),
+                )),
+            )
+            .with(
+                grpc_formatter.with_timer(tracing_subscriber::fmt::time::ChronoUtc::new(
+                    DATE_TIME_FORMAT_STR.to_string(),
+                )),
+            )
+            .with(
+                file_formatter.with_timer(tracing_subscriber::fmt::time::ChronoUtc::new(
+                    DATE_TIME_FORMAT_STR.to_string(),
+                )),
+            )
             .init();
+        }
+        (Some(non_blocking_file_appender), false) => {
+            let grpc_formatter = tracing_subscriber::fmt::layer()
+                .with_ansi(true)
+                .with_span_events(FmtSpan::NEW | FmtSpan::CLOSE)
+                .with_writer(std::sync::Mutex::new(log_stream));
+            let file_formatter = tracing_subscriber::fmt::layer()
+                .with_ansi(false)
+                .with_writer(non_blocking_file_appender);
+            reg.with(stdout_formatter.without_time())
+                .with(file_formatter.without_time())
+                .with(grpc_formatter.without_time())
+                .init();
+        }
+        (None, true) => {
+            let grpc_formatter = tracing_subscriber::fmt::layer()
+                .with_ansi(true)
+                .with_span_events(FmtSpan::NEW | FmtSpan::CLOSE)
+                .with_writer(std::sync::Mutex::new(log_stream));
+            reg.with(
+                stdout_formatter.with_timer(tracing_subscriber::fmt::time::ChronoUtc::new(
+                    DATE_TIME_FORMAT_STR.to_string(),
+                )),
+            )
+            .with(
+                grpc_formatter.with_timer(tracing_subscriber::fmt::time::ChronoUtc::new(
+                    DATE_TIME_FORMAT_STR.to_string(),
+                )),
+            )
+            .init();
+        }
+        (None, false) => {
+            let grpc_formatter = tracing_subscriber::fmt::layer()
+                .with_ansi(true)
+                .with_span_events(FmtSpan::NEW | FmtSpan::CLOSE)
+                .with_writer(std::sync::Mutex::new(log_stream));
+            reg.with(stdout_formatter.without_time())
+                .with(grpc_formatter.without_time())
+                .init();
+        }
     }
 
     LOG_ENABLED.store(true, Ordering::SeqCst);
