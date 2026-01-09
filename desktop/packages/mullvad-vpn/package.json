@@ -66,6 +66,7 @@
     "sinon": "^14.0.1",
     "vite": "7.1.11",
     "vite-plugin-electron": "^0.29.0",
+    "vitest": "^4.0.16",
     "xvfb-maybe": "^0.2.1"
   },
   "optionalDependencies": {
