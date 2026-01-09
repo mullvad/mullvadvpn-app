@@ -1,0 +1,10 @@
+# See repository root `osv-scanner.toml` for instructions and rules for this file.
+
+# Segmentation fault and invalid memory read in mnl::cb_run.
+[[IgnoredVulns]]
+id = "RUSTSEC-2025-0142"
+ignoreUntil = 2026-03-09
+reason = """
+We do not pass untrusted input to cb_run
+"""
+
