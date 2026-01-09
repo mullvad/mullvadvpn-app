@@ -2823,6 +2823,7 @@ dependencies = [
  "mullvad-api-constants",
  "mullvad-encrypted-dns-proxy",
  "mullvad-fs",
+ "mullvad-release-android",
  "mullvad-types",
  "mullvad-update",
  "mullvad-version",
@@ -3152,10 +3153,10 @@ name = "mullvad-release-android"
 version = "0.0.0"
 dependencies = [
  "anyhow",
- "chrono",
  "clap",
- "mullvad-update",
+ "mullvad-api-constants",
  "mullvad-version",
+ "reqwest",
  "serde",
  "serde_json",
  "tokio",

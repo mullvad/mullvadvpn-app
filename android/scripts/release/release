@@ -28,7 +28,7 @@ print_usage() {
   log "Where option is one of the following flags:"
   log "    -a, --add-release"
   log "              Add new release to the metada file and publish it to releases.mullvad.net"
-  log "    -u, --update-latest"
+  log "    -s, --set-latest-stable"
   log "              Update the latest.json file on release.mullvad.net"
   log "    -r, --remove-release"
   log "              Remove release to the metadata file and publish it to release.mullvad.net."
@@ -53,8 +53,8 @@ function main {
     "-a"|"--add-release")
         add_release "$4"
         ;;
-    "-u"|"--update-latest")
-        update_latest
+    "-u"|"--set-latest-stable")
+        set_latest_stable_version "$4"
         ;;
     "-r"|"--remove-release")
         remove_release "$4"
@@ -64,7 +64,7 @@ function main {
         exit 0
         ;;
     *)
-        log_error "Invalid argument: \`$1\`"
+        log_error "Invalid argument: \`$3\`"
         print_usage
         exit 1
         ;;
@@ -100,7 +100,9 @@ function add_release {
     ./publish-metadata-to-api "$work_dir" "$BUILDSERVER_HOST" "$METADATA_SERVER_HOST"
 }
 
-function update_latest {
+function set_latest_stable_version {
+    version=$1
+
     local work_dir="$DATA_DIR/work/"
     local published_dir="$DATA_DIR/currently_published/"
     local upload_dir="$DATA_DIR/upload/"
@@ -113,8 +115,6 @@ function update_latest {
     rm -rf "$upload_dir"
 
     mkdir -p "$DATA_DIR"
-    mkdir -p "$published_dir" #Should not be required?
-    mkdir -p "$upload_dir" #Should not be required?
 
     log_header "Fetching current version metadata"
     $mullvad_release pull --assume-yes --latest-file
@@ -123,8 +123,8 @@ function update_latest {
     cp -r "$work_dir" "$published_dir"
     cp -r "$DATA_DIR/$latest_filename" "$published_dir/$latest_filename"
 
-    log_header "Generating $latest_filename for current version metadata"
-    $mullvad_release query-latest > "$upload_dir/$latest_filename"
+    log_header "Set stable $version in $latest_filename"
+    $mullvad_release set-latest-stable-version "$version"
 
     log_header "New latest file"
     git --no-pager diff --no-index -- "$published_dir" "$upload_dir" || true

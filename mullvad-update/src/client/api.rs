@@ -9,7 +9,7 @@ use tokio::fs;
 use vec1::Vec1;
 
 use crate::defaults;
-use crate::format::response::{AndroidReleases, SignedResponse};
+use crate::format::response::SignedResponse;
 use crate::version::{VersionInfo, VersionParameters};
 
 use super::version_provider::VersionInfoProvider;
@@ -22,7 +22,6 @@ pub enum MetaRepositoryPlatform {
     Windows,
     Linux,
     Macos,
-    Android,
 }
 
 impl MetaRepositoryPlatform {
@@ -49,7 +48,6 @@ impl MetaRepositoryPlatform {
             MetaRepositoryPlatform::Windows => "windows.json",
             MetaRepositoryPlatform::Linux => "linux.json",
             MetaRepositoryPlatform::Macos => "macos.json",
-            MetaRepositoryPlatform::Android => "android.json",
         }
     }
 }
@@ -108,17 +106,6 @@ impl HttpVersionInfoProvider {
             .await
     }
 
-    /// Retrieve released versions for Android.
-    pub async fn get_android_releases() -> anyhow::Result<AndroidReleases> {
-        let info_provider = HttpVersionInfoProvider::from(MetaRepositoryPlatform::Android);
-        info_provider.get_android_releases_inner().await
-    }
-
-    async fn get_android_releases_inner(&self) -> anyhow::Result<AndroidReleases> {
-        let raw_json = Self::get(&self.url, self.pinned_certificate.clone(), self.resolve).await?;
-        serde_json::from_slice(&raw_json).context("Failed to deserialize Android releases")
-    }
-
     /// Download and verify signed data with sane defaults
     ///
     /// By default, `pinned_certificate` will be set to the LE root certificate, and
@@ -170,22 +157,6 @@ impl HttpVersionInfoProvider {
     pub async fn get_latest_versions_file() -> anyhow::Result<String> {
         Self::get(
             &format!("{}/latest.json", defaults::METADATA_URL),
-            Some(defaults::PINNED_CERTIFICATE.clone()),
-            None,
-        )
-        .await
-        .and_then(|raw_json: Vec<u8>| Ok(String::from_utf8(raw_json)?))
-        .context("Failed to get latest.json file")
-    }
-
-    /// Retrieve the `latest.json` file for Android.
-    ///
-    /// - `pinned_certificate` will be set to the LE root certificate.
-    /// - DNS will be used to look up the URL.
-    /// - The JSON response is not signed.
-    pub async fn get_latest_android_versions_file() -> anyhow::Result<String> {
-        Self::get(
-            &format!("{}latest.json", defaults::ANDROID_METADATA_URL),
             Some(defaults::PINNED_CERTIFICATE.clone()),
             None,
         )

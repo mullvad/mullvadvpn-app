@@ -1,27 +1,30 @@
 //! Types for handling per-platform metadata
 
 use anyhow::{Context, anyhow, bail};
-use mullvad_update::api::{HttpVersionInfoProvider, MetaRepositoryPlatform};
-use mullvad_update::format::release::Release;
-use mullvad_update::format::response::AndroidReleases;
-use mullvad_update::version::Rollout;
-use mullvad_update::version::VersionInfo;
 use std::{cmp::Ordering, path::PathBuf};
 use tokio::{fs, io};
 
 use crate::{
-    get_data_dir,
+    client::api::HttpVersionInfoProvider,
+    data_dir::get_data_dir,
+    format::release::Release,
+    format::response::AndroidReleases,
     io_util::{create_dir_and_write, wait_for_confirm},
 };
 
-/// Output used by `Platform::query_latest`
+/// Output used by `Platform::set_latest_stable`
 #[derive(serde::Serialize)]
-pub struct VersionQueryOutput {
+pub struct LatestVersion {
     /// Stable version info
-    pub stable: mullvad_version::Version,
+    pub stable: Version,
     /// Beta version info (if available and newer than `stable`).
     /// If latest stable version is newer, this will be `None`.
-    pub beta: Option<mullvad_version::Version>,
+    pub beta: Option<Version>,
+}
+
+#[derive(serde::Serialize)]
+pub struct Version {
+    pub version: mullvad_version::Version,
 }
 
 /// Path to WIP file in `work/` for this platform
@@ -29,13 +32,15 @@ pub fn work_path() -> PathBuf {
     get_data_dir().join("work").join("android.json")
 }
 
+pub fn work_path_latest() -> PathBuf {
+    get_data_dir().join("work").join("latest.json")
+}
+
 /// Pull latest metadata from repository and store it in `work/`
 pub async fn pull(assume_yes: bool) -> anyhow::Result<()> {
-    let platform = MetaRepositoryPlatform::Android;
+    //println!("Pulling Android metadata from {}...", platform.url());
 
-    println!("Pulling Android metadata from {}...", platform.url());
-
-    let releases = HttpVersionInfoProvider::get_android_releases()
+    let releases = HttpVersionInfoProvider::get_releases()
         .await
         .context("Failed to retrieve versions")?;
 
@@ -81,10 +86,7 @@ pub async fn add_release(version: &mullvad_version::Version) -> anyhow::Result<(
 
     // Make release
     let new_release = Release {
-        changelog: "".to_owned(),
         version: version.clone(),
-        installers: vec![],
-        rollout: Rollout::complete(),
     };
 
     println!("- {}", &new_release.version);
@@ -151,19 +153,40 @@ pub async fn remove_release(version: &mullvad_version::Version) -> anyhow::Resul
     Ok(())
 }
 
-/// Return the latest release for platforms in `work/`
-pub async fn query_latest() -> anyhow::Result<VersionQueryOutput> {
-    let response = read_work().await?;
+/// Set latest stable version in `work/`
+pub async fn set_latest_stable(version: &mullvad_version::Version) -> anyhow::Result<()> {
+    let work_path = work_path_latest();
+    println!("Setting latest stable {version} to {}", work_path.display());
 
-    let version_info =
-        VersionInfo::find_latest_versions(response.releases.into_iter(), |release| {
-            &release.version
-        })?;
+    let work_response = read_work().await?;
 
-    Ok(VersionQueryOutput {
-        stable: version_info.0.version,
-        beta: version_info.1.map(|release| release.version),
-    })
+    // Only set as latest if we have that version in the supported list
+    if is_version_supported(version.clone(), &work_response) {
+        // Currently we never set a beta latest version so there is no need to check the current latest beta so we always just set it to null. If we ever want to set the latest beta we need to parse the current file first.
+        let new_latest = LatestVersion {
+            stable: Version {
+                version: version.clone(),
+            },
+            beta: None,
+        };
+        let json = serde_json::to_string_pretty(&new_latest)
+            .context("Failed to serialize updated latest")?;
+        create_dir_and_write(&work_path, &json).await?;
+    } else {
+        bail!("Version {version} does not exist");
+    }
+
+    Ok(())
+}
+
+pub fn is_version_supported(
+    current_version: mullvad_version::Version,
+    response: &AndroidReleases,
+) -> bool {
+    response
+        .releases
+        .iter()
+        .any(|release| release.version.eq(&current_version))
 }
 
 /// Reads the metadata for `platform` in the work directory.
