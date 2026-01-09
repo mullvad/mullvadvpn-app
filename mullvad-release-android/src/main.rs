@@ -2,13 +2,15 @@
 
 use anyhow::{Context, bail};
 use clap::Parser;
-use std::path::PathBuf;
 use tokio::fs;
-
-use mullvad_update::api::HttpVersionInfoProvider;
 
 use crate::io_util::wait_for_confirm;
 
+use client::api::HttpVersionInfoProvider;
+
+mod client;
+mod data_dir;
+mod format;
 mod io_util;
 mod platform;
 
@@ -45,7 +47,10 @@ pub enum Opt {
 
     /// Return the latest releases.
     /// The output is in JSON format.
-    QueryLatest,
+    SetLatestStableVersion {
+        /// Version to set at latest
+        version: mullvad_version::Version,
+    },
 }
 
 #[tokio::main]
@@ -61,9 +66,9 @@ async fn main() -> anyhow::Result<()> {
 
             // Download latest.json metadata if available
             if latest_file {
-                match HttpVersionInfoProvider::get_latest_android_versions_file().await {
+                match HttpVersionInfoProvider::get_latest_versions_file().await {
                     Ok(json_str) => {
-                        let path_buf = get_data_dir().join(LATEST_FILENAME);
+                        let path_buf = data_dir::get_data_dir().join(LATEST_FILENAME);
                         let path = path_buf.as_path();
 
                         if !assume_yes && path.exists() {
@@ -91,45 +96,6 @@ async fn main() -> anyhow::Result<()> {
         Opt::ListReleases => platform::list_releases().await,
         Opt::AddRelease { version } => platform::add_release(&version).await,
         Opt::RemoveRelease { version } => platform::remove_release(&version).await,
-        Opt::QueryLatest => {
-            #[derive(Default, serde::Serialize)]
-            struct SummaryQueryResult {
-                android: Option<QueryResultOs>,
-            }
-            #[derive(serde::Serialize)]
-            struct QueryResultOs {
-                stable: QueryResultVersion,
-                beta: Option<QueryResultVersion>,
-            }
-            #[derive(serde::Serialize)]
-            struct QueryResultVersion {
-                version: mullvad_version::Version,
-            }
-            impl From<mullvad_version::Version> for QueryResultVersion {
-                fn from(version: mullvad_version::Version) -> Self {
-                    QueryResultVersion { version }
-                }
-            }
-
-            let mut summary_result = SummaryQueryResult::default();
-
-            let out = platform::query_latest().await?;
-            summary_result.android = Some(QueryResultOs {
-                stable: out.stable.into(),
-                beta: out.beta.map(Into::into),
-            });
-
-            let json = serde_json::to_string_pretty(&summary_result)
-                .context("Failed to serialize versions")?;
-            println!("{json}");
-
-            Ok(())
-        }
+        Opt::SetLatestStableVersion { version } => platform::set_latest_stable(&version).await,
     }
-}
-
-pub fn get_data_dir() -> PathBuf {
-    std::env::home_dir()
-        .expect("No home dir found")
-        .join(".local/share/mullvad-release-android")
 }

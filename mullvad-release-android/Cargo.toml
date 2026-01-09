@@ -12,11 +12,11 @@ workspace = true
 
 [dependencies]
 anyhow = "1.0"
-chrono = { workspace = true, features = ["serde", "now"] }
 clap = { workspace = true }
 serde_json = { workspace = true }
-serde = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
 tokio = { version = "1", features = ["full"] }
+reqwest = { workspace = true }
 
-mullvad-version = { path = "../../mullvad-version", features = ["serde"] }
-mullvad-update = { path = "../", features = ["client", "sign", "strum"] }
+mullvad-api-constants = { path = "../mullvad-api/mullvad-api-constants" }
+mullvad-version = { path = "../mullvad-version", features = ["serde"] }

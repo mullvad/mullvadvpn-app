@@ -14,10 +14,6 @@ pub const RELEASES_URL: &str = "https://api.mullvad.net/app/releases/";
 #[cfg(feature = "client")]
 pub const METADATA_URL: &str = "https://releases.mullvad.net/desktop/metadata/";
 
-/// Default URL for version metadata repository.
-#[cfg(feature = "client")]
-pub const ANDROID_METADATA_URL: &str = "https://releases.mullvad.net/android/metadata/";
-
 /// Default TLS certificate to pin to.
 ///
 /// This is the Let's Encrypt root-certificate.
