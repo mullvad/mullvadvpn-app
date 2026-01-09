@@ -3,16 +3,12 @@ use crate::config::patch_allowed_ips;
 use crate::{
     Tunnel, TunnelError,
     config::Config,
-    stats::{DaitaStats, Stats, StatsMap},
+    stats::{Stats, StatsMap},
 };
 #[cfg(target_os = "android")]
 use gotatun::udp::UdpTransportFactory;
 use gotatun::{
-    device::{
-        DeviceConfig, DeviceHandle,
-        api::{ApiClient, ApiServer, command::*},
-        peer::AllowedIP,
-    },
+    device::{Device, DeviceBuilder, DeviceTransports, daita::Machine, peer::builder::PeerBuilder},
     packet::{Ipv4Header, Ipv6Header, UdpHeader, WgData},
     tun::{
         IpRecv,
@@ -23,6 +19,7 @@ use gotatun::{
         channel::{UdpChannelFactory, new_udp_tun_channel},
         socket::UdpSocketFactory,
     },
+    x25519::StaticSecret,
 };
 #[cfg(not(target_os = "android"))]
 use ipnetwork::IpNetwork;
@@ -32,11 +29,13 @@ use std::{
     future::Future,
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
     ops::Deref,
+    str::FromStr,
     sync::{Arc, Mutex},
-    time::{Duration, SystemTime},
+    time::SystemTime,
 };
 use talpid_tunnel::tun_provider::{self, Tun, TunProvider};
 use talpid_tunnel_config_client::DaitaSettings;
+use talpid_types::net::wireguard::PeerConfig;
 use tun08::{AbstractDevice, AsyncDevice};
 
 #[cfg(all(feature = "multihop-pcap", target_os = "linux"))]
@@ -51,13 +50,13 @@ type UdpFactory = AndroidUdpSocketFactory;
 #[cfg(not(target_os = "android"))]
 type UdpFactory = UdpSocketFactory;
 
-type SinglehopDevice = DeviceHandle<(UdpFactory, GotaTunDevice)>;
-type ExitDevice = DeviceHandle<(UdpChannelFactory, GotaTunDevice)>;
+type SinglehopDevice = Device<(UdpFactory, GotaTunDevice, GotaTunDevice)>;
+type ExitDevice = Device<(UdpChannelFactory, GotaTunDevice, GotaTunDevice)>;
 
 #[cfg(not(all(feature = "multihop-pcap", target_os = "linux")))]
-type EntryDevice = DeviceHandle<(UdpFactory, TunChannelTx, TunChannelRx)>;
+type EntryDevice = Device<(UdpFactory, TunChannelTx, TunChannelRx)>;
 #[cfg(all(feature = "multihop-pcap", target_os = "linux"))]
-type EntryDevice = DeviceHandle<(
+type EntryDevice = Device<(
     UdpFactory,
     PcapSniffer<TunChannelTx>,
     PcapSniffer<TunChannelRx>,
@@ -115,15 +114,11 @@ impl GotaTun {
 enum Devices {
     Singlehop {
         device: SinglehopDevice,
-        api: ApiClient,
     },
 
     Multihop {
         entry_device: EntryDevice,
-        entry_api: ApiClient,
-
         exit_device: ExitDevice,
-        exit_api: ApiClient,
     },
 }
 
@@ -136,7 +131,6 @@ impl Devices {
             Devices::Multihop {
                 entry_device,
                 exit_device,
-                ..
             } => {
                 exit_device.stop().await;
                 entry_device.stop().await;
@@ -282,11 +276,6 @@ async fn create_devices(
     tun_dev: GotaTunDevice,
     #[cfg(target_os = "android")] android_tun: Arc<Tun>,
 ) -> Result<Devices, TunnelError> {
-    let (entry_api, entry_api_server) = ApiServer::new();
-    let gotatun_entry_config = DeviceConfig {
-        api: Some(entry_api_server),
-    };
-
     #[cfg(target_os = "android")]
     let udp_factory = AndroidUdpSocketFactory { tun: android_tun };
 
@@ -328,45 +317,44 @@ async fn create_devices(
         let (tun_channel_tx, tun_channel_rx, udp_channels) =
             new_udp_tun_channel(PACKET_CHANNEL_CAPACITY, source_v4, source_v6, entry_mtu);
 
-        let (exit_api, exit_api_server) = ApiServer::new();
-        let exit_device = ExitDevice::new(
-            udp_channels,
-            tun_dev.clone(),
-            tun_dev,
-            DeviceConfig {
-                api: Some(exit_api_server),
-            },
-        )
-        .await;
+        //let (exit_api, exit_api_server) = ApiServer::new();
+        let exit_device = DeviceBuilder::new()
+            .with_udp(udp_channels)
+            .with_tun(tun_dev)
+            .build()
+            .await
+            .expect("fixme");
 
         // Hacky way of dumping entry<->exit traffic to a unix socket which wireshark can read.
         // See docs on wrap_in_pcap_sniffer for an explanation.
         #[cfg(all(feature = "multihop-pcap", target_os = "linux"))]
         let (tun_channel_tx, tun_channel_rx) = wrap_in_pcap_sniffer(tun_channel_tx, tun_channel_rx);
 
-        let entry_device = EntryDevice::new(
-            udp_factory,
-            tun_channel_tx,
-            tun_channel_rx,
-            gotatun_entry_config,
-        )
-        .await;
+        //let (entry_api, entry_api_server) = ApiServer::new();
+        let entry_device = DeviceBuilder::new()
+            .with_udp(udp_factory)
+            .with_tun_pair(tun_channel_tx, tun_channel_rx)
+            .build()
+            .await
+            .expect("fixme");
 
         Devices::Multihop {
             entry_device,
-            entry_api,
             exit_device,
-            exit_api,
         }
     } else {
         // Singlehop setup
 
-        let device =
-            SinglehopDevice::new(udp_factory, tun_dev.clone(), tun_dev, gotatun_entry_config).await;
+        let device: SinglehopDevice = DeviceBuilder::new()
+            .with_udp(udp_factory)
+            .with_tun(tun_dev)
+            .build()
+            .await
+            .unwrap();
 
         Devices::Singlehop {
             device,
-            api: entry_api,
+            //api: entry_api,
         }
     };
 
@@ -375,21 +363,65 @@ async fn create_devices(
     Ok(devices)
 }
 
+// TODO: move this somewhere reasonable
+fn to_gotatun_peer(peer: &PeerConfig, daita: Option<&DaitaSettings>) -> PeerBuilder {
+    let PeerConfig {
+        public_key,
+        allowed_ips,
+        endpoint,
+        psk,
+        constant_packet_size: _,
+    } = peer.clone();
+
+    let mut peer = PeerBuilder::new((*public_key.as_bytes()).into())
+        .with_allowed_ips(allowed_ips)
+        .with_endpoint(endpoint);
+
+    if let Some(psk) = psk {
+        // TODO: implement zeroize in gotatun
+        peer = peer.with_preshared_key(*psk.as_bytes());
+    }
+
+    if let Some(daita) = daita {
+        let daita = gotatun::device::daita::DaitaSettings {
+            maybenot_machines: daita
+                .client_machines
+                .iter()
+                // TODO: deserialize machines earlier. Preferably when getting them from the gRPC service.
+                .map(|machine_str| Machine::from_str(machine_str).unwrap(/* TODO */))
+                .collect(),
+            max_padding_frac: daita.max_padding_frac,
+            max_blocking_frac: daita.max_blocking_frac,
+            // TODO: tweak to sane values
+            max_blocked_packets: 1024,
+            min_blocking_capacity: 50,
+        };
+        peer = peer.with_daita(daita);
+    }
+
+    peer
+}
+
 /// (Re)Configure gotatun devices.
 async fn configure_devices(
     devices: &mut Devices,
     config: &Config,
     daita: Option<&DaitaSettings>,
 ) -> Result<(), TunnelError> {
+    let private_key = StaticSecret::from(config.tunnel.private_key.to_bytes());
+    let entry_peer = to_gotatun_peer(&config.entry_peer, daita);
+
     if let Some(exit_peer) = &config.exit_peer {
         log::trace!(
             "configuring gotatun multihop device (daita={})",
             daita.is_some()
         );
 
+        let exit_peer = to_gotatun_peer(&exit_peer, daita);
+
         let Devices::Multihop {
-            entry_api,
-            exit_api,
+            entry_device,
+            exit_device,
             ..
         } = devices
         else {
@@ -398,56 +430,63 @@ async fn configure_devices(
             ));
         };
 
-        let private_key = &config.tunnel.private_key;
-        let peer = &config.entry_peer;
-        let set_cmd = create_set_command(
-            #[cfg(target_os = "linux")]
-            config.fwmark,
-            private_key,
-            peer,
-            daita,
-        );
-        entry_api.send(set_cmd).await.map_err(|err| {
-            log::error!("Failed to set gotatun config: {err:#}");
-            TunnelError::SetConfigError
-        })?;
+        entry_device
+            .configure(async |device| {
+                device.clear_peers();
+                device.set_private_key(private_key.clone()).await;
+                device.add_peer(entry_peer);
+                if let Some(fwmark) = config.fwmark {
+                    device.set_fwmark(fwmark)?;
+                }
+                Ok(())
+            })
+            .await
+            .flatten()
+            .map_err(|err| {
+                log::error!("Failed to set gotatun config: {err:#}");
+                TunnelError::SetConfigError
+            })?;
 
-        let set_cmd = create_set_command(
-            #[cfg(target_os = "linux")]
-            config.fwmark,
-            private_key,
-            exit_peer,
-            None, // exit peer never has daita
-        );
-        exit_api.send(set_cmd).await.map_err(|err| {
-            log::error!("Failed to set gotatun config: {err:#}");
-            TunnelError::SetConfigError
-        })?;
+        exit_device
+            .configure(async |device| {
+                device.clear_peers();
+                device.set_private_key(private_key).await;
+                device.add_peer(exit_peer);
+            })
+            .await
+            .map_err(|err| {
+                log::error!("Failed to set gotatun config: {err:#}");
+                TunnelError::SetConfigError
+            })?;
     } else {
         log::trace!(
             "configuring gotatun singlehop device (daita={})",
             daita.is_some()
         );
 
-        let Devices::Singlehop { api, .. } = devices else {
+        let Devices::Singlehop { device } = devices else {
             return Err(TunnelError::ConfigureGotaTunDevice(
                 ConfigureGotaTunDeviceError::ExpectedSinglehopDevice,
             ));
         };
 
-        let private_key = &config.tunnel.private_key;
-        let peer = &config.entry_peer;
-        let set_cmd = create_set_command(
-            #[cfg(target_os = "linux")]
-            config.fwmark,
-            private_key,
-            peer,
-            daita,
-        );
-        api.send(set_cmd).await.map_err(|err| {
-            log::error!("Failed to set gotatun config: {err:#}");
-            TunnelError::SetConfigError
-        })?;
+        let peer = entry_peer;
+        device
+            .configure(async |device| {
+                device.clear_peers();
+                device.set_private_key(private_key).await;
+                device.add_peer(peer.into());
+                if let Some(fwmark) = config.fwmark {
+                    device.set_fwmark(fwmark)?;
+                }
+                Ok(())
+            })
+            .await
+            .flatten()
+            .map_err(|err| {
+                log::error!("Failed to set gotatun config: {err:#}");
+                TunnelError::SetConfigError
+            })?;
     }
 
     Ok(())
@@ -471,52 +510,80 @@ impl Tunnel for GotaTun {
     }
 
     async fn get_tunnel_stats(&self) -> Result<StatsMap, TunnelError> {
-        let mut stats = StatsMap::default();
+        async fn get_stats(device: &Device<impl DeviceTransports>) -> StatsMap {
+            device
+                .get(async |device| {
+                    device
+                        .peers()
+                        .await
+                        .into_iter()
+                        .map(|peer| {
+                            let stats = Stats {
+                                tx_bytes: peer.stats.tx_bytes as u64,
+                                rx_bytes: peer.stats.rx_bytes as u64,
+                                last_handshake_time: peer
+                                    .stats
+                                    .last_handshake
+                                    .map(|duration_since| SystemTime::now() - duration_since),
+                                // FIXME
+                                daita: None,
+                            };
+                            (peer.public_key.to_bytes(), stats)
+                        })
+                        .collect()
+                })
+                .await
+        }
 
-        let apis = match self.devices.as_ref().unwrap() {
-            Devices::Singlehop { api, .. } => [Some(api), None],
+        let stats = match self.devices.as_ref().unwrap() {
+            Devices::Singlehop { device } => get_stats(&device).await,
             Devices::Multihop {
-                entry_api,
-                exit_api,
+                entry_device,
+                exit_device,
                 ..
-            } => [Some(entry_api), Some(exit_api)],
+            } => {
+                let mut stats = get_stats(&entry_device).await;
+                stats.extend(get_stats(&exit_device).await);
+                stats
+            }
         };
 
-        for api in apis.into_iter().flatten() {
-            let response = api.send(Get::default()).await.expect("Failed to get peers");
+        // for api in apis.into_iter().flatten() {
+        //     // TODO: don't use api
+        //     let response = api.send(Get::default()).await.expect("Failed to get peers");
 
-            let Response::Get(response) = response else {
-                return Err(TunnelError::GetConfigError);
-            };
+        //     let Response::Get(response) = response else {
+        //         return Err(TunnelError::GetConfigError);
+        //     };
 
-            for peer in response.peers {
-                let last_handshake = || -> Option<SystemTime> {
-                    let handshake_sec = peer.last_handshake_time_sec?;
-                    let handshake_nsec = peer.last_handshake_time_nsec?;
-                    // TODO: Gotatun should probably return a Unix timestamp (like wg-go)
-                    Some(SystemTime::now() - Duration::new(handshake_sec, handshake_nsec))
-                };
+        //     for peer in response.peers {
+        //         let last_handshake = || -> Option<SystemTime> {
+        //             let handshake_sec = peer.last_handshake_time_sec?;
+        //             let handshake_nsec = peer.last_handshake_time_nsec?;
+        //             // TODO: Gotatun should probably return a Unix timestamp (like wg-go)
+        //             Some(SystemTime::now() - Duration::new(handshake_sec, handshake_nsec))
+        //         };
 
-                let daita = || -> Option<DaitaStats> {
-                    Some(DaitaStats {
-                        tx_padding_bytes: peer.tx_padding_bytes?,
-                        tx_padding_packet_bytes: peer.tx_padding_packet_bytes?,
-                        rx_padding_bytes: peer.rx_padding_bytes?,
-                        rx_padding_packet_bytes: peer.rx_padding_packet_bytes?,
-                    })
-                };
+        //         let daita = || -> Option<DaitaStats> {
+        //             Some(DaitaStats {
+        //                 tx_padding_bytes: peer.tx_padding_bytes?,
+        //                 tx_padding_packet_bytes: peer.tx_padding_packet_bytes?,
+        //                 rx_padding_bytes: peer.rx_padding_bytes?,
+        //                 rx_padding_packet_bytes: peer.rx_padding_packet_bytes?,
+        //             })
+        //         };
 
-                stats.insert(
-                    peer.peer.public_key.0,
-                    Stats {
-                        tx_bytes: peer.tx_bytes.unwrap_or_default(),
-                        rx_bytes: peer.rx_bytes.unwrap_or_default(),
-                        last_handshake_time: last_handshake(),
-                        daita: daita(),
-                    },
-                );
-            }
-        }
+        //         stats.insert(
+        //             peer.peer.public_key.0,
+        //             Stats {
+        //                 tx_bytes: peer.tx_bytes.unwrap_or_default(),
+        //                 rx_bytes: peer.rx_bytes.unwrap_or_default(),
+        //                 last_handshake_time: last_handshake(),
+        //                 daita: daita(),
+        //             },
+        //         );
+        //     }
+        // }
 
         Ok(stats)
     }
@@ -568,6 +635,7 @@ impl Tunnel for GotaTun {
     }
 }
 
+/*
 fn create_set_command(
     #[cfg(target_os = "linux")] fwmark: Option<u32>,
     private_key: &talpid_types::net::wireguard::PrivateKey,
@@ -620,6 +688,7 @@ fn create_set_command(
 
     set_cmd
 }
+*/
 
 #[cfg(target_os = "windows")]
 fn get_tunnel_for_userspace(
