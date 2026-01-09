@@ -294,6 +294,7 @@ pub fn get_interface_mtu(interface_name: &str) -> Result<u16, test_rpc::Error> {
     )
     .map_err(|e| test_rpc::Error::Io(e.to_string()))?;
 
+    // SAFETY: ifreq is a C struct, these can safely be zeroed.
     let mut ifr: libc::ifreq = unsafe { std::mem::zeroed() };
     if interface_name.len() >= ifr.ifr_name.len() {
         panic!("Interface '{interface_name}' name too long")
