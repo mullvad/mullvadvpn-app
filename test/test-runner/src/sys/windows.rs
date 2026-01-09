@@ -24,6 +24,8 @@ pub fn reboot() -> Result<(), test_rpc::Error> {
     std::thread::spawn(|| {
         std::thread::sleep(std::time::Duration::from_secs(5));
 
+        // SAFETY: `dwReason` is non-zero.
+        // https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-exitwindowsex
         let shutdown_result = unsafe {
             ExitWindowsEx(
                 EWX_FORCEIFHUNG | EWX_REBOOT,
@@ -73,6 +75,8 @@ fn grant_shutdown_privilege() -> Result<(), test_rpc::Error> {
         }],
     };
 
+    // SAFETY: `SE_SHUTDOWN_NAME` points to a null-terminated string.
+    // https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-lookupprivilegevaluew
     if unsafe {
         LookupPrivilegeValueW(
             std::ptr::null(),
@@ -90,6 +94,8 @@ fn grant_shutdown_privilege() -> Result<(), test_rpc::Error> {
 
     let mut token_handle: HANDLE = 0;
 
+    // SAFETY: `GetCurrentProcess` returns a valid (pseudo) handle for the current process.
+    // https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-openprocesstoken
     if unsafe {
         OpenProcessToken(
             GetCurrentProcess(),
@@ -102,10 +108,14 @@ fn grant_shutdown_privilege() -> Result<(), test_rpc::Error> {
         return Err(test_rpc::Error::Syscall);
     }
 
+    // SAFETY: `token_handle` is a handle to the access token we want to modify.
+    //         `privileges` is a valid instance of a TOKEN_PRIVILEGES structure.
+    // https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-adjusttokenprivileges
+    // https://learn.microsoft.com/en-us/windows/win32/api/winnt/ns-winnt-token_privileges
     let result = unsafe {
         AdjustTokenPrivileges(
             token_handle,
-            0,
+            0, // false
             &raw const privileges,
             0,
             std::ptr::null_mut(),
@@ -113,6 +123,8 @@ fn grant_shutdown_privilege() -> Result<(), test_rpc::Error> {
         )
     };
 
+    // SAFETY: `token_handle` contains a valid handle (`OpenProcessToken` succeeded) and it has not been closed already.
+    // https://learn.microsoft.com/en-us/windows/win32/api/handleapi/nf-handleapi-closehandle
     unsafe { CloseHandle(token_handle) };
 
     if result == 0 {
