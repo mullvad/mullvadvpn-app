@@ -401,7 +401,7 @@ impl SettingsPersister {
 
     pub fn register_change_listener(
         &mut self,
-        change_listener: impl FnMut(&Settings) + Send + Sync + 'static,
+        change_listener: impl Fn(&Settings) + Send + Sync + 'static,
     ) {
         self.on_change_listeners.push(Box::new(change_listener));
     }
