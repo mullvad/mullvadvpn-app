@@ -19,10 +19,6 @@ export default [
     languageOptions: { globals: globals.browser },
   },
   {
-    files: ['test/'],
-    languageOptions: { globals: globals.mocha },
-  },
-  {
     settings: {
       react: {
         createClass: 'createReactClass',
