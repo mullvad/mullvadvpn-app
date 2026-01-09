@@ -120,12 +120,8 @@ class MethodSettingsViewController: UITableViewController {
     }
 
     override func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        guard let sectionIdentifier = dataSource?.snapshot().sectionIdentifiers[section] else { return nil }
-
-        guard
-            let headerView =
-                tableView
-                .dequeueReusableView(withIdentifier: AccessMethodHeaderFooterReuseIdentifier.primary)
+        guard let sectionIdentifier = dataSource?.snapshot().sectionIdentifiers[section],
+            sectionIdentifier.sectionName != nil
         else { return nil }
 
         var contentConfiguration = ListCellContentConfiguration(
@@ -135,9 +131,7 @@ class MethodSettingsViewController: UITableViewController {
         )
         contentConfiguration.text = sectionIdentifier.sectionName
 
-        headerView.contentConfiguration = contentConfiguration
-
-        return headerView
+        return contentConfiguration.makeContentView()
     }
 
     override func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
@@ -208,7 +202,6 @@ class MethodSettingsViewController: UITableViewController {
 
     private func configureDataSource() {
         tableView.registerReusableViews(from: AccessMethodCellReuseIdentifier.self)
-        tableView.registerReusableViews(from: AccessMethodHeaderFooterReuseIdentifier.self)
 
         dataSource = UITableViewDiffableDataSource(
             tableView: tableView,

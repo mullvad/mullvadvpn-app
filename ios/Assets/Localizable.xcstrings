@@ -12196,43 +12196,43 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Connect (Verbinden)"
+            "value" : "Verbinden"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Connect (Conectar)"
+            "value" : "Conectar"
           }
         },
         "fi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Connect (Yhdistä)"
+            "value" : "Yhdistä"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Connect (Connexion)"
+            "value" : "Connexion"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Connect (Connetti)"
+            "value" : "Connetti"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Connect (接続)"
+            "value" : "接続"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Connect(연결)"
+            "value" : "연결"
           }
         },
         "my" : {
@@ -12250,19 +12250,19 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Connect (Verbinden)"
+            "value" : "Verbinden"
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Connect (Połącz)"
+            "value" : "Połącz"
           }
         },
         "pt" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Connect (Ligar)"
+            "value" : "Ligar"
           }
         },
         "ru" : {
@@ -12274,31 +12274,31 @@
         "sv" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Connect (anslut)"
+            "value" : "Anslut"
           }
         },
         "th" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Connect (เชื่อมต่อ)"
+            "value" : "เชื่อมต่อ"
           }
         },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Connect (bağlan)"
+            "value" : "Bağlan"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Connect（连接）"
+            "value" : "连接"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Connect (連線)"
+            "value" : "連線"
           }
         }
       }
