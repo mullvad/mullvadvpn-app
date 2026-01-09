@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		01B2FF862D70B914004AED35 /* MullvadRustRuntime.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A992DA1D2C24709F00DE7CE5 /* MullvadRustRuntime.framework */; };
+		01D13C212F11130500EC63DE /* RustLogging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01D13C202F11130500EC63DE /* RustLogging.swift */; };
 		01EF6F342B6A590700125696 /* libmullvad_api.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 01EF6F332B6A590700125696 /* libmullvad_api.a */; };
 		062B45A328FD4CA700746E77 /* le_root_cert.cer in Resources */ = {isa = PBXBuildFile; fileRef = 06799AB428F98CE700ACD94E /* le_root_cert.cer */; };
 		062B45BC28FD8C3B00746E77 /* RESTDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 062B45BB28FD8C3B00746E77 /* RESTDefaults.swift */; };
@@ -1579,6 +1580,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		01D13C202F11130500EC63DE /* RustLogging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RustLogging.swift; sourceTree = "<group>"; };
 		01EF6F2D2B6A51B100125696 /* mullvad-api.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "mullvad-api.h"; path = "../mullvad-api/include/mullvad-api.h"; sourceTree = "<group>"; };
 		01EF6F332B6A590700125696 /* libmullvad_api.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmullvad_api.a; path = "../target/aarch64-apple-ios/debug/libmullvad_api.a"; sourceTree = "<group>"; };
 		01F1FF1D29F0627D007083C3 /* libmullvad_ios.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmullvad_ios.a; path = ../target/debug/libmullvad_ios.a; sourceTree = "<group>"; };
@@ -4562,6 +4564,7 @@
 		A992DA1E2C24709F00DE7CE5 /* MullvadRustRuntime */ = {
 			isa = PBXGroup;
 			children = (
+				01D13C202F11130500EC63DE /* RustLogging.swift */,
 				A948809A2BC9308D0090A44C /* EphemeralPeerExchangeActor.swift */,
 				A9EB4F9C2B7FAB21002A2D7A /* EphemeralPeerNegotiator.swift */,
 				A9A557F42B7E3E5C0017ADA8 /* EphemeralPeerReceiver.swift */,
@@ -6956,6 +6959,7 @@
 				A9173C322C36CCDD00F6A08C /* EphemeralPeerReceiver.swift in Sources */,
 				A96D0B452D675F0400DD6C59 /* MullvadConnectionModeProvider.swift in Sources */,
 				7A99D3712D56222000891FF7 /* MullvadApiCancellable.swift in Sources */,
+				01D13C212F11130500EC63DE /* RustLogging.swift in Sources */,
 				A93969812CE606190032A7A0 /* Maybenot.swift in Sources */,
 				F05919802C45515200C301F3 /* EphemeralPeerExchangeActor.swift in Sources */,
 				7A3215722D3934E6005DF395 /* MullvadApiCompletion.swift in Sources */,

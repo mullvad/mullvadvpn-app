@@ -2,11 +2,9 @@ use libc::c_char;
 
 use super::{TunnelObfuscatorHandle, TunnelObfuscatorRuntime};
 use crate::ProxyHandle;
-use std::{net::SocketAddr, sync::Once};
+use std::net::SocketAddr;
 
 use crate::{api_client::helpers::parse_ip_addr, get_string};
-
-static INIT_LOGGING: Once = Once::new();
 
 macro_rules! throw_int_error {
     ($result:expr) => {
@@ -24,8 +22,6 @@ pub unsafe extern "C" fn start_udp2tcp_obfuscator_proxy(
     peer_port: u16,
     proxy_handle: *mut ProxyHandle,
 ) -> i32 {
-    init_logging();
-
     let peer_sock_addr =
         throw_int_error!(unsafe { get_socket_address(peer_address, peer_address_len, peer_port) });
     let result = TunnelObfuscatorRuntime::new_udp2tcp(peer_sock_addr).run();
@@ -40,8 +36,6 @@ pub unsafe extern "C" fn start_shadowsocks_obfuscator_proxy(
     peer_port: u16,
     proxy_handle: *mut ProxyHandle,
 ) -> i32 {
-    init_logging();
-
     let peer_sock_addr =
         throw_int_error!(unsafe { get_socket_address(peer_address, peer_address_len, peer_port) });
     let result = TunnelObfuscatorRuntime::new_shadowsocks(peer_sock_addr).run();
@@ -58,8 +52,6 @@ pub unsafe extern "C" fn start_quic_obfuscator_proxy(
     token: *const c_char,
     proxy_handle: *mut ProxyHandle,
 ) -> i32 {
-    init_logging();
-
     let peer_sock_addr =
         throw_int_error!(unsafe { get_socket_address(peer_address, peer_address_len, peer_port) });
     let hostname = unsafe { get_string(hostname) };
@@ -67,14 +59,6 @@ pub unsafe extern "C" fn start_quic_obfuscator_proxy(
     let result = TunnelObfuscatorRuntime::new_quic(peer_sock_addr, hostname, token).run();
 
     unsafe { start(proxy_handle, result) }
-}
-
-fn init_logging() {
-    INIT_LOGGING.call_once(|| {
-        let _ = oslog::OsLogger::new("net.mullvad.MullvadVPN.TunnelObfuscatorProxy")
-            .level_filter(log::LevelFilter::Info)
-            .init();
-    });
 }
 
 /// Constructs a new IP address from a pointer containing bytes representing an IP address.
