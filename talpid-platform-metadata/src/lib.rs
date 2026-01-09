@@ -25,3 +25,6 @@ pub use self::imp::{extra_metadata, short_version, version};
 
 pub use arch::Architecture;
 pub use arch::get_native_arch;
+
+#[cfg(not(target_os = "windows"))]
+mod command;

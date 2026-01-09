@@ -58,10 +58,7 @@ serde_json = "1.0"
 
 # Tonic and related crates
 tonic = "0.13.1"
-tonic-build = { version = "0.13.1", default-features = false }
 tower = "0.5.1"
-prost = "0.13.3"
-prost-types = "0.13.3"
 tarpc = { version = "0.31", features = ["tokio1", "serde-transport", "serde1"] }
 hyper-util = { version = "0.1.8", features = [
   "client",
@@ -74,10 +71,6 @@ env_logger = "0.11.7"
 thiserror = "2.0"
 log = "0.4"
 colored = "2.0.0"
-
-# Proxy protocols
-shadowsocks = "1.23.2"
-shadowsocks-service = "1.23.2"
 
 windows-sys = "0.52.0"
 chrono = { version = "0.4.26", default-features = false }

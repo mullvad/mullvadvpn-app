@@ -149,7 +149,6 @@ fern = { version = "0.6", default-features = false }
 
 # Shadowsocks
 shadowsocks = "1.23.2"
-shadowsocks-service = "1.23.2"
 
 itertools = "0.14"
 
@@ -176,3 +175,9 @@ ring.opt-level = 3
 inherits = "release"
 debug = true
 strip = false
+
+# Configuration for the helper tool https://crates.io/crates/cargo-shear
+[workspace.metadata.cargo-shear]
+# The way prost is only used by generated code makes it really hard for dependency
+# usage checkers to see that it's not unused
+ignored = ["prost"]
