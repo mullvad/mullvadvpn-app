@@ -2,8 +2,8 @@ import fs from 'fs';
 import { GetTextTranslation, po } from 'gettext-parser';
 import path from 'path';
 
-import { ALLOWED_TAGS } from '../src/renderer/lib/html-formatter';
-import { ValueOfArray } from '../src/shared/utility-types';
+import { type AllowedTag, translations } from '../src/shared/constants/translations.ts';
+const { allowedTags } = translations;
 
 const LOCALES_DIR = path.join('locales');
 
@@ -71,8 +71,9 @@ function checkFormatSpecifiers(translation: GetTextTranslation): boolean {
     .every((result) => result);
 }
 
-function isAllowedTag(tag: string): tag is ValueOfArray<typeof ALLOWED_TAGS> {
-  return ALLOWED_TAGS.some((allowedTag) => tag === allowedTag);
+function isAllowedTag(tag: string): tag is AllowedTag {
+  return allowedTags.some((allowedTag) => tag === allowedTag);
+}
 }
 
 function checkHtmlTagsImpl(value: string): { correct: boolean; amount: number } {
