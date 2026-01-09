@@ -2,12 +2,14 @@ import fs from 'fs';
 import { GetTextTranslation, po } from 'gettext-parser';
 import path from 'path';
 
-import { type AllowedTag, translations } from '../src/shared/constants/translations.ts';
-const { allowedTags } = translations;
+import {
+  type AllowedTag,
+  type AllowedVoidTag,
+  translations,
+} from '../src/shared/constants/translations.ts';
+const { allowedTags, allowedVoidTags } = translations;
 
 const LOCALES_DIR = path.join('locales');
-
-const ALLOWED_VOID_TAGS = ['br'];
 
 // Make sure to report these strings to crowdin. View this as a temporary escape
 // hatch, not a permanent solution.
@@ -74,6 +76,9 @@ function checkFormatSpecifiers(translation: GetTextTranslation): boolean {
 function isAllowedTag(tag: string): tag is AllowedTag {
   return allowedTags.some((allowedTag) => tag === allowedTag);
 }
+
+function isAllowedVoidTag(tag: string): tag is AllowedVoidTag {
+  return allowedVoidTags.some((allowedTag) => tag === allowedTag);
 }
 
 function checkHtmlTagsImpl(value: string): { correct: boolean; amount: number } {
@@ -94,7 +99,7 @@ function checkHtmlTagsImpl(value: string): { correct: boolean; amount: number } 
       return { correct: false, amount: NaN };
     }
 
-    if (!ALLOWED_VOID_TAGS.includes(tag)) {
+    if (!isAllowedVoidTag(tag)) {
       if (endTag) {
         // End tags require a matching start tag.
         if (tag !== tagStack.pop()) {
