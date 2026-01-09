@@ -133,7 +133,8 @@ impl VersionUpdaterInner {
         update: &impl Fn(VersionCache) -> BoxFuture<'static, Result<(), Error>>,
         mut new_version_info: VersionCache,
     ) {
-        if cfg!(not(target_os = "android")) {
+        #[cfg(not(target_os = "android"))]
+        {
             new_version_info = self.ignore_cache_if_same_version(new_version_info);
         }
 
@@ -143,6 +144,7 @@ impl VersionUpdaterInner {
         self.last_app_version_info = Some(new_version_info);
     }
 
+    #[cfg(not(target_os = "android"))]
     fn ignore_cache_if_same_version(&self, mut new_version_info: VersionCache) -> VersionCache {
         if let Some(current_cache) = self.last_app_version_info.as_ref()
             && current_cache.metadata_version == new_version_info.metadata_version
