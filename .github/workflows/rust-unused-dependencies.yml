@@ -8,114 +8,29 @@ on:
       - '**/Cargo.toml'
       - 'building/*-container-image.txt'
   workflow_dispatch:
-env:
-  # Pinning nightly just to avoid random breakage. It's fine to bump this at any time
-  RUST_NIGHTLY_TOOLCHAIN: nightly-2025-11-05
 
 permissions: {}
 
 jobs:
-  prepare-containers:
+  cargo-shear:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Install cargo-binstall
+        uses: cargo-bins/cargo-binstall@main
 
-      - name: Fetch container image names
-        run: |
-          echo "inner_container_image_linux=$(cat ./building/linux-container-image.txt)" >> $GITHUB_ENV
-          echo "inner_container_image_android=$(cat ./building/android-container-image.txt)" >> $GITHUB_ENV
+      - name: Install cargo-shear
+        run: cargo binstall --no-confirm cargo-shear
 
-    outputs:
-      container_image_linux: ${{ env.inner_container_image_linux }}
-      container_image_android: ${{ env.inner_container_image_android }}
-
-  cargo-udeps-linux:
-    needs: prepare-containers
-    runs-on: ubuntu-latest
-    container:
-      image: ${{ needs.prepare-containers.outputs.container_image_linux }}
-
-    steps:
-      # Fix for HOME path overridden by GH runners when building in containers, see:
-      # https://github.com/actions/runner/issues/863
-      - name: Fix HOME path
-        run: echo "HOME=/root" >> $GITHUB_ENV
-
+      # By checking out the repo after installing cargo-shear, we will install shear
+      # with the runners default Rust version, and not the one specified in the toolchain file.
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Checkout submodules
-        run: |
-          git config --global --add safe.directory '*'
-          git submodule update --init --depth=1 dist-assets/binaries
-          git submodule update --init wireguard-go-rs/libwg/wireguard-go
-
-      - name: Install nightly Rust toolchain
-        run: rustup override set $RUST_NIGHTLY_TOOLCHAIN
-
-      - uses: taiki-e/install-action@v2
-        with:
-          tool: cargo-udeps
-
-      - name: Check for unused dependencies
+      - name: Run cargo shear in all workspaces
         shell: bash
-        run: cargo udeps --workspace
-
-  cargo-udeps-android:
-    needs: prepare-containers
-    runs-on: ubuntu-latest
-    container:
-      image: ${{ needs.prepare-containers.outputs.container_image_android }}
-
-    steps:
-      # Fix for HOME path overridden by GH runners when building in containers, see:
-      # https://github.com/actions/runner/issues/863
-      - name: Fix HOME path
-        run: echo "HOME=/root" >> $GITHUB_ENV
-
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Checkout wireguard-go submodule
         run: |
-          git config --global --add safe.directory '*'
-          git submodule update --init wireguard-go-rs/libwg/wireguard-go
-
-      - name: Install nightly Rust
-        run: |
-          rustup override set ${{ env.RUST_NIGHTLY_TOOLCHAIN }}
-          rustup target add aarch64-linux-android
-
-      - uses: taiki-e/install-action@v2
-        with:
-          tool: cargo-udeps
-
-      - name: Check for unused dependencies
-        run: cargo udeps --target aarch64-linux-android --package mullvad-jni
-
-  cargo-udeps:
-    strategy:
-      matrix:
-        os: [windows-latest, macos-latest]
-    runs-on: ${{ matrix.os }}
-    steps:
-      # By default, the longest path a filename can have in git on Windows is 260 character.
-      - name: Set git config for long paths
-        if: runner.os == 'Windows'
-        run: |
-          git config --system core.longpaths true
-
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - uses: ./.github/actions/mullvad-build-env
-        with:
-          rust-toolchain: ${{ env.RUST_NIGHTLY_TOOLCHAIN }}
-
-      - uses: taiki-e/install-action@v2
-        with:
-          tool: cargo-udeps
-
-      - name: Check for unused dependencies
-        shell: bash
-        run: cargo udeps --workspace
+          workspaces=$(find . -name Cargo.lock -type f -exec dirname {} \;)
+          for workspace in $workspaces; do
+            echo -e "\\n\\n#### Checking workspace: $workspace ####\\n"
+            cargo shear "$workspace"
+          done
