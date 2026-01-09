@@ -333,12 +333,12 @@ public final class TunnelMonitor: TunnelMonitorProtocol, @unchecked Sendable {
             self?.checkConnectivity()
         }
         timer.schedule(wallDeadline: .now(), repeating: timings.connectivityCheckInterval.timeInterval)
+        /// The timeout reference must be set before the timer is activated as the scheduled task will read from it.
+        state.timeoutReference = Date()
         timer.activate()
 
         self.timer?.cancel()
         self.timer = timer
-
-        state.timeoutReference = Date()
 
         logger.trace("Start connectivity check timer.")
     }
