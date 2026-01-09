@@ -95,7 +95,7 @@
     "develop": "npm run develop:pre && npm run develop:vite",
     "develop:pre": "node tasks/pre-develop.js",
     "develop:vite": "vite",
-    "test": "cross-env NODE_ENV=test mocha --reporter spec --require ts-node/register --require \"test/unit/setup.ts\" \"test/unit/*.spec.ts\"",
+    "test": "cross-env NODE_ENV=test vitest test/unit",
     "type-check": "tsc --noEmit",
     "update-translations": "node scripts/extract-translations",
     "pack:mac": "node tasks/pack-mac.js",
