@@ -6,6 +6,7 @@ on:
       - .github/workflows/clippy.yml
       - 'ci/cargo-ci.sh'
       - clippy.toml
+      - '**/Cargo.toml' # Lint rules defined in toml files
       - '**/*.rs'
   workflow_dispatch:
 
