@@ -95,7 +95,7 @@ function verify {
     local out_of_sync=$?
 
     pushd ../desktop/packages/mullvad-vpn
-    npm exec ts-node scripts/verify-translations-format.ts
+    npm exec node scripts/verify-translations-format.ts
     local incorrect_format=$?
     popd
 
