@@ -93,6 +93,7 @@ struct VPNSettingsViewModel: Equatable {
 
     private(set) var quantumResistance: TunnelQuantumResistance
     private(set) var multihopState: MultihopState
+    private(set) var ipVersion: IPVersion
 
     private(set) var includeAllNetworks: Bool
     private(set) var localNetworkSharing: Bool
@@ -185,6 +186,10 @@ struct VPNSettingsViewModel: Equatable {
         quantumResistance = newState
     }
 
+    mutating func setIPVersion(_ newVersion: IPVersion) {
+        ipVersion = newVersion
+    }
+
     mutating func setMultihop(_ newState: MultihopState) {
         multihopState = newState
     }
@@ -254,6 +259,7 @@ struct VPNSettingsViewModel: Equatable {
 
         quantumResistance = tunnelSettings.tunnelQuantumResistance
         multihopState = tunnelSettings.tunnelMultihopState
+        ipVersion = tunnelSettings.ipVersion
 
         includeAllNetworks = tunnelSettings.includeAllNetworks
         localNetworkSharing = tunnelSettings.localNetworkSharing

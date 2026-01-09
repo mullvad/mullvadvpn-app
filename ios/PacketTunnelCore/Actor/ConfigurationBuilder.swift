@@ -13,7 +13,7 @@ import WireGuardKitTypes
 
 /// Error returned when there is an endpoint but its public key is invalid.
 public struct PublicKeyError: LocalizedError {
-    let endpoint: MullvadEndpoint
+    let endpoint: SelectedEndpoint
 
     public var errorDescription: String? {
         "Public key is invalid, endpoint: \(endpoint)"
@@ -25,7 +25,7 @@ public struct ConfigurationBuilder {
     var privateKey: PrivateKey
     var interfaceAddresses: [IPAddressRange]
     var dns: SelectedDNSServers?
-    var endpoint: MullvadEndpoint?
+    var endpoint: SelectedEndpoint?
     var allowedIPs: [IPAddressRange]
     var preSharedKey: PreSharedKey?
     var pingableGateway: IPv4Address
@@ -34,7 +34,7 @@ public struct ConfigurationBuilder {
         privateKey: PrivateKey,
         interfaceAddresses: [IPAddressRange],
         dns: SelectedDNSServers? = nil,
-        endpoint: MullvadEndpoint? = nil,
+        endpoint: SelectedEndpoint? = nil,
         allowedIPs: [IPAddressRange],
         preSharedKey: PreSharedKey? = nil,
         pingableGateway: IPv4Address
@@ -49,7 +49,7 @@ public struct ConfigurationBuilder {
     }
 
     public func makeConfiguration() throws -> TunnelAdapterConfiguration {
-        return TunnelAdapterConfiguration(
+        let config = TunnelAdapterConfiguration(
             privateKey: privateKey,
             interfaceAddresses: interfaceAddresses,
             dns: dnsServers,
@@ -57,6 +57,8 @@ public struct ConfigurationBuilder {
             allowedIPs: allowedIPs,
             pingableGateway: pingableGateway
         )
+
+        return config
     }
 
     private var peer: TunnelPeer? {
@@ -67,8 +69,9 @@ public struct ConfigurationBuilder {
                 throw PublicKeyError(endpoint: endpoint)
             }
 
+            // Socket address is already resolved (IPv4 or IPv6) during relay selection
             return TunnelPeer(
-                endpoint: .ipv4(endpoint.ipv4Relay),
+                endpoint: endpoint.socketAddress,
                 publicKey: publicKey,
                 preSharedKey: preSharedKey
             )

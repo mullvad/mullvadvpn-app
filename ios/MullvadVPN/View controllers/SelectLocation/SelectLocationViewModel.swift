@@ -32,6 +32,7 @@ protocol SelectLocationViewModel: ObservableObject {
 struct SelectLocationDelegate {
     let showDaitaSettings: () -> Void
     let showObfuscationSettings: () -> Void
+    let showIpVersionSettings: () -> Void
     let showFilterView: () -> Void
     let showEditCustomListView: ([LocationNode], CustomList?) -> Void
     let showAddCustomListView: ([LocationNode]) -> Void
@@ -209,6 +210,8 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
             delegate.showDaitaSettings()
         case .obfuscation:
             delegate.showObfuscationSettings()
+        case .ipv6:
+            delegate.showIpVersionSettings()
         }
     }
 

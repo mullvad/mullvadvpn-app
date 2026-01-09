@@ -120,7 +120,7 @@ extension PacketTunnelActor {
                 privateKey: PrivateKey(),
                 interfaceAddresses: [],
                 allowedIPs: [],
-                pingableGateway: IPv4Address(LocalNetworkIPs.gatewayAddress.rawValue)!
+                pingableGateway: IPv4Address(LocalNetworkIPs.gatewayAddress.rawValue)!,
             )
             var config = try configurationBuilder.makeConfiguration()
             config.dns = [IPv4Address.loopback]

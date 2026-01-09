@@ -17,6 +17,7 @@ public enum NoRelaysSatisfyingConstraintsReason: Sendable {
     case noDaitaRelaysFound
     case noObfuscatedRelaysFound
     case relayConstraintNotMatching
+    case noIPv6RelayFound
 }
 
 public struct NoRelaysSatisfyingConstraintsError: LocalizedError, Sendable {
@@ -40,6 +41,8 @@ public struct NoRelaysSatisfyingConstraintsError: LocalizedError, Sendable {
             "No obfuscated relays found"
         case .relayConstraintNotMatching:
             "Invalid constraint created to pick a relay"
+        case .noIPv6RelayFound:
+            "No relay found that supports IPv6 and all the other constraints"
         }
     }
 

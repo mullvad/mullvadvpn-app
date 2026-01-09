@@ -31,7 +31,7 @@ public struct MullvadEndpoint: Equatable, Codable, Sendable {
         self.publicKey = publicKey
     }
 
-    public func override(ipv4Relay: IPv4Endpoint) -> Self {
+    public func override(ipv4Relay: IPv4Endpoint, ipv6Relay: IPv6Endpoint?) -> Self {
         MullvadEndpoint(
             ipv4Relay: ipv4Relay,
             ipv6Relay: ipv6Relay,

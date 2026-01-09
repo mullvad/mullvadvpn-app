@@ -1,15 +1,15 @@
 //
-//  TunnelSettingsV6 2.swift
+//  TunnelSettingsV8.swift
 //  MullvadVPN
 //
-//  Created by Steffen Ernst on 2025-02-04.
+//  Created by Emīls Piņķis on 2025-12-30.
 //  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 //
 
 import Foundation
 import MullvadTypes
 
-public struct TunnelSettingsV7: Codable, Equatable, TunnelSettings, Sendable {
+public struct TunnelSettingsV8: Codable, Equatable, TunnelSettings, Sendable {
     /// Relay constraints.
     public var relayConstraints: RelayConstraints
 
@@ -34,6 +34,9 @@ public struct TunnelSettingsV7: Codable, Equatable, TunnelSettings, Sendable {
     /// Forces the system to route most traffic through the tunnel
     public var includeAllNetworks: Bool
 
+    /// IP version preference for relay connections.
+    public var ipVersion: IPVersion
+
     public init(
         relayConstraints: RelayConstraints = RelayConstraints(),
         dnsSettings: DNSSettings = DNSSettings(),
@@ -42,7 +45,8 @@ public struct TunnelSettingsV7: Codable, Equatable, TunnelSettings, Sendable {
         tunnelMultihopState: MultihopState = .off,
         daita: DAITASettings = DAITASettings(),
         localNetworkSharing: Bool = false,
-        includeAllNetworks: Bool = false
+        includeAllNetworks: Bool = false,
+        ipVersion: IPVersion = .automatic
     ) {
         self.relayConstraints = relayConstraints
         self.dnsSettings = dnsSettings
@@ -52,19 +56,10 @@ public struct TunnelSettingsV7: Codable, Equatable, TunnelSettings, Sendable {
         self.daita = daita
         self.localNetworkSharing = localNetworkSharing
         self.includeAllNetworks = includeAllNetworks
+        self.ipVersion = ipVersion
     }
 
     public func upgradeToNextVersion() -> any TunnelSettings {
-        TunnelSettingsV8(
-            relayConstraints: relayConstraints,
-            dnsSettings: dnsSettings,
-            wireGuardObfuscation: wireGuardObfuscation,
-            tunnelQuantumResistance: tunnelQuantumResistance,
-            tunnelMultihopState: tunnelMultihopState,
-            daita: daita,
-            localNetworkSharing: localNetworkSharing,
-            includeAllNetworks: includeAllNetworks,
-            ipVersion: .automatic
-        )
+        self
     }
 }

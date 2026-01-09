@@ -103,10 +103,12 @@ struct ChipContainerView<ViewModel>: View where ViewModel: ChipViewModelProtocol
                     entry: nil,
                     exit: .init(
                         endpoint: .init(
-                            ipv4Relay: .init(ip: .allHostsGroup, port: 1234),
+                            socketAddress: .ipv4(.init(ip: .allHostsGroup, port: 1234)),
                             ipv4Gateway: .allHostsGroup,
                             ipv6Gateway: .broadcast,
-                            publicKey: Data()
+                            publicKey: Data(),
+                            obfuscation: .shadowsocks,
+
                         ),
                         hostname: "hostname",
                         location: .init(
@@ -120,7 +122,6 @@ struct ChipContainerView<ViewModel>: View where ViewModel: ChipViewModelProtocol
                         features: nil
                     ),
                     retryAttempt: 0,
-                    obfuscation: .off
                 ),
                 isPostQuantum: false,
                 isDaita: false

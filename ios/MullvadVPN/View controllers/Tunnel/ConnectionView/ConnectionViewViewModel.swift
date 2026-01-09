@@ -212,8 +212,8 @@ extension ConnectionViewViewModel {
         }
 
         guard
-            let address = tunnelRelays.entry?.endpoint.ipv4Relay.ip
-                ?? tunnelStatus.state.relays?.exit.endpoint.ipv4Relay.ip
+            let address = tunnelRelays.entry?.endpoint.socketAddress.ip
+                ?? tunnelStatus.state.relays?.exit.endpoint.socketAddress.ip
         else {
             return nil
         }

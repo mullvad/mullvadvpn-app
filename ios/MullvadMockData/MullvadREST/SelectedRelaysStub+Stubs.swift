@@ -14,12 +14,12 @@ public struct SelectedRelaysStub {
     public static let selectedRelays = SelectedRelays(
         entry: nil,
         exit: SelectedRelay(
-            endpoint: MullvadEndpoint(
-                ipv4Relay: IPv4Endpoint(ip: .loopback, port: 42),
-                ipv6Relay: IPv6Endpoint(ip: .loopback, port: 42),
+            endpoint: SelectedEndpoint(
+                socketAddress: .ipv4(IPv4Endpoint(ip: .loopback, port: 42)),
                 ipv4Gateway: IPv4Address.loopback,
                 ipv6Gateway: IPv6Address.loopback,
-                publicKey: Data()
+                publicKey: Data(),
+                obfuscation: .off
             ),
             hostname: "se-got-wg-001",
             location: Location(
@@ -32,6 +32,6 @@ public struct SelectedRelaysStub {
             ),
             features: nil
         ),
-        retryAttempt: 0, obfuscation: .off
+        retryAttempt: 0
     )
 }

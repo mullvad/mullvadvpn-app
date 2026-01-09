@@ -18,6 +18,7 @@ public enum TunnelSettingsUpdate: Sendable {
     case quantumResistance(TunnelQuantumResistance)
     case multihop(MultihopState)
     case daita(DAITASettings)
+    case ipVersion(IPVersion)
 }
 
 extension TunnelSettingsUpdate {
@@ -39,6 +40,8 @@ extension TunnelSettingsUpdate {
             settings.tunnelMultihopState = newState
         case let .daita(newDAITASettings):
             settings.daita = newDAITASettings
+        case let .ipVersion(newIPVersion):
+            settings.ipVersion = newIPVersion
         }
     }
 
@@ -52,6 +55,7 @@ extension TunnelSettingsUpdate {
         case .quantumResistance: "quantum resistance"
         case .multihop: "multihop"
         case .daita: "daita"
+        case .ipVersion: "IP version"
         }
     }
 }
