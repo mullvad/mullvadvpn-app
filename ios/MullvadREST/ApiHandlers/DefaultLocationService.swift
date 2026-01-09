@@ -39,11 +39,11 @@ public struct DefaultLocationService {
             locations: relayCache.relays.locations
         )
 
-        let closestRelay = RelaySelector.closestRelay(
+        let closestRelays = RelaySelector.closestRelays(
             to: CLLocationCoordinate2D(latitude: serverLocation.latitude, longitude: serverLocation.longitude),
             using: mappedRelays
         )
 
-        return closestRelay?.location
+        return closestRelays.first?.relay.location
     }
 }
