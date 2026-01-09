@@ -19,6 +19,7 @@ log = { workspace = true }
 mockito = "1.6.1"
 mullvad-api = { path = "../mullvad-api", default-features = false }
 mullvad-encrypted-dns-proxy = { path = "../mullvad-encrypted-dns-proxy" }
+mullvad-logging = { path = "../mullvad-logging" }
 mullvad-types = { path = "../mullvad-types" }
 talpid-future = { path = "../talpid-future" }
 talpid-tunnel-config-client = { path = "../talpid-tunnel-config-client" }
