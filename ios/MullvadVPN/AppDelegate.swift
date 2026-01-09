@@ -418,6 +418,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         #endif
         loggerBuilder.install()
 
+        // Initialize Rust logging to forward to Swift Logger
+        RustLogging.initialize()
+
         logger = Logger(label: "AppDelegate")
     }
 
