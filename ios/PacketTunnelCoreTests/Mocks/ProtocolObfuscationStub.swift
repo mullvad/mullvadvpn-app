@@ -15,11 +15,9 @@ struct ProtocolObfuscationStub: ProtocolObfuscation {
     var remotePort: UInt16 { 42 }
 
     func obfuscate(
-        _ endpoint: MullvadEndpoint,
-        relayFeatures: REST.ServerRelay.Features?,
-        obfuscationMethod: WireGuardObfuscationState
+        _ endpoint: MullvadTypes.SelectedEndpoint,
     ) -> ProtocolObfuscationResult {
-        .init(endpoint: endpoint, method: .off)
+        .init(endpoint: endpoint)
     }
 
     var transportLayer: TransportLayer? { .udp }

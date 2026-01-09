@@ -6,6 +6,7 @@
 //  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 //
 import MullvadSettings
+import MullvadTypes
 import PacketTunnelCore
 import SwiftUI
 
@@ -76,12 +77,12 @@ struct ObfuscationFeature: ChipFeature {
     let settings: LatestTunnelSettings
     let state: ObservedState
 
-    var actualObfuscationMethod: WireGuardObfuscationState {
+    var actualObfuscationMethod: ObfuscationMethod {
         state.connectionState.map { $0.obfuscationMethod } ?? .off
     }
 
     var isEnabled: Bool {
-        actualObfuscationMethod != .off
+        actualObfuscationMethod.isEnabled
     }
 
     var isAutomatic: Bool {
@@ -124,9 +125,17 @@ struct IPOverrideFeature: ChipFeature {
         guard
             let endpoint = state.relays?.ingress.endpoint
         else { return false }
-        return overrides.contains { override in
-            (override.ipv4Address.map { $0 == endpoint.ipv4Relay.ip } ?? false)
-                || (override.ipv6Address.map { $0 == endpoint.ipv6Relay?.ip } ?? false)
+
+        // Check if the socket address matches any override
+        switch endpoint.socketAddress {
+        case let .ipv4(ipv4Endpoint):
+            return overrides.contains { override in
+                override.ipv4Address.map { $0 == ipv4Endpoint.ip } ?? false
+            }
+        case let .ipv6(ipv6Endpoint):
+            return overrides.contains { override in
+                override.ipv6Address.map { $0 == ipv6Endpoint.ip } ?? false
+            }
         }
     }
 

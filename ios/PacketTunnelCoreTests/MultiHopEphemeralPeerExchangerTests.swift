@@ -49,13 +49,25 @@ final class MultiHopEphemeralPeerExchangerTests: XCTestCase {
         )
 
         entryRelay = SelectedRelay(
-            endpoint: entryMatch.endpoint,
+            endpoint: SelectedEndpoint(
+                socketAddress: .ipv4(entryMatch.endpoint.ipv4Relay),
+                ipv4Gateway: entryMatch.endpoint.ipv4Gateway,
+                ipv6Gateway: entryMatch.endpoint.ipv6Gateway,
+                publicKey: entryMatch.endpoint.publicKey,
+                obfuscation: .off
+            ),
             hostname: entryMatch.relay.hostname,
             location: entryMatch.location,
             features: nil
         )
         exitRelay = SelectedRelay(
-            endpoint: exitMatch.endpoint,
+            endpoint: SelectedEndpoint(
+                socketAddress: .ipv4(exitMatch.endpoint.ipv4Relay),
+                ipv4Gateway: exitMatch.endpoint.ipv4Gateway,
+                ipv6Gateway: exitMatch.endpoint.ipv6Gateway,
+                publicKey: exitMatch.endpoint.publicKey,
+                obfuscation: .off
+            ),
             hostname: exitMatch.relay.hostname,
             location: exitMatch.location,
             features: nil

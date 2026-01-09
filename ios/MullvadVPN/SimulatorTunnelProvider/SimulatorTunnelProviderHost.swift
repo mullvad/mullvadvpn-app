@@ -196,9 +196,8 @@
                         networkReachability: .reachable,
                         connectionAttemptCount: 0,
                         transportLayer: .udp,
-                        remotePort: selectedRelays.entry?.endpoint.ipv4Relay.port
-                            ?? selectedRelays.exit.endpoint.ipv4Relay
-                            .port,
+                        remotePort: selectedRelays.entry?.endpoint.socketAddress.port
+                            ?? selectedRelays.exit.endpoint.socketAddress.port,
                         isPostQuantum: settings.tunnelQuantumResistance.isEnabled,
                         isDaitaEnabled: settings.daita.daitaState.isEnabled
                     )
@@ -222,9 +221,8 @@
                         networkReachability: .reachable,
                         connectionAttemptCount: 0,
                         transportLayer: .udp,
-                        remotePort: selectedRelays.entry?.endpoint.ipv4Relay.port
-                            ?? selectedRelays.exit.endpoint.ipv4Relay
-                            .port,
+                        remotePort: selectedRelays.entry?.endpoint.socketAddress.port
+                            ?? selectedRelays.exit.endpoint.socketAddress.port,
                         isPostQuantum: settings.tunnelQuantumResistance.isEnabled,
                         isDaitaEnabled: settings.daita.daitaState.isEnabled
                     )

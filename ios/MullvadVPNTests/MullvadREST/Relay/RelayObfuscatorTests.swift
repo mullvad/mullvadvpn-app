@@ -61,7 +61,7 @@ final class RelayObfuscatorTests: XCTestCase {
         let selectedRelays = try picker.pick()
 
         XCTAssertNil(selectedRelays.entry)
-        XCTAssertEqual(selectedRelays.exit.endpoint.ipv4Relay.port, 80)
+        XCTAssertEqual(selectedRelays.exit.endpoint.socketAddress.port, 80)
     }
 
     func testObfuscationForMultihop() throws {
@@ -88,8 +88,8 @@ final class RelayObfuscatorTests: XCTestCase {
 
         let selectedRelays = try picker.pick()
 
-        XCTAssertEqual(selectedRelays.entry?.endpoint.ipv4Relay.port, 80)
-        XCTAssertEqual(selectedRelays.exit.endpoint.ipv4Relay.port, 5000)
+        XCTAssertEqual(selectedRelays.entry?.endpoint.socketAddress.port, 80)
+        XCTAssertEqual(selectedRelays.exit.endpoint.socketAddress.port, 5000)
     }
 
     // MARK: UdpOverTcp
