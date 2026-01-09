@@ -1,3 +1,4 @@
+use mullvad_logging::{SILENCED_CRATES, SLIGHTLY_SILENCED_CRATES, WARNING_SILENCED_CRATES};
 use std::{
     io,
     path::PathBuf,
@@ -45,35 +46,7 @@ impl<'a, T: Clone + io::Write> MakeWriter<'a> for OptionalMakeWriter<T> {
     }
 }
 
-pub const WARNING_SILENCED_CRATES: &[&str] = &["netlink_proto", "quinn_udp"];
 const DAEMON_LOG_FILENAME: &str = "daemon.log";
-pub const SILENCED_CRATES: &[&str] = &[
-    "h2",
-    "tokio_core",
-    "tokio_io",
-    "tokio_proto",
-    "tokio_reactor",
-    "tokio_threadpool",
-    "tokio_util",
-    "tower",
-    "want",
-    "ws",
-    "mio",
-    "mnl",
-    "hyper",
-    "hyper_util",
-    "rtnetlink",
-    "rustls",
-    "netlink_sys",
-    "tracing",
-    "hickory_proto",
-    "hickory_server",
-    "hickory_resolver",
-    "shadowsocks::relay::udprelay",
-    "quinn_proto",
-    "quinn",
-];
-const SLIGHTLY_SILENCED_CRATES: &[&str] = &["nftnl", "udp_over_tcp"];
 
 const DATE_TIME_FORMAT_STR: &str = "[%Y-%m-%d %H:%M:%S%.3f]";
 
@@ -259,6 +232,8 @@ fn silence_crates(mut env_filter: EnvFilter) -> EnvFilter {
     env_filter
 }
 
+/// Returns a level filter one level quieter than the input.
+/// Note: This uses `tracing_subscriber::filter::LevelFilter`, not `log::LevelFilter`.
 fn one_level_quieter(level: LevelFilter) -> LevelFilter {
     match level {
         LevelFilter::OFF => LevelFilter::OFF,
