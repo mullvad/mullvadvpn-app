@@ -245,15 +245,6 @@ impl VersionUpdaterInner {
                             // Check already running
                             continue;
                         }
-
-                        // On Android, avoid polling the API unless necessary as we're using the old endpoint
-                        // Only poll when bg check runs
-                        if cfg!(target_os = "android") && let Some(info) = self.last_app_version_info.as_ref() {
-                            log::trace!("Skipping version check on Android");
-                            self.update_version_info(&update, info.clone()).await;
-                            continue;
-                        }
-
                         version_check_fg = do_version_check(self.last_app_version_info.clone()).fuse();
                     }
                     None => {
@@ -262,14 +253,6 @@ impl VersionUpdaterInner {
                 },
 
                 _ = run_next_check_bg => {
-                    // On Android, avoid polling the API unless necessary as we're using the old endpoint
-                    // Only poll when collecting platform headers
-                    if cfg!(target_os = "android") && !should_include_platform_headers(self.last_platform_check()) {
-                        log::trace!("Skipping version check on Android");
-                        run_next_check_bg = Self::update_interval();
-                        continue;
-                    }
-
                     version_check_bg = do_version_check_in_background(self.last_app_version_info.clone()).fuse();
                 },
 
