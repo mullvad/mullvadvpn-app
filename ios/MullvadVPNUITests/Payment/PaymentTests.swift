@@ -107,6 +107,8 @@ class PaymentTests: LoggedOutUITestCase {
             firewallAPIClient.removeRules()
         }
 
+        disableBridgesAccessMethod()
+
         login(accountNumber: accountNumberWithTime)
 
         HeaderBar(app)
@@ -145,6 +147,29 @@ class PaymentTests: LoggedOutUITestCase {
 
 @available(iOS 26.0, *)
 extension PaymentTests {
+    private func disableBridgesAccessMethod() {
+        HeaderBar(app)
+            .tapSettingsButton()
+
+        SettingsPage(app)
+            .tapAPIAccessCell()
+
+        APIAccessPage(app)
+            .getAccessMethodCell(accessibilityId: AccessibilityIdentifier.accessMethodBridgesCell)
+            .tap()
+
+        EditAccessMethodPage(app)
+            .tapEnableMethodSwitch()
+            .tapBackButton()
+
+        // Navigate back to main screen
+        let backButton = app.navigationBars.firstMatch.buttons.firstMatch
+        backButton.tap()
+
+        SettingsPage(app)
+            .tapDoneButton()
+    }
+
     private func createAndLogInToNewAccount() -> String {
         LoginPage(app)
             .tapCreateAccountButton()
