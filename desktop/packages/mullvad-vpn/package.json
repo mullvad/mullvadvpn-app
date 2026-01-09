@@ -68,12 +68,12 @@
     "@rollup/rollup-win32-x64-msvc": "4.34.6"
   },
   "scripts": {
-    "preinstall": "test -d node_modules || mkdir node_modules",
+    "preinstall": "bash -c \"test -d node_modules || mkdir node_modules\"",
     "build": "node tasks/build-production.js",
     "build:vite": "vite build",
     "build:test": "node tasks/build-test.js",
     "build:standalone": "node tasks/build-standalone.js",
-    "pack-test-executable": "./scripts/build-test-executable.sh",
+    "pack-test-executable": "bash ./scripts/build-test-executable.sh",
     "build-test-executable": "npm run pack-test-executable",
     "lint": "eslint . --max-warnings 0",
     "lint-fix": "eslint --fix .",
