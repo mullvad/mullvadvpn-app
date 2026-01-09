@@ -842,7 +842,7 @@ pub unsafe fn device_io_control_buffer_async(
     overlapped: *mut OVERLAPPED,
 ) -> Result<(), io::Error> {
     let input_ptr = match input {
-        Some(input) => input.as_ptr() as *mut _,
+        Some(input) => input.as_ptr().cast(),
         None => ptr::null_mut(),
     };
     let input_len = input.map(|input| input.len()).unwrap_or(0);
