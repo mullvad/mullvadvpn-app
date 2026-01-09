@@ -9,7 +9,8 @@
 import Foundation
 import Logging
 
-public struct CustomFormatLogHandler: LogHandler {
+// FIXME: remobe @unchecked Sendable when we upgrade to Xcode26 everywhere
+public struct CustomFormatLogHandler: @unchecked Sendable, LogHandler {
     public var metadata: Logger.Metadata = [:]
     public var logLevel: Logger.Level = .debug
 
