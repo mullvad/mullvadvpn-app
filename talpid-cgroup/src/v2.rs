@@ -2,14 +2,17 @@ use anyhow::{Context as _, anyhow};
 use nix::{errno::Errno, libc::pid_t, unistd::Pid};
 use std::{
     env,
-    ffi::CStr,
+    ffi::{CStr, OsStr},
     fs::{self, File},
     io::{self, Read, Seek, Write},
-    os::unix::fs::MetadataExt,
-    path::PathBuf,
+    os::{
+        fd::{AsFd, BorrowedFd, OwnedFd},
+        unix::fs::MetadataExt,
+    },
+    path::{Path, PathBuf},
 };
 
-use crate::Error;
+use crate::{Error, find_cgroup2_mount};
 
 /// Path where we should look for the cgroup2 filesystem. Overrides [`CGROUP2_DEFAULT_MOUNT_PATH`].
 pub const CGROUP2_OVERRIDE_ENV_VAR: &str = "TALPID_CGROUP2_FS";
@@ -25,6 +28,9 @@ pub struct CGroup2 {
     /// inode of the cgroup2 directory
     inode: u64,
 
+    /// File descriptor of the cgroup folder.
+    fd: OwnedFd,
+
     /// `cgroup.procs` is used to add and list PIDs in the cgroup2.
     procs: File,
 }
@@ -32,6 +38,10 @@ pub struct CGroup2 {
 impl CGroup2 {
     /// Open the root cgroup2 at at [`CGROUP2_OVERRIDE_ENV_VAR`] (or [`CGROUP2_DEFAULT_MOUNT_PATH`] if env variable is unset).
     pub fn open_root() -> Result<Self, Error> {
+        if let Some(cgroup2_path) = find_cgroup2_mount()? {
+            return Self::open(cgroup2_path);
+        }
+
         let root = env::var(CGROUP2_OVERRIDE_ENV_VAR)
             .map(PathBuf::from)
             .unwrap_or_else(|_| PathBuf::from(CGROUP2_DEFAULT_MOUNT_PATH));
@@ -47,17 +57,22 @@ impl CGroup2 {
     pub fn open(path: impl Into<PathBuf>) -> Result<Self, Error> {
         let path = path.into();
 
+        let fd = fs::OpenOptions::new()
+            .read(true)
+            .open(&path)
+            .with_context(|| anyhow!("Failed to open {path:?}"))?;
+
         let procs_path = path.join("cgroup.procs");
         let procs = fs::OpenOptions::new()
             .write(true)
             .read(true)
-            .create(false)
             .open(&procs_path)
             .with_context(|| anyhow!("Failed to open {procs_path:?}"))?;
 
         let meta = fs::metadata(&path).with_context(|| anyhow!("Failed to stat {path:?}"))?;
 
         Ok(CGroup2 {
+            fd: fd.into(),
             path,
             inode: meta.ino(),
             procs,
@@ -83,6 +98,10 @@ impl CGroup2 {
     /// This is fallible because cloning file descriptors can fail.
     pub fn try_clone(&self) -> Result<Self, Error> {
         Ok(Self {
+            fd: self
+                .fd
+                .try_clone()
+                .context("Failed to clone cgroup file handle")?,
             path: self.path.clone(),
             inode: self.inode,
             procs: self
@@ -130,5 +149,19 @@ impl CGroup2 {
     /// Get the inode of the cgroup2
     pub const fn inode(&self) -> u64 {
         self.inode
+    }
+
+    pub fn name(&self) -> &OsStr {
+        self.path.file_name().expect("cgroup can't be at /")
+    }
+
+    /// Get the file descriptor of the cgroup2 folder
+    pub fn fd(&self) -> BorrowedFd<'_> {
+        self.fd.as_fd()
+    }
+
+    /// Get absolute path to the cgroup2 folder, including e.g. `/sys/fs/cgroup`.
+    pub fn path(&self) -> &Path {
+        &self.path
     }
 }
