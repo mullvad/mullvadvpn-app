@@ -39,7 +39,7 @@ struct RecentLocationsListView<ContextMenu>: View where ContextMenu: View {
 
     func getSubtitle(_ location: LocationNode) -> LocalizedStringKey? {
         guard let recentLocationNode = location.asRecentLocationNode,
-            recentLocationNode.parent?.asCustomListNode == nil,
+            (location.userSelectedRelays.customListSelection?.isList ?? false) == false,
             let ancestors = recentLocationNode.locationInfo?.dropLast(),
             ancestors.isEmpty == false
         else {
