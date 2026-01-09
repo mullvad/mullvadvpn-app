@@ -13,6 +13,7 @@ class ListCellContentView: UIView, UIContentView, UITextFieldDelegate {
     private var textLabel = UILabel()
     private var secondaryTextLabel = UILabel()
     private var tertiaryTextLabel = UILabel()
+    private var containerView = UIStackView()
 
     var configuration: UIContentConfiguration {
         get {
@@ -56,6 +57,20 @@ class ListCellContentView: UIView, UIContentView, UITextFieldDelegate {
         configureLayoutMargins()
     }
 
+    override func didMoveToSuperview() {
+        super.didMoveToSuperview()
+        DispatchQueue.main.async {
+            self.updateAxisIfNeeded()
+        }
+    }
+
+    private func updateAxisIfNeeded() {
+        let newAxis: NSLayoutConstraint.Axis = containerView.isOverflowed ? .vertical : .horizontal
+        guard newAxis != containerView.axis else { return }
+        containerView.axis = newAxis
+        invalidateIntrinsicContentSize()
+    }
+
     private func configureTextLabel() {
         let textProperties = actualConfiguration.textProperties
 
@@ -64,8 +79,7 @@ class ListCellContentView: UIView, UIContentView, UITextFieldDelegate {
         textLabel.textColor = textProperties.color
         textLabel.numberOfLines = 0
         textLabel.text = actualConfiguration.text
-        textLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
-        textLabel.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
+        textLabel.isHidden = actualConfiguration.text == nil
     }
 
     private func configureSecondaryTextLabel() {
@@ -76,6 +90,7 @@ class ListCellContentView: UIView, UIContentView, UITextFieldDelegate {
         secondaryTextLabel.textColor = textProperties.color
         secondaryTextLabel.numberOfLines = 0
         secondaryTextLabel.text = actualConfiguration.secondaryText
+        secondaryTextLabel.isHidden = actualConfiguration.secondaryText == nil
     }
 
     private func configureTertiaryTextLabel() {
@@ -87,6 +102,7 @@ class ListCellContentView: UIView, UIContentView, UITextFieldDelegate {
         tertiaryTextLabel.numberOfLines = 0
 
         tertiaryTextLabel.text = actualConfiguration.tertiaryText
+        tertiaryTextLabel.isHidden = actualConfiguration.tertiaryText == nil
     }
 
     private func configureLayoutMargins() {
@@ -97,19 +113,13 @@ class ListCellContentView: UIView, UIContentView, UITextFieldDelegate {
         let leadingTextContainer = UIStackView(arrangedSubviews: [textLabel, tertiaryTextLabel])
         leadingTextContainer.axis = .vertical
 
-        leadingTextContainer.setContentHuggingPriority(.defaultLow, for: .horizontal)
-        leadingTextContainer.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
+        secondaryTextLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
 
-        secondaryTextLabel.setContentHuggingPriority(.defaultHigh, for: .horizontal)
-        secondaryTextLabel.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+        containerView.addArrangedSubview(leadingTextContainer)
+        containerView.addArrangedSubview(secondaryTextLabel)
 
-        addConstrainedSubviews([leadingTextContainer, secondaryTextLabel]) {
-            leadingTextContainer.pinEdgesToSuperviewMargins(.all().excluding(.trailing))
-            secondaryTextLabel.pinEdgesToSuperviewMargins(.all().excluding(.leading))
-            secondaryTextLabel.leadingAnchor.constraint(
-                greaterThanOrEqualToSystemSpacingAfter: leadingTextContainer.trailingAnchor,
-                multiplier: 1
-            )
+        addConstrainedSubviews([containerView]) {
+            containerView.pinEdgesToSuperviewMargins(.all())
         }
     }
 }
