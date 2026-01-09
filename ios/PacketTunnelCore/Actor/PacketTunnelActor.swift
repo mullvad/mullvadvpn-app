@@ -71,6 +71,7 @@ public actor PacketTunnelActor {
         self.settingsReader = settingsReader
         self.protocolObfuscator = protocolObfuscator
 
+        Task { await setTunnelMonitorEventHandler() }
         consumeEvents(channel: eventChannel)
     }
 
@@ -112,8 +113,6 @@ public actor PacketTunnelActor {
 
     func executeEffect(_ effect: Effect) async {
         switch effect {
-        case .startTunnelMonitor:
-            setTunnelMonitorEventHandler()
         case .stopTunnelMonitor:
             tunnelMonitor.stop()
         case let .updateTunnelMonitorPath(networkPath):
@@ -183,25 +182,25 @@ public actor PacketTunnelActor {
     }
 
     private func handleDefaultPathChange(_ networkPath: Network.NWPath.Status) async {
+        guard self.state != .initial else {
+            return
+        }
         tunnelMonitor.handleNetworkPathUpdate(networkPath)
 
         let newReachability = networkPath.networkReachability
-
-        let reachabilityChanged =
-            state.mutateAssociatedData {
-                let reachabilityChanged = $0.networkReachability != newReachability
-                $0.networkReachability = newReachability
-                return reachabilityChanged
-            } ?? false
         if case .reachable = newReachability,
             case let .error(
                 errorState
             ) = state,
             errorState.reason
-                .recoverableError(), reachabilityChanged
+                .recoverableError()
         {
             await handleRestartConnection(nextRelays: .random, reason: .userInitiated)
+            return
         }
+
+        // if network reachability didn't update, just enter offline state
+        await setErrorStateInternal(with: .offline)
     }
 }
 
