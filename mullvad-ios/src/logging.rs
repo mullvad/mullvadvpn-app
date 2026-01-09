@@ -3,6 +3,7 @@
 //! This module provides a global logger that calls a Swift callback for each log message,
 //! allowing Rust logs to be captured by Swift's logging infrastructure.
 
+use mullvad_logging::LevelFilter;
 use std::ffi::CString;
 use std::sync::OnceLock;
 
@@ -15,7 +16,7 @@ pub type LogCallback = extern "C" fn(level: u8, message: *const libc::c_char);
 static LOG_CALLBACK: OnceLock<LogCallback> = OnceLock::new();
 
 /// Default log level
-const DEFAULT_LOG_LEVEL: log::LevelFilter = log::LevelFilter::Debug;
+const DEFAULT_LOG_LEVEL: LevelFilter = LevelFilter::DEBUG;
 
 /// Custom logger that forwards to Swift
 struct SwiftLogger;
@@ -28,7 +29,7 @@ impl log::Log for SwiftLogger {
 
         let max_level =
             mullvad_logging::get_log_level_for_target(metadata.target(), DEFAULT_LOG_LEVEL);
-        metadata.level() <= max_level
+        metadata.level() <= to_log_level_filter(max_level)
     }
 
     fn log(&self, record: &log::Record<'_>) {
@@ -57,6 +58,18 @@ impl log::Log for SwiftLogger {
 }
 
 static SWIFT_LOGGER: SwiftLogger = SwiftLogger;
+
+/// Convert from `tracing_subscriber::filter::LevelFilter` to `log::LevelFilter`.
+fn to_log_level_filter(level: LevelFilter) -> log::LevelFilter {
+    match level {
+        LevelFilter::OFF => log::LevelFilter::Off,
+        LevelFilter::ERROR => log::LevelFilter::Error,
+        LevelFilter::WARN => log::LevelFilter::Warn,
+        LevelFilter::INFO => log::LevelFilter::Info,
+        LevelFilter::DEBUG => log::LevelFilter::Debug,
+        LevelFilter::TRACE => log::LevelFilter::Trace,
+    }
+}
 
 /// Initialize the Rust logger with a Swift callback.
 ///

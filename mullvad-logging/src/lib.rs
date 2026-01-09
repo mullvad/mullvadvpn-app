@@ -3,6 +3,8 @@
 //! This crate provides common log filtering configuration used across
 //! mullvad-daemon, mullvad-ios, and other Mullvad components.
 
+pub use tracing_subscriber::filter::LevelFilter;
+
 /// Crates where only Error level logs are shown (Warn and below are silenced)
 pub const WARNING_SILENCED_CRATES: &[&str] = &["netlink_proto", "quinn_udp"];
 
@@ -41,16 +43,16 @@ pub const SLIGHTLY_SILENCED_CRATES: &[&str] = &["nftnl", "udp_over_tcp"];
 ///
 /// This checks the target against the silenced crate lists and returns
 /// the appropriate maximum log level.
-pub fn get_log_level_for_target(target: &str, default_level: log::LevelFilter) -> log::LevelFilter {
+pub fn get_log_level_for_target(target: &str, default_level: LevelFilter) -> LevelFilter {
     for silenced in WARNING_SILENCED_CRATES {
         if target.starts_with(silenced) {
-            return log::LevelFilter::Error;
+            return LevelFilter::ERROR;
         }
     }
 
     for silenced in SILENCED_CRATES {
         if target.starts_with(silenced) {
-            return log::LevelFilter::Warn;
+            return LevelFilter::WARN;
         }
     }
 
@@ -64,13 +66,13 @@ pub fn get_log_level_for_target(target: &str, default_level: log::LevelFilter) -
 }
 
 /// Returns a log level that is one level quieter than the input level.
-pub fn one_level_quieter(level: log::LevelFilter) -> log::LevelFilter {
+pub fn one_level_quieter(level: LevelFilter) -> LevelFilter {
     match level {
-        log::LevelFilter::Off => log::LevelFilter::Off,
-        log::LevelFilter::Error => log::LevelFilter::Off,
-        log::LevelFilter::Warn => log::LevelFilter::Error,
-        log::LevelFilter::Info => log::LevelFilter::Warn,
-        log::LevelFilter::Debug => log::LevelFilter::Info,
-        log::LevelFilter::Trace => log::LevelFilter::Debug,
+        LevelFilter::OFF => LevelFilter::OFF,
+        LevelFilter::ERROR => LevelFilter::OFF,
+        LevelFilter::WARN => LevelFilter::ERROR,
+        LevelFilter::INFO => LevelFilter::WARN,
+        LevelFilter::DEBUG => LevelFilter::INFO,
+        LevelFilter::TRACE => LevelFilter::DEBUG,
     }
 }

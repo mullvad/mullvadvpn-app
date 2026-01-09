@@ -1,4 +1,7 @@
-use mullvad_logging::{SILENCED_CRATES, SLIGHTLY_SILENCED_CRATES, WARNING_SILENCED_CRATES};
+use mullvad_logging::{
+    LevelFilter, SILENCED_CRATES, SLIGHTLY_SILENCED_CRATES, WARNING_SILENCED_CRATES,
+    one_level_quieter,
+};
 use std::{
     io,
     path::PathBuf,
@@ -8,7 +11,6 @@ use talpid_core::logging::rotate_log;
 use tracing_appender::non_blocking;
 use tracing_subscriber::{
     EnvFilter, Registry,
-    filter::LevelFilter,
     fmt::{MakeWriter, format::FmtSpan, writer::OptionalWriter},
     layer::SubscriberExt,
     reload::Handle,
@@ -230,17 +232,4 @@ fn silence_crates(mut env_filter: EnvFilter) -> EnvFilter {
         );
     }
     env_filter
-}
-
-/// Returns a level filter one level quieter than the input.
-/// Note: This uses `tracing_subscriber::filter::LevelFilter`, not `log::LevelFilter`.
-fn one_level_quieter(level: LevelFilter) -> LevelFilter {
-    match level {
-        LevelFilter::OFF => LevelFilter::OFF,
-        LevelFilter::ERROR => LevelFilter::OFF,
-        LevelFilter::WARN => LevelFilter::ERROR,
-        LevelFilter::INFO => LevelFilter::WARN,
-        LevelFilter::DEBUG => LevelFilter::INFO,
-        LevelFilter::TRACE => LevelFilter::DEBUG,
-    }
 }
