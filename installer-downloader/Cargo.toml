@@ -20,7 +20,6 @@ windows-sys = { workspace = true, features = ["Win32_System", "Win32_System_Libr
 [target.'cfg(any(target_os = "windows", target_os = "macos"))'.dependencies]
 anyhow = { workspace = true }
 async-trait = "0.1"
-chrono = { workspace = true, features = ["clock"] }
 log = { workspace = true }
 rand = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
