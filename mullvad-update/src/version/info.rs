@@ -5,7 +5,7 @@ use itertools::Itertools;
 
 use crate::format::installer::Installer;
 use crate::format::release::Release;
-use crate::format::response::{AndroidReleases, Response};
+use crate::format::response::Response;
 use crate::version::parameters::VersionParameters;
 
 /// Lowest version to accept using 'verify'
@@ -128,16 +128,6 @@ impl VersionInfo {
 pub fn is_version_supported(
     current_version: mullvad_version::Version,
     response: &Response,
-) -> bool {
-    response
-        .releases
-        .iter()
-        .any(|release| release.version.eq(&current_version))
-}
-
-pub fn is_version_supported_android(
-    current_version: mullvad_version::Version,
-    response: &AndroidReleases,
 ) -> bool {
     response
         .releases
