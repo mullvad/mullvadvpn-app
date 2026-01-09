@@ -739,12 +739,9 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
             cancelPollingTunnelStatus()
 
         case let .error(blockedStateReason):
-            switch blockedStateReason {
-            case .deviceRevoked, .invalidAccount:
+            if !blockedStateReason.recoverableError() {
                 handleBlockedState(reason: blockedStateReason)
                 cancelPollingTunnelStatus()
-            default:
-                break
             }
         }
 
