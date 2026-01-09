@@ -269,9 +269,14 @@ impl WireguardMonitor {
                 .map_err(Error::SetupRoutingError)
                 .map_err(CloseMsg::SetupError)?;
 
-            let routes = Self::get_pre_tunnel_routes(&iface_name, &config, userspace_wireguard)
-                .chain(Self::get_endpoint_routes(&endpoint_addrs))
-                .collect();
+            let routes = Self::get_pre_tunnel_routes(
+                &iface_name,
+                &config,
+                #[cfg(any(target_os = "linux", target_os = "macos"))]
+                userspace_wireguard,
+            )
+            .chain(Self::get_endpoint_routes(&endpoint_addrs))
+            .collect();
 
             args.route_manager
                 .add_routes(routes)
@@ -362,8 +367,13 @@ impl WireguardMonitor {
             // Add any default route(s) that may exist.
             args.route_manager
                 .add_routes(
-                    Self::get_post_tunnel_routes(&iface_name, &config, userspace_wireguard)
-                        .collect(),
+                    Self::get_post_tunnel_routes(
+                        &iface_name,
+                        &config,
+                        #[cfg(any(target_os = "linux", target_os = "macos"))]
+                        userspace_wireguard,
+                    )
+                    .collect(),
                 )
                 .await
                 .map_err(Error::SetupRoutingError)
@@ -414,7 +424,9 @@ impl WireguardMonitor {
     pub fn start(
         params: &TunnelParameters,
         args: TunnelArgs<'_>,
-        #[allow(unused_variables)] log_path: Option<&Path>,
+        #[cfg_attr(not(feature = "wireguard-go"), expect(unused_variables))] log_path: Option<
+            &Path,
+        >,
     ) -> Result<WireguardMonitor> {
         let route_mtu = args
             .runtime
@@ -452,7 +464,7 @@ impl WireguardMonitor {
         let should_negotiate_ephemeral_peer = config.quantum_resistant || config.daita;
 
         let (cancel_token, cancel_receiver) = connectivity::CancelToken::new();
-        #[allow(unused_mut)]
+        #[cfg_attr(feature = "wireguard-go", expect(unused_mut))]
         let mut connectivity_monitor = connectivity::Check::new(
             config.ipv4_gateway,
             args.retry_attempt,
@@ -689,7 +701,6 @@ impl WireguardMonitor {
         Ok(())
     }
 
-    #[allow(clippy::too_many_arguments)]
     #[cfg(target_os = "windows")]
     fn open_tunnel(
         runtime: tokio::runtime::Handle,
@@ -906,7 +917,7 @@ impl WireguardMonitor {
     fn get_pre_tunnel_routes<'a>(
         iface_name: &str,
         config: &'a Config,
-        #[allow(unused_variables)] userspace_wireguard: bool,
+        #[cfg(any(target_os = "linux", target_os = "macos"))] userspace_wireguard: bool,
     ) -> impl Iterator<Item = RequiredRoute> + 'a {
         // e.g. utun4
         let gateway_node = talpid_routing::Node::device(iface_name.to_string());
@@ -948,7 +959,7 @@ impl WireguardMonitor {
     fn get_post_tunnel_routes<'a>(
         iface_name: &str,
         config: &'a Config,
-        #[allow(unused_variables)] userspace_wireguard: bool,
+        #[cfg(any(target_os = "linux", target_os = "macos"))] userspace_wireguard: bool,
     ) -> impl Iterator<Item = RequiredRoute> + 'a {
         let (node_v4, node_v6) = Self::get_tunnel_nodes(iface_name, config);
         let iter = config
