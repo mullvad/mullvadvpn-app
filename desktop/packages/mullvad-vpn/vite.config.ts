@@ -50,6 +50,9 @@ const viteConfig = defineConfig({
   build: {
     outDir: OUT_DIR,
   },
+  resolve: {
+    dedupe: ['react', 'react-dom'],
+  },
   plugins: [
     electron({
       main: {
@@ -112,6 +115,13 @@ const viteConfig = defineConfig({
         vite: {
           build: {
             outDir: OUT_DIR,
+            rollupOptions: {
+              output: {
+                // We have to specify preload.js here as otherwise it would
+                // use the '.mjs' file extension.
+                entryFileNames: 'preload.js',
+              },
+            },
           },
         },
       },

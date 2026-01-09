@@ -55,7 +55,7 @@ export default function configureStore() {
 
   const rootReducer = combineReducers(reducers);
 
-  return createStore(rootReducer, composeEnhancers());
+  return createStore(rootReducer, {}, composeEnhancers());
 }
 
 function composeEnhancers(): StoreEnhancer {
