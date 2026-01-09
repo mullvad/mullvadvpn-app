@@ -1,5 +1,5 @@
 import { exec, spawn } from 'child_process';
-import { app, BrowserWindow, dialog, Menu, nativeImage, screen, Tray } from 'electron';
+import { app, BrowserWindow, dialog, Menu, screen, Tray } from 'electron';
 import path from 'path';
 import { sprintf } from 'sprintf-js';
 import { promisify } from 'util';
@@ -271,7 +271,8 @@ export default class UserInterface implements WindowControllerDelegate {
   };
 
   private createTray(): Tray {
-    const tray = new Tray(nativeImage.createEmpty());
+    const icon = TrayIconController.getInitialIcon();
+    const tray = new Tray(icon);
     tray.setToolTip('Mullvad VPN');
 
     // disable double click on tray icon since it causes weird delay

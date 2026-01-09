@@ -16,9 +16,8 @@ if ! command -v rsvg-convert > /dev/null; then
 fi
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-cd "$SCRIPT_DIR"
 
-MENUBAR_ICONS_DIR="../assets/images/menubar-icons"
+MENUBAR_ICONS_DIR="${SCRIPT_DIR}/../assets/images/menubar-icons"
 
 SVG_DIR="$MENUBAR_ICONS_DIR/svg"
 MACOS_DIR="$MENUBAR_ICONS_DIR/darwin"
@@ -37,6 +36,9 @@ COMPRESSION_OPTIONS=(
 function main() {
     mkdir -p "$MACOS_DIR" "$WINDOWS_DIR" "$LINUX_DIR"
 
+    # The placeholder is used as the initial tray icon on Linux
+    generate_placeholder "lock-placeholder"
+
     for frame in {1..9}; do
         generate "lock-$frame" "lock-$frame"
     done
@@ -47,7 +49,20 @@ function main() {
     rmdir "$TMP_DIR"
 }
 
-# Genares the ico icons for the Windows tray icon. The ico consists of 3 different resolutions with
+# Generates the placeholder icon is an empty icon which is used as the initial icon on Linux
+# until the tunnel state can be determined and the icon can be replaced with another one.
+function generate_placeholder() {
+    local icon_name="$1"
+    local svg_source_path="$SVG_DIR/$icon_name.svg"
+    local linux_target_base_path="$LINUX_DIR/$icon_name"
+    local png_target_path="$linux_target_base_path.png"
+    local target_size=48
+    local target_padding=4
+
+    generate_lock_png "$svg_source_path" "$png_target_path" "$target_size" "$target_padding"
+}
+
+# Generates the ico icons for the Windows tray icon. The ico consists of 3 different resolutions with
 # 3 different bit depths each. Each icon is also available with and without notification dot.
 function generate_ico() {
     local svg_source_path="$1"
@@ -187,8 +202,8 @@ function generate() {
     local linux_target_base_path="$LINUX_DIR/$icon_name"
     local windows_target_base_path="$WINDOWS_DIR/$icon_name"
 
-    sed -E 's/#[0-9a-fA-f]{6}/#000000/g' "$monochrome_svg_source_path" > "$black_svg_source_path"
-    sed -E 's/#[0-9a-fA-f]{6}/#FFFFFF/g' "$monochrome_svg_source_path" > "$white_svg_source_path"
+    sed -E 's/#[0-9a-fA-F]{6}/#000000/g' "$monochrome_svg_source_path" > "$black_svg_source_path"
+    sed -E 's/#[0-9a-fA-F]{6}/#FFFFFF/g' "$monochrome_svg_source_path" > "$white_svg_source_path"
 
     # MacOS colored
     generate_rectangle "$svg_source_path" "$macos_target_base_path.png" \
