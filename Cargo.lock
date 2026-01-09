@@ -2962,6 +2962,7 @@ dependencies = [
  "mockito",
  "mullvad-api",
  "mullvad-encrypted-dns-proxy",
+ "mullvad-logging",
  "mullvad-types",
  "talpid-future",
  "talpid-tunnel-config-client",
@@ -2969,6 +2970,7 @@ dependencies = [
  "tokio",
  "tonic",
  "tower",
+ "tracing",
  "tracing-subscriber",
  "tunnel-obfuscation",
 ]
