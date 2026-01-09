@@ -161,15 +161,6 @@ impl VersionUpdaterInner {
         new_version_info
     }
 
-    /// Return when the last successful check including platform headers was made.
-    ///
-    /// This should occur every [PLATFORM_HEADER_INTERVAL].
-    fn last_platform_check(&self) -> Option<SystemTime> {
-        self.last_app_version_info
-            .as_ref()
-            .map(|info| info.last_platform_header_check)
-    }
-
     /// Return a future that resolves after [UPDATE_INTERVAL].
     fn update_interval() -> Pin<Box<impl FusedFuture<Output = ()> + use<>>> {
         // Boxed, pinned, and fused.
@@ -611,59 +602,6 @@ mod test {
             metadata_version: 0,
             etag: None,
         }
-    }
-
-    /// If there's no cached version, we should perform a check now and include platform headers
-    #[test]
-    fn test_version_unknown_is_stale() {
-        let checker = VersionUpdaterInner::default();
-        assert!(checker.last_app_version_info.is_none());
-        assert!(should_include_platform_headers(
-            checker.last_platform_check()
-        ));
-    }
-
-    /// If the last checked time is in the future, the version is stale
-    #[test]
-    fn test_version_cache_in_future_is_stale() {
-        let checker = VersionUpdaterInner {
-            last_app_version_info: Some(VersionCache {
-                last_platform_header_check: SystemTime::now() + Duration::from_secs(1),
-                ..dev_version_cache()
-            }),
-        };
-        assert!(should_include_platform_headers(
-            checker.last_platform_check()
-        ));
-    }
-
-    /// If we have a cached version that's less than `PLATFORM_HEADER_INTERVAL` old, do not include platform headers
-    #[test]
-    fn test_version_actual_non_stale() {
-        let checker = VersionUpdaterInner {
-            last_app_version_info: Some(VersionCache {
-                last_platform_header_check: SystemTime::now() - PLATFORM_HEADER_INTERVAL
-                    + Duration::from_secs(1),
-                ..dev_version_cache()
-            }),
-        };
-        assert!(!should_include_platform_headers(
-            checker.last_platform_check()
-        ));
-    }
-
-    /// If `PLATFORM_HEADER_INTERVAL` has elapsed, the check should include platform headers
-    #[test]
-    fn test_version_actual_stale() {
-        let checker = VersionUpdaterInner {
-            last_app_version_info: Some(VersionCache {
-                last_platform_header_check: SystemTime::now() - PLATFORM_HEADER_INTERVAL,
-                ..dev_version_cache()
-            }),
-        };
-        assert!(should_include_platform_headers(
-            checker.last_platform_check()
-        ));
     }
 
     /// Platform timestamp and etag must be updated even if metadata version is unchanged

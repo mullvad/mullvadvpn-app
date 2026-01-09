@@ -79,9 +79,7 @@ use mullvad_types::{
 };
 #[cfg(not(target_os = "android"))]
 use mullvad_update::version::Rollout;
-#[cfg(target_os = "android")]
-use mullvad_update::version::SUPPORTED_VERSION;
-use relay_list::{RELAYS_FILENAME, RelayListUpdater, RelayListUpdaterHandle};
+use relay_list::{RelayListUpdater, RelayListUpdaterHandle};
 use settings::SettingsPersister;
 use std::collections::BTreeSet;
 #[cfg(any(target_os = "windows", target_os = "android", target_os = "macos"))]
