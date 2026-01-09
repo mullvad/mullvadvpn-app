@@ -3,12 +3,14 @@ use anyhow::Context;
 use http::StatusCode;
 use http::header;
 #[cfg(target_os = "android")]
-use mullvad_update::format::response::AndroidReleases;
+use mullvad_release_android::format::response::AndroidReleases;
+#[cfg(target_os = "android")]
+use mullvad_release_android::platform::is_version_supported;
 #[cfg(not(target_os = "android"))]
 use mullvad_update::format::response::SignedResponse;
-use mullvad_update::version::VersionInfo;
 #[cfg(target_os = "android")]
-use mullvad_update::version::{Metadata, is_version_supported_android};
+use mullvad_update::version::Metadata;
+use mullvad_update::version::VersionInfo;
 #[cfg(not(target_os = "android"))]
 use mullvad_update::version::{Rollout, VersionParameters, is_version_supported};
 use std::future::Future;
@@ -152,8 +154,7 @@ impl AppVersionProxy {
 
             let current_version =
                 mullvad_version::Version::from_str(mullvad_version::VERSION).unwrap();
-            let current_version_supported =
-                is_version_supported_android(current_version, &response);
+            let current_version_supported = is_version_supported(current_version, &response);
 
             let params = response
                 .releases

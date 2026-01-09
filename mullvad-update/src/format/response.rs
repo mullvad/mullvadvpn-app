@@ -36,13 +36,6 @@ pub struct Response {
     pub releases: Vec<Release>,
 }
 
-/// Android releases
-#[derive(Default, Debug, Deserialize, Serialize, Clone)]
-pub struct AndroidReleases {
-    /// Available app releases
-    pub releases: Vec<Release>,
-}
-
 /// JSON response signature
 #[derive(Debug, Deserialize, Serialize)]
 #[cfg_attr(test, derive(PartialEq))]
