@@ -325,20 +325,15 @@ pub fn get_interface_mac(interface: &str) -> anyhow::Result<Option<[u8; 6]>> {
 /// Get the index of a network interface (on the test-manager machine).
 #[cfg(target_os = "linux")] // not used on macos
 pub fn get_interface_index(interface: &str) -> anyhow::Result<std::ffi::c_uint> {
-    use nix::errno::Errno;
+    use nix::net::if_::if_nametoindex;
     use std::ffi::CString;
 
     let interface = CString::new(interface).context(anyhow!(
         "Failed to turn interface name {interface:?} into cstr"
     ))?;
 
-    match unsafe { libc::if_nametoindex(interface.as_ptr()) } {
-        0 => {
-            let err = Errno::last();
-            Err(err).context("Failed to get interface index")
-        }
-        i => Ok(i),
-    }
+    if_nametoindex(interface.as_ref())
+        .context("Failed to get index of network interface {interface}")
 }
 
 /// Log in and retry if it fails due to throttling

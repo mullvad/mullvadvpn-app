@@ -14,7 +14,7 @@
 
 use std::{
     convert::Infallible,
-    ffi::{c_int, c_uint, c_void},
+    ffi::{c_int, c_uint},
     mem::size_of,
     net::{IpAddr, Ipv4Addr},
     os::fd::AsRawFd,
@@ -240,7 +240,8 @@ fn send_packet(
     interface_index: c_uint,
     packet: &EthernetPacket<'_>,
 ) -> anyhow::Result<()> {
-    let result = {
+    use nix::sys::socket::{LinkAddr, MsgFlags, SockaddrLike, sendto};
+    let addr = {
         let mut destination = libc::sockaddr_ll {
             sll_family: 0,
             sll_protocol: 0,
@@ -251,24 +252,21 @@ fn send_packet(
             sll_addr: [0; 8],
         };
         destination.sll_addr[..6].copy_from_slice(&packet.get_destination().octets());
-        unsafe {
-            // NOTE: since you're reading this, consider using https://docs.rs/pnet_datalink
-            // instead of whatever you're planning...
-            libc::sendto(
-                socket.as_raw_fd(),
-                packet.packet().as_ptr() as *const c_void,
-                packet.packet().len(),
-                0,
-                (&raw const destination).cast(),
-                size_of::<libc::sockaddr_ll>() as u32,
-            )
-        }
+        let addr = (&raw const destination).cast::<libc::sockaddr>();
+        let ssl_len = std::mem::size_of_val(&destination).try_into()?;
+        // SAFETY: `destination` is a valid kind of `sockaddr`, and the length of `destination` does not exceed
+        // the length of the valid data in `addr`.
+        unsafe { LinkAddr::from_raw(addr, Some(ssl_len)) }.context("sockaddr_ll is invalid")?
     };
-
-    if result < 0 {
-        let err = Errno::last();
-        bail!("Failed to send ethernet packet: {err}");
-    }
+    // NOTE: since you're reading this, consider using https://docs.rs/pnet_datalink
+    // instead of whatever you're planning...
+    sendto(
+        socket.as_raw_fd(),
+        packet.packet(),
+        &addr,
+        MsgFlags::empty(),
+    )
+    .context("Failed to send ethernet packet")?;
 
     Ok(())
 }
