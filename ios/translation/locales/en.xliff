@@ -524,11 +524,6 @@ Would you like to continue to enable “Local network sharing”?</target>
         <target state="new">Client is not allowed to issue the request.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Collapse" xml:space="preserve">
-        <source>Collapse</source>
-        <target state="new">Collapse</target>
-        <note/>
-      </trans-unit>
       <trans-unit id="Collapse %@" xml:space="preserve">
         <source>Collapse %@</source>
         <target state="new">Collapse %@</target>
@@ -587,6 +582,11 @@ Would you like to continue to enable “Local network sharing”?</target>
       <trans-unit id="Copied Mullvad account number to pasteboard" xml:space="preserve">
         <source>Copied Mullvad account number to pasteboard</source>
         <target state="new">Copied Mullvad account number to pasteboard</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Could not restore previous purchases. Try again later or contact support." xml:space="preserve">
+        <source>Could not restore previous purchases. Try again later or contact support.</source>
+        <target state="new">Could not restore previous purchases. Try again later or contact support.</target>
         <note/>
       </trans-unit>
       <trans-unit id="Create" xml:space="preserve">
@@ -694,6 +694,11 @@ Would you like to continue to enable “Local network sharing”?</target>
         <target state="new">Dallas, TX</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Debug options" xml:space="preserve">
+        <source>Debug options</source>
+        <target state="new">Debug options</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="Delete" xml:space="preserve">
         <source>Delete</source>
         <target state="new">Delete</target>
@@ -759,14 +764,34 @@ Would you like to continue to enable “Local network sharing”?</target>
         <target state="new">Direct only</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Disable" xml:space="preserve">
+        <source>Disable</source>
+        <target state="new">Disable</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="Disable all &quot;%@&quot; above to activate this setting." xml:space="preserve">
         <source>Disable all "%@" above to activate this setting.</source>
         <target state="new">Disable all "%@" above to activate this setting.</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Disable multihop" xml:space="preserve">
+        <source>Disable multihop</source>
+        <target state="new">Disable multihop</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Disable recents" xml:space="preserve">
+        <source>Disable recents</source>
+        <target state="new">Disable recents</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="Disabling" xml:space="preserve">
         <source>Disabling</source>
         <target state="new">Disabling</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Disabling recents will also clear history." xml:space="preserve">
+        <source>Disabling recents will also clear history.</source>
+        <target state="new">Disabling recents will also clear history.</target>
         <note/>
       </trans-unit>
       <trans-unit id="Discard changes" xml:space="preserve">
@@ -859,6 +884,16 @@ Would you like to continue to enable “Local network sharing”?</target>
         <target state="new">Enable method</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Enable multihop" xml:space="preserve">
+        <source>Enable multihop</source>
+        <target state="new">Enable multihop</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Enable recents" xml:space="preserve">
+        <source>Enable recents</source>
+        <target state="new">Enable recents</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="Enabling" xml:space="preserve">
         <source>Enabling</source>
         <target state="new">Enabling</target>
@@ -892,11 +927,6 @@ Would you like to continue to enable “Local network sharing”?</target>
       <trans-unit id="Exit" xml:space="preserve">
         <source>Exit</source>
         <target state="new">Exit</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Expand" xml:space="preserve">
-        <source>Expand</source>
-        <target state="new">Expand</target>
         <note/>
       </trans-unit>
       <trans-unit id="Expand %@" xml:space="preserve">
@@ -1197,6 +1227,11 @@ Would you like to continue to enable “Local network sharing”?</target>
       <trans-unit id="Internal error." xml:space="preserve">
         <source>Internal error.</source>
         <target state="new">Internal error.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Internet" xml:space="preserve">
+        <source>Internet</source>
+        <target state="new">Internet</target>
         <note/>
       </trans-unit>
       <trans-unit id="Invalid account number" xml:space="preserve">
@@ -1564,14 +1599,14 @@ Would you like to continue to enable “Local network sharing”?</target>
         <target state="new">No DAITA compatible servers match your location settings. Try changing location.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="No matching relays found, check your filter settings." xml:space="preserve">
-        <source>No matching relays found, check your filter settings.</source>
-        <target state="new">No matching relays found, check your filter settings.</target>
-        <note/>
-      </trans-unit>
       <trans-unit id="No matching servers found." xml:space="preserve">
         <source>No matching servers found.</source>
         <target state="new">No matching servers found.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="No recent selection history" xml:space="preserve">
+        <source>No recent selection history</source>
+        <target state="new">No recent selection history</target>
         <note/>
       </trans-unit>
       <trans-unit id="No result for &quot;%@&quot;, please try a different search term." xml:space="preserve">
@@ -1789,6 +1824,11 @@ Would you like to continue to enable “Local network sharing”?</target>
         <target state="new">Previous</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Previous purchases were found" xml:space="preserve">
+        <source>Previous purchases were found</source>
+        <target state="new">Previous purchases were found</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="Providers" xml:space="preserve">
         <source>Providers</source>
         <target state="new">Providers</target>
@@ -1829,6 +1869,11 @@ Would you like to continue to enable “Local network sharing”?</target>
         <target state="new">Raleigh, NC</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Recents" xml:space="preserve">
+        <source>Recents</source>
+        <target state="new">Recents</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="Reconnecting to %@" xml:space="preserve">
         <source>Reconnecting to %@</source>
         <target state="new">Reconnecting to %@</target>
@@ -1842,11 +1887,6 @@ Would you like to continue to enable “Local network sharing”?</target>
       <trans-unit id="Redeem voucher" xml:space="preserve">
         <source>Redeem voucher</source>
         <target state="new">Redeem voucher</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Refund last purchase with StoreKit2" xml:space="preserve">
-        <source>Refund last purchase with StoreKit2</source>
-        <target state="new">Refund last purchase with StoreKit2</target>
         <note/>
       </trans-unit>
       <trans-unit id="Refund successful" xml:space="preserve">
@@ -2029,6 +2069,11 @@ Do you want to remove the saved account number?</target>
       <trans-unit id="Show account number" xml:space="preserve">
         <source>Show account number</source>
         <target state="new">Show account number</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Showing %lld of %lld" xml:space="preserve">
+        <source>Showing %1$lld of %2$lld</source>
+        <target state="new">Showing %1$lld of %2$lld</target>
         <note/>
       </trans-unit>
       <trans-unit id="Singapore" xml:space="preserve">
@@ -2319,11 +2364,6 @@ Do you want to remove the saved account number?</target>
       <trans-unit id="To create a custom list press the “+” or long press on a country, city, or server." xml:space="preserve">
         <source>To create a custom list press the “+” or long press on a country, city, or server.</source>
         <target state="new">To create a custom list press the “+” or long press on a country, city, or server.</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="To create a custom list, tap on &quot;...&quot; " xml:space="preserve">
-        <source>To create a custom list, tap on "..." </source>
-        <target state="new">To create a custom list, tap on "..." </target>
         <note/>
       </trans-unit>
       <trans-unit id="To enable this setting, add at least one server." xml:space="preserve">
@@ -2664,6 +2704,16 @@ We strongly believe in retaining as little data as possible because we want you 
         <target state="new">You have unsaved changes.</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Your device" xml:space="preserve">
+        <source>Your device</source>
+        <target state="new">Your device</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Your device (%@)" xml:space="preserve">
+        <source>Your device (%@)</source>
+        <target state="new">Your device (%@)</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="Your device is offline. The tunnel will automatically connect once your device is back online." xml:space="preserve">
         <source>Your device is offline. The tunnel will automatically connect once your device is back online.</source>
         <target state="new">Your device is offline. The tunnel will automatically connect once your device is back online.</target>
@@ -2787,48 +2837,6 @@ We strongly believe in retaining as little data as possible because we want you 
       <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
     </header>
     <body>
-    </body>
-  </file>
-  <file original="PacketTunnel/Localizable.xcstrings" source-language="en" target-language="en" datatype="plaintext">
-    <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
-    </header>
-    <body>
-      <trans-unit id="%@ have been added to your account." xml:space="preserve">
-        <source>%@ have been added to your account.</source>
-        <target state="new">%@ have been added to your account.</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Cannot complete the purchase" xml:space="preserve">
-        <source>Cannot complete the purchase</source>
-        <target state="new">Cannot complete the purchase</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Cannot restore purchases" xml:space="preserve">
-        <source>Cannot restore purchases</source>
-        <target state="new">Cannot restore purchases</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Restore purchases" xml:space="preserve">
-        <source>Restore purchases</source>
-        <target state="new">Restore purchases</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Thanks for your purchase" xml:space="preserve">
-        <source>Thanks for your purchase</source>
-        <target state="new">Thanks for your purchase</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Your previous purchases have already been added to this account." xml:space="preserve">
-        <source>Your previous purchases have already been added to this account.</source>
-        <target state="new">Your previous purchases have already been added to this account.</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Your previous purchases have been added to your account." xml:space="preserve">
-        <source>Your previous purchases have been added to your account.</source>
-        <target state="new">Your previous purchases have been added to your account.</target>
-        <note/>
-      </trans-unit>
     </body>
   </file>
   <file original="PacketTunnelCore/PacketTunnelCore-InfoPlist.xcstrings" source-language="en" target-language="en" datatype="plaintext">
