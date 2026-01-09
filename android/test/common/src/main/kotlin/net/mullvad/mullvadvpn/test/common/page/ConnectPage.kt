@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.test.common.page
 
 import androidx.test.uiautomator.By
+import androidx.test.uiautomator.waitForStableInActiveWindow
 import net.mullvad.mullvadvpn.lib.ui.tag.CONNECT_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.CONNECT_CARD_HEADER_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.LOCATION_INFO_CONNECTION_IN_TEST_TAG
@@ -89,6 +90,7 @@ class ConnectPage internal constructor() : Page() {
      */
     fun extractInIpAddress(): String {
         expandConnectionCard()
+        uiDevice.waitForStableInActiveWindow()
         return extractInIpInformation().first
     }
 
@@ -98,6 +100,7 @@ class ConnectPage internal constructor() : Page() {
      */
     fun extractInIpPort(): String {
         expandConnectionCard()
+        uiDevice.waitForStableInActiveWindow()
         return extractInIpInformation().second
     }
 
