@@ -29,6 +29,7 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Fixed
 - Fix "Time left" label in main view not updating when time passes.
+- Fix maximum supported NetworkManager version so it now covers modern linux distros.
 
 #### Windows
 - Update split tunnel driver to 1.2.5.0. This fixes audit issue `MLLVD-CR-24-102`,
