@@ -51,10 +51,10 @@ const RPC_TIMEOUT: std::time::Duration = Duration::from_secs(3);
 const DBUS_UNKNOWN_METHOD: &str = "org.freedesktop.DBus.Error.UnknownMethod";
 
 const MINIMUM_SUPPORTED_MAJOR_VERSION: u32 = 1;
-const MINIMUM_SUPPORTED_MINOR_VERSION: u32 = 16;
+const MINIMUM_SUPPORTED_MINOR_VERSION: u32 = 25;
 
 const MAXIMUM_SUPPORTED_MAJOR_VERSION: u32 = 1;
-const MAXIMUM_SUPPORTED_MINOR_VERSION: u32 = 26;
+const MAXIMUM_SUPPORTED_MINOR_VERSION: u32 = 55;
 
 const NM_DEVICE_STATE_CHANGED: &str = "StateChanged";
 
