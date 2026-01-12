@@ -21,12 +21,6 @@
          <trust file=".*-sources[.]jar" regex="true"/>
          <trust file=".*[.]pom" regex="true"/>
       </trusted-artifacts>
-      <ignored-keys>
-         <ignored-key id="586654072EAD6677" reason="Key couldn't be downloaded from any key server"/>
-         <ignored-key id="6CCC36CC6C69FC17" reason="Key couldn't be downloaded from any key server"/>
-         <ignored-key id="873A8E86B4372146" reason="Key couldn't be downloaded from any key server"/>
-         <ignored-key id="BFFC9B54721244AD" reason="Key couldn't be downloaded from any key server"/>
-      </ignored-keys>
       <trusted-keys>
          <trusted-key id="03C123038C20AAE9E286C857479D601F3A7B5C1A" group="^com[.]github[.]ajalt($|([.].*))" regex="true"/>
          <trusted-key id="04543577D6A9CC626239C50C7ECBD740FF06AEB5">
