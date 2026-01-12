@@ -37,10 +37,6 @@ impl HttpVersionInfoProvider {
     }
 
     /// Retrieve the `latest.json` file for Android.
-    ///
-    /// - `pinned_certificate` will be set to the LE root certificate.
-    /// - DNS will be used to look up the URL.
-    /// - The JSON response is not signed.
     pub async fn get_latest_versions_file() -> anyhow::Result<String> {
         Self::get(
             &format!("{}{}", defaults::METADATA_URL, "latest.json"),
