@@ -1,53 +1,100 @@
-import styled from 'styled-components';
+import React from 'react';
+import styled, { css } from 'styled-components';
 
-import { colors, Radius, spacings } from '../../../../foundations';
-import { useTextFieldContext } from '../../';
+import {
+  colors,
+  fontFamilies,
+  fontSizes,
+  lineHeights,
+  Radius,
+  spacings,
+} from '../../../../foundations';
+import { TextFieldProps, useTextFieldContext } from '../../';
 
-export type TextFieldInputProps = React.ComponentPropsWithRef<'input'>;
+export type TextFieldInputProps = Omit<React.ComponentPropsWithRef<'input'>, 'children'>;
 
-export const StyledTextField = styled.input`
-  all: unset;
-  color: ${colors.white};
-  background-color: ${colors.blue40};
-  padding: ${spacings.small};
-  outline: 1px solid ${colors.chalkAlpha40};
-  border-radius: ${Radius.radius4};
-  font-family: var(--font-family-open-sans);
-  font-size: 14px;
-  width: 100%;
+const variants = {
+  primary: {
+    padding: spacings.small,
+    height: '36px',
+    borderRadius: Radius.radius4,
+  },
+  secondary: {
+    padding: `${spacings.tiny} ${spacings.small}`,
+    height: '32px',
+    borderRadius: Radius.radius12,
+  },
+};
 
-  &&::placeholder {
-    color: ${colors.whiteAlpha60};
-  }
+export const StyledTextFieldInput = styled.input<{ $variant?: TextFieldProps['variant'] }>`
+  ${({ $variant = 'primary' }) => {
+    const variant = variants[$variant];
+    return css`
+      all: unset;
+      box-sizing: border-box;
+      height: ${variant.height};
 
-  &&:disabled {
-    color: ${colors.whiteAlpha20};
-    background-color: ${colors.whiteOnDarkBlue5};
-    outline-color: transparent;
-  }
+      color: ${colors.white};
+      background-color: ${colors.blue40};
+      padding: ${variant.padding};
+      border-radius: ${variant.borderRadius};
+      font-family: ${fontFamilies['--font-family-open-sans']};
+      font-size: ${fontSizes['--font-size-small']};
+      line-height: ${lineHeights['--line-height-small']};
+      outline: 1px solid ${colors.chalkAlpha40};
+      width: 100%;
 
-  &&:disabled::placeholder {
-    color: ${colors.whiteAlpha20};
-  }
+      &&::placeholder {
+        color: ${colors.whiteAlpha60};
+      }
 
-  &&[aria-invalid='true'] {
-    outline-color: ${colors.newRed};
-  }
+      &&:disabled {
+        color: ${colors.whiteAlpha20};
+        background-color: ${colors.whiteOnDarkBlue5};
+        outline-color: transparent;
+      }
 
-  &&:not(:disabled):not([aria-invalid='true']):hover {
-    outline-color: ${colors.chalkAlpha80};
-  }
-  &&:not(:disabled):focus-visible {
-    outline-width: 2px;
-    outline-offset: -1px;
-  }
-  &&:not(:disabled):not([aria-invalid='true']):focus-visible {
-    outline-color: ${colors.chalk};
-  }
+      &&:disabled::placeholder {
+        color: ${colors.whiteAlpha20};
+      }
+
+      &&[aria-invalid='true'] {
+        outline-color: ${colors.newRed};
+      }
+
+      &&:not(:disabled):not([aria-invalid='true']):hover {
+        outline-color: ${colors.chalkAlpha80};
+      }
+      &&:not(:disabled):focus-visible {
+        outline-width: 2px;
+        outline-offset: -1px;
+      }
+      &&:not(:disabled):not([aria-invalid='true']):focus-visible {
+        outline-color: ${colors.chalk};
+      }
+    `;
+  }}
 `;
 
 export function TextFieldInput(props: TextFieldInputProps) {
-  const { disabled, invalid } = useTextFieldContext();
+  const { value, variant, disabled, invalid, onValueChange } = useTextFieldContext();
 
-  return <StyledTextField type="text" disabled={disabled} aria-invalid={invalid} {...props} />;
+  const handleChange = React.useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      onValueChange?.(event.target.value);
+    },
+    [onValueChange],
+  );
+
+  return (
+    <StyledTextFieldInput
+      type="text"
+      value={value}
+      disabled={disabled}
+      aria-invalid={invalid}
+      onChange={handleChange}
+      $variant={variant}
+      {...props}
+    />
+  );
 }

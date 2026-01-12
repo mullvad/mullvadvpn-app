@@ -1,19 +1,23 @@
-import { createContext, ReactNode, useContext } from 'react';
+import React, { createContext, useContext } from 'react';
 
 import { TextFieldProps } from './TextField';
 
-type TextFieldContextType = TextFieldProps & {
+type TextFieldContextType = Omit<TextFieldProviderProps, 'children'> & {
   labelId: string;
 };
 
 const TextFieldContext = createContext<TextFieldContextType | undefined>(undefined);
 
-type TextFieldProviderProps = TextFieldContextType & {
-  children: ReactNode;
-};
+type TextFieldProviderProps = React.PropsWithChildren<
+  Pick<TextFieldProps, 'variant' | 'invalid' | 'disabled' | 'value' | 'onValueChange'>
+>;
 
 export const TextFieldProvider = ({ children, ...props }: TextFieldProviderProps) => {
-  return <TextFieldContext.Provider value={props}>{children}</TextFieldContext.Provider>;
+  const labelId = React.useId();
+
+  return (
+    <TextFieldContext.Provider value={{ labelId, ...props }}>{children}</TextFieldContext.Provider>
+  );
 };
 
 export const useTextFieldContext = (): TextFieldContextType => {
