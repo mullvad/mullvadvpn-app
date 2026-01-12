@@ -431,7 +431,7 @@ async fn configure_devices(
         };
 
         entry_device
-            .configure(async |device| {
+            .write(async |device| {
                 device.clear_peers();
                 device.set_private_key(private_key.clone()).await;
                 device.add_peer(entry_peer);
@@ -449,7 +449,7 @@ async fn configure_devices(
             })?;
 
         exit_device
-            .configure(async |device| {
+            .write(async |device| {
                 device.clear_peers();
                 device.set_private_key(private_key).await;
                 device.add_peer(exit_peer);
@@ -473,7 +473,7 @@ async fn configure_devices(
 
         let peer = entry_peer;
         device
-            .configure(async |device| {
+            .write(async |device| {
                 device.clear_peers();
                 device.set_private_key(private_key).await;
                 device.add_peer(peer.into());
@@ -514,7 +514,7 @@ impl Tunnel for GotaTun {
     async fn get_tunnel_stats(&self) -> Result<StatsMap, TunnelError> {
         async fn get_stats(device: &Device<impl DeviceTransports>) -> StatsMap {
             device
-                .get(async |device| {
+                .read(async |device| {
                     device
                         .peers()
                         .await
