@@ -31,7 +31,7 @@ plugins {
     alias(libs.plugins.compose)
     alias(libs.plugins.junit5.android)
     alias(libs.plugins.baselineprofile)
-    id("me.sigptr.rust-android")
+    id("net.mullvad.rust-android")
 }
 
 val repoRootPath = rootProject.projectDir.absoluteFile.parentFile.absolutePath
