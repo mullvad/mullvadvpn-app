@@ -435,6 +435,7 @@ async fn configure_devices(
                 device.clear_peers();
                 device.set_private_key(private_key.clone()).await;
                 device.add_peer(entry_peer);
+                #[cfg(target_os = "linux")]
                 if let Some(fwmark) = config.fwmark {
                     device.set_fwmark(fwmark)?;
                 }
@@ -476,6 +477,7 @@ async fn configure_devices(
                 device.clear_peers();
                 device.set_private_key(private_key).await;
                 device.add_peer(peer.into());
+                #[cfg(target_os = "linux")]
                 if let Some(fwmark) = config.fwmark {
                     device.set_fwmark(fwmark)?;
                 }
