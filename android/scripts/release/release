@@ -53,7 +53,7 @@ function main {
     "-a"|"--add-release")
         add_release "$4"
         ;;
-    "-u"|"--set-latest-stable")
+    "-s"|"--set-latest-stable")
         set_latest_stable_version "$4"
         ;;
     "-r"|"--remove-release")
