@@ -1591,6 +1591,7 @@ checksum = "a8d1add55171497b4705a648c6b583acafb01d58050a51727785f0b2c8e0a2b2"
 [[package]]
 name = "gotatun"
 version = "0.1.2"
+source = "git+https://github.com/mullvad/gotatun?branch=improve-api#8b3ddaf1c67532576c70e4584a6350322c2063cc"
 dependencies = [
  "aead",
  "base64 0.13.1",
@@ -1624,7 +1625,7 @@ dependencies = [
  "tokio",
  "tun 0.8.5",
  "typed-builder 0.21.0",
- "windows-sys 0.59.0",
+ "windows-sys 0.61.2",
  "x25519-dalek",
  "zerocopy",
 ]
