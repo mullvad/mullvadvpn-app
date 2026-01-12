@@ -354,7 +354,10 @@ export default class UserInterface implements WindowControllerDelegate {
       }
 
       default:
-        return new BrowserWindow(options);
+        return new BrowserWindow({
+          ...options,
+          transparent: true,
+        });
     }
   }
 
