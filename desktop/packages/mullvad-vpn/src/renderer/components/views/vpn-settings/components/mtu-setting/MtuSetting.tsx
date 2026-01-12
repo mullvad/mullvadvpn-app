@@ -51,7 +51,7 @@ export function MtuSetting() {
     [setMtu],
   );
 
-  const { value, handleChange, invalid, dirty, blur, reset } = useTextField({
+  const { value, handleOnValueChange, invalid, dirty, blur, reset } = useTextField({
     inputRef,
     defaultValue: mtu ? mtu.toString() : '',
     format: removeNonNumericCharacters,
@@ -90,17 +90,19 @@ export function MtuSetting() {
               messages.pgettext('wireguard-settings-view', 'MTU')
             }
           </SettingsListItem.Label>
-          <SettingsListItem.TextField invalid={invalid} onSubmit={handleSubmit}>
+          <SettingsListItem.TextField
+            value={value}
+            onValueChange={handleOnValueChange}
+            onSubmit={handleSubmit}
+            invalid={invalid}>
             <SettingsListItem.TextField.Input
               ref={inputRef}
-              value={value}
               placeholder={messages.gettext('Default')}
               inputMode="numeric"
               maxLength={4}
               aria-labelledby={labelId}
               aria-describedby={descriptionId}
               onBlur={handleBlur}
-              onChange={handleChange}
             />
           </SettingsListItem.TextField>
         </SettingsListItem.Content>
