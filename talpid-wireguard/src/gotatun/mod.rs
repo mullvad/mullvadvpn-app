@@ -8,7 +8,7 @@ use crate::{
 #[cfg(target_os = "android")]
 use gotatun::udp::UdpTransportFactory;
 use gotatun::{
-    device::{Device, DeviceBuilder, DeviceTransports, daita::Machine, peer::builder::PeerBuilder},
+    device::{Device, DeviceBuilder, DeviceTransports, Peer, daita::Machine},
     packet::{Ipv4Header, Ipv6Header, UdpHeader, WgData},
     tun::{
         IpRecv,
@@ -364,7 +364,7 @@ async fn create_devices(
 }
 
 // TODO: move this somewhere reasonable
-fn to_gotatun_peer(peer: &PeerConfig, daita: Option<&DaitaSettings>) -> PeerBuilder {
+fn to_gotatun_peer(peer: &PeerConfig, daita: Option<&DaitaSettings>) -> Peer {
     let PeerConfig {
         public_key,
         allowed_ips,
@@ -373,7 +373,7 @@ fn to_gotatun_peer(peer: &PeerConfig, daita: Option<&DaitaSettings>) -> PeerBuil
         constant_packet_size: _,
     } = peer.clone();
 
-    let mut peer = PeerBuilder::new((*public_key.as_bytes()).into())
+    let mut peer = Peer::new((*public_key.as_bytes()).into())
         .with_allowed_ips(allowed_ips)
         .with_endpoint(endpoint);
 
@@ -519,24 +519,26 @@ impl Tunnel for GotaTun {
                         .peers()
                         .await
                         .into_iter()
-                        .map(|peer| {
+                        .map(|peer_stats| {
                             let stats = Stats {
-                                tx_bytes: peer.stats.tx_bytes as u64,
-                                rx_bytes: peer.stats.rx_bytes as u64,
-                                last_handshake_time: peer
+                                tx_bytes: peer_stats.stats.tx_bytes as u64,
+                                rx_bytes: peer_stats.stats.rx_bytes as u64,
+                                last_handshake_time: peer_stats
                                     .stats
                                     .last_handshake
                                     .map(|duration_since| SystemTime::now() - duration_since),
-                                daita: peer.stats.daita.as_ref().map(|daita_stats| DaitaStats {
-                                    tx_padding_bytes: daita_stats.tx_padding_bytes as u64,
-                                    tx_padding_packet_bytes: daita_stats.tx_padding_packet_bytes
-                                        as u64,
-                                    rx_padding_bytes: daita_stats.rx_padding_bytes as u64,
-                                    rx_padding_packet_bytes: daita_stats.rx_padding_packet_bytes
-                                        as u64,
+                                daita: peer_stats.stats.daita.as_ref().map(|daita_stats| {
+                                    DaitaStats {
+                                        tx_padding_bytes: daita_stats.tx_padding_bytes as u64,
+                                        tx_padding_packet_bytes: daita_stats.tx_padding_packet_bytes
+                                            as u64,
+                                        rx_padding_bytes: daita_stats.rx_padding_bytes as u64,
+                                        rx_padding_packet_bytes: daita_stats.rx_padding_packet_bytes
+                                            as u64,
+                                    }
                                 }),
                             };
-                            (peer.public_key.to_bytes(), stats)
+                            (peer_stats.peer.public_key.to_bytes(), stats)
                         })
                         .collect()
                 })
