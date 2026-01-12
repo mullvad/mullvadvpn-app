@@ -38,8 +38,6 @@ pub fn work_path_latest() -> PathBuf {
 
 /// Pull latest metadata from repository and store it in `work/`
 pub async fn pull(assume_yes: bool) -> anyhow::Result<()> {
-    //println!("Pulling Android metadata from {}...", platform.url());
-
     let releases = HttpVersionInfoProvider::get_releases()
         .await
         .context("Failed to retrieve versions")?;
