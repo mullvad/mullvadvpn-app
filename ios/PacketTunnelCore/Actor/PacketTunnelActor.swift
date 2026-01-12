@@ -188,6 +188,7 @@ public actor PacketTunnelActor {
         tunnelMonitor.handleNetworkPathUpdate(networkPath)
 
         let newReachability = networkPath.networkReachability
+
         if case .reachable = newReachability,
             case let .error(
                 errorState
@@ -199,8 +200,10 @@ public actor PacketTunnelActor {
             return
         }
 
-        // if network reachability didn't update, just enter offline state
-        await setErrorStateInternal(with: .offline)
+        // If network is unreachable, enter error state.
+        if case .unreachable = newReachability {
+            await setErrorStateInternal(with: .offline)
+        }
     }
 }
 
@@ -218,9 +221,6 @@ extension PacketTunnelActor {
         guard case .initial = state else { return }
 
         logger.debug("\(options.logFormat())")
-
-        // Assign a closure receiving tunnel monitor events.
-        setTunnelMonitorEventHandler()
 
         do {
             try await tryStart(nextRelays: options.selectedRelays.map { .preSelected($0) } ?? .random)
