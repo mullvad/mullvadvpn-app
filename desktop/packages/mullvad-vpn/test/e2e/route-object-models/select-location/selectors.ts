@@ -10,5 +10,5 @@ export const createSelectors = (page: Page) => ({
   expandAccordionButton: (label: string) => page.getByLabel(`Expand ${label}`),
   relaysMatching: (relayNames: string[]) =>
     page.getByRole('button', { name: new RegExp(relayNames.join('|')) }),
-  searchInput: () => page.getByPlaceholder('Search for...'),
+  searchInput: () => page.getByPlaceholder('Search locations or servers'),
 });
