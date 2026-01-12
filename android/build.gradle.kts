@@ -15,7 +15,7 @@ plugins {
     alias(libs.plugins.kotlin.ksp) apply false
     alias(libs.plugins.kotlin.parcelize) apply false
     alias(libs.plugins.protobuf.core) apply false
-    id("me.sigptr.rust-android") apply false
+    id("net.mullvad.rust-android") apply false
 
     alias(libs.plugins.detekt) apply true
     alias(libs.plugins.dependency.versions) apply true

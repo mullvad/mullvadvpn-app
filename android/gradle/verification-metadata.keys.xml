@@ -22,6 +22,9 @@
          <trust file=".*[.]pom" regex="true"/>
       </trusted-artifacts>
       <ignored-keys>
+         <ignored-key id="21A24B3F8B0F594A" reason="Key couldn't be downloaded from any key server"/>
+         <ignored-key id="2E2010F8A7FF4A41" reason="Key couldn't be downloaded from any key server"/>
+         <ignored-key id="571A5291E827E1C7" reason="Key couldn't be downloaded from any key server"/>
          <ignored-key id="586654072EAD6677" reason="Key couldn't be downloaded from any key server"/>
          <ignored-key id="6CCC36CC6C69FC17" reason="Key couldn't be downloaded from any key server"/>
          <ignored-key id="873A8E86B4372146" reason="Key couldn't be downloaded from any key server"/>
