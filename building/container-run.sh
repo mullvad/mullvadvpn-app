@@ -45,7 +45,8 @@ esac
 
 set -x
 exec "$CONTAINER_RUNNER" run --rm \
-    -v "/$REPO_DIR:$REPO_MOUNT_TARGET:Z" \
+    -e HOME=/home/runner1 \
+    -v "$REPO_DIR:$REPO_MOUNT_TARGET:Z" \
     -v "$CARGO_TARGET_VOLUME_NAME:/cargo-target:Z" \
     -v "$CARGO_REGISTRY_VOLUME_NAME:/home/runner1/.cargo/registry:Z" \
     -v "/etc/passwd:/etc/passwd" \
