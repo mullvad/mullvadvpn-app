@@ -67,8 +67,7 @@ struct SinglehopPicker: RelayPicking {
         return SelectedRelays(
             entry: nil,
             exit: match,
-            retryAttempt: connectionAttemptCount,
-            obfuscation: obfuscation.method
+            retryAttempt: connectionAttemptCount
         )
     }
 }

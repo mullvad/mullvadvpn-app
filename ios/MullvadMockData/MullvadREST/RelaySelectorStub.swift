@@ -9,6 +9,7 @@
 import MullvadREST
 import MullvadSettings
 import MullvadTypes
+import Network
 import WireGuardKitTypes
 
 /// Relay selector stub that accepts a block that can be used to provide custom implementation.
@@ -50,11 +51,12 @@ extension RelaySelectorStub {
         return RelaySelectorStub(
             selectedRelaysResult: { _ in
                 let cityRelay = SelectedRelay(
-                    endpoint: MullvadEndpoint(
-                        ipv4Relay: IPv4Endpoint(ip: .loopback, port: 1300),
+                    endpoint: SelectedEndpoint(
+                        socketAddress: .ipv4(IPv4Endpoint(ip: .loopback, port: 1300)),
                         ipv4Gateway: .loopback,
                         ipv6Gateway: .loopback,
-                        publicKey: publicKey
+                        publicKey: publicKey,
+                        obfuscation: .off
                     ),
                     hostname: "se-got",
                     location: Location(
@@ -71,8 +73,7 @@ extension RelaySelectorStub {
                 return SelectedRelays(
                     entry: cityRelay,
                     exit: cityRelay,
-                    retryAttempt: 0,
-                    obfuscation: .off
+                    retryAttempt: 0
                 )
             }, candidatesResult: nil)
     }
@@ -87,4 +88,28 @@ extension RelaySelectorStub {
                 throw NoRelaysSatisfyingConstraintsError(.relayConstraintNotMatching)
             })
     }
+
+    public static let selectedRelays = SelectedRelays(
+        entry: nil,
+        exit: SelectedRelay(
+            endpoint: SelectedEndpoint(
+                socketAddress: .ipv4(IPv4Endpoint(ip: .loopback, port: 42)),
+                ipv4Gateway: IPv4Address.loopback,
+                ipv6Gateway: IPv6Address.loopback,
+                publicKey: Data(),
+                obfuscation: .off
+            ),
+            hostname: "se-got-wg-001",
+            location: Location(
+                country: "Sweden",
+                countryCode: "se",
+                city: "Gothenburg",
+                cityCode: "got",
+                latitude: 42,
+                longitude: 42
+            ),
+            features: nil
+        ),
+        retryAttempt: 0
+    )
 }
