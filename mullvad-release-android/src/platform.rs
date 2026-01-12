@@ -10,9 +10,14 @@ use crate::{
     format::release::Release,
     format::response::AndroidReleases,
     io_util::{create_dir_and_write, wait_for_confirm},
+    platform,
 };
 
 /// Output used by `Platform::set_latest_stable`
+#[derive(serde::Serialize)]
+pub struct Platform {
+    pub android: LatestVersion,
+}
 #[derive(serde::Serialize)]
 pub struct LatestVersion {
     /// Stable version info
@@ -63,6 +68,34 @@ pub async fn pull(assume_yes: bool) -> anyhow::Result<()> {
     create_dir_and_write(&work_path, &json).await?;
 
     println!("Updated {}", work_path.display());
+    Ok(())
+}
+
+pub async fn pull_latest(assume_yes: bool) -> anyhow::Result<()> {
+    match HttpVersionInfoProvider::get_latest_versions_file().await {
+        Ok(json_str) => {
+            let work_path = platform::work_path_latest();
+
+            if !assume_yes && work_path.exists() {
+                let msg = format!(
+                    "This will replace the existing file at {}. Continue?",
+                    work_path.display()
+                );
+                if !wait_for_confirm(&msg).await {
+                    bail!("Aborted");
+                }
+            }
+
+            fs::write(&work_path, json_str)
+                .await
+                .context("Failed to write")?;
+
+            println!("Updated {}", work_path.display());
+        }
+        Err(err) => {
+            eprintln!("{err:?}");
+        }
+    }
     Ok(())
 }
 
@@ -161,11 +194,13 @@ pub async fn set_latest_stable(version: &mullvad_version::Version) -> anyhow::Re
     // Only set as latest if we have that version in the supported list
     if is_version_supported(version.clone(), &work_response) {
         // Currently we never set a beta latest version so there is no need to check the current latest beta so we always just set it to null. If we ever want to set the latest beta we need to parse the current file first.
-        let new_latest = LatestVersion {
-            stable: Version {
-                version: version.clone(),
+        let new_latest = Platform {
+            android: LatestVersion {
+                stable: Version {
+                    version: version.clone(),
+                },
+                beta: None,
             },
-            beta: None,
         };
         let json = serde_json::to_string_pretty(&new_latest)
             .context("Failed to serialize updated latest")?;
