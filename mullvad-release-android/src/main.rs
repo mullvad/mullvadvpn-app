@@ -68,22 +68,23 @@ async fn main() -> anyhow::Result<()> {
             if latest_file {
                 match HttpVersionInfoProvider::get_latest_versions_file().await {
                     Ok(json_str) => {
-                        let path_buf = data_dir::get_data_dir().join(LATEST_FILENAME);
-                        let path = path_buf.as_path();
+                        let work_path = platform::work_path_latest();
 
-                        if !assume_yes && path.exists() {
+                        if !assume_yes && work_path.exists() {
                             let msg = format!(
                                 "This will replace the existing file at {}. Continue?",
-                                path.display()
+                                work_path.display()
                             );
                             if !wait_for_confirm(&msg).await {
                                 bail!("Aborted");
                             }
                         }
 
-                        fs::write(path, json_str).await.context("Failed to write")?;
+                        fs::write(&work_path, json_str)
+                            .await
+                            .context("Failed to write")?;
 
-                        println!("Updated {}", path.display());
+                        println!("Updated {}", work_path.display());
                     }
                     Err(err) => {
                         eprintln!("{err:?}");
