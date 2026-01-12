@@ -1593,7 +1593,6 @@ name = "gotatun"
 version = "0.1.2"
 dependencies = [
  "aead",
- "async-trait",
  "base64 0.13.1",
  "bitfield-struct",
  "blake2",
@@ -1623,10 +1622,8 @@ dependencies = [
  "socket2 0.6.0",
  "thiserror 1.0.59",
  "tokio",
- "tracing",
  "tun 0.8.5",
  "typed-builder 0.21.0",
- "untrusted",
  "windows-sys 0.59.0",
  "x25519-dalek",
  "zerocopy",
