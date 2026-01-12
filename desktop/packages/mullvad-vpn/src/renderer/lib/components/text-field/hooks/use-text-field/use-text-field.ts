@@ -14,7 +14,7 @@ export type UseTextFieldState = {
   reset: () => void;
   focus: () => void;
   blur: () => void;
-  handleChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  handleOnValueChange: (newValue: string) => void;
   inputRef: React.RefObject<HTMLInputElement | null>;
 };
 
@@ -43,18 +43,16 @@ export function useTextField({
     inputRef.current?.blur();
   }, [inputRef]);
 
-  const handleChange = React.useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      const newValue = event.target.value;
+  const handleOnValueChange = React.useCallback(
+    (newValue: string) => {
       const formattedValue = format ? format(newValue) : newValue;
       const invalid = validate ? !validate(formattedValue) : false;
       setInvalid(invalid);
       setValue(formattedValue);
       setDirty(true);
     },
-
     [format, validate],
   );
 
-  return { value, invalid, dirty, reset, blur, focus, handleChange, inputRef };
+  return { value, invalid, dirty, reset, blur, focus, handleOnValueChange, inputRef };
 }
