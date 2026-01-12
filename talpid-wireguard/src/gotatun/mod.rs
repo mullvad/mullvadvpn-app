@@ -3,7 +3,7 @@ use crate::config::patch_allowed_ips;
 use crate::{
     Tunnel, TunnelError,
     config::Config,
-    stats::{Stats, StatsMap},
+    stats::{DaitaStats, Stats, StatsMap},
 };
 #[cfg(target_os = "android")]
 use gotatun::udp::UdpTransportFactory;
@@ -525,8 +525,14 @@ impl Tunnel for GotaTun {
                                     .stats
                                     .last_handshake
                                     .map(|duration_since| SystemTime::now() - duration_since),
-                                // FIXME
-                                daita: None,
+                                daita: peer.stats.daita.as_ref().map(|daita_stats| DaitaStats {
+                                    tx_padding_bytes: daita_stats.tx_padding_bytes as u64,
+                                    tx_padding_packet_bytes: daita_stats.tx_padding_packet_bytes
+                                        as u64,
+                                    rx_padding_bytes: daita_stats.rx_padding_bytes as u64,
+                                    rx_padding_packet_bytes: daita_stats.rx_padding_packet_bytes
+                                        as u64,
+                                }),
                             };
                             (peer.public_key.to_bytes(), stats)
                         })
