@@ -4,7 +4,7 @@ import { spacings } from '../../../../foundations';
 import { FlexProps } from '../../../flex';
 import { StyledIconButtonIcon } from '../../../icon-button/components';
 import { StyledText } from '../../../text';
-import { StyledTextField } from '../../../text-field/components';
+import { StyledTextField } from '../../../text-field';
 
 export type ListItemActionProps = FlexProps;
 
