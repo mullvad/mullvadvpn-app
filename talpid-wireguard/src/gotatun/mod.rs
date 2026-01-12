@@ -417,7 +417,7 @@ async fn configure_devices(
             daita.is_some()
         );
 
-        let exit_peer = to_gotatun_peer(&exit_peer, daita);
+        let exit_peer = to_gotatun_peer(exit_peer, daita);
 
         let Devices::Multihop {
             entry_device,
@@ -476,7 +476,7 @@ async fn configure_devices(
             .write(async |device| {
                 device.clear_peers();
                 device.set_private_key(private_key).await;
-                device.add_peer(peer.into());
+                device.add_peer(peer);
                 #[cfg(target_os = "linux")]
                 if let Some(fwmark) = config.fwmark {
                     device.set_fwmark(fwmark)?;
@@ -546,14 +546,14 @@ impl Tunnel for GotaTun {
         }
 
         let stats = match self.devices.as_ref().unwrap() {
-            Devices::Singlehop { device } => get_stats(&device).await,
+            Devices::Singlehop { device } => get_stats(device).await,
             Devices::Multihop {
                 entry_device,
                 exit_device,
                 ..
             } => {
-                let mut stats = get_stats(&entry_device).await;
-                stats.extend(get_stats(&exit_device).await);
+                let mut stats = get_stats(entry_device).await;
+                stats.extend(get_stats(exit_device).await);
                 stats
             }
         };
