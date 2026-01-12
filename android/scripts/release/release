@@ -105,7 +105,6 @@ function set_latest_stable_version {
 
     local work_dir="$DATA_DIR/work/"
     local published_dir="$DATA_DIR/currently_published/"
-    local latest_filename="latest.json"
 
     local mullvad_release="cargo run -q --package mullvad-release-android --"
 
@@ -118,16 +117,16 @@ function set_latest_stable_version {
     $mullvad_release pull --assume-yes --latest-file
 
     log_header "Backing up released data"
-    cp -r "$DATA_DIR/$latest_filename" "$published_dir/$latest_filename"
+    cp -r "$work_dir" "$published_dir"
 
-    log_header "Set stable $version in $latest_filename"
+    log_header "Set stable $version in latest.json"
     $mullvad_release set-latest-stable-version "$version"
 
     log_header "New latest file"
-    git --no-pager diff --no-index -- "$published_dir/$latest_filename" "$work_dir/$latest_filename" || true
+    git --no-pager diff --no-index -- "$published_dir" "$work_dir" || true
 
     read -rp "Press enter to upload if the diffs look good "
-    ./publish-metadata-to-api "$upload_dir" "$BUILDSERVER_HOST" "$METADATA_SERVER_HOST"
+    ./publish-metadata-to-api "$work_dir" "$BUILDSERVER_HOST" "$METADATA_SERVER_HOST"
 }
 
 function remove_release {
