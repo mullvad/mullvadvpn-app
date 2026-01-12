@@ -1,21 +1,12 @@
 //! See [Opt].
 
-use anyhow::{Context, bail};
 use clap::Parser;
-use tokio::fs;
-
-use crate::io_util::wait_for_confirm;
-
-use client::api::HttpVersionInfoProvider;
 
 mod client;
 mod data_dir;
 mod format;
 mod io_util;
 mod platform;
-
-/// Filename for latest.json metadata
-const LATEST_FILENAME: &str = "latest.json";
 
 /// A tool that generates Mullvad version metadata for Android.
 #[derive(Parser)]
@@ -66,30 +57,7 @@ async fn main() -> anyhow::Result<()> {
 
             // Download latest.json metadata if available
             if latest_file {
-                match HttpVersionInfoProvider::get_latest_versions_file().await {
-                    Ok(json_str) => {
-                        let work_path = platform::work_path_latest();
-
-                        if !assume_yes && work_path.exists() {
-                            let msg = format!(
-                                "This will replace the existing file at {}. Continue?",
-                                work_path.display()
-                            );
-                            if !wait_for_confirm(&msg).await {
-                                bail!("Aborted");
-                            }
-                        }
-
-                        fs::write(&work_path, json_str)
-                            .await
-                            .context("Failed to write")?;
-
-                        println!("Updated {}", work_path.display());
-                    }
-                    Err(err) => {
-                        eprintln!("{err:?}");
-                    }
-                }
+                platform::pull_latest(assume_yes).await?;
             }
 
             Ok(())
