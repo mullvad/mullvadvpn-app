@@ -5,8 +5,8 @@ import { TestUtils } from '../../utils';
 import { createSelectors } from './selectors';
 
 export class SelectLocationRouteObjectModel {
+  public readonly selectors: ReturnType<typeof createSelectors>;
   private readonly utils: TestUtils;
-  private readonly selectors: ReturnType<typeof createSelectors>;
 
   constructor(page: Page, util: TestUtils) {
     this.utils = util;
@@ -18,26 +18,6 @@ export class SelectLocationRouteObjectModel {
     if ((await expandAccordion.count()) > 0) {
       await expandAccordion.click();
     }
-  }
-
-  getEntryButton() {
-    return this.selectors.entryButton();
-  }
-
-  getExitButton() {
-    return this.selectors.exitButton();
-  }
-
-  getSearchInput() {
-    return this.selectors.searchInput();
-  }
-
-  getRelaysMatching(relayNames: string[]) {
-    return this.selectors.relaysMatching(relayNames);
-  }
-
-  getFilterChip(label: string) {
-    return this.selectors.filterChip(label);
   }
 
   async gotoFilter() {
