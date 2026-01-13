@@ -50,38 +50,30 @@ class MapConnectionStatusOperation: AsyncOperation, @unchecked Sendable {
             fetchTunnelStatus(tunnel: tunnel) { observedState in
                 switch observedState {
                 case let .connected(connectionState):
-                    return connectionState.isNetworkReachable
-                        ? .connected(
-                            connectionState.selectedRelays,
-                            isPostQuantum: connectionState.isPostQuantum,
-                            isDaita: connectionState.isDaitaEnabled
-                        )
-                        : .waitingForConnectivity(.noConnection)
+                    return .connected(
+                        connectionState.selectedRelays,
+                        isPostQuantum: connectionState.isPostQuantum,
+                        isDaita: connectionState.isDaitaEnabled
+                    )
                 case let .connecting(connectionState):
-                    return connectionState.isNetworkReachable
-                        ? .connecting(
-                            connectionState.selectedRelays,
-                            isPostQuantum: connectionState.isPostQuantum,
-                            isDaita: connectionState.isDaitaEnabled
-                        )
-                        : .waitingForConnectivity(.noConnection)
+                    return .connecting(
+                        connectionState.selectedRelays,
+                        isPostQuantum: connectionState.isPostQuantum,
+                        isDaita: connectionState.isDaitaEnabled
+                    )
                 case let .negotiatingEphemeralPeer(connectionState, privateKey):
-                    return connectionState.isNetworkReachable
-                        ? .negotiatingEphemeralPeer(
-                            connectionState.selectedRelays,
-                            privateKey,
-                            isPostQuantum: connectionState.isPostQuantum,
-                            isDaita: connectionState.isDaitaEnabled
-                        )
-                        : .waitingForConnectivity(.noConnection)
+                    return .negotiatingEphemeralPeer(
+                        connectionState.selectedRelays,
+                        privateKey,
+                        isPostQuantum: connectionState.isPostQuantum,
+                        isDaita: connectionState.isDaitaEnabled
+                    )
                 case let .reconnecting(connectionState):
-                    return connectionState.isNetworkReachable
-                        ? .reconnecting(
-                            connectionState.selectedRelays,
-                            isPostQuantum: connectionState.isPostQuantum,
-                            isDaita: connectionState.isDaitaEnabled
-                        )
-                        : .waitingForConnectivity(.noConnection)
+                    return .reconnecting(
+                        connectionState.selectedRelays,
+                        isPostQuantum: connectionState.isPostQuantum,
+                        isDaita: connectionState.isDaitaEnabled
+                    )
                 case let .error(blockedState):
                     return .error(blockedState.reason)
                 case .initial, .disconnecting, .disconnected:
