@@ -2,6 +2,7 @@ use std::cmp::Ordering;
 
 use anyhow::Context;
 use itertools::Itertools;
+use mullvad_version::PreStableType;
 
 use crate::format::installer::Installer;
 use crate::format::release::Release;
@@ -86,40 +87,24 @@ impl VersionInfo {
                 })
         }).try_collect()?;
 
-        Self::try_from_metadata(available_versions)
-    }
-
-    pub fn try_from_metadata(available_versions: Vec<Metadata>) -> anyhow::Result<Self> {
-        let (stable, beta) =
-            Self::find_latest_versions(available_versions.into_iter(), |release| &release.version)?;
-        Ok(Self { stable, beta })
-    }
-
-    /// Return the pair of latest stable and beta versions
-    pub fn find_latest_versions<T: Clone>(
-        iter: impl Iterator<Item = T> + Clone,
-        version_from_elem: impl Fn(&T) -> &mullvad_version::Version,
-    ) -> anyhow::Result<(T, Option<T>)> {
         // Find latest stable version
-        let stable = iter
-            .clone()
-            .filter(|e| version_from_elem(e).is_stable())
-            .max_by(|a, b| {
-                version_from_elem(a)
-                    .partial_cmp(version_from_elem(b))
-                    .unwrap_or(Ordering::Equal)
-            })
-            .context("No stable version found")?;
+        let stable = available_versions
+            .iter()
+            .filter(|release| release.version.pre_stable.is_none())
+            .max_by(|a, b| a.version.partial_cmp(&b.version).unwrap_or(Ordering::Equal))
+            .context("No stable version found")?
+            .clone();
 
         // Find the latest beta version
-        let beta = iter
-            .filter(|e| version_from_elem(e).is_beta())
-            .filter(|e| !version_from_elem(e).is_dev())
+        let beta = available_versions
+            .iter()
+            .filter(|release| matches!(release.version.pre_stable, Some(PreStableType::Beta(_))))
             // If the latest beta version is older than latest stable, dispose of it
-            .filter(|e| version_from_elem(e) > version_from_elem(&stable))
-            .max_by(|a, b| version_from_elem(a).partial_cmp(version_from_elem(b)).unwrap_or(Ordering::Equal));
+            .filter(|release| release.version > stable.version)
+            .max_by(|a, b| a.version.partial_cmp(&b.version).unwrap_or(Ordering::Equal))
+            .cloned();
 
-        Ok((stable, beta))
+        Ok(Self { stable, beta })
     }
 }
 

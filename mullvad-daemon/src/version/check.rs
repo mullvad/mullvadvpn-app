@@ -42,12 +42,8 @@ const DOWNLOAD_TIMEOUT: Duration = Duration::from_secs(15);
 /// After this one, we wait [UPDATE_INTERVAL] between checks.
 const FIRST_CHECK_INTERVAL: Duration = Duration::from_secs(5);
 /// How long to wait between version checks, regardless of whether they succeed
-#[cfg(not(target_os = "android"))]
 const UPDATE_INTERVAL: Duration = Duration::from_hours(1);
-/// How long to wait between version checks, regardless of whether they succeed
-// On Android, be more conservative since we use old endpoint. Retry at most once per 6 hours.
-#[cfg(target_os = "android")]
-const UPDATE_INTERVAL: Duration = Duration::from_hours(6);
+
 /// Wait this long before sending platform metadata in check
 /// `M-Platform-Version` should only be sent once per 24h to make statistics predictable.
 const PLATFORM_HEADER_INTERVAL: Duration = Duration::from_hours(24);
@@ -159,6 +155,16 @@ impl VersionUpdaterInner {
             };
         }
         new_version_info
+    }
+
+    /// Return when the last successful check including platform headers was made.
+    ///
+    /// This should occur every [PLATFORM_HEADER_INTERVAL].
+    #[cfg(test)]
+    fn last_platform_check(&self) -> Option<SystemTime> {
+        self.last_app_version_info
+            .as_ref()
+            .map(|info| info.last_platform_header_check)
     }
 
     /// Return a future that resolves after [UPDATE_INTERVAL].
@@ -602,6 +608,58 @@ mod test {
             metadata_version: 0,
             etag: None,
         }
+    }
+
+    #[test]
+    fn test_version_unknown_is_stale() {
+        let checker = VersionUpdaterInner::default();
+        assert!(checker.last_app_version_info.is_none());
+        assert!(should_include_platform_headers(
+            checker.last_platform_check()
+        ));
+    }
+
+    /// If the last checked time is in the future, the version is stale
+    #[test]
+    fn test_version_cache_in_future_is_stale() {
+        let checker = VersionUpdaterInner {
+            last_app_version_info: Some(VersionCache {
+                last_platform_header_check: SystemTime::now() + Duration::from_secs(1),
+                ..dev_version_cache()
+            }),
+        };
+        assert!(should_include_platform_headers(
+            checker.last_platform_check()
+        ));
+    }
+
+    /// If we have a cached version that's less than `PLATFORM_HEADER_INTERVAL` old, do not include platform headers
+    #[test]
+    fn test_version_actual_non_stale() {
+        let checker = VersionUpdaterInner {
+            last_app_version_info: Some(VersionCache {
+                last_platform_header_check: SystemTime::now() - PLATFORM_HEADER_INTERVAL
+                    + Duration::from_secs(1),
+                ..dev_version_cache()
+            }),
+        };
+        assert!(!should_include_platform_headers(
+            checker.last_platform_check()
+        ));
+    }
+
+    /// If `PLATFORM_HEADER_INTERVAL` has elapsed, the check should include platform headers
+    #[test]
+    fn test_version_actual_stale() {
+        let checker = VersionUpdaterInner {
+            last_app_version_info: Some(VersionCache {
+                last_platform_header_check: SystemTime::now() - PLATFORM_HEADER_INTERVAL,
+                ..dev_version_cache()
+            }),
+        };
+        assert!(should_include_platform_headers(
+            checker.last_platform_check()
+        ));
     }
 
     /// Platform timestamp and etag must be updated even if metadata version is unchanged
