@@ -20,11 +20,11 @@ import WireGuardKitTypes
 
 /// Interval used for periodic polling of tunnel relay status when tunnel is establishing
 /// connection.
-private let establishingTunnelStatusPollInterval: Duration = .milliseconds(100)
+private let establishingTunnelStatusPollInterval: Duration = .milliseconds(250)
 
 /// Interval used for periodic polling of tunnel connectivity status once the tunnel connection
 /// is established.
-private let establishedTunnelStatusPollInterval: Duration = .milliseconds(100)
+private let establishedTunnelStatusPollInterval: Duration = .milliseconds(250)
 
 /// A class that provides a convenient interface for VPN tunnels configuration, manipulation and
 /// monitoring.
