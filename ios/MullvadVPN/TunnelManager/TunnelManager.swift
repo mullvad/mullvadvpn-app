@@ -724,26 +724,14 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
             lastPacketTunnelKeyRotation = newPacketTunnelKeyRotation
             refreshDeviceState()
         }
-        switch _tunnelStatus.state {
-        case .connecting, .reconnecting, .negotiatingEphemeralPeer:
-            // Start polling tunnel status to keep the relay information up to date
-            // while the tunnel process is trying to connect.
-            startPollingTunnelStatus(interval: establishingTunnelStatusPollInterval)
-
-        case .connected, .waitingForConnectivity(.noConnection), .waitingForConnectivity(.noNetwork):
-            // Start polling tunnel status to keep connectivity status up to date.
-            startPollingTunnelStatus(interval: establishedTunnelStatusPollInterval)
-
-        case .pendingReconnect, .disconnecting, .disconnected:
-            // Stop polling tunnel status once connection moved to final state.
-            cancelPollingTunnelStatus()
-
-        case let .error(blockedStateReason):
-            if !blockedStateReason.recoverableError() {
-                handleBlockedState(reason: blockedStateReason)
-                cancelPollingTunnelStatus()
-            }
+        // Handle unrecoverable blocked states
+        if case let .error(blockedStateReason) = _tunnelStatus.state,
+           !blockedStateReason.recoverableError() {
+            handleBlockedState(reason: blockedStateReason)
         }
+
+        // Note: Polling is now controlled by updatePollingFromVPNStatus() based on
+        // NEVPNStatus directly, not the derived tunnelStatus.state.
 
         DispatchQueue.main.async {
             self.observerList.notify { observer in
@@ -886,6 +874,10 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
                     self.startNetworkMonitor()
                 }
 
+                // Control polling based on NEVPNStatus directly (the source of truth),
+                // not the derived tunnelStatus.state which can be stale.
+                self.updatePollingFromVPNStatus(status)
+
                 self.updateTunnelStatus(status)
             }
     }
@@ -971,8 +963,8 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
         )
 
         // Cancel last VPN status mapping operation
-        lastMapConnectionStatusOperation?.cancel()
-        lastMapConnectionStatusOperation = operation
+//        lastMapConnectionStatusOperation?.cancel()
+//        lastMapConnectionStatusOperation = operation
 
         operationQueue.addOperation(operation)
     }
@@ -1090,6 +1082,21 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
         tunnelStatusPollTimer?.cancel()
         tunnelStatusPollTimer = nil
         isPolling = false
+    }
+
+    /// Update polling state based on NEVPNStatus (the source of truth).
+    /// Poll continuously while tunnel is not disconnected/invalid.
+    private func updatePollingFromVPNStatus(_ status: NEVPNStatus) {
+        switch status {
+        case .connecting, .reasserting:
+            startPollingTunnelStatus(interval: establishingTunnelStatusPollInterval)
+        case .connected:
+            startPollingTunnelStatus(interval: establishedTunnelStatusPollInterval)
+        case .disconnecting, .disconnected, .invalid:
+            cancelPollingTunnelStatus()
+        @unknown default:
+            break
+        }
     }
 
     fileprivate func removeLastUsedAccount() {
