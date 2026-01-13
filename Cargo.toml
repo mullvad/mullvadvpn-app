@@ -6,10 +6,6 @@ edition = "2024"
 # Must be less than or equal to `channel` in `rust-toolchain.toml`
 rust-version = "1.91.0"
 
-[patch.crates-io.gotatun]
-git = "https://github.com/mullvad/gotatun"
-branch = "improve-api"
-
 [workspace]
 resolver = "2"
 exclude = [ "ci/ios/test-router/raas" ]
