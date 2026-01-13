@@ -826,7 +826,12 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
     }
 
     private func didUpdateNetworkPath(_ path: Network.NWPath) {
-        updateTunnelStatus(tunnel?.status ?? .disconnected)
+        // Only act on network path updates when VPN is disconnected.
+        // When VPN is up, the packet tunnel handles network changes internally.
+        let status = tunnel?.status ?? .disconnected
+        guard [.disconnected, .invalid].contains(status) else { return }
+
+        updateTunnelStatus(status)
     }
 
     fileprivate func prepareForVPNConfigurationDeletion() {
@@ -875,10 +880,10 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
 
                 self.logger.debug("VPN connection status changed to \(status).")
 
-                if [.disconnected, .invalid].contains(tunnel.status) {
+                // Ensure network monitor is running. We keep it running continuously
+                // but only act on its updates when VPN is disconnected.
+                if self.networkMonitor == nil {
                     self.startNetworkMonitor()
-                } else {
-                    self.cancelNetworkMonitor()
                 }
 
                 self.updateTunnelStatus(status)
