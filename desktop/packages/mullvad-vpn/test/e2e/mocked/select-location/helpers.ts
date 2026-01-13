@@ -13,7 +13,7 @@ import { RoutePath } from '../../../../src/shared/routes';
 import { RoutesObjectModel } from '../../route-object-models';
 import { MockedTestUtils } from '../mocked-utils';
 
-export type LocatedRelay = {
+export type RelaySelectionPath = {
   country: IRelayListCountry;
   city: IRelayListCity;
   relay: IRelayListHostname;
@@ -27,52 +27,85 @@ export const createHelpers = (page: Page, routes: RoutesObjectModel, utils: Mock
     );
   };
 
-  const expandLocatedRelays = async (locatedRelays: LocatedRelay[]) => {
+  const expandLocatedRelays = async (locatedRelays: RelaySelectionPath[]) => {
     for (const locatedRelay of locatedRelays) {
       await routes.selectLocation.toggleAccordion(locatedRelay.country.name);
       await routes.selectLocation.toggleAccordion(locatedRelay.city.name);
     }
   };
 
-  const locateRelaysByHostnames = (relayList: IRelayList, hostnames: string[]): LocatedRelay[] => {
+  const toSelectionPaths = (relayList: IRelayList): RelaySelectionPath[] => {
     return relayList.countries.flatMap((country) =>
-      country.cities.flatMap((city) =>
-        city.relays
-          .filter((relay) => hostnames.includes(relay.hostname))
-          .map((relay) => ({ country, city, relay })),
-      ),
+      country.cities.flatMap((city) => city.relays.map((relay) => ({ country, city, relay }))),
     );
   };
 
-  const locateRelaysByProvider = (relayList: IRelayList, provider?: string): LocatedRelay[] =>
-    relayList.countries.flatMap((country) =>
-      country.cities.flatMap((city) =>
-        city.relays
-          .filter((relay) => !provider || relay.provider === provider)
-          .map((relay) => ({ country, city, relay })),
-      ),
-    );
+  const getRelaysByHostnames = (relayList: IRelayList, hostnames: string[]): IRelayList => {
+    return {
+      countries: relayList.countries
+        .map((country) => ({
+          ...country,
+          cities: country.cities
+            .map((city) => ({
+              ...city,
+              relays: city.relays.filter((relay) => hostnames.includes(relay.hostname)),
+            }))
+            .filter((city) => city.relays.length > 0),
+        }))
+        .filter((country) => country.cities.length > 0),
+    };
+  };
 
-  const locateRelaysByOwner = (relayList: IRelayList, owned?: boolean): LocatedRelay[] =>
-    relayList.countries.flatMap((country) =>
-      country.cities.flatMap((city) =>
-        city.relays
-          .filter((relay) => relay.owned === owned)
-          .map((relay) => ({ country, city, relay })),
-      ),
-    );
+  const getRelaysByProvider = (relayList: IRelayList, provider: string): IRelayList => {
+    return {
+      countries: relayList.countries
+        .map((country) => ({
+          ...country,
+          cities: country.cities
+            .map((city) => ({
+              ...city,
+              relays: city.relays.filter((relay) => relay.provider === provider),
+            }))
+            .filter((city) => city.relays.length > 0),
+        }))
+        .filter((country) => country.cities.length > 0),
+    };
+  };
 
-  const locateRelaysByObfuscation = (
+  const getRelaysByOwner = (relayList: IRelayList, owned: boolean): IRelayList => {
+    return {
+      countries: relayList.countries
+        .map((country) => ({
+          ...country,
+          cities: country.cities
+            .map((city) => ({
+              ...city,
+              relays: city.relays.filter((relay) => relay.owned === owned),
+            }))
+            .filter((city) => city.relays.length > 0),
+        }))
+        .filter((country) => country.cities.length > 0),
+    };
+  };
+
+  const getRelaysByObfuscation = (
     relayList: IRelayList,
     relayCondition: (relay: IRelayListHostname) => boolean,
-  ): LocatedRelay[] =>
-    relayList.countries.flatMap((country) =>
-      country.cities.flatMap((city) =>
-        city.relays
-          .filter((relay) => relayCondition(relay))
-          .map((relay) => ({ country, city, relay })),
-      ),
-    );
+  ): IRelayList => {
+    return {
+      countries: relayList.countries
+        .map((country) => ({
+          ...country,
+          cities: country.cities
+            .map((city) => ({
+              ...city,
+              relays: city.relays.filter((relay) => relayCondition(relay)),
+            }))
+            .filter((city) => city.relays.length > 0),
+        }))
+        .filter((country) => country.cities.length > 0),
+    };
+  };
 
   const resetOwnership = async () => {
     await routes.filter.expandOwnership();
@@ -142,7 +175,7 @@ export const createHelpers = (page: Page, routes: RoutesObjectModel, utils: Mock
     return settings;
   };
 
-  const updateEntryLocation = async (relay: LocatedRelay, settings?: ISettings) => {
+  const updateEntryLocation = async (relay: RelaySelectionPath, settings?: ISettings) => {
     if (!settings) {
       settings = getDefaultSettings();
     }
@@ -164,10 +197,11 @@ export const createHelpers = (page: Page, routes: RoutesObjectModel, utils: Mock
   return {
     areAllCheckboxesChecked,
     expandLocatedRelays,
-    locateRelaysByHostnames,
-    locateRelaysByProvider,
-    locateRelaysByOwner,
-    locateRelaysByObfuscation,
+    toSelectionPaths,
+    getRelaysByHostnames,
+    getRelaysByOwner,
+    getRelaysByProvider,
+    getRelaysByObfuscation,
     resetOwnership,
     resetProviders,
     resetView,
