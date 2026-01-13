@@ -148,6 +148,10 @@ public actor PacketTunnelActor {
     }
 
     private func handleRestartConnection(nextRelays: NextRelays, reason: ActorReconnectReason) async {
+        if case let .error(blockedState) = self.state, case .offline = blockedState.reason, reason != .restoredConnectivity {
+            logger.debug("Ignore reconnection command due to being offline")
+            return
+        }
         do {
             try await tryStart(nextRelays: nextRelays, reason: reason)
         } catch {
@@ -196,7 +200,10 @@ public actor PacketTunnelActor {
             errorState.reason
                 .recoverableError()
         {
-            await handleRestartConnection(nextRelays: .random, reason: .userInitiated)
+            await handleRestartConnection(
+                nextRelays: .random,
+                reason: .restoredConnectivity
+            )
             return
         }
 
