@@ -58,6 +58,7 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
     private weak var lastMapConnectionStatusOperation: Operation?
     private let observerList = ObserverList<TunnelObserver>()
     private var networkMonitor: NWPathMonitor?
+    private var pendingNetworkPathUpdate: DispatchWorkItem?
     private let relaySelector: RelaySelectorProtocol
 
     private var pendingNetworkPathUpdate: DispatchWorkItem?
