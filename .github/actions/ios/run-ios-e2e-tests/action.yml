@@ -73,6 +73,7 @@ runs:
         TEST_DEVICE_UDID: ${{ inputs.test_device_udid }}
 
     - name: Set artifact name with branch and timestamp
+      if: always()
       run: |
         BRANCH_NAME="${{ github.ref_name }}"
         # Sanitize branch name by replacing slashes and other special characters
