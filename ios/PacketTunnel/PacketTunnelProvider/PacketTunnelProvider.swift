@@ -159,42 +159,27 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
         completionHandler: @escaping @Sendable ((any Error)?) -> Void
     ) {
         let startOptions = parseStartOptions(options ?? [:])
-
+        
         startObservingActorState()
-
+        
         // Run device check during tunnel startup.
         // This check is allowed to push new key to server if there are some issues with it.
         startDeviceCheck(rotateKeyOnMismatch: true)
-
-        actor.start(options: startOptions)
-
-        Task {
-            for await state in await actor.observedStates {
-                switch state {
-                case .connected, .disconnected, .error:
-                    completionHandler(nil)
-                    return
-                case let .connecting(connectionState):
-                    // Give the tunnel a few tries to connect, otherwise return immediately. This will enable VPN in
-                    // device settings, but the app will still report the true state via ObservedState over IPC.
-                    // In essence, this prevents the 60s tunnel timeout to trigger.
-                    if connectionState.connectionAttemptCount > 1 {
-                        completionHandler(nil)
-                        return
-                    }
-                case .negotiatingEphemeralPeer:
-                    // When negotiating ephemeral peers, allow the connection to go through immediately.
-                    // Otherwise, the in-tunnel TCP connection will never become ready as the OS doesn't let
-                    // any traffic through until this function returns, which would prevent negotiating ephemeral peers
-                    // from an unconnected state.
-                    completionHandler(nil)
-                    return
-                default:
-                    completionHandler(nil)
-                    return
+        
+        setTunnelNetworkSettings(
+            initialTunnelNetworkSettings(),
+            completionHandler: { error in
+                completionHandler(error)
+                if let error {
+                    self.providerLogger
+                        .error(
+                            "Failed to configure tunnel with initial config: \(error)"
+                        )
+                } else {
+                    self.providerLogger.debug("Starting actor after initial configuration is applied")
+                    self.actor.start(options: startOptions)
                 }
-            }
-        }
+            })
     }
 
     override func stopTunnel(with reason: NEProviderStopReason) async {
@@ -297,6 +282,28 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
             accessMethodsDataSource: accessMethodRepository.accessMethodsPublisher,
             requestDataSource: accessMethodRepository.requestAccessMethodPublisher
         )
+    }
+
+    private func initialTunnelNetworkSettings() -> NETunnelNetworkSettings {
+                let settings = NEPacketTunnelNetworkSettings(tunnelRemoteAddress: "127.0.0.1")
+
+                // IPv4 settings
+                let ipv4Settings = NEIPv4Settings(
+                    addresses: ["10.64.0.1"],
+                    subnetMasks: ["255.255.255.255"]
+                )
+                ipv4Settings.includedRoutes = [NEIPv4Route.default()]
+                settings.ipv4Settings = ipv4Settings
+
+                // IPv6 settings
+                let ipv6Settings = NEIPv6Settings(
+                    addresses: ["fc00::1"],
+                    networkPrefixLengths: [128]
+                )
+                ipv6Settings.includedRoutes = [NEIPv6Route.default()]
+                settings.ipv6Settings = ipv6Settings
+
+                return settings
     }
 }
 
