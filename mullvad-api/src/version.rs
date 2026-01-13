@@ -1,3 +1,4 @@
+use super::rest;
 #[cfg(target_os = "android")]
 use anyhow::Context;
 use http::StatusCode;
@@ -6,18 +7,20 @@ use http::header;
 use mullvad_release_android::format::response::AndroidReleases;
 #[cfg(target_os = "android")]
 use mullvad_release_android::platform::is_version_supported;
+use mullvad_update::format::Architecture;
 #[cfg(not(target_os = "android"))]
 use mullvad_update::format::response::SignedResponse;
+#[cfg(not(target_os = "android"))]
+use mullvad_update::is_version_supported;
 #[cfg(target_os = "android")]
 use mullvad_update::version::Metadata;
 use mullvad_update::version::VersionInfo;
-#[cfg(not(target_os = "android"))]
-use mullvad_update::version::{Rollout, VersionParameters, is_version_supported};
+use mullvad_update::version::{Rollout, VersionParameters};
 use std::future::Future;
 use std::str::FromStr;
 use std::sync::Arc;
 
-use super::rest;
+use std::cmp::Ordering;
 
 #[derive(Clone)]
 pub struct AppVersionProxy {
@@ -169,7 +172,7 @@ impl AppVersionProxy {
                 .collect::<Vec<_>>();
 
             Ok(Some(AppVersionResponse {
-                version_info: VersionInfo::try_from_metadata(params)
+                version_info: try_from_metadata(params)
                     .map_err(Arc::new)
                     .map_err(rest::Error::FetchVersions)?,
                 current_version_supported,
@@ -190,6 +193,42 @@ impl AppVersionProxy {
                 }
             })
     }
+}
+
+/// Helper method for android to figure out the latest stable and beta version
+/// This is a scaled down version to the desktop one as it does not need to worry about rollout etc.
+#[cfg(target_os = "android")]
+fn try_from_metadata(available_versions: Vec<Metadata>) -> anyhow::Result<VersionInfo> {
+    let (stable, beta) =
+        find_latest_versions(available_versions.into_iter(), |release| &release.version)?;
+    Ok(VersionInfo { stable, beta })
+}
+
+#[cfg(target_os = "android")]
+fn find_latest_versions<T: Clone>(
+    iter: impl Iterator<Item = T> + Clone,
+    version_from_elem: impl Fn(&T) -> &mullvad_version::Version,
+) -> anyhow::Result<(T, Option<T>)> {
+    // Find latest stable version
+    let stable = iter
+        .clone()
+        .filter(|e| version_from_elem(e).is_stable())
+        .max_by(|a, b| {
+            version_from_elem(a)
+                .partial_cmp(version_from_elem(b))
+                .unwrap_or(Ordering::Equal)
+        })
+        .context("No stable version found")?;
+
+    // Find the latest beta version
+    let beta = iter
+        .filter(|e| version_from_elem(e).is_beta())
+        .filter(|e| !version_from_elem(e).is_dev())
+        // If the latest beta version is older than latest stable, dispose of it
+        .filter(|e| version_from_elem(e) > version_from_elem(&stable))
+        .max_by(|a, b| version_from_elem(a).partial_cmp(version_from_elem(b)).unwrap_or(Ordering::Equal));
+
+    Ok((stable, beta))
 }
 
 // This function makes a string conform to the allowed characters and length of header values.
