@@ -58,6 +58,7 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
     private weak var lastMapConnectionStatusOperation: Operation?
     private let observerList = ObserverList<TunnelObserver>()
     private var networkMonitor: NWPathMonitor?
+    private var pendingNetworkPathUpdate: DispatchWorkItem?
     private let relaySelector: RelaySelectorProtocol
 
     private var privateKeyRotationTimer: DispatchSourceTimer?
@@ -887,13 +888,27 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
 
         networkMonitor = NWPathMonitor()
         networkMonitor?.pathUpdateHandler = { [weak self] path in
-            self?.didUpdateNetworkPath(path)
+            self?.scheduleNetworkPathUpdate(path)
         }
 
         networkMonitor?.start(queue: internalQueue)
     }
 
+    /// Schedule a network path update with a 1-second delay to debounce rapid changes.
+    private func scheduleNetworkPathUpdate(_ path: Network.NWPath) {
+        pendingNetworkPathUpdate?.cancel()
+
+        let workItem = DispatchWorkItem { [weak self] in
+            self?.didUpdateNetworkPath(path)
+        }
+        pendingNetworkPathUpdate = workItem
+
+        internalQueue.asyncAfter(deadline: .now() + .seconds(1), execute: workItem)
+    }
+
     private func cancelNetworkMonitor() {
+        pendingNetworkPathUpdate?.cancel()
+        pendingNetworkPathUpdate = nil
         networkMonitor?.pathUpdateHandler = nil
         networkMonitor?.cancel()
         networkMonitor = nil
