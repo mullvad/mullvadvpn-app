@@ -684,7 +684,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "117725a109d387c937a1533ce01b450cbde6b88abceea8473c4d7a85853cda3c"
 dependencies = [
  "lazy_static",
- "windows-sys 0.59.0",
+ "windows-sys 0.48.0",
 ]
 
 [[package]]
@@ -1107,7 +1107,7 @@ dependencies = [
  "libc",
  "option-ext",
  "redox_users",
- "windows-sys 0.61.2",
+ "windows-sys 0.60.2",
 ]
 
 [[package]]
@@ -1591,7 +1591,7 @@ checksum = "a8d1add55171497b4705a648c6b583acafb01d58050a51727785f0b2c8e0a2b2"
 [[package]]
 name = "gotatun"
 version = "0.1.2"
-source = "git+https://github.com/mullvad/gotatun?branch=improve-api#8b3ddaf1c67532576c70e4584a6350322c2063cc"
+source = "git+https://github.com/mullvad/gotatun?branch=improve-api#b791086cec2b457c8b67b36dc8bdaf863e008c7f"
 dependencies = [
  "aead",
  "base64 0.13.1",
@@ -1625,7 +1625,7 @@ dependencies = [
  "tokio",
  "tun 0.8.5",
  "typed-builder 0.21.0",
- "windows-sys 0.61.2",
+ "windows-sys 0.60.2",
  "x25519-dalek",
  "zerocopy",
 ]
