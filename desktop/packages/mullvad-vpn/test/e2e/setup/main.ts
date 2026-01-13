@@ -9,7 +9,6 @@ import {
   IAccountData,
   IAppVersionInfo,
   ILocation,
-  IWireguardEndpointData,
 } from '../../../src/shared/daemon-rpc-types';
 import { messages, relayLocations } from '../../../src/shared/gettext';
 import { IGuiSettingsState } from '../../../src/shared/gui-settings-state';
@@ -76,11 +75,6 @@ class ApplicationMain {
     mullvadExitIp: false,
   };
 
-  private wireguardEndpointData: IWireguardEndpointData = {
-    portRanges: [],
-    udp2tcpPorts: [],
-  };
-
   public constructor() {
     app.enableSandbox();
     app.on('ready', this.onReady);
@@ -138,7 +132,7 @@ class ApplicationMain {
       deviceState: this.deviceState,
       relayList: {
         relayList: mockData.relayList,
-        wireguardEndpointData: this.wireguardEndpointData,
+        wireguardEndpointData: mockData.wireguardEndpointData,
       },
       currentVersion: this.currentVersion,
       upgradeVersion: this.upgradeVersion,
