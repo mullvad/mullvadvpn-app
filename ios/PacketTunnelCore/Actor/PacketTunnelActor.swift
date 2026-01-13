@@ -88,7 +88,7 @@ public actor PacketTunnelActor {
     /**
      Spawn a detached task that consumes events from the channel indefinitely until the channel is closed.
      Events are processed one at a time, so no suspensions should affect the order of execution and thus guarantee transactional execution.
-    
+
      - Parameter channel: event channel.
      */
     private nonisolated func consumeEvents(channel: EventChannel) {
@@ -210,9 +210,9 @@ public actor PacketTunnelActor {
 extension PacketTunnelActor {
     /**
      Start the tunnel.
-    
+
      Can only be called once, all subsequent attempts are ignored. Use `reconnect()` if you wish to change relay.
-    
+
      - Parameter options: start options produced by packet tunnel
      */
     private func start(options: StartOptions) async {
@@ -261,7 +261,7 @@ extension PacketTunnelActor {
 
     /**
      Entry point for attempting to start the tunnel by performing the following steps:
-    
+
      - Read settings
      - Start either a direct connection or the post-quantum key negotiation process, depending on settings.
      */
@@ -289,14 +289,14 @@ extension PacketTunnelActor {
 
     /**
      Attempt to start a direct (non-quantum) connection to the tunnel by performing the following steps:
-    
+
      - Determine target state, it can either be `.connecting` or `.reconnecting`. (See `TargetStateForReconnect`)
      - Bail if target state cannot be determined. That means that the actor is past the point when it could logically connect or reconnect, i.e it can already be in
      `.disconnecting` state.
      - Configure tunnel adapter.
      - Start tunnel monitor.
      - Reactivate default path observation (disabled when configuring tunnel adapter)
-    
+
      - Parameters:
      - nextRelays: which relays should be selected next.
      - reason: reason for reconnect
@@ -338,12 +338,12 @@ extension PacketTunnelActor {
 
     /**
      Derive `ConnectionState` from current `state` updating it with new relays and settings.
-    
+
      - Parameters:
      - nextRelays: relay preference that should be used when selecting next relays.
      - settings: current settings
      - reason: reason for reconnect
-    
+
      - Returns: New connection state or `nil` if current state is at or past `.disconnecting` phase.
      */
     internal func makeConnectionState(
@@ -464,13 +464,13 @@ extension PacketTunnelActor {
 
     /**
      Select next relay to connect to based on `NextRelays` and other input parameters.
-    
+
      - Parameters:
      - nextRelays: next relays to connect to.
      - relayConstraints: relay constraints.
      - currentRelays: currently selected relays.
      - connectionAttemptCount: number of failed connection attempts so far.
-    
+
      - Returns: selector result that contains the credentials of the next relays that the tunnel should connect to.
      */
     private func selectRelays(
