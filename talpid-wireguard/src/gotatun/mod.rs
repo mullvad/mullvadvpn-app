@@ -320,7 +320,7 @@ async fn create_devices(
         //let (exit_api, exit_api_server) = ApiServer::new();
         let exit_device = DeviceBuilder::new()
             .with_udp(udp_channels)
-            .with_tun(tun_dev)
+            .with_ip(tun_dev)
             .build()
             .await
             .expect("fixme");
@@ -333,7 +333,7 @@ async fn create_devices(
         //let (entry_api, entry_api_server) = ApiServer::new();
         let entry_device = DeviceBuilder::new()
             .with_udp(udp_factory)
-            .with_tun_pair(tun_channel_tx, tun_channel_rx)
+            .with_ip_pair(tun_channel_tx, tun_channel_rx)
             .build()
             .await
             .expect("fixme");
@@ -347,7 +347,7 @@ async fn create_devices(
 
         let device: SinglehopDevice = DeviceBuilder::new()
             .with_udp(udp_factory)
-            .with_tun(tun_dev)
+            .with_ip(tun_dev)
             .build()
             .await
             .unwrap();
