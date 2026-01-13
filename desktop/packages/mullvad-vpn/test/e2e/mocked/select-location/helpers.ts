@@ -10,6 +10,7 @@ import {
   Ownership,
 } from '../../../../src/shared/daemon-rpc-types';
 import { RoutePath } from '../../../../src/shared/routes';
+import { mockData } from '../../mock-data';
 import { RoutesObjectModel } from '../../route-object-models';
 import { MockedTestUtils } from '../mocked-utils';
 
@@ -129,6 +130,22 @@ export const createHelpers = (page: Page, routes: RoutesObjectModel, utils: Mock
     }
   };
 
+  const search = async (term: string, result: IRelayList) => {
+    await routes.selectLocation.selectors.searchInput().fill(term);
+    await utils.ipc.relays[''].notify({
+      relayList: result,
+      wireguardEndpointData: mockData.wireguardEndpointData,
+    });
+  };
+
+  const clearSearch = async () => {
+    await routes.selectLocation.selectors.searchInput().fill('');
+    await utils.ipc.relays[''].notify({
+      relayList: mockData.relayList,
+      wireguardEndpointData: mockData.wireguardEndpointData,
+    });
+  };
+
   const updateMockRelayFilter = async ({
     ownership,
     providers,
@@ -205,6 +222,8 @@ export const createHelpers = (page: Page, routes: RoutesObjectModel, utils: Mock
     resetOwnership,
     resetProviders,
     resetView,
+    search,
+    clearSearch,
     updateMockRelayFilter,
     updateMockSettings,
     updateEntryLocation,

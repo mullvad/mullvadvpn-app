@@ -3,7 +3,7 @@ import { Page } from 'playwright';
 
 import { getDefaultSettings } from '../../../../src/main/default-settings';
 import { colorTokens } from '../../../../src/renderer/lib/foundations';
-import { ObfuscationType, Ownership } from '../../../../src/shared/daemon-rpc-types';
+import { IRelayList, ObfuscationType, Ownership } from '../../../../src/shared/daemon-rpc-types';
 import { RoutePath } from '../../../../src/shared/routes';
 import { mockData } from '../../mock-data';
 import { RoutesObjectModel } from '../../route-object-models';
@@ -36,9 +36,52 @@ test.describe('Select location', () => {
     await util?.closePage();
   });
 
-  test('Should focus search input on load', async () => {
-    const input = routes.selectLocation.selectors.searchInput();
-    await expect(input).toBeFocused();
+  test.describe('Search', () => {
+    test.afterEach(async () => {
+      await helpers.clearSearch();
+    });
+
+    test('Should focus search input on load', async () => {
+      const input = routes.selectLocation.selectors.searchInput();
+      await expect(input).toBeFocused();
+    });
+
+    test('Should show all relays when no search term is entered', async () => {
+      const relaySelectionPaths = helpers.toSelectionPaths(relayList);
+
+      await helpers.expandLocatedRelays(relaySelectionPaths);
+
+      const relayNames = relaySelectionPaths.map((locatedRelay) => locatedRelay.relay.hostname);
+      const buttons = routes.selectLocation.selectors.relaysMatching(relayNames);
+
+      await expect(buttons).toHaveCount(relayNames.length);
+    });
+
+    test('Should filter relays when search term is entered', async () => {
+      const relayToSearchFor = relayList.countries[0].cities[0].relays[0];
+      const result: IRelayList = {
+        countries: [
+          {
+            ...relayList.countries[0],
+            cities: [
+              {
+                ...relayList.countries[0].cities[0],
+              },
+            ],
+          },
+        ],
+      };
+
+      await helpers.search(relayToSearchFor.hostname, result);
+      const relaySelectionPaths = helpers.toSelectionPaths(result);
+
+      await helpers.expandLocatedRelays(relaySelectionPaths);
+
+      const relayNames = relaySelectionPaths.map((locatedRelay) => locatedRelay.relay.hostname);
+      const buttons = routes.selectLocation.selectors.relaysMatching(relayNames);
+
+      await expect(buttons).toHaveCount(relayNames.length);
+    });
   });
 
   test.describe('Multihop enabled', () => {
