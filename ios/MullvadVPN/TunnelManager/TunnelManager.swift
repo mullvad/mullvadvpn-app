@@ -832,7 +832,12 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
     }
 
     private func didUpdateNetworkPath(_ path: Network.NWPath) {
-        updateTunnelStatus(tunnel?.status ?? .disconnected)
+        // Only act on network path updates when VPN is disconnected.
+        // When VPN is up, the packet tunnel handles network changes internally.
+        let status = tunnel?.status ?? .disconnected
+        guard [.disconnected, .invalid].contains(status) else { return }
+
+        updateTunnelStatus(status)
     }
 
     fileprivate func prepareForVPNConfigurationDeletion() {
@@ -1208,48 +1213,48 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
         }
 
         /**
-        
+
          This function simulates account state transitions. The change is not permanent and any call to
          `updateAccountData()` will overwrite it, but it's usually enough for quick testing.
-        
+
          It can be invoked somewhere in `initTunnelManagerOperation` (`AppDelegate`) after tunnel manager is fully
          initialized. The following code snippet can be used to cycle through various states:
-        
+
          ```
          func delay(seconds: UInt) async throws {
          try await Task.sleep(nanoseconds: UInt64(seconds) * 1_000_000_000)
          }
-        
+
          Task {
          print("Wait 5 seconds")
          try await delay(seconds: 5)
-        
+
          print("Simulate active account")
          self.tunnelManager.simulateAccountExpiration(option: .active)
          try await delay(seconds: 5)
-        
+
          print("Simulate close to expiry")
          self.tunnelManager.simulateAccountExpiration(option: .closeToExpiry)
          try await delay(seconds: 10)
-        
+
          print("Simulate expired account")
          self.tunnelManager.simulateAccountExpiration(option: .expired)
          try await delay(seconds: 5)
-        
+
          print("Simulate active account")
          self.tunnelManager.simulateAccountExpiration(option: .active)
          }
          ```
-        
+
          Another way to invoke this code is to pause debugger and run it directly:
-        
+
          ```
          command alias swift expression -l Swift -O --
-        
+
          swift import MullvadVPN
          swift (UIApplication.shared.delegate as? AppDelegate)?.tunnelManager.simulateAccountExpiration(option: .closeToExpiry)
          ```
-        
+
          */
         func simulateAccountExpiration(option: AccountExpirySimulationOption) {
             scheduleDeviceStateUpdate(taskName: "Simulating account expiry", reconnectTunnel: false) { deviceState in
