@@ -7,20 +7,18 @@ use http::header;
 use mullvad_release_android::format::response::AndroidReleases;
 #[cfg(target_os = "android")]
 use mullvad_release_android::platform::is_version_supported;
-use mullvad_update::format::Architecture;
 #[cfg(not(target_os = "android"))]
 use mullvad_update::format::response::SignedResponse;
-#[cfg(not(target_os = "android"))]
-use mullvad_update::is_version_supported;
 #[cfg(target_os = "android")]
 use mullvad_update::version::Metadata;
 use mullvad_update::version::VersionInfo;
-use mullvad_update::version::{Rollout, VersionParameters};
+#[cfg(not(target_os = "android"))]
+use mullvad_update::version::{Rollout, VersionParameters, is_version_supported};
+#[cfg(target_os = "android")]
+use std::cmp::Ordering;
 use std::future::Future;
 use std::str::FromStr;
 use std::sync::Arc;
-
-use std::cmp::Ordering;
 
 #[derive(Clone)]
 pub struct AppVersionProxy {
