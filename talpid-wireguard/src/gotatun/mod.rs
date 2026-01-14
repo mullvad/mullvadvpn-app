@@ -358,7 +358,9 @@ async fn create_devices(
     Ok(devices)
 }
 
-// TODO: move this somewhere reasonable
+/// Convert a [`PeerConfig`] into a GotaTun [`Peer`].
+///
+/// Returns [`TunnelError::StartDaita`] if the maybenot machines fails to parse.
 fn to_gotatun_peer(peer: &PeerConfig, daita: Option<&DaitaSettings>) -> Result<Peer, TunnelError> {
     let PeerConfig {
         public_key,
