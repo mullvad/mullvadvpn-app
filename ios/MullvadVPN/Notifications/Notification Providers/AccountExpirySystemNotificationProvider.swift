@@ -8,6 +8,7 @@
 
 import Foundation
 import MullvadSettings
+import MullvadTypes
 import UserNotifications
 
 final class AccountExpirySystemNotificationProvider: NotificationProvider, SystemNotificationProvider,
@@ -96,11 +97,11 @@ final class AccountExpirySystemNotificationProvider: NotificationProvider, Syste
 
     private var triggerExpiry: UNNotificationTrigger {
         // When scheduling a user notification we need to make sure that the date has not passed
-        // when it's actually added to the system. Giving it a one second leeway lets us be sure
+        // when it's actually added to the system. Giving it a few seconds leeway lets us be sure
         // that this is the case.
         let dateComponents = Calendar.current.dateComponents(
             [.second, .minute, .hour, .day, .month, .year],
-            from: Date().addingTimeInterval(1)
+            from: Date().addingTimeInterval(5)
         )
 
         return UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: false)

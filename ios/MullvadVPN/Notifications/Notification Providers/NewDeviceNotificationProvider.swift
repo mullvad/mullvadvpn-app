@@ -8,6 +8,7 @@
 
 import Foundation
 import MullvadSettings
+import MullvadTypes
 import UIKit.UIColor
 import UIKit.UIFont
 
