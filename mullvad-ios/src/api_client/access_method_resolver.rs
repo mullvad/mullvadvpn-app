@@ -27,7 +27,7 @@ unsafe extern "C" {
 }
 
 #[derive(Clone)]
-struct IOSAddressCacheBacking {}
+pub struct IOSAddressCacheBacking {}
 
 #[async_trait]
 impl AddressCacheBacking for IOSAddressCacheBacking {
