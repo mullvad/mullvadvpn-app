@@ -1,10 +1,12 @@
 import { messages } from '../../../../../shared/gettext';
 import { SettingsListItem } from '../../../../components/settings-list-item';
+import { ListItemProps } from '../../../../lib/components/list-item';
 import { AutoStartSwitch } from '../auto-start-switch';
 
-export function AutoStartSetting() {
+export type AutoStartSettingProps = Omit<ListItemProps, 'children'>;
+export function AutoStartSetting(props: AutoStartSettingProps) {
   return (
-    <SettingsListItem>
+    <SettingsListItem {...props}>
       <SettingsListItem.Item>
         <SettingsListItem.Content>
           <AutoStartSwitch>

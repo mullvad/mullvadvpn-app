@@ -1,12 +1,15 @@
 import { messages } from '../../../../../../shared/gettext';
+import { ListItemProps } from '../../../../../lib/components/list-item';
 import { Switch } from '../../../../../lib/components/switch';
 import InfoButton from '../../../../InfoButton';
 import { ModalMessage } from '../../../../Modal';
 import { SettingsListItem } from '../../../../settings-list-item';
 
-export function KillSwitchSetting() {
+export type KillSwitchSettingProps = Omit<ListItemProps, 'children'>;
+
+export function KillSwitchSetting(props: KillSwitchSettingProps) {
   return (
-    <SettingsListItem>
+    <SettingsListItem {...props}>
       <SettingsListItem.Item>
         <SettingsListItem.Content>
           <SettingsListItem.Label>

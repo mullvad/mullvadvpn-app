@@ -4,17 +4,20 @@ import { messages } from '../../../../../shared/gettext';
 import InfoButton from '../../../../components/InfoButton';
 import { ModalMessage } from '../../../../components/Modal';
 import { SettingsListItem } from '../../../../components/settings-list-item';
+import { ListItemProps } from '../../../../lib/components/list-item';
 import { spacings } from '../../../../lib/foundations';
 import { AllowLanSwitch } from '../allow-lan-switch/AllowLanSwitch';
+
+export type AllowLanSettingProps = Omit<ListItemProps, 'children'>;
 
 const LanIpRanges = styled.ul({
   listStyle: 'disc outside',
   marginLeft: spacings.large,
 });
 
-export function AllowLanSetting() {
+export function AllowLanSetting(props: AllowLanSettingProps) {
   return (
-    <SettingsListItem anchorId="allow-lan-setting">
+    <SettingsListItem anchorId="allow-lan-setting" {...props}>
       <SettingsListItem.Item>
         <SettingsListItem.Content>
           <AllowLanSwitch>
