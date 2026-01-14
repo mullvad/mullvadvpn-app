@@ -1,13 +1,15 @@
 import { messages } from '../../../../../../shared/gettext';
 import { usePushChangelog } from '../../../../../history/hooks';
 import { Icon } from '../../../../../lib/components';
-import { ListItem } from '../../../../../lib/components/list-item';
+import { ListItem, ListItemProps } from '../../../../../lib/components/list-item';
 
-export function ChangelogListItem() {
+export type ChangelogListItemProps = Omit<ListItemProps, 'children'>;
+
+export function ChangelogListItem(props: ChangelogListItemProps) {
   const pushChangelog = usePushChangelog();
 
   return (
-    <ListItem>
+    <ListItem {...props}>
       <ListItem.Trigger onClick={pushChangelog}>
         <ListItem.Item>
           <ListItem.Content>
