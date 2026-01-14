@@ -1590,12 +1590,11 @@ checksum = "a8d1add55171497b4705a648c6b583acafb01d58050a51727785f0b2c8e0a2b2"
 
 [[package]]
 name = "gotatun"
-version = "0.1.2"
+version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9fd5c853a8ed531f9321d0d4f25b109010c33e2074953877390dea72eb1cc770"
+checksum = "f8a06b047f756c662e8f3c81daf7638d027668500084cdf92e1bb5c8db820706"
 dependencies = [
  "aead",
- "async-trait",
  "base64 0.13.1",
  "bitfield-struct",
  "blake2",
@@ -1610,6 +1609,7 @@ dependencies = [
  "hmac",
  "ip_network",
  "ip_network_table",
+ "ipnetwork",
  "libc",
  "log",
  "maybenot",
@@ -1624,10 +1624,8 @@ dependencies = [
  "socket2 0.6.0",
  "thiserror 1.0.59",
  "tokio",
- "tracing",
  "tun 0.8.5",
  "typed-builder 0.21.0",
- "untrusted",
  "windows-sys 0.61.2",
  "x25519-dalek",
  "zerocopy",

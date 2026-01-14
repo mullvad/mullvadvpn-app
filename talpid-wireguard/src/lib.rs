@@ -1150,7 +1150,7 @@ pub enum TunnelError {
     #[error("Failed to set up logging")]
     LoggingError(#[source] logging::Error),
 
-    /// Failed to receive DAITA event
+    /// Failed to start DAITA
     #[cfg(daita)]
     #[error("Failed to start DAITA")]
     StartDaita(#[source] Box<dyn std::error::Error + Send>),
