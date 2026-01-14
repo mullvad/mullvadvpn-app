@@ -88,7 +88,7 @@ export function PortSetting() {
       value={selectedOption.value}
       onValueChange={setWireguardPort}>
       <SettingsListbox.Header>
-        <SettingsListbox.Item>
+        <SettingsListbox.HeaderItem>
           <SettingsListbox.Content>
             <SettingsListbox.Label>
               {
@@ -116,7 +116,7 @@ export function PortSetting() {
               </>
             </InfoButton>
           </SettingsListbox.Content>
-        </SettingsListbox.Item>
+        </SettingsListbox.HeaderItem>
       </SettingsListbox.Header>
       <SettingsListbox.Options>
         <SettingsListbox.BaseOption value={null}>
