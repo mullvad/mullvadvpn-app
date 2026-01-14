@@ -32,7 +32,7 @@ export function BetaSetting(props: BetaSettingProps) {
         </SettingsListItem.Content>
       </SettingsListItem.Item>
       <SettingsListItem.Footer>
-        <SettingsListItem.Text id={descriptionId}>
+        <SettingsListItem.FooterText id={descriptionId}>
           {isBeta
             ? // TRANSLATORS: Description for beta program switch when using a beta version.
               messages.pgettext(
@@ -44,7 +44,7 @@ export function BetaSetting(props: BetaSettingProps) {
                 'app-info-view',
                 'Enable to get notified when new beta versions of the app are released.',
               )}
-        </SettingsListItem.Text>
+        </SettingsListItem.FooterText>
       </SettingsListItem.Footer>
     </SettingsListItem>
   );

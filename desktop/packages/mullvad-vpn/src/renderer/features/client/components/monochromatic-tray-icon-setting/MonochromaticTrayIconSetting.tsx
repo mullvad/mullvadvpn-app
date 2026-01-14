@@ -24,12 +24,12 @@ export function MonochromaticTrayIconSetting(props: MonochromaticTrayIconSetting
         </SettingsListItem.Content>
       </SettingsListItem.Item>
       <SettingsListItem.Footer>
-        <SettingsListItem.Text id={descriptionId}>
+        <SettingsListItem.FooterText id={descriptionId}>
           {messages.pgettext(
             'user-interface-settings-view',
             'Use a monochromatic tray icon instead of a colored one.',
           )}
-        </SettingsListItem.Text>
+        </SettingsListItem.FooterText>
       </SettingsListItem.Footer>
     </SettingsListItem>
   );
