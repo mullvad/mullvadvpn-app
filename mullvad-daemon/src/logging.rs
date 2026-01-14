@@ -168,21 +168,12 @@ impl LogHandle {
 /// * log_location: See [`LogLocation`].
 /// * output_timestamp: Whether timestamps should be included in the log output.
 pub fn init_logger(
-    log_level: log::LevelFilter,
+    log_level: LevelFilter,
     log_location: Option<LogLocation>,
     output_timestamp: bool,
 ) -> Result<LogHandle, Error> {
-    let level_filter = match log_level {
-        log::LevelFilter::Off => LevelFilter::OFF,
-        log::LevelFilter::Error => LevelFilter::ERROR,
-        log::LevelFilter::Warn => LevelFilter::WARN,
-        log::LevelFilter::Info => LevelFilter::INFO,
-        log::LevelFilter::Debug => LevelFilter::DEBUG,
-        log::LevelFilter::Trace => LevelFilter::TRACE,
-    };
-
-    let env_filter = EnvFilter::try_from_default_env()
-        .unwrap_or_else(|_| EnvFilter::new(level_filter.to_string()));
+    let env_filter =
+        EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new(log_level.to_string()));
 
     let default_filter = silence_crates(env_filter);
 

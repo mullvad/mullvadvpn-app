@@ -1,5 +1,6 @@
 use clap::{Args, Parser};
 use std::sync::LazyLock;
+use tracing_subscriber::filter::LevelFilter;
 
 static ENV_DESC: LazyLock<String> = LazyLock::new(|| {
     format!(
@@ -66,7 +67,7 @@ pub struct CommandFlags {
 
 #[derive(Debug)]
 pub struct Config {
-    pub log_level: log::LevelFilter,
+    pub log_level: LevelFilter,
     pub log_to_file: bool,
     pub log_stdout_timestamps: bool,
 
@@ -127,9 +128,9 @@ fn create_config() -> Config {
     let app = Cli::parse();
 
     let log_level = match app.verbosity {
-        0 => log::LevelFilter::Info,
-        1 => log::LevelFilter::Debug,
-        _ => log::LevelFilter::Trace,
+        0 => LevelFilter::INFO,
+        1 => LevelFilter::DEBUG,
+        _ => LevelFilter::TRACE,
     };
 
     Config {
