@@ -62,7 +62,7 @@ windows_service::define_windows_service!(service_main, handle_service_main);
 
 pub fn handle_service_main(_arguments: Vec<OsString>) {
     let config = cli::get_config();
-    let (log_dir, reload_handle) =
+    let (log_location, reload_handle) =
         init_daemon_logging(config).expect("Failed to initialize logging");
     log::info!("Service started.");
 
@@ -115,7 +115,10 @@ pub fn handle_service_main(_arguments: Vec<OsString>) {
         Ok(runtime) => runtime,
     };
 
-    let result = runtime.block_on(crate::create_daemon(log_dir, reload_handle));
+    let result = runtime.block_on(crate::create_daemon(
+        log_location.map(|l| l.directory),
+        reload_handle,
+    ));
     let result = if let Ok(daemon) = result {
         let shutdown_handle = daemon.shutdown_handle();
 
