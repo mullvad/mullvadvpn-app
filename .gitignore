@@ -40,3 +40,4 @@
 android/.idea
 .vscode/
 .direnv/
+.zed/
