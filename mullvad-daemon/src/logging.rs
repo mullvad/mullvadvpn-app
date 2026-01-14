@@ -46,7 +46,6 @@ impl<'a, T: Clone + io::Write> MakeWriter<'a> for OptionalMakeWriter<T> {
 }
 
 pub const WARNING_SILENCED_CRATES: &[&str] = &["netlink_proto", "quinn_udp"];
-const DAEMON_LOG_FILENAME: &str = "daemon.log";
 pub const SILENCED_CRATES: &[&str] = &[
     "h2",
     "tokio_core",
@@ -90,6 +89,27 @@ pub struct LogHandle {
     env_filter: Handle<EnvFilter, Registry>,
     log_stream: LogStreamer,
     _file_appender_guard: Option<non_blocking::WorkerGuard>,
+}
+
+/// A location to put logs.
+///
+/// It is necessary to logically separate the directory from the absolute path of the log file due
+/// to the API of [`tracing_appender::rolling`].
+#[derive(Clone, Debug, PartialEq)]
+pub struct LogLocation {
+    /// The directory where the logs will be recorded.
+    pub directory: PathBuf,
+    /// The filename where the logs will be recorded (relative to [Self::directory]).
+    pub filename: PathBuf,
+}
+
+impl LogLocation {
+    /// Construct the final path of the log file made up by the components of this [`LogLocation`].
+    ///
+    /// `self.directory/self.filename`
+    pub fn finalize(&self) -> PathBuf {
+        self.directory.join(&self.filename)
+    }
 }
 
 /// A simple, asynchronous log sink.
@@ -142,9 +162,14 @@ impl LogHandle {
     }
 }
 
+/// Initialize a global logger.
+///
+/// * log_level: TODO
+/// * log_location: See [`LogLocation`].
+/// * output_timestamp: Whether timestamps should be included in the log output.
 pub fn init_logger(
     log_level: log::LevelFilter,
-    log_dir: Option<&PathBuf>,
+    log_location: Option<LogLocation>,
     output_timestamp: bool,
 ) -> Result<LogHandle, Error> {
     let level_filter = match log_level {
@@ -162,13 +187,15 @@ pub fn init_logger(
     let default_filter = silence_crates(env_filter);
 
     // TODO: Switch this to a rolling appender, likely daily or hourly
-    let (_file_appender_guard, non_blocking_file_appender) = if let Some(log_dir) = log_dir {
-        let file_appender = tracing_appender::rolling::never(log_dir, DAEMON_LOG_FILENAME);
-        let (appender, guard) = non_blocking(file_appender);
-        (Some(guard), OptionalMakeWriter(Some(appender)))
-    } else {
-        (None, OptionalMakeWriter(None))
-    };
+    let (_file_appender_guard, non_blocking_file_appender) =
+        if let Some(log_location) = log_location.as_ref() {
+            let file_appender =
+                tracing_appender::rolling::never(&log_location.directory, &log_location.filename);
+            let (appender, guard) = non_blocking(file_appender);
+            (Some(guard), OptionalMakeWriter(Some(appender)))
+        } else {
+            (None, OptionalMakeWriter(None))
+        };
 
     let (tx, _) = tokio::sync::broadcast::channel(128);
     let log_stream = LogStreamer { tx };
@@ -185,8 +212,8 @@ pub fn init_logger(
         .with_ansi(true)
         .with_span_events(FmtSpan::NEW | FmtSpan::CLOSE);
 
-    if let Some(log_dir) = log_dir {
-        rotate_log(&log_dir.join(DAEMON_LOG_FILENAME)).map_err(Error::RotateLog)?;
+    if let Some(log_location) = log_location {
+        rotate_log(&log_location.finalize()).map_err(Error::RotateLog)?;
     }
 
     #[cfg(all(target_os = "android", debug_assertions))]

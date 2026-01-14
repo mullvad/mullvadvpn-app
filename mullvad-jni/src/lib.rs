@@ -14,7 +14,10 @@ use jnix::{
 use mullvad_api::ApiEndpoint;
 use mullvad_daemon::{
     Daemon, DaemonCommandChannel, DaemonCommandSender, DaemonConfig, cleanup_old_rpc_socket,
-    exception_logging, logging, logging::LogHandle, runtime::new_multi_thread, version,
+    exception_logging, logging,
+    logging::{LogHandle, LogLocation},
+    runtime::new_multi_thread,
+    version,
 };
 use std::collections::HashMap;
 use std::{
@@ -25,8 +28,6 @@ use std::{
     sync::{Arc, Mutex, Once},
 };
 use talpid_types::{ErrorExt, android::AndroidContext};
-
-const LOG_FILENAME: &str = "daemon.log";
 
 /// Mullvad daemon instance. It must be initialized and destroyed by `MullvadDaemon.initialize` and
 /// `MullvadDaemon.shutdown`, respectively.
@@ -223,15 +224,18 @@ async fn spawn_daemon_inner(
 }
 
 fn start_logging(log_dir: &Path) -> Result<LogHandle, String> {
-    let log_file = log_dir.join(LOG_FILENAME);
+    let log_location = LogLocation {
+        directory: log_dir.to_owned(),
+        filename: PathBuf::from("daemon.log"),
+    };
+    let exception_log_path = CString::new(log_location.finalize().as_os_str().as_bytes())
+        .map_err(|_| "Log file path contained interior null bytes: {log_file:?}")?;
 
-    let log_handle = logging::init_logger(log::LevelFilter::Debug, Some(&log_file), true)
+    let log_handle = logging::init_logger(log::LevelFilter::Debug, Some(log_location), true)
         .map_err(|e| e.display_chain())?;
+
     log_panics::init();
-    exception_logging::set_log_file(
-        CString::new(log_file.as_os_str().as_bytes())
-            .map_err(|_| "Log file path contained interior null bytes: {log_file:?}")?,
-    );
+    exception_logging::set_log_file(exception_log_path);
     exception_logging::enable();
 
     Ok(log_handle)

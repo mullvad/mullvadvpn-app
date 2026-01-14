@@ -3,8 +3,9 @@ use std::{path::PathBuf, thread, time::Duration};
 #[cfg(not(windows))]
 use mullvad_daemon::cleanup_old_rpc_socket;
 use mullvad_daemon::{
-    Daemon, DaemonCommandChannel, DaemonConfig, exception_logging, logging, rpc_uniqueness_check,
-    runtime, version,
+    Daemon, DaemonCommandChannel, DaemonConfig, exception_logging,
+    logging::{self, LogLocation},
+    rpc_uniqueness_check, runtime, version,
 };
 use talpid_types::ErrorExt;
 
@@ -59,9 +60,10 @@ async fn run() -> Result<(), String> {
             // uniqueness check must happen before logging initializaton,
             // as initializing logs will rotate any existing log file.
             assert_unique().await?;
-            let (log_dir, reload_handle) = init_daemon_logging(config)?;
+            let (log_location, reload_handle) = init_daemon_logging(config)?;
             log::trace!("Using configuration: {:?}", config);
 
+            let log_dir = log_location.map(|l| l.directory);
             run_standalone(log_dir, reload_handle).await
         }
 
@@ -110,25 +112,34 @@ async fn assert_unique() -> Result<(), &'static str> {
 /// Initialize logging to stderr and to file (if configured).
 fn init_daemon_logging(
     config: &cli::Config,
-) -> Result<(Option<PathBuf>, logging::LogHandle), String> {
-    let log_dir = get_log_dir(config)?;
+) -> Result<(Option<LogLocation>, logging::LogHandle), String> {
+    let log_location = get_log_dir(config)?.map(|directory| LogLocation {
+        directory,
+        filename: PathBuf::from("daemon.log"),
+    });
 
-    let reload_handle = init_logger(config, log_dir.clone())?;
+    let reload_handle = init_logger(config, log_location.clone())?;
 
-    if let Some(ref log_dir) = log_dir {
-        log::info!("Logging to {}", log_dir.display());
+    if let Some(log_location) = log_location.as_ref() {
+        log::info!("Logging to {}", log_location.finalize().display());
     }
-    Ok((log_dir, reload_handle))
+    Ok((log_location, reload_handle))
 }
 
 /// Initialize logging to stder and to the [`EARLY_BOOT_LOG_FILENAME`]
 #[cfg(target_os = "linux")]
 fn init_early_boot_logging(config: &cli::Config) {
+    let log_location = match get_log_dir(config) {
+        Ok(Some(log_dir)) => Some(LogLocation {
+            directory: log_dir,
+            filename: PathBuf::from(EARLY_BOOT_LOG_FILENAME),
+        }),
+        Ok(None) => None,
+        _ => panic!("probably do not panic .."),
+    };
     // If it's possible to log to the filesystem - attempt to do so, but failing that mustn't stop
     // the daemon from starting here.
-    if let Ok(Some(log_dir)) = get_log_dir(config)
-        && init_logger(config, Some(log_dir.join(EARLY_BOOT_LOG_FILENAME))).is_ok()
-    {
+    if init_logger(config, log_location).is_ok() {
         return;
     }
 
@@ -140,26 +151,23 @@ fn init_early_boot_logging(config: &cli::Config) {
 /// Also install the [exception_logging] signal handler to log faults.
 fn init_logger(
     config: &cli::Config,
-    log_file: Option<PathBuf>,
+    log_location: Option<LogLocation>,
 ) -> Result<logging::LogHandle, String> {
     #[cfg(unix)]
-    if let Some(log_file) = &log_file {
+    if let Some(log_location) = log_location.as_ref() {
         use std::os::unix::ffi::OsStrExt;
 
         exception_logging::set_log_file(
-            std::ffi::CString::new(log_file.as_os_str().as_bytes())
+            std::ffi::CString::new(log_location.finalize().as_os_str().as_bytes())
                 .map_err(|_| "Log file path contains null-bytes".to_string())?,
         );
     }
 
     exception_logging::enable();
 
-    let reload_handle = logging::init_logger(
-        config.log_level,
-        log_file.as_ref(),
-        config.log_stdout_timestamps,
-    )
-    .map_err(|e| e.display_chain_with_msg("Unable to initialize logger"))?;
+    let reload_handle =
+        logging::init_logger(config.log_level, log_location, config.log_stdout_timestamps)
+            .map_err(|e| e.display_chain_with_msg("Unable to initialize logger"))?;
     log_panics::init();
     version::log_version();
     Ok(reload_handle)
