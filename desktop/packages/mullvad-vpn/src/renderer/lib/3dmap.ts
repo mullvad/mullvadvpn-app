@@ -262,8 +262,8 @@ class LocationMarker {
     const positionArrayBuffer = new Float32Array(rings.map((r) => r.positions).flat());
     const colorArrayBuffer = new Float32Array(rings.map((r) => r.colors).flat());
     this.ringPositionCount = rings.map((r) => r.positions.length);
-    this.positionBuffer = initArrayBuffer(gl, positionArrayBuffer);
-    this.colorBuffer = initArrayBuffer(gl, colorArrayBuffer);
+    this.positionBuffer = initArrayBuffer(gl, positionArrayBuffer.buffer);
+    this.colorBuffer = initArrayBuffer(gl, colorArrayBuffer.buffer);
 
     const shaderProgram = initShaderProgram(gl, LocationMarker.vsSource, LocationMarker.fsSource);
     this.programInfo = {
