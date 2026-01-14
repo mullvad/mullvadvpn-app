@@ -24,12 +24,12 @@ export function UnpinnedWindowSetting(props: UnpinnedWindowSettingProps) {
         </SettingsListItem.Content>
       </SettingsListItem.Item>
       <SettingsListItem.Footer>
-        <SettingsListItem.Text id={descriptionId}>
+        <SettingsListItem.FooterText id={descriptionId}>
           {messages.pgettext(
             'user-interface-settings-view',
             'Enable to move the app around as a free-standing window.',
           )}
-        </SettingsListItem.Text>
+        </SettingsListItem.FooterText>
       </SettingsListItem.Footer>
     </SettingsListItem>
   );
