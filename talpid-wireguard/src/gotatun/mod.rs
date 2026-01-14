@@ -350,10 +350,7 @@ async fn create_devices(
             .await
             .unwrap();
 
-        Devices::Singlehop {
-            device,
-            //api: entry_api,
-        }
+        Devices::Singlehop { device }
     };
 
     configure_devices(&mut devices, config, daita).await?;
