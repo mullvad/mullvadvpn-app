@@ -11,7 +11,7 @@ async-trait = "0.1"
 byteorder = "1"
 chrono = { workspace = true, features = ["clock"], optional = true }
 futures = { workspace = true }
-gotatun = { version = "0.1.2", features = ["device", "tun"] }
+gotatun = { version = "0.2.0", features = ["device", "tun", "daita"] }
 hex = "0.4"
 internet-checksum = "0.2"
 ipnetwork = { workspace = true }
