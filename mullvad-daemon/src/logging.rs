@@ -180,6 +180,7 @@ pub fn init_logger(
     // TODO: Switch this to a rolling appender, likely daily or hourly
     let (_file_appender_guard, non_blocking_file_appender) =
         if let Some(log_location) = log_location.as_ref() {
+            rotate_log(&log_location.finalize()).map_err(Error::RotateLog)?;
             let file_appender =
                 tracing_appender::rolling::never(&log_location.directory, &log_location.filename);
             let (appender, guard) = non_blocking(file_appender);
@@ -202,10 +203,6 @@ pub fn init_logger(
     let stdout_formatter = tracing_subscriber::fmt::layer()
         .with_ansi(true)
         .with_span_events(FmtSpan::NEW | FmtSpan::CLOSE);
-
-    if let Some(log_location) = log_location {
-        rotate_log(&log_location.finalize()).map_err(Error::RotateLog)?;
-    }
 
     #[cfg(all(target_os = "android", debug_assertions))]
     let reg = {
