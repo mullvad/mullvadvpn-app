@@ -322,7 +322,7 @@ async fn create_devices(
             .with_ip(tun_dev)
             .build()
             .await
-            .expect("fixme");
+            .map_err(TunnelError::GotaTunDevice)?;
 
         // Hacky way of dumping entry<->exit traffic to a unix socket which wireshark can read.
         // See docs on wrap_in_pcap_sniffer for an explanation.
@@ -334,7 +334,7 @@ async fn create_devices(
             .with_ip_pair(tun_channel_tx, tun_channel_rx)
             .build()
             .await
-            .expect("fixme");
+            .map_err(TunnelError::GotaTunDevice)?;
 
         Devices::Multihop {
             entry_device,
@@ -348,7 +348,7 @@ async fn create_devices(
             .with_ip(tun_dev)
             .build()
             .await
-            .unwrap();
+            .map_err(TunnelError::GotaTunDevice)?;
 
         Devices::Singlehop { device }
     };
