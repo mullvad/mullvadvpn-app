@@ -5,7 +5,7 @@ import { colors } from '../../../../foundations';
 import { useListItemContext } from '../../ListItemContext';
 import { StyledListItemItem } from '../list-item-item';
 
-const StyledButton = styled.button<{ $disabled?: boolean }>`
+export const StyledListItemTrigger = styled.button`
   display: flex;
   width: 100%;
   background-color: transparent;
@@ -41,7 +41,7 @@ export type ListItemTriggerProps = React.HtmlHTMLAttributes<HTMLButtonElement>;
 
 export const ListItemTrigger = forwardRef<HTMLButtonElement, ListItemTriggerProps>((props, ref) => {
   const { disabled } = useListItemContext();
-  return <StyledButton ref={ref} disabled={disabled} {...props} />;
+  return <StyledListItemTrigger ref={ref} disabled={disabled} {...props} />;
 });
 
 ListItemTrigger.displayName = 'ListItemTrigger';
