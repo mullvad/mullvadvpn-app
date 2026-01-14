@@ -4,19 +4,22 @@ import { messages } from '../../../../../../shared/gettext';
 import { RoutePath } from '../../../../../../shared/routes';
 import { Flex } from '../../../../../lib/components';
 import { Dot } from '../../../../../lib/components/dot';
+import { ListItemProps } from '../../../../../lib/components/list-item';
 import { useVersionCurrent, useVersionSuggestedUpgrade } from '../../../../../redux/hooks';
 import { SettingsNavigationListItem } from '../../../../settings-navigation-list-item';
+
+export type AppInfoListItemProps = Omit<ListItemProps, 'children'>;
 
 const StyledText = styled(SettingsNavigationListItem.Text)`
   margin-top: -4px;
 `;
 
-export function AppInfoListItem() {
+export function AppInfoListItem(props: AppInfoListItemProps) {
   const { current } = useVersionCurrent();
   const { suggestedUpgrade } = useVersionSuggestedUpgrade();
 
   return (
-    <SettingsNavigationListItem to={RoutePath.appInfo}>
+    <SettingsNavigationListItem to={RoutePath.appInfo} {...props}>
       <Flex flexDirection="column">
         <SettingsNavigationListItem.Label>
           {
