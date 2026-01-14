@@ -90,8 +90,11 @@ pub fn silence_crates(mut env_filter: EnvFilter) -> EnvFilter {
     }
     for crate_name in SLIGHTLY_SILENCED_CRATES {
         let level = env_filter.max_level_hint().unwrap_or(LevelFilter::DEBUG);
-        env_filter = env_filter
-            .add_directive(format!("{crate_name}={}", one_level_quieter(level)).parse().unwrap());
+        env_filter = env_filter.add_directive(
+            format!("{crate_name}={}", one_level_quieter(level))
+                .parse()
+                .unwrap(),
+        );
     }
     env_filter
 }

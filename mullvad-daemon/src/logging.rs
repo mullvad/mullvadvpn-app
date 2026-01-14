@@ -209,4 +209,3 @@ pub fn init_logger(
 
     Ok(reload_handle)
 }
-
