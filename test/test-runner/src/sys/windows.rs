@@ -94,7 +94,7 @@ fn grant_shutdown_privilege() -> Result<(), test_rpc::Error> {
 
     let mut token_handle: HANDLE = 0;
 
-    // SAFETY: `GetCurrentProcess` returns a valid (psuedo) handle for the current process.
+    // SAFETY: `GetCurrentProcess` returns a valid (pseudo) handle for the current process.
     // https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-openprocesstoken
     if unsafe {
         OpenProcessToken(
