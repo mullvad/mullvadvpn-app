@@ -1,13 +1,15 @@
 import React from 'react';
 
 import { messages } from '../../../../../shared/gettext';
-import { ListItem } from '../../../../lib/components/list-item';
+import { ListItem, ListItemProps } from '../../../../lib/components/list-item';
 import { AnimateMapSwitch } from '../animate-map-switch/AnimateMapSwitch';
 
-export function AnimateMapSetting() {
+export type AnimateMapSettingProps = Omit<ListItemProps, 'children'>;
+
+export function AnimateMapSetting(props: AnimateMapSettingProps) {
   const descriptionId = React.useId();
   return (
-    <ListItem>
+    <ListItem {...props}>
       <ListItem.Item>
         <ListItem.Content>
           <AnimateMapSwitch>
