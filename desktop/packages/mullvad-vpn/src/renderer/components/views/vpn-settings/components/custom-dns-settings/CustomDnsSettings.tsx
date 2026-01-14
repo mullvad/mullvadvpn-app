@@ -194,7 +194,7 @@ export function CustomDnsSettings(props: CustomDnsSettingsProps) {
       expanded={listExpanded}
       disabled={!featureAvailable}
       {...props}>
-      <SettingsAccordion.Header>
+      <SettingsAccordion.HeaderItem>
         <Switch
           checked={dns.state === 'custom' || inputVisible}
           onCheckedChange={setCustomDnsEnabled}
@@ -206,7 +206,7 @@ export function CustomDnsSettings(props: CustomDnsSettingsProps) {
             <Switch.Thumb />
           </Switch.Trigger>
         </Switch>
-      </SettingsAccordion.Header>
+      </SettingsAccordion.HeaderItem>
 
       <SettingsAccordion.Content>
         <Cell.Section role="listbox">
