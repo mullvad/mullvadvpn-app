@@ -11,13 +11,16 @@ import {
 } from '../../../../../features/dns/components';
 import { useDns } from '../../../../../features/dns/hooks';
 import { FlexRow } from '../../../../../lib/components/flex-row';
+import { ListItemProps } from '../../../../../lib/components/list-item';
 import { formatHtml } from '../../../../../lib/html-formatter';
 import InfoButton from '../../../../InfoButton';
 import { ModalMessage } from '../../../../Modal';
 import { SettingsAccordion } from '../../../../settings-accordion';
 import { CustomDnsEnabledFooter } from './components';
 
-export function DnsBlockerSettings() {
+export type DnsBlockerSettingsProps = Omit<ListItemProps, 'children'>;
+
+export function DnsBlockerSettings(props: DnsBlockerSettingsProps) {
   const { dns } = useDns();
   const customDnsFeatureName = messages.pgettext('vpn-settings-view', 'Use custom DNS server');
 
@@ -27,7 +30,8 @@ export function DnsBlockerSettings() {
         accordionId="dns-blocker-setting"
         anchorId="dns-blocker-setting"
         aria-label={messages.pgettext('vpn-settings-view', 'DNS content blockers')}
-        disabled={dns.state === 'custom'}>
+        disabled={dns.state === 'custom'}
+        {...props}>
         <SettingsAccordion.Header>
           <SettingsAccordion.Title>
             {messages.pgettext('vpn-settings-view', 'DNS content blockers')}

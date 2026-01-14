@@ -2,11 +2,14 @@ import { messages } from '../../../../../shared/gettext';
 import InfoButton from '../../../../components/InfoButton';
 import { ModalMessage } from '../../../../components/Modal';
 import { SettingsListItem } from '../../../../components/settings-list-item';
+import { ListItemProps } from '../../../../lib/components/list-item';
 import { LockdownModeSwitch } from '../lockdown-mode-switch';
 
-export function LockdownModeSetting() {
+export type LockdownModeSettingProps = Omit<ListItemProps, 'children'>;
+
+export function LockdownModeSetting(props: LockdownModeSettingProps) {
   return (
-    <SettingsListItem anchorId="lockdown-mode-setting">
+    <SettingsListItem anchorId="lockdown-mode-setting" {...props}>
       <SettingsListItem.Item>
         <SettingsListItem.Content>
           <LockdownModeSwitch>

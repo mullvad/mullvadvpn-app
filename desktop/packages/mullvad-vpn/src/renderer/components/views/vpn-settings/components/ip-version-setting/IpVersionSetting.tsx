@@ -3,13 +3,16 @@ import { useCallback, useMemo } from 'react';
 import { IpVersion, wrapConstraint } from '../../../../../../shared/daemon-rpc-types';
 import { messages } from '../../../../../../shared/gettext';
 import log from '../../../../../../shared/logging';
+import { ListboxProps } from '../../../../../lib/components/listbox';
 import { useRelaySettingsUpdater } from '../../../../../lib/constraint-updater';
 import { useSelector } from '../../../../../redux/store';
 import InfoButton from '../../../../InfoButton';
 import { ModalMessage } from '../../../../Modal';
 import { SettingsListbox } from '../../../../settings-listbox';
 
-export function IpVersionSetting() {
+export type IpVersionSettingProps = Omit<ListboxProps<IpVersion | null>, 'children'>;
+
+export function IpVersionSetting(props: IpVersionSettingProps) {
   const relaySettingsUpdater = useRelaySettingsUpdater();
   const relaySettings = useSelector((state) => state.settings.relaySettings);
   const ipVersion = useMemo(() => {
@@ -33,7 +36,7 @@ export function IpVersionSetting() {
   );
 
   return (
-    <SettingsListbox value={ipVersion} onValueChange={setIpVersion}>
+    <SettingsListbox value={ipVersion} onValueChange={setIpVersion} {...props}>
       <SettingsListbox.Item>
         <SettingsListbox.Content>
           <SettingsListbox.Label>
