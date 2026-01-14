@@ -8,6 +8,7 @@
 
 import Foundation
 import MullvadLogging
+import MullvadTypes
 import UserNotifications
 
 final class NotificationManager: NotificationProviderDelegate {
@@ -117,23 +118,16 @@ final class NotificationManager: NotificationProviderDelegate {
     func handleSystemNotificationResponse(_ response: UNNotificationResponse) {
         dispatchPrecondition(condition: .onQueue(.main))
 
-        guard
-            let sourceProvider = notificationProviders.first(where: { notificationProvider in
-                guard let notificationProvider = notificationProvider as? SystemNotificationProvider else {
-                    return false
-                }
-
-                return response.notification.request.identifier == notificationProvider.identifier.domainIdentifier
-            })
-        else {
+        let requestIdentifier = response.notification.request.identifier.split(separator: ".").last
+        guard let sourceProvider = NotificationProviderIdentifier(rawValue: String(requestIdentifier ?? "")) else {
             logger.warning(
-                "Received response with request identifier: \(response.notification.request.identifier) that didn't map to any notification provider"
+                "Received response with request identifier: \(requestIdentifier ?? "-") that didn't map to any notification provider"
             )
             return
         }
 
         let notificationResponse = NotificationResponse(
-            providerIdentifier: sourceProvider.identifier,
+            providerIdentifier: sourceProvider,
             actionIdentifier: response.actionIdentifier,
             systemResponse: response
         )

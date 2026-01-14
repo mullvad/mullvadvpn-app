@@ -27,6 +27,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
     private var adapter: WgAdapter!
     private var relaySelector: RelaySelectorWrapper!
     private var ephemeralPeerExchangingPipeline: EphemeralPeerExchangingPipeline!
+    private var appStoreMetaDataService: AppStoreMetaDataService!
     private let tunnelSettingsUpdater: SettingsUpdater
     private let defaultPathObserver: PacketTunnelPathObserver
     private var migrationManager: MigrationManager
@@ -68,6 +69,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
             tunnelSettingsListener.onNewSettings?(settings.tunnelSettings)
         }
 
+        let tunnelSettings = (try? settingsReader.read().tunnelSettings) ?? LatestTunnelSettings()
         let accessMethodRepository = AccessMethodRepository()
 
         setUpApiContextAndAccessMethodReceiver(
@@ -75,7 +77,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
             ipOverrideWrapper: ipOverrideWrapper,
             addressCache: addressCache,
             accessMethodRepository: accessMethodRepository,
-            tunnelSettings: (try? settingsReader.read().tunnelSettings) ?? LatestTunnelSettings()
+            tunnelSettings: tunnelSettings
         )
 
         setUpAccessMethodReceiver(
@@ -152,6 +154,14 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
                 actor.notifyEphemeralPeerNegotiated()
             }
         )
+
+        appStoreMetaDataService = AppStoreMetaDataService(
+            tunnelSettings: tunnelSettings,
+            urlSession: URLSession.shared,
+            appPreferences: AppPreferences(),
+            mainAppBundleIdentifier: ApplicationTarget.mainApp.bundleIdentifier
+        )
+        appStoreMetaDataService.scheduleTimer()
     }
 
     override func startTunnel(

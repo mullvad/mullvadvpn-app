@@ -7,14 +7,14 @@
 //
 
 import Foundation
-import MullvadSettings
 
-protocol AppPreferencesDataSource {
+public protocol AppPreferencesDataSource {
     var hasDoneFirstTimeLaunch: Bool { get set }
     var hasDoneFirstTimeLogin: Bool { get set }
     var isShownOnboarding: Bool { get set }
     var isAgreedToTermsOfService: Bool { get set }
     var lastSeenChangeLogVersion: String { get set }
+    var lastVersionCheck: VersionCheck { get set }
 }
 
 enum AppStorageKey: String {
@@ -23,21 +23,27 @@ enum AppStorageKey: String {
     case isShownOnboarding
     case isAgreedToTermsOfService
     case lastSeenChangeLogVersion
+    case lastVersionCheck
 }
 
-final class AppPreferences: AppPreferencesDataSource {
+public final class AppPreferences: AppPreferencesDataSource {
+    public init() {}
+
     @AppStorage(key: AppStorageKey.hasDoneFirstTimeLaunch.rawValue, container: .standard)
-    var hasDoneFirstTimeLaunch: Bool = false
+    public var hasDoneFirstTimeLaunch: Bool = false
 
     @AppStorage(key: AppStorageKey.hasDoneFirstTimeLogin.rawValue, container: .standard)
-    var hasDoneFirstTimeLogin: Bool = false
+    public var hasDoneFirstTimeLogin: Bool = false
 
     @AppStorage(key: AppStorageKey.isShownOnboarding.rawValue, container: .standard)
-    var isShownOnboarding = true
+    public var isShownOnboarding = true
 
     @AppStorage(key: AppStorageKey.isAgreedToTermsOfService.rawValue, container: .standard)
-    var isAgreedToTermsOfService = false
+    public var isAgreedToTermsOfService = false
 
     @AppStorage(key: AppStorageKey.lastSeenChangeLogVersion.rawValue, container: .standard)
-    var lastSeenChangeLogVersion = ""
+    public var lastSeenChangeLogVersion = ""
+
+    @AppStorage(key: AppStorageKey.lastVersionCheck.rawValue, container: .standard)
+    public var lastVersionCheck = VersionCheck(version: "", date: .distantPast)
 }
