@@ -23,5 +23,6 @@ pub fn rotate_log(file: &Path) -> Result<(), RotateLogError> {
         );
     }
 
-    fs::File::create(file).map(|_| ()).map_err(RotateLogError)
+    fs::File::create(file).map_err(RotateLogError)?;
+    Ok(())
 }
