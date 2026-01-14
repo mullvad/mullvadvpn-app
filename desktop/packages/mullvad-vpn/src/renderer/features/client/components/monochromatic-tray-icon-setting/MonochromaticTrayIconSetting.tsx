@@ -2,12 +2,15 @@ import React from 'react';
 
 import { messages } from '../../../../../shared/gettext';
 import { SettingsListItem } from '../../../../components/settings-list-item';
-import { MonochromaticTrayIconSwitch } from '../monochromatic-tray-icon-switch/MonochromaticTrayIconSwitch';
+import { ListItemProps } from '../../../../lib/components/list-item';
+import { MonochromaticTrayIconSwitch } from '../monochromatic-tray-icon-switch';
 
-export function MonochromaticTrayIconSetting() {
+export type MonochromaticTrayIconSettingProps = Omit<ListItemProps, 'children'>;
+
+export function MonochromaticTrayIconSetting(props: MonochromaticTrayIconSettingProps) {
   const descriptionId = React.useId();
   return (
-    <SettingsListItem>
+    <SettingsListItem {...props}>
       <SettingsListItem.Item>
         <SettingsListItem.Content>
           <MonochromaticTrayIconSwitch>
