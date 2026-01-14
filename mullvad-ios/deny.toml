@@ -27,6 +27,7 @@ exceptions = [
     { crate = "mullvad-encrypted-dns-proxy", allow = ["GPL-3.0-only"] },
     { crate = "mullvad-fs", allow = ["GPL-3.0-only"] },
     { crate = "mullvad-ios", allow = ["GPL-3.0-only"] },
+    { crate = "mullvad-logging", allow = ["GPL-3.0-only"] },
     { crate = "mullvad-masque-proxy", allow = ["GPL-3.0-only"] },
     { crate = "mullvad-types", allow = ["GPL-3.0-only"] },
     { crate = "mullvad-update", allow = ["GPL-3.0-only"] },

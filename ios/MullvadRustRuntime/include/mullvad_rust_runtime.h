@@ -121,6 +121,13 @@ typedef struct EphemeralPeerParameters {
   struct WgTcpConnectionFunctions funcs;
 } EphemeralPeerParameters;
 
+/**
+ * Callback function type for logging.
+ * - `level`: The log level (1=Error, 2=Warn, 3=Info, 4=Debug, 5=Trace)
+ * - `message`: Null-terminated UTF-8 string containing the log message
+ */
+typedef void (*LogCallback)(uint8_t level, const char *message);
+
 typedef struct ProxyHandle {
   void *context;
   uint16_t port;
@@ -855,6 +862,18 @@ struct ExchangeCancelToken *request_ephemeral_peer(const uint8_t *public_key,
                                                    const void *packet_tunnel,
                                                    int32_t tunnel_handle,
                                                    struct EphemeralPeerParameters peer_parameters);
+
+/**
+ * Initialize the Rust logger with a Swift callback.
+ *
+ * This function should be called once early in the application lifecycle,
+ * before any Rust code that uses logging is invoked.
+ *
+ * # Safety
+ * - `callback` must be a valid function pointer that remains valid for the lifetime of the program.
+ * - This function is safe to call multiple times, but only the first call will have an effect.
+ */
+void init_rust_logging(LogCallback callback);
 
 int32_t start_udp2tcp_obfuscator_proxy(const uint8_t *peer_address,
                                        uintptr_t peer_address_len,

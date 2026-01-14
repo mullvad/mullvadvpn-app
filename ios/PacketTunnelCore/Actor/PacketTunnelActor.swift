@@ -38,7 +38,7 @@ public actor PacketTunnelActor {
 
     @Published internal(set) public var observedState: ObservedState = .initial
 
-    nonisolated(unsafe) let logger = Logger(label: "PacketTunnelActor")
+    nonisolated let logger = Logger(label: "PacketTunnelActor")
 
     let timings: PacketTunnelActorTimings
     let tunnelAdapter: TunnelAdapterProtocol

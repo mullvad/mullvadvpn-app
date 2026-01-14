@@ -21,6 +21,11 @@ class MullvadApiTests: XCTestCase {
     let encoder = JSONEncoder()
     let addressCache = REST.AddressCache(canWriteToCache: false, fileCache: MemoryCache())
 
+    override func setUp() {
+        super.setUp()
+        RustLogging.initialize()
+    }
+
     func makeApiProxy(port: UInt16) throws -> APIQuerying {
         let shadowsocksLoader = ShadowsocksLoaderStub(
             configuration: ShadowsocksConfiguration(

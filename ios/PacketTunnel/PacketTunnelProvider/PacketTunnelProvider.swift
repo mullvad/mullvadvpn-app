@@ -316,6 +316,9 @@ extension PacketTunnelProvider {
             loggerBuilder.addOSLogOutput(subsystem: ApplicationTarget.packetTunnel.bundleIdentifier)
         #endif
         loggerBuilder.install()
+
+        // Initialize Rust logging to forward to Swift Logger
+        RustLogging.initialize()
     }
 
     private func parseStartOptions(_ options: [String: NSObject]) -> StartOptions {

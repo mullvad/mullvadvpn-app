@@ -5,9 +5,8 @@ pub mod peer_exchange;
 use libc::c_void;
 use peer_exchange::EphemeralPeerExchange;
 
-use std::{ffi::CString, ptr, sync::Once};
+use std::{ffi::CString, ptr};
 use talpid_tunnel_config_client::DaitaSettings;
-static INIT_LOGGING: Once = Once::new();
 
 #[derive(Clone)]
 pub struct PacketTunnelBridge {
@@ -159,12 +158,6 @@ pub unsafe extern "C" fn request_ephemeral_peer(
     tunnel_handle: i32,
     peer_parameters: EphemeralPeerParameters,
 ) -> *mut peer_exchange::ExchangeCancelToken {
-    INIT_LOGGING.call_once(|| {
-        let _ = oslog::OsLogger::new("net.mullvad.MullvadVPN.TTCC")
-            .level_filter(log::LevelFilter::Debug)
-            .init();
-    });
-
     // # Safety:
     // `public_key` pointer must be a valid pointer to 32 unsigned bytes.
     let pub_key: [u8; 32] = unsafe { ptr::read(public_key as *const [u8; 32]) };

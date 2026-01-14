@@ -19,6 +19,7 @@ class EphemeralPeerExchangeActorTests: XCTestCase {
     var tunnelProvider: TunnelProviderStub!
 
     override func setUpWithError() throws {
+        RustLogging.initialize()
         tunnelProvider = TunnelProviderStub()
     }
 
