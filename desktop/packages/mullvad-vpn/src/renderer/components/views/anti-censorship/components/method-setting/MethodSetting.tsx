@@ -36,16 +36,18 @@ export function MethodSetting() {
       anchorId="obfuscation-setting"
       onValueChange={handleSelectObfuscation}
       value={selectedObfuscation}>
-      <SettingsListbox.Item>
-        <SettingsListbox.Content>
-          <SettingsListbox.Label>
-            {
-              // TRANSLATORS: The title for the obfuscation method selector.
-              messages.pgettext('anti-censorship-view', 'Method')
-            }
-          </SettingsListbox.Label>
-        </SettingsListbox.Content>
-      </SettingsListbox.Item>
+      <SettingsListbox.Header>
+        <SettingsListbox.Item>
+          <SettingsListbox.Content>
+            <SettingsListbox.Label>
+              {
+                // TRANSLATORS: The title for the obfuscation method selector.
+                messages.pgettext('anti-censorship-view', 'Method')
+              }
+            </SettingsListbox.Label>
+          </SettingsListbox.Content>
+        </SettingsListbox.Item>
+      </SettingsListbox.Header>
       <SettingsListbox.Options>
         <AutomaticOption />
         <WireguardPortOption />
