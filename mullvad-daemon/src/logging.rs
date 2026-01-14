@@ -189,6 +189,7 @@ pub fn init_logger(
     // TODO: Switch this to a rolling appender, likely daily or hourly
     let (_file_appender_guard, non_blocking_file_appender) =
         if let Some(log_location) = log_location.as_ref() {
+            // NOTE: Make sure to rotate log file *before* initializing any kind of logger.
             rotate_log(&log_location.log_path()).map_err(Error::RotateLog)?;
             let file_appender =
                 tracing_appender::rolling::never(&log_location.directory, &log_location.filename);
