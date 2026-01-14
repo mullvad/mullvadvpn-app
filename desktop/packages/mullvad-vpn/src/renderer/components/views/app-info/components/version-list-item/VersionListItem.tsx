@@ -1,16 +1,18 @@
 import { messages } from '../../../../../../shared/gettext';
 import { Icon } from '../../../../../lib/components';
-import { ListItem } from '../../../../../lib/components/list-item';
+import { ListItem, ListItemProps } from '../../../../../lib/components/list-item';
 import { useVersionCurrent } from '../../../../../redux/hooks';
 import { useShowAlert, useShowFooter } from './hooks';
 
-export function VersionListItem() {
+export type VersionListItemProps = Omit<ListItemProps, 'children'>;
+
+export function VersionListItem(props: VersionListItemProps) {
   const { current } = useVersionCurrent();
   const showAlert = useShowAlert();
   const showFooter = useShowFooter();
 
   return (
-    <ListItem>
+    <ListItem {...props}>
       <ListItem.Item>
         <ListItem.Content>
           <ListItem.Group>
