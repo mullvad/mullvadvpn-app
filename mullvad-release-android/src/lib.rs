@@ -1,6 +1,4 @@
 /// Parser and serializer for version metadata
-pub mod format;
-
 pub mod platform;
 
 mod client;

@@ -4,7 +4,6 @@ use clap::Parser;
 
 mod client;
 mod data_dir;
-mod format;
 mod io_util;
 mod platform;
 

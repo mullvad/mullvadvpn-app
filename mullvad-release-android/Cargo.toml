@@ -18,5 +18,6 @@ serde = { workspace = true, features = ["derive"] }
 tokio = { version = "1", features = ["full"] }
 reqwest = { workspace = true }
 
+mullvad-api = { path = "../mullvad-api" }
 mullvad-api-constants = { path = "../mullvad-api/mullvad-api-constants" }
 mullvad-version = { path = "../mullvad-version", features = ["serde"] }

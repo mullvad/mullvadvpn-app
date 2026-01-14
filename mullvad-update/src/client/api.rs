@@ -40,7 +40,7 @@ impl MetaRepositoryPlatform {
 
     /// Return complete URL used for the metadata
     pub fn url(&self) -> String {
-        format!("{}{}", defaults::RELEASES_URL, self.filename())
+        format!("{}/{}", defaults::RELEASES_URL, self.filename())
     }
 
     fn filename(&self) -> &str {
