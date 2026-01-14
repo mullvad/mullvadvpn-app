@@ -1,7 +1,19 @@
-import { nativeImage, Tray } from 'electron';
+import { Tray } from 'electron';
+
+import { TrayIcon } from './tray-icon';
+
+function getInitialIcon() {
+  if (process.platform === 'linux') {
+    return new TrayIcon('lock-placeholder');
+  }
+
+  return new TrayIcon();
+}
 
 export function createTray() {
-  const tray = new Tray(nativeImage.createEmpty());
+  const initialIcon = getInitialIcon();
+
+  const tray = new Tray(initialIcon.toNativeImage());
 
   tray.setToolTip('Mullvad VPN');
 
