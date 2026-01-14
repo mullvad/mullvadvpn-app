@@ -2,9 +2,8 @@
 
 # These scripts are for the release process of the android app.
 # They are:
-# 1. add_release, should be called from automated build script but can be called manually.
-#   It will add a new release to the android.json file.
-# 2. update_latest, update the latest.json file with the latest release from android.json
+# 1. add_release, Add a new supported release to android.json
+# 2. set_latest_stable, Set a version to be the latest stable version. Needs to be supported.
 # 3. remove_release, removes a release from android.json, marking it as unsupported.
 
 set -eu
@@ -71,91 +70,76 @@ function main {
     esac
 }
 
+function clean_old_data {
+    rm -rf "$WORK_DIR"
+    rm -rf "$PUBLISHED_DIR"
+
+    mkdir -p "$DATA_DIR"
+}
+
+MULLVAD_RELEASE="cargo run -q --package mullvad-release-android --"
+
 function add_release {
     version=$1
 
-    local work_dir="$DATA_DIR/work/"
-    local published_dir="$DATA_DIR/currently_published/"
-
-    local mullvad_release="cargo run -q --package mullvad-release-android --"
-
-    rm -rf "$work_dir"
-    rm -rf "$published_dir"
-
-    mkdir -p "$DATA_DIR"
+    clean_old_data
 
     log_header "Fetching current version metadata"
-    $mullvad_release pull --assume-yes
+    $MULLVAD_RELEASE pull --assume-yes
 
     log_header "Backing up released data"
-    cp -r "$work_dir" "$published_dir"
+    cp -r "$WORK_DIR" "$PUBLISHED_DIR"
 
     log_header "Adding new release $version"
-    $mullvad_release add-release "$version"
+    $MULLVAD_RELEASE add-release "$version"
 
     log_header "New metadata including $version"
-    git --no-pager diff --no-index -- "$published_dir" "$work_dir" || true
+    git --no-pager diff --no-index -- "$PUBLISHED_DIR" "$WORK_DIR" || true
 
     read -rp "Press enter to upload if the diffs look good "
-    ./publish-metadata-to-api "$work_dir" "$BUILDSERVER_HOST" "$METADATA_SERVER_HOST"
+    ./publish-metadata-to-api "$WORK_DIR" "$BUILDSERVER_HOST" "$METADATA_SERVER_HOST"
 }
 
 function set_latest_stable_version {
     version=$1
 
-    local work_dir="$DATA_DIR/work/"
-    local published_dir="$DATA_DIR/currently_published/"
+    clean_old_data
 
-    local mullvad_release="cargo run -q --package mullvad-release-android --"
-
-    rm -rf "$work_dir"
-    rm -rf "$published_dir"
-
-    mkdir -p "$DATA_DIR"
-
-    log_header "Fetching current version metadata"
-    $mullvad_release pull --assume-yes --latest-file
+    log_header "Fetching current version metadata and latest version file"
+    $MULLVAD_RELEASE pull --assume-yes --latest-file
 
     log_header "Backing up released data"
-    cp -r "$work_dir" "$published_dir"
+    cp -r "$WORK_DIR" "$PUBLISHED_DIR"
 
     log_header "Set stable $version in latest.json"
-    $mullvad_release set-latest-stable-version "$version"
+    $MULLVAD_RELEASE set-latest-stable-version "$version"
 
     log_header "New latest file"
-    git --no-pager diff --no-index -- "$published_dir" "$work_dir" || true
+    git --no-pager diff --no-index -- "$PUBLISHED_DIR" "$WORK_DIR" || true
 
     read -rp "Press enter to upload if the diffs look good "
-    ./publish-metadata-to-api "$work_dir" "$BUILDSERVER_HOST" "$METADATA_SERVER_HOST"
+    ./publish-metadata-to-api "$WORK_DIR" "$BUILDSERVER_HOST" "$METADATA_SERVER_HOST"
 }
 
 function remove_release {
     version=$1
 
-    local work_dir="$DATA_DIR/work/"
-    local published_dir="$DATA_DIR/currently_published/"
-
-    local mullvad_release="cargo run -q --package mullvad-release-android --"
-
-    rm -rf "$work_dir"
-    rm -rf "$published_dir"
-
-    mkdir -p "$DATA_DIR"
+    clean_old_data
 
     log_header "Fetching current version metadata"
-    $mullvad_release pull --assume-yes
+    $MULLVAD_RELEASE pull --assume-yes
 
     log_header "Backing up released data"
-    cp -r "$work_dir" "$published_dir"
+    cp -r "$WORK_DIR" "$PUBLISHED_DIR"
 
     log_header "Removing new release $version"
-    $mullvad_release remove-release "$version"
+    $MULLVAD_RELEASE remove-release "$version"
 
     log_header "New metadata without $version"
-    git --no-pager diff --no-index -- "$published_dir" "$work_dir" || true
+    git --no-pager diff --no-index -- "$PUBLISHED_DIR" "$WORK_DIR" || true
 
     read -rp "Press enter to upload if the diffs look good "
-    ./publish-metadata-to-api "$work_dir" "$BUILDSERVER_HOST" "$METADATA_SERVER_HOST"
+    ./publish-metadata-to-api "$WORK_DIR" "$BUILDSERVER_HOST" "$METADATA_SERVER_HOST"
 }
 
 # Run script

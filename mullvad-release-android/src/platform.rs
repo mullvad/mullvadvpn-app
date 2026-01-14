@@ -7,8 +7,6 @@ use tokio::{fs, io};
 use crate::{
     client::api::HttpVersionInfoProvider,
     data_dir::get_data_dir,
-    format::release::Release,
-    format::response::AndroidReleases,
     io_util::{create_dir_and_write, wait_for_confirm},
     platform,
 };
@@ -116,7 +114,7 @@ pub async fn add_release(version: &mullvad_version::Version) -> anyhow::Result<(
     }
 
     // Make release
-    let new_release = Release {
+    let new_release = mullvad_api::version::Release {
         version: version.clone(),
     };
 
@@ -192,7 +190,7 @@ pub async fn set_latest_stable(version: &mullvad_version::Version) -> anyhow::Re
     let work_response = read_work().await?;
 
     // Only set as latest if we have that version in the supported list
-    if is_version_supported(version.clone(), &work_response) {
+    if mullvad_api::version::is_version_supported_android(version.clone(), &work_response) {
         // Currently we never set a beta latest version so there is no need to check the current latest beta so we always just set it to null. If we ever want to set the latest beta we need to parse the current file first.
         let new_latest = Platform {
             android: LatestVersion {
@@ -212,25 +210,15 @@ pub async fn set_latest_stable(version: &mullvad_version::Version) -> anyhow::Re
     Ok(())
 }
 
-pub fn is_version_supported(
-    current_version: mullvad_version::Version,
-    response: &AndroidReleases,
-) -> bool {
-    response
-        .releases
-        .iter()
-        .any(|release| release.version.eq(&current_version))
-}
-
 /// Reads the metadata for `platform` in the work directory.
 /// If the file doesn't exist, this returns a new, empty response.
-async fn read_work() -> anyhow::Result<AndroidReleases> {
+async fn read_work() -> anyhow::Result<mullvad_api::version::AndroidReleases> {
     let work_path = work_path();
     let bytes = match fs::read(&work_path).await {
         Ok(bytes) => bytes,
         Err(error) if error.kind() == io::ErrorKind::NotFound => {
             // Return empty response
-            return Ok(AndroidReleases::default());
+            return Ok(mullvad_api::version::AndroidReleases::default());
         }
         Err(error) => bail!("Failed to read {}: {error}", work_path.display()),
     };

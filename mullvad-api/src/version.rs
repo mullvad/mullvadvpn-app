@@ -3,10 +3,6 @@ use super::rest;
 use anyhow::Context;
 use http::StatusCode;
 use http::header;
-#[cfg(target_os = "android")]
-use mullvad_release_android::format::response::AndroidReleases;
-#[cfg(target_os = "android")]
-use mullvad_release_android::platform::is_version_supported;
 #[cfg(not(target_os = "android"))]
 use mullvad_update::format::response::SignedResponse;
 #[cfg(target_os = "android")]
@@ -14,6 +10,9 @@ use mullvad_update::version::Metadata;
 use mullvad_update::version::VersionInfo;
 #[cfg(not(target_os = "android"))]
 use mullvad_update::version::{Rollout, VersionParameters, is_version_supported};
+#[cfg(target_os = "android")]
+use mullvad_version::Version;
+use serde::{Deserialize, Serialize};
 #[cfg(target_os = "android")]
 use std::cmp::Ordering;
 use std::future::Future;
@@ -37,6 +36,30 @@ pub struct AppVersionResponse {
     pub current_version_supported: bool,
     /// ETag for the response
     pub etag: Option<String>,
+}
+
+/// Android releases
+#[derive(Default, Debug, Deserialize, Serialize, Clone)]
+pub struct AndroidReleases {
+    /// Available app releases
+    pub releases: Vec<Release>,
+}
+#[derive(Debug, Deserialize, Serialize, Clone)]
+pub struct Release {
+    /// Mullvad app version
+    pub version: mullvad_version::Version,
+}
+#[cfg(target_os = "android")]
+impl PartialEq for Release {
+    fn eq(&self, other: &Self) -> bool {
+        self.version.eq(&other.version)
+    }
+}
+#[cfg(target_os = "android")]
+impl PartialOrd for Release {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        self.version.partial_cmp(&other.version)
+    }
 }
 
 impl AppVersionProxy {
@@ -155,22 +178,17 @@ impl AppVersionProxy {
 
             let current_version =
                 mullvad_version::Version::from_str(mullvad_version::VERSION).unwrap();
-            let current_version_supported = is_version_supported(current_version, &response);
+            let current_version_supported =
+                is_version_supported_android(current_version, &response);
 
             let params = response
                 .releases
                 .iter()
-                .map(|release| Metadata {
-                    version: release.version.clone(),
-                    urls: vec![],
-                    size: 0,
-                    changelog: "".to_string(),
-                    sha256: [0; 32],
-                })
+                .map(|release| release.clone().version)
                 .collect::<Vec<_>>();
 
             Ok(Some(AppVersionResponse {
-                version_info: try_from_metadata(params)
+                version_info: find_latest_versions(params)
                     .map_err(Arc::new)
                     .map_err(rest::Error::FetchVersions)?,
                 current_version_supported,
@@ -196,37 +214,50 @@ impl AppVersionProxy {
 /// Helper method for android to figure out the latest stable and beta version
 /// This is a scaled down version to the desktop one as it does not need to worry about rollout etc.
 #[cfg(target_os = "android")]
-fn try_from_metadata(available_versions: Vec<Metadata>) -> anyhow::Result<VersionInfo> {
-    let (stable, beta) =
-        find_latest_versions(available_versions.into_iter(), |release| &release.version)?;
-    Ok(VersionInfo { stable, beta })
-}
-
-#[cfg(target_os = "android")]
-fn find_latest_versions<T: Clone>(
-    iter: impl Iterator<Item = T> + Clone,
-    version_from_elem: impl Fn(&T) -> &mullvad_version::Version,
-) -> anyhow::Result<(T, Option<T>)> {
+fn find_latest_versions(versions: Vec<Version>) -> anyhow::Result<VersionInfo> {
     // Find latest stable version
-    let stable = iter
+    let stable = versions
+        .iter()
         .clone()
-        .filter(|e| version_from_elem(e).is_stable())
-        .max_by(|a, b| {
-            version_from_elem(a)
-                .partial_cmp(version_from_elem(b))
-                .unwrap_or(Ordering::Equal)
-        })
+        .filter(|v| v.is_stable())
+        .max_by(|a, b| a.partial_cmp(b).unwrap_or(Ordering::Equal))
         .context("No stable version found")?;
 
     // Find the latest beta version
-    let beta = iter
-        .filter(|e| version_from_elem(e).is_beta())
-        .filter(|e| !version_from_elem(e).is_dev())
+    let beta = versions
+        .iter()
+        .filter(|v| v.is_beta())
+        .filter(|v| !v.is_dev())
         // If the latest beta version is older than latest stable, dispose of it
-        .filter(|e| version_from_elem(e) > version_from_elem(&stable))
-        .max_by(|a, b| version_from_elem(a).partial_cmp(version_from_elem(b)).unwrap_or(Ordering::Equal));
+        .filter(|v| v > &stable)
+        .max_by(|a, b| a.partial_cmp(b).unwrap_or(Ordering::Equal));
 
-    Ok((stable, beta))
+    Ok(VersionInfo {
+        stable: Metadata {
+            version: stable.clone(),
+            urls: vec![],
+            size: 0,
+            changelog: "".to_string(),
+            sha256: [0; 32],
+        },
+        beta: beta.map(|b| Metadata {
+            version: b.clone(),
+            urls: vec![],
+            size: 0,
+            changelog: "".to_string(),
+            sha256: [0; 32],
+        }),
+    })
+}
+
+pub fn is_version_supported_android(
+    current_version: mullvad_version::Version,
+    response: &crate::version::AndroidReleases,
+) -> bool {
+    response
+        .releases
+        .iter()
+        .any(|release| release.version.eq(&current_version))
 }
 
 // This function makes a string conform to the allowed characters and length of header values.

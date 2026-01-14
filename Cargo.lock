@@ -2822,7 +2822,6 @@ dependencies = [
  "mullvad-api-constants",
  "mullvad-encrypted-dns-proxy",
  "mullvad-fs",
- "mullvad-release-android",
  "mullvad-types",
  "mullvad-update",
  "mullvad-version",
@@ -3153,6 +3152,7 @@ version = "0.0.0"
 dependencies = [
  "anyhow",
  "clap",
+ "mullvad-api",
  "mullvad-api-constants",
  "mullvad-version",
  "reqwest",
