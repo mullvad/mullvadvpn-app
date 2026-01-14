@@ -45,7 +45,7 @@ export function UdpOverTcpPortSetting() {
   return (
     <SettingsListbox value={port} onValueChange={selectPort}>
       <SettingsListbox.Header>
-        <SettingsListbox.Item>
+        <SettingsListbox.HeaderItem>
           <SettingsListbox.Content>
             <SettingsListbox.Label>
               {
@@ -62,7 +62,7 @@ export function UdpOverTcpPortSetting() {
               </ModalMessage>
             </InfoButton>
           </SettingsListbox.Content>
-        </SettingsListbox.Item>
+        </SettingsListbox.HeaderItem>
       </SettingsListbox.Header>
       <SettingsListbox.Options>
         <SettingsListbox.BaseOption value={'any'}>
