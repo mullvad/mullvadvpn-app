@@ -2,12 +2,15 @@ import React from 'react';
 
 import { messages } from '../../../../../shared/gettext';
 import { SettingsListItem } from '../../../../components/settings-list-item';
+import { ListItemProps } from '../../../../lib/components/list-item';
 import { UnpinnedWindowSwitch } from '../unpinned-window-switch/UnpinnedWindowSwitch';
 
-export function UnpinnedWindowSetting() {
+export type UnpinnedWindowSettingProps = Omit<ListItemProps, 'children'>;
+
+export function UnpinnedWindowSetting(props: UnpinnedWindowSettingProps) {
   const descriptionId = React.useId();
   return (
-    <SettingsListItem>
+    <SettingsListItem {...props}>
       <SettingsListItem.Item>
         <SettingsListItem.Content>
           <UnpinnedWindowSwitch>

@@ -1,10 +1,13 @@
 import { messages } from '../../../../../shared/gettext';
 import { SettingsListItem } from '../../../../components/settings-list-item';
+import { ListItemProps } from '../../../../lib/components/list-item';
 import { StartMinimizedSwitch } from '../start-minimized-switch/StartMinimizedSwitch';
 
-export function StartMinimizedSetting() {
+export type StartMinimizedSettingProps = Omit<ListItemProps, 'children'>;
+
+export function StartMinimizedSetting(props: StartMinimizedSettingProps) {
   return (
-    <SettingsListItem>
+    <SettingsListItem {...props}>
       <SettingsListItem.Item>
         <SettingsListItem.Content>
           <StartMinimizedSwitch>
