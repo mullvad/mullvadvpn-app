@@ -1,7 +1,7 @@
 use std::{ffi::c_char, ffi::c_void, future::Future, sync::Arc};
 
 use crate::get_string;
-use access_method_resolver::SwiftAccessMethodResolver;
+use access_method_resolver::{IOSAddressCacheBacking, SwiftAccessMethodResolver};
 use access_method_settings::SwiftAccessMethodSettingsWrapper;
 use address_cache_provider::SwiftAddressCacheWrapper;
 use futures::{
@@ -314,7 +314,9 @@ pub extern "C" fn mullvad_api_init_inner(
 
         // It is imperative that the REST runtime is created within an async context, otherwise
         // ApiAvailability panics.
-        let api_client = mullvad_api::Runtime::new(tokio_handle, &endpoint);
+
+        // Assumption: IOSAddressCacheBacking always returns `Ok`, as the keychain API methods always work. Hence the .expect
+        let api_client = mullvad_api::Runtime::with_cache_backing(tokio_handle, &endpoint, Arc::new(IOSAddressCacheBacking {})).await.expect("IOSAddressCacheBacking.read failed");
         let rest_client = api_client.mullvad_rest_handle(access_mode_provider);
 
         ApiContext {
