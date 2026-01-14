@@ -87,35 +87,37 @@ export function PortSetting() {
       anchorId="port-setting"
       value={selectedOption.value}
       onValueChange={setWireguardPort}>
-      <SettingsListbox.Item>
-        <SettingsListbox.Content>
-          <SettingsListbox.Label>
-            {
-              // TRANSLATORS: The title for the WireGuard port selector.
-              messages.pgettext('wireguard-settings-view', 'Port')
-            }
-          </SettingsListbox.Label>
-          <InfoButton>
-            <>
-              <ModalMessage>
-                {messages.pgettext(
-                  'wireguard-settings-view',
-                  'The automatic setting will randomly choose from the valid port ranges shown below.',
-                )}
-              </ModalMessage>
-              <ModalMessage>
-                {sprintf(
-                  messages.pgettext(
+      <SettingsListbox.Header>
+        <SettingsListbox.Item>
+          <SettingsListbox.Content>
+            <SettingsListbox.Label>
+              {
+                // TRANSLATORS: The title for the WireGuard port selector.
+                messages.pgettext('wireguard-settings-view', 'Port')
+              }
+            </SettingsListbox.Label>
+            <InfoButton>
+              <>
+                <ModalMessage>
+                  {messages.pgettext(
                     'wireguard-settings-view',
-                    'The custom port can be any value inside the valid ranges: %(portRanges)s.',
-                  ),
-                  { portRanges: portRangesText },
-                )}
-              </ModalMessage>
-            </>
-          </InfoButton>
-        </SettingsListbox.Content>
-      </SettingsListbox.Item>
+                    'The automatic setting will randomly choose from the valid port ranges shown below.',
+                  )}
+                </ModalMessage>
+                <ModalMessage>
+                  {sprintf(
+                    messages.pgettext(
+                      'wireguard-settings-view',
+                      'The custom port can be any value inside the valid ranges: %(portRanges)s.',
+                    ),
+                    { portRanges: portRangesText },
+                  )}
+                </ModalMessage>
+              </>
+            </InfoButton>
+          </SettingsListbox.Content>
+        </SettingsListbox.Item>
+      </SettingsListbox.Header>
       <SettingsListbox.Options>
         <SettingsListbox.BaseOption value={null}>
           {messages.gettext('Automatic')}

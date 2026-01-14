@@ -37,38 +37,40 @@ export function IpVersionSetting(props: IpVersionSettingProps) {
 
   return (
     <SettingsListbox value={ipVersion} onValueChange={setIpVersion} {...props}>
-      <SettingsListbox.Item>
-        <SettingsListbox.Content>
-          <SettingsListbox.Label>
-            {
-              // TRANSLATORS: Title for device IP version setting.
-              messages.pgettext('wireguard-settings-view', 'Device IP version')
-            }
-          </SettingsListbox.Label>
-          <InfoButton>
-            <ModalMessage>
+      <SettingsListbox.Header>
+        <SettingsListbox.Item>
+          <SettingsListbox.Content>
+            <SettingsListbox.Label>
               {
-                // TRANSLATORS: A description for the setting Device IP version,
-                // TRANSLATORS: explaining how the user can configure the setting.
-                messages.pgettext(
-                  'vpn-settings-view',
-                  'This feature allows you to choose whether to use only IPv4, only IPv6, or allow the app to automatically decide the best option when connecting to a server.',
-                )
+                // TRANSLATORS: Title for device IP version setting.
+                messages.pgettext('wireguard-settings-view', 'Device IP version')
               }
-            </ModalMessage>
-            <ModalMessage>
-              {
-                // TRANSLATORS: A complimentary description for the setting Device IP version,
-                // TRANSLATORS: explaining why the user might want to configure the setting.
-                messages.pgettext(
-                  'vpn-settings-view',
-                  'It can be useful when you are aware of problems caused by a certain IP version.',
-                )
-              }
-            </ModalMessage>
-          </InfoButton>
-        </SettingsListbox.Content>
-      </SettingsListbox.Item>
+            </SettingsListbox.Label>
+            <InfoButton>
+              <ModalMessage>
+                {
+                  // TRANSLATORS: A description for the setting Device IP version,
+                  // TRANSLATORS: explaining how the user can configure the setting.
+                  messages.pgettext(
+                    'vpn-settings-view',
+                    'This feature allows you to choose whether to use only IPv4, only IPv6, or allow the app to automatically decide the best option when connecting to a server.',
+                  )
+                }
+              </ModalMessage>
+              <ModalMessage>
+                {
+                  // TRANSLATORS: A complimentary description for the setting Device IP version,
+                  // TRANSLATORS: explaining why the user might want to configure the setting.
+                  messages.pgettext(
+                    'vpn-settings-view',
+                    'It can be useful when you are aware of problems caused by a certain IP version.',
+                  )
+                }
+              </ModalMessage>
+            </InfoButton>
+          </SettingsListbox.Content>
+        </SettingsListbox.Item>
+      </SettingsListbox.Header>
       <SettingsListbox.Options>
         <SettingsListbox.BaseOption value={null}>
           {messages.gettext('Automatic')}
