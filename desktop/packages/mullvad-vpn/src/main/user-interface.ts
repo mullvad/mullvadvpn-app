@@ -1,5 +1,5 @@
 import { exec, spawn } from 'child_process';
-import { app, BrowserWindow, dialog, Menu, nativeImage, screen, Tray } from 'electron';
+import { app, BrowserWindow, dialog, Menu, screen, Tray } from 'electron';
 import path from 'path';
 import { sprintf } from 'sprintf-js';
 import { promisify } from 'util';
@@ -19,6 +19,7 @@ import {
 import { WebContentsConsoleInput } from './logging';
 import { isMacOs11OrNewer } from './platform-version';
 import { resolveBin } from './proc';
+import { createTray } from './tray';
 import TrayIconController, { TrayIconType } from './tray-icon-controller';
 import WindowController, { WindowControllerDelegate } from './window-controller';
 
@@ -60,7 +61,7 @@ export default class UserInterface implements WindowControllerDelegate {
     const window = this.createWindow();
 
     this.windowController = this.createWindowController(window);
-    this.tray = this.createTray();
+    this.tray = createTray();
   }
 
   public registerIpcListeners() {
@@ -269,16 +270,6 @@ export default class UserInterface implements WindowControllerDelegate {
     this.windowController.close();
     this.trayIconController?.dispose();
   };
-
-  private createTray(): Tray {
-    const tray = new Tray(nativeImage.createEmpty());
-    tray.setToolTip('Mullvad VPN');
-
-    // disable double click on tray icon since it causes weird delay
-    tray.setIgnoreDoubleClickEvents(true);
-
-    return tray;
-  }
 
   private createWindow(): BrowserWindow {
     const unpinnedWindow = this.delegate.isUnpinnedWindow();
