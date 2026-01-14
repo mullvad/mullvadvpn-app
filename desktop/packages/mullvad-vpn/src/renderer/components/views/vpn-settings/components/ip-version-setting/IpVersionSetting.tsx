@@ -38,7 +38,7 @@ export function IpVersionSetting(props: IpVersionSettingProps) {
   return (
     <SettingsListbox value={ipVersion} onValueChange={setIpVersion} {...props}>
       <SettingsListbox.Header>
-        <SettingsListbox.Item>
+        <SettingsListbox.HeaderItem>
           <SettingsListbox.Content>
             <SettingsListbox.Label>
               {
@@ -69,7 +69,7 @@ export function IpVersionSetting(props: IpVersionSettingProps) {
               </ModalMessage>
             </InfoButton>
           </SettingsListbox.Content>
-        </SettingsListbox.Item>
+        </SettingsListbox.HeaderItem>
       </SettingsListbox.Header>
       <SettingsListbox.Options>
         <SettingsListbox.BaseOption value={null}>
