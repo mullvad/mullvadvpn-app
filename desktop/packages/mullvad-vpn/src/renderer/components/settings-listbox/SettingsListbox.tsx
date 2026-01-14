@@ -1,39 +1,35 @@
 import React from 'react';
 
 import { ScrollToAnchorId } from '../../../shared/ipc-types';
-import { useScrollToListItem } from '../../hooks';
 import { Listbox, ListboxProps } from '../../lib/components/listbox';
-import { BaseOption, InputOption, SplitOption } from './components';
+import { BaseOption, InputOption, SettingsListboxHeader, SplitOption } from './components';
+import { SettingsListboxProvider } from './SettingsListboxContext';
 
 export type SettingsListboxProps<T> = Omit<ListboxProps<T>, 'animation'> & {
   anchorId?: ScrollToAnchorId;
 };
 
 function SettingsListbox<T>({ anchorId, children, ...props }: SettingsListboxProps<T>) {
-  const { ref, animation } = useScrollToListItem(anchorId);
   const labelId = React.useId();
 
   return (
-    <Listbox
-      ref={ref}
-      tabIndex={-1}
-      role="region"
-      labelId={labelId}
-      aria-labelledby={labelId}
-      animation={animation}
-      {...props}>
-      {children}
-    </Listbox>
+    <SettingsListboxProvider anchorId={anchorId}>
+      <Listbox labelId={labelId} {...props}>
+        {children}
+      </Listbox>
+    </SettingsListboxProvider>
   );
 }
 
 const SettingsListboxNamespace = Object.assign(SettingsListbox, {
+  Header: SettingsListboxHeader,
   Item: Listbox.Item,
   Content: Listbox.Content,
   Label: Listbox.Label,
   Group: Listbox.Group,
   Text: Listbox.Text,
   Footer: Listbox.Footer,
+  FooterText: Listbox.FooterText,
   Icon: Listbox.Icon,
   Option: Listbox.Option,
   Options: Listbox.Options,
