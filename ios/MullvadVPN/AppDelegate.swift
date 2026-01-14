@@ -451,6 +451,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             AccountExpirySystemNotificationProvider(tunnelManager: tunnelManager),
             AccountExpiryInAppNotificationProvider(tunnelManager: tunnelManager),
             NewDeviceNotificationProvider(tunnelManager: tunnelManager),
+            NewAppVersionSystemNotificationProvider(
+                tunnelManager: tunnelManager,
+                appStoreMetaDataService: AppStoreMetaDataService(
+                    urlSession: URLSession.shared,
+                    appPreferences: appPreferences
+                )
+            ),
         ]
         UNUserNotificationCenter.current().delegate = self
     }

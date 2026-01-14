@@ -493,6 +493,14 @@
 		7A52F96C2C17450C00B133B9 /* RelaySelectorWrapperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A52F96B2C17450C00B133B9 /* RelaySelectorWrapperTests.swift */; };
 		7A5468AC2C6A55B100590086 /* LocationRelays.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A5468AB2C6A55B100590086 /* LocationRelays.swift */; };
 		7A5468AD2C6B5E4B00590086 /* LocationRelays.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A5468AB2C6A55B100590086 /* LocationRelays.swift */; };
+		7A56B3402F11444800CBF960 /* AppStoreMetaDataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A56B33F2F11443400CBF960 /* AppStoreMetaDataService.swift */; };
+		7A56B3422F1145FE00CBF960 /* AppStoreMetaData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A56B3412F11457200CBF960 /* AppStoreMetaData.swift */; };
+		7A56B3432F14ECCC00CBF960 /* AppPreferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = F04FBE602A8379EE009278D7 /* AppPreferences.swift */; };
+		7A56B3452F164D7D00CBF960 /* LastVersionCheck.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A56B3442F164D7800CBF960 /* LastVersionCheck.swift */; };
+		7A56B3472F17D5B300CBF960 /* NewAppVersionSystemNotificationProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A56B3462F17D5A900CBF960 /* NewAppVersionSystemNotificationProvider.swift */; };
+		7A56B3482F17D5B300CBF960 /* NewAppVersionSystemNotificationProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A56B3462F17D5A900CBF960 /* NewAppVersionSystemNotificationProvider.swift */; };
+		7A56B34A2F190C7B00CBF960 /* AppStoreMetaDataServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A56B3492F190C6D00CBF960 /* AppStoreMetaDataServiceTests.swift */; };
+		7A56B34B2F1918CB00CBF960 /* AppStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0164EBB2B482E430020268D /* AppStorage.swift */; };
 		7A5869952B32E9C700640D27 /* LinkButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A5869942B32E9C700640D27 /* LinkButton.swift */; };
 		7A5869972B32EA4500640D27 /* AppButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A5869962B32EA4500640D27 /* AppButton.swift */; };
 		7A58699B2B482FE200640D27 /* UITableViewCell+Disable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A58699A2B482FE200640D27 /* UITableViewCell+Disable.swift */; };
@@ -925,7 +933,6 @@
 		F04789ED2E3A4FEB0011E3A5 /* ApplicationLanguage.swift in Sources */ = {isa = PBXBuildFile; fileRef = F04789EB2E3A4FEB0011E3A5 /* ApplicationLanguage.swift */; };
 		F048BFA22D31843000251CB9 /* ChangeLogModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F048BFA12D31842B00251CB9 /* ChangeLogModel.swift */; };
 		F04AF92D2C466013004A8314 /* EphemeralPeerNegotiationState.swift in Sources */ = {isa = PBXBuildFile; fileRef = F04AF92C2C466013004A8314 /* EphemeralPeerNegotiationState.swift */; };
-		F04FBE612A8379EE009278D7 /* AppPreferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = F04FBE602A8379EE009278D7 /* AppPreferences.swift */; };
 		F050AE4E2B70D7F8003F4EDB /* LocationCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F050AE4D2B70D7F8003F4EDB /* LocationCellViewModel.swift */; };
 		F050AE572B7376C6003F4EDB /* CustomListRepositoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = F050AE552B7376C5003F4EDB /* CustomListRepositoryProtocol.swift */; };
 		F050AE582B7376C6003F4EDB /* CustomListRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = F050AE562B7376C6003F4EDB /* CustomListRepository.swift */; };
@@ -2052,6 +2059,11 @@
 		7A516C3B2B712F0B00BBD33D /* IPOverrideWrapperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IPOverrideWrapperTests.swift; sourceTree = "<group>"; };
 		7A52F96B2C17450C00B133B9 /* RelaySelectorWrapperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelaySelectorWrapperTests.swift; sourceTree = "<group>"; };
 		7A5468AB2C6A55B100590086 /* LocationRelays.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationRelays.swift; sourceTree = "<group>"; };
+		7A56B33F2F11443400CBF960 /* AppStoreMetaDataService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStoreMetaDataService.swift; sourceTree = "<group>"; };
+		7A56B3412F11457200CBF960 /* AppStoreMetaData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStoreMetaData.swift; sourceTree = "<group>"; };
+		7A56B3442F164D7800CBF960 /* LastVersionCheck.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LastVersionCheck.swift; sourceTree = "<group>"; };
+		7A56B3462F17D5A900CBF960 /* NewAppVersionSystemNotificationProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewAppVersionSystemNotificationProvider.swift; sourceTree = "<group>"; };
+		7A56B3492F190C6D00CBF960 /* AppStoreMetaDataServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStoreMetaDataServiceTests.swift; sourceTree = "<group>"; };
 		7A5869942B32E9C700640D27 /* LinkButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LinkButton.swift; sourceTree = "<group>"; };
 		7A5869962B32EA4500640D27 /* AppButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppButton.swift; sourceTree = "<group>"; };
 		7A58699A2B482FE200640D27 /* UITableViewCell+Disable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UITableViewCell+Disable.swift"; sourceTree = "<group>"; };
@@ -3467,7 +3479,6 @@
 			children = (
 				7A0B311D2B303A0D004B12E0 /* AccessbilityIdentifier.swift */,
 				587988C628A2A01F00E3DF54 /* AccountDataThrottling.swift */,
-				F04FBE602A8379EE009278D7 /* AppPreferences.swift */,
 				5802EBC42A8E44AC00E5CE4C /* AppRoutes.swift */,
 				58FEEB57260B662E00A621A8 /* AutomaticKeyboardResponder.swift */,
 				5871FB95254ADE4E0051A0A4 /* ConsolidatedApplicationLog.swift */,
@@ -3633,6 +3644,7 @@
 				58607A4C2947287800BC467D /* AccountExpiryInAppNotificationProvider.swift */,
 				587B75402668FD7700DEF7E9 /* AccountExpirySystemNotificationProvider.swift */,
 				F0D5591D2D3805050072B63F /* LatestChangesNotificationProvider.swift */,
+				7A56B3462F17D5A900CBF960 /* NewAppVersionSystemNotificationProvider.swift */,
 				F07CFF1F29F2720E008C0343 /* NewDeviceNotificationProvider.swift */,
 				58C8191729FAA2C400DEB1B4 /* NotificationConfiguration.swift */,
 				58A94AE326CFD945001CB97C /* TunnelStatusNotificationProvider.swift */,
@@ -3742,6 +3754,7 @@
 			children = (
 				5827B0A02B0E064E00CCBBA1 /* AccessMethodRepository.swift */,
 				58EF875A2B16385400C098B2 /* AccessMethodRepositoryProtocol.swift */,
+				F04FBE602A8379EE009278D7 /* AppPreferences.swift */,
 				F0164EBB2B482E430020268D /* AppStorage.swift */,
 				F050AE592B7376F4003F4EDB /* CustomList.swift */,
 				F050AE562B7376C6003F4EDB /* CustomListRepository.swift */,
@@ -3754,6 +3767,7 @@
 				7A5869B22B5697AC00640D27 /* IPOverride.swift */,
 				7A5869BA2B56EE9500640D27 /* IPOverrideRepository.swift */,
 				06410DFD292CE18F00AFC18C /* KeychainSettingsStore.swift */,
+				7A56B3442F164D7800CBF960 /* LastVersionCheck.swift */,
 				068CE5732927B7A400A068BB /* Migration.swift */,
 				A9D96B192A8247C100A5C673 /* MigrationManager.swift */,
 				4483EC352E2693D5007E5473 /* MullvadAccessMethodChangeListening.swift */,
@@ -4190,6 +4204,7 @@
 			isa = PBXGroup;
 			children = (
 				58BDEB9E2A98F6B400F578F2 /* Mocks */,
+				7A56B3492F190C6D00CBF960 /* AppStoreMetaDataServiceTests.swift */,
 				7AA5C3742E9FCD5F00B35530 /* DefaultLocationServiceTests.swift */,
 				58FBFBE8291622580020E046 /* ExponentialBackoffTests.swift */,
 				F924C4522D706929001F4660 /* MullvadApiTests.swift */,
@@ -4624,6 +4639,8 @@
 			isa = PBXGroup;
 			children = (
 				06AC114128F8413A0037AF9A /* AddressCache.swift */,
+				7A56B3412F11457200CBF960 /* AppStoreMetaData.swift */,
+				7A56B33F2F11443400CBF960 /* AppStoreMetaDataService.swift */,
 				7AA5C36F2E9D21CD00B35530 /* DefaultLocationService.swift */,
 				06FAE67A28F83CA50033DD93 /* DeviceHandling.swift */,
 				06FAE67128F83CA40033DD93 /* HTTP.swift */,
@@ -5882,6 +5899,7 @@
 				F0DDE4152B220458006B57A7 /* ShadowsocksConfigurationCache.swift in Sources */,
 				06799AEA28F98E4800ACD94E /* RESTProxy.swift in Sources */,
 				06799ADD28F98E4800ACD94E /* RESTError.swift in Sources */,
+				7A56B3402F11444800CBF960 /* AppStoreMetaDataService.swift in Sources */,
 				7AB73F6E2D9AAD0A00DA5E1D /* MullvadAccountProxy.swift in Sources */,
 				06799ADB28F98E4800ACD94E /* RESTProxyFactory.swift in Sources */,
 				7AA7046A2C8EFE2B0045699D /* StoredRelays.swift in Sources */,
@@ -5895,6 +5913,7 @@
 				7ACE19112C1C349200260BB6 /* MultihopDecisionFlow.swift in Sources */,
 				F06045E62B231EB700B2D37A /* URLSessionTaskWrapper.swift in Sources */,
 				06799AE628F98E4800ACD94E /* ServerRelaysResponse.swift in Sources */,
+				7A56B3422F1145FE00CBF960 /* AppStoreMetaData.swift in Sources */,
 				F0DDE42B2B220A15006B57A7 /* RelaySelector.swift in Sources */,
 				F0B894F32BF7526700817A42 /* RelaySelector+Wireguard.swift in Sources */,
 				7AEBA52A2C2179F20018BEC5 /* RelaySelectorWrapper.swift in Sources */,
@@ -5997,6 +6016,7 @@
 				A9A5F9F62ACB05160083449F /* TunnelStatusNotificationProvider.swift in Sources */,
 				A9A5F9F72ACB05160083449F /* NotificationProviderProtocol.swift in Sources */,
 				A9A5F9F82ACB05160083449F /* NotificationProviderIdentifier.swift in Sources */,
+				7A56B3482F17D5B300CBF960 /* NewAppVersionSystemNotificationProvider.swift in Sources */,
 				A9A5F9F92ACB05160083449F /* NotificationProvider.swift in Sources */,
 				A9A5F9FA2ACB05160083449F /* InAppNotificationDescriptor.swift in Sources */,
 				A9A5F9FB2ACB05160083449F /* InAppNotificationProvider.swift in Sources */,
@@ -6084,6 +6104,7 @@
 				7A9BE5AB2B909A1700E2A7D0 /* LocationDataSourceProtocol.swift in Sources */,
 				A9A5FA2A2ACB05160083449F /* CoordinatesTests.swift in Sources */,
 				44DD7D242B6CFFD70005F67F /* StartTunnelOperationTests.swift in Sources */,
+				7A56B34B2F1918CB00CBF960 /* AppStorage.swift in Sources */,
 				A9A5FA2B2ACB05160083449F /* CustomDateComponentsFormattingTests.swift in Sources */,
 				440870842D809C980038972F /* UIImage+Helpers.swift in Sources */,
 				A9A5FA2C2ACB05160083449F /* DeviceCheckOperationTests.swift in Sources */,
@@ -6137,6 +6158,7 @@
 				A988DF2A2ADE880300D807EF /* TunnelSettingsV3.swift in Sources */,
 				7A9F293D2CAD2FD5005F2089 /* InfoModalConfig.swift in Sources */,
 				58B2FDE42AA71D5C003EB5C6 /* SettingsManager.swift in Sources */,
+				7A56B3452F164D7D00CBF960 /* LastVersionCheck.swift in Sources */,
 				F0164EBC2B482E430020268D /* AppStorage.swift in Sources */,
 				58B2FDE62AA71D5C003EB5C6 /* DeviceState.swift in Sources */,
 				A93181A12B727ED700E341D2 /* TunnelSettingsV4.swift in Sources */,
@@ -6151,6 +6173,7 @@
 				449872E12B7BBC5400094DDC /* TunnelSettingsUpdate.swift in Sources */,
 				58B2FDE72AA71D5C003EB5C6 /* SettingsStore.swift in Sources */,
 				44DD7D2D2B74E44A0005F67F /* QuantumResistanceSettings.swift in Sources */,
+				7A56B3432F14ECCC00CBF960 /* AppPreferences.swift in Sources */,
 				58B2FDE92AA71D5C003EB5C6 /* SettingsParser.swift in Sources */,
 				F08827892B3192110020A383 /* AccessMethodRepositoryProtocol.swift in Sources */,
 				F050AE5A2B7376F4003F4EDB /* CustomList.swift in Sources */,
@@ -6273,7 +6296,6 @@
 				5864AF0729C78843005B0CD9 /* SettingsCellFactory.swift in Sources */,
 				587B75412668FD7800DEF7E9 /* AccountExpirySystemNotificationProvider.swift in Sources */,
 				587988C728A2A01F00E3DF54 /* AccountDataThrottling.swift in Sources */,
-				F04FBE612A8379EE009278D7 /* AppPreferences.swift in Sources */,
 				58DFF7D82B02774C00F864E0 /* ListItemPickerViewController.swift in Sources */,
 				5896CEF226972DEB00B0FAE8 /* AccountContentView.swift in Sources */,
 				7A3353932AAA089000F0A71C /* SimulatorTunnelInfo.swift in Sources */,
@@ -6673,6 +6695,7 @@
 				F0ADF1D12D01B55C00299F09 /* ChipModel.swift in Sources */,
 				F09A297B2A9F8A9B00EA3B6F /* LogoutDialogueView.swift in Sources */,
 				F99E32432E7AA202004A7EFE /* MultihopContext.swift in Sources */,
+				7A56B3472F17D5B300CBF960 /* NewAppVersionSystemNotificationProvider.swift in Sources */,
 				5811DE50239014550011EB53 /* NEVPNStatus+Debug.swift in Sources */,
 				7A21DACF2A30AA3700A787A9 /* UITextField+Appearance.swift in Sources */,
 				585B1FF02AB09F97008AD470 /* VPNConnectionProtocol.swift in Sources */,
@@ -6834,6 +6857,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				7AA5C3752E9FCD9300B35530 /* DefaultLocationServiceTests.swift in Sources */,
+				7A56B34A2F190C7B00CBF960 /* AppStoreMetaDataServiceTests.swift in Sources */,
 				58FBFBE9291622580020E046 /* ExponentialBackoffTests.swift in Sources */,
 				F924C4532D70692E001F4660 /* MullvadApiTests.swift in Sources */,
 				F0164EC32B4C49D30020268D /* ShadowsocksLoaderStub.swift in Sources */,
