@@ -362,7 +362,7 @@ async fn create_devices(
 }
 
 // TODO: move this somewhere reasonable
-fn to_gotatun_peer(peer: &PeerConfig, daita: Option<&DaitaSettings>) -> Peer {
+fn to_gotatun_peer(peer: &PeerConfig, daita: Option<&DaitaSettings>) -> Result<Peer, TunnelError> {
     let PeerConfig {
         public_key,
         allowed_ips,
@@ -386,8 +386,9 @@ fn to_gotatun_peer(peer: &PeerConfig, daita: Option<&DaitaSettings>) -> Peer {
                 .client_machines
                 .iter()
                 // TODO: deserialize machines earlier. Preferably when getting them from the gRPC service.
-                .map(|machine_str| Machine::from_str(machine_str).unwrap(/* TODO */))
-                .collect(),
+                .map(|machine_str| Machine::from_str(machine_str))
+                .collect::<Result<_, _>>()
+                .map_err(|e| TunnelError::StartDaita(Box::new(e)))?,
             max_padding_frac: daita.max_padding_frac,
             max_blocking_frac: daita.max_blocking_frac,
             // TODO: tweak to sane values
@@ -397,7 +398,7 @@ fn to_gotatun_peer(peer: &PeerConfig, daita: Option<&DaitaSettings>) -> Peer {
         peer = peer.with_daita(daita);
     }
 
-    peer
+    Ok(peer)
 }
 
 /// (Re)Configure gotatun devices.
@@ -407,7 +408,7 @@ async fn configure_devices(
     daita: Option<&DaitaSettings>,
 ) -> Result<(), TunnelError> {
     let private_key = StaticSecret::from(config.tunnel.private_key.to_bytes());
-    let entry_peer = to_gotatun_peer(&config.entry_peer, daita);
+    let entry_peer = to_gotatun_peer(&config.entry_peer, daita)?;
 
     if let Some(exit_peer) = &config.exit_peer {
         log::trace!(
@@ -415,7 +416,7 @@ async fn configure_devices(
             daita.is_some()
         );
 
-        let exit_peer = to_gotatun_peer(exit_peer, daita);
+        let exit_peer = to_gotatun_peer(exit_peer, daita)?;
 
         let Devices::Multihop {
             entry_device,
