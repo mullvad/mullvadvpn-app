@@ -26,6 +26,7 @@ Line wrap the file at 100 chars.                                              Th
 - Change `WireGuard port` to no longer affect the port used for LWO.
 - Change `Mullvad Bridges` access method to randomly pick any Mullvad-owned bridge.
   Previously the access method was constrained to the five bridges closest to the exit relay.
+- Use Wayland by default on Linux if available, otherwise fall back to X11.
 
 ### Fixed
 - Fix "Time left" label in main view not updating when time passes.
