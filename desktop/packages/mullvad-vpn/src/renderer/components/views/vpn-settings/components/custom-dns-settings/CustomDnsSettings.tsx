@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { messages } from '../../../../../../shared/gettext';
 import { useDns } from '../../../../../features/dns/hooks';
 import { Button, IconButton } from '../../../../../lib/components';
-import { Accordion } from '../../../../../lib/components/accordion';
+import { Accordion, AccordionProps } from '../../../../../lib/components/accordion';
 import { Switch } from '../../../../../lib/components/switch';
 import { formatHtml } from '../../../../../lib/html-formatter';
 import { IpAddress } from '../../../../../lib/ip';
@@ -22,9 +22,11 @@ import {
   StyledLabel,
 } from './CustomDnsSettingsStyles';
 
+export type CustomDnsSettingsProps = Omit<AccordionProps, 'children'>;
+
 const manualLocal = window.env.platform === 'win32' || window.env.platform === 'linux';
 
-export function CustomDnsSettings() {
+export function CustomDnsSettings(props: CustomDnsSettingsProps) {
   const { dns, setDns } = useDns();
 
   const [inputVisible, showInput, hideInput] = useBoolean(false);
@@ -187,7 +189,7 @@ export function CustomDnsSettings() {
 
   return (
     <>
-      <SettingsListItem anchorId="custom-dns-settings" disabled={!featureAvailable}>
+      <SettingsListItem anchorId="custom-dns-settings" disabled={!featureAvailable} {...props}>
         <SettingsListItem.Item>
           <SettingsListItem.Content>
             <Switch
