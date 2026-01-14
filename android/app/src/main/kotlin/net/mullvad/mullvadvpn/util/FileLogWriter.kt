@@ -11,7 +11,6 @@ import java.nio.file.StandardCopyOption
 import java.nio.file.StandardOpenOption
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
-import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.concurrent.Executors
 import kotlin.io.path.createFile
@@ -59,7 +58,8 @@ class FileLogWriter(
     override fun log(severity: Severity, message: String, tag: String, throwable: Throwable?) {
 
         scope.launch(singleThreadDispatcher) {
-            val logTimeStamp = DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(ZonedDateTime.now())
+            val logTimeStamp =
+                DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(OffsetDateTime.now(ZoneOffset.UTC))
             try {
                 checkLogRotation()
                 log.writer.appendLine("$logTimeStamp ${severity.name.first()}: $message")
