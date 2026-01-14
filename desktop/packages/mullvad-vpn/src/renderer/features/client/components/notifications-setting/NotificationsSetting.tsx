@@ -24,12 +24,12 @@ export function NotificationsSetting(props: NotificationsSettingProps) {
         </SettingsListItem.Content>
       </SettingsListItem.Item>
       <SettingsListItem.Footer>
-        <SettingsListItem.Text id={descriptionId}>
+        <SettingsListItem.FooterText id={descriptionId}>
           {messages.pgettext(
             'user-interface-settings-view',
             'Enable or disable system notifications. The critical notifications will always be displayed.',
           )}
-        </SettingsListItem.Text>
+        </SettingsListItem.FooterText>
       </SettingsListItem.Footer>
     </SettingsListItem>
   );

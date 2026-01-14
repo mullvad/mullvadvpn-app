@@ -46,7 +46,7 @@ export function EnableIpv6Setting(props: EnableIpv6SettingProps) {
         </SettingsListItem.Content>
       </SettingsListItem.Item>
       <SettingsListItem.Footer>
-        <SettingsListItem.Text id={descriptionId}>
+        <SettingsListItem.FooterText id={descriptionId}>
           {
             // TRANSLATORS: Description of in-tunnel IPv6 setting.
             messages.pgettext(
@@ -54,7 +54,7 @@ export function EnableIpv6Setting(props: EnableIpv6SettingProps) {
               'Enable to allow IPv6 traffic through the tunnel.',
             )
           }
-        </SettingsListItem.Text>
+        </SettingsListItem.FooterText>
       </SettingsListItem.Footer>
     </SettingsListItem>
   );
