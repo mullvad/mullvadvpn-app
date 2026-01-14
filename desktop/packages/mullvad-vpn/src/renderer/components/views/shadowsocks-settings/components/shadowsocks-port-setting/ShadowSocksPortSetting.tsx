@@ -46,7 +46,7 @@ export function ShadowsocksPortSetting() {
   return (
     <SettingsListbox value={selectedOption.value} onValueChange={setShadowsocksPort}>
       <SettingsListbox.Header>
-        <SettingsListbox.Item>
+        <SettingsListbox.HeaderItem>
           <SettingsListbox.Content>
             <SettingsListbox.Label>
               {
@@ -55,7 +55,7 @@ export function ShadowsocksPortSetting() {
               }
             </SettingsListbox.Label>
           </SettingsListbox.Content>
-        </SettingsListbox.Item>
+        </SettingsListbox.HeaderItem>
       </SettingsListbox.Header>
       <SettingsListbox.Options>
         <SettingsListbox.BaseOption value={null}>
