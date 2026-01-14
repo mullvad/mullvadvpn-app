@@ -129,21 +129,19 @@ fn init_daemon_logging(
 /// Initialize logging to stder and to the [`EARLY_BOOT_LOG_FILENAME`]
 #[cfg(target_os = "linux")]
 fn init_early_boot_logging(config: &cli::Config) {
-    let log_location = match get_log_dir(config) {
-        Ok(Some(log_dir)) => Some(LogLocation {
+    let logging = get_log_dir(config)
+        .ok()
+        .flatten()
+        .map(|log_dir| LogLocation {
             directory: log_dir,
             filename: PathBuf::from(EARLY_BOOT_LOG_FILENAME),
-        }),
-        Ok(None) => None,
-        _ => panic!("probably do not panic .."),
-    };
+        });
+
     // If it's possible to log to the filesystem - attempt to do so, but failing that mustn't stop
     // the daemon from starting here.
-    if init_logger(config, log_location).is_ok() {
-        return;
-    }
-
-    let _ = init_logger(config, None);
+    if init_logger(config, logging).is_err() {
+        let _ = init_logger(config, None);
+    };
 }
 
 /// Initialize logging to stderr and to file (if provided).
