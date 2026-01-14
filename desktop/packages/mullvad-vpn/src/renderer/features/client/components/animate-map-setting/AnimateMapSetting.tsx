@@ -23,9 +23,9 @@ export function AnimateMapSetting(props: AnimateMapSettingProps) {
         </ListItem.Content>
       </ListItem.Item>
       <ListItem.Footer>
-        <ListItem.Text id={descriptionId}>
+        <ListItem.FooterText id={descriptionId}>
           {messages.pgettext('user-interface-settings-view', 'Animate map movements.')}
-        </ListItem.Text>
+        </ListItem.FooterText>
       </ListItem.Footer>
     </ListItem>
   );
