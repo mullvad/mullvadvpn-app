@@ -31,6 +31,8 @@ jobs:
         run: |
           workspaces=$(find . -name Cargo.lock -type f -exec dirname {} \;)
           for workspace in $workspaces; do
-            echo -e "\\n\\n#### Checking workspace: $workspace ####\\n"
-            cargo shear "$workspace"
+              echo ""
+              echo "[#] Checking workspace: $workspace"
+              echo ""
+              cargo shear "$workspace"
           done
