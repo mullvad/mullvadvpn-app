@@ -164,8 +164,8 @@ impl LogHandle {
 
 /// Initialize a global logger.
 ///
-/// * log_level: TODO
-/// * log_location: See [`LogLocation`].
+/// * log_level: Base log level, used if `RUST_LOG` is not set.
+/// * log_location: Path to the log file, see [`LogLocation`].
 /// * output_timestamp: Whether timestamps should be included in the log output.
 pub fn init_logger(
     log_level: LevelFilter,
