@@ -6,12 +6,15 @@ import { messages } from '../../../../../../shared/gettext';
 import log from '../../../../../../shared/logging';
 import { removeNonNumericCharacters } from '../../../../../../shared/string-helpers';
 import { useAppContext } from '../../../../../context';
+import { ListItemProps } from '../../../../../lib/components/list-item';
 import { useTextField } from '../../../../../lib/components/text-field';
 import { useSelector } from '../../../../../redux/store';
 import { SettingsListItem } from '../../../../settings-list-item';
 
 const MIN_WIREGUARD_MTU_VALUE = 1280;
 const MAX_WIREGUARD_MTU_VALUE = 1420;
+
+export type MtuSettingProps = Omit<ListItemProps, 'children'>;
 
 function mtuIsValid(mtu: string): boolean {
   const parsedMtu = mtu ? parseInt(mtu) : undefined;
@@ -21,7 +24,7 @@ function mtuIsValid(mtu: string): boolean {
   );
 }
 
-export function MtuSetting() {
+export function MtuSetting(props: MtuSettingProps) {
   const { setWireguardMtu: setWireguardMtuImpl } = useAppContext();
   const mtu = useSelector((state) => state.settings.wireguard.mtu);
 
@@ -79,7 +82,7 @@ export function MtuSetting() {
   );
 
   return (
-    <SettingsListItem anchorId="mtu-setting" aria-labelledby={labelId}>
+    <SettingsListItem anchorId="mtu-setting" aria-labelledby={labelId} {...props}>
       <SettingsListItem.Item>
         <SettingsListItem.Content>
           <SettingsListItem.Label id={labelId}>

@@ -4,12 +4,15 @@ import { messages } from '../../../../../shared/gettext';
 import InfoButton from '../../../../components/InfoButton';
 import { ModalMessage } from '../../../../components/Modal';
 import { SettingsListItem } from '../../../../components/settings-list-item';
+import { ListItemProps } from '../../../../lib/components/list-item';
 import { EnableIpv6Switch } from '../enable-ipv6-switch/EnableIpv6Switch';
 
-export function EnableIpv6Setting() {
+export type EnableIpv6SettingProps = Omit<ListItemProps, 'children'>;
+
+export function EnableIpv6Setting(props: EnableIpv6SettingProps) {
   const descriptionId = React.useId();
   return (
-    <SettingsListItem>
+    <SettingsListItem {...props}>
       <SettingsListItem.Item>
         <SettingsListItem.Content>
           <EnableIpv6Switch>
