@@ -4,7 +4,7 @@ import { ListItem, ListItemProps } from '../list-item';
 import { AccordionProvider } from './AccordionContext';
 import {
   AccordionContent,
-  AccordionHeader,
+  AccordionHeaderItem,
   AccordionIcon,
   AccordionTitle,
   AccordionTrigger,
@@ -50,7 +50,7 @@ function Accordion({
 
 const AccordionNamespace = Object.assign(Accordion, {
   Trigger: AccordionTrigger,
-  Header: AccordionHeader,
+  HeaderItem: AccordionHeaderItem,
   Content: AccordionContent,
   Title: AccordionTitle,
   Icon: AccordionIcon,
