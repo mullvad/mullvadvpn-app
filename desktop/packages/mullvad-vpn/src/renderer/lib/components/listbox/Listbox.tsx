@@ -5,7 +5,7 @@ import {
   ListboxFooter,
   ListboxFooterText,
   ListboxHeader,
-  ListboxItem,
+  ListboxHeaderItem,
   ListboxLabel,
   ListboxOption,
   ListboxOptions,
@@ -32,7 +32,7 @@ function Listbox<T>({ value, onValueChange, labelId: labelIdProp, children }: Li
 
 const ListboxNamespace = Object.assign(Listbox, {
   Header: ListboxHeader,
-  Item: ListboxItem,
+  HeaderItem: ListboxHeaderItem,
   Content: ListItem.Content,
   Label: ListboxLabel,
   Group: ListItem.Group,

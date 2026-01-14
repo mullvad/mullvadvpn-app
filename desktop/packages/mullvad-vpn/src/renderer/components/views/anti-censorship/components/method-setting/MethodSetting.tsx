@@ -37,7 +37,7 @@ export function MethodSetting() {
       onValueChange={handleSelectObfuscation}
       value={selectedObfuscation}>
       <SettingsListbox.Header>
-        <SettingsListbox.Item>
+        <SettingsListbox.HeaderItem>
           <SettingsListbox.Content>
             <SettingsListbox.Label>
               {
@@ -46,7 +46,7 @@ export function MethodSetting() {
               }
             </SettingsListbox.Label>
           </SettingsListbox.Content>
-        </SettingsListbox.Item>
+        </SettingsListbox.HeaderItem>
       </SettingsListbox.Header>
       <SettingsListbox.Options>
         <AutomaticOption />
