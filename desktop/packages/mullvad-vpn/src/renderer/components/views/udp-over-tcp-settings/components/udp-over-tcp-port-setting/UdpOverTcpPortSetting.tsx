@@ -44,24 +44,26 @@ export function UdpOverTcpPortSetting() {
 
   return (
     <SettingsListbox value={port} onValueChange={selectPort}>
-      <SettingsListbox.Item>
-        <SettingsListbox.Content>
-          <SettingsListbox.Label>
-            {
-              // TRANSLATORS: The title for the WireGuard port selector.
-              messages.pgettext('wireguard-settings-view', 'Port')
-            }
-          </SettingsListbox.Label>
-          <InfoButton>
-            <ModalMessage>
-              {messages.pgettext(
-                'wireguard-settings-view',
-                'Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server.',
-              )}
-            </ModalMessage>
-          </InfoButton>
-        </SettingsListbox.Content>
-      </SettingsListbox.Item>
+      <SettingsListbox.Header>
+        <SettingsListbox.Item>
+          <SettingsListbox.Content>
+            <SettingsListbox.Label>
+              {
+                // TRANSLATORS: The title for the WireGuard port selector.
+                messages.pgettext('wireguard-settings-view', 'Port')
+              }
+            </SettingsListbox.Label>
+            <InfoButton>
+              <ModalMessage>
+                {messages.pgettext(
+                  'wireguard-settings-view',
+                  'Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server.',
+                )}
+              </ModalMessage>
+            </InfoButton>
+          </SettingsListbox.Content>
+        </SettingsListbox.Item>
+      </SettingsListbox.Header>
       <SettingsListbox.Options>
         <SettingsListbox.BaseOption value={'any'}>
           {messages.gettext('Automatic')}

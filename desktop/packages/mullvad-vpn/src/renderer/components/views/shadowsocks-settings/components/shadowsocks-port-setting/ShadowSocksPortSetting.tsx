@@ -45,16 +45,18 @@ export function ShadowsocksPortSetting() {
 
   return (
     <SettingsListbox value={selectedOption.value} onValueChange={setShadowsocksPort}>
-      <SettingsListbox.Item>
-        <SettingsListbox.Content>
-          <SettingsListbox.Label>
-            {
-              // TRANSLATORS: The title for the WireGuard port selector.
-              messages.pgettext('wireguard-settings-view', 'Port')
-            }
-          </SettingsListbox.Label>
-        </SettingsListbox.Content>
-      </SettingsListbox.Item>
+      <SettingsListbox.Header>
+        <SettingsListbox.Item>
+          <SettingsListbox.Content>
+            <SettingsListbox.Label>
+              {
+                // TRANSLATORS: The title for the WireGuard port selector.
+                messages.pgettext('wireguard-settings-view', 'Port')
+              }
+            </SettingsListbox.Label>
+          </SettingsListbox.Content>
+        </SettingsListbox.Item>
+      </SettingsListbox.Header>
       <SettingsListbox.Options>
         <SettingsListbox.BaseOption value={null}>
           {messages.gettext('Automatic')}
@@ -78,13 +80,13 @@ export function ShadowsocksPortSetting() {
         </SettingsListbox.InputOption>
       </SettingsListbox.Options>
       <SettingsListbox.Footer>
-        <SettingsListbox.Text id={descriptionId}>
+        <SettingsListbox.FooterText id={descriptionId}>
           {sprintf(
             // TRANSLATORS: Text describing the valid port range for a port selector.
             messages.pgettext('wireguard-settings-view', 'Valid range: %(min)s - %(max)s'),
             { min: ALLOWED_RANGE[0], max: ALLOWED_RANGE[1] },
           )}
-        </SettingsListbox.Text>
+        </SettingsListbox.FooterText>
       </SettingsListbox.Footer>
     </SettingsListbox>
   );
