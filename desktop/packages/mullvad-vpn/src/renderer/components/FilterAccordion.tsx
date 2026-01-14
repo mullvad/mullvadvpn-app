@@ -13,10 +13,10 @@ export function FilterAccordion({ title, children, defaultOpen }: FilterAccordio
   return (
     <Accordion expanded={open} onExpandedChange={setOpen}>
       <Accordion.Trigger>
-        <Accordion.Header>
+        <Accordion.HeaderItem>
           <Accordion.Title>{title}</Accordion.Title>
           <Accordion.Icon />
-        </Accordion.Header>
+        </Accordion.HeaderItem>
       </Accordion.Trigger>
       <Accordion.Content>{children}</Accordion.Content>
     </Accordion>
