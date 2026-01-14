@@ -6,10 +6,10 @@
 use mullvad_logging::{EnvFilter, LevelFilter, silence_crates};
 use std::ffi::CString;
 use std::io::Write;
+use tracing_subscriber::Layer;
 use tracing_subscriber::fmt::MakeWriter;
 use tracing_subscriber::layer::SubscriberExt;
 use tracing_subscriber::util::SubscriberInitExt;
-use tracing_subscriber::Layer;
 
 /// Callback function type for logging.
 /// - `level`: The log level (1=Error, 2=Warn, 3=Info, 4=Debug, 5=Trace)
