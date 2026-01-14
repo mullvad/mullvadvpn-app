@@ -32,7 +32,7 @@ export function DnsBlockerSettings(props: DnsBlockerSettingsProps) {
         aria-label={messages.pgettext('vpn-settings-view', 'DNS content blockers')}
         disabled={dns.state === 'custom'}
         {...props}>
-        <SettingsAccordion.Header>
+        <SettingsAccordion.HeaderItem>
           <SettingsAccordion.Title variant="bodySmallSemibold">
             {messages.pgettext('vpn-settings-view', 'DNS content blockers')}
           </SettingsAccordion.Title>
@@ -66,7 +66,7 @@ export function DnsBlockerSettings(props: DnsBlockerSettingsProps) {
               <SettingsAccordion.Icon />
             </SettingsAccordion.Trigger>
           </FlexRow>
-        </SettingsAccordion.Header>
+        </SettingsAccordion.HeaderItem>
         <SettingsAccordion.Content>
           <BlockAdsSetting />
           <BlockTrackersSetting />
