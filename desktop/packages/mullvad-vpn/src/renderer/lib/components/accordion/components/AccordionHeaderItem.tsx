@@ -4,9 +4,9 @@ import { ListItem } from '../../list-item';
 import { ListItemItemProps } from '../../list-item/components';
 import { useAccordionContext } from '../AccordionContext';
 
-export type AccordionHeaderProps = ListItemItemProps;
+export type AccordionHeaderItemProps = ListItemItemProps;
 
-export const StyledAccordionHeader = styled(ListItem.Item)<{ $expanded?: boolean }>`
+export const StyledAccordionHeaderItem = styled(ListItem.Item)<{ $expanded?: boolean }>`
   ${({ $expanded }) => {
     return css`
       transition: border-radius 0.15s ease-out;
@@ -23,11 +23,11 @@ export const StyledAccordionHeader = styled(ListItem.Item)<{ $expanded?: boolean
   }}
 `;
 
-export function AccordionHeader({ children, ...props }: AccordionHeaderProps) {
+export function AccordionHeaderItem({ children, ...props }: AccordionHeaderItemProps) {
   const { expanded } = useAccordionContext();
   return (
-    <StyledAccordionHeader $expanded={expanded} {...props}>
+    <StyledAccordionHeaderItem $expanded={expanded} {...props}>
       <ListItem.Content>{children}</ListItem.Content>
-    </StyledAccordionHeader>
+    </StyledAccordionHeaderItem>
   );
 }
