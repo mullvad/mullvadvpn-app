@@ -16,7 +16,7 @@ extension Bundle {
     /// 3. App Store builds: XXXX.YY
     ///
     /// Note: XXXX.YY is an app version (i.e 2020.5) and Z is a build number (i.e 1)
-    var productVersion: String {
+    public var productVersion: String {
         let version = object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "???"
         let buildNumber = object(forInfoDictionaryKey: kCFBundleVersionKey as String) as? String ?? "???"
 
@@ -32,7 +32,7 @@ extension Bundle {
     }
 
     /// Returns short version XXXX.YY (i.e 2020.5).
-    var shortVersion: String {
+    public var shortVersion: String {
         object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "???"
     }
 }

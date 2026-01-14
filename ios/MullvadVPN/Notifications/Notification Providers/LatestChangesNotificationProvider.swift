@@ -6,6 +6,8 @@
 //  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 //
 import Foundation
+import MullvadSettings
+import MullvadTypes
 import UIKit
 
 class LatestChangesNotificationProvider: NotificationProvider, InAppNotificationProvider, @unchecked Sendable {
