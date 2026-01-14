@@ -24,12 +24,12 @@ export function AutoConnectSetting(props: AutoConnectSettingProps) {
         </SettingsListItem.Content>
       </SettingsListItem.Item>
       <SettingsListItem.Footer>
-        <SettingsListItem.Text id={descriptionId}>
+        <SettingsListItem.FooterText id={descriptionId}>
           {messages.pgettext(
             'vpn-settings-view',
             'Automatically connect to a server when the app launches.',
           )}
-        </SettingsListItem.Text>
+        </SettingsListItem.FooterText>
       </SettingsListItem.Footer>
     </SettingsListItem>
   );

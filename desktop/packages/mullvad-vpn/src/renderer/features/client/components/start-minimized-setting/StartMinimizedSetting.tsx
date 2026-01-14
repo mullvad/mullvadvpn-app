@@ -21,12 +21,12 @@ export function StartMinimizedSetting(props: StartMinimizedSettingProps) {
         </SettingsListItem.Content>
       </SettingsListItem.Item>
       <SettingsListItem.Footer>
-        <SettingsListItem.Text>
+        <SettingsListItem.FooterText>
           {messages.pgettext(
             'user-interface-settings-view',
             'Show only the tray icon when the app starts.',
           )}
-        </SettingsListItem.Text>
+        </SettingsListItem.FooterText>
       </SettingsListItem.Footer>
     </SettingsListItem>
   );
