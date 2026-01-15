@@ -66,6 +66,7 @@ const PACKET_CHANNEL_CAPACITY: usize = 100;
 
 pub struct GotaTun {
     /// Device handles
+    /// INVARIANT: Must always be `Some`.
     // TODO: Can we not store this in an option?
     devices: Option<Devices>,
 
@@ -552,17 +553,19 @@ impl Tunnel for GotaTun {
                 .await
         }
 
-        let stats = match self.devices.as_ref().unwrap() {
-            Devices::Singlehop { device } => get_stats(device).await,
-            Devices::Multihop {
+        let stats = match self.devices.as_ref() {
+            Some(Devices::Singlehop { device }) => get_stats(device).await,
+            Some(Devices::Multihop {
                 entry_device,
                 exit_device,
                 ..
-            } => {
+            }) => {
                 let mut stats = get_stats(entry_device).await;
                 stats.extend(get_stats(exit_device).await);
                 stats
             }
+            None if cfg!(debug_assertions) => unreachable!("device must be Some"),
+            None => StatsMap::default(),
         };
 
         Ok(stats)
