@@ -10,8 +10,6 @@ import {
   AccordionTrigger,
 } from './components';
 
-export type AccordionAnimation = 'flash' | 'dim';
-
 export type AccordionProps = React.PropsWithChildren<{
   expanded?: boolean;
   onExpandedChange?: (open: boolean) => void;
@@ -21,21 +19,16 @@ export type AccordionProps = React.PropsWithChildren<{
 
 function Accordion({
   expanded = false,
-  onExpandedChange: onOpenChange,
+  onExpandedChange,
   disabled,
-  titleId: titleIdProp,
+  titleId,
   children,
 }: AccordionProps) {
-  const triggerId = React.useId();
-  const contentId = React.useId();
-  const titleId = React.useId();
   return (
     <AccordionProvider
-      triggerId={triggerId}
-      contentId={contentId}
-      titleId={titleIdProp ?? titleId}
+      titleId={titleId}
       expanded={expanded}
-      onExpandedChange={onOpenChange}
+      onExpandedChange={onExpandedChange}
       disabled={disabled}>
       <div>{children}</div>
     </AccordionProvider>
