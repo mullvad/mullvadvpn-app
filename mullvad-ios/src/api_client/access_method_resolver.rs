@@ -1,9 +1,7 @@
 use mullvad_api::{
-    ApiEndpoint,
+    AddressCacheBacking, AddressCacheError, ApiEndpoint,
     access_mode::AccessMethodResolver,
     proxy::{ApiConnectionMode, ProxyConfig},
-    AddressCacheBacking,
-    AddressCacheError,
 };
 use mullvad_encrypted_dns_proxy::state::EncryptedDnsProxyState;
 use mullvad_types::access_method::{AccessMethod, BuiltInAccessMethod};
@@ -15,7 +13,7 @@ use tonic::async_trait;
 use crate::get_string;
 
 use super::{
-    address_cache_provider::LateStringDeallocator,    
+    address_cache_provider::LateStringDeallocator,
     address_cache_provider::SwiftAddressCacheWrapper,
     shadowsocks_loader::SwiftShadowsocksLoaderWrapper,
 };
@@ -33,7 +31,7 @@ pub struct IOSAddressCacheBacking {}
 impl AddressCacheBacking for IOSAddressCacheBacking {
     async fn read(&self) -> Result<Vec<u8>, AddressCacheError> {
         let lsd = unsafe { swift_read_address_cache() };
-        let val = unsafe { get_string(lsd.ptr)};
+        let val = unsafe { get_string(lsd.ptr) };
         Ok(val.as_bytes().to_vec())
     }
 
