@@ -7,6 +7,9 @@ license.workspace = true
 edition.workspace = true
 rust-version.workspace = true
 
+[features]
+cgroup2 = []
+
 [lints]
 workspace = true
 

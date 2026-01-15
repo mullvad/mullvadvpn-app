@@ -14,7 +14,7 @@ mod inner {
         fmt::Write as _,
         os::unix::ffi::OsStrExt,
     };
-    use talpid_cgroup::{SPLIT_TUNNEL_CGROUP_NAME, find_net_cls_mount, v1::CGroup1, v2::CGroup2};
+    use talpid_cgroup::{SPLIT_TUNNEL_CGROUP_NAME, find_net_cls_mount, v1::CGroup1};
 
     #[derive(thiserror::Error, Debug)]
     enum Error {
@@ -96,19 +96,30 @@ mod inner {
 
         let pid = getpid();
 
-        let result = CGroup2::open_root()
-            .and_then(|root_cgroup2| root_cgroup2.create_or_open_child(SPLIT_TUNNEL_CGROUP_NAME))
-            .and_then(|exclusion_cgroup2| exclusion_cgroup2.add_pid(pid));
-
-        // Always add current PID to cgroup1 (deprecated solution). It does not hurt to be in both cgroup1 and cgroup2 at
-        // the same time, the firewall will have to promise to behave appropriately.
-        if let Err(add_err) = add_to_cgroups_v1_if_exists(pid)
-            && result.is_err()
+        #[cfg(feature = "cgroup2")]
         {
-            eprintln!("Failed to add process to v1 cgroup: {add_err}");
+            let result = v2::CGroup2::CGroup2::open_root()
+                .and_then(|root_cgroup2| {
+                    root_cgroup2.create_or_open_child(SPLIT_TUNNEL_CGROUP_NAME)
+                })
+                .and_then(|exclusion_cgroup2| exclusion_cgroup2.add_pid(pid));
+
+            // Always add current PID to cgroup1 (deprecated solution). It does not hurt to be in both cgroup1 and cgroup2 at
+            // the same time, the firewall will have to promise to behave appropriately.
+            if let Err(add_err) = add_to_cgroups_v1_if_exists(pid)
+                && result.is_err()
+            {
+                eprintln!("Failed to add process to v1 cgroup: {add_err}");
+            }
+
+            result?;
         }
 
-        result?;
+        #[cfg(not(feature = "cgroup2"))]
+        {
+            // Always add current PID to cgroup1
+            add_to_cgroups_v1_if_exists(pid)?;
+        }
 
         // Drop root privileges
         let real_uid = getuid();
