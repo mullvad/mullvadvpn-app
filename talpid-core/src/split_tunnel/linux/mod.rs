@@ -69,31 +69,33 @@ impl PidManager {
     }
 
     fn new_inner() -> Result<Inner, Error> {
-        #[allow(unused)]
-        let mut cgroup2_err = None;
-
         #[cfg(feature = "cgroup2")]
         match Self::new_cgroup2() {
             Ok(inner) => return Ok(Inner::CGroup2(inner)),
-            Err(err) => {
+            Err(cgroup2_err) => {
                 log::warn!(
                     "Failed to initialize cgroups v2, falling back to cgroup v1 for split tunneling"
                 );
-                log::trace!("{cgroup2_err:?}");
                 log::warn!("Note that cgroups v1 is deprecated and will be removed in the future");
-                cgroup2_err = Some(err);
+
+                // If it does not success, the kernel might be too old, so we fallback on the old cgroup1 solution.
+                match Self::new_cgroup1() {
+                    Ok(inner) => Ok(Inner::CGroup1(inner)),
+                    Err(cgroup1_err) => {
+                        log::error!("Failed to initialize split-tunneling");
+                        log::trace!("{cgroup1_err:?}");
+                        log::trace!("{cgroup2_err:?}");
+                        Err(cgroup2_err.unwrap_or(cgroup1_err))
+                    }
+                }
             }
         }
 
-        // If it does not success, the kernel might be too old, so we fallback on the old cgroup1 solution.
-        match Self::new_cgroup1() {
-            Ok(inner) => Ok(Inner::CGroup1(inner)),
-            Err(cgroup1_err) => {
-                log::error!("Failed to initialize split-tunneling");
-                log::trace!("{cgroup1_err:?}");
-                Err(cgroup2_err.unwrap_or(cgroup1_err))
-            }
-        }
+        #[cfg(not(feature = "cgroup2"))]
+        Self::new_cgroup1().map(Inner::CGroup1).inspect_err(|err| {
+            log::error!("Failed to initialize split-tunneling");
+            log::trace!("{err:?}");
+        })
     }
 
     #[cfg(feature = "cgroup2")]
