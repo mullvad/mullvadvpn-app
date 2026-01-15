@@ -19,7 +19,7 @@ use mullvad_daemon::{
     runtime::new_multi_thread,
     version,
 };
-use std::collections::HashMap;
+use std::{collections::HashMap, sync::OnceLock};
 use std::{
     ffi::CString,
     io,
@@ -93,9 +93,18 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_initial
 
     let env = JnixEnv::from(env);
     let files_dir = pathbuf_from_java(&env, files_directory);
-    let log_handle = start_logging(&files_dir)
-        .map_err(Error::InitializeLogging)
-        .unwrap();
+
+    // In some cases, this function may be called multiple times for the same process.
+    // Since logging can only be initialized once, we use a LazyLock reuse the existing log handle
+    static LOG_HANDLE: OnceLock<LogHandle> = OnceLock::new();
+    let log_handle = LOG_HANDLE
+        .get_or_init(|| {
+            start_logging(&files_dir)
+                .map_err(Error::InitializeLogging)
+                .unwrap()
+        })
+        .clone();
+
     version::log_version();
 
     log::info!("Pre-loading classes!");

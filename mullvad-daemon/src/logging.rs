@@ -1,7 +1,10 @@
 use std::{
     io,
     path::PathBuf,
-    sync::atomic::{AtomicBool, Ordering},
+    sync::{
+        Arc,
+        atomic::{AtomicBool, Ordering},
+    },
 };
 use talpid_core::logging::rotate_log;
 use tracing_appender::non_blocking;
@@ -26,9 +29,6 @@ pub enum Error {
 
     #[error("Unable to rotate daemon log file")]
     RotateLog(#[from] talpid_core::logging::RotateLogError),
-
-    #[error("Unable to set logger")]
-    SetLoggerError(#[from] log::SetLoggerError),
 }
 
 /// A [`MakeWriter`] that wraps an [`OptionalWriter`].
@@ -85,10 +85,11 @@ pub fn is_enabled() -> bool {
     LOG_ENABLED.load(Ordering::SeqCst)
 }
 
+#[derive(Clone)]
 pub struct LogHandle {
     env_filter: Handle<EnvFilter, Registry>,
     log_stream: LogStreamer,
-    _file_appender_guard: Option<non_blocking::WorkerGuard>,
+    _file_appender_guard: Option<Arc<non_blocking::WorkerGuard>>,
 }
 
 /// A location to put logs.
@@ -194,7 +195,7 @@ pub fn init_logger(
             let file_appender =
                 tracing_appender::rolling::never(&log_location.directory, &log_location.filename);
             let (appender, guard) = non_blocking(file_appender);
-            (Some(guard), OptionalMakeWriter(Some(appender)))
+            (Some(Arc::new(guard)), OptionalMakeWriter(Some(appender)))
         } else {
             (None, OptionalMakeWriter(None))
         };
