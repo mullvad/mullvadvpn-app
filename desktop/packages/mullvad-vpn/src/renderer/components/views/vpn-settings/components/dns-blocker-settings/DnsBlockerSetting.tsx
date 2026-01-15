@@ -72,7 +72,7 @@ export function DnsBlockerSettings({ position, ...props }: DnsBlockerSettingsPro
           </SettingsAccordion.HeaderItem>
         </SettingsAccordion.Header>
         <SettingsAccordion.Content>
-          <BlockAdsSetting />
+          <BlockAdsSetting position="middle" />
           <BlockTrackersSetting />
           <BlockMalwareSetting />
           <BlockGamblingSetting />
