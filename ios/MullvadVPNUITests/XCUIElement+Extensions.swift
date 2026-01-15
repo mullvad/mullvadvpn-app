@@ -220,3 +220,16 @@ extension XCUIElement {
         return false
     }
 }
+
+extension XCUIElement {
+    func clearText(app: XCUIApplication) {
+        tap()
+        press(forDuration: 1.0)
+
+        let selectAll = app.menuItems["Select All"]
+        if selectAll.existsAfterWait() {
+            selectAll.tap()
+            typeText(XCUIKeyboardKey.delete.rawValue)
+        }
+    }
+}
