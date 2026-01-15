@@ -63,13 +63,19 @@ enum ApplicationConfiguration {
     static let logMaximumFileSize: UInt64 = 131_072  // 128 kB.
 
     /// Privacy policy URL.
-    static let privacyPolicyLink = "https://\(Self.hostName)/help/privacy-policy/"
+    static func privacyPolicyLink(for language: String) -> String {
+        "https://\(Self.hostName)/\(language)/help/privacy-policy/"
+    }
 
     /// Make a start regarding  policy URL.
-    static let privacyGuidesURL = URL(string: "https://\(Self.hostName)/help/first-steps-towards-online-privacy/")!
+    static func privacyGuidesURL(for language: String) -> URL {
+        URL(string: "https://\(Self.hostName)/\(language)/help/first-steps-towards-online-privacy/")!
+    }
 
     /// FAQ & Guides URL.
-    static let faqAndGuidesURL = URL(string: "https://\(Self.hostName)/help/tag/mullvad-app/")!
+    static func faqAndGuidesURL(for language: String) -> URL {
+        URL(string: "https://\(Self.hostName)/\(language)/help/tag/mullvad-app/")!
+    }
 
     /// Maximum number of devices per account.
     static let maxAllowedDevices = 5

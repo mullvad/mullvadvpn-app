@@ -139,7 +139,8 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
 
             logger.debug("Show modal \(route)")
 
-            let safariCoordinator = SafariCoordinator(url: ApplicationConfiguration.faqAndGuidesURL)
+            let safariCoordinator = SafariCoordinator(
+                url: ApplicationConfiguration.faqAndGuidesURL(for: ApplicationLanguage.currentLanguage.id))
 
             safariCoordinator.didFinish = { [weak self] in
                 self?.modalRoute = nil
