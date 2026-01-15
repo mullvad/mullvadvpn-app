@@ -57,7 +57,7 @@ impl fmt::Debug for Interface {
                 .finish(),
 
             #[cfg(target_os = "macos")]
-            Self::Index(arg0) => f.debug_tuple("Luid").field(arg0).finish(),
+            Self::Index(arg0) => f.debug_tuple("Index").field(arg0).finish(),
         }
     }
 }
