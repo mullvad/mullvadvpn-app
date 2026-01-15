@@ -1,11 +1,13 @@
 import { messages } from '../../../../../shared/gettext';
 import { FlexRow } from '../../../../lib/components/flex-row';
-import { ListItem } from '../../../../lib/components/list-item';
+import { ListItem, ListItemProps } from '../../../../lib/components/list-item';
 import { BlockAdsSwitch } from '../block-ads-switch/BlockAdsSwitch';
 
-export function BlockAdsSetting() {
+export type BlockAdsSettingProps = Omit<ListItemProps, 'children'>;
+
+export function BlockAdsSetting(props: BlockAdsSettingProps) {
   return (
-    <ListItem level={1}>
+    <ListItem level={1} {...props}>
       <ListItem.Item>
         <ListItem.Content>
           <BlockAdsSwitch>

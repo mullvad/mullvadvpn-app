@@ -1,11 +1,13 @@
 import { messages } from '../../../../../shared/gettext';
 import { FlexRow } from '../../../../lib/components/flex-row';
-import { ListItem } from '../../../../lib/components/list-item';
+import { ListItem, ListItemProps } from '../../../../lib/components/list-item';
 import { BlockSocialMediaSwitch } from '../block-social-media-switch/BlockSocialMediaSwitch';
 
-export function BlockSocialMediaSetting() {
+export type BlockSocialMediaSettingProps = Omit<ListItemProps, 'children'>;
+
+export function BlockSocialMediaSetting(props: BlockSocialMediaSettingProps) {
   return (
-    <ListItem level={1}>
+    <ListItem level={1} {...props}>
       <ListItem.Item>
         <ListItem.Content>
           <BlockSocialMediaSwitch>

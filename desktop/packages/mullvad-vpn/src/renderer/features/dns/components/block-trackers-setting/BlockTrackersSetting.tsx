@@ -1,11 +1,13 @@
 import { messages } from '../../../../../shared/gettext';
 import { FlexRow } from '../../../../lib/components/flex-row';
-import { ListItem } from '../../../../lib/components/list-item';
+import { ListItem, ListItemProps } from '../../../../lib/components/list-item';
 import { BlockTrackersSwitch } from '../block-trackers-switch/BlockTrackersSwitch';
 
-export function BlockTrackersSetting() {
+export type BlockTrackersSettingProps = Omit<ListItemProps, 'children'>;
+
+export function BlockTrackersSetting(props: BlockTrackersSettingProps) {
   return (
-    <ListItem level={1}>
+    <ListItem level={1} {...props}>
       <ListItem.Item>
         <ListItem.Content>
           <BlockTrackersSwitch>
