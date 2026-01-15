@@ -111,6 +111,9 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
             name: UIApplication.didBecomeActiveNotification,
             object: nil
         )
+
+        self.startNetworkMonitor()
+
     }
 
     // MARK: - Periodic private key rotation
@@ -202,8 +205,6 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
             }
 
             self.updatePrivateKeyRotationTimer()
-            self.startNetworkMonitor()
-
             completionHandler()
         }
 
@@ -884,13 +885,6 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
                 guard let self else { return }
 
                 self.logger.debug("VPN connection status changed to \(status).")
-
-                if [.disconnected, .invalid].contains(tunnel.status) {
-                    self.startNetworkMonitor()
-                } else {
-                    self.cancelNetworkMonitor()
-                }
-
                 self.updateTunnelStatus(status)
             }
     }
