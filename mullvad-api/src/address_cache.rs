@@ -105,6 +105,10 @@ impl AddressCache {
         Ok(Self::new_inner(address, hostname, backing))
     }
 
+    pub async fn from_backing_or(hostname: String, backing: Arc<dyn AddressCacheBacking>, endpoint: &ApiEndpoint) -> Self {
+        Self::from_backing(hostname.clone(), backing.clone()).await.unwrap_or(Self::new_inner(endpoint.address(), hostname, backing))
+    }
+
     /// Initialize cache using `read_path`, and write changes to `write_path`.
     pub async fn from_file(
         read_path: &Path,
