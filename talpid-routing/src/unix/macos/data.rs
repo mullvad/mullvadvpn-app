@@ -1050,7 +1050,7 @@ pub mod ffi {
 
     /// Partial rt_msghdr that matches all route messages
     ///
-    /// Docs: https://github.com/apple-open-source/macos/blob/4e997debe4327c8a40fe8b87b15640f3befdb53c/xnu/bsd/net/route.h#L159
+    /// Docs: <https://github.com/apple-open-source/macos/blob/4e997debe4327c8a40fe8b87b15640f3befdb53c/xnu/bsd/net/route.h#L159>
     #[derive(Debug)]
     #[repr(C)]
     pub struct rt_msghdr_short {
