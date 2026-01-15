@@ -279,16 +279,8 @@ tray icon does not appear, try one of the following methods:
 
 If you're using GNOME, you might have to install additional GNOME shell extensions to display the tray icon properly.
 
-#### GNOME 47 and newer
-
-If you do not see the tray icon, try installing the `Status Icons` GNOME Shell extension.
-It can be installed via GNOME's extension website: https://extensions.gnome.org/extension/7332/status-icons/
-
-#### GNOME 46 and older
-
-For older versions of GNOME the `Status Icons` extension is unavailable. For those systems we recommend
-`AppIndicator and KStatusNotifierItem Support` instead.
-It can be installed via GNOME's extension website: https://extensions.gnome.org/extension/615/appindicator-support/
+We recommend `AppIndicator and KStatusNotifierItem Support`. It can be installed via GNOME's extension website:
+https://extensions.gnome.org/extension/615/appindicator-support/
 
 ### Other desktop environments
 
