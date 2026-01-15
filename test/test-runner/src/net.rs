@@ -1,3 +1,4 @@
+#[cfg(target_os = "macos")]
 use nix::net::if_::if_nametoindex;
 use socket2::SockAddr;
 #[cfg(target_os = "macos")]
