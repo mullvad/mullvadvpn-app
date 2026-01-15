@@ -35,16 +35,8 @@ class CustomListPage: Page {
 
     @discardableResult func renameCustomList(name: String) -> Self {
         let editCustomListNameCell = app.cells[.customListEditNameFieldCell]
-        // Activate the text field
-        editCustomListNameCell.tap()
-        // Select the entire text with a triple tap
-        editCustomListNameCell.tap(withNumberOfTaps: 3, numberOfTouches: 1)
-        // Tap the "delete" key on the on-screen keyboard, the case is sensitive.
-        // However, on a simulator the keyboard isn't visible by default, so we
-        // need to take that into consideration.
-        if app.keys["delete"].isHittable {
-            app.keys["delete"].tap()
-        }
+        let textField = editCustomListNameCell.textFields.firstMatch
+        textField.clearText(app: app)
         editCustomListNameCell.typeText(name)
         return self
     }
@@ -52,7 +44,9 @@ class CustomListPage: Page {
     @discardableResult func deleteCustomList(named customListName: String) -> Self {
         let deleteCustomListCell = app.cells[.customListEditDeleteListCell]
         deleteCustomListCell.tap()
-        app.buttons[.confirmDeleteCustomListButton].tap()
+
+        app.buttons[AccessibilityIdentifier.confirmDeleteCustomListButton].tapWhenHittable()
+
         return self
     }
 
