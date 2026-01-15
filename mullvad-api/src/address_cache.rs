@@ -100,13 +100,22 @@ impl AddressCache {
         )
     }
 
-    pub async fn from_backing(hostname: String, backing: Arc<dyn AddressCacheBacking>) -> Result<Self, Error> {
+    pub async fn from_backing(
+        hostname: String,
+        backing: Arc<dyn AddressCacheBacking>,
+    ) -> Result<Self, Error> {
         let address = read_address_backing(&backing).await?;
         Ok(Self::new_inner(address, hostname, backing))
     }
 
-    pub async fn from_backing_or(hostname: String, backing: Arc<dyn AddressCacheBacking>, endpoint: &ApiEndpoint) -> Self {
-        Self::from_backing(hostname.clone(), backing.clone()).await.unwrap_or(Self::new_inner(endpoint.address(), hostname, backing))
+    pub async fn from_backing_or(
+        hostname: String,
+        backing: Arc<dyn AddressCacheBacking>,
+        endpoint: &ApiEndpoint,
+    ) -> Self {
+        Self::from_backing(hostname.clone(), backing.clone())
+            .await
+            .unwrap_or(Self::new_inner(endpoint.address(), hostname, backing))
     }
 
     /// Initialize cache using `read_path`, and write changes to `write_path`.
@@ -126,7 +135,11 @@ impl AddressCache {
         .await
     }
 
-    fn new_inner(address: SocketAddr, hostname: String, backing: Arc<dyn AddressCacheBacking>) -> Self {
+    fn new_inner(
+        address: SocketAddr,
+        hostname: String,
+        backing: Arc<dyn AddressCacheBacking>,
+    ) -> Self {
         let cache = AddressCacheInner::from_address(address);
         log::debug!("Using API address: {}", cache.address);
 
@@ -181,7 +194,9 @@ impl AddressCacheInner {
     }
 }
 
-async fn read_address_backing(backing: &Arc<dyn AddressCacheBacking + 'static>) -> Result<SocketAddr, Error> {
+async fn read_address_backing(
+    backing: &Arc<dyn AddressCacheBacking + 'static>,
+) -> Result<SocketAddr, Error> {
     backing
         .read()
         .await
