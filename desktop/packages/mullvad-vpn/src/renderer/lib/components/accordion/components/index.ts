@@ -3,3 +3,4 @@ export * from './AccordionHeaderItem';
 export * from './AccordionTrigger';
 export * from './AccordionTitle';
 export * from './AccordionIcon';
+export * from './accordion-header';
