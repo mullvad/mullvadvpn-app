@@ -13,7 +13,7 @@ import {
 import { ListboxProvider } from './ListboxContext';
 
 export type ListboxProps<T> = React.PropsWithChildren<{
-  onValueChange?: (value: T) => Promise<void>;
+  onValueChange?: ((value: T) => Promise<void>) | ((value: T) => void);
   value?: T;
   labelId?: string;
 }>;
