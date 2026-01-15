@@ -14,16 +14,14 @@ jobs:
   cargo-shear:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Install cargo-binstall
         uses: cargo-bins/cargo-binstall@main
 
       - name: Install cargo-shear
         run: cargo binstall --no-confirm cargo-shear
-
-      # By checking out the repo after installing cargo-shear, we will install shear
-      # with the runners default Rust version, and not the one specified in the toolchain file.
-      - name: Checkout repository
-        uses: actions/checkout@v4
 
       - name: Run cargo shear in all workspaces
         shell: bash
