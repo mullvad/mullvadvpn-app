@@ -315,7 +315,12 @@ pub extern "C" fn mullvad_api_init_inner(
         // It is imperative that the REST runtime is created within an async context, otherwise
         // ApiAvailability panics.
 
-        let api_client = mullvad_api::Runtime::with_cache_backing(tokio_handle, &endpoint, Arc::new(IOSAddressCacheBacking {})).await;
+        let api_client = mullvad_api::Runtime::with_cache_backing(
+            tokio_handle,
+            &endpoint,
+            Arc::new(IOSAddressCacheBacking {}),
+        )
+        .await;
         let rest_client = api_client.mullvad_rest_handle(access_mode_provider);
 
         ApiContext {
