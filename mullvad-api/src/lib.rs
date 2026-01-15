@@ -34,8 +34,8 @@ mod relay_list;
 
 pub mod ffi;
 
-pub use address_cache::{AddressCache, AddressCacheBacking, FileAddressCacheBacking};
 pub use address_cache::Error as AddressCacheError;
+pub use address_cache::{AddressCache, AddressCacheBacking, FileAddressCacheBacking};
 pub use device::DevicesProxy;
 pub use hyper::StatusCode;
 pub use relay_list::RelayListProxy;
@@ -420,15 +420,11 @@ impl Runtime {
         backing: Arc<dyn AddressCacheBacking>,
         #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
     ) -> Self {
-        let address_cache = 
-        AddressCache::from_backing_or(
-            endpoint.host().to_owned(), 
-            backing, 
-            endpoint
-        ).await;
+        let address_cache =
+            AddressCache::from_backing_or(endpoint.host().to_owned(), backing, endpoint).await;
         Runtime {
             handle,
-            address_cache: address_cache,
+            address_cache,
             api_availability: ApiAvailability::default(),
             endpoint: endpoint.clone(),
             #[cfg(target_os = "android")]
