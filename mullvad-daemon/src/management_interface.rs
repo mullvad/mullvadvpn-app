@@ -1443,6 +1443,28 @@ impl ManagementInterfaceEventBroadcaster {
         })
     }
 
+    /// Notify clients about a potential leak.
+    pub(crate) fn notify_leak(&self, leak: mullvad_leak_checker::LeakInfo) {
+        match &leak {
+            mullvad_leak_checker::LeakInfo::NodeReachableOnInterface {
+                reachable_nodes,
+                interface,
+            } => {
+                log::trace!("Broadcasting leak info: {leak:#?}");
+                let event = daemon_event::Event::LeakInfo(types::LeakInfo {
+                    ip_addrs: reachable_nodes.iter().map(|ip| ip.to_string()).collect(),
+                    interface: interface.pretty(),
+                });
+                self.notify(types::DaemonEvent {
+                    event: event.into(),
+                })
+            }
+            _ => {
+                log::debug!("Matched on unexpected leak checker event");
+            }
+        }
+    }
+
     /// Notify that device changed (login, logout, or key rotation).
     pub(crate) fn notify_device_event(&self, device: mullvad_types::device::DeviceEvent) {
         log::debug!("Broadcasting device event");
