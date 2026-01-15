@@ -1,9 +1,7 @@
+use nix::net::if_::if_nametoindex;
 use socket2::SockAddr;
 #[cfg(target_os = "macos")]
-use std::{
-    ffi::{CString, c_char},
-    num::NonZeroU32,
-};
+use std::{ffi::CString, num::NonZeroU32};
 use std::{
     io::Write,
     net::{IpAddr, SocketAddr},
@@ -26,9 +24,13 @@ pub async fn send_tcp(
 
     if let Some(iface) = bind_interface {
         #[cfg(target_os = "macos")]
-        let interface_index = unsafe {
-            let name = CString::new(iface).unwrap();
-            let index = libc::if_nametoindex(name.as_bytes_with_nul().as_ptr().cast::<c_char>());
+        let interface_index = {
+            let interface = CString::new(iface).expect("CString::new failed");
+            let index = if_nametoindex(interface.as_ref()).map_err(|error| {
+                test_rpc::Error::Other(format!(
+                    "Failed to get index of network interface {interface:?}: {error:?}"
+                ))
+            })?;
             NonZeroU32::new(index).ok_or_else(|| {
                 log::error!("Invalid interface index");
                 test_rpc::Error::SendTcp
@@ -93,9 +95,13 @@ pub async fn send_udp(
 
     if let Some(iface) = bind_interface {
         #[cfg(target_os = "macos")]
-        let interface_index = unsafe {
-            let name = CString::new(iface).unwrap();
-            let index = libc::if_nametoindex(name.as_bytes_with_nul().as_ptr().cast::<c_char>());
+        let interface_index = {
+            let interface = CString::new(iface).expect("CString::new failed");
+            let index = if_nametoindex(interface.as_ref()).map_err(|error| {
+                test_rpc::Error::Other(format!(
+                    "Failed to get index of network interface {interface:?}: {error:?}"
+                ))
+            })?;
             NonZeroU32::new(index).ok_or_else(|| {
                 log::error!("Invalid interface index");
                 test_rpc::Error::SendUdp
