@@ -282,4 +282,7 @@ public enum ActorReconnectReason: Equatable, Sendable {
     /// Initiated by tunnel monitor due to loss of connectivity, or if ephemeral peer negotiation times out.
     /// Actor will increment the connection attempt counter before picking next relay.
     case connectionLoss
+
+    /// Restarting tunnel because a new network path became viable
+    case restartAfterOffline
 }
