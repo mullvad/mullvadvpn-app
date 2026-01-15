@@ -8,7 +8,7 @@ use crate::{
 #[cfg(target_os = "android")]
 use gotatun::udp::UdpTransportFactory;
 use gotatun::{
-    device::{Device, DeviceBuilder, DeviceTransports, Peer, daita::Machine},
+    device::{Device, DeviceBuilder, DeviceTransports},
     packet::{Ipv4Header, Ipv6Header, UdpHeader, WgData},
     tun::{
         IpRecv,
@@ -29,12 +29,10 @@ use std::{
     future::Future,
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
     ops::Deref,
-    str::FromStr,
     sync::{Arc, Mutex},
 };
 use talpid_tunnel::tun_provider::{self, Tun, TunProvider};
 use talpid_tunnel_config_client::DaitaSettings;
-use talpid_types::net::wireguard::PeerConfig;
 use tun08::{AbstractDevice, AsyncDevice};
 
 #[cfg(all(feature = "multihop-pcap", target_os = "linux"))]
@@ -44,6 +42,7 @@ use gotatun::tun::{
 };
 
 mod conversions;
+use conversions::to_gotatun_peer;
 
 #[cfg(target_os = "android")]
 type UdpFactory = AndroidUdpSocketFactory;
@@ -358,48 +357,6 @@ async fn create_devices(
     configure_devices(&mut devices, config, daita).await?;
 
     Ok(devices)
-}
-
-/// Convert a [`PeerConfig`] into a GotaTun [`Peer`].
-///
-/// Returns [`TunnelError::StartDaita`] if the maybenot machines fails to parse.
-fn to_gotatun_peer(peer: &PeerConfig, daita: Option<&DaitaSettings>) -> Result<Peer, TunnelError> {
-    let PeerConfig {
-        public_key,
-        allowed_ips,
-        endpoint,
-        psk,
-        constant_packet_size: _,
-    } = peer.clone();
-
-    let mut peer = Peer::new((*public_key.as_bytes()).into())
-        .with_allowed_ips(allowed_ips)
-        .with_endpoint(endpoint);
-
-    if let Some(psk) = psk {
-        // TODO: implement zeroize in gotatun
-        peer = peer.with_preshared_key(*psk.as_bytes());
-    }
-
-    if let Some(daita) = daita {
-        let daita = gotatun::device::daita::DaitaSettings {
-            maybenot_machines: daita
-                .client_machines
-                .iter()
-                // TODO: deserialize machines earlier. Preferably when getting them from the gRPC service.
-                .map(|machine_str| Machine::from_str(machine_str))
-                .collect::<Result<_, _>>()
-                .map_err(|e| TunnelError::StartDaita(Box::new(e)))?,
-            max_padding_frac: daita.max_padding_frac,
-            max_blocking_frac: daita.max_blocking_frac,
-            // TODO: tweak to sane values
-            max_blocked_packets: 1024,
-            min_blocking_capacity: 50,
-        };
-        peer = peer.with_daita(daita);
-    }
-
-    Ok(peer)
 }
 
 /// (Re)Configure gotatun devices.

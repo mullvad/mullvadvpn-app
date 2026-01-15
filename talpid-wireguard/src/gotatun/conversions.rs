@@ -14,7 +14,10 @@ use crate::{
 /// Convert a [`PeerConfig`] into a GotaTun [`Peer`].
 ///
 /// Returns [`TunnelError::StartDaita`] if the maybenot machines fails to parse.
-fn to_gotatun_peer(peer: &PeerConfig, daita: Option<&DaitaSettings>) -> Result<Peer, TunnelError> {
+pub fn to_gotatun_peer(
+    peer: &PeerConfig,
+    daita: Option<&DaitaSettings>,
+) -> Result<Peer, TunnelError> {
     let PeerConfig {
         public_key,
         allowed_ips,
