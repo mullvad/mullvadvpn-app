@@ -4,6 +4,7 @@ const val LOG_TAG = "mullvad-mockapi"
 
 const val AUTH_TOKEN_URL_PATH = "/auth/v1/token"
 const val DEVICES_URL_PATH = "/accounts/v1/devices"
+const val DEVICES_ID_URL_PATH = "/accounts/v1/devices/{deviceId}"
 const val ACCOUNT_URL_PATH = "/accounts/v1/accounts/me"
 const val CREATE_ACCOUNT_URL_PATH = "/accounts/v1/accounts"
 const val RELAY_LIST_URL_PATH = "/app/v1/relays"

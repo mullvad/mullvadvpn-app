@@ -18,7 +18,7 @@ class AccountHistoryMockApiTest : MockApiTest() {
     fun testShowAccountHistory() {
         // Arrange
         val validAccountNumber = "1234123412341234"
-        apiDispatcher.apply {
+        apiRouter.apply {
             expectedAccountNumber = validAccountNumber
             accountExpiry = ZonedDateTime.now().plusMonths(1)
             devices = DEFAULT_DEVICE_LIST.toMutableMap()

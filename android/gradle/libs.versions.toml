@@ -84,7 +84,6 @@ ktfmt = "0.25.0"
 leakcanary = "2.14"
 
 mockk = "1.14.7"
-mockwebserver = "5.1.0"
 play-publisher = "3.12.1"
 turbine = "1.2.1"
 
@@ -191,6 +190,8 @@ ktor-client-logging = { module = "io.ktor:ktor-client-logging", version.ref = "k
 ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
 ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
 ktor-client-resources = { module = "io.ktor:ktor-client-resources", version.ref = "ktor" }
+ktor-server-core = { module = "io.ktor:ktor-server-core-jvm", version.ref = "ktor" }
+ktor-server-engine-netty = { module = "io.ktor:ktor-server-netty", version.ref = "ktor" }
 
 # MockK
 mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
@@ -205,7 +206,6 @@ commons-validator = { module = "commons-validator:commons-validator", version.re
 kermit = { module = "co.touchlab:kermit", version.ref = "kermit" }
 konsist = { module = "com.lemonappdev:konsist", version.ref = "konsist" }
 leakCanary = { module = "com.squareup.leakcanary:leakcanary-android", version.ref = "leakcanary" }
-mockkWebserver = { module = "com.squareup.okhttp3:mockwebserver", version.ref = "mockwebserver" }
 turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junit4" }
 androidx-benchmark-macro-junit4 = { group = "androidx.benchmark", name = "benchmark-macro-junit4", version.ref = "benchmark-macro-junit4" }

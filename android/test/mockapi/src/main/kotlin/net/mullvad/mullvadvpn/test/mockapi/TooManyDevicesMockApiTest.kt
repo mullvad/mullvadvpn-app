@@ -15,7 +15,7 @@ class TooManyDevicesMockApiTest : MockApiTest() {
     fun testRemoveDeviceSuccessfulAndLogin() {
         // Arrange
         val validAccountNumber = "1234123412341234"
-        apiDispatcher.apply {
+        apiRouter.apply {
             expectedAccountNumber = validAccountNumber
             accountExpiry = ZonedDateTime.now().plusMonths(1)
             devices = FULL_DEVICE_LIST.toMutableMap()

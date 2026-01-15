@@ -15,7 +15,7 @@ class CreateAccountMockApiTest : MockApiTest() {
     fun testCreateAccountSuccessful() {
         // Arrange
         val createdAccountNumber = "1234123412341234"
-        apiDispatcher.apply {
+        apiRouter.apply {
             expectedAccountNumber = createdAccountNumber
             devicePendingToGetCreated = DUMMY_ID_2 to DUMMY_DEVICE_NAME_2
         }

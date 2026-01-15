@@ -19,7 +19,7 @@ class LoginMockApiTest : MockApiTest() {
     fun testLoginWithInvalidCredentials() {
         // Arrange
         val validAccountNumber = "1234123412341234"
-        apiDispatcher.apply {
+        apiRouter.apply {
             expectedAccountNumber = null
             accountExpiry = ZonedDateTime.now().plusHours(24)
         }
@@ -40,7 +40,7 @@ class LoginMockApiTest : MockApiTest() {
     fun testLoginWithValidCredentialsToUnexpiredAccount() {
         // Arrange
         val validAccountNumber = "1234123412341234"
-        apiDispatcher.apply {
+        apiRouter.apply {
             expectedAccountNumber = validAccountNumber
             accountExpiry = ZonedDateTime.now().plusHours(24)
             devices = DEFAULT_DEVICE_LIST.toMutableMap()
@@ -58,7 +58,7 @@ class LoginMockApiTest : MockApiTest() {
     fun testLoginWithValidCredentialsToExpiredAccount() {
         // Arrange
         val validAccountNumber = "1234123412341234"
-        apiDispatcher.apply {
+        apiRouter.apply {
             expectedAccountNumber = validAccountNumber
             accountExpiry = ZonedDateTime.now().minusDays(1)
             devices = DEFAULT_DEVICE_LIST.toMutableMap()

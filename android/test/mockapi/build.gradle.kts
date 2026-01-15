@@ -62,6 +62,9 @@ android {
                     // Fixes packaging error caused by: jetified-junit-*
                     "META-INF/LICENSE.md",
                     "META-INF/LICENSE-notice.md",
+                    // Fixes packaging error caused by: io.netty:netty
+                    "META-INF/INDEX.LIST",
+                    "META-INF/io.netty.versions.properties",
                 )
         }
     }
@@ -84,7 +87,8 @@ dependencies {
     implementation(libs.junit5.android.test.extensions)
     implementation(libs.junit5.android.test.runner)
     implementation(libs.kotlin.stdlib)
-    implementation(libs.mockkWebserver)
+    implementation(libs.ktor.server.core)
+    implementation(libs.ktor.server.engine.netty)
 
     androidTestUtil(libs.androidx.test.orchestrator)
 
