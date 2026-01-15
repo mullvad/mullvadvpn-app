@@ -51,9 +51,9 @@ export function VpnSettingsView() {
 
                   <AllowLanSetting />
 
-                  <FlexColumn>
-                    <DnsBlockerSettings />
-                    <CustomDnsSettings />
+                  <FlexColumn gap="small">
+                    <DnsBlockerSettings position="solo" />
+                    <CustomDnsSettings position="solo" />
                   </FlexColumn>
 
                   <EnableIpv6Setting />

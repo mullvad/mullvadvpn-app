@@ -12,12 +12,14 @@ export function FilterAccordion({ title, children, defaultOpen }: FilterAccordio
   const [open, setOpen] = React.useState(defaultOpen);
   return (
     <Accordion expanded={open} onExpandedChange={setOpen}>
-      <Accordion.Trigger>
-        <Accordion.HeaderItem>
-          <Accordion.Title>{title}</Accordion.Title>
-          <Accordion.Icon />
-        </Accordion.HeaderItem>
-      </Accordion.Trigger>
+      <Accordion.Header>
+        <Accordion.Trigger>
+          <Accordion.HeaderItem>
+            <Accordion.Title>{title}</Accordion.Title>
+            <Accordion.Icon />
+          </Accordion.HeaderItem>
+        </Accordion.Trigger>
+      </Accordion.Header>
       <Accordion.Content>{children}</Accordion.Content>
     </Accordion>
   );
