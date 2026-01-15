@@ -62,6 +62,18 @@ impl Status {
                 DaemonEvent::NewAccessMethod(access_method) => {
                     print_debug_or_json(&args, "New access method", &access_method)?;
                 }
+                DaemonEvent::LeakDetected(leak) => {
+                    #[derive(Debug, Serialize)]
+                    struct Leak {
+                        interface: String,
+                        reachable: Vec<std::net::IpAddr>,
+                    }
+                    let leak = Leak {
+                        interface: leak.interface,
+                        reachable: leak.reachable_nodes,
+                    };
+                    print_debug_or_json(&args, "Leak detected", &leak)?;
+                }
             }
         }
         Ok(())

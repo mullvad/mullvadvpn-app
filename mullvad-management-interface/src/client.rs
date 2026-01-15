@@ -13,7 +13,6 @@ use mullvad_types::{
     states::TunnelState,
     version::AppVersionInfo,
 };
-
 #[cfg(not(target_os = "android"))]
 use mullvad_types::{
     access_method::{self, AccessMethod},
@@ -26,6 +25,7 @@ use mullvad_types::{
     settings::DnsOptions,
     wireguard::{PublicKey, QuantumResistantState, RotationInterval},
 };
+use std::net::IpAddr;
 #[cfg(not(target_os = "android"))]
 use std::{path::Path, str::FromStr};
 #[cfg(target_os = "windows")]
@@ -41,6 +41,7 @@ pub type Result<T> = std::result::Result<T, super::Error>;
 #[derive(Debug, Clone)]
 pub struct MullvadProxyClient(crate::ManagementServiceClient);
 
+/// All events that can happen in the daemon which clients should react to.
 #[derive(Debug)]
 pub enum DaemonEvent {
     TunnelState(TunnelState),
@@ -50,6 +51,7 @@ pub enum DaemonEvent {
     Device(DeviceEvent),
     RemoveDevice(RemoveDeviceEvent),
     NewAccessMethod(AccessMethodSetting),
+    LeakDetected(LeakInfo),
 }
 
 impl TryFrom<types::daemon_event::Event> for DaemonEvent {
@@ -79,6 +81,9 @@ impl TryFrom<types::daemon_event::Event> for DaemonEvent {
                 AccessMethodSetting::try_from(event)
                     .map(DaemonEvent::NewAccessMethod)
                     .map_err(Error::InvalidResponse)
+            }
+            types::daemon_event::Event::LeakInfo(leak) => {
+                LeakInfo::try_from(leak).map(DaemonEvent::LeakDetected)
             }
         }
     }
@@ -690,5 +695,32 @@ fn map_api_access_method_error(status: Status) -> Error {
             Error::ApiAccessMethodExists
         }
         _other => Error::Rpc(Box::new(status)),
+    }
+}
+
+// Types that are only defined in the protobuf interface (as opposed to *-types crates).
+
+/// Details about how a leak happened.
+#[derive(Debug)]
+pub struct LeakInfo {
+    /// On what interface the leaky traffic was detected.
+    pub interface: String,
+    /// What network nodes that was reached.
+    pub reachable_nodes: Vec<IpAddr>,
+}
+
+impl TryFrom<types::LeakInfo> for LeakInfo {
+    type Error = Error;
+
+    fn try_from(leak: types::LeakInfo) -> Result<Self> {
+        let reachable_nodes = leak
+            .ip_addrs
+            .into_iter()
+            .map(|ip| ip.parse().map_err(Error::IpAddr))
+            .collect::<Result<_>>()?;
+        Ok(LeakInfo {
+            interface: leak.interface,
+            reachable_nodes,
+        })
     }
 }
