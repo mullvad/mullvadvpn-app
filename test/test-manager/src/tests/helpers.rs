@@ -332,8 +332,9 @@ pub fn get_interface_index(interface: &str) -> anyhow::Result<std::ffi::c_uint> 
         "Failed to turn interface name {interface:?} into cstr"
     ))?;
 
-    if_nametoindex(interface.as_ref())
-        .context("Failed to get index of network interface {interface}")
+    if_nametoindex(interface.as_ref()).context(anyhow!(
+        "Failed to get index of network interface {interface:?}"
+    ))
 }
 
 /// Log in and retry if it fails due to throttling
