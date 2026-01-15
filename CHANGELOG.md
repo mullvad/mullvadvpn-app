@@ -26,21 +26,12 @@ Line wrap the file at 100 chars.                                              Th
 - Change `WireGuard port` to no longer affect the port used for LWO.
 - Change `Mullvad Bridges` access method to randomly pick any Mullvad-owned bridge.
   Previously the access method was constrained to the five bridges closest to the exit relay.
-- Use Wayland by default on Linux if available, otherwise fall back to X11.
 
-### Fixed
-- Fix "Time left" label in main view not updating when time passes.
-
-#### Windows
-- Update split tunnel driver to 1.2.5.0. This fixes audit issue `MLLVD-CR-24-102`,
-  and a BSOD when the driver was improperly unloaded.
-- Detect and kill processes preventing updates.
-
-### Changed
 #### Linux
 - Upgrade split-tunneling to use cgroups v2, instead of the deprecated cgroups v1.
   Users on Linux kernels prior to 5.13 will not be able to use split tunneling.
 - Change "Go back" keyboard shortcut from `Esc` to `Alt + Left Arrow` or `Alt + [`.
+- Use Wayland by default on Linux if available, otherwise fall back to X11.
 
 #### macOS
 - Change "Go back" keyboard shortcut from `Esc` to `Cmd + Left Arrow` or `Cmd + [`.
@@ -49,6 +40,14 @@ Line wrap the file at 100 chars.                                              Th
 - Change "Go back" keyboard shortcut from `Esc` to `Alt + Left Arrow` or `Alt + [`.
 - Make Mullvad service run in case the
   [split tunnel driver](https://github.com/mullvad/win-split-tunnel) fails to load.
+
+### Fixed
+- Fix "Time left" label in main view not updating when time passes.
+
+#### Windows
+- Update split tunnel driver to 1.2.5.0. This fixes audit issue `MLLVD-CR-24-102`,
+  and a BSOD when the driver was improperly unloaded.
+- Detect and kill processes preventing updates.
 
 ### Security
 #### Windows
