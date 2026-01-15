@@ -1,10 +1,9 @@
 import React from 'react';
 
-import { Accordion } from '../lib/components/accordion';
+import { Accordion, AccordionProps } from '../lib/components/accordion';
 
-export type FilterAccordionProps = {
+export type FilterAccordionProps = AccordionProps & {
   title?: string;
-  children?: React.ReactNode;
   defaultOpen?: boolean;
 };
 
