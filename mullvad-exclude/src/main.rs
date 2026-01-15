@@ -14,7 +14,7 @@ mod inner {
         fmt::Write as _,
         os::unix::ffi::OsStrExt,
     };
-    use talpid_cgroup::{SPLIT_TUNNEL_CGROUP_NAME, find_net_cls_mount, v1::CGroup1, v2::CGroup2};
+    use talpid_cgroup::{SPLIT_TUNNEL_CGROUP_NAME, find_net_cls_mount, v1::CGroup1};
 
     #[derive(thiserror::Error, Debug)]
     enum Error {
@@ -94,9 +94,21 @@ mod inner {
             .collect::<Result<Vec<CString>, NulError>>()
             .map_err(Error::ArgumentNul)?;
 
-        let pid = getpid();
+        exclude(getpid())?;
 
-        let result = CGroup2::open_root()
+        // Drop root privileges
+        let real_uid = getuid();
+        setuid(real_uid).map_err(Error::DropRootUid)?;
+        let real_gid = getgid();
+        setgid(real_gid).map_err(Error::DropRootGid)?;
+
+        // Launch the process
+        execvp(&program, &args).map_err(Error::Exec)
+    }
+
+    #[cfg(feature = "cgroup2")]
+    fn exclude(pid: Pid) -> Result<(), Error> {
+        let result = talpid_cgroup::v2::CGroup2::open_root()
             .and_then(|root_cgroup2| root_cgroup2.create_or_open_child(SPLIT_TUNNEL_CGROUP_NAME))
             .and_then(|exclusion_cgroup2| exclusion_cgroup2.add_pid(pid));
 
@@ -108,15 +120,11 @@ mod inner {
             eprintln!("Failed to add process to v1 cgroup: {add_err}");
         }
 
-        result?;
+        Ok(result?)
+    }
 
-        // Drop root privileges
-        let real_uid = getuid();
-        setuid(real_uid).map_err(Error::DropRootUid)?;
-        let real_gid = getgid();
-        setgid(real_gid).map_err(Error::DropRootGid)?;
-
-        // Launch the process
-        execvp(&program, &args).map_err(Error::Exec)
+    #[cfg(not(feature = "cgroup2"))]
+    fn exclude(pid: Pid) -> Result<(), Error> {
+        add_to_cgroups_v1_if_exists(pid)
     }
 }
