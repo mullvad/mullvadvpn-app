@@ -68,6 +68,13 @@ impl Status {
                 DaemonEvent::NewAccessMethod(access_method) => {
                     print_debug_or_json(&args, "New access method", &access_method)?;
                 }
+                DaemonEvent::LeakDetected(leak) => {
+                    print_debug_or_json(
+                        &args,
+                        "Leak detected",
+                        &(leak.interface, leak.reachable_nodes),
+                    )?;
+                }
             }
         }
         Ok(())
