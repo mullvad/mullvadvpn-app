@@ -94,32 +94,7 @@ mod inner {
             .collect::<Result<Vec<CString>, NulError>>()
             .map_err(Error::ArgumentNul)?;
 
-        let pid = getpid();
-
-        #[cfg(feature = "cgroup2")]
-        {
-            let result = v2::CGroup2::CGroup2::open_root()
-                .and_then(|root_cgroup2| {
-                    root_cgroup2.create_or_open_child(SPLIT_TUNNEL_CGROUP_NAME)
-                })
-                .and_then(|exclusion_cgroup2| exclusion_cgroup2.add_pid(pid));
-
-            // Always add current PID to cgroup1 (deprecated solution). It does not hurt to be in both cgroup1 and cgroup2 at
-            // the same time, the firewall will have to promise to behave appropriately.
-            if let Err(add_err) = add_to_cgroups_v1_if_exists(pid)
-                && result.is_err()
-            {
-                eprintln!("Failed to add process to v1 cgroup: {add_err}");
-            }
-
-            result?;
-        }
-
-        #[cfg(not(feature = "cgroup2"))]
-        {
-            // Always add current PID to cgroup1
-            add_to_cgroups_v1_if_exists(pid)?;
-        }
+        exclude(getpid())?;
 
         // Drop root privileges
         let real_uid = getuid();
@@ -129,5 +104,27 @@ mod inner {
 
         // Launch the process
         execvp(&program, &args).map_err(Error::Exec)
+    }
+
+    #[cfg(feature = "cgroup2")]
+    fn exclude(pid: Pid) -> Result<(), Error> {
+        let result = talpid_cgroup::v2::CGroup2::open_root()
+            .and_then(|root_cgroup2| root_cgroup2.create_or_open_child(SPLIT_TUNNEL_CGROUP_NAME))
+            .and_then(|exclusion_cgroup2| exclusion_cgroup2.add_pid(pid));
+
+        // Always add current PID to cgroup1 (deprecated solution). It does not hurt to be in both cgroup1 and cgroup2 at
+        // the same time, the firewall will have to promise to behave appropriately.
+        if let Err(add_err) = add_to_cgroups_v1_if_exists(pid)
+            && result.is_err()
+        {
+            eprintln!("Failed to add process to v1 cgroup: {add_err}");
+        }
+
+        Ok(result?)
+    }
+
+    #[cfg(not(feature = "cgroup2"))]
+    fn exclude(pid: Pid) -> Result<(), Error> {
+        add_to_cgroups_v1_if_exists(pid)
     }
 }
