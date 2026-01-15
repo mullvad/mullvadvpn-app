@@ -8,7 +8,7 @@ export const createSelectors = (page: Page) => ({
   applyButton: () => page.getByRole('button', { name: 'Apply' }),
   backButton: () => page.getByRole('button', { name: 'Back' }),
   ownershipOption: (label: string) =>
-    page.locator('button', {
+    page.locator('li', {
       has: page.locator('div', { hasText: label }),
     }),
   providersOption: (label: string) => page.getByRole('checkbox', { name: label }),
