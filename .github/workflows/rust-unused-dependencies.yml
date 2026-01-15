@@ -6,7 +6,6 @@ on:
       - .github/workflows/rust-unused-dependencies.yml
       - '**/*.rs'
       - '**/Cargo.toml'
-      - 'building/*-container-image.txt'
   workflow_dispatch:
 
 permissions: {}
