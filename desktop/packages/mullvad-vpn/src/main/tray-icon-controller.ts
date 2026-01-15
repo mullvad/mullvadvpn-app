@@ -1,10 +1,10 @@
 import { exec as execAsync } from 'child_process';
-import { NativeImage, nativeImage, Tray } from 'electron';
-import path from 'path';
+import { NativeImage, Tray } from 'electron';
 import { promisify } from 'util';
 
 import log from '../shared/logging';
 import KeyframeAnimation from './keyframe-animation';
+import { TrayIcon } from './tray-icon';
 
 const exec = promisify(execAsync);
 
@@ -149,13 +149,13 @@ export default class TrayIconController {
 
   private loadImageSet(suffix: string): NativeImage[] {
     const frames = Array.from({ length: 10 }, (_, i) => i + 1);
-    return frames.map((frame) => nativeImage.createFromPath(this.getImagePath(frame, suffix)));
+    return frames.map((frame) => this.getImage(frame, suffix));
   }
 
-  private getImagePath(frame: number, suffix?: string) {
-    const basePath = path.resolve(__dirname, 'assets/images/menubar-icons');
-    const extension = process.platform === 'win32' ? 'ico' : 'png';
-    return path.join(basePath, process.platform, `lock-${frame}${suffix}.${extension}`);
+  private getImage(frame: number, suffix?: string) {
+    const fileName = `lock-${frame}${suffix}`;
+
+    return new TrayIcon(fileName).toNativeImage();
   }
 
   private async getSystemUsesLightTheme(): Promise<boolean | undefined> {

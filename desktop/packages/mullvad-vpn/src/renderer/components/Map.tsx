@@ -95,9 +95,10 @@ function MapInner(props: MapInnerProps) {
   const mapRef = useRef<GlMap>(undefined);
   const canvasRef = useRef<HTMLCanvasElement>(undefined);
 
-  const width = applyPixelRatio(canvasRef.current?.clientWidth ?? window.innerWidth);
+  // The constant is only used for the width for the first frame that is rendered.
+  const width = applyPixelRatio(canvasRef.current?.clientWidth ?? 320);
 
-  // This constant is used for the height the first frame that is rendered only.
+  // The constant is only used for the height for the first frame that is rendered.
   const height = applyPixelRatio(canvasRef.current?.clientHeight ?? 493);
 
   // Hack to rerender when window size changes or when ref is set.
