@@ -725,6 +725,7 @@ message DaemonEvent {
     DeviceEvent device = 5;
     RemoveDeviceEvent remove_device = 6;
     AccessMethodSetting new_access_method = 7;
+    LeakInfo leak_info = 8;
   }
 }
 
@@ -818,6 +819,18 @@ message DeviceEvent {
 message RemoveDeviceEvent {
   string account_number = 1;
   repeated Device new_device_list = 2;
+}
+
+/// Details about a potential leak that was detected in the connected state.
+message LeakInfo {
+  /// IPs that were reachable outside of the tunnel.
+  ///
+  /// Format: A list of IPv4 and IPv6 addresses. Possibly intermingled.
+  repeated string ip_addrs = 1;
+  /// The interface which was able to reach the IPs `ip_addrs`.
+  ///
+  /// Format: The name of the leaky interface.
+  string interface = 2;
 }
 
 message PlayPurchase {
