@@ -38,8 +38,6 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Changed
 #### Linux
-- Upgrade split-tunneling to use cgroups v2, instead of the deprecated cgroups v1.
-  Users on Linux kernels prior to 5.13 will not be able to use split tunneling.
 - Change "Go back" keyboard shortcut from `Esc` to `Alt + Left Arrow` or `Alt + [`.
 
 #### macOS
