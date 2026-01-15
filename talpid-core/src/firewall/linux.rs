@@ -130,6 +130,10 @@ impl Firewall {
         excluded_cgroup2: Option<CGroup2>,
         net_cls: Option<u32>,
     ) -> Result<Self> {
+        if cfg!(not(feature = "cgroup2")) && excluded_cgroup2.is_some() {
+            log::error!("cgroup2 support disabled, but excluded_cgroup2 was provided");
+        }
+
         Ok(Firewall {
             fwmark,
             excluded_cgroup2,
@@ -351,7 +355,9 @@ impl<'a> PolicyBatch<'a> {
         policy: &FirewallPolicy,
         firewall: &Firewall,
     ) -> Result<()> {
-        if let Some(cgroup2) = &firewall.excluded_cgroup2 {
+        if cfg!(feature = "cgroup2")
+            && let Some(cgroup2) = &firewall.excluded_cgroup2
+        {
             self.add_actual_split_tunneling_rules(policy, firewall.fwmark, |rule| {
                 // 1. From Linux kernel documentation:
                 // cgroup(2) is a mechanism to organize processes hierarchically ... cgroups form a tree structure and
