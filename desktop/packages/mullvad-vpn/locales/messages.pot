@@ -264,6 +264,10 @@ msgstr ""
 msgid "Search for..."
 msgstr ""
 
+#. Placeholder text for search field in select location view
+msgid "Search locations or servers"
+msgstr ""
+
 msgid "SECURE CONNECTION"
 msgstr ""
 
