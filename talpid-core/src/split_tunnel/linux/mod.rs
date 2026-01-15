@@ -5,6 +5,7 @@
 
 use anyhow::Context;
 use libc::pid_t;
+#[cfg(feature = "cgroup2")]
 use nftnl::{Batch, Chain, Hook, MsgType, Policy, ProtoFamily, Rule, Table, nft_expr};
 use nix::unistd::Pid;
 use talpid_cgroup::{
@@ -13,6 +14,7 @@ use talpid_cgroup::{
     v2::CGroup2,
 };
 
+#[cfg(feature = "cgroup2")]
 use crate::firewall;
 
 /// Value used to mark packets and associated connections.
@@ -39,6 +41,7 @@ pub struct PidManager {
 
 enum Inner {
     CGroup1(InnerCGroup1),
+    #[cfg(feature = "cgroup2")]
     CGroup2(InnerCGroup2),
 }
 
@@ -48,6 +51,7 @@ struct InnerCGroup1 {
     net_cls_classid: u32,
 }
 
+#[cfg(feature = "cgroup2")]
 struct InnerCGroup2 {
     root_cgroup2: CGroup2,
     excluded_cgroup2: CGroup2,
@@ -65,33 +69,34 @@ impl PidManager {
     }
 
     fn new_inner() -> Result<Inner, Error> {
-        // Try to create the cgroup2.
-        let inner = match Self::new_cgroup2() {
-            Ok(inner) => Inner::CGroup2(inner),
-            Err(cgroup2_err) => {
-                // If it does not success, the kernel might be too old, so we fallback on the old cgroup1 solution.
-                match Self::new_cgroup1() {
-                    Ok(inner) => {
-                        log::warn!(
-                            "Failed to initialize cgroups v2, falling back to cgroup v1 for split tunneling"
-                        );
-                        log::warn!(
-                            "Note that cgroups v1 is deprecated and will be removed in the future"
-                        );
-                        Inner::CGroup1(inner)
-                    }
-                    Err(cgroup1_err) => {
-                        log::error!("Failed to initialize split-tunneling");
-                        log::trace!("{cgroup1_err:?}");
-                        log::trace!("{cgroup2_err:?}");
-                        return Err(cgroup2_err);
-                    }
-                }
+        #[allow(unused)]
+        let mut cgroup2_err = None;
+
+        #[cfg(feature = "cgroup2")]
+        match Self::new_cgroup2() {
+            Ok(inner) => return Ok(Inner::CGroup2(inner)),
+            Err(err) => {
+                log::warn!(
+                    "Failed to initialize cgroups v2, falling back to cgroup v1 for split tunneling"
+                );
+                log::trace!("{cgroup2_err:?}");
+                log::warn!("Note that cgroups v1 is deprecated and will be removed in the future");
+                cgroup2_err = Some(err);
             }
-        };
-        Ok(inner)
+        }
+
+        // If it does not success, the kernel might be too old, so we fallback on the old cgroup1 solution.
+        match Self::new_cgroup1() {
+            Ok(inner) => Ok(Inner::CGroup1(inner)),
+            Err(cgroup1_err) => {
+                log::error!("Failed to initialize split-tunneling");
+                log::trace!("{cgroup1_err:?}");
+                Err(cgroup2_err.unwrap_or(cgroup1_err))
+            }
+        }
     }
 
+    #[cfg(feature = "cgroup2")]
     fn new_cgroup2() -> Result<InnerCGroup2, Error> {
         let root_cgroup2 = CGroup2::open_root()?;
 
@@ -185,6 +190,7 @@ impl Inner {
     fn add(&self, pid: Pid) -> Result<(), Error> {
         match self {
             Inner::CGroup1(inner) => inner.excluded_cgroup1.add_pid(pid)?,
+            #[cfg(feature = "cgroup2")]
             Inner::CGroup2(inner) => inner.excluded_cgroup2.add_pid(pid)?,
         }
         Ok(())
@@ -195,6 +201,7 @@ impl Inner {
         // PIDs can only be removed from a cgroup by adding them to another cgroup.
         match self {
             Inner::CGroup1(inner) => inner.root_cgroup1.add_pid(pid)?,
+            #[cfg(feature = "cgroup2")]
             Inner::CGroup2(inner) => inner.root_cgroup2.add_pid(pid)?,
         }
         Ok(())
@@ -204,6 +211,7 @@ impl Inner {
     fn list(&mut self) -> Result<Vec<pid_t>, Error> {
         Ok(match self {
             Inner::CGroup1(inner) => inner.excluded_cgroup1.list_pids()?,
+            #[cfg(feature = "cgroup2")]
             Inner::CGroup2(inner) => inner.excluded_cgroup2.list_pids()?,
         })
     }
@@ -227,6 +235,7 @@ impl Inner {
     fn excluded_cgroup(&self) -> Result<Option<CGroup2>, Error> {
         match self {
             Inner::CGroup1(..) => Ok(None),
+            #[cfg(feature = "cgroup2")]
             Inner::CGroup2(inner) => Ok(inner.excluded_cgroup2.try_clone().map(Some)?),
         }
     }
@@ -237,6 +246,7 @@ impl Inner {
     fn net_cls_classid(&self) -> Option<u32> {
         match self {
             Inner::CGroup1(inner) => Some(inner.net_cls_classid),
+            #[cfg(feature = "cgroup2")]
             Inner::CGroup2(..) => None,
         }
     }
@@ -252,6 +262,7 @@ impl Inner {
 // Consider either having this module take ownership of setting up the split-tunneling nft rules,
 // or moving this logic into the firewall module and coupling it with the actual firewall rules we
 // set up.
+#[cfg(feature = "cgroup2")]
 fn assert_nft_supports_cgroup2(cgroup: &CGroup2) -> Result<(), Error> {
     let table_name = c"mullvad-test-cgroup2-capability";
 
