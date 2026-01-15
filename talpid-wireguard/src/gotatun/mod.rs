@@ -8,7 +8,7 @@ use crate::{
 #[cfg(target_os = "android")]
 use gotatun::udp::UdpTransportFactory;
 use gotatun::{
-    device::{Device, DeviceBuilder, DeviceTransports, Peer, daita::Machine},
+    device::{Device, DeviceBuilder, DeviceTransports, Peer, configure::PeerStats, daita::Machine},
     packet::{Ipv4Header, Ipv6Header, UdpHeader, WgData},
     tun::{
         IpRecv,
@@ -510,6 +510,35 @@ impl Tunnel for GotaTun {
     }
 
     async fn get_tunnel_stats(&self) -> Result<StatsMap, TunnelError> {
+        /// Convert gotatun [`PeerStats`] into public key + [`Stats`].
+        fn convert_gotatun_stats(peer_stats: PeerStats) -> ([u8; 32], Stats) {
+            let daita = peer_stats
+                .stats
+                .daita
+                .as_ref()
+                .map(|daita_stats| DaitaStats {
+                    tx_padding_bytes: daita_stats.tx_padding_bytes as u64,
+                    tx_padding_packet_bytes: daita_stats.tx_padding_packet_bytes as u64,
+                    rx_padding_bytes: daita_stats.rx_padding_bytes as u64,
+                    rx_padding_packet_bytes: daita_stats.rx_padding_packet_bytes as u64,
+                });
+
+            let last_handshake_time = peer_stats
+                .stats
+                .last_handshake
+                .map(|duration_since| SystemTime::now() - duration_since);
+
+            let stats = Stats {
+                tx_bytes: peer_stats.stats.tx_bytes as u64,
+                rx_bytes: peer_stats.stats.rx_bytes as u64,
+                last_handshake_time,
+                daita,
+            };
+
+            (peer_stats.peer.public_key.to_bytes(), stats)
+        }
+
+        /// Read all peer stats from a gotatun [`Device`].
         async fn get_stats(device: &Device<impl DeviceTransports>) -> StatsMap {
             device
                 .read(async |device| {
@@ -517,27 +546,7 @@ impl Tunnel for GotaTun {
                         .peers()
                         .await
                         .into_iter()
-                        .map(|peer_stats| {
-                            let stats = Stats {
-                                tx_bytes: peer_stats.stats.tx_bytes as u64,
-                                rx_bytes: peer_stats.stats.rx_bytes as u64,
-                                last_handshake_time: peer_stats
-                                    .stats
-                                    .last_handshake
-                                    .map(|duration_since| SystemTime::now() - duration_since),
-                                daita: peer_stats.stats.daita.as_ref().map(|daita_stats| {
-                                    DaitaStats {
-                                        tx_padding_bytes: daita_stats.tx_padding_bytes as u64,
-                                        tx_padding_packet_bytes: daita_stats.tx_padding_packet_bytes
-                                            as u64,
-                                        rx_padding_bytes: daita_stats.rx_padding_bytes as u64,
-                                        rx_padding_packet_bytes: daita_stats.rx_padding_packet_bytes
-                                            as u64,
-                                    }
-                                }),
-                            };
-                            (peer_stats.peer.public_key.to_bytes(), stats)
-                        })
+                        .map(convert_gotatun_stats)
                         .collect()
                 })
                 .await
