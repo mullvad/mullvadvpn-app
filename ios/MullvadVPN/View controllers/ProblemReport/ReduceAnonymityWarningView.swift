@@ -134,7 +134,8 @@ class ReduceAnonymityWarningView: UIView {
     }
 
     @objc func openPrivacyPolicy() {
-        UIApplication.shared.open(URL(string: ApplicationConfiguration.privacyPolicyLink)!)
+        UIApplication.shared.open(
+            URL(string: ApplicationConfiguration.privacyPolicyLink(for: ApplicationLanguage.currentLanguage.id))!)
     }
 
     required init?(coder: NSCoder) {

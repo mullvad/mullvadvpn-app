@@ -36,7 +36,10 @@ class SetupAccountCompletedCoordinator: Coordinator, Presenting {
 
 extension SetupAccountCompletedCoordinator: @preconcurrency SetupAccountCompletedControllerDelegate {
     func didRequestToSeePrivacy(controller: SetupAccountCompletedController) {
-        presentChild(SafariCoordinator(url: ApplicationConfiguration.privacyGuidesURL), animated: true)
+        presentChild(
+            SafariCoordinator(
+                url: ApplicationConfiguration.privacyGuidesURL(for: ApplicationLanguage.currentLanguage.id)),
+            animated: true)
     }
 
     func didRequestToStartTheApp(controller: SetupAccountCompletedController) {

@@ -179,7 +179,10 @@ extension ConnectionViewViewModel {
             return nil
         }
 
-        return LocalizedStringKey("\(tunnelRelays.exit.location.country), \(tunnelRelays.exit.location.city)")
+        let country = NSLocalizedString(tunnelRelays.exit.location.country, comment: "")
+        let city = NSLocalizedString(tunnelRelays.exit.location.city, comment: "")
+
+        return LocalizedStringKey("\(country), \(city)")
     }
 
     var titleForServer: LocalizedStringKey? {

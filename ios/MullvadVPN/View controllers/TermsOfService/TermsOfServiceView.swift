@@ -46,7 +46,9 @@ struct TermsOfServiceView: View {
             HStack {
                 Text(
                     LocalizedStringKey(
-                        stringLiteral: "[\(privacyPolicyText)](\(ApplicationConfiguration.privacyPolicyLink))")
+                        stringLiteral:
+                            "[\(privacyPolicyText)](\(ApplicationConfiguration.privacyPolicyLink(for :ApplicationLanguage.currentLanguage.id)))"
+                    )
                 )
                 .font(.mullvadSmall)
                 .underline(true, color: .white)
