@@ -1,9 +1,10 @@
 import React from 'react';
 
 import { ScrollToAnchorId } from '../../../shared/ipc-types';
-import { useScrollToListItem } from '../../hooks';
 import { Accordion, AccordionProps } from '../../lib/components/accordion';
 import { useHistory } from '../../lib/history';
+import { SettingsAccordionHeader } from './components';
+import { SettingsAccordionProvider } from './SettingsAccordionContext';
 
 export type SettingsAccordion = Omit<AccordionProps, 'animation'> & {
   accordionId: string;
@@ -16,7 +17,6 @@ function SettingsAccordion({ accordionId, anchorId, ...props }: SettingsAccordio
   const { state } = location;
   const initialExpanded = location.state.expandedSections[accordionId];
   const [expanded, setExpanded] = React.useState(initialExpanded);
-  const { ref, animation } = useScrollToListItem(anchorId);
   const titleId = React.useId();
 
   const handleOnExpandedChange = React.useCallback(
@@ -34,21 +34,21 @@ function SettingsAccordion({ accordionId, anchorId, ...props }: SettingsAccordio
   );
 
   return (
-    <Accordion
-      ref={ref}
-      tabIndex={-1}
-      animation={animation}
-      expanded={expanded}
-      onExpandedChange={handleOnExpandedChange}
-      titleId={titleId}
-      aria-labelledby={titleId}
-      {...props}
-    />
+    <SettingsAccordionProvider anchorId={anchorId}>
+      <Accordion
+        expanded={expanded}
+        onExpandedChange={handleOnExpandedChange}
+        titleId={titleId}
+        aria-labelledby={titleId}
+        {...props}
+      />
+    </SettingsAccordionProvider>
   );
 }
 
 const SettingsAccordionNamespace = Object.assign(SettingsAccordion, {
   Trigger: Accordion.Trigger,
+  Header: SettingsAccordionHeader,
   HeaderItem: Accordion.HeaderItem,
   Content: Accordion.Content,
   Title: Accordion.Title,

@@ -4,6 +4,7 @@ import { messages } from '../../../../../../shared/gettext';
 import { useDns } from '../../../../../features/dns/hooks';
 import { Button, IconButton } from '../../../../../lib/components';
 import { AccordionProps } from '../../../../../lib/components/accordion';
+import { ListItemProps } from '../../../../../lib/components/list-item';
 import { Switch } from '../../../../../lib/components/switch';
 import { formatHtml } from '../../../../../lib/html-formatter';
 import { IpAddress } from '../../../../../lib/ip';
@@ -22,11 +23,12 @@ import {
   StyledLabel,
 } from './CustomDnsSettingsStyles';
 
-export type CustomDnsSettingsProps = Omit<AccordionProps, 'children'>;
+export type CustomDnsSettingsProps = Omit<AccordionProps, 'children'> &
+  Pick<ListItemProps, 'position'>;
 
 const manualLocal = window.env.platform === 'win32' || window.env.platform === 'linux';
 
-export function CustomDnsSettings(props: CustomDnsSettingsProps) {
+export function CustomDnsSettings({ position, ...props }: CustomDnsSettingsProps) {
   const { dns, setDns } = useDns();
 
   const [inputVisible, showInput, hideInput] = useBoolean(false);
@@ -194,19 +196,21 @@ export function CustomDnsSettings(props: CustomDnsSettingsProps) {
       expanded={listExpanded}
       disabled={!featureAvailable}
       {...props}>
-      <SettingsAccordion.HeaderItem>
-        <Switch
-          checked={dns.state === 'custom' || inputVisible}
-          onCheckedChange={setCustomDnsEnabled}
-          disabled={!featureAvailable}>
-          <Switch.Label>
-            {messages.pgettext('vpn-settings-view', 'Use custom DNS server')}
-          </Switch.Label>
-          <Switch.Trigger ref={switchRef} aria-describedby={descriptionId}>
-            <Switch.Thumb />
-          </Switch.Trigger>
-        </Switch>
-      </SettingsAccordion.HeaderItem>
+      <SettingsAccordion.Header position={position}>
+        <SettingsAccordion.HeaderItem>
+          <Switch
+            checked={dns.state === 'custom' || inputVisible}
+            onCheckedChange={setCustomDnsEnabled}
+            disabled={!featureAvailable}>
+            <Switch.Label>
+              {messages.pgettext('vpn-settings-view', 'Use custom DNS server')}
+            </Switch.Label>
+            <Switch.Trigger ref={switchRef} aria-describedby={descriptionId}>
+              <Switch.Thumb />
+            </Switch.Trigger>
+          </Switch>
+        </SettingsAccordion.HeaderItem>
+      </SettingsAccordion.Header>
 
       <SettingsAccordion.Content>
         <Cell.Section role="listbox">

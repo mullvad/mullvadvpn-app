@@ -1,9 +1,9 @@
 import React from 'react';
 
-import { ListItem, ListItemProps } from '../list-item';
 import { AccordionProvider } from './AccordionContext';
 import {
   AccordionContent,
+  AccordionHeader,
   AccordionHeaderItem,
   AccordionIcon,
   AccordionTitle,
@@ -12,23 +12,19 @@ import {
 
 export type AccordionAnimation = 'flash' | 'dim';
 
-export type AccordionProps = {
+export type AccordionProps = React.PropsWithChildren<{
   expanded?: boolean;
   onExpandedChange?: (open: boolean) => void;
   disabled?: boolean;
   titleId?: string;
-  animation?: AccordionAnimation;
-  children?: React.ReactNode;
-} & ListItemProps;
+}>;
 
 function Accordion({
   expanded = false,
   onExpandedChange: onOpenChange,
   disabled,
-  animation,
   titleId: titleIdProp,
   children,
-  ...props
 }: AccordionProps) {
   const triggerId = React.useId();
   const contentId = React.useId();
@@ -41,15 +37,14 @@ function Accordion({
       expanded={expanded}
       onExpandedChange={onOpenChange}
       disabled={disabled}>
-      <ListItem disabled={disabled} animation={animation} {...props}>
-        {children}
-      </ListItem>
+      <div>{children}</div>
     </AccordionProvider>
   );
 }
 
 const AccordionNamespace = Object.assign(Accordion, {
   Trigger: AccordionTrigger,
+  Header: AccordionHeader,
   HeaderItem: AccordionHeaderItem,
   Content: AccordionContent,
   Title: AccordionTitle,
