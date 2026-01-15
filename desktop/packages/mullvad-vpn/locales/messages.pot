@@ -264,6 +264,9 @@ msgstr ""
 msgid "Search for..."
 msgstr ""
 
+msgid "Search locations or servers"
+msgstr ""
+
 msgid "SECURE CONNECTION"
 msgstr ""
 
