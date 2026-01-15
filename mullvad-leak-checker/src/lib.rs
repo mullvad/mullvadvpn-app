@@ -36,6 +36,19 @@ pub enum Interface {
     Index(std::num::NonZeroU32),
 }
 
+impl Interface {
+    /// Format a pretty-printable string representation of [`Interface`].
+    pub fn pretty(&self) -> String {
+        match self {
+            Interface::Name(name) => name.clone(),
+            #[cfg(target_os = "windows")]
+            Luid(luid) => todo!("retrieve LUID as a string"),
+            #[cfg(target_os = "macos")]
+            Index(i) => i.get().to_string(),
+        }
+    }
+}
+
 impl From<String> for Interface {
     fn from(name: String) -> Self {
         Interface::Name(name)

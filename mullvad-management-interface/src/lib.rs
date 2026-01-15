@@ -119,6 +119,9 @@ pub enum Error {
 
     #[error("An access method with that name already exists")]
     ApiAccessMethodExists,
+
+    #[error("Failed to parse IP Address")]
+    IpAddr(#[from] std::net::AddrParseError),
 }
 
 impl From<tonic::Status> for Error {

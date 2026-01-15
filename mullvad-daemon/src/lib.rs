@@ -1206,7 +1206,8 @@ impl Daemon {
             ExcludedPathsEvent(update, tx) => self.handle_new_excluded_paths(update, tx).await,
             LeakDetected(leak_info) => {
                 log::warn!("Network leak detected! Please contact Mullvad support.");
-                log::warn!("{leak_info:?}")
+                log::warn!("{leak_info:?}");
+                self.handle_leak_event(leak_info)
             }
         }
         should_stop
@@ -1625,6 +1626,10 @@ impl Daemon {
         self.management_interface
             .notifier()
             .notify_app_version(app_version_info);
+    }
+
+    fn handle_leak_event(&mut self, leak: LeakInfo) {
+        self.management_interface.notifier().notify_leak(leak);
     }
 
     async fn handle_device_event(&mut self, event: AccountEvent) {
