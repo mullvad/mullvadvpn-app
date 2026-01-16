@@ -38,9 +38,7 @@ export function QuantumResistantSetting(props: QuantumResistantSettingProps) {
               </>
             </InfoButton>
 
-            <QuantumResistantSwitch.Trigger>
-              <QuantumResistantSwitch.Thumb />
-            </QuantumResistantSwitch.Trigger>
+            <QuantumResistantSwitch.Thumb />
           </SettingsListItem.ActionGroup>
         </QuantumResistantSwitch>
       </SettingsListItem.Item>

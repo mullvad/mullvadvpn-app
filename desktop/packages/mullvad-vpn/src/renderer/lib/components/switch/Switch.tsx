@@ -3,17 +3,17 @@ import React from 'react';
 import { SwitchLabel, SwitchThumb, SwitchTrigger } from './components';
 import { SwitchProvider } from './SwitchContext';
 
-export interface SwitchProps {
+export type SwitchProps = {
   checked?: boolean;
   onCheckedChange?: (checked: boolean) => void;
-  labelId?: string;
+  inputId?: string;
   descriptionId?: string;
   disabled?: boolean;
   children: React.ReactNode;
-}
+};
 
 function Switch({
-  labelId,
+  inputId,
   descriptionId,
   checked,
   onCheckedChange,
@@ -22,7 +22,7 @@ function Switch({
 }: SwitchProps) {
   return (
     <SwitchProvider
-      labelId={labelId}
+      inputId={inputId}
       descriptionId={descriptionId}
       checked={checked}
       onCheckedChange={onCheckedChange}
