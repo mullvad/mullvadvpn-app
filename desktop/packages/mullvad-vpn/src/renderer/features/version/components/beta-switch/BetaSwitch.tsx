@@ -20,7 +20,7 @@ function BetaSwitch({ children, ...props }: BetaSwitchProps) {
 
 const BetaSwitchNamespace = Object.assign(BetaSwitch, {
   Label: Switch.Label,
-  Thumb: Switch.Thumb,
+  Input: Switch.Input,
   Trigger: Switch.Trigger,
 });
 

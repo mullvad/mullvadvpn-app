@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { SwitchLabel, SwitchThumb, SwitchTrigger } from './components';
+import { SwitchInput, SwitchLabel, SwitchTrigger } from './components';
 import { SwitchProvider } from './SwitchContext';
 
 export type SwitchProps = {
@@ -34,7 +34,7 @@ function Switch({
 
 const SwitchNamespace = Object.assign(Switch, {
   Label: SwitchLabel,
-  Thumb: SwitchThumb,
+  Input: SwitchInput,
   Trigger: SwitchTrigger,
 });
 

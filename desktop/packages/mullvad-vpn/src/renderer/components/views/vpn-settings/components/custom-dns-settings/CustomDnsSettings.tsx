@@ -208,7 +208,7 @@ export function CustomDnsSettings({ position, ...props }: CustomDnsSettingsProps
                 {messages.pgettext('vpn-settings-view', 'Use custom DNS server')}
               </Switch.Label>
               <SettingsAccordion.HeaderActionGroup>
-                <Switch.Thumb ref={switchRef} />
+                <Switch.Input ref={switchRef} />
               </SettingsAccordion.HeaderActionGroup>
             </Switch>
           </SettingsAccordion.HeaderItem>
