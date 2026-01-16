@@ -6,10 +6,8 @@ import { messages } from '../../../../shared/gettext';
 import { Button, Icon } from '../../../lib/components';
 import { View } from '../../../lib/components/view';
 import { useRelaySettingsUpdater } from '../../../lib/constraint-updater';
-import { filterLocations } from '../../../lib/filter-locations';
 import { colors } from '../../../lib/foundations';
 import { useHistory } from '../../../lib/history';
-import { useNormalRelaySettings } from '../../../lib/relay-settings-hooks';
 import { IRelayLocationCountryRedux } from '../../../redux/settings/reducers';
 import { useSelector } from '../../../redux/store';
 import { AppNavigationHeader } from '../../app-navigation-header';
@@ -20,6 +18,7 @@ import { BackAction } from '../../keyboard-navigation';
 import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
 import { SettingsListbox } from '../../settings-listbox';
+import { useFilteredOwnershipOptions, useFilteredProviders, useProviders } from './hooks';
 
 const StyledViewContent = styled(View.Content)`
   margin-bottom: 0;
@@ -107,65 +106,12 @@ export function FilterView() {
   );
 }
 
-// Returns only the ownership options that are compatible with the other filters
-function useFilteredOwnershipOptions(providers: string[], ownership: Ownership): Ownership[] {
-  const locations = useSelector((state) => state.settings.relayLocations);
-
-  const availableOwnershipOptions = useMemo(() => {
-    const relaylistForFilters = filterLocations(locations, ownership, providers);
-
-    const filteredRelayOwnership = relaylistForFilters.flatMap((country) =>
-      country.cities.flatMap((city) => city.relays.map((relay) => relay.owned)),
-    );
-
-    const ownershipOptions = [Ownership.any];
-    if (filteredRelayOwnership.includes(true)) {
-      ownershipOptions.push(Ownership.mullvadOwned);
-    }
-    if (filteredRelayOwnership.includes(false)) {
-      ownershipOptions.push(Ownership.rented);
-    }
-
-    return ownershipOptions;
-  }, [locations, ownership, providers]);
-
-  return availableOwnershipOptions;
-}
-
-// Returns only the providers that are compatible with the other filters
-export function useFilteredProviders(providers: string[], ownership: Ownership): string[] {
-  const locations = useSelector((state) => state.settings.relayLocations);
-
-  const availableProviders = useMemo(() => {
-    const relaylistForFilters = filterLocations(locations, ownership, providers);
-    return providersFromRelays(relaylistForFilters);
-  }, [locations, ownership, providers]);
-
-  return availableProviders;
-}
-
 // Returns all available providers in the provided relay list.
-function providersFromRelays(relays: IRelayLocationCountryRedux[]) {
+export function providersFromRelays(relays: IRelayLocationCountryRedux[]) {
   const providers = relays.flatMap((country) =>
     country.cities.flatMap((city) => city.relays.map((relay) => relay.provider)),
   );
   return removeDuplicates(providers).sort((a, b) => a.localeCompare(b));
-}
-
-function useProviders(): Record<string, boolean> {
-  const relaySettings = useNormalRelaySettings();
-  const locations = useSelector((state) => state.settings.relayLocations);
-  const providerConstraint = relaySettings?.providers ?? [];
-
-  const providers = providersFromRelays(locations);
-
-  // Empty containt array means that all providers are selected. No selection isn't possible.
-  return Object.fromEntries(
-    providers.map((provider) => [
-      provider,
-      providerConstraint.length === 0 || providerConstraint.includes(provider),
-    ]),
-  );
 }
 
 interface IFilterByOwnershipProps {
