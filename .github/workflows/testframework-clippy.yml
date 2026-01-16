@@ -4,8 +4,9 @@ name: DES Testframework - Clippy
 on:
   pull_request:
     paths:
+      - .github/workflows/testframework-clippy.yml
       - 'test/**/*.rs'
-      - .github/workflows/clippy-test.yml
+      - 'test/**/Cargo.toml' # Lint rules defined in toml files
       - clippy.toml
       - 'ci/cargo-ci.sh'
   workflow_dispatch:
