@@ -25,7 +25,7 @@ import { BackAction } from '../keyboard-navigation';
 import { NavigationContainer } from '../NavigationContainer';
 import { NavigationScrollbars } from '../NavigationScrollbars';
 import { SearchTextField } from '../search-text-field';
-import { useFilteredProviders } from '../views/filter/FilterView';
+import { useFilteredProviders } from '../views/filter/hooks';
 import CombinedLocationList, { CombinedLocationListProps } from './CombinedLocationList';
 import CustomLists from './CustomLists';
 import { useRelayListContext } from './RelayListContext';
