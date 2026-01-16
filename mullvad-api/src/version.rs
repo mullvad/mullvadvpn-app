@@ -44,22 +44,10 @@ pub struct AndroidReleases {
     /// Available app releases
     pub releases: Vec<Release>,
 }
-#[derive(Debug, Deserialize, Serialize, Clone)]
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, PartialOrd)]
 pub struct Release {
     /// Mullvad app version
     pub version: mullvad_version::Version,
-}
-#[cfg(target_os = "android")]
-impl PartialEq for Release {
-    fn eq(&self, other: &Self) -> bool {
-        self.version.eq(&other.version)
-    }
-}
-#[cfg(target_os = "android")]
-impl PartialOrd for Release {
-    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-        self.version.partial_cmp(&other.version)
-    }
 }
 
 impl AppVersionProxy {
@@ -176,10 +164,9 @@ impl AppVersionProxy {
                 .context("Invalid version JSON")
                 .map_err(|err| rest::Error::FetchVersions(Arc::new(err)))?;
 
-            let current_version =
-                mullvad_version::Version::from_str(mullvad_version::VERSION).unwrap();
+            let current_version = Version::from_str(mullvad_version::VERSION).unwrap();
             let current_version_supported =
-                is_version_supported_android(current_version, &response);
+                is_version_supported_android(&current_version, &response);
 
             let params = response
                 .releases
@@ -251,13 +238,13 @@ fn find_latest_versions(versions: Vec<Version>) -> anyhow::Result<VersionInfo> {
 }
 
 pub fn is_version_supported_android(
-    current_version: mullvad_version::Version,
-    response: &crate::version::AndroidReleases,
+    current_version: &mullvad_version::Version,
+    response: &AndroidReleases,
 ) -> bool {
     response
         .releases
         .iter()
-        .any(|release| release.version.eq(&current_version))
+        .any(|release| release.version == *current_version)
 }
 
 // This function makes a string conform to the allowed characters and length of header values.

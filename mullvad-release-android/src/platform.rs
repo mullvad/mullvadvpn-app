@@ -8,7 +8,6 @@ use crate::{
     client::api::HttpVersionInfoProvider,
     data_dir::get_data_dir,
     io_util::{create_dir_and_write, wait_for_confirm},
-    platform,
 };
 
 /// Output used by `Platform::set_latest_stable`
@@ -72,7 +71,7 @@ pub async fn pull(assume_yes: bool) -> anyhow::Result<()> {
 pub async fn pull_latest(assume_yes: bool) -> anyhow::Result<()> {
     match HttpVersionInfoProvider::get_latest_versions_file().await {
         Ok(json_str) => {
-            let work_path = platform::work_path_latest();
+            let work_path = work_path_latest();
 
             if !assume_yes && work_path.exists() {
                 let msg = format!(
@@ -190,7 +189,7 @@ pub async fn set_latest_stable(version: &mullvad_version::Version) -> anyhow::Re
     let work_response = read_work().await?;
 
     // Only set as latest if we have that version in the supported list
-    if mullvad_api::version::is_version_supported_android(version.clone(), &work_response) {
+    if mullvad_api::version::is_version_supported_android(version, &work_response) {
         // Currently we never set a beta latest version so there is no need to check the current latest beta so we always just set it to null. If we ever want to set the latest beta we need to parse the current file first.
         let new_latest = Platform {
             android: LatestVersion {
