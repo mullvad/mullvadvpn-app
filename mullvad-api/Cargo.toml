@@ -61,9 +61,9 @@ clap = { workspace = true, features = ["cargo", "derive"] }
 tracing-subscriber = { workspace = true }
 shadowsocks = { workspace = true, features = ["stream-cipher"] }
 
-papaya = "0.2"
+papaya = { workspace = true }
 # Should follow whatever tokio uses
-bytes = "^1.2"
+bytes = { workspace = true }
 
 [target.'cfg(not(target_os = "ios"))'.dependencies]
 mullvad-update = { path = "../mullvad-update", features = ["client"] }
