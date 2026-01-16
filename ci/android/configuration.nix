@@ -2,7 +2,7 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ config, pkgs, ... }:
+{ config, pkgs, lib, ... }:
 
 {
   imports =
@@ -129,6 +129,7 @@
     podman
     git
     javaPackages.compiler.openjdk17
+    strace
   #  wget
   ];
 
@@ -142,6 +143,9 @@
 
   virtualisation = {
     containers.enable = true;
+    containers.containersConf.settings = {
+     containers.seccomp_profile = "/tmp/seccomp.json";
+    };
     # docker.rootless.daemon.settings = {
     #   selinux-enabled = true;
     #   seccomp-profile = "unconfined";
@@ -168,6 +172,7 @@
   # Enable the OpenSSH daemon.
   services.openssh.enable = true;
 
+  security.unprivilegedUsernsClone = true;
   services.avahi = {
     enable = true;
     nssmdns4 = true;
@@ -175,6 +180,36 @@
       enable = true;
       addresses = true;
     };
+  };
+
+  systemd.services."github-runner-android-runner-1".serviceConfig = {
+      DynamicUser = lib.mkForce [];
+      SystemCallFilter = lib.mkForce [];
+      RestrictNamespaces = lib.mkForce [];
+      AmbientCapabilities = lib.mkForce [];
+      LockPersonality = lib.mkForce [];
+      MemoryDenyWriteExecute = lib.mkForce [];
+      NoNewPrivileges= lib.mkForce [];
+      PrivateDevices = lib.mkForce [];
+      PrivateMounts = lib.mkForce [];
+      PrivateNetwork = lib.mkForce [];
+      PrivateTmp = lib.mkForce [];
+      PrivateUsers = lib.mkForce [];
+      ProcSubset = lib.mkForce [];
+      ProtectClock = lib.mkForce [];
+      ProtectControlGroups = lib.mkForce [];
+      ProtectHome = lib.mkForce [];
+      ProtectHostname = lib.mkForce [];
+      ProtectKernelLogs = lib.mkForce [];
+      ProtectKernelModules = lib.mkForce [];
+      ProtectKernelTunables = lib.mkForce [];
+      ProtectProc = lib.mkForce [];
+      ProtectSystem = lib.mkForce [];
+      RemoveIPC = lib.mkForce [];
+      # Restart = lib.mkForce [];
+      RestrictAddressFamilies = lib.mkForce [];
+      RestrictRealtime = lib.mkForce [];
+      RestrictSUIDSGID = lib.mkForce [];
   };
 
   services.github-runners = {
@@ -187,6 +222,7 @@
       group = "runners";
       extraPackages = with pkgs; [
         podman
+        strace
       ];
     };
   };
@@ -205,4 +241,4 @@
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
   system.stateVersion = "25.11"; # Did you read the comment?
 }
- 
+
