@@ -1,113 +1,10 @@
 [package]
 name = "mullvad-daemon"
-description = "Mullvad VPN daemon. Runs and controls the VPN tunnels"
-authors.workspace = true
-repository.workspace = true
-license.workspace = true
 edition.workspace = true
 rust-version.workspace = true
-
-[lints]
-workspace = true
-
-[features]
-# Allow the API server to use to be configured
-api-override = ["mullvad-api/api-override"]
-wireguard-go = ["talpid-core/wireguard-go"]
-staggered-obfuscation = ["mullvad-relay-selector/staggered-obfuscation"]
-multihop-pcap = ["talpid-core/multihop-pcap"]
-cgroup2 = ["talpid-core/cgroup2"]
-
-[dependencies]
-anyhow = { workspace = true }
-chrono = { workspace = true }
-thiserror = { workspace = true }
-either = "1.11"
-futures = { workspace = true }
-libc = "0.2"
-log = { workspace = true }
-regex = "1.0"
-serde = { workspace = true, features = ["derive"] }
-serde_json = { workspace = true, features = ["std"] }
-tokio = { workspace = true, features =  ["fs", "io-util", "rt-multi-thread", "sync", "time"] }
-tokio-stream = { version = "0.1", features = ["sync"]}
-rand = { workspace = true }
-
-mullvad-relay-selector = { path = "../mullvad-relay-selector" }
-mullvad-types = { path = "../mullvad-types" }
-mullvad-api = { path = "../mullvad-api" }
-mullvad-encrypted-dns-proxy = { path = "../mullvad-encrypted-dns-proxy" }
-mullvad-fs = { path = "../mullvad-fs" }
-mullvad-paths = { path = "../mullvad-paths" }
-mullvad-version = { path = "../mullvad-version" }
-mullvad-leak-checker = { path = "../mullvad-leak-checker", default-features = false }
-talpid-core = { path = "../talpid-core" }
-talpid-dns = { path = "../talpid-dns" }
-talpid-future = { path = "../talpid-future" }
-talpid-platform-metadata = { path = "../talpid-platform-metadata" }
-talpid-time = { path = "../talpid-time" }
-talpid-types = { path = "../talpid-types" }
-talpid-routing = { path = "../talpid-routing" }
-
-clap = { workspace = true }
-log-panics = "2.0.0"
-mullvad-management-interface = { path = "../mullvad-management-interface" }
-tracing-appender = { workspace = true }
-tracing-subscriber = { workspace = true, features = [ "chrono"] }
-
-[dev-dependencies]
-insta = { workspace = true, features = ["json"] }
-talpid-time = { path = "../talpid-time", features = ["test"] }
-tokio = { workspace = true, features =  ["test-util"] }
-
-[target.'cfg(target_os="android")'.dependencies]
-async-trait = "0.1"
-paranoid-android = "0.2.2"
-hickory-resolver = { workspace = true }
-
-[target.'cfg(unix)'.dependencies]
-nix = { workspace = true, features = ["signal", "user"] }
-simple-signal = "1.1"
-
-[target.'cfg(target_os="linux")'.dependencies]
-talpid-dbus = { path = "../talpid-dbus" }
-
-[target.'cfg(target_os="macos")'.dependencies]
-objc2-foundation = { version = "0.3.1", features = ["NSProcessInfo", "NSString", "NSURL"] }
-objc2-service-management = { version = "0.3.1", features = [ "SMAppService", "objc2" ] }
-notify = "8.0.0"
-talpid-macos = { path = "../talpid-macos" }
-
-[target.'cfg(windows)'.dependencies]
-ctrlc = "3.0"
-windows-service = "0.6.0"
-winapi = { version = "0.3", features = ["winnt", "excpt", "winerror"] }
-dirs = { workspace = true }
-talpid-windows = { path = "../talpid-windows" }
-
-[target.'cfg(any(unix, windows))'.dependencies]
-mullvad-update = { path = "../mullvad-update", features = ["client"] }
-
-[target.'cfg(windows)'.dependencies.windows-sys]
-workspace = true
-features = [
-    "Win32_Foundation",
-    "Win32_Security",
-    "Win32_Security_Authorization",
-    "Win32_Security_Authentication_Identity",
-    "Win32_System_Diagnostics_Debug",
-    "Win32_System_Kernel",
-    "Win32_System_Memory",
-    "Win32_System_Threading",
-]
-
-[target.'cfg(windows)'.build-dependencies]
-winres = "0.1"
-mullvad-version = { path = "../mullvad-version" }
-
-[target.'cfg(windows)'.build-dependencies.windows-sys]
-workspace = true
-features = ["Win32_System_SystemServices"]
+description = "Mullvad VPN daemon. Runs and controls the VPN tunnels"
+repository.workspace = true
+license.workspace = true
 
 [package.metadata.winres]
 ProductName = "Mullvad VPN"
@@ -115,3 +12,116 @@ CompanyName = "Mullvad VPN AB"
 LegalCopyright = "(c) 2025 Mullvad VPN AB"
 InternalName = "mullvad-daemon"
 OriginalFilename = "mullvad-daemon.exe"
+
+[dependencies]
+anyhow = { workspace = true }
+chrono = { workspace = true }
+clap = { workspace = true }
+either = "1.11"
+futures = { workspace = true }
+libc = "0.2"
+log = { workspace = true }
+log-panics = "2.0.0"
+mullvad-api = { path = "../mullvad-api" }
+mullvad-encrypted-dns-proxy = { path = "../mullvad-encrypted-dns-proxy" }
+mullvad-fs = { path = "../mullvad-fs" }
+mullvad-leak-checker = { path = "../mullvad-leak-checker", default-features = false }
+mullvad-management-interface = { path = "../mullvad-management-interface" }
+mullvad-paths = { path = "../mullvad-paths" }
+mullvad-relay-selector = { path = "../mullvad-relay-selector" }
+mullvad-types = { path = "../mullvad-types" }
+mullvad-version = { path = "../mullvad-version" }
+rand = { workspace = true }
+regex = "1.0"
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true, features = ["std"] }
+talpid-core = { path = "../talpid-core" }
+talpid-dns = { path = "../talpid-dns" }
+talpid-future = { path = "../talpid-future" }
+talpid-platform-metadata = { path = "../talpid-platform-metadata" }
+talpid-routing = { path = "../talpid-routing" }
+talpid-time = { path = "../talpid-time" }
+talpid-types = { path = "../talpid-types" }
+thiserror = { workspace = true }
+tokio = { workspace = true, features = [
+  "fs",
+  "io-util",
+  "rt-multi-thread",
+  "sync",
+  "time"
+] }
+tokio-stream = { version = "0.1", features = ["sync"] }
+tracing-appender = { workspace = true }
+tracing-subscriber = { workspace = true, features = ["chrono"] }
+
+[dev-dependencies]
+insta = { workspace = true, features = ["json"] }
+talpid-time = { path = "../talpid-time", features = ["test"] }
+tokio = { workspace = true, features = ["test-util"] }
+
+[target.'cfg(any(unix, windows))'.dependencies]
+mullvad-update = { path = "../mullvad-update", features = ["client"] }
+
+[target.'cfg(target_os="android")'.dependencies]
+async-trait = "0.1"
+hickory-resolver = { workspace = true }
+paranoid-android = "0.2.2"
+
+[target.'cfg(target_os="linux")'.dependencies]
+talpid-dbus = { path = "../talpid-dbus" }
+
+[target.'cfg(target_os="macos")'.dependencies]
+notify = "8.0.0"
+objc2-foundation = { version = "0.3.1", features = [
+  "NSProcessInfo",
+  "NSString",
+  "NSURL"
+] }
+objc2-service-management = { version = "0.3.1", features = [
+  "SMAppService",
+  "objc2"
+] }
+talpid-macos = { path = "../talpid-macos" }
+
+[target.'cfg(unix)'.dependencies]
+nix = { workspace = true, features = ["signal", "user"] }
+simple-signal = "1.1"
+
+[target.'cfg(windows)'.dependencies]
+ctrlc = "3.0"
+dirs = { workspace = true }
+talpid-windows = { path = "../talpid-windows" }
+winapi = { version = "0.3", features = ["excpt", "winerror", "winnt"] }
+windows-service = "0.6.0"
+
+[target.'cfg(windows)'.dependencies.windows-sys]
+workspace = true
+features = [
+  "Win32_Foundation",
+  "Win32_Security",
+  "Win32_Security_Authentication_Identity",
+  "Win32_Security_Authorization",
+  "Win32_System_Diagnostics_Debug",
+  "Win32_System_Kernel",
+  "Win32_System_Memory",
+  "Win32_System_Threading",
+]
+
+[target.'cfg(windows)'.build-dependencies]
+mullvad-version = { path = "../mullvad-version" }
+winres = "0.1"
+
+[target.'cfg(windows)'.build-dependencies.windows-sys]
+workspace = true
+features = ["Win32_System_SystemServices"]
+
+[features]
+# Allow the API server to use to be configured
+api-override = ["mullvad-api/api-override"]
+cgroup2 = ["talpid-core/cgroup2"]
+multihop-pcap = ["talpid-core/multihop-pcap"]
+staggered-obfuscation = ["mullvad-relay-selector/staggered-obfuscation"]
+wireguard-go = ["talpid-core/wireguard-go"]
+
+[lints]
+workspace = true

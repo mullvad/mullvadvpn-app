@@ -1,72 +1,63 @@
 [package]
 name = "test-manager"
-description = "Manager process orchestrating e2e tests of the Mullvad VPN app"
-authors.workspace = true
-repository.workspace = true
-license.workspace = true
 edition.workspace = true
 rust-version.workspace = true
-
-[lints]
-workspace = true
+description = "Manager process orchestrating e2e tests of the Mullvad VPN app"
+repository.workspace = true
+license.workspace = true
 
 [dependencies]
 anyhow = { version = "1", features = ["backtrace"] }
-futures = { workspace = true }
-regex = "1"
-chrono = { workspace = true }
-tokio = { workspace = true }
-tokio-serial = { workspace = true }
-tokio-util = { version = "0.7", features = ["codec"], default-features = false }
-thiserror = { workspace = true }
-bytes = { workspace = true }
-test_macro = { path = "./test_macro" }
-ipnetwork = "0.21.1"
-inventory = "0.3"
-data-encoding-macro = "0.1.12"
-itertools = "0.10.5"
-libc = "0.2.14"
-clap = { version = "4.1", features = ["derive"] }
 async-tempfile = "0.2"
 async-trait = { workspace = true }
-uuid = "1.3"
-dirs = { workspace = true }
-scopeguard = "1.2"
-glob = "0.3"
-
-serde = { workspace = true }
-serde_json = { workspace = true }
-log = { workspace = true }
-
-pcap = { version = "1.3", features = ["capture-stream"] }
-pnet_packet = "0.34.0"
-pnet_base = "0.34.0"
-
-test-rpc = { path = "../test-rpc" }
-socks-server = { path = "../socks-server" }
-
-env_logger = { workspace = true }
-
-tonic = { workspace = true }
-hyper-util = { workspace = true }
-tower = { workspace = true }
+bytes = { workspace = true }
+chrono = { workspace = true }
+clap = { version = "4.1", features = ["derive"] }
 colored = { workspace = true }
-
+data-encoding-macro = "0.1.12"
+dirs = { workspace = true }
+duplicate = { version = "2.0.0", default-features = false }
+env_logger = { workspace = true }
+futures = { workspace = true }
+glob = "0.3"
+hyper-util = { workspace = true }
+inventory = "0.3"
+ipnetwork = "0.21.1"
+itertools = "0.10.5"
+libc = "0.2.14"
+log = { workspace = true }
 mullvad-api = { path = "../../mullvad-api", features = ["api-override"] }
 mullvad-api-constants = { path = "../../mullvad-api/mullvad-api-constants" }
 mullvad-management-interface = { path = "../../mullvad-management-interface" }
 mullvad-relay-selector = { path = "../../mullvad-relay-selector" }
 mullvad-types = { path = "../../mullvad-types" }
 mullvad-version = { path = "../../mullvad-version" }
-talpid-types = { path = "../../talpid-types" }
-
-ssh2 = { version = "0.9.5", features = ["vendored-openssl"] }
-
 nix = { workspace = true }
-duplicate = { version = "2.0.0", default-features = false }
+pcap = { version = "1.3", features = ["capture-stream"] }
+pnet_base = "0.34.0"
+pnet_packet = "0.34.0"
+regex = "1"
+scopeguard = "1.2"
+serde = { workspace = true }
+serde_json = { workspace = true }
+socks-server = { path = "../socks-server" }
+ssh2 = { version = "0.9.5", features = ["vendored-openssl"] }
+talpid-types = { path = "../../talpid-types" }
+test_macro = { path = "./test_macro" }
+test-rpc = { path = "../test-rpc" }
+thiserror = { workspace = true }
+tokio = { workspace = true }
+tokio-serial = { workspace = true }
+tokio-util = { version = "0.7", default-features = false, features = ["codec"] }
+tonic = { workspace = true }
+tower = { workspace = true }
+uuid = "1.3"
 
 [target.'cfg(target_os = "linux")'.dependencies]
 pnet_datalink = "0.35.0"
 
 [target.'cfg(target_os = "macos")'.dependencies]
 nix.workspace = true
+
+[lints]
+workspace = true

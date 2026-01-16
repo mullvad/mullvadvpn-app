@@ -1,21 +1,20 @@
 [package]
 name = "nseventforwarder"
-description = "Node.js module for monitoring NSEvents"
-authors.workspace = true
-repository.workspace = true
-license.workspace = true
 edition.workspace = true
 rust-version.workspace = true
+description = "Node.js module for monitoring NSEvents"
+repository.workspace = true
+license.workspace = true
 exclude = ["index.node"]
-
-[lints]
-workspace = true
 
 [lib]
 crate-type = ["cdylib"]
 path = "nseventforwarder-rs/lib.rs"
 
 [target.'cfg(target_os = "macos")'.dependencies]
-neon = "1"
 block2 = "0.5.1"
+neon = "1"
 objc2-app-kit = { version = "0.2.2", features = ["NSEvent", "block2"] }
+
+[lints]
+workspace = true

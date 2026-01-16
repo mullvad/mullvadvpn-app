@@ -1,50 +1,61 @@
 [package]
 name = "installer-downloader"
-description = "A secure minimal web installer for the Mullvad app"
 version = "1.2.0"
-publish = false
-authors.workspace = true
-repository.workspace = true
-license.workspace = true
 edition.workspace = true
 rust-version.workspace = true
+description = "A secure minimal web installer for the Mullvad app"
+repository.workspace = true
+license.workspace = true
+publish = false
 
-[lints]
-workspace = true
+[package.metadata.winres]
+LegalCopyright = "(c) 2025 Mullvad VPN AB"
 
 [build-dependencies]
 anyhow = { workspace = true }
+windows-sys = { workspace = true, features = [
+  "Win32_System",
+  "Win32_System_LibraryLoader",
+  "Win32_System_SystemServices"
+] }
 winres = "0.1"
-windows-sys = { workspace = true, features = ["Win32_System", "Win32_System_LibraryLoader", "Win32_System_SystemServices"] }
 
 [target.'cfg(any(target_os = "windows", target_os = "macos"))'.dependencies]
 anyhow = { workspace = true }
 async-trait = "0.1"
 log = { workspace = true }
-rand = { workspace = true }
-serde = { workspace = true, features = ["derive"] }
-tokio = { workspace = true, features = ["rt-multi-thread", "fs"] }
-tracing-subscriber = { workspace = true, features = [ "chrono" ] }
-tracing-appender = { workspace = true }
-
-talpid-platform-metadata = { path = "../talpid-platform-metadata" }
 mullvad-update = { path = "../mullvad-update", features = ["client"] }
 mullvad-version = { path = "../mullvad-version" }
+rand = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+talpid-platform-metadata = { path = "../talpid-platform-metadata" }
+tokio = { workspace = true, features = ["fs", "rt-multi-thread"] }
+tracing-appender = { workspace = true }
+tracing-subscriber = { workspace = true, features = ["chrono"] }
 
-[target.'cfg(target_os = "windows")'.dependencies]
-native-windows-gui = { version = "1.0.12", features = ["embed-resource", "frame", "image-decoder", "progress-bar"], default-features = false }
-windows-sys = { workspace = true, features = ["Win32_UI", "Win32_UI_WindowsAndMessaging", "Win32_Graphics", "Win32_Graphics_Gdi"] }
-
-mullvad-paths = { path = "../mullvad-paths" }
+[target.'cfg(any(target_os = "windows", target_os = "macos"))'.dev-dependencies]
+insta = { workspace = true, features = ["yaml"] }
+serde = { workspace = true, features = ["derive"] }
+tokio = { workspace = true, features = ["macros", "test-util"] }
 
 [target.'cfg(target_os = "macos")'.dependencies]
 cacao = "0.3.2"
 objc_id = "0.1"
 
-[target.'cfg(any(target_os = "windows", target_os = "macos"))'.dev-dependencies]
-insta = { workspace = true, features = ["yaml"] }
-serde = { workspace = true, features = ["derive"] }
-tokio = { workspace = true, features =  ["test-util", "macros"] }
+[target.'cfg(target_os = "windows")'.dependencies]
+mullvad-paths = { path = "../mullvad-paths" }
+native-windows-gui = { version = "1.0.12", default-features = false, features = [
+  "embed-resource",
+  "frame",
+  "image-decoder",
+  "progress-bar"
+] }
+windows-sys = { workspace = true, features = [
+  "Win32_Graphics",
+  "Win32_Graphics_Gdi",
+  "Win32_UI",
+  "Win32_UI_WindowsAndMessaging"
+] }
 
-[package.metadata.winres]
-LegalCopyright = "(c) 2025 Mullvad VPN AB"
+[lints]
+workspace = true

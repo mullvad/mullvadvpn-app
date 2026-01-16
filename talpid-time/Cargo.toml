@@ -1,22 +1,21 @@
 [package]
 name = "talpid-time"
-description = "Time functions"
-authors.workspace = true
-repository.workspace = true
-license.workspace = true
 edition.workspace = true
 rust-version.workspace = true
-
-[lints]
-workspace = true
-
-[features]
-# This feature should only be enabled for testing (in dev-dependencies). When enabled, timers will
-# use the standard tokio `Instant`, making it possible to advance/pause timers as expected in tests.
-test = []
+description = "Time functions"
+repository.workspace = true
+license.workspace = true
 
 [dependencies]
 tokio = { workspace = true, features = ["time"] }
 
 [target.'cfg(unix)'.dependencies]
 nix = { workspace = true, features = ["time"] }
+
+[features]
+# This feature should only be enabled for testing (in dev-dependencies). When enabled, timers will
+# use the standard tokio `Instant`, making it possible to advance/pause timers as expected in tests.
+test = []
+
+[lints]
+workspace = true

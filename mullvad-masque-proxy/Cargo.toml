@@ -1,49 +1,60 @@
 [package]
 name = "mullvad-masque-proxy"
 version = "0.1.0"
-authors.workspace = true
-repository.workspace = true
-license.workspace = true
 edition.workspace = true
 rust-version.workspace = true
 description = "A limited functionality UDP over HTTP3 proxy"
+repository.workspace = true
+license.workspace = true
+
+[[bench]]
+harness = false
+name = "fragmentation"
 
 [dependencies]
-quinn = { version = "0.11", default-features = false, features = ["log", "runtime-tokio", "rustls-ring"] }
-thiserror = { workspace = true }
-tokio = { workspace = true, features = ["fs",  "macros", "io-util"] }
+anyhow = { workspace = true }
+bytes = "1"
 h3 = "0.0.7"
 h3-datagram = "0.0.1"
 h3-quinn = { version = "0.0.9", features = ["datagram"] }
 http = "1"
-rustls = { workspace = true }
-rustls-pki-types.workspace = true
-bytes = "1"
-anyhow = { workspace = true }
 libc = "0.2"
 log = { workspace = true }
+quinn = { version = "0.11", default-features = false, features = [
+  "log",
+  "runtime-tokio",
+  "rustls-ring"
+] }
+rustls = { workspace = true }
+rustls-pki-types.workspace = true
+thiserror = { workspace = true }
+tokio = { workspace = true, features = ["fs", "io-util", "macros"] }
 typed-builder = "0.21.0"
+
+[dev-dependencies]
+clap = { workspace = true }
+criterion = { version = "0.7.0", features = ["html_reports"] }
+rand = { workspace = true }
+talpid-tunnel = { path = "../talpid-tunnel" }
+tokio = { workspace = true, features = [
+  "fs",
+  "io-util",
+  "macros",
+  "rt-multi-thread"
+] }
+tracing-subscriber = { workspace = true, features = ["env-filter"] }
 
 [target.'cfg(windows)'.dependencies]
 socket2 = { workspace = true }
 
 [target.'cfg(windows)'.dependencies.windows-sys]
 workspace = true
-features = ["Win32", "Win32_Foundation", "Win32_Networking", "Win32_Networking_WinSock"]
-
-[dev-dependencies]
-tracing-subscriber = { workspace = true, features = ["env-filter"] }
-tokio = { workspace = true, features = ["fs", "macros", "io-util", "rt-multi-thread"] }
-clap = { workspace = true }
-rand = { workspace = true }
-criterion = { version = "0.7.0", features = ["html_reports"] }
-talpid-tunnel = { path = "../talpid-tunnel" }
-
+features = [
+  "Win32",
+  "Win32_Foundation",
+  "Win32_Networking",
+  "Win32_Networking_WinSock"
+]
 
 [lints]
 workspace = true
-
-[[bench]]
-name = "fragmentation"
-harness = false
-
