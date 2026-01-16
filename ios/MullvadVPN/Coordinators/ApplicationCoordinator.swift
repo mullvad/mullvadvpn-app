@@ -936,6 +936,8 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
         switch response.providerIdentifier {
         case .accountExpirySystemNotification:
             router.present(.account)
+        case .newAppVersionSystemNotification:
+            router.present(.settings(.vpnSettings))
         case .accountExpiryInAppNotification:
             isPresentingAccountExpiryBanner = false
             updateDeviceInfo(deviceState: tunnelManager.deviceState)
