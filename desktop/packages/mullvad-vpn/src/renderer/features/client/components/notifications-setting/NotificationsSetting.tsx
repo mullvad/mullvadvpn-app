@@ -12,14 +12,12 @@ export function NotificationsSetting(props: NotificationsSettingProps) {
   return (
     <SettingsListItem {...props}>
       <SettingsListItem.Item>
-        <NotificationsSwitch>
+        <NotificationsSwitch descriptionId={descriptionId}>
           <NotificationsSwitch.Label>
             {messages.pgettext('user-interface-settings-view', 'Notifications')}
           </NotificationsSwitch.Label>
           <SettingsListItem.ActionGroup>
-            <NotificationsSwitch.Trigger aria-describedby={descriptionId}>
-              <NotificationsSwitch.Thumb />
-            </NotificationsSwitch.Trigger>
+            <NotificationsSwitch.Thumb />
           </SettingsListItem.ActionGroup>
         </NotificationsSwitch>
       </SettingsListItem.Item>
