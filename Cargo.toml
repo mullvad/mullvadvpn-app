@@ -159,6 +159,9 @@ itertools = "0.14"
 proptest = "1.9"
 insta = { version = "1.42", features = ["yaml"] }
 
+# Workspace crates
+mullvad-leak-checker = { path = "./mullvad-leak-checker", default-features = false }
+
 [profile.release]
 opt-level = "s"
 lto = true
