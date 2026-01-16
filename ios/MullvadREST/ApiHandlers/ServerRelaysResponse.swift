@@ -84,6 +84,16 @@ extension REST {
             !(features?.quic?.addrIn.isEmpty ?? true)
         }
 
+        /// Returns true if the relay has IPv6 addresses in shadowsocksExtraAddrIn
+        public var hasShadowsocksIpv6: Bool {
+            shadowsocksExtraAddrIn?.contains(where: { IPv6Address($0) != nil }) ?? false
+        }
+
+        /// Returns true if the relay has IPv6 addresses in QUIC addrIn
+        public var hasQuicIpv6: Bool {
+            features?.quic?.addrIn.contains(where: { IPv6Address($0) != nil }) ?? false
+        }
+
         public func override(ipv4AddrIn: IPv4Address?, ipv6AddrIn: IPv6Address?) -> Self {
             ServerRelay(
                 hostname: hostname,

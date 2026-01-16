@@ -116,6 +116,7 @@ public enum AccessibilityIdentifier: Equatable {
     case daitaCell
     case daitaFilterPill
     case obfuscationFilterPill
+    case ipv6FilterPill
     case languageCell
 
     // Labels
@@ -239,6 +240,12 @@ public enum AccessibilityIdentifier: Equatable {
     case quantumResistanceAutomatic
     case quantumResistanceOff
     case quantumResistanceOn
+
+    // IP version
+    case ipVersionCell
+    case ipVersionAutomatic
+    case ipVersionIPv4
+    case ipVersionIPv6
 
     // Multihop
     case multihopSwitch

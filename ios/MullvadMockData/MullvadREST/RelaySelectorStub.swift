@@ -74,7 +74,31 @@ extension RelaySelectorStub {
     public static func nonFallible() -> RelaySelectorStub {
         return RelaySelectorStub(
             selectedRelaysResult: { _ in
-                return Self.selectedRelays
+                let cityRelay = SelectedRelay(
+                    endpoint: SelectedEndpoint(
+                        socketAddress: .ipv4(IPv4Endpoint(ip: .loopback, port: 1300)),
+                        ipv4Gateway: .loopback,
+                        ipv6Gateway: .loopback,
+                        publicKey: PrivateKey().publicKey.rawValue,
+                        obfuscation: .off
+                    ),
+                    hostname: "se-got",
+                    location: Location(
+                        country: "",
+                        countryCode: "se",
+                        city: "",
+                        cityCode: "got",
+                        latitude: 0,
+                        longitude: 0
+                    ),
+                    features: nil
+                )
+
+                return SelectedRelays(
+                    entry: cityRelay,
+                    exit: cityRelay,
+                    retryAttempt: 0
+                )
             }, candidatesResult: nil)
     }
 

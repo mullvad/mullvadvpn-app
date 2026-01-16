@@ -110,6 +110,30 @@ class VPNSettingsPage: Page {
         return self
     }
 
+    @discardableResult func tapIPVersionExpandButton() -> Self {
+        cellExpandButton(AccessibilityIdentifier.ipVersionCell).tap()
+
+        return self
+    }
+
+    @discardableResult func tapIPVersionAutomaticCell() -> Self {
+        app.cells[AccessibilityIdentifier.ipVersionAutomatic]
+            .tap()
+        return self
+    }
+
+    @discardableResult func tapIPVersionIPv4Cell() -> Self {
+        app.cells[AccessibilityIdentifier.ipVersionIPv4]
+            .tap()
+        return self
+    }
+
+    @discardableResult func tapIPVersionIPv6Cell() -> Self {
+        app.cells[AccessibilityIdentifier.ipVersionIPv6]
+            .tap()
+        return self
+    }
+
     @discardableResult func tapWireGuardObfuscationAutomaticCell() -> Self {
         app.cells[AccessibilityIdentifier.wireGuardObfuscationAutomatic]
             .tap()

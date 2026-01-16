@@ -53,6 +53,7 @@ struct OneToOne: MultihopDecisionFlow {
             from: entryCandidates,
             closeTo: daitaAutomaticRouting ? exitMatch.location : nil,
             applyObfuscatedIps: true,
+            forceV4: true,
         )
 
         return SelectedRelays(
@@ -101,6 +102,7 @@ struct OneToMany: MultihopDecisionFlow {
             relay: entryMatch,
             from: exitCandidates,
             applyObfuscatedIps: false,
+            forceV4Address: true,
         )
 
         return SelectedRelays(
@@ -147,6 +149,7 @@ struct ManyToOne: MultihopDecisionFlow {
         let exitMatch = try multihopPicker.findBestMatch(
             from: exitCandidates,
             applyObfuscatedIps: false,
+            forceV4: true,
         )
         let entryMatch = try multihopPicker.exclude(
             relay: exitMatch,
@@ -196,7 +199,7 @@ struct ManyToMany: MultihopDecisionFlow {
             )
         }
 
-        let exitMatch = try multihopPicker.findBestMatch(from: exitCandidates, applyObfuscatedIps: false)
+        let exitMatch = try multihopPicker.findBestMatch(from: exitCandidates, applyObfuscatedIps: false, forceV4: true)
         let entryMatch = try multihopPicker.exclude(
             relay: exitMatch,
             from: entryCandidates,
