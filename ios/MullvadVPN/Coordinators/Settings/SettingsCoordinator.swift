@@ -41,6 +41,9 @@ enum SettingsNavigationRoute: Equatable {
 
     /// Language route.
     case language
+
+    /// IAN route.
+    case includeAllNetworks
 }
 
 /// Top-level settings coordinator.
@@ -82,7 +85,8 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
         interactorFactory: SettingsInteractorFactory,
         accessMethodRepository: AccessMethodRepositoryProtocol,
         proxyConfigurationTester: ProxyConfigurationTesterProtocol,
-        ipOverrideRepository: IPOverrideRepository
+        ipOverrideRepository: IPOverrideRepository,
+        appPreferences: AppPreferencesDataSource
     ) {
         self.navigationController = navigationController
         self.interactorFactory = interactorFactory
@@ -95,7 +99,8 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
             proxyConfigurationTester: proxyConfigurationTester,
             ipOverrideRepository: ipOverrideRepository,
             navigationController: navigationController,
-            alertPresenter: AlertPresenter(context: self)
+            alertPresenter: AlertPresenter(context: self),
+            appPreferences: appPreferences
         )
     }
 
@@ -113,7 +118,7 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
 
     // MARK: - Navigation
 
-    /// Request navigation to the speciifc route.
+    /// Request navigation to the specific route.
     ///
     /// - Parameters:
     ///   - route: the route to present.

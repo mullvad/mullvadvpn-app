@@ -34,11 +34,14 @@ public struct TunnelSettingsStrategy: TunnelSettingsStrategyProtocol, Sendable {
         oldSettings: LatestTunnelSettings,
         newSettings: LatestTunnelSettings
     ) -> TunnelSettingsReconnectionStrategy {
-        if oldSettings.localNetworkSharing != newSettings.localNetworkSharing
-            || oldSettings.includeAllNetworks != newSettings.includeAllNetworks
+        if oldSettings.includeAllNetworks.localNetworkSharingState
+            != newSettings.includeAllNetworks.localNetworkSharingState
+            || oldSettings.includeAllNetworks.includeAllNetworksState
+                != newSettings.includeAllNetworks.includeAllNetworksState
         {
             return .hardReconnect
         }
+
         switch (oldSettings, newSettings) {
         case let (old, new) where old != new:
             return .newRelayReconnect
