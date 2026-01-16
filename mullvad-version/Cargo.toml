@@ -1,29 +1,28 @@
 [package]
 name = "mullvad-version"
+edition.workspace = true
+rust-version.workspace = true
 description = """
 Computes the Mullvad VPN app product version. This crate is the single source of truth for
 what version string a build should have. This crate is responsible for computing the
 `-dev-$git_hash` suffix as well as transforming the version into semver, Android versionCode
 and other formats.
 """
-authors.workspace = true
 repository.workspace = true
 license.workspace = true
-edition.workspace = true
-rust-version.workspace = true
-
-[lints]
-workspace = true
-
-[features]
-arbitrary = ["dep:proptest"]
 
 [dependencies]
+proptest = { workspace = true, optional = true }
 regex-lite = "0.1"
 serde = { workspace = true, optional = true }
-proptest = { workspace = true, optional = true }
 
 [dev-dependencies]
 # The self-referential dependency is required for enabling the proptest generators in tests.
 mullvad-version = { path = ".", features = ["arbitrary"] }
 proptest = { workspace = true }
+
+[features]
+arbitrary = ["dep:proptest"]
+
+[lints]
+workspace = true

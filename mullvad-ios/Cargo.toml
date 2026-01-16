@@ -1,41 +1,40 @@
 [package]
 name = "mullvad-ios"
-description = "Entry point for all FFI code on iOS"
-authors.workspace = true
-repository.workspace = true
-license.workspace = true
 edition.workspace = true
 rust-version.workspace = true
+description = "Entry point for all FFI code on iOS"
+repository.workspace = true
+license.workspace = true
 
-[lints]
-workspace = true
+[lib]
+bench = false
+crate-type = ["staticlib"]
+
+[target.'cfg(target_os = "ios")'.dependencies]
+futures = { workspace = true }
+hyper = { version = "1.4.1", features = ["client", "http1"] }
+hyper-util = { workspace = true }
+libc = "0.2"
+log = { workspace = true }
+mockito = "1.6.1"
+mullvad-api = { path = "../mullvad-api", default-features = false }
+mullvad-encrypted-dns-proxy = { path = "../mullvad-encrypted-dns-proxy" }
+mullvad-types = { path = "../mullvad-types" }
+oslog = "0.2"
+talpid-future = { path = "../talpid-future" }
+talpid-tunnel-config-client = { path = "../talpid-tunnel-config-client" }
+talpid-types = { path = "../talpid-types" }
+tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }
+tonic = { workspace = true }
+tower = { workspace = true }
+tunnel-obfuscation = { path = "../tunnel-obfuscation" }
+
+[target.'cfg(target_os = "macos")'.build-dependencies]
+cbindgen = { version = "0.28.0", default-features = false }
 
 [features]
 # Allow the API server to be used
 api-override = ["mullvad-api/api-override"]
 
-[target.'cfg(target_os = "ios")'.dependencies]
-futures = { workspace = true }
-libc = "0.2"
-log = { workspace = true }
-tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }
-tonic = { workspace = true }
-hyper = { version = "1.4.1", features = ["client", "http1"] }
-hyper-util = { workspace = true }
-tower = { workspace = true }
-tunnel-obfuscation = { path = "../tunnel-obfuscation" }
-oslog = "0.2"
-talpid-future = { path = "../talpid-future" }
-talpid-types = { path = "../talpid-types" }
-talpid-tunnel-config-client = { path = "../talpid-tunnel-config-client" }
-mullvad-encrypted-dns-proxy = { path = "../mullvad-encrypted-dns-proxy" }
-mullvad-api = { path = "../mullvad-api", default-features = false }
-mullvad-types = { path = "../mullvad-types" }
-mockito = "1.6.1"
-
-[target.'cfg(target_os = "macos")'.build-dependencies]
-cbindgen = { version = "0.28.0", default-features = false }
-
-[lib]
-crate-type = ["staticlib"]
-bench = false
+[lints]
+workspace = true

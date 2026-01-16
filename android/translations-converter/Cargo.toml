@@ -1,19 +1,18 @@
 [package]
 name = "translations-converter"
-description = "Converts between PO and Android style localization formats"
-authors.workspace = true
-repository.workspace = true
-license.workspace = true
 edition.workspace = true
 rust-version.workspace = true
+description = "Converts between PO and Android style localization formats"
+repository.workspace = true
+license.workspace = true
+
+[dependencies]
+htmlize = { version = "1.0.6", features = ["unescape"] }
+itertools = "0.14.0"
+quick-xml = { version = "0.27.1", features = ["serialize"] }
+regex = "1"
+serde = { workspace = true, features = ["derive"] }
+thiserror = { workspace = true }
 
 [lints]
 workspace = true
-
-[dependencies]
-thiserror = { workspace = true }
-htmlize = { version = "1.0.6", features = ["unescape"] }
-regex = "1"
-serde = { workspace = true, features = ["derive"] }
-quick-xml = { version = "0.27.1", features = ["serialize"] }
-itertools = "0.14.0"

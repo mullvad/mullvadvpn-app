@@ -1,17 +1,16 @@
 [package]
 name = "talpid-cgroup"
-description = "An abstraction for linux cgroup"
-authors.workspace = true
-repository.workspace = true
-license.workspace = true
 edition.workspace = true
 rust-version.workspace = true
-
-[lints]
-workspace = true
+description = "An abstraction for linux cgroup"
+repository.workspace = true
+license.workspace = true
 
 [target.'cfg(target_os = "linux")'.dependencies]
 anyhow.workspace = true
-nix = { workspace = true, features = ["fs", "mount", "process"] }
 log.workspace = true
+nix = { workspace = true, features = ["fs", "mount", "process"] }
 thiserror.workspace = true
+
+[lints]
+workspace = true

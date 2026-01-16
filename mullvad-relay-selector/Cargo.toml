@@ -1,29 +1,27 @@
 [package]
 name = "mullvad-relay-selector"
-description = "Mullvad VPN relay selector"
-authors.workspace = true
-repository.workspace = true
-license.workspace = true
 edition.workspace = true
 rust-version.workspace = true
+description = "Mullvad VPN relay selector"
+repository.workspace = true
+license.workspace = true
 
-[lints]
-workspace = true
+[dependencies]
+ipnetwork = { workspace = true }
+itertools = { workspace = true }
+log = { workspace = true }
+mullvad-types = { path = "../mullvad-types" }
+rand = { workspace = true }
+talpid-types = { path = "../talpid-types" }
+thiserror = { workspace = true }
+
+[dev-dependencies]
+proptest = { workspace = true }
+vec1 = { workspace = true }
 
 [features]
 default = []
 staggered-obfuscation = []
 
-[dependencies]
-thiserror = { workspace = true }
-ipnetwork = { workspace = true }
-itertools = { workspace = true }
-log = { workspace = true }
-rand = { workspace = true }
-
-talpid-types = { path = "../talpid-types" }
-mullvad-types = { path = "../mullvad-types" }
-
-[dev-dependencies]
-proptest = { workspace = true }
-vec1 = { workspace = true }
+[lints]
+workspace = true

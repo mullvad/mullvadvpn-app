@@ -1,17 +1,15 @@
 [package]
 name = "test_macro"
-authors.workspace = true
-repository.workspace = true
-license.workspace = true
 edition.workspace = true
 rust-version.workspace = true
+repository.workspace = true
+license.workspace = true
 
 [lib]
 proc-macro = true
 
-
 [dependencies]
-syn = "1.0"
-quote = "1.0"
 proc-macro2 = "1.0"
+quote = "1.0"
+syn = "1.0"
 test-rpc = { path = "../../test-rpc" }

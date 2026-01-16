@@ -1,38 +1,31 @@
 [package]
 name = "talpid-tunnel"
-description = "Library for creating tunnel devices and interfacing with various VPN tunnels"
-authors.workspace = true
-repository.workspace = true
-license.workspace = true
 edition.workspace = true
 rust-version.workspace = true
-
-[lints]
-workspace = true
-
-[features]
-wireguard-go = ["dep:tun"]
+description = "Library for creating tunnel devices and interfacing with various VPN tunnels"
+repository.workspace = true
+license.workspace = true
 
 [dependencies]
-thiserror = { workspace = true }
 cfg-if = "1.0"
+futures = { workspace = true }
 ipnetwork = { workspace = true }
 talpid-routing = { path = "../talpid-routing" }
 talpid-types = { path = "../talpid-types" }
-futures = { workspace = true }
-tokio = { workspace = true, features = ["process", "rt-multi-thread", "fs"] }
+thiserror = { workspace = true }
+tokio = { workspace = true, features = ["fs", "process", "rt-multi-thread"] }
 
 [target.'cfg(any(target_os = "linux", target_os = "macos"))'.dependencies]
-tun = { workspace = true, optional = true } # use tun 0.5.5 for wireguard-go
+tun = { workspace = true, optional = true }  # use tun 0.5.5 for wireguard-go
+
+[target.'cfg(not(target_os = "android"))'.dependencies]
+tun08 = { package = "tun", version = "0.8.5", default-features = false, features = [
+  "async",
+] }
 
 [target.'cfg(target_os = "android")'.dependencies]
 jnix = { version = "0.5.1", features = ["derive"] }
 log = { workspace = true }
-
-[target.'cfg(not(target_os = "android"))'.dependencies]
-tun08 = { package = "tun", default-features = false, version = "0.8.5", features = [
-  "async",
-] }
 
 [target.'cfg(windows)'.dependencies]
 talpid-windows = { path = "../talpid-windows" }
@@ -41,6 +34,12 @@ talpid-windows = { path = "../talpid-windows" }
 workspace = true
 features = [
   "Win32_Foundation",
-  "Win32_Networking_WinSock",
   "Win32_NetworkManagement_Ndis",
+  "Win32_Networking_WinSock",
 ]
+
+[features]
+wireguard-go = ["dep:tun"]
+
+[lints]
+workspace = true

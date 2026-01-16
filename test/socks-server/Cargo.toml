@@ -1,18 +1,17 @@
 [package]
 name = "socks-server"
-description = "Contains a simple SOCKS5 server"
-authors.workspace = true
-repository.workspace = true
-license.workspace = true
 edition.workspace = true
 rust-version.workspace = true
-
-[lints]
-workspace = true
+description = "Contains a simple SOCKS5 server"
+repository.workspace = true
+license.workspace = true
 
 [dependencies]
 fast-socks5 = "0.9.5"
+futures = { workspace = true }
+log = { workspace = true }
 thiserror = { workspace = true }
 tokio = { workspace = true }
-log = { workspace = true }
-futures = { workspace = true }
+
+[lints]
+workspace = true

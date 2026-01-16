@@ -1,42 +1,48 @@
 [package]
 name = "test-runner"
-description = "Runs inside the VM where the Mullvad VPN app is being tested"
-authors.workspace = true
-repository.workspace = true
-license.workspace = true
 edition.workspace = true
 rust-version.workspace = true
-
-[lints]
-workspace = true
+description = "Runs inside the VM where the Mullvad VPN app is being tested"
+repository.workspace = true
+license.workspace = true
 
 [dependencies]
+bytes = { workspace = true }
+chrono = { workspace = true, features = ["serde"] }
 dirs = { workspace = true }
 futures = { workspace = true }
+libc = "0.2"
+log = { workspace = true }
+mullvad-paths = { path = "../../mullvad-paths" }
+parity-tokio-ipc = "0.9"
+rand = { workspace = true }
+serde_json = { workspace = true }
+socket2 = { workspace = true, features = ["all"] }
+surge-ping = { workspace = true }
+talpid-platform-metadata = { path = "../../talpid-platform-metadata", default-features = false }
 tarpc = { workspace = true }
+test-rpc = { path = "../test-rpc" }
+thiserror = { workspace = true }
 tokio = { workspace = true }
 tokio-serial = { workspace = true }
-thiserror = { workspace = true }
-log = { workspace = true }
-parity-tokio-ipc = "0.9"
-bytes = { workspace = true }
-serde_json = { workspace = true }
-surge-ping = { workspace = true }
-rand = { workspace = true }
 
-libc = "0.2"
-chrono = { workspace = true, features = ["serde"] }
+[dependencies.tokio-util]
+version = "0.7"
+default-features = false
+features = ["codec"]
 
-test-rpc = { path = "../test-rpc" }
-mullvad-paths = { path = "../../mullvad-paths" }
-talpid-platform-metadata = { path = "../../talpid-platform-metadata", default-features = false }
+[target.'cfg(target_os = "linux")'.dependencies]
+rs-release = "0.1.7"
 
-socket2 = { workspace = true, features = ["all"] }
+[target.'cfg(target_os = "macos")'.dependencies]
+plist = "1"
+talpid-macos = { path = "../../talpid-macos" }
 
+[target.'cfg(unix)'.dependencies]
+nix = { workspace = true, features = ["user"] }
 
 [target.'cfg(windows)'.dependencies]
 talpid-windows = { path = "../../talpid-windows" }
-
 windows-service = "0.6"
 winreg = "0.55"
 
@@ -51,17 +57,5 @@ features = [
   "Win32_UI_WindowsAndMessaging",
 ]
 
-[dependencies.tokio-util]
-version = "0.7"
-features = ["codec"]
-default-features = false
-
-[target.'cfg(unix)'.dependencies]
-nix = { workspace = true, features = ["user"] }
-
-[target.'cfg(target_os = "linux")'.dependencies]
-rs-release = "0.1.7"
-
-[target.'cfg(target_os = "macos")'.dependencies]
-talpid-macos = { path = "../../talpid-macos" }
-plist = "1"
+[lints]
+workspace = true
