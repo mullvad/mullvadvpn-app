@@ -97,7 +97,7 @@ export default tseslint.config(
     },
   },
   {
-    files: ['**/*.{js,mjs,ts,tsx}'],
+    files: ['**/*.{js,cjs,mjs,ts,tsx}'],
     plugins: {
       'simple-import-sort': simpleImportSort,
     },
