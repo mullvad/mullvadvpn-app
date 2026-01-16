@@ -14,9 +14,7 @@ export function StartMinimizedSetting(props: StartMinimizedSettingProps) {
             <StartMinimizedSwitch.Label>
               {messages.pgettext('user-interface-settings-view', 'Start minimized')}
             </StartMinimizedSwitch.Label>
-            <StartMinimizedSwitch.Trigger>
-              <StartMinimizedSwitch.Thumb />
-            </StartMinimizedSwitch.Trigger>
+            <StartMinimizedSwitch.Thumb />
           </StartMinimizedSwitch>
         </SettingsListItem.Content>
       </SettingsListItem.Item>

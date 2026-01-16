@@ -11,9 +11,7 @@ export function SplitTunnelingStateSwitch() {
       checked={splitTunnelingEnabled}
       disabled={disabled}
       onCheckedChange={setSplitTunnelingState}>
-      <Switch.Trigger>
-        <Switch.Thumb />
-      </Switch.Trigger>
+      <Switch.Thumb />
     </Switch>
   );
 }

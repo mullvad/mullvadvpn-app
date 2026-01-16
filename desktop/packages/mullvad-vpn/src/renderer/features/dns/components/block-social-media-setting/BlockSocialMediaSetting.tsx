@@ -19,9 +19,7 @@ export function BlockSocialMediaSetting(props: BlockSocialMediaSettingProps) {
                 }
               </BlockSocialMediaSwitch.Label>
             </FlexRow>
-            <BlockSocialMediaSwitch.Trigger>
-              <BlockSocialMediaSwitch.Thumb />
-            </BlockSocialMediaSwitch.Trigger>
+            <BlockSocialMediaSwitch.Thumb />
           </BlockSocialMediaSwitch>
         </ListItem.Content>
       </ListItem.Item>

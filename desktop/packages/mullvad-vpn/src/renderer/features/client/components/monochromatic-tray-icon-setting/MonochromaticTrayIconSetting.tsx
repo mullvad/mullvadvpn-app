@@ -13,13 +13,11 @@ export function MonochromaticTrayIconSetting(props: MonochromaticTrayIconSetting
     <SettingsListItem {...props}>
       <SettingsListItem.Item>
         <SettingsListItem.Content>
-          <MonochromaticTrayIconSwitch>
+          <MonochromaticTrayIconSwitch descriptionId={descriptionId}>
             <MonochromaticTrayIconSwitch.Label>
               {messages.pgettext('user-interface-settings-view', 'Monochromatic tray icon')}
             </MonochromaticTrayIconSwitch.Label>
-            <MonochromaticTrayIconSwitch.Trigger aria-describedby={descriptionId}>
-              <MonochromaticTrayIconSwitch.Thumb />
-            </MonochromaticTrayIconSwitch.Trigger>
+            <MonochromaticTrayIconSwitch.Thumb />
           </MonochromaticTrayIconSwitch>
         </SettingsListItem.Content>
       </SettingsListItem.Item>

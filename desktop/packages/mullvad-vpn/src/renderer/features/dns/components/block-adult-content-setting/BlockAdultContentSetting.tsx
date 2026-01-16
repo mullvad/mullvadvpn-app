@@ -19,9 +19,7 @@ export function BlockAdultContentSetting(props: BlockAdultContentSettingProps) {
                 }
               </BlockAdultContentSwitch.Label>
             </FlexRow>
-            <BlockAdultContentSwitch.Trigger>
-              <BlockAdultContentSwitch.Thumb />
-            </BlockAdultContentSwitch.Trigger>
+            <BlockAdultContentSwitch.Thumb />
           </BlockAdultContentSwitch>
         </ListItem.Content>
       </ListItem.Item>

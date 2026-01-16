@@ -15,7 +15,7 @@ export function EnableIpv6Setting(props: EnableIpv6SettingProps) {
     <SettingsListItem {...props}>
       <SettingsListItem.Item>
         <SettingsListItem.Content>
-          <EnableIpv6Switch>
+          <EnableIpv6Switch descriptionId={descriptionId}>
             <EnableIpv6Switch.Label>
               {
                 // TRANSLATORS: Title of in-tunnel IPv6 setting.
@@ -38,9 +38,7 @@ export function EnableIpv6Setting(props: EnableIpv6SettingProps) {
                 </ModalMessage>
               </InfoButton>
 
-              <EnableIpv6Switch.Trigger aria-describedby={descriptionId}>
-                <EnableIpv6Switch.Thumb />
-              </EnableIpv6Switch.Trigger>
+              <EnableIpv6Switch.Thumb />
             </SettingsListItem.Group>
           </EnableIpv6Switch>
         </SettingsListItem.Content>
