@@ -43,30 +43,30 @@ case ${1-:""} in
         exit 1
 esac
 
+
 set -x
-exec "$CONTAINER_RUNNER" run --rm \
-    --security-opt "seccomp=unconfined" \
-    -e HOME=/home/runner1 \
-    -e GRADLE_USER_HOME=/home/runner1/.gradle \
-    -e ANDROID_USER_HOME=/home/runner1/.android \
-    -v /run/github-runner/android-runner-1/.android:/home/runner1/.android:Z \
-    -v "$REPO_DIR:$REPO_MOUNT_TARGET:Z" \
+exec "$CONTAINER_RUNNER" run --rm -it \
+    -v "/$REPO_DIR:$REPO_MOUNT_TARGET:Z" \
     -v "$CARGO_TARGET_VOLUME_NAME:/cargo-target:Z" \
-    -v "$CARGO_REGISTRY_VOLUME_NAME:/home/runner1/.cargo/registry:Z" \
-    -v "/etc/passwd:/etc/passwd" \
-    -v "/etc/group:/etc/group" \
-    -v "$HOME:$HOME" \
-    --user $(id -u):$(id -g) \
+    -v "$CARGO_REGISTRY_VOLUME_NAME:/root/.cargo/registry:Z" \
     "${optional_gradle_cache_volume[@]}" \
     "${optional_android_credentials_volume[@]}" \
-    "$container_image_name" bash -c "$* --stacktrace"
+    "$container_image_name" bash -c "$*"
 
-#exec "$CONTAINER_RUNNER" run --rm \
-#    -v "$REPO_DIR:$REPO_MOUNT_TARGET:Z" \
-#    -v "$CARGO_TARGET_VOLUME_NAME:/cargo-target:Z" \
-#    -v "$CARGO_REGISTRY_VOLUME_NAME:/home/runner1/.cargo/registry:Z" \
-#    -v "/etc/passwd:/etc/passwd" \
-#    -v "/etc/group:/etc/group" \
-#    "${optional_gradle_cache_volume[@]}" \
-#    "${optional_android_credentials_volume[@]}" \
-#    "$container_image_name" bash -c "echo $USER; cargo --help; $* --stacktrace"
+# set -x
+# exec "$CONTAINER_RUNNER" run --rm \
+#     --security-opt "seccomp=unconfined" \
+#     -e HOME=/home/runner1 \
+#     -e GRADLE_USER_HOME=/home/runner1/.gradle \
+#     -e ANDROID_USER_HOME=/home/runner1/.android \
+#     -v /run/github-runner/android-runner-1/.android:/home/runner1/.android:Z \
+#     -v "$REPO_DIR:$REPO_MOUNT_TARGET:Z" \
+#     -v "$CARGO_TARGET_VOLUME_NAME:/cargo-target:Z" \
+#     -v "$CARGO_REGISTRY_VOLUME_NAME:/home/runner1/.cargo/registry:Z" \
+#     -v "/etc/passwd:/etc/passwd" \
+#     -v "/etc/group:/etc/group" \
+#     -v "$HOME:$HOME" \
+#     --user $(id -u):$(id -g) \
+#     "${optional_gradle_cache_volume[@]}" \
+#     "${optional_android_credentials_volume[@]}" \
+#     "$container_image_name" bash -c "$* --stacktrace"
