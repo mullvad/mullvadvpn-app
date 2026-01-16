@@ -17,7 +17,7 @@ export function MonochromaticTrayIconSetting(props: MonochromaticTrayIconSetting
             {messages.pgettext('user-interface-settings-view', 'Monochromatic tray icon')}
           </MonochromaticTrayIconSwitch.Label>
           <SettingsListItem.ActionGroup>
-            <MonochromaticTrayIconSwitch.Thumb />
+            <MonochromaticTrayIconSwitch.Input />
           </SettingsListItem.ActionGroup>
         </MonochromaticTrayIconSwitch>
       </SettingsListItem.Item>

@@ -15,7 +15,7 @@ function AllowLanSwitch({ children, ...props }: AllowLanSwitch) {
 
 const AllowLanSwitchNamespace = Object.assign(AllowLanSwitch, {
   Label: Switch.Label,
-  Thumb: Switch.Thumb,
+  Input: Switch.Input,
   Trigger: Switch.Trigger,
 });
 

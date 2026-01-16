@@ -24,7 +24,7 @@ export function BetaSetting(props: BetaSettingProps) {
             }
           </BetaSwitch.Label>
           <SettingsListItem.ActionGroup>
-            <BetaSwitch.Thumb />
+            <BetaSwitch.Input />
           </SettingsListItem.ActionGroup>
         </BetaSwitch>
       </SettingsListItem.Item>

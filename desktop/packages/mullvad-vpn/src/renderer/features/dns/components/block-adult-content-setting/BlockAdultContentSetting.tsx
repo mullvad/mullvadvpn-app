@@ -16,7 +16,7 @@ export function BlockAdultContentSetting(props: BlockAdultContentSettingProps) {
             }
           </BlockAdultContentSwitch.Label>
           <ListItem.ActionGroup>
-            <BlockAdultContentSwitch.Thumb />
+            <BlockAdultContentSwitch.Input />
           </ListItem.ActionGroup>
         </BlockAdultContentSwitch>
       </ListItem.Item>

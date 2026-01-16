@@ -15,7 +15,7 @@ function QuantumResistantSwitch({ children, ...props }: QuantumResistantSwitchPr
 
 const QuantumResistantSwitchNamespace = Object.assign(QuantumResistantSwitch, {
   Label: Switch.Label,
-  Thumb: Switch.Thumb,
+  Input: Switch.Input,
   Trigger: Switch.Trigger,
 });
 

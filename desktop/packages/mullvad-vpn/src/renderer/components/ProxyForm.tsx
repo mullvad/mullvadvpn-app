@@ -425,7 +425,7 @@ function EditSocks5Remote(props: EditProxyProps<Socks5RemoteCustomProxy>) {
 
       <SettingsRow label={messages.pgettext('api-access-methods-view', 'Authentication')}>
         <Switch checked={authentication} onCheckedChange={setAuthentication}>
-          <Switch.Thumb />
+          <Switch.Input />
         </Switch>
       </SettingsRow>
 

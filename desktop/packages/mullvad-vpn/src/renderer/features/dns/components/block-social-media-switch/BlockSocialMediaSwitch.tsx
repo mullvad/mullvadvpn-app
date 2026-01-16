@@ -19,7 +19,7 @@ function BlockSocialMediaSwitch({ children, ...props }: BlockSocialMediaSwitchPr
 
 const BlockSocialMediaSwitchNamespace = Object.assign(BlockSocialMediaSwitch, {
   Label: Switch.Label,
-  Thumb: Switch.Thumb,
+  Input: Switch.Input,
   Trigger: Switch.Trigger,
 });
 

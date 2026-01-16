@@ -19,7 +19,7 @@ function DaitaSwitch({ children, ...props }: DaitaSwitchProps) {
 
 const DaitaSwitchNamespace = Object.assign(DaitaSwitch, {
   Label: Switch.Label,
-  Thumb: Switch.Thumb,
+  Input: Switch.Input,
   Trigger: Switch.Trigger,
 });
 

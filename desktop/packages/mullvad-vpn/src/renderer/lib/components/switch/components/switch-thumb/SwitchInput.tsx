@@ -5,9 +5,9 @@ import { colors } from '../../../../foundations';
 import { useSwitchContext } from '../../SwitchContext';
 import { useBackgroundColor, useBorderColor } from './hooks';
 
-export type SwitchThumbProps = React.ComponentPropsWithRef<'input'>;
+export type SwitchInputProps = React.ComponentPropsWithRef<'input'>;
 
-export const StyledSwitchThumb = styled.input<{
+export const StyledSwitchInput = styled.input<{
   $borderColor: string;
   $indicatorColor?: string;
   $checked?: boolean;
@@ -68,7 +68,7 @@ export const StyledSwitchThumb = styled.input<{
   }}
 `;
 
-export function SwitchThumb(props: SwitchThumbProps) {
+export function SwitchInput(props: SwitchInputProps) {
   const { inputId, checked, onCheckedChange, descriptionId, disabled } = useSwitchContext();
   const backgroundColor = useBackgroundColor();
   const borderColor = useBorderColor();
@@ -81,7 +81,7 @@ export function SwitchThumb(props: SwitchThumbProps) {
   );
 
   return (
-    <StyledSwitchThumb
+    <StyledSwitchInput
       id={inputId}
       type="checkbox"
       role="switch"

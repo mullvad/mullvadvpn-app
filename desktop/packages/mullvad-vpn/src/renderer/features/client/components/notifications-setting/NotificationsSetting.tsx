@@ -17,7 +17,7 @@ export function NotificationsSetting(props: NotificationsSettingProps) {
             {messages.pgettext('user-interface-settings-view', 'Notifications')}
           </NotificationsSwitch.Label>
           <SettingsListItem.ActionGroup>
-            <NotificationsSwitch.Thumb />
+            <NotificationsSwitch.Input />
           </SettingsListItem.ActionGroup>
         </NotificationsSwitch>
       </SettingsListItem.Item>
