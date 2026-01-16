@@ -30,7 +30,7 @@ case ${1-:""} in
     ;;
     android)
         container_image_name=$(cat "$SCRIPT_DIR/android-container-image.txt")
-        optional_gradle_cache_volume=(-v "$GRADLE_CACHE_VOLUME_NAME:/root/.gradle:Z")
+        optional_gradle_cache_volume=(-v "$GRADLE_CACHE_VOLUME_NAME:/home/runner1/.gradle:Z")
 
         if [ -n "$ANDROID_CREDENTIALS_DIR" ]; then
             optional_android_credentials_volume=(-v "$ANDROID_CREDENTIALS_DIR:$REPO_MOUNT_TARGET/android/credentials:Z")
@@ -43,7 +43,12 @@ case ${1-:""} in
         exit 1
 esac
 
+
 set -x
+
+echo $CARGO_TARGET_VOLUME_NAME
+echo $CARGO_REGISTRY_VOLUME_NAME
+
 exec "$CONTAINER_RUNNER" run --rm -it \
     -v "/$REPO_DIR:$REPO_MOUNT_TARGET:Z" \
     -v "$CARGO_TARGET_VOLUME_NAME:/cargo-target:Z" \
@@ -51,3 +56,21 @@ exec "$CONTAINER_RUNNER" run --rm -it \
     "${optional_gradle_cache_volume[@]}" \
     "${optional_android_credentials_volume[@]}" \
     "$container_image_name" bash -c "$*"
+
+# set -x
+# exec "$CONTAINER_RUNNER" run --rm \
+#     --security-opt "seccomp=unconfined" \
+#     -e HOME=/home/runner1 \
+#     -e GRADLE_USER_HOME=/home/runner1/.gradle \
+#     -e ANDROID_USER_HOME=/home/runner1/.android \
+#     -v /run/github-runner/android-runner-1/.android:/home/runner1/.android:Z \
+#     -v "$REPO_DIR:$REPO_MOUNT_TARGET:Z" \
+#     -v "$CARGO_TARGET_VOLUME_NAME:/cargo-target:Z" \
+#     -v "$CARGO_REGISTRY_VOLUME_NAME:/home/runner1/.cargo/registry:Z" \
+#     -v "/etc/passwd:/etc/passwd" \
+#     -v "/etc/group:/etc/group" \
+#     -v "$HOME:$HOME" \
+#     --user $(id -u):$(id -g) \
+#     "${optional_gradle_cache_volume[@]}" \
+#     "${optional_android_credentials_volume[@]}" \
+#     "$container_image_name" bash -c "$* --stacktrace"
