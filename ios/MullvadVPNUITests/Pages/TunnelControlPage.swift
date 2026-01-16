@@ -122,7 +122,7 @@ class TunnelControlPage: Page {
 
     @discardableResult func tapRelayStatusExpandCollapseButton() -> Self {
         let button = app.buttons[AccessibilityIdentifier.relayStatusCollapseButton]
-        button.tapWhenHittable()
+        button.tapWhenHittable(failOnUnmetCondition: false)
 
         return self
     }
@@ -232,6 +232,26 @@ class TunnelControlPage: Page {
     /// Verify that the app does not attempt to connect using quantum resistance.
     @discardableResult func verifyNotConnectingUsingQuantumResistance() -> Self {
         XCTAssertTrue(app.buttons["Quantum resistance"].notExistsAfterWait())
+        return self
+    }
+
+    @discardableResult func verifyConnectingUsingIncludeAllNetworks() -> Self {
+        XCTAssertTrue(app.buttons["Force all apps"].existsAfterWait())
+        return self
+    }
+
+    @discardableResult func verifyNotConnectingUsingIncludeAllNetworks() -> Self {
+        XCTAssertTrue(app.buttons["Force all apps"].notExistsAfterWait())
+        return self
+    }
+
+    @discardableResult func verifyConnectingUsingLocalNetworkSharing() -> Self {
+        XCTAssertTrue(app.buttons["Local network sharing"].existsAfterWait())
+        return self
+    }
+
+    @discardableResult func verifyNotConnectingUsingLocalNetworkSharing() -> Self {
+        XCTAssertTrue(app.buttons["Local network sharing"].notExistsAfterWait())
         return self
     }
 

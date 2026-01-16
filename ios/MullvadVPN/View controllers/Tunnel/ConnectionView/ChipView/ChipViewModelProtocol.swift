@@ -59,5 +59,6 @@ class MockFeatureIndicatorsViewModel: ChipViewModelProtocol {
         ChipModel(id: .dns, name: "DNS content blockers"),
         ChipModel(id: .dns, name: "Custom DNS"),
         ChipModel(id: .ipOverrides, name: "Server IP override"),
+        ChipModel(id: .includeAllNetworks, name: "Force all apps"),
     ]
 }
