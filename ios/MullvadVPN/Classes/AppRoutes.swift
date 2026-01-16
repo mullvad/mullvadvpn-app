@@ -108,6 +108,11 @@ enum AppRoute: AppRouteProtocol {
     case daita
 
     /**
+     IAN standalone route (not subsetting).
+     */
+    case includeAllNetworks
+
+    /**
      Select location route.
      */
     case selectLocation
@@ -153,7 +158,7 @@ enum AppRoute: AppRouteProtocol {
             return .selectLocation
         case .account:
             return .account
-        case .settings, .daita, .changelog, .vpnSettings, .multihop, .dnsSettings, .ipOverrides:
+        case .settings, .daita, .changelog, .vpnSettings, .multihop, .dnsSettings, .ipOverrides, .includeAllNetworks:
             return .settings
         case let .alert(id):
             return .alert(id)

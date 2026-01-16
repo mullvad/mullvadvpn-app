@@ -114,6 +114,7 @@ final class SettingsCellFactory: @preconcurrency CellFactoryProtocol {
 
             cell.setAccessibilityIdentifier(item.accessibilityIdentifier)
             cell.disclosureType = .chevron
+
         case .language:
             guard let cell = cell as? SettingsCell else { return }
 
@@ -123,6 +124,19 @@ final class SettingsCellFactory: @preconcurrency CellFactoryProtocol {
 
             cell.setAccessibilityIdentifier(item.accessibilityIdentifier)
             cell.disclosureType = .externalLink
+
+        case .includeAllNetworks:
+            guard let cell = cell as? SettingsCell else { return }
+
+            cell.titleLabel.text = NSLocalizedString("Force all apps", comment: "")
+
+            cell.detailTitleLabel.text =
+                viewModel.includeAllNetworksState.isEnabled
+                ? NSLocalizedString("On", comment: "")
+                : NSLocalizedString("Off", comment: "")
+
+            cell.setAccessibilityIdentifier(item.accessibilityIdentifier)
+            cell.disclosureType = .chevron
         }
     }
 

@@ -58,6 +58,7 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
         case daita
         case multihop
         case language
+        case includeAllNetworks
 
         var accessibilityIdentifier: AccessibilityIdentifier {
             switch self {
@@ -77,6 +78,8 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
                 .multihopCell
             case .language:
                 .languageCell
+            case .includeAllNetworks:
+                .includeAllNetworksCell
             }
         }
 
@@ -160,11 +163,11 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
     }
 
     func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
-        guard let section = sectionIdentifier(for: section), section == .misc else {
+        guard let section = sectionIdentifier(for: section) else {
             return nil
         }
 
-        let footerView = tableView.dequeueReusableHeaderFooterView(
+        var footerView = tableView.dequeueReusableHeaderFooterView(
             withIdentifier: HeaderFooterReuseIdentifier.primary.rawValue
         )
 
@@ -176,11 +179,23 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
                 ),
             directionalLayoutMargins: NSDirectionalEdgeInsets(UIMetrics.SettingsRowView.footerLayoutMargins)
         )
-        contentConfiguration.text = NSLocalizedString(
-            "Changing language will disconnect you from the VPN and restart the app.",
-            comment: ""
-        )
-        footerView?.contentConfiguration = contentConfiguration
+
+        switch section {
+        case .vpnSettings:
+            contentConfiguration.text = NSLocalizedString(
+                "Forces all apps on the device to use the VPN tunnel, preventing data leaks",
+                comment: ""
+            )
+            footerView?.contentConfiguration = contentConfiguration
+        case .misc:
+            contentConfiguration.text = NSLocalizedString(
+                "Changing language will disconnect you from the VPN and restart the app",
+                comment: ""
+            )
+            footerView?.contentConfiguration = contentConfiguration
+        default:
+            footerView = nil
+        }
 
         return footerView
     }
@@ -189,7 +204,7 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
         guard let section = sectionIdentifier(for: section) else { return 0 }
 
         return switch section {
-        case .misc:
+        case .vpnSettings, .misc:
             UITableView.automaticDimension
         default:
             0
@@ -218,6 +233,10 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
                     .multihop,
                     .vpnSettings,
                 ], toSection: .vpnSettings)
+
+            #if DEBUG
+                snapshot.appendItems([.includeAllNetworks], toSection: .vpnSettings)
+            #endif
         }
 
         snapshot.appendSections([.apiAccess])
