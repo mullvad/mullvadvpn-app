@@ -28,11 +28,14 @@ public struct TunnelSettingsV7: Codable, Equatable, TunnelSettings, Sendable {
     /// DAITA settings.
     public var daita: DAITASettings
 
-    /// Local networks sharing.
-    public var localNetworkSharing: Bool
-
-    /// Forces the system to route most traffic through the tunnel
+    /// Forces the system to route most traffic through the tunnel.
     public var includeAllNetworks: Bool
+
+    /// Consent to enable `includeAllNetworks`, understanding the pros and cons.
+    public var includeAllNetworksConsent: Bool
+
+    /// Local network sharing.
+    public var localNetworkSharing: Bool
 
     public init(
         relayConstraints: RelayConstraints = RelayConstraints(),
@@ -41,8 +44,7 @@ public struct TunnelSettingsV7: Codable, Equatable, TunnelSettings, Sendable {
         tunnelQuantumResistance: TunnelQuantumResistance = .automatic,
         tunnelMultihopState: MultihopState = .off,
         daita: DAITASettings = DAITASettings(),
-        localNetworkSharing: Bool = false,
-        includeAllNetworks: Bool = false
+        includeAllNetworks: InclueAllNetworksSettings = InclueAllNetworksSettings()
     ) {
         self.relayConstraints = relayConstraints
         self.dnsSettings = dnsSettings
@@ -50,8 +52,9 @@ public struct TunnelSettingsV7: Codable, Equatable, TunnelSettings, Sendable {
         self.tunnelQuantumResistance = tunnelQuantumResistance
         self.tunnelMultihopState = tunnelMultihopState
         self.daita = daita
-        self.localNetworkSharing = localNetworkSharing
-        self.includeAllNetworks = includeAllNetworks
+        self.includeAllNetworks = includeAllNetworks.localNetworkSharingState.isEnabled
+        self.localNetworkSharing = includeAllNetworks.includeAllNetworksState.isEnabled
+        self.includeAllNetworksConsent = includeAllNetworks.consent
     }
 
     public func upgradeToNextVersion() -> any TunnelSettings {

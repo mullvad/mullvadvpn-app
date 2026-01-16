@@ -10,23 +10,18 @@ import Foundation
 import MullvadTypes
 
 public enum TunnelSettingsUpdate: Sendable {
-    case localNetworkSharing(Bool)
-    case includeAllNetworks(Bool)
     case dnsSettings(DNSSettings)
     case obfuscation(WireGuardObfuscationSettings)
     case relayConstraints(RelayConstraints)
     case quantumResistance(TunnelQuantumResistance)
     case multihop(MultihopState)
     case daita(DAITASettings)
+    case includeAllNetworks(InclueAllNetworksSettings)
 }
 
 extension TunnelSettingsUpdate {
     public func apply(to settings: inout LatestTunnelSettings) {
         switch self {
-        case let .localNetworkSharing(enabled):
-            settings.localNetworkSharing = enabled
-        case let .includeAllNetworks(enabled):
-            settings.includeAllNetworks = enabled
         case let .dnsSettings(newDNSSettings):
             settings.dnsSettings = newDNSSettings
         case let .obfuscation(newObfuscationSettings):
@@ -39,19 +34,22 @@ extension TunnelSettingsUpdate {
             settings.tunnelMultihopState = newState
         case let .daita(newDAITASettings):
             settings.daita = newDAITASettings
+        case let .includeAllNetworks(newIncludeAllNetworksSettings):
+            settings.includeAllNetworks = newIncludeAllNetworksSettings.includeAllNetworksState.isEnabled
+            settings.localNetworkSharing = newIncludeAllNetworksSettings.localNetworkSharingState.isEnabled
+            settings.includeAllNetworksConsent = newIncludeAllNetworksSettings.consent
         }
     }
 
     public var subjectName: String {
         switch self {
-        case .localNetworkSharing: "Local network sharing"
-        case .includeAllNetworks: "Include all networks"
         case .dnsSettings: "DNS settings"
         case .obfuscation: "obfuscation settings"
         case .relayConstraints: "relay constraints"
         case .quantumResistance: "quantum resistance"
         case .multihop: "multihop"
         case .daita: "daita"
+        case .includeAllNetworks: "include all networks"
         }
     }
 }

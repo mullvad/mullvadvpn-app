@@ -1132,12 +1132,13 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
             let settingsStrategy = TunnelSettingsStrategy()
 
             modificationBlock(&updatedSettings)
-
             self.setSettings(updatedSettings, persist: true)
+
             let reconnectionStrategy = settingsStrategy.getReconnectionStrategy(
                 oldSettings: currentSettings,
                 newSettings: updatedSettings
             )
+
             switch reconnectionStrategy {
             case .currentRelayReconnect:
                 self.reconnectTunnel(selectNewRelay: false)
@@ -1145,6 +1146,8 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
                 self.reconnectTunnel(selectNewRelay: true)
             case .hardReconnect:
                 self.reapplyTunnelConfiguration()
+            case .noReconnect:
+                break
             }
         }
 

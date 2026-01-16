@@ -100,6 +100,8 @@ extension SettingsDataSource.Item {
             .multihop
         case .language:
             .language
+        case .includeAllNetworks:
+            .includeAllNetworks
         }
     }
 }

@@ -151,6 +151,7 @@ public enum SettingsManager {
                 .apiAccessMethods,
                 .ipOverrides,
                 .customRelayLists,
+                .recentConnections,
             ]
 
         keys.forEach { key in
