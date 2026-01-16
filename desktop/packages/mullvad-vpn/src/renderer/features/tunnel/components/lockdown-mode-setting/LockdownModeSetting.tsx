@@ -31,7 +31,7 @@ export function LockdownModeSetting(props: LockdownModeSettingProps) {
                   )}
                 </ModalMessage>
               </InfoButton>
-              <LockdownModeSwitch.Thumb />
+              <LockdownModeSwitch.Input />
             </SettingsListItem.Group>
           </LockdownModeSwitch>
         </SettingsListItem.Content>

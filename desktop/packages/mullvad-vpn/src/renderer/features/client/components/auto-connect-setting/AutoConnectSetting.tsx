@@ -17,7 +17,7 @@ export function AutoConnectSetting(props: AutoConnectSettingProps) {
             <AutoConnectSwitch.Label>
               {messages.pgettext('vpn-settings-view', 'Auto-connect')}
             </AutoConnectSwitch.Label>
-            <AutoConnectSwitch.Thumb />
+            <AutoConnectSwitch.Input />
           </AutoConnectSwitch>
         </SettingsListItem.Content>
       </SettingsListItem.Item>

@@ -30,7 +30,7 @@ function EnableIpv6Switch({ children, ...props }: EnableIpv6SwitchProps) {
 
 const EnableIpv6SwitchNamespace = Object.assign(EnableIpv6Switch, {
   Label: Switch.Label,
-  Thumb: Switch.Thumb,
+  Input: Switch.Input,
   Trigger: Switch.Trigger,
 });
 

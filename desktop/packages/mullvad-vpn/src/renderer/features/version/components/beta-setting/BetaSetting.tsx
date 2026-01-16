@@ -24,7 +24,7 @@ export function BetaSetting(props: BetaSettingProps) {
                 messages.pgettext('app-info-view', 'Beta program')
               }
             </BetaSwitch.Label>
-            <BetaSwitch.Thumb />
+            <BetaSwitch.Input />
           </BetaSwitch>
         </SettingsListItem.Content>
       </SettingsListItem.Item>

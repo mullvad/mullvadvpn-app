@@ -31,7 +31,7 @@ export function KillSwitchSetting(props: KillSwitchSettingProps) {
               </ModalMessage>
             </InfoButton>
             <Switch checked disabled>
-              <Switch.Thumb />
+              <Switch.Input />
             </Switch>
           </SettingsListItem.Group>
         </SettingsListItem.Content>

@@ -15,7 +15,7 @@ function AnimateMapSwitch({ children, ...props }: AnimateMapSwitchProps) {
 
 const AnimateMapSwitchNamespace = Object.assign(AnimateMapSwitch, {
   Label: Switch.Label,
-  Thumb: Switch.Thumb,
+  Input: Switch.Input,
   Trigger: Switch.Trigger,
 });
 

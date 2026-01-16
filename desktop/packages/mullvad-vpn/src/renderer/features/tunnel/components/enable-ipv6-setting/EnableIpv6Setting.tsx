@@ -38,7 +38,7 @@ export function EnableIpv6Setting(props: EnableIpv6SettingProps) {
                 </ModalMessage>
               </InfoButton>
 
-              <EnableIpv6Switch.Thumb />
+              <EnableIpv6Switch.Input />
             </SettingsListItem.Group>
           </EnableIpv6Switch>
         </SettingsListItem.Content>

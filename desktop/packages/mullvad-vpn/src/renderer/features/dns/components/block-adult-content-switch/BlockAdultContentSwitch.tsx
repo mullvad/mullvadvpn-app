@@ -19,7 +19,7 @@ function BlockAdultContentSwitch({ children, ...props }: BlockAdultContentSwitch
 
 const BlockAdultContentSwitchNamespace = Object.assign(BlockAdultContentSwitch, {
   Label: Switch.Label,
-  Thumb: Switch.Thumb,
+  Input: Switch.Input,
   Trigger: Switch.Trigger,
 });
 

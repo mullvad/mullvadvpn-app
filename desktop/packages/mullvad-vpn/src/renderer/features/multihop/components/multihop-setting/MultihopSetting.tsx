@@ -13,7 +13,7 @@ export function MultihopSetting() {
         <SettingsListItem.Content>
           <MultihopSwitch>
             <MultihopSwitch.Label>{messages.gettext('Enable')}</MultihopSwitch.Label>
-            <MultihopSwitch.Thumb />
+            <MultihopSwitch.Input />
           </MultihopSwitch>
         </SettingsListItem.Content>
       </SettingsListItem.Item>

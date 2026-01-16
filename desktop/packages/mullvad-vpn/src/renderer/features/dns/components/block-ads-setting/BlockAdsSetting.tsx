@@ -19,7 +19,7 @@ export function BlockAdsSetting(props: BlockAdsSettingProps) {
                 }
               </BlockAdsSwitch.Label>
             </FlexRow>
-            <BlockAdsSwitch.Thumb />
+            <BlockAdsSwitch.Input />
           </BlockAdsSwitch>
         </ListItem.Content>
       </ListItem.Item>

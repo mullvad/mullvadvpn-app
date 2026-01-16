@@ -17,7 +17,7 @@ export function UnpinnedWindowSetting(props: UnpinnedWindowSettingProps) {
             <UnpinnedWindowSwitch.Label>
               {messages.pgettext('user-interface-settings-view', 'Unpin app from taskbar')}
             </UnpinnedWindowSwitch.Label>
-            <UnpinnedWindowSwitch.Thumb />
+            <UnpinnedWindowSwitch.Input />
           </UnpinnedWindowSwitch>
         </SettingsListItem.Content>
       </SettingsListItem.Item>

@@ -39,7 +39,7 @@ export function DaitaDirectOnlySetting() {
                   )}
                 </ModalMessage>
               </InfoButton>
-              <DaitaDirectOnlySwitch.Thumb />
+              <DaitaDirectOnlySwitch.Input />
             </SettingsListItem.Group>
           </DaitaDirectOnlySwitch>
         </SettingsListItem.Content>

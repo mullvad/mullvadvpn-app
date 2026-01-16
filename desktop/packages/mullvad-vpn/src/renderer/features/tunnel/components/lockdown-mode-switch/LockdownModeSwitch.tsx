@@ -67,7 +67,7 @@ function LockdownModeSwitch({ children, ...props }: LockdownModeSwitchProp) {
 
 const LockdownModeSwitchNamespace = Object.assign(LockdownModeSwitch, {
   Label: Switch.Label,
-  Thumb: Switch.Thumb,
+  Input: Switch.Input,
   Trigger: Switch.Trigger,
 });
 

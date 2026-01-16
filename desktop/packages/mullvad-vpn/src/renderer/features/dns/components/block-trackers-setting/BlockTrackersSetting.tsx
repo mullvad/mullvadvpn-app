@@ -19,7 +19,7 @@ export function BlockTrackersSetting(props: BlockTrackersSettingProps) {
                 }
               </BlockTrackersSwitch.Label>
             </FlexRow>
-            <BlockTrackersSwitch.Thumb />
+            <BlockTrackersSwitch.Input />
           </BlockTrackersSwitch>
         </ListItem.Content>
       </ListItem.Item>
