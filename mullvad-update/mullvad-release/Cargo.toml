@@ -1,26 +1,24 @@
 [package]
 name = "mullvad-release"
-description = "Tools for managing Mullvad release metadata"
-authors.workspace = true
-repository.workspace = true
-license.workspace = true
 edition.workspace = true
 rust-version.workspace = true
-
-[lints]
-workspace = true
+description = "Tools for managing Mullvad release metadata"
+repository.workspace = true
+license.workspace = true
 
 [dependencies]
 anyhow = "1.0"
-chrono = { workspace = true, features = ["serde", "now"] }
+chrono = { workspace = true, features = ["now", "serde"] }
 clap = { workspace = true }
 hex = { version = "0.4" }
+mullvad-update = { path = "../", features = ["client", "sign", "strum"] }
+mullvad-version = { path = "../../mullvad-version", features = ["serde"] }
 reqwest = { workspace = true }
-serde_json = { workspace = true }
 serde = { workspace = true }
+serde_json = { workspace = true }
 strum = { workspace = true }
 tokio = { version = "1", features = ["full"] }
 toml = "0.8"
 
-mullvad-version = { path = "../../mullvad-version", features = ["serde"] }
-mullvad-update = { path = "../", features = ["client", "sign", "strum"] }
+[lints]
+workspace = true

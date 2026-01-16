@@ -1,18 +1,17 @@
 [package]
 name = "wireguard-go-rs"
-description = "Rust bindings to wireguard-go with DAITA support"
 edition.workspace = true
+description = "Rust bindings to wireguard-go with DAITA support"
 license.workspace = true
+
+[dependencies]
+log.workspace = true
+talpid-types.path = "../talpid-types"
+thiserror.workspace = true
+zeroize = "1.8.1"
 
 [build-dependencies]
 anyhow.workspace = true
-
-[dependencies]
-thiserror.workspace = true
-log.workspace = true
-zeroize = "1.8.1"
-
-talpid-types.path = "../talpid-types"
 
 # On platforms where maybenot and wireguard-go can be built statically (Linux and macOS) we use
 # this hack to include it. The hack is that we depend on this crate here even if neither
@@ -26,8 +25,8 @@ maybenot-ffi = "2.2.2"
 
 [target.'cfg(target_os = "windows")'.dependencies]
 windows-sys = { workspace = true, features = [
-  "Win32_Networking",
   "Win32_NetworkManagement",
   "Win32_NetworkManagement_Ndis",
+  "Win32_Networking",
   "Win32_Networking_WinSock",
 ] }

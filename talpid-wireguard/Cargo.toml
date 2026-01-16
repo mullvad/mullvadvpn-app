@@ -1,67 +1,64 @@
 [package]
 name = "talpid-wireguard"
-description = "Library for creating various WireGuard tunnels"
-authors.workspace = true
-repository.workspace = true
-license.workspace = true
 edition.workspace = true
 rust-version.workspace = true
-
-[lints]
-workspace = true
-
-[features]
-wireguard-go = ["dep:wireguard-go-rs", "talpid-tunnel/wireguard-go", "dep:chrono"]
-multihop-pcap = ["gotatun/pcap"]
+description = "Library for creating various WireGuard tunnels"
+repository.workspace = true
+license.workspace = true
 
 [dependencies]
 async-trait = "0.1"
-thiserror = { workspace = true }
-futures = { workspace = true }
-hex = "0.4"
-ipnetwork = { workspace = true }
-once_cell = { workspace = true }
-log = { workspace = true }
-parking_lot = "0.12.0"
-talpid-routing = { path = "../talpid-routing" }
-talpid-types = { path = "../talpid-types" }
-talpid-tunnel-config-client = { path = "../talpid-tunnel-config-client" }
-talpid-tunnel = { path = "../talpid-tunnel" }
+byteorder = "1"
 chrono = { workspace = true, features = ["clock"], optional = true }
-tokio = { workspace = true, features = ["process", "rt-multi-thread", "fs"] }
-tunnel-obfuscation = { path = "../tunnel-obfuscation" }
+futures = { workspace = true }
+gotatun = { version = "0.1.2", features = ["device", "tun"] }
+hex = "0.4"
+internet-checksum = "0.2"
+ipnetwork = { workspace = true }
+log = { workspace = true }
+once_cell = { workspace = true }
+parking_lot = "0.12.0"
 rand = { workspace = true }
+socket2 = { workspace = true, features = ["all"] }
 surge-ping = "0.8.0"
-wireguard-go-rs = { path = "../wireguard-go-rs", optional = true }
-tun08 = { package = "tun", default-features = false, version = "0.8.5", features = [
+talpid-routing = { path = "../talpid-routing" }
+talpid-tunnel = { path = "../talpid-tunnel" }
+talpid-tunnel-config-client = { path = "../talpid-tunnel-config-client" }
+talpid-types = { path = "../talpid-types" }
+thiserror = { workspace = true }
+tokio = { workspace = true, features = ["fs", "process", "rt-multi-thread"] }
+tokio-stream = { version = "0.1", features = ["io-util"] }
+tun08 = { package = "tun", version = "0.8.5", default-features = false, features = [
   "async",
 ] }
-byteorder = "1"
-internet-checksum = "0.2"
-socket2 = { workspace = true, features = ["all"] }
-tokio-stream = { version = "0.1", features = ["io-util"] }
-gotatun = { version = "0.1.2", features = ["device", "tun"] }
+tunnel-obfuscation = { path = "../tunnel-obfuscation" }
+wireguard-go-rs = { path = "../wireguard-go-rs", optional = true }
 
-[target.'cfg(unix)'.dependencies]
-nix = { workspace = true, features = ["fs"] }
-libc = "0.2.150"
+[dev-dependencies]
+insta = { workspace = true }
+proptest = { workspace = true }
+tokio = { workspace = true, features = ["test-util"] }
 
 [target.'cfg(any(target_os = "linux", target_os = "macos"))'.dependencies]
 talpid-net = { path = "../talpid-net" }
 
 [target.'cfg(target_os = "linux")'.dependencies]
-rtnetlink = { workspace = true }
 netlink-packet-core = { workspace = true }
 netlink-packet-route = { workspace = true }
 netlink-proto = { workspace = true }
-zerocopy = { workspace = true, features = ["derive"] }
+rtnetlink = { workspace = true }
 talpid-dbus = { path = "../talpid-dbus" }
+zerocopy = { workspace = true, features = ["derive"] }
+
+[target.'cfg(unix)'.dependencies]
+libc = "0.2.150"
+nix = { workspace = true, features = ["fs"] }
 
 [target.'cfg(windows)'.dependencies]
 bitflags = "1.2"
+chrono = { workspace = true, features = ["clock"] }
 talpid-windows = { path = "../talpid-windows" }
 widestring = { workspace = true }
-chrono = { workspace = true, features = ["clock"] }
 
 # TODO: Figure out which features are needed and which are not
 [target.'cfg(windows)'.dependencies.windows-sys]
@@ -69,11 +66,14 @@ workspace = true
 features = [
   "Win32_Foundation",
   "Win32_Globalization",
+  "Win32_NetworkManagement_IpHelper",
+  "Win32_NetworkManagement_Ndis",
+  "Win32_Networking_WinSock",
   "Win32_Security",
   "Win32_System_Com",
   "Win32_System_Diagnostics_ToolHelp",
-  "Win32_System_Ioctl",
   "Win32_System_IO",
+  "Win32_System_Ioctl",
   "Win32_System_LibraryLoader",
   "Win32_System_ProcessStatus",
   "Win32_System_Registry",
@@ -81,14 +81,17 @@ features = [
   "Win32_System_SystemServices",
   "Win32_System_Threading",
   "Win32_System_WindowsProgramming",
-  "Win32_Networking_WinSock",
-  "Win32_NetworkManagement_IpHelper",
-  "Win32_NetworkManagement_Ndis",
   "Win32_UI_Shell",
   "Win32_UI_WindowsAndMessaging",
 ]
 
-[dev-dependencies]
-proptest = { workspace = true }
-tokio = { workspace = true, features = ["test-util"] }
-insta = { workspace = true }
+[features]
+multihop-pcap = ["gotatun/pcap"]
+wireguard-go = [
+  "dep:chrono",
+  "dep:wireguard-go-rs",
+  "talpid-tunnel/wireguard-go"
+]
+
+[lints]
+workspace = true

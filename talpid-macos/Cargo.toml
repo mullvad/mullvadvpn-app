@@ -1,17 +1,16 @@
 [package]
 name = "talpid-macos"
-description = "Abstractions for macOS"
-authors.workspace = true
-repository.workspace = true
-license.workspace = true
 edition.workspace = true
 rust-version.workspace = true
-
-[lints]
-workspace = true
+description = "Abstractions for macOS"
+repository.workspace = true
+license.workspace = true
 
 [target.'cfg(target_os="macos")'.dependencies]
 anyhow.workspace = true
-log.workspace = true
 libc = "0.2.172"
+log.workspace = true
 tokio = { workspace = true, features = ["process"] }
+
+[lints]
+workspace = true
