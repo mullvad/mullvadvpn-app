@@ -104,7 +104,7 @@ class MullvadVpnService : TalpidVpnService() {
             "onStartCommand (intent=$intent, action=${intent?.action}, flags=$flags, startId=$startId)"
         )
 
-        val startResult = super.onStartCommand(intent, flags, startId)
+        super.onStartCommand(intent, flags, startId)
 
         // Always promote to foreground if connect/disconnect actions are provided to mitigate cases
         // where the service would potentially otherwise be too slow running `startForeground`.
@@ -133,7 +133,7 @@ class MullvadVpnService : TalpidVpnService() {
             }
         }
 
-        return startResult
+        return START_NOT_STICKY
     }
 
     override fun onBind(intent: Intent?): IBinder {
