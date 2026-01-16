@@ -93,9 +93,7 @@ struct VPNSettingsViewModel: Equatable {
 
     private(set) var quantumResistance: TunnelQuantumResistance
     private(set) var multihopState: MultihopState
-
-    private(set) var includeAllNetworks: Bool
-    private(set) var localNetworkSharing: Bool
+    private(set) var includeAllNetworks: InclueAllNetworksSettings
 
     static let defaultWireGuardPorts: [UInt16] = [51820, 53]
 
@@ -190,11 +188,11 @@ struct VPNSettingsViewModel: Equatable {
     }
 
     mutating func setIncludeAllNetworks(_ newState: Bool) {
-        includeAllNetworks = newState
+        includeAllNetworks.includeAllNetworksState = newState ? .on : .off
     }
 
     mutating func setLocalNetworkSharing(_ newState: Bool) {
-        localNetworkSharing = newState
+        includeAllNetworks.localNetworkSharingState = newState ? .on : .off
     }
 
     /// Precondition for enabling Custom DNS.
@@ -256,7 +254,6 @@ struct VPNSettingsViewModel: Equatable {
         multihopState = tunnelSettings.tunnelMultihopState
 
         includeAllNetworks = tunnelSettings.includeAllNetworks
-        localNetworkSharing = tunnelSettings.localNetworkSharing
     }
 
     /// Produce merged view model, keeping entry `identifier` for matching DNS entries and
