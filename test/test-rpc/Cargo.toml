@@ -1,34 +1,41 @@
 [package]
 name = "test-rpc"
-description = "Supports IPC between test-runner and test-manager"
-authors.workspace = true
-repository.workspace = true
-license.workspace = true
 edition.workspace = true
 rust-version.workspace = true
-
-[lints]
-workspace = true
+description = "Supports IPC between test-runner and test-manager"
+repository.workspace = true
+license.workspace = true
 
 [dependencies]
+bytes = { workspace = true }
+colored = { workspace = true }
 futures = { workspace = true }
-tokio = { workspace = true }
-tarpc = { workspace = true }
+http-body-util = "0.1.2"
+hyper = { version = "1.4.1", features = ["client", "http2"] }
+hyper-rustls = { version = "0.27.3", default-features = false, features = [
+  "http1",
+  "logging",
+  "ring",
+  "webpki-roots"
+] }
+hyper-util = { workspace = true }
+log = { workspace = true }
+rustls-pki-types = "1.13.1"
 serde = { workspace = true }
 serde_json = { workspace = true }
-bytes = { workspace = true }
+tarpc = { workspace = true }
 thiserror = { workspace = true }
-log = { workspace = true }
-colored = { workspace = true }
-
-hyper = { version = "1.4.1", features = ["client", "http2"] }
-hyper-rustls = { version = "0.27.3", features = ["logging", "webpki-roots", "http1", "ring"], default-features = false}
-hyper-util = {workspace = true}
-http-body-util = "0.1.2"
-tokio-rustls = { version = "0.26.0", features = ["logging", "tls12", "ring"], default-features = false}
-rustls-pki-types = "1.13.1"
+tokio = { workspace = true }
+tokio-rustls = { version = "0.26.0", default-features = false, features = [
+  "logging",
+  "ring",
+  "tls12"
+] }
 
 [dependencies.tokio-util]
 version = "0.7"
-features = ["codec"]
 default-features = false
+features = ["codec"]
+
+[lints]
+workspace = true
