@@ -145,6 +145,9 @@ jobs:
       - name: Hostnamectl
         run: hostnamectl
 
+      - name: podman info
+        run: podman info
+
       - name: Build apks
         run: >
           strace ./building/container-run.sh android android/gradlew -p android --console plain
