@@ -224,6 +224,11 @@
         podman
         strace
       ];
+      extraEnvironment = {
+        CARGO_TARGET_VOLUME_NAME = "/home/runner1/runner1/cargo-target";
+        CARGO_REGISTRY_VOLUME_NAME = "/home/runner1/runner1/cargo-registry";
+        GRADLE_CACHE_VOLUME_NAME = "/home/runner1/runner1/gradle-cache2";
+      };
     };
   };
 
