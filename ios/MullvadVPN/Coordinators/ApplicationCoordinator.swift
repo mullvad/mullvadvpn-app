@@ -129,6 +129,9 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
         case .daita:
             presentDAITA(animated: animated, completion: completion)
 
+        case .includeAllNetworks:
+            presentIncludeAllNetworks(animated: animated, completion: completion)
+
         case .selectLocation:
             presentSelectLocation(animated: animated, completion: completion)
 
@@ -630,7 +633,8 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
             accessMethodRepository: accessMethodRepository,
             proxyConfigurationTester: configurationTester,
             ipOverrideRepository: ipOverrideRepository,
-            notificationSettings: appPreferences.notificationSettings)
+            appPreferences: appPreferences
+        )
 
         coordinator.didUpdateNotificationSettings = { [weak self] notificationSettings in
             guard let self = self else { return }
@@ -699,6 +703,28 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
 
         coordinator.didFinish = { [weak self] _ in
             self?.router.dismiss(.daita, animated: true)
+        }
+
+        coordinator.start(animated: animated)
+
+        presentChild(coordinator, animated: animated) {
+            completion(coordinator)
+        }
+    }
+
+    private func presentIncludeAllNetworks(animated: Bool, completion: @escaping @Sendable (Coordinator) -> Void) {
+        let viewModel = IncludeAllNetworksSettingsViewModelImpl(
+            tunnelManager: tunnelManager,
+            appPreferences: appPreferences
+        )
+        let coordinator = IncludeAllNetworksSettingsCoordinator(
+            navigationController: CustomNavigationController(),
+            route: .includeAllNetworks,
+            viewModel: viewModel
+        )
+
+        coordinator.didFinish = { [weak self] _ in
+            self?.router.dismiss(.includeAllNetworks, animated: true)
         }
 
         coordinator.start(animated: animated)
