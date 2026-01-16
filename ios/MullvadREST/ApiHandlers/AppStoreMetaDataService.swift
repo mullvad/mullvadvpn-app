@@ -46,7 +46,7 @@ public final class AppStoreMetaDataService: @unchecked Sendable {
 
         newTimer.setEventHandler {
             Task { [weak self] in
-                guard let self, tunnelSettings.includeAllNetworks else {
+                guard let self, tunnelSettings.includeAllNetworks.includeAllNetworksIsEnabled else {
                     return
                 }
 

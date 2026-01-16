@@ -24,4 +24,5 @@ extension Image {
     static let mullvadSmartphone = Image("IconSmartphone")
     static let mullvadLocation = Image("IconLocation")
     static let mullvadIconError = Image("IconError")
+    static let mullvadIconInfo = Image("IconInfo")
 }

@@ -23,6 +23,8 @@ enum FeatureType {
     case obfuscation
     case dns
     case ipOverrides
+    case includeAllNetworks
+    case localNetworkSharing
 }
 
 struct DaitaFeature: ChipFeature {
@@ -141,5 +143,41 @@ struct IPOverrideFeature: ChipFeature {
 
     var name: String {
         NSLocalizedString("Server IP override", comment: "")
+    }
+}
+
+struct IncludeAllNetworksFeature: ChipFeature {
+    let id: FeatureType = .includeAllNetworks
+    let settings: LatestTunnelSettings
+
+    var isEnabled: Bool {
+        let settings = IncludeAllNetworksSettings(
+            includeAllNetworksState: settings.includeAllNetworks.includeAllNetworksState,
+            localNetworkSharingState: settings.includeAllNetworks.localNetworkSharingState
+        )
+
+        return settings.includeAllNetworksIsEnabled
+    }
+
+    var name: String {
+        NSLocalizedString("Force all apps", comment: "")
+    }
+}
+
+struct LocalNetworkSharingFeature: ChipFeature {
+    let id: FeatureType = .localNetworkSharing
+    let settings: LatestTunnelSettings
+
+    var isEnabled: Bool {
+        let settings = IncludeAllNetworksSettings(
+            includeAllNetworksState: settings.includeAllNetworks.includeAllNetworksState,
+            localNetworkSharingState: settings.includeAllNetworks.localNetworkSharingState
+        )
+
+        return settings.localNetworkSharingIsEnabled
+    }
+
+    var name: String {
+        NSLocalizedString("Local network sharing", comment: "")
     }
 }
