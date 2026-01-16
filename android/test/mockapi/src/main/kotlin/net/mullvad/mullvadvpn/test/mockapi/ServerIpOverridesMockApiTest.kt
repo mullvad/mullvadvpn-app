@@ -34,7 +34,7 @@ class ServerIpOverridesMockApiTest : MockApiTest() {
 
     @BeforeEach
     fun setupDispatcher() {
-        apiDispatcher.apply {
+        apiRouter.apply {
             expectedAccountNumber = validAccountNumber
             accountExpiry = ZonedDateTime.now().plusMonths(1)
             devices = DEFAULT_DEVICE_LIST.toMutableMap()

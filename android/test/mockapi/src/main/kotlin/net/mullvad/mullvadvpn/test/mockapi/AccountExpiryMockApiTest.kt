@@ -26,7 +26,7 @@ class AccountExpiryMockApiTest : MockApiTest() {
 
         // Add one month to the account expiry
         val newAccountExpiry = oldAccountExpiry.plusMonths(1)
-        apiDispatcher.accountExpiry = newAccountExpiry
+        apiRouter.accountExpiry = newAccountExpiry
 
         on<ConnectPage> { clickAccount() }
 
@@ -49,7 +49,7 @@ class AccountExpiryMockApiTest : MockApiTest() {
 
         // Set account time as expired
         val newAccountExpiry = oldAccountExpiry.minusMonths(2)
-        apiDispatcher.accountExpiry = newAccountExpiry
+        apiRouter.accountExpiry = newAccountExpiry
 
         on<ConnectPage> { clickAccount() }
 
@@ -76,7 +76,7 @@ class AccountExpiryMockApiTest : MockApiTest() {
 
         // Set account time as expired
         val newAccountExpiry = ZonedDateTime.now().plusHours(3 * 24).plusSeconds(5)
-        apiDispatcher.accountExpiry = newAccountExpiry
+        apiRouter.accountExpiry = newAccountExpiry
 
         on<ConnectPage> { clickAccount() }
 
@@ -96,7 +96,7 @@ class AccountExpiryMockApiTest : MockApiTest() {
     private fun configureAccount(): Pair<String, ZonedDateTime> {
         val validAccountNumber = "1234123412341234"
         val oldAccountExpiry = ZonedDateTime.now().plusMonths(1)
-        apiDispatcher.apply {
+        apiRouter.apply {
             expectedAccountNumber = validAccountNumber
             accountExpiry = oldAccountExpiry
             devices = DEFAULT_DEVICE_LIST.toMutableMap()
