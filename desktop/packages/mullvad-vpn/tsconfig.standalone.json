@@ -6,7 +6,7 @@
   "include": [
     "src/**/*.ts",
     "src/**/*.tsx",
-    "test/**/*.ts",
+    "test/e2e/*.ts",
     "playwright.config.ts",
     "standalone-tests.ts"
   ]

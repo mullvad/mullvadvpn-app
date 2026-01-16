@@ -101,27 +101,31 @@ export default class AccountDataCache {
 
   private async performFetch(accountNumber: AccountNumber) {
     this.performingFetch = true;
-    // it's possible for invalidate() to be called or for a fetch for a different account number
-    // to start before this fetch completes, so checking if the current account number is the one
-    // used is necessary below.
-    const response = await this.fetchHandler(accountNumber);
-    if ('error' in response) {
-      if (this.currentAccount === accountNumber) {
-        this.handleFetchError(accountNumber, response.error);
-        this.performingFetch = false;
-      }
-    } else {
-      if (this.currentAccount === accountNumber) {
-        this.setValue(response);
-
-        const refetchDelay = this.calculateRefetchDelay(response.expiry);
-        if (refetchDelay) {
-          this.scheduleFetch(accountNumber, refetchDelay);
+    try {
+      // it's possible for invalidate() to be called or for a fetch for a different account number
+      // to start before this fetch completes, so checking if the current account number is the one
+      // used is necessary below.
+      const response = await this.fetchHandler(accountNumber);
+      if ('error' in response) {
+        if (this.currentAccount === accountNumber) {
+          this.handleFetchError(accountNumber, response.error);
         }
+      } else {
+        if (this.currentAccount === accountNumber) {
+          this.setValue(response);
 
-        this.waitStrategy.reset();
-        this.performingFetch = false;
+          const refetchDelay = this.calculateRefetchDelay(response.expiry);
+          if (refetchDelay) {
+            this.scheduleFetch(accountNumber, refetchDelay);
+          }
+
+          this.waitStrategy.reset();
+        }
       }
+    } catch {
+      log.warn('Error occurred in account data fetch');
+    } finally {
+      this.performingFetch = false;
     }
   }
 
