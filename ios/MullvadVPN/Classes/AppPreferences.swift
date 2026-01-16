@@ -15,6 +15,7 @@ protocol AppPreferencesDataSource {
     var isShownOnboarding: Bool { get set }
     var isAgreedToTermsOfService: Bool { get set }
     var lastSeenChangeLogVersion: String { get set }
+    var hasConsentedToIncludeAllNetworks: Bool { get set }
 }
 
 enum AppStorageKey: String {
@@ -23,6 +24,7 @@ enum AppStorageKey: String {
     case isShownOnboarding
     case isAgreedToTermsOfService
     case lastSeenChangeLogVersion
+    case hasConsentedToIncludeAllNetworks
 }
 
 final class AppPreferences: AppPreferencesDataSource {
@@ -40,4 +42,7 @@ final class AppPreferences: AppPreferencesDataSource {
 
     @AppStorage(key: AppStorageKey.lastSeenChangeLogVersion.rawValue, container: .standard)
     var lastSeenChangeLogVersion = ""
+
+    @AppStorage(key: AppStorageKey.hasConsentedToIncludeAllNetworks.rawValue, container: .standard)
+    var hasConsentedToIncludeAllNetworks = false
 }
