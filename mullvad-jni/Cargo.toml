@@ -1,33 +1,30 @@
 [package]
 name = "mullvad-jni"
-description = "JNI interface for the Mullvad daemon"
-authors.workspace = true
-repository.workspace = true
-license.workspace = true
 edition.workspace = true
 rust-version.workspace = true
+description = "JNI interface for the Mullvad daemon"
+repository.workspace = true
+license.workspace = true
 
-[lints]
-workspace = true
+[lib]
+crate-type = ["cdylib"]
+
+[target.'cfg(target_os = "android")'.dependencies]
+jnix = { version = "0.5.1", features = ["derive"] }
+log = { workspace = true }
+log-panics = "2"
+mullvad-api = { path = "../mullvad-api" }
+mullvad-daemon = { path = "../mullvad-daemon" }
+mullvad-problem-report = { path = "../mullvad-problem-report" }
+talpid-platform-metadata = { path = "../talpid-platform-metadata" }
+talpid-types = { path = "../talpid-types" }
+thiserror = { workspace = true }
+tokio = { workspace = true, features = ["rt"] }
 
 [features]
 # Allow the API server to use to be configured
 api-override = ["mullvad-api/api-override", "mullvad-daemon/api-override"]
 wireguard-go = ["mullvad-daemon/wireguard-go"]
 
-[lib]
-crate-type = ["cdylib"]
-
-[target.'cfg(target_os = "android")'.dependencies]
-tokio = { workspace = true, features = ["rt"] }
-
-thiserror = { workspace = true }
-jnix = { version = "0.5.1", features = ["derive"] }
-log = { workspace = true }
-log-panics = "2"
-
-mullvad-api = { path = "../mullvad-api" }
-mullvad-daemon = { path = "../mullvad-daemon" }
-mullvad-problem-report = { path = "../mullvad-problem-report" }
-talpid-types = { path = "../talpid-types" }
-talpid-platform-metadata = { path = "../talpid-platform-metadata" }
+[lints]
+workspace = true

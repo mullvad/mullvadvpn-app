@@ -1,50 +1,10 @@
 [package]
 name = "mullvad-cli"
-description = "Manage the Mullvad VPN daemon via a convenient CLI"
-authors.workspace = true
-repository.workspace = true
-license.workspace = true
 edition.workspace = true
 rust-version.workspace = true
-
-[lints]
-workspace = true
-
-[[bin]]
-name = "mullvad"
-path = "src/main.rs"
-
-[dependencies]
-anyhow = { workspace = true }
-chrono = { workspace = true }
-clap = { workspace = true }
-thiserror = { workspace = true }
-futures = { workspace = true }
-itertools = { workspace = true }
-natord = "1.0.9"
-
-mullvad-types = { path = "../mullvad-types", features = ["clap"] }
-mullvad-version = { path = "../mullvad-version" }
-talpid-types = { path = "../talpid-types" }
-
-mullvad-management-interface = { path = "../mullvad-management-interface" }
-tokio = { workspace = true, features = ["macros", "rt-multi-thread", "fs"] }
-serde = { workspace = true }
-serde_json = { workspace = true }
-
-[target.'cfg(all(unix, not(target_os = "android")))'.dependencies]
-clap_complete = { version = "4.4.8" }
-nix = { workspace = true, features = ["signal"] }
-
-[target.'cfg(windows)'.build-dependencies]
-winres = "0.1"
-mullvad-version = { path = "../mullvad-version" }
-
-[target.'cfg(windows)'.build-dependencies.windows-sys]
-workspace = true
-features = [
-    "Win32_System_SystemServices",
-]
+description = "Manage the Mullvad VPN daemon via a convenient CLI"
+repository.workspace = true
+license.workspace = true
 
 [package.metadata.winres]
 ProductName = "Mullvad VPN"
@@ -52,3 +12,40 @@ CompanyName = "Mullvad VPN AB"
 LegalCopyright = "(c) 2025 Mullvad VPN AB"
 InternalName = "mullvad-cli"
 OriginalFilename = "mullvad.exe"
+
+[[bin]]
+name = "mullvad"
+path = "src/main.rs"
+
+[dependencies]
+anyhow.workspace = true
+chrono = { workspace = true }
+clap = { workspace = true }
+futures = { workspace = true }
+itertools = { workspace = true }
+mullvad-management-interface = { path = "../mullvad-management-interface" }
+mullvad-types = { path = "../mullvad-types", features = ["clap"] }
+mullvad-version = { path = "../mullvad-version" }
+natord = "1.0.9"
+serde = { workspace = true }
+serde_json = { workspace = true }
+talpid-types = { path = "../talpid-types" }
+thiserror = { workspace = true }
+tokio = { workspace = true, features = ["fs", "macros", "rt-multi-thread"] }
+
+[target.'cfg(all(unix, not(target_os = "android")))'.dependencies]
+clap_complete = { version = "4.4.8" }
+nix = { workspace = true, features = ["signal"] }
+
+[target.'cfg(windows)'.build-dependencies]
+mullvad-version = { path = "../mullvad-version" }
+winres = "0.1"
+
+[target.'cfg(windows)'.build-dependencies.windows-sys]
+workspace = true
+features = [
+  "Win32_System_SystemServices",
+]
+
+[lints]
+workspace = true

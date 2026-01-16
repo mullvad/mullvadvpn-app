@@ -1,35 +1,39 @@
 [package]
 name = "tunnel-obfuscation"
-description = "Provides different types of obfuscation layers for WireGuard"
-authors.workspace = true
-repository.workspace = true
-license.workspace = true
 edition.workspace = true
 rust-version.workspace = true
+description = "Provides different types of obfuscation layers for WireGuard"
+repository.workspace = true
+license.workspace = true
+
+[[bench]]
+harness = false
+name = "lwo"
+
+[dependencies]
+async-trait = "0.1"
+futures = { workspace = true }
+log = { workspace = true }
+mullvad-masque-proxy = { path = "../mullvad-masque-proxy" }
+rand = { version = "0.8.5", features = ["small_rng"] }
+shadowsocks = { workspace = true }
+talpid-types = { path = "../talpid-types" }
+thiserror = { workspace = true }
+tokio = { workspace = true, features = [
+  "io-util",
+  "macros",
+  "net",
+  "rt-multi-thread"
+] }
+tokio-util = { workspace = true, features = ["rt"] }
+udp-over-tcp = { git = "https://github.com/mullvad/udp-over-tcp", rev = "87936ac29b68b902565955f138ab02294bcc8593" }
+
+[dev-dependencies]
+criterion = { version = "0.7.0", features = ["async_tokio", "html_reports"] }
+tokio = { workspace = true, features = ["test-util"] }
+
+[target.'cfg(target_os="linux")'.dependencies]
+nix = { workspace = true, features = ["socket"] }
 
 [lints]
 workspace = true
-
-[dependencies]
-futures = { workspace = true }
-log = { workspace = true }
-async-trait = "0.1"
-thiserror = { workspace = true }
-tokio = { workspace = true, features = ["rt-multi-thread", "macros", "net", "io-util"] }
-tokio-util = { workspace = true, features = ["rt"] }
-udp-over-tcp = { git = "https://github.com/mullvad/udp-over-tcp", rev = "87936ac29b68b902565955f138ab02294bcc8593" }
-shadowsocks = { workspace = true }
-mullvad-masque-proxy = { path = "../mullvad-masque-proxy" }
-talpid-types = { path = "../talpid-types" }
-rand = { version = "0.8.5", features = ["small_rng"] }
-
-[target.'cfg(target_os="linux")'.dependencies]
-nix = { workspace = true, features = ["socket"]}
-
-[dev-dependencies]
-criterion = { version = "0.7.0", features = ["html_reports", "async_tokio"] }
-tokio = { workspace = true, features =  ["test-util"] }
-
-[[bench]]
-name = "lwo"
-harness = false

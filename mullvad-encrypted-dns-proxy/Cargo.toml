@@ -1,22 +1,21 @@
 [package]
 name = "mullvad-encrypted-dns-proxy"
-description = "A port forwarding proxy that retrieves its configuration from a AAAA record over DoH"
-authors.workspace = true
-repository.workspace = true
-license.workspace = true
 edition.workspace = true
 rust-version.workspace = true
-
-[lints]
-workspace = true
+description = "A port forwarding proxy that retrieves its configuration from a AAAA record over DoH"
+repository.workspace = true
+license.workspace = true
 
 [dependencies]
-tokio = { workspace = true, features = [ "macros" ] }
+hickory-resolver = { workspace = true, features = ["https-ring", "tls-ring"] }
 log = { workspace = true }
-hickory-resolver = { workspace = true, features = [ "https-ring", "tls-ring" ]}
-serde = { workspace = true, features = ["derive"] }
-webpki-roots.workspace = true
 rustls.workspace = true
+serde = { workspace = true, features = ["derive"] }
+tokio = { workspace = true, features = ["macros"] }
+webpki-roots.workspace = true
 
 [dev-dependencies]
 tracing-subscriber = { workspace = true }
+
+[lints]
+workspace = true
