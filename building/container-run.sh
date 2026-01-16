@@ -43,6 +43,10 @@ case ${1-:""} in
         exit 1
 esac
 
+echo $CARGO_TARGET_VOLUME_NAME
+echo $CARGO_REGISTRY_VOLUME_NAME
+echo $GRADLE_CACHE_VOLUME_NAME
+
 set -x
 exec "$CONTAINER_RUNNER" run --rm -it \
     -v "/$REPO_DIR:$REPO_MOUNT_TARGET:Z" \
