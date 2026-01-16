@@ -69,9 +69,11 @@ struct SettingsViewControllerFactory {
         case .changelog:
             makeChangelogCoordinator()
         case .multihop:
-            makeMultihopViewController()
+            makeMultihopCoordinator()
         case .daita:
             makeDAITASettingsCoordinator()
+        case .includeAllNetworks:
+            makeIncludeAllNetworksSettingsCoordinator()
         }
     }
 
@@ -112,15 +114,15 @@ struct SettingsViewControllerFactory {
         )
     }
 
-    private func makeMultihopViewController() -> MakeChildResult {
+    private func makeMultihopCoordinator() -> MakeChildResult {
         let viewModel = MultihopTunnelSettingsViewModel(tunnelManager: interactorFactory.tunnelManager)
-        let view = SettingsMultihopView(tunnelViewModel: viewModel)
+        let coordinator = MultihopSettingsCoordinator(
+            navigationController: navigationController,
+            route: .settings(.multihop),
+            viewModel: viewModel
+        )
 
-        let host = UIHostingController(rootView: view)
-        host.title = NSLocalizedString("Multihop", comment: "")
-        host.view.setAccessibilityIdentifier(.multihopView)
-
-        return .viewController(host)
+        return .childCoordinator(coordinator)
     }
 
     private func makeDAITASettingsCoordinator() -> MakeChildResult {
@@ -128,6 +130,17 @@ struct SettingsViewControllerFactory {
         let coordinator = DAITASettingsCoordinator(
             navigationController: navigationController,
             route: .settings(.daita),
+            viewModel: viewModel
+        )
+
+        return .childCoordinator(coordinator)
+    }
+
+    private func makeIncludeAllNetworksSettingsCoordinator() -> MakeChildResult {
+        let viewModel = IncludeAllNetworksSettingsViewModelImpl(tunnelManager: interactorFactory.tunnelManager)
+        let coordinator = IncludeAllNetworksSettingsCoordinator(
+            navigationController: navigationController,
+            route: .settings(.includeAllNetworks),
             viewModel: viewModel
         )
 
