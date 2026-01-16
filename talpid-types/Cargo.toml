@@ -1,26 +1,29 @@
 [package]
 name = "talpid-types"
-description = "Common base structures for talpid"
-authors.workspace = true
-repository.workspace = true
-license.workspace = true
 edition.workspace = true
 rust-version.workspace = true
-
-[lints]
-workspace = true
+description = "Common base structures for talpid"
+repository.workspace = true
+license.workspace = true
 
 [dependencies]
-serde = { workspace = true, features = ["derive"] }
-ipnetwork = { workspace = true, features = ["serde"] }
 base64 = "0.22.0"
-x25519-dalek = { version = "2.0.1", features = ["static_secrets", "zeroize", "getrandom"] }
-thiserror = { workspace = true }
-zeroize = "1.5.7"
+ipnetwork = { workspace = true, features = ["serde"] }
 log = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+thiserror = { workspace = true }
+x25519-dalek = { version = "2.0.1", features = [
+  "getrandom",
+  "static_secrets",
+  "zeroize"
+] }
+zeroize = "1.5.7"
 
 [dev-dependencies]
 insta = { workspace = true }
 
 [target.'cfg(target_os = "android")'.dependencies]
 jnix = { version = "0.5.1", features = ["derive"] }
+
+[lints]
+workspace = true

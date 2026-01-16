@@ -1,14 +1,10 @@
 [package]
 name = "mullvad-setup"
-description = "Tool used to manage daemon setup"
-authors.workspace = true
-repository.workspace = true
-license.workspace = true
 edition.workspace = true
 rust-version.workspace = true
-
-[lints]
-workspace = true
+description = "Tool used to manage daemon setup"
+repository.workspace = true
+license.workspace = true
 
 [[bin]]
 name = "mullvad-setup"
@@ -16,21 +12,18 @@ path = "src/main.rs"
 
 [dependencies]
 clap = { workspace = true }
-tracing-subscriber = { workspace = true }
-thiserror = { workspace = true }
-
-mullvad-management-interface = { path = "../mullvad-management-interface" }
-
-tokio = { workspace = true, features =  ["rt-multi-thread"] }
-
-mullvad-daemon = { path = "../mullvad-daemon" }
-mullvad-paths = { path = "../mullvad-paths" }
 mullvad-api = { path = "../mullvad-api" }
+mullvad-daemon = { path = "../mullvad-daemon" }
+mullvad-management-interface = { path = "../mullvad-management-interface" }
+mullvad-paths = { path = "../mullvad-paths" }
 mullvad-types = { path = "../mullvad-types" }
 mullvad-version = { path = "../mullvad-version" }
 talpid-core = { path = "../talpid-core" }
 talpid-future = { path = "../talpid-future" }
 talpid-types = { path = "../talpid-types" }
+thiserror = { workspace = true }
+tokio = { workspace = true, features = ["rt-multi-thread"] }
+tracing-subscriber = { workspace = true }
 
 [target.'cfg(windows)'.dependencies]
 windows-service = "0.6.0"
@@ -38,3 +31,6 @@ windows-service = "0.6.0"
 [target.'cfg(windows)'.dependencies.windows-sys]
 workspace = true
 features = ["Win32_Foundation"]
+
+[lints]
+workspace = true

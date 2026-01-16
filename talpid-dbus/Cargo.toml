@@ -1,17 +1,16 @@
 [package]
 name = "talpid-dbus"
-authors.workspace = true
-repository.workspace = true
-license.workspace = true
 edition.workspace = true
 rust-version.workspace = true
-
-[lints]
-workspace = true
+repository.workspace = true
+license.workspace = true
 
 [target.'cfg(target_os = "linux")'.dependencies]
 dbus = "0.9"
-thiserror = { workspace = true }
-log = { workspace = true }
 libc = "0.2"
+log = { workspace = true }
+thiserror = { workspace = true }
 tokio = { workspace = true, features = ["rt"] }
+
+[lints]
+workspace = true

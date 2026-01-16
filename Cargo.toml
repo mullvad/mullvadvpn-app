@@ -1,18 +1,10 @@
-[workspace.package]
-authors = ["Mullvad VPN"]
-repository = "https://github.com/mullvad/mullvadvpn-app/"
-license = "GPL-3.0-only"
-edition = "2024"
-# Must be less than or equal to `channel` in `rust-toolchain.toml`
-rust-version = "1.91.0"
-
 [workspace]
 resolver = "2"
-exclude = [ "ci/ios/test-router/raas" ]
 members = [
   "android/translations-converter",
   "desktop/packages/nseventforwarder",
   "desktop/packages/windows-utils",
+  "installer-downloader",
   "mullvad-api",
   "mullvad-cli",
   "mullvad-daemon",
@@ -48,33 +40,93 @@ members = [
   "talpid-windows",
   "talpid-wireguard",
   "tunnel-obfuscation",
-  "wireguard-go-rs",
   "windows-installer",
-  "installer-downloader",
+  "wireguard-go-rs",
 ]
+exclude = ["ci/ios/test-router/raas"]
 # Default members dictate what is built when running `cargo build` in the root directory.
 # This is set to a minimal set of packages to speed up the build process and avoid building
 # crates which might not compile without additional input, such as the `windows-installer` crate.
 # To build or test everything, add `--workspace` to your cargo commands.
-default-members = ["mullvad-cli", "mullvad-daemon", "mullvad-version", "mullvad-problem-report"]
+default-members = [
+  "mullvad-cli",
+  "mullvad-daemon",
+  "mullvad-problem-report",
+  "mullvad-version"
+]
 
-# Keep all lints in sync with `test/Cargo.toml`
-[workspace.lints.rust]
-# Security
-non_ascii_idents = "forbid"
+[workspace.package]
+edition = "2024"
+# Must be less than or equal to `channel` in `rust-toolchain.toml`
+rust-version = "1.91.0"
+repository = "https://github.com/mullvad/mullvadvpn-app/"
+license = "GPL-3.0-only"
 
-# Deny old style Rust
-rust_2018_idioms = { level = "deny", priority = -1 }
-macro_use_extern_crate = "deny"
-absolute_paths_not_starting_with_crate = "deny"
-
-# Easy to read style and opinionated best practices
-explicit_outlives_requirements = "warn"
-missing_abi = "deny"
-unused_lifetimes = "warn"
-unused_macro_rules = "warn"
-single_use_lifetimes = "warn"
-
+[workspace.dependencies]
+anyhow = "1.0"
+chrono = { version = "0.4.26", default-features = false }
+clap = { version = "4.4.18", features = ["cargo", "derive"] }
+dirs = "6.0.0"
+futures = "0.3.15"
+# Hickory & DNS
+hickory-proto = "0.25.2"
+hickory-resolver = "0.25.2"
+hickory-server = { version = "0.25.2", features = ["resolver"] }
+hyper-util = { version = "0.1.8", features = [
+  "client",
+  "client-legacy",
+  "http1",
+  "http2",
+] }
+insta = { version = "1.42", features = ["yaml"] }
+ipnetwork = "0.21.1"
+itertools = "0.14"
+log = "0.4"
+netlink-packet-core = "0.8.0"
+netlink-packet-route = "0.25"
+netlink-proto = "0.12"
+netlink-sys = "0.8.3"
+nix = "0.30.1"
+once_cell = "1.16"
+# Networking
+pnet_packet = "0.35.0"
+# Test dependencies
+proptest = "1.9"
+prost = "0.13.3"
+prost-types = "0.13.3"
+rand = "0.9"
+reqwest = { version = "0.12.23", default-features = false, features = [
+  "rustls-tls"
+] }
+rtnetlink = "0.18"
+rustls = { version = "0.23", default-features = false }
+rustls-pki-types = "1.13.1"
+serde = "1.0.204"
+serde_json = "1.0.122"
+sha2 = "0.10"
+# Shadowsocks
+shadowsocks = "1.23.2"
+socket2 = "0.5.7"
+strum = { version = "0.27" }
+thiserror = "2.0"
+tipsy = "0.6.5"
+tokio = { version = "1.44" }
+tokio-util = "0.7"
+# Tonic and related crates
+tonic = "0.13.1"
+tonic-build = { version = "0.13.1", default-features = false }
+tower = { version = "0.5.1", features = ["util"] }
+tracing-appender = "0.2.4"
+# Errors and logging
+tracing-subscriber = { version = "0.3.22", features = ["env-filter"] }
+tun = { version = "0.5.5", features = ["async"] }
+vec1 = "1.12"
+webpki-roots = "1.0.4"
+widestring = "1.2"
+windows = "0.62.2"
+windows-sys = "0.61.2"
+winreg = "0.55"
+zerocopy = "0.8.27"
 
 [workspace.lints.clippy]
 as_ptr_cast_mut = "warn"
@@ -86,101 +138,43 @@ unicode_not_nfc = "warn"
 unused_async = "deny"
 wildcard_dependencies = "deny"
 
-[workspace.dependencies]
-dirs = "6.0.0"
-tokio = { version = "1.44" }
-tokio-util = "0.7"
-tipsy = "0.6.5"
-futures = "0.3.15"
-vec1 = "1.12"
-sha2 = "0.10"
-chrono = { version = "0.4.26", default-features = false }
-clap = { version = "4.4.18", features = ["cargo", "derive"] }
-once_cell = "1.16"
-serde = "1.0.204"
-serde_json = "1.0.122"
-widestring = "1.2"
-windows = "0.62.2"
-windows-sys = "0.61.2"
-winreg = "0.55"
-nix = "0.30.1"
-strum = { version = "0.27" }
-rand = "0.9"
-
-# Networking
-pnet_packet = "0.35.0"
-ipnetwork = "0.21.1"
-tun = { version = "0.5.5", features = ["async"] }
-socket2 = "0.5.7"
-reqwest = { version = "0.12.23", default-features = false, features = ["rustls-tls"] }
-rustls = { version = "0.23", default-features = false }
-rustls-pki-types = "1.13.1"
-webpki-roots = "1.0.4"
-
-rtnetlink = "0.18"
-netlink-packet-core = "0.8.0"
-netlink-packet-route = "0.25"
-netlink-proto = "0.12"
-netlink-sys = "0.8.3"
-
-zerocopy = "0.8.27"
-
-# Hickory & DNS
-hickory-proto = "0.25.2"
-hickory-resolver = "0.25.2"
-hickory-server = { version = "0.25.2", features = ["resolver"] }
-
-# Tonic and related crates
-tonic = "0.13.1"
-tonic-build = { version = "0.13.1", default-features = false }
-tower = { version = "0.5.1", features = ["util"] }
-prost = "0.13.3"
-prost-types = "0.13.3"
-hyper-util = { version = "0.1.8", features = [
-  "client",
-  "client-legacy",
-  "http2",
-  "http1",
-] }
-
-# Errors and logging
-tracing-subscriber = { version = "0.3.22", features = ["env-filter"] }
-tracing-appender = "0.2.4"
-thiserror = "2.0"
-anyhow = "1.0"
-log = "0.4"
-
-# Shadowsocks
-shadowsocks = "1.23.2"
-
-itertools = "0.14"
-
-# Test dependencies
-proptest = "1.9"
-insta = { version = "1.42", features = ["yaml"] }
-
-[profile.release]
-opt-level = "s"
-lto = true
-strip = true
-
-# Selectively optimize packages where we know it makes a difference
-[profile.release.package]
-gotatun.opt-level = 3
-pqcrypto-hqc.opt-level = 3
-quinn-proto.opt-level = 3
-quinn-udp.opt-level = 3
-quinn.opt-level = 3
-mullvad-masque-proxy.opt-level = 3
-ring.opt-level = 3
-
-[profile.release-debuginfo]
-inherits = "release"
-debug = true
-strip = false
+# Keep all lints in sync with `test/Cargo.toml`
+[workspace.lints.rust]
+absolute_paths_not_starting_with_crate = "deny"
+# Easy to read style and opinionated best practices
+explicit_outlives_requirements = "warn"
+macro_use_extern_crate = "deny"
+missing_abi = "deny"
+# Security
+non_ascii_idents = "forbid"
+# Deny old style Rust
+rust_2018_idioms = { level = "deny", priority = -1 }
+single_use_lifetimes = "warn"
+unused_lifetimes = "warn"
+unused_macro_rules = "warn"
 
 # Configuration for the helper tool https://crates.io/crates/cargo-shear
 [workspace.metadata.cargo-shear]
 # The way prost is only used by generated code makes it really hard for dependency
 # usage checkers to see that it's not unused
 ignored = ["prost"]
+
+[profile.release]
+opt-level = "s"
+strip = true
+lto = true
+
+# Selectively optimize packages where we know it makes a difference
+[profile.release.package]
+gotatun.opt-level = 3
+mullvad-masque-proxy.opt-level = 3
+pqcrypto-hqc.opt-level = 3
+quinn.opt-level = 3
+quinn-proto.opt-level = 3
+quinn-udp.opt-level = 3
+ring.opt-level = 3
+
+[profile.release-debuginfo]
+inherits = "release"
+debug = true
+strip = false
