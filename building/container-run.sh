@@ -59,7 +59,7 @@ exec "$CONTAINER_RUNNER" run --rm \
     --user $(id -u):$(id -g) \
     "${optional_gradle_cache_volume[@]}" \
     "${optional_android_credentials_volume[@]}" \
-    "$container_image_name" bash -c "echo $USER; cargo --help; $* --stacktrace"
+    "$container_image_name" bash -c "$* --stacktrace"
 
 #exec "$CONTAINER_RUNNER" run --rm \
 #    -v "$REPO_DIR:$REPO_MOUNT_TARGET:Z" \
