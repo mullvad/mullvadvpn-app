@@ -11,7 +11,7 @@ export function InputOptionInput(props: InputOptionInputProps) {
   const { onValueChange: listBoxOnValueChange } = useListboxContext<string | undefined>();
 
   const { inputRef, triggerRef, labelId, inputState } = useInputOptionContext();
-  const { value, invalid, dirty, blur, handleChange, reset } = inputState;
+  const { value, invalid, dirty, blur, handleOnValueChange, reset } = inputState;
 
   // Prevent the click from propagating to the ListboxOption, which would select the option.
   const handleClick = React.useCallback((event: React.MouseEvent) => {
@@ -45,7 +45,11 @@ export function InputOptionInput(props: InputOptionInputProps) {
   );
 
   return (
-    <ListItem.TextField invalid={invalid && dirty} onSubmit={handleSubmit}>
+    <ListItem.TextField
+      value={value}
+      onValueChange={handleOnValueChange}
+      invalid={invalid && dirty}
+      onSubmit={handleSubmit}>
       <ListItem.TextField.Input
         ref={inputRef}
         value={value}
@@ -54,7 +58,6 @@ export function InputOptionInput(props: InputOptionInputProps) {
         inputMode="numeric"
         onClick={handleClick}
         onBlur={handleBlur}
-        onChange={handleChange}
         {...props}
       />
     </ListItem.TextField>

@@ -3,7 +3,7 @@ import { Page } from 'playwright';
 
 import { getDefaultSettings } from '../../../../src/main/default-settings';
 import { colorTokens } from '../../../../src/renderer/lib/foundations';
-import { ObfuscationType, Ownership } from '../../../../src/shared/daemon-rpc-types';
+import { IRelayList, ObfuscationType, Ownership } from '../../../../src/shared/daemon-rpc-types';
 import { RoutePath } from '../../../../src/shared/routes';
 import { mockData } from '../../mock-data';
 import { RoutesObjectModel } from '../../route-object-models';
@@ -36,9 +36,52 @@ test.describe('Select location', () => {
     await util?.closePage();
   });
 
-  test('Should focus search input on load', async () => {
-    const input = routes.selectLocation.getSearchInput();
-    await expect(input).toBeFocused();
+  test.describe('Search', () => {
+    test.afterEach(async () => {
+      await helpers.clearSearch();
+    });
+
+    test('Should focus search input on load', async () => {
+      const input = routes.selectLocation.selectors.searchInput();
+      await expect(input).toBeFocused();
+    });
+
+    test('Should show all relays when no search term is entered', async () => {
+      const relaySelectionPaths = helpers.toSelectionPaths(relayList);
+
+      await helpers.expandLocatedRelays(relaySelectionPaths);
+
+      const relayNames = relaySelectionPaths.map((locatedRelay) => locatedRelay.relay.hostname);
+      const buttons = routes.selectLocation.selectors.relaysMatching(relayNames);
+
+      await expect(buttons).toHaveCount(relayNames.length);
+    });
+
+    test('Should filter relays when search term is entered', async () => {
+      const relayToSearchFor = relayList.countries[0].cities[0].relays[0];
+      const result: IRelayList = {
+        countries: [
+          {
+            ...relayList.countries[0],
+            cities: [
+              {
+                ...relayList.countries[0].cities[0],
+              },
+            ],
+          },
+        ],
+      };
+
+      await helpers.search(relayToSearchFor.hostname, result);
+      const relaySelectionPaths = helpers.toSelectionPaths(result);
+
+      await helpers.expandLocatedRelays(relaySelectionPaths);
+
+      const relayNames = relaySelectionPaths.map((locatedRelay) => locatedRelay.relay.hostname);
+      const buttons = routes.selectLocation.selectors.relaysMatching(relayNames);
+
+      await expect(buttons).toHaveCount(relayNames.length);
+    });
   });
 
   test.describe('Multihop enabled', () => {
@@ -49,11 +92,11 @@ test.describe('Select location', () => {
     });
 
     test.beforeEach(async () => {
-      await routes.selectLocation.getEntryButton().click();
+      await routes.selectLocation.selectors.entryButton().click();
     });
 
     test('App should show entry selection', async () => {
-      const entryButton = routes.selectLocation.getEntryButton();
+      const entryButton = routes.selectLocation.selectors.entryButton();
       await expect(entryButton).toHaveCSS('background-color', colorTokens.green);
 
       const sweden = page.getByText('Sweden');
@@ -61,7 +104,7 @@ test.describe('Select location', () => {
     });
 
     test('App should show exit selection', async () => {
-      const exitButton = routes.selectLocation.getExitButton();
+      const exitButton = routes.selectLocation.selectors.exitButton();
       await exitButton.click();
       await expect(exitButton).toHaveCSS('background-color', colorTokens.green);
 
@@ -76,7 +119,7 @@ test.describe('Select location', () => {
         directOnly: false,
       });
 
-      const entryButton = routes.selectLocation.getEntryButton();
+      const entryButton = routes.selectLocation.selectors.entryButton();
       await expect(entryButton).toHaveCSS('background-color', colorTokens.green);
 
       const sweden = page.getByText('Sweden');
@@ -90,7 +133,7 @@ test.describe('Select location', () => {
         directOnly: true,
       });
 
-      const entryButton = routes.selectLocation.getEntryButton();
+      const entryButton = routes.selectLocation.selectors.entryButton();
       await expect(entryButton).toHaveCSS('background-color', colorTokens.green);
 
       const sweden = page.getByText('Sweden');
@@ -98,30 +141,34 @@ test.describe('Select location', () => {
     });
 
     test('Should show only wireguard servers in entry list', async () => {
-      const entryButton = routes.selectLocation.getEntryButton();
+      const entryButton = routes.selectLocation.selectors.entryButton();
       await entryButton.click();
 
       const wireguardRelays = relayList.countries[0].cities[0].relays;
       const hostnames = wireguardRelays.map((relay) => relay.hostname);
-      const locatedRelays = helpers.locateRelaysByHostnames(relayList, hostnames);
+      const relaySelectionPaths = helpers.toSelectionPaths(
+        helpers.getRelaysByHostnames(relayList, hostnames),
+      );
 
-      await helpers.expandLocatedRelays(locatedRelays);
+      await helpers.expandLocatedRelays(relaySelectionPaths);
 
-      const buttons = routes.selectLocation.getRelaysMatching(hostnames);
+      const buttons = routes.selectLocation.selectors.relaysMatching(hostnames);
       await expect(buttons).toHaveCount(wireguardRelays.length);
     });
 
     test('Should show only wireguard servers in exit list', async () => {
-      const exitButton = routes.selectLocation.getExitButton();
+      const exitButton = routes.selectLocation.selectors.exitButton();
       await exitButton.click();
 
       const wireguardRelays = relayList.countries[0].cities[0].relays;
       const hostnames = wireguardRelays.map((relay) => relay.hostname);
-      const locatedRelays = helpers.locateRelaysByHostnames(relayList, hostnames);
+      const relaySelectionPaths = helpers.toSelectionPaths(
+        helpers.getRelaysByHostnames(relayList, hostnames),
+      );
 
-      await helpers.expandLocatedRelays(locatedRelays);
+      await helpers.expandLocatedRelays(relaySelectionPaths);
 
-      const buttons = routes.selectLocation.getRelaysMatching(hostnames);
+      const buttons = routes.selectLocation.selectors.relaysMatching(hostnames);
       await expect(buttons).toHaveCount(wireguardRelays.length);
     });
 
@@ -135,7 +182,7 @@ test.describe('Select location', () => {
         directOnly: true,
       });
 
-      const entryButton = routes.selectLocation.getEntryButton();
+      const entryButton = routes.selectLocation.selectors.entryButton();
       await entryButton.click();
 
       // Get first wireguard relay
@@ -145,23 +192,28 @@ test.describe('Select location', () => {
         throw new Error('No wireguard relay found in mocked data');
       }
 
-      const locatedEntryRelay = helpers.locateRelaysByHostnames(relayList, [entryRelay.hostname]);
+      const relaySelectionPaths = helpers.toSelectionPaths(
+        helpers.getRelaysByHostnames(relayList, [entryRelay.hostname]),
+      );
 
-      await helpers.expandLocatedRelays(locatedEntryRelay);
+      await helpers.expandLocatedRelays(relaySelectionPaths);
 
-      await routes.selectLocation.getRelaysMatching([entryRelay.hostname]).first().click();
+      await routes.selectLocation.selectors.relaysMatching([entryRelay.hostname]).first().click();
 
-      await helpers.updateEntryLocation(locatedEntryRelay[0], settings);
-
-      await helpers.expandLocatedRelays(locatedEntryRelay);
-      const entryRelayButton = routes.selectLocation.getRelaysMatching([entryRelay.hostname]);
+      await helpers.updateEntryLocation(relaySelectionPaths[0], settings);
+      await helpers.expandLocatedRelays(relaySelectionPaths);
+      const entryRelayButton = routes.selectLocation.selectors.relaysMatching([
+        entryRelay.hostname,
+      ]);
       await expect(entryRelayButton).toBeDisabled();
 
-      const locatedExitRelay = helpers.locateRelaysByHostnames(relayList, [exitRelay.hostname]);
-      await helpers.expandLocatedRelays(locatedExitRelay);
+      const relaySelectionPathsExit = helpers.toSelectionPaths(
+        helpers.getRelaysByHostnames(relayList, [exitRelay.hostname]),
+      );
+      await helpers.expandLocatedRelays(relaySelectionPathsExit);
 
       // Clicking exit relay should navigate to main route
-      const exitRelayButton = routes.selectLocation.getRelaysMatching([exitRelay.hostname]);
+      const exitRelayButton = routes.selectLocation.selectors.relaysMatching([exitRelay.hostname]);
       await exitRelayButton.click();
       await util.expectRoute(RoutePath.main);
     });
@@ -209,17 +261,19 @@ test.describe('Select location', () => {
 
           await routes.filter.applyFilter();
           await util.expectRoute(RoutePath.selectLocation);
-          const providerFilterChip = routes.selectLocation.getFilterChip('Providers: 1');
+          const providerFilterChip = routes.selectLocation.selectors.filterChip('Providers: 1');
           await expect(providerFilterChip).toBeVisible();
 
-          const locatedRelays = helpers.locateRelaysByProvider(wireguardRelays, provider);
-          const relays = locatedRelays.map((locatedRelay) => locatedRelay.relay);
+          const relaySelectionPaths = helpers.toSelectionPaths(
+            helpers.getRelaysByProvider(wireguardRelays, provider),
+          );
+          const relays = relaySelectionPaths.map((locatedRelay) => locatedRelay.relay);
           const relayNames = relays.map((relay) => relay.hostname);
 
           // Expand all accordions
-          await helpers.expandLocatedRelays(locatedRelays);
+          await helpers.expandLocatedRelays(relaySelectionPaths);
 
-          const buttons = routes.selectLocation.getRelaysMatching(relayNames);
+          const buttons = routes.selectLocation.selectors.relaysMatching(relayNames);
 
           // Expect all filtered relays to have a button
           await expect(buttons).toHaveCount(relays.length);
@@ -228,7 +282,7 @@ test.describe('Select location', () => {
           await providerFilterChip.click();
 
           // Get all relays and expand accordions
-          const allLocatedRelays = helpers.locateRelaysByProvider(relayList);
+          const allLocatedRelays = helpers.toSelectionPaths(relayList);
           await helpers.expandLocatedRelays(allLocatedRelays);
 
           // Should not have same length as all relays
@@ -248,17 +302,19 @@ test.describe('Select location', () => {
           await routes.filter.applyFilter();
           await util.expectRoute(RoutePath.selectLocation);
 
-          const ownerFilterChip = routes.selectLocation.getFilterChip('Rented');
+          const ownerFilterChip = routes.selectLocation.selectors.filterChip('Rented');
           await expect(ownerFilterChip).toBeVisible();
 
-          const locatedRelays = helpers.locateRelaysByOwner(relayList, false);
-          const relays = locatedRelays.map((locatedRelay) => locatedRelay.relay);
+          const relaySelectionPaths = helpers.toSelectionPaths(
+            helpers.getRelaysByOwner(relayList, false),
+          );
+          const relays = relaySelectionPaths.map((locatedRelay) => locatedRelay.relay);
           const relayNames = relays.map((relay) => relay.hostname);
 
           // Expand all accordions
-          await helpers.expandLocatedRelays(locatedRelays);
+          await helpers.expandLocatedRelays(relaySelectionPaths);
 
-          const buttons = routes.selectLocation.getRelaysMatching(relayNames);
+          const buttons = routes.selectLocation.selectors.relaysMatching(relayNames);
 
           // Expect all filtered relays to have a button
           await expect(buttons).toHaveCount(relays.length);
@@ -267,7 +323,7 @@ test.describe('Select location', () => {
           await ownerFilterChip.click();
 
           // Get all relays and expand accordions
-          const allLocatedRelays = helpers.locateRelaysByOwner(relayList);
+          const allLocatedRelays = helpers.toSelectionPaths(relayList);
           await helpers.expandLocatedRelays(allLocatedRelays);
 
           // Should not have same length as all relays
@@ -283,16 +339,15 @@ test.describe('Select location', () => {
         }
         await util.ipc.settings[''].notify(settings);
 
-        const locatedRelays = helpers.locateRelaysByObfuscation(
-          relayList,
-          (relay) => 'quic' in relay,
+        const relaySelectionPaths = helpers.toSelectionPaths(
+          helpers.getRelaysByObfuscation(relayList, (relay) => 'quic' in relay),
         );
-        const relays = locatedRelays.map((locatedRelay) => locatedRelay.relay);
+        const relays = relaySelectionPaths.map((locatedRelay) => locatedRelay.relay);
         const relayNames = relays.map((relay) => relay.hostname);
 
-        await helpers.expandLocatedRelays(locatedRelays);
+        await helpers.expandLocatedRelays(relaySelectionPaths);
 
-        const buttons = routes.selectLocation.getRelaysMatching(relayNames);
+        const buttons = routes.selectLocation.selectors.relaysMatching(relayNames);
 
         // Expect all filtered relays to have a button
         await expect(buttons).toHaveCount(relays.length);
@@ -305,13 +360,14 @@ test.describe('Select location', () => {
         }
         await util.ipc.settings[''].notify(settings);
 
-        const locatedRelays = helpers.locateRelaysByObfuscation(relayList, (relay) => relay.lwo);
-        const relays = locatedRelays.map((locatedRelay) => locatedRelay.relay);
+        const relaySelectionPaths = helpers.toSelectionPaths(
+          helpers.getRelaysByObfuscation(relayList, (relay) => relay.lwo),
+        );
+        const relays = relaySelectionPaths.map((locatedRelay) => locatedRelay.relay);
         const relayNames = relays.map((relay) => relay.hostname);
 
-        await helpers.expandLocatedRelays(locatedRelays);
-
-        const buttons = routes.selectLocation.getRelaysMatching(relayNames);
+        await helpers.expandLocatedRelays(relaySelectionPaths);
+        const buttons = routes.selectLocation.selectors.relaysMatching(relayNames);
 
         // Expect all filtered relays to have a button
         await expect(buttons).toHaveCount(relays.length);

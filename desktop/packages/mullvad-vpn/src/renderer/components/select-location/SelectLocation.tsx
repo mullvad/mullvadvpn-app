@@ -24,6 +24,7 @@ import * as Cell from '../cell';
 import { BackAction } from '../keyboard-navigation';
 import { NavigationContainer } from '../NavigationContainer';
 import { NavigationScrollbars } from '../NavigationScrollbars';
+import { SearchTextField } from '../search-text-field';
 import { useFilteredProviders } from '../views/filter/FilterView';
 import CombinedLocationList, { CombinedLocationListProps } from './CombinedLocationList';
 import CustomLists from './CustomLists';
@@ -37,7 +38,6 @@ import {
   StyledContent,
   StyledNavigationBarAttachment,
   StyledScopeBar,
-  StyledSearchBar,
   StyledSelectionUnavailable,
   StyledSelectionUnavailableText,
 } from './SelectLocationStyles';
@@ -69,7 +69,7 @@ export default function SelectLocation() {
   const showLwoFilter = lwoFilterActive(lwo, locationType, multihop);
   const showDaitaFilter = daitaFilterActive(daita, directOnly, locationType, multihop);
 
-  const [searchValue, setSearchValue] = useState('');
+  const [searchValue, setSearchValue] = useState<string | undefined>(undefined);
 
   const onClose = useCallback(() => history.pop(), [history]);
   const onViewFilter = useCallback(() => history.push(RoutePath.filter), [history]);
@@ -230,7 +230,17 @@ export default function SelectLocation() {
                   </Flex>
                 )}
 
-                <StyledSearchBar searchTerm={searchValue} onSearch={updateSearchTerm} />
+                <SearchTextField
+                  variant="secondary"
+                  value={searchValue}
+                  onValueChange={updateSearchTerm}>
+                  <SearchTextField.Icon icon="search" />
+                  <SearchTextField.Input
+                    autoFocus
+                    placeholder={messages.gettext('Search locations or servers')}
+                  />
+                  <SearchTextField.ClearButton />
+                </SearchTextField>
               </>
             )}
           </StyledNavigationBarAttachment>
