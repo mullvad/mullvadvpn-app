@@ -38,9 +38,7 @@ export function DaitaDirectOnlySetting() {
                 )}
               </ModalMessage>
             </InfoButton>
-            <DaitaDirectOnlySwitch.Trigger>
-              <DaitaDirectOnlySwitch.Thumb />
-            </DaitaDirectOnlySwitch.Trigger>
+            <DaitaDirectOnlySwitch.Thumb />
           </SettingsListItem.ActionGroup>
         </DaitaDirectOnlySwitch>
       </SettingsListItem.Item>
