@@ -200,7 +200,10 @@ public actor PacketTunnelActor {
             errorState.reason
                 .recoverableError(), reachabilityChanged
         {
-            await handleRestartConnection(nextRelays: .random, reason: .userInitiated)
+            await handleRestartConnection(
+                nextRelays: .random,
+                reason: .restartAfterOffline
+            )
         }
     }
 }
@@ -269,6 +272,10 @@ extension PacketTunnelActor {
         nextRelays: NextRelays,
         reason: ActorReconnectReason = .userInitiated
     ) async throws {
+        // don't start the tunnel if device has no connectivity, unless a new path appeared
+        if case .error = self.state , .restartAfterOffline != reason {
+            return
+        }
         let settings: Settings = try settingsReader.read()
         try await self.applyNetworkSettingsIfNeeded(settings: settings)
 
