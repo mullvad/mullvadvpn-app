@@ -45,6 +45,7 @@ esac
 
 set -x
 exec "$CONTAINER_RUNNER" run --rm \
+    --security-opt=seccomp=unconfined \
     -e HOME=/home/runner1 \
     -e GRADLE_USER_HOME=/home/runner1/.gradle \
     -e ANDROID_USER_HOME=/home/runner1/.android \
