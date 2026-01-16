@@ -1,78 +1,65 @@
+use std::{io::Write, sync::Arc};
+
+use clap::Parser;
+use http_body_util::{BodyExt, Full};
+use hyper::body::Bytes;
+use hyper_util::client::legacy::Client;
+use mullvad_api::{
+    domain_fronting::DomainFronting,
+    https_client_with_sni::HttpsConnectorWithSni,
+    proxy::{ApiConnectionMode, ProxyConfig},
+};
+use tracing_subscriber::{EnvFilter, filter::LevelFilter};
+
+#[derive(Parser, Debug)]
+pub struct Arguments {
+    /// The domain used to hide the actual destination.
+    #[arg(long)]
+    front: String,
+
+    /// The host being reached via `front`.
+    #[arg(long)]
+    host: String,
+}
+
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-    imp::main().await
-}
+    tracing_subscriber::fmt()
+        .with_env_filter(EnvFilter::from_default_env().add_directive(LevelFilter::INFO.into()))
+        .init();
 
-#[cfg(not(feature = "domain-fronting"))]
-pub mod imp {
-    pub async fn main() -> anyhow::Result<()> {
-        unimplemented!(
-            "cargo run -p mullvad-api --features domain-fronting --bin domain_fronting -- --front <FRONT_DOMAIN> --host <HOST_DOMAIN>"
-        )
-    }
-}
+    let Arguments { front, host } = Arguments::parse();
 
-#[cfg(feature = "domain-fronting")]
-mod imp {
-    use clap::Parser;
-    use http::{Method, Request};
-    use http_body_util::{BodyExt, Empty};
-    use hyper::body::Bytes;
-    use hyper_util::rt::TokioIo;
-    use mullvad_api::domain_fronting::DomainFronting;
-    use tracing_subscriber::{EnvFilter, filter::LevelFilter};
+    let df = DomainFronting::new(front, host);
 
-    #[derive(Parser, Debug)]
-    pub struct Arguments {
-        /// The domain used to hide the actual destination.
-        #[arg(long)]
-        front: String,
+    let proxy_config = df.proxy_config().await.unwrap();
 
-        /// The host being reached via `front`.
-        #[arg(long)]
-        host: String,
-    }
+    let (connector, connector_handle) = HttpsConnectorWithSni::new(
+        Arc::new(mullvad_api::DefaultDnsResolver),
+        #[cfg(feature = "api-override")]
+        false,
+    );
 
-    pub async fn main() -> anyhow::Result<()> {
-        tracing_subscriber::fmt()
-            .with_env_filter(EnvFilter::from_default_env().add_directive(LevelFilter::INFO.into()))
-            .init();
+    connector_handle.set_connection_mode(ApiConnectionMode::Proxied(ProxyConfig::DomainFronting(
+        proxy_config,
+    )));
 
-        let Arguments { front, host } = Arguments::parse();
-        println!("front: {:?} host: {:?}", front, host);
-        let domain_front = DomainFronting::new(front.clone());
-        let tls_stream = domain_front
-            .connect()
-            .await
-            .expect("Could not resolve {front}");
+    let client: Client<_, Full<Bytes>> =
+        hyper_util::client::legacy::Client::builder(hyper_util::rt::TokioExecutor::new())
+            .build(connector);
 
-        let io = TokioIo::new(tls_stream);
-
-        let (mut sender, conn) = hyper::client::conn::http1::handshake(io).await?;
-
-        tokio::task::spawn(async move {
-            if let Err(err) = conn.await {
-                println!("Connection failed: {:?}", err);
-            }
-        });
-
-        // Build the request
-        let req = Request::builder()
-            .method(Method::GET)
-            .header(hyper::header::HOST, host)
-            .header(hyper::header::ACCEPT, "*/*")
-            .body(Empty::<Bytes>::new())?;
-        println!("request: {:?}", req);
-        let res = sender.send_request(req).await?;
-
-        println!("Response: {}", res.status());
-        println!("Headers: {:#?}\n", res.headers());
-
-        // Print the response to stdout
-        let body = res.collect().await?.to_bytes();
-        tokio::io::copy(&mut body.as_ref(), &mut tokio::io::stdout()).await?;
-
-        println!("\n\nDone!");
-        Ok(())
-    }
+    let response = client
+        .get("https://api.mullvad.net/app/v1/relays".try_into().unwrap())
+        .await
+        .unwrap();
+    log::info!("Response status: {}", response.status());
+    log::debug!("Response headers: {:?}", response.headers());
+    let body = response
+        .collect()
+        .await
+        .expect("failed to fetch response body")
+        .to_bytes();
+    let _ = std::io::stdout().write(&body);
+    let _ = std::io::stdout().write(b"\n");
+    Ok(())
 }

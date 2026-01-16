@@ -43,8 +43,10 @@ unused_async = "deny"
 wildcard_dependencies = "deny"
 
 [workspace.dependencies]
+bytes = "^1.2"
 dirs = "6.0.0"
 futures = "0.3"
+papaya = "0.2"
 tokio = { version = "1.44", features = [
   "macros",
   "rt",
@@ -79,7 +81,6 @@ colored = "2.0.0"
 windows-sys = "0.52.0"
 chrono = { version = "0.4.26", default-features = false }
 clap = { version = "4.2.7", features = ["cargo", "derive"] }
-bytes = "1.3.0"
 async-trait = "0.1.58"
 socket2 = "0.5.7"
 surge-ping = "0.8"

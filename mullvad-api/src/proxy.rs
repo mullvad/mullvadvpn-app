@@ -16,6 +16,8 @@ use tokio::{
     io::{AsyncRead, AsyncWrite, AsyncWriteExt, ReadBuf},
 };
 
+use crate::domain_fronting;
+
 const CURRENT_CONFIG_FILENAME: &str = "api-endpoint.json";
 
 pub trait ConnectionModeProvider: Send {
@@ -67,6 +69,7 @@ pub enum ProxyConfig {
     Socks5Local(proxy::Socks5Local),
     Socks5Remote(proxy::Socks5Remote),
     EncryptedDnsProxy(mullvad_encrypted_dns_proxy::config::ProxyConfig),
+    DomainFronting(domain_fronting::ProxyConfig),
 }
 
 impl ProxyConfig {
@@ -83,6 +86,9 @@ impl ProxyConfig {
             ProxyConfig::EncryptedDnsProxy(proxy) => {
                 let addr = SocketAddr::V4(proxy.addr);
                 Endpoint::from_socket_address(addr, TransportProtocol::Tcp)
+            }
+            ProxyConfig::DomainFronting(proxy) => {
+                Endpoint::from_socket_address(proxy.addr, TransportProtocol::Tcp)
             }
         }
     }
