@@ -15,7 +15,7 @@ function StartMinimizedSwitch({ children, ...props }: StartMinimizedSwitchProps)
 
 const StartMinimizedSwitchNamespace = Object.assign(StartMinimizedSwitch, {
   Label: Switch.Label,
-  Thumb: Switch.Thumb,
+  Input: Switch.Input,
   Trigger: Switch.Trigger,
 });
 

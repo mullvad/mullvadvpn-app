@@ -17,7 +17,7 @@ export function AnimateMapSetting(props: AnimateMapSettingProps) {
             {messages.pgettext('user-interface-settings-view', 'Animate map')}
           </AnimateMapSwitch.Label>
           <SettingsListItem.ActionGroup>
-            <AnimateMapSwitch.Thumb />
+            <AnimateMapSwitch.Input />
           </SettingsListItem.ActionGroup>
         </AnimateMapSwitch>
       </ListItem.Item>

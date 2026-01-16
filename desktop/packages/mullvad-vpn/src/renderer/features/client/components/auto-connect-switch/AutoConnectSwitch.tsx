@@ -15,7 +15,7 @@ function AutoConnectSwitch({ children, ...props }: AutoConnectSwitch) {
 
 const AutoConnectSwitchNamespace = Object.assign(AutoConnectSwitch, {
   Label: Switch.Label,
-  Thumb: Switch.Thumb,
+  Input: Switch.Input,
   Trigger: Switch.Trigger,
 });
 

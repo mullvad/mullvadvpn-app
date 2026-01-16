@@ -16,7 +16,7 @@ export function BlockGamblingSetting(props: BlockGamblingSettingProps) {
             }
           </BlockGamblingSwitch.Label>
           <ListItem.ActionGroup>
-            <BlockGamblingSwitch.Thumb />
+            <BlockGamblingSwitch.Input />
           </ListItem.ActionGroup>
         </BlockGamblingSwitch>
       </ListItem.Item>

@@ -260,7 +260,7 @@ function LockdownModeAlert() {
               {messages.pgettext('vpn-settings-view', 'Lockdown mode')}
             </LockdownModeSwitch.Label>
             <SettingsListItem.ActionGroup>
-              <LockdownModeSwitch.Thumb />
+              <LockdownModeSwitch.Input />
             </SettingsListItem.ActionGroup>
           </LockdownModeSwitch>
         </SettingsListItem.Item>
