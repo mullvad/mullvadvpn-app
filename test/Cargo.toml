@@ -21,7 +21,6 @@ chrono = { version = "0.4.26", default-features = false }
 clap = { version = "4.2.7", features = ["cargo", "derive"] }
 colored = "2.0.0"
 dirs = "6.0.0"
-# Logging
 env_logger = "0.11.7"
 futures = "0.3"
 hyper-util = { version = "0.1.8", features = [
@@ -32,7 +31,6 @@ hyper-util = { version = "0.1.8", features = [
 log = "0.4"
 nix = { version = "0.30.1", features = ["ioctl", "net", "signal", "socket"] }
 rand = "0.9"
-# Serde and related crates
 serde = "1.0"
 serde_json = "1.0"
 socket2 = "0.5.7"
@@ -49,7 +47,6 @@ tokio = { version = "1.44", features = [
   "time",
 ] }
 tokio-serial = "5.4.1"
-# Tonic and related crates
 tonic = "0.13.1"
 tower = "0.5.1"
 windows-sys = "0.52.0"
