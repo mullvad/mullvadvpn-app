@@ -1,10 +1,13 @@
 import { messages } from '../../../../../../shared/gettext';
 import { RoutePath } from '../../../../../../shared/routes';
+import { ListItemProps } from '../../../../../lib/components/list-item';
 import { SettingsNavigationListItem } from '../../../../settings-navigation-list-item';
 
-export function ApiAccessMethodsListItem() {
+export type ApiAccessMethodsListItemProps = Omit<ListItemProps, 'children'>;
+
+export function ApiAccessMethodsListItem(props: ApiAccessMethodsListItemProps) {
   return (
-    <SettingsNavigationListItem to={RoutePath.apiAccessMethods}>
+    <SettingsNavigationListItem to={RoutePath.apiAccessMethods} {...props}>
       <SettingsNavigationListItem.Label>
         {
           // TRANSLATORS: Navigation button to the 'API access methods' view

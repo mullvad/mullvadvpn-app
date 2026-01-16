@@ -10,14 +10,19 @@ import {
   BlockTrackersSetting,
 } from '../../../../../features/dns/components';
 import { useDns } from '../../../../../features/dns/hooks';
+import { AccordionProps } from '../../../../../lib/components/accordion';
 import { FlexRow } from '../../../../../lib/components/flex-row';
+import { ListItemProps } from '../../../../../lib/components/list-item';
 import { formatHtml } from '../../../../../lib/html-formatter';
 import InfoButton from '../../../../InfoButton';
 import { ModalMessage } from '../../../../Modal';
 import { SettingsAccordion } from '../../../../settings-accordion';
 import { CustomDnsEnabledFooter } from './components';
 
-export function DnsBlockerSettings() {
+export type DnsBlockerSettingsProps = Omit<AccordionProps, 'children'> &
+  Pick<ListItemProps, 'position'>;
+
+export function DnsBlockerSettings({ position, ...props }: DnsBlockerSettingsProps) {
   const { dns } = useDns();
   const customDnsFeatureName = messages.pgettext('vpn-settings-view', 'Use custom DNS server');
 
@@ -27,44 +32,47 @@ export function DnsBlockerSettings() {
         accordionId="dns-blocker-setting"
         anchorId="dns-blocker-setting"
         aria-label={messages.pgettext('vpn-settings-view', 'DNS content blockers')}
-        disabled={dns.state === 'custom'}>
-        <SettingsAccordion.Header>
-          <SettingsAccordion.Title>
-            {messages.pgettext('vpn-settings-view', 'DNS content blockers')}
-          </SettingsAccordion.Title>
-          <FlexRow gap="medium">
-            <InfoButton>
-              <ModalMessage>
-                {messages.pgettext(
-                  'vpn-settings-view',
-                  'When this feature is enabled it stops the device from contacting certain domains or websites known for distributing ads, malware, trackers and more.',
-                )}
-              </ModalMessage>
-              <ModalMessage>
-                {messages.pgettext(
-                  'vpn-settings-view',
-                  'This might cause issues on certain websites, services, and apps.',
-                )}
-              </ModalMessage>
-              <ModalMessage>
-                {formatHtml(
-                  sprintf(
-                    messages.pgettext(
-                      'vpn-settings-view',
-                      'Attention: this setting cannot be used in combination with <b>%(customDnsFeatureName)s</b>',
+        disabled={dns.state === 'custom'}
+        {...props}>
+        <SettingsAccordion.Header position={position}>
+          <SettingsAccordion.HeaderItem>
+            <SettingsAccordion.Title variant="bodySmallSemibold">
+              {messages.pgettext('vpn-settings-view', 'DNS content blockers')}
+            </SettingsAccordion.Title>
+            <FlexRow gap="medium">
+              <InfoButton>
+                <ModalMessage>
+                  {messages.pgettext(
+                    'vpn-settings-view',
+                    'When this feature is enabled it stops the device from contacting certain domains or websites known for distributing ads, malware, trackers and more.',
+                  )}
+                </ModalMessage>
+                <ModalMessage>
+                  {messages.pgettext(
+                    'vpn-settings-view',
+                    'This might cause issues on certain websites, services, and apps.',
+                  )}
+                </ModalMessage>
+                <ModalMessage>
+                  {formatHtml(
+                    sprintf(
+                      messages.pgettext(
+                        'vpn-settings-view',
+                        'Attention: this setting cannot be used in combination with <b>%(customDnsFeatureName)s</b>',
+                      ),
+                      { customDnsFeatureName },
                     ),
-                    { customDnsFeatureName },
-                  ),
-                )}
-              </ModalMessage>
-            </InfoButton>
-            <SettingsAccordion.Trigger>
-              <SettingsAccordion.Icon />
-            </SettingsAccordion.Trigger>
-          </FlexRow>
+                  )}
+                </ModalMessage>
+              </InfoButton>
+              <SettingsAccordion.Trigger>
+                <SettingsAccordion.Icon />
+              </SettingsAccordion.Trigger>
+            </FlexRow>
+          </SettingsAccordion.HeaderItem>
         </SettingsAccordion.Header>
         <SettingsAccordion.Content>
-          <BlockAdsSetting />
+          <BlockAdsSetting position="middle" />
           <BlockTrackersSetting />
           <BlockMalwareSetting />
           <BlockGamblingSetting />

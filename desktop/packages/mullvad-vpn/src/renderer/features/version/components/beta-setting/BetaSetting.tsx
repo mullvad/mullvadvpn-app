@@ -2,21 +2,24 @@ import React from 'react';
 
 import { messages } from '../../../../../shared/gettext';
 import { SettingsListItem } from '../../../../components/settings-list-item';
+import { ListItemProps } from '../../../../lib/components/list-item';
 import { useVersionIsBeta } from '../../../../redux/hooks';
 import { BetaSwitch } from '../beta-switch';
 
-export function BetaSetting() {
+export type BetaSettingProps = Omit<ListItemProps, 'children'>;
+
+export function BetaSetting(props: BetaSettingProps) {
   const { isBeta } = useVersionIsBeta();
 
   const labelId = React.useId();
   const descriptionId = React.useId();
 
   return (
-    <SettingsListItem disabled={isBeta}>
+    <SettingsListItem disabled={isBeta} {...props}>
       <SettingsListItem.Item>
         <SettingsListItem.Content>
           <BetaSwitch labelId={labelId} descriptionId={descriptionId}>
-            <BetaSwitch.Label variant="titleMedium">
+            <BetaSwitch.Label>
               {
                 // TRANSLATORS: Label for switch to toggle beta program.
                 messages.pgettext('app-info-view', 'Beta program')
@@ -29,7 +32,7 @@ export function BetaSetting() {
         </SettingsListItem.Content>
       </SettingsListItem.Item>
       <SettingsListItem.Footer>
-        <SettingsListItem.Text id={descriptionId}>
+        <SettingsListItem.FooterText id={descriptionId}>
           {isBeta
             ? // TRANSLATORS: Description for beta program switch when using a beta version.
               messages.pgettext(
@@ -41,7 +44,7 @@ export function BetaSetting() {
                 'app-info-view',
                 'Enable to get notified when new beta versions of the app are released.',
               )}
-        </SettingsListItem.Text>
+        </SettingsListItem.FooterText>
       </SettingsListItem.Footer>
     </SettingsListItem>
   );

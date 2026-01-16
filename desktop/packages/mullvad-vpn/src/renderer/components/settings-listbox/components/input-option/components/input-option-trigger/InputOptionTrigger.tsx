@@ -5,7 +5,7 @@ import { useListboxContext } from '../../../../../../lib/components/listbox/';
 import { useListboxOptionContext } from '../../../../../../lib/components/listbox/components/listbox-option/';
 import {
   ListboxOptionTriggerProps,
-  StyledListItemOptionItem,
+  StyledListboxOptionItem,
 } from '../../../../../../lib/components/listbox/components/listbox-option/components';
 import { colors } from '../../../../../../lib/foundations';
 import { useInputOptionContext } from '../../InputOptionContext';
@@ -14,27 +14,14 @@ export type InputOptionTriggerProps = ListboxOptionTriggerProps;
 
 export const StyledInputOptionTrigger = styled.li`
   &&:hover {
-    ${StyledListItemOptionItem} {
+    ${StyledListboxOptionItem} {
       background-color: ${colors.whiteOnBlue10};
     }
   }
 
   &&:active {
-    ${StyledListItemOptionItem} {
+    ${StyledListboxOptionItem} {
       background-color: ${colors.whiteOnBlue20};
-    }
-  }
-
-  &&[aria-selected='true'] {
-    &:hover {
-      ${StyledListItemOptionItem} {
-        background-color: ${colors.green};
-      }
-    }
-    &:active {
-      ${StyledListItemOptionItem} {
-        background-color: ${colors.green};
-      }
     }
   }
 `;

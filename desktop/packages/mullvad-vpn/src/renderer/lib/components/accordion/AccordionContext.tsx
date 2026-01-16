@@ -1,16 +1,11 @@
 import React from 'react';
 
-import { AccordionAnimation, AccordionProps } from './Accordion';
+import { AccordionProps } from './Accordion';
 
-interface AccordionContextProps {
+type AccordionContextProps = Omit<AccordionProps, 'children'> & {
   triggerId: string;
   contentId: string;
-  titleId: string;
-  expanded: AccordionProps['expanded'];
-  onExpandedChange?: AccordionProps['onExpandedChange'];
-  disabled?: boolean;
-  animation?: AccordionAnimation;
-}
+};
 
 const AccordionContext = React.createContext<AccordionContextProps | undefined>(undefined);
 
@@ -22,17 +17,27 @@ export const useAccordionContext = (): AccordionContextProps => {
   return context;
 };
 
-interface AccordionProviderProps {
-  triggerId: string;
-  contentId: string;
-  titleId: string;
-  expanded: boolean;
-  onExpandedChange?: (open: boolean) => void;
-  disabled?: boolean;
-  animation?: AccordionAnimation;
-  children: React.ReactNode;
-}
+type AccordionProviderProps = React.PropsWithChildren<
+  Pick<AccordionProps, 'titleId' | 'expanded' | 'onExpandedChange' | 'disabled'>
+>;
 
-export function AccordionProvider({ children, ...props }: AccordionProviderProps) {
-  return <AccordionContext.Provider value={props}>{children}</AccordionContext.Provider>;
+export function AccordionProvider({
+  children,
+  titleId: titleIdProp,
+  ...props
+}: AccordionProviderProps) {
+  const triggerId = React.useId();
+  const contentId = React.useId();
+  const titleId = React.useId();
+  return (
+    <AccordionContext.Provider
+      value={{
+        triggerId,
+        contentId,
+        titleId: titleIdProp ?? titleId,
+        ...props,
+      }}>
+      {children}
+    </AccordionContext.Provider>
+  );
 }

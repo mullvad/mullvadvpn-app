@@ -1,17 +1,19 @@
 import React from 'react';
 
 import { messages } from '../../../../../shared/gettext';
-import { ListItem } from '../../../../lib/components/list-item';
+import { ListItem, ListItemProps } from '../../../../lib/components/list-item';
 import { AnimateMapSwitch } from '../animate-map-switch/AnimateMapSwitch';
 
-export function AnimateMapSetting() {
+export type AnimateMapSettingProps = Omit<ListItemProps, 'children'>;
+
+export function AnimateMapSetting(props: AnimateMapSettingProps) {
   const descriptionId = React.useId();
   return (
-    <ListItem>
+    <ListItem {...props}>
       <ListItem.Item>
         <ListItem.Content>
           <AnimateMapSwitch>
-            <AnimateMapSwitch.Label variant="titleMedium">
+            <AnimateMapSwitch.Label>
               {messages.pgettext('user-interface-settings-view', 'Animate map')}
             </AnimateMapSwitch.Label>
             <AnimateMapSwitch.Trigger aria-describedby={descriptionId}>
@@ -21,9 +23,9 @@ export function AnimateMapSetting() {
         </ListItem.Content>
       </ListItem.Item>
       <ListItem.Footer>
-        <ListItem.Text id={descriptionId}>
+        <ListItem.FooterText id={descriptionId}>
           {messages.pgettext('user-interface-settings-view', 'Animate map movements.')}
-        </ListItem.Text>
+        </ListItem.FooterText>
       </ListItem.Footer>
     </ListItem>
   );

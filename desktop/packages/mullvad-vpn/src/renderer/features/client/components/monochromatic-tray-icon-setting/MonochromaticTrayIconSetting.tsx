@@ -2,16 +2,19 @@ import React from 'react';
 
 import { messages } from '../../../../../shared/gettext';
 import { SettingsListItem } from '../../../../components/settings-list-item';
-import { MonochromaticTrayIconSwitch } from '../monochromatic-tray-icon-switch/MonochromaticTrayIconSwitch';
+import { ListItemProps } from '../../../../lib/components/list-item';
+import { MonochromaticTrayIconSwitch } from '../monochromatic-tray-icon-switch';
 
-export function MonochromaticTrayIconSetting() {
+export type MonochromaticTrayIconSettingProps = Omit<ListItemProps, 'children'>;
+
+export function MonochromaticTrayIconSetting(props: MonochromaticTrayIconSettingProps) {
   const descriptionId = React.useId();
   return (
-    <SettingsListItem>
+    <SettingsListItem {...props}>
       <SettingsListItem.Item>
         <SettingsListItem.Content>
           <MonochromaticTrayIconSwitch>
-            <MonochromaticTrayIconSwitch.Label variant="titleMedium">
+            <MonochromaticTrayIconSwitch.Label>
               {messages.pgettext('user-interface-settings-view', 'Monochromatic tray icon')}
             </MonochromaticTrayIconSwitch.Label>
             <MonochromaticTrayIconSwitch.Trigger aria-describedby={descriptionId}>
@@ -21,12 +24,12 @@ export function MonochromaticTrayIconSetting() {
         </SettingsListItem.Content>
       </SettingsListItem.Item>
       <SettingsListItem.Footer>
-        <SettingsListItem.Text id={descriptionId}>
+        <SettingsListItem.FooterText id={descriptionId}>
           {messages.pgettext(
             'user-interface-settings-view',
             'Use a monochromatic tray icon instead of a colored one.',
           )}
-        </SettingsListItem.Text>
+        </SettingsListItem.FooterText>
       </SettingsListItem.Footer>
     </SettingsListItem>
   );

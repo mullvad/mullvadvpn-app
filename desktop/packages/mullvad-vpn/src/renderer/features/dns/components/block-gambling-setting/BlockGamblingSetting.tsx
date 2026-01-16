@@ -1,11 +1,13 @@
 import { messages } from '../../../../../shared/gettext';
 import { FlexRow } from '../../../../lib/components/flex-row';
-import { ListItem } from '../../../../lib/components/list-item';
+import { ListItem, ListItemProps } from '../../../../lib/components/list-item';
 import { BlockGamblingSwitch } from '../block-gambling-switch/BlockGamblingSwitch';
 
-export function BlockGamblingSetting() {
+export type BlockGamblingSettingProps = Omit<ListItemProps, 'children'>;
+
+export function BlockGamblingSetting(props: BlockGamblingSettingProps) {
   return (
-    <ListItem level={1}>
+    <ListItem level={1} {...props}>
       <ListItem.Item>
         <ListItem.Content>
           <BlockGamblingSwitch>

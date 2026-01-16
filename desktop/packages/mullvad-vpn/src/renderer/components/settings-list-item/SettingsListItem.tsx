@@ -24,6 +24,7 @@ const SettingsListItemNamespace = Object.assign(SettingsListItem, {
   Trigger: ListItem.Trigger,
   Item: ListItem.Item,
   Footer: ListItem.Footer,
+  FooterText: ListItem.FooterText,
   Icon: ListItem.Icon,
   TextField: ListItem.TextField,
 });

@@ -4,16 +4,19 @@ import { messages } from '../../../../../shared/gettext';
 import InfoButton from '../../../../components/InfoButton';
 import { ModalMessage } from '../../../../components/Modal';
 import { SettingsListItem } from '../../../../components/settings-list-item';
+import { ListItemProps } from '../../../../lib/components/list-item';
 import { EnableIpv6Switch } from '../enable-ipv6-switch/EnableIpv6Switch';
 
-export function EnableIpv6Setting() {
+export type EnableIpv6SettingProps = Omit<ListItemProps, 'children'>;
+
+export function EnableIpv6Setting(props: EnableIpv6SettingProps) {
   const descriptionId = React.useId();
   return (
-    <SettingsListItem>
+    <SettingsListItem {...props}>
       <SettingsListItem.Item>
         <SettingsListItem.Content>
           <EnableIpv6Switch>
-            <EnableIpv6Switch.Label variant="titleMedium">
+            <EnableIpv6Switch.Label>
               {
                 // TRANSLATORS: Title of in-tunnel IPv6 setting.
                 messages.pgettext('vpn-settings-view', 'In-tunnel IPv6')
@@ -43,7 +46,7 @@ export function EnableIpv6Setting() {
         </SettingsListItem.Content>
       </SettingsListItem.Item>
       <SettingsListItem.Footer>
-        <SettingsListItem.Text id={descriptionId}>
+        <SettingsListItem.FooterText id={descriptionId}>
           {
             // TRANSLATORS: Description of in-tunnel IPv6 setting.
             messages.pgettext(
@@ -51,7 +54,7 @@ export function EnableIpv6Setting() {
               'Enable to allow IPv6 traffic through the tunnel.',
             )
           }
-        </SettingsListItem.Text>
+        </SettingsListItem.FooterText>
       </SettingsListItem.Footer>
     </SettingsListItem>
   );

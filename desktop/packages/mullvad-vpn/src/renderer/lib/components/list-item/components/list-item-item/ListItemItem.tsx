@@ -1,6 +1,7 @@
 import React from 'react';
 import styled, { css, RuleSet } from 'styled-components';
 
+import { Radius } from '../../../../foundations';
 import { useListItemAnimation } from '../../hooks';
 import { useListItemContext } from '../../ListItemContext';
 import { useBackgroundColor } from './hooks';
@@ -17,7 +18,6 @@ export const StyledListItemItem = styled.div<{
     return css`
       --background-color: ${$backgroundColor};
 
-      margin-bottom: 1px;
       background-color: var(--background-color);
       min-height: 48px;
       width: 100%;
@@ -27,6 +27,7 @@ export const StyledListItemItem = styled.div<{
       &&:has(> :last-child:nth-child(2)) {
         grid-template-columns: 1fr 56px;
       }
+      border-radius: ${Radius.radius12};
       ${$animation}
     `;
   }}

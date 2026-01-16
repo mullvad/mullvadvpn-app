@@ -1,16 +1,18 @@
 import { messages } from '../../../../../../shared/gettext';
 import { Icon } from '../../../../../lib/components';
-import { ListItem } from '../../../../../lib/components/list-item';
+import { ListItem, ListItemProps } from '../../../../../lib/components/list-item';
 import { useVersionCurrent } from '../../../../../redux/hooks';
 import { useShowAlert, useShowFooter } from './hooks';
 
-export function VersionListItem() {
+export type VersionListItemProps = Omit<ListItemProps, 'children'>;
+
+export function VersionListItem(props: VersionListItemProps) {
   const { current } = useVersionCurrent();
   const showAlert = useShowAlert();
   const showFooter = useShowFooter();
 
   return (
-    <ListItem>
+    <ListItem {...props}>
       <ListItem.Item>
         <ListItem.Content>
           <ListItem.Group>
@@ -27,12 +29,12 @@ export function VersionListItem() {
       </ListItem.Item>
       {showFooter && (
         <ListItem.Footer>
-          <ListItem.Text>
+          <ListItem.FooterText>
             {
               // TRANSLATORS: Description for version list item when app is out of sync.
               messages.pgettext('app-info-view', 'App is out of sync. Please quit and restart.')
             }
-          </ListItem.Text>
+          </ListItem.FooterText>
         </ListItem.Footer>
       )}
     </ListItem>

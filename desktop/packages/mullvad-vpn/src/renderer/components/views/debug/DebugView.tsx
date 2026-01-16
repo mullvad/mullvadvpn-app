@@ -8,7 +8,7 @@ import { AppNavigationHeader } from '../..';
 import { BackAction } from '../../keyboard-navigation';
 import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
-import SettingsHeader, { HeaderTitle } from '../../SettingsHeader';
+import { HeaderTitle } from '../../SettingsHeader';
 
 export function DebugView() {
   const { pop } = useHistory();
@@ -21,11 +21,9 @@ export function DebugView() {
 
           <NavigationScrollbars>
             <View.Content>
-              <SettingsHeader>
-                <HeaderTitle>Developer tools</HeaderTitle>
-              </SettingsHeader>
-
               <View.Container horizontalMargin="large" flexDirection="column" gap="medium">
+                <HeaderTitle>Developer tools</HeaderTitle>
+
                 <ThrowErrorButton />
                 <UnhandledRejectionButton />
                 <ErrorDuringRender />

@@ -3,23 +3,25 @@ import styled from 'styled-components';
 import { messages } from '../../../../../../shared/gettext';
 import { Flex, Icon } from '../../../../../lib/components';
 import { Dot } from '../../../../../lib/components/dot';
-import { ListItem } from '../../../../../lib/components/list-item';
+import { ListItem, ListItemProps } from '../../../../../lib/components/list-item';
 import { useVersionSuggestedUpgrade } from '../../../../../redux/hooks';
 import { isPlatform } from '../../../../../utils';
 import { useHandleClick } from './hooks';
+
+export type UpdateAvailableListItemProps = Omit<ListItemProps, 'children'>;
 
 const StyledText = styled(ListItem.Text)`
   margin-top: -4px;
 `;
 
-export function UpdateAvailableListItem() {
+export function UpdateAvailableListItem(props: UpdateAvailableListItemProps) {
   const { suggestedUpgrade } = useVersionSuggestedUpgrade();
 
   const isLinux = isPlatform('linux');
   const handleClick = useHandleClick();
 
   return (
-    <ListItem>
+    <ListItem {...props}>
       <ListItem.Trigger onClick={handleClick}>
         <ListItem.Item>
           <ListItem.Content>

@@ -2,15 +2,18 @@ import { messages } from '../../../../../shared/gettext';
 import InfoButton from '../../../../components/InfoButton';
 import { ModalMessage } from '../../../../components/Modal';
 import { SettingsListItem } from '../../../../components/settings-list-item';
+import { ListItemProps } from '../../../../lib/components/list-item';
 import { QuantumResistantSwitch } from '../quantum-resistant-switch';
 
-export function QuantumResistantSetting() {
+export type QuantumResistantSettingProps = Omit<ListItemProps, 'children'>;
+
+export function QuantumResistantSetting(props: QuantumResistantSettingProps) {
   return (
-    <SettingsListItem anchorId="quantum-resistant-setting">
+    <SettingsListItem anchorId="quantum-resistant-setting" {...props}>
       <SettingsListItem.Item>
         <SettingsListItem.Content>
           <QuantumResistantSwitch>
-            <QuantumResistantSwitch.Label variant="titleMedium">
+            <QuantumResistantSwitch.Label>
               {
                 // TRANSLATORS: The title for the WireGuard quantum resistance selector. This setting
                 // TRANSLATORS: makes the cryptography resistant to the future abilities of quantum

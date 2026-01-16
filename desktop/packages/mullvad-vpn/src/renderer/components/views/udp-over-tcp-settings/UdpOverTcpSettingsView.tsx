@@ -5,7 +5,7 @@ import { AppNavigationHeader } from '../..';
 import { BackAction } from '../../keyboard-navigation';
 import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
-import SettingsHeader, { HeaderTitle } from '../../SettingsHeader';
+import { HeaderTitle } from '../../SettingsHeader';
 import { UdpOverTcpPortSetting } from './components';
 
 export function UdpOverTcpSettingsView() {
@@ -24,13 +24,13 @@ export function UdpOverTcpSettingsView() {
 
           <NavigationScrollbars>
             <View.Content>
-              <SettingsHeader>
+              <View.Container horizontalMargin="medium" flexDirection="column" gap="medium">
                 <HeaderTitle>
                   {messages.pgettext('wireguard-settings-view', 'UDP-over-TCP')}
                 </HeaderTitle>
-              </SettingsHeader>
 
-              <UdpOverTcpPortSetting />
+                <UdpOverTcpPortSetting />
+              </View.Container>
             </View.Content>
           </NavigationScrollbars>
         </NavigationContainer>
