@@ -34,7 +34,10 @@ class RotateScreenMockApiTest : MockApiTest() {
             device.waitForStableInActiveWindow()
             device.unfreezeRotation()
             device.setOrientationNatural()
-            device.waitForStableInActiveWindow()
+        }
+
+        on<ConnectPage> {
+            // Make sure the connect screen is showing as expected.
         }
     }
 }
