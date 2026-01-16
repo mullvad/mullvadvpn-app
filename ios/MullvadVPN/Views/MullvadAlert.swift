@@ -2,6 +2,7 @@ import SwiftUI
 
 struct MullvadAlert: Identifiable {
     enum AlertType {
+        case info
         case warning
         case error
     }
@@ -11,18 +12,45 @@ struct MullvadAlert: Identifiable {
         case normal
     }
 
-    struct Action {
+    enum DismissButtonPosition {
+        case top
+        case bottom
+    }
+
+    struct Action: Identifiable {
+        let id = UUID()
         let type: MainButtonStyle.Style
         let title: LocalizedStringKey
         let identifier: AccessibilityIdentifier?
         let handler: () async -> Void
+
+        init(
+            type: MainButtonStyle.Style,
+            title: LocalizedStringKey,
+            identifier: AccessibilityIdentifier? = nil,
+            handler: @escaping () async -> Void
+        ) {
+            self.type = type
+            self.title = title
+            self.identifier = identifier
+            self.handler = handler
+        }
     }
 
     let id = UUID()
     let type: AlertType
     let messages: [LocalizedStringKey]
-    let action: Action?
-    let dismissButtonTitle: LocalizedStringKey
+    let actions: [Action]
+
+    init(
+        type: AlertType,
+        messages: [LocalizedStringKey],
+        actions: [Action] = []
+    ) {
+        self.type = type
+        self.messages = messages
+        self.actions = actions
+    }
 }
 
 struct MullvadInputAlert: Identifiable {
@@ -44,6 +72,8 @@ struct MullvadInputAlert: Identifiable {
 struct AlertModifier: ViewModifier {
     @Binding var alert: MullvadAlert?
     @State var loading = false
+    @State private var scrollViewHeight: CGFloat = 0
+
     func body(content: Content) -> some View {
         content
             .fullScreenCover(item: $alert) { alert in
@@ -73,14 +103,9 @@ struct AlertModifier: ViewModifier {
             alertIcon(for: alert.type)
             alertMessage(alert.messages)
             VStack(spacing: 16) {
-                alertAction(for: alert.action)
-                alertAction(
-                    for: MullvadAlert.Action(
-                        type: .default,
-                        title: alert.dismissButtonTitle,
-                        identifier: nil,
-                        handler: { self.alert = nil }
-                    ))
+                ForEach(alert.actions) { action in
+                    alertAction(for: action)
+                }
             }
         }
         .padding()
@@ -91,6 +116,10 @@ struct AlertModifier: ViewModifier {
     @ViewBuilder
     private func alertIcon(for type: MullvadAlert.AlertType) -> some View {
         switch type {
+        case .info:
+            Image.mullvadIconInfo
+                .resizable()
+                .frame(width: 48, height: 48)
         case .error, .warning:
             Image.mullvadIconAlert
                 .resizable()
@@ -100,36 +129,37 @@ struct AlertModifier: ViewModifier {
 
     @ViewBuilder
     private func alertMessage(_ messages: [LocalizedStringKey]) -> some View {
-        VStack {
-            ForEach(Array(messages.enumerated()), id: \.offset) { _, text in
-                HStack {
-                    Text(text)
-                        .font(.mullvadSmall)
-                        .foregroundColor(.mullvadTextPrimary.opacity(0.6))
-                    Spacer()
+        ScrollView {
+            VStack {
+                ForEach(Array(messages.enumerated()), id: \.offset) { _, text in
+                    HStack {
+                        Text(text)
+                            .font(.mullvadSmall)
+                            .foregroundColor(.mullvadTextPrimary.opacity(0.6))
+                        Spacer()
+                    }
                 }
+            }.sizeOfView { size in
+                scrollViewHeight = size.height
             }
         }
+        .frame(maxHeight: scrollViewHeight)
     }
 
     @ViewBuilder
-    private func alertAction(for action: MullvadAlert.Action?) -> some View {
-        if let action = action {
-            MainButton(
-                text: action.title,
-                style: action.type,
-                action: {
-                    Task {
-                        loading = true
-                        await action.handler()
-                        loading = false
-                    }
+    private func alertAction(for action: MullvadAlert.Action) -> some View {
+        MainButton(
+            text: action.title,
+            style: action.type,
+            action: {
+                Task {
+                    loading = true
+                    await action.handler()
+                    loading = false
                 }
-            )
-            .accessibilityIdentifier(action.identifier)
-        } else {
-            EmptyView()
-        }
+            }
+        )
+        .accessibilityIdentifier(action.identifier)
     }
 }
 
@@ -214,13 +244,18 @@ extension View {
                     .init(
                         type: .warning,
                         messages: ["Something needs to be done"],
-                        action: .init(
-                            type: .danger,
-                            title: "Do it!",
-                            identifier: nil,
-                            handler: {}
-                        ),
-                        dismissButtonTitle: "Cancel"
+                        actions: [
+                            .init(
+                                type: .danger,
+                                title: "Do it!",
+                                handler: {}
+                            ),
+                            .init(
+                                type: .default,
+                                title: "Cancel",
+                                handler: {}
+                            ),
+                        ]
                     )
                 )
         )

@@ -33,7 +33,7 @@ final class SettingsViewControllerFactory {
 
     private let navigationController: UINavigationController
     private let alertPresenter: AlertPresenter
-    private var notificationSettings: NotificationSettings
+    private var appPreferences: AppPreferencesDataSource
 
     var didUpdateNotificationSettings: ((NotificationSettings) -> Void)?
 
@@ -42,17 +42,17 @@ final class SettingsViewControllerFactory {
         accessMethodRepository: AccessMethodRepositoryProtocol,
         proxyConfigurationTester: ProxyConfigurationTesterProtocol,
         ipOverrideRepository: IPOverrideRepository,
-        notificationSettings: NotificationSettings,
         navigationController: UINavigationController,
-        alertPresenter: AlertPresenter
+        alertPresenter: AlertPresenter,
+        appPreferences: AppPreferencesDataSource
     ) {
         self.interactorFactory = interactorFactory
         self.accessMethodRepository = accessMethodRepository
         self.proxyConfigurationTester = proxyConfigurationTester
         self.ipOverrideRepository = ipOverrideRepository
-        self.notificationSettings = notificationSettings
         self.navigationController = navigationController
         self.alertPresenter = alertPresenter
+        self.appPreferences = appPreferences
     }
 
     func makeRoute(for route: SettingsNavigationRoute) -> MakeChildResult {
@@ -75,11 +75,13 @@ final class SettingsViewControllerFactory {
         case .changelog:
             makeChangelogCoordinator()
         case .multihop:
-            makeMultihopViewController()
+            makeMultihopCoordinator()
         case .daita:
             makeDAITASettingsCoordinator()
         case .notificationSettings:
             makeNotificationSettingsCoordinator()
+        case .includeAllNetworks:
+            makeIncludeAllNetworksSettingsCoordinator()
         }
     }
 
@@ -120,15 +122,15 @@ final class SettingsViewControllerFactory {
         )
     }
 
-    private func makeMultihopViewController() -> MakeChildResult {
+    private func makeMultihopCoordinator() -> MakeChildResult {
         let viewModel = MultihopTunnelSettingsViewModel(tunnelManager: interactorFactory.tunnelManager)
-        let view = SettingsMultihopView(tunnelViewModel: viewModel)
+        let coordinator = MultihopSettingsCoordinator(
+            navigationController: navigationController,
+            route: .settings(.multihop),
+            viewModel: viewModel
+        )
 
-        let host = UIHostingController(rootView: view)
-        host.title = NSLocalizedString("Multihop", comment: "")
-        host.view.setAccessibilityIdentifier(.multihopView)
-
-        return .viewController(host)
+        return .childCoordinator(coordinator)
     }
 
     private func makeDAITASettingsCoordinator() -> MakeChildResult {
@@ -145,13 +147,28 @@ final class SettingsViewControllerFactory {
     private func makeNotificationSettingsCoordinator() -> MakeChildResult {
         let coordinator = NotificationSettingsCoordinator(
             navigationController: navigationController,
-            viewModel: NotificationSettingsViewModel(settings: notificationSettings)
+            viewModel: NotificationSettingsViewModel(settings: appPreferences.notificationSettings)
         )
         coordinator.didUpdateNotificationSettings = { [weak self] _, newValue in
             guard let self else { return }
-            notificationSettings = newValue
+            appPreferences.notificationSettings = newValue
             didUpdateNotificationSettings?(newValue)
         }
+
+        return .childCoordinator(coordinator)
+    }
+
+    private func makeIncludeAllNetworksSettingsCoordinator() -> MakeChildResult {
+        let viewModel = IncludeAllNetworksSettingsViewModelImpl(
+            tunnelManager: interactorFactory.tunnelManager,
+            appPreferences: appPreferences
+        )
+        let coordinator = IncludeAllNetworksSettingsCoordinator(
+            navigationController: navigationController,
+            route: .settings(.includeAllNetworks),
+            viewModel: viewModel
+        )
+
         return .childCoordinator(coordinator)
     }
 }

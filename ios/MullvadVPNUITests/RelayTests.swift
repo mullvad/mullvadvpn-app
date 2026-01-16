@@ -771,6 +771,63 @@ class RelayTests: LoggedInWithTimeUITestCase {
             .verifyNotConnectingUsingQuantumResistance()
             .tapDisconnectButton()
     }
+
+    func testIncludeAllNetworksSettings() throws {
+        addTeardownBlock {
+            HeaderBar(self.app)
+                .tapSettingsButton()
+
+            SettingsPage(self.app)
+                .tapIncludeAllNetworksCell()
+
+            IncludeAllNetworksPage(self.app)
+                .tapEnableLocalNetworkSharing()
+                .tapEnableIncludeAllNetworks()
+                .tapBackButton()
+        }
+
+        TunnelControlPage(app)
+            .tapConnectButton()
+
+        allowAddVPNConfigurationsIfAsked()
+
+        TunnelControlPage(app)
+            .waitForConnectedLabel()
+            .verifyNotConnectingUsingIncludeAllNetworks()
+            .verifyNotConnectingUsingLocalNetworkSharing()
+
+        HeaderBar(app)
+            .tapSettingsButton()
+
+        SettingsPage(app)
+            .tapIncludeAllNetworksCell()
+
+        IncludeAllNetworksPage(app)
+            .verifyFourPages()
+            .goToLastPage()
+            .verifyIncludeAllNetworksSwitchIsDisabled()
+            .verifyLocalNetworkSharingSwitchIsDisabled()
+            .tapEnableConsent()
+            .verifyIncludeAllNetworksSwitchIsEnabled()
+            .verifyLocalNetworkSharingSwitchIsDisabled()
+            .tapEnableIncludeAllNetworks()
+            .tapDismissAlert()
+            .tapDismissAlert()
+            .verifyLocalNetworkSharingSwitchIsEnabled()
+            .tapEnableLocalNetworkSharing()
+            .tapDismissAlert()
+            .tapBackButton()
+
+        SettingsPage(app)
+            .tapDoneButton()
+
+        TunnelControlPage(app)
+            .waitForConnectedLabel()
+            .tapRelayStatusExpandCollapseButton()
+            .verifyConnectingUsingIncludeAllNetworks()
+            .verifyConnectingUsingLocalNetworkSharing()
+            .tapDisconnectButton()
+    }
 }
 
 extension RelayTests {
