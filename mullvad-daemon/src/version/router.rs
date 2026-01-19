@@ -609,21 +609,21 @@ fn to_app_version_info(
     verified_installer_path: Option<PathBuf>,
 ) -> AppVersionInfo {
     let current_version_supported = cache.current_version_supported;
-    let suggested_upgrade =
-        recommended_version_upgrade(&cache.version_info, beta_program).map(|version| {
+    AppVersionInfo {
+        current_version_supported,
+        #[cfg(not(target_os = "android"))]
+        suggested_upgrade: recommended_version_upgrade(&cache.version_info, beta_program).map(|version| {
             SuggestedUpgrade {
                 version: version.version,
                 changelog: version.changelog,
                 verified_installer_path,
             }
-        });
-    AppVersionInfo {
-        current_version_supported,
-        suggested_upgrade,
+        }),
     }
 }
 
 /// Extract upgrade version from [VersionCache] based on `beta_program`
+#[cfg(not(target_os = "android"))]
 fn recommended_version_upgrade(
     version_info: &VersionInfo,
     beta_program: bool,

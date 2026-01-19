@@ -8,6 +8,7 @@ use mullvad_api::{
 };
 #[cfg(not(target_os = "android"))]
 use mullvad_update::version::Rollout;
+#[cfg(not(target_os = "android"))]
 use mullvad_update::version::{Metadata, VersionInfo};
 use mullvad_version::Version;
 use serde::{Deserialize, Serialize};
@@ -64,6 +65,8 @@ pub(super) struct VersionCache {
     pub cache_version: Version,
     /// Whether the current (installed) version is supported or an upgrade is required
     pub current_version_supported: bool,
+    // TODO: Remove on android?
+    #[cfg(not(target_os = "android"))]
     /// The latest available versions
     pub version_info: VersionInfo,
     /// When we last checked with platform headers
@@ -132,6 +135,7 @@ impl VersionUpdaterInner {
     ) {
         #[cfg(not(target_os = "android"))]
         {
+            // TODO: Why is this only for non-Android?
             new_version_info = self.ignore_cache_if_same_version(new_version_info);
         }
 
@@ -475,6 +479,7 @@ async fn version_check_inner(
     Ok(VersionCache {
         cache_version: APP_VERSION.clone(),
         current_version_supported: response.current_version_supported,
+        #[cfg(not(target_os = "android"))]
         version_info: response.version_info,
         last_platform_header_check,
         #[cfg(not(target_os = "android"))]
@@ -532,6 +537,7 @@ fn dev_version_cache() -> VersionCache {
     VersionCache {
         cache_version: mullvad_version::VERSION.parse().unwrap(),
         current_version_supported: false,
+        #[cfg(not(target_os = "android"))]
         version_info: VersionInfo {
             stable: Metadata {
                 version: mullvad_version::VERSION.parse().unwrap(),
@@ -564,6 +570,7 @@ mod test {
     /// This prevents old versions from being suggested as updates,
     /// and the current version from being labeled unsupported.
     #[test]
+    #[cfg(not(target_os = "android"))]
     fn test_invalid_cache() {
         assert!(!cache_is_stale(
             &version_cache("2025.5", "2025.5", None),
@@ -583,6 +590,7 @@ mod test {
         ));
     }
 
+    #[cfg(not(target_os = "android"))]
     fn version_cache(cache_version: &str, stable: &str, beta: Option<&str>) -> VersionCache {
         VersionCache {
             cache_version: cache_version.parse().unwrap(),
@@ -843,6 +851,7 @@ mod test {
         VersionCache {
             cache_version: mullvad_version::VERSION.parse().unwrap(),
             current_version_supported: true,
+            #[cfg(not(target_os = "android"))]
             version_info: VersionInfo {
                 stable: Metadata {
                     version: "2025.5".parse().unwrap(),

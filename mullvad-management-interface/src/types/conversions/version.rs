@@ -9,9 +9,12 @@ impl From<AppVersionInfo> for proto::AppVersionInfo {
     fn from(version_info: AppVersionInfo) -> Self {
         Self {
             supported: version_info.current_version_supported,
+            #[cfg(not(target_os = "android"))]
             suggested_upgrade: version_info
                 .suggested_upgrade
                 .map(proto::SuggestedUpgrade::from),
+            #[cfg(target_os = "android")]
+            suggested_upgrade: None,
         }
     }
 }
@@ -22,6 +25,7 @@ impl TryFrom<proto::AppVersionInfo> for AppVersionInfo {
     fn try_from(version_info: proto::AppVersionInfo) -> Result<Self, Self::Error> {
         Ok(Self {
             current_version_supported: version_info.supported,
+            #[cfg(not(target_os = "android"))]
             suggested_upgrade: version_info
                 .suggested_upgrade
                 .map(SuggestedUpgrade::try_from)

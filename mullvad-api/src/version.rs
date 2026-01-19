@@ -38,6 +38,7 @@ pub struct AppVersionResponse {
     pub etag: Option<String>,
 }
 
+// TODO: Should not be compiled on non-android targets
 /// Android releases
 #[derive(Default, Debug, Deserialize, Serialize, Clone)]
 pub struct AndroidReleases {
