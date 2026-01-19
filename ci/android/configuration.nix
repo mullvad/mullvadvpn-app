@@ -132,6 +132,9 @@
     javaPackages.compiler.openjdk17
     strace
   #  wget
+    # Temp tests
+    stress
+    lm_sensors
   ];
 
   programs.java.enable = true;
@@ -183,7 +186,12 @@
     };
   };
 
-  systemd.services."github-runner-android-runner-1".serviceConfig = {
+  systemd.services."github-runner-android-runner-1" = {
+    path = [
+      "/run/wrappers/bin"
+      "/run/current-system/sw/bin"
+    ];
+    serviceConfig = {
       DynamicUser = lib.mkForce [];
       SystemCallFilter = lib.mkForce [];
       RestrictNamespaces = lib.mkForce [];
@@ -204,36 +212,39 @@
       ProtectKernelLogs = lib.mkForce [];
       ProtectKernelModules = lib.mkForce [];
       ProtectKernelTunables = lib.mkForce [];
-      ProtectProc = lib.mkForce [];
+      ProtectProc="off";
       ProtectSystem = lib.mkForce [];
       RemoveIPC = lib.mkForce [];
       # Restart = lib.mkForce [];
       RestrictAddressFamilies = lib.mkForce [];
       RestrictRealtime = lib.mkForce [];
       RestrictSUIDSGID = lib.mkForce [];
+    };
   };
 
   services.github-runners = {
     android-runner-1 = {
       enable = true;
-      name = "android-runner-1";
+      # To be changed later, for final setup
+      name = "android-runner-1-test";
       tokenFile = "/etc/nixos/secrets/android-runner-1-token";
       url = "https://github.com/mullvad/mullvadvpn-app";
       user = "runner1";
-      group = "runners";
+      group = "runner1";
       extraPackages = with pkgs; [
         podman
         strace
       ];
       workDir = "/home/runner1/runner1";
-      # extraEnvironment = {
       #   CARGO_TARGET_VOLUME_NAME = "/home/runner1/runner1/cargo-target";
       #   CARGO_REGISTRY_VOLUME_NAME = "/home/runner1/runner1/cargo-registry";
       #   GRADLE_CACHE_VOLUME_NAME = "gradle-cache";
       # };
       # Maybe not needed, because workDir is now set?
       serviceOverrides = {
-        RuntimeDirectory = "/home/runner1/runner1";
+        # RuntimeDirectory = "/home/runner1/runner1";
+        Environment = [
+        ];
       };
     };
   };
