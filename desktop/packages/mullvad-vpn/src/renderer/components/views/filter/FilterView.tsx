@@ -7,7 +7,6 @@ import { Button } from '../../../lib/components';
 import { View } from '../../../lib/components/view';
 import { useRelaySettingsUpdater } from '../../../lib/constraint-updater';
 import { useHistory } from '../../../lib/history';
-import { IRelayLocationCountryRedux } from '../../../redux/settings/reducers';
 import { useSelector } from '../../../redux/store';
 import { AppNavigationHeader } from '../../app-navigation-header';
 import { BackAction } from '../../keyboard-navigation';
@@ -99,20 +98,5 @@ export function FilterView() {
         </NavigationContainer>
       </BackAction>
     </View>
-  );
-}
-
-// Returns all available providers in the provided relay list.
-export function providersFromRelays(relays: IRelayLocationCountryRedux[]) {
-  const providers = relays.flatMap((country) =>
-    country.cities.flatMap((city) => city.relays.map((relay) => relay.provider)),
-  );
-  return removeDuplicates(providers).sort((a, b) => a.localeCompare(b));
-}
-
-function removeDuplicates(list: string[]): string[] {
-  return list.reduce(
-    (result, current) => (result.includes(current) ? result : [...result, current]),
-    [] as string[],
   );
 }

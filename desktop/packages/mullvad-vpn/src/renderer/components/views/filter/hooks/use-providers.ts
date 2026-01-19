@@ -1,6 +1,6 @@
 import { useNormalRelaySettings } from '../../../../lib/relay-settings-hooks';
 import { useSelector } from '../../../../redux/store';
-import { providersFromRelays } from '../FilterView';
+import { providersFromRelays } from '../utils';
 
 export function useProviders(): Record<string, boolean> {
   const relaySettings = useNormalRelaySettings();
