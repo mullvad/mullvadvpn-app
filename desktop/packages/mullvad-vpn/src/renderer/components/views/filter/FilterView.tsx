@@ -3,21 +3,17 @@ import styled from 'styled-components';
 
 import { Ownership } from '../../../../shared/daemon-rpc-types';
 import { messages } from '../../../../shared/gettext';
-import { Button, Icon } from '../../../lib/components';
+import { Button } from '../../../lib/components';
 import { View } from '../../../lib/components/view';
 import { useRelaySettingsUpdater } from '../../../lib/constraint-updater';
-import { colors } from '../../../lib/foundations';
 import { useHistory } from '../../../lib/history';
 import { IRelayLocationCountryRedux } from '../../../redux/settings/reducers';
 import { useSelector } from '../../../redux/store';
 import { AppNavigationHeader } from '../../app-navigation-header';
-import * as Cell from '../../cell';
-import { normalText } from '../../common-styles';
-import { FilterAccordion } from '../../FilterAccordion';
 import { BackAction } from '../../keyboard-navigation';
 import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
-import { SettingsListbox } from '../../settings-listbox';
+import { FilterByOwnership, FilterByProvider } from './components';
 import { useFilteredOwnershipOptions, useFilteredProviders, useProviders } from './hooks';
 
 const StyledViewContent = styled(View.Content)`
@@ -112,142 +108,6 @@ export function providersFromRelays(relays: IRelayLocationCountryRedux[]) {
     country.cities.flatMap((city) => city.relays.map((relay) => relay.provider)),
   );
   return removeDuplicates(providers).sort((a, b) => a.localeCompare(b));
-}
-
-interface IFilterByOwnershipProps {
-  ownership: Ownership;
-  availableOptions: Ownership[];
-  setOwnership: (ownership: Ownership) => void;
-}
-
-function FilterByOwnership({ availableOptions, ownership, setOwnership }: IFilterByOwnershipProps) {
-  const values = useMemo(
-    () =>
-      [
-        {
-          label: messages.pgettext('filter-view', 'Mullvad owned only'),
-          value: Ownership.mullvadOwned,
-        },
-        {
-          label: messages.pgettext('filter-view', 'Rented only'),
-          value: Ownership.rented,
-        },
-      ].filter((option) => availableOptions.includes(option.value)),
-    [availableOptions],
-  );
-
-  return (
-    <FilterAccordion title={messages.pgettext('filter-view', 'Ownership')}>
-      <SettingsListbox value={ownership} onValueChange={setOwnership}>
-        <SettingsListbox.Options>
-          <SettingsListbox.BaseOption value={Ownership.any}>
-            {messages.gettext('Any')}
-          </SettingsListbox.BaseOption>
-          {values.map((option) => (
-            <SettingsListbox.BaseOption key={option.value} value={option.value}>
-              {option.label}
-            </SettingsListbox.BaseOption>
-          ))}
-        </SettingsListbox.Options>
-      </SettingsListbox>
-    </FilterAccordion>
-  );
-}
-
-interface IFilterByProviderProps {
-  providers: Record<string, boolean>;
-  availableOptions: string[];
-  setProviders: (providers: (previous: Record<string, boolean>) => Record<string, boolean>) => void;
-}
-
-function FilterByProvider(props: IFilterByProviderProps) {
-  const { setProviders } = props;
-
-  const onToggle = useCallback(
-    (provider: string) =>
-      setProviders((providers) => {
-        const newProviders = { ...providers, [provider]: !providers[provider] };
-        return props.availableOptions.every((provider) => newProviders[provider])
-          ? toggleAllProviders(providers, true)
-          : newProviders;
-      }),
-    [props.availableOptions, setProviders],
-  );
-
-  const toggleAll = useCallback(() => {
-    setProviders((providers) => toggleAllProviders(providers));
-  }, [setProviders]);
-
-  return (
-    <FilterAccordion title={messages.pgettext('filter-view', 'Providers')}>
-      <CheckboxRow
-        label={messages.pgettext('filter-view', 'All providers')}
-        $bold
-        checked={Object.values(props.providers).every((value) => value)}
-        onChange={toggleAll}
-      />
-      {Object.entries(props.providers)
-        .filter(([provider]) => props.availableOptions.includes(provider))
-        .map(([provider, checked]) => (
-          <CheckboxRow key={provider} label={provider} checked={checked} onChange={onToggle} />
-        ))}
-    </FilterAccordion>
-  );
-}
-
-function toggleAllProviders(providers: Record<string, boolean>, value?: boolean) {
-  const shouldSelect = value ?? !Object.values(providers).every((value) => value);
-  return Object.fromEntries(Object.keys(providers).map((provider) => [provider, shouldSelect]));
-}
-
-interface IStyledRowTitleProps {
-  $bold?: boolean;
-}
-
-const StyledCheckbox = styled.div({
-  width: '24px',
-  height: '24px',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  backgroundColor: colors.white,
-  borderRadius: '4px',
-});
-
-const StyledRow = styled(Cell.Row)({
-  backgroundColor: colors.blue40,
-  '&&:hover': {
-    backgroundColor: colors.blue80,
-  },
-});
-
-const StyledRowTitle = styled.label<IStyledRowTitleProps>(normalText, (props) => ({
-  fontWeight: props.$bold ? 600 : 400,
-  color: colors.white,
-  marginLeft: '22px',
-}));
-
-interface ICheckboxRowProps extends IStyledRowTitleProps {
-  label: string;
-  checked: boolean;
-  onChange: (provider: string) => void;
-}
-
-function CheckboxRow(props: ICheckboxRowProps) {
-  const { onChange } = props;
-
-  const onToggle = useCallback(() => onChange(props.label), [onChange, props.label]);
-
-  return (
-    <StyledRow onClick={onToggle}>
-      <StyledCheckbox role="checkbox" aria-label={props.label} aria-checked={props.checked}>
-        {props.checked && <Icon icon="checkmark" color="green" />}
-      </StyledCheckbox>
-      <StyledRowTitle aria-hidden $bold={props.$bold}>
-        {props.label}
-      </StyledRowTitle>
-    </StyledRow>
-  );
 }
 
 function removeDuplicates(list: string[]): string[] {
