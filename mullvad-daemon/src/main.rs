@@ -113,7 +113,7 @@ mod imp {
                     eprintln!("Note: This command may not work on non-notarized builds.");
                 }
 
-                std::process::exit(macos_launch_daemon::get_status() as i32);
+                std::process::exit(crate::macos_launch_daemon::get_status() as i32);
             }
         }
     }
