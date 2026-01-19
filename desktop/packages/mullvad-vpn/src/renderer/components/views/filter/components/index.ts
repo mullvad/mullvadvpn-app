@@ -1,3 +1,3 @@
 export * from './checkbox-row';
-export * from './filter-by-ownership';
+export * from './ownership-filter';
 export * from './filter-by-provider';
