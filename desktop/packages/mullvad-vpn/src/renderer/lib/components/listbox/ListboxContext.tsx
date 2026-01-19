@@ -32,11 +32,37 @@ export function ListboxProvider<T>({
   const TypedListboxContext = ListboxContext as React.Context<ListboxContext<T>>;
   const [focusedIndex, setFocusedIndex] = React.useState<number | undefined>(undefined);
   const optionsRef = React.useRef<HTMLUListElement>(null);
+
+  const handleOnValueChange = React.useCallback(
+    async (newValue: T) => {
+      if (!onValueChange) {
+        return;
+      }
+
+      const canSelectMultiple = Array.isArray(value);
+      const newValueIsArray = Array.isArray(newValue);
+      if (!canSelectMultiple) {
+        await onValueChange(newValue);
+      } else if (canSelectMultiple && !newValueIsArray) {
+        if (value.includes(newValue)) {
+          const nextValue: T[] = value.filter((v) => v !== newValue);
+          await onValueChange(nextValue as T);
+        } else {
+          const nextValue: T[] = [...value, newValue];
+          await onValueChange(nextValue as T);
+        }
+      } else if (canSelectMultiple && newValueIsArray) {
+        await onValueChange(newValue);
+      }
+    },
+    [onValueChange, value],
+  );
+
   return (
     <TypedListboxContext.Provider
       value={{
         value,
-        onValueChange,
+        onValueChange: handleOnValueChange,
         labelId,
         focusedIndex,
         setFocusedIndex,
