@@ -3,7 +3,7 @@ import { useMemo } from 'react';
 import { Ownership } from '../../../../../shared/daemon-rpc-types';
 import { filterLocations } from '../../../../lib/filter-locations';
 import { useSelector } from '../../../../redux/store';
-import { providersFromRelays } from '../FilterView';
+import { providersFromRelays } from '../utils';
 
 // Returns only the providers that are compatible with the other filters
 
