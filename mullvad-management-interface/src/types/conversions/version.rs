@@ -1,5 +1,3 @@
-use std::path::PathBuf;
-
 use crate::types::proto;
 use mullvad_types::version::*;
 
@@ -9,9 +7,12 @@ impl From<AppVersionInfo> for proto::AppVersionInfo {
     fn from(version_info: AppVersionInfo) -> Self {
         Self {
             supported: version_info.current_version_supported,
+            #[cfg(not(target_os = "android"))]
             suggested_upgrade: version_info
                 .suggested_upgrade
                 .map(proto::SuggestedUpgrade::from),
+            #[cfg(target_os = "android")]
+            suggested_upgrade: None,
         }
     }
 }
@@ -22,6 +23,7 @@ impl TryFrom<proto::AppVersionInfo> for AppVersionInfo {
     fn try_from(version_info: proto::AppVersionInfo) -> Result<Self, Self::Error> {
         Ok(Self {
             current_version_supported: version_info.supported,
+            #[cfg(not(target_os = "android"))]
             suggested_upgrade: version_info
                 .suggested_upgrade
                 .map(SuggestedUpgrade::try_from)
@@ -30,6 +32,7 @@ impl TryFrom<proto::AppVersionInfo> for AppVersionInfo {
     }
 }
 
+#[cfg(not(target_os = "android"))]
 impl From<SuggestedUpgrade> for proto::SuggestedUpgrade {
     fn from(suggested_upgrade: SuggestedUpgrade) -> Self {
         Self {
@@ -42,6 +45,7 @@ impl From<SuggestedUpgrade> for proto::SuggestedUpgrade {
     }
 }
 
+#[cfg(not(target_os = "android"))]
 impl TryFrom<proto::SuggestedUpgrade> for SuggestedUpgrade {
     type Error = FromProtobufTypeError;
 
@@ -52,7 +56,7 @@ impl TryFrom<proto::SuggestedUpgrade> for SuggestedUpgrade {
         })?;
         let verified_installer_path = suggested_upgrade
             .verified_installer_path
-            .map(|path| PathBuf::from(&path));
+            .map(|path| std::path::PathBuf::from(&path));
 
         Ok(Self {
             version,

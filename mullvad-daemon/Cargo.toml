@@ -40,7 +40,6 @@ mullvad-encrypted-dns-proxy = { path = "../mullvad-encrypted-dns-proxy" }
 mullvad-fs = { path = "../mullvad-fs" }
 mullvad-paths = { path = "../mullvad-paths" }
 mullvad-version = { path = "../mullvad-version" }
-mullvad-update = { path = "../mullvad-update", features = ["client"] }
 mullvad-leak-checker = { path = "../mullvad-leak-checker", default-features = false }
 talpid-core = { path = "../talpid-core" }
 talpid-dns = { path = "../talpid-dns" }
@@ -85,6 +84,9 @@ windows-service = "0.6.0"
 winapi = { version = "0.3", features = ["winnt", "excpt", "winerror"] }
 dirs = { workspace = true }
 talpid-windows = { path = "../talpid-windows" }
+
+[target.'cfg(any(unix, windows))'.dependencies]
+mullvad-update = { path = "../mullvad-update", features = ["client"] }
 
 [target.'cfg(windows)'.dependencies.windows-sys]
 workspace = true
