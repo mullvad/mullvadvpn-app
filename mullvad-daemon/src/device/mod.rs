@@ -1402,7 +1402,7 @@ mod test {
     fn test_device_check_reset() {
         let can_retry = Arc::new(AtomicBool::new(false));
         // Transitioning to the 'Disconnected' state counts as breaking the 'connection loop'
-        let new_tunnel_state = TunnelStateTransition::Disconnected { locked_down: false };
+        let new_tunnel_state = TunnelStateTransition::Disconnected { #[cfg(not(target_os = "android"))] locked_down: false };
         TunnelStateChangeHandler::update_retry_bool(&new_tunnel_state, can_retry.clone());
 
         assert!(
