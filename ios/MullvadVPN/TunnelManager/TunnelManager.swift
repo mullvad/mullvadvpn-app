@@ -1117,17 +1117,18 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
     }
 
     /// Update polling state based on NEVPNStatus (the source of truth).
-    /// Poll continuously while tunnel is not disconnected/invalid.
+    /// Poll continuously while tunnel is not disconnected, disconnecting, or invalid.
     private func updatePollingFromVPNStatus(_ status: NEVPNStatus) {
         switch status {
+        case .disconnecting, .disconnected, .invalid:
+            cancelPollingTunnelStatus()
         case .connecting, .reasserting:
             startPollingTunnelStatus(interval: establishingTunnelStatusPollInterval)
         case .connected:
             startPollingTunnelStatus(interval: establishedTunnelStatusPollInterval)
-        case .disconnecting, .disconnected, .invalid:
-            cancelPollingTunnelStatus()
         @unknown default:
-            break
+            // For any unknown future states, assume it's an active state and poll
+            startPollingTunnelStatus(interval: establishedTunnelStatusPollInterval)
         }
     }
 
