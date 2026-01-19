@@ -169,7 +169,6 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
         setTunnelNetworkSettings(
             initialTunnelNetworkSettings(),
             completionHandler: { error in
-                completionHandler(error)
                 if let error {
                     self.providerLogger
                         .error(
@@ -178,6 +177,9 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
                 } else {
                     self.providerLogger.debug("Starting actor after initial configuration is applied")
                     self.actor.start(options: startOptions)
+                }
+                self.internalQueue.async {
+                    completionHandler(error)
                 }
             })
     }
