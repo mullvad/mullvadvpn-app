@@ -71,6 +71,16 @@
   services.pulseaudio.enable = false;
   security.rtkit.enable = true;
 
+  # These 2 lines might help us with the newuidmap permission error:
+  security.wrappers.newuidmap = {
+    setuid = lib.mkForce false;
+    capabilities = "cap_setuid+ep";
+  };
+  security.wrappers.newgidmap = {
+    setuid = lib.mkForce false;
+    capabilities = "cap_setgid+ep";
+  };
+
   services.pipewire = {
     enable = true;
     alsa.enable = true;
@@ -105,6 +115,8 @@
     group = "runner1";
     subUidRanges = [ { startUid = 100000; count = 65536; } ];
     subGidRanges = [ { startGid = 100000; count = 65536; } ];
+    # needed for podman
+    linger = true;
   };
 
   users.groups.runner-admin = {};
@@ -116,6 +128,7 @@
 
   # Install firefox.
   programs.firefox.enable = true;
+  # programs.shadow.setuid = false;
 
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
@@ -135,6 +148,7 @@
     # Temp tests
     stress
     lm_sensors
+    slirp4netns
   ];
 
   programs.java.enable = true;
@@ -159,6 +173,7 @@
       enable = true;
       dockerCompat = true;
       defaultNetwork.settings.dns_enabled = true;
+      defaultNetwork.settings.driver = "slirp4netns";
     };
   };
   # virtualisation.oci-containers.backend = "podman"
@@ -188,8 +203,8 @@
 
   systemd.services."github-runner-android-runner-1" = {
     path = [
-      "/run/wrappers/bin"
-      "/run/current-system/sw/bin"
+      "/run/wrappers"
+      "/run/current-system/sw"
     ];
     serviceConfig = {
       DynamicUser = lib.mkForce [];
