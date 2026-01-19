@@ -13,7 +13,7 @@ class RotateScreenMockApiTest : MockApiTest() {
     @Test
     fun testRotatingTheDeviceDoesNotCrashTheApp() {
         val validAccountNumber = "1234123412341234"
-        apiDispatcher.apply {
+        apiRouter.apply {
             expectedAccountNumber = validAccountNumber
             accountExpiry = ZonedDateTime.now().plusMonths(1)
             devices = ALMOST_FULL_DEVICE_LIST.toMutableMap()
