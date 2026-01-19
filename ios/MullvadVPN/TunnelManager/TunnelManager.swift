@@ -58,7 +58,6 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
     private weak var lastMapConnectionStatusOperation: Operation?
     private let observerList = ObserverList<TunnelObserver>()
     private var networkMonitor: NWPathMonitor?
-    private var pendingNetworkPathUpdate: DispatchWorkItem?
     private let relaySelector: RelaySelectorProtocol
 
     private var pendingNetworkPathUpdate: DispatchWorkItem?
@@ -878,6 +877,10 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
                 // Control polling based on NEVPNStatus directly (the source of truth),
                 // not the derived tunnelStatus.state which can be stale.
                 self.updatePollingFromVPNStatus(status)
+
+                // Update tunnel status for all state changes to ensure UI reflects
+                // disconnecting and disconnected states immediately.
+                self.updateTunnelStatus(status)
             }
     }
 
@@ -980,10 +983,6 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
         operation.addCondition(
             MutuallyExclusive(category: OperationCategory.tunnelStateUpdate.category)
         )
-
-        // Cancel last VPN status mapping operation
-//        lastMapConnectionStatusOperation?.cancel()
-//        lastMapConnectionStatusOperation = operation
 
         operationQueue.addOperation(operation)
     }
