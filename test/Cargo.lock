@@ -1979,7 +1979,6 @@ dependencies = [
  "mullvad-api-constants",
  "mullvad-encrypted-dns-proxy",
  "mullvad-fs",
- "mullvad-release-android",
  "mullvad-types",
  "mullvad-update",
  "mullvad-version",
@@ -2069,20 +2068,6 @@ dependencies = [
  "rand 0.9.1",
  "talpid-types",
  "thiserror 2.0.3",
-]
-
-[[package]]
-name = "mullvad-release-android"
-version = "0.0.0"
-dependencies = [
- "anyhow",
- "clap",
- "mullvad-api-constants",
- "mullvad-version",
- "reqwest",
- "serde",
- "serde_json",
- "tokio",
 ]
 
 [[package]]
