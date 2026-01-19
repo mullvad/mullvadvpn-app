@@ -6,6 +6,8 @@ use http::header;
 #[cfg(not(target_os = "android"))]
 use mullvad_update::format::response::SignedResponse;
 #[cfg(not(target_os = "android"))]
+use mullvad_update::version::VersionInfo;
+#[cfg(not(target_os = "android"))]
 use mullvad_update::version::{Rollout, VersionParameters, is_version_supported};
 #[cfg(target_os = "android")]
 use mullvad_version::Version;

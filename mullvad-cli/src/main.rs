@@ -1,18 +1,20 @@
-fn main() {
+#[cfg(not(target_os = "android"))]
+pub(crate) mod cmds;
+#[cfg(not(target_os = "android"))]
+pub(crate) mod format;
+
+fn main() -> anyhow::Result<()> {
     #[cfg(not(target_os = "android"))]
-    imp::main();
+    imp::main()?;
+    Ok(())
 }
+
 #[cfg(not(target_os = "android"))]
 mod imp {
     use anyhow::Result;
-
     use clap::Parser;
 
-    use cmds::*;
-
-    pub(crate) mod cmds;
-
-    pub(crate) mod format;
+    use super::cmds::*;
 
     pub const BIN_NAME: &str = env!("CARGO_BIN_NAME");
 
