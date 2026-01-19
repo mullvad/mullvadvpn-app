@@ -1,3 +1,15 @@
+#[cfg(not(target_os = "android"))]
+pub(crate) mod cli;
+
+#[cfg(target_os = "linux")]
+pub(crate) mod early_boot_firewall;
+
+#[cfg(target_os = "macos")]
+pub(crate) mod macos_launch_daemon;
+
+#[cfg(windows)]
+pub(crate) mod system_service;
+
 fn main() {
     #[cfg(not(target_os = "android"))]
     imp::main()
@@ -13,21 +25,12 @@ mod imp {
     use mullvad_daemon::{
         Daemon, DaemonCommandChannel, DaemonConfig, exception_logging,
         logging::{self, LogLocation},
-        runtime, version,
+        rpc_uniqueness_check, runtime, version,
     };
 
     use talpid_types::ErrorExt;
 
-    pub(crate) mod cli;
-
-    #[cfg(target_os = "linux")]
-    pub(crate) mod early_boot_firewall;
-
-    #[cfg(target_os = "macos")]
-    pub(crate) mod macos_launch_daemon;
-
-    #[cfg(windows)]
-    pub(crate) mod system_service;
+    use crate::cli;
 
     #[cfg(target_os = "linux")]
     pub(crate) const EARLY_BOOT_LOG_FILENAME: &str = "early-boot-fw.log";
@@ -54,7 +57,9 @@ mod imp {
     pub(crate) fn new_runtime() -> tokio::runtime::Runtime {
         let mut builder = match cli::get_config().command {
             #[cfg(target_os = "windows")]
-            cli::Command::RunAsService | cli::Command::RegisterService => runtime::new_current_thread(),
+            cli::Command::RunAsService | cli::Command::RegisterService => {
+                runtime::new_current_thread()
+            }
             _ => runtime::new_multi_thread(),
         };
 
@@ -201,7 +206,9 @@ mod imp {
         cleanup_old_rpc_socket(mullvad_paths::get_rpc_socket_path()).await;
 
         if !running_as_admin() {
-            log::warn!("Running daemon as a non-administrator user, clients might refuse to connect");
+            log::warn!(
+                "Running daemon as a non-administrator user, clients might refuse to connect"
+            );
         }
 
         let daemon = create_daemon(log_dir, log_handle).await?;
@@ -214,8 +221,10 @@ mod imp {
         .map_err(|e| e.display_chain())?;
 
         #[cfg(any(windows, target_os = "android"))]
-        mullvad_daemon::shutdown::set_shutdown_signal_handler(move || shutdown_handle.shutdown(true))
-            .map_err(|e| e.display_chain())?;
+        mullvad_daemon::shutdown::set_shutdown_signal_handler(move || {
+            shutdown_handle.shutdown(true)
+        })
+        .map_err(|e| e.display_chain())?;
 
         daemon.run().await.map_err(|e| e.display_chain())?;
 
