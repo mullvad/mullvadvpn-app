@@ -124,6 +124,7 @@
   # $ nix search wget
   environment.systemPackages = with pkgs; [
     neovim
+    ncdu
     github-runner
     htop
     podman
@@ -224,10 +225,15 @@
         podman
         strace
       ];
-      extraEnvironment = {
-        CARGO_TARGET_VOLUME_NAME = "/home/runner1/runner1/cargo-target";
-        CARGO_REGISTRY_VOLUME_NAME = "/home/runner1/runner1/cargo-registry";
-        GRADLE_CACHE_VOLUME_NAME = "/home/runner1/runner1/gradle-cache";
+      workDir = "/home/runner1/runner1";
+      # extraEnvironment = {
+      #   CARGO_TARGET_VOLUME_NAME = "/home/runner1/runner1/cargo-target";
+      #   CARGO_REGISTRY_VOLUME_NAME = "/home/runner1/runner1/cargo-registry";
+      #   GRADLE_CACHE_VOLUME_NAME = "gradle-cache";
+      # };
+      # Maybe not needed, because workDir is now set?
+      serviceOverrides = {
+        RuntimeDirectory = "/home/runner1/runner1";
       };
     };
   };
