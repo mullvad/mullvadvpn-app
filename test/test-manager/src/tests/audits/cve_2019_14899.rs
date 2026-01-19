@@ -133,11 +133,7 @@ pub async fn test_cve_2019_14899_mitigation(
 
     let rst_packet = select! {
         result = filter_for_packet(&socket, filter, Duration::from_secs(5)).fuse() => result?,
-
-        result = spam_packet(&socket, host_interface_index, &malicious_packet).fuse() => match result {
-            Err(e) => return Err(e),
-            Ok(never) => match never {}, // I dream of ! being stabilized
-        },
+        Err(e) = spam_packet(&socket, host_interface_index, &malicious_packet).fuse() => return Err(e),
     };
 
     if let Some(rst_packet) = rst_packet {
