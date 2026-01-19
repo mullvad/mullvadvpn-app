@@ -97,11 +97,13 @@ service ManagementService {
   rpc GetBridges(google.protobuf.Empty) returns (BridgeList) {}
 
   // Split tunneling (Linux)
-  rpc SplitTunnelIsSupported(google.protobuf.Empty) returns (google.protobuf.BoolValue) {}
   rpc GetSplitTunnelProcesses(google.protobuf.Empty) returns (stream google.protobuf.Int32Value) {}
   rpc AddSplitTunnelProcess(google.protobuf.Int32Value) returns (google.protobuf.Empty) {}
   rpc RemoveSplitTunnelProcess(google.protobuf.Int32Value) returns (google.protobuf.Empty) {}
   rpc ClearSplitTunnelProcesses(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+
+  // Split tunneling (Linux, Windows)
+  rpc SplitTunnelIsSupported(google.protobuf.Empty) returns (google.protobuf.BoolValue) {}
 
   // Split tunneling (Windows, macOS, Android)
   rpc AddSplitTunnelApp(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
