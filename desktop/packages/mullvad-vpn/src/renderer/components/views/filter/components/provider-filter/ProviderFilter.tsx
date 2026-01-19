@@ -10,7 +10,7 @@ interface IFilterByProviderProps {
   setProviders: (providers: (previous: Record<string, boolean>) => Record<string, boolean>) => void;
 }
 
-export function FilterByProvider(props: IFilterByProviderProps) {
+export function ProviderFilter(props: IFilterByProviderProps) {
   const { setProviders } = props;
 
   const onToggle = useCallback(
