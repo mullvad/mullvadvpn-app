@@ -1088,10 +1088,9 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
     // MARK: - Tunnel status polling
 
     private func startPollingTunnelStatus(interval: Duration) {
-        /*
-         Ignore idempotency, otherwise the timer will not be using the correct time interval
-         when switching between states, until the tunnel disconnects.
-         */
+        guard !isPolling else {
+            return
+        }
         isPolling = true
         tunnelStatusPollTimer?.cancel()
 
