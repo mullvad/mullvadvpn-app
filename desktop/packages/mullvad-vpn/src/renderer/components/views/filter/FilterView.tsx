@@ -12,7 +12,7 @@ import { AppNavigationHeader } from '../../app-navigation-header';
 import { BackAction } from '../../keyboard-navigation';
 import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
-import { FilterByProvider, OwnershipFilter } from './components';
+import { OwnershipFilter, ProviderFilter } from './components';
 import { useFilteredOwnershipOptions, useFilteredProviders, useProviders } from './hooks';
 
 const StyledViewContent = styled(View.Content)`
@@ -79,7 +79,7 @@ export function FilterView() {
                   availableOptions={availableOwnershipOptions}
                   setOwnership={setOwnership}
                 />
-                <FilterByProvider
+                <ProviderFilter
                   providers={providers}
                   availableOptions={availableProviders}
                   setProviders={setProviders}
