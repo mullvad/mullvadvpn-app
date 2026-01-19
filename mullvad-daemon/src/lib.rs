@@ -366,7 +366,7 @@ pub enum DaemonCommand {
     #[cfg(not(target_os = "android"))]
     FactoryReset(ResponseTx<(), Error>),
     /// Return whether split tunneling is available
-    #[cfg(target_os = "linux")]
+    #[cfg(any(target_os = "linux", target_os = "windows"))]
     SplitTunnelIsSupported(oneshot::Sender<bool>),
     /// Request list of processes excluded from the tunnel
     #[cfg(target_os = "linux")]
@@ -1559,7 +1559,7 @@ impl Daemon {
             GetCurrentVersion(tx) => self.on_get_current_version(tx),
             #[cfg(not(target_os = "android"))]
             FactoryReset(tx) => self.on_factory_reset(tx).await,
-            #[cfg(target_os = "linux")]
+            #[cfg(any(target_os = "linux", target_os = "windows"))]
             SplitTunnelIsSupported(tx) => self.on_split_tunnel_is_supported(tx),
             #[cfg(target_os = "linux")]
             GetSplitTunnelProcesses(tx) => self.on_get_split_tunnel_processes(tx),
@@ -2199,6 +2199,15 @@ impl Daemon {
                 .unwrap_or(Ok(()));
             Self::oneshot_send(tx, result, "factory_reset response");
         }));
+    }
+
+    #[cfg(target_os = "windows")]
+    fn on_split_tunnel_is_supported(&mut self, tx: oneshot::Sender<bool>) {
+        Self::oneshot_send(
+            tx,
+            self.tunnel_state_machine_handle.split_tunnel().is_loaded(),
+            "split_tunnel_is_supported response",
+        );
     }
 
     #[cfg(target_os = "linux")]
