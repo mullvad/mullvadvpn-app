@@ -1,5 +1,3 @@
-use std::path::PathBuf;
-
 use crate::types::proto;
 use mullvad_types::version::*;
 
@@ -58,7 +56,7 @@ impl TryFrom<proto::SuggestedUpgrade> for SuggestedUpgrade {
         })?;
         let verified_installer_path = suggested_upgrade
             .verified_installer_path
-            .map(|path| PathBuf::from(&path));
+            .map(|path| std::path::PathBuf::from(&path));
 
         Ok(Self {
             version,

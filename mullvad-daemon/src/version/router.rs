@@ -604,6 +604,7 @@ async fn wait_for_update(state: &mut State) -> Option<AppVersionInfo> {
 
 /// Extract [`AppVersionInfo`], containing upgrade version and `current_version_supported`
 /// from [VersionCache] and beta program state.
+#[cfg_attr(not(in_app_upgrade), expect(unused_variables))]
 fn to_app_version_info(
     cache: &VersionCache,
     beta_program: bool,
