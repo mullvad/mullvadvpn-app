@@ -4,17 +4,11 @@ use anyhow::Context;
 use http::StatusCode;
 use http::header;
 #[cfg(not(target_os = "android"))]
-use mullvad_update::format::response::SignedResponse;
-#[cfg(target_os = "android")]
-use mullvad_update::version::Metadata;
-use mullvad_update::version::VersionInfo;
-#[cfg(not(target_os = "android"))]
-use mullvad_update::version::{Rollout, VersionParameters, is_version_supported};
-#[cfg(target_os = "android")]
-use mullvad_version::Version;
+use mullvad_update::{
+    format::response::SignedResponse,
+    version::{Rollout, VersionInfo, VersionParameters, is_version_supported},
+};
 use serde::{Deserialize, Serialize};
-#[cfg(target_os = "android")]
-use std::cmp::Ordering;
 use std::future::Future;
 use std::str::FromStr;
 use std::sync::Arc;
@@ -27,6 +21,7 @@ pub struct AppVersionProxy {
 /// Reply from `/app/releases/<platform>.json` endpoint
 pub struct AppVersionResponse {
     /// Information about available versions for the current target
+    #[cfg(not(target_os = "android"))]
     pub version_info: VersionInfo,
     /// Index of the metadata version used to sign the response.
     /// Used to prevent replay/downgrade attacks.
@@ -44,6 +39,7 @@ pub struct AndroidReleases {
     /// Available app releases
     pub releases: Vec<Release>,
 }
+
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq, PartialOrd)]
 pub struct Release {
     /// Mullvad app version
@@ -164,20 +160,12 @@ impl AppVersionProxy {
                 .context("Invalid version JSON")
                 .map_err(|err| rest::Error::FetchVersions(Arc::new(err)))?;
 
-            let current_version = Version::from_str(mullvad_version::VERSION).unwrap();
+            let current_version =
+                mullvad_version::Version::from_str(mullvad_version::VERSION).unwrap();
             let current_version_supported =
                 is_version_supported_android(&current_version, &response);
 
-            let params = response
-                .releases
-                .iter()
-                .map(|release| release.clone().version)
-                .collect::<Vec<_>>();
-
             Ok(Some(AppVersionResponse {
-                version_info: find_latest_versions(params)
-                    .map_err(Arc::new)
-                    .map_err(rest::Error::FetchVersions)?,
                 current_version_supported,
                 etag,
             }))
@@ -196,45 +184,6 @@ impl AppVersionProxy {
                 }
             })
     }
-}
-
-/// Helper method for android to figure out the latest stable and beta version
-/// This is a scaled down version to the desktop one as it does not need to worry about rollout etc.
-#[cfg(target_os = "android")]
-fn find_latest_versions(versions: Vec<Version>) -> anyhow::Result<VersionInfo> {
-    // Find latest stable version
-    let stable = versions
-        .iter()
-        .clone()
-        .filter(|v| v.is_stable())
-        .max_by(|a, b| a.partial_cmp(b).unwrap_or(Ordering::Equal))
-        .context("No stable version found")?;
-
-    // Find the latest beta version
-    let beta = versions
-        .iter()
-        .filter(|v| v.is_beta())
-        .filter(|v| !v.is_dev())
-        // If the latest beta version is older than latest stable, dispose of it
-        .filter(|v| v > &stable)
-        .max_by(|a, b| a.partial_cmp(b).unwrap_or(Ordering::Equal));
-
-    Ok(VersionInfo {
-        stable: Metadata {
-            version: stable.clone(),
-            urls: vec![],
-            size: 0,
-            changelog: "".to_string(),
-            sha256: [0; 32],
-        },
-        beta: beta.map(|b| Metadata {
-            version: b.clone(),
-            urls: vec![],
-            size: 0,
-            changelog: "".to_string(),
-            sha256: [0; 32],
-        }),
-    })
 }
 
 pub fn is_version_supported_android(
