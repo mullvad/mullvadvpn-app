@@ -16,7 +16,8 @@ mod imp {
 
     use super::cmds::*;
 
-    pub const BIN_NAME: &str = env!("CARGO_BIN_NAME");
+    #[cfg(all(unix, not(target_os = "android")))]
+    const BIN_NAME: &str = env!("CARGO_BIN_NAME");
 
     #[derive(Debug, Parser)]
     #[command(author, version = mullvad_version::VERSION, about, long_about = None)]

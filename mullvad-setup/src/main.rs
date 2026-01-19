@@ -29,7 +29,8 @@ mod imp {
     pub(crate) static APP_VERSION: LazyLock<Version> =
         LazyLock::new(|| Version::from_str(mullvad_version::VERSION).unwrap());
 
-    pub(crate) const DEVICE_REMOVAL_STRATEGY: ConstantInterval = ConstantInterval::new(Duration::ZERO, Some(5));
+    pub(crate) const DEVICE_REMOVAL_STRATEGY: ConstantInterval =
+        ConstantInterval::new(Duration::ZERO, Some(5));
 
     #[repr(i32)]
     pub(crate) enum ExitStatus {
@@ -42,7 +43,7 @@ mod imp {
     impl From<Error> for ExitStatus {
         fn from(error: Error) -> ExitStatus {
             match error {
-                Error::RpcConnectionError(_) => ExitStatus::DaemonNotRunning,
+                Error::RpcConnection(_) => ExitStatus::DaemonNotRunning,
                 _ => ExitStatus::Error,
             }
         }
@@ -51,37 +52,37 @@ mod imp {
     #[derive(thiserror::Error, Debug)]
     pub enum Error {
         #[error("Failed to connect to RPC client")]
-        RpcConnectionError(#[source] mullvad_management_interface::Error),
+        RpcConnection(#[source] mullvad_management_interface::Error),
 
         #[error("RPC call failed")]
-        DaemonRpcError(#[source] mullvad_management_interface::Error),
+        DaemonRpc(#[source] mullvad_management_interface::Error),
 
         #[error("This command cannot be run if the daemon is active")]
         DaemonIsRunning,
 
         #[error("Firewall error")]
-        FirewallError(#[source] firewall::Error),
+        Firewall(#[source] firewall::Error),
 
         #[error("Failed to initialize mullvad RPC runtime")]
-        RpcInitializationError(#[source] mullvad_api::Error),
+        RpcInitialization(#[source] mullvad_api::Error),
 
         #[error("Failed to remove device from account")]
-        RemoveDeviceError(#[source] mullvad_api::rest::Error),
+        RemoveDevice(#[source] mullvad_api::rest::Error),
 
         #[error("Failed to obtain settings directory path")]
-        SettingsPathError(#[source] mullvad_paths::Error),
+        SettingsPath(#[source] mullvad_paths::Error),
 
         #[error("Failed to obtain cache directory path")]
-        CachePathError(#[source] mullvad_paths::Error),
+        CachePath(#[source] mullvad_paths::Error),
 
         #[error("Failed to read the device cache")]
-        ReadDeviceCacheError(#[source] mullvad_daemon::device::Error),
+        ReadDeviceCache(#[source] mullvad_daemon::device::Error),
 
         #[error("Failed to write the device cache")]
-        WriteDeviceCacheError(#[source] mullvad_daemon::device::Error),
+        WriteDeviceCache(#[source] mullvad_daemon::device::Error),
 
         #[error("Cannot parse the version string")]
-        ParseVersionStringError,
+        ParseVersionString,
 
         #[cfg(target_os = "windows")]
         #[error("Failed to start system service")]
@@ -159,7 +160,7 @@ mod imp {
 
     pub(crate) fn is_older_version(old_version: &str) -> Result<ExitStatus, Error> {
         let parsed_version =
-            Version::from_str(old_version).map_err(|_| Error::ParseVersionStringError)?;
+            Version::from_str(old_version).map_err(|_| Error::ParseVersionString)?;
 
         Ok(if *APP_VERSION > parsed_version {
             ExitStatus::Ok
@@ -171,8 +172,8 @@ mod imp {
     pub(crate) async fn prepare_restart() -> Result<(), Error> {
         let mut rpc = MullvadProxyClient::new()
             .await
-            .map_err(Error::RpcConnectionError)?;
-        rpc.prepare_restart().await.map_err(Error::DaemonRpcError)?;
+            .map_err(Error::RpcConnection)?;
+        rpc.prepare_restart().await.map_err(Error::DaemonRpc)?;
         Ok(())
     }
 
@@ -191,21 +192,21 @@ mod imp {
             #[cfg(target_os = "linux")]
             None,
         )
-        .map_err(Error::FirewallError)?
+        .map_err(Error::Firewall)?
         .reset_policy()
-        .map_err(Error::FirewallError)
+        .map_err(Error::Firewall)
     }
 
     pub(crate) async fn remove_device() -> Result<(), Error> {
         let (cache_path, settings_path) = get_paths()?;
         let (cacher, state) = mullvad_daemon::device::DeviceCacher::new(&settings_path)
             .await
-            .map_err(Error::ReadDeviceCacheError)?;
+            .map_err(Error::ReadDeviceCache)?;
         if let Some(device) = state.into_device() {
             let api_runtime =
                 mullvad_api::Runtime::with_cache(&ApiEndpoint::from_env_vars(), &cache_path, false)
                     .await
-                    .map_err(Error::RpcInitializationError)?;
+                    .map_err(Error::RpcInitialization)?;
 
             let connection_mode = ApiConnectionMode::try_from_cache(&cache_path).await;
             let proxy = mullvad_api::DevicesProxy::new(
@@ -225,24 +226,23 @@ mod imp {
             // `DEVICE_NOT_FOUND` is not considered to be an error in this context.
             match device_removal {
                 Ok(_) => Ok(()),
-                Err(mullvad_api::rest::Error::ApiError(_status, code)) if code == DEVICE_NOT_FOUND => {
+                Err(mullvad_api::rest::Error::ApiError(_status, code))
+                    if code == DEVICE_NOT_FOUND =>
+                {
                     Ok(())
                 }
-                Err(e) => Err(Error::RemoveDeviceError(e)),
+                Err(e) => Err(Error::RemoveDevice(e)),
             }?;
 
-            cacher
-                .remove()
-                .await
-                .map_err(Error::WriteDeviceCacheError)?;
+            cacher.remove().await.map_err(Error::WriteDeviceCache)?;
         }
 
         Ok(())
     }
 
     pub(crate) fn get_paths() -> Result<(PathBuf, PathBuf), Error> {
-        let cache_path = mullvad_paths::cache_dir().map_err(Error::CachePathError)?;
-        let settings_path = mullvad_paths::settings_dir().map_err(Error::SettingsPathError)?;
+        let cache_path = mullvad_paths::cache_dir().map_err(Error::CachePath)?;
+        let settings_path = mullvad_paths::settings_dir().map_err(Error::SettingsPath)?;
         Ok((cache_path, settings_path))
     }
 }
