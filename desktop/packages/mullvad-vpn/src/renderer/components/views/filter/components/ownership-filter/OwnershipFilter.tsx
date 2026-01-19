@@ -11,7 +11,7 @@ interface IFilterByOwnershipProps {
   setOwnership: (ownership: Ownership) => void;
 }
 
-export function FilterByOwnership({
+export function OwnershipFilter({
   availableOptions,
   ownership,
   setOwnership,
