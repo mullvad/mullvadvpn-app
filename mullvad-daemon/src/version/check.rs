@@ -106,20 +106,20 @@ impl VersionUpdater {
             VersionUpdaterInner {
                 last_app_version_info,
             }
-            .run(
-                refresh_rx,
-                UpdateContext {
-                    cache_path,
-                    update_sender,
-                },
-                ApiContext {
-                    api_handle: availability_handle,
-                    version_proxy,
-                    platform_version,
-                },
-                #[cfg(not(target_os = "android"))]
-                rollout,
-            ),
+                .run(
+                    refresh_rx,
+                    UpdateContext {
+                        cache_path,
+                        update_sender,
+                    },
+                    ApiContext {
+                        api_handle: availability_handle,
+                        version_proxy,
+                        platform_version,
+                        #[cfg(not(target_os = "android"))]
+                        rollout,
+                    },
+                ),
         );
     }
 }
@@ -183,7 +183,6 @@ impl VersionUpdaterInner {
         mut refresh_rx: mpsc::UnboundedReceiver<()>,
         update: UpdateContext,
         api: ApiContext,
-        #[cfg(not(target_os = "android"))] rollout: Rollout,
     ) {
         // If this is a dev build, there's no need to pester the API for version checks.
         if !*CHECK_ENABLED {
@@ -195,21 +194,9 @@ impl VersionUpdaterInner {
         }
 
         let update = |info| Box::pin(update.update(info)) as BoxFuture<'static, _>;
-        let do_version_check = |prev_cache| {
-            do_version_check(
-                api.clone(),
-                prev_cache,
-                #[cfg(not(target_os = "android"))]
-                rollout,
-            )
-        };
+        let do_version_check = |prev_cache| { do_version_check(api.clone(), prev_cache) };
         let do_version_check_in_background = |prev_cache| {
-            do_version_check_in_background(
-                api.clone(),
-                prev_cache,
-                #[cfg(not(target_os = "android"))]
-                rollout,
-            )
+            do_version_check_in_background(api.clone(), prev_cache)
         };
 
         self.run_inner(
@@ -326,24 +313,15 @@ struct ApiContext {
     api_handle: ApiAvailability,
     version_proxy: AppVersionProxy,
     platform_version: String,
+    #[cfg(not(target_os = "android"))]
+    rollout: Rollout,
 }
 
 /// Immediately query the API for the latest [AppVersionInfo].
-fn do_version_check(
-    api: ApiContext,
-    prev_cache: Option<VersionCache>,
-    #[cfg(not(target_os = "android"))] rollout: Rollout,
-) -> BoxFuture<'static, Result<VersionCache, Error>> {
+fn do_version_check(api: ApiContext, prev_cache: Option<VersionCache>) -> BoxFuture<'static, Result<VersionCache, Error>> {
     let api_handle = api.api_handle.clone();
 
-    let download_future_factory = move || {
-        version_check_inner(
-            api.clone(),
-            prev_cache.clone(),
-            #[cfg(not(target_os = "android"))]
-            rollout,
-        )
-    };
+    let download_future_factory = move || { version_check_inner(api.clone(), prev_cache.clone()) };
 
     // retry immediately on network errors (unless we're offline)
     let should_retry_immediate = move |result: &Result<_, Error>| {
@@ -365,15 +343,9 @@ fn do_version_check(
 fn do_version_check_in_background(
     api: ApiContext,
     cache: Option<VersionCache>,
-    #[cfg(not(target_os = "android"))] rollout: Rollout,
 ) -> BoxFuture<'static, Result<VersionCache, Error>> {
     let when_available = api.api_handle.wait_background();
-    let version_cache = version_check_inner(
-        api,
-        cache,
-        #[cfg(not(target_os = "android"))]
-        rollout,
-    );
+    let version_cache = version_check_inner(api, cache);
     Box::pin(async move {
         when_available.await.map_err(Error::ApiCheck)?;
         version_cache.await
@@ -382,11 +354,7 @@ fn do_version_check_in_background(
 
 #[cfg(not(target_os = "android"))]
 /// Fetch new version endpoint
-async fn version_check_inner(
-    api: ApiContext,
-    cache: Option<VersionCache>,
-    rollout: Rollout,
-) -> Result<VersionCache, Error> {
+async fn version_check_inner(api: ApiContext, cache: Option<VersionCache>) -> Result<VersionCache, Error> {
     let architecture = match talpid_platform_metadata::get_native_arch()
         .expect("IO error while getting native architecture")
         .expect("Failed to get native architecture")
@@ -417,7 +385,7 @@ async fn version_check_inner(
                     architecture,
                     prev_cache.metadata_version,
                     add_platform_headers.then(|| api.platform_version.clone()),
-                    rollout,
+                    api.rollout,
                     prev_cache.etag.clone(),
                 )
                 .await
@@ -441,7 +409,7 @@ async fn version_check_inner(
                     architecture,
                     mullvad_update::version::MIN_VERIFY_METADATA_VERSION,
                     Some(api.platform_version),
-                    rollout,
+                    api.rollout,
                     None,
                 )
                 .await
