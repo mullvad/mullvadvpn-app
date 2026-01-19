@@ -973,6 +973,21 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
         nslock.lock()
         defer { nslock.unlock() }
 
+        switch connectionStatus {
+        case .connecting, .reasserting:
+            startPollingTunnelStatus(
+                interval: establishingTunnelStatusPollInterval
+            )
+        case .connected:
+            startPollingTunnelStatus(
+                interval: establishedTunnelStatusPollInterval
+            )
+        case .disconnected, .disconnecting, .invalid:
+            break
+       @unknown default:
+            fatalError("Unhandled connection status - \(connectionStatus)")
+        }
+
         let operation = MapConnectionStatusOperation(
             queue: internalQueue,
             interactor: TunnelInteractorProxy(self),
