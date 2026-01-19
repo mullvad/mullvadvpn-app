@@ -212,7 +212,7 @@ mod test {
             let mut settings = serde_json::from_str(V9_ANDROID_SETTINGS).unwrap();
             // Perform the actual settings migration while skipping the I/O performed in
             // `migrate_split_tunnel_settings`.
-            add_split_tunneling_settings(settings, enabled, apps);
+            add_split_tunneling_settings(&mut settings, enabled, apps);
             let new_settings = serde_json::from_str(V10_ANDROID_SETTINGS).unwrap();
             assert_eq!(settings, new_settings);
         }
