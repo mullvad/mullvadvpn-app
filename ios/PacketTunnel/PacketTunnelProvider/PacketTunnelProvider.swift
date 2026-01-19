@@ -165,7 +165,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
         // Run device check during tunnel startup.
         // This check is allowed to push new key to server if there are some issues with it.
         startDeviceCheck(rotateKeyOnMismatch: true)
-        
+
         setTunnelNetworkSettings(
             initialTunnelNetworkSettings(),
             completionHandler: { error in
