@@ -57,20 +57,3 @@ exec "$CONTAINER_RUNNER" run --rm -it \
     "${optional_android_credentials_volume[@]}" \
     "$container_image_name" bash -c "$*"
 
-# set -x
-# exec "$CONTAINER_RUNNER" run --rm \
-#     --security-opt "seccomp=unconfined" \
-#     -e HOME=/home/runner1 \
-#     -e GRADLE_USER_HOME=/home/runner1/.gradle \
-#     -e ANDROID_USER_HOME=/home/runner1/.android \
-#     -v /run/github-runner/android-runner-1/.android:/home/runner1/.android:Z \
-#     -v "$REPO_DIR:$REPO_MOUNT_TARGET:Z" \
-#     -v "$CARGO_TARGET_VOLUME_NAME:/cargo-target:Z" \
-#     -v "$CARGO_REGISTRY_VOLUME_NAME:/home/runner1/.cargo/registry:Z" \
-#     -v "/etc/passwd:/etc/passwd" \
-#     -v "/etc/group:/etc/group" \
-#     -v "$HOME:$HOME" \
-#     --user $(id -u):$(id -g) \
-#     "${optional_gradle_cache_volume[@]}" \
-#     "${optional_android_credentials_volume[@]}" \
-#     "$container_image_name" bash -c "$* --stacktrace"
