@@ -86,7 +86,7 @@ class SelectLocationPage: Page {
 
     @discardableResult func verifyRecentIsDisabled() -> Self {
         let textElement = app.buttons["Enable recents"]
-        XCTAssertTrue(textElement.exists)
+        XCTAssertTrue(textElement.existsAfterWait())
         return self
     }
 

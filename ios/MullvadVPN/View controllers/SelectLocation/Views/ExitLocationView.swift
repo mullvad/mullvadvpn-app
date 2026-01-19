@@ -5,7 +5,6 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
     @Binding var context: LocationContext
     @State var newCustomListAlert: MullvadInputAlert?
     @State var alert: MullvadAlert?
-    private let scrollToTop = "ScrollPosition.top"
     let onScrollVisibilityChange: (Bool) -> Void
 
     var isShowingCustomListsSection: Bool {
@@ -77,7 +76,9 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
             .listStyle(.plain)
             .coordinateSpace(.exitLocationScroll)
             .onAppear {
-                guard viewModel.searchText.isEmpty else { return }
+                scrollToCurrentSelection(scrollProxy)
+            }
+            .onChange(of: viewModel.isRecentsEnabled) {
                 scrollToCurrentSelection(scrollProxy)
             }
         }
@@ -177,11 +178,10 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
     }
 
     private func scrollToCurrentSelection(_ scrollProxy: ScrollViewProxy) {
-        if viewModel.isRecentsEnabled {
-            scrollProxy.scrollTo(scrollToTop, anchor: .top)
-        } else if let selectedLocation = context.selectedLocation {
-            scrollProxy.scrollTo(selectedLocation.id, anchor: .bottom)
-        }
+        guard viewModel.searchText.isEmpty,
+            let selectedLocation = context.selectedLocation
+        else { return }
+        scrollProxy.scrollTo(selectedLocation.id, anchor: .center)
     }
 }
 

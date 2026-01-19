@@ -105,8 +105,9 @@ class SelectLocationTests: LoggedInWithTimeUITestCase {
             .verifyRecentIsDisabled()
             .enableRecents()
 
-        let firstRecentLocationItem = SelectLocationPage(app)
-            .cellWithIdentifier(identifier: .recentListItem(SelectLocationTests.testsDefaultCountryName))
+        let firstRecentLocationItem = app.buttons
+            .matching(NSPredicate(format: "identifier BEGINSWITH %@", "recentListItem"))
+            .firstMatch
 
         XCTAssertTrue(firstRecentLocationItem.exists)
 

@@ -29,6 +29,6 @@ struct RecentLocationListItem<ContextMenu>: View where ContextMenu: View {
             contextMenu(location)
         }
         .padding(.top, 4)
-        .id(location.code)  // to be able to scroll to this item programmatically
+        .id(location.id)  // to be able to scroll to this item programmatically
     }
 }
