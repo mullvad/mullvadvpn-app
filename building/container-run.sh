@@ -30,7 +30,7 @@ case ${1-:""} in
     ;;
     android)
         container_image_name=$(cat "$SCRIPT_DIR/android-container-image.txt")
-        optional_gradle_cache_volume=(-v "$GRADLE_CACHE_VOLUME_NAME:/home/runner1/.gradle:Z")
+        optional_gradle_cache_volume=(-v "$GRADLE_CACHE_VOLUME_NAME:/root/.gradle:Z")
 
         if [ -n "$ANDROID_CREDENTIALS_DIR" ]; then
             optional_android_credentials_volume=(-v "$ANDROID_CREDENTIALS_DIR:$REPO_MOUNT_TARGET/android/credentials:Z")
