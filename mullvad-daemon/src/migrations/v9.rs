@@ -202,12 +202,15 @@ mod test {
         /// Assert that split-tunneling settings has been added to the android settings post-migration.
         #[test]
         fn test_v9_to_v10_migration() {
-            use crate::migrations::v9::{
-                test::android::constants::{V9_ANDROID_SETTINGS, V10_ANDROID_SETTINGS},
+            use crate::migrations::v9::test::android::constants::{
+                V9_ANDROID_SETTINGS, V10_ANDROID_SETTINGS,
             };
 
             let enabled = true;
-            let apps = vec!["com.android.chrome".to_string(), "net.mullvad.mullvadvpn".to_string()];
+            let apps = vec![
+                "com.android.chrome".to_string(),
+                "net.mullvad.mullvadvpn".to_string(),
+            ];
 
             let mut settings = serde_json::from_str(V9_ANDROID_SETTINGS).unwrap();
             // Perform the actual settings migration while skipping the I/O performed in
@@ -443,7 +446,12 @@ mod test {
         let mut old_settings = serde_json::from_str(V9_SETTINGS).unwrap();
 
         assert!(version_matches(&old_settings));
-        migrate(&mut old_settings, #[cfg(target_os = "android")] None).unwrap();
+        migrate(
+            &mut old_settings,
+            #[cfg(target_os = "android")]
+            None,
+        )
+        .unwrap();
         let new_settings: serde_json::Value = serde_json::from_str(V10_SETTINGS).unwrap();
 
         eprintln!(
