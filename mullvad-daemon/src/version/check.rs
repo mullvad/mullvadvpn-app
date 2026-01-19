@@ -380,13 +380,13 @@ fn do_version_check_in_background(
     })
 }
 
+#[cfg(not(target_os = "android"))]
 /// Fetch new version endpoint
 async fn version_check_inner(
     api: ApiContext,
     cache: Option<VersionCache>,
-    #[cfg(not(target_os = "android"))] rollout: Rollout,
+    rollout: Rollout,
 ) -> Result<VersionCache, Error> {
-    #[cfg(not(target_os = "android"))]
     let architecture = match talpid_platform_metadata::get_native_arch()
         .expect("IO error while getting native architecture")
         .expect("Failed to get native architecture")
@@ -410,7 +410,6 @@ async fn version_check_inner(
                 }
             };
 
-            #[cfg(not(target_os = "android"))]
             let Some(response) = api
                 .version_proxy
                 .version_check(
@@ -431,7 +430,56 @@ async fn version_check_inner(
                     ..prev_cache
                 });
             };
-            #[cfg(target_os = "android")]
+            (response, get_last_platform_header_check())
+        }
+        // No cache available
+        None => {
+            let response = api
+                .version_proxy
+                .version_check(
+                    PLATFORM,
+                    architecture,
+                    mullvad_update::version::MIN_VERIFY_METADATA_VERSION,
+                    Some(api.platform_version),
+                    rollout,
+                    None,
+                )
+                .await
+                .map_err(Error::Download)?
+                .expect("function must return body if no etag was set");
+            (response, SystemTime::now())
+        }
+    };
+
+    Ok(VersionCache {
+        cache_version: APP_VERSION.clone(),
+        current_version_supported: response.current_version_supported,
+        version_info: response.version_info,
+        last_platform_header_check,
+        metadata_version: response.metadata_version,
+        etag: response.etag,
+    })
+}
+
+#[cfg(target_os = "android")]
+/// Fetch new version endpoint
+async fn version_check_inner(
+    api: ApiContext,
+    cache: Option<VersionCache>,
+) -> Result<VersionCache, Error> {
+    let (response, last_platform_header_check) = match cache {
+        // Cache available
+        Some(prev_cache) => {
+            let add_platform_headers =
+                should_include_platform_headers(Some(prev_cache.last_platform_header_check));
+            let get_last_platform_header_check = || {
+                if add_platform_headers {
+                    SystemTime::now()
+                } else {
+                    prev_cache.last_platform_header_check
+                }
+            };
+
             let Some(response) = api
                 .version_proxy
                 .version_check_android(
@@ -452,21 +500,6 @@ async fn version_check_inner(
         }
         // No cache available
         None => {
-            #[cfg(not(target_os = "android"))]
-            let response = api
-                .version_proxy
-                .version_check(
-                    PLATFORM,
-                    architecture,
-                    mullvad_update::version::MIN_VERIFY_METADATA_VERSION,
-                    Some(api.platform_version),
-                    rollout,
-                    None,
-                )
-                .await
-                .map_err(Error::Download)?
-                .expect("function must return body if no etag was set");
-            #[cfg(target_os = "android")]
             let response = api
                 .version_proxy
                 .version_check_android(Some(api.platform_version), None)
@@ -476,14 +509,11 @@ async fn version_check_inner(
             (response, SystemTime::now())
         }
     };
+
     Ok(VersionCache {
         cache_version: APP_VERSION.clone(),
         current_version_supported: response.current_version_supported,
-        #[cfg(not(target_os = "android"))]
-        version_info: response.version_info,
         last_platform_header_check,
-        #[cfg(not(target_os = "android"))]
-        metadata_version: response.metadata_version,
         etag: response.etag,
     })
 }
