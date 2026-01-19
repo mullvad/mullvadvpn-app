@@ -62,7 +62,7 @@ clap = { workspace = true, features = ["cargo", "derive"], optional = true  }
 tracing-subscriber = { workspace = true, optional = true  }
 shadowsocks = { workspace = true, features = ["stream-cipher"] }
 
-[target.'cfg(not(target_os = "ios"))'.dependencies]
+[target.'cfg(any(unix, windows))'.dependencies]
 mullvad-update = { path = "../mullvad-update", features = ["client"] }
 
 [dev-dependencies]
