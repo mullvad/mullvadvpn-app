@@ -14,8 +14,6 @@ import co.touchlab.kermit.Logger
 import java.time.Duration
 import java.time.ZonedDateTime
 import kotlin.getValue
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withTimeoutOrNull
 import net.mullvad.mullvadvpn.lib.common.constant.VPN_SERVICE_CLASS
 import net.mullvad.mullvadvpn.lib.model.NotificationChannel
@@ -45,12 +43,13 @@ class ExpiryNotificationWorker(private val appContext: Context, workerParams: Wo
                 // Call for an account expiry update
                 accountRepository.refreshAccountData()
 
-                // Wait for account data for some time
-                accountRepository.accountData.filterNotNull().first().expiryDate
+                // Check account data
+                accountRepository.accountData.value?.expiryDate
             }
 
         // If we get a null we should just exist and not schedule a new notification.
-        // The most likely case of null is that we have been logged out.
+        // This either because we were unable to update the account data or that we are no longer
+        // logged in.
         if (expiry == null) {
             Logger.e("Error! Were unable to retrieve expiry date")
             appContext.unbindService(serviceConnection)
