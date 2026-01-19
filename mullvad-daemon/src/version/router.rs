@@ -4,12 +4,13 @@ use std::path::PathBuf;
 use futures::channel::{mpsc, oneshot};
 use futures::stream::StreamExt;
 use mullvad_api::{availability::ApiAvailability, rest::MullvadRestHandle};
-use mullvad_types::version::{AppVersionInfo, SuggestedUpgrade};
+use mullvad_types::version::AppVersionInfo;
+#[cfg(not(target_os = "android"))]
+use mullvad_types::version::SuggestedUpgrade;
 #[cfg(in_app_upgrade)]
 use mullvad_update::app::{AppDownloader, AppDownloaderParameters, HttpAppDownloader};
 #[cfg(not(target_os = "android"))]
-use mullvad_update::version::Rollout;
-use mullvad_update::version::VersionInfo;
+use mullvad_update::version::{Rollout, VersionInfo};
 use talpid_core::mpsc::Sender;
 #[cfg(in_app_upgrade)]
 use talpid_types::ErrorExt;

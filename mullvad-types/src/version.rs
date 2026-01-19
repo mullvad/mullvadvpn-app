@@ -1,4 +1,4 @@
-use std::{fmt::Display, path::PathBuf};
+use std::fmt::Display;
 
 use serde::{Deserialize, Serialize};
 
@@ -38,13 +38,14 @@ impl Display for AppVersionInfo {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[cfg(not(target_os = "android"))]
 pub struct SuggestedUpgrade {
     /// Version available for update
     pub version: mullvad_version::Version,
     /// Changelog
     pub changelog: String,
     /// Path to the available installer, iff it has been verified
-    pub verified_installer_path: Option<PathBuf>,
+    pub verified_installer_path: Option<std::path::PathBuf>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]

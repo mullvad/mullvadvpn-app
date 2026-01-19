@@ -34,6 +34,7 @@ impl TryFrom<proto::AppVersionInfo> for AppVersionInfo {
     }
 }
 
+#[cfg(not(target_os = "android"))]
 impl From<SuggestedUpgrade> for proto::SuggestedUpgrade {
     fn from(suggested_upgrade: SuggestedUpgrade) -> Self {
         Self {
@@ -46,6 +47,7 @@ impl From<SuggestedUpgrade> for proto::SuggestedUpgrade {
     }
 }
 
+#[cfg(not(target_os = "android"))]
 impl TryFrom<proto::SuggestedUpgrade> for SuggestedUpgrade {
     type Error = FromProtobufTypeError;
 
