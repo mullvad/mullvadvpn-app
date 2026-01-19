@@ -12,7 +12,7 @@ import { AppNavigationHeader } from '../../app-navigation-header';
 import { BackAction } from '../../keyboard-navigation';
 import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
-import { FilterByOwnership, FilterByProvider } from './components';
+import { FilterByProvider, OwnershipFilter } from './components';
 import { useFilteredOwnershipOptions, useFilteredProviders, useProviders } from './hooks';
 
 const StyledViewContent = styled(View.Content)`
@@ -74,7 +74,7 @@ export function FilterView() {
             />
             <NavigationScrollbars>
               <View.Container horizontalMargin="medium" flexDirection="column" gap="small">
-                <FilterByOwnership
+                <OwnershipFilter
                   ownership={ownership}
                   availableOptions={availableOwnershipOptions}
                   setOwnership={setOwnership}
