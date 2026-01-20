@@ -8,6 +8,7 @@
 
 import Foundation
 import MullvadSettings
+import UserNotifications
 
 protocol AppPreferencesDataSource {
     var hasDoneFirstTimeLaunch: Bool { get set }
@@ -15,6 +16,7 @@ protocol AppPreferencesDataSource {
     var isShownOnboarding: Bool { get set }
     var isAgreedToTermsOfService: Bool { get set }
     var lastSeenChangeLogVersion: String { get set }
+    var isNotificationPermissionNeeded: Bool { get set }
 }
 
 enum AppStorageKey: String {
@@ -23,6 +25,7 @@ enum AppStorageKey: String {
     case isShownOnboarding
     case isAgreedToTermsOfService
     case lastSeenChangeLogVersion
+    case isNotificationPermissionNeeded
 }
 
 final class AppPreferences: AppPreferencesDataSource {
@@ -40,4 +43,7 @@ final class AppPreferences: AppPreferencesDataSource {
 
     @AppStorage(key: AppStorageKey.lastSeenChangeLogVersion.rawValue, container: .standard)
     var lastSeenChangeLogVersion = ""
+
+    @AppStorage(key: AppStorageKey.isNotificationPermissionNeeded.rawValue, container: .standard)
+    var isNotificationPermissionNeeded = true
 }

@@ -973,6 +973,7 @@
 		F08B6B7D2C528C6300D0A121 /* EphemeralPeerExchangingPipeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = F05919762C453FAF00C301F3 /* EphemeralPeerExchangingPipeline.swift */; };
 		F08B6B7E2C528C6300D0A121 /* MultiHopEphemeralPeerExchanger.swift in Sources */ = {isa = PBXBuildFile; fileRef = F059197C2C454C9200C301F3 /* MultiHopEphemeralPeerExchanger.swift */; };
 		F09084682C6E88ED001CD36E /* DaitaPromptAlert.swift in Sources */ = {isa = PBXBuildFile; fileRef = F09084672C6E88ED001CD36E /* DaitaPromptAlert.swift */; };
+		F092E18E2F14EA85004AE65A /* NotificationPromptView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F092E18D2F14EA34004AE65A /* NotificationPromptView.swift */; };
 		F09444132ECCA4B30059606A /* RecentListDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = F09444122ECCA4990059606A /* RecentListDataSource.swift */; };
 		F09444142ECCA4B30059606A /* RecentListDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = F09444122ECCA4990059606A /* RecentListDataSource.swift */; };
 		F09A297B2A9F8A9B00EA3B6F /* LogoutDialogueView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F09A29782A9F8A9B00EA3B6F /* LogoutDialogueView.swift */; };
@@ -1011,6 +1012,9 @@
 		F0ADF1D12D01B55C00299F09 /* ChipModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0ADF1D02D01B55C00299F09 /* ChipModel.swift */; };
 		F0ADF1D32D01B6B400299F09 /* FeatureIndicatorsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0ADF1D22D01B6B400299F09 /* FeatureIndicatorsViewModel.swift */; };
 		F0ADF1D52D01DCFD00299F09 /* ChipView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0ADF1D42D01DCFD00299F09 /* ChipView.swift */; };
+		F0AFF0242F152E3C004CD40E /* NotificationPromptViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0AFF0232F152E3A004CD40E /* NotificationPromptViewModel.swift */; };
+		F0AFF0282F163C48004CD40E /* NotificationPromptCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0AFF0272F163C33004CD40E /* NotificationPromptCoordinator.swift */; };
+		F0AFF02A2F17B32C004CD40E /* UNUserNotificationCenter+Permission.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0AFF0292F17B320004CD40E /* UNUserNotificationCenter+Permission.swift */; };
 		F0B06BC22EAA4191008C0A0B /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F0B06BC12EAA4191008C0A0B /* Localizable.xcstrings */; };
 		F0B06BC32EAA4191008C0A0B /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F0B06BC12EAA4191008C0A0B /* Localizable.xcstrings */; };
 		F0B06BC42EAA4191008C0A0B /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F0B06BC12EAA4191008C0A0B /* Localizable.xcstrings */; };
@@ -2430,6 +2434,7 @@
 		F07F1BD42E4A361E003FB336 /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
 		F08096FA2E4A325600D8B0CF /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		F09084672C6E88ED001CD36E /* DaitaPromptAlert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DaitaPromptAlert.swift; sourceTree = "<group>"; };
+		F092E18D2F14EA34004AE65A /* NotificationPromptView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationPromptView.swift; sourceTree = "<group>"; };
 		F09444122ECCA4990059606A /* RecentListDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentListDataSource.swift; sourceTree = "<group>"; };
 		F09A29782A9F8A9B00EA3B6F /* LogoutDialogueView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LogoutDialogueView.swift; sourceTree = "<group>"; };
 		F09A29792A9F8A9B00EA3B6F /* VoucherTextField.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VoucherTextField.swift; sourceTree = "<group>"; };
@@ -2459,6 +2464,9 @@
 		F0ADF1D22D01B6B400299F09 /* FeatureIndicatorsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureIndicatorsViewModel.swift; sourceTree = "<group>"; };
 		F0ADF1D42D01DCFD00299F09 /* ChipView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChipView.swift; sourceTree = "<group>"; };
 		F0AE6DB72E4A3285001A7B23 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		F0AFF0232F152E3A004CD40E /* NotificationPromptViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationPromptViewModel.swift; sourceTree = "<group>"; };
+		F0AFF0272F163C33004CD40E /* NotificationPromptCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationPromptCoordinator.swift; sourceTree = "<group>"; };
+		F0AFF0292F17B320004CD40E /* UNUserNotificationCenter+Permission.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UNUserNotificationCenter+Permission.swift"; sourceTree = "<group>"; };
 		F0B06BC12EAA4191008C0A0B /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		F0B0E6962AFE6E7E001DC66B /* XCTest+Async.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "XCTest+Async.swift"; sourceTree = "<group>"; };
 		F0B495752D02025200CFEC2A /* ChipContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChipContainerView.swift; sourceTree = "<group>"; };
@@ -3184,17 +3192,17 @@
 		583FE01629C196E8006E85F9 /* View controllers */ = {
 			isa = PBXGroup;
 			children = (
-				F910A4322D4A1BA1002FF3BB /* InAppPurchase */,
 				583FE02029C1A0B1006E85F9 /* Account */,
 				F0E8E4BF2A602C7D00ED26A3 /* AccountDeletion */,
 				7A2960F72A964A3500389B82 /* Alert */,
 				F0EF50D12A8FA47E0031E8DF /* ChangeLog */,
 				F0E8E4B92A55593300ED26A3 /* CreationAccount */,
 				583FE01D29C197C1006E85F9 /* DeviceList */,
+				F910A4322D4A1BA1002FF3BB /* InAppPurchase */,
 				583FE02529C1AD0E006E85F9 /* Launch */,
 				583FE02129C1A0F4006E85F9 /* Login */,
+				F092E18C2F14E9F9004AE65A /* Notification */,
 				583FE01B29C19786006E85F9 /* OutOfTime */,
-				583FE01A29C19777006E85F9 /* VPNSettings */,
 				583FE01929C19760006E85F9 /* ProblemReport */,
 				F028A5472A336E1900C0CAA3 /* RedeemVoucher */,
 				7AF9BE912A39F47D00DBFEDB /* RelayFilter */,
@@ -3203,6 +3211,7 @@
 				583FE01829C19709006E85F9 /* Settings */,
 				583FE02229C1AC68006E85F9 /* TermsOfService */,
 				583FE01E29C197D5006E85F9 /* Tunnel */,
+				583FE01A29C19777006E85F9 /* VPNSettings */,
 			);
 			path = "View controllers";
 			sourceTree = "<group>";
@@ -3404,6 +3413,7 @@
 		583FE02329C1AC9F006E85F9 /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
+				F0AFF0292F17B320004CD40E /* UNUserNotificationCenter+Permission.swift */,
 				5891BF1B25E3E3EB006D6FB0 /* Bundle+ProductVersion.swift */,
 				F947D9FF2ED5AC8600C9D728 /* CGRect+Properties.swift */,
 				F06200092CB7EB42002E6DB9 /* CGSize+Helpers.swift */,
@@ -3875,21 +3885,22 @@
 		58CAF9F22983D32200BE19F7 /* Coordinators */ = {
 			isa = PBXGroup;
 			children = (
-				F910A4302D4A1B3B002FF3BB /* InAppPurchaseCoordinator.swift */,
-				7A6389D12B7E3BD6008E77E1 /* CustomLists */,
-				58EFC76F2AFB3FA800E9F4CB /* Settings */,
 				7A9CCCAF2A96302800DD6A34 /* AccountCoordinator.swift */,
 				7A9CCCAC2A96302800DD6A34 /* AccountDeletionCoordinator.swift */,
 				7A2960F52A963F7500389B82 /* AlertCoordinator.swift */,
 				7A9CCCB12A96302800DD6A34 /* ApplicationCoordinator.swift */,
 				7A9CCCAA2A96302700DD6A34 /* ChangeLogCoordinator.swift */,
+				7A6389D12B7E3BD6008E77E1 /* CustomLists */,
+				F910A4302D4A1B3B002FF3BB /* InAppPurchaseCoordinator.swift */,
 				7A9CCCA72A96302700DD6A34 /* LocationCoordinator.swift */,
 				7A9CCCAB2A96302800DD6A34 /* LoginCoordinator.swift */,
+				F0AFF0272F163C33004CD40E /* NotificationPromptCoordinator.swift */,
 				7A9CCCA42A96302700DD6A34 /* OutOfTimeCoordinator.swift */,
 				7A9CCCAE2A96302800DD6A34 /* ProfileVoucherCoordinator.swift */,
 				7AF10EB32ADE85BC00C090B9 /* RelayFilterCoordinator.swift */,
 				7A9CCCA52A96302700DD6A34 /* RevokedCoordinator.swift */,
 				7A9CCCB02A96302800DD6A34 /* SafariCoordinator.swift */,
+				58EFC76F2AFB3FA800E9F4CB /* Settings */,
 				7A9CCCA62A96302700DD6A34 /* SetupAccountCompletedCoordinator.swift */,
 				7A9CCCA22A96302700DD6A34 /* TermsOfServiceCoordinator.swift */,
 				7A9CCCB22A96302800DD6A34 /* TunnelCoordinator.swift */,
@@ -4668,6 +4679,15 @@
 				F072D3D12C071AD100906F64 /* ShadowsocksLoaderTests.swift */,
 			);
 			path = Shadowsocks;
+			sourceTree = "<group>";
+		};
+		F092E18C2F14E9F9004AE65A /* Notification */ = {
+			isa = PBXGroup;
+			children = (
+				F0AFF0232F152E3A004CD40E /* NotificationPromptViewModel.swift */,
+				F092E18D2F14EA34004AE65A /* NotificationPromptView.swift */,
+			);
+			path = Notification;
 			sourceTree = "<group>";
 		};
 		F09D04B82AE94F27003D4F89 /* GeneralAPIs */ = {
@@ -6520,10 +6540,12 @@
 				5864AF0829C78849005B0CD9 /* CellFactoryProtocol.swift in Sources */,
 				7A6389E22B7E3BD6008E77E1 /* CustomListInteractor.swift in Sources */,
 				F07CFF2029F2720E008C0343 /* NewDeviceNotificationProvider.swift in Sources */,
+				F092E18E2F14EA85004AE65A /* NotificationPromptView.swift in Sources */,
 				7A6389E12B7E3BD6008E77E1 /* CustomListSectionIdentifier.swift in Sources */,
 				F97C38CA2DE49869006DCB08 /* MultihopSettingsCoordinator.swift in Sources */,
 				58CEB2F32AFD0BA100E6E088 /* TextCellContentView.swift in Sources */,
 				7A6389E72B7E42BE008E77E1 /* CustomListViewController.swift in Sources */,
+				F0AFF02A2F17B32C004CD40E /* UNUserNotificationCenter+Permission.swift in Sources */,
 				586C0D7C2B03BDD100E7CDD7 /* AccessMethodViewModel.swift in Sources */,
 				587A01FC23F1F0BE00B68763 /* SimulatorTunnelProviderHost.swift in Sources */,
 				F95CDDA02EE02B39000E9D97 /* CoordinateSpace+Names.swift in Sources */,
@@ -6652,12 +6674,14 @@
 				F95CDDA82EE07F7F000E9D97 /* PressedExposingButton.swift in Sources */,
 				58CCA01E2242787B004F3011 /* AccountTextField.swift in Sources */,
 				586E54FB27A2DF6D0029B88B /* SendTunnelProviderMessageOperation.swift in Sources */,
+				F0AFF0242F152E3C004CD40E /* NotificationPromptViewModel.swift in Sources */,
 				F92C658A2E7A922F00B8E107 /* ActiveFilterView.swift in Sources */,
 				5875960A26F371FC00BF6711 /* Tunnel+Messaging.swift in Sources */,
 				586C0D912B03D8A400E7CDD7 /* AccessMethodHeaderFooterReuseIdentifier.swift in Sources */,
 				F0B583D42D6DCE12007F5AE4 /* FilterDescriptor.swift in Sources */,
 				7A2960F62A963F7500389B82 /* AlertCoordinator.swift in Sources */,
 				063687BA28EB234F00BE7161 /* PacketTunnelAPITransport.swift in Sources */,
+				F0AFF0282F163C48004CD40E /* NotificationPromptCoordinator.swift in Sources */,
 				A9C342C12ACC37E30045F00E /* TunnelStatusBlockObserver.swift in Sources */,
 				587425C12299833500CA2045 /* RootContainerViewController.swift in Sources */,
 				F09D04BD2AEBB7C5003D4F89 /* OutgoingConnectionService.swift in Sources */,
