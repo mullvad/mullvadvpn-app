@@ -26,7 +26,6 @@ export function AccordionContent({ children }: AccordionContentProps) {
         <StyledAccordionContent
           id={contentId}
           aria-labelledby={triggerId}
-          layout
           role="region"
           variants={variants}
           initial="collapsed"
