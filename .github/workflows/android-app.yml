@@ -165,6 +165,8 @@ jobs:
     runs-on: [android-sandbox-test-new-runner]
     container:
       image: ${{ needs.prepare.outputs.container_image }}
+      volumes:
+        - /nix:/nix
     strategy:
       fail-fast: false
       matrix:
