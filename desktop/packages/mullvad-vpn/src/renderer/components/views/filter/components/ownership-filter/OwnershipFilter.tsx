@@ -1,39 +1,27 @@
-import { useMemo } from 'react';
-
 import { Ownership } from '../../../../../../shared/daemon-rpc-types';
 import { messages } from '../../../../../../shared/gettext';
-import { FilterAccordion } from '../../../../FilterAccordion';
+import { FilterAccordion, FilterAccordionProps } from '../../../../FilterAccordion';
 import { SettingsListbox } from '../../../../settings-listbox';
+import { useFilterViewContext } from '../../FilterViewContext';
 
-interface IFilterByOwnershipProps {
-  ownership: Ownership;
-  availableOptions: Ownership[];
-  setOwnership: (ownership: Ownership) => void;
-}
+type OwnershipFilterProps = FilterAccordionProps;
 
-export function OwnershipFilter({
-  availableOptions,
-  ownership,
-  setOwnership,
-}: IFilterByOwnershipProps) {
-  const values = useMemo(
-    () =>
-      [
-        {
-          label: messages.pgettext('filter-view', 'Mullvad owned only'),
-          value: Ownership.mullvadOwned,
-        },
-        {
-          label: messages.pgettext('filter-view', 'Rented only'),
-          value: Ownership.rented,
-        },
-      ].filter((option) => availableOptions.includes(option.value)),
-    [availableOptions],
-  );
+export function OwnershipFilter(props: OwnershipFilterProps) {
+  const { selectedOwnership, setOwnership } = useFilterViewContext();
+  const values = [
+    {
+      label: messages.pgettext('filter-view', 'Mullvad owned only'),
+      value: Ownership.mullvadOwned,
+    },
+    {
+      label: messages.pgettext('filter-view', 'Rented only'),
+      value: Ownership.rented,
+    },
+  ];
 
   return (
-    <FilterAccordion title={messages.pgettext('filter-view', 'Ownership')}>
-      <SettingsListbox value={ownership} onValueChange={setOwnership}>
+    <FilterAccordion title={messages.pgettext('filter-view', 'Ownership')} {...props}>
+      <SettingsListbox value={selectedOwnership} onValueChange={setOwnership}>
         <SettingsListbox.Options>
           <SettingsListbox.BaseOption value={Ownership.any}>
             {messages.gettext('Any')}
