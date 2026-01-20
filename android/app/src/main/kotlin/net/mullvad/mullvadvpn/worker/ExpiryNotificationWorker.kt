@@ -47,7 +47,7 @@ class ExpiryNotificationWorker(private val appContext: Context, workerParams: Wo
                 accountRepository.accountData.value?.expiryDate
             }
 
-        // If we get a null we should just exist and not schedule a new notification.
+        // If we get a null we should just exit and not schedule a new notification.
         // This either because we were unable to update the account data or that we are no longer
         // logged in.
         if (expiry == null) {
