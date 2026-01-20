@@ -4,59 +4,54 @@
 # cargo deny will only evaluate dependencies pulled in by these
 # targets (the ones we run the test runner on)
 targets = [
-    { triple = "x86_64-unknown-linux-gnu" },
-    { triple = "x86_64-pc-windows-gnu" },
-    { triple = "x86_64-apple-darwin" },
-    { triple = "aarch64-apple-darwin" }
+  { triple = "x86_64-unknown-linux-gnu" },
+  { triple = "x86_64-pc-windows-gnu" },
+  { triple = "x86_64-apple-darwin" },
+  { triple = "aarch64-apple-darwin" }
 ]
-
 
 # This section is considered when running `cargo deny check advisories`
 # More documentation for the advisories section can be found here:
 # https://embarkstudios.github.io/cargo-deny/checks/advisories/cfg.html
 [advisories]
-version = 2 # https://github.com/EmbarkStudios/cargo-deny/pull/611
+version = 2  # https://github.com/EmbarkStudios/cargo-deny/pull/611
 yanked = "deny"
 ignore = [
-    # Ignored audit issues. This list should be kept short, and effort should be
-    # put into removing items from the list.
+  # Ignored audit issues. This list should be kept short, and effort should be
+  # put into removing items from the list.
 
-    # test-rpc does not deal with random user input
-    "RUSTSEC-2025-0055"
+  # test-rpc does not deal with random user input
+  "RUSTSEC-2025-0055"
 ]
-
 
 # This section is considered when running `cargo deny check licenses`
 # More documentation for the licenses section can be found here:
 # https://embarkstudios.github.io/cargo-deny/checks/licenses/cfg.html
 [licenses]
-version = 2 # https://github.com/EmbarkStudios/cargo-deny/pull/611
-
+version = 2  # https://github.com/EmbarkStudios/cargo-deny/pull/611
 # Adding a license here has to be done carefully. Should only be done by team leads.
 allow = [
-    "GPL-3.0-only",
-    "Apache-2.0",
-    "MIT",
-    "MPL-2.0",
-    "WTFPL",
-    "ISC",
-    "BSD-3-Clause",
-    "BSD-2-Clause",
-    "CC0-1.0",
-    # https://github.com/briansmith/ring/issues/902
-    "LicenseRef-ring",
-    "Unicode-DFS-2016",
-    "Zlib",
-    "Unicode-3.0",
-    "CDLA-Permissive-2.0"
+  "GPL-3.0-only",
+  "Apache-2.0",
+  "MIT",
+  "MPL-2.0",
+  "WTFPL",
+  "ISC",
+  "BSD-3-Clause",
+  "BSD-2-Clause",
+  "CC0-1.0",
+  # https://github.com/briansmith/ring/issues/902
+  "LicenseRef-ring",
+  "Unicode-DFS-2016",
+  "Zlib",
+  "Unicode-3.0",
+  "CDLA-Permissive-2.0"
 ]
 
 [[licenses.clarify]]
 name = "ring"
 expression = "LicenseRef-ring"
-license-files = [
-    { path = "LICENSE", hash = 0xbd0eed23 }
-]
+license-files = [{ path = "LICENSE", hash = 0xbd0eed23 }]
 
 [licenses.private]
 ignore = false
@@ -68,14 +63,12 @@ ignore = false
 multiple-versions = "warn"
 wildcards = "warn"
 highlight = "all"
-
 allow = []
 deny = [
-    { name = "clap", version = "2" },
-    { name = "clap", version = "3" },
-    { name = "time", version = "0.1"},
+  { name = "clap", version = "2" },
+  { name = "clap", version = "3" },
+  { name = "time", version = "0.1" },
 ]
-
 
 # This section is considered when running `cargo deny check sources`.
 # More documentation about the 'sources' section can be found here:
@@ -83,7 +76,6 @@ deny = [
 [sources]
 unknown-registry = "deny"
 unknown-git = "deny"
-
 # We should never depend on git repositories outside our own github organization.
 # We can't say anything about their availability. They might go away at any point
 # in time. Instead of using third party git repositories, always fork the repository
