@@ -730,7 +730,8 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
         }
         // Handle unrecoverable blocked states
         if case let .error(blockedStateReason) = _tunnelStatus.state,
-           !blockedStateReason.recoverableError() {
+            !blockedStateReason.recoverableError()
+        {
             handleBlockedState(reason: blockedStateReason)
         }
 
@@ -872,14 +873,9 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
                 self.updateTunnelStatus(status)
             }
 
-        // Start polling immediately for the current status since the observer
-        // only fires on status changes, not for the initial state.
-        updatePollingFromVPNStatus(tunnel.status)
     }
 
     private func startNetworkMonitor() {
-        cancelNetworkMonitor()
-
         networkMonitor = NWPathMonitor()
         networkMonitor?.pathUpdateHandler = { [weak self] path in
             self?.scheduleNetworkPathUpdate(path)
@@ -904,14 +900,6 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
                     .advanced(by: Self.networkPathUpdateDelay),
                 execute: workItem
             )
-    }
-
-    private func cancelNetworkMonitor() {
-        pendingNetworkPathUpdate?.cancel()
-        pendingNetworkPathUpdate = nil
-        networkMonitor?.pathUpdateHandler = nil
-        networkMonitor?.cancel()
-        networkMonitor = nil
     }
 
     private func unsubscribeVPNStatusObserver() {
@@ -1001,7 +989,8 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
     private func setDisconnectedState(networkPathStatus: Network.NWPath.Status?) {
         _ = setTunnelStatus { tunnelStatus in
             tunnelStatus = TunnelStatus()
-            tunnelStatus.state = networkPathStatus == .unsatisfied
+            tunnelStatus.state =
+                networkPathStatus == .unsatisfied
                 ? .waitingForConnectivity(.noNetwork)
                 : .disconnected
         }
@@ -1021,7 +1010,8 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
                     tunnelStatus.state = .disconnecting(.nothing)
                 } else {
                     let isNetworkReachable = tunnelStatus.observedState.connectionState?.isNetworkReachable ?? false
-                    tunnelStatus.state = isNetworkReachable
+                    tunnelStatus.state =
+                        isNetworkReachable
                         ? .disconnecting(.nothing)
                         : .waitingForConnectivity(.noNetwork)
                 }
@@ -1341,48 +1331,48 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
         }
 
         /**
-
+        
          This function simulates account state transitions. The change is not permanent and any call to
          `updateAccountData()` will overwrite it, but it's usually enough for quick testing.
-
+        
          It can be invoked somewhere in `initTunnelManagerOperation` (`AppDelegate`) after tunnel manager is fully
          initialized. The following code snippet can be used to cycle through various states:
-
+        
          ```
          func delay(seconds: UInt) async throws {
          try await Task.sleep(nanoseconds: UInt64(seconds) * 1_000_000_000)
          }
-
+        
          Task {
          print("Wait 5 seconds")
          try await delay(seconds: 5)
-
+        
          print("Simulate active account")
          self.tunnelManager.simulateAccountExpiration(option: .active)
          try await delay(seconds: 5)
-
+        
          print("Simulate close to expiry")
          self.tunnelManager.simulateAccountExpiration(option: .closeToExpiry)
          try await delay(seconds: 10)
-
+        
          print("Simulate expired account")
          self.tunnelManager.simulateAccountExpiration(option: .expired)
          try await delay(seconds: 5)
-
+        
          print("Simulate active account")
          self.tunnelManager.simulateAccountExpiration(option: .active)
          }
          ```
-
+        
          Another way to invoke this code is to pause debugger and run it directly:
-
+        
          ```
          command alias swift expression -l Swift -O --
-
+        
          swift import MullvadVPN
          swift (UIApplication.shared.delegate as? AppDelegate)?.tunnelManager.simulateAccountExpiration(option: .closeToExpiry)
          ```
-
+        
          */
         func simulateAccountExpiration(option: AccountExpirySimulationOption) {
             scheduleDeviceStateUpdate(taskName: "Simulating account expiry", reconnectTunnel: false) { deviceState in
