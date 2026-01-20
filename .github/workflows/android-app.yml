@@ -166,6 +166,9 @@ jobs:
     container:
       image: ${{ needs.prepare.outputs.container_image }}
       volumes:
+        # node is symlinked in, w/o mounting it, when using a image node won't be found for the
+        # checkout action
+        # https://github.com/NixOS/nixpkgs/issues/306373
         - /nix:/nix
     strategy:
       fail-fast: false
