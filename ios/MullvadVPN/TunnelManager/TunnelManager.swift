@@ -33,7 +33,6 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
         case manageTunnel
         case deviceStateUpdate
         case settingsUpdate
-        case tunnelStateUpdate
 
         var category: String {
             "TunnelManager.\(rawValue)"
@@ -55,7 +54,6 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
     private let internalQueue = DispatchQueue(label: "TunnelManager.internalQueue")
 
     private var statusObserver: TunnelStatusBlockObserver?
-    private weak var lastMapConnectionStatusOperation: Operation?
     private let observerList = ObserverList<TunnelObserver>()
     private var networkMonitor: NWPathMonitor?
     private let relaySelector: RelaySelectorProtocol
@@ -825,7 +823,8 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
         let status = tunnel?.status ?? .disconnected
         guard [.disconnected, .invalid].contains(status) else { return }
 
-        updateTunnelStatus(status)
+        // Direct state update - no operation needed
+        setDisconnectedState(networkPathStatus: path.status)
     }
 
     fileprivate func prepareForVPNConfigurationDeletion() {
@@ -834,10 +833,6 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
 
         // Unregister from receiving VPN connection status changes
         unsubscribeVPNStatusObserver()
-
-        // Cancel last VPN status mapping operation
-        lastMapConnectionStatusOperation?.cancel()
-        lastMapConnectionStatusOperation = nil
     }
 
     private func didReconnectTunnel(error: Error?) {
@@ -861,6 +856,8 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
         }
     }
 
+    private var lastTunStatus: NEVPNStatus? = nil
+
     private func subscribeVPNStatusObserver(tunnel: any TunnelProtocol) {
         nslock.lock()
         defer { nslock.unlock() }
@@ -871,7 +868,7 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
             tunnel
             .addBlockObserver(queue: internalQueue) { [weak self] tunnel, status in
                 guard let self else { return }
-
+                self.lastTunStatus = status
                 self.logger.debug("VPN connection status changed to \(status).")
 
                 // Control polling based on NEVPNStatus directly (the source of truth),
@@ -882,6 +879,10 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
                 // disconnecting and disconnected states immediately.
                 self.updateTunnelStatus(status)
             }
+
+        // Start polling immediately for the current status since the observer
+        // only fires on status changes, not for the initial state.
+        updatePollingFromVPNStatus(tunnel.status)
     }
 
     private func startNetworkMonitor() {
@@ -933,8 +934,17 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
         nslock.lock()
         defer { nslock.unlock() }
 
-        if let connectionStatus = _tunnel?.status {
+        guard let connectionStatus = _tunnel?.status else { return }
+
+        switch connectionStatus {
+        case .connecting, .reasserting, .connected:
+            // Active states: fetch via IPC
+            fetchAndUpdateTunnelStatus()
+        case .disconnected, .disconnecting, .invalid:
+            // Down states: update directly
             updateTunnelStatus(connectionStatus)
+        @unknown default:
+            break
         }
     }
 
@@ -967,39 +977,144 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
     }
 
     /// Update `TunnelStatus` from `NEVPNStatus`.
-    /// Collects the `PacketTunnelStatus` from the tunnel via IPC if needed before assigning
-    /// the `tunnelStatus`.
+    /// For active states, fetches detailed status via IPC.
+    /// For down states, updates state directly without IPC.
     private func updateTunnelStatus(_ connectionStatus: NEVPNStatus) {
         nslock.lock()
         defer { nslock.unlock() }
 
         switch connectionStatus {
-        case .connecting, .reasserting:
-            startPollingTunnelStatus(
-                interval: establishingTunnelStatusPollInterval
-            )
-        case .connected:
-            startPollingTunnelStatus(
-                interval: establishedTunnelStatusPollInterval
-            )
-        case .disconnected, .disconnecting, .invalid:
-            break
-       @unknown default:
-            fatalError("Unhandled connection status - \(connectionStatus)")
+        case .connecting, .reasserting, .connected:
+            // Active states: fetch details via IPC
+            fetchAndUpdateTunnelStatus()
+
+        case .disconnecting:
+            handleDisconnectingStateDirectly()
+
+        case .disconnected:
+            handleDisconnectedStateDirectly()
+
+        case .invalid:
+            setDisconnectedState(networkPathStatus: networkMonitor?.currentPath.status)
+
+        @unknown default:
+            logger.debug("Unknown NEVPNStatus: \(connectionStatus.rawValue)")
         }
+    }
 
-        let operation = MapConnectionStatusOperation(
-            queue: internalQueue,
-            interactor: TunnelInteractorProxy(self),
-            connectionStatus: connectionStatus,
-            networkStatus: networkMonitor?.currentPath.status
-        )
+    // MARK: - Direct state updates (no IPC needed)
 
-        operation.addCondition(
-            MutuallyExclusive(category: OperationCategory.tunnelStateUpdate.category)
-        )
+    /// Directly set disconnected state without going through operation queue.
+    /// Safe because disconnected is an idempotent final state.
+    private func setDisconnectedState(networkPathStatus: Network.NWPath.Status?) {
+        _ = setTunnelStatus { tunnelStatus in
+            tunnelStatus = TunnelStatus()
+            tunnelStatus.state = networkPathStatus == .unsatisfied
+                ? .waitingForConnectivity(.noNetwork)
+                : .disconnected
+        }
+    }
 
-        operationQueue.addOperation(operation)
+    /// Handle disconnecting state directly without IPC.
+    private func handleDisconnectingStateDirectly() {
+        let currentState = tunnelStatus.state
+
+        switch currentState {
+        case .disconnecting:
+            // Already disconnecting, no change needed
+            break
+        default:
+            _ = setTunnelStatus { tunnelStatus in
+                if tunnelStatus.observedState.blockedState != nil {
+                    tunnelStatus.state = .disconnecting(.nothing)
+                } else {
+                    let isNetworkReachable = tunnelStatus.observedState.connectionState?.isNetworkReachable ?? false
+                    tunnelStatus.state = isNetworkReachable
+                        ? .disconnecting(.nothing)
+                        : .waitingForConnectivity(.noNetwork)
+                }
+            }
+        }
+    }
+
+    /// Handle disconnected state directly without IPC.
+    private func handleDisconnectedStateDirectly() {
+        let currentState = tunnelStatus.state
+
+        switch currentState {
+        case .pendingReconnect:
+            logger.debug("Ignore disconnected state when pending reconnect.")
+
+        case .disconnecting(.reconnect):
+            logger.debug("Restart the tunnel on disconnect.")
+            _ = setTunnelStatus { tunnelStatus in
+                tunnelStatus = TunnelStatus()
+                tunnelStatus.state = .pendingReconnect
+            }
+            startTunnel()
+
+        default:
+            setDisconnectedState(networkPathStatus: networkMonitor?.currentPath.status)
+        }
+    }
+
+    // MARK: - IPC-based status fetch (for active states)
+
+    /// Fetch tunnel status via IPC and update state.
+    /// Only called for active states (.connecting, .reasserting, .connected).
+    private func fetchAndUpdateTunnelStatus() {
+        guard let tunnel = _tunnel else { return }
+
+        _ = tunnel.getTunnelStatus { [weak self] result in
+            guard let self else { return }
+
+            self.internalQueue.async {
+                if case let .success(observedState) = result {
+                    _ = self.setTunnelStatus { tunnelStatus in
+                        tunnelStatus.observedState = observedState
+
+                        if let newState = self.mapObservedStateToTunnelState(observedState) {
+                            tunnelStatus.state = newState
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /// Map ObservedState from packet tunnel to TunnelState for UI.
+    private func mapObservedStateToTunnelState(_ observedState: ObservedState) -> TunnelState? {
+        switch observedState {
+        case let .connected(connectionState):
+            return .connected(
+                connectionState.selectedRelays,
+                isPostQuantum: connectionState.isPostQuantum,
+                isDaita: connectionState.isDaitaEnabled
+            )
+        case let .connecting(connectionState):
+            return .connecting(
+                connectionState.selectedRelays,
+                isPostQuantum: connectionState.isPostQuantum,
+                isDaita: connectionState.isDaitaEnabled
+            )
+        case let .negotiatingEphemeralPeer(connectionState, privateKey):
+            return .negotiatingEphemeralPeer(
+                connectionState.selectedRelays,
+                privateKey,
+                isPostQuantum: connectionState.isPostQuantum,
+                isDaita: connectionState.isDaitaEnabled
+            )
+        case let .reconnecting(connectionState):
+            return .reconnecting(
+                connectionState.selectedRelays,
+                isPostQuantum: connectionState.isPostQuantum,
+                isDaita: connectionState.isDaitaEnabled
+            )
+        case let .error(blockedState):
+            return .error(blockedState.reason)
+        case .initial, .disconnecting, .disconnected:
+            return nil
+        }
     }
 
     private func scheduleSettingsUpdate(
