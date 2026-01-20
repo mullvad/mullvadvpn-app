@@ -69,7 +69,7 @@ enum UIMetrics {
     }
 
     enum AccountDeletion {
-        static let preferredContentSize = CGSize(width: 480, height: 640)
+        static let preferredContentSize = CGSize(width: 480, height: 320)
     }
 
     enum Button {
