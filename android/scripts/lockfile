@@ -71,14 +71,13 @@ function main {
 
 function cleanup {
     log "Cleaning up temp dirs..."
-    rm -rf -- "$GRADLE_USER_HOME" "$TEMP_GRADLE_PROJECT_CACHE_DIR" verification-keyring.gpg
+    rm -rf -- "$TEMP_GRADLE_PROJECT_CACHE_DIR" verification-keyring.gpg
 }
 
 function setup_gradle {
     # regardless if stopped.
     GRADLE_OPTS="-Dorg.gradle.daemon=false"
     # We must provide a template for mktemp to work properly on macOS.
-    GRADLE_USER_HOME=$(mktemp -d -t gradle-home-XXX)
     TEMP_GRADLE_PROJECT_CACHE_DIR=$(mktemp -d -t gradle-cache-XXX)
     # Task list to discover all tasks and their dependencies since
     # just running the suggested 'help' task isn't sufficient.
@@ -87,10 +86,8 @@ function setup_gradle {
     )
 
     export GRADLE_OPTS
-    export GRADLE_USER_HOME
 
     log_header "Gradle Configuration"
-    log_info "home: $GRADLE_USER_HOME"
     log_info "cache: $TEMP_GRADLE_PROJECT_CACHE_DIR"
 }
 
