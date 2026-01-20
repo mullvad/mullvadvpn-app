@@ -277,6 +277,12 @@ extension PacketTunnelActor {
         nextRelays: NextRelays,
         reason: ActorReconnectReason = .userInitiated
     ) async throws {
+        if case let .error(blockedState) = self.state,
+            blockedState.reason == .offline && reason != .restoredConnectivity
+        {
+            return
+        }
+
         let settings: Settings = try settingsReader.read()
         try await self.applyNetworkSettingsIfNeeded(settings: settings)
 
