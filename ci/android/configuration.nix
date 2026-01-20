@@ -71,15 +71,15 @@
   services.pulseaudio.enable = false;
   security.rtkit.enable = true;
 
-  # These 2 lines might help us with the newuidmap permission error:
-  security.wrappers.newuidmap = {
-    setuid = lib.mkForce false;
-    capabilities = "cap_setuid+ep";
-  };
-  security.wrappers.newgidmap = {
-    setuid = lib.mkForce false;
-    capabilities = "cap_setgid+ep";
-  };
+  # # These 2 lines might help us with the newuidmap permission error:
+  # security.wrappers.newuidmap = {
+  #   setuid = lib.mkForce false;
+  #   capabilities = "cap_setuid+ep";
+  # };
+  # security.wrappers.newgidmap = {
+  #   setuid = lib.mkForce false;
+  #   capabilities = "cap_setgid+ep";
+  # };
 
   services.pipewire = {
     enable = true;
@@ -210,7 +210,7 @@
       DynamicUser = lib.mkForce [];
       SystemCallFilter = lib.mkForce [];
       RestrictNamespaces = lib.mkForce [];
-      AmbientCapabilities = lib.mkForce [];
+
       LockPersonality = lib.mkForce [];
       MemoryDenyWriteExecute = lib.mkForce [];
       NoNewPrivileges= lib.mkForce [];
@@ -234,6 +234,11 @@
       RestrictAddressFamilies = lib.mkForce [];
       RestrictRealtime = lib.mkForce [];
       RestrictSUIDSGID = lib.mkForce [];
+
+      # If these are not set we will hit newuidmap/newgidmap permission issues when calling from
+      # systemd service, we can most likely scope these permissions down way more.
+      CapabilityBoundingSet= lib.mkForce ["~"];
+      AmbientCapabilities = lib.mkForce ["~"];
     };
   };
 
