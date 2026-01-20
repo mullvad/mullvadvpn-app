@@ -39,8 +39,8 @@ function FilterViewImpl() {
             />
             <NavigationScrollbars>
               <View.Container horizontalMargin="medium" flexDirection="column" gap="small">
-                <OwnershipFilter />
-                <ProviderFilter />
+                <OwnershipFilter defaultOpen />
+                <ProviderFilter defaultOpen />
               </View.Container>
             </NavigationScrollbars>
             <View.Container horizontalMargin="medium" padding={{ vertical: 'large' }}>
