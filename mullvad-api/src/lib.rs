@@ -31,6 +31,7 @@ pub mod device;
 pub mod domain_fronting;
 mod relay_list;
 
+pub mod android;
 pub mod ffi;
 
 pub use address_cache::{AddressCache, FileAddressCacheBacking};

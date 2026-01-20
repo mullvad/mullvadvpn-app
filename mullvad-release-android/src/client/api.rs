@@ -20,7 +20,7 @@ impl HttpVersionInfoProvider {
     const SIZE_LIMIT: usize = 1024 * 1024;
 
     /// Retrieve released versions for Android.
-    pub async fn get_releases() -> anyhow::Result<mullvad_api::version::AndroidReleases> {
+    pub async fn get_releases() -> anyhow::Result<mullvad_api::android::AndroidReleases> {
         let info_provider = HttpVersionInfoProvider {
             url: format!("{}{}", defaults::RELEASES_URL, "android.json"),
             resolve: Some((API_HOST_DEFAULT, API_IP_DEFAULT)),
@@ -28,7 +28,7 @@ impl HttpVersionInfoProvider {
         info_provider.get_releases_inner().await
     }
 
-    async fn get_releases_inner(&self) -> anyhow::Result<mullvad_api::version::AndroidReleases> {
+    async fn get_releases_inner(&self) -> anyhow::Result<mullvad_api::android::AndroidReleases> {
         let raw_json = Self::get(&self.url, None, self.resolve).await?;
         serde_json::from_slice(&raw_json).context("Failed to deserialize Android releases")
     }

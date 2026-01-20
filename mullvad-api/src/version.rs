@@ -1,5 +1,7 @@
 use super::rest;
 #[cfg(target_os = "android")]
+use crate::android::{AndroidReleases, is_version_supported_android};
+#[cfg(target_os = "android")]
 use anyhow::Context;
 use http::StatusCode;
 use http::header;
@@ -8,7 +10,6 @@ use mullvad_update::{
     format::response::SignedResponse,
     version::{Rollout, VersionInfo, VersionParameters, is_version_supported},
 };
-use serde::{Deserialize, Serialize};
 use std::future::Future;
 use std::str::FromStr;
 use std::sync::Arc;
@@ -31,19 +32,6 @@ pub struct AppVersionResponse {
     pub current_version_supported: bool,
     /// ETag for the response
     pub etag: Option<String>,
-}
-
-/// Android releases
-#[derive(Default, Debug, Deserialize, Serialize, Clone)]
-pub struct AndroidReleases {
-    /// Available app releases
-    pub releases: Vec<Release>,
-}
-
-#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, PartialOrd)]
-pub struct Release {
-    /// Mullvad app version
-    pub version: mullvad_version::Version,
 }
 
 impl AppVersionProxy {
@@ -184,16 +172,6 @@ impl AppVersionProxy {
                 }
             })
     }
-}
-
-pub fn is_version_supported_android(
-    current_version: &mullvad_version::Version,
-    response: &AndroidReleases,
-) -> bool {
-    response
-        .releases
-        .iter()
-        .any(|release| release.version == *current_version)
 }
 
 // This function makes a string conform to the allowed characters and length of header values.
