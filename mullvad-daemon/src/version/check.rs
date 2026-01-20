@@ -573,52 +573,25 @@ mod test {
     #[test]
     fn test_invalid_cache() {
         assert!(!cache_is_stale(
-            &version_cache(
-                "2025.5",
-                #[cfg(not(target_os = "android"))]
-                "2025.5",
-                #[cfg(not(target_os = "android"))]
-                None
-            ),
+            &version_cache("2025.5", "2025.5", None),
             &"2025.5".parse().unwrap()
         ));
         assert!(cache_is_stale(
-            &version_cache(
-                "2025.5",
-                #[cfg(not(target_os = "android"))]
-                "2025.5",
-                #[cfg(not(target_os = "android"))]
-                None
-            ),
+            &version_cache("2025.5", "2025.5", None),
             &"2025.6".parse().unwrap()
         ));
         assert!(!cache_is_stale(
-            &version_cache(
-                "2025.5-beta1",
-                #[cfg(not(target_os = "android"))]
-                "2025.5",
-                #[cfg(not(target_os = "android"))]
-                Some("2025.5-beta1")
-            ),
+            &version_cache("2025.5-beta1", "2025.5", Some("2025.5-beta1")),
             &"2025.5-beta1".parse().unwrap()
         ));
         assert!(cache_is_stale(
-            &version_cache(
-                "2025.5-beta1",
-                #[cfg(not(target_os = "android"))]
-                "2025.5",
-                #[cfg(not(target_os = "android"))]
-                Some("2025.5-beta1")
-            ),
+            &version_cache("2025.5-beta1", "2025.5", Some("2025.5-beta1")),
             &"2025.5-beta2".parse().unwrap()
         ));
     }
 
-    fn version_cache(
-        cache_version: &str,
-        #[cfg(not(target_os = "android"))] stable: &str,
-        #[cfg(not(target_os = "android"))] beta: Option<&str>,
-    ) -> VersionCache {
+    #[cfg_attr(target_os = "android", expect(unused_variables))]
+    fn version_cache(cache_version: &str, stable: &str, beta: Option<&str>) -> VersionCache {
         VersionCache {
             cache_version: cache_version.parse().unwrap(),
             current_version_supported: false,

@@ -4,6 +4,8 @@ use anyhow::{Context, anyhow, bail};
 use std::{cmp::Ordering, path::PathBuf};
 use tokio::{fs, io};
 
+use mullvad_api::version::android::{AndroidReleases, Release, is_version_supported_android};
+
 use crate::{
     client::api::HttpVersionInfoProvider,
     data_dir::get_data_dir,
@@ -113,7 +115,7 @@ pub async fn add_release(version: &mullvad_version::Version) -> anyhow::Result<(
     }
 
     // Make release
-    let new_release = mullvad_api::android::Release {
+    let new_release = Release {
         version: version.clone(),
     };
 
@@ -189,7 +191,7 @@ pub async fn set_latest_stable(version: &mullvad_version::Version) -> anyhow::Re
     let work_response = read_work().await?;
 
     // Only set as latest if we have that version in the supported list
-    if mullvad_api::android::is_version_supported_android(version, &work_response) {
+    if is_version_supported_android(version, &work_response) {
         // Currently we never set a beta latest version so there is no need to check the current latest beta so we always just set it to null. If we ever want to set the latest beta we need to parse the current file first.
         let new_latest = Platform {
             android: LatestVersion {
@@ -211,13 +213,13 @@ pub async fn set_latest_stable(version: &mullvad_version::Version) -> anyhow::Re
 
 /// Reads the metadata for `platform` in the work directory.
 /// If the file doesn't exist, this returns a new, empty response.
-async fn read_work() -> anyhow::Result<mullvad_api::android::AndroidReleases> {
+async fn read_work() -> anyhow::Result<AndroidReleases> {
     let work_path = work_path();
     let bytes = match fs::read(&work_path).await {
         Ok(bytes) => bytes,
         Err(error) if error.kind() == io::ErrorKind::NotFound => {
             // Return empty response
-            return Ok(mullvad_api::android::AndroidReleases::default());
+            return Ok(AndroidReleases::default());
         }
         Err(error) => bail!("Failed to read {}: {error}", work_path.display()),
     };

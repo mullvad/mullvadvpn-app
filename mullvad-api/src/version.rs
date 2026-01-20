@@ -1,7 +1,5 @@
 use super::rest;
 #[cfg(target_os = "android")]
-use crate::android::{AndroidReleases, is_version_supported_android};
-#[cfg(target_os = "android")]
 use anyhow::Context;
 use http::StatusCode;
 use http::header;
@@ -13,6 +11,33 @@ use mullvad_update::{
 use std::future::Future;
 use std::str::FromStr;
 use std::sync::Arc;
+
+pub mod android {
+    use serde::{Deserialize, Serialize};
+
+    /// Android releases
+    #[derive(Default, Debug, Deserialize, Serialize, Clone)]
+    pub struct AndroidReleases {
+        /// Available app releases
+        pub releases: Vec<Release>,
+    }
+
+    #[derive(Debug, Deserialize, Serialize, Clone, PartialEq, PartialOrd)]
+    pub struct Release {
+        /// Mullvad app version
+        pub version: mullvad_version::Version,
+    }
+
+    pub fn is_version_supported_android(
+        current_version: &mullvad_version::Version,
+        response: &AndroidReleases,
+    ) -> bool {
+        response
+            .releases
+            .iter()
+            .any(|release| release.version == *current_version)
+    }
+}
 
 #[derive(Clone)]
 pub struct AppVersionProxy {
@@ -144,14 +169,14 @@ impl AppVersionProxy {
 
             let bytes = response.body_with_max_size(Self::SIZE_LIMIT).await?;
 
-            let response: AndroidReleases = serde_json::from_slice(&bytes)
+            let response: android::AndroidReleases = serde_json::from_slice(&bytes)
                 .context("Invalid version JSON")
                 .map_err(|err| rest::Error::FetchVersions(Arc::new(err)))?;
 
             let current_version =
                 mullvad_version::Version::from_str(mullvad_version::VERSION).unwrap();
             let current_version_supported =
-                is_version_supported_android(&current_version, &response);
+                android::is_version_supported_android(&current_version, &response);
 
             Ok(Some(AppVersionResponse {
                 current_version_supported,
