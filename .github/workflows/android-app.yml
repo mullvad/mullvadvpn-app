@@ -86,7 +86,7 @@ jobs:
     runs-on: [android-sandbox-test-new-runner]
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6.0.1
         with:
           submodules: true
 
@@ -127,7 +127,7 @@ jobs:
 #          chmod -R u+rwX .
 
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6.0.1
 
       - name: Fetch submodules
         run: |
@@ -152,7 +152,7 @@ jobs:
           :test:e2e:assemble
 
       - name: Upload apks
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6.0.1
         with:
           name: apks
           path: android/**/*.apk
@@ -186,7 +186,7 @@ jobs:
       #   run: echo "HOME=/root" >> $GITHUB_ENV
 
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6.0.1
         with:
           submodules: true
 
@@ -228,7 +228,7 @@ jobs:
 
       - name: Checkout repository
         if: ${{ matrix.test-repeat != 0 }}
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6.0.1
         with:
           submodules: true
 
@@ -289,7 +289,7 @@ jobs:
           echo "report_dir=$INNER_REPORT_DIR" >> $GITHUB_OUTPUT
 
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6.0.1
         with:
           submodules: true
 
@@ -358,7 +358,7 @@ jobs:
             path: android/test/e2e/build/outputs/apk
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6.0.1
         with:
           submodules: true
 
