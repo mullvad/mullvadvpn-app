@@ -152,7 +152,7 @@ jobs:
           :test:e2e:assemble
 
       - name: Upload apks
-        uses: actions/upload-artifact@v6.0.1
+        uses: actions/upload-artifact@v4
         with:
           name: apks
           path: android/**/*.apk
