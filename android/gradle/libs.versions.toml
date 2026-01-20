@@ -1,5 +1,4 @@
 [versions]
-
 jvm-target = "17"
 # Updating the sdk version requires updating the version used in the build container.
 # See Bump SDK or container image template in Linear for more details.
@@ -8,18 +7,15 @@ build-tools = "36.0.0"
 min-sdk = "26"
 target-sdk = "36"
 ndk = "27.3.13750724"
-
 # Android
 # The android-gradle-aapt plugin version must be in sync with the android gradle plugin version.
 # Required for Gradle metadata verification to work properly, see:
 # https://github.com/gradle/gradle/issues/19228
 # Find the relevant AAPT version here:
 # https://mvnrepository.com/artifact/com.android.tools.build/aapt2
-
 android-gradle-plugin = "8.13.2"
 android-gradle-aapt = "14304508"
 android-billingclient = "8.0.0"
-
 # AndroidX
 androidx-activitycompose = "1.12.2"
 androidx-appcompat = "1.7.1"
@@ -35,10 +31,8 @@ androidx-testorchestrator = "1.6.1"
 androidx-testrunner = "1.7.0"
 androidx-uiautomator = "2.4.0-alpha07"
 androidx-tv = "1.0.1"
-
 # Arrow
 arrow = "2.2.1.1"
-
 # Compose
 compose = "1.10.0"
 compose-destinations = "2.3.0"
@@ -46,22 +40,17 @@ compose-constraintlayout = "1.1.1"
 compose-material3 = "1.4.0"
 compose-material-icons-extended = "1.7.8"
 drawablepainter = "0.37.3"
-
 # Update suppression for 'InvalidPackage' in config/lint.xml
 grpc = "1.76.0"
 grpc-kotlin = "1.5.0"
-
 junit = "5.13.4"
 junit5-android = "1.8.0"
 junit5-android-plugin = "1.13.1.0"
-
 # Koin
 koin = "4.1.1"
 koin-compose = "4.1.1"
-
 # Ktor
 ktor = "3.3.3"
-
 # Kotlin
 # Bump kotlin and kotlin-ksp together, find matching release here:
 # https://github.com/google/ksp/releases
@@ -69,11 +58,9 @@ kotlin = "2.3.0"
 kotlin-ksp = "2.3.4"
 kotlinx = "1.10.2"
 kotlinx-serialization-json = "1.9.0"
-
 # Protobuf
 protobuf-gradle-plugin = "0.9.5"
 protobuf = "4.33.2"
-
 # Misc
 commonsvalidator = "1.10.1"
 dependency-versions = "0.53.0"
@@ -82,11 +69,9 @@ kermit = "2.0.8"
 konsist = "0.17.3"
 ktfmt = "0.25.0"
 leakcanary = "2.14"
-
 mockk = "1.14.7"
 play-publisher = "3.12.1"
 turbine = "1.2.1"
-
 # Baseline profile
 junit4 = "1.3.0"
 benchmark-macro-junit4 = "1.4.1"
@@ -100,7 +85,6 @@ android-gradle-aapt = { module = "com.android.tools.build:aapt2" }
 # Required for build-logic convention plugins to apply AGP and Kotlin Gradle Plugin
 android-gradle-plugin = { module = "com.android.tools.build:gradle", version.ref = "android-gradle-plugin" }
 kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
-
 # AndroidX
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activitycompose" }
 androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "androidx-appcompat" }
@@ -121,13 +105,11 @@ androidx-test-uiautomator = { module = "androidx.test.uiautomator:uiautomator", 
 androidx-test-orchestrator = { module = "androidx.test:orchestrator", version.ref = "androidx-testorchestrator" }
 androidx-tv = { module = "androidx.tv:tv-material", version.ref = "androidx-tv" }
 androidx-ui-test = { module = "androidx.compose.ui:ui-test", version.ref = "compose" }
-
 # Arrow
 arrow = { module = "io.arrow-kt:arrow-core", version.ref = "arrow" }
 arrow-optics = { module = "io.arrow-kt:arrow-optics", version.ref = "arrow" }
 arrow-optics-ksp = { module = "io.arrow-kt:arrow-optics-ksp-plugin", version.ref = "arrow" }
 arrow-resilience = { module = "io.arrow-kt:arrow-resilience", version.ref = "arrow" }
-
 # Compose
 compose-constrainlayout = { module = "androidx.constraintlayout:constraintlayout-compose", version.ref = "compose-constraintlayout" }
 compose-destinations = { module = "io.github.raamcosta.compose-destinations:core", version.ref = "compose-destinations" }
@@ -142,46 +124,38 @@ compose-ui-tooling-android-preview = { module = "androidx.compose.ui:ui-tooling-
 compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "compose" }
 compose-ui-util = { module = "androidx.compose.ui:ui-util", version.ref = "compose" }
 accompanist-drawablepainter = { module = "com.google.accompanist:accompanist-drawablepainter", version.ref = "drawablepainter" }
-
 # gRPC
 grpc-okhttp = { module = "io.grpc:grpc-okhttp", version.ref = "grpc" }
 grpc-android = { module = "io.grpc:grpc-android", version.ref = "grpc" }
 grpc-stub = { module = "io.grpc:grpc-stub", version.ref = "grpc" }
 grpc-kotlin-stub = { module = "io.grpc:grpc-kotlin-stub", version.ref = "grpc-kotlin" }
 grpc-protobuf-lite = { module = "io.grpc:grpc-protobuf-lite", version.ref = "grpc" }
-
 # JUnit
 junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit" }
 junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit" }
 junit-jupiter-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junit" }
 junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher", version = "junit" }
-
 junit5-android-test-compose = { module = "de.mannodermaus.junit5:android-test-compose", version.ref = "junit5-android" }
 junit5-android-test-core = { module = "de.mannodermaus.junit5:android-test-core", version.ref = "junit5-android" }
 junit5-android-test-extensions = { module = "de.mannodermaus.junit5:android-test-extensions", version.ref = "junit5-android" }
 junit5-android-test-runner = { module = "de.mannodermaus.junit5:android-test-runner", version.ref = "junit5-android" }
-
 # Protobuf
 protobuf-kotlin-lite = { module = "com.google.protobuf:protobuf-kotlin-lite", version.ref = "protobuf" }
-
 # Koin
 koin = { module = "io.insert-koin:koin-core", version.ref = "koin" }
 koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin" }
 koin-compose = { module = "io.insert-koin:koin-androidx-compose", version.ref = "koin-compose" }
 koin-test = { module = "io.insert-koin:koin-test", version.ref = "koin" }
-
 # Kotlin
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
 kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlin-native-prebuilt = { module = "org.jetbrains.kotlin:kotlin-native-prebuilt", version.ref = "kotlin" }
-
 # KotlinX
 kotlinx-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx" }
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinx" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinx" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization-json" }
-
 # Ktor
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
 ktor-client-cio = { module = "io.ktor:ktor-client-cio", version.ref = "ktor" }
@@ -192,15 +166,12 @@ ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negoti
 ktor-client-resources = { module = "io.ktor:ktor-client-resources", version.ref = "ktor" }
 ktor-server-core = { module = "io.ktor:ktor-server-core-jvm", version.ref = "ktor" }
 ktor-server-engine-netty = { module = "io.ktor:ktor-server-netty", version.ref = "ktor" }
-
 # MockK
 mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
 mockk-android = { module = "io.mockk:mockk-android", version.ref = "mockk" }
-
 # Detekt
 detekt-api = { module = "io.gitlab.arturbosch.detekt:detekt-api", version.ref = "detekt" }
 detekt-test = { module = "io.gitlab.arturbosch.detekt:detekt-test", version.ref = "detekt" }
-
 # Misc
 commons-validator = { module = "commons-validator:commons-validator", version.ref = "commonsvalidator" }
 kermit = { module = "co.touchlab:kermit", version.ref = "kermit" }
@@ -218,36 +189,27 @@ android-gradle-plugin = { id = "com.android.tools.build:gradle", version.ref = "
 android-application = { id = "com.android.application", version.ref = "android-gradle-plugin" }
 android-library = { id = "com.android.library", version.ref = "android-gradle-plugin" }
 android-test = { id = "com.android.test", version.ref = "android-gradle-plugin" }
-
 # Compose
 compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
-
-#Junit
+# Junit
 junit5-android = { id = "de.mannodermaus.android-junit5", version.ref = "junit5-android-plugin" }
-
 # Kotlin
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin" }
 kotlin-ksp = { id = "com.google.devtools.ksp", version.ref = "kotlin-ksp" }
-
 # Kotlinx
 kotlinx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
-
 # Protobuf
 protobuf-core = { id = "com.google.protobuf", version.ref = "protobuf-gradle-plugin" }
 protobuf-protoc = { id = "com.google.protobuf:protoc", version.ref = "protobuf" }
-
 # gRPC
 grpc-protoc-gen-grpc-java = { id = "io.grpc:protoc-gen-grpc-java", version.ref = "grpc" }
 grpc-protoc-gen-grpc-kotlin = { id = "io.grpc:protoc-gen-grpc-kotlin", version.ref = "grpc-kotlin" }
-
-
 dependency-versions = { id = "com.github.ben-manes.versions", version.ref = "dependency-versions" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 ktfmt = { id = "com.ncorti.ktfmt.gradle", version.ref = "ktfmt" }
 play-publisher = { id = "com.github.triplet.play", version.ref = "play-publisher" }
 baselineprofile = { id = "androidx.baselineprofile", version.ref = "baselineprofile" }
-
 # Mullvad
 mullvad-android-library = { id = "mullvad.android-library" }
 mullvad-utilities = { id = "mullvad.utilities" }
