@@ -3,6 +3,8 @@ package net.mullvad.mullvadvpn.receiver
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import androidx.work.Constraints
+import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkManager
@@ -20,6 +22,9 @@ class NotificationAlarmReceiver : BroadcastReceiver(), KoinComponent {
         val work =
             OneTimeWorkRequestBuilder<ExpiryNotificationWorker>()
                 .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
+                .setConstraints(
+                    Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()
+                )
                 .build()
         WorkManager.getInstance(context).enqueue(work)
         return
