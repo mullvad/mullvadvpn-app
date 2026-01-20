@@ -734,9 +734,6 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
             handleBlockedState(reason: blockedStateReason)
         }
 
-        // Note: Polling is now controlled by updatePollingFromVPNStatus() based on
-        // NEVPNStatus directly, not the derived tunnelStatus.state.
-
         DispatchQueue.main.async {
             self.observerList.notify { observer in
                 observer.tunnelManager(self, didUpdateTunnelStatus: self._tunnelStatus)
@@ -823,7 +820,6 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
         let status = tunnel?.status ?? .disconnected
         guard [.disconnected, .invalid].contains(status) else { return }
 
-        // Direct state update - no operation needed
         setDisconnectedState(networkPathStatus: path.status)
     }
 
@@ -856,8 +852,6 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
         }
     }
 
-    private var lastTunStatus: NEVPNStatus? = nil
-
     private func subscribeVPNStatusObserver(tunnel: any TunnelProtocol) {
         nslock.lock()
         defer { nslock.unlock() }
@@ -868,8 +862,6 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
             tunnel
             .addBlockObserver(queue: internalQueue) { [weak self] tunnel, status in
                 guard let self else { return }
-                self.lastTunStatus = status
-                self.logger.debug("VPN connection status changed to \(status).")
 
                 // Control polling based on NEVPNStatus directly (the source of truth),
                 // not the derived tunnelStatus.state which can be stale.
