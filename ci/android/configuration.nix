@@ -2,13 +2,18 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 {
-  imports =
-    [ # Include the results of the hardware scan.
-      ./hardware-configuration.nix
-    ];
+  imports = [
+    # Include the results of the hardware scan.
+    ./hardware-configuration.nix
+  ];
 
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
@@ -101,26 +106,45 @@
   users.users.runner-admin = {
     isNormalUser = true;
     description = "Mole Runnersson";
-    extraGroups = [ "networkmanager" "wheel" ];
+    extraGroups = [
+      "networkmanager"
+      "wheel"
+    ];
     group = "runner-admin";
     packages = with pkgs; [
-    #  thunderbird
+      #  thunderbird
     ];
   };
 
   users.users.runner1 = {
     isNormalUser = true;
     description = "Runner1 user";
-    extraGroups = [ "podman" "networkmanager" "wheel" "runners" "docker"];
+    extraGroups = [
+      "podman"
+      "networkmanager"
+      "wheel"
+      "runners"
+      "docker"
+    ];
     group = "runner1";
-    subUidRanges = [ { startUid = 100000; count = 65536; } ];
-    subGidRanges = [ { startGid = 100000; count = 65536; } ];
+    subUidRanges = [
+      {
+        startUid = 100000;
+        count = 65536;
+      }
+    ];
+    subGidRanges = [
+      {
+        startGid = 100000;
+        count = 65536;
+      }
+    ];
     # needed for podman
     linger = true;
   };
 
-  users.groups.runner-admin = {};
-  users.groups.runner1 = {};
+  users.groups.runner-admin = { };
+  users.groups.runner1 = { };
 
   users.groups.runners = {
     members = [ "runner1" ];
@@ -133,7 +157,7 @@
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
 
-    # List packages installed in system profile. To search, run:
+  # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
     neovim
@@ -144,7 +168,7 @@
     git
     javaPackages.compiler.openjdk17
     strace
-  #  wget
+    #  wget
     # Temp tests
     stress
     lm_sensors
@@ -162,7 +186,7 @@
   virtualisation = {
     containers.enable = true;
     containers.containersConf.settings = {
-     containers.seccomp_profile = "/tmp/seccomp.json";
+      containers.seccomp_profile = "/tmp/seccomp.json";
     };
     # docker.rootless.daemon.settings = {
     #   selinux-enabled = true;
@@ -207,38 +231,38 @@
       "/run/current-system/sw"
     ];
     serviceConfig = {
-      DynamicUser = lib.mkForce [];
-      SystemCallFilter = lib.mkForce [];
-      RestrictNamespaces = lib.mkForce [];
+      DynamicUser = lib.mkForce [ ];
+      SystemCallFilter = lib.mkForce [ ];
+      RestrictNamespaces = lib.mkForce [ ];
 
-      LockPersonality = lib.mkForce [];
-      MemoryDenyWriteExecute = lib.mkForce [];
-      NoNewPrivileges= lib.mkForce [];
-      PrivateDevices = lib.mkForce [];
-      PrivateMounts = lib.mkForce [];
-      PrivateNetwork = lib.mkForce [];
-      PrivateTmp = lib.mkForce [];
-      PrivateUsers = lib.mkForce [];
-      ProcSubset = lib.mkForce [];
-      ProtectClock = lib.mkForce [];
-      ProtectControlGroups = lib.mkForce [];
-      ProtectHome = lib.mkForce [];
-      ProtectHostname = lib.mkForce [];
-      ProtectKernelLogs = lib.mkForce [];
-      ProtectKernelModules = lib.mkForce [];
-      ProtectKernelTunables = lib.mkForce [];
-      ProtectProc="off";
-      ProtectSystem = lib.mkForce [];
-      RemoveIPC = lib.mkForce [];
+      LockPersonality = lib.mkForce [ ];
+      MemoryDenyWriteExecute = lib.mkForce [ ];
+      NoNewPrivileges = lib.mkForce [ ];
+      PrivateDevices = lib.mkForce [ ];
+      PrivateMounts = lib.mkForce [ ];
+      PrivateNetwork = lib.mkForce [ ];
+      PrivateTmp = lib.mkForce [ ];
+      PrivateUsers = lib.mkForce [ ];
+      ProcSubset = lib.mkForce [ ];
+      ProtectClock = lib.mkForce [ ];
+      ProtectControlGroups = lib.mkForce [ ];
+      ProtectHome = lib.mkForce [ ];
+      ProtectHostname = lib.mkForce [ ];
+      ProtectKernelLogs = lib.mkForce [ ];
+      ProtectKernelModules = lib.mkForce [ ];
+      ProtectKernelTunables = lib.mkForce [ ];
+      ProtectProc = "off";
+      ProtectSystem = lib.mkForce [ ];
+      RemoveIPC = lib.mkForce [ ];
       # Restart = lib.mkForce [];
-      RestrictAddressFamilies = lib.mkForce [];
-      RestrictRealtime = lib.mkForce [];
-      RestrictSUIDSGID = lib.mkForce [];
+      RestrictAddressFamilies = lib.mkForce [ ];
+      RestrictRealtime = lib.mkForce [ ];
+      RestrictSUIDSGID = lib.mkForce [ ];
 
       # If these are not set we will hit newuidmap/newgidmap permission issues when calling from
       # systemd service, we can most likely scope these permissions down way more.
-      CapabilityBoundingSet= lib.mkForce ["~"];
-      AmbientCapabilities = lib.mkForce ["~"];
+      CapabilityBoundingSet = lib.mkForce [ "~" ];
+      AmbientCapabilities = lib.mkForce [ "~" ];
     };
   };
 
@@ -253,19 +277,8 @@
       group = "runner1";
       extraPackages = with pkgs; [
         podman
-        strace
       ];
       workDir = "/home/runner1/runner1";
-      #   CARGO_TARGET_VOLUME_NAME = "/home/runner1/runner1/cargo-target";
-      #   CARGO_REGISTRY_VOLUME_NAME = "/home/runner1/runner1/cargo-registry";
-      #   GRADLE_CACHE_VOLUME_NAME = "gradle-cache";
-      # };
-      # Maybe not needed, because workDir is now set?
-      serviceOverrides = {
-        # RuntimeDirectory = "/home/runner1/runner1";
-        Environment = [
-        ];
-      };
     };
   };
 
@@ -283,4 +296,3 @@
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
   system.stateVersion = "25.11"; # Did you read the comment?
 }
-
