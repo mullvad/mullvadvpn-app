@@ -1,32 +1,8 @@
 # See repository root `osv-scanner.toml` for instructions and rules for this file.
 
-# PostCSS line return parsing error
-[[IgnoredVulns]]
-id = "CVE-2023-44270" # GHSA-7fh5-64p2-3v2j
-ignoreUntil = 2025-06-05
-reason = "This project does not use PostCSS to parse untrusted CSS"
-
-# braces: Uncontrolled resource consumption
-[[IgnoredVulns]]
-id = "CVE-2024-4068" # GHSA-grv7-fg5c-xmjg
-ignoreUntil = 2025-06-05
-reason = "This package is only used to match paths from either us or trusted libraries"
-
-# micromatch (dev): Regular Expression Denial of Service (ReDoS) in micromatch
-[[IgnoredVulns]]
-id = "CVE-2024-4067" # GHSA-952p-6rrq-rcjv
-ignoreUntil = 2025-05-23
-reason = "This is just a dev dependency, and we don't have untrusted input to micromatch there"
-
 # node-gettext: Prototype Pullution via the addTranslations function
 [[IgnoredVulns]]
 id = "CVE-2024-21528" # GHSA-g974-hxvm-x689
 ignoreUntil = 2026-04-16 # The vulnerability is ignored for 6 months as the affected library is not receiving updates and we can not patch the vulnerability without migrating to another library, which is no minor feat.
 reason = "There is no fix yet and we don't send untrusted input to the first argument of addTranslations"
-
-# electron: Electron has ASAR Integrity Bypass via resource modification
-[[IgnoredVulns]]
-id = "CVE-2025-55305" # GHSA-vmqv-hx8q-j7mg
-ignoreUntil = 2025-12-04
-reason = "The embeddedAsarIntegrityValidation and onlyLoadAppFromAsar fuses aren't enabled"
 
