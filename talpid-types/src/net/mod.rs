@@ -30,7 +30,6 @@ pub struct TunnelEndpoint {
     pub obfuscation: Option<ObfuscationInfo>,
     pub entry_endpoint: Option<Endpoint>,
     pub tunnel_interface: Option<String>,
-    #[cfg(daita)]
     pub daita: bool,
 }
 
