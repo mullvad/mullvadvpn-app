@@ -30,7 +30,7 @@
     RestrictAddressFamilies = lib.mkForce [ ];
     RestrictRealtime = lib.mkForce false;
     RestrictSUIDSGID = lib.mkForce false;
-    CapabilityBoundingSet = lib.mkForce [ "CAP_SETUID CAP_SETGID" ];
-    AmbientCapabilities = lib.mkForce [ "CAP_SETUID CAP_SETGID" ];
+    CapabilityBoundingSet = lib.mkForce [ "~CAP_SETGID" ];
+    AmbientCapabilities = lib.mkForce [ "~CAP_SETGID" ];
   };
 }
