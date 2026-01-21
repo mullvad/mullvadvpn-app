@@ -139,7 +139,8 @@ impl IO {
     }
 }
 
-/// Classify a given TCP packet, try to pinpoint if it was created by [`craft_malicious_packet`].
+/// Classify a given TCP packet, try to pinpoint if it is a reply to a packet created by
+/// [`craft_malicious_packet`].
 fn is_malicious_packet(tcp: &TcpPacket<'_>) -> bool {
     let reset_flag_set = (tcp.get_flags() & TcpFlags::RST) != 0;
     let correct_source_port = tcp.get_source() == MALICIOUS_PACKET_PORT;
