@@ -11,7 +11,6 @@
 
 {
   imports = [
-    # Include the results of the hardware scan.
     ./hardware-configuration.nix
   ];
 
@@ -19,14 +18,8 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
-  networking.hostName = "android-github-runner"; # Define your hostname.
-  # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
-
-  # Configure network proxy if necessary
-  # networking.proxy.default = "http://user:password@proxy:port/";
-  # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
-
-  # Enable networking
+  # Networking
+  networking.hostName = "bender";
   networking.networkmanager.enable = true;
 
   # Set your time zone.
@@ -69,90 +62,59 @@
   # Configure console keymap
   console.keyMap = "sv-latin1";
 
-  # Enable CUPS to print documents.
-  services.printing.enable = true;
+  users = {
+    users = {
+      runner-admin = {
+        isNormalUser = true;
+        extraGroups = [
+          "networkmanager"
+          "wheel"
+        ];
+        group = "runner-admin";
+        packages = with pkgs; [
+        ];
+      };
 
-  # Enable sound with pipewire.
-  services.pulseaudio.enable = false;
-  security.rtkit.enable = true;
+      runner = {
+        isNormalUser = true;
+        description = "Runner user";
+        extraGroups = [
+          "podman"
+          "networkmanager"
+          "wheel"
+          "runners"
+          "docker"
+        ];
+        group = "runner";
+        subUidRanges = [
+          {
+            startUid = 100000;
+            count = 65536;
+          }
+        ];
+        subGidRanges = [
+          {
+            startGid = 100000;
+            count = 65536;
+          }
+        ];
+        # needed for podman
+        linger = true;
+      };
+    };
 
-  # # These 2 lines might help us with the newuidmap permission error:
-  # security.wrappers.newuidmap = {
-  #   setuid = lib.mkForce false;
-  #   capabilities = "cap_setuid+ep";
-  # };
-  # security.wrappers.newgidmap = {
-  #   setuid = lib.mkForce false;
-  #   capabilities = "cap_setgid+ep";
-  # };
+    groups = {
+      runner-admin = { };
+      runner = { };
 
-  services.pipewire = {
-    enable = true;
-    alsa.enable = true;
-    alsa.support32Bit = true;
-    pulse.enable = true;
-    # If you want to use JACK applications, uncomment this
-    #jack.enable = true;
-
-    # use the example session manager (no others are packaged yet so this is enabled by default,
-    # no need to redefine it in your config for now)
-    #media-session.enable = true;
-  };
-
-  # Enable touchpad support (enabled default in most desktopManager).
-  # services.xserver.libinput.enable = true;
-
-  # Define a user account. Don't forget to set a password with ‘passwd’.
-  users.users.runner-admin = {
-    isNormalUser = true;
-    description = "Mole Runnersson";
-    extraGroups = [
-      "networkmanager"
-      "wheel"
-    ];
-    group = "runner-admin";
-    packages = with pkgs; [
-      #  thunderbird
-    ];
-  };
-
-  users.users.runner1 = {
-    isNormalUser = true;
-    description = "Runner1 user";
-    extraGroups = [
-      "podman"
-      "networkmanager"
-      "wheel"
-      "runners"
-      "docker"
-    ];
-    group = "runner1";
-    subUidRanges = [
-      {
-        startUid = 100000;
-        count = 65536;
-      }
-    ];
-    subGidRanges = [
-      {
-        startGid = 100000;
-        count = 65536;
-      }
-    ];
-    # needed for podman
-    linger = true;
-  };
-
-  users.groups.runner-admin = { };
-  users.groups.runner1 = { };
-
-  users.groups.runners = {
-    members = [ "runner1" ];
+      runners = {
+        members = [ "runner" ];
+      };
+    };
   };
 
   # Install firefox.
   programs.firefox.enable = true;
-  # programs.shadow.setuid = false;
 
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
@@ -168,14 +130,13 @@
     git
     javaPackages.compiler.openjdk17
     strace
-    #  wget
+
     # Temp tests
-    stress
     lm_sensors
+
     slirp4netns
   ];
 
-  programs.java.enable = true;
   programs.neovim = {
     enable = true;
     defaultEditor = true;
@@ -188,10 +149,7 @@
     containers.containersConf.settings = {
       containers.seccomp_profile = "/tmp/seccomp.json";
     };
-    # docker.rootless.daemon.settings = {
-    #   selinux-enabled = true;
-    #   seccomp-profile = "unconfined";
-    # };
+
     podman = {
       dockerSocket.enable = true;
       enable = true;
@@ -200,20 +158,12 @@
       defaultNetwork.settings.driver = "slirp4netns";
     };
   };
-  # virtualisation.oci-containers.backend = "podman"
-
-  # Some programs need SUID wrappers, can be configured further or are
-  # started in user sessions.
-  # programs.mtr.enable = true;
-  # programs.gnupg.agent = {
-  #   enable = true;
-  #   enableSSHSupport = true;
-  # };
-
-  # List services that you want to enable:
 
   # Enable the OpenSSH daemon.
-  services.openssh.enable = true;
+  services.openssh = {
+    enable = true;
+    settings.PasswordAuthentication = false;
+  };
 
   security.unprivilegedUsernsClone = true;
   services.avahi = {
@@ -225,7 +175,35 @@
     };
   };
 
-  systemd.services."github-runner-android-runner-1" = {
+  services.github-runners = {
+    android-bender-01 = {
+      enable = true;
+      name = "android-bender-01";
+      tokenFile = "/home/runner/secrets/pat_token";
+      url = "https://github.com/mullvad/mullvadvpn-app";
+      user = "runner";
+      group = "runner";
+      extraPackages = with pkgs; [
+        podman
+      ];
+      workDir = "/home/runner/android-bender-01";
+    };
+    # android-bender-02 = {
+    #   enable = true;
+    #   name = "android-bender-02";
+    #   tokenFile = "/home/runner/secrets/pat_token";
+    #   url = "https://github.com/mullvad/mullvadvpn-app";
+    #   user = "runner";
+    #   group = "runner";
+    #   extraPackages = with pkgs; [
+    #     podman
+    #   ];
+    #   workDir = "/home/runner/android-bender-02";
+    # };
+  };
+
+  systemd.services."github-runner-android-bender-01" = {
+    # Include system wrappers to expose 'newuidmap' and 'newgidmap'
     path = [
       "/run/wrappers"
       "/run/current-system/sw"
@@ -261,32 +239,10 @@
 
       # If these are not set we will hit newuidmap/newgidmap permission issues when calling from
       # systemd service, we can most likely scope these permissions down way more.
-      CapabilityBoundingSet = lib.mkForce [ "~" ];
-      AmbientCapabilities = lib.mkForce [ "~" ];
+      CapabilityBoundingSet = lib.mkForce [ "CAP_SETUID CAP_SETGID" ];
+      AmbientCapabilities = lib.mkForce [ "CAP_SETUID CAP_SETGID" ];
     };
   };
-
-  services.github-runners = {
-    android-runner-1 = {
-      enable = true;
-      # To be changed later, for final setup
-      name = "android-runner-1-test";
-      tokenFile = "/etc/nixos/secrets/android-runner-1-token";
-      url = "https://github.com/mullvad/mullvadvpn-app";
-      user = "runner1";
-      group = "runner1";
-      extraPackages = with pkgs; [
-        podman
-      ];
-      workDir = "/home/runner1/runner1";
-    };
-  };
-
-  # Open ports in the firewall.
-  # networking.firewall.allowedTCPPorts = [ ... ];
-  # networking.firewall.allowedUDPPorts = [ ... ];
-  # Or disable the firewall altogether.
-  # networking.firewall.enable = false;
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
