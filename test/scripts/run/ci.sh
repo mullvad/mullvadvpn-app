@@ -25,9 +25,11 @@ TEST_OS=$1
 # shellcheck source=test/scripts/utils/lib.sh
 source "../utils/lib.sh"
 
+git fetch --tags --force
+
 # The `CURRENT_VERSION` variable is set by the workflow file which invokes `mullvad-version`
 # We need to add a suffix with tag information to get the current version string
-TAG=$(git describe --exact-match HEAD 2>/dev/null || echo "")
+TAG=$(git describe --tags 2>/dev/null || echo "")
 if [[ -n "$TAG" && ${CURRENT_VERSION} =~ -dev- ]]; then
     # Remove disallowed version characters from the tag
     CURRENT_VERSION+="+${TAG//[^0-9a-z_-]/}"
