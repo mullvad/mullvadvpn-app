@@ -590,6 +590,7 @@
 		7A9BE5A92B90806800E2A7D0 /* CustomListsRepositoryStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A9BE5A82B90806800E2A7D0 /* CustomListsRepositoryStub.swift */; };
 		7A9BE5AB2B909A1700E2A7D0 /* LocationDataSourceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = F050AE5D2B739A73003F4EDB /* LocationDataSourceProtocol.swift */; };
 		7A9BE5AD2B90DF2D00E2A7D0 /* AllLocationsDataSourceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A9BE5AC2B90DF2D00E2A7D0 /* AllLocationsDataSourceTests.swift */; };
+		87A647B96EC28D42434F4D03 /* AllLocationDataSourceBenchmarkTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A647B96EC28D42434F4D02 /* AllLocationDataSourceBenchmarkTests.swift */; };
 		7A9CCCB32A96302800DD6A34 /* WelcomeCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A9CCCA12A96302700DD6A34 /* WelcomeCoordinator.swift */; };
 		7A9CCCB62A96302800DD6A34 /* OutOfTimeCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A9CCCA42A96302700DD6A34 /* OutOfTimeCoordinator.swift */; };
 		7A9CCCB72A96302800DD6A34 /* RevokedCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A9CCCA52A96302700DD6A34 /* RevokedCoordinator.swift */; };
@@ -2146,6 +2147,7 @@
 		7A9BE5A42B90760C00E2A7D0 /* CustomListsDataSourceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomListsDataSourceTests.swift; sourceTree = "<group>"; };
 		7A9BE5A82B90806800E2A7D0 /* CustomListsRepositoryStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomListsRepositoryStub.swift; sourceTree = "<group>"; };
 		7A9BE5AC2B90DF2D00E2A7D0 /* AllLocationsDataSourceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AllLocationsDataSourceTests.swift; sourceTree = "<group>"; };
+		87A647B96EC28D42434F4D02 /* AllLocationDataSourceBenchmarkTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AllLocationDataSourceBenchmarkTests.swift; sourceTree = "<group>"; };
 		7A9CCCA12A96302700DD6A34 /* WelcomeCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WelcomeCoordinator.swift; sourceTree = "<group>"; };
 		7A9CCCA22A96302700DD6A34 /* TermsOfServiceCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TermsOfServiceCoordinator.swift; sourceTree = "<group>"; };
 		7A9CCCA42A96302700DD6A34 /* OutOfTimeCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OutOfTimeCoordinator.swift; sourceTree = "<group>"; };
@@ -4408,6 +4410,7 @@
 		7A9BE5A02B8F881B00E2A7D0 /* SelectLocation */ = {
 			isa = PBXGroup;
 			children = (
+				87A647B96EC28D42434F4D02 /* AllLocationDataSourceBenchmarkTests.swift */,
 				7A9BE5AC2B90DF2D00E2A7D0 /* AllLocationsDataSourceTests.swift */,
 				F050AE5B2B73797D003F4EDB /* CustomListRepositoryTests.swift */,
 				7A9BE5A42B90760C00E2A7D0 /* CustomListsDataSourceTests.swift */,
@@ -6023,6 +6026,7 @@
 				7A6AA3AD2EC5CF2300F1C80C /* LegacyStoreSubscription.swift in Sources */,
 				A9A5F9FF2ACB05160083449F /* NotificationManagerDelegate.swift in Sources */,
 				7A9BE5AD2B90DF2D00E2A7D0 /* AllLocationsDataSourceTests.swift in Sources */,
+				87A647B96EC28D42434F4D03 /* AllLocationDataSourceBenchmarkTests.swift in Sources */,
 				A9A5FA002ACB05160083449F /* ProductsRequestOperation.swift in Sources */,
 				A9A5FA012ACB05160083449F /* RelayCacheTrackerObserver.swift in Sources */,
 				A9A5FA022ACB05160083449F /* RelayCacheTracker.swift in Sources */,
