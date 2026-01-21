@@ -33,6 +33,7 @@ tokio = { workspace = true, features =  ["fs", "io-util", "rt-multi-thread", "sy
 tokio-stream = { version = "0.1", features = ["sync"]}
 rand = { workspace = true }
 
+mullvad-logging = { path = "../mullvad-logging" }
 mullvad-relay-selector = { path = "../mullvad-relay-selector" }
 mullvad-types = { path = "../mullvad-types" }
 mullvad-api = { path = "../mullvad-api" }
