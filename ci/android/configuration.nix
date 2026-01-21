@@ -179,7 +179,7 @@
     android-bender-01 = {
       enable = true;
       name = "android-bender-01";
-      tokenFile = "/home/runner/secrets/pat_token";
+      tokenFile = "/home/runner/.registration-tokens/android-bender-01.token";
       url = "https://github.com/mullvad/mullvadvpn-app";
       user = "runner";
       group = "runner";
@@ -187,61 +187,56 @@
         podman
       ];
       workDir = "/home/runner/android-bender-01";
+      extraLabels = [
+        "android-bender-01"
+        "android-build"
+      ];
     };
-    # android-bender-02 = {
-    #   enable = true;
-    #   name = "android-bender-02";
-    #   tokenFile = "/home/runner/secrets/pat_token";
-    #   url = "https://github.com/mullvad/mullvadvpn-app";
-    #   user = "runner";
-    #   group = "runner";
-    #   extraPackages = with pkgs; [
-    #     podman
-    #   ];
-    #   workDir = "/home/runner/android-bender-02";
-    # };
+    android-bender-02 = {
+      enable = true;
+      name = "android-bender-02";
+      tokenFile = "/home/runner/.registration-tokens/android-bender-02.token";
+      url = "https://github.com/mullvad/mullvadvpn-app";
+      user = "runner";
+      group = "runner";
+      extraPackages = with pkgs; [
+        podman
+      ];
+      workDir = "/home/runner/android-bender-02";
+      extraLabels = [
+        "android-bender-02"
+        "android-build"
+      ];
+    };
+    android-bender-03 = {
+      enable = true;
+      name = "android-bender-03";
+      tokenFile = "/home/runner/.registration-tokens/android-bender-03.token";
+      url = "https://github.com/mullvad/mullvadvpn-app";
+      user = "runner";
+      group = "runner";
+      extraPackages = with pkgs; [
+        podman
+      ];
+      workDir = "/home/runner/android-bender-03";
+      extraEnvironment = {
+        ANDROID_SERIAL = "29121FDH200A6G";
+      };
+      extraLabels = [
+        "android-bender-03"
+        "android-device-test"
+      ];
+    };
   };
 
-  systemd.services."github-runner-android-bender-01" = {
-    # Include system wrappers to expose 'newuidmap' and 'newgidmap'
-    path = [
-      "/run/wrappers"
-      "/run/current-system/sw"
-    ];
-    serviceConfig = {
-      DynamicUser = lib.mkForce [ ];
-      SystemCallFilter = lib.mkForce [ ];
-      RestrictNamespaces = lib.mkForce [ ];
-
-      LockPersonality = lib.mkForce [ ];
-      MemoryDenyWriteExecute = lib.mkForce [ ];
-      NoNewPrivileges = lib.mkForce [ ];
-      PrivateDevices = lib.mkForce [ ];
-      PrivateMounts = lib.mkForce [ ];
-      PrivateNetwork = lib.mkForce [ ];
-      PrivateTmp = lib.mkForce [ ];
-      PrivateUsers = lib.mkForce [ ];
-      ProcSubset = lib.mkForce [ ];
-      ProtectClock = lib.mkForce [ ];
-      ProtectControlGroups = lib.mkForce [ ];
-      ProtectHome = lib.mkForce [ ];
-      ProtectHostname = lib.mkForce [ ];
-      ProtectKernelLogs = lib.mkForce [ ];
-      ProtectKernelModules = lib.mkForce [ ];
-      ProtectKernelTunables = lib.mkForce [ ];
-      ProtectProc = "off";
-      ProtectSystem = lib.mkForce [ ];
-      RemoveIPC = lib.mkForce [ ];
-      # Restart = lib.mkForce [];
-      RestrictAddressFamilies = lib.mkForce [ ];
-      RestrictRealtime = lib.mkForce [ ];
-      RestrictSUIDSGID = lib.mkForce [ ];
-
-      # If these are not set we will hit newuidmap/newgidmap permission issues when calling from
-      # systemd service, we can most likely scope these permissions down way more.
-      CapabilityBoundingSet = lib.mkForce [ "CAP_SETUID CAP_SETGID" ];
-      AmbientCapabilities = lib.mkForce [ "CAP_SETUID CAP_SETGID" ];
-    };
+  systemd.services."github-runner-android-bender-01" = import ./runner-systemd-config.nix {
+    inherit lib;
+  };
+  systemd.services."github-runner-android-bender-02" = import ./runner-systemd-config.nix {
+    inherit lib;
+  };
+  systemd.services."github-runner-android-bender-03" = import ./runner-systemd-config.nix {
+    inherit lib;
   };
 
   # This value determines the NixOS release from which the default
