@@ -9,22 +9,26 @@
 import Foundation
 
 @propertyWrapper
-public struct AppStorage<Value> {
+public struct AppStorage<Value: Codable> {
     let key: String
     let defaultValue: Value
     let container: UserDefaults
 
     public var wrappedValue: Value {
         get {
-            container.value(forKey: key) as? Value ?? defaultValue
+            guard
+                let data = container.data(forKey: key),
+                let value = try? JSONDecoder().decode(Value.self, from: data)
+            else {
+                return defaultValue
+            }
+            return value
         }
         set {
-            if let anyOptional = newValue as? AnyOptional,
-                anyOptional.isNil
-            {
-                container.removeObject(forKey: key)
+            if let data = try? JSONEncoder().encode(newValue) {
+                container.set(data, forKey: key)
             } else {
-                container.set(newValue, forKey: key)
+                container.removeObject(forKey: key)
             }
         }
     }

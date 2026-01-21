@@ -366,13 +366,19 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
         }
     }
 
-    private func presentMain(animated: Bool, completion: @escaping (Coordinator) -> Void) {
+    private func presentMain(animated: Bool, completion: @Sendable @escaping (Coordinator) -> Void) {
         let tunnelCoordinator = makeTunnelCoordinator()
 
         navigationContainer.pushViewController(
             tunnelCoordinator.rootViewController,
             animated: animated
-        )
+        ) { [weak self] in
+            guard let self, appPreferences.isNotificationPermissionNeeded else {
+                completion(tunnelCoordinator)
+                return
+            }
+            presentNotificationsPrompt(animated: animated, completion: completion)
+        }
 
         addChild(tunnelCoordinator)
         tunnelCoordinator.start()
@@ -628,8 +634,12 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
             interactorFactory: interactorFactory,
             accessMethodRepository: accessMethodRepository,
             proxyConfigurationTester: configurationTester,
-            ipOverrideRepository: ipOverrideRepository
-        )
+            ipOverrideRepository: ipOverrideRepository,
+            notificationSettings: appPreferences.notificationSettings)
+
+        coordinator.didUpdateNotificationSettings = { [weak self] notificationSettings in
+            self?.appPreferences.notificationSettings = notificationSettings
+        }
 
         coordinator.didFinish = { [weak self] _ in
             Task { @MainActor in

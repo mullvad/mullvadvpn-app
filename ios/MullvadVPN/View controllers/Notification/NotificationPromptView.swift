@@ -9,6 +9,7 @@
 import SwiftUI
 
 struct NotificationPromptView<ViewModel>: View where ViewModel: NotificationPromptViewModelProtocol {
+
     @ObservedObject var viewModel: ViewModel
     @ScaledMetric private var iconSize: CGFloat = 48.0
     @State private var sizeOfView: CGSize = .zero
@@ -52,7 +53,8 @@ struct NotificationPromptView<ViewModel>: View where ViewModel: NotificationProm
                         }
                     }
                 }
-                .padding(16)
+                .padding(.horizontal, 16)
+                .padding(.bottom, 24)
                 .frame(maxWidth: .infinity)
                 .frame(minHeight: geo.size.height)
             }
@@ -60,6 +62,10 @@ struct NotificationPromptView<ViewModel>: View where ViewModel: NotificationProm
             .onChange(of: viewModel.isNotificationsAllowed) { oldValue, newValue in
                 guard oldValue != newValue else { return }
                 self.didConclude?(newValue)
+            }
+            .onChange(of: viewModel.isSkipped) { oldValue, newValue in
+                guard oldValue != newValue else { return }
+                self.didConclude?(false)
             }
             .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
                 viewModel.checkNotificationPermission()

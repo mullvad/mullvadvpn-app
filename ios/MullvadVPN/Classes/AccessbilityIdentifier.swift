@@ -117,6 +117,7 @@ public enum AccessibilityIdentifier: Equatable {
     case daitaFilterPill
     case obfuscationFilterPill
     case languageCell
+    case notificationSettingsCell
 
     // Labels
     case accountPageDeviceNameLabel
@@ -174,6 +175,7 @@ public enum AccessibilityIdentifier: Equatable {
     case dnsSettingsTableView
     case multihopView
     case daitaView
+    case notificationSettingsView
 
     // Other UI elements
     case accessMethodEnableSwitch
@@ -249,6 +251,11 @@ public enum AccessibilityIdentifier: Equatable {
 
     // Error
     case unknown
+
+    // Notification settings
+    case allNotificationSwitch
+    case accountNotificationSwitch
+    case connectionStatusNotificationSwitch
 }
 
 extension AccessibilityIdentifier {
