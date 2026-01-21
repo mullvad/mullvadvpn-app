@@ -19,7 +19,7 @@ function BlockAdsSwitch({ children, ...props }: BlockAdsSwitchProps) {
 
 const BlockAdsSwitchNamespace = Object.assign(BlockAdsSwitch, {
   Label: Switch.Label,
-  Thumb: Switch.Thumb,
+  Input: Switch.Input,
   Trigger: Switch.Trigger,
 });
 

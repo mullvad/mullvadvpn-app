@@ -20,7 +20,7 @@ function MultihopSwitch({ children, ...props }: MultihopSwitchProps) {
 
 const MultihopSwitchNamespace = Object.assign(MultihopSwitch, {
   Label: Switch.Label,
-  Thumb: Switch.Thumb,
+  Input: Switch.Input,
   Trigger: Switch.Trigger,
 });
 

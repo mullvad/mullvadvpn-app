@@ -19,9 +19,7 @@ export function BlockGamblingSetting(props: BlockGamblingSettingProps) {
                 }
               </BlockGamblingSwitch.Label>
             </FlexRow>
-            <BlockGamblingSwitch.Trigger>
-              <BlockGamblingSwitch.Thumb />
-            </BlockGamblingSwitch.Trigger>
+            <BlockGamblingSwitch.Input />
           </BlockGamblingSwitch>
         </ListItem.Content>
       </ListItem.Item>

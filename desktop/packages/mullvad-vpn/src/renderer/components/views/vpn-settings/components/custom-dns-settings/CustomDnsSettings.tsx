@@ -52,7 +52,7 @@ export function CustomDnsSettings({ position, ...props }: CustomDnsSettingsProps
     [dns],
   );
 
-  const switchRef = useStyledRef<HTMLButtonElement>();
+  const switchRef = useStyledRef<HTMLInputElement>();
   const addButtonRef = useStyledRef<HTMLButtonElement>();
   const inputContainerRef = useStyledRef<HTMLDivElement>();
 
@@ -201,13 +201,12 @@ export function CustomDnsSettings({ position, ...props }: CustomDnsSettingsProps
           <Switch
             checked={dns.state === 'custom' || inputVisible}
             onCheckedChange={setCustomDnsEnabled}
-            disabled={!featureAvailable}>
+            disabled={!featureAvailable}
+            descriptionId={descriptionId}>
             <Switch.Label>
               {messages.pgettext('vpn-settings-view', 'Use custom DNS server')}
             </Switch.Label>
-            <Switch.Trigger ref={switchRef} aria-describedby={descriptionId}>
-              <Switch.Thumb />
-            </Switch.Trigger>
+            <Switch.Input ref={switchRef} />
           </Switch>
         </SettingsAccordion.HeaderItem>
       </SettingsAccordion.Header>

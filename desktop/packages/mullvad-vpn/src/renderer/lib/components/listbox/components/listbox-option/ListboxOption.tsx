@@ -54,6 +54,7 @@ const ListboxOptionNamespace = Object.assign(ListboxOption, {
   Item: ListboxOptionItem,
   Footer: ListItem.Footer,
   Label: ListboxOptionLabel,
+  Checkbox: ListItem.Checkbox,
 });
 
 export { ListboxOptionNamespace as ListboxOption };

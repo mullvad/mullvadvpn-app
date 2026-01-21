@@ -11,23 +11,20 @@ export type BetaSettingProps = Omit<ListItemProps, 'children'>;
 export function BetaSetting(props: BetaSettingProps) {
   const { isBeta } = useVersionIsBeta();
 
-  const labelId = React.useId();
   const descriptionId = React.useId();
 
   return (
     <SettingsListItem disabled={isBeta} {...props}>
       <SettingsListItem.Item>
         <SettingsListItem.Content>
-          <BetaSwitch labelId={labelId} descriptionId={descriptionId}>
+          <BetaSwitch descriptionId={descriptionId}>
             <BetaSwitch.Label>
               {
                 // TRANSLATORS: Label for switch to toggle beta program.
                 messages.pgettext('app-info-view', 'Beta program')
               }
             </BetaSwitch.Label>
-            <BetaSwitch.Trigger>
-              <BetaSwitch.Thumb />
-            </BetaSwitch.Trigger>
+            <BetaSwitch.Input />
           </BetaSwitch>
         </SettingsListItem.Content>
       </SettingsListItem.Item>

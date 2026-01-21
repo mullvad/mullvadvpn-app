@@ -78,7 +78,7 @@ function DaitaDirectOnlySwitch({ children, ...props }: DaitaDirectOnlySwitchProp
 
 const DaitaDirectOnlySwitchNamespace = Object.assign(DaitaDirectOnlySwitch, {
   Label: Switch.Label,
-  Thumb: Switch.Thumb,
+  Input: Switch.Input,
   Trigger: Switch.Trigger,
 });
 
