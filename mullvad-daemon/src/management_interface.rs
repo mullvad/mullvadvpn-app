@@ -1445,24 +1445,28 @@ impl ManagementInterfaceEventBroadcaster {
 
     /// Notify clients about a potential leak.
     pub(crate) fn notify_leak(&self, leak: mullvad_leak_checker::LeakInfo) {
-        match &leak {
-            mullvad_leak_checker::LeakInfo::NodeReachableOnInterface {
-                reachable_nodes,
-                interface,
-            } => {
-                log::trace!("Broadcasting leak info: {leak:#?}");
-                let event = daemon_event::Event::LeakInfo(types::LeakInfo {
-                    ip_addrs: reachable_nodes.iter().map(|ip| ip.to_string()).collect(),
-                    interface: interface.pretty(),
-                });
-                self.notify(types::DaemonEvent {
-                    event: event.into(),
-                })
-            }
-            _ => {
-                log::debug!("Matched on unexpected leak checker event");
-            }
-        }
+        use mullvad_leak_checker::LeakInfo;
+        let LeakInfo::NodeReachableOnInterface {
+            reachable_nodes,
+            interface,
+        } = &leak
+        else {
+            log::trace!("Matched on unexpected leak checker event: {leak:#?}");
+            return;
+        };
+
+        log::trace!("Broadcasting leak info: {leak:#?}");
+        let interface = match interface {
+            mullvad_leak_checker::Interface::Name(name) => name.to_owned(),
+        };
+        let ip_addrs = reachable_nodes.iter().map(|ip| ip.to_string()).collect();
+        let event = daemon_event::Event::LeakInfo(types::LeakInfo {
+            ip_addrs,
+            interface,
+        });
+        self.notify(types::DaemonEvent {
+            event: event.into(),
+        })
     }
 
     /// Notify that device changed (login, logout, or key rotation).
