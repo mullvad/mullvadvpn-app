@@ -8,6 +8,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.stateIn
@@ -79,9 +81,13 @@ class AccountRepository(
      * Fetches the account data from the server, and updates the cache.
      * Unless force is true, it will only fetch if no fetch was made in the last minute.
      */
-    suspend fun refreshAccountData(ignoreTimeout: Boolean = true) {
+    suspend fun refreshAccountData(ignoreTimeout: Boolean = true, waitForDeviceState: Boolean = false) {
         // Only refresh if logged in
-        val deviceState = deviceRepository.deviceState.value as? DeviceState.LoggedIn ?: return
+        val deviceState = if(waitForDeviceState) {
+            deviceRepository.deviceState.filterNotNull().first() as? DeviceState.LoggedIn
+        } else {
+            deviceRepository.deviceState.value as? DeviceState.LoggedIn
+        } ?: return
 
         if (ignoreTimeout || lastSuccessfulAccountDataFetch.canFetchAccountData()) {
             val accountData =

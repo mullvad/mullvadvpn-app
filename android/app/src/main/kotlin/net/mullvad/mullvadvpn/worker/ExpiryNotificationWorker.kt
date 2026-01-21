@@ -41,7 +41,7 @@ class ExpiryNotificationWorker(private val appContext: Context, workerParams: Wo
         val expiry =
             withTimeoutOrNull(ACCOUNT_WAIT_TIMEOUT_MS) {
                 // Call for an account expiry update
-                accountRepository.refreshAccountData()
+                accountRepository.refreshAccountData(waitForDeviceState = true)
 
                 // Check account data
                 accountRepository.accountData.value?.expiryDate

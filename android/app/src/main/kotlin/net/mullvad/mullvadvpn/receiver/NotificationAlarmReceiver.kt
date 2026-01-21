@@ -21,7 +21,16 @@ class NotificationAlarmReceiver : BroadcastReceiver(), KoinComponent {
 
         val work =
             OneTimeWorkRequestBuilder<ExpiryNotificationWorker>()
-                .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
+                .apply {
+                    // Setting expedited on android 12 or lower will cause the work manager to
+                    // request a wake lock. We want to avoid using wakelocks so we disable expedited
+                    // on android 12 and lower.
+                    if (
+                        android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU
+                    ) {
+                        setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
+                    }
+                }
                 .setConstraints(
                     Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()
                 )
