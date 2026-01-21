@@ -18,24 +18,24 @@ use std::{
     time::Duration,
 };
 
-use anyhow::{Context, anyhow, bail};
-use futures::{FutureExt, select};
+use anyhow::{anyhow, bail, Context};
+use futures::{select, FutureExt};
 use mullvad_management_interface::MullvadProxyClient;
 use pnet_base::MacAddr;
-use pnet_datalink::{Channel, DataLinkReceiver, DataLinkSender, channel, linux::interfaces};
+use pnet_datalink::{channel, linux::interfaces, Channel, DataLinkReceiver, DataLinkSender};
 use pnet_packet::{
-    MutablePacket, Packet,
     ethernet::{EtherTypes, EthernetPacket, MutableEthernetPacket},
     ip::IpNextHeaderProtocols,
     ipv4::{Ipv4Packet, MutableIpv4Packet},
     tcp::{MutableTcpPacket, TcpFlags, TcpPacket},
+    MutablePacket, Packet,
 };
 use test_macro::test_function;
 use test_rpc::ServiceClient;
 use tokio::time::sleep;
 
 use crate::{
-    tests::{TestContext, config::TEST_CONFIG, helpers},
+    tests::{config::TEST_CONFIG, helpers, TestContext},
     vm::network::linux::TAP_NAME,
 };
 
@@ -157,21 +157,19 @@ async fn filter_for_malicious_packet(
 ) -> anyhow::Result<Option<TcpPacket<'static>>> {
     let result = tokio::time::timeout(
         timeout,
-        tokio::task::spawn_blocking(move || {
-            loop {
-                let packet = match recv.next() {
-                    Err(e) => return Err(e).context("Failed to read from data link"),
-                    Ok(p) => p,
-                };
-                log::trace!("Received Ethernet frame");
-                let Some(packet) = ethernetframe_to_tcp(packet) else {
-                    continue;
-                };
-                log::trace!("Parsed Ethernet frame into TCP-packet!");
-                if is_malicious_packet(&packet) {
-                    log::debug!("Identified TCP-packet as the malicious one!");
-                    return anyhow::Ok(packet);
-                }
+        tokio::task::spawn_blocking(move || loop {
+            let packet = match recv.next() {
+                Err(e) => return Err(e).context("Failed to read from data link"),
+                Ok(p) => p,
+            };
+            log::trace!("Received Ethernet frame");
+            let Some(packet) = ethernetframe_to_tcp(packet) else {
+                continue;
+            };
+            log::trace!("Parsed Ethernet frame into TCP-packet!");
+            if is_malicious_packet(&packet) {
+                log::debug!("Identified TCP-packet as the malicious one!");
+                return anyhow::Ok(packet);
             }
         }),
     );
