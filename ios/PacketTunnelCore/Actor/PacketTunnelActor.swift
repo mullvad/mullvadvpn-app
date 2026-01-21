@@ -71,6 +71,7 @@ public actor PacketTunnelActor {
         self.settingsReader = settingsReader
         self.protocolObfuscator = protocolObfuscator
 
+        Task { await setTunnelMonitorEventHandler() }
         consumeEvents(channel: eventChannel)
     }
 
@@ -112,8 +113,6 @@ public actor PacketTunnelActor {
 
     func executeEffect(_ effect: Effect) async {
         switch effect {
-        case .startTunnelMonitor:
-            setTunnelMonitorEventHandler()
         case .stopTunnelMonitor:
             tunnelMonitor.stop()
         case let .updateTunnelMonitorPath(networkPath):
@@ -183,24 +182,30 @@ public actor PacketTunnelActor {
     }
 
     private func handleDefaultPathChange(_ networkPath: Network.NWPath.Status) async {
+        guard self.state != .initial else {
+            return
+        }
         tunnelMonitor.handleNetworkPathUpdate(networkPath)
 
         let newReachability = networkPath.networkReachability
 
-        let reachabilityChanged =
-            state.mutateAssociatedData {
-                let reachabilityChanged = $0.networkReachability != newReachability
-                $0.networkReachability = newReachability
-                return reachabilityChanged
-            } ?? false
         if case .reachable = newReachability,
             case let .error(
                 errorState
             ) = state,
             errorState.reason
-                .recoverableError(), reachabilityChanged
+                .recoverableError()
         {
-            await handleRestartConnection(nextRelays: .random, reason: .userInitiated)
+            await handleRestartConnection(
+                nextRelays: .random,
+                reason: .restoredConnectivity
+            )
+            return
+        }
+
+        // If network is unreachable, enter error state.
+        if case .unreachable = newReachability {
+            await setErrorStateInternal(with: .offline)
         }
     }
 }
@@ -219,9 +224,6 @@ extension PacketTunnelActor {
         guard case .initial = state else { return }
 
         logger.debug("\(options.logFormat())")
-
-        // Assign a closure receiving tunnel monitor events.
-        setTunnelMonitorEventHandler()
 
         do {
             try await tryStart(nextRelays: options.selectedRelays.map { .preSelected($0) } ?? .random)
@@ -269,6 +271,13 @@ extension PacketTunnelActor {
         nextRelays: NextRelays,
         reason: ActorReconnectReason = .userInitiated
     ) async throws {
+        if case let .error(blockedState) = self.state,
+            blockedState.reason == .offline && reason != .restoredConnectivity
+        {
+            logger.debug("Ignore reconnection due to being offline")
+            return
+        }
+
         let settings: Settings = try settingsReader.read()
         try await self.applyNetworkSettingsIfNeeded(settings: settings)
 
