@@ -23,10 +23,11 @@ struct CustomListLocationNodeBuilder {
             customList: customList
         )
 
-        listNode.children = listNode.locations.compactMap { location in
-            let rootNode = RootLocationNode(children: allLocations)
+        // Create root node once and reuse for all lookups
+        let rootNode = RootLocationNode(children: allLocations)
 
-            return switch location {
+        listNode.children = listNode.locations.compactMap { location in
+            switch location {
             case let .country(countryCode):
                 rootNode
                     .countryFor(code: countryCode)?
