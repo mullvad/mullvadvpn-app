@@ -28,7 +28,7 @@ class DefaultLocationServiceTests: XCTestCase {
             urlSession: URLSessionStub(
                 response: (mockData, URLResponse())
             ),
-            relayCache: try MockRelayCache().read().cachedRelays
+            relayCache: try MockRelayCache().read()
         )
 
         let identifier = try await locationService.fetchCurrentLocationIdentifier()
