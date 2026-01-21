@@ -6,7 +6,10 @@ use futures::{
 use mullvad_api::{
     availability::ApiAvailability, rest::MullvadRestHandle, version::AppVersionProxy,
 };
-use mullvad_update::version::{Metadata, Rollout, VersionInfo};
+#[cfg(not(target_os = "android"))]
+use mullvad_update::version::Rollout;
+#[cfg(not(target_os = "android"))]
+use mullvad_update::version::{Metadata, VersionInfo};
 use mullvad_version::Version;
 use serde::{Deserialize, Serialize};
 use std::{
@@ -40,12 +43,8 @@ const DOWNLOAD_TIMEOUT: Duration = Duration::from_secs(15);
 /// After this one, we wait [UPDATE_INTERVAL] between checks.
 const FIRST_CHECK_INTERVAL: Duration = Duration::from_secs(5);
 /// How long to wait between version checks, regardless of whether they succeed
-#[cfg(not(target_os = "android"))]
 const UPDATE_INTERVAL: Duration = Duration::from_hours(1);
-/// How long to wait between version checks, regardless of whether they succeed
-// On Android, be more conservative since we use old endpoint. Retry at most once per 6 hours.
-#[cfg(target_os = "android")]
-const UPDATE_INTERVAL: Duration = Duration::from_hours(6);
+
 /// Wait this long before sending platform metadata in check
 /// `M-Platform-Version` should only be sent once per 24h to make statistics predictable.
 const PLATFORM_HEADER_INTERVAL: Duration = Duration::from_hours(24);
@@ -58,8 +57,6 @@ const PLATFORM: &str = "linux";
 const PLATFORM: &str = "macos";
 #[cfg(target_os = "windows")]
 const PLATFORM: &str = "windows";
-#[cfg(target_os = "android")]
-const PLATFORM: &str = "android";
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub(super) struct VersionCache {
@@ -68,6 +65,7 @@ pub(super) struct VersionCache {
     pub cache_version: Version,
     /// Whether the current (installed) version is supported or an upgrade is required
     pub current_version_supported: bool,
+    #[cfg(not(target_os = "android"))]
     /// The latest available versions
     pub version_info: VersionInfo,
     /// When we last checked with platform headers
@@ -93,7 +91,7 @@ impl VersionUpdater {
         cache_dir: PathBuf,
         update_sender: mpsc::UnboundedSender<VersionCache>,
         refresh_rx: mpsc::UnboundedReceiver<()>,
-        rollout: Rollout,
+        #[cfg(not(target_os = "android"))] rollout: Rollout,
     ) {
         let cache_path = cache_dir.join(VERSION_INFO_FILENAME);
         // load the last known AppVersionInfo from cache
@@ -117,8 +115,9 @@ impl VersionUpdater {
                     api_handle: availability_handle,
                     version_proxy,
                     platform_version,
+                    #[cfg(not(target_os = "android"))]
+                    rollout,
                 },
-                rollout,
             ),
         );
     }
@@ -163,6 +162,7 @@ impl VersionUpdaterInner {
     /// Return when the last successful check including platform headers was made.
     ///
     /// This should occur every [PLATFORM_HEADER_INTERVAL].
+    #[cfg(test)]
     fn last_platform_check(&self) -> Option<SystemTime> {
         self.last_app_version_info
             .as_ref()
@@ -181,7 +181,6 @@ impl VersionUpdaterInner {
         mut refresh_rx: mpsc::UnboundedReceiver<()>,
         update: UpdateContext,
         api: ApiContext,
-        rollout: Rollout,
     ) {
         // If this is a dev build, there's no need to pester the API for version checks.
         if !*CHECK_ENABLED {
@@ -193,9 +192,9 @@ impl VersionUpdaterInner {
         }
 
         let update = |info| Box::pin(update.update(info)) as BoxFuture<'static, _>;
-        let do_version_check = |prev_cache| do_version_check(api.clone(), prev_cache, rollout);
+        let do_version_check = |prev_cache| do_version_check(api.clone(), prev_cache);
         let do_version_check_in_background =
-            |prev_cache| do_version_check_in_background(api.clone(), prev_cache, rollout);
+            |prev_cache| do_version_check_in_background(api.clone(), prev_cache);
 
         self.run_inner(
             refresh_rx,
@@ -231,15 +230,6 @@ impl VersionUpdaterInner {
                             // Check already running
                             continue;
                         }
-
-                        // On Android, avoid polling the API unless necessary as we're using the old endpoint
-                        // Only poll when bg check runs
-                        if cfg!(target_os = "android") && let Some(info) = self.last_app_version_info.as_ref() {
-                            log::trace!("Skipping version check on Android");
-                            self.update_version_info(&update, info.clone()).await;
-                            continue;
-                        }
-
                         version_check_fg = do_version_check(self.last_app_version_info.clone()).fuse();
                     }
                     None => {
@@ -248,14 +238,6 @@ impl VersionUpdaterInner {
                 },
 
                 _ = run_next_check_bg => {
-                    // On Android, avoid polling the API unless necessary as we're using the old endpoint
-                    // Only poll when collecting platform headers
-                    if cfg!(target_os = "android") && !should_include_platform_headers(self.last_platform_check()) {
-                        log::trace!("Skipping version check on Android");
-                        run_next_check_bg = Self::update_interval();
-                        continue;
-                    }
-
                     version_check_bg = do_version_check_in_background(self.last_app_version_info.clone()).fuse();
                 },
 
@@ -328,18 +310,18 @@ struct ApiContext {
     api_handle: ApiAvailability,
     version_proxy: AppVersionProxy,
     platform_version: String,
+    #[cfg(not(target_os = "android"))]
+    rollout: Rollout,
 }
 
 /// Immediately query the API for the latest [AppVersionInfo].
 fn do_version_check(
     api: ApiContext,
     prev_cache: Option<VersionCache>,
-    rollout: Rollout,
 ) -> BoxFuture<'static, Result<VersionCache, Error>> {
     let api_handle = api.api_handle.clone();
 
-    let download_future_factory =
-        move || version_check_inner(api.clone(), prev_cache.clone(), rollout);
+    let download_future_factory = move || version_check_inner(api.clone(), prev_cache.clone());
 
     // retry immediately on network errors (unless we're offline)
     let should_retry_immediate = move |result: &Result<_, Error>| {
@@ -361,22 +343,20 @@ fn do_version_check(
 fn do_version_check_in_background(
     api: ApiContext,
     cache: Option<VersionCache>,
-    rollout: Rollout,
 ) -> BoxFuture<'static, Result<VersionCache, Error>> {
     let when_available = api.api_handle.wait_background();
-    let version_cache = version_check_inner(api, cache, rollout);
+    let version_cache = version_check_inner(api, cache);
     Box::pin(async move {
         when_available.await.map_err(Error::ApiCheck)?;
         version_cache.await
     })
 }
 
-/// Fetch new version endpoint
 #[cfg(not(target_os = "android"))]
+/// Fetch new version endpoint
 async fn version_check_inner(
     api: ApiContext,
     cache: Option<VersionCache>,
-    rollout: Rollout,
 ) -> Result<VersionCache, Error> {
     let architecture = match talpid_platform_metadata::get_native_arch()
         .expect("IO error while getting native architecture")
@@ -403,12 +383,12 @@ async fn version_check_inner(
 
             let Some(response) = api
                 .version_proxy
-                .version_check_2(
+                .version_check(
                     PLATFORM,
                     architecture,
                     prev_cache.metadata_version,
                     add_platform_headers.then(|| api.platform_version.clone()),
-                    rollout,
+                    api.rollout,
                     prev_cache.etag.clone(),
                 )
                 .await
@@ -427,12 +407,12 @@ async fn version_check_inner(
         None => {
             let response = api
                 .version_proxy
-                .version_check_2(
+                .version_check(
                     PLATFORM,
                     architecture,
                     mullvad_update::version::MIN_VERIFY_METADATA_VERSION,
                     Some(api.platform_version),
-                    rollout,
+                    api.rollout,
                     None,
                 )
                 .await
@@ -441,6 +421,7 @@ async fn version_check_inner(
             (response, SystemTime::now())
         }
     };
+
     Ok(VersionCache {
         cache_version: APP_VERSION.clone(),
         current_version_supported: response.current_version_supported,
@@ -452,10 +433,10 @@ async fn version_check_inner(
 }
 
 #[cfg(target_os = "android")]
+/// Fetch new version endpoint
 async fn version_check_inner(
     api: ApiContext,
     cache: Option<VersionCache>,
-    _rollout: Rollout,
 ) -> Result<VersionCache, Error> {
     let (response, last_platform_header_check) = match cache {
         // Cache available
@@ -472,9 +453,7 @@ async fn version_check_inner(
 
             let Some(response) = api
                 .version_proxy
-                .version_check(
-                    mullvad_version::VERSION.to_owned(),
-                    PLATFORM,
+                .version_check_android(
                     add_platform_headers.then(|| api.platform_version.clone()),
                     prev_cache.etag.clone(),
                 )
@@ -488,60 +467,25 @@ async fn version_check_inner(
                     ..prev_cache
                 });
             };
-
             (response, get_last_platform_header_check())
         }
         // No cache available
         None => {
             let response = api
                 .version_proxy
-                .version_check(
-                    mullvad_version::VERSION.to_owned(),
-                    PLATFORM,
-                    Some(api.platform_version.clone()),
-                    None,
-                )
+                .version_check_android(Some(api.platform_version), None)
                 .await
                 .map_err(Error::Download)?
                 .expect("function must return body if no etag was set");
-
             (response, SystemTime::now())
         }
     };
 
-    let latest_stable = response.latest_stable()
-        .and_then(|version| version.parse().ok())
-        // Suggested stable must actually be stable
-        .filter(|version: &Version| version.pre_stable.is_none())
-        .ok_or_else(|| Error::MissingStable)?;
-    let latest_beta = response.latest_beta()
-        .and_then(|version| version.parse().ok())
-        // Suggested beta must actually be non-stable
-        .filter(|version: &Version| version.pre_stable.is_some());
-
     Ok(VersionCache {
         cache_version: APP_VERSION.clone(),
-        current_version_supported: response.supported(),
-        etag: response.etag,
+        current_version_supported: response.current_version_supported,
         last_platform_header_check,
-        // Note: We're pretending that this is complete information,
-        // but on Android and Linux, most of the information is missing
-        version_info: VersionInfo {
-            stable: Metadata {
-                version: latest_stable,
-                changelog: "".to_owned(),
-                urls: vec![],
-                sha256: [0u8; 32],
-                size: 0,
-            },
-            beta: latest_beta.map(|version| Metadata {
-                version,
-                changelog: "".to_owned(),
-                urls: vec![],
-                sha256: [0u8; 32],
-                size: 0,
-            }),
-        },
+        etag: response.etag,
     })
 }
 
@@ -594,6 +538,7 @@ fn dev_version_cache() -> VersionCache {
     VersionCache {
         cache_version: mullvad_version::VERSION.parse().unwrap(),
         current_version_supported: false,
+        #[cfg(not(target_os = "android"))]
         version_info: VersionInfo {
             stable: Metadata {
                 version: mullvad_version::VERSION.parse().unwrap(),
@@ -645,10 +590,12 @@ mod test {
         ));
     }
 
+    #[cfg_attr(target_os = "android", expect(unused_variables))]
     fn version_cache(cache_version: &str, stable: &str, beta: Option<&str>) -> VersionCache {
         VersionCache {
             cache_version: cache_version.parse().unwrap(),
             current_version_supported: false,
+            #[cfg(not(target_os = "android"))]
             version_info: VersionInfo {
                 stable: Metadata {
                     version: stable.parse().unwrap(),
@@ -672,7 +619,6 @@ mod test {
         }
     }
 
-    /// If there's no cached version, we should perform a check now and include platform headers
     #[test]
     fn test_version_unknown_is_stale() {
         let checker = VersionUpdaterInner::default();
@@ -727,6 +673,7 @@ mod test {
 
     /// Platform timestamp and etag must be updated even if metadata version is unchanged
     #[tokio::test]
+    #[cfg(not(target_os = "android"))]
     async fn test_platform_timestamp_update() {
         // If the metadata version is unchanged, we should keep the existing metadata
         // But update the etag and platform timestamp anyway
@@ -905,6 +852,7 @@ mod test {
         VersionCache {
             cache_version: mullvad_version::VERSION.parse().unwrap(),
             current_version_supported: true,
+            #[cfg(not(target_os = "android"))]
             version_info: VersionInfo {
                 stable: Metadata {
                     version: "2025.5".parse().unwrap(),

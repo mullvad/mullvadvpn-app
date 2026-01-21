@@ -4,9 +4,12 @@ use std::path::PathBuf;
 use futures::channel::{mpsc, oneshot};
 use futures::stream::StreamExt;
 use mullvad_api::{availability::ApiAvailability, rest::MullvadRestHandle};
-use mullvad_types::version::{AppVersionInfo, SuggestedUpgrade};
+use mullvad_types::version::AppVersionInfo;
+#[cfg(not(target_os = "android"))]
+use mullvad_types::version::SuggestedUpgrade;
 #[cfg(in_app_upgrade)]
 use mullvad_update::app::{AppDownloader, AppDownloaderParameters, HttpAppDownloader};
+#[cfg(not(target_os = "android"))]
 use mullvad_update::version::{Rollout, VersionInfo};
 use talpid_core::mpsc::Sender;
 #[cfg(in_app_upgrade)]
@@ -210,7 +213,7 @@ pub(crate) fn spawn_version_router(
     cache_dir: PathBuf,
     version_event_sender: DaemonEventSender<AppVersionInfo>,
     beta_program: bool,
-    rollout: Rollout,
+    #[cfg(not(target_os = "android"))] rollout: Rollout,
     app_upgrade_broadcast: AppUpgradeBroadcast,
 ) -> VersionRouterHandle {
     let (tx, rx) = mpsc::unbounded();
@@ -233,6 +236,7 @@ pub(crate) fn spawn_version_router(
             cache_dir.clone(),
             new_version_tx,
             refresh_version_check_rx,
+            #[cfg(not(target_os = "android"))]
             rollout,
         )
         .await;
@@ -600,27 +604,28 @@ async fn wait_for_update(state: &mut State) -> Option<AppVersionInfo> {
 
 /// Extract [`AppVersionInfo`], containing upgrade version and `current_version_supported`
 /// from [VersionCache] and beta program state.
+#[cfg_attr(target_os = "android", expect(unused_variables))]
 fn to_app_version_info(
     cache: &VersionCache,
     beta_program: bool,
     verified_installer_path: Option<PathBuf>,
 ) -> AppVersionInfo {
     let current_version_supported = cache.current_version_supported;
-    let suggested_upgrade =
-        recommended_version_upgrade(&cache.version_info, beta_program).map(|version| {
-            SuggestedUpgrade {
+    AppVersionInfo {
+        current_version_supported,
+        #[cfg(not(target_os = "android"))]
+        suggested_upgrade: recommended_version_upgrade(&cache.version_info, beta_program).map(
+            |version| SuggestedUpgrade {
                 version: version.version,
                 changelog: version.changelog,
                 verified_installer_path,
-            }
-        });
-    AppVersionInfo {
-        current_version_supported,
-        suggested_upgrade,
+            },
+        ),
     }
 }
 
 /// Extract upgrade version from [VersionCache] based on `beta_program`
+#[cfg(not(target_os = "android"))]
 fn recommended_version_upgrade(
     version_info: &VersionInfo,
     beta_program: bool,
