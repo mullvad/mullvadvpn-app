@@ -38,8 +38,8 @@ public final class FileCache<Content: Codable>: NSObject, FileCacheProtocol, NSF
         // Register as file presenter to receive change notifications
         NSFileCoordinator.addFilePresenter(self)
 
-        // Load initial content
-        DispatchQueue.main.async {
+        // Load initial content off the main thread
+        DispatchQueue(label: "net.mullvadvpn.FileCache.\(fileURL)").async {
             self.loadInitialCache()
         }
     }
