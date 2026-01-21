@@ -83,7 +83,7 @@ env:
 jobs:
   prepare:
     name: Prepare
-    runs-on: [android-sandbox-test-new-runner]
+    runs-on: [android-build]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6.0.1
@@ -118,14 +118,8 @@ jobs:
   build-app:
     name: Build app
     needs: [prepare]
-    runs-on: [android-sandbox-test-new-runner]
-    # container:
-    #   image: ghcr.io/mullvad/mullvadvpn-app-build-android:6f6ff93a54
+    runs-on: [android-build]
     steps:
-#      - name: Chmod
-#        run: |
-#          chmod -R u+rwX .
-
       - name: Checkout repository
         uses: actions/checkout@v6.0.1
 
@@ -162,7 +156,7 @@ jobs:
   run-lint-and-tests:
     name: Run lint and test tasks
     needs: [prepare]
-    runs-on: [android-sandbox-test-new-runner]
+    runs-on: [android-build]
     container:
       image: ${{ needs.prepare.outputs.container_image }}
       volumes:
