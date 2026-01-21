@@ -121,10 +121,15 @@ final class Tunnel: TunnelProtocol, Equatable, @unchecked Sendable {
         self.tunnelProvider = tunnelProvider
         self.backgroundTaskProvider = backgroundTaskProvider
 
+        // Observe ALL NEVPNStatusDidChange notifications rather than filtering by specific
+        // connection object. This is necessary because `loadFromPreferences` may internally
+        // replace the connection object, causing notifications to be sent to a different
+        // object than the one we originally registered for. We filter in the handler instead
+        // by comparing against the current `tunnelProvider.connection`.
         NotificationCenter.default.addObserver(
             self, selector: #selector(handleVPNStatusChangeNotification(_:)),
             name: .NEVPNStatusDidChange,
-            object: tunnelProvider.connection
+            object: nil
         )
 
         handleVPNStatus(tunnelProvider.connection.status)
@@ -187,6 +192,11 @@ final class Tunnel: TunnelProtocol, Equatable, @unchecked Sendable {
 
     @objc private func handleVPNStatusChangeNotification(_ notification: Notification) {
         guard let connection = notification.object as? VPNConnectionProtocol else { return }
+
+        // Filter to only handle notifications for our connection.
+        // We compare against the current `tunnelProvider.connection` (not a captured reference)
+        // because `loadFromPreferences` may replace the connection object internally.
+        guard connection === tunnelProvider.connection else { return }
 
         let newStatus = connection.status
 
