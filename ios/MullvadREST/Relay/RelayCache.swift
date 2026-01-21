@@ -12,12 +12,12 @@ import MullvadTypes
 public protocol RelayCacheProtocol: Sendable {
     /// Reads from a cached list,
     /// which falls back to reading from prebundled relays if there was no cache hit
-    func read() throws -> StoredRelays
+    func read() throws -> CachedRelays
     /// Reads the relays file that were prebundled with the app installation.
     ///
     /// > Warning: Prefer `read()` over this unless there is an explicit need to read
     /// relays from the bundle, because those might contain stale data.
-    func readPrebundledRelays() throws -> StoredRelays
+    func readPrebundledRelays() throws -> CachedRelays
     func write(record: StoredRelays) throws
 }
 
@@ -43,13 +43,13 @@ public final class RelayCache: RelayCacheProtocol, Sendable {
     /// 1. If there is a file but it's not decodable, try to parse into the old cache format. If it's still
     ///    not decodable, read the pre-bundled data.
     /// 2. If there is no file, read from the pre-bundled data.
-    public func read() throws -> StoredRelays {
+    public func read() throws -> CachedRelays {
         do {
-            return try fileCache.read()
+            return try fileCache.read().cachedRelays
         } catch is DecodingError {
             do {
                 let oldFormatFileCache = FileCache<CachedRelays>(fileURL: fileURL)
-                return try StoredRelays(cachedRelays: try oldFormatFileCache.read())
+                return try oldFormatFileCache.read()
             } catch {
                 return try readPrebundledRelays()
             }
@@ -64,15 +64,17 @@ public final class RelayCache: RelayCacheProtocol, Sendable {
     }
 
     /// Read pre-bundled relays file from disk.
-    public func readPrebundledRelays() throws -> StoredRelays {
+    public func readPrebundledRelays() throws -> CachedRelays {
         guard let prebundledRelaysFileURL = Bundle(for: Self.self).url(forResource: "relays", withExtension: "json")
         else { throw CocoaError(.fileNoSuchFile) }
 
         let data = try Data(contentsOf: prebundledRelaysFileURL)
-
-        return try StoredRelays(
+        let stored = try StoredRelays(
             rawData: data,
-            updatedAt: Date(timeIntervalSince1970: 0)
+            updatedAt: Date(
+                timeIntervalSince1970: 0)
         )
+
+        return stored.cachedRelays
     }
 }

@@ -46,10 +46,12 @@ final class AllLocationDataSourceBenchmarkTests: XCTestCase {
         let repository = CustomListsRepositoryStub(customLists: [
             CustomList(name: "Work", locations: [.country("us"), .country("de"), .country("gb")]),
             CustomList(name: "Travel", locations: [.country("jp"), .country("fr"), .country("es"), .country("it")]),
-            CustomList(name: "Europe", locations: [
-                .country("de"), .country("fr"), .country("gb"), .country("es"),
-                .country("it"), .country("nl"), .country("se"), .country("no"),
-            ]),
+            CustomList(
+                name: "Europe",
+                locations: [
+                    .country("de"), .country("fr"), .country("gb"), .country("es"),
+                    .country("it"), .country("nl"), .country("se"), .country("no"),
+                ]),
         ])
         let customListsDataSource = CustomListsDataSource(repository: repository)
 
