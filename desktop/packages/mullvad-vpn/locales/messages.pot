@@ -212,6 +212,9 @@ msgstr ""
 msgid "Next"
 msgstr ""
 
+msgid "No matching servers found"
+msgstr ""
+
 msgid "No result for <b>%(searchTerm)s</b>."
 msgstr ""
 
