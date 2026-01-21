@@ -176,7 +176,7 @@ async fn filter_for_malicious_packet(
     );
 
     match result.await {
-        Ok(packet) => Ok(packet.unwrap().ok()),
+        Ok(packet) => Ok(Some(packet??)),
         Err(_timed_out) => Ok(None),
     }
 }
