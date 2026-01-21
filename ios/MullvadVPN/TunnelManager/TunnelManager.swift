@@ -76,6 +76,7 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
 
     private var _tunnel: (any TunnelProtocol)?
     private var _tunnelStatus = TunnelStatus()
+    private var _lastNEVPNStatus: NEVPNStatus = .invalid
 
     /// Last processed device check.
     private var lastPacketTunnelKeyRotation: Date?
@@ -864,6 +865,10 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
             .addBlockObserver(queue: internalQueue) { [weak self] tunnel, status in
                 guard let self else { return }
 
+                // Save the NEVPNStatus so we can reject stale IPC updates
+                self._lastNEVPNStatus = status
+                self.logger.debug("VPN connection status changed to \(status).")
+
                 // Control polling based on NEVPNStatus directly (the source of truth),
                 // not the derived tunnelStatus.state which can be stale.
                 self.updatePollingFromVPNStatus(status)
@@ -873,6 +878,10 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
                 self.updateTunnelStatus(status)
             }
 
+        // Save and start polling for the current status since the observer
+        // only fires on status changes, not for the initial state.
+        _lastNEVPNStatus = tunnel.status
+        updatePollingFromVPNStatus(tunnel.status)
     }
 
     private func startNetworkMonitor() {
@@ -1051,6 +1060,12 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
             guard let self else { return }
 
             self.internalQueue.async {
+                // Reject stale IPC updates if the tunnel is now dead
+                guard self.isTunnelAlive else {
+                    self.logger.debug("Ignoring stale IPC response, tunnel is dead.")
+                    return
+                }
+
                 if case let .success(observedState) = result {
                     _ = self.setTunnelStatus { tunnelStatus in
                         tunnelStatus.observedState = observedState
@@ -1061,6 +1076,18 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
                     }
                 }
             }
+        }
+    }
+
+    /// Returns true if the tunnel is in an active state based on NEVPNStatus.
+    private var isTunnelAlive: Bool {
+        switch _lastNEVPNStatus {
+        case .connecting, .reasserting, .connected:
+            return true
+        case .disconnecting, .disconnected, .invalid:
+            return false
+        @unknown default:
+            return false
         }
     }
 
