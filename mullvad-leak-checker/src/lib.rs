@@ -13,6 +13,7 @@ pub enum LeakStatus {
 
 /// Details about how a leak happened
 #[derive(Clone, Debug)]
+#[non_exhaustive]
 pub enum LeakInfo {
     /// Managed to reach another network node on the physical interface, bypassing firewall rules.
     NodeReachableOnInterface {
