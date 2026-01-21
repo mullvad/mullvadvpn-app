@@ -10,13 +10,14 @@ permissions: {}
 jobs:
   scan-pr:
     permissions:
+      # Required to upload SARIF file to CodeQL. See: https://github.com/github/codeql-action/issues/2117
+      actions: read
       # Require writing security events to upload SARIF file to security tab
       security-events: write
       # Only need to read contents
       contents: read
-      actions: read
 
     # yamllint disable rule:line-length
-    uses: "google/osv-scanner-action/.github/workflows/osv-scanner-reusable-pr.yml@ab8175fc65a74d8c0308f623b1c617a39bdc34fe"  # v1.9.2 + submodule patch
+    uses: "google/osv-scanner-action/.github/workflows/osv-scanner-reusable-pr.yml@2a387edfbe02a11d856b89172f6e978100177eb4" # v2.3.2
     with:
       checkout-submodules: true
