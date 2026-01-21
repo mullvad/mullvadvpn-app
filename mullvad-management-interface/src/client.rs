@@ -53,31 +53,6 @@ pub enum DaemonEvent {
     LeakDetected(LeakInfo),
 }
 
-/// Details about how a leak happened.
-#[derive(Debug)]
-pub struct LeakInfo {
-    /// On what interface the leaky traffic was detected.
-    pub interface: String,
-    /// What network nodes that was reached.
-    pub reachable_nodes: Vec<IpAddr>,
-}
-
-impl TryFrom<types::LeakInfo> for LeakInfo {
-    type Error = Error;
-
-    fn try_from(leak: types::LeakInfo) -> Result<Self> {
-        let reachable_nodes = leak
-            .ip_addrs
-            .into_iter()
-            .map(|ip| ip.parse().map_err(Error::IpAddr))
-            .collect::<Result<_>>()?;
-        Ok(LeakInfo {
-            interface: leak.interface,
-            reachable_nodes,
-        })
-    }
-}
-
 impl TryFrom<types::daemon_event::Event> for DaemonEvent {
     type Error = Error;
 
@@ -719,5 +694,32 @@ fn map_api_access_method_error(status: Status) -> Error {
             Error::ApiAccessMethodExists
         }
         _other => Error::Rpc(Box::new(status)),
+    }
+}
+
+// Types that are only defined in the protobuf interface (as opposed to *-types crates).
+
+/// Details about how a leak happened.
+#[derive(Debug)]
+pub struct LeakInfo {
+    /// On what interface the leaky traffic was detected.
+    pub interface: String,
+    /// What network nodes that was reached.
+    pub reachable_nodes: Vec<IpAddr>,
+}
+
+impl TryFrom<types::LeakInfo> for LeakInfo {
+    type Error = Error;
+
+    fn try_from(leak: types::LeakInfo) -> Result<Self> {
+        let reachable_nodes = leak
+            .ip_addrs
+            .into_iter()
+            .map(|ip| ip.parse().map_err(Error::IpAddr))
+            .collect::<Result<_>>()?;
+        Ok(LeakInfo {
+            interface: leak.interface,
+            reachable_nodes,
+        })
     }
 }
