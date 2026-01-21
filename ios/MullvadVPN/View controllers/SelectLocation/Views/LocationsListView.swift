@@ -4,7 +4,22 @@ struct LocationsListView<ContextMenu>: View where ContextMenu: View {
     @Binding var locations: [LocationNode]
     let multihopContext: MultihopContext
     let onSelectLocation: (LocationNode) -> Void
+    let onExpand: ((LocationNode) -> Void)?
     let contextMenu: (LocationNode) -> ContextMenu
+
+    init(
+        locations: Binding<[LocationNode]>,
+        multihopContext: MultihopContext,
+        onSelectLocation: @escaping (LocationNode) -> Void,
+        onExpand: ((LocationNode) -> Void)? = nil,
+        contextMenu: @escaping (LocationNode) -> ContextMenu
+    ) {
+        self._locations = locations
+        self.multihopContext = multihopContext
+        self.onSelectLocation = onSelectLocation
+        self.onExpand = onExpand
+        self.contextMenu = contextMenu
+    }
 
     var filteredLocationIndices: [Int] {
         locations
@@ -25,6 +40,7 @@ struct LocationsListView<ContextMenu>: View where ContextMenu: View {
                 location: location,
                 multihopContext: multihopContext,
                 onSelect: onSelectLocation,
+                onExpand: onExpand,
                 contextMenu: { location in contextMenu(location) }
             )
         }

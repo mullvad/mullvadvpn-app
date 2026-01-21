@@ -22,6 +22,8 @@ class LocationNode: @unchecked Sendable {
     var isConnected: Bool
     var isSelected: Bool
     var isExcluded: Bool
+    /// Indicates this node has children that will be lazily created when expanded
+    var hasLazyChildren: Bool
     let id = UUID()
 
     init(
@@ -35,7 +37,8 @@ class LocationNode: @unchecked Sendable {
         isHiddenFromSearch: Bool = false,
         isConnected: Bool = false,
         isSelected: Bool = false,
-        isExcluded: Bool = false
+        isExcluded: Bool = false,
+        hasLazyChildren: Bool = false
     ) {
         self.name = name
         self.code = code
@@ -48,6 +51,7 @@ class LocationNode: @unchecked Sendable {
         self.isConnected = isConnected
         self.isSelected = isSelected
         self.isExcluded = isExcluded
+        self.hasLazyChildren = hasLazyChildren
     }
 
     /// Recursively copies a node, its parent and its descendants from another
@@ -64,7 +68,8 @@ class LocationNode: @unchecked Sendable {
             isHiddenFromSearch: isHiddenFromSearch,
             isConnected: isConnected,
             isSelected: false,  // explicity set to false since it's a different node
-            isExcluded: isExcluded
+            isExcluded: isExcluded,
+            hasLazyChildren: hasLazyChildren
         )
 
         node.children = recursivelyCopyChildren(withParent: node)

@@ -252,6 +252,8 @@ class MockSelectLocationViewModel: SelectLocationViewModel {
 
     func toggleRecents() {}
 
+    func populateChildren(for node: LocationNode) {}
+
     private var got1 = "se-got-001"
     private let got2 = "se-got-002"
     private let got3 = "se-got-003"

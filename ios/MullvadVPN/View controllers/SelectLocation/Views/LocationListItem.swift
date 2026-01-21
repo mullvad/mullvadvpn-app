@@ -5,6 +5,7 @@ struct LocationListItem<ContextMenu>: View where ContextMenu: View {
     var isLastInList: Bool = true
     let multihopContext: MultihopContext
     let onSelect: (LocationNode) -> Void
+    let onExpand: ((LocationNode) -> Void)?
     let contextMenu: (LocationNode) -> ContextMenu
     var level = 0
 
@@ -24,7 +25,7 @@ struct LocationListItem<ContextMenu>: View where ContextMenu: View {
 
     var body: some View {
         Group {
-            if location.children.isEmpty {
+            if location.children.isEmpty && !location.hasLazyChildren {
                 RelayItemView(
                     location: location,
                     multihopContext: multihopContext,
@@ -58,6 +59,7 @@ struct LocationListItem<ContextMenu>: View where ContextMenu: View {
                                 isLastInList: isLastInList && index == (filteredChildrenIndices.count - 1),
                                 multihopContext: multihopContext,
                                 onSelect: onSelect,
+                                onExpand: onExpand,
                                 contextMenu: { location in contextMenu(location) },
                                 level: level + 1,
                             )
@@ -87,6 +89,8 @@ struct LocationListItem<ContextMenu>: View where ContextMenu: View {
                     .padding(.vertical, 16)
                 } onSelect: {
                     onSelect(location)
+                } onExpand: {
+                    onExpand?(location)
                 }
             }
         }
@@ -107,6 +111,7 @@ struct LocationListItem<ContextMenu>: View where ContextMenu: View {
                         ),
                     multihopContext: .exit,
                     onSelect: { _ in },
+                    onExpand: nil,
                     contextMenu: { _ in EmptyView() },
                     level: 0
                 )
@@ -116,8 +121,8 @@ struct LocationListItem<ContextMenu>: View where ContextMenu: View {
                             viewModel.exitContext.locations.first!
                         ),
                     multihopContext: .exit,
-                    onSelect: { _ in
-                    },
+                    onSelect: { _ in },
+                    onExpand: nil,
                     contextMenu: { _ in EmptyView() },
                     level: 0
                 )

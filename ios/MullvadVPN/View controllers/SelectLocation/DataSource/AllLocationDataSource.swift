@@ -10,104 +10,166 @@ import Foundation
 import MullvadREST
 import MullvadTypes
 
+/// Relay data grouped for lazy child node creation
+struct RelaysByLocation {
+    var countryName: String
+    var cities: [String: CityRelays] // keyed by cityCode
+
+    struct CityRelays {
+        var cityName: String
+        var relays: [REST.ServerRelay]
+    }
+}
+
 class AllLocationDataSource: SearchableLocationDataSource {
     private(set) var nodes = [LocationNode]()
 
+    /// Stored relay data for lazy child creation, keyed by countryCode
+    private var relaysByCountry: [String: RelaysByLocation] = [:]
+
     /// Constructs a collection of node trees from relays fetched from the API.
-    /// ``RelayLocation.city`` is of special import since we use it to get country
-    /// and city names.
+    /// Only creates country nodes initially - children are created lazily when expanded.
     func reload(_ relays: LocationRelays) {
-        let rootNode = RootLocationNode()
         let expandedCodes = collectExpandedCodes()
 
-        // Use dictionaries for O(1) lookups during tree construction
-        var countryNodesByCode: [String: LocationNode] = [:]
-        var cityNodesByCode: [String: LocationNode] = [:]
+        // Group relays by country and city for lazy loading
+        relaysByCountry = [:]
+        var countryActiveState: [String: Bool] = [:]
 
         for relay in relays.relays {
             guard let serverLocation = relays.locations[relay.location.rawValue] else { continue }
 
             let countryCode = String(relay.location.country)
             let cityCode = String(relay.location.city)
+
+            // Initialize country entry if needed
+            if relaysByCountry[countryCode] == nil {
+                relaysByCountry[countryCode] = RelaysByLocation(
+                    countryName: serverLocation.country,
+                    cities: [:]
+                )
+            }
+
+            // Initialize city entry if needed
+            if relaysByCountry[countryCode]?.cities[cityCode] == nil {
+                relaysByCountry[countryCode]?.cities[cityCode] = RelaysByLocation.CityRelays(
+                    cityName: serverLocation.city,
+                    relays: []
+                )
+            }
+
+            relaysByCountry[countryCode]?.cities[cityCode]?.relays.append(relay)
+
+            // Track active state
+            if relay.active {
+                countryActiveState[countryCode] = true
+            }
+        }
+
+        // Create only country nodes initially
+        var countryNodes: [LocationNode] = []
+        for (countryCode, countryData) in relaysByCountry {
+            let countryLocation = RelayLocation.country(countryCode)
+            let countryNode = LocationNode(
+                name: NSLocalizedString(countryData.countryName, comment: ""),
+                code: countryCode,
+                locations: [countryLocation],
+                isActive: countryActiveState[countryCode] ?? false,
+                showsChildren: expandedCodes.contains(countryCode)
+            )
+            countryNode.hasLazyChildren = true
+            countryNodes.append(countryNode)
+
+            // If this country was expanded, populate its children immediately
+            if expandedCodes.contains(countryCode) {
+                populateChildren(for: countryNode, expandedCodes: expandedCodes)
+            }
+        }
+
+        countryNodes.sort()
+        nodes = countryNodes
+    }
+
+    /// Populates children for a node if they haven't been created yet.
+    /// Call this when a node is about to be expanded.
+    func populateChildren(for node: LocationNode, expandedCodes: Set<String> = []) {
+        guard node.hasLazyChildren, node.children.isEmpty else { return }
+
+        // Check if this is a country node
+        if let countryData = relaysByCountry[node.code] {
+            populateCountryChildren(node: node, countryData: countryData, expandedCodes: expandedCodes)
+            return
+        }
+
+        // Check if this is a city node (code format: "countryCode-cityCode")
+        let codeParts = node.code.split(separator: "-")
+        if codeParts.count >= 2 {
+            let countryCode = String(codeParts[0])
+            let cityCode = String(codeParts[1])
+            if let cityData = relaysByCountry[countryCode]?.cities[cityCode] {
+                populateCityChildren(node: node, countryCode: countryCode, cityCode: cityCode, cityData: cityData)
+            }
+        }
+    }
+
+    private func populateCountryChildren(
+        node: LocationNode,
+        countryData: RelaysByLocation,
+        expandedCodes: Set<String>
+    ) {
+        var cityNodes: [LocationNode] = []
+        let countryCode = node.code
+
+        for (cityCode, cityData) in countryData.cities {
             let countryCityCode = LocationNode.combineNodeCodes([countryCode, cityCode])
+            let cityLocation = RelayLocation.city(countryCode, cityCode)
 
-            // Get or create country node
-            let countryNode: LocationNode
-            if let existingCountry = countryNodesByCode[countryCode] {
-                countryNode = existingCountry
-            } else {
-                let countryLocation = RelayLocation.country(countryCode)
-                countryNode = LocationNode(
-                    name: NSLocalizedString(serverLocation.country, comment: ""),
-                    code: countryCode,
-                    locations: [countryLocation],
-                    isActive: true,
-                    showsChildren: expandedCodes.contains(countryCode)
-                )
-                countryNodesByCode[countryCode] = countryNode
-                rootNode.children.append(countryNode)
+            // Check if city has any active relays
+            let hasActiveRelay = cityData.relays.contains { $0.active }
+
+            let cityNode = LocationNode(
+                name: NSLocalizedString(cityData.cityName, comment: ""),
+                code: countryCityCode,
+                locations: [cityLocation],
+                isActive: hasActiveRelay,
+                parent: node,
+                showsChildren: expandedCodes.contains(countryCityCode)
+            )
+            cityNode.hasLazyChildren = true
+            cityNodes.append(cityNode)
+
+            // If this city was expanded, populate its children immediately
+            if expandedCodes.contains(countryCityCode) {
+                populateCityChildren(node: cityNode, countryCode: countryCode, cityCode: cityCode, cityData: cityData)
             }
+        }
 
-            // Get or create city node
-            let cityNode: LocationNode
-            if let existingCity = cityNodesByCode[countryCityCode] {
-                cityNode = existingCity
-            } else {
-                let cityLocation = RelayLocation.city(countryCode, cityCode)
-                cityNode = LocationNode(
-                    name: NSLocalizedString(serverLocation.city, comment: ""),
-                    code: countryCityCode,
-                    locations: [cityLocation],
-                    isActive: true,
-                    parent: countryNode,
-                    showsChildren: expandedCodes.contains(countryCityCode)
-                )
-                cityNodesByCode[countryCityCode] = cityNode
-                countryNode.children.append(cityNode)
-            }
+        cityNodes.sort()
+        node.children = cityNodes
+    }
 
-            // Create host node
+    private func populateCityChildren(
+        node: LocationNode,
+        countryCode: String,
+        cityCode: String,
+        cityData: RelaysByLocation.CityRelays
+    ) {
+        var hostNodes: [LocationNode] = []
+
+        for relay in cityData.relays {
             let hostLocation = RelayLocation.hostname(countryCode, cityCode, relay.hostname)
             let hostNode = LocationNode(
                 name: relay.hostname,
                 code: relay.hostname,
                 locations: [hostLocation],
                 isActive: relay.active,
-                parent: cityNode,
-                showsChildren: expandedCodes.contains(relay.hostname)
+                parent: node
             )
-            cityNode.children.append(hostNode)
-
-            // Update active states
-            if relay.active {
-                cityNode.isActive = true
-                countryNode.isActive = true
-            }
+            hostNodes.append(hostNode)
         }
 
-        // Update isActive for cities and countries that have no active relays
-        for countryNode in rootNode.children {
-            var countryHasActiveCity = false
-            for cityNode in countryNode.children {
-                let cityHasActiveHost = cityNode.children.contains { $0.isActive }
-                cityNode.isActive = cityHasActiveHost
-                if cityHasActiveHost {
-                    countryHasActiveCity = true
-                }
-            }
-            countryNode.isActive = countryHasActiveCity
-        }
-
-        // Single sort pass at the end
-        rootNode.children.sort()
-        for countryNode in rootNode.children {
-            countryNode.children.sort()
-            for cityNode in countryNode.children {
-                cityNode.children.sort()
-            }
-        }
-
-        nodes = rootNode.children
+        hostNodes.sort()
+        node.children = hostNodes
     }
 
     /// Efficiently collects codes of all nodes that have showsChildren = true.

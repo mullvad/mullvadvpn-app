@@ -27,6 +27,8 @@ protocol SelectLocationViewModel: ObservableObject {
     func showFilterView()
     func toggleMultihop()
     func toggleRecents()
+    /// Populates children for a node with lazy children when it's about to be expanded
+    func populateChildren(for node: LocationNode)
 }
 
 struct SelectLocationDelegate {
@@ -408,6 +410,12 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
 
     func toggleRecents() {
         recentsInteractor.toggle()
+    }
+
+    func populateChildren(for node: LocationNode) {
+        // Try exit locations first, then entry locations
+        exitLocationsDataSource.populateChildren(for: node)
+        entryLocationsDataSource.populateChildren(for: node)
     }
 }
 

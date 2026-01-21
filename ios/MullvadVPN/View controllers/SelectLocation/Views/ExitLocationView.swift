@@ -98,11 +98,16 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
         LocationsListView(
             locations: $context.locations,
             multihopContext: viewModel.multihopContext,
-        ) { location in
-            context.selectLocation(location)
-        } contextMenu: { location in
-            locationContextMenu(location)
-        }
+            onSelectLocation: { location in
+                context.selectLocation(location)
+            },
+            onExpand: { location in
+                viewModel.populateChildren(for: location)
+            },
+            contextMenu: { location in
+                locationContextMenu(location)
+            }
+        )
     }
 
     @ViewBuilder
@@ -158,11 +163,16 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
         LocationsListView(
             locations: $context.customLists,
             multihopContext: viewModel.multihopContext,
-        ) { location in
-            context.selectLocation(location)
-        } contextMenu: { location in
-            customListContextMenu(location)
-        }
+            onSelectLocation: { location in
+                context.selectLocation(location)
+            },
+            onExpand: { location in
+                viewModel.populateChildren(for: location)
+            },
+            contextMenu: { location in
+                customListContextMenu(location)
+            }
+        )
 
         let text: LocalizedStringKey =
             context.customLists.isEmpty

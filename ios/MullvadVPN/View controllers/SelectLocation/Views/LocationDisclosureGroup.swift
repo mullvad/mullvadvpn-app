@@ -9,6 +9,7 @@ struct LocationDisclosureGroup<Label: View, Content: View, ContextMenu: View>: V
     let label: () -> Label
     let content: () -> Content
     let onSelect: (() -> Void)?
+    let onExpand: (() -> Void)?
     let contextMenu: () -> ContextMenu
     let accessibilityIdentifier: AccessibilityIdentifier?
 
@@ -31,6 +32,7 @@ struct LocationDisclosureGroup<Label: View, Content: View, ContextMenu: View>: V
         @ViewBuilder content: @escaping () -> Content,
         @ViewBuilder label: @escaping () -> Label,
         onSelect: (() -> Void)? = nil,
+        onExpand: (() -> Void)? = nil
     ) {
         self.level = level
         self.isLastInList = isLastInList
@@ -41,6 +43,7 @@ struct LocationDisclosureGroup<Label: View, Content: View, ContextMenu: View>: V
         self.label = label
         self.content = content
         self.onSelect = onSelect
+        self.onExpand = onExpand
         self.contextMenu = contextMenu
     }
 
@@ -60,6 +63,10 @@ struct LocationDisclosureGroup<Label: View, Content: View, ContextMenu: View>: V
             }
             .disabled(!isActive)
             Button {
+                // Populate children before expanding (for lazy loading)
+                if !isExpanded {
+                    onExpand?()
+                }
                 withAnimation(.default.speed(3)) {
                     isExpanded.toggle()
                 }
