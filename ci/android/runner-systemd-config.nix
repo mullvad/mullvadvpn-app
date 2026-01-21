@@ -5,32 +5,37 @@
     "/run/current-system/sw"
   ];
   serviceConfig = {
-    DynamicUser = lib.mkForce false;
+    DynamicUser = lib.mkForce [ ];
     SystemCallFilter = lib.mkForce [ ];
-    RestrictNamespaces = lib.mkForce false;
-    LockPersonality = lib.mkForce false;
-    MemoryDenyWriteExecute = lib.mkForce false;
-    NoNewPrivileges = lib.mkForce false;
-    PrivateDevices = lib.mkForce false;
-    PrivateMounts = lib.mkForce false;
-    PrivateNetwork = lib.mkForce false;
-    PrivateTmp = lib.mkForce false;
-    PrivateUsers = lib.mkForce false;
-    ProcSubset = lib.mkForce "";
-    ProtectClock = lib.mkForce false;
-    ProtectControlGroups = lib.mkForce false;
-    ProtectHome = lib.mkForce false;
-    ProtectHostname = lib.mkForce false;
-    ProtectKernelLogs = lib.mkForce false;
-    ProtectKernelModules = lib.mkForce false;
-    ProtectKernelTunables = lib.mkForce false;
+    RestrictNamespaces = lib.mkForce [ ];
+
+    LockPersonality = lib.mkForce [ ];
+    MemoryDenyWriteExecute = lib.mkForce [ ];
+    NoNewPrivileges = lib.mkForce [ ];
+    PrivateDevices = lib.mkForce [ ];
+    PrivateMounts = lib.mkForce [ ];
+    PrivateNetwork = lib.mkForce [ ];
+    PrivateTmp = lib.mkForce [ ];
+    PrivateUsers = lib.mkForce [ ];
+    ProcSubset = lib.mkForce [ ];
+    ProtectClock = lib.mkForce [ ];
+    ProtectControlGroups = lib.mkForce [ ];
+    ProtectHome = lib.mkForce [ ];
+    ProtectHostname = lib.mkForce [ ];
+    ProtectKernelLogs = lib.mkForce [ ];
+    ProtectKernelModules = lib.mkForce [ ];
+    ProtectKernelTunables = lib.mkForce [ ];
     ProtectProc = "off";
-    ProtectSystem = lib.mkForce false;
-    RemoveIPC = lib.mkForce false;
+    ProtectSystem = lib.mkForce [ ];
+    RemoveIPC = lib.mkForce [ ];
+    # Restart = lib.mkForce [];
     RestrictAddressFamilies = lib.mkForce [ ];
-    RestrictRealtime = lib.mkForce false;
-    RestrictSUIDSGID = lib.mkForce false;
-    CapabilityBoundingSet = lib.mkForce [ "~CAP_SETGID" ];
-    AmbientCapabilities = lib.mkForce [ "~CAP_SETGID" ];
+    RestrictRealtime = lib.mkForce [ ];
+    RestrictSUIDSGID = lib.mkForce [ ];
+
+    # If these are not set we will hit newuidmap/newgidmap permission issues when calling from
+    # systemd service, we can most likely scope these permissions down way more.
+    CapabilityBoundingSet = lib.mkForce [ "CAP_SETUID CAP_SETGID" ];
+    AmbientCapabilities = lib.mkForce [ "CAP_SETUID CAP_SETGID" ];
   };
 }
