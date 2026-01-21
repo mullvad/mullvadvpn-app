@@ -20,11 +20,11 @@ import WireGuardKitTypes
 
 /// Interval used for periodic polling of tunnel relay status when tunnel is establishing
 /// connection.
-private let establishingTunnelStatusPollInterval: Duration = .seconds(1)
+private let establishingTunnelStatusPollInterval: Duration = .milliseconds(500)
 
 /// Interval used for periodic polling of tunnel connectivity status once the tunnel connection
 /// is established.
-private let establishedTunnelStatusPollInterval: Duration = .seconds(5)
+private let establishedTunnelStatusPollInterval: Duration = .milliseconds(500)
 
 /// A class that provides a convenient interface for VPN tunnels configuration, manipulation and
 /// monitoring.
@@ -33,7 +33,6 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
         case manageTunnel
         case deviceStateUpdate
         case settingsUpdate
-        case tunnelStateUpdate
 
         var category: String {
             "TunnelManager.\(rawValue)"
@@ -55,7 +54,6 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
     private let internalQueue = DispatchQueue(label: "TunnelManager.internalQueue")
 
     private var statusObserver: TunnelStatusBlockObserver?
-    private weak var lastMapConnectionStatusOperation: Operation?
     private let observerList = ObserverList<TunnelObserver>()
     private var networkMonitor: NWPathMonitor?
     private let relaySelector: RelaySelectorProtocol
@@ -78,6 +76,7 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
 
     private var _tunnel: (any TunnelProtocol)?
     private var _tunnelStatus = TunnelStatus()
+    private var _lastNEVPNStatus: NEVPNStatus = .invalid
 
     /// Last processed device check.
     private var lastPacketTunnelKeyRotation: Date?
@@ -730,30 +729,11 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
             lastPacketTunnelKeyRotation = newPacketTunnelKeyRotation
             refreshDeviceState()
         }
-        switch _tunnelStatus.state {
-        case .connecting, .reconnecting, .negotiatingEphemeralPeer:
-            // Start polling tunnel status to keep the relay information up to date
-            // while the tunnel process is trying to connect.
-            startPollingTunnelStatus(interval: establishingTunnelStatusPollInterval)
-
-        case .connected, .waitingForConnectivity(.noConnection):
-            // Start polling tunnel status to keep connectivity status up to date.
-            startPollingTunnelStatus(interval: establishedTunnelStatusPollInterval)
-
-        case .pendingReconnect, .disconnecting, .disconnected, .waitingForConnectivity(.noNetwork):
-            // Stop polling tunnel status once connection moved to final state.
-            cancelPollingTunnelStatus()
-
-        case let .error(blockedStateReason):
-            switch blockedStateReason {
-            case .deviceRevoked, .invalidAccount:
-                handleBlockedState(reason: blockedStateReason)
-            default:
-                break
-            }
-
-            // Stop polling tunnel status once blocked state has been determined.
-            cancelPollingTunnelStatus()
+        // Handle unrecoverable blocked states
+        if case let .error(blockedStateReason) = _tunnelStatus.state,
+            !blockedStateReason.recoverableError()
+        {
+            handleBlockedState(reason: blockedStateReason)
         }
 
         DispatchQueue.main.async {
@@ -837,7 +817,12 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
     }
 
     private func didUpdateNetworkPath(_ path: Network.NWPath) {
-        updateTunnelStatus(tunnel?.status ?? .disconnected)
+        // Only act on network path updates when VPN is disconnected.
+        // When VPN is up, the packet tunnel handles network changes internally.
+        let status = tunnel?.status ?? .disconnected
+        guard [.disconnected, .invalid].contains(status) else { return }
+
+        setDisconnectedState(networkPathStatus: path.status)
     }
 
     fileprivate func prepareForVPNConfigurationDeletion() {
@@ -846,10 +831,6 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
 
         // Unregister from receiving VPN connection status changes
         unsubscribeVPNStatusObserver()
-
-        // Cancel last VPN status mapping operation
-        lastMapConnectionStatusOperation?.cancel()
-        lastMapConnectionStatusOperation = nil
     }
 
     private func didReconnectTunnel(error: Error?) {
@@ -884,14 +865,26 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
             .addBlockObserver(queue: internalQueue) { [weak self] tunnel, status in
                 guard let self else { return }
 
+                // Save the NEVPNStatus so we can reject stale IPC updates
+                self._lastNEVPNStatus = status
                 self.logger.debug("VPN connection status changed to \(status).")
+
+                // Control polling based on NEVPNStatus directly (the source of truth),
+                // not the derived tunnelStatus.state which can be stale.
+                self.updatePollingFromVPNStatus(status)
+
+                // Update tunnel status for all state changes to ensure UI reflects
+                // disconnecting and disconnected states immediately.
                 self.updateTunnelStatus(status)
             }
+
+        // Save and start polling for the current status since the observer
+        // only fires on status changes, not for the initial state.
+        _lastNEVPNStatus = tunnel.status
+        updatePollingFromVPNStatus(tunnel.status)
     }
 
     private func startNetworkMonitor() {
-        cancelNetworkMonitor()
-
         networkMonitor = NWPathMonitor()
         networkMonitor?.pathUpdateHandler = { [weak self] path in
             self?.scheduleNetworkPathUpdate(path)
@@ -918,14 +911,6 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
             )
     }
 
-    private func cancelNetworkMonitor() {
-        pendingNetworkPathUpdate?.cancel()
-        pendingNetworkPathUpdate = nil
-        networkMonitor?.pathUpdateHandler = nil
-        networkMonitor?.cancel()
-        networkMonitor = nil
-    }
-
     private func unsubscribeVPNStatusObserver() {
         nslock.lock()
         defer { nslock.unlock() }
@@ -938,8 +923,17 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
         nslock.lock()
         defer { nslock.unlock() }
 
-        if let connectionStatus = _tunnel?.status {
+        guard let connectionStatus = _tunnel?.status else { return }
+
+        switch connectionStatus {
+        case .connecting, .reasserting, .connected:
+            // Active states: fetch via IPC
+            fetchAndUpdateTunnelStatus()
+        case .disconnected, .disconnecting, .invalid:
+            // Down states: update directly
             updateTunnelStatus(connectionStatus)
+        @unknown default:
+            break
         }
     }
 
@@ -972,28 +966,164 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
     }
 
     /// Update `TunnelStatus` from `NEVPNStatus`.
-    /// Collects the `PacketTunnelStatus` from the tunnel via IPC if needed before assigning
-    /// the `tunnelStatus`.
+    /// For active states, fetches detailed status via IPC.
+    /// For down states, updates state directly without IPC.
     private func updateTunnelStatus(_ connectionStatus: NEVPNStatus) {
         nslock.lock()
         defer { nslock.unlock() }
 
-        let operation = MapConnectionStatusOperation(
-            queue: internalQueue,
-            interactor: TunnelInteractorProxy(self),
-            connectionStatus: connectionStatus,
-            networkStatus: networkMonitor?.currentPath.status
-        )
+        switch connectionStatus {
+        case .connecting, .reasserting, .connected:
+            // Active states: fetch details via IPC
+            fetchAndUpdateTunnelStatus()
 
-        operation.addCondition(
-            MutuallyExclusive(category: OperationCategory.tunnelStateUpdate.category)
-        )
+        case .disconnecting:
+            handleDisconnectingStateDirectly()
 
-        // Cancel last VPN status mapping operation
-        lastMapConnectionStatusOperation?.cancel()
-        lastMapConnectionStatusOperation = operation
+        case .disconnected:
+            handleDisconnectedStateDirectly()
 
-        operationQueue.addOperation(operation)
+        case .invalid:
+            setDisconnectedState(networkPathStatus: networkMonitor?.currentPath.status)
+
+        @unknown default:
+            logger.debug("Unknown NEVPNStatus: \(connectionStatus.rawValue)")
+        }
+    }
+
+    // MARK: - Direct state updates (no IPC needed)
+
+    /// Directly set disconnected state without going through operation queue.
+    /// Safe because disconnected is an idempotent final state.
+    private func setDisconnectedState(networkPathStatus: Network.NWPath.Status?) {
+        _ = setTunnelStatus { tunnelStatus in
+            tunnelStatus = TunnelStatus()
+            tunnelStatus.state =
+                networkPathStatus == .unsatisfied
+                ? .waitingForConnectivity(.noNetwork)
+                : .disconnected
+        }
+    }
+
+    /// Handle disconnecting state directly without IPC.
+    private func handleDisconnectingStateDirectly() {
+        let currentState = tunnelStatus.state
+
+        switch currentState {
+        case .disconnecting:
+            // Already disconnecting, no change needed
+            break
+        default:
+            _ = setTunnelStatus { tunnelStatus in
+                if tunnelStatus.observedState.blockedState != nil {
+                    tunnelStatus.state = .disconnecting(.nothing)
+                } else {
+                    let isNetworkReachable = tunnelStatus.observedState.connectionState?.isNetworkReachable ?? false
+                    tunnelStatus.state =
+                        isNetworkReachable
+                        ? .disconnecting(.nothing)
+                        : .waitingForConnectivity(.noNetwork)
+                }
+            }
+        }
+    }
+
+    /// Handle disconnected state directly without IPC.
+    private func handleDisconnectedStateDirectly() {
+        let currentState = tunnelStatus.state
+
+        switch currentState {
+        case .pendingReconnect:
+            logger.debug("Ignore disconnected state when pending reconnect.")
+
+        case .disconnecting(.reconnect):
+            logger.debug("Restart the tunnel on disconnect.")
+            _ = setTunnelStatus { tunnelStatus in
+                tunnelStatus = TunnelStatus()
+                tunnelStatus.state = .pendingReconnect
+            }
+            startTunnel()
+
+        default:
+            setDisconnectedState(networkPathStatus: networkMonitor?.currentPath.status)
+        }
+    }
+
+    // MARK: - IPC-based status fetch (for active states)
+
+    /// Fetch tunnel status via IPC and update state.
+    /// Only called for active states (.connecting, .reasserting, .connected).
+    private func fetchAndUpdateTunnelStatus() {
+        guard let tunnel = _tunnel else { return }
+
+        _ = tunnel.getTunnelStatus { [weak self] result in
+            guard let self else { return }
+
+            self.internalQueue.async {
+                // Reject stale IPC updates if the tunnel is now dead
+                guard self.isTunnelAlive else {
+                    self.logger.debug("Ignoring stale IPC response, tunnel is dead.")
+                    return
+                }
+
+                if case let .success(observedState) = result {
+                    _ = self.setTunnelStatus { tunnelStatus in
+                        tunnelStatus.observedState = observedState
+
+                        if let newState = self.mapObservedStateToTunnelState(observedState) {
+                            tunnelStatus.state = newState
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /// Returns true if the tunnel is in an active state based on NEVPNStatus.
+    private var isTunnelAlive: Bool {
+        switch _lastNEVPNStatus {
+        case .connecting, .reasserting, .connected:
+            return true
+        case .disconnecting, .disconnected, .invalid:
+            return false
+        @unknown default:
+            return false
+        }
+    }
+
+    /// Map ObservedState from packet tunnel to TunnelState for UI.
+    private func mapObservedStateToTunnelState(_ observedState: ObservedState) -> TunnelState? {
+        switch observedState {
+        case let .connected(connectionState):
+            return .connected(
+                connectionState.selectedRelays,
+                isPostQuantum: connectionState.isPostQuantum,
+                isDaita: connectionState.isDaitaEnabled
+            )
+        case let .connecting(connectionState):
+            return .connecting(
+                connectionState.selectedRelays,
+                isPostQuantum: connectionState.isPostQuantum,
+                isDaita: connectionState.isDaitaEnabled
+            )
+        case let .negotiatingEphemeralPeer(connectionState, privateKey):
+            return .negotiatingEphemeralPeer(
+                connectionState.selectedRelays,
+                privateKey,
+                isPostQuantum: connectionState.isPostQuantum,
+                isDaita: connectionState.isDaitaEnabled
+            )
+        case let .reconnecting(connectionState):
+            return .reconnecting(
+                connectionState.selectedRelays,
+                isPostQuantum: connectionState.isPostQuantum,
+                isDaita: connectionState.isDaitaEnabled
+            )
+        case let .error(blockedState):
+            return .error(blockedState.reason)
+        case .initial, .disconnecting, .disconnected:
+            return nil
+        }
     }
 
     private func scheduleSettingsUpdate(
@@ -1082,10 +1212,9 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
     // MARK: - Tunnel status polling
 
     private func startPollingTunnelStatus(interval: Duration) {
-        /*
-         Ignore idempotency, otherwise the timer will not be using the correct time interval
-         when switching between states, until the tunnel disconnects.
-         */
+        guard !isPolling else {
+            return
+        }
         isPolling = true
         tunnelStatusPollTimer?.cancel()
 
@@ -1109,6 +1238,22 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
         tunnelStatusPollTimer?.cancel()
         tunnelStatusPollTimer = nil
         isPolling = false
+    }
+
+    /// Update polling state based on NEVPNStatus (the source of truth).
+    /// Poll continuously while tunnel is not disconnected, disconnecting, or invalid.
+    private func updatePollingFromVPNStatus(_ status: NEVPNStatus) {
+        switch status {
+        case .disconnecting, .disconnected, .invalid:
+            cancelPollingTunnelStatus()
+        case .connecting, .reasserting:
+            startPollingTunnelStatus(interval: establishingTunnelStatusPollInterval)
+        case .connected:
+            startPollingTunnelStatus(interval: establishedTunnelStatusPollInterval)
+        @unknown default:
+            // For any unknown future states, assume it's an active state and poll
+            startPollingTunnelStatus(interval: establishedTunnelStatusPollInterval)
+        }
     }
 
     fileprivate func removeLastUsedAccount() {
