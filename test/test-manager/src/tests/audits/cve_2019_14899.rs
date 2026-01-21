@@ -185,7 +185,7 @@ async fn filter_for_malicious_packet(
 /// Try to parse the bytes received on a [`channel`] data link.
 ///
 /// # Returns
-/// - `None` if the bytes are not a valid TCP packet
+/// - `None` if the bytes are not a valid Ethernet/IPv4/TCP packet
 /// - A single TCP packet otherwise.
 fn ethernetframe_to_tcp(packet: &[u8]) -> Option<TcpPacket<'static>> {
     let eth_packet = EthernetPacket::new(packet)?;
