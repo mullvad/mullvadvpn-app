@@ -22,9 +22,15 @@ export type RelaySelectionPath = {
 export const createHelpers = (page: Page, routes: RoutesObjectModel, utils: MockedTestUtils) => {
   const areAllCheckboxesChecked = async () => {
     const checkboxes = page.getByRole('checkbox');
-    return checkboxes.evaluateAll((checkboxes) =>
-      checkboxes.every((checkbox) => checkbox.getAttribute('aria-checked') === 'true'),
-    );
+    const count = await checkboxes.count();
+    for (let i = 0; i < count; i++) {
+      const checkbox = checkboxes.nth(i);
+      const checked = await checkbox.isChecked();
+      if (!checked) {
+        return false;
+      }
+    }
+    return true;
   };
 
   const expandLocatedRelays = async (locatedRelays: RelaySelectionPath[]) => {
