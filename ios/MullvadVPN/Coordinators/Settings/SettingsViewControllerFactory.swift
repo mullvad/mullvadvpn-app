@@ -30,14 +30,18 @@ struct SettingsViewControllerFactory {
     private let accessMethodRepository: AccessMethodRepositoryProtocol
     private let proxyConfigurationTester: ProxyConfigurationTesterProtocol
     private let ipOverrideRepository: IPOverrideRepository
+    private let notificationSettings: NotificationSettings
     private let navigationController: UINavigationController
     private let alertPresenter: AlertPresenter
+
+    var didUpdateNotificationSettings: ((NotificationSettings) -> Void)?
 
     init(
         interactorFactory: SettingsInteractorFactory,
         accessMethodRepository: AccessMethodRepositoryProtocol,
         proxyConfigurationTester: ProxyConfigurationTesterProtocol,
         ipOverrideRepository: IPOverrideRepository,
+        notificationSettings: NotificationSettings,
         navigationController: UINavigationController,
         alertPresenter: AlertPresenter
     ) {
@@ -45,6 +49,7 @@ struct SettingsViewControllerFactory {
         self.accessMethodRepository = accessMethodRepository
         self.proxyConfigurationTester = proxyConfigurationTester
         self.ipOverrideRepository = ipOverrideRepository
+        self.notificationSettings = notificationSettings
         self.navigationController = navigationController
         self.alertPresenter = alertPresenter
     }
@@ -72,6 +77,8 @@ struct SettingsViewControllerFactory {
             makeMultihopViewController()
         case .daita:
             makeDAITASettingsCoordinator()
+        case .notificationSettings:
+            makeNotificationSettingsCoordinator()
         }
     }
 
@@ -131,6 +138,17 @@ struct SettingsViewControllerFactory {
             viewModel: viewModel
         )
 
+        return .childCoordinator(coordinator)
+    }
+
+    private func makeNotificationSettingsCoordinator() -> MakeChildResult {
+        let coordinator = NotificationSettingsCoordinator(
+            navigationController: navigationController,
+            viewModel: NotificationSettingsViewModel(settings: notificationSettings)
+        )
+        coordinator.didFinish = { _, notificationSettings in
+            didUpdateNotificationSettings?(notificationSettings)
+        }
         return .childCoordinator(coordinator)
     }
 }
