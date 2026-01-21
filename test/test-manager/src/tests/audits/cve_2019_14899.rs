@@ -118,7 +118,7 @@ pub async fn test_cve_2019_14899_mitigation(
     Ok(())
 }
 
-/// One specific instance of the return value of [`channel`]`.
+/// One specific instance of the return value of [`channel`].
 struct IO {
     recv: Box<dyn DataLinkReceiver>,
     send: Box<dyn DataLinkSender>,
