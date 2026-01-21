@@ -1,0 +1,22 @@
+name: TOML Validation
+
+on:
+  push:
+    paths:
+      - "**.toml"
+      - ".github/workflows/lint-toml.yml"
+  pull_request:
+    paths:
+      - "**.toml"
+      - ".github/workflows/lint-toml.yml"
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: tombi-toml/setup-tombi@v1
+      - name: Lint TOML files
+        run: tombi lint
+      - name: Validate TOML formatting
+        run: tombi format --check --diff
