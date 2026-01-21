@@ -238,6 +238,9 @@ public enum BlockedStateReason: String, Codable, Equatable, Sendable {
     /// Invalid public key.
     case invalidRelayPublicKey
 
+    /// Device is offline
+    case offline
+
     /// Unidentified reason.
     case unknown
 
@@ -247,7 +250,7 @@ public enum BlockedStateReason: String, Codable, Equatable, Sendable {
         case .deviceLocked, .multihopEntryEqualsExit, .outdatedSchema, .noRelaysSatisfyingConstraints,
             .noRelaysSatisfyingPortConstraints, .noRelaysSatisfyingDaitaConstraints,
             .noRelaysSatisfyingFilterConstraints, .noRelaysSatisfyingObfuscationSettings, .readSettings,
-            .invalidRelayPublicKey:
+            .invalidRelayPublicKey, .offline:
             return true
         case .deviceRevoked, .deviceLoggedOut, .tunnelAdapter, .accountExpired, .invalidAccount, .unknown:
             return false
@@ -282,4 +285,7 @@ public enum ActorReconnectReason: Equatable, Sendable {
     /// Initiated by tunnel monitor due to loss of connectivity, or if ephemeral peer negotiation times out.
     /// Actor will increment the connection attempt counter before picking next relay.
     case connectionLoss
+
+    /// Restored  connectivity
+    case restoredConnectivity
 }
