@@ -22,11 +22,11 @@ class CustomListsDataSource: SearchableLocationDataSource {
     /// Constructs a collection of node trees by copying each matching counterpart
     /// from the complete list of nodes created in ``AllLocationDataSource``.
     func reload(allLocationNodes: [LocationNode]) {
-        let expandedRelays = nodes.flatMap { [$0] + $0.flattened }.filter { $0.showsChildren }.map { $0.code }
+        let expandedCodes = collectExpandedCodes(nodes: nodes)
         nodes = repository.fetchAll().map { list in
             let customListWrapper = CustomListLocationNodeBuilder(customList: list, allLocations: allLocationNodes)
             let listNode = customListWrapper.customListLocationNode
-            listNode.showsChildren = expandedRelays.contains(listNode.code)
+            listNode.showsChildren = expandedCodes.contains(listNode.code)
 
             listNode.forEachDescendant { node in
                 // Each item in a section in a diffable data source needs to be unique.
@@ -34,7 +34,7 @@ class CustomListsDataSource: SearchableLocationDataSource {
                 // equality, each node code needs to be prefixed with the code of its
                 // parent custom list to uphold this.
                 node.code = LocationNode.combineNodeCodes([listNode.code, node.code])
-                node.showsChildren = expandedRelays.contains(node.code)
+                node.showsChildren = expandedCodes.contains(node.code)
             }
 
             return listNode

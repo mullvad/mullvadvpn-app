@@ -154,4 +154,19 @@ extension LocationDataSourceProtocol {
         }
         return descendantNodeFor(baseCodes)
     }
+
+    /// Efficiently collects codes of all nodes that have showsChildren = true.
+    func collectExpandedCodes(nodes: [LocationNode]) -> Set<String> {
+        var codes = Set<String>()
+
+        for node in nodes {
+            if node.showsChildren {
+                codes.insert(node.code)
+                node.forEachDescendant { child in
+                    codes.insert(child.code)
+                }
+            }
+        }
+        return codes
+    }
 }
