@@ -64,14 +64,12 @@ impl From<gotatun::device::configure::Stats> for Stats {
             .last_handshake
             .map(|duration_since| SystemTime::now() - duration_since);
 
-        let stats = Stats {
+        Stats {
             tx_bytes: peer_stats.tx_bytes as u64,
             rx_bytes: peer_stats.rx_bytes as u64,
             last_handshake_time,
             daita,
-        };
-
-        stats
+        }
     }
 }
 
