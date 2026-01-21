@@ -14,6 +14,7 @@ members = [
   "mullvad-ios",
   "mullvad-jni",
   "mullvad-leak-checker",
+  "mullvad-logging",
   "mullvad-management-interface",
   "mullvad-masque-proxy",
   "mullvad-nsis",

@@ -20,7 +20,6 @@ mockito = "1.6.1"
 mullvad-api = { path = "../mullvad-api", default-features = false }
 mullvad-encrypted-dns-proxy = { path = "../mullvad-encrypted-dns-proxy" }
 mullvad-types = { path = "../mullvad-types" }
-oslog = "0.2"
 talpid-future = { path = "../talpid-future" }
 talpid-tunnel-config-client = { path = "../talpid-tunnel-config-client" }
 talpid-types = { path = "../talpid-types" }
