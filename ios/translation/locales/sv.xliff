@@ -30,9 +30,9 @@
         <target state="final">%@ gör det genom att noggrant lägga till nätverksbrus och se till så att alla nätverkspaket har samma storlek.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="%@ have been added to your account." xml:space="preserve">
+      <trans-unit id="%@ have been added to your account." xml:space="preserve" approved="yes">
         <source>%@ have been added to your account.</source>
-        <target state="needs-translation">%@ have been added to your account.</target>
+        <target state="final">%@ har lagts till i ditt konto.</target>
         <note/>
       </trans-unit>
       <trans-unit id="%@ left on this account" xml:space="preserve" approved="yes">
@@ -547,9 +547,9 @@ Would you like to continue to enable “Local network sharing”?</source>
         <target state="final">Connect (anslut)</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Connected server" xml:space="preserve">
+      <trans-unit id="Connected server" xml:space="preserve" approved="yes">
         <source>Connected server</source>
-        <target state="needs-translation">Connected server</target>
+        <target state="final">Ansluten server</target>
         <note/>
       </trans-unit>
       <trans-unit id="Connected to %@" xml:space="preserve" approved="yes">
@@ -582,9 +582,9 @@ Would you like to continue to enable “Local network sharing”?</source>
         <target state="final">Kopierade Mullvad-kontonumret till urklipp</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Could not restore previous purchases. Try again later or contact support." xml:space="preserve">
+      <trans-unit id="Could not restore previous purchases. Try again later or contact support." xml:space="preserve" approved="yes">
         <source>Could not restore previous purchases. Try again later or contact support.</source>
-        <target state="needs-translation">Could not restore previous purchases. Try again later or contact support.</target>
+        <target state="final">Det gick inte att återställa föregående köp. Försök igen senare eller kontakta supporten.</target>
         <note/>
       </trans-unit>
       <trans-unit id="Create" xml:space="preserve" approved="yes">
@@ -692,9 +692,9 @@ Would you like to continue to enable “Local network sharing”?</source>
         <target state="final">Dallas, TX</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Debug options" xml:space="preserve">
+      <trans-unit id="Debug options" xml:space="preserve" approved="yes">
         <source>Debug options</source>
-        <target state="needs-translation">Debug options</target>
+        <target state="final">Felsökningsalternativ</target>
         <note/>
       </trans-unit>
       <trans-unit id="Delete" xml:space="preserve" approved="yes">
@@ -787,9 +787,9 @@ Would you like to continue to enable “Local network sharing”?</source>
         <target state="final">Inaktivering av</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Disabling recents will also clear history." xml:space="preserve">
+      <trans-unit id="Disabling recents will also clear history." xml:space="preserve" approved="yes">
         <source>Disabling recents will also clear history.</source>
-        <target state="needs-translation">Disabling recents will also clear history.</target>
+        <target state="final">Historiken rensas om du inaktiverar senaste.</target>
         <note/>
       </trans-unit>
       <trans-unit id="Discard changes" xml:space="preserve" approved="yes">
@@ -947,9 +947,9 @@ Would you like to continue to enable “Local network sharing”?</source>
         <target state="final">Det gick inte att läsa in produkterna, försök igen</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Failed to reach Mullvad servers to initiate purchase" xml:space="preserve">
+      <trans-unit id="Failed to reach Mullvad servers to initiate purchase" xml:space="preserve" approved="yes">
         <source>Failed to reach Mullvad servers to initiate purchase</source>
-        <target state="needs-translation">Failed to reach Mullvad servers to initiate purchase</target>
+        <target state="final">Det gick inte att nå Mullvad-servrarna för att påbörja köpet</target>
         <note/>
       </trans-unit>
       <trans-unit id="Failed to send" xml:space="preserve" approved="yes">
@@ -982,14 +982,14 @@ Would you like to continue to enable “Local network sharing”?</source>
         <target state="final">Det gick inte att stoppa tunneln: %@.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Failed to upload one or more receipts to Mullvad servers. Try again later or contact support for help." xml:space="preserve">
+      <trans-unit id="Failed to upload one or more receipts to Mullvad servers. Try again later or contact support for help." xml:space="preserve" approved="yes">
         <source>Failed to upload one or more receipts to Mullvad servers. Try again later or contact support for help.</source>
-        <target state="needs-translation">Failed to upload one or more receipts to Mullvad servers. Try again later or contact support for help.</target>
+        <target state="final">Det gick inte att ladda upp ett eller flera kvitton på Mullvad-servrarna. Försök igen senare eller kontakta supporten för att få hjälp.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Failed to verify transaction receipt" xml:space="preserve">
+      <trans-unit id="Failed to verify transaction receipt" xml:space="preserve" approved="yes">
         <source>Failed to verify transaction receipt</source>
-        <target state="needs-translation">Failed to verify transaction receipt</target>
+        <target state="final">Det gick inte att verifiera transaktionskvittot</target>
         <note/>
       </trans-unit>
       <trans-unit id="Fetching devices..." xml:space="preserve" approved="yes">
@@ -1227,9 +1227,9 @@ Would you like to continue to enable “Local network sharing”?</source>
         <target state="final">Internt fel.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Internet" xml:space="preserve">
+      <trans-unit id="Internet" xml:space="preserve" approved="yes">
         <source>Internet</source>
-        <target state="needs-translation">Internet</target>
+        <target state="final">Internet</target>
         <note/>
       </trans-unit>
       <trans-unit id="Invalid account number" xml:space="preserve" approved="yes">
@@ -1607,9 +1607,9 @@ Would you like to continue to enable “Local network sharing”?</source>
         <target state="final">Ingen historik av senaste val</target>
         <note/>
       </trans-unit>
-      <trans-unit id="No result for &quot;%@&quot;, please try a different search term." xml:space="preserve">
+      <trans-unit id="No result for &quot;%@&quot;, please try a different search term." xml:space="preserve" approved="yes">
         <source>No result for "%@", please try a different search term.</source>
-        <target state="needs-translation">No result for "%@", please try a different search term.</target>
+        <target state="final">Inga resultat hittades för "%@", försök med en annan sökterm.</target>
         <note/>
       </trans-unit>
       <trans-unit id="No servers match your location filter. Try changing filter settings." xml:space="preserve" approved="yes">
@@ -1822,9 +1822,9 @@ Would you like to continue to enable “Local network sharing”?</source>
         <target state="final">Föregående</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Previous purchases were found" xml:space="preserve">
+      <trans-unit id="Previous purchases were found" xml:space="preserve" approved="yes">
         <source>Previous purchases were found</source>
-        <target state="needs-translation">Previous purchases were found</target>
+        <target state="final">Föregående köp hittades</target>
         <note/>
       </trans-unit>
       <trans-unit id="Providers" xml:space="preserve" approved="yes">
@@ -1973,9 +1973,9 @@ Do you want to remove the saved account number?</source>
         <target state="final">Sparar ändringar …</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Search for locations or servers" xml:space="preserve">
+      <trans-unit id="Search for locations or servers" xml:space="preserve" approved="yes">
         <source>Search for locations or servers</source>
-        <target state="needs-translation">Search for locations or servers</target>
+        <target state="final">Sök efter platser eller servrar</target>
         <note/>
       </trans-unit>
       <trans-unit id="Seattle, WA" xml:space="preserve" approved="yes">
@@ -2068,9 +2068,9 @@ Do you want to remove the saved account number?</source>
         <target state="final">Visa kontonummer</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Showing %lld of %lld" xml:space="preserve">
+      <trans-unit id="Showing %lld of %lld" xml:space="preserve" approved="yes">
         <source>Showing %1$lld of %2$lld</source>
-        <target state="needs-translation">Showing %1$lld of %2$lld</target>
+        <target state="final">Visar %1$lld av %2$lld</target>
         <note/>
       </trans-unit>
       <trans-unit id="Singapore" xml:space="preserve" approved="yes">
@@ -2358,9 +2358,9 @@ Do you want to remove the saved account number?</source>
         <target state="final">Om du vill fortsätta din resa som sekretessninja kan du gå till vår webbplats för att lära dig sekretessvänliga vanor och verktyg.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="To create a custom list press the “+” or long press on a country, city, or server." xml:space="preserve">
+      <trans-unit id="To create a custom list press the “+” or long press on a country, city, or server." xml:space="preserve" approved="yes">
         <source>To create a custom list press the “+” or long press on a country, city, or server.</source>
-        <target state="needs-translation">To create a custom list press the “+” or long press on a country, city, or server.</target>
+        <target state="final">Om du vill skapa en anpassad lista kan du trycka på "+" eller trycka länge på ett land, en stad eller en server.</target>
         <note/>
       </trans-unit>
       <trans-unit id="To enable this setting, add at least one server." xml:space="preserve" approved="yes">
@@ -2458,9 +2458,9 @@ Do you want to remove the saved account number?</source>
         <target state="final">Det går inte att starta tunnelanslutning. Skicka en problemrapport.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Unexpected error occured." xml:space="preserve">
+      <trans-unit id="Unexpected error occured." xml:space="preserve" approved="yes">
         <source>Unexpected error occured.</source>
-        <target state="needs-translation">Unexpected error occured.</target>
+        <target state="final">Ett oväntat fel har inträffat.</target>
         <note/>
       </trans-unit>
       <trans-unit id="Unexpected server response: %1$@ (HTTP status: %2$d)" xml:space="preserve" approved="yes">
@@ -2701,14 +2701,14 @@ Vi tror starkt på att lagra så lite data som möjligt eftersom vi vill att du 
         <target state="final">Du har ändringar som inte har sparats.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Your device" xml:space="preserve">
+      <trans-unit id="Your device" xml:space="preserve" approved="yes">
         <source>Your device</source>
-        <target state="needs-translation">Your device</target>
+        <target state="final">Din enhet</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Your device (%@)" xml:space="preserve">
+      <trans-unit id="Your device (%@)" xml:space="preserve" approved="yes">
         <source>Your device (%@)</source>
-        <target state="needs-translation">Your device (%@)</target>
+        <target state="final">Din enhet (%@)</target>
         <note/>
       </trans-unit>
       <trans-unit id="Your device is offline. The tunnel will automatically connect once your device is back online." xml:space="preserve" approved="yes">
@@ -2731,9 +2731,9 @@ Vi tror starkt på att lagra så lite data som möjligt eftersom vi vill att du 
         <target state="final">Dina tidigare köp har redan lagts till på kontot.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Your previous purchases have been added to your account." xml:space="preserve">
+      <trans-unit id="Your previous purchases have been added to your account." xml:space="preserve" approved="yes">
         <source>Your previous purchases have been added to your account.</source>
-        <target state="needs-translation">Your previous purchases have been added to your account.</target>
+        <target state="final">Dina tidigare köp har lagts till på kontot.</target>
         <note/>
       </trans-unit>
       <trans-unit id="Your purchase was successfully refunded." xml:space="preserve" approved="yes">

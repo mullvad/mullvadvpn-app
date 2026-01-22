@@ -837,7 +837,122 @@
       }
     },
     "%@ have been added to your account." : {
-
+      "localizations" : {
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ er blevet føjet til din konto."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ wurden zu Ihrem Konto hinzugefügt."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ se han añadido a su cuenta."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ on lisätty tilillesi."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ ont été ajoutés à votre compte."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aggiunta di %@ al tuo account."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ がご利用のアカウントに追加されました。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "계정에 %@ 추가되었습니다."
+          }
+        },
+        "my" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ ကို သင့်အကောင့်တွင် ထည့်လိုက်ပါပြီ။"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ ble lagt til kontoen din."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ is toegevoegd aan uw account."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Do Twojego konta dodano %@."
+          }
+        },
+        "pt" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ foram adicionados à sua conta."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "На учетную запись добавлено время: %@."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ har lagts till i ditt konto."
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "เพิ่ม %@ ลงในบัญชีของคุณแล้ว"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hesabınıza %@ eklendi."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ 已添加到您的帐户中。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ 已新增至您的帳戶。"
+          }
+        }
+      }
     },
     "%@ left on this account" : {
       "localizations" : {
@@ -12196,43 +12311,43 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Verbinden"
+            "value" : "Connect (Verbinden)"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Conectar"
+            "value" : "Connect (Conectar)"
           }
         },
         "fi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Yhdistä"
+            "value" : "Connect (Yhdistä)"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Connexion"
+            "value" : "Connect (Connexion)"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Connetti"
+            "value" : "Connect (Connetti)"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "接続"
+            "value" : "Connect (接続)"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "연결"
+            "value" : "Connect(연결)"
           }
         },
         "my" : {
@@ -12250,19 +12365,19 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Verbinden"
+            "value" : "Connect (Verbinden)"
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Połącz"
+            "value" : "Connect (Połącz)"
           }
         },
         "pt" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ligar"
+            "value" : "Connect (Ligar)"
           }
         },
         "ru" : {
@@ -12274,31 +12389,31 @@
         "sv" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Anslut"
+            "value" : "Connect (anslut)"
           }
         },
         "th" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "เชื่อมต่อ"
+            "value" : "Connect (เชื่อมต่อ)"
           }
         },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bağlan"
+            "value" : "Connect (bağlan)"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "连接"
+            "value" : "Connect（连接）"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "連線"
+            "value" : "Connect (連線)"
           }
         }
       }
@@ -12422,7 +12537,122 @@
       }
     },
     "Connected server" : {
-
+      "localizations" : {
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tilsluttet server"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verbundener Server"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Servidor conectado"
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yhdistetty palvelin"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Serveur connecté"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Server connesso"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "接続先サーバー"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "연결된 서버"
+          }
+        },
+        "my" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ချိတ်ဆက်ထားသော ဆာဗာ"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Koblet til server"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verbonden server"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Połączony serwer"
+          }
+        },
+        "pt" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Servidor ligado"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Подключенный сервер"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ansluten server"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "เซิร์ฟเวอร์ที่เชื่อมต่อ"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bağlı sunucu"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "连接的服务器"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已連線的伺服器"
+          }
+        }
+      }
     },
     "Connected to %@" : {
       "localizations" : {
@@ -13251,7 +13481,122 @@
       }
     },
     "Could not restore previous purchases. Try again later or contact support." : {
-
+      "localizations" : {
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kunne ikke gendanne tidligere køb. Prøv igen senere, eller kontakt support."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Frühere Käufe konnten nicht wiederhergestellt werden. Versuchen Sie es später erneut oder wenden Sie sich an den Support."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se han podido restablecer las compras anteriores. Inténtelo de nuevo o póngase en contacto con el servicio de asistencia."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aiempien ostosten palauttaminen ei onnistunut. Yritä myöhemmin uudelleen tai ota yhteyttä tukeen."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossible de rétablir les achats précédents. Réessayez ou contactez l'assistance."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossibile ripristinare gli acquisti precedenti. Riprova più tardi o contatta l'assistenza."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "以前の購入情報を復元できませんでした。後でもう一度お試しいただくか、サポートまでお問い合わせください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이전 구매를 복원하지 못했습니다. 나중에 다시 시도하거나 지원팀에 문의하세요."
+          }
+        },
+        "my" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ယခင်ဝယ်ယူထားသည်များကို ပြန်လည်ရယူ၍ မရနိုင်ပါ။ နောက်မှ ထပ်ကြိုးစားကြည့်ပါ သို့မဟုတ် သုံးစွဲသူ အကူအညီပေးရေး ဌာနကို ဆက်သွယ်ပါ။"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kunne ikke gjenopprette tidligere kjøp. Prøv igjen senere eller ta kontakt med kundestøtten."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kan eerdere aankopen niet herstellen. Probeer het later opnieuw of neem contact op met de ondersteuning."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie można przywrócić poprzednich zakupów. Spróbuj ponownie później lub skontaktuj się z pomocą techniczną."
+          }
+        },
+        "pt" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Não foi possível restaurar compras anteriores. Tente novamente mais tarde ou contacte o suporte."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не удалось восстановить предыдущие покупки. Повторите попытку позже или обратитесь в службу поддержки."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Det gick inte att återställa föregående köp. Försök igen senare eller kontakta supporten."
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ไม่สามารถกู้คืนการซื้อก่อนหน้านี้ได้ โปรดลองอีกครั้งในภายหลังหรือติดต่อฝ่ายสนับสนุน"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Önceki satın alma işlemleri geri yüklenemedi. Daha sonra tekrar deneyin veya destek birimiyle iletişime geçin."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法恢复之前的购买记录。请稍后再试或联系支持团队。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "無法還原之前的購買項目。請稍後再試，或聯絡支援人員。"
+          }
+        }
+      }
     },
     "Create" : {
       "localizations" : {
@@ -15260,7 +15605,122 @@
       }
     },
     "Debug options" : {
-
+      "localizations" : {
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fejlfindingsmuligheder"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Debug-Optionen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opciones de depuración"
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vianetsintävaihtoehdot"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Options de débogage"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opzioni di debug"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "デバッグオプション"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "디버그 옵션"
+          }
+        },
+        "my" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ပြစ်ချက် ရှာဖွေဖယ်ရှားမှုဆိုင်ရာ ရွေးချယ်စရာများ"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alternativer for feilsøking"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Debugopties"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opcje debugowania"
+          }
+        },
+        "pt" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opções de depuração"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Параметры отладки"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Felsökningsalternativ"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ตัวเลือกกาดีบัก"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hata ayıklama seçenekleri"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "调试选项"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "除錯選項"
+          }
+        }
+      }
     },
     "Delete" : {
       "localizations" : {
@@ -17387,7 +17847,122 @@
       }
     },
     "Disabling recents will also clear history." : {
-
+      "localizations" : {
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deaktivering af seneste vil også rydde historikken."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Durch das Deaktivieren der letzten Aktivitäten wird auch der Verlauf gelöscht."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deshabilitar los recientes también borrará el historial."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Viimeisimpien poistaminen käytöstä tyhjentää myös historian."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Désactiver les éléments récents effacera également l'historique."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disabilitando i recenti verrà cancellata anche la cronologia."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「最近の項目」を無効にすると、履歴も削除されます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "최근 항목을 비활성화하면 내역 또한 삭제됩니다."
+          }
+        },
+        "my" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "လတ်တလောအရာများကို ပိတ်လိုက်ပါက မှတ်တမ်းကိုလည်း ရှင်းလင်းသွားပါမည်။"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Historikken slettes også hvis du deaktiverer nylige."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Door recente uit te schakelen, wordt ook de geschiedenis gewist."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wyłączenie ostatnich elementów poskutkuje również wyczyszczeniem historii."
+          }
+        },
+        "pt" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desativar os recentes também limpará o histórico."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "При отключении недавнего выбора также будет очищена история."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Historiken rensas om du inaktiverar senaste."
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "การปิดใช้รายการล่าสุดจะเป็นการล้างประวัติด้วย"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Son kullanılanları devre dışı bırakmak, geçmişi de temizler."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "停用最近使用的位置时也会清除历史记录。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "停用「最近使用」也會一併清除歷史紀錄。"
+          }
+        }
+      }
     },
     "Discard changes" : {
       "localizations" : {
@@ -21402,7 +21977,122 @@
       }
     },
     "Failed to reach Mullvad servers to initiate purchase" : {
-
+      "localizations" : {
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kunne ikke nå Mullvad-serverne for at starte købet"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mullvad-Server konnten nicht zur Initiierung des Kaufs erreicht werden"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Error al acceder a los servidores de Mullvad para iniciar la compra."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ostotapahtuman aloittaminen ei onnistunut, sillä Mullvadin palvelimiin ei saatu yhteyttä"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossible d'accéder aux serveurs Mullvad pour initier l'achat"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossibile raggiungere i server Mullvad per avviare l'acquisto"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "購入を開始できませんでした。Mullvadサーバーに接続できません"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mullvad 서버에 연결할 수 없어 결제를 시작할 수 없습니다"
+          }
+        },
+        "my" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ဝယ်ယူမှု စတင်ရန်အတွက် Mullvad ဆာဗာများနှင့် ချိတ်ဆက်၍ မရပါ"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kunne ikke nå Mullvad-servere for å gjennomføre kjøp"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kan Mullvad-servers niet bereiken om de aankoop te initiëren"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie udało się połączyć z serwerami Mullvad w celu zainicjowania zakupu"
+          }
+        },
+        "pt" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Não foi possível contactar os servidores Mullvad para iniciar a compra"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не удалось подключиться к серверам Mullvad для начала покупки"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Det gick inte att nå Mullvad-servrarna för att påbörja köpet"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ไม่สามารถติดต่อเซิร์ฟเวอร์ Mullvad เพื่อเริ่มการซื้อได้"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Satın alma işlemini başlatmak için Mullvad sunucularına ulaşılamadı"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法访问 Mullvad 服务器进行购买"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "無法連線至 Mullvad 伺服器以啟動購買流程"
+          }
+        }
+      }
     },
     "Failed to send" : {
       "localizations" : {
@@ -22113,10 +22803,240 @@
       }
     },
     "Failed to upload one or more receipts to Mullvad servers. Try again later or contact support for help." : {
-
+      "localizations" : {
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kunne ikke uploade en eller flere kvitteringer til Mullvad-serverne. Prøv igen senere, eller kontakt support for at få hjælp."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Hochladen eines oder mehrerer Zahlungsbelege auf die Mullvad-Server ist fehlgeschlagen. Versuchen Sie es später erneut oder wenden Sie sich an den Support, um Hilfe zu erhalten."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Error al cargar uno o más destinatarios en los servidores de Mullvad. Inténtelo de nuevo más tarde o póngase en contacto con el servicio de asistencia para recibir ayuda."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yhden tai useamman kuitin lataaminen Mullvadin palvelimille epäonnistui. Yritä myöhemmin uudelleen tai ota yhteyttä tukeen."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Échec du téléversement d'un ou plusieurs reçus sur les serveurs Mullvad. Réessayez plus tard ou contactez l'assistance pour obtenir de l'aide."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossibile caricare una o più ricevute sui server Mullvad. Riprova più tardi o contatta l'assistenza per ricevere supporto."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1つ以上のレシートをMullvadサーバーにアップロードできませんでした。後で再試行するか、サポートまでお問い合わせください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mullvad 서버에 영수증을 하나 이상 업로드하지 못했습니다. 나중에 다시 시도하거나 지원팀에 문의하여 도움을 요청하세요."
+          }
+        },
+        "my" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mullvad ဆာဗာများသို့ အပ်လုဒ်တင်၍မရခဲ့သော ပြေစာတစ်စောင်နှင့်အထက် ရှိသည်။ နောက်မှ ထပ်ကြိုးစားကြည့်ပါ သို့မဟုတ် အကူအညီရယူရန်အတွက် သုံးစွဲသူ အကူအညီပေးရေး ဌာနကို ဆက်သွယ်ပါ။"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kunne ikke laste opp én eller flere kvitteringer til Mullvad-serverne. Prøv igjen senere eller ta kontakt med kundestøtten for hjelp."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Het uploaden van een of meer betaalbewijzen naar de Mullvad-servers is mislukt. Probeer het later opnieuw of neem contact op met de ondersteuning voor hulp."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie udało się przesłać co najmniej jednego dowodu zakupu na serwery Mullvad. Spróbuj ponownie później lub skontaktuj się z pomocą techniczną."
+          }
+        },
+        "pt" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Não foi possível carregar um ou mais recibos para os servidores Mullvad. Tente novamente mais tarde ou contacte o suporte para obter ajuda."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не удалось отправить одну или несколько квитанций на серверы Mullvad. Попробуйте снова позже или свяжитесь со службой поддержки."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Det gick inte att ladda upp ett eller flera kvitton på Mullvad-servrarna. Försök igen senare eller kontakta supporten för att få hjälp."
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "เกิดความล้มเหลวในการอัปโหลดใบเสร็จหนึ่งรายการหรือมากกว่าไปยังเซิร์ฟเวอร์ Mullvad โปรดลองอีกครั้งในภายหลัง หรือติดต่อฝ่ายสนับสนุนเพื่อขอความช่วยเหลือ"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bir veya daha fazla makbuz Mullvad sunucularına yüklenemedi. Daha sonra tekrar deneyin veya yardım için destek birimiyle iletişime geçin."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法将一个或多个收据上传到 Mullvad 服务器。请稍后再试或联系支持团队寻求帮助。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "無法將一或多張收據上傳至 Mullvad 伺服器。請稍後再試，或聯絡支援團隊取得協助。"
+          }
+        }
+      }
     },
     "Failed to verify transaction receipt" : {
-
+      "localizations" : {
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kunne ikke bekræfte transaktionskvitteringen"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Transaktionsbeleg konnte nicht verifiziert werden"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Error al verificar el recibo de la transacción."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Maksutapahtuman kuitin vahvistaminen epäonnistui"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Échec de la vérification du reçu de la transaction"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossibile verificare la ricevuta della transazione"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "購入レシートの検証に失敗しました"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "거래 영수증을 확인하지 못했습니다"
+          }
+        },
+        "my" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ငွေအလွှဲအပြောင်း ပြေစာကို အတည်ပြု၍ မရပါ"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kunne ikke bekrefte kvittering for transaksjon"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Transactiebewijs kan niet worden geverifieerd"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie udało się zweryfikować potwierdzenia transakcji"
+          }
+        },
+        "pt" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Não foi possível verificar o recibo da transação"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не удалось проверить квитанцию транзакции"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Det gick inte att verifiera transaktionskvittot"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ล้มเหลวในการตรวจสอบยืนยันใบเสร็จการทำธุรกรรม"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "İşlem makbuzu doğrulanamadı"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法验证交易收据"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "無法驗證交易收據"
+          }
+        }
+      }
     },
     "FAQs & Guides" : {
       "localizations" : {
@@ -22522,6 +23442,12 @@
             "value" : "필터"
           }
         },
+        "my" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "စစ်ထုတ်မှုများ"
+          }
+        },
         "nb" : {
           "stringUnit" : {
             "state" : "translated",
@@ -22568,6 +23494,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Filtreler"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "筛选器"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "篩選器"
           }
         }
       }
@@ -27765,7 +28703,122 @@
       }
     },
     "Internet" : {
-
+      "localizations" : {
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Internet"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Internet"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Internet"
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Internet"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Internet"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Internet"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "インターネット"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "인터넷"
+          }
+        },
+        "my" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "အင်တာနက်"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Internett"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Internet"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Internet"
+          }
+        },
+        "pt" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Internet"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Интернет"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Internet"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "อินเทอร์เน็ต"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "İnternet"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "互联网"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "網際網路"
+          }
+        }
+      }
     },
     "Invalid account number" : {
       "localizations" : {
@@ -36618,7 +37671,122 @@
       }
     },
     "No result for \"%@\", please try a different search term." : {
-
+      "localizations" : {
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Intet resultat for \"%@\". Prøv et andet søgeord."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kein Ergebnis für „%@“, bitte versuchen Sie einen anderen Suchbegriff."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No hay resultados para «%@», pruebe con un término de búsqueda diferente."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Haulle \"%@\" ei löytynyt tuloksia. Kokeile toista hakuehtoa."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aucun résultat pour « %@ ». Veuillez essayer un autre terme de recherche."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nessun risultato per \"%@\", prova un termine di ricerca diverso."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「%@」の結果はありません。別の検索語をお試しください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "\"%@\" 검색 결과가 없습니다. 다른 검색어를 시도하세요."
+          }
+        },
+        "my" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "\"%@\" အတွက် ရလဒ် မရှိပါ၊ အခြားရှာဖွေရေးစကားရပ်တစ်ခုကို သုံး၍ ရှာကြည့်ပါ။"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ingen resultater for «%@». Prøv et annet søkeord."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geen resultaat voor \"%@\". Probeer een andere zoekterm."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak wyników dla hasła „%@”, spróbuj wyszukać inne hasło."
+          }
+        },
+        "pt" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sem resultados para \"%@\". Experimente um termo de pesquisa diferente."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "По запросу «%@» ничего не найдено. Попробуйте другой поисковый запрос."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inga resultat hittades för \"%@\", försök med en annan sökterm."
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ไม่พบผลลัพธ์สำหรับ \"%@\" โปรดลองใช้คำค้นหาอื่น"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "\"%@\" için sonuç bulunamadı, lütfen farklı bir terim araması yapın."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@”无结果，请尝试其他搜索词。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "找不到「%@」的結果，請嘗試其他搜尋字詞。"
+          }
+        }
+      }
     },
     "No servers match your location filter. Try changing filter settings." : {
       "localizations" : {
@@ -41583,7 +42751,122 @@
       }
     },
     "Previous purchases were found" : {
-
+      "localizations" : {
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tidligere køb blev fundet"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Frühere Käufe wurden gefunden"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se han encontrado las compras anteriores."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aiempia ostoja ei löytynyt"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Des achats précédents ont été trouvés"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sono stati trovati acquisti precedenti"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "以前の購入情報が見つかりました"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이전 구매 내역을 찾을 수 없습니다"
+          }
+        },
+        "my" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ယခင်ဝယ်ယူထားသည်များကို ရှာတွေ့ထားသည်"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tidligere kjøp funnet"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Er zijn eerdere aankopen gevonden"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Znaleziono poprzednie zakupy"
+          }
+        },
+        "pt" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Foram encontradas compras anteriores"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Найдены предыдущие покупки"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Föregående köp hittades"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "พบการซื้อก่อนหน้านี้"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Önceki satın alımlar bulundu"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已找到之前的购买记录"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已找到之前的購買項目"
+          }
+        }
+      }
     },
     "privacy policy" : {
       "localizations" : {
@@ -45126,7 +46409,122 @@
       }
     },
     "Search for locations or servers" : {
-
+      "localizations" : {
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Søg efter placeringer eller servere"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suche nach Standorten oder Servern"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Buscar ubicaciones o servidores"
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hae sijainteja tai palvelimia"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chercher des emplacements ou des serveurs"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cerca posizioni o server"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "場所またはサーバーを検索"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "지역 또는 서버 검색"
+          }
+        },
+        "my" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "တည်နေရာများ သို့မဟုတ် ဆာဗာများ ရှာဖွေရန်"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Søk etter plasseringer eller servere"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zoek naar locaties of servers"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wyszukaj lokalizacje lub serwery"
+          }
+        },
+        "pt" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pesquisar localizações ou servidores"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Поиск локаций или серверов"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sök efter platser eller servrar"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ค้นหาตำแหน่งที่ตั้งหรือเซิร์ฟเวอร์"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Konumları veya sunucuları arayın"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "搜索位置或服务器"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "搜尋地點或伺服器"
+          }
+        }
+      }
     },
     "Seattle, WA" : {
       "localizations" : {
@@ -47254,10 +48652,124 @@
     },
     "Showing %lld of %lld" : {
       "localizations" : {
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Viser %1$lld af %2$lld"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld von %2$lld werden angezeigt"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "new",
             "value" : "Showing %1$lld of %2$lld"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostrando %1$lld de %2$lld"
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Näytetään %1$lld/%2$lld"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld sur %2$lld affichés"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Visualizzazione di %1$lld di %2$lld"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%2$lld件中%1$lld件を表示中"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld/%2$lld 표시 중"
+          }
+        },
+        "my" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%2$lld ခုအနက်မှ %1$lld ခုကို ပြသနေသည်"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Viser %1$lld av %2$lld"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld van %2$lld weergegeven"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wyświetlanie %1$lld z %2$lld"
+          }
+        },
+        "pt" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A mostrar %1$lld de %2$lld"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Показано: %1$lld из %2$lld"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Visar %1$lld av %2$lld"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "กำลังแสดง %1$lld จาก %2$lld"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld/%2$lld gösteriliyor"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在显示 %1$lld/%2$lld"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "顯示第 %1$lld 筆，共 %2$lld 筆"
           }
         }
       }
@@ -53877,7 +55389,122 @@
       }
     },
     "To create a custom list press the “+” or long press on a country, city, or server." : {
-
+      "localizations" : {
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "For at oprette en brugerdefineret liste skal du trykke på \"+\" eller foretage langt tryk på et land, en by eller en server."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Um eine benutzerdefinierte Liste zu erstellen, drücken Sie auf das „+“ oder drücken Sie lange auf ein Land, eine Stadt oder einen Server."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Para crear una lista personalizada, pulse el signo «+» o mantenga pulsado un país, una ciudad o un servidor."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Luo mukautettu luettelo painamalla plusmerkkiä (+) tai painamalla maata, kaupunkia tai palvelinta pitkään."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pour créer une liste personnalisée, appuyez sur « + » ou appuyez longuement sur un pays, une ville ou un serveur."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Per creare un elenco personalizzato, premi il tasto “+” o tieni premuto su un Paese, una città o un server."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "カスタムリストを作成するには、「＋」を押すか、国、都市、サーバーを長押ししてください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "사용자 지정 목록을 생성하려면 \"+\"를 누르거나 국가, 도시 또는 서버를 길게 누릅니다."
+          }
+        },
+        "my" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "စိတ်ကြိုက်စာရင်းတစ်ခု ဖန်တီးရန် “+” ကို နှိပ်ပါ သို့မဟုတ် နိုင်ငံဖြစ်စေ၊ မြို့ဖြစ်စေ၊ ဆာဗာဖြစ်စေ တစ်ခုခုကို ကြာကြာနှိပ်ထားပါ။"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hvis du vil opprette en egendefinert liste, kan du trykke på «+» eller holde inne på et land, en by eller en server."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Druk op de \"+\" of druk lang op een land, plaats of server om een aangepaste lijst te maken."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aby utworzyć listę niestandardową, naciśnij przycisk „+” lub naciśnij i przytrzymaj kraj, miasto lub serwer."
+          }
+        },
+        "pt" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Para criar uma lista personalizada, prima o botão \"+\" ou mantenha premido um país, um servidor ou uma cidade."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Чтобы создать пользовательский список, нажмите «+» или нажмите и удерживайте страну, город или сервер."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Om du vill skapa en anpassad lista kan du trycka på \"+\" eller trycka länge på ett land, en stad eller en server."
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "หากต้องการสร้างรายการที่กำหนดเอง ให้กดปุ่ม “+” หรือกดค้างที่ประเทศ เมือง หรือเซิร์ฟเวอร์"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Özel bir liste oluşturmak için “+” düğmesine basın ya da bir ülke, şehir veya sunucuya uzun basın."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "要创建自定义列表，请按“+”或长按国家/地区、城市或服务器。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "若要建立自訂清單，請點選「+」或長按國家/地區、城市或伺服器。"
+          }
+        }
+      }
     },
     "To enable this setting, add at least one server." : {
       "localizations" : {
@@ -56122,7 +57749,122 @@
       }
     },
     "Unexpected error occured." : {
-
+      "localizations" : {
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der opstod en uventet fejl."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein unerwarteter Fehler ist aufgetreten."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se ha producido un error inesperado."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tapahtui odottamaton virhe."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Une erreur inattendue s'est produite."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Si è verificato un errore imprevisto."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "予期せぬエラーが発生しました。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "예상치 못한 오류가 발생했습니다."
+          }
+        },
+        "my" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "မမျှော်မှန်းထားသော ချို့ယွင်းချက် ဖြစ်ပေါ်ခဲ့ပါသည်။"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Det oppstod en uventet feil."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Er is een onverwachte fout opgetreden."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wystąpił nieoczekiwany błąd."
+          }
+        },
+        "pt" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ocorreu um erro inesperado."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Произошла непредвиденная ошибка."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ett oväntat fel har inträffat."
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "เกิดข้อผิดพลาดที่ไม่คาดคิด"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Beklenmeyen bir hata oluştu."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "意外出错。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "發生意外錯誤。"
+          }
+        }
+      }
     },
     "Unexpected server response: %1$@ (HTTP status: %2$d)" : {
       "localizations" : {
@@ -61913,10 +63655,240 @@
       }
     },
     "Your device" : {
-
+      "localizations" : {
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Din enhed"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ihr Gerät"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Su dispositivo"
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Laitteesi"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Votre appareil"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il tuo dispositivo"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "お使いのデバイス"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "내 장치"
+          }
+        },
+        "my" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "သင့်စက်"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Din enhet"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uw apparaat"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Twoje urządzenie"
+          }
+        },
+        "pt" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O seu dispositivo"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ваше устройство"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Din enhet"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "อุปกรณ์ของคุณ"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cihazınız"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "您的设备"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "您的裝置"
+          }
+        }
+      }
     },
     "Your device (%@)" : {
-
+      "localizations" : {
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Din enhed (%@)"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ihr Gerät (%@)"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Su dispositivo (%@)"
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Laitteesi (%@)"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Votre appareil (%@)"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il tuo dispositivo (%@)"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "お使いのデバイス (%@)"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "내 장치(%@)"
+          }
+        },
+        "my" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "သင့်စက် (%@)"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Din enhet (%@)"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uw apparaat (%@)"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Twoje urządzenie (%@)"
+          }
+        },
+        "pt" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O seu dispositivo (%@)"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ваше устройство (%@)"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Din enhet (%@)"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "อุปกรณ์ของคุณ (%@)"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cihazınız (%@)"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "您的设备 (%@)"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "您的裝置 (%@)"
+          }
+        }
+      }
     },
     "Your device is offline. The tunnel will automatically connect once your device is back online." : {
       "localizations" : {
@@ -62385,13 +64357,128 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "您之前的購買記錄已新增至此帳戶。"
+            "value" : "您之前的購買項目已新增至此帳戶。"
           }
         }
       }
     },
     "Your previous purchases have been added to your account." : {
-
+      "localizations" : {
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dine tidligere køb er blevet føjet til din konto."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ihre früheren Käufe wurden Ihrem Konto hinzugefügt."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sus compras anteriores se han añadido a su cuenta."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aiemmat ostosi on lisätty tilillesi."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vos achats précédents ont été ajoutés à votre compte."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I tuoi acquisti precedenti sono stati aggiunti al tuo account."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "以前の購入情報がアカウントに追加されました。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이전 구매 내역이 계정에 추가되었습니다."
+          }
+        },
+        "my" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "သင် ယခင်ဝယ်ယူထားသည်များကို သင့်အကောင့်သို့ ထည့်ပြီးပါပြီ။"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dine tidligere kjøp er lagt til kontoen din."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uw eerdere aankopen zijn toegevoegd aan uw account."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poprzednie zakupy zostały dodane do Twojego konta."
+          }
+        },
+        "pt" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "As suas compras anteriores foram adicionadas à sua conta."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Предыдущие покупки добавлены в вашу учетную запись."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dina tidigare köp har lagts till på kontot."
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "เพิ่มการซื้อก่อนหน้านี้ลงในบัญชีของคุณแล้ว"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Önceki satın alımlarınız hesabınıza eklenmiş."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "您之前的购买记录已添加到您的帐户。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "您之前的購買項目已新增至您的帳戶。"
+          }
+        }
+      }
     },
     "Your purchase was successfully refunded." : {
       "localizations" : {

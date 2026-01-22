@@ -30,9 +30,9 @@
         <target state="final">%@ 的实现方法是精心添加网络噪声并将所有网络数据包处理为相同的大小。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="%@ have been added to your account." xml:space="preserve">
+      <trans-unit id="%@ have been added to your account." xml:space="preserve" approved="yes">
         <source>%@ have been added to your account.</source>
-        <target state="needs-translation">%@ have been added to your account.</target>
+        <target state="final">%@ 已添加到您的帐户中。</target>
         <note/>
       </trans-unit>
       <trans-unit id="%@ left on this account" xml:space="preserve" approved="yes">
@@ -549,9 +549,9 @@ Would you like to continue to enable “Local network sharing”?</source>
         <target state="final">Connect（连接）</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Connected server" xml:space="preserve">
+      <trans-unit id="Connected server" xml:space="preserve" approved="yes">
         <source>Connected server</source>
-        <target state="needs-translation">Connected server</target>
+        <target state="final">连接的服务器</target>
         <note/>
       </trans-unit>
       <trans-unit id="Connected to %@" xml:space="preserve" approved="yes">
@@ -584,9 +584,9 @@ Would you like to continue to enable “Local network sharing”?</source>
         <target state="final">已将 Mullvad 帐号复制到剪贴板</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Could not restore previous purchases. Try again later or contact support." xml:space="preserve">
+      <trans-unit id="Could not restore previous purchases. Try again later or contact support." xml:space="preserve" approved="yes">
         <source>Could not restore previous purchases. Try again later or contact support.</source>
-        <target state="needs-translation">Could not restore previous purchases. Try again later or contact support.</target>
+        <target state="final">无法恢复之前的购买记录。请稍后再试或联系支持团队。</target>
         <note/>
       </trans-unit>
       <trans-unit id="Create" xml:space="preserve" approved="yes">
@@ -694,9 +694,9 @@ Would you like to continue to enable “Local network sharing”?</source>
         <target state="final">德克萨斯州达拉斯</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Debug options" xml:space="preserve">
+      <trans-unit id="Debug options" xml:space="preserve" approved="yes">
         <source>Debug options</source>
-        <target state="needs-translation">Debug options</target>
+        <target state="final">调试选项</target>
         <note/>
       </trans-unit>
       <trans-unit id="Delete" xml:space="preserve" approved="yes">
@@ -789,9 +789,9 @@ Would you like to continue to enable “Local network sharing”?</source>
         <target state="final">停用</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Disabling recents will also clear history." xml:space="preserve">
+      <trans-unit id="Disabling recents will also clear history." xml:space="preserve" approved="yes">
         <source>Disabling recents will also clear history.</source>
-        <target state="needs-translation">Disabling recents will also clear history.</target>
+        <target state="final">停用最近使用的位置时也会清除历史记录。</target>
         <note/>
       </trans-unit>
       <trans-unit id="Discard changes" xml:space="preserve" approved="yes">
@@ -949,9 +949,9 @@ Would you like to continue to enable “Local network sharing”?</source>
         <target state="final">无法加载产品，请重试</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Failed to reach Mullvad servers to initiate purchase" xml:space="preserve">
+      <trans-unit id="Failed to reach Mullvad servers to initiate purchase" xml:space="preserve" approved="yes">
         <source>Failed to reach Mullvad servers to initiate purchase</source>
-        <target state="needs-translation">Failed to reach Mullvad servers to initiate purchase</target>
+        <target state="final">无法访问 Mullvad 服务器进行购买</target>
         <note/>
       </trans-unit>
       <trans-unit id="Failed to send" xml:space="preserve" approved="yes">
@@ -984,14 +984,14 @@ Would you like to continue to enable “Local network sharing”?</source>
         <target state="final">无法停止隧道：%@。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Failed to upload one or more receipts to Mullvad servers. Try again later or contact support for help." xml:space="preserve">
+      <trans-unit id="Failed to upload one or more receipts to Mullvad servers. Try again later or contact support for help." xml:space="preserve" approved="yes">
         <source>Failed to upload one or more receipts to Mullvad servers. Try again later or contact support for help.</source>
-        <target state="needs-translation">Failed to upload one or more receipts to Mullvad servers. Try again later or contact support for help.</target>
+        <target state="final">无法将一个或多个收据上传到 Mullvad 服务器。请稍后再试或联系支持团队寻求帮助。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Failed to verify transaction receipt" xml:space="preserve">
+      <trans-unit id="Failed to verify transaction receipt" xml:space="preserve" approved="yes">
         <source>Failed to verify transaction receipt</source>
-        <target state="needs-translation">Failed to verify transaction receipt</target>
+        <target state="final">无法验证交易收据</target>
         <note/>
       </trans-unit>
       <trans-unit id="Fetching devices..." xml:space="preserve" approved="yes">
@@ -1004,9 +1004,9 @@ Would you like to continue to enable “Local network sharing”?</source>
         <target state="final">筛选</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Filters" xml:space="preserve">
+      <trans-unit id="Filters" xml:space="preserve" approved="yes">
         <source>Filters</source>
-        <target state="needs-translation">Filters</target>
+        <target state="final">筛选器</target>
         <note/>
       </trans-unit>
       <trans-unit id="Finland" xml:space="preserve" approved="yes">
@@ -1229,9 +1229,9 @@ Would you like to continue to enable “Local network sharing”?</source>
         <target state="final">内部错误。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Internet" xml:space="preserve">
+      <trans-unit id="Internet" xml:space="preserve" approved="yes">
         <source>Internet</source>
-        <target state="needs-translation">Internet</target>
+        <target state="final">互联网</target>
         <note/>
       </trans-unit>
       <trans-unit id="Invalid account number" xml:space="preserve" approved="yes">
@@ -1609,9 +1609,9 @@ Would you like to continue to enable “Local network sharing”?</source>
         <target state="final">无最近选择历史记录</target>
         <note/>
       </trans-unit>
-      <trans-unit id="No result for &quot;%@&quot;, please try a different search term." xml:space="preserve">
+      <trans-unit id="No result for &quot;%@&quot;, please try a different search term." xml:space="preserve" approved="yes">
         <source>No result for "%@", please try a different search term.</source>
-        <target state="needs-translation">No result for "%@", please try a different search term.</target>
+        <target state="final">“%@”无结果，请尝试其他搜索词。</target>
         <note/>
       </trans-unit>
       <trans-unit id="No servers match your location filter. Try changing filter settings." xml:space="preserve" approved="yes">
@@ -1824,9 +1824,9 @@ Would you like to continue to enable “Local network sharing”?</source>
         <target state="final">上一页</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Previous purchases were found" xml:space="preserve">
+      <trans-unit id="Previous purchases were found" xml:space="preserve" approved="yes">
         <source>Previous purchases were found</source>
-        <target state="needs-translation">Previous purchases were found</target>
+        <target state="final">已找到之前的购买记录</target>
         <note/>
       </trans-unit>
       <trans-unit id="Providers" xml:space="preserve" approved="yes">
@@ -1976,9 +1976,9 @@ Do you want to remove the saved account number?</source>
         <target state="final">正在保存更改…</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Search for locations or servers" xml:space="preserve">
+      <trans-unit id="Search for locations or servers" xml:space="preserve" approved="yes">
         <source>Search for locations or servers</source>
-        <target state="needs-translation">Search for locations or servers</target>
+        <target state="final">搜索位置或服务器</target>
         <note/>
       </trans-unit>
       <trans-unit id="Seattle, WA" xml:space="preserve" approved="yes">
@@ -2071,9 +2071,9 @@ Do you want to remove the saved account number?</source>
         <target state="final">显示帐号</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Showing %lld of %lld" xml:space="preserve">
+      <trans-unit id="Showing %lld of %lld" xml:space="preserve" approved="yes">
         <source>Showing %1$lld of %2$lld</source>
-        <target state="needs-translation">Showing %1$lld of %2$lld</target>
+        <target state="final">正在显示 %1$lld/%2$lld</target>
         <note/>
       </trans-unit>
       <trans-unit id="Singapore" xml:space="preserve" approved="yes">
@@ -2251,9 +2251,9 @@ Do you want to remove the saved account number?</source>
         <target state="final">入口服务器和出口服务器不能相同。请尝试将其中一个更改为新的服务器或位置。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="The entry server for %@ is currently overridden by %@. To select an entry server, please first enable “%@” or disable “%@” in the settings." xml:space="preserve">
+      <trans-unit id="The entry server for %@ is currently overridden by %@. To select an entry server, please first enable “%@” or disable “%@” in the settings." xml:space="preserve" approved="yes">
         <source>The entry server for %1$@ is currently overridden by %2$@. To select an entry server, please first enable “%3$@” or disable “%4$@” in the settings.</source>
-        <target state="needs-translation">The entry server for %1$@ is currently overridden by %2$@. To select an entry server, please first enable “%3$@” or disable “%4$@” in the settings.</target>
+        <target state="final">%1$@的入口服务器目前被 %2$@ 覆盖。要选择入口服务器，请先在设置中启用“%3$@”或停用“%4$@”。</target>
         <note/>
       </trans-unit>
       <trans-unit id="The payment request was cancelled." xml:space="preserve" approved="yes">
@@ -2361,9 +2361,9 @@ Do you want to remove the saved account number?</source>
         <target state="final">要以隐私忍者身份继续您的旅程，请访问我们的网站以选择其他对隐私友好的习惯和工具。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="To create a custom list press the “+” or long press on a country, city, or server." xml:space="preserve">
+      <trans-unit id="To create a custom list press the “+” or long press on a country, city, or server." xml:space="preserve" approved="yes">
         <source>To create a custom list press the “+” or long press on a country, city, or server.</source>
-        <target state="needs-translation">To create a custom list press the “+” or long press on a country, city, or server.</target>
+        <target state="final">要创建自定义列表，请按“+”或长按国家/地区、城市或服务器。</target>
         <note/>
       </trans-unit>
       <trans-unit id="To enable this setting, add at least one server." xml:space="preserve" approved="yes">
@@ -2461,9 +2461,9 @@ Do you want to remove the saved account number?</source>
         <target state="final">无法启动隧道连接。请发送问题报告。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Unexpected error occured." xml:space="preserve">
+      <trans-unit id="Unexpected error occured." xml:space="preserve" approved="yes">
         <source>Unexpected error occured.</source>
-        <target state="needs-translation">Unexpected error occured.</target>
+        <target state="final">意外出错。</target>
         <note/>
       </trans-unit>
       <trans-unit id="Unexpected server response: %1$@ (HTTP status: %2$d)" xml:space="preserve" approved="yes">
@@ -2704,14 +2704,14 @@ We strongly believe in retaining as little data as possible because we want you 
         <target state="final">您有未保存的更改。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Your device" xml:space="preserve">
+      <trans-unit id="Your device" xml:space="preserve" approved="yes">
         <source>Your device</source>
-        <target state="needs-translation">Your device</target>
+        <target state="final">您的设备</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Your device (%@)" xml:space="preserve">
+      <trans-unit id="Your device (%@)" xml:space="preserve" approved="yes">
         <source>Your device (%@)</source>
-        <target state="needs-translation">Your device (%@)</target>
+        <target state="final">您的设备 (%@)</target>
         <note/>
       </trans-unit>
       <trans-unit id="Your device is offline. The tunnel will automatically connect once your device is back online." xml:space="preserve" approved="yes">
@@ -2734,9 +2734,9 @@ We strongly believe in retaining as little data as possible because we want you 
         <target state="final">您之前的购买已添加到此帐户。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Your previous purchases have been added to your account." xml:space="preserve">
+      <trans-unit id="Your previous purchases have been added to your account." xml:space="preserve" approved="yes">
         <source>Your previous purchases have been added to your account.</source>
-        <target state="needs-translation">Your previous purchases have been added to your account.</target>
+        <target state="final">您之前的购买记录已添加到您的帐户。</target>
         <note/>
       </trans-unit>
       <trans-unit id="Your purchase was successfully refunded." xml:space="preserve" approved="yes">
