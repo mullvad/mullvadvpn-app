@@ -20,6 +20,8 @@ final class PacketTunnelPathObserver: DefaultPathObserverProtocol, Sendable {
     private let stateLock = NSLock()
 
     nonisolated(unsafe) private var started = false
+    nonisolated(unsafe) private var pendingPathUpdate: DispatchWorkItem?
+    private static let pathUpdateDebounceDelay: DispatchTimeInterval = .seconds(2)
 
     public var currentPathStatus: Network.NWPath.Status {
         stateLock.withLock {
@@ -35,8 +37,21 @@ final class PacketTunnelPathObserver: DefaultPathObserverProtocol, Sendable {
         stateLock.withLock {
             guard started == false else { return }
             defer { started = true }
-            pathMonitor.pathUpdateHandler = { updatedPath in
-                body(updatedPath.status)
+            pathMonitor.pathUpdateHandler = { [weak self] updatedPath in
+                guard let self else { return }
+                self.stateLock.withLock {
+                    self.pendingPathUpdate?.cancel()
+
+                    let workItem = DispatchWorkItem {
+                        body(updatedPath.status)
+                    }
+                    self.pendingPathUpdate = workItem
+
+                    self.eventQueue.asyncAfter(
+                        deadline: .now() + Self.pathUpdateDebounceDelay,
+                        execute: workItem
+                    )
+                }
             }
 
             pathMonitor.start(queue: eventQueue)
@@ -47,6 +62,8 @@ final class PacketTunnelPathObserver: DefaultPathObserverProtocol, Sendable {
         stateLock.withLock {
             guard started == true else { return }
             defer { started = false }
+            pendingPathUpdate?.cancel()
+            pendingPathUpdate = nil
             pathMonitor.pathUpdateHandler = nil
             pathMonitor.cancel()
         }

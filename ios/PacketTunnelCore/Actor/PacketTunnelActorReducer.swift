@@ -14,7 +14,6 @@ import WireGuardKitTypes
 extension PacketTunnelActor {
     ///  A structure encoding an effect; each event will yield zero or more of those, which can then be sequentially executed.
     enum Effect: Equatable, Sendable {
-        case startTunnelMonitor
         case stopTunnelMonitor
         case updateTunnelMonitorPath(Network.NWPath.Status)
         case startConnection(NextRelays)
@@ -34,7 +33,6 @@ extension PacketTunnelActor {
         // We cannot synthesise Equatable on Effect because NetworkPath is a protocol which cannot be easily made Equatable, so we need to do this for now.
         static func == (lhs: PacketTunnelActor.Effect, rhs: PacketTunnelActor.Effect) -> Bool {
             return switch (lhs, rhs) {
-            case (.startTunnelMonitor, .startTunnelMonitor): true
             case (.stopTunnelMonitor, .stopTunnelMonitor): true
             case let (.updateTunnelMonitorPath(lp), .updateTunnelMonitorPath(rp)): lp == rp
             case let (.startConnection(nr0), .startConnection(nr1)): nr0 == nr1
@@ -57,8 +55,7 @@ extension PacketTunnelActor {
             case let .start(options):
                 guard case .initial = state else { return [] }
                 return [
-                    .startTunnelMonitor,
-                    .startConnection(options.selectedRelays.map { .preSelected($0) } ?? .random),
+                    .startConnection(options.selectedRelays.map { .preSelected($0) } ?? .random)
                 ]
             case .stop:
                 return subreducerForStop(&state)
@@ -83,9 +80,12 @@ extension PacketTunnelActor {
 
             case let .networkReachability(defaultPath):
                 let newReachability = defaultPath.networkReachability
-                state.mutateAssociatedData { $0.networkReachability = newReachability }
-                return [.updateTunnelMonitorPath(defaultPath)]
-
+                let reachabilityChanged = state.associatedData?.networkReachability != newReachability
+                if reachabilityChanged {
+                    state.mutateAssociatedData { $0.networkReachability = newReachability }
+                    return [.updateTunnelMonitorPath(defaultPath)]
+                }
+                return []
             case let .ephemeralPeerNegotiationStateChanged(configuration, reconfigurationSemaphore):
                 return [.reconfigureForEphemeralPeer(configuration, reconfigurationSemaphore)]
 
