@@ -272,6 +272,7 @@ impl FailedSplitTunnelState {
 
     pub fn handle(&self) -> SplitTunnelHandle {
         SplitTunnelHandle {
+            loaded: false,
             excluded_processes: None,
         }
     }
@@ -343,6 +344,7 @@ struct InterfaceAddresses {
 /// Cloneable handle for interacting with the split tunnel module.
 #[derive(Debug, Clone)]
 pub struct SplitTunnelHandle {
+    loaded: bool,
     excluded_processes: Option<Weak<RwLock<HashMap<usize, ExcludedProcess>>>>,
 }
 
@@ -356,6 +358,12 @@ impl SplitTunnelHandle {
         let processes = excluded_procs.upgrade().ok_or(Error::SplitTunnelDown)?;
         let processes = processes.read().unwrap();
         Ok(processes.values().cloned().collect())
+    }
+
+    /// Return whether split tunneling was properly initialized.
+    /// This can be `false` if the driver failed to load.
+    pub fn is_loaded(&self) -> bool {
+        self.loaded
     }
 }
 
@@ -892,6 +900,7 @@ impl InitializedSplitTunnelState {
     /// Returns a handle used for interacting with the split tunnel module.
     pub fn handle(&self) -> SplitTunnelHandle {
         SplitTunnelHandle {
+            loaded: true,
             excluded_processes: Some(Arc::downgrade(&self.excluded_processes)),
         }
     }
