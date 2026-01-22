@@ -47,6 +47,7 @@ function SettingsAccordion({ accordionId, anchorId, ...props }: SettingsAccordio
 }
 
 const SettingsAccordionNamespace = Object.assign(SettingsAccordion, {
+  Container: Accordion.Container,
   Trigger: Accordion.Trigger,
   Header: SettingsAccordionHeader,
   HeaderItem: Accordion.HeaderItem,

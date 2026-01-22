@@ -196,92 +196,94 @@ export function CustomDnsSettings({ position, ...props }: CustomDnsSettingsProps
       expanded={listExpanded}
       disabled={!featureAvailable}
       {...props}>
-      <SettingsAccordion.Header position={position}>
-        <SettingsAccordion.HeaderItem>
-          <Switch
-            checked={dns.state === 'custom' || inputVisible}
-            onCheckedChange={setCustomDnsEnabled}
-            disabled={!featureAvailable}>
-            <Switch.Label>
-              {messages.pgettext('vpn-settings-view', 'Use custom DNS server')}
-            </Switch.Label>
-            <Switch.Trigger ref={switchRef} aria-describedby={descriptionId}>
-              <Switch.Thumb />
-            </Switch.Trigger>
-          </Switch>
-        </SettingsAccordion.HeaderItem>
-      </SettingsAccordion.Header>
+      <SettingsAccordion.Container>
+        <SettingsAccordion.Header position={position}>
+          <SettingsAccordion.HeaderItem>
+            <Switch
+              checked={dns.state === 'custom' || inputVisible}
+              onCheckedChange={setCustomDnsEnabled}
+              disabled={!featureAvailable}>
+              <Switch.Label>
+                {messages.pgettext('vpn-settings-view', 'Use custom DNS server')}
+              </Switch.Label>
+              <Switch.Trigger ref={switchRef} aria-describedby={descriptionId}>
+                <Switch.Thumb />
+              </Switch.Trigger>
+            </Switch>
+          </SettingsAccordion.HeaderItem>
+        </SettingsAccordion.Header>
 
-      <SettingsAccordion.Content>
-        <Cell.Section role="listbox">
-          <List
-            items={dns.customOptions.addresses}
-            getKey={stringValueAsKey}
-            skipAddTransition={true}
-            skipRemoveTransition={savingEdit}>
-            {(item) => (
-              <CellListItem
-                onRemove={onRemove}
-                onChange={onEdit}
-                willShowConfirmationDialog={willShowConfirmationDialog}>
-                {item}
-              </CellListItem>
-            )}
-          </List>
-        </Cell.Section>
-
-        {inputVisible && (
-          <div ref={inputContainerRef}>
-            <Cell.RowInput
-              placeholder={messages.pgettext('vpn-settings-view', 'Enter IP')}
-              onSubmit={onAdd}
-              onChange={setValid}
-              invalid={invalid}
-              paddingLeft={32}
-              onBlur={onInputBlur}
-              autofocus
-            />
-          </div>
-        )}
-
-        <AddServerContainer>
-          <StyledButton
-            ref={addButtonRef}
-            onClick={showInput}
-            disabled={inputVisible}
-            tabIndex={-1}>
-            <StyledAddCustomDnsLabel tabIndex={-1}>
-              {messages.pgettext('vpn-settings-view', 'Add a server')}
-            </StyledAddCustomDnsLabel>
-          </StyledButton>
-          <IconButton variant="secondary" onClick={showInput}>
-            <IconButton.Icon icon="add-circle" />
-          </IconButton>
-        </AddServerContainer>
-      </SettingsAccordion.Content>
-
-      <SettingsListItem.Footer>
-        <SettingsListItem.FooterText id={descriptionId}>
-          {featureAvailable
-            ? messages.pgettext('vpn-settings-view', 'Enable to add at least one DNS server.')
-            : formatHtml(
-                // TRANSLATORS: This is displayed when either or both of the block ads/trackers settings are
-                // TRANSLATORS: turned on which makes the custom DNS setting disabled.
-                // TRANSLATORS: Available placeholders:
-                // TRANSLATORS: %(preferencesPageName)s - The page title showed on top in the preferences page.
-                messages.pgettext(
-                  'vpn-settings-view',
-                  'Disable all <b>DNS content blockers</b> above to activate this setting.',
-                ),
+        <SettingsAccordion.Content>
+          <Cell.Section role="listbox">
+            <List
+              items={dns.customOptions.addresses}
+              getKey={stringValueAsKey}
+              skipAddTransition={true}
+              skipRemoveTransition={savingEdit}>
+              {(item) => (
+                <CellListItem
+                  onRemove={onRemove}
+                  onChange={onEdit}
+                  willShowConfirmationDialog={willShowConfirmationDialog}>
+                  {item}
+                </CellListItem>
               )}
-        </SettingsListItem.FooterText>
-      </SettingsListItem.Footer>
+            </List>
+          </Cell.Section>
 
-      <ConfirmationDialog
-        isOpen={confirmAction !== undefined}
-        confirm={confirm}
-        abort={abortConfirmation}
-      />
+          {inputVisible && (
+            <div ref={inputContainerRef}>
+              <Cell.RowInput
+                placeholder={messages.pgettext('vpn-settings-view', 'Enter IP')}
+                onSubmit={onAdd}
+                onChange={setValid}
+                invalid={invalid}
+                paddingLeft={32}
+                onBlur={onInputBlur}
+                autofocus
+              />
+            </div>
+          )}
+
+          <AddServerContainer>
+            <StyledButton
+              ref={addButtonRef}
+              onClick={showInput}
+              disabled={inputVisible}
+              tabIndex={-1}>
+              <StyledAddCustomDnsLabel tabIndex={-1}>
+                {messages.pgettext('vpn-settings-view', 'Add a server')}
+              </StyledAddCustomDnsLabel>
+            </StyledButton>
+            <IconButton variant="secondary" onClick={showInput}>
+              <IconButton.Icon icon="add-circle" />
+            </IconButton>
+          </AddServerContainer>
+        </SettingsAccordion.Content>
+
+        <SettingsListItem.Footer>
+          <SettingsListItem.FooterText id={descriptionId}>
+            {featureAvailable
+              ? messages.pgettext('vpn-settings-view', 'Enable to add at least one DNS server.')
+              : formatHtml(
+                  // TRANSLATORS: This is displayed when either or both of the block ads/trackers settings are
+                  // TRANSLATORS: turned on which makes the custom DNS setting disabled.
+                  // TRANSLATORS: Available placeholders:
+                  // TRANSLATORS: %(preferencesPageName)s - The page title showed on top in the preferences page.
+                  messages.pgettext(
+                    'vpn-settings-view',
+                    'Disable all <b>DNS content blockers</b> above to activate this setting.',
+                  ),
+                )}
+          </SettingsListItem.FooterText>
+        </SettingsListItem.Footer>
+
+        <ConfirmationDialog
+          isOpen={confirmAction !== undefined}
+          confirm={confirm}
+          abort={abortConfirmation}
+        />
+      </SettingsAccordion.Container>
     </SettingsAccordion>
   );
 }
