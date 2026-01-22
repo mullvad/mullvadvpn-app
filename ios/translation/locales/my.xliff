@@ -30,9 +30,9 @@
         <target state="final">%@ သည် ကွန်ရက် အနှောင့်အယှက်လျှပ်လိုင်းကို ဂရုတစိုက် ထည့်ပြီး ကွန်ရက် ပက်ကက်အားလုံးကို အရွယ်အစားတူညီအောင် ပြုလုပ်၍ ထိုသို့လုပ်ဆောင်ခြင်းဖြစ်သည်။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="%@ have been added to your account." xml:space="preserve">
+      <trans-unit id="%@ have been added to your account." xml:space="preserve" approved="yes">
         <source>%@ have been added to your account.</source>
-        <target state="needs-translation">%@ have been added to your account.</target>
+        <target state="final">%@ ကို သင့်အကောင့်တွင် ထည့်လိုက်ပါပြီ။</target>
         <note/>
       </trans-unit>
       <trans-unit id="%@ left on this account" xml:space="preserve" approved="yes">
@@ -548,9 +548,9 @@ Would you like to continue to enable “Local network sharing”?</source>
         <target state="final">ချိတ်ဆက်ရန်</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Connected server" xml:space="preserve">
+      <trans-unit id="Connected server" xml:space="preserve" approved="yes">
         <source>Connected server</source>
-        <target state="needs-translation">Connected server</target>
+        <target state="final">ချိတ်ဆက်ထားသော ဆာဗာ</target>
         <note/>
       </trans-unit>
       <trans-unit id="Connected to %@" xml:space="preserve" approved="yes">
@@ -583,9 +583,9 @@ Would you like to continue to enable “Local network sharing”?</source>
         <target state="final">Mullvad အကောင့်နံပါတ်ကို ပေ့စ်ဘုတ်တွင် ကူးထားပါသည်</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Could not restore previous purchases. Try again later or contact support." xml:space="preserve">
+      <trans-unit id="Could not restore previous purchases. Try again later or contact support." xml:space="preserve" approved="yes">
         <source>Could not restore previous purchases. Try again later or contact support.</source>
-        <target state="needs-translation">Could not restore previous purchases. Try again later or contact support.</target>
+        <target state="final">ယခင်ဝယ်ယူထားသည်များကို ပြန်လည်ရယူ၍ မရနိုင်ပါ။ နောက်မှ ထပ်ကြိုးစားကြည့်ပါ သို့မဟုတ် သုံးစွဲသူ အကူအညီပေးရေး ဌာနကို ဆက်သွယ်ပါ။</target>
         <note/>
       </trans-unit>
       <trans-unit id="Create" xml:space="preserve" approved="yes">
@@ -693,9 +693,9 @@ Would you like to continue to enable “Local network sharing”?</source>
         <target state="final">ဒဲလ်လက်စ်၊ တက္ကဆက်</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Debug options" xml:space="preserve">
+      <trans-unit id="Debug options" xml:space="preserve" approved="yes">
         <source>Debug options</source>
-        <target state="needs-translation">Debug options</target>
+        <target state="final">ပြစ်ချက် ရှာဖွေဖယ်ရှားမှုဆိုင်ရာ ရွေးချယ်စရာများ</target>
         <note/>
       </trans-unit>
       <trans-unit id="Delete" xml:space="preserve" approved="yes">
@@ -788,9 +788,9 @@ Would you like to continue to enable “Local network sharing”?</source>
         <target state="final">ပိတ်ခြင်း</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Disabling recents will also clear history." xml:space="preserve">
+      <trans-unit id="Disabling recents will also clear history." xml:space="preserve" approved="yes">
         <source>Disabling recents will also clear history.</source>
-        <target state="needs-translation">Disabling recents will also clear history.</target>
+        <target state="final">လတ်တလောအရာများကို ပိတ်လိုက်ပါက မှတ်တမ်းကိုလည်း ရှင်းလင်းသွားပါမည်။</target>
         <note/>
       </trans-unit>
       <trans-unit id="Discard changes" xml:space="preserve" approved="yes">
@@ -948,9 +948,9 @@ Would you like to continue to enable “Local network sharing”?</source>
         <target state="final">ထုတ်ကုန်များကို လုပ်ဆောင်၍ မရပါ၊ ထပ်ကြိုးစားကြည့်ပါ</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Failed to reach Mullvad servers to initiate purchase" xml:space="preserve">
+      <trans-unit id="Failed to reach Mullvad servers to initiate purchase" xml:space="preserve" approved="yes">
         <source>Failed to reach Mullvad servers to initiate purchase</source>
-        <target state="needs-translation">Failed to reach Mullvad servers to initiate purchase</target>
+        <target state="final">ဝယ်ယူမှု စတင်ရန်အတွက် Mullvad ဆာဗာများနှင့် ချိတ်ဆက်၍ မရပါ</target>
         <note/>
       </trans-unit>
       <trans-unit id="Failed to send" xml:space="preserve" approved="yes">
@@ -983,14 +983,14 @@ Would you like to continue to enable “Local network sharing”?</source>
         <target state="final">ဤ Tunnel ကို ရပ်တန့်၍ မရပါ- %@။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Failed to upload one or more receipts to Mullvad servers. Try again later or contact support for help." xml:space="preserve">
+      <trans-unit id="Failed to upload one or more receipts to Mullvad servers. Try again later or contact support for help." xml:space="preserve" approved="yes">
         <source>Failed to upload one or more receipts to Mullvad servers. Try again later or contact support for help.</source>
-        <target state="needs-translation">Failed to upload one or more receipts to Mullvad servers. Try again later or contact support for help.</target>
+        <target state="final">Mullvad ဆာဗာများသို့ အပ်လုဒ်တင်၍မရခဲ့သော ပြေစာတစ်စောင်နှင့်အထက် ရှိသည်။ နောက်မှ ထပ်ကြိုးစားကြည့်ပါ သို့မဟုတ် အကူအညီရယူရန်အတွက် သုံးစွဲသူ အကူအညီပေးရေး ဌာနကို ဆက်သွယ်ပါ။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Failed to verify transaction receipt" xml:space="preserve">
+      <trans-unit id="Failed to verify transaction receipt" xml:space="preserve" approved="yes">
         <source>Failed to verify transaction receipt</source>
-        <target state="needs-translation">Failed to verify transaction receipt</target>
+        <target state="final">ငွေအလွှဲအပြောင်း ပြေစာကို အတည်ပြု၍ မရပါ</target>
         <note/>
       </trans-unit>
       <trans-unit id="Fetching devices..." xml:space="preserve" approved="yes">
@@ -1003,9 +1003,9 @@ Would you like to continue to enable “Local network sharing”?</source>
         <target state="final">စစ်ထုတ်မှု</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Filters" xml:space="preserve">
+      <trans-unit id="Filters" xml:space="preserve" approved="yes">
         <source>Filters</source>
-        <target state="needs-translation">Filters</target>
+        <target state="final">စစ်ထုတ်မှုများ</target>
         <note/>
       </trans-unit>
       <trans-unit id="Finland" xml:space="preserve" approved="yes">
@@ -1228,9 +1228,9 @@ Would you like to continue to enable “Local network sharing”?</source>
         <target state="final">စနစ်တွင်း ချို့ယွင်းချက်။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Internet" xml:space="preserve">
+      <trans-unit id="Internet" xml:space="preserve" approved="yes">
         <source>Internet</source>
-        <target state="needs-translation">Internet</target>
+        <target state="final">အင်တာနက်</target>
         <note/>
       </trans-unit>
       <trans-unit id="Invalid account number" xml:space="preserve" approved="yes">
@@ -1608,9 +1608,9 @@ Would you like to continue to enable “Local network sharing”?</source>
         <target state="final">လတ်တလောရွေးချယ်မှု မှတ်တမ်း မရှိပါ</target>
         <note/>
       </trans-unit>
-      <trans-unit id="No result for &quot;%@&quot;, please try a different search term." xml:space="preserve">
+      <trans-unit id="No result for &quot;%@&quot;, please try a different search term." xml:space="preserve" approved="yes">
         <source>No result for "%@", please try a different search term.</source>
-        <target state="needs-translation">No result for "%@", please try a different search term.</target>
+        <target state="final">"%@" အတွက် ရလဒ် မရှိပါ၊ အခြားရှာဖွေရေးစကားရပ်တစ်ခုကို သုံး၍ ရှာကြည့်ပါ။</target>
         <note/>
       </trans-unit>
       <trans-unit id="No servers match your location filter. Try changing filter settings." xml:space="preserve" approved="yes">
@@ -1823,9 +1823,9 @@ Would you like to continue to enable “Local network sharing”?</source>
         <target state="final">ယခင်</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Previous purchases were found" xml:space="preserve">
+      <trans-unit id="Previous purchases were found" xml:space="preserve" approved="yes">
         <source>Previous purchases were found</source>
-        <target state="needs-translation">Previous purchases were found</target>
+        <target state="final">ယခင်ဝယ်ယူထားသည်များကို ရှာတွေ့ထားသည်</target>
         <note/>
       </trans-unit>
       <trans-unit id="Providers" xml:space="preserve" approved="yes">
@@ -1975,9 +1975,9 @@ Do you want to remove the saved account number?</source>
         <target state="final">ပြောင်းလဲမှုများကို သိမ်းဆည်းနေသည်...</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Search for locations or servers" xml:space="preserve">
+      <trans-unit id="Search for locations or servers" xml:space="preserve" approved="yes">
         <source>Search for locations or servers</source>
-        <target state="needs-translation">Search for locations or servers</target>
+        <target state="final">တည်နေရာများ သို့မဟုတ် ဆာဗာများ ရှာဖွေရန်</target>
         <note/>
       </trans-unit>
       <trans-unit id="Seattle, WA" xml:space="preserve" approved="yes">
@@ -2070,9 +2070,9 @@ Do you want to remove the saved account number?</source>
         <target state="final">အကောင့်နံပါတ်ကို ပြရန်</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Showing %lld of %lld" xml:space="preserve">
+      <trans-unit id="Showing %lld of %lld" xml:space="preserve" approved="yes">
         <source>Showing %1$lld of %2$lld</source>
-        <target state="needs-translation">Showing %1$lld of %2$lld</target>
+        <target state="final">%2$lld ခုအနက်မှ %1$lld ခုကို ပြသနေသည်</target>
         <note/>
       </trans-unit>
       <trans-unit id="Singapore" xml:space="preserve" approved="yes">
@@ -2360,9 +2360,9 @@ Do you want to remove the saved account number?</source>
         <target state="final">ကိုယ်ရေးအချက်အလက် လုံခြုံသော နင်ဂျာတစ်ဦးကဲ့သို့ ခရီးဆက်ရန်အတွက် အခြားသော ကိုယ်ရေးအချက်အလက်လုံခြုံရေး အထောက်အကူပြု အလေ့အကျင့်နှင့် တူးလ်များကို ရွေးရန် ကျွန်ုပ်တို့၏ ဝက်ဘ်ဆိုက်ကို ဝင်ကြည့်ပါ။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="To create a custom list press the “+” or long press on a country, city, or server." xml:space="preserve">
+      <trans-unit id="To create a custom list press the “+” or long press on a country, city, or server." xml:space="preserve" approved="yes">
         <source>To create a custom list press the “+” or long press on a country, city, or server.</source>
-        <target state="needs-translation">To create a custom list press the “+” or long press on a country, city, or server.</target>
+        <target state="final">စိတ်ကြိုက်စာရင်းတစ်ခု ဖန်တီးရန် “+” ကို နှိပ်ပါ သို့မဟုတ် နိုင်ငံဖြစ်စေ၊ မြို့ဖြစ်စေ၊ ဆာဗာဖြစ်စေ တစ်ခုခုကို ကြာကြာနှိပ်ထားပါ။</target>
         <note/>
       </trans-unit>
       <trans-unit id="To enable this setting, add at least one server." xml:space="preserve" approved="yes">
@@ -2460,9 +2460,9 @@ Do you want to remove the saved account number?</source>
         <target state="final">Tunnel ချိတ်ဆက်မှုကို စတင်၍ မရနိုင်ပါ။ ပြဿနာ ရီပို့တ်တစ်ခု ပေးပို့ပေးပါ။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Unexpected error occured." xml:space="preserve">
+      <trans-unit id="Unexpected error occured." xml:space="preserve" approved="yes">
         <source>Unexpected error occured.</source>
-        <target state="needs-translation">Unexpected error occured.</target>
+        <target state="final">မမျှော်မှန်းထားသော ချို့ယွင်းချက် ဖြစ်ပေါ်ခဲ့ပါသည်။</target>
         <note/>
       </trans-unit>
       <trans-unit id="Unexpected server response: %1$@ (HTTP status: %2$d)" xml:space="preserve" approved="yes">
@@ -2704,14 +2704,14 @@ We strongly believe in retaining as little data as possible because we want you 
         <target state="final">သင် မသိမ်းဆည်းရသေးသော ပြောင်းလဲမှုများ ရှိပါသည်။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Your device" xml:space="preserve">
+      <trans-unit id="Your device" xml:space="preserve" approved="yes">
         <source>Your device</source>
-        <target state="needs-translation">Your device</target>
+        <target state="final">သင့်စက်</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Your device (%@)" xml:space="preserve">
+      <trans-unit id="Your device (%@)" xml:space="preserve" approved="yes">
         <source>Your device (%@)</source>
-        <target state="needs-translation">Your device (%@)</target>
+        <target state="final">သင့်စက် (%@)</target>
         <note/>
       </trans-unit>
       <trans-unit id="Your device is offline. The tunnel will automatically connect once your device is back online." xml:space="preserve" approved="yes">
@@ -2734,9 +2734,9 @@ We strongly believe in retaining as little data as possible because we want you 
         <target state="final">သင်၏ ယခင်ဝယ်ယူမှုများကို ဤအကောင့်သို့ ထည့်ပြီးပါပြီ။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Your previous purchases have been added to your account." xml:space="preserve">
+      <trans-unit id="Your previous purchases have been added to your account." xml:space="preserve" approved="yes">
         <source>Your previous purchases have been added to your account.</source>
-        <target state="needs-translation">Your previous purchases have been added to your account.</target>
+        <target state="final">သင် ယခင်ဝယ်ယူထားသည်များကို သင့်အကောင့်သို့ ထည့်ပြီးပါပြီ။</target>
         <note/>
       </trans-unit>
       <trans-unit id="Your purchase was successfully refunded." xml:space="preserve" approved="yes">

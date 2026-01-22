@@ -30,9 +30,9 @@
         <target state="final">%@ w tym celu ostrożnie dodaje szum sieciowy i nadaje ten sam rozmiar wszystkim pakietom sieciowym.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="%@ have been added to your account." xml:space="preserve">
+      <trans-unit id="%@ have been added to your account." xml:space="preserve" approved="yes">
         <source>%@ have been added to your account.</source>
-        <target state="needs-translation">%@ have been added to your account.</target>
+        <target state="final">Do Twojego konta dodano %@.</target>
         <note/>
       </trans-unit>
       <trans-unit id="%@ left on this account" xml:space="preserve" approved="yes">
@@ -549,9 +549,9 @@ Czy chcesz kontynuować włączanie funkcji „Udostępnianie sieci lokalnej”?
         <target state="final">Connect (Połącz)</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Connected server" xml:space="preserve">
+      <trans-unit id="Connected server" xml:space="preserve" approved="yes">
         <source>Connected server</source>
-        <target state="needs-translation">Connected server</target>
+        <target state="final">Połączony serwer</target>
         <note/>
       </trans-unit>
       <trans-unit id="Connected to %@" xml:space="preserve" approved="yes">
@@ -584,9 +584,9 @@ Czy chcesz kontynuować włączanie funkcji „Udostępnianie sieci lokalnej”?
         <target state="final">Skopiowano numer konta Mullvad do schowka</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Could not restore previous purchases. Try again later or contact support." xml:space="preserve">
+      <trans-unit id="Could not restore previous purchases. Try again later or contact support." xml:space="preserve" approved="yes">
         <source>Could not restore previous purchases. Try again later or contact support.</source>
-        <target state="needs-translation">Could not restore previous purchases. Try again later or contact support.</target>
+        <target state="final">Nie można przywrócić poprzednich zakupów. Spróbuj ponownie później lub skontaktuj się z pomocą techniczną.</target>
         <note/>
       </trans-unit>
       <trans-unit id="Create" xml:space="preserve" approved="yes">
@@ -694,9 +694,9 @@ Czy chcesz kontynuować włączanie funkcji „Udostępnianie sieci lokalnej”?
         <target state="final">Dallas, TX</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Debug options" xml:space="preserve">
+      <trans-unit id="Debug options" xml:space="preserve" approved="yes">
         <source>Debug options</source>
-        <target state="needs-translation">Debug options</target>
+        <target state="final">Opcje debugowania</target>
         <note/>
       </trans-unit>
       <trans-unit id="Delete" xml:space="preserve" approved="yes">
@@ -789,9 +789,9 @@ Czy chcesz kontynuować włączanie funkcji „Udostępnianie sieci lokalnej”?
         <target state="final">Wyłączanie:</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Disabling recents will also clear history." xml:space="preserve">
+      <trans-unit id="Disabling recents will also clear history." xml:space="preserve" approved="yes">
         <source>Disabling recents will also clear history.</source>
-        <target state="needs-translation">Disabling recents will also clear history.</target>
+        <target state="final">Wyłączenie ostatnich elementów poskutkuje również wyczyszczeniem historii.</target>
         <note/>
       </trans-unit>
       <trans-unit id="Discard changes" xml:space="preserve" approved="yes">
@@ -949,9 +949,9 @@ Czy chcesz kontynuować włączanie funkcji „Udostępnianie sieci lokalnej”?
         <target state="final">Nie udało się załadować produktów. Spróbuj ponownie</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Failed to reach Mullvad servers to initiate purchase" xml:space="preserve">
+      <trans-unit id="Failed to reach Mullvad servers to initiate purchase" xml:space="preserve" approved="yes">
         <source>Failed to reach Mullvad servers to initiate purchase</source>
-        <target state="needs-translation">Failed to reach Mullvad servers to initiate purchase</target>
+        <target state="final">Nie udało się połączyć z serwerami Mullvad w celu zainicjowania zakupu</target>
         <note/>
       </trans-unit>
       <trans-unit id="Failed to send" xml:space="preserve" approved="yes">
@@ -984,14 +984,14 @@ Czy chcesz kontynuować włączanie funkcji „Udostępnianie sieci lokalnej”?
         <target state="final">Nie udało się zatrzymać tunelu: %@.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Failed to upload one or more receipts to Mullvad servers. Try again later or contact support for help." xml:space="preserve">
+      <trans-unit id="Failed to upload one or more receipts to Mullvad servers. Try again later or contact support for help." xml:space="preserve" approved="yes">
         <source>Failed to upload one or more receipts to Mullvad servers. Try again later or contact support for help.</source>
-        <target state="needs-translation">Failed to upload one or more receipts to Mullvad servers. Try again later or contact support for help.</target>
+        <target state="final">Nie udało się przesłać co najmniej jednego dowodu zakupu na serwery Mullvad. Spróbuj ponownie później lub skontaktuj się z pomocą techniczną.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Failed to verify transaction receipt" xml:space="preserve">
+      <trans-unit id="Failed to verify transaction receipt" xml:space="preserve" approved="yes">
         <source>Failed to verify transaction receipt</source>
-        <target state="needs-translation">Failed to verify transaction receipt</target>
+        <target state="final">Nie udało się zweryfikować potwierdzenia transakcji</target>
         <note/>
       </trans-unit>
       <trans-unit id="Fetching devices..." xml:space="preserve" approved="yes">
@@ -1229,9 +1229,9 @@ Czy chcesz kontynuować włączanie funkcji „Udostępnianie sieci lokalnej”?
         <target state="final">Błąd wewnętrzny.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Internet" xml:space="preserve">
+      <trans-unit id="Internet" xml:space="preserve" approved="yes">
         <source>Internet</source>
-        <target state="needs-translation">Internet</target>
+        <target state="final">Internet</target>
         <note/>
       </trans-unit>
       <trans-unit id="Invalid account number" xml:space="preserve" approved="yes">
@@ -1609,9 +1609,9 @@ Czy chcesz kontynuować włączanie funkcji „Udostępnianie sieci lokalnej”?
         <target state="final">Brak historii ostatnich wyborów</target>
         <note/>
       </trans-unit>
-      <trans-unit id="No result for &quot;%@&quot;, please try a different search term." xml:space="preserve">
+      <trans-unit id="No result for &quot;%@&quot;, please try a different search term." xml:space="preserve" approved="yes">
         <source>No result for "%@", please try a different search term.</source>
-        <target state="needs-translation">No result for "%@", please try a different search term.</target>
+        <target state="final">Brak wyników dla hasła „%@”, spróbuj wyszukać inne hasło.</target>
         <note/>
       </trans-unit>
       <trans-unit id="No servers match your location filter. Try changing filter settings." xml:space="preserve" approved="yes">
@@ -1824,9 +1824,9 @@ Czy chcesz kontynuować włączanie funkcji „Udostępnianie sieci lokalnej”?
         <target state="final">Wstecz</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Previous purchases were found" xml:space="preserve">
+      <trans-unit id="Previous purchases were found" xml:space="preserve" approved="yes">
         <source>Previous purchases were found</source>
-        <target state="needs-translation">Previous purchases were found</target>
+        <target state="final">Znaleziono poprzednie zakupy</target>
         <note/>
       </trans-unit>
       <trans-unit id="Providers" xml:space="preserve" approved="yes">
@@ -1976,9 +1976,9 @@ Czy chcesz usunąć zapisany numer konta?</target>
         <target state="final">Zapisywanie zmian...</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Search for locations or servers" xml:space="preserve">
+      <trans-unit id="Search for locations or servers" xml:space="preserve" approved="yes">
         <source>Search for locations or servers</source>
-        <target state="needs-translation">Search for locations or servers</target>
+        <target state="final">Wyszukaj lokalizacje lub serwery</target>
         <note/>
       </trans-unit>
       <trans-unit id="Seattle, WA" xml:space="preserve" approved="yes">
@@ -2071,9 +2071,9 @@ Czy chcesz usunąć zapisany numer konta?</target>
         <target state="final">Pokaż numer konta</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Showing %lld of %lld" xml:space="preserve">
+      <trans-unit id="Showing %lld of %lld" xml:space="preserve" approved="yes">
         <source>Showing %1$lld of %2$lld</source>
-        <target state="needs-translation">Showing %1$lld of %2$lld</target>
+        <target state="final">Wyświetlanie %1$lld z %2$lld</target>
         <note/>
       </trans-unit>
       <trans-unit id="Singapore" xml:space="preserve" approved="yes">
@@ -2361,9 +2361,9 @@ Czy chcesz usunąć zapisany numer konta?</target>
         <target state="final">Aby kontynuować przygodę eksperta ds. bezpieczeństwa, odwiedź naszą witrynę internetową i poznaj inne nawyki oraz narzędzia chroniące prywatność.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="To create a custom list press the “+” or long press on a country, city, or server." xml:space="preserve">
+      <trans-unit id="To create a custom list press the “+” or long press on a country, city, or server." xml:space="preserve" approved="yes">
         <source>To create a custom list press the “+” or long press on a country, city, or server.</source>
-        <target state="needs-translation">To create a custom list press the “+” or long press on a country, city, or server.</target>
+        <target state="final">Aby utworzyć listę niestandardową, naciśnij przycisk „+” lub naciśnij i przytrzymaj kraj, miasto lub serwer.</target>
         <note/>
       </trans-unit>
       <trans-unit id="To enable this setting, add at least one server." xml:space="preserve" approved="yes">
@@ -2461,9 +2461,9 @@ Czy chcesz usunąć zapisany numer konta?</target>
         <target state="final">Nie można uruchomić połączenia tunelowego. Wyślij zgłoszenie problemu.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Unexpected error occured." xml:space="preserve">
+      <trans-unit id="Unexpected error occured." xml:space="preserve" approved="yes">
         <source>Unexpected error occured.</source>
-        <target state="needs-translation">Unexpected error occured.</target>
+        <target state="final">Wystąpił nieoczekiwany błąd.</target>
         <note/>
       </trans-unit>
       <trans-unit id="Unexpected server response: %1$@ (HTTP status: %2$d)" xml:space="preserve" approved="yes">
@@ -2704,14 +2704,14 @@ Jesteśmy głęboko przekonani, że należy przechowywać jak najmniej danych, p
         <target state="final">Masz niezapisane zmiany.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Your device" xml:space="preserve">
+      <trans-unit id="Your device" xml:space="preserve" approved="yes">
         <source>Your device</source>
-        <target state="needs-translation">Your device</target>
+        <target state="final">Twoje urządzenie</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Your device (%@)" xml:space="preserve">
+      <trans-unit id="Your device (%@)" xml:space="preserve" approved="yes">
         <source>Your device (%@)</source>
-        <target state="needs-translation">Your device (%@)</target>
+        <target state="final">Twoje urządzenie (%@)</target>
         <note/>
       </trans-unit>
       <trans-unit id="Your device is offline. The tunnel will automatically connect once your device is back online." xml:space="preserve" approved="yes">
@@ -2734,9 +2734,9 @@ Jesteśmy głęboko przekonani, że należy przechowywać jak najmniej danych, p
         <target state="final">Twoje poprzednie zakupy zostały już dodane do tego konta.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Your previous purchases have been added to your account." xml:space="preserve">
+      <trans-unit id="Your previous purchases have been added to your account." xml:space="preserve" approved="yes">
         <source>Your previous purchases have been added to your account.</source>
-        <target state="needs-translation">Your previous purchases have been added to your account.</target>
+        <target state="final">Poprzednie zakupy zostały dodane do Twojego konta.</target>
         <note/>
       </trans-unit>
       <trans-unit id="Your purchase was successfully refunded." xml:space="preserve" approved="yes">
