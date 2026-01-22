@@ -259,6 +259,7 @@ class ManagementService(
                             _mutableCurrentAccessMethod.update { event.newAccessMethod.toDomain() }
                         }
                         ManagementInterface.DaemonEvent.EventCase.REMOVE_DEVICE -> {}
+                        ManagementInterface.DaemonEvent.EventCase.LEAK_INFO -> {}
                         ManagementInterface.DaemonEvent.EventCase.EVENT_NOT_SET -> {}
                     }
                 }
