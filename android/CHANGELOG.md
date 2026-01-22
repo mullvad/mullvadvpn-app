@@ -21,15 +21,25 @@ Line wrap the file at 100 chars.                                              Th
 * **Fixed**: for any bug fixes.
 * **Security**: in case of vulnerabilities.
 
-## [Unreleased]
+## [android/2026.1-beta1] - 2025-01-22
 ### Added
 - Add Arabic and Persian as new languages in the app with full RTL support.
+- Add toggle button to enable/disable all content blockers.
+- Add the ability to change app icon and title.
+- Add port 443 to list of valid UDP2TCP ports.
 
 ### Removed
 - Remove "Automatic" as a setting for the "Quantum-resistant tunnel" option.
 
 ### Changed
-- Added new anti-censorship settings screen reachable from VPN settings.
+- Add new anti-censorship settings screen reachable from VPN settings.
+- Change `WireGuard port` to no longer affect the port used for LWO.
+- Update design of select location screen
+- Introduce new list item design.
+
+### Fixed
+- Fix pending payment state not updating correctly.
+
 
 ## [android/2025.11] - 2025-12-08
 Identical to `android/2025.11-beta1`.
