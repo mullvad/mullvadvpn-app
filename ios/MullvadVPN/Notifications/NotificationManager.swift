@@ -52,7 +52,7 @@ final class NotificationManager: NotificationProviderDelegate {
 
     private init() {}
 
-    func updateNotifications() {
+    func updateNotifications(_ notificationSettings: NotificationSettings) {
         dispatchPrecondition(condition: .onQueue(.main))
 
         var newSystemNotificationRequests = [UNNotificationRequest]()

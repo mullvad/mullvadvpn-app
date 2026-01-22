@@ -8,17 +8,14 @@
 
 enum NotificationKeys: String, CaseIterable {
     case account
-    case connectionStatus
     static var allCases: [NotificationKeys] {
-        [.account, .connectionStatus]
+        [.account]
     }
 
     var keyPath: KeyPath<NotificationSettings, Bool> {
         switch self {
         case .account:
             \.isAccountNotificationEnabled
-        case .connectionStatus:
-            \.isConnectionStatusNotificationEnabled
         }
     }
 
@@ -26,22 +23,15 @@ enum NotificationKeys: String, CaseIterable {
         switch self {
         case .account:
             \.isAccountNotificationEnabled
-        case .connectionStatus:
-            \.isConnectionStatusNotificationEnabled
         }
     }
 }
 
-struct NotificationSettings: Codable {
-    var isAccountNotificationEnabled: Bool
-    var isConnectionStatusNotificationEnabled: Bool
+public struct NotificationSettings: Codable, Sendable, Equatable {
+    public var isAccountNotificationEnabled: Bool
 
-    init(
-        isAccountNotificationEnabled: Bool = true,
-        isConnectionStatusNotificationEnabled: Bool = true
-    ) {
+    init(isAccountNotificationEnabled: Bool = true) {
         self.isAccountNotificationEnabled = isAccountNotificationEnabled
-        self.isConnectionStatusNotificationEnabled = isConnectionStatusNotificationEnabled
     }
 
     subscript(key: NotificationKeys) -> Bool {
@@ -53,7 +43,7 @@ struct NotificationSettings: Codable {
         }
     }
 
-    var allAreEnabled: Bool {
+    public var allAreEnabled: Bool {
         NotificationKeys.allCases.allSatisfy { self[$0] }
     }
 }

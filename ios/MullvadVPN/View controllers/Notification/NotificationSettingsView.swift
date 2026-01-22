@@ -17,13 +17,6 @@ struct NotificationSettingsView<ViewModel>: View where ViewModel: NotificationSe
             SettingsInfoContainerView {
                 VStack(alignment: .leading) {
                     GroupedRowView {
-                        SwitchRowView(
-                            isOn: viewModel.all(),
-                            disabled: !viewModel.isNotificationsAllowed,
-                            text: NSLocalizedString("All", comment: ""),
-                            accessibilityId: .allNotificationSwitch
-                        )
-                        RowSeparator()
                         ForEach(NotificationKeys.allCases, id: \.self) { key in
                             SwitchRowView(
                                 isOn: viewModel.binding(for: key),
@@ -53,7 +46,6 @@ struct NotificationSettingsView<ViewModel>: View where ViewModel: NotificationSe
                             viewModel.openAppSettings()
                         }
                     )
-                    .showIf(!viewModel.isNotificationsAllowed)
                 }
                 .padding(.horizontal, 16)
                 .padding(.bottom, 24)
@@ -81,9 +73,7 @@ private extension NotificationKeys {
     var title: String {
         switch self {
         case .account:
-            "Account time reminder"
-        case .connectionStatus:
-            "Connection failures"
+            "Account time reminders"
         }
     }
 
@@ -91,8 +81,6 @@ private extension NotificationKeys {
         switch self {
         case .account:
             .accountNotificationSwitch
-        case .connectionStatus:
-            .connectionStatusNotificationSwitch
         }
     }
 }

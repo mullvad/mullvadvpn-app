@@ -16,7 +16,6 @@ protocol NotificationSettingsViewModelProtocol: ObservableObject {
     var settings: NotificationSettings { get set }
 
     func binding(for key: NotificationKeys) -> Binding<Bool>
-    func all() -> Binding<Bool>
     func checkNotificationPermission()
     func openAppSettings()
 }
@@ -47,17 +46,6 @@ final class NotificationSettingsViewModel: NotificationSettingsViewModelProtocol
         Binding(
             get: { self.settings[key] && self.isNotificationsAllowed },
             set: { self.settings[key] = $0 && self.isNotificationsAllowed }
-        )
-    }
-
-    func all() -> Binding<Bool> {
-        Binding(
-            get: { self.settings.allAreEnabled && self.isNotificationsAllowed },
-            set: { value in
-                NotificationKeys.allCases.forEach { key in
-                    self.settings[key] = value && self.isNotificationsAllowed
-                }
-            }
         )
     }
 }

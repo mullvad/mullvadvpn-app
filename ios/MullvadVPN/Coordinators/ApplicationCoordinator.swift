@@ -639,6 +639,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
 
         coordinator.didUpdateNotificationSettings = { [weak self] notificationSettings in
             self?.appPreferences.notificationSettings = notificationSettings
+            NotificationManager.shared.updateNotifications(notificationSettings)
         }
 
         coordinator.didFinish = { [weak self] _ in

@@ -540,11 +540,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         // This operation is always treated as successful no matter what the configuration load yields.
         // If the tunnel settings or device state can't be read, we simply pretend they are not there
         // and leave user in logged out state. VPN config will be removed as well.
-        AsyncBlockOperation(dispatchQueue: .main) { finish in
+        AsyncBlockOperation(dispatchQueue: .main) { [weak self] finish in
+            guard let self else {
+                finish(nil)
+                return
+            }
             self.tunnelManager.loadConfiguration {
                 self.logger.debug("Finished initialization.")
 
-                NotificationManager.shared.updateNotifications()
+                NotificationManager.shared.updateNotifications(self.appPreferences.notificationSettings)
 
                 Task {
                     await self.storePaymentManager.start()
