@@ -170,11 +170,11 @@ jobs:
       matrix:
         include:
           - gradle-task: |
-              testDebugUnitTest -x :test:arch:testDebugUnitTest
-              :app:testOssProdDebugUnitTest
-              :service:testOssProdDebugUnitTest
-              :lib:billing:testDebugUnitTest
-              :lib:daemon-grpc:testDebugUnitTest
+              testDebugUnitTest -x :test:arch:testDebugUnitTest \
+              :app:testOssProdDebugUnitTest \
+              :service:testOssProdDebugUnitTest \
+              :lib:billing:testDebugUnitTest \
+              :lib:daemon-grpc:testDebugUnitTest \
               :lib:repository:testDebugUnitTest --stacktrace
           - gradle-task: :test:arch:test --rerun-tasks --stacktrace
           - gradle-task: detekt --stacktrace
