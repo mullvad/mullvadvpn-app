@@ -1,10 +1,6 @@
 name: TOML Validation
 
 on:
-  push:
-    paths:
-      - "**.toml"
-      - ".github/workflows/lint-toml.yml"
   pull_request:
     paths:
       - "**.toml"
