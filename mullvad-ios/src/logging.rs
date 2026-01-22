@@ -4,7 +4,7 @@
 //! allowing Rust logs to be captured by Swift's logging infrastructure.
 
 use mullvad_logging::{EnvFilter, LevelFilter, silence_crates};
-use std::ffi::CString;
+use std::{sync::{Mutex,MutexGuard}, ffi::CString};
 use std::io::Write;
 use tracing_subscriber::Layer;
 use tracing_subscriber::fmt::MakeWriter;
@@ -22,43 +22,57 @@ const DEFAULT_LOG_LEVEL: LevelFilter = LevelFilter::DEBUG;
 /// Factory for creating writers that forward to Swift.
 struct SwiftMakeWriter {
     callback: LogCallback,
+    buffer: Mutex<Vec<u8>>,
 }
 
-impl<'a> MakeWriter<'a> for SwiftMakeWriter {
-    type Writer = SwiftWriter;
-
-    fn make_writer(&'a self) -> Self::Writer {
-        SwiftWriter {
-            callback: self.callback,
-            level: 4, // default to DEBUG
-            buffer: Vec::new(),
+impl SwiftMakeWriter {
+    fn new(callback: LogCallback) -> Self {
+        Self {
+            callback,
+            buffer: Mutex::new(Vec::with_capacity(1024)),
         }
     }
 
-    fn make_writer_for(&'a self, meta: &tracing::Metadata<'_>) -> Self::Writer {
-        let level = match *meta.level() {
+    fn make_writer_for_level<'a>(&'a self, tracing_level: tracing::Level) -> SwiftWriter<'a> {
+        let mut buffer = self.buffer.lock().expect("Failed to acquire logging lock");
+        buffer.truncate(0);
+
+        let level = match tracing_level {
             tracing::Level::ERROR => 1u8,
             tracing::Level::WARN => 2u8,
             tracing::Level::INFO => 3u8,
             tracing::Level::DEBUG => 4u8,
             tracing::Level::TRACE => 5u8,
         };
+
         SwiftWriter {
             callback: self.callback,
             level,
-            buffer: Vec::new(),
+            buffer,
         }
     }
 }
 
-/// Writer that buffers output and sends to Swift on flush/drop.
-struct SwiftWriter {
-    callback: LogCallback,
-    level: u8,
-    buffer: Vec<u8>,
+impl<'a> MakeWriter<'a> for SwiftMakeWriter {
+    type Writer = SwiftWriter<'a>;
+
+    fn make_writer(&'a self) -> Self::Writer {
+        self.make_writer_for_level(tracing::Level::DEBUG)
+    }
+
+    fn make_writer_for(&'a self, meta: &tracing::Metadata<'_>) -> Self::Writer {
+        self.make_writer_for_level(*meta.level())
+    }
 }
 
-impl Write for SwiftWriter {
+/// Writer that buffers output and sends to Swift on flush/drop.
+struct SwiftWriter<'a> {
+    callback: LogCallback,
+    level: u8,
+    buffer: MutexGuard<'a, Vec<u8>>,
+}
+
+impl Write for SwiftWriter<'_> {
     fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
         self.buffer.extend_from_slice(buf);
         Ok(buf.len())
@@ -77,7 +91,7 @@ impl Write for SwiftWriter {
     }
 }
 
-impl Drop for SwiftWriter {
+impl Drop for SwiftWriter<'_> {
     fn drop(&mut self) {
         let _ = self.flush();
     }
@@ -98,7 +112,7 @@ pub extern "C" fn init_rust_logging(callback: LogCallback) {
         .from_env_lossy();
 
     let layer = tracing_subscriber::fmt::layer()
-        .with_writer(SwiftMakeWriter { callback })
+        .with_writer(SwiftMakeWriter::new(callback))
         .with_ansi(false)
         .without_time()
         .with_level(false)
