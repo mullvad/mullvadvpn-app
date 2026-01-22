@@ -175,10 +175,10 @@ jobs:
               :service:testOssProdDebugUnitTest
               :lib:billing:testDebugUnitTest
               :lib:daemon-grpc:testDebugUnitTest
-              :lib:repository:testDebugUnitTest --stacktrace
-          - gradle-task: :test:arch:test --rerun-tasks --stacktrace
-          - gradle-task: detekt --stacktrace
-          - gradle-task: lint --stacktrace
+              :lib:repository:testDebugUnitTest
+          - gradle-task: :test:arch:test --rerun-tasks
+          - gradle-task: detekt
+          - gradle-task: lint
     steps:
       # Fix for HOME path overridden by GH runners when building in containers, see:
       # https://github.com/actions/runner/issues/863
