@@ -18,20 +18,21 @@ private func rustLogCallback(level: UInt8, messagePtr: UnsafePointer<CChar>?) {
     guard let messagePtr else { return }
     let message = String(cString: messagePtr)
 
-    let level: Logger.Level = switch level {
-    case 1:
+    let level: Logger.Level =
+        switch level {
+        case 1:
             .error
-    case 2:
+        case 2:
             .warning
-    case 3:
+        case 3:
             .info
-    case 4:
+        case 4:
             .debug
-    case 5:
-        .trace
-    default:
-        .debug
-    }
+        case 5:
+            .trace
+        default:
+            .debug
+        }
 
     rustLogger.log(level: level, "\(message)")
 }
