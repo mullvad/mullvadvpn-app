@@ -21,7 +21,7 @@ Line wrap the file at 100 chars.                                              Th
 * **Fixed**: for any bug fixes.
 * **Security**: in case of vulnerabilities.
 
-## [android/2026.1] - 2025-01-22
+## [android/2026.1-beta1] - 2025-01-22
 ### Added
 - Add Arabic and Persian as new languages in the app with full RTL support.
 - Add toggle button to enable/disable all content blockers.
