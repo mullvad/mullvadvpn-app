@@ -3597,7 +3597,6 @@ dependencies = [
  "scopeguard",
  "serde",
  "serde_json",
- "socket2 0.5.8",
  "socks-server",
  "ssh2",
  "talpid-types",
