@@ -133,12 +133,12 @@ jobs:
       - name: Clean gradle
         if: github.event.inputs.clean == 'true'
         run: >
-          ./building/container-run.sh android android/gradlew -p android --console plain
+          ./building/container-run.sh android android/gradlew -p android --console plain --stacktrace
           clean
 
       - name: Build apks
         run: >
-          ./building/container-run.sh android android/gradlew -p android --console plain
+          ./building/container-run.sh android android/gradlew -p android --console plain --stacktrace
           :app:assembleOssProdDebug
           :app:assemblePlayStagemoleDebug
           assembleOssProdAndroidTest
@@ -175,10 +175,10 @@ jobs:
               :service:testOssProdDebugUnitTest
               :lib:billing:testDebugUnitTest
               :lib:daemon-grpc:testDebugUnitTest
-              :lib:repository:testDebugUnitTest
-          - gradle-task: :test:arch:test --rerun-tasks
-          - gradle-task: detekt
-          - gradle-task: lint
+              :lib:repository:testDebugUnitTest --stacktrace
+          - gradle-task: :test:arch:test --rerun-tasks --stacktrace
+          - gradle-task: detekt --stacktrace
+          - gradle-task: lint --stacktrace
     steps:
       # Fix for HOME path overridden by GH runners when building in containers, see:
       # https://github.com/actions/runner/issues/863
@@ -191,16 +191,7 @@ jobs:
           submodules: true
 
       - name: Run gradle task
-        uses: burrunan/gradle-cache-action@v3
-        with:
-          job-id: jdk17
-          arguments: ${{ matrix.gradle-task }}
-          gradle-version: wrapper
-          build-root-directory: android
-          execution-only-caches: false
-          # Disable if logs are hard to follow.
-          concurrent: true
-          read-only: ${{ github.ref != 'refs/heads/main' }}
+        run: android/gradlew -p android ${{ matrix.gradle-task }}
 
   instrumented-tests:
     name: Run instrumented tests

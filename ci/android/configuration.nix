@@ -131,6 +131,8 @@
     javaPackages.compiler.openjdk17
     strace
 
+    slirp4netns
+
     # Temp tests
     lm_sensors
   ];
@@ -146,6 +148,13 @@
     containers.enable = true;
     containers.containersConf.settings = {
       containers.seccomp_profile = "/tmp/seccomp.json";
+    };
+
+    containers.containersConf.settings = {
+        network = {
+          dns_bind_port = 0;
+          default_network = "slirp4netns";
+        };
     };
 
     podman = {
