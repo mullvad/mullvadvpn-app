@@ -1,3 +1,4 @@
+export * from './accordion-container';
 export * from './AccordionContent';
 export * from './AccordionHeaderItem';
 export * from './AccordionTrigger';
