@@ -83,7 +83,7 @@ env:
 jobs:
   prepare:
     name: Prepare
-    runs-on: [android-build]
+    runs-on: [android-bender-01]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6.0.1
@@ -118,7 +118,7 @@ jobs:
   build-app:
     name: Build app
     needs: [prepare]
-    runs-on: [android-build]
+    runs-on: [android-bender-01]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6.0.1
@@ -156,7 +156,7 @@ jobs:
   run-lint-and-tests:
     name: Run lint and test tasks
     needs: [prepare]
-    runs-on: [android-build]
+    runs-on: [android-bender-01]
     container:
       image: ${{ needs.prepare.outputs.container_image }}
       volumes:
