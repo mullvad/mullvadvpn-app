@@ -2,6 +2,7 @@ import React from 'react';
 
 import { AccordionProvider } from './AccordionContext';
 import {
+  AccordionContainer,
   AccordionContent,
   AccordionHeader,
   AccordionHeaderItem,
@@ -30,12 +31,13 @@ function Accordion({
       expanded={expanded}
       onExpandedChange={onExpandedChange}
       disabled={disabled}>
-      <div>{children}</div>
+      {children}
     </AccordionProvider>
   );
 }
 
 const AccordionNamespace = Object.assign(Accordion, {
+  Container: AccordionContainer,
   Trigger: AccordionTrigger,
   Header: AccordionHeader,
   HeaderItem: AccordionHeaderItem,
