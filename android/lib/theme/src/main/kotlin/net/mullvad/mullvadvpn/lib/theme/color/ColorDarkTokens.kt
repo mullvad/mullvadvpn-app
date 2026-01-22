@@ -6,7 +6,7 @@ internal object ColorDarkTokens {
     val Background = PaletteTokens.DarkBlue500 // Used by login screen and text fields
     val Error = PaletteTokens.Red500 // General error color
     val ErrorContainer = PaletteTokens.Red500 // Currently not used directly
-    val InverseOnSurface = PaletteTokens.White // Currently not used directly
+    val InverseOnSurface = PaletteTokens.Black // Currently not used directly
     val InversePrimary = PaletteTokens.Green500 // Currently not used directly (old selected color)
     val InverseSurface = PaletteTokens.White // Used by text fields
     val OnBackground = PaletteTokens.White // Used by some text on the login screen
