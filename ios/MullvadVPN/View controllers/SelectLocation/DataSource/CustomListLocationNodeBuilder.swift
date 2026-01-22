@@ -13,6 +13,14 @@ import MullvadTypes
 struct CustomListLocationNodeBuilder {
     let customList: CustomList
     let allLocations: [LocationNode]
+    /// Optional data source to populate lazy children when looking up hostnames
+    let dataSource: AllLocationDataSource?
+
+    init(customList: CustomList, allLocations: [LocationNode], dataSource: AllLocationDataSource? = nil) {
+        self.customList = customList
+        self.allLocations = allLocations
+        self.dataSource = dataSource
+    }
 
     var customListLocationNode: CustomListLocationNode {
         let listNode = CustomListLocationNode(
@@ -29,22 +37,33 @@ struct CustomListLocationNodeBuilder {
         listNode.children = listNode.locations.compactMap { location in
             switch location {
             case let .country(countryCode):
-                rootNode
+                return
+                    rootNode
                     .countryFor(code: countryCode)?
                     .copy(withParent: listNode)
 
             case let .city(countryCode, cityCode):
-                rootNode
+                return
+                    rootNode
                     .countryFor(code: countryCode)?
                     .cityFor(codes: [countryCode, cityCode])?
                     .copy(withParent: listNode)
 
             case let .hostname(countryCode, cityCode, hostCode):
-                rootNode
+                // For hostname lookups, we need to ensure the city's relay children are populated
+                if let cityNode =
+                    rootNode
                     .countryFor(code: countryCode)?
-                    .cityFor(codes: [countryCode, cityCode])?
-                    .hostFor(code: hostCode)?
-                    .copy(withParent: listNode)
+                    .cityFor(codes: [countryCode, cityCode])
+                {
+                    // Populate lazy children if needed
+                    dataSource?.populateChildren(for: cityNode)
+                    return
+                        cityNode
+                        .hostFor(code: hostCode)?
+                        .copy(withParent: listNode)
+                }
+                return nil
             }
         }
 

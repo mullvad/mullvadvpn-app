@@ -21,10 +21,17 @@ class CustomListsDataSource: SearchableLocationDataSource {
 
     /// Constructs a collection of node trees by copying each matching counterpart
     /// from the complete list of nodes created in ``AllLocationDataSource``.
-    func reload(allLocationNodes: [LocationNode]) {
+    /// - Parameters:
+    ///   - allLocationNodes: The location nodes from AllLocationDataSource
+    ///   - dataSource: Optional data source to populate lazy children when looking up hostnames
+    func reload(allLocationNodes: [LocationNode], dataSource: AllLocationDataSource? = nil) {
         let expandedCodes = collectExpandedCodes()
         nodes = repository.fetchAll().map { list in
-            let customListWrapper = CustomListLocationNodeBuilder(customList: list, allLocations: allLocationNodes)
+            let customListWrapper = CustomListLocationNodeBuilder(
+                customList: list,
+                allLocations: allLocationNodes,
+                dataSource: dataSource
+            )
             let listNode = customListWrapper.customListLocationNode
             listNode.showsChildren = expandedCodes.contains(listNode.code)
 

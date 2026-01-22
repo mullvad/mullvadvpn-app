@@ -299,8 +299,9 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
     }
 
     private func refreshCustomLists() {
-        exitCustomListsDataSource.reload(allLocationNodes: exitContext.locations)
-        entryCustomListsDataSource.reload(allLocationNodes: entryContext.locations)
+        exitCustomListsDataSource.reload(allLocationNodes: exitContext.locations, dataSource: exitLocationsDataSource)
+        entryCustomListsDataSource.reload(
+            allLocationNodes: entryContext.locations, dataSource: entryLocationsDataSource)
 
         exitContext.customLists = exitCustomListsDataSource.nodes
         entryContext.customLists = entryCustomListsDataSource.nodes
