@@ -4,8 +4,11 @@
 //! allowing Rust logs to be captured by Swift's logging infrastructure.
 
 use mullvad_logging::{EnvFilter, LevelFilter, silence_crates};
-use std::{sync::{Mutex,MutexGuard}, ffi::CString};
 use std::io::Write;
+use std::{
+    ffi::CStr,
+    sync::{Mutex, MutexGuard},
+};
 use tracing_subscriber::Layer;
 use tracing_subscriber::fmt::MakeWriter;
 use tracing_subscriber::layer::SubscriberExt;
@@ -82,10 +85,9 @@ impl Write for SwiftWriter<'_> {
         if self.buffer.is_empty() {
             return Ok(());
         }
-        if let Ok(message) = String::from_utf8(std::mem::take(&mut self.buffer)) {
-            if let Ok(c_message) = CString::new(message.trim_end()) {
-                (self.callback)(self.level, c_message.as_ptr());
-            }
+        self.buffer.push(b'\0');
+        if let Ok(message) = CStr::from_bytes_until_nul(&self.buffer) {
+            (self.callback)(self.level, message.as_ptr());
         }
         Ok(())
     }
