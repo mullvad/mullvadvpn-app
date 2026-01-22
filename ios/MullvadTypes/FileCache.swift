@@ -40,7 +40,7 @@ public final class FileCache<Content: Codable>: NSObject, FileCacheProtocol, NSF
 
         // Load initial content off the main thread
         DispatchQueue(label: "net.mullvadvpn.FileCache.\(fileURL)").async {
-            self.loadInitialCache()
+            let _ = try? self.read()
         }
     }
 
@@ -51,9 +51,6 @@ public final class FileCache<Content: Codable>: NSObject, FileCacheProtocol, NSF
     /// Loads the initial cache from disk. Called during initialization.
     /// The lock ensures any concurrent read() calls block until loading completes.
     private func loadInitialCache() {
-        lock.lock()
-        defer { lock.unlock() }
-
         cachedContent = try? readFromDisk()
     }
 
@@ -83,7 +80,6 @@ public final class FileCache<Content: Codable>: NSObject, FileCacheProtocol, NSF
     public func write(_ content: Content) throws {
         lock.lock()
         defer { lock.unlock() }
-
         let fileCoordinator = NSFileCoordinator(filePresenter: self)
 
         try fileCoordinator.coordinate(writingItemAt: fileURL, options: [.forReplacing]) { fileURL in
@@ -96,7 +92,6 @@ public final class FileCache<Content: Codable>: NSObject, FileCacheProtocol, NSF
     public func clear() throws {
         lock.lock()
         defer { lock.unlock() }
-
         let fileCoordinator = NSFileCoordinator(filePresenter: self)
         try fileCoordinator.coordinate(writingItemAt: fileURL, options: [.forDeleting]) { fileURL in
             try FileManager.default.removeItem(at: fileURL)
@@ -110,13 +105,11 @@ public final class FileCache<Content: Codable>: NSObject, FileCacheProtocol, NSF
     /// Called when the file content has changed by another process.
     public func presentedItemDidChange() {
         lock.lock()
-        defer { lock.unlock() }
-
-        // Invalidate the cache so the next read() fetches fresh data from disk
         cachedContent = nil
+        lock.unlock()
 
-        DispatchQueue.main.async {
-            self.loadInitialCache()
+        DispatchQueue.global().async { [weak self] in
+            let _ = try? self?.read()
         }
     }
 
