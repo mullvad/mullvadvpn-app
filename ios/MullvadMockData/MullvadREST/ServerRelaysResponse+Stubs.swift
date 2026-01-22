@@ -15,6 +15,20 @@ public enum ServerRelaysResponseStubs {
     public static let wireguardPortRanges: [[UInt16]] = [[4000, 4001], [5000, 5001]]
     public static let shadowsocksPortRanges: [[UInt16]] = [[51900, 51949]]
 
+    /// Loads the prebundled relays.json from MullvadREST bundle for benchmark testing.
+    /// This contains real production relay data.
+    public static func loadPrebundledRelays() throws -> REST.ServerRelaysResponse {
+        guard
+            let prebundledRelaysFileURL = Bundle(for: RelayCache.self)
+                .url(forResource: "relays", withExtension: "json")
+        else {
+            throw CocoaError(.fileNoSuchFile)
+        }
+
+        let data = try Data(contentsOf: prebundledRelaysFileURL)
+        return try REST.Coding.makeJSONDecoder().decode(REST.ServerRelaysResponse.self, from: data)
+    }
+
     public static let sampleRelays = REST.ServerRelaysResponse(
         locations: [
             "es-mad": REST.ServerLocation(
