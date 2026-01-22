@@ -14,7 +14,7 @@
     NoNewPrivileges = lib.mkForce [ ];
     PrivateDevices = lib.mkForce [ ];
     PrivateMounts = lib.mkForce [ ];
-    PrivateNetwork = lib.mkForce [ true ];
+    PrivateNetwork = lib.mkForce [ ];
     PrivateTmp = lib.mkForce [ ];
     PrivateUsers = lib.mkForce [ ];
     ProcSubset = lib.mkForce [ ];
