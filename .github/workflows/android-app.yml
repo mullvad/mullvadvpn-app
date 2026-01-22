@@ -164,6 +164,7 @@ jobs:
         # checkout action
         # https://github.com/NixOS/nixpkgs/issues/306373
         - /nix:/nix
+        - gradle-cache:/root/.gradle
     strategy:
       fail-fast: false
       matrix:

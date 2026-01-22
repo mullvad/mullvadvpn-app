@@ -35,7 +35,7 @@
 
     # If these are not set we will hit newuidmap/newgidmap permission issues when calling from
     # systemd service, we can most likely scope these permissions down way more.
-    CapabilityBoundingSet = lib.mkForce [ "CAP_SETUID CAP_SETGID" ];
-    AmbientCapabilities = lib.mkForce [ "CAP_SETUID CAP_SETGID" ];
+    CapabilityBoundingSet = lib.mkForce [ "CAP_SYS_ADMIN CAP_SETUID CAP_SETGID CAP_DAC_OVERRIDE" ];
+    AmbientCapabilities = lib.mkForce [ "CAP_SYS_ADMIN CAP_SETUID CAP_SETGID CAP_DAC_OVERRIDE" ];
   };
 }

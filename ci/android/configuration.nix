@@ -133,8 +133,6 @@
 
     # Temp tests
     lm_sensors
-
-    slirp4netns
   ];
 
   programs.neovim = {
@@ -154,8 +152,6 @@
       dockerSocket.enable = true;
       enable = true;
       dockerCompat = true;
-      defaultNetwork.settings.dns_enabled = true;
-      defaultNetwork.settings.driver = "slirp4netns";
     };
   };
 
