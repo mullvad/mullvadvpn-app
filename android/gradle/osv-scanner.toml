@@ -13,12 +13,6 @@ id = "CVE-2024-29025" # GHSA-5jpm-x58v-624v
 ignoreUntil = 2026-02-01
 reason = "We do not use netty for http communication."
 
-# netty: Vulnerable to HTTP/2 Rapid Reset Attack
-[[IgnoredVulns]]
-id = "CVE-2023-44487" # GHSA-xpw8-rcwv-8f8p
-ignoreUntil = 2026-02-01
-reason = "No impact on this app since it uses UDS rather than HTTP2."
-
 # Same as the vuln above, but it seems like osv scanner does not always make the connection.
 [[IgnoredVulns]]
 id = "GHSA-xpw8-rcwv-8f8p"
@@ -48,12 +42,6 @@ reason = "Apache commons compress is used by lint and not the app directly."
 id = "CVE-2020-13956" # GHSA-7r82-7xv7-xcpj
 ignoreUntil = 2026-02-01
 reason = "Apache http client is used by lint and not the app directly."
-
-# kotlin: Improper Locking
-[[IgnoredVulns]]
-id = "CVE-2022-24329" # GHSA-2qp4-g3q3-f92w
-ignoreUntil = 2026-02-01
-reason = "This CVE only affect Multiplatform Gradle Projects, which this project is not."
 
 # netty: Denial of Service attack on windows app
 [[IgnoredVulns]]
