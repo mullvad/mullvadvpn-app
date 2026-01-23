@@ -720,6 +720,8 @@ fun VpnSettingsContent(
                                             FeatureIndicator.DNS_CONTENT_BLOCKERS
                                         )
                                     ),
+                            backgroundAlpha =
+                                highlightBackgroundAlpha(FeatureIndicator.DNS_CONTENT_BLOCKERS),
                             position = if (it.expanded) Position.Top else Position.Single,
                             content = { _ ->
                                 Row {
@@ -838,6 +840,11 @@ fun VpnSettingsContent(
                 VpnSettingItem.Spacer ->
                     item(contentType = it::class.simpleName) {
                         Spacer(modifier = Modifier.height(Dimens.cellVerticalSpacing).animateItem())
+                    }
+
+                VpnSettingItem.SmallSpacer ->
+                    item(contentType = it::class.simpleName) {
+                        Spacer(modifier = Modifier.height(Dimens.tinyPadding).animateItem())
                     }
             }
         }

@@ -49,7 +49,7 @@ data class VpnSettingsUiState(
                     // Dns Content Blockers
                     add(
                         VpnSettingItem.DnsContentBlockersHeader(
-                            featureEnabled = !isCustomDnsEnabled,
+                            featureEnabled = true,
                             expanded = isContentBlockersExpanded,
                             numberOfContentBlockersEnabled =
                                 contentBlockersOptions.numberOfBlockersEnabled(),
@@ -108,11 +108,13 @@ data class VpnSettingsUiState(
                                 )
                             )
                         }
-                        if (isCustomDnsEnabled) {
-                            add(VpnSettingItem.DnsContentBlockersUnavailable)
-                        }
                     }
-                    add(VpnSettingItem.Spacer)
+                    if (isCustomDnsEnabled) {
+                        add(VpnSettingItem.DnsContentBlockersUnavailable)
+                    }
+                    if (!isCustomDnsEnabled) {
+                        add(VpnSettingItem.SmallSpacer)
+                    }
 
                     // Custom DNS
                     add(
