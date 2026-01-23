@@ -75,9 +75,117 @@
         ];
       };
 
-      runner = {
+      runner01 = {
         isNormalUser = true;
-        description = "Runner user";
+        description = "Runner user 01";
+        extraGroups = [
+          "podman"
+          "networkmanager"
+          "wheel"
+          "runners"
+          "docker"
+        ];
+        group = "runner";
+        subUidRanges = [
+          {
+            startUid = 100000;
+            count = 65536;
+          }
+        ];
+        subGidRanges = [
+          {
+            startGid = 100000;
+            count = 65536;
+          }
+        ];
+        # needed for podman
+        linger = true;
+      };
+
+      runner02 = {
+        isNormalUser = true;
+        description = "Runner user 02";
+        extraGroups = [
+          "podman"
+          "networkmanager"
+          "wheel"
+          "runners"
+          "docker"
+        ];
+        group = "runner";
+        subUidRanges = [
+          {
+            startUid = 100000;
+            count = 65536;
+          }
+        ];
+        subGidRanges = [
+          {
+            startGid = 100000;
+            count = 65536;
+          }
+        ];
+        # needed for podman
+        linger = true;
+      };
+
+      runner03 = {
+        isNormalUser = true;
+        description = "Runner user 03";
+        extraGroups = [
+          "podman"
+          "networkmanager"
+          "wheel"
+          "runners"
+          "docker"
+        ];
+        group = "runner";
+        subUidRanges = [
+          {
+            startUid = 100000;
+            count = 65536;
+          }
+        ];
+        subGidRanges = [
+          {
+            startGid = 100000;
+            count = 65536;
+          }
+        ];
+        # needed for podman
+        linger = true;
+      };
+
+      runner04 = {
+        isNormalUser = true;
+        description = "Runner user 04";
+        extraGroups = [
+          "podman"
+          "networkmanager"
+          "wheel"
+          "runners"
+          "docker"
+        ];
+        group = "runner";
+        subUidRanges = [
+          {
+            startUid = 100000;
+            count = 65536;
+          }
+        ];
+        subGidRanges = [
+          {
+            startGid = 100000;
+            count = 65536;
+          }
+        ];
+        # needed for podman
+        linger = true;
+      };
+
+      runner05 = {
+        isNormalUser = true;
+        description = "Runner user 05";
         extraGroups = [
           "podman"
           "networkmanager"
@@ -131,8 +239,6 @@
     javaPackages.compiler.openjdk17
     strace
 
-    slirp4netns
-
     # Temp tests
     lm_sensors
   ];
@@ -146,17 +252,6 @@
 
   virtualisation = {
     containers.enable = true;
-    containers.containersConf.settings = {
-      containers.seccomp_profile = "/tmp/seccomp.json";
-    };
-
-    containers.containersConf.settings = {
-        network = {
-          dns_bind_port = 0;
-          default_network = "slirp4netns";
-        };
-    };
-
     podman = {
       dockerSocket.enable = true;
       enable = true;
@@ -184,14 +279,14 @@
     android-bender-01 = {
       enable = true;
       name = "android-bender-01";
-      tokenFile = "/home/runner/.registration-tokens/android-bender-01.token";
+      tokenFile = "/home/runner01/.registration-token/android-bender-01.token";
       url = "https://github.com/mullvad/mullvadvpn-app";
-      user = "runner";
+      user = "runner01";
       group = "runner";
       extraPackages = with pkgs; [
         podman
       ];
-      workDir = "/home/runner/android-bender-01";
+      workDir = "/home/runner01/android-bender-01";
       extraLabels = [
         "android-bender-01"
         "android-build"
@@ -200,14 +295,14 @@
     android-bender-02 = {
       enable = true;
       name = "android-bender-02";
-      tokenFile = "/home/runner/.registration-tokens/android-bender-02.token";
+      tokenFile = "/home/runner02/.registration-token/android-bender-02.token";
       url = "https://github.com/mullvad/mullvadvpn-app";
-      user = "runner";
+      user = "runner02";
       group = "runner";
       extraPackages = with pkgs; [
         podman
       ];
-      workDir = "/home/runner/android-bender-02";
+      workDir = "/home/runner02/android-bender-02";
       extraLabels = [
         "android-bender-02"
         "android-build"
@@ -216,19 +311,51 @@
     android-bender-03 = {
       enable = true;
       name = "android-bender-03";
-      tokenFile = "/home/runner/.registration-tokens/android-bender-03.token";
+      tokenFile = "/home/runner03/.registration-token/android-bender-03.token";
       url = "https://github.com/mullvad/mullvadvpn-app";
-      user = "runner";
+      user = "runner03";
       group = "runner";
       extraPackages = with pkgs; [
         podman
       ];
-      workDir = "/home/runner/android-bender-03";
+      workDir = "/home/runner03/android-bender-03";
+      extraLabels = [
+        "android-bender-03"
+        "android-build"
+      ];
+    };
+    android-bender-04 = {
+      enable = true;
+      name = "android-bender-04";
+      tokenFile = "/home/runner04/.registration-token/android-bender-04.token";
+      url = "https://github.com/mullvad/mullvadvpn-app";
+      user = "runner04";
+      group = "runner";
+      extraPackages = with pkgs; [
+        podman
+      ];
+      workDir = "/home/runner04/android-bender-04";
+      extraLabels = [
+        "android-bender-04"
+        "android-build"
+      ];
+    };
+    android-bender-05 = {
+      enable = true;
+      name = "android-bender-05";
+      tokenFile = "/home/runner05/.registration-token/android-bender-05.token";
+      url = "https://github.com/mullvad/mullvadvpn-app";
+      user = "runner05";
+      group = "runner";
+      extraPackages = with pkgs; [
+        podman
+      ];
+      workDir = "/home/runner05/android-bender-05";
       extraEnvironment = {
         ANDROID_SERIAL = "29121FDH200A6G";
       };
       extraLabels = [
-        "android-bender-03"
+        "android-bender-05"
         "android-device-test"
       ];
     };
@@ -241,6 +368,12 @@
     inherit lib;
   };
   systemd.services."github-runner-android-bender-03" = import ./runner-systemd-config.nix {
+    inherit lib;
+  };
+  systemd.services."github-runner-android-bender-04" = import ./runner-systemd-config.nix {
+    inherit lib;
+  };
+  systemd.services."github-runner-android-bender-05" = import ./runner-systemd-config.nix {
     inherit lib;
   };
 
