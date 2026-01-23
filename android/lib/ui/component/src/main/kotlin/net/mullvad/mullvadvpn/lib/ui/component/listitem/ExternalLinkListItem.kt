@@ -10,6 +10,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.tooling.preview.Preview
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
@@ -42,6 +43,7 @@ fun ExternalLinkListItem(
     position: Position = Position.Single,
     title: String,
     subtitle: String? = null,
+    subTitleTextDirection: TextDirection = TextDirection.Unspecified,
     showWarning: Boolean = false,
     isRowEnabled: Boolean = true,
     onClick: () -> Unit,
@@ -64,7 +66,13 @@ fun ExternalLinkListItem(
                 )
             }
         },
-        content = { TitleAndSubtitle(title = title, subtitle = subtitle) },
+        content = {
+            TitleAndSubtitle(
+                title = title,
+                subtitle = subtitle,
+                subTitleTextDirection = subTitleTextDirection,
+            )
+        },
         trailingContent = {
             Icon(
                 imageVector = Icons.AutoMirrored.Default.OpenInNew,
