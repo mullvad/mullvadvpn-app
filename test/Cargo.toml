@@ -1,36 +1,55 @@
-[workspace.package]
-authors = ["Mullvad VPN"]
-repository = "https://github.com/mullvad/mullvadvpn-app/"
-license = "GPL-3.0-only"
-edition = "2024"
-rust-version = "1.91.0"
-
 [workspace]
 resolver = "2"
 members = [
-  "test-manager",
-  "test-runner",
-  "test-rpc",
-  "socks-server",
   "connection-checker",
+  "socks-server",
+  "test-manager",
+  "test-rpc",
+  "test-runner",
 ]
 
-# Keep all lints in sync with `../Cargo.toml`
-[workspace.lints.rust]
-# Security
-non_ascii_idents = "forbid"
+[workspace.package]
+edition = "2024"
+rust-version = "1.91.0"
+repository = "https://github.com/mullvad/mullvadvpn-app/"
+license = "GPL-3.0-only"
 
-# Deny old style Rust
-rust_2018_idioms = { level = "deny", priority = -1 }
-macro_use_extern_crate = "deny"
-absolute_paths_not_starting_with_crate = "deny"
-
-# Easy to read style and opinionated best practices
-explicit_outlives_requirements = "warn"
-missing_abi = "deny"
-unused_lifetimes = "warn"
-unused_macro_rules = "warn"
-single_use_lifetimes = "warn"
+[workspace.dependencies]
+async-trait = "0.1.58"
+bytes = "1.3.0"
+chrono = { version = "0.4.26", default-features = false }
+clap = { version = "4.2.7", features = ["cargo", "derive"] }
+colored = "2.0.0"
+dirs = "6.0.0"
+env_logger = "0.11.7"
+futures = "0.3"
+hyper-util = { version = "0.1.8", features = [
+  "client",
+  "client-legacy",
+  "http2",
+] }
+log = "0.4"
+nix = { version = "0.30.1", features = ["ioctl", "net", "signal", "socket"] }
+rand = "0.9"
+serde = "1.0"
+serde_json = "1.0"
+socket2 = "0.5.7"
+surge-ping = "0.8"
+tarpc = { version = "0.31", features = ["serde-transport", "serde1", "tokio1"] }
+thiserror = "2.0"
+tokio = { version = "1.44", features = [
+  "fs",
+  "io-util",
+  "macros",
+  "process",
+  "rt",
+  "rt-multi-thread",
+  "time",
+] }
+tokio-serial = "5.4.1"
+tonic = "0.13.1"
+tower = "0.5.1"
+windows-sys = "0.52.0"
 
 [workspace.lints.clippy]
 as_ptr_cast_mut = "warn"
@@ -42,46 +61,17 @@ unicode_not_nfc = "warn"
 unused_async = "deny"
 wildcard_dependencies = "deny"
 
-[workspace.dependencies]
-dirs = "6.0.0"
-futures = "0.3"
-tokio = { version = "1.44", features = [
-  "macros",
-  "rt",
-  "process",
-  "time",
-  "fs",
-  "io-util",
-  "rt-multi-thread",
-] }
-tokio-serial = "5.4.1"
-
-# Serde and related crates
-serde = "1.0"
-serde_json = "1.0"
-
-# Tonic and related crates
-tonic = "0.13.1"
-tower = "0.5.1"
-tarpc = { version = "0.31", features = ["tokio1", "serde-transport", "serde1"] }
-hyper-util = { version = "0.1.8", features = [
-  "client",
-  "client-legacy",
-  "http2",
-] }
-
-# Logging
-env_logger = "0.11.7"
-thiserror = "2.0"
-log = "0.4"
-colored = "2.0.0"
-
-windows-sys = "0.52.0"
-chrono = { version = "0.4.26", default-features = false }
-clap = { version = "4.2.7", features = ["cargo", "derive"] }
-bytes = "1.3.0"
-async-trait = "0.1.58"
-socket2 = "0.5.7"
-surge-ping = "0.8"
-nix = { version = "0.30.1", features = ["ioctl", "socket", "net", "signal"] }
-rand = "0.9"
+# Keep all lints in sync with `../Cargo.toml`
+[workspace.lints.rust]
+absolute_paths_not_starting_with_crate = "deny"
+# Easy to read style and opinionated best practices
+explicit_outlives_requirements = "warn"
+macro_use_extern_crate = "deny"
+missing_abi = "deny"
+# Security
+non_ascii_idents = "forbid"
+# Deny old style Rust
+rust_2018_idioms = { level = "deny", priority = -1 }
+single_use_lifetimes = "warn"
+unused_lifetimes = "warn"
+unused_macro_rules = "warn"

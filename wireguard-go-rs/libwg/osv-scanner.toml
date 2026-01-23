@@ -1,182 +1,181 @@
-
 # Stack exhaustion in Decoder.Decode in encoding/gob
 [[IgnoredVulns]]
-id = "CVE-2024-34156" # GO-2024-3106
+id = "CVE-2024-34156"  # GO-2024-3106
 ignoreUntil = 2026-09-12
 reason = "wireguard-go does not use the affected code"
 
 # Stack exhaustion in Parse in go/build/constraint
 [[IgnoredVulns]]
-id = "CVE-2024-34158" # GO-2024-3107
+id = "CVE-2024-34158"  # GO-2024-3107
 ignoreUntil = 2026-09-12
 reason = "wireguard-go does not use the affected code"
 
 # Stack exhaustion in all Parse functions in go/parser
 [[IgnoredVulns]]
-id = "CVE-2024-34155" # GO-2024-3105
+id = "CVE-2024-34155"  # GO-2024-3105
 ignoreUntil = 2026-09-12
 reason = "wireguard-go does not use the affected code"
 
 # Denial of service in HTML Parse function in go/net/html
 [[IgnoredVulns]]
-id = "CVE-2024-45338" # GO-2024-3333
+id = "CVE-2024-45338"  # GO-2024-3333
 ignoreUntil = 2026-09-12
 reason = "wireguard-go does not use the affected code"
 
 # Sensitive headers incorrectly sent after cross-domain redirect in net/http
 [[IgnoredVulns]]
-id = "CVE-2024-45336" # GO-2025-3420
+id = "CVE-2024-45336"  # GO-2025-3420
 ignoreUntil = 2026-09-12
 reason = "wireguard-go does not use the affected code"
 
 # Usage of IPv6 zone IDs can bypass URI name constraints in crypto/x509
 [[IgnoredVulns]]
-id = "CVE-2024-45341" # GO-2025-3373
+id = "CVE-2024-45341"  # GO-2025-3373
 ignoreUntil = 2026-09-12
 reason = "wireguard-go does not use the affected code"
 
 # Denial of service in golang.org/x/crypto (for SSH server implementations)
 [[IgnoredVulns]]
-id = "CVE-2025-22869" # GO-2025-3487
+id = "CVE-2025-22869"  # GO-2025-3487
 ignoreUntil = 2026-09-12
 reason = "wireguard-go does not use the affected code"
 
 # Timing sidechannel for P-256 on ppc64le in crypto/internal/nistec. We don't deploy to PowerPC.
 [[IgnoredVulns]]
-id = "CVE-2025-22866" # GO-2025-3447
+id = "CVE-2025-22866"  # GO-2025-3447
 ignoreUntil = 2026-09-12
 reason = "wireguard-go does not use the affected code"
 
 # HTTP Proxy bypass using IPv6 Zone IDs in golang.org/x/net
 [[IgnoredVulns]]
-id = "CVE-2025-22870" # GO-2025-3503
+id = "CVE-2025-22870"  # GO-2025-3503
 ignoreUntil = 2026-09-12
 reason = "wireguard-go does not use x/net/proxy nor x/net/http/httpproxy"
 
 # Request smuggling due to acceptance of invalid chunked data in net/http
 [[IgnoredVulns]]
-id = "CVE-2025-22871" # GO-2025-3563
+id = "CVE-2025-22871"  # GO-2025-3563
 ignoreUntil = 2026-09-12
 reason = "wireguard-go does not use net/http"
 
 # Incorrect Neutralization of Input During Web Page Generation in x/net
 [[IgnoredVulns]]
-id = "CVE-2025-22872" # GO-2025-3595
+id = "CVE-2025-22872"  # GO-2025-3595
 ignoreUntil = 2026-09-12
 reason = "wireguard-go does not use x/net/html"
 
 # Inconsistent handling of O_CREATE|O_EXCL on Unix and Windows in os in syscall
 [[IgnoredVulns]]
-id = "CVE-2025-0913" # GO-2025-3750
+id = "CVE-2025-0913"  # GO-2025-3750
 ignoreUntil = 2026-09-12
 reason = "wireguard-go does not use OpenFile on Windows"
 
 # Sensitive headers not cleared on cross-origin redirect in net/http
 [[IgnoredVulns]]
-id = "CVE-2025-4673" # GO-2025-3751
+id = "CVE-2025-4673"  # GO-2025-3751
 ignoreUntil = 2026-09-12
 reason = "wireguard-go does not use Proxy-Authorization or Proxy-Authenticate headers"
 
 # Incorrect results returned from Rows.Scan in database/sql
 [[IgnoredVulns]]
-id = "CVE-2025-47907" # GO-2025-3849
+id = "CVE-2025-47907"  # GO-2025-3849
 ignoreUntil = 2026-09-12
 reason = "wireguard-go does not use database/sql"
 
 # Unexpected paths returned from LookPath in os/exec
 [[IgnoredVulns]]
-id = "CVE-2025-47906" # GO-2025-3956
+id = "CVE-2025-47906"  # GO-2025-3956
 ignoreUntil = 2026-09-12
 reason = "wireguard-go does not use os/exec"
 
 # Excessive CPU consumption in ParseAddress in net/mail
 [[IgnoredVulns]]
-id = "CVE-2025-61725" # GO-2025-4006
+id = "CVE-2025-61725"  # GO-2025-4006
 ignoreUntil = 2026-10-30
 reason = "wireguard-go does not use net/mail"
 
 # Quadratic complexity when checking name constraints (x509)
 # This affects programs which validate arbitrary certificate chains
 [[IgnoredVulns]]
-id = "CVE-2025-58187" # GO-2025-4007
+id = "CVE-2025-58187"  # GO-2025-4007
 ignoreUntil = 2026-10-30
 reason = "'This affects programs which validate arbitrary certificate chains.' wireguard-go does not do that"
 
 # ALPN negotiation errors can contain arbitrary text
 [[IgnoredVulns]]
-id = "CVE-2025-58189" # GO-2025-4008
+id = "CVE-2025-58189"  # GO-2025-4008
 ignoreUntil = 2026-10-30
 reason = "wireguard-go does not use crypto/tls"
 
 # Quadratic complexity when parsing some invalid inputs (encoding/pem)
 [[IgnoredVulns]]
-id = "CVE-2025-61723" # GO-2025-4009
+id = "CVE-2025-61723"  # GO-2025-4009
 ignoreUntil = 2026-10-30
 reason = "wireguard-go does not use encoding/pem"
 
 # Insufficient validation of bracketed IPv6 hostnames
 [[IgnoredVulns]]
-id = "CVE-2025-47912" # GO-2025-4010
+id = "CVE-2025-47912"  # GO-2025-4010
 ignoreUntil = 2026-10-30
 reason = "wireguard-go does not use net/url"
 
 # Pre-allocating memory when parsing DER payload can cause memory exhaustion (encoding/asn1)
 [[IgnoredVulns]]
-id = "CVE-2025-58185" # GO-2025-4011
+id = "CVE-2025-58185"  # GO-2025-4011
 ignoreUntil = 2026-10-30
 reason = "wireguard-go does not use encoding/asn1"
 
 # Lack of limit when parsing cookies can cause memory exhaustion (net/http)
 [[IgnoredVulns]]
-id = "CVE-2025-58186" # GO-2025-4012
+id = "CVE-2025-58186"  # GO-2025-4012
 ignoreUntil = 2026-10-30
 reason = "wireguard-go does not use net/http"
 
 # Panic when validating certificates with DSA public keys (crypto/x509)
 # This affects programs which validate arbitrary certificate chains
 [[IgnoredVulns]]
-id = "CVE-2025-58188" # GO-2025-4013
+id = "CVE-2025-58188"  # GO-2025-4013
 ignoreUntil = 2026-10-30
 reason = "'This affects programs which validate arbitrary certificate chains.' wireguard-go does not do that"
 
 # Unbounded allocation when parsing GNU sparse map (archive/tar)
 [[IgnoredVulns]]
-id = "CVE-2025-58183" # GO-2025-4014
+id = "CVE-2025-58183"  # GO-2025-4014
 ignoreUntil = 2026-10-30
 reason = "wireguard-go does not use archive/tar"
 
 # Excessive CPU consumption in Reader.ReadResponse (net/textproto)
 [[IgnoredVulns]]
-id = "CVE-2025-61724" # GO-2025-4015
+id = "CVE-2025-61724"  # GO-2025-4015
 ignoreUntil = 2026-10-30
 reason = "wireguard-go does not use net/textproto"
 
 # Potential denial of service in golang.org/x/crypto/ssh/agent
 [[IgnoredVulns]]
-id = "CVE-2025-47913" # GO-2025-4116
+id = "CVE-2025-47913"  # GO-2025-4116
 ignoreUntil = 2026-11-14
 reason = "wireguard-go does not use x/crypto/ssh/agent"
 
 # golang.org/x/crypto/ssh allows an attacker to cause unbounded memory consumption
 [[IgnoredVulns]]
-id = "CVE-2025-58181" # GO-2025-4134
+id = "CVE-2025-58181"  # GO-2025-4134
 ignoreUntil = 2026-11-21
 reason = "wireguard-go does not use x/crypto/ssh"
 
 # golang.org/x/crypto/ssh/agent vulnerable to panic if message is malformed due to out of bounds read
 [[IgnoredVulns]]
-id = "CVE-2025-47914" # GO-2025-4135
+id = "CVE-2025-47914"  # GO-2025-4135
 ignoreUntil = 2026-11-21
 reason = "wireguard-go does not use x/crypto/ssh/agent"
 
 # Excessive resource consumption when printing error string for host certificate validation in crypto/x509
 [[IgnoredVulns]]
-id = "CVE-2025-61729" # GO-2025-4155
+id = "CVE-2025-61729"  # GO-2025-4155
 ignoreUntil = 2026-12-03
 reason = "wireguard-go does not use crypto/x509"
 
 # Improper application of excluded DNS name constraints when verifying wildcard names in crypto/x509
 [[IgnoredVulns]]
-id = "CVE-2025-61727" # GO-2025-4175
+id = "CVE-2025-61727"  # GO-2025-4175
 ignoreUntil = 2026-12-04
 reason = "wireguard-go does not use crypto/x509"

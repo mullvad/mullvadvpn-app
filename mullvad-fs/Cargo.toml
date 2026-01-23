@@ -1,18 +1,16 @@
 [package]
 name = "mullvad-fs"
-description = "File utility library"
-authors.workspace = true
-repository.workspace = true
-license.workspace = true
 edition.workspace = true
 rust-version.workspace = true
-
-[lints]
-workspace = true
+description = "File utility library"
+repository.workspace = true
+license.workspace = true
 
 [dependencies]
 log = { workspace = true }
+talpid-types = { path = "../talpid-types" }
 tokio = { workspace = true, features = ["fs", "rt"] }
 uuid = { version = "1.4.1", features = ["v4"] }
 
-talpid-types = { path = "../talpid-types" }
+[lints]
+workspace = true

@@ -1,39 +1,43 @@
 [package]
 name = "talpid-routing"
-description = "Library for managing routing tables"
-authors.workspace = true
-repository.workspace = true
-license.workspace = true
 edition.workspace = true
 rust-version.workspace = true
-
-[lints]
-workspace = true
+description = "Library for managing routing tables"
+repository.workspace = true
+license.workspace = true
 
 [dependencies]
-thiserror = { workspace = true }
 futures = { workspace = true }
 ipnetwork = { workspace = true }
 log = { workspace = true }
-tokio = { workspace = true, features = ["process", "rt-multi-thread", "net", "io-util", "time"] }
 talpid-types = { path = "../talpid-types" }
+thiserror = { workspace = true }
+tokio = { workspace = true, features = [
+  "io-util",
+  "net",
+  "process",
+  "rt-multi-thread",
+  "time"
+] }
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["test-util"] }
 
 [target.'cfg(target_os = "android")'.dependencies]
 jnix = { version = "0.5.2", features = ["derive"] }
 
 [target.'cfg(target_os = "linux")'.dependencies]
 libc = "0.2"
-rtnetlink = { workspace = true }
 netlink-packet-core = { workspace = true }
 netlink-packet-route = { workspace = true, features = ["rich_nlas"] }
 netlink-sys = { workspace = true }
+rtnetlink = { workspace = true }
 
 [target.'cfg(target_os = "macos")'.dependencies]
-nix = { workspace = true, features = ["socket", "fs", "net"] }
-libc = "0.2"
 bitflags = "2"
+libc = "0.2"
+nix = { workspace = true, features = ["fs", "net", "socket"] }
 system-configuration = "0.5.1"
-
 
 [target.'cfg(windows)'.dependencies]
 talpid-windows = { path = "../talpid-windows" }
@@ -41,10 +45,7 @@ widestring = { workspace = true }
 
 [target.'cfg(windows)'.dependencies.windows-sys]
 workspace = true
-features = [
-    "Win32_NetworkManagement_Ndis",
-    "Win32_Globalization"
-]
+features = ["Win32_Globalization", "Win32_NetworkManagement_Ndis"]
 
-[dev-dependencies]
-tokio = { workspace = true, features = [ "test-util" ] }
+[lints]
+workspace = true

@@ -1,38 +1,43 @@
 [package]
 name = "mullvad-leak-checker"
 version = "0.1.0"
-authors.workspace = true
-repository.workspace = true
-license.workspace = true
 edition.workspace = true
 rust-version.workspace = true
-
-[features]
-default = ["am-i-mullvad"]
-am-i-mullvad = ["dep:reqwest"]
+repository.workspace = true
+license.workspace = true
 
 [dependencies]
-log.workspace = true
 anyhow.workspace = true
-socket2 = { workspace = true, features = ["all"] }
-tokio = { workspace = true, features = ["macros", "time", "rt", "sync", "net", "process"] }
-futures.workspace = true
-serde = { workspace = true, features = ["derive"] }
 clap = { workspace = true, features = ["derive"] }
-
-reqwest = { workspace = true, optional = true, features = ["json"] }
+futures.workspace = true
+log.workspace = true
+reqwest = { workspace = true, features = ["json"], optional = true }
+serde = { workspace = true, features = ["derive"] }
+socket2 = { workspace = true, features = ["all"] }
+tokio = { workspace = true, features = [
+  "macros",
+  "net",
+  "process",
+  "rt",
+  "sync",
+  "time"
+] }
 
 [dev-dependencies]
 tokio = { workspace = true, features = ["full"] }
 tracing-subscriber = { workspace = true }
 
 [target.'cfg(unix)'.dependencies]
-pnet_packet.workspace = true
 nix = { workspace = true, features = ["net", "socket", "uio"] }
+pnet_packet.workspace = true
 
 [target.'cfg(windows)'.dependencies]
-windows-sys = { workspace = true, features = ["Win32_NetworkManagement_Ndis"] }
 talpid-windows = { path = "../talpid-windows" }
+windows-sys = { workspace = true, features = ["Win32_NetworkManagement_Ndis"] }
+
+[features]
+default = ["am-i-mullvad"]
+am-i-mullvad = ["dep:reqwest"]
 
 [lints]
 workspace = true

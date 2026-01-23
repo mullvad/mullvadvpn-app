@@ -1,19 +1,18 @@
 [package]
 name = "mullvad-exclude"
-description = "Runs programs outside the Mullvad VPN tunnel on Linux"
-authors.workspace = true
-repository.workspace = true
-license.workspace = true
 edition.workspace = true
 rust-version.workspace = true
+description = "Runs programs outside the Mullvad VPN tunnel on Linux"
+repository.workspace = true
+license.workspace = true
+
+[target.'cfg(target_os = "linux")'.dependencies]
+nix = { workspace = true, features = ["process", "user"] }
+talpid-cgroup = { path = "../talpid-cgroup" }
+thiserror = { workspace = true }
 
 [features]
 cgroup2 = []
 
 [lints]
 workspace = true
-
-[target.'cfg(target_os = "linux")'.dependencies]
-nix = { workspace = true, features = ["process", "user"] }
-thiserror = { workspace = true }
-talpid-cgroup = { path = "../talpid-cgroup" }

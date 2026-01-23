@@ -1,42 +1,40 @@
 [package]
 name = "talpid-tunnel-config-client"
-description = "Uses the relay RPC service to set up PQ-safe peers, etc."
-authors.workspace = true
-repository.workspace = true
-license.workspace = true
 edition.workspace = true
 rust-version.workspace = true
+description = "Uses the relay RPC service to set up PQ-safe peers, etc."
+repository.workspace = true
+license.workspace = true
 
-[lints]
-workspace = true
+[lib]
+crate-type = ["rlib", "staticlib"]
 
 [dependencies]
-log = { workspace = true }
-# Upgrading to rand 0.9 is blocked on ml-kem dropping their dependency on rand_core 0.6 (as of ml-kem 0.21)
-rand = "0.8"
-talpid-types = { path = "../talpid-types" }
-tonic = { workspace = true }
-tower = { workspace = true }
-prost = { workspace = true }
 hyper-util = { workspace = true }
-tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }
-
+log = { workspace = true }
 ml-kem = { version = "0.2.1", features = ["zeroize"] }
-pqcrypto-traits = "0.3.5"
 # This is a wrapper to the C implementation of HQC in PQClean.
 # Keep eyes open for alternatives, preferably pure Rust implementations.
 pqcrypto-hqc = { version = "0.2.1", default-features = false }
+pqcrypto-traits = "0.3.5"
+prost = { workspace = true }
+# Upgrading to rand 0.9 is blocked on ml-kem dropping their dependency on rand_core 0.6 (as of ml-kem 0.21)
+rand = "0.8"
 sha2 = { workspace = true }
+talpid-types = { path = "../talpid-types" }
+tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }
+tonic = { workspace = true }
+tower = { workspace = true }
 zeroize = "1.5.7"
+
+[build-dependencies]
+tonic-build = { workspace = true, default-features = false, features = [
+  "prost",
+  "transport",
+] }
 
 [target.'cfg(unix)'.dependencies]
 nix = { workspace = true, features = ["socket"] }
 
-[build-dependencies]
-tonic-build = { workspace = true, default-features = false, features = [
-    "transport",
-    "prost",
-] }
-
-[lib]
-crate-type = ["staticlib", "rlib"]
+[lints]
+workspace = true
