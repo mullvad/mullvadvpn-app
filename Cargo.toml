@@ -124,6 +124,7 @@ winreg = "0.55"
 zerocopy = "0.8.27"
 
 [workspace.lints.clippy]
+allow_attributes = "warn"
 as_ptr_cast_mut = "warn"
 as_underscore = "warn"
 borrow_as_ptr = "warn"

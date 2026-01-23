@@ -52,6 +52,7 @@ tower = "0.5.1"
 windows-sys = "0.52.0"
 
 [workspace.lints.clippy]
+allow_attributes = "warn"
 as_ptr_cast_mut = "warn"
 as_underscore = "warn"
 borrow_as_ptr = "warn"
