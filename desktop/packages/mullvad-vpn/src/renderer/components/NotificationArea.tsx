@@ -36,7 +36,11 @@ import { AppUpgradeAvailableNotificationProvider } from '../lib/notifications/ap
 import { useMounted } from '../lib/utility-hooks';
 import accountActions from '../redux/account/actions';
 import { convertEventTypeToStep } from '../redux/app-upgrade/helpers';
-import { useAppUpgradeError, useVersionSuggestedUpgrade } from '../redux/hooks';
+import {
+  useAppUpgradeError,
+  useSettingsSplitTunnelingSupported,
+  useVersionSuggestedUpgrade,
+} from '../redux/hooks';
 import { IReduxState, useSelector } from '../redux/store';
 import { ModalAlert, ModalAlertType, ModalMessage, ModalMessageList } from './Modal';
 import {
@@ -110,6 +114,8 @@ export default function NotificationArea(props: IProps) {
 
   const { suggestedUpgrade } = useVersionSuggestedUpgrade();
 
+  const { splitTunnelingSupported } = useSettingsSplitTunnelingSupported();
+
   const appUpgradeDownloadProgressValue = useAppUpgradeDownloadProgressValue();
   const appUpgradeEventType = useAppUpgradeEventType();
   const appUpgradeStep = convertEventTypeToStep(appUpgradeEventType);
@@ -147,6 +153,7 @@ export default function NotificationArea(props: IProps) {
       hasExcludedApps,
       showFullDiskAccessSettings,
       disableSplitTunneling,
+      splitTunnelingSupported,
     }),
     new InconsistentVersionNotificationProvider({ consistent: version.consistent }),
     new UnsupportedVersionNotificationProvider(version),
