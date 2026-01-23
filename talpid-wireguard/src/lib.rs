@@ -414,7 +414,9 @@ impl WireguardMonitor {
     pub fn start(
         params: &TunnelParameters,
         args: TunnelArgs<'_>,
-        #[allow(unused_variables)] log_path: Option<&Path>,
+        #[cfg_attr(not(feature = "wireguard-go"), expect(unused_variables))] log_path: Option<
+            &Path,
+        >,
     ) -> Result<WireguardMonitor> {
         let route_mtu = args
             .runtime
@@ -452,7 +454,7 @@ impl WireguardMonitor {
         let should_negotiate_ephemeral_peer = config.quantum_resistant || config.daita;
 
         let (cancel_token, cancel_receiver) = connectivity::CancelToken::new();
-        #[allow(unused_mut)]
+        #[cfg_attr(feature = "wireguard-go", expect(unused_mut))]
         let mut connectivity_monitor = connectivity::Check::new(
             config.ipv4_gateway,
             args.retry_attempt,
@@ -689,7 +691,6 @@ impl WireguardMonitor {
         Ok(())
     }
 
-    #[allow(clippy::too_many_arguments)]
     #[cfg(target_os = "windows")]
     fn open_tunnel(
         runtime: tokio::runtime::Handle,
@@ -906,7 +907,11 @@ impl WireguardMonitor {
     fn get_pre_tunnel_routes<'a>(
         iface_name: &str,
         config: &'a Config,
-        #[allow(unused_variables)] userspace_wireguard: bool,
+        #[cfg_attr(
+            not(any(target_os = "linux", target_os = "macos")),
+            expect(unused_variables)
+        )]
+        userspace_wireguard: bool,
     ) -> impl Iterator<Item = RequiredRoute> + 'a {
         // e.g. utun4
         let gateway_node = talpid_routing::Node::device(iface_name.to_string());
@@ -948,7 +953,11 @@ impl WireguardMonitor {
     fn get_post_tunnel_routes<'a>(
         iface_name: &str,
         config: &'a Config,
-        #[allow(unused_variables)] userspace_wireguard: bool,
+        #[cfg_attr(
+            not(any(target_os = "linux", target_os = "macos")),
+            expect(unused_variables)
+        )]
+        userspace_wireguard: bool,
     ) -> impl Iterator<Item = RequiredRoute> + 'a {
         let (node_v4, node_v6) = Self::get_tunnel_nodes(iface_name, config);
         let iter = config
