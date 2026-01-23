@@ -40,18 +40,12 @@ public final class FileCache<Content: Codable>: NSObject, FileCacheProtocol, NSF
 
         // Load initial content off the main thread
         DispatchQueue(label: "net.mullvadvpn.FileCache.\(fileURL)").async {
-            let _ = try? self.read()
+            self.tryPopulateCache()
         }
     }
 
     deinit {
         NSFileCoordinator.removeFilePresenter(self)
-    }
-
-    /// Loads the initial cache from disk. Called during initialization.
-    /// The lock ensures any concurrent read() calls block until loading completes.
-    private func loadInitialCache() {
-        cachedContent = try? readFromDisk()
     }
 
     public func read() throws -> Content {
@@ -66,6 +60,10 @@ public final class FileCache<Content: Codable>: NSObject, FileCacheProtocol, NSF
         let content = try readFromDisk()
         cachedContent = content
         return content
+    }
+
+    private func tryPopulateCache() {
+        _ = try? self.read()
     }
 
     /// Reads content directly from disk using file coordination.
@@ -109,7 +107,7 @@ public final class FileCache<Content: Codable>: NSObject, FileCacheProtocol, NSF
         lock.unlock()
 
         DispatchQueue.global().async { [weak self] in
-            let _ = try? self?.read()
+            self?.tryPopulateCache()
         }
     }
 
