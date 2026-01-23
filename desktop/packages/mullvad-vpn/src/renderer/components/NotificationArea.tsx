@@ -16,6 +16,7 @@ import {
 } from '../../shared/notifications';
 import { RoutePath } from '../../shared/routes';
 import { useAppContext } from '../context';
+import { useSplitTunnelingSupported } from '../features/split-tunneling/hooks';
 import {
   useAppUpgradeDownloadProgressValue,
   useAppUpgradeEventType,
@@ -110,6 +111,8 @@ export default function NotificationArea(props: IProps) {
 
   const { suggestedUpgrade } = useVersionSuggestedUpgrade();
 
+  const { splitTunnelingSupported } = useSplitTunnelingSupported();
+
   const appUpgradeDownloadProgressValue = useAppUpgradeDownloadProgressValue();
   const appUpgradeEventType = useAppUpgradeEventType();
   const appUpgradeStep = convertEventTypeToStep(appUpgradeEventType);
@@ -147,6 +150,7 @@ export default function NotificationArea(props: IProps) {
       hasExcludedApps,
       showFullDiskAccessSettings,
       disableSplitTunneling,
+      splitTunnelingSupported,
     }),
     new InconsistentVersionNotificationProvider({ consistent: version.consistent }),
     new UnsupportedVersionNotificationProvider(version),
