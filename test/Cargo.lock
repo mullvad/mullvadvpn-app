@@ -1560,6 +1560,15 @@ checksum = "8f518f335dce6725a761382244631d86cf0ccb2863413590b31338feb467f9c3"
 
 [[package]]
 name = "ipnetwork"
+version = "0.20.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bf466541e9d546596ee94f9f69590f89473455f88372423e0008fc1a7daf100e"
+dependencies = [
+ "serde",
+]
+
+[[package]]
+name = "ipnetwork"
 version = "0.21.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cf370abdafd54d13e54a620e8c3e1145f28e46cc9d704bc6d94414559df41763"
@@ -1973,7 +1982,7 @@ dependencies = [
  "http-body-util",
  "hyper",
  "hyper-util",
- "ipnetwork",
+ "ipnetwork 0.21.1",
  "libc",
  "log",
  "mullvad-api-constants",
@@ -2061,7 +2070,7 @@ dependencies = [
 name = "mullvad-relay-selector"
 version = "0.0.0"
 dependencies = [
- "ipnetwork",
+ "ipnetwork 0.21.1",
  "itertools 0.14.0",
  "log",
  "mullvad-types",
@@ -2077,7 +2086,7 @@ dependencies = [
  "chrono",
  "either",
  "intersection-derive",
- "ipnetwork",
+ "ipnetwork 0.21.1",
  "log",
  "mullvad-version",
  "regex",
@@ -2438,6 +2447,28 @@ dependencies = [
 ]
 
 [[package]]
+name = "pnet_base"
+version = "0.35.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ffc190d4067df16af3aba49b3b74c469e611cad6314676eaf1157f31aa0fb2f7"
+dependencies = [
+ "no-std-net",
+]
+
+[[package]]
+name = "pnet_datalink"
+version = "0.35.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e79e70ec0be163102a332e1d2d5586d362ad76b01cec86f830241f2b6452a7b7"
+dependencies = [
+ "ipnetwork 0.20.0",
+ "libc",
+ "pnet_base 0.35.0",
+ "pnet_sys",
+ "winapi",
+]
+
+[[package]]
 name = "pnet_macros"
 version = "0.34.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2455,7 +2486,7 @@ version = "0.34.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "eea925b72f4bd37f8eab0f221bbe4c78b63498350c983ffa9dd4bcde7e030f56"
 dependencies = [
- "pnet_base",
+ "pnet_base 0.34.0",
 ]
 
 [[package]]
@@ -2465,9 +2496,19 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a9a005825396b7fe7a38a8e288dbc342d5034dac80c15212436424fef8ea90ba"
 dependencies = [
  "glob",
- "pnet_base",
+ "pnet_base 0.34.0",
  "pnet_macros",
  "pnet_macros_support",
+]
+
+[[package]]
+name = "pnet_sys"
+version = "0.35.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7d4643d3d4db6b08741050c2f3afa9a892c4244c085a72fcda93c9c2c9a00f4b"
+dependencies = [
+ "libc",
+ "winapi",
 ]
 
 [[package]]
@@ -3451,7 +3492,7 @@ name = "talpid-types"
 version = "0.0.0"
 dependencies = [
  "base64 0.22.0",
- "ipnetwork",
+ "ipnetwork 0.21.1",
  "jnix",
  "log",
  "serde",
@@ -3537,7 +3578,7 @@ dependencies = [
  "glob",
  "hyper-util",
  "inventory",
- "ipnetwork",
+ "ipnetwork 0.21.1",
  "itertools 0.10.5",
  "libc",
  "log",
@@ -3549,13 +3590,13 @@ dependencies = [
  "mullvad-version",
  "nix 0.30.1",
  "pcap",
- "pnet_base",
+ "pnet_base 0.34.0",
+ "pnet_datalink",
  "pnet_packet",
  "regex",
  "scopeguard",
  "serde",
  "serde_json",
- "socket2 0.5.8",
  "socks-server",
  "ssh2",
  "talpid-types",

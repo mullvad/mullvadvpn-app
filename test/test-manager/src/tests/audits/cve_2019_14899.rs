@@ -14,21 +14,15 @@
 
 use std::{
     convert::Infallible,
-    ffi::{c_int, c_uint},
-    mem::size_of,
     net::{IpAddr, Ipv4Addr},
-    os::fd::AsRawFd,
     time::Duration,
 };
 
 use anyhow::{Context, anyhow, bail};
 use futures::{FutureExt, select};
 use mullvad_management_interface::MullvadProxyClient;
-use nix::{
-    errno::Errno,
-    sys::socket::{self, MsgFlags, SockProtocol},
-};
 use pnet_base::MacAddr;
+use pnet_datalink::{Channel, DataLinkReceiver, DataLinkSender, channel, linux::interfaces};
 use pnet_packet::{
     MutablePacket, Packet,
     ethernet::{EtherTypes, EthernetPacket, MutableEthernetPacket},
@@ -36,10 +30,9 @@ use pnet_packet::{
     ipv4::{Ipv4Packet, MutableIpv4Packet},
     tcp::{MutableTcpPacket, TcpFlags, TcpPacket},
 };
-use socket2::Socket;
 use test_macro::test_function;
 use test_rpc::ServiceClient;
-use tokio::{task::yield_now, time::sleep};
+use tokio::time::sleep;
 
 use crate::{
     tests::{TestContext, config::TEST_CONFIG, helpers},
@@ -68,20 +61,6 @@ pub async fn test_cve_2019_14899_mitigation(
         .await
         .context("Failed to find tunnel interface")?;
     let victim_gateway_ip = TEST_CONFIG.host_bridge_ip;
-
-    // Create a raw socket which let's us send custom ethernet packets
-    log::info!("Creating raw socket");
-    let socket = Socket::new(
-        socket2::Domain::PACKET,
-        socket2::Type::RAW,
-        Some(socket2::Protocol::from(SockProtocol::EthAll as c_int)),
-    )
-    .with_context(|| "Failed to create raw socket")?;
-
-    log::info!("Binding raw socket to tap interface");
-    socket
-        .bind_device(Some(host_interface.as_bytes()))
-        .with_context(|| anyhow!("Failed to bind the socket to {host_interface:?}"))?;
 
     // Get the private IP address of the victims VPN tunnel
     let victim_tunnel_ip = rpc
@@ -123,21 +102,12 @@ pub async fn test_cve_2019_14899_mitigation(
         victim_tunnel_ip,
     );
 
-    let filter = |tcp: &TcpPacket<'_>| {
-        let reset_flag_set = (tcp.get_flags() & TcpFlags::RST) != 0;
-        let correct_source_port = tcp.get_source() == MALICIOUS_PACKET_PORT;
-        let correct_destination_port = tcp.get_destination() == MALICIOUS_PACKET_PORT;
-
-        reset_flag_set && correct_source_port && correct_destination_port
-    };
-
+    // Send malicious TCP packets to the supposed private IP while looking for a TCP Reset from the
+    // victim.
+    let io = IO::send_recv_on_interface(host_interface_index)?;
     let rst_packet = select! {
-        result = filter_for_packet(&socket, filter, Duration::from_secs(5)).fuse() => result?,
-
-        result = spam_packet(&socket, host_interface_index, &malicious_packet).fuse() => match result {
-            Err(e) => return Err(e),
-            Ok(never) => match never {}, // I dream of ! being stabilized
-        },
+        result = filter_for_malicious_packet(io.recv, Duration::from_secs(5)).fuse() => result?,
+        Err(e) = spam_packet(io.send, &malicious_packet).fuse() => return Err(e),
     };
 
     if let Some(rst_packet) = rst_packet {
@@ -148,127 +118,109 @@ pub async fn test_cve_2019_14899_mitigation(
     Ok(())
 }
 
-/// Read from the socket and return the first packet that passes the filter.
+/// One specific instance of the return value of [`channel`].
+struct IO {
+    recv: Box<dyn DataLinkReceiver>,
+    send: Box<dyn DataLinkSender>,
+}
+
+impl IO {
+    /// Create channels for sending/receiving Ethernet frames on a given interface.
+    fn send_recv_on_interface(interface: std::ffi::c_uint) -> anyhow::Result<IO> {
+        let ifs = interfaces();
+        let interface = ifs.iter().find(|i| i.index == interface).context(anyhow!(
+            "Could not find network interface with index {interface}"
+        ))?;
+        let config = pnet_datalink::Config::default();
+        let Channel::Ethernet(send, recv) = channel(interface, config).unwrap() else {
+            unimplemented!("there are no other Channel variants yet")
+        };
+        Ok(IO { recv, send })
+    }
+}
+
+/// Classify a given TCP packet, try to pinpoint if it is a reply to a packet created by
+/// [`craft_malicious_packet`].
+fn is_malicious_packet(tcp: &TcpPacket<'_>) -> bool {
+    let reset_flag_set = (tcp.get_flags() & TcpFlags::RST) != 0;
+    let correct_source_port = tcp.get_source() == MALICIOUS_PACKET_PORT;
+    let correct_destination_port = tcp.get_destination() == MALICIOUS_PACKET_PORT;
+
+    reset_flag_set && correct_source_port && correct_destination_port
+}
+
+/// Read from the link and return the first packet marked as malicious by [`is_malicious_packet`].
 /// Returns `None` if we don't see such a packet within the timeout.
-async fn filter_for_packet(
-    socket: &Socket,
-    filter: impl Fn(&TcpPacket<'_>) -> bool,
+async fn filter_for_malicious_packet(
+    mut recv: Box<dyn DataLinkReceiver>,
     timeout: Duration,
 ) -> anyhow::Result<Option<TcpPacket<'static>>> {
-    let mut buf = vec![0u8; usize::from(u16::MAX)];
-
-    let result = tokio::time::timeout(timeout, async {
-        loop {
-            let packet = poll_for_packet(socket, &mut buf).await?;
-            if filter(&packet) {
-                return anyhow::Ok(packet);
+    let result = tokio::time::timeout(
+        timeout,
+        tokio::task::spawn_blocking(move || {
+            loop {
+                let packet = match recv.next() {
+                    Err(e) => return Err(e).context("Failed to read from data link"),
+                    Ok(p) => p,
+                };
+                log::trace!("Received Ethernet frame");
+                let Some(packet) = ethernetframe_to_tcp(packet) else {
+                    continue;
+                };
+                log::trace!("Parsed Ethernet frame into TCP-packet!");
+                if is_malicious_packet(&packet) {
+                    log::debug!("Identified TCP-packet as the malicious one!");
+                    return anyhow::Ok(packet);
+                }
             }
-        }
-    });
+        }),
+    );
 
     match result.await {
-        Ok(packet) => Ok(Some(packet?)),
+        Ok(packet) => Ok(Some(packet??)),
         Err(_timed_out) => Ok(None),
     }
 }
 
-/// Repeatedly poll the raw socket until we receives an Ethernet/IPv4/TCP packet.
-/// Drops any non-TCP packets.
+/// Try to parse the bytes received on a [`channel`] data link.
 ///
 /// # Returns
-/// - `Err` if the `read` system call failed.
+/// - `None` if the bytes are not a valid Ethernet/IPv4/TCP packet
 /// - A single TCP packet otherwise.
-async fn poll_for_packet(socket: &Socket, buf: &mut [u8]) -> anyhow::Result<TcpPacket<'static>> {
-    loop {
-        // yield so we don't end up hogging the runtime while polling the socket
-        yield_now().await;
+fn ethernetframe_to_tcp(packet: &[u8]) -> Option<TcpPacket<'static>> {
+    let eth_packet = EthernetPacket::new(packet)?;
 
-        let result = socket::recv(socket.as_raw_fd(), &mut buf[..], MsgFlags::MSG_DONTWAIT);
-
-        let n = match result {
-            Ok(0) | Err(Errno::EWOULDBLOCK) => {
-                sleep(Duration::from_millis(10)).await;
-                continue;
-            }
-            Err(e) => return Err(e).context("Failed to read from socket"),
-            Ok(n) => n,
-        };
-
-        let packet = &buf[..n];
-
-        let Some(eth_packet) = EthernetPacket::new(packet) else {
-            continue;
-        };
-
-        if eth_packet.get_ethertype() != EtherTypes::Ipv4 {
-            continue;
-        }
-
-        let Some(ipv4_packet) = Ipv4Packet::new(eth_packet.payload()) else {
-            continue;
-        };
-
-        let valid_ip_version = ipv4_packet.get_version() == 4;
-        let protocol_is_tcp = ipv4_packet.get_next_level_protocol() == IpNextHeaderProtocols::Tcp;
-
-        if !valid_ip_version || !protocol_is_tcp {
-            continue;
-        }
-
-        if let Some(tcp_packet) = TcpPacket::owned(ipv4_packet.payload().to_vec()) {
-            return Ok(tcp_packet);
-        };
+    if eth_packet.get_ethertype() != EtherTypes::Ipv4 {
+        return None;
     }
+
+    let ipv4_packet = Ipv4Packet::new(eth_packet.payload())?;
+
+    let valid_ip_version = ipv4_packet.get_version() == 4;
+    let protocol_is_tcp = ipv4_packet.get_next_level_protocol() == IpNextHeaderProtocols::Tcp;
+
+    if !valid_ip_version || !protocol_is_tcp {
+        return None;
+    }
+
+    TcpPacket::owned(ipv4_packet.payload().to_vec())
 }
 
-/// Send `packet` on the socket in a loop.
+/// Send `packet` on the link in a loop.
 // NOTE: Replace return type with ! if/when stable.
 async fn spam_packet(
-    socket: &Socket,
-    interface_index: c_uint,
+    mut send: Box<dyn DataLinkSender>,
     packet: &EthernetPacket<'_>,
 ) -> anyhow::Result<Infallible> {
     loop {
-        send_packet(socket, interface_index, packet)?;
+        send
+        // destination is part of packet.
+        .send_to(packet.packet(), None)
+        .unwrap()
+        .context("Failed to send ethernet packet")?;
+
         sleep(Duration::from_millis(50)).await;
     }
-}
-
-/// Send an ethernet packet on the raw socket.
-fn send_packet(
-    socket: &Socket,
-    interface_index: c_uint,
-    packet: &EthernetPacket<'_>,
-) -> anyhow::Result<()> {
-    use nix::sys::socket::{LinkAddr, MsgFlags, SockaddrLike, sendto};
-    let addr = {
-        let mut destination = libc::sockaddr_ll {
-            sll_family: 0,
-            sll_protocol: 0,
-            sll_ifindex: interface_index as c_int,
-            sll_hatype: 0,
-            sll_pkttype: 0,
-            sll_halen: size_of::<MacAddr>() as u8,
-            sll_addr: [0; 8],
-        };
-        destination.sll_addr[..6].copy_from_slice(&packet.get_destination().octets());
-        let addr = (&raw const destination).cast::<libc::sockaddr>();
-        let ssl_len = std::mem::size_of_val(&destination).try_into()?;
-        // SAFETY: `destination` is a valid kind of `sockaddr`, and the length of `destination` does not exceed
-        // the length of the valid data in `addr`.
-        unsafe { LinkAddr::from_raw(addr, Some(ssl_len)) }.context("sockaddr_ll is invalid")?
-    };
-    // NOTE: since you're reading this, consider using https://docs.rs/pnet_datalink
-    // instead of whatever you're planning...
-    sendto(
-        socket.as_raw_fd(),
-        packet.packet(),
-        &addr,
-        MsgFlags::empty(),
-    )
-    .context("Failed to send ethernet packet")?;
-
-    Ok(())
 }
 
 fn craft_malicious_packet(
