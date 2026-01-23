@@ -32,6 +32,7 @@ import net.mullvad.mullvadvpn.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.DefaultDnsOptions
 import net.mullvad.mullvadvpn.lib.model.DnsState
+import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
 import net.mullvad.mullvadvpn.lib.model.IpVersion
 import net.mullvad.mullvadvpn.lib.model.QuantumResistantState
 import net.mullvad.mullvadvpn.repository.AutoStartAndConnectOnBootRepository
@@ -73,13 +74,13 @@ class VpnSettingsViewModel(
 
     private val _uiSideEffect = Channel<VpnSettingsSideEffect>()
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
-
     val uiState =
         combine(
                 settingsRepository.settingsUpdates.filterNotNull().onFirst {
-                    // Initialize content blockers expand state
+                    // If we are coming from the dns content blockers feature indicator we should
+                    // expand the content blockers section.
                     _mutableIsContentBlockersExpanded.value =
-                        Some(it.contentBlockersSettings().isAnyBlockerEnabled)
+                        Some(navArgs.scrollToFeature == FeatureIndicator.DNS_CONTENT_BLOCKERS)
                 },
                 autoStartAndConnectOnBootRepository.autoStartAndConnectOnBoot,
                 _mutableIsContentBlockersExpanded.filterIsInstance<Some<Boolean>>().map {
