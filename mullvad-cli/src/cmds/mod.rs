@@ -11,7 +11,7 @@ pub mod dns;
 pub mod lan;
 pub mod lockdown;
 pub mod log;
-pub mod obfuscation;
+pub mod anti_censorship;
 pub mod patch;
 pub mod proxies;
 pub mod relay;
