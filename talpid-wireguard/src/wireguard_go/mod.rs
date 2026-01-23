@@ -81,7 +81,10 @@ enum Circuit {
 }
 
 /// Configure and start a Wireguard-go tunnel.
-#[allow(clippy::unused_async)]
+#[cfg_attr(
+    not(any(target_os = "windows", target_os = "android")),
+    expect(clippy::unused_async)
+)]
 pub(crate) async fn open_wireguard_go_tunnel(
     config: &Config,
     log_path: Option<&Path>,
@@ -130,7 +133,6 @@ pub(crate) async fn open_wireguard_go_tunnel(
         .await?
     } else {
         WgGoTunnel::start_tunnel(
-            #[allow(clippy::needless_borrow)]
             &config,
             log_path,
             tun_provider,
