@@ -13,6 +13,7 @@ pub enum LeakStatus {
 
 /// Details about how a leak happened
 #[derive(Clone, Debug)]
+#[non_exhaustive]
 pub enum LeakInfo {
     /// Managed to reach another network node on the physical interface, bypassing firewall rules.
     NodeReachableOnInterface {
@@ -57,7 +58,7 @@ impl fmt::Debug for Interface {
                 .finish(),
 
             #[cfg(target_os = "macos")]
-            Self::Index(arg0) => f.debug_tuple("Luid").field(arg0).finish(),
+            Self::Index(arg0) => f.debug_tuple("Index").field(arg0).finish(),
         }
     }
 }

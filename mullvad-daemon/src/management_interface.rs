@@ -1443,6 +1443,48 @@ impl ManagementInterfaceEventBroadcaster {
         })
     }
 
+    /// Notify clients about a potential leak.
+    pub(crate) fn notify_leak(&self, leak: mullvad_leak_checker::LeakInfo) {
+        use mullvad_leak_checker::LeakInfo;
+        let LeakInfo::NodeReachableOnInterface {
+            reachable_nodes,
+            interface,
+        } = &leak
+        else {
+            log::trace!("Matched on unexpected leak checker event: {leak:#?}");
+            return;
+        };
+
+        log::trace!("Broadcasting leak info: {leak:#?}");
+        let interface = match interface {
+            mullvad_leak_checker::Interface::Name(name) => name.to_owned(),
+            #[cfg(target_os = "macos")]
+            mullvad_leak_checker::Interface::Index(index) => {
+                let Ok(name) = nix::net::if_::if_indextoname(index.get()) else {
+                    log::trace!("Could not lookup interface corresponding to index {index}");
+                    return;
+                };
+                name.to_string_lossy().to_string()
+            }
+            #[cfg(target_os = "windows")]
+            mullvad_leak_checker::Interface::Luid(id) => {
+                let Ok(name) = talpid_windows::net::alias_from_luid(id) else {
+                    log::trace!("Could not lookup leaking interface corresponding to LUID");
+                    return;
+                };
+                name.to_string_lossy().to_string()
+            }
+        };
+        let ip_addrs = reachable_nodes.iter().map(|ip| ip.to_string()).collect();
+        let event = daemon_event::Event::LeakInfo(types::LeakInfo {
+            ip_addrs,
+            interface,
+        });
+        self.notify(types::DaemonEvent {
+            event: event.into(),
+        })
+    }
+
     /// Notify that device changed (login, logout, or key rotation).
     pub(crate) fn notify_device_event(&self, device: mullvad_types::device::DeviceEvent) {
         log::debug!("Broadcasting device event");
