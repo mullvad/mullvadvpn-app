@@ -251,7 +251,14 @@
   };
 
   virtualisation = {
-    containers.enable = true;
+    containers = {
+      enable = true;
+      # This will be applied to the system user podman (runner-admin).
+      # This should be set on the runner-** users' podman container configs.
+      #containersConf.settings = {
+      #  StopSignal = 9;
+      #};
+    };
     podman = {
       dockerSocket.enable = true;
       enable = true;
