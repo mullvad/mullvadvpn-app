@@ -27,7 +27,9 @@ final class MultiHopEphemeralPeerExchanger: EphemeralPeerExchangingProtocol {
     private var exitPeerKey: EphemeralPeerKey!
     private var daitaParameters: DaitaV2Parameters?
 
-    private let defaultGatewayAddressRange = [IPAddressRange(from: "\(LocalNetworkIPs.gatewayAddress.rawValue)/32")!]
+    private let defaultGatewayAddressRange = [
+        IPAddressRange(from: "\(LocalNetworkIPs.gatewayAddressIpV4.rawValue)/32")!
+    ]
     private let allTrafficRange = [
         IPAddressRange(from: "\(LocalNetworkIPs.defaultRouteIpV4.rawValue)/0")!,
         IPAddressRange(from: "\(LocalNetworkIPs.defaultRouteIpV6.rawValue)/0")!,

@@ -287,11 +287,13 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
     }
 
     private func initialTunnelNetworkSettings() -> NETunnelNetworkSettings {
-        let settings = NEPacketTunnelNetworkSettings(tunnelRemoteAddress: "127.0.0.1")
+        let settings = NEPacketTunnelNetworkSettings(
+            tunnelRemoteAddress: "\(IPv4Address.loopback)"
+        )
 
         // IPv4 settings
         let ipv4Settings = NEIPv4Settings(
-            addresses: ["10.64.0.1"],
+            addresses: [LocalNetworkIPs.gatewayAddressIpV4.rawValue],
             subnetMasks: ["255.255.255.255"]
         )
         ipv4Settings.includedRoutes = [NEIPv4Route.default()]
@@ -299,7 +301,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
 
         // IPv6 settings
         let ipv6Settings = NEIPv6Settings(
-            addresses: ["fc00::1"],
+            addresses: [LocalNetworkIPs.gatewayAddressIpV6.rawValue],
             networkPrefixLengths: [128]
         )
         ipv6Settings.includedRoutes = [NEIPv6Route.default()]
