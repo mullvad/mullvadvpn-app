@@ -4,6 +4,7 @@ pkgs.devshell.mkShell {
   packages = desktop-toolchain.packages ++ [
     pkgs.cargo-insta
     pkgs.cargo-deny
+    pkgs.tombi
   ];
 
   env = import ./desktop-env.nix {
