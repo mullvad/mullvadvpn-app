@@ -10,34 +10,34 @@ use mullvad_types::{
 };
 
 #[derive(Subcommand, Debug)]
-pub enum Obfuscation {
-    /// Get current obfuscation settings
+pub enum AntiCensorship {
+    /// Get current anti-censorship settings
     Get,
 
-    /// Set obfuscation settings
+    /// Set anti-censorship settings
     #[clap(subcommand)]
     Set(SetCommands),
 }
 
 #[derive(Subcommand, Debug, Clone)]
 pub enum SetCommands {
-    /// Specify which obfuscation protocol to use, if any.
+    /// Specify which anti-censorship method to use, if any.
     Mode { mode: SelectedObfuscation },
 
-    /// Configure udp2tcp obfuscation.
+    /// Configure udp2tcp anti-censorship.
     Udp2tcp {
         /// Port to use, or 'any'
         #[arg(long, short = 'p')]
         port: Constraint<u16>,
     },
 
-    /// Configure Shadowsocks obfuscation.
+    /// Configure Shadowsocks anti-censorship.
     Shadowsocks {
         /// Port to use, or 'any'
         #[arg(long, short = 'p')]
         port: Constraint<u16>,
     },
-    /// Configure WireGuard port obfuscation.
+    /// Configure WireGuard port anti-censorship.
     WireguardPort {
         /// Port to use
         #[arg(long, short = 'p')]
@@ -45,10 +45,10 @@ pub enum SetCommands {
     },
 }
 
-impl Obfuscation {
+impl AntiCensorship {
     pub async fn handle(self) -> Result<()> {
         match self {
-            Obfuscation::Get => {
+            AntiCensorship::Get => {
                 let mut rpc = MullvadProxyClient::new().await?;
                 let obfuscation_settings = rpc.get_settings().await?.obfuscation_settings;
                 println!("mode: {}", obfuscation_settings.selected_obfuscation);
@@ -60,7 +60,7 @@ impl Obfuscation {
                 );
                 Ok(())
             }
-            Obfuscation::Set(subcmd) => Self::set(subcmd).await,
+            AntiCensorship::Set(subcmd) => Self::set(subcmd).await,
         }
     }
 
@@ -113,7 +113,7 @@ impl Obfuscation {
             }
         }
 
-        println!("Updated obfuscation settings");
+        println!("Updated anti-censorship settings");
 
         Ok(())
     }

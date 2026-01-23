@@ -83,11 +83,11 @@ enum Cli {
     #[clap(subcommand)]
     ApiAccess(api_access::ApiAccess),
 
-    /// Manage use of obfuscation protocols for WireGuard.
+    /// Manage use of anti censorship methods for WireGuard.
     /// Can make WireGuard traffic look like something else on the network.
     /// Helps circumvent censorship and to establish a tunnel when on restricted networks
     #[clap(subcommand)]
-    Obfuscation(obfuscation::Obfuscation),
+    AntiCensorship(anti_censorship::AntiCensorship),
 
     #[clap(subcommand)]
     SplitTunnel(split_tunnel::SplitTunnel),
@@ -175,7 +175,7 @@ async fn main() -> Result<()> {
         Cli::LockdownMode(cmd) => cmd.handle().await,
         Cli::Dns(cmd) => cmd.handle().await,
         Cli::Lan(cmd) => cmd.handle().await,
-        Cli::Obfuscation(cmd) => cmd.handle().await,
+        Cli::AntiCensorship(cmd) => cmd.handle().await,
         Cli::ApiAccess(cmd) => cmd.handle().await,
         Cli::Version => version::print().await,
         Cli::FactoryReset { assume_yes } => reset::handle_factory_reset(assume_yes).await,
