@@ -10,13 +10,23 @@ mod inner {
         ObjectBuilder, Program,
         libbpf_sys::{bpf_attach_type, bpf_prog_attach},
     };
-    use nix::unistd::{Pid, execvp, getgid, getuid, setegid, seteuid, setgid, setuid};
+    use libc::{AF_INET, AF_INET6, SECCOMP_USER_NOTIF_FLAG_CONTINUE, SYS_socket};
+    use libseccomp::{
+        ScmpAction, ScmpArgCompare, ScmpCompareOp, ScmpFilterContext, ScmpNotifReq, ScmpNotifResp,
+        ScmpSyscall,
+    };
+    use nix::unistd::{
+        ForkResult, Pid, execvp, fork, getgid, getuid, setegid, seteuid, setgid, setuid,
+    };
     use std::{
         env::args_os,
         ffi::{CString, OsString},
         fs::remove_file,
         io,
-        os::{fd::AsRawFd, unix::ffi::OsStringExt as _},
+        os::{
+            fd::{AsRawFd, FromRawFd, OwnedFd},
+            unix::ffi::OsStringExt as _,
+        },
         path::Path,
     };
     use talpid_cgroup::{SPLIT_TUNNEL_CGROUP_NAME, find_net_cls_mount, v1::CGroup1, v2::CGroup2};
@@ -38,6 +48,7 @@ mod inner {
     }
 
     /// Get the [`CGroup2`] of the current process.
+    #[allow(dead_code)]
     fn get_current_cgroup() -> anyhow::Result<CGroup2> {
         let cgroup_file = std::fs::read_to_string("/proc/self/cgroup")
             .context("Failed to read /proc/self/cgroup")?;
@@ -129,6 +140,7 @@ mod inner {
 
         Ok(())
     }
+    #[allow(dead_code)]
     fn exclude_current_cgroup() -> anyhow::Result<()> {
         let cgroup = get_current_cgroup().context("Failed to get current cgroup")?;
 
@@ -142,6 +154,7 @@ mod inner {
         Ok(())
     }
 
+    #[allow(dead_code)]
     fn add_to_cgroups_v1(pid: Pid) -> anyhow::Result<()> {
         let net_cls_dir = find_net_cls_mount()
             .context("Failed to find net_cls mount")?
@@ -162,10 +175,14 @@ mod inner {
             .take_while(|arg| arg.starts_with("-"))
             .collect();
         let command: Vec<OsString> = args_os.iter().skip(flags.len()).cloned().collect();
+        let mut enable_seccomp = false;
 
         for flag in flags {
             match flag {
                 "-h" | "--help" => return print_usage(None),
+                // NOTE: This has overhead since socket() calls are intercepted.
+                // It also forces
+                "--intercept" => enable_seccomp = true,
                 f => return print_usage(Some(f)),
             }
         }
@@ -184,30 +201,128 @@ mod inner {
             bail!("No command specified");
         };
 
-        // If systemd manages the root cgroup2, use that.
-        // Otherwise, use cgroups v1.
         if talpid_cgroup::is_systemd_managed() {
-            // Not strictly necessary, but temporarily drop privileges before interacting with D-Bus
-            seteuid(real_uid).context("Failed to drop EUID")?;
-            setegid(real_gid).context("Failed to drop EGID")?;
-
-            systemd::join_scope_unit(real_uid.is_root(), program)
-                .context("Failed to join systemd scope unit")?;
-
-            seteuid(0.into()).context("Failed to regain root EUID")?;
-            setegid(0.into()).context("Failed to regain root EGID")?;
-
-            exclude_current_cgroup()?;
-        } else {
-            add_to_cgroups_v1(Pid::this())?;
+            seteuid(real_uid).context("Failed to drop root temporarily")?;
+            setegid(real_gid).context("Failed to drop root temporarily")?;
+            systemd::join_scope_unit(real_uid.is_root(), program)?;
+            setuid(0.into()).context("Failed to regain root")?;
+            setgid(0.into()).context("Failed to regain root")?;
         }
 
-        setuid(real_uid).context("Failed to drop UID")?;
-        setgid(real_gid).context("Failed to drop GID")?;
+        if enable_seccomp {
+            let mut ctx = ScmpFilterContext::new(ScmpAction::Allow)
+                .context("Failed to create seccomp filter context")?;
+            // No need to set NO_NEW_PRIVS as we are sudo.
+            ctx.set_ctl_nnp(false)
+                .context("Failed to disable NO_NEW_PRIVS")?;
+            let socket_sys =
+                ScmpSyscall::from_name("socket").context("Failed to get socket syscall")?;
+            // The first socket() arg must be AF_INET or AF_INET6
+            // https://www.man7.org/linux/man-pages/man2/socket.2.html
+            let inet_cmp =
+                ScmpArgCompare::new(0, ScmpCompareOp::Equal, u64::try_from(AF_INET).unwrap());
+            ctx.add_rule_conditional(ScmpAction::Notify, socket_sys.clone(), &[inet_cmp])
+                .context("Failed to add socket() AF_INET rule")?;
+            let inet6_cmp =
+                ScmpArgCompare::new(0, ScmpCompareOp::Equal, u64::try_from(AF_INET6).unwrap());
+            ctx.add_rule_conditional(ScmpAction::Notify, socket_sys.clone(), &[inet6_cmp])
+                .context("Failed to add socket() AF_INET6 rule")?;
 
-        let Err(e) = execvp(&program, &args);
-        eprintln!("Failed to exec {program:?}: {e}");
-        std::process::exit(e as i32)
+            ctx.load().context("Failed to load seccomp filter")?;
+            let notify_fd = ctx.get_notify_fd().context("Failed to get notify fd")?;
+            // SAFETY: `notify_fd` is a valid file descriptor.
+            let notify_fd = unsafe { OwnedFd::from_raw_fd(notify_fd) };
+
+            match unsafe { fork() }.context("fork failed")? {
+                ForkResult::Child => {
+                    drop(notify_fd);
+
+                    setgid(real_gid).context("setgid failed")?;
+                    setuid(real_uid).context("setuid failed")?;
+
+                    // Exec the target program
+                    execvp(program, &args).context("execvp failed")?;
+                    Ok(())
+                }
+                ForkResult::Parent { child } => seccomp_parent(child, notify_fd),
+            }
+        } else {
+            // No seccomp; just exec the target program
+            exclude_current_cgroup()?;
+            setgid(real_gid).context("setgid failed")?;
+            setuid(real_uid).context("setuid failed")?;
+            execvp(program, &args).context("execvp failed")?;
+
+            Ok(())
+        }
+    }
+
+    fn seccomp_parent(child: Pid, notify_fd: OwnedFd) -> anyhow::Result<()> {
+        let mut prev_path = None;
+
+        loop {
+            // Check if child is still alive
+            match nix::sys::wait::waitpid(Some(child), Some(nix::sys::wait::WaitPidFlag::WNOHANG)) {
+                Ok(nix::sys::wait::WaitStatus::StillAlive) => {}
+                Err(_) => break, // Check failed
+                _ => break,      // Child exited
+            }
+
+            // Poll for seccomp notifications
+            let req = match ScmpNotifReq::receive(notify_fd.as_raw_fd()) {
+                Ok(req) => req,
+                Err(err) => {
+                    if err.sysrawrc() == Some(-libc::EBADF) {
+                        break;
+                    }
+                    if err.sysrawrc() == Some(-libc::ENOENT) {
+                        break;
+                    }
+                    if err.sysrawrc() == Some(-libc::ECANCELED) {
+                        break;
+                    }
+                    bail!("ScmpNotifReq::receive failed: {err}");
+                }
+            };
+
+            if let Ok(cgroup_path) = read_cgroup_path(child.as_raw() as i32)
+                && prev_path.as_ref() != Some(&cgroup_path)
+            {
+                eprintln!("Attaching to cgroup2 path: {}", cgroup_path);
+                let cgroup = CGroup2::open(format!("/sys/fs/cgroup{cgroup_path}"))
+                    .context("Failed to open cgroup2")?;
+                let _ = install_exclusion_bpf_for_cgroup(&cgroup);
+
+                prev_path = Some(cgroup_path);
+            }
+
+            let resp = ScmpNotifResp::new(req.id, 0, 0, SECCOMP_USER_NOTIF_FLAG_CONTINUE as _);
+            match resp.respond(notify_fd.as_raw_fd()) {
+                Ok(_) => {}
+                Err(err) => {
+                    if err.sysrawrc() == Some(-libc::ENOENT) {
+                        // If the target died mid-flight, this can fail; just keep looping.
+                        continue;
+                    }
+                    bail!("ScmpNotifResp::respond failed: {err}");
+                }
+            }
+        }
+
+        Ok(())
+    }
+
+    fn read_cgroup_path(pid: i32) -> anyhow::Result<String> {
+        let cgroup_content = std::fs::read_to_string(format!("/proc/{}/cgroup", pid))
+            .context("Failed to read /proc/[pid]/cgroup")?;
+
+        for line in cgroup_content.lines() {
+            if let Some(path) = line.strip_prefix("0::") {
+                return Ok(path.to_string());
+            }
+        }
+
+        bail!("No cgroup v2 entry found in /proc/[pid]/cgroup")
     }
 
     fn print_usage(invalid_arg: Option<&str>) -> Result<(), anyhow::Error> {
@@ -255,6 +370,7 @@ mod inner {
         /// References:
         /// - system-run: https://github.com/systemd/systemd/blob/f76f0f99354b0485e3e13c2608bc26f969312687/src/run/run.c#L1671-L1699
         /// - man org.freedesktop.systemd1 - https://www.man7.org/linux/man-pages/man5/org.freedesktop.systemd1.5.html
+        #[allow(dead_code)]
         pub fn join_scope_unit(is_root: bool, program: &CStr) -> anyhow::Result<()> {
             let connection = if is_root {
                 Connection::system().context("Failed to connect to system bus")?
@@ -325,6 +441,7 @@ mod inner {
 
         /// Convert a program file path to an alphanumeric+underscores string.
         /// For example, "/bin/mullvad-exclude" becomes "mullvad_exclude"
+        #[allow(dead_code)]
         fn program_path_to_unit_name(program: &CStr) -> String {
             let program = program.to_string_lossy();
             let (_path, file_name) = program.rsplit_once('/').unwrap_or(("", &program));
