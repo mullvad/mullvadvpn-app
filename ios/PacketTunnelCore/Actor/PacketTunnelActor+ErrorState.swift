@@ -120,11 +120,11 @@ extension PacketTunnelActor {
                 privateKey: PrivateKey(),
                 interfaceAddresses: [],
                 allowedIPs: [],
-                pingableGateway: IPv4Address(LocalNetworkIPs.gatewayAddress.rawValue)!
+                pingableGateway: IPv4Address(LocalNetworkIPs.gatewayAddressIpV4.rawValue)!
             )
             var config = try configurationBuilder.makeConfiguration()
             config.dns = [IPv4Address.loopback]
-            config.interfaceAddresses = [IPAddressRange(from: "\(LocalNetworkIPs.gatewayAddress.rawValue)/8")!]
+            config.interfaceAddresses = [IPAddressRange(from: "\(LocalNetworkIPs.gatewayAddressIpV4.rawValue)/8")!]
             config.peer = TunnelPeer(
                 endpoint: .ipv4(IPv4Endpoint(string: "127.0.0.1:9090")!),
                 publicKey: PrivateKey().publicKey

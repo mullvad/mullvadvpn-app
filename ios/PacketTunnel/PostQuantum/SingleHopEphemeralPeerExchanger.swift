@@ -47,7 +47,7 @@ struct SingleHopEphemeralPeerExchanger: EphemeralPeerExchangingProtocol {
                     relay: exit,
                     configuration: EphemeralPeerConfiguration(
                         privateKey: devicePrivateKey,
-                        allowedIPs: [IPAddressRange(from: "\(LocalNetworkIPs.gatewayAddress.rawValue)/32")!],
+                        allowedIPs: [IPAddressRange(from: "\(LocalNetworkIPs.gatewayAddressIpV4.rawValue)/32")!],
                         daitaParameters: nil
                     )
                 )))
