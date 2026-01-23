@@ -81,13 +81,17 @@ class AccountRepository(
      * Fetches the account data from the server, and updates the cache.
      * Unless force is true, it will only fetch if no fetch was made in the last minute.
      */
-    suspend fun refreshAccountData(ignoreTimeout: Boolean = true, waitForDeviceState: Boolean = false) {
+    suspend fun refreshAccountData(
+        ignoreTimeout: Boolean = true,
+        waitForDeviceState: Boolean = false,
+    ) {
         // Only refresh if logged in
-        val deviceState = if(waitForDeviceState) {
-            deviceRepository.deviceState.filterNotNull().first() as? DeviceState.LoggedIn
-        } else {
-            deviceRepository.deviceState.value as? DeviceState.LoggedIn
-        } ?: return
+        val deviceState =
+            if (waitForDeviceState) {
+                deviceRepository.deviceState.filterNotNull().first() as? DeviceState.LoggedIn
+            } else {
+                deviceRepository.deviceState.value as? DeviceState.LoggedIn
+            } ?: return
 
         if (ignoreTimeout || lastSuccessfulAccountDataFetch.canFetchAccountData()) {
             val accountData =
