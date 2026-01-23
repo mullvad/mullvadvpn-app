@@ -78,7 +78,7 @@ use mullvad_types::{
     relay_list::BridgeList,
 };
 #[cfg(not(target_os = "android"))]
-use mullvad_update::version::Rollout;
+use mullvad_update::version::rollout::Rollout;
 use relay_list::{RelayListUpdater, RelayListUpdaterHandle};
 use settings::SettingsPersister;
 use std::collections::BTreeSet;

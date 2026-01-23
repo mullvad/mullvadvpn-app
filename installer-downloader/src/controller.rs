@@ -12,7 +12,7 @@ use mullvad_update::{
     api::{HttpVersionInfoProvider, MetaRepositoryPlatform},
     app::{self, AppCache, AppDownloader, DownloadedInstaller, HttpAppDownloader},
     local::METADATA_FILENAME,
-    version::{Metadata, SUPPORTED_VERSION, VersionInfo, VersionParameters},
+    version::{Metadata, VersionInfo, VersionParameters, rollout::SUPPORTED_VERSION},
     version_provider::VersionInfoProvider,
 };
 use rand::seq::IndexedRandom;

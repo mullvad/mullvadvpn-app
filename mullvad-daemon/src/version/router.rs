@@ -10,7 +10,7 @@ use mullvad_types::version::SuggestedUpgrade;
 #[cfg(in_app_upgrade)]
 use mullvad_update::app::{AppDownloader, AppDownloaderParameters, HttpAppDownloader};
 #[cfg(not(target_os = "android"))]
-use mullvad_update::version::{Rollout, VersionInfo};
+use mullvad_update::version::{VersionInfo, rollout::Rollout};
 use talpid_core::mpsc::Sender;
 #[cfg(in_app_upgrade)]
 use talpid_types::ErrorExt;
