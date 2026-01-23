@@ -74,8 +74,8 @@ android {
     }
 
     playConfigs {
-        register("playDevmoleRelease") { enabled = !appVersion.isDev }
-        register("playStagemoleRelease") { enabled = !appVersion.isDev }
+        register("playDevmoleRelease") { enabled = appVersion.isAlpha }
+        register("playStagemoleRelease") { enabled = appVersion.isAlpha }
         register("playProdRelease") {
             enabled = !appVersion.isDev
             releaseStatus.set(ReleaseStatus.DRAFT)
