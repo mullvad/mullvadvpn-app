@@ -6,7 +6,7 @@ use http::header;
 #[cfg(not(target_os = "android"))]
 use mullvad_update::{
     format::response::SignedResponse,
-    version::{Rollout, VersionInfo, VersionParameters, is_version_supported},
+    version::{VersionInfo, VersionParameters, is_version_supported, rollout::Rollout},
 };
 use std::future::Future;
 use std::str::FromStr;

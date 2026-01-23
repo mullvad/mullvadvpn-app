@@ -7,7 +7,7 @@ use mullvad_api::{
     availability::ApiAvailability, rest::MullvadRestHandle, version::AppVersionProxy,
 };
 #[cfg(not(target_os = "android"))]
-use mullvad_update::version::Rollout;
+use mullvad_update::version::rollout::Rollout;
 #[cfg(not(target_os = "android"))]
 use mullvad_update::version::{Metadata, VersionInfo};
 use mullvad_version::Version;

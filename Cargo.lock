@@ -3217,7 +3217,6 @@ dependencies = [
  "log",
  "mockito",
  "mullvad-api-constants",
- "mullvad-update",
  "mullvad-version",
  "proptest",
  "rand 0.8.5",
