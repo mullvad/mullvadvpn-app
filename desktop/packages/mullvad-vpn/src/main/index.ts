@@ -857,10 +857,6 @@ class ApplicationMain
       return Promise.resolve(this.translations);
     });
 
-    IpcMainEventChannel.linuxSplitTunneling.handleIsSplitTunnelingSupported(() => {
-      return this.daemonRpc.linuxSplitTunnelIsSupported();
-    });
-
     IpcMainEventChannel.linuxSplitTunneling.handleGetApplications(() => {
       return this.linuxSplitTunneling!.getApplications(this.locale);
     });
@@ -900,6 +896,9 @@ class ApplicationMain
       this.settings.gui.deleteBrowsedForSplitTunnelingApplications(application.absolutepath);
       this.splitTunneling!.removeApplicationFromCache(application);
       return Promise.resolve();
+    });
+    IpcMainEventChannel.splitTunneling.handleIsSupported(() => {
+      return this.daemonRpc.splitTunnelIsSupported();
     });
     IpcMainEventChannel.macOsSplitTunneling.handleNeedFullDiskPermissions(async () => {
       const fullDiskState = await this.daemonRpc.needFullDiskPermissions();
