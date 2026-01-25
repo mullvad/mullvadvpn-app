@@ -3,7 +3,7 @@ import styled, { css, RuleSet } from 'styled-components';
 
 import { Radius } from '../../../../foundations';
 import { FlexRow } from '../../../flex-row';
-import { useBackgroundColor, useListItemAnimation } from '../../hooks';
+import { useListItemAnimation, useListItemBackgroundColor } from '../../hooks';
 import { useListItemContext } from '../../ListItemContext';
 import { useIndent } from './hooks';
 
@@ -35,7 +35,7 @@ export const StyledListItemItem = styled(FlexRow)<{
 `;
 
 export function ListItemItem({ children, ...props }: ListItemItemProps) {
-  const backgroundColor = useBackgroundColor();
+  const backgroundColor = useListItemBackgroundColor();
   const { animation: contextAnimation } = useListItemContext();
   const animation = useListItemAnimation(contextAnimation);
   const paddingLeft = useIndent();
