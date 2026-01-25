@@ -14,7 +14,9 @@ export function UserInterfaceSettingsListItem(props: UserInterfaceSettingsListIt
           messages.pgettext('settings-view', 'User interface settings')
         }
       </SettingsNavigationListItem.Label>
-      <SettingsNavigationListItem.Icon icon="chevron-right" />
+      <SettingsNavigationListItem.ActionGroup>
+        <SettingsNavigationListItem.Icon icon="chevron-right" />
+      </SettingsNavigationListItem.ActionGroup>
     </SettingsNavigationListItem>
   );
 }

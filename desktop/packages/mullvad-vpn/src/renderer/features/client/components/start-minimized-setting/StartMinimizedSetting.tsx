@@ -9,16 +9,16 @@ export function StartMinimizedSetting(props: StartMinimizedSettingProps) {
   return (
     <SettingsListItem {...props}>
       <SettingsListItem.Item>
-        <SettingsListItem.Content>
-          <StartMinimizedSwitch>
-            <StartMinimizedSwitch.Label>
-              {messages.pgettext('user-interface-settings-view', 'Start minimized')}
-            </StartMinimizedSwitch.Label>
+        <StartMinimizedSwitch>
+          <StartMinimizedSwitch.Label>
+            {messages.pgettext('user-interface-settings-view', 'Start minimized')}
+          </StartMinimizedSwitch.Label>
+          <SettingsListItem.ActionGroup>
             <StartMinimizedSwitch.Trigger>
               <StartMinimizedSwitch.Thumb />
             </StartMinimizedSwitch.Trigger>
-          </StartMinimizedSwitch>
-        </SettingsListItem.Content>
+          </SettingsListItem.ActionGroup>
+        </StartMinimizedSwitch>
       </SettingsListItem.Item>
       <SettingsListItem.Footer>
         <SettingsListItem.FooterText>

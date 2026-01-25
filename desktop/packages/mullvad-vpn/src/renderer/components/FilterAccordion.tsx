@@ -16,7 +16,9 @@ export function FilterAccordion({ title, children, defaultOpen }: FilterAccordio
           <Accordion.Trigger>
             <Accordion.HeaderItem>
               <Accordion.Title>{title}</Accordion.Title>
-              <Accordion.Icon />
+              <Accordion.HeaderActionGroup>
+                <Accordion.Icon />
+              </Accordion.HeaderActionGroup>
             </Accordion.HeaderItem>
           </Accordion.Trigger>
         </Accordion.Header>

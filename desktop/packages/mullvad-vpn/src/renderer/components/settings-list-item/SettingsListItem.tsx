@@ -17,9 +17,9 @@ function SettingsListItem({ labelId, anchorId, ...props }: SettingsListItemProps
 }
 
 const SettingsListItemNamespace = Object.assign(SettingsListItem, {
-  Content: ListItem.Content,
   Label: ListItem.Label,
   Group: SettingsListItemGroup,
+  ActionGroup: ListItem.ActionGroup,
   Text: ListItem.Text,
   Trigger: ListItem.Trigger,
   Item: ListItem.Item,

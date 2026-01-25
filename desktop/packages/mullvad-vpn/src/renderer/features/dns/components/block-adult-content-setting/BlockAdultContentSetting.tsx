@@ -8,19 +8,19 @@ export function BlockAdultContentSetting(props: BlockAdultContentSettingProps) {
   return (
     <ListItem level={1} {...props}>
       <ListItem.Item>
-        <ListItem.Content>
-          <BlockAdultContentSwitch>
-            <BlockAdultContentSwitch.Label variant="bodySmall">
-              {
-                // TRANSLATORS: Label for settings that enables block of adult content.
-                messages.pgettext('vpn-settings-view', 'Adult content')
-              }
-            </BlockAdultContentSwitch.Label>
+        <BlockAdultContentSwitch>
+          <BlockAdultContentSwitch.Label variant="bodySmall">
+            {
+              // TRANSLATORS: Label for settings that enables block of adult content.
+              messages.pgettext('vpn-settings-view', 'Adult content')
+            }
+          </BlockAdultContentSwitch.Label>
+          <ListItem.ActionGroup>
             <BlockAdultContentSwitch.Trigger>
               <BlockAdultContentSwitch.Thumb />
             </BlockAdultContentSwitch.Trigger>
-          </BlockAdultContentSwitch>
-        </ListItem.Content>
+          </ListItem.ActionGroup>
+        </BlockAdultContentSwitch>
       </ListItem.Item>
     </ListItem>
   );

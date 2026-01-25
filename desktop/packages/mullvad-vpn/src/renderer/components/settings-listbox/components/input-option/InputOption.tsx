@@ -37,9 +37,7 @@ function InputOption<T>({
       inputState={inputState}>
       <Listbox.Option {...props}>
         <InputOptionTrigger>
-          <Listbox.Option.Item>
-            <Listbox.Option.Content>{children}</Listbox.Option.Content>
-          </Listbox.Option.Item>
+          <Listbox.Option.Item>{children}</Listbox.Option.Item>
         </InputOptionTrigger>
       </Listbox.Option>
     </InputOptionProvider>

@@ -14,7 +14,9 @@ export function VpnSettingsListItem(props: VpnSettingsListItemProps) {
           messages.pgettext('settings-view', 'VPN settings')
         }
       </SettingsNavigationListItem.Label>
-      <SettingsNavigationListItem.Icon icon="chevron-right" />
+      <SettingsNavigationListItem.ActionGroup>
+        <SettingsNavigationListItem.Icon icon="chevron-right" />
+      </SettingsNavigationListItem.ActionGroup>
     </SettingsNavigationListItem>
   );
 }

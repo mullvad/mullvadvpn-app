@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { messages } from '../../../../../shared/gettext';
+import { SettingsListItem } from '../../../../components/settings-list-item';
 import { ListItem, ListItemProps } from '../../../../lib/components/list-item';
 import { AnimateMapSwitch } from '../animate-map-switch/AnimateMapSwitch';
 
@@ -11,16 +12,16 @@ export function AnimateMapSetting(props: AnimateMapSettingProps) {
   return (
     <ListItem {...props}>
       <ListItem.Item>
-        <ListItem.Content>
-          <AnimateMapSwitch>
-            <AnimateMapSwitch.Label>
-              {messages.pgettext('user-interface-settings-view', 'Animate map')}
-            </AnimateMapSwitch.Label>
+        <AnimateMapSwitch>
+          <AnimateMapSwitch.Label>
+            {messages.pgettext('user-interface-settings-view', 'Animate map')}
+          </AnimateMapSwitch.Label>
+          <SettingsListItem.ActionGroup>
             <AnimateMapSwitch.Trigger aria-describedby={descriptionId}>
               <AnimateMapSwitch.Thumb />
             </AnimateMapSwitch.Trigger>
-          </AnimateMapSwitch>
-        </ListItem.Content>
+          </SettingsListItem.ActionGroup>
+        </AnimateMapSwitch>
       </ListItem.Item>
       <ListItem.Footer>
         <ListItem.FooterText id={descriptionId}>

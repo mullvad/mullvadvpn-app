@@ -24,21 +24,19 @@ export function UpdateAvailableListItem(props: UpdateAvailableListItemProps) {
     <ListItem {...props}>
       <ListItem.Trigger onClick={handleClick}>
         <ListItem.Item>
-          <ListItem.Content>
-            <Flex flexDirection="column">
-              <ListItem.Label>
-                {
-                  // TRANSLATORS: Label for update available list item.
-                  messages.pgettext('app-info-view', 'Update available')
-                }
-              </ListItem.Label>
-              <StyledText variant="footnoteMini">{suggestedUpgrade?.version}</StyledText>
-            </Flex>
-            <ListItem.Group>
-              <Dot variant="warning" size="small" />
-              <Icon icon={isLinux ? 'external' : 'chevron-right'} />
-            </ListItem.Group>
-          </ListItem.Content>
+          <Flex flexDirection="column">
+            <ListItem.Label>
+              {
+                // TRANSLATORS: Label for update available list item.
+                messages.pgettext('app-info-view', 'Update available')
+              }
+            </ListItem.Label>
+            <StyledText variant="footnoteMini">{suggestedUpgrade?.version}</StyledText>
+          </Flex>
+          <ListItem.ActionGroup>
+            <Dot variant="warning" size="small" />
+            <Icon icon={isLinux ? 'external' : 'chevron-right'} />
+          </ListItem.ActionGroup>
         </ListItem.Item>
       </ListItem.Trigger>
     </ListItem>

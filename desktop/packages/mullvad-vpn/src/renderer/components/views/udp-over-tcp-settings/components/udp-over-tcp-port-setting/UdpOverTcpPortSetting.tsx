@@ -46,13 +46,13 @@ export function UdpOverTcpPortSetting() {
     <SettingsListbox value={port} onValueChange={selectPort}>
       <SettingsListbox.Header>
         <SettingsListbox.HeaderItem>
-          <SettingsListbox.Content>
-            <SettingsListbox.Label>
-              {
-                // TRANSLATORS: The title for the WireGuard port selector.
-                messages.pgettext('wireguard-settings-view', 'Port')
-              }
-            </SettingsListbox.Label>
+          <SettingsListbox.Label>
+            {
+              // TRANSLATORS: The title for the WireGuard port selector.
+              messages.pgettext('wireguard-settings-view', 'Port')
+            }
+          </SettingsListbox.Label>
+          <SettingsListbox.ActionGroup>
             <InfoButton>
               <ModalMessage>
                 {messages.pgettext(
@@ -61,7 +61,7 @@ export function UdpOverTcpPortSetting() {
                 )}
               </ModalMessage>
             </InfoButton>
-          </SettingsListbox.Content>
+          </SettingsListbox.ActionGroup>
         </SettingsListbox.HeaderItem>
       </SettingsListbox.Header>
       <SettingsListbox.Options>

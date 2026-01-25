@@ -1,4 +1,5 @@
 import { sprintf } from 'sprintf-js';
+import styled from 'styled-components';
 
 import { messages } from '../../../../../../shared/gettext';
 import {
@@ -11,7 +12,6 @@ import {
 } from '../../../../../features/dns/components';
 import { useDns } from '../../../../../features/dns/hooks';
 import { AccordionProps } from '../../../../../lib/components/accordion';
-import { FlexRow } from '../../../../../lib/components/flex-row';
 import { ListItemProps } from '../../../../../lib/components/list-item';
 import { formatHtml } from '../../../../../lib/html-formatter';
 import InfoButton from '../../../../InfoButton';
@@ -21,6 +21,11 @@ import { CustomDnsEnabledFooter } from './components';
 
 export type DnsBlockerSettingsProps = Omit<AccordionProps, 'children'> &
   Pick<ListItemProps, 'position'>;
+
+const StyledAccordionTrigger = styled(SettingsAccordion.Trigger)`
+  display: grid;
+  place-items: center;
+`;
 
 export function DnsBlockerSettings({ position, ...props }: DnsBlockerSettingsProps) {
   const { dns } = useDns();
@@ -40,7 +45,7 @@ export function DnsBlockerSettings({ position, ...props }: DnsBlockerSettingsPro
               <SettingsAccordion.Title variant="bodySmallSemibold">
                 {messages.pgettext('vpn-settings-view', 'DNS content blockers')}
               </SettingsAccordion.Title>
-              <FlexRow gap="medium">
+              <SettingsAccordion.HeaderActionGroup>
                 <InfoButton>
                   <ModalMessage>
                     {messages.pgettext(
@@ -66,10 +71,10 @@ export function DnsBlockerSettings({ position, ...props }: DnsBlockerSettingsPro
                     )}
                   </ModalMessage>
                 </InfoButton>
-                <SettingsAccordion.Trigger>
+                <StyledAccordionTrigger>
                   <SettingsAccordion.Icon />
-                </SettingsAccordion.Trigger>
-              </FlexRow>
+                </StyledAccordionTrigger>
+              </SettingsAccordion.HeaderActionGroup>
             </SettingsAccordion.HeaderItem>
           </SettingsAccordion.Header>
           <SettingsAccordion.Content>
