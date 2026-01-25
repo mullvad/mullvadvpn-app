@@ -1,6 +1,6 @@
 import { messages } from '../../../../../shared/gettext';
 import { ListItem, ListItemProps } from '../../../../lib/components/list-item';
-import { BlockSocialMediaSwitch } from '../block-social-media-switch/BlockSocialMediaSwitch';
+import { BlockSocialMediaSwitch } from '../block-social-media-switch';
 
 export type BlockSocialMediaSettingProps = Omit<ListItemProps, 'children'>;
 

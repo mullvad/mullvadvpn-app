@@ -1,6 +1,6 @@
 import { messages } from '../../../../../shared/gettext';
 import { ListItem, ListItemProps } from '../../../../lib/components/list-item';
-import { BlockGamblingSwitch } from '../block-gambling-switch/BlockGamblingSwitch';
+import { BlockGamblingSwitch } from '../block-gambling-switch';
 
 export type BlockGamblingSettingProps = Omit<ListItemProps, 'children'>;
 

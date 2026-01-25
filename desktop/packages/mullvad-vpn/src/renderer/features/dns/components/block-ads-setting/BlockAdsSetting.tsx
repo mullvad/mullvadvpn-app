@@ -1,6 +1,6 @@
 import { messages } from '../../../../../shared/gettext';
 import { ListItem, ListItemProps } from '../../../../lib/components/list-item';
-import { BlockAdsSwitch } from '../block-ads-switch/BlockAdsSwitch';
+import { BlockAdsSwitch } from '../block-ads-switch';
 
 export type BlockAdsSettingProps = Omit<ListItemProps, 'children'>;
 
