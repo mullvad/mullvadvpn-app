@@ -4,10 +4,10 @@ import styled, { css } from 'styled-components';
 import { colors } from '../../../../foundations';
 import { useListItemContext } from '../../ListItemContext';
 import { StyledListItemItem } from '../list-item-item';
+import { StyledListItemTrailingAction } from '../list-item-trailing-action';
 
 export const StyledListItemTrigger = styled.button`
   display: flex;
-  width: 100%;
   background-color: transparent;
 
   &&:focus-visible {
@@ -23,10 +23,16 @@ export const StyledListItemTrigger = styled.button`
           ${StyledListItemItem} {
             background-color: ${colors.whiteOnBlue10};
           }
+          ${StyledListItemTrailingAction} {
+            background-color: ${colors.whiteOnBlue10};
+          }
         }
 
         &:active {
           ${StyledListItemItem} {
+            background-color: ${colors.whiteOnBlue20};
+          }
+          ${StyledListItemTrailingAction} {
             background-color: ${colors.whiteOnBlue20};
           }
         }

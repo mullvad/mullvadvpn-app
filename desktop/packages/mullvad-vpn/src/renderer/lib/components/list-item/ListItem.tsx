@@ -11,8 +11,11 @@ import {
   ListItemLabel,
   ListItemText,
   ListItemTextField,
+  ListItemTrailingAction,
   ListItemTrigger,
   StyledListItemItem,
+  StyledListItemTrailingAction,
+  StyledListItemTrigger,
 } from './components';
 import { useListItemAnimation } from './hooks';
 import { levels } from './levels';
@@ -31,6 +34,17 @@ export const StyledListItem = styled(StyledListItemRoot)<{
     return css`
       --disabled-border-radius: 0;
 
+      display: grid;
+      grid-template-columns: 1fr;
+
+      // If it has a trailing action at the end
+      &&:has(> ${StyledListItemTrailingAction}, > ${StyledListItemTrigger}:nth-child(2)) {
+        grid-template-columns: 1fr auto;
+        ${StyledListItemItem} {
+          border-top-right-radius: var(--disabled-border-radius);
+        }
+      }
+
       ${() => {
         if ($position === 'auto') {
           return css`
@@ -40,6 +54,9 @@ export const StyledListItem = styled(StyledListItemRoot)<{
                 border-top-left-radius: var(--disabled-border-radius);
                 border-top-right-radius: var(--disabled-border-radius);
               }
+              ${StyledListItemTrailingAction} {
+                border-top-right-radius: var(--disabled-border-radius);
+              }
             }
 
             // If directly followed by another ListItem
@@ -47,6 +64,9 @@ export const StyledListItem = styled(StyledListItemRoot)<{
               margin-bottom: 1px;
               ${StyledListItemItem} {
                 border-bottom-left-radius: var(--disabled-border-radius);
+                border-bottom-right-radius: var(--disabled-border-radius);
+              }
+              ${StyledListItemTrailingAction} {
                 border-bottom-right-radius: var(--disabled-border-radius);
               }
             }
@@ -128,6 +148,7 @@ const ListItemNamespace = Object.assign(ListItem, {
   FooterText: ListItemFooterText,
   Icon: ListItemIcon,
   TextField: ListItemTextField,
+  TrailingAction: ListItemTrailingAction,
 });
 
 export { ListItemNamespace as ListItem };
