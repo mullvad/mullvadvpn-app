@@ -1,6 +1,6 @@
 import { messages } from '../../../../../shared/gettext';
 import { ListItem, ListItemProps } from '../../../../lib/components/list-item';
-import { BlockAdultContentSwitch } from '../block-adult-content-switch/BlockAdultContentSwitch';
+import { BlockAdultContentSwitch } from '../block-adult-content-switch';
 
 export type BlockAdultContentSettingProps = Omit<ListItemProps, 'children'>;
 
