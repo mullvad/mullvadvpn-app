@@ -3,9 +3,9 @@ import styled, { css, RuleSet } from 'styled-components';
 
 import { Radius } from '../../../../foundations';
 import { FlexRow } from '../../../flex-row';
-import { useListItemAnimation } from '../../hooks';
+import { useBackgroundColor, useListItemAnimation } from '../../hooks';
 import { useListItemContext } from '../../ListItemContext';
-import { useBackgroundColor, useIndent } from './hooks';
+import { useIndent } from './hooks';
 
 export type ListItemItemProps = {
   children: React.ReactNode;
@@ -20,7 +20,6 @@ export const StyledListItemItem = styled(FlexRow)<{
     return css`
       --background-color: ${$backgroundColor};
 
-      background-color: var(--background-color);
       min-height: 48px;
       grid-template-columns: 1fr auto;
       background-color: var(--background-color);
