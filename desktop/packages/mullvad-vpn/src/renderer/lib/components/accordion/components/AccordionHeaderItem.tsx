@@ -9,6 +9,7 @@ export type AccordionHeaderItemProps = ListItemItemProps;
 export const StyledAccordionHeaderItem = styled(ListItem.Item)`
   transition: border-radius 0.15s ease-out;
   &[data-expanded='true'] {
+    margin-bottom: 1px;
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
   }
