@@ -14,7 +14,9 @@ export function SupportListItem(props: SupportListItemProps) {
           messages.pgettext('settings-view', 'Support')
         }
       </SettingsNavigationListItem.Label>
-      <SettingsNavigationListItem.Icon icon="chevron-right" />
+      <SettingsNavigationListItem.ActionGroup>
+        <SettingsNavigationListItem.Icon icon="chevron-right" />
+      </SettingsNavigationListItem.ActionGroup>
     </SettingsNavigationListItem>
   );
 }

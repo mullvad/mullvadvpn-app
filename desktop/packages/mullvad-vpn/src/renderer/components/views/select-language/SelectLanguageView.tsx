@@ -59,9 +59,7 @@ export function SelectLanguageView() {
                         position={idx === 0 ? 'first' : undefined}>
                         <Listbox.Option.Trigger>
                           <Listbox.Option.Item>
-                            <Listbox.Option.Content>
-                              <Listbox.Option.Label>{name}</Listbox.Option.Label>
-                            </Listbox.Option.Content>
+                            <Listbox.Option.Label>{name}</Listbox.Option.Label>
                           </Listbox.Option.Item>
                         </Listbox.Option.Trigger>
                       </Listbox.Option>

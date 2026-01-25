@@ -17,19 +17,19 @@ export function BetaSetting(props: BetaSettingProps) {
   return (
     <SettingsListItem disabled={isBeta} {...props}>
       <SettingsListItem.Item>
-        <SettingsListItem.Content>
-          <BetaSwitch labelId={labelId} descriptionId={descriptionId}>
-            <BetaSwitch.Label>
-              {
-                // TRANSLATORS: Label for switch to toggle beta program.
-                messages.pgettext('app-info-view', 'Beta program')
-              }
-            </BetaSwitch.Label>
+        <BetaSwitch labelId={labelId} descriptionId={descriptionId}>
+          <BetaSwitch.Label>
+            {
+              // TRANSLATORS: Label for switch to toggle beta program.
+              messages.pgettext('app-info-view', 'Beta program')
+            }
+          </BetaSwitch.Label>
+          <SettingsListItem.ActionGroup>
             <BetaSwitch.Trigger>
               <BetaSwitch.Thumb />
             </BetaSwitch.Trigger>
-          </BetaSwitch>
-        </SettingsListItem.Content>
+          </SettingsListItem.ActionGroup>
+        </BetaSwitch>
       </SettingsListItem.Item>
       <SettingsListItem.Footer>
         <SettingsListItem.FooterText id={descriptionId}>

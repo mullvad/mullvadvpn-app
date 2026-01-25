@@ -12,16 +12,16 @@ export function MonochromaticTrayIconSetting(props: MonochromaticTrayIconSetting
   return (
     <SettingsListItem {...props}>
       <SettingsListItem.Item>
-        <SettingsListItem.Content>
-          <MonochromaticTrayIconSwitch>
-            <MonochromaticTrayIconSwitch.Label>
-              {messages.pgettext('user-interface-settings-view', 'Monochromatic tray icon')}
-            </MonochromaticTrayIconSwitch.Label>
+        <MonochromaticTrayIconSwitch>
+          <MonochromaticTrayIconSwitch.Label>
+            {messages.pgettext('user-interface-settings-view', 'Monochromatic tray icon')}
+          </MonochromaticTrayIconSwitch.Label>
+          <SettingsListItem.ActionGroup>
             <MonochromaticTrayIconSwitch.Trigger aria-describedby={descriptionId}>
               <MonochromaticTrayIconSwitch.Thumb />
             </MonochromaticTrayIconSwitch.Trigger>
-          </MonochromaticTrayIconSwitch>
-        </SettingsListItem.Content>
+          </SettingsListItem.ActionGroup>
+        </MonochromaticTrayIconSwitch>
       </SettingsListItem.Item>
       <SettingsListItem.Footer>
         <SettingsListItem.FooterText id={descriptionId}>

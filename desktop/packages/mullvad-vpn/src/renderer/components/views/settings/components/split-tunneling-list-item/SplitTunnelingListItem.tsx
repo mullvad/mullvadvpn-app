@@ -9,7 +9,9 @@ export function SplitTunnelingListItem(props: SplitTunnelingListItemProps) {
   return (
     <SettingsNavigationListItem to={RoutePath.splitTunneling} {...props}>
       <SettingsNavigationListItem.Label>{strings.splitTunneling}</SettingsNavigationListItem.Label>
-      <SettingsNavigationListItem.Icon icon="chevron-right" />
+      <SettingsNavigationListItem.ActionGroup>
+        <SettingsNavigationListItem.Icon icon="chevron-right" />
+      </SettingsNavigationListItem.ActionGroup>
     </SettingsNavigationListItem>
   );
 }

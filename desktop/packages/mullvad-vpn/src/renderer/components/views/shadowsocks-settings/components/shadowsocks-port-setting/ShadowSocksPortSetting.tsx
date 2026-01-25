@@ -47,14 +47,12 @@ export function ShadowsocksPortSetting() {
     <SettingsListbox value={selectedOption.value} onValueChange={setShadowsocksPort}>
       <SettingsListbox.Header>
         <SettingsListbox.HeaderItem>
-          <SettingsListbox.Content>
-            <SettingsListbox.Label>
-              {
-                // TRANSLATORS: The title for the WireGuard port selector.
-                messages.pgettext('wireguard-settings-view', 'Port')
-              }
-            </SettingsListbox.Label>
-          </SettingsListbox.Content>
+          <SettingsListbox.Label>
+            {
+              // TRANSLATORS: The title for the WireGuard port selector.
+              messages.pgettext('wireguard-settings-view', 'Port')
+            }
+          </SettingsListbox.Label>
         </SettingsListbox.HeaderItem>
       </SettingsListbox.Header>
       <SettingsListbox.Options>

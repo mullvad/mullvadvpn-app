@@ -2,7 +2,7 @@ import React from 'react';
 import styled, { css, RuleSet } from 'styled-components';
 
 import {
-  ListItemContent,
+  ListItemActionGroup,
   ListItemFooter,
   ListItemFooterText,
   ListItemGroup,
@@ -118,9 +118,9 @@ const ListItem = ({
 };
 
 const ListItemNamespace = Object.assign(ListItem, {
-  Content: ListItemContent,
   Label: ListItemLabel,
   Group: ListItemGroup,
+  ActionGroup: ListItemActionGroup,
   Text: ListItemText,
   Trigger: ListItemTrigger,
   Item: ListItemItem,

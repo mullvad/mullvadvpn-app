@@ -8,19 +8,19 @@ export function BlockAdsSetting(props: BlockAdsSettingProps) {
   return (
     <ListItem level={1} {...props}>
       <ListItem.Item>
-        <ListItem.Content>
-          <BlockAdsSwitch>
-            <BlockAdsSwitch.Label variant="bodySmall">
-              {
-                // TRANSLATORS: Label for settings that enables ad blocking.
-                messages.pgettext('vpn-settings-view', 'Ads')
-              }
-            </BlockAdsSwitch.Label>
+        <BlockAdsSwitch>
+          <BlockAdsSwitch.Label variant="bodySmall">
+            {
+              // TRANSLATORS: Label for settings that enables ad blocking.
+              messages.pgettext('vpn-settings-view', 'Ads')
+            }
+          </BlockAdsSwitch.Label>
+          <ListItem.ActionGroup>
             <BlockAdsSwitch.Trigger>
               <BlockAdsSwitch.Thumb />
             </BlockAdsSwitch.Trigger>
-          </BlockAdsSwitch>
-        </ListItem.Content>
+          </ListItem.ActionGroup>
+        </BlockAdsSwitch>
       </ListItem.Item>
     </ListItem>
   );

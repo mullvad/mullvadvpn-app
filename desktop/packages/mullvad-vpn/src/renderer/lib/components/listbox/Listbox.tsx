@@ -33,9 +33,9 @@ function Listbox<T>({ value, onValueChange, labelId: labelIdProp, children }: Li
 const ListboxNamespace = Object.assign(Listbox, {
   Header: ListboxHeader,
   HeaderItem: ListboxHeaderItem,
-  Content: ListItem.Content,
   Label: ListboxLabel,
   Group: ListItem.Group,
+  ActionGroup: ListItem.ActionGroup,
   Text: ListItem.Text,
   Footer: ListboxFooter,
   FooterText: ListboxFooterText,

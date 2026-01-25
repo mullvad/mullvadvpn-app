@@ -18,7 +18,7 @@ export function AccordionHeaderItem({ children, ...props }: AccordionHeaderItemP
   const { expanded } = useAccordionContext();
   return (
     <StyledAccordionHeaderItem data-expanded={expanded} {...props}>
-      <ListItem.Content>{children}</ListItem.Content>
+      {children}
     </StyledAccordionHeaderItem>
   );
 }

@@ -13,12 +13,12 @@ export function DaitaListItem(props: DaitaListItemProps) {
   return (
     <SettingsNavigationListItem to={RoutePath.daitaSettings} {...props}>
       <SettingsNavigationListItem.Label>{strings.daita}</SettingsNavigationListItem.Label>
-      <SettingsNavigationListItem.Group>
+      <SettingsNavigationListItem.ActionGroup>
         <SettingsNavigationListItem.Text>
           {isOn ? messages.gettext('On') : messages.gettext('Off')}
         </SettingsNavigationListItem.Text>
         <SettingsNavigationListItem.Icon icon="chevron-right" />
-      </SettingsNavigationListItem.Group>
+      </SettingsNavigationListItem.ActionGroup>
     </SettingsNavigationListItem>
   );
 }

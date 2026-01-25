@@ -8,19 +8,19 @@ export function BlockSocialMediaSetting(props: BlockSocialMediaSettingProps) {
   return (
     <ListItem level={1} {...props}>
       <ListItem.Item>
-        <ListItem.Content>
-          <BlockSocialMediaSwitch>
-            <BlockSocialMediaSwitch.Label variant="bodySmall">
-              {
-                // TRANSLATORS: Label for settings that enables block of social media.
-                messages.pgettext('vpn-settings-view', 'Social media')
-              }
-            </BlockSocialMediaSwitch.Label>
+        <BlockSocialMediaSwitch>
+          <BlockSocialMediaSwitch.Label variant="bodySmall">
+            {
+              // TRANSLATORS: Label for settings that enables block of social media.
+              messages.pgettext('vpn-settings-view', 'Social media')
+            }
+          </BlockSocialMediaSwitch.Label>
+          <ListItem.ActionGroup>
             <BlockSocialMediaSwitch.Trigger>
               <BlockSocialMediaSwitch.Thumb />
             </BlockSocialMediaSwitch.Trigger>
-          </BlockSocialMediaSwitch>
-        </ListItem.Content>
+          </ListItem.ActionGroup>
+        </BlockSocialMediaSwitch>
       </ListItem.Item>
     </ListItem>
   );

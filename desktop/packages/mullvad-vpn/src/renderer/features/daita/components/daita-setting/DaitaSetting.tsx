@@ -14,14 +14,14 @@ export function DaitaSetting() {
   return (
     <SettingsListItem anchorId="daita-enable-setting" disabled={disabled}>
       <SettingsListItem.Item>
-        <SettingsListItem.Content>
-          <DaitaSwitch descriptionId={descriptionId}>
-            <DaitaSwitch.Label>{messages.gettext('Enable')}</DaitaSwitch.Label>
+        <DaitaSwitch descriptionId={descriptionId}>
+          <DaitaSwitch.Label>{messages.gettext('Enable')}</DaitaSwitch.Label>
+          <SettingsListItem.ActionGroup>
             <DaitaSwitch.Trigger>
               <DaitaSwitch.Thumb />
             </DaitaSwitch.Trigger>
-          </DaitaSwitch>
-        </SettingsListItem.Content>
+          </SettingsListItem.ActionGroup>
+        </DaitaSwitch>
       </SettingsListItem.Item>
     </SettingsListItem>
   );

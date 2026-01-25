@@ -14,7 +14,9 @@ export function ApiAccessMethodsListItem(props: ApiAccessMethodsListItemProps) {
           messages.pgettext('settings-view', 'API access')
         }
       </SettingsNavigationListItem.Label>
-      <SettingsNavigationListItem.Icon icon="chevron-right" />
+      <SettingsNavigationListItem.ActionGroup>
+        <SettingsNavigationListItem.Icon icon="chevron-right" />
+      </SettingsNavigationListItem.ActionGroup>
     </SettingsNavigationListItem>
   );
 }

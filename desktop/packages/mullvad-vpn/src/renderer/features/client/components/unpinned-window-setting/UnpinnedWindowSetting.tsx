@@ -12,16 +12,16 @@ export function UnpinnedWindowSetting(props: UnpinnedWindowSettingProps) {
   return (
     <SettingsListItem {...props}>
       <SettingsListItem.Item>
-        <SettingsListItem.Content>
-          <UnpinnedWindowSwitch>
-            <UnpinnedWindowSwitch.Label>
-              {messages.pgettext('user-interface-settings-view', 'Unpin app from taskbar')}
-            </UnpinnedWindowSwitch.Label>
+        <UnpinnedWindowSwitch>
+          <UnpinnedWindowSwitch.Label>
+            {messages.pgettext('user-interface-settings-view', 'Unpin app from taskbar')}
+          </UnpinnedWindowSwitch.Label>
+          <SettingsListItem.ActionGroup>
             <UnpinnedWindowSwitch.Trigger aria-describedby={descriptionId}>
               <UnpinnedWindowSwitch.Thumb />
             </UnpinnedWindowSwitch.Trigger>
-          </UnpinnedWindowSwitch>
-        </SettingsListItem.Content>
+          </SettingsListItem.ActionGroup>
+        </UnpinnedWindowSwitch>
       </SettingsListItem.Item>
       <SettingsListItem.Footer>
         <SettingsListItem.FooterText id={descriptionId}>

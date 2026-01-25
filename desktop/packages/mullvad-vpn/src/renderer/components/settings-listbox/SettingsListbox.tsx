@@ -24,9 +24,9 @@ function SettingsListbox<T>({ anchorId, children, ...props }: SettingsListboxPro
 const SettingsListboxNamespace = Object.assign(SettingsListbox, {
   Header: SettingsListboxHeader,
   HeaderItem: Listbox.HeaderItem,
-  Content: Listbox.Content,
   Label: Listbox.Label,
   Group: Listbox.Group,
+  ActionGroup: Listbox.ActionGroup,
   Text: Listbox.Text,
   Footer: Listbox.Footer,
   FooterText: Listbox.FooterText,
