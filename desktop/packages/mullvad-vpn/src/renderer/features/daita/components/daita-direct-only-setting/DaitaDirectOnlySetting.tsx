@@ -19,32 +19,30 @@ export function DaitaDirectOnlySetting() {
   return (
     <SettingsListItem disabled={disabled}>
       <SettingsListItem.Item>
-        <SettingsListItem.Content>
-          <DaitaDirectOnlySwitch>
-            <DaitaDirectOnlySwitch.Label>
-              {messages.gettext('Direct only')}
-            </DaitaDirectOnlySwitch.Label>
-            <SettingsListItem.Group>
-              <InfoButton>
-                <ModalMessage>
-                  {sprintf(
-                    messages.pgettext(
-                      'wireguard-settings-view',
-                      'By enabling “%(directOnly)s” you will have to manually select a server that is %(daita)s-enabled. This can cause you to end up in a blocked state until you have selected a compatible server in the “Select location” view.',
-                    ),
-                    {
-                      daita: strings.daita,
-                      directOnly: messages.gettext('Direct only'),
-                    },
-                  )}
-                </ModalMessage>
-              </InfoButton>
-              <DaitaDirectOnlySwitch.Trigger>
-                <DaitaDirectOnlySwitch.Thumb />
-              </DaitaDirectOnlySwitch.Trigger>
-            </SettingsListItem.Group>
-          </DaitaDirectOnlySwitch>
-        </SettingsListItem.Content>
+        <DaitaDirectOnlySwitch>
+          <DaitaDirectOnlySwitch.Label>
+            {messages.gettext('Direct only')}
+          </DaitaDirectOnlySwitch.Label>
+          <SettingsListItem.ActionGroup>
+            <InfoButton>
+              <ModalMessage>
+                {sprintf(
+                  messages.pgettext(
+                    'wireguard-settings-view',
+                    'By enabling “%(directOnly)s” you will have to manually select a server that is %(daita)s-enabled. This can cause you to end up in a blocked state until you have selected a compatible server in the “Select location” view.',
+                  ),
+                  {
+                    daita: strings.daita,
+                    directOnly: messages.gettext('Direct only'),
+                  },
+                )}
+              </ModalMessage>
+            </InfoButton>
+            <DaitaDirectOnlySwitch.Trigger>
+              <DaitaDirectOnlySwitch.Thumb />
+            </DaitaDirectOnlySwitch.Trigger>
+          </SettingsListItem.ActionGroup>
+        </DaitaDirectOnlySwitch>
       </SettingsListItem.Item>
     </SettingsListItem>
   );

@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { ListItem } from '../list-item';
 import { AccordionProvider } from './AccordionContext';
 import {
   AccordionContainer,
@@ -41,6 +42,7 @@ const AccordionNamespace = Object.assign(Accordion, {
   Trigger: AccordionTrigger,
   Header: AccordionHeader,
   HeaderItem: AccordionHeaderItem,
+  HeaderActionGroup: ListItem.ActionGroup,
   Content: AccordionContent,
   Title: AccordionTitle,
   Icon: AccordionIcon,

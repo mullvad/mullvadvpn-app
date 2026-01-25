@@ -11,7 +11,9 @@ export function IpOverrideSettings(props: IpOverrideSettingsProps) {
       <SettingsNavigationListItem.Label>
         {messages.pgettext('vpn-settings-view', 'Server IP override')}
       </SettingsNavigationListItem.Label>
-      <SettingsNavigationListItem.Icon icon="chevron-right" />
+      <SettingsNavigationListItem.ActionGroup>
+        <SettingsNavigationListItem.Icon icon="chevron-right" />
+      </SettingsNavigationListItem.ActionGroup>
     </SettingsNavigationListItem>
   );
 }

@@ -2,7 +2,6 @@ import { sprintf } from 'sprintf-js';
 
 import { IDevice } from '../../../shared/daemon-rpc-types';
 import { messages } from '../../../shared/gettext';
-import { Text } from '../../lib/components';
 import { FlexColumn } from '../../lib/components/flex-column';
 import { ListItem, ListItemProps } from '../../lib/components/list-item';
 import { formatDeviceName } from '../../lib/utils';
@@ -23,34 +22,32 @@ function DeviceListItemInner({ ...props }: Omit<SettingsToggleListItemProps, 'de
     <>
       <ListItem disabled={deleting} {...props}>
         <ListItem.Item>
-          <ListItem.Content>
-            <FlexColumn>
-              <ListItem.Label>{formatDeviceName(device.name)}</ListItem.Label>
-              <ListItem.Text variant="footnoteMini">
-                {sprintf(
-                  // TRANSLATORS: Label informing the user when a device was created.
-                  // TRANSLATORS: Available placeholders:
-                  // TRANSLATORS: %(createdDate)s - The creation date of the device.
-                  messages.pgettext('device-management', 'Created: %(createdDate)s'),
-                  {
-                    createdDate,
-                  },
-                )}
-              </ListItem.Text>
-            </FlexColumn>
-            <ListItem.Group>
-              {isCurrentDevice ? (
-                <Text variant="labelTiny" color="whiteAlpha60">
-                  {
-                    // TRANSLATORS: Label indicating that this device is the current device.
-                    messages.pgettext('device-management', 'Current device')
-                  }
-                </Text>
-              ) : (
-                <RemoveButton />
+          <FlexColumn>
+            <ListItem.Label>{formatDeviceName(device.name)}</ListItem.Label>
+            <ListItem.Text variant="footnoteMini">
+              {sprintf(
+                // TRANSLATORS: Label informing the user when a device was created.
+                // TRANSLATORS: Available placeholders:
+                // TRANSLATORS: %(createdDate)s - The creation date of the device.
+                messages.pgettext('device-management', 'Created: %(createdDate)s'),
+                {
+                  createdDate,
+                },
               )}
-            </ListItem.Group>
-          </ListItem.Content>
+            </ListItem.Text>
+          </FlexColumn>
+          <ListItem.ActionGroup>
+            {isCurrentDevice ? (
+              <ListItem.Text variant="labelTiny" color="whiteAlpha60">
+                {
+                  // TRANSLATORS: Label indicating that this device is the current device.
+                  messages.pgettext('device-management', 'Current device')
+                }
+              </ListItem.Text>
+            ) : (
+              <RemoveButton />
+            )}
+          </ListItem.ActionGroup>
         </ListItem.Item>
       </ListItem>
       <ConfirmDialog isOpen={confirmDialogVisible} />

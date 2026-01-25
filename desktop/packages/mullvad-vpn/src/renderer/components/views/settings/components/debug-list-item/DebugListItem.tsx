@@ -8,7 +8,9 @@ export function DebugListItem(props: DebugListItemProps) {
   return (
     <SettingsNavigationListItem to={RoutePath.debug} {...props}>
       <SettingsNavigationListItem.Label>Developer tools</SettingsNavigationListItem.Label>
-      <SettingsNavigationListItem.Icon icon="chevron-right" />
+      <SettingsNavigationListItem.ActionGroup>
+        <SettingsNavigationListItem.Icon icon="chevron-right" />
+      </SettingsNavigationListItem.ActionGroup>
     </SettingsNavigationListItem>
   );
 }

@@ -10,14 +10,14 @@ export function MultihopSetting() {
   return (
     <SettingsListItem anchorId="multihop-setting" disabled={unavailable}>
       <SettingsListItem.Item>
-        <SettingsListItem.Content>
-          <MultihopSwitch>
-            <MultihopSwitch.Label>{messages.gettext('Enable')}</MultihopSwitch.Label>
+        <MultihopSwitch>
+          <MultihopSwitch.Label>{messages.gettext('Enable')}</MultihopSwitch.Label>
+          <SettingsListItem.ActionGroup>
             <MultihopSwitch.Trigger>
               <MultihopSwitch.Thumb />
             </MultihopSwitch.Trigger>
-          </MultihopSwitch>
-        </SettingsListItem.Content>
+          </SettingsListItem.ActionGroup>
+        </MultihopSwitch>
       </SettingsListItem.Item>
     </SettingsListItem>
   );

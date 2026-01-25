@@ -39,13 +39,13 @@ export function IpVersionSetting(props: IpVersionSettingProps) {
     <SettingsListbox value={ipVersion} onValueChange={setIpVersion} {...props}>
       <SettingsListbox.Header>
         <SettingsListbox.HeaderItem>
-          <SettingsListbox.Content>
-            <SettingsListbox.Label>
-              {
-                // TRANSLATORS: Title for device IP version setting.
-                messages.pgettext('wireguard-settings-view', 'Device IP version')
-              }
-            </SettingsListbox.Label>
+          <SettingsListbox.Label>
+            {
+              // TRANSLATORS: Title for device IP version setting.
+              messages.pgettext('wireguard-settings-view', 'Device IP version')
+            }
+          </SettingsListbox.Label>
+          <SettingsListbox.ActionGroup>
             <InfoButton>
               <ModalMessage>
                 {
@@ -68,7 +68,7 @@ export function IpVersionSetting(props: IpVersionSettingProps) {
                 }
               </ModalMessage>
             </InfoButton>
-          </SettingsListbox.Content>
+          </SettingsListbox.ActionGroup>
         </SettingsListbox.HeaderItem>
       </SettingsListbox.Header>
       <SettingsListbox.Options>

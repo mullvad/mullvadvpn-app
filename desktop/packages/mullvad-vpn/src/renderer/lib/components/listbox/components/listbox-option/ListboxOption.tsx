@@ -48,7 +48,6 @@ function ListboxOption<T>({ value, position = 'auto', children, ...props }: List
 }
 
 const ListboxOptionNamespace = Object.assign(ListboxOption, {
-  Content: ListItem.Content,
   Group: ListItem.Group,
   Trigger: ListboxOptionTrigger,
   Item: ListboxOptionItem,

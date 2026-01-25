@@ -8,16 +8,16 @@ export function AutoStartSetting(props: AutoStartSettingProps) {
   return (
     <SettingsListItem {...props}>
       <SettingsListItem.Item>
-        <SettingsListItem.Content>
-          <AutoStartSwitch>
-            <AutoStartSwitch.Label>
-              {messages.pgettext('vpn-settings-view', 'Launch app on start-up')}
-            </AutoStartSwitch.Label>
+        <AutoStartSwitch>
+          <AutoStartSwitch.Label>
+            {messages.pgettext('vpn-settings-view', 'Launch app on start-up')}
+          </AutoStartSwitch.Label>
+          <SettingsListItem.ActionGroup>
             <AutoStartSwitch.Trigger>
               <AutoStartSwitch.Thumb />
             </AutoStartSwitch.Trigger>
-          </AutoStartSwitch>
-        </SettingsListItem.Content>
+          </SettingsListItem.ActionGroup>
+        </AutoStartSwitch>
       </SettingsListItem.Item>
     </SettingsListItem>
   );

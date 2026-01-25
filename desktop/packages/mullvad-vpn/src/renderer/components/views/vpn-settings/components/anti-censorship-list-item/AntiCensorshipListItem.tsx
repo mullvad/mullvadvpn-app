@@ -20,10 +20,10 @@ export function AntiCensorshipListItem(props: AntiCensorshipListItemProps) {
           messages.pgettext('vpn-settings-view', 'Anti-censorship')
         }
       </SettingsNavigationListItem.Label>
-      <SettingsNavigationListItem.Group>
+      <SettingsNavigationListItem.ActionGroup>
         <SettingsNavigationListItem.Text>{obfuscationLabel}</SettingsNavigationListItem.Text>
         <SettingsNavigationListItem.Icon icon="chevron-right" />
-      </SettingsNavigationListItem.Group>
+      </SettingsNavigationListItem.ActionGroup>
     </SettingsNavigationListItem>
   );
 }

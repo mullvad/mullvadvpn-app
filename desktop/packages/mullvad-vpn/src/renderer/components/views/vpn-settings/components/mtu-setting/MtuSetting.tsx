@@ -84,15 +84,15 @@ export function MtuSetting(props: MtuSettingProps) {
   return (
     <SettingsListItem anchorId="mtu-setting" aria-labelledby={labelId} position="solo" {...props}>
       <SettingsListItem.Item>
-        <SettingsListItem.Content>
-          <SettingsListItem.Label id={labelId}>
-            {
-              // TRANSLATORS: The title for the WireGuard MTU setting. MTU stands for Maximum
-              // TRANSLATORS: Transmission Unit and controls the maximum size of packets sent over
-              // TRANSLATORS: the VPN tunnel.
-              messages.pgettext('wireguard-settings-view', 'MTU')
-            }
-          </SettingsListItem.Label>
+        <SettingsListItem.Label id={labelId}>
+          {
+            // TRANSLATORS: The title for the WireGuard MTU setting. MTU stands for Maximum
+            // TRANSLATORS: Transmission Unit and controls the maximum size of packets sent over
+            // TRANSLATORS: the VPN tunnel.
+            messages.pgettext('wireguard-settings-view', 'MTU')
+          }
+        </SettingsListItem.Label>
+        <SettingsListItem.ActionGroup>
           <SettingsListItem.TextField invalid={invalid} onSubmit={handleSubmit}>
             <SettingsListItem.TextField.Input
               ref={inputRef}
@@ -106,7 +106,7 @@ export function MtuSetting(props: MtuSettingProps) {
               onChange={handleChange}
             />
           </SettingsListItem.TextField>
-        </SettingsListItem.Content>
+        </SettingsListItem.ActionGroup>
       </SettingsListItem.Item>
       <SettingsListItem.Footer>
         <SettingsListItem.Text id={descriptionId}>

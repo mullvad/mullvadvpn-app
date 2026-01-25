@@ -255,16 +255,16 @@ function LockdownModeAlert() {
       </ModalMessage>
       <StyledSettingsToggleListItem>
         <SettingsListItem.Item>
-          <SettingsListItem.Content>
-            <LockdownModeSwitch>
-              <LockdownModeSwitch.Label variant="titleMedium">
-                {messages.pgettext('vpn-settings-view', 'Lockdown mode')}
-              </LockdownModeSwitch.Label>
+          <LockdownModeSwitch>
+            <LockdownModeSwitch.Label variant="titleMedium">
+              {messages.pgettext('vpn-settings-view', 'Lockdown mode')}
+            </LockdownModeSwitch.Label>
+            <SettingsListItem.ActionGroup>
               <LockdownModeSwitch.Trigger>
                 <LockdownModeSwitch.Thumb />
               </LockdownModeSwitch.Trigger>
-            </LockdownModeSwitch>
-          </SettingsListItem.Content>
+            </SettingsListItem.ActionGroup>
+          </LockdownModeSwitch>
         </SettingsListItem.Item>
       </StyledSettingsToggleListItem>
     </ModalAlert>

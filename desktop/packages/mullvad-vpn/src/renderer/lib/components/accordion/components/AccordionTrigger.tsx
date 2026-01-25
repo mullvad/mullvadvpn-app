@@ -7,7 +7,7 @@ export type AccordionTriggerProps = {
   children?: React.ReactNode;
 } & React.ButtonHTMLAttributes<HTMLButtonElement>;
 
-export function AccordionTrigger({ children }: AccordionTriggerProps) {
+export function AccordionTrigger({ children, ...props }: AccordionTriggerProps) {
   const { contentId, triggerId, titleId, expanded, onExpandedChange } = useAccordionContext();
 
   const onClick = React.useCallback(
@@ -24,7 +24,8 @@ export function AccordionTrigger({ children }: AccordionTriggerProps) {
       aria-labelledby={titleId}
       aria-controls={contentId}
       aria-expanded={expanded ? 'true' : 'false'}
-      onClick={onClick}>
+      onClick={onClick}
+      {...props}>
       {children}
     </ListItem.Trigger>
   );

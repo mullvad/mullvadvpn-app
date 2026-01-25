@@ -1,6 +1,5 @@
 import { messages } from '../../../../../../shared/gettext';
 import { RoutePath } from '../../../../../../shared/routes';
-import { Icon } from '../../../../../lib/components';
 import { ListItemProps } from '../../../../../lib/components/list-item';
 import { SettingsNavigationListItem } from '../../../../settings-navigation-list-item';
 import { useIsOn } from './hooks';
@@ -15,12 +14,12 @@ export function MultihopListItem(props: MultihopListItemProps) {
       <SettingsNavigationListItem.Label>
         {messages.pgettext('settings-view', 'Multihop')}
       </SettingsNavigationListItem.Label>
-      <SettingsNavigationListItem.Group>
+      <SettingsNavigationListItem.ActionGroup>
         <SettingsNavigationListItem.Text>
           {isOn ? messages.gettext('On') : messages.gettext('Off')}
         </SettingsNavigationListItem.Text>
-        <Icon icon="chevron-right" />
-      </SettingsNavigationListItem.Group>
+        <SettingsNavigationListItem.Icon icon="chevron-right" />
+      </SettingsNavigationListItem.ActionGroup>
     </SettingsNavigationListItem>
   );
 }

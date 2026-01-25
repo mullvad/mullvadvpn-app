@@ -51,6 +51,7 @@ const SettingsAccordionNamespace = Object.assign(SettingsAccordion, {
   Trigger: Accordion.Trigger,
   Header: SettingsAccordionHeader,
   HeaderItem: Accordion.HeaderItem,
+  HeaderActionGroup: Accordion.HeaderActionGroup,
   Content: Accordion.Content,
   Title: Accordion.Title,
   Icon: Accordion.Icon,

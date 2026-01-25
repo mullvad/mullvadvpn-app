@@ -14,11 +14,7 @@ export function BaseOption<T>({
     <Listbox.Option value={value} animation={animation} disabled={disabled} {...props}>
       <Listbox.Option.Trigger>
         <Listbox.Option.Item>
-          <Listbox.Option.Content>
-            <Listbox.Option.Group>
-              <Listbox.Option.Label>{children}</Listbox.Option.Label>
-            </Listbox.Option.Group>
-          </Listbox.Option.Content>
+          <Listbox.Option.Label>{children}</Listbox.Option.Label>
         </Listbox.Option.Item>
       </Listbox.Option.Trigger>
     </Listbox.Option>

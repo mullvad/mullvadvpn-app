@@ -2,32 +2,34 @@ import React from 'react';
 import styled, { css, RuleSet } from 'styled-components';
 
 import { Radius } from '../../../../foundations';
+import { FlexRow } from '../../../flex-row';
 import { useListItemAnimation } from '../../hooks';
 import { useListItemContext } from '../../ListItemContext';
-import { useBackgroundColor } from './hooks';
+import { useBackgroundColor, useIndent } from './hooks';
 
 export type ListItemItemProps = {
   children: React.ReactNode;
 } & React.ComponentPropsWithRef<'div'>;
 
-export const StyledListItemItem = styled.div<{
+export const StyledListItemItem = styled(FlexRow)<{
   $backgroundColor: string;
+  $paddingLeft: string;
   $animation?: RuleSet<object>;
 }>`
-  ${({ $backgroundColor, $animation }) => {
+  ${({ $backgroundColor, $paddingLeft, $animation }) => {
     return css`
       --background-color: ${$backgroundColor};
 
       background-color: var(--background-color);
       min-height: 48px;
-      width: 100%;
-      display: grid;
-      grid-template-columns: 1fr;
+      grid-template-columns: 1fr auto;
       background-color: var(--background-color);
-      &&:has(> :last-child:nth-child(2)) {
-        grid-template-columns: 1fr 56px;
-      }
       border-radius: ${Radius.radius16};
+
+      > :first-child {
+        padding-left: ${$paddingLeft};
+      }
+
       ${$animation}
     `;
   }}
@@ -37,8 +39,14 @@ export function ListItemItem({ children, ...props }: ListItemItemProps) {
   const backgroundColor = useBackgroundColor();
   const { animation: contextAnimation } = useListItemContext();
   const animation = useListItemAnimation(contextAnimation);
+  const paddingLeft = useIndent();
   return (
     <StyledListItemItem
+      alignItems="center"
+      justifyContent="space-between"
+      flexGrow={1}
+      gap="small"
+      $paddingLeft={paddingLeft}
       $backgroundColor={backgroundColor}
       $animation={contextAnimation === 'flash' ? animation : undefined}
       {...props}>

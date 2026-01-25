@@ -15,7 +15,7 @@ export function LanguageListItem(props: LanguageListItemProps) {
 
   return (
     <SettingsNavigationListItem to={RoutePath.selectLanguage} {...props}>
-      <SettingsNavigationListItem.Group>
+      <SettingsNavigationListItem.Group gap="small">
         <Image source="icon-language" />
         <SettingsNavigationListItem.Label>
           {
@@ -24,10 +24,10 @@ export function LanguageListItem(props: LanguageListItemProps) {
           }
         </SettingsNavigationListItem.Label>
       </SettingsNavigationListItem.Group>
-      <SettingsNavigationListItem.Group>
+      <SettingsNavigationListItem.ActionGroup>
         <SettingsNavigationListItem.Text>{localeDisplayName}</SettingsNavigationListItem.Text>
         <SettingsNavigationListItem.Icon icon="chevron-right" />
-      </SettingsNavigationListItem.Group>
+      </SettingsNavigationListItem.ActionGroup>
     </SettingsNavigationListItem>
   );
 }
