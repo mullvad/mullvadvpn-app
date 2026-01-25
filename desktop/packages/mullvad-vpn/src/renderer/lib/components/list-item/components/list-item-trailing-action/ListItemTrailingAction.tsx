@@ -1,7 +1,7 @@
 import styled, { css } from 'styled-components';
 
 import { Radius } from '../../../../foundations';
-import { useBackgroundColor } from '../../hooks';
+import { useListItemBackgroundColor } from '../../hooks';
 import { ListItemTrailingActionIcon } from './components';
 
 export type ListItemTrailingActionProps = React.ComponentPropsWithRef<'div'>;
@@ -23,7 +23,7 @@ export const StyledListItemTrailingAction = styled.div<{ $backgroundColor: strin
 `;
 
 function ListItemTrailingAction({ children, ...props }: ListItemTrailingActionProps) {
-  const backgroundColor = useBackgroundColor();
+  const backgroundColor = useListItemBackgroundColor();
   return (
     <StyledListItemTrailingAction $backgroundColor={backgroundColor} {...props}>
       {children}
