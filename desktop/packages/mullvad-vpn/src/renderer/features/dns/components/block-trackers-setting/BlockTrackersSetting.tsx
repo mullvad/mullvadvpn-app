@@ -1,6 +1,6 @@
 import { messages } from '../../../../../shared/gettext';
 import { ListItem, ListItemProps } from '../../../../lib/components/list-item';
-import { BlockTrackersSwitch } from '../block-trackers-switch/BlockTrackersSwitch';
+import { BlockTrackersSwitch } from '../block-trackers-switch';
 
 export type BlockTrackersSettingProps = Omit<ListItemProps, 'children'>;
 
