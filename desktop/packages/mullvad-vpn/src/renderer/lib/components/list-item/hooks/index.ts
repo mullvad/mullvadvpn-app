@@ -1,2 +1,2 @@
 export * from './use-list-item-animation';
-export * from './useBackgroundColor';
+export * from './use-list-item-background-color';
