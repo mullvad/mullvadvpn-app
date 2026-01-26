@@ -95,7 +95,7 @@ env:
 jobs:
   prepare:
     name: Prepare
-    runs-on: ["${{ inputs.android_build_runner }}"]
+    runs-on: ["${{ inputs.android_build_runner || 'android-build' }}"]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6.0.1
@@ -130,7 +130,7 @@ jobs:
   build-app:
     name: Build app
     needs: [prepare]
-    runs-on: ["${{ inputs.android_build_runner }}"]
+    runs-on: ["${{ inputs.android_build_runner || 'android-build' }}"]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6.0.1
@@ -168,7 +168,7 @@ jobs:
   run-lint-and-tests:
     name: Run lint and test tasks
     needs: [prepare]
-    runs-on: ["${{ inputs.android_build_runner }}"]
+    runs-on: ["${{ inputs.android_build_runner || 'android-build' }}"]
     container:
       image: ${{ needs.prepare.outputs.container_image }}
       volumes:
