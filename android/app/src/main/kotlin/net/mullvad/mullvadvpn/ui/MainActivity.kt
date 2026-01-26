@@ -37,7 +37,6 @@ import net.mullvad.mullvadvpn.lib.model.PrepareError
 import net.mullvad.mullvadvpn.lib.model.Prepared
 import net.mullvad.mullvadvpn.lib.repository.UserPreferencesRepository
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
-import net.mullvad.mullvadvpn.repository.AppObfuscationRepository
 import net.mullvad.mullvadvpn.repository.SplashCompleteRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
@@ -65,7 +64,6 @@ class MainActivity : ComponentActivity(), AndroidScopeComponent {
     private val splashCompleteRepository by inject<SplashCompleteRepository>()
     private val managementService by inject<ManagementService>()
     private val backstackObserver by inject<BackstackObserver>()
-    private val obfuscationRepository by inject<AppObfuscationRepository>()
 
     private var isReadyNextDraw: Boolean = false
 
@@ -111,10 +109,6 @@ class MainActivity : ComponentActivity(), AndroidScopeComponent {
                 }
             }
         }
-
-        // Fix an issue introduced in `2026.1-beta1`
-        // TODO Remove this when releasing `2026.2`
-        obfuscationRepository.fixDisableBug()
     }
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {

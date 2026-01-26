@@ -12,6 +12,7 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.di.ApplicationScope
 import net.mullvad.mullvadvpn.di.KERMIT_FILE_LOG_DIR_NAME
 import net.mullvad.mullvadvpn.di.appModule
+import net.mullvad.mullvadvpn.repository.AppObfuscationRepository
 import net.mullvad.mullvadvpn.service.notifications.NotificationChannelFactory
 import net.mullvad.mullvadvpn.service.notifications.NotificationManager
 import net.mullvad.mullvadvpn.service.notifications.accountexpiry.AccountExpiryNotificationProvider
@@ -52,6 +53,10 @@ class MullvadApplication : Application() {
                 scheduleNotificationAlarmUseCase = get<ScheduleNotificationAlarmUseCase>(),
                 accountExpiryNotificationProvider = get<AccountExpiryNotificationProvider>(),
             )
+
+            // Fix an issue introduced in `2026.1-beta1`
+            // TODO Remove this when releasing `2026.2`
+            get<AppObfuscationRepository>().fixDisableBug()
         }
     }
 
