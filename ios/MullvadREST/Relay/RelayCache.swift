@@ -69,12 +69,19 @@ public final class RelayCache: RelayCacheProtocol, Sendable {
         else { throw CocoaError(.fileNoSuchFile) }
 
         let data = try Data(contentsOf: prebundledRelaysFileURL)
-        let stored = try StoredRelays(
+
+        #if DEBUG
+            // Handle empty prebundled file (Debug/Staging builds)
+            if data.isEmpty {
+                return .empty
+            }
+        #endif
+
+        return try StoredRelays(
             rawData: data,
             updatedAt: Date(
                 timeIntervalSince1970: 0)
-        )
+        ).cachedRelays
 
-        return stored.cachedRelays
     }
 }
