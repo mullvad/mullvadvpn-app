@@ -73,6 +73,7 @@ import net.mullvad.mullvadvpn.lib.theme.color.warning
 import net.mullvad.mullvadvpn.lib.ui.component.ExpandChevron
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.util.appendHideNavOnPlayBuild
+import net.mullvad.mullvadvpn.viewmodel.LogCollectingState
 import net.mullvad.mullvadvpn.viewmodel.ReportProblemSideEffect
 import net.mullvad.mullvadvpn.viewmodel.ReportProblemUiState
 import net.mullvad.mullvadvpn.viewmodel.ReportProblemViewModel
@@ -248,6 +249,8 @@ private fun InputContent(
         PrimaryButton(
             onClick = onNavigateToViewLogs,
             text = stringResource(id = R.string.view_logs),
+            isEnabled = state.logCollectingState == LogCollectingState.Success,
+            isLoading = state.logCollectingState == LogCollectingState.Loading,
         )
         Spacer(modifier = Modifier.height(Dimens.buttonSpacing))
         VariantButton(
