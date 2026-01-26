@@ -35,11 +35,9 @@ function InputOption<T>({
       triggerRef={triggerRef}
       labelId={labelId}
       inputState={inputState}>
-      <Listbox.Option level={1} {...props}>
+      <Listbox.Option {...props}>
         <InputOptionTrigger>
-          <Listbox.Option.Item>
-            <Listbox.Option.Content>{children}</Listbox.Option.Content>
-          </Listbox.Option.Item>
+          <Listbox.Option.Item>{children}</Listbox.Option.Item>
         </InputOptionTrigger>
       </Listbox.Option>
     </InputOptionProvider>

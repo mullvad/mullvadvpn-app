@@ -9,7 +9,9 @@ export function ProblemReportButton() {
   return (
     <SettingsNavigationListItem to={RoutePath.problemReport}>
       <SettingsNavigationListItem.Label>{label}</SettingsNavigationListItem.Label>
-      <SettingsNavigationListItem.Icon icon="chevron-right" />
+      <SettingsNavigationListItem.ActionGroup>
+        <SettingsNavigationListItem.Icon icon="chevron-right" />
+      </SettingsNavigationListItem.ActionGroup>
     </SettingsNavigationListItem>
   );
 }

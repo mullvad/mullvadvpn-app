@@ -5,14 +5,7 @@ export type ListBoxOptionWithNavigationProps = React.ComponentPropsWithRef<'li'>
 export function SplitOptionItem({ children, ...props }: ListBoxOptionWithNavigationProps) {
   return (
     <Listbox.Option.Trigger data-option data-split-button {...props}>
-      <Listbox.Option.Item>
-        <Listbox.Option.Content>
-          <Listbox.Option.Group>
-            <Listbox.Option.Icon icon="checkmark" />
-            {children}
-          </Listbox.Option.Group>
-        </Listbox.Option.Content>
-      </Listbox.Option.Item>
+      <Listbox.Option.Item>{children}</Listbox.Option.Item>
     </Listbox.Option.Trigger>
   );
 }

@@ -1,24 +1,26 @@
 import { messages } from '../../../../../../shared/gettext';
 import { usePushChangelog } from '../../../../../history/hooks';
 import { Icon } from '../../../../../lib/components';
-import { ListItem } from '../../../../../lib/components/list-item';
+import { ListItem, ListItemProps } from '../../../../../lib/components/list-item';
 
-export function ChangelogListItem() {
+export type ChangelogListItemProps = Omit<ListItemProps, 'children'>;
+
+export function ChangelogListItem(props: ChangelogListItemProps) {
   const pushChangelog = usePushChangelog();
 
   return (
-    <ListItem>
+    <ListItem {...props}>
       <ListItem.Trigger onClick={pushChangelog}>
         <ListItem.Item>
-          <ListItem.Content>
-            <ListItem.Label>
-              {
-                // TRANSLATORS: Label for changelog list item.
-                messages.pgettext('app-info-view', 'What’s new')
-              }
-            </ListItem.Label>
+          <ListItem.Label>
+            {
+              // TRANSLATORS: Label for changelog list item.
+              messages.pgettext('app-info-view', 'What’s new')
+            }
+          </ListItem.Label>
+          <ListItem.ActionGroup>
             <Icon icon="chevron-right" />
-          </ListItem.Content>
+          </ListItem.ActionGroup>
         </ListItem.Item>
       </ListItem.Trigger>
     </ListItem>

@@ -3,7 +3,8 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { messages } from '../../../../../../shared/gettext';
 import { useDns } from '../../../../../features/dns/hooks';
 import { Button, IconButton } from '../../../../../lib/components';
-import { Accordion } from '../../../../../lib/components/accordion';
+import { AccordionProps } from '../../../../../lib/components/accordion';
+import { ListItemProps } from '../../../../../lib/components/list-item';
 import { Switch } from '../../../../../lib/components/switch';
 import { formatHtml } from '../../../../../lib/html-formatter';
 import { IpAddress } from '../../../../../lib/ip';
@@ -12,19 +13,22 @@ import { AriaDescribed, AriaDescription, AriaDescriptionGroup } from '../../../.
 import * as Cell from '../../../../cell';
 import List, { stringValueAsKey } from '../../../../List';
 import { ModalAlert, ModalAlertType } from '../../../../Modal';
+import { SettingsAccordion } from '../../../../settings-accordion';
 import { SettingsListItem } from '../../../../settings-list-item';
 import {
   AddServerContainer,
   StyledAddCustomDnsLabel,
   StyledButton,
-  StyledCustomDnsFooter,
   StyledItemContainer,
   StyledLabel,
 } from './CustomDnsSettingsStyles';
 
+export type CustomDnsSettingsProps = Omit<AccordionProps, 'children'> &
+  Pick<ListItemProps, 'position'>;
+
 const manualLocal = window.env.platform === 'win32' || window.env.platform === 'linux';
 
-export function CustomDnsSettings() {
+export function CustomDnsSettings({ position, ...props }: CustomDnsSettingsProps) {
   const { dns, setDns } = useDns();
 
   const [inputVisible, showInput, hideInput] = useBoolean(false);
@@ -186,26 +190,32 @@ export function CustomDnsSettings() {
   const listExpanded = featureAvailable && (dns.state === 'custom' || inputVisible || savingAdd);
 
   return (
-    <>
-      <SettingsListItem anchorId="custom-dns-settings" disabled={!featureAvailable}>
-        <SettingsListItem.Item>
-          <SettingsListItem.Content>
+    <SettingsAccordion
+      accordionId="custom-dns-settings"
+      anchorId="custom-dns-settings"
+      expanded={listExpanded}
+      disabled={!featureAvailable}
+      {...props}>
+      <SettingsAccordion.Container>
+        <SettingsAccordion.Header position={position}>
+          <SettingsAccordion.HeaderItem>
             <Switch
               checked={dns.state === 'custom' || inputVisible}
               onCheckedChange={setCustomDnsEnabled}
               disabled={!featureAvailable}>
-              <Switch.Label variant="titleMedium">
+              <Switch.Label>
                 {messages.pgettext('vpn-settings-view', 'Use custom DNS server')}
               </Switch.Label>
-              <Switch.Trigger ref={switchRef} aria-describedby={descriptionId}>
-                <Switch.Thumb />
-              </Switch.Trigger>
+              <SettingsAccordion.HeaderActionGroup>
+                <Switch.Trigger ref={switchRef} aria-describedby={descriptionId}>
+                  <Switch.Thumb />
+                </Switch.Trigger>
+              </SettingsAccordion.HeaderActionGroup>
             </Switch>
-          </SettingsListItem.Content>
-        </SettingsListItem.Item>
-      </SettingsListItem>
-      <Accordion expanded={listExpanded} disabled={!featureAvailable}>
-        <Accordion.Content>
+          </SettingsAccordion.HeaderItem>
+        </SettingsAccordion.Header>
+
+        <SettingsAccordion.Content>
           <Cell.Section role="listbox">
             <List
               items={dns.customOptions.addresses}
@@ -251,32 +261,32 @@ export function CustomDnsSettings() {
               <IconButton.Icon icon="add-circle" />
             </IconButton>
           </AddServerContainer>
-        </Accordion.Content>
-      </Accordion>
+        </SettingsAccordion.Content>
 
-      <StyledCustomDnsFooter>
-        <Cell.CellFooterText id={descriptionId}>
-          {featureAvailable
-            ? messages.pgettext('vpn-settings-view', 'Enable to add at least one DNS server.')
-            : formatHtml(
-                // TRANSLATORS: This is displayed when either or both of the block ads/trackers settings are
-                // TRANSLATORS: turned on which makes the custom DNS setting disabled.
-                // TRANSLATORS: Available placeholders:
-                // TRANSLATORS: %(preferencesPageName)s - The page title showed on top in the preferences page.
-                messages.pgettext(
-                  'vpn-settings-view',
-                  'Disable all <b>DNS content blockers</b> above to activate this setting.',
-                ),
-              )}
-        </Cell.CellFooterText>
-      </StyledCustomDnsFooter>
+        <SettingsListItem.Footer>
+          <SettingsListItem.FooterText id={descriptionId}>
+            {featureAvailable
+              ? messages.pgettext('vpn-settings-view', 'Enable to add at least one DNS server.')
+              : formatHtml(
+                  // TRANSLATORS: This is displayed when either or both of the block ads/trackers settings are
+                  // TRANSLATORS: turned on which makes the custom DNS setting disabled.
+                  // TRANSLATORS: Available placeholders:
+                  // TRANSLATORS: %(preferencesPageName)s - The page title showed on top in the preferences page.
+                  messages.pgettext(
+                    'vpn-settings-view',
+                    'Disable all <b>DNS content blockers</b> above to activate this setting.',
+                  ),
+                )}
+          </SettingsListItem.FooterText>
+        </SettingsListItem.Footer>
 
-      <ConfirmationDialog
-        isOpen={confirmAction !== undefined}
-        confirm={confirm}
-        abort={abortConfirmation}
-      />
-    </>
+        <ConfirmationDialog
+          isOpen={confirmAction !== undefined}
+          confirm={confirm}
+          abort={abortConfirmation}
+        />
+      </SettingsAccordion.Container>
+    </SettingsAccordion>
   );
 }
 

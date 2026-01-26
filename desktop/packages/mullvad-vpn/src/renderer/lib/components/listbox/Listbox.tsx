@@ -1,38 +1,43 @@
 import React from 'react';
 
-import { ListItem, ListItemProps } from '../list-item';
-import { ListboxLabel, ListboxOption, ListboxOptions } from './components';
+import { ListItem } from '../list-item';
+import {
+  ListboxFooter,
+  ListboxFooterText,
+  ListboxHeader,
+  ListboxLabel,
+  ListboxOption,
+  ListboxOptions,
+} from './components';
 import { ListboxProvider } from './ListboxContext';
 
-export type ListboxProps<T> = ListItemProps & {
-  onValueChange?: (value: T) => Promise<void>;
+export type ListboxProps<T> = React.PropsWithChildren<{
+  onValueChange?: ((value: T) => Promise<void>) | ((value: T) => void);
   value?: T;
   labelId?: string;
-};
+}>;
 
-function Listbox<T>({
-  value,
-  onValueChange,
-  labelId: labelIdProp,
-  children,
-  ...props
-}: ListboxProps<T>) {
+function Listbox<T>({ value, onValueChange, labelId: labelIdProp, children }: ListboxProps<T>) {
   const labelId = React.useId();
 
   return (
     <ListboxProvider labelId={labelIdProp ?? labelId} value={value} onValueChange={onValueChange}>
-      <ListItem {...props}>{children}</ListItem>
+      <div tabIndex={-1} role="region" aria-labelledby={labelIdProp ?? labelId}>
+        {children}
+      </div>
     </ListboxProvider>
   );
 }
 
 const ListboxNamespace = Object.assign(Listbox, {
-  Item: ListItem.Item,
-  Content: ListItem.Content,
+  Header: ListboxHeader,
+  HeaderItem: ListItem.Item,
   Label: ListboxLabel,
   Group: ListItem.Group,
+  ActionGroup: ListItem.ActionGroup,
   Text: ListItem.Text,
-  Footer: ListItem.Footer,
+  Footer: ListboxFooter,
+  FooterText: ListboxFooterText,
   Icon: ListItem.Icon,
   Option: ListboxOption,
   Options: ListboxOptions,

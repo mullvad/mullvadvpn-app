@@ -1,27 +1,26 @@
 import { messages } from '../../../../../shared/gettext';
-import { FlexRow } from '../../../../lib/components/flex-row';
-import { ListItem } from '../../../../lib/components/list-item';
-import { BlockAdsSwitch } from '../block-ads-switch/BlockAdsSwitch';
+import { ListItem, ListItemProps } from '../../../../lib/components/list-item';
+import { BlockAdsSwitch } from '../block-ads-switch';
 
-export function BlockAdsSetting() {
+export type BlockAdsSettingProps = Omit<ListItemProps, 'children'>;
+
+export function BlockAdsSetting(props: BlockAdsSettingProps) {
   return (
-    <ListItem level={1}>
+    <ListItem level={1} {...props}>
       <ListItem.Item>
-        <ListItem.Content>
-          <BlockAdsSwitch>
-            <FlexRow padding={{ left: 'medium' }}>
-              <BlockAdsSwitch.Label variant="bodySmall">
-                {
-                  // TRANSLATORS: Label for settings that enables ad blocking.
-                  messages.pgettext('vpn-settings-view', 'Ads')
-                }
-              </BlockAdsSwitch.Label>
-            </FlexRow>
+        <BlockAdsSwitch>
+          <BlockAdsSwitch.Label variant="bodySmall">
+            {
+              // TRANSLATORS: Label for settings that enables ad blocking.
+              messages.pgettext('vpn-settings-view', 'Ads')
+            }
+          </BlockAdsSwitch.Label>
+          <ListItem.ActionGroup>
             <BlockAdsSwitch.Trigger>
               <BlockAdsSwitch.Thumb />
             </BlockAdsSwitch.Trigger>
-          </BlockAdsSwitch>
-        </ListItem.Content>
+          </ListItem.ActionGroup>
+        </BlockAdsSwitch>
       </ListItem.Item>
     </ListItem>
   );

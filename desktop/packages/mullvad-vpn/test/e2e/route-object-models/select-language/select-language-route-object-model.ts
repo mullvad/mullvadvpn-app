@@ -17,4 +17,8 @@ export class SelectLanguageRouteObjectModel {
   async selectLanguage(language: string) {
     await this.selectors.languageOption(language).click();
   }
+
+  async goBack() {
+    await this.utils.expectRouteChange(() => this.selectors.backButton().click());
+  }
 }

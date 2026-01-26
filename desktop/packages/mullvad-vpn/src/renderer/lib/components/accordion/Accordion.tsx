@@ -1,56 +1,48 @@
 import React from 'react';
 
-import { ListItem, ListItemProps } from '../list-item';
+import { ListItem } from '../list-item';
 import { AccordionProvider } from './AccordionContext';
 import {
+  AccordionContainer,
   AccordionContent,
   AccordionHeader,
+  AccordionHeaderItem,
   AccordionIcon,
   AccordionTitle,
   AccordionTrigger,
 } from './components';
 
-export type AccordionAnimation = 'flash' | 'dim';
-
-export type AccordionProps = {
+export type AccordionProps = React.PropsWithChildren<{
   expanded?: boolean;
   onExpandedChange?: (open: boolean) => void;
   disabled?: boolean;
   titleId?: string;
-  animation?: AccordionAnimation;
-  children?: React.ReactNode;
-} & ListItemProps;
+}>;
 
 function Accordion({
   expanded = false,
-  onExpandedChange: onOpenChange,
+  onExpandedChange,
   disabled,
-  animation,
-  titleId: titleIdProp,
+  titleId,
   children,
-  ...props
 }: AccordionProps) {
-  const triggerId = React.useId();
-  const contentId = React.useId();
-  const titleId = React.useId();
   return (
     <AccordionProvider
-      triggerId={triggerId}
-      contentId={contentId}
-      titleId={titleIdProp ?? titleId}
+      titleId={titleId}
       expanded={expanded}
-      onExpandedChange={onOpenChange}
+      onExpandedChange={onExpandedChange}
       disabled={disabled}>
-      <ListItem disabled={disabled} animation={animation} {...props}>
-        {children}
-      </ListItem>
+      {children}
     </AccordionProvider>
   );
 }
 
 const AccordionNamespace = Object.assign(Accordion, {
+  Container: AccordionContainer,
   Trigger: AccordionTrigger,
   Header: AccordionHeader,
+  HeaderItem: AccordionHeaderItem,
+  HeaderActionGroup: ListItem.ActionGroup,
   Content: AccordionContent,
   Title: AccordionTitle,
   Icon: AccordionIcon,

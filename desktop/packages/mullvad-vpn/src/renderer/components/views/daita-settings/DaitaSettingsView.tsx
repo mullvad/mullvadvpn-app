@@ -27,22 +27,21 @@ export function DaitaSettingsView() {
 
           <NavigationScrollbars>
             <View.Content>
-              <Flex flexDirection="column" gap="medium">
-                <View.Container horizontalMargin="medium" flexDirection="column">
-                  <FlexColumn gap="medium">
-                    <HeaderTitle>{strings.daita}</HeaderTitle>
-                    {showDaitaMultihopInfo && (
-                      <Flex gap="small" alignItems="center">
-                        <Icon icon="info-circle" color="whiteOnBlue60" size="small" />
-                        <Text variant="labelTinySemiBold" color="whiteAlpha60">
-                          {messages.pgettext(
-                            'wireguard-settings-view',
-                            'Multihop is being used to enable DAITA for your selected location',
-                          )}
-                        </Text>
-                      </Flex>
-                    )}
-
+              <FlexColumn gap="medium">
+                <View.Container horizontalMargin="medium" flexDirection="column" gap="medium">
+                  <HeaderTitle>{strings.daita}</HeaderTitle>
+                  {showDaitaMultihopInfo && (
+                    <Flex gap="small" alignItems="center">
+                      <Icon icon="info-circle" color="whiteOnBlue60" size="small" />
+                      <Text variant="labelTinySemiBold" color="whiteAlpha60">
+                        {messages.pgettext(
+                          'wireguard-settings-view',
+                          'Multihop is being used to enable DAITA for your selected location',
+                        )}
+                      </Text>
+                    </Flex>
+                  )}
+                  <FlexColumn gap="large">
                     <Carousel
                       aria-label={
                         // TRANSLATORS: Accessibility label for a carousel that explains the DAITA feature to the user.
@@ -149,13 +148,13 @@ export function DaitaSettingsView() {
                         </Carousel.ControlGroup>
                       </Carousel.Controls>
                     </Carousel>
+                    <FlexColumn>
+                      <DaitaSetting />
+                      <DaitaDirectOnlySetting />
+                    </FlexColumn>
                   </FlexColumn>
                 </View.Container>
-                <FlexColumn>
-                  <DaitaSetting />
-                  <DaitaDirectOnlySetting />
-                </FlexColumn>
-              </Flex>
+              </FlexColumn>
             </View.Content>
           </NavigationScrollbars>
         </NavigationContainer>

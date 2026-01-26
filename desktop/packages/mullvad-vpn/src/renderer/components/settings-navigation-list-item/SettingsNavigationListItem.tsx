@@ -15,9 +15,7 @@ function SettingsNavigationListItem({ to, children, ...props }: SettingsNavigati
   return (
     <SettingsListItem {...props}>
       <SettingsListItem.Trigger onClick={navigate}>
-        <SettingsListItem.Item>
-          <SettingsListItem.Content>{children}</SettingsListItem.Content>
-        </SettingsListItem.Item>
+        <SettingsListItem.Item>{children}</SettingsListItem.Item>
       </SettingsListItem.Trigger>
     </SettingsListItem>
   );
@@ -26,6 +24,7 @@ function SettingsNavigationListItem({ to, children, ...props }: SettingsNavigati
 const SettingsNavigationListItemNamespace = Object.assign(SettingsNavigationListItem, {
   Label: SettingsListItem.Label,
   Group: SettingsListItem.Group,
+  ActionGroup: SettingsListItem.ActionGroup,
   Text: SettingsListItem.Text,
   Footer: SettingsListItem.Footer,
   Icon: SettingsListItem.Icon,

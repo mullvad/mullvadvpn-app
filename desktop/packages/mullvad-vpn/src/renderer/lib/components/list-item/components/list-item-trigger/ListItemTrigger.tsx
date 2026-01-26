@@ -4,10 +4,10 @@ import styled, { css } from 'styled-components';
 import { colors } from '../../../../foundations';
 import { useListItemContext } from '../../ListItemContext';
 import { StyledListItemItem } from '../list-item-item';
+import { StyledListItemTrailingAction } from '../list-item-trailing-action';
 
-const StyledButton = styled.button<{ $disabled?: boolean }>`
+export const StyledListItemTrigger = styled.button`
   display: flex;
-  width: 100%;
   background-color: transparent;
 
   &&:focus-visible {
@@ -23,10 +23,16 @@ const StyledButton = styled.button<{ $disabled?: boolean }>`
           ${StyledListItemItem} {
             background-color: ${colors.whiteOnBlue10};
           }
+          ${StyledListItemTrailingAction} {
+            background-color: ${colors.whiteOnBlue10};
+          }
         }
 
         &:active {
           ${StyledListItemItem} {
+            background-color: ${colors.whiteOnBlue20};
+          }
+          ${StyledListItemTrailingAction} {
             background-color: ${colors.whiteOnBlue20};
           }
         }
@@ -41,7 +47,7 @@ export type ListItemTriggerProps = React.HtmlHTMLAttributes<HTMLButtonElement>;
 
 export const ListItemTrigger = forwardRef<HTMLButtonElement, ListItemTriggerProps>((props, ref) => {
   const { disabled } = useListItemContext();
-  return <StyledButton ref={ref} disabled={disabled} {...props} />;
+  return <StyledListItemTrigger ref={ref} disabled={disabled} {...props} />;
 });
 
 ListItemTrigger.displayName = 'ListItemTrigger';
