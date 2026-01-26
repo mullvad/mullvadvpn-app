@@ -32,8 +32,8 @@ export function AppInfoListItem(props: AppInfoListItemProps) {
       </FlexColumn>
       <SettingsNavigationListItem.ActionGroup>
         <SettingsNavigationListItem.Group gap="small">
-          {suggestedUpgrade && <Dot variant="warning" size="small" />}
           <SettingsNavigationListItem.Text>{current}</SettingsNavigationListItem.Text>
+          {suggestedUpgrade && <Dot variant="warning" size="small" />}
         </SettingsNavigationListItem.Group>
         <SettingsNavigationListItem.Icon icon="chevron-right" />
       </SettingsNavigationListItem.ActionGroup>
