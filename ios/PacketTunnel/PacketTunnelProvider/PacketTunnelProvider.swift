@@ -487,16 +487,8 @@ extension PacketTunnelProvider: EphemeralPeerReceiving {
     }
 
     func ephemeralPeerExchangeFailed() {
-        // Do not retry connection unless there's network reachability. Doing so will lead to a hot loop where
-        // connections are retried every time peer exchange fails, which it will if reachability is not satisfied.
-        if defaultPathObserver.currentPathStatus.networkReachability == .reachable {
-            // Do not try reconnecting to the `.current` relay, else the actor's `State` equality check will fail
-            // and it will not try to reconnect
-            Task {
-                if await !actor.isErrorState() {
-                    actor.reconnect(to: .random, reconnectReason: .connectionLoss)
-                }
-            }
-        }
+        // Do not try reconnecting to the `.current` relay, else the actor's `State` equality check will fail
+        // and it will not try to reconnect
+        actor.reconnect(to: .random, reconnectReason: .connectionLoss)
     }
 }
