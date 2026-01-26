@@ -12,6 +12,14 @@
         <item quantity="one">%1$d maand</item>
         <item quantity="other">%1$d maanden</item>
     </plurals>
+    <plurals name="days_left">
+        <item quantity="one">1 dag resterend op dit account</item>
+        <item quantity="other">%1$d dagen resterend op dit account</item>
+    </plurals>
+    <plurals name="years_left">
+        <item quantity="one">1 jaar resterend op dit account</item>
+        <item quantity="other">%1$d jaar resterend op dit account</item>
+    </plurals>
     <plurals name="account_credit_expires_in_days">
         <item quantity="one">Accountkrediet verloopt over een dag</item>
         <item quantity="other">Accountkrediet verloopt over %1$d dagen</item>

@@ -14,9 +14,11 @@
     <string name="add_method">方法の追加</string>
     <string name="add_time">時間を追加</string>
     <string name="add_time_to_account">当社ウェブサイトでクレジットを購入するか、バウチャーを使用してください。</string>
+    <string name="add_to_list">リストに追加</string>
     <string name="added_to_your_account">ご利用のアカウントに %1$s が追加されました。</string>
     <string name="adding_method">方法を追加しています...</string>
     <string name="agree_and_continue">同意して続行</string>
+    <string name="all">すべて</string>
     <string name="all_applications">すべてのアプリケーション</string>
     <string name="all_locations">すべての場所</string>
     <string name="all_providers">すべてのプロバイダ</string>
@@ -27,6 +29,8 @@
     <string name="android_16_upgrade_warning_message">Android 16には既知の問題があります。デバイスを再起動して再試行してください。詳細は、</string>
     <string name="android_16_upgrade_warning_title">接続できませんか？</string>
     <string name="anti_censorship">検閲回避</string>
+    <string name="anti_censorship_info_first_paragraph">これらの方式は、Mullvadへの接続がブロックされている状況で役立つ可能性があります。「自動」を選択すると、アプリは有効な方法が見つかるまですべての方式を試します。</string>
+    <string name="anti_censorship_info_second_paragraph">&lt;b&gt;これらの方式はパフォーマンスを向上させるものではなく、システム使用率やバッテリー消費量を増加させる可能性がありますのでご注意ください。&lt;/b&gt;</string>
     <string name="any">すべて</string>
     <string name="api_access_description">Mullvad APIへのカスタムのアクセス方法を管理・追加します。</string>
     <string name="api_access_method_info_first_line">アプリはユーザーのログイン、サーバーリストの取得、およびその他の重要な操作を行うためにMullvad APIサーバーと通信する必要があります。</string>
@@ -39,7 +43,15 @@
     <string name="api_unreachable_save_anyway">API に到達できません。方法を保存しますか？</string>
     <string name="app_info">アプリ情報</string>
     <string name="app_is_blocking_internet">アプリがインターネットをブロックしています。先に切断してください</string>
+    <string name="app_name_browser">ブラウザ</string>
+    <string name="app_name_notes">メモ</string>
+    <string name="app_name_weather">天気</string>
+    <string name="appearance">外観</string>
+    <string name="appearance_description">Androidデバイス上で、Mullvad VPNアプリのタイトルとアイコンを変更します。この変更は、Mullvad VPNに関連する通知のアイコンには適用されません。</string>
+    <string name="appearance_description_warning">&lt;b&gt;注意：&lt;/b&gt;新しいアイコンとタイトルを選択すると、アプリは自動的に終了します。その後、手動で再起動する必要があります。なお、この操作によってVPN接続が切断されることはありません。</string>
+    <string name="appearance_description_warning_tv">TVデバイスをご利用の場合は、デバイス自体の再起動が必要になることがあります。</string>
     <string name="apply">適用</string>
+    <string name="applying_changes">変更内容を適用しています…</string>
     <string name="at_least_on_method_needs_to_enabled">方法は少なくとも 1 つは有効化する必要があります</string>
     <string name="auth_failed">アカウントを認証できません。問題の報告を送信してください。</string>
     <string name="authentication">認証</string>
@@ -115,6 +127,8 @@
     <string name="custom_port_dialog_remove">カスタムポートを削除</string>
     <string name="custom_port_dialog_submit">ポートを設定</string>
     <string name="custom_port_dialog_valid_ranges">有効な範囲: %1$s</string>
+    <string name="custom_port_recommended_range_first">&lt;b&gt;注意:&lt;/b&gt; 全ポート範囲をサポートしているのは一部のサーバーのみです。</string>
+    <string name="custom_port_recommended_range_second">全サーバーの有効範囲: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">カスタムトンネルのホストを解決できません。設定を変更してみてください。</string>
     <string name="daita_description_slide_1_first_paragraph">注意: これによりネットワークトラフィックが増加し、速度、遅延、およびバッテリー使用率に悪影響を及ぼします。上限付きプランでは注意して使用してください。</string>
     <string name="daita_description_slide_1_second_paragraph">%1$s (%2$s) は暗号化されたVPNトラフィックのパターンを隠します。</string>
@@ -142,6 +156,7 @@
     <string name="device_name_info_first_paragraph">これはデバイスに割り当てられる名前です。Mullvadアカウントにログインするデバイスごとに一意の名前が付けられるため、アプリまたはウェブサイトでデバイスを管理する際にデバイスを区別しやすくなります。</string>
     <string name="device_name_info_second_paragraph">1つのMullvadアカウントで最大5台のデバイスにログインできます。</string>
     <string name="device_name_info_third_paragraph">ログアウトすると、デバイスとデバイス名が削除されます。もう一度ログインすると、デバイスに新しい名前が付けられます。</string>
+    <string name="direct">ダイレクト</string>
     <string name="direct_only">ダイレクトのみ</string>
     <string name="direct_only_description">すべてのサーバーが%1$sに対応しているわけではありません。インターネットを使用するには、有効化した後に新しい場所を選択する必要がある場合もあります。</string>
     <string name="disable_multihop">マルチホップを無効化する</string>
@@ -188,6 +203,7 @@
     <string name="exclude_applications">除外対象アプリケーション</string>
     <string name="exit">出口</string>
     <string name="expand">展開</string>
+    <string name="external_link">外部リンク</string>
     <string name="failed_to_block_internet">すべてのネットワークトラフィックをブロックできません。問題に対処するか、問題の報告を送信してください。</string>
     <string name="failed_to_create_account">アカウントを作成できませんでした</string>
     <string name="failed_to_fetch_devices">デバイスのリストを取得できませんでした</string>
@@ -210,6 +226,7 @@
     <string name="here_is_your_account_number">これがあなたのアカウント番号です。保存してください！</string>
     <string name="hide_account_number">アカウント番号の非表示</string>
     <string name="hint_default">デフォルト</string>
+    <string name="icon_and_title">アイコンとタイトル</string>
     <string name="import_override_textfield_placeholder">インポートするオーバーライドを貼り付けるか、または記入してください</string>
     <string name="import_overrides_bottom_sheet_override_warning">新しいオーバーライドをインポートすると、以前インポートしたオーバーライドが置き換えられる可能性があります。</string>
     <string name="import_overrides_import">インポート</string>
@@ -230,6 +247,7 @@
     <string name="is_offline">デバイスがオフラインになっています。トンネルはデバイスがオンラインに戻ると自動的に接続されます。</string>
     <string name="legacy_always_on_vpn_error_notification_content">トンネル接続を開始できません。Mullvad VPNを使用する前にAlways-on VPNを無効にしてください。</string>
     <string name="legacy_always_on_vpn_error_notification_title">Always-on VPNは他のVPNに割り当てられました</string>
+    <string name="less_than_a_day_left">このアカウントの残り時間は1日未満です</string>
     <string name="less_than_one_day">1日未満</string>
     <string name="list_name">リスト名</string>
     <string name="loading_products">製品を読み込み中</string>
@@ -243,6 +261,7 @@
     <string name="location_was_removed_from_list">%1$sが「%2$s」から削除されました</string>
     <string name="locations">場所</string>
     <string name="locations_were_changed_for">\"%1$s\" の場所が変更されました</string>
+    <string name="log_in">ログイン</string>
     <string name="log_out">ログアウト</string>
     <string name="logged_in_description">有効なアカウント番号</string>
     <string name="logged_in_title">ログインしました</string>
@@ -268,12 +287,16 @@
     <string name="more_actions">その他の操作</string>
     <string name="more_information">詳細情報</string>
     <string name="mtu">MTU</string>
+    <string name="mtu_x">値: %1$s</string>
     <string name="mullvad_owned_only">Mullvad 所有サーバーのみ</string>
     <string name="multihop">マルチホップ</string>
     <string name="multihop_description">マルチホップはトラフィックをあるWireGuardサーバーにルーティングし、別サーバーに送出することで追跡を困難にします。これによって遅延が増加しますが、オンラインの匿名性は高まります。</string>
     <string name="multihop_entry_disabled_description">%1$sの入口サーバーは現在、%2$sによってオーバーライドされています。入口サーバーを選択するには、設定で [%3$s] を有効にするか、[%2$s] を無効にしてください。</string>
+    <string name="multihop_is_disabled">マルチホップは無効です</string>
+    <string name="multihop_is_enabled">マルチホップは有効です</string>
     <string name="name">名前</string>
     <string name="name_was_changed_to">名前が %1$s に変更されました</string>
+    <string name="navigate">移動</string>
     <string name="new_changelog_notification_message">新機能を確認するにはここをクリックしてください。</string>
     <string name="new_changelog_notification_title">新バージョンがインストールされました</string>
     <string name="new_device_notification_message">ようこそ。このデバイス名は&lt;b&gt;%1$s&lt;/b&gt;です。</string>
@@ -291,6 +314,7 @@
     <string name="none">なし</string>
     <string name="not_found">見つかりませんでした</string>
     <string name="number_of_providers">プロバイダ数: %1$d</string>
+    <string name="number_parentheses">(%1$d)</string>
     <string name="obfuscation_info">難読化は、WireGuardトラフィックを別のプロトコル内に隠します。プレーンなWireGuard接続がブロックされる検閲やその他のフィルタリングを回避するために使用できます。</string>
     <string name="obfuscation_info_shadowsocks_batteryusage">注意: Shadowsocksの場合、データ通信の使い方 (動画配信など) によってはバッテリー消費量が増加する可能性があります。</string>
     <string name="off">オフ</string>
@@ -372,6 +396,10 @@
     <string name="server_ip_overrides_reset_body">すべてのオーバーライドはリセットされ、場所の選択ビューのサーバーの IP アドレスはデフォルトに戻ります。</string>
     <string name="server_ip_overrides_reset_reset_button">リセット</string>
     <string name="server_ip_overrides_reset_title">すべてのオーバーライドをリセット</string>
+    <string name="set_as_multihop_entry">マルチホップの入口に設定</string>
+    <string name="set_as_multihop_entry_unavailable">マルチホップの入口に設定（非対応）</string>
+    <string name="set_as_multihop_exit">マルチホップの出口に設定</string>
+    <string name="set_as_multihop_exit_unavailable">マルチホップの出口に設定（非対応）</string>
     <string name="set_dns_error">システムのDNSサーバーを設定できません。問題の報告を送信してください。</string>
     <string name="set_firewall_policy_error">ファイアウォールのルールを適用できません。問題に対処するか、問題の報告を送信してください。</string>
     <string name="setting_chip">設定: %1$s</string>
@@ -446,6 +474,7 @@
     <string name="vpn_permission_error_notification_message">[接続] を押してVPNへのアクセス許可をリクエストしてください</string>
     <string name="vpn_permission_error_notification_title">VPN許可エラー</string>
     <string name="vpn_settings_not_available">デバイスのVPN設定を利用できません</string>
+    <string name="warning">警告</string>
     <string name="we_will_look_into_this">この問題を調査いたします。</string>
     <string name="wireguard_custon_port_title">カスタム</string>
     <string name="wireguard_mtu_footer">WireGuardのMTU値を設定します。有効範囲: %1$d ～ %2$d</string>
@@ -457,4 +486,6 @@
     <string name="x_entry">%1$s (入口)</string>
     <string name="x_exit">%1$s (出口)</string>
     <string name="x_via_x">%1$s (%2$s経由)</string>
+    <string name="you_can_add_more_time_oss">アカウント画面かウェブサイトから時間を追加することで、VPNを引き続き使用できます。</string>
+    <string name="you_can_add_more_time_play">アカウント画面から時間を追加することで、VPNを引き続き使用できます。</string>
 </resources>

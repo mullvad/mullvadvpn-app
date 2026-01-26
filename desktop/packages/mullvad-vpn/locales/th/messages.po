@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Thai\n"
 "Language: th_TH\n"
-"PO-Revision-Date: 2025-12-08 09:00\n"
+"PO-Revision-Date: 2026-01-22 08:54\n"
 
 msgid "%(amount)d more..."
 msgstr "อีก %(amount)d..."
@@ -313,10 +313,6 @@ msgid "%(wireguard)s port settings"
 msgstr "การตั้งค่าพอร์ต %(wireguard)s"
 
 msgctxt "accessibility"
-msgid "Add new custom bridge"
-msgstr "เพิ่ม Bridge ใหม่แบบกำหนดเอง"
-
-msgctxt "accessibility"
 msgid "Close notification"
 msgstr "ปิดการแจ้งเตือน"
 
@@ -330,9 +326,10 @@ msgctxt "accessibility"
 msgid "Copy account number"
 msgstr "คัดลอกหมายเลขบัญชี"
 
+#. Accessibility label for a carousel that explains the DAITA feature to the user.
 msgctxt "accessibility"
-msgid "Edit custom bridge"
-msgstr "แก้ไข Bridge แบบกำหนดเอง"
+msgid "DAITA information carousel"
+msgstr "ภาพสไลด์ข้อมูล DAITA"
 
 msgctxt "accessibility"
 msgid "Expand %(location)s"
@@ -358,15 +355,28 @@ msgctxt "accessibility"
 msgid "Go to app update page"
 msgstr "ไปที่หน้าอัปเดตแอป"
 
+#. Accessibility label for carousel indicators that allow navigation between slides.
+#. Available placeholders:
+#. %(index)s - Will be replaced with the slide index number.
+msgctxt "accessibility"
+msgid "Go to slide %(index)s"
+msgstr "ไปที่สไลด์ %(index)s"
+
 #. Provided to accessibility tools such as screenreaders to describe
 #. the button which obscures the account number.
 msgctxt "accessibility"
 msgid "Hide account number"
 msgstr "ซ่อนหมายเลขบัญชี"
 
+#. Alt text for an illustration showing VPN traffic with DAITA.
 msgctxt "accessibility"
-msgid "info"
-msgstr "ข้อมูล"
+msgid "Illustration showing VPN traffic with DAITA enabled"
+msgstr "ภาพแสดงการรับส่งข้อมูล VPN เมื่อเปิดใช้งาน DAITA"
+
+#. Alt text for an illustration showing VPN traffic without DAITA.
+msgctxt "accessibility"
+msgid "Illustration showing VPN traffic without DAITA"
+msgstr "ภาพแสดงการรับส่งข้อมูล VPN โดยไม่ใช้ DAITA"
 
 #. This is used by screenreaders to communicate the login button.
 msgctxt "accessibility"
@@ -397,10 +407,20 @@ msgctxt "accessibility"
 msgid "New version installed, click here to see the changelog"
 msgstr "ติดตั้งเวอร์ชันใหม่แล้ว คลิกที่นี่ เพื่อดูบันทึกการเปลี่ยนแปลง"
 
+#. Accessibility label for a button that navigates to the next slide in a carousel.
+msgctxt "accessibility"
+msgid "Next slide"
+msgstr "สไลด์ถัดไป"
+
 #. Accessibility label for the button that opens the browser to buy credit.
 msgctxt "accessibility"
 msgid "Opens externally"
 msgstr "เปิดจากภายนอก"
+
+#. Accessibility label for a button that navigates to the previous slide in a carousel.
+msgctxt "accessibility"
+msgid "Previous slide"
+msgstr "สไลด์ก่อนหน้า"
 
 #. Button action description provided to accessibility tools such as screen
 #. readers.
@@ -1020,32 +1040,12 @@ msgid "%(relay)s via %(entry)s"
 msgstr "%(relay)s ผ่าน %(entry)s"
 
 msgctxt "connection-info"
-msgid "%(relay)s via Custom bridge"
-msgstr "%(relay)s ผ่าน Bridge แบบกำหนดเอง"
-
-msgctxt "connection-info"
 msgid "In"
 msgstr "เข้า"
 
 msgctxt "connection-info"
 msgid "Out"
 msgstr "ออก"
-
-msgctxt "custom-bridge"
-msgid "Add custom bridge"
-msgstr "เพิ่ม Bridge แบบกำหนดเอง"
-
-msgctxt "custom-bridge"
-msgid "Delete custom bridge?"
-msgstr "ลบ Bridge แบบกำหนดเองหรือไม่"
-
-msgctxt "custom-bridge"
-msgid "Deleting the custom bridge will take you back to the select location view and the Automatic option will be selected instead."
-msgstr "การลบ Bridge แบบกำหนดเอง จะนำคุณกำลังไปยังมุมมองตำแหน่งที่เลือก และตัวเลือกอัตโนมัติจะถูกเลือกแทน"
-
-msgctxt "custom-bridge"
-msgid "Edit custom bridge"
-msgstr "แก้ไข Bridge แบบกำหนดเอง"
 
 #. Button for continuing login process.
 msgctxt "device-management"
@@ -1845,10 +1845,6 @@ msgctxt "select-location-view"
 msgid "%(location)s (%(info)s)"
 msgstr "%(location)s (%(info)s)"
 
-msgctxt "select-location-view"
-msgid "A custom bridge server can be used to circumvent censorship when regular Mullvad bridge servers don’t work."
-msgstr "เซิร์ฟเวอร์ Bridge แบบกำหนดเองสามารถนำมาใช้เพื่อหลีกเลี่ยงการเซ็นเซอร์ได้ เมื่อเซิร์ฟเวอร์บริดจ์ Mullvad ตามปกติไม่ทำงาน"
-
 #. This is a label shown above a list of options.
 #. Available placeholder:
 #. %(locationType) - Could be either "Country", "City" and "Relay"
@@ -1867,10 +1863,6 @@ msgstr "เมือง"
 msgctxt "select-location-view"
 msgid "Country"
 msgstr "ประเทศ"
-
-msgctxt "select-location-view"
-msgid "Custom bridge"
-msgstr "Bridge แบบกำหนดเอง"
 
 msgctxt "select-location-view"
 msgid "Custom lists"
@@ -1926,10 +1918,6 @@ msgstr "รีเลย์"
 msgctxt "select-location-view"
 msgid "Setting: %(settingName)s"
 msgstr "การตั้งค่า: %(settingName)s"
-
-msgctxt "select-location-view"
-msgid "The app selects a random bridge server, but servers have a higher probability the closer they are to you."
-msgstr "แอปจะเลือกเซิร์ฟเวอร์บริดจ์แบบสุ่ม แต่เซิร์ฟเวอร์จะยิ่งมีโอกาสถูกเลือกมากขึ้น หากเซิร์ฟเวอร์ยิ่งอยู่ใกล้คุณ"
 
 msgctxt "select-location-view"
 msgid "The entry server for %(multihop)s is currently overridden by %(daita)s. To select an entry server, please first enable “%(directOnly)s” or disable \"%(daita)s\" in the settings."
@@ -2125,8 +2113,8 @@ msgstr "รีสตาร์ตบริการ Mullavad"
 #. Available placeholders:
 #. %(splitTunneling)s - will be replaced with Split tunneling
 msgctxt "split-tunneling-view"
-msgid "To use %(splitTunneling)s, please change to a Linux kernel version that supports cgroup v1."
-msgstr "หากต้องการใช้ %(splitTunneling)s โปรดเปลี่ยนเป็นเวอร์ชันเคอร์เนล Linux ที่รองรับ cgroup v1"
+msgid "To use %(splitTunneling)s, please update to a Linux kernel version that supports cgroup v2."
+msgstr "หากต้องการใช้ %(splitTunneling)s โปรดอัปเดตเป็นเวอร์ชันเคอร์เนล Linux ที่รองรับ cgroup v2"
 
 msgctxt "split-tunneling-view"
 msgid "To use split tunneling please enable “Full disk access” for “Mullvad VPN” in the macOS system settings."
@@ -2553,10 +2541,6 @@ msgid "Trackers"
 msgstr "ตัวติดตาม"
 
 msgctxt "vpn-settings-view"
-msgid "Tunnel protocol"
-msgstr "โพรโทคอลอุโมงค์"
-
-msgctxt "vpn-settings-view"
 msgid "Use custom DNS server"
 msgstr "ใช้เซิร์ฟเวอร์ DNS แบบกำหนดเอง"
 
@@ -2698,10 +2682,6 @@ msgid "Shadowsocks"
 msgstr "Shadowsocks"
 
 msgctxt "wireguard-settings-view"
-msgid "Switch to “%(wireguard)s” in Settings > %(tunnelProtocol)s to make %(setting)s available."
-msgstr "เปลี่ยนเป็น “%(wireguard)s” ใน การตั้งค่า > %(tunnelProtocol)s เพื่อทำให้ %(setting)s พร้อมใช้งาน"
-
-msgctxt "wireguard-settings-view"
 msgid "The automatic setting will randomly choose from the valid port ranges shown below."
 msgstr "การตั้งค่าอัตโนมัติจะเป็นการสุ่มเลือกจากช่วงพอร์ตที่ใช้งานได้ต่างๆ ซึ่งแสดงอยู่ด้านล่าง"
 
@@ -2747,9 +2727,6 @@ msgstr "%s (เพิ่มแล้ว)"
 msgid "%s (removed)"
 msgstr "%s (ลบแล้ว)"
 
-msgid "%s custom port"
-msgstr "พอร์ต %s แบบกำหนดเอง"
-
 msgid "%s is already selected as entry relay"
 msgstr "%s ถูกเลือกเป็น Entry Relay อยู่แล้ว"
 
@@ -2764,6 +2741,9 @@ msgstr "การตั้งค่า %s."
 
 msgid "%s was added to your account."
 msgstr "%s ถูกเพิ่มลงในบัญชีของคุณแล้ว"
+
+msgid "(%d)"
+msgstr "(%d)"
 
 msgid "1. After clicking on the \"Go to VPN settings\" button below, click on the cogwheel next to the \"Mullvad VPN\" name."
 msgstr "1. หลังจากคลิกปุ่ม \"ไปที่การตั้งค่า VPN\" ที่ด้านล่าง ให้คลิกล้อเฟืองที่อยู่ถัดจากชื่อ \"Mullvad VPN\""
@@ -2780,6 +2760,15 @@ msgstr "30 วัน ถูกเพิ่มลงในบัญชีขอ�
 msgid "90 days was added to your account."
 msgstr "เพิ่ม 90 วันในบัญชีของคุณแล้ว"
 
+msgid "<b>Attention:</b> Only some servers support the full port range."
+msgstr "<b>ข้อควรระวัง:</b> มีเพียงบางเซิร์ฟเวอร์เท่านั้นที่รองรับช่วงพอร์ตได้ทั้งหมด"
+
+msgid "<b>Attention:</b> The app will close automatically and needs to be manually opened again after selecting a new icon and title. This will not impact your VPN connection."
+msgstr "<b>ข้อควรระวัง:</b> แอปจะปิดโดยอัตโนมัติและต้องเปิดใหม่ด้วยตนเองหลังจากเลือกไอคอนและชื่อใหม่ การดำเนินการนี้จะไม่ส่งผลต่อการเชื่อมต่อ VPN ของคุณ"
+
+msgid "<b>Please note that these methods do not improve performance, and may increase system utilization and battery consumption.</b>"
+msgstr "<b>โปรดทราบว่าวิธีการเหล่านี้ไม่ได้ช่วยปรับปรุงประสิทธิภาพ แต่อาจเพิ่มการใช้งานระบบและการใช้แบตเตอรี่</b>"
+
 msgid "API reachable, adding method..."
 msgstr "เข้าถึง API ได้ กำลังเพิ่มวิธีการ..."
 
@@ -2789,17 +2778,11 @@ msgstr "เข้าถึง API ไม่ได้ บันทึกวิธ
 msgid "Account credit expires in a few minutes"
 msgstr "เครดิตของบัญชีจะหมดอายุในอีกไม่กี่นาที"
 
-msgid "Account credit expires soon"
-msgstr "เครดิตของบัญชีจะหมดอายุในเร็วๆ นี้"
-
 msgid "Account number is too long, please enter a valid number"
 msgstr "หมายเลขบัญชียาวเกินไป โปรดใส่หมายเลขที่ถูกต้อง"
 
 msgid "Account time reminders"
 msgstr "การแจ้งเตือนเวลาบัญชี"
-
-msgid "Add %s to list"
-msgstr "เพิ่ม %s ลงในรายการ"
 
 msgid "Add 30 days time (%s)"
 msgstr "เพิ่มเวลา 30 วัน (%s)"
@@ -2816,6 +2799,9 @@ msgstr "เพิ่มตำแหน่งที่ตั้ง"
 msgid "Add time"
 msgstr "เพิ่มเวลา"
 
+msgid "Add to list"
+msgstr "เพิ่มลงในรายการ"
+
 msgid "Adding method..."
 msgstr "กำลังเพิ่มวิธีการ..."
 
@@ -2824,6 +2810,9 @@ msgstr "หลังจากอัปเดตแอป VPN บน Android 16 �
 
 msgid "Agree and continue"
 msgstr "ยอมรับและดำเนินการต่อ"
+
+msgid "All"
+msgstr "ทั้งหมด"
 
 msgid "All applications"
 msgstr "แอปพลิเคชันทั้งหมด"
@@ -2839,6 +2828,12 @@ msgstr "VPN เปิดอยู่เสมอ ได้รับการม�
 
 msgid "Android 16 has a known issue. Please restart your device and try again. To learn more,"
 msgstr "Android 16 มีปัญหาที่ทราบแล้ว โปรดรีสตาร์ทอุปกรณ์ของคุณแล้วลองอีกครั้ง หากต้องการเรียนรู้เพิ่มเติม"
+
+msgid "Appearance"
+msgstr "รูปลักษณ์"
+
+msgid "Applying changes..."
+msgstr "กำลังปรับใช้การเปลี่ยนแปลง..."
 
 msgid "Are you sure you want to log <b>%s</b> out?"
 msgstr "คุณแน่ใจหรือไม่ว่าต้องการออกจากระบบ <b>%s</b>"
@@ -2873,11 +2868,17 @@ msgstr "กำลังบล็อกอินเทอร์เน็ต (อ�
 msgid "Blocking..."
 msgstr "กำลังบล็อก..."
 
+msgid "Browser"
+msgstr "เบราว์เซอร์"
+
 msgid "By attaching your account token it links this report to your account, which helps us resolve your issue quicker. All reports are automatically deleted after a period of time."
 msgstr "การแนบโทเค็นบัญชีของคุณจะเชื่อมโยงรายงานนี้เข้ากับบัญชีของคุณ ซึ่งจะช่วยให้เราแก้ไขปัญหาของคุณได้เร็วขึ้น รายงานทั้งหมดจะถูกลบโดยอัตโนมัติหลังจากผ่านไประยะเวลาหนึ่ง"
 
 msgid "Can't connect?"
 msgstr "ไม่สามารถเชื่อมต่อได้ใช่ไหม"
+
+msgid "Change the title and icon of the Mullvad VPN app on your Android device. This will not change the icon for any Mullvad VPN related notifications."
+msgstr "เปลี่ยนชื่อและไอคอนของแอป Mullvad VPN บนอุปกรณ์ Android ของคุณ การดำเนินการนี้จะไม่เปลี่ยนไอคอนสำหรับการแจ้งเตือนที่เกี่ยวข้องกับ Mullvad VPN"
 
 msgid "Changes to DNS related settings might not go into effect immediately due to cached results."
 msgstr "การเปลี่ยนแปลงการตั้งค่าที่เกี่ยวข้องกับ DNS อาจไม่มีผลทันที เนื่องจากผลลัพธ์ที่แคชไว้"
@@ -2909,9 +2910,6 @@ msgstr "คัดลอก"
 msgid "Create"
 msgstr "สร้าง"
 
-msgid "Create account"
-msgstr "สร้างบัญชี"
-
 msgid "Create new list"
 msgstr "สร้างรายการใหม่"
 
@@ -2938,6 +2936,9 @@ msgstr "ลบวิธีการ"
 
 msgid "Delete method?"
 msgstr "ลบวิธีการหรือไม่"
+
+msgid "Direct"
+msgstr "โดยตรง"
 
 msgid "Disable all \"%s\" above to activate this setting."
 msgstr "ปิดใช้งาน \"%s\" ด้านบนทั้งหมด เพื่อเปิดใช้งานการตั้งค่านี้"
@@ -3011,6 +3012,9 @@ msgstr "แอปพลิเคชันที่แยกออก"
 msgid "Expand"
 msgstr "ขยาย"
 
+msgid "External link"
+msgstr "ลิงก์ภายนอก"
+
 msgid "FAILED TO CONNECT"
 msgstr "ไม่สามารถเชื่อมต่อได้"
 
@@ -3056,6 +3060,9 @@ msgstr "IPv4 ไม่พร้อมใช้งาน โปรดลองเ
 msgid "IPv6 is not available, please try changing \"Device IP version\" setting."
 msgstr "IPv6 ไม่พร้อมใช้งาน โปรดลองเปลี่ยนการตั้งค่า \"เวอร์ชัน IP อุปกรณ์\""
 
+msgid "Icon and title"
+msgstr "ไอคอนและชื่อ"
+
 msgid "If the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
 msgstr "หากมีการใช้งานคุณลักษณะการแยกอุโมงค์ แอปจะขอให้ระบบของคุณระบุแอปพลิเคชันที่ติดตั้งไว้ทั้งหมด รายการนี้จะได้รับการเรียกใช้งานในมุมมองการแยกอุโมงค์เท่านั้น รายการแอปพลิเคชันที่ติดตั้งไว้ทั้งหมด จะไม่ถูกส่งออกจากอุปกรณ์"
 
@@ -3080,6 +3087,9 @@ msgstr "รวมโทเค็นบัญชีของฉันเพื่
 msgid "Invalid or missing value \"%1$s\""
 msgstr "ค่า \"%1$s” ไม่ถูกต้องหรือขาดหายไป"
 
+msgid "Less than a day left on this account"
+msgstr "บัญชีนี้เหลือเวลาไม่ถึงหนึ่งวัน"
+
 msgid "Lets you select apps that should access the Internet directly without going through the VPN tunnel."
 msgstr "ช่วยให้คุณเลือกแอปที่เข้าถึงอินเทอร์เน็ตได้โดยตรง โดยไม่ต้องผ่านอุโมงค์ VPN"
 
@@ -3095,6 +3105,9 @@ msgstr "ตำแหน่งที่ตั้ง"
 msgid "Locations were changed for \"%s\""
 msgstr "ตำแหน่งที่ตั้งสำหรับ \"%s\" มีการเปลี่ยนแปลง"
 
+msgid "Log in"
+msgstr "เข้าสู่ระบบ"
+
 msgid "Makes sure the device is always on the VPN tunnel."
 msgstr "ตรวจสอบให้แน่ใจว่า อุปกรณ์อยู่ในช่องทาง VPN เสมอ"
 
@@ -3104,8 +3117,17 @@ msgstr "การดำเนินการเพิ่มเติม"
 msgid "Mullvad services unavailable"
 msgstr "บริการ Mullavad ไม่พร้อมใช้งาน"
 
+msgid "Multihop is disabled"
+msgstr "ปิดใช้งาน Multihop แล้ว"
+
+msgid "Multihop is enabled"
+msgstr "เปิดใช้งาน Multihop แล้ว"
+
 msgid "Name was changed to %s"
 msgstr "ชื่อถูกเปลี่ยนเป็น %s"
+
+msgid "Navigate"
+msgstr "นำทาง"
 
 msgid "New list"
 msgstr "รายการใหม่"
@@ -3146,8 +3168,14 @@ msgstr "ไม่พบผลลัพธ์สำหรับ \"%s\" โปร�
 msgid "Not found"
 msgstr "ไม่พบ"
 
+msgid "Notes"
+msgstr "หมายเหตุ"
+
 msgid "Obfuscation hides the WireGuard traffic inside another protocol. It can be used to help circumvent censorship and other types of filtering, where a plain WireGuard connection would be blocked."
 msgstr "การทำให้ข้อมูลยุ่งเหยิงจะซ่อนการรับส่งข้อมูล WireGuard ภายในอีกโพรโทคอลหนึ่ง ซึ่งใช้เพื่อช่วยหลบเลี่ยงการเซ็นเซอร์ และการกรองประเภทอื่นๆ ที่การเชื่อมต่อ WireGuard แบบธรรมดาจะถูกบล็อกได้"
+
+msgid "On TV devices you may also need to restart your device."
+msgstr "คุณอาจต้องรีสตาร์ทอุปกรณ์ทีวีของคุณด้วย"
 
 msgid "Open app details"
 msgstr "เปิดรายละเอียดแอป"
@@ -3230,11 +3258,20 @@ msgstr "ค้นหา"
 msgid "Send email"
 msgstr "ส่งอีเมล"
 
-msgid "Set %s obfuscation to \"Automatic\" or \"Off\" below to activate this setting."
-msgstr "ตั้งค่าการทำให้ข้อมูลยุ่งเหยิง %s ให้เป็น \"อัตโนมัติ\" หรือ \"ปิด\" ที่ด้านล่าง เพื่อเปิดใช้งานการตั้งค่านี้"
-
 msgid "Set WireGuard MTU value. Valid range: %1$d - %2$d."
 msgstr "ตั้งค่า WireGuard MTU ช่วงที่ถูกต้อง: %1$d - %2$d"
+
+msgid "Set as multihop entry"
+msgstr "ตั้งเป็นทางเข้า Multihop"
+
+msgid "Set as multihop entry (incompatible)"
+msgstr "ตั้งเป็นทางเข้า Multihop (ไม่รองรับ)"
+
+msgid "Set as multihop exit"
+msgstr "ตั้งเป็นทางออก Multihop"
+
+msgid "Set as multihop exit (incompatible)"
+msgstr "ตั้งเป็นทางออก Multihop (ไม่รองรับ)"
 
 msgid "Set port"
 msgstr "ตั้งค่าพอร์ต"
@@ -3295,6 +3332,9 @@ msgstr "เซิร์ฟเวอร์ DNS ท้องถิ่นจะไ�
 
 msgid "The selected %s port is not supported, please change it under"
 msgstr "ไม่รองรับพอร์ต %s ที่เลือก โปรดเปลี่ยนพอร์ตภายใต้ส่วน"
+
+msgid "These methods may be useful in situations where you are blocked from reaching Mullvad. When “Automatic” is selected, the app will attempt all methods until one works."
+msgstr "วิธีการเหล่านี้อาจมีประโยชน์ในสถานการณ์ที่คุณถูกบล็อกไม่ให้เข้าถึง Mullvad เมื่อเลือก \"อัตโนมัติ\" แอปจะพยายามใช้ทุกวิธีจนกว่าจะมีวิธีใดวิธีหนึ่งที่ใช้งานได้"
 
 msgid "This address has already been entered."
 msgstr "ที่อยู่นี้ได้รับการป้อนไปแล้ว"
@@ -3389,8 +3429,14 @@ msgstr "สิทธิ์ VPN ถูกปฏิเสธ หรือไม่
 msgid "VPN tunnel status"
 msgstr "สถานะอุโมงค์ VPN"
 
+msgid "Valid range for all servers: %s"
+msgstr "ช่วงที่ใช้ได้สำหรับทุกเซิร์ฟเวอร์: %s"
+
 msgid "Valid ranges: %s"
 msgstr "ช่วงที่ใช้ได้: %s"
+
+msgid "Value: %s"
+msgstr "ค่า: %s"
 
 msgid "Verifying API method..."
 msgstr "กำลังตรวจสอบยืนยันวิธีการ API..."
@@ -3404,6 +3450,9 @@ msgstr "กำลังตรวจสอบยืนยันการซื้
 msgid "Verifying voucher…"
 msgstr "กำลังตรวจสอบยืนยันบัตรกำนัล…"
 
+msgid "Warning"
+msgstr "คำเตือน"
+
 msgid "We are still verifying your purchase, this might take some time. Your time will be added if the verification is successful."
 msgstr "เรากำลังตรวจสอบการสั่งซื้อของคุณ ซึ่งอาจใช้เวลาสักครู่ หากการตรวจสอบเสร็จสมบูรณ์ เราจะเพิ่มเวลาของคุณ"
 
@@ -3413,20 +3462,23 @@ msgstr "เราไม่สามารถเริ่มกระบวนก
 msgid "We were unable to start the payment process, please try again later."
 msgstr "เราไม่สามารถเริ่มกระบวนการชำระเงินได้ โปรดลองอีกครั้งในภายหลัง"
 
+msgid "Weather"
+msgstr "สภาพอากาศ"
+
 msgid "Welcome, this device is now called <b>%s</b>."
 msgstr "ยินดีต้อนรับ อุปกรณ์นี้มีชื่อว่า <b>%s</b> แล้ว"
-
-msgid "WireGuard MTU"
-msgstr "WireGuard MTU"
-
-msgid "WireGuard obfuscation"
-msgstr "การทำให้ข้อมูลยุ่งเหยิงของ WireGuard"
 
 msgid "WireGuard port"
 msgstr "พอร์ต WireGuard"
 
 msgid "Yes, log out device"
 msgstr "ใช่ นำอุปกรณ์ออกจากระบบ"
+
+msgid "You can add more time via the account view or website to continue using the VPN."
+msgstr "คุณสามารถเพิ่มเวลาเพิ่มเติมได้โดยการดูบัญชีหรือเว็บไซต์เพื่อใช้งาน VPN ต่อไป"
+
+msgid "You can add more time via the account view to continue using the VPN."
+msgstr "คุณสามารถเพิ่มเวลาผ่านทางหน้าบัญชีเพื่อใช้งาน VPN ต่อได้"
 
 msgid "\"%s\" was created"
 msgstr "\"%s\" ถูกสร้างแล้ว"
@@ -3460,6 +3512,14 @@ msgstr[0] "%d ตำแหน่งที่ตั้ง"
 msgid "%d month"
 msgid_plural "%d months"
 msgstr[0] "%d เดือน"
+
+msgid "1 day left on this account"
+msgid_plural "%d days left on this account"
+msgstr[0] "บัญชีนี้เหลือเวลา %d วัน"
+
+msgid "1 year left on this account"
+msgid_plural "%d years left on this account"
+msgstr[0] "บัญชีนี้เหลือเวลา %d ปี"
 
 msgid "Account credit expires in a day"
 msgid_plural "Account credit expires in %d days"

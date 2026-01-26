@@ -14,9 +14,11 @@
     <string name="add_method">เพิ่มวิธีการ</string>
     <string name="add_time">เพิ่มเวลา</string>
     <string name="add_time_to_account">ซื้อเครดิตบนเว็บไซต์ของเรา หรือแลกรับบัตรกำนัล</string>
+    <string name="add_to_list">เพิ่มลงในรายการ</string>
     <string name="added_to_your_account">%1$s ถูกเพิ่มลงในบัญชีของคุณแล้ว</string>
     <string name="adding_method">กำลังเพิ่มวิธีการ...</string>
     <string name="agree_and_continue">ยอมรับและดำเนินการต่อ</string>
+    <string name="all">ทั้งหมด</string>
     <string name="all_applications">แอปพลิเคชันทั้งหมด</string>
     <string name="all_locations">ตำแหน่งที่ตั้งทั้งหมด</string>
     <string name="all_providers">ผู้ให้บริการทั้งหมด</string>
@@ -27,6 +29,8 @@
     <string name="android_16_upgrade_warning_message">Android 16 มีปัญหาที่ทราบแล้ว โปรดรีสตาร์ทอุปกรณ์ของคุณแล้วลองอีกครั้ง หากต้องการเรียนรู้เพิ่มเติม</string>
     <string name="android_16_upgrade_warning_title">ไม่สามารถเชื่อมต่อได้ใช่ไหม</string>
     <string name="anti_censorship">การป้องกันการเซ็นเซอร์</string>
+    <string name="anti_censorship_info_first_paragraph">วิธีการเหล่านี้อาจมีประโยชน์ในสถานการณ์ที่คุณถูกบล็อกไม่ให้เข้าถึง Mullvad เมื่อเลือก \"อัตโนมัติ\" แอปจะพยายามใช้ทุกวิธีจนกว่าจะมีวิธีใดวิธีหนึ่งที่ใช้งานได้</string>
+    <string name="anti_censorship_info_second_paragraph">&lt;b&gt;โปรดทราบว่าวิธีการเหล่านี้ไม่ได้ช่วยปรับปรุงประสิทธิภาพ แต่อาจเพิ่มการใช้งานระบบและการใช้แบตเตอรี่&lt;/b&gt;</string>
     <string name="any">อะไรก็ได้</string>
     <string name="api_access_description">จัดการและเพิ่มวิธีแบบกำหนดเอง เพื่อเข้าถึง Mullvad API</string>
     <string name="api_access_method_info_first_line">แอปจำเป็นต้องสื่อสารกับเซิร์ฟเวอร์ Mullvad API เพื่อนำคุณเข้าสู่ระบบ ดึงข้อมูลรายการเซิร์ฟเวอร์ และการดำเนินการที่สำคัญอื่นๆ</string>
@@ -39,7 +43,15 @@
     <string name="api_unreachable_save_anyway">เข้าถึง API ไม่ได้ บันทึกวิธีการหรือไม่</string>
     <string name="app_info">ข้อมูลแอป</string>
     <string name="app_is_blocking_internet">แอปกำลังปิดกั้นอินเทอร์เน็ต โปรดตัดการเชื่อมต่อก่อน</string>
+    <string name="app_name_browser">เบราว์เซอร์</string>
+    <string name="app_name_notes">หมายเหตุ</string>
+    <string name="app_name_weather">สภาพอากาศ</string>
+    <string name="appearance">รูปลักษณ์</string>
+    <string name="appearance_description">เปลี่ยนชื่อและไอคอนของแอป Mullvad VPN บนอุปกรณ์ Android ของคุณ การดำเนินการนี้จะไม่เปลี่ยนไอคอนสำหรับการแจ้งเตือนที่เกี่ยวข้องกับ Mullvad VPN</string>
+    <string name="appearance_description_warning">&lt;b&gt;ข้อควรระวัง:&lt;/b&gt; แอปจะปิดโดยอัตโนมัติและต้องเปิดใหม่ด้วยตนเองหลังจากเลือกไอคอนและชื่อใหม่ การดำเนินการนี้จะไม่ส่งผลต่อการเชื่อมต่อ VPN ของคุณ</string>
+    <string name="appearance_description_warning_tv">คุณอาจต้องรีสตาร์ทอุปกรณ์ทีวีของคุณด้วย</string>
     <string name="apply">ใช้</string>
+    <string name="applying_changes">กำลังปรับใช้การเปลี่ยนแปลง...</string>
     <string name="at_least_on_method_needs_to_enabled">จำเป็นต้องเปิดใช้อย่างน้อยหนึ่งวิธีการ</string>
     <string name="auth_failed">ไม่สามารถตรวจสอบความถูกต้องของบัญชีได้ โปรดส่งรายงานปัญหา</string>
     <string name="authentication">การรับรองความถูกต้อง</string>
@@ -115,6 +127,8 @@
     <string name="custom_port_dialog_remove">นำพอร์ตแบบกำหนดเองออก</string>
     <string name="custom_port_dialog_submit">ตั้งค่าพอร์ต</string>
     <string name="custom_port_dialog_valid_ranges">ช่วงที่ใช้ได้: %1$s</string>
+    <string name="custom_port_recommended_range_first">&lt;b&gt;ข้อควรระวัง:&lt;/b&gt; มีเพียงบางเซิร์ฟเวอร์เท่านั้นที่รองรับช่วงพอร์ตได้ทั้งหมด</string>
+    <string name="custom_port_recommended_range_second">ช่วงที่ใช้ได้สำหรับทุกเซิร์ฟเวอร์: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">ไม่พบโฮสต์ของช่องทางแบบกำหนดเอง กรุณาลองเปลี่ยนการตั้งค่าของคุณ</string>
     <string name="daita_description_slide_1_first_paragraph">โปรดทราบ: การดำเนินการนี้จะเพิ่มการรับส่งข้อมูลทางเครือข่าย และส่งผลเสียต่อความเร็ว ความหน่วงแฝง และการใช้งานแบตเตอรี่ โปรดใช้ด้วยความระมัดระวังในขณะที่ใช้แผนบริการแบบจำกัด</string>
     <string name="daita_description_slide_1_second_paragraph">%1$s (%2$s) ซ่อนรูปแบบในการรับส่งข้อมูล VPN ที่เข้ารหัสของคุณ</string>
@@ -142,6 +156,7 @@
     <string name="device_name_info_first_paragraph">นี่เป็นชื่อที่มอบหมายให้กับอุปกรณ์ อุปกรณ์แต่ละเครื่องที่ลงชื่อเข้าใช้บนบัญชี Mullvad จะได้รับชื่อเฉพาะ ที่จะช่วยคุณระบุอุปกรณ์ ในขณะที่คุณจัดการอุปกรณ์ของคุณในแอปหรือบนเว็บไซต์</string>
     <string name="device_name_info_second_paragraph">คุณสามารถลงชื่อเข้าใช้อุปกรณ์ได้สูงสุด 5 เครื่อง กับบัญชี Mullvad หนึ่งบัญชี</string>
     <string name="device_name_info_third_paragraph">หากคุณออกจากระบบ อุปกรณ์และชื่ออุปกรณ์จะถูกลบออก และเมื่อคุณลงชื่อเข้าใช้อีกครั้ง อุปกรณ์จะได้รับชื่อใหม่</string>
+    <string name="direct">โดยตรง</string>
     <string name="direct_only">โดยตรงเท่านั้น</string>
     <string name="direct_only_description">ไม่ใช่ทุกเซิร์ฟเวอร์ของเราที่เปิดใช้งาน %1$s คุณอาจต้องเลือกตำแหน่งที่ตั้งใหม่หลังจากเปิดใช้งาน เพื่อใช้งานอินเทอร์เน็ต</string>
     <string name="disable_multihop">ปิดใช้งานมัลติฮอป</string>
@@ -188,6 +203,7 @@
     <string name="exclude_applications">แอปพลิเคชันที่แยกออก</string>
     <string name="exit">ออก</string>
     <string name="expand">ขยาย</string>
+    <string name="external_link">ลิงก์ภายนอก</string>
     <string name="failed_to_block_internet">ไม่สามารถบล็อกการรับส่งข้อมูลทางเครือข่ายทั้งหมดได้ โปรดแก้ไขปัญหาหรือส่งรายงานปัญหา</string>
     <string name="failed_to_create_account">ไม่สามารถสร้างบัญชีได้</string>
     <string name="failed_to_fetch_devices">ไม่สามารถดึงรายการอุปกรณ์มาได้</string>
@@ -210,6 +226,7 @@
     <string name="here_is_your_account_number">นี่คือหมายเลขบัญชีของคุณ จดบันทึกไว้ด้วยนะ!</string>
     <string name="hide_account_number">ซ่อนหมายเลขบัญชี</string>
     <string name="hint_default">ค่าเริ่มต้น</string>
+    <string name="icon_and_title">ไอคอนและชื่อ</string>
     <string name="import_override_textfield_placeholder">วางหรือพิมพ์โอเวอร์ไรด์เพื่อนำเข้า</string>
     <string name="import_overrides_bottom_sheet_override_warning">การนำเข้าโอเวอร์ไรด์ใหม่ อาจแทนที่โอเวอร์ไรด์ที่นำเข้าก่อนหน้านี้</string>
     <string name="import_overrides_import">นำเข้า</string>
@@ -230,6 +247,7 @@
     <string name="is_offline">อุปกรณ์ของคุณออฟไลน์อยู่ อุโมงค์จะเชื่อมต่อโดยอัตโนมัติ หลังจากที่อุปกรณ์ของคุณกลับมาออนไลน์</string>
     <string name="legacy_always_on_vpn_error_notification_content">ไม่สามารถเริ่มการเชื่อมต่ออุโมงค์ได้ โปรดปิดใช้งาน VPN เปิดอยู่เสมอ ก่อนที่จะใช้งาน Mullvad VPN</string>
     <string name="legacy_always_on_vpn_error_notification_title">VPN เปิดอยู่เสมอ ได้รับการมอบหมายไปยัง VPN อื่นแล้ว</string>
+    <string name="less_than_a_day_left">บัญชีนี้เหลือเวลาไม่ถึงหนึ่งวัน</string>
     <string name="less_than_one_day">น้อยกว่าหนึ่งวัน</string>
     <string name="list_name">ชื่อรายการ</string>
     <string name="loading_products">กำลังโหลดผลิตภัณฑ์</string>
@@ -243,6 +261,7 @@
     <string name="location_was_removed_from_list">%1$s ถูกลบออกจาก \"%2$s” แล้ว</string>
     <string name="locations">ตำแหน่งที่ตั้ง</string>
     <string name="locations_were_changed_for">ตำแหน่งที่ตั้งสำหรับ \"%1$s\" มีการเปลี่ยนแปลง</string>
+    <string name="log_in">เข้าสู่ระบบ</string>
     <string name="log_out">ลงชื่อออก</string>
     <string name="logged_in_description">หมายเลขบัญชีที่ถูกต้อง</string>
     <string name="logged_in_title">เข้าสู่ระบบแล้ว</string>
@@ -268,12 +287,16 @@
     <string name="more_actions">การดำเนินการเพิ่มเติม</string>
     <string name="more_information">ข้อมูลเพิ่มเติม</string>
     <string name="mtu">MTU</string>
+    <string name="mtu_x">ค่า: %1$s</string>
     <string name="mullvad_owned_only">ของ Mullvad เท่านั้น</string>
     <string name="multihop">มัลติฮอป</string>
     <string name="multihop_description">มัลติฮอปจะกำหนดเส้นทางการรับส่งข้อมูลของคุณ ไปยังหนึ่งในเซิร์ฟเวอร์ WireGuard และออกไปยังอีกเซิร์ฟเวอร์หนึ่ง ซึ่งทำให้ติดตามได้ยากขึ้น นี่จะส่งผลให้มีเวลาแฝงเพิ่มขึ้น แต่ก็จะช่วยปกปิดตัวตนออนไลน์ได้มากขึ้น</string>
     <string name="multihop_entry_disabled_description">เซิร์ฟเวอร์ทางเข้าสำหรับ %1$s ถูกเขียนทับโดย %2$s ในขณะนี้ หากต้องการเลือกเซิร์ฟเวอร์ทางเข้า โปรดเปิดใช้งาน “%3$s” ก่อน หรือปิดใช้งาน “%2$s” ในการตั้งค่า</string>
+    <string name="multihop_is_disabled">ปิดใช้งาน Multihop แล้ว</string>
+    <string name="multihop_is_enabled">เปิดใช้งาน Multihop แล้ว</string>
     <string name="name">ชื่อ</string>
     <string name="name_was_changed_to">ชื่อถูกเปลี่ยนเป็น %1$s</string>
+    <string name="navigate">นำทาง</string>
     <string name="new_changelog_notification_message">คลิกที่นี่ เพื่อดูว่ามีอะไรใหม่</string>
     <string name="new_changelog_notification_title">ติดตั้งเวอร์ชันใหม่แล้ว</string>
     <string name="new_device_notification_message">ยินดีต้อนรับ อุปกรณ์นี้มีชื่อว่า &lt;b&gt;%1$s&lt;/b&gt; แล้ว</string>
@@ -291,6 +314,7 @@
     <string name="none">ไม่มี</string>
     <string name="not_found">ไม่พบ</string>
     <string name="number_of_providers">ผู้ให้บริการ: %1$d</string>
+    <string name="number_parentheses">(%1$d)</string>
     <string name="obfuscation_info">การทำให้ข้อมูลยุ่งเหยิงจะซ่อนการรับส่งข้อมูล WireGuard ภายในอีกโพรโทคอลหนึ่ง ซึ่งใช้เพื่อช่วยหลบเลี่ยงการเซ็นเซอร์ และการกรองประเภทอื่นๆ ที่การเชื่อมต่อ WireGuard แบบธรรมดาจะถูกบล็อกได้</string>
     <string name="obfuscation_info_shadowsocks_batteryusage">โปรดทราบ: Shadowsocks อาจเพิ่มการใช้แบตเตอรี่ โดยขึ้นอยู่กับการใช้งานข้อมูล เช่น การสตรีมวิดีโอ</string>
     <string name="off">ปิด</string>
@@ -372,6 +396,10 @@
     <string name="server_ip_overrides_reset_body">โอเวอร์ไรด์ทั้งหมดจะถูกรีเซ็ต และที่อยู่ IP ของเซิร์ฟเวอร์ในมุมมองตำแหน่งที่ตั้งที่เลือก จะกลับไปเป็นค่าเริ่มต้น</string>
     <string name="server_ip_overrides_reset_reset_button">รีเซ็ต</string>
     <string name="server_ip_overrides_reset_title">รีเซ็ตโอเวอร์ไรด์ทั้งหมด</string>
+    <string name="set_as_multihop_entry">ตั้งเป็นทางเข้า Multihop</string>
+    <string name="set_as_multihop_entry_unavailable">ตั้งเป็นทางเข้า Multihop (ไม่รองรับ)</string>
+    <string name="set_as_multihop_exit">ตั้งเป็นทางออก Multihop</string>
+    <string name="set_as_multihop_exit_unavailable">ตั้งเป็นทางออก Multihop (ไม่รองรับ)</string>
     <string name="set_dns_error">ไม่สามารถตั้งค่าเซิร์ฟเวอร์ DNS ของระบบได้ โปรดส่งรายงานปัญหา</string>
     <string name="set_firewall_policy_error">ไม่สามารถใช้กฎไฟร์วอลล์ได้ โปรดแก้ไขปัญหา หรือส่งรายงานปัญหา</string>
     <string name="setting_chip">การตั้งค่า: %1$s</string>
@@ -446,6 +474,7 @@
     <string name="vpn_permission_error_notification_message">กรุณากดเชื่อมต่อ เพื่อขออนุญาตสิทธิ์ VPN</string>
     <string name="vpn_permission_error_notification_title">เกิดข้อผิดพลาดในการอนุญาต VPN</string>
     <string name="vpn_settings_not_available">การตั้งค่า VPN ไม่สามารถใช้งานได้บนอุปกรณ์</string>
+    <string name="warning">คำเตือน</string>
     <string name="we_will_look_into_this">เราจะตรวจสอบปัญหานี้</string>
     <string name="wireguard_custon_port_title">กำหนดเอง</string>
     <string name="wireguard_mtu_footer">ตั้งค่า WireGuard MTU ช่วงที่ถูกต้อง: %1$d - %2$d</string>
@@ -457,4 +486,6 @@
     <string name="x_entry">%1$s (ขาเข้า)</string>
     <string name="x_exit">%1$s (ขาออก)</string>
     <string name="x_via_x">%1$s ผ่าน %2$s</string>
+    <string name="you_can_add_more_time_oss">คุณสามารถเพิ่มเวลาเพิ่มเติมได้โดยการดูบัญชีหรือเว็บไซต์เพื่อใช้งาน VPN ต่อไป</string>
+    <string name="you_can_add_more_time_play">คุณสามารถเพิ่มเวลาผ่านทางหน้าบัญชีเพื่อใช้งาน VPN ต่อได้</string>
 </resources>

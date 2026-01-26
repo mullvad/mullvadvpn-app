@@ -24,6 +24,22 @@
         <item quantity="many">%1$d شهرًا</item>
         <item quantity="other">%1$d شهر</item>
     </plurals>
+    <plurals name="days_left">
+        <item quantity="zero">بقي %1$d من الأيام على هذا الحساب</item>
+        <item quantity="one">بقي يوم واحد على هذا الحساب</item>
+        <item quantity="two">بقي %1$d من الأيام على هذا الحساب</item>
+        <item quantity="few">بقي %1$d أيام على هذا الحساب</item>
+        <item quantity="many">بقي %1$d يومًا على هذا الحساب</item>
+        <item quantity="other">بقي %1$d يوم على هذا الحساب</item>
+    </plurals>
+    <plurals name="years_left">
+        <item quantity="zero">بقي %1$d من السنوات على هذا الحساب</item>
+        <item quantity="one">بقيت سنة واحدة على هذا الحساب</item>
+        <item quantity="two">بقي %1$d من السنوات على هذا الحساب</item>
+        <item quantity="few">بقي %1$d سنوات على هذا الحساب</item>
+        <item quantity="many">بقي %1$d سنة على هذا الحساب</item>
+        <item quantity="other">بقي %1$d سنة على هذا الحساب</item>
+    </plurals>
     <plurals name="account_credit_expires_in_days">
         <item quantity="zero">ستنتهي صلاحية رصيد الحساب بعد %1$d يوم</item>
         <item quantity="one">ستنتهي صلاحية رصيد الحساب بعد يوم واحد</item>

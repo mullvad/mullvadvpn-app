@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Danish\n"
 "Language: da_DK\n"
-"PO-Revision-Date: 2025-12-08 09:00\n"
+"PO-Revision-Date: 2026-01-22 08:53\n"
 
 msgid "%(amount)d more..."
 msgstr "%(amount)d mere..."
@@ -319,10 +319,6 @@ msgid "%(wireguard)s port settings"
 msgstr "%(wireguard)s-portindstillinger"
 
 msgctxt "accessibility"
-msgid "Add new custom bridge"
-msgstr "Tilføj ny brugerdefineret bro"
-
-msgctxt "accessibility"
 msgid "Close notification"
 msgstr "Luk meddelelse"
 
@@ -336,9 +332,10 @@ msgctxt "accessibility"
 msgid "Copy account number"
 msgstr "Kopiér kontonummer"
 
+#. Accessibility label for a carousel that explains the DAITA feature to the user.
 msgctxt "accessibility"
-msgid "Edit custom bridge"
-msgstr "Rediger brugerdefineret bro"
+msgid "DAITA information carousel"
+msgstr "Informationskarrusel for DAITA"
 
 msgctxt "accessibility"
 msgid "Expand %(location)s"
@@ -364,15 +361,28 @@ msgctxt "accessibility"
 msgid "Go to app update page"
 msgstr "Gå til appens opdateringsside"
 
+#. Accessibility label for carousel indicators that allow navigation between slides.
+#. Available placeholders:
+#. %(index)s - Will be replaced with the slide index number.
+msgctxt "accessibility"
+msgid "Go to slide %(index)s"
+msgstr "Gå til billede %(index)s"
+
 #. Provided to accessibility tools such as screenreaders to describe
 #. the button which obscures the account number.
 msgctxt "accessibility"
 msgid "Hide account number"
 msgstr "Skjul kontonummer"
 
+#. Alt text for an illustration showing VPN traffic with DAITA.
 msgctxt "accessibility"
-msgid "info"
-msgstr "info"
+msgid "Illustration showing VPN traffic with DAITA enabled"
+msgstr "Illustration, der viser VPN-trafik med DAITA aktiveret"
+
+#. Alt text for an illustration showing VPN traffic without DAITA.
+msgctxt "accessibility"
+msgid "Illustration showing VPN traffic without DAITA"
+msgstr "Illustration, der viser VPN-trafik uden DAITA"
 
 #. This is used by screenreaders to communicate the login button.
 msgctxt "accessibility"
@@ -403,10 +413,20 @@ msgctxt "accessibility"
 msgid "New version installed, click here to see the changelog"
 msgstr "Ny version er installeret. Klik her for at se ændringsloggen"
 
+#. Accessibility label for a button that navigates to the next slide in a carousel.
+msgctxt "accessibility"
+msgid "Next slide"
+msgstr "Næste billede"
+
 #. Accessibility label for the button that opens the browser to buy credit.
 msgctxt "accessibility"
 msgid "Opens externally"
 msgstr "Åbner eksternt"
+
+#. Accessibility label for a button that navigates to the previous slide in a carousel.
+msgctxt "accessibility"
+msgid "Previous slide"
+msgstr "Forrige billede"
 
 #. Button action description provided to accessibility tools such as screen
 #. readers.
@@ -1026,32 +1046,12 @@ msgid "%(relay)s via %(entry)s"
 msgstr "%(relay)s via %(entry)s"
 
 msgctxt "connection-info"
-msgid "%(relay)s via Custom bridge"
-msgstr "%(relay)s via brugerdefineret bro"
-
-msgctxt "connection-info"
 msgid "In"
 msgstr "Ind"
 
 msgctxt "connection-info"
 msgid "Out"
 msgstr "Ud"
-
-msgctxt "custom-bridge"
-msgid "Add custom bridge"
-msgstr "Tilføj brugerdefineret bro"
-
-msgctxt "custom-bridge"
-msgid "Delete custom bridge?"
-msgstr "Vil du slette brugerdefineret bro?"
-
-msgctxt "custom-bridge"
-msgid "Deleting the custom bridge will take you back to the select location view and the Automatic option will be selected instead."
-msgstr "Sletning af den brugerdefinerede bro fører dig tilbage til den valgte placeringsvisning, og indstillingen Automatisk vil blive valgt i stedet."
-
-msgctxt "custom-bridge"
-msgid "Edit custom bridge"
-msgstr "Rediger tilpasset bro"
 
 #. Button for continuing login process.
 msgctxt "device-management"
@@ -1851,10 +1851,6 @@ msgctxt "select-location-view"
 msgid "%(location)s (%(info)s)"
 msgstr "%(location)s (%(info)s)"
 
-msgctxt "select-location-view"
-msgid "A custom bridge server can be used to circumvent censorship when regular Mullvad bridge servers don’t work."
-msgstr "En brugerdefineret broserver kan bruges til at omgå censur, når almindelige Mullvad-broservere ikke virker."
-
 #. This is a label shown above a list of options.
 #. Available placeholder:
 #. %(locationType) - Could be either "Country", "City" and "Relay"
@@ -1873,10 +1869,6 @@ msgstr "By"
 msgctxt "select-location-view"
 msgid "Country"
 msgstr "Land"
-
-msgctxt "select-location-view"
-msgid "Custom bridge"
-msgstr "Brugerdefineret bro"
 
 msgctxt "select-location-view"
 msgid "Custom lists"
@@ -1932,10 +1924,6 @@ msgstr "Relæ"
 msgctxt "select-location-view"
 msgid "Setting: %(settingName)s"
 msgstr "Indstilling: %(settingName)s"
-
-msgctxt "select-location-view"
-msgid "The app selects a random bridge server, but servers have a higher probability the closer they are to you."
-msgstr "Appen vælger en tilfældig broserver, men jo tættere servere er på dig, jo større er sandsynligheden."
 
 msgctxt "select-location-view"
 msgid "The entry server for %(multihop)s is currently overridden by %(daita)s. To select an entry server, please first enable “%(directOnly)s” or disable \"%(daita)s\" in the settings."
@@ -2131,8 +2119,8 @@ msgstr "Genstart Mullvad-tjenesten"
 #. Available placeholders:
 #. %(splitTunneling)s - will be replaced with Split tunneling
 msgctxt "split-tunneling-view"
-msgid "To use %(splitTunneling)s, please change to a Linux kernel version that supports cgroup v1."
-msgstr "For at bruge %(splitTunneling)s skal du skifte til en Linux-kerneversion, der understøtter cgroup v1."
+msgid "To use %(splitTunneling)s, please update to a Linux kernel version that supports cgroup v2."
+msgstr "For at bruge %(splitTunneling)s, skal du opdatere til en Linux-kerneversion, der understøtter cgroup v2."
 
 msgctxt "split-tunneling-view"
 msgid "To use split tunneling please enable “Full disk access” for “Mullvad VPN” in the macOS system settings."
@@ -2559,10 +2547,6 @@ msgid "Trackers"
 msgstr "Trackere"
 
 msgctxt "vpn-settings-view"
-msgid "Tunnel protocol"
-msgstr "Tunnelprotokol"
-
-msgctxt "vpn-settings-view"
 msgid "Use custom DNS server"
 msgstr "Brug brugerdefineret DNS-server"
 
@@ -2704,10 +2688,6 @@ msgid "Shadowsocks"
 msgstr "Shadowsocks"
 
 msgctxt "wireguard-settings-view"
-msgid "Switch to “%(wireguard)s” in Settings > %(tunnelProtocol)s to make %(setting)s available."
-msgstr "Skift til \"%(wireguard)s\" i Indstillinger > %(tunnelProtocol)s for at gøre %(setting)s tilgængelig."
-
-msgctxt "wireguard-settings-view"
 msgid "The automatic setting will randomly choose from the valid port ranges shown below."
 msgstr "Den automatiske indstilling vælger tilfældigt fra de gyldige rækker af porte nedenfor."
 
@@ -2753,9 +2733,6 @@ msgstr "%s (tilføjet)"
 msgid "%s (removed)"
 msgstr "%s (er fjernet)"
 
-msgid "%s custom port"
-msgstr "%s brugerdefineret port"
-
 msgid "%s is already selected as entry relay"
 msgstr "%s er allerede valgt som indgangsrelæ"
 
@@ -2770,6 +2747,9 @@ msgstr "%s-indstillinger."
 
 msgid "%s was added to your account."
 msgstr "%s blev føjet til din konto."
+
+msgid "(%d)"
+msgstr "(%d)"
 
 msgid "1. After clicking on the \"Go to VPN settings\" button below, click on the cogwheel next to the \"Mullvad VPN\" name."
 msgstr "1. Når du har klikket på knappen \"Gå til VPN-indstillinger \"nedenfor, skal du klikke på tandhjulet ved siden af navnet \"Mullvad VPN\"."
@@ -2786,6 +2766,15 @@ msgstr "30 dage blev føjet til din konto."
 msgid "90 days was added to your account."
 msgstr "90 dage blev føjet til din konto."
 
+msgid "<b>Attention:</b> Only some servers support the full port range."
+msgstr "<b>Bemærk:</b> Kun nogle servere understøtter hele portintervallet."
+
+msgid "<b>Attention:</b> The app will close automatically and needs to be manually opened again after selecting a new icon and title. This will not impact your VPN connection."
+msgstr "<b>Bemærk:</b> Appen lukker automatisk og skal åbnes igen manuelt efter valg af et nyt ikon og en ny titel. Dette påvirker ikke din VPN-forbindelse."
+
+msgid "<b>Please note that these methods do not improve performance, and may increase system utilization and battery consumption.</b>"
+msgstr "<b>Bemærk, at disse metoder ikke forbedrer præstationen og kan øge system- og batteriforbruget.</b>"
+
 msgid "API reachable, adding method..."
 msgstr "API tilgængelig, tilføjer metode..."
 
@@ -2795,17 +2784,11 @@ msgstr "API utilgængelig, gemme metode alligevel?"
 msgid "Account credit expires in a few minutes"
 msgstr "Kontokredit udløber om få minutter"
 
-msgid "Account credit expires soon"
-msgstr "Kontokredit udløber snart"
-
 msgid "Account number is too long, please enter a valid number"
 msgstr "Kontonummeret er for langt. Indtast et gyldigt nummer"
 
 msgid "Account time reminders"
 msgstr "Påmindelser om kontotid"
-
-msgid "Add %s to list"
-msgstr "Føj %s til listen"
 
 msgid "Add 30 days time (%s)"
 msgstr "Tilføj 30 dages tid (%s)"
@@ -2822,6 +2805,9 @@ msgstr "Tilføj placeringer"
 msgid "Add time"
 msgstr "Tilføj tid"
 
+msgid "Add to list"
+msgstr "Føj til listen"
+
 msgid "Adding method..."
 msgstr "Tilføjer metode..."
 
@@ -2830,6 +2816,9 @@ msgstr "Når en VPN-app er blevet opdateret på Android 16, kan enheder ende i e
 
 msgid "Agree and continue"
 msgstr "Accepter og fortsæt"
+
+msgid "All"
+msgstr "Alle"
 
 msgid "All applications"
 msgstr "Alle applikationer"
@@ -2845,6 +2834,12 @@ msgstr "Altid-til VPN tildelt en anden VPN"
 
 msgid "Android 16 has a known issue. Please restart your device and try again. To learn more,"
 msgstr "Android 16 har et kendt problem. Genstart din enhed, og prøv igen. For at få mere at vide"
+
+msgid "Appearance"
+msgstr "Udseende"
+
+msgid "Applying changes..."
+msgstr "Anvender ændringer ..."
 
 msgid "Are you sure you want to log <b>%s</b> out?"
 msgstr "Er du sikker på, at du vil logge <b>%s</b> af?"
@@ -2879,11 +2874,17 @@ msgstr "Blokering af internet (enhed offline)"
 msgid "Blocking..."
 msgstr "Blokerer ..."
 
+msgid "Browser"
+msgstr "Browser"
+
 msgid "By attaching your account token it links this report to your account, which helps us resolve your issue quicker. All reports are automatically deleted after a period of time."
 msgstr "Ved at vedhæfte dit konto-token knyttes denne rapport til din konto, og det hjælper os med at løse dit problem hurtigere. Alle rapporter bliver automatisk slettet efter noget tid."
 
 msgid "Can't connect?"
 msgstr "Kan du ikke oprette forbindelse?"
+
+msgid "Change the title and icon of the Mullvad VPN app on your Android device. This will not change the icon for any Mullvad VPN related notifications."
+msgstr "Ændr titlen og ikonet for Mullvad VPN-appen på din Android-enhed. Dette ændrer ikke ikonet for Mullvad VPN-relaterede notifikationer."
 
 msgid "Changes to DNS related settings might not go into effect immediately due to cached results."
 msgstr "Ændringer af DNS-relaterede indstillinger træder muligvis ikke i kraft med det samme på grund af cachelagrede resultater."
@@ -2915,9 +2916,6 @@ msgstr "Kopiér"
 msgid "Create"
 msgstr "Opret"
 
-msgid "Create account"
-msgstr "Opret konto"
-
 msgid "Create new list"
 msgstr "Opret ny liste"
 
@@ -2944,6 +2942,9 @@ msgstr "Slet metode"
 
 msgid "Delete method?"
 msgstr "Vil du slette metoden?"
+
+msgid "Direct"
+msgstr "Direkte"
 
 msgid "Disable all \"%s\" above to activate this setting."
 msgstr "Deaktiver alle \"%s\" ovenfor for at aktivere denne indstilling."
@@ -3017,6 +3018,9 @@ msgstr "Ekskluderede applikationer"
 msgid "Expand"
 msgstr "Udvid"
 
+msgid "External link"
+msgstr "Eksternt link"
+
 msgid "FAILED TO CONNECT"
 msgstr "KUNNE IKKE OPRETTE FORBINDELSE"
 
@@ -3062,6 +3066,9 @@ msgstr "IPv4 er ikke tilgængelig, prøv at ændre indstillingen \"Enhedens IP-v
 msgid "IPv6 is not available, please try changing \"Device IP version\" setting."
 msgstr "IPv6 er ikke tilgængelig, prøv at ændre indstillingen \"Enhedens IP-version\"."
 
+msgid "Icon and title"
+msgstr "Ikon og titel"
+
 msgid "If the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
 msgstr "Hvis funktionen split tunneling bruges, beder appen dit system om en liste over alle installerede programmer. Denne liste hentes kun i split tunnel-visningen. Listen over installerede programmer sendes aldrig fra enheden."
 
@@ -3086,6 +3093,9 @@ msgstr "Inkluder min konto-token for hurtigere hjælp med betalings- eller konto
 msgid "Invalid or missing value \"%1$s\""
 msgstr "Ugyldig eller manglende værdi \"%1$s\""
 
+msgid "Less than a day left on this account"
+msgstr "Mindre end en dag tilbage på denne konto"
+
 msgid "Lets you select apps that should access the Internet directly without going through the VPN tunnel."
 msgstr "Giver dig mulighed for at vælge apps, der skal have direkte adgang til internettet uden at gå gennem VPN-tunnelen."
 
@@ -3101,6 +3111,9 @@ msgstr "Placeringer"
 msgid "Locations were changed for \"%s\""
 msgstr "Placeringer blev ændret for \"%s\""
 
+msgid "Log in"
+msgstr "Log på"
+
 msgid "Makes sure the device is always on the VPN tunnel."
 msgstr "Sørger for, at enheden altid er på VPN-tunnelen."
 
@@ -3110,8 +3123,17 @@ msgstr "Flere handlinger"
 msgid "Mullvad services unavailable"
 msgstr "Mullvad-tjenester er ikke tilgængelige"
 
+msgid "Multihop is disabled"
+msgstr "Multihop er deaktiveret"
+
+msgid "Multihop is enabled"
+msgstr "Multihop er aktiveret"
+
 msgid "Name was changed to %s"
 msgstr "Navnet blev ændret til %s"
+
+msgid "Navigate"
+msgstr "Naviger"
 
 msgid "New list"
 msgstr "Ny liste"
@@ -3152,8 +3174,14 @@ msgstr "Intet resultat for \"%s\". Prøv en anden søgning"
 msgid "Not found"
 msgstr "Ikke fundet"
 
+msgid "Notes"
+msgstr "Noter"
+
 msgid "Obfuscation hides the WireGuard traffic inside another protocol. It can be used to help circumvent censorship and other types of filtering, where a plain WireGuard connection would be blocked."
 msgstr "Tilsløring skjuler WireGuard-trafikken inden i en anden protokol. Det kan bruges til at hjælpe med at omgå censur og andre typer filtrering, hvor en almindelig WireGuard-forbindelse ville blive blokeret."
+
+msgid "On TV devices you may also need to restart your device."
+msgstr "På tv-enheder skal du muligvis også genstarte din enhed."
 
 msgid "Open app details"
 msgstr "Se oplysninger om app"
@@ -3236,11 +3264,20 @@ msgstr "Søg"
 msgid "Send email"
 msgstr "Send e-mail"
 
-msgid "Set %s obfuscation to \"Automatic\" or \"Off\" below to activate this setting."
-msgstr "Sæt %s-tilsløring til \"Automatisk\" eller \"Fra\" nedenfor for at aktivere denne indstilling."
-
 msgid "Set WireGuard MTU value. Valid range: %1$d - %2$d."
 msgstr "Indstil WireGuard MTU-værdi. Gyldigt område: %1$d - %2$d."
+
+msgid "Set as multihop entry"
+msgstr "Angiv som multihop-indgang"
+
+msgid "Set as multihop entry (incompatible)"
+msgstr "Angiv som multihop-indgang (inkompatibel)"
+
+msgid "Set as multihop exit"
+msgstr "Angiv som multihop-udgang"
+
+msgid "Set as multihop exit (incompatible)"
+msgstr "Angiv som multihop-udgang (inkompatibel)"
 
 msgid "Set port"
 msgstr "Indstil port"
@@ -3301,6 +3338,9 @@ msgstr "Den lokale DNS-server fungerer ikke, medmindre du aktiverer \"Lokal netv
 
 msgid "The selected %s port is not supported, please change it under"
 msgstr "Den valgte port til %s understøttes ikke, ændr den under"
+
+msgid "These methods may be useful in situations where you are blocked from reaching Mullvad. When “Automatic” is selected, the app will attempt all methods until one works."
+msgstr "Disse metoder kan være nyttige i situationer, hvor du blokeres fra at nå Mullvad. Når \"Automatisk\" er valgt, vil appen forsøge alle metoder, indtil en virker."
 
 msgid "This address has already been entered."
 msgstr "Denne adresse er allerede blevet indtastet."
@@ -3395,8 +3435,14 @@ msgstr "VPN-tilladelse blev afvist, eller en anden app har \"VPN altid aktiveret
 msgid "VPN tunnel status"
 msgstr "VPN-tunnelstatus"
 
+msgid "Valid range for all servers: %s"
+msgstr "Gyldigt interval for alle servere: %s"
+
 msgid "Valid ranges: %s"
 msgstr "Gyldige områder: %s"
+
+msgid "Value: %s"
+msgstr "Værdi: %s"
 
 msgid "Verifying API method..."
 msgstr "Bekræfter API-metode..."
@@ -3410,6 +3456,9 @@ msgstr "Bekræfter køb..."
 msgid "Verifying voucher…"
 msgstr "Bekræfter kupon…"
 
+msgid "Warning"
+msgstr "Advarsel"
+
 msgid "We are still verifying your purchase, this might take some time. Your time will be added if the verification is successful."
 msgstr "Vi er stadig ved at bekræfte dit køb, det kan tage noget tid. Din tid vil blive tilføjet, hvis bekræftelsen lykkes."
 
@@ -3419,20 +3468,23 @@ msgstr "Vi kunne ikke starte betalingsprocessen. Sørg for, at du har den nyeste
 msgid "We were unable to start the payment process, please try again later."
 msgstr "Vi kunne ikke starte betalingsprocessen. Prøv igen senere."
 
+msgid "Weather"
+msgstr "Vejr"
+
 msgid "Welcome, this device is now called <b>%s</b>."
 msgstr "Velkommen, denne enhed har nu fået navnet <b>%s</b>."
-
-msgid "WireGuard MTU"
-msgstr "WireGuard MTU"
-
-msgid "WireGuard obfuscation"
-msgstr "WireGuard-tilsløring"
 
 msgid "WireGuard port"
 msgstr "WireGuard-port"
 
 msgid "Yes, log out device"
 msgstr "Ja, log enhed af"
+
+msgid "You can add more time via the account view or website to continue using the VPN."
+msgstr "Du kan tilføje mere tid via kontoens visning eller hjemmeside for at blive ved med at bruge VPN'en."
+
+msgid "You can add more time via the account view to continue using the VPN."
+msgstr "Du kan tilføje mere tid via kontovisning for at fortsætte med at bruge VPN'en."
 
 msgid "\"%s\" was created"
 msgstr "\"%s\" blev oprettet"
@@ -3469,6 +3521,16 @@ msgid "%d month"
 msgid_plural "%d months"
 msgstr[0] "%d måned"
 msgstr[1] "%d måneder"
+
+msgid "1 day left on this account"
+msgid_plural "%d days left on this account"
+msgstr[0] "1 dag tilbage på denne konto"
+msgstr[1] "%d dage tilbage på denne konto"
+
+msgid "1 year left on this account"
+msgid_plural "%d years left on this account"
+msgstr[0] "1 år tilbage på denne konto"
+msgstr[1] "%d år tilbage på denne konto"
 
 msgid "Account credit expires in a day"
 msgid_plural "Account credit expires in %d days"
