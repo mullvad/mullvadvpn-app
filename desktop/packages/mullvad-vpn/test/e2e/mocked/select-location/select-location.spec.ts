@@ -103,9 +103,11 @@ test.describe('Select location', () => {
 
       const wireguardRelays = relayList.countries[0].cities[0].relays;
       const hostnames = wireguardRelays.map((relay) => relay.hostname);
-      const locatedRelays = helpers.locateRelaysByHostnames(relayList, hostnames);
+      const relaySelectionPaths = helpers.toSelectionPaths(
+        helpers.getRelaysByHostnames(relayList, hostnames),
+      );
 
-      await helpers.expandLocatedRelays(locatedRelays);
+      await helpers.expandLocatedRelays(relaySelectionPaths);
 
       const buttons = routes.selectLocation.getRelaysMatching(hostnames);
       await expect(buttons).toHaveCount(wireguardRelays.length);
@@ -117,9 +119,11 @@ test.describe('Select location', () => {
 
       const wireguardRelays = relayList.countries[0].cities[0].relays;
       const hostnames = wireguardRelays.map((relay) => relay.hostname);
-      const locatedRelays = helpers.locateRelaysByHostnames(relayList, hostnames);
+      const relaySelectionPaths = helpers.toSelectionPaths(
+        helpers.getRelaysByHostnames(relayList, hostnames),
+      );
 
-      await helpers.expandLocatedRelays(locatedRelays);
+      await helpers.expandLocatedRelays(relaySelectionPaths);
 
       const buttons = routes.selectLocation.getRelaysMatching(hostnames);
       await expect(buttons).toHaveCount(wireguardRelays.length);
@@ -145,20 +149,23 @@ test.describe('Select location', () => {
         throw new Error('No wireguard relay found in mocked data');
       }
 
-      const locatedEntryRelay = helpers.locateRelaysByHostnames(relayList, [entryRelay.hostname]);
+      const relaySelectionPaths = helpers.toSelectionPaths(
+        helpers.getRelaysByHostnames(relayList, [entryRelay.hostname]),
+      );
 
-      await helpers.expandLocatedRelays(locatedEntryRelay);
+      await helpers.expandLocatedRelays(relaySelectionPaths);
 
       await routes.selectLocation.getRelaysMatching([entryRelay.hostname]).first().click();
 
-      await helpers.updateEntryLocation(locatedEntryRelay[0], settings);
-
-      await helpers.expandLocatedRelays(locatedEntryRelay);
+      await helpers.updateEntryLocation(relaySelectionPaths[0], settings);
+      await helpers.expandLocatedRelays(relaySelectionPaths);
       const entryRelayButton = routes.selectLocation.getRelaysMatching([entryRelay.hostname]);
       await expect(entryRelayButton).toBeDisabled();
 
-      const locatedExitRelay = helpers.locateRelaysByHostnames(relayList, [exitRelay.hostname]);
-      await helpers.expandLocatedRelays(locatedExitRelay);
+      const relaySelectionPathsExit = helpers.toSelectionPaths(
+        helpers.getRelaysByHostnames(relayList, [exitRelay.hostname]),
+      );
+      await helpers.expandLocatedRelays(relaySelectionPathsExit);
 
       // Clicking exit relay should navigate to main route
       const exitRelayButton = routes.selectLocation.getRelaysMatching([exitRelay.hostname]);
@@ -212,12 +219,14 @@ test.describe('Select location', () => {
           const providerFilterChip = routes.selectLocation.getFilterChip('Providers: 1');
           await expect(providerFilterChip).toBeVisible();
 
-          const locatedRelays = helpers.locateRelaysByProvider(wireguardRelays, provider);
-          const relays = locatedRelays.map((locatedRelay) => locatedRelay.relay);
+          const relaySelectionPaths = helpers.toSelectionPaths(
+            helpers.getRelaysByProvider(wireguardRelays, provider),
+          );
+          const relays = relaySelectionPaths.map((locatedRelay) => locatedRelay.relay);
           const relayNames = relays.map((relay) => relay.hostname);
 
           // Expand all accordions
-          await helpers.expandLocatedRelays(locatedRelays);
+          await helpers.expandLocatedRelays(relaySelectionPaths);
 
           const buttons = routes.selectLocation.getRelaysMatching(relayNames);
 
@@ -228,7 +237,7 @@ test.describe('Select location', () => {
           await providerFilterChip.click();
 
           // Get all relays and expand accordions
-          const allLocatedRelays = helpers.locateRelaysByProvider(relayList);
+          const allLocatedRelays = helpers.toSelectionPaths(relayList);
           await helpers.expandLocatedRelays(allLocatedRelays);
 
           // Should not have same length as all relays
@@ -251,12 +260,14 @@ test.describe('Select location', () => {
           const ownerFilterChip = routes.selectLocation.getFilterChip('Rented');
           await expect(ownerFilterChip).toBeVisible();
 
-          const locatedRelays = helpers.locateRelaysByOwner(relayList, false);
-          const relays = locatedRelays.map((locatedRelay) => locatedRelay.relay);
+          const relaySelectionPaths = helpers.toSelectionPaths(
+            helpers.getRelaysByOwner(relayList, false),
+          );
+          const relays = relaySelectionPaths.map((locatedRelay) => locatedRelay.relay);
           const relayNames = relays.map((relay) => relay.hostname);
 
           // Expand all accordions
-          await helpers.expandLocatedRelays(locatedRelays);
+          await helpers.expandLocatedRelays(relaySelectionPaths);
 
           const buttons = routes.selectLocation.getRelaysMatching(relayNames);
 
@@ -267,7 +278,7 @@ test.describe('Select location', () => {
           await ownerFilterChip.click();
 
           // Get all relays and expand accordions
-          const allLocatedRelays = helpers.locateRelaysByOwner(relayList);
+          const allLocatedRelays = helpers.toSelectionPaths(relayList);
           await helpers.expandLocatedRelays(allLocatedRelays);
 
           // Should not have same length as all relays
@@ -283,14 +294,13 @@ test.describe('Select location', () => {
         }
         await util.ipc.settings[''].notify(settings);
 
-        const locatedRelays = helpers.locateRelaysByObfuscation(
-          relayList,
-          (relay) => 'quic' in relay,
+        const relaySelectionPaths = helpers.toSelectionPaths(
+          helpers.getRelaysByObfuscation(relayList, (relay) => 'quic' in relay),
         );
-        const relays = locatedRelays.map((locatedRelay) => locatedRelay.relay);
+        const relays = relaySelectionPaths.map((locatedRelay) => locatedRelay.relay);
         const relayNames = relays.map((relay) => relay.hostname);
 
-        await helpers.expandLocatedRelays(locatedRelays);
+        await helpers.expandLocatedRelays(relaySelectionPaths);
 
         const buttons = routes.selectLocation.getRelaysMatching(relayNames);
 
@@ -305,12 +315,13 @@ test.describe('Select location', () => {
         }
         await util.ipc.settings[''].notify(settings);
 
-        const locatedRelays = helpers.locateRelaysByObfuscation(relayList, (relay) => relay.lwo);
-        const relays = locatedRelays.map((locatedRelay) => locatedRelay.relay);
+        const relaySelectionPaths = helpers.toSelectionPaths(
+          helpers.getRelaysByObfuscation(relayList, (relay) => relay.lwo),
+        );
+        const relays = relaySelectionPaths.map((locatedRelay) => locatedRelay.relay);
         const relayNames = relays.map((relay) => relay.hostname);
 
-        await helpers.expandLocatedRelays(locatedRelays);
-
+        await helpers.expandLocatedRelays(relaySelectionPaths);
         const buttons = routes.selectLocation.getRelaysMatching(relayNames);
 
         // Expect all filtered relays to have a button

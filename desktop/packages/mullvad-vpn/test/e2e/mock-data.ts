@@ -1,4 +1,9 @@
-import { IRelayList } from '../../src/shared/daemon-rpc-types';
+import { IRelayList, IWireguardEndpointData } from '../../src/shared/daemon-rpc-types';
+
+const wireguardEndpointData: IWireguardEndpointData = {
+  portRanges: [],
+  udp2tcpPorts: [],
+};
 
 const relayList: IRelayList = {
   countries: [
@@ -70,4 +75,5 @@ const relayList: IRelayList = {
 
 export const mockData = {
   relayList,
+  wireguardEndpointData,
 };

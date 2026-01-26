@@ -54,7 +54,7 @@ export function MtuSetting(props: MtuSettingProps) {
     [setMtu],
   );
 
-  const { value, handleChange, invalid, dirty, blur, reset } = useTextField({
+  const { value, handleOnValueChange, invalid, dirty, blur, reset } = useTextField({
     inputRef,
     defaultValue: mtu ? mtu.toString() : '',
     format: removeNonNumericCharacters,
@@ -93,17 +93,19 @@ export function MtuSetting(props: MtuSettingProps) {
           }
         </SettingsListItem.Label>
         <SettingsListItem.ActionGroup>
-          <SettingsListItem.TextField invalid={invalid} onSubmit={handleSubmit}>
+          <SettingsListItem.TextField
+            value={value}
+            onValueChange={handleOnValueChange}
+            onSubmit={handleSubmit}
+            invalid={invalid}>
             <SettingsListItem.TextField.Input
               ref={inputRef}
-              value={value}
               placeholder={messages.gettext('Default')}
               inputMode="numeric"
               maxLength={4}
               aria-labelledby={labelId}
               aria-describedby={descriptionId}
               onBlur={handleBlur}
-              onChange={handleChange}
             />
           </SettingsListItem.TextField>
         </SettingsListItem.ActionGroup>

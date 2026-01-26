@@ -1,9 +1,6 @@
 import styled from 'styled-components';
 
-import { colors } from '../../lib/foundations';
 import * as Cell from '../cell';
-import { normalText, tinyText } from '../common-styles';
-import SearchBar from '../SearchBar';
 import { ScopeBar } from './ScopeBar';
 
 export const StyledContent = styled.div({
@@ -21,36 +18,6 @@ export const StyledNavigationBarAttachment = styled.div({
   padding: '0 16px 16px',
 });
 
-export const StyledFilterRow = styled.div({
-  ...tinyText,
-  color: colors.white,
-  margin: '0 6px 16px',
-});
-
-export const StyledFilter = styled.div({
-  ...tinyText,
-  display: 'inline-flex',
-  alignItems: 'center',
-  backgroundColor: colors.blue,
-  borderRadius: '4px',
-  padding: '3px 8px',
-  marginLeft: '6px',
-  color: colors.white,
-});
-
-export const StyledClearFilterButton = styled.div({
-  display: 'inline-block',
-  borderWidth: 0,
-  padding: 0,
-  margin: '0 0 0 6px',
-  cursor: 'default',
-  backgroundColor: colors.transparent,
-});
-
-export const StyledSearchBar = styled(SearchBar)({
-  margin: '0 6px',
-});
-
 export const StyledSelectionUnavailable = styled(Cell.CellFooter)({
   display: 'flex',
   flexDirection: 'column',
@@ -60,8 +27,4 @@ export const StyledSelectionUnavailable = styled(Cell.CellFooter)({
 
 export const StyledSelectionUnavailableText = styled(Cell.CellFooterText)({
   textAlign: 'center',
-});
-
-export const StyledAllLocationsTitle = styled(Cell.Label)(normalText, {
-  fontWeight: 'normal',
 });
