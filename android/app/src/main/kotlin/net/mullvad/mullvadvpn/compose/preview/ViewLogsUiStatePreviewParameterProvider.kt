@@ -1,14 +1,15 @@
 package net.mullvad.mullvadvpn.compose.preview
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+import net.mullvad.mullvadvpn.util.Lc
 import net.mullvad.mullvadvpn.viewmodel.ViewLogsUiState
 
 private const val SIZE = 50
 
-class ViewLogsUiStatePreviewParameterProvider : PreviewParameterProvider<ViewLogsUiState> {
+class ViewLogsUiStatePreviewParameterProvider :
+    PreviewParameterProvider<Lc<Unit, ViewLogsUiState>> {
 
     val text = List(SIZE) { "Lorem ipsum dolor ".repeat(SIZE) }
 
-    override val values =
-        sequenceOf(ViewLogsUiState(text, isLoading = false), ViewLogsUiState(isLoading = true))
+    override val values = sequenceOf(Lc.Content(ViewLogsUiState(text)), Lc.Loading(Unit))
 }
