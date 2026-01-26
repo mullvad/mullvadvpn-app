@@ -26,6 +26,7 @@ Line wrap the file at 100 chars.                                              Th
 - Change `WireGuard port` to no longer affect the port used for LWO.
 - Change `Mullvad Bridges` access method to randomly pick any Mullvad-owned bridge.
   Previously the access method was constrained to the five bridges closest to the exit relay.
+- Changed CLI command `mullvad obfuscation` to `mullvad anti-censorship`
 
 #### Linux
 - Change "Go back" keyboard shortcut from `Esc` to `Alt + Left Arrow` or `Alt + [`.
