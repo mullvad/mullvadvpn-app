@@ -11,11 +11,16 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.ramcosta.composedestinations.annotation.Destination
@@ -77,7 +82,10 @@ fun ChangelogScreen(state: ChangelogUiState, onBackClick: () -> Unit) {
             ) {
                 Text(
                     text = state.version,
-                    style = MaterialTheme.typography.headlineSmall,
+                    style =
+                        MaterialTheme.typography.headlineSmall.copy(
+                            textDirection = TextDirection.Ltr
+                        ),
                     color = MaterialTheme.colorScheme.onSurface,
                 )
 
@@ -97,20 +105,22 @@ fun ChangelogScreen(state: ChangelogUiState, onBackClick: () -> Unit) {
 
 @Composable
 private fun ChangeListItem(text: String) {
-    Column {
-        Row {
-            Text(
-                text = "•",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.width(Dimens.buttonSpacing),
-                textAlign = TextAlign.Center,
-            )
-            Text(
-                text = text,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
+    CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
+        Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = AbsoluteAlignment.Left) {
+            Row {
+                Text(
+                    text = "•",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.width(Dimens.buttonSpacing),
+                    textAlign = TextAlign.Center,
+                )
+                Text(
+                    text = text,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
         }
     }
 }
