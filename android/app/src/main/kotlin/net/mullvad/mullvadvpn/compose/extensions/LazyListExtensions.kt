@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import kotlinx.coroutines.CancellationException
 
 inline fun LazyListScope.itemWithDivider(
     key: Any? = null,
@@ -56,5 +57,10 @@ suspend fun LazyListState.animateScrollAndCentralizeItem(index: Int) {
 suspend fun LazyListState.animateScrollCentralizeItem(index: Int) {
     val averageHeight = layoutInfo.visibleItemsInfo.map { it.size }.average()
     val scrollByExtra = layoutInfo.viewportEndOffset / 2 - averageHeight
-    animateScrollToItem(index, -scrollByExtra.toInt())
+    try {
+        animateScrollToItem(index, -scrollByExtra.toInt())
+    } catch (_: CancellationException) {
+        // We can sometimes get cancellation exceptions here if we are scrolling at the same time.
+        // To not break the flow we will catch the exception here.
+    }
 }
