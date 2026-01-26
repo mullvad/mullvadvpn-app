@@ -305,6 +305,7 @@ public final class TunnelMonitor: TunnelMonitorProtocol, @unchecked Sendable {
             try pinger.startPinging(destAddress: probeAddress)
 
             state.connectionState = .connecting
+            state.timeoutReference = Date()
             startConnectivityCheckTimer()
         } catch {
             logger.error(error: error, message: "Failed to open socket.")
