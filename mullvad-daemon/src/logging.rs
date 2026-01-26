@@ -1,3 +1,4 @@
+use mullvad_logging::{EnvFilter, LevelFilter, silence_crates};
 use std::{
     io,
     path::PathBuf,
@@ -9,8 +10,7 @@ use std::{
 use talpid_core::logging::rotate_log;
 use tracing_appender::non_blocking;
 use tracing_subscriber::{
-    EnvFilter, Registry,
-    filter::LevelFilter,
+    Registry,
     fmt::{MakeWriter, format::FmtSpan, writer::OptionalWriter},
     layer::SubscriberExt,
     reload::Handle,
@@ -44,35 +44,6 @@ impl<'a, T: Clone + io::Write> MakeWriter<'a> for OptionalMakeWriter<T> {
         }
     }
 }
-
-pub const WARNING_SILENCED_CRATES: &[&str] = &["netlink_proto", "quinn_udp"];
-pub const SILENCED_CRATES: &[&str] = &[
-    "h2",
-    "tokio_core",
-    "tokio_io",
-    "tokio_proto",
-    "tokio_reactor",
-    "tokio_threadpool",
-    "tokio_util",
-    "tower",
-    "want",
-    "ws",
-    "mio",
-    "mnl",
-    "hyper",
-    "hyper_util",
-    "rtnetlink",
-    "rustls",
-    "netlink_sys",
-    "tracing",
-    "hickory_proto",
-    "hickory_server",
-    "hickory_resolver",
-    "shadowsocks::relay::udprelay",
-    "quinn_proto",
-    "quinn",
-];
-const SLIGHTLY_SILENCED_CRATES: &[&str] = &["nftnl", "udp_over_tcp"];
 
 const DATE_TIME_FORMAT_STR: &str = "[%Y-%m-%d %H:%M:%S%.3f]";
 
@@ -262,36 +233,4 @@ pub fn init_logger(
     LOG_ENABLED.store(true, Ordering::SeqCst);
 
     Ok(reload_handle)
-}
-
-fn silence_crates(mut env_filter: EnvFilter) -> EnvFilter {
-    for silenced_crate in WARNING_SILENCED_CRATES {
-        env_filter = env_filter.add_directive(format!("{silenced_crate}=error").parse().unwrap());
-    }
-    for silenced_crate in SILENCED_CRATES {
-        env_filter = env_filter.add_directive(format!("{silenced_crate}=warn").parse().unwrap());
-    }
-
-    // NOTE: the levels set here will never be overwritten, since the default filter cannot be
-    // reloaded
-    for silenced_crate in SLIGHTLY_SILENCED_CRATES {
-        let level_filter = env_filter.max_level_hint().unwrap();
-        env_filter = env_filter.add_directive(
-            format!("{silenced_crate}={}", one_level_quieter(level_filter))
-                .parse()
-                .unwrap(),
-        );
-    }
-    env_filter
-}
-
-fn one_level_quieter(level: LevelFilter) -> LevelFilter {
-    match level {
-        LevelFilter::OFF => LevelFilter::OFF,
-        LevelFilter::ERROR => LevelFilter::OFF,
-        LevelFilter::WARN => LevelFilter::ERROR,
-        LevelFilter::INFO => LevelFilter::WARN,
-        LevelFilter::DEBUG => LevelFilter::INFO,
-        LevelFilter::TRACE => LevelFilter::DEBUG,
-    }
 }

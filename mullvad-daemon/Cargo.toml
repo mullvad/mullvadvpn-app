@@ -26,6 +26,7 @@ mullvad-api = { path = "../mullvad-api" }
 mullvad-encrypted-dns-proxy = { path = "../mullvad-encrypted-dns-proxy" }
 mullvad-fs = { path = "../mullvad-fs" }
 mullvad-leak-checker = { path = "../mullvad-leak-checker", default-features = false }
+mullvad-logging = { path = "../mullvad-logging" }
 mullvad-management-interface = { path = "../mullvad-management-interface" }
 mullvad-paths = { path = "../mullvad-paths" }
 mullvad-relay-selector = { path = "../mullvad-relay-selector" }
