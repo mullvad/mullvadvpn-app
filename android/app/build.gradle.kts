@@ -423,6 +423,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel)
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.tv)
+    implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.arrow)
     implementation(libs.arrow.optics)
     implementation(libs.arrow.resilience)

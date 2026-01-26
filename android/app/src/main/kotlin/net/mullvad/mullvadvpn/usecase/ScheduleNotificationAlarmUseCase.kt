@@ -30,7 +30,7 @@ class ScheduleNotificationAlarmUseCase(
             accountExpiryNotificationTriggerAt(now = ZonedDateTime.now(), expiry = accountExpiry)
         val triggerAtMillis = triggerAt.toInstant().toEpochMilli()
 
-        val intent = alarmIntent(context, accountExpiry)
+        val intent = alarmIntent(context)
         alarmManager.set(AlarmManager.RTC, triggerAtMillis, intent)
 
         // Change to UTC to avoid leaking the user's time zone in the logs
@@ -40,9 +40,8 @@ class ScheduleNotificationAlarmUseCase(
         userPreferencesRepository.setAccountExpiry(accountExpiry)
     }
 
-    private fun alarmIntent(context: Context, accountExpiry: ZonedDateTime): PendingIntent =
+    private fun alarmIntent(context: Context): PendingIntent =
         Intent(context, NotificationAlarmReceiver::class.java).let { intent ->
-            intent.putExtra(NotificationAlarmReceiver.ACCOUNT_EXPIRY_KEY, accountExpiry)
             PendingIntent.getBroadcast(
                 context,
                 ALARM_INTENT_REQUEST_CODE,
