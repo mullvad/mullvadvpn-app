@@ -111,8 +111,7 @@ data class VpnSettingsUiState(
                     }
                     if (isCustomDnsEnabled) {
                         add(VpnSettingItem.DnsContentBlockersUnavailable)
-                    }
-                    if (!isCustomDnsEnabled) {
+                    } else {
                         add(VpnSettingItem.SmallSpacer)
                     }
 
