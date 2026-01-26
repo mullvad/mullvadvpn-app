@@ -83,10 +83,10 @@ env:
 jobs:
   prepare:
     name: Prepare
-    runs-on: ubuntu-latest
+    runs-on: [android-build]
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6.0.1
         with:
           submodules: true
 
@@ -118,10 +118,10 @@ jobs:
   build-app:
     name: Build app
     needs: [prepare]
-    runs-on: [app-gh-build, build]
+    runs-on: [android-build]
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6.0.1
 
       - name: Fetch submodules
         run: |
@@ -133,12 +133,12 @@ jobs:
       - name: Clean gradle
         if: github.event.inputs.clean == 'true'
         run: >
-          ./building/container-run.sh android android/gradlew -p android --console plain
+          ./building/container-run.sh android android/gradlew -p android --console plain --stacktrace --no-daemon
           clean
 
       - name: Build apks
         run: >
-          ./building/container-run.sh android android/gradlew -p android --console plain
+          ./building/container-run.sh android android/gradlew -p android --console plain --stacktrace --no-daemon
           :app:assembleOssProdDebug
           :app:assemblePlayStagemoleDebug
           assembleOssProdAndroidTest
@@ -156,45 +156,37 @@ jobs:
   run-lint-and-tests:
     name: Run lint and test tasks
     needs: [prepare]
-    runs-on: ubuntu-latest
+    runs-on: [android-build]
     container:
       image: ${{ needs.prepare.outputs.container_image }}
+      volumes:
+        # node is symlinked in, w/o mounting it, when using a image node won't be found for the
+        # checkout action
+        # https://github.com/NixOS/nixpkgs/issues/306373
+        - /nix:/nix
+        - gradle-cache:/root/.gradle
     strategy:
       fail-fast: false
       matrix:
         include:
           - gradle-task: |
-              testDebugUnitTest -x :test:arch:testDebugUnitTest
-              :app:testOssProdDebugUnitTest
-              :service:testOssProdDebugUnitTest
-              :lib:billing:testDebugUnitTest
-              :lib:daemon-grpc:testDebugUnitTest
+              testDebugUnitTest -x :test:arch:testDebugUnitTest \
+              :app:testOssProdDebugUnitTest \
+              :service:testOssProdDebugUnitTest \
+              :lib:billing:testDebugUnitTest \
+              :lib:daemon-grpc:testDebugUnitTest \
               :lib:repository:testDebugUnitTest
           - gradle-task: :test:arch:test --rerun-tasks
           - gradle-task: detekt
           - gradle-task: lint
     steps:
-      # Fix for HOME path overridden by GH runners when building in containers, see:
-      # https://github.com/actions/runner/issues/863
-      - name: Fix HOME path
-        run: echo "HOME=/root" >> $GITHUB_ENV
-
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6.0.1
         with:
           submodules: true
 
       - name: Run gradle task
-        uses: burrunan/gradle-cache-action@v3
-        with:
-          job-id: jdk17
-          arguments: ${{ matrix.gradle-task }}
-          gradle-version: wrapper
-          build-root-directory: android
-          execution-only-caches: false
-          # Disable if logs are hard to follow.
-          concurrent: true
-          read-only: ${{ github.ref != 'refs/heads/main' }}
+        run: android/gradlew -p android --stacktrace --no-daemon ${{ matrix.gradle-task }}
 
   instrumented-tests:
     name: Run instrumented tests
@@ -222,7 +214,7 @@ jobs:
 
       - name: Checkout repository
         if: ${{ matrix.test-repeat != 0 }}
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6.0.1
         with:
           submodules: true
 
@@ -283,7 +275,7 @@ jobs:
           echo "report_dir=$INNER_REPORT_DIR" >> $GITHUB_OUTPUT
 
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6.0.1
         with:
           submodules: true
 
@@ -352,7 +344,7 @@ jobs:
             path: android/test/e2e/build/outputs/apk
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6.0.1
         with:
           submodules: true
 
