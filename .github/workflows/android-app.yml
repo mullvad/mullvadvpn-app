@@ -66,6 +66,18 @@ on:
         default: 'stagemole'
         required: true
         type: string
+      android_build_runner:
+        description: 'Choose which runner to use'
+        required: true
+        default: 'android-build'
+        type: choice
+        options:
+          - android-build
+          - android-bender-01
+          - android-bender-02
+          - android-bender-03
+          - android-bender-04
+          - android-bender-05
       clean:
         description: Clean before building.
         type: boolean
@@ -83,7 +95,7 @@ env:
 jobs:
   prepare:
     name: Prepare
-    runs-on: [android-build]
+    runs-on: ["${{ inputs.android_build_runner }}"]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6.0.1
@@ -118,7 +130,7 @@ jobs:
   build-app:
     name: Build app
     needs: [prepare]
-    runs-on: [android-build]
+    runs-on: ["${{ inputs.android_build_runner }}"]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6.0.1
@@ -156,7 +168,7 @@ jobs:
   run-lint-and-tests:
     name: Run lint and test tasks
     needs: [prepare]
-    runs-on: [android-build]
+    runs-on: ["${{ inputs.android_build_runner }}"]
     container:
       image: ${{ needs.prepare.outputs.container_image }}
       volumes:
