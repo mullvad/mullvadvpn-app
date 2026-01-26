@@ -113,6 +113,7 @@ class MainActivity : ComponentActivity(), AndroidScopeComponent {
         }
 
         // Fix an issue introduced in `2026.1-beta1`
+        // TODO Remove this when releasing `2026.2`
         obfuscationRepository.fixDisableBug()
     }
 
