@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.di
 
 import android.content.Context
+import android.content.pm.PackageManager
 import androidx.core.app.NotificationManagerCompat
 import androidx.datastore.core.DataStore
 import androidx.datastore.dataStore
@@ -22,6 +23,7 @@ import net.mullvad.mullvadvpn.lib.repository.LocaleRepository
 import net.mullvad.mullvadvpn.lib.repository.PrepareVpnUseCase
 import net.mullvad.mullvadvpn.lib.repository.RelayLocationTranslationRepository
 import net.mullvad.mullvadvpn.lib.repository.UserPreferencesRepository
+import net.mullvad.mullvadvpn.repository.AppObfuscationRepository
 import net.mullvad.mullvadvpn.repository.UserPreferences
 import net.mullvad.mullvadvpn.repository.UserPreferencesMigration
 import net.mullvad.mullvadvpn.repository.UserPreferencesSerializer
@@ -66,6 +68,10 @@ val appModule = module {
     single { RelayLocationTranslationRepository(get(), get(), MainScope()) }
     single { ScheduleNotificationAlarmUseCase(androidContext(), get()) }
     single { AccountExpiryNotificationActionUseCase(get(), get()) }
+    // TODO Move these back to UiModule when fixDisableBug is removed
+    single<String>(named(SELF_PACKAGE_NAME)) { androidContext().packageName }
+    single { AppObfuscationRepository(get(), get(named(SELF_PACKAGE_NAME))) }
+    single<PackageManager> { androidContext().packageManager }
 
     single { NotificationChannel.TunnelUpdates } bind NotificationChannel::class
     single { NotificationChannel.AccountUpdates } bind NotificationChannel::class
