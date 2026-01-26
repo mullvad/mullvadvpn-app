@@ -24,4 +24,9 @@ public struct CachedRelays: Codable, Equatable {
         self.relays = relays
         self.updatedAt = updatedAt
     }
+
+    /// Returns true if the relay list contains no usable relays
+    public var isEmpty: Bool {
+        relays.isEmpty
+    }
 }

@@ -70,6 +70,13 @@ public final class RelayCache: RelayCacheProtocol, Sendable {
 
         let data = try Data(contentsOf: prebundledRelaysFileURL)
 
+        #if DEBUG
+            // Handle empty prebundled file (Debug/Staging builds)
+            if data.isEmpty {
+                return .empty
+            }
+        #endif
+
         return try StoredRelays(
             rawData: data,
             updatedAt: Date(timeIntervalSince1970: 0)

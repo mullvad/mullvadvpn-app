@@ -65,6 +65,17 @@ final class RelayCacheTracker: RelayCacheTrackerProtocol, @unchecked Sendable {
         do {
             cachedRelays = try cache.read().cachedRelays
             try hotfixRelaysThatDoNotHaveFeatures()
+
+            #if DEBUG
+                // If relay list is empty with no etag, fetch on next run loop (non-production builds only)
+                // Deferred to avoid circular initialization issues with API client
+                if let cachedRelays, cachedRelays.relays.isEmpty, cachedRelays.etag == nil {
+                    DispatchQueue.main.async { [weak self] in
+                        self?.logger.debug("Relay list is empty, triggering immediate fetch.")
+                        _ = self?.updateRelays(completionHandler: nil)
+                    }
+                }
+            #endif
         } catch {
             logger.error(
                 error: error,
@@ -245,6 +256,13 @@ final class RelayCacheTracker: RelayCacheTrackerProtocol, @unchecked Sendable {
         guard let cachedRelays else {
             return now
         }
+
+        #if DEBUG
+            // Empty relays can always update immediately in non-production builds
+            if cachedRelays.relays.isEmpty {
+                return now
+            }
+        #endif
 
         let nextUpdate = cachedRelays.updatedAt.addingTimeInterval(Self.relayUpdateInterval.timeInterval)
 

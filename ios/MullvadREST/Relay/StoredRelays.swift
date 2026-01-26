@@ -40,4 +40,17 @@ public struct StoredRelays: Codable, Equatable {
         updatedAt = cachedRelays.updatedAt
         relays = cachedRelays.relays
     }
+
+    #if DEBUG
+        /// Empty relay list used when prebundled file is empty (Debug/Staging builds)
+        public static var empty: StoredRelays {
+            // swiftlint:disable:next force_try
+            try! StoredRelays(
+                cachedRelays: CachedRelays(
+                    etag: nil,
+                    relays: .empty,
+                    updatedAt: Date(timeIntervalSince1970: 0)
+                ))
+        }
+    #endif
 }
