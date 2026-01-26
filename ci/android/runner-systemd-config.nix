@@ -30,7 +30,7 @@
     ProtectKernelLogs = lib.mkForce [ ];
     ProtectKernelModules = lib.mkForce [ ];
     ProtectKernelTunables = lib.mkForce [ ];
-    ProtectProc = "off";
+    ProtectProc = lib.mkForce [ ];
     ProtectSystem = lib.mkForce [ ];
     RemoveIPC = lib.mkForce [ ];
     RestrictAddressFamilies = lib.mkForce [ ];
