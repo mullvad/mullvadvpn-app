@@ -70,6 +70,7 @@ fun ExpandableListItem(
     content: @Composable (BoxScope) -> Unit,
     isExpanded: Boolean,
     isEnabled: Boolean = true,
+    backgroundAlpha: Float = 1f,
     onCellClicked: (Boolean) -> Unit,
     onInfoClicked: (() -> Unit)? = null,
 ) {
@@ -79,6 +80,7 @@ fun ExpandableListItem(
         position = position,
         isEnabled = isEnabled,
         onClick = { onCellClicked(!isExpanded) },
+        backgroundAlpha = backgroundAlpha,
         content = content,
         trailingContent = {
             Row(modifier = modifier.fillMaxSize()) {

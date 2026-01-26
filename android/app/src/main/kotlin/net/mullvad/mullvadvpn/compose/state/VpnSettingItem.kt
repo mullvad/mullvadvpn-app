@@ -87,4 +87,6 @@ sealed interface VpnSettingItem {
     data object Divider : VpnSettingItem
 
     data object Spacer : VpnSettingItem
+
+    data object SmallSpacer : VpnSettingItem
 }
