@@ -24,4 +24,19 @@ public struct CachedRelays: Codable, Equatable {
         self.relays = relays
         self.updatedAt = updatedAt
     }
+
+    /// Returns true if the relay list contains no usable relays
+    public var isEmpty: Bool {
+        relays.isEmpty
+    }
+
+    /// Empty relay list used when prebundled file is empty (Debug/Staging builds)
+    public static var empty: CachedRelays {
+        CachedRelays(
+            etag: nil,
+            relays: .empty,
+            updatedAt: Date(timeIntervalSince1970: 0)
+        )
+    }
+
 }
