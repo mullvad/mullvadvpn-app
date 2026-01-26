@@ -8,23 +8,21 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
 import net.mullvad.mullvadvpn.lib.ui.component.NEWLINE_STRING
+import net.mullvad.mullvadvpn.util.Lc
 
-data class ViewLogsUiState(
-    val allLines: List<String> = emptyList(),
-    val isLoading: Boolean = true,
-) {
+data class ViewLogsUiState(val allLines: List<String> = emptyList()) {
     fun text() = allLines.joinToString(NEWLINE_STRING)
 }
 
 class ViewLogsViewModel(private val mullvadProblemReporter: MullvadProblemReport) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(ViewLogsUiState())
+    private val _uiState = MutableStateFlow<Lc<Unit, ViewLogsUiState>>(Lc.Loading(Unit))
     val uiState = _uiState.asStateFlow()
 
     init {
         viewModelScope.launch {
             _uiState.update {
-                it.copy(allLines = mullvadProblemReporter.readLogs(), isLoading = false)
+                Lc.Content(ViewLogsUiState(allLines = mullvadProblemReporter.readLogs()))
             }
         }
     }

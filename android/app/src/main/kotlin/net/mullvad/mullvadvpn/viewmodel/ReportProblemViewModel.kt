@@ -8,7 +8,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.WhileSubscribed
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -19,6 +18,7 @@ import net.mullvad.mullvadvpn.dataproxy.SendProblemReportResult
 import net.mullvad.mullvadvpn.dataproxy.UserReport
 import net.mullvad.mullvadvpn.lib.repository.AccountRepository
 import net.mullvad.mullvadvpn.repository.ProblemReportRepository
+import net.mullvad.mullvadvpn.util.combine
 
 data class ReportProblemUiState(
     val sendingState: SendingReportUiState? = null,
@@ -27,6 +27,7 @@ data class ReportProblemUiState(
     val showIncludeAccountId: Boolean = false,
     val includeAccountId: Boolean = false,
     val showIncludeAccountWarningMessage: Boolean = false,
+    val logCollectingState: LogCollectingState = LogCollectingState.Loading,
     val isPlayBuild: Boolean = false,
 )
 
@@ -36,6 +37,14 @@ sealed interface SendingReportUiState {
     data class Success(val email: String?) : SendingReportUiState
 
     data class Error(val error: SendProblemReportResult.Error) : SendingReportUiState
+}
+
+sealed interface LogCollectingState {
+    data object Loading : LogCollectingState
+
+    data object Success : LogCollectingState
+
+    data object Failed : LogCollectingState
 }
 
 sealed interface ReportProblemSideEffect {
@@ -53,6 +62,8 @@ class ReportProblemViewModel(
     private val includeAccountIdState: MutableStateFlow<Boolean> = MutableStateFlow(false)
     private val showIncludeAccountWarningMessage: MutableStateFlow<Boolean> =
         MutableStateFlow(false)
+    private val areLogsCollected: MutableStateFlow<LogCollectingState> =
+        MutableStateFlow(LogCollectingState.Loading)
 
     val uiState =
         combine(
@@ -61,12 +72,14 @@ class ReportProblemViewModel(
                 showIncludeAccountWarningMessage,
                 problemReportRepository.problemReport,
                 accountRepository.accountData,
+                areLogsCollected,
             ) {
                 sendingState,
                 includeAccountToken,
                 showIncludeAccountWarningMessage,
                 userReport,
-                accountData ->
+                accountData,
+                areLogsCollected ->
                 ReportProblemUiState(
                     sendingState = sendingState,
                     email = userReport.email ?: "",
@@ -74,6 +87,7 @@ class ReportProblemViewModel(
                     showIncludeAccountId = accountData != null,
                     includeAccountId = includeAccountToken,
                     showIncludeAccountWarningMessage = showIncludeAccountWarningMessage,
+                    logCollectingState = areLogsCollected,
                     isPlayBuild = isPlayBuild,
                 )
             }
@@ -145,7 +159,13 @@ class ReportProblemViewModel(
         }
 
     init {
-        viewModelScope.launch { mullvadProblemReporter.collectLogs() }
+        viewModelScope.launch {
+            if (mullvadProblemReporter.collectLogs()) {
+                areLogsCollected.emit(LogCollectingState.Success)
+            } else {
+                areLogsCollected.emit(LogCollectingState.Failed)
+            }
+        }
     }
 
     override fun onCleared() {

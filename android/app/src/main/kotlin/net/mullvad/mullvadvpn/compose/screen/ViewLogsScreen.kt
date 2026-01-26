@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.compose.screen
 
 import android.content.Context
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -57,6 +58,7 @@ import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorMedium
 import net.mullvad.mullvadvpn.provider.getLogsShareIntent
+import net.mullvad.mullvadvpn.util.Lc
 import net.mullvad.mullvadvpn.viewmodel.ViewLogsUiState
 import net.mullvad.mullvadvpn.viewmodel.ViewLogsViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -64,7 +66,8 @@ import org.koin.androidx.compose.koinViewModel
 @Preview("Content|Loading")
 @Composable
 private fun PreviewViewLogsScreen(
-    @PreviewParameter(ViewLogsUiStatePreviewParameterProvider::class) state: ViewLogsUiState
+    @PreviewParameter(ViewLogsUiStatePreviewParameterProvider::class)
+    state: Lc<Unit, ViewLogsUiState>
 ) {
     AppTheme { ViewLogsScreen(state = state, onBackClick = {}) }
 }
@@ -78,7 +81,7 @@ fun ViewLogs(navigator: DestinationsNavigator) {
 }
 
 @Composable
-fun ViewLogsScreen(state: ViewLogsUiState, onBackClick: () -> Unit) {
+fun ViewLogsScreen(state: Lc<Unit, ViewLogsUiState>, onBackClick: () -> Unit) {
     val snackbarHostState = remember { SnackbarHostState() }
     val clipboardHandle =
         createCopyToClipboardHandle(snackbarHostState = snackbarHostState, isSensitive = false)
@@ -98,7 +101,7 @@ fun ViewLogsScreen(state: ViewLogsUiState, onBackClick: () -> Unit) {
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
 @Composable
 private fun TopBar(
-    state: ViewLogsUiState,
+    state: Lc<Unit, ViewLogsUiState>,
     clipboardHandle: CopyToClipboardHandle,
     onBackClick: () -> Unit,
 ) {
@@ -115,8 +118,11 @@ private fun TopBar(
         actions = {
             val clipboardToastMessage = stringResource(R.string.copied_logs_to_clipboard)
             IconButton(
-                onClick = { clipboardHandle(state.text(), clipboardToastMessage) },
+                onClick = {
+                    clipboardHandle(state.contentOrNull()?.text() ?: "", clipboardToastMessage)
+                },
                 modifier = Modifier.focusProperties { down = FocusRequester.Cancel },
+                enabled = state is Lc.Content,
             ) {
                 Icon(
                     imageVector = Icons.Default.ContentCopy,
@@ -124,8 +130,11 @@ private fun TopBar(
                 )
             }
             IconButton(
-                onClick = { scope.launch { shareText(context, state.text()) } },
+                onClick = {
+                    scope.launch { shareText(context, state.contentOrNull()?.text() ?: "") }
+                },
                 modifier = Modifier.focusProperties { down = FocusRequester.Cancel },
+                enabled = state is Lc.Content,
             ) {
                 Icon(
                     imageVector = Icons.Default.Share,
@@ -137,7 +146,7 @@ private fun TopBar(
 }
 
 @Composable
-private fun Content(state: ViewLogsUiState, paddingValues: PaddingValues) {
+private fun Content(state: Lc<Unit, ViewLogsUiState>, paddingValues: PaddingValues) {
     Card(
         modifier =
             Modifier.fillMaxSize()
@@ -149,34 +158,42 @@ private fun Content(state: ViewLogsUiState, paddingValues: PaddingValues) {
                 ),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onPrimary),
     ) {
-        if (state.isLoading) {
-            MullvadCircularProgressIndicatorMedium(
-                modifier =
-                    Modifier.padding(Dimens.mediumPadding).align(Alignment.CenterHorizontally),
-                color = MaterialTheme.colorScheme.primary,
-            )
-        } else {
-            val listState = rememberLazyListState()
-            // Logs are always in English and should be Ltr
-            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
-                LazyColumn(
-                    state = listState,
-                    modifier =
-                        Modifier.fillMaxWidth()
-                            .drawVerticalScrollbar(
-                                listState,
-                                MaterialTheme.colorScheme.primary.copy(alpha = AlphaScrollbar),
-                            )
-                            .padding(horizontal = Dimens.smallPadding),
-                ) {
-                    items(state.allLines) { text ->
-                        Text(
-                            text = text,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.primary,
-                        )
-                    }
-                }
+        when (state) {
+            is Lc.Loading -> Loading()
+            is Lc.Content -> Content(state.value.allLines)
+        }
+    }
+}
+
+@Composable
+private fun ColumnScope.Loading() {
+    MullvadCircularProgressIndicatorMedium(
+        modifier = Modifier.padding(Dimens.mediumPadding).align(Alignment.CenterHorizontally),
+        color = MaterialTheme.colorScheme.primary,
+    )
+}
+
+@Composable
+private fun Content(allLines: List<String>) {
+    val listState = rememberLazyListState()
+    // Logs are always in English and should be Ltr
+    CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
+        LazyColumn(
+            state = listState,
+            modifier =
+                Modifier.fillMaxWidth()
+                    .drawVerticalScrollbar(
+                        listState,
+                        MaterialTheme.colorScheme.primary.copy(alpha = AlphaScrollbar),
+                    )
+                    .padding(horizontal = Dimens.smallPadding),
+        ) {
+            items(allLines) { text ->
+                Text(
+                    text = text,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.primary,
+                )
             }
         }
     }
