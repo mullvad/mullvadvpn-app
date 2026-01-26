@@ -14,9 +14,11 @@
     <string name="add_method">إضافة طريقة</string>
     <string name="add_time">إضافة وقت</string>
     <string name="add_time_to_account">يمكنك إما شراء رصيد على موقعنا أو استرداد القسيمة.</string>
+    <string name="add_to_list">إضافة إلى القائمة</string>
     <string name="added_to_your_account">تمت إضافة %1$s إلى حسابك.</string>
     <string name="adding_method">جارٍ إضافة الطريقة...</string>
     <string name="agree_and_continue">الموافقة والمتابعة</string>
+    <string name="all">الكل</string>
     <string name="all_applications">جميع التطبيقات</string>
     <string name="all_locations">جميع المواقع</string>
     <string name="all_providers">جميع موفري الخدمة</string>
@@ -27,6 +29,8 @@
     <string name="android_16_upgrade_warning_message">هناك مشكلة معروفة في نظام Android 16. يُرجى إعادة تشغيل جهازك وإعادة المحاولة. لمعرفة المزيد،</string>
     <string name="android_16_upgrade_warning_title">هل يتعذَّر الاتصال؟</string>
     <string name="anti_censorship">مكافحة الرقابة</string>
+    <string name="anti_censorship_info_first_paragraph">قد تكون هذه الطرق مفيدة في حال تم حظر وصولك إلى Mullvad. عند اختيار \"تلقائي\"، سيحاول التطبيق استخدام جميع الطرق حتى تنجح إحداها.</string>
+    <string name="anti_censorship_info_second_paragraph">&lt;b&gt;يُرجى ملاحظة أن هذه الطرق لا تعمل على تحسين الأداء، وقد تؤدي إلى زيادة استخدام النظام واستنزاف البطارية.&lt;/b&gt;</string>
     <string name="any">أي نوع</string>
     <string name="api_access_description">إدارة طرق مُخصَّصة للوصول إلى Mullvad API وإضافتها.</string>
     <string name="api_access_method_info_first_line">يحتاج التطبيق إلى التواصل مع خادم Mullvad API لتسجيل دخولك، وجلب قوائم الخوادم، وغيرها من العمليات المهمة.</string>
@@ -39,7 +43,15 @@
     <string name="api_unreachable_save_anyway">واجهة API لا يمكن الوصول إليها، هل تريد حفظ الطريقة على أي حال؟</string>
     <string name="app_info">معلومات التطبيق</string>
     <string name="app_is_blocking_internet">التطبيق يحظر الإنترنت، يُرجي قطع الاتصال أولًا</string>
+    <string name="app_name_browser">المتصفح</string>
+    <string name="app_name_notes">ملاحظات</string>
+    <string name="app_name_weather">الطقس</string>
+    <string name="appearance">المظهر</string>
+    <string name="appearance_description">تغيير عنوان ورمز تطبيق VPN على جهاز Android لديك. لن يؤدي ذلك إلى تغيير الرمز لأي إشعارات متعلقة بـ Mullvad VPN.</string>
+    <string name="appearance_description_warning">&lt;b&gt;تنبيه:&lt;/b&gt; سيتم إيقاف التطبيق تلقائيًا ويلزم فتحه يدويًا مرة أخرى بعد اختيار أيقونة وعنوان جديدين. لن يؤثر ذلك على اتصال VPN لديك.</string>
+    <string name="appearance_description_warning_tv">على أجهزة التليفزيون قد تحتاج أيضًا إلى إعادة تشغيل جهازك.</string>
     <string name="apply">تطبيق</string>
+    <string name="applying_changes">يجري تطبيق التغييرات...</string>
     <string name="at_least_on_method_needs_to_enabled">يجب تفعيل طريقة واحدة على الأقل</string>
     <string name="auth_failed">تتعذَّر مصادقة الحساب. يُرجى إرسال بلاغ بالمشكلة.</string>
     <string name="authentication">المصادقة</string>
@@ -115,6 +127,8 @@
     <string name="custom_port_dialog_remove">إزالة المنفذ المُخصَّص</string>
     <string name="custom_port_dialog_submit">تعيين المنفذ</string>
     <string name="custom_port_dialog_valid_ranges">النطاقات الصالحة: %1$s</string>
+    <string name="custom_port_recommended_range_first">&lt;b&gt;تنبيه:&lt;/b&gt; تدعم بعض الخوادم فقط نطاق المنفذ الكامل.</string>
+    <string name="custom_port_recommended_range_second">النطاق الصالح لجميع الخوادم: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">يتعذَّر حل مشكلة مضيف النفق المُخصَّص. جرِّب تغيير إعداداتك.</string>
     <string name="daita_description_slide_1_first_paragraph">تنبيه: يزيد ذلك من حركة بيانات الشبكة، ويؤثر سلبًا على السرعة وزمن الوصول واستهلاك البطارية. يُرجى توخي الحذر عند استخدام الباقات المحدودة.</string>
     <string name="daita_description_slide_1_second_paragraph">يقوم ميزة %1$s (%2$s) بإخفاء الأنماط في حركة بيانات VPN المُشفَّرة لديك.</string>
@@ -139,9 +153,10 @@
     <string name="device_ip_info_second_paragraph">يمكن أن يكون هذا مفيدًا عندما تكون على دراية بالمشكلات التي تسببها نسخة عنوان IP مُعيَّنة.</string>
     <string name="device_ip_version_title">نسخة عنوان IP للجهاز</string>
     <string name="device_name">اسم الجهاز</string>
-    <string name="device_name_info_first_paragraph">هذا هو الاسم المُخصَّص للجهاز. يحصل كل جهاز مُسجَّل دخوله إلى حساب Mullvad على اسم فريد يساعدك على تمييزه عند إدارة أجهزتك في التطبيق أو على الموقع الإلكتروني.</string>
+    <string name="device_name_info_first_paragraph">هذا هو الاسم المُخصَّص للجهاز. يحصل كل جهاز مُسجَّل منه الدخول إلى حساب Mullvad على اسم فريد يساعدك على تمييزه عند إدارة أجهزتك في التطبيق أو على الموقع الإلكتروني.</string>
     <string name="device_name_info_second_paragraph">يمكنك تسجيل الدخول إلى ما يصل إلى 5 أجهزة على حساب Mullvad واحد.</string>
     <string name="device_name_info_third_paragraph">عند تسجيل الخروج، سيتم حذف الجهاز واسمه. وعند تسجيل الدخول مجددًا، سيحصل الجهاز على اسم جديد.</string>
+    <string name="direct">مباشر</string>
     <string name="direct_only">المباشر فقط</string>
     <string name="direct_only_description">ليست كل خوادمنا تدعم ميزة %1$s. قد تحتاج إلى اختيار موقع جديد بعد تفعيلها لاستخدام الإنترنت.</string>
     <string name="disable_multihop">إيقاف القفز المتعدد</string>
@@ -178,7 +193,7 @@
     <string name="enable_multihop">تفعيل القفز المتعدد</string>
     <string name="enable_recents">تفعيل المواقع الحديثة</string>
     <string name="encrypted_dns_proxy_info_message_part1">باستخدام طريقة \"وكيل DNS المُشفَّر\"، سيتواصل التطبيق مع Mullvad API الخاصة بنا عبر عنوان خادم وكيل. وسيفعل ذلك من خلال جلب عنوان من خادم DNS عبر HTTPS (DoH)، ثم استخدام هذا العنوان للوصول إلى خوادم واجهة API الخاصة بنا.</string>
-    <string name="encrypted_dns_proxy_info_message_part2">إذا لم تكن متصلًا بشبكة VPN لدينا، فسيستخدم خادم وكيل نظام أسماء النطاقات (DNS) المُشفَّر عنوان IP غير المرتبط بشبكة VPN عند الاتصال. يتم استضافة خوادم DoH من قِبل أحد موفري الخدمة التاليين: Quad9 أو CloudFlare.</string>
+    <string name="encrypted_dns_proxy_info_message_part2">إذا لم تكن متصلًا بشبكة VPN لدينا، فسيستخدم خادم وكيل نظام أسماء النطاقات (DNS) المُشفَّر عنوان IP غير المرتبط بشبكة VPN عند الاتصال. تتم استضافة خوادم DoH من قِبل أحد موفري الخدمة التاليين: Quad9 أو CloudFlare.</string>
     <string name="enter_value_placeholder">أدخل MTU</string>
     <string name="enter_voucher_code">أدخل رمز القسيمة</string>
     <string name="entry">دخول</string>
@@ -188,6 +203,7 @@
     <string name="exclude_applications">التطبيقات المستثناة</string>
     <string name="exit">خروج</string>
     <string name="expand">توسيع</string>
+    <string name="external_link">رابط خارجي</string>
     <string name="failed_to_block_internet">يتعذَّر حظر جميع بيانات الشبكة. يُرجى استكشاف المشكلة وإصلاحها أو إرسال بلاغ بالمشكلة.</string>
     <string name="failed_to_create_account">فشل إنشاء الحساب</string>
     <string name="failed_to_fetch_devices">فشل جلب قائمة الأجهزة</string>
@@ -210,6 +226,7 @@
     <string name="here_is_your_account_number">هذا هو رقم حسابك. احفظه!</string>
     <string name="hide_account_number">إخفاء رقم الحساب</string>
     <string name="hint_default">افتراضي</string>
+    <string name="icon_and_title">الرمز والعنوان</string>
     <string name="import_override_textfield_placeholder">الصق أو اكتب التجاوزات المراد استيرادها</string>
     <string name="import_overrides_bottom_sheet_override_warning">قد يحل استيراد التجاوزات الجديدة محل بعض التجاوزات التي تم استيرادها سابقًا.</string>
     <string name="import_overrides_import">استيراد</string>
@@ -226,10 +243,11 @@
     <string name="ipv4">IPv4</string>
     <string name="ipv6">IPv6</string>
     <string name="ipv6_info">عندما يتم تفعيل هذه الميزة، يمكن استخدام IPv6 جنبًا إلى جنب مع IPv4 في نفق VPN للاتصال بخدمات الإنترنت.</string>
-    <string name="ipv6_unavailable">تعذَّرت تهيئة IPv6. أوقفه في التطبيق أو فعِّله على جهازك.</string>
+    <string name="ipv6_unavailable">تعذَّرت تهيئة بروتوكول IPv6. أوقفه في التطبيق أو فعِّله على جهازك.</string>
     <string name="is_offline">جهازك غير متصل بالإنترنت. سيتصل النفق تلقائيًا بمجرد اتصال جهازك مرة أخرى بالإنترنت.</string>
     <string name="legacy_always_on_vpn_error_notification_content">يتعذَّر بدء اتصال النفق. يُرجى إيقاف \"تشغيل VPN دائمًا\" قبل استخدام Mullvad VPN.</string>
     <string name="legacy_always_on_vpn_error_notification_title">تم تعيين \"تشغيل VPN دائمًا\" إلى شبكة VPN أخرى</string>
+    <string name="less_than_a_day_left">يتبقى أقل من يوم لهذا الحساب</string>
     <string name="less_than_one_day">أقل من يوم</string>
     <string name="list_name">اسم القائمة</string>
     <string name="loading_products">جارٍ تحميل المنتجات</string>
@@ -243,6 +261,7 @@
     <string name="location_was_removed_from_list">تمت إزالة %1$s من \"%2$s\"</string>
     <string name="locations">المواقع</string>
     <string name="locations_were_changed_for">تم تغيير المواقع لـ \"%1$s\"</string>
+    <string name="log_in">تسجيل الدخول</string>
     <string name="log_out">تسجيل الخروج</string>
     <string name="logged_in_description">رقم حساب صالح</string>
     <string name="logged_in_title">مُسجَّل الدخول</string>
@@ -268,12 +287,16 @@
     <string name="more_actions">إجراءات إضافية</string>
     <string name="more_information">المزيد من المعلومات</string>
     <string name="mtu">MTU</string>
+    <string name="mtu_x">القيمة: %1$s</string>
     <string name="mullvad_owned_only">مملوك لـ Mullvad فقط</string>
     <string name="multihop">القفز المتعدد</string>
     <string name="multihop_description">يوجِّه القفز المتعدد حركة البيانات لديك من خادم WireGuard إلى آخر، مما يجعل من الصعب تتبُّعها. ويؤدي ذلك إلى زيادة زمن الوصول، لكنه يزيد من إخفاء الهوية على الإنترنت.</string>
     <string name="multihop_entry_disabled_description">خادم الدخول لـ %1$s تم تجاوزه حاليًا من قِبل ميزة %2$s. لاختيار خادم دخول، يُرجى أولًا تفعيل \"%3$s\" أو إيقاف \"ميزة %2$s\" في الإعدادات.</string>
+    <string name="multihop_is_disabled">تم تعطيل القفز المتعدد</string>
+    <string name="multihop_is_enabled">تم تمكين القفز المتعدد</string>
     <string name="name">الاسم</string>
     <string name="name_was_changed_to">تم تغيير الاسم إلى %1$s</string>
+    <string name="navigate">تنقل</string>
     <string name="new_changelog_notification_message">انقر هنا للاطلاع على آخر المستجدات.</string>
     <string name="new_changelog_notification_title">تم تثبيت إصدار جديد</string>
     <string name="new_device_notification_message">مرحبًا، يُسمَّى هذا الجهاز الآن &lt;b&gt;%1$s&lt;/b&gt;.</string>
@@ -291,6 +314,7 @@
     <string name="none">لا يوجد</string>
     <string name="not_found">غير موجود</string>
     <string name="number_of_providers">موفرو الخدمات: %1$d</string>
+    <string name="number_parentheses">(%1$d)</string>
     <string name="obfuscation_info">يُخفي التمويه حركة بيانات WireGuard داخل بروتوكول آخر. ويمكن استخدامه للمساعدة في تجاوز الرقابة وأنواع التصفية الأخرى، حيث يتم حظر اتصال WireGuard العادي.</string>
     <string name="obfuscation_info_shadowsocks_batteryusage">انتبه: قد يؤدي استخدام بروتوكول Shadowsocks إلى زيادة استهلاك البطارية بناءً على استخدام البيانات، مثل بث فيديو.</string>
     <string name="off">إيقاف</string>
@@ -372,6 +396,10 @@
     <string name="server_ip_overrides_reset_body">ستتم إعادة تعيين كل التجاوزات، وستعود عناوين IP الخاصة بالخوادم في شاشة تحديد الموقع إلى الإعدادات الافتراضية.</string>
     <string name="server_ip_overrides_reset_reset_button">إعادة التعيين</string>
     <string name="server_ip_overrides_reset_title">إعادة تعيين كل التجاوزات</string>
+    <string name="set_as_multihop_entry">تعيين كمدخل لقفزات متعددة</string>
+    <string name="set_as_multihop_entry_unavailable">تعيين كمدخل لقفزات متعددة (غير متوافق)</string>
+    <string name="set_as_multihop_exit">تعيين كمخرج لقفزات متعددة</string>
+    <string name="set_as_multihop_exit_unavailable">تعيين كمخرج لقفزات متعددة (غير متوافق)</string>
     <string name="set_dns_error">يتعذَّر ضبط خادم DNS للنظام. يُرجى إرسال بلاغ بالمشكلة.</string>
     <string name="set_firewall_policy_error">يتعذَّر تطبيق قواعد جدار الحماية. يُرجى استكشاف الأخطاء وإصلاحها أو إرسال بلاغ بالمشكلة.</string>
     <string name="setting_chip">الإعداد: %1$s</string>
@@ -446,6 +474,7 @@
     <string name="vpn_permission_error_notification_message">يُرجى الضغط على \"اتصال\" لطلب إذن VPN</string>
     <string name="vpn_permission_error_notification_title">خطأ في إذن شبكة VPN</string>
     <string name="vpn_settings_not_available">إعدادات شبكة VPN غير متاحة على الجهاز</string>
+    <string name="warning">تحذير</string>
     <string name="we_will_look_into_this">سوف ننظر في هذا الأمر.</string>
     <string name="wireguard_custon_port_title">مُخصَّص</string>
     <string name="wireguard_mtu_footer">قم بتعيين قيمة WireGuard MTU. النطاق الصالح: %1$d - %2$d.</string>
@@ -457,4 +486,6 @@
     <string name="x_entry">%1$s (دخول)</string>
     <string name="x_exit">%1$s (خروج)</string>
     <string name="x_via_x">%1$s عبر %2$s</string>
+    <string name="you_can_add_more_time_oss">يمكنك إضافة المزيد من الوقت من خلال طريقة عرض الحساب أو موقع الويب لمتابعة استخدام VPN.</string>
+    <string name="you_can_add_more_time_play">يمكنك إضافة المزيد من الوقت من خلال طريقة عرض الحساب لمتابعة استخدام VPN.</string>
 </resources>

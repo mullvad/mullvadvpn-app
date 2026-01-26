@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Burmese\n"
 "Language: my_MM\n"
-"PO-Revision-Date: 2025-12-08 09:00\n"
+"PO-Revision-Date: 2026-01-22 08:53\n"
 
 msgid "%(amount)d more..."
 msgstr "နောက်ထပ် %(amount)d လုံး..."
@@ -313,10 +313,6 @@ msgid "%(wireguard)s port settings"
 msgstr "%(wireguard)s ပေါ့တ် ဆက်တင်များ"
 
 msgctxt "accessibility"
-msgid "Add new custom bridge"
-msgstr "စိတ်ကြိုက် ပေါင်းကူးအသစ် ထည့်ရန်"
-
-msgctxt "accessibility"
 msgid "Close notification"
 msgstr "အသိပေးချက်ကို ပိတ်ရန်"
 
@@ -330,9 +326,10 @@ msgctxt "accessibility"
 msgid "Copy account number"
 msgstr "အကောင့်နံပါတ်ကို ကူးရန်"
 
+#. Accessibility label for a carousel that explains the DAITA feature to the user.
 msgctxt "accessibility"
-msgid "Edit custom bridge"
-msgstr "စိတ်ကြိုက် ပေါင်းကူးကို တည်းဖြတ်ရန်"
+msgid "DAITA information carousel"
+msgstr "DAITA အချက်အလက် ပတ်ပတ်လည်ပြသမှု"
 
 msgctxt "accessibility"
 msgid "Expand %(location)s"
@@ -358,15 +355,28 @@ msgctxt "accessibility"
 msgid "Go to app update page"
 msgstr "အက်ပ်အပ်ဒိတ် စာမျက်နှာသို့ သွားပါ"
 
+#. Accessibility label for carousel indicators that allow navigation between slides.
+#. Available placeholders:
+#. %(index)s - Will be replaced with the slide index number.
+msgctxt "accessibility"
+msgid "Go to slide %(index)s"
+msgstr "ဆလိုက် %(index)s သို့ သွားရန်"
+
 #. Provided to accessibility tools such as screenreaders to describe
 #. the button which obscures the account number.
 msgctxt "accessibility"
 msgid "Hide account number"
 msgstr "အကောင့်နံပါတ်ကို ဝှက်ရန်"
 
+#. Alt text for an illustration showing VPN traffic with DAITA.
 msgctxt "accessibility"
-msgid "info"
-msgstr "အချက်အလက်"
+msgid "Illustration showing VPN traffic with DAITA enabled"
+msgstr "DAITA ဖွင့်ထားချိန်တွင် VPN ဒေတာအသွားအလာကို ပြသသော ရုပ်ပုံ"
+
+#. Alt text for an illustration showing VPN traffic without DAITA.
+msgctxt "accessibility"
+msgid "Illustration showing VPN traffic without DAITA"
+msgstr "DAITA မပါသော VPN ဒေတာအသွားအလာကို ပြသသော ရုပ်ပုံ"
 
 #. This is used by screenreaders to communicate the login button.
 msgctxt "accessibility"
@@ -397,10 +407,20 @@ msgctxt "accessibility"
 msgid "New version installed, click here to see the changelog"
 msgstr "ဗားရှင်းအသစ် ထည့်သွင်းထားသည်၊ ပြောင်းလဲမှုမှတ်တမ်းကို ကြည့်ရန် ဤနေရာကို နှိပ်ပါ"
 
+#. Accessibility label for a button that navigates to the next slide in a carousel.
+msgctxt "accessibility"
+msgid "Next slide"
+msgstr "နောက်ဆလိုက်"
+
 #. Accessibility label for the button that opens the browser to buy credit.
 msgctxt "accessibility"
 msgid "Opens externally"
 msgstr "ပြင်ပတွင် ဖွင့်ရန်"
+
+#. Accessibility label for a button that navigates to the previous slide in a carousel.
+msgctxt "accessibility"
+msgid "Previous slide"
+msgstr "ယခင်ဆလိုက်"
 
 #. Button action description provided to accessibility tools such as screen
 #. readers.
@@ -1020,32 +1040,12 @@ msgid "%(relay)s via %(entry)s"
 msgstr "%(entry)s မှတစ်ဆင့် %(relay)s"
 
 msgctxt "connection-info"
-msgid "%(relay)s via Custom bridge"
-msgstr "စိတ်ကြိုက် ပေါင်းကူးမှတစ်ဆင့် %(relay)s"
-
-msgctxt "connection-info"
 msgid "In"
 msgstr "အဝင်"
 
 msgctxt "connection-info"
 msgid "Out"
 msgstr "အထွက်"
-
-msgctxt "custom-bridge"
-msgid "Add custom bridge"
-msgstr "စိတ်ကြိုက် ပေါင်းကူးကို ပေါင်းထည့်ရန်"
-
-msgctxt "custom-bridge"
-msgid "Delete custom bridge?"
-msgstr "စိတ်ကြိုက် ပေါင်းကူးကို ဖျက်မည်လား။"
-
-msgctxt "custom-bridge"
-msgid "Deleting the custom bridge will take you back to the select location view and the Automatic option will be selected instead."
-msgstr "စိတ်ကြိုက် ပေါင်းကူးကို ဖျက်ခြင်းသည် တည်နေရာ ရွေးရန် ပြသမှုကို ပြန်လည် ရောက်ရှိသွားမည်ဖြစ်ကာ အလိုအလျောက် ရွေးချယ်မှုကို အစားထိုး ရွေးချယ်ပါမည်။"
-
-msgctxt "custom-bridge"
-msgid "Edit custom bridge"
-msgstr "စိတ်ကြိုက် ပေါင်းကူးကို တည်းဖြတ်ရန်"
 
 #. Button for continuing login process.
 msgctxt "device-management"
@@ -1845,10 +1845,6 @@ msgctxt "select-location-view"
 msgid "%(location)s (%(info)s)"
 msgstr "%(location)s (%(info)s)"
 
-msgctxt "select-location-view"
-msgid "A custom bridge server can be used to circumvent censorship when regular Mullvad bridge servers don’t work."
-msgstr "ပုံမှန် Mullvad ပေါင်းကူး ဆာဗာသည် အလုပ် မဖြစ်သည့်အခါ စိစစ်ဖြတ်တောက်မှုကို ရှောင်လွှဲရန် စိတ်ကြိုက် ပေါင်းကူး ဆာဗာကို သုံးပါသည်။"
-
 #. This is a label shown above a list of options.
 #. Available placeholder:
 #. %(locationType) - Could be either "Country", "City" and "Relay"
@@ -1867,10 +1863,6 @@ msgstr "မြို့"
 msgctxt "select-location-view"
 msgid "Country"
 msgstr "နိုင်ငံ"
-
-msgctxt "select-location-view"
-msgid "Custom bridge"
-msgstr "စိတ်ကြိုက် ပေါင်းကူး"
 
 msgctxt "select-location-view"
 msgid "Custom lists"
@@ -1926,10 +1918,6 @@ msgstr "ရီလေး (Relay)"
 msgctxt "select-location-view"
 msgid "Setting: %(settingName)s"
 msgstr "ဆက်တင်- %(settingName)s"
-
-msgctxt "select-location-view"
-msgid "The app selects a random bridge server, but servers have a higher probability the closer they are to you."
-msgstr "ဤအက်ပ်သည် ကျပန်းပေါင်းကူးဆာဗာကို ရွေးချယ်သော်လည်း ဆာဗာများသည် သင့်အနီးနားရှိလေ ဖြစ်နိုင်ချေ ပိုများလေ ဖြစ်သည်။"
 
 msgctxt "select-location-view"
 msgid "The entry server for %(multihop)s is currently overridden by %(daita)s. To select an entry server, please first enable “%(directOnly)s” or disable \"%(daita)s\" in the settings."
@@ -2125,8 +2113,8 @@ msgstr "Mullvad ဝန်ဆောင်မှုကို ပြန်လည်
 #. Available placeholders:
 #. %(splitTunneling)s - will be replaced with Split tunneling
 msgctxt "split-tunneling-view"
-msgid "To use %(splitTunneling)s, please change to a Linux kernel version that supports cgroup v1."
-msgstr "%(splitTunneling)s ကိုသုံးလိုပါက cgroup v1 ကို ပံ့ပိုးပေးသည့် Linux Kernel ဗားရှင်းသို့ ပြောင်းပါ။"
+msgid "To use %(splitTunneling)s, please update to a Linux kernel version that supports cgroup v2."
+msgstr "%(splitTunneling)s ကို သုံးရန် cgroup v2 ကို သုံးနိုင်စေသည့် Linux Kernel ဗာရှင်းသို့ အပ်ဒိတ်လုပ်ပေးပါ။"
 
 msgctxt "split-tunneling-view"
 msgid "To use split tunneling please enable “Full disk access” for “Mullvad VPN” in the macOS system settings."
@@ -2553,10 +2541,6 @@ msgid "Trackers"
 msgstr "ခြေရာခံများ"
 
 msgctxt "vpn-settings-view"
-msgid "Tunnel protocol"
-msgstr "Tunnel ပရိုတိုကောလ်"
-
-msgctxt "vpn-settings-view"
 msgid "Use custom DNS server"
 msgstr "စိတ်ကြိုက် DNS ဆာဗာကို သုံးရန်"
 
@@ -2698,10 +2682,6 @@ msgid "Shadowsocks"
 msgstr "Shadowsocks"
 
 msgctxt "wireguard-settings-view"
-msgid "Switch to “%(wireguard)s” in Settings > %(tunnelProtocol)s to make %(setting)s available."
-msgstr "%(setting)s ကို ရရှိနိုင်ရန် ဆက်တင်များ > %(tunnelProtocol)s တွင် “%(wireguard)s” သို့ ပြောင်းပါ။"
-
-msgctxt "wireguard-settings-view"
 msgid "The automatic setting will randomly choose from the valid port ranges shown below."
 msgstr "အော်တိုဆက်တင်သည် အောက်တွင် ဖော်ပြထားသည့် အကျုံးဝင် ပေါ့တ် အပိုင်းအခြားများထဲမှ ကျပန်းရွေးချယ်ပါမည်။"
 
@@ -2747,9 +2727,6 @@ msgstr "%s (ထည့်ပြီး)"
 msgid "%s (removed)"
 msgstr "%s (ဖယ်ရှားထား)"
 
-msgid "%s custom port"
-msgstr "%s စိတ်ကြိုက်ပေါ့တ်"
-
 msgid "%s is already selected as entry relay"
 msgstr "%s ကို ထပ်ဆင့်ဝင်ပေါက်အဖြစ် ရွေးထားပြီးဖြစ်သည်"
 
@@ -2764,6 +2741,9 @@ msgstr "%s ဆက်တင်များ"
 
 msgid "%s was added to your account."
 msgstr "%s ကို သင့်အကောင့်တွင် ထည့်လိုက်ပြီ။"
+
+msgid "(%d)"
+msgstr "(%d)"
 
 msgid "1. After clicking on the \"Go to VPN settings\" button below, click on the cogwheel next to the \"Mullvad VPN\" name."
 msgstr "1. အောက်ရှိ \"VPN ဆက်တင်များသို့ သွားရန်\" ခလုတ်ကိုနှိပ်ပြီးနောက် \"Mullvad VPN\" အမည်ဘေးရှိ ခွေးသွားစိတ်ပုံကို နှိပ်ပါ။"
@@ -2780,6 +2760,15 @@ msgstr "သင့်အကောင့်ထဲသို့ ရက် 30 ကိ�
 msgid "90 days was added to your account."
 msgstr "သင့်အကောင့်အတွက် ရက် 90 တိုးထားပါသည်။"
 
+msgid "<b>Attention:</b> Only some servers support the full port range."
+msgstr "<b>သတိပြုရန်-</b> ဆာဗာအချို့သာ ပေါ့တ်အပိုင်းအခြား အပြည့် ပံ့ပိုးပေးပါသည်။"
+
+msgid "<b>Attention:</b> The app will close automatically and needs to be manually opened again after selecting a new icon and title. This will not impact your VPN connection."
+msgstr "<b>သတိပြုရန်-</b> အိုင်ကွန်နှင့် ခေါင်းစဉ်အသစ်ကို ရွေးပြီးသည်နှင့် အက်ပ်က အော်တို ပိတ်သွားမည်ဖြစ်ပြီး ကိုယ်တိုင် ပြန်ဖွင့်ရန် လိုအပ်ပါသည်။ ဤလုပ်ဆောင်မှုသည် VPN ချိတ်ဆက်မှုကို မထိခိုက်ပါ။"
+
+msgid "<b>Please note that these methods do not improve performance, and may increase system utilization and battery consumption.</b>"
+msgstr "<b>ဤနည်းလမ်းများသည် စွမ်းဆောင်ရည်ကို မတိုးတက်စေဘဲ စနစ်ကို ပိုသုံးစွဲ၍ ဘက်ထရီ အားပိုကုန်စေနိုင်ကြောင်း သတိပြုပါ။</b>"
+
 msgid "API reachable, adding method..."
 msgstr "API နှင့် ချိတ်၍ရသည်၊ နည်းလမ်း ထည့်နေဆဲ…"
 
@@ -2789,17 +2778,11 @@ msgstr "API နှင့် ချိတ်၍မရပါ၊ မည်သို
 msgid "Account credit expires in a few minutes"
 msgstr "မိနစ်အနည်းငယ်အကြာတွင် အကောင့်ခရက်ဒစ် သက်တမ်းကုန်ပါတော့မည်"
 
-msgid "Account credit expires soon"
-msgstr "မကြာမီ အကောင့် ခရက်ဒစ် သက်တမ်းကုန်ပါတော့မည်"
-
 msgid "Account number is too long, please enter a valid number"
 msgstr "အကောင့်နံပါတ်သည် ရှည်လွန်းသည်၊ ကျေးဇူးပြု၍ မှန်ကန်သော နံပါတ်ကို ထည့်သွင်းပါ"
 
 msgid "Account time reminders"
 msgstr "အကောင့်အချိန် သတိပေးချက်များ"
-
-msgid "Add %s to list"
-msgstr "%s ကို စာရင်းတွင် ထည့်ပါ"
 
 msgid "Add 30 days time (%s)"
 msgstr "အချိန် ရက် 30 ကို‌ ပေါင်းထည့်ရန် (%s)"
@@ -2816,6 +2799,9 @@ msgstr "တည်နေရာများ ပေါင်းထည့်ရန�
 msgid "Add time"
 msgstr "အချိန်တိုးရန်"
 
+msgid "Add to list"
+msgstr "စာရင်းတွင် ထည့်ရန်"
+
 msgid "Adding method..."
 msgstr "နည်းလမ်း ထည့်နေဆဲ..."
 
@@ -2824,6 +2810,9 @@ msgstr "Android 16 တွင် VPN အက်ပ်ကို အပ်ဒိတ�
 
 msgid "Agree and continue"
 msgstr "သဘောတူပြီး ဆက်လုပ်ရန်"
+
+msgid "All"
+msgstr "အားလုံး"
 
 msgid "All applications"
 msgstr "အပလီကေးရှင်း အားလုံး"
@@ -2839,6 +2828,12 @@ msgstr "အမြဲဖွင့် VPN ကို အခြား VPN တစ်�
 
 msgid "Android 16 has a known issue. Please restart your device and try again. To learn more,"
 msgstr "Android 16 တွင် သိထားပြီးသား ပြဿနာရှိသည်။ သင့်စက်ကို ရီစတက်ချပြီး ထပ်မံကြိုးစားပါ။ ပိုမိုလေ့လာရန်၊ "
+
+msgid "Appearance"
+msgstr "ပုံသဏ္ဌာန်"
+
+msgid "Applying changes..."
+msgstr "ပြောင်းလဲမှုများ လုပ်ဆောင်နေဆဲ..."
 
 msgid "Are you sure you want to log <b>%s</b> out?"
 msgstr "<b>%s</b> မှ ထွက်လိုသည်မှာ သေချာပါသလား။"
@@ -2873,11 +2868,17 @@ msgstr "အင်တာနက် ပိတ်ဆို့နေဆဲ (စက်
 msgid "Blocking..."
 msgstr "ပိတ်ဆို့နေဆဲ..."
 
+msgid "Browser"
+msgstr "Browser"
+
 msgid "By attaching your account token it links this report to your account, which helps us resolve your issue quicker. All reports are automatically deleted after a period of time."
 msgstr "သင့်အကောင့် တိုကင်ကို တွဲချိတ်ခြင်းဖြင့် ဤရီပို့တ်ကို သင့်အကောင့်နှင့် ချိတ်ဆက်လိုက်ပြီး ဤကဲ့သို့ တွဲချိတ်ပေးခြင်းအားဖြင့် သင်ကြုံတွေ့နေရသော ပြဿနာကို ပို၍ မြန်မြန်ဆန်ဆန် ဖြေရှင်းနိုင်ရန် အထောက်အကူပြုပါသည်။ ရီပို့တ်အားလုံးကို အချိန်ကာလတစ်ခုကြာပြီးနောက် အော်တို ဖျက်ပါသည်။"
 
 msgid "Can't connect?"
 msgstr "ချိတ်မရဘူးလား။"
+
+msgid "Change the title and icon of the Mullvad VPN app on your Android device. This will not change the icon for any Mullvad VPN related notifications."
+msgstr "Android စက်ရှိ Mullvad VPN အက်ပ်၏ ခေါင်းစဉ်နှင့် အိုင်ကွန်ကို ပြောင်းပါ။ ဤသို့ ပြောင်းခြင်းသည် Mullvad VPN ဆက်စပ်သော အသိပေးချက်မှန်သမျှအတွက် အိုင်ကွန်ကို မပြောင်းစေပါ။"
 
 msgid "Changes to DNS related settings might not go into effect immediately due to cached results."
 msgstr "DNS နှင့်ဆက်စပ်သော ဆက်တင်များ၌ ပြုလုပ်သည့် ပြောင်းလဲမှုများသည် ယာယီသိမ်းထားသော ရလဒ်များကြောင့် ချက်ချင်း အကျိုးမသက်ရောက်နိုင်ပါ။"
@@ -2909,9 +2910,6 @@ msgstr "ကူးယူရန်"
 msgid "Create"
 msgstr "ဖန်တီးမည်"
 
-msgid "Create account"
-msgstr "အကောင့် ဖွင့်ရန်"
-
 msgid "Create new list"
 msgstr "စာရင်းသစ် ဖန်တီးမည်"
 
@@ -2938,6 +2936,9 @@ msgstr "နည်းလမ်းကို ဖျက်ရန်"
 
 msgid "Delete method?"
 msgstr "နည်းလမ်းကို ဖျက်မည်လား။"
+
+msgid "Direct"
+msgstr "တိုက်ရိုက်"
 
 msgid "Disable all \"%s\" above to activate this setting."
 msgstr "ဤဆက်တင်ကိုဖွင့်ရန် အထက်ရှိ \"%s\" အားလုံးကို ပိတ်ပါ။"
@@ -3011,6 +3012,9 @@ msgstr "အပလီကေးရှင်းများ ဖယ်ထားပ�
 msgid "Expand"
 msgstr "ဖြန့်ရန်"
 
+msgid "External link"
+msgstr "ပြင်ပလင့်ခ်"
+
 msgid "FAILED TO CONNECT"
 msgstr "ချိတ်ဆက်မှု မအောင်မြင်ခဲ့ပါ"
 
@@ -3056,6 +3060,9 @@ msgstr "IPv4 ကို မရရှိနိုင်ပါသဖြင့် \"
 msgid "IPv6 is not available, please try changing \"Device IP version\" setting."
 msgstr "IPv6 ကို မရရှိနိုင်ပါသဖြင့် \"စက် IP ဗားရှင်း\" ဆက်တင်ကို ပြောင်းလဲကြည့်ပါ။"
 
+msgid "Icon and title"
+msgstr "အိုင်ကွန်နှင့် ခေါင်းစဉ်"
+
 msgid "If the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
 msgstr "Split Tunneling လုပ်ဆောင်ချက်ကို အသုံးပြုထားပါက အက်ပ်သည် ထည့်သွင်းထားသော အက်ပလီကေးရှင်းများအားလုံး၏ စာရင်းကို မေးမြန်းပါသည်။ ဤစာရင်းကို Split Tunneling ပြသမှုတွင်သာ ပြန်ရယူပါသည်။ ထည့်သွင်းထားသော အက်ပလီကေးရှင်းများ၏ စာရင်းကို စက်မှ မည်သည့်အခါမျှ မပေးပို့ပါ။"
 
@@ -3080,6 +3087,9 @@ msgstr "ငွေပေးချေမှု သို့မဟုတ် အက�
 msgid "Invalid or missing value \"%1$s\""
 msgstr "မမှန်ကန်ပါ သို့မဟုတ် \"%1$s\" တန်ဖိုး ပျောက်နေသည်"
 
+msgid "Less than a day left on this account"
+msgstr "ဤအကောင့်တွင် ကျန်ချိန် တစ်ရက်မပြည့်တော့ပါ"
+
 msgid "Lets you select apps that should access the Internet directly without going through the VPN tunnel."
 msgstr "VPN Tunnel ကို မဝင်ရောက်ဘဲ အင်တာနက်ကို တိုက်ရိုက် ဝင်ရောက်သုံးစွဲသင့်သည့် အက်ပ်များကို ရွေးချယ်ပေးပါ။"
 
@@ -3095,6 +3105,9 @@ msgstr "တည်နေရာများ"
 msgid "Locations were changed for \"%s\""
 msgstr "\"%s\" အတွက် တည်နေရာများကို ပြောင်းလိုက်ပါသည်"
 
+msgid "Log in"
+msgstr "ဝင်ရောက်ရန်"
+
 msgid "Makes sure the device is always on the VPN tunnel."
 msgstr "စက်သည် VPN Tunnel ကို အမြဲဖွင့်ထားကြောင်း သေချာပါစေ။"
 
@@ -3104,8 +3117,17 @@ msgstr "နောက်ထပ်လုပ်ဆောင်ချက်မျာ
 msgid "Mullvad services unavailable"
 msgstr "Mullvad ဝန်ဆောင်မှုများကို မရရှိနိုင်ပါ"
 
+msgid "Multihop is disabled"
+msgstr "Multihop ကို ပိတ်ထားသည်"
+
+msgid "Multihop is enabled"
+msgstr "Multihop ကို ဖွင့်ထားသည်"
+
 msgid "Name was changed to %s"
 msgstr "အမည်ကို %s သို့ ပြောင်းလိုက်ပါသည်"
+
+msgid "Navigate"
+msgstr "သွားရန်"
 
 msgid "New list"
 msgstr "စာရင်းသစ်"
@@ -3146,8 +3168,14 @@ msgstr "\"%s\" အတွက် ရလဒ်မရှိပါ၊ အခြား
 msgid "Not found"
 msgstr "ရှာမတွေ့ပါ"
 
+msgid "Notes"
+msgstr "Notes"
+
 msgid "Obfuscation hides the WireGuard traffic inside another protocol. It can be used to help circumvent censorship and other types of filtering, where a plain WireGuard connection would be blocked."
 msgstr "Obfuscation သည် အခြားပရိုတိုကောလ်အတွင်းရှိ WireGuard ကူးလူးမှုကို ဝှက်ထားပေးပါသည်။ သာမန် WireGuard ချိတ်ဆက်မှုကို ပိတ်ဆို့မည့် အခြားသော စစ်ထုတ်မှု အမျိုးအစားများနှင့် ဆင်ဆာဖြတ်တောက်ခြင်းကို ရှောင်လွှဲနိုင်စေရာတွင် ကူညီနိုင်စေရန် ၎င်းကို သုံးနိုင်ပါသည်။"
+
+msgid "On TV devices you may also need to restart your device."
+msgstr "TV စက်များတွင်မူ စက်ကို ပြန်လည်စတင်ရန်လည်း လိုအပ်နိုင်ပါသည်။"
 
 msgid "Open app details"
 msgstr "အက်ပ်အသေးစိတ်အချက်အလက်များကို ဖွင့်ပါ"
@@ -3230,11 +3258,20 @@ msgstr "ရှာဖွေမှု"
 msgid "Send email"
 msgstr "အီးမေးလ်ပို့ရန်"
 
-msgid "Set %s obfuscation to \"Automatic\" or \"Off\" below to activate this setting."
-msgstr "ဤဆက်တင်ကို သက်ဝင်လုပ်ဆောင်ရန် အောက်ရှိ %s obfuscation ကို \"အော်တိုမက်တစ်\" သို့မဟုတ် \"ပိတ်\" ဟု သတ်မှတ်ပါ။"
-
 msgid "Set WireGuard MTU value. Valid range: %1$d - %2$d."
 msgstr "WireGuard MTU တန်ဖိုးကို သတ်မှတ်ပါ။  အကျုံးဝင်သော အပိုင်းအခြား- %1$d - %2$d ။"
+
+msgid "Set as multihop entry"
+msgstr "Multihop အဝင်ပွိုင့်အဖြစ် သတ်မှတ်ရန်"
+
+msgid "Set as multihop entry (incompatible)"
+msgstr "Multihop အဝင်ပွိုင့်အဖြစ် သတ်မှတ်ရန် (တွဲဖက်သုံး၍ မရပါ)"
+
+msgid "Set as multihop exit"
+msgstr "Multihop အထွက်ပွိုင့်အဖြစ် သတ်မှတ်ရန်"
+
+msgid "Set as multihop exit (incompatible)"
+msgstr "Multihop အထွက်ပွိုင့်အဖြစ် သတ်မှတ်ရန် (တွဲဖက်သုံး၍ မရပါ)"
 
 msgid "Set port"
 msgstr "ပေါ့တ် သတ်မှတ်ရန်"
@@ -3295,6 +3332,9 @@ msgstr "လိုကယ် DNS ဆာဗာသည် VPN ဆက်တင်မ�
 
 msgid "The selected %s port is not supported, please change it under"
 msgstr "ရွေးထားသည့် %s ပေါ့တ်ကို ပံ့ပိုးထားခြင်းမရှိပါသဖြင့် ၎င်းကို အောက်တွင် ပြောင်းပေးပါ "
+
+msgid "These methods may be useful in situations where you are blocked from reaching Mullvad. When “Automatic” is selected, the app will attempt all methods until one works."
+msgstr "Mullvad နှင့် ချိတ်ဆက်၍ မရအောင် ပိတ်ပင်ခံရသည့် အခြေအနေများတွင် ဤနည်းလမ်းများက အသုံးဝင်နိုင်ပါသည်။ “အော်တိုမက်တစ်” ကို ရွေးချယ်ထားချိန်တွင် အက်ပ်က အလုပ်ဖြစ်သည့် နည်းလမ်းတစ်ခုခုကို မတွေ့မချင်း နည်းလမ်းအားလုံးကို ကြိုးပမ်းသွားပါမည်။"
 
 msgid "This address has already been entered."
 msgstr "ဤလိပ်စာကို ရိုက်ထည့်ထားပြီး ဖြစ်ပါသည်။"
@@ -3389,8 +3429,14 @@ msgstr "VPN ခွင့်ပြုချက်ကို ငြင်းပယ�
 msgid "VPN tunnel status"
 msgstr "VPN Tunnel အခြေအနေ"
 
+msgid "Valid range for all servers: %s"
+msgstr "ဆာဗာအားလုံးအတွက် အကျုံးဝင်သော အပိုင်းအခြား- %s"
+
 msgid "Valid ranges: %s"
 msgstr "အကျုံးဝင်သည့် အပိုင်းအခြား- %s"
+
+msgid "Value: %s"
+msgstr "တန်ဖိုး- %s"
 
 msgid "Verifying API method..."
 msgstr "API နည်းလမ်းကို စိစစ်နေဆဲ..."
@@ -3404,6 +3450,9 @@ msgstr "ဝယ်ယူမှုကို စစ်ဆေးနေဆဲ..."
 msgid "Verifying voucher…"
 msgstr "ဘောက်ချာကို စစ်ဆေးနေဆဲ…"
 
+msgid "Warning"
+msgstr "သတိပေးချက်"
+
 msgid "We are still verifying your purchase, this might take some time. Your time will be added if the verification is successful."
 msgstr "ကျွန်ုပ်တို့သည် သင့်ဝယ်ယူမှုကို စစ်ဆေးနေဆဲ ဖြစ်သည်၊ အချိန်အနည်းငယ် ကြာနိုင်သည်။ စစ်ဆေးမှု အောင်မြင်ပါက သင့်အချိန်ကို တိုးလိုက်ပါမည်။"
 
@@ -3413,20 +3462,23 @@ msgstr "လက်ရှိတွင် ပေးချေမှု လုပ်�
 msgid "We were unable to start the payment process, please try again later."
 msgstr "လက်ရှိတွင် ပေးချေမှု လုပ်ငန်းစဉ်ကို စတင်၍ မရနိုင်ပါ၊ နောက်မှ ထပ်ကြိုးစားကြည့်ပါ။"
 
+msgid "Weather"
+msgstr "Weather"
+
 msgid "Welcome, this device is now called <b>%s</b>."
 msgstr "ကြိုဆိုပါတယ်၊ ဤစက်ကို ယခု <b>%s</b> ဟု ခေါ်ပါသည်။"
-
-msgid "WireGuard MTU"
-msgstr "WireGuard MTU"
-
-msgid "WireGuard obfuscation"
-msgstr "WireGuard Obfuscation\n"
 
 msgid "WireGuard port"
 msgstr "WireGuard ပေါ့တ်"
 
 msgid "Yes, log out device"
 msgstr "စက်မှ ထွက်မည်"
+
+msgid "You can add more time via the account view or website to continue using the VPN."
+msgstr "VPN ကို ဆက်လက်အသုံးပြုရန် အကောင့် ပြသမှု သို့မဟုတ် ဝက်ဘ်ဆိုက်မှတစ်ဆင့် အချိန်ထပ်တိုးနိုင်ပါသည်။"
+
+msgid "You can add more time via the account view to continue using the VPN."
+msgstr "VPN ကို ဆက်လက်အသုံးပြုရန် အကောင့် ပြသမှုမှတစ်ဆင့် အချိန်ထပ်တိုးနိုင်ပါသည်။"
 
 msgid "\"%s\" was created"
 msgstr "\"%s\" ကို ဖန်တီးလိုက်ပြီ"
@@ -3460,6 +3512,16 @@ msgstr[0] "%d တည်နေရာများ"
 msgid "%d month"
 msgid_plural "%d months"
 msgstr[0] "%d လ"
+
+msgid "1 day left on this account"
+msgid_plural "%d days left on this account"
+msgstr[0] "ဤအကောင့်တွင် 1 ရက် ကျန်သည်\n"
+"ဤအကောင့်တွင် %d ရက် ကျန်သည်"
+
+msgid "1 year left on this account"
+msgid_plural "%d years left on this account"
+msgstr[0] "ဤအကောင့်တွင် 1 နှစ် ကျန်သည်\n"
+"ဤအကောင့်တွင် %d နှစ် ကျန်သည်"
 
 msgid "Account credit expires in a day"
 msgid_plural "Account credit expires in %d days"

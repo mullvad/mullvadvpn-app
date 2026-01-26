@@ -14,9 +14,11 @@
     <string name="add_method">Yöntem ekle</string>
     <string name="add_time">Süre ekle</string>
     <string name="add_time_to_account">Web sitemizden kredi satın alın veya kupon kullanın.</string>
+    <string name="add_to_list">Listeye ekle</string>
     <string name="added_to_your_account">%1$s, hesabınıza eklendi.</string>
     <string name="adding_method">Yöntem ekleniyor...</string>
     <string name="agree_and_continue">Kabul et ve devam et</string>
+    <string name="all">Tümü</string>
     <string name="all_applications">Tüm uygulamalar</string>
     <string name="all_locations">Tüm konumlar</string>
     <string name="all_providers">Tüm hizmet sağlayıcılar</string>
@@ -27,6 +29,8 @@
     <string name="android_16_upgrade_warning_message">Android 16\'da bilinen bir sorun mevcut. Lütfen cihazınızı yeniden başlatıp tekrar deneyin. Daha fazla bilgi için</string>
     <string name="android_16_upgrade_warning_title">Bağlanamıyor musunuz?</string>
     <string name="anti_censorship">Sansürü önleme</string>
+    <string name="anti_censorship_info_first_paragraph">Bu yöntemler, Mullvad erişiminin engellendiği durumlarda faydalı olabilir. \"Otomatik\" seçeneği ayarlandığında uygulama yöntemlerden biri çalışana kadar tüm yöntemleri dener.</string>
+    <string name="anti_censorship_info_second_paragraph">&lt;b&gt;Bu yöntemlerin performansı iyileştirmediğini ve sistem kullanımı ile pil tüketimini artırabileceğini lütfen göz önünde bulundurun.&lt;/b&gt;</string>
     <string name="any">Tümü</string>
     <string name="api_access_description">Mullvad API\'sine erişim için özel yöntemler ekleyip yönetin.</string>
     <string name="api_access_method_info_first_line">Uygulamanın oturumunuzu açmak, sunucu listelerini almak ve diğer kritik işlemleri yapmak için bir Mullvad API sunucusuyla iletişim kurması gerekir.</string>
@@ -39,7 +43,15 @@
     <string name="api_unreachable_save_anyway">API\'ye erişilemiyor, yöntem yine de kaydedilsin mi?</string>
     <string name="app_info">Uygulama bilgileri</string>
     <string name="app_is_blocking_internet">Uygulama internet bağlantısını engelliyor. Lütfen önce bağlantıyı kesin</string>
+    <string name="app_name_browser">Tarayıcı</string>
+    <string name="app_name_notes">Notlar</string>
+    <string name="app_name_weather">Hava durumu</string>
+    <string name="appearance">Görünüm</string>
+    <string name="appearance_description">Android cihazınızdaki Mullvad VPN uygulamasının başlığını ve simgesini değiştirin. Bu işlem, Mullvad VPN ile ilgili bildirimlerin simgesini değiştirmeyecektir.</string>
+    <string name="appearance_description_warning">&lt;b&gt;Dikkat:&lt;/b&gt; Uygulama otomatik olarak kapanacağı için yeni bir simge ve başlık seçildikten sonra manuel olarak tekrar açılması gerekecektir. Bu durum VPN bağlantınızı etkilemez.</string>
+    <string name="appearance_description_warning_tv">TV cihazlarında cihazınızı yeniden başlatmanız da gerekebilir.</string>
     <string name="apply">Uygula</string>
+    <string name="applying_changes">Değişiklikler uygulanıyor...</string>
     <string name="at_least_on_method_needs_to_enabled">En az bir yöntemin etkinleştirilmesi gerekiyor</string>
     <string name="auth_failed">Hesap doğrulanamıyor. Lütfen bir hata raporu gönderin.</string>
     <string name="authentication">Yetkilendirme</string>
@@ -115,6 +127,8 @@
     <string name="custom_port_dialog_remove">Özel portu kaldır</string>
     <string name="custom_port_dialog_submit">Portu ayarla</string>
     <string name="custom_port_dialog_valid_ranges">Geçerli aralıklar: %1$s</string>
+    <string name="custom_port_recommended_range_first">&lt;b&gt;Dikkat:&lt;/b&gt; Sadece bazı sunucular tam bağlantı noktası aralığını destekler.</string>
+    <string name="custom_port_recommended_range_second">Tüm sunucular için geçerli aralık: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Özel tünel ana bilgisayarı çözülemedi. Ayarlarınızı değiştirmeyi deneyin.</string>
     <string name="daita_description_slide_1_first_paragraph">Dikkat: Bu, ağ trafiğini artırır ve hızı, gecikmeyi ve pil kullanımını da olumsuz bir şekilde etkiler. Sınırlı planlarda dikkatli kullanın.</string>
     <string name="daita_description_slide_1_second_paragraph">%1$s (%2$s), şifrelenmiş VPN trafiğinizdeki kalıpları gizler.</string>
@@ -142,6 +156,7 @@
     <string name="device_name_info_first_paragraph">Bu, cihaza atanan addır. Mullvad hesabında oturum açan her cihaza, uygulamadaki veya web sitesindeki cihazlarınızı yönetirken tanımlamanıza yardımcı olacak benzersiz bir ad verilir.</string>
     <string name="device_name_info_second_paragraph">Bir Mullvad hesabı ile en fazla 5 cihazda oturum açabilirsiniz.</string>
     <string name="device_name_info_third_paragraph">Oturumu kapatırsanız cihaz ve cihaz adı kaldırılır. Tekrar oturum açtığınızda cihaza yeni bir ad verilir.</string>
+    <string name="direct">Doğrudan</string>
     <string name="direct_only">Yalnızca doğrudan</string>
     <string name="direct_only_description">%1$s, tüm sunucularımızda etkin değildir. İnterneti kullanmak için özelliği etkinleştirdikten sonra yeni bir konum seçmeniz gerekir.</string>
     <string name="disable_multihop">Çoklu geçişi devre dışı bırak</string>
@@ -188,6 +203,7 @@
     <string name="exclude_applications">Hariç tutulan uygulamalar</string>
     <string name="exit">Çıkış</string>
     <string name="expand">Genişlet</string>
+    <string name="external_link">Harici bağlantı</string>
     <string name="failed_to_block_internet">Tüm ağ trafiği engellenemiyor. Lütfen sorunu çözmeyi deneyin veya bir hata raporu gönderin.</string>
     <string name="failed_to_create_account">Hesap oluşturulamadı</string>
     <string name="failed_to_fetch_devices">Cihaz listesi alınamadı</string>
@@ -210,6 +226,7 @@
     <string name="here_is_your_account_number">İşte hesap numaranız. Kaydedin!</string>
     <string name="hide_account_number">Hesap numarasını gizle</string>
     <string name="hint_default">Varsayılan</string>
+    <string name="icon_and_title">Simge ve başlık</string>
     <string name="import_override_textfield_placeholder">İçe aktarılacak geçersiz kılmaları yapıştırın veya yazın</string>
     <string name="import_overrides_bottom_sheet_override_warning">Yeni geçersiz kılmaların içe aktarılması, önceden içe aktarılan bazı geçersiz kılmaların yerine geçebilir.</string>
     <string name="import_overrides_import">İçe aktar</string>
@@ -230,6 +247,7 @@
     <string name="is_offline">Cihazınız çevrimdışı. Cihazınız tekrar çevrimiçi olduğunda tünel otomatik olarak bağlanacak.</string>
     <string name="legacy_always_on_vpn_error_notification_content">Tünel bağlantısı başlatılamıyor. Mullvad VPN\'i kullanmadan önce lütfen \"Her zaman açık VPN\"i devre dışı bırakın.</string>
     <string name="legacy_always_on_vpn_error_notification_title">Her zaman açık VPN diğer VPN\'e atandı</string>
+    <string name="less_than_a_day_left">Bu hesapta bir günden daha az süre kaldı</string>
     <string name="less_than_one_day">bir günden az</string>
     <string name="list_name">Liste adı</string>
     <string name="loading_products">Ürünler yükleniyor</string>
@@ -243,6 +261,7 @@
     <string name="location_was_removed_from_list">%1$s, \"%2$s\" listesinden kaldırıldı</string>
     <string name="locations">Konumlar</string>
     <string name="locations_were_changed_for">\"%1$s\" için konumlar değiştirildi</string>
+    <string name="log_in">Oturum aç</string>
     <string name="log_out">Oturumu kapat</string>
     <string name="logged_in_description">Geçerli hesap numarası</string>
     <string name="logged_in_title">Oturum açıldı</string>
@@ -268,12 +287,16 @@
     <string name="more_actions">Diğer işlemler</string>
     <string name="more_information">Daha fazla bilgi</string>
     <string name="mtu">MTU</string>
+    <string name="mtu_x">Değer: %1$s</string>
     <string name="mullvad_owned_only">Sadece Mullvad\'a ait olanlar</string>
     <string name="multihop">Çoklu geçiş</string>
     <string name="multihop_description">Çoklu geçiş, trafiğinizi bir WireGuard sunucusundan diğerine yönlendirerek izlemeyi zorlaştırır. Bu, gecikmenin artmasına neden olur ancak çevrimiçi gizliliği artırır.</string>
     <string name="multihop_entry_disabled_description">%1$s için giriş sunucusu şu anda %2$s tarafından geçersiz kılınıyor. Bir giriş sunucusu seçmek için lütfen önce \"%3$s\"\' seçeneğini etkinleştirin veya \"%2$s\" seçeneğini devre dışı bırakın.</string>
+    <string name="multihop_is_disabled">Çoklu geçiş devre dışı</string>
+    <string name="multihop_is_enabled">Çoklu geçiş etkin</string>
     <string name="name">Ad</string>
     <string name="name_was_changed_to">Ad, %1$s olarak değiştirildi</string>
+    <string name="navigate">Git</string>
     <string name="new_changelog_notification_message">Yenilikleri incelemek için buraya tıklayın.</string>
     <string name="new_changelog_notification_title">YENİ SÜRÜM YÜKLENDİ</string>
     <string name="new_device_notification_message">Hoş geldiniz, bu cihazın yeni adı artık &lt;b&gt;%1$s&lt;/b&gt;.</string>
@@ -291,6 +314,7 @@
     <string name="none">Hiçbiri</string>
     <string name="not_found">Bulunamadı</string>
     <string name="number_of_providers">Hizmet sağlayıcılar: %1$d</string>
+    <string name="number_parentheses">(%1$d)</string>
     <string name="obfuscation_info">Gizleme, WireGuard trafiğini başka bir protokolün içinde gizler. Normal bir WireGuard bağlantısının engelleneceği sansürü ve diğer filtreleme türlerini aşmaya yardımcı olmak için kullanılabilir.</string>
     <string name="obfuscation_info_shadowsocks_batteryusage">Dikkat: Shadowsocks, video oynatma gibi işlemler için veri kullanımına bağlı olarak pil tüketimini artırabilir.</string>
     <string name="off">Kapalı</string>
@@ -372,6 +396,10 @@
     <string name="server_ip_overrides_reset_body">Tüm geçersiz kılmalar sıfırlanacak ve Konum seç görünümündeki sunucuların IP adresleri varsayılana döndürülecek.</string>
     <string name="server_ip_overrides_reset_reset_button">Sıfırla</string>
     <string name="server_ip_overrides_reset_title">Tüm geçersiz kılmaları sıfırla</string>
+    <string name="set_as_multihop_entry">Çoklu geçiş girişi olarak ayarla</string>
+    <string name="set_as_multihop_entry_unavailable">Çoklu geçiş girişi olarak ayarla (uyumlu değil)</string>
+    <string name="set_as_multihop_exit">Çoklu geçiş çıkışı olarak ayarla</string>
+    <string name="set_as_multihop_exit_unavailable">Çoklu geçiş çıkışı olarak ayarla (uyumlu değil)</string>
     <string name="set_dns_error">Sistem DNS sunucusu ayarlanamıyor. Lütfen bir hata raporu gönderin.</string>
     <string name="set_firewall_policy_error">Güvenlik duvarı kuralları uygulanamıyor. Lütfen sorunu çözmeye çalışın veya bir hata raporu gönderin.</string>
     <string name="setting_chip">Ayar: %1$s</string>
@@ -446,6 +474,7 @@
     <string name="vpn_permission_error_notification_message">VPN izni istemek için lütfen bağlantıya dokunun</string>
     <string name="vpn_permission_error_notification_title">VPN izin hatası</string>
     <string name="vpn_settings_not_available">Cihazda VPN Ayarları mevcut değil</string>
+    <string name="warning">Uyarı</string>
     <string name="we_will_look_into_this">Bunu araştıracağız.</string>
     <string name="wireguard_custon_port_title">Özel</string>
     <string name="wireguard_mtu_footer">WireGuard MTU değerini ayarlayın. Geçerli aralık: %1$d - %2$d.</string>
@@ -457,4 +486,6 @@
     <string name="x_entry">%1$s (Giriş)</string>
     <string name="x_exit">%1$s (Çıkış)</string>
     <string name="x_via_x">%2$s aracılığıyla %1$s</string>
+    <string name="you_can_add_more_time_oss">VPN kullanmaya devam etmek için hesap görünümünden ya da web sitesinden daha fazla süre ekleyebilirsiniz.</string>
+    <string name="you_can_add_more_time_play">VPN kullanmaya devam etmek için hesap görünümünden daha fazla süre ekleyebilirsiniz.</string>
 </resources>

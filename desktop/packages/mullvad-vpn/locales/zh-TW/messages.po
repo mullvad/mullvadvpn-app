@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Chinese Traditional\n"
 "Language: zh_TW\n"
-"PO-Revision-Date: 2025-12-08 09:00\n"
+"PO-Revision-Date: 2026-01-22 08:53\n"
 
 msgid "%(amount)d more..."
 msgstr "其他 %(amount)d 個…"
@@ -313,10 +313,6 @@ msgid "%(wireguard)s port settings"
 msgstr "%(wireguard)s 連接埠設定"
 
 msgctxt "accessibility"
-msgid "Add new custom bridge"
-msgstr "增添新的自訂橋接"
-
-msgctxt "accessibility"
 msgid "Close notification"
 msgstr "關閉通知"
 
@@ -330,9 +326,10 @@ msgctxt "accessibility"
 msgid "Copy account number"
 msgstr "複製帳號"
 
+#. Accessibility label for a carousel that explains the DAITA feature to the user.
 msgctxt "accessibility"
-msgid "Edit custom bridge"
-msgstr "編輯自訂橋接"
+msgid "DAITA information carousel"
+msgstr "DAITA 資訊輪播"
 
 msgctxt "accessibility"
 msgid "Expand %(location)s"
@@ -358,15 +355,28 @@ msgctxt "accessibility"
 msgid "Go to app update page"
 msgstr "前往應用程式更新頁面"
 
+#. Accessibility label for carousel indicators that allow navigation between slides.
+#. Available placeholders:
+#. %(index)s - Will be replaced with the slide index number.
+msgctxt "accessibility"
+msgid "Go to slide %(index)s"
+msgstr "前往投影片 %(index)s"
+
 #. Provided to accessibility tools such as screenreaders to describe
 #. the button which obscures the account number.
 msgctxt "accessibility"
 msgid "Hide account number"
 msgstr "隱藏帳號"
 
+#. Alt text for an illustration showing VPN traffic with DAITA.
 msgctxt "accessibility"
-msgid "info"
-msgstr "資訊"
+msgid "Illustration showing VPN traffic with DAITA enabled"
+msgstr "顯示啟用 DAITA 時的 VPN 流量的插圖"
+
+#. Alt text for an illustration showing VPN traffic without DAITA.
+msgctxt "accessibility"
+msgid "Illustration showing VPN traffic without DAITA"
+msgstr "顯示未啟用 DAITA 時的 VPN 流量插圖"
 
 #. This is used by screenreaders to communicate the login button.
 msgctxt "accessibility"
@@ -397,10 +407,20 @@ msgctxt "accessibility"
 msgid "New version installed, click here to see the changelog"
 msgstr "已安裝新版本，按一下此處查看變更日誌"
 
+#. Accessibility label for a button that navigates to the next slide in a carousel.
+msgctxt "accessibility"
+msgid "Next slide"
+msgstr "下一張投影片"
+
 #. Accessibility label for the button that opens the browser to buy credit.
 msgctxt "accessibility"
 msgid "Opens externally"
 msgstr "在外部開啟"
+
+#. Accessibility label for a button that navigates to the previous slide in a carousel.
+msgctxt "accessibility"
+msgid "Previous slide"
+msgstr "上一張投影片"
 
 #. Button action description provided to accessibility tools such as screen
 #. readers.
@@ -1020,32 +1040,12 @@ msgid "%(relay)s via %(entry)s"
 msgstr "%(relay)s，經由 %(entry)s"
 
 msgctxt "connection-info"
-msgid "%(relay)s via Custom bridge"
-msgstr "%(relay)s，經由自訂橋接"
-
-msgctxt "connection-info"
 msgid "In"
 msgstr "入境"
 
 msgctxt "connection-info"
 msgid "Out"
 msgstr "出境"
-
-msgctxt "custom-bridge"
-msgid "Add custom bridge"
-msgstr "新增自訂橋接"
-
-msgctxt "custom-bridge"
-msgid "Delete custom bridge?"
-msgstr "要刪除自訂橋接嗎？"
-
-msgctxt "custom-bridge"
-msgid "Deleting the custom bridge will take you back to the select location view and the Automatic option will be selected instead."
-msgstr "刪除自訂橋接會將您帶回選擇位置的視圖，並且將改為選擇「自動」選項。"
-
-msgctxt "custom-bridge"
-msgid "Edit custom bridge"
-msgstr "編輯自訂橋接"
 
 #. Button for continuing login process.
 msgctxt "device-management"
@@ -1845,10 +1845,6 @@ msgctxt "select-location-view"
 msgid "%(location)s (%(info)s)"
 msgstr "%(location)s (%(info)s)"
 
-msgctxt "select-location-view"
-msgid "A custom bridge server can be used to circumvent censorship when regular Mullvad bridge servers don’t work."
-msgstr "當正規 Mullvad 橋接伺服器無法使用時，可以改用自訂橋接伺服器來繞過審查。"
-
 #. This is a label shown above a list of options.
 #. Available placeholder:
 #. %(locationType) - Could be either "Country", "City" and "Relay"
@@ -1867,10 +1863,6 @@ msgstr "城市"
 msgctxt "select-location-view"
 msgid "Country"
 msgstr "國家/地區"
-
-msgctxt "select-location-view"
-msgid "Custom bridge"
-msgstr "自訂橋接"
 
 msgctxt "select-location-view"
 msgid "Custom lists"
@@ -1926,10 +1918,6 @@ msgstr "中繼"
 msgctxt "select-location-view"
 msgid "Setting: %(settingName)s"
 msgstr "設定：%(settingName)s"
-
-msgctxt "select-location-view"
-msgid "The app selects a random bridge server, but servers have a higher probability the closer they are to you."
-msgstr "應用程式會隨機選擇一個橋接伺服器，而離您越近的伺服器就越有可能獲選。"
 
 msgctxt "select-location-view"
 msgid "The entry server for %(multihop)s is currently overridden by %(daita)s. To select an entry server, please first enable “%(directOnly)s” or disable \"%(daita)s\" in the settings."
@@ -2125,8 +2113,8 @@ msgstr "重新啟動 Mullvad 服務"
 #. Available placeholders:
 #. %(splitTunneling)s - will be replaced with Split tunneling
 msgctxt "split-tunneling-view"
-msgid "To use %(splitTunneling)s, please change to a Linux kernel version that supports cgroup v1."
-msgstr "若要使用 %(splitTunneling)s，請改為使用支援 cgroup v1 的 Linux 核心版本。"
+msgid "To use %(splitTunneling)s, please update to a Linux kernel version that supports cgroup v2."
+msgstr "若要使用 %(splitTunneling)s，請將 Linux 核心更新至支援 cgroup v2 的版本。"
 
 msgctxt "split-tunneling-view"
 msgid "To use split tunneling please enable “Full disk access” for “Mullvad VPN” in the macOS system settings."
@@ -2553,10 +2541,6 @@ msgid "Trackers"
 msgstr "追蹤程式"
 
 msgctxt "vpn-settings-view"
-msgid "Tunnel protocol"
-msgstr "通道通訊協定"
-
-msgctxt "vpn-settings-view"
 msgid "Use custom DNS server"
 msgstr "使用自訂 DNS 伺服器"
 
@@ -2698,10 +2682,6 @@ msgid "Shadowsocks"
 msgstr "Shadowsocks"
 
 msgctxt "wireguard-settings-view"
-msgid "Switch to “%(wireguard)s” in Settings > %(tunnelProtocol)s to make %(setting)s available."
-msgstr "在設定 > %(tunnelProtocol)s 中切換為「%(wireguard)s」以啟用 %(setting)s。"
-
-msgctxt "wireguard-settings-view"
 msgid "The automatic setting will randomly choose from the valid port ranges shown below."
 msgstr "自動設定將會隨機從下方顯示的有效連接埠範圍中進行選擇。"
 
@@ -2747,9 +2727,6 @@ msgstr "%s (已新增)"
 msgid "%s (removed)"
 msgstr "%s (已移除)"
 
-msgid "%s custom port"
-msgstr "%s 自訂連接埠"
-
 msgid "%s is already selected as entry relay"
 msgstr "已選取 %s 為入口節點"
 
@@ -2764,6 +2741,9 @@ msgstr "%s 設定."
 
 msgid "%s was added to your account."
 msgstr "%s 已新增至您的帳戶。"
+
+msgid "(%d)"
+msgstr "(%d)"
 
 msgid "1. After clicking on the \"Go to VPN settings\" button below, click on the cogwheel next to the \"Mullvad VPN\" name."
 msgstr "1. 按一下下方「前往 VPN 設定」按鈕後，再按一下「Mullvad VPN」名稱旁邊的齒輪。"
@@ -2780,6 +2760,15 @@ msgstr "已為您的帳戶新增 30 天。"
 msgid "90 days was added to your account."
 msgstr "已為您的帳戶增加 90 天。"
 
+msgid "<b>Attention:</b> Only some servers support the full port range."
+msgstr "<b>請注意：</b>並非所有伺服器都支援完整連接埠範圍。"
+
+msgid "<b>Attention:</b> The app will close automatically and needs to be manually opened again after selecting a new icon and title. This will not impact your VPN connection."
+msgstr "<b>請注意：</b>應用程式將自動關閉，在選擇新的圖示與標題後，需手動重新開啟。這不會影響您的 VPN 連線。"
+
+msgid "<b>Please note that these methods do not improve performance, and may increase system utilization and battery consumption.</b>"
+msgstr "<b>請注意，這些方式不會提升效能，還可能消耗更多系統資源與電力。</b>"
+
 msgid "API reachable, adding method..."
 msgstr "可透過 API 存取，正在新增方式…"
 
@@ -2789,17 +2778,11 @@ msgstr "無法透過 API 存取，仍要儲存方式嗎？"
 msgid "Account credit expires in a few minutes"
 msgstr "帳戶點數將在數分鐘後到期"
 
-msgid "Account credit expires soon"
-msgstr "帳戶點數即將到期"
-
 msgid "Account number is too long, please enter a valid number"
 msgstr "帳號過長，請輸入有效的帳號"
 
 msgid "Account time reminders"
 msgstr "帳戶時間提醒"
-
-msgid "Add %s to list"
-msgstr "將 %s 新增至清單"
 
 msgid "Add 30 days time (%s)"
 msgstr "增加 30 天時間 (%s)"
@@ -2816,6 +2799,9 @@ msgstr "新增位置"
 msgid "Add time"
 msgstr "增加時間"
 
+msgid "Add to list"
+msgstr "新增至清單"
+
 msgid "Adding method..."
 msgstr "正在新增方式…"
 
@@ -2824,6 +2810,9 @@ msgstr "在 Android 16 更新 VPN 應用程式後，裝置可能會出現 VPN �
 
 msgid "Agree and continue"
 msgstr "同意並繼續"
+
+msgid "All"
+msgstr "全部"
 
 msgid "All applications"
 msgstr "所有應用程式"
@@ -2839,6 +2828,12 @@ msgstr "「一律啟用 VPN」已指派給其他 VPN"
 
 msgid "Android 16 has a known issue. Please restart your device and try again. To learn more,"
 msgstr "Android 16 存在已知問題。請重新啟動您的裝置並再試一次。如需更多資訊，"
+
+msgid "Appearance"
+msgstr "外觀"
+
+msgid "Applying changes..."
+msgstr "正在套用變更…"
 
 msgid "Are you sure you want to log <b>%s</b> out?"
 msgstr "確定要將 <b>%s</b> 登出嗎？"
@@ -2873,11 +2868,17 @@ msgstr "封鎖網際網路 (裝置離線)"
 msgid "Blocking..."
 msgstr "正在封鎖…"
 
+msgid "Browser"
+msgstr "瀏覽器"
+
 msgid "By attaching your account token it links this report to your account, which helps us resolve your issue quicker. All reports are automatically deleted after a period of time."
 msgstr "附加您的帳戶權杖後，此回報就會和您的帳戶相連，這能讓我們更快為您解決問題。所有回報都會在一段時間後自動刪除。"
 
 msgid "Can't connect?"
 msgstr "無法連線嗎？"
+
+msgid "Change the title and icon of the Mullvad VPN app on your Android device. This will not change the icon for any Mullvad VPN related notifications."
+msgstr "變更您 Android 裝置上 Mullvad VPN 應用程式的圖示與標題。這不會變更 Mullvad VPN 相關通知所使用的圖示。"
 
 msgid "Changes to DNS related settings might not go into effect immediately due to cached results."
 msgstr "由於快取的結果，對 DNS 相關設定所做的變更可能不會立即生效。"
@@ -2909,9 +2910,6 @@ msgstr "複製"
 msgid "Create"
 msgstr "建立"
 
-msgid "Create account"
-msgstr "建立帳戶"
-
 msgid "Create new list"
 msgstr "建立新清單"
 
@@ -2938,6 +2936,9 @@ msgstr "刪除方式"
 
 msgid "Delete method?"
 msgstr "要刪除方式嗎？"
+
+msgid "Direct"
+msgstr "直接"
 
 msgid "Disable all \"%s\" above to activate this setting."
 msgstr "停用上方所有「%s」以啟動此設定。"
@@ -3011,6 +3012,9 @@ msgstr "已排除的應用程式"
 msgid "Expand"
 msgstr "展開"
 
+msgid "External link"
+msgstr "外部連結"
+
 msgid "FAILED TO CONNECT"
 msgstr "連線失敗"
 
@@ -3056,6 +3060,9 @@ msgstr "無法使用 IPv4，請嘗試變更「裝置 IP 版本」設定。"
 msgid "IPv6 is not available, please try changing \"Device IP version\" setting."
 msgstr "無法使用 IPv6，請嘗試變更「裝置 IP 版本」設定。"
 
+msgid "Icon and title"
+msgstr "圖示與標題"
+
 msgid "If the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
 msgstr "如果使用了分割通道功能，該應用程式會查詢您的系統，以取得所有已安裝應用程式的清單。我們只會在分割通道視圖中擷取這份清單，絕不會傳送至他處。"
 
@@ -3080,6 +3087,9 @@ msgstr "加入我的帳戶權杖，就能更快取得付款或帳戶相關問題
 msgid "Invalid or missing value \"%1$s\""
 msgstr "值「%1$s」無效或遺失"
 
+msgid "Less than a day left on this account"
+msgstr "此帳戶剩餘不到一天"
+
 msgid "Lets you select apps that should access the Internet directly without going through the VPN tunnel."
 msgstr "允許您選擇不經過 VPN 通道而直接存取網際網路的應用程式。"
 
@@ -3095,6 +3105,9 @@ msgstr "位置"
 msgid "Locations were changed for \"%s\""
 msgstr "已變更「%s」的位置"
 
+msgid "Log in"
+msgstr "登入"
+
 msgid "Makes sure the device is always on the VPN tunnel."
 msgstr "請確認裝置始終位於 VPN 通道上。"
 
@@ -3104,8 +3117,17 @@ msgstr "更多操作"
 msgid "Mullvad services unavailable"
 msgstr "Mullvad 服務無法使用"
 
+msgid "Multihop is disabled"
+msgstr "已停用多點跳躍"
+
+msgid "Multihop is enabled"
+msgstr "已啟用多點跳躍"
+
 msgid "Name was changed to %s"
 msgstr "名稱已變更為「%s」"
+
+msgid "Navigate"
+msgstr "導覽"
 
 msgid "New list"
 msgstr "新清單"
@@ -3146,8 +3168,14 @@ msgstr "找不到「%s」的結果，請使改用其他搜尋條件。"
 msgid "Not found"
 msgstr "找不到"
 
+msgid "Notes"
+msgstr "記事"
+
 msgid "Obfuscation hides the WireGuard traffic inside another protocol. It can be used to help circumvent censorship and other types of filtering, where a plain WireGuard connection would be blocked."
 msgstr "藉由混淆，WireGuard 的流量能隱藏在另一個通訊協定中。這有助於規避審查或其他類型的篩選。在這類篩選中，普通 WireGuard 連線將遭到封鎖。"
+
+msgid "On TV devices you may also need to restart your device."
+msgstr "在電視裝置上，您可能還需要重新啟動裝置。"
 
 msgid "Open app details"
 msgstr "開啟應用程式詳細資訊"
@@ -3230,11 +3258,20 @@ msgstr "搜尋"
 msgid "Send email"
 msgstr "傳送電子郵件"
 
-msgid "Set %s obfuscation to \"Automatic\" or \"Off\" below to activate this setting."
-msgstr "若要啟用此設定，請將 %s 混淆設為「自動」或「關閉」。"
-
 msgid "Set WireGuard MTU value. Valid range: %1$d - %2$d."
 msgstr "設定 WireGuard MTU 值。有效範圍：%1$d - %2$d。"
+
+msgid "Set as multihop entry"
+msgstr "設為多點跳躍進站點"
+
+msgid "Set as multihop entry (incompatible)"
+msgstr "設為多點跳躍進站點 (不相容)"
+
+msgid "Set as multihop exit"
+msgstr "設為多點跳躍出站點"
+
+msgid "Set as multihop exit (incompatible)"
+msgstr "設為多點跳躍出站點 (不相容)"
 
 msgid "Set port"
 msgstr "設定連接埠"
@@ -3295,6 +3332,9 @@ msgstr "若要使本機 DNS 伺服器運作，需先在 VPN 設定下啟用「�
 
 msgid "The selected %s port is not supported, please change it under"
 msgstr "不支援所選的 %s 連接埠，請至下列位置變更："
+
+msgid "These methods may be useful in situations where you are blocked from reaching Mullvad. When “Automatic” is selected, the app will attempt all methods until one works."
+msgstr "當您無法連上 Mullvad 時，這些方式可能會派上用場。選擇「自動」時，應用程式會嘗試所有方式，直到其中一種成功為止。"
 
 msgid "This address has already been entered."
 msgstr "此地址已輸入過。"
@@ -3389,8 +3429,14 @@ msgstr "VPN 權限遭到拒絕，或者已有其他應用程式啟用「一律�
 msgid "VPN tunnel status"
 msgstr "VPN 通道狀態"
 
+msgid "Valid range for all servers: %s"
+msgstr "所有伺服器的有效範圍：%s"
+
 msgid "Valid ranges: %s"
 msgstr "有效範圍：%s"
+
+msgid "Value: %s"
+msgstr "值：%s"
 
 msgid "Verifying API method..."
 msgstr "正在驗證 API 方式…"
@@ -3404,6 +3450,9 @@ msgstr "正在驗證購買…"
 msgid "Verifying voucher…"
 msgstr "正在驗證優惠券…"
 
+msgid "Warning"
+msgstr "警告"
+
 msgid "We are still verifying your purchase, this might take some time. Your time will be added if the verification is successful."
 msgstr "我們仍在驗證您的購買，這可能需要一些時間。如果驗證成功，您的時間就會增加。"
 
@@ -3413,20 +3462,23 @@ msgstr "我們無法啟動付款流程，請確認您是否擁有最新版本的
 msgid "We were unable to start the payment process, please try again later."
 msgstr "我們無法啟動付款流程，請稍後再試一次。"
 
+msgid "Weather"
+msgstr "天氣"
+
 msgid "Welcome, this device is now called <b>%s</b>."
 msgstr "歡迎，此裝置現在名為 <b>%s</b>。"
-
-msgid "WireGuard MTU"
-msgstr "WireGuard MTU"
-
-msgid "WireGuard obfuscation"
-msgstr "WireGuard 混淆"
 
 msgid "WireGuard port"
 msgstr "WireGuard 連接埠"
 
 msgid "Yes, log out device"
 msgstr "是，將裝置登出"
+
+msgid "You can add more time via the account view or website to continue using the VPN."
+msgstr "您可以在帳戶畫面或網站中增加時間，以繼續使用 VPN。"
+
+msgid "You can add more time via the account view to continue using the VPN."
+msgstr "您可以在帳戶畫面中增加時間，以繼續使用 VPN。"
 
 msgid "\"%s\" was created"
 msgstr "已建立「%s」"
@@ -3460,6 +3512,14 @@ msgstr[0] "%d 個位置"
 msgid "%d month"
 msgid_plural "%d months"
 msgstr[0] "%d 個月"
+
+msgid "1 day left on this account"
+msgid_plural "%d days left on this account"
+msgstr[0] "此帳戶剩餘 %d 天"
+
+msgid "1 year left on this account"
+msgid_plural "%d years left on this account"
+msgstr[0] "此帳戶剩餘 %d 年"
 
 msgid "Account credit expires in a day"
 msgid_plural "Account credit expires in %d days"

@@ -14,9 +14,11 @@
     <string name="add_method">방법 추가</string>
     <string name="add_time">시간 추가</string>
     <string name="add_time_to_account">웹 사이트에서 크레딧을 구매하거나 바우처를 사용하세요.</string>
+    <string name="add_to_list">목록에 추가</string>
     <string name="added_to_your_account">%1$s이(가) 계정에 추가되었습니다.</string>
     <string name="adding_method">방법 추가 중...</string>
     <string name="agree_and_continue">동의하고 계속하기</string>
+    <string name="all">모두</string>
     <string name="all_applications">모든 애플리케이션</string>
     <string name="all_locations">모든 위치</string>
     <string name="all_providers">모든 제공업체</string>
@@ -27,6 +29,8 @@
     <string name="android_16_upgrade_warning_message">Android 16에는 알려진 문제가 있습니다. 장치를 재시작한 후 다시 시도해 주세요. 자세한 내용을 알아보려면</string>
     <string name="android_16_upgrade_warning_title">연결이 되지 않나요?</string>
     <string name="anti_censorship">검열 방지</string>
+    <string name="anti_censorship_info_first_paragraph">이 방법들은 Mullvad 사용이 차단된 경우에 유용합니다. \"자동\"을 선택하면 통하는 방법이 있을 때까지 모든 방법을 시도합니다.</string>
+    <string name="anti_censorship_info_second_paragraph">&lt;b&gt;다음 방법은 성능을 향상하는 것이 아니며 시스템 사용률 및 배터리 소모량이 증가할 수 있습니다.&lt;/b&gt;</string>
     <string name="any">모두</string>
     <string name="api_access_description">Mullvad API에 액세스하기 위한 사용자 지정 방법을 관리하고 추가합니다.</string>
     <string name="api_access_method_info_first_line">이 앱은 로그인, 서버 목록 가져오기 및 기타 중요한 작업을 위해 Mullvad API 서버와 통신해야 합니다.</string>
@@ -39,7 +43,15 @@
     <string name="api_unreachable_save_anyway">API 연결 불가, 그래도 이 방법을 저장하시겠습니까?</string>
     <string name="app_info">앱 정보</string>
     <string name="app_is_blocking_internet">해당 앱이 인터넷을 차단하고 있습니다. 먼저 연결 해제하세요</string>
+    <string name="app_name_browser">브라우저</string>
+    <string name="app_name_notes">메모</string>
+    <string name="app_name_weather">날씨</string>
+    <string name="appearance">외관 설정</string>
+    <string name="appearance_description">Android 장치에서 Mullvad VPN의 타이틀과 아이콘을 변경하세요. Mullvad VPN과 관련된 알림의 아이콘은 변경되지 않습니다.</string>
+    <string name="appearance_description_warning">&lt;b&gt;주의:&lt;/b&gt; 새 아이콘과 타이틀을 선택하면 앱이 자동으로 종료되며 수동으로 다시 실행해야 합니다. VPN 연결에는 영향을 미치지 않습니다.</string>
+    <string name="appearance_description_warning_tv">TV 장치에서도 장치를 재시작해야 할 수 있습니다.</string>
     <string name="apply">적용</string>
+    <string name="applying_changes">변경 사항 적용 중...</string>
     <string name="at_least_on_method_needs_to_enabled">1개 이상의 방법이 활성화되어 있어야 합니다</string>
     <string name="auth_failed">계정을 인증할 수 없습니다. 문제 보고서를 보내주세요.</string>
     <string name="authentication">인증</string>
@@ -115,6 +127,8 @@
     <string name="custom_port_dialog_remove">사용자 지정 포트 제거</string>
     <string name="custom_port_dialog_submit">포트 설정</string>
     <string name="custom_port_dialog_valid_ranges">유효한 범위: %1$s</string>
+    <string name="custom_port_recommended_range_first">&lt;b&gt;주의:&lt;/b&gt; 일부 서버에서만 전체 포트 범위를 지원합니다.</string>
+    <string name="custom_port_recommended_range_second">모든 서버의 유효 범위: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">사용자 지정 터널의 호스트를 확인할 수 없습니다. 설정을 변경해 보세요.</string>
     <string name="daita_description_slide_1_first_paragraph">주의: 이 기능은 네트워크 트래픽을 증가시키며 속도, 대기 시간, 배터리 사용에도 부정적인 영향을 미칩니다. 제한된 데이터 플랜 사용 시에는 유의하시기 바랍니다.</string>
     <string name="daita_description_slide_1_second_paragraph">%1$s(%2$s)는 암호화된 VPN 트래픽의 패턴을 숨깁니다.</string>
@@ -142,6 +156,7 @@
     <string name="device_name_info_first_paragraph">이것은 장치에 할당된 이름입니다. Mullvad 계정에 로그인된 각 장치에는 앱이나 웹사이트에서 장치를 관리할 때 장치를 보다 쉽게 식별할 수 있는 고유한 이름이 부여됩니다.</string>
     <string name="device_name_info_second_paragraph">최대 5개의 장치에서 하나의 Mullvad 계정에 로그인할 수 있습니다.</string>
     <string name="device_name_info_third_paragraph">로그아웃하면 해당 장치와 장치 이름이 제거됩니다. 다시 로그인하면 장치에 새 이름이 부여됩니다.</string>
+    <string name="direct">다이렉트</string>
     <string name="direct_only">직접 전용</string>
     <string name="direct_only_description">일부 서버에는 %1$s가 활성화되어 있지 않습니다. 인터넷 사용을 위해 활성화 후 새 위치를 선택해야 할 수 있습니다.</string>
     <string name="disable_multihop">멀티홉 비활성화</string>
@@ -188,6 +203,7 @@
     <string name="exclude_applications">제외된 애플리케이션</string>
     <string name="exit">종료</string>
     <string name="expand">펼치기</string>
+    <string name="external_link">외부 링크</string>
     <string name="failed_to_block_internet">모든 네트워크 트래픽을 차단할 수는 없습니다. 문제를 해결하거나 문제 보고서를 보내주세요.</string>
     <string name="failed_to_create_account">계정을 만들지 못함</string>
     <string name="failed_to_fetch_devices">장치 목록을 가져오지 못함</string>
@@ -210,6 +226,7 @@
     <string name="here_is_your_account_number">계정 번호는 다음과 같습니다. 저장하세요!</string>
     <string name="hide_account_number">계정 번호 숨기기</string>
     <string name="hint_default">기본값</string>
+    <string name="icon_and_title">아이콘 및 타이틀</string>
     <string name="import_override_textfield_placeholder">가져올 재정의를 붙여넣거나 작성하세요</string>
     <string name="import_overrides_bottom_sheet_override_warning">새로운 재정의를 가져오면 이전에 가져온 일부 재정의가 교체될 수 있습니다.</string>
     <string name="import_overrides_import">가져오기</string>
@@ -230,6 +247,7 @@
     <string name="is_offline">장치가 오프라인 상태입니다. 장치가 다시 온라인 상태가 되면 터널이 자동으로 연결됩니다.</string>
     <string name="legacy_always_on_vpn_error_notification_content">터널 연결을 시작할 수 없습니다. Mullvad VPN을 사용하기 전에 상시 접속 VPN을 비활성화하세요.</string>
     <string name="legacy_always_on_vpn_error_notification_title">상시 접속 VPN이 다른 VPN에 할당됨</string>
+    <string name="less_than_a_day_left">계정에 남은 기간이 1일 미만입니다</string>
     <string name="less_than_one_day">1일 미만</string>
     <string name="list_name">목록 이름</string>
     <string name="loading_products">제품을 로드하는 중</string>
@@ -243,6 +261,7 @@
     <string name="location_was_removed_from_list">%1$s이(가) \"%2$s\"에서 제거되었습니다</string>
     <string name="locations">위치</string>
     <string name="locations_were_changed_for">\"%1$s\"에 대해 위치가 변경되었습니다</string>
+    <string name="log_in">로그인</string>
     <string name="log_out">로그아웃</string>
     <string name="logged_in_description">유효한 계정 번호</string>
     <string name="logged_in_title">다음으로 로그인</string>
@@ -268,12 +287,16 @@
     <string name="more_actions">추가 작업</string>
     <string name="more_information">추가 정보</string>
     <string name="mtu">MTU</string>
+    <string name="mtu_x">값: %1$s</string>
     <string name="mullvad_owned_only">Mullvad 소유만</string>
     <string name="multihop">멀티홉</string>
     <string name="multihop_description">멀티홉은 사용자의 트래픽을 하나의 WireGuard 서버로 라우팅하고 다른 서버로 전달하여 추적을 더 어렵게 만듭니다. 그로 인해 대기 시간은 증가하지만 온라인 익명성은 증대됩니다.</string>
     <string name="multihop_entry_disabled_description">%1$s 진입 서버가 현재 %2$s에 의해 재정의되었습니다. 진입 서버를 선택하려면 먼저 설정에서 \"%3$s\"을 활성화하거나 \"%2$s\"를 비활성화하세요.</string>
+    <string name="multihop_is_disabled">멀티홉이 비활성화되었습니다</string>
+    <string name="multihop_is_enabled">멀티홉이 활성화되었습니다</string>
     <string name="name">이름</string>
     <string name="name_was_changed_to">이름이 %1$s(으)로 변경되었습니다</string>
+    <string name="navigate">이동</string>
     <string name="new_changelog_notification_message">업데이트 내역을 확인하려면 여기를 클릭하세요.</string>
     <string name="new_changelog_notification_title">새 버전 설치 완료</string>
     <string name="new_device_notification_message">환영합니다. 이 장치의 호칭은 이제 &lt;b&gt;%1$s&lt;/b&gt;입니다.</string>
@@ -291,6 +314,7 @@
     <string name="none">없음</string>
     <string name="not_found">찾을 수 없음</string>
     <string name="number_of_providers">제공업체: %1$d</string>
+    <string name="number_parentheses">(%1$d)</string>
     <string name="obfuscation_info">난독 처리는 다른 프로토콜 내에서 WireGuard 트래픽을 숨깁니다. 일반 WireGuard 연결이 차단되는 상황에서 검열 및 기타 유형의 필터링을 우회하는 데 사용할 수 있습니다.</string>
     <string name="obfuscation_info_shadowsocks_batteryusage">주의: Shadowsocks는 비디오 스트리밍 등 데이터 사용량에 따라 배터리 소모량이 증가할 수 있습니다.</string>
     <string name="off">끄기</string>
@@ -372,6 +396,10 @@
     <string name="server_ip_overrides_reset_body">모든 재정의가 초기화되며 위치 선택 보기의 서버 IP 주소는 기본값으로 돌아갑니다.</string>
     <string name="server_ip_overrides_reset_reset_button">초기화</string>
     <string name="server_ip_overrides_reset_title">모든 재정의 초기화</string>
+    <string name="set_as_multihop_entry">멀티홉 입구로 설정</string>
+    <string name="set_as_multihop_entry_unavailable">멀티홉 입구로 설정(호환 불가)</string>
+    <string name="set_as_multihop_exit">멀티홉 출구로 설정</string>
+    <string name="set_as_multihop_exit_unavailable">멀티홉 출구로 설정(호환 불가)</string>
     <string name="set_dns_error">시스템 DNS 서버를 설정할 수 없습니다. 문제 보고서를 보내주세요.</string>
     <string name="set_firewall_policy_error">방화벽 규칙을 적용할 수 없습니다. 문제를 해결하거나 문제 보고서를 보내주세요.</string>
     <string name="setting_chip">설정: %1$s</string>
@@ -446,6 +474,7 @@
     <string name="vpn_permission_error_notification_message">VPN 권한을 요청하려면 연결을 누르세요</string>
     <string name="vpn_permission_error_notification_title">VPN 권한 오류</string>
     <string name="vpn_settings_not_available">장치에서 VPN 설정을 사용할 수 없습니다</string>
+    <string name="warning">경고</string>
     <string name="we_will_look_into_this">조사해보겠습니다.</string>
     <string name="wireguard_custon_port_title">사용자 지정</string>
     <string name="wireguard_mtu_footer">WireGuard MTU 값을 설정하세요. 유효 범위: %1$d ~ %2$d.</string>
@@ -457,4 +486,6 @@
     <string name="x_entry">%1$s(진입)</string>
     <string name="x_exit">%1$s(종료)</string>
     <string name="x_via_x">%2$s을(를) 통한 %1$s</string>
+    <string name="you_can_add_more_time_oss">계정 창 또는 웹사이트를 통해 더 많은 시간을 추가하여 VPN을 계속 사용할 수 있습니다.</string>
+    <string name="you_can_add_more_time_play">계정 창에서 더 많은 시간을 추가하여 VPN을 계속 사용할 수 있습니다.</string>
 </resources>

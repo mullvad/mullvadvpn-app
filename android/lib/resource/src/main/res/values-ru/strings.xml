@@ -14,9 +14,11 @@
     <string name="add_method">Добавление метода</string>
     <string name="add_time">Добавить время</string>
     <string name="add_time_to_account">Пополните баланс у нас на сайте или погасите ваучер.</string>
+    <string name="add_to_list">Добавить в список</string>
     <string name="added_to_your_account">На учетную запись добавлено время: %1$s.</string>
     <string name="adding_method">Добавление метода...</string>
     <string name="agree_and_continue">Согласиться и продолжить</string>
+    <string name="all">Все</string>
     <string name="all_applications">Все приложения</string>
     <string name="all_locations">Все местоположения</string>
     <string name="all_providers">Все провайдеры</string>
@@ -27,6 +29,8 @@
     <string name="android_16_upgrade_warning_message">В Android 16 есть известная проблема. Перезагрузите устройство и попробуйте снова. Чтобы узнать больше,</string>
     <string name="android_16_upgrade_warning_title">Проблемы с подключением?</string>
     <string name="anti_censorship">Обход цензуры</string>
+    <string name="anti_censorship_info_first_paragraph">Эти методы могут помочь, если вам заблокировали доступ в Mullvad. Когда выбран вариант «Автоматически», приложение будет перебирать все методы, пока не найдет подходящий.</string>
+    <string name="anti_censorship_info_second_paragraph">&lt;b&gt;Обратите внимание: эти методы не улучшают производительность, а наоборот, могут увеличить энергопотребление и нагрузку на систему.&lt;/b&gt;</string>
     <string name="any">Все</string>
     <string name="api_access_description">Добавление пользовательских методов для доступа к API Mullvad и управление ими.</string>
     <string name="api_access_method_info_first_line">Приложение должно взаимодействовать с сервером API Mullvad для входа в учетную запись, получения списков серверов и других важных операций.</string>
@@ -39,7 +43,15 @@
     <string name="api_unreachable_save_anyway">Нет доступа к API. Сохранить метод?</string>
     <string name="app_info">Информация о приложении</string>
     <string name="app_is_blocking_internet">Приложение блокирует интернет. Сначала отключитесь.</string>
+    <string name="app_name_browser">Браузер</string>
+    <string name="app_name_notes">Заметки</string>
+    <string name="app_name_weather">Погода</string>
+    <string name="appearance">Внешний вид</string>
+    <string name="appearance_description">Измените название и значок приложения Mullvad VPN на устройстве Android. Это не повлияет на значок уведомлений, связанных с Mullvad VPN.</string>
+    <string name="appearance_description_warning">&lt;b&gt;Внимание:&lt;/b&gt; после выбора нового значка и названия приложение автоматически закроется и его потребуется открыть вручную. Это не повлияет на ваше VPN-соединение.</string>
+    <string name="appearance_description_warning_tv">Для ТВ-устройств может потребоваться перезагрузка.</string>
     <string name="apply">Применить</string>
+    <string name="applying_changes">Применяем изменения...</string>
     <string name="at_least_on_method_needs_to_enabled">Должен быть включен хотя бы один метод</string>
     <string name="auth_failed">Не удается произвести аутентификацию учетной записи. Отправьте сообщение о проблеме.</string>
     <string name="authentication">Аутентификация</string>
@@ -115,6 +127,8 @@
     <string name="custom_port_dialog_remove">Удалить пользовательский порт</string>
     <string name="custom_port_dialog_submit">Установить порт</string>
     <string name="custom_port_dialog_valid_ranges">Допустимые диапазоны: %1$s</string>
+    <string name="custom_port_recommended_range_first">&lt;b&gt;Внимание:&lt;/b&gt; не все серверы поддерживают полный диапазон портов.</string>
+    <string name="custom_port_recommended_range_second">Допустимый диапазон для всех серверов: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Не удалось преобразовать имя узла пользовательского туннеля. Попробуйте изменить настройки.</string>
     <string name="daita_description_slide_1_first_paragraph">Внимание! Включение этой функции приведет к увеличению сетевого трафика. Также снизится скорость, увеличится задержка и усилится расход заряда аккумулятора. Будьте внимательны при использовании функции на ограниченных по трафику планах.</string>
     <string name="daita_description_slide_1_second_paragraph">%1$s (%2$s) скрывает характерные признаки в зашифрованном VPN-трафике.</string>
@@ -142,6 +156,7 @@
     <string name="device_name_info_first_paragraph">Это имя, присвоенное устройству. Каждое устройство, подключенное к учетной записи Mullvad, получает уникальное имя, которое помогает вам идентифицировать его при управлении устройствами в приложении или на сайте.</string>
     <string name="device_name_info_second_paragraph">К одной учетной записи Mullvad можно подключить до 5 устройств.</string>
     <string name="device_name_info_third_paragraph">Если вы выйдете, устройство и его имя удалятся. При повторном входе устройство получит новое имя.</string>
+    <string name="direct">Напрямую</string>
     <string name="direct_only">Только напрямую</string>
     <string name="direct_only_description">%1$s поддерживается не на всех серверах. Поэтому, чтобы выйти онлайн после включения этой функции, вам, возможно, придется выбрать новое местоположение.</string>
     <string name="disable_multihop">Отключить многократный переход</string>
@@ -188,6 +203,7 @@
     <string name="exclude_applications">Исключенные приложения</string>
     <string name="exit">Выход</string>
     <string name="expand">Развернуть</string>
+    <string name="external_link">Внешняя ссылка</string>
     <string name="failed_to_block_internet">Не удалось заблокировать весь сетевой трафик. Устраните неполадки или отправьте сообщение о проблеме.</string>
     <string name="failed_to_create_account">Не удалось создать учетную запись</string>
     <string name="failed_to_fetch_devices">Не удалось получить список устройств</string>
@@ -210,6 +226,7 @@
     <string name="here_is_your_account_number">Вот номер вашей учетной записи. Сохраните его!</string>
     <string name="hide_account_number">Скрыть номер учетной записи</string>
     <string name="hint_default">По умолчанию</string>
+    <string name="icon_and_title">Значок и название</string>
     <string name="import_override_textfield_placeholder">Вставьте или напишите переопределения для импорта</string>
     <string name="import_overrides_bottom_sheet_override_warning">Импорт новых переопределений может заменить некоторые ранее импортированные переопределения.</string>
     <string name="import_overrides_import">Импортировать</string>
@@ -230,6 +247,7 @@
     <string name="is_offline">Устройство отключено от Интернета. Туннельное подключение автоматически запустится, как только ваше устройство подключится к Интернету.</string>
     <string name="legacy_always_on_vpn_error_notification_content">Не удалось запустить туннельное соединение. Перед использованием Mullvad VPN отключите опцию «Постоянная VPN».</string>
     <string name="legacy_always_on_vpn_error_notification_title">Опция «Постоянная VPN» назначена другой VPN</string>
+    <string name="less_than_a_day_left">На этой учетной записи осталось менее одного дня</string>
     <string name="less_than_one_day">менее суток</string>
     <string name="list_name">Имя списка</string>
     <string name="loading_products">Загрузка продуктов</string>
@@ -243,6 +261,7 @@
     <string name="location_was_removed_from_list">Местоположение %1$s удалено из списка «%2$s»</string>
     <string name="locations">Местоположения</string>
     <string name="locations_were_changed_for">Местоположения были изменены для «%1$s»</string>
+    <string name="log_in">Войти</string>
     <string name="log_out">Выйти</string>
     <string name="logged_in_description">Действительный номер учетной записи</string>
     <string name="logged_in_title">Вход выполнен</string>
@@ -268,12 +287,16 @@
     <string name="more_actions">Дополнительные действия</string>
     <string name="more_information">Подробнее</string>
     <string name="mtu">MTU</string>
+    <string name="mtu_x">Значение: %1$s</string>
     <string name="mullvad_owned_only">Только принадлежащие Mullvad</string>
     <string name="multihop">Многократный переход</string>
     <string name="multihop_description">Функция «Многократный переход» перенаправляет трафик с одного сервера WireGuard на другой, что затрудняет отслеживание. Это увеличивает задержку, но зато повышает анонимность в сети.</string>
     <string name="multihop_entry_disabled_description">Сервер входа для функции «%1$s» в настоящее время переопределен функцией %2$s. Чтобы выбрать сервер входа вручную, сначала включите пункт «%3$s» или отключите %2$s в настройках.</string>
+    <string name="multihop_is_disabled">Многократный переход отключен</string>
+    <string name="multihop_is_enabled">Многократный переход включен</string>
     <string name="name">Имя</string>
     <string name="name_was_changed_to">Имя изменено на «%1$s»</string>
+    <string name="navigate">Перейти</string>
     <string name="new_changelog_notification_message">Нажмите здесь и узнайте, что нового.</string>
     <string name="new_changelog_notification_title">УСТАНОВЛЕНА НОВАЯ ВЕРСИЯ</string>
     <string name="new_device_notification_message">Добро пожаловать! Это устройство теперь называется &lt;b&gt;%1$s&lt;/b&gt;.</string>
@@ -291,6 +314,7 @@
     <string name="none">Нет</string>
     <string name="not_found">Не найдено</string>
     <string name="number_of_providers">провайдеры: %1$d</string>
+    <string name="number_parentheses">(%1$d)</string>
     <string name="obfuscation_info">Обфускация скрывает трафик WireGuard внутри другого протокола. Это может использоваться для обхода цензуры и других видов фильтрации, когда обычные соединения WireGuard блокируются.</string>
     <string name="obfuscation_info_shadowsocks_batteryusage">Внимание! Функция Shadowsocks может увеличивать расход заряда аккумулятора в зависимости от использования трафика (например, при потоковой передаче видео).</string>
     <string name="off">Выкл.</string>
@@ -372,6 +396,10 @@
     <string name="server_ip_overrides_reset_body">Все переопределения будут сброшены, а IP-адреса серверов в представлении «Выбор местоположения­» вернутся к значениям по умолчанию.</string>
     <string name="server_ip_overrides_reset_reset_button">Сбросить</string>
     <string name="server_ip_overrides_reset_title">Сброс всех переопределений</string>
+    <string name="set_as_multihop_entry">Установить как вход многократного перехода</string>
+    <string name="set_as_multihop_entry_unavailable">Установить как выход многократного перехода (несовместимо)</string>
+    <string name="set_as_multihop_exit">Установить как выход многократного перехода</string>
+    <string name="set_as_multihop_exit_unavailable">Установить как выход многократного перехода (несовместимо)</string>
     <string name="set_dns_error">Не удалось установить системный DNS-сервер. Отправьте сообщение о проблеме.</string>
     <string name="set_firewall_policy_error">Невозможно применить правила брандмауэра. Устраните неполадки или отправьте сообщение о проблеме.</string>
     <string name="setting_chip">Параметр: %1$s</string>
@@ -446,6 +474,7 @@
     <string name="vpn_permission_error_notification_message">Чтобы запросить разрешение для VPN, нажмите «Подключить»</string>
     <string name="vpn_permission_error_notification_title">Ошибка разрешения для VPN</string>
     <string name="vpn_settings_not_available">Настройки VPN недоступны на устройстве</string>
+    <string name="warning">Предупреждение</string>
     <string name="we_will_look_into_this">Мы рассмотрим эту проблему.</string>
     <string name="wireguard_custon_port_title">Пользовательский</string>
     <string name="wireguard_mtu_footer">Установите значение MTU для WireGuard. Диапазон значений: %1$d–%2$d.</string>
@@ -457,4 +486,6 @@
     <string name="x_entry">%1$s (вход)</string>
     <string name="x_exit">%1$s (выход)</string>
     <string name="x_via_x">%1$s через %2$s</string>
+    <string name="you_can_add_more_time_oss">Чтобы продолжить пользоваться VPN, добавьте время через раздел учетной записи или сайт.</string>
+    <string name="you_can_add_more_time_play">Чтобы продолжить пользоваться VPN, добавьте время через раздел учетной записи.</string>
 </resources>

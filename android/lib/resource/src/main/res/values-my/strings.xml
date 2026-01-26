@@ -14,9 +14,11 @@
     <string name="add_method">နည်းလမ်း ပေါင်းထည့်ရန်</string>
     <string name="add_time">အချိန်တိုးရန်</string>
     <string name="add_time_to_account">ကျွန်ုပ်တို့၏ ဝက်ဘ်ဆိုက်တွင် ခရက်ဒစ် ဝယ်ယူပါ သို့မဟုတ် ဘောက်ချာဖြင့် လဲယူပါ။</string>
+    <string name="add_to_list">စာရင်းတွင် ထည့်ရန်</string>
     <string name="added_to_your_account">%1$s ကို သင့်အကောင့်တွင် ထည့်လိုက်ပြီ။</string>
     <string name="adding_method">နည်းလမ်း ထည့်နေဆဲ...</string>
     <string name="agree_and_continue">သဘောတူပြီး ဆက်လုပ်ရန်</string>
+    <string name="all">အားလုံး</string>
     <string name="all_applications">အပလီကေးရှင်း အားလုံး</string>
     <string name="all_locations">တည်နေရာအာလုံး</string>
     <string name="all_providers">ပံ့ပိုးသူအားလုံး</string>
@@ -27,6 +29,8 @@
     <string name="android_16_upgrade_warning_message">Android 16 တွင် သိထားပြီးသား ပြဿနာရှိသည်။ သင့်စက်ကို ရီစတက်ချပြီး ထပ်မံကြိုးစားပါ။ ပိုမိုလေ့လာရန်၊ </string>
     <string name="android_16_upgrade_warning_title">ချိတ်မရဘူးလား။</string>
     <string name="anti_censorship">ဆင်ဆာဖြတ်တောက်မှု ကျော်လွှားရေး</string>
+    <string name="anti_censorship_info_first_paragraph">Mullvad နှင့် ချိတ်ဆက်၍ မရအောင် ပိတ်ပင်ခံရသည့် အခြေအနေများတွင် ဤနည်းလမ်းများက အသုံးဝင်နိုင်ပါသည်။ “အော်တိုမက်တစ်” ကို ရွေးချယ်ထားချိန်တွင် အက်ပ်က အလုပ်ဖြစ်သည့် နည်းလမ်းတစ်ခုခုကို မတွေ့မချင်း နည်းလမ်းအားလုံးကို ကြိုးပမ်းသွားပါမည်။</string>
+    <string name="anti_censorship_info_second_paragraph">&lt;b&gt;ဤနည်းလမ်းများသည် စွမ်းဆောင်ရည်ကို မတိုးတက်စေဘဲ စနစ်ကို ပိုသုံးစွဲ၍ ဘက်ထရီ အားပိုကုန်စေနိုင်ကြောင်း သတိပြုပါ။&lt;/b&gt;</string>
     <string name="any">တစ်ခုခု</string>
     <string name="api_access_description">Mullvad API ကို ရယူသုံးစွဲရန် စိတ်ကြိုက် နည်းလမ်းများကို ပေါင်းထည့်၍ စီမံပါ။</string>
     <string name="api_access_method_info_first_line">Mullvad API ဆာဗာသို့ သင်ဝင်ရောက်ရန်၊ ဆာဗာစာရင်းများ ရယူရန်နှင့် အလွန်အရေးပါသည့် အခြားလုပ်ဆောင်မှုများအတွက် ဤအက်ပ်သည် ၎င်းနှင့်ဆက်သွယ်ရန် လိုအပ်ပါသည်။</string>
@@ -39,7 +43,15 @@
     <string name="api_unreachable_save_anyway">API နှင့် ချိတ်၍မရပါ၊ မည်သို့ပင်ဖြစ်စေ နည်းလမ်းကို သိမ်းမလား။</string>
     <string name="app_info">အက်ပ်အချက်အလက်</string>
     <string name="app_is_blocking_internet">အက်ပ်သည် အင်တာနက်ကို ပိတ်ပင်နေသည်၊ ဦးစွာ ချိတ်ဆက်မှုဖြုတ်ပေးပါ</string>
+    <string name="app_name_browser">Browser</string>
+    <string name="app_name_notes">Notes</string>
+    <string name="app_name_weather">Weather</string>
+    <string name="appearance">ပုံသဏ္ဌာန်</string>
+    <string name="appearance_description">Android စက်ရှိ Mullvad VPN အက်ပ်၏ ခေါင်းစဉ်နှင့် အိုင်ကွန်ကို ပြောင်းပါ။ ဤသို့ ပြောင်းခြင်းသည် Mullvad VPN ဆက်စပ်သော အသိပေးချက်မှန်သမျှအတွက် အိုင်ကွန်ကို မပြောင်းစေပါ။</string>
+    <string name="appearance_description_warning">&lt;b&gt;သတိပြုရန်-&lt;/b&gt; အိုင်ကွန်နှင့် ခေါင်းစဉ်အသစ်ကို ရွေးပြီးသည်နှင့် အက်ပ်က အော်တို ပိတ်သွားမည်ဖြစ်ပြီး ကိုယ်တိုင် ပြန်ဖွင့်ရန် လိုအပ်ပါသည်။ ဤလုပ်ဆောင်မှုသည် VPN ချိတ်ဆက်မှုကို မထိခိုက်ပါ။</string>
+    <string name="appearance_description_warning_tv">TV စက်များတွင်မူ စက်ကို ပြန်လည်စတင်ရန်လည်း လိုအပ်နိုင်ပါသည်။</string>
     <string name="apply">သုံးရန်</string>
+    <string name="applying_changes">ပြောင်းလဲမှုများ လုပ်ဆောင်နေဆဲ...</string>
     <string name="at_least_on_method_needs_to_enabled">အနည်းဆုံး နည်းလမ်းတစ်ခုကို ဖွင့်ရမည်</string>
     <string name="auth_failed">အကောင့်ကို စစ်မှန်ကြောင်း အတည်ပြု၍ မရနိုင်ပါ။ ပြဿနာ ရီပို့တ်တစ်ခု ပေးပို့ပေးပါ။</string>
     <string name="authentication">စစ်မှန်ကြောင်း အတည်ပြုခြင်း</string>
@@ -115,6 +127,8 @@
     <string name="custom_port_dialog_remove">စိတ်ကြိုက် ပေါ့တ်ကို ဖယ်ရှားရန်</string>
     <string name="custom_port_dialog_submit">ပေါ့တ် သတ်မှတ်ရန်</string>
     <string name="custom_port_dialog_valid_ranges">အကျုံးဝင်သည့် အပိုင်းအခြား- %1$s</string>
+    <string name="custom_port_recommended_range_first">&lt;b&gt;သတိပြုရန်-&lt;/b&gt; ဆာဗာအချို့သာ ပေါ့တ်အပိုင်းအခြား အပြည့် ပံ့ပိုးပေးပါသည်။</string>
+    <string name="custom_port_recommended_range_second">ဆာဗာအားလုံးအတွက် အကျုံးဝင်သော အပိုင်းအခြား- %1$s</string>
     <string name="custom_tunnel_host_resolution_error">စိတ်ကြိုက်ပြုလုပ်ထားသည့် Tunnel ၏ Host ကို ဖြေရှင်း၍ မရနိုင်ပါ။ သင့်ဆက်တင်ကို ပြောင်းကြည့်ပါ။</string>
     <string name="daita_description_slide_1_first_paragraph">သတိပြုပါ- ဤသည်က ကွန်ရက် ကူးလူးမှုကို မြင့်တက်စေပြီး အမြန်နှုန်း၊ တုံ့ပြန်မှုနှောင့်နှေးခြင်း (Latency) နှင့် ဘက်ထရီ သုံးစွဲမှုကိုလည်း ထိခိုက်စေပါလိမ့်မည်။ အကန့်အသတ်ရှိသော ပလန်များကို သတိဖြင့် သုံးစွဲပါ။</string>
     <string name="daita_description_slide_1_second_paragraph">%1$s (%2$s) က သင်၏ ကုဒ်ပြောင်းဝှက်ထားသော VPN ဝင်ရောက်ကြည့်ရှုမှုထဲရှိ ပက်တန်များကို ဝှက်ပေးသည်။</string>
@@ -142,6 +156,7 @@
     <string name="device_name_info_first_paragraph">ဤအမည်မှာ စက်အတွက် သတ်မှတ်ထားသော အမည် ဖြစ်ပါသည်။ Mullvad အကောင့်တစ်ခုတွင် ဝင်ရောက်ထားသည့် စက်တစ်ခုစီသည် တစ်မူထူးခြားသည့် အမည်တစ်ခု ရရှိမည်ဖြစ်ပြီး အက်ပ် သို့မဟုတ် ဝက်ဘ်ဆိုက်ပေါ်တွင် သင့်စက်များကို စီမံသည့်အခါ သင်အနေဖြင့် ကွဲကွဲပြားပြားသိရှိအောင် ကူညီပေးပါသည်။</string>
     <string name="device_name_info_second_paragraph">Mullvad အကောင့်တစ်ခုတွင် စက် 5 ခုအထိ ဝင်ရောက်ထားနိုင်ပါသည်။</string>
     <string name="device_name_info_third_paragraph">ထွက်လိုက်ပါက စက်နှင့် စက်အမည်ကို ဖယ်ရှားပါသည်။ နောက်တစ်ကြိမ် ပြန်ဝင်ရောက်သည့်အခါ စက်သည် အမည်သစ်တစ်ခု ရရှိပါမည်။</string>
+    <string name="direct">တိုက်ရိုက်</string>
     <string name="direct_only">တိုက်ရိုက်သာ</string>
     <string name="direct_only_description">ကျွန်ုပ်တို့၏ဆာဗာအားလုံးတွင် %1$s ကိုဖွင့်ထားခြင်းမရှိပါ။ အင်တာနက်အသုံးပြုရန်အတွက် သင်သည် ၎င်းကို ဖွင့်ပြီးနောက် တည်နေရာအသစ်တစ်ခုကို ရွေးချယ်ရပေမည်။</string>
     <string name="disable_multihop">မာလ်တီဟော့ပ်ကို ပိတ်ရန်</string>
@@ -188,6 +203,7 @@
     <string name="exclude_applications">အပလီကေးရှင်းများ ဖယ်ထားပြီး</string>
     <string name="exit">အထွက်</string>
     <string name="expand">ဖြန့်ရန်</string>
+    <string name="external_link">ပြင်ပလင့်ခ်</string>
     <string name="failed_to_block_internet">ကွန်ရက် ကူးလူးမှု အားလုံးကို ပိတ်ဆို့၍ မရနိုင်ပါ။ ပြစ်ချက် ရှာဖွေဖယ်ရှားပေးပါ သို့မဟုတ် ပြဿနာ ရီပို့တ်တစ်ခု ပေးပို့ပါ။</string>
     <string name="failed_to_create_account">အကောင့် ဖန်တီးရန် မအောင်မြင်ခဲ့ပါ</string>
     <string name="failed_to_fetch_devices">စက်စာရင်းကို ယူ၍မရခဲ့ပါ</string>
@@ -210,6 +226,7 @@
     <string name="here_is_your_account_number">ဤသည်မှာ သင့်အကောင့်နံပါတ် ဖြစ်ပါသည်။ သိမ်းမှတ်ထားပါ။</string>
     <string name="hide_account_number">အကောင့်နံပါတ်ကို ဝှက်ရန်</string>
     <string name="hint_default">ပုံသေ</string>
+    <string name="icon_and_title">အိုင်ကွန်နှင့် ခေါင်းစဉ်</string>
     <string name="import_override_textfield_placeholder">ကျော်လွန် ပယ်ဖျက်မှုများကို ထည့်သွင်းရန် ကူးထည့်ပါ သို့မဟုတ် ရေးပါ</string>
     <string name="import_overrides_bottom_sheet_override_warning">ကျော်လွန် ပယ်ဖျက်မှု အသစ်များကို ထည့်သွင်းခြင်းသည် ယခင်ထည့်သွင်းထားသော ကျော်လွန် ပယ်ဖျက်မှု အချို့ကို အစားထိုးနိုင်ပါသည်။</string>
     <string name="import_overrides_import">ထည့်ရန်</string>
@@ -230,6 +247,7 @@
     <string name="is_offline">သင့်စက်သည် အော့ဖ်လိုင်း ဖြစ်နေပါသည်။ သင့်စက် အွန်လိုင်း ပြန်ဖြစ်သည်နှင့် Tunnel သည် အော်တို ချိတ်ဆက်သွားပါမည်။</string>
     <string name="legacy_always_on_vpn_error_notification_content">Tunnel ချိတ်ဆက်မှုကို စတင်၍ မရနိုင်ပါ။ Mullvad VPN ကို မသုံးမီ အတွက် VPN အမြဲဖွင့်ထားမှုကို ပိတ်ပေးပါ။</string>
     <string name="legacy_always_on_vpn_error_notification_title">အမြဲဖွင့် VPN ကို အခြား VPN တစ်ခုသို့ သတ်မှတ်ထားပါသည်</string>
+    <string name="less_than_a_day_left">ဤအကောင့်တွင် ကျန်ချိန် တစ်ရက်မပြည့်တော့ပါ</string>
     <string name="less_than_one_day">တစ်ရက်အောက် နည်းသည်။</string>
     <string name="list_name">စာရင်း အမည်</string>
     <string name="loading_products">ထုတ်ကုန်များကို လုပ်ဆောင်နေသည်</string>
@@ -243,6 +261,7 @@
     <string name="location_was_removed_from_list">%1$s ကို \"%2$s\" မှ ဖယ်ရှားထားပါသည်</string>
     <string name="locations">တည်နေရာများ</string>
     <string name="locations_were_changed_for">\"%1$s\" အတွက် တည်နေရာများကို ပြောင်းလိုက်ပါသည်</string>
+    <string name="log_in">ဝင်ရောက်ရန်</string>
     <string name="log_out">ထွက်ရန်</string>
     <string name="logged_in_description">မှန်ကန်သည့် အကောင့်နံပါတ်</string>
     <string name="logged_in_title">ဝင်ရောက်ထားပြီး</string>
@@ -268,12 +287,16 @@
     <string name="more_actions">နောက်ထပ်လုပ်ဆောင်ချက်များ</string>
     <string name="more_information">နောက်ထပ်အချက်အလက်</string>
     <string name="mtu">MTU</string>
+    <string name="mtu_x">တန်ဖိုး- %1$s</string>
     <string name="mullvad_owned_only">Mullvad ပိုင်ဆိုင်သည်များသာ</string>
     <string name="multihop">မာလ်တီဟော့ပ်</string>
     <string name="multihop_description">မာလ်တီဟော့ပ်သည် သင်၏အသွားအလာကို WireGuard ဆာဗာတစ်ခုသို့ လမ်းကြောင်းပေးပြီး အခြားတစ်နေရာမှ ထွက်စေသောကြောင့် ခြေရာခံရန် ပိုမိုခက်ခဲစေသည်။ ၎င်းသည် အချိန်ကို ပိုမိုကြန့်ကြာစေသော်လည်း အွန်လိုင်းတွင် ပို၍ သိုသိုသိပ်သိပ်ဖြစ်စေသည်။</string>
     <string name="multihop_entry_disabled_description">%1$s အတွက် အဝင်ဆာဗာအား လက်ရှိအချိန်၌ %2$s ဖြင့် ထပ်မံထည့်သွင်း ရေးမှတ်ထားသည်။ အဝင်ဆာဗာကို ရွေးချယ်ရန်အတွက် “%3$s” ကို ဦးစွာ ဖွင့်ပါ သို့မဟုတ် ဆက်တင်များထဲရှိ \"%2$s\" ကို ပိတ်ပါ။</string>
+    <string name="multihop_is_disabled">Multihop ကို ပိတ်ထားသည်</string>
+    <string name="multihop_is_enabled">Multihop ကို ဖွင့်ထားသည်</string>
     <string name="name">အမည်</string>
     <string name="name_was_changed_to">အမည်ကို %1$s သို့ ပြောင်းလိုက်ပါသည်</string>
+    <string name="navigate">သွားရန်</string>
     <string name="new_changelog_notification_message">အသစ်ထူးသော အကြောင်းအရာကို ကြည့်ရန် ဤနေရာကို နှိပ်ပါ</string>
     <string name="new_changelog_notification_title">ဗားရှင်းအသစ်ကို ထည့်သွင်းထားသည်</string>
     <string name="new_device_notification_message">ကြိုဆိုပါတယ်၊ ဤစက်ကို ယခု &lt;b&gt;%1$s&lt;/b&gt; ဟု ခေါ်ပါသည်။</string>
@@ -291,6 +314,7 @@
     <string name="none">မရှိ</string>
     <string name="not_found">ရှာမတွေ့ပါ</string>
     <string name="number_of_providers">ပံ့ပိုးသူများ- %1$d</string>
+    <string name="number_parentheses">(%1$d)</string>
     <string name="obfuscation_info">Obfuscation သည် အခြားပရိုတိုကောလ်အတွင်းရှိ WireGuard ကူးလူးမှုကို ဝှက်ထားပေးပါသည်။ သာမန် WireGuard ချိတ်ဆက်မှုကို ပိတ်ဆို့မည့် အခြားသော စစ်ထုတ်မှု အမျိုးအစားများနှင့် ဆင်ဆာဖြတ်တောက်ခြင်းကို ရှောင်လွှဲနိုင်စေရာတွင် ကူညီနိုင်စေရန် ၎င်းကို သုံးနိုင်ပါသည်။</string>
     <string name="obfuscation_info_shadowsocks_batteryusage">သတိပြုရန်- Shadowsocks သည် ဗီဒီယိုတစ်ခုကို တိုက်ရိုက်ကြည့်ရှုနားဆင်ခြင်းကဲ့သို့ ဒေတာသုံးစွဲမှုပေါ် မူတည်၍ ဘက်ထရီသုံးစွဲမှု တိုးလာနိုင်ပါသည်။</string>
     <string name="off">ပိတ်</string>
@@ -372,6 +396,10 @@
     <string name="server_ip_overrides_reset_body">‌ကျော်လွန် ပယ်ဖျက်မှုအားလုံးကို ပြန်လည်သတ်မှတ်မည်ဖြစ်ပြီး တည်နေရာ ရွေးချယ်ရန် ပြသမှုတွင် ဆာဗာများ၏ IP လိပ်စာများကို ပုံသေအဖြစ် ပြန်ပြောင်းလိုက်ပါမည်။</string>
     <string name="server_ip_overrides_reset_reset_button">ပြန်လည်သတ်မှတ်ရန်</string>
     <string name="server_ip_overrides_reset_title">ကျော်လွန် ပယ်ဖျက်မှု အားလုံးကို ပြန်လည်သတ်မှတ်ရန်</string>
+    <string name="set_as_multihop_entry">Multihop အဝင်ပွိုင့်အဖြစ် သတ်မှတ်ရန်</string>
+    <string name="set_as_multihop_entry_unavailable">Multihop အဝင်ပွိုင့်အဖြစ် သတ်မှတ်ရန် (တွဲဖက်သုံး၍ မရပါ)</string>
+    <string name="set_as_multihop_exit">Multihop အထွက်ပွိုင့်အဖြစ် သတ်မှတ်ရန်</string>
+    <string name="set_as_multihop_exit_unavailable">Multihop အထွက်ပွိုင့်အဖြစ် သတ်မှတ်ရန် (တွဲဖက်သုံး၍ မရပါ)</string>
     <string name="set_dns_error">စနစ် DNS ဆာဗာကို သတ်မှတ်၍ မရနိုင်ပါ။ ပြဿနာ ရီပို့တ်တစ်ခု ပေးပို့ပေးပါ။</string>
     <string name="set_firewall_policy_error">Firewall စည်းမျဉ်းများကို အသုံးချ၍ မရနိုင်ပါ။ ပြစ်ချက် ရှာဖွေဖယ်ရှာပေးပါ သို့မဟုတ် ပြဿနာ ရီပို့တ် ပေးပို့ပေးပါ။</string>
     <string name="setting_chip">ဆက်တင်- %1$s</string>
@@ -446,6 +474,7 @@
     <string name="vpn_permission_error_notification_message">VPN ခွင့်ပြုချက်တောင်းရန် ချိတ်ဆက်ရန်ကို နှိပ်ပေးပါ</string>
     <string name="vpn_permission_error_notification_title">VPN ခွင့်ပြုချက် ချို့ယွင်းချက်</string>
     <string name="vpn_settings_not_available">VPN ဆက်တင်များကို စက်တွင် မရရှိနိုင်ပါ</string>
+    <string name="warning">သတိပေးချက်</string>
     <string name="we_will_look_into_this">ဤသည်ကို စစ်ဆေးလိုက်ပါမည်။</string>
     <string name="wireguard_custon_port_title">စိတ်ကြိုက်</string>
     <string name="wireguard_mtu_footer">WireGuard MTU တန်ဖိုးကို သတ်မှတ်ပါ။  အကျုံးဝင်သော အပိုင်းအခြား- %1$d - %2$d ။</string>
@@ -457,4 +486,6 @@
     <string name="x_entry">%1$s (အဝင်)</string>
     <string name="x_exit">%1$s (အထွက်)</string>
     <string name="x_via_x">%2$s မှတစ်ဆင့် %1$s</string>
+    <string name="you_can_add_more_time_oss">VPN ကို ဆက်လက်အသုံးပြုရန် အကောင့် ပြသမှု သို့မဟုတ် ဝက်ဘ်ဆိုက်မှတစ်ဆင့် အချိန်ထပ်တိုးနိုင်ပါသည်။</string>
+    <string name="you_can_add_more_time_play">VPN ကို ဆက်လက်အသုံးပြုရန် အကောင့် ပြသမှုမှတစ်ဆင့် အချိန်ထပ်တိုးနိုင်ပါသည်။</string>
 </resources>

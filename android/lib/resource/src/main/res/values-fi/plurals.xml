@@ -12,6 +12,14 @@
         <item quantity="one">%1$d kuukausi</item>
         <item quantity="other">%1$d kuukautta</item>
     </plurals>
+    <plurals name="days_left">
+        <item quantity="one">1 päivä jäljellä tällä tilillä</item>
+        <item quantity="other">%1$d päivää jäljellä tällä tilillä</item>
+    </plurals>
+    <plurals name="years_left">
+        <item quantity="one">1 vuosi jäljellä tällä tilillä</item>
+        <item quantity="other">%1$d vuotta jäljellä tällä tilillä</item>
+    </plurals>
     <plurals name="account_credit_expires_in_days">
         <item quantity="one">Tilin käyttöaika päättyy vuorokauden kuluttua</item>
         <item quantity="other">Tilin käyttöaika päättyy %1$d vuorokauden kuluttua</item>

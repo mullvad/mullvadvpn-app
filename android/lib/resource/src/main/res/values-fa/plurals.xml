@@ -12,6 +12,14 @@
         <item quantity="one">%1$d ماه</item>
         <item quantity="other">%1$d ماه</item>
     </plurals>
+    <plurals name="days_left">
+        <item quantity="one">1 روز از اعتبار این حساب باقی مانده است</item>
+        <item quantity="other">%1$d روز از اعتبار این حساب باقی مانده است</item>
+    </plurals>
+    <plurals name="years_left">
+        <item quantity="one">1 سال از اعتبار این حساب باقی مانده است</item>
+        <item quantity="other">%1$d سال از اعتبار این حساب باقی مانده است</item>
+    </plurals>
     <plurals name="account_credit_expires_in_days">
         <item quantity="one">اعتبار حساب تا یک روز دیگر منقضی می‌شود</item>
         <item quantity="other">اعتبار حساب تا %1$d روز دیگر منقضی می‌شود</item>

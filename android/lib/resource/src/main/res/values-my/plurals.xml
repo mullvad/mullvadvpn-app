@@ -9,6 +9,12 @@
     <plurals name="months">
         <item quantity="other">%1$d လ</item>
     </plurals>
+    <plurals name="days_left">
+        <item quantity="other">ဤအကောင့်တွင် 1 ရက် ကျန်သည်\\nဤအကောင့်တွင် %1$d ရက် ကျန်သည်</item>
+    </plurals>
+    <plurals name="years_left">
+        <item quantity="other">ဤအကောင့်တွင် 1 နှစ် ကျန်သည်\\nဤအကောင့်တွင် %1$d နှစ် ကျန်သည်</item>
+    </plurals>
     <plurals name="account_credit_expires_in_days">
         <item quantity="other">%1$d ရက်အကြာတွင် အကောင့်ခရက်ဒစ် သက်တမ်းကုန်ပါတော့မည်</item>
     </plurals>
