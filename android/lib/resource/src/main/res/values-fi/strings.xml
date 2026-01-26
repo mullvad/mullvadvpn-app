@@ -14,9 +14,11 @@
     <string name="add_method">Lisää menetelmä</string>
     <string name="add_time">Lisää käyttöaikaa</string>
     <string name="add_time_to_account">Osta käyttöaikaa verkkosivustoltamme tai lunasta kuponki.</string>
+    <string name="add_to_list">Lisää luetteloon</string>
     <string name="added_to_your_account">%1$s lisättiin tilillesi.</string>
     <string name="adding_method">Lisätään menetelmää...</string>
     <string name="agree_and_continue">Hyväksy ja jatka</string>
+    <string name="all">Kaikki</string>
     <string name="all_applications">Kaikki sovellukset</string>
     <string name="all_locations">Kaikki sijainnit</string>
     <string name="all_providers">Kaikki palveluntarjoajat</string>
@@ -27,6 +29,8 @@
     <string name="android_16_upgrade_warning_message">Android 16:ssa on tunnettu ongelma. Käynnistä laitteesi uudelleen ja yritä uudelleen. Saat lisätietoja</string>
     <string name="android_16_upgrade_warning_title">Eikö yhteyden muodostaminen onnistu?</string>
     <string name="anti_censorship">Sensuurinesto</string>
+    <string name="anti_censorship_info_first_paragraph">Nämä tavat voivat olla hyödyllisiä tilanteissa, joissa sinua on estetty pääsemästä Mullvadiin. Kun \"automaattinen\" valitaan, sovellus kokeilee kaikkia tapoja, kunnes jokin niistä toimii.</string>
+    <string name="anti_censorship_info_second_paragraph">&lt;b&gt;Huomioithan, että nämä tavat eivät paranna suorituskykyä ja voivat lisätä järjestelmän käyttöastetta ja akun käyttöä.&lt;/b&gt;</string>
     <string name="any">Mikä tahansa</string>
     <string name="api_access_description">Hallitse ja lisää mukautettuja menetelmiä Mullvadin ohjelmointirajapinnan käyttämiseksi.</string>
     <string name="api_access_method_info_first_line">Sovelluksen on kommunikoitava Mullvadin ohjelmointirajapinnan palvelimen kanssa, jotta sinut voidaan kirjata sisään, palvelinluetteloiden hakemiseksi sekä muiden tärkeiden toimintojen suorittamiseksi.</string>
@@ -39,7 +43,15 @@
     <string name="api_unreachable_save_anyway">API ei ole tavoitettavissa. Tallennetaanko menetelmä silti?</string>
     <string name="app_info">Sovelluksen tiedot</string>
     <string name="app_is_blocking_internet">Sovellus estää internetyhteyden, katkaise sen yhteys ensin</string>
+    <string name="app_name_browser">Selain</string>
+    <string name="app_name_notes">Huomautukset</string>
+    <string name="app_name_weather">Sää</string>
+    <string name="appearance">Ulkoasu</string>
+    <string name="appearance_description">Vaihda Mullvad VPN -sovelluksen otsikko ja kuvake Android-laitteellasi. Mullvad VPN:ään liittyvien ilmoitusten kuvake ei muutu.</string>
+    <string name="appearance_description_warning">&lt;b&gt;Huomio:&lt;/b&gt; Sovellus sulkeutuu automaattisesti uuden kuvakkeen ja otsikon valitsemisen jälkeen, ja se täytyy avata uudelleen manuaalisesti. Tämä ei vaikuta VPN-yhteyteesi.</string>
+    <string name="appearance_description_warning_tv">TV-laitteilla saatat myös joutua käynnistämään laitteesi uudelleen.</string>
     <string name="apply">Ota käyttöön</string>
+    <string name="applying_changes">Muutoksia otetaan käyttöön...</string>
     <string name="at_least_on_method_needs_to_enabled">Vähintään yhden menetelmän on oltava käytössä</string>
     <string name="auth_failed">Tilin todentaminen ei onnistu. Lähetä ongelmaraportti.</string>
     <string name="authentication">Todennus</string>
@@ -115,6 +127,8 @@
     <string name="custom_port_dialog_remove">Poista mukautettu portti</string>
     <string name="custom_port_dialog_submit">Määritä portti</string>
     <string name="custom_port_dialog_valid_ranges">Kelvolliset portit: %1$s</string>
+    <string name="custom_port_recommended_range_first">&lt;b&gt;Huomio:&lt;/b&gt; vain tietyt palvelimet tukevat koko porttiväliä.</string>
+    <string name="custom_port_recommended_range_second">Kelvollinen väli kaikille palvelimille: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Muokatun tunnelin isännän selvittäminen ei onnistu. Kokeile muuttaa asetuksiasi.</string>
     <string name="daita_description_slide_1_first_paragraph">Huomio: Toiminto kasvattaa verkkoliikennettä ja vaikuttaa sen vuoksi negatiivisesti sekä nopeuteen, viiveeseen että akun kulumiseen. Käytä harkiten, kun datasopimuksesi on rajoitettu.</string>
     <string name="daita_description_slide_1_second_paragraph">%1$s (%2$s) piilottaa kuviot salatusta VPN-liikenteestäsi.</string>
@@ -142,6 +156,7 @@
     <string name="device_name_info_first_paragraph">Tämä on laitteelle annettu nimi. Jokainen Mullvad-tilille kirjautunut laite saa yksilöllisen nimen, jonka avulla sen voi tunnistaa laitteiden hallinnassa sovelluksessa tai verkkosivustolla.</string>
     <string name="device_name_info_second_paragraph">Yhdelle Mullvad-tilille voi olla kirjautuneena enintään viisi laitetta.</string>
     <string name="device_name_info_third_paragraph">Jos kirjaudut ulos, laite ja laitteen nimi poistetaan. Kun kirjaudut sisään uudelleen, laitteelle annetaan uusi nimi.</string>
+    <string name="direct">Suora</string>
     <string name="direct_only">Vain suora</string>
     <string name="direct_only_description">Kaikissa palvelimissamme ei ole %1$s-tukea. Käyttääksesi internetiä sinun on ehkä valittava uusi sijainti käyttöönoton jälkeen.</string>
     <string name="disable_multihop">Poista multihop käytöstä</string>
@@ -188,6 +203,7 @@
     <string name="exclude_applications">Poissuljetut sovellukset</string>
     <string name="exit">Lähtö</string>
     <string name="expand">Näytä enemmän</string>
+    <string name="external_link">Ulkoinen linkki</string>
     <string name="failed_to_block_internet">Kaiken verkkoliikenteen estäminen ei onnistu. Käytä vianetsintää tai lähetä ongelmaraportti.</string>
     <string name="failed_to_create_account">Tilin luonti epäonnistui</string>
     <string name="failed_to_fetch_devices">Laiteluettelon nouto epäonnistui</string>
@@ -210,6 +226,7 @@
     <string name="here_is_your_account_number">Tässä tulee tilisi numero. Laita se talteen!</string>
     <string name="hide_account_number">Piilota tilin numero</string>
     <string name="hint_default">Oletus</string>
+    <string name="icon_and_title">Kuvake ja otsikko</string>
     <string name="import_override_textfield_placeholder">Liitä tai kirjoita ohitukset, jotka haluat tuoda</string>
     <string name="import_overrides_bottom_sheet_override_warning">Uusien ohitusten tuonti saattaa korvata joitain aiemmin tuotuja ohituksia.</string>
     <string name="import_overrides_import">Tuo</string>
@@ -230,6 +247,7 @@
     <string name="is_offline">Laitteesi on offline-tilassa. Kun laitteesi on taas online-tilassa, tunneli muodostaa yhteyden automaattisesti.</string>
     <string name="legacy_always_on_vpn_error_notification_content">Tunneliyhteyden käynnistäminen ei onnistu. Poista aina päällä oleva VPN käytöstä ennen Mullvad VPN:n käyttämistä.</string>
     <string name="legacy_always_on_vpn_error_notification_title">Aina päällä oleva VPN on määritetty toiselle VPN:lle</string>
+    <string name="less_than_a_day_left">Tilin käyttöaikaa on jäljellä alle päivä</string>
     <string name="less_than_one_day">alle vuorokausi</string>
     <string name="list_name">Luettelon nimi</string>
     <string name="loading_products">Ladataan tuotteita</string>
@@ -243,6 +261,7 @@
     <string name="location_was_removed_from_list">%1$s poistettiin luettelosta \"%2$s\"</string>
     <string name="locations">Sijainnit</string>
     <string name="locations_were_changed_for">Kohteen \"%1$s\" sijainteja vaihdettiin</string>
+    <string name="log_in">Kirjaudu sisään</string>
     <string name="log_out">Kirjaudu ulos</string>
     <string name="logged_in_description">Oikea tilin numero</string>
     <string name="logged_in_title">Kirjautuneena sisään</string>
@@ -268,12 +287,16 @@
     <string name="more_actions">Lisää toimintoja</string>
     <string name="more_information">Lisätietoja</string>
     <string name="mtu">MTU</string>
+    <string name="mtu_x">Arvo: %1$s</string>
     <string name="mullvad_owned_only">Vain Mullvadin omistamat</string>
     <string name="multihop">Multihop</string>
     <string name="multihop_description">Multihop reitittää liikenteesi yhteen WireGuard-palvelimeen ja ulos toisesta palvelimesta, mikä tekee siitä hankalampaa jäljittää. Tuloksena on suurempi viive, mutta se parantaa nimettömyyttä verkossa.</string>
     <string name="multihop_entry_disabled_description">%2$s ohittaa tällä hetkellä %1$sin tulopalvelimen. Jos haluat valita tulopalvelimen, ota ensin käyttöön \"%3$s\" tai poista \"%1$s\" käytöstä asetuksista.</string>
+    <string name="multihop_is_disabled">Multihop ei ole käytössä</string>
+    <string name="multihop_is_enabled">Multihop on käytössä</string>
     <string name="name">Nimi</string>
     <string name="name_was_changed_to">Nimeksi vaihdettiin \"%1$s\"</string>
+    <string name="navigate">Siirry</string>
     <string name="new_changelog_notification_message">Katso uudet ominaisuudet napsauttamalla tästä.</string>
     <string name="new_changelog_notification_title">UUSI VERSIO ASENNETTIIN</string>
     <string name="new_device_notification_message">Tervetuloa! Tämän laitteen nimi on nyt &lt;b&gt;%1$s&lt;/b&gt;.</string>
@@ -291,6 +314,7 @@
     <string name="none">Ei mitään</string>
     <string name="not_found">Ei löydy</string>
     <string name="number_of_providers">Palveluntarjoajat: %1$d</string>
+    <string name="number_parentheses">(%1$d)</string>
     <string name="obfuscation_info">Hämäysteknologian käyttäminen piilottaa WireGuard-liikenteen toisen protokollan sisään. Sitä voidaan käyttää kiertämään sensuuria ja muita suodatuksia niissä tapauksissa, kun tavallinen WireGuard-yhteys muutoin estettäisi.</string>
     <string name="obfuscation_info_shadowsocks_batteryusage">Huomio: Shadowsocksin käyttö voi kasvattaa akun kulutusta riippuen tiedonsiirtomääristä (esimerkiksi suoratoistettaessa videoita).</string>
     <string name="off">Pois</string>
@@ -372,6 +396,10 @@
     <string name="server_ip_overrides_reset_body">Kaikki ohitukset nollataan ja palvelinten IP-osoitteet palautuvat oletusarvoihin sijainnin valintanäkymässä.</string>
     <string name="server_ip_overrides_reset_reset_button">Nollaa</string>
     <string name="server_ip_overrides_reset_title">Nollaa kaikki ohitukset</string>
+    <string name="set_as_multihop_entry">Aseta multihopin tulopaikaksi</string>
+    <string name="set_as_multihop_entry_unavailable">Aseta multihopin tulopaikaksi (epäyhteensopiva)</string>
+    <string name="set_as_multihop_exit">Aseta multihopin lähtöpaikaksi</string>
+    <string name="set_as_multihop_exit_unavailable">Aseta multihopin lähtöpaikaksi (epäyhteensopiva)</string>
     <string name="set_dns_error">Järjestelmän DNS-palvelimen asettaminen ei onnistu. Lähetä ongelmaraportti.</string>
     <string name="set_firewall_policy_error">Palomuurisääntöjä ei voida käyttää. Suorita vianetsintä tai lähetä ongelmaraportti.</string>
     <string name="setting_chip">Asetus: %1$s</string>
@@ -446,6 +474,7 @@
     <string name="vpn_permission_error_notification_message">Pyydä VPN:n käyttölupa yhteydenluontipainiketta painamalla</string>
     <string name="vpn_permission_error_notification_title">VPN-lupavirhe</string>
     <string name="vpn_settings_not_available">VPN-asetukset eivät olet käytettävissä laitteella</string>
+    <string name="warning">Varoitus</string>
     <string name="we_will_look_into_this">Tutkimme asiaa.</string>
     <string name="wireguard_custon_port_title">Mukautettu</string>
     <string name="wireguard_mtu_footer">Aseta WireGuardin MTU-arvo väliltä %1$d–%2$d.</string>
@@ -457,4 +486,6 @@
     <string name="x_entry">%1$s (tulo)</string>
     <string name="x_exit">%1$s (lähtö)</string>
     <string name="x_via_x">%1$s, yhteys: %2$s</string>
+    <string name="you_can_add_more_time_oss">Voit lisätä aikaa tilinäkymän tai verkkosivuston kautta, jotta voit jatkaa VPN:n käyttöä.</string>
+    <string name="you_can_add_more_time_play">Voit jatkaa VPN:n käyttöä lisäämällä aikaa tilinäkymän kautta.</string>
 </resources>

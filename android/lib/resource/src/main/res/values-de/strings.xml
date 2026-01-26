@@ -14,9 +14,11 @@
     <string name="add_method">Methode hinzufügen</string>
     <string name="add_time">Zeit hinzufügen</string>
     <string name="add_time_to_account">Kaufen Sie entweder Guthaben über unsere Seite oder lösen Sie einen Gutschein ein.</string>
+    <string name="add_to_list">Zu Liste hinzufügen</string>
     <string name="added_to_your_account">%1$s wurde zu Ihrem Konto hinzugefügt.</string>
     <string name="adding_method">Methode hinzufügen …</string>
     <string name="agree_and_continue">Akzeptieren und weiter</string>
+    <string name="all">Alle</string>
     <string name="all_applications">Alle Anwendungen</string>
     <string name="all_locations">Alle Standorte</string>
     <string name="all_providers">Alle Anbieter</string>
@@ -27,6 +29,8 @@
     <string name="android_16_upgrade_warning_message">Android 16 hat einen bekannten Fehler. Bitte starten Sie Ihr Gerät neu und versuchen Sie es erneut. Um mehr darüber zu erfahren,</string>
     <string name="android_16_upgrade_warning_title">Keine Verbindung möglich?</string>
     <string name="anti_censorship">Anti-Zensur</string>
+    <string name="anti_censorship_info_first_paragraph">Diese Methoden können nützlich sein, wenn Sie daran gehindert werden, Mullvad zu erreichen. Wenn „Automatisch“ ausgewählt ist, probiert die App alle Methoden aus, bis eine funktioniert.</string>
+    <string name="anti_censorship_info_second_paragraph">&lt;b&gt;Bitte beachten Sie, dass diese Methoden die Leistung nicht verbessern und möglicherweise zu einem höheren Verbrauch von Systemressourcen und Akku führen.&lt;/b&gt;</string>
     <string name="any">Beliebige</string>
     <string name="api_access_description">Verwaltung und Hinzufügen benutzerdefinierter Methoden für den Zugriff auf die Mullvad-API.</string>
     <string name="api_access_method_info_first_line">Die App muss mit einem Mullvad API-Server kommunizieren, um Sie anzumelden, Serverlisten abzurufen und andere wichtige Vorgänge durchzuführen.</string>
@@ -39,7 +43,15 @@
     <string name="api_unreachable_save_anyway">API nicht erreichbar, Methode dennoch speichern?</string>
     <string name="app_info">App-Info</string>
     <string name="app_is_blocking_internet">Die App blockiert das Internet, bitte trennen Sie zuerst die Verbindung</string>
+    <string name="app_name_browser">Browser</string>
+    <string name="app_name_notes">Hinweise</string>
+    <string name="app_name_weather">Wetter</string>
+    <string name="appearance">Erscheinungsbild</string>
+    <string name="appearance_description">Ändern Sie den Titel und das Symbol der Mullvad VPN-App auf Ihrem Android-Gerät. Dadurch wird das Symbol für Mullvad-VPN-bezogene Benachrichtigungen nicht geändert.</string>
+    <string name="appearance_description_warning">&lt;b&gt;Achtung:&lt;/b&gt; Die Anwendung wird automatisch geschlossen und muss nach der Auswahl eines neuen Symbols und eines neuen Titels manuell erneut geöffnet werden. Dies hat keine Auswirkungen auf Ihre VPN-Verbindung.</string>
+    <string name="appearance_description_warning_tv">Bei Fernsehgeräten müssen Sie Ihr Gerät möglicherweise ebenfalls neu starten.</string>
     <string name="apply">Anwenden</string>
+    <string name="applying_changes">Änderungen werden angewendet …</string>
     <string name="at_least_on_method_needs_to_enabled">Mindestens eine Methode muss aktiviert sein</string>
     <string name="auth_failed">Konto konnte nicht authentifiziert werden. Bitte senden Sie einen Problembericht.</string>
     <string name="authentication">Authentifizierung</string>
@@ -115,6 +127,8 @@
     <string name="custom_port_dialog_remove">Eigenen Port entfernen</string>
     <string name="custom_port_dialog_submit">Port festlegen</string>
     <string name="custom_port_dialog_valid_ranges">Gültige Bereiche: %1$s</string>
+    <string name="custom_port_recommended_range_first">&lt;b&gt;Achtung:&lt;/b&gt; Nicht alle Server unterstützen den gesamten Portbereich.</string>
+    <string name="custom_port_recommended_range_second">Gültiger Bereich für alle Server: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Der Host des benutzerdefinierten Tunnels konnte nicht aufgelöst werden. Versuchen Sie, Ihre Einstellungen zu ändern.</string>
     <string name="daita_description_slide_1_first_paragraph">Achtung! Dies erhöht den Netzwerkverkehr und wirkt sich auch negativ auf die Geschwindigkeit, die Latenz und den Akkuverbrauch aus. Bei begrenzten Tarifen ist Vorsicht geboten.</string>
     <string name="daita_description_slide_1_second_paragraph">%1$s (%2$s) verbirgt Muster in Ihrem verschlüsselten VPN-Traffic.</string>
@@ -142,6 +156,7 @@
     <string name="device_name_info_first_paragraph">Dies ist der dem Gerät zugewiesene Name. Jedes Gerät, das in einem Mullvad-Konto angemeldet ist, erhält einen eindeutigen Namen, mit dem Sie es identifizieren können, wenn Sie Ihre Geräte in der App oder auf der Website verwalten.</string>
     <string name="device_name_info_second_paragraph">Es sind pro Mullvad-Konto bis zu 5 angemeldete Geräte möglich.</string>
     <string name="device_name_info_third_paragraph">Wenn Sie sich abmelden, werden das Gerät und der Gerätename entfernt. Wenn Sie sich wieder anmelden, erhält das Gerät einen neuen Namen.</string>
+    <string name="direct">Direkt</string>
     <string name="direct_only">Nur direkt</string>
     <string name="direct_only_description">Nicht alle unsere Server sind %1$s-fähig. Um das Internet nutzen zu können, müssen Sie nach der Aktivierung möglicherweise einen neuen Standort auswählen.</string>
     <string name="disable_multihop">Multihop deaktivieren</string>
@@ -188,6 +203,7 @@
     <string name="exclude_applications">Ausgeschlossene Anwendungen</string>
     <string name="exit">Ausgang</string>
     <string name="expand">Ausklappen</string>
+    <string name="external_link">Externer Link</string>
     <string name="failed_to_block_internet">Der Netzwerk-Traffic konnte nicht gänzlich blockiert werden. Bitte beheben Sie den Fehler oder senden Sie einen Problembericht.</string>
     <string name="failed_to_create_account">Konto konnte nicht erstellt werden</string>
     <string name="failed_to_fetch_devices">Fehler beim Abrufen der Geräteliste</string>
@@ -210,6 +226,7 @@
     <string name="here_is_your_account_number">Hier ist Ihre Kontonummer. Verlieren Sie sie nicht!</string>
     <string name="hide_account_number">Kontonummer verbergen</string>
     <string name="hint_default">Standard</string>
+    <string name="icon_and_title">Symbol und Titel</string>
     <string name="import_override_textfield_placeholder">Zu importierende Überschreibungen einfügen oder eingeben</string>
     <string name="import_overrides_bottom_sheet_override_warning">Der Import neuer Überschreibungen kann einige zuvor importierte Überschreibungen ersetzen.</string>
     <string name="import_overrides_import">Importieren</string>
@@ -230,6 +247,7 @@
     <string name="is_offline">Ihr Gerät ist offline. Der Tunnel wird automatisch verbunden, sobald Ihr Gerät wieder online ist.</string>
     <string name="legacy_always_on_vpn_error_notification_content">Tunnelverbindung kann nicht gestartet werden. Bitte deaktivieren Sie Always-on VPN, bevor Sie Mullvad VPN verwenden.</string>
     <string name="legacy_always_on_vpn_error_notification_title">Always-on VPN ist einem anderen VPN zugeordnet</string>
+    <string name="less_than_a_day_left">Weniger als ein Tag verbleibend auf diesem Konto</string>
     <string name="less_than_one_day">weniger als ein Tag</string>
     <string name="list_name">Name der Liste</string>
     <string name="loading_products">Produkte werden geladen</string>
@@ -243,6 +261,7 @@
     <string name="location_was_removed_from_list">%1$s wurde von „%2$s“ entfernt</string>
     <string name="locations">Standorte</string>
     <string name="locations_were_changed_for">Standorte wurden geändert für „%1$s“</string>
+    <string name="log_in">Anmelden</string>
     <string name="log_out">Abmelden</string>
     <string name="logged_in_description">Gültige Kontonummer</string>
     <string name="logged_in_title">Angemeldet</string>
@@ -268,12 +287,16 @@
     <string name="more_actions">Weitere Aktionen</string>
     <string name="more_information">Weitere Informationen</string>
     <string name="mtu">MTU</string>
+    <string name="mtu_x">Wert: %1$s</string>
     <string name="mullvad_owned_only">Nur im Besitz von Mullvad</string>
     <string name="multihop">Multihop</string>
     <string name="multihop_description">Multihop leitet Ihren Traffic in einen WireGuard-Server hinein und aus einem anderen heraus, so dass er schwerer zu verfolgen ist. Dies führt zu einer erhöhten Latenzzeit, erhöht aber die Anonymität im Internet.</string>
     <string name="multihop_entry_disabled_description">Der Eingangsserver für %1$s wird derzeit von %2$s überschrieben. Um einen Eingangsserver zu wählen, aktivieren Sie bitte zunächst „%3$s“ oder deaktivieren Sie „%2$s“ in den Einstellungen.</string>
+    <string name="multihop_is_disabled">Multihop ist deaktiviert</string>
+    <string name="multihop_is_enabled">Multihop ist aktiviert</string>
     <string name="name">Name</string>
     <string name="name_was_changed_to">Name wurde geändert in %1$s</string>
+    <string name="navigate">Navigieren</string>
     <string name="new_changelog_notification_message">Klicken Sie hier, um die Änderungen zu sehen.</string>
     <string name="new_changelog_notification_title">NEUE VERSION INSTALLIERT</string>
     <string name="new_device_notification_message">Willkommen, dieses Gerät heißt jetzt &lt;b&gt;%1$s&lt;/b&gt;.</string>
@@ -291,6 +314,7 @@
     <string name="none">Keine</string>
     <string name="not_found">Nicht gefunden</string>
     <string name="number_of_providers">Provider: %1$d</string>
+    <string name="number_parentheses">(%1$d)</string>
     <string name="obfuscation_info">Bei der Verschleierung wird der WireGuard-Datenverkehr in einem anderen Protokoll versteckt. Sie kann dazu verwendet werden, Zensur und andere Arten von Filtern zu umgehen, bei denen eine reine WireGuard-Verbindung blockiert würde.</string>
     <string name="obfuscation_info_shadowsocks_batteryusage">Achtung! Shadowsocks kann den Akkuverbrauch je nach Datennutzung erhöhen, z. B. beim Streaming eines Videos.</string>
     <string name="off">Aus</string>
@@ -372,6 +396,10 @@
     <string name="server_ip_overrides_reset_body">Alle Überschreibungen werden zurückgesetzt und die IP-Adressen der Server in der Standortauswahl werden auf die Standardwerte zurückgesetzt.</string>
     <string name="server_ip_overrides_reset_reset_button">Zurücksetzen</string>
     <string name="server_ip_overrides_reset_title">Alle Überschreibungen zurücksetzen</string>
+    <string name="set_as_multihop_entry">Als Multihop-Eingang festlegen</string>
+    <string name="set_as_multihop_entry_unavailable">Als Multihop-Eingang festlegen (inkompatibel)</string>
+    <string name="set_as_multihop_exit">Als Multihop-Ausgang festlegen</string>
+    <string name="set_as_multihop_exit_unavailable">Als Multihop-Ausgang festlegen (inkompatibel)</string>
     <string name="set_dns_error">Der DNS-Server des Systems konnte nicht eingestellt werden. Bitte senden Sie einen Problembericht.</string>
     <string name="set_firewall_policy_error">Firewall-Regeln können nicht angewendet werden. Bitte beheben Sie das Problem oder senden Sie einen Problembericht.</string>
     <string name="setting_chip">Einstellung: %1$s</string>
@@ -446,6 +474,7 @@
     <string name="vpn_permission_error_notification_message">Drücken Sie auf „Verbinden“, um die VPN-Berechtigung anzufordern</string>
     <string name="vpn_permission_error_notification_title">VPN-Berechtigungsfehler</string>
     <string name="vpn_settings_not_available">VPN-Einstellungen auf dem Gerät nicht verfügbar</string>
+    <string name="warning">Warnung</string>
     <string name="we_will_look_into_this">Wir werden uns das anschauen.</string>
     <string name="wireguard_custon_port_title">Benutzerdefiniert</string>
     <string name="wireguard_mtu_footer">WireGuard-MTU-Wert einstellen. Gültiger Bereich: %1$d–%2$d.</string>
@@ -457,4 +486,6 @@
     <string name="x_entry">%1$s (Eingang)</string>
     <string name="x_exit">%1$s (Ausgang)</string>
     <string name="x_via_x">%1$s über %2$s</string>
+    <string name="you_can_add_more_time_oss">Sie können über die Kontoansicht oder die Website Zeit hinzufügen, um das VPN weiterhin zu verwenden.</string>
+    <string name="you_can_add_more_time_play">Sie können über die Kontoansicht Zeit hinzufügen, um das VPN weiterhin zu verwenden.</string>
 </resources>

@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Japanese\n"
 "Language: ja_JP\n"
-"PO-Revision-Date: 2025-12-08 09:00\n"
+"PO-Revision-Date: 2026-01-22 08:54\n"
 
 msgid "%(amount)d more..."
 msgstr "その他%(amount)d件..."
@@ -313,10 +313,6 @@ msgid "%(wireguard)s port settings"
 msgstr "%(wireguard)sポートの設定"
 
 msgctxt "accessibility"
-msgid "Add new custom bridge"
-msgstr "新規カスタムブリッジの追加"
-
-msgctxt "accessibility"
 msgid "Close notification"
 msgstr "通知を閉じる"
 
@@ -330,9 +326,10 @@ msgctxt "accessibility"
 msgid "Copy account number"
 msgstr "アカウント番号のコピー"
 
+#. Accessibility label for a carousel that explains the DAITA feature to the user.
 msgctxt "accessibility"
-msgid "Edit custom bridge"
-msgstr "カスタムブリッジの編集"
+msgid "DAITA information carousel"
+msgstr "DAITA情報カルーセル"
 
 msgctxt "accessibility"
 msgid "Expand %(location)s"
@@ -358,15 +355,28 @@ msgctxt "accessibility"
 msgid "Go to app update page"
 msgstr "アプリの更新ページに移動"
 
+#. Accessibility label for carousel indicators that allow navigation between slides.
+#. Available placeholders:
+#. %(index)s - Will be replaced with the slide index number.
+msgctxt "accessibility"
+msgid "Go to slide %(index)s"
+msgstr "スライド %(index)s へ移動"
+
 #. Provided to accessibility tools such as screenreaders to describe
 #. the button which obscures the account number.
 msgctxt "accessibility"
 msgid "Hide account number"
 msgstr "アカウント番号の非表示"
 
+#. Alt text for an illustration showing VPN traffic with DAITA.
 msgctxt "accessibility"
-msgid "info"
-msgstr "情報"
+msgid "Illustration showing VPN traffic with DAITA enabled"
+msgstr "DAITAを有効にした状態のVPNトラフィックのイメージ図"
+
+#. Alt text for an illustration showing VPN traffic without DAITA.
+msgctxt "accessibility"
+msgid "Illustration showing VPN traffic without DAITA"
+msgstr "DAITAが無効な状態のVPNトラフィックの図"
 
 #. This is used by screenreaders to communicate the login button.
 msgctxt "accessibility"
@@ -397,10 +407,20 @@ msgctxt "accessibility"
 msgid "New version installed, click here to see the changelog"
 msgstr "新バージョンがインストールされました。ここをクリックすると変更履歴を確認できます"
 
+#. Accessibility label for a button that navigates to the next slide in a carousel.
+msgctxt "accessibility"
+msgid "Next slide"
+msgstr "次のスライド"
+
 #. Accessibility label for the button that opens the browser to buy credit.
 msgctxt "accessibility"
 msgid "Opens externally"
 msgstr "外部ブラウザで開く"
+
+#. Accessibility label for a button that navigates to the previous slide in a carousel.
+msgctxt "accessibility"
+msgid "Previous slide"
+msgstr "前のスライド"
 
 #. Button action description provided to accessibility tools such as screen
 #. readers.
@@ -1020,32 +1040,12 @@ msgid "%(relay)s via %(entry)s"
 msgstr "%(relay)s (%(entry)s経由)"
 
 msgctxt "connection-info"
-msgid "%(relay)s via Custom bridge"
-msgstr "カスタムブリッジを経由した %(relay)s"
-
-msgctxt "connection-info"
 msgid "In"
 msgstr "内側"
 
 msgctxt "connection-info"
 msgid "Out"
 msgstr "外側"
-
-msgctxt "custom-bridge"
-msgid "Add custom bridge"
-msgstr "カスタムブリッジの追加"
-
-msgctxt "custom-bridge"
-msgid "Delete custom bridge?"
-msgstr "カスタムブリッジを削除しますか？"
-
-msgctxt "custom-bridge"
-msgid "Deleting the custom bridge will take you back to the select location view and the Automatic option will be selected instead."
-msgstr "カスタムブリッジを削除すると場所の選択ビューに戻り、代わりに自動オプションが選択されます。"
-
-msgctxt "custom-bridge"
-msgid "Edit custom bridge"
-msgstr "カスタムブリッジの編集"
 
 #. Button for continuing login process.
 msgctxt "device-management"
@@ -1845,10 +1845,6 @@ msgctxt "select-location-view"
 msgid "%(location)s (%(info)s)"
 msgstr "%(location)s (%(info)s)"
 
-msgctxt "select-location-view"
-msgid "A custom bridge server can be used to circumvent censorship when regular Mullvad bridge servers don’t work."
-msgstr "カスタムブリッジサーバーは、通常の Mullvad ブリッジサーバーが機能しない場合に検閲を回避するために使用される可能性があります。"
-
 #. This is a label shown above a list of options.
 #. Available placeholder:
 #. %(locationType) - Could be either "Country", "City" and "Relay"
@@ -1867,10 +1863,6 @@ msgstr "都市"
 msgctxt "select-location-view"
 msgid "Country"
 msgstr "国"
-
-msgctxt "select-location-view"
-msgid "Custom bridge"
-msgstr "カスタムブリッジ"
 
 msgctxt "select-location-view"
 msgid "Custom lists"
@@ -1926,10 +1918,6 @@ msgstr "中継サーバー"
 msgctxt "select-location-view"
 msgid "Setting: %(settingName)s"
 msgstr "設定: %(settingName)s"
-
-msgctxt "select-location-view"
-msgid "The app selects a random bridge server, but servers have a higher probability the closer they are to you."
-msgstr "ブリッジサーバーはアプリによってランダムに選択されますが、現在地に近いサーバーほど高い確率で選択されます。"
 
 msgctxt "select-location-view"
 msgid "The entry server for %(multihop)s is currently overridden by %(daita)s. To select an entry server, please first enable “%(directOnly)s” or disable \"%(daita)s\" in the settings."
@@ -2125,8 +2113,8 @@ msgstr "Mullvadサービスを再起動"
 #. Available placeholders:
 #. %(splitTunneling)s - will be replaced with Split tunneling
 msgctxt "split-tunneling-view"
-msgid "To use %(splitTunneling)s, please change to a Linux kernel version that supports cgroup v1."
-msgstr "%(splitTunneling)sを使用するには、cgroup v1をサポートしているLinuxカーネルバージョンに変更してください。"
+msgid "To use %(splitTunneling)s, please update to a Linux kernel version that supports cgroup v2."
+msgstr "%(splitTunneling)sを使用するには、cgroup v2をサポートしているLinuxカーネルバージョンに更新してください。"
 
 msgctxt "split-tunneling-view"
 msgid "To use split tunneling please enable “Full disk access” for “Mullvad VPN” in the macOS system settings."
@@ -2553,10 +2541,6 @@ msgid "Trackers"
 msgstr "トラッカー"
 
 msgctxt "vpn-settings-view"
-msgid "Tunnel protocol"
-msgstr "トンネルプロトコル"
-
-msgctxt "vpn-settings-view"
 msgid "Use custom DNS server"
 msgstr "カスタムDNSサーバーを使う"
 
@@ -2698,10 +2682,6 @@ msgid "Shadowsocks"
 msgstr "Shadowsocks"
 
 msgctxt "wireguard-settings-view"
-msgid "Switch to “%(wireguard)s” in Settings > %(tunnelProtocol)s to make %(setting)s available."
-msgstr "%(setting)sを使用可能にするには、設定 > %(tunnelProtocol)sで「%(wireguard)s」に切り替えてください。"
-
-msgctxt "wireguard-settings-view"
 msgid "The automatic setting will randomly choose from the valid port ranges shown below."
 msgstr "自動設定では、以下の有効なポート範囲からランダムに選択されます。"
 
@@ -2747,9 +2727,6 @@ msgstr "%s (追加済み)"
 msgid "%s (removed)"
 msgstr "%s (削除済み)"
 
-msgid "%s custom port"
-msgstr "%sカスタムポート"
-
 msgid "%s is already selected as entry relay"
 msgstr "%sはすでに入口中継サーバーとして選択されています"
 
@@ -2764,6 +2741,9 @@ msgstr "%sの設定。"
 
 msgid "%s was added to your account."
 msgstr "ご利用のアカウントに %s が追加されました。"
+
+msgid "(%d)"
+msgstr "(%d)"
 
 msgid "1. After clicking on the \"Go to VPN settings\" button below, click on the cogwheel next to the \"Mullvad VPN\" name."
 msgstr "1. 下の [VPN設定に移動] ボタンをクリックし、[Mullvad VPN] 名の横にある歯車をクリックします。"
@@ -2780,6 +2760,15 @@ msgstr "アカウントに30日分が追加されました。"
 msgid "90 days was added to your account."
 msgstr "アカウントに90日分が追加されました。"
 
+msgid "<b>Attention:</b> Only some servers support the full port range."
+msgstr "<b>注意:</b> 全ポート範囲をサポートしているのは一部のサーバーのみです。"
+
+msgid "<b>Attention:</b> The app will close automatically and needs to be manually opened again after selecting a new icon and title. This will not impact your VPN connection."
+msgstr "<b>注意：</b>新しいアイコンとタイトルを選択すると、アプリは自動的に終了します。その後、手動で再起動する必要があります。なお、この操作によってVPN接続が切断されることはありません。"
+
+msgid "<b>Please note that these methods do not improve performance, and may increase system utilization and battery consumption.</b>"
+msgstr "<b>これらの方式はパフォーマンスを向上させるものではなく、システム使用率やバッテリー消費量を増加させる可能性がありますのでご注意ください。</b>"
+
 msgid "API reachable, adding method..."
 msgstr "API に到達可能です。方法を追加しています..."
 
@@ -2789,17 +2778,11 @@ msgstr "API に到達できません。方法を保存しますか？"
 msgid "Account credit expires in a few minutes"
 msgstr "アカウントのクレジットが数分後に無効になります"
 
-msgid "Account credit expires soon"
-msgstr "アカウントのクレジットがもうすぐ無効になります"
-
 msgid "Account number is too long, please enter a valid number"
 msgstr "アカウント番号が長すぎます。有効な番号を入力してください"
 
 msgid "Account time reminders"
 msgstr "アカウント時間のリマインダー"
-
-msgid "Add %s to list"
-msgstr "%s をリストに追加する"
 
 msgid "Add 30 days time (%s)"
 msgstr "30日分を追加する (%s)"
@@ -2816,6 +2799,9 @@ msgstr "場所の追加"
 msgid "Add time"
 msgstr "時間を追加"
 
+msgid "Add to list"
+msgstr "リストに追加"
+
 msgid "Adding method..."
 msgstr "方法を追加しています..."
 
@@ -2824,6 +2810,9 @@ msgstr "Android 16でVPNアプリを更新すると、デバイス上のVPNア�
 
 msgid "Agree and continue"
 msgstr "同意して続行"
+
+msgid "All"
+msgstr "すべて"
 
 msgid "All applications"
 msgstr "すべてのアプリケーション"
@@ -2839,6 +2828,12 @@ msgstr "Always-on VPNは他のVPNに割り当てられました"
 
 msgid "Android 16 has a known issue. Please restart your device and try again. To learn more,"
 msgstr "Android 16には既知の問題があります。デバイスを再起動して再試行してください。詳細は、"
+
+msgid "Appearance"
+msgstr "外観"
+
+msgid "Applying changes..."
+msgstr "変更内容を適用しています…"
 
 msgid "Are you sure you want to log <b>%s</b> out?"
 msgstr "本当に<b>%s</b>をログアウトしますか？"
@@ -2873,11 +2868,17 @@ msgstr "インターネットをブロック中 (デバイスがオフライン)
 msgid "Blocking..."
 msgstr "ブロック中…"
 
+msgid "Browser"
+msgstr "ブラウザ"
+
 msgid "By attaching your account token it links this report to your account, which helps us resolve your issue quicker. All reports are automatically deleted after a period of time."
 msgstr "アカウントトークンを添付するとこのレポートがアカウントに関連付けられ、より迅速に問題を解決することができます。すべてのレポートは一定期間が経過した後に自動で削除されます。"
 
 msgid "Can't connect?"
 msgstr "接続できませんか？"
+
+msgid "Change the title and icon of the Mullvad VPN app on your Android device. This will not change the icon for any Mullvad VPN related notifications."
+msgstr "Androidデバイス上で、Mullvad VPNアプリのタイトルとアイコンを変更します。この変更は、Mullvad VPNに関連する通知のアイコンには適用されません。"
 
 msgid "Changes to DNS related settings might not go into effect immediately due to cached results."
 msgstr "結果がキャッシュされているため、DNS関連の設定の変更はすぐには適用されない可能性があります。"
@@ -2909,9 +2910,6 @@ msgstr "コピー"
 msgid "Create"
 msgstr "作成"
 
-msgid "Create account"
-msgstr "アカウントを作成"
-
 msgid "Create new list"
 msgstr "リストの新規作成"
 
@@ -2938,6 +2936,9 @@ msgstr "方法を削除"
 
 msgid "Delete method?"
 msgstr "方法を削除しますか？"
+
+msgid "Direct"
+msgstr "ダイレクト"
 
 msgid "Disable all \"%s\" above to activate this setting."
 msgstr "この設定を有効にするには、上の [%s] をすべて無効にしてください。"
@@ -3011,6 +3012,9 @@ msgstr "除外対象アプリケーション"
 msgid "Expand"
 msgstr "展開"
 
+msgid "External link"
+msgstr "外部リンク"
+
 msgid "FAILED TO CONNECT"
 msgstr "接続に失敗しました"
 
@@ -3056,6 +3060,9 @@ msgstr "IPv4は利用できません。「デバイスのIPバージョン」の
 msgid "IPv6 is not available, please try changing \"Device IP version\" setting."
 msgstr "IPv6は利用できません。「デバイスのIPバージョン」の設定を変更してみてください。"
 
+msgid "Icon and title"
+msgstr "アイコンとタイトル"
+
 msgid "If the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
 msgstr "スプリットトンネリング機能が使用されている場合、アプリはシステムにインストール済みの全アプリケーションのリストを照会します。このリストはスプリットトンネリングビューでのみ取得されます。インストール済みアプリケーションのリストがデバイスから送信されることはありません。"
 
@@ -3080,6 +3087,9 @@ msgstr "お支払いやアカウント関連の問題を迅速に解決するた
 msgid "Invalid or missing value \"%1$s\""
 msgstr "値「%1$s」は無効であるか、欠測しています"
 
+msgid "Less than a day left on this account"
+msgstr "このアカウントの残り時間は1日未満です"
+
 msgid "Lets you select apps that should access the Internet directly without going through the VPN tunnel."
 msgstr "VPN トンネルを経由せずに、直接インターネットにアクセスするアプリを選択できます。"
 
@@ -3095,6 +3105,9 @@ msgstr "場所"
 msgid "Locations were changed for \"%s\""
 msgstr "\"%s\" の場所が変更されました"
 
+msgid "Log in"
+msgstr "ログイン"
+
 msgid "Makes sure the device is always on the VPN tunnel."
 msgstr "デバイスが必ずVPNトンネルを使用するようにします。"
 
@@ -3104,8 +3117,17 @@ msgstr "その他の操作"
 msgid "Mullvad services unavailable"
 msgstr "Mullvadサービスを使用できません"
 
+msgid "Multihop is disabled"
+msgstr "マルチホップは無効です"
+
+msgid "Multihop is enabled"
+msgstr "マルチホップは有効です"
+
 msgid "Name was changed to %s"
 msgstr "名前が %s に変更されました"
+
+msgid "Navigate"
+msgstr "移動"
 
 msgid "New list"
 msgstr "新規リスト"
@@ -3146,8 +3168,14 @@ msgstr "「%s」の結果はありません。別の検索をお試しくださ�
 msgid "Not found"
 msgstr "見つかりませんでした"
 
+msgid "Notes"
+msgstr "メモ"
+
 msgid "Obfuscation hides the WireGuard traffic inside another protocol. It can be used to help circumvent censorship and other types of filtering, where a plain WireGuard connection would be blocked."
 msgstr "難読化は、WireGuardトラフィックを別のプロトコル内に隠します。プレーンなWireGuard接続がブロックされる検閲やその他のフィルタリングを回避するために使用できます。"
+
+msgid "On TV devices you may also need to restart your device."
+msgstr "TVデバイスをご利用の場合は、デバイス自体の再起動が必要になることがあります。"
 
 msgid "Open app details"
 msgstr "アプリの詳細を開く"
@@ -3230,11 +3258,20 @@ msgstr "検索"
 msgid "Send email"
 msgstr "メールを送信する"
 
-msgid "Set %s obfuscation to \"Automatic\" or \"Off\" below to activate this setting."
-msgstr "この設定を有効化するには、以下の%sの難読化を「自動」または「オフ」に設定してください。"
-
 msgid "Set WireGuard MTU value. Valid range: %1$d - %2$d."
 msgstr "WireGuardのMTU値を設定します。有効範囲: %1$d ～ %2$d"
+
+msgid "Set as multihop entry"
+msgstr "マルチホップの入口に設定"
+
+msgid "Set as multihop entry (incompatible)"
+msgstr "マルチホップの入口に設定（非対応）"
+
+msgid "Set as multihop exit"
+msgstr "マルチホップの出口に設定"
+
+msgid "Set as multihop exit (incompatible)"
+msgstr "マルチホップの出口に設定（非対応）"
 
 msgid "Set port"
 msgstr "ポートを設定"
@@ -3295,6 +3332,9 @@ msgstr "VPN設定で [ローカルネットワーク共有] を有効にしな�
 
 msgid "The selected %s port is not supported, please change it under"
 msgstr "選択した%sポートには対応していません。"
+
+msgid "These methods may be useful in situations where you are blocked from reaching Mullvad. When “Automatic” is selected, the app will attempt all methods until one works."
+msgstr "これらの方式は、Mullvadへの接続がブロックされている状況で役立つ可能性があります。「自動」を選択すると、アプリは有効な方法が見つかるまですべての方式を試します。"
 
 msgid "This address has already been entered."
 msgstr "このアドレスは入力済みです。"
@@ -3389,8 +3429,14 @@ msgstr "VPNへのアクセス許可が拒否されたか、別のアプリで「
 msgid "VPN tunnel status"
 msgstr "VPNトンネルのステータス"
 
+msgid "Valid range for all servers: %s"
+msgstr "全サーバーの有効範囲: %s"
+
 msgid "Valid ranges: %s"
 msgstr "有効な範囲: %s"
+
+msgid "Value: %s"
+msgstr "値: %s"
 
 msgid "Verifying API method..."
 msgstr "API 接続方法を検証しています..."
@@ -3404,6 +3450,9 @@ msgstr "購入を確認中..."
 msgid "Verifying voucher…"
 msgstr "バウチャーを確認中…"
 
+msgid "Warning"
+msgstr "警告"
+
 msgid "We are still verifying your purchase, this might take some time. Your time will be added if the verification is successful."
 msgstr "現在購入の確認を行っており、これには時間がかかる場合があります。確認が完了すると、時間が追加されます。"
 
@@ -3413,20 +3462,23 @@ msgstr "決済処理を開始できませんでした。最新バージョンの
 msgid "We were unable to start the payment process, please try again later."
 msgstr "決済処理を開始できませんでした。後でもう一度お試しください。"
 
+msgid "Weather"
+msgstr "天気"
+
 msgid "Welcome, this device is now called <b>%s</b>."
 msgstr "ようこそ。このデバイス名は<b>%s</b>です。"
-
-msgid "WireGuard MTU"
-msgstr "WireGuard MTU"
-
-msgid "WireGuard obfuscation"
-msgstr "WireGuardの難読化"
 
 msgid "WireGuard port"
 msgstr "WireGuardポート"
 
 msgid "Yes, log out device"
 msgstr "はい。デバイスをログアウトします"
+
+msgid "You can add more time via the account view or website to continue using the VPN."
+msgstr "アカウント画面かウェブサイトから時間を追加することで、VPNを引き続き使用できます。"
+
+msgid "You can add more time via the account view to continue using the VPN."
+msgstr "アカウント画面から時間を追加することで、VPNを引き続き使用できます。"
 
 msgid "\"%s\" was created"
 msgstr "\"%s\" が作成されました"
@@ -3460,6 +3512,14 @@ msgstr[0] "%d 件の場所"
 msgid "%d month"
 msgid_plural "%d months"
 msgstr[0] "%dヶ月"
+
+msgid "1 day left on this account"
+msgid_plural "%d days left on this account"
+msgstr[0] "このアカウントの残り時間は%d日です"
+
+msgid "1 year left on this account"
+msgid_plural "%d years left on this account"
+msgstr[0] "このアカウントの残り時間は%d年です"
 
 msgid "Account credit expires in a day"
 msgid_plural "Account credit expires in %d days"

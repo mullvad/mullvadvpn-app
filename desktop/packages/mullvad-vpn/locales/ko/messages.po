@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Korean\n"
 "Language: ko_KR\n"
-"PO-Revision-Date: 2025-12-08 09:00\n"
+"PO-Revision-Date: 2026-01-22 08:54\n"
 
 msgid "%(amount)d more..."
 msgstr "%(amount)d개 더 보기..."
@@ -313,10 +313,6 @@ msgid "%(wireguard)s port settings"
 msgstr "%(wireguard)s 포트 설정"
 
 msgctxt "accessibility"
-msgid "Add new custom bridge"
-msgstr "새로운 사용자 지정 브리지 추가"
-
-msgctxt "accessibility"
 msgid "Close notification"
 msgstr "알림 닫기"
 
@@ -330,9 +326,10 @@ msgctxt "accessibility"
 msgid "Copy account number"
 msgstr "계정 번호 복사"
 
+#. Accessibility label for a carousel that explains the DAITA feature to the user.
 msgctxt "accessibility"
-msgid "Edit custom bridge"
-msgstr "사용자 지정 브리지 편집"
+msgid "DAITA information carousel"
+msgstr "DAITA 정보 캐러셀"
 
 msgctxt "accessibility"
 msgid "Expand %(location)s"
@@ -358,15 +355,28 @@ msgctxt "accessibility"
 msgid "Go to app update page"
 msgstr "앱 업데이트 페이지로 이동"
 
+#. Accessibility label for carousel indicators that allow navigation between slides.
+#. Available placeholders:
+#. %(index)s - Will be replaced with the slide index number.
+msgctxt "accessibility"
+msgid "Go to slide %(index)s"
+msgstr "%(index)s번 슬라이드로 이동"
+
 #. Provided to accessibility tools such as screenreaders to describe
 #. the button which obscures the account number.
 msgctxt "accessibility"
 msgid "Hide account number"
 msgstr "계정 번호 숨기기"
 
+#. Alt text for an illustration showing VPN traffic with DAITA.
 msgctxt "accessibility"
-msgid "info"
-msgstr "정보"
+msgid "Illustration showing VPN traffic with DAITA enabled"
+msgstr "DAITA가 활성화된 VPN 트래픽을 보여주는 일러스트"
+
+#. Alt text for an illustration showing VPN traffic without DAITA.
+msgctxt "accessibility"
+msgid "Illustration showing VPN traffic without DAITA"
+msgstr "DAITA가 없는 VPN 트래픽을 보여주는 일러스트"
 
 #. This is used by screenreaders to communicate the login button.
 msgctxt "accessibility"
@@ -397,10 +407,20 @@ msgctxt "accessibility"
 msgid "New version installed, click here to see the changelog"
 msgstr "새 버전이 설치되었습니다. 변경 로그를 확인하려면 여기를 클릭하세요"
 
+#. Accessibility label for a button that navigates to the next slide in a carousel.
+msgctxt "accessibility"
+msgid "Next slide"
+msgstr "다음 슬라이드"
+
 #. Accessibility label for the button that opens the browser to buy credit.
 msgctxt "accessibility"
 msgid "Opens externally"
 msgstr "외부에서 열립니다"
+
+#. Accessibility label for a button that navigates to the previous slide in a carousel.
+msgctxt "accessibility"
+msgid "Previous slide"
+msgstr "이전 슬라이드"
 
 #. Button action description provided to accessibility tools such as screen
 #. readers.
@@ -1020,32 +1040,12 @@ msgid "%(relay)s via %(entry)s"
 msgstr "%(entry)s을(를) 통한 %(relay)s"
 
 msgctxt "connection-info"
-msgid "%(relay)s via Custom bridge"
-msgstr "사용자 지정 브리지를 통한 %(relay)s"
-
-msgctxt "connection-info"
 msgid "In"
 msgstr "인"
 
 msgctxt "connection-info"
 msgid "Out"
 msgstr "아웃"
-
-msgctxt "custom-bridge"
-msgid "Add custom bridge"
-msgstr "사용자 지정 브리지 추가"
-
-msgctxt "custom-bridge"
-msgid "Delete custom bridge?"
-msgstr "사용자 지정 브리지를 삭제하시겠습니까?"
-
-msgctxt "custom-bridge"
-msgid "Deleting the custom bridge will take you back to the select location view and the Automatic option will be selected instead."
-msgstr "사용자 지정 브리지를 삭제하면 위치 선택 보기로 돌아가며 자동 옵션이 대신 선택됩니다."
-
-msgctxt "custom-bridge"
-msgid "Edit custom bridge"
-msgstr "사용자 지정 브리지 편집"
 
 #. Button for continuing login process.
 msgctxt "device-management"
@@ -1845,10 +1845,6 @@ msgctxt "select-location-view"
 msgid "%(location)s (%(info)s)"
 msgstr "%(location)s(%(info)s)"
 
-msgctxt "select-location-view"
-msgid "A custom bridge server can be used to circumvent censorship when regular Mullvad bridge servers don’t work."
-msgstr "사용자 지정 브리지 서버는 일반 Mullvad 브리지 서버가 작동되지 않을 때 검열을 우회하기 위해 사용할 수 있습니다."
-
 #. This is a label shown above a list of options.
 #. Available placeholder:
 #. %(locationType) - Could be either "Country", "City" and "Relay"
@@ -1867,10 +1863,6 @@ msgstr "도시"
 msgctxt "select-location-view"
 msgid "Country"
 msgstr "국가"
-
-msgctxt "select-location-view"
-msgid "Custom bridge"
-msgstr "사용자 지정 브리지"
 
 msgctxt "select-location-view"
 msgid "Custom lists"
@@ -1926,10 +1918,6 @@ msgstr "릴레이"
 msgctxt "select-location-view"
 msgid "Setting: %(settingName)s"
 msgstr "설정: %(settingName)s"
-
-msgctxt "select-location-view"
-msgid "The app selects a random bridge server, but servers have a higher probability the closer they are to you."
-msgstr "앱에서 임의의 브리지 서버를 선택하지만, 사용자에게 가까운 서버일수록 확률이 더 높습니다."
 
 msgctxt "select-location-view"
 msgid "The entry server for %(multihop)s is currently overridden by %(daita)s. To select an entry server, please first enable “%(directOnly)s” or disable \"%(daita)s\" in the settings."
@@ -2125,8 +2113,8 @@ msgstr "Mullvad 서비스 다시 시작"
 #. Available placeholders:
 #. %(splitTunneling)s - will be replaced with Split tunneling
 msgctxt "split-tunneling-view"
-msgid "To use %(splitTunneling)s, please change to a Linux kernel version that supports cgroup v1."
-msgstr "%(splitTunneling)s을(를) 사용하려면 cgroup v1을 지원하는 Linux 커널 버전으로 변경하세요."
+msgid "To use %(splitTunneling)s, please update to a Linux kernel version that supports cgroup v2."
+msgstr "%(splitTunneling)s을 사용하려면 cgroup v2를 지원하는 Linux 커널 버전으로 업데이트하세요."
 
 msgctxt "split-tunneling-view"
 msgid "To use split tunneling please enable “Full disk access” for “Mullvad VPN” in the macOS system settings."
@@ -2553,10 +2541,6 @@ msgid "Trackers"
 msgstr "트래커"
 
 msgctxt "vpn-settings-view"
-msgid "Tunnel protocol"
-msgstr "터널 프로토콜"
-
-msgctxt "vpn-settings-view"
 msgid "Use custom DNS server"
 msgstr "사용자 지정 DNS 서버 사용"
 
@@ -2698,10 +2682,6 @@ msgid "Shadowsocks"
 msgstr "Shadowsocks"
 
 msgctxt "wireguard-settings-view"
-msgid "Switch to “%(wireguard)s” in Settings > %(tunnelProtocol)s to make %(setting)s available."
-msgstr "설정 > %(tunnelProtocol)s에서 “%(wireguard)s”로 전환하면 %(setting)s을 사용할 수 있습니다."
-
-msgctxt "wireguard-settings-view"
 msgid "The automatic setting will randomly choose from the valid port ranges shown below."
 msgstr "자동 설정은 아래 표시된 유효한 포트 범위에서 임의로 선택합니다."
 
@@ -2747,9 +2727,6 @@ msgstr "%s(추가됨)"
 msgid "%s (removed)"
 msgstr "%s(제거됨)"
 
-msgid "%s custom port"
-msgstr "%s 사용자 지정 포트"
-
 msgid "%s is already selected as entry relay"
 msgstr "%s이(가) 이미 진입 릴레이로 선택되었습니다"
 
@@ -2764,6 +2741,9 @@ msgstr "%s 설정."
 
 msgid "%s was added to your account."
 msgstr "%s이(가) 계정에 추가되었습니다."
+
+msgid "(%d)"
+msgstr "(%d)"
 
 msgid "1. After clicking on the \"Go to VPN settings\" button below, click on the cogwheel next to the \"Mullvad VPN\" name."
 msgstr "1. 아래의 \"VPN 설정으로 이동\" 버튼을 클릭한 후 \"Mullvad VPN\" 이름 옆의 톱니바퀴를 클릭합니다."
@@ -2780,6 +2760,15 @@ msgstr "귀하의 계정에 30일이 추가되었습니다."
 msgid "90 days was added to your account."
 msgstr "계정에 90일이 추가되었습니다."
 
+msgid "<b>Attention:</b> Only some servers support the full port range."
+msgstr "<b>주의:</b> 일부 서버에서만 전체 포트 범위를 지원합니다."
+
+msgid "<b>Attention:</b> The app will close automatically and needs to be manually opened again after selecting a new icon and title. This will not impact your VPN connection."
+msgstr "<b>주의:</b> 새 아이콘과 타이틀을 선택하면 앱이 자동으로 종료되며 수동으로 다시 실행해야 합니다. VPN 연결에는 영향을 미치지 않습니다."
+
+msgid "<b>Please note that these methods do not improve performance, and may increase system utilization and battery consumption.</b>"
+msgstr "<b>다음 방법은 성능을 향상하는 것이 아니며 시스템 사용률 및 배터리 소모량이 증가할 수 있습니다.</b>"
+
 msgid "API reachable, adding method..."
 msgstr "API 연결 가능, 방법 추가 중..."
 
@@ -2789,17 +2778,11 @@ msgstr "API 연결 불가, 그래도 이 방법을 저장하시겠습니까?"
 msgid "Account credit expires in a few minutes"
 msgstr "계정 크레딧이 몇 분 후에 만료됨"
 
-msgid "Account credit expires soon"
-msgstr "계정 크레딧이 곧 만료됨"
-
 msgid "Account number is too long, please enter a valid number"
 msgstr "계정 번호가 너무 깁니다. 유효한 번호를 입력해 주세요"
 
 msgid "Account time reminders"
 msgstr "계정 시간 알림"
-
-msgid "Add %s to list"
-msgstr "목록에 %s 추가"
 
 msgid "Add 30 days time (%s)"
 msgstr "30일 시간 추가(%s)"
@@ -2816,6 +2799,9 @@ msgstr "위치 추가"
 msgid "Add time"
 msgstr "시간 추가"
 
+msgid "Add to list"
+msgstr "목록에 추가"
+
 msgid "Adding method..."
 msgstr "방법 추가 중..."
 
@@ -2824,6 +2810,9 @@ msgstr "Android 16에서 VPN 앱을 업데이트하면 VPN 앱이 더 이상 인
 
 msgid "Agree and continue"
 msgstr "동의하고 계속하기"
+
+msgid "All"
+msgstr "모두"
 
 msgid "All applications"
 msgstr "모든 애플리케이션"
@@ -2839,6 +2828,12 @@ msgstr "상시 접속 VPN이 다른 VPN에 할당됨"
 
 msgid "Android 16 has a known issue. Please restart your device and try again. To learn more,"
 msgstr "Android 16에는 알려진 문제가 있습니다. 장치를 재시작한 후 다시 시도해 주세요. 자세한 내용을 알아보려면"
+
+msgid "Appearance"
+msgstr "외관 설정"
+
+msgid "Applying changes..."
+msgstr "변경 사항 적용 중..."
 
 msgid "Are you sure you want to log <b>%s</b> out?"
 msgstr "<b>%s</b>에서 로그아웃하시겠습니까?"
@@ -2873,11 +2868,17 @@ msgstr "인터넷 차단(장치 오프라인)"
 msgid "Blocking..."
 msgstr "차단 중..."
 
+msgid "Browser"
+msgstr "브라우저"
+
 msgid "By attaching your account token it links this report to your account, which helps us resolve your issue quicker. All reports are automatically deleted after a period of time."
 msgstr "계정 토큰을 첨부하여 이 보고서를 계정에 연결하며, 이는 문제를 더 빨리 해결하는 데 도움이 됩니다. 모든 보고서는 일정 시간 후 자동으로 삭제됩니다."
 
 msgid "Can't connect?"
 msgstr "연결이 되지 않나요?"
+
+msgid "Change the title and icon of the Mullvad VPN app on your Android device. This will not change the icon for any Mullvad VPN related notifications."
+msgstr "Android 장치에서 Mullvad VPN의 타이틀과 아이콘을 변경하세요. Mullvad VPN과 관련된 알림의 아이콘은 변경되지 않습니다."
 
 msgid "Changes to DNS related settings might not go into effect immediately due to cached results."
 msgstr "DNS 관련 설정에 대한 변경 사항은 캐시된 결과로 인해 즉시 적용되지 않을 수도 있습니다."
@@ -2909,9 +2910,6 @@ msgstr "복사"
 msgid "Create"
 msgstr "생성"
 
-msgid "Create account"
-msgstr "계정 생성"
-
 msgid "Create new list"
 msgstr "새 목록 생성"
 
@@ -2938,6 +2936,9 @@ msgstr "방법 삭제"
 
 msgid "Delete method?"
 msgstr "이 방법을 삭제하시겠습니까?"
+
+msgid "Direct"
+msgstr "다이렉트"
 
 msgid "Disable all \"%s\" above to activate this setting."
 msgstr "이 설정을 활성화하려면 위의 모든 \"%s\"를 비활성화하세요."
@@ -3011,6 +3012,9 @@ msgstr "제외된 애플리케이션"
 msgid "Expand"
 msgstr "펼치기"
 
+msgid "External link"
+msgstr "외부 링크"
+
 msgid "FAILED TO CONNECT"
 msgstr "연결 실패"
 
@@ -3056,6 +3060,9 @@ msgstr "IPv4를 사용할 수 없습니다. \"장치 IP 버전\" 설정을 변�
 msgid "IPv6 is not available, please try changing \"Device IP version\" setting."
 msgstr "IPv6를 사용할 수 없습니다. \"장치 IP 버전\" 설정을 변경해 보세요."
 
+msgid "Icon and title"
+msgstr "아이콘 및 타이틀"
+
 msgid "If the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
 msgstr "분할 터널링 기능을 사용하는 경우, 이 앱은 설치된 모든 애플리케이션 목록을 시스템에 쿼리합니다. 이 목록은 분할 터널링 보기에서만 검색됩니다. 설치된 애플리케이션 목록은 장치에서 전송되지 않습니다."
 
@@ -3080,6 +3087,9 @@ msgstr "결제 또는 계정 관련 문제에 대해 더 빠른 도움을 받을
 msgid "Invalid or missing value \"%1$s\""
 msgstr "\"%1$s\" 값이 유효하지 않거나 누락되었습니다"
 
+msgid "Less than a day left on this account"
+msgstr "계정에 남은 기간이 1일 미만입니다"
+
 msgid "Lets you select apps that should access the Internet directly without going through the VPN tunnel."
 msgstr "VPN 터널을 거치지 않고 인터넷에서 바로 액세스할 앱을 선택할 수 있습니다."
 
@@ -3095,6 +3105,9 @@ msgstr "위치"
 msgid "Locations were changed for \"%s\""
 msgstr "\"%s\"에 대해 위치가 변경되었습니다"
 
+msgid "Log in"
+msgstr "로그인"
+
 msgid "Makes sure the device is always on the VPN tunnel."
 msgstr "장치가 항상 VPN 터널에 있어야 합니다."
 
@@ -3104,8 +3117,17 @@ msgstr "추가 작업"
 msgid "Mullvad services unavailable"
 msgstr "Mullvad 서비스 사용 불가"
 
+msgid "Multihop is disabled"
+msgstr "멀티홉이 비활성화되었습니다"
+
+msgid "Multihop is enabled"
+msgstr "멀티홉이 활성화되었습니다"
+
 msgid "Name was changed to %s"
 msgstr "이름이 %s(으)로 변경되었습니다"
+
+msgid "Navigate"
+msgstr "이동"
 
 msgid "New list"
 msgstr "새 목록"
@@ -3146,8 +3168,14 @@ msgstr "\"%s\" 검색 결과가 없습니다. 다른 검색어를 시도하세�
 msgid "Not found"
 msgstr "찾을 수 없음"
 
+msgid "Notes"
+msgstr "메모"
+
 msgid "Obfuscation hides the WireGuard traffic inside another protocol. It can be used to help circumvent censorship and other types of filtering, where a plain WireGuard connection would be blocked."
 msgstr "난독 처리는 다른 프로토콜 내에서 WireGuard 트래픽을 숨깁니다. 일반 WireGuard 연결이 차단되는 상황에서 검열 및 기타 유형의 필터링을 우회하는 데 사용할 수 있습니다."
+
+msgid "On TV devices you may also need to restart your device."
+msgstr "TV 장치에서도 장치를 재시작해야 할 수 있습니다."
 
 msgid "Open app details"
 msgstr "앱 세부 정보 열기"
@@ -3230,11 +3258,20 @@ msgstr "검색"
 msgid "Send email"
 msgstr "이메일 전송"
 
-msgid "Set %s obfuscation to \"Automatic\" or \"Off\" below to activate this setting."
-msgstr "이 설정을 활성화하려면 아래 %s 난독 처리를 \"자동\" 또는 \"끄기\"로 설정합니다."
-
 msgid "Set WireGuard MTU value. Valid range: %1$d - %2$d."
 msgstr "WireGuard MTU 값을 설정하세요. 유효 범위: %1$d ~ %2$d."
+
+msgid "Set as multihop entry"
+msgstr "멀티홉 입구로 설정"
+
+msgid "Set as multihop entry (incompatible)"
+msgstr "멀티홉 입구로 설정(호환 불가)"
+
+msgid "Set as multihop exit"
+msgstr "멀티홉 출구로 설정"
+
+msgid "Set as multihop exit (incompatible)"
+msgstr "멀티홉 출구로 설정(호환 불가)"
 
 msgid "Set port"
 msgstr "포트 설정"
@@ -3295,6 +3332,9 @@ msgstr "VPN 설정에서 \"로컬 네트워크 공유\"를 활성화하지 않�
 
 msgid "The selected %s port is not supported, please change it under"
 msgstr "선택한 %s 포트는 지원되지 않습니다. 다음에서 변경하세요:"
+
+msgid "These methods may be useful in situations where you are blocked from reaching Mullvad. When “Automatic” is selected, the app will attempt all methods until one works."
+msgstr "이 방법들은 Mullvad 사용이 차단된 경우에 유용합니다. \"자동\"을 선택하면 통하는 방법이 있을 때까지 모든 방법을 시도합니다."
 
 msgid "This address has already been entered."
 msgstr "이 주소는 이미 입력되었습니다."
@@ -3389,8 +3429,14 @@ msgstr "VPN 권한이 거부되었거나 다른 앱에 \"상시 접속 VPN\"이 
 msgid "VPN tunnel status"
 msgstr "VPN 터널 상태"
 
+msgid "Valid range for all servers: %s"
+msgstr "모든 서버의 유효 범위: %s"
+
 msgid "Valid ranges: %s"
 msgstr "유효한 범위: %s"
+
+msgid "Value: %s"
+msgstr "값: %s"
 
 msgid "Verifying API method..."
 msgstr "API 방법 확인 중..."
@@ -3404,6 +3450,9 @@ msgstr "구매 확인 중..."
 msgid "Verifying voucher…"
 msgstr "바우처 확인 중…"
 
+msgid "Warning"
+msgstr "경고"
+
 msgid "We are still verifying your purchase, this might take some time. Your time will be added if the verification is successful."
 msgstr "아직 구매를 확인하고 있으며, 다소 시간이 걸릴 수 있습니다. 확인이 완료되면 시간이 추가됩니다."
 
@@ -3413,20 +3462,23 @@ msgstr "결제 프로세스를 시작할 수 없습니다. Google Play가 최신
 msgid "We were unable to start the payment process, please try again later."
 msgstr "결제 프로세스를 시작할 수 없습니다. 나중에 다시 시도해 주세요."
 
+msgid "Weather"
+msgstr "날씨"
+
 msgid "Welcome, this device is now called <b>%s</b>."
 msgstr "환영합니다. 이 장치의 호칭은 이제 <b>%s</b>입니다."
-
-msgid "WireGuard MTU"
-msgstr "WireGuard MTU"
-
-msgid "WireGuard obfuscation"
-msgstr "WireGuard 난독화"
 
 msgid "WireGuard port"
 msgstr "WireGuard 포트"
 
 msgid "Yes, log out device"
 msgstr "예, 장치에서 로그아웃"
+
+msgid "You can add more time via the account view or website to continue using the VPN."
+msgstr "계정 창 또는 웹사이트를 통해 더 많은 시간을 추가하여 VPN을 계속 사용할 수 있습니다."
+
+msgid "You can add more time via the account view to continue using the VPN."
+msgstr "계정 창에서 더 많은 시간을 추가하여 VPN을 계속 사용할 수 있습니다."
 
 msgid "\"%s\" was created"
 msgstr "\"%s\"이(가) 생성되었습니다"
@@ -3460,6 +3512,14 @@ msgstr[0] "위치 %d개"
 msgid "%d month"
 msgid_plural "%d months"
 msgstr[0] "%d개월"
+
+msgid "1 day left on this account"
+msgid_plural "%d days left on this account"
+msgstr[0] "계정에 남은 기간이 %d일입니다"
+
+msgid "1 year left on this account"
+msgid_plural "%d years left on this account"
+msgstr[0] "계정에 남은 기간이 %d년입니다"
 
 msgid "Account credit expires in a day"
 msgid_plural "Account credit expires in %d days"

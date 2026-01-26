@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Finnish\n"
 "Language: fi_FI\n"
-"PO-Revision-Date: 2025-12-08 09:00\n"
+"PO-Revision-Date: 2026-01-22 08:53\n"
 
 msgid "%(amount)d more..."
 msgstr "%(amount)d lisää..."
@@ -319,10 +319,6 @@ msgid "%(wireguard)s port settings"
 msgstr "%(wireguard)s-porttiasetukset"
 
 msgctxt "accessibility"
-msgid "Add new custom bridge"
-msgstr "Lisää uusi mukautettu siltaus"
-
-msgctxt "accessibility"
 msgid "Close notification"
 msgstr "Sulje ilmoitus"
 
@@ -336,9 +332,10 @@ msgctxt "accessibility"
 msgid "Copy account number"
 msgstr "Kopioi tilin numero"
 
+#. Accessibility label for a carousel that explains the DAITA feature to the user.
 msgctxt "accessibility"
-msgid "Edit custom bridge"
-msgstr "Muokkaa mukautettua siltausta"
+msgid "DAITA information carousel"
+msgstr "DAITA-tietokaruselli"
 
 msgctxt "accessibility"
 msgid "Expand %(location)s"
@@ -364,15 +361,28 @@ msgctxt "accessibility"
 msgid "Go to app update page"
 msgstr "Siirry sovelluksen päivityssivulle"
 
+#. Accessibility label for carousel indicators that allow navigation between slides.
+#. Available placeholders:
+#. %(index)s - Will be replaced with the slide index number.
+msgctxt "accessibility"
+msgid "Go to slide %(index)s"
+msgstr "Siirry diaan %(index)s"
+
 #. Provided to accessibility tools such as screenreaders to describe
 #. the button which obscures the account number.
 msgctxt "accessibility"
 msgid "Hide account number"
 msgstr "Piilota tilin numero"
 
+#. Alt text for an illustration showing VPN traffic with DAITA.
 msgctxt "accessibility"
-msgid "info"
-msgstr "tietoa"
+msgid "Illustration showing VPN traffic with DAITA enabled"
+msgstr "Havainnekuva esittää VPN-liikennettä, kun DAITA on käytössä"
+
+#. Alt text for an illustration showing VPN traffic without DAITA.
+msgctxt "accessibility"
+msgid "Illustration showing VPN traffic without DAITA"
+msgstr "Havainnekuva esittää VPN-liikennettä, kun DAITA ei ole käytössä"
 
 #. This is used by screenreaders to communicate the login button.
 msgctxt "accessibility"
@@ -403,10 +413,20 @@ msgctxt "accessibility"
 msgid "New version installed, click here to see the changelog"
 msgstr "Uusi versio on asennettu. Voit tarkastella muutoslokia napsauttamalla tästä."
 
+#. Accessibility label for a button that navigates to the next slide in a carousel.
+msgctxt "accessibility"
+msgid "Next slide"
+msgstr "Seuraava dia"
+
 #. Accessibility label for the button that opens the browser to buy credit.
 msgctxt "accessibility"
 msgid "Opens externally"
 msgstr "Avautuu ulkoiseen selainikkunaan"
+
+#. Accessibility label for a button that navigates to the previous slide in a carousel.
+msgctxt "accessibility"
+msgid "Previous slide"
+msgstr "Edellinen dia"
 
 #. Button action description provided to accessibility tools such as screen
 #. readers.
@@ -1026,32 +1046,12 @@ msgid "%(relay)s via %(entry)s"
 msgstr "%(relay)s, yhteys: %(entry)s"
 
 msgctxt "connection-info"
-msgid "%(relay)s via Custom bridge"
-msgstr "%(relay)s mukautetun siltauksen kautta"
-
-msgctxt "connection-info"
 msgid "In"
 msgstr "Saapuva"
 
 msgctxt "connection-info"
 msgid "Out"
 msgstr "Lähtevä"
-
-msgctxt "custom-bridge"
-msgid "Add custom bridge"
-msgstr "Lisää mukautettu siltaus"
-
-msgctxt "custom-bridge"
-msgid "Delete custom bridge?"
-msgstr "Poistetaanko mukautettu siltaus?"
-
-msgctxt "custom-bridge"
-msgid "Deleting the custom bridge will take you back to the select location view and the Automatic option will be selected instead."
-msgstr "Mukautun siltauksen poistaminen vie sinut takaisin valintanäkymään, ja siltauksen asemesta valitaan automaattinen vaihtoehto."
-
-msgctxt "custom-bridge"
-msgid "Edit custom bridge"
-msgstr "Mukautetun siltauksen muokkaus"
 
 #. Button for continuing login process.
 msgctxt "device-management"
@@ -1851,10 +1851,6 @@ msgctxt "select-location-view"
 msgid "%(location)s (%(info)s)"
 msgstr "%(location)s (%(info)s)"
 
-msgctxt "select-location-view"
-msgid "A custom bridge server can be used to circumvent censorship when regular Mullvad bridge servers don’t work."
-msgstr "Mukautettua siltauspalvelinta voidaan käyttää sensuurin kiertämiseen silloin kun tavanomaiset Mullvad-siltauspalvelimet eivät toimi."
-
 #. This is a label shown above a list of options.
 #. Available placeholder:
 #. %(locationType) - Could be either "Country", "City" and "Relay"
@@ -1873,10 +1869,6 @@ msgstr "Kaupunki"
 msgctxt "select-location-view"
 msgid "Country"
 msgstr "Maa"
-
-msgctxt "select-location-view"
-msgid "Custom bridge"
-msgstr "Mukautettu siltaus"
 
 msgctxt "select-location-view"
 msgid "Custom lists"
@@ -1932,10 +1924,6 @@ msgstr "Välitys"
 msgctxt "select-location-view"
 msgid "Setting: %(settingName)s"
 msgstr "Asetus: %(settingName)s"
-
-msgctxt "select-location-view"
-msgid "The app selects a random bridge server, but servers have a higher probability the closer they are to you."
-msgstr "Sovellus valitsee satunnaisen siltauspalvelimen, mutta palvelimen valinnan todennäköisyys on sitä suurempi, mitä lähempänä palvelin on sinua."
 
 msgctxt "select-location-view"
 msgid "The entry server for %(multihop)s is currently overridden by %(daita)s. To select an entry server, please first enable “%(directOnly)s” or disable \"%(daita)s\" in the settings."
@@ -2131,8 +2119,8 @@ msgstr "Käynnistä Mullvad Service uudelleen"
 #. Available placeholders:
 #. %(splitTunneling)s - will be replaced with Split tunneling
 msgctxt "split-tunneling-view"
-msgid "To use %(splitTunneling)s, please change to a Linux kernel version that supports cgroup v1."
-msgstr "Vaihda Linuxin ydinversioon, joka tukee cgroup v1:tä, jotta %(splitTunneling)s on käytettävissä."
+msgid "To use %(splitTunneling)s, please update to a Linux kernel version that supports cgroup v2."
+msgstr "%(splitTunneling)s on käytettävissä, kun päivität cgroup v2:ta tukevaan Linuxin ydinversioon."
 
 msgctxt "split-tunneling-view"
 msgid "To use split tunneling please enable “Full disk access” for “Mullvad VPN” in the macOS system settings."
@@ -2559,10 +2547,6 @@ msgid "Trackers"
 msgstr "Seurantapalvelimet"
 
 msgctxt "vpn-settings-view"
-msgid "Tunnel protocol"
-msgstr "Tunneliprotokolla"
-
-msgctxt "vpn-settings-view"
 msgid "Use custom DNS server"
 msgstr "Käytä mukautettua DNS-palvelinta"
 
@@ -2704,10 +2688,6 @@ msgid "Shadowsocks"
 msgstr "Shadowsocks"
 
 msgctxt "wireguard-settings-view"
-msgid "Switch to “%(wireguard)s” in Settings > %(tunnelProtocol)s to make %(setting)s available."
-msgstr "Ota %(setting)s käyttöön vaihtamalla arvoon \"%(wireguard)s\" kohdassa Asetukset > %(tunnelProtocol)s."
-
-msgctxt "wireguard-settings-view"
 msgid "The automatic setting will randomly choose from the valid port ranges shown below."
 msgstr "Automaattinen asetus valitsee satunnaisesti käytettävissä olevista, alla luetelluista porteista."
 
@@ -2753,9 +2733,6 @@ msgstr "%s (lisätty)"
 msgid "%s (removed)"
 msgstr "%s (poistettu)"
 
-msgid "%s custom port"
-msgstr "Mukautettu %s-portti"
-
 msgid "%s is already selected as entry relay"
 msgstr "%s on jo valittu tulovälityspalvelimeksi"
 
@@ -2770,6 +2747,9 @@ msgstr "%s-asetukset."
 
 msgid "%s was added to your account."
 msgstr "%s lisättiin tilillesi."
+
+msgid "(%d)"
+msgstr "(%d)"
 
 msgid "1. After clicking on the \"Go to VPN settings\" button below, click on the cogwheel next to the \"Mullvad VPN\" name."
 msgstr "1. Napsautettuasi alla olevaa \"Siirry VPN-asetuksiin\" -painiketta napsauta Mullvad VPN:n nimen vierestä löytyvää hammaspyöräkuvaketta."
@@ -2786,6 +2766,15 @@ msgstr "Tilillesi lisättiin 30 päivää käyttöaikaa."
 msgid "90 days was added to your account."
 msgstr "Tilillesi lisättiin 90 päivää käyttöaikaa."
 
+msgid "<b>Attention:</b> Only some servers support the full port range."
+msgstr "<b>Huomio:</b> vain tietyt palvelimet tukevat koko porttiväliä."
+
+msgid "<b>Attention:</b> The app will close automatically and needs to be manually opened again after selecting a new icon and title. This will not impact your VPN connection."
+msgstr "<b>Huomio:</b> Sovellus sulkeutuu automaattisesti uuden kuvakkeen ja otsikon valitsemisen jälkeen, ja se täytyy avata uudelleen manuaalisesti. Tämä ei vaikuta VPN-yhteyteesi."
+
+msgid "<b>Please note that these methods do not improve performance, and may increase system utilization and battery consumption.</b>"
+msgstr "<b>Huomioithan, että nämä tavat eivät paranna suorituskykyä ja voivat lisätä järjestelmän käyttöastetta ja akun käyttöä.</b>"
+
 msgid "API reachable, adding method..."
 msgstr "API tavoitettavissa, menetelmää lisätään..."
 
@@ -2795,17 +2784,11 @@ msgstr "API ei ole tavoitettavissa. Tallennetaanko menetelmä silti?"
 msgid "Account credit expires in a few minutes"
 msgstr "Tilin käyttöaika päättyy muutaman minuutin kuluttua"
 
-msgid "Account credit expires soon"
-msgstr "Tilin käyttöaika päättyy pian"
-
 msgid "Account number is too long, please enter a valid number"
 msgstr "Tilin numero on liian pitkä. Anna kelvollinen numero."
 
 msgid "Account time reminders"
 msgstr "Muistutukset tilin käyttöajasta"
-
-msgid "Add %s to list"
-msgstr "Lisää %s luetteloon"
 
 msgid "Add 30 days time (%s)"
 msgstr "Lisää 30 päivää käyttöaikaa (%s)"
@@ -2822,6 +2805,9 @@ msgstr "Lisää sijainteja"
 msgid "Add time"
 msgstr "Lisää käyttöaikaa"
 
+msgid "Add to list"
+msgstr "Lisää luetteloon"
+
 msgid "Adding method..."
 msgstr "Lisätään menetelmää..."
 
@@ -2830,6 +2816,9 @@ msgstr "Kun VPN-sovellus päivitetään Android 16:ssa, laitteen saattavat pää
 
 msgid "Agree and continue"
 msgstr "Hyväksy ja jatka"
+
+msgid "All"
+msgstr "Kaikki"
 
 msgid "All applications"
 msgstr "Kaikki sovellukset"
@@ -2845,6 +2834,12 @@ msgstr "Aina päällä oleva VPN on määritetty toiselle VPN:lle"
 
 msgid "Android 16 has a known issue. Please restart your device and try again. To learn more,"
 msgstr "Android 16:ssa on tunnettu ongelma. Käynnistä laitteesi uudelleen ja yritä uudelleen. Saat lisätietoja"
+
+msgid "Appearance"
+msgstr "Ulkoasu"
+
+msgid "Applying changes..."
+msgstr "Muutoksia otetaan käyttöön..."
 
 msgid "Are you sure you want to log <b>%s</b> out?"
 msgstr "Haluatko varmasti kirjata laitteen <b>%s</b> ulos?"
@@ -2879,11 +2874,17 @@ msgstr "Internetyhteys on estetty (laite on offline-tilassa)"
 msgid "Blocking..."
 msgstr "Estetään..."
 
+msgid "Browser"
+msgstr "Selain"
+
 msgid "By attaching your account token it links this report to your account, which helps us resolve your issue quicker. All reports are automatically deleted after a period of time."
 msgstr "Tilin tunnisteen liittäminen yhdistää tämän raportin tiliisi, mikä auttaa meitä ratkaisemaan ongelmasi nopeammin. Kaikki raportit poistetaan automaattisesti tietyn ajan kuluttua."
 
 msgid "Can't connect?"
 msgstr "Eikö yhteyden muodostaminen onnistu?"
+
+msgid "Change the title and icon of the Mullvad VPN app on your Android device. This will not change the icon for any Mullvad VPN related notifications."
+msgstr "Vaihda Mullvad VPN -sovelluksen otsikko ja kuvake Android-laitteellasi. Mullvad VPN:ään liittyvien ilmoitusten kuvake ei muutu."
 
 msgid "Changes to DNS related settings might not go into effect immediately due to cached results."
 msgstr "DNS-asetuksiin tehdyt muutokset eivät välttämättä astu voimaan välittömästi välimuistissa olevien tulosten vuoksi."
@@ -2915,9 +2916,6 @@ msgstr "Kopioi"
 msgid "Create"
 msgstr "Luo"
 
-msgid "Create account"
-msgstr "Luo tili"
-
 msgid "Create new list"
 msgstr "Luo uusi luettelo"
 
@@ -2944,6 +2942,9 @@ msgstr "Poista menetelmä"
 
 msgid "Delete method?"
 msgstr "Poista menetelmä?"
+
+msgid "Direct"
+msgstr "Suora"
 
 msgid "Disable all \"%s\" above to activate this setting."
 msgstr "Ota tämä asetus käyttöön poistamalla kaikki %s käytöstä yllä."
@@ -3017,6 +3018,9 @@ msgstr "Poissuljetut sovellukset"
 msgid "Expand"
 msgstr "Näytä enemmän"
 
+msgid "External link"
+msgstr "Ulkoinen linkki"
+
 msgid "FAILED TO CONNECT"
 msgstr "YHDISTÄMINEN EPÄONNISTUI"
 
@@ -3062,6 +3066,9 @@ msgstr "IPv4 ei ole käytettävissä. Kokeile vaihtaa Laitteen IP-versio -asetus
 msgid "IPv6 is not available, please try changing \"Device IP version\" setting."
 msgstr "IPv6 ei ole käytettävissä. Kokeile vaihtaa Laitteen IP-versio -asetus."
 
+msgid "Icon and title"
+msgstr "Kuvake ja otsikko"
+
 msgid "If the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
 msgstr "Jos käytetään sovelluskohtaista yhdistämistä, sovellus pyytää järjestelmältäsi luettelon kaikista siihen asennetuista sovelluksista. Luettelo noudetaan vain sovelluskohtaisen yhdistämisen näkymässä. Asennettujen sovellusten luetteloa ei koskaan lähetetä laitteelta."
 
@@ -3086,6 +3093,9 @@ msgstr "Lisää tilitunnukseni, jotta saan nopeampaa apua maksuihin tai tiliin l
 msgid "Invalid or missing value \"%1$s\""
 msgstr "Arvo \"%1$s\" puuttuu tai on virheellinen"
 
+msgid "Less than a day left on this account"
+msgstr "Tilin käyttöaikaa on jäljellä alle päivä"
+
 msgid "Lets you select apps that should access the Internet directly without going through the VPN tunnel."
 msgstr "Voit valita sovelluksia, joiden pitäisi muodostaa yhteys Internetiin suoraan kulkematta VPN-tunnelin läpi."
 
@@ -3101,6 +3111,9 @@ msgstr "Sijainnit"
 msgid "Locations were changed for \"%s\""
 msgstr "Kohteen \"%s\" sijainteja vaihdettiin"
 
+msgid "Log in"
+msgstr "Kirjaudu sisään"
+
 msgid "Makes sure the device is always on the VPN tunnel."
 msgstr "Varmistaa, että laite on aina yhteydessä VPN-tunnelin kautta."
 
@@ -3110,8 +3123,17 @@ msgstr "Lisää toimintoja"
 msgid "Mullvad services unavailable"
 msgstr "Mullvad-palvelut eivät ole käytettävissä"
 
+msgid "Multihop is disabled"
+msgstr "Multihop ei ole käytössä"
+
+msgid "Multihop is enabled"
+msgstr "Multihop on käytössä"
+
 msgid "Name was changed to %s"
 msgstr "Nimeksi vaihdettiin \"%s\""
+
+msgid "Navigate"
+msgstr "Siirry"
 
 msgid "New list"
 msgstr "Uusi luettelo"
@@ -3152,8 +3174,14 @@ msgstr "Haulle \"%s\" ei löytynyt tuloksia. Kokeile toista hakua."
 msgid "Not found"
 msgstr "Ei löydy"
 
+msgid "Notes"
+msgstr "Huomautukset"
+
 msgid "Obfuscation hides the WireGuard traffic inside another protocol. It can be used to help circumvent censorship and other types of filtering, where a plain WireGuard connection would be blocked."
 msgstr "Hämäysteknologian käyttäminen piilottaa WireGuard-liikenteen toisen protokollan sisään. Sitä voidaan käyttää kiertämään sensuuria ja muita suodatuksia niissä tapauksissa, kun tavallinen WireGuard-yhteys muutoin estettäisi."
+
+msgid "On TV devices you may also need to restart your device."
+msgstr "TV-laitteilla saatat myös joutua käynnistämään laitteesi uudelleen."
 
 msgid "Open app details"
 msgstr "Avaa sovelluksen tiedot"
@@ -3236,11 +3264,20 @@ msgstr "Haku"
 msgid "Send email"
 msgstr "Lähetä sähköpostia"
 
-msgid "Set %s obfuscation to \"Automatic\" or \"Off\" below to activate this setting."
-msgstr "Jotta voit käyttää tätä asetusta, poista %s-hämäysteknologia käytöstä tai säädä sen asetukseksi \"Automaattinen\" alta."
-
 msgid "Set WireGuard MTU value. Valid range: %1$d - %2$d."
 msgstr "Aseta WireGuardin MTU-arvo väliltä %1$d–%2$d."
+
+msgid "Set as multihop entry"
+msgstr "Aseta multihopin tulopaikaksi"
+
+msgid "Set as multihop entry (incompatible)"
+msgstr "Aseta multihopin tulopaikaksi (epäyhteensopiva)"
+
+msgid "Set as multihop exit"
+msgstr "Aseta multihopin lähtöpaikaksi"
+
+msgid "Set as multihop exit (incompatible)"
+msgstr "Aseta multihopin lähtöpaikaksi (epäyhteensopiva)"
 
 msgid "Set port"
 msgstr "Määritä portti"
@@ -3301,6 +3338,9 @@ msgstr "Paikallinen DNS-palvelin ei toimi, ellet ota paikallisen verkon jakamist
 
 msgid "The selected %s port is not supported, please change it under"
 msgstr "Valittua %s-porttia ei tueta. Vaihda portti"
+
+msgid "These methods may be useful in situations where you are blocked from reaching Mullvad. When “Automatic” is selected, the app will attempt all methods until one works."
+msgstr "Nämä tavat voivat olla hyödyllisiä tilanteissa, joissa sinua on estetty pääsemästä Mullvadiin. Kun \"automaattinen\" valitaan, sovellus kokeilee kaikkia tapoja, kunnes jokin niistä toimii."
 
 msgid "This address has already been entered."
 msgstr "Tämä osoite on annettu jo."
@@ -3395,8 +3435,14 @@ msgstr "VPN:n käyttöoikeus evättiin tai toisella sovelluksella on aina pääl
 msgid "VPN tunnel status"
 msgstr "VPN-tunnelin tila"
 
+msgid "Valid range for all servers: %s"
+msgstr "Kelvollinen väli kaikille palvelimille: %s"
+
 msgid "Valid ranges: %s"
 msgstr "Kelvolliset portit: %s"
+
+msgid "Value: %s"
+msgstr "Arvo: %s"
 
 msgid "Verifying API method..."
 msgstr "Vahvistetaan API-menetelmää..."
@@ -3410,6 +3456,9 @@ msgstr "Ostosta vahvistetaan..."
 msgid "Verifying voucher…"
 msgstr "Kuponkia vahvistetaan…"
 
+msgid "Warning"
+msgstr "Varoitus"
+
 msgid "We are still verifying your purchase, this might take some time. Your time will be added if the verification is successful."
 msgstr "Vahvistamme vielä ostostasi. Siinä saattaa vierähtää jonkin aikaa. Tilillesi lisätään käyttöaikaa, kunhan ostoksen vahvistus onnistuu."
 
@@ -3419,20 +3468,23 @@ msgstr "Emme pystyneet aloittamaan maksun käsittelyä. Varmista, että käytät
 msgid "We were unable to start the payment process, please try again later."
 msgstr "Emme pystyneet aloittamaan maksun käsittelyä. Yritä myöhemmin uudelleen."
 
+msgid "Weather"
+msgstr "Sää"
+
 msgid "Welcome, this device is now called <b>%s</b>."
 msgstr "Tervetuloa! Tämän laitteen nimi on nyt <b>%s</b>."
-
-msgid "WireGuard MTU"
-msgstr "WireGuard MTU"
-
-msgid "WireGuard obfuscation"
-msgstr "WireGuard-obfuskointi"
 
 msgid "WireGuard port"
 msgstr "WireGuard-portti"
 
 msgid "Yes, log out device"
 msgstr "Kyllä, kirjaa laite ulos"
+
+msgid "You can add more time via the account view or website to continue using the VPN."
+msgstr "Voit lisätä aikaa tilinäkymän tai verkkosivuston kautta, jotta voit jatkaa VPN:n käyttöä."
+
+msgid "You can add more time via the account view to continue using the VPN."
+msgstr "Voit jatkaa VPN:n käyttöä lisäämällä aikaa tilinäkymän kautta."
 
 msgid "\"%s\" was created"
 msgstr "\"%s\" luotiin"
@@ -3469,6 +3521,16 @@ msgid "%d month"
 msgid_plural "%d months"
 msgstr[0] "%d kuukausi"
 msgstr[1] "%d kuukautta"
+
+msgid "1 day left on this account"
+msgid_plural "%d days left on this account"
+msgstr[0] "1 päivä jäljellä tällä tilillä"
+msgstr[1] "%d päivää jäljellä tällä tilillä"
+
+msgid "1 year left on this account"
+msgid_plural "%d years left on this account"
+msgstr[0] "1 vuosi jäljellä tällä tilillä"
+msgstr[1] "%d vuotta jäljellä tällä tilillä"
 
 msgid "Account credit expires in a day"
 msgid_plural "Account credit expires in %d days"

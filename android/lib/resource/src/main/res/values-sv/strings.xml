@@ -14,9 +14,11 @@
     <string name="add_method">Lägg till metod</string>
     <string name="add_time">Lägg till tid</string>
     <string name="add_time_to_account">Du kan antingen köpa kredit på vår webbplats eller lösa in en kupong.</string>
+    <string name="add_to_list">Lägg till i listan</string>
     <string name="added_to_your_account">%1$s har lagts till i ditt konto.</string>
     <string name="adding_method">Lägger till metod ...</string>
     <string name="agree_and_continue">Godkänn och fortsätt</string>
+    <string name="all">Alla</string>
     <string name="all_applications">Alla applikationer</string>
     <string name="all_locations">Alla platser</string>
     <string name="all_providers">Alla leverantörer</string>
@@ -27,6 +29,8 @@
     <string name="android_16_upgrade_warning_message">Android 16 har ett känt fel. Starta om din enhet och försök igen. Om du vill veta mer</string>
     <string name="android_16_upgrade_warning_title">Kan du inte ansluta?</string>
     <string name="anti_censorship">Anti-censur</string>
+    <string name="anti_censorship_info_first_paragraph">Dessa metoder kan vara användbara i situationer där du blockeras från att nå Mullvad. När \"Automatiskt\" är valt försöker appen med alla metoder tills en fungerar.</string>
+    <string name="anti_censorship_info_second_paragraph">&lt;b&gt;Observera att dessa metoder inte förbättrar prestandan och kan komma att öka systemanvändningen och batteriförbrukningen.&lt;/b&gt;</string>
     <string name="any">Valfri</string>
     <string name="api_access_description">Hantera och lägg till anpassade metoder för att komma åt Mullvad API.</string>
     <string name="api_access_method_info_first_line">Appen måste kommunicera med en Mullvad API-server för att logga in dig, hämta serverlistor och andra viktiga åtgärder.</string>
@@ -39,7 +43,15 @@
     <string name="api_unreachable_save_anyway">API kan inte nås, spara metod ändå?</string>
     <string name="app_info">Appinfo</string>
     <string name="app_is_blocking_internet">Appen blockerar internet, koppla först från anslutningen</string>
+    <string name="app_name_browser">Webbläsare</string>
+    <string name="app_name_notes">Anteckningar</string>
+    <string name="app_name_weather">Väder</string>
+    <string name="appearance">Utseende</string>
+    <string name="appearance_description">Ändra titeln och ikonen för Mullvad VPN-appen på Android-enheten. Detta ändrar inte ikonen för Mullvad VPN-relaterade aviseringar.</string>
+    <string name="appearance_description_warning">&lt;b&gt;Obs!&lt;/b&gt; Appen stängs automatiskt och måste öppnas igen manuellt efter att du väljer en ny ikon och titel. Detta påverkar inte din VPN-anslutning.</string>
+    <string name="appearance_description_warning_tv">På TV-enheter kanske du också måste starta om enheten.</string>
     <string name="apply">Använd</string>
+    <string name="applying_changes">Tillämpar ändringar …</string>
     <string name="at_least_on_method_needs_to_enabled">Minst en metod måste vara aktiverad</string>
     <string name="auth_failed">Det går inte att autentisera kontot. Skicka en problemrapport.</string>
     <string name="authentication">Autentisering</string>
@@ -115,6 +127,8 @@
     <string name="custom_port_dialog_remove">Ta bort anpassad port</string>
     <string name="custom_port_dialog_submit">Ställ in port</string>
     <string name="custom_port_dialog_valid_ranges">Giltiga intervall: %1$s</string>
+    <string name="custom_port_recommended_range_first">&lt;b&gt;Obs!&lt;/b&gt; Enbart några servrar har stöd för hela portintervallet.</string>
+    <string name="custom_port_recommended_range_second">Giltigt intervall för alla servrar: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Det går inte att lösa värd för anpassad tunnel. Försök att ändra inställningarna.</string>
     <string name="daita_description_slide_1_first_paragraph">Obs! Detta ökar nätverkstrafiken men påverkar också hastighet, fördröjning och batterianvändning negativt. Var försiktig om du har ett abonnemang med begränsad datamängd.</string>
     <string name="daita_description_slide_1_second_paragraph">%1$s (%2$s) döljer mönster i din krypterade VPN-trafik.</string>
@@ -142,6 +156,7 @@
     <string name="device_name_info_first_paragraph">Det här är namnet som tilldelas enheten. Varje enhet som är inloggad på ett Mullvad-konto får ett unikt namn som hjälper dig att identifiera den när du hanterar dina enheter i appen eller på webbplatsen.</string>
     <string name="device_name_info_second_paragraph">Upp till fem enheter kan vara inloggade på ett Mullvad-konto.</string>
     <string name="device_name_info_third_paragraph">Om du loggar ut tas enheten och enhetsnamnet bort. När du loggar in igen får enheten ett nytt namn.</string>
+    <string name="direct">Direkt</string>
     <string name="direct_only">Endast direkt</string>
     <string name="direct_only_description">Det är inte alla våra servrar som är %1$s-aktiverade. Om du vill använda internet kanske du måste välja en ny plats efter aktivering.</string>
     <string name="disable_multihop">Inaktivera multihopp</string>
@@ -188,6 +203,7 @@
     <string name="exclude_applications">Exkluderade applikationer</string>
     <string name="exit">Utgång</string>
     <string name="expand">Visa</string>
+    <string name="external_link">Extern länk</string>
     <string name="failed_to_block_internet">Det går inte att blockera all nätverkstrafik. Felsök eller skicka en problemrapport.</string>
     <string name="failed_to_create_account">Det gick inte att skapa konto</string>
     <string name="failed_to_fetch_devices">Det gick inte att hämta lista med enheter</string>
@@ -210,6 +226,7 @@
     <string name="here_is_your_account_number">Här är ditt kontonummer. Spara det!</string>
     <string name="hide_account_number">Dölj kontonummer</string>
     <string name="hint_default">Standard</string>
+    <string name="icon_and_title">Ikon och titel</string>
     <string name="import_override_textfield_placeholder">Klistra in eller skriv åsidosättningar som ska importeras</string>
     <string name="import_overrides_bottom_sheet_override_warning">Om du importerar nya åsidosättningar kan tidigare importerade åsidosättningar ersättas.</string>
     <string name="import_overrides_import">Importera</string>
@@ -230,6 +247,7 @@
     <string name="is_offline">Din enhet är offline. Tunneln ansluts automatiskt när din enhet är online igen.</string>
     <string name="legacy_always_on_vpn_error_notification_content">Det går inte att starta tunnelanslutning. Inaktivera Alltid på-VPN innan du använder Mullvad VPN.</string>
     <string name="legacy_always_on_vpn_error_notification_title">Alltid på-VPN har tilldelats en annan VPN</string>
+    <string name="less_than_a_day_left">Mindre än en dag kvar på kontot</string>
     <string name="less_than_one_day">mindre än en dag</string>
     <string name="list_name">Listnamn</string>
     <string name="loading_products">Läser in produkter</string>
@@ -243,6 +261,7 @@
     <string name="location_was_removed_from_list">%1$s har tagits bort från \"%2$s\"</string>
     <string name="locations">Platser</string>
     <string name="locations_were_changed_for">Platserna har ändrats för \"%1$s\"</string>
+    <string name="log_in">Logga in</string>
     <string name="log_out">Logga ut</string>
     <string name="logged_in_description">Giltigt kontonummer</string>
     <string name="logged_in_title">Inloggad</string>
@@ -268,12 +287,16 @@
     <string name="more_actions">Fler åtgärder</string>
     <string name="more_information">Mer information</string>
     <string name="mtu">MTU</string>
+    <string name="mtu_x">Värde: %1$s</string>
     <string name="mullvad_owned_only">Endast Mullvad-ägd</string>
     <string name="multihop">Multihopp</string>
     <string name="multihop_description">Multihopp dirigerar din trafik till en WireGuard-server och ut genom en annan, vilket gör det svårare att spåra. Detta leder till ökad fördröjning men bättre anonymitet online.</string>
     <string name="multihop_entry_disabled_description">Startservern för %1$s åsidosätts för tillfället av %2$s. Om du vill välja en startserver ska du först aktivera \"%3$s\" eller inaktivera \"%2$s\" i inställningarna.</string>
+    <string name="multihop_is_disabled">Multihopp är inaktiverat</string>
+    <string name="multihop_is_enabled">Multihopp är aktiverat</string>
     <string name="name">Namn</string>
     <string name="name_was_changed_to">Namnet har ändrats till %1$s</string>
+    <string name="navigate">Navigera</string>
     <string name="new_changelog_notification_message">Klicka här för att se nyheterna.</string>
     <string name="new_changelog_notification_title">NY VERSION INSTALLERAD</string>
     <string name="new_device_notification_message">Välkommen. Den här enheten har fått namnet &lt;b&gt;%1$s&lt;/b&gt;.</string>
@@ -291,6 +314,7 @@
     <string name="none">Inget</string>
     <string name="not_found">Hittades inte</string>
     <string name="number_of_providers">Leverantörer: %1$d</string>
+    <string name="number_parentheses">(%1$d)</string>
     <string name="obfuscation_info">Obfuskering döljer WireGuard-trafik inne i ett annat protokoll. Det kan användas för att kringgå censur och andra filtertyper där en vanlig WireGuard-anslutning skulle blockeras.</string>
     <string name="obfuscation_info_shadowsocks_batteryusage">Obs! Shadowsocks kan öka batteriförbrukningen beroende på dataanvändningen, som till exempel att strömma en video.</string>
     <string name="off">Av</string>
@@ -372,6 +396,10 @@
     <string name="server_ip_overrides_reset_body">Alla åsidosättningar återställs och servrarnas IP-adresser i vyn Välj plats återgår till standard.</string>
     <string name="server_ip_overrides_reset_reset_button">Återställ</string>
     <string name="server_ip_overrides_reset_title">Återställ alla åsidosättningar</string>
+    <string name="set_as_multihop_entry">Ange som första multihopp</string>
+    <string name="set_as_multihop_entry_unavailable">Ange som första multihopp (inte kompatibelt)</string>
+    <string name="set_as_multihop_exit">Ange som sista multihopp</string>
+    <string name="set_as_multihop_exit_unavailable">Ange som sista multihopp (inte kompatibelt)</string>
     <string name="set_dns_error">Det går inte att konfigurera DNS-server. Skicka en problemrapport.</string>
     <string name="set_firewall_policy_error">Det går inte att tillämpa brandväggsregler. Felsök eller skicka en problemrapport.</string>
     <string name="setting_chip">Inställning: %1$s</string>
@@ -446,6 +474,7 @@
     <string name="vpn_permission_error_notification_message">Tryck på anslut för att begära VPN-behörighet</string>
     <string name="vpn_permission_error_notification_title">Behörighetsfel med VPN</string>
     <string name="vpn_settings_not_available">VPN-inställningarna är inte tillgängliga på enheten</string>
+    <string name="warning">Varning</string>
     <string name="we_will_look_into_this">Vi kommer att undersöka detta.</string>
     <string name="wireguard_custon_port_title">Anpassad</string>
     <string name="wireguard_mtu_footer">Ange WireGuard MTU-värde. Giltigt intervall: %1$d–%2$d.</string>
@@ -457,4 +486,6 @@
     <string name="x_entry">%1$s (start)</string>
     <string name="x_exit">%1$s (slut)</string>
     <string name="x_via_x">%1$s via %2$s</string>
+    <string name="you_can_add_more_time_oss">Du kan lägga till mer tid via kontovyn eller webbplatsen för att fortsätta använda VPN.</string>
+    <string name="you_can_add_more_time_play">Du kan lägga till mer tid via kontovyn för att fortsätta använda VPN.</string>
 </resources>
