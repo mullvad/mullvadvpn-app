@@ -14,9 +14,11 @@
     <string name="add_method">Methode toevoegen</string>
     <string name="add_time">Tijd toevoegen</string>
     <string name="add_time_to_account">Koop krediet op onze website of wissel een voucher in.</string>
+    <string name="add_to_list">Toevoegen aan lijst</string>
     <string name="added_to_your_account">%1$s is toegevoegd aan uw account.</string>
     <string name="adding_method">Methode toevoegen ...</string>
     <string name="agree_and_continue">Akkoord en doorgaan</string>
+    <string name="all">Alles</string>
     <string name="all_applications">Alle toepassingen</string>
     <string name="all_locations">Alle locaties</string>
     <string name="all_providers">Alle aanbieders</string>
@@ -27,6 +29,8 @@
     <string name="android_16_upgrade_warning_message">Er is een bekend probleem met Android 16. Start uw apparaat opnieuw op en probeer het opnieuw. Voor meer informatie:</string>
     <string name="android_16_upgrade_warning_title">Krijgt u geen verbinding?</string>
     <string name="anti_censorship">Anti-censuur</string>
+    <string name="anti_censorship_info_first_paragraph">Deze methoden kunnen nuttig zijn in situaties waarin de toegang tot Mullvad is geblokkeerd. Als \"Automatisch\" is geselecteerd, probeert de app alle methoden totdat er een werkt.</string>
+    <string name="anti_censorship_info_second_paragraph">&lt;b&gt;Houd er rekening mee dat deze methoden niet de prestaties verbeteren en mogelijk zorgen voor een hogere belasting van systeembronnen en meer energieverbruik.&lt;/b&gt;</string>
     <string name="any">Elke</string>
     <string name="api_access_description">Beheer en voeg aangepaste methoden toe om toegang te krijgen tot de Mullvad-API.</string>
     <string name="api_access_method_info_first_line">De app moet communiceren met een Mullvad-API-server om u aan te melden, serverlijsten op te halen en andere belangrijke handelingen uit te voeren.</string>
@@ -39,7 +43,15 @@
     <string name="api_unreachable_save_anyway">API onbereikbaar, methode toch opslaan?</string>
     <string name="app_info">Appinfo</string>
     <string name="app_is_blocking_internet">De app blokkeert internet. Verbreek eerst de verbinding</string>
+    <string name="app_name_browser">Browser</string>
+    <string name="app_name_notes">Opmerkingen</string>
+    <string name="app_name_weather">Weer</string>
+    <string name="appearance">Uiterlijk</string>
+    <string name="appearance_description">Wijzig de titel en het pictogram van de Mullvad VPN-app op uw Android-apparaat. Dit wijzigt het pictogram voor Mullvad VPN-gerelateerde meldingen niet.</string>
+    <string name="appearance_description_warning">&lt;b&gt;Let op:&lt;/b&gt; de app wordt automatisch gesloten en moet handmatig opnieuw worden geopend na het selecteren van een nieuw pictogram en een nieuwe titel. Dit heeft geen invloed op uw VPN-verbinding.</string>
+    <string name="appearance_description_warning_tv">Op tv-apparaten moet u uw apparaat mogelijk ook opnieuw opstarten.</string>
     <string name="apply">Toevoegen</string>
+    <string name="applying_changes">Wijzigingen toepassen...</string>
     <string name="at_least_on_method_needs_to_enabled">Er moet minimaal één methode ingeschakeld zijn</string>
     <string name="auth_failed">Kan account niet verifiëren. Stuur een probleemrapport.</string>
     <string name="authentication">Authenticatie</string>
@@ -115,6 +127,8 @@
     <string name="custom_port_dialog_remove">Aangepaste poort verwijderen</string>
     <string name="custom_port_dialog_submit">Poort instellen</string>
     <string name="custom_port_dialog_valid_ranges">Geldige bereiken: %1$s</string>
+    <string name="custom_port_recommended_range_first">&lt;b&gt;Let op:&lt;/b&gt; alleen sommige servers ondersteunen het volledige poortbereik.</string>
+    <string name="custom_port_recommended_range_second">Geldig bereik voor alle servers: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Kan host van aangepaste tunnel niet omzetten. Probeer uw instellingen te wijzigen.</string>
     <string name="daita_description_slide_1_first_paragraph">Let op: dit verhoogt het netwerkverkeer en heeft een negatieve invloed op de snelheid, de latentie en het batterijverbruik. Gebruik dit voorzichtig bij beperkte abonnementen.</string>
     <string name="daita_description_slide_1_second_paragraph">%1$s (%2$s) verbergt patronen in uw versleutelde VPN-verkeer.</string>
@@ -142,6 +156,7 @@
     <string name="device_name_info_first_paragraph">Dit is de naam die aan het apparaat is toegewezen. Elk apparaat dat is aangemeld op een Mullvad-account, krijgt een unieke naam waarmee u het kunt identificeren wanneer u uw apparaten beheert in de app of op de website.</string>
     <string name="device_name_info_second_paragraph">U kunt maximaal 5 apparaten aangemeld hebben op één Mullvad-account.</string>
     <string name="device_name_info_third_paragraph">Als u zich afmeldt, worden het apparaat en de apparaatnaam verwijderd. Wanneer u zich weer aanmeldt, krijgt het apparaat een nieuwe naam.</string>
+    <string name="direct">Rechtstreeks</string>
     <string name="direct_only">Alleen rechtstreeks</string>
     <string name="direct_only_description">Niet al onze servers zijn geschikt voor %1$s. Om het internet te kunnen gebruiken, moet u na het inschakelen mogelijk een nieuwe locatie selecteren.</string>
     <string name="disable_multihop">Multihop uitschakelen</string>
@@ -188,6 +203,7 @@
     <string name="exclude_applications">Uitgesloten toepassingen</string>
     <string name="exit">Uitgang</string>
     <string name="expand">Uitvouwen</string>
+    <string name="external_link">Externe link</string>
     <string name="failed_to_block_internet">Kan niet alle netwerkverkeer blokkeren. Los problemen op of stuur een probleemmelding.</string>
     <string name="failed_to_create_account">Account aanmaken mislukt</string>
     <string name="failed_to_fetch_devices">Ophalen van lijst van apparaten mislukt</string>
@@ -210,6 +226,7 @@
     <string name="here_is_your_account_number">Hier is uw accountnummer. Sla het op!</string>
     <string name="hide_account_number">Accountnummer verbergen</string>
     <string name="hint_default">Standaard</string>
+    <string name="icon_and_title">Pictogram en titel</string>
     <string name="import_override_textfield_placeholder">Plak of schrijf overschrijvingen om te importeren</string>
     <string name="import_overrides_bottom_sheet_override_warning">Het importeren van nieuwe overschrijvingen kan sommige eerder geïmporteerde overschrijvingen vervangen.</string>
     <string name="import_overrides_import">Importeren</string>
@@ -230,6 +247,7 @@
     <string name="is_offline">Uw apparaat is offline. De tunnel wordt automatisch verbonden wanneer uw apparaat weer online is.</string>
     <string name="legacy_always_on_vpn_error_notification_content">Kan de tunnelverbinding niet starten. Schakel Altijd-aan VPN uit voordat u Mullvad VPN gebruikt.</string>
     <string name="legacy_always_on_vpn_error_notification_title">Altijd-aan VPN toegewezen aan andere VPN</string>
+    <string name="less_than_a_day_left">Minder dan een dag resterend op dit account</string>
     <string name="less_than_one_day">minder dan één dag</string>
     <string name="list_name">Lijstnaam</string>
     <string name="loading_products">Producten worden geladen</string>
@@ -243,6 +261,7 @@
     <string name="location_was_removed_from_list">%1$s is verwijderd uit \"%2$s\"</string>
     <string name="locations">Locaties</string>
     <string name="locations_were_changed_for">Locaties zijn gewijzigd voor \"%1$s\"</string>
+    <string name="log_in">Aanmelden</string>
     <string name="log_out">Afmelden</string>
     <string name="logged_in_description">Geldig accountnummer</string>
     <string name="logged_in_title">Aangemeld</string>
@@ -268,12 +287,16 @@
     <string name="more_actions">Andere acties</string>
     <string name="more_information">Meer informatie</string>
     <string name="mtu">MTU</string>
+    <string name="mtu_x">Waarde: %1$s</string>
     <string name="mullvad_owned_only">Alleen in eigendom van Multivad</string>
     <string name="multihop">Multihop</string>
     <string name="multihop_description">Multihop leidt uw verkeer de ene WireGuard-server in en de andere uit, waardoor het moeilijker te traceren is. Dit leidt tot een hogere latentie, maar verhoogt de online anonimiteit.</string>
     <string name="multihop_entry_disabled_description">De ingangsserver voor %1$s is momenteel overschreven door %2$s. Om een ingangsserver te selecteren, moet u eerst \"%3$s\" inschakelen of \"%2$s\" uitschakelen in de instellingen.</string>
+    <string name="multihop_is_disabled">Multihop is uitgeschakeld</string>
+    <string name="multihop_is_enabled">Multihop is ingeschakeld</string>
     <string name="name">Naam</string>
     <string name="name_was_changed_to">Naam is gewijzigd in %1$s</string>
+    <string name="navigate">Navigeren</string>
     <string name="new_changelog_notification_message">Klik hier om te zien wat er nieuw is.</string>
     <string name="new_changelog_notification_title">NIEUWE VERSIE GEÏNSTALLEERD</string>
     <string name="new_device_notification_message">Welkom. De naam van dit apparaat is nu &lt;b&gt;%1$s&lt;/b&gt;.</string>
@@ -291,6 +314,7 @@
     <string name="none">Geen</string>
     <string name="not_found">Niet gevonden</string>
     <string name="number_of_providers">Providers: %1$d</string>
+    <string name="number_parentheses">(%1$d)</string>
     <string name="obfuscation_info">Obfuscatie verbergt het WireGuard-verkeer in een ander protocol. Het kan worden gebruikt om censuur en andere soorten filtering te omzeilen, waar een gewone WireGuard-verbinding zou worden geblokkeerd.</string>
     <string name="obfuscation_info_shadowsocks_batteryusage">Let op: Shadowsocks kan het batterijverbruik verhogen afhankelijk van het gegevensgebruik, zoals het streamen van een video.</string>
     <string name="off">Uit</string>
@@ -372,6 +396,10 @@
     <string name="server_ip_overrides_reset_body">Alle overschrijvingen worden gereset en IP-adressen van servers in Locatie selecteren worden teruggezet naar de standaardwaarden.</string>
     <string name="server_ip_overrides_reset_reset_button">Resetten</string>
     <string name="server_ip_overrides_reset_title">Alle overschrijvingen resetten</string>
+    <string name="set_as_multihop_entry">Instellen als multihop-ingang</string>
+    <string name="set_as_multihop_entry_unavailable">Instellen als multihop-ingang (incompatibel)</string>
+    <string name="set_as_multihop_exit">Instellen als multihop-uitgang</string>
+    <string name="set_as_multihop_exit_unavailable">Instellen als multihop-uitgang (incompatibel)</string>
     <string name="set_dns_error">Kan DNS-server van systeem niet instellen. Stuur een probleemrapport.</string>
     <string name="set_firewall_policy_error">Kan firewallregels niet toepassen. Los problemen op of stuur een probleemmelding.</string>
     <string name="setting_chip">Instelling: %1$s</string>
@@ -446,6 +474,7 @@
     <string name="vpn_permission_error_notification_message">Druk op Verbinding maken om VPN-toestemming te verzoeken</string>
     <string name="vpn_permission_error_notification_title">VPN-machtigingsfout</string>
     <string name="vpn_settings_not_available">VPN-instellingen niet beschikbaar op apparaat</string>
+    <string name="warning">Waarschuwing</string>
     <string name="we_will_look_into_this">We gaan het bekijken.</string>
     <string name="wireguard_custon_port_title">Aangepast</string>
     <string name="wireguard_mtu_footer">Stel de MTU-waarde voor WireGuard in. Geldig bereik: %1$d - %2$d.</string>
@@ -457,4 +486,6 @@
     <string name="x_entry">%1$s (ingang)</string>
     <string name="x_exit">%1$s (uitgang)</string>
     <string name="x_via_x">%1$s via %2$s</string>
+    <string name="you_can_add_more_time_oss">U kunt meer tijd toevoegen via de accountweergave of via de website om de VPN te blijven gebruiken.</string>
+    <string name="you_can_add_more_time_play">U kunt meer tijd toevoegen via de accountweergave om de VPN te blijven gebruiken.</string>
 </resources>

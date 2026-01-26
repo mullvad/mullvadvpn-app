@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Turkish\n"
 "Language: tr_TR\n"
-"PO-Revision-Date: 2025-12-08 09:00\n"
+"PO-Revision-Date: 2026-01-22 08:54\n"
 
 msgid "%(amount)d more..."
 msgstr "%(amount)d tane daha..."
@@ -319,10 +319,6 @@ msgid "%(wireguard)s port settings"
 msgstr "%(wireguard)s port ayarları"
 
 msgctxt "accessibility"
-msgid "Add new custom bridge"
-msgstr "Yeni özel köprü ekle"
-
-msgctxt "accessibility"
 msgid "Close notification"
 msgstr "Bildirimi kapat"
 
@@ -336,9 +332,10 @@ msgctxt "accessibility"
 msgid "Copy account number"
 msgstr "Hesap numarasını kopyala"
 
+#. Accessibility label for a carousel that explains the DAITA feature to the user.
 msgctxt "accessibility"
-msgid "Edit custom bridge"
-msgstr "Özel köprüyü düzenle"
+msgid "DAITA information carousel"
+msgstr "DAITA bilgi bandı"
 
 msgctxt "accessibility"
 msgid "Expand %(location)s"
@@ -364,15 +361,28 @@ msgctxt "accessibility"
 msgid "Go to app update page"
 msgstr "Uygulama güncelleme sayfasına git"
 
+#. Accessibility label for carousel indicators that allow navigation between slides.
+#. Available placeholders:
+#. %(index)s - Will be replaced with the slide index number.
+msgctxt "accessibility"
+msgid "Go to slide %(index)s"
+msgstr "%(index)s. slayta git"
+
 #. Provided to accessibility tools such as screenreaders to describe
 #. the button which obscures the account number.
 msgctxt "accessibility"
 msgid "Hide account number"
 msgstr "Hesap numarasını gizle"
 
+#. Alt text for an illustration showing VPN traffic with DAITA.
 msgctxt "accessibility"
-msgid "info"
-msgstr "bilgiler"
+msgid "Illustration showing VPN traffic with DAITA enabled"
+msgstr "İllüstrasyon: DAITA etkinleştirilmiş VPN trafiği"
+
+#. Alt text for an illustration showing VPN traffic without DAITA.
+msgctxt "accessibility"
+msgid "Illustration showing VPN traffic without DAITA"
+msgstr "İllüstrasyon: DAITA etkinleştirilmemiş VPN trafiği"
 
 #. This is used by screenreaders to communicate the login button.
 msgctxt "accessibility"
@@ -403,10 +413,20 @@ msgctxt "accessibility"
 msgid "New version installed, click here to see the changelog"
 msgstr "Yeni sürüm yüklendi, değişiklik günlüğünü görmek için buraya tıklayın"
 
+#. Accessibility label for a button that navigates to the next slide in a carousel.
+msgctxt "accessibility"
+msgid "Next slide"
+msgstr "Sonraki slayt"
+
 #. Accessibility label for the button that opens the browser to buy credit.
 msgctxt "accessibility"
 msgid "Opens externally"
 msgstr "Harici bir tarayıcı penceresini açar"
+
+#. Accessibility label for a button that navigates to the previous slide in a carousel.
+msgctxt "accessibility"
+msgid "Previous slide"
+msgstr "Önceki slayt"
 
 #. Button action description provided to accessibility tools such as screen
 #. readers.
@@ -1026,32 +1046,12 @@ msgid "%(relay)s via %(entry)s"
 msgstr "%(entry)s aracılığıyla %(relay)s"
 
 msgctxt "connection-info"
-msgid "%(relay)s via Custom bridge"
-msgstr "Özel köprü üzerinden %(relay)s"
-
-msgctxt "connection-info"
 msgid "In"
 msgstr "Giriş"
 
 msgctxt "connection-info"
 msgid "Out"
 msgstr "Çıkış"
-
-msgctxt "custom-bridge"
-msgid "Add custom bridge"
-msgstr "Özel köprü ekle"
-
-msgctxt "custom-bridge"
-msgid "Delete custom bridge?"
-msgstr "Özel köprü silinsin mi?"
-
-msgctxt "custom-bridge"
-msgid "Deleting the custom bridge will take you back to the select location view and the Automatic option will be selected instead."
-msgstr "Özel köprünün silinmesi sizi konum seçme görünümüne geri götürür ve bunun yerine Otomatik seçeneği belirlenir."
-
-msgctxt "custom-bridge"
-msgid "Edit custom bridge"
-msgstr "Özel köprüyü düzenle"
 
 #. Button for continuing login process.
 msgctxt "device-management"
@@ -1851,10 +1851,6 @@ msgctxt "select-location-view"
 msgid "%(location)s (%(info)s)"
 msgstr "%(location)s (%(info)s)"
 
-msgctxt "select-location-view"
-msgid "A custom bridge server can be used to circumvent censorship when regular Mullvad bridge servers don’t work."
-msgstr "Normal Mullvad köprü sunucuları çalışmadığında sansürü aşmak için özel bir köprü sunucusu kullanılabilir."
-
 #. This is a label shown above a list of options.
 #. Available placeholder:
 #. %(locationType) - Could be either "Country", "City" and "Relay"
@@ -1873,10 +1869,6 @@ msgstr "Şehir"
 msgctxt "select-location-view"
 msgid "Country"
 msgstr "Ülke"
-
-msgctxt "select-location-view"
-msgid "Custom bridge"
-msgstr "Özel köprü"
 
 msgctxt "select-location-view"
 msgid "Custom lists"
@@ -1932,10 +1924,6 @@ msgstr "Geçiş"
 msgctxt "select-location-view"
 msgid "Setting: %(settingName)s"
 msgstr "Ayar: %(settingName)s"
-
-msgctxt "select-location-view"
-msgid "The app selects a random bridge server, but servers have a higher probability the closer they are to you."
-msgstr "Uygulama rastgele bir köprü sunucusu seçer, ancak sunucular size ne kadar yakınsa seçilme olasılığı da o kadar fazladır."
 
 msgctxt "select-location-view"
 msgid "The entry server for %(multihop)s is currently overridden by %(daita)s. To select an entry server, please first enable “%(directOnly)s” or disable \"%(daita)s\" in the settings."
@@ -2131,8 +2119,8 @@ msgstr "Mullvad Hizmetini Yeniden Başlat"
 #. Available placeholders:
 #. %(splitTunneling)s - will be replaced with Split tunneling
 msgctxt "split-tunneling-view"
-msgid "To use %(splitTunneling)s, please change to a Linux kernel version that supports cgroup v1."
-msgstr "%(splitTunneling)s özelliğini kullanmak için lütfen cgroup v1'i destekleyen bir Linux çekirdek sürümüne geçin."
+msgid "To use %(splitTunneling)s, please update to a Linux kernel version that supports cgroup v2."
+msgstr "%(splitTunneling)s özelliğini kullanmak için lütfen cgroup v2'yi destekleyen bir Linux çekirdek sürümüne güncelleyin."
 
 msgctxt "split-tunneling-view"
 msgid "To use split tunneling please enable “Full disk access” for “Mullvad VPN” in the macOS system settings."
@@ -2559,10 +2547,6 @@ msgid "Trackers"
 msgstr "İzleyiciler"
 
 msgctxt "vpn-settings-view"
-msgid "Tunnel protocol"
-msgstr "Tünel protokolü"
-
-msgctxt "vpn-settings-view"
 msgid "Use custom DNS server"
 msgstr "Özel DNS sunucusu kullanın"
 
@@ -2704,10 +2688,6 @@ msgid "Shadowsocks"
 msgstr "Shadowsocks"
 
 msgctxt "wireguard-settings-view"
-msgid "Switch to “%(wireguard)s” in Settings > %(tunnelProtocol)s to make %(setting)s available."
-msgstr "%(setting)s özelliğini, Ayarlar > %(tunnelProtocol)s seçeneğinden \"%(wireguard)s\" olarak etkinleştirin."
-
-msgctxt "wireguard-settings-view"
 msgid "The automatic setting will randomly choose from the valid port ranges shown below."
 msgstr "Otomatik ayar, aşağıda gösterilen geçerli port aralıklarından rastgele seçim yapar."
 
@@ -2753,9 +2733,6 @@ msgstr "%s (eklendi)"
 msgid "%s (removed)"
 msgstr "%s (kaldırıldı)"
 
-msgid "%s custom port"
-msgstr "%s özel portu"
-
 msgid "%s is already selected as entry relay"
 msgstr "%s zaten giriş aktarıcısı olarak seçildi"
 
@@ -2770,6 +2747,9 @@ msgstr "%s ayarları."
 
 msgid "%s was added to your account."
 msgstr "%s, hesabınıza eklendi."
+
+msgid "(%d)"
+msgstr "(%d)"
 
 msgid "1. After clicking on the \"Go to VPN settings\" button below, click on the cogwheel next to the \"Mullvad VPN\" name."
 msgstr "1. Aşağıdaki \"VPN ayarlarına git\" düğmesine tıkladıktan sonra \"Mullvad VPN\" adının yanındaki dişli çarka tıklayın."
@@ -2786,6 +2766,15 @@ msgstr "Hesabınıza 30gün eklendi."
 msgid "90 days was added to your account."
 msgstr "Hesabınıza 90 gün eklendi."
 
+msgid "<b>Attention:</b> Only some servers support the full port range."
+msgstr "<b>Dikkat:</b> Sadece bazı sunucular tam bağlantı noktası aralığını destekler."
+
+msgid "<b>Attention:</b> The app will close automatically and needs to be manually opened again after selecting a new icon and title. This will not impact your VPN connection."
+msgstr "<b>Dikkat:</b> Uygulama otomatik olarak kapanacağı için yeni bir simge ve başlık seçildikten sonra manuel olarak tekrar açılması gerekecektir. Bu durum VPN bağlantınızı etkilemez."
+
+msgid "<b>Please note that these methods do not improve performance, and may increase system utilization and battery consumption.</b>"
+msgstr "<b>Bu yöntemlerin performansı iyileştirmediğini ve sistem kullanımı ile pil tüketimini artırabileceğini lütfen göz önünde bulundurun.</b>"
+
 msgid "API reachable, adding method..."
 msgstr "Erişilebilir API, yöntem ekleniyor..."
 
@@ -2795,17 +2784,11 @@ msgstr "API'ye erişilemiyor, yöntem yine de kaydedilsin mi?"
 msgid "Account credit expires in a few minutes"
 msgstr "Hesap kredisinin süresi birkaç dakika içinde doluyor"
 
-msgid "Account credit expires soon"
-msgstr "Hesap kredisinin süresi yakında doluyor"
-
 msgid "Account number is too long, please enter a valid number"
 msgstr "Hesap numarası çok uzun, lütfen geçerli bir numara girin"
 
 msgid "Account time reminders"
 msgstr "Hesap süresi hatırlatıcıları"
-
-msgid "Add %s to list"
-msgstr "%s konumunu listeye ekle"
 
 msgid "Add 30 days time (%s)"
 msgstr "30 gün süre ekleyin (%s)"
@@ -2822,6 +2805,9 @@ msgstr "Konum ekle"
 msgid "Add time"
 msgstr "Süre ekle"
 
+msgid "Add to list"
+msgstr "Listeye ekle"
+
 msgid "Adding method..."
 msgstr "Yöntem ekleniyor..."
 
@@ -2830,6 +2816,9 @@ msgstr "Android 16'da bir VPN uygulaması güncellendikten sonra, cihazlar VPN u
 
 msgid "Agree and continue"
 msgstr "Kabul et ve devam et"
+
+msgid "All"
+msgstr "Tümü"
 
 msgid "All applications"
 msgstr "Tüm uygulamalar"
@@ -2845,6 +2834,12 @@ msgstr "Her zaman açık VPN diğer VPN'e atandı"
 
 msgid "Android 16 has a known issue. Please restart your device and try again. To learn more,"
 msgstr "Android 16'da bilinen bir sorun mevcut. Lütfen cihazınızı yeniden başlatıp tekrar deneyin. Daha fazla bilgi için"
+
+msgid "Appearance"
+msgstr "Görünüm"
+
+msgid "Applying changes..."
+msgstr "Değişiklikler uygulanıyor..."
 
 msgid "Are you sure you want to log <b>%s</b> out?"
 msgstr "<b>%s</b> adlı cihazdan çıkış yapmak istediğinizden emin misiniz?"
@@ -2879,11 +2874,17 @@ msgstr "İnternet bağlantısı engelleniyor (cihaz çevrimdışı)"
 msgid "Blocking..."
 msgstr "Engelleniyor..."
 
+msgid "Browser"
+msgstr "Tarayıcı"
+
 msgid "By attaching your account token it links this report to your account, which helps us resolve your issue quicker. All reports are automatically deleted after a period of time."
 msgstr "Hesap token’ınızı eklediğinizde, bu rapor hesabınızla ilişkilendirilir ve sorununuzun daha kısa sürede çözülmesine yardımcı olur. Tüm raporlar belirli bir süre sonra otomatik olarak silinir."
 
 msgid "Can't connect?"
 msgstr "Bağlanamıyor musunuz?"
+
+msgid "Change the title and icon of the Mullvad VPN app on your Android device. This will not change the icon for any Mullvad VPN related notifications."
+msgstr "Android cihazınızdaki Mullvad VPN uygulamasının başlığını ve simgesini değiştirin. Bu işlem, Mullvad VPN ile ilgili bildirimlerin simgesini değiştirmeyecektir."
 
 msgid "Changes to DNS related settings might not go into effect immediately due to cached results."
 msgstr "DNS ile ilgili ayarlarda yapılan değişiklikler, önbelleğe alınan sonuçlar nedeniyle hemen etkili olmayabilir."
@@ -2915,9 +2916,6 @@ msgstr "Kopyala"
 msgid "Create"
 msgstr "Oluştur"
 
-msgid "Create account"
-msgstr "Hesap oluştur"
-
 msgid "Create new list"
 msgstr "Yeni liste oluştur"
 
@@ -2944,6 +2942,9 @@ msgstr "Yöntemi sil"
 
 msgid "Delete method?"
 msgstr "Yöntem silinsin mi?"
+
+msgid "Direct"
+msgstr "Doğrudan"
 
 msgid "Disable all \"%s\" above to activate this setting."
 msgstr "Bu ayarı etkinleştirmek için yukarıdaki \"%s\" seçeneklerinin tümünü devre dışı bırakın."
@@ -3017,6 +3018,9 @@ msgstr "Hariç tutulan uygulamalar"
 msgid "Expand"
 msgstr "Genişlet"
 
+msgid "External link"
+msgstr "Harici bağlantı"
+
 msgid "FAILED TO CONNECT"
 msgstr "BAĞLANTI KURULAMADI"
 
@@ -3062,6 +3066,9 @@ msgstr "IPv4 mevcut değil. Lütfen \"Cihaz IP sürümü\" ayarını değiştirm
 msgid "IPv6 is not available, please try changing \"Device IP version\" setting."
 msgstr "IPv6 mevcut değil. Lütfen \"Cihaz IP sürümü\" ayarını değiştirmeyi deneyin."
 
+msgid "Icon and title"
+msgstr "Simge ve başlık"
+
 msgid "If the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
 msgstr "Bölünmüş tünelleme özelliği kullanılıyorsa uygulama, yüklü tüm uygulamaların bir listesi için sisteminizi sorgular. Bu liste yalnızca bölünmüş tünelleme görünümünde alınır. Yüklü uygulamaların listesi hiçbir zaman cihazdan gönderilmez."
 
@@ -3086,6 +3093,9 @@ msgstr "Ödeme veya hesapla ilgili sorunlarda daha hızlı yardım almak için h
 msgid "Invalid or missing value \"%1$s\""
 msgstr "Geçersiz veya eksik \"%1$s\" değeri"
 
+msgid "Less than a day left on this account"
+msgstr "Bu hesapta bir günden daha az süre kaldı"
+
 msgid "Lets you select apps that should access the Internet directly without going through the VPN tunnel."
 msgstr "VPN tünelinden geçmeden doğrudan internete erişmesi gereken uygulamaları seçmenizi sağlar."
 
@@ -3101,6 +3111,9 @@ msgstr "Konumlar"
 msgid "Locations were changed for \"%s\""
 msgstr "\"%s\" için konumlar değiştirildi"
 
+msgid "Log in"
+msgstr "Oturum aç"
+
 msgid "Makes sure the device is always on the VPN tunnel."
 msgstr "Cihazın her zaman VPN tünelinde olduğundan emin olun."
 
@@ -3110,8 +3123,17 @@ msgstr "Diğer işlemler"
 msgid "Mullvad services unavailable"
 msgstr "Mullvad hizmetleri kullanılamıyor"
 
+msgid "Multihop is disabled"
+msgstr "Çoklu geçiş devre dışı"
+
+msgid "Multihop is enabled"
+msgstr "Çoklu geçiş etkin"
+
 msgid "Name was changed to %s"
 msgstr "Ad, %s olarak değiştirildi"
+
+msgid "Navigate"
+msgstr "Git"
 
 msgid "New list"
 msgstr "Yeni liste"
@@ -3152,8 +3174,14 @@ msgstr "\"%s\" için sonuç yok, lütfen farklı bir arama yapın"
 msgid "Not found"
 msgstr "Bulunamadı"
 
+msgid "Notes"
+msgstr "Notlar"
+
 msgid "Obfuscation hides the WireGuard traffic inside another protocol. It can be used to help circumvent censorship and other types of filtering, where a plain WireGuard connection would be blocked."
 msgstr "Gizleme, WireGuard trafiğini başka bir protokolün içinde gizler. Normal bir WireGuard bağlantısının engelleneceği sansürü ve diğer filtreleme türlerini aşmaya yardımcı olmak için kullanılabilir."
+
+msgid "On TV devices you may also need to restart your device."
+msgstr "TV cihazlarında cihazınızı yeniden başlatmanız da gerekebilir."
 
 msgid "Open app details"
 msgstr "Uygulama ayrıntılarını aç"
@@ -3236,11 +3264,20 @@ msgstr "Ara"
 msgid "Send email"
 msgstr "E-posta gönder"
 
-msgid "Set %s obfuscation to \"Automatic\" or \"Off\" below to activate this setting."
-msgstr "Bu ayarı etkinleştirmek için aşağıdaki %s gizlemeyi \"Otomatik\" veya \"Kapalı\" olarak ayarlayın."
-
 msgid "Set WireGuard MTU value. Valid range: %1$d - %2$d."
 msgstr "WireGuard MTU değerini ayarlayın. Geçerli aralık: %1$d - %2$d."
+
+msgid "Set as multihop entry"
+msgstr "Çoklu geçiş girişi olarak ayarla"
+
+msgid "Set as multihop entry (incompatible)"
+msgstr "Çoklu geçiş girişi olarak ayarla (uyumlu değil)"
+
+msgid "Set as multihop exit"
+msgstr "Çoklu geçiş çıkışı olarak ayarla"
+
+msgid "Set as multihop exit (incompatible)"
+msgstr "Çoklu geçiş çıkışı olarak ayarla (uyumlu değil)"
 
 msgid "Set port"
 msgstr "Portu ayarla"
@@ -3301,6 +3338,9 @@ msgstr "VPN ayarlarındaki \"Yerel Ağ Paylaşımı\" seçeneğini etkinleştirm
 
 msgid "The selected %s port is not supported, please change it under"
 msgstr "Seçilen %s portu desteklenmiyor, lütfen portu değiştirin:"
+
+msgid "These methods may be useful in situations where you are blocked from reaching Mullvad. When “Automatic” is selected, the app will attempt all methods until one works."
+msgstr "Bu yöntemler, Mullvad erişiminin engellendiği durumlarda faydalı olabilir. \"Otomatik\" seçeneği ayarlandığında uygulama yöntemlerden biri çalışana kadar tüm yöntemleri dener."
 
 msgid "This address has already been entered."
 msgstr "Bu adres zaten girilmiş."
@@ -3395,8 +3435,14 @@ msgstr "VPN izni reddedildi veya başka bir uygulamada \"VPN her zaman açık\" 
 msgid "VPN tunnel status"
 msgstr "VPN tüneli durumu"
 
+msgid "Valid range for all servers: %s"
+msgstr "Tüm sunucular için geçerli aralık: %s"
+
 msgid "Valid ranges: %s"
 msgstr "Geçerli aralıklar: %s"
+
+msgid "Value: %s"
+msgstr "Değer: %s"
 
 msgid "Verifying API method..."
 msgstr "API yöntemi doğrulanıyor..."
@@ -3410,6 +3456,9 @@ msgstr "Satın alma işlemi doğrulanıyor..."
 msgid "Verifying voucher…"
 msgstr "Kupon doğrulanıyor…"
 
+msgid "Warning"
+msgstr "Uyarı"
+
 msgid "We are still verifying your purchase, this might take some time. Your time will be added if the verification is successful."
 msgstr "Satın alma işleminiz doğrulanıyor. Bu işlem biraz zaman alabilir. Süreniz, doğrulama işleminin başarılı olması durumunda eklenecektir."
 
@@ -3419,20 +3468,23 @@ msgstr "Ödeme işlemini başlatamadık. Lütfen Google Play'in en son sürümü
 msgid "We were unable to start the payment process, please try again later."
 msgstr "Ödeme işlemini başlatamadık, lütfen daha sonra tekrar deneyin."
 
+msgid "Weather"
+msgstr "Hava durumu"
+
 msgid "Welcome, this device is now called <b>%s</b>."
 msgstr "Hoş geldiniz, bu cihazın yeni adı artık <b>%s</b>."
-
-msgid "WireGuard MTU"
-msgstr "WireGuard MTU"
-
-msgid "WireGuard obfuscation"
-msgstr "WireGuard gizlemesi"
 
 msgid "WireGuard port"
 msgstr "WireGuard portu"
 
 msgid "Yes, log out device"
 msgstr "Evet, cihazdan çıkış yap"
+
+msgid "You can add more time via the account view or website to continue using the VPN."
+msgstr "VPN kullanmaya devam etmek için hesap görünümünden ya da web sitesinden daha fazla süre ekleyebilirsiniz."
+
+msgid "You can add more time via the account view to continue using the VPN."
+msgstr "VPN kullanmaya devam etmek için hesap görünümünden daha fazla süre ekleyebilirsiniz."
 
 msgid "\"%s\" was created"
 msgstr "\"%s\" oluşturuldu"
@@ -3469,6 +3521,16 @@ msgid "%d month"
 msgid_plural "%d months"
 msgstr[0] "%d ay"
 msgstr[1] "%d ay"
+
+msgid "1 day left on this account"
+msgid_plural "%d days left on this account"
+msgstr[0] "Bu hesapta 1 gün kaldı"
+msgstr[1] "Bu hesapta %d gün kaldı"
+
+msgid "1 year left on this account"
+msgid_plural "%d years left on this account"
+msgstr[0] "Bu hesapta 1 yıl kaldı"
+msgstr[1] "Bu hesapta %d yıl kaldı"
 
 msgid "Account credit expires in a day"
 msgid_plural "Account credit expires in %d days"

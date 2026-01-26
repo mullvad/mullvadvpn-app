@@ -9,6 +9,12 @@
     <plurals name="months">
         <item quantity="other">%1$dヶ月</item>
     </plurals>
+    <plurals name="days_left">
+        <item quantity="other">このアカウントの残り時間は%1$d日です</item>
+    </plurals>
+    <plurals name="years_left">
+        <item quantity="other">このアカウントの残り時間は%1$d年です</item>
+    </plurals>
     <plurals name="account_credit_expires_in_days">
         <item quantity="other">アカウントのクレジットが%1$d日後に無効になります</item>
     </plurals>

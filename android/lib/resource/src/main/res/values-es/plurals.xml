@@ -12,6 +12,14 @@
         <item quantity="one">%1$d mes</item>
         <item quantity="other">%1$d meses</item>
     </plurals>
+    <plurals name="days_left">
+        <item quantity="one">A esta cuenta le queda 1 día</item>
+        <item quantity="other">A esta cuenta le quedan %1$d días</item>
+    </plurals>
+    <plurals name="years_left">
+        <item quantity="one">A esta cuenta le queda 1 año</item>
+        <item quantity="other">A esta cuenta le quedan %1$d años</item>
+    </plurals>
     <plurals name="account_credit_expires_in_days">
         <item quantity="one">El crédito de la cuenta caduca en un día</item>
         <item quantity="other">El crédito de la cuenta caduca en %1$d días</item>

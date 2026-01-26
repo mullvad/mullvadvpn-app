@@ -14,9 +14,11 @@
     <string name="add_method">新增方式</string>
     <string name="add_time">增加時間</string>
     <string name="add_time_to_account">在我們網站上購買點數或兌換憑證。</string>
+    <string name="add_to_list">新增至清單</string>
     <string name="added_to_your_account">%1$s 已新增至您的帳戶。</string>
     <string name="adding_method">正在新增方式…</string>
     <string name="agree_and_continue">同意並繼續</string>
+    <string name="all">全部</string>
     <string name="all_applications">所有應用程式</string>
     <string name="all_locations">所有位置</string>
     <string name="all_providers">所有供應商</string>
@@ -27,6 +29,8 @@
     <string name="android_16_upgrade_warning_message">Android 16 存在已知問題。請重新啟動您的裝置並再試一次。如需更多資訊，</string>
     <string name="android_16_upgrade_warning_title">無法連線嗎？</string>
     <string name="anti_censorship">反審查</string>
+    <string name="anti_censorship_info_first_paragraph">當您無法連上 Mullvad 時，這些方式可能會派上用場。選擇「自動」時，應用程式會嘗試所有方式，直到其中一種成功為止。</string>
+    <string name="anti_censorship_info_second_paragraph">&lt;b&gt;請注意，這些方式不會提升效能，還可能消耗更多系統資源與電力。&lt;/b&gt;</string>
     <string name="any">任何</string>
     <string name="api_access_description">管理並新增自訂方式以存取 Mullvad API。</string>
     <string name="api_access_method_info_first_line">該應用程式需要與 Mulvad API 伺服器通訊，以便您登入、取得伺服器清單並執行其他重要作業。</string>
@@ -39,7 +43,15 @@
     <string name="api_unreachable_save_anyway">無法透過 API 存取，仍要儲存方式嗎？</string>
     <string name="app_info">應用程式資訊</string>
     <string name="app_is_blocking_internet">此應用程式正在封鎖網際網路，請先中斷連線</string>
+    <string name="app_name_browser">瀏覽器</string>
+    <string name="app_name_notes">記事</string>
+    <string name="app_name_weather">天氣</string>
+    <string name="appearance">外觀</string>
+    <string name="appearance_description">變更您 Android 裝置上 Mullvad VPN 應用程式的圖示與標題。這不會變更 Mullvad VPN 相關通知所使用的圖示。</string>
+    <string name="appearance_description_warning">&lt;b&gt;請注意：&lt;/b&gt;應用程式將自動關閉，在選擇新的圖示與標題後，需手動重新開啟。這不會影響您的 VPN 連線。</string>
+    <string name="appearance_description_warning_tv">在電視裝置上，您可能還需要重新啟動裝置。</string>
     <string name="apply">套用</string>
+    <string name="applying_changes">正在套用變更…</string>
     <string name="at_least_on_method_needs_to_enabled">至少需要啟用一種方式</string>
     <string name="auth_failed">無法驗證帳戶。請傳送問題回報。</string>
     <string name="authentication">驗證</string>
@@ -115,6 +127,8 @@
     <string name="custom_port_dialog_remove">移除自訂連接埠</string>
     <string name="custom_port_dialog_submit">設定連接埠</string>
     <string name="custom_port_dialog_valid_ranges">有效範圍：%1$s</string>
+    <string name="custom_port_recommended_range_first">&lt;b&gt;請注意：&lt;/b&gt;並非所有伺服器都支援完整連接埠範圍。</string>
+    <string name="custom_port_recommended_range_second">所有伺服器的有效範圍：%1$s</string>
     <string name="custom_tunnel_host_resolution_error">無法解析自訂通道的主機。請嘗試變更您的設定。</string>
     <string name="daita_description_slide_1_first_paragraph">請注意：這會增加網路流量，並對速度、延遲與電池耗電產生負面影響。若方案流量有限，請謹慎使用。</string>
     <string name="daita_description_slide_1_second_paragraph">%1$s (%2$s) 會在您的加密 VPN 流量中隱藏模式。</string>
@@ -142,6 +156,7 @@
     <string name="device_name_info_first_paragraph">這是系統指派給裝置的名稱。每台登入 Mulvad 帳戶的裝置都會獲得一個獨特名稱，有助於您在應用程式或網站上管理裝置時識別各台裝置。</string>
     <string name="device_name_info_second_paragraph">一個 Mulvad 帳戶最多可以登入 5 台裝置。</string>
     <string name="device_name_info_third_paragraph">如果您登出，則系統會移除裝置和裝置名稱。當您再次登入時，裝置則會獲得新名稱。</string>
+    <string name="direct">直接</string>
     <string name="direct_only">僅直接連線</string>
     <string name="direct_only_description">我們有些伺服器並未啟用 %1$s。若要使用網際網路，您可能必須在啟用後選取新的位置。</string>
     <string name="disable_multihop">停用多點跳躍</string>
@@ -188,6 +203,7 @@
     <string name="exclude_applications">已排除的應用程式</string>
     <string name="exit">出口</string>
     <string name="expand">展開</string>
+    <string name="external_link">外部連結</string>
     <string name="failed_to_block_internet">無法封鎖所有網路流量。請排除故障或傳送問題回報。</string>
     <string name="failed_to_create_account">無法建立帳戶</string>
     <string name="failed_to_fetch_devices">無法取得裝置清單</string>
@@ -210,6 +226,7 @@
     <string name="here_is_your_account_number">以下是您的帳號。請妥善保管！</string>
     <string name="hide_account_number">隱藏帳號</string>
     <string name="hint_default">預設</string>
+    <string name="icon_and_title">圖示與標題</string>
     <string name="import_override_textfield_placeholder">貼上或撰寫要匯入的覆寫設定</string>
     <string name="import_overrides_bottom_sheet_override_warning">匯入新的覆寫設定，可能會取代一部分先前已匯入的覆寫設定。</string>
     <string name="import_overrides_import">匯入</string>
@@ -230,6 +247,7 @@
     <string name="is_offline">您的裝置已離線。在您的裝置重新上線後，通道將自動連線。</string>
     <string name="legacy_always_on_vpn_error_notification_content">無法啟動通道連線。在使用 Mullvad VPN 之前，請停用「一律啟用 VPN」。</string>
     <string name="legacy_always_on_vpn_error_notification_title">「一律啟用 VPN」已指派給其他 VPN</string>
+    <string name="less_than_a_day_left">此帳戶剩餘不到一天</string>
     <string name="less_than_one_day">不足 1 天</string>
     <string name="list_name">清單名稱</string>
     <string name="loading_products">正在載入產品</string>
@@ -243,6 +261,7 @@
     <string name="location_was_removed_from_list">已將 %1$s 從「%2$s」中移除</string>
     <string name="locations">位置</string>
     <string name="locations_were_changed_for">已變更「%1$s」的位置</string>
+    <string name="log_in">登入</string>
     <string name="log_out">登出</string>
     <string name="logged_in_description">有效帳號</string>
     <string name="logged_in_title">已登入</string>
@@ -268,12 +287,16 @@
     <string name="more_actions">更多操作</string>
     <string name="more_information">更多資訊</string>
     <string name="mtu">MTU</string>
+    <string name="mtu_x">值：%1$s</string>
     <string name="mullvad_owned_only">僅 Mullvad 自有</string>
     <string name="multihop">多點跳躍</string>
     <string name="multihop_description">多點跳躍可將您的流量傳入一個 WireGuard 伺服器，再傳出至另一個伺服器，使其更難以追蹤。雖然這會導致延遲時間增加，卻能提高線上的匿名程度。</string>
     <string name="multihop_entry_disabled_description">%1$s 的入口伺服器目前已由 %2$s 覆寫。若要選擇入口伺服器，請先在設定中啟用「%3$s」或停用「%2$s」。</string>
+    <string name="multihop_is_disabled">已停用多點跳躍</string>
+    <string name="multihop_is_enabled">已啟用多點跳躍</string>
     <string name="name">名稱</string>
     <string name="name_was_changed_to">名稱已變更為「%1$s」</string>
+    <string name="navigate">導覽</string>
     <string name="new_changelog_notification_message">按一下此處查看最新動態。</string>
     <string name="new_changelog_notification_title">已安裝新版本</string>
     <string name="new_device_notification_message">歡迎，此裝置現在名為 &lt;b&gt;%1$s&lt;/b&gt;。</string>
@@ -291,6 +314,7 @@
     <string name="none">無</string>
     <string name="not_found">找不到</string>
     <string name="number_of_providers">供應商：%1$d</string>
+    <string name="number_parentheses">(%1$d)</string>
     <string name="obfuscation_info">藉由混淆，WireGuard 的流量能隱藏在另一個通訊協定中。這有助於規避審查或其他類型的篩選。在這類篩選中，普通 WireGuard 連線將遭到封鎖。</string>
     <string name="obfuscation_info_shadowsocks_batteryusage">注意：Shadowsocks 可能會因資料使用情形 (如播放串流影片) 而增加電力消耗。</string>
     <string name="off">關閉</string>
@@ -372,6 +396,10 @@
     <string name="server_ip_overrides_reset_body">所有覆寫內容都將重設，並且在「選擇位置」視圖中，伺服器 IP 位址也將回到預設設定。</string>
     <string name="server_ip_overrides_reset_reset_button">重設</string>
     <string name="server_ip_overrides_reset_title">重設所有覆寫設定</string>
+    <string name="set_as_multihop_entry">設為多點跳躍進站點</string>
+    <string name="set_as_multihop_entry_unavailable">設為多點跳躍進站點 (不相容)</string>
+    <string name="set_as_multihop_exit">設為多點跳躍出站點</string>
+    <string name="set_as_multihop_exit_unavailable">設為多點跳躍出站點 (不相容)</string>
     <string name="set_dns_error">無法設定系統 DNS 伺服器。請傳送問題回報。</string>
     <string name="set_firewall_policy_error">無法套用防火牆規則。請排除故障或傳送問題回報。</string>
     <string name="setting_chip">設定：%1$s</string>
@@ -446,6 +474,7 @@
     <string name="vpn_permission_error_notification_message">請按「連線」請求 VPN 權限</string>
     <string name="vpn_permission_error_notification_title">VPN 權限錯誤</string>
     <string name="vpn_settings_not_available">裝置上的 VPN 設定無法使用</string>
+    <string name="warning">警告</string>
     <string name="we_will_look_into_this">我們會對此進行調查。</string>
     <string name="wireguard_custon_port_title">自訂</string>
     <string name="wireguard_mtu_footer">設定 WireGuard MTU 值。有效範圍：%1$d - %2$d。</string>
@@ -457,4 +486,6 @@
     <string name="x_entry">%1$s (入口)</string>
     <string name="x_exit">%1$s (出口)</string>
     <string name="x_via_x">%1$s，經由 %2$s</string>
+    <string name="you_can_add_more_time_oss">您可以在帳戶畫面或網站中增加時間，以繼續使用 VPN。</string>
+    <string name="you_can_add_more_time_play">您可以在帳戶畫面中增加時間，以繼續使用 VPN。</string>
 </resources>

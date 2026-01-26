@@ -14,9 +14,11 @@
     <string name="add_method">افزودن روش</string>
     <string name="add_time">افزودن زمان</string>
     <string name="add_time_to_account">یا از وب‌سایت ما اعتبار بخرید یا یک ووچر را فعال کنید.</string>
+    <string name="add_to_list">افزودن به فهرست</string>
     <string name="added_to_your_account">%1$s به حساب شما اضافه شد.</string>
     <string name="adding_method">در حال افزودن روش...</string>
     <string name="agree_and_continue">موافقت و ادامه</string>
+    <string name="all">همه</string>
     <string name="all_applications">تمام اپلیکیشن‌ها</string>
     <string name="all_locations">تمام مکان‌ها</string>
     <string name="all_providers">تمام ارائه‌دهندگان</string>
@@ -27,6 +29,8 @@
     <string name="android_16_upgrade_warning_message">‏اندروید 16 یک مشکل شناخته‌شده دارد. لطفاً دستگاه‌تان را مجدد راه‌اندازی کرده و دوباره امتحان کنید. برای کسب اطلاعات بیشتر،</string>
     <string name="android_16_upgrade_warning_title">اتصال برقرار نمی‌شود؟</string>
     <string name="anti_censorship">ضد سانسور</string>
+    <string name="anti_censorship_info_first_paragraph">این روش‌ها ممکن است زمانی مفید باشند که دسترسی شما به Mullvad مسدود شده باشد. وقتی «خودکار» انتخاب شود، اپلیکیشن همهٔ روش‌ها را امتحان می‌کند تا یکی از آن‌ها کار کند.</string>
+    <string name="anti_censorship_info_second_paragraph">&lt;b&gt;لطفاً توجه داشته باشید که این روش‌ها کارایی را بهبود نمی‌بخشند و ممکن است مصرف سیستم و باتری را افزایش دهند.&lt;/b&gt;</string>
     <string name="any">هر کدام</string>
     <string name="api_access_description">مدیریت و افزودن روش‌های سفارشی برای دسترسی به ‏Mullvad API.</string>
     <string name="api_access_method_info_first_line">اپلیکیشن برای ورود شما، دریافت فهرست سرورها و انجام دیگر عملیات ضروری، باید با یک سرور Mullvad API ارتباط برقرار کند.</string>
@@ -39,7 +43,15 @@
     <string name="api_unreachable_save_anyway">API در دسترس نیست، بااین‌حال روش ذخیره شود؟</string>
     <string name="app_info">اطلاعات اپلیکیشن</string>
     <string name="app_is_blocking_internet">اپلیکیشن دسترسی به اینترنت را مسدود کرده است؛ لطفاً ابتدا قطع اتصال کنید</string>
+    <string name="app_name_browser">مرورگر</string>
+    <string name="app_name_notes">یادداشت‌ها</string>
+    <string name="app_name_weather">آب و هوا</string>
+    <string name="appearance">ظاهر</string>
+    <string name="appearance_description">عنوان و آیکون اپلیکیشن Mullvad VPN را روی دستگاه اندرویدی خود تغییر دهید. این کار، آیکون هیچ‌یک از اعلان‌های مرتبط با Mullvad VPN را تغییر نخواهد داد.</string>
+    <string name="appearance_description_warning">&lt;b&gt;توجه:&lt;/b&gt; اپلیکیشن به‌صورت خودکار بسته می‌شود و پس از انتخاب آیکون و عنوان جدید، باید دوباره به‌صورت دستی باز شود. این موضوع بر اتصال VPN شما تأثیری نخواهد داشت.</string>
+    <string name="appearance_description_warning_tv">در دستگاه‌های تلویزیون، ممکن است لازم باشد دستگاه خود را مجدداً راه‌اندازی کنید.</string>
     <string name="apply">اعمال</string>
+    <string name="applying_changes">اعمال تغییرات...</string>
     <string name="at_least_on_method_needs_to_enabled">حداقل یک روش باید فعال باشد</string>
     <string name="auth_failed">نمی‌توان حساب را احراز هویت کرد. لطفاً یک گزارش مشکل ارسال کنید.</string>
     <string name="authentication">احراز هویت</string>
@@ -115,6 +127,8 @@
     <string name="custom_port_dialog_remove">حذف پورت سفارشی</string>
     <string name="custom_port_dialog_submit">تنظیم پورت</string>
     <string name="custom_port_dialog_valid_ranges">دامنه‌های معتبر: %1$s</string>
+    <string name="custom_port_recommended_range_first">&lt;b&gt;توجه:&lt;/b&gt; تنها بعضی سرورها از محدوده کامل پورت پشتیبانی می‌کنند.</string>
+    <string name="custom_port_recommended_range_second">محدوده معتبر برای همه سرورها: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">قادر به شناسایی میزبان تونل سفارشی نیست. لطفاً تنظیمات خود را تغییر دهید و دوباره تلاش کنید.</string>
     <string name="daita_description_slide_1_first_paragraph">توجه: این کار باعث افزایش ترافیک شبکه می‌شود و همچنین سرعت، تأخیر و مصرف باتری را تحت تأثیر منفی قرار می‌دهد. در طرح‌های اینترنتی محدود با احتیاط استفاده کنید.</string>
     <string name="daita_description_slide_1_second_paragraph">%1$s (%2$s) الگوها را در ترافیک رمزگذاری‌شدهٔ VPN شما پنهان می‌کند.</string>
@@ -142,6 +156,7 @@
     <string name="device_name_info_first_paragraph">این نام به دستگاه اختصاص داده شده است. هر دستگاهی که وارد حساب Mullvad می‌شود، یک نام منحصر‌به‌فرد دریافت می‌کند تا هنگام مدیریت دستگاه‌ها در اپلیکیشن یا وب‌سایت، بتوانید آن را شناسایی کنید.</string>
     <string name="device_name_info_second_paragraph">شما می‌توانید حداکثر 5 دستگاه را هم‌زمان در یک حساب Mullvad وارد کنید.</string>
     <string name="device_name_info_third_paragraph">اگر خارج شوید، دستگاه و نام آن حذف می‌شوند. وقتی دوباره وارد شوید، دستگاه نام جدیدی خواهد گرفت.</string>
+    <string name="direct">مستقیم</string>
     <string name="direct_only">فقط مستقیم</string>
     <string name="direct_only_description">برای استفاده از اینترنت، ممکن است پس از فعال‌سازی، نیاز باشد یک مکان جدید انتخاب کنید، زیرا همهٔ سرورهای ما از %1$s پشتیبانی نمی‌کنند.</string>
     <string name="disable_multihop">غیرفعال کردن مولتی‌هاپ</string>
@@ -188,6 +203,7 @@
     <string name="exclude_applications">اپلیکیشن‌های مستثنی</string>
     <string name="exit">خروج</string>
     <string name="expand">باز کردن</string>
+    <string name="external_link">لینک خارجی</string>
     <string name="failed_to_block_internet">قادر به مسدود کردن تمام ترافیک شبکه نیست. لطفاً عیب‌یابی کنید یا گزارش مشکل ارسال نمایید.</string>
     <string name="failed_to_create_account">ایجاد حساب موفقیت‌آمیز نبود</string>
     <string name="failed_to_fetch_devices">بازیابی فهرست دستگاه‌ها انجام نشد</string>
@@ -210,6 +226,7 @@
     <string name="here_is_your_account_number">این هم شمارهٔ حساب شما. آن را ذخیره کنید!</string>
     <string name="hide_account_number">پنهان کردن شمارهٔ حساب</string>
     <string name="hint_default">پیش‌فرض</string>
+    <string name="icon_and_title">آیکون و عنوان</string>
     <string name="import_override_textfield_placeholder">جایگزینی‌هایی را که می‌خواهید وارد کنید، جایگذاری کنید یا بنویسید</string>
     <string name="import_overrides_bottom_sheet_override_warning">وارد کردن جایگزین‌های جدید ممکن است جایگزین برخی از جایگزین‌های قبلاً وارد شده شود.</string>
     <string name="import_overrides_import">وارد کردن</string>
@@ -230,6 +247,7 @@
     <string name="is_offline">دستگاه شما آفلاین است. تونل به‌طور خودکار زمانی که دستگاه آنلاین شود، متصل خواهد شد.</string>
     <string name="legacy_always_on_vpn_error_notification_content">نمی‌توان اتصال تونل را آغاز کرد. لطفاً قبل از استفاده از Mullvad VPN، گزینهٔ «VPN همیشه‌فعال» را غیرفعال کنید.</string>
     <string name="legacy_always_on_vpn_error_notification_title">VPN همیشه‌فعال به یک VPN دیگر اختصاص داده شده است</string>
+    <string name="less_than_a_day_left">کمتر از یک روز از اعتبار این حساب باقی مانده است</string>
     <string name="less_than_one_day">کمتر از یک روز</string>
     <string name="list_name">نام فهرست</string>
     <string name="loading_products">در حال بارگذاری محصولات</string>
@@ -243,6 +261,7 @@
     <string name="location_was_removed_from_list">%1$s از «%2$s» حذف شد</string>
     <string name="locations">مکان‎‌ها</string>
     <string name="locations_were_changed_for">مکان‌ها برای «%1$s» تغییر یافتند</string>
+    <string name="log_in">ورود به سیستم</string>
     <string name="log_out">خروج از حساب کاربری</string>
     <string name="logged_in_description">شمارهٔ حساب معتبر</string>
     <string name="logged_in_title">وارد شده‌اید</string>
@@ -268,12 +287,16 @@
     <string name="more_actions">اقدامات بیشتر</string>
     <string name="more_information">اطلاعات بیشتر</string>
     <string name="mtu">MTU</string>
+    <string name="mtu_x">مقدار: %1$s</string>
     <string name="mullvad_owned_only">فقط متعلق به Mullvad</string>
     <string name="multihop">مولتی‌هاپ</string>
     <string name="multihop_description">مولتی‌هاپ ترافیک شما را وارد یک سرور WireGuard کرده و از سروری دیگر خارج می‌کند، که ردیابی آن را دشوارتر می‌سازد. این کار باعث افزایش تأخیر می‌شود، اما ناشناس‌بودن شما را در اینترنت بیشتر می‌کند.</string>
     <string name="multihop_entry_disabled_description">سرور ورودی برای %1$s در حال حاضر توسط %2$s لغو شده است. برای انتخاب یک سرور ورودی، لطفاً ابتدا «%3$s» را فعال کنید یا «%2$s» را در تنظیمات غیرفعال نمایید.</string>
+    <string name="multihop_is_disabled">قابلیت مولتی‌هاپ غیرفعال است</string>
+    <string name="multihop_is_enabled">قابلیت مولتی‌هاپ فعال است</string>
     <string name="name">نام</string>
     <string name="name_was_changed_to">نام به %1$s تغییر یافت</string>
+    <string name="navigate">پیمایش</string>
     <string name="new_changelog_notification_message">برای مشاهدهٔ تغییرات جدید، اینجا کلیک کنید.</string>
     <string name="new_changelog_notification_title">نسخهٔ جدید نصب شد</string>
     <string name="new_device_notification_message">خوش آمدید، این دستگاه اکنون &lt;b&gt;%1$s&lt;/b&gt; نام دارد.</string>
@@ -291,6 +314,7 @@
     <string name="none">هیچکدام</string>
     <string name="not_found">پیدا نشد</string>
     <string name="number_of_providers">ارائه‌دهندگان: %1$d</string>
+    <string name="number_parentheses">(%1$d)</string>
     <string name="obfuscation_info">پنهان‌سازی ترافیک WireGuard را درون یک پروتکل دیگر مخفی می‌کند. زمانی‌که یک اتصال معمولی WireGuard مسدود می‌شود، این قابلیت می‌تواند برای دور زدن سانسور و انواع دیگر فیلترینگ مفید باشد.</string>
     <string name="obfuscation_info_shadowsocks_batteryusage">توجه: Shadowsocks می‌تواند بسته به میزان استفاده از داده، مانند تماشای ویدیو، مصرف باتری را افزایش دهد.</string>
     <string name="off">خاموش</string>
@@ -372,6 +396,10 @@
     <string name="server_ip_overrides_reset_body">تمام تنظیمات جایگزین‌شده بازنشانی می‌شوند و آدرس‌های IP سرورها در بخش «انتخاب مکان» به حالت پیش‌فرض برمی‌گردند.</string>
     <string name="server_ip_overrides_reset_reset_button">بازنشانی</string>
     <string name="server_ip_overrides_reset_title">بازنشانیِ همهٔ جایگزینی‌ها</string>
+    <string name="set_as_multihop_entry">تنظیم به‌عنوان ورودی مولتی‌هاپ</string>
+    <string name="set_as_multihop_entry_unavailable">تنظیم به عنوان ورودی مولتی‌هاپ (ناسازگار)</string>
+    <string name="set_as_multihop_exit">تنظیم به عنوان خروجی مولتی‌هاپ</string>
+    <string name="set_as_multihop_exit_unavailable">تنظیم به عنوان خروجی مولتی‌هاپ (ناسازگار)</string>
     <string name="set_dns_error">قادر به تنظیم سرور DNS سیستم نیست. لطفاً یک گزارش مشکل ارسال کنید.</string>
     <string name="set_firewall_policy_error">نمی‌توان قوانین فایروال را اعمال کرد. لطفاً مشکل را برطرف کنید یا یک گزارش خطا ارسال نمایید.</string>
     <string name="setting_chip">تنظیم: %1$s</string>
@@ -446,6 +474,7 @@
     <string name="vpn_permission_error_notification_message">لطفاً برای درخواست اجازهٔ VPN دکمهٔ اتصال را فشار دهید</string>
     <string name="vpn_permission_error_notification_title">خطای اجازهٔ VPN</string>
     <string name="vpn_settings_not_available">تنظیمات VPN روی این دستگاه در دسترس نیست</string>
+    <string name="warning">هشدار</string>
     <string name="we_will_look_into_this">ما این موضوع را بررسی خواهیم کرد.</string>
     <string name="wireguard_custon_port_title">سفارشی</string>
     <string name="wireguard_mtu_footer">مقدار MTU مربوط به WireGuard را تنظیم کنید. دامنهٔ معتبر: %1$d تا %2$d.</string>
@@ -457,4 +486,6 @@
     <string name="x_entry">%1$s (ورود)</string>
     <string name="x_exit">%1$s (خروج)</string>
     <string name="x_via_x">%1$s از طریق %2$s</string>
+    <string name="you_can_add_more_time_oss">می‌توانید از طریق نمای حساب یا وب‌سایت، زمان بیشتری را برای ادامه استفاده از VPN اضافه کنید.</string>
+    <string name="you_can_add_more_time_play">می‌توانید از طریق نمای حساب زمان بیشتری را برای ادامه استفاده از VPN اضافه کنید.</string>
 </resources>
