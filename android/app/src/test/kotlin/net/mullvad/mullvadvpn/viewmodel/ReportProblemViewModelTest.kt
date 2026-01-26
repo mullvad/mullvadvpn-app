@@ -110,17 +110,36 @@ class ReportProblemViewModelTest {
 
             // Act, Assert
             viewModel.uiState.test {
-                assertEquals(ReportProblemUiState(), awaitItem())
+                assertEquals(
+                    ReportProblemUiState(logCollectingState = LogCollectingState.Success),
+                    awaitItem(),
+                )
                 viewModel.updateDescription(description)
-                assertEquals(ReportProblemUiState(description = description), awaitItem())
+                assertEquals(
+                    ReportProblemUiState(
+                        description = description,
+                        logCollectingState = LogCollectingState.Success,
+                    ),
+                    awaitItem(),
+                )
 
                 viewModel.sendReport(email, description, true)
                 assertEquals(
-                    ReportProblemUiState(SendingReportUiState.Sending, email, description),
+                    ReportProblemUiState(
+                        SendingReportUiState.Sending,
+                        email,
+                        description,
+                        logCollectingState = LogCollectingState.Success,
+                    ),
                     awaitItem(),
                 )
                 assertEquals(
-                    ReportProblemUiState(SendingReportUiState.Success(null), "", ""),
+                    ReportProblemUiState(
+                        SendingReportUiState.Success(null),
+                        "",
+                        "",
+                        logCollectingState = LogCollectingState.Success,
+                    ),
                     awaitItem(),
                 )
             }
@@ -151,7 +170,15 @@ class ReportProblemViewModelTest {
 
             // Act, Assert
             viewModel.uiState.test {
-                assertEquals(awaitItem(), ReportProblemUiState(null, "", ""))
+                assertEquals(
+                    awaitItem(),
+                    ReportProblemUiState(
+                        null,
+                        "",
+                        "",
+                        logCollectingState = LogCollectingState.Success,
+                    ),
+                )
                 viewModel.updateEmail(email)
                 awaitItem()
                 viewModel.updateDescription(description)
@@ -160,11 +187,21 @@ class ReportProblemViewModelTest {
                 viewModel.sendReport(email, description)
 
                 assertEquals(
-                    ReportProblemUiState(SendingReportUiState.Sending, email, description),
+                    ReportProblemUiState(
+                        SendingReportUiState.Sending,
+                        email,
+                        description,
+                        logCollectingState = LogCollectingState.Success,
+                    ),
                     awaitItem(),
                 )
                 assertEquals(
-                    ReportProblemUiState(SendingReportUiState.Success(email), "", ""),
+                    ReportProblemUiState(
+                        SendingReportUiState.Success(email),
+                        "",
+                        "",
+                        logCollectingState = LogCollectingState.Success,
+                    ),
                     awaitItem(),
                 )
             }
