@@ -19,13 +19,13 @@
         <item quantity="other">%1$d месяца</item>
     </plurals>
     <plurals name="days_left">
-        <item quantity="one">На этой учетной записи остался %1$@ день</item>
+        <item quantity="one">На этой учетной записи остался %1$d день</item>
         <item quantity="few">На этой учетной записи осталось %1$d дня</item>
         <item quantity="many">На этой учетной записи осталось %1$d дней</item>
         <item quantity="other">На этой учетной записи остался %1$d день</item>
     </plurals>
     <plurals name="years_left">
-        <item quantity="one">На этой учетной записи остался %1$@ год</item>
+        <item quantity="one">На этой учетной записи остался %1$d год</item>
         <item quantity="few">На этой учетной записи осталось %1$d года</item>
         <item quantity="many">На этой учетной записи осталось %1$d лет</item>
         <item quantity="other">На этой учетной записи остался %1$d год</item>
