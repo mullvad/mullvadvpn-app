@@ -488,15 +488,15 @@ fun Singlehop(
                     val exit = exitIconLC ?: return@drawWithContent
                     val device = deviceIconLC ?: return@drawWithContent
 
-                    val x = 20.dp.toPx()
+                    val legendXPosition = motionLayout.localPositionOf(exit).x + exit.size.width / 2
                     drawVerticalLegend(
-                        x = x,
+                        x = legendXPosition,
                         y1 = internet.bottomIn(motionLayout),
                         y2 = exit.topIn(motionLayout),
                         color = colors.legendColor,
                     )
                     drawVerticalLegend(
-                        x = x,
+                        x = legendXPosition,
                         y1 = exit.bottomIn(motionLayout),
                         y2 = device.topIn(motionLayout),
                         color = colors.legendColor,
