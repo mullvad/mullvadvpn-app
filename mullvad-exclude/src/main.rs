@@ -191,19 +191,20 @@ mod inner {
             .collect::<Result<_, _>>()
             .context("Argument contains nul byte")?;
 
-        let [program, ..] = &args[..] else {
-            bail!("No command specified");
-        };
-
-        let mut enable_intercept = need_socket_intercept(program);
+        let mut want_intercept = None;
         for flag in flags {
             match flag {
                 "-h" | "--help" => return print_usage(None),
-                "--intercept" => enable_intercept = true,
-                "--no-intercept" => enable_intercept = false,
+                "--intercept" => want_intercept = Some(true),
+                "--no-intercept" => want_intercept = Some(false),
                 f => return print_usage(Some(f)),
             }
         }
+
+        let [program, ..] = &args[..] else {
+            bail!("No command specified");
+        };
+        let enable_intercept = want_intercept.unwrap_or_else(|| need_socket_intercept(program));
 
         if talpid_cgroup::is_systemd_managed() {
             seteuid(real_uid).context("Failed to drop root temporarily")?;
