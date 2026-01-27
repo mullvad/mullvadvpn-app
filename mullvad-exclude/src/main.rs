@@ -295,16 +295,15 @@ mod inner {
                     .context("Failed to receive notify fd from socket")?;
 
                     // Extract the file descriptor from the control message.
-                    let notify_fd = msg
+                    let notify_fd: RawFd = msg
                         .cmsgs()?
-                        .find_map(|cmsg| {
-                            if let ControlMessageOwned::ScmRights(fds) = cmsg {
-                                fds.into_iter().next()
-                            } else {
-                                None
-                            }
+                        .next()
+                        .and_then(|cmsg| match cmsg {
+                            ControlMessageOwned::ScmRights(fds) => fds.first().copied(),
+                            _ => None,
                         })
-                        .context("No file descriptor received in control message")?;
+                        .context("Missing file descriptor in CMSG")?;
+
                     // SAFETY: The fd was just received via SCM_RIGHTS and is valid.
                     let notify_fd = unsafe { OwnedFd::from_raw_fd(notify_fd) };
                     drop(notify_fd_rx);
@@ -325,7 +324,7 @@ mod inner {
         }
     }
 
-    /// Supervise syscalls from `supervised_pid`.
+    /// Enable split tunneling for `supervised_pid` on the first monitored syscall from it or any child process.
     fn seccomp_monitor(supervised_pid: Pid, notify_fd: OwnedFd) -> anyhow::Result<()> {
         let mut handled_supervised_pid = false;
 
