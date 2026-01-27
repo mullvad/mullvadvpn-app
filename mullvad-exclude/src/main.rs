@@ -10,24 +10,25 @@ mod inner {
         ObjectBuilder, Program,
         libbpf_sys::{bpf_attach_type, bpf_prog_attach},
     };
-    use libc::{AF_INET, AF_INET6, SECCOMP_USER_NOTIF_FLAG_CONTINUE, SYS_socket};
+    use libc::{AF_INET, AF_INET6};
     use libseccomp::{
         ScmpAction, ScmpArgCompare, ScmpCompareOp, ScmpFilterContext, ScmpNotifReq, ScmpNotifResp,
-        ScmpSyscall,
+        ScmpNotifRespFlags, ScmpSyscall,
     };
+
     use nix::{
-        errno::Errno,
-        sys::wait::WaitStatus,
+        cmsg_space,
+        sys::socket::{ControlMessage, ControlMessageOwned, MsgFlags, RecvMsg, recvmsg, sendmsg},
         unistd::{ForkResult, Pid, execvp, fork, getgid, getuid, setegid, seteuid, setgid, setuid},
     };
     use std::{
         env::args_os,
         ffi::{CString, OsString},
         fs::remove_file,
-        io,
+        io::{self, IoSlice, IoSliceMut},
         os::{
-            fd::{AsRawFd, FromRawFd, OwnedFd},
-            unix::ffi::OsStringExt as _,
+            fd::{AsRawFd, FromRawFd, OwnedFd, RawFd},
+            unix::{ffi::OsStringExt as _, net::UnixStream},
         },
         path::Path,
     };
@@ -213,43 +214,101 @@ mod inner {
         }
 
         if enable_seccomp {
-            // TODO: check support?
-            //let api_version = libseccomp::get_api().context("Failed to get libseccomp API")?;
-            let mut ctx = ScmpFilterContext::new(ScmpAction::Allow)
-                .context("Failed to create seccomp filter context")?;
-            // No need to set NO_NEW_PRIVS as we are sudo.
-            ctx.set_ctl_nnp(false)
-                .context("Failed to disable NO_NEW_PRIVS")?;
-            let socket_sys =
-                ScmpSyscall::from_name("socket").context("Failed to get socket syscall")?;
-            // The first socket() arg must be AF_INET or AF_INET6
-            // https://www.man7.org/linux/man-pages/man2/socket.2.html
-            let inet_cmp =
-                ScmpArgCompare::new(0, ScmpCompareOp::Equal, u64::try_from(AF_INET).unwrap());
-            ctx.add_rule_conditional(ScmpAction::Notify, socket_sys.clone(), &[inet_cmp])
-                .context("Failed to add socket() AF_INET rule")?;
-            let inet6_cmp =
-                ScmpArgCompare::new(0, ScmpCompareOp::Equal, u64::try_from(AF_INET6).unwrap());
-            ctx.add_rule_conditional(ScmpAction::Notify, socket_sys.clone(), &[inet6_cmp])
-                .context("Failed to add socket() AF_INET6 rule")?;
-
-            ctx.load().context("Failed to load seccomp filter")?;
-            let notify_fd = ctx.get_notify_fd().context("Failed to get notify fd")?;
-            // SAFETY: `notify_fd` is a valid file descriptor.
-            let notify_fd = unsafe { OwnedFd::from_raw_fd(notify_fd) };
+            let (notify_fd_tx, notify_fd_rx) =
+                UnixStream::pair().context("Failed to create unix socket")?;
 
             match unsafe { fork() }.context("fork failed")? {
                 ForkResult::Child => {
+                    drop(notify_fd_rx);
+
+                    // TODO: check support?
+                    //let api_version = libseccomp::get_api().context("Failed to get libseccomp API")?;
+                    let mut ctx = ScmpFilterContext::new(ScmpAction::Allow)
+                        .context("Failed to create seccomp filter context")?;
+                    // No need to set NO_NEW_PRIVS as we are sudo.
+                    ctx.set_ctl_nnp(false)
+                        .context("Failed to disable NO_NEW_PRIVS")?;
+                    let socket_sys =
+                        ScmpSyscall::from_name("socket").context("Failed to get socket syscall")?;
+                    // The first socket() arg must be AF_INET or AF_INET6
+                    // https://www.man7.org/linux/man-pages/man2/socket.2.html
+                    let inet_cmp = ScmpArgCompare::new(
+                        0,
+                        ScmpCompareOp::Equal,
+                        u64::try_from(AF_INET).unwrap(),
+                    );
+                    ctx.add_rule_conditional(ScmpAction::Notify, socket_sys.clone(), &[inet_cmp])
+                        .context("Failed to add socket() AF_INET rule")?;
+                    let inet6_cmp = ScmpArgCompare::new(
+                        0,
+                        ScmpCompareOp::Equal,
+                        u64::try_from(AF_INET6).unwrap(),
+                    );
+                    ctx.add_rule_conditional(ScmpAction::Notify, socket_sys.clone(), &[inet6_cmp])
+                        .context("Failed to add socket() AF_INET6 rule")?;
+
+                    ctx.load().context("Failed to load seccomp filter")?;
+                    let notify_fd = ctx.get_notify_fd().context("Failed to get notify fd")?;
+                    // SAFETY: `notify_fd` is a valid file descriptor.
+                    let notify_fd = unsafe { OwnedFd::from_raw_fd(notify_fd) };
+
+                    // Send the seccomp notify fd to the parent process using SCM_RIGHTS.
+                    // File descriptors are process-local, so we must use ancillary messages.
+                    let fds = [notify_fd.as_raw_fd()];
+                    let cmsg = [ControlMessage::ScmRights(&fds)];
+                    // We need to send at least 1 byte of data along with the control message.
+                    let iov = [IoSlice::new(&[0u8])];
+                    sendmsg::<()>(
+                        notify_fd_tx.as_raw_fd(),
+                        &iov,
+                        &cmsg,
+                        MsgFlags::empty(),
+                        None,
+                    )
+                    .context("Failed to send notify fd over socket")?;
+                    drop(notify_fd_tx);
                     drop(notify_fd);
 
                     setgid(real_gid).context("setgid failed")?;
                     setuid(real_uid).context("setuid failed")?;
 
-                    // Exec the target program
                     execvp(program, &args).context("execvp failed")?;
                     Ok(())
                 }
-                ForkResult::Parent { child } => seccomp_monitor(child, notify_fd),
+                ForkResult::Parent { child } => {
+                    drop(notify_fd_tx);
+
+                    // Receive the seccomp notify fd from the child process using SCM_RIGHTS.
+                    let mut buf = [0u8; 1];
+                    let mut iov = [IoSliceMut::new(&mut buf)];
+                    let mut cmsg_buf = cmsg_space!(RawFd);
+                    let msg = recvmsg::<()>(
+                        notify_fd_rx.as_raw_fd(),
+                        &mut iov,
+                        Some(&mut cmsg_buf),
+                        MsgFlags::empty(),
+                    )
+                    .context("Failed to receive notify fd from socket")?;
+
+                    // Extract the file descriptor from the control message.
+                    let notify_fd = msg
+                        .cmsgs()?
+                        .find_map(|cmsg| {
+                            if let ControlMessageOwned::ScmRights(fds) = cmsg {
+                                fds.into_iter().next()
+                            } else {
+                                None
+                            }
+                        })
+                        .context("No file descriptor received in control message")?;
+                    // SAFETY: The fd was just received via SCM_RIGHTS and is valid.
+                    let notify_fd = unsafe { OwnedFd::from_raw_fd(notify_fd) };
+                    drop(notify_fd_rx);
+
+                    // Run seccomp supervisor
+                    seccomp_monitor(child, notify_fd)?;
+                    Ok(())
+                }
             }
         } else {
             // No seccomp; just exec the target program
@@ -264,52 +323,25 @@ mod inner {
 
     fn seccomp_monitor(child: Pid, notify_fd: OwnedFd) -> anyhow::Result<()> {
         // TODO: kill child process instead of hanging if an error occurs?
-        let mut prev_path = None;
+        //let mut prev_path = None;
 
-        let raw_fd = notify_fd.as_raw_fd();
+        //let raw_fd = notify_fd.as_raw_fd();
 
         // mullvad-exclude foobar
         //
         // FUN: <@:DDD
         // mullvad-exclude: waitpid(foobar)
-        //  - secomp_monitor (wait on all children)
-        //   - foobar
+        //  - seccomp_monitor (wait on all children using ScmpNotifRecv)
+        //  - mullvad-exclude exec foobar
         //    - baz
         //    - buz
         //    - bing
         //
-        // mullvad-exclude foobar
-        // fork()
-        //  child: seccomp_parent
-        //  parent: foobar
         //
-        // TODO: check if we can unregister notify instead
+        // mullvad-exclude -> foobar
+        // - seccomp_monitor
 
-        // FIXME
-        /*
-        std::thread::spawn({
-            let child = child.clone();
-            move || {
-                // When all children have died, exit
-                loop {
-                    match nix::sys::wait::wait() {
-                        Ok(WaitStatus::Exited(pid, status)) => {
-                            if pid == child {
-                                // Child process exited successfully
-                                status
-                            }
-                            continue;
-                        }
-                        Err(Errno::ECHILD) => break, // no more children
-                        Err(_) => todo!(),
-                    };
-                }
-                // Close the notify fd to unblock the main loop
-                // TODO: correct exit code
-                std::process::exit(0);
-            }
-        });
-        */
+        let mut handled_immediate_child = false;
 
         loop {
             // Poll for seccomp notifications.
@@ -320,9 +352,7 @@ mod inner {
                     bail!("ScmpNotifReq::receive failed: {err}");
                 }
             };
-
-            /*
-            let mut handle_scmp_request = |req: ScmpNotifReq| -> anyhow::Result<ScmpNotifResp> {
+            let handle_scmp_request = |req: ScmpNotifReq| -> anyhow::Result<ScmpNotifResp> {
                 // Look up cgroup of child   (flatpak run)
                 // Look up cgroup of req.pid
                 // if same: exclude
@@ -330,30 +360,32 @@ mod inner {
                 // Get the cgroup of the child process.
                 // We can't assume the child is still in the cgroup we created for it,
                 // since some programs (flatpak) create their own cgroup.
-                if let Ok(cgroup_path) = read_cgroup_path(child.as_raw() as i32)
-                    && prev_path.as_ref() != Some(&cgroup_path)
-                {
+                if !handled_immediate_child {
+                    let cgroup_path = read_cgroup_path(child.as_raw() as i32)
+                        .context("Failed to read cgroup path")?;
                     eprintln!("Attaching to cgroup2 path: {}", cgroup_path);
                     // TODO: make sure we ALWAYS respond to thhe ScmpNotif.
                     let cgroup = CGroup2::open(format!("/sys/fs/cgroup{cgroup_path}"))
                         .context("Failed to open cgroup2")?;
                     install_exclusion_bpf_for_cgroup(&cgroup)
                         .context("Failed to install BPF hook for cgroup2")?;
-
-                    prev_path = Some(cgroup_path);
                 }
 
-                Ok(ScmpNotifResp::new(
+                Ok(ScmpNotifResp::new_continue(
                     req.id,
-                    0,
-                    0,
-                    SECCOMP_USER_NOTIF_FLAG_CONTINUE as _,
+                    ScmpNotifRespFlags::empty(),
                 ))
             };
 
             let resp = match handle_scmp_request(req) {
-                Ok(resp) => resp,
-                Err(_) => todo!(),
+                Ok(resp) => {
+                    handled_immediate_child = true;
+                    resp
+                }
+                Err(err) => {
+                    eprintln!("handle_scmp_request failed: {err}");
+                    ScmpNotifResp::new_error(req.id, -libc::EPERM, ScmpNotifRespFlags::empty())
+                }
             };
 
             match resp.respond(notify_fd.as_raw_fd()) {
@@ -361,7 +393,7 @@ mod inner {
                 Err(err) => {
                     bail!("ScmpNotifResp::respond failed: {err}");
                 }
-            }*/
+            }
         }
     }
 
