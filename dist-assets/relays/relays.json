@@ -5348,6 +5348,161 @@
         }
       },
       {
+        "hostname": "fi-hel-wg-201",
+        "active": true,
+        "owned": true,
+        "location": "fi-hel",
+        "provider": "31173",
+        "ipv4_addr_in": "185.65.133.5",
+        "ipv6_addr_in": "2a03:1b20:d:f011:1::f001",
+        "weight": 500,
+        "include_in_country": true,
+        "public_key": "u+Ir9bnz8PtwXoJGQXvCxz6a+1NChEbBIox8KdWarxk=",
+        "daita": false,
+        "shadowsocks_extra_addr_in": [
+          "185.65.133.7",
+          "2a03:1b20:d:f011:1::b002",
+          "2a03:1b20:d:f011:1::b003",
+          "2a03:1b20:d:f011:1::b004",
+          "2a03:1b20:d:f011:1::b005",
+          "2a03:1b20:d:f011:1::b006",
+          "2a03:1b20:d:f011:1::b007",
+          "2a03:1b20:d:f011:1::b008",
+          "2a03:1b20:d:f011:1::b009",
+          "2a03:1b20:d:f011:1::b00a"
+        ],
+        "features": {
+          "daita": null,
+          "quic": {
+            "addr_in": [
+              "185.65.133.8",
+              "2a03:1b20:d:f011:1::c002",
+              "2a03:1b20:d:f011:1::c003",
+              "2a03:1b20:d:f011:1::c004",
+              "2a03:1b20:d:f011:1::c005",
+              "2a03:1b20:d:f011:1::c006",
+              "2a03:1b20:d:f011:1::c007",
+              "2a03:1b20:d:f011:1::c008",
+              "2a03:1b20:d:f011:1::c009",
+              "2a03:1b20:d:f011:1::c00a"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "fi-hel-wg-201.blockerad.eu"
+          },
+          "lwo": {}
+        }
+      },
+      {
+        "hostname": "fi-hel-wg-202",
+        "active": true,
+        "owned": true,
+        "location": "fi-hel",
+        "provider": "31173",
+        "ipv4_addr_in": "185.65.133.85",
+        "ipv6_addr_in": "2a03:1b20:d:f011:2::f001",
+        "weight": 500,
+        "include_in_country": true,
+        "public_key": "hAbVKL5Q0285gJ28nMSfztw7/FXJb+cxiKD2NMgPpTM=",
+        "daita": false,
+        "shadowsocks_extra_addr_in": [
+          "185.65.133.87",
+          "2a03:1b20:d:f011:2::b002",
+          "2a03:1b20:d:f011:2::b003",
+          "2a03:1b20:d:f011:2::b004",
+          "2a03:1b20:d:f011:2::b005",
+          "2a03:1b20:d:f011:2::b006",
+          "2a03:1b20:d:f011:2::b007",
+          "2a03:1b20:d:f011:2::b008",
+          "2a03:1b20:d:f011:2::b009",
+          "2a03:1b20:d:f011:2::b00a",
+          "2a03:1b20:d:f011:2::b00b",
+          "2a03:1b20:d:f011:2::b00c",
+          "2a03:1b20:d:f011:2::b00d",
+          "2a03:1b20:d:f011:2::b00e",
+          "2a03:1b20:d:f011:2::b00f"
+        ],
+        "features": {
+          "daita": null,
+          "quic": {
+            "addr_in": [
+              "185.65.133.88",
+              "2a03:1b20:d:f011:2::c002",
+              "2a03:1b20:d:f011:2::c003",
+              "2a03:1b20:d:f011:2::c004",
+              "2a03:1b20:d:f011:2::c005",
+              "2a03:1b20:d:f011:2::c006",
+              "2a03:1b20:d:f011:2::c007",
+              "2a03:1b20:d:f011:2::c008",
+              "2a03:1b20:d:f011:2::c009",
+              "2a03:1b20:d:f011:2::c00a",
+              "2a03:1b20:d:f011:2::c00b",
+              "2a03:1b20:d:f011:2::c00c",
+              "2a03:1b20:d:f011:2::c00d",
+              "2a03:1b20:d:f011:2::c00e",
+              "2a03:1b20:d:f011:2::c00f"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "fi-hel-wg-202.blockerad.eu"
+          },
+          "lwo": {}
+        }
+      },
+      {
+        "hostname": "fi-hel-wg-203",
+        "active": true,
+        "owned": true,
+        "location": "fi-hel",
+        "provider": "31173",
+        "ipv4_addr_in": "185.65.133.165",
+        "ipv6_addr_in": "2a03:1b20:d:f011:3::f001",
+        "weight": 500,
+        "include_in_country": true,
+        "public_key": "Ck25URxG+bxlgfJVZ0A6wm7xddltSu5t1yig3CgKBDM=",
+        "daita": false,
+        "shadowsocks_extra_addr_in": [
+          "185.65.133.167",
+          "2a03:1b20:d:f011:3::b002",
+          "2a03:1b20:d:f011:3::b003",
+          "2a03:1b20:d:f011:3::b004",
+          "2a03:1b20:d:f011:3::b005",
+          "2a03:1b20:d:f011:3::b006",
+          "2a03:1b20:d:f011:3::b007",
+          "2a03:1b20:d:f011:3::b008",
+          "2a03:1b20:d:f011:3::b009",
+          "2a03:1b20:d:f011:3::b00a",
+          "2a03:1b20:d:f011:3::b00b",
+          "2a03:1b20:d:f011:3::b00c",
+          "2a03:1b20:d:f011:3::b00d",
+          "2a03:1b20:d:f011:3::b00e",
+          "2a03:1b20:d:f011:3::b00f"
+        ],
+        "features": {
+          "daita": null,
+          "quic": {
+            "addr_in": [
+              "185.65.133.168",
+              "2a03:1b20:d:f011:3::c002",
+              "2a03:1b20:d:f011:3::c003",
+              "2a03:1b20:d:f011:3::c004",
+              "2a03:1b20:d:f011:3::c005",
+              "2a03:1b20:d:f011:3::c006",
+              "2a03:1b20:d:f011:3::c007",
+              "2a03:1b20:d:f011:3::c008",
+              "2a03:1b20:d:f011:3::c009",
+              "2a03:1b20:d:f011:3::c00a",
+              "2a03:1b20:d:f011:3::c00b",
+              "2a03:1b20:d:f011:3::c00c",
+              "2a03:1b20:d:f011:3::c00d",
+              "2a03:1b20:d:f011:3::c00e",
+              "2a03:1b20:d:f011:3::c00f"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "fi-hel-wg-203.blockerad.eu"
+          },
+          "lwo": {}
+        }
+      },
+      {
         "hostname": "fr-bod-wg-001",
         "active": true,
         "owned": false,
@@ -10999,7 +11154,7 @@
         "provider": "100TB",
         "ipv4_addr_in": "206.217.206.47",
         "ipv6_addr_in": "2606:2e00:8007:a:ae1f:6bff:fef5:7b21",
-        "weight": 100,
+        "weight": 1,
         "include_in_country": false,
         "public_key": "7RegQnJ70PNlB0bpICSlc/W48GCtzszhSelTdlK5QQ0=",
         "daita": false,
@@ -11018,7 +11173,7 @@
         "provider": "100TB",
         "ipv4_addr_in": "206.217.206.67",
         "ipv6_addr_in": "2606:2e00:8007:a:ae1f:6bff:fef5:7beb",
-        "weight": 100,
+        "weight": 1,
         "include_in_country": false,
         "public_key": "si+P5Ef8D21CAkzh9NgrnIhbZDBcFxoYDaN6amSTkWE=",
         "daita": false,
@@ -11037,7 +11192,7 @@
         "provider": "100TB",
         "ipv4_addr_in": "206.217.206.87",
         "ipv6_addr_in": "2606:2e00:8007:a:ae1f:6bff:fef5:7b1b",
-        "weight": 100,
+        "weight": 1,
         "include_in_country": false,
         "public_key": "YROBTYZewygT97VTgMHxEwqaUiAjAvsuwTsuh5IBH1Y=",
         "daita": false,
@@ -11056,7 +11211,7 @@
         "provider": "100TB",
         "ipv4_addr_in": "206.217.206.107",
         "ipv6_addr_in": "2606:2e00:8007:a:ae1f:6bff:fef5:7983",
-        "weight": 100,
+        "weight": 1,
         "include_in_country": false,
         "public_key": "bf59QZip/y9tvCF6S9pir32LuFtvWH7nayqhzplyGkQ=",
         "daita": false,
@@ -11075,7 +11230,7 @@
         "provider": "100TB",
         "ipv4_addr_in": "206.217.206.4",
         "ipv6_addr_in": "2606:2e00:8007:a:ae1f:6bff:fef5:7b8d",
-        "weight": 100,
+        "weight": 1,
         "include_in_country": false,
         "public_key": "ry32nhX3WEpktDBR8CnYNbAnm3NOGBUtXmxomWZjKGU=",
         "daita": false,
@@ -11094,7 +11249,7 @@
         "provider": "100TB",
         "ipv4_addr_in": "206.217.206.16",
         "ipv6_addr_in": "2606:2e00:8007:a:ae1f:6bff:fef5:7b27",
-        "weight": 100,
+        "weight": 1,
         "include_in_country": false,
         "public_key": "7v5alccqwh+9jA+hRqwc1uZIEebXs9g5i/jH29Gr5k0=",
         "daita": false,
@@ -15467,7 +15622,7 @@
       },
       {
         "hostname": "us-sea-wg-401",
-        "active": true,
+        "active": false,
         "owned": false,
         "location": "us-sea",
         "provider": "Tzulo",
@@ -15494,7 +15649,7 @@
       },
       {
         "hostname": "us-sea-wg-402",
-        "active": true,
+        "active": false,
         "owned": false,
         "location": "us-sea",
         "provider": "Tzulo",
@@ -15521,7 +15676,7 @@
       },
       {
         "hostname": "us-sea-wg-403",
-        "active": true,
+        "active": false,
         "owned": false,
         "location": "us-sea",
         "provider": "Tzulo",
@@ -15548,7 +15703,7 @@
       },
       {
         "hostname": "us-sea-wg-404",
-        "active": true,
+        "active": false,
         "owned": false,
         "location": "us-sea",
         "provider": "Tzulo",
@@ -15575,7 +15730,7 @@
       },
       {
         "hostname": "us-sea-wg-405",
-        "active": true,
+        "active": false,
         "owned": false,
         "location": "us-sea",
         "provider": "Tzulo",
@@ -15602,7 +15757,7 @@
       },
       {
         "hostname": "us-sea-wg-406",
-        "active": true,
+        "active": false,
         "owned": false,
         "location": "us-sea",
         "provider": "Tzulo",
@@ -15629,7 +15784,7 @@
       },
       {
         "hostname": "us-sea-wg-407",
-        "active": true,
+        "active": false,
         "owned": false,
         "location": "us-sea",
         "provider": "Tzulo",
@@ -15656,7 +15811,7 @@
       },
       {
         "hostname": "us-sea-wg-408",
-        "active": true,
+        "active": false,
         "owned": false,
         "location": "us-sea",
         "provider": "Tzulo",
@@ -15759,7 +15914,7 @@
       },
       {
         "hostname": "us-sjc-wg-501",
-        "active": true,
+        "active": false,
         "owned": false,
         "location": "us-sjc",
         "provider": "Tzulo",
@@ -16575,5 +16730,5 @@
       }
     ]
   },
-  "etag": "\"696dd6eb-45429\""
+  "etag": "\"69786d58-46179\""
 }
