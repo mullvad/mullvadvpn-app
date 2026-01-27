@@ -73,7 +73,7 @@ private struct NormalConnectionConfiguration: Configuration {
                     allowedIPs: [
                         IPAddressRange(from: "\(connectionData.selectedRelays.exit.endpoint.socketAddress.ip)/32")!
                     ],
-                    pingableGateway: IPv4Address(LocalNetworkIPs.gatewayAddress.rawValue)!
+                    pingableGateway: IPv4Address(LocalNetworkIPs.gatewayAddressIpV4.rawValue)!
                 ).makeConfiguration()
             } else {
                 nil
@@ -89,7 +89,7 @@ private struct NormalConnectionConfiguration: Configuration {
                 IPAddressRange(from: "0.0.0.0/0")!,
                 IPAddressRange(from: "::/0")!,
             ],
-            pingableGateway: IPv4Address(LocalNetworkIPs.gatewayAddress.rawValue)!
+            pingableGateway: IPv4Address(LocalNetworkIPs.gatewayAddressIpV4.rawValue)!
         ).makeConfiguration()
 
         return ConnectionConfiguration(
@@ -118,7 +118,7 @@ private struct EphemeralConnectionConfiguration: Configuration {
                 endpoint: connectionData.connectedEndpoint,
                 allowedIPs: hop.configuration.allowedIPs,
                 preSharedKey: hop.configuration.preSharedKey,
-                pingableGateway: IPv4Address(LocalNetworkIPs.gatewayAddress.rawValue)!
+                pingableGateway: IPv4Address(LocalNetworkIPs.gatewayAddressIpV4.rawValue)!
             ).makeConfiguration()
 
             return ConnectionConfiguration(entryConfiguration: nil, exitConfiguration: exitConfiguration)
@@ -131,7 +131,7 @@ private struct EphemeralConnectionConfiguration: Configuration {
                 endpoint: connectionData.connectedEndpoint,
                 allowedIPs: firstHop.configuration.allowedIPs,
                 preSharedKey: firstHop.configuration.preSharedKey,
-                pingableGateway: IPv4Address(LocalNetworkIPs.gatewayAddress.rawValue)!
+                pingableGateway: IPv4Address(LocalNetworkIPs.gatewayAddressIpV4.rawValue)!
             ).makeConfiguration()
 
             let exitConfiguration = try ConfigurationBuilder(
@@ -141,7 +141,7 @@ private struct EphemeralConnectionConfiguration: Configuration {
                 endpoint: secondHop.relay.endpoint,
                 allowedIPs: secondHop.configuration.allowedIPs,
                 preSharedKey: secondHop.configuration.preSharedKey,
-                pingableGateway: IPv4Address(LocalNetworkIPs.gatewayAddress.rawValue)!
+                pingableGateway: IPv4Address(LocalNetworkIPs.gatewayAddressIpV4.rawValue)!
             ).makeConfiguration()
 
             return ConnectionConfiguration(entryConfiguration: entryConfiguration, exitConfiguration: exitConfiguration)

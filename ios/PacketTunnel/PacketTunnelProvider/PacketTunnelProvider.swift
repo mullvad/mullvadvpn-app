@@ -166,35 +166,22 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
         // This check is allowed to push new key to server if there are some issues with it.
         startDeviceCheck(rotateKeyOnMismatch: true)
 
-        actor.start(options: startOptions)
-
-        Task {
-            for await state in await actor.observedStates {
-                switch state {
-                case .connected, .disconnected, .error:
-                    completionHandler(nil)
-                    return
-                case let .connecting(connectionState):
-                    // Give the tunnel a few tries to connect, otherwise return immediately. This will enable VPN in
-                    // device settings, but the app will still report the true state via ObservedState over IPC.
-                    // In essence, this prevents the 60s tunnel timeout to trigger.
-                    if connectionState.connectionAttemptCount > 1 {
-                        completionHandler(nil)
-                        return
-                    }
-                case .negotiatingEphemeralPeer:
-                    // When negotiating ephemeral peers, allow the connection to go through immediately.
-                    // Otherwise, the in-tunnel TCP connection will never become ready as the OS doesn't let
-                    // any traffic through until this function returns, which would prevent negotiating ephemeral peers
-                    // from an unconnected state.
-                    completionHandler(nil)
-                    return
-                default:
-                    completionHandler(nil)
-                    return
+        setTunnelNetworkSettings(
+            initialTunnelNetworkSettings(),
+            completionHandler: { error in
+                if let error {
+                    self.providerLogger
+                        .error(
+                            "Failed to configure tunnel with initial config: \(error)"
+                        )
+                } else {
+                    self.providerLogger.debug("Starting actor after initial configuration is applied")
+                    self.actor.start(options: startOptions)
                 }
-            }
-        }
+                self.internalQueue.async {
+                    completionHandler(error)
+                }
+            })
     }
 
     override func stopTunnel(with reason: NEProviderStopReason) async {
@@ -297,6 +284,30 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
             accessMethodsDataSource: accessMethodRepository.accessMethodsPublisher,
             requestDataSource: accessMethodRepository.requestAccessMethodPublisher
         )
+    }
+
+    private func initialTunnelNetworkSettings() -> NETunnelNetworkSettings {
+        let settings = NEPacketTunnelNetworkSettings(
+            tunnelRemoteAddress: "\(IPv4Address.loopback)"
+        )
+
+        // IPv4 settings
+        let ipv4Settings = NEIPv4Settings(
+            addresses: [LocalNetworkIPs.gatewayAddressIpV4.rawValue],
+            subnetMasks: ["255.255.255.255"]
+        )
+        ipv4Settings.includedRoutes = [NEIPv4Route.default()]
+        settings.ipv4Settings = ipv4Settings
+
+        // IPv6 settings
+        let ipv6Settings = NEIPv6Settings(
+            addresses: [LocalNetworkIPs.gatewayAddressIpV6.rawValue],
+            networkPrefixLengths: [128]
+        )
+        ipv6Settings.includedRoutes = [NEIPv6Route.default()]
+        settings.ipv6Settings = ipv6Settings
+
+        return settings
     }
 }
 
@@ -476,16 +487,8 @@ extension PacketTunnelProvider: EphemeralPeerReceiving {
     }
 
     func ephemeralPeerExchangeFailed() {
-        // Do not retry connection unless there's network reachability. Doing so will lead to a hot loop where
-        // connections are retried every time peer exchange fails, which it will if reachability is not satisfied.
-        if defaultPathObserver.currentPathStatus.networkReachability == .reachable {
-            // Do not try reconnecting to the `.current` relay, else the actor's `State` equality check will fail
-            // and it will not try to reconnect
-            Task {
-                if await !actor.isErrorState() {
-                    actor.reconnect(to: .random, reconnectReason: .connectionLoss)
-                }
-            }
-        }
+        // Do not try reconnecting to the `.current` relay, else the actor's `State` equality check will fail
+        // and it will not try to reconnect
+        actor.reconnect(to: .random, reconnectReason: .connectionLoss)
     }
 }

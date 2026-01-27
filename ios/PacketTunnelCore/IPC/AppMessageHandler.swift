@@ -49,7 +49,7 @@ public struct AppMessageHandler {
             return nil
 
         case .getTunnelStatus:
-            return await encodeReply(packetTunnelActor.observedState)
+            return encodeReply(await packetTunnelActor.observedState)
 
         case .privateKeyRotation:
             packetTunnelActor.notifyKeyRotation(date: Date())
