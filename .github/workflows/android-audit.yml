@@ -32,10 +32,10 @@ permissions: {}
 jobs:
   prepare:
     name: Prepare
-    runs-on: ubuntu-latest
+    runs-on: android-build
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6.0.1
         with:
           submodules: true
 
@@ -54,16 +54,16 @@ jobs:
   ensure-clean-lockfile:
     needs: prepare
     name: Ensure clean lockfile
-    runs-on: ubuntu-latest
+    runs-on: android-build
     container:
       image: ${{ needs.prepare.outputs.container_image }}
+      volumes:
+        # node is symlinked in, w/o mounting it, when using a image node won't be found for the
+        # checkout action
+        # https://github.com/NixOS/nixpkgs/issues/306373
+        - /nix:/nix
     steps:
-      # Fix for HOME path overridden by GH runners when building in containers, see:
-      # https://github.com/actions/runner/issues/863
-      - name: Fix HOME path
-        run: echo "HOME=/root" >> $GITHUB_ENV
-
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6.0.1
         with:
           submodules: true
 
@@ -80,16 +80,16 @@ jobs:
   verify-lockfile-keys:
     needs: prepare
     name: Verify lockfile keys
-    runs-on: ubuntu-latest
+    runs-on: android-build
     container:
       image: ${{ needs.prepare.outputs.container_image }}
+      volumes:
+        # node is symlinked in, w/o mounting it, when using a image node won't be found for the
+        # checkout action
+        # https://github.com/NixOS/nixpkgs/issues/306373
+        - /nix:/nix
     steps:
-      # Fix for HOME path overridden by GH runners when building in containers, see:
-      # https://github.com/actions/runner/issues/863
-      - name: Fix HOME path
-        run: echo "HOME=/root" >> $GITHUB_ENV
-
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6.0.1
         with:
           submodules: true
 
