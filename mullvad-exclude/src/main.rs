@@ -15,8 +15,10 @@ mod inner {
         ScmpAction, ScmpArgCompare, ScmpCompareOp, ScmpFilterContext, ScmpNotifReq, ScmpNotifResp,
         ScmpSyscall,
     };
-    use nix::unistd::{
-        ForkResult, Pid, execvp, fork, getgid, getuid, setegid, seteuid, setgid, setuid,
+    use nix::{
+        errno::Errno,
+        sys::wait::WaitStatus,
+        unistd::{ForkResult, Pid, execvp, fork, getgid, getuid, setegid, seteuid, setgid, setuid},
     };
     use std::{
         env::args_os,
@@ -182,6 +184,7 @@ mod inner {
                 "-h" | "--help" => return print_usage(None),
                 // NOTE: This has overhead since socket() calls are intercepted.
                 // It also forces
+                // TODO: detect when running a flatpak
                 "--intercept" => enable_seccomp = true,
                 f => return print_usage(Some(f)),
             }
@@ -210,6 +213,8 @@ mod inner {
         }
 
         if enable_seccomp {
+            // TODO: check support?
+            //let api_version = libseccomp::get_api().context("Failed to get libseccomp API")?;
             let mut ctx = ScmpFilterContext::new(ScmpAction::Allow)
                 .context("Failed to create seccomp filter context")?;
             // No need to set NO_NEW_PRIVS as we are sudo.
@@ -244,7 +249,7 @@ mod inner {
                     execvp(program, &args).context("execvp failed")?;
                     Ok(())
                 }
-                ForkResult::Parent { child } => seccomp_parent(child, notify_fd),
+                ForkResult::Parent { child } => seccomp_monitor(child, notify_fd),
             }
         } else {
             // No seccomp; just exec the target program
@@ -257,59 +262,107 @@ mod inner {
         }
     }
 
-    fn seccomp_parent(child: Pid, notify_fd: OwnedFd) -> anyhow::Result<()> {
+    fn seccomp_monitor(child: Pid, notify_fd: OwnedFd) -> anyhow::Result<()> {
+        // TODO: kill child process instead of hanging if an error occurs?
         let mut prev_path = None;
 
-        loop {
-            // Check if child is still alive
-            match nix::sys::wait::waitpid(Some(child), Some(nix::sys::wait::WaitPidFlag::WNOHANG)) {
-                Ok(nix::sys::wait::WaitStatus::StillAlive) => {}
-                Err(_) => break, // Check failed
-                _ => break,      // Child exited
-            }
+        let raw_fd = notify_fd.as_raw_fd();
 
-            // Poll for seccomp notifications
+        // mullvad-exclude foobar
+        //
+        // FUN: <@:DDD
+        // mullvad-exclude: waitpid(foobar)
+        //  - secomp_monitor (wait on all children)
+        //   - foobar
+        //    - baz
+        //    - buz
+        //    - bing
+        //
+        // mullvad-exclude foobar
+        // fork()
+        //  child: seccomp_parent
+        //  parent: foobar
+        //
+        // TODO: check if we can unregister notify instead
+
+        // FIXME
+        /*
+        std::thread::spawn({
+            let child = child.clone();
+            move || {
+                // When all children have died, exit
+                loop {
+                    match nix::sys::wait::wait() {
+                        Ok(WaitStatus::Exited(pid, status)) => {
+                            if pid == child {
+                                // Child process exited successfully
+                                status
+                            }
+                            continue;
+                        }
+                        Err(Errno::ECHILD) => break, // no more children
+                        Err(_) => todo!(),
+                    };
+                }
+                // Close the notify fd to unblock the main loop
+                // TODO: correct exit code
+                std::process::exit(0);
+            }
+        });
+        */
+
+        loop {
+            // Poll for seccomp notifications.
+            // These trigger when a child process invokes `socket(AF_INET / AF_INET6)`.
             let req = match ScmpNotifReq::receive(notify_fd.as_raw_fd()) {
                 Ok(req) => req,
                 Err(err) => {
-                    if err.sysrawrc() == Some(-libc::EBADF) {
-                        break;
-                    }
-                    if err.sysrawrc() == Some(-libc::ENOENT) {
-                        break;
-                    }
-                    if err.sysrawrc() == Some(-libc::ECANCELED) {
-                        break;
-                    }
                     bail!("ScmpNotifReq::receive failed: {err}");
                 }
             };
 
-            if let Ok(cgroup_path) = read_cgroup_path(child.as_raw() as i32)
-                && prev_path.as_ref() != Some(&cgroup_path)
-            {
-                eprintln!("Attaching to cgroup2 path: {}", cgroup_path);
-                let cgroup = CGroup2::open(format!("/sys/fs/cgroup{cgroup_path}"))
-                    .context("Failed to open cgroup2")?;
-                let _ = install_exclusion_bpf_for_cgroup(&cgroup);
+            /*
+            let mut handle_scmp_request = |req: ScmpNotifReq| -> anyhow::Result<ScmpNotifResp> {
+                // Look up cgroup of child   (flatpak run)
+                // Look up cgroup of req.pid
+                // if same: exclude
 
-                prev_path = Some(cgroup_path);
-            }
+                // Get the cgroup of the child process.
+                // We can't assume the child is still in the cgroup we created for it,
+                // since some programs (flatpak) create their own cgroup.
+                if let Ok(cgroup_path) = read_cgroup_path(child.as_raw() as i32)
+                    && prev_path.as_ref() != Some(&cgroup_path)
+                {
+                    eprintln!("Attaching to cgroup2 path: {}", cgroup_path);
+                    // TODO: make sure we ALWAYS respond to thhe ScmpNotif.
+                    let cgroup = CGroup2::open(format!("/sys/fs/cgroup{cgroup_path}"))
+                        .context("Failed to open cgroup2")?;
+                    install_exclusion_bpf_for_cgroup(&cgroup)
+                        .context("Failed to install BPF hook for cgroup2")?;
 
-            let resp = ScmpNotifResp::new(req.id, 0, 0, SECCOMP_USER_NOTIF_FLAG_CONTINUE as _);
+                    prev_path = Some(cgroup_path);
+                }
+
+                Ok(ScmpNotifResp::new(
+                    req.id,
+                    0,
+                    0,
+                    SECCOMP_USER_NOTIF_FLAG_CONTINUE as _,
+                ))
+            };
+
+            let resp = match handle_scmp_request(req) {
+                Ok(resp) => resp,
+                Err(_) => todo!(),
+            };
+
             match resp.respond(notify_fd.as_raw_fd()) {
                 Ok(_) => {}
                 Err(err) => {
-                    if err.sysrawrc() == Some(-libc::ENOENT) {
-                        // If the target died mid-flight, this can fail; just keep looping.
-                        continue;
-                    }
                     bail!("ScmpNotifResp::respond failed: {err}");
                 }
-            }
+            }*/
         }
-
-        Ok(())
     }
 
     fn read_cgroup_path(pid: i32) -> anyhow::Result<String> {
