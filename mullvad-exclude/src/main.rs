@@ -19,7 +19,9 @@ mod inner {
     use nix::{
         cmsg_space,
         sys::socket::{ControlMessage, ControlMessageOwned, MsgFlags, RecvMsg, recvmsg, sendmsg},
-        unistd::{ForkResult, Pid, execvp, fork, getgid, getuid, setegid, seteuid, setgid, setuid},
+        unistd::{
+            ForkResult, Pid, execvp, fork, getgid, getpid, getuid, setegid, seteuid, setgid, setuid,
+        },
     };
     use std::{
         env::args_os,
@@ -217,8 +219,10 @@ mod inner {
             let (notify_fd_tx, notify_fd_rx) =
                 UnixStream::pair().context("Failed to create unix socket")?;
 
+            let parent_pid = getpid();
+
             match unsafe { fork() }.context("fork failed")? {
-                ForkResult::Child => {
+                ForkResult::Parent { child: _ } => {
                     drop(notify_fd_rx);
 
                     // TODO: check support?
@@ -275,10 +279,10 @@ mod inner {
                     execvp(program, &args).context("execvp failed")?;
                     Ok(())
                 }
-                ForkResult::Parent { child } => {
+                ForkResult::Child => {
                     drop(notify_fd_tx);
 
-                    // Receive the seccomp notify fd from the child process using SCM_RIGHTS.
+                    // Receive the seccomp notify fd from the parent process using SCM_RIGHTS.
                     let mut buf = [0u8; 1];
                     let mut iov = [IoSliceMut::new(&mut buf)];
                     let mut cmsg_buf = cmsg_space!(RawFd);
@@ -306,7 +310,7 @@ mod inner {
                     drop(notify_fd_rx);
 
                     // Run seccomp supervisor
-                    seccomp_monitor(child, notify_fd)?;
+                    seccomp_monitor(parent_pid, notify_fd)?;
                     Ok(())
                 }
             }
@@ -321,27 +325,9 @@ mod inner {
         }
     }
 
-    fn seccomp_monitor(child: Pid, notify_fd: OwnedFd) -> anyhow::Result<()> {
-        // TODO: kill child process instead of hanging if an error occurs?
-        //let mut prev_path = None;
-
-        //let raw_fd = notify_fd.as_raw_fd();
-
-        // mullvad-exclude foobar
-        //
-        // FUN: <@:DDD
-        // mullvad-exclude: waitpid(foobar)
-        //  - seccomp_monitor (wait on all children using ScmpNotifRecv)
-        //  - mullvad-exclude exec foobar
-        //    - baz
-        //    - buz
-        //    - bing
-        //
-        //
-        // mullvad-exclude -> foobar
-        // - seccomp_monitor
-
-        let mut handled_immediate_child = false;
+    /// Supervise syscalls from `supervised_pid`.
+    fn seccomp_monitor(supervised_pid: Pid, notify_fd: OwnedFd) -> anyhow::Result<()> {
+        let mut handled_supervised_pid = false;
 
         loop {
             // Poll for seccomp notifications.
@@ -353,15 +339,11 @@ mod inner {
                 }
             };
             let handle_scmp_request = |req: ScmpNotifReq| -> anyhow::Result<ScmpNotifResp> {
-                // Look up cgroup of child   (flatpak run)
-                // Look up cgroup of req.pid
-                // if same: exclude
-
-                // Get the cgroup of the child process.
-                // We can't assume the child is still in the cgroup we created for it,
+                // Get the cgroup of the supervised process.
+                // We can't assume the process is still in the cgroup we created for it,
                 // since some programs (flatpak) create their own cgroup.
-                if !handled_immediate_child {
-                    let cgroup_path = read_cgroup_path(child.as_raw() as i32)
+                if !handled_supervised_pid {
+                    let cgroup_path = read_cgroup_path(supervised_pid.as_raw() as i32)
                         .context("Failed to read cgroup path")?;
                     eprintln!("Attaching to cgroup2 path: {}", cgroup_path);
                     // TODO: make sure we ALWAYS respond to thhe ScmpNotif.
@@ -379,7 +361,7 @@ mod inner {
 
             let resp = match handle_scmp_request(req) {
                 Ok(resp) => {
-                    handled_immediate_child = true;
+                    handled_supervised_pid = true;
                     resp
                 }
                 Err(err) => {
