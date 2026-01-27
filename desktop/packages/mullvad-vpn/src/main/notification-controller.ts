@@ -94,13 +94,14 @@ export default class NotificationController {
     hasExcludedApps: boolean,
     isWindowVisible: boolean,
     areSystemNotificationsEnabled: boolean,
+    splitTunnelingSupported: boolean,
   ): boolean {
     const notificationProviders: SystemNotificationProvider[] = [
       new ConnectingNotificationProvider({ tunnelState, reconnecting: this.reconnecting }),
       new ConnectedNotificationProvider(tunnelState),
       new ReconnectingNotificationProvider(tunnelState),
       new DisconnectedNotificationProvider({ tunnelState }),
-      new ErrorNotificationProvider({ tunnelState, hasExcludedApps }),
+      new ErrorNotificationProvider({ tunnelState, hasExcludedApps, splitTunnelingSupported }),
     ];
 
     const notificationProvider = notificationProviders.find((notification) =>
