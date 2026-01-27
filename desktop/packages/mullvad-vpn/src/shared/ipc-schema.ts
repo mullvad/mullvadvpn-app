@@ -266,5 +266,6 @@ export const ipcSchema = {
     removeApplication: invoke<ISplitTunnelingApplication, void>(),
     forgetManuallyAddedApplication: invoke<ISplitTunnelingApplication, void>(),
     getSupported: invoke<void, boolean>(),
+    isSupported: notifyRenderer<boolean>(),
   },
 };

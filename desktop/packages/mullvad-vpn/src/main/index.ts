@@ -112,6 +112,7 @@ class ApplicationMain
 
   private linuxSplitTunneling?: typeof import('./linux-split-tunneling');
   private splitTunneling?: ISplitTunnelingAppListRetriever;
+  private splitTunnelingSupported = false;
 
   private tunnelStateExpectation?: Expectation;
 
@@ -569,6 +570,22 @@ class ApplicationMain
     } catch (e) {
       const error = e as Error;
       log.error(`Failed to fetch the account history: ${error.message}`);
+
+      return this.handleBootstrapError(error);
+    }
+
+    // fetch split tunneling support status
+    try {
+      if (process.platform === 'linux' || process.platform === 'win32') {
+        this.splitTunnelingSupported = await this.daemonRpc.splitTunnelIsSupported();
+      } else {
+        // split tunneling is supported on other platforms (macOS)
+        this.splitTunnelingSupported = true;
+      }
+      IpcMainEventChannel.splitTunneling.notifyIsSupported?.(this.splitTunnelingSupported);
+    } catch (e) {
+      const error = e as Error;
+      log.error(`Failed to fetch if split tunneling is supported: ${error.message}`);
 
       return this.handleBootstrapError(error);
     }
