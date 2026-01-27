@@ -21,6 +21,17 @@ Line wrap the file at 100 chars.                                              Th
 * **Fixed**: for any bug fixes.
 * **Security**: in case of vulnerabilities.
 
+## [android/2026.1-beta2] - 2025-01-27
+### Changed
+- Disable "View logs" button until logs are fully parsed.
+
+### Fixed
+- Various fixes for layout positioning when using a RTL language.
+- Fix not being able to open the app via notification if the app icon is changed.
+- Fix scroll to selection sometimes not working in in select location screen.
+- Fix disabled content blockers hint not showing.
+
+
 ## [android/2026.1-beta1] - 2025-01-22
 ### Added
 - Add Arabic and Persian as new languages in the app with full RTL support.
