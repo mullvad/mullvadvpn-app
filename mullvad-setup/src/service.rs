@@ -1,3 +1,4 @@
+#![cfg(target_os = "windows")]
 use std::{
     ffi::{OsStr, OsString},
     time::Duration,
