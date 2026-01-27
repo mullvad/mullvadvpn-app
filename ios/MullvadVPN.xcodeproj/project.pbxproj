@@ -5865,7 +5865,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "exec > $PROJECT_DIR/relays-prebuild.log 2>&1\n\n$PROJECT_DIR/relays-prebuild.sh\n";
+			shellScript = "exec > $PROJECT_DIR/relays-prebuild.log 2>&1\n\n$PROJECT_DIR/relays-prebuild.swift\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
