@@ -1,6 +1,3 @@
-- Added translations for Arabic and Persian.
-- Updated design for select location screen.
-- Added new anti-censorship settings.
-- It is now possible to change the icon and title of the app.
-- Removed automatic as a setting for "Quantum-resistant tunnel".
-- Introduced new list item design.
+- Fixed several RTL issues.
+- Fixed issue with not being able to open the app if the icon was changed.
+- Fixed missing content blockers disabled text.
