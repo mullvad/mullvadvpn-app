@@ -152,9 +152,14 @@ jobs:
         run: >
           ./building/container-run.sh android android/gradlew -p android --console plain --stacktrace --no-daemon
           :app:assembleOssProdDebug
-          :app:assemblePlayStagemoleDebug
           assembleOssProdAndroidTest
           :test:mockapi:assemble
+
+      - name: Build e2e apks
+        if: needs.prepare.outputs.E2E_TEST_REPEAT != '0'
+        run: >
+          ./building/container-run.sh android android/gradlew -p android --console plain --stacktrace --no-daemon
+          :app:assemblePlayStagemoleDebug
           :test:e2e:assemble
 
       - name: Upload apks
