@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		014E8C2A2F28B09700837D0A /* MullvadLogging.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 58D223F3294C8FF00029F5F8 /* MullvadLogging.framework */; };
+		014E8C2B2F28B09700837D0A /* MullvadLogging.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 58D223F3294C8FF00029F5F8 /* MullvadLogging.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		01B2FF862D70B914004AED35 /* MullvadRustRuntime.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A992DA1D2C24709F00DE7CE5 /* MullvadRustRuntime.framework */; };
 		01D13C212F11130500EC63DE /* RustLogging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01D13C202F11130500EC63DE /* RustLogging.swift */; };
 		01EF6F342B6A590700125696 /* libmullvad_api.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 01EF6F332B6A590700125696 /* libmullvad_api.a */; };
@@ -1125,6 +1127,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		014E8C2C2F28B09700837D0A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 58CE5E58224146200008646E /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 58D223F2294C8FF00029F5F8;
+			remoteInfo = MullvadLogging;
+		};
 		01B2FF882D70B914004AED35 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 58CE5E58224146200008646E /* Project object */;
@@ -1552,6 +1561,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				014E8C2B2F28B09700837D0A /* MullvadLogging.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2715,6 +2725,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				014E8C2A2F28B09700837D0A /* MullvadLogging.framework in Frameworks */,
 				A9173C372C36CD2B00F6A08C /* MullvadTypes.framework in Frameworks */,
 				44A262672D63745C00085380 /* WireGuardKitTypes in Frameworks */,
 				A9D4A4792C2DAB5F00F1E522 /* libmullvad_ios.a in Frameworks */,
@@ -5405,6 +5416,7 @@
 			);
 			dependencies = (
 				A9173C342C36CCFB00F6A08C /* PBXTargetDependency */,
+				014E8C2D2F28B09700837D0A /* PBXTargetDependency */,
 			);
 			name = MullvadRustRuntime;
 			packageProductDependencies = (
@@ -7010,6 +7022,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		014E8C2D2F28B09700837D0A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 58D223F2294C8FF00029F5F8 /* MullvadLogging */;
+			targetProxy = 014E8C2C2F28B09700837D0A /* PBXContainerItemProxy */;
+		};
 		01B2FF892D70B914004AED35 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = A992DA1C2C24709F00DE7CE5 /* MullvadRustRuntime */;
