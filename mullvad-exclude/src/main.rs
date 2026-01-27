@@ -25,7 +25,7 @@ mod inner {
     };
     use std::{
         env::args_os,
-        ffi::{CString, OsString},
+        ffi::{CStr, CString, OsString},
         fs::remove_file,
         io::{self, IoSlice, IoSliceMut},
         os::{
@@ -180,18 +180,6 @@ mod inner {
             .take_while(|arg| arg.starts_with("-"))
             .collect();
         let command: Vec<OsString> = args_os.iter().skip(flags.len()).cloned().collect();
-        let mut enable_seccomp = false;
-
-        for flag in flags {
-            match flag {
-                "-h" | "--help" => return print_usage(None),
-                // NOTE: This has overhead since socket() calls are intercepted.
-                // It also forces
-                // TODO: detect when running a flatpak
-                "--intercept" => enable_seccomp = true,
-                f => return print_usage(Some(f)),
-            }
-        }
 
         let real_uid = getuid();
         let real_gid = getgid();
@@ -207,6 +195,16 @@ mod inner {
             bail!("No command specified");
         };
 
+        let mut enable_intercept = need_socket_intercept(program);
+        for flag in flags {
+            match flag {
+                "-h" | "--help" => return print_usage(None),
+                "--intercept" => enable_intercept = true,
+                "--no-intercept" => enable_intercept = false,
+                f => return print_usage(Some(f)),
+            }
+        }
+
         if talpid_cgroup::is_systemd_managed() {
             seteuid(real_uid).context("Failed to drop root temporarily")?;
             setegid(real_gid).context("Failed to drop root temporarily")?;
@@ -215,7 +213,7 @@ mod inner {
             setgid(0.into()).context("Failed to regain root")?;
         }
 
-        if enable_seccomp {
+        if enable_intercept {
             let (notify_fd_tx, notify_fd_rx) =
                 UnixStream::pair().context("Failed to create unix socket")?;
 
@@ -324,6 +322,13 @@ mod inner {
 
             Ok(())
         }
+    }
+
+    /// Certain applications (e.g. flatpak) require us to intercept socket syscalls.
+    /// This is because they move themselves into a different cgroup.
+    fn need_socket_intercept(program: &CStr) -> bool {
+        let program = program.to_bytes();
+        program == b"flatpak" || program.ends_with(b"/flatpak")
     }
 
     fn assert_seccomp_version() -> anyhow::Result<()> {

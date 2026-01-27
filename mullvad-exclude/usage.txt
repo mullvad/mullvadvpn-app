@@ -7,3 +7,9 @@ Arguments:
 
 Options:
   -h, --help            Print help
+  --intercept           Intercept socket() syscalls (required for flatpak).
+                        If neither this nor --no-intercept is specified, intercept is automatically
+                        enabled if the program is flatpak.
+  --no-intercept        Never intercept socket() syscalls.
+                        If neither this nor --intercept is specified, intercept is automatically
+                        enabled if the program is flatpak.
