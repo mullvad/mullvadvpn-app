@@ -5067,7 +5067,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 06799AD328F98E1D00ACD94E /* Build configuration list for PBXNativeTarget "MullvadREST" */;
 			buildPhases = (
-				F05F39962B21C704006E60A7 /* Prebuild relays */,
+				F05F39962B21C704006E60A7 /* Check relays */,
 				06799AB728F98E1D00ACD94E /* Headers */,
 				06799AB828F98E1D00ACD94E /* Sources */,
 				06799AB928F98E1D00ACD94E /* Frameworks */,
@@ -5865,7 +5865,7 @@
 			shellPath = /bin/sh;
 			shellScript = "CARGO_TARGET_DIR=${PROJECT_DIR}/../target bash ${PROJECT_DIR}/build-rust-library.sh mullvad-ios api-override\n";
 		};
-		F05F39962B21C704006E60A7 /* Prebuild relays */ = {
+		F05F39962B21C704006E60A7 /* Check relays */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
@@ -5875,14 +5875,14 @@
 			);
 			inputPaths = (
 			);
-			name = "Prebuild relays";
+			name = "Check relays";
 			outputFileListPaths = (
 			);
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "exec > $PROJECT_DIR/relays-prebuild.log 2>&1\n\n$PROJECT_DIR/relays-prebuild.sh\n";
+			shellScript = "exec > $PROJECT_DIR/relays-prebuild.log 2>&1\n\n$PROJECT_DIR/checkRelays.swift\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
