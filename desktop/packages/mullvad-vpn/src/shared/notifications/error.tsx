@@ -26,6 +26,7 @@ import {
 interface ErrorNotificationContext {
   tunnelState: TunnelState;
   hasExcludedApps: boolean;
+  splitTunnelingSupported: boolean;
   showFullDiskAccessSettings?: () => void;
   disableSplitTunneling?: () => void;
 }
@@ -41,13 +42,25 @@ export class ErrorNotificationProvider
     if (this.context.tunnelState.state === 'error') {
       let message = this.getMessage(this.context.tunnelState.details);
       if (!this.context.tunnelState.details.blockingError && this.context.hasExcludedApps) {
-        message = `${message} ${sprintf(
-          messages.pgettext(
-            'notifications',
-            'The apps excluded with %(splitTunneling)s might not work properly right now.',
-          ),
-          { splitTunneling: strings.splitTunneling.toLowerCase() },
-        )}`;
+        if (!this.context.splitTunnelingSupported) {
+          message = sprintf(
+            // TRANSLATORS: Label for the system notification when the app encountered an error
+            // TRANSLATORS: and will block network traffic until the error is resolved.
+            messages.pgettext(
+              'notifications',
+              'Failed to start %(splitTunneling)s. Please send a problem report. To unblock network traffic, disable split tunneling.',
+            ),
+            { splitTunneling: strings.splitTunneling.toLowerCase() },
+          );
+        } else {
+          message = `${message} ${sprintf(
+            messages.pgettext(
+              'notifications',
+              'The apps excluded with %(splitTunneling)s might not work properly right now.',
+            ),
+            { splitTunneling: strings.splitTunneling.toLowerCase() },
+          )}`;
+        }
       }
 
       return {
