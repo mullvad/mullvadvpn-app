@@ -305,6 +305,9 @@ mod inner {
                         .context("Missing file descriptor in CMSG")?;
 
                     // SAFETY: The fd was just received via SCM_RIGHTS and is valid.
+                    // The fd was produced by ScmpFilterContext::get_notify_fd.
+                    // The fd does not need any cleanup other than close.
+                    // Closing the fd is fine because ... TODO
                     let notify_fd = unsafe { OwnedFd::from_raw_fd(notify_fd) };
                     drop(notify_fd_rx);
 
