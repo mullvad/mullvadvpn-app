@@ -114,10 +114,10 @@ describe('System notifications', () => {
 
     const disconnectedState: TunnelState = { state: 'disconnected', lockedDown: false };
     const connectingState: TunnelState = { state: 'connecting', featureIndicators: undefined };
-    const result1 = controller.notifyTunnelState(disconnectedState, false, false, true);
-    const result2 = controller.notifyTunnelState(disconnectedState, false, false, false);
-    const result3 = controller.notifyTunnelState(connectingState, false, false, true);
-    const result4 = controller.notifyTunnelState(connectingState, false, false, false);
+    const result1 = controller.notifyTunnelState(disconnectedState, false, false, true, true);
+    const result2 = controller.notifyTunnelState(disconnectedState, false, false, false, true);
+    const result3 = controller.notifyTunnelState(connectingState, false, false, true, true);
+    const result4 = controller.notifyTunnelState(connectingState, false, false, false, true);
 
     expect(result1).toBe(true);
     expect(result2).toBe(false);
@@ -130,7 +130,7 @@ describe('System notifications', () => {
         cause: ErrorStateCause.isOffline,
       },
     };
-    const result5 = controller.notifyTunnelState(blockingErrorState, false, false, false);
+    const result5 = controller.notifyTunnelState(blockingErrorState, false, false, false, true);
     expect(result5).toBe(false);
 
     const nonBlockingErrorState: TunnelState = {
@@ -142,7 +142,7 @@ describe('System notifications', () => {
         },
       },
     };
-    const result6 = controller.notifyTunnelState(nonBlockingErrorState, false, false, false);
+    const result6 = controller.notifyTunnelState(nonBlockingErrorState, false, false, false, true);
     expect(result6).toBe(true);
   });
 });
