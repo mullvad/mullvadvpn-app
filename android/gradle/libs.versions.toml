@@ -67,7 +67,7 @@ leakcanary = "2.14"
 mockk = "1.14.9"
 play-publisher = "3.12.1"
 profileinstaller = "1.4.1"
-protobuf = "4.33.2"
+protobuf = "4.33.4"
 protobuf-gradle-plugin = "0.9.5"
 turbine = "1.2.1"
 
