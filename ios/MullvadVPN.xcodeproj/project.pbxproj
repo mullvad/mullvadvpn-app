@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		014E8C2A2F28B09700837D0A /* MullvadLogging.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 58D223F3294C8FF00029F5F8 /* MullvadLogging.framework */; };
 		014E8C2B2F28B09700837D0A /* MullvadLogging.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 58D223F3294C8FF00029F5F8 /* MullvadLogging.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		014E8C302F294FB000837D0A /* relays-test-data.json in Resources */ = {isa = PBXBuildFile; fileRef = 014E8C2F2F294FB000837D0A /* relays-test-data.json */; };
+		014E8C312F294FB000837D0A /* relays-test-data.json in Resources */ = {isa = PBXBuildFile; fileRef = 014E8C2F2F294FB000837D0A /* relays-test-data.json */; };
 		01B2FF862D70B914004AED35 /* MullvadRustRuntime.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A992DA1D2C24709F00DE7CE5 /* MullvadRustRuntime.framework */; };
 		01D13C212F11130500EC63DE /* RustLogging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01D13C202F11130500EC63DE /* RustLogging.swift */; };
 		01EF6F342B6A590700125696 /* libmullvad_api.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 01EF6F332B6A590700125696 /* libmullvad_api.a */; };
@@ -590,7 +592,6 @@
 		7A9BE5A92B90806800E2A7D0 /* CustomListsRepositoryStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A9BE5A82B90806800E2A7D0 /* CustomListsRepositoryStub.swift */; };
 		7A9BE5AB2B909A1700E2A7D0 /* LocationDataSourceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = F050AE5D2B739A73003F4EDB /* LocationDataSourceProtocol.swift */; };
 		7A9BE5AD2B90DF2D00E2A7D0 /* AllLocationsDataSourceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A9BE5AC2B90DF2D00E2A7D0 /* AllLocationsDataSourceTests.swift */; };
-		87A647B96EC28D42434F4D03 /* AllLocationDataSourceBenchmarkTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A647B96EC28D42434F4D02 /* AllLocationDataSourceBenchmarkTests.swift */; };
 		7A9CCCB32A96302800DD6A34 /* WelcomeCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A9CCCA12A96302700DD6A34 /* WelcomeCoordinator.swift */; };
 		7A9CCCB62A96302800DD6A34 /* OutOfTimeCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A9CCCA42A96302700DD6A34 /* OutOfTimeCoordinator.swift */; };
 		7A9CCCB72A96302800DD6A34 /* RevokedCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A9CCCA52A96302700DD6A34 /* RevokedCoordinator.swift */; };
@@ -726,6 +727,7 @@
 		85F1E17E2C0A256200DB8F55 /* LeakTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85F1E17D2C0A256200DB8F55 /* LeakTests.swift */; };
 		85FB5A0C2B6903990015DCED /* WelcomePage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85FB5A0B2B6903990015DCED /* WelcomePage.swift */; };
 		85FB5A102B6960A30015DCED /* AccountDeletionPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85FB5A0F2B6960A30015DCED /* AccountDeletionPage.swift */; };
+		87A647B96EC28D42434F4D03 /* AllLocationDataSourceBenchmarkTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A647B96EC28D42434F4D02 /* AllLocationDataSourceBenchmarkTests.swift */; };
 		A902E7A62D3FB0D9007F844A /* LogFileOutputStreamTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A902E7A52D3FB0D9007F844A /* LogFileOutputStreamTests.swift */; };
 		A90C48672C36BC2600DCB94C /* EphemeralPeerReceiver.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90C48662C36BC2600DCB94C /* EphemeralPeerReceiver.swift */; };
 		A90C48692C36BF3900DCB94C /* TunnelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90C48682C36BF3900DCB94C /* TunnelProvider.swift */; };
@@ -1590,6 +1592,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		014E8C2F2F294FB000837D0A /* relays-test-data.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "relays-test-data.json"; sourceTree = "<group>"; };
 		01D13C202F11130500EC63DE /* RustLogging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RustLogging.swift; sourceTree = "<group>"; };
 		01EF6F2D2B6A51B100125696 /* mullvad-api.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "mullvad-api.h"; path = "../mullvad-api/include/mullvad-api.h"; sourceTree = "<group>"; };
 		01EF6F332B6A590700125696 /* libmullvad_api.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmullvad_api.a; path = "../target/aarch64-apple-ios/debug/libmullvad_api.a"; sourceTree = "<group>"; };
@@ -2147,7 +2150,6 @@
 		7A9BE5A42B90760C00E2A7D0 /* CustomListsDataSourceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomListsDataSourceTests.swift; sourceTree = "<group>"; };
 		7A9BE5A82B90806800E2A7D0 /* CustomListsRepositoryStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomListsRepositoryStub.swift; sourceTree = "<group>"; };
 		7A9BE5AC2B90DF2D00E2A7D0 /* AllLocationsDataSourceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AllLocationsDataSourceTests.swift; sourceTree = "<group>"; };
-		87A647B96EC28D42434F4D02 /* AllLocationDataSourceBenchmarkTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AllLocationDataSourceBenchmarkTests.swift; sourceTree = "<group>"; };
 		7A9CCCA12A96302700DD6A34 /* WelcomeCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WelcomeCoordinator.swift; sourceTree = "<group>"; };
 		7A9CCCA22A96302700DD6A34 /* TermsOfServiceCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TermsOfServiceCoordinator.swift; sourceTree = "<group>"; };
 		7A9CCCA42A96302700DD6A34 /* OutOfTimeCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OutOfTimeCoordinator.swift; sourceTree = "<group>"; };
@@ -2279,6 +2281,7 @@
 		85F1E17D2C0A256200DB8F55 /* LeakTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeakTests.swift; sourceTree = "<group>"; };
 		85FB5A0B2B6903990015DCED /* WelcomePage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomePage.swift; sourceTree = "<group>"; };
 		85FB5A0F2B6960A30015DCED /* AccountDeletionPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountDeletionPage.swift; sourceTree = "<group>"; };
+		87A647B96EC28D42434F4D02 /* AllLocationDataSourceBenchmarkTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AllLocationDataSourceBenchmarkTests.swift; sourceTree = "<group>"; };
 		A900E9B72ACC5C2B00C95F67 /* AccountsProxy+Stubs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AccountsProxy+Stubs.swift"; sourceTree = "<group>"; };
 		A900E9B92ACC5D0600C95F67 /* RESTRequestExecutor+Stubs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RESTRequestExecutor+Stubs.swift"; sourceTree = "<group>"; };
 		A900E9BB2ACC609200C95F67 /* DevicesProxy+Stubs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DevicesProxy+Stubs.swift"; sourceTree = "<group>"; };
@@ -2756,6 +2759,7 @@
 		062B45A228FD4C0F00746E77 /* Assets */ = {
 			isa = PBXGroup;
 			children = (
+				014E8C2F2F294FB000837D0A /* relays-test-data.json */,
 				06799AB428F98CE700ACD94E /* le_root_cert.cer */,
 				7A95B67A2D5F758300687524 /* relays.json */,
 			);
@@ -5622,6 +5626,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				062B45A328FD4CA700746E77 /* le_root_cert.cer in Resources */,
+				014E8C302F294FB000837D0A /* relays-test-data.json in Resources */,
 				7A95B67B2D5F758300687524 /* relays.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -5703,6 +5708,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				014E8C312F294FB000837D0A /* relays-test-data.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
