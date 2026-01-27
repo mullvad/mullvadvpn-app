@@ -225,8 +225,8 @@ mod inner {
                 ForkResult::Parent { child: _ } => {
                     drop(notify_fd_rx);
 
-                    // TODO: check support?
-                    //let api_version = libseccomp::get_api().context("Failed to get libseccomp API")?;
+                    assert_seccomp_version()?;
+
                     let mut ctx = ScmpFilterContext::new(ScmpAction::Allow)
                         .context("Failed to create seccomp filter context")?;
                     // No need to set NO_NEW_PRIVS as we are sudo.
@@ -324,6 +324,19 @@ mod inner {
 
             Ok(())
         }
+    }
+
+    fn assert_seccomp_version() -> anyhow::Result<()> {
+        let api_version = libseccomp::get_api();
+        // Version 5 or higher is needed for notify
+        // https://www.man7.org/linux/man-pages/man3/seccomp_api_get.3.html
+        if api_version < 5 {
+            bail!(
+                "libseccomp API version {} is too old; need at least version 5. Your kernel might be too old.",
+                api_version
+            );
+        }
+        Ok(())
     }
 
     /// Enable split tunneling for `supervised_pid` on the first monitored syscall from it or any child process.
