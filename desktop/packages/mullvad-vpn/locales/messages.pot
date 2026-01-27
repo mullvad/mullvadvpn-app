@@ -1341,6 +1341,12 @@ msgctxt "in-app-notifications"
 msgid "Send problem report"
 msgstr ""
 
+#. Label for the in-app banner when the app encountered an error
+#. and will block network traffic until the error is resolved.
+msgctxt "in-app-notifications"
+msgid "Split tunneling could not start, your network has been blocked to prevent leaks. <a>Please send a problem report.</a> To unblock network traffic, disable split tunneling."
+msgstr ""
+
 #. Notification subtitle when the installer verification failed.
 msgctxt "in-app-notifications"
 msgid "The installer could not be verified."
@@ -1706,6 +1712,12 @@ msgstr ""
 
 msgctxt "notifications"
 msgid "Reconnecting"
+msgstr ""
+
+#. Label for the system notification when the app encountered an error
+#. and will block network traffic until the error is resolved.
+msgctxt "notifications"
+msgid "Split tunneling could not start, your network has been blocked to prevent leaks. Please send a problem report. To unblock network traffic, disable split tunneling."
 msgstr ""
 
 msgctxt "notifications"
