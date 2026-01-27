@@ -897,7 +897,7 @@ class ApplicationMain
       this.splitTunneling!.removeApplicationFromCache(application);
       return Promise.resolve();
     });
-    IpcMainEventChannel.splitTunneling.handleIsSupported(() => {
+    IpcMainEventChannel.splitTunneling.handleGetSupported(() => {
       return this.daemonRpc.splitTunnelIsSupported();
     });
     IpcMainEventChannel.macOsSplitTunneling.handleNeedFullDiskPermissions(async () => {
