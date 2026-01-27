@@ -1,7 +1,6 @@
 package net.mullvad.mullvadvpn.di
 
 import android.content.ComponentName
-import android.content.pm.PackageManager
 import android.os.Build
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
@@ -18,7 +17,6 @@ import net.mullvad.mullvadvpn.lib.payment.PaymentProvider
 import net.mullvad.mullvadvpn.lib.repository.VoucherRepository
 import net.mullvad.mullvadvpn.receiver.AutoStartVpnBootCompletedReceiver
 import net.mullvad.mullvadvpn.repository.ApiAccessRepository
-import net.mullvad.mullvadvpn.repository.AppObfuscationRepository
 import net.mullvad.mullvadvpn.repository.AutoStartAndConnectOnBootRepository
 import net.mullvad.mullvadvpn.repository.ChangelogRepository
 import net.mullvad.mullvadvpn.repository.CustomListsRepository
@@ -125,9 +123,6 @@ import org.koin.dsl.bind
 import org.koin.dsl.module
 
 val uiModule = module {
-    single<PackageManager> { androidContext().packageManager }
-    single<String>(named(SELF_PACKAGE_NAME)) { androidContext().packageName }
-
     single<ComponentName>(named(BOOT_COMPLETED_RECEIVER_COMPONENT_NAME)) {
         ComponentName(androidContext(), AutoStartVpnBootCompletedReceiver::class.java)
     }
@@ -168,7 +163,6 @@ val uiModule = module {
         )
     }
     single { WireguardConstraintsRepository(get()) }
-    single { AppObfuscationRepository(get(), get(named(SELF_PACKAGE_NAME))) }
 
     single { AccountExpiryInAppNotificationUseCase(get()) } bind InAppNotificationUseCase::class
     single { TunnelStateNotificationUseCase(get(), get(), get()) } bind
