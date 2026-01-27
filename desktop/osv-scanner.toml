@@ -5,3 +5,15 @@
 id = "CVE-2024-21528"  # GHSA-g974-hxvm-x689
 ignoreUntil = 2026-04-16  # The vulnerability is ignored for 6 months as the affected library is not receiving updates and we can not patch the vulnerability without migrating to another library, which is no minor feat.
 reason = "There is no fix yet and we don't send untrusted input to the first argument of addTranslations"
+
+# tar: node-tar is Vulnerable to Arbitrary File Overwrite and Symlink Poisoning via Insufficient Path Sanitization
+[[IgnoredVulns]]
+id = "CVE-2026-23745"  # GHSA-8qq5-rm4j-mr97
+ignoreUntil = 2026-02-02
+reason = "The vulnerable tar dependency does not handle arbitrary tar files as it is only used by grpc-tools. Unless the files uploaded by the grpc-tools team to Github's package repository are compromised an attack is not possible."
+
+# tar: Race Condition in node-tar Path Reservations via Unicode Ligature Collisions on macOS APFS
+[[IgnoredVulns]]
+id = "CVE-2026-23950"  # GHSA-r6q2-hw4h-h46w
+ignoreUntil = 2026-02-02
+reason = "The vulnerable tar dependency does not handle arbitrary tar files as it is only used by grpc-tools. Unless the files uploaded by the grpc-tools team to Github's package repository are compromised an attack is not possible."
