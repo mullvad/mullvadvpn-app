@@ -11,7 +11,7 @@ import {
   IRelayLocationCountryRedux,
   IRelayLocationRelayRedux,
 } from '../../../redux/settings/reducers';
-import { SpecialLocationRowInnerProps } from './SpecialLocationList';
+import type { SpecialLocationRowInnerProps } from './components';
 
 export enum LocationType {
   entry = 0,
