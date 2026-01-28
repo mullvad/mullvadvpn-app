@@ -5,12 +5,12 @@ import {
   RelayLocationCountry,
   RelayLocationCustomList,
   RelayLocationRelay,
-} from '../../../shared/daemon-rpc-types';
+} from '../../../../shared/daemon-rpc-types';
 import {
   IRelayLocationCityRedux,
   IRelayLocationCountryRedux,
   IRelayLocationRelayRedux,
-} from '../../redux/settings/reducers';
+} from '../../../redux/settings/reducers';
 import { SpecialLocationRowInnerProps } from './SpecialLocationList';
 
 export enum LocationType {
