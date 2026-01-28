@@ -14,8 +14,6 @@ use tokio::{
 };
 use uuid::Uuid;
 
-use crate::domain_fronting::SESSION_HEADER_KEY;
-
 const CONNECTION_TIMEOUT: Duration = Duration::from_secs(30);
 const READ_TIMEOUT: Duration = Duration::from_millis(50);
 
@@ -62,12 +60,13 @@ impl<C: UpstreamConnector> std::fmt::Debug for Sessions<C> {
 #[derive(Debug)]
 pub struct Configuration {
     pub upstream: SocketAddr,
+    pub session_header_key: String,
 }
 
 impl Sessions<TcpConnector> {
     /// Create a new session manager with the default TCP connector.
-    pub fn new(upstream: SocketAddr) -> Arc<Self> {
-        Self::with_connector(upstream, TcpConnector)
+    pub fn new(upstream: SocketAddr, session_header_key: String) -> Arc<Self> {
+        Self::with_connector(upstream, session_header_key, TcpConnector)
     }
 }
 
@@ -75,9 +74,12 @@ impl<C: UpstreamConnector> Sessions<C> {
     /// Create a new session manager with a custom connector.
     ///
     /// This allows injecting test doubles or alternative transports.
-    pub fn with_connector(upstream: SocketAddr, connector: C) -> Arc<Self> {
+    pub fn with_connector(upstream: SocketAddr, session_header_key: String, connector: C) -> Arc<Self> {
         let sessions = Sessions {
-            configuration: Configuration { upstream },
+            configuration: Configuration {
+                upstream,
+                session_header_key,
+            },
             sessions: Default::default(),
             connector,
         };
@@ -90,7 +92,7 @@ impl<C: UpstreamConnector> Sessions<C> {
     ) -> Response<Full<Bytes>> {
         let Some(session_id) = request
             .headers()
-            .get(SESSION_HEADER_KEY)
+            .get(&self.configuration.session_header_key)
             .and_then(|value| Uuid::try_parse_ascii(value.as_ref()).ok())
         else {
             return Self::handle_session_error();

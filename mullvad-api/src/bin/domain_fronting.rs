@@ -20,6 +20,10 @@ pub struct Arguments {
     /// The host being reached via `front`.
     #[arg(long)]
     host: String,
+
+    /// Session header
+    #[clap(short = 'H', long)]
+    session_header: String,
 }
 
 #[tokio::main]
@@ -28,9 +32,13 @@ async fn main() -> anyhow::Result<()> {
         .with_env_filter(EnvFilter::from_default_env().add_directive(LevelFilter::INFO.into()))
         .init();
 
-    let Arguments { front, host } = Arguments::parse();
+    let Arguments {
+        front,
+        host,
+        session_header,
+    } = Arguments::parse();
 
-    let df = DomainFronting::new(front, host);
+    let df = DomainFronting::new(front, host, session_header);
 
     let proxy_config = df.proxy_config().await.unwrap();
 
