@@ -18,7 +18,8 @@
 //! # async fn example() -> Result<(), Box<dyn std::error::Error>> {
 //! let df = DomainFronting::new(
 //!     "cdn.example.com".to_string(),
-//!     "api.example.com".to_string()
+//!     "api.example.com".to_string(),
+//!     "X-Session-Id".to_string(),
 //! );
 //!
 //! let proxy_config = df.proxy_config().await?;
@@ -35,7 +36,7 @@
 //! # Server
 //!
 //! [`server::Sessions`] manages HTTP sessions, forwarding data to upstream servers.
-//! Each unique session ID (sent via the `X-Mullvad-Session` header) gets its own
+//! Each unique session ID (sent via a configurable session header) gets its own
 //! upstream TCP connection that persists across multiple HTTP requests.
 //!
 //! ## Usage
@@ -46,7 +47,7 @@
 //!
 //! # async fn example() -> Result<(), Box<dyn std::error::Error>> {
 //! let upstream_addr = "127.0.0.1:8080".parse()?;
-//! let sessions = Sessions::new(upstream_addr);
+//! let sessions = Sessions::new(upstream_addr, "X-Session-Id".to_string());
 //!
 //! // Use with hyper to handle HTTP requests
 //! // sessions.handle_request(req).await
@@ -94,8 +95,6 @@ use crate::{DefaultDnsResolver, DnsResolver, tls_stream::TlsStream};
 
 pub mod server;
 
-const SESSION_HEADER_KEY: &str = "X-Mullvad-Session";
-
 /// Errors that can occur when establishing a domain fronting connection.
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
@@ -116,6 +115,8 @@ pub struct DomainFronting {
     front: String,
     /// Host that will be reached via the CDN, i.e. this is the Host header value
     proxy_host: String,
+    /// HTTP header key used to identify sessions
+    session_header_key: String,
 }
 
 /// Configuration for connecting to a domain fronting proxy.
@@ -130,11 +131,17 @@ pub struct ProxyConfig {
     front: String,
     /// Host that will be reached via the CDN, i.e. this is the Host header value.
     proxy_host: String,
+    /// HTTP header key used to identify sessions.
+    session_header_key: String,
 }
 
 impl DomainFronting {
-    pub fn new(front: String, proxy_host: String) -> Self {
-        DomainFronting { front, proxy_host }
+    pub fn new(front: String, proxy_host: String, session_header_key: String) -> Self {
+        DomainFronting {
+            front,
+            proxy_host,
+            session_header_key,
+        }
     }
 
     pub async fn proxy_config(&self) -> Result<ProxyConfig, Error> {
@@ -150,6 +157,7 @@ impl DomainFronting {
             addr: SocketAddr::new(addr.ip(), 443),
             front: self.front.clone(),
             proxy_host: self.proxy_host.clone(),
+            session_header_key: self.session_header_key.clone(),
         })
     }
 }
@@ -192,9 +200,19 @@ impl ProxyConfig {
             let tls = TlsStream::connect_https_with_client_config(stream, &self.front, config)
                 .await
                 .map_err(Error::Tls)?;
-            ProxyConnection::from_stream(tls, self.proxy_host.clone()).await
+            ProxyConnection::from_stream(
+                tls,
+                self.proxy_host.clone(),
+                self.session_header_key.clone(),
+            )
+            .await
         } else {
-            ProxyConnection::from_stream(stream, self.proxy_host.clone()).await
+            ProxyConnection::from_stream(
+                stream,
+                self.proxy_host.clone(),
+                self.session_header_key.clone(),
+            )
+            .await
         }
     }
 }
@@ -218,7 +236,11 @@ impl ProxyConnection {
     ///
     /// This performs the HTTP handshake over the provided stream without applying TLS.
     /// Use `ProxyConfig::connect_with_stream` if you need TLS support.
-    pub async fn from_stream<S>(stream: S, proxy_host: String) -> Result<Self, Error>
+    pub async fn from_stream<S>(
+        stream: S,
+        proxy_host: String,
+        session_header_key: String,
+    ) -> Result<Self, Error>
     where
         S: AsyncRead + AsyncWrite + Unpin + Send + 'static,
     {
@@ -229,17 +251,18 @@ impl ProxyConnection {
                 log::trace!("Domain fronting connection failed: {:?}", err);
             }
         });
-        Self::initialize(sender, proxy_host).await
+        Self::initialize(sender, proxy_host, session_header_key).await
     }
 
     async fn initialize(
         mut sender: SendRequest<Full<Bytes>>,
         proxy_host: String,
+        session_header_key: String,
     ) -> Result<Self, Error> {
         sender.ready().await?;
         let (response_tx, response_rx) = mpsc::channel(1);
         let (request_tx, request_rx) = mpsc::channel(1);
-        let actor = ProxyActor::new(sender, proxy_host, request_rx, response_tx);
+        let actor = ProxyActor::new(sender, proxy_host, session_header_key, request_rx, response_tx);
         tokio::spawn(actor.run());
 
         Ok(Self {
@@ -415,6 +438,7 @@ fn read_cert_store() -> rustls::RootCertStore {
 struct ProxyActor {
     sender: SendRequest<Full<Bytes>>,
     session_id: Uuid,
+    session_header_key: String,
     proxy_host: String,
     request_rx: mpsc::Receiver<Bytes>,
     response_tx: mpsc::Sender<Bytes>,
@@ -424,12 +448,14 @@ impl ProxyActor {
     fn new(
         sender: SendRequest<Full<Bytes>>,
         proxy_host: String,
+        session_header_key: String,
         request_rx: mpsc::Receiver<Bytes>,
         response_tx: mpsc::Sender<Bytes>,
     ) -> Self {
         Self {
             sender,
             session_id: Uuid::new_v4(),
+            session_header_key,
             proxy_host,
             request_rx,
             response_tx,
@@ -487,7 +513,7 @@ impl ProxyActor {
         hyper::Request::post(&format!("https://{}/", self.proxy_host))
             .header(header::HOST, self.proxy_host.clone())
             .header(header::ACCEPT, "*/*")
-            .header(SESSION_HEADER_KEY, &format!("{}", self.session_id))
+            .header(&self.session_header_key, &format!("{}", self.session_id))
             .header(header::CONTENT_TYPE, "application/octet-stream")
             .header(header::CONTENT_LENGTH, &format!("{}", content_length))
             .body(body)
@@ -538,6 +564,8 @@ mod tests {
         addr
     }
 
+    const TEST_SESSION_HEADER: &str = "X-Test-Session";
+
     #[tokio::test]
     async fn test_client_server_bidirectional() {
         // Spawn echo server that will be the upstream target
@@ -547,7 +575,7 @@ mod tests {
         let (client_stream, server_stream) = duplex(8192);
 
         // Start proxy server with default TCP connector pointing to echo server
-        let sessions = server::Sessions::new(echo_addr);
+        let sessions = server::Sessions::new(echo_addr, TEST_SESSION_HEADER.to_string());
         let sessions_clone = sessions.clone();
 
         // Spawn HTTP server on server_stream
@@ -568,6 +596,7 @@ mod tests {
             addr: echo_addr,
             front: "example.com".to_string(),
             proxy_host: "api.example.com".to_string(),
+            session_header_key: TEST_SESSION_HEADER.to_string(),
         };
 
         let mut client = proxy_config
@@ -619,7 +648,7 @@ mod tests {
         let (client_stream1, server_stream1) = duplex(8192);
         let (client_stream2, server_stream2) = duplex(8192);
 
-        let sessions = server::Sessions::new(echo_addr);
+        let sessions = server::Sessions::new(echo_addr, TEST_SESSION_HEADER.to_string());
 
         // Spawn server for first connection
         let sessions_clone1 = sessions.clone();
@@ -652,6 +681,7 @@ mod tests {
             addr: echo_addr,
             front: "example.com".to_string(),
             proxy_host: "api.example.com".to_string(),
+            session_header_key: TEST_SESSION_HEADER.to_string(),
         };
 
         let mut client1 = proxy_config
@@ -691,7 +721,7 @@ mod tests {
         let echo_addr = spawn_echo_server().await;
 
         let (client_stream, server_stream) = duplex(65536);
-        let sessions = server::Sessions::new(echo_addr);
+        let sessions = server::Sessions::new(echo_addr, TEST_SESSION_HEADER.to_string());
         let sessions_clone = sessions.clone();
 
         tokio::spawn(async move {
@@ -709,6 +739,7 @@ mod tests {
             addr: echo_addr,
             front: "example.com".to_string(),
             proxy_host: "api.example.com".to_string(),
+            session_header_key: TEST_SESSION_HEADER.to_string(),
         };
 
         let mut client = proxy_config

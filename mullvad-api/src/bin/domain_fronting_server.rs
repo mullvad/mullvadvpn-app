@@ -31,6 +31,10 @@ struct Args {
     /// Port to listen on
     #[clap(short, long, default_value = "443")]
     port: u16,
+
+    /// Session header
+    #[clap(short = 'H', long)]
+    session_header: String,
 }
 
 fn load_tls_config(
@@ -75,12 +79,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let listener = TcpListener::bind(bind_addr).await?;
 
-    let sessions = Sessions::new(args.upstream);
+    let sessions = Sessions::new(args.upstream, args.session_header);
     loop {
         let (stream, addr) = listener.accept().await?;
         let acceptor = tls_acceptor.clone();
 
-        log::debug!("Accepted connection from {}", addr);
+        log::debug!("Accepted connection from {addr}");
 
         let sessions = sessions.clone();
         tokio::spawn(async move {
@@ -97,11 +101,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                         .with_upgrades()
                         .await
                     {
-                        log::error!("Error serving connection from {}: {}", addr, err);
+                        log::error!("Error serving connection from {addr}: {err}");
                     }
                 }
                 Err(err) => {
-                    log::error!("TLS handshake failed for {}: {}", addr, err);
+                    log::error!("TLS handshake failed for {addr}: {err}");
                 }
             }
         });
