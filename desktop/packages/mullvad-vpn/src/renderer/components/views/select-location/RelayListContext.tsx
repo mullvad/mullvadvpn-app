@@ -35,7 +35,7 @@ import {
   LocationType,
   RelayLocationCountryWithVisibility,
 } from './select-location-types';
-import { useSelectLocationContext } from './SelectLocationContainer';
+import { useSelectLocationContext } from './SelectLocationView';
 
 // Context containing the relay list and related data and callbacks
 interface RelayListContext {

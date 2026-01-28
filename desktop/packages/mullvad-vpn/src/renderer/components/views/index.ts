@@ -20,6 +20,7 @@ export * from './settings';
 export * from './settings-import';
 export * from './settings-text-import';
 export * from './select-language';
+export * from './select-location';
 export * from './shadowsocks-settings';
 export * from './split-tunneling';
 export * from './support';
