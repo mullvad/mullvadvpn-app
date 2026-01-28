@@ -1,5 +1,6 @@
 export const icons = {
   'account-circle': 'icon-account-circle',
+  add: 'icon-add',
   'add-circle': 'icon-add-circle',
   'alert-circle': 'icon-alert-circle',
   'checkbox-checkmark': 'icon-checkbox-checkmark',
