@@ -266,7 +266,13 @@ impl ProxyConnection {
         sender.ready().await?;
         let (response_tx, response_rx) = mpsc::channel(1);
         let (request_tx, request_rx) = mpsc::channel(1);
-        let actor = ProxyActor::new(sender, proxy_host, session_header_key, request_rx, response_tx);
+        let actor = ProxyActor::new(
+            sender,
+            proxy_host,
+            session_header_key,
+            request_rx,
+            response_tx,
+        );
         tokio::spawn(actor.run());
 
         Ok(Self {
