@@ -32,9 +32,9 @@ import {
   ScopeBarItem,
   SpacePreAllocationView,
 } from './components';
+import { useOnSelectEntryLocation, useOnSelectExitLocation } from './hooks';
 import { useRelayListContext } from './RelayListContext';
 import { useScrollPositionContext } from './ScrollPositionContext';
-import { useOnSelectEntryLocation, useOnSelectExitLocation } from './select-location-hooks';
 import { LocationType, SpecialLocation } from './select-location-types';
 import {
   StyledContent,
