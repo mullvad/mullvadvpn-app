@@ -1,10 +1,10 @@
 import { messages } from '../../../../../../shared/gettext';
 import * as Cell from '../../../../cell';
-import { useSelectLocationContext } from '../../SelectLocationView';
+import { useSelectLocationViewContext } from '../../SelectLocationViewContext';
 import { CombinedLocationList, type CombinedLocationListProps } from '../combined-location-list';
 
 export function LocationList<T>(props: CombinedLocationListProps<T>) {
-  const { searchTerm } = useSelectLocationContext();
+  const { searchTerm } = useSelectLocationViewContext();
 
   if (
     searchTerm !== '' &&

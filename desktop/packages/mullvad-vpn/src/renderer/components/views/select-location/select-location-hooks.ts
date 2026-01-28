@@ -6,7 +6,7 @@ import { useAppContext } from '../../../context';
 import { useRelaySettingsModifier } from '../../../lib/constraint-updater';
 import { useHistory } from '../../../lib/history';
 import { LocationType } from './select-location-types';
-import { useSelectLocationContext } from './SelectLocationView';
+import { useSelectLocationViewContext } from './SelectLocationViewContext';
 
 export function useOnSelectExitLocation() {
   const onSelectLocation = useOnSelectLocation();
@@ -36,7 +36,7 @@ export function useOnSelectExitLocation() {
 
 export function useOnSelectEntryLocation() {
   const onSelectLocation = useOnSelectLocation();
-  const { setLocationType } = useSelectLocationContext();
+  const { setLocationType } = useSelectLocationViewContext();
   const relaySettingsModifier = useRelaySettingsModifier();
 
   const onSelectRelay = useCallback(

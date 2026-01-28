@@ -23,7 +23,7 @@ import {
   GeographicalRelayList,
   RelaySpecification,
 } from './select-location-types';
-import { useSelectLocationContext } from './SelectLocationView';
+import { useSelectLocationViewContext } from './SelectLocationViewContext';
 
 // Hook that generates the custom lists relay list.
 export function useCustomListsRelayList(
@@ -32,7 +32,7 @@ export function useCustomListsRelayList(
 ) {
   const disabledLocation = useDisabledLocation();
   const selectedLocation = useSelectedLocation();
-  const { searchTerm } = useSelectLocationContext();
+  const { searchTerm } = useSelectLocationViewContext();
   const customLists = useSelector((state) => state.settings.customLists);
 
   // Populate all custom lists with the real location trees for the list locations.
