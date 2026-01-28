@@ -1,0 +1,9 @@
+[files]
+exclude = [
+  "android/rust-android-gradle-plugin/**",
+  "wireguard-go-rs/libwg/wireguard-go/**",
+  "dist-assets/binaries/**",
+  "ios/wireguard-apple/**",
+  "windows/libwfp/**",
+  "windows/windows-libraries/**",
+]
