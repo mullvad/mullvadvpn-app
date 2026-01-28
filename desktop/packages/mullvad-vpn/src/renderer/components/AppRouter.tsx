@@ -2,7 +2,6 @@ import { useCallback, useRef } from 'react';
 import { Route, Switch } from 'react-router';
 
 import { RoutePath } from '../../shared/routes';
-import { SelectLocationContainer as SelectLocation } from '../components/views/select-location/SelectLocationContainer';
 import { useViewTransitions } from '../lib/transition-hooks';
 import {
   SetupFinished,
@@ -32,6 +31,7 @@ import {
   MultihopSettingsView,
   ProblemReportView,
   SelectLanguageView,
+  SelectLocationView,
   SettingsImportView,
   SettingsTextImportView,
   SettingsView,
@@ -89,7 +89,7 @@ export default function AppRouter() {
           <Route exact path={RoutePath.support} component={SupportView} />
           <Route exact path={RoutePath.problemReport} component={ProblemReportView} />
           <Route exact path={RoutePath.debug} component={DebugView} />
-          <Route exact path={RoutePath.selectLocation} component={SelectLocation} />
+          <Route exact path={RoutePath.selectLocation} component={SelectLocationView} />
           <Route exact path={RoutePath.filter} component={FilterView} />
           <Route exact path={RoutePath.appInfo} component={AppInfoView} />
           <Route exact path={RoutePath.changelog} component={ChangelogView} />
