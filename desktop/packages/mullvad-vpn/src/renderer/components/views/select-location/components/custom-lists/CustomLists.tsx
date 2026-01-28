@@ -11,7 +11,7 @@ import * as Cell from '../../../../cell';
 import { measurements } from '../../../../common-styles';
 import { useRelayListContext } from '../../RelayListContext';
 import { useScrollPositionContext } from '../../ScrollPositionContext';
-import { useSelectLocationContext } from '../../SelectLocationView';
+import { useSelectLocationViewContext } from '../../SelectLocationViewContext';
 import { AddListForm } from '../add-list-form/AddListForm';
 import { RelayLocationList } from '../relay-location-list';
 
@@ -57,7 +57,7 @@ interface CustomListsProps {
 export function CustomLists(props: CustomListsProps) {
   const [addListVisible, showAddList, hideAddList] = useBoolean();
   const { createCustomList } = useAppContext();
-  const { searchTerm } = useSelectLocationContext();
+  const { searchTerm } = useSelectLocationViewContext();
   const { customLists } = useRelayListContext();
 
   const createList = useCallback(
