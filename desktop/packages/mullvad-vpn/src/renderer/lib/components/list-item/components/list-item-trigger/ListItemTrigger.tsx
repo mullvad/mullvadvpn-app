@@ -5,6 +5,7 @@ import { colors } from '../../../../foundations';
 import { useListItemContext } from '../../ListItemContext';
 import { StyledListItemItem } from '../list-item-item';
 import { StyledListItemTrailingAction } from '../list-item-trailing-action';
+import { ListItemTriggerProvider } from './ListItemTriggerContext';
 
 export const StyledListItemTrigger = styled.div<{ $disabled?: boolean }>`
   display: flex;
@@ -43,10 +44,17 @@ export const StyledListItemTrigger = styled.div<{ $disabled?: boolean }>`
   }}
 `;
 
-export type ListItemTriggerProps = React.ComponentPropsWithRef<'div'>;
+export type ListItemTriggerProps = React.ComponentPropsWithRef<'div'> & {
+  disabled?: boolean;
+};
 
-export function ListItemTrigger({ onClick, ...props }: ListItemTriggerProps) {
-  const { disabled } = useListItemContext();
+export function ListItemTrigger({
+  onClick,
+  disabled: disabledProp,
+  ...props
+}: ListItemTriggerProps) {
+  const { disabled: disabledContext } = useListItemContext();
+  const disabled = disabledProp ?? disabledContext;
 
   const handleClick = React.useCallback(
     (event: React.MouseEvent<HTMLDivElement>) => {
@@ -75,14 +83,16 @@ export function ListItemTrigger({ onClick, ...props }: ListItemTriggerProps) {
   );
 
   return (
-    <StyledListItemTrigger
-      role="button"
-      onClick={handleClick}
-      onKeyDown={handleKeyDown}
-      tabIndex={disabled ? -1 : 0}
-      aria-disabled={disabled ? true : undefined}
-      $disabled={disabled}
-      {...props}
-    />
+    <ListItemTriggerProvider disabled={disabled}>
+      <StyledListItemTrigger
+        role="button"
+        onClick={handleClick}
+        onKeyDown={handleKeyDown}
+        tabIndex={disabled ? -1 : 0}
+        aria-disabled={disabled ? true : undefined}
+        $disabled={disabled}
+        {...props}
+      />
+    </ListItemTriggerProvider>
   );
 }
