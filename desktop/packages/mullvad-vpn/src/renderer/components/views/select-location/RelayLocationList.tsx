@@ -23,7 +23,7 @@ interface RelayLocationsProps extends CommonProps {
   source: RelayList;
 }
 
-export default function RelayLocationList({ source, ...props }: RelayLocationsProps) {
+export function RelayLocationList({ source, ...props }: RelayLocationsProps) {
   return (
     <Cell.Group $noMarginBottom>
       {source.map((country) => (

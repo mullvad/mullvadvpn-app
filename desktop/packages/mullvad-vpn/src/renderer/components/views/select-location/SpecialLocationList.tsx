@@ -14,7 +14,7 @@ interface SpecialLocationsProps<T> {
   onSelect: (value: T) => void;
 }
 
-export default function SpecialLocationList<T>({ source, ...props }: SpecialLocationsProps<T>) {
+export function SpecialLocationList<T>({ source, ...props }: SpecialLocationsProps<T>) {
   return (
     <>
       {source.map((location) => (

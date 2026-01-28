@@ -7,7 +7,7 @@ import userInterface from '../../../redux/userinterface/actions';
 import { RelayListContextProvider } from './RelayListContext';
 import { ScrollPositionContextProvider } from './ScrollPositionContext';
 import { LocationType } from './select-location-types';
-import SelectLocation from './SelectLocation';
+import { SelectLocation } from './SelectLocation';
 
 // Context containing data required by different components in the sub tree
 interface SelectLocationContext {
@@ -23,7 +23,7 @@ export function useSelectLocationContext() {
   return useContext(selectLocationContext)!;
 }
 
-export default function SelectLocationContainer() {
+export function SelectLocationContainer() {
   const locationTypeSelector = useSelector((state) => state.userInterface.selectLocationView);
   const { setSelectLocationView } = useActions(userInterface);
   const [searchTerm, setSearchTerm] = useState('');
