@@ -25,7 +25,7 @@ talpid-types = { path = "../talpid-types" }
 tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }
 tonic = { workspace = true }
 tower = { workspace = true }
-zeroize = "1.5.7"
+zeroize = { workspace = true }
 
 [build-dependencies]
 tonic-build = { workspace = true, default-features = false, features = [
