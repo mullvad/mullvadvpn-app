@@ -7,7 +7,7 @@ import { useStyledRef } from '../../../lib/utility-hooks';
 import { CustomScrollbarsRef } from '../../CustomScrollbars';
 import { SpacePreAllocationView } from './components';
 import { LocationType } from './select-location-types';
-import { useSelectLocationContext } from './SelectLocationView';
+import { useSelectLocationViewContext } from './SelectLocationViewContext';
 
 // Context containing the scroll position for each location type and methods to interact with it.
 interface ScrollPositionContext {
@@ -37,7 +37,7 @@ interface ScrollPositionContextProps {
 }
 
 export function ScrollPositionContextProvider(props: ScrollPositionContextProps) {
-  const { locationType, searchTerm } = useSelectLocationContext();
+  const { locationType, searchTerm } = useSelectLocationViewContext();
   const relaySettings = useNormalRelaySettings();
 
   const { action } = useHistory();

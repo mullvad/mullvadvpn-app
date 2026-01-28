@@ -41,14 +41,14 @@ import {
   StyledNavigationBarAttachment,
   StyledScopeBar,
 } from './SelectLocationStyles';
-import { useSelectLocationContext } from './SelectLocationView';
+import { useSelectLocationViewContext } from './SelectLocationViewContext';
 
 export function SelectLocation() {
   const history = useHistory();
   const relaySettingsUpdater = useRelaySettingsUpdater();
   const { saveScrollPosition, resetScrollPositions, scrollViewRef, spacePreAllocationViewRef } =
     useScrollPositionContext();
-  const { locationType, setLocationType, setSearchTerm } = useSelectLocationContext();
+  const { locationType, setLocationType, setSearchTerm } = useSelectLocationViewContext();
   const { expandSearchResults } = useRelayListContext();
 
   const relaySettings = useNormalRelaySettings();
@@ -274,7 +274,7 @@ function ownershipFilterLabel(ownership: Ownership): string {
 }
 
 function SelectLocationContent() {
-  const { locationType, searchTerm } = useSelectLocationContext();
+  const { locationType, searchTerm } = useSelectLocationViewContext();
   const { selectedLocationRef, resetHeight } = useScrollPositionContext();
   const { relayList, expandLocation, collapseLocation, onBeforeExpand } = useRelayListContext();
   const [onSelectExitRelay, onSelectExitSpecial] = useOnSelectExitLocation();

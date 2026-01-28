@@ -35,7 +35,7 @@ import {
   LocationType,
   RelayLocationCountryWithVisibility,
 } from './select-location-types';
-import { useSelectLocationContext } from './SelectLocationView';
+import { useSelectLocationViewContext } from './SelectLocationViewContext';
 
 // Context containing the relay list and related data and callbacks
 interface RelayListContext {
@@ -65,7 +65,7 @@ interface RelayListContextProviderProps {
 }
 
 export function RelayListContextProvider(props: RelayListContextProviderProps) {
-  const { locationType, searchTerm } = useSelectLocationContext();
+  const { locationType, searchTerm } = useSelectLocationViewContext();
   const daita = useSelector((state) => state.settings.wireguard.daita?.enabled ?? false);
   const directOnly = useSelector((state) => state.settings.wireguard.daita?.directOnly ?? false);
   const quic = useSelector(
@@ -223,7 +223,7 @@ function useRelayList(
 
 // Return all RelayLocations that should be expanded
 function useExpandedLocations(filteredLocations: Array<IRelayLocationCountryRedux>) {
-  const { locationType, searchTerm } = useSelectLocationContext();
+  const { locationType, searchTerm } = useSelectLocationViewContext();
   const { spacePreAllocationViewRef, scrollIntoView } = useScrollPositionContext();
   const relaySettings = useNormalRelaySettings();
 
@@ -313,7 +313,7 @@ function useExpandedLocations(filteredLocations: Array<IRelayLocationCountryRedu
 // Returns the location (if any) that should be disabled. This is currently used for disabling the
 // entry location when selecting exit location etc.
 export function useDisabledLocation() {
-  const { locationType } = useSelectLocationContext();
+  const { locationType } = useSelectLocationViewContext();
   const relaySettings = useNormalRelaySettings();
 
   return useMemo(() => {
@@ -339,7 +339,7 @@ export function useDisabledLocation() {
 
 // Returns the selected location for the current tunnel protocol and location type
 export function useSelectedLocation(): RelayLocation | undefined {
-  const { locationType } = useSelectLocationContext();
+  const { locationType } = useSelectLocationViewContext();
   const relaySettings = useNormalRelaySettings();
 
   return useMemo(() => {
