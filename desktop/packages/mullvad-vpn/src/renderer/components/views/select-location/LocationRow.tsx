@@ -5,16 +5,16 @@ import {
   compareRelayLocation,
   compareRelayLocationGeographical,
   RelayLocation,
-} from '../../../shared/daemon-rpc-types';
-import { messages } from '../../../shared/gettext';
-import log from '../../../shared/logging';
-import { useAppContext } from '../../context';
-import { useBoolean, useStyledRef } from '../../lib/utility-hooks';
-import { useSelector } from '../../redux/store';
-import Accordion from '../Accordion';
-import * as Cell from '../cell';
-import ChevronButton from '../ChevronButton';
-import RelayStatusIndicator from '../RelayStatusIndicator';
+} from '../../../../shared/daemon-rpc-types';
+import { messages } from '../../../../shared/gettext';
+import log from '../../../../shared/logging';
+import { useAppContext } from '../../../context';
+import { useBoolean, useStyledRef } from '../../../lib/utility-hooks';
+import { useSelector } from '../../../redux/store';
+import Accordion from '../../Accordion';
+import * as Cell from '../../cell';
+import ChevronButton from '../../ChevronButton';
+import RelayStatusIndicator from '../../RelayStatusIndicator';
 import { AddToListDialog, DeleteConfirmDialog, EditListDialog } from './CustomListDialogs';
 import {
   getButtonColor,

@@ -11,7 +11,7 @@ import {
   RelayLocationCountryWithVisibility,
   RelayLocationRelayWithVisibility,
   SpecialLocation,
-} from '../components/select-location/select-location-types';
+} from '../components/views/select-location/select-location-types';
 import {
   IRelayLocationCityRedux,
   IRelayLocationCountryRedux,

@@ -1,9 +1,9 @@
 import React, { useContext, useMemo, useState } from 'react';
 
-import useActions from '../../lib/actionsHook';
-import { useNormalRelaySettings } from '../../lib/relay-settings-hooks';
-import { useSelector } from '../../redux/store';
-import userInterface from '../../redux/userinterface/actions';
+import useActions from '../../../lib/actionsHook';
+import { useNormalRelaySettings } from '../../../lib/relay-settings-hooks';
+import { useSelector } from '../../../redux/store';
+import userInterface from '../../../redux/userinterface/actions';
 import { RelayListContextProvider } from './RelayListContext';
 import { ScrollPositionContextProvider } from './ScrollPositionContext';
 import { LocationType } from './select-location-types';

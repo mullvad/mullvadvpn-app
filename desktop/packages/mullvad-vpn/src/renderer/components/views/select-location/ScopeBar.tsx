@@ -1,8 +1,8 @@
 import React, { useCallback } from 'react';
 import styled from 'styled-components';
 
-import { colors } from '../../lib/foundations';
-import { smallText } from '../common-styles';
+import { colors } from '../../../lib/foundations';
+import { smallText } from '../../common-styles';
 
 const StyledScopeBar = styled.div({
   display: 'flex',

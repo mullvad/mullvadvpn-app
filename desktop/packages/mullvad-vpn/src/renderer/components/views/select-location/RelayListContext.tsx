@@ -4,7 +4,7 @@ import {
   compareRelayLocation,
   ObfuscationType,
   RelayLocation,
-} from '../../../shared/daemon-rpc-types';
+} from '../../../../shared/daemon-rpc-types';
 import {
   filterLocations,
   filterLocationsByDaita,
@@ -12,11 +12,11 @@ import {
   filterLocationsByQuic,
   getLocationsExpandedBySearch,
   searchForLocations,
-} from '../../lib/filter-locations';
-import { useNormalRelaySettings } from '../../lib/relay-settings-hooks';
-import { useEffectEvent } from '../../lib/utility-hooks';
-import { IRelayLocationCountryRedux } from '../../redux/settings/reducers';
-import { useSelector } from '../../redux/store';
+} from '../../../lib/filter-locations';
+import { useNormalRelaySettings } from '../../../lib/relay-settings-hooks';
+import { useEffectEvent } from '../../../lib/utility-hooks';
+import { IRelayLocationCountryRedux } from '../../../redux/settings/reducers';
+import { useSelector } from '../../../redux/store';
 import { useCustomListsRelayList } from './custom-list-helpers';
 import { useScrollPositionContext } from './ScrollPositionContext';
 import {

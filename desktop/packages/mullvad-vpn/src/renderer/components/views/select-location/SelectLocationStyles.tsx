@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-import * as Cell from '../cell';
+import * as Cell from '../../cell';
 import { ScopeBar } from './ScopeBar';
 
 export const StyledContent = styled.div({
