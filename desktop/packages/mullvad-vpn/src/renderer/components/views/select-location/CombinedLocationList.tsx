@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { RelayLocation } from '../../../shared/daemon-rpc-types';
+import type { RelayLocation } from '../../../../shared/daemon-rpc-types';
 import RelayLocationList from './RelayLocationList';
 import { RelayList, SpecialLocation } from './select-location-types';
 import SpecialLocationList from './SpecialLocationList';

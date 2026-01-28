@@ -10,14 +10,14 @@ import {
   RelayLocationCountry,
   RelayLocationCustomList,
   RelayLocationRelay,
-} from '../../../shared/daemon-rpc-types';
-import { messages, relayLocations } from '../../../shared/gettext';
+} from '../../../../shared/daemon-rpc-types';
+import { messages, relayLocations } from '../../../../shared/gettext';
 import {
   IRelayLocationCityRedux,
   IRelayLocationCountryRedux,
   IRelayLocationRelayRedux,
   NormalRelaySettingsRedux,
-} from '../../redux/settings/reducers';
+} from '../../../redux/settings/reducers';
 import { DisabledReason, LocationSpecification, LocationType } from './select-location-types';
 
 export function isSelected(
