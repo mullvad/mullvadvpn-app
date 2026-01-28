@@ -5,7 +5,7 @@ import { ListItemTextFieldInputProps } from '../../../../../../lib/components/li
 import { useListboxContext } from '../../../../../../lib/components/listbox';
 import { useInputOptionContext } from '../../InputOptionContext';
 
-type InputOptionInputProps = ListItemTextFieldInputProps;
+type InputOptionInputProps = Omit<ListItemTextFieldInputProps, 'width'>;
 
 export function InputOptionInput(props: InputOptionInputProps) {
   const { onValueChange: listBoxOnValueChange } = useListboxContext<string | undefined>();
@@ -59,6 +59,7 @@ export function InputOptionInput(props: InputOptionInputProps) {
       <ListItem.TextField.Input
         ref={inputRef}
         value={value}
+        width="small"
         aria-labelledby={labelId}
         tabIndex={-1}
         inputMode="numeric"

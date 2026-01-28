@@ -1,14 +1,25 @@
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 
 import { TextField } from '../../../../../text-field';
 import { TextFieldInputProps } from '../../../../../text-field/components';
 
-export type ListItemTextFieldInputProps = TextFieldInputProps;
+type ListItemTextFieldInputWidths = 'small' | 'medium';
 
-const StyledTextFieldInput = styled(TextField.Input)`
-  width: 102px;
+export type ListItemTextFieldInputProps = TextFieldInputProps & {
+  width?: ListItemTextFieldInputWidths;
+};
+
+const StyledTextFieldInput = styled(TextField.Input)<{ $width: ListItemTextFieldInputWidths }>`
+  ${({ $width }) => {
+    return css`
+      width: ${$width === 'small' ? '102px' : '206px'};
+    `;
+  }}
 `;
 
-export function ListItemTextFieldInput(props: ListItemTextFieldInputProps) {
-  return <StyledTextFieldInput {...props} />;
+export function ListItemTextFieldInput({
+  width = 'medium',
+  ...props
+}: ListItemTextFieldInputProps) {
+  return <StyledTextFieldInput $width={width} {...props} />;
 }
