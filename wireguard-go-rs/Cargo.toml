@@ -8,7 +8,7 @@ license.workspace = true
 log.workspace = true
 talpid-types.path = "../talpid-types"
 thiserror.workspace = true
-zeroize = "1.8.1"
+zeroize.workspace = true
 
 [build-dependencies]
 anyhow.workspace = true
