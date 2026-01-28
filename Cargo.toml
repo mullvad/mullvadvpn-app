@@ -84,6 +84,7 @@ insta = { version = "1.42", features = ["yaml"] }
 ipnetwork = "0.21.1"
 itertools = "0.14"
 log = "0.4"
+maybenot = "2.2.2"
 netlink-packet-core = "0.8.0"
 netlink-packet-route = "0.25"
 netlink-proto = "0.12"
