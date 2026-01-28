@@ -8,7 +8,7 @@ export type AccordionContentProps = {
   children?: React.ReactNode;
 };
 
-const StyledAccordionContent = styled(motion.div)`
+export const StyledAccordionContent = styled(motion.div)`
   width: 100%;
   overflow: hidden;
 `;
