@@ -110,28 +110,15 @@ pub enum Error {
     EmptyDnsResponse,
 }
 
+/// Configuration for creating a [`ProxyConfig`].
+/// Contains the fronting domain, session header key and target host.
+#[derive(Clone, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct DomainFronting {
     /// Domain that will be used to connect to a CDN, used for SNI
     front: String,
     /// Host that will be reached via the CDN, i.e. this is the Host header value
     proxy_host: String,
     /// HTTP header key used to identify sessions
-    session_header_key: String,
-}
-
-/// Configuration for connecting to a domain fronting proxy.
-///
-/// Contains the resolved address, fronting domain, and target host.
-/// Created from [`DomainFronting::proxy_config()`].
-#[derive(serde::Serialize, serde::Deserialize, PartialEq, Debug, Clone)]
-pub struct ProxyConfig {
-    /// The resolved socket address of the CDN.
-    pub addr: SocketAddr,
-    /// Domain that will be used to connect to the CDN, used for SNI.
-    front: String,
-    /// Host that will be reached via the CDN, i.e. this is the Host header value.
-    proxy_host: String,
-    /// HTTP header key used to identify sessions.
     session_header_key: String,
 }
 
@@ -155,10 +142,27 @@ impl DomainFronting {
 
         Ok(ProxyConfig {
             addr: SocketAddr::new(addr.ip(), 443),
-            front: self.front.clone(),
-            proxy_host: self.proxy_host.clone(),
-            session_header_key: self.session_header_key.clone(),
+            domain_fronting: self.clone(),
         })
+    }
+}
+
+/// Configuration for connecting to a domain fronting proxy.
+///
+/// Contains the resolved address, fronting domain, session header key and target host.
+/// Created from [`DomainFronting::proxy_config()`].
+#[derive(serde::Serialize, serde::Deserialize, PartialEq, Debug, Clone)]
+pub struct ProxyConfig {
+    /// The resolved socket address of the CDN.
+    pub addr: SocketAddr,
+    /// Internal domain fronting configuration
+    domain_fronting: DomainFronting,
+}
+
+impl std::ops::Deref for ProxyConfig {
+    type Target = DomainFronting;
+    fn deref(&self) -> &Self::Target {
+        &self.domain_fronting
     }
 }
 
@@ -361,15 +365,14 @@ impl AsyncRead for ProxyConnection {
             .send_future
             .get_or_insert_with(|| Self::create_send_future(request_tx, Bytes::new()));
 
-        match pin!(send_future).poll(cx) {
-            Poll::Pending => Poll::Pending,
-            Poll::Ready(Ok(_)) => {
+        match ready!(pin!(send_future).poll(cx)) {
+            Ok(_) => {
                 self.as_mut().resolve_write_waker();
                 self.as_mut().resolve_read_waker();
                 self.send_future = None;
                 Poll::Pending
             }
-            Poll::Ready(Err(_)) => {
+            Err(_) => {
                 self.as_mut().resolve_write_waker();
                 Poll::Ready(Err(io::Error::new(
                     io::ErrorKind::BrokenPipe,
@@ -594,9 +597,11 @@ mod tests {
         // Create client connection using the in-memory stream (no TLS)
         let proxy_config = ProxyConfig {
             addr: echo_addr,
-            front: "example.com".to_string(),
-            proxy_host: "api.example.com".to_string(),
-            session_header_key: TEST_SESSION_HEADER.to_string(),
+            domain_fronting: DomainFronting {
+                front: "example.com".to_string(),
+                proxy_host: "api.example.com".to_string(),
+                session_header_key: TEST_SESSION_HEADER.to_string(),
+            },
         };
 
         let mut client = proxy_config
@@ -679,9 +684,11 @@ mod tests {
         // Create two client connections
         let proxy_config = ProxyConfig {
             addr: echo_addr,
-            front: "example.com".to_string(),
-            proxy_host: "api.example.com".to_string(),
-            session_header_key: TEST_SESSION_HEADER.to_string(),
+            domain_fronting: DomainFronting {
+                front: "example.com".to_string(),
+                proxy_host: "api.example.com".to_string(),
+                session_header_key: TEST_SESSION_HEADER.to_string(),
+            },
         };
 
         let mut client1 = proxy_config
@@ -737,9 +744,11 @@ mod tests {
 
         let proxy_config = ProxyConfig {
             addr: echo_addr,
-            front: "example.com".to_string(),
-            proxy_host: "api.example.com".to_string(),
-            session_header_key: TEST_SESSION_HEADER.to_string(),
+            domain_fronting: DomainFronting {
+                front: "example.com".to_string(),
+                proxy_host: "api.example.com".to_string(),
+                session_header_key: TEST_SESSION_HEADER.to_string(),
+            },
         };
 
         let mut client = proxy_config
