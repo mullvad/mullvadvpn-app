@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
 import * as Cell from '../../cell';
-import { ScopeBar } from './ScopeBar';
+import { ScopeBar } from './components';
 
 export const StyledContent = styled.div({
   display: 'flex',
