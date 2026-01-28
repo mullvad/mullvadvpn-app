@@ -133,11 +133,17 @@ impl Check {
         tunnel_handle: &dyn Tunnel,
     ) -> Result<bool, Error> {
         // Send initial ping to prod WireGuard into connecting.
-        self.ping_state
+        // Failing to do so might be indicative of another firewall blocking pings.
+        // If all traffic is blocked, the inner connectivity check will fail.
+        if let Err(err) = self
+            .ping_state
             .pinger
             .send_icmp()
             .await
-            .map_err(Error::PingError)?;
+            .map_err(Error::PingError)
+        {
+            log::error!("{err}");
+        }
         self.establish_connectivity_inner(
             self.retry_attempt,
             ESTABLISH_TIMEOUT,
