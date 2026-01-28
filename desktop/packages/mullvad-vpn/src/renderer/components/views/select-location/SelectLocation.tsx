@@ -1,31 +1,31 @@
 import { useCallback, useState } from 'react';
 import { sprintf } from 'sprintf-js';
 
-import { strings } from '../../../shared/constants';
-import { ObfuscationType, Ownership } from '../../../shared/daemon-rpc-types';
-import { messages } from '../../../shared/gettext';
-import { RoutePath } from '../../../shared/routes';
-import { Button, FilterChip, Flex, IconButton, LabelTinySemiBold } from '../../lib/components';
-import { FlexColumn } from '../../lib/components/flex-column';
-import { View } from '../../lib/components/view';
-import { useRelaySettingsUpdater } from '../../lib/constraint-updater';
+import { strings } from '../../../../shared/constants';
+import { ObfuscationType, Ownership } from '../../../../shared/daemon-rpc-types';
+import { messages } from '../../../../shared/gettext';
+import { RoutePath } from '../../../../shared/routes';
+import { Button, FilterChip, Flex, IconButton, LabelTinySemiBold } from '../../../lib/components';
+import { FlexColumn } from '../../../lib/components/flex-column';
+import { View } from '../../../lib/components/view';
+import { useRelaySettingsUpdater } from '../../../lib/constraint-updater';
 import {
   daitaFilterActive,
   filterSpecialLocations,
   lwoFilterActive,
   quicFilterActive,
-} from '../../lib/filter-locations';
-import { useHistory } from '../../lib/history';
-import { formatHtml } from '../../lib/html-formatter';
-import { useNormalRelaySettings } from '../../lib/relay-settings-hooks';
-import { useSelector } from '../../redux/store';
-import { AppNavigationHeader } from '../';
-import * as Cell from '../cell';
-import { BackAction } from '../keyboard-navigation';
-import { NavigationContainer } from '../NavigationContainer';
-import { NavigationScrollbars } from '../NavigationScrollbars';
-import { SearchTextField } from '../search-text-field';
-import { useFilteredProviders } from '../views/filter/hooks';
+} from '../../../lib/filter-locations';
+import { useHistory } from '../../../lib/history';
+import { formatHtml } from '../../../lib/html-formatter';
+import { useNormalRelaySettings } from '../../../lib/relay-settings-hooks';
+import { useSelector } from '../../../redux/store';
+import { AppNavigationHeader } from '../../';
+import * as Cell from '../../cell';
+import { BackAction } from '../../keyboard-navigation';
+import { NavigationContainer } from '../../NavigationContainer';
+import { NavigationScrollbars } from '../../NavigationScrollbars';
+import { SearchTextField } from '../../search-text-field';
+import { useFilteredProviders } from '../../views/filter/hooks';
 import CombinedLocationList, { CombinedLocationListProps } from './CombinedLocationList';
 import CustomLists from './CustomLists';
 import { useRelayListContext } from './RelayListContext';

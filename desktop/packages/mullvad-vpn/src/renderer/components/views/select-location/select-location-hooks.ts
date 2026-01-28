@@ -1,10 +1,10 @@
 import { useCallback } from 'react';
 
-import { RelayLocation, RelaySettings, wrapConstraint } from '../../../shared/daemon-rpc-types';
-import log from '../../../shared/logging';
-import { useAppContext } from '../../context';
-import { useRelaySettingsModifier } from '../../lib/constraint-updater';
-import { useHistory } from '../../lib/history';
+import { RelayLocation, RelaySettings, wrapConstraint } from '../../../../shared/daemon-rpc-types';
+import log from '../../../../shared/logging';
+import { useAppContext } from '../../../context';
+import { useRelaySettingsModifier } from '../../../lib/constraint-updater';
+import { useHistory } from '../../../lib/history';
 import { LocationType } from './select-location-types';
 import { useSelectLocationContext } from './SelectLocationContainer';
 
