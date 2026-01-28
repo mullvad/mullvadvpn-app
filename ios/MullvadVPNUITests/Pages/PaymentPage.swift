@@ -57,7 +57,7 @@ class PaymentPage: Page {
 
     @discardableResult func dismissRestoredPurchasesAlert() -> Self {
         app.staticTexts["Your previous purchases have been added to your account."]
-            .wait(timeout: .long)
+            .wait(timeout: .longerThanMullvadAPITimeout)
         app.buttons["Got it!"].tap()
 
         return self
