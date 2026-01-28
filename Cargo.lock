@@ -6729,6 +6729,7 @@ dependencies = [
  "talpid-windows",
  "thiserror 2.0.17",
  "windows 0.62.2",
+ "winreg 0.55.0",
 ]
 
 [[package]]

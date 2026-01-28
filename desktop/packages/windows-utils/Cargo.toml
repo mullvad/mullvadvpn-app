@@ -24,6 +24,7 @@ windows = { workspace = true, features = [
   "Win32_UI",
   "Win32_UI_Shell"
 ] }
+winreg = { workspace = true, features = ["transactions"] }
 
 [lints]
 workspace = true
