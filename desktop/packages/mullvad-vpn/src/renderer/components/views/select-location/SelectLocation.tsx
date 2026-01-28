@@ -44,7 +44,7 @@ import {
 import { SpacePreAllocationView } from './SpacePreAllocationView';
 import { CustomExitLocationRow } from './SpecialLocationList';
 
-export default function SelectLocation() {
+export function SelectLocation() {
   const history = useHistory();
   const relaySettingsUpdater = useRelaySettingsUpdater();
   const { saveScrollPosition, resetScrollPositions, scrollViewRef, spacePreAllocationViewRef } =
