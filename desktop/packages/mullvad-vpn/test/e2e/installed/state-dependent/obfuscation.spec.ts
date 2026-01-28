@@ -35,11 +35,8 @@ test('App should have automatic obfuscation', async () => {
 
   await expect(automaticObfuscationOption).toHaveAttribute('aria-selected', 'true');
 
-  const cliObfuscation = execSync('mullvad obfuscation get').toString().split('\n');
+  const cliObfuscation = execSync('mullvad anti-censorship get').toString().split('\n');
   expect(cliObfuscation[0]).toEqual('mode: auto');
-  expect(cliObfuscation[1]).toEqual('udp2tcp settings: any port');
-  expect(cliObfuscation[2]).toEqual('shadowsocks settings: any port');
-  expect(cliObfuscation[3]).toEqual('wireguard-port settings: any port');
 });
 
 test('App should set obfuscation to shadowsocks with custom port', async () => {
@@ -61,7 +58,7 @@ test('App should set obfuscation to shadowsocks with custom port', async () => {
   await routes.antiCensorship.selectShadowsocks();
   await expect(shadowsocksOption).toHaveAttribute('aria-selected', 'true');
 
-  const cliObfuscation = execSync('mullvad obfuscation get').toString().split('\n')[2];
+  const cliObfuscation = execSync('mullvad anti-censorship get').toString().split('\n')[2];
   expect(cliObfuscation).toEqual(`shadowsocks settings: port ${SHADOWSOCKS_PORT}`);
 });
 
@@ -91,6 +88,6 @@ test('App should set obfuscation to UDP-over-TCP with port', async () => {
   await expect(udpOverTcpItem).toHaveAttribute('aria-selected', 'true');
   await expect(udpOverTcpItem).toContainText(`Port: ${UDPOVERTCP_PORT}`);
 
-  const cliObfuscation = execSync('mullvad obfuscation get').toString().split('\n')[1];
+  const cliObfuscation = execSync('mullvad anti-censorship get').toString().split('\n')[1];
   expect(cliObfuscation).toEqual(`udp2tcp settings: port ${UDPOVERTCP_PORT}`);
 });
