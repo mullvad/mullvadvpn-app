@@ -123,6 +123,7 @@ windows = "0.62.2"
 windows-sys = "0.61.2"
 winreg = "0.55"
 zerocopy = "0.8.27"
+zeroize = "1.8.2"
 
 [workspace.lints.clippy]
 allow_attributes = "warn"
