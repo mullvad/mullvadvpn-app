@@ -17,7 +17,7 @@ import { useNormalRelaySettings } from '../../../lib/relay-settings-hooks';
 import { useEffectEvent } from '../../../lib/utility-hooks';
 import { IRelayLocationCountryRedux } from '../../../redux/settings/reducers';
 import { useSelector } from '../../../redux/store';
-import { useCustomListsRelayList } from './custom-list-helpers';
+import { useCustomListsRelayList, useDisabledLocation, useSelectedLocation } from './hooks';
 import { useScrollPositionContext } from './ScrollPositionContext';
 import {
   defaultExpandedLocations,
@@ -308,47 +308,4 @@ function useExpandedLocations(filteredLocations: Array<IRelayLocationCountryRedu
     onBeforeExpand,
     expandSearchResults,
   };
-}
-
-// Returns the location (if any) that should be disabled. This is currently used for disabling the
-// entry location when selecting exit location etc.
-export function useDisabledLocation() {
-  const { locationType } = useSelectLocationViewContext();
-  const relaySettings = useNormalRelaySettings();
-
-  return useMemo(() => {
-    if (relaySettings?.wireguard.useMultihop) {
-      if (locationType === LocationType.exit && relaySettings?.wireguard.entryLocation !== 'any') {
-        return {
-          location: relaySettings?.wireguard.entryLocation,
-          reason: DisabledReason.entry,
-        };
-      } else if (locationType === LocationType.entry && relaySettings?.location !== 'any') {
-        return { location: relaySettings?.location, reason: DisabledReason.exit };
-      }
-    }
-
-    return undefined;
-  }, [
-    locationType,
-    relaySettings?.wireguard.useMultihop,
-    relaySettings?.wireguard.entryLocation,
-    relaySettings?.location,
-  ]);
-}
-
-// Returns the selected location for the current tunnel protocol and location type
-export function useSelectedLocation(): RelayLocation | undefined {
-  const { locationType } = useSelectLocationViewContext();
-  const relaySettings = useNormalRelaySettings();
-
-  return useMemo(() => {
-    if (locationType === LocationType.exit) {
-      return relaySettings?.location === 'any' ? undefined : relaySettings?.location;
-    } else {
-      return relaySettings?.wireguard.entryLocation === 'any'
-        ? undefined
-        : relaySettings?.wireguard.entryLocation;
-    }
-  }, [locationType, relaySettings?.location, relaySettings?.wireguard.entryLocation]);
 }
