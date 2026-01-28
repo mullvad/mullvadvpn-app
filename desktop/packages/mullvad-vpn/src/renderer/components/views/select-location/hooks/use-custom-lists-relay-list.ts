@@ -4,17 +4,16 @@ import {
   compareRelayLocationGeographical,
   ICustomList,
   RelayLocation,
-} from '../../../../shared/daemon-rpc-types';
-import { hasValue } from '../../../../shared/utils';
-import { searchMatch } from '../../../lib/filter-locations';
-import { useSelector } from '../../../redux/store';
-import { useDisabledLocation, useSelectedLocation } from './RelayListContext';
+} from '../../../../../shared/daemon-rpc-types';
+import { hasValue } from '../../../../../shared/utils';
+import { searchMatch } from '../../../../lib/filter-locations';
+import { useSelector } from '../../../../redux/store';
 import {
   formatRowName,
   isCustomListDisabled,
   isExpanded,
   isSelected,
-} from './select-location-helpers';
+} from '../select-location-helpers';
 import {
   CitySpecification,
   CountrySpecification,
@@ -22,8 +21,10 @@ import {
   DisabledReason,
   GeographicalRelayList,
   RelaySpecification,
-} from './select-location-types';
-import { useSelectLocationViewContext } from './SelectLocationViewContext';
+} from '../select-location-types';
+import { useSelectLocationViewContext } from '../SelectLocationViewContext';
+import { useDisabledLocation } from './use-disabled-location';
+import { useSelectedLocation } from './use-selected-location';
 
 // Hook that generates the custom lists relay list.
 export function useCustomListsRelayList(
