@@ -6,7 +6,7 @@ import { useHistory } from '../../../../../../lib/history';
 
 export type NavigationOptionNavigateProps = {
   to: RoutePath;
-} & React.ComponentPropsWithRef<'button'>;
+} & React.ComponentPropsWithRef<'div'>;
 
 export function SplitOptionNavigateButton({
   to,
