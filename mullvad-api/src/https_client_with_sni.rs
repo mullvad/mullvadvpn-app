@@ -424,6 +424,66 @@ impl HttpsConnectorWithSni {
         };
         Ok(SocketAddr::new(addr.ip(), port))
     }
+
+    pub async fn get_stream(
+        &mut self,
+        uri: Uri,
+    ) -> Result<AbortableStream<ApiConnection>, io::Error> {
+        let inner = self.inner.clone();
+        let abort_notify = self.abort_notify.clone();
+        #[cfg(target_os = "android")]
+        let socket_bypass_tx = self.socket_bypass_tx.clone();
+        let dns_resolver = self.dns_resolver.clone();
+
+        #[cfg(any(feature = "api-override", test))]
+        let disable_tls = self.disable_tls;
+
+        if uri.scheme() != Some(&Scheme::HTTPS) {
+            return Err(io::Error::new(
+                io::ErrorKind::InvalidInput,
+                "invalid url, not https",
+            ));
+        }
+        let Some(hostname) = uri.host().map(str::to_owned) else {
+            return Err(io::Error::new(
+                io::ErrorKind::InvalidInput,
+                "invalid url, missing host",
+            ));
+        };
+        let addr = Self::resolve_address(&*dns_resolver, uri).await?;
+
+        // Loop until we have established a connection. This starts over if a new endpoint
+        // is selected while connecting.
+        let stream = loop {
+            let notify = abort_notify.notified();
+            let proxy_config = { inner.lock().unwrap().proxy_config.clone() };
+            let stream_fut = proxy_config.connect(
+                &hostname,
+                &addr,
+                #[cfg(target_os = "android")]
+                socket_bypass_tx.clone(),
+                #[cfg(any(feature = "api-override", test))]
+                disable_tls,
+            );
+
+            pin_mut!(stream_fut);
+            pin_mut!(notify);
+
+            // Wait for connection. Abort and retry if we switched to a different server.
+            if let future::Either::Left((stream, _)) = future::select(stream_fut, notify).await {
+                break stream?;
+            }
+        };
+
+        let (stream, socket_handle) = AbortableStream::new(stream);
+
+        {
+            let mut inner = inner.lock().unwrap();
+            inner.stream_handles.push(socket_handle);
+        }
+
+        Ok(stream)
+    }
 }
 
 impl fmt::Debug for HttpsConnectorWithSni {
