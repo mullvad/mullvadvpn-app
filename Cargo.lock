@@ -5279,6 +5279,7 @@ dependencies = [
 name = "talpid-tunnel-config-client"
 version = "0.0.0"
 dependencies = [
+ "gotatun",
  "hyper-util",
  "log",
  "ml-kem",
