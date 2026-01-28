@@ -5,8 +5,7 @@ import { strings } from '../../../../shared/constants';
 import { ObfuscationType, Ownership } from '../../../../shared/daemon-rpc-types';
 import { messages } from '../../../../shared/gettext';
 import { RoutePath } from '../../../../shared/routes';
-import { Button, FilterChip, Flex, IconButton, LabelTinySemiBold } from '../../../lib/components';
-import { FlexColumn } from '../../../lib/components/flex-column';
+import { FilterChip, Flex, IconButton, LabelTinySemiBold } from '../../../lib/components';
 import { View } from '../../../lib/components/view';
 import { useRelaySettingsUpdater } from '../../../lib/constraint-updater';
 import {
@@ -16,20 +15,24 @@ import {
   quicFilterActive,
 } from '../../../lib/filter-locations';
 import { useHistory } from '../../../lib/history';
-import { formatHtml } from '../../../lib/html-formatter';
 import { useNormalRelaySettings } from '../../../lib/relay-settings-hooks';
 import { useSelector } from '../../../redux/store';
 import { AppNavigationHeader } from '../../';
-import * as Cell from '../../cell';
 import { BackAction } from '../../keyboard-navigation';
 import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
 import { SearchTextField } from '../../search-text-field';
 import { useFilteredProviders } from '../../views/filter/hooks';
-import CombinedLocationList, { CombinedLocationListProps } from './CombinedLocationList';
-import CustomLists from './CustomLists';
+import {
+  CustomExitLocationRow,
+  CustomLists,
+  DisabledEntrySelection,
+  LocationList,
+  NoSearchResult,
+  ScopeBarItem,
+  SpacePreAllocationView,
+} from './components';
 import { useRelayListContext } from './RelayListContext';
-import { ScopeBarItem } from './ScopeBar';
 import { useScrollPositionContext } from './ScrollPositionContext';
 import { useOnSelectEntryLocation, useOnSelectExitLocation } from './select-location-hooks';
 import { LocationType, SpecialLocation } from './select-location-types';
@@ -37,12 +40,8 @@ import {
   StyledContent,
   StyledNavigationBarAttachment,
   StyledScopeBar,
-  StyledSelectionUnavailable,
-  StyledSelectionUnavailableText,
 } from './SelectLocationStyles';
 import { useSelectLocationContext } from './SelectLocationView';
-import { SpacePreAllocationView } from './SpacePreAllocationView';
-import { CustomExitLocationRow } from './SpecialLocationList';
 
 export function SelectLocation() {
   const history = useHistory();
@@ -344,90 +343,4 @@ function SelectLocationContent() {
       </>
     );
   }
-}
-
-function LocationList<T>(props: CombinedLocationListProps<T>) {
-  const { searchTerm } = useSelectLocationContext();
-
-  if (
-    searchTerm !== '' &&
-    !props.relayLocations.some((country) => country.visible) &&
-    (props.specialLocations === undefined || props.specialLocations.length === 0)
-  ) {
-    return null;
-  } else {
-    return (
-      <>
-        <Cell.Row>
-          <Cell.Label>{messages.pgettext('select-location-view', 'All locations')}</Cell.Label>
-        </Cell.Row>
-        <CombinedLocationList {...props} />
-      </>
-    );
-  }
-}
-
-interface NoSearchResultProps {
-  specialLocationsLength: number;
-}
-
-function NoSearchResult(props: NoSearchResultProps) {
-  const { relayList, customLists } = useRelayListContext();
-  const { searchTerm } = useSelectLocationContext();
-
-  if (
-    searchTerm === '' ||
-    relayList.some((country) => country.visible) ||
-    customLists.some((list) => list.visible) ||
-    props.specialLocationsLength > 0
-  ) {
-    return null;
-  }
-
-  return (
-    <StyledSelectionUnavailable>
-      <StyledSelectionUnavailableText>
-        {formatHtml(
-          sprintf(messages.gettext('No result for <b>%(searchTerm)s</b>.'), {
-            searchTerm,
-          }),
-        )}
-      </StyledSelectionUnavailableText>
-      <StyledSelectionUnavailableText>
-        {messages.gettext('Try a different search.')}
-      </StyledSelectionUnavailableText>
-    </StyledSelectionUnavailable>
-  );
-}
-
-function DisabledEntrySelection() {
-  const { push } = useHistory();
-
-  const multihop = messages.pgettext('settings-view', 'Multihop');
-  const directOnly = messages.gettext('Direct only');
-
-  const navigateToDaitaSettings = useCallback(() => {
-    push(RoutePath.daitaSettings);
-  }, [push]);
-
-  return (
-    <FlexColumn gap="large" margin={{ horizontal: 'large', bottom: 'tiny' }}>
-      <StyledSelectionUnavailableText>
-        {sprintf(
-          messages.pgettext(
-            'select-location-view',
-            'The entry server for %(multihop)s is currently overridden by %(daita)s. To select an entry server, please first enable “%(directOnly)s” or disable "%(daita)s" in the settings.',
-          ),
-          { daita: strings.daita, multihop, directOnly },
-        )}
-      </StyledSelectionUnavailableText>
-      <Button onClick={navigateToDaitaSettings}>
-        <Button.Text>
-          {sprintf(messages.pgettext('select-location-view', 'Open %(daita)s settings'), {
-            daita: strings.daita,
-          })}
-        </Button.Text>
-      </Button>
-    </FlexColumn>
-  );
 }

@@ -1,12 +1,12 @@
 import styled from 'styled-components';
 import { Styles } from 'styled-components/dist/types';
 
-import { Icon } from '../../../lib/components';
-import { colors, ColorVariables } from '../../../lib/foundations';
-import * as Cell from '../../cell';
-import { buttonColor, ButtonColors } from '../../cell/styles';
-import { measurements, normalText } from '../../common-styles';
-import InfoButton from '../../InfoButton';
+import { Icon } from '../../../../../lib/components';
+import { colors, ColorVariables } from '../../../../../lib/foundations';
+import * as Cell from '../../../../cell';
+import { buttonColor, ButtonColors } from '../../../../cell/styles';
+import { measurements, normalText } from '../../../../common-styles';
+import InfoButton from '../../../../InfoButton';
 
 export const StyledLocationRowContainer = styled(Cell.Container)({
   display: 'flex',

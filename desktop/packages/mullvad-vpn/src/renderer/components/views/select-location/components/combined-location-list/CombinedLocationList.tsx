@@ -1,9 +1,9 @@
 import React from 'react';
 
-import type { RelayLocation } from '../../../../shared/daemon-rpc-types';
-import { RelayLocationList } from './RelayLocationList';
-import { RelayList, SpecialLocation } from './select-location-types';
-import { SpecialLocationList } from './SpecialLocationList';
+import type { RelayLocation } from '../../../../../../shared/daemon-rpc-types';
+import { RelayList, SpecialLocation } from '../../select-location-types';
+import { SpecialLocationList } from '..';
+import { RelayLocationList } from '../relay-location-list';
 
 export interface CombinedLocationListProps<T> {
   relayLocations: RelayList;
