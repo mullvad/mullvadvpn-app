@@ -46,7 +46,7 @@ use crate::{
 /// The port number we set in the malicious packet.
 const MALICIOUS_PACKET_PORT: u16 = 12345;
 
-/// Timeout to use for finding malicious packet.
+/// Timeout to use for finding the malicious packet.
 const FILTER_TIMEOUT: Duration = Duration::from_secs(5);
 
 /// Timeout to use for receiving a single packet from the link.
@@ -141,10 +141,12 @@ impl IO {
         let interface = ifs.iter().find(|i| i.index == interface).context(anyhow!(
             "Could not find network interface with index {interface}"
         ))?;
-        let mut config = pnet_datalink::Config::default();
-        // NOTE: We must set a timeout here, or `recv()` will never return
-        // if there is nothing to receive, and the `spawn_blocking` thread will never stop.
-        config.read_timeout = Some(RECV_TIMEOUT);
+        let config = pnet_datalink::Config {
+            // NOTE: We must set a timeout here, or `recv()` will never return
+            // if there is nothing to receive, and the `spawn_blocking` thread will never stop.
+            read_timeout: Some(RECV_TIMEOUT),
+            ..Default::default()
+        };
         let Channel::Ethernet(send, recv) = channel(interface, config).unwrap() else {
             unimplemented!("there are no other Channel variants yet")
         };
