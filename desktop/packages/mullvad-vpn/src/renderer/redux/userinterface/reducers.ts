@@ -1,6 +1,6 @@
 import { MacOsScrollbarVisibility } from '../../../shared/ipc-schema';
 import { DaemonStatus, IChangelog } from '../../../shared/ipc-types';
-import { LocationType } from '../../components/select-location/select-location-types';
+import { LocationType } from '../../components/views/select-location/select-location-types';
 import { ReduxAction } from '../store';
 
 export interface IUserInterfaceReduxState {

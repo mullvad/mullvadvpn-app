@@ -4,10 +4,10 @@ import {
   compareRelayLocationGeographical,
   ICustomList,
   RelayLocation,
-} from '../../../shared/daemon-rpc-types';
-import { hasValue } from '../../../shared/utils';
-import { searchMatch } from '../../lib/filter-locations';
-import { useSelector } from '../../redux/store';
+} from '../../../../shared/daemon-rpc-types';
+import { hasValue } from '../../../../shared/utils';
+import { searchMatch } from '../../../lib/filter-locations';
+import { useSelector } from '../../../redux/store';
 import { useDisabledLocation, useSelectedLocation } from './RelayListContext';
 import {
   formatRowName,
