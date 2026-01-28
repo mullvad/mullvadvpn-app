@@ -43,11 +43,12 @@ export const StyledListItem = styled(StyledListItemRoot)<{
         grid-template-columns: 1fr auto;
         ${StyledListItemItem} {
           border-top-right-radius: var(--disabled-border-radius);
+          border-bottom-right-radius: var(--disabled-border-radius);
         }
       }
 
       ${() => {
-        if ($position === 'auto') {
+        if ($position === 'auto' || $position === 'first') {
           return css`
             // If directly preceded by another ListItem
             ${StyledListItemRoot} + & {
@@ -59,7 +60,15 @@ export const StyledListItem = styled(StyledListItemRoot)<{
                 border-top-right-radius: var(--disabled-border-radius);
               }
             }
+          `;
+        }
 
+        return null;
+      }}
+
+      ${() => {
+        if ($position === 'auto' || $position === 'last') {
+          return css`
             // If directly followed by another ListItem
             &:has(+ ${StyledListItemRoot}) {
               margin-bottom: 1px;
@@ -84,6 +93,9 @@ export const StyledListItem = styled(StyledListItemRoot)<{
               border-top-left-radius: var(--disabled-border-radius);
               border-top-right-radius: var(--disabled-border-radius);
             }
+            ${StyledListItemTrailingAction} {
+              border-top-right-radius: var(--disabled-border-radius);
+            }
           `;
         }
 
@@ -96,6 +108,9 @@ export const StyledListItem = styled(StyledListItemRoot)<{
             margin-bottom: 1px;
             ${StyledListItemItem} {
               border-bottom-left-radius: var(--disabled-border-radius);
+              border-bottom-right-radius: var(--disabled-border-radius);
+            }
+            ${StyledListItemTrailingAction} {
               border-bottom-right-radius: var(--disabled-border-radius);
             }
           `;
