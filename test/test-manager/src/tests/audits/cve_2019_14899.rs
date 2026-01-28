@@ -15,6 +15,10 @@
 use std::{
     convert::Infallible,
     net::{IpAddr, Ipv4Addr},
+    sync::{
+        Arc,
+        atomic::{AtomicBool, Ordering},
+    },
     time::Duration,
 };
 
@@ -41,6 +45,12 @@ use crate::{
 
 /// The port number we set in the malicious packet.
 const MALICIOUS_PACKET_PORT: u16 = 12345;
+
+/// Timeout to use for finding malicious packet.
+const FILTER_TIMEOUT: Duration = Duration::from_secs(5);
+
+/// Timeout to use for receiving a single packet from the link.
+const RECV_TIMEOUT: Duration = Duration::from_secs(5);
 
 #[test_function(target_os = "linux")]
 pub async fn test_cve_2019_14899_mitigation(
@@ -106,7 +116,7 @@ pub async fn test_cve_2019_14899_mitigation(
     // victim.
     let io = IO::send_recv_on_interface(host_interface_index)?;
     let rst_packet = select! {
-        result = filter_for_malicious_packet(io.recv, Duration::from_secs(5)).fuse() => result?,
+        result = filter_for_malicious_packet(io.recv, FILTER_TIMEOUT).fuse() => result?,
         Err(e) = spam_packet(io.send, &malicious_packet).fuse() => return Err(e),
     };
 
@@ -131,7 +141,10 @@ impl IO {
         let interface = ifs.iter().find(|i| i.index == interface).context(anyhow!(
             "Could not find network interface with index {interface}"
         ))?;
-        let config = pnet_datalink::Config::default();
+        let mut config = pnet_datalink::Config::default();
+        // NOTE: We must set a timeout here, or `recv()` will never return
+        // if there is nothing to receive, and the `spawn_blocking` thread will never stop.
+        config.read_timeout = Some(RECV_TIMEOUT);
         let Channel::Ethernet(send, recv) = channel(interface, config).unwrap() else {
             unimplemented!("there are no other Channel variants yet")
         };
@@ -155,30 +168,38 @@ async fn filter_for_malicious_packet(
     mut recv: Box<dyn DataLinkReceiver>,
     timeout: Duration,
 ) -> anyhow::Result<Option<TcpPacket<'static>>> {
-    let result = tokio::time::timeout(
-        timeout,
-        tokio::task::spawn_blocking(move || {
-            loop {
-                let packet = match recv.next() {
-                    Err(e) => return Err(e).context("Failed to read from data link"),
-                    Ok(p) => p,
-                };
-                log::trace!("Received Ethernet frame");
-                let Some(packet) = ethernetframe_to_tcp(packet) else {
-                    continue;
-                };
-                log::trace!("Parsed Ethernet frame into TCP-packet!");
-                if is_malicious_packet(&packet) {
-                    log::debug!("Identified TCP-packet as the malicious one!");
-                    return anyhow::Ok(packet);
-                }
-            }
-        }),
-    );
+    let should_stop = Arc::new(AtomicBool::new(false));
+    let should_stop_thread = should_stop.clone();
 
-    match result.await {
+    let mut thread = tokio::task::spawn_blocking(move || {
+        loop {
+            if should_stop_thread.load(Ordering::SeqCst) {
+                bail!("Timed out waiting for malicious packet");
+            }
+            let packet = match recv.next() {
+                Err(e) => return Err(e).context("Failed to read from data link"),
+                Ok(p) => p,
+            };
+            log::trace!("Received Ethernet frame");
+            let Some(packet) = ethernetframe_to_tcp(packet) else {
+                continue;
+            };
+            log::trace!("Parsed Ethernet frame into TCP-packet!");
+            if is_malicious_packet(&packet) {
+                log::debug!("Identified TCP-packet as the malicious one!");
+                return anyhow::Ok(packet);
+            }
+        }
+    });
+
+    match tokio::time::timeout(timeout, &mut thread).await {
         Ok(packet) => Ok(Some(packet??)),
-        Err(_timed_out) => Ok(None),
+        Err(_timed_out) => {
+            should_stop.store(true, Ordering::SeqCst);
+            // Avoid leaking thread
+            let _ = thread.await;
+            Ok(None)
+        }
     }
 }
 
