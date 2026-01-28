@@ -252,7 +252,7 @@ impl ProxyConnection {
         let (sender, conn) = hyper::client::conn::http1::handshake(io).await?;
         tokio::spawn(async move {
             if let Err(err) = conn.await {
-                log::trace!("Domain fronting connection failed: {:?}", err);
+                log::error!("Domain fronting connection failed: {:?}", err);
             }
         });
         Self::initialize(sender, proxy_host, session_header_key).await
@@ -303,7 +303,6 @@ impl ProxyConnection {
     }
 
     fn fill_recv_buffer(mut self: Pin<&mut Self>, response: Bytes) {
-        log::debug!("Received {} bytes", response.len());
         self.reader.get_mut().extend(response);
     }
 
@@ -326,7 +325,6 @@ impl AsyncRead for ProxyConnection {
         cx: &mut std::task::Context<'_>,
         buf: &mut tokio::io::ReadBuf<'_>,
     ) -> std::task::Poll<std::io::Result<()>> {
-        log::trace!("call to poll_read");
         self.as_mut().update_read_waker(cx);
         match self.as_mut().response_rx.poll_recv(cx) {
             // indicate that the reader is shut down by reading 0 bytes.
@@ -345,13 +343,11 @@ impl AsyncRead for ProxyConnection {
 
         let buffer_empty = self.as_ref().recv_buffer_empty();
         if !buffer_empty {
-            log::debug!("attempting to read");
             match self.reader.read(buf.initialize_unfilled()) {
                 Ok(0) => (),
                 Ok(n) => {
                     buf.advance(n);
                     self.bytes_received += n;
-                    log::debug!("Received in total {} bytes", self.bytes_received);
                     return Poll::Ready(Ok(()));
                 }
                 Err(err) => {
