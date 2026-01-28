@@ -12,6 +12,7 @@ crate-type = ["rlib", "staticlib"]
 [dependencies]
 hyper-util = { workspace = true }
 log = { workspace = true }
+maybenot = { workspace = true }
 ml-kem = { version = "0.2.1", features = ["zeroize"] }
 # This is a wrapper to the C implementation of HQC in PQClean.
 # Keep eyes open for alternatives, preferably pure Rust implementations.

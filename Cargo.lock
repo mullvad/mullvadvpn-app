@@ -5281,6 +5281,7 @@ version = "0.0.0"
 dependencies = [
  "hyper-util",
  "log",
+ "maybenot",
  "ml-kem",
  "nix 0.30.1",
  "pqcrypto-hqc",
