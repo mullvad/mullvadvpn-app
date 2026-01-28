@@ -73,7 +73,12 @@ pub struct DaitaParameters {
 
 impl DaitaParameters {
     fn new(settings: DaitaSettings) -> Option<Self> {
-        let machines_string = settings.client_machines.join("\n");
+        let machines_string = settings
+            .client_machines
+            .into_iter()
+            .map(|machine| machine.name())
+            .collect::<Vec<_>>()
+            .join("\n");
         let machines = CString::new(machines_string).ok()?.into_raw().cast();
         Some(Self {
             machines,
