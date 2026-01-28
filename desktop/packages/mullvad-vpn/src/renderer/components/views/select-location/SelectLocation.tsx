@@ -26,8 +26,8 @@ import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
 import { SearchTextField } from '../../search-text-field';
 import { useFilteredProviders } from '../../views/filter/FilterView';
-import CombinedLocationList, { CombinedLocationListProps } from './CombinedLocationList';
-import CustomLists from './CustomLists';
+import { CombinedLocationList, CombinedLocationListProps } from './CombinedLocationList';
+import { CustomLists } from './CustomLists';
 import { useRelayListContext } from './RelayListContext';
 import { ScopeBarItem } from './ScopeBar';
 import { useScrollPositionContext } from './ScrollPositionContext';
@@ -44,7 +44,7 @@ import {
 import { SpacePreAllocationView } from './SpacePreAllocationView';
 import { CustomExitLocationRow } from './SpecialLocationList';
 
-export default function SelectLocation() {
+export function SelectLocation() {
   const history = useHistory();
   const relaySettingsUpdater = useRelaySettingsUpdater();
   const { saveScrollPosition, resetScrollPositions, scrollViewRef, spacePreAllocationViewRef } =

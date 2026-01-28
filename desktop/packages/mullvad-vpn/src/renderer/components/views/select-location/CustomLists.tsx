@@ -17,7 +17,7 @@ import { measurements } from '../../common-styles';
 import { BackAction } from '../../keyboard-navigation';
 import SimpleInput from '../../SimpleInput';
 import { useRelayListContext } from './RelayListContext';
-import RelayLocationList from './RelayLocationList';
+import { RelayLocationList } from './RelayLocationList';
 import { useScrollPositionContext } from './ScrollPositionContext';
 import { useSelectLocationContext } from './SelectLocationContainer';
 
@@ -73,7 +73,7 @@ interface CustomListsProps {
   onSelect: (value: RelayLocation) => void;
 }
 
-export default function CustomLists(props: CustomListsProps) {
+export function CustomLists(props: CustomListsProps) {
   const [addListVisible, showAddList, hideAddList] = useBoolean();
   const { createCustomList } = useAppContext();
   const { searchTerm } = useSelectLocationContext();
