@@ -2,7 +2,6 @@ import { useCallback, useRef } from 'react';
 import { Route, Switch } from 'react-router';
 
 import { RoutePath } from '../../shared/routes';
-import { SelectLocationContainer as SelectLocation } from '../components/views/select-location/SelectLocationContainer';
 import { useViewTransitions } from '../lib/transition-hooks';
 import {
   SetupFinished,
@@ -32,6 +31,7 @@ import {
   MultihopSettingsView,
   ProblemReportView,
   SelectLanguageView,
+  SelectLocationView as SelectLocation,
   SettingsImportView,
   SettingsTextImportView,
   SettingsView,

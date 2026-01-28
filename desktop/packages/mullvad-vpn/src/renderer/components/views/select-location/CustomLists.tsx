@@ -19,7 +19,7 @@ import SimpleInput from '../../SimpleInput';
 import { useRelayListContext } from './RelayListContext';
 import { RelayLocationList } from './RelayLocationList';
 import { useScrollPositionContext } from './ScrollPositionContext';
-import { useSelectLocationContext } from './SelectLocationContainer';
+import { useSelectLocationContext } from './SelectLocationView';
 
 const StyledCellContainer = styled(Cell.Container)({
   padding: 0,

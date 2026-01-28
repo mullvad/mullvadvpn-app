@@ -23,7 +23,7 @@ export function useSelectLocationContext() {
   return useContext(selectLocationContext)!;
 }
 
-export function SelectLocationContainer() {
+export function SelectLocationView() {
   const locationTypeSelector = useSelector((state) => state.userInterface.selectLocationView);
   const { setSelectLocationView } = useActions(userInterface);
   const [searchTerm, setSearchTerm] = useState('');

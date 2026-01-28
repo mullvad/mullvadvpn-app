@@ -33,7 +33,6 @@ import { ScopeBarItem } from './ScopeBar';
 import { useScrollPositionContext } from './ScrollPositionContext';
 import { useOnSelectEntryLocation, useOnSelectExitLocation } from './select-location-hooks';
 import { LocationType, SpecialLocation } from './select-location-types';
-import { useSelectLocationContext } from './SelectLocationContainer';
 import {
   StyledContent,
   StyledNavigationBarAttachment,
@@ -41,6 +40,7 @@ import {
   StyledSelectionUnavailable,
   StyledSelectionUnavailableText,
 } from './SelectLocationStyles';
+import { useSelectLocationContext } from './SelectLocationView';
 import { SpacePreAllocationView } from './SpacePreAllocationView';
 import { CustomExitLocationRow } from './SpecialLocationList';
 

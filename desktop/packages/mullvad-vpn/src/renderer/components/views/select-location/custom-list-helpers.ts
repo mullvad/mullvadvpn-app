@@ -23,7 +23,7 @@ import {
   GeographicalRelayList,
   RelaySpecification,
 } from './select-location-types';
-import { useSelectLocationContext } from './SelectLocationContainer';
+import { useSelectLocationContext } from './SelectLocationView';
 
 // Hook that generates the custom lists relay list.
 export function useCustomListsRelayList(
