@@ -36,10 +36,30 @@ fn did_vmware_bork_my_machine(mut cx: FunctionContext<'_>) -> JsResult<'_, JsBoo
     }
 }
 
+/// Try to remove lingering VMWare artifacts that may cause conflicts with Mullvad VPN.
+/// See [`did_vmware_bork_my_machine`] for context.
+///
+/// Returns successfully if the offending key was removed and returns an error if the key couldn't be removed.
+fn unbork_my_machine_from_vmware(mut cx: FunctionContext<'_>) -> JsResult<'_, JsUndefined> {
+    match nuke_3d09c1ca() {
+        Ok(_) => Ok(cx.undefined()),
+        Err(err) => cx.throw_error(err.to_string()),
+    }
+}
+
 /// Check for the existence of the registry key `HKLM\SOFTWARE\Classes\CLSID{3d09c1ca-2bcc-40b7-b9bb-3f3ec143a87b}`,
 /// which suggests that VMWare did not install correctly.
 fn get_3d09c1ca() -> std::io::Result<winreg::reg_key::RegKey> {
     use winreg::{enums::*, reg_key::RegKey};
     let hklm = RegKey::predef(HKEY_LOCAL_MACHINE);
     hklm.open_subkey(r#"SOFTWARE\Classes\CLSID{3d09c1ca-2bcc-40b7-b9bb-3f3ec143a87b}"#)
+}
+
+/// Try to remove the registry key `HKLM\SOFTWARE\Classes\CLSID{3d09c1ca-2bcc-40b7-b9bb-3f3ec143a87b}`,
+/// Only do this if you think it's causing issues, and prefer to check for it's existence using
+/// [`did_vmware_bork_my_machine`] first.
+fn nuke_3d09c1ca() -> std::io::Result<()> {
+    use winreg::{enums::*, reg_key::RegKey};
+    let hklm = RegKey::predef(HKEY_LOCAL_MACHINE);
+    hklm.delete_subkey(r#"SOFTWARE\Classes\CLSID{3d09c1ca-2bcc-40b7-b9bb-3f3ec143a87b}"#)
 }
