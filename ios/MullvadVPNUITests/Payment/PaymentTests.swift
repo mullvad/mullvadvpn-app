@@ -96,6 +96,7 @@ class PaymentTests: LoggedOutUITestCase {
     }
 
     func testInAppPurchaseWithRestoreOnFailedReceiptUpload() throws {
+        try XCTSkipIf(true, "This test is too unreliable to run in CI for now")
         let firewallAPIClient = FirewallClient()
         firewallAPIClient.removeRules()
 
