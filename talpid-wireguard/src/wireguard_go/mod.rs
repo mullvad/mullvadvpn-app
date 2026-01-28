@@ -701,7 +701,12 @@ impl Tunnel for WgGoTunnel {
                 log::info!("Initializing DAITA for wireguard device");
                 let peer_public_key = self.handle().config.entry_peer.public_key.clone();
 
-                let machines = daita.client_machines.join("\n");
+                let machines = daita
+                    .client_machines
+                    .into_iter()
+                    .map(|machine| machine.serialize())
+                    .collect::<Vec<_>>()
+                    .join("\n");
                 let machines =
                     CString::new(machines).map_err(|err| TunnelError::StartDaita(Box::new(err)))?;
 
