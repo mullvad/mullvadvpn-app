@@ -7,14 +7,14 @@ import {
   StyledSelectionUnavailable,
   StyledSelectionUnavailableText,
 } from '../../SelectLocationStyles';
-import { useSelectLocationContext } from '../../SelectLocationView';
+import { useSelectLocationViewContext } from '../../SelectLocationViewContext';
 
 export interface NoSearchResultProps {
   specialLocationsLength: number;
 }
 export function NoSearchResult(props: NoSearchResultProps) {
   const { relayList, customLists } = useRelayListContext();
-  const { searchTerm } = useSelectLocationContext();
+  const { searchTerm } = useSelectLocationViewContext();
 
   if (
     searchTerm === '' ||
