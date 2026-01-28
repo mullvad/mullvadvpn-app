@@ -101,6 +101,7 @@ export function MtuSetting(props: MtuSettingProps) {
             <SettingsListItem.TextField.Input
               ref={inputRef}
               placeholder={messages.gettext('Default')}
+              width="small"
               inputMode="numeric"
               maxLength={4}
               aria-labelledby={labelId}
