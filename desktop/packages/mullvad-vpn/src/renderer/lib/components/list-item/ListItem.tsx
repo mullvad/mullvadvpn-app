@@ -105,7 +105,6 @@ export const StyledListItem = styled(StyledListItemRoot)<{
               padding-bottom: calc(1.33px / 1);
             }
 
-            /** Untested resolution */
             @media (resolution >= 1.75x) and (resolution < 2x) {
               margin-bottom: calc(-1px * 1.75);
               padding-top: 1.75px;
