@@ -279,6 +279,7 @@ private fun ErrorStateCause.errorMessageId(): String =
             )
         is ErrorStateCause.NoRelaysMatchSelectedPort ->
             stringResource(R.string.wireguard_port_is_not_supported)
+        is ErrorStateCause.InvalidIpv6Config -> stringResource(R.string.invalid_ipv6_config)
     }
 
 private fun AuthFailedError.errorMessageId(): Int =
