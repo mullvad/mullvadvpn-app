@@ -51,6 +51,8 @@ pub enum Error {
 
 type Result<T> = std::result::Result<T, Error>;
 
+// TODO: The current Pinger implementation is not able to track it's own pings via sequence numbers.
+// Switch to [surge_ping](https://crates.io/crates/surge-ping), which is able to do that.
 pub struct Pinger {
     sock: UdpSocket,
     addr: SocketAddr,

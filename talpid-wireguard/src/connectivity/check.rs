@@ -245,7 +245,7 @@ impl Check {
                     return Ok(true);
                 }
 
-                Self::maybe_send_ping(conn_state, ping_state, now).await?;
+                Self::maybe_send_ping(conn_state, ping_state, now).await;
                 Ok(!ping_state.ping_timed_out(timeout) && conn_state.connected())
             }
         }
@@ -263,11 +263,7 @@ impl Check {
         }
     }
 
-    async fn maybe_send_ping(
-        conn_state: &mut ConnState,
-        ping_state: &mut PingState,
-        now: Instant,
-    ) -> Result<(), Error> {
+    async fn maybe_send_ping(conn_state: &mut ConnState, ping_state: &mut PingState, now: Instant) {
         // Only send out a ping if we haven't received a byte in a while or no traffic has flowed
         // in the last 2 minutes, but if a ping already has been sent out, only send one out every
         // 3 seconds.
@@ -279,13 +275,18 @@ impl Check {
                 })
                 .unwrap_or(true)
         {
-            ping_state.ping().await?;
-            if ping_state.initial_ping_timestamp.is_none() {
-                ping_state.initial_ping_timestamp = Some(now);
+            match ping_state.ping().await {
+                Ok(()) => {
+                    if ping_state.initial_ping_timestamp.is_none() {
+                        ping_state.initial_ping_timestamp = Some(now);
+                    }
+                    ping_state.num_pings_sent += 1;
+                }
+                Err(err) => {
+                    log::error!("{err}");
+                }
             }
-            ping_state.num_pings_sent += 1;
         }
-        Ok(())
     }
 }
 
@@ -591,9 +592,7 @@ mod test {
         // Mock the state - connectivity has been established
         checker.conn_state = connected_state(start);
         // A ping was sent to verify connectivity
-        Check::maybe_send_ping(&mut checker.conn_state, &mut checker.ping_state, start)
-            .await
-            .unwrap();
+        Check::maybe_send_ping(&mut checker.conn_state, &mut checker.ping_state, start).await;
         assert!(
             !checker
                 .check_connectivity(now, tunnel.as_ref())
