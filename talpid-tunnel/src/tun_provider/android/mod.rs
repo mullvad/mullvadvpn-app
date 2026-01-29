@@ -47,6 +47,11 @@ pub enum Error {
     #[error("Received an invalid result from TalpidVpnService.{0}: {1}")]
     InvalidMethodResult(&'static str, String),
 
+    #[error(
+        "Attempt to configure the tunnel with invalid config addresses: {0:?} routes: {1:?} dnsServers: {2:?}"
+    )]
+    InvalidIpv6Config(Vec<IpAddr>, Vec<IpAddr>, Vec<IpAddr>),
+
     #[error("Failed to create tunnel device")]
     TunnelDeviceError,
 
@@ -447,12 +452,22 @@ impl AsFd for VpnServiceTun {
 #[derive(FromJava)]
 #[jnix(package = "net.mullvad.talpid.model")]
 enum CreateTunResult {
-    Success { tun_fd: i32 },
-    InvalidDnsServers { addresses: Vec<IpAddr> },
-    InvalidIpv6Config,
+    Success {
+        tun_fd: i32,
+    },
+    InvalidDnsServers {
+        addresses: Vec<IpAddr>,
+    },
+    InvalidIpv6Config {
+        addresses: Vec<IpAddr>,
+        routes: Vec<IpAddr>,
+        dns_servers: Vec<IpAddr>,
+    },
     EstablishError,
     OtherLegacyAlwaysOnVpn,
-    OtherAlwaysOnApp { app_name: String },
+    OtherAlwaysOnApp {
+        app_name: String,
+    },
     NotPrepared,
 }
 
@@ -463,7 +478,11 @@ impl From<CreateTunResult> for Result<RawFd, Error> {
             CreateTunResult::InvalidDnsServers { addresses } => {
                 Err(Error::InvalidDnsServers(addresses))
             }
-            CreateTunResult::InvalidIpv6Config => Err(Error::TunnelDeviceError),
+            CreateTunResult::InvalidIpv6Config {
+                addresses,
+                routes,
+                dns_servers,
+            } => Err(Error::InvalidIpv6Config(addresses, routes, dns_servers)),
             CreateTunResult::EstablishError => Err(Error::TunnelDeviceError),
             CreateTunResult::OtherLegacyAlwaysOnVpn => Err(Error::OtherLegacyAlwaysOnVpn),
             CreateTunResult::OtherAlwaysOnApp { app_name } => {
