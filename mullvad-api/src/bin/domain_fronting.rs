@@ -21,8 +21,8 @@ pub struct Arguments {
     #[arg(long)]
     host: String,
 
-    /// Session header
-    #[clap(short = 'H', long)]
+    /// Session header key used to identify client sessions
+    #[clap(short = 's', long)]
     session_header: String,
 }
 

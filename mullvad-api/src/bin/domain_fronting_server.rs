@@ -32,8 +32,8 @@ struct Args {
     #[clap(short, long, default_value = "443")]
     port: u16,
 
-    /// Session header
-    #[clap(short = 'H', long)]
+    /// Session header key used to identify client sessions
+    #[clap(short = 's', long)]
     session_header: String,
 }
 
