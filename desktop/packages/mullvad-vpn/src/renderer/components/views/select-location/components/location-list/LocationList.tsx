@@ -1,5 +1,5 @@
 import { messages } from '../../../../../../shared/gettext';
-import * as Cell from '../../../../cell';
+import { SectionTitle } from '../../../../../lib/components/section-title';
 import { useSelectLocationViewContext } from '../../SelectLocationViewContext';
 import { CombinedLocationList, type CombinedLocationListProps } from '../combined-location-list';
 
@@ -15,9 +15,12 @@ export function LocationList<T>(props: CombinedLocationListProps<T>) {
   } else {
     return (
       <>
-        <Cell.Row>
-          <Cell.Label>{messages.pgettext('select-location-view', 'All locations')}</Cell.Label>
-        </Cell.Row>
+        <SectionTitle>
+          <SectionTitle.Title>
+            {messages.pgettext('select-location-view', 'All locations')}
+          </SectionTitle.Title>
+          <SectionTitle.Divider />
+        </SectionTitle>
         <CombinedLocationList {...props} />
       </>
     );
