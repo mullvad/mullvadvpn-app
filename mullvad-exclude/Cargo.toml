@@ -7,7 +7,7 @@ repository.workspace = true
 license.workspace = true
 
 [target.'cfg(target_os = "linux")'.dependencies]
-nix = { workspace = true, features = ["process", "user"] }
+nix = { workspace = true, features = ["process", "user", "signal"] }
 talpid-cgroup = { path = "../talpid-cgroup" }
 thiserror = { workspace = true }
 zbus = { version = "5.2", default-features = false, features = ["blocking-api", "tokio"] }

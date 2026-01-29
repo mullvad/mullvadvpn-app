@@ -18,7 +18,10 @@ mod inner {
 
     use nix::{
         cmsg_space,
-        sys::socket::{ControlMessage, ControlMessageOwned, MsgFlags, recvmsg, sendmsg},
+        sys::{
+            signal::{SigSet, SigmaskHow, Signal, pthread_sigmask},
+            socket::{ControlMessage, ControlMessageOwned, MsgFlags, recvmsg, sendmsg},
+        },
         unistd::{
             ForkResult, Pid, execvp, fork, getgid, getpid, getuid, setegid, seteuid, setgid, setuid,
         },
@@ -280,6 +283,15 @@ mod inner {
                 }
                 ForkResult::Child => {
                     drop(notify_fd_tx);
+
+                    // Disable signal handlers. Without this, CTRL-C kills the supervisor process.
+                    fn mask_supervisor_signals() {
+                        let mut set = SigSet::empty();
+                        // TODO: block other signals?
+                        set.add(Signal::SIGINT);
+                        pthread_sigmask(SigmaskHow::SIG_BLOCK, Some(&set), None).unwrap();
+                    }
+                    mask_supervisor_signals();
 
                     // Receive the seccomp notify fd from the parent process using SCM_RIGHTS.
                     let mut buf = [0u8; 1];
