@@ -40,6 +40,8 @@ private func rustLogCallback(
             .debug
         }
 
+    // Redaction happens in CustomFormatLogHandler (file output only)
+    // OSLog output remains unredacted for debugging
     logger.log(level: logLevel, "\(message)")
 }
 

@@ -7,10 +7,10 @@
 //
 
 import Foundation
+import MullvadLogging
 
 private let kLogDelimiter = "===================="
 private let kRedactedPlaceholder = "[REDACTED]"
-private let kRedactedAccountPlaceholder = "[REDACTED ACCOUNT NUMBER]"
 private let kRedactedContainerPlaceholder = "[REDACTED CONTAINER PATH]"
 
 class ConsolidatedApplicationLog: TextOutputStreamable, @unchecked Sendable {
@@ -182,10 +182,10 @@ class ConsolidatedApplicationLog: TextOutputStreamable, @unchecked Sendable {
 
     private func redact(string: String) -> String {
         var result = string
+        // Use shared LogRedactor for IP addresses and account numbers
+        result = LogRedactor.shared.redact(result)
+        // Apply consolidated-log-specific redactions
         result = redactContainerPaths(string: result)
-        result = redactAccountNumber(string: result)
-        result = redactIPv4Address(string: result)
-        result = redactIPv6Address(string: result)
         result = redactCustomStrings(in: result)
         return result
     }
@@ -197,46 +197,5 @@ class ConsolidatedApplicationLog: TextOutputStreamable, @unchecked Sendable {
                 with: kRedactedContainerPlaceholder
             )
         }
-    }
-
-    private func redactAccountNumber(string: String) -> String {
-        // swift-format-ignore: NeverUseForceTry
-        redact(
-            regularExpression: try! NSRegularExpression(pattern: #"\d{16}"#),
-            string: string,
-            replacementString: kRedactedAccountPlaceholder
-        )
-    }
-
-    private func redactIPv4Address(string: String) -> String {
-        redact(
-            regularExpression: NSRegularExpression.ipv4RegularExpression,
-            string: string,
-            replacementString: kRedactedPlaceholder
-        )
-    }
-
-    private func redactIPv6Address(string: String) -> String {
-        redact(
-            regularExpression: NSRegularExpression.ipv6RegularExpression,
-            string: string,
-            replacementString: kRedactedPlaceholder
-        )
-    }
-
-    private func redact(
-        regularExpression: NSRegularExpression,
-        string: String,
-        replacementString: String
-    ) -> String {
-        let nsRange = NSRange(string.startIndex..<string.endIndex, in: string)
-        let template = NSRegularExpression.escapedTemplate(for: replacementString)
-
-        return regularExpression.stringByReplacingMatches(
-            in: string,
-            options: [],
-            range: nsRange,
-            withTemplate: template
-        )
     }
 }

@@ -47,7 +47,8 @@ public struct CustomFormatLogHandler: @unchecked Sendable, LogHandler {
         let prettyMetadata = Self.formatMetadata(mergedMetadata)
         let metadataOutput = prettyMetadata.isEmpty ? "" : " \(prettyMetadata)"
         let timestamp = Date().logFormatted
-        let formattedMessage = "[\(timestamp)][\(label)][\(level)]\(metadataOutput) \(message)\n"
+        let redactedMessage = LogRedactor.shared.redact(message.description)
+        let formattedMessage = "[\(timestamp)][\(label)][\(level)]\(metadataOutput) \(redactedMessage)\n"
 
         for var stream in streams {
             stream.write(formattedMessage)
