@@ -76,81 +76,78 @@ export const StyledListItem = styled(StyledListItemRoot)<{
       }}
 
       ${() => {
-        if ($position === 'auto') {
-          // Absolutely terrible hack for supporting fractional scaling on Linux under Wayland
-          if (window.navigator.platform.includes('Linux')) {
-            return css`
-              margin-bottom: 1px;
-
-              @media (resolution >= 1.25x) and (resolution < 1.33x) {
-                margin-bottom: calc(-1px * 1.25);
-                padding-top: 1.75px;
-                padding-bottom: calc(0.25px / 1);
-              }
-
-              @media (resolution >= 1.33x) and (resolution < 1.5x) {
-                margin-bottom: calc(-1px * 1.33);
-                padding-top: 1.66px;
-                padding-bottom: calc(0.33px / 1);
-              }
-
-              @media (resolution >= 1.5x) and (resolution < 1.66x) {
-                margin-bottom: calc(-1px * 1.5);
-                padding-top: 1.5px;
-                padding-bottom: calc(0.5px / 1);
-              }
-
-              @media (resolution >= 1.66x) and (resolution < 1.75x) {
-                margin-bottom: calc(-1px * 1.66);
-                padding-top: 1.66px;
-                padding-bottom: calc(1.33px / 1);
-              }
-
-              /** Untested resolution */
-              @media (resolution >= 1.75x) and (resolution < 2x) {
-                margin-bottom: calc(-1px * 1.75);
-                padding-top: 1.75px;
-                padding-bottom: calc(1.25px / 1);
-              }
-
-              @media (resolution >= 2x) and (resolution < 2.33x) {
-                margin-bottom: 1px;
-              }
-
-              /** Untested resolution */
-              @media (resolution >= 2.33x) and (resolution < 2.5x) {
-                margin-bottom: calc(-1px * 2.33);
-                padding-top: 2.66px;
-                padding-bottom: calc((2.33px - 1px) / 2);
-              }
-
-              @media (resolution >= 2.5x) and (resolution < 2.66x) {
-                margin-bottom: calc(-1px * 2.5);
-                padding-top: 2.5px;
-                padding-bottom: calc(1.5px / 2);
-              }
-
-              @media (resolution >= 2.66x) and (resolution < 2.75x) {
-                margin-bottom: calc(-1px * 2.66);
-                padding-top: 2.66px;
-                padding-bottom: calc(2.33px / 2);
-              }
-
-              @media (resolution >= 2.75x) and (resolution < 3x) {
-                margin-bottom: calc(-1px * 2.75);
-                padding-top: 2.75px;
-                padding-bottom: calc(2.25px / 2);
-              }
-            `;
-          }
-
+        // Absolutely terrible hack for supporting fractional scaling on Linux under Wayland
+        if (window.navigator.platform.includes('Linux')) {
           return css`
             margin-bottom: 1px;
+
+            @media (resolution >= 1.25x) and (resolution < 1.33x) {
+              margin-bottom: calc(-1px * 1.25);
+              padding-top: 1.75px;
+              padding-bottom: calc(0.25px / 1);
+            }
+
+            @media (resolution >= 1.33x) and (resolution < 1.5x) {
+              margin-bottom: calc(-1px * 1.33);
+              padding-top: 1.66px;
+              padding-bottom: calc(0.33px / 1);
+            }
+
+            @media (resolution >= 1.5x) and (resolution < 1.66x) {
+              margin-bottom: calc(-1px * 1.5);
+              padding-top: 1.5px;
+              padding-bottom: calc(0.5px / 1);
+            }
+
+            @media (resolution >= 1.66x) and (resolution < 1.75x) {
+              margin-bottom: calc(-1px * 1.66);
+              padding-top: 1.66px;
+              padding-bottom: calc(1.33px / 1);
+            }
+
+            /** Untested resolution */
+            @media (resolution >= 1.75x) and (resolution < 2x) {
+              margin-bottom: calc(-1px * 1.75);
+              padding-top: 1.75px;
+              padding-bottom: calc(1.25px / 1);
+            }
+
+            @media (resolution >= 2x) and (resolution < 2.33x) {
+              margin-bottom: 1px;
+            }
+
+            /** Untested resolution */
+            @media (resolution >= 2.33x) and (resolution < 2.5x) {
+              margin-bottom: calc(-1px * 2.33);
+              padding-top: 2.66px;
+              padding-bottom: calc((2.33px - 1px) / 2);
+            }
+
+            @media (resolution >= 2.5x) and (resolution < 2.66x) {
+              margin-bottom: calc(-1px * 2.5);
+              padding-top: 2.5px;
+              padding-bottom: calc(1.5px / 2);
+            }
+
+            @media (resolution >= 2.66x) and (resolution < 2.75x) {
+              margin-bottom: calc(-1px * 2.66);
+              padding-top: 2.66px;
+              padding-bottom: calc(2.33px / 2);
+            }
+
+            @media (resolution >= 2.75x) and (resolution < 3x) {
+              margin-bottom: calc(-1px * 2.75);
+              padding-top: 2.75px;
+              padding-bottom: calc(2.25px / 2);
+            }
           `;
         }
 
-        return null;
+        return css`
+          margin-bottom: 1px;
+        `;
       }}
+
 
       ${() => {
         if ($position === 'middle' || $position === 'last') {
@@ -168,7 +165,6 @@ export const StyledListItem = styled(StyledListItemRoot)<{
       ${() => {
         if ($position === 'middle' || $position === 'first') {
           return css`
-            margin-bottom: 1px;
             ${StyledListItemItem} {
               border-bottom-left-radius: var(--disabled-border-radius);
               border-bottom-right-radius: var(--disabled-border-radius);
