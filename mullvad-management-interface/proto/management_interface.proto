@@ -222,8 +222,10 @@ message ErrorState {
     OTHER_LEGACY_ALWAYS_ON_VPN = 10;
     // Android only
     INVALID_DNS_SERVERS = 11;
-    SPLIT_TUNNEL_ERROR = 12;
-    NEED_FULL_DISK_PERMISSIONS = 13;
+    // Android only
+    INVALID_IPV6_CONFIG = 12;
+    SPLIT_TUNNEL_ERROR = 13;
+    NEED_FULL_DISK_PERMISSIONS = 14;
   }
 
   enum AuthFailedError {
@@ -259,6 +261,8 @@ message ErrorState {
 
   message InvalidDnsServersError { repeated string ip_addrs = 1; }
 
+  message InvalidIpv6Config { repeated string addrs = 1; repeated string routes = 2; repeated string dns = 3; }
+
   Cause cause = 1;
   FirewallPolicyError blocking_error = 2;
 
@@ -275,6 +279,8 @@ message ErrorState {
   OtherAlwaysOnAppError other_always_on_app_error = 8;
   // Android only
   InvalidDnsServersError invalid_dns_servers_error = 9;
+  // Android only
+  InvalidIpv6Config invalid_ipv6_config_error = 10;
 }
 
 message TunnelState {
