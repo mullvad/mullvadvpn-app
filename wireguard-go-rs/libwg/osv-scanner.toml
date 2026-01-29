@@ -186,3 +186,10 @@ reason = "wireguard-go does not use crypto/x509"
 id = "GO-2026-4340"
 ignoreUntil = 2027-01-29
 reason = "wireguard-go does not use crypto/tls"
+
+# Memory exhaustion in query parameter parsing in net/url
+# https://osv.dev/GO-2026-4341
+[[IgnoredVulns]]
+id = "GO-2026-4341"
+ignoreUntil = 2027-01-29
+reason = "wireguard-go does not use net/url"
