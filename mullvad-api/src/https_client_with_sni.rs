@@ -9,7 +9,6 @@ use futures::{StreamExt, channel::mpsc, future, pin_mut};
 use futures::{channel::oneshot, sink::SinkExt};
 use http::uri::Scheme;
 use hyper::Uri;
-use hyper_util::rt::TokioIo;
 use mullvad_encrypted_dns_proxy::{
     Forwarder as EncryptedDNSForwarder, config::ProxyConfig as EncryptedDNSConfig,
 };
@@ -27,10 +26,8 @@ use std::{
     future::Future,
     io,
     net::{IpAddr, SocketAddr},
-    pin::Pin,
     str::{self, FromStr},
     sync::{Arc, Mutex},
-    task::{Context, Poll},
     time::Duration,
 };
 use talpid_types::{ErrorExt, net::proxy};
@@ -39,7 +36,6 @@ use tokio::{
     net::{TcpSocket, TcpStream},
     time::timeout,
 };
-use tower::Service;
 
 #[cfg(any(feature = "api-override", test))]
 use crate::proxy::ConnectionDecorator;
@@ -489,80 +485,5 @@ impl HttpsConnectorWithSni {
 impl fmt::Debug for HttpsConnectorWithSni {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("HttpsConnectorWithSni").finish()
-    }
-}
-
-impl Service<Uri> for HttpsConnectorWithSni {
-    type Response = TokioIo<AbortableStream<ApiConnection>>;
-    type Error = io::Error;
-    type Future =
-        Pin<Box<dyn Future<Output = Result<Self::Response, Self::Error>> + Send + 'static>>;
-
-    fn poll_ready(&mut self, _: &mut Context<'_>) -> Poll<Result<(), Self::Error>> {
-        let mut inner = self.inner.lock().unwrap();
-        inner.stream_handles.retain(|handle| !handle.is_closed());
-        Poll::Ready(Ok(()))
-    }
-
-    fn call(&mut self, uri: Uri) -> Self::Future {
-        let inner = self.inner.clone();
-        let abort_notify = self.abort_notify.clone();
-        #[cfg(target_os = "android")]
-        let socket_bypass_tx = self.socket_bypass_tx.clone();
-        let dns_resolver = self.dns_resolver.clone();
-
-        #[cfg(any(feature = "api-override", test))]
-        let disable_tls = self.disable_tls;
-
-        let fut = async move {
-            if uri.scheme() != Some(&Scheme::HTTPS) {
-                return Err(io::Error::new(
-                    io::ErrorKind::InvalidInput,
-                    "invalid url, not https",
-                ));
-            }
-            let Some(hostname) = uri.host().map(str::to_owned) else {
-                return Err(io::Error::new(
-                    io::ErrorKind::InvalidInput,
-                    "invalid url, missing host",
-                ));
-            };
-            let addr = Self::resolve_address(&*dns_resolver, uri).await?;
-
-            // Loop until we have established a connection. This starts over if a new endpoint
-            // is selected while connecting.
-            let stream = loop {
-                let notify = abort_notify.notified();
-                let proxy_config = { inner.lock().unwrap().proxy_config.clone() };
-                let stream_fut = proxy_config.connect(
-                    &hostname,
-                    &addr,
-                    #[cfg(target_os = "android")]
-                    socket_bypass_tx.clone(),
-                    #[cfg(any(feature = "api-override", test))]
-                    disable_tls,
-                );
-
-                pin_mut!(stream_fut);
-                pin_mut!(notify);
-
-                // Wait for connection. Abort and retry if we switched to a different server.
-                if let future::Either::Left((stream, _)) = future::select(stream_fut, notify).await
-                {
-                    break stream?;
-                }
-            };
-
-            let (stream, socket_handle) = AbortableStream::new(stream);
-
-            {
-                let mut inner = inner.lock().unwrap();
-                inner.stream_handles.push(socket_handle);
-            }
-
-            Ok(TokioIo::new(stream))
-        };
-
-        Box::pin(fut)
     }
 }
