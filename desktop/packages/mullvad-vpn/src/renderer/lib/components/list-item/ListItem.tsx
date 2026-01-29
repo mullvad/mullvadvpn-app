@@ -83,14 +83,14 @@ export const StyledListItem = styled(StyledListItemRoot)<{
 
             @media (resolution >= 1.25x) and (resolution < 1.33x) {
               margin-bottom: calc(-1px * 1.25);
-              padding-top: 1.75px;
-              padding-bottom: calc(0.25px / 1);
+              padding-top: calc(2.25px / 2);
+              padding-bottom: calc(1.5px / 2);
             }
 
             @media (resolution >= 1.33x) and (resolution < 1.5x) {
               margin-bottom: calc(-1px * 1.33);
-              padding-top: 1.66px;
-              padding-bottom: calc(0.33px / 1);
+              padding-top: 1.33px;
+              padding-bottom: calc(0.83px / 1);
             }
 
             @media (resolution >= 1.5x) and (resolution < 1.66x) {
@@ -101,8 +101,8 @@ export const StyledListItem = styled(StyledListItemRoot)<{
 
             @media (resolution >= 1.66x) and (resolution < 1.75x) {
               margin-bottom: calc(-1px * 1.66);
-              padding-top: 1.66px;
-              padding-bottom: calc(1.33px / 1);
+              padding-top: 1.83px;
+              padding-bottom: calc(1px / 1);
             }
 
             @media (resolution >= 1.75x) and (resolution < 2x) {
@@ -115,7 +115,6 @@ export const StyledListItem = styled(StyledListItemRoot)<{
               margin-bottom: 1px;
             }
 
-            /** Untested resolution */
             @media (resolution >= 2.33x) and (resolution < 2.5x) {
               margin-bottom: calc(-1px * 2.33);
               padding-top: 2.66px;
@@ -124,8 +123,8 @@ export const StyledListItem = styled(StyledListItemRoot)<{
 
             @media (resolution >= 2.5x) and (resolution < 2.66x) {
               margin-bottom: calc(-1px * 2.5);
-              padding-top: 2.5px;
-              padding-bottom: calc(1.5px / 2);
+              padding-top: calc(3.25px / 2);
+              padding-bottom: calc(3.25px / 2);
             }
 
             @media (resolution >= 2.66x) and (resolution < 2.75x) {
