@@ -351,6 +351,9 @@ extension PacketTunnelProvider {
         let loggerBuilder = LoggerBuilder.shared
         let header = "PacketTunnel version \(Bundle.main.productVersion)"
 
+        let redactor = RustLogRedactor(containerPaths: [ApplicationConfiguration.containerURL.path])
+        loggerBuilder.setRedactor(redactor)
+
         loggerBuilder.addFileOutput(
             fileURL: ApplicationConfiguration.newLogFileURL(
                 for: .packetTunnel,
@@ -364,7 +367,7 @@ extension PacketTunnelProvider {
         loggerBuilder.install()
 
         // Initialize Rust logging to forward to Swift Logger
-        RustLogging.initialize()
+        RustLogging.initialize(logger: Logger(label: "Rust"))
     }
 
     private func parseStartOptions(_ options: [String: NSObject]) -> StartOptions {

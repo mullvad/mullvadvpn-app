@@ -16,10 +16,12 @@ public struct CustomFormatLogHandler: @unchecked Sendable, LogHandler {
 
     private let label: String
     private let streams: [TextOutputStream]
+    private let redactor: LogRedacting?
 
-    public init(label: String, streams: [TextOutputStream]) {
+    public init(label: String, streams: [TextOutputStream], redactor: LogRedacting? = nil) {
         self.label = label
         self.streams = streams
+        self.redactor = redactor
     }
 
     public subscript(metadataKey metadataKey: String) -> Logger.Metadata.Value? {
@@ -47,7 +49,8 @@ public struct CustomFormatLogHandler: @unchecked Sendable, LogHandler {
         let prettyMetadata = Self.formatMetadata(mergedMetadata)
         let metadataOutput = prettyMetadata.isEmpty ? "" : " \(prettyMetadata)"
         let timestamp = Date().logFormatted
-        let formattedMessage = "[\(timestamp)][\(label)][\(level)]\(metadataOutput) \(message)\n"
+        let redactedMessage = redactor?.redact(message.description) ?? message.description
+        let formattedMessage = "[\(timestamp)][\(label)][\(level)]\(metadataOutput) \(redactedMessage)\n"
 
         for var stream in streams {
             stream.write(formattedMessage)

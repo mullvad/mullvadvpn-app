@@ -21,6 +21,8 @@ typedef struct ApiContext ApiContext;
 
 typedef struct ExchangeCancelToken ExchangeCancelToken;
 
+typedef struct LogRedactor LogRedactor;
+
 typedef struct Map Map;
 
 typedef struct RequestCancelHandle RequestCancelHandle;
@@ -110,10 +112,15 @@ typedef struct EphemeralPeerParameters {
 
 /**
  * Callback function type for logging.
+ * - `context`: Opaque pointer to a Swift Logger instance, passed back on each invocation.
  * - `level`: The log level (1=Error, 2=Warn, 3=Info, 4=Debug, 5=Trace)
+ * - `target`: Null-terminated UTF-8 string containing the module/target name
  * - `message`: Null-terminated UTF-8 string containing the log message
+ *
+ * # Thread safety
+ * This callback may be invoked concurrently from any thread.
  */
-typedef void (*LogCallback)(uint8_t level, const char *message);
+typedef void (*LogCallback)(void *context, uint8_t level, const char *target, const char *message);
 
 typedef struct ProxyHandle {
   void *context;
@@ -832,16 +839,56 @@ struct ExchangeCancelToken *request_ephemeral_peer(const uint8_t *public_key,
                                                    struct EphemeralPeerParameters peer_parameters);
 
 /**
- * Initialize the Rust logger with a Swift callback.
+ * Create a new log redactor with the given container paths.
  *
- * This function should be called once early in the application lifecycle,
- * before any Rust code that uses logging is invoked.
+ * # Safety
+ * - `paths` must be a valid pointer to an array of `paths_count` pointers to null-terminated
+ *   UTF-8 strings, or null if `paths_count` is 0.
+ * - The returned pointer must be freed by calling `log_redactor_free`.
+ */
+struct LogRedactor *create_log_redactor(const char *const *paths, uintptr_t paths_count);
+
+/**
+ * Redact sensitive information from a string using the given redactor.
+ *
+ * # Safety
+ * - `redactor` must be a valid pointer returned by `create_log_redactor`.
+ * - `input` must be a valid pointer to a null-terminated UTF-8 string.
+ * - The returned pointer must be freed by calling `log_redactor_free_string`.
+ */
+char *log_redactor_redact(const struct LogRedactor *redactor, const char *input);
+
+/**
+ * Free a string returned by `log_redactor_redact`.
+ *
+ * # Safety
+ * - `ptr` must be a pointer returned by `log_redactor_redact`, or null.
+ * - `ptr` must not have been freed before.
+ */
+void log_redactor_free_string(char *ptr);
+
+/**
+ * Free a log redactor created by `create_log_redactor`.
+ *
+ * # Safety
+ * - `redactor` must be a pointer returned by `create_log_redactor`, or null.
+ * - `redactor` must not have been freed before.
+ * - `redactor` must not be used after this call.
+ */
+void log_redactor_free(struct LogRedactor *redactor);
+
+/**
+ * Initialize the Rust logger with a Swift callback and context.
+ *
+ * The `context` pointer is passed back to `callback` on each log event, allowing
+ * the Swift side to recover a Logger instance without relying on global state.
  *
  * # Safety
  * - `callback` must be a valid function pointer that remains valid for the lifetime of the program.
+ * - `context` must be a valid pointer that remains valid for the lifetime of the program.
  * - This function is safe to call multiple times, but only the first call will have an effect.
  */
-void init_rust_logging(LogCallback callback);
+void init_rust_logging(LogCallback callback, void *context);
 
 int32_t start_udp2tcp_obfuscator_proxy(const uint8_t *peer_address,
                                        uintptr_t peer_address_len,

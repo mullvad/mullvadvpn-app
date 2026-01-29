@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import MullvadLogging
 import MullvadREST
 import MullvadTypes
 import Operations
@@ -18,13 +19,12 @@ final class ProblemReportInteractor: @unchecked Sendable {
     private var reportedString = ""
     private var requestCancellable: Cancellable?
 
-    init(apiProxy: APIQuerying, tunnelManager: TunnelManager) {
+    init(apiProxy: APIQuerying, tunnelManager: TunnelManager, redactor: LogRedacting?) {
         self.apiProxy = apiProxy
         self.tunnelManager = tunnelManager
         let redactCustomStrings = [tunnelManager.deviceState.accountData?.number].compactMap { $0 }
         self.consolidatedLog = ConsolidatedApplicationLog(
-            redactCustomStrings: redactCustomStrings.isEmpty ? nil : redactCustomStrings,
-            redactContainerPathsForSecurityGroupIdentifiers: [ApplicationConfiguration.securityGroupIdentifier],
+            redactor: redactor,
             bufferSize: ApplicationConfiguration.logMaximumFileSize
         )
     }

@@ -6,6 +6,7 @@
 //  Copyright © 2026 Mullvad VPN AB. All rights reserved.
 //
 
+import MullvadLogging
 import MullvadRustRuntime
 import MullvadTypes
 import Network
@@ -17,7 +18,7 @@ final class TunnelObfuscationTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
-        RustLogging.initialize()
+        RustLogging.initialize(logger: Logger(label: "Rust"))
     }
 
     func testRunningUdpOverTcpObfuscatorProxy() async throws {
