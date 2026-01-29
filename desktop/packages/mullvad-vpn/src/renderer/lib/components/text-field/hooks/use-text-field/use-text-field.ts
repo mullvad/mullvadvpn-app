@@ -3,13 +3,14 @@ import React from 'react';
 export type UseTextFieldProps = {
   inputRef: React.RefObject<HTMLInputElement | null>;
   defaultValue?: string;
-  validate?: (value: string) => boolean;
+  validate?: (value: string) => boolean | string;
   format?: (value: string) => string;
 };
 
 export type UseTextFieldState = {
   value: string;
   invalid: boolean;
+  invalidReason: string | null;
   dirty: boolean;
   reset: (value?: string) => void;
   focus: () => void;
@@ -26,6 +27,7 @@ export function useTextField({
 }: UseTextFieldProps): UseTextFieldState {
   const [value, setValue] = React.useState(defaultValue ?? '');
   const [invalid, setInvalid] = React.useState(validate ? !validate(value) : false);
+  const [invalidReason, setInvalidReason] = React.useState<string | null>(null);
   const [dirty, setDirty] = React.useState(false);
 
   const reset = React.useCallback(
@@ -38,6 +40,7 @@ export function useTextField({
       }
       setValue(newValue);
       setInvalid(validate ? !validate(newValue) : false);
+      setInvalidReason(null);
       setDirty(false);
     },
     [defaultValue, validate],
@@ -54,13 +57,27 @@ export function useTextField({
   const handleOnValueChange = React.useCallback(
     (newValue: string) => {
       const formattedValue = format ? format(newValue) : newValue;
-      const invalid = validate ? !validate(formattedValue) : false;
+      const validationResult = validate ? validate(formattedValue) : true;
+      const invalid = typeof validationResult === 'string' ? true : !validationResult;
+      const invalidReason = typeof validationResult === 'string' ? validationResult : null;
+
       setInvalid(invalid);
+      setInvalidReason(invalidReason);
       setValue(formattedValue);
       setDirty(true);
     },
     [format, validate],
   );
 
-  return { value, invalid, dirty, reset, blur, focus, handleOnValueChange, inputRef };
+  return {
+    value,
+    invalid,
+    invalidReason,
+    dirty,
+    reset,
+    blur,
+    focus,
+    handleOnValueChange,
+    inputRef,
+  };
 }
