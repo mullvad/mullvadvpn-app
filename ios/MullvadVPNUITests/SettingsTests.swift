@@ -9,7 +9,7 @@
 import Foundation
 import XCTest
 
-class SettingsTests: LoggedOutUITestCase {
+class SettingsLoggedOutTests: LoggedOutUITestCase {
     func testSendProblemReport() throws {
         #if MULLVAD_ENVIRONMENT_STAGING
             let shouldSkipTest = false
@@ -39,5 +39,24 @@ class SettingsTests: LoggedOutUITestCase {
             .tapSendButton()
 
         ProblemReportSubmittedPage(app)
+    }
+}
+
+class SettingsLoggedInTests: LoggedInWithTimeUITestCase {
+    func testLanguageSelection() throws {
+        HeaderBar(app)
+            .tapSettingsButton()
+
+        TunnelControlPage(app)
+            .tapConnectButton()
+            .waitForConnectedLabel()
+
+        SettingsPage(app)
+            .tapLanguageCell()
+            .dismissAlert()
+            .tapDoneButton()
+
+        TunnelControlPage(app)
+            .tapDisconnectButton()
     }
 }
