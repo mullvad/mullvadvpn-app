@@ -1,101 +1,113 @@
 //! FFI logging bridge that forwards Rust logs to Swift.
 //!
-//! This module provides a tracing subscriber that calls a Swift callback for each log event,
-//! allowing Rust logs to be captured by Swift's logging infrastructure.
+//! This module provides a tracing layer that calls a Swift callback for each log event,
+//! allowing Rust logs to be captured by Swift's logging infrastructure with structured data.
 
-use mullvad_logging::{EnvFilter, LevelFilter, silence_crates};
-use std::io::Write;
-use std::{
-    ffi::CStr,
-    sync::{Mutex, MutexGuard},
-};
-use tracing_subscriber::Layer;
-use tracing_subscriber::fmt::MakeWriter;
+use mullvad_logging::{silence_crates, EnvFilter, LevelFilter};
+use std::ffi::CString;
+use std::fmt::Write;
+use tracing::field::{Field, Visit};
+use tracing::{Event, Subscriber};
+use tracing_subscriber::layer::Context;
 use tracing_subscriber::layer::SubscriberExt;
 use tracing_subscriber::util::SubscriberInitExt;
+use tracing_subscriber::Layer;
 
 /// Callback function type for logging.
 /// - `level`: The log level (1=Error, 2=Warn, 3=Info, 4=Debug, 5=Trace)
+/// - `target`: Null-terminated UTF-8 string containing the module/target name
 /// - `message`: Null-terminated UTF-8 string containing the log message
-pub type LogCallback = extern "C" fn(level: u8, message: *const libc::c_char);
+pub type LogCallback =
+    extern "C" fn(level: u8, target: *const libc::c_char, message: *const libc::c_char);
 
 /// Default log level
 const DEFAULT_LOG_LEVEL: LevelFilter = LevelFilter::DEBUG;
 
-/// Factory for creating writers that forward to Swift.
-struct SwiftMakeWriter {
-    callback: LogCallback,
-    buffer: Mutex<Vec<u8>>,
+/// Visitor that extracts the message and other fields from a tracing event.
+struct MessageVisitor {
+    message: String,
 }
 
-impl SwiftMakeWriter {
-    fn new(callback: LogCallback) -> Self {
+impl MessageVisitor {
+    fn new() -> Self {
         Self {
-            callback,
-            buffer: Mutex::new(Vec::with_capacity(1024)),
+            message: String::with_capacity(256),
         }
     }
 
-    fn make_writer_for_level<'a>(&'a self, tracing_level: tracing::Level) -> SwiftWriter<'a> {
-        let buffer = self.buffer.lock().expect("Failed to acquire logging lock");
+    fn into_message(self) -> String {
+        self.message
+    }
+}
 
-        let level = match tracing_level {
-            tracing::Level::ERROR => 1u8,
-            tracing::Level::WARN => 2u8,
-            tracing::Level::INFO => 3u8,
-            tracing::Level::DEBUG => 4u8,
-            tracing::Level::TRACE => 5u8,
+impl Visit for MessageVisitor {
+    fn record_debug(&mut self, field: &Field, value: &dyn std::fmt::Debug) {
+        if field.name() == "message" {
+            let _ = write!(&mut self.message, "{:?}", value);
+        } else if self.message.is_empty() {
+            let _ = write!(&mut self.message, "{}={:?}", field.name(), value);
+        } else {
+            let _ = write!(&mut self.message, ", {}={:?}", field.name(), value);
+        }
+    }
+
+    fn record_str(&mut self, field: &Field, value: &str) {
+        if field.name() == "message" {
+            self.message.push_str(value);
+        } else if self.message.is_empty() {
+            let _ = write!(&mut self.message, "{}={}", field.name(), value);
+        } else {
+            let _ = write!(&mut self.message, ", {}={}", field.name(), value);
+        }
+    }
+}
+
+/// A tracing layer that forwards structured log events to Swift via FFI.
+struct SwiftLayer {
+    callback: LogCallback,
+}
+
+impl SwiftLayer {
+    fn new(callback: LogCallback) -> Self {
+        Self { callback }
+    }
+
+    fn level_to_u8(level: &tracing::Level) -> u8 {
+        match *level {
+            tracing::Level::ERROR => 1,
+            tracing::Level::WARN => 2,
+            tracing::Level::INFO => 3,
+            tracing::Level::DEBUG => 4,
+            tracing::Level::TRACE => 5,
+        }
+    }
+}
+
+impl<S> Layer<S> for SwiftLayer
+where
+    S: Subscriber,
+{
+    fn on_event(&self, event: &Event<'_>, _ctx: Context<'_, S>) {
+        let metadata = event.metadata();
+        let level = Self::level_to_u8(metadata.level());
+        let target = metadata.target();
+
+        // Extract the message using the visitor pattern
+        let mut visitor = MessageVisitor::new();
+        event.record(&mut visitor);
+        let message = visitor.into_message();
+
+        // Convert to C strings for FFI
+        let target_cstring = match CString::new(target) {
+            Ok(s) => s,
+            Err(_) => return,
+        };
+        let message_cstring = match CString::new(message) {
+            Ok(s) => s,
+            Err(_) => return,
         };
 
-        SwiftWriter {
-            callback: self.callback,
-            level,
-            buffer,
-        }
-    }
-}
-
-impl<'a> MakeWriter<'a> for SwiftMakeWriter {
-    type Writer = SwiftWriter<'a>;
-
-    fn make_writer(&'a self) -> Self::Writer {
-        self.make_writer_for_level(tracing::Level::DEBUG)
-    }
-
-    fn make_writer_for(&'a self, meta: &tracing::Metadata<'_>) -> Self::Writer {
-        self.make_writer_for_level(*meta.level())
-    }
-}
-
-/// Writer that buffers output and sends to Swift on flush/drop.
-struct SwiftWriter<'a> {
-    callback: LogCallback,
-    level: u8,
-    buffer: MutexGuard<'a, Vec<u8>>,
-}
-
-impl Write for SwiftWriter<'_> {
-    fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
-        self.buffer.extend_from_slice(buf);
-        Ok(buf.len())
-    }
-
-    fn flush(&mut self) -> std::io::Result<()> {
-        if self.buffer.is_empty() {
-            return Ok(());
-        }
-        self.buffer.push(b'\0');
-        if let Ok(message) = CStr::from_bytes_until_nul(&self.buffer) {
-            (self.callback)(self.level, message.as_ptr());
-        }
-        self.buffer.truncate(0);
-        Ok(())
-    }
-}
-
-impl Drop for SwiftWriter<'_> {
-    fn drop(&mut self) {
-        let _ = self.flush();
+        (self.callback)(level, target_cstring.as_ptr(), message_cstring.as_ptr());
     }
 }
 
@@ -113,12 +125,7 @@ pub extern "C" fn init_rust_logging(callback: LogCallback) {
         .with_default_directive(DEFAULT_LOG_LEVEL.into())
         .from_env_lossy();
 
-    let layer = tracing_subscriber::fmt::layer()
-        .with_writer(SwiftMakeWriter::new(callback))
-        .with_ansi(false)
-        .without_time()
-        .with_level(false)
-        .with_filter(silence_crates(env_filter));
+    let layer = SwiftLayer::new(callback).with_filter(silence_crates(env_filter));
 
     let _ = tracing_subscriber::registry().with(layer).try_init();
 }

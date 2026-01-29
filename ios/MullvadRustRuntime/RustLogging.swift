@@ -9,16 +9,22 @@
 import Foundation
 import MullvadLogging
 
-/// Global logger instance for Rust logs
-private let rustLogger = Logger(label: "Rust")
-
 /// C-compatible logging callback function.
 /// This must be a global function (not a closure) to be passed as a C function pointer.
-private func rustLogCallback(level: UInt8, messagePtr: UnsafePointer<CChar>?) {
-    guard let messagePtr else { return }
+private func rustLogCallback(
+    level: UInt8,
+    targetPtr: UnsafePointer<CChar>?,
+    messagePtr: UnsafePointer<CChar>?
+) {
+    guard let targetPtr, let messagePtr else { return }
+
+    let target = String(cString: targetPtr)
     let message = String(cString: messagePtr)
 
-    let level: Logger.Level =
+    // Use target as logger label for per-module categorization
+    let logger = Logger(label: target)
+
+    let logLevel: Logger.Level =
         switch level {
         case 1:
             .error
@@ -34,7 +40,7 @@ private func rustLogCallback(level: UInt8, messagePtr: UnsafePointer<CChar>?) {
             .debug
         }
 
-    rustLogger.log(level: level, "\(message)")
+    logger.log(level: logLevel, "\(message)")
 }
 
 /// Initializes the Rust logging system to forward logs to Swift's Logger.

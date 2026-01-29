@@ -124,9 +124,10 @@ typedef struct EphemeralPeerParameters {
 /**
  * Callback function type for logging.
  * - `level`: The log level (1=Error, 2=Warn, 3=Info, 4=Debug, 5=Trace)
+ * - `target`: Null-terminated UTF-8 string containing the module/target name
  * - `message`: Null-terminated UTF-8 string containing the log message
  */
-typedef void (*LogCallback)(uint8_t level, const char *message);
+typedef void (*LogCallback)(uint8_t level, const char *target, const char *message);
 
 typedef struct ProxyHandle {
   void *context;
