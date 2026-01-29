@@ -17,5 +17,5 @@ data class TunConfig(
         get() = dnsServers.any { it is Inet6Address }
 
     val hasIpv6Route: Boolean
-        get() = routes.any { it.address is Inet6Address }
+        get() = routes.any { it.isIpv6 }
 }

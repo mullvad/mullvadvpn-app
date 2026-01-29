@@ -1,6 +1,8 @@
 use ipnetwork::{IpNetwork, IpNetworkError, Ipv4Network, Ipv6Network};
 use jnix::jni::{JavaVM, objects::GlobalRef};
 use jnix::{FromJava, IntoJava};
+use serde::{Deserialize, Serialize};
+use std::fmt;
 use std::net::IpAddr;
 use std::sync::Arc;
 
@@ -14,7 +16,7 @@ pub struct AndroidContext {
 }
 
 /// A Java-compatible variant of [IpNetwork]
-#[derive(Clone, Debug, Eq, PartialEq, Hash, IntoJava, FromJava)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash, Deserialize, Serialize, IntoJava, FromJava)]
 #[jnix(package = "net.mullvad.talpid.model")]
 pub struct InetNetwork {
     pub address: IpAddr,
@@ -37,12 +39,24 @@ pub struct NetworkState {
     pub dns_servers: Option<Vec<InetAddress>>,
 }
 
+impl fmt::Display for InetNetwork {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}/{}", self.address, self.prefix_length)
+    }
+}
+
 impl From<IpNetwork> for InetNetwork {
     fn from(ip_network: IpNetwork) -> Self {
         InetNetwork {
             address: ip_network.ip(),
             prefix_length: ip_network.prefix() as i16,
         }
+    }
+}
+
+impl From<&InetNetwork> for IpNetwork {
+    fn from(inet_network: &InetNetwork) -> Self {
+        IpNetwork::new(inet_network.address, inet_network.prefix_length as u8).unwrap()
     }
 }
 
