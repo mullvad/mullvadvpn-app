@@ -5,7 +5,13 @@ import { strings } from '../../../../shared/constants';
 import { ObfuscationType, Ownership } from '../../../../shared/daemon-rpc-types';
 import { messages } from '../../../../shared/gettext';
 import { RoutePath } from '../../../../shared/routes';
-import { FilterChip, Flex, IconButton, LabelTinySemiBold } from '../../../lib/components';
+import {
+  Container,
+  FilterChip,
+  Flex,
+  IconButton,
+  LabelTinySemiBold,
+} from '../../../lib/components';
 import { View } from '../../../lib/components/view';
 import { useRelaySettingsUpdater } from '../../../lib/constraint-updater';
 import {
@@ -301,8 +307,8 @@ function SelectLocationContent() {
 
     const specialLocations = filterSpecialLocations(searchTerm, specialList);
     return (
-      <>
-        <CustomLists selectedElementRef={selectedLocationRef} onSelect={onSelectExitRelay} />
+      <Container horizontalMargin="medium" flexDirection="column">
+        <CustomLists locationSelection="exit" selectedElementRef={selectedLocationRef} />
         <LocationList
           key={locationType}
           relayLocations={relayList}
@@ -317,7 +323,7 @@ function SelectLocationContent() {
           allowAddToCustomList={allowAddToCustomList}
         />
         <NoSearchResult specialLocationsLength={specialLocations.length} />
-      </>
+      </Container>
     );
   } else {
     if (daita && !directOnly && relaySettings?.wireguard.useMultihop) {
@@ -325,8 +331,8 @@ function SelectLocationContent() {
     }
 
     return (
-      <>
-        <CustomLists selectedElementRef={selectedLocationRef} onSelect={onSelectEntryRelay} />
+      <Container horizontalMargin="medium" flexDirection="column">
+        <CustomLists locationSelection="entry" selectedElementRef={selectedLocationRef} />
         <LocationList
           key={locationType}
           relayLocations={relayList}
@@ -340,7 +346,7 @@ function SelectLocationContent() {
           allowAddToCustomList={allowAddToCustomList}
         />
         <NoSearchResult specialLocationsLength={0} />
-      </>
+      </Container>
     );
   }
 }
