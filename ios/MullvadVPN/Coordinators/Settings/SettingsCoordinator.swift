@@ -53,6 +53,7 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
     nonisolated(unsafe) private var modalRoute: SettingsNavigationRoute?
     private let interactorFactory: SettingsInteractorFactory
     private var viewControllerFactory: SettingsViewControllerFactory?
+    private var alertPresenter: AlertPresenter?
 
     let navigationController: UINavigationController
 
@@ -88,6 +89,8 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
         self.interactorFactory = interactorFactory
 
         super.init()
+
+        alertPresenter = AlertPresenter(context: self)
 
         viewControllerFactory = SettingsViewControllerFactory(
             interactorFactory: interactorFactory,
@@ -151,9 +154,11 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
         case .language:
             logger.debug("Show App's settings for \(route)")
 
-            if let url = URL(string: UIApplication.openSettingsURLString) {
-                if UIApplication.shared.canOpenURL(url) {
-                    UIApplication.shared.open(url, options: [:], completionHandler: nil)
+            showDisconnectWarningAlert {
+                if let url = URL(string: UIApplication.openSettingsURLString) {
+                    if UIApplication.shared.canOpenURL(url) {
+                        UIApplication.shared.open(url, options: [:], completionHandler: nil)
+                    }
                 }
             }
 
@@ -202,6 +207,32 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
         if case .root = route {
             releaseChildren()
         }
+    }
+
+    private func showDisconnectWarningAlert(completion: @escaping () -> Void) {
+        guard interactorFactory.tunnelManager.tunnelStatus.state.isSecured else {
+            completion()
+            return
+        }
+
+        let presentation = AlertPresentation(
+            id: "settings-disconnect-warning-alert",
+            icon: .alert,
+            message: .Alerts.disconnectWarning(action: "changing", feature: "language"),
+            buttons: [
+                AlertAction(
+                    title: NSLocalizedString("Cancel", comment: ""),
+                    style: .default
+                ),
+                AlertAction(
+                    title: NSLocalizedString("Yes, continue", comment: ""),
+                    style: .destructive,
+                    handler: completion
+                ),
+            ]
+        )
+
+        alertPresenter?.showAlert(presentation: presentation, animated: true)
     }
 
     // MARK: - SettingsViewControllerDelegate
