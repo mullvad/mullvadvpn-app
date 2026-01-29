@@ -11,13 +11,14 @@ mod vm;
 
 #[cfg(target_os = "macos")]
 use std::net::IpAddr;
-use std::{net::SocketAddr, path::PathBuf};
+use std::{net::SocketAddr, path::PathBuf, time::Duration};
 
 use anyhow::{Context, Ok, Result};
 use clap::{Parser, builder::PossibleValuesParser};
 use config::ConfigFile;
 use package::TargetInfo;
 use tests::{config::TEST_CONFIG, get_filtered_tests};
+use tokio::time::Instant;
 use vm::provision;
 
 /// Test manager for Mullvad VPN app
@@ -178,8 +179,31 @@ enum VmConfig {
     List,
 }
 
-#[tokio::main]
-async fn main() -> Result<()> {
+fn main() -> Result<()> {
+    let runtime = tokio::runtime::Builder::new_current_thread()
+        .enable_all()
+        .build()
+        .context("Failed to create Tokio runtime")?;
+    runtime.block_on(inner_main())?;
+
+    // Give background tasks some time to exit cleanly
+    const WARNING_THRESHOLD: Duration = Duration::from_secs(5);
+    let shutdown_timeout = WARNING_THRESHOLD + Duration::from_secs(5);
+
+    let now = Instant::now();
+    runtime.shutdown_timeout(shutdown_timeout);
+
+    if now.elapsed() >= WARNING_THRESHOLD {
+        log::warn!(
+            "Shut down took {} seconds. Some blocking threads may not have exited cleanly.",
+            now.elapsed().as_secs()
+        );
+    }
+
+    Ok(())
+}
+
+async fn inner_main() -> Result<()> {
     logging::Logger::get_or_init();
 
     let args = Args::parse();
