@@ -497,5 +497,5 @@
     <string name="less_than_a_day_left">Less than a day left on this account</string>
     <string name="you_can_add_more_time_play">You can add more time via the account view to continue using the VPN.</string>
     <string name="you_can_add_more_time_oss">You can add more time via the account view or website to continue using the VPN.</string>
-    <string name="invalid_ipv6_config">Invalid IPv6 config, please try to change the VPN settings</string>
+    <string name="invalid_ipv6_config">Invalid IPv6 config, please try to change the VPN settings.</string>
 </resources>
