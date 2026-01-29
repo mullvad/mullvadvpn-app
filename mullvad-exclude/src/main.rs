@@ -5,7 +5,7 @@ fn main() {
 
 #[cfg(target_os = "linux")]
 mod inner {
-    use anyhow::{Context, anyhow, bail};
+    use anyhow::{Context, anyhow, bail, ensure};
     use libbpf_rs::{
         ObjectBuilder, Program,
         libbpf_sys::{bpf_attach_type, bpf_prog_attach},
@@ -18,24 +18,25 @@ mod inner {
 
     use nix::{
         cmsg_space,
-        sys::{
-            signal::{SigSet, SigmaskHow, Signal, pthread_sigmask},
-            socket::{ControlMessage, ControlMessageOwned, MsgFlags, recvmsg, sendmsg},
-        },
-        unistd::{
-            ForkResult, Pid, execvp, fork, getgid, getpid, getuid, setegid, seteuid, setgid, setuid,
-        },
+        sys::socket::{ControlMessage, ControlMessageOwned, MsgFlags, recvmsg, sendmsg},
+        unistd::{Pid, execvp, getgid, getuid, setegid, seteuid, setgid, setresuid, setuid},
     };
+    use rand::{Rng, distr::Alphanumeric};
     use std::{
         env::args_os,
         ffi::{CStr, CString, OsString},
         fs::remove_file,
         io::{self, IoSlice, IoSliceMut},
         os::{
-            fd::{AsRawFd, FromRawFd, OwnedFd, RawFd},
-            unix::{ffi::OsStringExt as _, net::UnixStream},
+            fd::{AsRawFd, BorrowedFd, FromRawFd, OwnedFd, RawFd},
+            unix::{
+                ffi::OsStringExt as _,
+                net::{UnixListener, UnixStream},
+                process::CommandExt,
+            },
         },
         path::Path,
+        process::{Command, Stdio},
     };
     use talpid_cgroup::{SPLIT_TUNNEL_CGROUP_NAME, find_net_cls_mount, v1::CGroup1, v2::CGroup2};
 
@@ -200,105 +201,26 @@ mod inner {
                 "-h" | "--help" => return print_usage(None),
                 "--intercept" => want_intercept = Some(true),
                 "--no-intercept" => want_intercept = Some(false),
-                f => return print_usage(Some(f)),
-            }
-        }
-
-        let [program, ..] = &args[..] else {
-            bail!("No command specified");
-        };
-        let enable_intercept = want_intercept.unwrap_or_else(|| need_socket_intercept(program));
-
-        if talpid_cgroup::is_systemd_managed() {
-            seteuid(real_uid).context("Failed to drop root temporarily")?;
-            setegid(real_gid).context("Failed to drop root temporarily")?;
-            systemd::join_scope_unit(real_uid.is_root(), program)?;
-            setuid(0.into()).context("Failed to regain root")?;
-            setgid(0.into()).context("Failed to regain root")?;
-        }
-
-        if enable_intercept {
-            let (notify_fd_tx, notify_fd_rx) =
-                UnixStream::pair().context("Failed to create unix socket")?;
-
-            let parent_pid = getpid();
-
-            match unsafe { fork() }.context("fork failed")? {
-                ForkResult::Parent { child: _ } => {
-                    drop(notify_fd_rx);
-
-                    assert_seccomp_version()?;
-
-                    let mut ctx = ScmpFilterContext::new(ScmpAction::Allow)
-                        .context("Failed to create seccomp filter context")?;
-                    // No need to set NO_NEW_PRIVS as we are sudo.
-                    ctx.set_ctl_nnp(false)
-                        .context("Failed to disable NO_NEW_PRIVS")?;
-                    let socket_sys =
-                        ScmpSyscall::from_name("socket").context("Failed to get socket syscall")?;
-                    // The first socket() arg must be AF_INET or AF_INET6
-                    // https://www.man7.org/linux/man-pages/man2/socket.2.html
-                    let inet_cmp = ScmpArgCompare::new(
-                        0,
-                        ScmpCompareOp::Equal,
-                        u64::try_from(AF_INET).unwrap(),
+                // Run seccomp supervisor process
+                "--supervisor" => {
+                    ensure!(real_uid.is_root(), "--supervisor must run as root");
+                    let parent = Pid::parent();
+                    ensure!(
+                        is_same_exe(parent, Pid::this())?,
+                        "--supervisor must be run as a child of mullvad-exclude",
                     );
-                    ctx.add_rule_conditional(ScmpAction::Notify, socket_sys.clone(), &[inet_cmp])
-                        .context("Failed to add socket() AF_INET rule")?;
-                    let inet6_cmp = ScmpArgCompare::new(
-                        0,
-                        ScmpCompareOp::Equal,
-                        u64::try_from(AF_INET6).unwrap(),
-                    );
-                    ctx.add_rule_conditional(ScmpAction::Notify, socket_sys.clone(), &[inet6_cmp])
-                        .context("Failed to add socket() AF_INET6 rule")?;
 
-                    ctx.load().context("Failed to load seccomp filter")?;
-                    let notify_fd = ctx.get_notify_fd().context("Failed to get notify fd")?;
-                    // SAFETY: `notify_fd` is a valid file descriptor.
-                    let notify_fd = unsafe { OwnedFd::from_raw_fd(notify_fd) };
-
-                    // Send the seccomp notify fd to the parent process using SCM_RIGHTS.
-                    // File descriptors are process-local, so we must use ancillary messages.
-                    let fds = [notify_fd.as_raw_fd()];
-                    let cmsg = [ControlMessage::ScmRights(&fds)];
-                    // We need to send at least 1 byte of data along with the control message.
-                    let iov = [IoSlice::new(&[0u8])];
-                    sendmsg::<()>(
-                        notify_fd_tx.as_raw_fd(),
-                        &iov,
-                        &cmsg,
-                        MsgFlags::empty(),
-                        None,
-                    )
-                    .context("Failed to send notify fd over socket")?;
-                    drop(notify_fd_tx);
-                    drop(notify_fd);
-
-                    setgid(real_gid).context("setgid failed")?;
-                    setuid(real_uid).context("setuid failed")?;
-
-                    execvp(program, &args).context("execvp failed")?;
-                    Ok(())
-                }
-                ForkResult::Child => {
-                    drop(notify_fd_tx);
-
-                    // Disable signal handlers. Without this, CTRL-C kills the supervisor process.
-                    fn mask_supervisor_signals() {
-                        let mut set = SigSet::empty();
-                        // TODO: block other signals?
-                        set.add(Signal::SIGINT);
-                        pthread_sigmask(SigmaskHow::SIG_BLOCK, Some(&set), None).unwrap();
-                    }
-                    mask_supervisor_signals();
+                    let path =
+                        std::env::var("SOCKET_PATH").context("Missing SOCKET_PATH env var")?;
+                    let notify_fd_sock = UnixStream::connect(&path)
+                        .context("Failed to connect to supervisor socket")?;
 
                     // Receive the seccomp notify fd from the parent process using SCM_RIGHTS.
                     let mut buf = [0u8; 1];
                     let mut iov = [IoSliceMut::new(&mut buf)];
                     let mut cmsg_buf = cmsg_space!(RawFd);
                     let msg = recvmsg::<()>(
-                        notify_fd_rx.as_raw_fd(),
+                        notify_fd_sock.as_raw_fd(),
                         &mut iov,
                         Some(&mut cmsg_buf),
                         MsgFlags::empty(),
@@ -306,7 +228,7 @@ mod inner {
                     .context("Failed to receive notify fd from socket")?;
 
                     // Extract the file descriptor from the control message.
-                    let notify_fd: RawFd = msg
+                    let raw_notify_fd: RawFd = msg
                         .cmsgs()?
                         .find_map(|cmsg| match cmsg {
                             ControlMessageOwned::ScmRights(fds) => fds.first().copied(),
@@ -314,27 +236,109 @@ mod inner {
                         })
                         .context("Missing file descriptor in CMSG")?;
 
+                    std::fs::remove_file(&path)
+                        .context("Failed to remove temporary socket file")?;
+
                     // SAFETY: The fd was just received via SCM_RIGHTS and is valid.
                     // The fd was produced by ScmpFilterContext::get_notify_fd.
                     // The fd does not need any cleanup other than close.
                     // Closing the fd is fine because ... TODO
-                    let notify_fd = unsafe { OwnedFd::from_raw_fd(notify_fd) };
-                    drop(notify_fd_rx);
-
+                    let notify_fd = unsafe { OwnedFd::from_raw_fd(raw_notify_fd) };
                     // Run seccomp supervisor
-                    seccomp_monitor(parent_pid, notify_fd)?;
-                    Ok(())
+                    return seccomp_monitor(parent, notify_fd);
                 }
+                f => return print_usage(Some(f)),
             }
-        } else {
-            // No seccomp; just exec the target program
-            exclude_current_cgroup()?;
-            setgid(real_gid).context("setgid failed")?;
-            setuid(real_uid).context("setuid failed")?;
-            execvp(program, &args).context("execvp failed")?;
-
-            Ok(())
         }
+
+        let [program, ..] = &args[..] else {
+            bail!("No command specified");
+        };
+
+        if talpid_cgroup::is_systemd_managed() {
+            seteuid(real_uid).context("Failed to drop root UID temporarily")?;
+            setegid(real_gid).context("Failed to drop root GID temporarily")?;
+            systemd::join_scope_unit(real_uid.is_root(), program)?;
+            setuid(0.into()).context("Failed to regain root UID")?;
+            setgid(0.into()).context("Failed to regain root GID")?;
+        }
+
+        let enable_intercept = want_intercept.unwrap_or_else(|| need_socket_intercept(program));
+        if enable_intercept {
+            // Temporarily set real UID to 0 so that setuid bit does not let you run seccomp
+            setresuid(0.into(), 0.into(), 0.into()).context("Failed to set real UID")?;
+            spawn_supervisor()?;
+            setresuid(real_uid, 0.into(), 0.into()).context("Failed to reset real UID")?;
+        } else {
+            exclude_current_cgroup()?;
+        }
+
+        setgid(real_gid).context("Failed to drop root UID privileges")?;
+        setuid(real_uid).context("Failed to drop root GID privileges")?;
+
+        execvp(program, &args).context("execvp failed")?;
+        Ok(())
+    }
+
+    /// Enable seccomp and spawn a supervisor process to intercept socket() syscalls
+    fn spawn_supervisor() -> anyhow::Result<()> {
+        assert_seccomp_version()?;
+
+        let mut ctx = ScmpFilterContext::new(ScmpAction::Allow)
+            .context("Failed to create seccomp filter context")?;
+        // No need to set NO_NEW_PRIVS as we are sudo.
+        ctx.set_ctl_nnp(false)
+            .context("Failed to disable NO_NEW_PRIVS")?;
+        let socket_sys =
+            ScmpSyscall::from_name("socket").context("Failed to get socket syscall")?;
+        // The first socket() arg must be AF_INET or AF_INET6
+        // https://www.man7.org/linux/man-pages/man2/socket.2.html
+        let inet_cmp =
+            ScmpArgCompare::new(0, ScmpCompareOp::Equal, u64::try_from(AF_INET).unwrap());
+        ctx.add_rule_conditional(ScmpAction::Notify, socket_sys.clone(), &[inet_cmp])
+            .context("Failed to add socket() AF_INET rule")?;
+        let inet6_cmp =
+            ScmpArgCompare::new(0, ScmpCompareOp::Equal, u64::try_from(AF_INET6).unwrap());
+        ctx.add_rule_conditional(ScmpAction::Notify, socket_sys.clone(), &[inet6_cmp])
+            .context("Failed to add socket() AF_INET6 rule")?;
+
+        ctx.load().context("Failed to load seccomp filter")?;
+
+        let notify_fd = ctx.get_notify_fd().context("Failed to get notify fd")?;
+        // SAFETY: `notify_fd` is a valid file descriptor.
+        let notify_fd = unsafe { BorrowedFd::borrow_raw(notify_fd) };
+
+        let mut rng = rand::rng();
+        let random: String = (0..8).map(|_| rng.sample(Alphanumeric) as char).collect();
+        let socket_path = format!("/var/run/mullvad-exclude-supervisor-{}.sock", random);
+
+        let fd_sock = UnixListener::bind(&socket_path).context("Failed to bind to unix socket")?;
+
+        Command::new(std::env::current_exe().context("Failed to get current exe path")?)
+            .env("SOCKET_PATH", &socket_path)
+            .arg("--supervisor")
+            // Add the supervisor to its own process group, so that CTRL-C/SIGINT is passed on to
+            // it.
+            .process_group(0)
+            .stdin(Stdio::null())
+            .spawn()
+            .context("Failed to spawn supervisor process")?;
+
+        // Send the seccomp notify fd to the supervisor process using SCM_RIGHTS.
+        // File descriptors are process-local, so we must use ancillary messages.
+        // We could use set !CLOEXEC, but SCM_RIGHTS seems safer (refuses invalid FDs).
+        let (stream, _addr) = fd_sock
+            .accept()
+            .context("Failed to accept connection from supervisor")?;
+
+        let fds = [notify_fd.as_raw_fd()];
+        let cmsg = [ControlMessage::ScmRights(&fds)];
+        // We need to send at least 1 byte of data along with the control message.
+        let iov = [IoSlice::new(&[0u8])];
+        sendmsg::<()>(stream.as_raw_fd(), &iov, &cmsg, MsgFlags::empty(), None)
+            .context("Failed to send notify fd over socket")?;
+
+        Ok(())
     }
 
     /// Certain applications (e.g. flatpak) require us to intercept socket syscalls.
@@ -430,6 +434,15 @@ mod inner {
         }
 
         bail!("No cgroup v2 entry found in /proc/[pid]/cgroup")
+    }
+
+    fn is_same_exe(pid0: Pid, pid1: Pid) -> anyhow::Result<bool> {
+        let link0 = std::fs::read_link(format!("/proc/{}/exe", pid0.as_raw()))
+            .context("Failed to read link /proc/[pid0]/exe")?;
+        let link1 = std::fs::read_link(format!("/proc/{}/exe", pid1.as_raw()))
+            .context("Failed to read link /proc/[pid1]/exe")?;
+
+        Ok(link0 == link1)
     }
 
     fn print_usage(invalid_arg: Option<&str>) -> Result<(), anyhow::Error> {
