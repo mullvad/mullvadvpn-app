@@ -135,13 +135,7 @@ impl Check {
         // Send initial ping to prod WireGuard into connecting.
         // Failing to do so might be indicative of another firewall blocking pings.
         // If all traffic is blocked, the inner connectivity check will fail.
-        if let Err(err) = self
-            .ping_state
-            .pinger
-            .send_icmp()
-            .await
-            .map_err(Error::PingError)
-        {
+        if let Err(err) = self.ping_state.ping().await {
             log::error!("{err}");
         }
         self.establish_connectivity_inner(
@@ -285,11 +279,7 @@ impl Check {
                 })
                 .unwrap_or(true)
         {
-            ping_state
-                .pinger
-                .send_icmp()
-                .await
-                .map_err(Error::PingError)?;
+            ping_state.ping().await?;
             if ping_state.initial_ping_timestamp.is_none() {
                 ping_state.initial_ping_timestamp = Some(now);
             }
@@ -326,6 +316,11 @@ impl PingState {
             num_pings_sent: 0,
             pinger,
         }
+    }
+
+    /// Send a ping.
+    pub(super) async fn ping(&mut self) -> Result<(), Error> {
+        self.pinger.send_icmp().await.map_err(Error::PingError)
     }
 
     fn ping_timed_out(&self, timeout: Duration) -> bool {
