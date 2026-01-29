@@ -159,8 +159,7 @@ async fn send_location_request_internal(
 }
 
 fn log_network_error(err: Error, version: &'static str) {
-    if !err.is_offline() {
-        let err_message = &format!("Unable to fetch {version} GeoIP location");
-        log::debug!("{}", err.display_chain_with_msg(err_message));
-    }
+    // TODO: check if the error is not offline before logging
+    let err_message = &format!("Unable to fetch {version} GeoIP location");
+    log::debug!("{}", err.display_chain_with_msg(err_message));
 }

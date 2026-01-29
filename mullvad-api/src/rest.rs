@@ -44,9 +44,6 @@ pub enum Error {
     #[error("Request cancelled")]
     Aborted,
 
-    #[error("Legacy hyper error")]
-    LegacyHyperError(#[from] Arc<hyper_util::client::legacy::Error>),
-
     #[error("Hyper error")]
     HyperError(#[from] Arc<hyper::Error>),
 
@@ -94,30 +91,27 @@ impl From<Infallible> for Error {
 
 impl Error {
     pub fn is_network_error(&self) -> bool {
-        matches!(
-            self,
-            Error::HyperError(_) | Error::LegacyHyperError(_) | Error::TimeoutError
-        )
+        matches!(self, Error::HyperError(_) | Error::TimeoutError)
     }
 
-    /// Return true if there was no route to the destination
-    pub fn is_offline(&self) -> bool {
-        match self {
-            Error::LegacyHyperError(error) if error.is_connect() => {
-                if let Some(cause) = error.source()
-                    && let Some(err) = cause.downcast_ref::<std::io::Error>()
-                {
-                    return err.raw_os_error() == Some(libc::ENETUNREACH);
-                }
+    // Return true if there was no route to the destination
+    // pub fn is_offline(&self) -> bool {
+    //     match self {
+    //         Error::LegacyHyperError(error) if error.is_connect() => {
+    //             if let Some(cause) = error.source()
+    //                 && let Some(err) = cause.downcast_ref::<std::io::Error>()
+    //             {
+    //                 return err.raw_os_error() == Some(libc::ENETUNREACH);
+    //             }
 
-                false
-            }
-            // TODO: Currently, we use the legacy hyper client for all REST requests. If this
-            // changes in the future, we likely need to match on `Error::HyperError` here and
-            // determine how to achieve the equivalent behavior. See DES-1288.
-            _ => false,
-        }
-    }
+    //             false
+    //         }
+    //         // TODO: Currently, we use the legacy hyper client for all REST requests. If this
+    //         // changes in the future, we likely need to match on `Error::HyperError` here and
+    //         // determine how to achieve the equivalent behavior. See DES-1288.
+    //         _ => false,
+    //     }
+    // }
 
     pub fn is_aborted(&self) -> bool {
         matches!(self, Error::Aborted)
@@ -775,7 +769,6 @@ macro_rules! impl_into_arc_err {
 }
 
 impl_into_arc_err!(hyper::Error);
-impl_into_arc_err!(hyper_util::client::legacy::Error);
 impl_into_arc_err!(serde_json::Error);
 impl_into_arc_err!(http::Error);
 impl_into_arc_err!(http::uri::InvalidUri);
