@@ -10,8 +10,9 @@ license.workspace = true
 crate-type = ["rlib", "staticlib"]
 
 [dependencies]
-# TODO: Upstream fix to gotatun for enabling the daita feature without
-# requiring the device feature as well.
+# TODO: When upstream fix to gotatun for enabling the daita feature without
+# requiring the device feature as well has been released, remove the `device` feature.
+# https://github.com/mullvad/gotatun/pull/73
 gotatun = { workspace = true, features = ["daita", "device"] }
 hyper-util = { workspace = true }
 log = { workspace = true }
