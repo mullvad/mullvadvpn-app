@@ -34,7 +34,11 @@ private func rustLogCallback(level: UInt8, messagePtr: UnsafePointer<CChar>?) {
             .debug
         }
 
-    rustLogger.log(level: level, "\(message)")
+    rustLogger
+        .log(
+            level: level,
+            "\(message.trimmingCharacters(in: .whitespacesAndNewlines))"
+        )
 }
 
 /// Initializes the Rust logging system to forward logs to Swift's Logger.
