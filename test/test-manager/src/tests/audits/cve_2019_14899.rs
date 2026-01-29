@@ -15,10 +15,6 @@
 use std::{
     convert::Infallible,
     net::{IpAddr, Ipv4Addr},
-    sync::{
-        Arc,
-        atomic::{AtomicBool, Ordering},
-    },
     time::Duration,
 };
 
@@ -36,7 +32,7 @@ use pnet_packet::{
 };
 use test_macro::test_function;
 use test_rpc::ServiceClient;
-use tokio::time::sleep;
+use tokio::{sync::oneshot, time::sleep};
 
 use crate::{
     tests::{TestContext, config::TEST_CONFIG, helpers},
@@ -170,13 +166,17 @@ async fn filter_for_malicious_packet(
     mut recv: Box<dyn DataLinkReceiver>,
     timeout: Duration,
 ) -> anyhow::Result<Option<TcpPacket<'static>>> {
-    let should_stop = Arc::new(AtomicBool::new(false));
-    let should_stop_thread = should_stop.clone();
+    let (abort_tx, mut abort_rx) = oneshot::channel();
 
     let mut thread = tokio::task::spawn_blocking(move || {
         loop {
-            if should_stop_thread.load(Ordering::SeqCst) {
-                bail!("Timed out waiting for malicious packet");
+            match abort_rx.try_recv() {
+                // Exit signal or channel closed
+                Ok(()) | Err(oneshot::error::TryRecvError::Closed) => {
+                    bail!("Timed out waiting for malicious packet");
+                }
+                // Nothing was sent
+                Err(oneshot::error::TryRecvError::Empty) => (),
             }
             let packet = match recv.next() {
                 Err(e) => return Err(e).context("Failed to read from data link"),
@@ -197,7 +197,7 @@ async fn filter_for_malicious_packet(
     match tokio::time::timeout(timeout, &mut thread).await {
         Ok(packet) => Ok(Some(packet??)),
         Err(_timed_out) => {
-            should_stop.store(true, Ordering::SeqCst);
+            let _ = abort_tx.send(());
             // Avoid leaking thread
             let _ = thread.await;
             Ok(None)
