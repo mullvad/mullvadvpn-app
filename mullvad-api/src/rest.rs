@@ -50,6 +50,10 @@ pub enum Error {
     #[error("Hyper error")]
     HyperError(#[from] Arc<hyper::Error>),
 
+    /// Connection dropped
+    #[error("Connection dropped unexpectedly")]
+    ConnectionDropped,
+
     #[error("Invalid header value")]
     InvalidHeaderError,
 
@@ -457,14 +461,17 @@ where
 
         let (mut sender, conn) = hyper::client::conn::http1::handshake(tokio_io).await?;
 
-        tokio::task::spawn(async move {
-            if let Err(err) = conn.await {
-                println!("Connection failed: {:?}", err);
-            }
-        });
-
         // Make request to hyper client
-        let response = sender.send_request(self.request).await.map_err(Error::from);
+        let response = tokio::select! {
+            res = sender.send_request(self.request) => res.map_err(Error::from),
+            conn_res = conn => {
+                log::error!("API request connection failed");
+                match conn_res {
+                    Ok(()) => Err(Error::ConnectionDropped),
+                    Err(err) => Err(Error::HyperError(Arc::new(err))),
+                }
+            }
+        };
 
         // Notify access token store of expired tokens
         if let (Some(account), Some(store)) = (&self.account, &self.access_token_store) {
