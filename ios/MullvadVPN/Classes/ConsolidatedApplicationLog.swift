@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import MullvadLogging
 
 private let kLogDelimiter = "===================="
 private let kRedactedPlaceholder = "[REDACTED]"
@@ -182,9 +181,9 @@ class ConsolidatedApplicationLog: TextOutputStreamable, @unchecked Sendable {
 
     private func redact(string: String) -> String {
         var result = string
-        // Use shared LogRedactor for IP addresses and account numbers
-        result = LogRedactor.shared.redact(result)
-        // Apply consolidated-log-specific redactions
+        // Note: IP addresses and account numbers are already redacted on-the-fly
+        // by CustomFormatLogHandler when logs are written to file.
+        // We only need to apply consolidated-log-specific redactions here.
         result = redactContainerPaths(string: result)
         result = redactCustomStrings(in: result)
         return result

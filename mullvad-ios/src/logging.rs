@@ -23,20 +23,25 @@ pub type LogCallback =
 /// Default log level
 const DEFAULT_LOG_LEVEL: LevelFilter = LevelFilter::DEBUG;
 
-/// Visitor that extracts the message and other fields from a tracing event.
+/// Visitor that extracts the message and module path from a tracing event.
+///
+/// When logs come through the `log` crate (bridged via tracing-log), the module
+/// path is stored as a field named `log.module_path` rather than in the metadata.
 struct MessageVisitor {
     message: String,
+    module_path: Option<String>,
 }
 
 impl MessageVisitor {
     fn new() -> Self {
         Self {
             message: String::with_capacity(256),
+            module_path: None,
         }
     }
 
-    fn into_message(self) -> String {
-        self.message
+    fn into_parts(self) -> (String, Option<String>) {
+        (self.message, self.module_path)
     }
 }
 
@@ -44,20 +49,17 @@ impl Visit for MessageVisitor {
     fn record_debug(&mut self, field: &Field, value: &dyn std::fmt::Debug) {
         if field.name() == "message" {
             let _ = write!(&mut self.message, "{:?}", value);
-        } else if self.message.is_empty() {
-            let _ = write!(&mut self.message, "{}={:?}", field.name(), value);
-        } else {
-            let _ = write!(&mut self.message, ", {}={:?}", field.name(), value);
+        } else if field.name() == "log.module_path" {
+            // Debug formatting adds quotes around strings, so trim them
+            self.module_path = Some(format!("{:?}", value).trim_matches('"').to_string());
         }
     }
 
     fn record_str(&mut self, field: &Field, value: &str) {
         if field.name() == "message" {
             self.message.push_str(value);
-        } else if self.message.is_empty() {
-            let _ = write!(&mut self.message, "{}={}", field.name(), value);
-        } else {
-            let _ = write!(&mut self.message, ", {}={}", field.name(), value);
+        } else if field.name() == "log.module_path" {
+            self.module_path = Some(value.to_string());
         }
     }
 }
@@ -90,12 +92,18 @@ where
     fn on_event(&self, event: &Event<'_>, _ctx: Context<'_, S>) {
         let metadata = event.metadata();
         let level = Self::level_to_u8(metadata.level());
-        let target = metadata.target();
 
-        // Extract the message using the visitor pattern
+        // Extract the message and module path using the visitor pattern
         let mut visitor = MessageVisitor::new();
         event.record(&mut visitor);
-        let message = visitor.into_message();
+        let (message, module_path) = visitor.into_parts();
+
+        // For log crate events, use the extracted module path from fields.
+        // For native tracing events, fall back to metadata.target().
+        let target = module_path
+            .as_deref()
+            .or_else(|| metadata.module_path())
+            .unwrap_or_else(|| metadata.target());
 
         // Convert to C strings for FFI
         let target_cstring = match CString::new(target) {
