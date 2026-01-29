@@ -38,5 +38,13 @@ cbindgen = { version = "0.28.0", default-features = false }
 # Allow the API server to be used
 api-override = ["mullvad-api/api-override"]
 
+[dev-dependencies]
+criterion = "0.5"
+regex = "1"
+
+[[bench]]
+name = "log_redaction"
+harness = false
+
 [lints]
 workspace = true
