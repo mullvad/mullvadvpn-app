@@ -15,18 +15,15 @@ class SettingsDNSInfoCell: UITableViewCell {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
 
         backgroundColor = .secondaryColor
-        contentView.directionalLayoutMargins = UIMetrics.SettingsCell.defaultLayoutMargins
+        contentView.directionalLayoutMargins = NSDirectionalEdgeInsets(UIMetrics.SettingsRowView.footerLayoutMargins)
 
         titleLabel.adjustsFontForContentSizeCategory = true
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         titleLabel.textColor = UIColor.TableSection.footerTextColor
         titleLabel.numberOfLines = 0
-        titleLabel.setContentCompressionResistancePriority(.defaultHigh, for: .vertical)
-        titleLabel.setContentHuggingPriority(.defaultLow, for: .vertical)
 
         contentView.addConstrainedSubviews([titleLabel]) {
-            titleLabel.pinEdgesToSuperviewMargins(.all().excluding([.leading]))
-            titleLabel.pinEdgesToSuperview(.init([.leading(16)]))
+            titleLabel.pinEdgesToSuperviewMargins(.all())
         }
     }
 
