@@ -126,6 +126,10 @@ impl From<mullvad_types::states::TunnelState> for proto::TunnelState {
                             talpid_tunnel::ErrorStateCause::InvalidDnsServers(_) => {
                                 i32::from(Cause::InvalidDnsServers)
                             }
+                            #[cfg(target_os = "android")]
+                            talpid_tunnel::ErrorStateCause::InvalidIPv6Config { .. } => {
+                                i32::from(Cause::InvalidIpv6Config)
+                            }
                             #[cfg(any(
                                 target_os = "windows",
                                 target_os = "macos",
@@ -162,6 +166,24 @@ impl From<mullvad_types::states::TunnelState> for proto::TunnelState {
                             {
                                 Some(proto::error_state::InvalidDnsServersError {
                                     ip_addrs: ip_addrs.iter().map(|ip| ip.to_string()).collect(),
+                                })
+                            } else {
+                                None
+                            },
+                        #[cfg(not(target_os = "android"))]
+                        invalid_ipv6_config_error: None,
+                        #[cfg(target_os = "android")]
+                        invalid_ipv6_config_error:
+                            if let talpid_tunnel::ErrorStateCause::InvalidIPv6Config {
+                                addresses,
+                                routes,
+                                dns_servers,
+                            } = error_state.cause()
+                            {
+                                Some(proto::error_state::InvalidIpv6Config {
+                                    addrs: addresses.iter().map(|ip| ip.to_string()).collect(),
+                                    routes: routes.iter().map(|route| route.to_string()).collect(),
+                                    dns: dns_servers.iter().map(|dns| dns.to_string()).collect(),
                                 })
                             } else {
                                 None
