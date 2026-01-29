@@ -193,3 +193,10 @@ reason = "wireguard-go does not use crypto/tls"
 id = "GO-2026-4341"
 ignoreUntil = 2027-01-29
 reason = "wireguard-go does not use net/url"
+
+# Excessive CPU consumption when building archive index in archive/zip
+# https://osv.dev/GO-2026-4342
+[[IgnoredVulns]]
+id = "GO-2026-4342"
+ignoreUntil = 2027-01-29
+reason = "wireguard-go does not use archive/zip"
