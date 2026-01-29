@@ -236,6 +236,7 @@ mod inner {
                         })
                         .context("Missing file descriptor in CMSG")?;
 
+                    drop(notify_fd_sock);
                     std::fs::remove_file(&path)
                         .context("Failed to remove temporary socket file")?;
 
