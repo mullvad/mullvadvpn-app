@@ -179,3 +179,10 @@ reason = "wireguard-go does not use crypto/x509"
 id = "CVE-2025-61727"  # GO-2025-4175
 ignoreUntil = 2026-12-04
 reason = "wireguard-go does not use crypto/x509"
+
+# Handshake messages may be processed at the incorrect encryption level in crypto/tls
+# https://osv.dev/GO-2026-4340
+[[IgnoredVulns]]
+id = "GO-2026-4340"
+ignoreUntil = 2027-01-29
+reason = "wireguard-go does not use crypto/tls"
