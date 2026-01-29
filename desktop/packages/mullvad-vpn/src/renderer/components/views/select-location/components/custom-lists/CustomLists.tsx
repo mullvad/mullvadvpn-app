@@ -1,141 +1,78 @@
-import { useCallback } from 'react';
-import styled from 'styled-components';
+import React from 'react';
 
-import { CustomListError, type RelayLocation } from '../../../../../../shared/daemon-rpc-types';
 import { messages } from '../../../../../../shared/gettext';
-import { useAppContext } from '../../../../../context';
-import { colors } from '../../../../../lib/foundations';
-import { useBoolean } from '../../../../../lib/utility-hooks';
-import Accordion from '../../../../Accordion';
-import * as Cell from '../../../../cell';
-import { measurements } from '../../../../common-styles';
+import { Text } from '../../../../../lib/components';
+import { Accordion } from '../../../../../lib/components/accordion';
+import { FlexColumn } from '../../../../../lib/components/flex-column';
 import { useRelayListContext } from '../../RelayListContext';
 import { useScrollPositionContext } from '../../ScrollPositionContext';
-import { useSelectLocationViewContext } from '../../SelectLocationViewContext';
 import { AddListForm } from '../add-list-form/AddListForm';
 import { RelayLocationList } from '../relay-location-list';
+import { CustomListsSectionTitle } from './components';
+import { CustomListsProvider, useCustomListsContext } from './CustomListsContext';
+import { useHandleOnSelectCustomList, useHasCustomLists } from './hooks';
+import { useHasNoCustomListsInSearchResult } from './hooks/use-has-no-custom-lists-in-search-result';
 
-const StyledCellContainer = styled(Cell.Container)({
-  padding: 0,
-  background: 'none',
-});
+export type LocationSelection = 'entry' | 'exit';
 
-const StyledHeaderLabel = styled(Cell.Label)({
-  display: 'block',
-  flex: 1,
-  backgroundColor: colors.blue,
-  paddingLeft: measurements.horizontalViewMargin,
-  margin: 0,
-  height: measurements.rowMinHeight,
-  lineHeight: measurements.rowMinHeight,
-});
-
-const StyledCellButton = styled(Cell.SideButton)({
-  border: 'none',
-});
-
-const StyledAddListCellButton = styled(StyledCellButton)({
-  marginLeft: 'auto',
-});
-
-const StyledSideButtonIcon = styled(Cell.CellIcon)({
-  [`${StyledCellButton}:disabled &&, ${StyledAddListCellButton}:disabled &&`]: {
-    backgroundColor: colors.whiteAlpha40,
-  },
-
-  [`${StyledCellButton}:not(:disabled):hover &&, ${StyledAddListCellButton}:not(:disabled):hover &&`]:
-    {
-      backgroundColor: colors.white,
-    },
-});
-
-interface CustomListsProps {
+export type CustomListsProps = {
+  locationSelection: LocationSelection;
   selectedElementRef: React.Ref<HTMLDivElement>;
-  onSelect: (value: RelayLocation) => void;
-}
+};
 
-export function CustomLists(props: CustomListsProps) {
-  const [addListVisible, showAddList, hideAddList] = useBoolean();
-  const { createCustomList } = useAppContext();
-  const { searchTerm } = useSelectLocationViewContext();
-  const { customLists } = useRelayListContext();
+function CustomListsImpl({ selectedElementRef }: Pick<CustomListsProps, 'selectedElementRef'>) {
+  const { customLists, expandLocation, collapseLocation, onBeforeExpand } = useRelayListContext();
+  const { resetHeight } = useScrollPositionContext();
+  const { addFormVisible } = useCustomListsContext();
+  const handleOnSelect = useHandleOnSelectCustomList();
+  const hasNoCustomListsInSearchResult = useHasNoCustomListsInSearchResult();
+  const hasCustomLists = useHasCustomLists();
 
-  const createList = useCallback(
-    async (name: string): Promise<void | CustomListError> => {
-      const result = await createCustomList({
-        name,
-        locations: [],
-      });
-      // If an error is returned it should be passed as the return value.
-      if (result) {
-        return result;
-      }
-
-      hideAddList();
-    },
-    [createCustomList, hideAddList],
-  );
-
-  if (searchTerm !== '' && !customLists.some((list) => list.visible)) {
+  if (hasNoCustomListsInSearchResult) {
     return null;
   }
 
   return (
-    <Cell.Group>
-      <StyledCellContainer>
-        <StyledHeaderLabel>
-          {messages.pgettext('select-location-view', 'Custom lists')}
-        </StyledHeaderLabel>
-        <StyledCellButton
-          $backgroundColor={colors.blue}
-          $backgroundColorHover={colors.blue80}
-          onClick={showAddList}>
-          <StyledSideButtonIcon icon="add-circle" color="whiteAlpha60" />
-        </StyledCellButton>
-      </StyledCellContainer>
+    <FlexColumn gap="tiny">
+      <CustomListsSectionTitle />
 
-      <Accordion expanded>
-        <CustomListsImpl selectedElementRef={props.selectedElementRef} onSelect={props.onSelect} />
-      </Accordion>
+      <FlexColumn>
+        <Accordion expanded={addFormVisible}>
+          <Accordion.Content>
+            <AddListForm />
+          </Accordion.Content>
+        </Accordion>
 
-      <AddListForm visible={addListVisible} onCreateList={createList} cancel={hideAddList} />
-    </Cell.Group>
+        {hasCustomLists && (
+          <RelayLocationList
+            source={customLists}
+            onExpand={expandLocation}
+            onCollapse={collapseLocation}
+            onWillExpand={onBeforeExpand}
+            selectedElementRef={selectedElementRef}
+            onSelect={handleOnSelect}
+            onTransitionEnd={resetHeight}
+            allowAddToCustomList={false}
+          />
+        )}
+
+        {!hasCustomLists && !addFormVisible && (
+          <Text variant="labelTiny" color="whiteAlpha60">
+            {messages.pgettext(
+              'select-location-view',
+              'Add a custom list by clicking the “+” icon ',
+            )}
+          </Text>
+        )}
+      </FlexColumn>
+    </FlexColumn>
   );
 }
 
-interface CustomListsImplProps {
-  selectedElementRef: React.Ref<HTMLDivElement>;
-  onSelect: (value: RelayLocation) => void;
-}
-
-function CustomListsImpl(props: CustomListsImplProps) {
-  const { onSelect: propsOnSelect } = props;
-
-  const { customLists, expandLocation, collapseLocation, onBeforeExpand } = useRelayListContext();
-  const { resetHeight } = useScrollPositionContext();
-
-  const onSelect = useCallback(
-    (value: RelayLocation) => {
-      const location = { ...value };
-      if ('country' in location) {
-        // Only the geographical part should be sent to the daemon when setting a location.
-        delete location.customList;
-      }
-      propsOnSelect(location);
-    },
-    [propsOnSelect],
-  );
-
+export function CustomLists({ locationSelection, ...props }: CustomListsProps) {
   return (
-    <RelayLocationList
-      source={customLists}
-      onExpand={expandLocation}
-      onCollapse={collapseLocation}
-      onWillExpand={onBeforeExpand}
-      selectedElementRef={props.selectedElementRef}
-      onSelect={onSelect}
-      onTransitionEnd={resetHeight}
-      allowAddToCustomList={false}
-    />
+    <CustomListsProvider locationSelection={locationSelection}>
+      <CustomListsImpl {...props} />
+    </CustomListsProvider>
   );
 }
