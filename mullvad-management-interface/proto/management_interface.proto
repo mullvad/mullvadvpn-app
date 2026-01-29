@@ -261,7 +261,11 @@ message ErrorState {
 
   message InvalidDnsServersError { repeated string ip_addrs = 1; }
 
-  message InvalidIpv6Config { repeated string addrs = 1; repeated string routes = 2; repeated string dns = 3; }
+  message InvalidIpv6Config {
+    repeated string addrs = 1;
+    repeated string routes = 2;
+    repeated string dns = 3;
+  }
 
   Cause cause = 1;
   FirewallPolicyError blocking_error = 2;

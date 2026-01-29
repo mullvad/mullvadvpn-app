@@ -43,7 +43,11 @@ class TalpidVpnServiceInvalidIpv6ConfigTest {
         every { anyConstructed<VpnService.Builder>().setBlocking(any()) } returns builderMockk
         every { anyConstructed<VpnService.Builder>().addAddress(any<InetAddress>(), any()) } returns
             builderMockk
+        every { anyConstructed<VpnService.Builder>().addAddress(any<String>(), any()) } returns
+            builderMockk
         every { anyConstructed<VpnService.Builder>().addRoute(any<InetAddress>(), any()) } returns
+            builderMockk
+        every { anyConstructed<VpnService.Builder>().addRoute(any<String>(), any()) } returns
             builderMockk
         every { anyConstructed<VpnService.Builder>().addDnsServer(any<InetAddress>()) } returns
             builderMockk
