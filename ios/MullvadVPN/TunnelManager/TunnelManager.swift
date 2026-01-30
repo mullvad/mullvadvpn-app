@@ -108,6 +108,9 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
 
         self.startNetworkMonitor()
 
+        #if DEBUG
+            relayCacheTracker.addObserver(self)
+        #endif
     }
 
     // MARK: - Periodic private key rotation
@@ -1489,3 +1492,23 @@ private struct TunnelInteractorProxy: TunnelInteractor {
         tunnelManager.handleRestError(error)
     }
 }
+
+// MARK: - RelayCacheTrackerObserver
+
+#if DEBUG
+    extension TunnelManager: RelayCacheTrackerObserver {
+        func relayCacheTracker(_ tracker: RelayCacheTracker, didUpdateCachedRelays cachedRelays: CachedRelays) {
+            // Only reconnect if relays are now available
+            guard !cachedRelays.isEmpty else { return }
+
+            nslock.lock()
+            let currentStatus = _tunnelStatus
+            nslock.unlock()
+
+            // If tunnel is active, trigger reconnect to re-evaluate with new relays
+            if currentStatus.state.isSecured {
+                reconnectTunnel(selectNewRelay: false)
+            }
+        }
+    }
+#endif

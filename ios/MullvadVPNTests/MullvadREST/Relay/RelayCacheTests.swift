@@ -6,6 +6,7 @@
 //  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 //
 
+import MullvadMockData
 import XCTest
 
 @testable import MullvadREST
@@ -41,6 +42,22 @@ final class RelayCacheTests: XCTestCase {
         let cache = RelayCache(fileCache: fileCache)
 
         XCTAssertNoThrow(try cache.read())
+    }
+
+    func testEmptyRelaysIsEmpty() {
+        let emptyRelays = REST.ServerRelaysResponse.mock(serverRelays: [], bridgeRelays: [])
+        XCTAssertTrue(emptyRelays.isEmpty)
+
+        let cachedRelays = CachedRelays(etag: nil, relays: emptyRelays, updatedAt: Date())
+        XCTAssertTrue(cachedRelays.isEmpty)
+    }
+
+    func testNonEmptyRelaysIsNotEmpty() {
+        let relays = ServerRelaysResponseStubs.sampleRelays
+        XCTAssertFalse(relays.isEmpty)
+
+        let cachedRelays = CachedRelays(etag: nil, relays: relays, updatedAt: Date())
+        XCTAssertFalse(cachedRelays.isEmpty)
     }
 }
 

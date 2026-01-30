@@ -16,11 +16,11 @@ public enum ServerRelaysResponseStubs {
     public static let shadowsocksPortRanges: [[UInt16]] = [[51900, 51949]]
 
     /// Loads the prebundled relays.json from MullvadREST bundle for benchmark testing.
-    /// This contains real production relay data.
+    /// This contains real production relay data. The relay list should be updated periodically, especially when new fields are added to it.
     public static func loadPrebundledRelays() throws -> REST.ServerRelaysResponse {
         guard
             let prebundledRelaysFileURL = Bundle(for: RelayCache.self)
-                .url(forResource: "relays", withExtension: "json")
+                .url(forResource: "relays-test-data", withExtension: "json")
         else {
             throw CocoaError(.fileNoSuchFile)
         }
