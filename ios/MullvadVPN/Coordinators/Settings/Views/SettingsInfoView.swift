@@ -15,10 +15,26 @@ struct SettingsInfoViewModel {
 struct SettingsInfoViewModelPage: Hashable {
     let body: String
     let image: ImageResource
+    let customView: AnyView?
+
+    init(body: String, image: ImageResource, customView: AnyView? = nil) {
+        self.body = body
+        self.image = image
+        self.customView = customView
+    }
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(body)
+        hasher.combine(image)
+    }
+
+    static func == (lhs: Self, rhs: Self) -> Bool {
+        lhs.body == rhs.body && lhs.image == rhs.image
+    }
 }
 
 struct SettingsInfoView: View {
-    let viewModel: SettingsInfoViewModel
+    @State var viewModel: SettingsInfoViewModel
 
     // Extra spacing to allow for some room around the page indicators.
     var pageIndicatorSpacing: CGFloat {
@@ -68,8 +84,11 @@ struct SettingsInfoView: View {
                         .aspectRatio(contentMode: .fit)
                     bodyText(page)
                         .fixedSize(horizontal: false, vertical: true)
-                        .font(.subheadline)
+                        .font(.mullvadTiny)
                         .opacity(0.6)
+                    if let customView = page.customView {
+                        customView
+                    }
                 }
                 Spacer()
             }

@@ -414,7 +414,6 @@
 		58F70FE52AEA707800E6890E /* StoreTransactionLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F70FE42AEA707800E6890E /* StoreTransactionLog.swift */; };
 		58F7753D2AB8473200425B47 /* BlockedStateErrorMapperStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F7753C2AB8473200425B47 /* BlockedStateErrorMapperStub.swift */; };
 		58F8AC0E25D3F8CE002BE0ED /* ProblemReportReviewViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F8AC0D25D3F8CE002BE0ED /* ProblemReportReviewViewController.swift */; };
-		58FB865526E8BF3100F188BC /* LegacyStorePaymentManagerError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FB865426E8BF3100F188BC /* LegacyStorePaymentManagerError.swift */; };
 		58FB865A26EA214400F188BC /* RelayCacheTrackerObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FB865926EA214400F188BC /* RelayCacheTrackerObserver.swift */; };
 		58FBFBE9291622580020E046 /* ExponentialBackoffTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FBFBE8291622580020E046 /* ExponentialBackoffTests.swift */; };
 		58FBFBEA291622580020E046 /* MullvadREST.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 06799ABC28F98E1D00ACD94E /* MullvadREST.framework */; };
@@ -617,11 +616,14 @@
 		7AA1309F2D007B2500640DF9 /* VisualEffectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AA1309E2D007B2500640DF9 /* VisualEffectView.swift */; };
 		7AA130A12D01B1E200640DF9 /* SplitMainButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AA130A02D01B1E200640DF9 /* SplitMainButton.swift */; };
 		7AA513862BC91C6B00D081A4 /* LogRotationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AA513852BC91C6B00D081A4 /* LogRotationTests.swift */; };
+		7AA564422F28FF25001D1FB9 /* LegacyStorePaymentManagerError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FB865426E8BF3100F188BC /* LegacyStorePaymentManagerError.swift */; };
+		7AA564462F29014D001D1FB9 /* IncludeAllNetworksPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AA564452F290144001D1FB9 /* IncludeAllNetworksPage.swift */; };
 		7AA5C3702E9D21DB00B35530 /* DefaultLocationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AA5C36F2E9D21CD00B35530 /* DefaultLocationService.swift */; };
 		7AA5C3752E9FCD9300B35530 /* DefaultLocationServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AA5C3742E9FCD5F00B35530 /* DefaultLocationServiceTests.swift */; };
 		7AA5C3792E9FD8BA00B35530 /* URLSessionStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = F09D04BA2AE95396003D4F89 /* URLSessionStub.swift */; };
 		7AA5C37A2E9FDA6C00B35530 /* URLSessionProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A12D0752B062D5C00E9602D /* URLSessionProtocol.swift */; };
 		7AA636382D2D3BB0009B2C89 /* View+Conditionals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AA636372D2D3BAC009B2C89 /* View+Conditionals.swift */; };
+		7AA65BD02F22292C000CA663 /* ExternalLinkView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AA65BCF2F222928000CA663 /* ExternalLinkView.swift */; };
 		7AA7046A2C8EFE2B0045699D /* StoredRelays.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AA704682C8EFE050045699D /* StoredRelays.swift */; };
 		7AB2B6702BA1EB8C00B03E3B /* ListCustomListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AB2B66E2BA1EB8C00B03E3B /* ListCustomListViewController.swift */; };
 		7AB2B6712BA1EB8C00B03E3B /* ListCustomListCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AB2B66F2BA1EB8C00B03E3B /* ListCustomListCoordinator.swift */; };
@@ -636,6 +638,12 @@
 		7AB9312F2D4A5D0A005FCEBA /* MullvadApiNetworkOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AB9312D2D4A5D0A005FCEBA /* MullvadApiNetworkOperation.swift */; };
 		7ABB9B932EB207CC006A0EDD /* LegacyStorePaymentManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ABB9B922EB207BF006A0EDD /* LegacyStorePaymentManager.swift */; };
 		7ABB9B942EB207CC006A0EDD /* LegacyStorePaymentManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ABB9B922EB207BF006A0EDD /* LegacyStorePaymentManager.swift */; };
+		7ABBE0142F1A2CFF00AD8176 /* IncludeAllNetworksSettingsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ABBE0132F1A2CF100AD8176 /* IncludeAllNetworksSettingsCoordinator.swift */; };
+		7ABBE0162F1A2D1A00AD8176 /* IncludeAllNetworksSettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ABBE0152F1A2D1100AD8176 /* IncludeAllNetworksSettingsViewModel.swift */; };
+		7ABBE0182F1A2D4100AD8176 /* IncludeAllNetworksSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ABBE0172F1A2D3C00AD8176 /* IncludeAllNetworksSettingsView.swift */; };
+		7ABBE01A2F1A2D8700AD8176 /* InclueAllNetworksSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ABBE0192F1A2D8400AD8176 /* InclueAllNetworksSettings.swift */; };
+		7ABBE01C2F1E263400AD8176 /* ActionBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ABBE01B2F1E263100AD8176 /* ActionBox.swift */; };
+		7ABBE01E2F1E266F00AD8176 /* CheckBoxToggleStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ABBE01D2F1E266A00AD8176 /* CheckBoxToggleStyle.swift */; };
 		7ABCA5B32A9349F20044A708 /* Routing.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7A88DCCE2A8FABBE00D2FF0E /* Routing.framework */; };
 		7ABCA5B42A9349F20044A708 /* Routing.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 7A88DCCE2A8FABBE00D2FF0E /* Routing.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		7ABCA5B72A9353C60044A708 /* Coordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CAF9F72983D36800BE19F7 /* Coordinator.swift */; };
@@ -2175,9 +2183,11 @@
 		7AA1309E2D007B2500640DF9 /* VisualEffectView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisualEffectView.swift; sourceTree = "<group>"; };
 		7AA130A02D01B1E200640DF9 /* SplitMainButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplitMainButton.swift; sourceTree = "<group>"; };
 		7AA513852BC91C6B00D081A4 /* LogRotationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogRotationTests.swift; sourceTree = "<group>"; };
+		7AA564452F290144001D1FB9 /* IncludeAllNetworksPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncludeAllNetworksPage.swift; sourceTree = "<group>"; };
 		7AA5C36F2E9D21CD00B35530 /* DefaultLocationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultLocationService.swift; sourceTree = "<group>"; };
 		7AA5C3742E9FCD5F00B35530 /* DefaultLocationServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultLocationServiceTests.swift; sourceTree = "<group>"; };
 		7AA636372D2D3BAC009B2C89 /* View+Conditionals.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+Conditionals.swift"; sourceTree = "<group>"; };
+		7AA65BCF2F222928000CA663 /* ExternalLinkView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExternalLinkView.swift; sourceTree = "<group>"; };
 		7AA704682C8EFE050045699D /* StoredRelays.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoredRelays.swift; sourceTree = "<group>"; };
 		7AB2B66E2BA1EB8C00B03E3B /* ListCustomListViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ListCustomListViewController.swift; sourceTree = "<group>"; };
 		7AB2B66F2BA1EB8C00B03E3B /* ListCustomListCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ListCustomListCoordinator.swift; sourceTree = "<group>"; };
@@ -2191,6 +2201,12 @@
 		7AB931252D43D222005FCEBA /* MullvadApiResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadApiResponse.swift; sourceTree = "<group>"; };
 		7AB9312D2D4A5D0A005FCEBA /* MullvadApiNetworkOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadApiNetworkOperation.swift; sourceTree = "<group>"; };
 		7ABB9B922EB207BF006A0EDD /* LegacyStorePaymentManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyStorePaymentManager.swift; sourceTree = "<group>"; };
+		7ABBE0132F1A2CF100AD8176 /* IncludeAllNetworksSettingsCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncludeAllNetworksSettingsCoordinator.swift; sourceTree = "<group>"; };
+		7ABBE0152F1A2D1100AD8176 /* IncludeAllNetworksSettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncludeAllNetworksSettingsViewModel.swift; sourceTree = "<group>"; };
+		7ABBE0172F1A2D3C00AD8176 /* IncludeAllNetworksSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncludeAllNetworksSettingsView.swift; sourceTree = "<group>"; };
+		7ABBE0192F1A2D8400AD8176 /* InclueAllNetworksSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InclueAllNetworksSettings.swift; sourceTree = "<group>"; };
+		7ABBE01B2F1E263100AD8176 /* ActionBox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionBox.swift; sourceTree = "<group>"; };
+		7ABBE01D2F1E266A00AD8176 /* CheckBoxToggleStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckBoxToggleStyle.swift; sourceTree = "<group>"; };
 		7ABE318C2A1CDD4500DF4963 /* UIFont+Weight.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIFont+Weight.swift"; sourceTree = "<group>"; };
 		7ABFB09D2BA316220074A49E /* RelayConstraintsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayConstraintsTests.swift; sourceTree = "<group>"; };
 		7AC8A3AD2ABC6FBB00DC4939 /* SettingsHeaderView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsHeaderView.swift; sourceTree = "<group>"; };
@@ -3329,8 +3345,11 @@
 		583FE01F29C197ED006E85F9 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				F9394EF12DC21D7B009595EA /* List */,
+				7ABBE01B2F1E263100AD8176 /* ActionBox.swift */,
 				7A5869962B32EA4500640D27 /* AppButton.swift */,
 				7A0EAEA12D033D5A00D3EB8B /* BlurView.swift */,
+				7ABBE01D2F1E266A00AD8176 /* CheckBoxToggleStyle.swift */,
 				7A9FA1412A2E3306000B728D /* CheckboxView.swift */,
 				F90A98892E042D040020F64F /* ClearBackgroundView.swift */,
 				5868585424054096000B8131 /* CustomButton.swift */,
@@ -3340,11 +3359,11 @@
 				58293FB2251241B3005D0BB5 /* CustomTextView.swift */,
 				7A8A18FC2CE4BE88000BCB5B /* CustomToggleStyle.swift */,
 				5892A45D265FABFF00890742 /* EmptyTableViewHeaderFooterView.swift */,
+				7AA65BCF2F222928000CA663 /* ExternalLinkView.swift */,
 				58FD5BF32428C67600112C88 /* InAppPurchaseButton.swift */,
 				F03580242A13842C00E5DAFD /* IncreasedHitButton.swift */,
 				7A9F29382CABFAEC005F2089 /* InfoHeaderView.swift */,
 				7A5869942B32E9C700640D27 /* LinkButton.swift */,
-				F9394EF12DC21D7B009595EA /* List */,
 				7AA1309A2D0048D800640DF9 /* MainButton.swift */,
 				7A0EAE992D01B41500D3EB8B /* MainButtonStyle.swift */,
 				F97C38E72DF025D9006DCB08 /* MullvadAlert.swift */,
@@ -3766,6 +3785,7 @@
 				F0C13FE32C64F7CB00BD087D /* DAITASettings.swift */,
 				A92ECC2B2A7803A50052F1B1 /* DeviceState.swift */,
 				580F8B8528197958002E0998 /* DNSSettings.swift */,
+				7ABBE0192F1A2D8400AD8176 /* InclueAllNetworksSettings.swift */,
 				7A9F293A2CAC4420005F2089 /* InfoHeaderConfig.swift */,
 				7A9F293C2CAD2FCF005F2089 /* InfoModalConfig.swift */,
 				7A5869B22B5697AC00640D27 /* IPOverride.swift */,
@@ -4165,6 +4185,7 @@
 			children = (
 				58CEB2E72AFBB9F300E6E088 /* APIAccess */,
 				7A8A19082CE5FFD7000BCB5B /* DAITA */,
+				7ABBE0122F1A2CDE00AD8176 /* IncludeAllNetworks */,
 				7A5869A92B55516700640D27 /* IPOverride */,
 				7A8A18F72CE34E8F000BCB5B /* Multihop */,
 				7A8A18FE2CE4C7FA000BCB5B /* Views */,
@@ -4420,6 +4441,16 @@
 			path = SelectLocation;
 			sourceTree = "<group>";
 		};
+		7ABBE0122F1A2CDE00AD8176 /* IncludeAllNetworks */ = {
+			isa = PBXGroup;
+			children = (
+				7ABBE0132F1A2CF100AD8176 /* IncludeAllNetworksSettingsCoordinator.swift */,
+				7ABBE0172F1A2D3C00AD8176 /* IncludeAllNetworksSettingsView.swift */,
+				7ABBE0152F1A2D1100AD8176 /* IncludeAllNetworksSettingsViewModel.swift */,
+			);
+			path = IncludeAllNetworks;
+			sourceTree = "<group>";
+		};
 		7AD63A422CDA661B00445268 /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
@@ -4530,6 +4561,7 @@
 				8585CBE22BC684180015B6A4 /* EditAccessMethodPage.swift */,
 				A998DA822BD2B055001D61A2 /* EditCustomListLocationsPage.swift */,
 				85557B1D2B5FB8C700795FE1 /* HeaderBar.swift */,
+				7AA564452F290144001D1FB9 /* IncludeAllNetworksPage.swift */,
 				A998DA802BD147AD001D61A2 /* ListCustomListsPage.swift */,
 				852969342B4E9270007EAD4C /* LoginPage.swift */,
 				7A8A19232CF4C9B8000BCB5B /* MultihopPage.swift */,
@@ -6169,6 +6201,7 @@
 				58B2FDE12AA71D5C003EB5C6 /* TunnelSettingsV1.swift in Sources */,
 				449872E12B7BBC5400094DDC /* TunnelSettingsUpdate.swift in Sources */,
 				58B2FDE72AA71D5C003EB5C6 /* SettingsStore.swift in Sources */,
+				7ABBE01A2F1A2D8700AD8176 /* InclueAllNetworksSettings.swift in Sources */,
 				44DD7D2D2B74E44A0005F67F /* QuantumResistanceSettings.swift in Sources */,
 				58B2FDE92AA71D5C003EB5C6 /* SettingsParser.swift in Sources */,
 				F08827892B3192110020A383 /* AccessMethodRepositoryProtocol.swift in Sources */,
@@ -6274,6 +6307,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7AA564422F28FF25001D1FB9 /* LegacyStorePaymentManagerError.swift in Sources */,
 				44075DFB2CDA4F7400F61139 /* UDPOverTCPObfuscationSettingsViewModel.swift in Sources */,
 				F9E3BCF72DD35B78009986C3 /* ListAccessViewModelBridge.swift in Sources */,
 				7A6389DC2B7E3BD6008E77E1 /* CustomListViewModel.swift in Sources */,
@@ -6364,6 +6398,7 @@
 				7A9F29392CABFAFC005F2089 /* InfoHeaderView.swift in Sources */,
 				58DFF7D22B0256A300F864E0 /* MarkdownStylingOptions.swift in Sources */,
 				5867770E29096984006F721F /* OutOfTimeInteractor.swift in Sources */,
+				7ABBE01C2F1E263400AD8176 /* ActionBox.swift in Sources */,
 				F03580252A13842C00E5DAFD /* IncreasedHitButton.swift in Sources */,
 				A9AA56782EAF9FDB005807E4 /* ReduceAnonymityWarningView.swift in Sources */,
 				4424CDD32CDBD4A6009D8C9F /* SingleChoiceList.swift in Sources */,
@@ -6546,6 +6581,7 @@
 				7A5869C52B5A899C00640D27 /* MethodSettingsCellConfiguration.swift in Sources */,
 				58E11188292FA11F009FCA84 /* SettingsMigrationUIHandler.swift in Sources */,
 				58CAFA002983FF0200BE19F7 /* LoginInteractor.swift in Sources */,
+				7ABBE0162F1A2D1A00AD8176 /* IncludeAllNetworksSettingsViewModel.swift in Sources */,
 				5807E2C02432038B00F5FF30 /* String+Helpers.swift in Sources */,
 				58B26E242943520C00D5980C /* NotificationProviderProtocol.swift in Sources */,
 				5877F94E2A0A59AA0052D9E9 /* NotificationResponse.swift in Sources */,
@@ -6580,6 +6616,7 @@
 				F0B4957A2D02F49200CFEC2A /* ChipFeature.swift in Sources */,
 				F910A43A2D4A283D002FF3BB /* InAppPurchaseViewController.swift in Sources */,
 				58607A4D2947287800BC467D /* AccountExpiryInAppNotificationProvider.swift in Sources */,
+				7ABBE0182F1A2D4100AD8176 /* IncludeAllNetworksSettingsView.swift in Sources */,
 				7A8A18FD2CE4BE8D000BCB5B /* CustomToggleStyle.swift in Sources */,
 				F9394EF32DC21D8C009595EA /* MullvadList.swift in Sources */,
 				58C8191829FAA2C400DEB1B4 /* NotificationConfiguration.swift in Sources */,
@@ -6620,6 +6657,7 @@
 				58677710290975E9006F721F /* SettingsInteractorFactory.swift in Sources */,
 				7A9CCCC02A96302800DD6A34 /* ProfileVoucherCoordinator.swift in Sources */,
 				7A9CCCBC2A96302800DD6A34 /* ChangeLogCoordinator.swift in Sources */,
+				7AA65BD02F22292C000CA663 /* ExternalLinkView.swift in Sources */,
 				58B26E282943527300D5980C /* SystemNotificationProvider.swift in Sources */,
 				F0ADF1D52D01DCFD00299F09 /* ChipView.swift in Sources */,
 				586C0D932B03D90700E7CDD7 /* ShadowsocksItemIdentifier.swift in Sources */,
@@ -6636,9 +6674,8 @@
 				F95CDDA62EE030BA000E9D97 /* HopView.swift in Sources */,
 				F0C6A8432AB08E54000777A8 /* RedeemVoucherViewConfiguration.swift in Sources */,
 				7AF10EB42ADE85BC00C090B9 /* RelayFilterCoordinator.swift in Sources */,
-				58FB865526E8BF3100F188BC /* LegacyStorePaymentManagerError.swift in Sources */,
-				58FB865526E8BF3100F188BC /* LegacyStorePaymentManagerError.swift in Sources */,
 				F09D04B32AE919AC003D4F89 /* OutgoingConnectionProxy.swift in Sources */,
+				7ABBE0142F1A2CFF00AD8176 /* IncludeAllNetworksSettingsCoordinator.swift in Sources */,
 				7A5869BF2B57D0A100640D27 /* IPOverrideStatus.swift in Sources */,
 				44E1F7582D3EA83A003A60FF /* DestinationDescriber.swift in Sources */,
 				58FD5BF42428C67600112C88 /* InAppPurchaseButton.swift in Sources */,
@@ -6685,6 +6722,7 @@
 				A99E5EE22B762ED30033F241 /* ProblemReportViewController+ViewManagement.swift in Sources */,
 				7A5869A22B502EA800640D27 /* MethodSettingsSectionIdentifier.swift in Sources */,
 				586C0D812B03CA8400E7CDD7 /* CurrentValueSubject+UIActionBindings.swift in Sources */,
+				7ABBE01E2F1E266F00AD8176 /* CheckBoxToggleStyle.swift in Sources */,
 				581DFAEA2B176C51005D6D1C /* PersistentProxyConfiguration+ViewModel.swift in Sources */,
 				A99E5EE02B7628150033F241 /* ProblemReportViewModel.swift in Sources */,
 				F910A4312D4A1B41002FF3BB /* InAppPurchaseCoordinator.swift in Sources */,
@@ -6894,6 +6932,7 @@
 				A9BFB0012BD00B7F00F2BCA1 /* CustomListPage.swift in Sources */,
 				8585CBE32BC684180015B6A4 /* EditAccessMethodPage.swift in Sources */,
 				8556EB522B9A1C6900D26DD4 /* MullvadApi.swift in Sources */,
+				7AA564462F29014D001D1FB9 /* IncludeAllNetworksPage.swift in Sources */,
 				85EC620C2B838D10005AFFB5 /* MullvadAPIWrapper.swift in Sources */,
 				A9DF789D2B7D1E8B0094E4AD /* LoggedInWithTimeUITestCase.swift in Sources */,
 				85607C892D131CD500037E34 /* TestRouterAPIClient.swift in Sources */,

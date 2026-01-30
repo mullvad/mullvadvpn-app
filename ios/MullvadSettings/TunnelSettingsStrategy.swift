@@ -34,11 +34,17 @@ public struct TunnelSettingsStrategy: TunnelSettingsStrategyProtocol, Sendable {
         oldSettings: LatestTunnelSettings,
         newSettings: LatestTunnelSettings
     ) -> TunnelSettingsReconnectionStrategy {
+        // Don't reconnect the tunnel If IAN consent was the setting that triggered the settings update.
+        if oldSettings.includeAllNetworksConsent != newSettings.includeAllNetworksConsent {
+            return .noReconnect
+        }
+
         if oldSettings.localNetworkSharing != newSettings.localNetworkSharing
             || oldSettings.includeAllNetworks != newSettings.includeAllNetworks
         {
             return .hardReconnect
         }
+
         switch (oldSettings, newSettings) {
         case let (old, new) where old != new:
             return .newRelayReconnect
@@ -55,4 +61,5 @@ public enum TunnelSettingsReconnectionStrategy {
     case currentRelayReconnect
     case newRelayReconnect
     case hardReconnect
+    case noReconnect
 }
