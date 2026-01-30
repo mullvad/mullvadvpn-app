@@ -13,10 +13,11 @@ import MullvadREST
 /**
  Actor handling packet tunnel IPC (app) messages and patching them through to the right facility.
  */
-public struct AppMessageHandler {
+public final class AppMessageHandler {
     private let logger = Logger(label: "AppMessageHandler")
     private let packetTunnelActor: PacketTunnelActorProtocol
     private let apiRequestProxy: APIRequestProxyProtocol
+    private var lastGetTunnelStatusTimestamp: Date?
 
     public init(
         packetTunnelActor: PacketTunnelActorProtocol,
@@ -38,29 +39,40 @@ public struct AppMessageHandler {
     public func handleAppMessage(_ messageData: Data) async -> Data? {
         guard let message = decodeMessage(messageData) else { return nil }
 
-        logger.debug("Received app message: \(message)")
-
         switch message {
+        case .getTunnelStatus:
+            lastGetTunnelStatusTimestamp = Date()
+            return encodeReply(await packetTunnelActor.observedState)
+
         case let .sendAPIRequest(request):
+            logMessageWithLastGetTunnelStatus(message)
             return await encodeReply(apiRequestProxy.sendRequest(request))
 
         case let .cancelAPIRequest(id):
+            logMessageWithLastGetTunnelStatus(message)
             apiRequestProxy.cancelRequest(identifier: id)
             return nil
 
-        case .getTunnelStatus:
-            return encodeReply(await packetTunnelActor.observedState)
-
         case .privateKeyRotation:
+            logMessageWithLastGetTunnelStatus(message)
             packetTunnelActor.notifyKeyRotation(date: Date())
             return nil
 
         case let .reconnectTunnel(nextRelay):
+            logMessageWithLastGetTunnelStatus(message)
             packetTunnelActor.reconnect(to: nextRelay, reconnectReason: ActorReconnectReason.userInitiated)
             // Instead of waiting for the UI process to send another `getTunnelStatus` message, reply immediately that the PacketTunnel is reconnecting
             guard let observedState = await packetTunnelActor.observedState.connectionState else { return nil }
             let reconnectingState = ObservedState.reconnecting(observedState)
             return encodeReply(reconnectingState)
+        }
+    }
+
+    private func logMessageWithLastGetTunnelStatus(_ message: TunnelProviderMessage) {
+        if let lastTimestamp = lastGetTunnelStatusTimestamp {
+            logger.debug("Received app message: \(message). Last getTunnelStatus: \(lastTimestamp)")
+        } else {
+            logger.debug("Received app message: \(message)")
         }
     }
 
