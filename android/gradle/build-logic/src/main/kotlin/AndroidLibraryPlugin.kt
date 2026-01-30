@@ -1,4 +1,5 @@
-import com.android.build.gradle.LibraryExtension
+import com.android.build.api.dsl.CommonExtension
+import com.android.build.api.dsl.LibraryExtension
 import org.gradle.api.JavaVersion
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -14,8 +15,6 @@ class AndroidLibraryPlugin : Plugin<Project> {
     override fun apply(target: Project) {
         with(target) {
             apply(plugin = "com.android.library")
-            apply(plugin = "org.jetbrains.kotlin.android")
-
             extensions.configure<LibraryExtension> {
                 compileSdk = libs.findVersion("compile-sdk").get().toString().toInt()
                 buildToolsVersion = libs.findVersion("build-tools").get().toString()

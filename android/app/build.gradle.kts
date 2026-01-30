@@ -1,3 +1,4 @@
+import com.android.build.api.variant.BuildConfigField
 import com.android.build.gradle.internal.tasks.factory.dependsOn
 import com.github.triplet.gradle.androidpublisher.ReleaseStatus
 import java.io.FileInputStream
@@ -25,7 +26,6 @@ plugins {
     alias(libs.plugins.mullvad.utilities)
     alias(libs.plugins.android.application)
     alias(libs.plugins.play.publisher)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.kotlin.ksp)
     alias(libs.plugins.compose)
@@ -223,63 +223,69 @@ android {
                 )
         }
     }
+}
 
-    applicationVariants.configureEach {
-        buildConfigField(
-            "boolean",
-            "ENABLE_IN_APP_VERSION_NOTIFICATIONS",
-            getBooleanProperty("mullvad.app.config.inAppVersionNotifications.enable").toString(),
-        )
+androidComponents {
+    onVariants { variant ->
+        val mainSources = variant.sources.getByName("main")
+        mainSources.addStaticSourceDirectory(relayListDirectory)
+        mainSources.addStaticSourceDirectory(changelogAssetsDirectory)
     }
 
-    applicationVariants.all {
+    onVariants {
+        it.buildConfigFields!!.put(
+            "ENABLE_IN_APP_VERSION_NOTIFICATIONS",
+            BuildConfigField(
+                "boolean",
+                getBooleanProperty("mullvad.app.config.inAppVersionNotifications.enable"),
+                "",
+            ),
+        )
+    }
+    onVariants {
+        val productFlavors = it.productFlavors.map { it.first }
+        // buildType.name?
+        val buildType = it.buildType
+
         val artifactSuffix = buildString {
-            productFlavors.getOrNull(0)?.name?.let { billingFlavorName ->
+            productFlavors.getOrNull(0)?.let { billingFlavorName ->
                 if (billingFlavorName != Flavors.OSS) {
                     append(".$billingFlavorName")
                 }
             }
 
-            productFlavors.getOrNull(1)?.name?.let { infrastructureFlavorName ->
+            productFlavors.getOrNull(1)?.let { infrastructureFlavorName ->
                 if (infrastructureFlavorName != Flavors.PROD) {
                     append(".$infrastructureFlavorName")
                 }
             }
 
-            if (buildType.name != BuildTypes.RELEASE) {
-                append(".${buildType.name}")
+            if (buildType != BuildTypes.RELEASE) {
+                append(".${buildType}")
             }
         }
 
         val variantName = name
         val capitalizedVariantName = variantName.toString().capitalized()
-        val artifactName = "MullvadVPN-${versionName}${artifactSuffix}"
+        val artifactName = "MullvadVPN-${appVersion.name}${artifactSuffix}"
 
-        tasks.register<Copy>("create${capitalizedVariantName}DistApk") {
-            from(packageApplicationProvider)
-            into("${rootDir.parent}/dist")
-            include { it.name.endsWith(".apk") }
-            rename { "$artifactName.apk" }
-        }
+        // TODO How to access packageApplicationProvider?
+        // Replace with: it.outputProviders.provideApkOutputToTask() ?
+        //        tasks.register<Copy>("create${capitalizedVariantName}DistApk") {
+        //            from(packageApplicationProvider)
+        //            into("${rootDir.parent}/dist")
+        //            include { it.name.endsWith(".apk") }
+        //            rename { "$artifactName.apk" }
+        //        }
 
-        val createDistBundle =
-            tasks.register<Copy>("create${capitalizedVariantName}DistBundle") {
-                from("${layout.buildDirectory.get()}/outputs/bundle/$variantName")
-                into("${rootDir.parent}/dist")
-                include { it.name.endsWith(".aab") }
-                rename { "$artifactName.aab" }
-            }
-
-        createDistBundle.dependsOn("bundle$capitalizedVariantName")
-
-        // Ensure that we have all the JNI libs before merging them.
-        tasks["merge${capitalizedVariantName}JniLibFolders"].apply {
-            // This is required for the merge task to run every time the .so files are updated.
-            // See this comment for more information:
-            // https://github.com/mozilla/rust-android-gradle/issues/118#issuecomment-1569407058
-            inputs.dir(rustJniLibsDir)
-            dependsOn("cargoBuild")
-        }
+//        val createDistBundle =
+//            tasks.register<Copy>("create${capitalizedVariantName}DistBundle") {
+//                from("${layout.buildDirectory.get()}/outputs/bundle/$variantName")
+//                into("${rootDir.parent}/dist")
+//                include { it.name.endsWith(".aab") }
+//                rename { "$artifactName.aab" }
+//            }
+//        createDistBundle.dependsOn("bundle$capitalizedVariantName")
 
         tasks.findByPath("generate${capitalizedVariantName}BaselineProfile")?.let {
             it.doLast {
@@ -293,12 +299,21 @@ android {
     }
 }
 
-junitPlatform {
-    instrumentationTests {
-        version.set(libs.versions.junit5.android.asProvider())
-        includeExtensions.set(true)
+// Don't merge the jni lib folders until after the Rust libraries have been built.
+tasks
+    .matching { it.name.matches(Regex("merge.*JniLibFolders")) }
+    .configureEach {
+        inputs.dir(rustJniLibsDir)
+        dependsOn("cargoBuild")
     }
-}
+
+
+//junitPlatform {
+//    instrumentationTests {
+//        version.set(libs.versions.junit5.android.asProvider())
+//        includeExtensions.set(true)
+//    }
+//}
 
 cargo {
     val isReleaseBuild = isReleaseBuild()
