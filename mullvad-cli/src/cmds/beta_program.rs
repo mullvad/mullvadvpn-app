@@ -1,6 +1,6 @@
 use anyhow::{Result, anyhow};
 use clap::Subcommand;
-use mullvad_management_interface::MullvadProxyClient;
+use mullvad_management_interface::{types, MullvadProxyClient};
 
 use super::BooleanOption;
 
@@ -28,7 +28,7 @@ impl BetaProgram {
         }
 
         let mut rpc = MullvadProxyClient::new().await?;
-        rpc.set_show_beta_releases(*state).await?;
+        rpc.set_show_beta_releases(types::BoolValue { value: *state }).await?;
 
         println!("Beta program: {state}");
         Ok(())

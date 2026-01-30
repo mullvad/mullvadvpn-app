@@ -32,6 +32,7 @@ use std::{path::Path, str::FromStr};
 use talpid_types::split_tunnel::ExcludedProcess;
 #[cfg(not(target_os = "android"))]
 use tonic::{Code, Status};
+use crate::types::{StringValue, UInt32Value};
 
 type Error = super::Error;
 
@@ -106,15 +107,15 @@ impl MullvadProxyClient {
         Self(client)
     }
 
-    pub async fn connect_tunnel(&mut self) -> Result<bool> {
+    pub async fn connect_tunnel(&mut self) -> Result<types::BoolValue> {
         Ok(self.0.connect_tunnel(()).await?.into_inner())
     }
 
-    pub async fn disconnect_tunnel(&mut self) -> Result<bool> {
+    pub async fn disconnect_tunnel(&mut self) -> Result<types::BoolValue> {
         Ok(self.0.disconnect_tunnel(()).await?.into_inner())
     }
 
-    pub async fn reconnect_tunnel(&mut self) -> Result<bool> {
+    pub async fn reconnect_tunnel(&mut self) -> Result<types::BoolValue> {
         Ok(self.0.reconnect_tunnel(()).await?.into_inner())
     }
 
@@ -145,7 +146,7 @@ impl MullvadProxyClient {
     ///
     /// - `shutdown`: Whether the daemon should shutdown immediately after its prepare-for-restart
     ///   routine.
-    pub async fn prepare_restart_v2(&mut self, shutdown: bool) -> Result<()> {
+    pub async fn prepare_restart_v2(&mut self, shutdown: types::BoolValue) -> Result<()> {
         self.0.prepare_restart_v2(shutdown).await?;
         Ok(())
     }
@@ -155,7 +156,7 @@ impl MullvadProxyClient {
         Ok(())
     }
 
-    pub async fn get_current_version(&mut self) -> Result<String> {
+    pub async fn get_current_version(&mut self) -> Result<types::StringValue> {
         Ok(self.0.get_current_version(()).await?.into_inner())
     }
 
@@ -212,7 +213,7 @@ impl MullvadProxyClient {
             })
     }
 
-    pub async fn test_api_access_method(&mut self, id: access_method::Id) -> Result<bool> {
+    pub async fn test_api_access_method(&mut self, id: access_method::Id) -> Result<types::BoolValue> {
         let result = self
             .0
             .test_api_access_method_by_id(types::Uuid::from(id))
@@ -223,7 +224,7 @@ impl MullvadProxyClient {
     pub async fn test_custom_api_access_method(
         &mut self,
         config: talpid_types::net::proxy::CustomProxy,
-    ) -> Result<bool> {
+    ) -> Result<types::BoolValue> {
         let result = self
             .0
             .test_custom_api_access_method(types::CustomProxy::from(config))
@@ -258,34 +259,34 @@ impl MullvadProxyClient {
         Ok(())
     }
 
-    pub async fn set_allow_lan(&mut self, state: bool) -> Result<()> {
+    pub async fn set_allow_lan(&mut self, state: types::BoolValue) -> Result<()> {
         self.0.set_allow_lan(state).await?;
         Ok(())
     }
 
-    pub async fn set_show_beta_releases(&mut self, state: bool) -> Result<()> {
+    pub async fn set_show_beta_releases(&mut self, state: types::BoolValue) -> Result<()> {
         self.0.set_show_beta_releases(state).await?;
         Ok(())
     }
 
-    pub async fn set_lockdown_mode(&mut self, state: bool) -> Result<()> {
+    pub async fn set_lockdown_mode(&mut self, state: types::BoolValue) -> Result<()> {
         self.0.set_lockdown_mode(state).await?;
         Ok(())
     }
 
-    pub async fn set_auto_connect(&mut self, state: bool) -> Result<()> {
+    pub async fn set_auto_connect(&mut self, state: types::BoolValue) -> Result<()> {
         self.0.set_auto_connect(state).await?;
         Ok(())
     }
 
-    pub async fn set_wireguard_mtu(&mut self, mtu: Option<u16>) -> Result<()> {
+    pub async fn set_wireguard_mtu(&mut self, mtu: Option<types::UInt32Value>) -> Result<()> {
         self.0
-            .set_wireguard_mtu(mtu.map(u32::from).unwrap_or(0))
+            .set_wireguard_mtu(mtu.unwrap_or( UInt32Value::default() ))
             .await?;
         Ok(())
     }
 
-    pub async fn set_enable_ipv6(&mut self, state: bool) -> Result<()> {
+    pub async fn set_enable_ipv6(&mut self, state: types::BoolValue) -> Result<()> {
         self.0.set_enable_ipv6(state).await?;
         Ok(())
     }
@@ -300,13 +301,13 @@ impl MullvadProxyClient {
     }
 
     #[cfg(daita)]
-    pub async fn set_enable_daita(&mut self, value: bool) -> Result<()> {
+    pub async fn set_enable_daita(&mut self, value: types::BoolValue) -> Result<()> {
         self.0.set_enable_daita(value).await?;
         Ok(())
     }
 
     #[cfg(daita)]
-    pub async fn set_daita_direct_only(&mut self, value: bool) -> Result<()> {
+    pub async fn set_daita_direct_only(&mut self, value: types::BoolValue) -> Result<()> {
         self.0.set_daita_direct_only(value).await?;
         Ok(())
     }
@@ -335,7 +336,7 @@ impl MullvadProxyClient {
         Ok(())
     }
 
-    pub async fn create_new_account(&mut self) -> Result<AccountNumber> {
+    pub async fn create_new_account(&mut self) -> Result<types::StringValue> {
         Ok(self
             .0
             .create_new_account(())
@@ -344,7 +345,7 @@ impl MullvadProxyClient {
             .into_inner())
     }
 
-    pub async fn login_account(&mut self, account: AccountNumber) -> Result<()> {
+    pub async fn login_account(&mut self, account: types::StringValue) -> Result<()> {
         self.0
             .login_account(account)
             .await
@@ -357,12 +358,12 @@ impl MullvadProxyClient {
         Ok(())
     }
 
-    pub async fn get_account_data(&mut self, account: AccountNumber) -> Result<AccountData> {
+    pub async fn get_account_data(&mut self, account: types::StringValue) -> Result<AccountData> {
         let data = self.0.get_account_data(account).await?.into_inner();
         AccountData::try_from(data).map_err(Error::InvalidResponse)
     }
 
-    pub async fn get_account_history(&mut self) -> Result<Option<AccountNumber>> {
+    pub async fn get_account_history(&mut self) -> Result<Option<types::StringValue>> {
         let history = self.0.get_account_history(()).await?.into_inner();
         Ok(history.number)
     }
@@ -374,7 +375,7 @@ impl MullvadProxyClient {
 
     // get_www_auth_token
 
-    pub async fn submit_voucher(&mut self, voucher: String) -> Result<VoucherSubmission> {
+    pub async fn submit_voucher(&mut self, voucher: types::StringValue) -> Result<VoucherSubmission> {
         let result = self
             .0
             .submit_voucher(voucher)
@@ -403,7 +404,7 @@ impl MullvadProxyClient {
         Ok(())
     }
 
-    pub async fn list_devices(&mut self, account: AccountNumber) -> Result<Vec<Device>> {
+    pub async fn list_devices(&mut self, account: types::StringValue) -> Result<Vec<Device>> {
         let list = self
             .0
             .list_devices(account)
@@ -456,9 +457,9 @@ impl MullvadProxyClient {
         PublicKey::try_from(key).map_err(Error::InvalidResponse)
     }
 
-    pub async fn create_custom_list(&mut self, name: String) -> Result<Id> {
+    pub async fn create_custom_list(&mut self, name: types::StringValue) -> Result<Id> {
         let request = types::NewCustomList {
-            name,
+            name: name.value,
             locations: Vec::new(),
         };
         let id = self
@@ -467,12 +468,12 @@ impl MullvadProxyClient {
             .await
             .map_err(map_custom_list_error)?
             .into_inner();
-        Id::from_str(&id).map_err(|_| Error::CustomListListNotFound)
+        Id::from_str(&id.value).map_err(|_| Error::CustomListListNotFound)
     }
 
     pub async fn delete_custom_list(&mut self, id: Id) -> Result<()> {
         self.0
-            .delete_custom_list(id.to_string())
+            .delete_custom_list(types::StringValue { value: id.to_string() })
             .await
             .map_err(map_custom_list_error)?;
         Ok(())
@@ -548,19 +549,19 @@ impl MullvadProxyClient {
         Ok(())
     }
 
-    pub async fn get_split_tunnel_processes(&mut self) -> Result<Vec<i32>> {
+    pub async fn get_split_tunnel_processes(&mut self) -> Result<Vec<types::Int32Value>> {
         use futures::TryStreamExt;
 
         let procs = self.0.get_split_tunnel_processes(()).await?.into_inner();
         procs.try_collect().await.map_err(Error::from)
     }
 
-    pub async fn add_split_tunnel_process(&mut self, pid: i32) -> Result<()> {
+    pub async fn add_split_tunnel_process(&mut self, pid: types::Int32Value) -> Result<()> {
         self.0.add_split_tunnel_process(pid).await?;
         Ok(())
     }
 
-    pub async fn remove_split_tunnel_process(&mut self, pid: i32) -> Result<()> {
+    pub async fn remove_split_tunnel_process(&mut self, pid: types::Int32Value) -> Result<()> {
         self.0.remove_split_tunnel_process(pid).await?;
         Ok(())
     }
@@ -572,13 +573,13 @@ impl MullvadProxyClient {
 
     pub async fn add_split_tunnel_app<P: AsRef<Path>>(&mut self, path: P) -> Result<()> {
         let path = path.as_ref().to_str().ok_or(Error::PathMustBeUtf8)?;
-        self.0.add_split_tunnel_app(path.to_owned()).await?;
+        self.0.add_split_tunnel_app(types::StringValue { value: path.to_owned() }).await?;
         Ok(())
     }
 
     pub async fn remove_split_tunnel_app<P: AsRef<Path>>(&mut self, path: P) -> Result<()> {
         let path = path.as_ref().to_str().ok_or(Error::PathMustBeUtf8)?;
-        self.0.remove_split_tunnel_app(path.to_owned()).await?;
+        self.0.remove_split_tunnel_app(StringValue { value: path.to_owned() }).await?;
         Ok(())
     }
 
@@ -589,7 +590,7 @@ impl MullvadProxyClient {
 
     /// Toggle split tunneling on (`state: true`) or off (`state: false`).
     pub async fn set_split_tunnel_state(&mut self, state: bool) -> Result<()> {
-        self.0.set_split_tunnel_state(state).await?;
+        self.0.set_split_tunnel_state(types::BoolValue { value: state }).await?;
         Ok(())
     }
 
@@ -605,12 +606,12 @@ impl MullvadProxyClient {
 
     // check_volumes
 
-    pub async fn apply_json_settings(&mut self, blob: String) -> Result<()> {
+    pub async fn apply_json_settings(&mut self, blob: types::StringValue) -> Result<()> {
         self.0.apply_json_settings(blob).await?;
         Ok(())
     }
 
-    pub async fn export_json_settings(&mut self) -> Result<String> {
+    pub async fn export_json_settings(&mut self) -> Result<types::StringValue> {
         let blob = self.0.export_json_settings(()).await?;
         Ok(blob.into_inner())
     }
@@ -622,12 +623,12 @@ impl MullvadProxyClient {
     }
 
     // Debug features
-    pub async fn disable_relay(&mut self, relay: String) -> Result<()> {
+    pub async fn disable_relay(&mut self, relay: types::StringValue) -> Result<()> {
         self.0.disable_relay(relay).await?;
         Ok(())
     }
 
-    pub async fn enable_relay(&mut self, relay: String) -> Result<()> {
+    pub async fn enable_relay(&mut self, relay: types::StringValue) -> Result<()> {
         self.0.enable_relay(relay).await?;
         Ok(())
     }

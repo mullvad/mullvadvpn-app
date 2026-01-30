@@ -1,5 +1,5 @@
 use anyhow::{Context, Result};
-use mullvad_management_interface::MullvadProxyClient;
+use mullvad_management_interface::{types, MullvadProxyClient};
 use std::{
     fs::File,
     io::{BufReader, read_to_string, stdin},
@@ -20,7 +20,7 @@ pub async fn import(source: String) -> Result<()> {
     .unwrap()?;
 
     let mut rpc = MullvadProxyClient::new().await?;
-    rpc.apply_json_settings(json_blob)
+    rpc.apply_json_settings(types::StringValue{ value: json_blob })
         .await
         .context("Error applying patch")?;
 
@@ -42,10 +42,10 @@ pub async fn export(dest: String) -> Result<()> {
 
     match dest.as_str() {
         "-" => {
-            println!("{blob}");
+            println!("{:?}", blob);
             Ok(())
         }
-        _ => tokio::fs::write(&dest, blob)
+        _ => tokio::fs::write(&dest, blob.value)
             .await
             .context(format!("Failed to write to path {dest}")),
     }

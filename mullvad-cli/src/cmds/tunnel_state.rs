@@ -16,7 +16,7 @@ pub async fn connect(wait: bool) -> Result<()> {
         None
     };
 
-    if rpc.connect_tunnel().await?
+    if rpc.connect_tunnel().await?.value
         && let Some(receiver) = listener
     {
         wait_for_tunnel_state(receiver, |state| match state {
@@ -39,7 +39,7 @@ pub async fn disconnect(wait: bool) -> Result<()> {
         None
     };
 
-    if rpc.disconnect_tunnel().await?
+    if rpc.disconnect_tunnel().await?.value
         && let Some(receiver) = listener
     {
         wait_for_tunnel_state(receiver, |state| Ok(state.is_disconnected())).await?;
@@ -60,7 +60,7 @@ pub async fn reconnect(wait: bool) -> Result<()> {
         None
     };
 
-    let reconnecting = rpc.reconnect_tunnel().await?;
+    let reconnecting = rpc.reconnect_tunnel().await?.value;
     if !reconnecting {
         bail!("Not reconnecting due to being in disconnected state")
     }

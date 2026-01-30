@@ -4,6 +4,7 @@ use itertools::Itertools;
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::{account::AccountNumber, device::DeviceState};
 use std::io::{self, Write};
+use mullvad_management_interface::types::StringValue;
 
 const NOT_LOGGED_IN_MESSAGE: &str = "Not logged in on any account";
 const REVOKED_MESSAGE: &str = "The current device has been revoked";
@@ -88,7 +89,7 @@ impl Account {
     }
 
     async fn login(rpc: &mut MullvadProxyClient, account_number: AccountNumber) -> Result<()> {
-        rpc.login_account(account_number.clone()).await?;
+        rpc.login_account(StringValue { value: account_number.clone() }).await?;
         println!("Mullvad account \"{account_number}\" set");
         Ok(())
     }
@@ -108,7 +109,7 @@ impl Account {
             DeviceState::LoggedIn(device) => {
                 println!("{:<20}{}", "Mullvad account:", device.account_number);
 
-                let data = rpc.get_account_data(device.account_number).await?;
+                let data = rpc.get_account_data(StringValue{ value: device.account_number }).await?;
                 println!(
                     "{:<20}{}",
                     "Expires at:",
@@ -131,7 +132,7 @@ impl Account {
             DeviceState::Revoked => {
                 println!("{REVOKED_MESSAGE}");
                 if let Some(account_number) = rpc.get_account_history().await? {
-                    println!("Mullvad account: {account_number}");
+                    println!("Mullvad account: {:?}", account_number);
                 }
             }
         }
@@ -145,7 +146,7 @@ impl Account {
         verbose: bool,
     ) -> Result<()> {
         let account_number = account_else_current(rpc, account).await?;
-        let mut device_list = rpc.list_devices(account_number).await?;
+        let mut device_list = rpc.list_devices(StringValue { value: account_number }).await?;
 
         println!("Devices on the account:");
         device_list.sort_unstable_by_key(|dev| dev.created.timestamp());
@@ -174,7 +175,7 @@ impl Account {
     ) -> Result<()> {
         let account_number = account_else_current(rpc, account).await?;
 
-        let device_list = rpc.list_devices(account_number.clone()).await?;
+        let device_list = rpc.list_devices(StringValue{ value: account_number.clone() }).await?;
         let device_id = device_list
             .into_iter()
             .find(|dev| {
@@ -191,7 +192,7 @@ impl Account {
     async fn redeem_voucher(rpc: &mut MullvadProxyClient, mut voucher: String) -> Result<()> {
         voucher.retain(|c| c.is_alphanumeric());
 
-        let submission = rpc.submit_voucher(voucher).await?;
+        let submission = rpc.submit_voucher(StringValue { value: voucher }).await?;
         println!(
             "Added {} to the account",
             format_duration(submission.time_added)

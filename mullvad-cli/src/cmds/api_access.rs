@@ -1,5 +1,5 @@
 use anyhow::{Result, anyhow};
-use mullvad_management_interface::MullvadProxyClient;
+use mullvad_management_interface::{types, MullvadProxyClient};
 use mullvad_types::access_method::{AccessMethod, AccessMethodSetting};
 use talpid_types::net::proxy::CustomProxy;
 
@@ -189,11 +189,11 @@ impl ApiAccess {
 
         println!("Testing access method \"{}\"", access_method.name);
         match rpc.test_api_access_method(access_method.get_id()).await {
-            Ok(true) => {
+            Ok(types::BoolValue{ value: true }) => {
                 println!("Success!");
                 Ok(())
             }
-            Ok(false) | Err(_) => Err(anyhow!("Could not reach the Mullvad API.")),
+            Ok(types::BoolValue{ value: false }) | Err(_) => Err(anyhow!("Could not reach the Mullvad API.")),
         }
     }
 

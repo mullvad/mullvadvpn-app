@@ -13,8 +13,8 @@ pub async fn print() -> Result<()> {
         .await
         .context("Failed to get current mullvad-daemon version")?;
 
-    if daemon_version != mullvad_version::VERSION {
-        println!("{:22}: {}", "mullvad-daemon version", daemon_version);
+    if daemon_version.value != mullvad_version::VERSION {
+        println!("{:22}: {}", "mullvad-daemon version", daemon_version.value);
     };
 
     let version_info = rpc

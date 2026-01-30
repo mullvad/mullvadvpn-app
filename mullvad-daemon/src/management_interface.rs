@@ -280,9 +280,9 @@ impl ManagementService for ManagementServiceImpl {
     #[cfg(not(target_os = "android"))]
     async fn set_lockdown_mode(&self, request: Request<BoolValue>) -> ServiceResult<()> {
         let lockdown_mode = request.into_inner();
-        log::debug!("set_lockdown_mode({})", lockdown_mode);
+        log::debug!("set_lockdown_mode({})", lockdown_mode.value);
         let (tx, rx) = oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::SetLockdownMode(tx, lockdown_mode))?;
+        self.send_command_to_daemon(DaemonCommand::SetLockdownMode(tx, lockdown_mode.value))?;
         self.wait_for_result(rx).await??;
         Ok(Response::new(()))
     }

@@ -1,6 +1,7 @@
 use anyhow::Result;
 use clap::Subcommand;
-use mullvad_management_interface::MullvadProxyClient;
+use mullvad_management_interface::{types, MullvadProxyClient};
+use mullvad_management_interface::types::UInt32Value;
 use mullvad_types::{
     constraints::Constraint,
     relay_constraints::{AllowedIps, RelaySettings, WireguardConstraints},
@@ -134,7 +135,7 @@ impl Tunnel {
 
         match options {
             TunnelOptions::Mtu { mtu } => {
-                rpc.set_wireguard_mtu(mtu.option()).await?;
+                rpc.set_wireguard_mtu(mtu.option().map(|m| UInt32Value { value: m as u32 })).await?;
                 println!("MTU parameter has been updated");
             }
             TunnelOptions::QuantumResistant { state } => {
@@ -142,11 +143,11 @@ impl Tunnel {
                 println!("Quantum resistant setting has been updated");
             }
             TunnelOptions::Daita { state } => {
-                rpc.set_enable_daita(*state).await?;
+                rpc.set_enable_daita(types::BoolValue{ value: *state }).await?;
                 println!("DAITA setting has been updated");
             }
             TunnelOptions::DaitaDirectOnly { state } => {
-                rpc.set_daita_direct_only(*state).await?;
+                rpc.set_daita_direct_only(types::BoolValue { value: *state }).await?;
                 println!("Direct only setting has been updated");
             }
             TunnelOptions::AllowedIps { allowed_ips } => {
@@ -172,7 +173,7 @@ impl Tunnel {
                 println!("Rotated WireGuard key");
             }
             TunnelOptions::Ipv6 { state } => {
-                rpc.set_enable_ipv6(*state).await?;
+                rpc.set_enable_ipv6(types::BoolValue{ value: *state }).await?;
                 println!("IPv6: {state}");
             }
         }

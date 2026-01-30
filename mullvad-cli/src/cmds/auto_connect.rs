@@ -1,6 +1,6 @@
 use anyhow::Result;
 use clap::Subcommand;
-use mullvad_management_interface::MullvadProxyClient;
+use mullvad_management_interface::{types, MullvadProxyClient};
 
 use super::BooleanOption;
 
@@ -22,7 +22,7 @@ impl AutoConnect {
 
     async fn set(policy: BooleanOption) -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
-        rpc.set_auto_connect(*policy).await?;
+        rpc.set_auto_connect(types::BoolValue { value: *policy }).await?;
         println!("Changed auto-connect setting");
         Ok(())
     }

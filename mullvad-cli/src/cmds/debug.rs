@@ -1,5 +1,5 @@
 use anyhow::{Result, bail};
-use mullvad_management_interface::MullvadProxyClient;
+use mullvad_management_interface::{types, MullvadProxyClient};
 use mullvad_types::{
     constraints::Constraint,
     relay_constraints::{RelayConstraints, RelaySettings},
@@ -71,13 +71,13 @@ impl DebugCommands {
             }
             DebugCommands::Relay(RelayDebugCommands::Disable { relay }) => {
                 let mut rpc = MullvadProxyClient::new().await?;
-                rpc.disable_relay(relay.clone()).await?;
+                rpc.disable_relay(types::StringValue { value: relay.clone() }).await?;
                 println!("{relay} is now marked as inactive");
                 Ok(())
             }
             DebugCommands::Relay(RelayDebugCommands::Enable { relay }) => {
                 let mut rpc = MullvadProxyClient::new().await?;
-                rpc.enable_relay(relay.clone()).await?;
+                rpc.enable_relay(types::StringValue { value: relay.clone() }).await?;
                 println!("{relay} is now marked as active");
                 Ok(())
             }

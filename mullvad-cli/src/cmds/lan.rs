@@ -1,6 +1,6 @@
 use anyhow::Result;
 use clap::Subcommand;
-use mullvad_management_interface::MullvadProxyClient;
+use mullvad_management_interface::{types, MullvadProxyClient};
 
 use super::BooleanOption;
 
@@ -26,7 +26,7 @@ impl Lan {
 
     async fn set(policy: BooleanOption) -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
-        rpc.set_allow_lan(*policy).await?;
+        rpc.set_allow_lan(types::BoolValue { value: *policy }).await?;
         println!("Changed local network sharing setting");
         Ok(())
     }

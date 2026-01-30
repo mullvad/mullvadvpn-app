@@ -1,7 +1,7 @@
 use super::{relay::resolve_location_constraint, relay_constraints::LocationArgs};
 use anyhow::{Result, anyhow, bail};
 use clap::Subcommand;
-use mullvad_management_interface::MullvadProxyClient;
+use mullvad_management_interface::{types, MullvadProxyClient};
 use mullvad_types::{
     constraints::Constraint, relay_constraints::GeographicLocationConstraint, relay_list::RelayList,
 };
@@ -105,7 +105,7 @@ impl CustomList {
 
     async fn create_list(name: String) -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
-        rpc.create_custom_list(name).await?;
+        rpc.create_custom_list(types::StringValue{ value: name }).await?;
         Ok(())
     }
 
