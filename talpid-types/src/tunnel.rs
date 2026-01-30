@@ -87,6 +87,9 @@ pub enum ErrorStateCause {
     /// Android has rejected one or more DNS server addresses.
     #[cfg(target_os = "android")]
     InvalidDnsServers(Vec<IpAddr>),
+    /// Android has rejected due to invalid IPV6 config.
+    #[cfg(target_os = "android")]
+    InvalidIPv6Config(Vec<IpAddr>, Vec<IpAddr>, Vec<IpAddr>),
     /// Failed to create tunnel device.
     #[cfg(target_os = "windows")]
     CreateTunnelDevice { os_error: Option<i32> },
@@ -194,6 +197,28 @@ impl fmt::Display for ErrorStateCause {
                     f,
                     "Invalid DNS server addresses used in tunnel configuration: {}",
                     addresses
+                        .iter()
+                        .map(IpAddr::to_string)
+                        .collect::<Vec<_>>()
+                        .join(", ")
+                );
+            }
+            #[cfg(target_os = "android")]
+            InvalidIPv6Config(addresses, routes, dns_servers) => {
+                return write!(
+                    f,
+                    "Invalid ipv6 tunnel configuration addresses: {} routes: {} dns_servers: {}",
+                    addresses
+                        .iter()
+                        .map(IpAddr::to_string)
+                        .collect::<Vec<_>>()
+                        .join(", "),
+                    routes
+                        .iter()
+                        .map(IpAddr::to_string)
+                        .collect::<Vec<_>>()
+                        .join(", "),
+                    dns_servers
                         .iter()
                         .map(IpAddr::to_string)
                         .collect::<Vec<_>>()

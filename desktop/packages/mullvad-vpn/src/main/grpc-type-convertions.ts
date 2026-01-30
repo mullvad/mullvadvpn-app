@@ -272,6 +272,7 @@ function convertFromTunnelStateError(state: grpcTypes.ErrorState.AsObject): Erro
     case grpcTypes.ErrorState.Cause.NOT_PREPARED:
     case grpcTypes.ErrorState.Cause.OTHER_ALWAYS_ON_APP:
     case grpcTypes.ErrorState.Cause.OTHER_LEGACY_ALWAYS_ON_VPN:
+    case grpcTypes.ErrorState.Cause.INVALID_IPV6_CONFIG:
       throw new Error('Unsupported error state cause: ' + state.cause);
   }
 }

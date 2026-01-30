@@ -3084,6 +3084,9 @@ msgstr ""
 msgid "Include my account token for faster help with payment or account related issues"
 msgstr ""
 
+msgid "Invalid IPv6 config, please try to change the VPN settings."
+msgstr ""
+
 msgid "Invalid or missing value \"%1$s\""
 msgstr ""
 

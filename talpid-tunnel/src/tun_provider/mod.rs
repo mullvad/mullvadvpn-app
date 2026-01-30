@@ -98,6 +98,16 @@ impl TunConfig {
             .map(IpNetwork::from)
             .collect()
     }
+
+    #[cfg(target_os = "android")]
+    pub fn set_blocking_config(&mut self) {
+        let blocking_config = blocking_config();
+        self.mtu = blocking_config.mtu;
+        self.addresses = blocking_config.addresses;
+        self.ipv4_gateway = blocking_config.ipv4_gateway;
+        self.ipv6_gateway = blocking_config.ipv6_gateway;
+        self.routes = blocking_config.routes;
+    }
 }
 
 /// Return a tunnel configuration that routes all traffic inside the tunnel.
