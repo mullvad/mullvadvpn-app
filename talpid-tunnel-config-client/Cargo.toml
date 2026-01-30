@@ -10,6 +10,9 @@ license.workspace = true
 crate-type = ["rlib", "staticlib"]
 
 [dependencies]
+# TODO: Upstream fix to gotatun for enabling the daita feature without
+# requiring the device feature as well.
+gotatun = { workspace = true, features = ["daita", "device"] }
 hyper-util = { workspace = true }
 log = { workspace = true }
 ml-kem = { version = "0.2.1", features = ["zeroize"] }
@@ -25,7 +28,7 @@ talpid-types = { path = "../talpid-types" }
 tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }
 tonic = { workspace = true }
 tower = { workspace = true }
-zeroize = "1.5.7"
+zeroize = { workspace = true }
 
 [build-dependencies]
 tonic-build = { workspace = true, default-features = false, features = [

@@ -366,7 +366,7 @@ async fn configure_devices(
     daita: Option<&DaitaSettings>,
 ) -> Result<(), TunnelError> {
     let private_key = StaticSecret::from(config.tunnel.private_key.to_bytes());
-    let entry_peer = to_gotatun_peer(&config.entry_peer, daita)?;
+    let entry_peer = to_gotatun_peer(&config.entry_peer, daita);
 
     if let Some(exit_peer) = &config.exit_peer {
         log::trace!(
@@ -374,7 +374,7 @@ async fn configure_devices(
             daita.is_some()
         );
 
-        let exit_peer = to_gotatun_peer(exit_peer, daita)?;
+        let exit_peer = to_gotatun_peer(exit_peer, daita);
 
         let Devices::Multihop {
             entry_device,

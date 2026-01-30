@@ -40,7 +40,7 @@ tokio = { workspace = true, features = [
   "rt-multi-thread"
 ], optional = true }
 vec1 = { workspace = true }
-zeroize = { version = "1.8", features = ["zeroize_derive"] }
+zeroize = { workspace = true, features = ["zeroize_derive"] }
 
 [dev-dependencies]
 async-tempfile = "0.6"

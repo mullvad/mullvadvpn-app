@@ -1,3 +1,4 @@
+use gotatun::device::daita;
 use proto::PostQuantumRequestV1;
 use std::fmt;
 #[cfg(not(target_os = "ios"))]
@@ -44,6 +45,10 @@ pub enum Error {
         actual: usize,
     },
     MissingDaitaResponse,
+    /// Failed to parse maybenot machines from API response.
+    ParseMaybenotMachines {
+        reason: String,
+    },
     #[cfg(target_os = "ios")]
     TcpConnectionOpen,
     #[cfg(target_os = "ios")]
@@ -67,6 +72,9 @@ impl std::fmt::Display for Error {
             ),
             InvalidCiphertextCount { actual } => {
                 write!(f, "Expected 2 ciphertext in the response, got {actual}")
+            }
+            ParseMaybenotMachines { reason } => {
+                write!(f, "Failed to parse Maybenot machines: {reason}")
             }
             MissingDaitaResponse => "Expected DAITA configuration in response".fmt(f),
             #[cfg(target_os = "ios")]
@@ -97,7 +105,7 @@ pub struct EphemeralPeer {
 }
 
 pub struct DaitaSettings {
-    pub client_machines: Vec<String>,
+    pub client_machines: Vec<daita::Machine>,
     pub max_padding_frac: f64,
     pub max_blocking_frac: f64,
 }
@@ -209,15 +217,34 @@ pub async fn request_ephemeral_peer_with(
         None
     };
 
-    let daita = response.daita.map(|daita| DaitaSettings {
-        client_machines: daita.client_machines,
-        max_padding_frac: daita.max_padding_frac,
-        max_blocking_frac: daita.max_blocking_frac,
-    });
+    let daita = response.daita.map(parse_daita_response).transpose()?;
     if daita.is_none() && enable_daita {
         return Err(Error::MissingDaitaResponse);
     }
     Ok(EphemeralPeer { psk, daita })
+}
+
+fn parse_daita_response(daita: proto::DaitaResponseV2) -> Result<DaitaSettings, Error> {
+    let machines = daita
+        .client_machines
+        .into_iter()
+        .map(|machine| machine.parse())
+        .collect::<Result<Vec<_>, daita::Error>>()
+        .map_err(|error| {
+            // NOTE: The parsing logic in `maybenot` always return the `Error::Machine` variant.
+            let reason = match error {
+                daita::Error::PaddingLimit | daita::Error::BlockingLimit => {
+                    "unknown reason".to_string()
+                }
+                daita::Error::Machine(reason) => reason,
+            };
+            Error::ParseMaybenotMachines { reason }
+        })?;
+    Ok(DaitaSettings {
+        client_machines: machines,
+        max_padding_frac: daita.max_padding_frac,
+        max_blocking_frac: daita.max_blocking_frac,
+    })
 }
 
 const fn get_platform() -> proto::DaitaPlatform {
