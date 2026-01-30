@@ -1460,7 +1460,10 @@ pub struct ManagementInterfaceEventBroadcaster {
 
 impl ManagementInterfaceEventBroadcaster {
     fn notify(&self, value: types::DaemonEvent) {
+        log::error!("Event received from management interface: {value:?}");
         let mut subscriptions = self.subscriptions.lock().unwrap();
+        log::error!("subscriptions: {subscriptions:?}");
+        log::error!("subscriptions.counts: {:?}", subscriptions.len());
         subscriptions.retain(|tx| tx.send(Ok(value.clone())).is_ok());
     }
 

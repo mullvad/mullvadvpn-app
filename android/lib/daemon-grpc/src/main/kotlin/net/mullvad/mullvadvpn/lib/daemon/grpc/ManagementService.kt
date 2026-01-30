@@ -170,7 +170,7 @@ class ManagementService(
     private val grpc: ManagementServiceClient by lazy {
         GrpcClient.Builder()
             .client(channel)
-            .baseUrl("http://192.168.1.1/")
+            .baseUrl("http://10.0.2.2:3000/")
             .minMessageToCompress(Long.MAX_VALUE)
             .build()
             .create(ManagementServiceClient::class)
@@ -389,7 +389,7 @@ class ManagementService(
                 async { _mutableTunnelState.update { getTunnelState() } },
                 async { _mutableDeviceState.update { getDeviceState() } },
                 async { _mutableSettings.update { getSettings() } },
-                async { _mutableVersionInfo.update { getVersionInfo().getOrNull() } },
+                //async { _mutableVersionInfo.update { getVersionInfo().getOrNull() } },
                 async { _mutableRelayList.update { getRelayList() } },
                 async { _mutableCurrentAccessMethod.update { getCurrentApiAccessMethod() } },
             )
