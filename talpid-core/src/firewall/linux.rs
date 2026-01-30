@@ -337,6 +337,8 @@ impl<'a> PolicyBatch<'a> {
         firewall: &Firewall,
     ) -> Result<FinalizedBatch> {
         self.add_loopback_rules()?;
+        // TODO: if router { .. }
+        self.add_local_clients_forwaring_rules()?;
         // TODO: Investigate if these rules could/should be handled by PidManager instead.
         // It would allow for the firewall to be set up in a secure way even though split tunneling
         // does not work, which is okay. It would also allow us to de-duplicate some copy-paste
@@ -508,6 +510,27 @@ impl<'a> PolicyBatch<'a> {
             &allow_interface_rule(&self.in_chain, Direction::In, LOOPBACK_IFACE_NAME)?,
             nftnl::MsgType::Add,
         );
+        Ok(())
+    }
+
+    /// TODO: Don't forget sysctl net.ipv4.forwarding ..
+    fn add_local_clients_forwaring_rules(&mut self) -> Result<()> {
+        // Forward traffic stemming from (local) private IP ranges to wherever they want.
+        let forward_from_local_clients = {
+            let mut rule = Rule::new(&self.forward_chain);
+            // TODO: Make sure to document this in nft if we ever add comment expressions..
+            // LAN -> forward
+            for net in ALLOWED_LAN_NETS {
+                check_net(&mut rule, End::Src, net);
+                add_verdict(&mut rule, &Verdict::Accept);
+                if *ADD_COUNTERS {
+                    rule.add_expr(&nft_expr!(counter));
+                };
+            }
+            rule
+        };
+        self.batch
+            .add(&forward_from_local_clients, nftnl::MsgType::Add);
         Ok(())
     }
 
