@@ -1,5 +1,7 @@
 import { sprintf } from 'sprintf-js';
 
+import { InternalLink } from '../../renderer/components/InternalLink';
+import { formatHtml } from '../../renderer/lib/html-formatter';
 import { strings } from '../constants';
 import {
   AuthFailedError,
@@ -9,6 +11,7 @@ import {
   TunnelState,
 } from '../daemon-rpc-types';
 import { messages } from '../gettext';
+import { RoutePath } from '../routes';
 import {
   InAppNotification,
   InAppNotificationAction,
@@ -23,6 +26,7 @@ import {
 interface ErrorNotificationContext {
   tunnelState: TunnelState;
   hasExcludedApps: boolean;
+  splitTunnelingSupported: boolean;
   showFullDiskAccessSettings?: () => void;
   disableSplitTunneling?: () => void;
 }
@@ -38,13 +42,25 @@ export class ErrorNotificationProvider
     if (this.context.tunnelState.state === 'error') {
       let message = this.getMessage(this.context.tunnelState.details);
       if (!this.context.tunnelState.details.blockingError && this.context.hasExcludedApps) {
-        message = `${message} ${sprintf(
-          messages.pgettext(
-            'notifications',
-            'The apps excluded with %(splitTunneling)s might not work properly right now.',
-          ),
-          { splitTunneling: strings.splitTunneling.toLowerCase() },
-        )}`;
+        if (!this.context.splitTunnelingSupported) {
+          message = sprintf(
+            // TRANSLATORS: Label for the system notification when the app encountered an error
+            // TRANSLATORS: and will block network traffic until the error is resolved.
+            messages.pgettext(
+              'notifications',
+              'Failed to start %(splitTunneling)s. Please send a problem report. To unblock network traffic, disable split tunneling.',
+            ),
+            { splitTunneling: strings.splitTunneling.toLowerCase() },
+          );
+        } else {
+          message = `${message} ${sprintf(
+            messages.pgettext(
+              'notifications',
+              'The apps excluded with %(splitTunneling)s might not work properly right now.',
+            ),
+            { splitTunneling: strings.splitTunneling.toLowerCase() },
+          )}`;
+        }
       }
 
       return {
@@ -64,13 +80,43 @@ export class ErrorNotificationProvider
     if (this.context.tunnelState.state === 'error') {
       let subtitle = this.getMessage(this.context.tunnelState.details);
       if (!this.context.tunnelState.details.blockingError && this.context.hasExcludedApps) {
-        subtitle = `${subtitle} ${sprintf(
-          messages.pgettext(
-            'notifications',
-            'The apps excluded with %(splitTunneling)s might not work properly right now.',
-          ),
-          { splitTunneling: strings.splitTunneling.toLowerCase() },
-        )}`;
+        if (!this.context.splitTunnelingSupported) {
+          return {
+            indicator: 'error',
+            title: messages.pgettext('in-app-notifications', 'BLOCKING INTERNET'),
+            subtitle: [
+              {
+                key: 'split-tunneling-failed-subtitle',
+                content: formatHtml(
+                  sprintf(
+                    // TRANSLATORS: Label for the in-app banner when the app encountered an error
+                    // TRANSLATORS: and will block network traffic until the error is resolved.
+                    messages.pgettext(
+                      'in-app-notifications',
+                      'Failed to start %(splitTunneling)s. <a>Please send a problem report.</a> To unblock network traffic, disable split tunneling.',
+                    ),
+                    { splitTunneling: strings.splitTunneling.toLowerCase() },
+                  ),
+                  {
+                    a: (value) => (
+                      <InternalLink to={RoutePath.problemReport} variant="labelTinySemiBold">
+                        <InternalLink.Text>{value}</InternalLink.Text>
+                      </InternalLink>
+                    ),
+                  },
+                ),
+              },
+            ],
+          };
+        } else {
+          subtitle = `${subtitle} ${sprintf(
+            messages.pgettext(
+              'notifications',
+              'The apps excluded with %(splitTunneling)s might not work properly right now.',
+            ),
+            { splitTunneling: strings.splitTunneling.toLowerCase() },
+          )}`;
+        }
       }
 
       return {

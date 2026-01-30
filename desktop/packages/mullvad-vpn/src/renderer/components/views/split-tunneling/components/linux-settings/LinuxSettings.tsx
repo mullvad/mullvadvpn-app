@@ -20,7 +20,7 @@ import { useShowLinuxApplicationList, useShowNoSearchResult, useShowSpinner } fr
 import { LinuxSettingsContextProvider, useLinuxSettingsContext } from './LinuxSettingsContext';
 
 function LinuxSettingsInner() {
-  const { getLinuxSplitTunnelingSupported, getLinuxSplitTunnelingApplications } = useAppContext();
+  const { getSplitTunnelingSupported, getLinuxSplitTunnelingApplications } = useAppContext();
   const {
     splitTunnelingSupported,
     searchTerm,
@@ -35,8 +35,8 @@ function LinuxSettingsInner() {
 
   const onMount = useEffectEvent(() => {
     runAfterTransition(async () => {
-      const linuxSplitTunnelingSupported = await getLinuxSplitTunnelingSupported();
-      setSplitTunnelingSupported(linuxSplitTunnelingSupported);
+      const splitTunnelingSupported = await getSplitTunnelingSupported();
+      setSplitTunnelingSupported(splitTunnelingSupported);
     });
 
     runAfterTransition(async () => {

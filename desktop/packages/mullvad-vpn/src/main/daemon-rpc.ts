@@ -472,7 +472,7 @@ export class DaemonRpc extends GrpcClient {
     await this.callBool(this.client.setSplitTunnelState, enabled);
   }
 
-  public async linuxSplitTunnelIsSupported(): Promise<boolean> {
+  public async splitTunnelIsSupported(): Promise<boolean> {
     try {
       const isSupported = await this.callEmpty<BoolValue>(this.client.splitTunnelIsSupported);
       return isSupported.getValue();
