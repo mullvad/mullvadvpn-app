@@ -27,6 +27,7 @@ impl SplitTunnel {
 
                 println!("Excluded PIDs:");
                 for pid in &pids {
+                    let pid = pid.value;
                     println!("{pid}");
                 }
 
@@ -35,7 +36,9 @@ impl SplitTunnel {
             SplitTunnel::Add { pid } => {
                 MullvadProxyClient::new()
                     .await?
-                    .add_split_tunnel_process(pid)
+                    .add_split_tunnel_process(mullvad_management_interface::types::Int32Value {
+                        value: pid,
+                    })
                     .await?;
                 println!("Excluding process");
                 Ok(())
@@ -43,7 +46,9 @@ impl SplitTunnel {
             SplitTunnel::Delete { pid } => {
                 MullvadProxyClient::new()
                     .await?
-                    .remove_split_tunnel_process(pid)
+                    .remove_split_tunnel_process(mullvad_management_interface::types::Int32Value {
+                        value: pid,
+                    })
                     .await?;
                 println!("Stopped excluding process");
                 Ok(())
