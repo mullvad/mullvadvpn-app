@@ -4,7 +4,7 @@ use futures::{
     channel::{mpsc, oneshot},
 };
 use mullvad_api::{StatusCode, rest::Error as RestError};
-use mullvad_management_interface::types::{BoolValue, FromProtobufTypeError};
+use mullvad_management_interface::types::{BoolValue, FromProtobufTypeError, Int32Value};
 use mullvad_management_interface::{
     Code, Request, Response, ServerJoinHandle, Status,
     types::{self, daemon_event, management_service_server::ManagementService},
@@ -54,7 +54,7 @@ type EventsListenerReceiver = UnboundedReceiverStream<Result<types::DaemonEvent,
 type EventsListenerSender = tokio::sync::mpsc::UnboundedSender<Result<types::DaemonEvent, Status>>;
 
 type AppUpgradeEventListenerReceiver =
-Box<dyn futures::Stream<Item=Result<types::AppUpgradeEvent, Status>> + Send + Unpin>;
+    Box<dyn futures::Stream<Item = Result<types::AppUpgradeEvent, Status>> + Send + Unpin>;
 
 const INVALID_VOUCHER_MESSAGE: &str = "This voucher code is invalid";
 const USED_VOUCHER_MESSAGE: &str = "This voucher code has already been used";
@@ -176,8 +176,7 @@ impl ManagementService for ManagementServiceImpl {
         log::debug!("is_performing_post_upgrade");
         let (tx, rx) = oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::IsPerformingPostUpgrade(tx))?;
-        let result = self.wait_for_result(rx)
-            .await?;
+        let result = self.wait_for_result(rx).await?;
         Ok(Response::new(BoolValue::from(result)))
     }
 
@@ -484,7 +483,7 @@ impl ManagementService for ManagementServiceImpl {
             .await
             .map(|s| match s {
                 None => None,
-                Some(x) => Some(types::StringValue::from(x))
+                Some(x) => Some(types::StringValue::from(x)),
             })
             .map(|history| Response::new(types::AccountHistory { number: history }))
     }
@@ -504,13 +503,16 @@ impl ManagementService for ManagementServiceImpl {
         let (tx, rx) = oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::GetWwwAuthToken(tx))?;
         let result = self.wait_for_result(rx).await?;
-        result.map(types::StringValue::from).map(Response::new).map_err(|error| {
-            log::error!(
-                "Unable to get account data from API: {}",
-                error.display_chain()
-            );
-            map_daemon_error(error)
-        })
+        result
+            .map(types::StringValue::from)
+            .map(Response::new)
+            .map_err(|error| {
+                log::error!(
+                    "Unable to get account data from API: {}",
+                    error.display_chain()
+                );
+                map_daemon_error(error)
+            })
     }
 
     async fn submit_voucher(
@@ -833,7 +835,8 @@ impl ManagementService for ManagementServiceImpl {
             log::debug!("split_tunnel_is_supported");
             let (tx, rx) = oneshot::channel();
             self.send_command_to_daemon(DaemonCommand::SplitTunnelIsSupported(tx))?;
-            Ok(self.wait_for_result(rx).await.map(Response::new)?)
+            let result = self.wait_for_result(rx).await?;
+            Ok(Response::new(BoolValue { value: result }))
         }
         #[cfg(not(any(target_os = "linux", target_os = "windows")))]
         {
@@ -859,7 +862,7 @@ impl ManagementService for ManagementServiceImpl {
             let (tx, rx) = tokio::sync::mpsc::unbounded_channel();
             tokio::spawn(async move {
                 for pid in pids {
-                    let _ = tx.send(Ok(pid));
+                    let _ = tx.send(Ok(Int32Value { value: pid }));
                 }
             });
 
@@ -873,10 +876,14 @@ impl ManagementService for ManagementServiceImpl {
     }
 
     #[cfg(target_os = "linux")]
-    async fn add_split_tunnel_process(&self, request: Request<types::Int32Value>) -> ServiceResult<()> {
+    async fn add_split_tunnel_process(
+        &self,
+        request: Request<types::Int32Value>,
+    ) -> ServiceResult<()> {
         let pid = request.into_inner();
         log::debug!("add_split_tunnel_process");
         let (tx, rx) = oneshot::channel();
+        let pid = pid.value;
         self.send_command_to_daemon(DaemonCommand::AddSplitTunnelProcess(tx, pid))?;
         self.wait_for_result(rx)
             .await?
@@ -889,10 +896,14 @@ impl ManagementService for ManagementServiceImpl {
     }
 
     #[cfg(target_os = "linux")]
-    async fn remove_split_tunnel_process(&self, request: Request<types::Int32Value>) -> ServiceResult<()> {
+    async fn remove_split_tunnel_process(
+        &self,
+        request: Request<types::Int32Value>,
+    ) -> ServiceResult<()> {
         let pid = request.into_inner();
         log::debug!("remove_split_tunnel_process");
         let (tx, rx) = oneshot::channel();
+        let pid = pid.value;
         self.send_command_to_daemon(DaemonCommand::RemoveSplitTunnelProcess(tx, pid))?;
         self.wait_for_result(rx)
             .await?
@@ -900,7 +911,10 @@ impl ManagementService for ManagementServiceImpl {
         Ok(Response::new(()))
     }
     #[cfg(not(target_os = "linux"))]
-    async fn remove_split_tunnel_process(&self, _: Request<types::Int32Value>) -> ServiceResult<()> {
+    async fn remove_split_tunnel_process(
+        &self,
+        _: Request<types::Int32Value>,
+    ) -> ServiceResult<()> {
         Ok(Response::new(()))
     }
 
@@ -922,7 +936,10 @@ impl ManagementService for ManagementServiceImpl {
     }
 
     #[cfg(any(windows, target_os = "android", target_os = "macos"))]
-    async fn add_split_tunnel_app(&self, request: Request<types::StringValue>) -> ServiceResult<()> {
+    async fn add_split_tunnel_app(
+        &self,
+        request: Request<types::StringValue>,
+    ) -> ServiceResult<()> {
         use mullvad_types::settings::SplitApp;
         log::debug!("add_split_tunnel_app");
         let path = SplitApp::from(request.into_inner().value);
@@ -940,7 +957,10 @@ impl ManagementService for ManagementServiceImpl {
     }
 
     #[cfg(any(windows, target_os = "android", target_os = "macos"))]
-    async fn remove_split_tunnel_app(&self, request: Request<types::StringValue>) -> ServiceResult<()> {
+    async fn remove_split_tunnel_app(
+        &self,
+        request: Request<types::StringValue>,
+    ) -> ServiceResult<()> {
         use mullvad_types::settings::SplitApp;
         log::debug!("remove_split_tunnel_app");
         let path = SplitApp::from(request.into_inner().value);
@@ -1049,7 +1069,10 @@ impl ManagementService for ManagementServiceImpl {
     async fn apply_json_settings(&self, blob: Request<types::StringValue>) -> ServiceResult<()> {
         log::debug!("apply_json_settings");
         let (tx, rx) = oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::ApplyJsonSettings(tx, blob.into_inner().value))?;
+        self.send_command_to_daemon(DaemonCommand::ApplyJsonSettings(
+            tx,
+            blob.into_inner().value,
+        ))?;
         self.wait_for_result(rx).await??;
         Ok(Response::new(()))
     }
@@ -1358,7 +1381,7 @@ impl ManagementInterfaceServer {
             },
             rpc_socket_path.clone(),
         )
-            .map_err(Error::SetupError)?;
+        .map_err(Error::SetupError)?;
 
         let server = ManagementServiceImpl {
             daemon_tx,
@@ -1619,10 +1642,10 @@ fn map_split_tunnel_error(error: talpid_core::split_tunnel::Error) -> Status {
 fn map_rest_error(error: &RestError) -> Status {
     match error {
         RestError::ApiError(status, message)
-        if *status == StatusCode::UNAUTHORIZED || *status == StatusCode::FORBIDDEN =>
-            {
-                Status::new(Code::Unauthenticated, message)
-            }
+            if *status == StatusCode::UNAUTHORIZED || *status == StatusCode::FORBIDDEN =>
+        {
+            Status::new(Code::Unauthenticated, message)
+        }
         RestError::TimeoutError => Status::deadline_exceeded("API request timed out"),
         RestError::HyperError(_) => Status::unavailable("Cannot reach the API"),
         RestError::LegacyHyperError(_) => Status::unavailable("Cannot reach the API"),
