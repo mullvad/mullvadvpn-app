@@ -116,6 +116,7 @@ fun MullvadSnackbar(modifier: Modifier = Modifier, snackbarData: SnackbarData) {
         containerColor = MaterialTheme.colorScheme.surfaceContainer,
         contentColor = MaterialTheme.colorScheme.onSurface,
         actionColor = MaterialTheme.colorScheme.onSurface,
+        dismissActionContentColor = MaterialTheme.colorScheme.onSurface,
     )
 }
 
