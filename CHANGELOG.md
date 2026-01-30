@@ -27,6 +27,7 @@ Line wrap the file at 100 chars.                                              Th
 - Change `Mullvad Bridges` access method to randomly pick any Mullvad-owned bridge.
   Previously the access method was constrained to the five bridges closest to the exit relay.
 - Changed CLI command `mullvad obfuscation` to `mullvad anti-censorship`
+- The tunnel setup will not error out if sending ICMP is prohibited by the operating system.
 
 #### Linux
 - Change "Go back" keyboard shortcut from `Esc` to `Alt + Left Arrow` or `Alt + [`.
