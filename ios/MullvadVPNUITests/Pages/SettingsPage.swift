@@ -103,4 +103,19 @@ class SettingsPage: Page {
 
         return self
     }
+
+    @discardableResult func tapLanguageCell() -> Self {
+        app.tables[AccessibilityIdentifier.settingsTableView]
+            .cells[AccessibilityIdentifier.languageCell]
+            .tap()
+
+        return self
+    }
+
+    @discardableResult func dismissAlert() -> Self {
+        app.buttons["Cancel"]
+            .tap()
+
+        return self
+    }
 }
