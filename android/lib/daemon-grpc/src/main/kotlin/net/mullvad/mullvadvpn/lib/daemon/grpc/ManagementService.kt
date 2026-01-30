@@ -170,7 +170,7 @@ class ManagementService(
     private val grpc: ManagementServiceClient by lazy {
         GrpcClient.Builder()
             .client(channel)
-            .baseUrl("http://localhost/")
+            .baseUrl("http://192.168.1.1/")
             .minMessageToCompress(Long.MAX_VALUE)
             .build()
             .create(ManagementServiceClient::class)
@@ -925,7 +925,7 @@ class ManagementService(
         val addr = AFUNIXSocketAddress.of(rpcSocketFile)
 
         return OkHttpClient.Builder()
-            .socketFactory(socketFactory = UnixDomainSocketFactory(addr))
+            //.socketFactory(socketFactory = UnixDomainSocketFactory(addr))
             // .socketFactory(socketFactory =
             // AFSocketFactory.FixedAddressSocketFactory(rpcSocketFile))
             // .callTimeout(java.time.Duration.ofMinutes(1))

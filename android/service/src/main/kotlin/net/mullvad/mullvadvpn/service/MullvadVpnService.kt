@@ -84,7 +84,7 @@ class MullvadVpnService : TalpidVpnService() {
                 daemonConfig
             }
         Logger.i("Start daemon")
-        startDaemon(updatedConfig)
+        //startDaemon(updatedConfig)
 
         Logger.i("Start management service")
         managementService.start()
