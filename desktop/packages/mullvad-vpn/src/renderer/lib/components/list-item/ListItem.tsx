@@ -17,8 +17,7 @@ import {
   StyledListItemTrailingAction,
   StyledListItemTrigger,
 } from './components';
-import { useListItemAnimation } from './hooks';
-import { levels } from './levels';
+import { useListItemAnimation, useMaxLevel } from './hooks';
 import { ListItemProvider } from './ListItemContext';
 
 export type ListItemAnimation = 'flash' | 'dim';
@@ -124,7 +123,7 @@ export const StyledListItem = styled(StyledListItemRoot)<{
 `;
 
 export type ListItemProps = {
-  level?: keyof typeof levels;
+  level?: number;
   position?: ListItemPositions;
   disabled?: boolean;
   animation?: ListItemAnimation | false;
@@ -132,7 +131,7 @@ export type ListItemProps = {
 } & React.ComponentPropsWithRef<'div'>;
 
 const ListItem = ({
-  level = 0,
+  level: levelProp = 0,
   position = 'auto',
   disabled,
   animation: animationProp,
@@ -140,6 +139,7 @@ const ListItem = ({
   ...props
 }: ListItemProps) => {
   const animation = useListItemAnimation(animationProp);
+  const level = useMaxLevel(levelProp);
   return (
     <ListItemProvider level={level} disabled={disabled} animation={animationProp}>
       <StyledListItem
