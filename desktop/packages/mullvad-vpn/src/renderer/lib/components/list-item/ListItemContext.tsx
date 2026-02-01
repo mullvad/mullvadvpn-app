@@ -1,6 +1,6 @@
 import { createContext, useContext } from 'react';
 
-import { levels } from './levels';
+import type { levels } from './levels';
 import { ListItemProps } from './ListItem';
 
 type ListItemContextType = {
