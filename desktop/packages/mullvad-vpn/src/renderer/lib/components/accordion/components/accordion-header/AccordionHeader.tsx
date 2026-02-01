@@ -8,18 +8,19 @@ import { StyledAccordionHeaderItem } from '../AccordionHeaderItem';
 
 export type AccordionHeaderProps = ListItemProps;
 
-export const StyledAccordionHeader = styled(ListItem)`
+export const StyledAccordionHeaderRoot = styled(ListItem)``;
+
+export const StyledAccordionHeader = styled(StyledAccordionHeaderRoot)`
   ${StyledAccordionHeaderItem}, ${StyledListItemTrailingAction} {
     transition: border-radius 0.15s ease-out;
   }
+
   &:has(+ ${StyledAccordionContent}) {
     ${StyledAccordionHeaderItem} {
-      margin-bottom: 1px;
       border-bottom-left-radius: 0;
       border-bottom-right-radius: 0;
     }
     ${StyledListItemTrailingAction} {
-      margin-bottom: 1px;
       border-bottom-right-radius: 0;
     }
   }
