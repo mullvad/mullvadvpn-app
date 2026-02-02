@@ -49,11 +49,10 @@ on your platform please submit an issue or a pull request.
 
 - **`bash` must be installed and available in PATH on all platforms**. This is required for building
   the desktop app:
-  - On Linux and macOS, bash is typically pre-installed. On macOS, ensure you have **bash 4.0 or later**
-    (the default version 3.2.57 will not work due to missing features like `shopt -s globstar` and
-    `${var,,}` syntax). Install a newer version via Homebrew: `brew install bash`.
-  - On Windows, install [Git for Windows] which includes Git Bash, and ensure the Git `bin` directory
-    (e.g., `C:\Program Files\Git\bin`) is added to your PATH environment variable.
+- Bash version 4.0 or later is required for all platforms and must be added to your PATH environment variable.
+  - Linux: Bash is typically installed by default, otherwise refer to your distribution for instructions on how to install it.
+  - macOS: The default installed version (3.2.5) is not supported. Install a newer version via Homebrew: `brew install bash`
+  - Windows: Install [Git for Windows] which includes Git Bash and other required unix utilities.
 
 [Git for Windows]: https://git-scm.com/download/win
 
