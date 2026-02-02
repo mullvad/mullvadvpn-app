@@ -55,6 +55,12 @@ struct RelayObfuscator: RelayObfuscating {
                 tunnelSettings: tunnelSettings,
                 connectionAttemptCount: connectionAttemptCount
             ).obfuscate()
+        case .lwo:
+            LwoObfuscator(
+                relays: relays,
+                tunnelSettings: tunnelSettings,
+                connectionAttemptCount: connectionAttemptCount
+            ).obfuscate()
         default:
             RelayObfuscation(
                 allRelays: relays,

@@ -89,6 +89,10 @@ extension REST {
             !(features?.quic?.addrIn.isEmpty ?? true)
         }
 
+        public var supportsLwo: Bool {
+            features?.lwo != nil
+        }
+
         public func override(ipv4AddrIn: IPv4Address?, ipv6AddrIn: IPv6Address?) -> Self {
             ServerRelay(
                 hostname: hostname,

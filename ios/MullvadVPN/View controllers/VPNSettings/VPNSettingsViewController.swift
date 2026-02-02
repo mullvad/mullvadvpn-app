@@ -120,6 +120,8 @@ extension VPNSettingsViewController: @preconcurrency VPNSettingsDataSourceDelega
             showUDPOverTCPObfuscationSettings()
         case .wireguardOverShadowsocks:
             showShadowsocksObfuscationSettings()
+        case .lwo:
+            showLwoObfuscationSettings()
         }
     }
 
@@ -145,6 +147,14 @@ extension VPNSettingsViewController: @preconcurrency VPNSettingsDataSourceDelega
         let view = ShadowsocksObfuscationSettingsView(viewModel: viewModel)
         let vc = UIHostingController(rootView: view)
         vc.title = NSLocalizedString("Shadowsocks", comment: "")
+        navigationController?.pushViewController(vc, animated: true)
+    }
+
+    private func showLwoObfuscationSettings() {
+        let viewModel = TunnelLwoObfuscationSettingsViewModel(tunnelManager: interactor.tunnelManager)
+        let view = LwoObfuscationSettingsView(viewModel: viewModel)
+        let vc = UIHostingController(rootView: view)
+        vc.title = NSLocalizedString("LWO", comment: "")
         navigationController?.pushViewController(vc, animated: true)
     }
 

@@ -9,4 +9,5 @@
 enum VPNSettingsDetailsButtonItem {
     case udpOverTcp
     case wireguardOverShadowsocks
+    case lwo
 }
