@@ -112,6 +112,7 @@ class ApplicationMain
 
   private linuxSplitTunneling?: typeof import('./linux-split-tunneling');
   private splitTunneling?: ISplitTunnelingAppListRetriever;
+  private splitTunnelingSupported = false;
 
   private tunnelStateExpectation?: Expectation;
 
@@ -573,6 +574,22 @@ class ApplicationMain
       return this.handleBootstrapError(error);
     }
 
+    // fetch split tunneling support status
+    try {
+      if (process.platform === 'linux' || process.platform === 'win32') {
+        this.splitTunnelingSupported = await this.daemonRpc.splitTunnelIsSupported();
+      } else {
+        // split tunneling is supported on other platforms (macOS)
+        this.splitTunnelingSupported = true;
+      }
+      IpcMainEventChannel.splitTunneling.notifyIsSupported?.(this.splitTunnelingSupported);
+    } catch (e) {
+      const error = e as Error;
+      log.error(`Failed to fetch if split tunneling is supported: ${error.message}`);
+
+      return this.handleBootstrapError(error);
+    }
+
     // fetch the tunnel state
     try {
       this.handleNewTunnelState(await this.daemonRpc.getState());
@@ -857,10 +874,6 @@ class ApplicationMain
       return Promise.resolve(this.translations);
     });
 
-    IpcMainEventChannel.linuxSplitTunneling.handleIsSplitTunnelingSupported(() => {
-      return this.daemonRpc.linuxSplitTunnelIsSupported();
-    });
-
     IpcMainEventChannel.linuxSplitTunneling.handleGetApplications(() => {
       return this.linuxSplitTunneling!.getApplications(this.locale);
     });
@@ -900,6 +913,9 @@ class ApplicationMain
       this.settings.gui.deleteBrowsedForSplitTunnelingApplications(application.absolutepath);
       this.splitTunneling!.removeApplicationFromCache(application);
       return Promise.resolve();
+    });
+    IpcMainEventChannel.splitTunneling.handleGetSupported(() => {
+      return this.daemonRpc.splitTunnelIsSupported();
     });
     IpcMainEventChannel.macOsSplitTunneling.handleNeedFullDiskPermissions(async () => {
       const fullDiskState = await this.daemonRpc.needFullDiskPermissions();
@@ -1175,6 +1191,7 @@ class ApplicationMain
       this.settings.splitTunnel.enableExclusions && this.settings.splitTunnel.appsList.length > 0,
       this.userInterface?.isWindowVisible() ?? false,
       this.settings.gui.enableSystemNotifications,
+      this.splitTunnelingSupported,
     );
 
     IpcMainEventChannel.tunnel.notify?.(tunnelState);

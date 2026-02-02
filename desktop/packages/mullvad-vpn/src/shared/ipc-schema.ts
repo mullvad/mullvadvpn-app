@@ -249,7 +249,6 @@ export const ipcSchema = {
     log: send<ILogEntry>(),
   },
   linuxSplitTunneling: {
-    isSplitTunnelingSupported: invoke<void, boolean>(),
     getApplications: invoke<void, ILinuxSplitTunnelingApplication[]>(),
     launchApplication: invoke<ILinuxSplitTunnelingApplication | string, LaunchApplicationResult>(),
   },
@@ -266,5 +265,7 @@ export const ipcSchema = {
     addApplication: invoke<ISplitTunnelingApplication | string, void>(),
     removeApplication: invoke<ISplitTunnelingApplication, void>(),
     forgetManuallyAddedApplication: invoke<ISplitTunnelingApplication, void>(),
+    getSupported: invoke<void, boolean>(),
+    isSupported: notifyRenderer<boolean>(),
   },
 };

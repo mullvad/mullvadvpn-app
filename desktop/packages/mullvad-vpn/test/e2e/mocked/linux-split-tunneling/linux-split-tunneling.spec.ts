@@ -33,7 +33,7 @@ test.describe('Linux Split tunneling unsupported', () => {
 
   test.beforeAll(async () => {
     await startup(async () => {
-      await util.ipc.linuxSplitTunneling.isSplitTunnelingSupported.handle(false);
+      await util.ipc.splitTunneling.getSupported.handle(false);
       await util.ipc.linuxSplitTunneling.getApplications.handle(linuxApplicationsList);
     });
   });
@@ -79,7 +79,7 @@ test.describe('Linux Split tunneling supported', () => {
 
   test.beforeAll(async () => {
     await startup(async () => {
-      await util.ipc.linuxSplitTunneling.isSplitTunnelingSupported.handle(true);
+      await util.ipc.splitTunneling.getSupported.handle(true);
       await util.ipc.linuxSplitTunneling.getApplications.handle(linuxApplicationsList);
     });
   });

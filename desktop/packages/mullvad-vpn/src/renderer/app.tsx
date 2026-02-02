@@ -271,6 +271,10 @@ export default class AppRenderer {
       this.reduxActions.settings.setSplitTunnelingApplications(applications);
     });
 
+    IpcRendererEventChannel.splitTunneling.listenIsSupported((supported: boolean) => {
+      this.reduxActions.settings.setSplitTunnelingSupported(supported);
+    });
+
     IpcRendererEventChannel.window.listenFocus((focus: boolean) => {
       this.reduxActions.userInterface.setWindowFocused(focus);
     });
@@ -472,8 +476,8 @@ export default class AppRenderer {
   public daemonPrepareRestart = (shutdown: boolean): void => {
     IpcRendererEventChannel.daemon.prepareRestart(shutdown);
   };
-  public getLinuxSplitTunnelingSupported = () => {
-    return IpcRendererEventChannel.linuxSplitTunneling.isSplitTunnelingSupported();
+  public getSplitTunnelingSupported = () => {
+    return IpcRendererEventChannel.splitTunneling.getSupported();
   };
   public getAppUpgradeCacheDir = () => IpcRendererEventChannel.app.getUpgradeCacheDir();
 

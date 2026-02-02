@@ -66,14 +66,14 @@ function ProblemReportComponent() {
   return (
     <View backgroundColor="darkBlue">
       <BackAction action={history.pop}>
+        <AppNavigationHeader
+          title={
+            // TRANSLATORS: Title label in navigation bar
+            messages.pgettext('support-view', 'Report a problem')
+          }
+        />
         <View.Content>
           <View.Container horizontalMargin="medium" flexDirection="column" flexGrow={1}>
-            <AppNavigationHeader
-              title={
-                // TRANSLATORS: Title label in navigation bar
-                messages.pgettext('support-view', 'Report a problem')
-              }
-            />
             <FlexColumn flexGrow={1} gap="medium">
               <Header />
               <Content />
