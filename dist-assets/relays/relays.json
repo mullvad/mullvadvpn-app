@@ -821,6 +821,25 @@
         }
       },
       {
+        "hostname": "au-adl-wg-303",
+        "active": true,
+        "owned": false,
+        "location": "au-adl",
+        "provider": "hostuniversal",
+        "ipv4_addr_in": "103.214.20.162",
+        "ipv6_addr_in": "2404:f780:0:def::f201",
+        "weight": 100,
+        "include_in_country": true,
+        "public_key": "X9vdIZG69ZDU4Wf05T8F+C+NuWeYOgojmOVeASdiIWo=",
+        "daita": false,
+        "shadowsocks_extra_addr_in": [],
+        "features": {
+          "daita": null,
+          "quic": null,
+          "lwo": null
+        }
+      },
+      {
         "hostname": "au-bne-wg-301",
         "active": true,
         "owned": false,
@@ -2893,7 +2912,7 @@
         "provider": "31173",
         "ipv4_addr_in": "193.32.127.69",
         "ipv6_addr_in": "2a03:1b20:a:f011::f301",
-        "weight": 1,
+        "weight": 50,
         "include_in_country": true,
         "public_key": "C3jAgPirUZG6sNYe4VuAgDEYunENUyG34X42y+SBngQ=",
         "daita": true,
@@ -2912,7 +2931,7 @@
         "provider": "31173",
         "ipv4_addr_in": "193.32.127.70",
         "ipv6_addr_in": "2a03:1b20:a:f011::f401",
-        "weight": 1,
+        "weight": 50,
         "include_in_country": true,
         "public_key": "dV/aHhwG0fmp0XuvSvrdWjCtdyhPDDFiE/nuv/1xnRM=",
         "daita": true,
@@ -2931,7 +2950,7 @@
         "provider": "31173",
         "ipv4_addr_in": "193.32.127.84",
         "ipv6_addr_in": "2a03:1b20:a:f011::f601",
-        "weight": 1,
+        "weight": 50,
         "include_in_country": true,
         "public_key": "wDjbvO94t0UI1RlimpEFFv7kJ6DngthvuRX6uBN0wAA=",
         "daita": true,
@@ -5369,7 +5388,50 @@
           "2a03:1b20:d:f011:1::b007",
           "2a03:1b20:d:f011:1::b008",
           "2a03:1b20:d:f011:1::b009",
-          "2a03:1b20:d:f011:1::b00a"
+          "2a03:1b20:d:f011:1::b00a",
+          "91.206.168.37",
+          "91.206.168.38",
+          "91.206.168.39",
+          "91.206.168.40",
+          "91.206.168.41",
+          "91.206.168.42",
+          "91.206.168.43",
+          "91.206.168.44",
+          "91.206.168.45",
+          "91.206.168.46",
+          "91.206.168.47",
+          "91.206.168.48",
+          "91.206.168.49",
+          "91.206.168.50",
+          "91.206.168.51",
+          "91.206.168.52",
+          "91.206.168.53",
+          "91.206.168.54",
+          "91.206.168.55",
+          "91.206.168.56",
+          "91.206.168.57",
+          "91.206.168.58",
+          "91.206.168.59",
+          "91.206.168.60",
+          "91.206.168.61",
+          "91.206.168.62",
+          "91.206.168.63",
+          "91.206.168.64",
+          "91.206.168.65",
+          "91.206.168.66",
+          "91.206.168.67",
+          "91.206.168.68",
+          "91.206.168.69",
+          "91.206.168.70",
+          "91.206.168.71",
+          "91.206.168.72",
+          "91.206.168.73",
+          "91.206.168.74",
+          "91.206.168.75",
+          "91.206.168.76",
+          "91.206.168.77",
+          "91.206.168.78",
+          "91.206.168.79"
         ],
         "features": {
           "daita": null,
@@ -5384,7 +5446,33 @@
               "2a03:1b20:d:f011:1::c007",
               "2a03:1b20:d:f011:1::c008",
               "2a03:1b20:d:f011:1::c009",
-              "2a03:1b20:d:f011:1::c00a"
+              "2a03:1b20:d:f011:1::c00a",
+              "91.206.168.11",
+              "91.206.168.12",
+              "91.206.168.13",
+              "91.206.168.14",
+              "91.206.168.15",
+              "91.206.168.16",
+              "91.206.168.17",
+              "91.206.168.18",
+              "91.206.168.19",
+              "91.206.168.20",
+              "91.206.168.21",
+              "91.206.168.22",
+              "91.206.168.23",
+              "91.206.168.24",
+              "91.206.168.25",
+              "91.206.168.26",
+              "91.206.168.27",
+              "91.206.168.28",
+              "91.206.168.29",
+              "91.206.168.30",
+              "91.206.168.31",
+              "91.206.168.32",
+              "91.206.168.33",
+              "91.206.168.34",
+              "91.206.168.35",
+              "91.206.168.36"
             ],
             "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
             "domain": "fi-hel-wg-201.blockerad.eu"
@@ -5419,7 +5507,41 @@
           "2a03:1b20:d:f011:2::b00c",
           "2a03:1b20:d:f011:2::b00d",
           "2a03:1b20:d:f011:2::b00e",
-          "2a03:1b20:d:f011:2::b00f"
+          "2a03:1b20:d:f011:2::b00f",
+          "91.206.168.126",
+          "91.206.168.127",
+          "91.206.168.128",
+          "91.206.168.129",
+          "91.206.168.130",
+          "91.206.168.131",
+          "91.206.168.132",
+          "91.206.168.133",
+          "91.206.168.134",
+          "91.206.168.135",
+          "91.206.168.136",
+          "91.206.168.137",
+          "91.206.168.138",
+          "91.206.168.139",
+          "91.206.168.140",
+          "91.206.168.141",
+          "91.206.168.142",
+          "91.206.168.143",
+          "91.206.168.144",
+          "91.206.168.145",
+          "91.206.168.146",
+          "91.206.168.147",
+          "91.206.168.148",
+          "91.206.168.149",
+          "91.206.168.150",
+          "91.206.168.151",
+          "91.206.168.152",
+          "91.206.168.153",
+          "91.206.168.154",
+          "91.206.168.155",
+          "91.206.168.156",
+          "91.206.168.157",
+          "91.206.168.158",
+          "91.206.168.159"
         ],
         "features": {
           "daita": null,
@@ -5439,7 +5561,43 @@
               "2a03:1b20:d:f011:2::c00c",
               "2a03:1b20:d:f011:2::c00d",
               "2a03:1b20:d:f011:2::c00e",
-              "2a03:1b20:d:f011:2::c00f"
+              "2a03:1b20:d:f011:2::c00f",
+              "91.206.168.90",
+              "91.206.168.91",
+              "91.206.168.92",
+              "91.206.168.93",
+              "91.206.168.94",
+              "91.206.168.95",
+              "91.206.168.96",
+              "91.206.168.97",
+              "91.206.168.98",
+              "91.206.168.99",
+              "91.206.168.100",
+              "91.206.168.101",
+              "91.206.168.102",
+              "91.206.168.103",
+              "91.206.168.104",
+              "91.206.168.105",
+              "91.206.168.106",
+              "91.206.168.107",
+              "91.206.168.108",
+              "91.206.168.109",
+              "91.206.168.110",
+              "91.206.168.111",
+              "91.206.168.112",
+              "91.206.168.113",
+              "91.206.168.114",
+              "91.206.168.115",
+              "91.206.168.116",
+              "91.206.168.117",
+              "91.206.168.118",
+              "91.206.168.119",
+              "91.206.168.120",
+              "91.206.168.121",
+              "91.206.168.122",
+              "91.206.168.123",
+              "91.206.168.124",
+              "91.206.168.125"
             ],
             "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
             "domain": "fi-hel-wg-202.blockerad.eu"
@@ -5474,7 +5632,41 @@
           "2a03:1b20:d:f011:3::b00c",
           "2a03:1b20:d:f011:3::b00d",
           "2a03:1b20:d:f011:3::b00e",
-          "2a03:1b20:d:f011:3::b00f"
+          "2a03:1b20:d:f011:3::b00f",
+          "91.206.168.206",
+          "91.206.168.207",
+          "91.206.168.208",
+          "91.206.168.209",
+          "91.206.168.210",
+          "91.206.168.211",
+          "91.206.168.212",
+          "91.206.168.213",
+          "91.206.168.214",
+          "91.206.168.215",
+          "91.206.168.216",
+          "91.206.168.217",
+          "91.206.168.218",
+          "91.206.168.219",
+          "91.206.168.220",
+          "91.206.168.221",
+          "91.206.168.222",
+          "91.206.168.223",
+          "91.206.168.224",
+          "91.206.168.225",
+          "91.206.168.226",
+          "91.206.168.227",
+          "91.206.168.228",
+          "91.206.168.229",
+          "91.206.168.230",
+          "91.206.168.231",
+          "91.206.168.232",
+          "91.206.168.233",
+          "91.206.168.234",
+          "91.206.168.235",
+          "91.206.168.236",
+          "91.206.168.237",
+          "91.206.168.238",
+          "91.206.168.239"
         ],
         "features": {
           "daita": null,
@@ -5494,7 +5686,43 @@
               "2a03:1b20:d:f011:3::c00c",
               "2a03:1b20:d:f011:3::c00d",
               "2a03:1b20:d:f011:3::c00e",
-              "2a03:1b20:d:f011:3::c00f"
+              "2a03:1b20:d:f011:3::c00f",
+              "91.206.168.170",
+              "91.206.168.171",
+              "91.206.168.172",
+              "91.206.168.173",
+              "91.206.168.174",
+              "91.206.168.175",
+              "91.206.168.176",
+              "91.206.168.177",
+              "91.206.168.178",
+              "91.206.168.179",
+              "91.206.168.180",
+              "91.206.168.181",
+              "91.206.168.182",
+              "91.206.168.183",
+              "91.206.168.184",
+              "91.206.168.185",
+              "91.206.168.186",
+              "91.206.168.187",
+              "91.206.168.188",
+              "91.206.168.189",
+              "91.206.168.190",
+              "91.206.168.191",
+              "91.206.168.192",
+              "91.206.168.193",
+              "91.206.168.194",
+              "91.206.168.195",
+              "91.206.168.196",
+              "91.206.168.197",
+              "91.206.168.198",
+              "91.206.168.199",
+              "91.206.168.200",
+              "91.206.168.201",
+              "91.206.168.202",
+              "91.206.168.203",
+              "91.206.168.204",
+              "91.206.168.205"
             ],
             "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
             "domain": "fi-hel-wg-203.blockerad.eu"
@@ -7583,74 +7811,6 @@
         }
       },
       {
-        "hostname": "no-osl-wg-004",
-        "active": false,
-        "owned": true,
-        "location": "no-osl",
-        "provider": "Blix",
-        "ipv4_addr_in": "176.125.235.74",
-        "ipv6_addr_in": "2a02:20c8:4124::a04f",
-        "weight": 100,
-        "include_in_country": true,
-        "public_key": "veeEoYS9a2T6K8WMs/MvRCdNJG580XbhnLfbFjp3B0M=",
-        "daita": false,
-        "shadowsocks_extra_addr_in": [
-          "176.125.235.115"
-        ],
-        "features": {
-          "daita": null,
-          "quic": {
-            "addr_in": [
-              "176.125.235.116",
-              "176.125.235.117",
-              "176.125.235.118",
-              "176.125.235.119"
-            ],
-            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
-            "domain": "no-osl-wg-004.blockerad.eu"
-          },
-          "lwo": null
-        }
-      },
-      {
-        "hostname": "no-osl-wg-005",
-        "active": false,
-        "owned": true,
-        "location": "no-osl",
-        "provider": "Blix",
-        "ipv4_addr_in": "178.255.149.140",
-        "ipv6_addr_in": "2a02:20c8:4124::f401",
-        "weight": 100,
-        "include_in_country": true,
-        "public_key": "ScQu/AqslSPwpXMIEyimrYZWTIdJJXLLeXrijWOF0SE=",
-        "daita": false,
-        "shadowsocks_extra_addr_in": [],
-        "features": {
-          "daita": null,
-          "quic": null,
-          "lwo": null
-        }
-      },
-      {
-        "hostname": "no-osl-wg-006",
-        "active": false,
-        "owned": true,
-        "location": "no-osl",
-        "provider": "Blix",
-        "ipv4_addr_in": "178.255.149.165",
-        "ipv6_addr_in": "2a02:20c8:4124::f501",
-        "weight": 100,
-        "include_in_country": true,
-        "public_key": "LBlNBTuT7gNEZoAuxO0PTVPpaDuYA7nAeCyMpg9Agyo=",
-        "daita": false,
-        "shadowsocks_extra_addr_in": [],
-        "features": {
-          "daita": null,
-          "quic": null,
-          "lwo": null
-        }
-      },
-      {
         "hostname": "no-svg-wg-001",
         "active": true,
         "owned": true,
@@ -7756,6 +7916,25 @@
         "weight": 100,
         "include_in_country": true,
         "public_key": "80WGWgFP9q3eU16MuLJISB1fzAu2LM2heschmokVSVU=",
+        "daita": false,
+        "shadowsocks_extra_addr_in": [],
+        "features": {
+          "daita": null,
+          "quic": null,
+          "lwo": null
+        }
+      },
+      {
+        "hostname": "nz-akl-wg-303",
+        "active": true,
+        "owned": false,
+        "location": "nz-akl",
+        "provider": "hostuniversal",
+        "ipv4_addr_in": "103.75.11.98",
+        "ipv6_addr_in": "2404:f780:5:def::f201",
+        "weight": 100,
+        "include_in_country": true,
+        "public_key": "1G7/wskBBlY77PXMV3sSAv4eCm5IPjxx99Wlfs58QSI=",
         "daita": false,
         "shadowsocks_extra_addr_in": [],
         "features": {
@@ -8567,7 +8746,7 @@
       },
       {
         "hostname": "se-mma-wg-101",
-        "active": true,
+        "active": false,
         "owned": true,
         "location": "se-mma",
         "provider": "31173",
@@ -8733,63 +8912,6 @@
           "daita": null,
           "quic": null,
           "lwo": null
-        }
-      },
-      {
-        "hostname": "se-sto-wg-004",
-        "active": false,
-        "owned": true,
-        "location": "se-sto",
-        "provider": "31173",
-        "ipv4_addr_in": "185.65.135.69",
-        "ipv6_addr_in": "2a03:1b20:4:f011::f301",
-        "weight": 100,
-        "include_in_country": true,
-        "public_key": "94qIvXgF0OXZ4IcquoS7AO57OV6JswUFgdONgGiq+jo=",
-        "daita": false,
-        "shadowsocks_extra_addr_in": [],
-        "features": {
-          "daita": null,
-          "quic": null,
-          "lwo": null
-        }
-      },
-      {
-        "hostname": "se-sto-wg-005",
-        "active": false,
-        "owned": true,
-        "location": "se-sto",
-        "provider": "31173",
-        "ipv4_addr_in": "185.65.135.72",
-        "ipv6_addr_in": "2a03:1b20:4:f011::f401",
-        "weight": 100,
-        "include_in_country": true,
-        "public_key": "5rVa0M13oMNobMY7ToAMU1L/Mox7AYACvV+nfsE7zF0=",
-        "daita": false,
-        "shadowsocks_extra_addr_in": [],
-        "features": {
-          "daita": null,
-          "quic": null,
-          "lwo": {}
-        }
-      },
-      {
-        "hostname": "se-sto-wg-006",
-        "active": false,
-        "owned": true,
-        "location": "se-sto",
-        "provider": "31173",
-        "ipv4_addr_in": "185.65.135.73",
-        "ipv6_addr_in": "2a03:1b20:4:f011::f501",
-        "weight": 100,
-        "include_in_country": true,
-        "public_key": "5WNG/KKCtgF4+49e/4iqvHVY/i+6dzUmVKXcJj7zi3I=",
-        "daita": false,
-        "shadowsocks_extra_addr_in": [],
-        "features": {
-          "daita": null,
-          "quic": null,
-          "lwo": {}
         }
       },
       {
@@ -15622,7 +15744,7 @@
       },
       {
         "hostname": "us-sea-wg-401",
-        "active": false,
+        "active": true,
         "owned": false,
         "location": "us-sea",
         "provider": "Tzulo",
@@ -15644,12 +15766,12 @@
             "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
             "domain": "us-sea-wg-401.blockerad.eu"
           },
-          "lwo": null
+          "lwo": {}
         }
       },
       {
         "hostname": "us-sea-wg-402",
-        "active": false,
+        "active": true,
         "owned": false,
         "location": "us-sea",
         "provider": "Tzulo",
@@ -15671,12 +15793,12 @@
             "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
             "domain": "us-sea-wg-402.blockerad.eu"
           },
-          "lwo": null
+          "lwo": {}
         }
       },
       {
         "hostname": "us-sea-wg-403",
-        "active": false,
+        "active": true,
         "owned": false,
         "location": "us-sea",
         "provider": "Tzulo",
@@ -15698,12 +15820,12 @@
             "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
             "domain": "us-sea-wg-403.blockerad.eu"
           },
-          "lwo": null
+          "lwo": {}
         }
       },
       {
         "hostname": "us-sea-wg-404",
-        "active": false,
+        "active": true,
         "owned": false,
         "location": "us-sea",
         "provider": "Tzulo",
@@ -15725,12 +15847,12 @@
             "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
             "domain": "us-sea-wg-404.blockerad.eu"
           },
-          "lwo": null
+          "lwo": {}
         }
       },
       {
         "hostname": "us-sea-wg-405",
-        "active": false,
+        "active": true,
         "owned": false,
         "location": "us-sea",
         "provider": "Tzulo",
@@ -15752,12 +15874,12 @@
             "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
             "domain": "us-sea-wg-405.blockerad.eu"
           },
-          "lwo": null
+          "lwo": {}
         }
       },
       {
         "hostname": "us-sea-wg-406",
-        "active": false,
+        "active": true,
         "owned": false,
         "location": "us-sea",
         "provider": "Tzulo",
@@ -15779,12 +15901,12 @@
             "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
             "domain": "us-sea-wg-406.blockerad.eu"
           },
-          "lwo": null
+          "lwo": {}
         }
       },
       {
         "hostname": "us-sea-wg-407",
-        "active": false,
+        "active": true,
         "owned": false,
         "location": "us-sea",
         "provider": "Tzulo",
@@ -15793,12 +15915,12 @@
         "weight": 100,
         "include_in_country": true,
         "public_key": "HrhtkMqLmKtpAHiUIw7uLHwt48mDlhyLOt4+1kpNj3Y=",
-        "daita": false,
+        "daita": true,
         "shadowsocks_extra_addr_in": [
           "23.234.83.13"
         ],
         "features": {
-          "daita": null,
+          "daita": {},
           "quic": {
             "addr_in": [
               "23.234.83.12"
@@ -15811,7 +15933,7 @@
       },
       {
         "hostname": "us-sea-wg-408",
-        "active": false,
+        "active": true,
         "owned": false,
         "location": "us-sea",
         "provider": "Tzulo",
@@ -15820,12 +15942,12 @@
         "weight": 100,
         "include_in_country": true,
         "public_key": "tfhYXF12+7tB6bEOhqZ7eMODDv08fDMnQSBTmlau9VI=",
-        "daita": false,
+        "daita": true,
         "shadowsocks_extra_addr_in": [
           "23.234.83.138"
         ],
         "features": {
-          "daita": null,
+          "daita": {},
           "quic": {
             "addr_in": [
               "23.234.83.137"
@@ -15914,7 +16036,7 @@
       },
       {
         "hostname": "us-sjc-wg-501",
-        "active": false,
+        "active": true,
         "owned": false,
         "location": "us-sjc",
         "provider": "Tzulo",
@@ -16200,7 +16322,7 @@
       },
       {
         "hostname": "us-slc-wg-303",
-        "active": false,
+        "active": true,
         "owned": false,
         "location": "us-slc",
         "provider": "Tzulo",
@@ -16221,7 +16343,7 @@
       },
       {
         "hostname": "us-slc-wg-304",
-        "active": false,
+        "active": true,
         "owned": false,
         "location": "us-slc",
         "provider": "Tzulo",
@@ -16553,17 +16675,6 @@
         "include_in_country": true
       },
       {
-        "hostname": "de-fra-br-001",
-        "active": false,
-        "owned": true,
-        "location": "de-fra",
-        "provider": "31173",
-        "ipv4_addr_in": "185.213.155.117",
-        "ipv6_addr_in": null,
-        "weight": 100,
-        "include_in_country": true
-      },
-      {
         "hostname": "fi-hel-br-101",
         "active": true,
         "owned": true,
@@ -16625,39 +16736,6 @@
         "location": "nl-ams",
         "provider": "31173",
         "ipv4_addr_in": "185.65.134.116",
-        "ipv6_addr_in": null,
-        "weight": 100,
-        "include_in_country": true
-      },
-      {
-        "hostname": "no-svg-br-001",
-        "active": false,
-        "owned": true,
-        "location": "no-svg",
-        "provider": "Blix",
-        "ipv4_addr_in": "194.127.199.245",
-        "ipv6_addr_in": null,
-        "weight": 100,
-        "include_in_country": true
-      },
-      {
-        "hostname": "se-mma-br-001",
-        "active": false,
-        "owned": true,
-        "location": "se-mma",
-        "provider": "31173",
-        "ipv4_addr_in": "193.138.218.71",
-        "ipv6_addr_in": null,
-        "weight": 100,
-        "include_in_country": true
-      },
-      {
-        "hostname": "se-sto-br-001",
-        "active": false,
-        "owned": true,
-        "location": "se-sto",
-        "provider": "31173",
-        "ipv4_addr_in": "185.65.135.115",
         "ipv6_addr_in": null,
         "weight": 100,
         "include_in_country": true
@@ -16730,5 +16808,5 @@
       }
     ]
   },
-  "etag": "\"69786d58-46179\""
+  "etag": "\"69804cd9-4672c\""
 }
