@@ -20,6 +20,7 @@ public enum WireGuardObfuscationState: Codable, Sendable {
     case udpOverTcp
     case shadowsocks
     case quic
+    case lwo
     case off
 
     public init(from decoder: Decoder) throws {
@@ -46,13 +47,15 @@ public enum WireGuardObfuscationState: Codable, Sendable {
             self = .shadowsocks
         case .quic:
             self = .quic
+        case .lwo:
+            self = .lwo
         case .off:
             self = .off
         }
     }
 
     public var isEnabled: Bool {
-        [.udpOverTcp, .shadowsocks, .quic].contains(self)
+        [.udpOverTcp, .shadowsocks, .quic, .lwo].contains(self)
     }
 }
 
@@ -112,6 +115,29 @@ public enum WireGuardObfuscationShadowsocksPort: Codable, Equatable, CustomStrin
     }
 }
 
+public enum WireGuardObfuscationLwoPort: Codable, Equatable, CustomStringConvertible, Sendable {
+    case automatic
+    case custom(UInt16)
+
+    public var portValue: UInt16? {
+        switch self {
+        case .automatic:
+            nil
+        case let .custom(port):
+            port
+        }
+    }
+
+    public var description: String {
+        switch self {
+        case .automatic:
+            NSLocalizedString("Automatic", comment: "")
+        case let .custom(port):
+            String(port)
+        }
+    }
+}
+
 // Can't deprecate the whole type since it'll yield a lint warning when decoding
 // port in `WireGuardObfuscationSettings`.
 private enum WireGuardObfuscationPort: UInt16, Codable, Sendable {
@@ -130,21 +156,26 @@ public struct WireGuardObfuscationSettings: Codable, Equatable, Sendable {
     public var state: WireGuardObfuscationState
     public var udpOverTcpPort: WireGuardObfuscationUdpOverTcpPort
     public var shadowsocksPort: WireGuardObfuscationShadowsocksPort
+    public var lwoPort: WireGuardObfuscationLwoPort
 
     public init(
         state: WireGuardObfuscationState = .automatic,
         udpOverTcpPort: WireGuardObfuscationUdpOverTcpPort = .automatic,
-        shadowsocksPort: WireGuardObfuscationShadowsocksPort = .automatic
+        shadowsocksPort: WireGuardObfuscationShadowsocksPort = .automatic,
+        lwoPort: WireGuardObfuscationLwoPort = .automatic
     ) {
         self.state = state
         self.udpOverTcpPort = udpOverTcpPort
         self.shadowsocksPort = shadowsocksPort
+        self.lwoPort = lwoPort
     }
 
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
 
         state = try container.decode(WireGuardObfuscationState.self, forKey: .state)
+        lwoPort = try container.decode(WireGuardObfuscationLwoPort.self, forKey: .lwoPort)
+
         shadowsocksPort =
             try container.decodeIfPresent(
                 WireGuardObfuscationShadowsocksPort.self,
