@@ -47,19 +47,21 @@ struct LocationListItem<ContextMenu>: View where ContextMenu: View {
                     contextMenu: { contextMenu(location) },
                     accessibilityIdentifier: .locationListItem(location.name)
                 ) {
-                    ForEach(
-                        Array(filteredChildrenIndices.enumerated()),
-                        id: \.element
-                    ) { index, indexInChildrenList in
-                        let location = $location.children[indexInChildrenList]
-                        LocationListItem(
-                            location: location,
-                            isLastInList: isLastInList && index == (filteredChildrenIndices.count - 1),
-                            multihopContext: multihopContext,
-                            onSelect: onSelect,
-                            contextMenu: { location in contextMenu(location) },
-                            level: level + 1,
-                        )
+                    if location.showsChildren {
+                        ForEach(
+                            Array(filteredChildrenIndices.enumerated()),
+                            id: \.element
+                        ) { index, indexInChildrenList in
+                            let location = $location.children[indexInChildrenList]
+                            LocationListItem(
+                                location: location,
+                                isLastInList: isLastInList && index == (filteredChildrenIndices.count - 1),
+                                multihopContext: multihopContext,
+                                onSelect: onSelect,
+                                contextMenu: { location in contextMenu(location) },
+                                level: level + 1,
+                            )
+                        }
                     }
                 } label: {
                     HStack {

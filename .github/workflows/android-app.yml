@@ -148,14 +148,19 @@ jobs:
           ./building/container-run.sh android android/gradlew -p android --console plain --stacktrace --no-daemon
           clean
 
+      - name: Prepare build tasks
+        id: build-tasks
+        run: |
+          tasks=":app:assembleOssProdDebug assembleOssProdAndroidTest :test:mockapi:assemble"
+          if [[ "${{ needs.prepare.outputs.E2E_TEST_REPEAT }}" != '0' ]]; then
+            tasks+=" :app:assemblePlayStagemoleDebug :test:e2e:assemble"
+          fi
+          echo "tasks=$tasks" >> $GITHUB_OUTPUT
+
       - name: Build apks
         run: >
           ./building/container-run.sh android android/gradlew -p android --console plain --stacktrace --no-daemon
-          :app:assembleOssProdDebug
-          :app:assemblePlayStagemoleDebug
-          assembleOssProdAndroidTest
-          :test:mockapi:assemble
-          :test:e2e:assemble
+          "${{ steps.build-tasks.outputs.tasks }}"
 
       - name: Upload apks
         uses: actions/upload-artifact@v4

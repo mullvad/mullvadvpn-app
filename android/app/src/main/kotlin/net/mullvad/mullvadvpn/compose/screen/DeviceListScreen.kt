@@ -40,7 +40,6 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.button.VariantButton
-import net.mullvad.mullvadvpn.compose.component.DeviceListItem
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBar
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.extensions.dropUnlessResumed
@@ -55,6 +54,8 @@ import net.mullvad.mullvadvpn.lib.model.DeviceId
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.selected
+import net.mullvad.mullvadvpn.lib.ui.component.listitem.DeviceListItem
+import net.mullvad.mullvadvpn.lib.ui.component.positionForIndex
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.viewmodel.DeviceListSideEffect
 import net.mullvad.mullvadvpn.viewmodel.DeviceListViewModel
@@ -156,7 +157,13 @@ fun DeviceListScreen(
     ) {
         Column(
             modifier =
-                Modifier.fillMaxSize().padding(it).padding(bottom = Dimens.screenBottomMargin)
+                Modifier.fillMaxSize()
+                    .padding(it)
+                    .padding(
+                        bottom = Dimens.screenBottomMargin,
+                        start = Dimens.sideMarginNew,
+                        end = Dimens.sideMarginNew,
+                    )
         ) {
             val scrollState = rememberScrollState()
             Column(
@@ -195,12 +202,7 @@ private fun ColumnScope.DeviceListError(tryAgain: () -> Unit) {
         PrimaryButton(
             onClick = tryAgain,
             text = stringResource(id = R.string.try_again),
-            modifier =
-                Modifier.padding(
-                    top = Dimens.buttonSpacing,
-                    start = Dimens.sideMargin,
-                    end = Dimens.sideMargin,
-                ),
+            modifier = Modifier.padding(top = Dimens.buttonSpacing),
         )
     }
 }
@@ -211,7 +213,11 @@ private fun ColumnScope.DeviceListContent(
     navigateToRemoveDeviceConfirmationDialog: (Device) -> Unit,
 ) {
     state.devices.forEachIndexed { index, (device, loading) ->
-        DeviceListItem(device = device, isLoading = loading) {
+        DeviceListItem(
+            position = state.devices.positionForIndex(index),
+            device = device,
+            isLoading = loading,
+        ) {
             navigateToRemoveDeviceConfirmationDialog(device)
         }
         if (state.devices.lastIndex != index) {
@@ -261,12 +267,7 @@ private fun ColumnScope.DeviceListHeader(state: DeviceListUiState) {
             ),
         style = MaterialTheme.typography.headlineSmall,
         color = MaterialTheme.colorScheme.onSurface,
-        modifier =
-            Modifier.padding(
-                start = Dimens.sideMargin,
-                end = Dimens.sideMargin,
-                top = Dimens.screenTopMargin,
-            ),
+        modifier = Modifier.padding(top = Dimens.screenTopMargin),
     )
 
     if (state is DeviceListUiState.Content) {
@@ -285,12 +286,7 @@ private fun ColumnScope.DeviceListHeader(state: DeviceListUiState) {
             modifier =
                 Modifier.wrapContentHeight()
                     .animateContentSize()
-                    .padding(
-                        top = Dimens.smallPadding,
-                        start = Dimens.sideMargin,
-                        end = Dimens.sideMargin,
-                        bottom = Dimens.cellVerticalSpacing,
-                    ),
+                    .padding(top = Dimens.smallPadding, bottom = Dimens.cellVerticalSpacing),
         )
     }
 }
@@ -301,14 +297,7 @@ private fun DeviceListButtonPanel(
     onContinueWithLogin: () -> Unit,
     onBackClick: () -> Unit,
 ) {
-    Column(
-        modifier =
-            Modifier.padding(
-                start = Dimens.sideMargin,
-                end = Dimens.sideMargin,
-                top = Dimens.mediumPadding,
-            )
-    ) {
+    Column(modifier = Modifier.padding(top = Dimens.mediumPadding)) {
         VariantButton(
             text = stringResource(id = R.string.continue_login),
             onClick = onContinueWithLogin,

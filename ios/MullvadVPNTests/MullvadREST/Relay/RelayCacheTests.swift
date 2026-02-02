@@ -18,7 +18,11 @@ final class RelayCacheTests: XCTestCase {
         let cache = RelayCache(fileCache: fileCache)
         let relays = try XCTUnwrap(cache.read())
 
-        XCTAssertEqual(fileCache.getState(), .exists(relays))
+        if case let .exists(storedRelays) = fileCache.getState() {
+            XCTAssertEqual(storedRelays.cachedRelays, relays)
+        } else {
+            XCTFail("Expected existing state, got \(fileCache.getState())")
+        }
     }
 
     func testWriteCache() throws {

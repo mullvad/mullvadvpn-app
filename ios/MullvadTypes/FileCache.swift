@@ -8,38 +8,6 @@
 
 import Foundation
 
-/// File cache implementation that can read and write any `Codable` content and uses file coordinator to coordinate I/O.
-public struct FileCache<Content: Codable>: FileCacheProtocol {
-    public let fileURL: URL
-
-    public init(fileURL: URL) {
-        self.fileURL = fileURL
-    }
-
-    public func read() throws -> Content {
-        let fileCoordinator = NSFileCoordinator(filePresenter: nil)
-
-        return try fileCoordinator.coordinate(readingItemAt: fileURL, options: [.withoutChanges]) { fileURL in
-            try JSONDecoder().decode(Content.self, from: Data(contentsOf: fileURL))
-        }
-    }
-
-    public func write(_ content: Content) throws {
-        let fileCoordinator = NSFileCoordinator(filePresenter: nil)
-
-        try fileCoordinator.coordinate(writingItemAt: fileURL, options: [.forReplacing]) { fileURL in
-            try JSONEncoder().encode(content).write(to: fileURL)
-        }
-    }
-
-    public func clear() throws {
-        let fileCoordinator = NSFileCoordinator(filePresenter: nil)
-        try fileCoordinator.coordinate(writingItemAt: fileURL, options: [.forDeleting]) { fileURL in
-            try FileManager.default.removeItem(at: fileURL)
-        }
-    }
-}
-
 /// Protocol describing file cache that's able to read and write serializable content.
 public protocol FileCacheProtocol<Content> {
     associatedtype Content: Codable
@@ -47,4 +15,108 @@ public protocol FileCacheProtocol<Content> {
     func read() throws -> Content
     func write(_ content: Content) throws
     func clear() throws
+}
+
+/// File cache implementation that can read and write any `Codable` content and uses file coordinator to coordinate I/O.
+/// Caches content in memory after initial load and invalidates the cache when file changes are detected from other processes.
+public final class FileCache<Content: Codable>: NSObject, FileCacheProtocol, NSFilePresenter, @unchecked Sendable {
+    public let fileURL: URL
+    public var presentedItemURL: URL? { fileURL }
+    public let presentedItemOperationQueue = OperationQueue()
+
+    /// In-memory cache of the content.
+    private var cachedContent: Content?
+
+    /// Lock to synchronize access to the in-memory cache.
+    private let lock = NSLock()
+
+    public init(fileURL: URL) {
+        self.fileURL = fileURL
+        super.init()
+        presentedItemOperationQueue.maxConcurrentOperationCount = 1
+
+        // Register as file presenter to receive change notifications
+        NSFileCoordinator.addFilePresenter(self)
+
+        // Load initial content off the main thread
+        DispatchQueue(label: "net.mullvadvpn.FileCache.\(fileURL)").async {
+            self.tryPopulateCache()
+        }
+    }
+
+    deinit {
+        NSFileCoordinator.removeFilePresenter(self)
+    }
+
+    public func read() throws -> Content {
+        lock.lock()
+        defer { lock.unlock() }
+
+        if let cached = cachedContent {
+            return cached
+        }
+
+        // If cache is nil (e.g., initial load failed or was invalidated), read from disk
+        let content = try readFromDisk()
+        cachedContent = content
+        return content
+    }
+
+    private func tryPopulateCache() {
+        _ = try? self.read()
+    }
+
+    /// Reads content directly from disk using file coordination.
+    private func readFromDisk() throws -> Content {
+        let fileCoordinator = NSFileCoordinator(filePresenter: self)
+
+        return try fileCoordinator.coordinate(readingItemAt: fileURL, options: [.withoutChanges]) { fileURL in
+            try JSONDecoder().decode(Content.self, from: Data(contentsOf: fileURL))
+        }
+    }
+
+    public func write(_ content: Content) throws {
+        lock.lock()
+        defer { lock.unlock() }
+        let fileCoordinator = NSFileCoordinator(filePresenter: self)
+
+        try fileCoordinator.coordinate(writingItemAt: fileURL, options: [.forReplacing]) { fileURL in
+            try JSONEncoder().encode(content).write(to: fileURL)
+        }
+
+        cachedContent = content
+    }
+
+    public func clear() throws {
+        lock.lock()
+        defer { lock.unlock() }
+        let fileCoordinator = NSFileCoordinator(filePresenter: self)
+        try fileCoordinator.coordinate(writingItemAt: fileURL, options: [.forDeleting]) { fileURL in
+            try FileManager.default.removeItem(at: fileURL)
+        }
+
+        cachedContent = nil
+    }
+
+    // MARK: - NSFilePresenter
+
+    /// Called when the file content has changed by another process.
+    public func presentedItemDidChange() {
+        lock.lock()
+        cachedContent = nil
+        lock.unlock()
+
+        DispatchQueue.global().async { [weak self] in
+            self?.tryPopulateCache()
+        }
+    }
+
+    /// Called when the file is being deleted by another process.
+    public func accommodatePresentedItemDeletion(completionHandler: @escaping ((any Error)?) -> Void) {
+        lock.lock()
+        cachedContent = nil
+        lock.unlock()
+
+        completionHandler(nil)
+    }
 }

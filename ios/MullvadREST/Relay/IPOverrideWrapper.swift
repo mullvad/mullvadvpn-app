@@ -18,20 +18,22 @@ public final class IPOverrideWrapper: RelayCacheProtocol {
         self.ipOverrideRepository = ipOverrideRepository
     }
 
-    public func read() throws -> StoredRelays {
+    public func read() throws -> CachedRelays {
         let cache = try relayCache.read()
         let relayResponse = apply(overrides: ipOverrideRepository.fetchAll(), to: cache.relays)
-        let rawData = try REST.Coding.makeJSONEncoder().encode(relayResponse)
 
-        return try StoredRelays(etag: cache.etag, rawData: rawData, updatedAt: cache.updatedAt)
+        return CachedRelays(relays: relayResponse, updatedAt: cache.updatedAt)
     }
 
-    public func readPrebundledRelays() throws -> StoredRelays {
+    public func readPrebundledRelays() throws -> CachedRelays {
         let prebundledRelays = try relayCache.readPrebundledRelays()
         let relayResponse = apply(overrides: ipOverrideRepository.fetchAll(), to: prebundledRelays.relays)
-        let rawData = try REST.Coding.makeJSONEncoder().encode(relayResponse)
 
-        return try StoredRelays(etag: prebundledRelays.etag, rawData: rawData, updatedAt: prebundledRelays.updatedAt)
+        return CachedRelays(
+            etag: prebundledRelays.etag,
+            relays: relayResponse,
+            updatedAt: prebundledRelays.updatedAt,
+        )
     }
 
     public func write(record: StoredRelays) throws {

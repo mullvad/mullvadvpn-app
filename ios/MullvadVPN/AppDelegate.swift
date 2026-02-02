@@ -183,6 +183,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
         startInitialization(application: application)
 
+        // Pre-warm @Observable infrastructure for LocationNode to avoid first-render lag
+        // in SelectLocationView. SwiftUI's observation system has initialization overhead
+        // that is cached after first use.
+        DispatchQueue.global(qos: .userInitiated).async {
+            _ = LocationNode(name: "", code: "")
+        }
+
         return true
     }
 

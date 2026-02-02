@@ -3,6 +3,8 @@ package net.mullvad.mullvadvpn.compose.screen
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -28,10 +30,9 @@ import com.ramcosta.composedestinations.result.ResultRecipient
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
-import net.mullvad.mullvadvpn.compose.cell.BaseSubtitleCell
-import net.mullvad.mullvadvpn.compose.component.DeviceListItem
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
+import net.mullvad.mullvadvpn.compose.component.textResource
 import net.mullvad.mullvadvpn.compose.extensions.dropUnlessResumed
 import net.mullvad.mullvadvpn.compose.preview.ManageDevicesUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.ManageDevicesUiState
@@ -44,6 +45,8 @@ import net.mullvad.mullvadvpn.lib.model.DeviceId
 import net.mullvad.mullvadvpn.lib.model.GetDeviceListError
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
+import net.mullvad.mullvadvpn.lib.ui.component.listitem.DeviceListItem
+import net.mullvad.mullvadvpn.lib.ui.component.positionForIndex
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorMedium
 import net.mullvad.mullvadvpn.util.Lce
 import net.mullvad.mullvadvpn.viewmodel.ManageDevicesSideEffect
@@ -140,12 +143,13 @@ private fun Content(
     state: ManageDevicesUiState,
     navigateToRemoveDeviceConfirmationDialog: (device: Device) -> Unit,
 ) {
-    Column(modifier) {
-        BaseSubtitleCell(
-            text = stringResource(R.string.manage_devices_description),
+    Column(modifier.padding(horizontal = Dimens.sideMarginNew)) {
+        Text(
+            text = textResource(id = R.string.manage_devices_description),
             style = MaterialTheme.typography.labelLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
+        Spacer(Modifier.height(Dimens.verticalSpace))
         ManageDevicesItems(
             state = state,
             navigateToRemoveDeviceConfirmationDialog = navigateToRemoveDeviceConfirmationDialog,
@@ -166,8 +170,8 @@ private fun Error(modifier: Modifier, tryAgain: () -> Unit) {
             modifier =
                 Modifier.padding(
                     top = Dimens.buttonSpacing,
-                    start = Dimens.sideMargin,
-                    end = Dimens.sideMargin,
+                    start = Dimens.sideMarginNew,
+                    end = Dimens.sideMarginNew,
                 ),
         )
     }
@@ -186,7 +190,12 @@ private fun ManageDevicesItems(
     navigateToRemoveDeviceConfirmationDialog: (Device) -> Unit,
 ) {
     state.devices.forEachIndexed { index, (device, loading, isCurrentDevice) ->
-        DeviceListItem(device = device, isLoading = loading, isCurrentDevice = isCurrentDevice) {
+        DeviceListItem(
+            position = state.devices.positionForIndex(index),
+            device = device,
+            isLoading = loading,
+            isCurrentDevice = isCurrentDevice,
+        ) {
             navigateToRemoveDeviceConfirmationDialog(device)
         }
         if (state.devices.lastIndex != index) {

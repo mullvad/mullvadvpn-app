@@ -63,7 +63,7 @@ final class RelayCacheTracker: RelayCacheTrackerProtocol, @unchecked Sendable {
         cache = relayCache
 
         do {
-            cachedRelays = try cache.read().cachedRelays
+            cachedRelays = try cache.read()
             try hotfixRelaysThatDoNotHaveFeatures()
         } catch {
             logger.error(
@@ -207,7 +207,7 @@ final class RelayCacheTracker: RelayCacheTrackerProtocol, @unchecked Sendable {
     }
 
     func refreshCachedRelays() throws {
-        let newCachedRelays = try cache.read().cachedRelays
+        let newCachedRelays = try cache.read()
 
         relayCacheLock.lock()
         cachedRelays = newCachedRelays

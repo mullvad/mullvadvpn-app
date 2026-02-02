@@ -60,6 +60,42 @@ test.describe('Expiration notifications', () => {
   });
 });
 
+test.describe('Error notifications', () => {
+  test.beforeAll(async () => {
+    await startup();
+  });
+
+  test.afterAll(async () => {
+    await util?.closePage();
+  });
+
+  test('App should notify user about blocking network due to split tunneling error', async () => {
+    // Only relevant on windows
+    if (process.platform !== 'win32') {
+      test.skip();
+    }
+
+    // Set split tunneling apps
+    await util.ipc.splitTunneling[''].notify([
+      {
+        name: 'microsoft edge',
+        absolutepath: '/path/to/program/msedge.exe',
+        deletable: false,
+      },
+    ]);
+    // Set split tunneling as unsupported
+    await util.ipc.splitTunneling.isSupported.notify(false);
+
+    // Set tunnel in error (blocking) state
+    await util.ipc.tunnel[''].notify({
+      state: 'error',
+      details: {
+        cause: ErrorStateCause.startTunnelError,
+      },
+    });
+  });
+});
+
 test.describe('Unsupported wireguard port', () => {
   test.beforeAll(async () => {
     await startup();

@@ -18,98 +18,97 @@ class AllLocationDataSource: SearchableLocationDataSource {
     /// and city names.
     func reload(_ relays: LocationRelays) {
         let rootNode = RootLocationNode()
-        let expandedRelays = nodes.flatMap { [$0] + $0.flattened }.filter { $0.showsChildren }.map { $0.code }
+        let expandedCodes = collectExpandedCodes()
+
+        // Use dictionaries for O(1) lookups during tree construction
+        var countryNodesByCode: [String: LocationNode] = [:]
+        var cityNodesByCode: [String: LocationNode] = [:]
 
         for relay in relays.relays {
-            guard
-                let serverLocation = relays.locations[relay.location.rawValue]
-            else { continue }
+            guard let serverLocation = relays.locations[relay.location.rawValue] else { continue }
 
-            let relayLocation = RelayLocation.hostname(
-                String(relay.location.country),
-                String(relay.location.city),
-                relay.hostname
-            )
+            let countryCode = String(relay.location.country)
+            let cityCode = String(relay.location.city)
+            let countryCityCode = LocationNode.combineNodeCodes([countryCode, cityCode])
 
-            for ancestorOrSelf in relayLocation.ancestors + [relayLocation] {
-                addLocation(
-                    ancestorOrSelf,
-                    rootNode: rootNode,
-                    serverLocation: serverLocation,
-                    relay: relay,
-                    showsChildren: expandedRelays.contains(ancestorOrSelf.stringRepresentation)
+            // Get or create country node
+            let countryNode: LocationNode
+            if let existingCountry = countryNodesByCode[countryCode] {
+                countryNode = existingCountry
+            } else {
+                let countryLocation = RelayLocation.country(countryCode)
+                countryNode = LocationNode(
+                    name: NSLocalizedString(serverLocation.country, comment: ""),
+                    code: countryCode,
+                    locations: [countryLocation],
+                    isActive: true,
+                    showsChildren: expandedCodes.contains(countryCode)
                 )
+                countryNodesByCode[countryCode] = countryNode
+                rootNode.children.append(countryNode)
+            }
+
+            // Get or create city node
+            let cityNode: LocationNode
+            if let existingCity = cityNodesByCode[countryCityCode] {
+                cityNode = existingCity
+            } else {
+                let cityLocation = RelayLocation.city(countryCode, cityCode)
+                cityNode = LocationNode(
+                    name: NSLocalizedString(serverLocation.city, comment: ""),
+                    code: countryCityCode,
+                    locations: [cityLocation],
+                    isActive: true,
+                    parent: countryNode,
+                    showsChildren: expandedCodes.contains(countryCityCode)
+                )
+                cityNodesByCode[countryCityCode] = cityNode
+                countryNode.children.append(cityNode)
+            }
+
+            // Create host node
+            let hostLocation = RelayLocation.hostname(countryCode, cityCode, relay.hostname)
+            let hostNode = LocationNode(
+                name: relay.hostname,
+                code: relay.hostname,
+                locations: [hostLocation],
+                isActive: relay.active,
+                parent: cityNode,
+                showsChildren: expandedCodes.contains(relay.hostname)
+            )
+            cityNode.children.append(hostNode)
+
+            // Update active states
+            if relay.active {
+                cityNode.isActive = true
+                countryNode.isActive = true
+            }
+        }
+
+        // Update isActive for cities and countries that have no active relays
+        for countryNode in rootNode.children {
+            var countryHasActiveCity = false
+            for cityNode in countryNode.children {
+                let cityHasActiveHost = cityNode.children.contains { $0.isActive }
+                cityNode.isActive = cityHasActiveHost
+                if cityHasActiveHost {
+                    countryHasActiveCity = true
+                    continue
+                }
+            }
+            countryNode.isActive = countryHasActiveCity
+        }
+
+        // Single sort pass at the end
+        rootNode.children.sort()
+        for countryNode in rootNode.children {
+            countryNode.children.sort()
+            for cityNode in countryNode.children {
+                cityNode.children.sort()
             }
         }
 
         nodes = rootNode.children
-    }
-
-    private func addLocation(
-        _ location: RelayLocation,
-        rootNode: LocationNode,
-        serverLocation: REST.ServerLocation,
-        relay: REST.ServerRelay,
-        showsChildren: Bool
-    ) {
-        switch location {
-        case let .country(countryCode):
-            let countryNode = LocationNode(
-                name: NSLocalizedString(serverLocation.country, comment: ""),
-                code: LocationNode.combineNodeCodes([countryCode]),
-                locations: [location],
-                isActive: true,  // Defaults to true, updated when children are populated.
-                showsChildren: showsChildren
-            )
-
-            if !rootNode.children.contains(countryNode) {
-                rootNode.children.append(countryNode)
-                rootNode.children.sort()
-            }
-
-        case let .city(countryCode, cityCode):
-            let cityNode = LocationNode(
-                name: NSLocalizedString(serverLocation.city, comment: ""),
-                code: LocationNode.combineNodeCodes([countryCode, cityCode]),
-                locations: [location],
-                isActive: true,  // Defaults to true, updated when children are populated.
-                showsChildren: showsChildren
-            )
-
-            if let countryNode = rootNode.countryFor(code: countryCode),
-                !countryNode.children.contains(cityNode)
-            {
-                cityNode.parent = countryNode
-                countryNode.children.append(cityNode)
-                countryNode.children.sort()
-            }
-
-        case let .hostname(countryCode, cityCode, hostCode):
-            let hostNode = LocationNode(
-                name: relay.hostname,
-                code: LocationNode.combineNodeCodes([hostCode]),
-                locations: [location],
-                isActive: relay.active,
-                showsChildren: showsChildren
-            )
-
-            if let countryNode = rootNode.countryFor(code: countryCode),
-                let cityNode = countryNode.cityFor(codes: [countryCode, cityCode]),
-                !cityNode.children.contains(hostNode)
-            {
-                hostNode.parent = cityNode
-                cityNode.children.append(hostNode)
-                cityNode.children.sort()
-
-                cityNode.isActive = cityNode.children.contains(where: { hostNode in
-                    hostNode.isActive
-                })
-
-                countryNode.isActive = countryNode.children.contains(where: { cityNode in
-                    cityNode.isActive
-                })
-            }
-        }
     }
 
     func node(by selectedRelays: UserSelectedRelays) -> LocationNode? {

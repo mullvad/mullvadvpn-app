@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.compose.component
+package net.mullvad.mullvadvpn.lib.ui.component.listitem
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -12,28 +12,36 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
-import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.cell.TwoRowCell
 import net.mullvad.mullvadvpn.lib.common.util.formatDate
 import net.mullvad.mullvadvpn.lib.model.Device
+import net.mullvad.mullvadvpn.lib.resource.R
 import net.mullvad.mullvadvpn.lib.theme.Dimens
+import net.mullvad.mullvadvpn.lib.ui.designsystem.Hierarchy
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorMedium
+import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadListItem
+import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
 
 @Composable
 fun DeviceListItem(
+    modifier: Modifier = Modifier,
+    position: Position,
     device: Device,
     isLoading: Boolean,
     isCurrentDevice: Boolean = false,
     onDeviceRemovalClicked: () -> Unit,
 ) {
-    TwoRowCell(
-        titleStyle = MaterialTheme.typography.titleMedium,
-        titleColor = MaterialTheme.colorScheme.onPrimary,
-        subtitleStyle = MaterialTheme.typography.labelLarge,
-        subtitleColor = MaterialTheme.colorScheme.onSurfaceVariant,
-        titleText = device.displayName(),
-        subtitleText = stringResource(id = R.string.created_x, device.creationDate.formatDate()),
-        bodyView = {
+    MullvadListItem(
+        modifier = modifier,
+        hierarchy = Hierarchy.Parent,
+        position = position,
+        isEnabled = true,
+        content = {
+            TitleAndSubtitle(
+                title = device.displayName(),
+                subtitle = stringResource(id = R.string.created_x, device.creationDate.formatDate()),
+            )
+        },
+        trailingContent = {
             if (isLoading) {
                 MullvadCircularProgressIndicatorMedium(
                     modifier = Modifier.padding(Dimens.smallPadding)
@@ -58,8 +66,5 @@ fun DeviceListItem(
                 }
             }
         },
-        onCellClicked = null,
-        endPadding = Dimens.smallPadding,
-        minHeight = Dimens.cellHeight,
     )
 }

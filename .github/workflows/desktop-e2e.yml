@@ -155,7 +155,7 @@ jobs:
         if: ${{ github.event.inputs.gotatun == 'true' }}
         run: |
           export CARGO_TARGET_DIR=target/
-          ./build.sh --optimize --boringtun
+          ./build.sh --optimize --gotatun
       - name: Build test executable
         run: ./desktop/packages/mullvad-vpn/scripts/build-test-executable.sh
       - name: Upload app
@@ -353,7 +353,7 @@ jobs:
         if: ${{ github.event.inputs.gotatun == 'true' }}
         shell: bash
         run: |
-          ./build.sh --optimize --boringtun
+          ./build.sh --optimize --gotatun
           # FIXME: Strip architecture-specific suffix. The remaining steps assume that the windows installer has no
           # arch-suffix. This should probably be addressed when we add a Windows arm runner. Or maybe it will just keep
           # on working ¯\_(ツ)_/¯
@@ -448,7 +448,7 @@ jobs:
         run: ./build.sh
       - name: Build app (with GotaTun 🦀)
         if: ${{ github.event.inputs.gotatun == 'true' }}
-        run: ./build.sh --optimize --boringtun
+        run: ./build.sh --optimize --gotatun
       - name: Build test executable
         run: ./desktop/packages/mullvad-vpn/scripts/build-test-executable.sh
       - uses: actions/upload-artifact@v4
