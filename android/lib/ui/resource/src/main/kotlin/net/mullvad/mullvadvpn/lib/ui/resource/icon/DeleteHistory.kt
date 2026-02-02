@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.lib.resource.icon
+package net.mullvad.mullvadvpn.lib.ui.resource.icon
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
