@@ -46,9 +46,6 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.button.TestMethodButton
-import net.mullvad.mullvadvpn.compose.cell.HeaderSwitchComposeCell
-import net.mullvad.mullvadvpn.compose.cell.NavigationComposeCell
-import net.mullvad.mullvadvpn.compose.cell.SwitchComposeSubtitleCell
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.compose.preview.ApiAccessMethodDetailsUiStatePreviewParameterProvider
@@ -60,7 +57,11 @@ import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
 import net.mullvad.mullvadvpn.compose.util.toDisplayName
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethod
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodId
+import net.mullvad.mullvadvpn.lib.ui.component.listitem.NavigationListItem
+import net.mullvad.mullvadvpn.lib.ui.component.listitem.SwitchListItem
+import net.mullvad.mullvadvpn.lib.ui.component.text.ListItemInfo
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
+import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
 import net.mullvad.mullvadvpn.lib.ui.tag.API_ACCESS_DETAILS_EDIT_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.API_ACCESS_DETAILS_TOP_BAR_DROPDOWN_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.API_ACCESS_TEST_METHOD_BUTTON_TEST_TAG
@@ -224,7 +225,7 @@ fun ApiAccessMethodDetailsScreen(
             }
         },
     ) { modifier: Modifier ->
-        Column(modifier = modifier) {
+        Column(modifier = modifier.padding(horizontal = Dimens.sideMarginNew)) {
             when (state) {
                 is ApiAccessMethodDetailsUiState.Loading -> Loading()
                 is ApiAccessMethodDetailsUiState.Content ->
@@ -256,14 +257,15 @@ private fun Content(
     onNavigateToEncryptedDnsInfoDialog: () -> Unit,
 ) {
     if (state.isEditable) {
-        NavigationComposeCell(
+        NavigationListItem(
             title = stringResource(id = R.string.edit_method),
             onClick = onEditMethodClicked,
             testTag = API_ACCESS_DETAILS_EDIT_BUTTON_TEST_TAG,
+            position = Position.Top,
         )
         HorizontalDivider()
     }
-    HeaderSwitchComposeCell(
+    SwitchListItem(
         isEnabled = state.isDisableable,
         title = stringResource(id = R.string.enable_method),
         isToggled = state.enabled,
@@ -275,25 +277,29 @@ private fun Content(
                 is ApiAccessMethod.CustomProxy,
                 ApiAccessMethod.Direct -> null
             },
+        position =
+            if (state.isEditable) {
+                Position.Bottom
+            } else {
+                Position.Single
+            },
     )
     if (!state.isDisableable) {
-        SwitchComposeSubtitleCell(
-            text = stringResource(id = R.string.at_least_on_method_needs_to_enabled)
-        )
+        ListItemInfo(text = stringResource(id = R.string.at_least_on_method_needs_to_enabled))
     }
-    Spacer(modifier = Modifier.height(Dimens.verticalSpace))
+    Spacer(modifier = Modifier.height(Dimens.largePadding))
     TestMethodButton(
         modifier =
-            Modifier.padding(horizontal = Dimens.sideMargin)
+            Modifier.padding(horizontal = Dimens.mediumPadding)
                 .testTag(API_ACCESS_TEST_METHOD_BUTTON_TEST_TAG),
         isTesting = state.isTestingAccessMethod,
         onTestMethod = onTestMethodClicked,
     )
-    Spacer(modifier = Modifier.height(Dimens.verticalSpace))
+    Spacer(modifier = Modifier.height(Dimens.largeSpacer))
     PrimaryButton(
         isEnabled = !state.isTestingAccessMethod,
         modifier =
-            Modifier.padding(horizontal = Dimens.sideMargin)
+            Modifier.padding(horizontal = Dimens.mediumPadding)
                 .testTag(API_ACCESS_USE_METHOD_BUTTON_TEST_TAG),
         onClick = onUseMethodClicked,
         text = stringResource(id = R.string.use_method),
