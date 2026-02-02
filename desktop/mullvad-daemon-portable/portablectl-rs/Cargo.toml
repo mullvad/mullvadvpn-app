@@ -1,0 +1,19 @@
+[package]
+name = "portablectl-rs"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+repository.workspace = true
+license.workspace = true
+
+[dependencies]
+anyhow.workspace = true
+clap = { workspace = true, features = ["derive", "env"] }
+serde = { workspace = true, features = ["derive"] }
+tokio = { workspace = true, features = ["full"] }
+tracing = "0.1.44"
+tracing-subscriber = { workspace = true, features = ["env-filter"] }
+zbus = { version = "5.13.2", features = ["tokio"] }
+
+[lints]
+workspace = true
