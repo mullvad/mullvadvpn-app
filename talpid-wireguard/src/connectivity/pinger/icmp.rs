@@ -18,10 +18,6 @@ pub enum Error {
     #[error("Failed to open ICMP socket")]
     Open(#[source] io::Error),
 
-    /// Failed to read from raw socket
-    #[error("Failed to read ICMP socket")]
-    Read(#[source] io::Error),
-
     /// Failed to set socket options
     #[error("Failed to set socket options")]
     SocketOp(#[source] io::Error),
