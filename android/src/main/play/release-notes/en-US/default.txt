@@ -1,3 +1,1 @@
-- Fixed several RTL issues.
-- Fixed issue with not being able to open the app if the icon was changed.
-- Fixed missing content blockers disabled text.
+- Fixed long press on the quick settings tile not opening the app.
