@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.lib.theme.shape
+package net.mullvad.mullvadvpn.lib.ui.theme.shape
 
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Shapes

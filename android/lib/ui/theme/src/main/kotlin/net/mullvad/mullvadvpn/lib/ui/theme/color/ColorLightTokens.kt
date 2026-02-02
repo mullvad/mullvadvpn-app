@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.lib.theme.color
+package net.mullvad.mullvadvpn.lib.ui.theme.color
 
 // This is experimental and currently not used
 internal object ColorLightTokens {

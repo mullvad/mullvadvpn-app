@@ -7,7 +7,7 @@ import androidx.core.view.WindowCompat
 import androidx.test.core.app.ActivityScenario
 import de.mannodermaus.junit5.compose.ComposeContext
 import de.mannodermaus.junit5.compose.createAndroidComposeExtension
-import net.mullvad.mullvadvpn.lib.theme.AppTheme
+import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 
 fun ComposeContext.setContentWithTheme(content: @Composable () -> Unit) {
     setContent { AppTheme { content() } }

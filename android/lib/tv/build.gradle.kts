@@ -18,8 +18,8 @@ dependencies {
     implementation(projects.lib.model)
     implementation(projects.lib.ui.resource)
     implementation(projects.lib.repository)
-    implementation(projects.lib.theme)
     implementation(projects.lib.ui.component)
+    implementation(projects.lib.ui.theme)
 
     // UI tooling
     implementation(libs.compose.ui.tooling.preview)

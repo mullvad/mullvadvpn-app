@@ -42,12 +42,12 @@ include(
     ":lib:payment",
     ":lib:repository",
     ":lib:talpid",
-    ":lib:theme",
     ":lib:tv",
     ":lib:ui:designsystem",
     ":lib:ui:component",
     ":lib:ui:resource",
     ":lib:ui:tag",
+    ":lib:ui:theme",
     ":lib:ui:util"
 )
 include(

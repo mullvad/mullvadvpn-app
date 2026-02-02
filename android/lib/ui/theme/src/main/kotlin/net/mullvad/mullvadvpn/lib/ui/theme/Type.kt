@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.lib.theme
+package net.mullvad.mullvadvpn.lib.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.font.FontWeight

@@ -14,10 +14,10 @@ android {
 dependencies {
     implementation(projects.lib.common)
     implementation(projects.lib.model)
-    implementation(projects.lib.ui.resource)
-    implementation(projects.lib.theme)
-    implementation(projects.lib.ui.tag)
     implementation(projects.lib.ui.designsystem)
+    implementation(projects.lib.ui.resource)
+    implementation(projects.lib.ui.tag)
+    implementation(projects.lib.ui.theme)
     implementation(projects.lib.ui.util)
 
     implementation(libs.compose.material3)

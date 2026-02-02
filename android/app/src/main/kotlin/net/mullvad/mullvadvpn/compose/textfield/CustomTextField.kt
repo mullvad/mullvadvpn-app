@@ -30,9 +30,9 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.core.text.isDigitsOnly
-import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.component.EMPTY_STRING
 import net.mullvad.mullvadvpn.lib.ui.component.NEWLINE_STRING
+import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 
 @Suppress("ComposableLambdaParameterNaming")
 @Composable

@@ -386,9 +386,9 @@ dependencies {
     implementation(projects.lib.ui.component)
     implementation(projects.lib.ui.resource)
     implementation(projects.lib.ui.tag)
+    implementation(projects.lib.ui.theme)
     implementation(projects.lib.ui.util)
     implementation(projects.tile)
-    implementation(projects.lib.theme)
     implementation(projects.service)
     implementation(libs.androidx.profileinstaller)
 
