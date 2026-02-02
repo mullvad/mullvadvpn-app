@@ -49,12 +49,12 @@ import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.lib.payment.ProductIds.OneMonth
 import net.mullvad.mullvadvpn.lib.payment.ProductIds.ThreeMonths
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
-import net.mullvad.mullvadvpn.lib.theme.AppTheme
-import net.mullvad.mullvadvpn.lib.theme.Dimens
-import net.mullvad.mullvadvpn.lib.theme.color.AlphaDisabled
-import net.mullvad.mullvadvpn.lib.theme.color.AlphaVisible
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.lib.ui.tag.ADD_TIME_BOTTOM_SHEET_TITLE_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
+import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
+import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaDisabled
+import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaVisible
 import net.mullvad.mullvadvpn.util.Lc
 import net.mullvad.mullvadvpn.viewmodel.AddMoreTimeSideEffect
 import net.mullvad.mullvadvpn.viewmodel.AddTimeViewModel

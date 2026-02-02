@@ -18,8 +18,8 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.dialog.info.Confirmed
 import net.mullvad.mullvadvpn.compose.dialog.info.InfoConfirmationDialog
 import net.mullvad.mullvadvpn.compose.dialog.info.InfoConfirmationDialogTitleType
-import net.mullvad.mullvadvpn.lib.theme.AppTheme
-import net.mullvad.mullvadvpn.lib.theme.Dimens
+import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
+import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 
 @Preview
 @Composable

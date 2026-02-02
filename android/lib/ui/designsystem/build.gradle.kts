@@ -10,9 +10,9 @@ android {
 }
 
 dependencies {
-    implementation(projects.lib.theme)
     implementation(projects.lib.model)
     implementation(projects.lib.ui.tag)
+    implementation(projects.lib.ui.theme)
     implementation(projects.lib.ui.util)
 
     implementation(libs.compose.ui)

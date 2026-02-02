@@ -10,7 +10,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.preview.TunnelStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.lib.model.TunnelState
-import net.mullvad.mullvadvpn.lib.theme.AppTheme
+import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 
 @Composable
 @Preview

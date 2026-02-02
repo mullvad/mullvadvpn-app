@@ -28,8 +28,8 @@ import net.mullvad.mullvadvpn.compose.textfield.ErrorSupportingText
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.EmailData
 import net.mullvad.mullvadvpn.compose.util.SendEmail
-import net.mullvad.mullvadvpn.lib.theme.AppTheme
-import net.mullvad.mullvadvpn.lib.theme.Dimens
+import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
+import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 import net.mullvad.mullvadvpn.provider.createShareLogFile
 import net.mullvad.mullvadvpn.viewmodel.ApiUnreachableSideEffect
 import net.mullvad.mullvadvpn.viewmodel.ApiUnreachableViewModel

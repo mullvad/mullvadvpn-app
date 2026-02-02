@@ -23,8 +23,8 @@ import net.mullvad.mullvadvpn.compose.util.annotatedStringResource
 import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.model.PortRange
 import net.mullvad.mullvadvpn.lib.model.PortType
-import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.tag.CUSTOM_PORT_DIALOG_INPUT_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.util.asString
 import net.mullvad.mullvadvpn.viewmodel.CustomPortDialogSideEffect
 import net.mullvad.mullvadvpn.viewmodel.CustomPortDialogViewModel

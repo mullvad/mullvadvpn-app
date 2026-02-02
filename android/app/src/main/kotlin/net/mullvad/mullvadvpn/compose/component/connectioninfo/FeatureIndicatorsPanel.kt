@@ -27,7 +27,7 @@ import net.mullvad.mullvadvpn.compose.component.textResource
 import net.mullvad.mullvadvpn.compose.screen.LocalNavAnimatedVisibilityScope
 import net.mullvad.mullvadvpn.compose.screen.LocalSharedTransitionScope
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
-import net.mullvad.mullvadvpn.lib.theme.Dimens
+import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 
 @Composable
 fun FeatureIndicatorsPanel(

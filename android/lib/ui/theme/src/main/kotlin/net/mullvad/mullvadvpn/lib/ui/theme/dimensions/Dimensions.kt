@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.lib.theme.dimensions
+package net.mullvad.mullvadvpn.lib.ui.theme.dimensions
 
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp

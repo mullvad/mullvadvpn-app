@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.lib.theme.color
+package net.mullvad.mullvadvpn.lib.ui.theme.color
 
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme

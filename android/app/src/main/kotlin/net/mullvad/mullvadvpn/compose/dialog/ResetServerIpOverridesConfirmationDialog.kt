@@ -18,9 +18,9 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.NegativeButton
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
-import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.tag.RESET_SERVER_IP_OVERRIDE_CANCEL_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.RESET_SERVER_IP_OVERRIDE_RESET_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.viewmodel.ResetServerIpOverridesConfirmationUiSideEffect
 import net.mullvad.mullvadvpn.viewmodel.ResetServerIpOverridesConfirmationViewModel
 import org.koin.androidx.compose.koinViewModel

@@ -19,10 +19,10 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.screen.ConnectionDetails
 import net.mullvad.mullvadvpn.lib.model.TransportProtocol
 import net.mullvad.mullvadvpn.lib.model.TunnelEndpoint
-import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.component.SPACE_CHAR
 import net.mullvad.mullvadvpn.lib.ui.tag.LOCATION_INFO_CONNECTION_IN_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.LOCATION_INFO_CONNECTION_OUT_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 
 @Composable
 fun ConnectionDetailPanel(

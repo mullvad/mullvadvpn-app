@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.lib.theme
+package net.mullvad.mullvadvpn.lib.ui.theme
 
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ripple.RippleAlpha
@@ -14,10 +14,10 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.unit.dp
-import net.mullvad.mullvadvpn.lib.theme.color.ColorDarkTokens
-import net.mullvad.mullvadvpn.lib.theme.color.ColorLightTokens
-import net.mullvad.mullvadvpn.lib.theme.dimensions.Dimensions
-import net.mullvad.mullvadvpn.lib.theme.dimensions.defaultDimensions
+import net.mullvad.mullvadvpn.lib.ui.theme.color.ColorDarkTokens
+import net.mullvad.mullvadvpn.lib.ui.theme.color.ColorLightTokens
+import net.mullvad.mullvadvpn.lib.ui.theme.dimensions.Dimensions
+import net.mullvad.mullvadvpn.lib.ui.theme.dimensions.defaultDimensions
 
 private val lightColorScheme =
     lightColorScheme(

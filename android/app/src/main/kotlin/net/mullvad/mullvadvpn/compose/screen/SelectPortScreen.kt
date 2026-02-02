@@ -32,8 +32,6 @@ import net.mullvad.mullvadvpn.compose.util.OnNavResultValue
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.model.PortType
-import net.mullvad.mullvadvpn.lib.theme.AppTheme
-import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.CustomPortListItem
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.InfoListItem
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.SelectableListItem
@@ -43,6 +41,8 @@ import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_PORT_CUSTOM_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_PORT_ITEM_AUTOMATIC_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_PORT_ITEM_X_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
+import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 import net.mullvad.mullvadvpn.util.Lc
 import net.mullvad.mullvadvpn.viewmodel.SelectPortViewModel
 import org.koin.androidx.compose.koinViewModel

@@ -20,7 +20,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
-import net.mullvad.mullvadvpn.lib.theme.color.menuItemColors
+import net.mullvad.mullvadvpn.lib.ui.theme.color.menuItemColors
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

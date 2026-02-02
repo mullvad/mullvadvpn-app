@@ -13,7 +13,7 @@ import com.ramcosta.composedestinations.spec.DestinationStyle
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.util.clickableAnnotatedString
 import net.mullvad.mullvadvpn.compose.util.createCopyToClipboardHandle
-import net.mullvad.mullvadvpn.lib.theme.AppTheme
+import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 
 @Preview
 @Composable

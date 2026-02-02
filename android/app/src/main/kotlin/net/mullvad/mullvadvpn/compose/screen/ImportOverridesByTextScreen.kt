@@ -31,9 +31,9 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.component.MullvadSmallTopBar
 import net.mullvad.mullvadvpn.compose.textfield.mullvadWhiteTextFieldColors
 import net.mullvad.mullvadvpn.compose.transitions.DefaultTransition
-import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.tag.SERVER_IP_OVERRIDES_IMPORT_BY_TEXT_IMPORT_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SERVER_IP_OVERRIDES_TEXT_INPUT_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 
 @Preview
 @Composable
