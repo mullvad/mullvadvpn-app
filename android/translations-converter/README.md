@@ -17,7 +17,7 @@ for each locale it can find in the [`desktop/packages/mullvad-vpn/locales` direc
 [messages.pot] template file with the string messages from the Android app for which it did not find
 any translation, making it simpler to use the template for obtaining those translations.
 
-[android-resources]: ../lib/resource/src/main/res/
+[android-resources]: ../lib/ui/resource/src/main/res/
 [desktop-locales]: ../desktop/packages/mullvad-vpn/locales/
 [messages.pot]: ../desktop/packages/mullvad-vpn/locales/messages.pot
-[values-sv-example]: ../lib/resource/src/main/res/values-sv/strings.xml
+[values-sv-example]: ../lib/ui/resource/src/main/res/values-sv/strings.xml

@@ -44,7 +44,7 @@ use std::{
 };
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let resources_dir = Path::new("../lib/resource/src/main/res");
+    let resources_dir = Path::new("../lib/ui/resource/src/main/res");
 
     let string_resources =
         StringResources::try_from(resources_dir.join("values/strings.xml").as_ref())?;
@@ -263,7 +263,7 @@ fn generate_relay_locale_files(locale_dir: &Path) {
     let default_translations = gettext::Messages::from_file(&relay_template_path)
         .expect("Failed to load translations for a locale");
 
-    let resources_dir = Path::new("../lib/resource/src/main/res");
+    let resources_dir = Path::new("../lib/ui/resource/src/main/res");
 
     let relay_locations_path = resources_dir.join("xml/relay_locations.xml");
 
