@@ -62,8 +62,13 @@ extension REST {
                 public let token: String
             }
 
+            public struct LWO: Codable, Equatable, Sendable {
+                // this structure intentionally left blank
+            }
+
             public let daita: DAITA?
             public let quic: QUIC?
+            public let lwo: LWO?
         }
 
         public let hostname: String
