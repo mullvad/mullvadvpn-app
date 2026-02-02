@@ -104,7 +104,7 @@ public enum ServerRelaysResponseStubs {
                     includeInCountry: true,
                     daita: true,
                     shadowsocksExtraAddrIn: ["0.0.0.0"],
-                    features: .init(daita: .init(), quic: nil)
+                    features: .init(daita: .init(), quic: nil, lwo: .init())
                 ),
                 REST.ServerRelay(
                     hostname: "es2-wireguard",
@@ -119,7 +119,7 @@ public enum ServerRelaysResponseStubs {
                     includeInCountry: true,
                     daita: true,
                     shadowsocksExtraAddrIn: ["0.0.0.0"],
-                    features: .init(daita: .init(), quic: nil)
+                    features: .init(daita: .init(), quic: nil, lwo: nil)
                 ),
                 REST.ServerRelay(
                     hostname: "es3-wireguard",
@@ -134,7 +134,7 @@ public enum ServerRelaysResponseStubs {
                     includeInCountry: true,
                     daita: true,
                     shadowsocksExtraAddrIn: ["0.0.0.0"],
-                    features: .init(daita: .init(), quic: nil)
+                    features: .init(daita: .init(), quic: nil, lwo: nil)
                 ),
                 REST.ServerRelay(
                     hostname: "es4-wireguard",
@@ -149,7 +149,7 @@ public enum ServerRelaysResponseStubs {
                     includeInCountry: true,
                     daita: true,
                     shadowsocksExtraAddrIn: ["0.0.0.0"],
-                    features: .init(daita: .init(), quic: nil)
+                    features: .init(daita: .init(), quic: nil, lwo: nil)
                 ),
                 REST.ServerRelay(
                     hostname: "es5-wireguard",
@@ -164,7 +164,7 @@ public enum ServerRelaysResponseStubs {
                     includeInCountry: true,
                     daita: true,
                     shadowsocksExtraAddrIn: ["0.0.0.0"],
-                    features: .init(daita: .init(), quic: nil)
+                    features: .init(daita: .init(), quic: nil, lwo: nil)
                 ),
                 REST.ServerRelay(
                     hostname: "se10-wireguard",
@@ -181,7 +181,8 @@ public enum ServerRelaysResponseStubs {
                     shadowsocksExtraAddrIn: ["0.0.0.0"],
                     features: .init(
                         daita: nil,
-                        quic: .init(addrIn: ["0.0.0.0"], domain: "quic.domain", token: "")
+                        quic: .init(addrIn: ["0.0.0.0"], domain: "quic.domain", token: ""),
+                        lwo: nil
                     )
                 ),
                 REST.ServerRelay(
@@ -227,7 +228,7 @@ public enum ServerRelaysResponseStubs {
                     includeInCountry: true,
                     daita: true,
                     shadowsocksExtraAddrIn: ["0.0.0.0"],
-                    features: .init(daita: .init(), quic: nil)
+                    features: .init(daita: .init(), quic: nil, lwo: nil)
                 ),
                 REST.ServerRelay(
                     hostname: "us-dal-wg-001",
@@ -257,7 +258,7 @@ public enum ServerRelaysResponseStubs {
                     includeInCountry: true,
                     daita: true,
                     shadowsocksExtraAddrIn: nil,
-                    features: .init(daita: .init(), quic: nil)
+                    features: .init(daita: .init(), quic: nil, lwo: nil)
                 ),
                 REST.ServerRelay(
                     hostname: "us-nyc-wg-302",
@@ -272,7 +273,7 @@ public enum ServerRelaysResponseStubs {
                     includeInCountry: true,
                     daita: true,
                     shadowsocksExtraAddrIn: nil,
-                    features: .init(daita: .init(), quic: nil)
+                    features: .init(daita: .init(), quic: nil, lwo: nil)
                 ),
             ],
             shadowsocksPortRanges: shadowsocksPortRanges
