@@ -60,6 +60,7 @@ As such, the above algorithm is simplified to the following version:
 - The second attempt will connect to a relay on a random port using Shadowsocks for obfuscation
 - The third attempt will connect to a relay using QUIC for obfuscation
 - The fourth attempt will connect to a relay on a random port using [UDP2TCP obfuscation](https://github.com/mullvad/udp-over-tcp)
+- The fifth attempt will connect to a relay using LWO
 
 ### Random Ports for UDP2TCP and Shadowsocks
 
