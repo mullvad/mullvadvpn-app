@@ -60,9 +60,7 @@ public final class TunnelObfuscator: TunnelObfuscation {
         switch obfuscationProtocol {
         case .udpOverTcp:
             .tcp
-        case .shadowsocks:
-            .udp
-        case .quic:
+        case .shadowsocks, .quic, .lwo:
             .udp
         case .lwo:
             .udp
