@@ -32,6 +32,12 @@ sealed class ErrorStateCause {
     data object OtherLegacyAlwaysOnApp : ErrorStateCause()
 
     data class NoRelaysMatchSelectedPort(val port: Port) : ErrorStateCause()
+
+    data class InvalidIpv6Config(
+        val addresses: List<InetAddress>,
+        val routes: List<InetAddress>,
+        val dnsServers: List<InetAddress>,
+    ) : ErrorStateCause()
 }
 
 sealed interface AuthFailedError {

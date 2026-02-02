@@ -36,7 +36,22 @@ sealed interface CreateTunResult {
         override val isOpen = true
     }
 
-    data object InvalidIpv6Config : Error {
-        override val isOpen = false
+    data class InvalidIpv6Config(
+        val addresses: ArrayList<InetAddress>,
+        val routes: ArrayList<InetAddress>,
+        val dnsServers: ArrayList<InetAddress>,
+        val tunFd: Int,
+    ) : Error {
+        constructor(
+            config: TunConfig,
+            tunFd: Int,
+        ) : this(
+            addresses = ArrayList(config.addresses),
+            routes = ArrayList(config.routes.map { it.address }),
+            dnsServers = ArrayList(config.dnsServers),
+            tunFd = tunFd,
+        )
+
+        override val isOpen = true
     }
 }
