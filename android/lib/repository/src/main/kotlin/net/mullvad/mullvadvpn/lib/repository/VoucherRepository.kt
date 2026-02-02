@@ -1,6 +1,6 @@
 package net.mullvad.mullvadvpn.lib.repository
 
-import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
+import net.mullvad.mullvadvpn.lib.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.model.VoucherCode
 
 class VoucherRepository(

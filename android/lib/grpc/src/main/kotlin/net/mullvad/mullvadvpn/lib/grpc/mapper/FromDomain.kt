@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.lib.daemon.grpc.mapper
+package net.mullvad.mullvadvpn.lib.grpc.mapper
 
 import mullvad_daemon.management_interface.ManagementInterface
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethod

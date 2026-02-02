@@ -35,7 +35,7 @@ include(
     ":lib:billing",
     ":lib:common",
     ":lib:common-test",
-    ":lib:daemon-grpc",
+    ":lib:grpc",
     ":lib:endpoint",
     ":lib:map",
     ":lib:model",

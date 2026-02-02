@@ -1,6 +1,6 @@
 @file:Suppress("TooManyFunctions")
 
-package net.mullvad.mullvadvpn.lib.daemon.grpc.mapper
+package net.mullvad.mullvadvpn.lib.grpc.mapper
 
 import io.grpc.ConnectivityState
 import java.net.InetAddress
@@ -12,8 +12,8 @@ import mullvad_daemon.management_interface.ManagementInterface
 import mullvad_daemon.management_interface.entryLocationOrNull
 import mullvad_daemon.management_interface.locationOrNull
 import mullvad_daemon.management_interface.recentsOrNull
-import net.mullvad.mullvadvpn.lib.daemon.grpc.GrpcConnectivityState
-import net.mullvad.mullvadvpn.lib.daemon.grpc.RelayNameComparator
+import net.mullvad.mullvadvpn.lib.grpc.GrpcConnectivityState
+import net.mullvad.mullvadvpn.lib.grpc.RelayNameComparator
 import net.mullvad.mullvadvpn.lib.model.AccountData
 import net.mullvad.mullvadvpn.lib.model.AccountId
 import net.mullvad.mullvadvpn.lib.model.AccountNumber

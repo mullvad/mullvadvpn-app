@@ -191,7 +191,7 @@ jobs:
               :app:testOssProdDebugUnitTest \
               :service:testOssProdDebugUnitTest \
               :lib:billing:testDebugUnitTest \
-              :lib:daemon-grpc:testDebugUnitTest \
+              :lib:grpc:testDebugUnitTest \
               :lib:repository:testDebugUnitTest
           - gradle-task: :test:arch:test --rerun-tasks
           - gradle-task: detekt
