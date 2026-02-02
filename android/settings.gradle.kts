@@ -40,13 +40,13 @@ include(
     ":lib:map",
     ":lib:model",
     ":lib:payment",
-    ":lib:resource",
     ":lib:repository",
     ":lib:talpid",
     ":lib:theme",
     ":lib:tv",
     ":lib:ui:designsystem",
     ":lib:ui:component",
+    ":lib:ui:resource",
     ":lib:ui:tag",
     ":lib:ui:util"
 )

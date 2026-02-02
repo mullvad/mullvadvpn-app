@@ -16,7 +16,7 @@ dependencies {
     implementation(libs.compose.material3)
     implementation(libs.compose.ui)
     implementation(projects.lib.model)
-    implementation(projects.lib.resource)
+    implementation(projects.lib.ui.resource)
     implementation(projects.lib.repository)
     implementation(projects.lib.theme)
     implementation(projects.lib.ui.component)
