@@ -47,7 +47,7 @@ pub fn to_gotatun_peer(
             max_padding_frac: daita.max_padding_frac,
             max_blocking_frac: daita.max_blocking_frac,
             // TODO: tweak to sane values
-            max_blocked_packets: 1024,
+            max_blocked_packets: const { std::num::NonZero::new(1024).unwrap() },
             min_blocking_capacity: 50,
         };
         peer = peer.with_daita(daita);

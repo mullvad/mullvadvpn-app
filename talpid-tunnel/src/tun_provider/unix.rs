@@ -275,6 +275,11 @@ mod tun08_imp {
                 builder.config.platform_config(|cfg| {
                     // Routing is managed by the tunnel state machine
                     cfg.enable_routing(false);
+                    // Assigning IP addresses is handled by our WireGuard implementation.
+                    #[cfg(target_os = "macos")]
+                    {
+                        // TODO: Disable `set_alias`.
+                    }
                 });
                 #[cfg(target_os = "linux")]
                 {
