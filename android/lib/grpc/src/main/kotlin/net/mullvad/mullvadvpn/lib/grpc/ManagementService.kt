@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.lib.daemon.grpc
+package net.mullvad.mullvadvpn.lib.grpc
 
 import android.net.LocalSocketAddress
 import arrow.core.Either
@@ -18,7 +18,6 @@ import io.grpc.StatusException
 import io.grpc.android.UdsChannelBuilder
 import java.io.File
 import java.net.InetAddress
-import java.util.Map.entry
 import java.util.logging.Level
 import java.util.logging.Logger as JavaLogger
 import kotlinx.coroutines.CoroutineScope
@@ -42,11 +41,11 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import mullvad_daemon.management_interface.ManagementInterface
 import mullvad_daemon.management_interface.ManagementServiceGrpcKt
-import net.mullvad.mullvadvpn.lib.daemon.grpc.mapper.fromDomain
-import net.mullvad.mullvadvpn.lib.daemon.grpc.mapper.toDomain
-import net.mullvad.mullvadvpn.lib.daemon.grpc.util.AndroidLoggingHandler
-import net.mullvad.mullvadvpn.lib.daemon.grpc.util.LogInterceptor
-import net.mullvad.mullvadvpn.lib.daemon.grpc.util.connectivityFlow
+import net.mullvad.mullvadvpn.lib.grpc.mapper.fromDomain
+import net.mullvad.mullvadvpn.lib.grpc.mapper.toDomain
+import net.mullvad.mullvadvpn.lib.grpc.util.AndroidLoggingHandler
+import net.mullvad.mullvadvpn.lib.grpc.util.LogInterceptor
+import net.mullvad.mullvadvpn.lib.grpc.util.connectivityFlow
 import net.mullvad.mullvadvpn.lib.model.AccountData
 import net.mullvad.mullvadvpn.lib.model.AccountNumber
 import net.mullvad.mullvadvpn.lib.model.AddApiAccessMethodError
@@ -213,7 +212,7 @@ class ManagementService(
 
     init {
         if (extensiveLogging && ENABLE_TRACE_LOGGING) {
-            AndroidLoggingHandler.reset(AndroidLoggingHandler())
+            AndroidLoggingHandler.Companion.reset(AndroidLoggingHandler())
             JavaLogger.getLogger("io.grpc").level = Level.FINEST
         }
     }

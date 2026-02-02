@@ -8,7 +8,7 @@ plugins {
 }
 
 android {
-    namespace = "net.mullvad.mullvadvpn.lib.daemon.grpc"
+    namespace = "net.mullvad.mullvadvpn.lib.grpc"
 
     sourceSets {
         getByName("main") {

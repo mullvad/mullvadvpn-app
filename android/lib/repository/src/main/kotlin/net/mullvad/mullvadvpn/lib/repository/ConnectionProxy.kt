@@ -3,7 +3,7 @@ package net.mullvad.mullvadvpn.lib.repository
 import arrow.core.Either
 import arrow.core.raise.either
 import kotlinx.coroutines.flow.combine
-import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
+import net.mullvad.mullvadvpn.lib.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.model.ConnectError
 import net.mullvad.mullvadvpn.lib.model.GeoIpLocation
 import net.mullvad.mullvadvpn.lib.model.TunnelState

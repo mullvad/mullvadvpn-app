@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.lib.daemon.grpc
+package net.mullvad.mullvadvpn.lib.grpc
 
 import io.mockk.mockk
 import io.mockk.unmockkAll

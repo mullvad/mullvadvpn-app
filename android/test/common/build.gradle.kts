@@ -69,7 +69,7 @@ androidComponents {
 dependencies {
     implementation(projects.lib.endpoint)
     implementation(projects.lib.ui.tag)
-    implementation(projects.lib.daemonGrpc)
+    implementation(projects.lib.grpc)
     implementation(projects.lib.model)
 
     implementation(libs.arrow)
