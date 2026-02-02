@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.data.UUID
-import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
+import net.mullvad.mullvadvpn.lib.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.model.AddApiAccessMethodError
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethod
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodId

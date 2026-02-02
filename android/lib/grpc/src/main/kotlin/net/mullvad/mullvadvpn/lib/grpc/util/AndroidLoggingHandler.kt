@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.lib.daemon.grpc.util
+package net.mullvad.mullvadvpn.lib.grpc.util
 
 import co.touchlab.kermit.Logger
 import co.touchlab.kermit.Severity

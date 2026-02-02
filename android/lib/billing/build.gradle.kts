@@ -39,7 +39,7 @@ dependencies {
     implementation(libs.arrow)
 
     // Management service
-    implementation(projects.lib.daemonGrpc)
+    implementation(projects.lib.grpc)
 
     // Logger
     implementation(libs.kermit)

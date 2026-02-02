@@ -77,7 +77,7 @@ android {
 
 dependencies {
     implementation(projects.lib.common)
-    implementation(projects.lib.daemonGrpc)
+    implementation(projects.lib.grpc)
     implementation(projects.lib.endpoint)
     implementation(projects.lib.model)
     implementation(projects.lib.repository)

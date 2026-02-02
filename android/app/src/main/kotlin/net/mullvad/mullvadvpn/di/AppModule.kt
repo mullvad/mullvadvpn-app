@@ -11,9 +11,9 @@ import kotlinx.coroutines.MainScope
 import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.lib.common.constant.GRPC_SOCKET_FILE_NAME
 import net.mullvad.mullvadvpn.lib.common.constant.GRPC_SOCKET_FILE_NAMED_ARGUMENT
-import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointFromIntentHolder
 import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointOverride
+import net.mullvad.mullvadvpn.lib.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.model.BuildVersion
 import net.mullvad.mullvadvpn.lib.model.NotificationChannel
 import net.mullvad.mullvadvpn.lib.repository.AccountRepository

@@ -27,7 +27,7 @@ protobuf {
 dependencies {
     implementation(projects.lib.ui.resource)
     implementation(projects.lib.common)
-    implementation(projects.lib.daemonGrpc)
+    implementation(projects.lib.grpc)
     implementation(projects.lib.model)
 
     implementation(libs.arrow)

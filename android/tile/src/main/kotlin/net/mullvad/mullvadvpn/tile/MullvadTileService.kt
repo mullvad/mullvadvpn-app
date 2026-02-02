@@ -26,8 +26,8 @@ import net.mullvad.mullvadvpn.lib.common.constant.VPN_SERVICE_CLASS
 import net.mullvad.mullvadvpn.lib.common.util.SdkUtils
 import net.mullvad.mullvadvpn.lib.common.util.SdkUtils.setSubtitleIfSupported
 import net.mullvad.mullvadvpn.lib.common.util.prepareVpnSafe
-import net.mullvad.mullvadvpn.lib.daemon.grpc.GrpcConnectivityState
-import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
+import net.mullvad.mullvadvpn.lib.grpc.GrpcConnectivityState
+import net.mullvad.mullvadvpn.lib.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.model.ActionAfterDisconnect
 import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
