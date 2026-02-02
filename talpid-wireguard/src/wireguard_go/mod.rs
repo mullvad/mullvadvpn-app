@@ -704,7 +704,7 @@ impl Tunnel for WgGoTunnel {
                 let machines = daita
                     .client_machines
                     .into_iter()
-                    .map(|machine| machine.name())
+                    .map(|machine| machine.serialize())
                     .collect::<Vec<_>>()
                     .join("\n");
                 let machines =
