@@ -28,9 +28,7 @@ talpid-types = { path = "../talpid-types" }
 thiserror = { workspace = true }
 tokio = { workspace = true, features = ["fs", "process", "rt-multi-thread"] }
 tokio-stream = { version = "0.1", features = ["io-util"] }
-tun08 = { package = "tun", version = "0.8.5", default-features = false, features = [
-  "async",
-] }
+tun08 = { workspace = true, features = ["async"] }
 tunnel-obfuscation = { path = "../tunnel-obfuscation" }
 wireguard-go-rs = { path = "../wireguard-go-rs", optional = true }
 
