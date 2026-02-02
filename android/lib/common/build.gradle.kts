@@ -7,7 +7,7 @@ android { namespace = "net.mullvad.mullvadvpn.lib.common" }
 
 dependencies {
     implementation(projects.lib.model)
-    implementation(projects.lib.resource)
+    implementation(projects.lib.ui.resource)
 
     implementation(libs.arrow)
     implementation(libs.androidx.appcompat)
