@@ -21,6 +21,12 @@ Line wrap the file at 100 chars.                                              Th
 * **Fixed**: for any bug fixes.
 * **Security**: in case of vulnerabilities.
 
+## [android/2026.1-beta3] - 2025-02-02
+### Fixed
+- Fix long press on the quick settings tile not opening the app.
+- Fix snackbar dismiss button color being black instead of white.
+
+
 ## [android/2026.1-beta2] - 2025-01-27
 ### Changed
 - Disable "View logs" button until logs are fully parsed.
