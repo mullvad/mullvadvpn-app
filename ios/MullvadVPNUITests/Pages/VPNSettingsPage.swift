@@ -86,6 +86,12 @@ class VPNSettingsPage: Page {
         return self
     }
 
+    @discardableResult func tapLwoPortSelectorButton() -> Self {
+        cellPortSelectorButton(AccessibilityIdentifier.wireGuardObfuscationLwo).tap()
+
+        return self
+    }
+
     @discardableResult func tapQuantumResistantTunnelExpandButton() -> Self {
         cellExpandButton(AccessibilityIdentifier.quantumResistantTunnelCell).tap()
 
@@ -128,8 +134,13 @@ class VPNSettingsPage: Page {
         return self
     }
 
-    @discardableResult func tapWireGuardObufscationQuicCell() -> Self {
+    @discardableResult func tapWireGuardObfuscationQuicCell() -> Self {
         app.cells[AccessibilityIdentifier.wireGuardObfuscationQuic].tap()
+        return self
+    }
+
+    @discardableResult func tapWireGuardObfuscationLwoCell() -> Self {
+        app.cells[AccessibilityIdentifier.wireGuardObfuscationLwo].tap()
         return self
     }
 

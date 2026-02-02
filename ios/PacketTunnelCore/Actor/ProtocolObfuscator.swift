@@ -55,6 +55,8 @@ public class ProtocolObfuscator<Obfuscator: TunnelObfuscation>: ProtocolObfuscat
                 .shadowsocks
             case let .quic(hostname, token):
                 .quic(hostname: hostname, token: token)
+            case .lwo:
+                .lwo
             }
 
         // If obfuscation is disabled, return endpoint as-is

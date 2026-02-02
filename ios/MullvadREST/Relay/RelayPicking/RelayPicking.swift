@@ -76,20 +76,23 @@ extension RelayPicking {
     private func resolveObfuscationMethod(features: REST.ServerRelay.Features?) -> ObfuscationMethod {
         switch obfuscation.method {
         case .off, .automatic:
-            return .off
+            .off
         case .on:
             // `.on` is a legacy state that shouldn't occur in practice
-            return .off
+            .off
         case .udpOverTcp:
-            return .udpOverTcp
+            .udpOverTcp
         case .shadowsocks:
-            return .shadowsocks
+            .shadowsocks
         case .quic:
             if let quicFeatures = features?.quic {
-                return .quic(hostname: quicFeatures.domain, token: quicFeatures.token)
+                .quic(hostname: quicFeatures.domain, token: quicFeatures.token)
+            } else {
+                // Fall back to off if QUIC features not available
+                .off
             }
-            // Fall back to off if QUIC features not available
-            return .off
+        case .lwo:
+            .lwo
         }
     }
 
@@ -99,7 +102,7 @@ extension RelayPicking {
             applyShadowsocksIpAddress(in: match)
         case .quic:
             applyQuicIpAddress(in: match)
-        case .off, .automatic, .on, .udpOverTcp:
+        case .off, .automatic, .on, .udpOverTcp, .lwo:
             match.endpoint.ipv4Relay.ip
         }
     }

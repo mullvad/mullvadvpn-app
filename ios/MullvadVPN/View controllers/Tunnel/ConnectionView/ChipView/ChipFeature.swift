@@ -82,7 +82,7 @@ struct ObfuscationFeature: ChipFeature {
     }
 
     var isEnabled: Bool {
-        actualObfuscationMethod.isEnabled
+        settings.wireGuardObfuscation.state.isEnabled
     }
 
     var isAutomatic: Bool {

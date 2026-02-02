@@ -25,6 +25,8 @@ Line wrap the file at 100 chars.                                              Th
 ### Add
 - Add support for additional languages.
 - Add recent connections in the Select location view.
+- Add support for obfuscating WireGuard tunnel traffic by. This helps
+  circumvent censorship.
 
 ### Changed
 - Improve reliability of the bridge API connection method.
@@ -55,8 +57,8 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [2025.6 - 2025-09-23]
 ### Added
-- Add support for obfuscating WireGuard tunnel traffic as the QUIC protocol. This helps
-  circumvent censorship.
+- Add support for obfuscating WireGuard tunnel traffic by LWO (Lightweight WireGuard Obfuscation). 
+  This helps circumvent censorship.
 - Make feature indicators clickable shortcuts to their corresponding settings.
 - Let users cancel sending a problem report.
 - Add possibility to manage devices from account view.

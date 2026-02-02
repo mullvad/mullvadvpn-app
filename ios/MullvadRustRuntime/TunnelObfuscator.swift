@@ -15,6 +15,7 @@ public enum TunnelObfuscationProtocol {
     case udpOverTcp
     case shadowsocks
     case quic(hostname: String, token: String)
+    case lwo
 }
 
 public protocol TunnelObfuscation {
@@ -52,9 +53,7 @@ public final class TunnelObfuscator: TunnelObfuscation {
         switch obfuscationProtocol {
         case .udpOverTcp:
             .tcp
-        case .shadowsocks:
-            .udp
-        case .quic:
+        case .shadowsocks, .quic, .lwo:
             .udp
         }
     }
@@ -101,6 +100,9 @@ public final class TunnelObfuscator: TunnelObfuscation {
                         token,
                         proxyHandlePointer
                     )
+                case .lwo:
+                    // Todo: Add obfuscator proxy
+                    Int32(0)
                 }
             }
 
