@@ -679,8 +679,6 @@
 		7AD63A3B2CD5278900445268 /* ObfuscationMethodSelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AD63A3A2CD5278900445268 /* ObfuscationMethodSelector.swift */; };
 		7AD63A3D2CD9065D00445268 /* RelayObfuscatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AD63A3C2CD9065100445268 /* RelayObfuscatorTests.swift */; };
 		7AD63A3F2CDA53F600445268 /* ObfuscationMethodSelectorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AD63A3E2CDA53E900445268 /* ObfuscationMethodSelectorTests.swift */; };
-		7AD63A442CDA663300445268 /* UInt+Counting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AD63A432CDA662900445268 /* UInt+Counting.swift */; };
-		7AD63A472CDA666100445268 /* UIntTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AD63A462CDA665A00445268 /* UIntTests.swift */; };
 		7ADCB2D82B6A6EB300C88F89 /* AnyRelay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ADCB2D72B6A6EB300C88F89 /* AnyRelay.swift */; };
 		7ADCB2DA2B6A730400C88F89 /* IPOverrideRepositoryStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ADCB2D92B6A730400C88F89 /* IPOverrideRepositoryStub.swift */; };
 		7AE044BB2A935726003915D8 /* Routing.h in Headers */ = {isa = PBXBuildFile; fileRef = 7A88DCD02A8FABBE00D2FF0E /* Routing.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -2250,8 +2248,6 @@
 		7AD63A3A2CD5278900445268 /* ObfuscationMethodSelector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObfuscationMethodSelector.swift; sourceTree = "<group>"; };
 		7AD63A3C2CD9065100445268 /* RelayObfuscatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayObfuscatorTests.swift; sourceTree = "<group>"; };
 		7AD63A3E2CDA53E900445268 /* ObfuscationMethodSelectorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObfuscationMethodSelectorTests.swift; sourceTree = "<group>"; };
-		7AD63A432CDA662900445268 /* UInt+Counting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UInt+Counting.swift"; sourceTree = "<group>"; };
-		7AD63A462CDA665A00445268 /* UIntTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIntTests.swift; sourceTree = "<group>"; };
 		7ADCB2D72B6A6EB300C88F89 /* AnyRelay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnyRelay.swift; sourceTree = "<group>"; };
 		7ADCB2D92B6A730400C88F89 /* IPOverrideRepositoryStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IPOverrideRepositoryStub.swift; sourceTree = "<group>"; };
 		7AE90B672C2D726000375A60 /* NSParagraphStyle+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSParagraphStyle+Extensions.swift"; sourceTree = "<group>"; };
@@ -2831,7 +2827,6 @@
 			children = (
 				F06045F02B2324DA00B2D37A /* ApiHandlers */,
 				062B45A228FD4C0F00746E77 /* Assets */,
-				7AD63A422CDA661B00445268 /* Extensions */,
 				582FFA82290A84E700895745 /* Info.plist */,
 				7A2C0E872D82E450003D8048 /* MullvadAPI */,
 				06799ABE28F98E1D00ACD94E /* MullvadREST.h */,
@@ -2881,7 +2876,6 @@
 			isa = PBXGroup;
 			children = (
 				F0F146932D9462BA00BF78E7 /* MullvadApi */,
-				7AD63A452CDA665200445268 /* Extensions */,
 				F072D3D02C071A9100906F64 /* Shadowsocks */,
 				440E9EF42BDA943B00B1FD11 /* ApiHandlers */,
 				440E9EF52BDA954000B1FD11 /* Relay */,
@@ -4512,22 +4506,6 @@
 			path = IncludeAllNetworks;
 			sourceTree = "<group>";
 		};
-		7AD63A422CDA661B00445268 /* Extensions */ = {
-			isa = PBXGroup;
-			children = (
-				7AD63A432CDA662900445268 /* UInt+Counting.swift */,
-			);
-			path = Extensions;
-			sourceTree = "<group>";
-		};
-		7AD63A452CDA665200445268 /* Extensions */ = {
-			isa = PBXGroup;
-			children = (
-				7AD63A462CDA665A00445268 /* UIntTests.swift */,
-			);
-			path = Extensions;
-			sourceTree = "<group>";
-		};
 		7AE241492C20682B0076CE33 /* Presentation controllers */ = {
 			isa = PBXGroup;
 			children = (
@@ -6019,7 +5997,6 @@
 				7A2E7B702D6C9FCF009EF2C3 /* APITransport.swift in Sources */,
 				7A2E7B752D6CA0B1009EF2C3 /* APITransportProvider.swift in Sources */,
 				F0B894F12BF751E300817A42 /* RelayWithDistance.swift in Sources */,
-				7AD63A442CDA663300445268 /* UInt+Counting.swift in Sources */,
 				7AA564502F30D0DE001D1FB9 /* LwoObfuscator.swift in Sources */,
 				7A516C3A2B7111A700BBD33D /* IPOverrideWrapper.swift in Sources */,
 				7A964BB92E699A3F00C6A4EC /* ShadowsocksObfuscator.swift in Sources */,
@@ -6164,7 +6141,6 @@
 				A9A5FA0E2ACB05160083449F /* StorePaymentObserver.swift in Sources */,
 				7A6811542DC8EC6E009CB61A /* UIFont+Weight.swift in Sources */,
 				A9A5FA102ACB05160083449F /* PacketTunnelAPITransport.swift in Sources */,
-				7AD63A472CDA666100445268 /* UIntTests.swift in Sources */,
 				A9A5FA112ACB05160083449F /* APITransportMonitor.swift in Sources */,
 				A9B6AC1A2ADE8FBB00F7802A /* InMemorySettingsStore.swift in Sources */,
 				A9A5FA132ACB05160083449F /* LoadTunnelConfigurationOperation.swift in Sources */,

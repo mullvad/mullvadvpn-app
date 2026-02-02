@@ -66,6 +66,14 @@ final class ProtocolObfuscatorTests: XCTestCase {
 
         validate(obfuscated.endpoint, against: obfuscationProtocol)
     }
+
+    func testObfuscateLwo() throws {
+        let endpoint = try makeEndpoint(obfuscation: .lwo)
+        let obfuscated = obfuscator.obfuscate(endpoint)
+        let obfuscationProtocol = try XCTUnwrap(obfuscator.tunnelObfuscator as? TunnelObfuscationStub)
+
+        validate(obfuscated.endpoint, against: obfuscationProtocol)
+    }
 }
 
 extension ProtocolObfuscatorTests {
