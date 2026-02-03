@@ -288,7 +288,7 @@ pub async fn new_device_client() -> anyhow::Result<DevicesProxy> {
         .context("failed to resolve API host")?;
 
     // Override the API endpoint to use the one specified in the test config
-    let endpoint = ApiEndpoint::new(api_host, api_address, false);
+    let endpoint = ApiEndpoint::new(api_host, api_address, None, false);
 
     let api = mullvad_api::Runtime::new(tokio::runtime::Handle::current(), &endpoint);
 

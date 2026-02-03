@@ -10,6 +10,7 @@ data class ApiEndpointOverride(
     val port: Int = CUSTOM_ENDPOINT_HTTPS_PORT,
     val disableTls: Boolean = false,
     val forceDirectConnection: Boolean = true,
+    val sigsumTrustedPubkeys: String,
 ) : Parcelable {
     companion object {
         const val CUSTOM_ENDPOINT_HTTPS_PORT = 443
