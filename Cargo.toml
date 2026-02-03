@@ -73,6 +73,7 @@ dirs = "6.0.0"
 either = "1.15.0"
 futures = "0.3.15"
 gotatun = { version = "0.6.0", default-features = false, features = ["ring"] }
+hex = { version = "0.4" }
 hickory-proto = "0.26.1"
 hickory-resolver = { version = "0.26.1", default-features = false, features = [
   "tokio"
@@ -116,6 +117,7 @@ shadowsocks = { version = "1.23.2", default-features = false, features = [
   "stream-cipher"
 ] }
 shadowsocks-crypto = { version = "0.6.2", features = ["v1-stream"] }
+sigsum = "0.2.0"
 socket2 = "0.5.7"
 strum = { version = "0.27" }
 surge-ping = "0.8.4"
