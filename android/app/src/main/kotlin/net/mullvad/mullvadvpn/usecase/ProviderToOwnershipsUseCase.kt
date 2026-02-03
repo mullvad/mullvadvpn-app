@@ -5,7 +5,7 @@ import kotlinx.coroutines.flow.map
 import net.mullvad.mullvadvpn.lib.model.Ownership
 import net.mullvad.mullvadvpn.lib.model.ProviderId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
-import net.mullvad.mullvadvpn.repository.RelayListRepository
+import net.mullvad.mullvadvpn.lib.repository.RelayListRepository
 
 class ProviderToOwnershipsUseCase(private val relayListRepository: RelayListRepository) {
     operator fun invoke(): Flow<Map<ProviderId, Set<Ownership>>> =

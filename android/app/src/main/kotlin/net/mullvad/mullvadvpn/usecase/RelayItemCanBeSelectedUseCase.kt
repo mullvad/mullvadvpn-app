@@ -6,14 +6,14 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.zip
 import net.mullvad.mullvadvpn.compose.state.MultihopRelayListType
 import net.mullvad.mullvadvpn.compose.state.RelayListType
+import net.mullvad.mullvadvpn.lib.common.util.relaylist.isTheSameAs
+import net.mullvad.mullvadvpn.lib.common.util.relaylist.withDescendants
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.Settings
-import net.mullvad.mullvadvpn.relaylist.isTheSameAs
-import net.mullvad.mullvadvpn.relaylist.withDescendants
-import net.mullvad.mullvadvpn.repository.RelayListRepository
-import net.mullvad.mullvadvpn.repository.SettingsRepository
+import net.mullvad.mullvadvpn.lib.repository.RelayListRepository
+import net.mullvad.mullvadvpn.lib.repository.SettingsRepository
 import net.mullvad.mullvadvpn.util.isDaitaDirectOnly
 import net.mullvad.mullvadvpn.util.isDaitaEnabled
 

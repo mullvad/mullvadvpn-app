@@ -1,7 +1,6 @@
-package net.mullvad.mullvadvpn.util
+package net.mullvad.mullvadvpn.lib.ui.component
 
 import android.graphics.Typeface
-import android.text.Html
 import android.text.Spanned
 import android.text.style.StyleSpan
 import android.text.style.UnderlineSpan
@@ -12,19 +11,6 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
-import androidx.core.text.HtmlCompat
-
-fun String.appendHideNavOnPlayBuild(isPlayBuild: Boolean): String =
-    if (isPlayBuild) {
-        "$this?hide_nav"
-    } else {
-        this
-    }
-
-fun String.removeHtmlTags(): String =
-    Html.fromHtml(this, HtmlCompat.FROM_HTML_MODE_LEGACY).toString()
-
-fun List<String>.trimAll() = map { it.trim() }
 
 /**
  * Appends `text` and styles occurrences of `substring` in `text` with the given `substringStyle`.

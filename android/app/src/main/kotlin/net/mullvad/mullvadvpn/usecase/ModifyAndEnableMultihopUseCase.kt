@@ -3,10 +3,10 @@ package net.mullvad.mullvadvpn.usecase
 import arrow.core.Either
 import arrow.core.raise.either
 import co.touchlab.kermit.Logger
-import net.mullvad.mullvadvpn.repository.CustomListsRepository
-import net.mullvad.mullvadvpn.repository.RelayListRepository
-import net.mullvad.mullvadvpn.repository.SettingsRepository
-import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
+import net.mullvad.mullvadvpn.lib.repository.CustomListsRepository
+import net.mullvad.mullvadvpn.lib.repository.RelayListRepository
+import net.mullvad.mullvadvpn.lib.repository.SettingsRepository
+import net.mullvad.mullvadvpn.lib.repository.WireguardConstraintsRepository
 
 class ModifyAndEnableMultihopUseCase(
     private val relayListRepository: RelayListRepository,

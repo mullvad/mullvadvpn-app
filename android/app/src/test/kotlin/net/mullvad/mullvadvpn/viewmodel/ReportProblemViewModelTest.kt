@@ -15,7 +15,7 @@ import net.mullvad.mullvadvpn.dataproxy.SendProblemReportResult
 import net.mullvad.mullvadvpn.dataproxy.UserReport
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.repository.AccountRepository
-import net.mullvad.mullvadvpn.repository.ProblemReportRepository
+import net.mullvad.mullvadvpn.lib.repository.ProblemReportRepository
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

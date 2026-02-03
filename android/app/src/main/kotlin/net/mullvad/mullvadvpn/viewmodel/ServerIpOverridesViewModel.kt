@@ -19,7 +19,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.model.SettingsPatchError
-import net.mullvad.mullvadvpn.repository.RelayOverridesRepository
+import net.mullvad.mullvadvpn.lib.repository.RelayOverridesRepository
 import net.mullvad.mullvadvpn.util.Lc
 import net.mullvad.mullvadvpn.util.toLc
 

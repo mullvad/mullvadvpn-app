@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
 import net.mullvad.mullvadvpn.lib.model.BuildVersion
-import net.mullvad.mullvadvpn.repository.ChangelogRepository
+import net.mullvad.mullvadvpn.lib.repository.ChangelogRepository
 
 class ChangelogViewModel(
     private val changelogRepository: ChangelogRepository,

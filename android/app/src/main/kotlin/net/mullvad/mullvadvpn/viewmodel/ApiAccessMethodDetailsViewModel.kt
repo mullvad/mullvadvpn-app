@@ -21,7 +21,7 @@ import net.mullvad.mullvadvpn.constant.MINIMUM_LOADING_TIME_MILLIS
 import net.mullvad.mullvadvpn.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodId
 import net.mullvad.mullvadvpn.lib.model.TestApiAccessMethodError
-import net.mullvad.mullvadvpn.repository.ApiAccessRepository
+import net.mullvad.mullvadvpn.lib.repository.ApiAccessRepository
 import net.mullvad.mullvadvpn.util.delayAtLeast
 
 class ApiAccessMethodDetailsViewModel(

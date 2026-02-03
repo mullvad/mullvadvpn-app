@@ -3,14 +3,14 @@ package net.mullvad.mullvadvpn.usecase.customlists
 import kotlin.collections.mapNotNull
 import kotlinx.coroutines.flow.combine
 import net.mullvad.mullvadvpn.compose.state.RelayListType
+import net.mullvad.mullvadvpn.lib.common.util.relaylist.filter
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.IpVersion
 import net.mullvad.mullvadvpn.lib.model.Ownership
 import net.mullvad.mullvadvpn.lib.model.Providers
 import net.mullvad.mullvadvpn.lib.model.RelayItem
-import net.mullvad.mullvadvpn.relaylist.filter
-import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
-import net.mullvad.mullvadvpn.repository.SettingsRepository
+import net.mullvad.mullvadvpn.lib.repository.RelayListFilterRepository
+import net.mullvad.mullvadvpn.lib.repository.SettingsRepository
 import net.mullvad.mullvadvpn.util.ipVersionConstraint
 import net.mullvad.mullvadvpn.util.isDaitaAndDirectOnly
 import net.mullvad.mullvadvpn.util.isLwoEnabled

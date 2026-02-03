@@ -1,9 +1,9 @@
 package net.mullvad.mullvadvpn.usecase.customlists
 
 import kotlinx.coroutines.flow.combine
-import net.mullvad.mullvadvpn.relaylist.toRelayItemCustomList
-import net.mullvad.mullvadvpn.repository.CustomListsRepository
-import net.mullvad.mullvadvpn.repository.RelayListRepository
+import net.mullvad.mullvadvpn.lib.common.util.relaylist.toRelayItemCustomList
+import net.mullvad.mullvadvpn.lib.repository.CustomListsRepository
+import net.mullvad.mullvadvpn.lib.repository.RelayListRepository
 
 class CustomListsRelayItemUseCase(
     private val customListsRepository: CustomListsRepository,

@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.repository
+package net.mullvad.mullvadvpn.lib.repository
 
 import java.net.InetAddress
 import kotlinx.coroutines.CoroutineDispatcher

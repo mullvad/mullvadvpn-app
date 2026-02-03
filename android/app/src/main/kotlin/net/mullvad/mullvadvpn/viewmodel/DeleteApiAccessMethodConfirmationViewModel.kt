@@ -16,7 +16,7 @@ import net.mullvad.mullvadvpn.compose.state.DeleteApiAccessMethodUiState
 import net.mullvad.mullvadvpn.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodId
 import net.mullvad.mullvadvpn.lib.model.RemoveApiAccessMethodError
-import net.mullvad.mullvadvpn.repository.ApiAccessRepository
+import net.mullvad.mullvadvpn.lib.repository.ApiAccessRepository
 
 class DeleteApiAccessMethodConfirmationViewModel(
     private val apiAccessRepository: ApiAccessRepository,

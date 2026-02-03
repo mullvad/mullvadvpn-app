@@ -3,7 +3,7 @@ package net.mullvad.mullvadvpn.usecase.inappnotification
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import net.mullvad.mullvadvpn.lib.model.InAppNotification
-import net.mullvad.mullvadvpn.repository.ChangelogRepository
+import net.mullvad.mullvadvpn.lib.repository.ChangelogRepository
 
 class NewChangelogNotificationUseCase(private val changelogRepository: ChangelogRepository) :
     InAppNotificationUseCase {

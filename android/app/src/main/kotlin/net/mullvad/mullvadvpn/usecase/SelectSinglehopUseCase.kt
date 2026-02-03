@@ -4,7 +4,7 @@ import arrow.core.Either
 import arrow.core.raise.either
 import arrow.core.raise.ensure
 import net.mullvad.mullvadvpn.lib.model.RelayItem
-import net.mullvad.mullvadvpn.repository.RelayListRepository
+import net.mullvad.mullvadvpn.lib.repository.RelayListRepository
 
 class SelectSinglehopUseCase(private val relayListRepository: RelayListRepository) {
     suspend operator fun invoke(item: RelayItem): Either<SelectRelayItemError, Unit> = either {

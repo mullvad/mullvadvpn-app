@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.stateIn
 import net.mullvad.mullvadvpn.compose.state.EditCustomListUiState
 import net.mullvad.mullvadvpn.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.model.CustomListId
-import net.mullvad.mullvadvpn.repository.CustomListsRepository
+import net.mullvad.mullvadvpn.lib.repository.CustomListsRepository
 
 class EditCustomListViewModel(
     customListsRepository: CustomListsRepository,
