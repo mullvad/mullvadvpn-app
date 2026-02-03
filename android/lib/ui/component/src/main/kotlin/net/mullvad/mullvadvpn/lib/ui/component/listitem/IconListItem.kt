@@ -25,8 +25,16 @@ import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 private fun PreviewExternalLinkListItem() {
     AppTheme {
         PreviewSpacedColumn(Modifier.background(MaterialTheme.colorScheme.surface)) {
-            IconListItem(title = "Navigation sample", leadingIcon = Icons.Default.Settings, onClick = {})
-            IconListItem(title = "Navigation sample", leadingIcon = Icons.Default.AccountBalance, onClick = {})
+            IconListItem(
+                title = "Navigation sample",
+                leadingIcon = Icons.Default.Settings,
+                onClick = {},
+            )
+            IconListItem(
+                title = "Navigation sample",
+                leadingIcon = Icons.Default.AccountBalance,
+                onClick = {},
+            )
         }
     }
 }
