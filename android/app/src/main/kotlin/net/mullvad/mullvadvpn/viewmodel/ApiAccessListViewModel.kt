@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import net.mullvad.mullvadvpn.compose.state.ApiAccessListUiState
 import net.mullvad.mullvadvpn.constant.VIEW_MODEL_STOP_TIMEOUT
-import net.mullvad.mullvadvpn.repository.ApiAccessRepository
+import net.mullvad.mullvadvpn.lib.repository.ApiAccessRepository
 
 class ApiAccessListViewModel(apiAccessRepository: ApiAccessRepository) : ViewModel() {
 

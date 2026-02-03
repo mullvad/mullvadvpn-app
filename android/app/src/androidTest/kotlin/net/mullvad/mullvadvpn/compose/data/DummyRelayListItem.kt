@@ -1,10 +1,10 @@
 package net.mullvad.mullvadvpn.compose.data
 
+import net.mullvad.mullvadvpn.lib.common.util.relaylist.descendants
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.ItemPosition
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.RelayListItem
-import net.mullvad.mullvadvpn.relaylist.descendants
 
 @Suppress("CyclomaticComplexMethod")
 fun createSimpleRelayListItemList(

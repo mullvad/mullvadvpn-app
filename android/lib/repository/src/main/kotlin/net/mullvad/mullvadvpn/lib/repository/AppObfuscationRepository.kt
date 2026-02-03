@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.repository
+package net.mullvad.mullvadvpn.lib.repository
 
 import android.content.ComponentName
 import android.content.pm.PackageManager
@@ -10,14 +10,13 @@ import android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_ENABLED
 import android.content.pm.PackageManager.DONT_KILL_APP
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.ui.MainActivity
-import net.mullvad.mullvadvpn.ui.obfuscation.MainActivityAltBrowser
-import net.mullvad.mullvadvpn.ui.obfuscation.MainActivityAltDefault
-import net.mullvad.mullvadvpn.ui.obfuscation.MainActivityAltGame
-import net.mullvad.mullvadvpn.ui.obfuscation.MainActivityAltNinja
-import net.mullvad.mullvadvpn.ui.obfuscation.MainActivityAltNotes
-import net.mullvad.mullvadvpn.ui.obfuscation.MainActivityAltWeather
+import net.mullvad.mullvadvpn.lib.common.constant.MAIN_ACTIVITY_ALT_BROWSER_CLASS
+import net.mullvad.mullvadvpn.lib.common.constant.MAIN_ACTIVITY_ALT_DEFAULT_CLASS
+import net.mullvad.mullvadvpn.lib.common.constant.MAIN_ACTIVITY_ALT_GAME_CLASS
+import net.mullvad.mullvadvpn.lib.common.constant.MAIN_ACTIVITY_ALT_NINJA_CLASS
+import net.mullvad.mullvadvpn.lib.common.constant.MAIN_ACTIVITY_ALT_NOTES_CLASS
+import net.mullvad.mullvadvpn.lib.common.constant.MAIN_ACTIVITY_ALT_WEATHER_CLASS
+import net.mullvad.mullvadvpn.lib.common.constant.MAIN_ACTIVITY_CLASS
 
 class AppObfuscationRepository(
     private val packageManager: PackageManager,
@@ -49,7 +48,7 @@ class AppObfuscationRepository(
     // Due to a bug in the code, users that use `2026.1-beta1` would disable the main activity.
     // This is incorrect and they should disable the default alt activity instead.
     fun fixDisableBug() {
-        with(ComponentName(packageName, MainActivity::class.java.name)) {
+        with(ComponentName(packageName, MAIN_ACTIVITY_CLASS)) {
             if (
                 packageManager.getComponentEnabledSetting(this) == COMPONENT_ENABLED_STATE_DISABLED
             ) {
@@ -83,47 +82,47 @@ class AppObfuscationRepository(
             else -> error("Unknown component enabled setting")
         }
 
-    private fun AppObfuscation.toComponentName() = ComponentName(packageName, clazz.name)
+    private fun AppObfuscation.toComponentName() = ComponentName(packageName, className)
 }
 
 enum class AppObfuscation(
-    val clazz: Class<*>,
+    val className: String,
     val iconId: Int,
     val bannerId: Int,
     val labelId: Int,
 ) {
     DEFAULT(
-        MainActivityAltDefault::class.java,
+        MAIN_ACTIVITY_ALT_DEFAULT_CLASS,
         R.mipmap.ic_launcher,
         R.mipmap.ic_banner,
         R.string.app_name,
     ),
     GAME(
-        MainActivityAltGame::class.java,
+        MAIN_ACTIVITY_ALT_GAME_CLASS,
         R.mipmap.ic_launcher_game,
         R.mipmap.ic_banner_game,
         R.string.app_name_game,
     ),
     NINJA(
-        MainActivityAltNinja::class.java,
+        MAIN_ACTIVITY_ALT_NINJA_CLASS,
         R.mipmap.ic_launcher_ninja,
         R.mipmap.ic_banner_ninja,
         R.string.app_name_ninja,
     ),
     WEATHER(
-        MainActivityAltWeather::class.java,
+        MAIN_ACTIVITY_ALT_WEATHER_CLASS,
         R.mipmap.ic_launcher_weather,
         R.mipmap.ic_banner_weather,
         R.string.app_name_weather,
     ),
     NOTES(
-        MainActivityAltNotes::class.java,
+        MAIN_ACTIVITY_ALT_NOTES_CLASS,
         R.mipmap.ic_launcher_notes,
         R.mipmap.ic_banner_notes,
         R.string.app_name_notes,
     ),
     BROWSER(
-        MainActivityAltBrowser::class.java,
+        MAIN_ACTIVITY_ALT_BROWSER_CLASS,
         R.mipmap.ic_launcher_browser,
         R.mipmap.ic_banner_browser,
         R.string.app_name_browser,

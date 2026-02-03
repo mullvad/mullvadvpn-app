@@ -31,6 +31,7 @@ dependencies {
     implementation(projects.lib.model)
 
     implementation(libs.arrow)
+    implementation(libs.arrow.optics)
     implementation(libs.kermit)
     implementation(libs.kotlin.stdlib)
     implementation(libs.kotlinx.coroutines.android)

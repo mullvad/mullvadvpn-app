@@ -1,5 +1,6 @@
-package net.mullvad.mullvadvpn.repository
+package net.mullvad.mullvadvpn.lib.repository
 
+import kotlin.text.split
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -7,16 +8,14 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import net.mullvad.mullvadvpn.lib.common.util.trimAll
 import net.mullvad.mullvadvpn.lib.model.BuildVersion
-import net.mullvad.mullvadvpn.lib.repository.UserPreferencesRepository
-import net.mullvad.mullvadvpn.util.IChangelogDataProvider
-import net.mullvad.mullvadvpn.util.trimAll
 
 private const val NEWLINE_CHAR = '\n'
 private const val BULLET_POINT_CHAR = '-'
 
 class ChangelogRepository(
-    private val dataProvider: IChangelogDataProvider,
+    private val dataProvider: ChangelogDataProvider,
     private val userPreferencesRepository: UserPreferencesRepository,
     private val buildVersion: BuildVersion,
     dispatcher: CoroutineDispatcher = Dispatchers.IO,

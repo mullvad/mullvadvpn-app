@@ -1,17 +1,16 @@
-package net.mullvad.mullvadvpn.repository
+package net.mullvad.mullvadvpn.lib.repository
 
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import net.mullvad.mullvadvpn.lib.common.test.assertLists
-import net.mullvad.mullvadvpn.util.IChangelogDataProvider
 import org.junit.jupiter.api.Test
 
 @ExperimentalCoroutinesApi
 class ChangelogRepositoryTest {
 
-    private val mockDataProvider: IChangelogDataProvider = mockk()
+    private val mockDataProvider: ChangelogDataProvider = mockk()
 
     private val changelogRepository =
         ChangelogRepository(

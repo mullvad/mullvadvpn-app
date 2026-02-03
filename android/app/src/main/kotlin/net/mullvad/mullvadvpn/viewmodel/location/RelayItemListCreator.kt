@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.viewmodel.location
 
 import net.mullvad.mullvadvpn.compose.state.MultihopRelayListType
 import net.mullvad.mullvadvpn.compose.state.RelayListType
+import net.mullvad.mullvadvpn.lib.common.util.relaylist.filterOnSearchTerm
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
@@ -10,7 +11,6 @@ import net.mullvad.mullvadvpn.lib.model.RelayItemSelection
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.ItemPosition
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.RelayListItem
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.RelayListItemState
-import net.mullvad.mullvadvpn.relaylist.filterOnSearchTerm
 
 const val RECENTS_MAX_VISIBLE: Int = 3
 

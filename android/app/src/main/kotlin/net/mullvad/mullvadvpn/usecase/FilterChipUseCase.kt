@@ -8,8 +8,8 @@ import net.mullvad.mullvadvpn.lib.model.Ownership
 import net.mullvad.mullvadvpn.lib.model.ProviderId
 import net.mullvad.mullvadvpn.lib.model.Providers
 import net.mullvad.mullvadvpn.lib.model.Settings
-import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
-import net.mullvad.mullvadvpn.repository.SettingsRepository
+import net.mullvad.mullvadvpn.lib.repository.RelayListFilterRepository
+import net.mullvad.mullvadvpn.lib.repository.SettingsRepository
 import net.mullvad.mullvadvpn.util.isDaitaAndDirectOnly
 import net.mullvad.mullvadvpn.util.isLwoEnabled
 import net.mullvad.mullvadvpn.util.isQuicEnabled

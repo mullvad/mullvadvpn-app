@@ -23,6 +23,7 @@ import net.mullvad.mullvadvpn.compose.state.MultihopRelayListType
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.common.test.assertLists
+import net.mullvad.mullvadvpn.lib.common.util.relaylist.descendants
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.CustomList
 import net.mullvad.mullvadvpn.lib.model.CustomListId
@@ -35,12 +36,11 @@ import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.Settings
 import net.mullvad.mullvadvpn.lib.model.WireguardConstraints
 import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
-import net.mullvad.mullvadvpn.relaylist.descendants
-import net.mullvad.mullvadvpn.repository.CustomListsRepository
-import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
-import net.mullvad.mullvadvpn.repository.RelayListRepository
-import net.mullvad.mullvadvpn.repository.SettingsRepository
-import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
+import net.mullvad.mullvadvpn.lib.repository.CustomListsRepository
+import net.mullvad.mullvadvpn.lib.repository.RelayListFilterRepository
+import net.mullvad.mullvadvpn.lib.repository.RelayListRepository
+import net.mullvad.mullvadvpn.lib.repository.SettingsRepository
+import net.mullvad.mullvadvpn.lib.repository.WireguardConstraintsRepository
 import net.mullvad.mullvadvpn.usecase.FilterChip
 import net.mullvad.mullvadvpn.usecase.FilterChipUseCase
 import net.mullvad.mullvadvpn.usecase.HopSelectionUseCase
@@ -354,10 +354,10 @@ class SelectLocationViewModelTest {
 
     companion object {
         private const val RELAY_LIST_EXTENSIONS =
-            "net.mullvad.mullvadvpn.relaylist.RelayListExtensionsKt"
+            "net.mullvad.mullvadvpn.lib.common.util.relaylist.RelayListExtensionsKt"
         private const val RELAY_ITEM_EXTENSIONS =
-            "net.mullvad.mullvadvpn.relaylist.RelayItemExtensionsKt"
+            "net.mullvad.mullvadvpn.lib.common.util.relaylist.RelayItemExtensionsKt"
         private const val CUSTOM_LIST_EXTENSIONS =
-            "net.mullvad.mullvadvpn.relaylist.CustomListExtensionsKt"
+            "net.mullvad.mullvadvpn.lib.common.util.relaylist.CustomListExtensionsKt"
     }
 }

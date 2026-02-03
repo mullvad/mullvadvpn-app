@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.repository
+package net.mullvad.mullvadvpn.lib.repository
 
 import arrow.core.left
 import arrow.core.right
@@ -277,6 +277,6 @@ class CustomListsRepositoryTest {
 
     companion object {
         private const val RELAY_LIST_EXTENSIONS =
-            "net.mullvad.mullvadvpn.relaylist.RelayListExtensionsKt"
+            "net.mullvad.mullvadvpn.lib.common.util.relaylist.RelayListExtensionsKt"
     }
 }

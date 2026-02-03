@@ -23,7 +23,7 @@ import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodId
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodSetting
 import net.mullvad.mullvadvpn.lib.model.TestApiAccessMethodError
 import net.mullvad.mullvadvpn.lib.model.UnknownApiAccessMethodError
-import net.mullvad.mullvadvpn.repository.ApiAccessRepository
+import net.mullvad.mullvadvpn.lib.repository.ApiAccessRepository
 import net.mullvad.mullvadvpn.util.delayAtLeast
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach

@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.relaylist
+package net.mullvad.mullvadvpn.lib.common.util.relaylist
 
 import net.mullvad.mullvadvpn.lib.model.CustomList
 import net.mullvad.mullvadvpn.lib.model.CustomListId

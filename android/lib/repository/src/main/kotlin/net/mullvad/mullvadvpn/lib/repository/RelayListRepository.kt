@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.repository
+package net.mullvad.mullvadvpn.lib.repository
 
 import arrow.optics.Every
 import arrow.optics.copy
@@ -13,6 +13,8 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import net.mullvad.mullvadvpn.lib.common.util.relaylist.findByGeoLocationId
+import net.mullvad.mullvadvpn.lib.common.util.relaylist.sortedByName
 import net.mullvad.mullvadvpn.lib.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
@@ -22,13 +24,10 @@ import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.model.WireguardEndpointData
 import net.mullvad.mullvadvpn.lib.model.cities
 import net.mullvad.mullvadvpn.lib.model.name
-import net.mullvad.mullvadvpn.lib.repository.RelayLocationTranslationRepository
-import net.mullvad.mullvadvpn.relaylist.findByGeoLocationId
-import net.mullvad.mullvadvpn.relaylist.sortedByName
 
 class RelayListRepository(
     private val managementService: ManagementService,
-    private val translationRepository: RelayLocationTranslationRepository,
+    translationRepository: RelayLocationTranslationRepository,
     dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) {
     val relayList: StateFlow<List<RelayItem.Location.Country>> =

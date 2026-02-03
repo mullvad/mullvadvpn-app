@@ -16,11 +16,11 @@ import net.mullvad.mullvadvpn.compose.screen.location.LocationBottomSheetState
 import net.mullvad.mullvadvpn.compose.state.LocationBottomSheetUiState
 import net.mullvad.mullvadvpn.compose.state.SetAsState
 import net.mullvad.mullvadvpn.constant.VIEW_MODEL_STOP_TIMEOUT
+import net.mullvad.mullvadvpn.lib.common.util.relaylist.withDescendants
 import net.mullvad.mullvadvpn.lib.model.CustomListName
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
-import net.mullvad.mullvadvpn.relaylist.withDescendants
-import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
+import net.mullvad.mullvadvpn.lib.repository.WireguardConstraintsRepository
 import net.mullvad.mullvadvpn.usecase.HopSelectionUseCase
 import net.mullvad.mullvadvpn.usecase.ModifyAndEnableMultihopUseCase
 import net.mullvad.mullvadvpn.usecase.ModifyMultihopError

@@ -5,7 +5,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import net.mullvad.mullvadvpn.lib.model.InAppNotification
 import net.mullvad.mullvadvpn.lib.repository.DeviceRepository
-import net.mullvad.mullvadvpn.repository.NewDeviceRepository
+import net.mullvad.mullvadvpn.lib.repository.NewDeviceRepository
 
 class NewDeviceNotificationUseCase(
     private val newDeviceRepository: NewDeviceRepository,
