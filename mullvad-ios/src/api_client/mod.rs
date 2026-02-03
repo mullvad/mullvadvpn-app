@@ -9,9 +9,7 @@ use futures::{
     channel::{mpsc, oneshot},
 };
 use mullvad_api::{
-    ApiEndpoint, Runtime,
-    access_mode::{AccessMethodEvent, AccessModeSelector, AccessModeSelectorHandle},
-    rest::{self, MullvadRestHandle},
+    AddressCache, ApiEndpoint, ApiProxy, Runtime, access_mode::{AccessMethodEvent, AccessModeSelector, AccessModeSelectorHandle}, rest::{self, MullvadRestHandle}
 };
 use mullvad_encrypted_dns_proxy::state::EncryptedDnsProxyState;
 use mullvad_types::access_method::{Id, Settings};
@@ -87,6 +85,10 @@ impl ApiContext {
                 .await
         });
     }
+
+    pub fn address_cache(&self) -> &AddressCache {
+        self.api_client.address_cache()
+    }
 }
 
 /// An opaque pointer that exists only to be passed from the caller to a callback through the ABI
@@ -126,6 +128,52 @@ pub unsafe extern "C" fn mullvad_api_use_access_method(
         return;
     };
     api_context.use_access_method(id);
+}
+
+/// Called by Swift to trigger a fetching and caching of addresses
+/// 
+/// # SAFETY
+/// 
+/// this takes no arguments other than the API context
+
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn mullvad_api_update_address_cache(
+    swift_api_context: SwiftApiContext,
+
+) {
+    let api_context = swift_api_context.rust_context();
+    let cloned_context = api_context.clone();
+    let handle = cloned_context.api_client.handle();
+    handle.spawn(async move {
+
+        let api_proxy = ApiProxy::new(api_context.rest_handle());
+
+        match api_proxy.get_api_addrs().await {
+            Ok(new_addrs) => {
+                if let Some(addr) = new_addrs.first() {
+                    log::debug!(
+                        "Fetched new API address {:?}",
+                        addr,
+                    );
+                    if let Err(err) = api_context.address_cache().set_address(*addr).await {
+                        log::error!("Failed to save newly updated API address: {}", err);
+                    }
+                } else {
+                    log::error!("API returned no API addresses");
+                }
+
+            }
+            Err(err) => {
+                log::error!(
+                    "Failed to fetch new API addresses: {}",
+                    err,
+                );
+
+            }
+        }    
+
+    });
+
 }
 
 /// # Safety
