@@ -16,7 +16,7 @@ import net.mullvad.mullvadvpn.lib.model.ApiAccessMethod
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodId
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodName
 import net.mullvad.mullvadvpn.lib.model.NewAccessMethodSetting
-import net.mullvad.mullvadvpn.repository.ApiAccessRepository
+import net.mullvad.mullvadvpn.lib.repository.ApiAccessRepository
 
 class SaveApiAccessMethodViewModel(
     private val apiAccessRepository: ApiAccessRepository,

@@ -1,10 +1,10 @@
-package net.mullvad.mullvadvpn.repository
+package net.mullvad.mullvadvpn.lib.repository
 
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import net.mullvad.mullvadvpn.dataproxy.UserReport
+import net.mullvad.mullvadvpn.lib.model.UserReport
 
 class ProblemReportRepository {
     private val _problemReport = MutableStateFlow(UserReport("", ""))

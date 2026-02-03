@@ -42,9 +42,9 @@ import net.mullvad.mullvadvpn.lib.model.SplitTunnelSettings
 import net.mullvad.mullvadvpn.lib.model.TunnelOptions
 import net.mullvad.mullvadvpn.lib.model.Udp2TcpObfuscationSettings
 import net.mullvad.mullvadvpn.lib.model.WireguardConstraints
-import net.mullvad.mullvadvpn.repository.AutoStartAndConnectOnBootRepository
-import net.mullvad.mullvadvpn.repository.SettingsRepository
-import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
+import net.mullvad.mullvadvpn.lib.repository.AutoStartAndConnectOnBootRepository
+import net.mullvad.mullvadvpn.lib.repository.SettingsRepository
+import net.mullvad.mullvadvpn.lib.repository.WireguardConstraintsRepository
 import net.mullvad.mullvadvpn.usecase.SystemVpnSettingsAvailableUseCase
 import net.mullvad.mullvadvpn.util.Lc
 import org.junit.jupiter.api.AfterEach

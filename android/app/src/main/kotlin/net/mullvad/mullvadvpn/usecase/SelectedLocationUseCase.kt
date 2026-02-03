@@ -3,8 +3,8 @@ package net.mullvad.mullvadvpn.usecase
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
 import net.mullvad.mullvadvpn.lib.model.RelayItemSelection
-import net.mullvad.mullvadvpn.repository.RelayListRepository
-import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
+import net.mullvad.mullvadvpn.lib.repository.RelayListRepository
+import net.mullvad.mullvadvpn.lib.repository.WireguardConstraintsRepository
 
 class SelectedLocationUseCase(
     private val relayListRepository: RelayListRepository,

@@ -9,14 +9,14 @@ import net.mullvad.mullvadvpn.compose.communication.CustomListSuccess
 import net.mullvad.mullvadvpn.compose.communication.Deleted
 import net.mullvad.mullvadvpn.compose.communication.LocationsChanged
 import net.mullvad.mullvadvpn.compose.communication.Renamed
+import net.mullvad.mullvadvpn.lib.common.util.relaylist.getRelayItemsByCodes
 import net.mullvad.mullvadvpn.lib.model.CreateCustomListError
 import net.mullvad.mullvadvpn.lib.model.DeleteCustomListError
 import net.mullvad.mullvadvpn.lib.model.GetCustomListError
 import net.mullvad.mullvadvpn.lib.model.UpdateCustomListLocationsError
 import net.mullvad.mullvadvpn.lib.model.UpdateCustomListNameError
-import net.mullvad.mullvadvpn.relaylist.getRelayItemsByCodes
-import net.mullvad.mullvadvpn.repository.CustomListsRepository
-import net.mullvad.mullvadvpn.repository.RelayListRepository
+import net.mullvad.mullvadvpn.lib.repository.CustomListsRepository
+import net.mullvad.mullvadvpn.lib.repository.RelayListRepository
 
 class CustomListActionUseCase(
     private val customListsRepository: CustomListsRepository,

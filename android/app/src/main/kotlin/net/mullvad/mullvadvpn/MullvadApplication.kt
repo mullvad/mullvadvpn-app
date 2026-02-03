@@ -12,7 +12,7 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.di.ApplicationScope
 import net.mullvad.mullvadvpn.di.KERMIT_FILE_LOG_DIR_NAME
 import net.mullvad.mullvadvpn.di.appModule
-import net.mullvad.mullvadvpn.repository.AppObfuscationRepository
+import net.mullvad.mullvadvpn.lib.repository.AppObfuscationRepository
 import net.mullvad.mullvadvpn.service.notifications.NotificationChannelFactory
 import net.mullvad.mullvadvpn.service.notifications.NotificationManager
 import net.mullvad.mullvadvpn.service.notifications.accountexpiry.AccountExpiryNotificationProvider

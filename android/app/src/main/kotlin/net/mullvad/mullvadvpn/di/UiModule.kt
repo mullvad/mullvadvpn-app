@@ -14,22 +14,23 @@ import net.mullvad.mullvadvpn.constant.IS_FDROID_BUILD
 import net.mullvad.mullvadvpn.constant.IS_PLAY_BUILD
 import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
 import net.mullvad.mullvadvpn.lib.payment.PaymentProvider
+import net.mullvad.mullvadvpn.lib.repository.ApiAccessRepository
+import net.mullvad.mullvadvpn.lib.repository.AutoStartAndConnectOnBootRepository
+import net.mullvad.mullvadvpn.lib.repository.ChangelogDataProvider
+import net.mullvad.mullvadvpn.lib.repository.ChangelogRepository
+import net.mullvad.mullvadvpn.lib.repository.CustomListsRepository
+import net.mullvad.mullvadvpn.lib.repository.NewDeviceRepository
+import net.mullvad.mullvadvpn.lib.repository.ProblemReportRepository
+import net.mullvad.mullvadvpn.lib.repository.RelayListFilterRepository
+import net.mullvad.mullvadvpn.lib.repository.RelayListRepository
+import net.mullvad.mullvadvpn.lib.repository.RelayOverridesRepository
+import net.mullvad.mullvadvpn.lib.repository.SettingsRepository
+import net.mullvad.mullvadvpn.lib.repository.SplashCompleteRepository
+import net.mullvad.mullvadvpn.lib.repository.SplitTunnelingRepository
 import net.mullvad.mullvadvpn.lib.repository.VoucherRepository
+import net.mullvad.mullvadvpn.lib.repository.WireguardConstraintsRepository
 import net.mullvad.mullvadvpn.receiver.AutoStartVpnBootCompletedReceiver
-import net.mullvad.mullvadvpn.repository.ApiAccessRepository
-import net.mullvad.mullvadvpn.repository.AutoStartAndConnectOnBootRepository
-import net.mullvad.mullvadvpn.repository.ChangelogRepository
-import net.mullvad.mullvadvpn.repository.CustomListsRepository
 import net.mullvad.mullvadvpn.repository.InAppNotificationController
-import net.mullvad.mullvadvpn.repository.NewDeviceRepository
-import net.mullvad.mullvadvpn.repository.ProblemReportRepository
-import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
-import net.mullvad.mullvadvpn.repository.RelayListRepository
-import net.mullvad.mullvadvpn.repository.RelayOverridesRepository
-import net.mullvad.mullvadvpn.repository.SettingsRepository
-import net.mullvad.mullvadvpn.repository.SplashCompleteRepository
-import net.mullvad.mullvadvpn.repository.SplitTunnelingRepository
-import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
 import net.mullvad.mullvadvpn.ui.MainActivity
 import net.mullvad.mullvadvpn.ui.serviceconnection.AppVersionInfoRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
@@ -65,8 +66,6 @@ import net.mullvad.mullvadvpn.usecase.inappnotification.NewChangelogNotification
 import net.mullvad.mullvadvpn.usecase.inappnotification.NewDeviceNotificationUseCase
 import net.mullvad.mullvadvpn.usecase.inappnotification.TunnelStateNotificationUseCase
 import net.mullvad.mullvadvpn.usecase.inappnotification.VersionNotificationUseCase
-import net.mullvad.mullvadvpn.util.ChangelogDataProvider
-import net.mullvad.mullvadvpn.util.IChangelogDataProvider
 import net.mullvad.mullvadvpn.viewmodel.AccountViewModel
 import net.mullvad.mullvadvpn.viewmodel.AddTimeViewModel
 import net.mullvad.mullvadvpn.viewmodel.AntiCensorshipSettingsViewModel
@@ -236,7 +235,7 @@ val uiModule = module {
 
     single { InAppNotificationController(getAll(), MainScope()) }
 
-    single<IChangelogDataProvider> { ChangelogDataProvider(get()) }
+    single { ChangelogDataProvider(get()) }
 
     // Will be resolved using from either of the two PaymentModule.kt classes.
     single { PaymentProvider(get()) }

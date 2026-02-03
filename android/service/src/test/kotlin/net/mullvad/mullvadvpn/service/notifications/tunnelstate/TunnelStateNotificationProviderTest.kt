@@ -1,10 +1,12 @@
 package net.mullvad.mullvadvpn.service.notifications.tunnelstate
 
+import android.content.Context
 import app.cash.turbine.test
 import arrow.core.left
 import arrow.core.right
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.mockkStatic
 import java.time.ZonedDateTime
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -13,6 +15,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
+import net.mullvad.mullvadvpn.lib.common.util.prepareVpnSafe
 import net.mullvad.mullvadvpn.lib.model.AccountNumber
 import net.mullvad.mullvadvpn.lib.model.Device
 import net.mullvad.mullvadvpn.lib.model.DeviceId
@@ -28,7 +31,6 @@ import net.mullvad.mullvadvpn.lib.model.Prepared
 import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
 import net.mullvad.mullvadvpn.lib.repository.DeviceRepository
-import net.mullvad.mullvadvpn.lib.repository.PrepareVpnUseCase
 import net.mullvad.mullvadvpn.lib.repository.UserPreferencesRepository
 import net.mullvad.mullvadvpn.repository.UserPreferences
 import org.junit.jupiter.api.BeforeEach
@@ -36,8 +38,8 @@ import org.junit.jupiter.api.Test
 
 class TunnelStateNotificationProviderTest {
 
+    private lateinit var mockContext: Context
     private lateinit var connectionProxy: ConnectionProxy
-    private lateinit var prepareVpnUseCase: PrepareVpnUseCase
     private lateinit var deviceRepository: DeviceRepository
     private lateinit var userPreferencesRepository: UserPreferencesRepository
 
@@ -63,9 +65,11 @@ class TunnelStateNotificationProviderTest {
     @OptIn(ExperimentalCoroutinesApi::class)
     @BeforeEach
     fun setup() {
+        mockkStatic(VPN_SERVICE_UTILS)
+
         // Initialize mocks and default behaviors
+        mockContext = mockk()
         connectionProxy = mockk()
-        prepareVpnUseCase = mockk()
         deviceRepository = mockk()
         userPreferencesRepository = mockk()
         val userPreferences = mockk<UserPreferences>()
@@ -81,14 +85,14 @@ class TunnelStateNotificationProviderTest {
         every { deviceRepository.deviceState } returns deviceStateFlow
         every { userPreferencesRepository.preferencesFlow() } returns preferencesFlow
 
-        // Default behavior for prepareVpnUseCase
-        every { prepareVpnUseCase.invoke() } returns Prepared.right()
+        // Default behavior for prepareSafe()
+        every { mockContext.prepareVpnSafe() } returns Prepared.right()
 
         // Initialize the class under test
         provider =
             TunnelStateNotificationProvider(
+                context = mockContext,
                 connectionProxy = connectionProxy,
-                vpnPermissionRepository = prepareVpnUseCase,
                 deviceRepository = deviceRepository,
                 preferences = userPreferencesRepository,
                 channelId = testChannelId,
@@ -133,12 +137,12 @@ class TunnelStateNotificationProviderTest {
     fun `should emit disconnected with prepare error when VPN is not prepared`() = runTest {
         // Given VPN is not prepared
         val prepareError = PrepareError.OtherAlwaysOnApp("OtherVPN")
-        every { prepareVpnUseCase.invoke() } returns prepareError.left()
+        every { mockContext.prepareVpnSafe() } returns prepareError.left()
 
         provider =
             TunnelStateNotificationProvider(
+                context = mockContext,
                 connectionProxy = connectionProxy,
-                vpnPermissionRepository = prepareVpnUseCase,
                 deviceRepository = deviceRepository,
                 preferences = userPreferencesRepository,
                 channelId = testChannelId,
@@ -204,4 +208,8 @@ class TunnelStateNotificationProviderTest {
                 )
             }
         }
+
+    companion object {
+        const val VPN_SERVICE_UTILS = "net.mullvad.mullvadvpn.lib.common.util.VpnServiceUtilsKt"
+    }
 }

@@ -1,17 +1,19 @@
 package net.mullvad.mullvadvpn.lib.repository
 
+import android.content.Context
 import arrow.core.Either
 import arrow.core.raise.either
 import kotlinx.coroutines.flow.combine
+import net.mullvad.mullvadvpn.lib.common.util.prepareVpnSafe
 import net.mullvad.mullvadvpn.lib.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.model.ConnectError
 import net.mullvad.mullvadvpn.lib.model.GeoIpLocation
 import net.mullvad.mullvadvpn.lib.model.TunnelState
 
 class ConnectionProxy(
+    private val context: Context,
     private val managementService: ManagementService,
     translationRepository: RelayLocationTranslationRepository,
-    private val prepareVpnUseCase: PrepareVpnUseCase,
 ) {
     val tunnelState =
         combine(managementService.tunnelState, translationRepository.translations) {
@@ -34,7 +36,7 @@ class ConnectionProxy(
         copy(city = translations[city] ?: city, country = translations[country] ?: country)
 
     suspend fun connect(): Either<ConnectError, Boolean> = either {
-        prepareVpnUseCase.invoke().mapLeft(ConnectError::NotPrepared).bind()
+        context.prepareVpnSafe().mapLeft(ConnectError::NotPrepared).bind()
         managementService.connect().bind()
     }
 

@@ -17,16 +17,15 @@ import net.mullvad.mullvadvpn.lib.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.model.BuildVersion
 import net.mullvad.mullvadvpn.lib.model.NotificationChannel
 import net.mullvad.mullvadvpn.lib.repository.AccountRepository
+import net.mullvad.mullvadvpn.lib.repository.AppObfuscationRepository
 import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
 import net.mullvad.mullvadvpn.lib.repository.DeviceRepository
 import net.mullvad.mullvadvpn.lib.repository.LocaleRepository
-import net.mullvad.mullvadvpn.lib.repository.PrepareVpnUseCase
 import net.mullvad.mullvadvpn.lib.repository.RelayLocationTranslationRepository
+import net.mullvad.mullvadvpn.lib.repository.UserPreferencesMigration
 import net.mullvad.mullvadvpn.lib.repository.UserPreferencesRepository
-import net.mullvad.mullvadvpn.repository.AppObfuscationRepository
+import net.mullvad.mullvadvpn.lib.repository.UserPreferencesSerializer
 import net.mullvad.mullvadvpn.repository.UserPreferences
-import net.mullvad.mullvadvpn.repository.UserPreferencesMigration
-import net.mullvad.mullvadvpn.repository.UserPreferencesSerializer
 import net.mullvad.mullvadvpn.service.notifications.NotificationChannelFactory
 import net.mullvad.mullvadvpn.service.notifications.NotificationManager
 import net.mullvad.mullvadvpn.service.notifications.NotificationProvider
@@ -54,8 +53,6 @@ val appModule = module {
     }
     single { ApplicationScope.createDoNotCallUseDiInstead() }
 
-    single { PrepareVpnUseCase(androidContext()) }
-
     single { androidContext().resources }
     single { androidContext().userPreferencesStore }
     single { BuildVersion(BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE) }
@@ -63,7 +60,7 @@ val appModule = module {
     single { AccountRepository(get(), get(), MainScope()) }
     single { DeviceRepository(get()) }
     single { UserPreferencesRepository(get(), get()) }
-    single { ConnectionProxy(get(), get(), get()) }
+    single { ConnectionProxy(androidContext(), get(), get()) }
     single { LocaleRepository(get()) }
     single { RelayLocationTranslationRepository(get(), get(), MainScope()) }
     single { ScheduleNotificationAlarmUseCase(androidContext(), get()) }
@@ -83,7 +80,7 @@ val appModule = module {
         }
     single {
         TunnelStateNotificationProvider(
-            get(),
+            androidContext(),
             get(),
             get(),
             get(),
@@ -107,7 +104,7 @@ private val Context.userPreferencesStore: DataStore<UserPreferences> by
     dataStore(
         fileName = APP_PREFERENCES_NAME,
         serializer = UserPreferencesSerializer,
-        produceMigrations = UserPreferencesMigration::migrations,
+        produceMigrations = { UserPreferencesMigration.migrations(it, APP_PREFERENCES_NAME) },
     )
 
 class ApplicationScope private constructor(private val cs: CoroutineScope) : CoroutineScope by cs {

@@ -3,7 +3,7 @@ package net.mullvad.mullvadvpn.usecase
 import arrow.core.raise.either
 import arrow.core.raise.ensure
 import net.mullvad.mullvadvpn.lib.model.SetDnsOptionsError
-import net.mullvad.mullvadvpn.repository.SettingsRepository
+import net.mullvad.mullvadvpn.lib.repository.SettingsRepository
 
 class DeleteCustomDnsUseCase(private val settingsRepository: SettingsRepository) {
     suspend operator fun invoke(index: Int) =

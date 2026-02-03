@@ -34,17 +34,17 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
-import net.mullvad.mullvadvpn.compose.util.annotatedStringResource
 import net.mullvad.mullvadvpn.compose.util.isTv
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
+import net.mullvad.mullvadvpn.lib.repository.AppObfuscation
 import net.mullvad.mullvadvpn.lib.ui.component.SPACE_CHAR
+import net.mullvad.mullvadvpn.lib.ui.component.annotatedStringResource
 import net.mullvad.mullvadvpn.lib.ui.component.griditem.AppIconAndTitleGridItem
 import net.mullvad.mullvadvpn.lib.ui.component.text.ScreenDescription
 import net.mullvad.mullvadvpn.lib.ui.designsystem.ListHeader
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorMedium
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
-import net.mullvad.mullvadvpn.repository.AppObfuscation
 import net.mullvad.mullvadvpn.util.Lc
 import net.mullvad.mullvadvpn.viewmodel.AppearanceUiState
 import net.mullvad.mullvadvpn.viewmodel.AppearanceViewModel
@@ -129,7 +129,7 @@ private fun LazyGridScope.content(
     item(span = { GridItemSpan(this.maxLineSpan) }) {
         ListHeader(content = { Text(text = stringResource(R.string.icon_and_title)) })
     }
-    items(items = state.availableObfuscations, key = { it.clazz.name }) { item ->
+    items(items = state.availableObfuscations, key = { it.className }) { item ->
         Card(
             shape = MaterialTheme.shapes.large,
             onClick = { onObfuscationSelected(item) },

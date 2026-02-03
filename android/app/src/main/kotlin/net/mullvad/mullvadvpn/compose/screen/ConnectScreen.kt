@@ -110,6 +110,7 @@ import net.mullvad.mullvadvpn.constant.SECURE_ZOOM_ANIMATION_MILLIS
 import net.mullvad.mullvadvpn.constant.UNSECURE_ZOOM
 import net.mullvad.mullvadvpn.constant.fallbackLatLong
 import net.mullvad.mullvadvpn.lib.common.util.openVpnSettings
+import net.mullvad.mullvadvpn.lib.common.util.removeHtmlTags
 import net.mullvad.mullvadvpn.lib.map.AnimatedMap
 import net.mullvad.mullvadvpn.lib.map.data.GlobeColors
 import net.mullvad.mullvadvpn.lib.map.data.LocationMarkerColors
@@ -136,7 +137,6 @@ import net.mullvad.mullvadvpn.lib.ui.theme.color.Alpha80
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaInvisible
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaScrollbar
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaVisible
-import net.mullvad.mullvadvpn.util.removeHtmlTags
 import net.mullvad.mullvadvpn.viewmodel.ConnectViewModel
 import org.koin.androidx.compose.koinViewModel
 

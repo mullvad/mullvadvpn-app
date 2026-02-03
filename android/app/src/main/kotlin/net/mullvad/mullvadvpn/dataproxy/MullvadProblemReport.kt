@@ -7,6 +7,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointFromIntentHolder
 import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointOverride
+import net.mullvad.mullvadvpn.lib.model.UserReport
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentStatus
 import net.mullvad.mullvadvpn.lib.repository.AccountRepository
 import net.mullvad.mullvadvpn.service.BuildConfig
@@ -24,8 +25,6 @@ sealed interface SendProblemReportResult {
         data object SendReport : Error
     }
 }
-
-data class UserReport(val email: String?, val description: String)
 
 class MullvadProblemReport(
     context: Context,

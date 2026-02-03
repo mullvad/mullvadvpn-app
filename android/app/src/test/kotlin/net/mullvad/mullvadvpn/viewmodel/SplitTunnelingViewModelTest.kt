@@ -23,7 +23,7 @@ import net.mullvad.mullvadvpn.applist.ApplicationsProvider
 import net.mullvad.mullvadvpn.compose.screen.SplitTunnelingNavArgs
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.model.AppId
-import net.mullvad.mullvadvpn.repository.SplitTunnelingRepository
+import net.mullvad.mullvadvpn.lib.repository.SplitTunnelingRepository
 import net.mullvad.mullvadvpn.util.Lc
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach

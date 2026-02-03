@@ -19,7 +19,7 @@ import net.mullvad.mullvadvpn.lib.model.Recent
 import net.mullvad.mullvadvpn.lib.model.Recents
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.Settings
-import net.mullvad.mullvadvpn.repository.SettingsRepository
+import net.mullvad.mullvadvpn.lib.repository.SettingsRepository
 import net.mullvad.mullvadvpn.usecase.customlists.FilterCustomListsRelayItemUseCase
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

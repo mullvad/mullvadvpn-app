@@ -2,15 +2,15 @@ package net.mullvad.mullvadvpn.usecase
 
 import arrow.core.raise.nullable
 import kotlinx.coroutines.flow.combine
+import net.mullvad.mullvadvpn.lib.common.util.relaylist.findCity
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.CustomList
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
-import net.mullvad.mullvadvpn.relaylist.findCity
-import net.mullvad.mullvadvpn.repository.CustomListsRepository
-import net.mullvad.mullvadvpn.repository.RelayListRepository
+import net.mullvad.mullvadvpn.lib.repository.CustomListsRepository
+import net.mullvad.mullvadvpn.lib.repository.RelayListRepository
 
 class SelectedLocationTitleUseCase(
     private val customListsRepository: CustomListsRepository,
