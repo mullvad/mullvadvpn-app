@@ -3,6 +3,7 @@
 use std::path::{Path, PathBuf};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
+use chrono::{DateTime, Utc};
 use futures::channel::mpsc;
 use futures::future::{Fuse, FusedFuture};
 use futures::{Future, FutureExt, SinkExt, StreamExt};
@@ -12,8 +13,9 @@ use tokio::fs::File;
 use super::RELAYS_FILENAME;
 use super::error::Error;
 
+use mullvad_api::relay_list_transparency::RelayListDigest;
 use mullvad_api::{
-    CachedRelayList, ETag, RelayListProxy, availability::ApiAvailability, rest::MullvadRestHandle,
+    CachedRelayList, RelayListProxy, availability::ApiAvailability, rest::MullvadRestHandle,
 };
 use mullvad_types::relay_list::{BridgeList, RelayList};
 use talpid_future::retry::{ExponentialBackoff, Jittered, retry_future};
@@ -75,7 +77,8 @@ pub struct RelayListUpdater {
     on_update: Box<dyn Fn(&RelayList) + Send + 'static>,
     last_check: SystemTime,
     api_availability: ApiAvailability,
-    etag: Option<ETag>,
+    digest: Option<RelayListDigest>,
+    latest_timestamp: Option<DateTime<Utc>>,
     // Keep tabs on the up-to-date relay list.
     // Use [RelayListUpdater::get_final_relay_list] when exposing the relay list to other parts of
     // the app.
@@ -99,11 +102,12 @@ impl RelayListUpdater {
         let api_availability = api_handle.availability.clone();
         let api_client = RelayListProxy::new(api_handle);
 
-        let (relay_list, bridge_list, etag) = cached_relay_list
+        let (relay_list, bridge_list, digest, latest_timestamp) = cached_relay_list
             .map(|cached_relay_list| {
-                let etag = cached_relay_list.etag().cloned();
+                let digest = cached_relay_list.digest().clone();
+                let timestamp = cached_relay_list.timestamp();
                 let (relay_list, bridge_list) = cached_relay_list.into_internal_repr();
-                (relay_list, bridge_list, etag)
+                (relay_list, bridge_list, Some(digest), Some(timestamp))
             })
             .unwrap_or_default();
         let updater = RelayListUpdater {
@@ -112,7 +116,8 @@ impl RelayListUpdater {
             relay_selector: selector,
             on_update: Box::new(on_update),
             last_check: UNIX_EPOCH,
-            etag,
+            digest,
+            latest_timestamp,
             overrides,
             api_availability,
             relay_list,
@@ -130,13 +135,18 @@ impl RelayListUpdater {
             let next_check = tokio::time::sleep(UPDATE_CHECK_INTERVAL).fuse();
             tokio::pin!(next_check);
 
-            let etag = self.etag.clone();
+            let digest = self.digest.clone();
+            let timestamp = self.latest_timestamp;
 
             futures::select! {
                 _check_update = next_check => {
                     log::trace!("Received `next_check` event");
                     if download_future.is_terminated() && self.should_update() {
-                        download_future = Box::pin(Self::download_relay_list(self.api_availability.clone(), self.api_client.clone(), etag).fuse());
+                        download_future = Box::pin(Self::download_relay_list(self.api_availability.clone(),
+                            self.api_client.clone(),
+                            digest,
+                            timestamp).fuse());
+
                         self.last_check = SystemTime::now();
                     }
                 },
@@ -154,7 +164,11 @@ impl RelayListUpdater {
                     };
                     match event {
                         Event::Update => {
-                            download_future = Box::pin(Self::download_relay_list(self.api_availability.clone(), self.api_client.clone(), etag).fuse());
+                            download_future = Box::pin(Self::download_relay_list(self.api_availability.clone(),
+                                    self.api_client.clone(),
+                                    digest,
+                                    timestamp).fuse());
+
                             self.last_check = SystemTime::now();
                         },
                         // Only update the relay list with new overrides if they are actually new.
@@ -169,7 +183,7 @@ impl RelayListUpdater {
                     }
                 }
 
-            };
+            }
         }
     }
 
@@ -204,24 +218,30 @@ impl RelayListUpdater {
     fn download_relay_list(
         api_handle: ApiAvailability,
         proxy: RelayListProxy,
-        tag: Option<ETag>,
+        latest_digest: Option<RelayListDigest>,
+        latest_timestamp: Option<DateTime<Utc>>,
     ) -> impl Future<Output = Result<Option<CachedRelayList>, mullvad_api::Error>> + use<> {
-        async fn download_future(
+        async fn download(
             api_handle: ApiAvailability,
             proxy: RelayListProxy,
-            tag: Option<ETag>,
+            latest_digest: Option<RelayListDigest>,
+            latest_timestamp: Option<DateTime<Utc>>,
         ) -> Result<Option<CachedRelayList>, mullvad_api::Error> {
-            let available = api_handle.wait_background();
-            let req = proxy.relay_list(tag);
-            available.await?;
-            req.await.map_err(mullvad_api::Error::from)
+            api_handle.wait_background().await?;
+            Ok(proxy.relay_list(latest_digest, latest_timestamp).await?)
         }
 
-        let download_futures =
-            move || download_future(api_handle.clone(), proxy.clone(), tag.clone());
+        let download_future = move || {
+            download(
+                api_handle.clone(),
+                proxy.clone(),
+                latest_digest.clone(),
+                latest_timestamp,
+            )
+        };
 
         retry_future(
-            download_futures,
+            download_future,
             |result| result.is_err(),
             DOWNLOAD_RETRY_STRATEGY,
         )
@@ -235,8 +255,10 @@ impl RelayListUpdater {
                 error.display_chain_with_msg("Failed to update relay cache on disk")
             );
         }
-        // Cache the ETag so that we send the correct one in the next request
-        self.etag = new_relay_list.etag().cloned();
+        // Cache the digest and timestamp so that we can check it before sending next request
+        self.digest = Some(new_relay_list.digest().clone());
+        self.latest_timestamp = Some(new_relay_list.timestamp());
+
         // Propagate the new relay list to the relay selector
         let (relay_list, bridge_list) = new_relay_list.into_internal_repr();
         self.relay_list = relay_list;

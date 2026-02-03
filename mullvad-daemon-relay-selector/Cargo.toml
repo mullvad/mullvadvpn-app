@@ -18,6 +18,7 @@ talpid-future = { path = "../talpid-future/" }
 talpid-types = { path = "../talpid-types" }
 thiserror = { workspace = true }
 tokio = { workspace = true, features = ["fs"] }
+chrono = { workspace = true }
 
 [features]
 default = []
