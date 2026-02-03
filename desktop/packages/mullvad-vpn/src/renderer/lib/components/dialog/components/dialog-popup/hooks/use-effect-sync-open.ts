@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { useDialogContext } from '../DialogContext';
+import { useDialogContext } from '../../../DialogContext';
 
 export function useEffectSyncOpen() {
   const { dialogRef, open, onOpenChange } = useDialogContext();
