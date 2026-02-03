@@ -75,6 +75,8 @@ impl FfiClient {
         let endpoint = ApiEndpoint {
             host: Some(api_hostname.clone()),
             address: Some(api_address),
+            // TODO: fix this
+            sigsum_trusted_pubkeys: None,
             #[cfg(feature = "api-override")]
             force_direct: false,
             #[cfg(any(feature = "api-override", test))]
