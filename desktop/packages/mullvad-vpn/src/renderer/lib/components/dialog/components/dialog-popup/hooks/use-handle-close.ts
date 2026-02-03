@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { useDialogContext } from '../DialogContext';
+import { useDialogContext } from '../../../DialogContext';
 
 export function useHandleClose() {
   const { open, onOpenChange } = useDialogContext();
