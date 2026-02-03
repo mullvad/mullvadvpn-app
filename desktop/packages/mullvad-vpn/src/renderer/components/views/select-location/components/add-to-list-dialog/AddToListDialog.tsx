@@ -1,41 +1,33 @@
-import { useCallback } from 'react';
+import React, { useCallback } from 'react';
 import { sprintf } from 'sprintf-js';
-import styled from 'styled-components';
 
 import { ICustomList, RelayLocationGeographical } from '../../../../../../shared/daemon-rpc-types';
 import { messages } from '../../../../../../shared/gettext';
 import log from '../../../../../../shared/logging';
 import { useAppContext } from '../../../../../context';
-import { Button } from '../../../../../lib/components';
+import { useCustomLists } from '../../../../../features/location/hooks';
+import { Dialog, type DialogProps } from '../../../../../lib/components/dialog';
+import { FlexColumn } from '../../../../../lib/components/flex-column';
 import { formatHtml } from '../../../../../lib/html-formatter';
-import { useSelector } from '../../../../../redux/store';
-import { ModalAlert, ModalMessage } from '../../../../Modal';
 import { SelectList } from '../select-list';
 
-const StyledModalMessage = styled(ModalMessage)({
-  marginTop: '8px',
-  marginBottom: '8px',
-});
-
-interface AddToListDialogProps {
+type AddToListDialogProps = Omit<DialogProps, 'children'> & {
   location: RelayLocationGeographical;
-  isOpen: boolean;
-  hide: () => void;
-}
+};
 
-// Dialog that displays list of custom lists when adding location to custom list.
-export function AddToListDialog(props: AddToListDialogProps) {
-  const { hide } = props;
-
+export function AddToListDialog({ location, onOpenChange, open }: AddToListDialogProps) {
   const { updateCustomList } = useAppContext();
-  const customLists = useSelector((state) => state.settings.customLists);
+  const { customLists } = useCustomLists();
 
-  const add = useCallback(
+  const close = React.useCallback(() => {
+    onOpenChange?.(false);
+  }, [onOpenChange]);
+
+  const addLocationToCustomList = useCallback(
     async (list: ICustomList) => {
-      // Update the list with the new location.
       const updatedList = {
         ...list,
-        locations: [...list.locations, props.location],
+        locations: [...list.locations, location],
       };
       try {
         await updateCustomList(updatedList);
@@ -44,48 +36,56 @@ export function AddToListDialog(props: AddToListDialogProps) {
         log.error(`Failed to edit custom list ${list.id}: ${error.message}`);
       }
 
-      hide();
+      close();
     },
-    [hide, props.location, updateCustomList],
+    [close, location, updateCustomList],
   );
 
   let locationType: string;
-  if ('hostname' in props.location) {
-    // TRANSLATORS: This refers to our VPN relays/servers
-    locationType = messages.pgettext('select-location-view', 'Relay');
-  } else if ('city' in props.location) {
+  if ('hostname' in location) {
+    locationType =
+      // TRANSLATORS: This refers to our VPN relays/servers
+      messages.pgettext('select-location-view', 'Relay');
+  } else if ('city' in location) {
     locationType = messages.pgettext('select-location-view', 'City');
   } else {
     locationType = messages.pgettext('select-location-view', 'Country');
   }
 
-  const lists = customLists.map((list) => (
-    <SelectList key={list.id} list={list} location={props.location} add={add} />
-  ));
-
   return (
-    <ModalAlert
-      isOpen={props.isOpen}
-      buttons={[
-        <Button key="cancel" onClick={props.hide}>
-          <Button.Text>{messages.gettext('Cancel')}</Button.Text>
-        </Button>,
-      ]}
-      close={props.hide}>
-      <StyledModalMessage>
-        {formatHtml(
-          sprintf(
-            // TRANSLATORS: This is a label shown above a list of options.
-            // TRANSLATORS: Available placeholder:
-            // TRANSLATORS: %(locationType) - Could be either "Country", "City" and "Relay"
-            messages.pgettext('select-location-view', 'Add <b>%(locationType)s</b> to list'),
-            {
-              locationType,
-            },
-          ),
-        )}
-      </StyledModalMessage>
-      {lists}
-    </ModalAlert>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <Dialog.Portal>
+        <Dialog.Popup>
+          <Dialog.PopupContent>
+            <Dialog.Text>
+              {formatHtml(
+                sprintf(
+                  // TRANSLATORS: This is a label shown above a list of options.
+                  // TRANSLATORS: Available placeholder:
+                  // TRANSLATORS: %(locationType) - Could be either "Country", "City" and "Relay"
+                  messages.pgettext('select-location-view', 'Add <b>%(locationType)s</b> to list'),
+                  {
+                    locationType,
+                  },
+                ),
+              )}
+            </Dialog.Text>
+            <FlexColumn gap="small">
+              {customLists.map((list) => (
+                <SelectList
+                  key={list.id}
+                  list={list}
+                  location={location}
+                  add={addLocationToCustomList}
+                />
+              ))}
+            </FlexColumn>
+            <Dialog.Button key="cancel" onClick={close}>
+              <Dialog.Button.Text>{messages.gettext('Cancel')}</Dialog.Button.Text>
+            </Dialog.Button>
+          </Dialog.PopupContent>
+        </Dialog.Popup>
+      </Dialog.Portal>
+    </Dialog>
   );
 }

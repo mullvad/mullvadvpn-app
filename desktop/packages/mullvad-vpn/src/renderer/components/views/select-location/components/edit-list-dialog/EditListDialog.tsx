@@ -1,98 +1,87 @@
-import { useCallback, useState } from 'react';
-import styled from 'styled-components';
+import React from 'react';
 
-import { ICustomList } from '../../../../../../shared/daemon-rpc-types';
 import { messages } from '../../../../../../shared/gettext';
-import log from '../../../../../../shared/logging';
-import { useAppContext } from '../../../../../context';
-import { Button } from '../../../../../lib/components';
-import { colors } from '../../../../../lib/foundations';
-import { useBoolean } from '../../../../../lib/utility-hooks';
-import { tinyText } from '../../../../common-styles';
-import { ModalAlert, ModalMessage } from '../../../../Modal';
-import SimpleInput from '../../../../SimpleInput';
+import { Dialog, type DialogProps } from '../../../../../lib/components/dialog';
+import { FlexColumn } from '../../../../../lib/components/flex-column';
+import { TextField } from '../../../../../lib/components/text-field';
+import { EditListDialogProvider, useEditListDialogContext } from './EditListDialogContext';
+import {
+  useHandleClickUpdateCustomList,
+  useHandleCustomListNameChange,
+  useHandleSubmitUpdateCustomList,
+} from './hooks';
 
-const StyledInputErrorText = styled.span(tinyText, {
-  marginTop: '6px',
-  color: colors.red,
-});
+export type EditListProps = Omit<DialogProps, 'children'>;
 
-const StyledModalMessage = styled(ModalMessage)({
-  marginTop: '8px',
-  marginBottom: '8px',
-});
-
-interface EditListProps {
-  list: ICustomList;
-  isOpen: boolean;
-  hide: () => void;
-}
-
-// Dialog for changing the name of a custom list.
-export function EditListDialog(props: EditListProps) {
-  const { hide } = props;
-
-  const { updateCustomList } = useAppContext();
-
-  const [newName, setNewName] = useState(props.list.name);
-  const newNameTrimmed = newName.trim();
-  const newNameValid = newNameTrimmed !== '';
-  const [error, setError, unsetError] = useBoolean();
-
-  // Update name in list and save it.
-  const save = useCallback(async () => {
-    if (newNameValid) {
-      try {
-        const updatedList = { ...props.list, name: newNameTrimmed };
-        const result = await updateCustomList(updatedList);
-        if (result && result.type === 'name already exists') {
-          setError();
-        } else {
-          hide();
-        }
-      } catch (e) {
-        const error = e as Error;
-        log.error(`Failed to edit custom list ${props.list.id}: ${error.message}`);
-      }
-    }
-  }, [newNameValid, props.list, newNameTrimmed, updateCustomList, setError, hide]);
-
-  // Errors should be reset when editing the value
-  const onChange = useCallback(
-    (value: string) => {
-      setNewName(value);
-      unsetError();
+function EditListDialogImpl(props: Omit<EditListProps, 'children' | 'open' | 'onOpenChange'>) {
+  const {
+    open,
+    onOpenChange,
+    formRef,
+    inputRef,
+    form: {
+      error,
+      customListTextField: { value, invalid, dirty, reset },
     },
-    [unsetError],
+  } = useEditListDialogContext();
+
+  const handleOnValueChange = useHandleCustomListNameChange();
+  const handleSubmit = useHandleSubmitUpdateCustomList();
+  const handleClick = useHandleClickUpdateCustomList();
+
+  const handleCancel = React.useCallback(() => {
+    onOpenChange?.(false);
+  }, [onOpenChange]);
+
+  const handleOnOpenChange = React.useCallback(
+    (open: boolean) => {
+      if (!open) {
+        reset();
+      }
+      onOpenChange?.(open);
+    },
+    [onOpenChange, reset],
   );
 
   return (
-    <ModalAlert
-      isOpen={props.isOpen}
-      buttons={[
-        <Button key="save" disabled={!newNameValid} onClick={save}>
-          <Button.Text>{messages.gettext('Save')}</Button.Text>
-        </Button>,
-        <Button key="cancel" onClick={props.hide}>
-          <Button.Text>{messages.gettext('Cancel')}</Button.Text>
-        </Button>,
-      ]}
-      close={props.hide}>
-      <StyledModalMessage>
-        {messages.pgettext('select-location-view', 'Edit list name')}
-      </StyledModalMessage>
-      <SimpleInput
-        value={newName}
-        onChangeValue={onChange}
-        onSubmitValue={save}
-        maxLength={30}
-        autoFocus
-      />
-      {error && (
-        <StyledInputErrorText>
-          {messages.pgettext('select-location-view', 'Name is already taken.')}
-        </StyledInputErrorText>
-      )}
-    </ModalAlert>
+    <Dialog open={open} onOpenChange={handleOnOpenChange} {...props}>
+      <Dialog.Portal>
+        <Dialog.Popup>
+          <Dialog.PopupContent>
+            <form ref={formRef} onSubmit={handleSubmit}>
+              <TextField
+                value={value}
+                onValueChange={handleOnValueChange}
+                invalid={dirty && invalid}>
+                <Dialog.TextGroup gap="small" flexGrow="1">
+                  <TextField.Label color="whiteAlpha60">
+                    {messages.pgettext('select-location-view', 'Edit list name')}
+                  </TextField.Label>
+                  <FlexColumn gap="small">
+                    <TextField.Input ref={inputRef} maxLength={30} autoFocus></TextField.Input>
+                  </FlexColumn>
+                </Dialog.TextGroup>
+              </TextField>
+            </form>
+            <Dialog.ButtonGroup>
+              <Dialog.Button key="save" disabled={error || invalid} onClick={handleClick}>
+                <Dialog.Button.Text>{messages.gettext('Save')}</Dialog.Button.Text>
+              </Dialog.Button>
+              <Dialog.Button key="cancel" onClick={handleCancel}>
+                <Dialog.Button.Text>{messages.gettext('Cancel')}</Dialog.Button.Text>
+              </Dialog.Button>
+            </Dialog.ButtonGroup>
+          </Dialog.PopupContent>
+        </Dialog.Popup>
+      </Dialog.Portal>
+    </Dialog>
+  );
+}
+
+export function EditListDialog({ open, onOpenChange, ...prop }: EditListProps) {
+  return (
+    <EditListDialogProvider open={open} onOpenChange={onOpenChange}>
+      <EditListDialogImpl {...prop} />
+    </EditListDialogProvider>
   );
 }
