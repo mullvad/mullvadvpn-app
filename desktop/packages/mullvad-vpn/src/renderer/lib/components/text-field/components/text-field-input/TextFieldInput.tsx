@@ -77,7 +77,7 @@ export const StyledTextFieldInput = styled.input<{ $variant?: TextFieldProps['va
 `;
 
 export function TextFieldInput(props: TextFieldInputProps) {
-  const { value, variant, disabled, invalid, onValueChange } = useTextFieldContext();
+  const { value, variant, disabled, invalid, onValueChange, labelId } = useTextFieldContext();
 
   const handleChange = React.useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -93,6 +93,7 @@ export function TextFieldInput(props: TextFieldInputProps) {
       disabled={disabled}
       aria-invalid={invalid}
       onChange={handleChange}
+      aria-labelledby={labelId}
       $variant={variant}
       {...props}
     />
