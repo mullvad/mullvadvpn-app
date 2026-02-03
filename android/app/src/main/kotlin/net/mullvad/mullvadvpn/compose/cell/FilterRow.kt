@@ -20,7 +20,7 @@ import net.mullvad.mullvadvpn.compose.component.MullvadFilterChip
 import net.mullvad.mullvadvpn.lib.model.Ownership
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
-import net.mullvad.mullvadvpn.usecase.FilterChip
+import net.mullvad.mullvadvpn.lib.usecase.FilterChip
 
 @Preview
 @Composable

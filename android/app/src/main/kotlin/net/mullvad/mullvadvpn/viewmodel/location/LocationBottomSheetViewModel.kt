@@ -21,16 +21,16 @@ import net.mullvad.mullvadvpn.lib.model.CustomListName
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.repository.WireguardConstraintsRepository
-import net.mullvad.mullvadvpn.usecase.HopSelectionUseCase
-import net.mullvad.mullvadvpn.usecase.ModifyAndEnableMultihopUseCase
-import net.mullvad.mullvadvpn.usecase.ModifyMultihopError
-import net.mullvad.mullvadvpn.usecase.ModifyMultihopUseCase
-import net.mullvad.mullvadvpn.usecase.MultihopChange
-import net.mullvad.mullvadvpn.usecase.RelayItemCanBeSelectedUseCase
-import net.mullvad.mullvadvpn.usecase.SelectAndEnableMultihopUseCase
-import net.mullvad.mullvadvpn.usecase.SelectRelayItemError
-import net.mullvad.mullvadvpn.usecase.SelectedLocationUseCase
-import net.mullvad.mullvadvpn.usecase.customlists.CustomListsRelayItemUseCase
+import net.mullvad.mullvadvpn.lib.usecase.HopSelectionUseCase
+import net.mullvad.mullvadvpn.lib.usecase.ModifyAndEnableMultihopUseCase
+import net.mullvad.mullvadvpn.lib.usecase.ModifyMultihopError
+import net.mullvad.mullvadvpn.lib.usecase.ModifyMultihopUseCase
+import net.mullvad.mullvadvpn.lib.usecase.MultihopChange
+import net.mullvad.mullvadvpn.lib.usecase.RelayItemCanBeSelectedUseCase
+import net.mullvad.mullvadvpn.lib.usecase.SelectAndEnableMultihopUseCase
+import net.mullvad.mullvadvpn.lib.usecase.SelectRelayItemError
+import net.mullvad.mullvadvpn.lib.usecase.SelectedLocationUseCase
+import net.mullvad.mullvadvpn.lib.usecase.customlists.CustomListsRelayItemUseCase
 import net.mullvad.mullvadvpn.util.Lc
 
 class LocationBottomSheetViewModel(

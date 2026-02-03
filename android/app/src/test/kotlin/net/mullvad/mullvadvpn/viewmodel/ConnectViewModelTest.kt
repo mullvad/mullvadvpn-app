@@ -32,14 +32,14 @@ import net.mullvad.mullvadvpn.lib.repository.AccountRepository
 import net.mullvad.mullvadvpn.lib.repository.ChangelogRepository
 import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
 import net.mullvad.mullvadvpn.lib.repository.DeviceRepository
+import net.mullvad.mullvadvpn.lib.repository.PaymentLogic
+import net.mullvad.mullvadvpn.lib.usecase.LastKnownLocationUseCase
+import net.mullvad.mullvadvpn.lib.usecase.OutOfTimeUseCase
+import net.mullvad.mullvadvpn.lib.usecase.SelectedLocationTitleUseCase
+import net.mullvad.mullvadvpn.lib.usecase.SystemVpnSettingsAvailableUseCase
 import net.mullvad.mullvadvpn.repository.InAppNotificationController
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
-import net.mullvad.mullvadvpn.usecase.LastKnownLocationUseCase
-import net.mullvad.mullvadvpn.usecase.OutOfTimeUseCase
-import net.mullvad.mullvadvpn.usecase.PaymentUseCase
-import net.mullvad.mullvadvpn.usecase.SelectedLocationTitleUseCase
-import net.mullvad.mullvadvpn.usecase.SystemVpnSettingsAvailableUseCase
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -77,7 +77,7 @@ class ConnectViewModelTest {
     private val mockSelectedLocationTitleUseCase: SelectedLocationTitleUseCase = mockk()
 
     // Payment use case
-    private val mockPaymentUseCase: PaymentUseCase = mockk(relaxed = true)
+    private val mockPaymentUseCase: PaymentLogic = mockk(relaxed = true)
 
     // Flows
     private val tunnelState = MutableStateFlow<TunnelState>(TunnelState.Disconnected())

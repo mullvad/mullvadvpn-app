@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.service.notifications.accountexpiry
 import java.time.Duration
 import java.time.ZonedDateTime
 import kotlin.test.assertEquals
+import net.mullvad.mullvadvpn.lib.common.util.accountExpiryNotificationTriggerAt
 import org.junit.jupiter.api.Test
 
 class AccountExpiryNotificationTriggerTest {

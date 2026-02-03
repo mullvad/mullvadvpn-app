@@ -19,7 +19,7 @@ import net.mullvad.mullvadvpn.compose.state.ApiUnreachableUiState
 import net.mullvad.mullvadvpn.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.repository.ApiAccessRepository
 import net.mullvad.mullvadvpn.lib.ui.component.NEWLINE_STRING
-import net.mullvad.mullvadvpn.usecase.SupportEmailUseCase
+import net.mullvad.mullvadvpn.lib.usecase.SupportEmailUseCase
 
 class ApiUnreachableViewModel(
     private val apiAccessRepository: ApiAccessRepository,

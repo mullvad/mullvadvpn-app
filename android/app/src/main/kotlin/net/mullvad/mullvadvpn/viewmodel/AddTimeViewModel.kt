@@ -21,14 +21,14 @@ import net.mullvad.mullvadvpn.lib.payment.model.ProductId
 import net.mullvad.mullvadvpn.lib.payment.model.PurchaseResult
 import net.mullvad.mullvadvpn.lib.repository.AccountRepository
 import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
-import net.mullvad.mullvadvpn.usecase.PaymentUseCase
+import net.mullvad.mullvadvpn.lib.repository.PaymentLogic
 import net.mullvad.mullvadvpn.util.Lc
 import net.mullvad.mullvadvpn.util.isSuccess
 import net.mullvad.mullvadvpn.util.toPaymentState
 import net.mullvad.mullvadvpn.viewmodel.AddMoreTimeSideEffect.OpenAccountManagementPageInBrowser
 
 class AddTimeViewModel(
-    private val paymentUseCase: PaymentUseCase,
+    private val paymentUseCase: PaymentLogic,
     private val accountRepository: AccountRepository,
     connectionProxy: ConnectionProxy,
     private val isPlayBuild: Boolean,

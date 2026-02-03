@@ -6,6 +6,7 @@ import java.time.ZoneId
 import java.time.ZonedDateTime
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import net.mullvad.mullvadvpn.lib.model.BuildVersion
 import net.mullvad.mullvadvpn.repository.UserPreferences
 
@@ -14,6 +15,9 @@ class UserPreferencesRepository(
     private val buildVersion: BuildVersion,
 ) {
     fun preferencesFlow(): Flow<UserPreferences> = userPreferencesStore.data
+
+    fun showAndroid16ConnectWarning(): Flow<Boolean> =
+        userPreferencesStore.data.map { it.showAndroid16ConnectWarning }
 
     suspend fun preferences(): UserPreferences = userPreferencesStore.data.first()
 

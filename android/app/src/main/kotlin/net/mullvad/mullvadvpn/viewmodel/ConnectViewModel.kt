@@ -33,13 +33,13 @@ import net.mullvad.mullvadvpn.lib.repository.ChangelogRepository
 import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
 import net.mullvad.mullvadvpn.lib.repository.DeviceRepository
 import net.mullvad.mullvadvpn.lib.repository.NewDeviceRepository
+import net.mullvad.mullvadvpn.lib.repository.PaymentLogic
 import net.mullvad.mullvadvpn.lib.repository.UserPreferencesRepository
+import net.mullvad.mullvadvpn.lib.usecase.LastKnownLocationUseCase
+import net.mullvad.mullvadvpn.lib.usecase.OutOfTimeUseCase
+import net.mullvad.mullvadvpn.lib.usecase.SelectedLocationTitleUseCase
+import net.mullvad.mullvadvpn.lib.usecase.SystemVpnSettingsAvailableUseCase
 import net.mullvad.mullvadvpn.repository.InAppNotificationController
-import net.mullvad.mullvadvpn.usecase.LastKnownLocationUseCase
-import net.mullvad.mullvadvpn.usecase.OutOfTimeUseCase
-import net.mullvad.mullvadvpn.usecase.PaymentUseCase
-import net.mullvad.mullvadvpn.usecase.SelectedLocationTitleUseCase
-import net.mullvad.mullvadvpn.usecase.SystemVpnSettingsAvailableUseCase
 import net.mullvad.mullvadvpn.util.combine
 import net.mullvad.mullvadvpn.util.isSuccess
 import net.mullvad.mullvadvpn.util.withPrev
@@ -54,7 +54,7 @@ class ConnectViewModel(
     private val userPreferencesRepository: UserPreferencesRepository,
     selectedLocationTitleUseCase: SelectedLocationTitleUseCase,
     private val outOfTimeUseCase: OutOfTimeUseCase,
-    private val paymentUseCase: PaymentUseCase,
+    private val paymentUseCase: PaymentLogic,
     private val connectionProxy: ConnectionProxy,
     lastKnownLocationUseCase: LastKnownLocationUseCase,
     private val systemVpnSettingsUseCase: SystemVpnSettingsAvailableUseCase,

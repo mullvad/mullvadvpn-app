@@ -25,13 +25,13 @@ import net.mullvad.mullvadvpn.lib.repository.RelayLocationTranslationRepository
 import net.mullvad.mullvadvpn.lib.repository.UserPreferencesMigration
 import net.mullvad.mullvadvpn.lib.repository.UserPreferencesRepository
 import net.mullvad.mullvadvpn.lib.repository.UserPreferencesSerializer
+import net.mullvad.mullvadvpn.lib.usecase.AccountExpiryNotificationActionUseCase
 import net.mullvad.mullvadvpn.repository.UserPreferences
 import net.mullvad.mullvadvpn.service.notifications.NotificationChannelFactory
 import net.mullvad.mullvadvpn.service.notifications.NotificationManager
 import net.mullvad.mullvadvpn.service.notifications.NotificationProvider
 import net.mullvad.mullvadvpn.service.notifications.accountexpiry.AccountExpiryNotificationProvider
 import net.mullvad.mullvadvpn.service.notifications.tunnelstate.TunnelStateNotificationProvider
-import net.mullvad.mullvadvpn.usecase.AccountExpiryNotificationActionUseCase
 import net.mullvad.mullvadvpn.usecase.ScheduleNotificationAlarmUseCase
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.createdAtStart

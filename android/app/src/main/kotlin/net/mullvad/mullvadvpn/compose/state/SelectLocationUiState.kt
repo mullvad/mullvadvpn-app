@@ -2,7 +2,9 @@ package net.mullvad.mullvadvpn.compose.state
 
 import net.mullvad.mullvadvpn.lib.model.ErrorStateCause
 import net.mullvad.mullvadvpn.lib.model.HopSelection
-import net.mullvad.mullvadvpn.usecase.FilterChip
+import net.mullvad.mullvadvpn.lib.model.MultihopRelayListType
+import net.mullvad.mullvadvpn.lib.model.RelayListType
+import net.mullvad.mullvadvpn.lib.usecase.FilterChip
 
 data class SelectLocationUiState(
     val filterChips: List<FilterChip>,

@@ -21,7 +21,7 @@ import net.mullvad.mullvadvpn.lib.model.Ownership
 import net.mullvad.mullvadvpn.lib.model.ProviderId
 import net.mullvad.mullvadvpn.lib.model.Providers
 import net.mullvad.mullvadvpn.lib.repository.RelayListFilterRepository
-import net.mullvad.mullvadvpn.usecase.ProviderToOwnershipsUseCase
+import net.mullvad.mullvadvpn.lib.usecase.ProviderToOwnershipsUseCase
 
 class FilterViewModel(
     providerToOwnershipsUseCase: ProviderToOwnershipsUseCase,

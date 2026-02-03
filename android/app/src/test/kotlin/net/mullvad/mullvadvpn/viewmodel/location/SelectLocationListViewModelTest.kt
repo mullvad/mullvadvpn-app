@@ -10,25 +10,26 @@ import kotlin.test.assertIs
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.compose.screen.location.RelayListScrollConnection
-import net.mullvad.mullvadvpn.compose.state.MultihopRelayListType
-import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.compose.state.SelectLocationListUiState
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.common.test.assertLists
+import net.mullvad.mullvadvpn.lib.common.util.entryBlocked
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
+import net.mullvad.mullvadvpn.lib.model.MultihopRelayListType
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemSelection
+import net.mullvad.mullvadvpn.lib.model.RelayListType
 import net.mullvad.mullvadvpn.lib.model.Settings
 import net.mullvad.mullvadvpn.lib.repository.RelayListRepository
 import net.mullvad.mullvadvpn.lib.repository.SettingsRepository
 import net.mullvad.mullvadvpn.lib.repository.WireguardConstraintsRepository
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.RelayListItem
-import net.mullvad.mullvadvpn.usecase.FilteredRelayListUseCase
-import net.mullvad.mullvadvpn.usecase.RecentsUseCase
-import net.mullvad.mullvadvpn.usecase.SelectedLocationUseCase
-import net.mullvad.mullvadvpn.usecase.customlists.CustomListsRelayItemUseCase
-import net.mullvad.mullvadvpn.usecase.customlists.FilterCustomListsRelayItemUseCase
+import net.mullvad.mullvadvpn.lib.usecase.FilteredRelayListUseCase
+import net.mullvad.mullvadvpn.lib.usecase.RecentsUseCase
+import net.mullvad.mullvadvpn.lib.usecase.SelectedLocationUseCase
+import net.mullvad.mullvadvpn.lib.usecase.customlists.CustomListsRelayItemUseCase
+import net.mullvad.mullvadvpn.lib.usecase.customlists.FilterCustomListsRelayItemUseCase
 import net.mullvad.mullvadvpn.util.Lce
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -273,7 +274,7 @@ class SelectLocationListViewModelTest {
         private const val RELAY_ITEM_LIST_CREATOR_CLASS =
             "net.mullvad.mullvadvpn.viewmodel.location.RelayItemListCreatorKt"
         private const val LOCATION_UTIL_CLASS =
-            "net.mullvad.mullvadvpn.viewmodel.location.LocationUtilKt"
+            "net.mullvad.mullvadvpn.lib.common.util.LocationUtilKt"
 
         private val testCountries =
             listOf(

@@ -16,12 +16,12 @@ import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.model.ErrorState
 import net.mullvad.mullvadvpn.lib.model.InAppNotification
+import net.mullvad.mullvadvpn.lib.usecase.inappnotification.AccountExpiryInAppNotificationUseCase
+import net.mullvad.mullvadvpn.lib.usecase.inappnotification.NewChangelogNotificationUseCase
+import net.mullvad.mullvadvpn.lib.usecase.inappnotification.NewDeviceNotificationUseCase
+import net.mullvad.mullvadvpn.lib.usecase.inappnotification.TunnelStateNotificationUseCase
+import net.mullvad.mullvadvpn.lib.usecase.inappnotification.VersionNotificationUseCase
 import net.mullvad.mullvadvpn.repository.InAppNotificationController
-import net.mullvad.mullvadvpn.usecase.inappnotification.AccountExpiryInAppNotificationUseCase
-import net.mullvad.mullvadvpn.usecase.inappnotification.NewChangelogNotificationUseCase
-import net.mullvad.mullvadvpn.usecase.inappnotification.NewDeviceNotificationUseCase
-import net.mullvad.mullvadvpn.usecase.inappnotification.TunnelStateNotificationUseCase
-import net.mullvad.mullvadvpn.usecase.inappnotification.VersionNotificationUseCase
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

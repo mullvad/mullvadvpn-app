@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import net.mullvad.mullvadvpn.lib.model.InAppNotification
-import net.mullvad.mullvadvpn.usecase.inappnotification.InAppNotificationUseCase
+import net.mullvad.mullvadvpn.lib.usecase.inappnotification.InAppNotificationUseCase
 
 class InAppNotificationController(
     inAppNotificationUseCases: List<InAppNotificationUseCase>,
