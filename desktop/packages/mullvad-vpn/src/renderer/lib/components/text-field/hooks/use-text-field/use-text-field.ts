@@ -12,7 +12,7 @@ export type UseTextFieldState = {
   invalid: boolean;
   invalidReason: string | null;
   dirty: boolean;
-  reset: () => void;
+  reset: (value?: string) => void;
   focus: () => void;
   blur: () => void;
   handleOnValueChange: (newValue: string) => void;
@@ -26,17 +26,35 @@ export function useTextField({
   validate,
 }: UseTextFieldProps): UseTextFieldState {
   const [value, setValue] = React.useState(defaultValue ?? '');
-  const [invalid, setInvalid] = React.useState(validate ? !validate(value) : false);
-  const [invalidReason, setInvalidReason] = React.useState<string | null>(null);
+  const validateValue = React.useCallback(
+    (value: string) => {
+      const result = validate ? validate(value) : true;
+      if (typeof result === 'string') {
+        return { invalid: true, invalidReason: result };
+      } else {
+        return { invalid: !result, invalidReason: null };
+      }
+    },
+    [validate],
+  );
+
+  const { invalid: initialInvalid, invalidReason: initialInvalidReason } = validateValue(value);
+  const [invalid, setInvalid] = React.useState(initialInvalid);
+  const [invalidReason, setInvalidReason] = React.useState<string | null>(initialInvalidReason);
   const [dirty, setDirty] = React.useState(false);
 
-  const reset = React.useCallback(() => {
-    const newValue = defaultValue ?? '';
-    setValue(newValue);
-    setInvalid(validate ? !validate(newValue) : false);
-    setInvalidReason(null);
-    setDirty(false);
-  }, [defaultValue, validate]);
+  const reset = React.useCallback(
+    (value?: string) => {
+      const newValue = value ?? defaultValue ?? '';
+      const { invalid, invalidReason } = validateValue(newValue);
+
+      setValue(newValue);
+      setInvalid(invalid);
+      setInvalidReason(invalidReason);
+      setDirty(false);
+    },
+    [defaultValue, validateValue],
+  );
 
   const focus = React.useCallback(() => {
     inputRef.current?.focus();
@@ -49,16 +67,14 @@ export function useTextField({
   const handleOnValueChange = React.useCallback(
     (newValue: string) => {
       const formattedValue = format ? format(newValue) : newValue;
-      const validationResult = validate ? validate(formattedValue) : true;
-      const invalid = typeof validationResult === 'string' ? true : !validationResult;
-      const invalidReason = typeof validationResult === 'string' ? validationResult : null;
+      const { invalid, invalidReason } = validateValue(formattedValue);
 
       setInvalid(invalid);
       setInvalidReason(invalidReason);
       setValue(formattedValue);
       setDirty(true);
     },
-    [format, validate],
+    [format, validateValue],
   );
 
   return {
