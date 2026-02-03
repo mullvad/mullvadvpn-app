@@ -14,6 +14,7 @@ use futures::future::{Fuse, FusedFuture};
 use futures::{Future, FutureExt, SinkExt, StreamExt};
 use tokio::fs::File;
 
+use crate::sigsum;
 use mullvad_api::{
     CachedRelayList, ETag, RelayListProxy, availability::ApiAvailability, rest::MullvadRestHandle,
 };
@@ -215,10 +216,33 @@ impl RelayListUpdater {
             proxy: RelayListProxy,
             tag: Option<ETag>,
         ) -> Result<Option<CachedRelayList>, mullvad_api::Error> {
-            let available = api_handle.wait_background();
-            let req = proxy.relay_list(tag);
-            available.await?;
-            req.await.map_err(mullvad_api::Error::from)
+            api_handle.wait_background().await?;
+            // TODO: if this request fails, should we fall back to the old endpoint?
+            let relay_list_sigsum = proxy.relay_list_sigsum().await?;
+
+            // TODO: if validation fails should we use the old endpoint to fetch the relay list?
+            match sigsum::validate_signature(&relay_list_sigsum) {
+                Ok(_) => log::debug!("Relay list sigsum signature validation successful"),
+                Err(e) => log::error!("Relay list sigsum signature validation failed: {}", e),
+            }
+
+            let response = proxy
+                .relay_list(tag, &relay_list_sigsum.data.digest)
+                .await?;
+
+            log::debug!("RELAY RESP: {:?}", response);
+
+            match response {
+                None => Ok(None),
+                Some((relay_list, hash)) => {
+                    // Validate that the sigsum digest matches the relay list hash.
+                    match sigsum::validate_data(&relay_list_sigsum.data, &hash) {
+                        Ok(_) => log::debug!("Relay list sigsum data validation successful"),
+                        Err(e) => log::error!("Relay list sigsum data validation failed: {}", e),
+                    }
+                    Ok(Some(relay_list))
+                }
+            }
         }
 
         let download_futures =

@@ -31,6 +31,7 @@ mullvad-version = { path = "../mullvad-version" }
 rustls-pki-types.workspace = true
 serde = { workspace = true }
 serde_json = { workspace = true }
+sha2 = { workspace = true }
 shadowsocks = { workspace = true, features = ["stream-cipher"] }
 talpid-time = { path = "../talpid-time" }
 talpid-types = { path = "../talpid-types" }

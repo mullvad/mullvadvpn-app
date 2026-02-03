@@ -81,6 +81,14 @@ pub enum Error {
     /// Body exceeded size limit
     #[error("Body exceeded size limit")]
     BodyTooLarge,
+
+    // TODO: better way to do this? Can't use DeserializeError because it expects a serde_json::Error
+    #[error("Failed to deserialize sigsum data")]
+    SigsumDeserializeError,
+
+    /// Body contained invalid UTF-8
+    #[error("Body contained invalid UTF-8")]
+    InvalidUtf8Error,
 }
 
 impl From<Infallible> for Error {
