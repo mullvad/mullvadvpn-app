@@ -55,4 +55,4 @@ jobs:
           submodules: true
 
       - name: Run ktfmt check
-        run: android/gradlew -p android ktfmtCheck :build-logic:ktfmtCheck
+        run: android/gradlew -p android ktfmtCheck :build-logic:ktfmtCheck --no-daemon
