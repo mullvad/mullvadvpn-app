@@ -53,6 +53,12 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: true
+      - name: Debug limits
+        run: |
+          ulimit -a
+          cat /proc/self/limits
+          cat /sys/fs/cgroup/pids.max || true
+          ps -eLf | wc -l
 
       - name: Run ktfmt check
         run: android/gradlew -p android ktfmtCheck :build-logic:ktfmtCheck --no-daemon
