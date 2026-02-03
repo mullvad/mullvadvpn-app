@@ -45,7 +45,7 @@ import net.mullvad.mullvadvpn.compose.state.EditCustomListUiState
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
-import net.mullvad.mullvadvpn.lib.ui.component.listitem.TwoLineListItem
+import net.mullvad.mullvadvpn.lib.ui.component.listitem.EditCustomListListItem
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
 import net.mullvad.mullvadvpn.lib.ui.tag.DELETE_DROPDOWN_MENU_ITEM_TEST_TAG
@@ -163,14 +163,14 @@ fun EditCustomListScreen(
                 }
                 is EditCustomListUiState.Content -> {
                     // Name cell
-                    TwoLineListItem(
+                    EditCustomListListItem(
                         title = stringResource(id = R.string.list_name),
                         subtitle = state.name.value,
                         position = Position.Top,
                         onClick = { onNameClicked(state.id, state.name) },
                     )
                     // Locations cell
-                    TwoLineListItem(
+                    EditCustomListListItem(
                         title = stringResource(id = R.string.locations),
                         subtitle =
                             pluralStringResource(
