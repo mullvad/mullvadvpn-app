@@ -6,12 +6,12 @@ import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadListItem
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
 
 @Composable
-fun TwoLineListItem(
+fun EditCustomListListItem(
     modifier: Modifier = Modifier,
     title: String,
     subtitle: String,
-    position: Position = Position.Single,
-    onClick: (() -> Unit)? = null,
+    position: Position,
+    onClick: () -> Unit,
 ) {
     MullvadListItem(
         modifier = modifier,
