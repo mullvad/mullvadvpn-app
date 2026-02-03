@@ -50,11 +50,6 @@ jobs:
         - /nix:/nix
         - gradle-cache:/root/.gradle
     steps:
-      # Fix for HOME path overridden by GH runners when building in containers, see:
-      # https://github.com/actions/runner/issues/863
-      - name: Fix HOME path
-        run: echo "HOME=/root" >> $GITHUB_ENV
-
       - uses: actions/checkout@v4
         with:
           submodules: true
