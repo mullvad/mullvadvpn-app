@@ -12,7 +12,7 @@ import MullvadTypes
 public enum APIRequest: Codable, Sendable {
     // Api Proxy
     case getAddressList(_ retryStrategy: REST.RetryStrategy)
-    case getRelayList(_ retryStrategy: REST.RetryStrategy, etag: String?)
+    case getRelayList(_ retryStrategy: REST.RetryStrategy, digest: String?, timestamp: Int64?)
     case sendProblemReport(_ retryStrategy: REST.RetryStrategy, problemReportRequest: ProblemReportRequest)
     case checkApiAvailability(_ retryStrategy: REST.RetryStrategy, accessMethod: PersistentAccessMethod)
 
@@ -71,7 +71,7 @@ public enum APIRequest: Codable, Sendable {
     var retryStrategy: REST.RetryStrategy {
         switch self {
         case let .getAddressList(strategy),
-            let .getRelayList(strategy, _),
+            let .getRelayList(strategy, _, _),
             let .sendProblemReport(strategy, _),
             let .createAccount(strategy),
             let .getAccount(strategy, _),
@@ -100,13 +100,15 @@ public struct ProxyAPIRequest: Codable, Sendable {
 }
 
 public struct ProxyAPIResponse: Codable, Sendable {
+    public let digest: String?
+    public let timestamp: Int64?
     public let data: Data?
     public let error: APIError?
-    public let etag: String?
 
-    public init(data: Data?, error: APIError?, etag: String? = nil) {
+    public init(data: Data?, error: APIError?, digest: String? = nil, timestamp: Int64? = nil) {
+        self.digest = digest
+        self.timestamp = timestamp
         self.data = data
         self.error = error
-        self.etag = etag
     }
 }

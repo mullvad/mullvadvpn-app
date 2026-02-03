@@ -122,18 +122,36 @@ android {
             isDefault = true
             buildConfigField("String", "API_ENDPOINT", "\"\"")
             buildConfigField("String", "API_IP", "\"\"")
+            buildConfigField("String", "SIGSUM_TRUSTED_PUBKEYS", "\"\"")
         }
         create(Flavors.DEVMOLE) {
             dimension = FlavorDimensions.INFRASTRUCTURE
             applicationId = "net.mullvad.mullvadvpn.devmole"
             buildConfigField("String", "API_ENDPOINT", "\"api-app.devmole.eu\"")
             buildConfigField("String", "API_IP", "\"185.217.116.4\"")
+            buildConfigField(
+                "String",
+                "SIGSUM_TRUSTED_PUBKEYS",
+                "\"fe3d764133dd82d50b75778bfd6500987b579e573bb628d13e1eab4398b2aea2" +
+                    ":da0203a8fa4cc388644539ae39df28a3d612b66cf75ff1ae2acbf5cd9c1dee2d" +
+                    ":f6b4a2b58e41fed02a8f2228054642783c43d6110caa5d7415b4198cac037df3" +
+                    ":e7ee3a760f4b039589cd80fc227cd60c85659073fbecb822d4ce785631029890" +
+                    ":545c3c459e88ebb013b4ae408b129912ee175edf0be88314b608f7d525c98b1a\"",
+            )
         }
         create(Flavors.STAGEMOLE) {
             dimension = FlavorDimensions.INFRASTRUCTURE
             applicationId = "net.mullvad.mullvadvpn.stagemole"
             buildConfigField("String", "API_ENDPOINT", "\"api-app.stagemole.eu\"")
             buildConfigField("String", "API_IP", "\"185.217.116.132\"")
+            buildConfigField(
+                "String",
+                "SIGSUM_TRUSTED_PUBKEYS",
+                "\"97d155e299dae58377d6b9b91739ac08e16b883781038398fe07fea1be9684b3" +
+                    ":bcc9dc6dadca9de57d67799d6aff1a4a11ac4ea1eed659215751c8de6ae19b6b" +
+                    ":74df47593c1c5fdee247b2b24440224ffb20d204cce7b11054a43c3b2b7a608f" +
+                    ":70b9de05582ab87049f9408f856edac340138d52708283058f136229119a090d\"",
+            )
         }
     }
 
