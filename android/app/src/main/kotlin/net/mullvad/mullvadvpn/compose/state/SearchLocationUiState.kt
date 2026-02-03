@@ -1,8 +1,9 @@
 package net.mullvad.mullvadvpn.compose.state
 
 import net.mullvad.mullvadvpn.lib.model.RelayItem
+import net.mullvad.mullvadvpn.lib.model.RelayListType
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.RelayListItem
-import net.mullvad.mullvadvpn.usecase.FilterChip
+import net.mullvad.mullvadvpn.lib.usecase.FilterChip
 
 data class SearchLocationUiState(
     val searchTerm: String,

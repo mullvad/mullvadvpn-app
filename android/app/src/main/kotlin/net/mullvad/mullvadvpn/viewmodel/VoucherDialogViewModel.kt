@@ -18,7 +18,7 @@ import net.mullvad.mullvadvpn.lib.model.ParseVoucherCodeError
 import net.mullvad.mullvadvpn.lib.model.RedeemVoucherError
 import net.mullvad.mullvadvpn.lib.model.VoucherCode
 import net.mullvad.mullvadvpn.lib.repository.VoucherRepository
-import net.mullvad.mullvadvpn.usecase.InternetAvailableUseCase
+import net.mullvad.mullvadvpn.lib.usecase.InternetAvailableUseCase
 import net.mullvad.mullvadvpn.util.VoucherRegexHelper
 
 class VoucherDialogViewModel(

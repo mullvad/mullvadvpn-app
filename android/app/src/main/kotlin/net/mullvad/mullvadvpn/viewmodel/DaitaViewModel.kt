@@ -12,10 +12,10 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.DaitaUiState
 import net.mullvad.mullvadvpn.constant.VIEW_MODEL_STOP_TIMEOUT
+import net.mullvad.mullvadvpn.lib.common.util.isDaitaDirectOnly
+import net.mullvad.mullvadvpn.lib.common.util.isDaitaEnabled
 import net.mullvad.mullvadvpn.lib.repository.SettingsRepository
 import net.mullvad.mullvadvpn.util.Lc
-import net.mullvad.mullvadvpn.util.isDaitaDirectOnly
-import net.mullvad.mullvadvpn.util.isDaitaEnabled
 import net.mullvad.mullvadvpn.util.toLc
 
 class DaitaViewModel(

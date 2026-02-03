@@ -17,7 +17,7 @@ import net.mullvad.mullvadvpn.lib.model.RedeemVoucherError
 import net.mullvad.mullvadvpn.lib.model.RedeemVoucherSuccess
 import net.mullvad.mullvadvpn.lib.model.VoucherCode
 import net.mullvad.mullvadvpn.lib.repository.VoucherRepository
-import net.mullvad.mullvadvpn.usecase.InternetAvailableUseCase
+import net.mullvad.mullvadvpn.lib.usecase.InternetAvailableUseCase
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

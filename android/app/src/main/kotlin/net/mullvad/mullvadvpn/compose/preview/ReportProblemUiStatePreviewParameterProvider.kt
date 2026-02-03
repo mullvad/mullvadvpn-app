@@ -1,7 +1,7 @@
 package net.mullvad.mullvadvpn.compose.preview
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import net.mullvad.mullvadvpn.dataproxy.SendProblemReportResult
+import net.mullvad.mullvadvpn.lib.repository.SendProblemReportResult
 import net.mullvad.mullvadvpn.viewmodel.ReportProblemUiState
 import net.mullvad.mullvadvpn.viewmodel.SendingReportUiState
 

@@ -29,9 +29,12 @@ dependencies {
     implementation(projects.lib.common)
     implementation(projects.lib.grpc)
     implementation(projects.lib.model)
+    implementation(projects.lib.payment)
+    implementation(projects.lib.endpoint)
 
     implementation(libs.arrow)
     implementation(libs.arrow.optics)
+    implementation(libs.arrow.resilience)
     implementation(libs.kermit)
     implementation(libs.kotlin.stdlib)
     implementation(libs.kotlinx.coroutines.android)

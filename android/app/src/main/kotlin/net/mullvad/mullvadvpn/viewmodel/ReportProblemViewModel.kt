@@ -13,11 +13,10 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.constant.MINIMUM_LOADING_TIME_MILLIS
 import net.mullvad.mullvadvpn.constant.VIEW_MODEL_STOP_TIMEOUT
-import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
-import net.mullvad.mullvadvpn.dataproxy.SendProblemReportResult
 import net.mullvad.mullvadvpn.lib.model.UserReport
 import net.mullvad.mullvadvpn.lib.repository.AccountRepository
 import net.mullvad.mullvadvpn.lib.repository.ProblemReportRepository
+import net.mullvad.mullvadvpn.lib.repository.SendProblemReportResult
 import net.mullvad.mullvadvpn.util.combine
 
 data class ReportProblemUiState(
@@ -52,7 +51,7 @@ sealed interface ReportProblemSideEffect {
 }
 
 class ReportProblemViewModel(
-    private val mullvadProblemReporter: MullvadProblemReport,
+    private val mullvadProblemReporter: ProblemReportRepository,
     private val problemReportRepository: ProblemReportRepository,
     accountRepository: AccountRepository,
     private val isPlayBuild: Boolean,

@@ -10,12 +10,11 @@ import kotlin.test.assertEquals
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
-import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
-import net.mullvad.mullvadvpn.dataproxy.SendProblemReportResult
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.model.UserReport
 import net.mullvad.mullvadvpn.lib.repository.AccountRepository
 import net.mullvad.mullvadvpn.lib.repository.ProblemReportRepository
+import net.mullvad.mullvadvpn.lib.repository.SendProblemReportResult
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -24,7 +23,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 @ExtendWith(TestCoroutineRule::class)
 class ReportProblemViewModelTest {
 
-    @MockK private lateinit var mockMullvadProblemReport: MullvadProblemReport
+    @MockK private lateinit var mockMullvadProblemReport: ProblemReportRepository
 
     @MockK(relaxed = true) private lateinit var mockProblemReportRepository: ProblemReportRepository
 

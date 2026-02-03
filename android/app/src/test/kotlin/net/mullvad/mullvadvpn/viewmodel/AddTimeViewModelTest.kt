@@ -27,7 +27,7 @@ import net.mullvad.mullvadvpn.lib.payment.model.PurchaseResult
 import net.mullvad.mullvadvpn.lib.payment.model.VerificationResult
 import net.mullvad.mullvadvpn.lib.repository.AccountRepository
 import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
-import net.mullvad.mullvadvpn.usecase.PaymentUseCase
+import net.mullvad.mullvadvpn.lib.repository.PaymentLogic
 import net.mullvad.mullvadvpn.util.Lc
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -36,7 +36,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 @ExtendWith(TestCoroutineRule::class)
 class AddTimeViewModelTest {
 
-    private val mockPaymentUseCase: PaymentUseCase = mockk()
+    private val mockPaymentUseCase: PaymentLogic = mockk()
     private val mockAccountRepository: AccountRepository = mockk()
     private val mockConnectionProxy: ConnectionProxy = mockk()
 

@@ -24,7 +24,7 @@ import net.mullvad.mullvadvpn.lib.model.DeviceState
 import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
 import net.mullvad.mullvadvpn.lib.repository.AccountRepository
 import net.mullvad.mullvadvpn.lib.repository.DeviceRepository
-import net.mullvad.mullvadvpn.usecase.PaymentUseCase
+import net.mullvad.mullvadvpn.lib.repository.PaymentLogic
 import net.mullvad.mullvadvpn.util.Lc
 import net.mullvad.mullvadvpn.util.hasPendingPayment
 import net.mullvad.mullvadvpn.util.isSuccess
@@ -33,7 +33,7 @@ import net.mullvad.mullvadvpn.util.toLc
 class AccountViewModel(
     private val accountRepository: AccountRepository,
     deviceRepository: DeviceRepository,
-    private val paymentUseCase: PaymentUseCase,
+    private val paymentUseCase: PaymentLogic,
 ) : ViewModel() {
     private val _uiSideEffect = Channel<UiSideEffect>()
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
