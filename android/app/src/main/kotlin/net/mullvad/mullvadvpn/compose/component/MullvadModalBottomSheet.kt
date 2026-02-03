@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -19,8 +20,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
-import net.mullvad.mullvadvpn.compose.cell.HeaderCell
-import net.mullvad.mullvadvpn.compose.cell.IconCell
+import net.mullvad.mullvadvpn.lib.ui.component.listitem.BottomSheetListItem
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 
@@ -31,9 +31,20 @@ private fun PreviewMullvadModalBottomSheet() {
     AppTheme {
         MullvadModalBottomSheet(
             content = {
-                HeaderCell(text = "Title")
-                HorizontalDivider()
-                IconCell(imageVector = null, title = "Select")
+                BottomSheetListItem(
+                    title = "Title",
+                    backgroundColor = MaterialTheme.colorScheme.surfaceContainer,
+                    onBackgroundColor = MaterialTheme.colorScheme.onSurface,
+                )
+                HorizontalDivider(
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.padding(horizontal = Dimens.mediumPadding),
+                )
+                BottomSheetListItem(
+                    title = "Select",
+                    backgroundColor = MaterialTheme.colorScheme.surfaceContainer,
+                    onBackgroundColor = MaterialTheme.colorScheme.onSurface,
+                )
             },
             onDismissRequest = {},
         )
