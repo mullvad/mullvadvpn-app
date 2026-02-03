@@ -10,6 +10,7 @@ import android.net.NetworkCapabilities
  * NOTE! This check is unreliable and should not be used to gate network requests, only to check for
  * issues after a network request has failed.
  */
+@Suppress("MissingPermission")
 class InternetAvailableUseCase(val context: Context) {
     operator fun invoke(): Boolean {
         val connectivityManager =
