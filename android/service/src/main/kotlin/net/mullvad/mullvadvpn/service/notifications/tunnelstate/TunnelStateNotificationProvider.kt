@@ -1,10 +1,12 @@
 package net.mullvad.mullvadvpn.service.notifications.tunnelstate
 
+import android.content.Context
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import net.mullvad.mullvadvpn.lib.common.util.prepareVpnSafe
 import net.mullvad.mullvadvpn.lib.model.ActionAfterDisconnect
 import net.mullvad.mullvadvpn.lib.model.DeviceState
 import net.mullvad.mullvadvpn.lib.model.ErrorStateCause
@@ -18,13 +20,12 @@ import net.mullvad.mullvadvpn.lib.model.PrepareError
 import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
 import net.mullvad.mullvadvpn.lib.repository.DeviceRepository
-import net.mullvad.mullvadvpn.lib.repository.PrepareVpnUseCase
 import net.mullvad.mullvadvpn.lib.repository.UserPreferencesRepository
 import net.mullvad.mullvadvpn.service.notifications.NotificationProvider
 
 class TunnelStateNotificationProvider(
+    context: Context,
     connectionProxy: ConnectionProxy,
-    vpnPermissionRepository: PrepareVpnUseCase,
     deviceRepository: DeviceRepository,
     preferences: UserPreferencesRepository,
     channelId: NotificationChannelId,
@@ -45,7 +46,7 @@ class TunnelStateNotificationProvider(
                 }
                 val notificationTunnelState =
                     tunnelState.toNotificationTunnelState(
-                        prepareError = vpnPermissionRepository.invoke().leftOrNull(),
+                        prepareError = context.prepareVpnSafe().leftOrNull(),
                         showLocation = prefs.showLocationInSystemNotification,
                     )
 
