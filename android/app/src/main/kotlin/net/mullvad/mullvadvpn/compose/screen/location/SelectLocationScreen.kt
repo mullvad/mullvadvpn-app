@@ -106,7 +106,7 @@ import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.ui.component.MultihopSelector
 import net.mullvad.mullvadvpn.lib.ui.component.Singlehop
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
-import net.mullvad.mullvadvpn.lib.ui.resource.icon.DeleteHistory
+import net.mullvad.mullvadvpn.lib.ui.icon.DeleteHistory
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_MENU_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_SCREEN_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme

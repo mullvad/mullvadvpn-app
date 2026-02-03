@@ -384,6 +384,7 @@ dependencies {
     implementation(projects.lib.tv)
     implementation(projects.lib.ui.designsystem)
     implementation(projects.lib.ui.component)
+    implementation(projects.lib.ui.icon)
     implementation(projects.lib.ui.resource)
     implementation(projects.lib.ui.tag)
     implementation(projects.lib.ui.theme)
