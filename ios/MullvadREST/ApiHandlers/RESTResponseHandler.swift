@@ -115,14 +115,19 @@ extension REST {
     }
 
     static func rustCustomResponseHandler<T: Decodable>(
-        conversion: @escaping (_ data: Data, _ etag: String?) -> T?
-    ) -> RustResponseHandler<T> {
+        conversion: @escaping (_ data: Data, _ digest: String?, _ timestamp: Int64?) -> T?
+    ) -> RustResponseHandler<T?> {
         RustResponseHandler { (response: ProxyAPIResponse) in
             guard let data = response.data else {
-                return .unhandledResponse(nil)
+                return if response.error == nil {
+                    // We got an empty response, but since we also got no error that is okay
+                    .success(nil)
+                } else {
+                    .unhandledResponse(nil)
+                }
             }
 
-            return if let convertedResponse = conversion(data, response.etag) {
+            return if let convertedResponse = conversion(data, response.digest, response.timestamp) {
                 .decoding { convertedResponse }
             } else {
                 .unhandledResponse(nil)
