@@ -31,11 +31,11 @@ import net.mullvad.mullvadvpn.lib.ui.tag.GEOLOCATION_NAME_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.RECENT_NAME_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_CUSTOM_LIST_BOTTOM_SHEET_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_LOCATION_BOTTOM_SHEET_TEST_TAG
+import net.mullvad.mullvadvpn.lib.usecase.ModifyMultihopError
+import net.mullvad.mullvadvpn.lib.usecase.MultihopChange
+import net.mullvad.mullvadvpn.lib.usecase.SelectRelayItemError
 import net.mullvad.mullvadvpn.onNodeWithTagAndText
 import net.mullvad.mullvadvpn.performLongClick
-import net.mullvad.mullvadvpn.usecase.ModifyMultihopError
-import net.mullvad.mullvadvpn.usecase.MultihopChange
-import net.mullvad.mullvadvpn.usecase.SelectRelayItemError
 import net.mullvad.mullvadvpn.util.Lc
 import net.mullvad.mullvadvpn.util.Lce
 import net.mullvad.mullvadvpn.viewmodel.location.LocationBottomSheetViewModel
