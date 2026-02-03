@@ -9,8 +9,11 @@ import net.mullvad.mullvadvpn.repository.UserPreferences
 private const val IS_PRIVACY_DISCLOSURE_ACCEPTED_KEY_SHARED_PREF_KEY =
     "is_privacy_disclosure_accepted"
 
-data class UserPreferencesMigration(val sharedPreferencesName: String) {
-    fun migrations(context: Context): List<DataMigration<UserPreferences>> =
+data object UserPreferencesMigration {
+    fun migrations(
+        context: Context,
+        sharedPreferencesName: String,
+    ): List<DataMigration<UserPreferences>> =
         listOf(
             SharedPreferencesMigration(
                 context,

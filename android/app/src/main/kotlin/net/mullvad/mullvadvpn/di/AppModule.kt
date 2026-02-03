@@ -104,7 +104,7 @@ private val Context.userPreferencesStore: DataStore<UserPreferences> by
     dataStore(
         fileName = APP_PREFERENCES_NAME,
         serializer = UserPreferencesSerializer,
-        produceMigrations = UserPreferencesMigration(APP_PREFERENCES_NAME)::migrations,
+        produceMigrations = { UserPreferencesMigration.migrations(it, APP_PREFERENCES_NAME) },
     )
 
 class ApplicationScope private constructor(private val cs: CoroutineScope) : CoroutineScope by cs {
