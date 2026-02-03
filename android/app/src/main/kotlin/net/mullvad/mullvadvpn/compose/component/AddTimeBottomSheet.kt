@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.Redeem
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Sell
@@ -38,8 +37,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.SmallPrimaryButton
-import net.mullvad.mullvadvpn.compose.cell.HeaderCell
-import net.mullvad.mullvadvpn.compose.cell.IconCell
 import net.mullvad.mullvadvpn.compose.extensions.createOpenAccountPageHook
 import net.mullvad.mullvadvpn.compose.preview.AddMoreTimeUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.AddTimeUiState
@@ -49,12 +46,15 @@ import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.lib.payment.ProductIds.OneMonth
 import net.mullvad.mullvadvpn.lib.payment.ProductIds.ThreeMonths
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
+import net.mullvad.mullvadvpn.lib.ui.component.listitem.BottomSheetListItem
+import net.mullvad.mullvadvpn.lib.ui.component.listitem.ExternalLinkListItem
+import net.mullvad.mullvadvpn.lib.ui.component.listitem.IconListItem
+import net.mullvad.mullvadvpn.lib.ui.designsystem.ListItemDefaults
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
+import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
 import net.mullvad.mullvadvpn.lib.ui.tag.ADD_TIME_BOTTOM_SHEET_TITLE_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
-import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaDisabled
-import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaVisible
 import net.mullvad.mullvadvpn.util.Lc
 import net.mullvad.mullvadvpn.viewmodel.AddMoreTimeSideEffect
 import net.mullvad.mullvadvpn.viewmodel.AddTimeViewModel
@@ -452,35 +452,24 @@ private fun Products(
                 )
             }
         }
-        IconCell(
-            imageVector = Icons.Outlined.Sell,
+        ExternalLinkListItem(
+            leadingIcon = Icons.Outlined.Sell,
             title = stringResource(id = R.string.buy_credit),
-            titleColor =
-                onBackgroundColor.copy(
-                    alpha = if (internetBlocked) AlphaDisabled else AlphaVisible
-                ),
+            colors = ListItemDefaults.colors(headlineColor = onBackgroundColor, containerColorParent = backgroundColor),
             onClick = { onSitePaymentClick() },
-            enabled = !internetBlocked,
-            endIcon = {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.OpenInNew,
-                    tint =
-                        onBackgroundColor.copy(
-                            alpha = if (internetBlocked) AlphaDisabled else AlphaVisible
-                        ),
-                    contentDescription = null,
-                )
-            },
+            position = Position.Middle,
+            isRowEnabled = !internetBlocked,
         )
         HorizontalDivider(
             modifier = Modifier.height(Dimens.thinBorderWidth),
             color = onBackgroundColor,
         )
     }
-    IconCell(
-        imageVector = Icons.Default.Redeem,
+    IconListItem(
+        leadingIcon = Icons.Default.Redeem,
         title = stringResource(id = R.string.redeem_voucher),
-        titleColor = onBackgroundColor,
+        colors = ListItemDefaults.colors(headlineColor = onBackgroundColor, containerColorParent = backgroundColor),
+        position = Position.Middle,
         onClick = {
             onRedeemVoucherClick()
             closeBottomSheet(true)
@@ -500,9 +489,10 @@ private fun ColumnScope.Loading(onBackgroundColor: Color, backgroundColor: Color
 
 @Composable
 private fun SheetTitle(title: String, onBackgroundColor: Color, backgroundColor: Color) {
-    HeaderCell(
-        text = title,
-        background = backgroundColor,
+    BottomSheetListItem(
+        title = title,
+        backgroundColor = backgroundColor,
+        onBackgroundColor = onBackgroundColor,
         modifier = Modifier.testTag(ADD_TIME_BOTTOM_SHEET_TITLE_TEST_TAG),
     )
     HorizontalDivider(
