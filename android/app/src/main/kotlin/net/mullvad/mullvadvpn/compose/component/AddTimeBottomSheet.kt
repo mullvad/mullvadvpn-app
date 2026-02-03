@@ -455,7 +455,11 @@ private fun Products(
         ExternalLinkListItem(
             leadingIcon = Icons.Outlined.Sell,
             title = stringResource(id = R.string.buy_credit),
-            colors = ListItemDefaults.colors(headlineColor = onBackgroundColor, containerColorParent = backgroundColor),
+            colors =
+                ListItemDefaults.colors(
+                    headlineColor = onBackgroundColor,
+                    containerColorParent = backgroundColor,
+                ),
             onClick = { onSitePaymentClick() },
             position = Position.Middle,
             isRowEnabled = !internetBlocked,
@@ -468,7 +472,11 @@ private fun Products(
     IconListItem(
         leadingIcon = Icons.Default.Redeem,
         title = stringResource(id = R.string.redeem_voucher),
-        colors = ListItemDefaults.colors(headlineColor = onBackgroundColor, containerColorParent = backgroundColor),
+        colors =
+            ListItemDefaults.colors(
+                headlineColor = onBackgroundColor,
+                containerColorParent = backgroundColor,
+            ),
         position = Position.Middle,
         onClick = {
             onRedeemVoucherClick()

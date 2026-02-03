@@ -64,17 +64,19 @@ fun ExternalLinkListItem(
         testTag = testTag,
         leadingContent = {
             when {
-                showWarning -> Icon(
-                    imageVector = Icons.Default.Error,
-                    modifier = Modifier.padding(end = Dimens.smallPadding),
-                    contentDescription = stringResource(R.string.warning),
-                    tint = MaterialTheme.colorScheme.error,
-                )
-                leadingIcon != null -> Icon(
-                    imageVector = leadingIcon,
-                    modifier = Modifier.padding(end = Dimens.smallPadding),
-                    contentDescription = null,
-                )
+                showWarning ->
+                    Icon(
+                        imageVector = Icons.Default.Error,
+                        modifier = Modifier.padding(end = Dimens.smallPadding),
+                        contentDescription = stringResource(R.string.warning),
+                        tint = MaterialTheme.colorScheme.error,
+                    )
+                leadingIcon != null ->
+                    Icon(
+                        imageVector = leadingIcon,
+                        modifier = Modifier.padding(end = Dimens.smallPadding),
+                        contentDescription = null,
+                    )
             }
         },
         content = {
