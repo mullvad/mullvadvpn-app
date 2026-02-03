@@ -138,7 +138,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         addressCacheTracker = AddressCacheTracker(
             backgroundTaskProvider: backgroundTaskProvider,
             apiProxy: apiProxy,
-            store: addressCache
+            store: addressCache,
+            apiContext: apiContext
         )
 
         tunnelStore = TunnelStore(application: backgroundTaskProvider)
@@ -343,13 +344,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             forTaskWithIdentifier: BackgroundTask.addressCacheUpdate.identifier,
             using: .main
         ) { [self] task in
-            nonisolated(unsafe) let handle = addressCacheTracker.updateEndpoints { [self] result in
+            addressCacheTracker.updateEndpoints { [self] result in
                 scheduleAddressCacheUpdateTask()
                 task.setTaskCompleted(success: result.isSuccess)
-            }
-
-            task.expirationHandler = { @Sendable in
-                handle.cancel()
             }
         }
 
