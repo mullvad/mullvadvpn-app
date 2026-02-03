@@ -145,6 +145,15 @@ void mullvad_api_use_access_method(struct SwiftApiContext api_context,
                                    const char *access_method_id);
 
 /**
+ * Called by Swift to trigger a fetching and caching of addresses
+ *
+ * # SAFETY
+ *
+ * this takes no arguments other than the API context
+ */
+void mullvad_api_update_address_cache(struct SwiftApiContext swift_api_context);
+
+/**
  * # Safety
  *
  * `host` must be a pointer to a null terminated string representing a hostname for Mullvad API host.
