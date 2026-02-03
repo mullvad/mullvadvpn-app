@@ -45,6 +45,7 @@ include(
     ":lib:tv",
     ":lib:ui:designsystem",
     ":lib:ui:component",
+    ":lib:ui:icon",
     ":lib:ui:resource",
     ":lib:ui:tag",
     ":lib:ui:theme",
@@ -59,3 +60,4 @@ include(
     ":test:detekt",
     ":test:baselineprofile",
 )
+include(":lib:ui:icon")
