@@ -1,52 +1,66 @@
-import { useCallback } from 'react';
+import React from 'react';
 import { sprintf } from 'sprintf-js';
 
-import { ICustomList } from '../../../../../../shared/daemon-rpc-types';
 import { messages } from '../../../../../../shared/gettext';
-import { Button } from '../../../../../lib/components';
+import log from '../../../../../../shared/logging';
+import { useCustomLists } from '../../../../../features/location/hooks';
+import { Dialog, type DialogProps } from '../../../../../lib/components/dialog';
 import { formatHtml } from '../../../../../lib/html-formatter';
-import { ModalAlert, ModalAlertType, ModalMessage } from '../../../../Modal';
+import { useLocationRowContext } from '../location-row/LocationRowContext';
 
-interface DeleteConfirmDialogProps {
-  list: ICustomList;
-  isOpen: boolean;
-  hide: () => void;
-  confirm: () => void;
-}
+type DeleteConfirmDialogProps = Omit<DialogProps, 'children'>;
 
-// Dialog for changing the name of a custom list.
-export function DeleteConfirmDialog(props: DeleteConfirmDialogProps) {
-  const { confirm: propsConfirm, hide } = props;
+export function DeleteConfirmDialog({ open, onOpenChange }: DeleteConfirmDialogProps) {
+  const { deleteCustomList } = useCustomLists();
+  const { source } = useLocationRowContext();
 
-  const confirm = useCallback(() => {
-    propsConfirm();
-    hide();
-  }, [hide, propsConfirm]);
+  const handleConfirm = React.useCallback(async () => {
+    if (source.location.customList) {
+      try {
+        await deleteCustomList(source.location.customList);
+      } catch (e) {
+        const error = e as Error;
+        log.error(`Failed to delete custom list ${source.location.customList}: ${error.message}`);
+      }
+    }
+  }, [deleteCustomList, source.location.customList]);
+
+  const handleCancel = React.useCallback(() => {
+    onOpenChange?.(false);
+  }, [onOpenChange]);
+
+  if (!('list' in source)) {
+    return;
+  }
 
   return (
-    <ModalAlert
-      type={ModalAlertType.warning}
-      isOpen={props.isOpen}
-      buttons={[
-        <Button key="save" variant="destructive" onClick={confirm}>
-          <Button.Text>{messages.gettext('Delete list')}</Button.Text>
-        </Button>,
-        <Button key="cancel" onClick={props.hide}>
-          <Button.Text>{messages.gettext('Cancel')}</Button.Text>
-        </Button>,
-      ]}
-      close={props.hide}>
-      <ModalMessage>
-        {formatHtml(
-          sprintf(
-            messages.pgettext(
-              'select-location-view',
-              'Do you want to delete the list <b>%(list)s</b>?',
-            ),
-            { list: props.list.name },
-          ),
-        )}
-      </ModalMessage>
-    </ModalAlert>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <Dialog.Portal>
+        <Dialog.Popup>
+          <Dialog.PopupContent>
+            <Dialog.Icon icon="alert-circle" color="red" />
+            <Dialog.Text>
+              {formatHtml(
+                sprintf(
+                  messages.pgettext(
+                    'select-location-view',
+                    'Do you want to delete the list <b>%(list)s</b>?',
+                  ),
+                  { list: source.list.name },
+                ),
+              )}
+            </Dialog.Text>
+            <Dialog.ButtonGroup>
+              <Dialog.Button key="save" variant="destructive" onClick={handleConfirm}>
+                <Dialog.Button.Text>{messages.gettext('Delete list')}</Dialog.Button.Text>
+              </Dialog.Button>
+              <Dialog.Button key="cancel" onClick={handleCancel}>
+                <Dialog.Button.Text>{messages.gettext('Cancel')}</Dialog.Button.Text>
+              </Dialog.Button>
+            </Dialog.ButtonGroup>
+          </Dialog.PopupContent>
+        </Dialog.Popup>
+      </Dialog.Portal>
+    </Dialog>
   );
 }
