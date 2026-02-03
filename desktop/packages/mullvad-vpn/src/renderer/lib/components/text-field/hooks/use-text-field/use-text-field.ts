@@ -26,8 +26,21 @@ export function useTextField({
   validate,
 }: UseTextFieldProps): UseTextFieldState {
   const [value, setValue] = React.useState(defaultValue ?? '');
-  const [invalid, setInvalid] = React.useState(validate ? !validate(value) : false);
-  const [invalidReason, setInvalidReason] = React.useState<string | null>(null);
+  const validateValue = React.useCallback(
+    (value: string) => {
+      const result = validate ? validate(value) : true;
+      if (typeof result === 'string') {
+        return { invalid: true, invalidReason: result };
+      } else {
+        return { invalid: !result, invalidReason: null };
+      }
+    },
+    [validate],
+  );
+
+  const { invalid: initialInvalid, invalidReason: initialInvalidReason } = validateValue(value);
+  const [invalid, setInvalid] = React.useState(initialInvalid);
+  const [invalidReason, setInvalidReason] = React.useState<string | null>(initialInvalidReason);
   const [dirty, setDirty] = React.useState(false);
 
   const reset = React.useCallback(
@@ -38,12 +51,15 @@ export function useTextField({
       } else if (defaultValue !== undefined) {
         newValue = defaultValue;
       }
+
+      const { invalid, invalidReason } = validateValue(newValue);
+
       setValue(newValue);
-      setInvalid(validate ? !validate(newValue) : false);
-      setInvalidReason(null);
+      setInvalid(invalid);
+      setInvalidReason(invalidReason);
       setDirty(false);
     },
-    [defaultValue, validate],
+    [defaultValue, validateValue],
   );
 
   const focus = React.useCallback(() => {
@@ -57,16 +73,14 @@ export function useTextField({
   const handleOnValueChange = React.useCallback(
     (newValue: string) => {
       const formattedValue = format ? format(newValue) : newValue;
-      const validationResult = validate ? validate(formattedValue) : true;
-      const invalid = typeof validationResult === 'string' ? true : !validationResult;
-      const invalidReason = typeof validationResult === 'string' ? validationResult : null;
+      const { invalid, invalidReason } = validateValue(formattedValue);
 
       setInvalid(invalid);
       setInvalidReason(invalidReason);
       setValue(formattedValue);
       setDirty(true);
     },
-    [format, validate],
+    [format, validateValue],
   );
 
   return {
