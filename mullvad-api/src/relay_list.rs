@@ -11,6 +11,8 @@ use serde::{Deserialize, Serialize};
 use talpid_types::net::wireguard;
 use vec1::Vec1;
 
+use sha2::digest::Output;
+use sha2::{Digest, Sha256};
 use std::{
     collections::{BTreeMap, HashSet},
     future::Future,
@@ -37,8 +39,9 @@ impl RelayListProxy {
     pub fn relay_list(
         &self,
         prev_etag: Option<ETag>,
-    ) -> impl Future<Output = Result<Option<CachedRelayList>, rest::Error>> {
-        let request = self.relay_list_response(prev_etag.clone());
+        digest: &str,
+    ) -> impl Future<Output = Result<Option<(CachedRelayList, Output<Sha256>)>, rest::Error>> {
+        let request = self.relay_list_response(prev_etag.clone(), digest);
 
         async move {
             let response = request.await?;
@@ -51,16 +54,27 @@ impl RelayListProxy {
                 _ => {
                     // If the API returns a response, it *should* contain an ETag. But this might not be the case.
                     let etag = Self::extract_etag(&response);
-                    let relay_list: ServerRelayList =
-                        response.deserialize().await.inspect_err(|_err| {
+
+                    let (relay_list, hash) = response
+                        .body()
+                        .await
+                        .and_then(|body| {
+                            let hash = Sha256::digest(&body);
+                            let relay_list: ServerRelayList = serde_json::from_slice(&body)?;
+                            Ok((relay_list, hash))
+                        })
+                        .inspect_err(|_err| {
                             log::error!("Failed to deserialize API response of relay list")
                         })?;
 
                     match etag {
-                        Some(etag) => Ok(Some(relay_list.cache(etag))),
+                        Some(etag) => {
+                            let cached = relay_list.cache(etag);
+                            Ok(Some((cached, hash)))
+                        }
                         None => {
                             log::trace!("Relay list API response did not contain an etag");
-                            Ok(Some(relay_list.uncacheable()))
+                            Ok(Some((relay_list.uncacheable(), hash)))
                         }
                     }
                 }
@@ -68,12 +82,13 @@ impl RelayListProxy {
         }
     }
 
-    pub fn relay_list_response(
+    fn relay_list_response(
         &self,
         prev_etag: Option<ETag>,
+        digest: &str,
     ) -> impl Future<Output = Result<rest::Response<Incoming>, rest::Error>> {
         let service = self.handle.service.clone();
-        let request = self.handle.factory.get("app/v1/relays");
+        let request = self.handle.factory.get(&format!("trl/v0/data/{digest}"));
 
         async move {
             let mut request = request?
@@ -88,18 +103,100 @@ impl RelayListProxy {
         }
     }
 
-    pub fn extract_etag(response: &rest::Response<Incoming>) -> Option<ETag> {
+    fn extract_etag(response: &rest::Response<Incoming>) -> Option<ETag> {
         response
             .headers()
             .get(header::ETAG)
             .and_then(|s| s.to_str().ok())
             .map(|s| ETag(s.to_owned()))
     }
+
+    /// Fetch the relay list sigsum
+    pub fn relay_list_sigsum(
+        &self,
+    ) -> impl Future<Output = Result<ServerRelayListSigsum, rest::Error>> {
+        let request = self.relay_list_sigsum_response();
+
+        async move {
+            let response = request.await?;
+
+            let relay_list_sigsum = response
+                .body()
+                .await
+                .and_then(|body| {
+                    str::from_utf8(&body)
+                        .map_err(|_| rest::Error::InvalidUtf8Error)
+                        .and_then(ServerRelayListSigsum::parse_from_server_response)
+                })
+                .inspect_err(|_err| {
+                    log::error!("Failed to deserialize API response of relay list sigsum")
+                })?;
+
+            Ok(relay_list_sigsum)
+        }
+    }
+
+    fn relay_list_sigsum_response(
+        &self,
+    ) -> impl Future<Output = Result<rest::Response<Incoming>, rest::Error>> {
+        let service = self.handle.service.clone();
+        let request = self.handle.factory.get("trl/v0/timestamps/latest");
+
+        async move {
+            let request = request?
+                .timeout(RELAY_LIST_TIMEOUT)
+                .expected_status(&[StatusCode::NOT_MODIFIED, StatusCode::OK]);
+
+            service.request(request).await
+        }
+    }
+}
+
+/// Sigsum signature and digest for the relay list.
+///
+/// Because the API does not return JSON but instead a custom plain text format we need to parse
+/// it manually.
+#[derive(Debug)]
+pub struct ServerRelayListSigsum {
+    // TODO: we need the parsed data to access the digest hash when we check that the digest matches
+    // the hash of the relay list that we get form the API.
+    // We need the unparsed data because the sigsum crate API requires it. IMO the sigsum crate api
+    // should not take a raw unparsed json object as input.
+    pub data: DigestTimestamp,
+    pub unparsed_data: String,
+    pub sigsum_signature: String,
+}
+
+/// The digest is the Sha256 hash of the relay list that was signed by sigsum
+/// The timestamp is when the signature was signed.
+#[derive(Debug, Deserialize)]
+pub struct DigestTimestamp {
+    pub digest: String,
+    pub timestamp: String,
+}
+
+impl ServerRelayListSigsum {
+    pub fn parse_from_server_response(
+        response: &str,
+    ) -> Result<ServerRelayListSigsum, rest::Error> {
+        let (data, signature) = response
+            .split_once("\n\n")
+            .map(|(data, signature)| (format!("{data}\n"), signature.to_owned()))
+            .ok_or(rest::Error::SigsumDeserializeError)?;
+
+        let parsed: DigestTimestamp = serde_json::from_str(&data)?;
+
+        Ok(ServerRelayListSigsum {
+            data: parsed,
+            unparsed_data: data,
+            sigsum_signature: signature,
+        })
+    }
 }
 
 /// Relay list as served by the API.
 ///
-/// This stuct should conform to the API response 1-1.
+/// This struct should conform to the API response 1-1.
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct ServerRelayList {
     locations: BTreeMap<String, Location>,

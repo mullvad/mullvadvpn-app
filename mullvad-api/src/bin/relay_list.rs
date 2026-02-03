@@ -4,13 +4,17 @@
 
 #[cfg(not(target_os = "android"))]
 mod imp {
-    use mullvad_api::{
-        ApiEndpoint, RelayListProxy, proxy::ApiConnectionMode, rest::Error as RestError,
-    };
-    use std::process;
-    use talpid_types::ErrorExt;
+    use futures::future;
+    // use mullvad_api::{
+    //     ApiEndpoint, RelayListProxy, proxy::ApiConnectionMode, rest::Error as RestError,
+    // };
+    // use std::process;
+    // use talpid_types::ErrorExt;
 
     pub async fn main() {
+        // TODO: should this code use the new sigsum relay list api and verification?
+        future::always_ready(|| "").await;
+        /*
         let api_endpoint = ApiEndpoint::from_env_vars();
         let runtime = mullvad_api::Runtime::new(tokio::runtime::Handle::current(), &api_endpoint);
 
@@ -39,6 +43,7 @@ mod imp {
             }
         };
         println!("{}", serde_json::to_string_pretty(&relay_list).unwrap());
+         */
     }
 }
 
