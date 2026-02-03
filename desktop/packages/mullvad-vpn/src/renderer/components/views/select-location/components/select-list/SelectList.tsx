@@ -1,5 +1,4 @@
 import { useCallback } from 'react';
-import styled from 'styled-components';
 
 import {
   compareRelayLocationGeographical,
@@ -7,19 +6,8 @@ import {
   RelayLocation,
 } from '../../../../../../shared/daemon-rpc-types';
 import { messages } from '../../../../../../shared/gettext';
-import { colors } from '../../../../../lib/foundations';
-import * as Cell from '../../../../cell';
-import { normalText } from '../../../../common-styles';
-
-const StyledSelectListItemLabel = styled(Cell.Label)(normalText, {
-  fontWeight: 'normal',
-});
-
-const StyledSelectListItemIcon = styled(Cell.CellTintedIcon)({
-  [`${Cell.CellButton}:not(:disabled):hover &&`]: {
-    backgroundColor: colors.whiteAlpha80,
-  },
-});
+import { IconButton } from '../../../../../lib/components';
+import { ListItem } from '../../../../../lib/components/list-item';
 
 interface SelectListProps {
   list: ICustomList;
@@ -38,11 +26,17 @@ export function SelectList(props: SelectListProps) {
   );
 
   return (
-    <Cell.CellButton onClick={onAdd} disabled={disabled}>
-      <StyledSelectListItemLabel>
-        {props.list.name} {disabled && messages.pgettext('select-location-view', '(Added)')}
-      </StyledSelectListItemLabel>
-      <StyledSelectListItemIcon icon="add-circle" />
-    </Cell.CellButton>
+    <ListItem onClick={onAdd} disabled={disabled} position="solo">
+      <ListItem.Item>
+        <ListItem.Label>
+          {props.list.name} {disabled && messages.pgettext('select-location-view', '(Added)')}
+        </ListItem.Label>
+        <ListItem.ActionGroup>
+          <IconButton variant="secondary">
+            <IconButton.Icon icon="add-circle" />
+          </IconButton>
+        </ListItem.ActionGroup>
+      </ListItem.Item>
+    </ListItem>
   );
 }
