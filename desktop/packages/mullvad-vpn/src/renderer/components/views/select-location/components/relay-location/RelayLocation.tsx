@@ -1,7 +1,8 @@
 import React from 'react';
 
 import { type RelayLocation as RelayLocationType } from '../../../../../../shared/daemon-rpc-types';
-import { getLocationChildren, LocationSpecification } from '../../select-location-types';
+import type { ListItemProps } from '../../../../../lib/components/list-item';
+import { getLocationChildren, type LocationSpecification } from '../../select-location-types';
 import LocationRow from '../location-row/LocationRow';
 
 interface CommonProps {
@@ -20,22 +21,23 @@ interface CommonProps {
 
 interface RelayLocationProps extends CommonProps {
   source: LocationSpecification;
-  level: number;
+  level: ListItemProps['level'];
 }
 
-export function RelayLocation(props: RelayLocationProps) {
-  const children = getLocationChildren(props.source);
-
+export function RelayLocation({ source, level, ...props }: RelayLocationProps) {
+  const children = getLocationChildren(source);
   return (
-    <LocationRow {...props}>
-      {children.map((child) => (
-        <RelayLocation
-          key={getLocationKey(child.location)}
-          {...props}
-          source={child}
-          level={props.level + 1}
-        />
-      ))}
+    <LocationRow source={source} level={level} {...props}>
+      {children.map((child) => {
+        return (
+          <RelayLocation
+            key={getLocationKey(child.location)}
+            source={child}
+            level={level !== undefined ? level + 1 : undefined}
+            {...props}
+          />
+        );
+      })}
     </LocationRow>
   );
 }

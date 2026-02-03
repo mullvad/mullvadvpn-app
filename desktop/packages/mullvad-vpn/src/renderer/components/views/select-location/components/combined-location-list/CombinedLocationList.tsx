@@ -1,7 +1,7 @@
 import React from 'react';
 
 import type { RelayLocation } from '../../../../../../shared/daemon-rpc-types';
-import { RelayList, SpecialLocation } from '../../select-location-types';
+import { type RelayList, SpecialLocation } from '../../select-location-types';
 import { SpecialLocationList } from '..';
 import { RelayLocationList } from '../relay-location-list';
 
@@ -23,17 +23,19 @@ export interface CombinedLocationListProps<T> {
 }
 
 // Renders the special locations and the regular locations as separate lists
-export function CombinedLocationList<T>(props: CombinedLocationListProps<T>) {
+export function CombinedLocationList<T>({
+  specialLocations,
+  onSelectSpecial,
+  relayLocations,
+  onSelectRelay,
+  ...props
+}: CombinedLocationListProps<T>) {
   return (
     <>
-      {props.specialLocations !== undefined && props.specialLocations.length > 0 && (
-        <SpecialLocationList
-          {...props}
-          source={props.specialLocations}
-          onSelect={props.onSelectSpecial}
-        />
+      {specialLocations !== undefined && specialLocations.length > 0 && (
+        <SpecialLocationList {...props} source={specialLocations} onSelect={onSelectSpecial} />
       )}
-      <RelayLocationList {...props} source={props.relayLocations} onSelect={props.onSelectRelay} />
+      <RelayLocationList {...props} source={relayLocations} onSelect={onSelectRelay} />
     </>
   );
 }

@@ -307,7 +307,7 @@ function SelectLocationContent() {
 
     const specialLocations = filterSpecialLocations(searchTerm, specialList);
     return (
-      <Container horizontalMargin="medium" flexDirection="column">
+      <Container horizontalMargin="medium" flexDirection="column" gap="large">
         <CustomLists locationSelection="exit" selectedElementRef={selectedLocationRef} />
         <LocationList
           key={locationType}
@@ -331,7 +331,7 @@ function SelectLocationContent() {
     }
 
     return (
-      <Container horizontalMargin="medium" flexDirection="column">
+      <Container horizontalMargin="medium" flexDirection="column" gap="large">
         <CustomLists locationSelection="entry" selectedElementRef={selectedLocationRef} />
         <LocationList
           key={locationType}

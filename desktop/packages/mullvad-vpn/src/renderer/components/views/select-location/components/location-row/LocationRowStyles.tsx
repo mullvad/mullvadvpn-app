@@ -1,12 +1,9 @@
 import styled from 'styled-components';
-import { Styles } from 'styled-components/dist/types';
 
-import { Icon } from '../../../../../lib/components';
 import { colors, ColorVariables } from '../../../../../lib/foundations';
 import * as Cell from '../../../../cell';
 import { buttonColor, ButtonColors } from '../../../../cell/styles';
-import { measurements, normalText } from '../../../../common-styles';
-import InfoButton from '../../../../InfoButton';
+import { normalText } from '../../../../common-styles';
 
 export const StyledLocationRowContainer = styled(Cell.Container)({
   display: 'flex',
@@ -42,57 +39,6 @@ export const StyledLocationRowButton = styled(Cell.Row)<ButtonColors & { $level:
       margin: 0,
     };
   },
-);
-
-interface HoverButtonProps {
-  $isLast?: boolean;
-}
-
-const hoverButton = (
-  props: ButtonColors & HoverButtonProps,
-): Styles<
-  React.DetailedHTMLProps<React.ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement>
-> => ({
-  flex: 0,
-  display: 'none',
-  padding: '0 10px',
-  paddingRight: props.$isLast ? '17px' : '10px',
-  margin: 0,
-  border: 0,
-  height: measurements.rowMinHeight,
-  appearance: 'none',
-
-  '&&:last-child': {
-    paddingRight: '25px',
-  },
-
-  '&&:not(:disabled):hover': {
-    backgroundColor: props.$backgroundColor,
-  },
-  [`${StyledLocationRowContainer}:hover &&`]: {
-    display: 'block',
-  },
-  [`${StyledLocationRowButton}:hover ~ &&`]: {
-    backgroundColor: props.$backgroundColorHover,
-  },
-});
-
-export const StyledHoverIconButton = styled.button<ButtonColors & HoverButtonProps>(
-  buttonColor,
-  hoverButton,
-);
-
-export const StyledHoverIcon = styled(Icon).attrs({
-  color: 'whiteAlpha60',
-})({
-  [`${StyledHoverIconButton}:hover &&`]: {
-    backgroundColor: colors.white,
-  },
-});
-
-export const StyledHoverInfoButton = styled(InfoButton)<ButtonColors & HoverButtonProps>(
-  buttonColor,
-  hoverButton,
 );
 
 export function getButtonColor(selected: boolean, level: number, disabled?: boolean) {
