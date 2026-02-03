@@ -19,9 +19,9 @@ import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.model.RelayListType
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.RelayListItem
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_CUSTOM_LIST_HEADER_TEST_TAG
-import net.mullvad.mullvadvpn.usecase.ModifyMultihopError
-import net.mullvad.mullvadvpn.usecase.MultihopChange
-import net.mullvad.mullvadvpn.usecase.SelectRelayItemError
+import net.mullvad.mullvadvpn.lib.usecase.ModifyMultihopError
+import net.mullvad.mullvadvpn.lib.usecase.MultihopChange
+import net.mullvad.mullvadvpn.lib.usecase.SelectRelayItemError
 import net.mullvad.mullvadvpn.util.Lce
 import net.mullvad.mullvadvpn.viewmodel.location.UndoChangeMultihopAction
 import org.junit.jupiter.api.AfterEach

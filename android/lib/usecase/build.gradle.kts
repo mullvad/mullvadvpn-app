@@ -11,7 +11,6 @@ android {
 }
 
 dependencies {
-    // implementation(projects.lib.ui.resource)
     implementation(projects.lib.common)
     implementation(projects.lib.grpc)
     implementation(projects.lib.model)
@@ -20,7 +19,6 @@ dependencies {
     implementation(libs.arrow)
     implementation(libs.arrow.optics)
     implementation(libs.kermit)
-    // implementation(libs.kotlin.stdlib)
     implementation(libs.kotlinx.coroutines.android)
 
     testImplementation(libs.kotlin.test)
