@@ -3,7 +3,7 @@ package net.mullvad.mullvadvpn.utils
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import kotlin.test.assertEquals
-import net.mullvad.mullvadvpn.lib.common.util.appendTextWithStyledSubstring
+import net.mullvad.mullvadvpn.lib.ui.component.appendTextWithStyledSubstring
 import org.junit.jupiter.api.Test
 
 class AppendTextWithStyledSubstringTest {

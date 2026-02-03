@@ -354,10 +354,10 @@ class SelectLocationViewModelTest {
 
     companion object {
         private const val RELAY_LIST_EXTENSIONS =
-            "net.mullvad.mullvadvpn.relaylist.RelayListExtensionsKt"
+            "net.mullvad.mullvadvpn.lib.common.util.relaylist.RelayListExtensionsKt"
         private const val RELAY_ITEM_EXTENSIONS =
-            "net.mullvad.mullvadvpn.relaylist.RelayItemExtensionsKt"
+            "net.mullvad.mullvadvpn.lib.common.util.relaylist.RelayItemExtensionsKt"
         private const val CUSTOM_LIST_EXTENSIONS =
-            "net.mullvad.mullvadvpn.relaylist.CustomListExtensionsKt"
+            "net.mullvad.mullvadvpn.lib.common.util.relaylist.CustomListExtensionsKt"
     }
 }

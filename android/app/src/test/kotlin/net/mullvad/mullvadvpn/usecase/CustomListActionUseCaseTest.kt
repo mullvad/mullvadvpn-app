@@ -195,6 +195,6 @@ class CustomListActionUseCaseTest {
 
     companion object {
         private const val RELAY_LIST_EXTENSIONS =
-            "net.mullvad.mullvadvpn.relaylist.RelayListExtensionsKt"
+            "net.mullvad.mullvadvpn.lib.common.util.relaylist.RelayListExtensionsKt"
     }
 }
