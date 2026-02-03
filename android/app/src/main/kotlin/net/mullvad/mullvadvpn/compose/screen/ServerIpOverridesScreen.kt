@@ -61,8 +61,6 @@ import kotlinx.parcelize.Parcelize
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.InfoIconButton
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
-import net.mullvad.mullvadvpn.compose.cell.HeaderCell
-import net.mullvad.mullvadvpn.compose.cell.IconCell
 import net.mullvad.mullvadvpn.compose.component.MullvadModalBottomSheet
 import net.mullvad.mullvadvpn.compose.component.MullvadSnackbar
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
@@ -75,7 +73,11 @@ import net.mullvad.mullvadvpn.compose.util.OnNavResultValue
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
 import net.mullvad.mullvadvpn.lib.model.SettingsPatchError
+import net.mullvad.mullvadvpn.lib.ui.component.listitem.BottomSheetListItem
+import net.mullvad.mullvadvpn.lib.ui.component.listitem.IconListItem
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.ServerIpOverridesListItem
+import net.mullvad.mullvadvpn.lib.ui.designsystem.ListItemDefaults
+import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
 import net.mullvad.mullvadvpn.lib.ui.tag.SERVER_IP_OVERRIDES_IMPORT_BY_FILE_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SERVER_IP_OVERRIDES_IMPORT_BY_TEXT_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SERVER_IP_OVERRIDE_IMPORT_TEST_TAG
@@ -273,28 +275,41 @@ private fun ImportOverridesByBottomSheet(
         onBackgroundColor = onBackgroundColor,
         onDismissRequest = { showBottomSheet(false) },
     ) {
-        HeaderCell(
-            text = stringResource(id = R.string.server_ip_overrides_import_by),
-            background = backgroundColor,
+        BottomSheetListItem(
+            title = stringResource(id = R.string.server_ip_overrides_import_by),
+            backgroundColor = backgroundColor,
+            onBackgroundColor = onBackgroundColor,
         )
         HorizontalDivider(color = onBackgroundColor)
-        IconCell(
-            imageVector = Icons.Default.UploadFile,
+        IconListItem(
+            leadingIcon = Icons.Default.UploadFile,
             title = stringResource(id = R.string.server_ip_overrides_import_by_file),
             modifier = Modifier.testTag(SERVER_IP_OVERRIDES_IMPORT_BY_FILE_TEST_TAG),
+            position = Position.Middle,
             onClick = {
                 onImportByFile()
                 onCloseSheet()
             },
+            colors =
+                ListItemDefaults.colors(
+                    containerColorParent = backgroundColor,
+                    headlineColor = onBackgroundColor,
+                ),
         )
-        IconCell(
-            imageVector = Icons.Default.TextFields,
+        IconListItem(
+            leadingIcon = Icons.Default.TextFields,
             title = stringResource(id = R.string.server_ip_overrides_import_by_text),
+            position = Position.Middle,
             modifier = Modifier.testTag(SERVER_IP_OVERRIDES_IMPORT_BY_TEXT_TEST_TAG),
             onClick = {
                 onImportByText()
                 onCloseSheet()
             },
+            colors =
+                ListItemDefaults.colors(
+                    containerColorParent = backgroundColor,
+                    headlineColor = onBackgroundColor,
+                ),
         )
         if (overridesActive) {
             HorizontalDivider(color = onBackgroundColor)

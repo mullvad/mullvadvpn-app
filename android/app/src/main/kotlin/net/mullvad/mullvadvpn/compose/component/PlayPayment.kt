@@ -27,17 +27,17 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.SmallPrimaryButton
-import net.mullvad.mullvadvpn.compose.cell.IconCell
 import net.mullvad.mullvadvpn.compose.preview.PlayPaymentPaymentStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.PaymentState
 import net.mullvad.mullvadvpn.lib.payment.ProductIds
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentProduct
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentStatus
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
+import net.mullvad.mullvadvpn.lib.ui.component.listitem.IconListItem
+import net.mullvad.mullvadvpn.lib.ui.designsystem.ListItemDefaults
 import net.mullvad.mullvadvpn.lib.ui.tag.PLAY_PAYMENT_INFO_ICON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
-import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaDisabled
 
 @Preview(
     "Loading|NoPayment|NoProductsFound|Error.Generic|Error.Billing" +
@@ -160,8 +160,8 @@ private fun PaymentAvailable(
         }
         Column {
             billingPaymentState.products.forEach { product ->
-                IconCell(
-                    imageVector = Icons.Outlined.Sell,
+                IconListItem(
+                    leadingIcon = Icons.Outlined.Sell,
                     title =
                         when (product.productId.value) {
                             ProductIds.OneMonth ->
@@ -179,14 +179,13 @@ private fun PaymentAvailable(
                                 error("ProductId ${product.productId.value} is not supported")
                             }
                         },
-                    titleColor =
-                        if (enabled) {
-                            MaterialTheme.colorScheme.onSurface
-                        } else {
-                            MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaDisabled)
-                        },
+                    colors =
+                        ListItemDefaults.colors(
+                            containerColorParent = MaterialTheme.colorScheme.surfaceContainer,
+                            headlineColor = MaterialTheme.colorScheme.onSurface,
+                        ),
                     onClick = { onPurchaseBillingProductClick(product.productId) },
-                    enabled = enabled,
+                    isEnabled = enabled,
                 )
             }
         }

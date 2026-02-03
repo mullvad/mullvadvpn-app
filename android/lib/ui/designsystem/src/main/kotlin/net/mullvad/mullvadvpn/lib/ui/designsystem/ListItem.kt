@@ -88,18 +88,6 @@ val Hierarchy.paddingStart: Dp
             Hierarchy.Child3 -> ListTokens.listItemPaddingStart * 3
         }
 
-val Hierarchy.containerColor: Color
-    @Composable
-    get() =
-        when (this) {
-            // Using primary is a workaround to ensure enough contrast between lowest depth (3) and
-            // the background.
-            Hierarchy.Parent -> MaterialTheme.colorScheme.primary
-            Hierarchy.Child1 -> MaterialTheme.colorScheme.surfaceContainerHighest
-            Hierarchy.Child2 -> MaterialTheme.colorScheme.surfaceContainerHigh
-            Hierarchy.Child3 -> MaterialTheme.colorScheme.surfaceContainerLow
-        }
-
 @Composable
 @Suppress("LongMethod")
 fun MullvadListItem(
@@ -139,7 +127,7 @@ fun MullvadListItem(
     ) {
         Row(
             modifier =
-                Modifier.background(hierarchy.containerColor.copy(alpha = backgroundAlpha))
+                Modifier.background(colors.containerColor(hierarchy).copy(alpha = backgroundAlpha))
                     .applyIfNotNull(testTag) { testTag(it) }
                     .applyIfNotNull(onClick, and = mainClickArea == ListItemClickArea.All) {
                         combinedClickable(
@@ -215,14 +203,15 @@ fun MullvadListItem(
 // Based of ListItem
 @Immutable
 class ListItemColors(
-    val containerColor: Color,
+    val containerColorParent: Color,
+    val containerColorChild1: Color,
+    val containerColorChild2: Color,
+    val containerColorChild3: Color,
     val headlineColor: Color,
     val trailingIconColor: Color,
     val selectedHeadlineColor: Color,
     val disabledHeadlineColor: Color,
 ) {
-    internal fun containerColor(): Color = containerColor
-
     @Stable
     internal fun headlineColor(enabled: Boolean, selected: Boolean): Color =
         when {
@@ -230,12 +219,25 @@ class ListItemColors(
             selected -> selectedHeadlineColor
             else -> headlineColor
         }
+
+    internal fun containerColor(hierarchy: Hierarchy) =
+        when (hierarchy) {
+            // Using primary is a workaround to ensure enough contrast between lowest depth (3) and
+            // the background.
+            Hierarchy.Parent -> containerColorParent
+            Hierarchy.Child1 -> containerColorChild1
+            Hierarchy.Child2 -> containerColorChild2
+            Hierarchy.Child3 -> containerColorChild3
+        }
 }
 
 object ListItemDefaults {
     @Composable
     fun colors(
-        containerColor: Color = MaterialTheme.colorScheme.surface,
+        containerColorParent: Color = MaterialTheme.colorScheme.primary,
+        containerColorChild1: Color = MaterialTheme.colorScheme.surfaceContainerHighest,
+        containerColorChild2: Color = MaterialTheme.colorScheme.surfaceContainerHigh,
+        containerColorChild3: Color = MaterialTheme.colorScheme.surfaceContainerLow,
         headlineColor: Color = MaterialTheme.colorScheme.onSurface,
         trailingIconColor: Color = MaterialTheme.colorScheme.onSurface,
         selectedHeadlineColor: Color = MaterialTheme.colorScheme.tertiary,
@@ -243,7 +245,10 @@ object ListItemDefaults {
             headlineColor.copy(alpha = ListTokens.ListItemDisabledLabelTextOpacity),
     ): ListItemColors =
         ListItemColors(
-            containerColor = containerColor,
+            containerColorParent = containerColorParent,
+            containerColorChild1 = containerColorChild1,
+            containerColorChild2 = containerColorChild2,
+            containerColorChild3 = containerColorChild3,
             headlineColor = headlineColor,
             trailingIconColor = trailingIconColor,
             selectedHeadlineColor = selectedHeadlineColor,

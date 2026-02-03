@@ -9,12 +9,15 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.tooling.preview.Preview
 import net.mullvad.mullvadvpn.lib.ui.component.R
 import net.mullvad.mullvadvpn.lib.ui.component.preview.PreviewSpacedColumn
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Hierarchy
+import net.mullvad.mullvadvpn.lib.ui.designsystem.ListItemColors
+import net.mullvad.mullvadvpn.lib.ui.designsystem.ListItemDefaults
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadListItem
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
@@ -44,6 +47,8 @@ fun ExternalLinkListItem(
     title: String,
     subtitle: String? = null,
     subTitleTextDirection: TextDirection = TextDirection.Unspecified,
+    leadingIcon: ImageVector? = null,
+    colors: ListItemColors = ListItemDefaults.colors(),
     showWarning: Boolean = false,
     isRowEnabled: Boolean = true,
     onClick: () -> Unit,
@@ -54,15 +59,21 @@ fun ExternalLinkListItem(
         hierarchy = hierarchy,
         position = position,
         onClick = onClick,
+        colors = colors,
         isEnabled = isRowEnabled,
         testTag = testTag,
         leadingContent = {
-            if (showWarning) {
-                Icon(
+            when {
+                showWarning -> Icon(
                     imageVector = Icons.Default.Error,
                     modifier = Modifier.padding(end = Dimens.smallPadding),
                     contentDescription = stringResource(R.string.warning),
                     tint = MaterialTheme.colorScheme.error,
+                )
+                leadingIcon != null -> Icon(
+                    imageVector = leadingIcon,
+                    modifier = Modifier.padding(end = Dimens.smallPadding),
+                    contentDescription = null,
                 )
             }
         },
