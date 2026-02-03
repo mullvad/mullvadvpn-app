@@ -11,7 +11,7 @@ async-trait = "0.1"
 byteorder = "1"
 chrono = { workspace = true, features = ["clock"], optional = true }
 futures = { workspace = true }
-gotatun = { version = "0.2.0", features = ["daita", "device", "tun"] }
+gotatun = { workspace = true, features = ["daita", "device", "tun"] }
 hex = "0.4"
 internet-checksum = "0.2"
 ipnetwork = { workspace = true }
@@ -59,31 +59,7 @@ bitflags = "1.2"
 chrono = { workspace = true, features = ["clock"] }
 talpid-windows = { path = "../talpid-windows" }
 widestring = { workspace = true }
-
-# TODO: Figure out which features are needed and which are not
-[target.'cfg(windows)'.dependencies.windows-sys]
-workspace = true
-features = [
-  "Win32_Foundation",
-  "Win32_Globalization",
-  "Win32_NetworkManagement_IpHelper",
-  "Win32_NetworkManagement_Ndis",
-  "Win32_Networking_WinSock",
-  "Win32_Security",
-  "Win32_System_Com",
-  "Win32_System_Diagnostics_ToolHelp",
-  "Win32_System_IO",
-  "Win32_System_Ioctl",
-  "Win32_System_LibraryLoader",
-  "Win32_System_ProcessStatus",
-  "Win32_System_Registry",
-  "Win32_System_Services",
-  "Win32_System_SystemServices",
-  "Win32_System_Threading",
-  "Win32_System_WindowsProgramming",
-  "Win32_UI_Shell",
-  "Win32_UI_WindowsAndMessaging",
-]
+windows-sys = { workspace = true }
 
 [features]
 multihop-pcap = ["gotatun/pcap"]

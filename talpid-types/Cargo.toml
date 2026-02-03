@@ -17,7 +17,7 @@ x25519-dalek = { version = "2.0.1", features = [
   "static_secrets",
   "zeroize"
 ] }
-zeroize = "1.5.7"
+zeroize = { workspace = true }
 
 [dev-dependencies]
 insta = { workspace = true }

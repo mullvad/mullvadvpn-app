@@ -1,23 +1,15 @@
 //! Conversions between [`gotatun`]-types and `talpid_wireguard`-types.
 
-use std::{str::FromStr, time::SystemTime};
+use std::time::SystemTime;
 
-use gotatun::device::{Peer, daita::Machine};
+use gotatun::device::Peer;
 use talpid_tunnel_config_client::DaitaSettings;
 use talpid_types::net::wireguard::PeerConfig;
 
-use crate::{
-    TunnelError,
-    stats::{DaitaStats, Stats},
-};
+use crate::stats::{DaitaStats, Stats};
 
 /// Convert a [`PeerConfig`] into a GotaTun [`Peer`].
-///
-/// Returns [`TunnelError::StartDaita`] if the maybenot machines fails to parse.
-pub fn to_gotatun_peer(
-    peer: &PeerConfig,
-    daita: Option<&DaitaSettings>,
-) -> Result<Peer, TunnelError> {
+pub fn to_gotatun_peer(peer: &PeerConfig, daita: Option<&DaitaSettings>) -> Peer {
     let PeerConfig {
         public_key,
         allowed_ips,
@@ -37,13 +29,7 @@ pub fn to_gotatun_peer(
 
     if let Some(daita) = daita {
         let daita = gotatun::device::daita::DaitaSettings {
-            maybenot_machines: daita
-                .client_machines
-                .iter()
-                // TODO: deserialize machines earlier. Preferably when getting them from the gRPC service.
-                .map(|machine_str| Machine::from_str(machine_str))
-                .collect::<Result<_, _>>()
-                .map_err(|e| TunnelError::StartDaita(Box::new(e)))?,
+            maybenot_machines: daita.client_machines.clone(),
             max_padding_frac: daita.max_padding_frac,
             max_blocking_frac: daita.max_blocking_frac,
             // TODO: tweak to sane values
@@ -53,7 +39,7 @@ pub fn to_gotatun_peer(
         peer = peer.with_daita(daita);
     }
 
-    Ok(peer)
+    peer
 }
 
 impl From<gotatun::device::configure::Stats> for Stats {
