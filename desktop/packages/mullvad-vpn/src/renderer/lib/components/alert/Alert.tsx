@@ -1,18 +1,15 @@
 import styled from 'styled-components';
 
-import { colors } from '../../foundations';
 import { Flex } from '../flex';
 import { AlertIcon, AlertText, AlertTextGroup, AlertTitle } from './components';
 
 export type AlertProps = React.ComponentPropsWithRef<'div'>;
 
-const StyledAlert = styled(Flex)`
-  background-color: ${colors.darkBlue};
-`;
+const StyledAlert = styled(Flex)``;
 
 function Alert({ children, ...props }: AlertProps) {
   return (
-    <StyledAlert flexDirection="column" padding="large" gap="medium" {...props}>
+    <StyledAlert flexDirection="column" gap="medium" {...props}>
       {children}
     </StyledAlert>
   );

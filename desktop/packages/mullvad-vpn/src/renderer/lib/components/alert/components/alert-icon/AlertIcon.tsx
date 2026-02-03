@@ -4,7 +4,7 @@ import { Icon, IconProps } from '../../../icon';
 
 export type AlertIconProps = IconProps;
 
-const StyledAlertIcon = styled(Icon)`
+export const StyledAlertIcon = styled(Icon)`
   align-self: center;
 `;
 
