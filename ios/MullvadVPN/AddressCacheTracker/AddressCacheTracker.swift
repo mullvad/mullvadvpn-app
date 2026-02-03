@@ -8,6 +8,7 @@
 
 import MullvadLogging
 import MullvadREST
+import MullvadRustRuntime
 import MullvadTypes
 import Operations
 import UIKit
@@ -43,12 +44,15 @@ final class AddressCacheTracker: @unchecked Sendable {
 
     /// Lock used for synchronizing member access.
     private let nslock = NSLock()
+    
+    private let apiContext: MullvadApiContext
 
     /// Designated initializer
-    init(backgroundTaskProvider: BackgroundTaskProviding, apiProxy: APIQuerying, store: REST.AddressCache) {
+    init(backgroundTaskProvider: BackgroundTaskProviding, apiProxy: APIQuerying, store: REST.AddressCache, apiContext: MullvadApiContext) {
         self.backgroundTaskProvider = backgroundTaskProvider
         self.apiProxy = apiProxy
         self.store = store
+        self.apiContext = apiContext
     }
 
     func startPeriodicUpdates() {
@@ -84,33 +88,8 @@ final class AddressCacheTracker: @unchecked Sendable {
         timer = nil
     }
 
-    func updateEndpoints(completionHandler: ((sending Result<Bool, Error>) -> Void)? = nil) -> Cancellable {
-        let operation = ResultBlockOperation<Bool> { finish -> Cancellable in
-            guard self.nextScheduleDate() <= Date() else {
-                finish(.success(false))
-                return AnyCancellable()
-            }
-
-            return self.apiProxy.getAddressList(retryStrategy: .default) { result in
-                self.setEndpoints(from: result)
-                finish(result.map { _ in true })
-            }
-        }
-
-        operation.completionQueue = .main
-        operation.completionHandler = completionHandler
-
-        operation.addObserver(
-            BackgroundObserver(
-                backgroundTaskProvider: backgroundTaskProvider,
-                name: "Update endpoints",
-                cancelUponExpiration: true
-            )
-        )
-
-        operationQueue.addOperation(operation)
-
-        return operation
+    func updateEndpoints(completionHandler: ((sending Result<Bool, Error>) -> Void)? = nil) {
+        mullvad_api_update_address_cache(apiContext.context)
     }
 
     func nextScheduleDate() -> Date {
@@ -155,7 +134,7 @@ final class AddressCacheTracker: @unchecked Sendable {
     }
 
     private func handleTimer() {
-        _ = updateEndpoints { _ in
+        updateEndpoints { _ in
             self.nslock.lock()
             defer { self.nslock.unlock() }
 
