@@ -29,9 +29,6 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
-import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
-import net.mullvad.mullvadvpn.compose.component.textResource
 import net.mullvad.mullvadvpn.compose.extensions.dropUnlessResumed
 import net.mullvad.mullvadvpn.compose.preview.ManageDevicesUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.ManageDevicesUiState
@@ -42,6 +39,8 @@ import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.model.Device
 import net.mullvad.mullvadvpn.lib.model.DeviceId
 import net.mullvad.mullvadvpn.lib.model.GetDeviceListError
+import net.mullvad.mullvadvpn.lib.ui.component.NavigateBackIconButton
+import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.DeviceListItem
 import net.mullvad.mullvadvpn.lib.ui.component.positionForIndex
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorMedium
@@ -145,7 +144,7 @@ private fun Content(
 ) {
     Column(modifier.padding(horizontal = Dimens.sideMarginNew)) {
         Text(
-            text = textResource(id = R.string.manage_devices_description),
+            text = stringResource(id = R.string.manage_devices_description),
             style = MaterialTheme.typography.labelLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )

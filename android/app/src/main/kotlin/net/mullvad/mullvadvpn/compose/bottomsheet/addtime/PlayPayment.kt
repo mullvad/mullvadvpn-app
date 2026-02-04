@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.compose.component
+package net.mullvad.mullvadvpn.compose.bottomsheet.addtime
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -34,6 +34,7 @@ import net.mullvad.mullvadvpn.lib.payment.model.PaymentStatus
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.IconListItem
 import net.mullvad.mullvadvpn.lib.ui.designsystem.ListItemDefaults
+import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadLinearProgressIndicator
 import net.mullvad.mullvadvpn.lib.ui.designsystem.SmallPrimaryButton
 import net.mullvad.mullvadvpn.lib.ui.tag.PLAY_PAYMENT_INFO_ICON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme

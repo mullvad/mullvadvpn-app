@@ -1,5 +1,7 @@
 package net.mullvad.mullvadvpn.compose.button
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -31,7 +33,6 @@ import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.component.SpacedColumn
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 
@@ -39,7 +40,7 @@ import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 @Composable
 private fun PreviewConnectionButton() {
     AppTheme {
-        SpacedColumn {
+        Column(verticalArrangement = Arrangement.spacedBy(Dimens.mediumSpacer)) {
             SwitchLocationButton(
                 text = "Switch Location",
                 onSwitchLocation = {},

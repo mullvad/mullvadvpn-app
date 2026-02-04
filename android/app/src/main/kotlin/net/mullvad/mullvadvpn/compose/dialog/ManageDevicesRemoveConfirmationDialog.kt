@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.compose.dialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import com.ramcosta.composedestinations.annotation.Destination
@@ -11,7 +12,6 @@ import com.ramcosta.composedestinations.result.EmptyResultBackNavigator
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.component.textResource
 import net.mullvad.mullvadvpn.compose.dialog.info.InfoConfirmationDialog
 import net.mullvad.mullvadvpn.compose.dialog.info.InfoConfirmationDialogTitleType
 import net.mullvad.mullvadvpn.compose.preview.DevicePreviewParameterProvider
@@ -34,11 +34,11 @@ fun ManageDevicesRemoveConfirmation(navigator: ResultBackNavigator<DeviceId>, de
         navigator = navigator,
         confirmValue = device.id,
         titleType = InfoConfirmationDialogTitleType.IconAndTitle(title = device.titleText()),
-        confirmButtonTitle = textResource(R.string.remove_button),
-        cancelButtonTitle = textResource(R.string.cancel),
+        confirmButtonTitle = stringResource(R.string.remove_button),
+        cancelButtonTitle = stringResource(R.string.cancel),
     ) {
         Text(
-            text = textResource(id = R.string.manage_devices_confirm_removal_description_line2),
+            text = stringResource(id = R.string.manage_devices_confirm_removal_description_line2),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             style = MaterialTheme.typography.labelLarge,
         )
@@ -47,4 +47,4 @@ fun ManageDevicesRemoveConfirmation(navigator: ResultBackNavigator<DeviceId>, de
 
 @Composable
 private fun Device.titleText(): String =
-    textResource(id = R.string.manage_devices_confirm_removal_description_line1, displayName())
+    stringResource(id = R.string.manage_devices_confirm_removal_description_line1, displayName())

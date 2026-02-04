@@ -2,14 +2,11 @@ package net.mullvad.mullvadvpn.compose.util
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.flowWithLifecycle
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.launch
 
 // This function will restart collection on Start/Stop events, e.g if the user navigates to home
 // screen collection will stop, and then be restarted when the user opens the app again
@@ -26,14 +23,5 @@ inline fun <T> CollectSideEffectWithLifecycle(
         sideEffect.flowWithLifecycle(lifecycleOwner.lifecycle, minActiveState).collect {
             collector(it)
         }
-    }
-}
-
-@Composable
-fun RunOnKeyChange(key: Any, block: suspend CoroutineScope.() -> Unit) {
-    val scope = rememberCoroutineScope()
-    rememberSaveable(key) {
-        scope.launch { block() }
-        key
     }
 }

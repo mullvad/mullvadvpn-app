@@ -10,7 +10,6 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.navigation.EmptyDestinationsNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.component.textResource
 import net.mullvad.mullvadvpn.lib.ui.component.HTML_NEWLINE_STRING
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 
@@ -28,12 +27,14 @@ fun LocalNetworkSharingInfo(navigator: DestinationsNavigator) {
         additionalInfo =
             buildString {
                 appendLine(stringResource(id = R.string.local_network_sharing_additional_info))
-                appendLine(textResource(id = R.string.local_network_sharing_ip_ranges))
+                appendLine(stringResource(id = R.string.local_network_sharing_ip_ranges))
                 // A html linebreak is specifically added since a normal linebreak is
                 // removed by the html parser
                 appendLine(HTML_NEWLINE_STRING)
                 appendLine(
-                    textResource(id = R.string.local_network_sharing_info_block_connections_warning)
+                    stringResource(
+                        id = R.string.local_network_sharing_info_block_connections_warning
+                    )
                 )
             },
         onDismiss = dropUnlessResumed { navigator.navigateUp() },

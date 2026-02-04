@@ -55,10 +55,8 @@ import com.ramcosta.composedestinations.generated.destinations.SettingsDestinati
 import com.ramcosta.composedestinations.generated.destinations.VerificationPendingDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.component.AddTimeBottomSheet
+import net.mullvad.mullvadvpn.compose.bottomsheet.addtime.AddTimeBottomSheet
 import net.mullvad.mullvadvpn.compose.component.CopyAnimatedIconButton
-import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBar
-import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.extensions.createOpenAccountPageHook
 import net.mullvad.mullvadvpn.compose.preview.WelcomeScreenUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.WelcomeUiState
@@ -67,6 +65,8 @@ import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.createCopyToClipboardHandle
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.common.util.groupWithSpaces
+import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithTopBar
+import net.mullvad.mullvadvpn.lib.ui.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorMedium
 import net.mullvad.mullvadvpn.lib.ui.designsystem.NegativeButton
 import net.mullvad.mullvadvpn.lib.ui.designsystem.VariantButton

@@ -21,7 +21,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.component.textResource
 import net.mullvad.mullvadvpn.compose.screen.LocalNavAnimatedVisibilityScope
 import net.mullvad.mullvadvpn.compose.screen.LocalSharedTransitionScope
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
@@ -140,8 +139,8 @@ private fun FeatureIndicator.text(): String {
             FeatureIndicator.CUSTOM_MTU -> R.string.mtu
             FeatureIndicator.DAITA -> R.string.daita
             FeatureIndicator.DAITA_MULTIHOP ->
-                return textResource(R.string.daita_multihop, textResource(R.string.daita))
+                return stringResource(R.string.daita_multihop, stringResource(R.string.daita))
             FeatureIndicator.MULTIHOP -> R.string.multihop
         }
-    return textResource(resource)
+    return stringResource(resource)
 }

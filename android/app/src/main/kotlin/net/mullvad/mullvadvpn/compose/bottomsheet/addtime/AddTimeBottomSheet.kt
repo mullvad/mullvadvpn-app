@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.compose.component
+package net.mullvad.mullvadvpn.compose.bottomsheet.addtime
 
 import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.AnimatedContent
@@ -45,11 +45,13 @@ import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.lib.payment.ProductIds.OneMonth
 import net.mullvad.mullvadvpn.lib.payment.ProductIds.ThreeMonths
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
+import net.mullvad.mullvadvpn.lib.ui.component.MullvadModalBottomSheet
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.BottomSheetListItem
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.ExternalLinkListItem
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.IconListItem
 import net.mullvad.mullvadvpn.lib.ui.designsystem.ListItemDefaults
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
+import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadLinearProgressIndicator
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
 import net.mullvad.mullvadvpn.lib.ui.designsystem.SmallPrimaryButton
 import net.mullvad.mullvadvpn.lib.ui.tag.ADD_TIME_BOTTOM_SHEET_TITLE_TEST_TAG
@@ -173,6 +175,7 @@ fun AddTimeBottomSheetContent(
         when (state) {
             is Lc.Loading ->
                 Loading(backgroundColor = backgroundColor, onBackgroundColor = onBackgroundColor)
+
             is Lc.Content ->
                 Content(
                     state = state.value,

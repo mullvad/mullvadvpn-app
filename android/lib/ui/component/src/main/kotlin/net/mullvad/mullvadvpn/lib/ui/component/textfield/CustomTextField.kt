@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.compose.textfield
+package net.mullvad.mullvadvpn.lib.ui.component.textfield
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth

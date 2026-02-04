@@ -12,20 +12,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
-import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
+import net.mullvad.mullvadvpn.lib.ui.designsystem.preview.PreviewColumn
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.theme.shape.chipShape
 
 @Preview
 @Composable
-private fun PreviewEnabledMullvadFilterChip() {
-    AppTheme { MullvadFilterChip(text = "Providers:", onRemoveClick = {}, enabled = true) }
+private fun PreviewEnabledMullvadFilterChip() = PreviewColumn {
+    MullvadFilterChip(text = "Providers: 10", onRemoveClick = {}, enabled = true)
 }
 
 @Preview
 @Composable
-private fun PreviewDisabledMullvadFilterChip() {
-    AppTheme { MullvadFilterChip(text = "Providers:", onRemoveClick = {}, enabled = false) }
+private fun PreviewDisabledMullvadFilterChip() = PreviewColumn {
+    MullvadFilterChip(text = "Providers: 17", onRemoveClick = {}, enabled = false)
 }
 
 @Composable

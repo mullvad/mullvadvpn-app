@@ -1,6 +1,8 @@
 package net.mullvad.mullvadvpn.compose.screen
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
@@ -35,9 +37,6 @@ import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
-import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
-import net.mullvad.mullvadvpn.compose.component.SpacedColumn
 import net.mullvad.mullvadvpn.compose.extensions.dropUnlessResumed
 import net.mullvad.mullvadvpn.compose.preview.EditCustomListUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.EditCustomListUiState
@@ -45,6 +44,8 @@ import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
 import net.mullvad.mullvadvpn.lib.model.communication.CustomListActionResultData
+import net.mullvad.mullvadvpn.lib.ui.component.NavigateBackIconButton
+import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.EditCustomListListItem
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
@@ -144,9 +145,9 @@ fun EditCustomListScreen(
             )
         },
     ) { modifier: Modifier ->
-        SpacedColumn(
+        Column(
             modifier = modifier,
-            verticalAlignment = Alignment.Top,
+            verticalArrangement = Arrangement.spacedBy(Dimens.listItemDivider),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             when (state) {

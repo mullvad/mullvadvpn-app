@@ -27,9 +27,6 @@ import com.ramcosta.composedestinations.generated.destinations.SelectPortDestina
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.parcelize.Parcelize
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
-import net.mullvad.mullvadvpn.compose.component.NavigateCloseIconButton
-import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.compose.extensions.itemWithDivider
 import net.mullvad.mullvadvpn.compose.preview.AntiCensorshipUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.AntiCensorshipSettingsUiState
@@ -37,6 +34,9 @@ import net.mullvad.mullvadvpn.compose.state.ObfuscationSettingItem
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
 import net.mullvad.mullvadvpn.lib.model.PortType
+import net.mullvad.mullvadvpn.lib.ui.component.NavigateBackIconButton
+import net.mullvad.mullvadvpn.lib.ui.component.NavigateCloseIconButton
+import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.annotatedStringResource
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.InfoListItem
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.ObfuscationModeListItem

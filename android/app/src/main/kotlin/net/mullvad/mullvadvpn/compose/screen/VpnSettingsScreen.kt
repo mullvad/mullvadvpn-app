@@ -67,12 +67,6 @@ import com.ramcosta.composedestinations.result.ResultRecipient
 import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.component.MullvadMediumTopBar
-import net.mullvad.mullvadvpn.compose.component.MullvadSnackbar
-import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
-import net.mullvad.mullvadvpn.compose.component.NavigateCloseIconButton
-import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
-import net.mullvad.mullvadvpn.compose.component.textResource
 import net.mullvad.mullvadvpn.compose.extensions.dropUnlessResumed
 import net.mullvad.mullvadvpn.compose.preview.VpnSettingsUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.VpnSettingItem
@@ -88,7 +82,11 @@ import net.mullvad.mullvadvpn.lib.model.IpVersion
 import net.mullvad.mullvadvpn.lib.model.Mtu
 import net.mullvad.mullvadvpn.lib.model.communication.DnsDialogResult
 import net.mullvad.mullvadvpn.lib.ui.component.DividerButton
+import net.mullvad.mullvadvpn.lib.ui.component.MullvadMediumTopBar
+import net.mullvad.mullvadvpn.lib.ui.component.NavigateBackIconButton
+import net.mullvad.mullvadvpn.lib.ui.component.NavigateCloseIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.SPACE_CHAR
+import net.mullvad.mullvadvpn.lib.ui.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.DnsListItem
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.ExpandableListItem
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.InfoListItem
@@ -100,6 +98,7 @@ import net.mullvad.mullvadvpn.lib.ui.component.listitem.toTitle
 import net.mullvad.mullvadvpn.lib.ui.component.text.ListItemInfo
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Hierarchy
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadListItem
+import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadSnackbar
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
 import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_ANTI_CENSORSHIP_SETTINGS_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_LAST_ITEM_TEST_TAG
@@ -527,7 +526,7 @@ fun VpnSettingsContent(
                     item(key = it::class.simpleName) {
                         ListItemInfo(
                             modifier = Modifier.animateItem().padding(bottom = Dimens.largeSpacer),
-                            text = textResource(id = R.string.custom_dns_footer),
+                            text = stringResource(id = R.string.custom_dns_footer),
                         )
                     }
 
@@ -553,9 +552,9 @@ fun VpnSettingsContent(
                         ListItemInfo(
                             modifier = Modifier.animateItem().padding(bottom = Dimens.largeSpacer),
                             text =
-                                textResource(
+                                stringResource(
                                     id = R.string.custom_dns_disable_mode_subtitle,
-                                    textResource(id = R.string.dns_content_blockers),
+                                    stringResource(id = R.string.dns_content_blockers),
                                 ),
                         )
                     }

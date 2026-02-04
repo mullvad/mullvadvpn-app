@@ -8,6 +8,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextDirection
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.lib.ui.component.textfield.CustomTextField
 
 @Composable
 fun CustomPortTextField(

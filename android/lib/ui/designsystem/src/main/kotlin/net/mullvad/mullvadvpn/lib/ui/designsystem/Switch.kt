@@ -1,12 +1,9 @@
 package net.mullvad.mullvadvpn.lib.ui.designsystem
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchColors
 import androidx.compose.material3.SwitchDefaults
@@ -16,24 +13,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.Preview
+import net.mullvad.mullvadvpn.lib.ui.designsystem.preview.PreviewColumn
 import net.mullvad.mullvadvpn.lib.ui.tag.SWITCH_TEST_TAG
-import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaDisabled
 import net.mullvad.mullvadvpn.lib.ui.theme.color.selected
 
-@Preview
+@Preview(backgroundColor = 0xFF192E45, showBackground = true)
 @Composable
 private fun PreviewMullvadSwitch() {
-    AppTheme {
-        Surface(color = MaterialTheme.colorScheme.surface) {
-            Column(modifier = Modifier.padding(Dimens.sideMargin)) {
-                MullvadSwitch(checked = true, onCheckedChange = null)
-                MullvadSwitch(checked = false, onCheckedChange = null)
-                MullvadSwitch(checked = true, onCheckedChange = null, enabled = false)
-                MullvadSwitch(checked = false, onCheckedChange = null, enabled = false)
-            }
-        }
+    PreviewColumn() {
+        MullvadSwitch(checked = true, onCheckedChange = null)
+        MullvadSwitch(checked = false, onCheckedChange = null)
+        MullvadSwitch(checked = true, onCheckedChange = null, enabled = false)
+        MullvadSwitch(checked = false, onCheckedChange = null, enabled = false)
     }
 }
 

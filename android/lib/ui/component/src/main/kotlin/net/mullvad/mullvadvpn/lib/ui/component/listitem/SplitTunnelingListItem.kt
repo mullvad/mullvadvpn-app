@@ -24,42 +24,39 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
-import net.mullvad.mullvadvpn.lib.ui.component.preview.PreviewSpacedColumn
+import net.mullvad.mullvadvpn.lib.ui.component.preview.PreviewColumn
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Hierarchy
 import net.mullvad.mullvadvpn.lib.ui.designsystem.ListItemDefaults
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadListItem
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
-import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaDisabled
 
 @Preview
 @Composable
 private fun PreviewSplitTunnelingListItem() {
-    AppTheme {
-        PreviewSpacedColumn {
-            SplitTunnelingListItem(
-                title = "Removable App",
-                isEnabled = true,
-                onCellClicked = {},
-                isSelected = true,
-                iconState = IconState.Loading,
-            )
-            SplitTunnelingListItem(
-                title = "Addable App",
-                isEnabled = true,
-                onCellClicked = {},
-                isSelected = false,
-                iconState = IconState.Loading,
-            )
-            SplitTunnelingListItem(
-                title = "Disabled App",
-                isEnabled = false,
-                onCellClicked = {},
-                isSelected = false,
-                iconState = IconState.NoIcon,
-            )
-        }
+    PreviewColumn {
+        SplitTunnelingListItem(
+            title = "Removable App",
+            isEnabled = true,
+            onCellClicked = {},
+            isSelected = true,
+            iconState = IconState.Loading,
+        )
+        SplitTunnelingListItem(
+            title = "Addable App",
+            isEnabled = true,
+            onCellClicked = {},
+            isSelected = false,
+            iconState = IconState.Loading,
+        )
+        SplitTunnelingListItem(
+            title = "Disabled App",
+            isEnabled = false,
+            onCellClicked = {},
+            isSelected = false,
+            iconState = IconState.NoIcon,
+        )
     }
 }
 

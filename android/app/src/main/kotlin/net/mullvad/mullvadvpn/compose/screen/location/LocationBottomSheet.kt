@@ -43,7 +43,6 @@ import com.ramcosta.composedestinations.result.ResultRecipient
 import com.ramcosta.composedestinations.spec.DestinationSpec
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.component.MullvadModalBottomSheet
 import net.mullvad.mullvadvpn.compose.state.LocationBottomSheetUiState
 import net.mullvad.mullvadvpn.compose.state.SetAsState
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
@@ -54,6 +53,7 @@ import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayListType
 import net.mullvad.mullvadvpn.lib.model.communication.CustomListAction
 import net.mullvad.mullvadvpn.lib.model.communication.CustomListActionResultData
+import net.mullvad.mullvadvpn.lib.ui.component.MullvadModalBottomSheet
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.BottomSheetListItem
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.IconListItem
 import net.mullvad.mullvadvpn.lib.ui.designsystem.ListItemDefaults

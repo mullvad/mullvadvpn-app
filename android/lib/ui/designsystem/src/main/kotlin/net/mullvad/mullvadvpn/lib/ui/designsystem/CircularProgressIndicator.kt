@@ -1,7 +1,5 @@
 package net.mullvad.mullvadvpn.lib.ui.designsystem
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.CircularProgressIndicator
@@ -12,24 +10,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
+import net.mullvad.mullvadvpn.lib.ui.designsystem.preview.PreviewColumn
 import net.mullvad.mullvadvpn.lib.ui.tag.CIRCULAR_PROGRESS_INDICATOR_TEST_TAG
-import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.theme.color.Alpha20
 
 @Preview
 @Composable
 private fun PreviewMullvadProgressIndicator() {
-    AppTheme {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-        ) {
-            MullvadCircularProgressIndicatorLarge()
-            MullvadCircularProgressIndicatorMedium()
-            MullvadCircularProgressIndicatorSmall()
-        }
+    PreviewColumn {
+        MullvadCircularProgressIndicatorLarge()
+        MullvadCircularProgressIndicatorMedium()
+        MullvadCircularProgressIndicatorSmall()
     }
 }
 

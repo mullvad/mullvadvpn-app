@@ -13,20 +13,19 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import net.mullvad.mullvadvpn.lib.ui.component.R
-import net.mullvad.mullvadvpn.lib.ui.component.preview.PreviewSpacedColumn
+import net.mullvad.mullvadvpn.lib.ui.component.preview.PreviewColumn
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorSmall
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadListItem
-import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.theme.color.selected
 
 @Preview
 @Composable
 private fun PreviewServerIpOverridesListItem() {
-    PreviewSpacedColumn {
-        AppTheme { ServerIpOverridesListItem(active = true) }
-        AppTheme { ServerIpOverridesListItem(active = false) }
-        AppTheme { ServerIpOverridesListItem(active = null) }
+    PreviewColumn {
+        ServerIpOverridesListItem(active = true)
+        ServerIpOverridesListItem(active = false)
+        ServerIpOverridesListItem(active = null)
     }
 }
 

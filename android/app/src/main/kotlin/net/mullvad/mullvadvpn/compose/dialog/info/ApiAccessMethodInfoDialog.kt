@@ -9,7 +9,6 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.navigation.EmptyDestinationsNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.component.textResource
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 
 @Preview
@@ -28,9 +27,9 @@ fun ApiAccessMethodInfo(navigator: DestinationsNavigator) {
                 appendLine()
                 appendLine(stringResource(id = R.string.api_access_method_info_second_line))
                 appendLine()
-                appendLine(textResource(id = R.string.api_access_method_info_third_line))
+                appendLine(stringResource(id = R.string.api_access_method_info_third_line))
                 appendLine()
-                appendLine(textResource(id = R.string.api_access_method_info_fourth_line))
+                appendLine(stringResource(id = R.string.api_access_method_info_fourth_line))
             },
         onDismiss = navigator::navigateUp,
     )

@@ -12,7 +12,6 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import java.time.Duration
-import net.mullvad.mullvadvpn.compose.component.MullvadTopBar
 import net.mullvad.mullvadvpn.compose.util.isTv
 import net.mullvad.mullvadvpn.lib.model.ErrorState
 import net.mullvad.mullvadvpn.lib.model.ErrorStateCause
@@ -20,6 +19,7 @@ import net.mullvad.mullvadvpn.lib.model.InAppNotification
 import net.mullvad.mullvadvpn.lib.model.VersionInfo
 import net.mullvad.mullvadvpn.lib.tv.NotificationBannerTv
 import net.mullvad.mullvadvpn.lib.ui.component.AnimatedNotificationBanner
+import net.mullvad.mullvadvpn.lib.ui.component.MullvadTopBar
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 
 @Preview

@@ -15,7 +15,6 @@ import com.ramcosta.composedestinations.result.EmptyResultBackNavigator
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.component.textResource
 import net.mullvad.mullvadvpn.compose.preview.DevicePreviewParameterProvider
 import net.mullvad.mullvadvpn.lib.model.Device
 import net.mullvad.mullvadvpn.lib.model.DeviceId
@@ -34,7 +33,7 @@ private fun PreviewRemoveDeviceConfirmationDialog(
 @Composable
 fun RemoveDeviceConfirmation(navigator: ResultBackNavigator<DeviceId>, device: Device) {
     val htmlFormattedString =
-        textResource(id = R.string.max_devices_confirm_removal_description, device.displayName())
+        stringResource(id = R.string.max_devices_confirm_removal_description, device.displayName())
     val message =
         HtmlCompat.fromHtml(htmlFormattedString, HtmlCompat.FROM_HTML_MODE_COMPACT)
             .toAnnotatedString(
