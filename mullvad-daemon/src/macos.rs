@@ -29,7 +29,6 @@ pub async fn allow_incoming_connections() {
     };
     // Intended command to run: socketfilterfw --add /Applications/Mullvad\ VPN.app/Contents/Resources/mullvad-daemon
     let mut socketfilterfw = Command::new("/usr/libexec/ApplicationFirewall/socketfilterfw");
-    // TODO: Check where daemon binary is located?
     socketfilterfw.arg("--add").arg(mullvad_daemon);
     if let Err(err) = socketfilterfw.output().await {
         log::warn!(
