@@ -27,6 +27,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
@@ -56,7 +57,6 @@ import com.ramcosta.composedestinations.result.ResultRecipient
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.button.VariantButton
-import net.mullvad.mullvadvpn.compose.cell.CheckboxCell
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.compose.extensions.createUriHook
@@ -68,6 +68,8 @@ import net.mullvad.mullvadvpn.compose.util.SecureScreenWhileInView
 import net.mullvad.mullvadvpn.compose.util.clickableAnnotatedString
 import net.mullvad.mullvadvpn.lib.common.util.appendHideNavOnPlayBuild
 import net.mullvad.mullvadvpn.lib.ui.component.ExpandChevron
+import net.mullvad.mullvadvpn.lib.ui.designsystem.Checkbox
+import net.mullvad.mullvadvpn.lib.ui.designsystem.ListTokens
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
@@ -292,16 +294,30 @@ private fun IncludeAccountInformationCheckBox(
                     color = MaterialTheme.colorScheme.primary,
                     shape = MaterialTheme.shapes.medium,
                 )
+                .clip(shape = MaterialTheme.shapes.medium)
                 .padding(bottom = if (includeAccountInformation) Dimens.smallPadding else 0.dp)
     ) {
-        CheckboxCell(
-            title = stringResource(R.string.include_account_token_checkbox_text),
-            checked = includeAccountInformation,
-            background = MaterialTheme.colorScheme.surface,
-            startPadding = 0.dp,
-            textStyle = MaterialTheme.typography.bodyMedium,
-            onCheckedChange = onIncludeAccountInformationCheckChange,
-        )
+        Row(
+            modifier =
+                Modifier.defaultMinSize(minHeight = ListTokens.listItemMinHeight)
+                    .fillMaxWidth()
+                    .clickable(
+                        onClick = {
+                            onIncludeAccountInformationCheckChange(!includeAccountInformation)
+                        }
+                    ),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Checkbox(
+                modifier = Modifier.padding(end = Dimens.smallPadding),
+                checked = includeAccountInformation,
+                onCheckedChange = onIncludeAccountInformationCheckChange,
+            )
+            Text(
+                style = MaterialTheme.typography.bodyMedium,
+                text = stringResource(R.string.include_account_token_checkbox_text),
+            )
+        }
         if (includeAccountInformation) {
             AccountInformationWarning(
                 showIncludeAccountInformationWarningMessage =
