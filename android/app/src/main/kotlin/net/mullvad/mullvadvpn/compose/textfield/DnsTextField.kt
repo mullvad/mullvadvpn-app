@@ -6,6 +6,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextDirection
+import net.mullvad.mullvadvpn.lib.ui.component.textfield.CustomTextField
+import net.mullvad.mullvadvpn.lib.ui.component.textfield.ErrorSupportingText
 
 @Composable
 fun DnsTextField(

@@ -38,7 +38,7 @@ import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.state.VoucherDialogState
 import net.mullvad.mullvadvpn.compose.state.VoucherDialogUiState
-import net.mullvad.mullvadvpn.compose.textfield.CustomTextField
+import net.mullvad.mullvadvpn.lib.ui.component.textfield.CustomTextField
 import net.mullvad.mullvadvpn.compose.util.MAX_VOUCHER_LENGTH
 import net.mullvad.mullvadvpn.compose.util.vouchersVisualTransformation
 import net.mullvad.mullvadvpn.constant.VOUCHER_LENGTH

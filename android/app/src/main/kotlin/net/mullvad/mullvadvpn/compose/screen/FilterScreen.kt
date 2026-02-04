@@ -52,6 +52,7 @@ import net.mullvad.mullvadvpn.lib.ui.component.listitem.ExpandableListItem
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.SelectableListItem
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Hierarchy
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
+import net.mullvad.mullvadvpn.lib.ui.designsystem.VariantButton
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 import net.mullvad.mullvadvpn.viewmodel.FilterScreenSideEffect
@@ -319,7 +320,11 @@ private fun BottomBar(
                 .padding(vertical = Dimens.screenBottomMargin, horizontal = Dimens.sideMargin),
         contentAlignment = Alignment.BottomCenter,
     ) {
-        ApplyButton(onClick = onApplyClick, isEnabled = isApplyButtonEnabled)
+        VariantButton(
+            text = stringResource(id = R.string.apply),
+            onClick = onApplyClick,
+            isEnabled = isApplyButtonEnabled,
+        )
     }
 }
 

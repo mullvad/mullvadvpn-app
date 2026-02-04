@@ -23,7 +23,7 @@ import com.ramcosta.composedestinations.spec.DestinationStyle
 import kotlinx.parcelize.Parcelize
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.state.ApiUnreachableUiState
-import net.mullvad.mullvadvpn.compose.textfield.ErrorSupportingText
+import net.mullvad.mullvadvpn.lib.ui.component.textfield.ErrorSupportingText
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.EmailData
 import net.mullvad.mullvadvpn.compose.util.SendEmail
