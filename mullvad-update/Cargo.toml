@@ -14,8 +14,8 @@ required-features = ["sign"]
 anyhow = { workspace = true }
 chrono = { workspace = true, features = ["now", "serde"] }
 clap = { workspace = true, optional = true }
-ed25519-dalek = { version = "2.2", features = ["rand_core", "zeroize"] }
-hex = { version = "0.4" }
+ed25519-dalek = { version = "2.1", features = ["rand_core", "zeroize"] }
+hex = { workspace = true }
 itertools = { workspace = true }
 json-canon = "0.1"
 log = { workspace = true }

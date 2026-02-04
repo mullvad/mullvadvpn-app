@@ -11,11 +11,9 @@ use serde::{Deserialize, Serialize};
 use talpid_types::net::wireguard;
 use vec1::Vec1;
 
-use sha2::digest::Output;
 use sha2::{Digest, Sha256};
 use std::{
     collections::{BTreeMap, HashSet},
-    future::Future,
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
     ops::RangeInclusive,
     time::Duration,
@@ -29,6 +27,12 @@ pub struct RelayListProxy {
 
 const RELAY_LIST_TIMEOUT: Duration = Duration::from_secs(15);
 
+/// A byte array representing a Sha256 hash.
+pub type Sha256Bytes = [u8; 32];
+
+/// The relay list digest (Sha256 hash as a hex string).
+pub type RelayListDigest = str;
+
 impl RelayListProxy {
     /// Construct a new relay list rest client
     pub fn new(handle: rest::MullvadRestHandle) -> Self {
@@ -36,71 +40,67 @@ impl RelayListProxy {
     }
 
     /// Fetch the relay list
-    pub fn relay_list(
+    pub async fn relay_list(
         &self,
         prev_etag: Option<ETag>,
-        digest: &str,
-    ) -> impl Future<Output = Result<Option<(CachedRelayList, Output<Sha256>)>, rest::Error>> {
+        digest: &RelayListDigest,
+    ) -> Result<Option<(CachedRelayList, Sha256Bytes)>, rest::Error> {
         let request = self.relay_list_response(prev_etag.clone(), digest);
 
-        async move {
-            let response = request.await?;
+        let response = request.await?;
 
-            match prev_etag {
-                Some(_) if response.status() == StatusCode::NOT_MODIFIED => {
-                    log::trace!("Relay list API returned 304 - not modified");
-                    Ok(None)
-                }
-                _ => {
-                    // If the API returns a response, it *should* contain an ETag. But this might not be the case.
-                    let etag = Self::extract_etag(&response);
+        match prev_etag {
+            Some(_) if response.status() == StatusCode::NOT_MODIFIED => {
+                log::trace!("Relay list API returned 304 - not modified");
+                Ok(None)
+            }
+            _ => {
+                // If the API returns a response, it *should* contain an ETag. But this might not be the case.
+                let etag = Self::extract_etag(&response);
 
-                    let (relay_list, hash) = response
-                        .body()
-                        .await
-                        .and_then(|body| {
-                            let hash = Sha256::digest(&body);
-                            let relay_list: ServerRelayList = serde_json::from_slice(&body)?;
-                            Ok((relay_list, hash))
-                        })
-                        .inspect_err(|_err| {
-                            log::error!("Failed to deserialize API response of relay list")
-                        })?;
+                let (relay_list, hash) = response
+                    .body()
+                    .await
+                    .and_then(|body| {
+                        let hash: [u8; 32] = Sha256::digest(&body).into();
+                        let relay_list: ServerRelayList = serde_json::from_slice(&body)?;
+                        Ok((relay_list, hash))
+                    })
+                    .inspect_err(|_err| {
+                        log::error!("Failed to deserialize API response of relay list")
+                    })?;
 
-                    match etag {
-                        Some(etag) => {
-                            let cached = relay_list.cache(etag);
-                            Ok(Some((cached, hash)))
-                        }
-                        None => {
-                            log::trace!("Relay list API response did not contain an etag");
-                            Ok(Some((relay_list.uncacheable(), hash)))
-                        }
+                match etag {
+                    Some(etag) => {
+                        let cached = relay_list.cache(etag);
+                        Ok(Some((cached, hash)))
+                    }
+                    None => {
+                        log::trace!("Relay list API response did not contain an etag");
+                        Ok(Some((relay_list.uncacheable(), hash)))
                     }
                 }
             }
         }
     }
 
-    fn relay_list_response(
+    async fn relay_list_response(
         &self,
         prev_etag: Option<ETag>,
-        digest: &str,
-    ) -> impl Future<Output = Result<rest::Response<Incoming>, rest::Error>> {
+        digest: &RelayListDigest,
+    ) -> Result<rest::Response<Incoming>, rest::Error> {
         let service = self.handle.service.clone();
         let request = self.handle.factory.get(&format!("trl/v0/data/{digest}"));
 
-        async move {
-            let mut request = request?
-                .timeout(RELAY_LIST_TIMEOUT)
-                .expected_status(&[StatusCode::NOT_MODIFIED, StatusCode::OK]);
+        let mut request = request?
+            .timeout(RELAY_LIST_TIMEOUT)
+            .expected_status(&[StatusCode::NOT_MODIFIED, StatusCode::OK]);
 
-            if let Some(ref prev_tag) = prev_etag {
-                request = request.header(header::IF_NONE_MATCH, &prev_tag.0)?;
-            }
-
-            service.request(request).await
+        if let Some(ref prev_tag) = prev_etag {
+            request = request.header(header::IF_NONE_MATCH, &prev_tag.0)?;
         }
+
+        service.request(request).await
     }
 
     fn extract_etag(response: &rest::Response<Incoming>) -> Option<ETag> {
@@ -112,83 +112,63 @@ impl RelayListProxy {
     }
 
     /// Fetch the relay list sigsum
-    pub fn relay_list_sigsum(
-        &self,
-    ) -> impl Future<Output = Result<ServerRelayListSigsum, rest::Error>> {
-        let request = self.relay_list_sigsum_response();
+    pub async fn relay_list_latest_signature(&self) -> Result<RelayListSignature, rest::Error> {
+        let response = self.relay_list_signature_response().await?;
 
-        async move {
-            let response = request.await?;
+        let relay_list_sigsum = response
+            .body()
+            .await
+            .and_then(|body| {
+                str::from_utf8(&body)
+                    .map_err(|_| rest::Error::InvalidUtf8Error)
+                    .and_then(RelayListSignature::from_server_response)
+            })
+            .inspect_err(|_err| {
+                log::error!("Failed to deserialize API response of relay list sigsum")
+            })?;
 
-            let relay_list_sigsum = response
-                .body()
-                .await
-                .and_then(|body| {
-                    str::from_utf8(&body)
-                        .map_err(|_| rest::Error::InvalidUtf8Error)
-                        .and_then(ServerRelayListSigsum::parse_from_server_response)
-                })
-                .inspect_err(|_err| {
-                    log::error!("Failed to deserialize API response of relay list sigsum")
-                })?;
-
-            Ok(relay_list_sigsum)
-        }
+        Ok(relay_list_sigsum)
     }
 
-    fn relay_list_sigsum_response(
-        &self,
-    ) -> impl Future<Output = Result<rest::Response<Incoming>, rest::Error>> {
+    async fn relay_list_signature_response(&self) -> Result<rest::Response<Incoming>, rest::Error> {
         let service = self.handle.service.clone();
         let request = self.handle.factory.get("trl/v0/timestamps/latest");
 
-        async move {
-            let request = request?
-                .timeout(RELAY_LIST_TIMEOUT)
-                .expected_status(&[StatusCode::NOT_MODIFIED, StatusCode::OK]);
+        let request = request?
+            .timeout(RELAY_LIST_TIMEOUT)
+            .expected_status(&[StatusCode::NOT_MODIFIED, StatusCode::OK]);
 
-            service.request(request).await
-        }
+        service.request(request).await
     }
 }
 
-/// Sigsum signature and digest for the relay list.
-///
-/// Because the API does not return JSON but instead a custom plain text format we need to parse
-/// it manually.
+/// Sigsum signature and digest+timestamp for the relay list.
 #[derive(Debug)]
-pub struct ServerRelayListSigsum {
-    // TODO: we need the parsed data to access the digest hash when we check that the digest matches
-    // the hash of the relay list that we get form the API.
-    // We need the unparsed data because the sigsum crate API requires it. IMO the sigsum crate api
-    // should not take a raw unparsed json object as input.
-    pub data: DigestTimestamp,
-    pub unparsed_data: String,
+pub struct RelayListSignature {
+    /// This is the data that was signed by the sigsum signature. Note that this is *not* the
+    /// relay list, but rather a metadata object in JSON that contains the hash of the relay list
+    /// that corresponds to this signature and the timestamp of when it was signed.
+    ///
+    /// This field will be parsed to the `Timestamp` struct, but only after the sigsum
+    /// validation step is successfully completed. This is done to minimize the amount of untrusted
+    /// data we need to parse.
+    pub unparsed_timestamp: String,
+
+    /// The sigsum signature for the signed `data`.
     pub sigsum_signature: String,
 }
 
-/// The digest is the Sha256 hash of the relay list that was signed by sigsum
-/// The timestamp is when the signature was signed.
-#[derive(Debug, Deserialize)]
-pub struct DigestTimestamp {
-    pub digest: String,
-    pub timestamp: String,
-}
-
-impl ServerRelayListSigsum {
-    pub fn parse_from_server_response(
-        response: &str,
-    ) -> Result<ServerRelayListSigsum, rest::Error> {
+impl RelayListSignature {
+    /// The API does not return JSON but instead a custom plain text format we need to parse
+    /// it manually.
+    pub fn from_server_response(response: &str) -> Result<RelayListSignature, rest::Error> {
         let (data, signature) = response
             .split_once("\n\n")
             .map(|(data, signature)| (format!("{data}\n"), signature.to_owned()))
             .ok_or(rest::Error::SigsumDeserializeError)?;
 
-        let parsed: DigestTimestamp = serde_json::from_str(&data)?;
-
-        Ok(ServerRelayListSigsum {
-            data: parsed,
-            unparsed_data: data,
+        Ok(RelayListSignature {
+            unparsed_timestamp: data,
             sigsum_signature: signature,
         })
     }

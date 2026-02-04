@@ -36,9 +36,7 @@ pub mod ffi;
 pub use address_cache::{AddressCache, FileAddressCacheBacking};
 pub use device::DevicesProxy;
 pub use hyper::StatusCode;
-pub use relay_list::{
-    CachedRelayList, DigestTimestamp, ETag, RelayListProxy, ServerRelayListSigsum,
-};
+pub use relay_list::{CachedRelayList, ETag, RelayListProxy, RelayListSignature, Sha256Bytes};
 
 /// Error code returned by the Mullvad API if the voucher has alreaby been used.
 pub const VOUCHER_USED: &str = "VOUCHER_USED";
