@@ -47,8 +47,8 @@ import net.mullvad.mullvadvpn.compose.button.TestMethodButton
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadDropdownMenuItem
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadExposedDropdownMenuBox
 import net.mullvad.mullvadvpn.lib.ui.component.NavigateCloseIconButton
-import net.mullvad.mullvadvpn.compose.component.ScaffoldWithSmallTopBar
-import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
+import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithSmallTopBar
+import net.mullvad.mullvadvpn.lib.ui.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.dialog.info.Confirmed
 import net.mullvad.mullvadvpn.compose.preview.EditApiAccessMethodUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.ApiAccessMethodTypes

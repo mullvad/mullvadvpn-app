@@ -86,7 +86,7 @@ import kotlin.math.roundToInt
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.cell.FilterRow
-import net.mullvad.mullvadvpn.compose.component.ScaffoldWithSmallTopBar
+import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithSmallTopBar
 import net.mullvad.mullvadvpn.compose.extensions.dropUnlessResumed
 import net.mullvad.mullvadvpn.compose.preview.SelectLocationsUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState

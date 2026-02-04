@@ -88,11 +88,11 @@ import net.mullvad.mullvadvpn.compose.button.ConnectionButton
 import net.mullvad.mullvadvpn.compose.button.SwitchLocationButton
 import net.mullvad.mullvadvpn.compose.component.ConnectionStatusText
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadSnackbar
-import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBarAndDeviceName
+import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithTopBarAndDeviceName
 import net.mullvad.mullvadvpn.compose.component.connectioninfo.ConnectionDetailPanel
 import net.mullvad.mullvadvpn.compose.component.connectioninfo.FeatureIndicatorsPanel
 import net.mullvad.mullvadvpn.compose.component.connectioninfo.toInAddress
-import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
+import net.mullvad.mullvadvpn.lib.ui.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.component.notificationbanner.NotificationBanner
 import net.mullvad.mullvadvpn.compose.extensions.createOpenAccountPageHook
 import net.mullvad.mullvadvpn.compose.extensions.dropUnlessResumed
