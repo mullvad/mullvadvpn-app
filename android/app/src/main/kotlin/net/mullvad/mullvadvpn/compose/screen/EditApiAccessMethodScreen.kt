@@ -46,7 +46,7 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.TestMethodButton
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadDropdownMenuItem
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadExposedDropdownMenuBox
-import net.mullvad.mullvadvpn.compose.component.NavigateCloseIconButton
+import net.mullvad.mullvadvpn.lib.ui.component.NavigateCloseIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithSmallTopBar
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.component.textResource
