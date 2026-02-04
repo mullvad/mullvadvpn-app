@@ -1,6 +1,8 @@
 package net.mullvad.mullvadvpn.compose.screen
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
@@ -37,7 +39,6 @@ import com.ramcosta.composedestinations.result.ResultRecipient
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
-import net.mullvad.mullvadvpn.compose.component.SpacedColumn
 import net.mullvad.mullvadvpn.compose.extensions.dropUnlessResumed
 import net.mullvad.mullvadvpn.compose.preview.EditCustomListUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.EditCustomListUiState
@@ -144,9 +145,9 @@ fun EditCustomListScreen(
             )
         },
     ) { modifier: Modifier ->
-        SpacedColumn(
+        Column(
             modifier = modifier,
-            verticalAlignment = Alignment.Top,
+            verticalArrangement = Arrangement.spacedBy(Dimens.listItemDivider),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             when (state) {

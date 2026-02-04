@@ -1,6 +1,5 @@
 package net.mullvad.mullvadvpn.lib.ui.designsystem
 
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -19,7 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
+import net.mullvad.mullvadvpn.lib.ui.designsystem.preview.PreviewColumn
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 
 private val LIST_HEADER_MIN_HEIGHT = 48.dp
@@ -65,18 +64,15 @@ object RelayListHeaderTokens {
 
 @Preview(backgroundColor = 0xFF192E45, showBackground = true)
 @Composable
-fun PreviewListHeader() {
-    AppTheme {
-        Column {
-            ListHeader(content = { Text("Header") })
-            ListHeader(
-                content = { Text("Header") },
-                actions = {
-                    IconButton(onClick = {}) {
-                        Icon(imageVector = Icons.Default.Edit, contentDescription = null)
-                    }
-                },
-            )
-        }
+fun PreviewListHeader() =
+    PreviewColumn(Modifier.padding(horizontal = Dimens.mediumPadding)) {
+        ListHeader(content = { Text("Header") })
+        ListHeader(
+            content = { Text("Header") },
+            actions = {
+                IconButton(onClick = {}) {
+                    Icon(imageVector = Icons.Default.Edit, contentDescription = null)
+                }
+            },
+        )
     }
-}

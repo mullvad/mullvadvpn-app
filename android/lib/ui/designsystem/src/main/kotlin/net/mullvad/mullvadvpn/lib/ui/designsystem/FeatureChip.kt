@@ -1,6 +1,5 @@
 package net.mullvad.mullvadvpn.lib.ui.designsystem
 
-import androidx.compose.foundation.layout.Row
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.MaterialTheme
@@ -10,13 +9,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
+import net.mullvad.mullvadvpn.lib.ui.designsystem.preview.PreviewColumn
 import net.mullvad.mullvadvpn.lib.ui.theme.shape.chipShape
 
 @Preview
 @Composable
 private fun PreviewMullvadFeatureChip() {
-    AppTheme { Row { MullvadFeatureChip(text = "DAITA", onClick = {}) } }
+    PreviewColumn {
+        MullvadFeatureChip(text = "DAITA", onClick = {})
+        MullvadFeatureChip(text = "Local Network Sharing", onClick = {})
+    }
 }
 
 @Composable

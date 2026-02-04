@@ -13,45 +13,42 @@ import androidx.compose.ui.tooling.preview.Preview
 import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.ui.component.DividerButton
 import net.mullvad.mullvadvpn.lib.ui.component.R
-import net.mullvad.mullvadvpn.lib.ui.component.preview.PreviewSpacedColumn
+import net.mullvad.mullvadvpn.lib.ui.component.preview.PreviewColumn
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Hierarchy
 import net.mullvad.mullvadvpn.lib.ui.designsystem.ListItemClickArea
 import net.mullvad.mullvadvpn.lib.ui.designsystem.ListItemDefaults
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
-import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.util.applyIfNotNull
 
 @Preview
 @Composable
 private fun PreviewCustomPortListItem() {
-    AppTheme {
-        PreviewSpacedColumn(Modifier.background(MaterialTheme.colorScheme.surface)) {
-            CustomPortListItem(
-                hierarchy = Hierarchy.Child1,
-                title = "Custom",
-                isSelected = true,
-                port = Port(4444),
-                onPortCellClicked = {},
-                onMainCellClicked = {},
-            )
-            CustomPortListItem(
-                hierarchy = Hierarchy.Child1,
-                title = "Custom",
-                isSelected = true,
-                isEnabled = false,
-                port = Port(44449),
-                onPortCellClicked = {},
-                onMainCellClicked = {},
-            )
-            CustomPortListItem(
-                hierarchy = Hierarchy.Child1,
-                title = "Custom",
-                isSelected = false,
-                port = null,
-                onPortCellClicked = {},
-                onMainCellClicked = {},
-            )
-        }
+    PreviewColumn(Modifier.background(MaterialTheme.colorScheme.surface)) {
+        CustomPortListItem(
+            hierarchy = Hierarchy.Child1,
+            title = "Custom",
+            isSelected = true,
+            port = Port(4444),
+            onPortCellClicked = {},
+            onMainCellClicked = {},
+        )
+        CustomPortListItem(
+            hierarchy = Hierarchy.Child1,
+            title = "Custom",
+            isSelected = true,
+            isEnabled = false,
+            port = Port(44449),
+            onPortCellClicked = {},
+            onMainCellClicked = {},
+        )
+        CustomPortListItem(
+            hierarchy = Hierarchy.Child1,
+            title = "Custom",
+            isSelected = false,
+            port = null,
+            onPortCellClicked = {},
+            onMainCellClicked = {},
+        )
     }
 }
 

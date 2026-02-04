@@ -1,5 +1,7 @@
 package net.mullvad.mullvadvpn.compose.button
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -7,15 +9,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.component.SpacedColumn
 import net.mullvad.mullvadvpn.lib.ui.designsystem.VariantButton
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
+import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 
 @Preview
 @Composable
 private fun PreviewApplyButton() {
     AppTheme {
-        SpacedColumn {
+        Column(verticalArrangement = Arrangement.spacedBy(Dimens.mediumSpacer)) {
             ApplyButton(onClick = {}, isEnabled = true)
             ApplyButton(onClick = {}, isEnabled = false)
         }
