@@ -20,6 +20,7 @@ dependencies {
     implementation(libs.arrow.optics)
     implementation(libs.kermit)
     implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.androidx.annotation.jvm)
 
     testImplementation(libs.kotlin.test)
     testImplementation(libs.kotlinx.coroutines.test)

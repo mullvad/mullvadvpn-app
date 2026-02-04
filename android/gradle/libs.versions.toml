@@ -70,6 +70,7 @@ profileinstaller = "1.4.1"
 protobuf = "4.33.4"
 protobuf-gradle-plugin = "0.9.6"
 turbine = "1.2.1"
+annotation-jvm = "1.9.1"
 
 [libraries]
 accompanist-drawablepainter = { module = "com.google.accompanist:accompanist-drawablepainter", version.ref = "drawablepainter" }
@@ -77,6 +78,7 @@ android-billingclient = { module = "com.android.billingclient:billing-ktx", vers
 android-gradle-aapt = { module = "com.android.tools.build:aapt2" }
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activitycompose" }
 androidx-animation = { group = "androidx.compose.animation", name = "animation", version.ref = "compose" }
+androidx-annotation-jvm = { group = "androidx.annotation", name = "annotation-jvm", version.ref = "annotation-jvm" }
 androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "androidx-appcompat" }
 androidx-benchmark-macro-junit4 = { group = "androidx.benchmark", name = "benchmark-macro-junit4", version.ref = "benchmark-macro-junit4" }
 androidx-coresplashscreen = { module = "androidx.core:core-splashscreen", version.ref = "androidx-coresplashscreen" }
