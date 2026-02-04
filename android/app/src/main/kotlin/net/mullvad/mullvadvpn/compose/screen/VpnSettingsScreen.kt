@@ -68,7 +68,6 @@ import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.cell.BaseSubtitleCell
-import net.mullvad.mullvadvpn.compose.cell.SwitchComposeSubtitleCell
 import net.mullvad.mullvadvpn.compose.communication.DnsDialogResult
 import net.mullvad.mullvadvpn.compose.component.MullvadMediumTopBar
 import net.mullvad.mullvadvpn.compose.component.MullvadSnackbar
@@ -99,6 +98,7 @@ import net.mullvad.mullvadvpn.lib.ui.component.listitem.NavigationListItem
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.SelectableListItem
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.SwitchListItem
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.toTitle
+import net.mullvad.mullvadvpn.lib.ui.component.text.ListItemInfo
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Hierarchy
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadListItem
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
@@ -474,8 +474,8 @@ fun VpnSettingsContent(
 
                 VpnSettingItem.AutoConnectAndLockdownModeInfo ->
                     item(key = it::class.simpleName) {
-                        SwitchComposeSubtitleCell(
-                            modifier = Modifier.animateItem(),
+                        ListItemInfo(
+                            modifier = Modifier.padding(bottom = Dimens.largeSpacer).animateItem(),
                             text =
                                 stringResource(id = R.string.auto_connect_and_lockdown_mode_footer),
                         )

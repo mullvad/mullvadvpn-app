@@ -19,7 +19,6 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.cell.SwitchComposeSubtitleCell
 import net.mullvad.mullvadvpn.compose.component.EmptyRelayListText
 import net.mullvad.mullvadvpn.compose.component.LocationsEmptyText
 import net.mullvad.mullvadvpn.compose.screen.location.LocationBottomSheetState.ShowCustomListsEntryBottomSheet
@@ -32,6 +31,7 @@ import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.ItemPosition
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.RelayListItem
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.SelectableRelayListItem
+import net.mullvad.mullvadvpn.lib.ui.component.text.ListItemInfo
 import net.mullvad.mullvadvpn.lib.ui.designsystem.ListHeader
 import net.mullvad.mullvadvpn.lib.ui.tag.LOCATION_CELL_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.RECENT_CELL_TEST_TAG
@@ -238,7 +238,7 @@ fun CustomListHeader(addCustomList: () -> Unit, editCustomLists: (() -> Unit)?) 
 
 @Composable
 private fun CustomListFooter(item: RelayListItem.CustomListFooter) {
-    SwitchComposeSubtitleCell(
+    ListItemInfo(
         text =
             if (item.hasCustomList) {
                 stringResource(R.string.to_add_locations_to_a_list)
@@ -268,7 +268,7 @@ private fun RecentsListHeader() {
 
 @Composable
 private fun RecentsListFooter() {
-    SwitchComposeSubtitleCell(text = stringResource(R.string.no_recent_selection))
+    ListItemInfo(text = stringResource(R.string.no_recent_selection))
 }
 
 @Composable

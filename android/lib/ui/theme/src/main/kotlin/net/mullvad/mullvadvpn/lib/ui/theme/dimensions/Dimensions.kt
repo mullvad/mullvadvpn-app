@@ -36,6 +36,7 @@ data class Dimensions(
     val indicatorPadding: Dp = 4.dp,
     val indicatorSize: Dp = 8.dp,
     val largePadding: Dp = 32.dp,
+    val largeSpacer: Dp = 24.dp,
     val listIconSize: Dp = 24.dp,
     val listItemDivider: Dp = 1.dp,
     val locationHintIconSize: Dp = 18.dp,

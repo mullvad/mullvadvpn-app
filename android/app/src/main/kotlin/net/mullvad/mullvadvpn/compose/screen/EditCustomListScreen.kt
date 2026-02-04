@@ -35,7 +35,6 @@ import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.cell.TwoRowCell
 import net.mullvad.mullvadvpn.compose.communication.CustomListActionResultData
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
@@ -46,7 +45,9 @@ import net.mullvad.mullvadvpn.compose.state.EditCustomListUiState
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
+import net.mullvad.mullvadvpn.lib.ui.component.listitem.EditCustomListListItem
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
+import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
 import net.mullvad.mullvadvpn.lib.ui.tag.DELETE_DROPDOWN_MENU_ITEM_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.TOP_BAR_DROPDOWN_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
@@ -144,7 +145,7 @@ fun EditCustomListScreen(
         },
     ) { modifier: Modifier ->
         SpacedColumn(
-            modifier = modifier,
+            modifier = modifier.padding(horizontal = Dimens.sideMarginNew),
             verticalAlignment = Alignment.Top,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
@@ -162,27 +163,23 @@ fun EditCustomListScreen(
                 }
                 is EditCustomListUiState.Content -> {
                     // Name cell
-                    TwoRowCell(
-                        titleText = stringResource(id = R.string.list_name),
-                        subtitleText = state.name.value,
-                        titleStyle = MaterialTheme.typography.bodyLarge,
-                        subtitleStyle = MaterialTheme.typography.bodyMedium,
-                        subtitleColor = MaterialTheme.colorScheme.onPrimary,
-                        onCellClicked = { onNameClicked(state.id, state.name) },
+                    EditCustomListListItem(
+                        title = stringResource(id = R.string.list_name),
+                        subtitle = state.name.value,
+                        position = Position.Top,
+                        onClick = { onNameClicked(state.id, state.name) },
                     )
                     // Locations cell
-                    TwoRowCell(
-                        titleText = stringResource(id = R.string.locations),
-                        subtitleText =
+                    EditCustomListListItem(
+                        title = stringResource(id = R.string.locations),
+                        subtitle =
                             pluralStringResource(
                                 id = R.plurals.number_of_locations,
                                 state.locations.size,
                                 state.locations.size,
                             ),
-                        titleStyle = MaterialTheme.typography.bodyLarge,
-                        subtitleStyle = MaterialTheme.typography.bodyMedium,
-                        subtitleColor = MaterialTheme.colorScheme.onPrimary,
-                        onCellClicked = { onLocationsClicked(state.id) },
+                        position = Position.Bottom,
+                        onClick = { onLocationsClicked(state.id) },
                     )
                 }
             }
