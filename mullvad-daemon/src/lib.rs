@@ -704,6 +704,8 @@ impl Daemon {
         daemon_command_channel: DaemonCommandChannel,
     ) -> Result<Self, Error> {
         #[cfg(target_os = "macos")]
+        tokio::spawn(macos::allow_incoming_connections());
+        #[cfg(target_os = "macos")]
         macos::bump_filehandle_limit();
 
         let command_sender = daemon_command_channel.sender();
