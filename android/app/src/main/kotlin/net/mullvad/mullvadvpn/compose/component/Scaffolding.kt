@@ -20,8 +20,6 @@ import androidx.compose.material3.FabPosition
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Snackbar
-import androidx.compose.material3.SnackbarData
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.TopAppBarDefaults
@@ -31,6 +29,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadSnackbar
 import net.mullvad.mullvadvpn.lib.ui.designsystem.PrimaryButton
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaScrollbar
@@ -105,18 +104,6 @@ fun ScaffoldWithTopBarAndDeviceName(
             )
         },
         content = content,
-    )
-}
-
-@Composable
-fun MullvadSnackbar(modifier: Modifier = Modifier, snackbarData: SnackbarData) {
-    Snackbar(
-        modifier = modifier,
-        snackbarData = snackbarData,
-        containerColor = MaterialTheme.colorScheme.surfaceContainer,
-        contentColor = MaterialTheme.colorScheme.onSurface,
-        actionColor = MaterialTheme.colorScheme.onSurface,
-        dismissActionContentColor = MaterialTheme.colorScheme.onSurface,
     )
 }
 
