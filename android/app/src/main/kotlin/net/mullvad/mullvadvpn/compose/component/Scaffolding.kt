@@ -232,66 +232,6 @@ fun ScaffoldWithMediumTopBar(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun ScaffoldWithLargeTopBarAndButton(
-    appBarTitle: String,
-    modifier: Modifier = Modifier,
-    navigationIcon: @Composable () -> Unit = {},
-    actions: @Composable RowScope.() -> Unit = {},
-    onButtonClick: () -> Unit = {}, // Add button
-    buttonTitle: String,
-    scrollbarColor: Color = MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaScrollbar),
-    content: @Composable (modifier: Modifier) -> Unit,
-) {
-    val appBarState = rememberTopAppBarState()
-    val scrollState = rememberScrollState()
-    val canScroll = scrollState.canScrollForward || scrollState.canScrollBackward
-    val scrollBehavior =
-        TopAppBarDefaults.exitUntilCollapsedScrollBehavior(appBarState, canScroll = { canScroll })
-    Scaffold(
-        modifier =
-            modifier
-                .fillMaxSize()
-                .systemBarsPadding()
-                .nestedScroll(scrollBehavior.nestedScrollConnection),
-        topBar = {
-            MullvadLargeTopBar(
-                title = appBarTitle,
-                navigationIcon = navigationIcon,
-                actions,
-                scrollBehavior = scrollBehavior,
-            )
-        },
-        bottomBar = {
-            PrimaryButton(
-                text = buttonTitle,
-                onClick = onButtonClick,
-                modifier =
-                    Modifier.padding(
-                        horizontal = Dimens.sideMargin,
-                        vertical = Dimens.screenBottomMargin,
-                    ),
-                trailingIcon = {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.OpenInNew,
-                        tint = MaterialTheme.colorScheme.onPrimary,
-                        contentDescription = null,
-                    )
-                },
-            )
-        },
-        content = {
-            content(
-                Modifier.fillMaxSize()
-                    .padding(it)
-                    .drawVerticalScrollbar(state = scrollState, color = scrollbarColor)
-                    .verticalScroll(scrollState)
-            )
-        },
-    )
-}
-
 @Composable
 fun ScaffoldWithSmallTopBar(
     appBarTitle: String,
