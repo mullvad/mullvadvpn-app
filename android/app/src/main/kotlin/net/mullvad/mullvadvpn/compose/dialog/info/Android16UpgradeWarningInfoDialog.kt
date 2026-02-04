@@ -7,12 +7,13 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.compose.screen.MainGraph
 import net.mullvad.mullvadvpn.compose.util.clickableAnnotatedString
 import net.mullvad.mullvadvpn.compose.util.createCopyToClipboardHandle
+import net.mullvad.mullvadvpn.lib.ui.component.dialog.InfoDialog
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 
 @Preview
@@ -21,7 +22,7 @@ private fun PreviewAndroid16UpgradeWarningInfoDialog() {
     AppTheme { Android16UpgradeWarningInfoDialog(onDismiss = {}, onClickEmail = {}) }
 }
 
-@Destination<RootGraph>(style = DestinationStyle.Dialog::class)
+@Destination<MainGraph>(style = DestinationStyle.Dialog::class)
 @Composable
 fun Android16UpgradeWarningInfo(navigator: DestinationsNavigator) {
     val copyToClipboard = createCopyToClipboardHandle(isSensitive = false)

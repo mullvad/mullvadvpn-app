@@ -18,7 +18,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.NavGraphs
 import com.ramcosta.composedestinations.generated.destinations.ConnectDestination
 import com.ramcosta.composedestinations.generated.destinations.DeviceRevokedDestination
@@ -42,7 +41,7 @@ private fun PreviewLoadingScreen() {
 }
 
 // Set this as the start destination of the default nav graph
-@Destination<RootGraph>(start = true)
+@Destination<MainGraph>(start = true)
 @Composable
 fun Splash(navigator: DestinationsNavigator) {
     val viewModel: SplashViewModel = koinViewModel()
@@ -53,23 +52,23 @@ fun Splash(navigator: DestinationsNavigator) {
         when (it) {
             SplashUiSideEffect.NavigateToConnect ->
                 navigator.navigate(ConnectDestination) {
-                    popUpTo(NavGraphs.root) { inclusive = true }
+                    popUpTo(NavGraphs.main) { inclusive = true }
                 }
             SplashUiSideEffect.NavigateToLogin ->
                 navigator.navigate(LoginDestination()) {
-                    popUpTo(NavGraphs.root) { inclusive = true }
+                    popUpTo(NavGraphs.main) { inclusive = true }
                 }
             SplashUiSideEffect.NavigateToPrivacyDisclaimer ->
                 navigator.navigate(PrivacyDisclaimerDestination) {
-                    popUpTo(NavGraphs.root) { inclusive = true }
+                    popUpTo(NavGraphs.main) { inclusive = true }
                 }
             SplashUiSideEffect.NavigateToRevoked ->
                 navigator.navigate(DeviceRevokedDestination) {
-                    popUpTo(NavGraphs.root) { inclusive = true }
+                    popUpTo(NavGraphs.main) { inclusive = true }
                 }
             SplashUiSideEffect.NavigateToOutOfTime ->
                 navigator.navigate(OutOfTimeDestination) {
-                    popUpTo(NavGraphs.root) { inclusive = true }
+                    popUpTo(NavGraphs.main) { inclusive = true }
                 }
         }
     }

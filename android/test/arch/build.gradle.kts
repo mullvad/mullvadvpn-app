@@ -3,7 +3,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.junit5.android)
+    alias(libs.plugins.mullvad.unit.test)
 }
 
 android {
@@ -42,6 +42,5 @@ dependencies {
     testImplementation(libs.compose.ui.tooling.android.preview)
     testImplementation(libs.compose.destinations)
     testImplementation(libs.androidx.appcompat)
-    testImplementation(libs.junit.jupiter.api)
     testImplementation(libs.konsist)
 }
