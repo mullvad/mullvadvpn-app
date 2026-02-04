@@ -44,9 +44,9 @@ import net.mullvad.mullvadvpn.compose.state.CustomListsUiState
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.model.CustomList
+import net.mullvad.mullvadvpn.lib.model.communication.CustomListActionResultData
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.NavigationListItem
 import net.mullvad.mullvadvpn.lib.ui.component.positionForIndex
-import net.mullvad.mullvadvpn.lib.model.communication.CustomListActionResultData
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.lib.ui.tag.NEW_LIST_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
