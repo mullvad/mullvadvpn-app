@@ -19,7 +19,7 @@ chrono = { workspace = true }
 clap = { workspace = true }
 either = "1.11"
 futures = { workspace = true }
-hex-literal = "1.1.0"
+hex = { workspace = true }
 libc = "0.2"
 log = { workspace = true }
 log-panics = "2.0.0"

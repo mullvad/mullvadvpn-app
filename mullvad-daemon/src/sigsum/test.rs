@@ -1,82 +1,31 @@
-use hex_literal::hex;
-use mullvad_api::{DigestTimestamp, ServerRelayListSigsum};
-use sha2::Sha256;
-use sha2::digest::Output;
-use sigsum::{Hash, ParseAsciiError, Policy, PublicKey, SigsumSignature, VerifyError};
-use std::sync::LazyLock;
-
-// TODO: where/how should we store the signatures?
-static SIGNERS: LazyLock<Vec<PublicKey>> = LazyLock::new(|| {
-    vec![
-        hex!("35809994d285fe3dd50d49c384db49519412008c545cb6588c138a86ae4c3284").into(),
-        hex!("9e05c843f17ed7225df58fdfd6ddcd65251aa6db4ad8ea63bd2bf0326e30577d").into(),
-    ]
-});
-
-const POLICY: &str = "sigsum-test-2025-3";
-
-pub(crate) fn validate_signature(sigsum: &ServerRelayListSigsum) -> Result<(), SigsumError> {
-    let signature = SigsumSignature::from_ascii(&sigsum.sigsum_signature)?;
-
-    // This will not fail but the API should be improved so that it can't panic IMO
-    let policy = Policy::builtin(POLICY).unwrap();
-
-    sigsum::verify(
-        &Hash::new(sigsum.unparsed_data.as_bytes()),
-        signature,
-        // TODO: to avoid clone the sigsum::verify should take a slice here IMO
-        SIGNERS.clone(),
-        &policy,
-    )?;
-
-    Ok(())
-}
-
-pub(crate) fn validate_data(
-    data: &DigestTimestamp,
-    content_hash: &Output<Sha256>,
-) -> Result<(), SigsumError> {
-    let hex_hash = format!("{:x}", content_hash);
-    if hex_hash != data.digest {
-        return Err(SigsumError::ContentDigestDoesNotMatchSigsumDigest);
-    }
-    Ok(())
-}
-
-#[derive(Debug, thiserror::Error)]
-pub(crate) enum SigsumError {
-    #[error("Signature parsing failed")]
-    ParseAscii(#[from] ParseAsciiError),
-
-    #[error("Signature verification failed")]
-    Verify(#[from] VerifyError),
-
-    #[error("Content digest does not match sigsum digest")]
-    ContentDigestDoesNotMatchSigsumDigest,
-}
-
 #[cfg(test)]
-mod test {
-    use super::*;
-    use sha2::Digest;
+mod sigsum_test {
+    use crate::sigsum::{parse_signature, validate_data};
+    use mullvad_api::{RelayListSignature, Sha256Bytes};
+    use sha2::{Digest, Sha256};
 
     #[test]
-    fn test_validate_relay_list_sigsum_signature() {
-        let parsed = ServerRelayListSigsum::parse_from_server_response(RELAY_LIST_SIGSUM).unwrap();
-        validate_signature(&parsed).unwrap();
+    fn test_validate_relay_list_signature() {
+        let sig = RelayListSignature::from_server_response(RELAY_LIST_SIGNATURE).unwrap();
+        let timestamp = parse_signature(&sig).unwrap();
+        let digest: Sha256Bytes = Sha256::digest(RELAY_LIST_CONTENT.as_bytes()).into();
+        validate_data(&timestamp, &digest).unwrap();
     }
 
     #[test]
-    fn test_validate_relay_list_data() {
-        let parsed = ServerRelayListSigsum::parse_from_server_response(RELAY_LIST_SIGSUM).unwrap();
-        let data = parsed.data;
-        // This is the digest of the content of the relay list that was signed by the sigsum signature.
-        let digest = Sha256::digest(RELAY_LIST_CONTENT.as_bytes());
+    fn test_invalid_signature_can_parse_unverified_timestamp() {
+        let sig = RelayListSignature::from_server_response(&format!(
+            "{RELAY_LIST_SIGNATURE}bad-signature"
+        ))
+        .unwrap();
+        let err = parse_signature(&sig).unwrap_err();
+        let timestamp = err.parser.parse_timestamp_without_verification().unwrap();
 
-        validate_data(&data, &digest).unwrap();
+        let digest: Sha256Bytes = Sha256::digest(RELAY_LIST_CONTENT.as_bytes()).into();
+        validate_data(&timestamp, &digest).unwrap();
     }
 
-    static RELAY_LIST_SIGSUM: &str = r#"{"digest":"446fc8ebccd95d5fc07362109b5a4f5eac8c38886ebd6d918d007b6a4fb72865","timestamp":"2026-02-03T10:47:14+00:00"}
+    static RELAY_LIST_SIGNATURE: &str = r#"{"digest":"446fc8ebccd95d5fc07362109b5a4f5eac8c38886ebd6d918d007b6a4fb72865","timestamp":"2026-02-03T10:47:14+00:00"}
 
 version=2
 log=1643169b32bef33a3f54f8a353b87c475d19b6223cbb106390d10a29978e1cba

@@ -217,26 +217,46 @@ impl RelayListUpdater {
             tag: Option<ETag>,
         ) -> Result<Option<CachedRelayList>, mullvad_api::Error> {
             api_handle.wait_background().await?;
-            // TODO: if this request fails, should we fall back to the old endpoint?
-            let relay_list_sigsum = proxy.relay_list_sigsum().await?;
 
-            // TODO: if validation fails should we use the old endpoint to fetch the relay list?
-            match sigsum::validate_signature(&relay_list_sigsum) {
-                Ok(_) => log::debug!("Relay list sigsum signature validation successful"),
-                Err(e) => log::error!("Relay list sigsum signature validation failed: {}", e),
-            }
+            // Fetch relay list latest sigsum signature.
+            let relay_list_sig = proxy.relay_list_latest_signature().await?;
 
-            let response = proxy
-                .relay_list(tag, &relay_list_sigsum.data.digest)
-                .await?;
+            // Parse the timestamp from the signature.
+            let timestamp = match sigsum::parse_signature(&relay_list_sig) {
+                Ok(timestamp) => {
+                    log::debug!("Relay list sigsum signature validation successful");
+                    timestamp
+                }
+                Err(e) => {
+                    log::error!(
+                        "Relay list sigsum signature validation failed: {}",
+                        e.source
+                    );
+                    log::debug!("Attempting to parse unverified timestamp");
+                    match e.parser.parse_timestamp_without_verification() {
+                        Ok(timestamp) => {
+                            log::debug!("Successfully parsed unverified timestamp");
+                            timestamp
+                        }
+                        Err(e) => {
+                            log::error!(
+                                "Failed to parse unverified timestamp; aborting relay list update: {}",
+                                e
+                            );
+                            return Ok(None);
+                        }
+                    }
+                }
+            };
 
-            log::debug!("RELAY RESP: {:?}", response);
+            // Fetch the actual relay list given the timestamp digest.
+            let response = proxy.relay_list(tag, &timestamp.digest).await?;
 
             match response {
                 None => Ok(None),
                 Some((relay_list, hash)) => {
                     // Validate that the sigsum digest matches the relay list hash.
-                    match sigsum::validate_data(&relay_list_sigsum.data, &hash) {
+                    match sigsum::validate_data(&timestamp, &hash) {
                         Ok(_) => log::debug!("Relay list sigsum data validation successful"),
                         Err(e) => log::error!("Relay list sigsum data validation failed: {}", e),
                     }
