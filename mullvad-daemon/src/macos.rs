@@ -270,6 +270,9 @@ fn process_has_mullvad_installer(pid: pid_t) -> io::Result<bool> {
     Ok(false)
 }
 
-fn socketfilterfw() -> Command {
+/// Prepare to invoke the [`socketfilterfw`] CLI.
+///
+/// [socketfilterfw]: https://www.manpagez.com/man/8/socketfilterfw/
+pub fn socketfilterfw() -> Command {
     Command::new("/usr/libexec/ApplicationFirewall/socketfilterfw")
 }
