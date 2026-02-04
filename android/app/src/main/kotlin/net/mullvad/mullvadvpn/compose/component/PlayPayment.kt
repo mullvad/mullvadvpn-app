@@ -184,7 +184,12 @@ private fun PaymentAvailable(
                             containerColorParent = MaterialTheme.colorScheme.surfaceContainer,
                             headlineColor = MaterialTheme.colorScheme.onSurface,
                         ),
-                    onClick = { onPurchaseBillingProductClick(product.productId) },
+                    // Setting this to null if not enabled to fix a failing test due to performClick
+                    // not respecting enabled for clickable
+                    onClick =
+                        if (enabled) {
+                            { onPurchaseBillingProductClick(product.productId) }
+                        } else null,
                     isEnabled = enabled,
                 )
             }

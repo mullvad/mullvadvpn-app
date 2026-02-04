@@ -48,7 +48,7 @@ fun IconListItem(
     contentDescription: String? = null,
     position: Position = Position.Single,
     isEnabled: Boolean = true,
-    onClick: () -> Unit,
+    onClick: (() -> Unit)?,
 ) {
     MullvadListItem(
         modifier = modifier,

@@ -294,7 +294,7 @@ private fun BottomSheetContent(
     overridesActive: Boolean,
     onImportByFile: () -> Unit,
     onImportByText: () -> Unit,
-    onCloseSheet: () -> DisposableHandle
+    onCloseSheet: () -> DisposableHandle,
 ) {
     BottomSheetListItem(
         title = stringResource(id = R.string.server_ip_overrides_import_by),
