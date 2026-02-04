@@ -163,6 +163,15 @@ class ApplicationMain
     if (process.platform === 'linux') {
       // NOTE: Keep in sync with mocked-utils.ts
       app.commandLine.appendSwitch('gtk-version', '3');
+
+      // On wayland, fractional scaling is not working very well with the default configuration
+      // that Chromium uses. If the features below are not disabled then pixels are seemingly
+      // sometimes rounded up.
+      //
+      // This bug creates visual artifacts where a 1px height element is sometimes
+      // being visibly taller than it should be.
+      app.commandLine.appendSwitch('disable-features', 'WaylandPerSurfaceScale');
+      app.commandLine.appendSwitch('disable-features', 'WaylandFractionalScaleV1');
     }
 
     // Display correct colors regardless of monitor color profile.
