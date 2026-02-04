@@ -172,8 +172,7 @@ pub async fn handle_app_bundle_removal(
     log(format_args!(
         "Removing daemon from macOS Application Firewall allow-list"
     ));
-    let mut socketfilterfw = Command::new("/usr/libexec/ApplicationFirewall/socketfilterfw");
-    if let Err(error) = socketfilterfw
+    if let Err(error) = socketfilterfw()
         .arg("--remove")
         .arg(&mullvad_daemon)
         .output()
