@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.compose.component
+package net.mullvad.mullvadvpn.lib.ui.designsystem
 
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
@@ -11,9 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.theme.shape.chipShape
@@ -21,25 +19,13 @@ import net.mullvad.mullvadvpn.lib.ui.theme.shape.chipShape
 @Preview
 @Composable
 private fun PreviewEnabledMullvadFilterChip() {
-    AppTheme {
-        MullvadFilterChip(
-            text = stringResource(id = R.string.number_of_providers),
-            onRemoveClick = {},
-            enabled = true,
-        )
-    }
+    AppTheme { MullvadFilterChip(text = "Providers:", onRemoveClick = {}, enabled = true) }
 }
 
 @Preview
 @Composable
 private fun PreviewDisabledMullvadFilterChip() {
-    AppTheme {
-        MullvadFilterChip(
-            text = stringResource(id = R.string.number_of_providers),
-            onRemoveClick = {},
-            enabled = false,
-        )
-    }
+    AppTheme { MullvadFilterChip(text = "Providers:", onRemoveClick = {}, enabled = false) }
 }
 
 @Composable
