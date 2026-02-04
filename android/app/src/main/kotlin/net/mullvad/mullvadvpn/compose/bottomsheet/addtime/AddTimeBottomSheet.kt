@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.compose.bottomsheet
+package net.mullvad.mullvadvpn.compose.bottomsheet.addtime
 
 import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.AnimatedContent
@@ -45,6 +45,7 @@ import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.lib.payment.ProductIds.OneMonth
 import net.mullvad.mullvadvpn.lib.payment.ProductIds.ThreeMonths
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
+import net.mullvad.mullvadvpn.lib.ui.component.MullvadModalBottomSheet
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.BottomSheetListItem
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.ExternalLinkListItem
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.IconListItem
@@ -162,7 +163,7 @@ fun AddTimeBottomSheetContent(
 ) {
     val backgroundColor = MaterialTheme.colorScheme.surfaceContainer
     val onBackgroundColor = MaterialTheme.colorScheme.onSurface
-    _root_ide_package_.net.mullvad.mullvadvpn.compose.component.MullvadModalBottomSheet(
+    MullvadModalBottomSheet(
         sheetState = sheetState,
         backgroundColor = backgroundColor,
         onBackgroundColor = onBackgroundColor,
@@ -424,7 +425,7 @@ private fun Products(
         backgroundColor = backgroundColor,
     )
     billingPaymentState?.let {
-        _root_ide_package_.net.mullvad.mullvadvpn.compose.component.PlayPayment(
+        PlayPayment(
             modifier = Modifier.fillMaxWidth(),
             billingPaymentState = billingPaymentState,
             onBackgroundColor = onBackgroundColor,

@@ -10,7 +10,7 @@ import de.mannodermaus.junit5.compose.ComposeContext
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import net.mullvad.mullvadvpn.compose.bottomsheet.AddTimeBottomSheetContent
+import net.mullvad.mullvadvpn.compose.bottomsheet.addtime.AddTimeBottomSheetContent
 import kotlin.Unit
 import net.mullvad.mullvadvpn.compose.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.compose.setContentWithTheme

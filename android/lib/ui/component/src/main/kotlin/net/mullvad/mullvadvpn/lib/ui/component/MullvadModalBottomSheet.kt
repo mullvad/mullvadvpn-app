@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.compose.component
+package net.mullvad.mullvadvpn.lib.ui.component
 
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Spacer
@@ -73,7 +73,6 @@ fun MullvadModalBottomSheet(
         dragHandle = { BottomSheetDefaults.DragHandle(color = onBackgroundColor) },
     ) {
         content(paddingValues.calculateBottomPadding())
-        Spacer(modifier = Modifier.height(Dimens.smallPadding))
-        Spacer(modifier = Modifier.height(paddingValues.calculateBottomPadding()))
+        Spacer(modifier = Modifier.height(paddingValues.calculateBottomPadding() + Dimens.smallPadding))
     }
 }
