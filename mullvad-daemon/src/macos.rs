@@ -166,7 +166,9 @@ pub async fn handle_app_bundle_removal(
     }
 
     // Remove the daemon binary from the macOS Application Firewall
-    log(format_args!("Resetting macOS Application Firewall"));
+    log(format_args!(
+        "Removing daemon from macOS Application Firewall allow-list"
+    ));
     let mut socketfilterfw = Command::new("/usr/libexec/ApplicationFirewall/socketfilterfw");
     if let Err(error) = socketfilterfw
         .arg("--remove")
