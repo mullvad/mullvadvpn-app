@@ -4,6 +4,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.state.DeviceRevokedUiState
+import net.mullvad.mullvadvpn.lib.ui.designsystem.NegativeButton
+import net.mullvad.mullvadvpn.lib.ui.designsystem.VariantButton
 
 @Composable
 fun DeviceRevokedLoginButton(onClick: () -> Unit, state: DeviceRevokedUiState) {
