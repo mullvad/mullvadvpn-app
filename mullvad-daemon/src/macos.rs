@@ -28,9 +28,12 @@ pub async fn allow_incoming_connections() {
         }
     };
     // Intended command to run: socketfilterfw --add /Applications/Mullvad\ VPN.app/Contents/Resources/mullvad-daemon
-    let mut socketfilterfw = Command::new("/usr/libexec/ApplicationFirewall/socketfilterfw");
-    socketfilterfw.arg("--add").arg(mullvad_daemon);
-    if let Err(err) = socketfilterfw.output().await {
+    if let Err(err) = socketfilterfw()
+        .arg("--add")
+        .arg(mullvad_daemon)
+        .output()
+        .await
+    {
         log::warn!(
             "Failed to add daemon binary to Application Firewall. DNS might not work properly"
         );
@@ -266,4 +269,8 @@ fn process_has_mullvad_installer(pid: pid_t) -> io::Result<bool> {
         }
     }
     Ok(false)
+}
+
+fn socketfilterfw() -> Command {
+    Command::new("/usr/libexec/ApplicationFirewall/socketfilterfw")
 }
