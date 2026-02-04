@@ -45,9 +45,9 @@ import net.mullvad.mullvadvpn.lib.repository.AutoStartAndConnectOnBootRepository
 import net.mullvad.mullvadvpn.lib.repository.SettingsRepository
 import net.mullvad.mullvadvpn.lib.repository.WireguardConstraintsRepository
 import net.mullvad.mullvadvpn.lib.usecase.SystemVpnSettingsAvailableUseCase
-import net.mullvad.mullvadvpn.util.Lc
+import net.mullvad.mullvadvpn.core.Lc
 import net.mullvad.mullvadvpn.util.onFirst
-import net.mullvad.mullvadvpn.util.toLc
+import net.mullvad.mullvadvpn.core.toLc
 
 sealed interface VpnSettingsSideEffect {
     sealed interface ShowToast : VpnSettingsSideEffect {

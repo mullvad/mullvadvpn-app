@@ -34,8 +34,8 @@ import net.mullvad.mullvadvpn.lib.model.PortType
 import net.mullvad.mullvadvpn.lib.model.SetObfuscationOptionsError
 import net.mullvad.mullvadvpn.lib.repository.RelayListRepository
 import net.mullvad.mullvadvpn.lib.repository.SettingsRepository
-import net.mullvad.mullvadvpn.util.Lc
-import net.mullvad.mullvadvpn.util.toLc
+import net.mullvad.mullvadvpn.core.Lc
+import net.mullvad.mullvadvpn.core.toLc
 
 class SelectPortViewModel(
     private val settingsRepository: SettingsRepository,

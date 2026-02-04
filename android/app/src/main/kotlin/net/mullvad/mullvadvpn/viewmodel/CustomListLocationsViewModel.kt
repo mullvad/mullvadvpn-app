@@ -34,7 +34,7 @@ import net.mullvad.mullvadvpn.lib.ui.component.relaylist.CheckableRelayListItem
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.ItemPosition
 import net.mullvad.mullvadvpn.lib.usecase.customlists.CustomListActionUseCase
 import net.mullvad.mullvadvpn.lib.usecase.customlists.CustomListRelayItemsUseCase
-import net.mullvad.mullvadvpn.util.Lce
+import net.mullvad.mullvadvpn.core.Lce
 
 @Suppress("TooManyFunctions")
 class CustomListLocationsViewModel(

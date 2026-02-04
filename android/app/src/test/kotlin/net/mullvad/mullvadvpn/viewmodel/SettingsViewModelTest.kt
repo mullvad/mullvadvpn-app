@@ -21,7 +21,7 @@ import net.mullvad.mullvadvpn.lib.repository.AppVersionInfoRepository
 import net.mullvad.mullvadvpn.lib.repository.DeviceRepository
 import net.mullvad.mullvadvpn.lib.repository.SettingsRepository
 import net.mullvad.mullvadvpn.lib.repository.WireguardConstraintsRepository
-import net.mullvad.mullvadvpn.util.Lc
+import net.mullvad.mullvadvpn.core.Lc
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

@@ -2,7 +2,7 @@ package net.mullvad.mullvadvpn.compose.preview
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.NotificationSettingsUiState
-import net.mullvad.mullvadvpn.util.Lc
+import net.mullvad.mullvadvpn.core.Lc
 
 class NotificationSettingsUiStatePreviewParameterProvider :
     PreviewParameterProvider<Lc<Unit, NotificationSettingsUiState>> {

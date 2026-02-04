@@ -2,8 +2,8 @@ package net.mullvad.mullvadvpn.compose.preview
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.SettingsUiState
-import net.mullvad.mullvadvpn.util.Lc
-import net.mullvad.mullvadvpn.util.toLc
+import net.mullvad.mullvadvpn.core.Lc
+import net.mullvad.mullvadvpn.core.toLc
 
 class SettingsUiStatePreviewParameterProvider :
     PreviewParameterProvider<Lc<Unit, SettingsUiState>> {

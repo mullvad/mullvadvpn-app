@@ -4,8 +4,8 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.AntiCensorshipSettingsUiState
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
-import net.mullvad.mullvadvpn.util.Lc
-import net.mullvad.mullvadvpn.util.toLc
+import net.mullvad.mullvadvpn.core.Lc
+import net.mullvad.mullvadvpn.core.toLc
 
 class AntiCensorshipUiStatePreviewParameterProvider :
     PreviewParameterProvider<Lc<Boolean, AntiCensorshipSettingsUiState>> {

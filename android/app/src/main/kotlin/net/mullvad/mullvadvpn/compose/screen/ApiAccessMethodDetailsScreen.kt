@@ -47,7 +47,7 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.TestMethodButton
 import net.mullvad.mullvadvpn.compose.preview.ApiAccessMethodDetailsUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.ApiAccessMethodDetailsUiState
-import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
+import net.mullvad.mullvadvpn.core.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.OnNavResultValue
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately

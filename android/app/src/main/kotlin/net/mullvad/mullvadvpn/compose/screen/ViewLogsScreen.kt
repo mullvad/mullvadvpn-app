@@ -46,7 +46,7 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.preview.ViewLogsUiStatePreviewParameterProvider
-import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
+import net.mullvad.mullvadvpn.core.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.compose.util.CopyToClipboardHandle
 import net.mullvad.mullvadvpn.compose.util.createCopyToClipboardHandle
 import net.mullvad.mullvadvpn.lib.ui.component.MullvadMediumTopBar
@@ -58,7 +58,7 @@ import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaScrollbar
 import net.mullvad.mullvadvpn.provider.getLogsShareIntent
-import net.mullvad.mullvadvpn.util.Lc
+import net.mullvad.mullvadvpn.core.Lc
 import net.mullvad.mullvadvpn.viewmodel.ViewLogsUiState
 import net.mullvad.mullvadvpn.viewmodel.ViewLogsViewModel
 import org.koin.androidx.compose.koinViewModel

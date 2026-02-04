@@ -36,8 +36,8 @@ import net.mullvad.mullvadvpn.lib.usecase.MultihopChange
 import net.mullvad.mullvadvpn.lib.usecase.SelectRelayItemError
 import net.mullvad.mullvadvpn.onNodeWithTagAndText
 import net.mullvad.mullvadvpn.performLongClick
-import net.mullvad.mullvadvpn.util.Lc
-import net.mullvad.mullvadvpn.util.Lce
+import net.mullvad.mullvadvpn.core.Lc
+import net.mullvad.mullvadvpn.core.Lce
 import net.mullvad.mullvadvpn.viewmodel.location.LocationBottomSheetViewModel
 import net.mullvad.mullvadvpn.viewmodel.location.SelectLocationListViewModel
 import net.mullvad.mullvadvpn.viewmodel.location.UndoChangeMultihopAction

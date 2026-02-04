@@ -20,8 +20,8 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.model.SettingsPatchError
 import net.mullvad.mullvadvpn.lib.repository.RelayOverridesRepository
-import net.mullvad.mullvadvpn.util.Lc
-import net.mullvad.mullvadvpn.util.toLc
+import net.mullvad.mullvadvpn.core.Lc
+import net.mullvad.mullvadvpn.core.toLc
 
 class ServerIpOverridesViewModel(
     private val relayOverridesRepository: RelayOverridesRepository,

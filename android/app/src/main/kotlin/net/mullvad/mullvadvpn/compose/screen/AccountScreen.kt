@@ -65,7 +65,7 @@ import net.mullvad.mullvadvpn.lib.ui.designsystem.PrimaryTextButton
 import net.mullvad.mullvadvpn.lib.ui.tag.MANAGE_DEVICES_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
-import net.mullvad.mullvadvpn.util.Lc
+import net.mullvad.mullvadvpn.core.Lc
 import net.mullvad.mullvadvpn.viewmodel.AccountUiState
 import net.mullvad.mullvadvpn.viewmodel.AccountViewModel
 import org.koin.androidx.compose.koinViewModel

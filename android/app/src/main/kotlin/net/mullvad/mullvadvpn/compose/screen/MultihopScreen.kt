@@ -30,7 +30,7 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.parcelize.Parcelize
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.preview.MultihopUiStatePreviewParameterProvider
-import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
+import net.mullvad.mullvadvpn.core.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
 import net.mullvad.mullvadvpn.lib.ui.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.NavigateCloseIconButton
@@ -41,7 +41,7 @@ import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicat
 import net.mullvad.mullvadvpn.lib.ui.tag.MULTIHOP_SCREEN_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
-import net.mullvad.mullvadvpn.util.Lc
+import net.mullvad.mullvadvpn.core.Lc
 import net.mullvad.mullvadvpn.viewmodel.MultihopUiState
 import net.mullvad.mullvadvpn.viewmodel.MultihopViewModel
 import org.koin.androidx.compose.koinViewModel

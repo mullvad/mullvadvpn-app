@@ -52,7 +52,7 @@ import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_LIST_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaScrollbar
-import net.mullvad.mullvadvpn.util.Lce
+import net.mullvad.mullvadvpn.core.Lce
 import net.mullvad.mullvadvpn.viewmodel.location.SelectLocationListViewModel
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf

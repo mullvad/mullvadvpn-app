@@ -47,7 +47,7 @@ import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicat
 import net.mullvad.mullvadvpn.lib.ui.designsystem.PrimaryButton
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
-import net.mullvad.mullvadvpn.util.Lce
+import net.mullvad.mullvadvpn.core.Lce
 import net.mullvad.mullvadvpn.viewmodel.ManageDevicesSideEffect
 import net.mullvad.mullvadvpn.viewmodel.ManageDevicesViewModel
 import org.koin.androidx.compose.koinViewModel

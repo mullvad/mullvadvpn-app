@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.compose.screen
+package net.mullvad.mullvadvpn.feature.daita
 
 import android.os.Parcelable
 import androidx.compose.animation.AnimatedVisibilityScope
@@ -36,17 +36,15 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
-import com.ramcosta.composedestinations.generated.destinations.DaitaDirectOnlyConfirmationDestination
-import com.ramcosta.composedestinations.generated.destinations.DaitaDirectOnlyInfoDestination
+//import com.ramcosta.composedestinations.generated.destinations.DaitaDirectOnlyConfirmationDestination
+//import com.ramcosta.composedestinations.generated.destinations.DaitaDirectOnlyInfoDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
 import kotlinx.parcelize.Parcelize
-import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.dialog.info.Confirmed
-import net.mullvad.mullvadvpn.compose.preview.DaitaUiStatePreviewParameterProvider
-import net.mullvad.mullvadvpn.compose.state.DaitaUiState
-import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.compose.util.OnNavResultValue
+import net.mullvad.mullvadvpn.core.Lc
+import net.mullvad.mullvadvpn.core.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
 import net.mullvad.mullvadvpn.lib.ui.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.NavigateCloseIconButton
@@ -58,8 +56,6 @@ import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
 import net.mullvad.mullvadvpn.lib.ui.tag.DAITA_SCREEN_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
-import net.mullvad.mullvadvpn.util.Lc
-import net.mullvad.mullvadvpn.viewmodel.DaitaViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @Preview("Loading|Disabled|Enabled")
@@ -86,13 +82,13 @@ private fun PreviewDaitaScreen(
 fun SharedTransitionScope.Daita(
     navigator: DestinationsNavigator,
     animatedVisibilityScope: AnimatedVisibilityScope,
-    daitaConfirmationDialogResult:
-        ResultRecipient<DaitaDirectOnlyConfirmationDestination, Confirmed>,
+//    daitaConfirmationDialogResult:
+//        ResultRecipient<DaitaDirectOnlyConfirmationDestination, Confirmed>,
 ) {
     val viewModel = koinViewModel<DaitaViewModel>()
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
-    daitaConfirmationDialogResult.OnNavResultValue { viewModel.setDirectOnly(true) }
+//    daitaConfirmationDialogResult.OnNavResultValue { viewModel.setDirectOnly(true) }
 
     DaitaScreen(
         state = state,
@@ -105,13 +101,13 @@ fun SharedTransitionScope.Daita(
         onDaitaEnabled = viewModel::setDaita,
         onDirectOnlyClick = { enable ->
             if (enable) {
-                navigator.navigate(DaitaDirectOnlyConfirmationDestination)
+//                navigator.navigate(DaitaDirectOnlyConfirmationDestination)
             } else {
                 viewModel.setDirectOnly(false)
             }
         },
         onDirectOnlyInfoClick =
-            dropUnlessResumed { navigator.navigate(DaitaDirectOnlyInfoDestination) },
+            dropUnlessResumed { /* navigator.navigate(DaitaDirectOnlyInfoDestination) */ },
         onBackClick = dropUnlessResumed { navigator.navigateUp() },
     )
 }
@@ -245,7 +241,7 @@ private fun PageIndicator(pagerState: PagerState) {
                 else MaterialTheme.colorScheme.primary
             Box(
                 modifier =
-                    Modifier.padding(Dimens.indicatorPadding)
+                    padding(Dimens.indicatorPadding)
                         .clip(CircleShape)
                         .background(color)
                         .size(Dimens.indicatorSize)

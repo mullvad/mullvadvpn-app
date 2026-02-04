@@ -39,7 +39,7 @@ import net.mullvad.mullvadvpn.compose.extensions.dropUnlessResumed
 import net.mullvad.mullvadvpn.compose.extensions.itemsIndexedWithDivider
 import net.mullvad.mullvadvpn.compose.preview.CustomListsUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.CustomListsUiState
-import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
+import net.mullvad.mullvadvpn.core.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.model.CustomList
 import net.mullvad.mullvadvpn.lib.model.communication.CustomListActionResultData

@@ -57,7 +57,7 @@ import net.mullvad.mullvadvpn.lib.ui.designsystem.SmallPrimaryButton
 import net.mullvad.mullvadvpn.lib.ui.tag.ADD_TIME_BOTTOM_SHEET_TITLE_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
-import net.mullvad.mullvadvpn.util.Lc
+import net.mullvad.mullvadvpn.core.Lc
 import net.mullvad.mullvadvpn.viewmodel.AddMoreTimeSideEffect
 import net.mullvad.mullvadvpn.viewmodel.AddTimeViewModel
 import org.koin.androidx.compose.koinViewModel

@@ -38,7 +38,7 @@ import net.mullvad.mullvadvpn.compose.extensions.itemsIndexedWithDivider
 import net.mullvad.mullvadvpn.compose.extensions.itemsWithDivider
 import net.mullvad.mullvadvpn.compose.preview.FilterUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.RelayFilterUiState
-import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
+import net.mullvad.mullvadvpn.core.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.Ownership

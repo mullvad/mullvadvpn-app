@@ -45,7 +45,7 @@ import net.mullvad.mullvadvpn.lib.usecase.MultihopChange
 import net.mullvad.mullvadvpn.lib.usecase.SelectRelayItemError
 import net.mullvad.mullvadvpn.lib.usecase.SelectSinglehopUseCase
 import net.mullvad.mullvadvpn.lib.usecase.customlists.CustomListActionUseCase
-import net.mullvad.mullvadvpn.util.Lc
+import net.mullvad.mullvadvpn.core.Lc
 import net.mullvad.mullvadvpn.util.combine
 
 @OptIn(ExperimentalCoroutinesApi::class)

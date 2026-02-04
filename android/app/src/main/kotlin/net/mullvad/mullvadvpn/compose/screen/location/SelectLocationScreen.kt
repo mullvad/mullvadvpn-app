@@ -117,7 +117,7 @@ import net.mullvad.mullvadvpn.lib.usecase.FilterChip
 import net.mullvad.mullvadvpn.lib.usecase.ModifyMultihopError
 import net.mullvad.mullvadvpn.lib.usecase.MultihopChange
 import net.mullvad.mullvadvpn.lib.usecase.SelectRelayItemError
-import net.mullvad.mullvadvpn.util.Lc
+import net.mullvad.mullvadvpn.core.Lc
 import net.mullvad.mullvadvpn.viewmodel.location.SelectLocationSideEffect
 import net.mullvad.mullvadvpn.viewmodel.location.SelectLocationViewModel
 import net.mullvad.mullvadvpn.viewmodel.location.UndoChangeMultihopAction

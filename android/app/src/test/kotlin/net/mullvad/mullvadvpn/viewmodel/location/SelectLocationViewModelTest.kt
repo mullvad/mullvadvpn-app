@@ -49,7 +49,7 @@ import net.mullvad.mullvadvpn.lib.usecase.ModifyMultihopUseCase
 import net.mullvad.mullvadvpn.lib.usecase.MultihopChange
 import net.mullvad.mullvadvpn.lib.usecase.SelectSinglehopUseCase
 import net.mullvad.mullvadvpn.lib.usecase.customlists.CustomListActionUseCase
-import net.mullvad.mullvadvpn.util.Lc
+import net.mullvad.mullvadvpn.core.Lc
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

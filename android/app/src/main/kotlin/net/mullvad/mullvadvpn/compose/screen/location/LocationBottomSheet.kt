@@ -65,7 +65,7 @@ import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 import net.mullvad.mullvadvpn.lib.usecase.ModifyMultihopError
 import net.mullvad.mullvadvpn.lib.usecase.MultihopChange
 import net.mullvad.mullvadvpn.lib.usecase.SelectRelayItemError
-import net.mullvad.mullvadvpn.util.Lc
+import net.mullvad.mullvadvpn.core.Lc
 import net.mullvad.mullvadvpn.viewmodel.location.LocationBottomSheetViewModel
 import net.mullvad.mullvadvpn.viewmodel.location.UndoChangeMultihopAction
 import org.koin.androidx.compose.koinViewModel

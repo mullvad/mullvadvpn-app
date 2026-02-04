@@ -10,8 +10,8 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.NotificationSettingsUiState
 import net.mullvad.mullvadvpn.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.repository.UserPreferencesRepository
-import net.mullvad.mullvadvpn.util.Lc
-import net.mullvad.mullvadvpn.util.toLc
+import net.mullvad.mullvadvpn.core.Lc
+import net.mullvad.mullvadvpn.core.toLc
 
 class NotificationSettingsViewModel(
     private val userPreferencesRepository: UserPreferencesRepository

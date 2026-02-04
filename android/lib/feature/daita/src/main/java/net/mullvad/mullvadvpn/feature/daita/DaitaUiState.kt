@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.compose.state
+package net.mullvad.mullvadvpn.feature.daita
 
 data class DaitaUiState(
     val daitaEnabled: Boolean,

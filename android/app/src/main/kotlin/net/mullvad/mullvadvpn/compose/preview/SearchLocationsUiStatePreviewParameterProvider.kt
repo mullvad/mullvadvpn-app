@@ -6,7 +6,7 @@ import net.mullvad.mullvadvpn.lib.model.MultihopRelayListType
 import net.mullvad.mullvadvpn.lib.model.RelayListType
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.RelayListItemPreviewData
 import net.mullvad.mullvadvpn.lib.usecase.FilterChip
-import net.mullvad.mullvadvpn.util.Lce
+import net.mullvad.mullvadvpn.core.Lce
 
 class SearchLocationsUiStatePreviewParameterProvider :
     PreviewParameterProvider<Lce<Unit, SearchLocationUiState, Unit>> {

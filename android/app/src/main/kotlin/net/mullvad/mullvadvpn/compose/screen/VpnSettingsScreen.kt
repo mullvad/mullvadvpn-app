@@ -71,7 +71,7 @@ import net.mullvad.mullvadvpn.compose.extensions.dropUnlessResumed
 import net.mullvad.mullvadvpn.compose.preview.VpnSettingsUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.VpnSettingItem
 import net.mullvad.mullvadvpn.compose.state.VpnSettingsUiState
-import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
+import net.mullvad.mullvadvpn.core.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.OnNavResultValue
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
@@ -113,7 +113,7 @@ import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaInvisible
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaScrollbar
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaVisible
-import net.mullvad.mullvadvpn.util.Lc
+import net.mullvad.mullvadvpn.core.Lc
 import net.mullvad.mullvadvpn.util.indexOfFirstOrNull
 import net.mullvad.mullvadvpn.viewmodel.VpnSettingsSideEffect
 import net.mullvad.mullvadvpn.viewmodel.VpnSettingsViewModel

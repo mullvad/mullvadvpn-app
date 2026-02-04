@@ -14,8 +14,8 @@ import net.mullvad.mullvadvpn.lib.repository.AppVersionInfoRepository
 import net.mullvad.mullvadvpn.lib.repository.DeviceRepository
 import net.mullvad.mullvadvpn.lib.repository.SettingsRepository
 import net.mullvad.mullvadvpn.lib.repository.WireguardConstraintsRepository
-import net.mullvad.mullvadvpn.util.Lc
-import net.mullvad.mullvadvpn.util.toLc
+import net.mullvad.mullvadvpn.core.Lc
+import net.mullvad.mullvadvpn.core.toLc
 
 class SettingsViewModel(
     deviceRepository: DeviceRepository,

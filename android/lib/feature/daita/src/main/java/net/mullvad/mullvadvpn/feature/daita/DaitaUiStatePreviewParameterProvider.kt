@@ -1,9 +1,6 @@
-package net.mullvad.mullvadvpn.compose.preview
+package net.mullvad.mullvadvpn.feature.daita
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import net.mullvad.mullvadvpn.compose.state.DaitaUiState
-import net.mullvad.mullvadvpn.util.Lc
-import net.mullvad.mullvadvpn.util.toLc
 
 class DaitaUiStatePreviewParameterProvider : PreviewParameterProvider<Lc<Boolean, DaitaUiState>> {
     override val values: Sequence<Lc<Boolean, DaitaUiState>> =

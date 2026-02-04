@@ -30,7 +30,7 @@ import net.mullvad.mullvadvpn.lib.usecase.RecentsUseCase
 import net.mullvad.mullvadvpn.lib.usecase.SelectedLocationUseCase
 import net.mullvad.mullvadvpn.lib.usecase.customlists.CustomListsRelayItemUseCase
 import net.mullvad.mullvadvpn.lib.usecase.customlists.FilterCustomListsRelayItemUseCase
-import net.mullvad.mullvadvpn.util.Lce
+import net.mullvad.mullvadvpn.core.Lce
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue

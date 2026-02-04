@@ -47,7 +47,7 @@ import net.mullvad.mullvadvpn.compose.constant.SplitTunnelingContentKey
 import net.mullvad.mullvadvpn.compose.extensions.itemWithDivider
 import net.mullvad.mullvadvpn.compose.extensions.itemsIndexedWithDivider
 import net.mullvad.mullvadvpn.compose.preview.SplitTunnelingUiStatePreviewParameterProvider
-import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
+import net.mullvad.mullvadvpn.core.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.compose.util.hasValidSize
 import net.mullvad.mullvadvpn.compose.util.isBelowMaxByteSize
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
@@ -65,7 +65,7 @@ import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaDisabled
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaVisible
-import net.mullvad.mullvadvpn.util.Lc
+import net.mullvad.mullvadvpn.core.Lc
 import net.mullvad.mullvadvpn.util.getApplicationIconOrNull
 import net.mullvad.mullvadvpn.viewmodel.Loading
 import net.mullvad.mullvadvpn.viewmodel.SplitTunnelingUiState

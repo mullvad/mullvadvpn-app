@@ -31,7 +31,7 @@ import net.mullvad.mullvadvpn.lib.usecase.SelectAndEnableMultihopUseCase
 import net.mullvad.mullvadvpn.lib.usecase.SelectRelayItemError
 import net.mullvad.mullvadvpn.lib.usecase.SelectedLocationUseCase
 import net.mullvad.mullvadvpn.lib.usecase.customlists.CustomListsRelayItemUseCase
-import net.mullvad.mullvadvpn.util.Lc
+import net.mullvad.mullvadvpn.core.Lc
 
 class LocationBottomSheetViewModel(
     private val locationBottomSheetState: LocationBottomSheetState,

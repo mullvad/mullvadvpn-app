@@ -25,7 +25,7 @@ import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.model.RelayOverride
 import net.mullvad.mullvadvpn.lib.model.SettingsPatchError
 import net.mullvad.mullvadvpn.lib.repository.RelayOverridesRepository
-import net.mullvad.mullvadvpn.util.Lc
+import net.mullvad.mullvadvpn.core.Lc
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

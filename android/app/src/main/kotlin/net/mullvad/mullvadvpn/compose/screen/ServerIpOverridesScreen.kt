@@ -61,7 +61,7 @@ import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.preview.ServerIpOverridesUiStatePreviewParameterProvider
-import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
+import net.mullvad.mullvadvpn.core.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.OnNavResultValue
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
@@ -87,7 +87,7 @@ import net.mullvad.mullvadvpn.lib.ui.tag.SERVER_IP_OVERRIDE_RESET_OVERRIDES_TEST
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaDisabled
-import net.mullvad.mullvadvpn.util.Lc
+import net.mullvad.mullvadvpn.core.Lc
 import net.mullvad.mullvadvpn.viewmodel.ServerIpOverridesUiSideEffect
 import net.mullvad.mullvadvpn.viewmodel.ServerIpOverridesUiState
 import net.mullvad.mullvadvpn.viewmodel.ServerIpOverridesViewModel

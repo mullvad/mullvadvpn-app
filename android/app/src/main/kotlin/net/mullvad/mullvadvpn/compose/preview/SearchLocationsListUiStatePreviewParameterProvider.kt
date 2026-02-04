@@ -5,7 +5,7 @@ import net.mullvad.mullvadvpn.compose.state.SelectLocationListUiState
 import net.mullvad.mullvadvpn.lib.model.MultihopRelayListType
 import net.mullvad.mullvadvpn.lib.model.RelayListType
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.RelayListItemPreviewData
-import net.mullvad.mullvadvpn.util.Lce
+import net.mullvad.mullvadvpn.core.Lce
 
 class SearchLocationsListUiStatePreviewParameterProvider :
     PreviewParameterProvider<Lce<Unit, SelectLocationListUiState, Unit>> {

@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.util
+package net.mullvad.mullvadvpn.core
 
 sealed interface Lce<out L, out T, out E> {
     data class Loading<L>(val value: L) : Lce<L, Nothing, Nothing>

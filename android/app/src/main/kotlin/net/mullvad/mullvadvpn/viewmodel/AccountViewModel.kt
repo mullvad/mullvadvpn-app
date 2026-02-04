@@ -25,10 +25,10 @@ import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
 import net.mullvad.mullvadvpn.lib.repository.AccountRepository
 import net.mullvad.mullvadvpn.lib.repository.DeviceRepository
 import net.mullvad.mullvadvpn.lib.repository.PaymentLogic
-import net.mullvad.mullvadvpn.util.Lc
+import net.mullvad.mullvadvpn.core.Lc
 import net.mullvad.mullvadvpn.util.hasPendingPayment
 import net.mullvad.mullvadvpn.util.isSuccess
-import net.mullvad.mullvadvpn.util.toLc
+import net.mullvad.mullvadvpn.core.toLc
 
 class AccountViewModel(
     private val accountRepository: AccountRepository,

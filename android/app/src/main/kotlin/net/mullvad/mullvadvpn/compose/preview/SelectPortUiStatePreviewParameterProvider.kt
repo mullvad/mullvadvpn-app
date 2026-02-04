@@ -6,8 +6,8 @@ import net.mullvad.mullvadvpn.constant.UDP2TCP_PRESET_PORTS
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.model.PortType
-import net.mullvad.mullvadvpn.util.Lc
-import net.mullvad.mullvadvpn.util.toLc
+import net.mullvad.mullvadvpn.core.Lc
+import net.mullvad.mullvadvpn.core.toLc
 
 class SelectPortUiStatePreviewParameterProvider :
     PreviewParameterProvider<Lc<Unit, SelectPortUiState>> {

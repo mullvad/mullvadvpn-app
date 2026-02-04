@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.lib.repository.AppObfuscation
 import net.mullvad.mullvadvpn.lib.repository.AppObfuscationRepository
-import net.mullvad.mullvadvpn.util.Lc
+import net.mullvad.mullvadvpn.core.Lc
 
 class AppearanceViewModel(private val appObfuscationRepository: AppObfuscationRepository) :
     ViewModel() {

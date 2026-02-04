@@ -32,7 +32,7 @@ import net.mullvad.mullvadvpn.compose.constant.ContentType
 import net.mullvad.mullvadvpn.compose.extensions.itemsIndexedWithDivider
 import net.mullvad.mullvadvpn.compose.preview.ApiAccessListUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.ApiAccessListUiState
-import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
+import net.mullvad.mullvadvpn.core.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.compose.util.toDisplayName
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodSetting
 import net.mullvad.mullvadvpn.lib.ui.component.NavigateBackIconButton

@@ -4,8 +4,8 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.Udp2TcpSettingsUiState
 import net.mullvad.mullvadvpn.constant.UDP2TCP_PRESET_PORTS
 import net.mullvad.mullvadvpn.lib.model.Constraint
-import net.mullvad.mullvadvpn.util.Lc
-import net.mullvad.mullvadvpn.util.toLc
+import net.mullvad.mullvadvpn.core.Lc
+import net.mullvad.mullvadvpn.core.toLc
 
 class Udp2TcpSettingsUiStatePreviewParameterProvider :
     PreviewParameterProvider<Lc<Unit, Udp2TcpSettingsUiState>> {

@@ -17,7 +17,7 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.model.VersionInfo
 import net.mullvad.mullvadvpn.lib.repository.AppVersionInfoRepository
-import net.mullvad.mullvadvpn.util.Lc
+import net.mullvad.mullvadvpn.core.Lc
 
 class AppInfoViewModel(
     appVersionInfoRepository: AppVersionInfoRepository,

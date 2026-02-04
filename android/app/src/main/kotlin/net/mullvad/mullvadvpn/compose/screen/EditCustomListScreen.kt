@@ -40,7 +40,7 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.extensions.dropUnlessResumed
 import net.mullvad.mullvadvpn.compose.preview.EditCustomListUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.EditCustomListUiState
-import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
+import net.mullvad.mullvadvpn.core.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
 import net.mullvad.mullvadvpn.lib.model.communication.CustomListActionResultData

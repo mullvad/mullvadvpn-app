@@ -51,7 +51,7 @@ import net.mullvad.mullvadvpn.lib.ui.tag.MULTIHOP_CELL_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.VPN_SETTINGS_CELL_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
-import net.mullvad.mullvadvpn.util.Lc
+import net.mullvad.mullvadvpn.core.Lc
 import net.mullvad.mullvadvpn.viewmodel.SettingsViewModel
 import org.koin.androidx.compose.koinViewModel
 

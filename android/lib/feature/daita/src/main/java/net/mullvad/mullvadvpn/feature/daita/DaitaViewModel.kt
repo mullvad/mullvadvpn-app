@@ -1,22 +1,4 @@
-package net.mullvad.mullvadvpn.viewmodel
-
-import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import com.ramcosta.composedestinations.generated.destinations.DaitaDestination
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.WhileSubscribed
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.launch
-import net.mullvad.mullvadvpn.compose.state.DaitaUiState
-import net.mullvad.mullvadvpn.constant.VIEW_MODEL_STOP_TIMEOUT
-import net.mullvad.mullvadvpn.lib.common.util.isDaitaDirectOnly
-import net.mullvad.mullvadvpn.lib.common.util.isDaitaEnabled
-import net.mullvad.mullvadvpn.lib.repository.SettingsRepository
-import net.mullvad.mullvadvpn.util.Lc
-import net.mullvad.mullvadvpn.util.toLc
+package net.mullvad.mullvadvpn.feature.daita
 
 class DaitaViewModel(
     private val settingsRepository: SettingsRepository,
