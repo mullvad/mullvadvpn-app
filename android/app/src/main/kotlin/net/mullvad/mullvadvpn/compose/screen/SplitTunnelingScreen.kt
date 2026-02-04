@@ -34,7 +34,6 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -47,9 +46,10 @@ import net.mullvad.mullvadvpn.compose.constant.SplitTunnelingContentKey
 import net.mullvad.mullvadvpn.compose.extensions.itemWithDivider
 import net.mullvad.mullvadvpn.compose.extensions.itemsIndexedWithDivider
 import net.mullvad.mullvadvpn.compose.preview.SplitTunnelingUiStatePreviewParameterProvider
-import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.compose.util.hasValidSize
 import net.mullvad.mullvadvpn.compose.util.isBelowMaxByteSize
+import net.mullvad.mullvadvpn.core.animation.SlideInFromRightTransition
+import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
 import net.mullvad.mullvadvpn.lib.ui.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.NavigateCloseIconButton
@@ -65,7 +65,6 @@ import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaDisabled
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaVisible
-import net.mullvad.mullvadvpn.util.Lc
 import net.mullvad.mullvadvpn.util.getApplicationIconOrNull
 import net.mullvad.mullvadvpn.viewmodel.Loading
 import net.mullvad.mullvadvpn.viewmodel.SplitTunnelingUiState
@@ -94,7 +93,7 @@ private fun PreviewSplitTunnelingScreen(
 @Parcelize data class SplitTunnelingNavArgs(val isModal: Boolean = false) : Parcelable
 
 @OptIn(ExperimentalSharedTransitionApi::class)
-@Destination<RootGraph>(
+@Destination<MainGraph>(
     style = SlideInFromRightTransition::class,
     navArgs = SplitTunnelingNavArgs::class,
 )

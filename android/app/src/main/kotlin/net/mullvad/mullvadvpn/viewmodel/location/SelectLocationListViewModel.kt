@@ -13,7 +13,8 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import net.mullvad.mullvadvpn.compose.screen.location.RelayListScrollConnection
 import net.mullvad.mullvadvpn.compose.state.SelectLocationListUiState
-import net.mullvad.mullvadvpn.constant.VIEW_MODEL_STOP_TIMEOUT
+import net.mullvad.mullvadvpn.lib.common.Lce
+import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.common.util.ignoreEntrySelection
 import net.mullvad.mullvadvpn.lib.common.util.isEntryAndBlocked
 import net.mullvad.mullvadvpn.lib.model.CustomListId
@@ -30,7 +31,6 @@ import net.mullvad.mullvadvpn.lib.usecase.RecentsUseCase
 import net.mullvad.mullvadvpn.lib.usecase.SelectedLocationUseCase
 import net.mullvad.mullvadvpn.lib.usecase.customlists.CustomListsRelayItemUseCase
 import net.mullvad.mullvadvpn.lib.usecase.customlists.FilterCustomListsRelayItemUseCase
-import net.mullvad.mullvadvpn.util.Lce
 
 @Suppress("LongParameterList")
 class SelectLocationListViewModel(

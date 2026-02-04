@@ -10,12 +10,12 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.core.text.HtmlCompat
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.result.EmptyResultBackNavigator
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.preview.DevicePreviewParameterProvider
+import net.mullvad.mullvadvpn.compose.screen.MainGraph
 import net.mullvad.mullvadvpn.lib.model.Device
 import net.mullvad.mullvadvpn.lib.model.DeviceId
 import net.mullvad.mullvadvpn.lib.ui.component.toAnnotatedString
@@ -29,7 +29,7 @@ private fun PreviewRemoveDeviceConfirmationDialog(
     AppTheme { RemoveDeviceConfirmation(EmptyResultBackNavigator(), device = device) }
 }
 
-@Destination<RootGraph>(style = DestinationStyle.Dialog::class)
+@Destination<MainGraph>(style = DestinationStyle.Dialog::class)
 @Composable
 fun RemoveDeviceConfirmation(navigator: ResultBackNavigator<DeviceId>, device: Device) {
     val htmlFormattedString =

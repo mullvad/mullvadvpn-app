@@ -29,7 +29,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.destinations.LoginDestination
 import com.ramcosta.composedestinations.generated.destinations.RemoveDeviceConfirmationDestination
 import com.ramcosta.composedestinations.generated.destinations.SettingsDestination
@@ -81,7 +80,7 @@ private fun PreviewDeviceListScreenContent(
 
 data class DeviceListNavArgs(val accountNumber: AccountNumber)
 
-@Destination<RootGraph>(style = DefaultTransition::class, navArgs = DeviceListNavArgs::class)
+@Destination<MainGraph>(style = DefaultTransition::class, navArgs = DeviceListNavArgs::class)
 @Composable
 fun DeviceList(
     navigator: DestinationsNavigator,

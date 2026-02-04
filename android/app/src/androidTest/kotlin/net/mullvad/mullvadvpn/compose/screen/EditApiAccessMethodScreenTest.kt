@@ -8,8 +8,6 @@ import androidx.compose.ui.test.performTextInput
 import de.mannodermaus.junit5.compose.ComposeContext
 import io.mockk.mockk
 import io.mockk.verify
-import net.mullvad.mullvadvpn.compose.createEdgeToEdgeComposeExtension
-import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.compose.state.ApiAccessMethodTypes
 import net.mullvad.mullvadvpn.compose.state.EditApiAccessFormData
 import net.mullvad.mullvadvpn.compose.state.EditApiAccessMethodUiState
@@ -18,6 +16,8 @@ import net.mullvad.mullvadvpn.lib.model.Cipher
 import net.mullvad.mullvadvpn.lib.model.InvalidDataError
 import net.mullvad.mullvadvpn.lib.model.ParsePortError
 import net.mullvad.mullvadvpn.lib.ui.tag.EDIT_API_ACCESS_NAME_INPUT_TEST_TAG
+import net.mullvad.mullvadvpn.screen.test.createEdgeToEdgeComposeExtension
+import net.mullvad.mullvadvpn.screen.test.setContentWithTheme
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
 

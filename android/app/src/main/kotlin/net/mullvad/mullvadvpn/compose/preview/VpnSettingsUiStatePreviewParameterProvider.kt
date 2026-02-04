@@ -3,13 +3,13 @@ package net.mullvad.mullvadvpn.compose.preview
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.CustomDnsItem
 import net.mullvad.mullvadvpn.compose.state.VpnSettingsUiState
+import net.mullvad.mullvadvpn.lib.common.Lc
+import net.mullvad.mullvadvpn.lib.common.toLc
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.DefaultDnsOptions
 import net.mullvad.mullvadvpn.lib.model.Mtu
 import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
 import net.mullvad.mullvadvpn.lib.model.QuantumResistantState
-import net.mullvad.mullvadvpn.util.Lc
-import net.mullvad.mullvadvpn.util.toLc
 
 private const val MTU = 1337
 

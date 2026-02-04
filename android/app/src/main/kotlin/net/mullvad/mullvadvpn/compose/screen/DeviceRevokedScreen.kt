@@ -22,7 +22,6 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.NavGraphs
 import com.ramcosta.composedestinations.generated.destinations.LoginDestination
 import com.ramcosta.composedestinations.generated.destinations.SettingsDestination
@@ -50,7 +49,7 @@ private fun PreviewDeviceRevokedScreen(
     AppTheme { DeviceRevokedScreen(state = state, onSettingsClicked = {}, onGoToLoginClicked = {}) }
 }
 
-@Destination<RootGraph>
+@Destination<MainGraph>
 @Composable
 fun DeviceRevoked(navigator: DestinationsNavigator) {
     val viewModel = koinViewModel<DeviceRevokedViewModel>()
@@ -62,7 +61,7 @@ fun DeviceRevoked(navigator: DestinationsNavigator) {
             DeviceRevokedSideEffect.NavigateToLogin ->
                 navigator.navigate(LoginDestination()) {
                     launchSingleTop = true
-                    popUpTo(NavGraphs.root) { inclusive = true }
+                    popUpTo(NavGraphs.main) { inclusive = true }
                 }
         }
     }

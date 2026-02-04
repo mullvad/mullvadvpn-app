@@ -11,6 +11,7 @@ import net.mullvad.mullvadvpn.compose.screen.location.RelayListScrollConnection
 import net.mullvad.mullvadvpn.compose.util.BackstackObserver
 import net.mullvad.mullvadvpn.constant.IS_FDROID_BUILD
 import net.mullvad.mullvadvpn.constant.IS_PLAY_BUILD
+import net.mullvad.mullvadvpn.feature.daita.impl.DaitaViewModel
 import net.mullvad.mullvadvpn.lib.model.RelayListType
 import net.mullvad.mullvadvpn.lib.payment.PaymentProvider
 import net.mullvad.mullvadvpn.lib.repository.ApiAccessRepository
@@ -79,7 +80,6 @@ import net.mullvad.mullvadvpn.viewmodel.CreateCustomListDialogViewModel
 import net.mullvad.mullvadvpn.viewmodel.CustomListLocationsViewModel
 import net.mullvad.mullvadvpn.viewmodel.CustomListsViewModel
 import net.mullvad.mullvadvpn.viewmodel.CustomPortDialogViewModel
-import net.mullvad.mullvadvpn.viewmodel.DaitaViewModel
 import net.mullvad.mullvadvpn.viewmodel.DeleteApiAccessMethodConfirmationViewModel
 import net.mullvad.mullvadvpn.viewmodel.DeleteCustomListConfirmationViewModel
 import net.mullvad.mullvadvpn.viewmodel.DeviceListViewModel

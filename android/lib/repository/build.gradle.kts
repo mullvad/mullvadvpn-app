@@ -1,9 +1,8 @@
 plugins {
     alias(libs.plugins.mullvad.android.library)
     alias(libs.plugins.kotlin.parcelize)
-    alias(libs.plugins.junit5.android)
     alias(libs.plugins.protobuf.core)
-    alias(libs.plugins.mullvad.test)
+    alias(libs.plugins.mullvad.unit.test)
 }
 
 android {
@@ -41,13 +40,4 @@ dependencies {
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.androidx.datastore)
     implementation(libs.protobuf.kotlin.lite)
-
-    testImplementation(libs.kotlin.test)
-    testImplementation(libs.kotlinx.coroutines.test)
-    testImplementation(libs.mockk)
-    testImplementation(libs.junit.jupiter.api)
-    testImplementation(libs.junit.jupiter.params)
-    testImplementation(libs.turbine)
-    testImplementation(projects.lib.commonTest)
-    testRuntimeOnly(libs.junit.jupiter.engine)
 }

@@ -23,7 +23,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.destinations.ManageDevicesRemoveConfirmationDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
@@ -34,8 +33,9 @@ import net.mullvad.mullvadvpn.compose.preview.ManageDevicesUiStatePreviewParamet
 import net.mullvad.mullvadvpn.compose.state.ManageDevicesUiState
 import net.mullvad.mullvadvpn.compose.transitions.DefaultTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
-import net.mullvad.mullvadvpn.compose.util.OnNavResultValue
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
+import net.mullvad.mullvadvpn.core.OnNavResultValue
+import net.mullvad.mullvadvpn.lib.common.Lce
 import net.mullvad.mullvadvpn.lib.model.Device
 import net.mullvad.mullvadvpn.lib.model.DeviceId
 import net.mullvad.mullvadvpn.lib.model.GetDeviceListError
@@ -47,7 +47,6 @@ import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicat
 import net.mullvad.mullvadvpn.lib.ui.designsystem.PrimaryButton
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
-import net.mullvad.mullvadvpn.util.Lce
 import net.mullvad.mullvadvpn.viewmodel.ManageDevicesSideEffect
 import net.mullvad.mullvadvpn.viewmodel.ManageDevicesViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -71,7 +70,7 @@ private fun PreviewDeviceListScreenContent(
 
 private typealias StateLce = Lce<Unit, ManageDevicesUiState, GetDeviceListError>
 
-@Destination<RootGraph>(style = DefaultTransition::class, navArgs = DeviceListNavArgs::class)
+@Destination<MainGraph>(style = DefaultTransition::class, navArgs = DeviceListNavArgs::class)
 @Composable
 fun ManageDevices(
     navigator: DestinationsNavigator,

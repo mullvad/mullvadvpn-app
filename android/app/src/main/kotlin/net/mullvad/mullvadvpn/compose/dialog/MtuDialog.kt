@@ -10,10 +10,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.compose.screen.MainGraph
 import net.mullvad.mullvadvpn.compose.textfield.MtuTextField
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.constant.MTU_MAX_VALUE
@@ -42,7 +42,7 @@ private fun PreviewMtuDialog() {
 
 data class MtuNavArgs(val initialMtu: Mtu? = null)
 
-@Destination<RootGraph>(style = DestinationStyle.Dialog::class, navArgs = MtuNavArgs::class)
+@Destination<MainGraph>(style = DestinationStyle.Dialog::class, navArgs = MtuNavArgs::class)
 @Composable
 fun Mtu(navigator: ResultBackNavigator<Boolean>) {
     val viewModel = koinViewModel<MtuDialogViewModel>()

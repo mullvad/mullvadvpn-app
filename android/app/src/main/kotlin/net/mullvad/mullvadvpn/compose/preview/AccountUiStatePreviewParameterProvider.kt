@@ -3,9 +3,9 @@ package net.mullvad.mullvadvpn.compose.preview
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
+import net.mullvad.mullvadvpn.lib.common.Lc
+import net.mullvad.mullvadvpn.lib.common.toLc
 import net.mullvad.mullvadvpn.lib.model.AccountNumber
-import net.mullvad.mullvadvpn.util.Lc
-import net.mullvad.mullvadvpn.util.toLc
 import net.mullvad.mullvadvpn.viewmodel.AccountUiState
 
 class AccountUiStatePreviewParameterProvider : PreviewParameterProvider<Lc<Unit, AccountUiState>> {

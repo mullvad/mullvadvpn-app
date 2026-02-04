@@ -29,9 +29,9 @@ plugins {
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.kotlin.ksp)
     alias(libs.plugins.compose)
-    alias(libs.plugins.junit5.android)
     alias(libs.plugins.baselineprofile)
-    alias(libs.plugins.mullvad.test)
+    alias(libs.plugins.mullvad.unit.test)
+    id("de.mannodermaus.android-junit5")
     id("net.mullvad.rust-android")
 }
 
@@ -377,8 +377,10 @@ dependencies {
     implementation(projects.lib.common)
     implementation(projects.lib.grpc)
     implementation(projects.lib.endpoint)
+    implementation(projects.lib.feature.daita.impl)
     implementation(projects.lib.map)
     implementation(projects.lib.model)
+    implementation(projects.lib.navigation)
     implementation(projects.lib.payment)
     implementation(projects.lib.repository)
     implementation(projects.lib.talpid)
@@ -455,15 +457,6 @@ dependencies {
     // Leak canary
     leakCanaryImplementation(libs.leakCanary)
 
-    testImplementation(projects.lib.commonTest)
-    testImplementation(libs.kotlin.test)
-    testImplementation(libs.kotlinx.coroutines.test)
-    testImplementation(libs.mockk)
-    testImplementation(libs.turbine)
-    testImplementation(libs.junit.jupiter.api)
-    testRuntimeOnly(libs.junit.jupiter.engine)
-    testImplementation(libs.junit.jupiter.params)
-
     // HACK:
     // Not used by app module, but otherwise an older version pre 1.8.0 will be used at runtime for
     // the e2e tests. This causes the deserialization to fail because of a missing function that was
@@ -481,4 +474,5 @@ dependencies {
     androidTestImplementation(libs.junit.jupiter.api)
     androidTestImplementation(libs.junit5.android.test.compose)
     androidTestImplementation(libs.androidx.espresso)
+    androidTestImplementation(projects.lib.screenTest)
 }

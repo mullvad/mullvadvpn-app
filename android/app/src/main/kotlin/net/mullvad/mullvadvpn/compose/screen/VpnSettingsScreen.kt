@@ -48,7 +48,6 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.destinations.AntiCensorshipSettingsDestination
 import com.ramcosta.composedestinations.generated.destinations.AutoConnectAndLockdownModeDestination
 import com.ramcosta.composedestinations.generated.destinations.ConnectOnStartupInfoDestination
@@ -71,11 +70,12 @@ import net.mullvad.mullvadvpn.compose.extensions.dropUnlessResumed
 import net.mullvad.mullvadvpn.compose.preview.VpnSettingsUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.VpnSettingItem
 import net.mullvad.mullvadvpn.compose.state.VpnSettingsUiState
-import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
-import net.mullvad.mullvadvpn.compose.util.OnNavResultValue
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
 import net.mullvad.mullvadvpn.constant.SETTINGS_HIGHLIGHT_REPEAT_COUNT
+import net.mullvad.mullvadvpn.core.OnNavResultValue
+import net.mullvad.mullvadvpn.core.animation.SlideInFromRightTransition
+import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
 import net.mullvad.mullvadvpn.lib.model.IpVersion
@@ -113,7 +113,6 @@ import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaInvisible
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaScrollbar
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaVisible
-import net.mullvad.mullvadvpn.util.Lc
 import net.mullvad.mullvadvpn.util.indexOfFirstOrNull
 import net.mullvad.mullvadvpn.viewmodel.VpnSettingsSideEffect
 import net.mullvad.mullvadvpn.viewmodel.VpnSettingsViewModel
@@ -168,7 +167,7 @@ data class VpnSettingsNavArgs(
     val isModal: Boolean = false,
 ) : Parcelable
 
-@Destination<RootGraph>(
+@Destination<MainGraph>(
     style = SlideInFromRightTransition::class,
     navArgs = VpnSettingsNavArgs::class,
 )

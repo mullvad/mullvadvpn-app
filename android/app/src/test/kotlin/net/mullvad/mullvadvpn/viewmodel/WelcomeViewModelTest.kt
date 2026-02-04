@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.compose.state.WelcomeUiState
 import net.mullvad.mullvadvpn.data.mock
+import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.model.AccountData
 import net.mullvad.mullvadvpn.lib.model.AccountNumber
@@ -35,7 +36,6 @@ import net.mullvad.mullvadvpn.lib.repository.DeviceRepository
 import net.mullvad.mullvadvpn.lib.repository.PaymentLogic
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
-import net.mullvad.mullvadvpn.util.Lc
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

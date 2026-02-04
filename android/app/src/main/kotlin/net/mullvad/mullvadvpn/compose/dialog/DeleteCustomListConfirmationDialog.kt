@@ -7,10 +7,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.compose.screen.MainGraph
 import net.mullvad.mullvadvpn.compose.state.DeleteCustomListUiState
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.lib.model.CustomListId
@@ -36,7 +36,7 @@ private fun PreviewRemoveDeviceConfirmationDialog() {
 data class DeleteCustomListNavArgs(val customListId: CustomListId, val name: CustomListName)
 
 @Composable
-@Destination<RootGraph>(
+@Destination<MainGraph>(
     style = DestinationStyle.Dialog::class,
     navArgs = DeleteCustomListNavArgs::class,
 )

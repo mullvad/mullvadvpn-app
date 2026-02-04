@@ -24,7 +24,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.app.ActivityCompat.finishAffinity
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.destinations.SettingsDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import net.mullvad.mullvadvpn.R
@@ -41,7 +40,7 @@ private fun PreviewNoDaemonScreen() {
 }
 
 // Set this as the start destination of the default nav graph
-@Destination<RootGraph>(style = DefaultTransition::class)
+@Destination<MainGraph>(style = DefaultTransition::class)
 @Composable
 fun NoDaemon(navigator: DestinationsNavigator) {
     NoDaemonScreen(

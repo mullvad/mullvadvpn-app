@@ -5,8 +5,8 @@ import androidx.compose.ui.test.onNodeWithText
 import de.mannodermaus.junit5.compose.ComposeContext
 import io.mockk.MockKAnnotations
 import io.mockk.impl.annotations.MockK
-import net.mullvad.mullvadvpn.compose.createEdgeToEdgeComposeExtension
-import net.mullvad.mullvadvpn.compose.setContentWithTheme
+import net.mullvad.mullvadvpn.screen.test.createEdgeToEdgeComposeExtension
+import net.mullvad.mullvadvpn.screen.test.setContentWithTheme
 import net.mullvad.mullvadvpn.viewmodel.AppInfoViewModel
 import net.mullvad.mullvadvpn.viewmodel.ChangelogUiState
 import org.junit.jupiter.api.BeforeEach

@@ -8,13 +8,13 @@ import de.mannodermaus.junit5.compose.ComposeContext
 import io.mockk.MockKAnnotations
 import io.mockk.mockk
 import io.mockk.verify
-import net.mullvad.mullvadvpn.compose.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.compose.data.DUMMY_CUSTOM_LISTS
-import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.compose.state.CustomListsUiState
 import net.mullvad.mullvadvpn.lib.model.CustomList
 import net.mullvad.mullvadvpn.lib.ui.tag.CIRCULAR_PROGRESS_INDICATOR_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.NEW_LIST_BUTTON_TEST_TAG
+import net.mullvad.mullvadvpn.screen.test.createEdgeToEdgeComposeExtension
+import net.mullvad.mullvadvpn.screen.test.setContentWithTheme
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension

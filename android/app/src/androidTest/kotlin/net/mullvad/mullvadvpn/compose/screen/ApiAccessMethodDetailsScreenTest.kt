@@ -7,16 +7,16 @@ import androidx.compose.ui.test.performClick
 import de.mannodermaus.junit5.compose.ComposeContext
 import io.mockk.mockk
 import io.mockk.verify
-import net.mullvad.mullvadvpn.compose.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.compose.data.CUSTOM_ACCESS_METHOD
 import net.mullvad.mullvadvpn.compose.data.DIRECT_ACCESS_METHOD
-import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.compose.state.ApiAccessMethodDetailsUiState
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodId
 import net.mullvad.mullvadvpn.lib.ui.tag.API_ACCESS_DETAILS_EDIT_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.API_ACCESS_DETAILS_TOP_BAR_DROPDOWN_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.API_ACCESS_TEST_METHOD_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.API_ACCESS_USE_METHOD_BUTTON_TEST_TAG
+import net.mullvad.mullvadvpn.screen.test.createEdgeToEdgeComposeExtension
+import net.mullvad.mullvadvpn.screen.test.setContentWithTheme
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
 

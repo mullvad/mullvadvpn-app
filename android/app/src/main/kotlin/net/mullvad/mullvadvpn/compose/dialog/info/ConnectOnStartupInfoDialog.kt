@@ -9,11 +9,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.compose.screen.MainGraph
 import net.mullvad.mullvadvpn.lib.common.util.openAppDetailsSettings
+import net.mullvad.mullvadvpn.lib.ui.component.dialog.InfoDialog
 import net.mullvad.mullvadvpn.lib.ui.designsystem.PrimaryButton
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 
@@ -23,7 +24,7 @@ private fun PreviewApiAccessMethodInfoDialog() {
     AppTheme { ConnectOnStartupInfoDialog(onDismiss = {}, openAppDetails = {}) }
 }
 
-@Destination<RootGraph>(style = DestinationStyle.Dialog::class)
+@Destination<MainGraph>(style = DestinationStyle.Dialog::class)
 @Composable
 fun ConnectOnStartupInfo(navigator: DestinationsNavigator) {
     val context = LocalContext.current

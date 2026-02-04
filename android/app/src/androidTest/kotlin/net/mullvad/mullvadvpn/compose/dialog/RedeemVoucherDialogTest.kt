@@ -9,12 +9,12 @@ import de.mannodermaus.junit5.compose.ComposeContext
 import io.mockk.mockk
 import io.mockk.mockkObject
 import io.mockk.verify
-import net.mullvad.mullvadvpn.compose.createEdgeToEdgeComposeExtension
-import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.compose.state.VoucherDialogState
 import net.mullvad.mullvadvpn.compose.state.VoucherDialogUiState
 import net.mullvad.mullvadvpn.lib.model.RedeemVoucherError
 import net.mullvad.mullvadvpn.lib.ui.tag.VOUCHER_INPUT_TEST_TAG
+import net.mullvad.mullvadvpn.screen.test.createEdgeToEdgeComposeExtension
+import net.mullvad.mullvadvpn.screen.test.setContentWithTheme
 import net.mullvad.mullvadvpn.util.VoucherRegexHelper
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

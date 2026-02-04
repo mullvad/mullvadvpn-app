@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.OutOfTimeUiState
-import net.mullvad.mullvadvpn.constant.VIEW_MODEL_STOP_TIMEOUT
+import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.common.util.ACCOUNT_EXPIRY_POLL_INTERVAL
 import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
 import net.mullvad.mullvadvpn.lib.repository.AccountRepository
