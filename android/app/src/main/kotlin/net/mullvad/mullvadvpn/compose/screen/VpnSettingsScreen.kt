@@ -67,7 +67,6 @@ import com.ramcosta.composedestinations.result.ResultRecipient
 import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.cell.BaseSubtitleCell
 import net.mullvad.mullvadvpn.compose.communication.DnsDialogResult
 import net.mullvad.mullvadvpn.compose.component.MullvadMediumTopBar
 import net.mullvad.mullvadvpn.compose.component.MullvadSnackbar
@@ -526,11 +525,9 @@ fun VpnSettingsContent(
 
                 VpnSettingItem.CustomDnsInfo ->
                     item(key = it::class.simpleName) {
-                        BaseSubtitleCell(
-                            modifier = Modifier.animateItem(),
+                        ListItemInfo(
+                            modifier = Modifier.animateItem().padding(bottom = Dimens.largeSpacer),
                             text = textResource(id = R.string.custom_dns_footer),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
 
@@ -553,15 +550,13 @@ fun VpnSettingsContent(
                     }
                 VpnSettingItem.CustomDnsUnavailable ->
                     item(key = it::class.simpleName) {
-                        BaseSubtitleCell(
-                            modifier = Modifier.animateItem(),
+                        ListItemInfo(
+                            modifier = Modifier.animateItem().padding(bottom = Dimens.largeSpacer),
                             text =
                                 textResource(
                                     id = R.string.custom_dns_disable_mode_subtitle,
                                     textResource(id = R.string.dns_content_blockers),
                                 ),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
 
@@ -747,14 +742,12 @@ fun VpnSettingsContent(
 
                 VpnSettingItem.DnsContentBlockersUnavailable ->
                     item(key = it::class.simpleName) {
-                        BaseSubtitleCell(
+                        ListItemInfo(
                             text =
                                 stringResource(
                                     id = R.string.dns_content_blockers_subtitle,
                                     stringResource(id = R.string.enable_custom_dns),
                                 ),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.animateItem(),
                         )
                     }
