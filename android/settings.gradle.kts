@@ -49,7 +49,8 @@ include(
     ":lib:ui:resource",
     ":lib:ui:tag",
     ":lib:ui:theme",
-    ":lib:ui:util"
+    ":lib:ui:util",
+    ":lib:usecase"
 )
 include(
     ":test",

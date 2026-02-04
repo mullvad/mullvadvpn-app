@@ -16,10 +16,10 @@ import java.time.ZonedDateTime
 import kotlin.getValue
 import kotlinx.coroutines.withTimeoutOrNull
 import net.mullvad.mullvadvpn.lib.common.constant.VPN_SERVICE_CLASS
+import net.mullvad.mullvadvpn.lib.common.util.ACCOUNT_EXPIRY_CLOSE_TO_EXPIRY_THRESHOLD
 import net.mullvad.mullvadvpn.lib.model.NotificationChannel
 import net.mullvad.mullvadvpn.lib.repository.AccountRepository
 import net.mullvad.mullvadvpn.service.R
-import net.mullvad.mullvadvpn.service.notifications.accountexpiry.ACCOUNT_EXPIRY_CLOSE_TO_EXPIRY_THRESHOLD
 import net.mullvad.mullvadvpn.service.notifications.accountexpiry.AccountExpiryNotificationProvider
 import net.mullvad.mullvadvpn.ui.serviceconnection.EmptyServiceConnection
 import net.mullvad.mullvadvpn.usecase.ScheduleNotificationAlarmUseCase

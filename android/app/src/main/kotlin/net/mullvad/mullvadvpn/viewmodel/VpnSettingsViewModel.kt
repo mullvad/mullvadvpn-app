@@ -29,6 +29,12 @@ import net.mullvad.mullvadvpn.compose.state.CustomDnsItem
 import net.mullvad.mullvadvpn.compose.state.VpnSettingsUiState
 import net.mullvad.mullvadvpn.compose.util.BackstackObserver
 import net.mullvad.mullvadvpn.constant.VIEW_MODEL_STOP_TIMEOUT
+import net.mullvad.mullvadvpn.lib.common.util.contentBlockersSettings
+import net.mullvad.mullvadvpn.lib.common.util.customDnsAddresses
+import net.mullvad.mullvadvpn.lib.common.util.deviceIpVersion
+import net.mullvad.mullvadvpn.lib.common.util.isCustomDnsEnabled
+import net.mullvad.mullvadvpn.lib.common.util.quantumResistant
+import net.mullvad.mullvadvpn.lib.common.util.selectedObfuscationMode
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.DefaultDnsOptions
 import net.mullvad.mullvadvpn.lib.model.DnsState
@@ -38,15 +44,9 @@ import net.mullvad.mullvadvpn.lib.model.QuantumResistantState
 import net.mullvad.mullvadvpn.lib.repository.AutoStartAndConnectOnBootRepository
 import net.mullvad.mullvadvpn.lib.repository.SettingsRepository
 import net.mullvad.mullvadvpn.lib.repository.WireguardConstraintsRepository
-import net.mullvad.mullvadvpn.usecase.SystemVpnSettingsAvailableUseCase
+import net.mullvad.mullvadvpn.lib.usecase.SystemVpnSettingsAvailableUseCase
 import net.mullvad.mullvadvpn.util.Lc
-import net.mullvad.mullvadvpn.util.contentBlockersSettings
-import net.mullvad.mullvadvpn.util.customDnsAddresses
-import net.mullvad.mullvadvpn.util.deviceIpVersion
-import net.mullvad.mullvadvpn.util.isCustomDnsEnabled
 import net.mullvad.mullvadvpn.util.onFirst
-import net.mullvad.mullvadvpn.util.quantumResistant
-import net.mullvad.mullvadvpn.util.selectedObfuscationMode
 import net.mullvad.mullvadvpn.util.toLc
 
 sealed interface VpnSettingsSideEffect {

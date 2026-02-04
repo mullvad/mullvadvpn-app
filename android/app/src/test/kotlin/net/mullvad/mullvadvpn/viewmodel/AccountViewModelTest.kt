@@ -27,7 +27,7 @@ import net.mullvad.mullvadvpn.lib.payment.model.ProductId
 import net.mullvad.mullvadvpn.lib.payment.model.ProductPrice
 import net.mullvad.mullvadvpn.lib.repository.AccountRepository
 import net.mullvad.mullvadvpn.lib.repository.DeviceRepository
-import net.mullvad.mullvadvpn.usecase.PaymentUseCase
+import net.mullvad.mullvadvpn.lib.repository.PaymentLogic
 import net.mullvad.mullvadvpn.util.Lc
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -39,7 +39,7 @@ class AccountViewModelTest {
 
     private val mockAccountRepository: AccountRepository = mockk(relaxUnitFun = true)
     private val mockDeviceRepository: DeviceRepository = mockk(relaxUnitFun = true)
-    private val mockPaymentUseCase: PaymentUseCase = mockk(relaxed = true)
+    private val mockPaymentUseCase: PaymentLogic = mockk(relaxed = true)
 
     private val dummyDevice =
         Device(

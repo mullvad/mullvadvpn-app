@@ -8,18 +8,21 @@ import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.applist.ApplicationsProvider
 import net.mullvad.mullvadvpn.compose.screen.location.LocationBottomSheetState
 import net.mullvad.mullvadvpn.compose.screen.location.RelayListScrollConnection
-import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.compose.util.BackstackObserver
 import net.mullvad.mullvadvpn.constant.IS_FDROID_BUILD
 import net.mullvad.mullvadvpn.constant.IS_PLAY_BUILD
-import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
+import net.mullvad.mullvadvpn.lib.model.RelayListType
 import net.mullvad.mullvadvpn.lib.payment.PaymentProvider
 import net.mullvad.mullvadvpn.lib.repository.ApiAccessRepository
+import net.mullvad.mullvadvpn.lib.repository.AppVersionInfoRepository
 import net.mullvad.mullvadvpn.lib.repository.AutoStartAndConnectOnBootRepository
 import net.mullvad.mullvadvpn.lib.repository.ChangelogDataProvider
 import net.mullvad.mullvadvpn.lib.repository.ChangelogRepository
 import net.mullvad.mullvadvpn.lib.repository.CustomListsRepository
+import net.mullvad.mullvadvpn.lib.repository.EmptyPaymentUseCase
 import net.mullvad.mullvadvpn.lib.repository.NewDeviceRepository
+import net.mullvad.mullvadvpn.lib.repository.PaymentLogic
+import net.mullvad.mullvadvpn.lib.repository.PlayPaymentLogic
 import net.mullvad.mullvadvpn.lib.repository.ProblemReportRepository
 import net.mullvad.mullvadvpn.lib.repository.RelayListFilterRepository
 import net.mullvad.mullvadvpn.lib.repository.RelayListRepository
@@ -29,43 +32,39 @@ import net.mullvad.mullvadvpn.lib.repository.SplashCompleteRepository
 import net.mullvad.mullvadvpn.lib.repository.SplitTunnelingRepository
 import net.mullvad.mullvadvpn.lib.repository.VoucherRepository
 import net.mullvad.mullvadvpn.lib.repository.WireguardConstraintsRepository
+import net.mullvad.mullvadvpn.lib.usecase.DeleteCustomDnsUseCase
+import net.mullvad.mullvadvpn.lib.usecase.FilterChipUseCase
+import net.mullvad.mullvadvpn.lib.usecase.FilteredRelayListUseCase
+import net.mullvad.mullvadvpn.lib.usecase.HopSelectionUseCase
+import net.mullvad.mullvadvpn.lib.usecase.InternetAvailableUseCase
+import net.mullvad.mullvadvpn.lib.usecase.LastKnownLocationUseCase
+import net.mullvad.mullvadvpn.lib.usecase.ModifyAndEnableMultihopUseCase
+import net.mullvad.mullvadvpn.lib.usecase.ModifyMultihopUseCase
+import net.mullvad.mullvadvpn.lib.usecase.OutOfTimeUseCase
+import net.mullvad.mullvadvpn.lib.usecase.ProviderToOwnershipsUseCase
+import net.mullvad.mullvadvpn.lib.usecase.RecentsUseCase
+import net.mullvad.mullvadvpn.lib.usecase.RelayItemCanBeSelectedUseCase
+import net.mullvad.mullvadvpn.lib.usecase.SelectAndEnableMultihopUseCase
+import net.mullvad.mullvadvpn.lib.usecase.SelectSinglehopUseCase
+import net.mullvad.mullvadvpn.lib.usecase.SelectedLocationTitleUseCase
+import net.mullvad.mullvadvpn.lib.usecase.SelectedLocationUseCase
+import net.mullvad.mullvadvpn.lib.usecase.SupportEmailUseCase
+import net.mullvad.mullvadvpn.lib.usecase.SystemVpnSettingsAvailableUseCase
+import net.mullvad.mullvadvpn.lib.usecase.customlists.CustomListActionUseCase
+import net.mullvad.mullvadvpn.lib.usecase.customlists.CustomListRelayItemsUseCase
+import net.mullvad.mullvadvpn.lib.usecase.customlists.CustomListsRelayItemUseCase
+import net.mullvad.mullvadvpn.lib.usecase.customlists.FilterCustomListsRelayItemUseCase
+import net.mullvad.mullvadvpn.lib.usecase.inappnotification.AccountExpiryInAppNotificationUseCase
+import net.mullvad.mullvadvpn.lib.usecase.inappnotification.Android16UpdateWarningUseCase
+import net.mullvad.mullvadvpn.lib.usecase.inappnotification.InAppNotificationUseCase
+import net.mullvad.mullvadvpn.lib.usecase.inappnotification.NewChangelogNotificationUseCase
+import net.mullvad.mullvadvpn.lib.usecase.inappnotification.NewDeviceNotificationUseCase
+import net.mullvad.mullvadvpn.lib.usecase.inappnotification.TunnelStateNotificationUseCase
+import net.mullvad.mullvadvpn.lib.usecase.inappnotification.VersionNotificationUseCase
 import net.mullvad.mullvadvpn.receiver.AutoStartVpnBootCompletedReceiver
 import net.mullvad.mullvadvpn.repository.InAppNotificationController
 import net.mullvad.mullvadvpn.ui.MainActivity
-import net.mullvad.mullvadvpn.ui.serviceconnection.AppVersionInfoRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
-import net.mullvad.mullvadvpn.usecase.DeleteCustomDnsUseCase
-import net.mullvad.mullvadvpn.usecase.EmptyPaymentUseCase
-import net.mullvad.mullvadvpn.usecase.FilterChipUseCase
-import net.mullvad.mullvadvpn.usecase.FilteredRelayListUseCase
-import net.mullvad.mullvadvpn.usecase.HopSelectionUseCase
-import net.mullvad.mullvadvpn.usecase.InternetAvailableUseCase
-import net.mullvad.mullvadvpn.usecase.LastKnownLocationUseCase
-import net.mullvad.mullvadvpn.usecase.ModifyAndEnableMultihopUseCase
-import net.mullvad.mullvadvpn.usecase.ModifyMultihopUseCase
-import net.mullvad.mullvadvpn.usecase.OutOfTimeUseCase
-import net.mullvad.mullvadvpn.usecase.PaymentUseCase
-import net.mullvad.mullvadvpn.usecase.PlayPaymentUseCase
-import net.mullvad.mullvadvpn.usecase.ProviderToOwnershipsUseCase
-import net.mullvad.mullvadvpn.usecase.RecentsUseCase
-import net.mullvad.mullvadvpn.usecase.RelayItemCanBeSelectedUseCase
-import net.mullvad.mullvadvpn.usecase.SelectAndEnableMultihopUseCase
-import net.mullvad.mullvadvpn.usecase.SelectSinglehopUseCase
-import net.mullvad.mullvadvpn.usecase.SelectedLocationTitleUseCase
-import net.mullvad.mullvadvpn.usecase.SelectedLocationUseCase
-import net.mullvad.mullvadvpn.usecase.SupportEmailUseCase
-import net.mullvad.mullvadvpn.usecase.SystemVpnSettingsAvailableUseCase
-import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
-import net.mullvad.mullvadvpn.usecase.customlists.CustomListRelayItemsUseCase
-import net.mullvad.mullvadvpn.usecase.customlists.CustomListsRelayItemUseCase
-import net.mullvad.mullvadvpn.usecase.customlists.FilterCustomListsRelayItemUseCase
-import net.mullvad.mullvadvpn.usecase.inappnotification.AccountExpiryInAppNotificationUseCase
-import net.mullvad.mullvadvpn.usecase.inappnotification.Android16UpdateWarningUseCase
-import net.mullvad.mullvadvpn.usecase.inappnotification.InAppNotificationUseCase
-import net.mullvad.mullvadvpn.usecase.inappnotification.NewChangelogNotificationUseCase
-import net.mullvad.mullvadvpn.usecase.inappnotification.NewDeviceNotificationUseCase
-import net.mullvad.mullvadvpn.usecase.inappnotification.TunnelStateNotificationUseCase
-import net.mullvad.mullvadvpn.usecase.inappnotification.VersionNotificationUseCase
 import net.mullvad.mullvadvpn.viewmodel.AccountViewModel
 import net.mullvad.mullvadvpn.viewmodel.AddTimeViewModel
 import net.mullvad.mullvadvpn.viewmodel.AntiCensorshipSettingsViewModel
@@ -137,13 +136,13 @@ val uiModule = module {
     single { ChangelogRepository(get(), get(), get()) }
     single { SettingsRepository(get()) }
     single {
-        MullvadProblemReport(
+        ProblemReportRepository(
             context = androidContext(),
             apiEndpointOverride = getOrNull(),
             apiEndpointFromIntentHolder = get(),
             kermitFileLogDirName = KERMIT_FILE_LOG_DIR_NAME,
             accountRepository = get(),
-            paymentUseCase = get(),
+            paymentLogic = get(),
         )
     }
     single { RelayOverridesRepository(get()) }
@@ -240,16 +239,14 @@ val uiModule = module {
     // Will be resolved using from either of the two PaymentModule.kt classes.
     single { PaymentProvider(get()) }
 
-    single<PaymentUseCase> {
+    single<PaymentLogic> {
         val paymentRepository = get<PaymentProvider>().paymentRepository
         if (paymentRepository != null) {
-            PlayPaymentUseCase(paymentRepository = paymentRepository)
+            PlayPaymentLogic(paymentRepository = paymentRepository)
         } else {
             EmptyPaymentUseCase()
         }
     }
-
-    single { ProblemReportRepository() }
 
     single { AppVersionInfoRepository(get(), get()) }
 
@@ -418,5 +415,3 @@ const val SELF_PACKAGE_NAME = "SELF_PACKAGE_NAME"
 const val APP_PREFERENCES_NAME = "${BuildConfig.APPLICATION_ID}.app_preferences"
 const val BOOT_COMPLETED_RECEIVER_COMPONENT_NAME = "BOOT_COMPLETED_RECEIVER_COMPONENT_NAME"
 const val KERMIT_FILE_LOG_DIR_NAME = "android_app_logs"
-// App obfuscations
-const val APP_OBFUSCATION_COMPONENTS_NAME = "APP_OBFUSCATION_COMPONENTS_NAME"

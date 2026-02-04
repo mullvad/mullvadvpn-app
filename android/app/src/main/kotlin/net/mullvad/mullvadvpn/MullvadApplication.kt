@@ -13,11 +13,11 @@ import net.mullvad.mullvadvpn.di.ApplicationScope
 import net.mullvad.mullvadvpn.di.KERMIT_FILE_LOG_DIR_NAME
 import net.mullvad.mullvadvpn.di.appModule
 import net.mullvad.mullvadvpn.lib.repository.AppObfuscationRepository
+import net.mullvad.mullvadvpn.lib.usecase.AccountExpiryNotificationActionUseCase
+import net.mullvad.mullvadvpn.lib.usecase.NotificationAction
 import net.mullvad.mullvadvpn.service.notifications.NotificationChannelFactory
 import net.mullvad.mullvadvpn.service.notifications.NotificationManager
 import net.mullvad.mullvadvpn.service.notifications.accountexpiry.AccountExpiryNotificationProvider
-import net.mullvad.mullvadvpn.usecase.AccountExpiryNotificationActionUseCase
-import net.mullvad.mullvadvpn.usecase.NotificationAction
 import net.mullvad.mullvadvpn.usecase.ScheduleNotificationAlarmUseCase
 import net.mullvad.mullvadvpn.util.FileLogWriter
 import org.koin.android.ext.android.getKoin

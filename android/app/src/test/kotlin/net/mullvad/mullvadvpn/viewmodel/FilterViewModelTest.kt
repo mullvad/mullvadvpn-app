@@ -22,7 +22,7 @@ import net.mullvad.mullvadvpn.lib.model.Ownership
 import net.mullvad.mullvadvpn.lib.model.ProviderId
 import net.mullvad.mullvadvpn.lib.model.Providers
 import net.mullvad.mullvadvpn.lib.repository.RelayListFilterRepository
-import net.mullvad.mullvadvpn.usecase.ProviderToOwnershipsUseCase
+import net.mullvad.mullvadvpn.lib.usecase.ProviderToOwnershipsUseCase
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

@@ -3,15 +3,15 @@ package net.mullvad.mullvadvpn.viewmodel.location
 import arrow.core.Either
 import arrow.core.getOrElse
 import arrow.core.raise.either
-import net.mullvad.mullvadvpn.compose.communication.CustomListAction
-import net.mullvad.mullvadvpn.compose.communication.CustomListActionResultData
-import net.mullvad.mullvadvpn.compose.communication.LocationsChanged
 import net.mullvad.mullvadvpn.lib.common.util.relaylist.descendants
 import net.mullvad.mullvadvpn.lib.model.CustomList
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.GetCustomListError
 import net.mullvad.mullvadvpn.lib.model.RelayItem
-import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionError
+import net.mullvad.mullvadvpn.lib.model.communication.CustomListAction
+import net.mullvad.mullvadvpn.lib.model.communication.CustomListActionResultData
+import net.mullvad.mullvadvpn.lib.model.communication.LocationsChanged
+import net.mullvad.mullvadvpn.lib.usecase.customlists.CustomListActionError
 
 internal suspend fun addLocationToCustomList(
     customList: RelayItem.CustomList,
