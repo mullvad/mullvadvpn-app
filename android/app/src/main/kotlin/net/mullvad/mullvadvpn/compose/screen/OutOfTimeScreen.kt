@@ -47,7 +47,7 @@ import com.ramcosta.composedestinations.generated.destinations.SettingsDestinati
 import com.ramcosta.composedestinations.generated.destinations.VerificationPendingDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.component.AddTimeBottomSheet
+import net.mullvad.mullvadvpn.compose.bottomsheet.AddTimeBottomSheet
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBarAndDeviceName
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.extensions.createOpenAccountPageHook
