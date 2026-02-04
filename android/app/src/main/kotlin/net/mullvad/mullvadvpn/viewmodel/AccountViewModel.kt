@@ -17,7 +17,9 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import net.mullvad.mullvadvpn.constant.VIEW_MODEL_STOP_TIMEOUT
+import net.mullvad.mullvadvpn.core.Lc
+import net.mullvad.mullvadvpn.core.toLc
+import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.model.AccountData
 import net.mullvad.mullvadvpn.lib.model.AccountNumber
 import net.mullvad.mullvadvpn.lib.model.DeviceState
@@ -25,10 +27,8 @@ import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
 import net.mullvad.mullvadvpn.lib.repository.AccountRepository
 import net.mullvad.mullvadvpn.lib.repository.DeviceRepository
 import net.mullvad.mullvadvpn.lib.repository.PaymentLogic
-import net.mullvad.mullvadvpn.core.Lc
 import net.mullvad.mullvadvpn.util.hasPendingPayment
 import net.mullvad.mullvadvpn.util.isSuccess
-import net.mullvad.mullvadvpn.core.toLc
 
 class AccountViewModel(
     private val accountRepository: AccountRepository,

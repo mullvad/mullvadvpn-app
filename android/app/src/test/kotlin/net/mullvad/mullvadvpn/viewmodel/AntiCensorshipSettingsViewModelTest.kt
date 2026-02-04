@@ -17,6 +17,7 @@ import net.mullvad.mullvadvpn.compose.screen.AntiCensorshipSettingsNavArgs
 import net.mullvad.mullvadvpn.compose.state.AntiCensorshipSettingsUiState
 import net.mullvad.mullvadvpn.compose.state.ObfuscationSettingItem
 import net.mullvad.mullvadvpn.compose.util.BackstackObserver
+import net.mullvad.mullvadvpn.core.Lc
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.DaitaSettings
@@ -27,7 +28,6 @@ import net.mullvad.mullvadvpn.lib.model.Settings
 import net.mullvad.mullvadvpn.lib.model.TunnelOptions
 import net.mullvad.mullvadvpn.lib.repository.AutoStartAndConnectOnBootRepository
 import net.mullvad.mullvadvpn.lib.repository.SettingsRepository
-import net.mullvad.mullvadvpn.core.Lc
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

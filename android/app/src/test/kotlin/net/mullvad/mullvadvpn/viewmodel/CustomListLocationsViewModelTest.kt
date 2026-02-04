@@ -12,6 +12,7 @@ import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.compose.screen.CustomListLocationsNavArgs
 import net.mullvad.mullvadvpn.compose.state.CustomListLocationsData
 import net.mullvad.mullvadvpn.compose.state.CustomListLocationsUiState
+import net.mullvad.mullvadvpn.core.Lce
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.common.test.assertLists
 import net.mullvad.mullvadvpn.lib.common.util.relaylist.descendants
@@ -30,7 +31,6 @@ import net.mullvad.mullvadvpn.lib.repository.RelayListRepository
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.CheckableRelayListItem
 import net.mullvad.mullvadvpn.lib.usecase.customlists.CustomListActionUseCase
 import net.mullvad.mullvadvpn.lib.usecase.customlists.CustomListRelayItemsUseCase
-import net.mullvad.mullvadvpn.core.Lce
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

@@ -18,6 +18,8 @@ import net.mullvad.mullvadvpn.compose.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.compose.state.CustomDnsItem
 import net.mullvad.mullvadvpn.compose.state.VpnSettingsUiState
+import net.mullvad.mullvadvpn.core.Lc
+import net.mullvad.mullvadvpn.core.toLc
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.DefaultDnsOptions
 import net.mullvad.mullvadvpn.lib.model.IpVersion
@@ -29,8 +31,6 @@ import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_QUANTUM_ITEM_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_VPN_SETTINGS_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SWITCH_TEST_TAG
 import net.mullvad.mullvadvpn.onNodeWithContentDescriptionAndParentTag
-import net.mullvad.mullvadvpn.core.Lc
-import net.mullvad.mullvadvpn.core.toLc
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension

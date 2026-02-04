@@ -20,6 +20,8 @@ import net.mullvad.mullvadvpn.compose.state.LocationBottomSheetUiState
 import net.mullvad.mullvadvpn.compose.state.SelectLocationListUiState
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
 import net.mullvad.mullvadvpn.compose.state.SetAsState
+import net.mullvad.mullvadvpn.core.Lc
+import net.mullvad.mullvadvpn.core.Lce
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.HopSelection
 import net.mullvad.mullvadvpn.lib.model.MultihopRelayListType
@@ -36,8 +38,6 @@ import net.mullvad.mullvadvpn.lib.usecase.MultihopChange
 import net.mullvad.mullvadvpn.lib.usecase.SelectRelayItemError
 import net.mullvad.mullvadvpn.onNodeWithTagAndText
 import net.mullvad.mullvadvpn.performLongClick
-import net.mullvad.mullvadvpn.core.Lc
-import net.mullvad.mullvadvpn.core.Lce
 import net.mullvad.mullvadvpn.viewmodel.location.LocationBottomSheetViewModel
 import net.mullvad.mullvadvpn.viewmodel.location.SelectLocationListViewModel
 import net.mullvad.mullvadvpn.viewmodel.location.UndoChangeMultihopAction

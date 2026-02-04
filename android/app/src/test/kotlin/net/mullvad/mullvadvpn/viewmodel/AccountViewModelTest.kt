@@ -14,6 +14,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
+import net.mullvad.mullvadvpn.core.Lc
 import net.mullvad.mullvadvpn.data.UUID
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.model.AccountNumber
@@ -28,7 +29,6 @@ import net.mullvad.mullvadvpn.lib.payment.model.ProductPrice
 import net.mullvad.mullvadvpn.lib.repository.AccountRepository
 import net.mullvad.mullvadvpn.lib.repository.DeviceRepository
 import net.mullvad.mullvadvpn.lib.repository.PaymentLogic
-import net.mullvad.mullvadvpn.core.Lc
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

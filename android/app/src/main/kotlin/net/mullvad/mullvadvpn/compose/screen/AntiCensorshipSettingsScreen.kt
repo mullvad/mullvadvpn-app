@@ -22,7 +22,6 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.destinations.SelectPortDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.parcelize.Parcelize
@@ -31,7 +30,8 @@ import net.mullvad.mullvadvpn.compose.extensions.itemWithDivider
 import net.mullvad.mullvadvpn.compose.preview.AntiCensorshipUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.AntiCensorshipSettingsUiState
 import net.mullvad.mullvadvpn.compose.state.ObfuscationSettingItem
-import net.mullvad.mullvadvpn.core.SlideInFromRightTransition
+import net.mullvad.mullvadvpn.core.Lc
+import net.mullvad.mullvadvpn.core.animation.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
 import net.mullvad.mullvadvpn.lib.model.PortType
 import net.mullvad.mullvadvpn.lib.ui.component.NavigateBackIconButton
@@ -54,7 +54,6 @@ import net.mullvad.mullvadvpn.lib.ui.tag.WIREGUARD_OBFUSCATION_UDP_OVER_TCP_CELL
 import net.mullvad.mullvadvpn.lib.ui.tag.WIREGUARD_OBFUSCATION_WG_PORT_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
-import net.mullvad.mullvadvpn.core.Lc
 import net.mullvad.mullvadvpn.viewmodel.AntiCensorshipSettingsViewModel
 import org.koin.androidx.compose.koinViewModel
 
@@ -79,7 +78,7 @@ private fun PreviewAntiCensorshipSettingsScreen(
 @Parcelize data class AntiCensorshipSettingsNavArgs(val isModal: Boolean = false) : Parcelable
 
 @OptIn(ExperimentalSharedTransitionApi::class)
-@Destination<RootGraph>(
+@Destination<MainGraph>(
     style = SlideInFromRightTransition::class,
     navArgs = AntiCensorshipSettingsNavArgs::class,
 )

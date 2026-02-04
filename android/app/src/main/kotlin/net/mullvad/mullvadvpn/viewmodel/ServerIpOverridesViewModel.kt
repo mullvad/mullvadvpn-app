@@ -17,11 +17,11 @@ import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import net.mullvad.mullvadvpn.constant.VIEW_MODEL_STOP_TIMEOUT
-import net.mullvad.mullvadvpn.lib.model.SettingsPatchError
-import net.mullvad.mullvadvpn.lib.repository.RelayOverridesRepository
 import net.mullvad.mullvadvpn.core.Lc
 import net.mullvad.mullvadvpn.core.toLc
+import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
+import net.mullvad.mullvadvpn.lib.model.SettingsPatchError
+import net.mullvad.mullvadvpn.lib.repository.RelayOverridesRepository
 
 class ServerIpOverridesViewModel(
     private val relayOverridesRepository: RelayOverridesRepository,

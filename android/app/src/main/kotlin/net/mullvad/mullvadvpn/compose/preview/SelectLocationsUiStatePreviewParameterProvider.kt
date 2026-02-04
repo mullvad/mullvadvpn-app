@@ -2,12 +2,12 @@ package net.mullvad.mullvadvpn.compose.preview
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
+import net.mullvad.mullvadvpn.core.Lc
+import net.mullvad.mullvadvpn.core.toLc
 import net.mullvad.mullvadvpn.lib.model.HopSelection
 import net.mullvad.mullvadvpn.lib.model.MultihopRelayListType
 import net.mullvad.mullvadvpn.lib.usecase.FilterChip
 import net.mullvad.mullvadvpn.lib.usecase.ModelOwnership
-import net.mullvad.mullvadvpn.core.Lc
-import net.mullvad.mullvadvpn.core.toLc
 
 class SelectLocationsUiStatePreviewParameterProvider :
     PreviewParameterProvider<Lc<Unit, SelectLocationUiState>> {

@@ -16,6 +16,7 @@ import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.compose.state.AddTimeUiState
 import net.mullvad.mullvadvpn.compose.state.PaymentState
 import net.mullvad.mullvadvpn.compose.state.PurchaseState
+import net.mullvad.mullvadvpn.core.Lc
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.common.test.assertLists
 import net.mullvad.mullvadvpn.lib.model.TunnelState
@@ -28,7 +29,6 @@ import net.mullvad.mullvadvpn.lib.payment.model.VerificationResult
 import net.mullvad.mullvadvpn.lib.repository.AccountRepository
 import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
 import net.mullvad.mullvadvpn.lib.repository.PaymentLogic
-import net.mullvad.mullvadvpn.core.Lc
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith

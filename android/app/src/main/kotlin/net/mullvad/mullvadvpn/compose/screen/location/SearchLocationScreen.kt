@@ -44,7 +44,6 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.destinations.CreateCustomListDestination
 import com.ramcosta.composedestinations.generated.destinations.CustomListLocationsDestination
 import com.ramcosta.composedestinations.generated.destinations.DeleteCustomListDestination
@@ -59,10 +58,12 @@ import net.mullvad.mullvadvpn.compose.component.EmptyRelayListText
 import net.mullvad.mullvadvpn.compose.constant.ContentType
 import net.mullvad.mullvadvpn.compose.extensions.dropUnlessResumed
 import net.mullvad.mullvadvpn.compose.preview.SearchLocationsUiStatePreviewParameterProvider
+import net.mullvad.mullvadvpn.compose.screen.MainGraph
 import net.mullvad.mullvadvpn.compose.state.SearchLocationUiState
 import net.mullvad.mullvadvpn.compose.transitions.TopLevelTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
+import net.mullvad.mullvadvpn.core.Lce
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
@@ -79,7 +80,6 @@ import net.mullvad.mullvadvpn.lib.usecase.FilterChip
 import net.mullvad.mullvadvpn.lib.usecase.ModifyMultihopError
 import net.mullvad.mullvadvpn.lib.usecase.MultihopChange
 import net.mullvad.mullvadvpn.lib.usecase.SelectRelayItemError
-import net.mullvad.mullvadvpn.core.Lce
 import net.mullvad.mullvadvpn.viewmodel.location.SearchLocationSideEffect
 import net.mullvad.mullvadvpn.viewmodel.location.SearchLocationViewModel
 import net.mullvad.mullvadvpn.viewmodel.location.UndoChangeMultihopAction
@@ -118,7 +118,7 @@ data class SearchLocationNavArgs(val relayListType: RelayListType)
 
 @Suppress("LongMethod")
 @Composable
-@Destination<RootGraph>(style = TopLevelTransition::class, navArgs = SearchLocationNavArgs::class)
+@Destination<MainGraph>(style = TopLevelTransition::class, navArgs = SearchLocationNavArgs::class)
 fun SearchLocation(
     navigator: DestinationsNavigator,
     backNavigator: ResultBackNavigator<RelayListType>,

@@ -28,7 +28,6 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.destinations.CustomListLocationsDestination
 import com.ramcosta.composedestinations.generated.destinations.DeleteCustomListDestination
 import com.ramcosta.composedestinations.generated.destinations.EditCustomListNameDestination
@@ -40,7 +39,7 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.extensions.dropUnlessResumed
 import net.mullvad.mullvadvpn.compose.preview.EditCustomListUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.EditCustomListUiState
-import net.mullvad.mullvadvpn.core.SlideInFromRightTransition
+import net.mullvad.mullvadvpn.core.animation.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
 import net.mullvad.mullvadvpn.lib.model.communication.CustomListActionResultData
@@ -77,7 +76,7 @@ private fun PreviewEditCustomListScreen(
 data class EditCustomListNavArgs(val customListId: CustomListId)
 
 @Composable
-@Destination<RootGraph>(
+@Destination<MainGraph>(
     style = SlideInFromRightTransition::class,
     navArgs = EditCustomListNavArgs::class,
 )

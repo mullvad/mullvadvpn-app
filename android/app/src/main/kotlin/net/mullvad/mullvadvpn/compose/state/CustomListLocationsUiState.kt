@@ -1,7 +1,7 @@
 package net.mullvad.mullvadvpn.compose.state
 
-import net.mullvad.mullvadvpn.lib.ui.component.relaylist.CheckableRelayListItem
 import net.mullvad.mullvadvpn.core.Lce
+import net.mullvad.mullvadvpn.lib.ui.component.relaylist.CheckableRelayListItem
 
 data class CustomListLocationsUiState(
     val newList: Boolean,

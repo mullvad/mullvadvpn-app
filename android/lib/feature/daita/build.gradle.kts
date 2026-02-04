@@ -9,9 +9,7 @@ plugins {
 android {
     namespace = "net.mullvad.mullvadvpn.feature.daita"
 
-    ksp {
-        arg("compose-destinations.moduleName", "daita")
-    }
+    ksp { arg("compose-destinations.moduleName", "daita") }
 }
 
 dependencies {
@@ -22,10 +20,12 @@ dependencies {
     implementation(projects.lib.ui.component)
     implementation(projects.lib.model)
     implementation(projects.lib.repository)
+    implementation(projects.lib.common)
 
     implementation(libs.androidx.ktx)
     implementation(libs.koin.compose)
     implementation(libs.androidx.appcompat)
+    implementation(libs.arrow)
     implementation(libs.material)
     implementation(libs.compose.foundation)
     implementation(libs.compose.material3)

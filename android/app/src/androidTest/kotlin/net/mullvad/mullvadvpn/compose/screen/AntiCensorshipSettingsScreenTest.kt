@@ -15,6 +15,8 @@ import io.mockk.verify
 import net.mullvad.mullvadvpn.compose.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.compose.state.AntiCensorshipSettingsUiState
+import net.mullvad.mullvadvpn.core.Lc
+import net.mullvad.mullvadvpn.core.toLc
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
 import net.mullvad.mullvadvpn.lib.model.Port
@@ -22,8 +24,6 @@ import net.mullvad.mullvadvpn.lib.ui.tag.BUTTON_ARROW_RIGHT_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_ANTI_CENSORSHIP_SETTINGS_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.WIREGUARD_OBFUSCATION_UDP_OVER_TCP_CELL_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.WIREGUARD_OBFUSCATION_WG_PORT_TEST_TAG
-import net.mullvad.mullvadvpn.core.Lc
-import net.mullvad.mullvadvpn.core.toLc
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension

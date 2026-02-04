@@ -1,5 +1,8 @@
 package net.mullvad.mullvadvpn.feature.daita
 
+// import
+// com.ramcosta.composedestinations.generated.destinations.DaitaDirectOnlyConfirmationDestination
+// import com.ramcosta.composedestinations.generated.destinations.DaitaDirectOnlyInfoDestination
 import android.os.Parcelable
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
@@ -35,20 +38,19 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.RootGraph
-//import com.ramcosta.composedestinations.generated.destinations.DaitaDirectOnlyConfirmationDestination
-//import com.ramcosta.composedestinations.generated.destinations.DaitaDirectOnlyInfoDestination
+import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
+import com.ramcosta.composedestinations.generated.daita.destinations.DaitaDirectOnlyConfirmationDestination
+import com.ramcosta.composedestinations.generated.daita.destinations.DaitaDirectOnlyInfoDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
 import kotlinx.parcelize.Parcelize
-import net.mullvad.mullvadvpn.compose.dialog.info.Confirmed
-import net.mullvad.mullvadvpn.compose.util.OnNavResultValue
 import net.mullvad.mullvadvpn.core.Lc
-import net.mullvad.mullvadvpn.core.SlideInFromRightTransition
+import net.mullvad.mullvadvpn.core.animation.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
 import net.mullvad.mullvadvpn.lib.ui.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.NavigateCloseIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithMediumTopBar
+import net.mullvad.mullvadvpn.lib.ui.component.dialog.Confirmed
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.SwitchListItem
 import net.mullvad.mullvadvpn.lib.ui.component.text.ScreenDescription
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
@@ -77,18 +79,21 @@ private fun PreviewDaitaScreen(
 @Parcelize data class DaitaNavArgs(val isModal: Boolean = false) : Parcelable
 
 @OptIn(ExperimentalSharedTransitionApi::class)
-@Destination<RootGraph>(style = SlideInFromRightTransition::class, navArgs = DaitaNavArgs::class)
+@Destination<ExternalModuleGraph>(
+    style = SlideInFromRightTransition::class,
+    navArgs = DaitaNavArgs::class,
+)
 @Composable
 fun SharedTransitionScope.Daita(
     navigator: DestinationsNavigator,
     animatedVisibilityScope: AnimatedVisibilityScope,
-//    daitaConfirmationDialogResult:
-//        ResultRecipient<DaitaDirectOnlyConfirmationDestination, Confirmed>,
+    daitaConfirmationDialogResult:
+        ResultRecipient<DaitaDirectOnlyConfirmationDestination, Confirmed>,
 ) {
     val viewModel = koinViewModel<DaitaViewModel>()
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
-//    daitaConfirmationDialogResult.OnNavResultValue { viewModel.setDirectOnly(true) }
+    daitaConfirmationDialogResult.OnNavResultValue { viewModel.setDirectOnly(true) }
 
     DaitaScreen(
         state = state,
@@ -101,13 +106,13 @@ fun SharedTransitionScope.Daita(
         onDaitaEnabled = viewModel::setDaita,
         onDirectOnlyClick = { enable ->
             if (enable) {
-//                navigator.navigate(DaitaDirectOnlyConfirmationDestination)
+                navigator.navigate(DaitaDirectOnlyConfirmationDestination)
             } else {
                 viewModel.setDirectOnly(false)
             }
         },
         onDirectOnlyInfoClick =
-            dropUnlessResumed { /* navigator.navigate(DaitaDirectOnlyInfoDestination) */ },
+            dropUnlessResumed { navigator.navigate(DaitaDirectOnlyInfoDestination) },
         onBackClick = dropUnlessResumed { navigator.navigateUp() },
     )
 }
@@ -241,7 +246,7 @@ private fun PageIndicator(pagerState: PagerState) {
                 else MaterialTheme.colorScheme.primary
             Box(
                 modifier =
-                    padding(Dimens.indicatorPadding)
+                    Modifier.padding(Dimens.indicatorPadding)
                         .clip(CircleShape)
                         .background(color)
                         .size(Dimens.indicatorSize)

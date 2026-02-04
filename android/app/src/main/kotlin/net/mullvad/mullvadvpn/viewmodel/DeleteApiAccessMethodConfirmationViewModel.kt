@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.DeleteApiAccessMethodUiState
-import net.mullvad.mullvadvpn.constant.VIEW_MODEL_STOP_TIMEOUT
+import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodId
 import net.mullvad.mullvadvpn.lib.model.RemoveApiAccessMethodError
 import net.mullvad.mullvadvpn.lib.repository.ApiAccessRepository

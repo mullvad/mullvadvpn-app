@@ -11,10 +11,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.compose.screen.MainGraph
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.lib.ui.designsystem.NegativeButton
 import net.mullvad.mullvadvpn.lib.ui.designsystem.PrimaryButton
@@ -33,7 +33,7 @@ private fun PreviewResetServerIpOverridesConfirmationDialog() {
     }
 }
 
-@Destination<RootGraph>(style = DestinationStyle.Dialog::class)
+@Destination<MainGraph>(style = DestinationStyle.Dialog::class)
 @Composable
 fun ResetServerIpOverridesConfirmation(resultBackNavigator: ResultBackNavigator<Boolean>) {
     val vm: ResetServerIpOverridesConfirmationViewModel = koinViewModel()

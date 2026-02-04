@@ -3,9 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
 }
 
-android {
-    namespace = "net.mullvad.mullvadvpn.core"
-}
+android { namespace = "net.mullvad.mullvadvpn.core" }
 
 dependencies {
     implementation(libs.androidx.ktx)

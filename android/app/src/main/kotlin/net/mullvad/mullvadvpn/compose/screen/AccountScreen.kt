@@ -36,7 +36,6 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.NavGraphs
 import com.ramcosta.composedestinations.generated.destinations.LoginDestination
 import com.ramcosta.composedestinations.generated.destinations.ManageDevicesDestination
@@ -57,6 +56,7 @@ import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.SecureScreenWhileInView
 import net.mullvad.mullvadvpn.compose.util.createCopyToClipboardHandle
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
+import net.mullvad.mullvadvpn.core.Lc
 import net.mullvad.mullvadvpn.lib.common.util.toExpiryDateString
 import net.mullvad.mullvadvpn.lib.ui.component.NavigateCloseIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithMediumTopBar
@@ -65,7 +65,6 @@ import net.mullvad.mullvadvpn.lib.ui.designsystem.PrimaryTextButton
 import net.mullvad.mullvadvpn.lib.ui.tag.MANAGE_DEVICES_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
-import net.mullvad.mullvadvpn.core.Lc
 import net.mullvad.mullvadvpn.viewmodel.AccountUiState
 import net.mullvad.mullvadvpn.viewmodel.AccountViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -91,7 +90,7 @@ private fun PreviewAccountScreen(
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Destination<RootGraph>(style = AccountTransition::class)
+@Destination<MainGraph>(style = AccountTransition::class)
 @Composable
 fun Account(navigator: DestinationsNavigator) {
     val vm = koinViewModel<AccountViewModel>()
@@ -109,7 +108,7 @@ fun Account(navigator: DestinationsNavigator) {
             AccountViewModel.UiSideEffect.NavigateToLogin -> {
                 navigator.navigate(LoginDestination(null)) {
                     launchSingleTop = true
-                    popUpTo(NavGraphs.root) { inclusive = true }
+                    popUpTo(NavGraphs.main) { inclusive = true }
                 }
             }
             is AccountViewModel.UiSideEffect.OpenAccountManagementPageInBrowser ->

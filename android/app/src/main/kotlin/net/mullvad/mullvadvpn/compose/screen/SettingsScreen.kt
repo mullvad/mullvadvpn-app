@@ -21,11 +21,10 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.RootGraph
+import com.ramcosta.composedestinations.generated.daita.destinations.DaitaDestination
 import com.ramcosta.composedestinations.generated.destinations.ApiAccessListDestination
 import com.ramcosta.composedestinations.generated.destinations.AppInfoDestination
 import com.ramcosta.composedestinations.generated.destinations.AppearanceDestination
-import com.ramcosta.composedestinations.generated.destinations.DaitaDestination
 import com.ramcosta.composedestinations.generated.destinations.MultihopDestination
 import com.ramcosta.composedestinations.generated.destinations.NotificationSettingsDestination
 import com.ramcosta.composedestinations.generated.destinations.ReportProblemDestination
@@ -38,6 +37,7 @@ import net.mullvad.mullvadvpn.compose.extensions.itemWithDivider
 import net.mullvad.mullvadvpn.compose.preview.SettingsUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.SettingsUiState
 import net.mullvad.mullvadvpn.compose.transitions.TopLevelTransition
+import net.mullvad.mullvadvpn.core.Lc
 import net.mullvad.mullvadvpn.lib.common.util.appendHideNavOnPlayBuild
 import net.mullvad.mullvadvpn.lib.ui.component.NavigateCloseIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithMediumTopBar
@@ -51,7 +51,6 @@ import net.mullvad.mullvadvpn.lib.ui.tag.MULTIHOP_CELL_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.VPN_SETTINGS_CELL_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
-import net.mullvad.mullvadvpn.core.Lc
 import net.mullvad.mullvadvpn.viewmodel.SettingsViewModel
 import org.koin.androidx.compose.koinViewModel
 
@@ -79,7 +78,7 @@ private fun PreviewSettingsScreen(
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Destination<RootGraph>(style = TopLevelTransition::class)
+@Destination<MainGraph>(style = TopLevelTransition::class)
 @Composable
 fun Settings(navigator: DestinationsNavigator) {
     val vm = koinViewModel<SettingsViewModel>()

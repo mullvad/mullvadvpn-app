@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.compose.dialog.info
+package net.mullvad.mullvadvpn.lib.ui.component.dialog
 
 import android.os.Parcelable
 import androidx.compose.foundation.layout.Arrangement
@@ -19,12 +19,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import com.ramcosta.composedestinations.result.EmptyResultBackNavigator
-import com.ramcosta.composedestinations.result.ResultBackNavigator
 import kotlinx.parcelize.Parcelize
-import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.lib.ui.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.lib.ui.designsystem.PrimaryButton
+import net.mullvad.mullvadvpn.lib.ui.resource.R
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaScrollbar
@@ -34,7 +32,7 @@ import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaScrollbar
 private fun PreviewInfoConfirmationDialog() {
     AppTheme {
         InfoConfirmationDialog(
-            navigator = EmptyResultBackNavigator(),
+            onResult = {},
             titleType = InfoConfirmationDialogTitleType.IconAndTitle("Informative title"),
             confirmButtonTitle = stringResource(R.string.enable_anyway),
             cancelButtonTitle = stringResource(R.string.back),
@@ -70,14 +68,14 @@ sealed interface InfoConfirmationDialogTitleType {
 
 @Composable
 fun InfoConfirmationDialog(
-    navigator: ResultBackNavigator<Confirmed>,
+    onResult: (Confirmed?) -> Unit,
     titleType: InfoConfirmationDialogTitleType,
     confirmButtonTitle: String,
     cancelButtonTitle: String,
     content: @Composable (() -> Unit)? = null,
 ) {
     InfoConfirmationDialog(
-        navigator = navigator,
+        onResult = onResult,
         confirmValue = Confirmed,
         titleType = titleType,
         confirmButtonTitle = confirmButtonTitle,
@@ -88,7 +86,7 @@ fun InfoConfirmationDialog(
 
 @Composable
 fun <T> InfoConfirmationDialog(
-    navigator: ResultBackNavigator<T>,
+    onResult: (T?) -> Unit,
     confirmValue: T,
     titleType: InfoConfirmationDialogTitleType,
     confirmButtonTitle: String,
@@ -110,7 +108,7 @@ fun <T> InfoConfirmationDialog(
         }
 
     AlertDialog(
-        onDismissRequest = { navigator.navigateBack() },
+        onDismissRequest = { onResult(null) },
         title =
             if (title != null) {
                 @Composable { Text(title) }
@@ -153,13 +151,13 @@ fun <T> InfoConfirmationDialog(
                 PrimaryButton(
                     modifier = Modifier.fillMaxWidth(),
                     text = confirmButtonTitle,
-                    onClick = { navigator.navigateBack(confirmValue) },
+                    onClick = { onResult(confirmValue) },
                 )
 
                 PrimaryButton(
                     modifier = Modifier.fillMaxWidth(),
                     text = cancelButtonTitle,
-                    onClick = { navigator.navigateBack() },
+                    onClick = { onResult(null) },
                 )
             }
         },

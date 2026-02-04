@@ -24,9 +24,8 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.RootGraph
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.core.SlideInFromRightTransition
+import net.mullvad.mullvadvpn.core.animation.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.lib.ui.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.NavigateCloseIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithMediumTopBar
@@ -38,7 +37,7 @@ import net.mullvad.mullvadvpn.viewmodel.ChangelogUiState
 import net.mullvad.mullvadvpn.viewmodel.ChangelogViewModel
 import org.koin.androidx.compose.koinViewModel
 
-@Destination<RootGraph>(
+@Destination<MainGraph>(
     style = SlideInFromRightTransition::class,
     navArgs = ChangelogNavArgs::class,
 )

@@ -17,15 +17,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import co.touchlab.kermit.Logger
 import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import kotlinx.parcelize.Parcelize
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.compose.screen.MainGraph
 import net.mullvad.mullvadvpn.compose.state.ApiUnreachableUiState
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.EmailData
 import net.mullvad.mullvadvpn.compose.util.SendEmail
+import net.mullvad.mullvadvpn.lib.ui.component.dialog.InfoDialog
 import net.mullvad.mullvadvpn.lib.ui.component.textfield.ErrorSupportingText
 import net.mullvad.mullvadvpn.lib.ui.designsystem.PrimaryButton
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
@@ -68,7 +69,7 @@ sealed interface ApiUnreachableInfoDialogResult : Parcelable {
     @Parcelize data object Error : ApiUnreachableInfoDialogResult
 }
 
-@Destination<RootGraph>(
+@Destination<MainGraph>(
     style = DestinationStyle.Dialog::class,
     navArgs = ApiUnreachableInfoDialogNavArgs::class,
 )
@@ -126,6 +127,7 @@ fun ApiUnreachableInfoDialog(
                             when (state.loginAction) {
                                 LoginAction.LOGIN ->
                                     R.string.unable_to_reach_api_dialog_message_first_login
+
                                 LoginAction.CREATE_ACCOUNT ->
                                     R.string.unable_to_reach_api_dialog_message_first_create_account
                             }

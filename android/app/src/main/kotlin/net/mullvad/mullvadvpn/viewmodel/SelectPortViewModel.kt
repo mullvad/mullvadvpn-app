@@ -24,8 +24,10 @@ import net.mullvad.mullvadvpn.compose.state.SelectPortUiState
 import net.mullvad.mullvadvpn.constant.SHADOWSOCKS_AVAILABLE_PORTS
 import net.mullvad.mullvadvpn.constant.SHADOWSOCKS_PRESET_PORTS
 import net.mullvad.mullvadvpn.constant.UDP2TCP_PRESET_PORTS
-import net.mullvad.mullvadvpn.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.constant.WIREGUARD_PRESET_PORTS
+import net.mullvad.mullvadvpn.core.Lc
+import net.mullvad.mullvadvpn.core.toLc
+import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.ObfuscationSettings
 import net.mullvad.mullvadvpn.lib.model.Port
@@ -34,8 +36,6 @@ import net.mullvad.mullvadvpn.lib.model.PortType
 import net.mullvad.mullvadvpn.lib.model.SetObfuscationOptionsError
 import net.mullvad.mullvadvpn.lib.repository.RelayListRepository
 import net.mullvad.mullvadvpn.lib.repository.SettingsRepository
-import net.mullvad.mullvadvpn.core.Lc
-import net.mullvad.mullvadvpn.core.toLc
 
 class SelectPortViewModel(
     private val settingsRepository: SettingsRepository,

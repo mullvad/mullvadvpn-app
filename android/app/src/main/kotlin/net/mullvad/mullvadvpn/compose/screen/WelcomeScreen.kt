@@ -45,7 +45,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import co.touchlab.kermit.Logger
 import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.NavGraphs
 import com.ramcosta.composedestinations.generated.destinations.AccountDestination
 import com.ramcosta.composedestinations.generated.destinations.ConnectDestination
@@ -64,6 +63,7 @@ import net.mullvad.mullvadvpn.compose.transitions.HomeTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.createCopyToClipboardHandle
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
+import net.mullvad.mullvadvpn.core.Lc
 import net.mullvad.mullvadvpn.lib.common.util.groupWithSpaces
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.drawVerticalScrollbar
@@ -74,7 +74,6 @@ import net.mullvad.mullvadvpn.lib.ui.tag.PLAY_PAYMENT_INFO_ICON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaScrollbar
-import net.mullvad.mullvadvpn.core.Lc
 import net.mullvad.mullvadvpn.viewmodel.WelcomeViewModel
 import org.koin.androidx.compose.koinViewModel
 
@@ -97,7 +96,7 @@ private fun PreviewWelcomeScreen(
     }
 }
 
-@Destination<RootGraph>(style = HomeTransition::class)
+@Destination<MainGraph>(style = HomeTransition::class)
 @Composable
 fun Welcome(navigator: DestinationsNavigator) {
     val vm = koinViewModel<WelcomeViewModel>()
@@ -114,7 +113,7 @@ fun Welcome(navigator: DestinationsNavigator) {
             WelcomeViewModel.UiSideEffect.OpenConnectScreen ->
                 navigator.navigate(ConnectDestination) {
                     launchSingleTop = true
-                    popUpTo(NavGraphs.root) { inclusive = true }
+                    popUpTo(NavGraphs.main) { inclusive = true }
                 }
             WelcomeViewModel.UiSideEffect.GenericError ->
                 snackbarHostState.showSnackbarImmediately(

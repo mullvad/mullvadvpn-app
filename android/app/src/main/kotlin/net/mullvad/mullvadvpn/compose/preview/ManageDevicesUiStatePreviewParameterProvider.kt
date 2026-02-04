@@ -4,8 +4,8 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.DeviceItemUiState
 import net.mullvad.mullvadvpn.compose.state.ManageDevicesItemUiState
 import net.mullvad.mullvadvpn.compose.state.ManageDevicesUiState
-import net.mullvad.mullvadvpn.lib.model.GetDeviceListError
 import net.mullvad.mullvadvpn.core.Lce
+import net.mullvad.mullvadvpn.lib.model.GetDeviceListError
 
 class ManageDevicesUiStatePreviewParameterProvider :
     PreviewParameterProvider<Lce<Unit, ManageDevicesUiState, GetDeviceListError>> {

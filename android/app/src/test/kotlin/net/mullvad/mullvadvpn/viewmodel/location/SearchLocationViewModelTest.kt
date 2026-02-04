@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.compose.screen.location.SearchLocationNavArgs
 import net.mullvad.mullvadvpn.compose.state.SearchLocationUiState
+import net.mullvad.mullvadvpn.core.Lce
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.common.test.assertLists
 import net.mullvad.mullvadvpn.lib.model.Constraint
@@ -33,7 +34,6 @@ import net.mullvad.mullvadvpn.lib.usecase.SelectedLocationUseCase
 import net.mullvad.mullvadvpn.lib.usecase.customlists.CustomListActionUseCase
 import net.mullvad.mullvadvpn.lib.usecase.customlists.CustomListsRelayItemUseCase
 import net.mullvad.mullvadvpn.lib.usecase.customlists.FilterCustomListsRelayItemUseCase
-import net.mullvad.mullvadvpn.core.Lce
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

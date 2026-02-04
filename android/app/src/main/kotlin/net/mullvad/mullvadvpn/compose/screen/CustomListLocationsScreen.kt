@@ -29,7 +29,6 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.destinations.DiscardChangesDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.ResultBackNavigator
@@ -38,21 +37,22 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.component.EmptyRelayListText
 import net.mullvad.mullvadvpn.compose.constant.CommonContentKey
 import net.mullvad.mullvadvpn.compose.constant.ContentType
-import net.mullvad.mullvadvpn.compose.dialog.info.Confirmed
 import net.mullvad.mullvadvpn.compose.extensions.animateScrollAndCentralizeItem
 import net.mullvad.mullvadvpn.compose.preview.CustomListLocationUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.screen.location.positionalPadding
 import net.mullvad.mullvadvpn.compose.state.CustomListLocationsData
 import net.mullvad.mullvadvpn.compose.state.CustomListLocationsUiState
 import net.mullvad.mullvadvpn.compose.textfield.SearchTextField
-import net.mullvad.mullvadvpn.core.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
-import net.mullvad.mullvadvpn.compose.util.OnNavResultValue
+import net.mullvad.mullvadvpn.core.Lce
+import net.mullvad.mullvadvpn.core.OnNavResultValue
+import net.mullvad.mullvadvpn.core.animation.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.communication.CustomListActionResultData
 import net.mullvad.mullvadvpn.lib.ui.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithSmallTopBar
+import net.mullvad.mullvadvpn.lib.ui.component.dialog.Confirmed
 import net.mullvad.mullvadvpn.lib.ui.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.CheckableRelayLocationCell
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
@@ -60,7 +60,6 @@ import net.mullvad.mullvadvpn.lib.ui.tag.SAVE_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaScrollbar
-import net.mullvad.mullvadvpn.core.Lce
 import net.mullvad.mullvadvpn.viewmodel.CustomListLocationsSideEffect
 import net.mullvad.mullvadvpn.viewmodel.CustomListLocationsViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -86,7 +85,7 @@ private fun PreviewCustomListLocationScreen(
 data class CustomListLocationsNavArgs(val customListId: CustomListId, val newList: Boolean)
 
 @Composable
-@Destination<RootGraph>(
+@Destination<MainGraph>(
     style = SlideInFromRightTransition::class,
     navArgs = CustomListLocationsNavArgs::class,
 )

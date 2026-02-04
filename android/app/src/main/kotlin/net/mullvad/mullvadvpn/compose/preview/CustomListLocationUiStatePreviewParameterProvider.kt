@@ -3,10 +3,10 @@ package net.mullvad.mullvadvpn.compose.preview
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.CustomListLocationsData
 import net.mullvad.mullvadvpn.compose.state.CustomListLocationsUiState
+import net.mullvad.mullvadvpn.core.Lce
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.CheckableRelayListItem
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.generateRelayItemCountry
-import net.mullvad.mullvadvpn.core.Lce
 
 class CustomListLocationUiStatePreviewParameterProvider :
     PreviewParameterProvider<CustomListLocationsUiState> {

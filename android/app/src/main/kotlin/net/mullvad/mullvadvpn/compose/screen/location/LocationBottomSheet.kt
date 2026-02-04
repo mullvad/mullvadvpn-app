@@ -46,6 +46,7 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.state.LocationBottomSheetUiState
 import net.mullvad.mullvadvpn.compose.state.SetAsState
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
+import net.mullvad.mullvadvpn.core.Lc
 import net.mullvad.mullvadvpn.lib.common.util.relaylist.canAddLocation
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
@@ -65,7 +66,6 @@ import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 import net.mullvad.mullvadvpn.lib.usecase.ModifyMultihopError
 import net.mullvad.mullvadvpn.lib.usecase.MultihopChange
 import net.mullvad.mullvadvpn.lib.usecase.SelectRelayItemError
-import net.mullvad.mullvadvpn.core.Lc
 import net.mullvad.mullvadvpn.viewmodel.location.LocationBottomSheetViewModel
 import net.mullvad.mullvadvpn.viewmodel.location.UndoChangeMultihopAction
 import org.koin.androidx.compose.koinViewModel

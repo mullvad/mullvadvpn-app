@@ -1,4 +1,13 @@
-package net.mullvad.mullvadvpn.core
+package net.mullvad.mullvadvpn.core.animation
+
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.navigation.NavBackStackEntry
+import com.ramcosta.composedestinations.spec.DestinationStyle
 
 object SlideInFromRightTransition : DestinationStyle.Animated() {
     override val enterTransition:
@@ -14,13 +23,13 @@ object SlideInFromRightTransition : DestinationStyle.Animated() {
     override val exitTransition:
         AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition =
         {
-            ExitTransition.None
+            ExitTransition.Companion.None
         }
 
     override val popEnterTransition:
         AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition =
         {
-            EnterTransition.None
+            EnterTransition.Companion.None
         }
 
     override val popExitTransition:
