@@ -37,8 +37,6 @@ pub async fn allow_incoming_connections() {
         );
         log::warn!("{err}");
     }
-    // TODO: Should we take caution to remove the daemon from the macOS Application Firewall on
-    // shutdown / uninstall?
 }
 
 /// Bump filehandle limit
@@ -88,7 +86,8 @@ pub async fn handle_app_bundle_removal(
     /// This directory must be owned by root to prevent privilege escalation.
     const UNINSTALL_SCRIPT_PATH: &str = "/var/root/uninstall_mullvad.sh";
 
-    let daemon_path = std::env::current_exe().context("Failed to get daemon path")?;
+    let mullvad_daemon = std::env::current_exe().context("Failed to get daemon path")?;
+    let daemon_path = mullvad_daemon.clone();
 
     // Ignore app removal if the daemon isn't installed in the app directory
     if !daemon_path.starts_with(APP_PATH) {
@@ -166,6 +165,18 @@ pub async fn handle_app_bundle_removal(
     if let Err(error) = reset_firewall() {
         log(format_args!("{error:#?}"));
     }
+
+    // Remove the daemon binary from the macOS Application Firewall
+    log(format_args!("Resetting macOS Application Firewall"));
+    let mut socketfilterfw = Command::new("/usr/libexec/ApplicationFirewall/socketfilterfw");
+    if let Err(error) = socketfilterfw
+        .arg("--remove")
+        .arg(&mullvad_daemon)
+        .output()
+        .await
+    {
+        log(format_args!("{error:#?}"));
+    };
 
     // Remove the current device from the account
     log(format_args!("Logging out"));
