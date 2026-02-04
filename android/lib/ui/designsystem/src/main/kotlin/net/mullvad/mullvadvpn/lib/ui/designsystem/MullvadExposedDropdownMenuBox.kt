@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.compose.component
+package net.mullvad.mullvadvpn.lib.ui.designsystem
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable

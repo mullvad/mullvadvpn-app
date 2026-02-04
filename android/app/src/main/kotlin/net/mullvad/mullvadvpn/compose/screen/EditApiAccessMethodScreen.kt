@@ -44,8 +44,8 @@ import com.ramcosta.composedestinations.result.ResultRecipient
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.TestMethodButton
-import net.mullvad.mullvadvpn.compose.component.MullvadDropdownMenuItem
-import net.mullvad.mullvadvpn.compose.component.MullvadExposedDropdownMenuBox
+import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadDropdownMenuItem
+import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadExposedDropdownMenuBox
 import net.mullvad.mullvadvpn.compose.component.NavigateCloseIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithSmallTopBar
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
