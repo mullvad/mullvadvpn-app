@@ -39,7 +39,6 @@ import net.mullvad.mullvadvpn.compose.component.EmptyRelayListText
 import net.mullvad.mullvadvpn.lib.ui.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithSmallTopBar
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
-import net.mullvad.mullvadvpn.compose.component.textResource
 import net.mullvad.mullvadvpn.compose.constant.CommonContentKey
 import net.mullvad.mullvadvpn.compose.constant.ContentType
 import net.mullvad.mullvadvpn.compose.dialog.info.Confirmed
@@ -262,7 +261,7 @@ private fun LazyListScope.content(
 @Composable
 private fun LocationsEmptyText(searchTerm: String) {
     Text(
-        text = textResource(R.string.search_location_empty_text, searchTerm),
+        text = stringResource(R.string.search_location_empty_text, searchTerm),
         style = MaterialTheme.typography.bodyMedium,
         textAlign = TextAlign.Center,
         color = MaterialTheme.colorScheme.onSurfaceVariant,

@@ -31,7 +31,6 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.lib.ui.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
-import net.mullvad.mullvadvpn.compose.component.textResource
 import net.mullvad.mullvadvpn.compose.extensions.dropUnlessResumed
 import net.mullvad.mullvadvpn.compose.preview.ManageDevicesUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.ManageDevicesUiState
@@ -145,7 +144,7 @@ private fun Content(
 ) {
     Column(modifier.padding(horizontal = Dimens.sideMarginNew)) {
         Text(
-            text = textResource(id = R.string.manage_devices_description),
+            text = stringResource(id = R.string.manage_devices_description),
             style = MaterialTheme.typography.labelLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )

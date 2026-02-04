@@ -6,6 +6,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -41,19 +42,18 @@ fun ConnectionStatusText(state: TunnelState) {
 @Composable
 private fun TunnelState.text() =
     when (this) {
-        is TunnelState.Connected -> textResource(id = R.string.connected)
-        is TunnelState.Connecting -> textResource(id = R.string.connecting)
-        is TunnelState.Disconnected -> textResource(id = R.string.disconnected)
+        is TunnelState.Connected -> stringResource(id = R.string.connected)
+        is TunnelState.Connecting -> stringResource(id = R.string.connecting)
+        is TunnelState.Disconnected -> stringResource(id = R.string.disconnected)
         is TunnelState.Disconnecting ->
             when (actionAfterDisconnect) {
-                ActionAfterDisconnect.Nothing -> textResource(id = R.string.disconnecting)
-                ActionAfterDisconnect.Block -> textResource(id = R.string.blocking)
-                ActionAfterDisconnect.Reconnect -> textResource(id = R.string.connecting)
+                ActionAfterDisconnect.Nothing -> stringResource(id = R.string.disconnecting)
+                ActionAfterDisconnect.Block -> stringResource(id = R.string.blocking)
+                ActionAfterDisconnect.Reconnect -> stringResource(id = R.string.connecting)
             }
         is TunnelState.Error ->
-            textResource(
-                id =
-                    if (errorState.isBlocking) R.string.blocked_connection else R.string.error_state
+            stringResource(
+                id = if (errorState.isBlocking) R.string.blocked_connection else R.string.error_state
             )
     }.uppercase()
 

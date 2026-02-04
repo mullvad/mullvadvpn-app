@@ -44,7 +44,6 @@ import net.mullvad.mullvadvpn.applist.AppData
 import net.mullvad.mullvadvpn.lib.ui.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.NavigateCloseIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
-import net.mullvad.mullvadvpn.compose.component.textResource
 import net.mullvad.mullvadvpn.compose.constant.CommonContentKey
 import net.mullvad.mullvadvpn.compose.constant.ContentType
 import net.mullvad.mullvadvpn.compose.constant.SplitTunnelingContentKey
@@ -188,7 +187,7 @@ private fun LazyListScope.enabledToggle(
 ) {
     item {
         SwitchListItem(
-            title = textResource(id = R.string.enable),
+            title = stringResource(id = R.string.enable),
             isToggled = enabled,
             onCellClicked = onEnableSplitTunneling,
         )

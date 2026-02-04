@@ -22,7 +22,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.component.EmptyRelayListText
-import net.mullvad.mullvadvpn.compose.component.textResource
 import net.mullvad.mullvadvpn.compose.screen.location.LocationBottomSheetState.ShowCustomListsEntryBottomSheet
 import net.mullvad.mullvadvpn.compose.screen.location.LocationBottomSheetState.ShowEditCustomListBottomSheet
 import net.mullvad.mullvadvpn.compose.screen.location.LocationBottomSheetState.ShowLocationBottomSheet
@@ -106,7 +105,7 @@ fun LazyListScope.relayListContent(
 @Composable
 private fun LocationsEmptyText(searchTerm: String) {
     Text(
-        text = textResource(R.string.search_location_empty_text, searchTerm),
+        text = stringResource(R.string.search_location_empty_text, searchTerm),
         style = MaterialTheme.typography.bodyMedium,
         textAlign = TextAlign.Center,
         color = MaterialTheme.colorScheme.onSurfaceVariant,

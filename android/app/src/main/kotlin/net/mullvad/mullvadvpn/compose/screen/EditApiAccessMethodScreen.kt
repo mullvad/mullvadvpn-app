@@ -49,7 +49,6 @@ import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadExposedDropdownMenuBox
 import net.mullvad.mullvadvpn.lib.ui.component.NavigateCloseIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithSmallTopBar
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
-import net.mullvad.mullvadvpn.compose.component.textResource
 import net.mullvad.mullvadvpn.compose.dialog.info.Confirmed
 import net.mullvad.mullvadvpn.compose.preview.EditApiAccessMethodUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.ApiAccessMethodTypes
@@ -309,7 +308,7 @@ private fun NameInputField(
         isValidValue = nameError == null,
         isDigitsOnlyAllowed = false,
         maxCharLength = ApiAccessMethodName.MAX_LENGTH,
-        errorText = nameError?.let { textResource(id = R.string.this_field_is_required) },
+        errorText = nameError?.let { stringResource(id = R.string.this_field_is_required) },
         capitalization = KeyboardCapitalization.Words,
         modifier = Modifier.animateContentSize().testTag(EDIT_API_ACCESS_NAME_INPUT_TEST_TAG),
     )
@@ -422,14 +421,14 @@ private fun ServerIpInput(
         isDigitsOnlyAllowed = false,
         errorText =
             serverIpError?.let {
-                textResource(
-                    id =
-                        when (it) {
-                            InvalidDataError.ServerIpError.Invalid ->
-                                R.string.please_enter_a_valid_ip_address
-                            InvalidDataError.ServerIpError.Required ->
-                                R.string.this_field_is_required
-                        }
+                stringResource(
+                    id = when (it) {
+                        InvalidDataError.ServerIpError.Invalid ->
+                            R.string.please_enter_a_valid_ip_address
+
+                        InvalidDataError.ServerIpError.Required ->
+                            R.string.this_field_is_required
+                    }
                 )
             },
         modifier = Modifier.animateContentSize(),
@@ -452,13 +451,13 @@ private fun PortInput(
         isDigitsOnlyAllowed = false,
         errorText =
             portError?.let {
-                textResource(
-                    id =
-                        when (it) {
-                            is InvalidDataError.PortError.Invalid ->
-                                R.string.please_enter_a_valid_remote_server_port
-                            InvalidDataError.PortError.Required -> R.string.this_field_is_required
-                        }
+                stringResource(
+                    id = when (it) {
+                        is InvalidDataError.PortError.Invalid ->
+                            R.string.please_enter_a_valid_remote_server_port
+
+                        InvalidDataError.PortError.Required -> R.string.this_field_is_required
+                    }
                 )
             },
         modifier = Modifier.animateContentSize(),
@@ -495,7 +494,7 @@ private fun PasswordInput(
             } else {
                 ImeAction.Done
             },
-        errorText = passwordError?.let { textResource(id = R.string.this_field_is_required) },
+        errorText = passwordError?.let { stringResource(id = R.string.this_field_is_required) },
         modifier = Modifier.animateContentSize(),
         textStyle = MaterialTheme.typography.bodyLarge.copy(textDirection = TextDirection.Ltr),
     )
@@ -603,7 +602,7 @@ private fun UsernameInput(
         labelText = stringResource(id = R.string.username),
         isValidValue = usernameError == null,
         isDigitsOnlyAllowed = false,
-        errorText = usernameError?.let { textResource(id = R.string.this_field_is_required) },
+        errorText = usernameError?.let { stringResource(id = R.string.this_field_is_required) },
         modifier = Modifier.animateContentSize(),
         textStyle = MaterialTheme.typography.bodyLarge.copy(textDirection = TextDirection.Ltr),
     )

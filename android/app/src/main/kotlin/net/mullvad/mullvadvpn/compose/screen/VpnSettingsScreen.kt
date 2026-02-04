@@ -72,7 +72,6 @@ import net.mullvad.mullvadvpn.compose.component.MullvadSnackbar
 import net.mullvad.mullvadvpn.lib.ui.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.NavigateCloseIconButton
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
-import net.mullvad.mullvadvpn.compose.component.textResource
 import net.mullvad.mullvadvpn.compose.extensions.dropUnlessResumed
 import net.mullvad.mullvadvpn.compose.preview.VpnSettingsUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.VpnSettingItem
@@ -527,7 +526,7 @@ fun VpnSettingsContent(
                     item(key = it::class.simpleName) {
                         ListItemInfo(
                             modifier = Modifier.animateItem().padding(bottom = Dimens.largeSpacer),
-                            text = textResource(id = R.string.custom_dns_footer),
+                            text = stringResource(id = R.string.custom_dns_footer),
                         )
                     }
 
@@ -553,9 +552,9 @@ fun VpnSettingsContent(
                         ListItemInfo(
                             modifier = Modifier.animateItem().padding(bottom = Dimens.largeSpacer),
                             text =
-                                textResource(
+                                stringResource(
                                     id = R.string.custom_dns_disable_mode_subtitle,
-                                    textResource(id = R.string.dns_content_blockers),
+                                    stringResource(id = R.string.dns_content_blockers)
                                 ),
                         )
                     }
