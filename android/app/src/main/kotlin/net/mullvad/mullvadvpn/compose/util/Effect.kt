@@ -28,12 +28,3 @@ inline fun <T> CollectSideEffectWithLifecycle(
         }
     }
 }
-
-@Composable
-fun RunOnKeyChange(key: Any, block: suspend CoroutineScope.() -> Unit) {
-    val scope = rememberCoroutineScope()
-    rememberSaveable(key) {
-        scope.launch { block() }
-        key
-    }
-}
