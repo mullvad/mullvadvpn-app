@@ -21,12 +21,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.component.MullvadFeatureChip
-import net.mullvad.mullvadvpn.compose.component.MullvadMoreChip
 import net.mullvad.mullvadvpn.compose.component.textResource
 import net.mullvad.mullvadvpn.compose.screen.LocalNavAnimatedVisibilityScope
 import net.mullvad.mullvadvpn.compose.screen.LocalSharedTransitionScope
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
+import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadFeatureChip
+import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadMoreChip
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 
 @Composable
