@@ -60,7 +60,6 @@ import kotlinx.coroutines.DisposableHandle
 import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.button.InfoIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.MullvadModalBottomSheet
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadSnackbar
 import net.mullvad.mullvadvpn.lib.ui.component.NavigateBackIconButton
@@ -420,3 +419,19 @@ private fun SettingsPatchError?.toString(resources: Resources) =
             resources.getString(R.string.settings_patch_error_recursion_limit)
         null -> resources.getString(R.string.settings_patch_success)
     }
+
+@Composable
+private fun InfoIconButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    contentDescription: String? = null,
+    iconTint: Color = MaterialTheme.colorScheme.onPrimary,
+) {
+    IconButton(modifier = modifier, onClick = onClick) {
+        Icon(
+            imageVector = Icons.Default.Info,
+            contentDescription = contentDescription,
+            tint = iconTint,
+        )
+    }
+}
