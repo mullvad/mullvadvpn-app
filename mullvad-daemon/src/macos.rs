@@ -1,4 +1,4 @@
-use std::{ffi::OsStr, fmt, io, path::Path, process::Stdio};
+use std::{ffi::OsStr, fmt, io, path::Path, process::Stdio, time::Duration};
 
 use anyhow::{Context, anyhow};
 use libc::{PROX_FDTYPE_VNODE, pid_t};
@@ -39,8 +39,6 @@ pub async fn allow_incoming_connections() {
         );
         log::warn!("{err}");
     }
-    // TODO: Should we take caution to remove the daemon from the macOS Application Firewall on
-    // shutdown / uninstall?
 }
 
 /// Bump filehandle limit
@@ -90,7 +88,8 @@ pub async fn handle_app_bundle_removal(
     /// This directory must be owned by root to prevent privilege escalation.
     const UNINSTALL_SCRIPT_PATH: &str = "/var/root/uninstall_mullvad.sh";
 
-    let daemon_path = std::env::current_exe().context("Failed to get daemon path")?;
+    let mullvad_daemon = std::env::current_exe().context("Failed to get daemon path")?;
+    let daemon_path = mullvad_daemon.clone();
 
     // Ignore app removal if the daemon isn't installed in the app directory
     if !daemon_path.starts_with(APP_PATH) {
@@ -167,6 +166,27 @@ pub async fn handle_app_bundle_removal(
     log(format_args!("Resetting firewall"));
     if let Err(error) = reset_firewall() {
         log(format_args!("{error:#?}"));
+    }
+
+    // Remove the daemon binary from the macOS Application Firewall
+    log(format_args!(
+        "Removing daemon from macOS Application Firewall allow-list"
+    ));
+    let revoke_allow_incoming_connections = socketfilterfw()
+        .arg("--remove")
+        .arg(&mullvad_daemon)
+        .output();
+    // Don't let the call to socketfilterfw hog the cleanup process. The 2 second timeout is
+    // arbitrary, but should be plenty of time for a successful invocation to wrap up.
+    match tokio::time::timeout(Duration::from_secs(2), revoke_allow_incoming_connections).await {
+        Ok(t) => {
+            if let Err(error) = t {
+                log(format_args!("{error:#?}"));
+            };
+        }
+        Err(timeout_error) => {
+            log(format_args!("{timeout_error:#?}"));
+        }
     }
 
     // Remove the current device from the account
