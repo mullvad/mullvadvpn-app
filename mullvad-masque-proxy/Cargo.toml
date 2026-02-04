@@ -13,7 +13,7 @@ name = "fragmentation"
 
 [dependencies]
 anyhow = { workspace = true }
-bytes = "1"
+bytes = { workspace = true }
 h3 = "0.0.7"
 h3-datagram = "0.0.1"
 h3-quinn = { version = "0.0.9", features = ["datagram"] }
