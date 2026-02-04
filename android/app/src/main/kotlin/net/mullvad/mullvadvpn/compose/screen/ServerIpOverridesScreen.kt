@@ -50,7 +50,6 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.destinations.ImportOverridesByTextDestination
 import com.ramcosta.composedestinations.generated.destinations.ResetServerIpOverridesConfirmationDestination
 import com.ramcosta.composedestinations.generated.destinations.ServerIpOverridesInfoDestination
@@ -61,10 +60,11 @@ import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.preview.ServerIpOverridesUiStatePreviewParameterProvider
-import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
-import net.mullvad.mullvadvpn.compose.util.OnNavResultValue
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
+import net.mullvad.mullvadvpn.core.OnNavResultValue
+import net.mullvad.mullvadvpn.core.animation.SlideInFromRightTransition
+import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
 import net.mullvad.mullvadvpn.lib.model.SettingsPatchError
 import net.mullvad.mullvadvpn.lib.ui.component.MullvadModalBottomSheet
@@ -87,7 +87,6 @@ import net.mullvad.mullvadvpn.lib.ui.tag.SERVER_IP_OVERRIDE_RESET_OVERRIDES_TEST
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaDisabled
-import net.mullvad.mullvadvpn.util.Lc
 import net.mullvad.mullvadvpn.viewmodel.ServerIpOverridesUiSideEffect
 import net.mullvad.mullvadvpn.viewmodel.ServerIpOverridesUiState
 import net.mullvad.mullvadvpn.viewmodel.ServerIpOverridesViewModel
@@ -115,7 +114,7 @@ private fun PreviewServerIpOverridesScreen(
 @Parcelize data class ServerIpOverridesNavArgs(val isModal: Boolean = false) : Parcelable
 
 @OptIn(ExperimentalSharedTransitionApi::class)
-@Destination<RootGraph>(
+@Destination<MainGraph>(
     style = SlideInFromRightTransition::class,
     navArgs = ServerIpOverridesNavArgs::class,
 )

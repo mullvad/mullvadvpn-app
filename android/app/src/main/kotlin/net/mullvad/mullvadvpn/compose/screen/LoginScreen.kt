@@ -63,7 +63,6 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.NavGraphs
 import com.ramcosta.composedestinations.generated.destinations.ApiUnreachableInfoDestination
 import com.ramcosta.composedestinations.generated.destinations.ConnectDestination
@@ -78,7 +77,6 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.dialog.info.ApiUnreachableInfoDialogNavArgs
 import net.mullvad.mullvadvpn.compose.dialog.info.ApiUnreachableInfoDialogResult
-import net.mullvad.mullvadvpn.compose.dialog.info.Confirmed
 import net.mullvad.mullvadvpn.compose.dialog.info.LoginAction
 import net.mullvad.mullvadvpn.compose.extensions.dropUnlessResumed
 import net.mullvad.mullvadvpn.compose.preview.LoginUiStatePreviewParameterProvider
@@ -96,6 +94,7 @@ import net.mullvad.mullvadvpn.compose.util.accountNumberVisualTransformation
 import net.mullvad.mullvadvpn.compose.util.clickableAnnotatedString
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithTopBar
+import net.mullvad.mullvadvpn.lib.ui.component.dialog.Confirmed
 import net.mullvad.mullvadvpn.lib.ui.component.textfield.mullvadWhiteTextFieldColors
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.lib.ui.designsystem.PrimaryButton
@@ -131,7 +130,7 @@ private fun PreviewLoginScreen(
 private const val TOP_SPACER_WEIGHT = 1f
 private const val BOTTOM_SPACER_WEIGHT = 3f
 
-@Destination<RootGraph>(style = LoginTransition::class)
+@Destination<MainGraph>(style = LoginTransition::class)
 @Composable
 fun Login(
     navigator: DestinationsNavigator,
@@ -180,12 +179,12 @@ fun Login(
             LoginUiSideEffect.NavigateToWelcome ->
                 navigator.navigate(WelcomeDestination) {
                     launchSingleTop = true
-                    popUpTo(NavGraphs.root) { inclusive = true }
+                    popUpTo(NavGraphs.main) { inclusive = true }
                 }
             is LoginUiSideEffect.NavigateToConnect ->
                 navigator.navigate(ConnectDestination) {
                     launchSingleTop = true
-                    popUpTo(NavGraphs.root) { inclusive = true }
+                    popUpTo(NavGraphs.main) { inclusive = true }
                 }
             is LoginUiSideEffect.TooManyDevices ->
                 navigator.navigate(DeviceListDestination(it.accountNumber)) {
@@ -194,7 +193,7 @@ fun Login(
             LoginUiSideEffect.NavigateToOutOfTime ->
                 navigator.navigate(OutOfTimeDestination) {
                     launchSingleTop = true
-                    popUpTo(NavGraphs.root) { inclusive = true }
+                    popUpTo(NavGraphs.main) { inclusive = true }
                 }
             LoginUiSideEffect.NavigateToCreateAccountConfirmation ->
                 navigator.navigate(CreateAccountConfirmationDestination)

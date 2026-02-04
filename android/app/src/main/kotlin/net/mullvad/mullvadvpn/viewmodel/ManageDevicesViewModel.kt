@@ -14,14 +14,14 @@ import net.mullvad.mullvadvpn.compose.state.DeviceItemUiState
 import net.mullvad.mullvadvpn.compose.state.DeviceListUiState
 import net.mullvad.mullvadvpn.compose.state.ManageDevicesItemUiState
 import net.mullvad.mullvadvpn.compose.state.ManageDevicesUiState
-import net.mullvad.mullvadvpn.constant.VIEW_MODEL_STOP_TIMEOUT
+import net.mullvad.mullvadvpn.lib.common.Lce
+import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
+import net.mullvad.mullvadvpn.lib.common.toLce
 import net.mullvad.mullvadvpn.lib.model.Device
 import net.mullvad.mullvadvpn.lib.model.DeviceId
 import net.mullvad.mullvadvpn.lib.model.DeviceState
 import net.mullvad.mullvadvpn.lib.model.GetDeviceListError
 import net.mullvad.mullvadvpn.lib.repository.DeviceRepository
-import net.mullvad.mullvadvpn.util.Lce
-import net.mullvad.mullvadvpn.util.toLce
 
 class ManageDevicesViewModel(
     deviceRepository: DeviceRepository,

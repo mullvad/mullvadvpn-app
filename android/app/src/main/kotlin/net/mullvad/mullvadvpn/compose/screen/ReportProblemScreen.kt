@@ -48,7 +48,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.destinations.ReportProblemNoEmailDestination
 import com.ramcosta.composedestinations.generated.destinations.ViewLogsDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
@@ -57,10 +56,10 @@ import com.ramcosta.composedestinations.result.ResultRecipient
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.extensions.createUriHook
 import net.mullvad.mullvadvpn.compose.preview.ReportProblemUiStatePreviewParameterProvider
-import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.SecureScreenWhileInView
 import net.mullvad.mullvadvpn.compose.util.clickableAnnotatedString
+import net.mullvad.mullvadvpn.core.animation.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.lib.common.util.appendHideNavOnPlayBuild
 import net.mullvad.mullvadvpn.lib.ui.component.ExpandChevron
 import net.mullvad.mullvadvpn.lib.ui.component.NavigateBackIconButton
@@ -103,7 +102,7 @@ private fun PreviewReportProblemScreen(
     }
 }
 
-@Destination<RootGraph>(style = SlideInFromRightTransition::class)
+@Destination<MainGraph>(style = SlideInFromRightTransition::class)
 @Composable
 fun ReportProblem(
     navigator: DestinationsNavigator,

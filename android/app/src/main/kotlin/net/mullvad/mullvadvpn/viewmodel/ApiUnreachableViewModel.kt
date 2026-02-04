@@ -16,7 +16,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.dialog.info.ApiUnreachableInfoDialogNavArgs
 import net.mullvad.mullvadvpn.compose.state.ApiUnreachableUiState
-import net.mullvad.mullvadvpn.constant.VIEW_MODEL_STOP_TIMEOUT
+import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.repository.ApiAccessRepository
 import net.mullvad.mullvadvpn.lib.ui.component.NEWLINE_STRING
 import net.mullvad.mullvadvpn.lib.usecase.SupportEmailUseCase

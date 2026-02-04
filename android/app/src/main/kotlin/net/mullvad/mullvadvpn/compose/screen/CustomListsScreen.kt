@@ -26,7 +26,6 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.destinations.CreateCustomListDestination
 import com.ramcosta.composedestinations.generated.destinations.EditCustomListDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
@@ -39,8 +38,8 @@ import net.mullvad.mullvadvpn.compose.extensions.dropUnlessResumed
 import net.mullvad.mullvadvpn.compose.extensions.itemsIndexedWithDivider
 import net.mullvad.mullvadvpn.compose.preview.CustomListsUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.CustomListsUiState
-import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
+import net.mullvad.mullvadvpn.core.animation.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.lib.model.CustomList
 import net.mullvad.mullvadvpn.lib.model.communication.CustomListActionResultData
 import net.mullvad.mullvadvpn.lib.ui.component.NavigateBackIconButton
@@ -71,7 +70,7 @@ private fun PreviewAccountScreen(
 }
 
 @Composable
-@Destination<RootGraph>(style = SlideInFromRightTransition::class)
+@Destination<MainGraph>(style = SlideInFromRightTransition::class)
 fun CustomLists(
     navigator: DestinationsNavigator,
     editCustomListResultRecipient:

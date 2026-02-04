@@ -7,10 +7,10 @@ import de.mannodermaus.junit5.compose.ComposeContext
 import io.mockk.MockKAnnotations
 import io.mockk.mockk
 import io.mockk.verify
-import net.mullvad.mullvadvpn.compose.createEdgeToEdgeComposeExtension
-import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.lib.ui.tag.RESET_SERVER_IP_OVERRIDE_CANCEL_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.RESET_SERVER_IP_OVERRIDE_RESET_TEST_TAG
+import net.mullvad.mullvadvpn.screen.test.createEdgeToEdgeComposeExtension
+import net.mullvad.mullvadvpn.screen.test.setContentWithTheme
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension

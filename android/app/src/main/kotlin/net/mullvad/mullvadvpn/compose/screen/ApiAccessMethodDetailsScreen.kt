@@ -36,7 +36,6 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.destinations.DeleteApiAccessMethodConfirmationDestination
 import com.ramcosta.composedestinations.generated.destinations.EditApiAccessMethodDestination
 import com.ramcosta.composedestinations.generated.destinations.EncryptedDnsProxyInfoDestination
@@ -47,11 +46,11 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.TestMethodButton
 import net.mullvad.mullvadvpn.compose.preview.ApiAccessMethodDetailsUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.ApiAccessMethodDetailsUiState
-import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
-import net.mullvad.mullvadvpn.compose.util.OnNavResultValue
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
 import net.mullvad.mullvadvpn.compose.util.toDisplayName
+import net.mullvad.mullvadvpn.core.OnNavResultValue
+import net.mullvad.mullvadvpn.core.animation.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethod
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodId
 import net.mullvad.mullvadvpn.lib.ui.component.NavigateBackIconButton
@@ -97,7 +96,7 @@ private fun PreviewApiAccessMethodDetailsScreen(
 
 data class ApiAccessMethodDetailsNavArgs(val accessMethodId: ApiAccessMethodId)
 
-@Destination<RootGraph>(
+@Destination<MainGraph>(
     style = SlideInFromRightTransition::class,
     navArgs = ApiAccessMethodDetailsNavArgs::class,
 )

@@ -7,16 +7,16 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.result.EmptyResultBackNavigator
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.dialog.info.InfoConfirmationDialog
-import net.mullvad.mullvadvpn.compose.dialog.info.InfoConfirmationDialogTitleType
 import net.mullvad.mullvadvpn.compose.preview.DevicePreviewParameterProvider
+import net.mullvad.mullvadvpn.compose.screen.MainGraph
 import net.mullvad.mullvadvpn.lib.model.Device
 import net.mullvad.mullvadvpn.lib.model.DeviceId
+import net.mullvad.mullvadvpn.lib.ui.component.dialog.InfoConfirmationDialog
+import net.mullvad.mullvadvpn.lib.ui.component.dialog.InfoConfirmationDialogTitleType
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 
 @Preview
@@ -27,11 +27,17 @@ private fun PreviewManageDevicesRemoveConfirmationDialog(
     AppTheme { ManageDevicesRemoveConfirmation(EmptyResultBackNavigator(), device = device) }
 }
 
-@Destination<RootGraph>(style = DestinationStyle.Dialog::class)
+@Destination<MainGraph>(style = DestinationStyle.Dialog::class)
 @Composable
 fun ManageDevicesRemoveConfirmation(navigator: ResultBackNavigator<DeviceId>, device: Device) {
     InfoConfirmationDialog(
-        navigator = navigator,
+        onResult = {
+            if (it != null) {
+                navigator.navigateBack(it)
+            } else {
+                navigator.navigateBack()
+            }
+        },
         confirmValue = device.id,
         titleType = InfoConfirmationDialogTitleType.IconAndTitle(title = device.titleText()),
         confirmButtonTitle = stringResource(R.string.remove_button),
