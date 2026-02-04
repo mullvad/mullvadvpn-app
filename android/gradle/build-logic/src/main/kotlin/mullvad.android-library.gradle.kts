@@ -10,8 +10,6 @@ apply(plugin = "com.android.library")
 
 apply(plugin = "org.jetbrains.kotlin.android")
 
-val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
-
 configure<LibraryExtension> {
     compileSdk = libs.findVersion("compile-sdk").get().toString().toInt()
     buildToolsVersion = libs.findVersion("build-tools").get().toString()
