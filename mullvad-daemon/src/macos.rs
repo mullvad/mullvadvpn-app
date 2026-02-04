@@ -11,6 +11,38 @@ use tokio::{fs::File, process::Command};
 
 use crate::device::AccountManagerHandle;
 
+/// Mullvad app install path
+const APP_PATH: &str = "/Applications/Mullvad VPN.app";
+
+/// Ensure that the daemon sets the `allow incoming connections` option for the macOS Application Firewall.
+pub async fn allow_incoming_connections() {
+    // Run `socketfilterfw` to add the `mullvad-daemon` binary to the list of applications that
+    // want to enable the "allow incoming connections" option in the macOS Application Firewall.
+    // This is done on a best-effort basis. If this would fail for whatever reason (outdated CLI invocation,
+    // Apple broke their own tool etc), log the error and continue.
+    let mullvad_daemon = match std::env::current_exe() {
+        Ok(path) => path,
+        Err(err) => {
+            log::warn!("{err}");
+            return;
+        }
+    };
+    // Intended command to run: socketfilterfw --add /Applications/Mullvad\ VPN.app/Contents/Resources/mullvad-daemon
+    if let Err(err) = socketfilterfw()
+        .arg("--add")
+        .arg(mullvad_daemon)
+        .output()
+        .await
+    {
+        log::warn!(
+            "Failed to add daemon binary to Application Firewall. DNS might not work properly"
+        );
+        log::warn!("{err}");
+    }
+    // TODO: Should we take caution to remove the daemon from the macOS Application Firewall on
+    // shutdown / uninstall?
+}
+
 /// Bump filehandle limit
 pub fn bump_filehandle_limit() {
     let mut limits = libc::rlimit {
@@ -57,9 +89,6 @@ pub async fn handle_app_bundle_removal(
     /// Path to extract the uninstall script to.
     /// This directory must be owned by root to prevent privilege escalation.
     const UNINSTALL_SCRIPT_PATH: &str = "/var/root/uninstall_mullvad.sh";
-
-    /// Mullvad app install path
-    const APP_PATH: &str = "/Applications/Mullvad VPN.app";
 
     let daemon_path = std::env::current_exe().context("Failed to get daemon path")?;
 
@@ -227,4 +256,16 @@ fn process_has_mullvad_installer(pid: pid_t) -> io::Result<bool> {
         }
     }
     Ok(false)
+}
+
+/// Prepare to invoke the [`socketfilterfw`] CLI.
+///
+/// # Note
+/// `/usr/libexec` is read-only, so we assume that all exectuables residing there are legitimate and
+/// do not impose a risk of using the daemon process (running as root) in local privilege escalation
+/// attacks.
+///
+/// [socketfilterfw]: https://www.manpagez.com/man/8/socketfilterfw/
+fn socketfilterfw() -> Command {
+    Command::new("/usr/libexec/ApplicationFirewall/socketfilterfw")
 }
