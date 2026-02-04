@@ -66,6 +66,7 @@ license = "GPL-3.0-only"
 
 [workspace.dependencies]
 anyhow = "1.0"
+bytes = "1.11.1"
 chrono = { version = "0.4.26", default-features = false }
 clap = { version = "4.4.18", features = ["cargo", "derive"] }
 dirs = "6.0.0"
