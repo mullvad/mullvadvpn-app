@@ -16,8 +16,8 @@ import net.mullvad.mullvadvpn.compose.state.DeleteCustomListUiState
 import net.mullvad.mullvadvpn.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
-import net.mullvad.mullvadvpn.lib.usecase.communication.CustomListAction
-import net.mullvad.mullvadvpn.lib.usecase.communication.CustomListActionResultData
+import net.mullvad.mullvadvpn.lib.model.communication.CustomListAction
+import net.mullvad.mullvadvpn.lib.model.communication.CustomListActionResultData
 import net.mullvad.mullvadvpn.lib.usecase.customlists.CustomListActionUseCase
 import net.mullvad.mullvadvpn.lib.usecase.customlists.DeleteWithUndoError
 

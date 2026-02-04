@@ -26,12 +26,12 @@ import net.mullvad.mullvadvpn.lib.common.util.relaylist.newFilterOnSearch
 import net.mullvad.mullvadvpn.lib.common.util.relaylist.withDescendants
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
+import net.mullvad.mullvadvpn.lib.model.communication.CustomListAction
+import net.mullvad.mullvadvpn.lib.model.communication.CustomListActionResultData
+import net.mullvad.mullvadvpn.lib.model.communication.LocationsChanged
 import net.mullvad.mullvadvpn.lib.repository.RelayListRepository
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.CheckableRelayListItem
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.ItemPosition
-import net.mullvad.mullvadvpn.lib.usecase.communication.CustomListAction
-import net.mullvad.mullvadvpn.lib.usecase.communication.CustomListActionResultData
-import net.mullvad.mullvadvpn.lib.usecase.communication.LocationsChanged
 import net.mullvad.mullvadvpn.lib.usecase.customlists.CustomListActionUseCase
 import net.mullvad.mullvadvpn.lib.usecase.customlists.CustomListRelayItemsUseCase
 import net.mullvad.mullvadvpn.util.Lce

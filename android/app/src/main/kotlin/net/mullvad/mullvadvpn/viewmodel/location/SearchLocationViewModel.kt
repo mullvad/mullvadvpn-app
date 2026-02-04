@@ -23,6 +23,8 @@ import net.mullvad.mullvadvpn.lib.model.MultihopRelayListType
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.model.RelayListType
+import net.mullvad.mullvadvpn.lib.model.communication.CustomListAction
+import net.mullvad.mullvadvpn.lib.model.communication.CustomListActionResultData
 import net.mullvad.mullvadvpn.lib.repository.CustomListsRepository
 import net.mullvad.mullvadvpn.lib.repository.RelayListFilterRepository
 import net.mullvad.mullvadvpn.lib.repository.RelayListRepository
@@ -37,8 +39,6 @@ import net.mullvad.mullvadvpn.lib.usecase.MultihopChange
 import net.mullvad.mullvadvpn.lib.usecase.SelectRelayItemError
 import net.mullvad.mullvadvpn.lib.usecase.SelectSinglehopUseCase
 import net.mullvad.mullvadvpn.lib.usecase.SelectedLocationUseCase
-import net.mullvad.mullvadvpn.lib.usecase.communication.CustomListAction
-import net.mullvad.mullvadvpn.lib.usecase.communication.CustomListActionResultData
 import net.mullvad.mullvadvpn.lib.usecase.customlists.CustomListActionUseCase
 import net.mullvad.mullvadvpn.lib.usecase.customlists.CustomListsRelayItemUseCase
 import net.mullvad.mullvadvpn.lib.usecase.customlists.FilterCustomListsRelayItemUseCase

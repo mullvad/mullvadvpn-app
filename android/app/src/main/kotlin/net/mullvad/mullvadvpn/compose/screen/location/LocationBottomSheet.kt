@@ -53,6 +53,8 @@ import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayListType
+import net.mullvad.mullvadvpn.lib.model.communication.CustomListAction
+import net.mullvad.mullvadvpn.lib.model.communication.CustomListActionResultData
 import net.mullvad.mullvadvpn.lib.ui.designsystem.RelayListHeaderTokens
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_CUSTOM_LIST_BOTTOM_SHEET_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_LOCATION_BOTTOM_SHEET_TEST_TAG
@@ -60,8 +62,6 @@ import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 import net.mullvad.mullvadvpn.lib.usecase.ModifyMultihopError
 import net.mullvad.mullvadvpn.lib.usecase.MultihopChange
 import net.mullvad.mullvadvpn.lib.usecase.SelectRelayItemError
-import net.mullvad.mullvadvpn.lib.usecase.communication.CustomListAction
-import net.mullvad.mullvadvpn.lib.usecase.communication.CustomListActionResultData
 import net.mullvad.mullvadvpn.util.Lc
 import net.mullvad.mullvadvpn.viewmodel.location.LocationBottomSheetViewModel
 import net.mullvad.mullvadvpn.viewmodel.location.UndoChangeMultihopAction

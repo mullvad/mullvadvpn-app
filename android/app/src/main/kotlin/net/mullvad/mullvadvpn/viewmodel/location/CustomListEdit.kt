@@ -8,9 +8,9 @@ import net.mullvad.mullvadvpn.lib.model.CustomList
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.GetCustomListError
 import net.mullvad.mullvadvpn.lib.model.RelayItem
-import net.mullvad.mullvadvpn.lib.usecase.communication.CustomListAction
-import net.mullvad.mullvadvpn.lib.usecase.communication.CustomListActionResultData
-import net.mullvad.mullvadvpn.lib.usecase.communication.LocationsChanged
+import net.mullvad.mullvadvpn.lib.model.communication.CustomListAction
+import net.mullvad.mullvadvpn.lib.model.communication.CustomListActionResultData
+import net.mullvad.mullvadvpn.lib.model.communication.LocationsChanged
 import net.mullvad.mullvadvpn.lib.usecase.customlists.CustomListActionError
 
 internal suspend fun addLocationToCustomList(

@@ -15,8 +15,8 @@ import net.mullvad.mullvadvpn.compose.state.DeleteCustomListUiState
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
+import net.mullvad.mullvadvpn.lib.model.communication.CustomListActionResultData
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
-import net.mullvad.mullvadvpn.lib.usecase.communication.CustomListActionResultData
 import net.mullvad.mullvadvpn.viewmodel.DeleteCustomListConfirmationSideEffect
 import net.mullvad.mullvadvpn.viewmodel.DeleteCustomListConfirmationViewModel
 import org.koin.androidx.compose.koinViewModel

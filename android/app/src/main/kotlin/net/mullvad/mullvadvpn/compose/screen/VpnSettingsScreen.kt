@@ -87,6 +87,7 @@ import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
 import net.mullvad.mullvadvpn.lib.model.IpVersion
 import net.mullvad.mullvadvpn.lib.model.Mtu
+import net.mullvad.mullvadvpn.lib.model.communication.DnsDialogResult
 import net.mullvad.mullvadvpn.lib.ui.component.DividerButton
 import net.mullvad.mullvadvpn.lib.ui.component.SPACE_CHAR
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.DnsListItem
@@ -114,7 +115,6 @@ import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaInvisible
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaScrollbar
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaVisible
-import net.mullvad.mullvadvpn.lib.usecase.communication.DnsDialogResult
 import net.mullvad.mullvadvpn.util.Lc
 import net.mullvad.mullvadvpn.util.indexOfFirstOrNull
 import net.mullvad.mullvadvpn.viewmodel.VpnSettingsSideEffect

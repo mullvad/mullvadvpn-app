@@ -45,6 +45,7 @@ import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.EditCustomListListItem
+import net.mullvad.mullvadvpn.lib.model.communication.CustomListActionResultData
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
 import net.mullvad.mullvadvpn.lib.ui.tag.DELETE_DROPDOWN_MENU_ITEM_TEST_TAG
@@ -52,7 +53,6 @@ import net.mullvad.mullvadvpn.lib.ui.tag.TOP_BAR_DROPDOWN_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.theme.color.menuItemColors
-import net.mullvad.mullvadvpn.lib.usecase.communication.CustomListActionResultData
 import net.mullvad.mullvadvpn.viewmodel.EditCustomListViewModel
 import org.koin.androidx.compose.koinViewModel
 

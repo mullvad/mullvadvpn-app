@@ -32,6 +32,9 @@ import net.mullvad.mullvadvpn.lib.model.Providers
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.Settings
 import net.mullvad.mullvadvpn.lib.model.WireguardConstraints
+import net.mullvad.mullvadvpn.lib.model.communication.CustomListAction
+import net.mullvad.mullvadvpn.lib.model.communication.CustomListActionResultData
+import net.mullvad.mullvadvpn.lib.model.communication.LocationsChanged
 import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
 import net.mullvad.mullvadvpn.lib.repository.CustomListsRepository
 import net.mullvad.mullvadvpn.lib.repository.RelayListFilterRepository
@@ -45,9 +48,6 @@ import net.mullvad.mullvadvpn.lib.usecase.ModelOwnership
 import net.mullvad.mullvadvpn.lib.usecase.ModifyMultihopUseCase
 import net.mullvad.mullvadvpn.lib.usecase.MultihopChange
 import net.mullvad.mullvadvpn.lib.usecase.SelectSinglehopUseCase
-import net.mullvad.mullvadvpn.lib.usecase.communication.CustomListAction
-import net.mullvad.mullvadvpn.lib.usecase.communication.CustomListActionResultData
-import net.mullvad.mullvadvpn.lib.usecase.communication.LocationsChanged
 import net.mullvad.mullvadvpn.lib.usecase.customlists.CustomListActionUseCase
 import net.mullvad.mullvadvpn.util.Lc
 import org.junit.jupiter.api.AfterEach

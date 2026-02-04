@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.lib.usecase.communication
+package net.mullvad.mullvadvpn.lib.model.communication
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize

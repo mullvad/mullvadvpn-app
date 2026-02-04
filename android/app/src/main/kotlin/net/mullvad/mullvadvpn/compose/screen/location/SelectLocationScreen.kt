@@ -102,6 +102,7 @@ import net.mullvad.mullvadvpn.lib.model.MultihopRelayListType
 import net.mullvad.mullvadvpn.lib.model.ParameterGenerationError
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayListType
+import net.mullvad.mullvadvpn.lib.model.communication.CustomListActionResultData
 import net.mullvad.mullvadvpn.lib.ui.component.MultihopSelector
 import net.mullvad.mullvadvpn.lib.ui.component.Singlehop
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
@@ -116,7 +117,6 @@ import net.mullvad.mullvadvpn.lib.usecase.FilterChip
 import net.mullvad.mullvadvpn.lib.usecase.ModifyMultihopError
 import net.mullvad.mullvadvpn.lib.usecase.MultihopChange
 import net.mullvad.mullvadvpn.lib.usecase.SelectRelayItemError
-import net.mullvad.mullvadvpn.lib.usecase.communication.CustomListActionResultData
 import net.mullvad.mullvadvpn.util.Lc
 import net.mullvad.mullvadvpn.viewmodel.location.SelectLocationSideEffect
 import net.mullvad.mullvadvpn.viewmodel.location.SelectLocationViewModel

@@ -16,8 +16,8 @@ import com.ramcosta.composedestinations.spec.DestinationStyle
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.textfield.DnsTextField
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
+import net.mullvad.mullvadvpn.lib.model.communication.DnsDialogResult
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
-import net.mullvad.mullvadvpn.lib.usecase.communication.DnsDialogResult
 import net.mullvad.mullvadvpn.viewmodel.DnsDialogSideEffect
 import net.mullvad.mullvadvpn.viewmodel.DnsDialogViewModel
 import net.mullvad.mullvadvpn.viewmodel.DnsDialogViewState

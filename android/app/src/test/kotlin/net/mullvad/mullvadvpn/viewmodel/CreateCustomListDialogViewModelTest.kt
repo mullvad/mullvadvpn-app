@@ -15,9 +15,9 @@ import net.mullvad.mullvadvpn.lib.model.CustomListAlreadyExists
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
-import net.mullvad.mullvadvpn.lib.usecase.communication.Created
-import net.mullvad.mullvadvpn.lib.usecase.communication.CustomListAction
-import net.mullvad.mullvadvpn.lib.usecase.communication.CustomListActionResultData
+import net.mullvad.mullvadvpn.lib.model.communication.Created
+import net.mullvad.mullvadvpn.lib.model.communication.CustomListAction
+import net.mullvad.mullvadvpn.lib.model.communication.CustomListActionResultData
 import net.mullvad.mullvadvpn.lib.usecase.customlists.CreateWithLocationsError
 import net.mullvad.mullvadvpn.lib.usecase.customlists.CustomListActionUseCase
 import org.junit.jupiter.api.Assertions.assertEquals
