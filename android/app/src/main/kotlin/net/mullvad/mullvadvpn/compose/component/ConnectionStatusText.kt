@@ -53,7 +53,8 @@ private fun TunnelState.text() =
             }
         is TunnelState.Error ->
             stringResource(
-                id = if (errorState.isBlocking) R.string.blocked_connection else R.string.error_state
+                id =
+                    if (errorState.isBlocking) R.string.blocked_connection else R.string.error_state
             )
     }.uppercase()
 

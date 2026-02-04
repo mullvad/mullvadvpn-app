@@ -32,7 +32,9 @@ fun LocalNetworkSharingInfo(navigator: DestinationsNavigator) {
                 // removed by the html parser
                 appendLine(HTML_NEWLINE_STRING)
                 appendLine(
-                    stringResource(id = R.string.local_network_sharing_info_block_connections_warning)
+                    stringResource(
+                        id = R.string.local_network_sharing_info_block_connections_warning
+                    )
                 )
             },
         onDismiss = dropUnlessResumed { navigator.navigateUp() },

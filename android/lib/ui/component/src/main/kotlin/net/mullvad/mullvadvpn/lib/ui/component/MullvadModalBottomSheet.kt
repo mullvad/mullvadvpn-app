@@ -73,6 +73,8 @@ fun MullvadModalBottomSheet(
         dragHandle = { BottomSheetDefaults.DragHandle(color = onBackgroundColor) },
     ) {
         content(paddingValues.calculateBottomPadding())
-        Spacer(modifier = Modifier.height(paddingValues.calculateBottomPadding() + Dimens.smallPadding))
+        Spacer(
+            modifier = Modifier.height(paddingValues.calculateBottomPadding() + Dimens.smallPadding)
+        )
     }
 }

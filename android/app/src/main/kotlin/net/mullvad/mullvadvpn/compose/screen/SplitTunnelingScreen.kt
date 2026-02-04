@@ -41,9 +41,6 @@ import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.applist.AppData
-import net.mullvad.mullvadvpn.lib.ui.component.NavigateBackIconButton
-import net.mullvad.mullvadvpn.lib.ui.component.NavigateCloseIconButton
-import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.compose.constant.CommonContentKey
 import net.mullvad.mullvadvpn.compose.constant.ContentType
 import net.mullvad.mullvadvpn.compose.constant.SplitTunnelingContentKey
@@ -54,6 +51,9 @@ import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.compose.util.hasValidSize
 import net.mullvad.mullvadvpn.compose.util.isBelowMaxByteSize
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
+import net.mullvad.mullvadvpn.lib.ui.component.NavigateBackIconButton
+import net.mullvad.mullvadvpn.lib.ui.component.NavigateCloseIconButton
+import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.IconState
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.SplitTunnelingListItem
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.SwitchListItem

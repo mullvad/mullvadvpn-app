@@ -47,7 +47,4 @@ fun ManageDevicesRemoveConfirmation(navigator: ResultBackNavigator<DeviceId>, de
 
 @Composable
 private fun Device.titleText(): String =
-    stringResource(
-        id = R.string.manage_devices_confirm_removal_description_line1,
-        displayName()
-    )
+    stringResource(id = R.string.manage_devices_confirm_removal_description_line1, displayName())

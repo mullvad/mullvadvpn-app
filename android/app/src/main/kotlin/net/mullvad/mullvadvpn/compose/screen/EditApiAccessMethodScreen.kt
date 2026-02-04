@@ -44,18 +44,12 @@ import com.ramcosta.composedestinations.result.ResultRecipient
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.TestMethodButton
-import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadDropdownMenuItem
-import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadExposedDropdownMenuBox
-import net.mullvad.mullvadvpn.lib.ui.component.NavigateCloseIconButton
-import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithSmallTopBar
-import net.mullvad.mullvadvpn.lib.ui.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.dialog.info.Confirmed
 import net.mullvad.mullvadvpn.compose.preview.EditApiAccessMethodUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.ApiAccessMethodTypes
 import net.mullvad.mullvadvpn.compose.state.EditApiAccessFormData
 import net.mullvad.mullvadvpn.compose.state.EditApiAccessMethodUiState
 import net.mullvad.mullvadvpn.compose.textfield.ApiAccessMethodTextField
-import net.mullvad.mullvadvpn.lib.ui.component.textfield.apiAccessTextFieldColors
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.OnNavResultValue
@@ -64,7 +58,13 @@ import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodId
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodName
 import net.mullvad.mullvadvpn.lib.model.Cipher
 import net.mullvad.mullvadvpn.lib.model.InvalidDataError
+import net.mullvad.mullvadvpn.lib.ui.component.NavigateCloseIconButton
+import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithSmallTopBar
+import net.mullvad.mullvadvpn.lib.ui.component.drawVerticalScrollbar
+import net.mullvad.mullvadvpn.lib.ui.component.textfield.apiAccessTextFieldColors
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
+import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadDropdownMenuItem
+import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadExposedDropdownMenuBox
 import net.mullvad.mullvadvpn.lib.ui.designsystem.PrimaryButton
 import net.mullvad.mullvadvpn.lib.ui.tag.EDIT_API_ACCESS_NAME_INPUT_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
@@ -422,13 +422,14 @@ private fun ServerIpInput(
         errorText =
             serverIpError?.let {
                 stringResource(
-                    id = when (it) {
-                        InvalidDataError.ServerIpError.Invalid ->
-                            R.string.please_enter_a_valid_ip_address
+                    id =
+                        when (it) {
+                            InvalidDataError.ServerIpError.Invalid ->
+                                R.string.please_enter_a_valid_ip_address
 
-                        InvalidDataError.ServerIpError.Required ->
-                            R.string.this_field_is_required
-                    }
+                            InvalidDataError.ServerIpError.Required ->
+                                R.string.this_field_is_required
+                        }
                 )
             },
         modifier = Modifier.animateContentSize(),
@@ -452,12 +453,13 @@ private fun PortInput(
         errorText =
             portError?.let {
                 stringResource(
-                    id = when (it) {
-                        is InvalidDataError.PortError.Invalid ->
-                            R.string.please_enter_a_valid_remote_server_port
+                    id =
+                        when (it) {
+                            is InvalidDataError.PortError.Invalid ->
+                                R.string.please_enter_a_valid_remote_server_port
 
-                        InvalidDataError.PortError.Required -> R.string.this_field_is_required
-                    }
+                            InvalidDataError.PortError.Required -> R.string.this_field_is_required
+                        }
                 )
             },
         modifier = Modifier.animateContentSize(),

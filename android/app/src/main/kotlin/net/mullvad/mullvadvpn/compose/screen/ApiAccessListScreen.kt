@@ -28,8 +28,6 @@ import com.ramcosta.composedestinations.generated.destinations.ApiAccessMethodIn
 import com.ramcosta.composedestinations.generated.destinations.EditApiAccessMethodDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.lib.ui.component.NavigateBackIconButton
-import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.compose.constant.ContentType
 import net.mullvad.mullvadvpn.compose.extensions.itemsIndexedWithDivider
 import net.mullvad.mullvadvpn.compose.preview.ApiAccessListUiStatePreviewParameterProvider
@@ -37,6 +35,8 @@ import net.mullvad.mullvadvpn.compose.state.ApiAccessListUiState
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.compose.util.toDisplayName
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodSetting
+import net.mullvad.mullvadvpn.lib.ui.component.NavigateBackIconButton
+import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.NavigationListItem
 import net.mullvad.mullvadvpn.lib.ui.component.positionForIndex
 import net.mullvad.mullvadvpn.lib.ui.component.text.ScreenDescription

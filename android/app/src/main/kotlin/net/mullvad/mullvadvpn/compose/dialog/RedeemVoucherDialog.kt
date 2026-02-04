@@ -38,12 +38,12 @@ import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.state.VoucherDialogState
 import net.mullvad.mullvadvpn.compose.state.VoucherDialogUiState
-import net.mullvad.mullvadvpn.lib.ui.component.textfield.CustomTextField
 import net.mullvad.mullvadvpn.compose.util.MAX_VOUCHER_LENGTH
 import net.mullvad.mullvadvpn.compose.util.vouchersVisualTransformation
 import net.mullvad.mullvadvpn.constant.VOUCHER_LENGTH
 import net.mullvad.mullvadvpn.lib.model.DAYS_PER_VOUCHER_MONTH
 import net.mullvad.mullvadvpn.lib.model.RedeemVoucherError
+import net.mullvad.mullvadvpn.lib.ui.component.textfield.CustomTextField
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorSmall
 import net.mullvad.mullvadvpn.lib.ui.designsystem.PrimaryButton
 import net.mullvad.mullvadvpn.lib.ui.designsystem.VariantButton

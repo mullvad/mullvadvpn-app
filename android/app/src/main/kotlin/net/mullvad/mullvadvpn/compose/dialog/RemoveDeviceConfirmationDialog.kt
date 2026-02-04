@@ -33,10 +33,7 @@ private fun PreviewRemoveDeviceConfirmationDialog(
 @Composable
 fun RemoveDeviceConfirmation(navigator: ResultBackNavigator<DeviceId>, device: Device) {
     val htmlFormattedString =
-        stringResource(
-            id = R.string.max_devices_confirm_removal_description,
-            device.displayName()
-        )
+        stringResource(id = R.string.max_devices_confirm_removal_description, device.displayName())
     val message =
         HtmlCompat.fromHtml(htmlFormattedString, HtmlCompat.FROM_HTML_MODE_COMPACT)
             .toAnnotatedString(
