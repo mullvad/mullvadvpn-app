@@ -43,6 +43,7 @@ const AccordionNamespace = Object.assign(Accordion, {
   Header: AccordionHeader,
   HeaderItem: AccordionHeaderItem,
   HeaderActionGroup: ListItem.ActionGroup,
+  HeaderTrailingActions: ListItem.TrailingActions,
   HeaderTrailingAction: ListItem.TrailingAction,
   Content: AccordionContent,
   Title: AccordionTitle,

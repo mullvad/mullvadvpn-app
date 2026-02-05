@@ -16,9 +16,11 @@ export function AddToCustomListButton(props: AddToCustomListButtonProps) {
 
   return (
     <>
-      <LocationListItem.IconButton onClick={show} {...props}>
-        <LocationListItem.IconButton.Icon icon="add-circle" />
-      </LocationListItem.IconButton>
+      <LocationListItem.HeaderTrailingAction>
+        <LocationListItem.IconButton onClick={show} {...props}>
+          <LocationListItem.IconButton.Icon icon="add-circle" />
+        </LocationListItem.IconButton>
+      </LocationListItem.HeaderTrailingAction>
 
       {'country' in location && (
         <AddToListDialog open={open} onOpenChange={setOpen} location={location} />
