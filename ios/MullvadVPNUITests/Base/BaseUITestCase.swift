@@ -331,7 +331,6 @@ class BaseUITestCase: XCTestCase {
                     .tapAccountButton()
                 AccountPage(app)
                     .tapLogOutButton()
-                    .waitForLogoutSpinnerToDisappear()
             } else {
                 // Workaround for revoked device view not showing account button
                 RevokedDevicePage(app)
