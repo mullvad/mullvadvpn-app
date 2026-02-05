@@ -22,15 +22,8 @@ class AndroidLibraryFeatureImplPlugin : Plugin<Project> {
                     resources {
                         pickFirsts +=
                             setOf(
-                                // Fixes packaging error caused by:
-                                // androidx.compose.ui:ui-test-junit4
-                                "META-INF/AL2.0",
-                                "META-INF/LGPL2.1",
                                 // Fixes packaging error caused by: jetified-junit-*
                                 "META-INF/LICENSE.md",
-                                "META-INF/LICENSE-notice.md",
-                                "META-INF/io.netty.versions.properties",
-                                "META-INF/INDEX.LIST",
                             )
                     }
                 }

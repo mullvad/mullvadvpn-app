@@ -1,8 +1,5 @@
 package net.mullvad.mullvadvpn.feature.daita.impl
 
-// import
-// com.ramcosta.composedestinations.generated.destinations.DaitaDirectOnlyConfirmationDestination
-// import com.ramcosta.composedestinations.generated.destinations.DaitaDirectOnlyInfoDestination
 import android.os.Parcelable
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi

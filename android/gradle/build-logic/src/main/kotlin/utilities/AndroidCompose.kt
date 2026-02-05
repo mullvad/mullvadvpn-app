@@ -9,7 +9,6 @@ internal fun Project.configureAndroidCompose(commonExtension: CommonExtension<*,
         buildFeatures.apply { compose = true }
 
         dependencies {
-            "implementation"(libs.findLibrary("material").get())
             "implementation"(libs.findLibrary("compose-foundation").get())
             "implementation"(libs.findLibrary("compose-material3").get())
             "implementation"(libs.findLibrary("compose-ui").get())

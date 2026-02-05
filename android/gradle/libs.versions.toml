@@ -71,8 +71,6 @@ protobuf = "4.33.4"
 protobuf-gradle-plugin = "0.9.6"
 turbine = "1.2.1"
 annotation-jvm = "1.9.1"
-junit-version = "4.13.2"
-material = "1.10.0"
 
 [libraries]
 accompanist-drawablepainter = { module = "com.google.accompanist:accompanist-drawablepainter", version.ref = "drawablepainter" }
@@ -167,8 +165,6 @@ mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
 mockk-android = { module = "io.mockk:mockk-android", version.ref = "mockk" }
 protobuf-kotlin-lite = { module = "com.google.protobuf:protobuf-kotlin-lite", version.ref = "protobuf" }
 turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
-junit = { group = "junit", name = "junit", version.ref = "junit-version" }
-material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "android-gradle-plugin" }

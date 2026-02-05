@@ -23,13 +23,13 @@ object SlideInFromRightTransition : DestinationStyle.Animated() {
     override val exitTransition:
         AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition =
         {
-            ExitTransition.Companion.None
+            ExitTransition.None
         }
 
     override val popEnterTransition:
         AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition =
         {
-            EnterTransition.Companion.None
+            EnterTransition.None
         }
 
     override val popExitTransition:
