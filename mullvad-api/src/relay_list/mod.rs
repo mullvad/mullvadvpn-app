@@ -1,5 +1,7 @@
 //! A module dedicated to retrieving the relay list from the Mullvad API.
 
+pub mod transparency_list;
+
 use crate::rest;
 
 use hyper::{StatusCode, body::Incoming, header};
@@ -11,6 +13,7 @@ use serde::{Deserialize, Serialize};
 use talpid_types::net::wireguard;
 use vec1::Vec1;
 
+use crate::relay_list::transparency_list::{RelayListDigest, RelayListSignature, Sha256Bytes};
 use sha2::{Digest, Sha256};
 use std::{
     collections::{BTreeMap, HashSet},
@@ -26,12 +29,6 @@ pub struct RelayListProxy {
 }
 
 const RELAY_LIST_TIMEOUT: Duration = Duration::from_secs(15);
-
-/// A byte array representing a Sha256 hash.
-pub type Sha256Bytes = [u8; 32];
-
-/// The relay list digest (Sha256 hash as a hex string).
-pub type RelayListDigest = str;
 
 impl RelayListProxy {
     /// Construct a new relay list rest client
@@ -139,38 +136,6 @@ impl RelayListProxy {
             .expected_status(&[StatusCode::NOT_MODIFIED, StatusCode::OK]);
 
         service.request(request).await
-    }
-}
-
-/// Sigsum signature and digest+timestamp for the relay list.
-#[derive(Debug)]
-pub struct RelayListSignature {
-    /// This is the data that was signed by the sigsum signature. Note that this is *not* the
-    /// relay list, but rather a metadata object in JSON that contains the hash of the relay list
-    /// that corresponds to this signature and the timestamp of when it was signed.
-    ///
-    /// This field will be parsed to the `Timestamp` struct, but only after the sigsum
-    /// validation step is successfully completed. This is done to minimize the amount of untrusted
-    /// data we need to parse.
-    pub unparsed_timestamp: String,
-
-    /// The sigsum signature for the signed `data`.
-    pub sigsum_signature: String,
-}
-
-impl RelayListSignature {
-    /// The API does not return JSON but instead a custom plain text format we need to parse
-    /// it manually.
-    pub fn from_server_response(response: &str) -> Result<RelayListSignature, rest::Error> {
-        let (data, signature) = response
-            .split_once("\n\n")
-            .map(|(data, signature)| (format!("{data}\n"), signature.to_owned()))
-            .ok_or(rest::Error::SigsumDeserializeError)?;
-
-        Ok(RelayListSignature {
-            unparsed_timestamp: data,
-            sigsum_signature: signature,
-        })
     }
 }
 
