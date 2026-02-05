@@ -2802,6 +2802,7 @@ dependencies = [
  "chrono",
  "clap",
  "futures",
+ "hex",
  "http",
  "http-body-util",
  "hyper",
