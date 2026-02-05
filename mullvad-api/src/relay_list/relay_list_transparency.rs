@@ -4,7 +4,7 @@ use crate::rest;
 pub type Sha256Bytes = [u8; 32];
 
 /// The relay list digest (Sha256 hash as a hex string).
-pub type RelayListDigest = str;
+pub type RelayListDigest = String;
 
 /// Sigsum signature and digest+timestamp for the relay list.
 #[derive(Debug)]
