@@ -37,7 +37,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     private(set) var accountsProxy: RESTAccountHandling!
     nonisolated(unsafe) private(set) var devicesProxy: DeviceHandling!
 
-    private(set) var addressCacheTracker: AddressCacheTracker!
+    private(set) var addressCacheTracker: AddressCacheUpdateScheduler!
     nonisolated(unsafe) private(set) var relayCacheTracker: RelayCacheTracker!
     nonisolated(unsafe) private(set) var storePaymentManager: StorePaymentManager!
     nonisolated(unsafe) private var apiTransportMonitor: APITransportMonitor!
@@ -130,10 +130,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             apiProxy: apiProxy
         )
 
-        addressCacheTracker = AddressCacheTracker(
+        addressCacheTracker = AddressCacheUpdateScheduler(
             backgroundTaskProvider: backgroundTaskProvider,
             apiProxy: apiProxy,
-            store: addressCache,
             apiContext: apiContext
         )
 
