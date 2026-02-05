@@ -187,10 +187,11 @@ kotlin-ksp = { id = "com.google.devtools.ksp", version.ref = "kotlin-ksp" }
 kotlin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin" }
 kotlinx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 ktfmt = { id = "com.ncorti.ktfmt.gradle", version.ref = "ktfmt" }
-mullvad-android-library = { id = "mullvad.android-library" }
-mullvad-android-feature = { id = "mullvad.android.library.feature" }
-mullvad-android-library-compose = { id = "mullvad.android.library.compose" }
 mullvad-utilities = { id = "mullvad.utilities" }
 play-publisher = { id = "com.github.triplet.play", version.ref = "play-publisher" }
 protobuf-core = { id = "com.google.protobuf", version.ref = "protobuf-gradle-plugin" }
 protobuf-protoc = { id = "com.google.protobuf:protoc", version.ref = "protobuf" }
+# Convention plugins
+mullvad-android-library = { id = "mullvad.android-library" }
+mullvad-android-library-feature-impl = { id = "mullvad.android-library-feature-impl" }
+mullvad-android-library-compose = { id = "mullvad.android-library-compose" }

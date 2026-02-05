@@ -21,4 +21,16 @@ gradlePlugin {
             implementationClass = "MullvadUtilitiesPlugin"
         }
     }
+    plugins {
+        register("android-library-feature-impl") {
+            id = "mullvad.android-library-feature-impl"
+            implementationClass = "AndroidLibraryFeatureImplPlugin"
+        }
+    }
+    plugins {
+        register("android-library-compose") {
+            id = "mullvad.android-library-compose"
+            implementationClass = "AndroidLibraryComposePlugin"
+        }
+    }
 }

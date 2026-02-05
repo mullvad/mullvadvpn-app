@@ -11,19 +11,16 @@ internal fun Project.configureAndroidCompose(
         }
 
         dependencies {
-            "implementation"(libs.findLibrary("androidx.ktx"))
-            "implementation"(libs.findLibrary("androidx.appcompat"))
-            "implementation"(libs.findLibrary("arrow"))
-            "implementation"(libs.findLibrary("material"))
-            "implementation"(libs.findLibrary("compose.foundation"))
-            "implementation"(libs.findLibrary("compose.material3"))
-            "implementation"(libs.findLibrary("compose.ui"))
-            "implementation"(libs.findLibrary("compose.ui.tooling.preview"))
-            "implementation"(libs.findLibrary("compose.destinations"))
-            "ksp"(libs.findLibrary("compose.destinations.ksp"))
-            "testImplementation"(libs.findLibrary("junit"))
-            "androidTestImplementation"(libs.findLibrary("androidx.junit"))
-            "androidTestImplementation"(libs.findLibrary("androidx.espresso"))
+            "implementation"(libs.findLibrary("androidx-ktx").get())
+            "implementation"(libs.findLibrary("androidx-appcompat").get())
+            "implementation"(libs.findLibrary("material").get())
+            "implementation"(libs.findLibrary("compose-foundation").get())
+            "implementation"(libs.findLibrary("compose-material3").get())
+            "implementation"(libs.findLibrary("compose-ui").get())
+            "implementation"(libs.findLibrary("compose-ui-tooling-preview").get())
+            "testImplementation"(libs.findLibrary("junit").get())
+            "androidTestImplementation"(libs.findLibrary("androidx-junit").get())
+            "androidTestImplementation"(libs.findLibrary("androidx-espresso").get())
         }
     }
 }
