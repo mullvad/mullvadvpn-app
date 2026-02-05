@@ -6,6 +6,7 @@ import { messages } from '../../../../../../shared/gettext';
 import { removeNonNumericCharacters } from '../../../../../../shared/string-helpers';
 import { useAppContext } from '../../../../../context';
 import { useSelector } from '../../../../../redux/store';
+import { SettingsListItem } from '../../../../settings-list-item';
 import { SettingsListbox } from '../../../../settings-listbox';
 
 const ALLOWED_RANGE = [1, 65535];
@@ -69,12 +70,14 @@ export function ShadowsocksPortSetting() {
           <SettingsListbox.InputOption.Label>
             {messages.gettext('Custom')}
           </SettingsListbox.InputOption.Label>
-          <SettingsListbox.InputOption.Input
-            aria-describedby={descriptionId}
-            type="text"
-            placeholder={messages.pgettext('wireguard-settings-view', 'Port')}
-            maxLength={`${ALLOWED_RANGE[1]}`.length}
-          />
+          <SettingsListItem.ActionGroup>
+            <SettingsListbox.InputOption.Input
+              aria-describedby={descriptionId}
+              type="text"
+              placeholder={messages.pgettext('wireguard-settings-view', 'Port')}
+              maxLength={`${ALLOWED_RANGE[1]}`.length}
+            />
+          </SettingsListItem.ActionGroup>
         </SettingsListbox.InputOption>
       </SettingsListbox.Options>
       <SettingsListbox.Footer>
