@@ -21,17 +21,13 @@ function EditListDialogImpl(props: Omit<EditListProps, 'children' | 'open' | 'on
     inputRef,
     form: {
       error,
-      customListTextField: { value, invalid, dirty, reset },
+      customListTextField: { value, invalid, invalidReason, dirty, reset },
     },
   } = useEditListDialogContext();
 
   const handleOnValueChange = useHandleCustomListNameChange();
   const handleSubmit = useHandleSubmitUpdateCustomList();
   const handleClick = useHandleClickUpdateCustomList();
-
-  const handleCancel = React.useCallback(() => {
-    onOpenChange?.(false);
-  }, [onOpenChange]);
 
   const handleOnOpenChange = React.useCallback(
     (open: boolean) => {
@@ -42,6 +38,10 @@ function EditListDialogImpl(props: Omit<EditListProps, 'children' | 'open' | 'on
     },
     [onOpenChange, reset],
   );
+
+  const handleCancel = React.useCallback(() => {
+    handleOnOpenChange?.(false);
+  }, [handleOnOpenChange]);
 
   return (
     <Dialog open={open} onOpenChange={handleOnOpenChange} {...props}>
@@ -59,6 +59,14 @@ function EditListDialogImpl(props: Omit<EditListProps, 'children' | 'open' | 'on
                   </TextField.Label>
                   <FlexColumn gap="small">
                     <TextField.Input ref={inputRef} maxLength={30} autoFocus></TextField.Input>
+                    <Dialog.Text>
+                      {dirty && invalid && invalidReason
+                        ? invalidReason
+                        : messages.pgettext(
+                            'select-location-view',
+                            'Enter a new name for the custom list',
+                          )}
+                    </Dialog.Text>
                   </FlexColumn>
                 </Dialog.TextGroup>
               </TextField>
