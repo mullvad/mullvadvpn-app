@@ -30,10 +30,14 @@ public final class FileCache<Content: Codable>: NSObject, FileCacheProtocol, NSF
     /// Lock to synchronize access to the in-memory cache.
     private let lock = NSLock()
 
+    lazy var coordinator = NSFileCoordinator(filePresenter: self)
+
     public init(fileURL: URL) {
         self.fileURL = fileURL
         super.init()
+        self.coordinator = NSFileCoordinator(filePresenter: self)
         presentedItemOperationQueue.maxConcurrentOperationCount = 1
+
 
         // Register as file presenter to receive change notifications
         NSFileCoordinator.addFilePresenter(self)
@@ -68,9 +72,7 @@ public final class FileCache<Content: Codable>: NSObject, FileCacheProtocol, NSF
 
     /// Reads content directly from disk using file coordination.
     private func readFromDisk() throws -> Content {
-        let fileCoordinator = NSFileCoordinator(filePresenter: self)
-
-        return try fileCoordinator.coordinate(readingItemAt: fileURL, options: [.withoutChanges]) { fileURL in
+        return try coordinator.coordinate(readingItemAt: fileURL, options: [.withoutChanges]) { fileURL in
             try JSONDecoder().decode(Content.self, from: Data(contentsOf: fileURL))
         }
     }
@@ -78,9 +80,8 @@ public final class FileCache<Content: Codable>: NSObject, FileCacheProtocol, NSF
     public func write(_ content: Content) throws {
         lock.lock()
         defer { lock.unlock() }
-        let fileCoordinator = NSFileCoordinator(filePresenter: self)
 
-        try fileCoordinator.coordinate(writingItemAt: fileURL, options: [.forReplacing]) { fileURL in
+        try coordinator.coordinate(writingItemAt: fileURL, options: [.forReplacing]) { fileURL in
             try JSONEncoder().encode(content).write(to: fileURL)
         }
 
@@ -90,8 +91,7 @@ public final class FileCache<Content: Codable>: NSObject, FileCacheProtocol, NSF
     public func clear() throws {
         lock.lock()
         defer { lock.unlock() }
-        let fileCoordinator = NSFileCoordinator(filePresenter: self)
-        try fileCoordinator.coordinate(writingItemAt: fileURL, options: [.forDeleting]) { fileURL in
+        try coordinator.coordinate(writingItemAt: fileURL, options: [.forDeleting]) { fileURL in
             try FileManager.default.removeItem(at: fileURL)
         }
 
