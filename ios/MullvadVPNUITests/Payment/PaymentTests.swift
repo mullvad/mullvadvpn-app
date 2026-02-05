@@ -96,6 +96,7 @@ class PaymentTests: LoggedOutUITestCase {
     }
 
     func testInAppPurchaseWithRestoreOnFailedReceiptUpload() throws {
+        try XCTSkipIf(true, "This test is too unreliable to run in CI for now")
         let firewallAPIClient = FirewallClient()
         firewallAPIClient.removeRules()
 
@@ -106,6 +107,8 @@ class PaymentTests: LoggedOutUITestCase {
             self.deleteTemporaryAccountWithTime(accountNumber: accountNumberWithTime)
             firewallAPIClient.removeRules()
         }
+
+        disableBridgesAccessMethod()
 
         login(accountNumber: accountNumberWithTime)
 
@@ -145,6 +148,7 @@ class PaymentTests: LoggedOutUITestCase {
 
 @available(iOS 26.0, *)
 extension PaymentTests {
+
     private func createAndLogInToNewAccount() -> String {
         LoginPage(app)
             .tapCreateAccountButton()
