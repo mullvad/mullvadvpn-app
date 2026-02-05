@@ -186,14 +186,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - gradle-task: |
-              testDebugUnitTest -x :test:arch:testDebugUnitTest \
-              :app:testOssProdDebugUnitTest \
-              :service:testOssProdDebugUnitTest \
-              :lib:billing:testDebugUnitTest \
-              :lib:grpc:testDebugUnitTest \
-              :lib:repository:testDebugUnitTest \
-              :lib:usecase:testDebugUnitTest
+          - gradle-task: testAllUnitTests
           - gradle-task: :test:arch:test --rerun-tasks
           - gradle-task: detekt
           - gradle-task: lint

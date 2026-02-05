@@ -21,4 +21,10 @@ gradlePlugin {
             implementationClass = "MullvadUtilitiesPlugin"
         }
     }
+    plugins {
+        register("test") {
+            id = "mullvad.test"
+            implementationClass = "MullvadTestPlugin"
+        }
+    }
 }
