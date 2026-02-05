@@ -3,6 +3,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.getByType
+import utilities.configureAndroidCompose
 
 class AndroidLibraryComposePlugin : Plugin<Project> {
     override fun apply(target: Project) {

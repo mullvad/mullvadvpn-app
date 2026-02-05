@@ -20,9 +20,6 @@ class AndroidLibraryFeatureImplPlugin: Plugin<Project> {
                 "implementation"(project(":lib:ui:resource"))
                 "implementation"(project(":lib:ui:tag"))
                 "implementation"(project(":lib:navigation"))
-
-//                "implementation"(libs.findLibrary("androidx.lifecycle.runtimeCompose").get())
-//                "implementation"(libs.findLibrary("androidx.lifecycle.viewModelCompose").get())
             }
         }
     }

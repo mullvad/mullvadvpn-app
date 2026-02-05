@@ -16,6 +16,9 @@ dependencies {
     implementation(projects.lib.repository)
     implementation(projects.lib.common)
 
+    implementation(libs.koin.compose)
+    implementation(libs.arrow)
+
     // Destinations
     implementation(libs.compose.destinations)
     ksp(libs.compose.destinations.ksp)

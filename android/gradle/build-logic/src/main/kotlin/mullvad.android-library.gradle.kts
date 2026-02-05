@@ -1,13 +1,11 @@
 import com.android.build.gradle.LibraryExtension
 import org.gradle.api.JavaVersion
-import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.gradle.kotlin.dsl.configure
-import org.gradle.kotlin.dsl.getByType
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinAndroidProjectExtension
+import utilities.libs
 
 apply(plugin = "com.android.library")
-
 apply(plugin = "org.jetbrains.kotlin.android")
 
 configure<LibraryExtension> {
