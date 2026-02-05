@@ -1,12 +1,10 @@
 import React from 'react';
 
-import type { ICustomList } from '../../../../../../../shared/daemon-rpc-types';
-import log from '../../../../../../../shared/logging';
 import { useCustomLists } from '../../../../../../features/location/hooks';
 import { useEditListDialogContext } from '../EditListDialogContext';
 
 export function useHandleSubmitUpdateCustomList() {
-  const { updateCustomList: contextUpdateCustomList } = useCustomLists();
+  const { updateCustomListName: contextUpdateCustomListName } = useCustomLists();
   const { source } = useEditListDialogContext();
 
   const {
@@ -19,22 +17,16 @@ export function useHandleSubmitUpdateCustomList() {
 
   const updateCustomList = React.useCallback(
     async (name: string) => {
-      const updatedList: ICustomList = { ...source.list, name };
-      try {
-        const result = await contextUpdateCustomList(updatedList);
-        if (result) {
-          setError(true);
-        } else {
-          onOpenChange?.(false);
-          reset(name);
-        }
-      } catch (e) {
-        const error = e as Error;
-        log.error('Failed to update list:', error.message);
+      const result = await contextUpdateCustomListName(source.list.id, name);
+      if (result) {
+        setError(true);
+      } else {
+        onOpenChange?.(false);
+        reset(name);
       }
     },
 
-    [contextUpdateCustomList, onOpenChange, reset, setError, source.list],
+    [contextUpdateCustomListName, onOpenChange, reset, setError, source.list.id],
   );
 
   return React.useCallback(

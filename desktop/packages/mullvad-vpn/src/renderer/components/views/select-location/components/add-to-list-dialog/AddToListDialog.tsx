@@ -1,10 +1,8 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 import { sprintf } from 'sprintf-js';
 
-import { ICustomList, RelayLocationGeographical } from '../../../../../../shared/daemon-rpc-types';
+import { RelayLocationGeographical } from '../../../../../../shared/daemon-rpc-types';
 import { messages } from '../../../../../../shared/gettext';
-import log from '../../../../../../shared/logging';
-import { useAppContext } from '../../../../../context';
 import { useCustomLists } from '../../../../../features/location/hooks';
 import { Dialog, type DialogProps } from '../../../../../lib/components/dialog';
 import { FlexColumn } from '../../../../../lib/components/flex-column';
@@ -16,30 +14,11 @@ type AddToListDialogProps = Omit<DialogProps, 'children'> & {
 };
 
 export function AddToListDialog({ location, onOpenChange, open }: AddToListDialogProps) {
-  const { updateCustomList } = useAppContext();
   const { customLists } = useCustomLists();
 
-  const close = React.useCallback(() => {
+  const handleClickCancel = React.useCallback(() => {
     onOpenChange?.(false);
   }, [onOpenChange]);
-
-  const addLocationToCustomList = useCallback(
-    async (list: ICustomList) => {
-      const updatedList = {
-        ...list,
-        locations: [...list.locations, location],
-      };
-      try {
-        await updateCustomList(updatedList);
-      } catch (e) {
-        const error = e as Error;
-        log.error(`Failed to edit custom list ${list.id}: ${error.message}`);
-      }
-
-      close();
-    },
-    [close, location, updateCustomList],
-  );
 
   let locationType: string;
   if ('hostname' in location) {
@@ -63,7 +42,7 @@ export function AddToListDialog({ location, onOpenChange, open }: AddToListDialo
                   // TRANSLATORS: This is a label shown above a list of options.
                   // TRANSLATORS: Available placeholder:
                   // TRANSLATORS: %(locationType) - Could be either "Country", "City" and "Relay"
-                  messages.pgettext('select-location-view', 'Add <b>%(locationType)s</b> to list'),
+                  messages.pgettext('select-location-view', 'Add %(locationType)s to list'),
                   {
                     locationType,
                   },
@@ -72,15 +51,10 @@ export function AddToListDialog({ location, onOpenChange, open }: AddToListDialo
             </Dialog.Text>
             <FlexColumn gap="small">
               {customLists.map((list) => (
-                <SelectList
-                  key={list.id}
-                  list={list}
-                  location={location}
-                  add={addLocationToCustomList}
-                />
+                <SelectList key={list.id} list={list} location={location} />
               ))}
             </FlexColumn>
-            <Dialog.Button key="cancel" onClick={close}>
+            <Dialog.Button key="cancel" onClick={handleClickCancel}>
               <Dialog.Button.Text>{messages.gettext('Cancel')}</Dialog.Button.Text>
             </Dialog.Button>
           </Dialog.PopupContent>
