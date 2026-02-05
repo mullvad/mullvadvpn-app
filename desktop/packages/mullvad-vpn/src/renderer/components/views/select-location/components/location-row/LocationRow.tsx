@@ -78,47 +78,47 @@ function LocationRowImpl(props: Omit<IProps<LocationSpecification>, 'source'>) {
         onExpandedChange={handleExpandedChange}
         disabled={source.disabled}>
         <LocationListItem.Header ref={selectedRef} level={props.level}>
-          <LocationListItem.HeaderTrigger onClick={handleClick} disabled={source.disabled}>
+          <LocationListItem.HeaderTrigger
+            onClick={handleClick}
+            disabled={source.disabled}
+            aria-label={sprintf(messages.pgettext('accessibility', 'Connect to %(location)s'), {
+              location: source.label,
+            })}>
             <LocationListItem.HeaderItem>
               <LocationListItem.Title>{source.label}</LocationListItem.Title>
-              {props.allowAddToCustomList ? (
-                <LocationListItem.HeaderActionGroup>
-                  <AddToCustomListButton />
-                </LocationListItem.HeaderActionGroup>
-              ) : null}
-
-              {/* Show remove from custom list button if location is top level item in a custom list. */}
-              {'customList' in source.location &&
-              'country' in source.location &&
-              props.level === 1 ? (
-                <LocationListItem.HeaderActionGroup>
-                  <RemoveFromCustomListButton />
-                </LocationListItem.HeaderActionGroup>
-              ) : null}
-
-              {/* Show buttons for editing and removing a custom list */}
-              {'customList' in source.location && !('country' in source.location) ? (
-                <LocationListItem.HeaderActionGroup>
-                  <EditCustomListButton />
-                  <DeleteCustomListButton />
-                </LocationListItem.HeaderActionGroup>
-              ) : null}
             </LocationListItem.HeaderItem>
           </LocationListItem.HeaderTrigger>
 
-          {hasChildren || ('customList' in source.location && !('country' in source.location)) ? (
-            <LocationListItem.AccordionTrigger
-              aria-label={sprintf(
-                expanded === true
-                  ? messages.pgettext('accessibility', 'Collapse %(location)s')
-                  : messages.pgettext('accessibility', 'Expand %(location)s'),
-                { location: source.label },
-              )}>
-              <LocationListItem.HeaderTrailingAction>
-                <LocationListItem.Icon />
-              </LocationListItem.HeaderTrailingAction>
-            </LocationListItem.AccordionTrigger>
-          ) : null}
+          <LocationListItem.HeaderTrailingActions>
+            {props.allowAddToCustomList ? <AddToCustomListButton /> : null}
+
+            {/* Show remove from custom list button if location is top level item in a custom list. */}
+            {'customList' in source.location &&
+            'country' in source.location &&
+            props.level === 1 ? (
+              <RemoveFromCustomListButton />
+            ) : null}
+            {/* Show buttons for editing and removing a custom list */}
+            {'customList' in source.location && !('country' in source.location) ? (
+              <>
+                <EditCustomListButton />
+                <DeleteCustomListButton />
+              </>
+            ) : null}
+            {hasChildren || ('customList' in source.location && !('country' in source.location)) ? (
+              <LocationListItem.AccordionTrigger
+                aria-label={sprintf(
+                  expanded === true
+                    ? messages.pgettext('accessibility', 'Collapse %(location)s')
+                    : messages.pgettext('accessibility', 'Expand %(location)s'),
+                  { location: source.label },
+                )}>
+                <LocationListItem.HeaderTrailingAction>
+                  <LocationListItem.Icon />
+                </LocationListItem.HeaderTrailingAction>
+              </LocationListItem.AccordionTrigger>
+            ) : null}
+          </LocationListItem.HeaderTrailingActions>
         </LocationListItem.Header>
 
         {hasChildren && (

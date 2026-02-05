@@ -5,9 +5,10 @@ import { colors } from '../../../../foundations';
 import { useListItemContext } from '../../ListItemContext';
 import { StyledListItemItem } from '../list-item-item';
 import { StyledListItemTrailingAction } from '../list-item-trailing-action';
+import { StyledListItemTrailingActions } from '../list-item-trailing-actions';
 import { ListItemTriggerProvider } from './ListItemTriggerContext';
 
-export const StyledListItemTrigger = styled.div<{ $disabled?: boolean }>`
+export const StyledListItemTrigger = styled.button<{ disabled?: boolean }>`
   display: flex;
   background-color: transparent;
 
@@ -17,8 +18,8 @@ export const StyledListItemTrigger = styled.div<{ $disabled?: boolean }>`
     z-index: 10;
   }
 
-  ${({ $disabled }) => {
-    if (!$disabled) {
+  ${({ disabled }) => {
+    if (!disabled) {
       return css`
         &:hover {
           ${StyledListItemItem} {
@@ -26,6 +27,11 @@ export const StyledListItemTrigger = styled.div<{ $disabled?: boolean }>`
           }
           ${StyledListItemTrailingAction} {
             background-color: ${colors.whiteOnBlue10};
+          }
+          ~ ${StyledListItemTrailingActions} {
+            & > ${StyledListItemTrailingAction}:not(:last-child) {
+              background-color: ${colors.whiteOnBlue10};
+            }
           }
         }
 
@@ -36,6 +42,11 @@ export const StyledListItemTrigger = styled.div<{ $disabled?: boolean }>`
           ${StyledListItemTrailingAction} {
             background-color: ${colors.whiteOnBlue20};
           }
+          ~ ${StyledListItemTrailingActions} {
+            & > ${StyledListItemTrailingAction}:not(:last-child) {
+              background-color: ${colors.whiteOnBlue20};
+            }
+          }
         }
       `;
     }
@@ -44,7 +55,7 @@ export const StyledListItemTrigger = styled.div<{ $disabled?: boolean }>`
   }}
 `;
 
-export type ListItemTriggerProps = React.ComponentPropsWithRef<'div'> & {
+export type ListItemTriggerProps = React.ComponentPropsWithRef<'button'> & {
   disabled?: boolean;
 };
 
@@ -56,41 +67,13 @@ export function ListItemTrigger({
   const { disabled: disabledContext } = useListItemContext();
   const disabled = disabledProp ?? disabledContext;
 
-  const handleClick = React.useCallback(
-    (event: React.MouseEvent<HTMLDivElement>) => {
-      if (disabled) {
-        return;
-      }
-      onClick?.(event);
-    },
-    [disabled, onClick],
-  );
-
-  const handleKeyDown = React.useCallback(
-    (event: React.KeyboardEvent<HTMLDivElement>) => {
-      if (disabled) {
-        return;
-      }
-      if (event.key === 'Enter' || event.key === ' ') {
-        if (event.key === ' ') {
-          event.preventDefault();
-        }
-
-        event.currentTarget.click();
-      }
-    },
-    [disabled],
-  );
-
   return (
     <ListItemTriggerProvider disabled={disabled}>
       <StyledListItemTrigger
-        role="button"
-        onClick={handleClick}
-        onKeyDown={handleKeyDown}
+        onClick={onClick}
+        disabled={disabled}
         tabIndex={disabled ? -1 : 0}
         aria-disabled={disabled ? true : undefined}
-        $disabled={disabled}
         {...props}
       />
     </ListItemTriggerProvider>

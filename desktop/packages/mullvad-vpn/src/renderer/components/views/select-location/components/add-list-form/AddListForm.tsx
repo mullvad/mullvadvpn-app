@@ -1,13 +1,19 @@
 import React from 'react';
+import styled from 'styled-components';
 
 import { messages } from '../../../../../../shared/gettext';
 import { ListItem } from '../../../../../lib/components/list-item';
+import { spacings } from '../../../../../lib/foundations';
 import { AddCustomListFormProvider, useAddCustomListFormContext } from './AddCustomListFormContext';
 import {
   useHandleClickCreateCustomList,
   useHandleCustomListNameChange,
   useHandleSubmitAddCustomList,
 } from './hooks';
+
+const StyledListItemFooter = styled(ListItem.Footer)`
+  margin-bottom: ${spacings.small};
+`;
 
 function AddListFormImpl() {
   const itemRef = React.useRef<HTMLDivElement>(null);
@@ -46,19 +52,21 @@ function AddListFormImpl() {
           />
         </ListItem.TextField>
       </ListItem.Item>
-      <ListItem.Trigger onClick={handleClick} disabled={invalid}>
-        <ListItem.TrailingAction
-          aria-label={messages.pgettext('accessibility', 'Create custom list')}>
-          <ListItem.TrailingAction.Icon icon="checkmark" />
-        </ListItem.TrailingAction>
-      </ListItem.Trigger>
-      <ListItem.Footer>
+      <ListItem.TrailingActions>
+        <ListItem.Trigger onClick={handleClick} disabled={invalid}>
+          <ListItem.TrailingAction
+            aria-label={messages.pgettext('accessibility', 'Create custom list')}>
+            <ListItem.TrailingAction.Icon icon="checkmark" />
+          </ListItem.TrailingAction>
+        </ListItem.Trigger>
+      </ListItem.TrailingActions>
+      <StyledListItemFooter>
         <ListItem.FooterText id={descriptionId} role="status">
           {invalidReason
             ? invalidReason
             : messages.pgettext('select-location-view', 'Enter a name for the custom list')}
         </ListItem.FooterText>
-      </ListItem.Footer>
+      </StyledListItemFooter>
     </ListItem>
   );
 }

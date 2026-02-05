@@ -19,9 +19,11 @@ export function DeleteCustomListButton(props: DeleteCustomListButtonProps) {
 
   return (
     <>
-      <LocationListItem.IconButton onClick={show} {...props}>
-        <LocationListItem.IconButton.Icon icon="cross-circle" />
-      </LocationListItem.IconButton>
+      <LocationListItem.HeaderTrailingAction>
+        <LocationListItem.IconButton onClick={show} {...props}>
+          <LocationListItem.IconButton.Icon icon="cross-circle" />
+        </LocationListItem.IconButton>
+      </LocationListItem.HeaderTrailingAction>
 
       <DeleteConfirmDialog open={open} onOpenChange={hide} />
     </>

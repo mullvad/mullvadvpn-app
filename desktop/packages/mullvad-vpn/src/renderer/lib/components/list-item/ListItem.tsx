@@ -13,9 +13,11 @@ import {
   ListItemText,
   ListItemTextField,
   ListItemTrailingAction,
+  ListItemTrailingActions,
   ListItemTrigger,
   StyledListItemItem,
   StyledListItemTrailingAction,
+  StyledListItemTrailingActions,
   StyledListItemTrigger,
 } from './components';
 import { useListItemAnimation, useMaxLevel } from './hooks';
@@ -38,7 +40,7 @@ export const StyledListItem = styled(StyledListItemRoot)<{
       grid-template-columns: 1fr;
 
       // If it has a trailing action at the end
-      &&:has(> ${StyledListItemTrailingAction}, > ${StyledListItemTrigger}:nth-child(2)) {
+      &&:has(> ${StyledListItemTrailingActions}, > ${StyledListItemTrigger}:nth-child(2)) {
         grid-template-columns: 1fr auto;
         ${StyledListItemItem} {
           border-top-right-radius: var(--disabled-border-radius);
@@ -165,6 +167,7 @@ const ListItemNamespace = Object.assign(ListItem, {
   Icon: ListItemIcon,
   TextField: ListItemTextField,
   Checkbox: Checkbox,
+  TrailingActions: ListItemTrailingActions,
   TrailingAction: ListItemTrailingAction,
 });
 

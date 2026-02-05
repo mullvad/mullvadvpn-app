@@ -36,9 +36,11 @@ export function RemoveFromCustomListButton(props: RemoveFromCustomListButtonProp
 
   return (
     <>
-      <LocationListItem.IconButton onClick={onRemoveFromList} {...props}>
-        <LocationListItem.IconButton.Icon icon="remove-circle" />
-      </LocationListItem.IconButton>
+      <LocationListItem.HeaderTrailingAction>
+        <LocationListItem.IconButton onClick={onRemoveFromList} {...props}>
+          <LocationListItem.IconButton.Icon icon="remove-circle" />
+        </LocationListItem.IconButton>
+      </LocationListItem.HeaderTrailingAction>
     </>
   );
 }

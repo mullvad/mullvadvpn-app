@@ -5,13 +5,13 @@ import { useAccordionContext } from '../AccordionContext';
 
 export type AccordionTriggerProps = {
   children?: React.ReactNode;
-} & React.ComponentProps<'div'>;
+} & React.ComponentProps<'button'>;
 
 export function AccordionTrigger({ children, ...props }: AccordionTriggerProps) {
   const { contentId, triggerId, titleId, expanded, onExpandedChange } = useAccordionContext();
 
   const onClick = React.useCallback(
-    (e: React.MouseEvent<HTMLDivElement>) => {
+    (e: React.MouseEvent<HTMLButtonElement>) => {
       e.preventDefault();
       onExpandedChange?.(!expanded);
     },
