@@ -280,6 +280,11 @@ fn process_has_mullvad_installer(pid: pid_t) -> io::Result<bool> {
 
 /// Prepare to invoke the [`socketfilterfw`] CLI.
 ///
+/// # Note
+/// `/usr/libexec` is read-only, so we assume that all exectuables residing there are legitimate and
+/// do not impose a risk of using the daemon process (running as root) in local privilege escalation
+/// attacks.
+///
 /// [socketfilterfw]: https://www.manpagez.com/man/8/socketfilterfw/
 fn socketfilterfw() -> Command {
     Command::new("/usr/libexec/ApplicationFirewall/socketfilterfw")
