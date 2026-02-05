@@ -1,4 +1,4 @@
-use std::{ffi::OsStr, fmt, io, path::Path, process::Stdio};
+use std::{ffi::OsStr, fmt, io, path::Path, process::Stdio, time::Duration};
 
 use anyhow::{Context, anyhow};
 use libc::{PROX_FDTYPE_VNODE, pid_t};
@@ -10,6 +10,36 @@ use talpid_macos::process::{
 use tokio::{fs::File, process::Command};
 
 use crate::device::AccountManagerHandle;
+
+/// Mullvad app install path
+const APP_PATH: &str = "/Applications/Mullvad VPN.app";
+
+/// Ensure that the daemon sets the `allow incoming connections` option for the macOS Application Firewall.
+pub async fn allow_incoming_connections() {
+    // Run `socketfilterfw` to add the `mullvad-daemon` binary to the list of applications that
+    // want to enable the "allow incoming connections" option in the macOS Application Firewall.
+    // This is done on a best-effort basis. If this would fail for whatever reason (outdated CLI invocation,
+    // Apple broke their own tool etc), log the error and continue.
+    let mullvad_daemon = match std::env::current_exe() {
+        Ok(path) => path,
+        Err(err) => {
+            log::warn!("{err}");
+            return;
+        }
+    };
+    // Intended command to run: socketfilterfw --add /Applications/Mullvad\ VPN.app/Contents/Resources/mullvad-daemon
+    if let Err(err) = socketfilterfw()
+        .arg("--add")
+        .arg(mullvad_daemon)
+        .output()
+        .await
+    {
+        log::warn!(
+            "Failed to add daemon binary to Application Firewall. DNS might not work properly"
+        );
+        log::warn!("{err}");
+    }
+}
 
 /// Bump filehandle limit
 pub fn bump_filehandle_limit() {
@@ -58,10 +88,8 @@ pub async fn handle_app_bundle_removal(
     /// This directory must be owned by root to prevent privilege escalation.
     const UNINSTALL_SCRIPT_PATH: &str = "/var/root/uninstall_mullvad.sh";
 
-    /// Mullvad app install path
-    const APP_PATH: &str = "/Applications/Mullvad VPN.app";
-
-    let daemon_path = std::env::current_exe().context("Failed to get daemon path")?;
+    let mullvad_daemon = std::env::current_exe().context("Failed to get daemon path")?;
+    let daemon_path = mullvad_daemon.clone();
 
     // Ignore app removal if the daemon isn't installed in the app directory
     if !daemon_path.starts_with(APP_PATH) {
@@ -138,6 +166,27 @@ pub async fn handle_app_bundle_removal(
     log(format_args!("Resetting firewall"));
     if let Err(error) = reset_firewall() {
         log(format_args!("{error:#?}"));
+    }
+
+    // Remove the daemon binary from the macOS Application Firewall
+    log(format_args!(
+        "Removing daemon from macOS Application Firewall allow-list"
+    ));
+    let revoke_allow_incoming_connections = socketfilterfw()
+        .arg("--remove")
+        .arg(&mullvad_daemon)
+        .output();
+    // Don't let the call to socketfilterfw hog the cleanup process. The 2 second timeout is
+    // arbitrary, but should be plenty of time for a successful invocation to wrap up.
+    match tokio::time::timeout(Duration::from_secs(2), revoke_allow_incoming_connections).await {
+        Ok(t) => {
+            if let Err(error) = t {
+                log(format_args!("{error:#?}"));
+            };
+        }
+        Err(timeout_error) => {
+            log(format_args!("{timeout_error:#?}"));
+        }
     }
 
     // Remove the current device from the account
@@ -227,4 +276,16 @@ fn process_has_mullvad_installer(pid: pid_t) -> io::Result<bool> {
         }
     }
     Ok(false)
+}
+
+/// Prepare to invoke the [`socketfilterfw`] CLI.
+///
+/// # Note
+/// `/usr/libexec` is read-only, so we assume that all exectuables residing there are legitimate and
+/// do not impose a risk of using the daemon process (running as root) in local privilege escalation
+/// attacks.
+///
+/// [socketfilterfw]: https://www.manpagez.com/man/8/socketfilterfw/
+fn socketfilterfw() -> Command {
+    Command::new("/usr/libexec/ApplicationFirewall/socketfilterfw")
 }
