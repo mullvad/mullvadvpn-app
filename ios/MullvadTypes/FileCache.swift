@@ -32,6 +32,8 @@ public final class FileCache<Content: Codable>: NSObject, FileCacheProtocol, NSF
 
     lazy var coordinator = NSFileCoordinator(filePresenter: self)
 
+    private var currentlyClearing = false
+
     public init(fileURL: URL) {
         self.fileURL = fileURL
         super.init()
@@ -91,6 +93,18 @@ public final class FileCache<Content: Codable>: NSObject, FileCacheProtocol, NSF
     public func clear() throws {
         lock.lock()
         defer { lock.unlock() }
+
+        // On iOS 17, NSFileCoordinator delivers presenter callbacks to self even when
+        // self is passed as the filePresenter. Temporarily unregister to avoid deadlock.
+        if #available(iOS 18, *) {} else {
+            NSFileCoordinator.removeFilePresenter(self)
+        }
+        defer {
+            if #available(iOS 18, *) {} else {
+                NSFileCoordinator.addFilePresenter(self)
+            }
+        }
+
         try coordinator.coordinate(writingItemAt: fileURL, options: [.forDeleting]) { fileURL in
             try FileManager.default.removeItem(at: fileURL)
         }
