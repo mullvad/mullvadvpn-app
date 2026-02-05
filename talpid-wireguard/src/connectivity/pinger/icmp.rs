@@ -18,10 +18,6 @@ pub enum Error {
     #[error("Failed to open ICMP socket")]
     Open(#[source] io::Error),
 
-    /// Failed to read from raw socket
-    #[error("Failed to read ICMP socket")]
-    Read(#[source] io::Error),
-
     /// Failed to set socket options
     #[error("Failed to set socket options")]
     SocketOp(#[source] io::Error),
@@ -51,6 +47,8 @@ pub enum Error {
 
 type Result<T> = std::result::Result<T, Error>;
 
+// TODO: The current Pinger implementation is not able to track it's own pings via sequence numbers.
+// Switch to [surge_ping](https://crates.io/crates/surge-ping), which is able to do that.
 pub struct Pinger {
     sock: UdpSocket,
     addr: SocketAddr,
