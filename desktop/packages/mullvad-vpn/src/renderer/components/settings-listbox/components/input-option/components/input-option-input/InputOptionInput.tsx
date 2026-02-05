@@ -12,6 +12,7 @@ export function InputOptionInput(props: InputOptionInputProps) {
 
   const { inputRef, triggerRef, labelId, inputState } = useInputOptionContext();
   const { value, invalid, dirty, blur, handleOnValueChange, reset } = inputState;
+  const [lastValidValue, setLastValidValue] = React.useState<string>(value);
 
   // Prevent the click from propagating to the ListboxOption, which would select the option.
   const handleClick = React.useCallback((event: React.MouseEvent) => {
@@ -28,16 +29,21 @@ export function InputOptionInput(props: InputOptionInputProps) {
         return;
       }
 
-      reset();
+      if (invalid) {
+        reset(lastValidValue);
+      } else {
+        setLastValidValue(value);
+        reset(value);
+      }
     },
-    [reset, triggerRef],
+    [triggerRef, invalid, reset, lastValidValue, value],
   );
 
   const handleSubmit = React.useCallback(
     async (event: React.FormEvent) => {
       event.preventDefault();
       if (listBoxOnValueChange && !invalid) {
-        await listBoxOnValueChange?.(value);
+        await listBoxOnValueChange(value);
         blur();
       }
     },
