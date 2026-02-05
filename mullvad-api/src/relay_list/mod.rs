@@ -42,9 +42,7 @@ impl RelayListProxy {
         prev_etag: Option<ETag>,
         digest: &RelayListDigest,
     ) -> Result<Option<(CachedRelayList, Sha256Bytes)>, rest::Error> {
-        let request = self.relay_list_response(prev_etag.clone(), digest);
-
-        let response = request.await?;
+        let response = self.relay_list_response(prev_etag.clone(), digest).await?;
 
         match prev_etag {
             Some(_) if response.status() == StatusCode::NOT_MODIFIED => {
@@ -59,7 +57,7 @@ impl RelayListProxy {
                     .body()
                     .await
                     .and_then(|body| {
-                        let hash: [u8; 32] = Sha256::digest(&body).into();
+                        let hash: Sha256Bytes = Sha256::digest(&body).into();
                         let relay_list: ServerRelayList = serde_json::from_slice(&body)?;
                         Ok((relay_list, hash))
                     })
