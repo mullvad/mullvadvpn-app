@@ -171,7 +171,7 @@
 		586A0DCB2A20E359006C731C /* MullvadTypes.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 58D223D5294C8E5E0029F5F8 /* MullvadTypes.framework */; };
 		586A950C290125EE007BAF2B /* AlertPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B9EB122488ED2100095626 /* AlertPresenter.swift */; };
 		586A950E290125F3007BAF2B /* ProductsRequestOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5846226426E0D9630035F7C2 /* ProductsRequestOperation.swift */; };
-		586A950F29012BEE007BAF2B /* AddressCacheTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06AC114028F841390037AF9A /* AddressCacheTracker.swift */; };
+		586A950F29012BEE007BAF2B /* AddressCacheUpdateScheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06AC114028F841390037AF9A /* AddressCacheUpdateScheduler.swift */; };
 		586C0D782B039CC000E7CDD7 /* AccessMethodProtocolPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 586C0D772B039CC000E7CDD7 /* AccessMethodProtocolPicker.swift */; };
 		586C0D7A2B039CE300E7CDD7 /* ShadowsocksCipherPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 586C0D792B039CE300E7CDD7 /* ShadowsocksCipherPicker.swift */; };
 		586C0D7C2B03BDD100E7CDD7 /* AccessMethodViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 586C0D7B2B03BDD100E7CDD7 /* AccessMethodViewModel.swift */; };
@@ -784,7 +784,7 @@
 		A99E5EE02B7628150033F241 /* ProblemReportViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A99E5EDF2B7628150033F241 /* ProblemReportViewModel.swift */; };
 		A99E5EE22B762ED30033F241 /* ProblemReportViewController+ViewManagement.swift in Sources */ = {isa = PBXBuildFile; fileRef = A99E5EE12B762ED30033F241 /* ProblemReportViewController+ViewManagement.swift */; };
 		A9A557F32B7E19B10017ADA8 /* SettingsPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850201E22B51A93C00EF8C96 /* SettingsPage.swift */; };
-		A9A5F9E12ACB05160083449F /* AddressCacheTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06AC114028F841390037AF9A /* AddressCacheTracker.swift */; };
+		A9A5F9E12ACB05160083449F /* AddressCacheUpdateScheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06AC114028F841390037AF9A /* AddressCacheUpdateScheduler.swift */; };
 		A9A5F9E22ACB05160083449F /* BackgroundTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C76A0A2A338E4300100D75 /* BackgroundTask.swift */; };
 		A9A5F9E32ACB05160083449F /* AccountDataThrottling.swift in Sources */ = {isa = PBXBuildFile; fileRef = 587988C628A2A01F00E3DF54 /* AccountDataThrottling.swift */; };
 		A9A5F9E42ACB05160083449F /* AppPreferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = F04FBE602A8379EE009278D7 /* AppPreferences.swift */; };
@@ -1615,7 +1615,7 @@
 		068CE5732927B7A400A068BB /* Migration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Migration.swift; sourceTree = "<group>"; };
 		0697D6E628F01513007A9E99 /* APITransportMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APITransportMonitor.swift; sourceTree = "<group>"; };
 		06AC113628F83FD70037AF9A /* Cancellable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Cancellable.swift; sourceTree = "<group>"; };
-		06AC114028F841390037AF9A /* AddressCacheTracker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddressCacheTracker.swift; sourceTree = "<group>"; };
+		06AC114028F841390037AF9A /* AddressCacheUpdateScheduler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddressCacheUpdateScheduler.swift; sourceTree = "<group>"; };
 		06AC114128F8413A0037AF9A /* AddressCache.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddressCache.swift; sourceTree = "<group>"; };
 		06AC115628F848D00037AF9A /* IPAddress+Codable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "IPAddress+Codable.swift"; sourceTree = "<group>"; };
 		06FAE66528F83CA30033DD93 /* RESTURLSession.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RESTURLSession.swift; sourceTree = "<group>"; };
@@ -3978,7 +3978,7 @@
 			isa = PBXGroup;
 			children = (
 				5827B0A22B0E068800CCBBA1 /* AccessMethodRepository */,
-				58D7E3D629C78A130044B058 /* AddressCacheTracker */,
+				58D7E3D629C78A130044B058 /* AddressCacheUpdateScheduler */,
 				58CE5E63224146200008646E /* AppDelegate.swift */,
 				58C76A0A2A338E4300100D75 /* BackgroundTask.swift */,
 				583FE02829C1B079006E85F9 /* Classes */,
@@ -4107,12 +4107,12 @@
 			path = MullvadLogging;
 			sourceTree = "<group>";
 		};
-		58D7E3D629C78A130044B058 /* AddressCacheTracker */ = {
+		58D7E3D629C78A130044B058 /* AddressCacheUpdateScheduler */ = {
 			isa = PBXGroup;
 			children = (
-				06AC114028F841390037AF9A /* AddressCacheTracker.swift */,
+				06AC114028F841390037AF9A /* AddressCacheUpdateScheduler.swift */,
 			);
-			path = AddressCacheTracker;
+			path = AddressCacheUpdateScheduler;
 			sourceTree = "<group>";
 		};
 		58E072A228814B96008902F8 /* TunnelMonitor */ = {
@@ -6004,7 +6004,7 @@
 				A9A5FA382ACB05600083449F /* InputTextFormatter.swift in Sources */,
 				F022EBA62CF0C6AE009484B9 /* ConsolidatedApplicationLog.swift in Sources */,
 				A9A5FA372ACB052D0083449F /* ApplicationTarget.swift in Sources */,
-				A9A5F9E12ACB05160083449F /* AddressCacheTracker.swift in Sources */,
+				A9A5F9E12ACB05160083449F /* AddressCacheUpdateScheduler.swift in Sources */,
 				A9A5F9E22ACB05160083449F /* BackgroundTask.swift in Sources */,
 				A9A5F9E32ACB05160083449F /* AccountDataThrottling.swift in Sources */,
 				A9A5F9E42ACB05160083449F /* AppPreferences.swift in Sources */,
@@ -6737,7 +6737,7 @@
 				7A42DEC92A05164100B209BE /* SettingsInputCell.swift in Sources */,
 				F95A28332E8BBB7400C3F75D /* SelectLocationFilter.swift in Sources */,
 				5803B4B22940A48700C23744 /* TunnelStore.swift in Sources */,
-				586A950F29012BEE007BAF2B /* AddressCacheTracker.swift in Sources */,
+				586A950F29012BEE007BAF2B /* AddressCacheUpdateScheduler.swift in Sources */,
 				7A7907332BC0280A00B61F81 /* InterceptibleNavigationController.swift in Sources */,
 				F09C97252D312ED000ADE747 /* BulletPointText.swift in Sources */,
 				F90A988A2E042D040020F64F /* ClearBackgroundView.swift in Sources */,
