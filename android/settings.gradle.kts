@@ -38,7 +38,7 @@ include(
     ":lib:core",
     ":lib:grpc",
     ":lib:endpoint",
-    ":lib:feature:daita",
+    ":lib:feature:daita:impl",
     ":lib:map",
     ":lib:model",
     ":lib:payment",

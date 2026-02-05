@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.feature.daita
+package net.mullvad.mullvadvpn.feature.daita.impl
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource

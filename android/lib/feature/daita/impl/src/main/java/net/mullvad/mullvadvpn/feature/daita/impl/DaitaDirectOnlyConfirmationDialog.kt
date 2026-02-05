@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.feature.daita
+package net.mullvad.mullvadvpn.feature.daita.impl
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.MaterialTheme

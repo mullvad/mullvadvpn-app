@@ -17,6 +17,7 @@ class AndroidLibraryFeatureImplPlugin: Plugin<Project> {
                 "implementation"(project(":lib:ui:theme"))
                 "implementation"(project(":lib:ui:designsystem"))
                 "implementation"(project(":lib:ui:component"))
+                "implementation"(project(":lib:ui:resource"))
                 "implementation"(project(":lib:ui:tag"))
                 "implementation"(project(":lib:core"))
 

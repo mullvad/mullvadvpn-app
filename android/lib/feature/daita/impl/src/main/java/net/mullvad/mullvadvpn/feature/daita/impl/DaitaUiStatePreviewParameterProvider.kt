@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.feature.daita
+package net.mullvad.mullvadvpn.feature.daita.impl
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import net.mullvad.mullvadvpn.core.Lc

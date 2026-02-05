@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.feature.daita
+package net.mullvad.mullvadvpn.feature.daita.impl
 
 // import
 // com.ramcosta.composedestinations.generated.destinations.DaitaDirectOnlyConfirmationDestination

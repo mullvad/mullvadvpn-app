@@ -8,8 +8,7 @@ plugins {
 }
 
 android {
-    namespace = "net.mullvad.mullvadvpn.feature.daita"
-
+    namespace = "net.mullvad.mullvadvpn.feature.daita.impl"
     ksp { arg("compose-destinations.moduleName", "daita") }
 }
 
