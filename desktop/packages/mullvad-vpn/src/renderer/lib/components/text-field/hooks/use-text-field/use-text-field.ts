@@ -11,7 +11,7 @@ export type UseTextFieldState = {
   value: string;
   invalid: boolean;
   dirty: boolean;
-  reset: () => void;
+  reset: (value?: string) => void;
   focus: () => void;
   blur: () => void;
   handleOnValueChange: (newValue: string) => void;
@@ -28,12 +28,20 @@ export function useTextField({
   const [invalid, setInvalid] = React.useState(validate ? !validate(value) : false);
   const [dirty, setDirty] = React.useState(false);
 
-  const reset = React.useCallback(() => {
-    const newValue = defaultValue ?? '';
-    setValue(newValue);
-    setInvalid(validate ? !validate(newValue) : false);
-    setDirty(false);
-  }, [defaultValue, validate]);
+  const reset = React.useCallback(
+    (resetValue?: string) => {
+      let newValue = '';
+      if (resetValue !== undefined) {
+        newValue = resetValue;
+      } else if (defaultValue !== undefined) {
+        newValue = defaultValue;
+      }
+      setValue(newValue);
+      setInvalid(validate ? !validate(newValue) : false);
+      setDirty(false);
+    },
+    [defaultValue, validate],
+  );
 
   const focus = React.useCallback(() => {
     inputRef.current?.focus();
