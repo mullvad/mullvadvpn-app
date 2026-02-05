@@ -21,6 +21,11 @@ Line wrap the file at 100 chars.                                              Th
 * **Fixed**: for any bug fixes.
 * **Security**: in case of vulnerabilities.
 
+## [android/2026.2] - 2025-02-06
+### Fixed
+- Fix default launcher icon on TV devices.
+
+
 ## [android/2026.1] - 2025-02-05
 Identical to `android/2026.1-beta3`.
 
