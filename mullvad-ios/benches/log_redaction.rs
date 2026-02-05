@@ -117,21 +117,29 @@ fn bench_ipv6(c: &mut Criterion) {
     let mut group = c.benchmark_group("ipv6");
 
     group.bench_function("message_only", |b| {
-        b.iter(|| redact_all(black_box(SHORT_IPV6_MESSAGE)))
+        b.iter(|| {
+            for _ in 0..10_000 {
+                let _ = redact_all(black_box(SHORT_IPV6_MESSAGE));
+            }
+        })
     });
 
     group.bench_function("full_line", |b| {
-        b.iter(|| redact_all(black_box(SHORT_IPV6_FULL_LINE)))
+        b.iter(|| {
+            for _ in 0..10_000 {
+                let _ = redact_all(black_box(SHORT_IPV6_FULL_LINE));
+            }
+        })
     });
 
-    // IPv6-only redaction to isolate the regex cost
-    group.bench_function("regex_only_message", |b| {
-        b.iter(|| redact_ipv6(black_box(SHORT_IPV6_MESSAGE)))
-    });
+    // // IPv6-only redaction to isolate the regex cost
+    // group.bench_function("regex_only_message", |b| {
+    //     b.iter(|| redact_ipv6(black_box(SHORT_IPV6_MESSAGE)))
+    // });
 
-    group.bench_function("regex_only_full_line", |b| {
-        b.iter(|| redact_ipv6(black_box(SHORT_IPV6_FULL_LINE)))
-    });
+    // group.bench_function("regex_only_full_line", |b| {
+    //     b.iter(|| redact_ipv6(black_box(SHORT_IPV6_FULL_LINE)))
+    // });
 
     group.finish();
 }
@@ -178,12 +186,16 @@ fn bench_account(c: &mut Criterion) {
     group.finish();
 }
 
+// criterion_group!(
+//     benches,
+//     bench_ipv4,
+//     bench_ipv6,
+//     bench_long_messages,
+//     bench_no_matches,
+//     bench_account,
+// );
 criterion_group!(
     benches,
-    bench_ipv4,
-    bench_ipv6,
-    bench_long_messages,
-    bench_no_matches,
-    bench_account,
+    bench_ipv6
 );
 criterion_main!(benches);

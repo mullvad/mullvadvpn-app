@@ -865,6 +865,29 @@ struct ExchangeCancelToken *request_ephemeral_peer(const uint8_t *public_key,
                                                    struct EphemeralPeerParameters peer_parameters);
 
 /**
+ * Redact sensitive information from a C string.
+ *
+ * Redacts:
+ * - IPv4 addresses → `[REDACTED]`
+ * - IPv6 addresses → `[REDACTED]`
+ * - Account numbers (16-digit sequences) → `[REDACTED ACCOUNT NUMBER]`
+ *
+ * # Safety
+ * - `input` must be a valid pointer to a null-terminated UTF-8 string.
+ * - The returned pointer must be freed by calling `redact_log_free`.
+ */
+char *redact_log(const char *input);
+
+/**
+ * Free a string returned by `redact_log`.
+ *
+ * # Safety
+ * - `ptr` must be a pointer returned by `redact_log`, or null.
+ * - `ptr` must not have been freed before.
+ */
+void redact_log_free(char *ptr);
+
+/**
  * Initialize the Rust logger with a Swift callback.
  *
  * This function should be called once early in the application lifecycle,
