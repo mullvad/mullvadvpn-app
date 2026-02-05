@@ -14,7 +14,6 @@ android {
 
 dependencies {
     implementation(projects.lib.repository)
-    implementation(projects.lib.common)
 
     implementation(libs.koin.compose)
     implementation(libs.arrow)

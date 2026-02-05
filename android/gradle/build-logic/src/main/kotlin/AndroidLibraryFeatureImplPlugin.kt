@@ -14,12 +14,14 @@ class AndroidLibraryFeatureImplPlugin: Plugin<Project> {
 
             dependencies {
                 "implementation"(project(":lib:model"))
+                "implementation"(project(":lib:common"))
                 "implementation"(project(":lib:ui:theme"))
                 "implementation"(project(":lib:ui:designsystem"))
                 "implementation"(project(":lib:ui:component"))
                 "implementation"(project(":lib:ui:resource"))
                 "implementation"(project(":lib:ui:tag"))
                 "implementation"(project(":lib:navigation"))
+
             }
         }
     }

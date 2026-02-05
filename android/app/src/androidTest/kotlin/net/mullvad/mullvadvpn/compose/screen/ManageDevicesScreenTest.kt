@@ -18,7 +18,7 @@ import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.compose.state.ManageDevicesItemUiState
 import net.mullvad.mullvadvpn.compose.state.ManageDevicesUiState
 import net.mullvad.mullvadvpn.compose.util.withRole
-import net.mullvad.mullvadvpn.core.Lce
+import net.mullvad.mullvadvpn.lib.common.Lce
 import net.mullvad.mullvadvpn.lib.model.Device
 import net.mullvad.mullvadvpn.lib.model.DeviceId
 import net.mullvad.mullvadvpn.lib.model.GetDeviceListError

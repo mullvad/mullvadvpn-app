@@ -12,8 +12,8 @@ import io.mockk.verify
 import net.mullvad.mullvadvpn.applist.AppData
 import net.mullvad.mullvadvpn.compose.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
-import net.mullvad.mullvadvpn.core.Lc
-import net.mullvad.mullvadvpn.core.toLc
+import net.mullvad.mullvadvpn.lib.common.Lc
+import net.mullvad.mullvadvpn.lib.common.toLc
 import net.mullvad.mullvadvpn.viewmodel.Loading
 import net.mullvad.mullvadvpn.viewmodel.SplitTunnelingUiState
 import org.junit.jupiter.api.AfterEach

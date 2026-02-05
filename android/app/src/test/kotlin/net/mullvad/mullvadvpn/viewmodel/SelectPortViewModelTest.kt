@@ -18,7 +18,7 @@ import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.compose.screen.SelectPortNavArgs
 import net.mullvad.mullvadvpn.compose.state.SelectPortUiState
 import net.mullvad.mullvadvpn.compose.util.BackstackObserver
-import net.mullvad.mullvadvpn.core.Lc
+import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.Port

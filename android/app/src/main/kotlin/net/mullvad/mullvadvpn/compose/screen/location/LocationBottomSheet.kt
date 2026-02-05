@@ -46,7 +46,7 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.state.LocationBottomSheetUiState
 import net.mullvad.mullvadvpn.compose.state.SetAsState
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
-import net.mullvad.mullvadvpn.core.Lc
+import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.util.relaylist.canAddLocation
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName

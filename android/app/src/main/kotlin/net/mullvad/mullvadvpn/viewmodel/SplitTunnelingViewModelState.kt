@@ -1,8 +1,8 @@
 package net.mullvad.mullvadvpn.viewmodel
 
 import net.mullvad.mullvadvpn.applist.AppData
-import net.mullvad.mullvadvpn.core.Lc
-import net.mullvad.mullvadvpn.core.toLc
+import net.mullvad.mullvadvpn.lib.common.Lc
+import net.mullvad.mullvadvpn.lib.common.toLc
 import net.mullvad.mullvadvpn.lib.model.AppId
 
 data class SplitTunnelingViewModelState(

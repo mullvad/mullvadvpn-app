@@ -1,6 +1,6 @@
 package net.mullvad.mullvadvpn.compose.state
 
-import net.mullvad.mullvadvpn.core.Lce
+import net.mullvad.mullvadvpn.lib.common.Lce
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.CheckableRelayListItem
 
 data class CustomListLocationsUiState(

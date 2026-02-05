@@ -9,16 +9,14 @@ internal fun Project.configureAndroidCompose(commonExtension: CommonExtension<*,
         buildFeatures.apply { compose = true }
 
         dependencies {
-            "implementation"(libs.findLibrary("androidx-ktx").get())
-            "implementation"(libs.findLibrary("androidx-appcompat").get())
             "implementation"(libs.findLibrary("material").get())
             "implementation"(libs.findLibrary("compose-foundation").get())
             "implementation"(libs.findLibrary("compose-material3").get())
             "implementation"(libs.findLibrary("compose-ui").get())
             "implementation"(libs.findLibrary("compose-ui-tooling-preview").get())
+            "debugImplementation"(libs.findLibrary("compose-ui-tooling").get())
             "testImplementation"(libs.findLibrary("junit").get())
             "androidTestImplementation"(libs.findLibrary("androidx-junit").get())
-            "androidTestImplementation"(libs.findLibrary("androidx-espresso").get())
         }
     }
 }

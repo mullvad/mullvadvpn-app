@@ -42,7 +42,7 @@ import net.mullvad.mullvadvpn.compose.state.AddTimeUiState
 import net.mullvad.mullvadvpn.compose.state.PaymentState
 import net.mullvad.mullvadvpn.compose.state.PurchaseState
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
-import net.mullvad.mullvadvpn.core.Lc
+import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.payment.ProductIds.OneMonth
 import net.mullvad.mullvadvpn.lib.payment.ProductIds.ThreeMonths
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId

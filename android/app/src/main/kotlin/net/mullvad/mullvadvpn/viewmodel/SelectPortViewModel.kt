@@ -25,8 +25,8 @@ import net.mullvad.mullvadvpn.constant.SHADOWSOCKS_AVAILABLE_PORTS
 import net.mullvad.mullvadvpn.constant.SHADOWSOCKS_PRESET_PORTS
 import net.mullvad.mullvadvpn.constant.UDP2TCP_PRESET_PORTS
 import net.mullvad.mullvadvpn.constant.WIREGUARD_PRESET_PORTS
-import net.mullvad.mullvadvpn.core.Lc
-import net.mullvad.mullvadvpn.core.toLc
+import net.mullvad.mullvadvpn.lib.common.Lc
+import net.mullvad.mullvadvpn.lib.common.toLc
 import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.ObfuscationSettings
