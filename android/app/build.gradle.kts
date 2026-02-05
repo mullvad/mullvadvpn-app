@@ -31,6 +31,7 @@ plugins {
     alias(libs.plugins.compose)
     alias(libs.plugins.junit5.android)
     alias(libs.plugins.baselineprofile)
+    alias(libs.plugins.mullvad.test)
     id("net.mullvad.rust-android")
 }
 

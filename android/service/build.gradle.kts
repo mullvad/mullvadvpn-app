@@ -10,6 +10,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.junit5.android)
+    alias(libs.plugins.mullvad.test)
 }
 
 val appVersion = appVersionProvider.get()

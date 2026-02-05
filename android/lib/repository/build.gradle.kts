@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.junit5.android)
     alias(libs.plugins.protobuf.core)
+    alias(libs.plugins.mullvad.test)
 }
 
 android {
