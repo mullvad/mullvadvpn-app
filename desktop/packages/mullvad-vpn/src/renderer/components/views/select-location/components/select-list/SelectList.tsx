@@ -1,40 +1,55 @@
-import { useCallback } from 'react';
+import React from 'react';
 
 import {
   compareRelayLocationGeographical,
   ICustomList,
-  RelayLocation,
+  type RelayLocationGeographical,
 } from '../../../../../../shared/daemon-rpc-types';
-import { messages } from '../../../../../../shared/gettext';
+import { useCustomLists } from '../../../../../features/location/hooks';
 import { IconButton } from '../../../../../lib/components';
 import { ListItem } from '../../../../../lib/components/list-item';
+import { SelectableLabel } from '../../../../../lib/components/selectable-label';
 
 interface SelectListProps {
   list: ICustomList;
-  location: RelayLocation;
-  add: (list: ICustomList) => void;
+  location: RelayLocationGeographical;
 }
 
-export function SelectList(props: SelectListProps) {
-  const { add } = props;
-
-  const onAdd = useCallback(() => add(props.list), [add, props.list]);
+export function SelectList({ list, location }: SelectListProps) {
+  const { addLocationToCustomList, removeLocationFromCustomList } = useCustomLists();
+  const [loading, setLoading] = React.useState(false);
 
   // List should be disabled if location already is in list.
-  const disabled = props.list.locations.some((location) =>
-    compareRelayLocationGeographical(location, props.location),
+  const addedToList = list.locations.some((listLocation) =>
+    compareRelayLocationGeographical(listLocation, location),
   );
 
+  const handleClickAdd = React.useCallback(async () => {
+    setLoading(true);
+    await addLocationToCustomList(list.id, location);
+    setLoading(false);
+  }, [addLocationToCustomList, list.id, location]);
+
+  const handleClickRemove = React.useCallback(async () => {
+    setLoading(true);
+    await removeLocationFromCustomList(list.id, location);
+    setLoading(false);
+  }, [list.id, location, removeLocationFromCustomList]);
+
   return (
-    <ListItem onClick={onAdd} disabled={disabled} position="solo">
+    <ListItem position="solo">
       <ListItem.Item>
-        <ListItem.Label>
-          {props.list.name} {disabled && messages.pgettext('select-location-view', '(Added)')}
-        </ListItem.Label>
+        <SelectableLabel selected={addedToList}>{list.name}</SelectableLabel>
         <ListItem.ActionGroup>
-          <IconButton variant="secondary">
-            <IconButton.Icon icon="add-circle" />
-          </IconButton>
+          {addedToList ? (
+            <IconButton variant="secondary" disabled={loading} onClick={handleClickRemove}>
+              <IconButton.Icon icon="remove-circle" />
+            </IconButton>
+          ) : (
+            <IconButton variant="secondary" disabled={loading} onClick={handleClickAdd}>
+              <IconButton.Icon icon="add-circle" />
+            </IconButton>
+          )}
         </ListItem.ActionGroup>
       </ListItem.Item>
     </ListItem>
