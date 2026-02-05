@@ -141,19 +141,38 @@ test.describe('WireGuard port settings', () => {
     await expect(automaticOption).toHaveAttribute('aria-selected', 'true');
   });
 
-  test('Should reset custom port on blur', async () => {
+  test('Should reset custom port on blur with valid and invalid values', async () => {
     const input = routes.wireguardPort.selectors.customInput();
 
     await input.fill(VALID_PORT.toString());
     await expect(input).toHaveAttribute('aria-invalid', 'false');
     await input.blur();
 
-    await expect(input).toHaveValue('');
+    await expect(input).toHaveValue(VALID_PORT.toString());
 
     await input.fill(INVALID_PORT.toString());
     await expect(input).toHaveAttribute('aria-invalid', 'true');
     await input.blur();
 
-    await expect(input).toHaveValue('');
+    await expect(input).toHaveValue(VALID_PORT.toString());
+  });
+
+  test('Should remember last valid custom port on blur', async () => {
+    const input = routes.wireguardPort.selectors.customInput();
+    await input.fill(VALID_PORT.toString());
+    await expect(input).toHaveAttribute('aria-invalid', 'false');
+
+    await input.fill(INVALID_PORT.toString());
+    await expect(input).toHaveAttribute('aria-invalid', 'true');
+
+    await input.blur();
+
+    await expect(input).toHaveValue(VALID_PORT.toString());
+
+    await input.fill('');
+    await expect(input).toHaveAttribute('aria-invalid', 'true');
+    await input.blur();
+
+    await expect(input).toHaveValue(VALID_PORT.toString());
   });
 });
