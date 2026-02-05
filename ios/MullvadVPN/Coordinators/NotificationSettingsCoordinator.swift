@@ -14,7 +14,7 @@ import UIKit
 final class NotificationSettingsCoordinator: Coordinator, Presentable, SettingsChildCoordinator {
     private let viewModel: NotificationSettingsViewModel
     private var navigationController: UINavigationController?
-    var didFinish: ((NotificationSettingsCoordinator, NotificationSettings) -> Void)?
+    var didUpdateNotificationSettings: ((NotificationSettingsCoordinator, NotificationSettings) -> Void)?
 
     var presentedViewController: UIViewController {
         navigationController!
@@ -32,7 +32,7 @@ final class NotificationSettingsCoordinator: Coordinator, Presentable, SettingsC
         var view = NotificationSettingsView(viewModel: viewModel)
         view.didUpdateNotificationSettings = { [weak self] notificationSettings in
             guard let self else { return }
-            didFinish?(self, notificationSettings)
+            didUpdateNotificationSettings?(self, notificationSettings)
         }
 
         let viewController = UIHostingController(rootView: view)

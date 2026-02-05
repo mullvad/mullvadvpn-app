@@ -58,7 +58,11 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
     private var viewControllerFactory: SettingsViewControllerFactory?
     var didUpdateNotificationSettings: ((NotificationSettings) -> Void)? {
         didSet {
-            viewControllerFactory?.didUpdateNotificationSettings = didUpdateNotificationSettings
+            viewControllerFactory?.didUpdateNotificationSettings = { [weak self] newValue in
+                guard let self else { return }
+                viewControllerFactory?.notificationSettings = newValue
+                didUpdateNotificationSettings?(newValue)
+            }
         }
     }
 

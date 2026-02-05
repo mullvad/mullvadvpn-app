@@ -638,7 +638,9 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
             notificationSettings: appPreferences.notificationSettings)
 
         coordinator.didUpdateNotificationSettings = { [weak self] notificationSettings in
-            self?.appPreferences.notificationSettings = notificationSettings
+            guard let self = self else { return }
+            appPreferences.notificationSettings = notificationSettings
+            onNewNotificationSettings?(notificationSettings)
         }
 
         coordinator.didFinish = { [weak self] _ in
@@ -890,6 +892,11 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
      settings back to root.
      */
     var onShowSettings: (() -> Void)?
+
+    /**
+     This closure is called each time the notification settings are changed.
+     */
+    var onNewNotificationSettings: ((NotificationSettings) -> Void)?
 
     /// This closure is called each time when account controller is being presented.
     var onShowAccount: (() -> Void)?

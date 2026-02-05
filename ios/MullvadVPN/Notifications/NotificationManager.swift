@@ -8,10 +8,10 @@
 
 import Foundation
 import MullvadLogging
-import UserNotifications
+@preconcurrency import UserNotifications
 
 final class NotificationManager: NotificationProviderDelegate {
-    private lazy var logger = Logger(label: "NotificationManager")
+    private let logger = Logger(label: "NotificationManager")
     private var _notificationProviders: [NotificationProvider] = []
     private var inAppNotificationDescriptors: [InAppNotificationDescriptor] = []
 
@@ -91,20 +91,20 @@ final class NotificationManager: NotificationProviderDelegate {
             withIdentifiers: deliveredRequestIdentifiersToRemove
         )
 
-        //        requestNotificationPermissions { granted in
-        //            guard granted else { return }
-        //
-        //            for newRequest in newSystemNotificationRequests {
-        //                notificationCenter.add(newRequest) { error in
-        //                    guard let error else { return }
-        //
-        //                    self.logger.error(
-        //                        error: error,
-        //                        message: "Failed to add notification request with identifier \(newRequest.identifier)."
-        //                    )
-        //                }
-        //            }
-        //        }
+        requestNotificationPermissions { granted in
+            guard granted else { return }
+
+            for newRequest in newSystemNotificationRequests {
+                notificationCenter.add(newRequest) { error in
+                    guard let error else { return }
+
+                    self.logger.error(
+                        error: error,
+                        message: "Failed to add notification request with identifier \(newRequest.identifier)."
+                    )
+                }
+            }
+        }
 
         inAppNotificationDescriptors = newInAppNotificationDescriptors
 
@@ -193,22 +193,22 @@ final class NotificationManager: NotificationProviderDelegate {
                 ])
             }
 
-            //            if let request = notificationProvider.notificationRequest {
-            //                requestNotificationPermissions { granted in
-            //                    guard granted else { return }
-            //
-            //                    notificationCenter.add(request) { error in
-            //                        if let error {
-            //                            self.logger.error(
-            //                                """
-            //                                Failed to add notification request with identifier \
-            //                                \(request.identifier). Error: \(error.description)
-            //                                """
-            //                            )
-            //                        }
-            //                    }
-            //                }
-            //            }
+            if let request = notificationProvider.notificationRequest {
+                requestNotificationPermissions { granted in
+                    guard granted else { return }
+
+                    notificationCenter.add(request) { error in
+                        if let error {
+                            self.logger.error(
+                                """
+                                Failed to add notification request with identifier \
+                                \(request.identifier). Error: \(error.description)
+                                """
+                            )
+                        }
+                    }
+                }
+            }
         }
 
         invalidateInAppNotification(notificationProvider)
