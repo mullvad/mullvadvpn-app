@@ -17,8 +17,6 @@ public protocol ShadowsocksConfigurationCacheProtocol: Sendable {
 
 /// Holds a shadowsocks configuration object backed by a caching mechanism shared across processes
 public final class ShadowsocksConfigurationCache: ShadowsocksConfigurationCacheProtocol, @unchecked Sendable {
-    private let configurationLock = NSLock()
-    private var cachedConfiguration: ShadowsocksConfiguration?
     private let fileCache: FileCache<ShadowsocksConfiguration>
 
     public init(cacheDirectory: URL) {
@@ -30,32 +28,18 @@ public final class ShadowsocksConfigurationCache: ShadowsocksConfigurationCacheP
     /// Returns configuration from memory cache if available, otherwise attempts to load it from disk cache before
     /// returning.
     public func read() throws -> ShadowsocksConfiguration {
-        configurationLock.lock()
-        defer { configurationLock.unlock() }
+        try fileCache.read()
 
-        if let cachedConfiguration {
-            return cachedConfiguration
-        } else {
-            let readConfiguration = try fileCache.read()
-            cachedConfiguration = readConfiguration
-            return readConfiguration
-        }
     }
 
     /// Replace memory cache with new configuration and attempt to persist it on disk.
     public func write(_ configuration: ShadowsocksConfiguration) throws {
-        configurationLock.lock()
-        defer { configurationLock.unlock() }
-
-        cachedConfiguration = configuration
         try fileCache.write(configuration)
+
     }
 
     /// Clear cached configuration.
     public func clear() throws {
-        configurationLock.lock()
-        defer { configurationLock.unlock() }
-        cachedConfiguration = nil
         try fileCache.clear()
     }
 }
