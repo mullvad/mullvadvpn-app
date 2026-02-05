@@ -4,3 +4,4 @@
 - It is now possible to change the icon and title of the app.
 - Removed automatic as a setting for "Quantum-resistant tunnel".
 - Introduced new list item design.
+- Fixed default launcher icon on TV devices.
