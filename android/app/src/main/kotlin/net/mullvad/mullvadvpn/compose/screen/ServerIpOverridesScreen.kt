@@ -62,9 +62,9 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.preview.ServerIpOverridesUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
-import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.core.OnNavResultValue
 import net.mullvad.mullvadvpn.core.animation.SlideInFromRightTransition
+import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
 import net.mullvad.mullvadvpn.lib.model.SettingsPatchError
 import net.mullvad.mullvadvpn.lib.ui.component.MullvadModalBottomSheet

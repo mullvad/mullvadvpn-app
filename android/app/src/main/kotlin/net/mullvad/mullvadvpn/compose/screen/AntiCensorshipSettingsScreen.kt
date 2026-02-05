@@ -30,8 +30,8 @@ import net.mullvad.mullvadvpn.compose.extensions.itemWithDivider
 import net.mullvad.mullvadvpn.compose.preview.AntiCensorshipUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.AntiCensorshipSettingsUiState
 import net.mullvad.mullvadvpn.compose.state.ObfuscationSettingItem
-import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.core.animation.SlideInFromRightTransition
+import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
 import net.mullvad.mullvadvpn.lib.model.PortType
 import net.mullvad.mullvadvpn.lib.ui.component.NavigateBackIconButton

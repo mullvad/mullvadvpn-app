@@ -15,8 +15,15 @@ internal fun Project.configureAndroidCompose(commonExtension: CommonExtension<*,
             "implementation"(libs.findLibrary("compose-ui").get())
             "implementation"(libs.findLibrary("compose-ui-tooling-preview").get())
             "debugImplementation"(libs.findLibrary("compose-ui-tooling").get())
-            "testImplementation"(libs.findLibrary("junit").get())
-            "androidTestImplementation"(libs.findLibrary("androidx-junit").get())
+
+            "androidTestImplementation"(libs.findLibrary("junit5-android-test-compose").get())
+            "androidTestImplementation"(libs.findLibrary("mockk").get())
+            "androidTestImplementation"(libs.findLibrary("mockk-android").get())
+            "androidTestImplementation"(libs.findLibrary("androidx-espresso").get())
+            "androidTestImplementation"(libs.findLibrary("junit-jupiter-api").get())
+            "androidTestRuntimeOnly"(libs.findLibrary("junit-jupiter-engine").get())
+
+            "androidTestImplementation"(project(":lib:screen-test"))
         }
     }
 }

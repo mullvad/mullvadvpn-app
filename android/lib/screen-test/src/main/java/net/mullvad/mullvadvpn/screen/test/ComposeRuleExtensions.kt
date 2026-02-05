@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.compose
+package net.mullvad.mullvadvpn.screen.test
 
 import androidx.activity.ComponentActivity
 import androidx.compose.runtime.Composable

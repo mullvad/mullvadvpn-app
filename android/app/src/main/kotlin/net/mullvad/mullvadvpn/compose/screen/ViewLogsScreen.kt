@@ -47,8 +47,8 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.preview.ViewLogsUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.util.CopyToClipboardHandle
 import net.mullvad.mullvadvpn.compose.util.createCopyToClipboardHandle
-import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.core.animation.SlideInFromRightTransition
+import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.ui.component.MullvadMediumTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.drawVerticalScrollbar

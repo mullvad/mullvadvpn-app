@@ -43,6 +43,7 @@ include(
     ":lib:navigation",
     ":lib:payment",
     ":lib:repository",
+    ":lib:screen-test",
     ":lib:talpid",
     ":lib:tv",
     ":lib:ui:designsystem",

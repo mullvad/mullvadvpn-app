@@ -17,8 +17,8 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.AntiCensorshipSettingsUiState
 import net.mullvad.mullvadvpn.lib.common.Lc
-import net.mullvad.mullvadvpn.lib.common.toLc
 import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
+import net.mullvad.mullvadvpn.lib.common.toLc
 import net.mullvad.mullvadvpn.lib.common.util.selectedObfuscationMode
 import net.mullvad.mullvadvpn.lib.common.util.wireguardPort
 import net.mullvad.mullvadvpn.lib.model.ObfuscationMode

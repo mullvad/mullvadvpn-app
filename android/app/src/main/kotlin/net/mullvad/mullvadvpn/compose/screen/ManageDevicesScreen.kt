@@ -34,8 +34,8 @@ import net.mullvad.mullvadvpn.compose.state.ManageDevicesUiState
 import net.mullvad.mullvadvpn.compose.transitions.DefaultTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
-import net.mullvad.mullvadvpn.lib.common.Lce
 import net.mullvad.mullvadvpn.core.OnNavResultValue
+import net.mullvad.mullvadvpn.lib.common.Lce
 import net.mullvad.mullvadvpn.lib.model.Device
 import net.mullvad.mullvadvpn.lib.model.DeviceId
 import net.mullvad.mullvadvpn.lib.model.GetDeviceListError
