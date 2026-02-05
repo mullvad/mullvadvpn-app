@@ -22,6 +22,12 @@ gradlePlugin {
         }
     }
     plugins {
+        register("android-library") {
+            id = "mullvad.android-library"
+            implementationClass = "AndroidLibraryPlugin"
+        }
+    }
+    plugins {
         register("android-library-feature-impl") {
             id = "mullvad.android-library-feature-impl"
             implementationClass = "AndroidLibraryFeatureImplPlugin"
