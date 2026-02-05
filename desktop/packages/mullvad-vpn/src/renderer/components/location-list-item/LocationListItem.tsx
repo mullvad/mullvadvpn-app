@@ -27,6 +27,7 @@ const LocationListItemNamespace = Object.assign(LocationListItem, {
   HeaderActionGroup: Accordion.HeaderActionGroup,
   HeaderItem: Accordion.HeaderItem,
   HeaderTrigger: ListItem.Trigger,
+  HeaderTrailingActions: Accordion.HeaderTrailingActions,
   HeaderTrailingAction: Accordion.HeaderTrailingAction,
   Title: LocationAccordionTitle,
 });

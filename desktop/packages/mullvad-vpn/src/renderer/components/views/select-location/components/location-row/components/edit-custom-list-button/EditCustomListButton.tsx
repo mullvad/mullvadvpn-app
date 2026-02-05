@@ -17,9 +17,11 @@ export function EditCustomListButton(props: EditCustomListButtonProps) {
 
   return (
     <>
-      <LocationListItem.IconButton onClick={handleOpen} variant="secondary" {...props}>
-        <LocationListItem.IconButton.Icon icon="edit-circle" />
-      </LocationListItem.IconButton>
+      <LocationListItem.HeaderTrailingAction>
+        <LocationListItem.IconButton onClick={handleOpen} variant="secondary" {...props}>
+          <LocationListItem.IconButton.Icon icon="edit-circle" />
+        </LocationListItem.IconButton>
+      </LocationListItem.HeaderTrailingAction>
 
       {'list' in source && <EditListDialog open={open} onOpenChange={setOpen} />}
     </>
