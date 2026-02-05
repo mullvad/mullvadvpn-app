@@ -200,3 +200,10 @@ reason = "wireguard-go does not use net/url"
 id = "GO-2026-4342"
 ignoreUntil = 2027-01-29
 reason = "wireguard-go does not use archive/zip"
+
+# Improper access to parent directory of root in os
+# https://osv.dev/GO-2026-4403
+[[IgnoredVulns]]
+id = "GO-2026-4403"
+ignoreUntil = 2027-02-05
+reason = "wireguard-go does not use os.checkPathEscapesInternal, os.doInRoot nor os.splitPathInRoot"
