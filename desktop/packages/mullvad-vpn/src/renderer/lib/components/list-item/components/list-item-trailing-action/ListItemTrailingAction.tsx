@@ -1,6 +1,5 @@
 import styled, { css } from 'styled-components';
 
-import { Radius } from '../../../../foundations';
 import { useListItemBackgroundColor } from '../../hooks';
 import { ListItemTrailingActionIcon } from './components';
 
@@ -13,10 +12,6 @@ export const StyledListItemTrailingAction = styled.div<{ $backgroundColor: strin
       place-items: center;
       width: 48px;
 
-      border-top-right-radius: ${Radius.radius16};
-      border-bottom-right-radius: ${Radius.radius16};
-
-      margin-left: 1px;
       background-color: ${$backgroundColor};
     `;
   }}
