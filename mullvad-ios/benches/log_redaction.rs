@@ -195,7 +195,7 @@ fn bench_account(c: &mut Criterion) {
 //     bench_account,
 // );
 criterion_group!(
-    benches,
+    benche
     bench_ipv6
 );
 criterion_main!(benches);
