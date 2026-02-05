@@ -6,17 +6,19 @@ pub(crate) mod parsed_relays;
 use error::Error;
 use mullvad_types::relay_constraints::RelayOverride;
 
-use std::path::{Path, PathBuf};
-use std::time::{Duration, SystemTime, UNIX_EPOCH};
-
+use chrono::{DateTime, Utc};
 use futures::channel::mpsc;
 use futures::future::{Fuse, FusedFuture};
 use futures::{Future, FutureExt, SinkExt, StreamExt};
+use std::path::{Path, PathBuf};
+use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use tokio::fs::File;
 
 use crate::sigsum;
+use mullvad_api::rest;
 use mullvad_api::{
-    CachedRelayList, ETag, RelayListProxy, availability::ApiAvailability, rest::MullvadRestHandle,
+    CachedRelayList, RelayListDigest, RelayListProxy, availability::ApiAvailability,
+    rest::MullvadRestHandle,
 };
 use mullvad_relay_selector::RelaySelector;
 use mullvad_types::relay_list::{BridgeList, RelayList};
@@ -80,7 +82,8 @@ pub(crate) struct RelayListUpdater {
     on_update: Box<dyn Fn(&RelayList) + Send + 'static>,
     last_check: SystemTime,
     api_availability: ApiAvailability,
-    etag: Option<ETag>,
+    digest: RelayListDigest,
+    latest_timestamp: DateTime<Utc>,
     // Keep tabs on the up-to-date relay list.
     // Use [RelayListUpdater::get_final_relay_list] when exposing the relay list to other parts of
     // the app.
@@ -104,11 +107,12 @@ impl RelayListUpdater {
         let api_availability = api_handle.availability.clone();
         let api_client = RelayListProxy::new(api_handle);
 
-        let (relay_list, bridge_list, etag) = cached_relay_list
+        let (relay_list, bridge_list, digest, latest_timestamp) = cached_relay_list
             .map(|cached_relay_list| {
-                let etag = cached_relay_list.etag().cloned();
+                let digest = cached_relay_list.digest().clone();
+                let timestamp = cached_relay_list.timestamp();
                 let (relay_list, bridge_list) = cached_relay_list.into_internal_repr();
-                (relay_list, bridge_list, etag)
+                (relay_list, bridge_list, digest, timestamp)
             })
             .unwrap_or_default();
         let updater = RelayListUpdater {
@@ -117,7 +121,8 @@ impl RelayListUpdater {
             relay_selector: selector,
             on_update: Box::new(on_update),
             last_check: UNIX_EPOCH,
-            etag,
+            digest,
+            latest_timestamp,
             overrides,
             api_availability,
             relay_list,
@@ -135,13 +140,18 @@ impl RelayListUpdater {
             let next_check = tokio::time::sleep(UPDATE_CHECK_INTERVAL).fuse();
             tokio::pin!(next_check);
 
-            let etag = self.etag.clone();
+            let digest = self.digest.clone();
+            let timestamp = self.latest_timestamp;
 
             futures::select! {
                 _check_update = next_check => {
                     log::trace!("Received `next_check` event");
                     if download_future.is_terminated() && self.should_update() {
-                        download_future = Box::pin(Self::download_relay_list(self.api_availability.clone(), self.api_client.clone(), etag).fuse());
+                        download_future = Box::pin(Self::download_relay_list(self.api_availability.clone(),
+                            self.api_client.clone(),
+                            digest,
+                            timestamp).fuse());
+
                         self.last_check = SystemTime::now();
                     }
                 },
@@ -159,7 +169,11 @@ impl RelayListUpdater {
                     };
                     match event {
                         Event::Update => {
-                            download_future = Box::pin(Self::download_relay_list(self.api_availability.clone(), self.api_client.clone(), etag).fuse());
+                            download_future = Box::pin(Self::download_relay_list(self.api_availability.clone(),
+                                    self.api_client.clone(),
+                                    digest,
+                                    timestamp).fuse());
+
                             self.last_check = SystemTime::now();
                         },
                         // Only update the relay list with new overrides if they are actually new.
@@ -209,70 +223,95 @@ impl RelayListUpdater {
     fn download_relay_list(
         api_handle: ApiAvailability,
         proxy: RelayListProxy,
-        tag: Option<ETag>,
+        latest_digest: RelayListDigest,
+        latest_timestamp: DateTime<Utc>,
     ) -> impl Future<Output = Result<Option<CachedRelayList>, mullvad_api::Error>> + use<> {
-        async fn download_future(
-            api_handle: ApiAvailability,
-            proxy: RelayListProxy,
-            tag: Option<ETag>,
-        ) -> Result<Option<CachedRelayList>, mullvad_api::Error> {
-            api_handle.wait_background().await?;
-
-            // Fetch relay list latest sigsum signature.
-            let relay_list_sig = proxy.relay_list_latest_signature().await?;
-
-            // Parse the timestamp from the signature.
-            let timestamp = match sigsum::parse_signature(&relay_list_sig) {
-                Ok(timestamp) => {
-                    log::debug!("Relay list sigsum signature validation successful");
-                    timestamp
-                }
-                Err(e) => {
-                    log::error!(
-                        "Relay list sigsum signature validation failed: {}",
-                        e.source
-                    );
-                    log::debug!("Attempting to parse unverified timestamp");
-                    match e.parser.parse_timestamp_without_verification() {
-                        Ok(timestamp) => {
-                            log::debug!("Successfully parsed unverified timestamp");
-                            timestamp
-                        }
-                        Err(e) => {
-                            log::error!(
-                                "Failed to parse unverified timestamp; aborting relay list update: {}",
-                                e
-                            );
-                            return Ok(None);
-                        }
-                    }
-                }
-            };
-
-            // Fetch the actual relay list given the timestamp digest.
-            let response = proxy.relay_list(tag, &timestamp.digest).await?;
-
-            match response {
-                None => Ok(None),
-                Some((relay_list, hash)) => {
-                    // Validate that the sigsum digest matches the relay list hash.
-                    match sigsum::validate_data(&timestamp, &hash) {
-                        Ok(_) => log::debug!("Relay list sigsum data validation successful"),
-                        Err(e) => log::error!("Relay list sigsum data validation failed: {}", e),
-                    }
-                    Ok(Some(relay_list))
-                }
-            }
-        }
-
-        let download_futures =
-            move || download_future(api_handle.clone(), proxy.clone(), tag.clone());
+        let download_futures = move || {
+            RelayListUpdater::download_and_verify_relay_list_future(
+                api_handle.clone(),
+                proxy.clone(),
+                latest_digest.clone(),
+                latest_timestamp,
+            )
+        };
 
         retry_future(
             download_futures,
             |result| result.is_err(),
             DOWNLOAD_RETRY_STRATEGY,
         )
+    }
+
+    /// Downloads and verifies the transparency logged relay list.
+    /// If the verification fails the error is only logged, and a new relay list will still be
+    /// fetched and used as long as we are able to parse the digest (which is needed to fetch
+    /// the relay list).
+    async fn download_and_verify_relay_list_future(
+        api_handle: ApiAvailability,
+        proxy: RelayListProxy,
+        latest_digest: RelayListDigest,
+        latest_timestamp: DateTime<Utc>,
+    ) -> Result<Option<CachedRelayList>, mullvad_api::Error> {
+        api_handle.wait_background().await?;
+
+        // Fetch relay list latest sigsum signature.
+        let relay_list_sig = proxy.relay_list_latest_signature().await?;
+
+        // Parse the timestamp from the signature.
+        let timestamp = match sigsum::validate_signature(&relay_list_sig) {
+            Ok(timestamp) => {
+                log::debug!("SIGSUM: Relay list sigsum signature validation succeeded");
+                timestamp
+            }
+            Err(e) => {
+                log::error!(
+                    "SIGSUM: Relay list sigsum signature validation failed: {}",
+                    e.source
+                );
+                log::debug!("SIGSUM: Attempting to parse unverified timestamp");
+
+                e.timestamp_parser
+                    .parse_without_verification()
+                    .inspect_err(|_| {
+                        log::error!(
+                                "SIGSUM: Failed to parse unverified timestamp; aborting relay list update"
+                            );
+                    })
+                    .inspect(|_| log::debug!("SIGSUM: Successfully parsed unverified timestamp"))
+                    .map_err(rest::Error::from)?
+            }
+        };
+
+        // Verify that the timestamp is not too old.
+        let new_timestamp = timestamp.timestamp;
+        if new_timestamp < (Utc::now() - Duration::from_hours(24)) {
+            log::error!("SIGSUM: Relay list timestamp is older than 24 hours: {new_timestamp}",);
+        }
+        if new_timestamp < latest_timestamp {
+            log::error!(
+                "SIGSUM: Relay list timestamp is older than current timestamp\n\
+                current {latest_timestamp}, new: {new_timestamp}",
+            );
+        }
+
+        // If the digest has not changed we do not need to fetch the relay list.
+        if latest_digest == timestamp.digest {
+            log::debug!("SIGSUM: timestamp digest hasn't changed; will not fetch new relay list");
+            return Ok(None);
+        }
+
+        // Fetch the actual relay list given the timestamp digest.
+        let response = proxy
+            .relay_list(&timestamp.digest, timestamp.timestamp)
+            .await?;
+
+        // Validate that the sigsum digest matches the relay list hash.
+        match sigsum::validate_data(&timestamp, response.digest()) {
+            Ok(_) => log::debug!("SIGSUM: Relay list sigsum data validation succeeded"),
+            Err(e) => log::error!("SIGSUM: Relay list sigsum data validation failed: {}", e),
+        }
+
+        Ok(Some(response))
     }
 
     async fn update_cache(&mut self, new_relay_list: CachedRelayList) {
@@ -283,8 +322,8 @@ impl RelayListUpdater {
                 error.display_chain_with_msg("Failed to update relay cache on disk")
             );
         }
-        // Cache the ETag so that we send the correct one in the next request
-        self.etag = new_relay_list.etag().cloned();
+        // Cache the digest so that we can check it before sending next request
+        self.digest = new_relay_list.digest().clone();
         // Propagate the new relay list to the relay selector
         let (relay_list, bridge_list) = new_relay_list.into_internal_repr();
         self.relay_list = relay_list;

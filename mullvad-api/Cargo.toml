@@ -16,6 +16,7 @@ async-trait = "0.1"
 chrono = { workspace = true }
 clap = { workspace = true, features = ["cargo", "derive"], optional = true }
 futures = { workspace = true }
+hex = { workspace = true }
 http = "1.1.0"
 http-body-util = "0.1.2"
 hyper = { version = "1.8.1", features = ["client", "http1"] }

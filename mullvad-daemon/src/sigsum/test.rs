@@ -1,15 +1,16 @@
 #[cfg(test)]
 mod sigsum_test {
-    use crate::sigsum::{parse_signature, validate_data};
+    use crate::sigsum::{validate_data, validate_signature};
     use mullvad_api::{RelayListSignature, Sha256Bytes};
     use sha2::{Digest, Sha256};
 
     #[test]
     fn test_validate_relay_list_signature() {
         let sig = RelayListSignature::from_server_response(RELAY_LIST_SIGNATURE).unwrap();
-        let timestamp = parse_signature(&sig).unwrap();
+        let timestamp = validate_signature(&sig).unwrap();
         let digest: Sha256Bytes = Sha256::digest(RELAY_LIST_CONTENT.as_bytes()).into();
-        validate_data(&timestamp, &digest).unwrap();
+        let digest_hex = hex::encode(digest);
+        validate_data(&timestamp, &digest_hex).unwrap();
     }
 
     #[test]
@@ -18,11 +19,12 @@ mod sigsum_test {
             "{RELAY_LIST_SIGNATURE}bad-signature"
         ))
         .unwrap();
-        let err = parse_signature(&sig).unwrap_err();
-        let timestamp = err.parser.parse_timestamp_without_verification().unwrap();
+        let err = validate_signature(&sig).unwrap_err();
+        let timestamp = err.timestamp_parser.parse_without_verification().unwrap();
 
         let digest: Sha256Bytes = Sha256::digest(RELAY_LIST_CONTENT.as_bytes()).into();
-        validate_data(&timestamp, &digest).unwrap();
+        let digest_hex = hex::encode(digest);
+        validate_data(&timestamp, &digest_hex).unwrap();
     }
 
     static RELAY_LIST_SIGNATURE: &str = r#"{"digest":"446fc8ebccd95d5fc07362109b5a4f5eac8c38886ebd6d918d007b6a4fb72865","timestamp":"2026-02-03T10:47:14+00:00"}
