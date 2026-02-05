@@ -1,0 +1,91 @@
+// First draft of the new Relay Selector API.
+syntax = "proto3";
+package mullvad_daemon.relay_selector;
+
+import "management_interface.proto";
+
+service RelaySelectorService {
+  // For a given relay constraint, return the list of matching relays and a list
+  // of non-matching relays along with the reasons they were filtered out.
+  rpc GetMatchingRelaysContext(Context) returns (RelayConstraints) {}
+}
+
+message Context {
+  oneof selection_context {
+    // Give me a relay list for regular single scenario
+    EntryRelayConstraints relay_constraints = 1;
+    // Give me a relay list for when DAITA direct only is disabled
+    RelayConstraints smart_relay_constraints = 2;
+    // Give me a relay list for when I should show entry relays when multihop is enabled
+    MultiHopConstraints entry_hop_constraints = 3;
+    // Give me a relay list for when I should show exit relays when multihop is enabled
+    MultiHopConstraints exit_constraints = 4;
+  }
+}
+
+// *ALL* constraints and settings that affect affect what relays are considered
+message RelayConstraints {
+  mullvad_daemon.management_interface.LocationConstraint location = 1;
+  repeated string providers = 2;
+  mullvad_daemon.management_interface.Ownership ownership = 3;
+  // TODO: Is it safe to assume that all relays have both IPv4 and IPv6?
+  // If so, remove this field.
+  optional mullvad_daemon.management_interface.IpVersion ip_version = 4;
+}
+
+message EntryRelayConstraints {
+  RelayConstraints general_constraints = 1;
+  EntryConstraints extra_entry_constraints = 2;
+}
+
+message MultiHopConstraints {
+  RelayConstraints first_hop = 1;
+  RelayConstraints second_hop = 2;
+  EntryConstraints entry_constraints = 5;
+}
+
+// Entry relays are generally more constrained than exit relays, because they have to support
+// Mullvad-specific features such as DAITA or custom obfuscation methods which may or may not
+// be deployed to all relays globally.
+message EntryConstraints {
+  mullvad_daemon.management_interface.ObfuscationSettings obfuscation_settings = 1;
+  mullvad_daemon.management_interface.DaitaSettings daita_settings = 2;
+}
+
+message MatchingRelays {
+  // List of relays matching a query
+  repeated Hostname matches = 1;
+  // List of relays that were discarded when evaulating a query
+  repeated DiscardedRelay discarded = 2;
+}
+
+message DiscardedRelay {
+  Hostname hostname = 1;
+  // If this field is set, the relay is filtered out and at least one reason is given
+  RelayFilterReasons filtered_out_by = 2;
+}
+
+// *Newtype for a hostname*
+// A hostname uniquely identifies a single VPN relay.
+message Hostname {
+  // e.g. `se-got-wg-101`
+  // *NOT* `se`, `se-got`
+  string value = 1;
+}
+
+// Set of constraints that prevents the relay from being selected
+// The relay will be included in the pool of selectable servers unless one or more of these are true
+message RelayFilterReasons {
+  bool inactive = 1;
+  bool location = 2;
+  bool providers = 3; // Return which provider it needs? Can be looked up in the full relay list
+  bool ownership = 4;
+  // TODO: see comment on RelayConstraints.IpVersion
+  bool ip_version = 5;
+  // fields only valid for entry relays
+  bool daita = 6;
+  bool obfuscation = 7;
+  bool obfuscation_port = 8;
+  // This relay is already used for the other hop (entry/exit)
+  bool conflict_with_other_hop = 9;
+}

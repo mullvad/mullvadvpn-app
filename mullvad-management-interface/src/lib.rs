@@ -1,4 +1,5 @@
 pub mod client;
+pub mod relay_selector;
 pub mod types;
 
 #[cfg(unix)]
