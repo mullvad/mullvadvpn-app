@@ -5,7 +5,7 @@ plugins {
     alias(libs.plugins.kotlin.ksp)
 }
 
-android { namespace = "net.mullvad.mullvadvpn.core" }
+android { namespace = "net.mullvad.mullvadvpn.navigation" }
 
 dependencies {
     implementation(libs.compose.destinations)

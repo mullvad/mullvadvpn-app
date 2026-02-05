@@ -374,12 +374,12 @@ play {
 
 dependencies {
     implementation(projects.lib.common)
-    implementation(projects.lib.core)
     implementation(projects.lib.grpc)
     implementation(projects.lib.endpoint)
     implementation(projects.lib.feature.daita.impl)
     implementation(projects.lib.map)
     implementation(projects.lib.model)
+    implementation(projects.lib.navigation)
     implementation(projects.lib.payment)
     implementation(projects.lib.repository)
     implementation(projects.lib.talpid)
