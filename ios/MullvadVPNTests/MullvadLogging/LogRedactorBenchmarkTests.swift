@@ -7,11 +7,13 @@
 //
 
 import MullvadLogging
+import MullvadRustRuntime
 import XCTest
 
 /// Benchmark tests for LogRedactor to compare regex performance on:
 /// - Message-only strings (what we redact with structured logging)
 /// - Full log lines (what we would redact without structured logging)
+/// - Swift vs Rust FFI implementation
 ///
 /// Run these tests to measure the performance benefit of redacting only the message portion.
 final class LogRedactorBenchmarkTests: XCTestCase {
@@ -156,6 +158,72 @@ final class LogRedactorBenchmarkTests: XCTestCase {
         measure {
             for _ in 0..<10000 {
                 _ = redactor.redact(accountFullLine)
+            }
+        }
+    }
+
+    // MARK: - Swift vs Rust FFI Comparison Benchmarks
+
+    func testBenchmarkSwiftIPv6Message() {
+        measure {
+            for _ in 0..<10000 {
+                _ = LogRedactor.shared.redact(shortIPv6Message)
+            }
+        }
+    }
+
+    func testBenchmarkRustIPv6Message() {
+        measure {
+            for _ in 0..<10000 {
+                _ = RustLogRedactor.redact(shortIPv6Message)
+            }
+        }
+    }
+
+    func testBenchmarkSwiftIPv6FullLine() {
+        measure {
+            for _ in 0..<10000 {
+                _ = LogRedactor.shared.redact(shortIPv6FullLine)
+            }
+        }
+    }
+
+    func testBenchmarkRustIPv6FullLine() {
+        measure {
+            for _ in 0..<10000 {
+                _ = RustLogRedactor.redact(shortIPv6FullLine)
+            }
+        }
+    }
+
+    func testBenchmarkSwiftLongMessage() {
+        measure {
+            for _ in 0..<10000 {
+                _ = LogRedactor.shared.redact(longMessage)
+            }
+        }
+    }
+
+    func testBenchmarkRustLongMessage() {
+        measure {
+            for _ in 0..<10000 {
+                _ = RustLogRedactor.redact(longMessage)
+            }
+        }
+    }
+
+    func testBenchmarkSwiftNoMatch() {
+        measure {
+            for _ in 0..<10000 {
+                _ = LogRedactor.shared.redact(noMatchMessage)
+            }
+        }
+    }
+
+    func testBenchmarkRustNoMatch() {
+        measure {
+            for _ in 0..<10000 {
+                _ = RustLogRedactor.redact(noMatchMessage)
             }
         }
     }

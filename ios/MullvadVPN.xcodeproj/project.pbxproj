@@ -12,6 +12,7 @@
 		014E8C342F2B425C00837D0A /* LogRedactor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 014E8C332F2B425C00837D0A /* LogRedactor.swift */; };
 		014E8C372F2BC60300837D0A /* LogRedactorBenchmarkTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 014E8C352F2BC60300837D0A /* LogRedactorBenchmarkTests.swift */; };
 		014E8C382F2BC60300837D0A /* LogRedactorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 014E8C362F2BC60300837D0A /* LogRedactorTests.swift */; };
+		014E8C3A2F2D594400837D0A /* RustLogRedactor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 014E8C392F2D594400837D0A /* RustLogRedactor.swift */; };
 		01B2FF862D70B914004AED35 /* MullvadRustRuntime.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A992DA1D2C24709F00DE7CE5 /* MullvadRustRuntime.framework */; };
 		01D13C212F11130500EC63DE /* RustLogging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01D13C202F11130500EC63DE /* RustLogging.swift */; };
 		01EF6F342B6A590700125696 /* libmullvad_api.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 01EF6F332B6A590700125696 /* libmullvad_api.a */; };
@@ -1596,6 +1597,7 @@
 		014E8C332F2B425C00837D0A /* LogRedactor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogRedactor.swift; sourceTree = "<group>"; };
 		014E8C352F2BC60300837D0A /* LogRedactorBenchmarkTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogRedactorBenchmarkTests.swift; sourceTree = "<group>"; };
 		014E8C362F2BC60300837D0A /* LogRedactorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogRedactorTests.swift; sourceTree = "<group>"; };
+		014E8C392F2D594400837D0A /* RustLogRedactor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RustLogRedactor.swift; sourceTree = "<group>"; };
 		01D13C202F11130500EC63DE /* RustLogging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RustLogging.swift; sourceTree = "<group>"; };
 		01EF6F2D2B6A51B100125696 /* mullvad-api.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "mullvad-api.h"; path = "../mullvad-api/include/mullvad-api.h"; sourceTree = "<group>"; };
 		01EF6F332B6A590700125696 /* libmullvad_api.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmullvad_api.a; path = "../target/aarch64-apple-ios/debug/libmullvad_api.a"; sourceTree = "<group>"; };
@@ -4589,6 +4591,7 @@
 		A992DA1E2C24709F00DE7CE5 /* MullvadRustRuntime */ = {
 			isa = PBXGroup;
 			children = (
+				014E8C392F2D594400837D0A /* RustLogRedactor.swift */,
 				01D13C202F11130500EC63DE /* RustLogging.swift */,
 				A948809A2BC9308D0090A44C /* EphemeralPeerExchangeActor.swift */,
 				A9EB4F9C2B7FAB21002A2D7A /* EphemeralPeerNegotiator.swift */,
@@ -6989,6 +6992,7 @@
 				A96D0B452D675F0400DD6C59 /* MullvadConnectionModeProvider.swift in Sources */,
 				7A99D3712D56222000891FF7 /* MullvadApiCancellable.swift in Sources */,
 				01D13C212F11130500EC63DE /* RustLogging.swift in Sources */,
+				014E8C3A2F2D594400837D0A /* RustLogRedactor.swift in Sources */,
 				A93969812CE606190032A7A0 /* Maybenot.swift in Sources */,
 				F05919802C45515200C301F3 /* EphemeralPeerExchangeActor.swift in Sources */,
 				7A3215722D3934E6005DF395 /* MullvadApiCompletion.swift in Sources */,
