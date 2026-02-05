@@ -227,7 +227,7 @@ impl RelayListUpdater {
         latest_timestamp: DateTime<Utc>,
     ) -> impl Future<Output = Result<Option<CachedRelayList>, mullvad_api::Error>> + use<> {
         let download_futures = move || {
-            RelayListUpdater::download_and_verify_relay_list_future(
+            RelayListUpdater::download_and_verify_relay_list(
                 api_handle.clone(),
                 proxy.clone(),
                 latest_digest.clone(),
@@ -246,7 +246,7 @@ impl RelayListUpdater {
     /// If the verification fails the error is only logged, and a new relay list will still be
     /// fetched and used as long as we are able to parse the digest (which is needed to fetch
     /// the relay list).
-    async fn download_and_verify_relay_list_future(
+    async fn download_and_verify_relay_list(
         api_handle: ApiAvailability,
         proxy: RelayListProxy,
         latest_digest: RelayListDigest,
@@ -322,8 +322,10 @@ impl RelayListUpdater {
                 error.display_chain_with_msg("Failed to update relay cache on disk")
             );
         }
-        // Cache the digest so that we can check it before sending next request
+        // Cache the digest and timestamp so that we can check it before sending next request
         self.digest = new_relay_list.digest().clone();
+        self.latest_timestamp = new_relay_list.timestamp();
+
         // Propagate the new relay list to the relay selector
         let (relay_list, bridge_list) = new_relay_list.into_internal_repr();
         self.relay_list = relay_list;

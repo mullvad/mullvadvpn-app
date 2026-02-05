@@ -5,7 +5,7 @@
 mod test;
 
 use chrono::{DateTime, Utc};
-use mullvad_api::{RelayListDigest, RelayListSignature};
+use mullvad_api::{RelayListDigest, RelayListSignature, Sha256Bytes};
 use serde::Deserialize;
 use sigsum::{Hash, ParseAsciiError, Policy, PublicKey, SigsumSignature, VerifyError};
 use std::sync::LazyLock;
@@ -22,7 +22,7 @@ fn parse_keys(keys: &str) -> Vec<PublicKey> {
                 None
             } else {
                 let key_hex = hex::decode(key).expect("invalid hex");
-                let key_bytes: [u8; 32] = key_hex.as_slice().try_into().expect("invalid pubkey");
+                let key_bytes: Sha256Bytes = key_hex.as_slice().try_into().expect("invalid pubkey");
                 Some(PublicKey::from(key_bytes))
             }
         })
