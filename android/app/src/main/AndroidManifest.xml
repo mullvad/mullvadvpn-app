@@ -85,7 +85,7 @@
             android:enabled="true"
             android:exported="true"
             android:icon="@mipmap/ic_launcher"
-            android:banner="@mipmap/ic_launcher"
+            android:banner="@mipmap/ic_banner"
             android:label="@string/app_name"
             android:targetActivity="net.mullvad.mullvadvpn.ui.MainActivity"
             tools:ignore="DiscouragedApi,UnusedAttribute">
