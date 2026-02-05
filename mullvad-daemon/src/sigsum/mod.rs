@@ -10,16 +10,21 @@ use serde::Deserialize;
 use sigsum::{Hash, ParseAsciiError, Policy, PublicKey, SigsumSignature, VerifyError};
 use std::sync::LazyLock;
 
-/// Pubkeys used to verify the sigsum signature of the relay list (stagemole)
+/// Pubkeys used to verify the sigsum signature of the relay list
 pub static TRUSTED_SIGNING_PUBKEYS: LazyLock<Vec<PublicKey>> =
     LazyLock::new(|| parse_keys(include_str!("trusted-sigsum-signing-pubkeys")));
 
 fn parse_keys(keys: &str) -> Vec<PublicKey> {
     keys.split('\n')
-        .map(|key| {
-            let key_hex = hex::decode(key).expect("invalid hex");
-            let key_bytes: [u8; 32] = key_hex.as_slice().try_into().expect("invalid pubkey");
-            PublicKey::from(key_bytes)
+        .filter_map(|key| -> Option<PublicKey> {
+            let key = key.trim();
+            if key.starts_with('#') || key.is_empty() {
+                None
+            } else {
+                let key_hex = hex::decode(key).expect("invalid hex");
+                let key_bytes: [u8; 32] = key_hex.as_slice().try_into().expect("invalid pubkey");
+                Some(PublicKey::from(key_bytes))
+            }
         })
         .collect()
 }
