@@ -28,11 +28,8 @@ public struct TunnelSettingsV7: Codable, Equatable, TunnelSettings, Sendable {
     /// DAITA settings.
     public var daita: DAITASettings
 
-    /// Local networks sharing.
-    public var localNetworkSharing: Bool
-
-    /// Forces the system to route most traffic through the tunnel
-    public var includeAllNetworks: Bool
+    /// IAN settings.
+    public var includeAllNetworks: InclueAllNetworksSettings
 
     public init(
         relayConstraints: RelayConstraints = RelayConstraints(),
@@ -41,8 +38,7 @@ public struct TunnelSettingsV7: Codable, Equatable, TunnelSettings, Sendable {
         tunnelQuantumResistance: TunnelQuantumResistance = .automatic,
         tunnelMultihopState: MultihopState = .off,
         daita: DAITASettings = DAITASettings(),
-        localNetworkSharing: Bool = false,
-        includeAllNetworks: Bool = false
+        includeAllNetworks: InclueAllNetworksSettings = InclueAllNetworksSettings()
     ) {
         self.relayConstraints = relayConstraints
         self.dnsSettings = dnsSettings
@@ -50,8 +46,29 @@ public struct TunnelSettingsV7: Codable, Equatable, TunnelSettings, Sendable {
         self.tunnelQuantumResistance = tunnelQuantumResistance
         self.tunnelMultihopState = tunnelMultihopState
         self.daita = daita
-        self.localNetworkSharing = localNetworkSharing
         self.includeAllNetworks = includeAllNetworks
+    }
+
+    public init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        self.relayConstraints =
+            try container.decode(RelayConstraints.self, forKey: .relayConstraints)
+        self.dnsSettings =
+            try container.decode(DNSSettings.self, forKey: .dnsSettings)
+        self.wireGuardObfuscation =
+            try container.decode(WireGuardObfuscationSettings.self, forKey: .wireGuardObfuscation)
+        self.tunnelQuantumResistance =
+            try container.decode(TunnelQuantumResistance.self, forKey: .tunnelQuantumResistance)
+        self.tunnelMultihopState =
+            try container.decode(MultihopState.self, forKey: .tunnelMultihopState)
+        self.daita =
+            try container.decode(DAITASettings.self, forKey: .daita)
+        self.includeAllNetworks =
+            try container.decodeIfPresent(
+                InclueAllNetworksSettings.self,
+                forKey: .includeAllNetworks
+            ) ?? InclueAllNetworksSettings()
     }
 
     public func upgradeToNextVersion() -> any TunnelSettings {

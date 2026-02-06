@@ -69,7 +69,6 @@ public enum AccessibilityIdentifier: Equatable {
     case relayFilterChipCloseButton
     case openPortSelectorMenuButton
     case cancelPurchaseListButton
-    case acceptLocalNetworkSharingButton
     case selectLocationToolbarMenu
     case locationListItem(String)
     case toggleMultihopButton
@@ -112,6 +111,11 @@ public enum AccessibilityIdentifier: Equatable {
     case customListLocationCell
     case daitaConfirmAlertBackButton
     case daitaConfirmAlertEnableButton
+    case includeAllNetworksNotificationsAlertEnableButton
+    case includeAllNetworksNotificationsAlertDismissButton
+    case includeAllNetworksNotificationsAlertSystemSettingsButton
+    case includeAllNetworksFeatureAlertEnableButton
+    case includeAllNetworksCell
     case multihopCell
     case daitaCell
     case daitaFilterPill
@@ -174,6 +178,7 @@ public enum AccessibilityIdentifier: Equatable {
     case dnsSettingsTableView
     case multihopView
     case daitaView
+    case includeAllNetworksView
 
     // Other UI elements
     case accessMethodEnableSwitch
@@ -199,6 +204,8 @@ public enum AccessibilityIdentifier: Equatable {
     case socks5AuthenticationSwitch
     case statusImageView
     case deviceRemovalProgressView
+    case settingsInfoView
+    case actionBox
 
     // DNS settings
     case includeAllNetworks
@@ -234,6 +241,11 @@ public enum AccessibilityIdentifier: Equatable {
     case daitaSwitch
     case daitaPromptAlert
     case daitaDirectOnlySwitch
+
+    // IAN
+    case includeAllNetworksSwitch
+    case includeAllNetworksPromptAlert
+    case localNetworkSharingSwitch
 
     // Quantum resistance
     case quantumResistanceAutomatic

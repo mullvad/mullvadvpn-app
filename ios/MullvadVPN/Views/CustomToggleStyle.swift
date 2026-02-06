@@ -58,7 +58,9 @@ struct CustomToggleStyle: ToggleStyle {
             }
             .accessibilityIdentifier(accessibilityId?.asString ?? "")
             .onTapGesture {
-                toggle(configuration)
+                if !disabled {
+                    toggle(configuration)
+                }
             }
             .adjustingTapAreaSize()
         }

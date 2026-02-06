@@ -41,6 +41,9 @@ enum SettingsNavigationRoute: Equatable {
 
     /// Language route.
     case language
+
+    /// IAN route.
+    case includeAllNetworks
 }
 
 /// Top-level settings coordinator.
@@ -113,7 +116,7 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
 
     // MARK: - Navigation
 
-    /// Request navigation to the speciifc route.
+    /// Request navigation to the specific route.
     ///
     /// - Parameters:
     ///   - route: the route to present.

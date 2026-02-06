@@ -168,14 +168,25 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                                 disablingRecentConnectionsAlert = MullvadAlert(
                                     type: .warning,
                                     messages: ["Disabling recents will also clear history."],
-                                    action: MullvadAlert.Action(
-                                        type: .danger,
-                                        title: "Disable",
-                                        identifier: AccessibilityIdentifier.disableRecentConnectionsButton,
-                                        handler: {
-                                            disablingRecentConnectionsAlert = nil
-                                            viewModel.toggleRecents()
-                                        }), dismissButtonTitle: "Cancel")
+                                    actions: [
+                                        MullvadAlert.Action(
+                                            type: .danger,
+                                            title: "Disable",
+                                            identifier: AccessibilityIdentifier.disableRecentConnectionsButton,
+                                            handler: {
+                                                disablingRecentConnectionsAlert = nil
+                                                viewModel.toggleRecents()
+                                            }
+                                        ),
+                                        MullvadAlert.Action(
+                                            type: .default,
+                                            title: "Cancel",
+                                            handler: {
+                                                disablingRecentConnectionsAlert = nil
+                                            }
+                                        ),
+                                    ]
+                                )
 
                             } else {
                                 viewModel.toggleRecents()

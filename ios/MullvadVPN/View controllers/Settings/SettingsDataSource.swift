@@ -59,6 +59,7 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
         case daita
         case multihop
         case language
+        case includeAllNetworks
 
         var accessibilityIdentifier: AccessibilityIdentifier {
             switch self {
@@ -78,6 +79,8 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
                 .multihopCell
             case .language:
                 .languageCell
+            case .includeAllNetworks:
+                .includeAllNetworksCell
             }
         }
 
@@ -182,6 +185,10 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
                     .multihop,
                     .vpnSettings,
                 ], toSection: .vpnSettings)
+
+            #if DEBUG
+                snapshot.appendItems([.includeAllNetworks], toSection: .vpnSettings)
+            #endif
         }
 
         snapshot.appendSections([.language])

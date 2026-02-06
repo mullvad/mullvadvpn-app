@@ -11,6 +11,7 @@ import MullvadSettings
 struct SettingsViewModel {
     private(set) var daitaSettings: DAITASettings
     private(set) var multihopState: MultihopState
+    private(set) var includeAllNetworksState: InclueAllNetworksState
 
     var currentLanguage: String {
         let currentLanguage = ApplicationLanguage.currentLanguage
@@ -20,5 +21,6 @@ struct SettingsViewModel {
     init(from tunnelSettings: LatestTunnelSettings = LatestTunnelSettings()) {
         daitaSettings = tunnelSettings.daita
         multihopState = tunnelSettings.tunnelMultihopState
+        includeAllNetworksState = tunnelSettings.includeAllNetworks.includeAllNetworksState
     }
 }

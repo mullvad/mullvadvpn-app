@@ -23,6 +23,7 @@ struct SettingsInfoContainerView<Content: View>: View {
                     .padding(.bottom, UIMetrics.contentInsets.bottom)
             }
         }
+        .accessibilityIdentifier(.settingsInfoView)
         .background(Color(.secondaryColor))
     }
 }

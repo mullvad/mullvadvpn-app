@@ -141,29 +141,32 @@ final class NotificationManager: NotificationProviderDelegate {
         let authorizationOptions: UNAuthorizationOptions = [.alert, .sound, .provisional]
         let userNotificationCenter = UNUserNotificationCenter.current()
 
-        userNotificationCenter.getNotificationSettings { notificationSettings in
-            switch notificationSettings.authorizationStatus {
-            case .notDetermined:
-                userNotificationCenter.requestAuthorization(options: authorizationOptions) { granted, error in
-                    if let error {
-                        self.logger.error(
-                            error: error,
-                            message: "Failed to obtain user notifications authorization"
-                        )
+        completion(false)
+        return
+
+            userNotificationCenter.getNotificationSettings { notificationSettings in
+                switch notificationSettings.authorizationStatus {
+                case .notDetermined:
+                    userNotificationCenter.requestAuthorization(options: authorizationOptions) { granted, error in
+                        if let error {
+                            self.logger.error(
+                                error: error,
+                                message: "Failed to obtain user notifications authorization"
+                            )
+                        }
+                        completion(granted)
                     }
-                    completion(granted)
+
+                case .authorized, .provisional:
+                    completion(true)
+
+                case .denied, .ephemeral:
+                    fallthrough
+
+                @unknown default:
+                    completion(false)
                 }
-
-            case .authorized, .provisional:
-                completion(true)
-
-            case .denied, .ephemeral:
-                fallthrough
-
-            @unknown default:
-                completion(false)
             }
-        }
     }
 
     // MARK: - NotificationProviderDelegate

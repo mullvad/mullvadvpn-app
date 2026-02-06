@@ -103,4 +103,12 @@ class SettingsPage: Page {
 
         return self
     }
+
+    @discardableResult func tapIncludeAllNetworksCell() -> Self {
+        app.tables[AccessibilityIdentifier.settingsTableView]
+            .cells[AccessibilityIdentifier.includeAllNetworksCell]
+            .tap()
+
+        return self
+    }
 }
