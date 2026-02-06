@@ -306,7 +306,7 @@ class ManagementService(
             .mapLeft(ConnectError::Unknown)
 
     suspend fun disconnect(): Either<ConnectError, Boolean> =
-        Either.catch { grpc.disconnectTunnel(Empty.getDefaultInstance()).value }
+        Either.catch { grpc.disconnectTunnel(StringValue.of("android-ui")).value }
             .onLeft { Logger.e("Disconnect error") }
             .mapLeft(ConnectError::Unknown)
 
@@ -338,7 +338,7 @@ class ManagementService(
         grpc.getCurrentApiAccessMethod(Empty.getDefaultInstance()).toDomain()
 
     suspend fun logoutAccount(): Either<LogoutAccountError, Unit> =
-        Either.catch { grpc.logoutAccount(Empty.getDefaultInstance()) }
+        Either.catch { grpc.logoutAccount(StringValue.of("android-ui")) }
             .onLeft { Logger.e("Logout account error") }
             .mapLeft(LogoutAccountError::Unknown)
             .mapEmpty()

@@ -265,7 +265,7 @@ export class DaemonRpc extends GrpcClient {
   }
 
   public async logoutAccount(): Promise<void> {
-    await this.callEmpty(this.client.logoutAccount);
+    await this.callString(this.client.logoutAccount, 'desktop-ui');
   }
 
   // TODO: Custom tunnel configurations are not supported by the GUI.
@@ -397,7 +397,7 @@ export class DaemonRpc extends GrpcClient {
   }
 
   public async disconnectTunnel(): Promise<void> {
-    await this.callEmpty(this.client.disconnectTunnel);
+    await this.callString(this.client.disconnectTunnel, 'desktop-ui');
   }
 
   public async reconnectTunnel(): Promise<void> {
