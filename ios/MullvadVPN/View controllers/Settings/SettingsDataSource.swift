@@ -46,8 +46,7 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
         case vpnSettings
         case apiAccess
         case version
-        case problemReport
-        case language
+        case misc
     }
 
     enum Item: String {
@@ -107,7 +106,6 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
             settingsCellFactory.makeCell(for: itemIdentifier, indexPath: indexPath)
         }
 
-        tableView.sectionFooterHeight = 0
         tableView.tableHeaderView = UIView(
             frame: CGRect(
                 origin: .zero,
@@ -139,6 +137,7 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: false)
         guard let item = itemIdentifier(for: indexPath) else { return }
         delegate?.didSelectItem(item: item)
     }
@@ -157,6 +156,43 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
             0
         default:
             UIMetrics.TableView.sectionSpacing
+        }
+    }
+
+    func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
+        guard let section = sectionIdentifier(for: section), section == .misc else {
+            return nil
+        }
+
+        let footerView = tableView.dequeueReusableHeaderFooterView(
+            withIdentifier: HeaderFooterReuseIdentifier.primary.rawValue
+        )
+
+        var contentConfiguration = ListCellContentConfiguration(
+            textProperties:
+                ListCellContentConfiguration.TextProperties(
+                    font: .mullvadTiny,
+                    color: .TableSection.footerTextColor
+                ),
+            directionalLayoutMargins: NSDirectionalEdgeInsets(UIMetrics.SettingsRowView.footerLayoutMargins)
+        )
+        contentConfiguration.text = NSLocalizedString(
+            "Changing language will disconnect you from the VPN and restart the app.",
+            comment: ""
+        )
+        footerView?.contentConfiguration = contentConfiguration
+
+        return footerView
+    }
+
+    func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
+        guard let section = sectionIdentifier(for: section) else { return 0 }
+
+        return switch section {
+        case .misc:
+            UITableView.automaticDimension
+        default:
+            0
         }
     }
 
@@ -184,15 +220,12 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
                 ], toSection: .vpnSettings)
         }
 
-        snapshot.appendSections([.language])
-        snapshot.appendItems([.language], toSection: .language)
-
         snapshot.appendSections([.apiAccess])
         snapshot.appendItems([.apiAccess], toSection: .apiAccess)
 
-        snapshot.appendSections([.version, .problemReport])
+        snapshot.appendSections([.version, .misc])
         snapshot.appendItems([.changelog], toSection: .version)
-        snapshot.appendItems([.problemReport, .faq], toSection: .problemReport)
+        snapshot.appendItems([.problemReport, .faq, .language], toSection: .misc)
 
         apply(snapshot)
     }
