@@ -31,8 +31,12 @@ NOTARIZE="false"
 # If a macOS or Windows build should create an installer artifact working on both
 # x86 and arm64
 UNIVERSAL="false"
-# Use gotatun instead of wireguard-go. The current desktop default is wireguard-go.
+# Use gotatun instead of wireguard-go.
 GOTATUN="false"
+# Enable GotaTun by default on macOS.
+if [[ "$(uname -s)" == "Darwin" ]]; then
+    GOTATUN="true"
+fi
 
 while [[ "$#" -gt 0 ]]; do
     case $1 in
