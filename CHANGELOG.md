@@ -32,6 +32,7 @@ Line wrap the file at 100 chars.                                              Th
 #### Linux
 - Change "Go back" keyboard shortcut from `Esc` to `Alt + Left Arrow` or `Alt + [`.
 - Use Wayland by default on Linux if available, otherwise fall back to X11.
+- Add a 60 second timeout to `mullvad-early-boot-blocking.service`
 
 #### macOS
 - Change "Go back" keyboard shortcut from `Esc` to `Cmd + Left Arrow` or `Cmd + [`.
