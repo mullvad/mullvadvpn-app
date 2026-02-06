@@ -173,5 +173,25 @@ extension REST {
             self.wireguard = wireguard
             self.bridge = bridge
         }
+
+        /// Returns true if the relay list contains no usable relays
+        public var isEmpty: Bool {
+            wireguard.relays.isEmpty && bridge.relays.isEmpty
+        }
+
+        #if DEBUG
+            /// Empty relay list used when prebundled file is empty (Debug/Staging builds)
+            public static let empty = ServerRelaysResponse(
+                locations: [:],
+                wireguard: ServerWireguardTunnels(
+                    ipv4Gateway: .loopback,
+                    ipv6Gateway: .loopback,
+                    portRanges: [],
+                    relays: [],
+                    shadowsocksPortRanges: []
+                ),
+                bridge: ServerBridges(shadowsocks: [], relays: [])
+            )
+        #endif
     }
 }
