@@ -35,7 +35,8 @@ class AndroidLibraryPlugin : Plugin<Project> {
             }
             extensions.configure<KotlinAndroidProjectExtension> {
                 compilerOptions {
-                    jvmTarget = JvmTarget.fromTarget(libs.findVersion("jvm-target").get().toString())
+                    jvmTarget =
+                        JvmTarget.fromTarget(libs.findVersion("jvm-target").get().toString())
                     allWarningsAsErrors = true
                 }
             }
