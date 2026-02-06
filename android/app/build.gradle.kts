@@ -159,6 +159,9 @@ android {
 
     sourceSets {
         getByName("main") { assets.srcDirs(relayListDirectory, changelogAssetsDirectory) }
+        getByName("androidTest") {
+            java.srcDirs("${project(":lib:feature:daita:impl").projectDir}/src/androidTest/java")
+        }
     }
 
     buildFeatures {
