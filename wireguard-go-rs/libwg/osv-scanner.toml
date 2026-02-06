@@ -207,3 +207,10 @@ reason = "wireguard-go does not use archive/zip"
 id = "GO-2026-4403"
 ignoreUntil = 2027-02-05
 reason = "wireguard-go does not use os.checkPathEscapesInternal, os.doInRoot nor os.splitPathInRoot"
+
+# Quadratic parsing complexity in golang.org/x/net/html
+# https://osv.dev/vulnerability/GO-2026-4440
+[[IgnoredVulns]]
+id = "GO-2026-4440"
+ignoreUntil = 2027-02-06
+reason = "wireguard-go does not use golang.org/x/net/html"
