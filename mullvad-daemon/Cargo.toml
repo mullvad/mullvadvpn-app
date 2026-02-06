@@ -37,8 +37,6 @@ rand = { workspace = true }
 regex = "1.0"
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true, features = ["std"] }
-# TODO: change to crates.io when new release is available
-sigsum = { git = "https://github.com/mullvad/sigsum-rs.git" }
 sha2 = { workspace = true }
 talpid-core = { path = "../talpid-core" }
 talpid-dns = { path = "../talpid-dns" }

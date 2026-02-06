@@ -1,11 +1,5 @@
-//! This module contains functions for parsing and validating the Sigsum transparency log
-//! signatures and timestamps that are available at the `/trl/v0/timestamps/latest` and
-//! `/trl/v0/data/` endpoints.
-
-mod test;
-
+use crate::relay_list_transparency::{RelayListDigest, RelayListSignature, Sha256Bytes};
 use chrono::{DateTime, Utc};
-use mullvad_api::{RelayListDigest, RelayListSignature, Sha256Bytes};
 use serde::Deserialize;
 use sigsum::{Hash, ParseAsciiError, Policy, PublicKey, SigsumSignature, VerifyError};
 use std::sync::LazyLock;
@@ -47,12 +41,12 @@ pub struct Timestamp {
 /// If the signature is invalid, an error struct is returned that exposes a method to parse
 /// the unverified timestamp. This is a temporary solution and should be removed once we go over
 /// to failing hard on signature validation errors.
-pub(crate) fn validate_signature(
+pub(crate) fn validate_relay_list_signature(
     sig: &RelayListSignature,
 ) -> Result<Timestamp, SignatureVerificationFailedError> {
     let policy = Policy::builtin(POLICY).unwrap();
 
-    let sigsum_signature = SigsumSignature::from_ascii(&sig.sigsum_signature)
+    let sigsum_signature = SigsumSignature::from_ascii(&sig.unparsed_sigsum_signature)
         .map_err(|e| SignatureVerificationFailedError::new(sig, SigsumError::from(e)))?;
 
     sigsum::verify(
@@ -71,7 +65,7 @@ pub(crate) fn validate_signature(
 
 /// Validates that the digest we get from the [`Timestamp`] matches
 /// the digest of the relay list content.
-pub(crate) fn validate_data(
+pub(crate) fn validate_relay_list_content(
     timestamp: &Timestamp,
     content_hash: &RelayListDigest,
 ) -> Result<(), SigsumError> {
@@ -147,4 +141,28 @@ pub(crate) enum SigsumError {
 
     #[error("Content digest does not match sigsum digest")]
     ContentDigestDoesNotMatchSigsumDigest,
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_parsing_pubkey_from_file() {
+        let trusted = include_str!("trusted-sigsum-signing-pubkeys");
+        let keys = parse_keys(trusted);
+        assert!(!keys.is_empty());
+    }
+
+    #[test]
+    fn test_parsing_pubkey_can_contain_empty_lines_and_comments() {
+        let input = "";
+        let keys = parse_keys(input);
+        assert!(keys.is_empty());
+
+        let input =
+            "#this is a comment\n35809994d285fe3dd50d49c384db49519412008c545cb6588c138a86ae4c3284";
+        let keys = parse_keys(input);
+        assert_eq!(1, keys.len());
+    }
 }

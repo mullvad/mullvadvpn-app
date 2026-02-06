@@ -1,7 +1,5 @@
 //! A module dedicated to retrieving the relay list from the Mullvad API.
 
-pub mod relay_list_transparency;
-
 use crate::rest;
 
 use hyper::{StatusCode, body::Incoming};
@@ -13,9 +11,7 @@ use serde::{Deserialize, Serialize};
 use talpid_types::net::wireguard;
 use vec1::Vec1;
 
-use crate::relay_list::relay_list_transparency::{
-    RelayListDigest, RelayListSignature, Sha256Bytes,
-};
+use crate::relay_list_transparency::{RelayListDigest, RelayListSignature, Sha256Bytes};
 use chrono::{DateTime, Utc};
 use sha2::{Digest, Sha256};
 use std::{
@@ -83,7 +79,7 @@ impl RelayListProxy {
             .and_then(|body| {
                 str::from_utf8(&body)
                     .map_err(|_| rest::Error::InvalidUtf8Error)
-                    .and_then(RelayListSignature::from_server_response)
+                    .and_then(RelayListSignature::parse)
             })
             .inspect_err(|_err| {
                 log::error!("Failed to deserialize API response of relay list sigsum")
