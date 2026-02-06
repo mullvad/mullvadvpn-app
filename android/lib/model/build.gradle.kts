@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.kotlin.ksp)
     alias(libs.plugins.junit5.android)
+    alias(libs.plugins.mullvad.test)
 }
 
 android { namespace = "net.mullvad.mullvadvpn.lib.model" }
