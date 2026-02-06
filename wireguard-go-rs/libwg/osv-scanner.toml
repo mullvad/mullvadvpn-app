@@ -214,3 +214,11 @@ reason = "wireguard-go does not use os.checkPathEscapesInternal, os.doInRoot nor
 id = "GO-2026-4440"
 ignoreUntil = 2027-02-06
 reason = "wireguard-go does not use golang.org/x/net/html"
+
+# The html.Parse function in golang.org/x/net/html has an infinite parsing loop when processing certain inputs,
+# which can lead to denial of service (DoS) if an attacker provides specially crafted HTML content.
+# https://osv.dev/vulnerability/GO-2026-4441
+[[IgnoredVulns]]
+id = "GO-2026-4441"
+ignoreUntil = 2027-02-06
+reason = "wireguard-go does not use html.Parse"
