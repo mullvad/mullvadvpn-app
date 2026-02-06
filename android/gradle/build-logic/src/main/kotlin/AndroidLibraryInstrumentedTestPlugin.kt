@@ -2,6 +2,7 @@ import com.android.build.api.dsl.LibraryExtension
 import de.mannodermaus.gradle.plugins.junit5.dsl.AndroidJUnitPlatformExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.UnknownTaskException
 import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.dependencies
@@ -35,6 +36,18 @@ class AndroidLibraryInstrumentedTestPlugin : Plugin<Project> {
                 )
                 "androidTestImplementation"(libs.findLibrary("junit5.android.test.runner").get())
             }
+        }
+
+        target.tasks.register("assembleAllAndroidTest") {
+            dependsOn(
+                try {
+                    target.tasks.getByName("assembleAndroidTest")
+                } catch (e: UnknownTaskException) {
+                    // Modules with flavors will not have normal android test tasks so we test with
+                    // ossProdDebug
+                    target.tasks.getByName("assembleOssProdAndroidTest")
+                }
+            )
         }
     }
 }

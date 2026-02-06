@@ -30,6 +30,7 @@ plugins {
     alias(libs.plugins.kotlin.ksp)
     alias(libs.plugins.compose)
     alias(libs.plugins.baselineprofile)
+    //alias(libs.plugins.mullvad.android.library.instrumented.test)
     alias(libs.plugins.mullvad.unit.test)
     id("de.mannodermaus.android-junit5")
     id("net.mullvad.rust-android")

@@ -151,7 +151,7 @@ jobs:
       - name: Prepare build tasks
         id: build-tasks
         run: |
-          tasks=":app:assembleOssProdDebug assembleOssProdAndroidTest :test:mockapi:assemble"
+          tasks=":app:assembleOssProdDebug assembleOssProdAndroidTest assembleAllAndroidTest :test:mockapi:assemble"
           if [[ "${{ needs.prepare.outputs.E2E_TEST_REPEAT }}" != '0' ]]; then
             tasks+=" :app:assemblePlayStagemoleDebug :test:e2e:assemble"
           fi
