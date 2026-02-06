@@ -22,6 +22,9 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+
+
+## [2026.1-beta1] - 2026-02-23
 ### Changed
 - Change `WireGuard port` to no longer affect the port used for LWO.
 - Change `Mullvad Bridges` access method to randomly pick any Mullvad-owned bridge.
