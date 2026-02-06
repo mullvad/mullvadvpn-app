@@ -3,7 +3,7 @@
 
 /* SPDX-License-Identifier: Apache-2.0
  *
- * Copyright (C) 2025 Mullvad VPN AB. All Rights Reserved.
+ * Copyright (C) 2026 Mullvad VPN AB. All Rights Reserved.
  */
 
 package main

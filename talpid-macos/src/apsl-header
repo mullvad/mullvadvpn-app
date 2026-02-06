@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Mullvad VPN AB. All rights reserved.
+ * Copyright (c) 2026 Mullvad VPN AB. All rights reserved.
  *
  * @APPLE_OSREFERENCE_LICENSE_HEADER_START@
  *

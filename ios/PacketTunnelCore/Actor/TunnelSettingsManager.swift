@@ -3,7 +3,7 @@
 //  PacketTunnelCore
 //
 //  Created by Mojgan on 2024-06-05.
-//  Copyright © 2025 Mullvad VPN AB. All rights reserved.
+//  Copyright © 2026 Mullvad VPN AB. All rights reserved.
 //
 
 public struct TunnelSettingsManager: SettingsReaderProtocol {

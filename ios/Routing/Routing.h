@@ -3,7 +3,7 @@
 //  Routing
 //
 //  Created by Jon Petersson on 2023-08-18.
-//  Copyright © 2025 Mullvad VPN AB. All rights reserved.
+//  Copyright © 2026 Mullvad VPN AB. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>

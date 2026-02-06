@@ -3,7 +3,7 @@
 //  PacketTunnelCore
 //
 //  Created by pronebird on 24/08/2022.
-//  Copyright © 2025 Mullvad VPN AB. All rights reserved.
+//  Copyright © 2026 Mullvad VPN AB. All rights reserved.
 //
 
 #ifndef IPV4HEADER_H

@@ -3,7 +3,7 @@
 //  PacketTunnelCoreTests
 //
 //  Created by pronebird on 15/08/2023.
-//  Copyright © 2025 Mullvad VPN AB. All rights reserved.
+//  Copyright © 2026 Mullvad VPN AB. All rights reserved.
 //
 
 import MullvadTypes

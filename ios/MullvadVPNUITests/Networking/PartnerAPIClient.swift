@@ -3,7 +3,7 @@
 //  MullvadVPNUITests
 //
 //  Created by Niklas Berglund on 2024-04-19.
-//  Copyright © 2025 Mullvad VPN AB. All rights reserved.
+//  Copyright © 2026 Mullvad VPN AB. All rights reserved.
 //
 
 import Foundation
