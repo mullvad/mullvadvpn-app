@@ -210,11 +210,13 @@ test.describe('Select location', () => {
           const provider = wireguardRelays.countries[0].cities[0].relays[0].provider;
           await routes.filter.checkProviderCheckbox(provider);
 
+          await Promise.all([
+            util.ipc.settings.setRelaySettings.handle(),
+            routes.filter.applyFilter(),
+          ]);
           await helpers.updateMockRelayFilter({
             providers: [provider],
           });
-
-          await routes.filter.applyFilter();
           await util.expectRoute(RoutePath.selectLocation);
           const providerFilterChip = routes.selectLocation.getFilterChip('Providers: 1');
           await expect(providerFilterChip).toBeVisible();

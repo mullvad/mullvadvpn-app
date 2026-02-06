@@ -15,7 +15,7 @@ function AutoStartSwitch({ children, ...props }: AutoStartSwitch) {
 
 const AutoStartSwitchNamespace = Object.assign(AutoStartSwitch, {
   Label: Switch.Label,
-  Thumb: Switch.Thumb,
+  Input: Switch.Input,
   Trigger: Switch.Trigger,
 });
 

@@ -13,9 +13,7 @@ export function AutoStartSetting(props: AutoStartSettingProps) {
             {messages.pgettext('vpn-settings-view', 'Launch app on start-up')}
           </AutoStartSwitch.Label>
           <SettingsListItem.ActionGroup>
-            <AutoStartSwitch.Trigger>
-              <AutoStartSwitch.Thumb />
-            </AutoStartSwitch.Trigger>
+            <AutoStartSwitch.Input />
           </SettingsListItem.ActionGroup>
         </AutoStartSwitch>
       </SettingsListItem.Item>

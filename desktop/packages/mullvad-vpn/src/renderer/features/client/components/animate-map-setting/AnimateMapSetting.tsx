@@ -12,14 +12,12 @@ export function AnimateMapSetting(props: AnimateMapSettingProps) {
   return (
     <ListItem {...props}>
       <ListItem.Item>
-        <AnimateMapSwitch>
+        <AnimateMapSwitch descriptionId={descriptionId}>
           <AnimateMapSwitch.Label>
             {messages.pgettext('user-interface-settings-view', 'Animate map')}
           </AnimateMapSwitch.Label>
           <SettingsListItem.ActionGroup>
-            <AnimateMapSwitch.Trigger aria-describedby={descriptionId}>
-              <AnimateMapSwitch.Thumb />
-            </AnimateMapSwitch.Trigger>
+            <AnimateMapSwitch.Input />
           </SettingsListItem.ActionGroup>
         </AnimateMapSwitch>
       </ListItem.Item>

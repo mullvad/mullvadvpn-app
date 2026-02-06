@@ -12,8 +12,8 @@ import {
 import { ListboxProvider } from './ListboxContext';
 
 export type ListboxProps<T> = React.PropsWithChildren<{
-  onValueChange?: ((value: T) => Promise<void>) | ((value: T) => void);
   value?: T;
+  onValueChange?: (value: T) => Promise<void> | void;
   labelId?: string;
 }>;
 
@@ -21,7 +21,7 @@ function Listbox<T>({ value, onValueChange, labelId: labelIdProp, children }: Li
   const labelId = React.useId();
 
   return (
-    <ListboxProvider labelId={labelIdProp ?? labelId} value={value} onValueChange={onValueChange}>
+    <ListboxProvider value={value} onValueChange={onValueChange} labelId={labelIdProp ?? labelId}>
       <div tabIndex={-1} role="region" aria-labelledby={labelIdProp ?? labelId}>
         {children}
       </div>

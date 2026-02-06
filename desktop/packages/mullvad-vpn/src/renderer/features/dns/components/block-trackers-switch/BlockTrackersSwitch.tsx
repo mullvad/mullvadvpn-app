@@ -19,7 +19,7 @@ function BlockTrackersSwitch({ children, ...props }: BlockTrackersSwitchProps) {
 
 const BlockTrackersSwitchNamespace = Object.assign(BlockTrackersSwitch, {
   Label: Switch.Label,
-  Thumb: Switch.Thumb,
+  Input: Switch.Input,
   Trigger: Switch.Trigger,
 });
 
