@@ -119,10 +119,10 @@ impl ApiEndpoint {
     /// `MULLVAD_API_DISABLE_TLS` has invalid contents.
     #[cfg(feature = "api-override")]
     pub fn from_env_vars() -> ApiEndpoint {
-        let host_var = Self::read_var(env::API_HOST_VAR);
-        let address_var = Self::read_var(env::API_ADDR_VAR);
-        let disable_tls_var = Self::read_var(env::DISABLE_TLS_VAR);
-        let force_direct = Self::read_var(env::API_FORCE_DIRECT_VAR);
+        let host_var = read_env_var(env::API_HOST_VAR);
+        let address_var = read_env_var(env::API_ADDR_VAR);
+        let disable_tls_var = read_env_var(env::DISABLE_TLS_VAR);
+        let force_direct = read_env_var(env::API_FORCE_DIRECT_VAR);
 
         let mut api = ApiEndpoint {
             host: None,
@@ -214,7 +214,7 @@ impl ApiEndpoint {
             env::API_FORCE_DIRECT_VAR,
         ];
 
-        if env_vars.map(Self::read_var).iter().any(Option::is_some) {
+        if env_vars.map(read_env_var).iter().any(Option::is_some) {
             log::warn!(
                 "These variables are ignored in production builds: {env_vars_pretty}",
                 env_vars_pretty = env_vars.join(", ")
@@ -261,21 +261,21 @@ impl ApiEndpoint {
         self.address
             .unwrap_or(SocketAddr::new(API_IP_DEFAULT, API_PORT_DEFAULT))
     }
+}
 
-    /// Try to read the value of an environment variable. Returns `None` if the
-    /// environment variable has not been set.
-    ///
-    /// # Panics
-    ///
-    /// Panics if the environment variable was found, but it did not contain
-    /// valid unicode data.
-    fn read_var(key: &'static str) -> Option<String> {
-        use std::env;
-        match env::var(key) {
-            Ok(v) => Some(v),
-            Err(env::VarError::NotPresent) => None,
-            Err(env::VarError::NotUnicode(_)) => panic!("{key} does not contain valid UTF-8"),
-        }
+/// Try to read the value of an environment variable. Returns `None` if the
+/// environment variable has not been set.
+///
+/// # Panics
+///
+/// Panics if the environment variable was found, but it did not contain
+/// valid unicode data.
+pub(crate) fn read_env_var(key: &'static str) -> Option<String> {
+    use std::env;
+    match env::var(key) {
+        Ok(v) => Some(v),
+        Err(env::VarError::NotPresent) => None,
+        Err(env::VarError::NotUnicode(_)) => panic!("{key} does not contain valid UTF-8"),
     }
 }
 
