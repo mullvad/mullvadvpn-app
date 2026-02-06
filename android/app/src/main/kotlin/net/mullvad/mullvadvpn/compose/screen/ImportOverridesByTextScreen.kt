@@ -25,7 +25,6 @@ import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.transitions.DefaultTransition
@@ -41,7 +40,7 @@ private fun PreviewImportOverridesByText() {
     AppTheme { ImportOverridesByTextScreen(onNavigateBack = {}, onImportClicked = {}) }
 }
 
-@Destination<RootGraph>(style = DefaultTransition::class)
+@Destination<MainGraph>(style = DefaultTransition::class)
 @Composable
 fun ImportOverridesByText(resultNavigator: ResultBackNavigator<String>) {
     ImportOverridesByTextScreen(

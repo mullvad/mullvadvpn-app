@@ -17,7 +17,12 @@ import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.navigation.NavHostController
 import co.touchlab.kermit.Logger
 import com.ramcosta.composedestinations.DestinationsNavHost
+import com.ramcosta.composedestinations.annotation.ExternalDestination
+import com.ramcosta.composedestinations.annotation.NavHostGraph
 import com.ramcosta.composedestinations.generated.NavGraphs
+import com.ramcosta.composedestinations.generated.daita.destinations.DaitaDestination
+import com.ramcosta.composedestinations.generated.daita.destinations.DaitaDirectOnlyConfirmationDestination
+import com.ramcosta.composedestinations.generated.daita.destinations.DaitaDirectOnlyInfoDestination
 import com.ramcosta.composedestinations.generated.destinations.NoDaemonDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.navigation.dependency
@@ -32,6 +37,14 @@ import org.koin.androidx.compose.koinViewModel
 val LocalNavAnimatedVisibilityScope = compositionLocalOf<AnimatedVisibilityScope?> { null }
 @OptIn(ExperimentalSharedTransitionApi::class)
 val LocalSharedTransitionScope = compositionLocalOf<SharedTransitionScope?> { null }
+
+@NavHostGraph
+annotation class MainGraph {
+    @ExternalDestination<DaitaDestination>
+    @ExternalDestination<DaitaDirectOnlyInfoDestination>
+    @ExternalDestination<DaitaDirectOnlyConfirmationDestination>
+    companion object Includes
+}
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalSharedTransitionApi::class)
 @Composable
@@ -56,7 +69,7 @@ fun MullvadApp(backstackObserver: BackstackObserver) {
                         .accessibilityDataSensitive(),
                 engine = engine,
                 navController = navHostController,
-                navGraph = NavGraphs.root,
+                navGraph = NavGraphs.main,
                 dependenciesContainerBuilder = { dependency(this@SharedTransitionLayout) },
             )
         }

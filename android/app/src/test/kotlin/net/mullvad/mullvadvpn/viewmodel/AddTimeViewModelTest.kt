@@ -16,6 +16,7 @@ import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.compose.state.AddTimeUiState
 import net.mullvad.mullvadvpn.compose.state.PaymentState
 import net.mullvad.mullvadvpn.compose.state.PurchaseState
+import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.common.test.assertLists
 import net.mullvad.mullvadvpn.lib.model.TunnelState
@@ -28,7 +29,6 @@ import net.mullvad.mullvadvpn.lib.payment.model.VerificationResult
 import net.mullvad.mullvadvpn.lib.repository.AccountRepository
 import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
 import net.mullvad.mullvadvpn.lib.repository.PaymentLogic
-import net.mullvad.mullvadvpn.util.Lc
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -122,8 +122,9 @@ class AddTimeViewModelTest {
                 paymentAvailability.emit(PaymentAvailability.ProductsAvailable(listOf(mockProduct)))
                 val result = awaitItem()
                 assertIs<Lc.Content<AddTimeUiState>>(result)
-                assertIs<PaymentState.PaymentAvailable>(result.value.billingPaymentState)
-                assertLists(expectedProductList, result.value.billingPaymentState.products)
+                val paymentState =
+                    assertIs<PaymentState.PaymentAvailable>(result.value.billingPaymentState)
+                assertLists(expectedProductList, paymentState.products)
             }
         }
 

@@ -4,8 +4,8 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.onNodeWithText
 import de.mannodermaus.junit5.compose.ComposeContext
-import net.mullvad.mullvadvpn.compose.createEdgeToEdgeComposeExtension
-import net.mullvad.mullvadvpn.compose.setContentWithTheme
+import net.mullvad.mullvadvpn.screen.test.createEdgeToEdgeComposeExtension
+import net.mullvad.mullvadvpn.screen.test.setContentWithTheme
 import net.mullvad.mullvadvpn.viewmodel.DnsDialogViewState
 import net.mullvad.mullvadvpn.viewmodel.ValidationError
 import org.junit.jupiter.api.Test

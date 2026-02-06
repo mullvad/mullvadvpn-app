@@ -32,7 +32,6 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.NavGraphs
 import com.ramcosta.composedestinations.generated.destinations.LoginDestination
 import com.ramcosta.composedestinations.generated.destinations.SplashDestination
@@ -68,7 +67,7 @@ private fun PreviewPrivacyDisclaimerScreen() {
     }
 }
 
-@Destination<RootGraph>
+@Destination<MainGraph>
 @Composable
 fun PrivacyDisclaimer(navigator: DestinationsNavigator) {
     val viewModel: PrivacyDisclaimerViewModel = koinViewModel()
@@ -80,7 +79,7 @@ fun PrivacyDisclaimer(navigator: DestinationsNavigator) {
             PrivacyDisclaimerUiSideEffect.NavigateToLogin ->
                 navigator.navigate(LoginDestination(null)) {
                     launchSingleTop = true
-                    popUpTo(NavGraphs.root) { inclusive = true }
+                    popUpTo(NavGraphs.main) { inclusive = true }
                 }
             PrivacyDisclaimerUiSideEffect.StartService ->
                 launch {
@@ -97,7 +96,7 @@ fun PrivacyDisclaimer(navigator: DestinationsNavigator) {
             PrivacyDisclaimerUiSideEffect.NavigateToSplash ->
                 navigator.navigate(SplashDestination) {
                     launchSingleTop = true
-                    popUpTo(NavGraphs.root) { inclusive = true }
+                    popUpTo(NavGraphs.main) { inclusive = true }
                 }
         }
     }
