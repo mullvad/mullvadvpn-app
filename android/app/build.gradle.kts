@@ -158,7 +158,16 @@ android {
 
     sourceSets {
         getByName("main") { assets.srcDirs(relayListDirectory, changelogAssetsDirectory) }
-        getByName("androidTest") { java.srcDirs("${rootProject.projectDir}/**/androidTest/kotlin") }
+        // ChatGPT thinks this is a hack, but I think it is beautiful.
+        getByName("androidTest") {
+            val androidTestDirs =
+                rootProject.subprojects
+                    .mapNotNull { project ->
+                        project.file("src/androidTest/kotlin").takeIf { it.exists() }
+                    }
+
+            androidTestDirs.forEach { dir -> java.srcDir(dir) }
+        }
     }
 
     buildFeatures {
