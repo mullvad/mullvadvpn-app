@@ -1,5 +1,19 @@
 import { IChangelog } from './ipc-types';
 
+export enum DisconnectSource {
+  disconnectButton = 'desktop disconnect-button',
+  expiredAccount = 'desktop expired-account',
+  loginUnblock = 'desktop login-unblock',
+  deviceRevoked = 'desktop device-revoked',
+  quit = 'desktop quit',
+  tray = 'desktop tray',
+}
+
+export enum LogoutSource {
+  logoutButton = 'desktop logout-button',
+  deviceRevoked = 'desktop device-revoked',
+}
+
 export interface IAccountData {
   expiry: string;
 }

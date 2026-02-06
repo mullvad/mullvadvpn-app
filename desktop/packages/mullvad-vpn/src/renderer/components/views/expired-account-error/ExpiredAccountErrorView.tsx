@@ -3,6 +3,7 @@ import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 
 import { urls } from '../../../../shared/constants';
+import { DisconnectSource } from '../../../../shared/daemon-rpc-types';
 import { messages } from '../../../../shared/gettext';
 import log from '../../../../shared/logging';
 import { RoutePath } from '../../../../shared/routes';
@@ -58,7 +59,7 @@ function ExpiredAccountErrorViewComponent() {
 
   const [disconnect, disconnecting] = useExclusiveTask(async () => {
     try {
-      await disconnectTunnel();
+      await disconnectTunnel(DisconnectSource.expiredAccount);
     } catch (e) {
       const error = e as Error;
       log.error(`Failed to disconnect the tunnel: ${error.message}`);

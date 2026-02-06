@@ -5,7 +5,7 @@ import { sprintf } from 'sprintf-js';
 import { promisify } from 'util';
 
 import { connectEnabled, disconnectEnabled, reconnectEnabled } from '../shared/connect-helper';
-import { IAccountData, ILocation, TunnelState } from '../shared/daemon-rpc-types';
+import { DisconnectSource, IAccountData, ILocation, TunnelState } from '../shared/daemon-rpc-types';
 import { messages, relayLocations } from '../shared/gettext';
 import log from '../shared/logging';
 import { Scheduler } from '../shared/scheduler';
@@ -30,7 +30,7 @@ export interface UserInterfaceDelegate {
   updateAccountData(): void;
   connectTunnel(): void;
   reconnectTunnel(): void;
-  disconnectTunnel(): void;
+  disconnectTunnel(source: DisconnectSource): void;
   disconnectAndQuit(): void;
   isUnpinnedWindow(): boolean;
   isLoggedIn(): boolean;
@@ -691,7 +691,7 @@ export default class UserInterface implements WindowControllerDelegate {
         id: 'disconnect',
         label: messages.gettext('Disconnect'),
         enabled: disconnectEnabled(connectedToDaemon, tunnelState.state),
-        click: this.delegate.disconnectTunnel,
+        click: () => this.delegate.disconnectTunnel(DisconnectSource.tray),
       },
       { type: 'separator' },
       {

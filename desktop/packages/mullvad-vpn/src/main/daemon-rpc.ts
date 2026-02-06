@@ -14,6 +14,7 @@ import {
   DaemonAppUpgradeEvent,
   DaemonEvent,
   DeviceState,
+  DisconnectSource,
   IAppVersionInfo,
   ICustomList,
   IDevice,
@@ -21,6 +22,7 @@ import {
   IDnsOptions,
   IRelayListWithEndpointData,
   ISettings,
+  LogoutSource,
   NewAccessMethodSetting,
   NewCustomList,
   ObfuscationSettings,
@@ -264,8 +266,8 @@ export class DaemonRpc extends GrpcClient {
     }
   }
 
-  public async logoutAccount(): Promise<void> {
-    await this.callString(this.client.logoutAccount, 'desktop-ui');
+  public async logoutAccount(source: LogoutSource): Promise<void> {
+    await this.callString(this.client.logoutAccount, source);
   }
 
   // TODO: Custom tunnel configurations are not supported by the GUI.
@@ -396,8 +398,8 @@ export class DaemonRpc extends GrpcClient {
     await this.callEmpty(this.client.connectTunnel);
   }
 
-  public async disconnectTunnel(): Promise<void> {
-    await this.callString(this.client.disconnectTunnel, 'desktop-ui');
+  public async disconnectTunnel(source: DisconnectSource): Promise<void> {
+    await this.callString(this.client.disconnectTunnel, source);
   }
 
   public async reconnectTunnel(): Promise<void> {

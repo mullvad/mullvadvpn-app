@@ -16,6 +16,7 @@ import {
   AccountNumber,
   CustomProxy,
   DeviceEvent,
+  DisconnectSource,
   IAccountData,
   IAppVersionInfo,
   ICustomList,
@@ -26,6 +27,7 @@ import {
   IRelayListWithEndpointData,
   ISettings,
   liftConstraint,
+  LogoutSource,
   NewAccessMethodSetting,
   NewCustomList,
   ObfuscationSettings,
@@ -406,7 +408,8 @@ export default class AppRenderer {
   public removeDevice = (device: IDeviceRemoval) =>
     IpcRendererEventChannel.account.removeDevice(device);
   public connectTunnel = () => IpcRendererEventChannel.tunnel.connect();
-  public disconnectTunnel = () => IpcRendererEventChannel.tunnel.disconnect();
+  public disconnectTunnel = (source: DisconnectSource = DisconnectSource.disconnectButton) =>
+    IpcRendererEventChannel.tunnel.disconnect(source);
   public reconnectTunnel = () => IpcRendererEventChannel.tunnel.reconnect();
   public setRelaySettings = (relaySettings: RelaySettings) =>
     IpcRendererEventChannel.settings.setRelaySettings(relaySettings);
@@ -552,9 +555,9 @@ export default class AppRenderer {
     this.loginState = 'none';
   };
 
-  public logout = async () => {
+  public logout = async (source: LogoutSource = LogoutSource.logoutButton) => {
     try {
-      await IpcRendererEventChannel.account.logout();
+      await IpcRendererEventChannel.account.logout(source);
     } catch (e) {
       const error = e as Error;
       log.info('Failed to logout: ', error.message);
@@ -562,8 +565,8 @@ export default class AppRenderer {
   };
 
   public leaveRevokedDevice = async () => {
-    await this.logout();
-    await this.disconnectTunnel();
+    await this.logout(LogoutSource.deviceRevoked);
+    await this.disconnectTunnel(DisconnectSource.deviceRevoked);
   };
 
   public createNewAccount = async () => {
