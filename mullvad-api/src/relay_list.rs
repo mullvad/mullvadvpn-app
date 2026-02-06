@@ -2,7 +2,7 @@
 
 use crate::rest;
 
-use hyper::{StatusCode, body::Incoming, header};
+use hyper::{StatusCode, body::Incoming};
 use mullvad_types::{
     location,
     relay_list::{self, BridgeList, RelayListCountry},
@@ -11,9 +11,11 @@ use serde::{Deserialize, Serialize};
 use talpid_types::net::wireguard;
 use vec1::Vec1;
 
+use crate::relay_list_transparency::{RelayListDigest, RelayListSignature, Sha256Bytes};
+use chrono::{DateTime, Utc};
+use sha2::{Digest, Sha256};
 use std::{
     collections::{BTreeMap, HashSet},
-    future::Future,
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
     ops::RangeInclusive,
     time::Duration,
@@ -34,72 +36,73 @@ impl RelayListProxy {
     }
 
     /// Fetch the relay list
-    pub fn relay_list(
+    pub async fn relay_list(
         &self,
-        prev_etag: Option<ETag>,
-    ) -> impl Future<Output = Result<Option<CachedRelayList>, rest::Error>> {
-        let request = self.relay_list_response(prev_etag.clone());
+        digest: &RelayListDigest,
+        latest_timestamp: DateTime<Utc>,
+    ) -> Result<CachedRelayList, rest::Error> {
+        let response = self.relay_list_response(digest).await?;
 
-        async move {
-            let response = request.await?;
-
-            match prev_etag {
-                Some(_) if response.status() == StatusCode::NOT_MODIFIED => {
-                    log::trace!("Relay list API returned 304 - not modified");
-                    Ok(None)
-                }
-                _ => {
-                    // If the API returns a response, it *should* contain an ETag. But this might not be the case.
-                    let etag = Self::extract_etag(&response);
-                    let relay_list: ServerRelayList =
-                        response.deserialize().await.inspect_err(|_err| {
-                            log::error!("Failed to deserialize API response of relay list")
-                        })?;
-
-                    match etag {
-                        Some(etag) => Ok(Some(relay_list.cache(etag))),
-                        None => {
-                            log::trace!("Relay list API response did not contain an etag");
-                            Ok(Some(relay_list.uncacheable()))
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    pub fn relay_list_response(
-        &self,
-        prev_etag: Option<ETag>,
-    ) -> impl Future<Output = Result<rest::Response<Incoming>, rest::Error>> {
-        let service = self.handle.service.clone();
-        let request = self.handle.factory.get("app/v1/relays");
-
-        async move {
-            let mut request = request?
-                .timeout(RELAY_LIST_TIMEOUT)
-                .expected_status(&[StatusCode::NOT_MODIFIED, StatusCode::OK]);
-
-            if let Some(ref prev_tag) = prev_etag {
-                request = request.header(header::IF_NONE_MATCH, &prev_tag.0)?;
-            }
-
-            service.request(request).await
-        }
-    }
-
-    pub fn extract_etag(response: &rest::Response<Incoming>) -> Option<ETag> {
         response
-            .headers()
-            .get(header::ETAG)
-            .and_then(|s| s.to_str().ok())
-            .map(|s| ETag(s.to_owned()))
+            .body()
+            .await
+            .and_then(|body| {
+                let digest: Sha256Bytes = Sha256::digest(&body).into();
+                let digest_hex = hex::encode(digest);
+                let relay_list: ServerRelayList = serde_json::from_slice(&body)?;
+                Ok(relay_list.cache(digest_hex, latest_timestamp))
+            })
+            .inspect_err(|_err| log::error!("Failed to deserialize API response of relay list"))
+    }
+
+    async fn relay_list_response(
+        &self,
+        digest: &RelayListDigest,
+    ) -> Result<rest::Response<Incoming>, rest::Error> {
+        let service = self.handle.service.clone();
+        let request = self.handle.factory.get(&format!("trl/v0/data/{digest}"));
+
+        let request = request?
+            .timeout(RELAY_LIST_TIMEOUT)
+            .expected_status(&[StatusCode::NOT_MODIFIED, StatusCode::OK]);
+
+        service.request(request).await
+    }
+
+    /// Fetch the relay list sigsum
+    pub async fn relay_list_latest_signature(&self) -> Result<RelayListSignature, rest::Error> {
+        let response = self.relay_list_signature_response().await?;
+
+        let relay_list_sigsum = response
+            .body()
+            .await
+            .and_then(|body| {
+                str::from_utf8(&body)
+                    .map_err(|_| rest::Error::InvalidUtf8Error)
+                    .and_then(RelayListSignature::parse)
+            })
+            .inspect_err(|_err| {
+                log::error!("Failed to deserialize API response of relay list sigsum")
+            })?;
+
+        Ok(relay_list_sigsum)
+    }
+
+    async fn relay_list_signature_response(&self) -> Result<rest::Response<Incoming>, rest::Error> {
+        let service = self.handle.service.clone();
+        let request = self.handle.factory.get("trl/v0/timestamps/latest");
+
+        let request = request?
+            .timeout(RELAY_LIST_TIMEOUT)
+            .expected_status(&[StatusCode::NOT_MODIFIED, StatusCode::OK]);
+
+        service.request(request).await
     }
 }
 
 /// Relay list as served by the API.
 ///
-/// This stuct should conform to the API response 1-1.
+/// This struct should conform to the API response 1-1.
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct ServerRelayList {
     locations: BTreeMap<String, Location>,
@@ -112,29 +115,25 @@ pub struct ServerRelayList {
 pub struct CachedRelayList {
     #[serde(flatten)]
     relay_list: ServerRelayList,
-    etag: Option<ETag>,
+
+    /// The digest (Sha256 hash) of the relay list content. This needs to be cached in order to
+    /// determine if a new relay list fetch is needed or not. If the digest that is returned
+    /// from the sigsum timestamp matches this digest, there is no new relay list that needs to
+    /// be fetched.
+    digest: RelayListDigest,
+
+    /// The timestamp of when the relay list was signed. This is needed to check that the timestamp
+    /// we get form the API is not older than this value.
+    timestamp: DateTime<Utc>,
 }
 
-/// An (ETag header)[https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/ETag] returned by the relay list API.
-/// The etag is used to version the API response, and is used to check if the response has changed since the last request.
-/// This can potentially save some bandwidth, especially important for the server side.
-#[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct ETag(pub String);
-
 impl ServerRelayList {
-    /// Associate this relay list with a specific [`ETag`].
-    const fn cache(self, etag: ETag) -> CachedRelayList {
+    /// Associate this relay list with a specific [`RelayListDigest`].
+    const fn cache(self, digest: RelayListDigest, timestamp: DateTime<Utc>) -> CachedRelayList {
         CachedRelayList {
             relay_list: self,
-            etag: Some(etag),
-        }
-    }
-
-    /// There is no associated [`ETag`].
-    const fn uncacheable(self) -> CachedRelayList {
-        CachedRelayList {
-            relay_list: self,
-            etag: None,
+            digest,
+            timestamp,
         }
     }
 
@@ -191,9 +190,13 @@ impl ServerRelayList {
 }
 
 impl CachedRelayList {
-    /// Read the [`ETag`] of the cached relay list.
-    pub const fn etag(&self) -> Option<&ETag> {
-        self.etag.as_ref()
+    /// Read the [`RelayListDigest`] of the cached relay list.
+    pub const fn digest(&self) -> &RelayListDigest {
+        &self.digest
+    }
+
+    pub const fn timestamp(&self) -> DateTime<Utc> {
+        self.timestamp
     }
 
     /// See [`ServerRelayList::into_internal_repr`].

@@ -10,7 +10,7 @@ license.workspace = true
 anyhow = "1.0"
 chrono = { workspace = true, features = ["now", "serde"] }
 clap = { workspace = true }
-hex = { version = "0.4" }
+hex = { workspace = true }
 mullvad-update = { path = "../", features = ["client", "sign", "strum"] }
 mullvad-version = { path = "../../mullvad-version", features = ["serde"] }
 reqwest = { workspace = true }
