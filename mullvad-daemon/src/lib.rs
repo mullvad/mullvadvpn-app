@@ -25,7 +25,6 @@ pub mod rpc_uniqueness_check;
 pub mod runtime;
 pub mod settings;
 pub mod shutdown;
-pub mod sigsum;
 mod target_state;
 mod tunnel;
 pub mod version;

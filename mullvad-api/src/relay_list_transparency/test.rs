@@ -1,49 +1,30 @@
 #[cfg(test)]
 mod sigsum_test {
-    use crate::sigsum::{parse_keys, validate_data, validate_signature};
-    use mullvad_api::{RelayListSignature, Sha256Bytes};
+    use crate::relay_list_transparency::validate::{
+        validate_relay_list_content, validate_relay_list_signature,
+    };
+    use crate::relay_list_transparency::{RelayListSignature, Sha256Bytes};
     use sha2::{Digest, Sha256};
 
     #[test]
     fn test_validate_relay_list_signature() {
-        let sig = RelayListSignature::from_server_response(RELAY_LIST_SIGNATURE).unwrap();
-        let timestamp = validate_signature(&sig).unwrap();
+        let sig = RelayListSignature::parse(RELAY_LIST_SIGNATURE).unwrap();
+        let timestamp = validate_relay_list_signature(&sig).unwrap();
         let digest: Sha256Bytes = Sha256::digest(RELAY_LIST_CONTENT.as_bytes()).into();
         let digest_hex = hex::encode(digest);
-        validate_data(&timestamp, &digest_hex).unwrap();
+        validate_relay_list_content(&timestamp, &digest_hex).unwrap();
     }
 
     #[test]
     fn test_invalid_signature_can_parse_unverified_timestamp() {
-        let sig = RelayListSignature::from_server_response(&format!(
-            "{RELAY_LIST_SIGNATURE}bad-signature"
-        ))
-        .unwrap();
-        let err = validate_signature(&sig).unwrap_err();
+        let sig =
+            RelayListSignature::parse(&format!("{RELAY_LIST_SIGNATURE}bad-signature")).unwrap();
+        let err = validate_relay_list_signature(&sig).unwrap_err();
         let timestamp = err.timestamp_parser.parse_without_verification().unwrap();
 
         let digest: Sha256Bytes = Sha256::digest(RELAY_LIST_CONTENT.as_bytes()).into();
         let digest_hex = hex::encode(digest);
-        validate_data(&timestamp, &digest_hex).unwrap();
-    }
-
-    #[test]
-    fn test_parsing_pubkey_from_file() {
-        let trusted = include_str!("trusted-sigsum-signing-pubkeys");
-        let keys = parse_keys(trusted);
-        assert!(!keys.is_empty());
-    }
-
-    #[test]
-    fn test_parsing_pubkey_can_contain_empty_lines_and_comments() {
-        let input = "";
-        let keys = parse_keys(input);
-        assert!(keys.is_empty());
-
-        let input =
-            "#this is a comment\n35809994d285fe3dd50d49c384db49519412008c545cb6588c138a86ae4c3284";
-        let keys = parse_keys(input);
-        assert_eq!(1, keys.len());
+        validate_relay_list_content(&timestamp, &digest_hex).unwrap();
     }
 
     static RELAY_LIST_SIGNATURE: &str = r#"{"digest":"446fc8ebccd95d5fc07362109b5a4f5eac8c38886ebd6d918d007b6a4fb72865","timestamp":"2026-02-03T10:47:14+00:00"}

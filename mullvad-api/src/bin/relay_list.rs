@@ -4,33 +4,31 @@
 
 #[cfg(not(target_os = "android"))]
 mod imp {
-    use futures::future;
-    // use mullvad_api::{
-    //     ApiEndpoint, RelayListProxy, proxy::ApiConnectionMode, rest::Error as RestError,
-    // };
-    // use std::process;
-    // use talpid_types::ErrorExt;
+    use mullvad_api::{
+        ApiEndpoint, Error, RelayListProxy, proxy::ApiConnectionMode, relay_list_transparency,
+        rest::Error as RestError,
+    };
+    use std::process;
+    use talpid_types::ErrorExt;
 
     pub async fn main() {
-        // TODO: should this code use the new sigsum relay list api and verification?
-        future::always_ready(|| "").await;
-        /*
         let api_endpoint = ApiEndpoint::from_env_vars();
         let runtime = mullvad_api::Runtime::new(tokio::runtime::Handle::current(), &api_endpoint);
 
-        let relay_list_request = RelayListProxy::new(
+        let proxy = RelayListProxy::new(
             runtime.mullvad_rest_handle(ApiConnectionMode::Direct.into_provider()),
-        )
-        .relay_list(None)
-        .await;
+        );
 
-        let relay_list = match relay_list_request {
+        let response =
+            relay_list_transparency::download_and_verify_relay_list(proxy, None, None).await;
+
+        let relay_list = match response {
             Ok(relay_list) => relay_list,
-            Err(RestError::TimeoutError) => {
+            Err(Error::RestError(RestError::TimeoutError)) => {
                 eprintln!("Request timed out");
                 process::exit(2);
             }
-            Err(e @ RestError::DeserializeError(_)) => {
+            Err(e @ Error::RestError(RestError::DeserializeError(_))) => {
                 eprintln!(
                     "{}",
                     e.display_chain_with_msg("Failed to deserialize relay list")
@@ -43,7 +41,6 @@ mod imp {
             }
         };
         println!("{}", serde_json::to_string_pretty(&relay_list).unwrap());
-         */
     }
 }
 

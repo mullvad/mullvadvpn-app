@@ -32,12 +32,13 @@ pub mod domain_fronting;
 mod relay_list;
 
 pub mod ffi;
+pub mod relay_list_transparency;
 
 pub use address_cache::{AddressCache, FileAddressCacheBacking};
 pub use device::DevicesProxy;
 pub use hyper::StatusCode;
-pub use relay_list::relay_list_transparency::{RelayListDigest, RelayListSignature, Sha256Bytes};
 pub use relay_list::{CachedRelayList, RelayListProxy};
+// pub use sigsum::relay_list_transparency::{RelayListDigest, RelayListSignature, Sha256Bytes};
 
 /// Error code returned by the Mullvad API if the voucher has alreaby been used.
 pub const VOUCHER_USED: &str = "VOUCHER_USED";
