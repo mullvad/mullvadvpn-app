@@ -1,4 +1,5 @@
 import com.android.build.api.dsl.LibraryExtension
+import de.mannodermaus.gradle.plugins.junit5.dsl.AndroidJUnitPlatformExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.apply
@@ -10,6 +11,7 @@ class AndroidLibraryFeatureImplPlugin : Plugin<Project> {
     override fun apply(target: Project) {
         with(target) {
             apply(plugin = "mullvad.android-library")
+            apply(plugin = "de.mannodermaus.android-junit5")
 
             extensions.configure<LibraryExtension> {
                 testOptions.animationsDisabled = true
@@ -28,14 +30,13 @@ class AndroidLibraryFeatureImplPlugin : Plugin<Project> {
                     }
                 }
             }
-//
-//            junitPlatform {
-//                instrumentationTests {
-//                    version.set(libs.versions.junit5.android.asProvider())
-//                    includeExtensions.set(true)
-//                }
-//            }
 
+            extensions.configure<AndroidJUnitPlatformExtension> {
+                instrumentationTests {
+                    version.set(libs.findPlugin("junit5.android").get().get().version.strictVersion)
+                    includeExtensions.set(true)
+                }
+            }
 
             dependencies {
                 "implementation"(project(":lib:model"))
@@ -54,6 +55,8 @@ class AndroidLibraryFeatureImplPlugin : Plugin<Project> {
                 "testRuntimeOnly"(libs.findLibrary("junit-jupiter-engine").get())
                 "testImplementation"(libs.findLibrary("turbine").get())
                 "testImplementation"(libs.findLibrary("kotlin.test").get())
+                "androidTestImplementation"(libs.findLibrary("junit5.android.test.extensions").get())
+                "androidTestImplementation"(libs.findLibrary("junit5.android.test.runner").get())
             }
         }
     }

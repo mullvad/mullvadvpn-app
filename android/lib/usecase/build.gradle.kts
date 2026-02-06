@@ -1,7 +1,7 @@
 plugins {
     alias(libs.plugins.mullvad.android.library)
     alias(libs.plugins.kotlin.parcelize)
-    alias(libs.plugins.junit5.android)
+    id("de.mannodermaus.android-junit5")
 }
 
 android {

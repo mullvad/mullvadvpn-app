@@ -29,8 +29,8 @@ plugins {
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.kotlin.ksp)
     alias(libs.plugins.compose)
-    alias(libs.plugins.junit5.android)
     alias(libs.plugins.baselineprofile)
+    id("de.mannodermaus.android-junit5")
     id("net.mullvad.rust-android")
 }
 

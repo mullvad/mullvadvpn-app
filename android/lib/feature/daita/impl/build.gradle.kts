@@ -5,19 +5,11 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.kotlin.ksp)
-    alias(libs.plugins.junit5.android)
 }
 
 android {
     namespace = "net.mullvad.mullvadvpn.feature.daita.impl"
     ksp { arg("compose-destinations.moduleName", "daita") }
-}
-
-junitPlatform {
-    instrumentationTests {
-        version.set(libs.versions.junit5.android.asProvider())
-        includeExtensions = true
-    }
 }
 
 dependencies {

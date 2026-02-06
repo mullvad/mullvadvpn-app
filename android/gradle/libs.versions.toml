@@ -86,6 +86,7 @@ androidx-credentials = { module = "androidx.credentials:credentials", version.re
 androidx-datastore = { module = "androidx.datastore:datastore", version.ref = "androidx-datastore" }
 androidx-espresso = { module = "androidx.test.espresso:espresso-core", version.ref = "androidx-espresso" }
 # Required for build-logic convention plugins to apply AGP and Kotlin Gradle Plugin
+android-gradle-junit5 = { module = "de.mannodermaus.gradle.plugins:android-junit5", version.ref = "junit5-android-plugin" }
 android-gradle-plugin = { module = "com.android.tools.build:gradle", version.ref = "android-gradle-plugin" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junit4" }
 androidx-ktx = { module = "androidx.core:core-ktx", version.ref = "androidx-ktx" }
