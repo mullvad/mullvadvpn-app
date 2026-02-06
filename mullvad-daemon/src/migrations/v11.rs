@@ -163,6 +163,7 @@ mod test {
 
     /// "block_when_disconnected" is renamed to "lockdown_mode"
     #[test]
+    #[cfg(not(target_os = "android"))]
     fn test_v11_to_v12_migration_block_when_disconnected_disabled() {
         let mut old_settings = json!({
             "block_when_disconnected": false,
@@ -175,6 +176,7 @@ mod test {
     }
 
     #[test]
+    #[cfg(not(target_os = "android"))]
     fn test_v11_to_v12_migration_block_when_disconnected_enabled() {
         let mut old_settings = json!({
             "block_when_disconnected": true,

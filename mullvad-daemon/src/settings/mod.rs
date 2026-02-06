@@ -677,6 +677,7 @@ mod test {
     async fn test_deserialize_missing_settings() {
         let LoadSettingsResult {
             should_save,
+            #[cfg_attr(target_os = "android", expect(unused_variables))]
             settings,
         } = SettingsPersister::load_inner(|| async {
             Err(Error::ReadError(
@@ -691,6 +692,7 @@ mod test {
             "Settings should be saved to disk if they didn't exist previously"
         );
 
+        #[cfg(not(target_os = "android"))]
         assert!(
             !settings.lockdown_mode,
             "The daemon should not block the internet if settings are missing"
@@ -710,6 +712,7 @@ mod test {
     async fn test_deserialize_invalid_settings() {
         let LoadSettingsResult {
             should_save,
+            #[cfg_attr(target_os = "android", expect(unused_variables))]
             settings,
         } = SettingsPersister::load_inner(|| async {
             SettingsPersister::load_from_bytes(b"Not a valid settings file")
@@ -721,6 +724,7 @@ mod test {
             "Settings should be saved to disk if they have become corrupt"
         );
 
+        #[cfg(not(target_os = "android"))]
         assert!(
             settings.lockdown_mode,
             "The daemon should block the internet if settings are corrupt"

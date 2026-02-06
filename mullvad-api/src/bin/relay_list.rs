@@ -49,5 +49,6 @@ async fn main() {
 
 #[cfg(target_os = "android")]
 mod imp {
+    #[expect(clippy::unused_async)]
     pub async fn main() {}
 }

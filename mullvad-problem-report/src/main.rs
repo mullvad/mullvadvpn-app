@@ -1,118 +1,130 @@
-use clap::Parser;
-use mullvad_api::ApiEndpoint;
-use mullvad_problem_report::{Error, ProblemReportCollector, WriteSource};
-use std::{
-    env, io,
-    path::{Path, PathBuf},
-    process,
-};
-use talpid_types::ErrorExt;
-
 fn main() {
-    process::exit(match run() {
-        Ok(()) => 0,
-        Err(error) => {
-            eprintln!("{}", error.display_chain());
-            1
-        }
-    })
+    #[cfg(not(target_os = "android"))]
+    imp::main();
 }
 
-#[derive(Debug, Parser)]
-#[command(author, version = mullvad_version::VERSION, about, long_about = None)]
-#[command(
-    arg_required_else_help = true,
-    disable_help_subcommand = true,
-    disable_version_flag = true
-)]
-enum Cli {
-    /// Collect problem report to a single file
-    Collect {
-        /// The destination path for saving the collected report
-        #[arg(required = true, long, short = 'o')]
-        output: String,
-        /// Paths to additional log files to be included
-        extra_logs: Vec<PathBuf>,
-        /// List of strings to remove from the report
-        #[arg(long)]
-        redact: Vec<String>,
-    },
+#[cfg(not(target_os = "android"))]
+mod imp {
+    use clap::Parser;
 
-    /// Send collected problem report
-    Send {
-        /// Path to a previously collected report file
-        #[arg(required = true, long, short = 'r')]
-        report: PathBuf,
-        /// Email to attach to the problem report
-        #[arg(long, short = 'e')]
-        email: Option<String>,
-        /// Message to include in the problem report
-        #[arg(long, short = 'm')]
-        message: Option<String>,
-    },
-}
+    use mullvad_api::ApiEndpoint;
 
-fn run() -> Result<(), Error> {
-    tracing_subscriber::fmt::init();
+    use mullvad_problem_report::{Error, ProblemReportCollector, WriteSource};
 
-    match Cli::parse() {
-        Cli::Collect {
-            output,
-            extra_logs,
-            redact,
-        } => {
-            let collector = ProblemReportCollector {
-                extra_logs,
-                redact_custom_strings: redact,
-            };
-            if output != "-" {
-                collector.write_to_path(&output)?;
+    use std::{
+        env, io,
+        path::{Path, PathBuf},
+        process,
+    };
 
-                println!("Problem report written to {output}");
-                println!();
-                println!("Send the problem report to support via the send subcommand. See:");
-                println!(" $ {} send --help", env::args().next().unwrap());
-            } else {
-                // Write logs to stdout
-                collector.write(WriteSource::from((io::stdout(), "stdout".to_owned())))?;
+    use talpid_types::ErrorExt;
+
+    pub(crate) fn main() {
+        process::exit(match run() {
+            Ok(()) => 0,
+            Err(error) => {
+                eprintln!("{}", error.display_chain());
+                1
             }
-        }
-        Cli::Send {
-            report,
-            email,
-            message,
-        } => {
-            send_problem_report(
-                &email.unwrap_or_default(),
-                &message.unwrap_or_default(),
-                None,
-                &report,
-            )?;
-        }
+        })
     }
 
-    Ok(())
-}
+    #[derive(Debug, Parser)]
+    #[command(author, version = mullvad_version::VERSION, about, long_about = None)]
+    #[command(
+        arg_required_else_help = true,
+        disable_help_subcommand = true,
+        disable_version_flag = true
+    )]
+    pub(crate) enum Cli {
+        /// Collect problem report to a single file
+        Collect {
+            /// The destination path for saving the collected report
+            #[arg(required = true, long, short = 'o')]
+            output: String,
+            /// Paths to additional log files to be included
+            extra_logs: Vec<PathBuf>,
+            /// List of strings to remove from the report
+            #[arg(long)]
+            redact: Vec<String>,
+        },
 
-fn send_problem_report(
-    user_email: &str,
-    user_message: &str,
-    account_token: Option<&str>,
-    report_path: &Path,
-) -> Result<(), Error> {
-    let cache_dir = mullvad_paths::get_cache_dir().map_err(Error::ObtainCacheDirectory)?;
-    mullvad_problem_report::send_problem_report(
-        user_email,
-        user_message,
-        account_token,
-        report_path,
-        &cache_dir,
-        ApiEndpoint::from_env_vars(),
-    )
-    .inspect_err(|error| {
-        eprintln!("{}", error.display_chain());
-    })?;
+        /// Send collected problem report
+        Send {
+            /// Path to a previously collected report file
+            #[arg(required = true, long, short = 'r')]
+            report: PathBuf,
+            /// Email to attach to the problem report
+            #[arg(long, short = 'e')]
+            email: Option<String>,
+            /// Message to include in the problem report
+            #[arg(long, short = 'm')]
+            message: Option<String>,
+        },
+    }
 
-    println!("Problem report sent");
-    Ok(())
+    pub(crate) fn run() -> Result<(), Error> {
+        tracing_subscriber::fmt::init();
+
+        match Cli::parse() {
+            Cli::Collect {
+                output,
+                extra_logs,
+                redact,
+            } => {
+                let collector = ProblemReportCollector {
+                    extra_logs,
+                    redact_custom_strings: redact,
+                };
+                if output != "-" {
+                    collector.write_to_path(&output)?;
+
+                    println!("Problem report written to {output}");
+                    println!();
+                    println!("Send the problem report to support via the send subcommand. See:");
+                    println!(" $ {} send --help", env::args().next().unwrap());
+                } else {
+                    // Write logs to stdout
+                    collector.write(WriteSource::from((io::stdout(), "stdout".to_owned())))?;
+                }
+            }
+            Cli::Send {
+                report,
+                email,
+                message,
+            } => {
+                send_problem_report(
+                    &email.unwrap_or_default(),
+                    &message.unwrap_or_default(),
+                    None,
+                    &report,
+                )?;
+            }
+        }
+
+        Ok(())
+    }
+
+    pub(crate) fn send_problem_report(
+        user_email: &str,
+        user_message: &str,
+        account_token: Option<&str>,
+        report_path: &Path,
+    ) -> Result<(), Error> {
+        let cache_dir = mullvad_paths::get_cache_dir().map_err(Error::ObtainCacheDirectory)?;
+        mullvad_problem_report::send_problem_report(
+            user_email,
+            user_message,
+            account_token,
+            report_path,
+            &cache_dir,
+            ApiEndpoint::from_env_vars(),
+        )
+        .inspect_err(|error| {
+            eprintln!("{}", error.display_chain());
+        })?;
+
+        println!("Problem report sent");
+        Ok(())
+    }
 }
