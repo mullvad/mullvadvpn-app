@@ -1,6 +1,5 @@
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.UnknownTaskException
 import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.dependencies
 import utilities.libs
@@ -25,8 +24,8 @@ class MullvadUnitTestPlugin : Plugin<Project> {
             tasks.register("testAllUnitTests") {
                 val testTask =
                     target.tasks.findByName("testDebugUnitTest")
-                    // Modules with flavors will not have normal test tasks so we test with
-                    // ossProdDebug
+                        // Modules with flavors will not have normal test tasks so we test with
+                        // ossProdDebug
                         ?: target.tasks.getByName("testOssProdDebugUnitTest")
                 // This is to make sure that all unit tests are always executed
                 testTask.outputs.upToDateWhen { false }

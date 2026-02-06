@@ -158,9 +158,7 @@ android {
 
     sourceSets {
         getByName("main") { assets.srcDirs(relayListDirectory, changelogAssetsDirectory) }
-        getByName("androidTest") {
-            java.srcDirs("${rootProject.projectDir}/**/androidTest/kotlin")
-        }
+        getByName("androidTest") { java.srcDirs("${rootProject.projectDir}/**/androidTest/kotlin") }
     }
 
     buildFeatures {
