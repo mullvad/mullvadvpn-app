@@ -275,7 +275,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: Create binaries directory & add to PATH
-        shell: bash -ieo pipefail {0}
+        # bash args:
+        # -l: source ~/.profile. May be needed for e.g. '~/.cargo/env' or 'brew shellenv`
+        # -e: fail immediately if any command fails
+        # -o pipefail: fail if any command in a pipeline fails (e.g. cmd1_failed | cmd2)
+        shell: bash -leo pipefail {0}
         run: |
           # Put all binaries in a known folder: test-runner, connection-checker, mullvad-version
           mkdir "${{ github.workspace }}/bin"
@@ -303,7 +307,11 @@ jobs:
           name: linux-build
           path: ~/.cache/mullvad-test/packages
       - name: Run end-to-end tests
-        shell: bash -ieo pipefail {0}
+        # bash args:
+        # -l: source ~/.profile. May be needed for e.g. '~/.cargo/env' or 'brew shellenv`
+        # -e: fail immediately if any command fails
+        # -o pipefail: fail if any command in a pipeline fails (e.g. cmd1_failed | cmd2)
+        shell: bash -leo pipefail {0}
         env:
           CURRENT_VERSION: ${{needs.get-app-version.outputs.mullvad-version}}
         run: |
@@ -395,7 +403,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: Create binaries directory & add to PATH
-        shell: bash -ieo pipefail {0}
+        # bash args:
+        # -l: source ~/.profile. May be needed for e.g. '~/.cargo/env' or 'brew shellenv`
+        # -e: fail immediately if any command fails
+        # -o pipefail: fail if any command in a pipeline fails (e.g. cmd1_failed | cmd2)
+        shell: bash -leo pipefail {0}
         run: |
           mkdir "${{ github.workspace }}/bin"
           echo "${{ github.workspace }}/bin/" >> "$GITHUB_PATH"
@@ -415,7 +427,11 @@ jobs:
           name: windows-build
           path: ~/.cache/mullvad-test/packages
       - name: Run end-to-end tests
-        shell: bash -ieo pipefail {0}
+        # bash args:
+        # -l: source ~/.profile. May be needed for e.g. '~/.cargo/env' or 'brew shellenv`
+        # -e: fail immediately if any command fails
+        # -o pipefail: fail if any command in a pipeline fails (e.g. cmd1_failed | cmd2)
+        shell: bash -leo pipefail {0}
         env:
           CURRENT_VERSION: ${{needs.get-app-version.outputs.mullvad-version}}
         run: |
@@ -483,7 +499,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: Run end-to-end tests
-        shell: bash -ieo pipefail {0}
+        # bash args:
+        # -l: source ~/.profile. May be needed for e.g. '~/.cargo/env' or 'brew shellenv`
+        # -e: fail immediately if any command fails
+        # -o pipefail: fail if any command in a pipeline fails (e.g. cmd1_failed | cmd2)
+        shell: bash -leo pipefail {0}
         env:
           CURRENT_VERSION: ${{needs.get-app-version.outputs.mullvad-version}}
         run: |
@@ -510,7 +530,11 @@ jobs:
           pattern: '*_report'
           merge-multiple: true
       - name: Create binaries directory
-        shell: bash -ieo pipefail {0}
+        # bash args:
+        # -l: source ~/.profile. May be needed for e.g. '~/.cargo/env' or 'brew shellenv`
+        # -e: fail immediately if any command fails
+        # -o pipefail: fail if any command in a pipeline fails (e.g. cmd1_failed | cmd2)
+        shell: bash -leo pipefail {0}
         run: |
           mkdir "${{ github.workspace }}/bin"
       - name: Download report compiler
@@ -523,7 +547,11 @@ jobs:
           chmod +x ${{ github.workspace }}/bin/*
         shell: bash
       - name: Generate test result matrix
-        shell: bash -ieo pipefail {0}
+        # bash args:
+        # -l: source ~/.profile. May be needed for e.g. '~/.cargo/env' or 'brew shellenv`
+        # -e: fail immediately if any command fails
+        # -o pipefail: fail if any command in a pipeline fails (e.g. cmd1_failed | cmd2)
+        shell: bash -leo pipefail {0}
         run: |
           ${{ github.workspace }}/bin/test-manager \
           format-test-reports ${{ github.workspace }}/*_report \
