@@ -3,7 +3,7 @@
 //  MullvadVPN
 //
 //  Created by Steffen Ernst on 2025-02-27.
-//  Copyright © 2025 Mullvad VPN AB. All rights reserved.
+//  Copyright © 2026 Mullvad VPN AB. All rights reserved.
 //
 
 import MullvadMockData

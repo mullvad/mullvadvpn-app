@@ -3,7 +3,7 @@
 //  RelaySelector
 //
 //  Created by pronebird on 11/06/2019.
-//  Copyright © 2025 Mullvad VPN AB. All rights reserved.
+//  Copyright © 2026 Mullvad VPN AB. All rights reserved.
 //
 
 import CoreLocation

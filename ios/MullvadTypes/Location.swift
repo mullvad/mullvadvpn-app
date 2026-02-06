@@ -3,7 +3,7 @@
 //  MullvadTypes
 //
 //  Created by pronebird on 12/02/2020.
-//  Copyright © 2025 Mullvad VPN AB. All rights reserved.
+//  Copyright © 2026 Mullvad VPN AB. All rights reserved.
 //
 
 import CoreLocation

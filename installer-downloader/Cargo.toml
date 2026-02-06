@@ -9,7 +9,7 @@ license.workspace = true
 publish = false
 
 [package.metadata.winres]
-LegalCopyright = "(c) 2025 Mullvad VPN AB"
+LegalCopyright = "(c) 2026 Mullvad VPN AB"
 
 [build-dependencies]
 anyhow = { workspace = true }

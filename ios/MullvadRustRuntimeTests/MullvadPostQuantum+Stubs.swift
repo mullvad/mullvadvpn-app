@@ -3,7 +3,7 @@
 //  MullvadRustRuntimeTests
 //
 //  Created by Marco Nikic on 2024-06-12.
-//  Copyright © 2025 Mullvad VPN AB. All rights reserved.
+//  Copyright © 2026 Mullvad VPN AB. All rights reserved.
 //
 
 import NetworkExtension
