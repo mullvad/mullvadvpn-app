@@ -10,7 +10,7 @@ import "google/protobuf/duration.proto";
 service ManagementService {
   // Control and get tunnel state
   rpc ConnectTunnel(google.protobuf.Empty) returns (google.protobuf.BoolValue) {}
-  rpc DisconnectTunnel(google.protobuf.Empty) returns (google.protobuf.BoolValue) {}
+  rpc DisconnectTunnel(google.protobuf.StringValue) returns (google.protobuf.BoolValue) {}
   rpc ReconnectTunnel(google.protobuf.Empty) returns (google.protobuf.BoolValue) {}
   rpc GetTunnelState(google.protobuf.Empty) returns (TunnelState) {}
 
@@ -58,7 +58,7 @@ service ManagementService {
   // Account management
   rpc CreateNewAccount(google.protobuf.Empty) returns (google.protobuf.StringValue) {}
   rpc LoginAccount(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
-  rpc LogoutAccount(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc LogoutAccount(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
   rpc GetAccountData(google.protobuf.StringValue) returns (AccountData) {}
   rpc GetAccountHistory(google.protobuf.Empty) returns (AccountHistory) {}
   rpc ClearAccountHistory(google.protobuf.Empty) returns (google.protobuf.Empty) {}

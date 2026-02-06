@@ -1,3 +1,4 @@
+use crate::BIN_NAME;
 use anyhow::{Result, anyhow};
 use clap::Subcommand;
 use itertools::Itertools;
@@ -94,7 +95,7 @@ impl Account {
     }
 
     async fn logout(rpc: &mut MullvadProxyClient) -> Result<()> {
-        rpc.logout_account().await?;
+        rpc.logout_account(&format!("{BIN_NAME} logout")).await?;
         println!("Removed device from Mullvad account");
         Ok(())
     }

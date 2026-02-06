@@ -3,7 +3,11 @@ import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 
 import { Url } from '../../../../shared/constants';
-import { AccountDataError, AccountNumber } from '../../../../shared/daemon-rpc-types';
+import {
+  AccountDataError,
+  AccountNumber,
+  DisconnectSource,
+} from '../../../../shared/daemon-rpc-types';
 import { messages } from '../../../../shared/gettext';
 import { useAppContext } from '../../../context';
 import { formatAccountNumber } from '../../../lib/account';
@@ -560,7 +564,7 @@ function BlockMessage() {
     }
 
     if (tunnelState.state === 'error') {
-      void disconnectTunnel();
+      void disconnectTunnel(DisconnectSource.loginUnblock);
     }
   }, [lockdownMode, tunnelState, setLockdownMode, disconnectTunnel]);
 

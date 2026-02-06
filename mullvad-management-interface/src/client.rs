@@ -104,8 +104,12 @@ impl MullvadProxyClient {
         Ok(self.0.connect_tunnel(()).await?.into_inner())
     }
 
-    pub async fn disconnect_tunnel(&mut self) -> Result<bool> {
-        Ok(self.0.disconnect_tunnel(()).await?.into_inner())
+    pub async fn disconnect_tunnel(&mut self, source: &str) -> Result<bool> {
+        Ok(self
+            .0
+            .disconnect_tunnel(source.to_owned())
+            .await?
+            .into_inner())
     }
 
     pub async fn reconnect_tunnel(&mut self) -> Result<bool> {
@@ -346,8 +350,8 @@ impl MullvadProxyClient {
         Ok(())
     }
 
-    pub async fn logout_account(&mut self) -> Result<()> {
-        self.0.logout_account(()).await?;
+    pub async fn logout_account(&mut self, source: &str) -> Result<()> {
+        self.0.logout_account(source.to_owned()).await?;
         Ok(())
     }
 

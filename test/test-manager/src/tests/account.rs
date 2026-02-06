@@ -24,7 +24,7 @@ pub async fn test_logout(
     log::info!("Removing device");
 
     mullvad_client
-        .logout_account()
+        .logout_account("test-manager")
         .await
         .expect("logout failed");
 
@@ -83,7 +83,7 @@ pub async fn test_too_many_devices(
         "Expected too many devices error, got {login_result:?}"
     );
 
-    mullvad_client.logout_account().await?;
+    mullvad_client.logout_account("test-manager").await?;
     fill_devices().await;
 
     // Run UI test

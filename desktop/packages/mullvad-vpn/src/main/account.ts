@@ -6,6 +6,7 @@ import {
   DeviceState,
   IAccountData,
   IDeviceRemoval,
+  LogoutSource,
   TunnelState,
 } from '../shared/daemon-rpc-types';
 import log from '../shared/logging';
@@ -73,7 +74,7 @@ export default class Account {
     IpcMainEventChannel.account.handleLogin(
       async (number: AccountNumber) => (await this.login(number)) ?? undefined,
     );
-    IpcMainEventChannel.account.handleLogout(() => this.logout());
+    IpcMainEventChannel.account.handleLogout((source) => this.logout(source));
     IpcMainEventChannel.account.handleGetWwwAuthToken(() => this.daemonRpc.getWwwAuthToken());
     IpcMainEventChannel.account.handleSubmitVoucher(async (voucherCode: string) => {
       const currentAccountNumber = this.getAccountNumber();
@@ -179,9 +180,9 @@ export default class Account {
     }
   }
 
-  private async logout(): Promise<void> {
+  private async logout(source: LogoutSource): Promise<void> {
     try {
-      await this.daemonRpc.logoutAccount();
+      await this.daemonRpc.logoutAccount(source);
 
       this.delegate.closeNotificationsInCategory(SystemNotificationCategory.expiry);
       this.expiryNotificationFrequencyScheduler.cancel();

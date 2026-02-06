@@ -79,8 +79,9 @@ impl ManagementService for ManagementServiceImpl {
         Ok(Response::new(connect_issued))
     }
 
-    async fn disconnect_tunnel(&self, _: Request<()>) -> ServiceResult<bool> {
-        log::debug!("disconnect_tunnel");
+    async fn disconnect_tunnel(&self, request: Request<String>) -> ServiceResult<bool> {
+        let source = request.into_inner();
+        log::debug!("disconnect_tunnel (source: {source})");
 
         let (tx, rx) = oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::SetTargetState(tx, TargetState::Unsecured))?;
@@ -438,8 +439,9 @@ impl ManagementService for ManagementServiceImpl {
             .map_err(map_daemon_error)
     }
 
-    async fn logout_account(&self, _: Request<()>) -> ServiceResult<()> {
-        log::debug!("logout_account");
+    async fn logout_account(&self, request: Request<String>) -> ServiceResult<()> {
+        let source = request.into_inner();
+        log::debug!("logout_account (source: {source})");
         let (tx, rx) = oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::LogoutAccount(tx))?;
         self.wait_for_result(rx)
