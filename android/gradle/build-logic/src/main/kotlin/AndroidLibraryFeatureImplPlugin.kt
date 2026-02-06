@@ -55,6 +55,7 @@ class AndroidLibraryFeatureImplPlugin : Plugin<Project> {
                 "testRuntimeOnly"(libs.findLibrary("junit-jupiter-engine").get())
                 "testImplementation"(libs.findLibrary("turbine").get())
                 "testImplementation"(libs.findLibrary("kotlin.test").get())
+                "androidTestImplementation"(libs.findLibrary("junit5.android.test.core").get())
                 "androidTestImplementation"(libs.findLibrary("junit5.android.test.extensions").get())
                 "androidTestImplementation"(libs.findLibrary("junit5.android.test.runner").get())
             }
