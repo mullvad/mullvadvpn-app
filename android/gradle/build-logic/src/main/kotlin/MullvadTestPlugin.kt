@@ -14,6 +14,8 @@ class MullvadTestPlugin : Plugin<Project> {
                     target.tasks.getByName("testOssProdDebugUnitTest")
                 }
             )
+
+            outputs.upToDateWhen { false }
         }
     }
 }
