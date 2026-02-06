@@ -8,10 +8,10 @@
 
 import Foundation
 import MullvadLogging
-import UserNotifications
+@preconcurrency import UserNotifications
 
 final class NotificationManager: NotificationProviderDelegate {
-    private lazy var logger = Logger(label: "NotificationManager")
+    private let logger = Logger(label: "NotificationManager")
     private var _notificationProviders: [NotificationProvider] = []
     private var inAppNotificationDescriptors: [InAppNotificationDescriptor] = []
 
@@ -91,14 +91,15 @@ final class NotificationManager: NotificationProviderDelegate {
             withIdentifiers: deliveredRequestIdentifiersToRemove
         )
 
-        requestNotificationPermissions { granted in
-            guard granted else { return }
-
+        let logger = self.logger
+        Task {
+            let isAllowed = await UNUserNotificationCenter.isAllowed
+            guard isAllowed else { return }
             for newRequest in newSystemNotificationRequests {
-                notificationCenter.add(newRequest) { error in
-                    guard let error else { return }
-
-                    self.logger.error(
+                do {
+                    try await notificationCenter.add(newRequest)
+                } catch {
+                    logger.error(
                         error: error,
                         message: "Failed to add notification request with identifier \(newRequest.identifier)."
                     )
@@ -141,37 +142,6 @@ final class NotificationManager: NotificationProviderDelegate {
         delegate?.notificationManager(self, didReceiveResponse: notificationResponse)
     }
 
-    // MARK: - Private
-
-    private func requestNotificationPermissions(completion: @escaping (Bool) -> Void) {
-        let authorizationOptions: UNAuthorizationOptions = [.alert, .sound, .provisional]
-        let userNotificationCenter = UNUserNotificationCenter.current()
-
-        userNotificationCenter.getNotificationSettings { notificationSettings in
-            switch notificationSettings.authorizationStatus {
-            case .notDetermined:
-                userNotificationCenter.requestAuthorization(options: authorizationOptions) { granted, error in
-                    if let error {
-                        self.logger.error(
-                            error: error,
-                            message: "Failed to obtain user notifications authorization"
-                        )
-                    }
-                    completion(granted)
-                }
-
-            case .authorized, .provisional:
-                completion(true)
-
-            case .denied, .ephemeral:
-                fallthrough
-
-            @unknown default:
-                completion(false)
-            }
-        }
-    }
-
     // MARK: - NotificationProviderDelegate
 
     func notificationProviderDidInvalidate(_ notificationProvider: NotificationProvider) {
@@ -193,19 +163,18 @@ final class NotificationManager: NotificationProviderDelegate {
                 ])
             }
 
+            let logger = self.logger
             if let request = notificationProvider.notificationRequest {
-                requestNotificationPermissions { granted in
-                    guard granted else { return }
-
-                    notificationCenter.add(request) { error in
-                        if let error {
-                            self.logger.error(
-                                """
-                                Failed to add notification request with identifier \
-                                \(request.identifier). Error: \(error.description)
-                                """
-                            )
-                        }
+                Task { @MainActor in
+                    guard await UNUserNotificationCenter.isAllowed else { return }
+                    do {
+                        try await notificationCenter.add(request)
+                    } catch {
+                        logger.error(
+                            """
+                            Failed to add notification request with identifier \
+                            \(request.identifier). Error: \(error.description)
+                            """)
                     }
                 }
             }
