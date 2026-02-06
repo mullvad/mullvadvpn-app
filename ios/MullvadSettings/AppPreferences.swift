@@ -15,6 +15,8 @@ public protocol AppPreferencesDataSource {
     var isAgreedToTermsOfService: Bool { get set }
     var lastSeenChangeLogVersion: String { get set }
     var lastVersionCheck: VersionCheck { get set }
+    var isNotificationPermissionNeeded: Bool { get set }
+    var notificationSettings: NotificationSettings { get set }
 }
 
 enum AppStorageKey: String {
@@ -24,6 +26,8 @@ enum AppStorageKey: String {
     case isAgreedToTermsOfService
     case lastSeenChangeLogVersion
     case lastVersionCheck
+    case isNotificationPermissionNeeded
+    case notificationSettings
 }
 
 public final class AppPreferences: AppPreferencesDataSource {
@@ -46,4 +50,10 @@ public final class AppPreferences: AppPreferencesDataSource {
 
     @AppStorage(key: AppStorageKey.lastVersionCheck.rawValue, container: .standard)
     public var lastVersionCheck = VersionCheck(version: "", date: .distantPast)
+
+    @AppStorage(key: AppStorageKey.isNotificationPermissionNeeded.rawValue, container: .standard)
+    public var isNotificationPermissionNeeded = true
+
+    @AppStorage(key: AppStorageKey.notificationSettings.rawValue, container: .standard)
+    public var notificationSettings = NotificationSettings()
 }

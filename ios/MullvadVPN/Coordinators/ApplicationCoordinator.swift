@@ -90,6 +90,12 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
 
         super.init()
 
+        Task {
+            let isAllowed = await UNUserNotificationCenter.isAllowed
+            let permissionsNeeded = self.appPreferences.isNotificationPermissionNeeded
+            self.appPreferences.isNotificationPermissionNeeded = !isAllowed && permissionsNeeded
+        }
+
         navigationContainer.delegate = self
 
         router = ApplicationRouter(self)
@@ -360,13 +366,19 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
         }
     }
 
-    private func presentMain(animated: Bool, completion: @escaping (Coordinator) -> Void) {
+    private func presentMain(animated: Bool, completion: @Sendable @escaping (Coordinator) -> Void) {
         let tunnelCoordinator = makeTunnelCoordinator()
 
         navigationContainer.pushViewController(
             tunnelCoordinator.rootViewController,
             animated: animated
-        )
+        ) { [weak self] in
+            guard let self, appPreferences.isNotificationPermissionNeeded else {
+                completion(tunnelCoordinator)
+                return
+            }
+            presentNotificationsPrompt(animated: animated, completion: completion)
+        }
 
         addChild(tunnelCoordinator)
         tunnelCoordinator.start()
@@ -426,7 +438,18 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
         coordinator.didFinish = { [weak self] in
             guard let self else { return }
             router.dismiss(.welcome, animated: false)
-            continueFlow(animated: false)
+            #if DEBUG
+                if appPreferences.isNotificationPermissionNeeded {
+                    presentNotificationsPrompt(animated: animated) { coordinator in
+                        self.continueFlow(animated: false)
+                    }
+                } else {
+                    self.continueFlow(animated: false)
+                }
+            #else
+                self.continueFlow(animated: false)
+            #endif
+
         }
         coordinator.didLogout = { [weak self] preferredAccountNumber in
             guard let self else { return }
@@ -466,11 +489,25 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
         coordinator.preferredAccountNumberPublisher = preferredAccountNumberSubject.eraseToAnyPublisher()
 
         coordinator.didFinish = { [weak self] _ in
-            self?.appPreferences.hasDoneFirstTimeLogin = true
-            self?.continueFlow(animated: true)
+            guard let self else { return }
+            appPreferences.hasDoneFirstTimeLogin = true
+            #if DEBUG
+                if appPreferences.isNotificationPermissionNeeded && appPreferences.isShownOnboarding {
+                    presentNotificationsPrompt(animated: animated) { coordinator in
+                        self.continueFlow(animated: true)
+                    }
+                } else {
+                    continueFlow(animated: true)
+                }
+            #else
+                continueFlow(animated: true)
+            #endif
+
         }
+
         coordinator.didCreateAccount = { [weak self] in
-            self?.appPreferences.isShownOnboarding = false
+            guard let self else { return }
+            appPreferences.isShownOnboarding = false
         }
 
         addChild(coordinator)
@@ -597,8 +634,14 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
             interactorFactory: interactorFactory,
             accessMethodRepository: accessMethodRepository,
             proxyConfigurationTester: configurationTester,
-            ipOverrideRepository: ipOverrideRepository
-        )
+            ipOverrideRepository: ipOverrideRepository,
+            notificationSettings: appPreferences.notificationSettings)
+
+        coordinator.didUpdateNotificationSettings = { [weak self] notificationSettings in
+            guard let self = self else { return }
+            appPreferences.notificationSettings = notificationSettings
+            onNewNotificationSettings?(notificationSettings)
+        }
 
         coordinator.didFinish = { [weak self] _ in
             Task { @MainActor in
@@ -731,6 +774,30 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
         }
     }
 
+    private func presentNotificationsPrompt(
+        animated: Bool, completion: @escaping @MainActor @Sendable (Coordinator) -> Void
+    ) {
+        let coordinator = NotificationPromptCoordinator(navigationController: CustomNavigationController())
+
+        coordinator.start(animated: animated)
+        coordinator.didConclude = { [weak self] coordinator in
+            self?.appPreferences.isNotificationPermissionNeeded = false
+            coordinator.dismiss(animated: animated) {
+                completion(coordinator)
+            }
+        }
+        coordinator.onInteractiveDismissal { [weak self] coordinator in
+            self?.appPreferences.isNotificationPermissionNeeded = false
+            completion(coordinator)
+        }
+        presentChild(
+            coordinator,
+            animated: true,
+            configuration: ModalPresentationConfiguration(modalPresentationStyle: .automatic)
+        )
+
+    }
+
     private func addTunnelObserver() {
         let tunnelObserver =
             TunnelBlockObserver(
@@ -825,6 +892,11 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
      settings back to root.
      */
     var onShowSettings: (() -> Void)?
+
+    /**
+     This closure is called each time the notification settings are changed.
+     */
+    var onNewNotificationSettings: ((NotificationSettings) -> Void)?
 
     /// This closure is called each time when account controller is being presented.
     var onShowAccount: (() -> Void)?

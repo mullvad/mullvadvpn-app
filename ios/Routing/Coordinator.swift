@@ -187,7 +187,7 @@ extension Presentable {
     /**
      Add block based observer triggered if coordinator is dismissed via user interaction.
      */
-    public func onInteractiveDismissal(_ handler: @escaping @Sendable (Coordinator) -> Void) {
+    public func onInteractiveDismissal(_ handler: @escaping @MainActor @Sendable (Coordinator) -> Void) {
         interactiveDismissalObservers.append(handler)
     }
 }

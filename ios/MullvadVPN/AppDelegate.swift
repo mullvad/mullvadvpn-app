@@ -54,6 +54,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     var accessMethodReceiver: MullvadAccessMethodReceiver!
     private var shadowsocksCacheCleaner: ShadowsocksCacheCleaner!
 
+    let notificationSettingsListener = NotificationSettingsListener()
+    private var notificationSettingsUpdater: NotificationSettingsUpdater!
+
     // MARK: - Application lifecycle
 
     func application(
@@ -82,6 +85,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
         let tunnelSettingsListener = TunnelSettingsListener()
         let tunnelSettingsUpdater = SettingsUpdater(listener: tunnelSettingsListener)
+
+        notificationSettingsUpdater = NotificationSettingsUpdater(listener: notificationSettingsListener)
 
         let shadowsocksCache = ShadowsocksConfigurationCache(cacheDirectory: containerURL)
         let shadowsocksRelaySelector = ShadowsocksRelaySelector(
@@ -458,7 +463,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         NotificationManager.shared.notificationProviders = [
             LatestChangesNotificationProvider(appPreferences: appPreferences),
             TunnelStatusNotificationProvider(tunnelManager: tunnelManager),
-            AccountExpirySystemNotificationProvider(tunnelManager: tunnelManager),
+            AccountExpirySystemNotificationProvider(
+                isNotificationEnabled: appPreferences.notificationSettings.isAccountNotificationEnabled,
+                notificationSettingsUpdater: notificationSettingsUpdater, tunnelManager: tunnelManager),
             AccountExpiryInAppNotificationProvider(tunnelManager: tunnelManager),
             NewDeviceNotificationProvider(tunnelManager: tunnelManager),
         ]
@@ -550,7 +557,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         // This operation is always treated as successful no matter what the configuration load yields.
         // If the tunnel settings or device state can't be read, we simply pretend they are not there
         // and leave user in logged out state. VPN config will be removed as well.
-        AsyncBlockOperation(dispatchQueue: .main) { finish in
+        AsyncBlockOperation(dispatchQueue: .main) { [weak self] finish in
+            guard let self else {
+                finish(nil)
+                return
+            }
             self.tunnelManager.loadConfiguration {
                 self.logger.debug("Finished initialization.")
 

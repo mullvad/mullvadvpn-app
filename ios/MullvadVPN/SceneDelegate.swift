@@ -88,6 +88,12 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
             self?.refreshLoginMetadata(forceUpdate: true)
         }
 
+        appCoordinator?.onNewNotificationSettings = { [weak self] notificationSettings in
+            guard let self = self else { return }
+            appDelegate.notificationSettingsListener.onNewSettings?(notificationSettings)
+            NotificationManager.shared.updateNotifications()
+        }
+
         appCoordinator?.onShowAccount = { [weak self] in
             // Refresh account data and device each time user opens account controller
             self?.refreshLoginMetadata(forceUpdate: true)

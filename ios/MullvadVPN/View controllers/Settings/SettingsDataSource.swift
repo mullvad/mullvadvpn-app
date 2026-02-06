@@ -45,9 +45,8 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
     enum Section: String {
         case vpnSettings
         case apiAccess
-        case version
+        case general
         case problemReport
-        case language
     }
 
     enum Item: String {
@@ -59,6 +58,7 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
         case daita
         case multihop
         case language
+        case notificationSettings
 
         var accessibilityIdentifier: AccessibilityIdentifier {
             switch self {
@@ -78,6 +78,8 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
                 .multihopCell
             case .language:
                 .languageCell
+            case .notificationSettings:
+                .notificationSettingsCell
             }
         }
 
@@ -173,8 +175,8 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
 
     private func updateDataSnapshot() {
         var snapshot = NSDiffableDataSourceSnapshot<Section, Item>()
-
-        if interactor.deviceState.isLoggedIn {
+        let isLoggedIn = interactor.deviceState.isLoggedIn
+        if isLoggedIn {
             snapshot.appendSections([.vpnSettings])
             snapshot.appendItems(
                 [
@@ -184,14 +186,20 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
                 ], toSection: .vpnSettings)
         }
 
-        snapshot.appendSections([.language])
-        snapshot.appendItems([.language], toSection: .language)
+        snapshot.appendSections([.general])
+        snapshot.appendItems([.language], toSection: .general)
+
+        #if DEBUG
+            if isLoggedIn {
+                snapshot.appendItems([.notificationSettings], toSection: .general)
+            }
+        #endif
+        snapshot.appendItems([.changelog], toSection: .general)
 
         snapshot.appendSections([.apiAccess])
         snapshot.appendItems([.apiAccess], toSection: .apiAccess)
 
-        snapshot.appendSections([.version, .problemReport])
-        snapshot.appendItems([.changelog], toSection: .version)
+        snapshot.appendSections([.problemReport])
         snapshot.appendItems([.problemReport, .faq], toSection: .problemReport)
 
         apply(snapshot)
