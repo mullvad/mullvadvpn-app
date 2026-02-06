@@ -222,3 +222,10 @@ reason = "wireguard-go does not use golang.org/x/net/html"
 id = "GO-2026-4441"
 ignoreUntil = 2027-02-06
 reason = "wireguard-go does not use html.Parse"
+
+# Unexpected session resumption in crypto/tls
+# https://osv.dev/vulnerability/GO-2026-4337
+[[IgnoredVulns]]
+id = "GO-2026-4337"
+ignoreUntil = 2027-02-06
+reason = "wireguard(-go) does not use tls"
