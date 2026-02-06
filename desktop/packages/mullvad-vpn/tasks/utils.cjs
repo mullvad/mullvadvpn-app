@@ -1,7 +1,7 @@
 const childProcess = require('child_process');
 const fs = require('fs/promises');
 const path = require('path');
-const { BUILD_DIR, GEO_DIR, LOCALES_DIR, IMAGES_DIR, ICONS_DIR } = require('./constants');
+const { BUILD_DIR, GEO_DIR, LOCALES_DIR, IMAGES_DIR, ICONS_DIR } = require('./constants.cjs');
 
 async function copyAssetsToBuildDirectory() {
   await Promise.all([

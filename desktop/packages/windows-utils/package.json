@@ -4,7 +4,9 @@
   "author": "Mullvad VPN",
   "license": "GPL-3.0",
   "description": "",
+  "type": "module",
   "main": "./lib/index.cjs",
+  "module": "./lib/index.mjs",
   "scripts": {
     "cargo-build": "npm run build-typescript && cargo build",
     "build-debug": "npm run cargo-build && bash -c \"(test -d debug || mkdir debug) && cp ../../../target/debug/windows_utils.dll debug/index.node\"",
