@@ -12,7 +12,7 @@ export function DisconnectButton() {
 
   const onDisconnect = useCallback(async () => {
     try {
-      await disconnectTunnel();
+      await disconnectTunnel('gui-disconnect-button');
     } catch (e) {
       const error = e as Error;
       log.error(`Failed to disconnect the tunnel: ${error.message}`);

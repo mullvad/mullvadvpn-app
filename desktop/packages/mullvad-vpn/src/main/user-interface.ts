@@ -5,7 +5,7 @@ import { sprintf } from 'sprintf-js';
 import { promisify } from 'util';
 
 import { connectEnabled, disconnectEnabled, reconnectEnabled } from '../shared/connect-helper';
-import { IAccountData, ILocation, TunnelState } from '../shared/daemon-rpc-types';
+import { DisconnectSource, IAccountData, ILocation, TunnelState } from '../shared/daemon-rpc-types';
 import { messages, relayLocations } from '../shared/gettext';
 import log from '../shared/logging';
 import { Scheduler } from '../shared/scheduler';
@@ -30,8 +30,8 @@ export interface UserInterfaceDelegate {
   updateAccountData(): void;
   connectTunnel(): void;
   reconnectTunnel(): void;
-  disconnectTunnel(): void;
-  disconnectAndQuit(): void;
+  disconnectTunnel(source: DisconnectSource): void;
+  disconnectAndQuit(source: DisconnectSource): void;
   isUnpinnedWindow(): boolean;
   isLoggedIn(): boolean;
   getAccountData(): IAccountData | undefined;
@@ -691,7 +691,7 @@ export default class UserInterface implements WindowControllerDelegate {
         id: 'disconnect',
         label: messages.gettext('Disconnect'),
         enabled: disconnectEnabled(connectedToDaemon, tunnelState.state),
-        click: this.delegate.disconnectTunnel,
+        click: () => this.delegate.disconnectTunnel('tray-disconnect'),
       },
       { type: 'separator' },
       {
@@ -700,7 +700,7 @@ export default class UserInterface implements WindowControllerDelegate {
           tunnelState.state === 'disconnected'
             ? messages.gettext('Quit')
             : this.escapeContextMenuLabel(messages.gettext('Disconnect & quit')),
-        click: this.delegate.disconnectAndQuit,
+        click: () => this.delegate.disconnectAndQuit('tray-disconnect-quit'),
       },
     ];
 

@@ -58,7 +58,7 @@ function ExpiredAccountErrorViewComponent() {
 
   const [disconnect, disconnecting] = useExclusiveTask(async () => {
     try {
-      await disconnectTunnel();
+      await disconnectTunnel('gui-expired-account');
     } catch (e) {
       const error = e as Error;
       log.error(`Failed to disconnect the tunnel: ${error.message}`);

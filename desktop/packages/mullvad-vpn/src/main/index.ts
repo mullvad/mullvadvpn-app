@@ -15,6 +15,7 @@ import {
   DaemonAppUpgradeEvent,
   DaemonEvent,
   DeviceEvent,
+  DisconnectSource,
   ErrorStateCause,
   IRelayListWithEndpointData,
   ISettings,
@@ -249,19 +250,19 @@ class ApplicationMain
     }
   };
 
-  public disconnectTunnel = async (): Promise<void> => {
+  public disconnectTunnel = async (source: DisconnectSource): Promise<void> => {
     if (this.tunnelState.allowDisconnect(this.daemonRpc.isConnected)) {
       this.tunnelState.expectNextTunnelState('disconnecting');
-      await this.daemonRpc.disconnectTunnel();
+      await this.daemonRpc.disconnectTunnel(source);
     }
   };
 
   public isLoggedIn = () => this.account.isLoggedIn();
 
-  public disconnectAndQuit = async () => {
+  public disconnectAndQuit = async (source: DisconnectSource) => {
     if (this.daemonRpc.isConnected) {
       try {
-        await this.daemonRpc.disconnectTunnel();
+        await this.daemonRpc.disconnectTunnel(source);
         log.info('Disconnected the tunnel');
       } catch (e) {
         const error = e as Error;
@@ -866,7 +867,7 @@ class ApplicationMain
 
     IpcMainEventChannel.tunnel.handleConnect(this.connectTunnel);
     IpcMainEventChannel.tunnel.handleReconnect(this.reconnectTunnel);
-    IpcMainEventChannel.tunnel.handleDisconnect(this.disconnectTunnel);
+    IpcMainEventChannel.tunnel.handleDisconnect((source) => this.disconnectTunnel(source));
 
     IpcMainEventChannel.guiSettings.handleSetPreferredLocale((locale: string) => {
       this.settings.gui.preferredLocale = locale;
@@ -923,7 +924,9 @@ class ApplicationMain
       return fullDiskState;
     });
 
-    IpcMainEventChannel.app.handleQuit(() => this.disconnectAndQuit());
+    IpcMainEventChannel.app.handleQuit((source: DisconnectSource) =>
+      this.disconnectAndQuit(source),
+    );
     IpcMainEventChannel.app.handleOpenUrl(async (url) => {
       if (Object.values(urls).find((allowedUrl) => url.startsWith(allowedUrl))) {
         await shell.openExternal(url);

@@ -12,6 +12,7 @@ import {
   CustomProxy,
   DeviceEvent,
   DeviceState,
+  DisconnectSource,
   IAccountData,
   IAppVersionInfo,
   ICustomList,
@@ -20,6 +21,7 @@ import {
   IDnsOptions,
   IRelayListWithEndpointData,
   ISettings,
+  LogoutSource,
   NewAccessMethodSetting,
   NewCustomList,
   ObfuscationSettings,
@@ -165,7 +167,7 @@ export const ipcSchema = {
     dismissedUpgrade: send<string>(),
   },
   app: {
-    quit: send<void>(),
+    quit: send<DisconnectSource>(),
     openUrl: invoke<string, void>(),
     openRoute: notifyRenderer<RoutePath>(),
     showOpenDialog: invoke<Electron.OpenDialogOptions, Electron.OpenDialogReturnValue>(),
@@ -182,7 +184,7 @@ export const ipcSchema = {
   tunnel: {
     '': notifyRenderer<TunnelState>(),
     connect: invoke<void, void>(),
-    disconnect: invoke<void, void>(),
+    disconnect: invoke<DisconnectSource, void>(),
     reconnect: invoke<void, void>(),
   },
   settings: {
@@ -225,7 +227,7 @@ export const ipcSchema = {
     devices: notifyRenderer<Array<IDevice>>(),
     create: invoke<void, string>(),
     login: invoke<AccountNumber, AccountDataError | undefined>(),
-    logout: invoke<void, void>(),
+    logout: invoke<LogoutSource, void>(),
     getWwwAuthToken: invoke<void, string>(),
     submitVoucher: invoke<string, VoucherResponse>(),
     updateData: send<void>(),

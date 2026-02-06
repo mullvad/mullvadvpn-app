@@ -560,7 +560,7 @@ function BlockMessage() {
     }
 
     if (tunnelState.state === 'error') {
-      void disconnectTunnel();
+      void disconnectTunnel('gui-login-unblock');
     }
   }, [lockdownMode, tunnelState, setLockdownMode, disconnectTunnel]);
 

@@ -1,3 +1,5 @@
+import { useCallback } from 'react';
+
 import { messages } from '../../../../../../shared/gettext';
 import { useAppContext } from '../../../../../context';
 import { Button } from '../../../../../lib/components';
@@ -7,8 +9,12 @@ export function QuitButton() {
   const { quit } = useAppContext();
   const isConnected = useIsConnected();
 
+  const handleClick = useCallback(() => {
+    quit('gui-quit-button');
+  }, [quit]);
+
   return (
-    <Button variant="destructive" onClick={quit}>
+    <Button variant="destructive" onClick={handleClick}>
       <Button.Text>
         {isConnected ? messages.gettext('Disconnect & quit') : messages.gettext('Quit')}
       </Button.Text>

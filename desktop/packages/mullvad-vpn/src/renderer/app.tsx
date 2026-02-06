@@ -16,6 +16,7 @@ import {
   AccountNumber,
   CustomProxy,
   DeviceEvent,
+  DisconnectSource,
   IAccountData,
   IAppVersionInfo,
   ICustomList,
@@ -26,6 +27,7 @@ import {
   IRelayListWithEndpointData,
   ISettings,
   liftConstraint,
+  LogoutSource,
   NewAccessMethodSetting,
   NewCustomList,
   ObfuscationSettings,
@@ -406,7 +408,8 @@ export default class AppRenderer {
   public removeDevice = (device: IDeviceRemoval) =>
     IpcRendererEventChannel.account.removeDevice(device);
   public connectTunnel = () => IpcRendererEventChannel.tunnel.connect();
-  public disconnectTunnel = () => IpcRendererEventChannel.tunnel.disconnect();
+  public disconnectTunnel = (source: DisconnectSource) =>
+    IpcRendererEventChannel.tunnel.disconnect(source);
   public reconnectTunnel = () => IpcRendererEventChannel.tunnel.reconnect();
   public setRelaySettings = (relaySettings: RelaySettings) =>
     IpcRendererEventChannel.settings.setRelaySettings(relaySettings);
@@ -444,7 +447,7 @@ export default class AppRenderer {
   public collectProblemReport = (toRedact: string | undefined) =>
     IpcRendererEventChannel.problemReport.collectLogs(toRedact);
   public viewLog = (path: string) => IpcRendererEventChannel.problemReport.viewLog(path);
-  public quit = () => IpcRendererEventChannel.app.quit();
+  public quit = (source: DisconnectSource) => IpcRendererEventChannel.app.quit(source);
   public openUrl = (url: Url) => IpcRendererEventChannel.app.openUrl(url);
   public getPathBaseName = (path: string) => IpcRendererEventChannel.app.getPathBaseName(path);
   public showOpenDialog = (options: Electron.OpenDialogOptions) =>
@@ -552,9 +555,9 @@ export default class AppRenderer {
     this.loginState = 'none';
   };
 
-  public logout = async () => {
+  public logout = async (source: LogoutSource) => {
     try {
-      await IpcRendererEventChannel.account.logout();
+      await IpcRendererEventChannel.account.logout(source);
     } catch (e) {
       const error = e as Error;
       log.info('Failed to logout: ', error.message);
@@ -562,8 +565,8 @@ export default class AppRenderer {
   };
 
   public leaveRevokedDevice = async () => {
-    await this.logout();
-    await this.disconnectTunnel();
+    await this.logout('gui-device-revoked');
+    await this.disconnectTunnel('gui-device-revoked');
   };
 
   public createNewAccount = async () => {
