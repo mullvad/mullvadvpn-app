@@ -1,4 +1,4 @@
-use crate::format;
+use crate::{BIN_NAME, format};
 use anyhow::{Result, anyhow, bail};
 use futures::{Stream, StreamExt};
 use mullvad_management_interface::{MullvadProxyClient, client::DaemonEvent};
@@ -39,7 +39,9 @@ pub async fn disconnect(wait: bool) -> Result<()> {
         None
     };
 
-    if rpc.disconnect_tunnel().await?
+    if rpc
+        .disconnect_tunnel(&format!("{BIN_NAME} disconnect"))
+        .await?
         && let Some(receiver) = listener
     {
         wait_for_tunnel_state(receiver, |state| Ok(state.is_disconnected())).await?;

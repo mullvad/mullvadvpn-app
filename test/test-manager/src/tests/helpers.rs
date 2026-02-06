@@ -431,7 +431,7 @@ pub async fn connect_and_wait(
 
 pub async fn disconnect_and_wait(mullvad_client: &mut MullvadProxyClient) -> Result<(), Error> {
     log::trace!("Disconnecting");
-    mullvad_client.disconnect_tunnel().await?;
+    mullvad_client.disconnect_tunnel("test-manager").await?;
 
     wait_for_tunnel_state(mullvad_client.clone(), |state| {
         matches!(state, TunnelState::Disconnected { .. })

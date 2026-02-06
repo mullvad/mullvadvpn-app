@@ -122,7 +122,7 @@ pub async fn test_ui_login(
     rpc: ServiceClient,
     mut mullvad_client: MullvadProxyClient,
 ) -> Result<(), Error> {
-    mullvad_client.logout_account().await?;
+    mullvad_client.logout_account("test-manager").await?;
     mullvad_client.clear_account_history().await?;
     let ui_result = run_test_env(
         &rpc,
