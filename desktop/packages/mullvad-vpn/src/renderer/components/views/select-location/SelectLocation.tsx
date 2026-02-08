@@ -3,6 +3,8 @@ import { useCallback, useState } from 'react';
 import { ObfuscationType, Ownership } from '../../../../shared/daemon-rpc-types';
 import { messages } from '../../../../shared/gettext';
 import { RoutePath } from '../../../../shared/routes';
+import { useObfuscation } from '../../../features/anti-censorship/hooks';
+import { useDaitaDirectOnly, useDaitaEnabled } from '../../../features/daita/hooks';
 import { Container, Flex, IconButton, LabelTinySemiBold } from '../../../lib/components';
 import { View } from '../../../lib/components/view';
 import {
@@ -55,17 +57,22 @@ export function SelectLocation() {
   const ownership = relaySettings?.ownership ?? Ownership.any;
   const providers = relaySettings?.providers ?? [];
   const multihop = relaySettings?.wireguard.useMultihop ?? false;
-  const daita = useSelector((state) => state.settings.wireguard.daita?.enabled ?? false);
-  const directOnly = useSelector((state) => state.settings.wireguard.daita?.directOnly ?? false);
-  const quic = useSelector(
-    (state) => state.settings.obfuscationSettings.selectedObfuscation === ObfuscationType.quic,
+  const { daitaEnabled } = useDaitaEnabled();
+  const { daitaDirectOnly } = useDaitaDirectOnly();
+  const { obfuscation } = useObfuscation();
+
+  const showQuicFilter = quicFilterActive(
+    obfuscation === ObfuscationType.quic,
+    locationType,
+    multihop,
   );
-  const lwo = useSelector(
-    (state) => state.settings.obfuscationSettings.selectedObfuscation === ObfuscationType.lwo,
+  const showLwoFilter = lwoFilterActive(
+    obfuscation === ObfuscationType.lwo,
+    locationType,
+    multihop,
   );
-  const showQuicFilter = quicFilterActive(quic, locationType, multihop);
-  const showLwoFilter = lwoFilterActive(lwo, locationType, multihop);
-  const showDaitaFilter = daitaFilterActive(daita, directOnly, locationType, multihop);
+
+  const showDaitaFilter = daitaFilterActive(daitaEnabled, daitaDirectOnly, locationType, multihop);
 
   const [searchValue, setSearchValue] = useState<string | undefined>(undefined);
 
@@ -133,7 +140,7 @@ export function SelectLocation() {
               </>
             )}
 
-            {locationType === LocationType.entry && daita && !directOnly ? null : (
+            {locationType === LocationType.entry && daitaEnabled && !daitaDirectOnly ? null : (
               <>
                 {showFilters && (
                   <Flex
@@ -193,8 +200,8 @@ function SelectLocationContent() {
   const [onSelectExitRelay] = useOnSelectExitLocation();
   const [onSelectEntryRelay] = useOnSelectEntryLocation();
 
-  const daita = useSelector((state) => state.settings.wireguard.daita?.enabled ?? false);
-  const directOnly = useSelector((state) => state.settings.wireguard.daita?.directOnly ?? false);
+  const { daitaEnabled } = useDaitaEnabled();
+  const { daitaDirectOnly } = useDaitaDirectOnly();
 
   const relaySettings = useNormalRelaySettings();
 
@@ -227,7 +234,7 @@ function SelectLocationContent() {
       </Container>
     );
   } else {
-    if (daita && !directOnly && relaySettings?.wireguard.useMultihop) {
+    if (daitaEnabled && !daitaDirectOnly && relaySettings?.wireguard.useMultihop) {
       return <DisabledEntrySelection />;
     }
 
