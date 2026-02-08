@@ -1,19 +1,10 @@
 import { useCallback, useState } from 'react';
-import { sprintf } from 'sprintf-js';
 
-import { strings } from '../../../../shared/constants';
 import { ObfuscationType, Ownership } from '../../../../shared/daemon-rpc-types';
 import { messages } from '../../../../shared/gettext';
 import { RoutePath } from '../../../../shared/routes';
-import {
-  Container,
-  FilterChip,
-  Flex,
-  IconButton,
-  LabelTinySemiBold,
-} from '../../../lib/components';
+import { Container, Flex, IconButton, LabelTinySemiBold } from '../../../lib/components';
 import { View } from '../../../lib/components/view';
-import { useRelaySettingsUpdater } from '../../../lib/constraint-updater';
 import {
   daitaFilterActive,
   filterSpecialLocations,
@@ -28,13 +19,17 @@ import { BackAction } from '../../keyboard-navigation';
 import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
 import { SearchTextField } from '../../search-text-field';
-import { useFilteredProviders } from '../../views/filter/hooks';
 import {
   CustomExitLocationRow,
   CustomLists,
+  DaitaFilterChip,
   DisabledEntrySelection,
   LocationList,
+  LwoFilterChip,
   NoSearchResult,
+  OwnershipFilterChip,
+  ProvidersFilterChip,
+  QuicFilterChip,
   ScopeBarItem,
   SpacePreAllocationView,
 } from './components';
@@ -51,7 +46,6 @@ import { useSelectLocationViewContext } from './SelectLocationViewContext';
 
 export function SelectLocation() {
   const history = useHistory();
-  const relaySettingsUpdater = useRelaySettingsUpdater();
   const { saveScrollPosition, resetScrollPositions, scrollViewRef, spacePreAllocationViewRef } =
     useScrollPositionContext();
   const { locationType, setLocationType, setSearchTerm } = useSelectLocationViewContext();
@@ -61,7 +55,6 @@ export function SelectLocation() {
   const ownership = relaySettings?.ownership ?? Ownership.any;
   const providers = relaySettings?.providers ?? [];
   const multihop = relaySettings?.wireguard.useMultihop ?? false;
-  const filteredProviders = useFilteredProviders(providers, ownership);
   const daita = useSelector((state) => state.settings.wireguard.daita?.enabled ?? false);
   const directOnly = useSelector((state) => state.settings.wireguard.daita?.directOnly ?? false);
   const quic = useSelector(
@@ -80,20 +73,6 @@ export function SelectLocation() {
   const onViewFilter = useCallback(() => history.push(RoutePath.filter), [history]);
 
   const allowEntrySelection = relaySettings?.wireguard.useMultihop;
-
-  const onClearProviders = useCallback(async () => {
-    resetScrollPositions();
-    if (relaySettings) {
-      await relaySettingsUpdater((settings) => ({ ...settings, providers: [] }));
-    }
-  }, [relaySettingsUpdater, resetScrollPositions, relaySettings]);
-
-  const onClearOwnership = useCallback(async () => {
-    resetScrollPositions();
-    if (relaySettings) {
-      await relaySettingsUpdater((settings) => ({ ...settings, ownership: Ownership.any }));
-    }
-  }, [relaySettingsUpdater, resetScrollPositions, relaySettings]);
 
   const changeLocationType = useCallback(
     (locationType: LocationType) => {
@@ -166,72 +145,11 @@ export function SelectLocation() {
                       {messages.pgettext('select-location-view', 'Filtered:')}
                     </LabelTinySemiBold>
 
-                    {showOwnershipFilter && (
-                      <FilterChip aria-label={messages.gettext('Clear')} onClick={onClearOwnership}>
-                        <FilterChip.Text>{ownershipFilterLabel(ownership)}</FilterChip.Text>
-                        <FilterChip.Icon icon="cross" />
-                      </FilterChip>
-                    )}
-
-                    {showProvidersFilter && (
-                      <FilterChip aria-label={messages.gettext('Clear')} onClick={onClearProviders}>
-                        <FilterChip.Text>
-                          {sprintf(
-                            messages.pgettext(
-                              'select-location-view',
-                              'Providers: %(numberOfProviders)d',
-                            ),
-                            { numberOfProviders: filteredProviders.length },
-                          )}
-                        </FilterChip.Text>
-                        <FilterChip.Icon icon="cross" />
-                      </FilterChip>
-                    )}
-
-                    {showDaitaFilter && (
-                      <FilterChip as="div">
-                        <FilterChip.Text>
-                          {sprintf(
-                            messages.pgettext('select-location-view', 'Setting: %(settingName)s'),
-                            { settingName: 'DAITA' },
-                          )}
-                        </FilterChip.Text>
-                      </FilterChip>
-                    )}
-
-                    {showQuicFilter && (
-                      <FilterChip as="div">
-                        <FilterChip.Text>
-                          {sprintf(
-                            // TRANSLATORS: Label for indicator that shows that obfuscation is being used as a filter.
-                            // TRANSLATORS: Available placeholders:
-                            // TRANSLATORS: %(obfuscation)s - type of obfuscation in use
-                            messages.pgettext(
-                              'select-location-view',
-                              'Obfuscation: %(obfuscation)s',
-                            ),
-                            { obfuscation: strings.quic },
-                          )}
-                        </FilterChip.Text>
-                      </FilterChip>
-                    )}
-
-                    {showLwoFilter && (
-                      <FilterChip as="div">
-                        <FilterChip.Text>
-                          {sprintf(
-                            // TRANSLATORS: Label for indicator that shows that obfuscation is being used as a filter.
-                            // TRANSLATORS: Available placeholders:
-                            // TRANSLATORS: %(obfuscation)s - type of obfuscation in use
-                            messages.pgettext(
-                              'select-location-view',
-                              'Obfuscation: %(obfuscation)s',
-                            ),
-                            { obfuscation: strings.lwo },
-                          )}
-                        </FilterChip.Text>
-                      </FilterChip>
-                    )}
+                    {showOwnershipFilter && <OwnershipFilterChip />}
+                    {showProvidersFilter && <ProvidersFilterChip />}
+                    {showDaitaFilter && <DaitaFilterChip />}
+                    {showQuicFilter && <QuicFilterChip />}
+                    {showLwoFilter && <LwoFilterChip />}
                   </Flex>
                 )}
 
@@ -266,17 +184,6 @@ export function SelectLocation() {
       </BackAction>
     </View>
   );
-}
-
-function ownershipFilterLabel(ownership: Ownership): string {
-  switch (ownership) {
-    case Ownership.mullvadOwned:
-      return messages.pgettext('filter-view', 'Owned');
-    case Ownership.rented:
-      return messages.pgettext('filter-view', 'Rented');
-    default:
-      throw new Error('Only owned and rented should make label visible');
-  }
 }
 
 function SelectLocationContent() {
