@@ -1,7 +1,6 @@
 import React from 'react';
-interface FilterChipContextProps {
-  disabled?: boolean;
-}
+type FilterChipContextProps = Omit<FilterChipProviderProps, 'children'>;
+
 const FilterChipContext = React.createContext<FilterChipContextProps | undefined>(undefined);
 
 export const useFilterChipContext = (): FilterChipContextProps => {
@@ -12,10 +11,10 @@ export const useFilterChipContext = (): FilterChipContextProps => {
   return context;
 };
 
-interface FilterChipProviderProps {
+type FilterChipProviderProps = {
   disabled?: boolean;
   children: React.ReactNode;
-}
+};
 
 export const FilterChipProvider = ({ disabled, children }: FilterChipProviderProps) => {
   return <FilterChipContext.Provider value={{ disabled }}>{children}</FilterChipContext.Provider>;
