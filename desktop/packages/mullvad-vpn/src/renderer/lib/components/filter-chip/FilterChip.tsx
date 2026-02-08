@@ -1,12 +1,11 @@
-import styled, { css, WebTarget } from 'styled-components';
+import styled, { css } from 'styled-components';
 
 import { colors, Radius, spacings } from '../../foundations';
+import type { PolymorphicProps } from '../../types';
 import { FilterChipIcon, FilterChipText, StyledFilterChipIcon } from './components';
 import { FilterChipProvider } from './FilterChipContext';
 
-export interface FilterChipProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  as?: WebTarget;
-}
+export type FilterChipProps<T extends React.ElementType = 'button'> = PolymorphicProps<T>;
 
 const variables = {
   background: colors.blue,
@@ -69,7 +68,13 @@ export const StyledFilterChip = styled.button<{ $hasOnClick?: boolean }>`
   }}
 `;
 
-function FilterChip({ children, disabled, style, onClick, ...props }: FilterChipProps) {
+function FilterChip<T extends React.ElementType = 'button'>({
+  children,
+  disabled,
+  style,
+  onClick,
+  ...props
+}: FilterChipProps<T>) {
   return (
     <FilterChipProvider disabled={disabled}>
       <StyledFilterChip
