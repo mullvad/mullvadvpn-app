@@ -1,73 +1,77 @@
-import { forwardRef } from 'react';
-import styled, { WebTarget } from 'styled-components';
+import styled, { css } from 'styled-components';
 
 import { colors, Radius } from '../../foundations';
+import type { PolymorphicProps } from '../../types';
 import { Flex } from '../flex';
 import { FilterChipIcon, FilterChipText } from './components';
 import { FilterChipProvider } from './FilterChipContext';
 
-export interface FilterChipProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  as?: WebTarget;
-}
+export type FilterChipProps<T extends React.ElementType = 'button'> = PolymorphicProps<T>;
 
-const variables = {
-  background: colors.blue,
-  hover: colors.blue60,
-  disabled: colors.blue50,
-} as const;
+const StyledFilterChipButton = styled.button<{ $clickable: boolean }>`
+  ${({ $clickable }) => {
+    return css`
+      --background: ${colors.blue};
+      --hover: ${colors.blue60};
+      --disabled: ${colors.blue50};
 
-const StyledButton = styled.button({
-  display: 'flex',
-  alignItems: 'center',
+      display: flex;
+      align-items: center;
 
-  borderRadius: Radius.radius8,
-  minWidth: '32px',
-  minHeight: '24px',
-  background: 'var(--background)',
-  '&:not(:disabled):hover': {
-    background: 'var(--hover)',
-  },
-  '&:disabled': {
-    background: 'var(--disabled)',
-  },
-  '&:focus-visible': {
-    outline: `2px solid ${colors.white}`,
-  },
-});
+      border-radius: ${Radius.radius8};
+      min-width: 32px;
+      min-height: 24px;
+      background: var(--background);
 
-const FilterChip = forwardRef<HTMLButtonElement, FilterChipProps>(
-  ({ children, disabled, style, onClick, ...props }, ref) => {
-    return (
-      <FilterChipProvider disabled={disabled}>
-        <StyledButton
-          ref={ref}
-          style={
-            {
-              '--background': variables.background,
-              '--hover': onClick ? variables.hover : variables.background,
-              '--disabled': variables.disabled,
-              ...style,
-            } as React.CSSProperties
-          }
-          disabled={disabled}
-          onClick={onClick}
-          {...props}>
-          <Flex
-            gap="tiny"
-            alignItems="center"
-            justifyContent="space-between"
-            padding={{
-              horizontal: 'small',
-            }}>
-            {children}
-          </Flex>
-        </StyledButton>
-      </FilterChipProvider>
-    );
-  },
-);
+      ${() => {
+        if ($clickable) {
+          return css`
+            &:not(:disabled):hover {
+              background: var(--hover);
+            }
+          `;
+        }
+        return null;
+      }}
 
-FilterChip.displayName = 'FilterChip';
+      &:disabled {
+        background: var(--disabled);
+      }
+      &:focus-visible {
+        outline: 2px solid ${colors.white};
+      }
+    `;
+  }}
+`;
+
+const FilterChip = <T extends React.ElementType = 'button'>({
+  children,
+  disabled,
+  onClick,
+  ref,
+  ...props
+}: FilterChipProps<T>) => {
+  return (
+    <FilterChipProvider disabled={disabled}>
+      <StyledFilterChipButton
+        ref={ref}
+        disabled={disabled}
+        onClick={onClick}
+        $clickable={!!onClick}
+        {...props}>
+        <Flex
+          gap="tiny"
+          alignItems="center"
+          justifyContent="space-between"
+          padding={{
+            horizontal: 'small',
+          }}>
+          {children}
+        </Flex>
+      </StyledFilterChipButton>
+    </FilterChipProvider>
+  );
+};
 
 const FilterChipNamespace = Object.assign(FilterChip, {
   Text: FilterChipText,
