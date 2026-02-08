@@ -4,6 +4,7 @@ import { messages } from '../../../../../../shared/gettext';
 import { Dialog, type DialogProps } from '../../../../../lib/components/dialog';
 import { FlexColumn } from '../../../../../lib/components/flex-column';
 import { TextField } from '../../../../../lib/components/text-field';
+import type { CustomListLocation } from '../../select-location-types';
 import { EditListDialogProvider, useEditListDialogContext } from './EditListDialogContext';
 import {
   useHandleClickUpdateCustomList,
@@ -11,9 +12,13 @@ import {
   useHandleSubmitUpdateCustomList,
 } from './hooks';
 
-export type EditListProps = Omit<DialogProps, 'children'>;
+export type EditListProps = Omit<DialogProps, 'children'> & {
+  customList: CustomListLocation;
+};
 
-function EditListDialogImpl(props: Omit<EditListProps, 'children' | 'open' | 'onOpenChange'>) {
+function EditListDialogImpl(
+  props: Omit<EditListProps, 'children' | 'open' | 'onOpenChange' | 'customList'>,
+) {
   const {
     open,
     onOpenChange,
@@ -86,9 +91,9 @@ function EditListDialogImpl(props: Omit<EditListProps, 'children' | 'open' | 'on
   );
 }
 
-export function EditListDialog({ open, onOpenChange, ...prop }: EditListProps) {
+export function EditListDialog({ customList, open, onOpenChange, ...prop }: EditListProps) {
   return (
-    <EditListDialogProvider open={open} onOpenChange={onOpenChange}>
+    <EditListDialogProvider customList={customList} open={open} onOpenChange={onOpenChange}>
       <EditListDialogImpl {...prop} />
     </EditListDialogProvider>
   );
