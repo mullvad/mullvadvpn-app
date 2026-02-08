@@ -19,12 +19,14 @@ const variants = {
 };
 
 export function AccordionContent({ children }: AccordionContentProps) {
-  const { contentId, triggerId, expanded } = useAccordionContext();
+  const { contentId, triggerId, expanded, setContent } = useAccordionContext();
+
   return (
     <AnimatePresence initial={false}>
       {expanded && (
         <StyledAccordionContent
           id={contentId}
+          ref={setContent}
           aria-labelledby={triggerId}
           role="region"
           variants={variants}
