@@ -92,6 +92,16 @@ export function useCustomLists() {
     [customLists, updateCustomList],
   );
 
+  const getCustomListById = React.useCallback(
+    (listId?: string) => {
+      if (!listId) {
+        return undefined;
+      }
+      return customLists.find((list) => list.id === listId);
+    },
+    [customLists],
+  );
+
   return {
     customLists,
     createCustomList,
@@ -99,5 +109,6 @@ export function useCustomLists() {
     removeLocationFromCustomList,
     updateCustomListName,
     deleteCustomList,
+    getCustomListById,
   };
 }
