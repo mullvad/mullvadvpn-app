@@ -2,11 +2,14 @@ import React from 'react';
 
 import { LocationListItem } from '../../../../../../location-list-item';
 import type { LocationListItemIconButtonProps } from '../../../../../../location-list-item/components';
+import type { CustomListLocation } from '../../../../select-location-types';
 import { DeleteConfirmDialog } from '../../../delete-confirm-dialog';
 
-export type DeleteCustomListButtonProps = LocationListItemIconButtonProps;
+export type DeleteCustomListButtonProps = LocationListItemIconButtonProps & {
+  customList: CustomListLocation;
+};
 
-export function DeleteCustomListButton(props: DeleteCustomListButtonProps) {
+export function DeleteCustomListButton({ customList, ...props }: DeleteCustomListButtonProps) {
   const [open, setOpen] = React.useState(false);
 
   const show = React.useCallback(() => {
@@ -25,7 +28,7 @@ export function DeleteCustomListButton(props: DeleteCustomListButtonProps) {
         </LocationListItem.IconButton>
       </LocationListItem.HeaderTrailingAction>
 
-      <DeleteConfirmDialog open={open} onOpenChange={hide} />
+      <DeleteConfirmDialog customList={customList} open={open} onOpenChange={hide} />
     </>
   );
 }

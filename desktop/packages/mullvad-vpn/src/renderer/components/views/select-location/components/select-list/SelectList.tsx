@@ -3,16 +3,16 @@ import React from 'react';
 import {
   compareRelayLocationGeographical,
   ICustomList,
-  type RelayLocationGeographical,
 } from '../../../../../../shared/daemon-rpc-types';
 import { useCustomLists } from '../../../../../features/location/hooks';
 import { IconButton } from '../../../../../lib/components';
 import { ListItem } from '../../../../../lib/components/list-item';
 import { SelectableLabel } from '../../../../../lib/components/selectable-label';
+import type { GeographicalLocation } from '../../select-location-types';
 
 interface SelectListProps {
   list: ICustomList;
-  location: RelayLocationGeographical;
+  location: GeographicalLocation;
 }
 
 export function SelectList({ list, location }: SelectListProps) {
@@ -21,18 +21,18 @@ export function SelectList({ list, location }: SelectListProps) {
 
   // List should be disabled if location already is in list.
   const addedToList = list.locations.some((listLocation) =>
-    compareRelayLocationGeographical(listLocation, location),
+    compareRelayLocationGeographical(listLocation, location.details),
   );
 
   const handleClickAdd = React.useCallback(async () => {
     setLoading(true);
-    await addLocationToCustomList(list.id, location);
+    await addLocationToCustomList(list.id, location.details);
     setLoading(false);
   }, [addLocationToCustomList, list.id, location]);
 
   const handleClickRemove = React.useCallback(async () => {
     setLoading(true);
-    await removeLocationFromCustomList(list.id, location);
+    await removeLocationFromCustomList(list.id, location.details);
     setLoading(false);
   }, [list.id, location, removeLocationFromCustomList]);
 
