@@ -1,7 +1,11 @@
 import { Accordion } from '../../lib/components/accordion';
 import { ListItem } from '../../lib/components/list-item';
-import { LocationListItemHeader, LocationListItemIconButton } from './components';
-import { LocationAccordionTitle } from './components/location-accordion-title';
+import {
+  LocationAccordionContent,
+  LocationAccordionTitle,
+  LocationListItemHeader,
+  LocationListItemIconButton,
+} from './components';
 import { LocationListItemProvider } from './LocationListItemContext';
 
 export type LocationListItemProps = React.PropsWithChildren<{
@@ -20,7 +24,7 @@ const LocationListItemNamespace = Object.assign(LocationListItem, {
   Accordion: Accordion,
   AccordionTrigger: Accordion.Trigger,
   AccordionContainer: Accordion.Container,
-  AccordionContent: Accordion.Content,
+  AccordionContent: LocationAccordionContent,
   Icon: Accordion.Icon,
   IconButton: LocationListItemIconButton,
   Header: LocationListItemHeader,
