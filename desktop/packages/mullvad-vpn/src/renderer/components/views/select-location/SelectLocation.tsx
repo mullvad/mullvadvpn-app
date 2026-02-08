@@ -15,7 +15,6 @@ import {
 } from '../../../lib/filter-locations';
 import { useHistory } from '../../../lib/history';
 import { useNormalRelaySettings } from '../../../lib/relay-settings-hooks';
-import { useSelector } from '../../../redux/store';
 import { AppNavigationHeader } from '../../';
 import { BackAction } from '../../keyboard-navigation';
 import { NavigationContainer } from '../../NavigationContainer';
@@ -35,7 +34,7 @@ import {
   ScopeBarItem,
   SpacePreAllocationView,
 } from './components';
-import { useOnSelectEntryLocation, useOnSelectExitLocation } from './hooks';
+import { useHandleSelectEntryLocation, useHandleSelectExitLocation } from './hooks';
 import { useRelayListContext } from './RelayListContext';
 import { useScrollPositionContext } from './ScrollPositionContext';
 import { LocationType, SpecialLocation } from './select-location-types';
@@ -197,15 +196,13 @@ function SelectLocationContent() {
   const { locationType, searchTerm } = useSelectLocationViewContext();
   const { selectedLocationRef } = useScrollPositionContext();
   const { relayList } = useRelayListContext();
-  const [onSelectExitRelay] = useOnSelectExitLocation();
-  const [onSelectEntryRelay] = useOnSelectEntryLocation();
+  const handleSelectExitLocation = useHandleSelectExitLocation();
+  const handleSelectEntryLocation = useHandleSelectEntryLocation();
 
   const { daitaEnabled } = useDaitaEnabled();
   const { daitaDirectOnly } = useDaitaDirectOnly();
 
   const relaySettings = useNormalRelaySettings();
-
-  const allowAddToCustomList = useSelector((state) => state.settings.customLists.length > 0);
 
   if (locationType === LocationType.exit) {
     // Add "Custom" item if a custom relay is selected
@@ -227,8 +224,7 @@ function SelectLocationContent() {
           key={locationType}
           locations={relayList}
           selectedElementRef={selectedLocationRef}
-          onSelect={onSelectExitRelay}
-          allowAddToCustomList={allowAddToCustomList}
+          onSelect={handleSelectExitLocation}
         />
         <NoSearchResult specialLocationsLength={specialLocations.length} />
       </Container>
@@ -245,8 +241,7 @@ function SelectLocationContent() {
           key={locationType}
           locations={relayList}
           selectedElementRef={selectedLocationRef}
-          onSelect={onSelectEntryRelay}
-          allowAddToCustomList={allowAddToCustomList}
+          onSelect={handleSelectEntryLocation}
         />
         <NoSearchResult specialLocationsLength={0} />
       </Container>
