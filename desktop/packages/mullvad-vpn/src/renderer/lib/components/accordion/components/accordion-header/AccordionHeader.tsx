@@ -27,9 +27,9 @@ export const StyledAccordionHeader = styled(StyledAccordionHeaderRoot)`
 `;
 
 export function AccordionHeader({ children, ...props }: AccordionHeaderProps) {
-  const { disabled } = useAccordionContext();
+  const { headerRef, disabled } = useAccordionContext();
   return (
-    <StyledAccordionHeader disabled={disabled} {...props}>
+    <StyledAccordionHeader ref={headerRef} disabled={disabled} {...props}>
       {children}
     </StyledAccordionHeader>
   );
