@@ -10,7 +10,6 @@ import { RelayLocation } from '../relay-location';
 export type RelayLocationListProps = {
   locations: AnyLocation[];
   selectedElementRef: React.Ref<HTMLDivElement>;
-  allowAddToCustomList: boolean;
   onSelect: (value: RelayLocationType) => void;
 };
 

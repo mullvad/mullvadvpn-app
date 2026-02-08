@@ -3,6 +3,7 @@ import { sprintf } from 'sprintf-js';
 
 import { compareRelayLocation, RelayLocation } from '../../../../../../shared/daemon-rpc-types';
 import { messages } from '../../../../../../shared/gettext';
+import { useCustomLists } from '../../../../../features/location/hooks';
 import type { ListItemProps } from '../../../../../lib/components/list-item';
 import { LocationListItem } from '../../../../location-list-item';
 import { type AnyLocation, getLocationChildrenByType } from '../../select-location-types';
@@ -19,17 +20,16 @@ export type LocationRowProps = React.PropsWithChildren<{
   level: ListItemProps['level'];
   selectedElementRef: React.Ref<HTMLDivElement>;
   onSelect: (value: RelayLocation) => void;
-  allowAddToCustomList: boolean;
 }>;
 
 function LocationRowImpl({
-  allowAddToCustomList,
   level,
   onSelect,
   selectedElementRef,
   children,
 }: Omit<LocationRowProps, 'location'>) {
   const { location } = useLocationRowContext();
+  const { customLists } = useCustomLists();
 
   const childLocations = getLocationChildrenByType(location);
   const hasChildren = childLocations.some((child) => child.visible);
@@ -67,7 +67,9 @@ function LocationRowImpl({
           </LocationListItem.HeaderTrigger>
 
           <LocationListItem.HeaderTrailingActions>
-            {allowAddToCustomList && location.type !== 'customList' ? (
+            {customLists.length > 0 &&
+            location.type !== 'customList' &&
+            !location.details.customList ? (
               <AddToCustomListButton location={location} />
             ) : null}
 
@@ -123,7 +125,6 @@ export default React.memo(LocationRow, compareProps);
 function compareProps(oldProps: LocationRowProps, nextProps: LocationRowProps): boolean {
   return (
     oldProps.onSelect === nextProps.onSelect &&
-    oldProps.allowAddToCustomList === nextProps.allowAddToCustomList &&
     compareLocation(oldProps.location, nextProps.location)
   );
 }

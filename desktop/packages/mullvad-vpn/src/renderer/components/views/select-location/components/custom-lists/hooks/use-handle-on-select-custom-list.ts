@@ -1,12 +1,12 @@
 import React from 'react';
 
 import type { RelayLocation } from '../../../../../../../shared/daemon-rpc-types';
-import { useOnSelectEntryLocation, useOnSelectExitLocation } from '../../../hooks';
+import { useHandleSelectEntryLocation, useHandleSelectExitLocation } from '../../../hooks';
 import { useCustomListsContext } from '../CustomListsContext';
 
 export function useHandleOnSelectCustomList() {
-  const [onSelectExitRelay] = useOnSelectExitLocation();
-  const [onSelectEntryRelay] = useOnSelectEntryLocation();
+  const handleSelectExitRelay = useHandleSelectExitLocation();
+  const handleSelectEntryRelay = useHandleSelectEntryLocation();
   const { locationSelection } = useCustomListsContext();
 
   return React.useCallback(
@@ -17,11 +17,11 @@ export function useHandleOnSelectCustomList() {
         delete location.customList;
       }
       if (locationSelection === 'entry') {
-        await onSelectEntryRelay(location);
+        await handleSelectEntryRelay(location);
       } else {
-        await onSelectExitRelay(location);
+        await handleSelectExitRelay(location);
       }
     },
-    [locationSelection, onSelectEntryRelay, onSelectExitRelay],
+    [locationSelection, handleSelectEntryRelay, handleSelectExitRelay],
   );
 }
