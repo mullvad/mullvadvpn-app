@@ -1,17 +1,11 @@
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback } from 'react';
 import { sprintf } from 'sprintf-js';
 
 import { compareRelayLocation, RelayLocation } from '../../../../../../shared/daemon-rpc-types';
 import { messages } from '../../../../../../shared/gettext';
 import type { ListItemProps } from '../../../../../lib/components/list-item';
 import { LocationListItem } from '../../../../location-list-item';
-import {
-  type CitySpecification,
-  type CountrySpecification,
-  getLocationChildren,
-  type LocationSpecification,
-  type RelaySpecification,
-} from '../../select-location-types';
+import { type AnyLocation, getLocationChildrenByType } from '../../select-location-types';
 import {
   AddToCustomListButton,
   DeleteCustomListButton,
@@ -20,98 +14,83 @@ import {
 } from './components';
 import { LocationRowProvider, useLocationRowContext } from './LocationRowContext';
 
-interface IProps<C extends LocationSpecification> {
-  source: C;
+export type LocationRowProps = React.PropsWithChildren<{
+  location: AnyLocation;
   level: ListItemProps['level'];
   selectedElementRef: React.Ref<HTMLDivElement>;
   onSelect: (value: RelayLocation) => void;
-  onExpand: (location: RelayLocation) => void;
-  onCollapse: (location: RelayLocation) => void;
   allowAddToCustomList: boolean;
-  onWillExpand: (
-    locationRect: DOMRect,
-    expandedContentHeight: number,
-    invokedByUser: boolean,
-  ) => void;
-  onTransitionEnd: () => void;
-  children?: C extends RelaySpecification
-    ? never
-    : React.ReactElement<
-        IProps<C extends CountrySpecification ? CitySpecification : RelaySpecification>
-      >[];
-}
+}>;
 
-function LocationRowImpl(props: Omit<IProps<LocationSpecification>, 'source'>) {
-  const { onSelect } = props;
-  const { source } = useLocationRowContext();
+function LocationRowImpl({
+  allowAddToCustomList,
+  level,
+  onSelect,
+  selectedElementRef,
+  children,
+}: Omit<LocationRowProps, 'location'>) {
+  const { location } = useLocationRowContext();
 
-  const children = getLocationChildren(source);
-  const hasChildren = children.some((child) => child.visible);
-  const userInvokedExpand = useRef(false);
+  const childLocations = getLocationChildrenByType(location);
+  const hasChildren = childLocations.some((child) => child.visible);
 
-  // Expand/collapse should only be available if the expanded property is provided in the location
-  const expanded = 'expanded' in source ? source.expanded : undefined;
-  const handleExpandedChange = React.useCallback(() => {
-    if (expanded !== undefined && hasChildren) {
-      userInvokedExpand.current = true;
-      const callback = expanded ? props.onCollapse : props.onExpand;
-      callback(source.location);
-    }
-  }, [expanded, hasChildren, props.onCollapse, props.onExpand, source.location]);
+  const [expanded, setExpanded] = React.useState(location.expanded ?? false);
 
   const handleClick = useCallback(() => {
-    if (!source.selected) {
-      onSelect(source.location);
+    if (!location.selected) {
+      onSelect(location.details);
     }
-  }, [onSelect, source]);
+  }, [onSelect, location]);
 
-  if (!source.visible) {
+  if (!location.visible) {
     return null;
   }
 
   // The selectedRef should only be used if the element is selected
-  const selectedRef = source.selected ? props.selectedElementRef : undefined;
+  const selectedRef = location.selected ? selectedElementRef : undefined;
   return (
-    <LocationListItem selected={source.selected}>
+    <LocationListItem selected={location.selected}>
       <LocationListItem.Accordion
         expanded={expanded}
-        onExpandedChange={handleExpandedChange}
-        disabled={source.disabled}>
-        <LocationListItem.Header ref={selectedRef} level={props.level}>
+        onExpandedChange={setExpanded}
+        disabled={location.disabled}>
+        <LocationListItem.Header ref={selectedRef} level={level}>
           <LocationListItem.HeaderTrigger
             onClick={handleClick}
-            disabled={source.disabled}
+            disabled={location.disabled}
             aria-label={sprintf(messages.pgettext('accessibility', 'Connect to %(location)s'), {
-              location: source.label,
+              location: location.label,
             })}>
             <LocationListItem.HeaderItem>
-              <LocationListItem.Title>{source.label}</LocationListItem.Title>
+              <LocationListItem.Title>{location.label}</LocationListItem.Title>
             </LocationListItem.HeaderItem>
           </LocationListItem.HeaderTrigger>
 
           <LocationListItem.HeaderTrailingActions>
-            {props.allowAddToCustomList ? <AddToCustomListButton /> : null}
+            {allowAddToCustomList && location.type !== 'customList' ? (
+              <AddToCustomListButton location={location} />
+            ) : null}
 
             {/* Show remove from custom list button if location is top level item in a custom list. */}
-            {'customList' in source.location &&
-            'country' in source.location &&
-            props.level === 1 ? (
-              <RemoveFromCustomListButton />
+            {location.type !== 'customList' &&
+            location.details.customList !== undefined &&
+            level === 1 ? (
+              <RemoveFromCustomListButton location={location} />
             ) : null}
             {/* Show buttons for editing and removing a custom list */}
-            {'customList' in source.location && !('country' in source.location) ? (
+            {location.type === 'customList' ? (
               <>
-                <EditCustomListButton />
-                <DeleteCustomListButton />
+                <EditCustomListButton customList={location} />
+                <DeleteCustomListButton customList={location} />
               </>
             ) : null}
-            {hasChildren || ('customList' in source.location && !('country' in source.location)) ? (
+            {hasChildren || location.type === 'customList' ? (
               <LocationListItem.AccordionTrigger
                 aria-label={sprintf(
-                  expanded === true
+                  location.expanded === true
                     ? messages.pgettext('accessibility', 'Collapse %(location)s')
                     : messages.pgettext('accessibility', 'Expand %(location)s'),
-                  { location: source.label },
+                  { location: location.label },
                 )}>
                 <LocationListItem.HeaderTrailingAction>
                   <LocationListItem.Icon />
@@ -122,16 +101,16 @@ function LocationRowImpl(props: Omit<IProps<LocationSpecification>, 'source'>) {
         </LocationListItem.Header>
 
         {hasChildren && (
-          <LocationListItem.AccordionContent>{props.children}</LocationListItem.AccordionContent>
+          <LocationListItem.AccordionContent>{children}</LocationListItem.AccordionContent>
         )}
       </LocationListItem.Accordion>
     </LocationListItem>
   );
 }
 
-function LocationRow({ source, ...props }: IProps<LocationSpecification>) {
+function LocationRow({ location, ...props }: LocationRowProps) {
   return (
-    <LocationRowProvider source={source}>
+    <LocationRowProvider location={location}>
       <LocationRowImpl {...props} />
     </LocationRowProvider>
   );
@@ -141,43 +120,33 @@ function LocationRow({ source, ...props }: IProps<LocationSpecification>) {
 // a lot more work than necessary
 export default React.memo(LocationRow, compareProps);
 
-function compareProps<C extends LocationSpecification>(
-  oldProps: IProps<C>,
-  nextProps: IProps<C>,
-): boolean {
+function compareProps(oldProps: LocationRowProps, nextProps: LocationRowProps): boolean {
   return (
     oldProps.onSelect === nextProps.onSelect &&
-    oldProps.onExpand === nextProps.onExpand &&
-    oldProps.onCollapse === nextProps.onCollapse &&
-    oldProps.onWillExpand === nextProps.onWillExpand &&
-    oldProps.onTransitionEnd === nextProps.onTransitionEnd &&
     oldProps.allowAddToCustomList === nextProps.allowAddToCustomList &&
-    compareLocation(oldProps.source, nextProps.source)
+    compareLocation(oldProps.location, nextProps.location)
   );
 }
 
-function compareLocation(
-  oldLocation: LocationSpecification,
-  nextLocation: LocationSpecification,
-): boolean {
+function compareLocation(oldLocation: AnyLocation, nextLocation: AnyLocation): boolean {
   return (
     oldLocation.visible === nextLocation.visible &&
     oldLocation.label === nextLocation.label &&
-    oldLocation.active === nextLocation.active &&
     oldLocation.disabled === nextLocation.disabled &&
     oldLocation.selected === nextLocation.selected &&
-    compareRelayLocation(oldLocation.location, nextLocation.location) &&
+    compareRelayLocation(oldLocation.details, nextLocation.details) &&
     compareExpanded(oldLocation, nextLocation) &&
     compareChildren(oldLocation, nextLocation)
   );
 }
 
-function compareChildren(
-  oldLocation: LocationSpecification,
-  nextLocation: LocationSpecification,
-): boolean {
-  const oldVisibleChildren = getLocationChildren(oldLocation).filter((child) => child.visible);
-  const nextVisibleChildren = getLocationChildren(nextLocation).filter((child) => child.visible);
+function compareChildren(oldLocation: AnyLocation, nextLocation: AnyLocation): boolean {
+  const oldVisibleChildren = getLocationChildrenByType(oldLocation).filter(
+    (child) => child.visible,
+  );
+  const nextVisibleChildren = getLocationChildrenByType(nextLocation).filter(
+    (child) => child.visible,
+  );
 
   // Children shouldn't be checked if the row is collapsed
   const nextExpanded = 'expanded' in nextLocation && nextLocation.expanded;
@@ -189,10 +158,7 @@ function compareChildren(
   );
 }
 
-function compareExpanded(
-  oldLocation: LocationSpecification,
-  nextLocation: LocationSpecification,
-): boolean {
+function compareExpanded(oldLocation: AnyLocation, nextLocation: AnyLocation): boolean {
   const oldExpanded = 'expanded' in oldLocation && oldLocation.expanded;
   const nextExpanded = 'expanded' in nextLocation && nextLocation.expanded;
   return oldExpanded === nextExpanded;

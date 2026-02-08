@@ -6,32 +6,27 @@ import log from '../../../../../../shared/logging';
 import { useCustomLists } from '../../../../../features/location/hooks';
 import { Dialog, type DialogProps } from '../../../../../lib/components/dialog';
 import { formatHtml } from '../../../../../lib/html-formatter';
-import { useLocationRowContext } from '../location-row/LocationRowContext';
+import { type CustomListLocation } from '../../select-location-types';
 
-type DeleteConfirmDialogProps = Omit<DialogProps, 'children'>;
+type DeleteConfirmDialogProps = Omit<DialogProps, 'children'> & {
+  customList: CustomListLocation;
+};
 
-export function DeleteConfirmDialog({ open, onOpenChange }: DeleteConfirmDialogProps) {
+export function DeleteConfirmDialog({ customList, open, onOpenChange }: DeleteConfirmDialogProps) {
   const { deleteCustomList } = useCustomLists();
-  const { source } = useLocationRowContext();
 
   const handleConfirm = React.useCallback(async () => {
-    if (source.location.customList) {
-      try {
-        await deleteCustomList(source.location.customList);
-      } catch (e) {
-        const error = e as Error;
-        log.error(`Failed to delete custom list ${source.location.customList}: ${error.message}`);
-      }
+    try {
+      await deleteCustomList(customList.details.customList);
+    } catch (e) {
+      const error = e as Error;
+      log.error(`Failed to delete custom list ${customList.details.customList}: ${error.message}`);
     }
-  }, [deleteCustomList, source.location.customList]);
+  }, [customList.details.customList, deleteCustomList]);
 
   const handleCancel = React.useCallback(() => {
     onOpenChange?.(false);
   }, [onOpenChange]);
-
-  if (!('list' in source)) {
-    return;
-  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -44,9 +39,9 @@ export function DeleteConfirmDialog({ open, onOpenChange }: DeleteConfirmDialogP
                 sprintf(
                   messages.pgettext(
                     'select-location-view',
-                    'Do you want to delete the list <b>%(list)s</b>?',
+                    'Do you want to delete the list %(list)s?',
                   ),
-                  { list: source.list.name },
+                  { list: customList.label },
                 ),
               )}
             </Dialog.Text>
