@@ -4,26 +4,15 @@ import styled from 'styled-components';
 import { type RelayLocation as RelayLocationType } from '../../../../../../shared/daemon-rpc-types';
 import { FlexColumn } from '../../../../../lib/components/flex-column';
 import { spacings } from '../../../../../lib/foundations';
-import { type RelayList } from '../../select-location-types';
+import { type AnyLocation } from '../../select-location-types';
 import { RelayLocation } from '../relay-location';
 
-interface CommonProps {
+export type RelayLocationListProps = {
+  locations: AnyLocation[];
   selectedElementRef: React.Ref<HTMLDivElement>;
   allowAddToCustomList: boolean;
   onSelect: (value: RelayLocationType) => void;
-  onExpand: (location: RelayLocationType) => void;
-  onCollapse: (location: RelayLocationType) => void;
-  onWillExpand: (
-    locationRect: DOMRect,
-    expandedContentHeight: number,
-    invokedByUser: boolean,
-  ) => void;
-  onTransitionEnd: () => void;
-}
-
-interface RelayLocationsProps extends CommonProps {
-  source: RelayList;
-}
+};
 
 const StyledLocationContainer = styled.div`
   // If the container has children, add spacing between them
@@ -32,20 +21,16 @@ const StyledLocationContainer = styled.div`
   }
 `;
 
-export function RelayLocationList({ source, ...props }: RelayLocationsProps) {
+export function RelayLocationList({ locations, ...props }: RelayLocationListProps) {
   return (
     <FlexColumn>
-      {source.map((country) => {
+      {locations.map((location) => {
         return (
-          <StyledLocationContainer key={getLocationKey(country.location)}>
-            <RelayLocation source={country} level={0} {...props} />
+          <StyledLocationContainer key={Object.values(location.details).join('-')}>
+            <RelayLocation location={location} level={0} {...props} />
           </StyledLocationContainer>
         );
       })}
     </FlexColumn>
   );
-}
-
-function getLocationKey(location: RelayLocationType): string {
-  return Object.values(location).join('-');
 }

@@ -281,10 +281,10 @@ function ownershipFilterLabel(ownership: Ownership): string {
 
 function SelectLocationContent() {
   const { locationType, searchTerm } = useSelectLocationViewContext();
-  const { selectedLocationRef, resetHeight } = useScrollPositionContext();
-  const { relayList, expandLocation, collapseLocation, onBeforeExpand } = useRelayListContext();
-  const [onSelectExitRelay, onSelectExitSpecial] = useOnSelectExitLocation();
-  const [onSelectEntryRelay, onSelectEntrySpecial] = useOnSelectEntryLocation();
+  const { selectedLocationRef } = useScrollPositionContext();
+  const { relayList } = useRelayListContext();
+  const [onSelectExitRelay] = useOnSelectExitLocation();
+  const [onSelectEntryRelay] = useOnSelectEntryLocation();
 
   const daita = useSelector((state) => state.settings.wireguard.daita?.enabled ?? false);
   const directOnly = useSelector((state) => state.settings.wireguard.daita?.directOnly ?? false);
@@ -311,15 +311,9 @@ function SelectLocationContent() {
         <CustomLists locationSelection="exit" selectedElementRef={selectedLocationRef} />
         <LocationList
           key={locationType}
-          relayLocations={relayList}
-          specialLocations={specialLocations}
+          locations={relayList}
           selectedElementRef={selectedLocationRef}
-          onSelectRelay={onSelectExitRelay}
-          onSelectSpecial={onSelectExitSpecial}
-          onExpand={expandLocation}
-          onCollapse={collapseLocation}
-          onWillExpand={onBeforeExpand}
-          onTransitionEnd={resetHeight}
+          onSelect={onSelectExitRelay}
           allowAddToCustomList={allowAddToCustomList}
         />
         <NoSearchResult specialLocationsLength={specialLocations.length} />
@@ -335,14 +329,9 @@ function SelectLocationContent() {
         <CustomLists locationSelection="entry" selectedElementRef={selectedLocationRef} />
         <LocationList
           key={locationType}
-          relayLocations={relayList}
+          locations={relayList}
           selectedElementRef={selectedLocationRef}
-          onSelectRelay={onSelectEntryRelay}
-          onSelectSpecial={onSelectEntrySpecial}
-          onExpand={expandLocation}
-          onCollapse={collapseLocation}
-          onWillExpand={onBeforeExpand}
-          onTransitionEnd={resetHeight}
+          onSelect={onSelectEntryRelay}
           allowAddToCustomList={allowAddToCustomList}
         />
         <NoSearchResult specialLocationsLength={0} />

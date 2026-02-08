@@ -2,17 +2,16 @@ import React from 'react';
 
 import { LocationListItem } from '../../../../../../location-list-item';
 import type { LocationListItemIconButtonProps } from '../../../../../../location-list-item/components';
+import type { GeographicalLocation } from '../../../../select-location-types';
 import { AddToListDialog } from '../../../add-to-list-dialog';
-import { useLocationRowContext } from '../../LocationRowContext';
 
-export type AddToCustomListButtonProps = LocationListItemIconButtonProps;
+export type AddToCustomListButtonProps = LocationListItemIconButtonProps & {
+  location: GeographicalLocation;
+};
 
-export function AddToCustomListButton(props: AddToCustomListButtonProps) {
+export function AddToCustomListButton({ location, ...props }: AddToCustomListButtonProps) {
   const [open, setOpen] = React.useState(false);
   const show = React.useCallback(() => setOpen(true), []);
-  const {
-    source: { location },
-  } = useLocationRowContext();
 
   return (
     <>
@@ -22,9 +21,7 @@ export function AddToCustomListButton(props: AddToCustomListButtonProps) {
         </LocationListItem.IconButton>
       </LocationListItem.HeaderTrailingAction>
 
-      {'country' in location && (
-        <AddToListDialog open={open} onOpenChange={setOpen} location={location} />
-      )}
+      <AddToListDialog open={open} onOpenChange={setOpen} location={location} />
     </>
   );
 }

@@ -1,6 +1,6 @@
 import React from 'react';
 
-import type { LocationSpecification } from '../../select-location-types';
+import type { AnyLocation } from '../../select-location-types';
 
 type LocationRowContextProps = Omit<LocationRowProviderProps, 'children'>;
 
@@ -15,12 +15,12 @@ export const useLocationRowContext = (): LocationRowContextProps => {
 };
 
 type LocationRowProviderProps = React.PropsWithChildren<{
-  source: LocationSpecification;
+  location: AnyLocation;
 }>;
 
-export function LocationRowProvider({ source, children, ...props }: LocationRowProviderProps) {
+export function LocationRowProvider({ location, children, ...props }: LocationRowProviderProps) {
   return (
-    <LocationRowContext.Provider value={{ source, ...props }}>
+    <LocationRowContext.Provider value={{ location, ...props }}>
       {children}
     </LocationRowContext.Provider>
   );

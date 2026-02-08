@@ -2,16 +2,12 @@ import { messages } from '../../../../../../shared/gettext';
 import { FlexColumn } from '../../../../../lib/components/flex-column';
 import { SectionTitle } from '../../../../../lib/components/section-title';
 import { useSelectLocationViewContext } from '../../SelectLocationViewContext';
-import { CombinedLocationList, type CombinedLocationListProps } from '../combined-location-list';
+import { RelayLocationList, type RelayLocationListProps } from '../relay-location-list';
 
-export function LocationList<T>(props: CombinedLocationListProps<T>) {
+export function LocationList({ locations, onSelect, ...props }: RelayLocationListProps) {
   const { searchTerm } = useSelectLocationViewContext();
 
-  if (
-    searchTerm !== '' &&
-    !props.relayLocations.some((country) => country.visible) &&
-    (props.specialLocations === undefined || props.specialLocations.length === 0)
-  ) {
+  if (searchTerm !== '' && !locations.some((location) => location.visible)) {
     return null;
   } else {
     return (
@@ -22,7 +18,7 @@ export function LocationList<T>(props: CombinedLocationListProps<T>) {
           </SectionTitle.Title>
           <SectionTitle.Divider />
         </SectionTitle>
-        <CombinedLocationList {...props} />
+        <RelayLocationList locations={locations} onSelect={onSelect} {...props} />
       </FlexColumn>
     );
   }

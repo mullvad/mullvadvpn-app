@@ -3,7 +3,7 @@ import React, { useCallback, useContext, useEffect, useMemo, useState } from 're
 import {
   compareRelayLocation,
   ObfuscationType,
-  RelayLocation,
+  RelayLocation as DaemonRelayLocation,
 } from '../../../../shared/daemon-rpc-types';
 import {
   filterLocations,
@@ -29,21 +29,24 @@ import {
   isSelected,
 } from './select-location-helpers';
 import {
-  CustomListSpecification,
+  type AnyLocation,
+  type CityLocation,
+  type CountryLocation,
+  type CustomListLocation,
   DisabledReason,
-  GeographicalRelayList,
   LocationType,
+  type RelayLocation,
   RelayLocationCountryWithVisibility,
 } from './select-location-types';
 import { useSelectLocationViewContext } from './SelectLocationViewContext';
 
 // Context containing the relay list and related data and callbacks
 interface RelayListContext {
-  relayList: GeographicalRelayList;
-  customLists: Array<CustomListSpecification>;
-  expandedLocations?: Array<RelayLocation>;
-  expandLocation: (location: RelayLocation) => void;
-  collapseLocation: (location: RelayLocation) => void;
+  relayList: CountryLocation[];
+  customLists: CustomListLocation[];
+  expandedLocations?: Array<DaemonRelayLocation>;
+  expandLocation: (location: AnyLocation) => void;
+  collapseLocation: (location: AnyLocation) => void;
   onBeforeExpand: (
     locationRect: DOMRect,
     expandedContentHeight: number,
@@ -52,7 +55,7 @@ interface RelayListContext {
   expandSearchResults: (searchTerm: string) => void;
 }
 
-type ExpandedLocations = Partial<Record<LocationType, Array<RelayLocation>>>;
+type ExpandedLocations = Partial<Record<LocationType, Array<DaemonRelayLocation>>>;
 
 export const relayListContext = React.createContext<RelayListContext | undefined>(undefined);
 
@@ -147,14 +150,14 @@ export function RelayListContextProvider(props: RelayListContextProviderProps) {
 // where processing of the relay list is performed.
 function useRelayList(
   relayList: Array<RelayLocationCountryWithVisibility>,
-  expandedLocations?: Array<RelayLocation>,
-): GeographicalRelayList {
+  expandedLocations?: Array<DaemonRelayLocation>,
+): CountryLocation[] {
   const locale = useSelector((state) => state.userInterface.locale);
   const selectedLocation = useSelectedLocation();
   const disabledLocation = useDisabledLocation();
 
   const isLocationSelected = useCallback(
-    (location: RelayLocation) => {
+    (location: DaemonRelayLocation) => {
       return isSelected(location, selectedLocation);
     },
     [selectedLocation],
@@ -166,56 +169,82 @@ function useRelayList(
         const countryLocation = { country: country.code };
         const countryDisabledReason = isCountryDisabled(country, countryLocation, disabledLocation);
 
-        return {
-          ...country,
+        const cities = country.cities
+          .map((city) => {
+            const relays = city.relays
+              .map((relay) => {
+                const relayLocation: DaemonRelayLocation = {
+                  country: country.code,
+                  city: city.code,
+                  hostname: relay.hostname,
+                };
+                const relayDisabledReason =
+                  countryDisabledReason ??
+                  isCityDisabled(
+                    city,
+                    { country: country.code, city: city.code },
+                    disabledLocation,
+                  ) ??
+                  isRelayDisabled(relay, relayLocation, disabledLocation);
+
+                const mappedRelay: RelayLocation = {
+                  type: 'relay',
+                  label: formatRowName(relay.hostname, relayLocation, relayDisabledReason),
+                  details: {
+                    country: country.code,
+                    city: city.code,
+                    hostname: relay.hostname,
+                  },
+                  active: relayDisabledReason !== DisabledReason.inactive,
+                  disabled: relayDisabledReason !== undefined,
+                  disabledReason: relayDisabledReason,
+                  expanded: isExpanded(relayLocation, expandedLocations),
+                  selected: isLocationSelected(relayLocation),
+                  visible: relay.visible,
+                };
+                return mappedRelay;
+              })
+              .sort((a, b) => a.label.localeCompare(b.label, locale, { numeric: true }));
+
+            const cityLocation: DaemonRelayLocation = { country: country.code, city: city.code };
+            const cityDisabledReason =
+              countryDisabledReason ?? isCityDisabled(city, cityLocation, disabledLocation);
+
+            const mappedCity: CityLocation = {
+              type: 'city',
+              label: formatRowName(city.name, cityLocation, cityDisabledReason),
+              details: {
+                city: city.code,
+                country: country.code,
+              },
+              active: cityDisabledReason !== DisabledReason.inactive,
+              disabled: cityDisabledReason !== undefined,
+              disabledReason: cityDisabledReason,
+              expanded: isExpanded(cityLocation, expandedLocations),
+              selected: isLocationSelected(cityLocation),
+              visible: city.visible,
+              relays,
+            };
+            return mappedCity;
+          })
+          .sort((a, b) => a.label.localeCompare(b.label, locale));
+
+        const mappedCountry: CountryLocation = {
+          type: 'country',
           label: formatRowName(country.name, countryLocation, countryDisabledReason),
-          location: countryLocation,
+          details: {
+            country: country.code,
+          },
           active: countryDisabledReason !== DisabledReason.inactive,
           disabled: countryDisabledReason !== undefined,
           disabledReason: countryDisabledReason,
           expanded: isExpanded(countryLocation, expandedLocations),
           selected: isLocationSelected(countryLocation),
-          cities: country.cities
-            .map((city) => {
-              const cityLocation: RelayLocation = { country: country.code, city: city.code };
-              const cityDisabledReason =
-                countryDisabledReason ?? isCityDisabled(city, cityLocation, disabledLocation);
-
-              return {
-                ...city,
-                label: formatRowName(city.name, cityLocation, cityDisabledReason),
-                location: cityLocation,
-                active: cityDisabledReason !== DisabledReason.inactive,
-                disabled: cityDisabledReason !== undefined,
-                disabledReason: cityDisabledReason,
-                expanded: isExpanded(cityLocation, expandedLocations),
-                selected: isLocationSelected(cityLocation),
-                relays: city.relays
-                  .map((relay) => {
-                    const relayLocation: RelayLocation = {
-                      country: country.code,
-                      city: city.code,
-                      hostname: relay.hostname,
-                    };
-                    const relayDisabledReason =
-                      countryDisabledReason ??
-                      cityDisabledReason ??
-                      isRelayDisabled(relay, relayLocation, disabledLocation);
-
-                    return {
-                      ...relay,
-                      label: formatRowName(relay.hostname, relayLocation, relayDisabledReason),
-                      location: relayLocation,
-                      disabled: relayDisabledReason !== undefined,
-                      disabledReason: relayDisabledReason,
-                      selected: isLocationSelected(relayLocation),
-                    };
-                  })
-                  .sort((a, b) => a.hostname.localeCompare(b.hostname, locale, { numeric: true })),
-              };
-            })
-            .sort((a, b) => a.label.localeCompare(b.label, locale)),
+          visible: country.visible,
+          cities,
         };
+
+        return mappedCountry;
       })
       .sort((a, b) => a.label.localeCompare(b.label, locale));
   }, [locale, expandedLocations, relayList, disabledLocation, isLocationSelected]);
@@ -234,7 +263,7 @@ function useExpandedLocations(filteredLocations: Array<IRelayLocationCountryRedu
   );
 
   const expandLocation = useCallback(
-    (location: RelayLocation) => {
+    (location: AnyLocation) => {
       setExpandedLocations((expandedLocations) => ({
         ...expandedLocations,
         [locationType]: [...(expandedLocations[locationType] ?? []), location],
@@ -244,11 +273,11 @@ function useExpandedLocations(filteredLocations: Array<IRelayLocationCountryRedu
   );
 
   const collapseLocation = useCallback(
-    (location: RelayLocation) => {
+    (location: AnyLocation) => {
       setExpandedLocations((expandedLocations) => ({
         ...expandedLocations,
         [locationType]: expandedLocations[locationType]!.filter(
-          (item) => !compareRelayLocation(location, item),
+          (item) => !compareRelayLocation(location.details, item),
         ),
       }));
     },

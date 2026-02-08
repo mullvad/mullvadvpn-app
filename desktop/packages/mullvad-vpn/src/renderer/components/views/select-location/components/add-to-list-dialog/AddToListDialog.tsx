@@ -1,16 +1,16 @@
 import React from 'react';
 import { sprintf } from 'sprintf-js';
 
-import { RelayLocationGeographical } from '../../../../../../shared/daemon-rpc-types';
 import { messages } from '../../../../../../shared/gettext';
 import { useCustomLists } from '../../../../../features/location/hooks';
 import { Dialog, type DialogProps } from '../../../../../lib/components/dialog';
 import { FlexColumn } from '../../../../../lib/components/flex-column';
 import { formatHtml } from '../../../../../lib/html-formatter';
+import type { GeographicalLocation } from '../../select-location-types';
 import { SelectList } from '../select-list';
 
 type AddToListDialogProps = Omit<DialogProps, 'children'> & {
-  location: RelayLocationGeographical;
+  location: GeographicalLocation;
 };
 
 export function AddToListDialog({ location, onOpenChange, open }: AddToListDialogProps) {
@@ -21,11 +21,11 @@ export function AddToListDialog({ location, onOpenChange, open }: AddToListDialo
   }, [onOpenChange]);
 
   let locationType: string;
-  if ('hostname' in location) {
+  if (location.type === 'relay') {
     locationType =
       // TRANSLATORS: This refers to our VPN relays/servers
       messages.pgettext('select-location-view', 'Relay');
-  } else if ('city' in location) {
+  } else if (location.type === 'city') {
     locationType = messages.pgettext('select-location-view', 'City');
   } else {
     locationType = messages.pgettext('select-location-view', 'Country');

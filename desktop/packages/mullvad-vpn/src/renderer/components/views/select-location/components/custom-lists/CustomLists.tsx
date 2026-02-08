@@ -5,7 +5,6 @@ import { Text } from '../../../../../lib/components';
 import { Accordion } from '../../../../../lib/components/accordion';
 import { FlexColumn } from '../../../../../lib/components/flex-column';
 import { useRelayListContext } from '../../RelayListContext';
-import { useScrollPositionContext } from '../../ScrollPositionContext';
 import { AddListForm } from '../add-list-form/AddListForm';
 import { RelayLocationList } from '../relay-location-list';
 import { CustomListsSectionTitle } from './components';
@@ -21,8 +20,7 @@ export type CustomListsProps = {
 };
 
 function CustomListsImpl({ selectedElementRef }: Pick<CustomListsProps, 'selectedElementRef'>) {
-  const { customLists, expandLocation, collapseLocation, onBeforeExpand } = useRelayListContext();
-  const { resetHeight } = useScrollPositionContext();
+  const { customLists } = useRelayListContext();
   const { addFormVisible } = useCustomListsContext();
   const handleOnSelect = useHandleOnSelectCustomList();
   const hasNoCustomListsInSearchResult = useHasNoCustomListsInSearchResult();
@@ -45,13 +43,9 @@ function CustomListsImpl({ selectedElementRef }: Pick<CustomListsProps, 'selecte
 
         {hasCustomLists && (
           <RelayLocationList
-            source={customLists}
-            onExpand={expandLocation}
-            onCollapse={collapseLocation}
-            onWillExpand={onBeforeExpand}
+            locations={customLists}
             selectedElementRef={selectedElementRef}
             onSelect={handleOnSelect}
-            onTransitionEnd={resetHeight}
             allowAddToCustomList={false}
           />
         )}

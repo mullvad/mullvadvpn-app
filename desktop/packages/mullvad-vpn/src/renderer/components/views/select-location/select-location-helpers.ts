@@ -18,7 +18,7 @@ import {
   IRelayLocationRelayRedux,
   NormalRelaySettingsRedux,
 } from '../../../redux/settings/reducers';
-import { DisabledReason, LocationSpecification, LocationType } from './select-location-types';
+import { DisabledReason, type GeographicalLocation, LocationType } from './select-location-types';
 
 export function isSelected(
   relayLocation: RelayLocation,
@@ -182,7 +182,7 @@ export function isCountryDisabled(
 
 export function isCustomListDisabled(
   location: RelayLocationCustomList,
-  locations: Array<LocationSpecification>,
+  locations: GeographicalLocation[],
   disabledLocation?: { location: RelayLocation; reason: DisabledReason },
 ) {
   const locationsDisabled = locations.map((location) => location.disabledReason);
