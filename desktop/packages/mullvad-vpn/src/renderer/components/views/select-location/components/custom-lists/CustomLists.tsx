@@ -46,7 +46,6 @@ function CustomListsImpl({ selectedElementRef }: Pick<CustomListsProps, 'selecte
             locations={customLists}
             selectedElementRef={selectedElementRef}
             onSelect={handleOnSelect}
-            allowAddToCustomList={false}
           />
         )}
 
