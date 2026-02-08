@@ -3,11 +3,11 @@ import { useMemo } from 'react';
 import {
   compareRelayLocationGeographical,
   ICustomList,
-  RelayLocation,
+  RelayLocation as DaemonRelayLocation,
 } from '../../../../../shared/daemon-rpc-types';
 import { hasValue } from '../../../../../shared/utils';
+import { useCustomLists } from '../../../../features/location/hooks';
 import { searchMatch } from '../../../../lib/filter-locations';
-import { useSelector } from '../../../../redux/store';
 import {
   formatRowName,
   isCustomListDisabled,
@@ -15,40 +15,39 @@ import {
   isSelected,
 } from '../select-location-helpers';
 import {
-  CitySpecification,
-  CountrySpecification,
-  CustomListSpecification,
+  type CityLocation,
+  type CountryLocation,
+  type CustomListLocation,
   DisabledReason,
-  GeographicalRelayList,
-  RelaySpecification,
+  type GeographicalLocation,
+  type RelayLocation,
 } from '../select-location-types';
 import { useSelectLocationViewContext } from '../SelectLocationViewContext';
 import { useDisabledLocation } from './use-disabled-location';
 import { useSelectedLocation } from './use-selected-location';
 
-// Hook that generates the custom lists relay list.
 export function useCustomListsRelayList(
-  relayList: GeographicalRelayList,
-  expandedLocations?: Array<RelayLocation>,
+  relayList: CountryLocation[],
+  expandedLocations?: DaemonRelayLocation[],
 ) {
   const disabledLocation = useDisabledLocation();
   const selectedLocation = useSelectedLocation();
   const { searchTerm } = useSelectLocationViewContext();
-  const customLists = useSelector((state) => state.settings.customLists);
+  const { customLists } = useCustomLists();
 
   // Populate all custom lists with the real location trees for the list locations.
   return useMemo(
     () =>
-      customLists.map((list) =>
-        prepareCustomList(
+      customLists.map((list) => {
+        return prepareCustomList(
           list,
           relayList,
           searchTerm,
           selectedLocation,
           disabledLocation,
           expandedLocations,
-        ),
-      ),
+        );
+      }),
     [customLists, relayList, searchTerm, selectedLocation, disabledLocation, expandedLocations],
   );
 }
@@ -56,21 +55,23 @@ export function useCustomListsRelayList(
 // Creates a CustomListSpecification from a ICustomList.
 function prepareCustomList(
   list: ICustomList,
-  fullRelayList: GeographicalRelayList,
+  fullRelayList: CountryLocation[],
   searchTerm: string,
-  selectedLocation?: RelayLocation,
-  disabledLocation?: { location: RelayLocation; reason: DisabledReason },
-  expandedLocations?: Array<RelayLocation>,
-): CustomListSpecification {
+  selectedLocation?: DaemonRelayLocation,
+  disabledLocation?: { location: DaemonRelayLocation; reason: DisabledReason },
+  expandedLocations?: DaemonRelayLocation[],
+): CustomListLocation {
   const location = { customList: list.id };
   const locations = prepareLocations(list, fullRelayList, expandedLocations, disabledLocation);
 
   const disabledReason = isCustomListDisabled(location, locations, disabledLocation);
 
   return {
+    type: 'customList',
+    details: {
+      customList: list.id,
+    },
     label: formatRowName(list.name, location, disabledReason),
-    list,
-    location,
     active: disabledReason !== DisabledReason.inactive,
     disabled: disabledReason !== undefined,
     disabledReason,
@@ -81,42 +82,43 @@ function prepareCustomList(
   };
 }
 
-// Returns a list of CountrySpecification, CitySpecification and RelaySpecification matching the
-// contents of the custom list.
+// Returns a list of GeographicalLocations matching the contents of the custom list.
 function prepareLocations(
-  list: ICustomList,
-  fullRelayList: GeographicalRelayList,
-  expandedLocations?: Array<RelayLocation>,
-  disabledLocation?: { location: RelayLocation; reason: DisabledReason },
-) {
+  customList: ICustomList,
+  locationList: CountryLocation[],
+  expandedLocations?: Array<DaemonRelayLocation>,
+  disabledLocation?: { location: DaemonRelayLocation; reason: DisabledReason },
+): GeographicalLocation[] {
   const locationCounter = {};
 
-  return list.locations
+  return customList.locations
     .map((location) => {
       if ('hostname' in location) {
         // Search through all relays in all cities in all countries to find the matching relay.
-        const relay = fullRelayList
-          .find((country) => country.location.country === location.country)
-          ?.cities.find((city) => city.location.city === location.city)
-          ?.relays.find((relay) => relay.location.hostname === location.hostname);
+        const relay = locationList
+          .find((country) => country.details.country === location.country)
+          ?.cities.find((city) => city.details.city === location.city)
+          ?.relays.find((relay) => relay.details.hostname === location.hostname);
 
-        return relay && updateRelay(relay, list, disabledLocation);
+        return relay && updateRelay(relay, customList, disabledLocation);
       } else if ('city' in location) {
         // Search through all cities in all countries to find the matching city.
-        const city = fullRelayList
-          .find((country) => country.location.country === location.country)
-          ?.cities.find((city) => city.location.city === location.city);
+        const city = locationList
+          .find((country) => country.details.country === location.country)
+          ?.cities.find((city) => city.details.city === location.city);
 
-        return city && updateCity(city, list, locationCounter, expandedLocations, disabledLocation);
+        return (
+          city && updateCity(city, customList, locationCounter, expandedLocations, disabledLocation)
+        );
       } else {
         // Search through all countries to find the matching country.
-        const country = fullRelayList.find(
-          (country) => country.location.country === location.country,
+        const country = locationList.find(
+          (country) => country.details.country === location.country,
         );
 
         return (
           country &&
-          updateCountry(country, list, locationCounter, expandedLocations, disabledLocation)
+          updateCountry(country, customList, locationCounter, expandedLocations, disabledLocation)
         );
       }
     })
@@ -126,25 +128,26 @@ function prepareLocations(
 // Update the CountrySpecification from the original relay list to contain the correct properties
 // for the custom list list.
 function updateCountry(
-  country: CountrySpecification,
+  country: CountryLocation,
   list: ICustomList,
   locationCounter: Record<string, number>,
-  expandedLocations?: Array<RelayLocation>,
-  disabledLocation?: { location: RelayLocation; reason: DisabledReason },
-): CountrySpecification {
+  expandedLocations?: Array<DaemonRelayLocation>,
+  disabledLocation?: { location: DaemonRelayLocation; reason: DisabledReason },
+): CountryLocation {
   // Since there can be multiple instances of a location in a custom list, every instance needs to
   // be unique to avoid expanding all instances when expanding one.
-  const counterKey = `${country.location.country}`;
+  const counterKey = `${country.details.country}`;
   const count = locationCounter[counterKey] ?? 0;
   locationCounter[counterKey] = count + 1;
 
-  const location = { ...country.location, customList: list.id, count };
+  const location = { ...country, customList: list.id, count };
   return {
     ...country,
-    location,
+    type: 'country',
     expanded: isExpanded(location, expandedLocations),
     selected: false,
     visible: true,
+    details: { ...country.details, customList: list.id },
     cities: country.cities.map((city) =>
       updateCity(city, list, locationCounter, expandedLocations, disabledLocation),
     ),
@@ -154,25 +157,25 @@ function updateCountry(
 // Update the CitySpecification from the original relay list to contain the correct properties
 // for the custom list list.
 function updateCity(
-  city: CitySpecification,
+  city: CityLocation,
   list: ICustomList,
   locationCounter: Record<string, number>,
-  expandedLocations?: Array<RelayLocation>,
-  disabledLocation?: { location: RelayLocation; reason: DisabledReason },
-): CitySpecification {
+  expandedLocations?: Array<DaemonRelayLocation>,
+  disabledLocation?: { location: DaemonRelayLocation; reason: DisabledReason },
+): CityLocation {
   // Since there can be multiple instances of a location in a custom list, every instance needs to
   // be unique to avoid expanding all instances when expanding one.
-  const counterKey = `${city.location.country}_${city.location.city}`;
+  const counterKey = `${city.details.country}_${city.details.city}`;
   const count = locationCounter[counterKey] ?? 0;
   locationCounter[counterKey] = count + 1;
 
-  const location = { ...city.location, customList: list.id, count };
+  const location = { ...city, customList: list.id, count };
   return {
     ...city,
-    location,
     expanded: isExpanded(location, expandedLocations),
     selected: false,
     visible: true,
+    details: { ...city.details, customList: list.id },
     relays: city.relays.map((relay) => updateRelay(relay, list, disabledLocation)),
   };
 }
@@ -180,11 +183,11 @@ function updateCity(
 // Update the RelaySpecification from the original relay list to contain the correct properties
 // for the custom list list.
 function updateRelay(
-  relay: RelaySpecification,
+  relay: RelayLocation,
   list: ICustomList,
-  disabledLocation?: { location: RelayLocation; reason: DisabledReason },
-): RelaySpecification {
-  let disabledReason = relay.disabledReason;
+  disabledLocation?: { location: DaemonRelayLocation; reason: DisabledReason },
+): RelayLocation {
+  let { disabledReason } = relay;
 
   if (disabledLocation && disabledReason === undefined) {
     // If this relay's custom list parent is the disabled location and the
@@ -195,7 +198,7 @@ function updateRelay(
 
     // If the relay is the same as the disabled location we should respect
     // that and mark the relay as disabled
-    const isSameRelay = compareRelayLocationGeographical(relay.location, disabledLocation.location);
+    const isSameRelay = compareRelayLocationGeographical(relay.details, disabledLocation.location);
 
     if (isParentCustomListOfSingleItem || isSameRelay) {
       if (
@@ -211,7 +214,7 @@ function updateRelay(
     ...relay,
     disabledReason,
     disabled: relay.disabled || disabledReason !== undefined,
-    location: { ...relay.location, customList: list.id },
+    details: { ...relay.details, customList: list.id },
     selected: false,
     visible: true,
   };

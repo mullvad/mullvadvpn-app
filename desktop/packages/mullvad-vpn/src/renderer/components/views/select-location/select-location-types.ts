@@ -1,10 +1,8 @@
 import {
-  ICustomList,
-  RelayLocation,
-  RelayLocationCity,
-  RelayLocationCountry,
-  RelayLocationCustomList,
-  RelayLocationRelay,
+  RelayLocationCity as DaemonRelayLocationCity,
+  RelayLocationCountry as DaemonRelayLocationCountry,
+  RelayLocationCustomList as DaemonRelayLocationCustomList,
+  RelayLocationRelay as DaemonRelayLocationRelay,
 } from '../../../../shared/daemon-rpc-types';
 import {
   IRelayLocationCityRedux,
@@ -17,9 +15,6 @@ export enum LocationType {
   entry = 0,
   exit,
 }
-
-export type RelayList = GeographicalRelayList | Array<CustomListSpecification>;
-export type GeographicalRelayList = Array<CountrySpecification>;
 
 export interface LocationVisibility {
   visible: boolean;
@@ -37,13 +32,6 @@ export interface SpecialLocation<T> extends CommonLocationSpecification {
   component: React.ComponentType<SpecialLocationRowInnerProps<T>>;
 }
 
-type GeographicalLocationSpecification =
-  | CountrySpecification
-  | CitySpecification
-  | RelaySpecification;
-
-export type LocationSpecification = GeographicalLocationSpecification | CustomListSpecification;
-
 export interface RelayLocationCountryWithVisibility
   extends IRelayLocationCountryRedux,
     LocationVisibility {
@@ -58,42 +46,41 @@ export interface RelayLocationCityWithVisibility
 
 export type RelayLocationRelayWithVisibility = IRelayLocationRelayRedux & LocationVisibility;
 
-interface CommonNormalLocationSpecification
-  extends CommonLocationSpecification,
-    LocationVisibility {
-  location: RelayLocation;
-  disabled: boolean;
+type LocationState = {
+  visible: boolean;
   active: boolean;
-}
-
-export interface CustomListSpecification extends CommonNormalLocationSpecification {
-  location: RelayLocationCustomList;
-  list: ICustomList;
   expanded: boolean;
-  locations: Array<GeographicalLocationSpecification>;
-}
+  label: string;
+  selected: boolean;
+  disabled?: boolean;
+  disabledReason?: DisabledReason;
+};
 
-export interface CountrySpecification
-  extends Pick<IRelayLocationCountryRedux, 'name' | 'code'>,
-    CommonNormalLocationSpecification {
-  location: RelayLocationCountry;
-  expanded: boolean;
-  cities: Array<CitySpecification>;
-}
+export type CustomListLocation = LocationState & {
+  type: 'customList';
+  details: DaemonRelayLocationCustomList;
+  locations: Array<GeographicalLocation>;
+};
 
-export interface CitySpecification
-  extends Pick<IRelayLocationCityRedux, 'name' | 'code'>,
-    CommonNormalLocationSpecification {
-  location: RelayLocationCity;
-  expanded: boolean;
-  relays: Array<RelaySpecification>;
-}
+export type CountryLocation = LocationState & {
+  type: 'country';
+  details: DaemonRelayLocationCountry;
+  cities: CityLocation[];
+};
 
-export interface RelaySpecification
-  extends Omit<IRelayLocationRelayRedux, 'ipv4AddrIn' | 'includeInCountry' | 'weight'>,
-    CommonNormalLocationSpecification {
-  location: RelayLocationRelay;
-}
+export type CityLocation = LocationState & {
+  type: 'city';
+  details: DaemonRelayLocationCity;
+  relays: RelayLocation[];
+};
+
+export type RelayLocation = LocationState & {
+  type: 'relay';
+  details: DaemonRelayLocationRelay;
+};
+
+export type AnyLocation = CustomListLocation | CountryLocation | CityLocation | RelayLocation;
+export type GeographicalLocation = CountryLocation | CityLocation | RelayLocation;
 
 export enum DisabledReason {
   entry,
@@ -101,12 +88,12 @@ export enum DisabledReason {
   inactive,
 }
 
-export function getLocationChildren(location: LocationSpecification): Array<LocationSpecification> {
-  if ('locations' in location) {
+export function getLocationChildrenByType(location: AnyLocation): GeographicalLocation[] {
+  if (location.type === 'customList') {
     return location.locations;
-  } else if ('cities' in location) {
+  } else if (location.type === 'country') {
     return location.cities;
-  } else if ('relays' in location) {
+  } else if (location.type === 'city') {
     return location.relays;
   } else {
     return [];

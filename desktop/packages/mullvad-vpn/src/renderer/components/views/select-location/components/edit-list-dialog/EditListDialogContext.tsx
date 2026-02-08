@@ -2,12 +2,10 @@ import React from 'react';
 
 import type { DialogProps } from '../../../../../lib/components/dialog';
 import { useTextField, type UseTextFieldState } from '../../../../../lib/components/text-field';
-import type { CustomListSpecification } from '../../select-location-types';
-import { useLocationRowContext } from '../location-row/LocationRowContext';
+import type { CustomListLocation } from '../../select-location-types';
 import { useIsUpdatedCustomListNameValid } from './hooks';
 
 type EditListDialogContext = Omit<EditListDialogProviderProps, 'children'> & {
-  source: CustomListSpecification;
   formRef: React.RefObject<HTMLFormElement | null>;
   inputRef: React.RefObject<HTMLInputElement | null>;
   form: {
@@ -27,25 +25,22 @@ export const useEditListDialogContext = (): EditListDialogContext => {
   return context;
 };
 
-type EditListDialogProviderProps = React.PropsWithChildren<DialogProps>;
+type EditListDialogProviderProps = React.PropsWithChildren<DialogProps> & {
+  customList: CustomListLocation;
+};
 
-export function EditListDialogProvider({ children, ...props }: EditListDialogProviderProps) {
+export function EditListDialogProvider({
+  customList,
+  children,
+  ...props
+}: EditListDialogProviderProps) {
   const formRef = React.useRef<HTMLFormElement>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
   const [error, setError] = React.useState<boolean>(false);
   const isCustomListNameValid = useIsUpdatedCustomListNameValid();
-  const { source: contextSource } = useLocationRowContext();
-
-  const source: CustomListSpecification = React.useMemo(() => {
-    if ('list' in contextSource) {
-      return contextSource;
-    } else {
-      throw new Error('EditListDialog must be used with a location that has a custom list');
-    }
-  }, [contextSource]);
 
   const customListTextField = useTextField({
-    defaultValue: source.list.name,
+    defaultValue: customList.label,
     inputRef,
     validate: isCustomListNameValid,
   });
@@ -59,10 +54,10 @@ export function EditListDialogProvider({ children, ...props }: EditListDialogPro
         setError,
         customListTextField,
       },
-      source,
+      customList,
       ...props,
     }),
-    [customListTextField, error, props, source],
+    [customListTextField, error, props, customList],
   );
 
   return <EditListDialogContext.Provider value={value}>{children}</EditListDialogContext.Provider>;

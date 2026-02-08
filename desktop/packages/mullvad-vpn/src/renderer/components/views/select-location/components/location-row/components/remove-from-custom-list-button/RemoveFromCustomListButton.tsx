@@ -3,23 +3,26 @@ import React from 'react';
 import { useCustomLists } from '../../../../../../../features/location/hooks';
 import { LocationListItem } from '../../../../../../location-list-item';
 import type { LocationListItemIconButtonProps } from '../../../../../../location-list-item/components';
-import { useLocationRowContext } from '../../LocationRowContext';
+import type { GeographicalLocation } from '../../../../select-location-types';
 
-export type RemoveFromCustomListButtonProps = LocationListItemIconButtonProps & {};
+export type RemoveFromCustomListButtonProps = LocationListItemIconButtonProps & {
+  location: GeographicalLocation;
+};
 
-export function RemoveFromCustomListButton(props: RemoveFromCustomListButtonProps) {
-  const {
-    source: { location },
-  } = useLocationRowContext();
+export function RemoveFromCustomListButton({
+  location,
+  ...props
+}: RemoveFromCustomListButtonProps) {
   const { removeLocationFromCustomList } = useCustomLists();
   const [loading, setLoading] = React.useState(false);
 
   const onRemoveFromList = React.useCallback(async () => {
-    setLoading(true);
-    if ('customList' in location && 'country' in location && location.customList) {
-      await removeLocationFromCustomList(location.customList, location);
+    const customList = location.details.customList;
+    if (customList !== undefined) {
+      setLoading(true);
+      await removeLocationFromCustomList(customList, location.details);
+      setLoading(false);
     }
-    setLoading(false);
   }, [location, removeLocationFromCustomList]);
 
   return (
