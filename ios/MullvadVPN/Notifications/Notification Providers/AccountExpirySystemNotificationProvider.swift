@@ -16,10 +16,17 @@ final class AccountExpirySystemNotificationProvider: NotificationProvider, Syste
 {
     private var accountExpiry = AccountExpiry()
     private var tunnelObserver: TunnelBlockObserver?
+    private var notificationSettingsObserver: NotificationSettingsObserver?
     private var accountHasExpired = false
+    private var isNotificationEnabled: Bool = true
 
-    init(tunnelManager: TunnelManager) {
+    init(
+        isNotificationEnabled: Bool,
+        notificationSettingsUpdater: NotificationSettingsUpdater,
+        tunnelManager: TunnelManager
+    ) {
         super.init()
+        self.isNotificationEnabled = isNotificationEnabled
 
         let tunnelObserver = TunnelBlockObserver(
             didLoadConfiguration: { [weak self] tunnelManager in
@@ -40,7 +47,15 @@ final class AccountExpirySystemNotificationProvider: NotificationProvider, Syste
 
         tunnelManager.addObserver(tunnelObserver)
 
+        let notificationSettingsObserver = NotificationSettingsObserverBlock(didUpdateSettings: {
+            [weak self] notificationSettings in
+            guard let self else { return }
+            self.isNotificationEnabled = notificationSettings.isAccountNotificationEnabled
+        })
+        notificationSettingsUpdater.addObserver(notificationSettingsObserver)
+
         self.tunnelObserver = tunnelObserver
+        self.notificationSettingsObserver = notificationSettingsObserver
     }
 
     override var identifier: NotificationProviderIdentifier {
@@ -56,7 +71,7 @@ final class AccountExpirySystemNotificationProvider: NotificationProvider, Syste
     var notificationRequest: UNNotificationRequest? {
         let trigger = accountHasExpired ? triggerExpiry : triggerCloseToExpiry
 
-        guard let trigger, let formattedRemainingDurationBody else {
+        guard isNotificationEnabled, let trigger, let formattedRemainingDurationBody else {
             return nil
         }
 
@@ -108,7 +123,7 @@ final class AccountExpirySystemNotificationProvider: NotificationProvider, Syste
     }
 
     private var shouldRemovePendingOrDeliveredRequests: Bool {
-        return accountExpiry.expiryDate == nil
+        return accountExpiry.expiryDate == nil || !isNotificationEnabled
     }
 
     private func checkAccountExpiry(tunnelStatus: TunnelStatus, deviceState: DeviceState) {
