@@ -4,6 +4,7 @@ import { providersFromRelays } from '../../../components/views/filter/utils';
 import { useRelaySettingsUpdater } from '../../../lib/constraint-updater';
 import { useNormalRelaySettings } from '../../../lib/relay-settings-hooks';
 import { useSelector } from '../../../redux/store';
+import { getActiveProviders } from '../utils';
 
 export function useProviders(): {
   providers: string[];
@@ -16,14 +17,7 @@ export function useProviders(): {
   const providerConstraint = relaySettings?.providers ?? [];
 
   const providers = providersFromRelays(locations);
-  let activeProviders = [];
-
-  // Empty constraint array means that all providers are selected. No selection isn't possible.
-  if (providerConstraint.length === 0) {
-    activeProviders = providers;
-  } else {
-    activeProviders = providers.filter((provider) => providerConstraint.includes(provider));
-  }
+  const activeProviders = getActiveProviders(providers, providerConstraint);
 
   const setProviders = React.useCallback(
     async (selectedProviders: string[]) => {
