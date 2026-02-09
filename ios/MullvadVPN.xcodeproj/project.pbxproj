@@ -37,7 +37,6 @@
 		06799AEF28F98E4800ACD94E /* RetryStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE67628F83CA40033DD93 /* RetryStrategy.swift */; };
 		06799AF028F98E4800ACD94E /* REST.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE67B28F83CA50033DD93 /* REST.swift */; };
 		06799AF128F98E4800ACD94E /* RESTSubmitVoucherResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE67328F83CA40033DD93 /* RESTSubmitVoucherResponse.swift */; };
-		06799AFC28F98EE300ACD94E /* AddressCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06AC114128F8413A0037AF9A /* AddressCache.swift */; };
 		0697D6E728F01513007A9E99 /* APITransportMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0697D6E628F01513007A9E99 /* APITransportMonitor.swift */; };
 		06AC116228F94C450037AF9A /* ApplicationConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BFA5CB22A7CE1F00A6173D /* ApplicationConfiguration.swift */; };
 		44075DFB2CDA4F7400F61139 /* UDPOverTCPObfuscationSettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44075DFA2CDA4F7400F61139 /* UDPOverTCPObfuscationSettingsViewModel.swift */; };
@@ -273,7 +272,6 @@
 		58B993B12608A34500BA7811 /* LoginContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B993B02608A34500BA7811 /* LoginContentView.swift */; };
 		58B9EB152489139B00095626 /* RESTError+Display.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B9EB142489139B00095626 /* RESTError+Display.swift */; };
 		58BA693123EADA6A009DC256 /* SimulatorTunnelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BA693023EADA6A009DC256 /* SimulatorTunnelProvider.swift */; };
-		58BDEB9D2A98F69E00F578F2 /* MemoryCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BDEB9C2A98F69E00F578F2 /* MemoryCache.swift */; };
 		58BE4B9D2B18A85B007EA1D3 /* NSAttributedString+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58DFF7CF2B02560400F864E0 /* NSAttributedString+Extensions.swift */; };
 		58BFA5C622A7C97F00A6173D /* RelayCacheTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BFA5C522A7C97F00A6173D /* RelayCacheTracker.swift */; };
 		58BFA5CC22A7CE1F00A6173D /* ApplicationConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BFA5CB22A7CE1F00A6173D /* ApplicationConfiguration.swift */; };
@@ -845,7 +843,6 @@
 		A9A5FA262ACB05160083449F /* UpdateDeviceDataOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58421031282E42B000F24E46 /* UpdateDeviceDataOperation.swift */; };
 		A9A5FA272ACB05160083449F /* VPNConnectionProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9F360332AAB626300F53531 /* VPNConnectionProtocol.swift */; };
 		A9A5FA282ACB05160083449F /* WgKeyRotation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581DA2742A1E283E0046ED47 /* WgKeyRotation.swift */; };
-		A9A5FA292ACB05160083449F /* AddressCacheTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9CF11FC2A0518E7001D9565 /* AddressCacheTests.swift */; };
 		A9A5FA2A2ACB05160083449F /* CoordinatesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9EC20E72A5D3A8C0040D56E /* CoordinatesTests.swift */; };
 		A9A5FA2B2ACB05160083449F /* CustomDateComponentsFormattingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5896AE85246D6AD8005B36CB /* CustomDateComponentsFormattingTests.swift */; };
 		A9A5FA2C2ACB05160083449F /* DeviceCheckOperationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58915D622A25F8400066445B /* DeviceCheckOperationTests.swift */; };
@@ -875,7 +872,6 @@
 		A9AA56782EAF9FDB005807E4 /* ReduceAnonymityWarningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9AA56772EAF9FDB005807E4 /* ReduceAnonymityWarningView.swift */; };
 		A9B6AC182ADE8F4300F7802A /* MigrationManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9B6AC172ADE8F4300F7802A /* MigrationManagerTests.swift */; };
 		A9B6AC1A2ADE8FBB00F7802A /* InMemorySettingsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9B6AC192ADE8FBB00F7802A /* InMemorySettingsStore.swift */; };
-		A9B6AC1B2ADEA3AD00F7802A /* MemoryCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BDEB9C2A98F69E00F578F2 /* MemoryCache.swift */; };
 		A9B95DED2EC73A3400C7FE9B /* MullvadRustRuntime.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A992DA1D2C24709F00DE7CE5 /* MullvadRustRuntime.framework */; };
 		A9B95DEF2EC73BB800C7FE9B /* MullvadAPIMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9B95DEE2EC73BB800C7FE9B /* MullvadAPIMock.swift */; };
 		A9BA08312BA32FA9005A7A2D /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = A92962582B1F4FDB00DFB93B /* PrivacyInfo.xcprivacy */; };
@@ -1615,7 +1611,6 @@
 		0697D6E628F01513007A9E99 /* APITransportMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APITransportMonitor.swift; sourceTree = "<group>"; };
 		06AC113628F83FD70037AF9A /* Cancellable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Cancellable.swift; sourceTree = "<group>"; };
 		06AC114028F841390037AF9A /* AddressCacheUpdateScheduler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddressCacheUpdateScheduler.swift; sourceTree = "<group>"; };
-		06AC114128F8413A0037AF9A /* AddressCache.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddressCache.swift; sourceTree = "<group>"; };
 		06AC115628F848D00037AF9A /* IPAddress+Codable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "IPAddress+Codable.swift"; sourceTree = "<group>"; };
 		06FAE66528F83CA30033DD93 /* RESTURLSession.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RESTURLSession.swift; sourceTree = "<group>"; };
 		06FAE66628F83CA30033DD93 /* RESTResponseHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RESTResponseHandler.swift; sourceTree = "<group>"; };
@@ -1909,7 +1904,6 @@
 		58B9EB122488ED2100095626 /* AlertPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertPresenter.swift; sourceTree = "<group>"; };
 		58B9EB142489139B00095626 /* RESTError+Display.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RESTError+Display.swift"; sourceTree = "<group>"; };
 		58BA693023EADA6A009DC256 /* SimulatorTunnelProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimulatorTunnelProvider.swift; sourceTree = "<group>"; };
-		58BDEB9C2A98F69E00F578F2 /* MemoryCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryCache.swift; sourceTree = "<group>"; };
 		58BDEBA02A9CA14B00F578F2 /* AnyTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnyTask.swift; sourceTree = "<group>"; };
 		58BFA5C522A7C97F00A6173D /* RelayCacheTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayCacheTracker.swift; sourceTree = "<group>"; };
 		58BFA5CB22A7CE1F00A6173D /* ApplicationConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationConfiguration.swift; sourceTree = "<group>"; };
@@ -2354,7 +2348,6 @@
 		A9C342C22ACC3EE90045F00E /* RelayCacheTracker+Stubs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RelayCacheTracker+Stubs.swift"; sourceTree = "<group>"; };
 		A9C75BC12C2D8C9E00B4CDF5 /* libmullvad_ios.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmullvad_ios.a; path = "../target/aarch64-apple-ios/debug/libmullvad_ios.a"; sourceTree = "<group>"; };
 		A9C7B62B2EB9F71D002CABB1 /* LoggerBuilderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoggerBuilderTests.swift; sourceTree = "<group>"; };
-		A9CF11FC2A0518E7001D9565 /* AddressCacheTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressCacheTests.swift; sourceTree = "<group>"; };
 		A9D96B192A8247C100A5C673 /* MigrationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MigrationManager.swift; sourceTree = "<group>"; };
 		A9D9A4C02C36D53C004088DD /* MullvadRustRuntimeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MullvadRustRuntimeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		A9D9A4D32C36E1EA004088DD /* mullvad_rust_runtime.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mullvad_rust_runtime.h; path = include/mullvad_rust_runtime.h; sourceTree = "<group>"; };
@@ -2832,18 +2825,9 @@
 				F0F146932D9462BA00BF78E7 /* MullvadApi */,
 				7AD63A452CDA665200445268 /* Extensions */,
 				F072D3D02C071A9100906F64 /* Shadowsocks */,
-				440E9EF42BDA943B00B1FD11 /* ApiHandlers */,
 				440E9EF52BDA954000B1FD11 /* Relay */,
 			);
 			path = MullvadREST;
-			sourceTree = "<group>";
-		};
-		440E9EF42BDA943B00B1FD11 /* ApiHandlers */ = {
-			isa = PBXGroup;
-			children = (
-				A9CF11FC2A0518E7001D9565 /* AddressCacheTests.swift */,
-			);
-			path = ApiHandlers;
 			sourceTree = "<group>";
 		};
 		440E9EF52BDA954000B1FD11 /* Relay */ = {
@@ -3817,14 +3801,6 @@
 			path = MullvadSettings;
 			sourceTree = "<group>";
 		};
-		58BDEB9E2A98F6B400F578F2 /* Mocks */ = {
-			isa = PBXGroup;
-			children = (
-				58BDEB9C2A98F69E00F578F2 /* MemoryCache.swift */,
-			);
-			path = Mocks;
-			sourceTree = "<group>";
-		};
 		58C774C929AB543C003A1A56 /* Containers */ = {
 			isa = PBXGroup;
 			children = (
@@ -4221,7 +4197,6 @@
 		58FBFBE7291622580020E046 /* MullvadRESTTests */ = {
 			isa = PBXGroup;
 			children = (
-				58BDEB9E2A98F6B400F578F2 /* Mocks */,
 				7A56B3492F190C6D00CBF960 /* AppStoreMetaDataServiceTests.swift */,
 				7AA5C3742E9FCD5F00B35530 /* DefaultLocationServiceTests.swift */,
 				58FBFBE8291622580020E046 /* ExponentialBackoffTests.swift */,
@@ -4658,7 +4633,6 @@
 		F06045F02B2324DA00B2D37A /* ApiHandlers */ = {
 			isa = PBXGroup;
 			children = (
-				06AC114128F8413A0037AF9A /* AddressCache.swift */,
 				7A56B3412F11457200CBF960 /* AppStoreMetaData.swift */,
 				7A56B33F2F11443400CBF960 /* AppStoreMetaDataService.swift */,
 				7AA5C36F2E9D21CD00B35530 /* DefaultLocationService.swift */,
@@ -5954,7 +5928,6 @@
 				F0F3161B2BF358590078DBCF /* NoRelaysSatisfyingConstraintsError.swift in Sources */,
 				06799AE028F98E4800ACD94E /* RESTCoding.swift in Sources */,
 				A91E26E02E7BE41F00440AB8 /* ShadowsocksCacheCleaner.swift in Sources */,
-				06799AFC28F98EE300ACD94E /* AddressCache.swift in Sources */,
 				7ADCB2D82B6A6EB300C88F89 /* AnyRelay.swift in Sources */,
 				06799AF028F98E4800ACD94E /* REST.swift in Sources */,
 				06799ADF28F98E4800ACD94E /* DeviceHandling.swift in Sources */,
@@ -6007,7 +5980,6 @@
 				A9A5F9E42ACB05160083449F /* AppPreferences.swift in Sources */,
 				A9A5F9E52ACB05160083449F /* CustomDateComponentsFormatting.swift in Sources */,
 				A9A5F9E62ACB05160083449F /* DeviceDataThrottling.swift in Sources */,
-				A9B6AC1B2ADEA3AD00F7802A /* MemoryCache.swift in Sources */,
 				7A9BE5A32B8F89B900E2A7D0 /* LocationNode.swift in Sources */,
 				A9A5F9EB2ACB05160083449F /* CharacterSet+IPAddress.swift in Sources */,
 				F0D8825C2B04F70E00D3EF9A /* OutgoingConnectionData.swift in Sources */,
@@ -6118,7 +6090,6 @@
 				F09444142ECCA4B30059606A /* RecentListDataSource.swift in Sources */,
 				A9A5FA282ACB05160083449F /* WgKeyRotation.swift in Sources */,
 				449872E42B7CB96300094DDC /* TunnelSettingsUpdateTests.swift in Sources */,
-				A9A5FA292ACB05160083449F /* AddressCacheTests.swift in Sources */,
 				F0A7EBB22CEF6C79005BB671 /* ConsolidatedApplicationLogTests.swift in Sources */,
 				A9B6AC182ADE8F4300F7802A /* MigrationManagerTests.swift in Sources */,
 				7A9BE5AB2B909A1700E2A7D0 /* LocationDataSourceProtocol.swift in Sources */,
@@ -6882,7 +6853,6 @@
 				F924C4532D70692E001F4660 /* MullvadApiTests.swift in Sources */,
 				F0164EC32B4C49D30020268D /* ShadowsocksLoaderStub.swift in Sources */,
 				F924C65F2DAE4554001F4660 /* ServerRelayTests.swift in Sources */,
-				58BDEB9D2A98F69E00F578F2 /* MemoryCache.swift in Sources */,
 				A91E26E22E7BE4B300440AB8 /* ShadowsocksCacheCleanerTests.swift in Sources */,
 				A91EBEDA2C1337040004A84D /* RetryStrategyTests.swift in Sources */,
 			);
