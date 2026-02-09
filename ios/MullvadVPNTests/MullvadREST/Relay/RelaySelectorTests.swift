@@ -250,6 +250,43 @@ class RelaySelectorTests: XCTestCase {
             XCTAssertEqual(error?.reason, .noActiveRelaysFound)
         }
     }
+
+    func testInactiveRelaysExcludedByDefault() throws {
+        let candidates = try RelaySelector.WireGuard.findCandidates(
+            by: .any,
+            in: sampleRelays,
+            filterConstraint: .any,
+            daitaEnabled: false
+        )
+
+        XCTAssertFalse(candidates.contains { $0.relay.hostname == "us-nyc-wg-302" })
+    }
+
+    func testInactiveRelaysIncludedWhenRequested() throws {
+        let candidates = try RelaySelector.WireGuard.findCandidates(
+            by: .any,
+            in: sampleRelays,
+            filterConstraint: .any,
+            daitaEnabled: false,
+            includeInactive: true
+        )
+
+        XCTAssertTrue(candidates.contains { $0.relay.hostname == "us-nyc-wg-302" })
+        XCTAssertFalse(candidates.first { $0.relay.hostname == "us-nyc-wg-302" }!.relay.active)
+    }
+
+    func testInactiveRelaysIncludedInAllInactiveSet() throws {
+        let candidates = try RelaySelector.WireGuard.findCandidates(
+            by: .any,
+            in: sampleRelaysNoActive,
+            filterConstraint: .any,
+            daitaEnabled: false,
+            includeInactive: true
+        )
+
+        XCTAssertEqual(candidates.count, 1)
+        XCTAssertFalse(candidates[0].relay.active)
+    }
 }
 
 extension RelaySelectorTests {
