@@ -19,7 +19,6 @@ import XCTest
 
 class MullvadApiTests: XCTestCase {
     let encoder = JSONEncoder()
-    let addressCache = REST.AddressCache(canWriteToCache: false, fileCache: MemoryCache())
 
     override func setUp() {
         super.setUp()
@@ -48,7 +47,6 @@ class MullvadApiTests: XCTestCase {
                     accessMethodsRepository
                     .fetchAll()
             ),
-            addressCacheProvider: addressCache,
             accessMethodChangeListeners: []
         )
 
