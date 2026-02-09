@@ -14,7 +14,8 @@ data class ViewLogsUiState(val allLines: List<String> = emptyList()) {
     fun text() = allLines.joinToString(NEWLINE_STRING)
 }
 
-class ViewLogsViewModel(private val problemReportRepository: ProblemReportRepository) : ViewModel() {
+class ViewLogsViewModel(private val problemReportRepository: ProblemReportRepository) :
+    ViewModel() {
 
     private val _uiState = MutableStateFlow<Lc<Unit, ViewLogsUiState>>(Lc.Loading(Unit))
     val uiState = _uiState.asStateFlow()
