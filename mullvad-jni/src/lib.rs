@@ -32,6 +32,7 @@ use talpid_types::{ErrorExt, android::AndroidContext};
 /// Mullvad daemon instance. It must be initialized and destroyed by `MullvadDaemon.initialize` and
 /// `MullvadDaemon.shutdown`, respectively.
 static DAEMON_CONTEXT: Mutex<Option<DaemonContext>> = Mutex::new(None);
+static LOG_HANDLE: OnceLock<LogHandle> = OnceLock::new();
 
 static LOAD_CLASSES: Once = Once::new();
 
@@ -94,10 +95,11 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_initial
     let env = JnixEnv::from(env);
     let files_dir = pathbuf_from_java(&env, files_directory);
 
+    let runtime = ok_or_throw!(&env, new_multi_thread().build().map_err(Error::InitTokio));
+
     // In some cases, this function may be called multiple times for the same daemon process.
     // Since the tracing dispatcher can only be initialized once, we use a OnceLock to
     // reuse the existing log handle
-    static LOG_HANDLE: OnceLock<LogHandle> = OnceLock::new();
     let log_handle = LOG_HANDLE
         .get_or_init(|| {
             start_logging(&files_dir)
@@ -126,6 +128,7 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_initial
     let daemon = ok_or_throw!(
         &env,
         start(
+            runtime,
             android_context,
             rpc_socket,
             files_dir,
@@ -148,12 +151,20 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_shutdow
         _ = context.daemon_command_tx.shutdown();
         _ = context.runtime.block_on(context.running_daemon);
 
+        // Flush any remaining logs to file
+        LOG_HANDLE
+            .get()
+            .expect("Log handle has been initialized")
+            .flush_logfile_tx
+            .notify_one();
+
         // Dropping the tokio runtime will block if there are any tasks in flight.
         // That is, until all async tasks yield *and* all blocking threads have stopped.
     }
 }
 
 fn start(
+    runtime: tokio::runtime::Runtime,
     android_context: AndroidContext,
     rpc_socket: PathBuf,
     files_dir: PathBuf,
@@ -167,6 +178,7 @@ fn start(
     }
 
     spawn_daemon(
+        runtime,
         android_context,
         rpc_socket,
         files_dir,
@@ -177,6 +189,7 @@ fn start(
 }
 
 fn spawn_daemon(
+    runtime: tokio::runtime::Runtime,
     android_context: AndroidContext,
     rpc_socket: PathBuf,
     files_dir: PathBuf,
@@ -186,8 +199,6 @@ fn spawn_daemon(
 ) -> Result<DaemonContext, Error> {
     let daemon_command_channel = DaemonCommandChannel::new();
     let daemon_command_tx = daemon_command_channel.sender();
-
-    let runtime = new_multi_thread().build().map_err(Error::InitTokio)?;
 
     let daemon_config = DaemonConfig {
         rpc_socket_path: rpc_socket,
