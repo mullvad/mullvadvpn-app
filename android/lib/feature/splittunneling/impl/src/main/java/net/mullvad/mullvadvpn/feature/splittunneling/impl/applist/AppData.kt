@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.applist
+package net.mullvad.mullvadvpn.feature.splittunneling.impl.applist
 
 data class AppData(
     val packageName: String,

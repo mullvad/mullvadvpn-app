@@ -43,6 +43,7 @@ annotation class MainGraph {
     @ExternalDestination<DaitaDestination>
     @ExternalDestination<DaitaDirectOnlyInfoDestination>
     @ExternalDestination<DaitaDirectOnlyConfirmationDestination>
+    //    @ExternalDestination<SplitTunnelingDestination>
     companion object Includes
 }
 
