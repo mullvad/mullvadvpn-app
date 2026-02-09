@@ -259,10 +259,10 @@ class ApplicationMain
 
   public isLoggedIn = () => this.account.isLoggedIn();
 
-  public disconnectAndQuit = async () => {
+  public disconnectAndQuit = async (source: DisconnectSource) => {
     if (this.daemonRpc.isConnected) {
       try {
-        await this.daemonRpc.disconnectTunnel(DisconnectSource.quit);
+        await this.daemonRpc.disconnectTunnel(source);
         log.info('Disconnected the tunnel');
       } catch (e) {
         const error = e as Error;
@@ -924,7 +924,9 @@ class ApplicationMain
       return fullDiskState;
     });
 
-    IpcMainEventChannel.app.handleQuit(() => this.disconnectAndQuit());
+    IpcMainEventChannel.app.handleQuit((source: DisconnectSource) =>
+      this.disconnectAndQuit(source),
+    );
     IpcMainEventChannel.app.handleOpenUrl(async (url) => {
       if (Object.values(urls).find((allowedUrl) => url.startsWith(allowedUrl))) {
         await shell.openExternal(url);

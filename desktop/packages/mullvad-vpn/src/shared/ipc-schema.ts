@@ -167,7 +167,7 @@ export const ipcSchema = {
     dismissedUpgrade: send<string>(),
   },
   app: {
-    quit: send<void>(),
+    quit: send<DisconnectSource>(),
     openUrl: invoke<string, void>(),
     openRoute: notifyRenderer<RoutePath>(),
     showOpenDialog: invoke<Electron.OpenDialogOptions, Electron.OpenDialogReturnValue>(),

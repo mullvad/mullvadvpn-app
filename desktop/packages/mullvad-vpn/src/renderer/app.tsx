@@ -408,7 +408,7 @@ export default class AppRenderer {
   public removeDevice = (device: IDeviceRemoval) =>
     IpcRendererEventChannel.account.removeDevice(device);
   public connectTunnel = () => IpcRendererEventChannel.tunnel.connect();
-  public disconnectTunnel = (source: DisconnectSource = DisconnectSource.disconnectButton) =>
+  public disconnectTunnel = (source: DisconnectSource) =>
     IpcRendererEventChannel.tunnel.disconnect(source);
   public reconnectTunnel = () => IpcRendererEventChannel.tunnel.reconnect();
   public setRelaySettings = (relaySettings: RelaySettings) =>
@@ -447,7 +447,7 @@ export default class AppRenderer {
   public collectProblemReport = (toRedact: string | undefined) =>
     IpcRendererEventChannel.problemReport.collectLogs(toRedact);
   public viewLog = (path: string) => IpcRendererEventChannel.problemReport.viewLog(path);
-  public quit = () => IpcRendererEventChannel.app.quit();
+  public quit = (source: DisconnectSource) => IpcRendererEventChannel.app.quit(source);
   public openUrl = (url: Url) => IpcRendererEventChannel.app.openUrl(url);
   public getPathBaseName = (path: string) => IpcRendererEventChannel.app.getPathBaseName(path);
   public showOpenDialog = (options: Electron.OpenDialogOptions) =>
@@ -555,7 +555,7 @@ export default class AppRenderer {
     this.loginState = 'none';
   };
 
-  public logout = async (source: LogoutSource = LogoutSource.logoutButton) => {
+  public logout = async (source: LogoutSource) => {
     try {
       await IpcRendererEventChannel.account.logout(source);
     } catch (e) {
@@ -565,8 +565,8 @@ export default class AppRenderer {
   };
 
   public leaveRevokedDevice = async () => {
-    await this.logout(LogoutSource.deviceRevoked);
-    await this.disconnectTunnel(DisconnectSource.deviceRevoked);
+    await this.logout('gui-device-revoked');
+    await this.disconnectTunnel('gui-device-revoked');
   };
 
   public createNewAccount = async () => {

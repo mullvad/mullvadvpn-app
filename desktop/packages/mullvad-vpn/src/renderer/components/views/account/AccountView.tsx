@@ -42,7 +42,7 @@ export function AccountView() {
   // Hack needed because if we just call `logout` directly in `onClick`
   // then it is run with the wrong `this`.
   const doLogout = useCallback(async () => {
-    await logout();
+    await logout('gui-logout-button');
   }, [logout]);
 
   return (
