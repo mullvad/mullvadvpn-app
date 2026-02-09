@@ -9,7 +9,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Error
+import androidx.compose.material.icons.rounded.Error
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -120,7 +120,7 @@ fun <T> InfoConfirmationDialog(
                 @Composable {
                     Icon(
                         modifier = Modifier.fillMaxWidth().height(Dimens.dialogIconHeight),
-                        imageVector = Icons.Default.Error,
+                        imageVector = Icons.Rounded.Error,
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.onSurface,
                     )

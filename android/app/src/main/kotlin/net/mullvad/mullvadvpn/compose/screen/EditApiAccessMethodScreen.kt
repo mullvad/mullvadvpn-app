@@ -9,7 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -336,7 +336,7 @@ private fun ApiAccessMethodTypeSelection(
                 },
                 content = {
                     Icon(
-                        imageVector = Icons.Default.Check,
+                        imageVector = Icons.Rounded.Check,
                         contentDescription = null,
                         modifier =
                             Modifier.padding(end = Dimens.selectableCellTextMargin)
@@ -521,7 +521,7 @@ private fun CipherSelection(cipher: Cipher, onCipherChange: (Cipher) -> Unit) {
                 },
                 content = {
                     Icon(
-                        imageVector = Icons.Default.Check,
+                        imageVector = Icons.Rounded.Check,
                         contentDescription = null,
                         modifier =
                             Modifier.padding(end = Dimens.selectableCellTextMargin)
@@ -560,7 +560,7 @@ private fun EnableAuthentication(
             },
             content = {
                 Icon(
-                    imageVector = Icons.Default.Check,
+                    imageVector = Icons.Rounded.Check,
                     contentDescription = null,
                     modifier =
                         Modifier.padding(end = Dimens.selectableCellTextMargin)
@@ -577,7 +577,7 @@ private fun EnableAuthentication(
             },
             content = {
                 Icon(
-                    imageVector = Icons.Default.Check,
+                    imageVector = Icons.Rounded.Check,
                     contentDescription = null,
                     modifier =
                         Modifier.padding(end = Dimens.selectableCellTextMargin)

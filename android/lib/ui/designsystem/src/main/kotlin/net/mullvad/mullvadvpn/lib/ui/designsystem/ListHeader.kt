@@ -7,7 +7,7 @@ import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -71,7 +71,7 @@ fun PreviewListHeader() =
             content = { Text("Header") },
             actions = {
                 IconButton(onClick = {}) {
-                    Icon(imageVector = Icons.Default.Edit, contentDescription = null)
+                    Icon(imageVector = Icons.Rounded.Edit, contentDescription = null)
                 }
             },
         )

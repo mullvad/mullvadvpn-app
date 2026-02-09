@@ -7,7 +7,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Error
+import androidx.compose.material.icons.rounded.Error
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
@@ -116,7 +116,7 @@ fun CustomTextField(
 fun ErrorSupportingText(text: String, modifier: Modifier = Modifier) {
     Row(modifier = modifier) {
         Icon(
-            imageVector = Icons.Default.Error,
+            imageVector = Icons.Rounded.Error,
             contentDescription = null,
             modifier = Modifier.size(Dimens.smallIconSize),
             tint = MaterialTheme.colorScheme.error,

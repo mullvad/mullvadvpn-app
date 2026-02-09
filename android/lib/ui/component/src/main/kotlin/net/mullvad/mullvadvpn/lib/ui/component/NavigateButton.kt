@@ -1,9 +1,9 @@
 package net.mullvad.mullvadvpn.lib.ui.component
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowDownward
-import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.rounded.ArrowDownward
+import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
@@ -14,7 +14,7 @@ import androidx.compose.ui.res.stringResource
 fun NavigateBackIconButton(modifier: Modifier = Modifier, onNavigateBack: () -> Unit) {
     IconButton(onClick = onNavigateBack, modifier = modifier) {
         Icon(
-            imageVector = Icons.AutoMirrored.Default.ArrowBack,
+            imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
             contentDescription = stringResource(id = R.string.back),
         )
     }
@@ -24,7 +24,7 @@ fun NavigateBackIconButton(modifier: Modifier = Modifier, onNavigateBack: () -> 
 fun NavigateBackDownIconButton(onNavigateBack: () -> Unit) {
     IconButton(onClick = onNavigateBack) {
         Icon(
-            imageVector = Icons.Default.ArrowDownward,
+            imageVector = Icons.Rounded.ArrowDownward,
             contentDescription = stringResource(id = R.string.back),
         )
     }
@@ -34,7 +34,7 @@ fun NavigateBackDownIconButton(onNavigateBack: () -> Unit) {
 fun NavigateCloseIconButton(onNavigateClose: () -> Unit) {
     IconButton(onClick = onNavigateClose) {
         Icon(
-            imageVector = Icons.Default.Close,
+            imageVector = Icons.Rounded.Close,
             contentDescription = stringResource(id = R.string.close),
         )
     }

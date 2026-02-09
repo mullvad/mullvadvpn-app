@@ -7,7 +7,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.VerticalDivider
@@ -23,7 +23,7 @@ import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaInactive
 @Preview
 @Composable
 private fun PreviewDividerButton() {
-    AppTheme { Box(modifier = Modifier.height(56.dp)) { DividerButton(icon = Icons.Default.Add) } }
+    AppTheme { Box(modifier = Modifier.height(56.dp)) { DividerButton(icon = Icons.Rounded.Add) } }
 }
 
 @Composable

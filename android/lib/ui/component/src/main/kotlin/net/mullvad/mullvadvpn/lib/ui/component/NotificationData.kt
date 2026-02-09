@@ -1,8 +1,8 @@
 package net.mullvad.mullvadvpn.lib.ui.component
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.OpenInNew
-import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.automirrored.rounded.OpenInNew
+import androidx.compose.material.icons.rounded.Clear
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -98,7 +98,7 @@ fun InAppNotification.toNotificationData(
                 statusLevel = statusLevel,
                 action =
                     NotificationAction(
-                        Icons.Default.Clear,
+                        Icons.Rounded.Clear,
                         onClickDismissNewDevice,
                         stringResource(id = R.string.dismiss),
                     ),
@@ -119,7 +119,7 @@ fun InAppNotification.toNotificationData(
                     if (isPlayBuild) null
                     else
                         NotificationAction(
-                            Icons.AutoMirrored.Default.OpenInNew,
+                            Icons.AutoMirrored.Rounded.OpenInNew,
                             onClickShowAccount,
                             stringResource(id = R.string.open_url),
                         ),
@@ -138,7 +138,7 @@ fun InAppNotification.toNotificationData(
                 statusLevel = statusLevel,
                 action =
                     NotificationAction(
-                        Icons.AutoMirrored.Default.OpenInNew,
+                        Icons.AutoMirrored.Rounded.OpenInNew,
                         openAppListing,
                         stringResource(id = R.string.open_url),
                     ),
@@ -165,7 +165,7 @@ fun InAppNotification.toNotificationData(
                 statusLevel = statusLevel,
                 action =
                     NotificationAction(
-                        Icons.Default.Clear,
+                        Icons.Rounded.Clear,
                         onClickDismissChangelog,
                         stringResource(id = R.string.dismiss),
                     ),
@@ -199,7 +199,7 @@ fun InAppNotification.toNotificationData(
                 statusLevel = statusLevel,
                 action =
                     NotificationAction(
-                        Icons.Default.Clear,
+                        Icons.Rounded.Clear,
                         onClickDismissAndroid16UpgradeWarning,
                         stringResource(id = R.string.dismiss),
                     ),

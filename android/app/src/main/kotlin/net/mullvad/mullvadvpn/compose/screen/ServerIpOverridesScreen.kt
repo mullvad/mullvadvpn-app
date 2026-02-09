@@ -14,11 +14,11 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.TextFields
-import androidx.compose.material.icons.filled.UploadFile
+import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material.icons.rounded.Info
+import androidx.compose.material.icons.rounded.MoreVert
+import androidx.compose.material.icons.rounded.TextFields
+import androidx.compose.material.icons.rounded.UploadFile
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -301,7 +301,7 @@ private fun BottomSheetContent(
     )
     HorizontalDivider(color = onBackgroundColor)
     IconListItem(
-        leadingIcon = Icons.Default.UploadFile,
+        leadingIcon = Icons.Rounded.UploadFile,
         title = stringResource(id = R.string.server_ip_overrides_import_by_file),
         modifier = Modifier.testTag(SERVER_IP_OVERRIDES_IMPORT_BY_FILE_TEST_TAG),
         position = Position.Middle,
@@ -316,7 +316,7 @@ private fun BottomSheetContent(
             ),
     )
     IconListItem(
-        leadingIcon = Icons.Default.TextFields,
+        leadingIcon = Icons.Rounded.TextFields,
         title = stringResource(id = R.string.server_ip_overrides_import_by_text),
         position = Position.Middle,
         modifier = Modifier.testTag(SERVER_IP_OVERRIDES_IMPORT_BY_TEXT_TEST_TAG),
@@ -335,7 +335,7 @@ private fun BottomSheetContent(
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(
                 modifier = Modifier.padding(Dimens.mediumPadding),
-                imageVector = Icons.Default.Info,
+                imageVector = Icons.Rounded.Info,
                 tint = MaterialTheme.colorScheme.error,
                 contentDescription = null,
             )
@@ -370,7 +370,7 @@ private fun TopBarActions(
         onClick = { showMenu = !showMenu },
         modifier = Modifier.testTag(SERVER_IP_OVERRIDE_MORE_VERT_TEST_TAG),
     ) {
-        Icon(imageVector = Icons.Default.MoreVert, contentDescription = null)
+        Icon(imageVector = Icons.Rounded.MoreVert, contentDescription = null)
     }
     DropdownMenu(
         modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainer),
@@ -390,7 +390,7 @@ private fun TopBarActions(
                     disabledLeadingIconColor =
                         MaterialTheme.colorScheme.onPrimary.copy(alpha = AlphaDisabled),
                 ),
-            leadingIcon = { Icon(Icons.Filled.Delete, contentDescription = null) },
+            leadingIcon = { Icon(Icons.Rounded.Delete, contentDescription = null) },
             modifier = Modifier.testTag(SERVER_IP_OVERRIDE_RESET_OVERRIDES_TEST_TAG),
         )
     }
@@ -428,7 +428,7 @@ private fun InfoIconButton(
 ) {
     IconButton(modifier = modifier, onClick = onClick) {
         Icon(
-            imageVector = Icons.Default.Info,
+            imageVector = Icons.Rounded.Info,
             contentDescription = contentDescription,
             tint = iconTint,
         )

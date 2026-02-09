@@ -15,11 +15,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ErrorOutline
-import androidx.compose.material.icons.filled.Language
-import androidx.compose.material.icons.filled.PhoneAndroid
 import androidx.compose.material.icons.outlined.Dns
 import androidx.compose.material.icons.outlined.LocationOn
+import androidx.compose.material.icons.rounded.ErrorOutline
+import androidx.compose.material.icons.rounded.Language
+import androidx.compose.material.icons.rounded.PhoneAndroid
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
@@ -323,14 +323,14 @@ fun MultihopSelector(
         LocationHint(
             modifier = Modifier.layoutId(AnimationKey.Internet),
             text = "Internet",
-            imageVector = Icons.Default.Language,
+            imageVector = Icons.Rounded.Language,
             colors = colors,
             onIconGloballyPositioned = { internetIconLC = it },
         )
         LocationHint(
             modifier = Modifier.layoutId(AnimationKey.Device),
             text = "Your device",
-            imageVector = Icons.Default.PhoneAndroid,
+            imageVector = Icons.Rounded.PhoneAndroid,
             colors = colors,
             onIconGloballyPositioned = { deviceIconLC = it },
         )
@@ -508,14 +508,14 @@ fun Singlehop(
         LocationHint(
             modifier = Modifier.layoutId(AnimationKey.Internet),
             text = "Internet",
-            imageVector = Icons.Default.Language,
+            imageVector = Icons.Rounded.Language,
             colors = colors,
             onIconGloballyPositioned = { internetIconLC = it },
         )
         LocationHint(
             modifier = Modifier.layoutId(AnimationKey.Device),
             text = "Your device",
-            imageVector = Icons.Default.PhoneAndroid,
+            imageVector = Icons.Rounded.PhoneAndroid,
             onIconGloballyPositioned = { deviceIconLC = it },
             colors = colors,
         )
@@ -639,7 +639,7 @@ private fun Hop(
                             vertical = Dimens.hopIconVerticalInternalPadding,
                         )
                         .size(Dimens.hopIconSize),
-                imageVector = if (!isError) leadingIcon else Icons.Default.ErrorOutline,
+                imageVector = if (!isError) leadingIcon else Icons.Rounded.ErrorOutline,
                 tint = colors.leadingIconColor(selected, isError),
                 contentDescription = null,
             )

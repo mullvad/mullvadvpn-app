@@ -3,10 +3,10 @@ package net.mullvad.mullvadvpn.compose.component
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.outlined.Visibility
 import androidx.compose.material.icons.outlined.VisibilityOff
+import androidx.compose.material.icons.rounded.Check
+import androidx.compose.material.icons.rounded.ContentCopy
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -58,8 +58,8 @@ fun CopyableObfuscationView(
 @Composable
 fun CopyAnimatedIconButton(onClick: () -> Unit) {
     AnimatedIconButton(
-        defaultIcon = Icons.Default.ContentCopy,
-        secondaryIcon = Icons.Default.Check,
+        defaultIcon = Icons.Rounded.ContentCopy,
+        secondaryIcon = Icons.Rounded.Check,
         defaultIconTint = MaterialTheme.colorScheme.onSurface,
         secondaryIconTint = MaterialTheme.colorScheme.tertiary,
         isToggleButton = false,

@@ -8,8 +8,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
@@ -312,7 +312,7 @@ private fun Actions(onDeleteAccessMethod: () -> Unit) {
         onClick = { showMenu = true },
         modifier = Modifier.testTag(API_ACCESS_DETAILS_TOP_BAR_DROPDOWN_BUTTON_TEST_TAG),
     ) {
-        Icon(imageVector = Icons.Default.MoreVert, contentDescription = null)
+        Icon(imageVector = Icons.Rounded.MoreVert, contentDescription = null)
         if (showMenu) {
             DropdownMenu(
                 expanded = true,
@@ -323,7 +323,7 @@ private fun Actions(onDeleteAccessMethod: () -> Unit) {
                     text = { Text(text = stringResource(id = R.string.delete_method)) },
                     leadingIcon = {
                         Icon(
-                            imageVector = Icons.Default.Delete,
+                            imageVector = Icons.Rounded.Delete,
                             tint = MaterialTheme.colorScheme.onSurface,
                             contentDescription = null,
                         )

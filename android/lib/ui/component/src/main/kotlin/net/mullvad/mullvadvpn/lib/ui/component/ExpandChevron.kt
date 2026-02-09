@@ -5,7 +5,7 @@ import androidx.compose.animation.core.TweenSpec
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.rounded.KeyboardArrowDown
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Surface
@@ -47,7 +47,7 @@ fun ExpandChevron(modifier: Modifier = Modifier, isExpanded: Boolean) {
         )
 
     Icon(
-        imageVector = Icons.Default.KeyboardArrowDown,
+        imageVector = Icons.Rounded.KeyboardArrowDown,
         contentDescription = stateLabel,
         //        tint = color,
         modifier = modifier.rotate(animatedRotation.value),

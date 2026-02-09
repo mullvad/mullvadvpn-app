@@ -8,7 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -92,7 +92,7 @@ fun ExpandableListItem(
                         contentAlignment = Alignment.Center,
                     ) {
                         IconButton(onClick = onInfoClicked) {
-                            Icon(imageVector = Icons.Default.Info, contentDescription = null)
+                            Icon(imageVector = Icons.Rounded.Info, contentDescription = null)
                         }
                     }
                 }

@@ -10,8 +10,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ContentCopy
-import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.rounded.ContentCopy
+import androidx.compose.material.icons.rounded.Share
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -124,7 +124,7 @@ private fun TopBar(
                 enabled = state is Lc.Content,
             ) {
                 Icon(
-                    imageVector = Icons.Default.ContentCopy,
+                    imageVector = Icons.Rounded.ContentCopy,
                     contentDescription = stringResource(id = R.string.copy),
                 )
             }
@@ -136,7 +136,7 @@ private fun TopBar(
                 enabled = state is Lc.Content,
             ) {
                 Icon(
-                    imageVector = Icons.Default.Share,
+                    imageVector = Icons.Rounded.Share,
                     contentDescription = stringResource(id = R.string.share),
                 )
             }

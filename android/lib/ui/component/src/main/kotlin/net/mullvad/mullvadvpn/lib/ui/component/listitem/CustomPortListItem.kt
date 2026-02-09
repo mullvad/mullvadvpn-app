@@ -3,7 +3,7 @@ package net.mullvad.mullvadvpn.lib.ui.component.listitem
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -91,7 +91,7 @@ fun CustomPortListItem(
                 modifier = Modifier.applyIfNotNull(numberTestTag) { testTag(it) },
                 onClick = onPortCellClicked,
                 isEnabled = isEnabled,
-                icon = Icons.Default.Edit,
+                icon = Icons.Rounded.Edit,
             )
         },
     )

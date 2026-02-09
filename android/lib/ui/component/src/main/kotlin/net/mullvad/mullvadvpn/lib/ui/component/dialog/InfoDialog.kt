@@ -8,7 +8,7 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -93,7 +93,7 @@ fun InfoDialog(
                 {
                     Icon(
                         modifier = Modifier.fillMaxWidth().height(Dimens.dialogIconHeight),
-                        imageVector = Icons.Default.Info,
+                        imageVector = Icons.Rounded.Info,
                         contentDescription = "",
                         tint = MaterialTheme.colorScheme.onSurface,
                     )

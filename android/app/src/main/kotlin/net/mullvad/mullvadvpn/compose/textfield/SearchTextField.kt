@@ -8,8 +8,8 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.rounded.Clear
+import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -81,7 +81,7 @@ fun SearchTextField(
                     visualTransformation = visualTransformation,
                     leadingIcon = {
                         Icon(
-                            imageVector = Icons.Default.Search,
+                            imageVector = Icons.Rounded.Search,
                             contentDescription = null,
                             modifier =
                                 Modifier.size(
@@ -102,7 +102,7 @@ fun SearchTextField(
                                         searchTerm = ""
                                         onValueChange.invoke(searchTerm)
                                     },
-                                imageVector = Icons.Default.Clear,
+                                imageVector = Icons.Rounded.Clear,
                                 tint = textColor,
                                 contentDescription = null,
                             )

@@ -13,7 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -239,7 +239,7 @@ private fun ButtonPanel(
                     modifier = Modifier.testTag(PLAY_PAYMENT_INFO_ICON_TEST_TAG),
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Info,
+                        imageVector = Icons.Rounded.Info,
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.onSurface,
                     )

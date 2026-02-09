@@ -1,7 +1,7 @@
 package net.mullvad.mullvadvpn.compose.dialog.info
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.OpenInNew
+import androidx.compose.material.icons.automirrored.rounded.OpenInNew
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -46,7 +46,7 @@ fun ConnectOnStartupInfoDialog(onDismiss: () -> Unit, openAppDetails: () -> Unit
                 onClick = openAppDetails,
                 trailingIcon = {
                     Icon(
-                        imageVector = Icons.AutoMirrored.Filled.OpenInNew,
+                        imageVector = Icons.AutoMirrored.Rounded.OpenInNew,
                         tint = MaterialTheme.colorScheme.onPrimary,
                         contentDescription = null,
                     )

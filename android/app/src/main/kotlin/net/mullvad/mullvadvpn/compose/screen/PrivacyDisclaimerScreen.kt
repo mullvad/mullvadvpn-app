@@ -13,7 +13,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.OpenInNew
+import androidx.compose.material.icons.automirrored.rounded.OpenInNew
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -170,7 +170,7 @@ private fun Content(isPlayBuild: Boolean) {
             )
 
             Icon(
-                imageVector = Icons.AutoMirrored.Filled.OpenInNew,
+                imageVector = Icons.AutoMirrored.Rounded.OpenInNew,
                 contentDescription = null,
                 modifier =
                     Modifier.align(Alignment.CenterVertically).size(Dimens.privacyPolicyIconSize),

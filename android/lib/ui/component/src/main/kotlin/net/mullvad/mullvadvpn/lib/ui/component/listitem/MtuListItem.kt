@@ -2,7 +2,7 @@ package net.mullvad.mullvadvpn.lib.ui.component.listitem
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -51,6 +51,6 @@ fun MtuListItem(
                 )
             }
         },
-        trailingContent = { Icon(imageVector = Icons.Default.Edit, contentDescription = null) },
+        trailingContent = { Icon(imageVector = Icons.Rounded.Edit, contentDescription = null) },
     )
 }

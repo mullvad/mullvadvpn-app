@@ -8,8 +8,8 @@ import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -233,14 +233,14 @@ fun CustomListHeader(addCustomList: () -> Unit, editCustomLists: (() -> Unit)?) 
         actions = {
             IconButton(onClick = addCustomList) {
                 Icon(
-                    imageVector = Icons.Default.Add,
+                    imageVector = Icons.Rounded.Add,
                     contentDescription = stringResource(id = R.string.new_list),
                 )
             }
             editCustomLists?.run {
                 IconButton(onClick = editCustomLists) {
                     Icon(
-                        imageVector = Icons.Default.Edit,
+                        imageVector = Icons.Rounded.Edit,
                         contentDescription = stringResource(id = R.string.edit_lists),
                     )
                 }
