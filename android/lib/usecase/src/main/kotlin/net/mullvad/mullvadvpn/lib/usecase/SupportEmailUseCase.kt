@@ -7,7 +7,7 @@ import net.mullvad.mullvadvpn.lib.repository.ProblemReportRepository
 
 class SupportEmailUseCase(
     private val context: Context,
-    private val mullvadProblemReport: ProblemReportRepository,
+    private val problemReportRepository: ProblemReportRepository,
     private val buildVersion: BuildVersion,
 ) {
     suspend operator fun invoke(message: String? = null): SupportMail {
@@ -15,7 +15,7 @@ class SupportEmailUseCase(
             address = context.getString(R.string.support_email),
             subject = subject(),
             message = message,
-            logs = mullvadProblemReport.readLogs(),
+            logs = problemReportRepository.readLogs(),
         )
     }
 
