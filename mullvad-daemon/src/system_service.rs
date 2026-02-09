@@ -61,10 +61,12 @@ pub fn run() -> Result<(), String> {
 windows_service::define_windows_service!(service_main, handle_service_main);
 
 pub fn handle_service_main(_arguments: Vec<OsString>) {
+    let runtime = new_multi_thread().build().expect("Starting runtime");
+    runtime.block_on(async_service_main());
+}
+
+async fn async_service_main() {
     let config = cli::get_config();
-    let (log_location, reload_handle) =
-        init_daemon_logging(config).expect("Failed to initialize logging");
-    log::info!("Service started.");
 
     let (event_tx, event_rx) = mpsc::channel();
 
@@ -86,6 +88,10 @@ pub fn handle_service_main(_arguments: Vec<OsString>) {
             _ => ServiceControlHandlerResult::NotImplemented,
         }
     };
+
+    let (log_location, log_handle) =
+        init_daemon_logging(config).expect("Failed to initialize logging");
+
     let status_handle = match service_control_handler::register(SERVICE_NAME, event_handler) {
         Ok(handle) => handle,
         Err(error) => {
@@ -103,41 +109,16 @@ pub fn handle_service_main(_arguments: Vec<OsString>) {
 
     let should_restart = Arc::new(AtomicBool::new(true));
 
-    let runtime = new_multi_thread().build();
-    let runtime = match runtime {
-        Err(error) => {
-            log::error!("{}", error.display_chain());
-            persistent_service_status
-                .set_stopped(ServiceExitCode::ServiceSpecific(1))
-                .unwrap();
-            return;
-        }
-        Ok(runtime) => runtime,
-    };
+    log::info!("Service started.");
 
-    let result = runtime.block_on(crate::create_daemon(
-        log_location.map(|l| l.directory),
-        reload_handle,
-    ));
-    let result = if let Ok(daemon) = result {
-        let shutdown_handle = daemon.shutdown_handle();
-
-        // Register monitor that translates `ServiceControl` to Daemon events
-        start_event_monitor(
-            persistent_service_status.clone(),
-            shutdown_handle,
-            event_rx,
-            should_restart.clone(),
-        );
-
-        persistent_service_status.set_running().unwrap();
-
-        runtime
-            .block_on(daemon.run())
-            .map_err(|e| e.display_chain())
-    } else {
-        result.map(|_| ())
-    };
+    let result = run_daemon(
+        event_rx,
+        &mut persistent_service_status,
+        &should_restart,
+        log_location,
+        log_handle,
+    )
+    .await;
 
     let exit_code = match result {
         Ok(()) => {
@@ -157,6 +138,26 @@ pub fn handle_service_main(_arguments: Vec<OsString>) {
     };
 
     persistent_service_status.set_stopped(exit_code).unwrap();
+}
+
+async fn run_daemon(
+    event_rx: mpsc::Receiver<ServiceControl>,
+    persistent_service_status: &mut PersistentServiceStatus,
+    should_restart: &Arc<AtomicBool>,
+    log_location: Option<mullvad_daemon::logging::LogLocation>,
+    log_handle: mullvad_daemon::logging::LogHandle,
+) -> Result<(), String> {
+    let daemon = crate::create_daemon(log_location.map(|l| l.directory), log_handle).await?;
+
+    let shutdown_handle = daemon.shutdown_handle();
+    start_event_monitor(
+        persistent_service_status.clone(),
+        shutdown_handle,
+        event_rx,
+        should_restart.clone(),
+    );
+    persistent_service_status.set_running().unwrap();
+    daemon.run().await.map_err(|e| e.display_chain())
 }
 
 /// Start event monitor thread that polls for `ServiceControl` and translates them into calls to
