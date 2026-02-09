@@ -11,7 +11,7 @@
 set -eu
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-NODE_MODULES_BIN_DIR="$(cd $SCRIPT_DIR/node_modules/.bin && pwd)"
+NODE_MODULES_BIN_DIR="$( cd $SCRIPT_DIR/node_modules/.bin && pwd )"
 GRPC_TOOLS_NODE_PROTOC="$NODE_MODULES_BIN_DIR/grpc_tools_node_protoc"
 TS_PROTOC_PLUGIN="$NODE_MODULES_BIN_DIR/protoc-gen-ts"
 

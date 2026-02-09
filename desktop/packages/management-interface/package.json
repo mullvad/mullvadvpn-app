@@ -10,8 +10,5 @@
   },
   "peerDependencies": {
     "google-protobuf": "*"
-  },
-  "scripts": {
-    "build": "tsc"
   }
 }

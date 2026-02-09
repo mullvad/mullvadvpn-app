@@ -18,30 +18,23 @@ RUN chmod +x /build/build-grpc-tools-binaries.sh && \
     # Install build dependencies required for building grpc-tools (grpc-node) 
 RUN apt-get update -y && \
     apt-get install -y --mark-auto build-essential cmake curl file g++ git jq && \
-    rm -rf /var/lib/apt/lists/*
-
+    rm -rf /var/lib/apt/lists/* && \
     # Install npm dependencies with volta
-RUN curl https://get.volta.sh | bash && \
+    curl https://get.volta.sh | bash && \
     # Source bashrc to read the paths added by volta
-    . /root/.bashrc && \
+    . ~/.bashrc && \
     # Install node/npm
     volta install node && \
     # Install node dependencies
-    npm install
-
+    npm install && \
     # Clone grpc-node repo
-RUN git clone --recursive https://github.com/grpc/grpc-node
-
+    git clone --recursive https://github.com/grpc/grpc-node && \
     # Copy our custom build script to the grpc-tools subdirectory
-RUN mv /build/build-grpc-tools-binaries.sh /build/grpc-node/packages/grpc-tools
-
+    mv /build/build-grpc-tools-binaries.sh /build/grpc-node/packages/grpc-tools && \
     # Checkout a pre-defined version of the repo
-RUN cd /build/grpc-node/packages/grpc-tools && git checkout ccd29b27d28ce8937f8250f72e5e6027ed5af09a && \
+    cd /build/grpc-node/packages/grpc-tools && git checkout ccd29b27d28ce8937f8250f72e5e6027ed5af09a && \
     # Build the grpc-tools binaries used to generate JS bindings
-    ./build-grpc-tools-binaries.sh
-
-    # Clean up
- RUN rm /build/package.json && \
+    ./build-grpc-tools-binaries.sh && \
     # Trim image size by removing dependencies
     apt-get autoremove -y
 
