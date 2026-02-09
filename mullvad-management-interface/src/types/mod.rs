@@ -25,7 +25,7 @@ pub use proto::relay_selector::relay_selector_service_server;
 
 // Re-export the main relay selector message types
 pub use proto::relay_selector::{
-    Context, DiscardedRelay, EntryConstraints, EntryRelayConstraints, Hostname, MatchingRelays,
+    Constraints, DiscardedRelay, EntryConstraints, EntryRelayConstraints, FilteredRelays, Hostname,
     MultiHopConstraints, RelayConstraints, RelayFilterReasons,
 };
 

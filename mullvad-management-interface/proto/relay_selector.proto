@@ -7,10 +7,10 @@ import "management_interface.proto";
 service RelaySelectorService {
   // For a given relay constraint, return the list of matching relays and a list
   // of non-matching relays along with the reasons they were filtered out.
-  rpc GetMatchingRelaysContext(Context) returns (RelayConstraints) {}
+  rpc GetMatchingRelaysContext(Constraints) returns (RelayConstraints) {}
 }
 
-message Context {
+message Constraints {
   oneof selection_context {
     // Give me a relay list for regular single scenario
     EntryRelayConstraints relay_constraints = 1;
@@ -28,9 +28,6 @@ message RelayConstraints {
   mullvad_daemon.management_interface.LocationConstraint location = 1;
   repeated string providers = 2;
   mullvad_daemon.management_interface.Ownership ownership = 3;
-  // TODO: Is it safe to assume that all relays have both IPv4 and IPv6?
-  // If so, remove this field.
-  optional mullvad_daemon.management_interface.IpVersion ip_version = 4;
 }
 
 message EntryRelayConstraints {
@@ -50,12 +47,13 @@ message MultiHopConstraints {
 message EntryConstraints {
   mullvad_daemon.management_interface.ObfuscationSettings obfuscation_settings = 1;
   mullvad_daemon.management_interface.DaitaSettings daita_settings = 2;
+  optional mullvad_daemon.management_interface.IpVersion ip_version = 3;
 }
 
-message MatchingRelays {
+message FilteredRelays {
   // List of relays matching a query
   repeated Hostname matches = 1;
-  // List of relays that were discarded when evaulating a query
+  // List of relays that were discarded when evaluating a query
   repeated DiscardedRelay discarded = 2;
 }
 
@@ -65,11 +63,9 @@ message DiscardedRelay {
   RelayFilterReasons filtered_out_by = 2;
 }
 
-// *Newtype for a hostname*
 // A hostname uniquely identifies a single VPN relay.
 message Hostname {
-  // e.g. `se-got-wg-101`
-  // *NOT* `se`, `se-got`
+  // e.g. `se-got-wg-101`, *NOT* `se`, `se-got`
   string value = 1;
 }
 
