@@ -47,6 +47,8 @@ public final class RelaySelectorWrapper: RelaySelectorProtocol, Sendable {
         }
     }
 
+    /// This function is expected to be used by the UI to list all available servers, even the inactive ones.
+    /// For the purposes of creating a relay connection, we should use `selectRelays` instead.
     public func findCandidates(tunnelSettings: LatestTunnelSettings) throws -> RelayCandidates {
         let relays = try relayCache.read().relays
 
@@ -64,7 +66,8 @@ public final class RelaySelectorWrapper: RelaySelectorProtocol, Sendable {
                         by: .any,
                         in: relays,
                         filterConstraint: tunnelSettings.relayConstraints.filter,
-                        daitaEnabled: daitaEnabled
+                        daitaEnabled: daitaEnabled,
+                        includeInactive: true
                     )
                 }
 

@@ -37,6 +37,7 @@ struct RelayItemView: View {
             onSelect()
         } label: {
             HStack {
+                locationStatusIndicator()
                 VStack(alignment: .leading) {
                     Text(title)
                         .font(.mullvadSmallSemiBold)
@@ -56,11 +57,8 @@ struct RelayItemView: View {
                 Spacer()
             }
             .padding(.vertical, subtitle != nil ? 8 : 16)
-            .padding(.horizontal, CGFloat(16 * (level + 1)))
-            .overlay(alignment: .leading) {
-                locationStatusIndicator()
-                    .padding(.leading, CGFloat(16 * level + 4))
-            }
+            .padding(.leading, CGFloat(16 * level + 8))
+            .padding(.trailing, 16)
             .background {
                 Color.colorForLevel(level)
             }
@@ -81,12 +79,15 @@ struct RelayItemView: View {
 
     @ViewBuilder
     func locationStatusIndicator() -> some View {
-        if !location.isActive {
-            Image.mullvadRedDot
-        } else if location.isSelected {
-            Image.mullvadIconTick
-                .foregroundStyle(Color.mullvadSuccessColor)
+        Group {
+            if !location.isActive {
+                Image.mullvadRedDot
+            } else if location.isSelected {
+                Image.mullvadIconTick
+                    .foregroundStyle(Color.mullvadSuccessColor)
+            }
         }
+        .frame(width: 24, height: 24)
     }
 }
 

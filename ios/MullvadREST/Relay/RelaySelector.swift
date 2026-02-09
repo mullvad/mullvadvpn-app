@@ -68,10 +68,11 @@ public enum RelaySelector {
         _ relayConstraint: RelayConstraint<UserSelectedRelays>,
         filterConstraint: RelayConstraint<RelayFilter>,
         daitaEnabled: Bool,
-        relays: [RelayWithLocation<T>]
+        relays: [RelayWithLocation<T>],
+        includeInactive: Bool = false
     ) throws -> [RelayWithLocation<T>] {
         // Filter on various settings and constraints.
-        var filteredRelays = try filterByActive(relays: relays)
+        var filteredRelays = includeInactive ? relays : try filterByActive(relays: relays)
         filteredRelays = try filterByFilterConstraint(relays: filteredRelays, constraint: filterConstraint)
         filteredRelays = try filterByLocationConstraint(relays: filteredRelays, constraint: relayConstraint)
         filteredRelays = try filterByDaita(relays: filteredRelays, daitaEnabled: daitaEnabled)
