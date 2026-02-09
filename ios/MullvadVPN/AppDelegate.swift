@@ -72,6 +72,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         migrationManager = MigrationManager(cacheDirectory: containerURL)
         configureLogging()
 
+        // This is still used in one place: SSLPinningURLSessionDelegate.urlSession(_:didReceive:completionHandler:)
+        addressCache = REST.AddressCache(canWriteToCache: true, cacheDirectory: containerURL)
+        addressCache.loadFromFile()
+
         let ipOverrideWrapper = IPOverrideWrapper(
             relayCache: RelayCache(cacheDirectory: containerURL),
             ipOverrideRepository: ipOverrideRepository
@@ -105,7 +109,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             domain: REST.encryptedDNSHostname,
             shadowsocksProvider: shadowsocksLoader,
             accessMethodWrapper: opaqueAccessMethodSettingsWrapper,
-            addressCacheProvider: addressCache,
             accessMethodChangeListeners: [accessMethodRepository, shadowsocksCacheCleaner]
         )
 
