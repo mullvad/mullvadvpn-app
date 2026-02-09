@@ -62,7 +62,7 @@ abstract class MockApiTest {
             InetAddress.getLocalHost().hostAddress!!,
             port,
             disableTls = true,
-            sigsumTrustedPubkeys = ""
+            sigsumTrustedPubkeys = "",
         )
     }
 }

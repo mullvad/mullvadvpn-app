@@ -32,10 +32,10 @@ mullvad-version = { path = "../mullvad-version" }
 rustls-pki-types.workspace = true
 serde = { workspace = true }
 serde_json = { workspace = true }
-# TODO: change to crates.io when new release is available
-sigsum = { git = "https://github.com/mullvad/sigsum-rs.git" }
 sha2 = { workspace = true }
 shadowsocks = { workspace = true, features = ["stream-cipher"] }
+# TODO: change to crates.io when new release is available
+sigsum = { git = "https://github.com/mullvad/sigsum-rs.git" }
 talpid-time = { path = "../talpid-time" }
 talpid-types = { path = "../talpid-types" }
 thiserror = { workspace = true }
