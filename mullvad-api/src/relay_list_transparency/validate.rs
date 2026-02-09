@@ -1,24 +1,34 @@
 use crate::SigsumPublicKey;
 use crate::relay_list_transparency::{RelayListDigest, RelayListSignature, Sha256Bytes};
 use chrono::{DateTime, Utc};
+use hex::FromHexError;
 use serde::Deserialize;
 use sigsum::{Hash, ParseAsciiError, Policy, PublicKey, SigsumSignature, VerifyError};
 
-/// Parses a vec of pubkeys from a string input where each key is in a hex string format and
+/// Parses a vec of pubkeys from a string input where each key is in a 64 char long hex string and
 /// separated by `delimiter`. Lines starting with `#` are ignored.
-pub fn parse_pubkeys(keys: &str, delimiter: char) -> Vec<PublicKey> {
+pub fn parse_pubkeys(
+    keys: &str,
+    delimiter: char,
+) -> Result<Vec<PublicKey>, SigsumPublicKeyParseError> {
     keys.split(delimiter)
-        .filter_map(|key| -> Option<PublicKey> {
-            let key = key.trim();
-            if key.starts_with('#') || key.is_empty() {
-                None
-            } else {
-                let key_hex = hex::decode(key).expect("invalid hex");
-                let key_bytes: Sha256Bytes = key_hex.as_slice().try_into().expect("invalid pubkey");
-                Some(PublicKey::from(key_bytes))
-            }
+        .map(|key| key.trim())
+        .filter(|key| !key.is_empty() && !key.starts_with('#')) // Filter out empty lines/comments
+        .map(|key| {
+            let key_hex = hex::decode(key)?;
+            let key_bytes: Sha256Bytes = key_hex.as_slice().try_into()?;
+            Ok(PublicKey::from(key_bytes))
         })
         .collect()
+}
+
+#[derive(thiserror::Error, Debug)]
+pub enum SigsumPublicKeyParseError {
+    #[error("Pubkey was not a valid hex string: {0}")]
+    InvalidHex(#[from] FromHexError),
+
+    #[error("Pubkey was not 32 bytes long: {0}")]
+    InvalidLength(#[from] std::array::TryFromSliceError),
 }
 
 const POLICY: &str = "sigsum-test-2025-3";
@@ -151,26 +161,26 @@ mod test {
     fn test_parsing_pubkey_from_file() {
         let trusted =
             include_str!("../../mullvad-api-constants/src/trusted-sigsum-signing-pubkeys");
-        let keys = parse_pubkeys(trusted, '\n');
+        let keys = parse_pubkeys(trusted, '\n').unwrap();
         assert!(!keys.is_empty());
     }
 
     #[test]
     fn test_parsing_pubkey_can_contain_empty_lines_and_comments() {
         let input = "";
-        let keys = parse_pubkeys(input, '\n');
+        let keys = parse_pubkeys(input, '\n').unwrap();
         assert!(keys.is_empty());
 
         let input =
             "#this is a comment\n35809994d285fe3dd50d49c384db49519412008c545cb6588c138a86ae4c3284";
-        let keys = parse_pubkeys(input, '\n');
+        let keys = parse_pubkeys(input, '\n').unwrap();
         assert_eq!(1, keys.len());
     }
 
     #[test]
     fn test_parsing_pubkey_with_comma_delimiter() {
-        let input = "35809994d285fe3dd50d49c384db49519412008c545cb6588c138a86ae4c3284,9e05c843f17ed7225df58fdfd6ddcd65251aa6db4ad8ea63bd2bf0326e30577d";
-        let keys = parse_pubkeys(input, ',');
+        let input = "35809994d285fe3dd50d49c384db49519412008c545cb6588c138a86ae4c3284:9e05c843f17ed7225df58fdfd6ddcd65251aa6db4ad8ea63bd2bf0326e30577d";
+        let keys = parse_pubkeys(input, ':').unwrap();
         let key1: String = keys[0].encode_hex();
         let key2: String = keys[1].encode_hex();
 

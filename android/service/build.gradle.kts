@@ -60,16 +60,29 @@ android {
             // Not used for production builds.
             buildConfigField("String", "API_ENDPOINT", "\"\"")
             buildConfigField("String", "API_IP", "\"\"")
+            buildConfigField("String", "SIGSUM_TRUSTED_PUBKEYS", "\"\"")
         }
         create(Flavors.DEVMOLE) {
             dimension = FlavorDimensions.INFRASTRUCTURE
             buildConfigField("String", "API_ENDPOINT", "\"api-app.devmole.eu\"")
             buildConfigField("String", "API_IP", "\"185.217.116.4\"")
+            buildConfigField(
+                "String",
+                "SIGSUM_TRUSTED_PUBKEYS",
+                "\"41ab8cc0fe1027757eda650545a09011ddfd1e4af278c520e19cc6513c850af8" +
+                    ":f61f46a8a8fa4b1df038d36d78b97593f0f4f3b56857a6847399a028f765e0ce\"",
+            )
         }
         create(Flavors.STAGEMOLE) {
             dimension = FlavorDimensions.INFRASTRUCTURE
             buildConfigField("String", "API_ENDPOINT", "\"api-app.stagemole.eu\"")
             buildConfigField("String", "API_IP", "\"185.217.116.132\"")
+            buildConfigField(
+                "String",
+                "SIGSUM_TRUSTED_PUBKEYS",
+                "\"35809994d285fe3dd50d49c384db49519412008c545cb6588c138a86ae4c3284" +
+                    ":9e05c843f17ed7225df58fdfd6ddcd65251aa6db4ad8ea63bd2bf0326e30577d\"",
+            )
         }
     }
 

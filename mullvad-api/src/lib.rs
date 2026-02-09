@@ -71,16 +71,20 @@ const GOOGLE_PAYMENTS_URL_PREFIX: &str = "payments/google-play/v1";
 
 use mullvad_api_constants::*;
 
+#[cfg(feature = "api-override")]
+use crate::relay_list_transparency::SigsumPublicKeyParseError;
+
 /// A hostname and socketaddr to reach the Mullvad REST API over.
 #[derive(Debug, Clone)]
 pub struct ApiEndpoint {
-    /// An overriden API hostname. Initialized with the value of the environment
+    /// An overridden API hostname. Initialized with the value of the environment
     /// variable `MULLVAD_API_HOST` if it has been set.
     ///
     /// Use the associated function [`Self::host`] to read this value with a
     /// default fallback if `MULLVAD_API_HOST` was not set.
     pub host: Option<String>,
-    /// An overriden API address. Initialized with the value of the environment
+
+    /// An overridden API address. Initialized with the value of the environment
     /// variable `MULLVAD_API_ADDR` if it has been set.
     ///
     /// Use the associated function [`Self::address()`] to read this value with
@@ -91,8 +95,17 @@ pub struct ApiEndpoint {
     /// If [`Self::address`] is populated with [`Some(SocketAddr)`], it should
     /// always be respected when establishing API connections.
     pub address: Option<SocketAddr>,
+
+    /// The overridden sigsum trusted public keys used for verifying the transparency logged
+    /// relay list.
+    ///
+    /// Use the associated function [`Self::sigsum_trusted_pubkeys`] to read this value with a
+    /// default fallback if `MULLVAD_SIGSUM_TRUSTED_PUBKEYS` was not set.
+    pub sigsum_trusted_pubkeys: Option<Vec<SigsumPublicKey>>,
+
     #[cfg(any(feature = "api-override", test))]
     pub disable_tls: bool,
+
     #[cfg(feature = "api-override")]
     /// Whether bridges/proxies can be used to access the API or not. This is
     /// useful primarily for testing purposes.
@@ -109,8 +122,6 @@ pub struct ApiEndpoint {
     /// To disable `force_direct`, set the environment variable
     /// `MULLVAD_API_FORCE_DIRECT=0` before starting the daemon.
     pub force_direct: bool,
-
-    sigsum_trusted_pubkeys: Option<Vec<SigsumPublicKey>>,
 }
 
 impl ApiEndpoint {
@@ -122,11 +133,11 @@ impl ApiEndpoint {
     /// `MULLVAD_API_DISABLE_TLS` has invalid contents.
     #[cfg(feature = "api-override")]
     pub fn from_env_vars() -> ApiEndpoint {
-        let host_var = read_env_var(env::API_HOST_VAR);
-        let address_var = read_env_var(env::API_ADDR_VAR);
-        let disable_tls_var = read_env_var(env::DISABLE_TLS_VAR);
-        let force_direct = read_env_var(env::API_FORCE_DIRECT_VAR);
-        let sigsum_trusted_pubkeys = read_env_var(env::SIGSUM_TRUSTED_PUBKEYS_VAR);
+        let host_var = Self::read_env_var(env::API_HOST_VAR);
+        let address_var = Self::read_env_var(env::API_ADDR_VAR);
+        let disable_tls_var = Self::read_env_var(env::DISABLE_TLS_VAR);
+        let force_direct = Self::read_env_var(env::API_FORCE_DIRECT_VAR);
+        let sigsum_trusted_pubkeys = Self::read_env_var(env::SIGSUM_TRUSTED_PUBKEYS_VAR);
 
         let mut api = ApiEndpoint {
             host: None,
@@ -135,8 +146,10 @@ impl ApiEndpoint {
             force_direct: force_direct
                 .map(|force_direct| force_direct != "0")
                 .unwrap_or_else(|| host_var.is_some() || address_var.is_some()),
-            sigsum_trusted_pubkeys: sigsum_trusted_pubkeys
-                .map(|keys| relay_list_transparency::parse_pubkeys(&keys, ',')),
+            sigsum_trusted_pubkeys: sigsum_trusted_pubkeys.map(|keys| {
+                Self::parse_sigsum_pubkeys(&keys)
+                    .expect("Failed to parse sigsum pubkeys from env variable content: {keys}")
+            }),
         };
 
         match (host_var, address_var) {
@@ -220,7 +233,7 @@ impl ApiEndpoint {
             env::API_FORCE_DIRECT_VAR,
         ];
 
-        if env_vars.map(read_env_var).iter().any(Option::is_some) {
+        if env_vars.map(Self::read_env_var).iter().any(Option::is_some) {
             log::warn!(
                 "These variables are ignored in production builds: {env_vars_pretty}",
                 env_vars_pretty = env_vars.join(", ")
@@ -234,6 +247,14 @@ impl ApiEndpoint {
             #[cfg(test)]
             disable_tls: false,
         }
+    }
+
+    #[cfg(feature = "api-override")]
+    /// Parses a colon (:) separated string of public keys encoded as 64 character hex strings.
+    pub fn parse_sigsum_pubkeys(
+        keys: &str,
+    ) -> Result<Vec<SigsumPublicKey>, SigsumPublicKeyParseError> {
+        relay_list_transparency::parse_pubkeys(keys, ':')
     }
 
     /// Returns a new API endpoint with the given host and socket address.
@@ -274,28 +295,25 @@ impl ApiEndpoint {
     /// Read the [`Self::sigsum_trusted_pubkeys`] value, falling back to
     /// [`Self::SIGSUM_TRUSTED_PUBKEYS_DEFAULT`] as default value if it does not exist.
     pub fn sigsum_trusted_pubkeys(&self) -> Vec<SigsumPublicKey> {
-        self.sigsum_trusted_pubkeys
-            .clone()
-            .unwrap_or(relay_list_transparency::parse_pubkeys(
-                SIGSUM_TRUSTED_PUBKEYS_DEFAULT,
-                '\n',
-            ))
+        self.sigsum_trusted_pubkeys.clone().unwrap_or(
+            relay_list_transparency::parse_pubkeys(SIGSUM_TRUSTED_PUBKEYS_DEFAULT, '\n').unwrap(),
+        )
     }
-}
 
-/// Try to read the value of an environment variable. Returns `None` if the
-/// environment variable has not been set.
-///
-/// # Panics
-///
-/// Panics if the environment variable was found, but it did not contain
-/// valid unicode data.
-pub(crate) fn read_env_var(key: &'static str) -> Option<String> {
-    use std::env;
-    match env::var(key) {
-        Ok(v) => Some(v),
-        Err(env::VarError::NotPresent) => None,
-        Err(env::VarError::NotUnicode(_)) => panic!("{key} does not contain valid UTF-8"),
+    /// Try to read the value of an environment variable. Returns `None` if the
+    /// environment variable has not been set.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the environment variable was found, but it did not contain
+    /// valid unicode data.
+    fn read_env_var(key: &'static str) -> Option<String> {
+        use std::env;
+        match env::var(key) {
+            Ok(v) => Some(v),
+            Err(env::VarError::NotPresent) => None,
+            Err(env::VarError::NotUnicode(_)) => panic!("{key} does not contain valid UTF-8"),
+        }
     }
 }
 

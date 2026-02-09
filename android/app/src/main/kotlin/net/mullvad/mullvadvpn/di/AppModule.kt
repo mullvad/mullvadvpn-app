@@ -93,8 +93,9 @@ val appModule = module {
     if (net.mullvad.mullvadvpn.service.BuildConfig.FLAVOR_infrastructure != "prod") {
         single<ApiEndpointOverride> {
             ApiEndpointOverride(
-                net.mullvad.mullvadvpn.service.BuildConfig.API_ENDPOINT,
-                net.mullvad.mullvadvpn.service.BuildConfig.API_IP,
+                hostname = net.mullvad.mullvadvpn.service.BuildConfig.API_ENDPOINT,
+                address = net.mullvad.mullvadvpn.service.BuildConfig.API_IP,
+                sigsumTrustedPubkeys = net.mullvad.mullvadvpn.service.BuildConfig.SIGSUM_TRUSTED_PUBKEYS,
             )
         }
     }

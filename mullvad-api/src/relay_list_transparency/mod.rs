@@ -8,4 +8,4 @@ mod validate;
 
 pub(crate) use relay_list::download_and_verify_relay_list;
 pub use relay_list::{RelayListDigest, RelayListSignature, Sha256Bytes};
-pub use validate::parse_pubkeys;
+pub use validate::{SigsumPublicKeyParseError, parse_pubkeys};
