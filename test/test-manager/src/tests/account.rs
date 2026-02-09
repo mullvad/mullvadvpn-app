@@ -1,9 +1,9 @@
-use crate::tests::helpers::{THROTTLE_RETRY_DELAY, login_with_retries};
+use crate::tests::helpers::{login_with_retries, THROTTLE_RETRY_DELAY};
 
-use super::{Error, TestContext, config::TEST_CONFIG, helpers, ui};
+use super::{config::TEST_CONFIG, helpers, ui, Error, TestContext};
 use anyhow::Context;
 use mullvad_api::DevicesProxy;
-use mullvad_management_interface::{MullvadProxyClient, client::DaemonEvent};
+use mullvad_management_interface::{client::DaemonEvent, MullvadProxyClient};
 use mullvad_types::{
     device::{Device, DeviceState},
     states::TunnelState,
@@ -278,7 +278,7 @@ pub async fn clear_devices(device_client: &DevicesProxy) -> anyhow::Result<()> {
 }
 
 pub async fn new_device_client() -> anyhow::Result<DevicesProxy> {
-    use mullvad_api::{ApiEndpoint, proxy::ApiConnectionMode};
+    use mullvad_api::{proxy::ApiConnectionMode, ApiEndpoint};
 
     let api_host = format!("api.{}", TEST_CONFIG.mullvad_host);
 
@@ -288,7 +288,7 @@ pub async fn new_device_client() -> anyhow::Result<DevicesProxy> {
         .context("failed to resolve API host")?;
 
     // Override the API endpoint to use the one specified in the test config
-    let endpoint = ApiEndpoint::new(api_host, api_address, false);
+    let endpoint = ApiEndpoint::new(api_host, api_address, None, false);
 
     let api = mullvad_api::Runtime::new(tokio::runtime::Handle::current(), &endpoint);
 

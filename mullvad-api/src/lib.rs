@@ -261,13 +261,13 @@ impl ApiEndpoint {
     pub fn new(
         host: String,
         address: SocketAddr,
-        sigsum_trusted_pubkeys: Vec<SigsumPublicKey>,
+        sigsum_trusted_pubkeys: Option<Vec<SigsumPublicKey>>,
         #[cfg(any(feature = "api-override", test))] disable_tls: bool,
     ) -> Self {
         Self {
             host: Some(host),
             address: Some(address),
-            sigsum_trusted_pubkeys: Some(sigsum_trusted_pubkeys),
+            sigsum_trusted_pubkeys,
             #[cfg(any(feature = "api-override", test))]
             disable_tls,
             #[cfg(feature = "api-override")]
