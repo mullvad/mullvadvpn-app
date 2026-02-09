@@ -262,7 +262,7 @@ object ListTokens {
     val listItemMinHeight = 56.dp
     val listItemButtonWidth = 56.dp
     val listItemPaddingStart = 16.dp
-    val listItemRoundedCornerSize = 20.dp
+    val listItemRoundedCornerSize = 16.dp
 }
 
 @Preview
