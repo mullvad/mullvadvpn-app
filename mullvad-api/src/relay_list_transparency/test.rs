@@ -10,7 +10,7 @@ mod sigsum_test {
     fn test_validate_relay_list_signature() {
         let sig = RelayListSignature::parse(RELAY_LIST_SIGNATURE).unwrap();
         let pubkeys = validate::parse_pubkeys(PUBKEYS, ':').unwrap();
-        let timestamp = validate_relay_list_signature(&sig, pubkeys).unwrap();
+        let timestamp = validate_relay_list_signature(&sig, &pubkeys).unwrap();
         let digest: Sha256Bytes = Sha256::digest(RELAY_LIST_CONTENT.as_bytes()).into();
         let digest_hex = hex::encode(digest);
         validate_relay_list_content(&timestamp, &digest_hex).unwrap();
@@ -21,7 +21,7 @@ mod sigsum_test {
         let sig =
             RelayListSignature::parse(&format!("{RELAY_LIST_SIGNATURE}bad-signature")).unwrap();
         let pubkeys = validate::parse_pubkeys(PUBKEYS, ':').unwrap();
-        let err = validate_relay_list_signature(&sig, pubkeys).unwrap_err();
+        let err = validate_relay_list_signature(&sig, &pubkeys).unwrap_err();
         let timestamp = err.timestamp_parser.parse_without_verification().unwrap();
 
         let digest: Sha256Bytes = Sha256::digest(RELAY_LIST_CONTENT.as_bytes()).into();
@@ -33,7 +33,7 @@ mod sigsum_test {
     fn test_invalid_pubkey_can_parse_unverified_timestamp() {
         let sig = RelayListSignature::parse(RELAY_LIST_SIGNATURE).unwrap();
         let pubkeys = validate::parse_pubkeys(PUBKEYS_INVALID, ':').unwrap();
-        let err = validate_relay_list_signature(&sig, pubkeys).unwrap_err();
+        let err = validate_relay_list_signature(&sig, &pubkeys).unwrap_err();
         let timestamp = err.timestamp_parser.parse_without_verification().unwrap();
 
         let digest: Sha256Bytes = Sha256::digest(RELAY_LIST_CONTENT.as_bytes()).into();

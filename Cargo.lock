@@ -4894,7 +4894,7 @@ dependencies = [
 [[package]]
 name = "sigsum"
 version = "0.1.0"
-source = "git+https://github.com/mullvad/sigsum-rs.git#9ea1a46b394583567713ec154b6ae8a25185cd9c"
+source = "git+https://github.com/mullvad/sigsum-rs.git#99881e41886633f2731e0648bfcc03cdfdba95d4"
 dependencies = [
  "base16ct",
  "base64ct",

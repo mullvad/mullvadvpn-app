@@ -3,7 +3,7 @@ use crate::relay_list_transparency::{RelayListDigest, RelayListSignature, Sha256
 use chrono::{DateTime, Utc};
 use hex::FromHexError;
 use serde::Deserialize;
-use sigsum::{Hash, ParseAsciiError, Policy, PublicKey, SigsumSignature, VerifyError};
+use sigsum::{Hash, ParseAsciiError, PublicKey, SigsumSignature, VerifyError};
 
 /// Parses a vec of pubkeys from a string input where each key is in a 64 char long hex string and
 /// separated by `delimiter`. Lines starting with `#` are ignored.
@@ -31,8 +31,6 @@ pub enum SigsumPublicKeyParseError {
     InvalidLength(#[from] std::array::TryFromSliceError),
 }
 
-const POLICY: &str = "sigsum-test-2025-3";
-
 /// The digest and timestamp data that is parsed from the `unparsed_timestamp` field in `RelayListSignature`.
 #[derive(Debug, Deserialize)]
 pub struct Timestamp {
@@ -51,18 +49,18 @@ pub struct Timestamp {
 /// to failing hard on signature validation errors.
 pub(crate) fn validate_relay_list_signature(
     sig: &RelayListSignature,
-    trusted_pubkeys: Vec<SigsumPublicKey>,
+    trusted_pubkeys: &[SigsumPublicKey],
 ) -> Result<Timestamp, SignatureVerificationFailedError> {
-    let policy = Policy::builtin(POLICY).unwrap();
+    let policy = &sigsum::policy::SIGSUM_TEST_2025_3;
 
     let sigsum_signature = SigsumSignature::from_ascii(&sig.unparsed_sigsum_signature)
         .map_err(|e| SignatureVerificationFailedError::new(sig, SigsumError::from(e)))?;
 
     sigsum::verify(
         &Hash::new(sig.unparsed_timestamp.as_bytes()),
-        sigsum_signature,
-        trusted_pubkeys.clone(),
-        &policy,
+        &sigsum_signature,
+        trusted_pubkeys,
+        policy,
     )
     .map_err(|e| SignatureVerificationFailedError::new(sig, SigsumError::from(e)))?;
 

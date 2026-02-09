@@ -45,7 +45,7 @@ pub(crate) async fn download_and_verify_relay_list(
     proxy: &RelayListProxy,
     latest_digest: Option<RelayListDigest>,
     latest_timestamp: Option<DateTime<Utc>>,
-    sigsum_trusted_pubkeys: Vec<SigsumPublicKey>,
+    sigsum_trusted_pubkeys: &[SigsumPublicKey],
 ) -> Result<Option<CachedRelayList>, rest::Error> {
     // Fetch relay list latest sigsum signature.
     let relay_list_sig = proxy.relay_list_latest_timestamp().await?;

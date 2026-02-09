@@ -40,12 +40,11 @@ impl RelayListProxy {
         latest_digest: Option<RelayListDigest>,
         latest_timestamp: Option<DateTime<Utc>>,
     ) -> Result<Option<CachedRelayList>, rest::Error> {
-        let sigsum_trusted_pubkeys = self.handle.sigsum_trusted_pubkeys.clone();
         relay_list_transparency::download_and_verify_relay_list(
             self,
             latest_digest,
             latest_timestamp,
-            sigsum_trusted_pubkeys,
+            &self.handle.sigsum_trusted_pubkeys,
         )
         .await
     }
