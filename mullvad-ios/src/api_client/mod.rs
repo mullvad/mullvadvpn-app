@@ -3,7 +3,6 @@ use std::{ffi::c_char, ffi::c_void, future::Future, sync::Arc};
 use crate::get_string;
 use access_method_resolver::{IOSAddressCacheBacking, SwiftAccessMethodResolver};
 use access_method_settings::SwiftAccessMethodSettingsWrapper;
-use address_cache_provider::SwiftAddressCacheWrapper;
 use futures::{
     StreamExt,
     channel::{mpsc, oneshot},
@@ -21,12 +20,12 @@ use talpid_future::retry::retry_future;
 mod access_method_resolver;
 mod access_method_settings;
 mod account;
-mod address_cache_provider;
 mod api;
 mod cancellation;
 mod completion;
 mod device;
 pub(super) mod helpers;
+mod late_string_deallocator;
 mod mock;
 mod problem_report;
 mod response;
@@ -196,7 +195,6 @@ pub extern "C" fn mullvad_api_init_new_tls_disabled(
     domain: *const c_char,
     bridge_provider: SwiftShadowsocksLoaderWrapper,
     settings_provider: SwiftAccessMethodSettingsWrapper,
-    address_cache: SwiftAddressCacheWrapper,
     access_method_change_callback: Option<unsafe extern "C" fn(*const c_void, *const u8)>,
     access_method_change_context: *const c_void,
 ) -> SwiftApiContext {
@@ -207,7 +205,6 @@ pub extern "C" fn mullvad_api_init_new_tls_disabled(
         true,
         bridge_provider,
         settings_provider,
-        address_cache,
         access_method_change_callback,
         access_method_change_context,
     )
@@ -240,7 +237,6 @@ pub extern "C" fn mullvad_api_init_new(
     domain: *const c_char,
     bridge_provider: SwiftShadowsocksLoaderWrapper,
     settings_provider: SwiftAccessMethodSettingsWrapper,
-    address_cache: SwiftAddressCacheWrapper,
     access_method_change_callback: Option<unsafe extern "C" fn(*const c_void, *const u8)>,
     access_method_change_context: *const c_void,
 ) -> SwiftApiContext {
@@ -252,7 +248,6 @@ pub extern "C" fn mullvad_api_init_new(
         false,
         bridge_provider,
         settings_provider,
-        address_cache,
         access_method_change_callback,
         access_method_change_context,
     );
@@ -263,7 +258,6 @@ pub extern "C" fn mullvad_api_init_new(
         domain,
         bridge_provider,
         settings_provider,
-        address_cache,
         access_method_change_callback,
         access_method_change_context,
     )
@@ -289,7 +283,6 @@ pub extern "C" fn mullvad_api_init_inner(
     #[cfg(feature = "api-override")] disable_tls: bool,
     bridge_provider: SwiftShadowsocksLoaderWrapper,
     settings_provider: SwiftAccessMethodSettingsWrapper,
-    address_cache: SwiftAddressCacheWrapper,
     access_method_change_callback: Option<unsafe extern "C" fn(*const c_void, *const u8)>,
     access_method_change_context: *const c_void,
 ) -> SwiftApiContext {
@@ -316,28 +309,11 @@ pub extern "C" fn mullvad_api_init_inner(
     let access_method_settings = settings_context.convert_access_method().unwrap();
     let encrypted_dns_proxy_state = EncryptedDnsProxyState::default();
 
-    let method_resolver = SwiftAccessMethodResolver::new(
-        endpoint.clone(),
-        domain,
-        encrypted_dns_proxy_state,
-        bridge_provider,
-        address_cache,
-    );
-
     let access_method_change_ctx: ForeignPtr = ForeignPtr {
         ptr: access_method_change_context,
     };
     let api_context = tokio_handle.clone().block_on(async move {
         let (tx, mut rx) = mpsc::unbounded::<(AccessMethodEvent, oneshot::Sender<()>)>();
-        let (access_mode_handler, access_mode_provider) = AccessModeSelector::spawn(
-            method_resolver,
-            access_method_settings,
-            #[cfg(feature = "api-override")]
-            endpoint.clone(),
-            tx,
-        )
-        .await
-        .expect("Could now spawn AccessModeSelector");
 
         // SAFETY: The callback is expected to be called from the Swift side
         if let Some(callback) = access_method_change_callback {
@@ -369,6 +345,23 @@ pub extern "C" fn mullvad_api_init_inner(
             Arc::new(IOSAddressCacheBacking {}),
         )
         .await;
+        let method_resolver: SwiftAccessMethodResolver = SwiftAccessMethodResolver::new(
+            endpoint.clone(),
+            domain,
+            encrypted_dns_proxy_state,
+            bridge_provider,
+            api_client.address_cache().clone(),
+        );
+
+        let (access_mode_handler, access_mode_provider) = AccessModeSelector::spawn(
+            method_resolver,
+            access_method_settings,
+            #[cfg(feature = "api-override")]
+            endpoint.clone(),
+            tx,
+        )
+        .await
+        .expect("Could now spawn AccessModeSelector");
         let rest_client = api_client.mullvad_rest_handle(access_mode_provider);
 
         ApiContext {
