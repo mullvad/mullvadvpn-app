@@ -9,6 +9,7 @@
     "name": "Mullvad VPN",
     "email": "support@mullvadvpn.net"
   },
+  "type": "module",
   "repository": "https://github.com/mullvad/mullvadvpn-app",
   "license": "GPL-3.0",
   "dependencies": {
@@ -25,7 +26,7 @@
     "react-dom": "^19.1.1",
     "react-redux": "^9.2.0",
     "react-router": "^5.3.4",
-    "redux": "^4.2.0",
+    "redux": "^5.0.1",
     "simple-plist": "^1.3.1",
     "sprintf-js": "^1.1.2",
     "styled-components": "^6.1.19",
@@ -42,7 +43,7 @@
     "@types/react-router": "^5.1.19",
     "@types/sprintf-js": "^1.1.2",
     "@types/topojson-specification": "^1.0.2",
-    "@vitejs/plugin-react": "^4.7.0",
+    "@vitejs/plugin-react": "^5.0.2",
     "cross-env": "^7.0.3",
     "electron": "39.2.6",
     "electron-builder": "26.6.0",
@@ -69,10 +70,10 @@
   },
   "scripts": {
     "preinstall": "bash -c \"test -d node_modules || mkdir node_modules\"",
-    "build": "node tasks/build-production.js",
+    "build": "node tasks/build-production.cjs",
     "build:vite": "vite build",
-    "build:test": "node tasks/build-test.js",
-    "build:standalone": "node tasks/build-standalone.js",
+    "build:test": "node tasks/build-test.cjs",
+    "build:standalone": "node tasks/build-standalone.cjs",
     "pack-test-executable": "bash ./scripts/build-test-executable.sh",
     "build-test-executable": "npm run pack-test-executable",
     "lint": "eslint . --max-warnings 0",
@@ -83,14 +84,14 @@
     "e2e:sequential:no-build": "xvfb-maybe -- playwright test -c test/e2e/installed/playwright.config.ts --workers 1",
     "e2e:update-snapshots": "npm run e2e:no-build -- --update-snapshots",
     "develop": "npm run develop:pre && npm run develop:vite",
-    "develop:pre": "node tasks/pre-develop.js",
+    "develop:pre": "node tasks/pre-develop.cjs",
     "develop:vite": "vite",
     "test": "cross-env NODE_ENV=test vitest test/unit",
     "type-check": "tsc --noEmit",
-    "update-translations": "node scripts/extract-translations",
-    "pack:mac": "node tasks/pack-mac.js",
-    "pack:win": "node tasks/pack-windows.js",
-    "pack:linux": "node tasks/pack-linux.js"
+    "update-translations": "node scripts/extract-translations.cjs",
+    "pack:mac": "node tasks/pack-mac.cjs",
+    "pack:win": "node tasks/pack-windows.cjs",
+    "pack:linux": "node tasks/pack-linux.cjs"
   },
   "volta": {
     "extends": "../../package.json"

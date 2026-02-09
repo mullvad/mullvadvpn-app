@@ -1,5 +1,5 @@
-const { build } = require('./build');
-const { packWin } = require('./distribution');
+const { build } = require('./build.cjs');
+const { packWin } = require('./distribution.cjs');
 
 async function buildAndPackage() {
   await build();

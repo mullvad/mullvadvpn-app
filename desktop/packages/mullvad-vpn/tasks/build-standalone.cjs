@@ -1,5 +1,5 @@
-const { BUILD_STANDALONE_DIR } = require('./constants');
-const { removeRecursively, runCommand, setNodeEnvironment } = require('./utils');
+const { BUILD_STANDALONE_DIR } = require('./constants.cjs');
+const { removeRecursively, runCommand, setNodeEnvironment } = require('./utils.cjs');
 
 async function transpileBuildStandalone() {
   await runCommand('npx tsc -p tsconfig.standalone.json');

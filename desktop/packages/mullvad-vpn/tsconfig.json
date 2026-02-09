@@ -1,18 +1,21 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
+    "moduleResolution": "bundler",
     "esModuleInterop": true,
     "jsx": "react-jsx",
-    "module": "commonjs",
+    "module": "es2022",
     "outDir": "build",
     "rootDirs": [
       "src",
       "assets"
     ],
     "skipLibCheck": true,
-    "target": "es2021",
+    "target": "es2022",
     "lib": [
-      "es2021",
+      "es2022",
       "dom"
     ],
     "typeRoots": [
