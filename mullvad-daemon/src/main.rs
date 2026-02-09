@@ -35,7 +35,8 @@ fn main() {
         }
     };
 
-    log::debug!("Process exiting with code {}", exit_code);
+    log::debug!("Process exiting with code {exit_code}");
+    runtime.shutdown_timeout(Duration::from_millis(100));
     std::process::exit(exit_code);
 }
 
@@ -69,7 +70,7 @@ async fn run() -> Result<(), String> {
 
         #[cfg(target_os = "linux")]
         cli::Command::InitializeEarlyBootFirewall => {
-            let _reload_handle = init_early_boot_logging(config);
+            init_early_boot_logging(config);
 
             crate::early_boot_firewall::initialize_firewall()
                 .await
@@ -128,7 +129,7 @@ fn init_daemon_logging(
 
 /// Initialize logging to stderr and to the [`EARLY_BOOT_LOG_FILENAME`]
 #[cfg(target_os = "linux")]
-fn init_early_boot_logging(config: &cli::Config) -> Option<logging::LogHandle> {
+fn init_early_boot_logging(config: &cli::Config) {
     let log_file_location = get_log_dir(config)
         .ok()
         .flatten()
@@ -139,12 +140,10 @@ fn init_early_boot_logging(config: &cli::Config) -> Option<logging::LogHandle> {
 
     // If it's possible to log to the filesystem - attempt to do so, but failing that mustn't stop
     // the daemon from starting here.
-    init_logger(config, log_file_location)
-        .or_else(|e| {
-            eprint!("Failed to initialize early-boot logging to file: '{e}'");
-            init_logger(config, None)
-        })
-        .ok()
+    if let Err(e) = init_logger(config, log_file_location) {
+        eprintln!("Failed to initialize early-boot logging to file: '{e}'");
+        let _ = init_logger(config, None);
+    }
 }
 
 /// Initialize logging to stderr and to file (if provided).
