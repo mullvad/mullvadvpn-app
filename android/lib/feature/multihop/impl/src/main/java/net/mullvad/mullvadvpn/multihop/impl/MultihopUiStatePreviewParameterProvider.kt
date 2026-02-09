@@ -1,8 +1,7 @@
-package net.mullvad.mullvadvpn.compose.preview
+package net.mullvad.mullvadvpn.multihop.impl
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import net.mullvad.mullvadvpn.lib.common.Lc
-import net.mullvad.mullvadvpn.viewmodel.MultihopUiState
 
 class MultihopUiStatePreviewParameterProvider :
     PreviewParameterProvider<Lc<Boolean, MultihopUiState>> {

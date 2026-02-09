@@ -24,6 +24,8 @@ import com.ramcosta.composedestinations.generated.daita.destinations.DaitaDestin
 import com.ramcosta.composedestinations.generated.daita.destinations.DaitaDirectOnlyConfirmationDestination
 import com.ramcosta.composedestinations.generated.daita.destinations.DaitaDirectOnlyInfoDestination
 import com.ramcosta.composedestinations.generated.destinations.NoDaemonDestination
+import com.ramcosta.composedestinations.generated.multihop.destinations.MultihopDestination
+import com.ramcosta.composedestinations.generated.splittunneling.destinations.SplitTunnelingDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.navigation.dependency
 import com.ramcosta.composedestinations.rememberNavHostEngine
@@ -43,7 +45,8 @@ annotation class MainGraph {
     @ExternalDestination<DaitaDestination>
     @ExternalDestination<DaitaDirectOnlyInfoDestination>
     @ExternalDestination<DaitaDirectOnlyConfirmationDestination>
-    //    @ExternalDestination<SplitTunnelingDestination>
+    @ExternalDestination<MultihopDestination>
+    @ExternalDestination<SplitTunnelingDestination>
     companion object Includes
 }
 

@@ -387,6 +387,7 @@ dependencies {
     implementation(projects.lib.grpc)
     implementation(projects.lib.endpoint)
     implementation(projects.lib.feature.daita.impl)
+    implementation(projects.lib.feature.multihop.impl)
     implementation(projects.lib.feature.splittunneling.impl)
     implementation(projects.lib.map)
     implementation(projects.lib.model)

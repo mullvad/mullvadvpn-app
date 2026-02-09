@@ -1,6 +1,6 @@
 @file:OptIn(ExperimentalSharedTransitionApi::class)
 
-package net.mullvad.mullvadvpn.compose.screen
+package net.mullvad.mullvadvpn.multihop.impl
 
 import android.os.Parcelable
 import androidx.compose.animation.AnimatedVisibilityScope
@@ -25,10 +25,9 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.parcelize.Parcelize
-import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.preview.MultihopUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.core.animation.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
@@ -38,11 +37,10 @@ import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.SwitchListItem
 import net.mullvad.mullvadvpn.lib.ui.component.text.ScreenDescription
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
+import net.mullvad.mullvadvpn.lib.ui.resource.R
 import net.mullvad.mullvadvpn.lib.ui.tag.MULTIHOP_SCREEN_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
-import net.mullvad.mullvadvpn.viewmodel.MultihopUiState
-import net.mullvad.mullvadvpn.viewmodel.MultihopViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @Preview("Loading|Enabled|Disabled")
@@ -57,7 +55,10 @@ private fun PreviewMultihopScreen(
 @Parcelize data class MultihopNavArgs(val isModal: Boolean = false) : Parcelable
 
 @OptIn(ExperimentalSharedTransitionApi::class)
-@Destination<MainGraph>(style = SlideInFromRightTransition::class, navArgs = MultihopNavArgs::class)
+@Destination<ExternalModuleGraph>(
+    style = SlideInFromRightTransition::class,
+    navArgs = MultihopNavArgs::class,
+)
 @Composable
 fun SharedTransitionScope.Multihop(
     animatedVisibilityScope: AnimatedVisibilityScope,
