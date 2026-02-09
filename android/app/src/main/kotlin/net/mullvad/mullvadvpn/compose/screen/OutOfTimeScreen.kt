@@ -38,7 +38,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.NavGraphs
 import com.ramcosta.composedestinations.generated.destinations.AccountDestination
 import com.ramcosta.composedestinations.generated.destinations.ConnectDestination
@@ -84,7 +83,7 @@ private fun PreviewOutOfTimeScreen(
     }
 }
 
-@Destination<RootGraph>(style = HomeTransition::class)
+@Destination<MainGraph>(style = HomeTransition::class)
 @Composable
 fun OutOfTime(navigator: DestinationsNavigator) {
     val vm = koinViewModel<OutOfTimeViewModel>()
@@ -100,7 +99,7 @@ fun OutOfTime(navigator: DestinationsNavigator) {
             OutOfTimeViewModel.UiSideEffect.OpenConnectScreen ->
                 navigator.navigate(ConnectDestination) {
                     launchSingleTop = true
-                    popUpTo(NavGraphs.root) { inclusive = true }
+                    popUpTo(NavGraphs.main) { inclusive = true }
                 }
             OutOfTimeViewModel.UiSideEffect.GenericError ->
                 snackbarHostState.showSnackbarImmediately(

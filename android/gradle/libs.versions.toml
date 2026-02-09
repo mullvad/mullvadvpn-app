@@ -86,6 +86,7 @@ androidx-credentials = { module = "androidx.credentials:credentials", version.re
 androidx-datastore = { module = "androidx.datastore:datastore", version.ref = "androidx-datastore" }
 androidx-espresso = { module = "androidx.test.espresso:espresso-core", version.ref = "androidx-espresso" }
 # Required for build-logic convention plugins to apply AGP and Kotlin Gradle Plugin
+android-gradle-junit5 = { module = "de.mannodermaus.gradle.plugins:android-junit5", version.ref = "junit5-android-plugin" }
 android-gradle-plugin = { module = "com.android.tools.build:gradle", version.ref = "android-gradle-plugin" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junit4" }
 androidx-ktx = { module = "androidx.core:core-ktx", version.ref = "androidx-ktx" }
@@ -183,9 +184,14 @@ kotlin-ksp = { id = "com.google.devtools.ksp", version.ref = "kotlin-ksp" }
 kotlin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin" }
 kotlinx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 ktfmt = { id = "com.ncorti.ktfmt.gradle", version.ref = "ktfmt" }
-mullvad-android-library = { id = "mullvad.android-library" }
-mullvad-test = { id = "mullvad.test" }
-mullvad-utilities = { id = "mullvad.utilities" }
 play-publisher = { id = "com.github.triplet.play", version.ref = "play-publisher" }
 protobuf-core = { id = "com.google.protobuf", version.ref = "protobuf-gradle-plugin" }
 protobuf-protoc = { id = "com.google.protobuf:protoc", version.ref = "protobuf" }
+# Convention plugins
+mullvad-android-library = { id = "mullvad.android-library" }
+mullvad-android-library-feature-impl = { id = "mullvad.android-library-feature-impl" }
+mullvad-android-library-compose = { id = "mullvad.android-library-compose" }
+mullvad-android-library-unit-test = { id = "mullvad.android-library-unit-test" }
+mullvad-android-library-instrumented-test = { id = "mullvad.android-library-instrumented-test" }
+mullvad-utilities = { id = "mullvad.utilities" }
+mullvad-unit-test = { id = "mullvad.unit-test" }

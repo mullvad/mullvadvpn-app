@@ -65,13 +65,12 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.NavGraphs
+import com.ramcosta.composedestinations.generated.daita.destinations.DaitaDestination
 import com.ramcosta.composedestinations.generated.destinations.AccountDestination
 import com.ramcosta.composedestinations.generated.destinations.Android16UpgradeWarningInfoDestination
 import com.ramcosta.composedestinations.generated.destinations.AntiCensorshipSettingsDestination
 import com.ramcosta.composedestinations.generated.destinations.ChangelogDestination
-import com.ramcosta.composedestinations.generated.destinations.DaitaDestination
 import com.ramcosta.composedestinations.generated.destinations.DeviceRevokedDestination
 import com.ramcosta.composedestinations.generated.destinations.MultihopDestination
 import com.ramcosta.composedestinations.generated.destinations.OutOfTimeDestination
@@ -99,13 +98,13 @@ import net.mullvad.mullvadvpn.compose.state.ConnectUiState
 import net.mullvad.mullvadvpn.compose.transitions.HomeTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.CreateVpnProfile
-import net.mullvad.mullvadvpn.compose.util.OnNavResultValue
 import net.mullvad.mullvadvpn.compose.util.isTv
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
 import net.mullvad.mullvadvpn.constant.SECURE_ZOOM
 import net.mullvad.mullvadvpn.constant.SECURE_ZOOM_ANIMATION_MILLIS
 import net.mullvad.mullvadvpn.constant.UNSECURE_ZOOM
 import net.mullvad.mullvadvpn.constant.fallbackLatLong
+import net.mullvad.mullvadvpn.core.OnNavResultValue
 import net.mullvad.mullvadvpn.lib.common.util.openVpnSettings
 import net.mullvad.mullvadvpn.lib.common.util.removeHtmlTags
 import net.mullvad.mullvadvpn.lib.map.AnimatedMap
@@ -175,7 +174,7 @@ private fun PreviewAccountScreen(
 }
 
 @Suppress("LongMethod")
-@Destination<RootGraph>(style = HomeTransition::class)
+@Destination<MainGraph>(style = HomeTransition::class)
 @Composable
 fun Connect(
     navigator: DestinationsNavigator,
@@ -209,13 +208,13 @@ fun Connect(
             is ConnectViewModel.UiSideEffect.OutOfTime ->
                 navigator.navigate(OutOfTimeDestination) {
                     launchSingleTop = true
-                    popUpTo(NavGraphs.root) { inclusive = true }
+                    popUpTo(NavGraphs.main) { inclusive = true }
                 }
 
             ConnectViewModel.UiSideEffect.RevokedDevice ->
                 navigator.navigate(DeviceRevokedDestination) {
                     launchSingleTop = true
-                    popUpTo(NavGraphs.root) { inclusive = true }
+                    popUpTo(NavGraphs.main) { inclusive = true }
                 }
 
             is ConnectViewModel.UiSideEffect.NotPrepared ->
