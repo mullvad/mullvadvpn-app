@@ -65,12 +65,15 @@ struct LocationListItem<ContextMenu>: View where ContextMenu: View {
                     }
                 } label: {
                     HStack {
-                        if !location.isActive {
-                            Image.mullvadRedDot
-                        } else if location.isSelected {
-                            Image.mullvadIconTick
-                                .foregroundStyle(Color.mullvadSuccessColor)
+                        Group {
+                            if !location.isActive {
+                                Image.mullvadRedDot
+                            } else if location.isSelected {
+                                Image.mullvadIconTick
+                                    .foregroundStyle(Color.mullvadSuccessColor)
+                            }
                         }
+                        .frame(width: 24, height: 24)
                         Text(location.name)
                             .foregroundStyle(
                                 location.isActive && !location.isExcluded

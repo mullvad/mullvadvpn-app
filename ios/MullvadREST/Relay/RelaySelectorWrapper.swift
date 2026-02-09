@@ -64,7 +64,8 @@ public final class RelaySelectorWrapper: RelaySelectorProtocol, Sendable {
                         by: .any,
                         in: relays,
                         filterConstraint: tunnelSettings.relayConstraints.filter,
-                        daitaEnabled: daitaEnabled
+                        daitaEnabled: daitaEnabled,
+                        includeInactive: true
                     )
                 }
 
