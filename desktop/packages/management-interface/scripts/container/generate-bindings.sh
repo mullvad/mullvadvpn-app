@@ -4,9 +4,9 @@
 # and is used to generate JS bindings for each proto files in the
 # /build/proto folder and then output them to the /build/dist folder
 #
-# This script will be invoked by the scripts/container-run-generate-bindings.sh
-# script. Please refer to the documentation within that script for usage
-# instructions.
+# This script is invoked by the scripts/container-run-generate-bindings.sh
+# script. Please refer to the documentation for more information on how to use
+# this script.
 
 set -eu
 

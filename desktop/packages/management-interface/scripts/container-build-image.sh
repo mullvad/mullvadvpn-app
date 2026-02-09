@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 
-# Build the container image which generates JS bindings for proto files.
+# Build the container image which can generate JS/TS bindings from proto files.
+#
+# Please refer to the documentation for more information on how to use this
+# script.
 
 set -eu
 

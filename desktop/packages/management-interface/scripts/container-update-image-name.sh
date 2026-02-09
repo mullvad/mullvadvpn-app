@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
-# Update the image name for the container which generates JS bindings from proto files.
+# Update the image name for the container which generates JS/TS bindings from
+# proto files. Please refer to the documentation for more information on how
+# to use this script.
 
 set -eu
 
