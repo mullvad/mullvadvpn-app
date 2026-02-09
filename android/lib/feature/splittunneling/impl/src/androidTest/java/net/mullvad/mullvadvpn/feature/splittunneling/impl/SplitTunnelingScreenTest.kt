@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.compose.screen
+package net.mullvad.mullvadvpn.feature.splittunneling.impl
 
 import android.graphics.drawable.Drawable
 import androidx.compose.ui.test.ExperimentalTestApi
@@ -9,13 +9,11 @@ import io.mockk.MockKAnnotations
 import io.mockk.mockk
 import io.mockk.unmockkAll
 import io.mockk.verify
-import net.mullvad.mullvadvpn.applist.AppData
+import net.mullvad.mullvadvpn.feature.splittunneling.impl.applist.AppData
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.toLc
 import net.mullvad.mullvadvpn.screen.test.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.screen.test.setContentWithTheme
-import net.mullvad.mullvadvpn.viewmodel.Loading
-import net.mullvad.mullvadvpn.viewmodel.SplitTunnelingUiState
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

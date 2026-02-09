@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.applist
+package net.mullvad.mullvadvpn.feature.splittunneling.impl.applist
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -8,6 +8,7 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.unmockkAll
 import io.mockk.verifyAll
+import kotlin.test.assertEquals
 import net.mullvad.mullvadvpn.lib.common.test.assertLists
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
@@ -55,7 +56,7 @@ class ApplicationsProviderTest {
                 createApplicationInfo(selfPackageName, internet = true, launch = true),
             )
 
-        val result = testSubject.getAppsList()
+        val result = testSubject.apps()
         val expected =
             listOf(
                 AppData(launchWithInternetPackageName, 0, launchWithInternetPackageName),
@@ -105,6 +106,21 @@ class ApplicationsProviderTest {
                     mockedPackageManager.getLeanbackLaunchIntentForPackage(packageName)
                 }
         }
+    }
+
+    @SuppressLint("UseCheckPermission")
+    @Test
+    fun `apps should be returned in descending order`() {
+        val packageNames = listOf("b", "d", "c", "a", "e")
+
+        every {
+            mockedPackageManager.getInstalledApplications(PackageManager.GET_META_DATA)
+        } returns packageNames.map { createApplicationInfo(it, launch = true, internet = true) }
+
+        val actual = testSubject.apps()
+        val expected = packageNames.sorted().map { AppData(it, 0, it) }
+
+        assertEquals(expected, actual)
     }
 
     private fun createApplicationInfo(

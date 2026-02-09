@@ -1,9 +1,9 @@
-package net.mullvad.mullvadvpn.viewmodel
+package net.mullvad.mullvadvpn.feature.splittunneling.impl
 
 import androidx.lifecycle.viewModelScope
 import app.cash.turbine.test
 import arrow.core.right
-import com.ramcosta.composedestinations.generated.navargs.toSavedStateHandle
+import com.ramcosta.composedestinations.generated.splittunneling.navargs.toSavedStateHandle
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -18,9 +18,8 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
-import net.mullvad.mullvadvpn.applist.AppData
-import net.mullvad.mullvadvpn.applist.ApplicationsProvider
-import net.mullvad.mullvadvpn.compose.screen.SplitTunnelingNavArgs
+import net.mullvad.mullvadvpn.feature.splittunneling.impl.applist.AppData
+import net.mullvad.mullvadvpn.feature.splittunneling.impl.applist.ApplicationsProvider
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.model.AppId
@@ -65,7 +64,7 @@ class SplitTunnelingViewModelTest {
         assertIs<Lc.Loading<Loading>>(actualState)
         assertEquals(initialExpectedState, actualState)
 
-        verify(exactly = 1) { mockedApplicationsProvider.getAppsList() }
+        verify(exactly = 1) { mockedApplicationsProvider.apps() }
     }
 
     @Test
@@ -199,31 +198,8 @@ class SplitTunnelingViewModelTest {
         }
     }
 
-    @Test
-    fun `apps should be sorted by name in descending order`() = runTest {
-        // Arrange
-        val app1 = AppData("com.example.app1", 0, "App A")
-        val app2 = AppData("com.example.app2", 0, "App B")
-        val app3 = AppData("com.example.app3", 0, "App Z")
-        val appList = listOf(app2, app1, app3)
-        val expectedState =
-            SplitTunnelingUiState(
-                enabled = true,
-                includedApps = listOf(app1, app2, app3),
-                showSystemApps = false,
-            )
-        initTestSubject(appList = appList)
-
-        // Assert
-        testSubject.uiState.test {
-            val actualState = awaitItem()
-            assertIs<Lc.Content<SplitTunnelingUiState>>(actualState)
-            assertEquals(expectedState, actualState.value)
-        }
-    }
-
     private fun initTestSubject(appList: List<AppData>) {
-        every { mockedApplicationsProvider.getAppsList() } returns appList
+        every { mockedApplicationsProvider.apps() } returns appList
         testSubject =
             SplitTunnelingViewModel(
                 mockedApplicationsProvider,

@@ -1,22 +1,22 @@
-package net.mullvad.mullvadvpn.viewmodel
+package net.mullvad.mullvadvpn.feature.splittunneling.impl
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ramcosta.composedestinations.generated.destinations.SplitTunnelingDestination
+import com.ramcosta.composedestinations.generated.splittunneling.destinations.SplitTunnelingDestination
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.WhileSubscribed
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import net.mullvad.mullvadvpn.applist.AppData
-import net.mullvad.mullvadvpn.applist.ApplicationsProvider
+import net.mullvad.mullvadvpn.feature.splittunneling.impl.applist.AppData
+import net.mullvad.mullvadvpn.feature.splittunneling.impl.applist.ApplicationsProvider
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
+import net.mullvad.mullvadvpn.lib.common.toLc
 import net.mullvad.mullvadvpn.lib.model.AppId
 import net.mullvad.mullvadvpn.lib.repository.SplitTunnelingRepository
 
@@ -31,29 +31,37 @@ class SplitTunnelingViewModel(
     private val allApps = MutableStateFlow<List<AppData>?>(null)
     private val showSystemApps = MutableStateFlow(false)
 
-    private val vmState: StateFlow<SplitTunnelingViewModelState> =
+    val uiState: StateFlow<Lc<Loading, SplitTunnelingUiState>> =
         combine(
                 splitTunnelingRepository.excludedApps,
                 splitTunnelingRepository.splitTunnelingEnabled,
                 allApps,
                 showSystemApps,
             ) { excludedApps, enabled, allApps, showSystemApps ->
-                SplitTunnelingViewModelState(
-                    excludedApps = excludedApps,
-                    enabled = enabled,
-                    allApps = allApps,
-                    showSystemApps = showSystemApps,
-                )
-            }
-            .stateIn(
-                viewModelScope,
-                SharingStarted.WhileSubscribed(VIEW_MODEL_STOP_TIMEOUT),
-                SplitTunnelingViewModelState(),
-            )
+                if (allApps == null) {
+                    return@combine Lc.Loading(Loading(enabled = enabled, isModal = navArgs.isModal))
+                }
 
-    val uiState =
-        vmState
-            .map { it.toUiState(navArgs.isModal) }
+                val (excludedApps, includedApps) =
+                    allApps.partition { appData ->
+                        if (enabled) {
+                            excludedApps.contains(AppId(appData.packageName))
+                        } else {
+                            false
+                        }
+                    }
+
+                SplitTunnelingUiState(
+                        enabled = enabled,
+                        excludedApps = excludedApps,
+                        includedApps =
+                            if (showSystemApps) includedApps
+                            else includedApps.filter { appData -> !appData.isSystemApp },
+                        showSystemApps = showSystemApps,
+                        isModal = navArgs.isModal,
+                    )
+                    .toLc()
+            }
             .stateIn(
                 viewModelScope,
                 SharingStarted.WhileSubscribed(VIEW_MODEL_STOP_TIMEOUT),
@@ -87,16 +95,6 @@ class SplitTunnelingViewModel(
     }
 
     private suspend fun fetchApps() {
-        appsProvider.getAppsList().let { appsList -> allApps.emit(appsList) }
+        appsProvider.apps().let { appsList -> allApps.emit(appsList) }
     }
 }
-
-data class Loading(val enabled: Boolean = false, val isModal: Boolean = false)
-
-data class SplitTunnelingUiState(
-    val enabled: Boolean = false,
-    val excludedApps: List<AppData> = emptyList(),
-    val includedApps: List<AppData> = emptyList(),
-    val showSystemApps: Boolean = false,
-    val isModal: Boolean = false,
-)

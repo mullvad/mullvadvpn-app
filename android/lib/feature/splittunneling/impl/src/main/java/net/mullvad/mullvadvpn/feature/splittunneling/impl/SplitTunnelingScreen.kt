@@ -1,5 +1,6 @@
-package net.mullvad.mullvadvpn.compose.screen
+package net.mullvad.mullvadvpn.feature.splittunneling.impl
 
+import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
 import android.os.Parcelable
 import androidx.compose.animation.AnimatedVisibilityScope
@@ -11,8 +12,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -26,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusManager
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
@@ -34,21 +39,15 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
-import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.applist.AppData
-import net.mullvad.mullvadvpn.compose.constant.CommonContentKey
-import net.mullvad.mullvadvpn.compose.constant.ContentType
-import net.mullvad.mullvadvpn.compose.constant.SplitTunnelingContentKey
-import net.mullvad.mullvadvpn.compose.extensions.itemWithDivider
-import net.mullvad.mullvadvpn.compose.extensions.itemsIndexedWithDivider
-import net.mullvad.mullvadvpn.compose.preview.SplitTunnelingUiStatePreviewParameterProvider
-import net.mullvad.mullvadvpn.compose.util.hasValidSize
-import net.mullvad.mullvadvpn.compose.util.isBelowMaxByteSize
 import net.mullvad.mullvadvpn.core.animation.SlideInFromRightTransition
+import net.mullvad.mullvadvpn.feature.splittunneling.impl.applist.AppData
+import net.mullvad.mullvadvpn.feature.splittunneling.impl.extensions.hasValidSize
+import net.mullvad.mullvadvpn.feature.splittunneling.impl.extensions.isBelowMaxByteSize
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
 import net.mullvad.mullvadvpn.lib.ui.component.NavigateBackIconButton
@@ -65,10 +64,6 @@ import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaDisabled
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaVisible
-import net.mullvad.mullvadvpn.util.getApplicationIconOrNull
-import net.mullvad.mullvadvpn.viewmodel.Loading
-import net.mullvad.mullvadvpn.viewmodel.SplitTunnelingUiState
-import net.mullvad.mullvadvpn.viewmodel.SplitTunnelingViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @Preview("ShowAppList|Loading")
@@ -93,7 +88,7 @@ private fun PreviewSplitTunnelingScreen(
 @Parcelize data class SplitTunnelingNavArgs(val isModal: Boolean = false) : Parcelable
 
 @OptIn(ExperimentalSharedTransitionApi::class)
-@Destination<MainGraph>(
+@Destination<ExternalModuleGraph>(
     style = SlideInFromRightTransition::class,
     navArgs = SplitTunnelingNavArgs::class,
 )
@@ -377,3 +372,49 @@ private fun Lc<Loading, SplitTunnelingUiState>.enabled(): Boolean =
         is Lc.Loading -> this.value.enabled
         is Lc.Content -> this.value.enabled
     }
+
+fun PackageManager.getApplicationIconOrNull(packageName: String): Drawable? =
+    try {
+        getApplicationIcon(packageName)
+    } catch (e: PackageManager.NameNotFoundException) {
+        // Name not found is thrown if the application is not installed
+        null
+    } catch (e: IllegalArgumentException) {
+        // IllegalArgumentException is thrown if the application has an invalid icon
+        null
+    } catch (e: OutOfMemoryError) {
+        // OutOfMemoryError is thrown if the icon is too large
+        null
+    }
+
+object CommonContentKey {
+    const val DESCRIPTION = "description"
+    const val PROGRESS = "progress"
+}
+
+private inline fun <T> LazyListScope.itemsIndexedWithDivider(
+    items: List<T>,
+    noinline key: ((index: Int, item: T) -> Any)? = null,
+    crossinline contentType: (index: Int, item: T) -> Any? = { _, _ -> null },
+    crossinline itemContent: @Composable LazyItemScope.(index: Int, item: T) -> Unit,
+) =
+    itemsIndexed(items = items, key = key, contentType = contentType) { index, item ->
+        itemContent(index, item)
+        HorizontalDivider(color = Color.Transparent)
+    }
+
+private inline fun LazyListScope.itemWithDivider(
+    key: Any? = null,
+    contentType: Any? = null,
+    crossinline itemContent: @Composable LazyItemScope.() -> Unit,
+) =
+    item(key = key, contentType = contentType) {
+        itemContent()
+        HorizontalDivider(color = Color.Transparent)
+    }
+
+internal object SplitTunnelingContentKey {
+    const val EXCLUDED_APPLICATIONS = "excluded"
+    const val SHOW_SYSTEM_APPLICATIONS = "show_system"
+    const val INCLUDED_APPLICATIONS = "included"
+}

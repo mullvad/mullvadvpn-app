@@ -28,8 +28,8 @@ import com.ramcosta.composedestinations.generated.destinations.AppearanceDestina
 import com.ramcosta.composedestinations.generated.destinations.MultihopDestination
 import com.ramcosta.composedestinations.generated.destinations.NotificationSettingsDestination
 import com.ramcosta.composedestinations.generated.destinations.ReportProblemDestination
-import com.ramcosta.composedestinations.generated.destinations.SplitTunnelingDestination
 import com.ramcosta.composedestinations.generated.destinations.VpnSettingsDestination
+import com.ramcosta.composedestinations.generated.splittunneling.destinations.SplitTunnelingDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.extensions.createUriHook

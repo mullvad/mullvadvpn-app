@@ -77,8 +77,8 @@ import com.ramcosta.composedestinations.generated.destinations.OutOfTimeDestinat
 import com.ramcosta.composedestinations.generated.destinations.SelectLocationDestination
 import com.ramcosta.composedestinations.generated.destinations.ServerIpOverridesDestination
 import com.ramcosta.composedestinations.generated.destinations.SettingsDestination
-import com.ramcosta.composedestinations.generated.destinations.SplitTunnelingDestination
 import com.ramcosta.composedestinations.generated.destinations.VpnSettingsDestination
+import com.ramcosta.composedestinations.generated.splittunneling.destinations.SplitTunnelingDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
 import kotlinx.coroutines.launch

@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.applist
+package net.mullvad.mullvadvpn.feature.splittunneling.impl.applist
 
 import android.Manifest
 import android.content.pm.ApplicationInfo
@@ -12,7 +12,9 @@ class ApplicationsProvider(
         hasInternetPermission(appInfo.packageName) && !isSelfApplication(appInfo.packageName)
     }
 
-    fun getAppsList(): List<AppData> {
+    private val descendingByNameComparator = compareBy<AppData> { it.name.lowercase() }
+
+    fun apps(): List<AppData> {
         return packageManager
             .getInstalledApplications(PackageManager.GET_META_DATA)
             .asSequence()
@@ -26,6 +28,7 @@ class ApplicationsProvider(
                 )
             }
             .toList()
+            .sortedWith(descendingByNameComparator)
     }
 
     private fun hasInternetPermission(packageName: String): Boolean {
