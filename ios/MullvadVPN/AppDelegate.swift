@@ -30,7 +30,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
     private(set) var tunnelStore: TunnelStore!
     nonisolated(unsafe) private(set) var tunnelManager: TunnelManager!
-    private(set) var addressCache: REST.AddressCache!
 
     private var proxyFactory: ProxyFactoryProtocol!
     private(set) var apiProxy: APIQuerying!
@@ -74,10 +73,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         let containerURL = ApplicationConfiguration.containerURL
         migrationManager = MigrationManager(cacheDirectory: containerURL)
         configureLogging()
-
-        // This is still used in one place: SSLPinningURLSessionDelegate.urlSession(_:didReceive:completionHandler:)
-        addressCache = REST.AddressCache(canWriteToCache: true, cacheDirectory: containerURL)
-        addressCache.loadFromFile()
 
         let ipOverrideWrapper = IPOverrideWrapper(
             relayCache: RelayCache(cacheDirectory: containerURL),
