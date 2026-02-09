@@ -1,9 +1,9 @@
-package net.mullvad.mullvadvpn.viewmodel
+package net.mullvad.mullvadvpn.multihop.impl
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ramcosta.composedestinations.generated.destinations.MultihopDestination
+import com.ramcosta.composedestinations.generated.multihop.destinations.MultihopDestination
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.WhileSubscribed
