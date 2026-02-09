@@ -57,14 +57,14 @@ async fn run() -> Result<(), String> {
 
     match config.command {
         cli::Command::Daemon => {
-            // uniqueness check must happen before logging initializaton,
+            // uniqueness check must happen before logging initialization,
             // as initializing logs will rotate any existing log file.
             assert_unique().await?;
-            let (log_location, reload_handle) = init_daemon_logging(config)?;
+            let (log_location, log_handle) = init_daemon_logging(config)?;
             log::trace!("Using configuration: {:?}", config);
 
             let log_dir = log_location.map(|l| l.directory);
-            run_standalone(log_dir, reload_handle).await
+            run_standalone(log_dir, log_handle).await
         }
 
         #[cfg(target_os = "linux")]
@@ -118,15 +118,15 @@ fn init_daemon_logging(
         filename: PathBuf::from("daemon.log"),
     });
 
-    let reload_handle = init_logger(config, log_location.clone())?;
+    let log_handle = init_logger(config, log_location.clone())?;
 
     if let Some(log_location) = log_location.as_ref() {
         log::info!("Logging to {}", log_location.log_path().display());
     }
-    Ok((log_location, reload_handle))
+    Ok((log_location, log_handle))
 }
 
-/// Initialize logging to stder and to the [`EARLY_BOOT_LOG_FILENAME`]
+/// Initialize logging to stderr and to the [`EARLY_BOOT_LOG_FILENAME`]
 #[cfg(target_os = "linux")]
 fn init_early_boot_logging(config: &cli::Config) -> Option<logging::LogHandle> {
     let log_file_location = get_log_dir(config)
@@ -166,12 +166,12 @@ fn init_logger(
 
     exception_logging::enable();
 
-    let reload_handle =
+    let log_handle =
         logging::init_logger(config.log_level, log_location, config.log_stdout_timestamps)
             .map_err(|e| e.display_chain_with_msg("Unable to initialize logger"))?;
     log_panics::init();
     version::log_version();
-    Ok(reload_handle)
+    Ok(log_handle)
 }
 
 fn get_log_dir(config: &cli::Config) -> Result<Option<PathBuf>, String> {
