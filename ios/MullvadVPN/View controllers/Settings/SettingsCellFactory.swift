@@ -122,7 +122,7 @@ final class SettingsCellFactory: @preconcurrency CellFactoryProtocol {
             cell.detailTitleLabel.text = viewModel.currentLanguage
 
             cell.setAccessibilityIdentifier(item.accessibilityIdentifier)
-            cell.disclosureType = .chevron
+            cell.disclosureType = .externalLink
         }
     }
 

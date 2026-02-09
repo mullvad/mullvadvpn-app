@@ -619,6 +619,7 @@
 		7AA1309F2D007B2500640DF9 /* VisualEffectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AA1309E2D007B2500640DF9 /* VisualEffectView.swift */; };
 		7AA130A12D01B1E200640DF9 /* SplitMainButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AA130A02D01B1E200640DF9 /* SplitMainButton.swift */; };
 		7AA513862BC91C6B00D081A4 /* LogRotationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AA513852BC91C6B00D081A4 /* LogRotationTests.swift */; };
+		7AA564482F2B6813001D1FB9 /* String+Assets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AA564472F2B680D001D1FB9 /* String+Assets.swift */; };
 		7AA5C3702E9D21DB00B35530 /* DefaultLocationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AA5C36F2E9D21CD00B35530 /* DefaultLocationService.swift */; };
 		7AA5C3752E9FCD9300B35530 /* DefaultLocationServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AA5C3742E9FCD5F00B35530 /* DefaultLocationServiceTests.swift */; };
 		7AA5C3792E9FD8BA00B35530 /* URLSessionStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = F09D04BA2AE95396003D4F89 /* URLSessionStub.swift */; };
@@ -2180,6 +2181,7 @@
 		7AA1309E2D007B2500640DF9 /* VisualEffectView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisualEffectView.swift; sourceTree = "<group>"; };
 		7AA130A02D01B1E200640DF9 /* SplitMainButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplitMainButton.swift; sourceTree = "<group>"; };
 		7AA513852BC91C6B00D081A4 /* LogRotationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogRotationTests.swift; sourceTree = "<group>"; };
+		7AA564472F2B680D001D1FB9 /* String+Assets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Assets.swift"; sourceTree = "<group>"; };
 		7AA5C36F2E9D21CD00B35530 /* DefaultLocationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultLocationService.swift; sourceTree = "<group>"; };
 		7AA5C3742E9FCD5F00B35530 /* DefaultLocationServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultLocationServiceTests.swift; sourceTree = "<group>"; };
 		7AA636372D2D3BAC009B2C89 /* View+Conditionals.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+Conditionals.swift"; sourceTree = "<group>"; };
@@ -3338,6 +3340,7 @@
 		583FE01F29C197ED006E85F9 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				F9394EF12DC21D7B009595EA /* List */,
 				7A5869962B32EA4500640D27 /* AppButton.swift */,
 				7A0EAEA12D033D5A00D3EB8B /* BlurView.swift */,
 				7A9FA1412A2E3306000B728D /* CheckboxView.swift */,
@@ -3353,7 +3356,6 @@
 				F03580242A13842C00E5DAFD /* IncreasedHitButton.swift */,
 				7A9F29382CABFAEC005F2089 /* InfoHeaderView.swift */,
 				7A5869942B32E9C700640D27 /* LinkButton.swift */,
-				F9394EF12DC21D7B009595EA /* List */,
 				7AA1309A2D0048D800640DF9 /* MainButton.swift */,
 				7A0EAE992D01B41500D3EB8B /* MainButtonStyle.swift */,
 				F97C38E72DF025D9006DCB08 /* MullvadAlert.swift */,
@@ -3433,6 +3435,7 @@
 				F998EFF92D3656B100D88D01 /* SKProduct+Sorting.swift */,
 				58A8EE5D2976DB00009C0F8D /* StorePaymentManagerError+Display.swift */,
 				E158B35F285381C60002F069 /* String+AccountFormatting.swift */,
+				7AA564472F2B680D001D1FB9 /* String+Assets.swift */,
 				7A09C98029D99215000C2CAC /* String+FuzzyMatch.swift */,
 				5807E2BF2432038B00F5FF30 /* String+Helpers.swift */,
 				58CEB2F82AFD136E00E6E088 /* UIBackgroundConfiguration+Extensions.swift */,
@@ -6695,6 +6698,7 @@
 				5827B0AA2B0F4C9100CCBBA1 /* EditAccessMethodViewControllerDelegate.swift in Sources */,
 				F050AE5E2B739A73003F4EDB /* LocationDataSourceProtocol.swift in Sources */,
 				A99E5EE22B762ED30033F241 /* ProblemReportViewController+ViewManagement.swift in Sources */,
+				7AA564482F2B6813001D1FB9 /* String+Assets.swift in Sources */,
 				7A5869A22B502EA800640D27 /* MethodSettingsSectionIdentifier.swift in Sources */,
 				586C0D812B03CA8400E7CDD7 /* CurrentValueSubject+UIActionBindings.swift in Sources */,
 				581DFAEA2B176C51005D6D1C /* PersistentProxyConfiguration+ViewModel.swift in Sources */,
