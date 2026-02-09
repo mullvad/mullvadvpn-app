@@ -6,7 +6,7 @@ import { useHistory } from '../../../../lib/history';
 import { useFilterViewContext } from '../FilterViewContext';
 
 // Applies the changes by sending them to the daemon.
-export function useHandleApply() {
+export function useHandleApplyFilter() {
   const { providers } = useProviders();
   const history = useHistory();
   const relaySettingsUpdater = useRelaySettingsUpdater();

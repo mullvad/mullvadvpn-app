@@ -10,7 +10,7 @@ import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
 import { OwnershipFilter, ProviderFilter } from './components';
 import { FilterViewContextProvider, useFilterViewContext } from './FilterViewContext';
-import { useHandleApply } from './hooks';
+import { useHandleApplyFilter } from './hooks';
 
 const StyledViewContent = styled(View.Content)`
   margin-bottom: 0;
@@ -19,7 +19,7 @@ const StyledViewContent = styled(View.Content)`
 function FilterViewImpl() {
   const history = useHistory();
   const { availableProviders, selectedProviders } = useFilterViewContext();
-  const handleApply = useHandleApply();
+  const handleApply = useHandleApplyFilter();
 
   const noSelectedProviders = availableProviders.every(
     (provider) => !selectedProviders.includes(provider),
