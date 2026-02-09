@@ -9,11 +9,6 @@
 import Foundation
 import MullvadTypes
 
-public func iniSwiftAddressCacheWrapper(provider: DefaultAddressCacheProvider) -> SwiftAddressCacheWrapper {
-    let rawProvider = Unmanaged.passUnretained(provider).toOpaque()
-    return init_swift_address_cache_wrapper(rawProvider)
-}
-
 @_cdecl("swift_get_cached_endpoint")
 func getCacheEndpoint(rawAddressCacheProvider: UnsafeMutableRawPointer) -> LateStringDeallocator {
     let addressCacheProvider = Unmanaged<DefaultAddressCacheProvider>.fromOpaque(rawAddressCacheProvider)

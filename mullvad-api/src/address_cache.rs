@@ -2,7 +2,7 @@
 
 use crate::{ApiEndpoint, DnsResolver};
 use async_trait::async_trait;
-use std::{io, net::SocketAddr, path::Path, sync::Arc};
+use std::{io, net::SocketAddr, path::Path, sync::Arc, fmt::Debug};
 use tokio::{
     fs,
     io::{AsyncReadExt, AsyncWriteExt},
@@ -33,6 +33,13 @@ pub enum Error {
 pub trait AddressCacheBacking: Sync + Send {
     async fn read(&self) -> Result<Vec<u8>, Error>;
     async fn write(&self, data: &[u8]) -> Result<(), Error>;
+}
+
+// this should allow this to compile.
+impl Debug for dyn AddressCacheBacking {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        write!(f, "[some AddressCacheBacking]")
+    }
 }
 
 #[derive(Clone)]
@@ -76,7 +83,7 @@ impl DnsResolver for AddressCache {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct AddressCache {
     hostname: String,
     inner: Arc<Mutex<AddressCacheInner>>,
@@ -183,7 +190,7 @@ impl AddressCache {
     }
 }
 
-#[derive(Clone, PartialEq, Eq)]
+#[derive(Clone, PartialEq, Eq, Debug)]
 struct AddressCacheInner {
     address: SocketAddr,
 }

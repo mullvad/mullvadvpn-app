@@ -45,18 +45,6 @@ typedef struct SwiftShadowsocksLoaderWrapper {
   struct SwiftShadowsocksLoaderWrapperContext _0;
 } SwiftShadowsocksLoaderWrapper;
 
-typedef struct SwiftAddressCacheProviderContext {
-  const void *address_cache;
-} SwiftAddressCacheProviderContext;
-
-typedef struct SwiftAddressCacheWrapper {
-  struct SwiftAddressCacheProviderContext _0;
-} SwiftAddressCacheWrapper;
-
-/**
- * A struct used to deallocate a pointer to a C String later than when the pointer's control is relinquished from Swift.
- * Use the `deallocate_ptr` function on `ptr` to call the custom deallocator provided by Swift.
- */
 typedef struct LateStringDeallocator {
   const char *ptr;
   void (*deallocate_ptr)(const char*);
@@ -172,7 +160,6 @@ struct SwiftApiContext mullvad_api_init_new_tls_disabled(const char *host,
                                                          const char *domain,
                                                          struct SwiftShadowsocksLoaderWrapper bridge_provider,
                                                          struct SwiftAccessMethodSettingsWrapper settings_provider,
-                                                         struct SwiftAddressCacheWrapper address_cache,
                                                          void (*access_method_change_callback)(const void*,
                                                                                                const uint8_t*),
                                                          const void *access_method_change_context);
@@ -204,7 +191,6 @@ struct SwiftApiContext mullvad_api_init_new(const char *host,
                                             const char *domain,
                                             struct SwiftShadowsocksLoaderWrapper bridge_provider,
                                             struct SwiftAccessMethodSettingsWrapper settings_provider,
-                                            struct SwiftAddressCacheWrapper address_cache,
                                             void (*access_method_change_callback)(const void*,
                                                                                   const uint8_t*),
                                             const void *access_method_change_context);
@@ -229,7 +215,6 @@ struct SwiftApiContext mullvad_api_init_inner(const char *host,
                                               bool disable_tls,
                                               struct SwiftShadowsocksLoaderWrapper bridge_provider,
                                               struct SwiftAccessMethodSettingsWrapper settings_provider,
-                                              struct SwiftAddressCacheWrapper address_cache,
                                               void (*access_method_change_callback)(const void*,
                                                                                     const uint8_t*),
                                               const void *access_method_change_context);
@@ -331,25 +316,6 @@ struct SwiftCancelHandle mullvad_ios_delete_account(struct SwiftApiContext api_c
                                                     void *completion_cookie,
                                                     struct SwiftRetryStrategy retry_strategy,
                                                     const char *account_number);
-
-/**
- * Return the latest available endpoint, or a default one if none are cached
- *
- * # SAFETY
- * `rawAddressCacheProvider` **must** be provided by a call to `init_swift_address_cache_wrapper`
- * It is okay to persist it, and use it accross multiple threads.
- */
-extern struct LateStringDeallocator swift_get_cached_endpoint(const void *rawAddressCacheProvider);
-
-/**
- * Called by the Swift side in order to provide an object to rust that provides API addresses in a UTF-8 string form
- *
- * # SAFETY
- * `address_cache` **must be** pointing to a valid instance of a `DefaultAddressCacheProvider`
- * That instance's lifetime has to be equivalent to a `'static` lifetime in Rust
- * This function does not take ownership of `address_cache`
- */
-struct SwiftAddressCacheWrapper init_swift_address_cache_wrapper(const void *address_cache);
 
 /**
  * # Safety
