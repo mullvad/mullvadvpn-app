@@ -19,7 +19,6 @@ import XCTest
 
 class MullvadApiTests: XCTestCase {
     let encoder = JSONEncoder()
-    let addressCache = REST.AddressCache(canWriteToCache: false, fileCache: MemoryCache())
 
     func makeApiProxy(port: UInt16) throws -> APIQuerying {
         let shadowsocksLoader = ShadowsocksLoaderStub(
@@ -43,7 +42,6 @@ class MullvadApiTests: XCTestCase {
                     accessMethodsRepository
                     .fetchAll()
             ),
-            addressCacheProvider: addressCache,
             accessMethodChangeListeners: []
         )
 
