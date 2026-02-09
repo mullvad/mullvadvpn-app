@@ -13,7 +13,7 @@ use talpid_types::ErrorExt;
 
 #[unsafe(no_mangle)]
 #[expect(non_snake_case)]
-pub extern "system" fn Java_net_mullvad_mullvadvpn_dataproxy_MullvadProblemReport_collectReport(
+pub extern "system" fn Java_net_mullvad_mullvadvpn_lib_repository_ProblemReportRepository_collectReport(
     env: JNIEnv<'_>,
     _: JObject<'_>,
     logDirectory: JString<'_>,
@@ -54,7 +54,7 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_dataproxy_MullvadProblemRepor
 
 #[unsafe(no_mangle)]
 #[expect(non_snake_case)]
-pub extern "system" fn Java_net_mullvad_mullvadvpn_dataproxy_MullvadProblemReport_sendProblemReport(
+pub extern "system" fn Java_net_mullvad_mullvadvpn_lib_repository_ProblemReportRepository_sendProblemReport(
     env: JNIEnv<'_>,
     _: JObject<'_>,
     userEmail: JString<'_>,

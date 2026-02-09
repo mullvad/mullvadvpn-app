@@ -201,7 +201,7 @@ val uiModule = module {
     single {
         SupportEmailUseCase(
             context = androidContext(),
-            mullvadProblemReport = get(),
+            problemReportRepository = get(),
             buildVersion = get(),
         )
     }
