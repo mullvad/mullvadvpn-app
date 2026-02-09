@@ -3,7 +3,7 @@ package net.mullvad.mullvadvpn.lib.ui.component.listitem
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.rounded.Clear
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -58,7 +58,7 @@ fun DeviceListItem(
             } else {
                 IconButton(onClick = onDeviceRemovalClicked) {
                     Icon(
-                        imageVector = Icons.Default.Clear,
+                        imageVector = Icons.Rounded.Clear,
                         contentDescription = stringResource(id = R.string.remove_button),
                         tint = MaterialTheme.colorScheme.onPrimary,
                         modifier = Modifier.size(size = Dimens.deleteIconSize),

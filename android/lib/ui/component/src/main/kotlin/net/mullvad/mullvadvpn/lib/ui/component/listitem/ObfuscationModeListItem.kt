@@ -1,7 +1,7 @@
 package net.mullvad.mullvadvpn.lib.ui.component.listitem
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -66,7 +66,7 @@ fun ObfuscationModeListItem(
             DividerButton(
                 modifier = Modifier.testTag(buttonRightTestTag),
                 onClick = onNavigate,
-                icon = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                icon = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
             )
         },
     )

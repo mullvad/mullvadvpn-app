@@ -11,9 +11,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Redeem
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Sell
+import androidx.compose.material.icons.rounded.Redeem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -473,7 +473,7 @@ private fun Products(
         )
     }
     IconListItem(
-        leadingIcon = Icons.Default.Redeem,
+        leadingIcon = Icons.Rounded.Redeem,
         title = stringResource(id = R.string.redeem_voucher),
         colors =
             ListItemDefaults.colors(

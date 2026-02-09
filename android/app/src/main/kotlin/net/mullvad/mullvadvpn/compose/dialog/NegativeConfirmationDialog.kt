@@ -5,7 +5,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Error
+import androidx.compose.material.icons.rounded.Error
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalTextStyle
@@ -93,7 +93,7 @@ fun NegativeConfirmationDialog(
         icon = {
             Icon(
                 modifier = Modifier.fillMaxWidth().height(Dimens.dialogIconHeight),
-                imageVector = Icons.Default.Error,
+                imageVector = Icons.Rounded.Error,
                 contentDescription = stringResource(id = R.string.remove_button),
                 tint = MaterialTheme.colorScheme.error,
             )

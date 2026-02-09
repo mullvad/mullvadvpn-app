@@ -12,7 +12,7 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -96,7 +96,7 @@ fun SelectableListItem(
                 val defaultColors = ListItemDefaults.colors()
                 Icon(
                     modifier = Modifier.padding(end = Dimens.smallPadding),
-                    imageVector = Icons.Default.Check,
+                    imageVector = Icons.Rounded.Check,
                     contentDescription = iconContentDescription,
                     // Set the tint explicitly here because the animation looks better if the icon
                     // does not change color to white while sliding out.

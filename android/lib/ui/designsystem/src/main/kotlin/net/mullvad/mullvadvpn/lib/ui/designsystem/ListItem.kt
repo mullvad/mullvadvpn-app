@@ -21,10 +21,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.Check
+import androidx.compose.material.icons.rounded.KeyboardArrowDown
+import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -278,7 +278,7 @@ private fun PreviewLeadingContentListItem() {
             leadingContent = {
                 Icon(
                     modifier = Modifier.size(24.dp).align(Alignment.Center),
-                    imageVector = Icons.Default.Star,
+                    imageVector = Icons.Rounded.Star,
                     contentDescription = null,
                 )
             },
@@ -301,7 +301,7 @@ private fun PreviewLeadingContentListItem() {
                 ) {
                     Icon(
                         modifier = Modifier.padding(16.dp),
-                        imageVector = Icons.Default.KeyboardArrowDown,
+                        imageVector = Icons.Rounded.KeyboardArrowDown,
                         contentDescription = null,
                     )
                 }
@@ -336,7 +336,7 @@ private fun PreviewLeadingListItem() {
                 ) {
                     Icon(
                         modifier = Modifier.padding(16.dp),
-                        imageVector = Icons.Default.KeyboardArrowDown,
+                        imageVector = Icons.Rounded.KeyboardArrowDown,
                         contentDescription = null,
                     )
                 }
@@ -358,7 +358,7 @@ private fun PreviewTrailingListItem() {
                     modifier = Modifier.padding(16.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Icon(imageVector = Icons.Default.Check, contentDescription = null)
+                    Icon(imageVector = Icons.Rounded.Check, contentDescription = null)
                     Spacer(Modifier.width(8.dp))
                     Text("Sample Item", maxLines = 1, overflow = TextOverflow.Ellipsis)
                 }
@@ -370,7 +370,7 @@ private fun PreviewTrailingListItem() {
                 ) {
                     Icon(
                         modifier = Modifier.padding(16.dp),
-                        imageVector = Icons.Default.Add,
+                        imageVector = Icons.Rounded.Add,
                         contentDescription = null,
                     )
                 }
@@ -393,7 +393,7 @@ private fun PreviewHierarchyListItem() {
                     modifier = Modifier.padding(16.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Icon(imageVector = Icons.Default.Check, contentDescription = null)
+                    Icon(imageVector = Icons.Rounded.Check, contentDescription = null)
                     Spacer(Modifier.width(8.dp))
                     Text("Sample Item", maxLines = 1, overflow = TextOverflow.Ellipsis)
                 }
@@ -405,7 +405,7 @@ private fun PreviewHierarchyListItem() {
                 ) {
                     Icon(
                         modifier = Modifier.padding(16.dp),
-                        imageVector = Icons.Default.Add,
+                        imageVector = Icons.Rounded.Add,
                         contentDescription = null,
                     )
                 }
@@ -437,7 +437,7 @@ private fun PreviewListItemPositions() {
                 ) {
                     Icon(
                         modifier = Modifier.padding(16.dp),
-                        imageVector = Icons.Default.Add,
+                        imageVector = Icons.Rounded.Add,
                         contentDescription = null,
                     )
                 }

@@ -18,14 +18,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.FilterList
-import androidx.compose.material.icons.filled.History
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.AddLocationAlt
 import androidx.compose.material.icons.outlined.WrongLocation
+import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material.icons.rounded.FilterList
+import androidx.compose.material.icons.rounded.History
+import androidx.compose.material.icons.rounded.MoreVert
+import androidx.compose.material.icons.rounded.Refresh
+import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FloatingActionButton
@@ -395,7 +395,7 @@ fun SelectLocationScreen(
         navigationIcon = {
             IconButton(onClick = onBackClick) {
                 Icon(
-                    imageVector = Icons.Default.Close,
+                    imageVector = Icons.Rounded.Close,
                     tint = MaterialTheme.colorScheme.onSurface,
                     contentDescription = stringResource(id = R.string.back),
                 )
@@ -412,7 +412,7 @@ fun SelectLocationScreen(
                     contentColor = MaterialTheme.colorScheme.onPrimary,
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Search,
+                        imageVector = Icons.Rounded.Search,
                         contentDescription = stringResource(id = R.string.search),
                         tint = MaterialTheme.colorScheme.onSurface,
                     )
@@ -427,7 +427,7 @@ fun SelectLocationScreen(
                     onClick = { state.contentOrNull()?.let { onSearchClick(it.relayListType) } },
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Search,
+                        imageVector = Icons.Rounded.Search,
                         contentDescription = stringResource(id = R.string.search),
                         tint =
                             MaterialTheme.colorScheme.onSurface.copy(
@@ -568,7 +568,7 @@ private fun SelectLocationDropdownMenu(
         onClick = { showMenu = !showMenu },
     ) {
         Icon(
-            imageVector = Icons.Default.MoreVert,
+            imageVector = Icons.Rounded.MoreVert,
             contentDescription = stringResource(R.string.more_actions),
         )
     }
@@ -592,7 +592,7 @@ private fun SelectLocationDropdownMenu(
             },
             enabled = filterButtonEnabled,
             colors = colors,
-            leadingIcon = { Icon(Icons.Filled.FilterList, contentDescription = null) },
+            leadingIcon = { Icon(Icons.Rounded.FilterList, contentDescription = null) },
         )
 
         // Keep these assets in remember so we don't change them as we animate away the dropdown
@@ -603,7 +603,7 @@ private fun SelectLocationDropdownMenu(
             )
         }
         var recentsIcon by remember {
-            mutableStateOf(if (recentsEnabled) DeleteHistory else Icons.Filled.History)
+            mutableStateOf(if (recentsEnabled) DeleteHistory else Icons.Rounded.History)
         }
         DropdownMenuItem(
             text = { Text(text = stringResource(recentsItemTextId)) },
@@ -644,7 +644,7 @@ private fun SelectLocationDropdownMenu(
                 onRefreshRelayList()
             },
             colors = colors,
-            leadingIcon = { Icon(Icons.Filled.Refresh, contentDescription = null) },
+            leadingIcon = { Icon(Icons.Rounded.Refresh, contentDescription = null) },
         )
     }
 }

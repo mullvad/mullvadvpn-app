@@ -9,9 +9,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Android
-import androidx.compose.material.icons.filled.Remove
+import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.Android
+import androidx.compose.material.icons.rounded.Remove
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -86,9 +86,9 @@ fun SplitTunnelingListItem(
             Icon(
                 imageVector =
                     if (isSelected) {
-                        Icons.Default.Remove
+                        Icons.Rounded.Remove
                     } else {
-                        Icons.Default.Add
+                        Icons.Rounded.Add
                     },
                 contentDescription = null,
                 tint =
@@ -126,7 +126,7 @@ private fun BoxScope.Icon(iconState: IconState, isEnabled: Boolean) {
         }
         IconState.NoIcon ->
             Image(
-                imageVector = Icons.Default.Android,
+                imageVector = Icons.Rounded.Android,
                 contentDescription = null,
                 alpha = if (isEnabled) 1f else AlphaDisabled,
                 modifier =

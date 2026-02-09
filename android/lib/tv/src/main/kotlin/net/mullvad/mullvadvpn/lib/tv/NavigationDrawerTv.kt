@@ -16,8 +16,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.rounded.AccountCircle
+import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -126,13 +126,13 @@ fun NavigationDrawerTv(
                 )
                 DrawerItemTv(
                     modifier = Modifier.align(Alignment.CenterStart),
-                    icon = Icons.Default.AccountCircle,
+                    icon = Icons.Rounded.AccountCircle,
                     text = stringResource(R.string.settings_account),
                     onClick = onAccountClick,
                 )
                 DrawerItemTv(
                     modifier = Modifier.align(Alignment.BottomStart),
-                    icon = Icons.Default.Settings,
+                    icon = Icons.Rounded.Settings,
                     text = stringResource(R.string.settings),
                     onClick = onSettingsClick,
                 )

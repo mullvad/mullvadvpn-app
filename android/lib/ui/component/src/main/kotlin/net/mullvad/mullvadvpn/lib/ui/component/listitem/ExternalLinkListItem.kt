@@ -3,8 +3,8 @@ package net.mullvad.mullvadvpn.lib.ui.component.listitem
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.OpenInNew
-import androidx.compose.material.icons.filled.Error
+import androidx.compose.material.icons.automirrored.rounded.OpenInNew
+import androidx.compose.material.icons.rounded.Error
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -63,7 +63,7 @@ fun ExternalLinkListItem(
             when {
                 showWarning ->
                     Icon(
-                        imageVector = Icons.Default.Error,
+                        imageVector = Icons.Rounded.Error,
                         modifier = Modifier.padding(end = Dimens.smallPadding),
                         contentDescription = stringResource(R.string.warning),
                         tint = MaterialTheme.colorScheme.error,
@@ -85,7 +85,7 @@ fun ExternalLinkListItem(
         },
         trailingContent = {
             Icon(
-                imageVector = Icons.AutoMirrored.Default.OpenInNew,
+                imageVector = Icons.AutoMirrored.Rounded.OpenInNew,
                 contentDescription = stringResource(R.string.external_link),
             )
         },

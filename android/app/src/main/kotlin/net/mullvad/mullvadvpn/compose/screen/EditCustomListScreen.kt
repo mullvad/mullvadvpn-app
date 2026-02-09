@@ -5,8 +5,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -194,7 +194,7 @@ private fun Actions(enabled: Boolean, onDeleteList: () -> Unit) {
         onClick = { showMenu = true },
         modifier = Modifier.testTag(TOP_BAR_DROPDOWN_BUTTON_TEST_TAG),
     ) {
-        Icon(imageVector = Icons.Default.MoreVert, contentDescription = null)
+        Icon(imageVector = Icons.Rounded.MoreVert, contentDescription = null)
         if (showMenu) {
             DropdownMenu(
                 expanded = true,
@@ -210,7 +210,7 @@ private fun Actions(enabled: Boolean, onDeleteList: () -> Unit) {
                     },
                     leadingIcon = {
                         Icon(
-                            imageVector = Icons.Default.Delete,
+                            imageVector = Icons.Rounded.Delete,
                             tint = MaterialTheme.colorScheme.onSurface,
                             contentDescription = null,
                         )

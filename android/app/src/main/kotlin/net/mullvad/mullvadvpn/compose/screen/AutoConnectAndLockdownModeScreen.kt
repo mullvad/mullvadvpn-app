@@ -22,9 +22,9 @@ import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material.icons.automirrored.filled.OpenInNew
+import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
+import androidx.compose.material.icons.automirrored.rounded.OpenInNew
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -103,7 +103,7 @@ fun AutoConnectAndLockdownModeScreen(onBackClick: () -> Unit) {
                         ),
                 trailingIcon = {
                     Icon(
-                        imageVector = Icons.AutoMirrored.Filled.OpenInNew,
+                        imageVector = Icons.AutoMirrored.Rounded.OpenInNew,
                         tint = MaterialTheme.colorScheme.onPrimary,
                         contentDescription = null,
                     )
@@ -138,7 +138,7 @@ fun AutoConnectAndLockdownModeScreen(onBackClick: () -> Unit) {
                             }
                         },
                         isEnabled = { pagerState.currentPage != 0 },
-                        imageVector = Icons.AutoMirrored.Default.KeyboardArrowLeft,
+                        imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowLeft,
                     )
 
                     // Go to next page
@@ -155,7 +155,7 @@ fun AutoConnectAndLockdownModeScreen(onBackClick: () -> Unit) {
                             }
                         },
                         isEnabled = { pagerState.currentPage != pagerState.pageCount - 1 },
-                        imageVector = Icons.AutoMirrored.Default.KeyboardArrowRight,
+                        imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
                     )
 
                     PageIndicator(

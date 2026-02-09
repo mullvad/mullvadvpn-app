@@ -1,7 +1,7 @@
 package net.mullvad.mullvadvpn.compose.button
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.OpenInNew
+import androidx.compose.material.icons.automirrored.rounded.OpenInNew
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -64,7 +64,7 @@ fun ExternalButton(
         icon = {
             if (!isLoading) {
                 Icon(
-                    imageVector = Icons.AutoMirrored.Filled.OpenInNew,
+                    imageVector = Icons.AutoMirrored.Rounded.OpenInNew,
                     tint = MaterialTheme.colorScheme.onTertiary,
                     contentDescription = null,
                 )

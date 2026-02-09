@@ -2,7 +2,7 @@ package net.mullvad.mullvadvpn.lib.ui.designsystem
 
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.rounded.Clear
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.InputChip
@@ -63,7 +63,7 @@ fun MullvadFilterChip(
             if (enabled) {
                 {
                     Icon(
-                        imageVector = Icons.Default.Clear,
+                        imageVector = Icons.Rounded.Clear,
                         contentDescription = null,
                         modifier = Modifier.size(Dimens.smallIconSize),
                     )

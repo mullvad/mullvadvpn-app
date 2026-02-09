@@ -10,14 +10,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.outlined.AddLocationAlt
 import androidx.compose.material.icons.outlined.Dns
 import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material.icons.outlined.WrongLocation
+import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material.icons.rounded.Edit
+import androidx.compose.material.icons.rounded.Remove
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -305,7 +305,7 @@ private fun EditCustomListBottomSheet(
         )
         SubHeader(text = stringResource(R.string.edit_list), onBackgroundColor = onBackgroundColor)
         IconListItem(
-            leadingIcon = Icons.Default.Edit,
+            leadingIcon = Icons.Rounded.Edit,
             title = stringResource(id = R.string.edit_name),
             colors =
                 ListItemDefaults.colors(
@@ -319,7 +319,7 @@ private fun EditCustomListBottomSheet(
             },
         )
         IconListItem(
-            leadingIcon = Icons.Default.Add,
+            leadingIcon = Icons.Rounded.Add,
             title = stringResource(id = R.string.edit_locations),
             colors =
                 ListItemDefaults.colors(
@@ -333,7 +333,7 @@ private fun EditCustomListBottomSheet(
             },
         )
         IconListItem(
-            leadingIcon = Icons.Default.Delete,
+            leadingIcon = Icons.Rounded.Delete,
             title = stringResource(id = R.string.delete),
             colors =
                 ListItemDefaults.colors(
@@ -389,7 +389,7 @@ private fun CustomListEntryBottomSheet(
             closeBottomSheet = closeBottomSheet,
         )
         IconListItem(
-            leadingIcon = Icons.Default.Remove,
+            leadingIcon = Icons.Rounded.Remove,
             title =
                 stringResource(id = R.string.remove_location_from_list, item.name, customListName),
             colors =
@@ -435,7 +435,7 @@ private fun CustomLists(
         )
     }
     IconListItem(
-        leadingIcon = Icons.Default.Add,
+        leadingIcon = Icons.Rounded.Add,
         title = stringResource(id = R.string.new_list),
         colors =
             ListItemDefaults.colors(

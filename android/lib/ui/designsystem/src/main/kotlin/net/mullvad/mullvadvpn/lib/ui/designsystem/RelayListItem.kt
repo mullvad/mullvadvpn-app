@@ -17,9 +17,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.Check
+import androidx.compose.material.icons.rounded.KeyboardArrowDown
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalTextStyle
@@ -202,7 +202,7 @@ private fun PreviewLeadingRelayListItem() {
                 ) {
                     Icon(
                         modifier = Modifier.padding(16.dp),
-                        imageVector = Icons.Default.KeyboardArrowDown,
+                        imageVector = Icons.Rounded.KeyboardArrowDown,
                         contentDescription = null,
                     )
                 }
@@ -224,7 +224,7 @@ private fun PreviewTrailingRelayListItem() {
                     modifier = Modifier.padding(16.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Icon(imageVector = Icons.Default.Check, contentDescription = null)
+                    Icon(imageVector = Icons.Rounded.Check, contentDescription = null)
                     Spacer(Modifier.width(8.dp))
                     Text("Sample Relay Item", maxLines = 1, overflow = TextOverflow.Ellipsis)
                 }
@@ -236,7 +236,7 @@ private fun PreviewTrailingRelayListItem() {
                 ) {
                     Icon(
                         modifier = Modifier.padding(16.dp),
-                        imageVector = Icons.Default.Add,
+                        imageVector = Icons.Rounded.Add,
                         contentDescription = null,
                     )
                 }

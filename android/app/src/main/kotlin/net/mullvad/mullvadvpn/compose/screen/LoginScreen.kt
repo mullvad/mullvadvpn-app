@@ -22,7 +22,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.rounded.Clear
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -532,7 +532,7 @@ private fun AccountDropDownItem(
             onClick = onDeleteClick,
         ) {
             Icon(
-                imageVector = Icons.Default.Clear,
+                imageVector = Icons.Rounded.Clear,
                 contentDescription = null,
                 modifier = Modifier.size(Dimens.listIconSize),
             )
