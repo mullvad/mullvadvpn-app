@@ -5,8 +5,7 @@
 #[cfg(not(target_os = "android"))]
 mod imp {
     use mullvad_api::{
-        ApiEndpoint, Error, RelayListProxy, proxy::ApiConnectionMode, relay_list_transparency,
-        rest::Error as RestError,
+        ApiEndpoint, RelayListProxy, proxy::ApiConnectionMode, rest::Error as RestError,
     };
     use std::process;
     use talpid_types::ErrorExt;
@@ -19,16 +18,15 @@ mod imp {
             runtime.mullvad_rest_handle(ApiConnectionMode::Direct.into_provider()),
         );
 
-        let response =
-            relay_list_transparency::download_and_verify_relay_list(proxy, None, None).await;
+        let response = proxy.relay_list(None, None).await;
 
         let relay_list = match response {
             Ok(relay_list) => relay_list,
-            Err(Error::RestError(RestError::TimeoutError)) => {
+            Err(RestError::TimeoutError) => {
                 eprintln!("Request timed out");
                 process::exit(2);
             }
-            Err(e @ Error::RestError(RestError::DeserializeError(_))) => {
+            Err(e @ RestError::DeserializeError(_)) => {
                 eprintln!(
                     "{}",
                     e.display_chain_with_msg("Failed to deserialize relay list")

@@ -1,5 +1,5 @@
 use crate::relay_list_transparency::validate;
-use crate::{CachedRelayList, RelayListProxy, rest};
+use crate::{CachedRelayList, RelayListProxy, SigsumPublicKey, rest};
 use chrono::{DateTime, Utc};
 use std::time::Duration;
 
@@ -41,28 +41,30 @@ impl RelayListSignature {
 /// If the verification fails the error is only logged, and a new relay list will still be
 /// fetched and used as long as we are able to parse the digest (which is needed to fetch
 /// the relay list).
-pub async fn download_and_verify_relay_list(
-    proxy: RelayListProxy,
+pub(crate) async fn download_and_verify_relay_list(
+    proxy: &RelayListProxy,
     latest_digest: Option<RelayListDigest>,
     latest_timestamp: Option<DateTime<Utc>>,
-) -> Result<Option<CachedRelayList>, crate::Error> {
+    sigsum_trusted_pubkeys: Vec<SigsumPublicKey>,
+) -> Result<Option<CachedRelayList>, rest::Error> {
     // Fetch relay list latest sigsum signature.
-    let relay_list_sig = proxy.relay_list_latest_signature().await?;
+    let relay_list_sig = proxy.relay_list_latest_timestamp().await?;
 
     // Parse the timestamp from the signature.
-    let timestamp = match validate::validate_relay_list_signature(&relay_list_sig) {
-        Ok(timestamp) => {
-            log::debug!("SIGSUM: Relay list sigsum signature validation succeeded");
-            timestamp
-        }
-        Err(e) => {
-            log::error!(
-                "SIGSUM: Relay list sigsum signature validation failed: {}",
-                e.source
-            );
-            log::debug!("SIGSUM: Attempting to parse unverified timestamp");
+    let timestamp =
+        match validate::validate_relay_list_signature(&relay_list_sig, sigsum_trusted_pubkeys) {
+            Ok(timestamp) => {
+                log::debug!("SIGSUM: Relay list sigsum signature validation succeeded");
+                timestamp
+            }
+            Err(e) => {
+                log::error!(
+                    "SIGSUM: Relay list sigsum signature validation failed: {}",
+                    e.source
+                );
+                log::debug!("SIGSUM: Attempting to parse unverified timestamp");
 
-            e.timestamp_parser
+                e.timestamp_parser
                 .parse_without_verification()
                 .inspect_err(|_| {
                     log::error!(
@@ -71,8 +73,8 @@ pub async fn download_and_verify_relay_list(
                 })
                 .inspect(|_| log::debug!("SIGSUM: Successfully parsed unverified timestamp"))
                 .map_err(rest::Error::from)?
-        }
-    };
+            }
+        };
 
     // Verify that the timestamp is not too old.
     let new_timestamp = timestamp.timestamp;
@@ -101,7 +103,7 @@ pub async fn download_and_verify_relay_list(
 
     // Fetch the actual relay list given the timestamp digest.
     let response = proxy
-        .relay_list(&timestamp.digest, timestamp.timestamp)
+        .relay_list_content(&timestamp.digest, timestamp.timestamp)
         .await?;
 
     // Validate that the sigsum digest matches the relay list hash.

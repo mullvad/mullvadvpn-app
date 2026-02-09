@@ -38,6 +38,7 @@ pub use address_cache::{AddressCache, FileAddressCacheBacking};
 pub use device::DevicesProxy;
 pub use hyper::StatusCode;
 pub use relay_list::{CachedRelayList, RelayListProxy};
+pub use sigsum::PublicKey as SigsumPublicKey;
 
 /// Error code returned by the Mullvad API if the voucher has alreaby been used.
 pub const VOUCHER_USED: &str = "VOUCHER_USED";
@@ -108,6 +109,8 @@ pub struct ApiEndpoint {
     /// To disable `force_direct`, set the environment variable
     /// `MULLVAD_API_FORCE_DIRECT=0` before starting the daemon.
     pub force_direct: bool,
+
+    sigsum_trusted_pubkeys: Option<Vec<SigsumPublicKey>>,
 }
 
 impl ApiEndpoint {
@@ -123,6 +126,7 @@ impl ApiEndpoint {
         let address_var = read_env_var(env::API_ADDR_VAR);
         let disable_tls_var = read_env_var(env::DISABLE_TLS_VAR);
         let force_direct = read_env_var(env::API_FORCE_DIRECT_VAR);
+        let sigsum_trusted_pubkeys = read_env_var(env::SIGSUM_TRUSTED_PUBKEYS_VAR);
 
         let mut api = ApiEndpoint {
             host: None,
@@ -131,6 +135,8 @@ impl ApiEndpoint {
             force_direct: force_direct
                 .map(|force_direct| force_direct != "0")
                 .unwrap_or_else(|| host_var.is_some() || address_var.is_some()),
+            sigsum_trusted_pubkeys: sigsum_trusted_pubkeys
+                .map(|keys| relay_list_transparency::parse_pubkeys(&keys, ',')),
         };
 
         match (host_var, address_var) {
@@ -224,6 +230,7 @@ impl ApiEndpoint {
         ApiEndpoint {
             host: None,
             address: None,
+            sigsum_trusted_pubkeys: None,
             #[cfg(test)]
             disable_tls: false,
         }
@@ -233,11 +240,13 @@ impl ApiEndpoint {
     pub fn new(
         host: String,
         address: SocketAddr,
+        sigsum_trusted_pubkeys: Vec<SigsumPublicKey>,
         #[cfg(any(feature = "api-override", test))] disable_tls: bool,
     ) -> Self {
         Self {
             host: Some(host),
             address: Some(address),
+            sigsum_trusted_pubkeys: Some(sigsum_trusted_pubkeys),
             #[cfg(any(feature = "api-override", test))]
             disable_tls,
             #[cfg(feature = "api-override")]
@@ -260,6 +269,17 @@ impl ApiEndpoint {
     pub fn address(&self) -> SocketAddr {
         self.address
             .unwrap_or(SocketAddr::new(API_IP_DEFAULT, API_PORT_DEFAULT))
+    }
+
+    /// Read the [`Self::sigsum_trusted_pubkeys`] value, falling back to
+    /// [`Self::SIGSUM_TRUSTED_PUBKEYS_DEFAULT`] as default value if it does not exist.
+    pub fn sigsum_trusted_pubkeys(&self) -> Vec<SigsumPublicKey> {
+        self.sigsum_trusted_pubkeys
+            .clone()
+            .unwrap_or(relay_list_transparency::parse_pubkeys(
+                SIGSUM_TRUSTED_PUBKEYS_DEFAULT,
+                '\n',
+            ))
     }
 }
 
@@ -428,10 +448,16 @@ impl Runtime {
             self.endpoint.disable_tls,
         );
         let hostname = self.endpoint.host().to_owned();
+        let sigsum_trusted_pubkeys = self.endpoint.sigsum_trusted_pubkeys();
         let token_store = access::AccessTokenStore::new(service.clone(), hostname.clone());
         let factory = rest::RequestFactory::new(hostname, Some(token_store));
 
-        rest::MullvadRestHandle::new(service, factory, self.availability_handle())
+        rest::MullvadRestHandle::new(
+            service,
+            factory,
+            self.availability_handle(),
+            sigsum_trusted_pubkeys,
+        )
     }
 
     /// Returns a new request service handle

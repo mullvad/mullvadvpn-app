@@ -1,30 +1,12 @@
-use crate::read_env_var;
+use crate::SigsumPublicKey;
 use crate::relay_list_transparency::{RelayListDigest, RelayListSignature, Sha256Bytes};
 use chrono::{DateTime, Utc};
-use mullvad_api_constants::env;
 use serde::Deserialize;
 use sigsum::{Hash, ParseAsciiError, Policy, PublicKey, SigsumSignature, VerifyError};
-use std::sync::LazyLock;
-
-/// Pubkeys used to verify the sigsum signature of the relay list
-static SIGNING_PUBKEYS: LazyLock<Vec<PublicKey>> = LazyLock::new(get_keys);
-
-/// Returns the sigsum pubkeys that we should validate against either from the checked in file
-/// with the production trusted keys or from the env variable `MULLVAD_SIGSUM_TRUSTED_PUBKEYS`.
-/// Note that the env variable override will only work if the `api-override` feature is enabled.
-fn get_keys() -> Vec<PublicKey> {
-    if let Some(pubkeys) = read_env_var(env::SIGSUM_TRUSTED_PUBKEYS_VAR)
-        && cfg!(feature = "api-override")
-    {
-        parse_keys(&pubkeys, ',')
-    } else {
-        parse_keys(include_str!("trusted-sigsum-signing-pubkeys"), '\n')
-    }
-}
 
 /// Parses a vec of pubkeys from a string input where each key is in a hex string format and
 /// separated by `delimiter`. Lines starting with `#` are ignored.
-fn parse_keys(keys: &str, delimiter: char) -> Vec<PublicKey> {
+pub fn parse_pubkeys(keys: &str, delimiter: char) -> Vec<PublicKey> {
     keys.split(delimiter)
         .filter_map(|key| -> Option<PublicKey> {
             let key = key.trim();
@@ -59,18 +41,17 @@ pub struct Timestamp {
 /// to failing hard on signature validation errors.
 pub(crate) fn validate_relay_list_signature(
     sig: &RelayListSignature,
+    trusted_pubkeys: Vec<SigsumPublicKey>,
 ) -> Result<Timestamp, SignatureVerificationFailedError> {
     let policy = Policy::builtin(POLICY).unwrap();
 
     let sigsum_signature = SigsumSignature::from_ascii(&sig.unparsed_sigsum_signature)
         .map_err(|e| SignatureVerificationFailedError::new(sig, SigsumError::from(e)))?;
 
-    let public_keys = SIGNING_PUBKEYS.clone();
-
     sigsum::verify(
         &Hash::new(sig.unparsed_timestamp.as_bytes()),
         sigsum_signature,
-        public_keys,
+        trusted_pubkeys.clone(),
         &policy,
     )
     .map_err(|e| SignatureVerificationFailedError::new(sig, SigsumError::from(e)))?;
@@ -168,27 +149,28 @@ mod test {
 
     #[test]
     fn test_parsing_pubkey_from_file() {
-        let trusted = include_str!("trusted-sigsum-signing-pubkeys");
-        let keys = parse_keys(trusted, '\n');
+        let trusted =
+            include_str!("../../mullvad-api-constants/src/trusted-sigsum-signing-pubkeys");
+        let keys = parse_pubkeys(trusted, '\n');
         assert!(!keys.is_empty());
     }
 
     #[test]
     fn test_parsing_pubkey_can_contain_empty_lines_and_comments() {
         let input = "";
-        let keys = parse_keys(input, '\n');
+        let keys = parse_pubkeys(input, '\n');
         assert!(keys.is_empty());
 
         let input =
             "#this is a comment\n35809994d285fe3dd50d49c384db49519412008c545cb6588c138a86ae4c3284";
-        let keys = parse_keys(input, '\n');
+        let keys = parse_pubkeys(input, '\n');
         assert_eq!(1, keys.len());
     }
 
     #[test]
     fn test_parsing_pubkey_with_comma_delimiter() {
         let input = "35809994d285fe3dd50d49c384db49519412008c545cb6588c138a86ae4c3284,9e05c843f17ed7225df58fdfd6ddcd65251aa6db4ad8ea63bd2bf0326e30577d";
-        let keys = parse_keys(input, ',');
+        let keys = parse_pubkeys(input, ',');
         let key1: String = keys[0].encode_hex();
         let key2: String = keys[1].encode_hex();
 

@@ -3,13 +3,14 @@ mod sigsum_test {
     use crate::relay_list_transparency::validate::{
         validate_relay_list_content, validate_relay_list_signature,
     };
-    use crate::relay_list_transparency::{RelayListSignature, Sha256Bytes};
+    use crate::relay_list_transparency::{RelayListSignature, Sha256Bytes, validate};
     use sha2::{Digest, Sha256};
 
     #[test]
     fn test_validate_relay_list_signature() {
         let sig = RelayListSignature::parse(RELAY_LIST_SIGNATURE).unwrap();
-        let timestamp = validate_relay_list_signature(&sig).unwrap();
+        let pubkeys = validate::parse_pubkeys(PUBKEYS, ',');
+        let timestamp = validate_relay_list_signature(&sig, pubkeys).unwrap();
         let digest: Sha256Bytes = Sha256::digest(RELAY_LIST_CONTENT.as_bytes()).into();
         let digest_hex = hex::encode(digest);
         validate_relay_list_content(&timestamp, &digest_hex).unwrap();
@@ -19,13 +20,30 @@ mod sigsum_test {
     fn test_invalid_signature_can_parse_unverified_timestamp() {
         let sig =
             RelayListSignature::parse(&format!("{RELAY_LIST_SIGNATURE}bad-signature")).unwrap();
-        let err = validate_relay_list_signature(&sig).unwrap_err();
+        let pubkeys = validate::parse_pubkeys(PUBKEYS, ',');
+        let err = validate_relay_list_signature(&sig, pubkeys).unwrap_err();
         let timestamp = err.timestamp_parser.parse_without_verification().unwrap();
 
         let digest: Sha256Bytes = Sha256::digest(RELAY_LIST_CONTENT.as_bytes()).into();
         let digest_hex = hex::encode(digest);
         validate_relay_list_content(&timestamp, &digest_hex).unwrap();
     }
+
+    #[test]
+    fn test_invalid_pubkey_can_parse_unverified_timestamp() {
+        let sig = RelayListSignature::parse(RELAY_LIST_SIGNATURE).unwrap();
+        let pubkeys = validate::parse_pubkeys(PUBKEYS_INVALID, ',');
+        let err = validate_relay_list_signature(&sig, pubkeys).unwrap_err();
+        let timestamp = err.timestamp_parser.parse_without_verification().unwrap();
+
+        let digest: Sha256Bytes = Sha256::digest(RELAY_LIST_CONTENT.as_bytes()).into();
+        let digest_hex = hex::encode(digest);
+        validate_relay_list_content(&timestamp, &digest_hex).unwrap();
+    }
+
+    static PUBKEYS: &str = "35809994d285fe3dd50d49c384db49519412008c545cb6588c138a86ae4c3284,9e05c843f17ed7225df58fdfd6ddcd65251aa6db4ad8ea63bd2bf0326e30577d";
+
+    static PUBKEYS_INVALID: &str = "11119994d285fe3dd50d49c384db49519412008c545cb6588c138a86ae4c3284,1111c843f17ed7225df58fdfd6ddcd65251aa6db4ad8ea63bd2bf0326e30577d";
 
     static RELAY_LIST_SIGNATURE: &str = r#"{"digest":"446fc8ebccd95d5fc07362109b5a4f5eac8c38886ebd6d918d007b6a4fb72865","timestamp":"2026-02-03T10:47:14+00:00"}
 

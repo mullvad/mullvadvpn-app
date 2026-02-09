@@ -1,6 +1,6 @@
 //! A module dedicated to retrieving the relay list from the Mullvad API.
 
-use crate::rest;
+use crate::{relay_list_transparency, rest};
 
 use hyper::{StatusCode, body::Incoming};
 use mullvad_types::{
@@ -35,13 +35,28 @@ impl RelayListProxy {
         Self { handle }
     }
 
-    /// Fetch the relay list
     pub async fn relay_list(
+        &self,
+        latest_digest: Option<RelayListDigest>,
+        latest_timestamp: Option<DateTime<Utc>>,
+    ) -> Result<Option<CachedRelayList>, rest::Error> {
+        let sigsum_trusted_pubkeys = self.handle.sigsum_trusted_pubkeys.clone();
+        relay_list_transparency::download_and_verify_relay_list(
+            self,
+            latest_digest,
+            latest_timestamp,
+            sigsum_trusted_pubkeys,
+        )
+        .await
+    }
+
+    /// Fetch the relay list
+    pub(crate) async fn relay_list_content(
         &self,
         digest: &RelayListDigest,
         latest_timestamp: DateTime<Utc>,
     ) -> Result<CachedRelayList, rest::Error> {
-        let response = self.relay_list_response(digest).await?;
+        let response = self.relay_list_content_response(digest).await?;
 
         response
             .body()
@@ -55,7 +70,7 @@ impl RelayListProxy {
             .inspect_err(|_err| log::error!("Failed to deserialize API response of relay list"))
     }
 
-    async fn relay_list_response(
+    async fn relay_list_content_response(
         &self,
         digest: &RelayListDigest,
     ) -> Result<rest::Response<Incoming>, rest::Error> {
@@ -70,8 +85,10 @@ impl RelayListProxy {
     }
 
     /// Fetch the relay list sigsum
-    pub async fn relay_list_latest_signature(&self) -> Result<RelayListSignature, rest::Error> {
-        let response = self.relay_list_signature_response().await?;
+    pub(crate) async fn relay_list_latest_timestamp(
+        &self,
+    ) -> Result<RelayListSignature, rest::Error> {
+        let response = self.relay_list_timestamp_response().await?;
 
         let relay_list_sigsum = response
             .body()
@@ -88,7 +105,7 @@ impl RelayListProxy {
         Ok(relay_list_sigsum)
     }
 
-    async fn relay_list_signature_response(&self) -> Result<rest::Response<Incoming>, rest::Error> {
+    async fn relay_list_timestamp_response(&self) -> Result<rest::Response<Incoming>, rest::Error> {
         let service = self.handle.service.clone();
         let request = self.handle.factory.get("trl/v0/timestamps/latest");
 

@@ -1,7 +1,7 @@
 #[cfg(target_os = "android")]
 pub use crate::https_client_with_sni::SocketBypassRequest;
 use crate::{
-    DnsResolver,
+    DnsResolver, SigsumPublicKey,
     access::AccessTokenStore,
     availability::ApiAvailability,
     https_client_with_sni::{HttpsConnectorWithSni, HttpsConnectorWithSniHandle},
@@ -746,6 +746,7 @@ pub struct MullvadRestHandle {
     pub(crate) service: RequestServiceHandle,
     pub factory: RequestFactory,
     pub availability: ApiAvailability,
+    pub sigsum_trusted_pubkeys: Vec<SigsumPublicKey>,
 }
 
 impl MullvadRestHandle {
@@ -753,11 +754,13 @@ impl MullvadRestHandle {
         service: RequestServiceHandle,
         factory: RequestFactory,
         availability: ApiAvailability,
+        sigsum_trusted_pubkeys: Vec<SigsumPublicKey>,
     ) -> Self {
         Self {
             service,
             factory,
             availability,
+            sigsum_trusted_pubkeys,
         }
     }
 

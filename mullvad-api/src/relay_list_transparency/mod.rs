@@ -6,6 +6,6 @@ mod relay_list;
 mod test;
 mod validate;
 
-pub use relay_list::{
-    RelayListDigest, RelayListSignature, Sha256Bytes, download_and_verify_relay_list,
-};
+pub(crate) use relay_list::download_and_verify_relay_list;
+pub use relay_list::{RelayListDigest, RelayListSignature, Sha256Bytes};
+pub use validate::parse_pubkeys;

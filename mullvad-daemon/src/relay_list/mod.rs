@@ -16,8 +16,7 @@ use tokio::fs::File;
 
 use mullvad_api::relay_list_transparency::RelayListDigest;
 use mullvad_api::{
-    CachedRelayList, RelayListProxy, availability::ApiAvailability, relay_list_transparency,
-    rest::MullvadRestHandle,
+    CachedRelayList, RelayListProxy, availability::ApiAvailability, rest::MullvadRestHandle,
 };
 use mullvad_relay_selector::RelaySelector;
 use mullvad_types::relay_list::{BridgeList, RelayList};
@@ -232,12 +231,9 @@ impl RelayListUpdater {
             latest_timestamp: DateTime<Utc>,
         ) -> Result<Option<CachedRelayList>, mullvad_api::Error> {
             api_handle.wait_background().await?;
-            relay_list_transparency::download_and_verify_relay_list(
-                proxy,
-                Some(latest_digest),
-                Some(latest_timestamp),
-            )
-            .await
+            Ok(proxy
+                .relay_list(Some(latest_digest), Some(latest_timestamp))
+                .await?)
         }
 
         let download_future = move || {
