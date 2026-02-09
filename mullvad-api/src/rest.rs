@@ -453,6 +453,9 @@ where
         let stream = connection.get_stream(self.uri().clone()).await.unwrap();
         let tokio_io = hyper_util::rt::TokioIo::new(stream);
 
+        hyper_util::client::pool::map::Map::builder::<http::Uri>()
+            .keys(|dst| (dst.scheme().cloned(), dst.authority().cloned()))
+            .values(move |dst| {});
         let (mut sender, conn) = hyper::client::conn::http1::handshake(tokio_io).await?;
 
         // Make request to hyper client

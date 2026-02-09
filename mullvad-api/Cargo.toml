@@ -19,7 +19,7 @@ futures = { workspace = true }
 http = "1.1.0"
 http-body-util = "0.1.2"
 hyper = { version = "1.8.1", features = ["client", "http1"] }
-hyper-util = { workspace = true }
+hyper-util = { workspace = true, features = ["client-pool"] }
 ipnetwork = { workspace = true }
 libc = "0.2"
 log = { workspace = true }
