@@ -53,10 +53,10 @@ message EntryRelayConstraints {
   EntrySpecificConstraints extra_constraints = 2;
 }
 
-// Constraints for both hops in a multi-hop connection
+// Constraints for both hops in a multihop connection
 message MultiHopConstraints {
   EntryRelayConstraints entry = 1;
-  GeneralConstraints exit = 3;
+  GeneralConstraints exit = 2;
 }
 
 // The result of a relay selection query, contains the list of relays matching
