@@ -18,11 +18,11 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.preview.SaveApiAccessMethodUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.screen.MainGraph
 import net.mullvad.mullvadvpn.compose.state.SaveApiAccessMethodUiState
 import net.mullvad.mullvadvpn.compose.state.TestApiAccessMethodState
-import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethod
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodId
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodName

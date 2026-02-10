@@ -16,9 +16,9 @@ import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import kotlinx.parcelize.Parcelize
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.screen.MainGraph
 import net.mullvad.mullvadvpn.compose.textfield.CustomPortTextField
-import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.lib.common.util.asString
 import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.model.PortRange

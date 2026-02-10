@@ -36,12 +36,12 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.extensions.createOpenAccountPageHook
 import net.mullvad.mullvadvpn.compose.preview.AddMoreTimeUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.AddTimeUiState
 import net.mullvad.mullvadvpn.compose.state.PaymentState
 import net.mullvad.mullvadvpn.compose.state.PurchaseState
-import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.payment.ProductIds.OneMonth
 import net.mullvad.mullvadvpn.lib.payment.ProductIds.ThreeMonths

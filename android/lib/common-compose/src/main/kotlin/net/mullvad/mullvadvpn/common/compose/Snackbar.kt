@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.compose.util
+package net.mullvad.mullvadvpn.common.compose
 
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState

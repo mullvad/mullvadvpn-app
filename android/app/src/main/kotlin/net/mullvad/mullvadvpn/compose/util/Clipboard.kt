@@ -10,6 +10,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.toClipEntry
 import kotlinx.coroutines.launch
+import net.mullvad.mullvadvpn.common.compose.showSnackbarImmediately
 
 typealias CopyToClipboardHandle = (content: String, toastMessage: String?) -> Unit
 
