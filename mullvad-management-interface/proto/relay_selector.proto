@@ -35,16 +35,16 @@ message Selection {
 
 // Constraints that apply when selecting any relay
 message GeneralConstraints {
-  mullvad_daemon.management_interface.LocationConstraint location = 1;
+  management_interface.LocationConstraint location = 1;
   repeated string providers = 2;
-  mullvad_daemon.management_interface.Ownership ownership = 3;
+  management_interface.Ownership ownership = 3;
 }
 
 // Constraints that are only applicable to entry relays
 message EntrySpecificConstraints {
-  mullvad_daemon.management_interface.ObfuscationSettings obfuscation_settings = 1;
-  mullvad_daemon.management_interface.DaitaSettings daita_settings = 2;
-  optional mullvad_daemon.management_interface.IpVersion ip_version = 3;
+  management_interface.ObfuscationSettings obfuscation_settings = 1;
+  management_interface.DaitaSettings daita_settings = 2;
+  optional management_interface.IpVersion ip_version = 3;
 }
 
 // All constraints that apply when selecting a relay directly connected to the user
