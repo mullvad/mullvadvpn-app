@@ -65,6 +65,7 @@ sealed interface RelayItem {
             override val id: GeoLocationId.City,
             override val name: String,
             val relays: List<Relay>,
+            val countryName: String,
         ) : Location {
             override val active = relays.any { it.active }
             override val hasChildren: Boolean = relays.isNotEmpty()
@@ -75,12 +76,14 @@ sealed interface RelayItem {
         @optics
         data class Relay(
             override val id: GeoLocationId.Hostname,
+            override val active: Boolean,
             val provider: ProviderId,
             val ownership: Ownership,
-            override val active: Boolean,
             val daita: Boolean,
             val quic: Quic?,
             val lwo: Boolean,
+            val cityName: String,
+            val countryName: String,
         ) : Location {
             override val name: String = id.code
             override val hasChildren: Boolean = false

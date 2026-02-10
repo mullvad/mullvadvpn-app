@@ -29,13 +29,14 @@ import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.model.RelayListType
+import net.mullvad.mullvadvpn.lib.ui.component.listitem.SelectableListItem
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.ItemPosition
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.RelayListItem
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.SelectableRelayListItem
 import net.mullvad.mullvadvpn.lib.ui.component.text.ListItemInfo
 import net.mullvad.mullvadvpn.lib.ui.designsystem.ListHeader
 import net.mullvad.mullvadvpn.lib.ui.tag.LOCATION_CELL_TEST_TAG
-import net.mullvad.mullvadvpn.lib.ui.tag.RECENT_CELL_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.RECENT_NAME_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_CUSTOM_LIST_HEADER_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 
@@ -152,8 +153,21 @@ private fun RecentListItem(
     onSelect: (RelayItem) -> Unit,
     onUpdateBottomSheetState: (LocationBottomSheetState) -> Unit,
 ) {
-    SelectableRelayListItem(
-        relayListItem = listItem,
+    val subtitle =
+        when (listItem.item) {
+            is RelayItem.Location.Relay -> "${listItem.cityName}, ${listItem.countryName}"
+            is RelayItem.Location.City -> listItem.countryName
+            is RelayItem.Location.Country,
+            is RelayItem.CustomList -> null
+        }
+
+    SelectableListItem(
+        modifier = Modifier.positionalPadding(listItem.itemPosition),
+        isSelected = listItem.isSelected,
+        isEnabled = listItem.item.active,
+        testTag = RECENT_NAME_TAG,
+        title = listItem.item.name,
+        subtitle = subtitle,
         onClick = { onSelect(listItem.item) },
         onLongClick = {
             when (val entry = listItem.item) {
@@ -167,8 +181,6 @@ private fun RecentListItem(
                     )
             }
         },
-        onToggleExpand = { _ -> },
-        modifier = Modifier.positionalPadding(listItem.itemPosition).testTag(RECENT_CELL_TEST_TAG),
     )
 }
 
