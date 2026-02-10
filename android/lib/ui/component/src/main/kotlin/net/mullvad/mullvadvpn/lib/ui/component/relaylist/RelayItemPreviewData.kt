@@ -16,12 +16,19 @@ fun generateRelayItemCountry(
         id = name.generateCountryCode(),
         cities =
             cityNames.map { cityName ->
-                generateRelayItemCity(cityName, name.generateCountryCode(), relaysPerCity, active)
+                generateRelayItemCity(
+                    name = cityName,
+                    countryName = name,
+                    countryCode = name.generateCountryCode(),
+                    numberOfRelays = relaysPerCity,
+                    active = active,
+                )
             },
     )
 
 private fun generateRelayItemCity(
     name: String,
+    countryName: String,
     countryCode: GeoLocationId.Country,
     numberOfRelays: Int,
     active: Boolean = true,
@@ -32,16 +39,21 @@ private fun generateRelayItemCity(
         relays =
             List(numberOfRelays) { index ->
                 generateRelayItemRelay(
-                    name.generateCityCode(countryCode),
-                    generateHostname(name.generateCityCode(countryCode), index),
-                    active,
+                    cityCode = name.generateCityCode(countryCode),
+                    hostName = generateHostname(name.generateCityCode(countryCode), index),
+                    active = active,
+                    cityName = name,
+                    countryName = countryName,
                 )
             },
+        countryName = countryName,
     )
 
 private fun generateRelayItemRelay(
     cityCode: GeoLocationId.City,
     hostName: String,
+    cityName: String,
+    countryName: String,
     active: Boolean = true,
     daita: Boolean = true,
 ) =
@@ -53,6 +65,8 @@ private fun generateRelayItemRelay(
         daita = daita,
         quic = null,
         lwo = false,
+        cityName = cityName,
+        countryName = countryName,
     )
 
 private fun String.generateCountryCode() =

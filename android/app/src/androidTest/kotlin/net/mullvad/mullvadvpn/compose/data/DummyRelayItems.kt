@@ -25,6 +25,8 @@ private val DUMMY_RELAY_1 =
         daita = false,
         quic = null,
         lwo = false,
+        cityName = "Relay City 1",
+        countryName = "RCo1",
     )
 private val DUMMY_RELAY_2 =
     RelayItem.Location.Relay(
@@ -39,6 +41,8 @@ private val DUMMY_RELAY_2 =
         daita = false,
         quic = null,
         lwo = false,
+        cityName = "Relay City 2",
+        countryName = "RCo2",
     )
 private val DUMMY_RELAY_3 =
     RelayItem.Location.Relay(
@@ -53,6 +57,8 @@ private val DUMMY_RELAY_3 =
         daita = true,
         quic = null,
         lwo = true,
+        cityName = "Relay City 3",
+        countryName = "RCo3",
     )
 private val DUMMY_RELAY_4 =
     RelayItem.Location.Relay(
@@ -67,6 +73,8 @@ private val DUMMY_RELAY_4 =
         daita = false,
         quic = Quic(inAddresses = listOf()),
         lwo = true,
+        cityName = "Relay City 4",
+        countryName = "RCo4",
     )
 private val DUMMY_RELAY_5 =
     RelayItem.Location.Relay(
@@ -81,6 +89,8 @@ private val DUMMY_RELAY_5 =
         daita = false,
         quic = Quic(inAddresses = listOf()),
         lwo = true,
+        cityName = "Relay City 5",
+        countryName = "RCo4",
     )
 private val DUMMY_RELAY_6 =
     RelayItem.Location.Relay(
@@ -95,6 +105,8 @@ private val DUMMY_RELAY_6 =
         daita = true,
         quic = Quic(inAddresses = listOf()),
         lwo = true,
+        cityName = "Relay City 5",
+        countryName = "RCo4",
     )
 private val DUMMY_RELAY_7 =
     RelayItem.Location.Relay(
@@ -109,6 +121,8 @@ private val DUMMY_RELAY_7 =
         daita = false,
         quic = Quic(inAddresses = listOf()),
         lwo = false,
+        cityName = "Relay City 5",
+        countryName = "RCo4",
     )
 private val DUMMY_RELAY_8 =
     RelayItem.Location.Relay(
@@ -123,6 +137,8 @@ private val DUMMY_RELAY_8 =
         daita = false,
         quic = null,
         lwo = false,
+        cityName = "Relay City 5",
+        countryName = "RCo4",
     )
 private val DUMMY_RELAY_9 =
     RelayItem.Location.Relay(
@@ -137,6 +153,8 @@ private val DUMMY_RELAY_9 =
         daita = true,
         quic = null,
         lwo = true,
+        cityName = "Relay City 5",
+        countryName = "RCo4",
     )
 private val DUMMY_RELAY_10 =
     RelayItem.Location.Relay(
@@ -151,6 +169,8 @@ private val DUMMY_RELAY_10 =
         daita = true,
         quic = null,
         lwo = false,
+        cityName = "Relay City 5",
+        countryName = "RCo4",
     )
 private val DUMMY_RELAY_11 =
     RelayItem.Location.Relay(
@@ -165,6 +185,8 @@ private val DUMMY_RELAY_11 =
         daita = false,
         quic = Quic(inAddresses = listOf()),
         lwo = false,
+        cityName = "Relay City 5",
+        countryName = "RCo4",
     )
 private val DUMMY_RELAY_12 =
     RelayItem.Location.Relay(
@@ -179,30 +201,36 @@ private val DUMMY_RELAY_12 =
         daita = false,
         quic = Quic(inAddresses = listOf()),
         lwo = true,
+        cityName = "Relay City 5",
+        countryName = "RCo4",
     )
 private val DUMMY_RELAY_CITY_1 =
     RelayItem.Location.City(
         name = "Relay City 1",
         id = GeoLocationId.City(country = GeoLocationId.Country("RCo1"), code = "RCi1"),
         relays = listOf(DUMMY_RELAY_1),
+        countryName = "RCo1",
     )
 private val DUMMY_RELAY_CITY_2 =
     RelayItem.Location.City(
         name = "Relay City 2",
         id = GeoLocationId.City(country = GeoLocationId.Country("RCo2"), code = "RCi2"),
         relays = listOf(DUMMY_RELAY_2),
+        countryName = "RCo2",
     )
 private val DUMMY_RELAY_CITY_3 =
     RelayItem.Location.City(
         name = "Relay City 3",
         id = GeoLocationId.City(country = GeoLocationId.Country("RCo3"), code = "RCi3"),
         relays = listOf(DUMMY_RELAY_3),
+        countryName = "RCo3",
     )
 private val DUMMY_RELAY_CITY_4 =
     RelayItem.Location.City(
         name = "Relay City 4",
         id = GeoLocationId.City(country = GeoLocationId.Country("RCo4"), code = "RCi4"),
         relays = listOf(DUMMY_RELAY_4),
+        countryName = "RCo4",
     )
 private val DUMMY_RELAY_CITY_5 =
     RelayItem.Location.City(
@@ -219,6 +247,7 @@ private val DUMMY_RELAY_CITY_5 =
                 DUMMY_RELAY_11,
                 DUMMY_RELAY_12,
             ),
+        countryName = "RCo4",
     )
 private val DUMMY_RELAY_COUNTRY_1 =
     RelayItem.Location.Country(

@@ -1,6 +1,9 @@
 package net.mullvad.mullvadvpn.compose.screen.location
 
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -28,7 +31,7 @@ import net.mullvad.mullvadvpn.lib.model.RelayListType
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.ItemPosition
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.RelayListItem
 import net.mullvad.mullvadvpn.lib.ui.tag.GEOLOCATION_NAME_TAG
-import net.mullvad.mullvadvpn.lib.ui.tag.RECENT_NAME_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.RECENT_CELL_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_CUSTOM_LIST_BOTTOM_SHEET_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_LOCATION_BOTTOM_SHEET_TEST_TAG
 import net.mullvad.mullvadvpn.lib.usecase.ModifyMultihopError
@@ -265,7 +268,7 @@ class SelectLocationScreenTest {
                 MutableStateFlow(
                     Lce.Content(
                         SelectLocationListUiState(
-                            relayListItems = listOf(RelayListItem.RecentListItem(recent)),
+                            relayListItems = listOf(RelayListItem.RecentListItem(item = recent)),
                             customLists = DUMMY_RELAY_ITEM_CUSTOM_LISTS,
                             relayListType = RelayListType.Single,
                         )
@@ -444,9 +447,9 @@ class SelectLocationScreenTest {
             )
 
             // Assert
-            onNodeWithTagAndText(
-                    testTag = RECENT_NAME_TAG,
-                    text = selectableItem.name,
+            onNode(
+                    hasText(selectableItem.name)
+                        .and(hasAnyAncestor(hasTestTag(RECENT_CELL_TEST_TAG))),
                     useUnmergedTree = true,
                 )
                 .assertExists()

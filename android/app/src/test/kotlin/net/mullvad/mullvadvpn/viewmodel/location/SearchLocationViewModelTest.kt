@@ -159,6 +159,7 @@ class SearchLocationViewModelTest {
                             id = GeoLocationId.City(GeoLocationId.Country("se"), "got"),
                             "Gothenburg",
                             emptyList(),
+                            countryName = "Sweden",
                         )
                     ),
                 ),

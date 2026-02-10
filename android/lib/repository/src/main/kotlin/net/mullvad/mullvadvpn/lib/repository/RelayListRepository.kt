@@ -23,7 +23,10 @@ import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.model.WireguardEndpointData
 import net.mullvad.mullvadvpn.lib.model.cities
+import net.mullvad.mullvadvpn.lib.model.cityName
+import net.mullvad.mullvadvpn.lib.model.countryName
 import net.mullvad.mullvadvpn.lib.model.name
+import net.mullvad.mullvadvpn.lib.model.relays
 
 class RelayListRepository(
     private val managementService: ManagementService,
@@ -39,20 +42,27 @@ class RelayListRepository(
             .stateIn(CoroutineScope(dispatcher), SharingStarted.WhileSubscribed(), emptyList())
 
     private fun List<RelayItem.Location.Country>.translateRelays(
-        translations: Map<String, String>
+        translations: Translations
     ): List<RelayItem.Location.Country> {
         if (translations.isEmpty()) {
             return this
         }
 
         return Every.list<RelayItem.Location.Country>()
-            .modify(this) {
-                it.copy {
-                    RelayItem.Location.Country.name set translations.getOrDefault(it.name, it.name)
-                    RelayItem.Location.Country.cities.every(Every.list()).name transform
-                        { cityName ->
-                            translations.getOrDefault(cityName, cityName)
-                        }
+            .modify(this) { country ->
+                country.copy {
+                    RelayItem.Location.Country.name set translations.lookup(country.name)
+
+                    val cityTraversal = RelayItem.Location.Country.cities.every(Every.list())
+
+                    cityTraversal.name transform { translations.lookup(it) }
+                    cityTraversal.countryName transform { translations.lookup(it) }
+
+                    val relayTraversal = cityTraversal.relays.every(Every.list())
+
+                    relayTraversal.cityName transform { translations.lookup(it) }
+                    relayTraversal.countryName transform { translations.lookup(it) }
+
                     RelayItem.Location.Country.cities transform { cities -> cities.sortedByName() }
                 }
             }
@@ -95,7 +105,8 @@ class RelayListRepository(
 
     suspend fun refreshRelayList() = managementService.updateRelayLocations()
 
-    fun find(geoLocationId: GeoLocationId) = relayList.value.findByGeoLocationId(geoLocationId)
+    fun find(geoLocationId: GeoLocationId): RelayItem.Location? =
+        relayList.value.findByGeoLocationId(geoLocationId)
 
     private fun defaultWireguardEndpointData() = WireguardEndpointData(emptyList(), emptyList())
 }

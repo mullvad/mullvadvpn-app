@@ -69,6 +69,7 @@ fun SelectableListItem(
     iconContentDescription: String? = null,
     mainClickArea: ListItemClickArea = ListItemClickArea.All,
     onClick: (() -> Unit)? = null,
+    onLongClick: (() -> Unit)? = null,
     testTag: String? = null,
     content: @Composable ((BoxScope.() -> Unit)),
     trailingContent: @Composable ((BoxScope.() -> Unit))? = null,
@@ -82,6 +83,7 @@ fun SelectableListItem(
         testTag = testTag,
         mainClickArea = mainClickArea,
         onClick = onClick,
+        onLongClick = onLongClick,
         leadingContent = {
             AnimatedVisibility(
                 modifier = Modifier.align(Alignment.Center),
@@ -119,39 +121,11 @@ fun SelectableListItem(
     isSelected: Boolean,
     isEnabled: Boolean = true,
     title: String,
+    subtitle: String? = null,
     iconContentDescription: String? = null,
     mainClickArea: ListItemClickArea = ListItemClickArea.All,
     onClick: (() -> Unit)? = null,
-    testTag: String? = null,
-    trailingContent: @Composable ((BoxScope.() -> Unit))? = null,
-) {
-    SelectableListItem(
-        modifier = modifier,
-        hierarchy = hierarchy,
-        position = position,
-        isSelected = isSelected,
-        isEnabled = isEnabled,
-        iconContentDescription = iconContentDescription,
-        testTag = testTag,
-        mainClickArea = mainClickArea,
-        onClick = onClick,
-        content = { Text(title) },
-        trailingContent = trailingContent,
-    )
-}
-
-@Composable
-fun SelectableListItem(
-    modifier: Modifier = Modifier,
-    hierarchy: Hierarchy = Hierarchy.Parent,
-    position: Position = Position.Single,
-    isSelected: Boolean,
-    isEnabled: Boolean = true,
-    title: String,
-    subtitle: String,
-    iconContentDescription: String? = null,
-    mainClickArea: ListItemClickArea = ListItemClickArea.All,
-    onClick: (() -> Unit)? = null,
+    onLongClick: (() -> Unit)? = null,
     testTag: String? = null,
     trailingContent: @Composable ((BoxScope.() -> Unit))? = null,
 ) {
@@ -165,16 +139,19 @@ fun SelectableListItem(
         testTag = testTag,
         mainClickArea = mainClickArea,
         onClick = onClick,
+        onLongClick = onLongClick,
         content = {
             Column {
                 Text(title)
-                Text(
-                    text = subtitle,
-                    style = MaterialTheme.typography.labelLarge,
-                    color =
-                        if (isEnabled) MaterialTheme.colorScheme.onSurfaceVariant
-                        else ListItemDefaults.colors().disabledHeadlineColor,
-                )
+                if (subtitle != null) {
+                    Text(
+                        text = subtitle,
+                        style = MaterialTheme.typography.labelLarge,
+                        color =
+                            if (isEnabled) MaterialTheme.colorScheme.onSurfaceVariant
+                            else ListItemDefaults.colors().disabledHeadlineColor,
+                    )
+                }
             }
         },
         trailingContent = trailingContent,
