@@ -50,6 +50,7 @@ class AndroidLibraryFeatureImplPlugin : Plugin<Project> {
                 "implementation"(project(":lib:ui:tag"))
                 "implementation"(project(":lib:navigation"))
                 "implementation"(libs.findLibrary("kermit").get())
+                "implementation"(libs.findLibrary("compose.icons.extended").get())
 
                 "testImplementation"(project(":lib:common-test"))
 

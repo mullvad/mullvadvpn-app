@@ -388,6 +388,7 @@ dependencies {
     implementation(projects.lib.grpc)
     implementation(projects.lib.endpoint)
     implementation(projects.lib.feature.anticensorship.impl)
+    implementation(projects.lib.feature.apiaccess.impl)
     implementation(projects.lib.feature.appinfo.impl)
     implementation(projects.lib.feature.appearance.impl)
     implementation(projects.lib.feature.daita.impl)

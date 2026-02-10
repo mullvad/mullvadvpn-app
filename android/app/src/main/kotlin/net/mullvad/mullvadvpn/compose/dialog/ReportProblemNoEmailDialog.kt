@@ -11,6 +11,7 @@ import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.screen.MainGraph
+import net.mullvad.mullvadvpn.lib.ui.component.dialog.NegativeConfirmationDialog
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 
 @Preview

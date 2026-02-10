@@ -23,6 +23,14 @@ import com.ramcosta.composedestinations.generated.NavGraphs
 import com.ramcosta.composedestinations.generated.anticensorship.destinations.AntiCensorshipSettingsDestination
 import com.ramcosta.composedestinations.generated.anticensorship.destinations.CustomPortDestination
 import com.ramcosta.composedestinations.generated.anticensorship.destinations.SelectPortDestination
+import com.ramcosta.composedestinations.generated.apiaccess.destinations.ApiAccessListDestination
+import com.ramcosta.composedestinations.generated.apiaccess.destinations.ApiAccessMethodDetailsDestination
+import com.ramcosta.composedestinations.generated.apiaccess.destinations.ApiAccessMethodInfoDestination
+import com.ramcosta.composedestinations.generated.apiaccess.destinations.DeleteApiAccessMethodConfirmationDestination
+import com.ramcosta.composedestinations.generated.apiaccess.destinations.DiscardApiAccessChangesDestination
+import com.ramcosta.composedestinations.generated.apiaccess.destinations.EditApiAccessMethodDestination
+import com.ramcosta.composedestinations.generated.apiaccess.destinations.EncryptedDnsProxyInfoDestination
+import com.ramcosta.composedestinations.generated.apiaccess.destinations.SaveApiAccessMethodDestination
 import com.ramcosta.composedestinations.generated.appearance.destinations.AppearanceDestination
 import com.ramcosta.composedestinations.generated.appinfo.destinations.AppInfoDestination
 import com.ramcosta.composedestinations.generated.appinfo.destinations.ChangelogDestination
@@ -50,15 +58,23 @@ val LocalSharedTransitionScope = compositionLocalOf<SharedTransitionScope?> { nu
 @NavHostGraph
 annotation class MainGraph {
     @ExternalDestination<AntiCensorshipSettingsDestination>
-    @ExternalDestination<AppearanceDestination>
+    @ExternalDestination<ApiAccessListDestination>
+    @ExternalDestination<ApiAccessMethodDetailsDestination>
+    @ExternalDestination<ApiAccessMethodInfoDestination>
     @ExternalDestination<AppInfoDestination>
+    @ExternalDestination<AppearanceDestination>
     @ExternalDestination<ChangelogDestination>
     @ExternalDestination<CustomPortDestination>
     @ExternalDestination<DaitaDestination>
-    @ExternalDestination<DaitaDirectOnlyInfoDestination>
     @ExternalDestination<DaitaDirectOnlyConfirmationDestination>
+    @ExternalDestination<DaitaDirectOnlyInfoDestination>
+    @ExternalDestination<DeleteApiAccessMethodConfirmationDestination>
+    @ExternalDestination<DiscardApiAccessChangesDestination>
+    @ExternalDestination<EditApiAccessMethodDestination>
+    @ExternalDestination<EncryptedDnsProxyInfoDestination>
     @ExternalDestination<FilterDestination>
     @ExternalDestination<MultihopDestination>
+    @ExternalDestination<SaveApiAccessMethodDestination>
     @ExternalDestination<SelectPortDestination>
     @ExternalDestination<SplitTunnelingDestination>
     companion object Includes

@@ -1,0 +1,66 @@
+package net.mullvad.mullvadvpn.apiaccess.impl.screen.delete
+
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
+import com.ramcosta.composedestinations.result.ResultBackNavigator
+import com.ramcosta.composedestinations.spec.DestinationStyle
+import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
+import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodId
+import net.mullvad.mullvadvpn.lib.ui.component.dialog.NegativeConfirmationDialog
+import net.mullvad.mullvadvpn.lib.ui.resource.R
+import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
+import org.koin.androidx.compose.koinViewModel
+
+@Preview
+@Composable
+private fun PreviewDeleteApiAccessMethodConfirmationDialog() {
+    AppTheme { DeleteApiAccessMethodConfirmationDialog(state = DeleteApiAccessMethodUiState(null)) }
+}
+
+data class DeleteApiAccessMethodNavArgs(val apiAccessMethodId: ApiAccessMethodId)
+
+@Composable
+@Destination<ExternalModuleGraph>(
+    style = DestinationStyle.Dialog::class,
+    navArgs = DeleteApiAccessMethodNavArgs::class,
+)
+fun DeleteApiAccessMethodConfirmation(navigator: ResultBackNavigator<Boolean>) {
+    val viewModel = koinViewModel<DeleteApiAccessMethodConfirmationViewModel>()
+    val state = viewModel.uiState.collectAsStateWithLifecycle()
+
+    CollectSideEffectWithLifecycle(viewModel.uiSideEffect) {
+        when (it) {
+            is DeleteApiAccessMethodConfirmationSideEffect.Deleted ->
+                navigator.navigateBack(result = true)
+        }
+    }
+
+    DeleteApiAccessMethodConfirmationDialog(
+        state = state.value,
+        onDelete = viewModel::deleteApiAccessMethod,
+        onBack = navigator::navigateBack,
+    )
+}
+
+@Composable
+fun DeleteApiAccessMethodConfirmationDialog(
+    state: DeleteApiAccessMethodUiState,
+    onDelete: () -> Unit = {},
+    onBack: () -> Unit = {},
+) {
+    NegativeConfirmationDialog(
+        onConfirm = onDelete,
+        onBack = onBack,
+        message = stringResource(id = R.string.delete_method_question),
+        errorMessage =
+            if (state.deleteError != null) {
+                stringResource(id = R.string.error_occurred)
+            } else {
+                null
+            },
+    )
+}
