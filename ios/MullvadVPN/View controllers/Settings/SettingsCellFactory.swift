@@ -123,6 +123,15 @@ final class SettingsCellFactory: @preconcurrency CellFactoryProtocol {
 
             cell.setAccessibilityIdentifier(item.accessibilityIdentifier)
             cell.disclosureType = .externalLink
+
+        case .notificationSettings:
+            guard let cell = cell as? SettingsCell else { return }
+
+            cell.titleLabel.text = NSLocalizedString("Notifications", comment: "")
+            cell.detailTitleLabel.text = nil
+
+            cell.setAccessibilityIdentifier(item.accessibilityIdentifier)
+            cell.disclosureType = .chevron
         }
     }
 
