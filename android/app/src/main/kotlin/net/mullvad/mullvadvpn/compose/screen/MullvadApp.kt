@@ -20,6 +20,9 @@ import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.annotation.ExternalDestination
 import com.ramcosta.composedestinations.annotation.NavHostGraph
 import com.ramcosta.composedestinations.generated.NavGraphs
+import com.ramcosta.composedestinations.generated.anticensorship.destinations.AntiCensorshipSettingsDestination
+import com.ramcosta.composedestinations.generated.anticensorship.destinations.CustomPortDestination
+import com.ramcosta.composedestinations.generated.anticensorship.destinations.SelectPortDestination
 import com.ramcosta.composedestinations.generated.appearance.destinations.AppearanceDestination
 import com.ramcosta.composedestinations.generated.appinfo.destinations.AppInfoDestination
 import com.ramcosta.composedestinations.generated.appinfo.destinations.ChangelogDestination
@@ -46,14 +49,17 @@ val LocalSharedTransitionScope = compositionLocalOf<SharedTransitionScope?> { nu
 
 @NavHostGraph
 annotation class MainGraph {
+    @ExternalDestination<AntiCensorshipSettingsDestination>
     @ExternalDestination<AppearanceDestination>
     @ExternalDestination<AppInfoDestination>
     @ExternalDestination<ChangelogDestination>
+    @ExternalDestination<CustomPortDestination>
     @ExternalDestination<DaitaDestination>
     @ExternalDestination<DaitaDirectOnlyInfoDestination>
     @ExternalDestination<DaitaDirectOnlyConfirmationDestination>
     @ExternalDestination<FilterDestination>
     @ExternalDestination<MultihopDestination>
+    @ExternalDestination<SelectPortDestination>
     @ExternalDestination<SplitTunnelingDestination>
     companion object Includes
 }

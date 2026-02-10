@@ -48,7 +48,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.generated.destinations.AntiCensorshipSettingsDestination
+import com.ramcosta.composedestinations.generated.anticensorship.destinations.AntiCensorshipSettingsDestination
 import com.ramcosta.composedestinations.generated.destinations.AutoConnectAndLockdownModeDestination
 import com.ramcosta.composedestinations.generated.destinations.ConnectOnStartupInfoDestination
 import com.ramcosta.composedestinations.generated.destinations.ContentBlockersInfoDestination

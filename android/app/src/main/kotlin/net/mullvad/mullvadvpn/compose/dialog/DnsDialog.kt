@@ -17,6 +17,7 @@ import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.screen.MainGraph
 import net.mullvad.mullvadvpn.compose.textfield.DnsTextField
 import net.mullvad.mullvadvpn.lib.model.communication.DnsDialogResult
+import net.mullvad.mullvadvpn.lib.ui.component.dialog.InputDialog
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.viewmodel.DnsDialogSideEffect
 import net.mullvad.mullvadvpn.viewmodel.DnsDialogViewModel
@@ -136,8 +137,10 @@ fun DnsDialog(
                         // priority than the ipv6 error
                         state.isLocal && !state.isAllowLanEnabled ->
                             stringResource(id = R.string.confirm_local_dns)
+
                         state.isIpv6 && !state.isIpv6Enabled ->
                             stringResource(id = R.string.confirm_ipv6_dns)
+
                         else -> null
                     },
                 modifier = Modifier.fillMaxWidth(),

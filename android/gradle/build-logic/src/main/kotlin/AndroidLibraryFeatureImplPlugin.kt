@@ -49,6 +49,8 @@ class AndroidLibraryFeatureImplPlugin : Plugin<Project> {
                 "implementation"(project(":lib:ui:resource"))
                 "implementation"(project(":lib:ui:tag"))
                 "implementation"(project(":lib:navigation"))
+                "implementation"(libs.findLibrary("kermit").get())
+
                 "testImplementation"(project(":lib:common-test"))
 
                 "androidTestImplementation"(libs.findLibrary("junit5.android.test.core").get())
