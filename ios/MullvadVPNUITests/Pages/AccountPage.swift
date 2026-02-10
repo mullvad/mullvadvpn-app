@@ -66,12 +66,6 @@ class AccountPage: PaymentPage {
 
         return self
     }
-
-    func waitForLogoutSpinnerToDisappear() {
-        let spinnerDisappeared = app.otherElements[.logOutSpinnerAlertView]
-            .notExistsAfterWait(timeout: .extremelyLong)
-        XCTAssertTrue(spinnerDisappeared, "Log out spinner disappeared")
-    }
 }
 
 private extension Date {

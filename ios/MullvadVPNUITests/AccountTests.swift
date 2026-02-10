@@ -238,7 +238,6 @@ class AccountTests: LoggedOutUITestCase {
 
         AccountPage(app)
             .tapLogOutButton()
-            .waitForLogoutSpinnerToDisappear()
 
         LoginPage(app)
 

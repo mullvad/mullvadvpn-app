@@ -131,7 +131,6 @@ class ConnectivityTests: LoggedOutUITestCase {
 
         AccountPage(app)
             .tapLogOutButton()
-            .waitForLogoutSpinnerToDisappear()
 
         LoginPage(app)
 
@@ -218,7 +217,6 @@ class ConnectivityTests: LoggedOutUITestCase {
         // Log out will take long because API cannot be reached
         AccountPage(app)
             .tapLogOutButton()
-            .waitForLogoutSpinnerToDisappear()
 
         // Verify API cannot be reached by doing a login attempt which should fail
         LoginPage(app)

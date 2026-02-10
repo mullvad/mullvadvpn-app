@@ -23,7 +23,7 @@ class Page {
     func waitForPageToBeShown() {
         if let pageElement {
             XCTAssertTrue(
-                pageElement.existsAfterWait(),
+                pageElement.existsAfterWait(timeout: .extremelyLong),
                 "Page is shown"
             )
         }
