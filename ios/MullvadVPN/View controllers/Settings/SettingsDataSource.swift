@@ -47,6 +47,8 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
         case apiAccess
         case version
         case misc
+        case general
+        case problemReport
     }
 
     enum Item: String {
@@ -58,6 +60,7 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
         case daita
         case multihop
         case language
+        case notificationSettings
 
         var accessibilityIdentifier: AccessibilityIdentifier {
             switch self {
@@ -77,6 +80,8 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
                 .multihopCell
             case .language:
                 .languageCell
+            case .notificationSettings:
+                .notificationSettingsCell
             }
         }
 
@@ -209,8 +214,8 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
 
     private func updateDataSnapshot() {
         var snapshot = NSDiffableDataSourceSnapshot<Section, Item>()
-
-        if interactor.deviceState.isLoggedIn {
+        let isLoggedIn = interactor.deviceState.isLoggedIn
+        if isLoggedIn {
             snapshot.appendSections([.vpnSettings])
             snapshot.appendItems(
                 [
@@ -223,8 +228,10 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
         snapshot.appendSections([.apiAccess])
         snapshot.appendItems([.apiAccess], toSection: .apiAccess)
 
-        snapshot.appendSections([.version, .misc])
-        snapshot.appendItems([.changelog], toSection: .version)
+        snapshot.appendSections([.general])
+        snapshot.appendItems([.notificationSettings, .changelog], toSection: .general)
+
+        snapshot.appendSections([.misc])
         snapshot.appendItems([.problemReport, .faq, .language], toSection: .misc)
 
         apply(snapshot)

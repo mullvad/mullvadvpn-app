@@ -41,6 +41,9 @@ enum SettingsNavigationRoute: Equatable {
 
     /// Language route.
     case language
+
+    /// Notification settings route.
+    case notificationSettings
 }
 
 /// Top-level settings coordinator.
@@ -54,6 +57,14 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
     private let interactorFactory: SettingsInteractorFactory
     private var viewControllerFactory: SettingsViewControllerFactory?
     private var alertPresenter: AlertPresenter?
+    var didUpdateNotificationSettings: ((NotificationSettings) -> Void)? {
+        didSet {
+            viewControllerFactory?.didUpdateNotificationSettings = { [weak self] newValue in
+                guard let self else { return }
+                didUpdateNotificationSettings?(newValue)
+            }
+        }
+    }
 
     let navigationController: UINavigationController
 
@@ -83,7 +94,8 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
         interactorFactory: SettingsInteractorFactory,
         accessMethodRepository: AccessMethodRepositoryProtocol,
         proxyConfigurationTester: ProxyConfigurationTesterProtocol,
-        ipOverrideRepository: IPOverrideRepository
+        ipOverrideRepository: IPOverrideRepository,
+        notificationSettings: NotificationSettings
     ) {
         self.navigationController = navigationController
         self.interactorFactory = interactorFactory
@@ -97,6 +109,7 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
             accessMethodRepository: accessMethodRepository,
             proxyConfigurationTester: proxyConfigurationTester,
             ipOverrideRepository: ipOverrideRepository,
+            notificationSettings: notificationSettings,
             navigationController: navigationController,
             alertPresenter: AlertPresenter(context: self)
         )
