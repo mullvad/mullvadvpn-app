@@ -19,7 +19,7 @@ permissions: {}
 
 jobs:
   test:
-    if: github.event.pull_request.merged == true
+    if: github.event.pull_request.merged || github.event_name == 'workflow_dispatch'
     name: Validate build schemas
     runs-on: macos-15-xlarge
     env:
@@ -31,6 +31,10 @@ jobs:
 
       - name: Setup project
         uses: ./.github/actions/ios/setup-project-toolchain
+
+      - name: Copy relay list
+        run: cp MullvadREST/Assets/relays-test-data.json MullvadREST/Assets/relays.json
+        working-directory: ios
 
       - name: Run build validation for Staging and MockRelease configurations as well as the MullvadVPNUITests target
         run: |
