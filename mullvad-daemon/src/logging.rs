@@ -2,10 +2,7 @@ use mullvad_logging::{EnvFilter, LevelFilter, silence_crates};
 use std::{
     io,
     path::PathBuf,
-    sync::{
-        Arc,
-        atomic::{AtomicBool, Ordering},
-    },
+    sync::atomic::{AtomicBool, Ordering},
 };
 use talpid_core::logging::rotate_log;
 use tracing_appender::non_blocking;
@@ -56,11 +53,12 @@ pub fn is_enabled() -> bool {
     LOG_ENABLED.load(Ordering::SeqCst)
 }
 
+/// Handle to interact with the logs. Use it to change the log level at runtime or
+/// to receive a stream of logs.
 #[derive(Clone)]
 pub struct LogHandle {
     env_filter: Handle<EnvFilter, Registry>,
     log_stream: LogStreamer,
-    _file_appender_guard: Option<Arc<non_blocking::WorkerGuard>>,
 }
 
 /// A location to put logs.
@@ -159,17 +157,23 @@ pub fn init_logger(
     let default_filter = silence_crates(env_filter);
 
     // TODO: Switch this to a rolling appender, likely daily or hourly
-    let (_file_appender_guard, non_blocking_file_appender) =
-        if let Some(log_location) = log_location.as_ref() {
-            // NOTE: Make sure to rotate log file *before* initializing any kind of logger.
-            rotate_log(&log_location.log_path()).map_err(Error::RotateLog)?;
-            let file_appender =
-                tracing_appender::rolling::never(&log_location.directory, &log_location.filename);
-            let (appender, guard) = non_blocking(file_appender);
-            (Some(Arc::new(guard)), OptionalMakeWriter(Some(appender)))
-        } else {
-            (None, OptionalMakeWriter(None))
-        };
+    let non_blocking_file_appender = if let Some(log_location) = log_location.as_ref() {
+        // NOTE: Make sure to rotate log file *before* initializing any kind of logger.
+        rotate_log(&log_location.log_path()).map_err(Error::RotateLog)?;
+        let file_appender =
+            tracing_appender::rolling::never(&log_location.directory, &log_location.filename);
+        let (appender, guard) = non_blocking(file_appender);
+        // Spawn a task to keep file logger guard alive for the duration of the program. When the tokio
+        // executor shuts down, its drop function will be called to flush any remaining logs to file.
+        // Note that calling e.g. `std::process::exit` will prevent this and might result in lost logs.
+        tokio::spawn(async move {
+            std::future::pending::<()>().await;
+            drop(guard);
+        });
+        OptionalMakeWriter(Some(appender))
+    } else {
+        OptionalMakeWriter(None)
+    };
 
     let (tx, _) = tokio::sync::broadcast::channel(128);
     let log_stream = LogStreamer { tx };
@@ -178,7 +182,6 @@ pub fn init_logger(
     let reload_handle = LogHandle {
         env_filter: reload_handle,
         log_stream: log_stream.clone(),
-        _file_appender_guard,
     };
 
     let reg = tracing_subscriber::registry().with(user_filter);
