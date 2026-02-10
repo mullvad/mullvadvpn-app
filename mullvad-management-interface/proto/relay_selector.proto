@@ -7,49 +7,50 @@ import "management_interface.proto";
 service RelaySelectorService {
   // For a given relay constraint, return the list of matching relays and a list
   // of non-matching relays along with the reasons they were filtered out.
-  rpc GetMatchingRelaysContext(Constraints) returns (RelayConstraints) {}
+  rpc GetMatchingRelays(Selection) returns (FilteredRelays) {}
 }
 
-message Constraints {
+message Selection {
   oneof selection_context {
     // Give me a relay list for regular single scenario
-    EntryRelayConstraints relay_constraints = 1;
+    EntryRelayConstraints single_relay_constraints = 1;
     // Give me a relay list for when DAITA direct only is disabled
-    RelayConstraints smart_relay_constraints = 2;
-    // Give me a relay list for when I should show entry relays when multihop is enabled
-    MultiHopConstraints entry_hop_constraints = 3;
-    // Give me a relay list for when I should show exit relays when multihop is enabled
+    GeneralConstraints smart_hop_relay_constraints = 2;
+    // Give me a list entry relays when multihop is enabled
+    MultiHopConstraints entry_constraints = 3;
+    // Give me a list exit relays when multihop is enabled
     MultiHopConstraints exit_constraints = 4;
   }
 }
 
-// *ALL* constraints and settings that affect affect what relays are considered
-message RelayConstraints {
+// Constraints that apply when selecting any relay
+message GeneralConstraints {
   mullvad_daemon.management_interface.LocationConstraint location = 1;
   repeated string providers = 2;
   mullvad_daemon.management_interface.Ownership ownership = 3;
 }
 
-message EntryRelayConstraints {
-  RelayConstraints general_constraints = 1;
-  EntryConstraints extra_entry_constraints = 2;
-}
-
-message MultiHopConstraints {
-  RelayConstraints first_hop = 1;
-  RelayConstraints second_hop = 2;
-  EntryConstraints entry_constraints = 5;
-}
-
-// Entry relays are generally more constrained than exit relays, because they have to support
-// Mullvad-specific features such as DAITA or custom obfuscation methods which may or may not
-// be deployed to all relays globally.
-message EntryConstraints {
+// Constraints that are only applicable to entry relays
+message EntrySpecificConstraints {
   mullvad_daemon.management_interface.ObfuscationSettings obfuscation_settings = 1;
   mullvad_daemon.management_interface.DaitaSettings daita_settings = 2;
   optional mullvad_daemon.management_interface.IpVersion ip_version = 3;
 }
 
+// All constraints that apply when selecting a relay directly connected to the user
+message EntryRelayConstraints {
+  GeneralConstraints general_constraints = 1;
+  EntrySpecificConstraints extra_constraints = 2;
+}
+
+// Constraints for both hops in a multi-hop connection
+message MultiHopConstraints {
+  EntryRelayConstraints entry = 1;
+  GeneralConstraints exit = 3;
+}
+
+// The result of a relay selection query, contains the list of relays matching
+// a query and the list of relays that were discarded when evaluating a query
 message FilteredRelays {
   // List of relays matching a query
   repeated Hostname matches = 1;
@@ -58,30 +59,42 @@ message FilteredRelays {
 }
 
 message DiscardedRelay {
+  // Hostname of the discarded relay
   Hostname hostname = 1;
-  // If this field is set, the relay is filtered out and at least one reason is given
-  RelayFilterReasons filtered_out_by = 2;
+  // The list of constraints that did not match the relay.
+  // This can be interpreted as a list of criteria necessary
+  // to unblock the relay from being selectable.
+  NonMatchingConstraints non_matching_constraints = 2;
 }
 
-// A hostname uniquely identifies a single VPN relay.
+// A hostname that uniquely identifies a single VPN relay
 message Hostname {
-  // e.g. `se-got-wg-101`, *NOT* `se`, `se-got`
+  // The full hostname, e.g. `se-got-wg-101`
+  // This can *NOT* be a location, e.g. `se` or `se-got`
   string value = 1;
 }
 
 // Set of constraints that prevents the relay from being selected
-// The relay will be included in the pool of selectable servers unless one or more of these are true
-message RelayFilterReasons {
+message NonMatchingConstraints {
+  // The relay is currently offline
   bool inactive = 1;
+  // The relay does not reside in the given location
   bool location = 2;
-  bool providers = 3; // Return which provider it needs? Can be looked up in the full relay list
+  // The relay is not hosted by the given provider
+  bool providers = 3; // TODO: Return which provider it needs? Can be looked up in the full relay list
+  // The relay ownership does not match
   bool ownership = 4;
-  // TODO: see comment on RelayConstraints.IpVersion
+
+  // -- Entry specific constraints --
+
+  // The relay cannot be connected to with the requested ip version
   bool ip_version = 5;
-  // fields only valid for entry relays
+  // The relay is not DAITA enabled, which was requested
   bool daita = 6;
-  bool obfuscation = 7;
-  bool obfuscation_port = 8;
+  // The requested anti-censorship method is not available on the relay
+  bool anti_censorship = 7;
+  // The relay *does*  support the requested anti-censorship method, but not with the requested port
+  bool port = 8;
   // This relay is already used for the other hop (entry/exit)
   bool conflict_with_other_hop = 9;
 }
