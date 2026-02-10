@@ -222,10 +222,12 @@ class TunnelManagerTests: XCTestCase {
         let connectedExpectation = expectation(description: "Connected")
         let reconnectingExpectation = expectation(description: "Reconnecting")
         let tunnelObserver = TunnelBlockObserver(
-            didUpdateTunnelStatus: { _, tunnelStatus in
+            didUpdateTunnelStatus: { manager, tunnelStatus in
                 switch tunnelStatus.state {
                 case .connected: connectedExpectation.fulfill()
-                case .reconnecting: reconnectingExpectation.fulfill()
+                case .reconnecting:
+                    manager.removeObserver(self.tunnelObserver)
+                    reconnectingExpectation.fulfill()
                 default: return
                 }
             }
