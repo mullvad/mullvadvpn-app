@@ -366,8 +366,11 @@ class CustomListLocationsViewModelTest {
                                             daita = false,
                                             quic = null,
                                             lwo = false,
+                                            countryName = "Sweden",
+                                            cityName = "Gothenburg",
                                         )
                                     ),
+                                countryName = "Sweden",
                             )
                         ),
                 )
@@ -385,6 +388,8 @@ class CustomListLocationsViewModelTest {
                 daita = false,
                 quic = null,
                 lwo = false,
+                cityName = "Copenhagen",
+                countryName = "Denmark",
             )
     }
 }
