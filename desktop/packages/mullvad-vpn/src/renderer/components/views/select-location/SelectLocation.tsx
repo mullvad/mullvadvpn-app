@@ -21,11 +21,11 @@ import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
 import { SearchTextField } from '../../search-text-field';
 import {
+  CountryLocationList,
   CustomExitLocationRow,
-  CustomLists,
+  CustomListLocationList,
   DaitaFilterChip,
   DisabledEntrySelection,
-  LocationList,
   LwoFilterChip,
   NoSearchResult,
   OwnershipFilterChip,
@@ -195,7 +195,7 @@ export function SelectLocation() {
 function SelectLocationContent() {
   const { locationType, searchTerm } = useSelectLocationViewContext();
   const { selectedLocationRef } = useScrollPositionContext();
-  const { relayList } = useRelayListContext();
+
   const handleSelectExitLocation = useHandleSelectExitLocation();
   const handleSelectEntryLocation = useHandleSelectEntryLocation();
 
@@ -219,10 +219,9 @@ function SelectLocationContent() {
     const specialLocations = filterSpecialLocations(searchTerm, specialList);
     return (
       <Container horizontalMargin="medium" flexDirection="column" gap="large">
-        <CustomLists locationSelection="exit" selectedElementRef={selectedLocationRef} />
-        <LocationList
+        <CustomListLocationList locationSelection="exit" selectedElementRef={selectedLocationRef} />
+        <CountryLocationList
           key={locationType}
-          locations={relayList}
           selectedElementRef={selectedLocationRef}
           onSelect={handleSelectExitLocation}
         />
@@ -236,10 +235,12 @@ function SelectLocationContent() {
 
     return (
       <Container horizontalMargin="medium" flexDirection="column" gap="large">
-        <CustomLists locationSelection="entry" selectedElementRef={selectedLocationRef} />
-        <LocationList
+        <CustomListLocationList
+          locationSelection="entry"
+          selectedElementRef={selectedLocationRef}
+        />
+        <CountryLocationList
           key={locationType}
-          locations={relayList}
           selectedElementRef={selectedLocationRef}
           onSelect={handleSelectEntryLocation}
         />

@@ -3,7 +3,7 @@ import {
   StyledLocationRowButton,
   StyledLocationRowContainerWithMargin,
   StyledLocationRowLabel,
-} from '../location-row/LocationRowStyles';
+} from '../any-location-list-item/LocationRowStyles';
 import type { SpecialLocationRowProps } from '../special-location-row';
 
 export interface SpecialLocationRowInnerProps<T>

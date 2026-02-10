@@ -5,7 +5,7 @@ import { type RelayLocation as RelayLocationType } from '../../../../../../share
 import { FlexColumn } from '../../../../../lib/components/flex-column';
 import { spacings } from '../../../../../lib/foundations';
 import { type AnyLocation } from '../../select-location-types';
-import { RelayLocation } from '../relay-location';
+import { GeographicalLocationListItem } from '../geographical-location-list-item';
 
 export type RelayLocationListProps = {
   locations: AnyLocation[];
@@ -26,7 +26,7 @@ export function RelayLocationList({ locations, ...props }: RelayLocationListProp
       {locations.map((location) => {
         return (
           <StyledLocationContainer key={Object.values(location.details).join('-')}>
-            <RelayLocation location={location} level={0} {...props} />
+            <GeographicalLocationListItem location={location} level={0} {...props} />
           </StyledLocationContainer>
         );
       })}
