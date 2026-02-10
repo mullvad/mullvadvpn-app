@@ -131,6 +131,7 @@ private fun LazyGridScope.content(
         Card(
             shape = MaterialTheme.shapes.large,
             onClick = { onObfuscationSelected(item) },
+            enabled = !state.applyingChange,
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceDim),
             border =
                 if (item == state.currentAppObfuscation) {
