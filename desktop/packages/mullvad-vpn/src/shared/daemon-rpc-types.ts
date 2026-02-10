@@ -1,5 +1,16 @@
 import { IChangelog } from './ipc-types';
 
+export type DisconnectSource =
+  | 'gui-disconnect-button'
+  | 'gui-expired-account'
+  | 'gui-login-unblock'
+  | 'gui-device-revoked'
+  | 'gui-quit-button'
+  | 'tray-disconnect'
+  | 'tray-disconnect-quit';
+
+export type LogoutSource = 'gui-logout-button' | 'gui-device-revoked';
+
 export interface IAccountData {
   expiry: string;
 }
