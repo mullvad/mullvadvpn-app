@@ -35,8 +35,7 @@ fn main() {
         }
     };
 
-    log::debug!("Process exiting with code {exit_code}");
-    runtime.shutdown_timeout(Duration::from_millis(100));
+    log::debug!("Process exiting with code {}", exit_code);
     std::process::exit(exit_code);
 }
 
@@ -58,14 +57,14 @@ async fn run() -> Result<(), String> {
 
     match config.command {
         cli::Command::Daemon => {
-            // uniqueness check must happen before logging initialization,
+            // uniqueness check must happen before logging initializaton,
             // as initializing logs will rotate any existing log file.
             assert_unique().await?;
-            let (log_location, log_handle) = init_daemon_logging(config)?;
+            let (log_location, reload_handle) = init_daemon_logging(config)?;
             log::trace!("Using configuration: {:?}", config);
 
             let log_dir = log_location.map(|l| l.directory);
-            run_standalone(log_dir, log_handle).await
+            run_standalone(log_dir, reload_handle).await
         }
 
         #[cfg(target_os = "linux")]
@@ -119,18 +118,18 @@ fn init_daemon_logging(
         filename: PathBuf::from("daemon.log"),
     });
 
-    let log_handle = init_logger(config, log_location.clone())?;
+    let reload_handle = init_logger(config, log_location.clone())?;
 
     if let Some(log_location) = log_location.as_ref() {
         log::info!("Logging to {}", log_location.log_path().display());
     }
-    Ok((log_location, log_handle))
+    Ok((log_location, reload_handle))
 }
 
-/// Initialize logging to stderr and to the [`EARLY_BOOT_LOG_FILENAME`]
+/// Initialize logging to stder and to the [`EARLY_BOOT_LOG_FILENAME`]
 #[cfg(target_os = "linux")]
 fn init_early_boot_logging(config: &cli::Config) {
-    let log_file_location = get_log_dir(config)
+    let logging = get_log_dir(config)
         .ok()
         .flatten()
         .map(|log_dir| LogLocation {
@@ -140,10 +139,9 @@ fn init_early_boot_logging(config: &cli::Config) {
 
     // If it's possible to log to the filesystem - attempt to do so, but failing that mustn't stop
     // the daemon from starting here.
-    if let Err(e) = init_logger(config, log_file_location) {
-        eprintln!("Failed to initialize early-boot logging to file: '{e}'");
+    if init_logger(config, logging).is_err() {
         let _ = init_logger(config, None);
-    }
+    };
 }
 
 /// Initialize logging to stderr and to file (if provided).
@@ -165,12 +163,12 @@ fn init_logger(
 
     exception_logging::enable();
 
-    let log_handle =
+    let reload_handle =
         logging::init_logger(config.log_level, log_location, config.log_stdout_timestamps)
             .map_err(|e| e.display_chain_with_msg("Unable to initialize logger"))?;
     log_panics::init();
     version::log_version();
-    Ok(log_handle)
+    Ok(reload_handle)
 }
 
 fn get_log_dir(config: &cli::Config) -> Result<Option<PathBuf>, String> {
