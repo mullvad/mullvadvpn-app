@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.viewmodel
+package net.mullvad.mullvadvpn.appearance.impl
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -45,9 +45,3 @@ class AppearanceViewModel(private val appObfuscationRepository: AppObfuscationRe
         }
     }
 }
-
-data class AppearanceUiState(
-    val availableObfuscations: List<AppObfuscation> = emptyList(),
-    val currentAppObfuscation: AppObfuscation? = null,
-    val applyingChange: Boolean = false,
-)

@@ -42,6 +42,7 @@ class AndroidLibraryFeatureImplPlugin : Plugin<Project> {
             dependencies {
                 "implementation"(project(":lib:model"))
                 "implementation"(project(":lib:common"))
+                "implementation"(project(":lib:common-compose"))
                 "implementation"(project(":lib:ui:theme"))
                 "implementation"(project(":lib:ui:designsystem"))
                 "implementation"(project(":lib:ui:component"))

@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.compose.util
+package net.mullvad.mullvadvpn.common.compose
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
