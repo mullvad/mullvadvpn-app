@@ -31,7 +31,7 @@ tokio = { workspace = true, features = ["io-util", "test-util", "time"] }
 jnix = { version = "0.5.1", features = ["derive"] }
 
 [target.'cfg(target_os = "linux")'.dependencies]
-mnl = { version = "0.3.0", features = ["mnl-1-0-4"] }
+mnl = { version = "0.3.1", features = ["mnl-1-0-4"] }
 # NOTE: the libnftnl version specified in `features`
 # MUST match the version we link in /.cargo/config.toml
 nftnl = { version = "0.9.1", features = ["nftnl-1-2-0"] }
