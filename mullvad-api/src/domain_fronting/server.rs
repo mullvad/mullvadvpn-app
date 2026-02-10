@@ -74,7 +74,11 @@ impl<C: UpstreamConnector> Sessions<C> {
     /// Create a new session manager with a custom connector.
     ///
     /// This allows injecting test doubles or alternative transports.
-    pub fn with_connector(upstream: SocketAddr, session_header_key: String, connector: C) -> Arc<Self> {
+    pub fn with_connector(
+        upstream: SocketAddr,
+        session_header_key: String,
+        connector: C,
+    ) -> Arc<Self> {
         let sessions = Sessions {
             configuration: Configuration {
                 upstream,
