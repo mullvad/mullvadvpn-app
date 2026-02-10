@@ -71,7 +71,7 @@ the current state of the latest code in git, not necessarily any existing releas
 
 [DAITA]: https://mullvad.net/en/blog/introducing-defense-against-ai-guided-traffic-analysis-daita
 
-## Security and anonymity
+## User security, privacy and anonymity
 
 This app is a privacy preserving VPN client. As such it goes to great lengths to stop traffic
 leaks. And basically all settings default to the more secure/private option. The user has to
@@ -79,6 +79,35 @@ explicitly allow more loose rules if desired. See the [dedicated security docume
 on what the app blocks and allows, as well as how it does it.
 
 [dedicated security document]: docs/security.md
+
+## Secure development
+
+Since the security of the users of the app is a top priority, by extension the security
+of the development and release process also becomes a top priority. This is something we work
+actively on.
+
+[![OpenSSF Best Practices](https://www.bestpractices.dev/projects/9411/badge)](https://www.bestpractices.dev/projects/9411)
+
+### Git signatures
+
+All merge commits to the main branch must be PGP (gpg) signed in git. This signs off the entire
+feature branch. The individual commits in the feature branch do not need to be signed,
+unless they change one or more of the files deemed extra important.
+
+The list of files requiring signatures to every commit that change them is defined in the
+[`verify-locked-down-signatures`](.github/workflows/verify-locked-down-signatures.yml)
+workflow.
+
+### Audits, pentests and external security reviews
+
+This app is audited by external security experts and penetration testers every second year.
+We also carry out feature specific audits for certain security critical features and changes.
+
+The results of these audits are always made public in their unredacted original form, for
+full transparency towards the users. See the [audits readme](./audits/README.md) for this.
+
+Moreover, we welcome any individual to review the security of this app and submit any found
+issue to us. See [SECURITY.md](SECURITY.md) for more.
 
 ## Checking out the code
 
@@ -98,8 +127,9 @@ git submodule update --init wireguard-go-rs/libwg/wireguard-go
 ```
 Further details on why this is necessary can be found in the [wireguard-go-rs crate](./wireguard-go-rs/README.md).
 
-We sign every commit on the `main` branch as well as our release tags. If you would like to verify
-your checkout, you can find our developer keys on [Mullvad's Open Source page].
+We sign every merge commit to the `main` branch as well as our release tags.
+If you would like to verify your checkout, you can find our developer keys on
+[Mullvad's Open Source page].
 
 ### Binaries submodule
 
@@ -432,11 +462,6 @@ Instructions for how to handle locales and translations are found
 For instructions specific to the Android app, see [here](./android/README.md).
 
 For instructions specific to the iOS app, see [here](./ios/translation/README.md).
-
-## Audits, pentests and external security reviews
-
-Mullvad has used external pentesting companies to carry out security audits of this VPN app. Read
-more about them in the [audits readme](./audits/README.md).
 
 # License
 
