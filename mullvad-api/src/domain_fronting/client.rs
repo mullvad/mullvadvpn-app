@@ -18,6 +18,7 @@ use tokio::{
     io::{AsyncRead, AsyncWrite},
     net::TcpStream,
     sync::mpsc,
+    task::JoinHandle,
 };
 use tokio_rustls::rustls::{self};
 use uuid::Uuid;
@@ -125,6 +126,8 @@ pub struct ProxyConnection {
     read_waker: Option<Waker>,
     // call waker whenever the send_future resolves.
     write_waker: Option<Waker>,
+    // Keeping the connection task
+    connection_task: JoinHandle<()>,
 }
 
 impl ProxyConnection {
@@ -142,18 +145,19 @@ impl ProxyConnection {
     {
         let io = TokioIo::new(stream);
         let (sender, conn) = hyper::client::conn::http1::handshake(io).await?;
-        tokio::spawn(async move {
+        let connection_task = tokio::spawn(async move {
             if let Err(err) = conn.await {
                 log::error!("Domain fronting connection failed: {:?}", err);
             }
         });
-        Self::initialize(sender, proxy_host, session_header_key).await
+        Self::initialize(sender, proxy_host, session_header_key, connection_task).await
     }
 
     async fn initialize(
         mut sender: SendRequest<Full<Bytes>>,
         proxy_host: String,
         session_header_key: String,
+        connection_task: JoinHandle<()>,
     ) -> Result<Self, Error> {
         sender.ready().await?;
         let (response_tx, response_rx) = mpsc::channel(1);
@@ -175,6 +179,7 @@ impl ProxyConnection {
             send_future: None,
             read_waker: None,
             write_waker: None,
+            connection_task,
         })
     }
 
@@ -324,6 +329,15 @@ impl AsyncWrite for ProxyConnection {
         _cx: &mut std::task::Context<'_>,
     ) -> std::task::Poll<Result<(), std::io::Error>> {
         Poll::Ready(Ok(()))
+    }
+}
+
+impl Drop for ProxyConnection {
+    fn drop(&mut self) {
+        // Technically the conneciton task will be shut down once the last instance of the
+        // associated `SendRequest` is destoryed, but this behavior is not documented anywhere, as
+        // such, let's abort the task ourselves anyway.
+        self.connection_task.abort();
     }
 }
 
@@ -618,6 +632,64 @@ mod tests {
 
         assert_eq!(&buf1[..n1], b"from_client1", "Client 1 got wrong echo");
         assert_eq!(&buf2[..n2], b"from_client2", "Client 2 got wrong echo");
+    }
+
+    #[tokio::test]
+    async fn test_connection_task_stopped_on_drop() {
+        // Spawn echo server
+        let echo_addr = spawn_echo_server().await;
+
+        let (client_stream, server_stream) = duplex(8192);
+        let sessions = server::Sessions::new(echo_addr, TEST_SESSION_HEADER.to_string());
+        let sessions_clone = sessions.clone();
+
+        tokio::spawn(async move {
+            let io = TokioIo::new(server_stream);
+            let service = hyper::service::service_fn(move |req| {
+                let sessions = sessions_clone.clone();
+                async move { Ok::<_, Infallible>(sessions.handle_request(req).await) }
+            });
+            let _ = hyper::server::conn::http1::Builder::new()
+                .serve_connection(io, service)
+                .await;
+        });
+
+        let proxy_config = ProxyConfig::new(
+            echo_addr,
+            DomainFronting::new(
+                "example.com".to_string(),
+                "api.example.com".to_string(),
+                TEST_SESSION_HEADER.to_string(),
+            ),
+        );
+
+        let client = proxy_config
+            .connect_with_stream(client_stream, false)
+            .await
+            .expect("Failed to create client connection");
+
+        // Grab a handle to the connection task before dropping
+        let connection_task = &client.connection_task;
+        // The task should still be running
+        assert!(
+            !connection_task.is_finished(),
+            "Connection task should be running before drop"
+        );
+
+        // Clone the abort handle so we can check task status after drop
+        let task_handle = client.connection_task.abort_handle();
+
+        // Drop the proxy connection
+        drop(client);
+
+        // Give the runtime a moment to process the abort
+        tokio::task::yield_now().await;
+
+        // The connection task should now be finished (aborted)
+        assert!(
+            task_handle.is_finished(),
+            "Connection task should be stopped after ProxyConnection is dropped"
+        );
     }
 
     #[tokio::test]
