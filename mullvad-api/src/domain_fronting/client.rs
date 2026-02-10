@@ -40,13 +40,6 @@ pub struct ProxyConfig {
     domain_fronting: DomainFronting,
 }
 
-impl std::ops::Deref for ProxyConfig {
-    type Target = DomainFronting;
-    fn deref(&self) -> &Self::Target {
-        &self.domain_fronting
-    }
-}
-
 impl ProxyConfig {
     /// Create a new ProxyConfig with the given address and domain fronting configuration.
     pub fn new(addr: SocketAddr, domain_fronting: DomainFronting) -> Self {
