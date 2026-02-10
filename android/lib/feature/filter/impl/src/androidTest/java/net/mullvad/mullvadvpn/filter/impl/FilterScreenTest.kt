@@ -1,13 +1,11 @@
-package net.mullvad.mullvadvpn.compose.screen
+package net.mullvad.mullvadvpn.filter.impl
 
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import de.mannodermaus.junit5.compose.ComposeContext
-import io.mockk.MockKAnnotations
 import io.mockk.mockk
 import io.mockk.verify
-import net.mullvad.mullvadvpn.compose.state.RelayFilterUiState
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.Ownership
 import net.mullvad.mullvadvpn.lib.model.ProviderId
@@ -20,12 +18,8 @@ import org.junit.jupiter.api.extension.RegisterExtension
 class FilterScreenTest {
     @JvmField @RegisterExtension val composeExtension = createEdgeToEdgeComposeExtension()
 
-    fun setup() {
-        MockKAnnotations.init(this)
-    }
-
     private fun ComposeContext.initScreen(
-        state: RelayFilterUiState = RelayFilterUiState(),
+        state: FilterUiState = FilterUiState(),
         onBackClick: () -> Unit = {},
         onApplyClick: () -> Unit = {},
         onSelectedOwnership: (ownership: Constraint<Ownership>) -> Unit = {},
@@ -49,7 +43,7 @@ class FilterScreenTest {
         composeExtension.use {
             initScreen(
                 state =
-                    RelayFilterUiState(
+                    FilterUiState(
                         providerToOwnerships = DUMMY_RELAY_ALL_PROVIDERS,
                         selectedOwnership = Constraint.Any,
                         selectedProviders = Constraint.Only(DUMMY_SELECTED_PROVIDERS),
@@ -64,7 +58,7 @@ class FilterScreenTest {
         composeExtension.use {
             initScreen(
                 state =
-                    RelayFilterUiState(
+                    FilterUiState(
                         providerToOwnerships = DUMMY_RELAY_ALL_PROVIDERS,
                         selectedOwnership = Constraint.Any,
                         selectedProviders = Constraint.Only(DUMMY_SELECTED_PROVIDERS),
@@ -79,7 +73,7 @@ class FilterScreenTest {
         composeExtension.use {
             initScreen(
                 state =
-                    RelayFilterUiState(
+                    FilterUiState(
                         providerToOwnerships = DUMMY_RELAY_ALL_PROVIDERS,
                         selectedOwnership = Constraint.Only(Ownership.MullvadOwned),
                         selectedProviders = Constraint.Only(DUMMY_SELECTED_PROVIDERS),
@@ -94,7 +88,7 @@ class FilterScreenTest {
         composeExtension.use {
             initScreen(
                 state =
-                    RelayFilterUiState(
+                    FilterUiState(
                         providerToOwnerships = DUMMY_RELAY_ALL_PROVIDERS,
                         selectedOwnership = Constraint.Only(Ownership.Rented),
                         selectedProviders = Constraint.Only(DUMMY_SELECTED_PROVIDERS),
@@ -109,7 +103,7 @@ class FilterScreenTest {
         composeExtension.use {
             initScreen(
                 state =
-                    RelayFilterUiState(
+                    FilterUiState(
                         providerToOwnerships = DUMMY_RELAY_ALL_PROVIDERS,
                         selectedOwnership = Constraint.Any,
                         selectedProviders = Constraint.Only(DUMMY_SELECTED_PROVIDERS),
@@ -127,7 +121,7 @@ class FilterScreenTest {
             val mockClickListener: () -> Unit = mockk(relaxed = true)
             initScreen(
                 state =
-                    RelayFilterUiState(
+                    FilterUiState(
                         providerToOwnerships = DUMMY_RELAY_ALL_PROVIDERS,
                         selectedOwnership = Constraint.Any,
                         selectedProviders = Constraint.Only(setOf(ProviderId("31173"))),
@@ -144,7 +138,7 @@ class FilterScreenTest {
             // Arrange
             initScreen(
                 state =
-                    RelayFilterUiState(
+                    FilterUiState(
                         providerToOwnerships = DUMMY_RELAY_ALL_PROVIDERS,
                         selectedOwnership = Constraint.Any,
                         selectedProviders = Constraint.Only(setOf(ProviderId("1RemovedProvider"))),

@@ -27,6 +27,7 @@ import com.ramcosta.composedestinations.generated.daita.destinations.DaitaDestin
 import com.ramcosta.composedestinations.generated.daita.destinations.DaitaDirectOnlyConfirmationDestination
 import com.ramcosta.composedestinations.generated.daita.destinations.DaitaDirectOnlyInfoDestination
 import com.ramcosta.composedestinations.generated.destinations.NoDaemonDestination
+import com.ramcosta.composedestinations.generated.filter.destinations.FilterDestination
 import com.ramcosta.composedestinations.generated.multihop.destinations.MultihopDestination
 import com.ramcosta.composedestinations.generated.splittunneling.destinations.SplitTunnelingDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
@@ -45,14 +46,15 @@ val LocalSharedTransitionScope = compositionLocalOf<SharedTransitionScope?> { nu
 
 @NavHostGraph
 annotation class MainGraph {
-    @ExternalDestination<DaitaDestination>
-    @ExternalDestination<DaitaDirectOnlyInfoDestination>
-    @ExternalDestination<DaitaDirectOnlyConfirmationDestination>
-    @ExternalDestination<MultihopDestination>
-    @ExternalDestination<SplitTunnelingDestination>
     @ExternalDestination<AppearanceDestination>
     @ExternalDestination<AppInfoDestination>
     @ExternalDestination<ChangelogDestination>
+    @ExternalDestination<DaitaDestination>
+    @ExternalDestination<DaitaDirectOnlyInfoDestination>
+    @ExternalDestination<DaitaDirectOnlyConfirmationDestination>
+    @ExternalDestination<FilterDestination>
+    @ExternalDestination<MultihopDestination>
+    @ExternalDestination<SplitTunnelingDestination>
     companion object Includes
 }
 

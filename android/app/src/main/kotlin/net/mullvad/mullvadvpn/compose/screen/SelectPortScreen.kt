@@ -20,8 +20,8 @@ import com.ramcosta.composedestinations.result.ResultRecipient
 import kotlinx.parcelize.Parcelize
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.common.compose.dropUnlessResumed
+import net.mullvad.mullvadvpn.common.compose.itemWithDivider
 import net.mullvad.mullvadvpn.compose.dialog.CustomPortDialogNavArgs
-import net.mullvad.mullvadvpn.compose.extensions.itemWithDivider
 import net.mullvad.mullvadvpn.compose.preview.SelectPortUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.SelectPortUiState
 import net.mullvad.mullvadvpn.core.OnNavResultValue
