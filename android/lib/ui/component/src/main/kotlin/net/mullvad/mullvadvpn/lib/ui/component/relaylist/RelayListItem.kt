@@ -102,6 +102,8 @@ sealed interface RelayListItem {
     }
 
     data class RecentListItem(
+        val countryName: String?,
+        val cityName: String?,
         override val item: RelayItem,
         override val isSelected: Boolean = false,
         override val expanded: Boolean = false,

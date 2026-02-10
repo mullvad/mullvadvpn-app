@@ -126,7 +126,20 @@ private fun createRecentsSection(
         recents
             .map { recent ->
                 val isSelected = recent.matches(itemSelection, relayListType)
-                RelayListItem.RecentListItem(item = recent, isSelected = isSelected)
+                val (country, city) =
+                    when (recent) {
+                        is RelayItem.Location.Relay -> recent.countryName to recent.cityName
+                        is RelayItem.Location.City -> recent.countryName to recent.name
+                        is RelayItem.Location.Country -> recent.name to null
+                        is RelayItem.CustomList -> null to null
+                    }
+
+                RelayListItem.RecentListItem(
+                    item = recent,
+                    isSelected = isSelected,
+                    countryName = country,
+                    cityName = city,
+                )
             }
             // Convert to a set to remove possible duplicates. We can get duplicate entries if
             // multihop is enabled because multiple multihop recents

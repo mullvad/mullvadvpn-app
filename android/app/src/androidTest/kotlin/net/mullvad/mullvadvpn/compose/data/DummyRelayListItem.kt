@@ -16,7 +16,14 @@ fun createSimpleRelayListItemList(
     if (recentItems.isNotEmpty()) {
         add(RelayListItem.RecentsListHeader)
         recentItems.forEach {
-            add(RelayListItem.RecentListItem(it, isSelected = it.id == selectedItem))
+            add(
+                RelayListItem.RecentListItem(
+                    item = it,
+                    isSelected = it.id == selectedItem,
+                    countryName = "Country",
+                    cityName = "City",
+                )
+            )
         }
     }
     add(RelayListItem.CustomListHeader)

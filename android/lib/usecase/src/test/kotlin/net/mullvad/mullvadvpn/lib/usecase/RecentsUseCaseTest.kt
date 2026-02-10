@@ -164,7 +164,12 @@ class RecentsUseCaseTest {
         private val SWEDEN_ID = GeoLocationId.Country("se")
         private val STOCKHOLM_ID = GeoLocationId.City(SWEDEN_ID, "sto")
         private val STOCKHOLM =
-            RelayItem.Location.City(id = STOCKHOLM_ID, name = "Stockholm", relays = emptyList())
+            RelayItem.Location.City(
+                id = STOCKHOLM_ID,
+                name = "Stockholm",
+                relays = emptyList(),
+                countryName = "Sweden",
+            )
         private val SWEDEN =
             RelayItem.Location.Country(id = SWEDEN_ID, name = "Sweden", cities = listOf(STOCKHOLM))
         private val NORWAY_ID = GeoLocationId.Country("no")

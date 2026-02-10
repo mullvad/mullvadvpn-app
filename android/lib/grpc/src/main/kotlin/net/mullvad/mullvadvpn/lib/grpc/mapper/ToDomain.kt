@@ -567,28 +567,39 @@ internal fun ManagementInterface.RelayListCountry.toDomain(): RelayItem.Location
         countryCode,
         name,
         citiesList
-            .map { city -> city.toDomain(countryCode) }
+            .map { city -> city.toDomain(countryCode = countryCode, countryName = name) }
             .filter { it.relays.isNotEmpty() }
             .sortedBy { it.name },
     )
 }
 
 internal fun ManagementInterface.RelayListCity.toDomain(
-    countryCode: GeoLocationId.Country
+    countryCode: GeoLocationId.Country,
+    countryName: String,
 ): RelayItem.Location.City {
     val cityCode = GeoLocationId.City(countryCode, code)
     return RelayItem.Location.City(
         name = name,
+        countryName = countryName,
         id = cityCode,
-        relays = relaysList.map { it.toDomain(cityCode) }.sortedWith(RelayNameComparator),
+        relays =
+            relaysList
+                .map {
+                    it.toDomain(cityCode = cityCode, cityName = name, countryName = countryName)
+                }
+                .sortedWith(RelayNameComparator),
     )
 }
 
 internal fun ManagementInterface.Relay.toDomain(
-    cityCode: GeoLocationId.City
+    cityCode: GeoLocationId.City,
+    cityName: String,
+    countryName: String,
 ): RelayItem.Location.Relay =
     RelayItem.Location.Relay(
         id = GeoLocationId.Hostname(cityCode, hostname),
+        cityName = cityName,
+        countryName = countryName,
         active = active,
         provider = ProviderId(provider),
         ownership = if (owned) Ownership.MullvadOwned else Ownership.Rented,
