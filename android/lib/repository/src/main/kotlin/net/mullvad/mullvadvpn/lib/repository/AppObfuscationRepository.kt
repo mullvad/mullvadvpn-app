@@ -45,28 +45,6 @@ class AppObfuscationRepository(
         _currentAppObfuscation.value = appObfuscation
     }
 
-    // Due to a bug in the code, users that use `2026.1-beta1` would disable the main activity.
-    // This is incorrect and they should disable the default alt activity instead.
-    fun fixDisableBug() {
-        with(ComponentName(packageName, MAIN_ACTIVITY_CLASS)) {
-            if (
-                packageManager.getComponentEnabledSetting(this) == COMPONENT_ENABLED_STATE_DISABLED
-            ) {
-                packageManager.setComponentEnabledSetting(
-                    AppObfuscation.DEFAULT.toComponentName(),
-                    COMPONENT_ENABLED_STATE_DISABLED,
-                    DONT_KILL_APP,
-                )
-                packageManager.setComponentEnabledSetting(
-                    this,
-                    COMPONENT_ENABLED_STATE_ENABLED,
-                    DONT_KILL_APP,
-                )
-                _currentAppObfuscation.value = getObfuscation()
-            }
-        }
-    }
-
     private fun getObfuscation(): AppObfuscation =
         AppObfuscation.entries.first { packageManager.isComponentEnabled(it.toComponentName()) }
 
