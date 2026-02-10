@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.compose.dialog
+package net.mullvad.mullvadvpn.serveripoverride.impl.reset
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.AlertDialog
@@ -11,18 +11,16 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle
-import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
-import net.mullvad.mullvadvpn.compose.screen.MainGraph
 import net.mullvad.mullvadvpn.lib.ui.designsystem.NegativeButton
 import net.mullvad.mullvadvpn.lib.ui.designsystem.PrimaryButton
+import net.mullvad.mullvadvpn.lib.ui.resource.R
 import net.mullvad.mullvadvpn.lib.ui.tag.RESET_SERVER_IP_OVERRIDE_CANCEL_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.RESET_SERVER_IP_OVERRIDE_RESET_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
-import net.mullvad.mullvadvpn.viewmodel.ResetServerIpOverridesConfirmationUiSideEffect
-import net.mullvad.mullvadvpn.viewmodel.ResetServerIpOverridesConfirmationViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @Preview
@@ -33,7 +31,7 @@ private fun PreviewResetServerIpOverridesConfirmationDialog() {
     }
 }
 
-@Destination<MainGraph>(style = DestinationStyle.Dialog::class)
+@Destination<ExternalModuleGraph>(style = DestinationStyle.Dialog::class)
 @Composable
 fun ResetServerIpOverridesConfirmation(resultBackNavigator: ResultBackNavigator<Boolean>) {
     val vm: ResetServerIpOverridesConfirmationViewModel = koinViewModel()

@@ -42,7 +42,7 @@ import net.mullvad.mullvadvpn.common.compose.dropUnlessResumed
 import net.mullvad.mullvadvpn.common.compose.showSnackbarImmediately
 import net.mullvad.mullvadvpn.compose.preview.DeviceListUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.DeviceListUiState
-import net.mullvad.mullvadvpn.compose.transitions.DefaultTransition
+import net.mullvad.mullvadvpn.core.animation.DefaultTransition
 import net.mullvad.mullvadvpn.lib.model.AccountNumber
 import net.mullvad.mullvadvpn.lib.model.Device
 import net.mullvad.mullvadvpn.lib.model.DeviceId

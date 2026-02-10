@@ -60,7 +60,7 @@ import com.ramcosta.composedestinations.generated.destinations.LocalNetworkShari
 import com.ramcosta.composedestinations.generated.destinations.MalwareInfoDestination
 import com.ramcosta.composedestinations.generated.destinations.MtuDestination
 import com.ramcosta.composedestinations.generated.destinations.QuantumResistanceInfoDestination
-import com.ramcosta.composedestinations.generated.destinations.ServerIpOverridesDestination
+import com.ramcosta.composedestinations.generated.serveripoverride.destinations.ServerIpOverridesDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
 import kotlinx.coroutines.launch

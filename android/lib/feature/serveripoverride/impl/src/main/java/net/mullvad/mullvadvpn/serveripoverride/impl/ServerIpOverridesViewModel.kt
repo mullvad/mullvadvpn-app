@@ -1,11 +1,11 @@
-package net.mullvad.mullvadvpn.viewmodel
+package net.mullvad.mullvadvpn.serveripoverride.impl
 
 import android.content.ContentResolver
 import android.net.Uri
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ramcosta.composedestinations.generated.destinations.ServerIpOverridesDestination
+import com.ramcosta.composedestinations.generated.serveripoverride.destinations.ServerIpOverridesDestination
 import java.io.InputStreamReader
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.SharingStarted

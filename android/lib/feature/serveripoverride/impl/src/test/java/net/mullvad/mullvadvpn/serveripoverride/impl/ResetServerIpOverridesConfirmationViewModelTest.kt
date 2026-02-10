@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.viewmodel
+package net.mullvad.mullvadvpn.serveripoverride.impl
 
 import androidx.lifecycle.viewModelScope
 import app.cash.turbine.test
@@ -14,6 +14,8 @@ import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.model.RelayOverride
 import net.mullvad.mullvadvpn.lib.repository.RelayOverridesRepository
+import net.mullvad.mullvadvpn.serveripoverride.impl.reset.ResetServerIpOverridesConfirmationUiSideEffect
+import net.mullvad.mullvadvpn.serveripoverride.impl.reset.ResetServerIpOverridesConfirmationViewModel
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

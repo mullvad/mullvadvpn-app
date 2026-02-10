@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.compose.screen
+package net.mullvad.mullvadvpn.serveripoverride.impl
 
 import android.content.res.Resources
 import android.os.Parcelable
@@ -50,18 +50,17 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.generated.destinations.ImportOverridesByTextDestination
-import com.ramcosta.composedestinations.generated.destinations.ResetServerIpOverridesConfirmationDestination
-import com.ramcosta.composedestinations.generated.destinations.ServerIpOverridesInfoDestination
+import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
+import com.ramcosta.composedestinations.generated.serveripoverride.destinations.ImportOverridesByTextDestination
+import com.ramcosta.composedestinations.generated.serveripoverride.destinations.ResetServerIpOverridesConfirmationDestination
+import com.ramcosta.composedestinations.generated.serveripoverride.destinations.ServerIpOverridesInfoDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
 import kotlinx.coroutines.DisposableHandle
 import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
-import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.common.compose.showSnackbarImmediately
-import net.mullvad.mullvadvpn.compose.preview.ServerIpOverridesUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.core.OnNavResultValue
 import net.mullvad.mullvadvpn.core.animation.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.lib.common.Lc
@@ -78,6 +77,7 @@ import net.mullvad.mullvadvpn.lib.ui.designsystem.ListItemDefaults
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadSnackbar
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
 import net.mullvad.mullvadvpn.lib.ui.designsystem.PrimaryButton
+import net.mullvad.mullvadvpn.lib.ui.resource.R
 import net.mullvad.mullvadvpn.lib.ui.tag.SERVER_IP_OVERRIDES_IMPORT_BY_FILE_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SERVER_IP_OVERRIDES_IMPORT_BY_TEXT_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SERVER_IP_OVERRIDE_IMPORT_TEST_TAG
@@ -87,9 +87,6 @@ import net.mullvad.mullvadvpn.lib.ui.tag.SERVER_IP_OVERRIDE_RESET_OVERRIDES_TEST
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaDisabled
-import net.mullvad.mullvadvpn.viewmodel.ServerIpOverridesUiSideEffect
-import net.mullvad.mullvadvpn.viewmodel.ServerIpOverridesUiState
-import net.mullvad.mullvadvpn.viewmodel.ServerIpOverridesViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @Preview("Loaded.Active|Loaded.Inactive|Loading")
@@ -114,7 +111,7 @@ private fun PreviewServerIpOverridesScreen(
 @Parcelize data class ServerIpOverridesNavArgs(val isModal: Boolean = false) : Parcelable
 
 @OptIn(ExperimentalSharedTransitionApi::class)
-@Destination<MainGraph>(
+@Destination<ExternalModuleGraph>(
     style = SlideInFromRightTransition::class,
     navArgs = ServerIpOverridesNavArgs::class,
 )

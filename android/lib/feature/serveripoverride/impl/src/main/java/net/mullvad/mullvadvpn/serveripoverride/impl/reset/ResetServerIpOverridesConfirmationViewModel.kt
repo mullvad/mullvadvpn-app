@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.viewmodel
+package net.mullvad.mullvadvpn.serveripoverride.impl.reset
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

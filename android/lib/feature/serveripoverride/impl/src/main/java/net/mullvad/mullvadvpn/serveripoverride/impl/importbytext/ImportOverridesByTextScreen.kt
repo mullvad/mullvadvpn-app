@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.compose.screen
+package net.mullvad.mullvadvpn.serveripoverride.impl.importbytext
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -25,11 +25,12 @@ import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
 import com.ramcosta.composedestinations.result.ResultBackNavigator
-import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.transitions.DefaultTransition
+import net.mullvad.mullvadvpn.core.animation.DefaultTransition
 import net.mullvad.mullvadvpn.lib.ui.component.MullvadSmallTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.textfield.mullvadWhiteTextFieldColors
+import net.mullvad.mullvadvpn.lib.ui.resource.R
 import net.mullvad.mullvadvpn.lib.ui.tag.SERVER_IP_OVERRIDES_IMPORT_BY_TEXT_IMPORT_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SERVER_IP_OVERRIDES_TEXT_INPUT_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
@@ -40,7 +41,7 @@ private fun PreviewImportOverridesByText() {
     AppTheme { ImportOverridesByTextScreen(onNavigateBack = {}, onImportClicked = {}) }
 }
 
-@Destination<MainGraph>(style = DefaultTransition::class)
+@Destination<ExternalModuleGraph>(style = DefaultTransition::class)
 @Composable
 fun ImportOverridesByText(resultNavigator: ResultBackNavigator<String>) {
     ImportOverridesByTextScreen(

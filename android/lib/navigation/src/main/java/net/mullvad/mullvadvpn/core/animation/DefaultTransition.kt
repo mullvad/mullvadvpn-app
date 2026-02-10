@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.compose.transitions
+package net.mullvad.mullvadvpn.core.animation
 
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.EnterTransition

@@ -45,6 +45,7 @@ include(
     ":lib:feature:daita:impl",
     ":lib:feature:filter:impl",
     ":lib:feature:multihop:impl",
+    ":lib:feature:serveripoverride:impl",
     ":lib:feature:splittunneling:impl",
     ":lib:map",
     ":lib:model",
