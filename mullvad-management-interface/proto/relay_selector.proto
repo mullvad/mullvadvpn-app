@@ -1,13 +1,23 @@
-// First draft of the new Relay Selector API.
+// Relay Selector service.
+//
+// This API is used to query which relays are selectable for a set of filters,
+// and to provide information about about how to unblock discarded relays.
+
 syntax = "proto3";
 package mullvad_daemon.relay_selector;
 
 import "management_interface.proto";
 
 service RelaySelectorService {
-  // For a given relay constraint, return the list of matching relays and a list
-  // of non-matching relays along with the reasons they were filtered out.
-  rpc GetMatchingRelays(Selection) returns (FilteredRelays) {}
+  // Fílter the available relays by a set of constraints. These can be
+  // derived from the currents settings, or a potential future settings
+  // before they are applied.
+  //
+  // Returns the list of matching relays. For each connection using the given
+  // constraints one/a pair of these relays will be selected at random.
+  // Also returns a list of non-matching relays along with the set of
+  // constraints/conditions that made it unavailable.
+  rpc GetMatchingRelays(Selection) returns (FilteredRelays);
 }
 
 message Selection {
