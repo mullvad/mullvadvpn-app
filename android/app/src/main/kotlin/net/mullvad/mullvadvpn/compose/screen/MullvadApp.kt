@@ -21,6 +21,8 @@ import com.ramcosta.composedestinations.annotation.ExternalDestination
 import com.ramcosta.composedestinations.annotation.NavHostGraph
 import com.ramcosta.composedestinations.generated.NavGraphs
 import com.ramcosta.composedestinations.generated.appearance.destinations.AppearanceDestination
+import com.ramcosta.composedestinations.generated.appinfo.destinations.AppInfoDestination
+import com.ramcosta.composedestinations.generated.appinfo.destinations.ChangelogDestination
 import com.ramcosta.composedestinations.generated.daita.destinations.DaitaDestination
 import com.ramcosta.composedestinations.generated.daita.destinations.DaitaDirectOnlyConfirmationDestination
 import com.ramcosta.composedestinations.generated.daita.destinations.DaitaDirectOnlyInfoDestination
@@ -49,6 +51,8 @@ annotation class MainGraph {
     @ExternalDestination<MultihopDestination>
     @ExternalDestination<SplitTunnelingDestination>
     @ExternalDestination<AppearanceDestination>
+    @ExternalDestination<AppInfoDestination>
+    @ExternalDestination<ChangelogDestination>
     companion object Includes
 }
 

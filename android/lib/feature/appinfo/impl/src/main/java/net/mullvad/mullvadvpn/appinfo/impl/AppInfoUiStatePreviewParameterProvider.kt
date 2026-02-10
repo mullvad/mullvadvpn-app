@@ -1,10 +1,9 @@
-package net.mullvad.mullvadvpn.compose.preview
+package net.mullvad.mullvadvpn.appinfo.impl
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.toLc
 import net.mullvad.mullvadvpn.lib.model.VersionInfo
-import net.mullvad.mullvadvpn.viewmodel.AppInfoUiState
 
 class AppInfoUiStatePreviewParameterProvider : PreviewParameterProvider<Lc<Unit, AppInfoUiState>> {
     override val values: Sequence<Lc<Unit, AppInfoUiState>> =

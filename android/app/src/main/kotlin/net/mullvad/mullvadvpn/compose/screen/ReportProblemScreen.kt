@@ -55,7 +55,7 @@ import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
-import net.mullvad.mullvadvpn.compose.extensions.createUriHook
+import net.mullvad.mullvadvpn.common.compose.createUriHook
 import net.mullvad.mullvadvpn.compose.preview.ReportProblemUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.util.SecureScreenWhileInView
 import net.mullvad.mullvadvpn.compose.util.clickableAnnotatedString
