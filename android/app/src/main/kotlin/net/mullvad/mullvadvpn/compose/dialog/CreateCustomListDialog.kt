@@ -23,6 +23,7 @@ import net.mullvad.mullvadvpn.compose.textfield.CustomListNameTextField
 import net.mullvad.mullvadvpn.lib.model.CustomListAlreadyExists
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.communication.CustomListActionResultData
+import net.mullvad.mullvadvpn.lib.ui.component.dialog.InputDialog
 import net.mullvad.mullvadvpn.lib.ui.tag.CREATE_CUSTOM_LIST_DIALOG_INPUT_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.usecase.customlists.CreateWithLocationsError

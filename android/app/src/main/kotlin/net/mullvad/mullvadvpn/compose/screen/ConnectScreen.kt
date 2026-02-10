@@ -66,11 +66,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.generated.NavGraphs
+import com.ramcosta.composedestinations.generated.anticensorship.destinations.AntiCensorshipSettingsDestination
 import com.ramcosta.composedestinations.generated.appinfo.destinations.ChangelogDestination
 import com.ramcosta.composedestinations.generated.daita.destinations.DaitaDestination
 import com.ramcosta.composedestinations.generated.destinations.AccountDestination
 import com.ramcosta.composedestinations.generated.destinations.Android16UpgradeWarningInfoDestination
-import com.ramcosta.composedestinations.generated.destinations.AntiCensorshipSettingsDestination
 import com.ramcosta.composedestinations.generated.destinations.DeviceRevokedDestination
 import com.ramcosta.composedestinations.generated.destinations.OutOfTimeDestination
 import com.ramcosta.composedestinations.generated.destinations.SelectLocationDestination

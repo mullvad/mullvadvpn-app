@@ -5,6 +5,9 @@ import android.os.Build
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import net.mullvad.mullvadvpn.BuildConfig
+import net.mullvad.mullvadvpn.anticensorship.impl.AntiCensorshipSettingsViewModel
+import net.mullvad.mullvadvpn.anticensorship.impl.customport.CustomPortDialogViewModel
+import net.mullvad.mullvadvpn.anticensorship.impl.selectport.SelectPortViewModel
 import net.mullvad.mullvadvpn.appearance.impl.AppearanceViewModel
 import net.mullvad.mullvadvpn.appinfo.impl.AppInfoViewModel
 import net.mullvad.mullvadvpn.appinfo.impl.changelog.ChangelogViewModel
@@ -74,7 +77,6 @@ import net.mullvad.mullvadvpn.ui.MainActivity
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.viewmodel.AccountViewModel
 import net.mullvad.mullvadvpn.viewmodel.AddTimeViewModel
-import net.mullvad.mullvadvpn.viewmodel.AntiCensorshipSettingsViewModel
 import net.mullvad.mullvadvpn.viewmodel.ApiAccessListViewModel
 import net.mullvad.mullvadvpn.viewmodel.ApiAccessMethodDetailsViewModel
 import net.mullvad.mullvadvpn.viewmodel.ApiUnreachableViewModel
@@ -82,7 +84,6 @@ import net.mullvad.mullvadvpn.viewmodel.ConnectViewModel
 import net.mullvad.mullvadvpn.viewmodel.CreateCustomListDialogViewModel
 import net.mullvad.mullvadvpn.viewmodel.CustomListLocationsViewModel
 import net.mullvad.mullvadvpn.viewmodel.CustomListsViewModel
-import net.mullvad.mullvadvpn.viewmodel.CustomPortDialogViewModel
 import net.mullvad.mullvadvpn.viewmodel.DeleteApiAccessMethodConfirmationViewModel
 import net.mullvad.mullvadvpn.viewmodel.DeleteCustomListConfirmationViewModel
 import net.mullvad.mullvadvpn.viewmodel.DeviceListViewModel
@@ -101,7 +102,6 @@ import net.mullvad.mullvadvpn.viewmodel.PrivacyDisclaimerViewModel
 import net.mullvad.mullvadvpn.viewmodel.ReportProblemViewModel
 import net.mullvad.mullvadvpn.viewmodel.ResetServerIpOverridesConfirmationViewModel
 import net.mullvad.mullvadvpn.viewmodel.SaveApiAccessMethodViewModel
-import net.mullvad.mullvadvpn.viewmodel.SelectPortViewModel
 import net.mullvad.mullvadvpn.viewmodel.ServerIpOverridesViewModel
 import net.mullvad.mullvadvpn.viewmodel.SettingsViewModel
 import net.mullvad.mullvadvpn.viewmodel.SplashViewModel

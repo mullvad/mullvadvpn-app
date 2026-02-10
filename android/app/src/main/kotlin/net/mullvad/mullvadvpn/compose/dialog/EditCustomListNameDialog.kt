@@ -22,6 +22,7 @@ import net.mullvad.mullvadvpn.lib.model.GetCustomListError
 import net.mullvad.mullvadvpn.lib.model.NameAlreadyExists
 import net.mullvad.mullvadvpn.lib.model.UnknownCustomListError
 import net.mullvad.mullvadvpn.lib.model.communication.CustomListActionResultData
+import net.mullvad.mullvadvpn.lib.ui.component.dialog.InputDialog
 import net.mullvad.mullvadvpn.lib.ui.tag.EDIT_CUSTOM_LIST_DIALOG_INPUT_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.usecase.customlists.RenameError
