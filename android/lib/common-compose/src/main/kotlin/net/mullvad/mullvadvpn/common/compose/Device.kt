@@ -1,10 +1,10 @@
-package net.mullvad.mullvadvpn.compose.util
+package net.mullvad.mullvadvpn.common.compose
 
 import android.content.pm.PackageManager
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.booleanResource
-import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.lib.ui.resource.R
 
 @Composable
 fun isTv(): Boolean {

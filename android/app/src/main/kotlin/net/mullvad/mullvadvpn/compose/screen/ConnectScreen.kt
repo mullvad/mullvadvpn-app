@@ -83,6 +83,9 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
+import net.mullvad.mullvadvpn.common.compose.isTv
+import net.mullvad.mullvadvpn.common.compose.showSnackbarImmediately
 import net.mullvad.mullvadvpn.compose.button.ConnectionButton
 import net.mullvad.mullvadvpn.compose.button.SwitchLocationButton
 import net.mullvad.mullvadvpn.compose.component.ConnectionStatusText
@@ -96,10 +99,7 @@ import net.mullvad.mullvadvpn.compose.extensions.safeOpenUri
 import net.mullvad.mullvadvpn.compose.preview.ConnectUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.ConnectUiState
 import net.mullvad.mullvadvpn.compose.transitions.HomeTransition
-import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.CreateVpnProfile
-import net.mullvad.mullvadvpn.compose.util.isTv
-import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
 import net.mullvad.mullvadvpn.constant.SECURE_ZOOM
 import net.mullvad.mullvadvpn.constant.SECURE_ZOOM_ANIMATION_MILLIS
 import net.mullvad.mullvadvpn.constant.UNSECURE_ZOOM

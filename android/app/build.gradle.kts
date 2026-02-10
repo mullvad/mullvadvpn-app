@@ -384,8 +384,10 @@ play {
 
 dependencies {
     implementation(projects.lib.common)
+    implementation(project(":lib:common-compose"))
     implementation(projects.lib.grpc)
     implementation(projects.lib.endpoint)
+    implementation(projects.lib.feature.appearance.impl)
     implementation(projects.lib.feature.daita.impl)
     implementation(projects.lib.feature.multihop.impl)
     implementation(projects.lib.feature.splittunneling.impl)

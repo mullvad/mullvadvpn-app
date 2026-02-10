@@ -34,9 +34,11 @@ include(
 include(
     ":lib:billing",
     ":lib:common",
+    ":lib:common-compose",
     ":lib:common-test",
     ":lib:grpc",
     ":lib:endpoint",
+    ":lib:feature:appearance:impl",
     ":lib:feature:daita:impl",
     ":lib:feature:multihop:impl",
     ":lib:feature:splittunneling:impl",

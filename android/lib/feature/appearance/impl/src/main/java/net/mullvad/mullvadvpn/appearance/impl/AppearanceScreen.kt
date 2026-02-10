@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.compose.screen
+package net.mullvad.mullvadvpn.appearance.impl
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.padding
@@ -27,11 +27,11 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.launch
-import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.util.isTv
-import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
+import net.mullvad.mullvadvpn.common.compose.isTv
+import net.mullvad.mullvadvpn.common.compose.showSnackbarImmediately
 import net.mullvad.mullvadvpn.core.animation.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.repository.AppObfuscation
@@ -43,10 +43,9 @@ import net.mullvad.mullvadvpn.lib.ui.component.griditem.AppIconAndTitleGridItem
 import net.mullvad.mullvadvpn.lib.ui.component.text.ScreenDescription
 import net.mullvad.mullvadvpn.lib.ui.designsystem.ListHeader
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorMedium
+import net.mullvad.mullvadvpn.lib.ui.resource.R
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
-import net.mullvad.mullvadvpn.viewmodel.AppearanceUiState
-import net.mullvad.mullvadvpn.viewmodel.AppearanceViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @Preview
@@ -68,7 +67,7 @@ private fun PreviewAppObfusctionScreen() {
     }
 }
 
-@Destination<MainGraph>(style = SlideInFromRightTransition::class)
+@Destination<ExternalModuleGraph>(style = SlideInFromRightTransition::class)
 @Composable
 fun Appearance(navigator: DestinationsNavigator) {
     val viewModel = koinViewModel<AppearanceViewModel>()
