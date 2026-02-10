@@ -41,6 +41,7 @@ include(
     ":lib:feature:appinfo:impl",
     ":lib:feature:appearance:impl",
     ":lib:feature:daita:impl",
+    ":lib:feature:filter:impl",
     ":lib:feature:multihop:impl",
     ":lib:feature:splittunneling:impl",
     ":lib:map",

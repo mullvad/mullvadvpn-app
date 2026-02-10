@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.viewmodel
+package net.mullvad.mullvadvpn.filter.impl
 
 import androidx.lifecycle.viewModelScope
 import app.cash.turbine.test
@@ -13,8 +13,6 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
-import net.mullvad.mullvadvpn.compose.state.toConstraintProviders
-import net.mullvad.mullvadvpn.compose.state.toOwnershipConstraint
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.common.test.assertSet
 import net.mullvad.mullvadvpn.lib.model.Constraint

@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.viewmodel
+package net.mullvad.mullvadvpn.filter.impl
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -14,7 +14,6 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import net.mullvad.mullvadvpn.compose.state.RelayFilterUiState
 import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.Ownership
@@ -40,20 +39,20 @@ class FilterViewModel(
         }
     }
 
-    val uiState: StateFlow<RelayFilterUiState> =
+    val uiState: StateFlow<FilterUiState> =
         combine(providerToOwnershipsUseCase(), selectedOwnership, selectedProviders, ::createState)
             .stateIn(
                 viewModelScope,
                 SharingStarted.WhileSubscribed(VIEW_MODEL_STOP_TIMEOUT),
-                RelayFilterUiState(),
+                FilterUiState(),
             )
 
     private fun createState(
         providerToOwnerships: Map<ProviderId, Set<Ownership>>,
         selectedOwnership: Constraint<Ownership>,
         selectedProviders: Constraint<Providers>,
-    ): RelayFilterUiState =
-        RelayFilterUiState(
+    ): FilterUiState =
+        FilterUiState(
             providerToOwnerships = providerToOwnerships,
             selectedOwnership = selectedOwnership,
             selectedProviders = selectedProviders,
@@ -123,8 +122,4 @@ class FilterViewModel(
             _uiSideEffect.send(FilterScreenSideEffect.CloseScreen)
         }
     }
-}
-
-sealed interface FilterScreenSideEffect {
-    data object CloseScreen : FilterScreenSideEffect
 }

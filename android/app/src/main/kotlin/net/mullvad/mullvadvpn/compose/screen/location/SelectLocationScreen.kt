@@ -75,8 +75,8 @@ import com.ramcosta.composedestinations.generated.destinations.CustomListLocatio
 import com.ramcosta.composedestinations.generated.destinations.CustomListsDestination
 import com.ramcosta.composedestinations.generated.destinations.DeleteCustomListDestination
 import com.ramcosta.composedestinations.generated.destinations.EditCustomListNameDestination
-import com.ramcosta.composedestinations.generated.destinations.FilterDestination
 import com.ramcosta.composedestinations.generated.destinations.SearchLocationDestination
+import com.ramcosta.composedestinations.generated.filter.destinations.FilterDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient

@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.compose.screen
+package net.mullvad.mullvadvpn.filter.impl
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -29,15 +29,12 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
-import net.mullvad.mullvadvpn.compose.constant.ContentType
-import net.mullvad.mullvadvpn.compose.extensions.itemWithDivider
-import net.mullvad.mullvadvpn.compose.extensions.itemsIndexedWithDivider
-import net.mullvad.mullvadvpn.compose.extensions.itemsWithDivider
-import net.mullvad.mullvadvpn.compose.preview.FilterUiStatePreviewParameterProvider
-import net.mullvad.mullvadvpn.compose.state.RelayFilterUiState
+import net.mullvad.mullvadvpn.common.compose.itemWithDivider
+import net.mullvad.mullvadvpn.common.compose.itemsIndexedWithDivider
+import net.mullvad.mullvadvpn.common.compose.itemsWithDivider
 import net.mullvad.mullvadvpn.core.animation.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.Ownership
@@ -51,16 +48,15 @@ import net.mullvad.mullvadvpn.lib.ui.component.listitem.SelectableListItem
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Hierarchy
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
 import net.mullvad.mullvadvpn.lib.ui.designsystem.VariantButton
+import net.mullvad.mullvadvpn.lib.ui.resource.R
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
-import net.mullvad.mullvadvpn.viewmodel.FilterScreenSideEffect
-import net.mullvad.mullvadvpn.viewmodel.FilterViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @Preview
 @Composable
 private fun PreviewFilterScreen(
-    @PreviewParameter(FilterUiStatePreviewParameterProvider::class) state: RelayFilterUiState
+    @PreviewParameter(FilterUiStatePreviewParameterProvider::class) state: FilterUiState
 ) {
     AppTheme {
         FilterScreen(
@@ -74,7 +70,7 @@ private fun PreviewFilterScreen(
     }
 }
 
-@Destination<MainGraph>(style = SlideInFromRightTransition::class)
+@Destination<ExternalModuleGraph>(style = SlideInFromRightTransition::class)
 @Composable
 fun Filter(navigator: DestinationsNavigator) {
     val viewModel = koinViewModel<FilterViewModel>()
@@ -97,7 +93,7 @@ fun Filter(navigator: DestinationsNavigator) {
 
 @Composable
 fun FilterScreen(
-    state: RelayFilterUiState,
+    state: FilterUiState,
     onBackClick: () -> Unit,
     onApplyClick: () -> Unit,
     onSelectedOwnership: (ownership: Constraint<Ownership>) -> Unit,
@@ -199,7 +195,7 @@ private fun LazyItemScope.OwnershipHeader(expanded: Boolean, onToggleExpanded: (
 }
 
 @Composable
-private fun LazyItemScope.AnyOwnership(state: RelayFilterUiState, onSelectedOwnership: () -> Unit) {
+private fun LazyItemScope.AnyOwnership(state: FilterUiState, onSelectedOwnership: () -> Unit) {
     SelectableListItem(
         title = stringResource(id = R.string.any),
         isSelected = state.selectedOwnership is Constraint.Any,
@@ -213,7 +209,7 @@ private fun LazyItemScope.AnyOwnership(state: RelayFilterUiState, onSelectedOwne
 @Composable
 private fun LazyItemScope.Ownership(
     ownership: Ownership,
-    state: RelayFilterUiState,
+    state: FilterUiState,
     position: Position,
     onSelectedOwnership: (ownership: Ownership) -> Unit,
 ) {
@@ -247,7 +243,7 @@ private fun LazyItemScope.ProvidersHeader(expanded: Boolean, onToggleExpanded: (
 
 @Composable
 private fun LazyItemScope.AllProviders(
-    state: RelayFilterUiState,
+    state: FilterUiState,
     onAllProviderCheckChange: (isChecked: Boolean) -> Unit,
 ) {
     val isChecked = state.isAllProvidersChecked
@@ -264,7 +260,7 @@ private fun LazyItemScope.AllProviders(
 @Composable
 private fun LazyItemScope.Provider(
     providerId: ProviderId,
-    state: RelayFilterUiState,
+    state: FilterUiState,
     position: Position,
     onSelectedProvider: (checked: Boolean, providerId: ProviderId) -> Unit,
 ) {
@@ -288,7 +284,7 @@ private fun ProviderId.isChecked(constraint: Constraint<Providers>) =
 @Composable
 private fun LazyItemScope.RemovedProvider(
     providerId: ProviderId,
-    state: RelayFilterUiState,
+    state: FilterUiState,
     onSelectedProvider: (checked: Boolean, providerId: ProviderId) -> Unit,
 ) {
     val checked =
@@ -338,4 +334,9 @@ private object Keys {
     const val PROVIDERS_TITLE = "providers_title"
     const val PROVIDERS_ALL = "providers_all"
     const val SPACER = "spacer"
+}
+
+object ContentType {
+    const val HEADER = 1
+    const val ITEM = 2
 }
