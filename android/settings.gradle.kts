@@ -38,6 +38,7 @@ include(
     ":lib:common-test",
     ":lib:grpc",
     ":lib:endpoint",
+    ":lib:feature:appinfo:impl",
     ":lib:feature:appearance:impl",
     ":lib:feature:daita:impl",
     ":lib:feature:multihop:impl",

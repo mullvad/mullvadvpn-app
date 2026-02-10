@@ -1,14 +1,13 @@
-package net.mullvad.mullvadvpn.compose.screen
+package net.mullvad.mullvadvpn.appinfo.impl
 
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithText
 import de.mannodermaus.junit5.compose.ComposeContext
 import io.mockk.MockKAnnotations
-import io.mockk.impl.annotations.MockK
+import net.mullvad.mullvadvpn.appinfo.impl.changelog.ChangelogScreen
+import net.mullvad.mullvadvpn.appinfo.impl.changelog.ChangelogUiState
 import net.mullvad.mullvadvpn.screen.test.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.screen.test.setContentWithTheme
-import net.mullvad.mullvadvpn.viewmodel.AppInfoViewModel
-import net.mullvad.mullvadvpn.viewmodel.ChangelogUiState
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
@@ -16,8 +15,6 @@ import org.junit.jupiter.api.extension.RegisterExtension
 @OptIn(ExperimentalTestApi::class)
 class ChangelogScreenTest {
     @JvmField @RegisterExtension val composeExtension = createEdgeToEdgeComposeExtension()
-
-    @MockK lateinit var mockedViewModel: AppInfoViewModel
 
     @BeforeEach
     fun setup() {

@@ -46,12 +46,12 @@ import java.time.ZonedDateTime
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
+import net.mullvad.mullvadvpn.common.compose.createOpenAccountPageHook
 import net.mullvad.mullvadvpn.common.compose.showSnackbarImmediately
 import net.mullvad.mullvadvpn.compose.bottomsheet.addtime.AddTimeBottomSheet
 import net.mullvad.mullvadvpn.compose.component.CopyableObfuscationView
 import net.mullvad.mullvadvpn.compose.component.InformationView
 import net.mullvad.mullvadvpn.compose.component.MissingPolicy
-import net.mullvad.mullvadvpn.compose.extensions.createOpenAccountPageHook
 import net.mullvad.mullvadvpn.compose.preview.AccountUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.transitions.AccountTransition
 import net.mullvad.mullvadvpn.compose.util.SecureScreenWhileInView

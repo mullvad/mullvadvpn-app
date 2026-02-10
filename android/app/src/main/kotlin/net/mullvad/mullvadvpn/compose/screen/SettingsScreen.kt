@@ -22,9 +22,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.generated.appearance.destinations.AppearanceDestination
+import com.ramcosta.composedestinations.generated.appinfo.destinations.AppInfoDestination
 import com.ramcosta.composedestinations.generated.daita.destinations.DaitaDestination
 import com.ramcosta.composedestinations.generated.destinations.ApiAccessListDestination
-import com.ramcosta.composedestinations.generated.destinations.AppInfoDestination
 import com.ramcosta.composedestinations.generated.destinations.NotificationSettingsDestination
 import com.ramcosta.composedestinations.generated.destinations.ReportProblemDestination
 import com.ramcosta.composedestinations.generated.destinations.VpnSettingsDestination
@@ -32,7 +32,7 @@ import com.ramcosta.composedestinations.generated.multihop.destinations.Multihop
 import com.ramcosta.composedestinations.generated.splittunneling.destinations.SplitTunnelingDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.extensions.createUriHook
+import net.mullvad.mullvadvpn.common.compose.createUriHook
 import net.mullvad.mullvadvpn.compose.extensions.itemWithDivider
 import net.mullvad.mullvadvpn.compose.preview.SettingsUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.SettingsUiState

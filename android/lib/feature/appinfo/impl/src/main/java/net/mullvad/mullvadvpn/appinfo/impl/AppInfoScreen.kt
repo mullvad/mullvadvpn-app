@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.compose.screen
+package net.mullvad.mullvadvpn.appinfo.impl
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Column
@@ -22,13 +22,13 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.generated.destinations.ChangelogDestination
+import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
+import com.ramcosta.composedestinations.generated.appinfo.destinations.ChangelogDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.appinfo.impl.changelog.ChangelogNavArgs
 import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
+import net.mullvad.mullvadvpn.common.compose.safeOpenUri
 import net.mullvad.mullvadvpn.common.compose.showSnackbarImmediately
-import net.mullvad.mullvadvpn.compose.extensions.safeOpenUri
-import net.mullvad.mullvadvpn.compose.preview.AppInfoUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.core.animation.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.ui.component.NavigateBackIconButton
@@ -37,11 +37,9 @@ import net.mullvad.mullvadvpn.lib.ui.component.listitem.ExternalLinkListItem
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.NavigationListItem
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
+import net.mullvad.mullvadvpn.lib.ui.resource.R
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
-import net.mullvad.mullvadvpn.viewmodel.AppInfoSideEffect
-import net.mullvad.mullvadvpn.viewmodel.AppInfoUiState
-import net.mullvad.mullvadvpn.viewmodel.AppInfoViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -62,7 +60,7 @@ private fun PreviewAppInfoScreen(
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Destination<MainGraph>(style = SlideInFromRightTransition::class)
+@Destination<ExternalModuleGraph>(style = SlideInFromRightTransition::class)
 @Composable
 fun AppInfo(navigator: DestinationsNavigator) {
     val vm = koinViewModel<AppInfoViewModel>()

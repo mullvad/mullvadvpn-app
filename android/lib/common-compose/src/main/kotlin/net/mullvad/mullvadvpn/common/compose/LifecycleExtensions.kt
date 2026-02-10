@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.compose.extensions
+package net.mullvad.mullvadvpn.common.compose
 
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.Lifecycle
@@ -27,14 +27,9 @@ fun <T> dropUnlessResumed(lifecycleOwner: LifecycleOwner, block: (T) -> Unit): (
 fun <T> LifecycleOwner.runOnAtLeast(
     expectedState: Lifecycle.State,
     block: (T) -> Unit,
-): (T) -> Unit {
-    return {
-        if (lifecycle.currentState.isAtLeast(expectedState)) {
-            block(it)
-        } else {
-            Logger.v("runOnAtLeast skipped due to ${lifecycle.currentState}<${expectedState}")
-        }
-    }
+): (T) -> Unit = {
+    if (lifecycle.currentState.isAtLeast(expectedState)) block(it)
+    else Logger.v("runOnAtLeast skipped due to ${lifecycle.currentState}<${expectedState}")
 }
 
 @Composable
@@ -51,12 +46,7 @@ fun <T, T2> dropUnlessResumed(
 fun <T, T2> LifecycleOwner.runOnAtLeast(
     expectedState: Lifecycle.State,
     block: (T, T2) -> Unit,
-): (T, T2) -> Unit {
-    return { t, t1 ->
-        if (lifecycle.currentState.isAtLeast(expectedState)) {
-            block(t, t1)
-        } else {
-            Logger.v("runOnAtLeast skipped due to ${lifecycle.currentState}<${expectedState}")
-        }
-    }
+): (T, T2) -> Unit = { t, t1 ->
+    if (lifecycle.currentState.isAtLeast(expectedState)) block(t, t1)
+    else Logger.v("runOnAtLeast skipped due to ${lifecycle.currentState}<${expectedState}")
 }

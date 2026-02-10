@@ -1,7 +1,6 @@
-package net.mullvad.mullvadvpn.viewmodel
+package net.mullvad.mullvadvpn.appinfo.impl
 
 import android.content.res.Resources
-import android.net.Uri
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -13,11 +12,10 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
-import net.mullvad.mullvadvpn.lib.model.VersionInfo
 import net.mullvad.mullvadvpn.lib.repository.AppVersionInfoRepository
+import net.mullvad.mullvadvpn.lib.ui.resource.R
 
 class AppInfoViewModel(
     appVersionInfoRepository: AppVersionInfoRepository,
@@ -55,10 +53,4 @@ class AppInfoViewModel(
                 }
             _uiSideEffect.send(sideEffect)
         }
-}
-
-data class AppInfoUiState(val version: VersionInfo, val isPlayBuild: Boolean)
-
-sealed interface AppInfoSideEffect {
-    data class OpenUri(val uri: Uri, val errorMessage: String) : AppInfoSideEffect
 }

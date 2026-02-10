@@ -6,6 +6,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.appearance.impl.AppearanceViewModel
+import net.mullvad.mullvadvpn.appinfo.impl.AppInfoViewModel
+import net.mullvad.mullvadvpn.appinfo.impl.changelog.ChangelogViewModel
 import net.mullvad.mullvadvpn.compose.screen.location.LocationBottomSheetState
 import net.mullvad.mullvadvpn.compose.screen.location.RelayListScrollConnection
 import net.mullvad.mullvadvpn.compose.util.BackstackObserver
@@ -75,8 +77,6 @@ import net.mullvad.mullvadvpn.viewmodel.AntiCensorshipSettingsViewModel
 import net.mullvad.mullvadvpn.viewmodel.ApiAccessListViewModel
 import net.mullvad.mullvadvpn.viewmodel.ApiAccessMethodDetailsViewModel
 import net.mullvad.mullvadvpn.viewmodel.ApiUnreachableViewModel
-import net.mullvad.mullvadvpn.viewmodel.AppInfoViewModel
-import net.mullvad.mullvadvpn.viewmodel.ChangelogViewModel
 import net.mullvad.mullvadvpn.viewmodel.ConnectViewModel
 import net.mullvad.mullvadvpn.viewmodel.CreateCustomListDialogViewModel
 import net.mullvad.mullvadvpn.viewmodel.CustomListLocationsViewModel

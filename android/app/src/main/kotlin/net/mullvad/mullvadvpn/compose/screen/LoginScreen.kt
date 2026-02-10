@@ -76,11 +76,11 @@ import com.ramcosta.composedestinations.result.ResultRecipient
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
+import net.mullvad.mullvadvpn.common.compose.dropUnlessResumed
 import net.mullvad.mullvadvpn.common.compose.showSnackbarImmediately
 import net.mullvad.mullvadvpn.compose.dialog.info.ApiUnreachableInfoDialogNavArgs
 import net.mullvad.mullvadvpn.compose.dialog.info.ApiUnreachableInfoDialogResult
 import net.mullvad.mullvadvpn.compose.dialog.info.LoginAction
-import net.mullvad.mullvadvpn.compose.extensions.dropUnlessResumed
 import net.mullvad.mullvadvpn.compose.preview.LoginUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.LoginState
 import net.mullvad.mullvadvpn.compose.state.LoginState.Idle

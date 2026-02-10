@@ -8,4 +8,10 @@ plugins {
 
 android { namespace = "net.mullvad.mullvadvpn.lib.common.compose" }
 
-dependencies { implementation(projects.lib.ui.resource) }
+dependencies {
+    implementation(projects.lib.ui.resource)
+    implementation(projects.lib.model)
+    implementation(projects.lib.common)
+    implementation(libs.arrow)
+    implementation(libs.kermit)
+}

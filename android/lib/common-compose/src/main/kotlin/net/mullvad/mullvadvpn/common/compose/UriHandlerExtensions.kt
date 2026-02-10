@@ -1,13 +1,13 @@
-package net.mullvad.mullvadvpn.compose.extensions
+package net.mullvad.mullvadvpn.common.compose
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.res.stringResource
 import arrow.core.Either
 import co.touchlab.kermit.Logger
-import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.lib.common.util.createAccountUri
 import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
+import net.mullvad.mullvadvpn.lib.ui.resource.R
 
 @Composable
 fun UriHandler.createOpenAccountPageHook(): (WebsiteAuthToken?) -> Unit {

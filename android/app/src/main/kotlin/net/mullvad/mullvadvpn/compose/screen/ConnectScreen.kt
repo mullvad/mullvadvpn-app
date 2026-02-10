@@ -66,11 +66,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.generated.NavGraphs
+import com.ramcosta.composedestinations.generated.appinfo.destinations.ChangelogDestination
 import com.ramcosta.composedestinations.generated.daita.destinations.DaitaDestination
 import com.ramcosta.composedestinations.generated.destinations.AccountDestination
 import com.ramcosta.composedestinations.generated.destinations.Android16UpgradeWarningInfoDestination
 import com.ramcosta.composedestinations.generated.destinations.AntiCensorshipSettingsDestination
-import com.ramcosta.composedestinations.generated.destinations.ChangelogDestination
 import com.ramcosta.composedestinations.generated.destinations.DeviceRevokedDestination
 import com.ramcosta.composedestinations.generated.destinations.OutOfTimeDestination
 import com.ramcosta.composedestinations.generated.destinations.SelectLocationDestination
@@ -83,8 +83,12 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.appinfo.impl.changelog.ChangelogNavArgs
 import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
+import net.mullvad.mullvadvpn.common.compose.createOpenAccountPageHook
+import net.mullvad.mullvadvpn.common.compose.dropUnlessResumed
 import net.mullvad.mullvadvpn.common.compose.isTv
+import net.mullvad.mullvadvpn.common.compose.safeOpenUri
 import net.mullvad.mullvadvpn.common.compose.showSnackbarImmediately
 import net.mullvad.mullvadvpn.compose.button.ConnectionButton
 import net.mullvad.mullvadvpn.compose.button.SwitchLocationButton
@@ -93,9 +97,6 @@ import net.mullvad.mullvadvpn.compose.component.connectioninfo.ConnectionDetailP
 import net.mullvad.mullvadvpn.compose.component.connectioninfo.FeatureIndicatorsPanel
 import net.mullvad.mullvadvpn.compose.component.connectioninfo.toInAddress
 import net.mullvad.mullvadvpn.compose.component.notificationbanner.NotificationBanner
-import net.mullvad.mullvadvpn.compose.extensions.createOpenAccountPageHook
-import net.mullvad.mullvadvpn.compose.extensions.dropUnlessResumed
-import net.mullvad.mullvadvpn.compose.extensions.safeOpenUri
 import net.mullvad.mullvadvpn.compose.preview.ConnectUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.ConnectUiState
 import net.mullvad.mullvadvpn.compose.transitions.HomeTransition
