@@ -9,14 +9,14 @@ package mullvad_daemon.relay_selector;
 import "management_interface.proto";
 
 service RelaySelectorService {
-  // Fílter the available relays by a set of constraints. These can be
+  // Filter the available relays by a set of constraints. These can be
   // derived from the currents settings, or a potential future settings
   // before they are applied.
   //
   // Returns the list of matching relays. For each connection using the given
   // constraints one/a pair of these relays will be selected at random.
   // Also returns a list of non-matching relays along with the set of
-  // constraints/conditions that made it unavailable.
+  // constraints/conditions that made them unavailable.
   rpc GetMatchingRelays(Selection) returns (FilteredRelays);
 }
 
@@ -47,7 +47,8 @@ message EntrySpecificConstraints {
   optional management_interface.IpVersion ip_version = 3;
 }
 
-// All constraints that apply when selecting a relay directly connected to the user
+// Constraints that apply when selecting an entry relay.
+// I.e. the first point of contact between a client and an exit.
 message EntryRelayConstraints {
   GeneralConstraints general_constraints = 1;
   EntrySpecificConstraints extra_constraints = 2;
@@ -65,7 +66,7 @@ message FilteredRelays {
   // List of relays matching a query
   repeated Hostname matches = 1;
   // List of relays that were discarded when evaluating a query
-  repeated DiscardedRelay discarded = 2;
+  repeated DiscardedRelay discards = 2;
 }
 
 message DiscardedRelay {
@@ -74,7 +75,7 @@ message DiscardedRelay {
   // The list of constraints that did not match the relay.
   // This can be interpreted as a list of criteria necessary
   // to unblock the relay from being selectable.
-  NonMatchingConstraints non_matching_constraints = 2;
+  NonMatchingConstraints why = 2;
 }
 
 // A hostname that uniquely identifies a single VPN relay
@@ -101,9 +102,9 @@ message NonMatchingConstraints {
   bool ip_version = 5;
   // The relay is not DAITA enabled, which was requested
   bool daita = 6;
-  // The requested anti-censorship method is not available on the relay
-  bool anti_censorship = 7;
-  // The relay *does*  support the requested anti-censorship method, but not with the requested port
+  // The requested obfuscation method is not available on the relay
+  bool obfuscation = 7;
+  // The relay cannot be connected to via the requested port
   bool port = 8;
   // This relay is already used for the other hop (entry/exit)
   bool conflict_with_other_hop = 9;
