@@ -31,6 +31,10 @@ jobs:
       - name: Setup project
         uses: ./.github/actions/ios/setup-project-toolchain
 
+      - name: Copy relay list
+        run: cp MullvadREST/Assets/relays-test-data.json MullvadREST/Assets/relays.json
+        working-directory: ios
+
       - name: Add test account to config
         run: |
           sed -i "" \
