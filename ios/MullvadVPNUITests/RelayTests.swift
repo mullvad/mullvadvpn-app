@@ -697,7 +697,7 @@ class RelayTests: LoggedInWithTimeUITestCase {
 
     func testCustomDNS() throws {
         let dnsServerIPAddress = "8.8.8.8"
-        let dnsServerProviderName = "GOOGLE"
+        let dnsServerProviderName = "Google LLC"
 
         TunnelControlPage(app)
             .tapConnectButton()
