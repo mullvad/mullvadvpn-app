@@ -23,12 +23,6 @@ pub use conversions::*;
 pub use proto::relay_selector::relay_selector_service_client;
 pub use proto::relay_selector::relay_selector_service_server;
 
-// Re-export the main relay selector message types
-pub use proto::relay_selector::{
-    Constraints, DiscardedRelay, EntryConstraints, EntryRelayConstraints, FilteredRelays, Hostname,
-    MultiHopConstraints, RelayConstraints, RelayFilterReasons,
-};
-
 // Re-export the client and server types for convenience
 pub type RelaySelectorServiceClient =
     relay_selector_service_client::RelaySelectorServiceClient<crate::Channel>;
