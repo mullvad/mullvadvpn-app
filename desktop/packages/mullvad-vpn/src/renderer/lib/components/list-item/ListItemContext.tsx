@@ -1,4 +1,5 @@
 import { createContext, useContext } from 'react';
+import React from 'react';
 
 import type { levels } from './levels';
 import { type ListItemPositions, ListItemProps } from './ListItem';
@@ -15,7 +16,8 @@ const ListItemContext = createContext<ListItemContextType | undefined>(undefined
 type ListItemProviderProps = React.PropsWithChildren<ListItemContextType>;
 
 export const ListItemProvider = ({ children, ...props }: ListItemProviderProps) => {
-  return <ListItemContext.Provider value={props}>{children}</ListItemContext.Provider>;
+  const value = React.useMemo(() => props, [props]);
+  return <ListItemContext.Provider value={value}>{children}</ListItemContext.Provider>;
 };
 
 export const useListItemContext = (): ListItemContextType => {
