@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.compose.screen
+package net.mullvad.mullvadvpn.feature.autoconnect.impl
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
@@ -30,6 +30,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -48,43 +49,58 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withLink
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.constraintlayout.compose.ConstrainedLayoutReference
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.ConstraintLayoutScope
 import androidx.core.text.HtmlCompat
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.launch
-import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.screen.PAGES.Companion.annotatedTopText
 import net.mullvad.mullvadvpn.core.animation.SlideInFromRightTransition
+import net.mullvad.mullvadvpn.feature.autoconnect.impl.PAGES.Companion.annotatedTopText
 import net.mullvad.mullvadvpn.lib.common.util.appendHideNavOnPlayBuild
 import net.mullvad.mullvadvpn.lib.common.util.openVpnSettings
 import net.mullvad.mullvadvpn.lib.ui.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.toAnnotatedString
 import net.mullvad.mullvadvpn.lib.ui.designsystem.PrimaryButton
+import net.mullvad.mullvadvpn.lib.ui.resource.R
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaInvisible
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaVisible
-import net.mullvad.mullvadvpn.service.constant.IS_PLAY_BUILD
+import org.koin.androidx.compose.koinViewModel
 
-@Preview
+@Preview("OSS|Play")
 @Composable
-private fun PreviewAutoConnectAndLockdownModeScreen() {
-    AppTheme { AutoConnectAndLockdownModeScreen {} }
+private fun PreviewAutoConnectAndLockdownModeScreen(
+    @PreviewParameter(AutoConnectAndLockdownModeUiStatePreviewParameterProvider::class)
+    state: AutoConnectAndLockdownModeUiState
+) {
+    AppTheme { AutoConnectAndLockdownModeScreen(state = state, onBackClick = {}) }
 }
 
-@Destination<MainGraph>(style = SlideInFromRightTransition::class)
+@Destination<ExternalModuleGraph>(style = SlideInFromRightTransition::class)
 @Composable
 fun AutoConnectAndLockdownMode(navigator: DestinationsNavigator) {
-    AutoConnectAndLockdownModeScreen(onBackClick = dropUnlessResumed { navigator.navigateUp() })
+    val vm = koinViewModel<AutoConnectAndLockdownModeViewModel>()
+    val state by vm.uiState.collectAsStateWithLifecycle()
+
+    AutoConnectAndLockdownModeScreen(
+        state = state,
+        onBackClick = dropUnlessResumed { navigator.navigateUp() },
+    )
 }
 
 @Composable
-fun AutoConnectAndLockdownModeScreen(onBackClick: () -> Unit) {
+fun AutoConnectAndLockdownModeScreen(
+    state: AutoConnectAndLockdownModeUiState,
+    onBackClick: () -> Unit,
+) {
     val context = LocalContext.current
     ScaffoldWithMediumTopBar(
         appBarTitle = stringResource(id = R.string.auto_connect_and_lockdown_mode),
@@ -118,6 +134,7 @@ fun AutoConnectAndLockdownModeScreen(onBackClick: () -> Unit) {
                     val (pager, backButtonRef, nextButtonRef, pageIndicatorRef) = createRefs()
 
                     AutoConnectCarousel(
+                        isPlayBuild = state.isPlayBuild,
                         pagerState = pagerState,
                         backButtonRef = backButtonRef,
                         nextButtonRef = nextButtonRef,
@@ -171,6 +188,7 @@ fun AutoConnectAndLockdownModeScreen(onBackClick: () -> Unit) {
 
 @Composable
 private fun ConstraintLayoutScope.AutoConnectCarousel(
+    isPlayBuild: Boolean,
     pagerState: PagerState,
     backButtonRef: ConstrainedLayoutReference,
     nextButtonRef: ConstrainedLayoutReference,
@@ -192,7 +210,7 @@ private fun ConstraintLayoutScope.AutoConnectCarousel(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.fillMaxWidth(),
         ) {
-            val annotatedTopText = page.annotatedTopText()
+            val annotatedTopText = page.annotatedTopText(isPlayBuild)
             Text(
                 modifier = Modifier.padding(horizontal = Dimens.largePadding),
                 style =
@@ -282,13 +300,13 @@ private fun buildTopText(@StringRes id: Int) = buildAnnotatedString {
 }
 
 @Composable
-private fun buildLockdownTopText() = buildAnnotatedString {
+private fun buildLockdownTopText(isPlayBuild: Boolean) = buildAnnotatedString {
     append(buildTopText(id = R.string.auto_connect_carousel_third_slide_top_text))
     append(" ")
 
     withLink(
         LinkAnnotation.Url(
-            stringResource(id = R.string.lockdown_url).appendHideNavOnPlayBuild(IS_PLAY_BUILD)
+            stringResource(id = R.string.lockdown_url).appendHideNavOnPlayBuild(isPlayBuild)
         )
     ) {
         withStyle(
@@ -325,11 +343,11 @@ private enum class PAGES(val image: Int, val bottomText: Int) {
     companion object {
 
         @Composable
-        fun PAGES.annotatedTopText(): AnnotatedString =
+        fun PAGES.annotatedTopText(isPlayBuild: Boolean): AnnotatedString =
             when (this) {
                 FIRST -> buildTopText(id = R.string.auto_connect_carousel_first_slide_top_text)
                 SECOND -> buildTopText(id = R.string.auto_connect_carousel_second_slide_top_text)
-                THIRD -> buildLockdownTopText()
+                THIRD -> buildLockdownTopText(isPlayBuild)
             }
     }
 }
