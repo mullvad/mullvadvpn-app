@@ -35,6 +35,7 @@ Line wrap the file at 100 chars.                                              Th
 
 #### macOS
 - Change "Go back" keyboard shortcut from `Esc` to `Cmd + Left Arrow` or `Cmd + [`.
+- GotaTun is now used as the WireGuard implementation. It replaces wireguard-go.
 
 #### Windows
 - Change "Go back" keyboard shortcut from `Esc` to `Alt + Left Arrow` or `Alt + [`.
