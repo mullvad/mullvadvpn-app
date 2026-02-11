@@ -13,8 +13,6 @@ android {
 }
 
 dependencies {
-    implementation(projects.lib.repository)
-
     implementation(libs.koin.compose)
     implementation(libs.arrow)
     implementation(libs.compose.constrainlayout)

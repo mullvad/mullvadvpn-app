@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
-class AutoConnectAndLockdownModeViewModel(val isPlayBuild: Boolean) : ViewModel() {
+class AutoConnectAndLockdownModeViewModel(isPlayBuild: Boolean) : ViewModel() {
     val uiState: StateFlow<AutoConnectAndLockdownModeUiState> =
         MutableStateFlow(AutoConnectAndLockdownModeUiState(isPlayBuild))
 }

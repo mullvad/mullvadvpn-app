@@ -51,6 +51,8 @@ class AndroidLibraryFeatureImplPlugin : Plugin<Project> {
                 "implementation"(project(":lib:navigation"))
                 "implementation"(libs.findLibrary("kermit").get())
                 "implementation"(libs.findLibrary("compose.icons.extended").get())
+                // This is to force the latest version of viewmodel
+                "implementation"(libs.findLibrary("androidx.lifecycle.viewmodel").get())
 
                 "testImplementation"(project(":lib:common-test"))
 
