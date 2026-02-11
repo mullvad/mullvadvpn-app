@@ -12,8 +12,8 @@ import { type RelayLocationListProps } from '../relay-location-list';
 export type CountryLocationListProps = Omit<RelayLocationListProps, 'locations'>;
 
 const StyledLocationContainer = styled.div`
-  // If the container has children, add spacing between them
-  &:not(:last-child):has(> *) {
+  // Add spacing to the last child
+  & > :last-child {
     margin-bottom: ${spacings.small};
   }
 `;

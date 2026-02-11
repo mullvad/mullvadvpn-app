@@ -3,7 +3,6 @@ import styled from 'styled-components';
 
 import { messages } from '../../../../../../shared/gettext';
 import { Text } from '../../../../../lib/components';
-import { Accordion } from '../../../../../lib/components/accordion';
 import { AnimatedList } from '../../../../../lib/components/animated-list';
 import { FlexColumn } from '../../../../../lib/components/flex-column';
 import { spacings } from '../../../../../lib/foundations';
@@ -15,8 +14,11 @@ import {
   CustomListLocationListProvider,
   useCustomListListContext,
 } from './CustomListLocationListContext';
-import { useHandleSelectCustomList, useHasCustomLists } from './hooks';
-import { useHasNoCustomListsInSearchResult } from './hooks/use-has-no-custom-lists-in-search-result';
+import {
+  useHandleSelectCustomList,
+  useHasCustomLists,
+  useHasNoCustomListsInSearchResult,
+} from './hooks';
 
 export type LocationSelection = 'entry' | 'exit';
 
@@ -31,8 +33,8 @@ const StyledAnimatedList = styled(AnimatedList)`
 `;
 
 const StyledAnimatedListItem = styled(AnimatedList.Item)`
-  // If the container has children, add spacing between them
-  &:not(:last-child):has(> *) {
+  // Add spacing to the last child
+  & > :last-child {
     margin-bottom: ${spacings.small};
   }
 `;
@@ -55,13 +57,12 @@ function CustomListLocationListImpl({
       <CustomListsSectionTitle />
 
       <FlexColumn>
-        <Accordion expanded={addFormVisible}>
-          <Accordion.Content>
-            <AddCustomListForm />
-          </Accordion.Content>
-        </Accordion>
-
         <StyledAnimatedList>
+          {addFormVisible && (
+            <AnimatedList.Item>
+              <AddCustomListForm />
+            </AnimatedList.Item>
+          )}
           {customLists.map((customList) => {
             return (
               <StyledAnimatedListItem key={Object.values(customList.details).join('-')}>
