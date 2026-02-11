@@ -16,19 +16,18 @@ public final class AppStoreMetaDataService: @unchecked Sendable {
     private let checkInterval: TimeInterval = Duration.days(1).timeInterval
     private let logger = Logger(label: "AppStoreMetaDataService")
 
-    private let tunnelSettings: LatestTunnelSettings
     private let urlSession: URLSessionProtocol
     private let appPreferences: AppPreferences
     private let mainAppBundleIdentifier: String
-    private let appStoreLink: URL
+    private let iTunesLink: URL
+
+    public var onNewAppVersion: (() -> Void)?
 
     public init(
-        tunnelSettings: LatestTunnelSettings,
         urlSession: URLSessionProtocol,
         appPreferences: AppPreferences,
-        mainAppBundleIdentifier: String
+        mainAppBundleIdentifier: String,
     ) {
-        self.tunnelSettings = tunnelSettings
         self.urlSession = urlSession
         self.appPreferences = appPreferences
         self.mainAppBundleIdentifier = mainAppBundleIdentifier
@@ -38,7 +37,7 @@ public final class AppStoreMetaDataService: @unchecked Sendable {
             resolvingAgainstBaseURL: true
         )!
         urlComponents.queryItems = [URLQueryItem(name: "bundleId", value: mainAppBundleIdentifier)]
-        appStoreLink = urlComponents.url!
+        iTunesLink = urlComponents.url!
     }
 
     public func scheduleTimer() {
@@ -46,13 +45,11 @@ public final class AppStoreMetaDataService: @unchecked Sendable {
 
         newTimer.setEventHandler {
             Task { [weak self] in
-                guard let self, tunnelSettings.includeAllNetworks else {
-                    return
-                }
+                guard let self else { return }
 
                 let newVersionExists = (try? await performVersionCheck()) ?? false
                 if newVersionExists {
-                    sendNotification()
+                    onNewAppVersion?()
                 }
             }
         }
@@ -61,42 +58,31 @@ public final class AppStoreMetaDataService: @unchecked Sendable {
         let elapsed = Date.now.timeIntervalSince(appPreferences.lastVersionCheck.date)
         let deadline = max(checkInterval - elapsed, 0)
 
-        newTimer.schedule(deadline: .now() + deadline, repeating: .seconds(Int(checkInterval)))
+        newTimer.schedule(deadline: .now() + 0, repeating: .seconds(Int(15)))
         newTimer.activate()
 
         timer?.cancel()
         timer = newTimer
     }
 
-    func performVersionCheck() async throws -> Bool {
-        appPreferences.lastVersionCheck.date = .now
-
-        let appStoreMetaData = try await fetchAppStoreMetaData()
-        let appStoreVersion = appStoreMetaData?.version ?? ""
-
-        if appStoreVersion.isNewerThan(Bundle.main.shortVersion) {
-            appPreferences.lastVersionCheck.version = appStoreVersion
-            return true
-        }
-
-        return false
-    }
-
-    private func fetchAppStoreMetaData() async throws -> AppStoreMetaData? {
-        do {
-            let data = try await urlSession.data(
-                for: URLRequest(url: appStoreLink, timeoutInterval: REST.defaultAPINetworkTimeout.timeInterval)
+    public func getInAppNotification(identifier: NotificationProviderIdentifier) -> InAppNotificationDescriptor {
+        return InAppNotificationDescriptor(
+            identifier: identifier,
+            style: .warning,
+            title: NSLocalizedString("Update available", comment: ""),
+            body: NSAttributedString(
+                string: String(
+                    format: NSLocalizedString(
+                        "“%@” is enabled, please disable it or disconnect before updating or you will lose network connectivity.",
+                        comment: ""
+                    ),
+                    "Force all apps"
+                )
             )
-            let response = try JSONDecoder().decode(AppStoreMetaDataResponse.self, from: data.0)
-            return response.results.first { $0.bundleId == mainAppBundleIdentifier }
-        } catch {
-            logger.log(level: .error, "Could not fetch App Store metadata: \(error.description)")
-        }
-
-        return nil
+        )
     }
 
-    private func sendNotification() {
+    public func sendSystemNotification() {
         let content = UNMutableNotificationContent()
         content.title = NSLocalizedString("Update available", comment: "")
         content.body = String(
@@ -130,6 +116,35 @@ public final class AppStoreMetaDataService: @unchecked Sendable {
                 )
             }
         }
+    }
+
+    func performVersionCheck() async throws -> Bool {
+        return true
+        appPreferences.lastVersionCheck.date = .now
+
+        let appStoreMetaData = try await fetchAppStoreMetaData()
+        let appStoreVersion = appStoreMetaData?.version ?? ""
+
+        if appStoreVersion.isNewerThan(Bundle.main.shortVersion) {
+            appPreferences.lastVersionCheck.version = appStoreVersion
+            return true
+        }
+
+        return false
+    }
+
+    private func fetchAppStoreMetaData() async throws -> AppStoreMetaData? {
+        do {
+            let data = try await urlSession.data(
+                for: URLRequest(url: iTunesLink, timeoutInterval: REST.defaultAPINetworkTimeout.timeInterval)
+            )
+            let response = try JSONDecoder().decode(AppStoreMetaDataResponse.self, from: data.0)
+            return response.results.first { $0.bundleId == mainAppBundleIdentifier }
+        } catch {
+            logger.log(level: .error, "Could not fetch App Store metadata: \(error.description)")
+        }
+
+        return nil
     }
 }
 
