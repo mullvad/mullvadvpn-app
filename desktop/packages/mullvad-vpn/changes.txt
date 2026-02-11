@@ -1,4 +1,5 @@
 This is primarily a bug fix release.
+[linux] Due to a bug in the Linux kernel, firewall settings may fail to apply on the first connection attempt - make sure to update to the latest kernel version.
 [linux] App now uses Wayland by default in supported desktop environments.
 [macOS] Split tunneling should now work better while other network applications are running.
 [macOS] Fix potential problems with DNS not resolving while connected to the VPN.
