@@ -102,8 +102,6 @@ sealed interface RelayListItem {
     }
 
     data class RecentListItem(
-        val countryName: String?,
-        val cityName: String?,
         override val item: RelayItem,
         override val isSelected: Boolean = false,
         override val expanded: Boolean = false,
@@ -114,6 +112,21 @@ sealed interface RelayListItem {
         override val depth: Int = 0
         override val contentType = RelayListItemContentType.RECENT_LIST_ITEM
         override val canExpand: Boolean = false
+
+        val countryName: String? =
+            when (item) {
+                is RelayItem.CustomList -> null
+                is RelayItem.Location.City -> item.countryName
+                is RelayItem.Location.Country -> item.name
+                is RelayItem.Location.Relay -> item.countryName
+            }
+        val cityName: String? =
+            when (item) {
+                is RelayItem.CustomList -> null
+                is RelayItem.Location.City -> item.name
+                is RelayItem.Location.Country -> null
+                is RelayItem.Location.Relay -> item.cityName
+            }
     }
 
     data object RecentsListFooter : RelayListItem {
