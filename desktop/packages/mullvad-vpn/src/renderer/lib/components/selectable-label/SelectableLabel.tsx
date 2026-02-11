@@ -30,14 +30,24 @@ export const StyledSelectableLabelIcon = styled(ListItem.Icon)<{ $selected: bool
   }}
 `;
 
-const StyledText = styled(Text)<{ $selected: boolean }>`
-  ${({ $selected }) => css`
+const StyledText = styled(Text)<{ $selected: boolean; $disabled: boolean }>`
+  ${({ $selected, $disabled }) => css`
     --transition-duration: 0.15s;
 
-    transition:
-      transform var(--transition-duration) ease-out,
-      color var(--transition-duration) ease-out;
+    transition: transform var(--transition-duration) ease-out;
     transform: translateX(${$selected ? 32 : 0}px);
+
+    // Only animate color if not disabled
+    ${() => {
+      if (!$disabled) {
+        return css`
+          transition:
+            transform var(--transition-duration) ease-out,
+            color var(--transition-duration) ease-out;
+        `;
+      }
+      return null;
+    }}
   `}
 `;
 
@@ -47,6 +57,7 @@ export const SelectableLabel = <E extends React.ElementType = 'span'>({
   ...props
 }: SelectableLabelProps<E>) => {
   const color = useSelectableLabelColor(selected, disabled);
+
   return (
     <StyledFlex>
       <StyledSelectableLabelIcon icon="checkmark" color={color} $selected={selected} />
@@ -55,6 +66,7 @@ export const SelectableLabel = <E extends React.ElementType = 'span'>({
         variant="bodySmallSemibold"
         color={color}
         $selected={selected}
+        $disabled={disabled}
         {...props}
       />
     </StyledFlex>
