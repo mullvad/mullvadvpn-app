@@ -16,7 +16,6 @@ const itemVariants = {
 export function AnimatedListItem({ children, ...props }: AnimatedListItemProps) {
   return (
     <StyledLi
-      layout
       variants={itemVariants}
       initial="hidden"
       animate="show"
