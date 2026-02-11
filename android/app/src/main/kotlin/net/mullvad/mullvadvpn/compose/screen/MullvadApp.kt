@@ -40,6 +40,10 @@ import com.ramcosta.composedestinations.generated.daita.destinations.DaitaDirect
 import com.ramcosta.composedestinations.generated.destinations.NoDaemonDestination
 import com.ramcosta.composedestinations.generated.filter.destinations.FilterDestination
 import com.ramcosta.composedestinations.generated.multihop.destinations.MultihopDestination
+import com.ramcosta.composedestinations.generated.serveripoverride.destinations.ImportOverridesByTextDestination
+import com.ramcosta.composedestinations.generated.serveripoverride.destinations.ResetServerIpOverridesConfirmationDestination
+import com.ramcosta.composedestinations.generated.serveripoverride.destinations.ServerIpOverridesDestination
+import com.ramcosta.composedestinations.generated.serveripoverride.destinations.ServerIpOverridesInfoDestination
 import com.ramcosta.composedestinations.generated.splittunneling.destinations.SplitTunnelingDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.navigation.dependency
@@ -73,9 +77,13 @@ annotation class MainGraph {
     @ExternalDestination<EditApiAccessMethodDestination>
     @ExternalDestination<EncryptedDnsProxyInfoDestination>
     @ExternalDestination<FilterDestination>
+    @ExternalDestination<ImportOverridesByTextDestination>
     @ExternalDestination<MultihopDestination>
+    @ExternalDestination<ResetServerIpOverridesConfirmationDestination>
     @ExternalDestination<SaveApiAccessMethodDestination>
     @ExternalDestination<SelectPortDestination>
+    @ExternalDestination<ServerIpOverridesDestination>
+    @ExternalDestination<ServerIpOverridesInfoDestination>
     @ExternalDestination<SplitTunnelingDestination>
     companion object Includes
 }

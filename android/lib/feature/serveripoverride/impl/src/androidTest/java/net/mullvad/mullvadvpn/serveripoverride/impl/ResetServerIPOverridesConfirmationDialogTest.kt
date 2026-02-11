@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.compose.dialog
+package net.mullvad.mullvadvpn.serveripoverride.impl
 
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithTag
@@ -11,6 +11,7 @@ import net.mullvad.mullvadvpn.lib.ui.tag.RESET_SERVER_IP_OVERRIDE_CANCEL_TEST_TA
 import net.mullvad.mullvadvpn.lib.ui.tag.RESET_SERVER_IP_OVERRIDE_RESET_TEST_TAG
 import net.mullvad.mullvadvpn.screen.test.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.screen.test.setContentWithTheme
+import net.mullvad.mullvadvpn.serveripoverride.impl.reset.ResetServerIpOverridesConfirmationDialog
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension

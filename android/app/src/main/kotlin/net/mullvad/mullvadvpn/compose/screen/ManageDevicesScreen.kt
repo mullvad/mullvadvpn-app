@@ -33,8 +33,8 @@ import net.mullvad.mullvadvpn.common.compose.dropUnlessResumed
 import net.mullvad.mullvadvpn.common.compose.showSnackbarImmediately
 import net.mullvad.mullvadvpn.compose.preview.ManageDevicesUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.ManageDevicesUiState
-import net.mullvad.mullvadvpn.compose.transitions.DefaultTransition
 import net.mullvad.mullvadvpn.core.OnNavResultValue
+import net.mullvad.mullvadvpn.core.animation.DefaultTransition
 import net.mullvad.mullvadvpn.lib.common.Lce
 import net.mullvad.mullvadvpn.lib.model.Device
 import net.mullvad.mullvadvpn.lib.model.DeviceId

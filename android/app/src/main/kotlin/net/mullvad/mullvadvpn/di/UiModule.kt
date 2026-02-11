@@ -78,6 +78,8 @@ import net.mullvad.mullvadvpn.lib.usecase.inappnotification.VersionNotificationU
 import net.mullvad.mullvadvpn.multihop.impl.MultihopViewModel
 import net.mullvad.mullvadvpn.receiver.AutoStartVpnBootCompletedReceiver
 import net.mullvad.mullvadvpn.repository.InAppNotificationController
+import net.mullvad.mullvadvpn.serveripoverride.impl.ServerIpOverridesViewModel
+import net.mullvad.mullvadvpn.serveripoverride.impl.reset.ResetServerIpOverridesConfirmationViewModel
 import net.mullvad.mullvadvpn.ui.MainActivity
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.viewmodel.AccountViewModel
@@ -101,8 +103,6 @@ import net.mullvad.mullvadvpn.viewmodel.NotificationSettingsViewModel
 import net.mullvad.mullvadvpn.viewmodel.OutOfTimeViewModel
 import net.mullvad.mullvadvpn.viewmodel.PrivacyDisclaimerViewModel
 import net.mullvad.mullvadvpn.viewmodel.ReportProblemViewModel
-import net.mullvad.mullvadvpn.viewmodel.ResetServerIpOverridesConfirmationViewModel
-import net.mullvad.mullvadvpn.viewmodel.ServerIpOverridesViewModel
 import net.mullvad.mullvadvpn.viewmodel.SettingsViewModel
 import net.mullvad.mullvadvpn.viewmodel.SplashViewModel
 import net.mullvad.mullvadvpn.viewmodel.ViewLogsViewModel
