@@ -78,6 +78,7 @@ impl LogFileWriter {
     /// Attach and return a channel for flushing buffered logs to file
     #[cfg(target_os = "android")]
     fn get_flusher(&self) -> std::sync::Arc<tokio::sync::Notify> {
+        use std::io::Write;
         let flush = std::sync::Arc::new(tokio::sync::Notify::new());
         let flush_rx = flush.clone();
         if let Some(mut writer) = self.0.clone() {
