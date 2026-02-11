@@ -75,10 +75,10 @@ import com.ramcosta.composedestinations.generated.destinations.DeviceRevokedDest
 import com.ramcosta.composedestinations.generated.destinations.OutOfTimeDestination
 import com.ramcosta.composedestinations.generated.destinations.SelectLocationDestination
 import com.ramcosta.composedestinations.generated.destinations.SettingsDestination
-import com.ramcosta.composedestinations.generated.destinations.VpnSettingsDestination
 import com.ramcosta.composedestinations.generated.multihop.destinations.MultihopDestination
 import com.ramcosta.composedestinations.generated.serveripoverride.destinations.ServerIpOverridesDestination
 import com.ramcosta.composedestinations.generated.splittunneling.destinations.SplitTunnelingDestination
+import com.ramcosta.composedestinations.generated.vpnsettings.destinations.VpnSettingsDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
 import kotlinx.coroutines.launch
@@ -106,6 +106,7 @@ import net.mullvad.mullvadvpn.compose.state.ConnectUiState
 import net.mullvad.mullvadvpn.compose.transitions.HomeTransition
 import net.mullvad.mullvadvpn.compose.util.CreateVpnProfile
 import net.mullvad.mullvadvpn.core.OnNavResultValue
+import net.mullvad.mullvadvpn.core.constant.Label
 import net.mullvad.mullvadvpn.lib.common.util.openVpnSettings
 import net.mullvad.mullvadvpn.lib.common.util.removeHtmlTags
 import net.mullvad.mullvadvpn.lib.map.AnimatedMap
@@ -175,7 +176,7 @@ private fun PreviewAccountScreen(
 }
 
 @Suppress("LongMethod")
-@Destination<MainGraph>(style = HomeTransition::class)
+@Destination<MainGraph>(style = HomeTransition::class, label = Label.CONNECT_DESTINATION)
 @Composable
 fun Connect(
     navigator: DestinationsNavigator,

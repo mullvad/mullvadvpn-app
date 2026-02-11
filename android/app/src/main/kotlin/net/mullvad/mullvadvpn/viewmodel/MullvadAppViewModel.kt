@@ -18,12 +18,13 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
-import net.mullvad.mullvadvpn.compose.util.BackstackObserver
+import net.mullvad.mullvadvpn.core.BackstackObserver
 import net.mullvad.mullvadvpn.lib.grpc.GrpcConnectivityState
 import net.mullvad.mullvadvpn.lib.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
 
-private val noServiceDestinations = listOf(SplashDestination, PrivacyDisclaimerDestination)
+// Null is considered equivalent to SplashScreen
+private val noServiceDestinations = listOf(null, SplashDestination, PrivacyDisclaimerDestination)
 
 class MullvadAppViewModel(
     private val connectionProxy: ConnectionProxy,
@@ -68,7 +69,7 @@ class MullvadAppViewModel(
     private fun toDaemonState(
         lifecycleEvent: Lifecycle.Event,
         serviceState: GrpcConnectivityState,
-        currentDestination: DestinationSpec,
+        currentDestination: DestinationSpec?,
     ): DaemonState {
         // In these destinations we don't care about showing the NoDaemonScreen
         if (currentDestination in noServiceDestinations) {

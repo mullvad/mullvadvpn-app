@@ -60,12 +60,23 @@ import com.ramcosta.composedestinations.generated.serveripoverride.destinations.
 import com.ramcosta.composedestinations.generated.serveripoverride.destinations.ServerIpOverridesDestination
 import com.ramcosta.composedestinations.generated.serveripoverride.destinations.ServerIpOverridesInfoDestination
 import com.ramcosta.composedestinations.generated.splittunneling.destinations.SplitTunnelingDestination
+import com.ramcosta.composedestinations.generated.vpnsettings.destinations.ConnectOnStartupInfoDestination
+import com.ramcosta.composedestinations.generated.vpnsettings.destinations.ContentBlockersInfoDestination
+import com.ramcosta.composedestinations.generated.vpnsettings.destinations.CustomDnsInfoDestination
+import com.ramcosta.composedestinations.generated.vpnsettings.destinations.DeviceIpInfoDestination
+import com.ramcosta.composedestinations.generated.vpnsettings.destinations.DnsDestination
+import com.ramcosta.composedestinations.generated.vpnsettings.destinations.Ipv6InfoDestination
+import com.ramcosta.composedestinations.generated.vpnsettings.destinations.LocalNetworkSharingInfoDestination
+import com.ramcosta.composedestinations.generated.vpnsettings.destinations.MalwareInfoDestination
+import com.ramcosta.composedestinations.generated.vpnsettings.destinations.MtuDestination
+import com.ramcosta.composedestinations.generated.vpnsettings.destinations.QuantumResistanceInfoDestination
+import com.ramcosta.composedestinations.generated.vpnsettings.destinations.VpnSettingsDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.navigation.dependency
 import com.ramcosta.composedestinations.rememberNavHostEngine
 import com.ramcosta.composedestinations.utils.rememberDestinationsNavigator
 import net.mullvad.mullvadvpn.common.compose.accessibilityDataSensitive
-import net.mullvad.mullvadvpn.compose.util.BackstackObserver
+import net.mullvad.mullvadvpn.core.BackstackObserver
 import net.mullvad.mullvadvpn.viewmodel.DaemonScreenEvent
 import net.mullvad.mullvadvpn.viewmodel.MullvadAppViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -84,7 +95,10 @@ annotation class MainGraph {
     @ExternalDestination<AppearanceDestination>
     @ExternalDestination<AutoConnectAndLockdownModeDestination>
     @ExternalDestination<ChangelogDestination>
+    @ExternalDestination<ConnectOnStartupInfoDestination>
+    @ExternalDestination<ContentBlockersInfoDestination>
     @ExternalDestination<CreateCustomListDestination>
+    @ExternalDestination<CustomDnsInfoDestination>
     @ExternalDestination<CustomListLocationsDestination>
     @ExternalDestination<CustomListsDestination>
     @ExternalDestination<CustomPortDestination>
@@ -93,17 +107,25 @@ annotation class MainGraph {
     @ExternalDestination<DaitaDirectOnlyInfoDestination>
     @ExternalDestination<DeleteApiAccessMethodConfirmationDestination>
     @ExternalDestination<DeleteCustomListDestination>
+    @ExternalDestination<DeviceIpInfoDestination>
     @ExternalDestination<DiscardApiAccessChangesDestination>
     @ExternalDestination<DiscardChangesDestination>
+    @ExternalDestination<DnsDestination>
     @ExternalDestination<EditApiAccessMethodDestination>
     @ExternalDestination<EditCustomListDestination>
     @ExternalDestination<EncryptedDnsProxyInfoDestination>
     @ExternalDestination<FilterDestination>
     @ExternalDestination<ImportOverridesByTextDestination>
+    @ExternalDestination<Ipv6InfoDestination>
+    @ExternalDestination<LocalNetworkSharingInfoDestination>
+    @ExternalDestination<MalwareInfoDestination>
     @ExternalDestination<ManageDevicesDestination>
     @ExternalDestination<ManageDevicesRemoveConfirmationDestination>
+    @ExternalDestination<MtuDestination>
     @ExternalDestination<MultihopDestination>
     @ExternalDestination<NotificationSettingsDestination>
+    @ExternalDestination<MultihopDestination>
+    @ExternalDestination<QuantumResistanceInfoDestination>
     @ExternalDestination<RedeemVoucherDestination>
     @ExternalDestination<ReportProblemDestination>
     @ExternalDestination<ReportProblemNoEmailDestination>
@@ -115,6 +137,7 @@ annotation class MainGraph {
     @ExternalDestination<SplitTunnelingDestination>
     @ExternalDestination<VerificationPendingDestination>
     @ExternalDestination<ViewLogsDestination>
+    @ExternalDestination<VpnSettingsDestination>
     companion object Includes
 }
 
