@@ -21,7 +21,8 @@ public enum NotificationPriority: Int, Comparable {
 
 public enum NotificationProviderIdentifier: String {
     case accountExpirySystemNotification = "AccountExpiryNotification"
-    case newAppVersionSystemNotification = "NewAppVersionNotification"
+    case newAppVersionSystemNotification = "NewAppVersionSystemNotification"
+    case newAppVersionInAppNotification = "NewAppVersionInAppNotification"
     case accountExpiryInAppNotification = "AccountExpiryInAppNotification"
     case registeredDeviceInAppNotification = "RegisteredDeviceInAppNotification"
     case tunnelStatusNotificationProvider = "TunnelStatusNotificationProvider"
