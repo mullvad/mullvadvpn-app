@@ -39,6 +39,7 @@ include(
     ":lib:grpc",
     ":lib:endpoint",
     ":lib:feature:anticensorship:impl",
+    ":lib:feature:apiaccess:impl",
     ":lib:feature:appinfo:impl",
     ":lib:feature:appearance:impl",
     ":lib:feature:daita:impl",

@@ -9,7 +9,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.navigation.NavBackStackEntry
 import com.ramcosta.composedestinations.spec.DestinationStyle
-import net.mullvad.mullvadvpn.constant.ENTER_TRANSITION_SCALE_IN_FACTOR
+import net.mullvad.mullvadvpn.common.compose.ENTER_TRANSITION_SCALE_IN_FACTOR
 
 object AccountTransition : DestinationStyle.Animated() {
     override val enterTransition:

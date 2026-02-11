@@ -85,8 +85,12 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.appinfo.impl.changelog.ChangelogNavArgs
 import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
+import net.mullvad.mullvadvpn.common.compose.SECURE_ZOOM
+import net.mullvad.mullvadvpn.common.compose.SECURE_ZOOM_ANIMATION_MILLIS
+import net.mullvad.mullvadvpn.common.compose.UNSECURE_ZOOM
 import net.mullvad.mullvadvpn.common.compose.createOpenAccountPageHook
 import net.mullvad.mullvadvpn.common.compose.dropUnlessResumed
+import net.mullvad.mullvadvpn.common.compose.fallbackLatLong
 import net.mullvad.mullvadvpn.common.compose.isTv
 import net.mullvad.mullvadvpn.common.compose.safeOpenUri
 import net.mullvad.mullvadvpn.common.compose.showSnackbarImmediately
@@ -101,10 +105,6 @@ import net.mullvad.mullvadvpn.compose.preview.ConnectUiStatePreviewParameterProv
 import net.mullvad.mullvadvpn.compose.state.ConnectUiState
 import net.mullvad.mullvadvpn.compose.transitions.HomeTransition
 import net.mullvad.mullvadvpn.compose.util.CreateVpnProfile
-import net.mullvad.mullvadvpn.constant.SECURE_ZOOM
-import net.mullvad.mullvadvpn.constant.SECURE_ZOOM_ANIMATION_MILLIS
-import net.mullvad.mullvadvpn.constant.UNSECURE_ZOOM
-import net.mullvad.mullvadvpn.constant.fallbackLatLong
 import net.mullvad.mullvadvpn.core.OnNavResultValue
 import net.mullvad.mullvadvpn.lib.common.util.openVpnSettings
 import net.mullvad.mullvadvpn.lib.common.util.removeHtmlTags

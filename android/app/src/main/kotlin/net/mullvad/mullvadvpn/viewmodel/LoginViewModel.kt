@@ -27,6 +27,7 @@ import net.mullvad.mullvadvpn.compose.state.LoginState.Success
 import net.mullvad.mullvadvpn.compose.state.LoginUiState
 import net.mullvad.mullvadvpn.compose.state.LoginUiStateError
 import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
+import net.mullvad.mullvadvpn.lib.common.util.delayAtLeast
 import net.mullvad.mullvadvpn.lib.common.util.isBeforeNowInstant
 import net.mullvad.mullvadvpn.lib.model.AccountNumber
 import net.mullvad.mullvadvpn.lib.model.CreateAccountError
@@ -36,7 +37,6 @@ import net.mullvad.mullvadvpn.lib.repository.NewDeviceRepository
 import net.mullvad.mullvadvpn.lib.usecase.InternetAvailableUseCase
 import net.mullvad.mullvadvpn.service.notifications.accountexpiry.AccountExpiryNotificationProvider
 import net.mullvad.mullvadvpn.usecase.ScheduleNotificationAlarmUseCase
-import net.mullvad.mullvadvpn.util.delayAtLeast
 import net.mullvad.mullvadvpn.util.getOrDefault
 import net.mullvad.mullvadvpn.viewmodel.LoginUiSideEffect.NavigateToWelcome
 import net.mullvad.mullvadvpn.viewmodel.LoginUiSideEffect.TooManyDevices

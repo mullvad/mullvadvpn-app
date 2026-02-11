@@ -21,10 +21,10 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.generated.apiaccess.destinations.ApiAccessListDestination
 import com.ramcosta.composedestinations.generated.appearance.destinations.AppearanceDestination
 import com.ramcosta.composedestinations.generated.appinfo.destinations.AppInfoDestination
 import com.ramcosta.composedestinations.generated.daita.destinations.DaitaDestination
-import com.ramcosta.composedestinations.generated.destinations.ApiAccessListDestination
 import com.ramcosta.composedestinations.generated.destinations.NotificationSettingsDestination
 import com.ramcosta.composedestinations.generated.destinations.ReportProblemDestination
 import com.ramcosta.composedestinations.generated.destinations.VpnSettingsDestination
