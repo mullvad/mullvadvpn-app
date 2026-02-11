@@ -18,7 +18,6 @@ import net.mullvad.mullvadvpn.appinfo.impl.AppInfoViewModel
 import net.mullvad.mullvadvpn.appinfo.impl.changelog.ChangelogViewModel
 import net.mullvad.mullvadvpn.compose.screen.location.LocationBottomSheetState
 import net.mullvad.mullvadvpn.compose.screen.location.RelayListScrollConnection
-import net.mullvad.mullvadvpn.compose.util.BackstackObserver
 import net.mullvad.mullvadvpn.customlist.impl.screen.create.CreateCustomListDialogViewModel
 import net.mullvad.mullvadvpn.customlist.impl.screen.delete.DeleteCustomListConfirmationViewModel
 import net.mullvad.mullvadvpn.customlist.impl.screen.editlist.EditCustomListViewModel
@@ -35,6 +34,9 @@ import net.mullvad.mullvadvpn.feature.problemreport.impl.viewlogs.ViewLogsViewMo
 import net.mullvad.mullvadvpn.feature.redeemvoucher.impl.VoucherDialogViewModel
 import net.mullvad.mullvadvpn.feature.splittunneling.impl.SplitTunnelingViewModel
 import net.mullvad.mullvadvpn.feature.splittunneling.impl.applist.ApplicationsProvider
+import net.mullvad.mullvadvpn.feature.vpnsettings.impl.VpnSettingsViewModel
+import net.mullvad.mullvadvpn.feature.vpnsettings.impl.dns.DnsDialogViewModel
+import net.mullvad.mullvadvpn.feature.vpnsettings.impl.mtu.MtuDialogViewModel
 import net.mullvad.mullvadvpn.filter.impl.FilterViewModel
 import net.mullvad.mullvadvpn.lib.common.constant.BillingTypes
 import net.mullvad.mullvadvpn.lib.common.constant.BuildTypes
@@ -95,20 +97,18 @@ import net.mullvad.mullvadvpn.serveripoverride.impl.ServerIpOverridesViewModel
 import net.mullvad.mullvadvpn.serveripoverride.impl.reset.ResetServerIpOverridesConfirmationViewModel
 import net.mullvad.mullvadvpn.ui.MainActivity
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
+import net.mullvad.mullvadvpn.util.BackstackObserver
 import net.mullvad.mullvadvpn.viewmodel.AccountViewModel
 import net.mullvad.mullvadvpn.viewmodel.ApiUnreachableViewModel
 import net.mullvad.mullvadvpn.viewmodel.ConnectViewModel
 import net.mullvad.mullvadvpn.viewmodel.DeviceListViewModel
 import net.mullvad.mullvadvpn.viewmodel.DeviceRevokedViewModel
-import net.mullvad.mullvadvpn.viewmodel.DnsDialogViewModel
 import net.mullvad.mullvadvpn.viewmodel.LoginViewModel
-import net.mullvad.mullvadvpn.viewmodel.MtuDialogViewModel
 import net.mullvad.mullvadvpn.viewmodel.MullvadAppViewModel
 import net.mullvad.mullvadvpn.viewmodel.OutOfTimeViewModel
 import net.mullvad.mullvadvpn.viewmodel.PrivacyDisclaimerViewModel
 import net.mullvad.mullvadvpn.viewmodel.SettingsViewModel
 import net.mullvad.mullvadvpn.viewmodel.SplashViewModel
-import net.mullvad.mullvadvpn.viewmodel.VpnSettingsViewModel
 import net.mullvad.mullvadvpn.viewmodel.WelcomeViewModel
 import net.mullvad.mullvadvpn.viewmodel.location.LocationBottomSheetViewModel
 import net.mullvad.mullvadvpn.viewmodel.location.SearchLocationViewModel
@@ -312,7 +312,7 @@ val uiModule = module {
     viewModel { SettingsViewModel(get(), get(), get(), get(), IS_PLAY_BUILD) }
     viewModel { SplashViewModel(get(), get(), get(), get()) }
     viewModel { VoucherDialogViewModel(get(), get()) }
-    viewModel { VpnSettingsViewModel(get(), get(), get(), get(), get(), get()) }
+    viewModel { VpnSettingsViewModel(get(), get(), get(), get(), get()) }
     viewModel { AntiCensorshipSettingsViewModel(get(), get()) }
     viewModel { WelcomeViewModel(get(), get(), get(), get(), isPlayBuild = IS_PLAY_BUILD) }
     viewModel {
