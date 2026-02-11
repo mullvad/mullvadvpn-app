@@ -2,8 +2,8 @@ package net.mullvad.mullvadvpn.utils
 
 import java.util.stream.Stream
 import kotlin.test.assertEquals
+import net.mullvad.mullvadvpn.feature.redeemvoucher.impl.VoucherRegexHelper
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
-import net.mullvad.mullvadvpn.util.VoucherRegexHelper
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
