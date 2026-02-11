@@ -1,26 +1,55 @@
-import { getLocationChildrenByType } from '../../select-location-types';
+import { AnimatedList } from '../../../../../lib/components/animated-list';
+import { type CustomListLocation } from '../../select-location-types';
 import { AnyLocationListItem, type AnyLocationListItemProps } from '../any-location-list-item';
+import { GeographicalLocationListItem } from '../geographical-location-list-item';
+import {
+  CustomListLocationListItemProvider,
+  useCustomListLocationListItemContext,
+} from './CustomListLocationListItemContext';
 
-export type CustomListLocationListItemProps = AnyLocationListItemProps;
+export type CustomListLocationListItemProps = Omit<AnyLocationListItemProps, 'location'> & {
+  disabled?: boolean;
+  customList: CustomListLocation;
+};
 
-export function CustomListLocationListItem({
-  location,
+function CustomListLocationListItemImpl({
+  customList,
   level,
+  disabled,
   ...props
 }: CustomListLocationListItemProps) {
-  const children = getLocationChildrenByType(location);
+  const { loading } = useCustomListLocationListItemContext();
+
   return (
-    <AnyLocationListItem location={location} level={level} {...props}>
-      {children.map((child) => {
-        return (
-          <CustomListLocationListItem
-            key={Object.values(child.details).join('-')}
-            location={child}
-            level={level !== undefined ? level + 1 : undefined}
-            {...props}
-          />
-        );
-      })}
+    <AnyLocationListItem
+      location={customList}
+      level={level}
+      disabled={disabled || loading}
+      {...props}>
+      <AnimatedList>
+        {customList.locations.map((child, idx) => {
+          return (
+            <AnimatedList.Item key={Object.values(child.details).join('-')}>
+              <GeographicalLocationListItem
+                location={child}
+                disabled={disabled || loading}
+                key={Object.values(child.details).join('-')}
+                level={level !== undefined ? level + 1 : undefined}
+                position={idx !== customList.locations.length - 1 ? 'middle' : undefined}
+                {...props}
+              />
+            </AnimatedList.Item>
+          );
+        })}
+      </AnimatedList>
     </AnyLocationListItem>
+  );
+}
+
+export function CustomListLocationListItem({ ...props }: CustomListLocationListItemProps) {
+  return (
+    <CustomListLocationListItemProvider>
+      <CustomListLocationListItemImpl {...props} />
+    </CustomListLocationListItemProvider>
   );
 }

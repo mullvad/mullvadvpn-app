@@ -1,10 +1,12 @@
 import React from 'react';
 
-type LocationListItemContext = Omit<LocationListItemProviderProps, 'children'>;
+type LocationListItemContextProps = Omit<LocationListItemProviderProps, 'children'>;
 
-const LocationListItemContext = React.createContext<LocationListItemContext | undefined>(undefined);
+const LocationListItemContext = React.createContext<LocationListItemContextProps | undefined>(
+  undefined,
+);
 
-export const useLocationListItemContext = (): LocationListItemContext => {
+export const useLocationListItemContext = (): LocationListItemContextProps => {
   const context = React.useContext(LocationListItemContext);
   if (!context) {
     throw new Error('useLocationListItemContext must be used within a LocationListItemProvider');
