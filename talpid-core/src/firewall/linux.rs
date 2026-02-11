@@ -161,8 +161,6 @@ impl Firewall {
         batch.add(&table, nftnl::MsgType::Add);
         batch.add(&table, nftnl::MsgType::Del);
 
-        batch_deprecated_tables(&mut batch);
-
         let batch = batch.finalize();
 
         log::debug!("Removing table and chain from netfilter");
@@ -278,8 +276,6 @@ impl<'a> PolicyBatch<'a> {
     /// table and chains.
     pub fn new(table: &'a Table) -> Self {
         let mut batch = Batch::new();
-
-        batch_deprecated_tables(&mut batch);
 
         // Create the table if it does not exist and clear it otherwise.
         batch.add(table, nftnl::MsgType::Add);
@@ -1179,20 +1175,4 @@ fn lock_down_arp_ignore_sysctl() -> io::Result<()> {
         _ => log::trace!("Not locking down arp_ignore since it is set to {current_arp_ignore}"),
     }
     Ok(())
-}
-
-/// Tables that are no longer used but need to be deleted due to upgrades.
-/// This can be removed when upgrades from 2023.3 are no longer supported.
-fn batch_deprecated_tables(batch: &mut Batch) {
-    const MANGLE_TABLE_NAME_V4: &CStr = c"mullvadmangle4";
-    const MANGLE_TABLE_NAME_V6: &CStr = c"mullvadmangle6";
-
-    let tables = [
-        Table::new(MANGLE_TABLE_NAME_V4, ProtoFamily::Ipv4),
-        Table::new(MANGLE_TABLE_NAME_V6, ProtoFamily::Ipv6),
-    ];
-    for table in &tables {
-        batch.add(table, nftnl::MsgType::Add);
-        batch.add(table, nftnl::MsgType::Del);
-    }
 }
