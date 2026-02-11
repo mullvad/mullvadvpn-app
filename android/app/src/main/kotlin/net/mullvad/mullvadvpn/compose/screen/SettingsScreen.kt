@@ -26,10 +26,10 @@ import com.ramcosta.composedestinations.generated.appearance.destinations.Appear
 import com.ramcosta.composedestinations.generated.appinfo.destinations.AppInfoDestination
 import com.ramcosta.composedestinations.generated.daita.destinations.DaitaDestination
 import com.ramcosta.composedestinations.generated.destinations.NotificationSettingsDestination
-import com.ramcosta.composedestinations.generated.destinations.VpnSettingsDestination
 import com.ramcosta.composedestinations.generated.multihop.destinations.MultihopDestination
 import com.ramcosta.composedestinations.generated.problemreport.destinations.ReportProblemDestination
 import com.ramcosta.composedestinations.generated.splittunneling.destinations.SplitTunnelingDestination
+import com.ramcosta.composedestinations.generated.vpnsettings.destinations.VpnSettingsDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.common.compose.createUriHook

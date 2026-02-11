@@ -401,6 +401,7 @@ dependencies {
     implementation(projects.lib.feature.redeemvoucher.impl)
     implementation(projects.lib.feature.splittunneling.impl)
     implementation(projects.lib.feature.serveripoverride.impl)
+    implementation(projects.lib.feature.vpnsettings.impl)
     implementation(projects.lib.map)
     implementation(projects.lib.model)
     implementation(projects.lib.navigation)
