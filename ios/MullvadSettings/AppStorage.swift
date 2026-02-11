@@ -20,7 +20,7 @@ public struct AppStorage<Value: Codable> {
                 let data = container.data(forKey: key),
                 let value = try? JSONDecoder().decode(Value.self, from: data)
             else {
-                return defaultValue
+                return container.value(forKey: key) as? Value ?? defaultValue
             }
             return value
         }
