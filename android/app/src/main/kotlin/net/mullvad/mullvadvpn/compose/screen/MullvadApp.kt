@@ -34,6 +34,7 @@ import com.ramcosta.composedestinations.generated.apiaccess.destinations.SaveApi
 import com.ramcosta.composedestinations.generated.appearance.destinations.AppearanceDestination
 import com.ramcosta.composedestinations.generated.appinfo.destinations.AppInfoDestination
 import com.ramcosta.composedestinations.generated.appinfo.destinations.ChangelogDestination
+import com.ramcosta.composedestinations.generated.autoconnect.destinations.AutoConnectAndLockdownModeDestination
 import com.ramcosta.composedestinations.generated.customlist.destinations.CreateCustomListDestination
 import com.ramcosta.composedestinations.generated.customlist.destinations.CustomListLocationsDestination
 import com.ramcosta.composedestinations.generated.customlist.destinations.CustomListsDestination
@@ -76,6 +77,7 @@ annotation class MainGraph {
     @ExternalDestination<ApiAccessMethodInfoDestination>
     @ExternalDestination<AppInfoDestination>
     @ExternalDestination<AppearanceDestination>
+    @ExternalDestination<AutoConnectAndLockdownModeDestination>
     @ExternalDestination<ChangelogDestination>
     @ExternalDestination<CreateCustomListDestination>
     @ExternalDestination<CustomListLocationsDestination>
