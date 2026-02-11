@@ -44,10 +44,10 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.generated.destinations.CreateCustomListDestination
-import com.ramcosta.composedestinations.generated.destinations.CustomListLocationsDestination
-import com.ramcosta.composedestinations.generated.destinations.DeleteCustomListDestination
-import com.ramcosta.composedestinations.generated.destinations.EditCustomListNameDestination
+import com.ramcosta.composedestinations.generated.customlist.destinations.CreateCustomListDestination
+import com.ramcosta.composedestinations.generated.customlist.destinations.CustomListLocationsDestination
+import com.ramcosta.composedestinations.generated.customlist.destinations.DeleteCustomListDestination
+import com.ramcosta.composedestinations.generated.customlist.destinations.EditCustomListNameDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient

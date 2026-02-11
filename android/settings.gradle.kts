@@ -42,6 +42,7 @@ include(
     ":lib:feature:apiaccess:impl",
     ":lib:feature:appinfo:impl",
     ":lib:feature:appearance:impl",
+    ":lib:feature:customlist:impl",
     ":lib:feature:daita:impl",
     ":lib:feature:filter:impl",
     ":lib:feature:multihop:impl",
