@@ -30,10 +30,52 @@ pub enum Error {
 
 /// A [`MakeWriter`] that wraps an [`OptionalWriter`].
 #[derive(Clone)]
-struct OptionalMakeWriter<T>(Option<T>);
+struct LogFileWriter(Option<non_blocking::NonBlocking>);
 
-#[cfg(target_os = "android")]
-impl<T: Clone + io::Write + Send + 'static> OptionalMakeWriter<T> {
+impl LogFileWriter {
+    /// Creates a [`MakeWriter`] that writes logs to the given file.
+    ///
+    /// If a valid path is passed, the logs are rotated and a writer for the
+    /// new file are returned.
+    ///
+    /// The writer will flush remaining logs when the tokio runtime is shut down.
+    /// NOTE: calling e.g. `std::process::exit` will prevent flushing and might
+    /// result in lost logs. It is also possible to attach a flusher channel to
+    /// flush at any given time.
+    ///
+    /// If `None` is passed, the writer will be a noop.
+    fn new(log_location: Option<LogLocation>) -> Result<Self, Error> {
+        // Disable logging if log_location is None
+        let Some(log_location) = log_location else {
+            return Ok(Self(None));
+        };
+
+        // NOTE: Make sure to rotate log file *before* initializing any kind of logger.
+        rotate_log(&log_location.log_path()).map_err(Error::RotateLog)?;
+        let file_appender =
+            tracing_appender::rolling::never(&log_location.directory, &log_location.filename);
+        let (file_writer, guard) = non_blocking(file_appender);
+
+        // When the guard is dropped, logs will no longer be written to the file, so we need to keep it
+        // alive until the program exits.
+        // On desktop, the Tokio runtime lives from the entire program, so we can keep the guard alive
+        // using a task.
+        // On Android, the runtime is not running at this point, and will be restarted multiple times
+        // during the application's lifecycle. Instead, we simply call `mem::forget` to never drop the guard.
+        // Instead, one should call `OptionalMakeWriter::get_flusher`, to receive channel for manually flushing
+        if cfg!(target_os = "android") {
+            core::mem::forget(guard);
+        } else {
+            tokio::spawn(async {
+                std::future::pending::<()>().await;
+                drop(guard);
+            });
+        }
+        Ok(Self(Some(file_writer)))
+    }
+
+    /// Attach and return a channel for flushing buffered logs to file
+    #[cfg(target_os = "android")]
     fn get_flusher(&self) -> std::sync::Arc<tokio::sync::Notify> {
         let flush = std::sync::Arc::new(tokio::sync::Notify::new());
         let flush_rx = flush.clone();
@@ -52,8 +94,8 @@ impl<T: Clone + io::Write + Send + 'static> OptionalMakeWriter<T> {
     }
 }
 
-impl<'a, T: Clone + io::Write> MakeWriter<'a> for OptionalMakeWriter<T> {
-    type Writer = OptionalWriter<T>;
+impl<'a> MakeWriter<'a> for LogFileWriter {
+    type Writer = OptionalWriter<non_blocking::NonBlocking>;
 
     fn make_writer(&'a self) -> Self::Writer {
         match &self.0 {
@@ -61,50 +103,6 @@ impl<'a, T: Clone + io::Write> MakeWriter<'a> for OptionalMakeWriter<T> {
             None => OptionalWriter::none(),
         }
     }
-}
-
-/// Creates a writer that writes logs to the given file.
-///
-/// If a valid path is passed, the logs are rotated and a writer
-/// for the new file are returned. The writer will flush remaining logs when the
-/// tokio runtime is shut down.
-/// NOTE: calling e.g. `std::process::exit` will prevent flushing and might
-/// result in lost logs.
-///
-/// It is also possible to attach a flusher channel to flush at any
-/// given time.
-///
-/// If `None` is passed, no writer is created.
-fn make_log_file_writer(
-    log_location: Option<LogLocation>,
-) -> Result<OptionalMakeWriter<non_blocking::NonBlocking>, Error> {
-    // Disable logging if log_location is None
-    let Some(log_location) = log_location else {
-        return Ok(OptionalMakeWriter(None));
-    };
-
-    // NOTE: Make sure to rotate log file *before* initializing any kind of logger.
-    rotate_log(&log_location.log_path()).map_err(Error::RotateLog)?;
-    let file_appender =
-        tracing_appender::rolling::never(&log_location.directory, &log_location.filename);
-    let (file_writer, guard) = non_blocking(file_appender);
-
-    // When the guard is dropped, logs will no longer be written to the file, so we need to keep it
-    // alive until the program exits.
-    // On desktop, the Tokio runtime lives from the entire program, so we can keep the guard alive
-    // using a task.
-    // On Android, the runtime is not running at this point, and will be restarted multiple times
-    // during the application's lifecycle. Instead, we simply call `mem::forget` to never drop the guard.
-    // Instead, one should call `OptionalMakeWriter::get_flusher`, to receive channel for manually flushing
-    if cfg!(target_os = "android") {
-        core::mem::forget(guard);
-    } else {
-        tokio::spawn(async {
-            std::future::pending::<()>().await;
-            drop(guard);
-        });
-    }
-    Ok(OptionalMakeWriter(Some(file_writer)))
 }
 
 const DATE_TIME_FORMAT_STR: &str = "[%Y-%m-%d %H:%M:%S%.3f]";
@@ -224,7 +222,7 @@ pub fn init_logger(
     let default_filter = silence_crates(env_filter);
 
     // TODO: Switch this to a rolling appender, likely daily or hourly
-    let file_writer = make_log_file_writer(log_location)?;
+    let file_writer = LogFileWriter::new(log_location)?;
 
     let (tx, _) = tokio::sync::broadcast::channel(128);
     let log_stream = LogStreamer { tx };
