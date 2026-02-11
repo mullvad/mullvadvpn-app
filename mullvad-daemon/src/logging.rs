@@ -62,9 +62,6 @@ pub fn is_enabled() -> bool {
 pub struct LogHandle {
     env_filter: Handle<EnvFilter, Registry>,
     log_stream: LogStreamer,
-    /// Drop guard for the file writer. While the guard is alive, the file writer will continue to
-    /// write logs to the file.
-    _file_writer_guard: Option<Arc<non_blocking::WorkerGuard>>,
 }
 
 impl LogHandle {
@@ -163,7 +160,7 @@ pub fn init_logger(
     let default_filter = silence_crates(env_filter);
 
     // TODO: Switch this to a rolling appender, likely daily or hourly
-    let (_file_writer_guard, file_writer) = make_log_file_writer(log_location)?;
+    let file_writer = make_log_file_writer(log_location)?;
 
     let (tx, _) = tokio::sync::broadcast::channel(128);
     let log_stream = LogStreamer { tx };
@@ -172,7 +169,6 @@ pub fn init_logger(
     let reload_handle = LogHandle {
         env_filter: reload_handle,
         log_stream: log_stream.clone(),
-        _file_writer_guard,
     };
 
     let reg = tracing_subscriber::registry().with(user_filter);
@@ -242,16 +238,10 @@ pub fn init_logger(
 /// If `None` is passed, no writer is created.
 fn make_log_file_writer(
     log_location: Option<LogLocation>,
-) -> Result<
-    (
-        Option<Arc<non_blocking::WorkerGuard>>,
-        OptionalMakeWriter<non_blocking::NonBlocking>,
-    ),
-    Error,
-> {
+) -> Result<OptionalMakeWriter<non_blocking::NonBlocking>, Error> {
     // Disable logging if log_location is None
     let Some(log_location) = log_location else {
-        return Ok((None, OptionalMakeWriter(None)));
+        return Ok(OptionalMakeWriter(None));
     };
 
     // NOTE: Make sure to rotate log file *before* initializing any kind of logger.
@@ -265,15 +255,15 @@ fn make_log_file_writer(
     // On desktop, the Tokio runtime lives from the entire program, so we can keep the guard alive
     // using a task.
     // On Android, the runtime is not running at this point, and will be restarted multiple times
-    // during the application's lifecycle. Instead, we keep the guard alive in the `LogHandle`.
-    // To allow both of these scenarios, we use an Arc.
-    let guard = Arc::new(guard);
-    if let Ok(handle) = tokio::runtime::Handle::try_current() {
-        let guard = guard.clone();
-        handle.spawn(async {
+    // during the application's lifecycle. Instead, we simply call `mem::forget` to never drop the guard.
+    // Note that this may lead to lost logs when the daemon process is terminated.
+    if cfg!(target_os = "android") {
+        core::mem::forget(guard);
+    } else {
+        tokio::spawn(async {
             std::future::pending::<()>().await;
             drop(guard);
         });
     }
-    Ok((Some(guard), OptionalMakeWriter(Some(file_writer))))
+    Ok(OptionalMakeWriter(Some(file_writer)))
 }
