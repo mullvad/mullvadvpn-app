@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.compose.screen
+package net.mullvad.mullvadvpn.feature.problemreport.impl
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
@@ -48,17 +48,16 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.generated.destinations.ReportProblemNoEmailDestination
-import com.ramcosta.composedestinations.generated.destinations.ViewLogsDestination
+import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
+import com.ramcosta.composedestinations.generated.problemreport.destinations.ReportProblemNoEmailDestination
+import com.ramcosta.composedestinations.generated.problemreport.destinations.ViewLogsDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
-import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
+import net.mullvad.mullvadvpn.common.compose.SecureScreenWhileInView
+import net.mullvad.mullvadvpn.common.compose.clickableAnnotatedString
 import net.mullvad.mullvadvpn.common.compose.createUriHook
-import net.mullvad.mullvadvpn.compose.preview.ReportProblemUiStatePreviewParameterProvider
-import net.mullvad.mullvadvpn.compose.util.SecureScreenWhileInView
-import net.mullvad.mullvadvpn.compose.util.clickableAnnotatedString
 import net.mullvad.mullvadvpn.core.animation.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.lib.common.util.appendHideNavOnPlayBuild
 import net.mullvad.mullvadvpn.lib.ui.component.ExpandChevron
@@ -70,15 +69,11 @@ import net.mullvad.mullvadvpn.lib.ui.designsystem.ListTokens
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.lib.ui.designsystem.PrimaryButton
 import net.mullvad.mullvadvpn.lib.ui.designsystem.VariantButton
+import net.mullvad.mullvadvpn.lib.ui.resource.R
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.theme.color.Alpha80
 import net.mullvad.mullvadvpn.lib.ui.theme.color.warning
-import net.mullvad.mullvadvpn.viewmodel.LogCollectingState
-import net.mullvad.mullvadvpn.viewmodel.ReportProblemSideEffect
-import net.mullvad.mullvadvpn.viewmodel.ReportProblemUiState
-import net.mullvad.mullvadvpn.viewmodel.ReportProblemViewModel
-import net.mullvad.mullvadvpn.viewmodel.SendingReportUiState
 import org.koin.androidx.compose.koinViewModel
 
 @Preview("Default|IncludeAccountNumber|ShowWarning|Sending|Success|Error")
@@ -102,7 +97,7 @@ private fun PreviewReportProblemScreen(
     }
 }
 
-@Destination<MainGraph>(style = SlideInFromRightTransition::class)
+@Destination<ExternalModuleGraph>(style = SlideInFromRightTransition::class)
 @Composable
 fun ReportProblem(
     navigator: DestinationsNavigator,

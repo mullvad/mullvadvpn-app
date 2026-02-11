@@ -1,9 +1,7 @@
-package net.mullvad.mullvadvpn.compose.preview
+package net.mullvad.mullvadvpn.feature.problemreport.impl
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import net.mullvad.mullvadvpn.lib.repository.SendProblemReportResult
-import net.mullvad.mullvadvpn.viewmodel.ReportProblemUiState
-import net.mullvad.mullvadvpn.viewmodel.SendingReportUiState
 
 class ReportProblemUiStatePreviewParameterProvider :
     PreviewParameterProvider<ReportProblemUiState> {

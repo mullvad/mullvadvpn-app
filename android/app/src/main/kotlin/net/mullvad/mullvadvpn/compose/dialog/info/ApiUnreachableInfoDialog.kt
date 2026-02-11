@@ -31,7 +31,7 @@ import net.mullvad.mullvadvpn.lib.ui.component.textfield.ErrorSupportingText
 import net.mullvad.mullvadvpn.lib.ui.designsystem.PrimaryButton
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
-import net.mullvad.mullvadvpn.provider.createShareLogFile
+import net.mullvad.mullvadvpn.feature.problemreport.impl.provider.createShareLogFile
 import net.mullvad.mullvadvpn.viewmodel.ApiUnreachableSideEffect
 import net.mullvad.mullvadvpn.viewmodel.ApiUnreachableViewModel
 import org.koin.androidx.compose.koinViewModel

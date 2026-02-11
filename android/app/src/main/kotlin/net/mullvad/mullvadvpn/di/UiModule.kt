@@ -82,6 +82,8 @@ import net.mullvad.mullvadvpn.lib.usecase.inappnotification.NewDeviceNotificatio
 import net.mullvad.mullvadvpn.lib.usecase.inappnotification.TunnelStateNotificationUseCase
 import net.mullvad.mullvadvpn.lib.usecase.inappnotification.VersionNotificationUseCase
 import net.mullvad.mullvadvpn.multihop.impl.MultihopViewModel
+import net.mullvad.mullvadvpn.feature.problemreport.impl.ReportProblemViewModel
+import net.mullvad.mullvadvpn.feature.problemreport.impl.viewlogs.ViewLogsViewModel
 import net.mullvad.mullvadvpn.receiver.AutoStartVpnBootCompletedReceiver
 import net.mullvad.mullvadvpn.repository.InAppNotificationController
 import net.mullvad.mullvadvpn.serveripoverride.impl.ServerIpOverridesViewModel
@@ -102,10 +104,8 @@ import net.mullvad.mullvadvpn.viewmodel.MullvadAppViewModel
 import net.mullvad.mullvadvpn.viewmodel.NotificationSettingsViewModel
 import net.mullvad.mullvadvpn.viewmodel.OutOfTimeViewModel
 import net.mullvad.mullvadvpn.viewmodel.PrivacyDisclaimerViewModel
-import net.mullvad.mullvadvpn.viewmodel.ReportProblemViewModel
 import net.mullvad.mullvadvpn.viewmodel.SettingsViewModel
 import net.mullvad.mullvadvpn.viewmodel.SplashViewModel
-import net.mullvad.mullvadvpn.viewmodel.ViewLogsViewModel
 import net.mullvad.mullvadvpn.viewmodel.VoucherDialogViewModel
 import net.mullvad.mullvadvpn.viewmodel.VpnSettingsViewModel
 import net.mullvad.mullvadvpn.viewmodel.WelcomeViewModel
