@@ -27,7 +27,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
     private var adapter: WgAdapter!
     private var relaySelector: RelaySelectorWrapper!
     private var ephemeralPeerExchangingPipeline: EphemeralPeerExchangingPipeline!
-    private var appStoreMetaDataService: AppStoreMetaDataService!
+    private var newAppVersionSystemNoticationHandler: NewAppVersionSystemNotificationHandler!
     private let tunnelSettingsUpdater: SettingsUpdater
     private let defaultPathObserver: PacketTunnelPathObserver
     private var migrationManager: MigrationManager
@@ -155,15 +155,15 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
             }
         )
 
-        appStoreMetaDataService = AppStoreMetaDataService(
-            tunnelSettings: tunnelSettings,
-            urlSession: URLSession.shared,
-            appPreferences: AppPreferences(),
-            mainAppBundleIdentifier: ApplicationTarget.mainApp.bundleIdentifier
+        newAppVersionSystemNoticationHandler = NewAppVersionSystemNotificationHandler(
+            appVersionService: AppVersionService(
+                urlSession: URLSession.shared,
+                appPreferences: AppPreferences(),
+                mainAppBundleIdentifier: ApplicationTarget.mainApp.bundleIdentifier
+            ),
+            settingsUpdater: tunnelSettingsUpdater,
+            tunnelSettings: tunnelSettings
         )
-        #if DEBUG
-            appStoreMetaDataService.scheduleTimer()
-        #endif
     }
 
     override func startTunnel(
