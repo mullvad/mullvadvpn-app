@@ -28,6 +28,7 @@ import net.mullvad.mullvadvpn.customlist.impl.screen.lists.CustomListsViewModel
 import net.mullvad.mullvadvpn.feature.addtime.impl.AddTimeViewModel
 import net.mullvad.mullvadvpn.feature.autoconnect.impl.AutoConnectAndLockdownModeViewModel
 import net.mullvad.mullvadvpn.feature.daita.impl.DaitaViewModel
+import net.mullvad.mullvadvpn.feature.notification.impl.NotificationSettingsViewModel
 import net.mullvad.mullvadvpn.feature.problemreport.impl.ReportProblemViewModel
 import net.mullvad.mullvadvpn.feature.problemreport.impl.viewlogs.ViewLogsViewModel
 import net.mullvad.mullvadvpn.feature.redeemvoucher.impl.VoucherDialogViewModel
@@ -103,7 +104,6 @@ import net.mullvad.mullvadvpn.viewmodel.LoginViewModel
 import net.mullvad.mullvadvpn.viewmodel.ManageDevicesViewModel
 import net.mullvad.mullvadvpn.viewmodel.MtuDialogViewModel
 import net.mullvad.mullvadvpn.viewmodel.MullvadAppViewModel
-import net.mullvad.mullvadvpn.viewmodel.NotificationSettingsViewModel
 import net.mullvad.mullvadvpn.viewmodel.OutOfTimeViewModel
 import net.mullvad.mullvadvpn.viewmodel.PrivacyDisclaimerViewModel
 import net.mullvad.mullvadvpn.viewmodel.SettingsViewModel

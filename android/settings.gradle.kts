@@ -48,6 +48,7 @@ include(
     ":lib:feature:daita:impl",
     ":lib:feature:filter:impl",
     ":lib:feature:multihop:impl",
+    ":lib:feature:notification:impl",
     ":lib:feature:problemreport:impl",
     ":lib:feature:redeemvoucher:impl",
     ":lib:feature:serveripoverride:impl",
