@@ -125,7 +125,7 @@ pub struct LogHandle {
     env_filter: Handle<EnvFilter, Registry>,
     log_stream: LogStreamer,
     #[cfg(target_os = "android")]
-    flush_logfile_tx: Arc<Notify>,
+    flush_logfile_tx: std::sync::Arc<tokio::sync::Notify>,
 }
 
 impl LogHandle {

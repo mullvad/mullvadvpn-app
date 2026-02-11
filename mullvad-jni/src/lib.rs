@@ -148,7 +148,7 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_shutdow
     LOG_HANDLE
         .get()
         .expect("Log handle has been initialized")
-        .flush
+        .flush_logfile_tx
         .notify_one();
     if let Some(context) = DAEMON_CONTEXT.lock().unwrap().take() {
         _ = context.daemon_command_tx.shutdown();
