@@ -64,8 +64,8 @@ private fun PreviewSelectableRelayLocationItem(
 
 @Composable
 fun SelectableRelayListItem(
-    relayListItem: RelayListItem.SelectableItem,
     modifier: Modifier = Modifier,
+    relayListItem: RelayListItem.SelectableItem,
     onClick: () -> Unit,
     onLongClick: (() -> Unit)? = null,
     onToggleExpand: ((Boolean) -> Unit),

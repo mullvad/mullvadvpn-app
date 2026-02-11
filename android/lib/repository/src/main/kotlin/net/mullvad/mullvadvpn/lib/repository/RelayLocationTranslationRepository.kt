@@ -19,6 +19,8 @@ import kotlinx.coroutines.withContext
 
 typealias Translations = Map<String, String>
 
+fun Translations.lookup(key: String): String = getOrDefault(key, key)
+
 class RelayLocationTranslationRepository(
     val context: Context,
     val localeRepository: LocaleRepository,
