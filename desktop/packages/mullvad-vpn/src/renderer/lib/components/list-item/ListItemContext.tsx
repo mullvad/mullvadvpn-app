@@ -1,10 +1,11 @@
 import { createContext, useContext } from 'react';
 
 import type { levels } from './levels';
-import { ListItemProps } from './ListItem';
+import { type ListItemPositions, ListItemProps } from './ListItem';
 
 type ListItemContextType = {
   level: keyof typeof levels;
+  position: ListItemPositions;
   disabled?: boolean;
   animation?: ListItemProps['animation'];
 };
@@ -20,7 +21,7 @@ export const ListItemProvider = ({ children, ...props }: ListItemProviderProps) 
 export const useListItemContext = (): ListItemContextType => {
   const context = useContext(ListItemContext);
   if (!context) {
-    throw new Error('useListItem must be used within a ListItemProvider');
+    throw new Error('useListItemContext must be used within a ListItemProvider');
   }
   return context;
 };

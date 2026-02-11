@@ -11,7 +11,14 @@ export const StyledListItemTrailingActions = styled(FlexRow)`
   &:has(> :nth-child(3)) > :first-child {
     width: 32px;
   }
-  // Last action should have rounded corners
+
+  // Add border radius to last action
+  & > ${StyledListItemTrailingAction}:last-child {
+    border-top-right-radius: ${Radius.radius16};
+    border-bottom-right-radius: ${Radius.radius16};
+  }
+
+  // If last action is nested inside a trigger, add margin and border radius
   & > :last-child ${StyledListItemTrailingAction} {
     margin-left: 2px;
     border-top-right-radius: ${Radius.radius16};
@@ -20,9 +27,5 @@ export const StyledListItemTrailingActions = styled(FlexRow)`
 `;
 
 export function ListItemTrailingActions({ children, ...props }: ListItemTrailingActionsProps) {
-  return (
-    <StyledListItemTrailingActions data-action-group {...props}>
-      {children}
-    </StyledListItemTrailingActions>
-  );
+  return <StyledListItemTrailingActions {...props}>{children}</StyledListItemTrailingActions>;
 }

@@ -2,11 +2,11 @@ import React from 'react';
 import { sprintf } from 'sprintf-js';
 
 import { messages } from '../../../../../../shared/gettext';
-import log from '../../../../../../shared/logging';
 import { useCustomLists } from '../../../../../features/location/hooks';
 import { Dialog, type DialogProps } from '../../../../../lib/components/dialog';
 import { formatHtml } from '../../../../../lib/html-formatter';
 import { type CustomListLocation } from '../../select-location-types';
+import { useCustomListLocationListItemContext } from '../custom-list-location-list-item/CustomListLocationListItemContext';
 
 type ConfirmDeleteCustomListDialogProps = Omit<DialogProps, 'children'> & {
   customList: CustomListLocation;
@@ -18,15 +18,18 @@ export function ConfirmDeleteCustomListDialog({
   onOpenChange,
 }: ConfirmDeleteCustomListDialogProps) {
   const { deleteCustomList } = useCustomLists();
+  const { setLoading } = useCustomListLocationListItemContext();
 
   const handleConfirm = React.useCallback(async () => {
-    try {
-      await deleteCustomList(customList.details.customList);
-    } catch (e) {
-      const error = e as Error;
-      log.error(`Failed to delete custom list ${customList.details.customList}: ${error.message}`);
+    onOpenChange?.(false);
+    setLoading(true);
+    const success = await deleteCustomList(customList.details.customList);
+
+    // Only set loading to false if failed to keep disabled state while animating out
+    if (!success) {
+      setLoading(false);
     }
-  }, [customList.details.customList, deleteCustomList]);
+  }, [customList.details.customList, deleteCustomList, onOpenChange, setLoading]);
 
   const handleCancel = React.useCallback(() => {
     onOpenChange?.(false);

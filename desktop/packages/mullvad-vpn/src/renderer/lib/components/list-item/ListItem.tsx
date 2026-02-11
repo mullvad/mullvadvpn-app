@@ -48,11 +48,13 @@ export const StyledListItem = styled(StyledListItemRoot)<{
         }
       }
 
+      // If position is auto or last, make top border radius dynamic
       ${() => {
-        if ($position === 'auto' || $position === 'first') {
+        if ($position === 'auto' || $position === 'last') {
           return css`
             // If directly preceded by another ListItem
             ${StyledListItemRoot} + & {
+              margin-top: 1px;
               ${StyledListItemItem} {
                 border-top-left-radius: var(--disabled-border-radius);
                 border-top-right-radius: var(--disabled-border-radius);
@@ -67,12 +69,12 @@ export const StyledListItem = styled(StyledListItemRoot)<{
         return null;
       }}
 
+      // If position is auto or first, make bottom border radius dynamic
       ${() => {
-        if ($position === 'auto' || $position === 'last') {
+        if ($position === 'auto' || $position === 'first') {
           return css`
             // If directly followed by another ListItem
             &:has(+ ${StyledListItemRoot}) {
-              margin-bottom: 1px;
               ${StyledListItemItem} {
                 border-bottom-left-radius: var(--disabled-border-radius);
                 border-bottom-right-radius: var(--disabled-border-radius);
@@ -87,15 +89,19 @@ export const StyledListItem = styled(StyledListItemRoot)<{
         return null;
       }}
 
+      // If position is middle or last, remove top border radius
       ${() => {
         if ($position === 'middle' || $position === 'last') {
           return css`
-            ${StyledListItemItem} {
-              border-top-left-radius: var(--disabled-border-radius);
-              border-top-right-radius: var(--disabled-border-radius);
-            }
-            ${StyledListItemTrailingAction} {
-              border-top-right-radius: var(--disabled-border-radius);
+            && {
+              margin-top: 1px;
+              ${StyledListItemItem} {
+                border-top-left-radius: var(--disabled-border-radius);
+                border-top-right-radius: var(--disabled-border-radius);
+              }
+              ${StyledListItemTrailingAction} {
+                border-top-right-radius: var(--disabled-border-radius);
+              }
             }
           `;
         }
@@ -103,16 +109,18 @@ export const StyledListItem = styled(StyledListItemRoot)<{
         return null;
       }}
 
+      // If position is middle or first, remove bottom border radius
       ${() => {
-        if ($position === 'middle' || $position === 'first') {
+        if ($position === 'middle') {
           return css`
-            margin-bottom: 1px;
-            ${StyledListItemItem} {
-              border-bottom-left-radius: var(--disabled-border-radius);
-              border-bottom-right-radius: var(--disabled-border-radius);
-            }
-            ${StyledListItemTrailingAction} {
-              border-bottom-right-radius: var(--disabled-border-radius);
+            && {
+              ${StyledListItemItem} {
+                border-bottom-left-radius: var(--disabled-border-radius);
+                border-bottom-right-radius: var(--disabled-border-radius);
+              }
+              ${StyledListItemTrailingAction} {
+                border-bottom-right-radius: var(--disabled-border-radius);
+              }
             }
           `;
         }
@@ -144,7 +152,11 @@ const ListItem = ({
   const animation = useListItemAnimation(animationProp);
   const level = useMaxLevel(levelProp);
   return (
-    <ListItemProvider level={level} disabled={disabled} animation={animationProp}>
+    <ListItemProvider
+      level={level}
+      position={position}
+      disabled={disabled}
+      animation={animationProp}>
       <StyledListItem
         $position={position}
         $animation={animationProp == 'dim' ? animation : undefined}

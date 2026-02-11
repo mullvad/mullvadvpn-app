@@ -1,9 +1,8 @@
 import React, { useCallback } from 'react';
 import { sprintf } from 'sprintf-js';
 
-import { compareRelayLocation, RelayLocation } from '../../../../../../shared/daemon-rpc-types';
+import { RelayLocation } from '../../../../../../shared/daemon-rpc-types';
 import { messages } from '../../../../../../shared/gettext';
-import { useCustomLists } from '../../../../../features/location/hooks';
 import type { ListItemProps } from '../../../../../lib/components/list-item';
 import { LocationListItem } from '../../../../location-list-item';
 import { type AnyLocation, getLocationChildrenByType } from '../../select-location-types';
@@ -11,33 +10,29 @@ import {
   AnyLocationListItemProvider,
   useAnyLocationListItemContext,
 } from './AnyLocationListItemContext';
-import {
-  AddToCustomListButton,
-  DeleteCustomListButton,
-  EditCustomListButton,
-  RemoveFromCustomListButton,
-} from './components';
+import { CustomListTrailingActions, GeographicalLocationTrailingActions } from './components';
 
 export type AnyLocationListItemProps = React.PropsWithChildren<{
   location: AnyLocation;
   level: ListItemProps['level'];
+  position?: ListItemProps['position'];
+  disabled?: boolean;
   selectedElementRef: React.Ref<HTMLDivElement>;
   onSelect: (value: RelayLocation) => void;
 }>;
 
 function AnyLocationListItemImpl({
   level,
+  position,
+  disabled,
   onSelect,
   selectedElementRef,
   children,
 }: Omit<AnyLocationListItemProps, 'location'>) {
-  const { location } = useAnyLocationListItemContext();
-  const { customLists } = useCustomLists();
+  const { location, expanded, setExpanded } = useAnyLocationListItemContext();
 
   const childLocations = getLocationChildrenByType(location);
   const hasChildren = childLocations.some((child) => child.visible);
-
-  const [expanded, setExpanded] = React.useState(location.expanded ?? false);
 
   const handleClick = useCallback(() => {
     if (!location.selected) {
@@ -45,22 +40,16 @@ function AnyLocationListItemImpl({
     }
   }, [onSelect, location]);
 
-  if (!location.visible) {
-    return null;
-  }
-
-  // The selectedRef should only be used if the element is selected
   const selectedRef = location.selected ? selectedElementRef : undefined;
   return (
     <LocationListItem selected={location.selected}>
       <LocationListItem.Accordion
-        expanded={expanded}
+        expanded={expanded && hasChildren}
         onExpandedChange={setExpanded}
-        disabled={location.disabled}>
-        <LocationListItem.Header ref={selectedRef} level={level}>
+        disabled={location.disabled || disabled}>
+        <LocationListItem.Header ref={selectedRef} level={level} position={position}>
           <LocationListItem.HeaderTrigger
             onClick={handleClick}
-            disabled={location.disabled}
             aria-label={sprintf(messages.pgettext('accessibility', 'Connect to %(location)s'), {
               location: location.label,
             })}>
@@ -68,107 +57,22 @@ function AnyLocationListItemImpl({
               <LocationListItem.Title>{location.label}</LocationListItem.Title>
             </LocationListItem.HeaderItem>
           </LocationListItem.HeaderTrigger>
-
-          <LocationListItem.HeaderTrailingActions>
-            {customLists.length > 0 &&
-            location.type !== 'customList' &&
-            !location.details.customList ? (
-              <AddToCustomListButton location={location} />
-            ) : null}
-
-            {/* Show remove from custom list button if location is top level item in a custom list. */}
-            {location.type !== 'customList' &&
-            location.details.customList !== undefined &&
-            level === 1 ? (
-              <RemoveFromCustomListButton location={location} />
-            ) : null}
-            {/* Show buttons for editing and removing a custom list */}
-            {location.type === 'customList' ? (
-              <>
-                <EditCustomListButton customList={location} />
-                <DeleteCustomListButton customList={location} />
-              </>
-            ) : null}
-            {hasChildren || location.type === 'customList' ? (
-              <LocationListItem.AccordionTrigger
-                aria-label={sprintf(
-                  location.expanded === true
-                    ? messages.pgettext('accessibility', 'Collapse %(location)s')
-                    : messages.pgettext('accessibility', 'Expand %(location)s'),
-                  { location: location.label },
-                )}>
-                <LocationListItem.HeaderTrailingAction>
-                  <LocationListItem.Icon />
-                </LocationListItem.HeaderTrailingAction>
-              </LocationListItem.AccordionTrigger>
-            ) : null}
-          </LocationListItem.HeaderTrailingActions>
+          {location.type !== 'customList' && (
+            <GeographicalLocationTrailingActions location={location} />
+          )}
+          {location.type === 'customList' && <CustomListTrailingActions customList={location} />}
         </LocationListItem.Header>
 
-        {hasChildren && (
-          <LocationListItem.AccordionContent>{children}</LocationListItem.AccordionContent>
-        )}
+        <LocationListItem.AccordionContent>{children}</LocationListItem.AccordionContent>
       </LocationListItem.Accordion>
     </LocationListItem>
   );
 }
 
-function AnyLocationListItem({ location, ...props }: AnyLocationListItemProps) {
+export function AnyLocationListItem({ location, ...props }: AnyLocationListItemProps) {
   return (
     <AnyLocationListItemProvider location={location}>
       <AnyLocationListItemImpl {...props} />
     </AnyLocationListItemProvider>
   );
-}
-
-// This is to avoid unnecessary rerenders since most of the subtree is hidden and would result in
-// a lot more work than necessary
-const MemoizedAnyLocationListItem = React.memo(AnyLocationListItem, compareProps);
-
-export { MemoizedAnyLocationListItem as AnyLocationListItem };
-
-function compareProps(
-  oldProps: AnyLocationListItemProps,
-  nextProps: AnyLocationListItemProps,
-): boolean {
-  return (
-    oldProps.onSelect === nextProps.onSelect &&
-    compareLocation(oldProps.location, nextProps.location)
-  );
-}
-
-function compareLocation(oldLocation: AnyLocation, nextLocation: AnyLocation): boolean {
-  return (
-    oldLocation.visible === nextLocation.visible &&
-    oldLocation.label === nextLocation.label &&
-    oldLocation.disabled === nextLocation.disabled &&
-    oldLocation.selected === nextLocation.selected &&
-    compareRelayLocation(oldLocation.details, nextLocation.details) &&
-    compareExpanded(oldLocation, nextLocation) &&
-    compareChildren(oldLocation, nextLocation)
-  );
-}
-
-function compareChildren(oldLocation: AnyLocation, nextLocation: AnyLocation): boolean {
-  const oldVisibleChildren = getLocationChildrenByType(oldLocation).filter(
-    (child) => child.visible,
-  );
-  const nextVisibleChildren = getLocationChildrenByType(nextLocation).filter(
-    (child) => child.visible,
-  );
-
-  // Children shouldn't be checked if the row is collapsed
-  const nextExpanded = 'expanded' in nextLocation && nextLocation.expanded;
-
-  return (
-    (!nextExpanded && oldVisibleChildren.length > 0 && nextVisibleChildren.length > 0) ||
-    (oldVisibleChildren.length === nextVisibleChildren.length &&
-      oldVisibleChildren.every((oldChild, i) => compareLocation(oldChild, nextVisibleChildren[i])))
-  );
-}
-
-function compareExpanded(oldLocation: AnyLocation, nextLocation: AnyLocation): boolean {
-  const oldExpanded = 'expanded' in oldLocation && oldLocation.expanded;
-  const nextExpanded = 'expanded' in nextLocation && nextLocation.expanded;
-  return oldExpanded === nextExpanded;
 }

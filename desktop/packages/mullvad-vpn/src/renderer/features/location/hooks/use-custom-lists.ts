@@ -14,7 +14,7 @@ export function useCustomLists() {
   const {
     createCustomList: contextCreateCustomList,
     updateCustomList,
-    deleteCustomList,
+    deleteCustomList: contextDeleteCustomList,
   } = useAppContext();
 
   const createCustomList = React.useCallback(
@@ -65,9 +65,11 @@ export function useCustomLists() {
 
       try {
         await updateCustomList(updatedList);
+        return true;
       } catch (e) {
         const error = e as Error;
         log.error(`Failed to edit custom list ${list.id}: ${error.message}`);
+        return false;
       }
     },
     [customLists, updateCustomList],
@@ -90,6 +92,20 @@ export function useCustomLists() {
     },
 
     [customLists, updateCustomList],
+  );
+
+  const deleteCustomList = React.useCallback(
+    async (id: string) => {
+      try {
+        await contextDeleteCustomList(id);
+        return true;
+      } catch (e) {
+        const error = e as Error;
+        log.error(`Failed to delete custom list ${id}: ${error.message}`);
+        return false;
+      }
+    },
+    [contextDeleteCustomList],
   );
 
   const getCustomListById = React.useCallback(

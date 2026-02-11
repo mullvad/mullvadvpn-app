@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { messages } from '../../../../../../shared/gettext';
 import { Text } from '../../../../../lib/components';
 import { Accordion } from '../../../../../lib/components/accordion';
+import { AnimatedList } from '../../../../../lib/components/animated-list';
 import { FlexColumn } from '../../../../../lib/components/flex-column';
 import { spacings } from '../../../../../lib/foundations';
 import { useRelayListContext } from '../../RelayListContext';
@@ -24,7 +25,12 @@ export type CustomListListProps = {
   selectedElementRef: React.Ref<HTMLDivElement>;
 };
 
-const StyledLocationContainer = styled.div`
+const StyledAnimatedList = styled(AnimatedList)`
+  display: flex;
+  flex-direction: column;
+`;
+
+const StyledAnimatedListItem = styled(AnimatedList.Item)`
   // If the container has children, add spacing between them
   &:not(:last-child):has(> *) {
     margin-bottom: ${spacings.small};
@@ -55,22 +61,20 @@ function CustomListLocationListImpl({
           </Accordion.Content>
         </Accordion>
 
-        {hasCustomLists && (
-          <FlexColumn>
-            {customLists.map((customList) => {
-              return (
-                <StyledLocationContainer key={Object.values(customList.details).join('-')}>
-                  <CustomListLocationListItem
-                    location={customList}
-                    level={0}
-                    selectedElementRef={selectedElementRef}
-                    onSelect={handleSelectCustomList}
-                  />
-                </StyledLocationContainer>
-              );
-            })}
-          </FlexColumn>
-        )}
+        <StyledAnimatedList>
+          {customLists.map((customList) => {
+            return (
+              <StyledAnimatedListItem key={Object.values(customList.details).join('-')}>
+                <CustomListLocationListItem
+                  customList={customList}
+                  level={0}
+                  selectedElementRef={selectedElementRef}
+                  onSelect={handleSelectCustomList}
+                />
+              </StyledAnimatedListItem>
+            );
+          })}
+        </StyledAnimatedList>
 
         {!hasCustomLists && !addFormVisible && (
           <Text variant="labelTiny" color="whiteAlpha60">

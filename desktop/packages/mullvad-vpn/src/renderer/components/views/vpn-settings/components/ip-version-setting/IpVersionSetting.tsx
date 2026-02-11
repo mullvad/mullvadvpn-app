@@ -72,7 +72,7 @@ export function IpVersionSetting(props: IpVersionSettingProps) {
         </SettingsListbox.HeaderItem>
       </SettingsListbox.Header>
       <SettingsListbox.Options>
-        <SettingsListbox.BaseOption position="middle" value={null}>
+        <SettingsListbox.BaseOption value={null}>
           {messages.gettext('Automatic')}
         </SettingsListbox.BaseOption>
         <SettingsListbox.BaseOption value={'ipv4'}>

@@ -1,26 +1,50 @@
 import { getLocationChildrenByType } from '../../select-location-types';
 import { AnyLocationListItem, type AnyLocationListItemProps } from '../any-location-list-item';
+import {
+  GeographicalLocationListItemProvider,
+  useGeographicalLocationListItemContext,
+} from './GeographicalLocationListItemContext';
 
 export type GeographicalLocationListItemProps = AnyLocationListItemProps;
 
-export function GeographicalLocationListItem({
+function GeographicalLocationListItemImpl({
   location,
   level,
+  disabled,
   ...props
 }: GeographicalLocationListItemProps) {
+  const { loading } = useGeographicalLocationListItemContext();
+
+  if (!location.visible) {
+    return null;
+  }
+
   const children = getLocationChildrenByType(location);
   return (
-    <AnyLocationListItem location={location} level={level} {...props}>
+    <AnyLocationListItem
+      location={location}
+      level={level}
+      disabled={disabled || loading}
+      {...props}>
       {children.map((child) => {
         return (
           <GeographicalLocationListItem
             key={Object.values(child.details).join('-')}
             location={child}
             level={level !== undefined ? level + 1 : undefined}
+            disabled={disabled || loading}
             {...props}
           />
         );
       })}
     </AnyLocationListItem>
+  );
+}
+
+export function GeographicalLocationListItem({ ...props }: GeographicalLocationListItemProps) {
+  return (
+    <GeographicalLocationListItemProvider>
+      <GeographicalLocationListItemImpl {...props} />
+    </GeographicalLocationListItemProvider>
   );
 }
