@@ -57,7 +57,7 @@ struct RelayItemView: View {
                 Spacer()
             }
             .padding(.vertical, subtitle != nil ? 8 : 16)
-            .padding(.leading, CGFloat(16 * level + 8))
+            .padding(.leading, CGFloat(16 * (level + 1)))
             .padding(.trailing, 16)
             .background {
                 Color.colorForLevel(level)
