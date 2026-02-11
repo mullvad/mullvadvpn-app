@@ -17,7 +17,7 @@ import { useNormalRelaySettings } from '../../../lib/relay-settings-hooks';
 import { useEffectEvent } from '../../../lib/utility-hooks';
 import { IRelayLocationCountryRedux } from '../../../redux/settings/reducers';
 import { useSelector } from '../../../redux/store';
-import { useCustomListsRelayList, useDisabledLocation, useSelectedLocation } from './hooks';
+import { useDisabledLocation, useSelectedLocation } from './hooks';
 import { useScrollPositionContext } from './ScrollPositionContext';
 import {
   defaultExpandedLocations,
@@ -32,7 +32,6 @@ import {
   type AnyLocation,
   type CityLocation,
   type CountryLocation,
-  type CustomListLocation,
   DisabledReason,
   LocationType,
   type RelayLocation,
@@ -43,7 +42,6 @@ import { useSelectLocationViewContext } from './SelectLocationViewContext';
 // Context containing the relay list and related data and callbacks
 interface RelayListContext {
   relayList: CountryLocation[];
-  customLists: CustomListLocation[];
   expandedLocations?: Array<DaemonRelayLocation>;
   expandLocation: (location: AnyLocation) => void;
   collapseLocation: (location: AnyLocation) => void;
@@ -118,12 +116,9 @@ export function RelayListContextProvider(props: RelayListContextProviderProps) {
   // Prepares all relays and combines the data needed for rendering them
   const relayList = useRelayList(relayListForSearch, expandedLocations);
 
-  const customLists = useCustomListsRelayList(relayList, expandedLocations);
-
   const contextValue = useMemo(
     () => ({
       relayList,
-      customLists,
       expandedLocations,
       expandLocation,
       collapseLocation,
@@ -132,7 +127,6 @@ export function RelayListContextProvider(props: RelayListContextProviderProps) {
     }),
     [
       relayList,
-      customLists,
       expandedLocations,
       expandLocation,
       collapseLocation,

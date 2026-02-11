@@ -1,9 +1,9 @@
-import { useRelayListContext } from '../../../RelayListContext';
+import { useCustomListLocationContext } from '../../../CustomListLocationContext';
 
 export function useHasCustomLists() {
-  const { customLists } = useRelayListContext();
+  const { customListLocations } = useCustomListLocationContext();
 
-  if (customLists.length > 0) {
+  if (customListLocations.length > 0) {
     return true;
   }
 

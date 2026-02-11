@@ -1,3 +1,4 @@
+import { CustomListLocationProvider } from './CustomListLocationContext';
 import { RelayListContextProvider } from './RelayListContext';
 import { ScrollPositionContextProvider } from './ScrollPositionContext';
 import { SelectLocation } from './SelectLocation';
@@ -8,7 +9,9 @@ export function SelectLocationView() {
     <SelectLocationViewProvider>
       <ScrollPositionContextProvider>
         <RelayListContextProvider>
-          <SelectLocation />
+          <CustomListLocationProvider>
+            <SelectLocation />
+          </CustomListLocationProvider>
         </RelayListContextProvider>
       </ScrollPositionContextProvider>
     </SelectLocationViewProvider>
