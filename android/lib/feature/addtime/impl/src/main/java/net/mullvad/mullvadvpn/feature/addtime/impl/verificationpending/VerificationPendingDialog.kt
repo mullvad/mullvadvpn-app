@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.compose.dialog.payment
+package net.mullvad.mullvadvpn.feature.addtime.impl.verificationpending
 
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
@@ -8,10 +8,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle
-import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.screen.MainGraph
+import net.mullvad.mullvadvpn.feature.addtime.impl.R
 import net.mullvad.mullvadvpn.lib.ui.designsystem.PrimaryButton
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 
@@ -21,7 +21,7 @@ private fun PreviewVerificationPendingDialog() {
     AppTheme { VerificationPendingDialog(onClose = {}) }
 }
 
-@Destination<MainGraph>(style = DestinationStyle.Dialog::class)
+@Destination<ExternalModuleGraph>(style = DestinationStyle.Dialog::class)
 @Composable
 fun VerificationPending(navigator: DestinationsNavigator) {
     VerificationPendingDialog(onClose = dropUnlessResumed { navigator.navigateUp() })

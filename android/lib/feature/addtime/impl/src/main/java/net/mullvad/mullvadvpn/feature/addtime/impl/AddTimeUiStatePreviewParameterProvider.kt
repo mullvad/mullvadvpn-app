@@ -1,8 +1,6 @@
-package net.mullvad.mullvadvpn.compose.preview
+package net.mullvad.mullvadvpn.feature.addtime.impl
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import net.mullvad.mullvadvpn.compose.state.AddTimeUiState
-import net.mullvad.mullvadvpn.compose.state.PaymentState
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.toLc
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentProduct
@@ -10,8 +8,7 @@ import net.mullvad.mullvadvpn.lib.payment.model.PaymentStatus
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
 import net.mullvad.mullvadvpn.lib.payment.model.ProductPrice
 
-class AddMoreTimeUiStatePreviewParameterProvider :
-    PreviewParameterProvider<Lc<Unit, AddTimeUiState>> {
+class AddTimeUiStatePreviewParameterProvider : PreviewParameterProvider<Lc<Unit, AddTimeUiState>> {
     override val values: Sequence<Lc<Unit, AddTimeUiState>> =
         sequenceOf(
             Lc.Loading(Unit),

@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.compose.component
+package net.mullvad.mullvadvpn.feature.addtime.impl
 
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SheetState
@@ -10,11 +10,6 @@ import de.mannodermaus.junit5.compose.ComposeContext
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import kotlin.Unit
-import net.mullvad.mullvadvpn.compose.bottomsheet.addtime.AddTimeBottomSheetContent
-import net.mullvad.mullvadvpn.compose.state.AddTimeUiState
-import net.mullvad.mullvadvpn.compose.state.PaymentState
-import net.mullvad.mullvadvpn.compose.state.PurchaseState
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.toLc
 import net.mullvad.mullvadvpn.lib.payment.ProductIds

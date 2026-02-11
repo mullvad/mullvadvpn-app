@@ -387,6 +387,7 @@ dependencies {
     implementation(project(":lib:common-compose"))
     implementation(projects.lib.grpc)
     implementation(projects.lib.endpoint)
+    implementation(projects.lib.feature.addtime.impl)
     implementation(projects.lib.feature.anticensorship.impl)
     implementation(projects.lib.feature.apiaccess.impl)
     implementation(projects.lib.feature.appinfo.impl)

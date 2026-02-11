@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.viewmodel
+package net.mullvad.mullvadvpn.feature.addtime.impl
 
 import android.app.Activity
 import androidx.lifecycle.ViewModel
@@ -13,8 +13,7 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import net.mullvad.mullvadvpn.compose.state.AddTimeUiState
-import net.mullvad.mullvadvpn.compose.state.PurchaseState
+import net.mullvad.mullvadvpn.feature.addtime.impl.AddMoreTimeSideEffect.OpenAccountManagementPageInBrowser
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
@@ -23,9 +22,6 @@ import net.mullvad.mullvadvpn.lib.payment.model.PurchaseResult
 import net.mullvad.mullvadvpn.lib.repository.AccountRepository
 import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
 import net.mullvad.mullvadvpn.lib.repository.PaymentLogic
-import net.mullvad.mullvadvpn.util.isSuccess
-import net.mullvad.mullvadvpn.util.toPaymentState
-import net.mullvad.mullvadvpn.viewmodel.AddMoreTimeSideEffect.OpenAccountManagementPageInBrowser
 
 class AddTimeViewModel(
     private val paymentUseCase: PaymentLogic,

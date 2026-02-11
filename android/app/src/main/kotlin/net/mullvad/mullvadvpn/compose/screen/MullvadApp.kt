@@ -20,6 +20,7 @@ import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.annotation.ExternalDestination
 import com.ramcosta.composedestinations.annotation.NavHostGraph
 import com.ramcosta.composedestinations.generated.NavGraphs
+import com.ramcosta.composedestinations.generated.addtime.destinations.VerificationPendingDestination
 import com.ramcosta.composedestinations.generated.anticensorship.destinations.AntiCensorshipSettingsDestination
 import com.ramcosta.composedestinations.generated.anticensorship.destinations.CustomPortDestination
 import com.ramcosta.composedestinations.generated.anticensorship.destinations.SelectPortDestination
@@ -102,6 +103,7 @@ annotation class MainGraph {
     @ExternalDestination<ServerIpOverridesDestination>
     @ExternalDestination<ServerIpOverridesInfoDestination>
     @ExternalDestination<SplitTunnelingDestination>
+    @ExternalDestination<VerificationPendingDestination>
     @ExternalDestination<ViewLogsDestination>
     companion object Includes
 }

@@ -37,10 +37,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.generated.NavGraphs
+import com.ramcosta.composedestinations.generated.addtime.destinations.VerificationPendingDestination
 import com.ramcosta.composedestinations.generated.destinations.LoginDestination
 import com.ramcosta.composedestinations.generated.destinations.ManageDevicesDestination
 import com.ramcosta.composedestinations.generated.destinations.RedeemVoucherDestination
-import com.ramcosta.composedestinations.generated.destinations.VerificationPendingDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import java.time.ZonedDateTime
 import kotlinx.coroutines.launch
@@ -50,12 +50,12 @@ import net.mullvad.mullvadvpn.common.compose.SecureScreenWhileInView
 import net.mullvad.mullvadvpn.common.compose.createCopyToClipboardHandle
 import net.mullvad.mullvadvpn.common.compose.createOpenAccountPageHook
 import net.mullvad.mullvadvpn.common.compose.showSnackbarImmediately
-import net.mullvad.mullvadvpn.compose.bottomsheet.addtime.AddTimeBottomSheet
 import net.mullvad.mullvadvpn.compose.component.CopyableObfuscationView
 import net.mullvad.mullvadvpn.compose.component.InformationView
 import net.mullvad.mullvadvpn.compose.component.MissingPolicy
 import net.mullvad.mullvadvpn.compose.preview.AccountUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.transitions.AccountTransition
+import net.mullvad.mullvadvpn.feature.addtime.impl.AddTimeBottomSheet
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.util.toExpiryDateString
 import net.mullvad.mullvadvpn.lib.ui.component.NavigateCloseIconButton
