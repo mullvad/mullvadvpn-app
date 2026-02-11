@@ -244,7 +244,6 @@
 		58AFC99529F96F7B000829DE /* AsyncBlockOperationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58AFC99429F96F7B000829DE /* AsyncBlockOperationTests.swift */; };
 		58AFC99729F9753D000829DE /* AsyncResultBlockOperationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58AFC99629F9753D000829DE /* AsyncResultBlockOperationTests.swift */; };
 		58B07C182AEFDD6C00A09625 /* StoreTransactionLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F70FE42AEA707800E6890E /* StoreTransactionLog.swift */; };
-		58B26E1E2943514300D5980C /* InAppNotificationDescriptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B26E1D2943514300D5980C /* InAppNotificationDescriptor.swift */; };
 		58B26E22294351EA00D5980C /* InAppNotificationProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B26E21294351EA00D5980C /* InAppNotificationProvider.swift */; };
 		58B26E242943520C00D5980C /* NotificationProviderProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B26E232943520C00D5980C /* NotificationProviderProtocol.swift */; };
 		58B26E262943522400D5980C /* NotificationProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B26E252943522400D5980C /* NotificationProvider.swift */; };
@@ -429,7 +428,6 @@
 		58FE25DA2AA72A8F003D1918 /* PacketTunnelActor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58E9C3852A4EF1CB00CFDEAC /* PacketTunnelActor.swift */; };
 		58FE25DB2AA72A8F003D1918 /* StartOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58ED3A132A7C199C0085CE65 /* StartOptions.swift */; };
 		58FE25DC2AA72A8F003D1918 /* AnyTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BDEBA02A9CA14B00F578F2 /* AnyTask.swift */; };
-		58FE25E12AA72A9B003D1918 /* SettingsReaderProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 586E7A2C2A987689006DAB1B /* SettingsReaderProtocol.swift */; };
 		58FE25E62AA738E8003D1918 /* TunnelAdapterProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5819ABC22A8CF02C007B59A6 /* TunnelAdapterProtocol.swift */; };
 		58FE25EC2AA77639003D1918 /* TunnelMonitorStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FE25EB2AA77638003D1918 /* TunnelMonitorStub.swift */; };
 		58FE25EE2AA7764E003D1918 /* TunnelAdapterDummy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FE25ED2AA7764E003D1918 /* TunnelAdapterDummy.swift */; };
@@ -488,6 +486,11 @@
 		7A460FA22F363023005A265D /* VersionCheck.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ABBE01F2F20C55F00AD8176 /* VersionCheck.swift */; };
 		7A460FA32F363045005A265D /* NotificationProviderIdentifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0C2AEFC2A0BB5CC00986207 /* NotificationProviderIdentifier.swift */; };
 		7A460FA42F36306D005A265D /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 587B7535266528A200DEF7E9 /* NotificationManager.swift */; };
+		7A460F9F2F35D05A005A265D /* NewAppStoreVersionInAppNotificationProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A460F9E2F35D04C005A265D /* NewAppStoreVersionInAppNotificationProvider.swift */; };
+		7A460FA02F35D05A005A265D /* NewAppStoreVersionInAppNotificationProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A460F9E2F35D04C005A265D /* NewAppStoreVersionInAppNotificationProvider.swift */; };
+		7A460FA12F35D854005A265D /* InAppNotificationDescriptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B26E1D2943514300D5980C /* InAppNotificationDescriptor.swift */; };
+		7A460FAB2F3B5F12005A265D /* SettingsReaderProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 586E7A2C2A987689006DAB1B /* SettingsReaderProtocol.swift */; };
+		7A460FAC2F3B5F28005A265D /* TunnelSettingsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F04DD3D72C130DF600E03E28 /* TunnelSettingsManager.swift */; };
 		7A4D849E2C0F289800687980 /* RelaySelectorProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5824037F2A827DF300163DE8 /* RelaySelectorProtocol.swift */; };
 		7A4ED7B62ECCC09F00E0DC51 /* PaymentPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A4ED7B52ECCC09C00E0DC51 /* PaymentPage.swift */; };
 		7A516C2E2B6D357500BBD33D /* URL+Scoping.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A516C2D2B6D357500BBD33D /* URL+Scoping.swift */; };
@@ -610,6 +613,9 @@
 		7A9CCCC22A96302800DD6A34 /* SafariCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A9CCCB02A96302800DD6A34 /* SafariCoordinator.swift */; };
 		7A9CCCC32A96302800DD6A34 /* ApplicationCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A9CCCB12A96302800DD6A34 /* ApplicationCoordinator.swift */; };
 		7A9CCCC42A96302800DD6A34 /* TunnelCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A9CCCB22A96302800DD6A34 /* TunnelCoordinator.swift */; };
+		7A9ED2A72F3CA781005BC0D9 /* NewAppVersionSystemNoticationHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A9ED2A62F3CA77B005BC0D9 /* NewAppVersionSystemNoticationHandler.swift */; };
+		7A9ED2A92F433D1B005BC0D9 /* NotificationProviderIdentifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0C2AEFC2A0BB5CC00986207 /* NotificationProviderIdentifier.swift */; };
+		7A9ED2AA2F433D6D005BC0D9 /* Font+Mullvad.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9276C612DBA20FC006FE43D /* Font+Mullvad.swift */; };
 		7A9F28FC2CA69D0C005F2089 /* DAITASettingsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A9F28FB2CA69D04005F2089 /* DAITASettingsTests.swift */; };
 		7A9F29352CAA8829005F2089 /* AccessMethodsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A9F29342CAA8823005F2089 /* AccessMethodsTests.swift */; };
 		7A9F29392CABFAFC005F2089 /* InfoHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A9F29382CABFAEC005F2089 /* InfoHeaderView.swift */; };
@@ -1065,7 +1071,6 @@
 		F0DA87472A9CB9A2006044F1 /* AccountExpiryRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0DA87462A9CB9A2006044F1 /* AccountExpiryRow.swift */; };
 		F0DA87492A9CBA9F006044F1 /* AccountDeviceRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0DA87482A9CBA9F006044F1 /* AccountDeviceRow.swift */; };
 		F0DA874B2A9CBACB006044F1 /* AccountNumberRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0DA874A2A9CBACB006044F1 /* AccountNumberRow.swift */; };
-		F0DAC8AD2C16EFE400F80144 /* TunnelSettingsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F04DD3D72C130DF600E03E28 /* TunnelSettingsManager.swift */; };
 		F0DDE4152B220458006B57A7 /* ShadowsocksConfigurationCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0DDE4102B220458006B57A7 /* ShadowsocksConfigurationCache.swift */; };
 		F0DDE42A2B220A15006B57A7 /* Haversine.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0DDE4272B220A15006B57A7 /* Haversine.swift */; };
 		F0DDE42B2B220A15006B57A7 /* RelaySelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0DDE4282B220A15006B57A7 /* RelaySelector.swift */; };
@@ -2075,6 +2080,7 @@
 		7A42DEC82A05164100B209BE /* SettingsInputCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsInputCell.swift; sourceTree = "<group>"; };
 		7A45CFC22C05FF2F00D80B21 /* ScreenshotTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotTests.swift; sourceTree = "<group>"; };
 		7A460F9C2F34E2FC005A265D /* Bundle+ProductVersion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Bundle+ProductVersion.swift"; sourceTree = "<group>"; };
+		7A460F9E2F35D04C005A265D /* NewAppStoreVersionInAppNotificationProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewAppStoreVersionInAppNotificationProvider.swift; sourceTree = "<group>"; };
 		7A4ED7B52ECCC09C00E0DC51 /* PaymentPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentPage.swift; sourceTree = "<group>"; };
 		7A516C2D2B6D357500BBD33D /* URL+Scoping.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "URL+Scoping.swift"; sourceTree = "<group>"; };
 		7A516C392B7111A700BBD33D /* IPOverrideWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IPOverrideWrapper.swift; sourceTree = "<group>"; };
@@ -2181,6 +2187,7 @@
 		7A9CCCB02A96302800DD6A34 /* SafariCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SafariCoordinator.swift; sourceTree = "<group>"; };
 		7A9CCCB12A96302800DD6A34 /* ApplicationCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ApplicationCoordinator.swift; sourceTree = "<group>"; };
 		7A9CCCB22A96302800DD6A34 /* TunnelCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TunnelCoordinator.swift; sourceTree = "<group>"; };
+		7A9ED2A62F3CA77B005BC0D9 /* NewAppVersionSystemNoticationHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewAppVersionSystemNoticationHandler.swift; sourceTree = "<group>"; };
 		7A9F28FB2CA69D04005F2089 /* DAITASettingsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DAITASettingsTests.swift; sourceTree = "<group>"; };
 		7A9F29342CAA8823005F2089 /* AccessMethodsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessMethodsTests.swift; sourceTree = "<group>"; };
 		7A9F29382CABFAEC005F2089 /* InfoHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoHeaderView.swift; sourceTree = "<group>"; };
@@ -3097,6 +3104,7 @@
 				58E511EA28DDE18400B0BCDE /* Error+Chain.swift */,
 				A9A8A8EA2A262AB30086D569 /* FileCache.swift */,
 				58900D0228BBDCC70094E4F0 /* FixedWidthInteger+Arithmetics.swift */,
+				58B26E1D2943514300D5980C /* InAppNotificationDescriptor.swift */,
 				06AC115628F848D00037AF9A /* IPAddress+Codable.swift */,
 				58561C98239A5D1500BD6B5E /* IPv4Endpoint.swift */,
 				586A95112901321B007BAF2B /* IPv6Endpoint.swift */,
@@ -3695,6 +3703,7 @@
 				58607A4C2947287800BC467D /* AccountExpiryInAppNotificationProvider.swift */,
 				587B75402668FD7700DEF7E9 /* AccountExpirySystemNotificationProvider.swift */,
 				F0D5591D2D3805050072B63F /* LatestChangesNotificationProvider.swift */,
+				7A460F9E2F35D04C005A265D /* NewAppStoreVersionInAppNotificationProvider.swift */,
 				F07CFF1F29F2720E008C0343 /* NewDeviceNotificationProvider.swift */,
 				58C8191729FAA2C400DEB1B4 /* NotificationConfiguration.swift */,
 				F0AC643B2F3B50860024427C /* NotificationSettingsObserver.swift */,
@@ -3780,7 +3789,6 @@
 				587B7535266528A200DEF7E9 /* NotificationManager.swift */,
 				58B26E232943520C00D5980C /* NotificationProviderProtocol.swift */,
 				58B26E252943522400D5980C /* NotificationProvider.swift */,
-				58B26E1D2943514300D5980C /* InAppNotificationDescriptor.swift */,
 				58B26E21294351EA00D5980C /* InAppNotificationProvider.swift */,
 				58B26E272943527300D5980C /* SystemNotificationProvider.swift */,
 				5877F94D2A0A59AA0052D9E9 /* NotificationResponse.swift */,
@@ -4041,11 +4049,12 @@
 			isa = PBXGroup;
 			children = (
 				58915D662A25F9F20066445B /* DeviceCheck */,
-				58CE5E7D224146470008646E /* Info.plist */,
-				58CE5E7E224146470008646E /* PacketTunnel.entitlements */,
+				7A9ED2A82F3CC057005BC0D9 /* Notifications */,
 				58F3F3682AA08E2200D3B0A4 /* PacketTunnelProvider */,
 				F059197A2C45404500C301F3 /* PostQuantum */,
 				588395612A9DF497008B63F6 /* WireGuardAdapter */,
+				58CE5E7D224146470008646E /* Info.plist */,
+				58CE5E7E224146470008646E /* PacketTunnel.entitlements */,
 			);
 			path = PacketTunnel;
 			sourceTree = "<group>";
@@ -4482,6 +4491,14 @@
 				7ABBE0152F1A2D1100AD8176 /* IncludeAllNetworksSettingsViewModel.swift */,
 			);
 			path = IncludeAllNetworks;
+			sourceTree = "<group>";
+		};
+		7A9ED2A82F3CC057005BC0D9 /* Notifications */ = {
+			isa = PBXGroup;
+			children = (
+				7A9ED2A62F3CA77B005BC0D9 /* NewAppVersionSystemNoticationHandler.swift */,
+			);
+			path = Notifications;
 			sourceTree = "<group>";
 		};
 		7AD63A422CDA661B00445268 /* Extensions */ = {
@@ -6083,6 +6100,7 @@
 				F9EDB26C2EC4C0480015DE36 /* CustomListInteractorTests.swift in Sources */,
 				A9A5F9F02ACB05160083449F /* String+FuzzyMatch.swift in Sources */,
 				F09D04C12AF39EA2003D4F89 /* OutgoingConnectionService.swift in Sources */,
+				7A460FA02F35D05A005A265D /* NewAppStoreVersionInAppNotificationProvider.swift in Sources */,
 				F0FA16152D7F3E16007E2546 /* Collection+Sorting.swift in Sources */,
 				A9A5F9F12ACB05160083449F /* String+Helpers.swift in Sources */,
 				A9A5F9F22ACB05160083449F /* NotificationConfiguration.swift in Sources */,
@@ -6127,6 +6145,7 @@
 				A9A5FA0A2ACB05160083449F /* StorePaymentEvent.swift in Sources */,
 				A902E7A62D3FB0D9007F844A /* LogFileOutputStreamTests.swift in Sources */,
 				A9A5FA0B2ACB05160083449F /* StorePaymentManager.swift in Sources */,
+				7A9ED2A92F433D1B005BC0D9 /* NotificationProviderIdentifier.swift in Sources */,
 				F0FA16092D7F0425007E2546 /* FilterDescriptorTests.swift in Sources */,
 				A9A5FA0D2ACB05160083449F /* LegacyStorePaymentManagerError.swift in Sources */,
 				A9A5FA0E2ACB05160083449F /* StorePaymentObserver.swift in Sources */,
@@ -6199,6 +6218,7 @@
 				F0F146942D9462E100BF78E7 /* RustProblemReportRequestTests.swift in Sources */,
 				7AA513862BC91C6B00D081A4 /* LogRotationTests.swift in Sources */,
 				F04413622BA45CE30018A6EE /* CustomListLocationNodeBuilder.swift in Sources */,
+				7A9ED2AA2F433D6D005BC0D9 /* Font+Mullvad.swift in Sources */,
 				A9A5FA302ACB05160083449F /* InputTextFormatterTests.swift in Sources */,
 				44B02E3B2BC5732D008EDF34 /* LoggingTests.swift in Sources */,
 				F0B0E6972AFE6E7E001DC66B /* XCTest+Async.swift in Sources */,
@@ -6296,6 +6316,7 @@
 				583832292AC3DF1300EA2071 /* PacketTunnelActorCommand.swift in Sources */,
 				58CF95A22AD6F35800B59F5D /* ObservedState.swift in Sources */,
 				449275422C3570CA000526DE /* ICMP.swift in Sources */,
+				7A460FAC2F3B5F28005A265D /* TunnelSettingsManager.swift in Sources */,
 				583832232AC3181400EA2071 /* PacketTunnelActor+ErrorState.swift in Sources */,
 				58C7AF112ABD8480007EDD7A /* TunnelProviderMessage.swift in Sources */,
 				58FE25D72AA72A8F003D1918 /* State.swift in Sources */,
@@ -6310,9 +6331,9 @@
 				580D6B8A2AB31AB400B2D6E0 /* NetworkPath+NetworkReachability.swift in Sources */,
 				7AD0AA1D2AD6A86700119E10 /* PacketTunnelActorProtocol.swift in Sources */,
 				5826B6CB2ABD83E200B1CA13 /* PacketTunnelOptions.swift in Sources */,
+				7A460FAB2F3B5F12005A265D /* SettingsReaderProtocol.swift in Sources */,
 				5838322B2AC3EF9600EA2071 /* EventChannel.swift in Sources */,
 				586C145A2AC4735F00245C01 /* PacketTunnelActor+Public.swift in Sources */,
-				F0DAC8AD2C16EFE400F80144 /* TunnelSettingsManager.swift in Sources */,
 				F041BE532C9878B60083EC28 /* ConnectionConfigurationBuilder.swift in Sources */,
 				58342C042AAB61FB003BA12D /* State+Extensions.swift in Sources */,
 				A95EEE382B722DFC00A8A39B /* PingStats.swift in Sources */,
@@ -6320,7 +6341,6 @@
 				58FE25DC2AA72A8F003D1918 /* AnyTask.swift in Sources */,
 				F04AF92D2C466013004A8314 /* EphemeralPeerNegotiationState.swift in Sources */,
 				58FE25D92AA72A8F003D1918 /* AutoCancellingTask.swift in Sources */,
-				58FE25E12AA72A9B003D1918 /* SettingsReaderProtocol.swift in Sources */,
 				58C7A4582A863FB90060C66F /* TunnelMonitorProtocol.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -6483,6 +6503,7 @@
 				7A6000FC2B628DF6001CF0D9 /* ListCellContentConfiguration.swift in Sources */,
 				582BB1B1229569620055B6EF /* UINavigationBar+Appearance.swift in Sources */,
 				7A9FA1442A2E3FE5000B728D /* CheckableSettingsCell.swift in Sources */,
+				7A460F9F2F35D05A005A265D /* NewAppStoreVersionInAppNotificationProvider.swift in Sources */,
 				58ACF6492655365700ACE4B7 /* VPNSettingsViewController.swift in Sources */,
 				7ABE318D2A1CDD4500DF4963 /* UIFont+Weight.swift in Sources */,
 				58C774BE29A7A249003A1A56 /* CustomNavigationController.swift in Sources */,
@@ -6706,7 +6727,6 @@
 				58EE2E3A272FF814003BFF93 /* SettingsDataSource.swift in Sources */,
 				58FF9FEA2B07653800E4C97D /* ButtonCellContentView.swift in Sources */,
 				7A5869AD2B5552E200640D27 /* IPOverrideViewController.swift in Sources */,
-				58B26E1E2943514300D5980C /* InAppNotificationDescriptor.swift in Sources */,
 				58421032282E42B000F24E46 /* UpdateDeviceDataOperation.swift in Sources */,
 				586C0D992B04E20200E7CDD7 /* AccessMethodViewModel+Persistent.swift in Sources */,
 				5878A27D2909657C0096FC88 /* RevokedDeviceInteractor.swift in Sources */,
@@ -6838,6 +6858,7 @@
 				58C76A092A33850E00100D75 /* ApplicationTarget.swift in Sources */,
 				580D6B922AB360BE00B2D6E0 /* DeviceCheck+BlockedStateReason.swift in Sources */,
 				583D86482A2678DC0060D63B /* DeviceStateAccessor.swift in Sources */,
+				7A9ED2A72F3CA781005BC0D9 /* NewAppVersionSystemNoticationHandler.swift in Sources */,
 				58F3F36A2AA08E3C00D3B0A4 /* PacketTunnelProvider.swift in Sources */,
 				58906DE02445C7A5002F0673 /* NEProviderStopReason+Debug.swift in Sources */,
 				F0570CD12C4FB8E1007BDF2D /* EphemeralPeerExchangingPipeline.swift in Sources */,
@@ -6904,6 +6925,7 @@
 				44EC6C5A2E3BB3F60087F54A /* PersistentProxyConfiguration.swift in Sources */,
 				A98207EF2D9192A300654558 /* ShadowsocksBridgeProviding.swift in Sources */,
 				58D2240E294C90210029F5F8 /* Error+Chain.swift in Sources */,
+				7A460FA12F35D854005A265D /* InAppNotificationDescriptor.swift in Sources */,
 				586168692976F6BD00EF8598 /* DisplayError.swift in Sources */,
 				58D2240F294C90210029F5F8 /* KeychainError.swift in Sources */,
 				A959E2422D75F3D200F95DDB /* AccessMethodKind.swift in Sources */,

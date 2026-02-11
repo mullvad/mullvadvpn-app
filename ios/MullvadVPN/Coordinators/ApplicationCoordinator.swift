@@ -880,6 +880,69 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
         self.navigationContainer.update(configuration: rootDeviceInfoViewModel.configuration)
     }
 
+    private func handleNewAppVersionInAppNotification() {
+        let navigateToAppStore: @Sendable () -> Void = {
+            DispatchQueue.main.async {
+                let appStoreLink = URL(string: "itms-apps://itunes.apple.com/app/id1488466513")!
+                if UIApplication.shared.canOpenURL(appStoreLink) {
+                    UIApplication.shared.open(appStoreLink, options: [:], completionHandler: nil)
+                }
+            }
+        }
+
+        guard tunnelManager.settings.includeAllNetworks.includeAllNetworksIsEnabled else {
+            navigateToAppStore()
+            return
+        }
+
+        let message = [
+            NSLocalizedString(
+                "“Force all apps” is enabled, please disable it before updating or you will lose network connectivity. "
+                    + "This will briefly expose your traffic as you reconnect to the VPN.",
+                comment: ""
+            ),
+            NSLocalizedString(
+                "After updating, you will have to enable “Force all apps” manually again.",
+                comment: ""
+            ),
+            NSLocalizedString(
+                "If you do not wish to disable “Force all apps“, you can disconnect from the VPN instead.",
+                comment: ""
+            ),
+        ].joinedParagraphs(lineBreaks: 1)
+
+        let presentation = AlertPresentation(
+            id: "new-app-version-in-app-notification",
+            icon: .info,
+            message: message,
+            buttons: [
+                AlertAction(
+                    title: NSLocalizedString("Disable “Force all apps”", comment: ""),
+                    style: .default,
+                    handler: { [weak self] in
+                        guard let self else { return }
+
+                        let newIncludeAllNetworksSettings = IncludeAllNetworksSettings(
+                            includeAllNetworksState: .off,
+                            localNetworkSharingState: tunnelManager.settings.includeAllNetworks.localNetworkSharingState
+                        )
+
+                        tunnelManager.updateSettings([.includeAllNetworks(newIncludeAllNetworksSettings)]) {
+                            navigateToAppStore()
+                        }
+                    }
+                ),
+                AlertAction(
+                    title: NSLocalizedString("Cancel", comment: ""),
+                    style: .default
+                ),
+            ]
+        )
+
+        let presenter = AlertPresenter(context: self)
+        presenter.showAlert(presentation: presentation, animated: true)
+    }
+
     // MARK: - Out of time
 
     private func updateOutOfTimeTimer(accountData: StoredAccountData) {
@@ -1029,7 +1092,9 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
         case .accountExpirySystemNotification:
             router.present(.account)
         case .newAppVersionSystemNotification:
-            router.present(.settings(.vpnSettings))
+            router.present(.includeAllNetworks)
+        case .newAppVersionInAppNotification:
+            handleNewAppVersionInAppNotification()
         case .accountExpiryInAppNotification:
             isPresentingAccountExpiryBanner = false
             updateDeviceInfo(deviceState: tunnelManager.deviceState)

@@ -31,7 +31,6 @@ class AppStoreMetaDataServiceTests: XCTestCase {
         )
 
         let metaDataService = AppStoreMetaDataService(
-            tunnelSettings: LatestTunnelSettings(),
             urlSession: URLSessionStub(
                 response: (mockData, URLResponse())
             ),
@@ -59,7 +58,6 @@ class AppStoreMetaDataServiceTests: XCTestCase {
         )
 
         let metaDataService = AppStoreMetaDataService(
-            tunnelSettings: LatestTunnelSettings(),
             urlSession: URLSessionStub(
                 response: (mockData, URLResponse())
             ),
