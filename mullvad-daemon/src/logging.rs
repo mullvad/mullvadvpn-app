@@ -56,11 +56,34 @@ pub fn is_enabled() -> bool {
     LOG_ENABLED.load(Ordering::SeqCst)
 }
 
+/// Handle to interact with the logs. Use it to change the log level at runtime or
+/// to receive a stream of logs.
 #[derive(Clone)]
 pub struct LogHandle {
     env_filter: Handle<EnvFilter, Registry>,
     log_stream: LogStreamer,
-    _file_appender_guard: Option<Arc<non_blocking::WorkerGuard>>,
+    /// Drop guard for the file writer. While the guard is alive, the file writer will continue to
+    /// write logs to the file.
+    _file_writer_guard: Option<Arc<non_blocking::WorkerGuard>>,
+}
+
+impl LogHandle {
+    /// Adjust the log level.
+    ///
+    /// - `level_filter`: A `RUST_LOG` string. See `env_logger` for more information:
+    ///   https://docs.rs/env_logger/latest/env_logger/
+    pub fn set_log_filter(
+        &self,
+        level_filter: impl AsRef<str>,
+    ) -> Result<(), tracing_subscriber::reload::Error> {
+        let new = silence_crates(EnvFilter::new(level_filter));
+        self.env_filter.modify(|env_filter| *env_filter = new)
+    }
+
+    /// Subscribe to new log events.
+    pub fn get_log_stream(&self) -> tokio::sync::broadcast::Receiver<String> {
+        self.log_stream.tx.subscribe()
+    }
 }
 
 /// A location to put logs.
@@ -115,25 +138,6 @@ impl io::Write for LogStreamer {
     }
 }
 
-impl LogHandle {
-    /// Adjust the log level.
-    ///
-    /// - `level_filter`: A `RUST_LOG` string. See `env_logger` for more information:
-    ///   https://docs.rs/env_logger/latest/env_logger/
-    pub fn set_log_filter(
-        &self,
-        level_filter: impl AsRef<str>,
-    ) -> Result<(), tracing_subscriber::reload::Error> {
-        let new = silence_crates(EnvFilter::new(level_filter));
-        self.env_filter.modify(|env_filter| *env_filter = new)
-    }
-
-    /// Subscribe to new log events.
-    pub fn get_log_stream(&self) -> tokio::sync::broadcast::Receiver<String> {
-        self.log_stream.tx.subscribe()
-    }
-}
-
 /// Initialize a global logger.
 ///
 /// * log_level: Base log level, used if `RUST_LOG` is not set.
@@ -159,28 +163,7 @@ pub fn init_logger(
     let default_filter = silence_crates(env_filter);
 
     // TODO: Switch this to a rolling appender, likely daily or hourly
-    let (_file_appender_guard, non_blocking_file_appender) =
-        if let Some(log_location) = log_location.as_ref() {
-            // NOTE: Make sure to rotate log file *before* initializing any kind of logger.
-            rotate_log(&log_location.log_path()).map_err(Error::RotateLog)?;
-            let file_appender =
-                tracing_appender::rolling::never(&log_location.directory, &log_location.filename);
-            let (appender, guard) = non_blocking(file_appender);
-            let guard = Arc::new(guard);
-
-            // TODO: update doc
-            // Spawn a task to keep file logger guard alive for the duration of the program. When the tokio
-            // executor shuts down, its drop function will be called to flush any remaining logs to file.
-            // Note that calling e.g. `std::process::exit` will prevent this and might result in lost logs.
-            let tokio_guard = guard.clone();
-            tokio::spawn(async {
-                std::future::pending::<()>().await;
-                drop(tokio_guard);
-            });
-            (Some(guard), OptionalMakeWriter(Some(appender)))
-        } else {
-            (None, OptionalMakeWriter(None))
-        };
+    let (_file_writer_guard, file_writer) = make_log_file_writer(log_location)?;
 
     let (tx, _) = tokio::sync::broadcast::channel(128);
     let log_stream = LogStreamer { tx };
@@ -189,7 +172,7 @@ pub fn init_logger(
     let reload_handle = LogHandle {
         env_filter: reload_handle,
         log_stream: log_stream.clone(),
-        _file_appender_guard,
+        _file_writer_guard,
     };
 
     let reg = tracing_subscriber::registry().with(user_filter);
@@ -206,7 +189,7 @@ pub fn init_logger(
     if output_timestamp {
         let file_formatter = tracing_subscriber::fmt::layer()
             .with_ansi(false)
-            .with_writer(non_blocking_file_appender);
+            .with_writer(file_writer);
         let grpc_formatter = tracing_subscriber::fmt::layer()
             .with_ansi(true)
             .with_span_events(FmtSpan::NEW | FmtSpan::CLOSE)
@@ -234,7 +217,7 @@ pub fn init_logger(
             .with_writer(std::sync::Mutex::new(log_stream));
         let file_formatter = tracing_subscriber::fmt::layer()
             .with_ansi(false)
-            .with_writer(non_blocking_file_appender);
+            .with_writer(file_writer);
         reg.with(stdout_formatter.without_time())
             .with(file_formatter.without_time())
             .with(grpc_formatter.without_time())
@@ -244,4 +227,53 @@ pub fn init_logger(
     LOG_ENABLED.store(true, Ordering::SeqCst);
 
     Ok(reload_handle)
+}
+
+/// Creates a writer that writes logs to the given file.
+///
+/// If a valid path is passed, the logs are rotated and a writer and a guard
+/// for the new file are returned. The writer will flush remaining logs when the
+/// tokio runtime is shut down, or when the guard is dropped, whichever happens
+/// *last*.
+///
+/// NOTE: calling e.g. `std::process::exit` will prevent flushing and might
+/// result in lost logs.
+///
+/// If `None` is passed, no writer is created.
+fn make_log_file_writer(
+    log_location: Option<LogLocation>,
+) -> Result<
+    (
+        Option<Arc<non_blocking::WorkerGuard>>,
+        OptionalMakeWriter<non_blocking::NonBlocking>,
+    ),
+    Error,
+> {
+    // Disable logging if log_location is None
+    let Some(log_location) = log_location else {
+        return Ok((None, OptionalMakeWriter(None)));
+    };
+
+    // NOTE: Make sure to rotate log file *before* initializing any kind of logger.
+    rotate_log(&log_location.log_path()).map_err(Error::RotateLog)?;
+    let file_appender =
+        tracing_appender::rolling::never(&log_location.directory, &log_location.filename);
+    let (file_writer, guard) = non_blocking(file_appender);
+
+    // When the guard is dropped, logs will no longer be written to the file, so we need to keep it
+    // alive until the program exits.
+    // On desktop, the Tokio runtime lives from the entire program, so we can keep the guard alive
+    // using a task.
+    // On Android, the runtime is not running at this point, and will be restarted multiple times
+    // during the application's lifecycle. Instead, we keep the guard alive in the `LogHandle`.
+    // To allow both of these scenarios, we use an Arc.
+    let guard = Arc::new(guard);
+    if let Ok(handle) = tokio::runtime::Handle::try_current() {
+        let guard = guard.clone();
+        handle.spawn(async {
+            std::future::pending::<()>().await;
+            drop(guard);
+        });
+    }
+    Ok((Some(guard), OptionalMakeWriter(Some(file_writer))))
 }
