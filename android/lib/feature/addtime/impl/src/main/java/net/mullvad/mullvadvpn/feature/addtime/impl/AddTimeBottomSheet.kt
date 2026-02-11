@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.compose.bottomsheet.addtime
+package net.mullvad.mullvadvpn.feature.addtime.impl
 
 import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.AnimatedContent
@@ -35,13 +35,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.launch
-import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.common.compose.createOpenAccountPageHook
-import net.mullvad.mullvadvpn.compose.preview.AddMoreTimeUiStatePreviewParameterProvider
-import net.mullvad.mullvadvpn.compose.state.AddTimeUiState
-import net.mullvad.mullvadvpn.compose.state.PaymentState
-import net.mullvad.mullvadvpn.compose.state.PurchaseState
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.payment.ProductIds.OneMonth
 import net.mullvad.mullvadvpn.lib.payment.ProductIds.ThreeMonths
@@ -58,8 +53,6 @@ import net.mullvad.mullvadvpn.lib.ui.designsystem.SmallPrimaryButton
 import net.mullvad.mullvadvpn.lib.ui.tag.ADD_TIME_BOTTOM_SHEET_TITLE_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
-import net.mullvad.mullvadvpn.viewmodel.AddMoreTimeSideEffect
-import net.mullvad.mullvadvpn.viewmodel.AddTimeViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -68,9 +61,8 @@ import org.koin.androidx.compose.koinViewModel
         "PaymentLoading|NoPayment|NoProductsFound|PaymentAvailable|PaymentPending|PaymentError"
 )
 @Composable
-private fun PreviewPaymentBottomSheet(
-    @PreviewParameter(AddMoreTimeUiStatePreviewParameterProvider::class)
-    state: Lc<Unit, AddTimeUiState>
+private fun PreviewAddTimeBottomSheet(
+    @PreviewParameter(AddTimeUiStatePreviewParameterProvider::class) state: Lc<Unit, AddTimeUiState>
 ) {
     AppTheme {
         AddTimeBottomSheetContent(

@@ -1,7 +1,6 @@
-package net.mullvad.mullvadvpn.util
+package net.mullvad.mullvadvpn.feature.addtime.impl
 
-import net.mullvad.mullvadvpn.compose.state.PaymentState
-import net.mullvad.mullvadvpn.compose.state.PaymentState.PaymentAvailable
+import net.mullvad.mullvadvpn.feature.addtime.impl.PaymentState.PaymentAvailable
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentAvailability
 
 fun PaymentAvailability.toPaymentState(): PaymentState =
@@ -9,7 +8,7 @@ fun PaymentAvailability.toPaymentState(): PaymentState =
         PaymentAvailability.Error.ServiceUnavailable,
         PaymentAvailability.Error.BillingUnavailable -> PaymentState.Error.Billing
         is PaymentAvailability.Error.Other -> PaymentState.Error.Generic
-        is PaymentAvailability.ProductsAvailable -> PaymentState.PaymentAvailable(products)
+        is PaymentAvailability.ProductsAvailable -> PaymentAvailable(products)
         PaymentAvailability.ProductsUnavailable -> PaymentState.NoPayment
         PaymentAvailability.NoProductsFound -> PaymentState.NoProductsFounds
         PaymentAvailability.Loading -> PaymentState.Loading

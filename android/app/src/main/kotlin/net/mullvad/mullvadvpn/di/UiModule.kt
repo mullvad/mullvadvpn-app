@@ -27,6 +27,7 @@ import net.mullvad.mullvadvpn.customlist.impl.screen.editlist.EditCustomListView
 import net.mullvad.mullvadvpn.customlist.impl.screen.editlocations.CustomListLocationsViewModel
 import net.mullvad.mullvadvpn.customlist.impl.screen.editname.EditCustomListNameDialogViewModel
 import net.mullvad.mullvadvpn.customlist.impl.screen.lists.CustomListsViewModel
+import net.mullvad.mullvadvpn.feature.addtime.impl.AddTimeViewModel
 import net.mullvad.mullvadvpn.feature.daita.impl.DaitaViewModel
 import net.mullvad.mullvadvpn.feature.problemreport.impl.ReportProblemViewModel
 import net.mullvad.mullvadvpn.feature.problemreport.impl.viewlogs.ViewLogsViewModel
@@ -91,7 +92,6 @@ import net.mullvad.mullvadvpn.serveripoverride.impl.reset.ResetServerIpOverrides
 import net.mullvad.mullvadvpn.ui.MainActivity
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.viewmodel.AccountViewModel
-import net.mullvad.mullvadvpn.viewmodel.AddTimeViewModel
 import net.mullvad.mullvadvpn.viewmodel.ApiUnreachableViewModel
 import net.mullvad.mullvadvpn.viewmodel.ConnectViewModel
 import net.mullvad.mullvadvpn.viewmodel.DeviceListViewModel
