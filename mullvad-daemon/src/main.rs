@@ -142,7 +142,7 @@ fn init_early_boot_logging(config: &cli::Config) -> Option<logging::LogHandle> {
     // the daemon from starting here.
     init_logger(config, log_file_location)
         .or_else(|e| {
-            eprint!("Failed to initialize early-boot logging to file: '{e}'");
+            eprintln!("Failed to initialize early-boot logging to file: '{e}'");
             init_logger(config, None)
         })
         .ok()
