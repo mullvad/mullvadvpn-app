@@ -1,11 +1,11 @@
-import { useRelayListContext } from '../../../RelayListContext';
+import { useCustomListLocationContext } from '../../../CustomListLocationContext';
 import { useHasSearched } from './use-has-searched';
 
 export function useHasNoCustomListsInSearchResult() {
-  const { customLists } = useRelayListContext();
+  const { customListLocations } = useCustomListLocationContext();
   const hasSearched = useHasSearched();
 
-  if (hasSearched && !customLists.some((list) => list.visible)) {
+  if (hasSearched && !customListLocations.some((list) => list.visible)) {
     return true;
   }
 
