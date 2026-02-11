@@ -2,10 +2,7 @@ use mullvad_logging::{EnvFilter, LevelFilter, silence_crates};
 use std::{
     io,
     path::PathBuf,
-    sync::{
-        Arc,
-        atomic::{AtomicBool, Ordering},
-    },
+    sync::atomic::{AtomicBool, Ordering},
 };
 use talpid_core::logging::rotate_log;
 use tracing_appender::non_blocking;
