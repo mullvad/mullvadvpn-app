@@ -19,6 +19,7 @@ struct AlertAction {
     let style: AlertActionStyle
     var accessibilityId: AccessibilityIdentifier?
     var handler: (() -> Void)?
+    var interactiveHandler: ((AlertViewController, AppButton) -> Void)?
 }
 
 struct AlertPresentation: Identifiable, CustomDebugStringConvertible {

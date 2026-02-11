@@ -186,12 +186,14 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
         )
 
         switch section {
-        case .vpnSettings:
-            contentConfiguration.text = NSLocalizedString(
-                "Forces all apps on the device to use the VPN tunnel, preventing data leaks",
-                comment: ""
-            )
-            footerView?.contentConfiguration = contentConfiguration
+        #if DEBUG
+            case .vpnSettings:
+                contentConfiguration.text = NSLocalizedString(
+                    "Forces all apps on the device to use the VPN tunnel, preventing data leaks",
+                    comment: ""
+                )
+                footerView?.contentConfiguration = contentConfiguration
+        #endif
         case .misc:
             contentConfiguration.text = NSLocalizedString(
                 "Changing language will disconnect you from the VPN and restart the app",
