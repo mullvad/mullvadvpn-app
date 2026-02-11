@@ -24,7 +24,6 @@ class TunnelManagerTests: XCTestCase {
     var accountProxy: AccountsProxyStub!
     var devicesProxy: DevicesProxyStub!
     var apiProxy: APIProxyStub!
-    var addressCache: REST.AddressCache!
     var apiContext: MullvadApiContext!
 
     override static func setUp() {
@@ -47,10 +46,6 @@ class TunnelManagerTests: XCTestCase {
             tunnelSettings: LatestTunnelSettings(),
             settingsUpdater: SettingsUpdater(listener: TunnelSettingsListener())
         )
-        addressCache = REST.AddressCache(
-            canWriteToCache: false,
-            fileCache: MockFileCache(initialState: .fileNotFound)
-        )
 
         let opaqueAccessMethodSettingsWrapper = initAccessMethodSettingsWrapper(
             methods: AccessMethodRepositoryStub.stub.fetchAll())
@@ -61,7 +56,6 @@ class TunnelManagerTests: XCTestCase {
             domain: REST.encryptedDNSHostname,
             shadowsocksProvider: shadowsocksLoader,
             accessMethodWrapper: opaqueAccessMethodSettingsWrapper,
-            addressCacheProvider: addressCache,
             accessMethodChangeListeners: []
         )
 

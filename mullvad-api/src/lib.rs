@@ -1,5 +1,6 @@
 #![allow(rustdoc::private_intra_doc_links)]
 use async_trait::async_trait;
+use futures::FutureExt;
 #[cfg(target_os = "android")]
 use futures::channel::mpsc;
 use hyper::body::Incoming;
@@ -33,7 +34,8 @@ mod relay_list;
 
 pub mod ffi;
 
-pub use address_cache::{AddressCache, FileAddressCacheBacking};
+pub use address_cache::Error as AddressCacheError;
+pub use address_cache::{AddressCache, AddressCacheBacking, FileAddressCacheBacking};
 pub use device::DevicesProxy;
 pub use hyper::StatusCode;
 pub use relay_list::{CachedRelayList, ETag, RelayListProxy};
@@ -410,6 +412,24 @@ impl Runtime {
             #[cfg(target_os = "android")]
             socket_bypass_tx,
         })
+    }
+
+    pub async fn with_cache_backing(
+        handle: tokio::runtime::Handle,
+        endpoint: &ApiEndpoint,
+        backing: Arc<dyn AddressCacheBacking>,
+        #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
+    ) -> Self {
+        let address_cache =
+            AddressCache::from_backing_or(endpoint.host().to_owned(), backing, endpoint).await;
+        Runtime {
+            handle,
+            address_cache,
+            api_availability: ApiAvailability::default(),
+            endpoint: endpoint.clone(),
+            #[cfg(target_os = "android")]
+            socket_bypass_tx,
+        }
     }
 
     /// Returns a request factory initialized to create requests for the master API Assumes an API
