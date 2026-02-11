@@ -31,6 +31,7 @@ import net.mullvad.mullvadvpn.feature.addtime.impl.AddTimeViewModel
 import net.mullvad.mullvadvpn.feature.daita.impl.DaitaViewModel
 import net.mullvad.mullvadvpn.feature.problemreport.impl.ReportProblemViewModel
 import net.mullvad.mullvadvpn.feature.problemreport.impl.viewlogs.ViewLogsViewModel
+import net.mullvad.mullvadvpn.feature.redeemvoucher.impl.VoucherDialogViewModel
 import net.mullvad.mullvadvpn.feature.splittunneling.impl.SplitTunnelingViewModel
 import net.mullvad.mullvadvpn.feature.splittunneling.impl.applist.ApplicationsProvider
 import net.mullvad.mullvadvpn.filter.impl.FilterViewModel
@@ -106,7 +107,6 @@ import net.mullvad.mullvadvpn.viewmodel.OutOfTimeViewModel
 import net.mullvad.mullvadvpn.viewmodel.PrivacyDisclaimerViewModel
 import net.mullvad.mullvadvpn.viewmodel.SettingsViewModel
 import net.mullvad.mullvadvpn.viewmodel.SplashViewModel
-import net.mullvad.mullvadvpn.viewmodel.VoucherDialogViewModel
 import net.mullvad.mullvadvpn.viewmodel.VpnSettingsViewModel
 import net.mullvad.mullvadvpn.viewmodel.WelcomeViewModel
 import net.mullvad.mullvadvpn.viewmodel.location.LocationBottomSheetViewModel

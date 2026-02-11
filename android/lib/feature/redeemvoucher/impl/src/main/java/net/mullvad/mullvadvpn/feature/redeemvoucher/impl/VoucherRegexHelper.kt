@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.util
+package net.mullvad.mullvadvpn.feature.redeemvoucher.impl
 
 private const val VALID_VOUCHER_CHARACTER_REGEX_PATTERN = "^[A-Za-z0-9- \r\n]*$"
 private const val IGNORED_VOUCHER_CHARACTER_REGEX_PATTERN = """[- \n\r]"""

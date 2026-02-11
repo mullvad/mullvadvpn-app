@@ -1,10 +1,11 @@
-package net.mullvad.mullvadvpn.compose.util
+package net.mullvad.mullvadvpn.feature.redeemvoucher.impl
 
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
 import java.lang.Integer.min
+import net.mullvad.mullvadvpn.common.compose.ACCOUNT_NUMBER_CHUNK_SIZE
 
 const val VOUCHER_SEPARATOR = "-"
 const val VOUCHER_CHUNK_SIZE = 4

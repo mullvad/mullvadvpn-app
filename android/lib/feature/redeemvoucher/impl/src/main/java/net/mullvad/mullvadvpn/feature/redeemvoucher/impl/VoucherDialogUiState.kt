@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.compose.state
+package net.mullvad.mullvadvpn.feature.redeemvoucher.impl
 
 import net.mullvad.mullvadvpn.lib.model.RedeemVoucherError
 
