@@ -95,7 +95,7 @@ fn make_log_file_writer(
     // using a task.
     // On Android, the runtime is not running at this point, and will be restarted multiple times
     // during the application's lifecycle. Instead, we simply call `mem::forget` to never drop the guard.
-    // Note that this may lead to lost logs when the daemon process is terminated.
+    // Instead, one should call `OptionalMakeWriter::get_flusher`, to receive channel for manually flushing
     if cfg!(target_os = "android") {
         core::mem::forget(guard);
     } else {
