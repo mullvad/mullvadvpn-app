@@ -1,3 +1,3 @@
-package net.mullvad.mullvadvpn.compose.state
+package net.mullvad.mullvadvpn.feature.notification.impl
 
 data class NotificationSettingsUiState(val locationInNotificationEnabled: Boolean)
