@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.provider
+package net.mullvad.mullvadvpn.feature.problemreport.impl.provider
 
 import android.content.Context
 import android.content.Intent
@@ -7,7 +7,7 @@ import androidx.core.content.FileProvider
 import java.io.File
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
-import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.feature.problemreport.impl.R
 
 // https://developer.android.com/reference/androidx/core/content/FileProvider
 // From link: It is possible to use FileProvider directly instead of extending it. However, this is
@@ -32,7 +32,7 @@ fun Context.createShareLogFile(logContent: String): Uri {
 }
 
 fun Context.getLogsShareIntent(logContent: String): Intent {
-    val logsUri = this.createShareLogFile(logContent)
+    val logsUri = createShareLogFile(logContent)
 
     val sendIntent: Intent =
         Intent().apply {

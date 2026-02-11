@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.compose.screen
+package net.mullvad.mullvadvpn.feature.problemreport.impl.viewlogs
 
 import android.content.Context
 import androidx.compose.foundation.layout.ColumnScope
@@ -41,25 +41,23 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.launch
-import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.preview.ViewLogsUiStatePreviewParameterProvider
-import net.mullvad.mullvadvpn.compose.util.CopyToClipboardHandle
-import net.mullvad.mullvadvpn.compose.util.createCopyToClipboardHandle
+import net.mullvad.mullvadvpn.common.compose.CopyToClipboardHandle
+import net.mullvad.mullvadvpn.common.compose.createCopyToClipboardHandle
 import net.mullvad.mullvadvpn.core.animation.SlideInFromRightTransition
+import net.mullvad.mullvadvpn.feature.problemreport.impl.provider.getLogsShareIntent
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.ui.component.MullvadMediumTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorMedium
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadSnackbar
+import net.mullvad.mullvadvpn.lib.ui.resource.R
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaScrollbar
-import net.mullvad.mullvadvpn.provider.getLogsShareIntent
-import net.mullvad.mullvadvpn.viewmodel.ViewLogsUiState
-import net.mullvad.mullvadvpn.viewmodel.ViewLogsViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @Preview("Content|Loading")
@@ -71,7 +69,7 @@ private fun PreviewViewLogsScreen(
     AppTheme { ViewLogsScreen(state = state, onBackClick = {}) }
 }
 
-@Destination<MainGraph>(style = SlideInFromRightTransition::class)
+@Destination<ExternalModuleGraph>(style = SlideInFromRightTransition::class)
 @Composable
 fun ViewLogs(navigator: DestinationsNavigator) {
     val vm = koinViewModel<ViewLogsViewModel>()
