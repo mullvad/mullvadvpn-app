@@ -7,28 +7,58 @@
 //
 
 import Foundation
+import MullvadLogging
 
 @propertyWrapper
-public struct AppStorage<Value: Codable> {
+public struct PrimitiveStorage<Value: UserDefaultsPrimitive> {
     let key: String
     let defaultValue: Value
     let container: UserDefaults
 
     public var wrappedValue: Value {
         get {
-            guard
-                let data = container.data(forKey: key),
-                let value = try? JSONDecoder().decode(Value.self, from: data)
+            container.value(forKey: key) as? Value ?? defaultValue
+        }
+        set {
+            if let anyOptional = newValue as? AnyOptional,
+                anyOptional.isNil
+            {
+                container.removeObject(forKey: key)
+            } else {
+                container.set(newValue, forKey: key)
+            }
+        }
+    }
+
+    public init(wrappedValue: Value, key: String, container: UserDefaults) {
+        self.defaultValue = wrappedValue
+        self.container = container
+        self.key = key
+    }
+}
+
+@propertyWrapper
+public struct CompositeStorage<Value: Codable> {
+    let logger = Logger(label: "CompositeStorage")
+    private let key: String
+    private let defaultValue: Value
+    private let container: UserDefaults
+
+    public var wrappedValue: Value {
+        get {
+            guard let data = container.data(forKey: key),
+                let decoded = try? JSONDecoder().decode(Value.self, from: data)
             else {
                 return container.value(forKey: key) as? Value ?? defaultValue
             }
-            return value
+            return decoded
         }
         set {
-            if let data = try? JSONEncoder().encode(newValue) {
+            do {
+                let data = try JSONEncoder().encode(newValue)
                 container.set(data, forKey: key)
-            } else {
-                container.removeObject(forKey: key)
+            } catch {
+                logger.error("Failed to encode \(Value.self)")
             }
         }
     }
@@ -47,3 +77,12 @@ protocol AnyOptional {
 extension Optional: AnyOptional {
     var isNil: Bool { self == nil }
 }
+
+public protocol UserDefaultsPrimitive {}
+extension String: UserDefaultsPrimitive {}
+extension Int: UserDefaultsPrimitive {}
+extension Bool: UserDefaultsPrimitive {}
+extension Double: UserDefaultsPrimitive {}
+extension Data: UserDefaultsPrimitive {}
+extension Array: UserDefaultsPrimitive where Element: UserDefaultsPrimitive {}
+extension Dictionary: UserDefaultsPrimitive where Key == String, Value: UserDefaultsPrimitive {}
