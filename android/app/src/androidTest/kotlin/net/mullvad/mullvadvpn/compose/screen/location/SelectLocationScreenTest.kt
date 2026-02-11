@@ -265,7 +265,14 @@ class SelectLocationScreenTest {
                 MutableStateFlow(
                     Lce.Content(
                         SelectLocationListUiState(
-                            relayListItems = listOf(RelayListItem.RecentListItem(recent)),
+                            relayListItems =
+                                listOf(
+                                    RelayListItem.RecentListItem(
+                                        item = recent,
+                                        countryName = recent.name,
+                                        cityName = null,
+                                    )
+                                ),
                             customLists = DUMMY_RELAY_ITEM_CUSTOM_LISTS,
                             relayListType = RelayListType.Single,
                         )
