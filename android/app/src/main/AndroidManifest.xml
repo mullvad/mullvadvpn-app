@@ -260,7 +260,7 @@
                 <action android:name="android.service.quicksettings.action.QS_TILE" />
             </intent-filter>
         </service>
-        <provider android:name="net.mullvad.mullvadvpn.provider.MullvadFileProvider"
+        <provider android:name="net.mullvad.mullvadvpn.feature.problemreport.impl.provider.MullvadFileProvider"
                   android:authorities="${applicationId}.FileProvider"
                   android:exported="false"
                   android:grantUriPermissions="true">

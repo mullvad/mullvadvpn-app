@@ -32,6 +32,7 @@ class AndroidLibraryPlugin : Plugin<Project> {
                     abortOnError = true
                     warningsAsErrors = true
                 }
+                buildFeatures { buildConfig = true }
             }
             extensions.configure<KotlinAndroidProjectExtension> {
                 compilerOptions {

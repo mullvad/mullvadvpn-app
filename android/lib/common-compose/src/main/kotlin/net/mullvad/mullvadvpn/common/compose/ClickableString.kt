@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.compose.util
+package net.mullvad.mullvadvpn.common.compose
 
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.LinkInteractionListener
