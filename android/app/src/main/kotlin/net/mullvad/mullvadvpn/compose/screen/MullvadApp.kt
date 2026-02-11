@@ -34,6 +34,12 @@ import com.ramcosta.composedestinations.generated.apiaccess.destinations.SaveApi
 import com.ramcosta.composedestinations.generated.appearance.destinations.AppearanceDestination
 import com.ramcosta.composedestinations.generated.appinfo.destinations.AppInfoDestination
 import com.ramcosta.composedestinations.generated.appinfo.destinations.ChangelogDestination
+import com.ramcosta.composedestinations.generated.customlist.destinations.CreateCustomListDestination
+import com.ramcosta.composedestinations.generated.customlist.destinations.CustomListLocationsDestination
+import com.ramcosta.composedestinations.generated.customlist.destinations.CustomListsDestination
+import com.ramcosta.composedestinations.generated.customlist.destinations.DeleteCustomListDestination
+import com.ramcosta.composedestinations.generated.customlist.destinations.DiscardChangesDestination
+import com.ramcosta.composedestinations.generated.customlist.destinations.EditCustomListDestination
 import com.ramcosta.composedestinations.generated.daita.destinations.DaitaDestination
 import com.ramcosta.composedestinations.generated.daita.destinations.DaitaDirectOnlyConfirmationDestination
 import com.ramcosta.composedestinations.generated.daita.destinations.DaitaDirectOnlyInfoDestination
@@ -68,13 +74,19 @@ annotation class MainGraph {
     @ExternalDestination<AppInfoDestination>
     @ExternalDestination<AppearanceDestination>
     @ExternalDestination<ChangelogDestination>
+    @ExternalDestination<CreateCustomListDestination>
+    @ExternalDestination<CustomListLocationsDestination>
+    @ExternalDestination<CustomListsDestination>
     @ExternalDestination<CustomPortDestination>
     @ExternalDestination<DaitaDestination>
     @ExternalDestination<DaitaDirectOnlyConfirmationDestination>
     @ExternalDestination<DaitaDirectOnlyInfoDestination>
     @ExternalDestination<DeleteApiAccessMethodConfirmationDestination>
+    @ExternalDestination<DeleteCustomListDestination>
     @ExternalDestination<DiscardApiAccessChangesDestination>
+    @ExternalDestination<DiscardChangesDestination>
     @ExternalDestination<EditApiAccessMethodDestination>
+    @ExternalDestination<EditCustomListDestination>
     @ExternalDestination<EncryptedDnsProxyInfoDestination>
     @ExternalDestination<FilterDestination>
     @ExternalDestination<ImportOverridesByTextDestination>

@@ -1,0 +1,227 @@
+package net.mullvad.mullvadvpn.customlist.impl.screen.editlist
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material.icons.rounded.MoreVert
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.compose.dropUnlessResumed
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
+import com.ramcosta.composedestinations.generated.customlist.destinations.CustomListLocationsDestination
+import com.ramcosta.composedestinations.generated.customlist.destinations.DeleteCustomListDestination
+import com.ramcosta.composedestinations.generated.customlist.destinations.EditCustomListNameDestination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import com.ramcosta.composedestinations.result.NavResult
+import com.ramcosta.composedestinations.result.ResultBackNavigator
+import com.ramcosta.composedestinations.result.ResultRecipient
+import net.mullvad.mullvadvpn.common.compose.dropUnlessResumed
+import net.mullvad.mullvadvpn.core.animation.SlideInFromRightTransition
+import net.mullvad.mullvadvpn.lib.model.CustomListId
+import net.mullvad.mullvadvpn.lib.model.CustomListName
+import net.mullvad.mullvadvpn.lib.model.communication.CustomListActionResultData
+import net.mullvad.mullvadvpn.lib.ui.component.NavigateBackIconButton
+import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithMediumTopBar
+import net.mullvad.mullvadvpn.lib.ui.component.listitem.EditCustomListListItem
+import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
+import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
+import net.mullvad.mullvadvpn.lib.ui.resource.R
+import net.mullvad.mullvadvpn.lib.ui.tag.DELETE_DROPDOWN_MENU_ITEM_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.TOP_BAR_DROPDOWN_BUTTON_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
+import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
+import net.mullvad.mullvadvpn.lib.ui.theme.color.menuItemColors
+import org.koin.androidx.compose.koinViewModel
+
+@Preview("Content|Loading|NotFound")
+@Composable
+private fun PreviewEditCustomListScreen(
+    @PreviewParameter(EditCustomListUiStatePreviewParameterProvider::class)
+    state: EditCustomListUiState
+) {
+    AppTheme {
+        EditCustomListScreen(
+            state = state,
+            onDeleteList = { _, _ -> },
+            onNameClicked = { _, _ -> },
+            onLocationsClicked = {},
+            onBackClick = {},
+        )
+    }
+}
+
+data class EditCustomListNavArgs(val customListId: CustomListId)
+
+@Composable
+@Destination<ExternalModuleGraph>(
+    style = SlideInFromRightTransition::class,
+    navArgs = EditCustomListNavArgs::class,
+)
+fun EditCustomList(
+    navigator: DestinationsNavigator,
+    backNavigator: ResultBackNavigator<CustomListActionResultData.Success.Deleted>,
+    confirmDeleteListResultRecipient:
+        ResultRecipient<DeleteCustomListDestination, CustomListActionResultData.Success.Deleted>,
+) {
+    val viewModel = koinViewModel<EditCustomListViewModel>()
+
+    confirmDeleteListResultRecipient.onNavResult {
+        when (it) {
+            NavResult.Canceled -> {
+                // Do nothing
+            }
+            is NavResult.Value -> backNavigator.navigateBack(result = it.value)
+        }
+    }
+
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
+
+    EditCustomListScreen(
+        state = state,
+        onDeleteList =
+            dropUnlessResumed { id, name ->
+                navigator.navigate(DeleteCustomListDestination(customListId = id, name = name))
+            },
+        onNameClicked =
+            dropUnlessResumed { id, name ->
+                navigator.navigate(
+                    EditCustomListNameDestination(customListId = id, initialName = name)
+                )
+            },
+        onLocationsClicked =
+            dropUnlessResumed { id ->
+                navigator.navigate(
+                    CustomListLocationsDestination(customListId = id, newList = false)
+                )
+            },
+        onBackClick = dropUnlessResumed { backNavigator.navigateBack() },
+    )
+}
+
+@Composable
+fun EditCustomListScreen(
+    state: EditCustomListUiState,
+    onDeleteList: (id: CustomListId, name: CustomListName) -> Unit,
+    onNameClicked: (id: CustomListId, name: CustomListName) -> Unit,
+    onLocationsClicked: (CustomListId) -> Unit,
+    onBackClick: () -> Unit,
+) {
+    ScaffoldWithMediumTopBar(
+        appBarTitle = stringResource(id = R.string.edit_list),
+        navigationIcon = { NavigateBackIconButton(onNavigateBack = onBackClick) },
+        actions = {
+            val content = state as? EditCustomListUiState.Content
+            Actions(
+                enabled = content?.name != null,
+                onDeleteList = {
+                    if (content is EditCustomListUiState.Content) {
+                        onDeleteList(content.id, content.name)
+                    }
+                },
+            )
+        },
+    ) { modifier: Modifier ->
+        Column(
+            modifier = modifier,
+            verticalArrangement = Arrangement.spacedBy(Dimens.listItemDivider),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            when (state) {
+                EditCustomListUiState.Loading -> {
+                    MullvadCircularProgressIndicatorLarge()
+                }
+                EditCustomListUiState.NotFound -> {
+                    Text(
+                        text = stringResource(id = R.string.not_found),
+                        modifier = Modifier.padding(Dimens.sideMargin),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                is EditCustomListUiState.Content -> {
+                    // Name cell
+                    EditCustomListListItem(
+                        title = stringResource(id = R.string.list_name),
+                        subtitle = state.name.value,
+                        position = Position.Top,
+                        onClick = { onNameClicked(state.id, state.name) },
+                    )
+                    // Locations cell
+                    EditCustomListListItem(
+                        title = stringResource(id = R.string.locations),
+                        subtitle =
+                            pluralStringResource(
+                                id = R.plurals.number_of_locations,
+                                state.locations.size,
+                                state.locations.size,
+                            ),
+                        position = Position.Bottom,
+                        onClick = { onLocationsClicked(state.id) },
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun Actions(enabled: Boolean, onDeleteList: () -> Unit) {
+    var showMenu by remember { mutableStateOf(false) }
+    IconButton(
+        onClick = { showMenu = true },
+        modifier = Modifier.testTag(TOP_BAR_DROPDOWN_BUTTON_TEST_TAG),
+    ) {
+        Icon(imageVector = Icons.Rounded.MoreVert, contentDescription = null)
+        if (showMenu) {
+            DropdownMenu(
+                expanded = true,
+                onDismissRequest = { showMenu = false },
+                modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainer),
+            ) {
+                DropdownMenuItem(
+                    text = {
+                        Text(
+                            text = stringResource(id = R.string.delete_list),
+                            style = MaterialTheme.typography.bodyLarge,
+                        )
+                    },
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Rounded.Delete,
+                            tint = MaterialTheme.colorScheme.onSurface,
+                            contentDescription = null,
+                        )
+                    },
+                    colors = menuItemColors,
+                    onClick = {
+                        onDeleteList()
+                        showMenu = false
+                    },
+                    enabled = enabled,
+                    modifier = Modifier.testTag(DELETE_DROPDOWN_MENU_ITEM_TEST_TAG),
+                )
+            }
+        }
+    }
+}
