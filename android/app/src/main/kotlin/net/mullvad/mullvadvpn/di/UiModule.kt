@@ -19,18 +19,19 @@ import net.mullvad.mullvadvpn.appinfo.impl.changelog.ChangelogViewModel
 import net.mullvad.mullvadvpn.compose.screen.location.LocationBottomSheetState
 import net.mullvad.mullvadvpn.compose.screen.location.RelayListScrollConnection
 import net.mullvad.mullvadvpn.compose.util.BackstackObserver
-import net.mullvad.mullvadvpn.constant.IS_FDROID_BUILD
-import net.mullvad.mullvadvpn.constant.IS_PLAY_BUILD
 import net.mullvad.mullvadvpn.customlist.impl.screen.create.CreateCustomListDialogViewModel
 import net.mullvad.mullvadvpn.customlist.impl.screen.delete.DeleteCustomListConfirmationViewModel
 import net.mullvad.mullvadvpn.customlist.impl.screen.editlist.EditCustomListViewModel
 import net.mullvad.mullvadvpn.customlist.impl.screen.editlocations.CustomListLocationsViewModel
 import net.mullvad.mullvadvpn.customlist.impl.screen.editname.EditCustomListNameDialogViewModel
 import net.mullvad.mullvadvpn.customlist.impl.screen.lists.CustomListsViewModel
+import net.mullvad.mullvadvpn.feature.autoconnect.impl.AutoConnectAndLockdownModeViewModel
 import net.mullvad.mullvadvpn.feature.daita.impl.DaitaViewModel
 import net.mullvad.mullvadvpn.feature.splittunneling.impl.SplitTunnelingViewModel
 import net.mullvad.mullvadvpn.feature.splittunneling.impl.applist.ApplicationsProvider
 import net.mullvad.mullvadvpn.filter.impl.FilterViewModel
+import net.mullvad.mullvadvpn.lib.common.constant.BillingTypes
+import net.mullvad.mullvadvpn.lib.common.constant.BuildTypes
 import net.mullvad.mullvadvpn.lib.model.RelayListType
 import net.mullvad.mullvadvpn.lib.payment.PaymentProvider
 import net.mullvad.mullvadvpn.lib.repository.ApiAccessRepository
@@ -404,6 +405,7 @@ val uiModule = module {
         )
     }
     viewModel { AppearanceViewModel(get()) }
+    viewModel { AutoConnectAndLockdownModeViewModel(isPlayBuild = IS_PLAY_BUILD) }
 
     single { BackstackObserver() }
 
@@ -411,7 +413,10 @@ val uiModule = module {
     single { MullvadAppViewModel(get(), get(), get()) }
 }
 
-const val SELF_PACKAGE_NAME = "SELF_PACKAGE_NAME"
 const val APP_PREFERENCES_NAME = "${BuildConfig.APPLICATION_ID}.app_preferences"
-const val BOOT_COMPLETED_RECEIVER_COMPONENT_NAME = "BOOT_COMPLETED_RECEIVER_COMPONENT_NAME"
+const val SELF_PACKAGE_NAME = "SELF_PACKAGE_NAME"
 const val KERMIT_FILE_LOG_DIR_NAME = "android_app_logs"
+
+private const val BOOT_COMPLETED_RECEIVER_COMPONENT_NAME = "BOOT_COMPLETED_RECEIVER_COMPONENT_NAME"
+private val IS_FDROID_BUILD = BuildConfig.BUILD_TYPE == BuildTypes.FDROID
+private val IS_PLAY_BUILD = BuildConfig.FLAVOR_billing == BillingTypes.PLAY
