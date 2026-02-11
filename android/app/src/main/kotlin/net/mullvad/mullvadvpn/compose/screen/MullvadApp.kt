@@ -51,6 +51,7 @@ import com.ramcosta.composedestinations.generated.multihop.destinations.Multihop
 import com.ramcosta.composedestinations.generated.problemreport.destinations.ReportProblemDestination
 import com.ramcosta.composedestinations.generated.problemreport.destinations.ReportProblemNoEmailDestination
 import com.ramcosta.composedestinations.generated.problemreport.destinations.ViewLogsDestination
+import com.ramcosta.composedestinations.generated.redeemvoucher.destinations.RedeemVoucherDestination
 import com.ramcosta.composedestinations.generated.serveripoverride.destinations.ImportOverridesByTextDestination
 import com.ramcosta.composedestinations.generated.serveripoverride.destinations.ResetServerIpOverridesConfirmationDestination
 import com.ramcosta.composedestinations.generated.serveripoverride.destinations.ServerIpOverridesDestination
@@ -97,6 +98,7 @@ annotation class MainGraph {
     @ExternalDestination<FilterDestination>
     @ExternalDestination<ImportOverridesByTextDestination>
     @ExternalDestination<MultihopDestination>
+    @ExternalDestination<RedeemVoucherDestination>
     @ExternalDestination<ReportProblemDestination>
     @ExternalDestination<ReportProblemNoEmailDestination>
     @ExternalDestination<ResetServerIpOverridesConfirmationDestination>

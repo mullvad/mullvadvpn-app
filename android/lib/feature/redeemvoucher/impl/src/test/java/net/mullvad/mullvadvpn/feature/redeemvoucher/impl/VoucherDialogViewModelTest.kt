@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.viewmodel
+package net.mullvad.mullvadvpn.feature.redeemvoucher.impl
 
 import app.cash.turbine.test
 import arrow.core.left
@@ -11,7 +11,6 @@ import io.mockk.unmockkAll
 import java.time.ZonedDateTime
 import kotlin.test.assertIs
 import kotlinx.coroutines.test.runTest
-import net.mullvad.mullvadvpn.compose.state.VoucherDialogState
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.model.RedeemVoucherError
 import net.mullvad.mullvadvpn.lib.model.RedeemVoucherSuccess
