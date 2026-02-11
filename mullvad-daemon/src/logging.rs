@@ -166,7 +166,18 @@ pub fn init_logger(
             let file_appender =
                 tracing_appender::rolling::never(&log_location.directory, &log_location.filename);
             let (appender, guard) = non_blocking(file_appender);
-            (Some(Arc::new(guard)), OptionalMakeWriter(Some(appender)))
+            let guard = Arc::new(guard);
+
+            // TODO: update doc
+            // Spawn a task to keep file logger guard alive for the duration of the program. When the tokio
+            // executor shuts down, its drop function will be called to flush any remaining logs to file.
+            // Note that calling e.g. `std::process::exit` will prevent this and might result in lost logs.
+            let tokio_guard = guard.clone();
+            tokio::spawn(async {
+                std::future::pending::<()>().await;
+                drop(tokio_guard);
+            });
+            (Some(guard), OptionalMakeWriter(Some(appender)))
         } else {
             (None, OptionalMakeWriter(None))
         };

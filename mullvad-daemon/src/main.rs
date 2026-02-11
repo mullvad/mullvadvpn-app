@@ -35,7 +35,8 @@ fn main() {
         }
     };
 
-    log::debug!("Process exiting with code {}", exit_code);
+    log::debug!("Process exiting with code {exit_code}");
+    runtime.shutdown_timeout(Duration::from_millis(100));
     std::process::exit(exit_code);
 }
 
@@ -69,7 +70,7 @@ async fn run() -> Result<(), String> {
 
         #[cfg(target_os = "linux")]
         cli::Command::InitializeEarlyBootFirewall => {
-            let _reload_handle = init_early_boot_logging(config);
+            init_early_boot_logging(config);
 
             crate::early_boot_firewall::initialize_firewall()
                 .await
