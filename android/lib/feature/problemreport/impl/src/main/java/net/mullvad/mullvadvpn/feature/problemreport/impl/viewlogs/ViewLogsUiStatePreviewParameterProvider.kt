@@ -1,8 +1,7 @@
-package net.mullvad.mullvadvpn.compose.preview
+package net.mullvad.mullvadvpn.feature.problemreport.impl.viewlogs
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import net.mullvad.mullvadvpn.lib.common.Lc
-import net.mullvad.mullvadvpn.viewmodel.ViewLogsUiState
 
 private const val SIZE = 50
 
