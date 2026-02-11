@@ -58,6 +58,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
     private let relaySelectorWrapper: RelaySelectorWrapper
 
     private var outOfTimeTimer: Timer?
+    private var tunnelDidConnect: (() -> Void)?
 
     var rootViewController: UIViewController {
         navigationContainer
@@ -826,6 +827,10 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
         let tunnelObserver =
             TunnelBlockObserver(
                 didUpdateTunnelStatus: { [weak self] _, tunnelStatus in
+                    if case .connected = tunnelStatus.state {
+                        self?.tunnelDidConnect?()
+                    }
+
                     if case let .error(observedState) = tunnelStatus.observedState,
                         observedState.reason == .accountExpired
                     {
@@ -882,6 +887,98 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
             deviceState: deviceState
         )
         self.navigationContainer.update(configuration: rootDeviceInfoViewModel.configuration)
+    }
+
+    private func handleNewAppVersionInAppNotification() {
+        let navigateToAppStore: @Sendable () -> Void = {
+            DispatchQueue.main.async {
+                let appStoreLink = URL(string: "itms-apps://itunes.apple.com/app/id1488466513")!
+                if UIApplication.shared.canOpenURL(appStoreLink) {
+                    UIApplication.shared.open(appStoreLink, options: [:], completionHandler: nil)
+                }
+            }
+        }
+
+        // If IAN is disabled, skip the alert and go directly to AppStore.
+        guard tunnelManager.settings.includeAllNetworks.includeAllNetworksIsEnabled else {
+            navigateToAppStore()
+            return
+        }
+
+        let message = [
+            NSLocalizedString(
+                String(
+                    format:
+                        "“%@“ is enabled, please disable it before updating or you will lose network connectivity. "
+                        + "This will briefly expose your traffic as you reconnect to the VPN.",
+                    "Force all apps"
+                ),
+                comment: ""
+            ),
+            NSLocalizedString(
+                String(
+                    format: "After updating, you will have to enable “%@” manually again.",
+                    "Force all apps"
+                ),
+                comment: ""
+            ),
+            NSLocalizedString(
+                String(
+                    format: "If you do not wish to disable “%@“, you can disconnect from the VPN instead.",
+                    "Force all apps"
+                ),
+                comment: ""
+            ),
+        ].joinedParagraphs(lineBreaks: 1)
+
+        let presentation = AlertPresentation(
+            id: "new-app-version-in-app-notification",
+            icon: .info,
+            message: message,
+            buttons: [
+                AlertAction(
+                    title: NSLocalizedString(
+                        String(format: "Disable “%@”", "Force all apps"),
+                        comment: ""
+                    ),
+                    style: .default,
+                    interactiveHandler: { [weak self] alertViewController, button in
+                        guard let self else { return }
+
+                        // Show loading spinner on button and then navigate to AppStore
+                        // when tunnel has reconnected.
+                        button.setLoading(true)
+
+                        tunnelDidConnect = { [weak self] in
+                            self?.tunnelDidConnect = nil
+
+                            DispatchQueue.main.async {
+                                alertViewController.onDismiss?()
+                                navigateToAppStore()
+                            }
+                        }
+
+                        // Turn off IAN and trigger a tunnel reconnection.
+                        let newIncludeAllNetworksSettings = IncludeAllNetworksSettings(
+                            includeAllNetworksState: .off,
+                            localNetworkSharingState: tunnelManager.settings.includeAllNetworks.localNetworkSharingState
+                        )
+                        tunnelManager.updateSettings([.includeAllNetworks(newIncludeAllNetworksSettings)])
+                    }
+                ),
+                AlertAction(
+                    title: NSLocalizedString("Cancel", comment: ""),
+                    style: .default,
+                    handler: { [weak self] in
+                        // Clear the callback so that no navigation to AppStore i triggered when
+                        // tunnel has reconnected.
+                        self?.tunnelDidConnect = nil
+                    }
+                ),
+            ]
+        )
+
+        AlertPresenter(context: self).showAlert(presentation: presentation, animated: true)
     }
 
     // MARK: - Out of time
@@ -1033,7 +1130,9 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
         case .accountExpirySystemNotification:
             router.present(.account)
         case .newAppVersionSystemNotification:
-            router.present(.settings(.vpnSettings))
+            router.present(.includeAllNetworks)
+        case .newAppVersionInAppNotification:
+            handleNewAppVersionInAppNotification()
         case .accountExpiryInAppNotification:
             isPresentingAccountExpiryBanner = false
             updateDeviceInfo(deviceState: tunnelManager.deviceState)

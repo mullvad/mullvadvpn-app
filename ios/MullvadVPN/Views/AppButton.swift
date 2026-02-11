@@ -10,6 +10,8 @@ import UIKit
 
 /// A subclass that implements action buttons used across the app
 class AppButton: CustomButton {
+    private let spinnerView = SpinnerActivityIndicatorView(style: .medium)
+
     /// Default content insets based on current trait collection.
     var defaultContentInsets: NSDirectionalEdgeInsets {
         switch traitCollection.userInterfaceIdiom {
@@ -101,6 +103,23 @@ class AppButton: CustomButton {
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    func setLoading(_ loading: Bool) {
+        if loading {
+            if !subviews.contains(spinnerView) {
+                addConstrainedSubviews([spinnerView]) {
+                    spinnerView.pinEdgesToSuperview(.init([.top(0), .bottom(0)]))
+                    spinnerView.centerXAnchor.constraint(equalTo: centerXAnchor)
+                }
+            }
+
+            spinnerView.startAnimating()
+            isEnabled = false
+        } else {
+            spinnerView.removeFromSuperview()
+            isEnabled = true
+        }
     }
 
     private func commonInit() {
