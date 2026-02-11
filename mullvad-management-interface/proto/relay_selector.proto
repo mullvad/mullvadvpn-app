@@ -17,51 +17,56 @@ service RelaySelectorService {
   // constraints one/a pair of these relays will be selected at random.
   // Also returns a list of non-matching relays along with the set of
   // constraints/conditions that made them unavailable.
-  rpc GetMatchingRelays(Selection) returns (FilteredRelays);
+  rpc GetMatchingRelays(Query) returns (FilteredRelays);
 }
 
-message Selection {
-  oneof selection_context {
-    // Give me a relay list for regular single scenario
-    EntryRelayConstraints single_relay_constraints = 1;
-    // Give me a relay list for when DAITA direct only is disabled
-    GeneralConstraints smart_hop_relay_constraints = 2;
-    // Give me a list entry relays when multihop is enabled
-    MultiHopConstraints entry_constraints = 3;
-    // Give me a list exit relays when multihop is enabled
-    MultiHopConstraints exit_constraints = 4;
+// Query for selecting relays.
+//
+// This message is used to specify the constraints that should be applied
+// when selecting relays, along with a context that may affect the selection
+// behavior.
+message Query {
+  oneof query_context {
+    // Get matching relays for singlehop.
+    EntryConstraints single_relay = 1;
+    // Get matching relays for singlehop, or the exit relays for multihop
+    // if necessary to resolve the constraints.
+    EntryConstraints autohop = 2;
+    // Get matching entry relays for multihop.
+    MultiHopConstraints entry = 3;
+    // Get matching exit relays for multihop.
+    MultiHopConstraints exit = 4;
   }
 }
 
-// Constraints that apply when selecting any relay
-message GeneralConstraints {
+// Constraints that apply to the second hop in a multihop setup.
+// This is a subset of `EntryConstraints`.
+message ExitConstraints {
   management_interface.LocationConstraint location = 1;
   repeated string providers = 2;
   management_interface.Ownership ownership = 3;
 }
 
-// Constraints that are only applicable to entry relays
-message EntrySpecificConstraints {
-  management_interface.ObfuscationSettings obfuscation_settings = 1;
-  management_interface.DaitaSettings daita_settings = 2;
-  optional management_interface.IpVersion ip_version = 3;
+// Constraints that apply to relays for singlehop or the first hop
+// in a multihop connection.
+//
+// These include all the of `ExitConstraints`, and a few entry
+// specific features.
+message EntryConstraints {
+  ExitConstraints general_constraints = 1;
+  management_interface.ObfuscationSettings obfuscation_settings = 2;
+  management_interface.DaitaSettings daita_settings = 3;
+  management_interface.IpVersion ip_version = 4;
 }
 
-// Constraints that apply when selecting an entry relay.
-// I.e. the first point of contact between a client and an exit.
-message EntryRelayConstraints {
-  GeneralConstraints general_constraints = 1;
-  EntrySpecificConstraints extra_constraints = 2;
-}
-
-// Constraints for both hops in a multihop connection
+// Constraints for both hops in a multihop connection.
 message MultiHopConstraints {
-  EntryRelayConstraints entry = 1;
-  GeneralConstraints exit = 2;
+  EntryConstraints entry = 1;
+  ExitConstraints exit = 2;
 }
 
 // The result of a relay selection query, contains the list of relays matching
-// a query and the list of relays that were discarded when evaluating a query
+// a query and the list of relays that were discarded when evaluating a query.
 message FilteredRelays {
   // List of relays matching a query
   repeated Hostname matches = 1;
