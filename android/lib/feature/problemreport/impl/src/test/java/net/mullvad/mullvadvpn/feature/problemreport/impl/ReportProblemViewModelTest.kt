@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.viewmodel
+package net.mullvad.mullvadvpn.feature.problemreport.impl
 
 import androidx.lifecycle.viewModelScope
 import app.cash.turbine.test

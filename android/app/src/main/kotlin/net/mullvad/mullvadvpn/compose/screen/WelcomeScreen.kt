@@ -55,6 +55,7 @@ import com.ramcosta.composedestinations.generated.destinations.VerificationPendi
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
+import net.mullvad.mullvadvpn.common.compose.createCopyToClipboardHandle
 import net.mullvad.mullvadvpn.common.compose.createOpenAccountPageHook
 import net.mullvad.mullvadvpn.common.compose.showSnackbarImmediately
 import net.mullvad.mullvadvpn.compose.bottomsheet.addtime.AddTimeBottomSheet
@@ -62,7 +63,6 @@ import net.mullvad.mullvadvpn.compose.component.CopyAnimatedIconButton
 import net.mullvad.mullvadvpn.compose.preview.WelcomeScreenUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.WelcomeUiState
 import net.mullvad.mullvadvpn.compose.transitions.HomeTransition
-import net.mullvad.mullvadvpn.compose.util.createCopyToClipboardHandle
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.util.groupWithSpaces
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithTopBar

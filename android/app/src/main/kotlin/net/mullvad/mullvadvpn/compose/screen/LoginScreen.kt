@@ -76,6 +76,7 @@ import com.ramcosta.composedestinations.result.ResultRecipient
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
+import net.mullvad.mullvadvpn.common.compose.clickableAnnotatedString
 import net.mullvad.mullvadvpn.common.compose.dropUnlessResumed
 import net.mullvad.mullvadvpn.common.compose.showSnackbarImmediately
 import net.mullvad.mullvadvpn.compose.dialog.info.ApiUnreachableInfoDialogNavArgs
@@ -92,7 +93,6 @@ import net.mullvad.mullvadvpn.compose.transitions.LoginTransition
 import net.mullvad.mullvadvpn.compose.util.OnNavResultValue
 import net.mullvad.mullvadvpn.compose.util.accountNumberKeyboardType
 import net.mullvad.mullvadvpn.compose.util.accountNumberVisualTransformation
-import net.mullvad.mullvadvpn.compose.util.clickableAnnotatedString
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.dialog.Confirmed
 import net.mullvad.mullvadvpn.lib.ui.component.textfield.mullvadWhiteTextFieldColors

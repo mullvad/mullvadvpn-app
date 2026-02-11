@@ -26,12 +26,12 @@ import net.mullvad.mullvadvpn.compose.screen.MainGraph
 import net.mullvad.mullvadvpn.compose.state.ApiUnreachableUiState
 import net.mullvad.mullvadvpn.compose.util.EmailData
 import net.mullvad.mullvadvpn.compose.util.SendEmail
+import net.mullvad.mullvadvpn.feature.problemreport.impl.provider.createShareLogFile
 import net.mullvad.mullvadvpn.lib.ui.component.dialog.InfoDialog
 import net.mullvad.mullvadvpn.lib.ui.component.textfield.ErrorSupportingText
 import net.mullvad.mullvadvpn.lib.ui.designsystem.PrimaryButton
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
-import net.mullvad.mullvadvpn.provider.createShareLogFile
 import net.mullvad.mullvadvpn.viewmodel.ApiUnreachableSideEffect
 import net.mullvad.mullvadvpn.viewmodel.ApiUnreachableViewModel
 import org.koin.androidx.compose.koinViewModel

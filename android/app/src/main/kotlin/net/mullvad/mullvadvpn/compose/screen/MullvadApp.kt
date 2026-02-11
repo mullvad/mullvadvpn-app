@@ -46,6 +46,9 @@ import com.ramcosta.composedestinations.generated.daita.destinations.DaitaDirect
 import com.ramcosta.composedestinations.generated.destinations.NoDaemonDestination
 import com.ramcosta.composedestinations.generated.filter.destinations.FilterDestination
 import com.ramcosta.composedestinations.generated.multihop.destinations.MultihopDestination
+import com.ramcosta.composedestinations.generated.problemreport.destinations.ReportProblemDestination
+import com.ramcosta.composedestinations.generated.problemreport.destinations.ReportProblemNoEmailDestination
+import com.ramcosta.composedestinations.generated.problemreport.destinations.ViewLogsDestination
 import com.ramcosta.composedestinations.generated.serveripoverride.destinations.ImportOverridesByTextDestination
 import com.ramcosta.composedestinations.generated.serveripoverride.destinations.ResetServerIpOverridesConfirmationDestination
 import com.ramcosta.composedestinations.generated.serveripoverride.destinations.ServerIpOverridesDestination
@@ -55,8 +58,8 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.navigation.dependency
 import com.ramcosta.composedestinations.rememberNavHostEngine
 import com.ramcosta.composedestinations.utils.rememberDestinationsNavigator
+import net.mullvad.mullvadvpn.common.compose.accessibilityDataSensitive
 import net.mullvad.mullvadvpn.compose.util.BackstackObserver
-import net.mullvad.mullvadvpn.compose.util.accessibilityDataSensitive
 import net.mullvad.mullvadvpn.viewmodel.DaemonScreenEvent
 import net.mullvad.mullvadvpn.viewmodel.MullvadAppViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -91,12 +94,15 @@ annotation class MainGraph {
     @ExternalDestination<FilterDestination>
     @ExternalDestination<ImportOverridesByTextDestination>
     @ExternalDestination<MultihopDestination>
+    @ExternalDestination<ReportProblemDestination>
+    @ExternalDestination<ReportProblemNoEmailDestination>
     @ExternalDestination<ResetServerIpOverridesConfirmationDestination>
     @ExternalDestination<SaveApiAccessMethodDestination>
     @ExternalDestination<SelectPortDestination>
     @ExternalDestination<ServerIpOverridesDestination>
     @ExternalDestination<ServerIpOverridesInfoDestination>
     @ExternalDestination<SplitTunnelingDestination>
+    @ExternalDestination<ViewLogsDestination>
     companion object Includes
 }
 
