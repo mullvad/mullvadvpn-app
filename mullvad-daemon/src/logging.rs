@@ -36,14 +36,15 @@ impl LogFileWriter {
     /// Creates a [`MakeWriter`] that writes logs to the given file.
     ///
     /// If a valid path is passed, the logs are rotated and a writer for the
-    /// new file are returned.
+    /// new file are returned. If `None` is passed, the writer will be a noop.
     ///
     /// The writer will flush remaining logs when the tokio runtime is shut down.
     /// NOTE: calling e.g. `std::process::exit` will prevent flushing and might
-    /// result in lost logs. It is also possible to attach a flusher channel to
-    /// flush at any given time.
+    /// result in lost logs.
     ///
-    /// If `None` is passed, the writer will be a noop.
+    /// On Android, the logs will not flush automatically on shutdown, instead
+    /// one should call `LogFileWriter::get_flusher` to receive channel for
+    /// manually flushing.
     fn new(log_location: Option<LogLocation>) -> Result<Self, Error> {
         // Disable logging if log_location is None
         let Some(log_location) = log_location else {
@@ -62,7 +63,7 @@ impl LogFileWriter {
         // using a task.
         // On Android, the runtime is not running at this point, and will be restarted multiple times
         // during the application's lifecycle. Instead, we simply call `mem::forget` to never drop the guard.
-        // Instead, one should call `OptionalMakeWriter::get_flusher`, to receive channel for manually flushing
+        // Instead, one should call `LogFileWriter::get_flusher`, to receive channel for manually flushing
         if cfg!(target_os = "android") {
             core::mem::forget(guard);
         } else {
