@@ -5,6 +5,7 @@ import { messages } from '../../../../../../../../shared/gettext';
 import { LocationListItem } from '../../../../../../location-list-item';
 import type { LocationListItemIconButtonProps } from '../../../../../../location-list-item/components';
 import type { CustomListLocation } from '../../../../select-location-types';
+import { useCustomListLocationListItemContext } from '../../../custom-list-location-list-item/CustomListLocationListItemContext';
 import { EditListDialog } from '../../../edit-list-dialog';
 
 export type EditCustomListButtonProps = LocationListItemIconButtonProps & {
@@ -13,8 +14,9 @@ export type EditCustomListButtonProps = LocationListItemIconButtonProps & {
 
 export function EditCustomListButton({ customList, ...props }: EditCustomListButtonProps) {
   const [open, setOpen] = React.useState(false);
+  const { loading } = useCustomListLocationListItemContext();
 
-  const handleOnClick = React.useCallback(() => {
+  const handleOpenDialog = React.useCallback(() => {
     setOpen(true);
   }, []);
 
@@ -22,8 +24,9 @@ export function EditCustomListButton({ customList, ...props }: EditCustomListBut
     <>
       <LocationListItem.HeaderTrailingAction>
         <LocationListItem.IconButton
-          onClick={handleOnClick}
+          onClick={handleOpenDialog}
           variant="secondary"
+          disabled={loading}
           aria-label={sprintf(
             // TRANSLATORS: Accessibility label for button to edit a custom list.
             // TRANSLATORS: The placeholder is replaced with the name of the custom list.
