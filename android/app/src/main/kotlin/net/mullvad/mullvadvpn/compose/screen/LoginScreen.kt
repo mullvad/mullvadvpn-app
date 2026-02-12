@@ -69,8 +69,8 @@ import com.ramcosta.composedestinations.generated.destinations.ConnectDestinatio
 import com.ramcosta.composedestinations.generated.destinations.CreateAccountConfirmationDestination
 import com.ramcosta.composedestinations.generated.destinations.DeviceListDestination
 import com.ramcosta.composedestinations.generated.destinations.OutOfTimeDestination
-import com.ramcosta.composedestinations.generated.destinations.SettingsDestination
 import com.ramcosta.composedestinations.generated.destinations.WelcomeDestination
+import com.ramcosta.composedestinations.generated.settings.destinations.SettingsDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
 import kotlinx.coroutines.launch

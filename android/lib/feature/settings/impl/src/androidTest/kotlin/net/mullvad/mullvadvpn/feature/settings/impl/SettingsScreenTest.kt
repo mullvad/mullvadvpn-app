@@ -1,11 +1,10 @@
-package net.mullvad.mullvadvpn.compose.screen
+package net.mullvad.mullvadvpn.feature.settings.impl
 
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithText
 import de.mannodermaus.junit5.compose.ComposeContext
 import io.mockk.MockKAnnotations
-import net.mullvad.mullvadvpn.compose.state.SettingsUiState
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.toLc
 import net.mullvad.mullvadvpn.screen.test.createEdgeToEdgeComposeExtension

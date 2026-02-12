@@ -54,7 +54,7 @@ import net.mullvad.mullvadvpn.compose.component.CopyableObfuscationView
 import net.mullvad.mullvadvpn.compose.component.InformationView
 import net.mullvad.mullvadvpn.compose.component.MissingPolicy
 import net.mullvad.mullvadvpn.compose.preview.AccountUiStatePreviewParameterProvider
-import net.mullvad.mullvadvpn.compose.transitions.AccountTransition
+import net.mullvad.mullvadvpn.core.animation.AccountTransition
 import net.mullvad.mullvadvpn.feature.addtime.impl.AddTimeBottomSheet
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.util.toExpiryDateString

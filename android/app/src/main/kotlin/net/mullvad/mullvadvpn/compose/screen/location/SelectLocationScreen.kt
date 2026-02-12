@@ -92,7 +92,7 @@ import net.mullvad.mullvadvpn.compose.cell.FilterRow
 import net.mullvad.mullvadvpn.compose.preview.SelectLocationsUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.screen.MainGraph
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
-import net.mullvad.mullvadvpn.compose.transitions.TopLevelTransition
+import net.mullvad.mullvadvpn.core.animation.TopLevelTransition
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.CustomListId

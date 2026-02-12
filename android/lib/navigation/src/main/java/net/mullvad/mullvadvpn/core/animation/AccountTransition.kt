@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.compose.transitions
+package net.mullvad.mullvadvpn.core.animation
 
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.EnterTransition
@@ -9,10 +9,8 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.navigation.NavBackStackEntry
 import com.ramcosta.composedestinations.spec.DestinationStyle
-import net.mullvad.mullvadvpn.common.compose.ENTER_TRANSITION_SCALE_IN_FACTOR
 
-object TopLevelTransition : DestinationStyle.Animated() {
-
+object AccountTransition : DestinationStyle.Animated() {
     override val enterTransition:
         AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition =
         {
@@ -22,13 +20,13 @@ object TopLevelTransition : DestinationStyle.Animated() {
     override val exitTransition:
         AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition =
         {
-            ExitTransition.None
+            fadeOut(spring())
         }
 
     override val popEnterTransition:
         AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition =
         {
-            EnterTransition.None
+            fadeIn(spring())
         }
 
     override val popExitTransition:
