@@ -32,7 +32,6 @@
     "src/**/*.ts",
     "src/**/*.tsx",
     "playwright.config.ts",
-    "standalone-tests.ts",
     "scripts/**/*.ts",
     "test/**/*.ts",
     "assets/geo/*.json",

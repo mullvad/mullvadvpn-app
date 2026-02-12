@@ -1,5 +1,5 @@
 {
-  "main": "./build-standalone/standalone-tests.js",
+  "main": "./build-standalone/standalone-tests.cjs",
   "output": "./standalone-tests.sea.blob",
   "disableExperimentalSEAWarning": true,
   "useSnapshot": false,
