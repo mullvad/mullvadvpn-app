@@ -32,6 +32,7 @@ use talpid_types::{ErrorExt, android::AndroidContext};
 /// Mullvad daemon instance. It must be initialized and destroyed by `MullvadDaemon.initialize` and
 /// `MullvadDaemon.shutdown`, respectively.
 static DAEMON_CONTEXT: Mutex<Option<DaemonContext>> = Mutex::new(None);
+static LOG_HANDLE: OnceLock<LogHandle> = OnceLock::new();
 
 static LOAD_CLASSES: Once = Once::new();
 
@@ -97,7 +98,6 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_initial
     // In some cases, this function may be called multiple times for the same daemon process.
     // Since the tracing dispatcher can only be initialized once, we use a OnceLock to
     // reuse the existing log handle
-    static LOG_HANDLE: OnceLock<LogHandle> = OnceLock::new();
     let log_handle = LOG_HANDLE
         .get_or_init(|| {
             start_logging(&files_dir)
@@ -151,6 +151,14 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_shutdow
         // Dropping the tokio runtime will block if there are any tasks in flight.
         // That is, until all async tasks yield *and* all blocking threads have stopped.
     }
+
+    // Flush any remaining logs to file
+    _ = LOG_HANDLE
+        .get()
+        .expect("Log handle has been initialized")
+        .logfile_writer
+        .clone() // clone the inner Arcs
+        .flush();
 }
 
 fn start(
