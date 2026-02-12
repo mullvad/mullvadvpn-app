@@ -1,9 +1,11 @@
 import { getRawAsset } from 'node:sea';
 
-import child_process, { spawn } from 'child_process';
-import fs from 'fs';
-import os from 'os';
-import path from 'path';
+import * as child_process from 'child_process';
+import * as fs from 'fs';
+import * as os from 'os';
+import * as path from 'path';
+
+const { spawn } = child_process;
 
 // This file is bundled into a standalone executable able to run e2e tests against an installed
 // version of the app. This file is the entrypoint in the executable and extracts the required
@@ -103,8 +105,8 @@ function runTests(): Promise<number> {
     const args = [playwrightBin, 'test', '-x', '-c', configPath, ...process.argv.slice(2)];
     const proc = spawn(nodeBin, args, { cwd: tmpDir });
 
-    proc.stdout.on('data', (data) => console.log(data.toString()));
-    proc.stderr.on('data', (data) => console.error(data.toString()));
+    proc.stdout.on('data', (data: unknown) => console.log((data as string).toString()));
+    proc.stderr.on('data', (data: unknown) => console.error((data as string).toString()));
     proc.on('close', (code, signal) => {
       if (signal) {
         console.log('Received signal:', signal);
