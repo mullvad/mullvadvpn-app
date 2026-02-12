@@ -46,8 +46,8 @@ import androidx.lifecycle.compose.dropUnlessResumed
 import co.touchlab.kermit.Logger
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.generated.NavGraphs
+import com.ramcosta.composedestinations.generated.account.destinations.AccountDestination
 import com.ramcosta.composedestinations.generated.addtime.destinations.VerificationPendingDestination
-import com.ramcosta.composedestinations.generated.destinations.AccountDestination
 import com.ramcosta.composedestinations.generated.destinations.ConnectDestination
 import com.ramcosta.composedestinations.generated.destinations.DeviceNameInfoDestination
 import com.ramcosta.composedestinations.generated.redeemvoucher.destinations.RedeemVoucherDestination
@@ -58,10 +58,10 @@ import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.common.compose.createCopyToClipboardHandle
 import net.mullvad.mullvadvpn.common.compose.createOpenAccountPageHook
 import net.mullvad.mullvadvpn.common.compose.showSnackbarImmediately
-import net.mullvad.mullvadvpn.compose.component.CopyAnimatedIconButton
 import net.mullvad.mullvadvpn.compose.preview.WelcomeScreenUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.WelcomeUiState
 import net.mullvad.mullvadvpn.compose.transitions.HomeTransition
+import net.mullvad.mullvadvpn.feature.account.impl.CopyAnimatedIconButton
 import net.mullvad.mullvadvpn.feature.addtime.impl.AddTimeBottomSheet
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.util.groupWithSpaces

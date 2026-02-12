@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.compose.component
+package net.mullvad.mullvadvpn.feature.account.impl
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier

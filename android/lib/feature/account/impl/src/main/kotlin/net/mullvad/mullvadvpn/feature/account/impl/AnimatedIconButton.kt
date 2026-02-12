@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.compose.button
+package net.mullvad.mullvadvpn.feature.account.impl
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.material3.Icon

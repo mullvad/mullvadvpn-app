@@ -39,8 +39,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.generated.NavGraphs
+import com.ramcosta.composedestinations.generated.account.destinations.AccountDestination
 import com.ramcosta.composedestinations.generated.addtime.destinations.VerificationPendingDestination
-import com.ramcosta.composedestinations.generated.destinations.AccountDestination
 import com.ramcosta.composedestinations.generated.destinations.ConnectDestination
 import com.ramcosta.composedestinations.generated.redeemvoucher.destinations.RedeemVoucherDestination
 import com.ramcosta.composedestinations.generated.settings.destinations.SettingsDestination

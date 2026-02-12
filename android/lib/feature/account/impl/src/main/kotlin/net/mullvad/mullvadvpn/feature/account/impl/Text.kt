@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.compose.component
+package net.mullvad.mullvadvpn.feature.account.impl
 
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
