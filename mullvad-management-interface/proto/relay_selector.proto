@@ -9,7 +9,7 @@ package mullvad_daemon.relay_selector;
 import "management_interface.proto";
 
 service RelaySelectorService {
-  // Filter the available relays by a query. These can be
+  // Partition the available relays by a predicate. The predicate can be
   // derived from the current settings, or a potential future settings
   // before they are applied.
   //
