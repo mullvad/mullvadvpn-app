@@ -18,7 +18,6 @@ import net.mullvad.mullvadvpn.appinfo.impl.AppInfoViewModel
 import net.mullvad.mullvadvpn.appinfo.impl.changelog.ChangelogViewModel
 import net.mullvad.mullvadvpn.compose.screen.location.LocationBottomSheetState
 import net.mullvad.mullvadvpn.compose.screen.location.RelayListScrollConnection
-import net.mullvad.mullvadvpn.core.BackstackObserver
 import net.mullvad.mullvadvpn.customlist.impl.screen.create.CreateCustomListDialogViewModel
 import net.mullvad.mullvadvpn.customlist.impl.screen.delete.DeleteCustomListConfirmationViewModel
 import net.mullvad.mullvadvpn.customlist.impl.screen.editlist.EditCustomListViewModel
@@ -98,6 +97,7 @@ import net.mullvad.mullvadvpn.serveripoverride.impl.ServerIpOverridesViewModel
 import net.mullvad.mullvadvpn.serveripoverride.impl.reset.ResetServerIpOverridesConfirmationViewModel
 import net.mullvad.mullvadvpn.ui.MainActivity
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
+import net.mullvad.mullvadvpn.util.BackstackObserver
 import net.mullvad.mullvadvpn.viewmodel.AccountViewModel
 import net.mullvad.mullvadvpn.viewmodel.ApiUnreachableViewModel
 import net.mullvad.mullvadvpn.viewmodel.ConnectViewModel
@@ -312,7 +312,7 @@ val uiModule = module {
     viewModel { SettingsViewModel(get(), get(), get(), get(), IS_PLAY_BUILD) }
     viewModel { SplashViewModel(get(), get(), get(), get()) }
     viewModel { VoucherDialogViewModel(get(), get()) }
-    viewModel { VpnSettingsViewModel(get(), get(), get(), get(), get(), get()) }
+    viewModel { VpnSettingsViewModel(get(), get(), get(), get(), get()) }
     viewModel { AntiCensorshipSettingsViewModel(get(), get()) }
     viewModel { WelcomeViewModel(get(), get(), get(), get(), isPlayBuild = IS_PLAY_BUILD) }
     viewModel {

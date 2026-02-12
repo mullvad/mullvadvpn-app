@@ -29,7 +29,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -67,6 +66,7 @@ import com.ramcosta.composedestinations.result.ResultRecipient
 import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
 import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
+import net.mullvad.mullvadvpn.common.compose.RunOnKeyChange
 import net.mullvad.mullvadvpn.common.compose.SETTINGS_HIGHLIGHT_REPEAT_COUNT
 import net.mullvad.mullvadvpn.common.compose.dropUnlessResumed
 import net.mullvad.mullvadvpn.common.compose.showSnackbarImmediately
@@ -209,7 +209,7 @@ fun SharedTransitionScope.VpnSettings(
         }
     }
 
-    val scrollToFeature = if (state.isScrollToFeatureEnabled()) navArgs.scrollToFeature else null
+    val scrollToFeature = navArgs.scrollToFeature
 
     VpnSettingsScreen(
         state = state,
@@ -419,7 +419,7 @@ fun VpnSettingsContent(
 
     val highlightAnimation = remember { Animatable(AlphaVisible) }
     if (initialScrollToFeature != null) {
-        LaunchedEffect(Unit) {
+        RunOnKeyChange(initialScrollToFeature) {
             repeat(times = SETTINGS_HIGHLIGHT_REPEAT_COUNT) {
                 highlightAnimation.animateTo(AlphaInvisible)
                 highlightAnimation.animateTo(AlphaVisible)
@@ -441,7 +441,9 @@ fun VpnSettingsContent(
         featureIndicators().associateWith { FocusRequester() }
     }
     if (initialScrollToFeature != null) {
-        LaunchedEffect(Unit) { focusRequesters[initialScrollToFeature]?.requestFocus() }
+        RunOnKeyChange(initialScrollToFeature) {
+            focusRequesters[initialScrollToFeature]?.requestFocus()
+        }
     }
     LazyColumn(
         modifier =
@@ -859,12 +861,6 @@ private fun Lc<Boolean, VpnSettingsUiState>.isModal() =
     when (this) {
         is Lc.Loading -> value
         is Lc.Content -> value.isModal
-    }
-
-private fun Lc<Boolean, VpnSettingsUiState>.isScrollToFeatureEnabled() =
-    when (this) {
-        is Lc.Loading -> value
-        is Lc.Content -> value.isScrollToFeatureEnabled
     }
 
 // A list of feature indicators on this screen

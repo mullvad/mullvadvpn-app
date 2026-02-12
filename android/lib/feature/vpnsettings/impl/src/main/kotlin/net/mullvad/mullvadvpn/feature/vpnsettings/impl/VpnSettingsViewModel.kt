@@ -24,8 +24,6 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import net.mullvad.mullvadvpn.core.BackstackObserver
-import net.mullvad.mullvadvpn.core.constant.Label
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.common.toLc
@@ -64,7 +62,6 @@ class VpnSettingsViewModel(
     private val autoStartAndConnectOnBootRepository: AutoStartAndConnectOnBootRepository,
     private val wireguardConstraintsRepository: WireguardConstraintsRepository,
     savedStateHandle: SavedStateHandle,
-    backstackObserver: BackstackObserver,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : ViewModel() {
     private val navArgs = VpnSettingsDestination.argsFrom(savedStateHandle)
@@ -81,17 +78,8 @@ class VpnSettingsViewModel(
                         Some(navArgs.scrollToFeature == FeatureIndicator.DNS_CONTENT_BLOCKERS)
                 },
                 autoStartAndConnectOnBootRepository.autoStartAndConnectOnBoot,
-                _mutableIsContentBlockersExpanded.filterIsInstance<Some<Boolean>>().map {
-                    it.value
-                },
-                backstackObserver.previousDestinationFlow.map {
-                    it?.label == Label.CONNECT_DESTINATION
-                },
-            ) {
-                settings,
-                autoStartAndConnectOnBoot,
-                isContentBlockersExpanded,
-                isScrollToFeatureEnabled ->
+                _mutableIsContentBlockersExpanded.filterIsInstance<Some<Boolean>>().map { it.value },
+            ) { settings, autoStartAndConnectOnBoot, isContentBlockersExpanded ->
                 VpnSettingsUiState.from(
                         mtu = settings.tunnelOptions.mtu,
                         isLocalNetworkSharingEnabled = settings.allowLan,
@@ -106,7 +94,6 @@ class VpnSettingsViewModel(
                         isIpv6Enabled = settings.tunnelOptions.enableIpv6,
                         isContentBlockersExpanded = isContentBlockersExpanded,
                         isModal = navArgs.isModal,
-                        isScrollToFeatureEnabled = isScrollToFeatureEnabled,
                     )
                     .toLc<Boolean, VpnSettingsUiState>()
             }

@@ -23,7 +23,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.screen.MullvadApp
 import net.mullvad.mullvadvpn.compose.util.CreateVpnProfile
-import net.mullvad.mullvadvpn.core.BackstackObserver
 import net.mullvad.mullvadvpn.di.paymentModule
 import net.mullvad.mullvadvpn.di.uiModule
 import net.mullvad.mullvadvpn.lib.common.constant.KEY_REQUEST_VPN_PROFILE
@@ -40,6 +39,7 @@ import net.mullvad.mullvadvpn.lib.repository.UserPreferencesRepository
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
+import net.mullvad.mullvadvpn.util.BackstackObserver
 import net.mullvad.mullvadvpn.viewmodel.MullvadAppViewModel
 import org.koin.android.ext.android.inject
 import org.koin.android.scope.AndroidScopeComponent

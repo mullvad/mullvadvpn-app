@@ -106,7 +106,6 @@ import net.mullvad.mullvadvpn.compose.state.ConnectUiState
 import net.mullvad.mullvadvpn.compose.transitions.HomeTransition
 import net.mullvad.mullvadvpn.compose.util.CreateVpnProfile
 import net.mullvad.mullvadvpn.core.OnNavResultValue
-import net.mullvad.mullvadvpn.core.constant.Label
 import net.mullvad.mullvadvpn.lib.common.util.openVpnSettings
 import net.mullvad.mullvadvpn.lib.common.util.removeHtmlTags
 import net.mullvad.mullvadvpn.lib.map.AnimatedMap
@@ -176,7 +175,7 @@ private fun PreviewAccountScreen(
 }
 
 @Suppress("LongMethod")
-@Destination<MainGraph>(style = HomeTransition::class, label = Label.CONNECT_DESTINATION)
+@Destination<MainGraph>(style = HomeTransition::class)
 @Composable
 fun Connect(
     navigator: DestinationsNavigator,

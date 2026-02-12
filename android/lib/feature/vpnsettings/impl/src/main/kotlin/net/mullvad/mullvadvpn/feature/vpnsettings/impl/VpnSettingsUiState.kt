@@ -10,7 +10,6 @@ import net.mullvad.mullvadvpn.lib.model.QuantumResistantState
 data class VpnSettingsUiState(
     val settings: List<VpnSettingItem>,
     val isModal: Boolean,
-    val isScrollToFeatureEnabled: Boolean,
     val obfuscationMode: ObfuscationMode,
 ) {
 
@@ -30,7 +29,6 @@ data class VpnSettingsUiState(
             isIpv6Enabled: Boolean,
             isContentBlockersExpanded: Boolean,
             isModal: Boolean,
-            isScrollToFeatureEnabled: Boolean,
         ) =
             VpnSettingsUiState(
                 buildList {
@@ -186,7 +184,6 @@ data class VpnSettingsUiState(
                     add(VpnSettingItem.Spacer)
                 },
                 isModal = isModal,
-                isScrollToFeatureEnabled = isScrollToFeatureEnabled,
                 obfuscationMode = obfuscationMode,
             )
     }

@@ -76,7 +76,7 @@ import com.ramcosta.composedestinations.navigation.dependency
 import com.ramcosta.composedestinations.rememberNavHostEngine
 import com.ramcosta.composedestinations.utils.rememberDestinationsNavigator
 import net.mullvad.mullvadvpn.common.compose.accessibilityDataSensitive
-import net.mullvad.mullvadvpn.core.BackstackObserver
+import net.mullvad.mullvadvpn.util.BackstackObserver
 import net.mullvad.mullvadvpn.viewmodel.DaemonScreenEvent
 import net.mullvad.mullvadvpn.viewmodel.MullvadAppViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -124,7 +124,6 @@ annotation class MainGraph {
     @ExternalDestination<MtuDestination>
     @ExternalDestination<MultihopDestination>
     @ExternalDestination<NotificationSettingsDestination>
-    @ExternalDestination<MultihopDestination>
     @ExternalDestination<QuantumResistanceInfoDestination>
     @ExternalDestination<RedeemVoucherDestination>
     @ExternalDestination<ReportProblemDestination>
