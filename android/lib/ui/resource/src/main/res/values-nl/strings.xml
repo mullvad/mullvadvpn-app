@@ -315,8 +315,6 @@
     <string name="not_found">Niet gevonden</string>
     <string name="number_of_providers">Providers: %1$d</string>
     <string name="number_parentheses">(%1$d)</string>
-    <string name="obfuscation_info">Obfuscatie verbergt het WireGuard-verkeer in een ander protocol. Het kan worden gebruikt om censuur en andere soorten filtering te omzeilen, waar een gewone WireGuard-verbinding zou worden geblokkeerd.</string>
-    <string name="obfuscation_info_shadowsocks_batteryusage">Let op: Shadowsocks kan het batterijverbruik verhogen afhankelijk van het gegevensgebruik, zoals het streamen van een video.</string>
     <string name="off">Uit</string>
     <string name="on">Aan</string>
     <string name="open_app_details">Appgegevens openen</string>
@@ -439,7 +437,6 @@
     <string name="type">Type</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp">UDP-over-TCP</string>
-    <string name="udp_over_tcp_port_info">Met welke TCP-poort moet het UDP-over-TCP-obfuscatieprotocol verbinding maken op de VPN-server.</string>
     <string name="unable_to_reach_api_dialog_message_first_create_account">Er kan geen account worden aangemaakt in de app omdat de Mullvad API niet bereikbaar is.</string>
     <string name="unable_to_reach_api_dialog_message_first_login">Aanmelden bij de app is niet mogelijk omdat de Mullvad API niet bereikbaar is.</string>
     <string name="unable_to_reach_api_dialog_message_list_first">Start het apparaat opnieuw op</string>
@@ -478,8 +475,6 @@
     <string name="we_will_look_into_this">We gaan het bekijken.</string>
     <string name="wireguard_custon_port_title">Aangepast</string>
     <string name="wireguard_mtu_footer">Stel de MTU-waarde voor WireGuard in. Geldig bereik: %1$d - %2$d.</string>
-    <string name="wireguard_port_info_description">Bij de automatische instelling wordt willekeurig gekozen uit de hieronder weergegeven geldige poortbereiken.</string>
-    <string name="wireguard_port_info_port_range">De aangepaste poort kan elke waarde zijn binnen de geldige bereiken: %1$s.</string>
     <string name="wireguard_port_is_not_supported">De geselecteerde %1$s-poort wordt niet ondersteund. Wijzig de poort in de</string>
     <string name="wireguard_port_title">WireGuard-poort</string>
     <string name="wireguard_settings">%1$s-instellingen.</string>

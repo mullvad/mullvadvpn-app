@@ -315,8 +315,6 @@
     <string name="not_found">Bulunamadı</string>
     <string name="number_of_providers">Hizmet sağlayıcılar: %1$d</string>
     <string name="number_parentheses">(%1$d)</string>
-    <string name="obfuscation_info">Gizleme, WireGuard trafiğini başka bir protokolün içinde gizler. Normal bir WireGuard bağlantısının engelleneceği sansürü ve diğer filtreleme türlerini aşmaya yardımcı olmak için kullanılabilir.</string>
-    <string name="obfuscation_info_shadowsocks_batteryusage">Dikkat: Shadowsocks, video oynatma gibi işlemler için veri kullanımına bağlı olarak pil tüketimini artırabilir.</string>
     <string name="off">Kapalı</string>
     <string name="on">Açık</string>
     <string name="open_app_details">Uygulama ayrıntılarını aç</string>
@@ -439,7 +437,6 @@
     <string name="type">Tür</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp">TCP üzerinden UDP</string>
-    <string name="udp_over_tcp_port_info">TCP üzerinden UDP gizleme protokolünün VPN sunucusunda hangi TCP portuna bağlanması gerekiyor.</string>
     <string name="unable_to_reach_api_dialog_message_first_create_account">Uygulama, Mullvad API\'ye erişemediği için hesap oluşturulamadı.</string>
     <string name="unable_to_reach_api_dialog_message_first_login">Uygulama, Mullvad API\'ye erişemediği için giriş yapılamıyor.</string>
     <string name="unable_to_reach_api_dialog_message_list_first">Cihazınızı yeniden başlatın</string>
@@ -478,8 +475,6 @@
     <string name="we_will_look_into_this">Bunu araştıracağız.</string>
     <string name="wireguard_custon_port_title">Özel</string>
     <string name="wireguard_mtu_footer">WireGuard MTU değerini ayarlayın. Geçerli aralık: %1$d - %2$d.</string>
-    <string name="wireguard_port_info_description">Otomatik ayar, aşağıda gösterilen geçerli port aralıklarından rastgele seçim yapar.</string>
-    <string name="wireguard_port_info_port_range">Özel port, geçerli aralıklar içindeki herhangi bir değer olabilir: %1$s.</string>
     <string name="wireguard_port_is_not_supported">Seçilen %1$s portu desteklenmiyor, lütfen portu değiştirin:</string>
     <string name="wireguard_port_title">WireGuard portu</string>
     <string name="wireguard_settings">%1$s ayarları.</string>

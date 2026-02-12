@@ -315,8 +315,6 @@
     <string name="not_found">ไม่พบ</string>
     <string name="number_of_providers">ผู้ให้บริการ: %1$d</string>
     <string name="number_parentheses">(%1$d)</string>
-    <string name="obfuscation_info">การทำให้ข้อมูลยุ่งเหยิงจะซ่อนการรับส่งข้อมูล WireGuard ภายในอีกโพรโทคอลหนึ่ง ซึ่งใช้เพื่อช่วยหลบเลี่ยงการเซ็นเซอร์ และการกรองประเภทอื่นๆ ที่การเชื่อมต่อ WireGuard แบบธรรมดาจะถูกบล็อกได้</string>
-    <string name="obfuscation_info_shadowsocks_batteryusage">โปรดทราบ: Shadowsocks อาจเพิ่มการใช้แบตเตอรี่ โดยขึ้นอยู่กับการใช้งานข้อมูล เช่น การสตรีมวิดีโอ</string>
     <string name="off">ปิด</string>
     <string name="on">เปิด</string>
     <string name="open_app_details">เปิดรายละเอียดแอป</string>
@@ -439,7 +437,6 @@
     <string name="type">ประเภท</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp">UDP-ผ่าน-TCP</string>
-    <string name="udp_over_tcp_port_info">พอร์ต TCP ใดที่โพรโทคอลการทำให้ข้อมูลยุ่งเหยิง UDP-ผ่าน-TCP ควรเชื่อมต่อบนเซิร์ฟเวอร์ VPN</string>
     <string name="unable_to_reach_api_dialog_message_first_create_account">แอปไม่สามารถสร้างบัญชีได้ เนื่องจากไม่สามารถเข้าถึง Mullvad API ได้</string>
     <string name="unable_to_reach_api_dialog_message_first_login">แอปไม่สามารถเข้าสู่ระบบได้ เนื่องจากไม่สามารถเข้าถึง Mullvad API ได้</string>
     <string name="unable_to_reach_api_dialog_message_list_first">รีสตาร์ทอุปกรณ์ของคุณ</string>
@@ -478,8 +475,6 @@
     <string name="we_will_look_into_this">เราจะตรวจสอบปัญหานี้</string>
     <string name="wireguard_custon_port_title">กำหนดเอง</string>
     <string name="wireguard_mtu_footer">ตั้งค่า WireGuard MTU ช่วงที่ถูกต้อง: %1$d - %2$d</string>
-    <string name="wireguard_port_info_description">การตั้งค่าอัตโนมัติจะเป็นการสุ่มเลือกจากช่วงพอร์ตที่ใช้งานได้ต่างๆ ซึ่งแสดงอยู่ด้านล่าง</string>
-    <string name="wireguard_port_info_port_range">พอร์ตแบบกำหนดเองอาจมีค่าใดๆ ก็ได้ ภายในช่วงที่ใช้งานได้: %1$s</string>
     <string name="wireguard_port_is_not_supported">ไม่รองรับพอร์ต %1$s ที่เลือก โปรดเปลี่ยนพอร์ตภายใต้ส่วน</string>
     <string name="wireguard_port_title">พอร์ต WireGuard</string>
     <string name="wireguard_settings">การตั้งค่า %1$s.</string>

@@ -315,8 +315,6 @@
     <string name="not_found">پیدا نشد</string>
     <string name="number_of_providers">ارائه‌دهندگان: %1$d</string>
     <string name="number_parentheses">(%1$d)</string>
-    <string name="obfuscation_info">پنهان‌سازی ترافیک WireGuard را درون یک پروتکل دیگر مخفی می‌کند. زمانی‌که یک اتصال معمولی WireGuard مسدود می‌شود، این قابلیت می‌تواند برای دور زدن سانسور و انواع دیگر فیلترینگ مفید باشد.</string>
-    <string name="obfuscation_info_shadowsocks_batteryusage">توجه: Shadowsocks می‌تواند بسته به میزان استفاده از داده، مانند تماشای ویدیو، مصرف باتری را افزایش دهد.</string>
     <string name="off">خاموش</string>
     <string name="on">روشن</string>
     <string name="open_app_details">باز کردن جزئیات اپلیکیشن</string>
@@ -439,7 +437,6 @@
     <string name="type">نوع</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp">‏UDP روی TCP</string>
-    <string name="udp_over_tcp_port_info">کدام پورت TCP باید برای اتصال پروتکل مبهم‌سازی UDP روی TCP به سرور VPN استفاده شود.</string>
     <string name="unable_to_reach_api_dialog_message_first_create_account">اپلیکیشن به دلیل برقرار نشدن ارتباط با API مربوط به Mullvad نتوانست حساب ایجاد کند.</string>
     <string name="unable_to_reach_api_dialog_message_first_login">اپلیکیشن به دلیل برقرار نشدن ارتباط با API مربوط به Mullvad نتوانست وارد حساب شود.</string>
     <string name="unable_to_reach_api_dialog_message_list_first">دستگاه‌تان را دوباره راه‌اندازی کنید</string>
@@ -478,8 +475,6 @@
     <string name="we_will_look_into_this">ما این موضوع را بررسی خواهیم کرد.</string>
     <string name="wireguard_custon_port_title">سفارشی</string>
     <string name="wireguard_mtu_footer">مقدار MTU مربوط به WireGuard را تنظیم کنید. دامنهٔ معتبر: %1$d تا %2$d.</string>
-    <string name="wireguard_port_info_description">تنظیم خودکار به‌صورت تصادفی از بازه‌های پورت معتبرِ نشان‌داده‌شده در زیر انتخاب می‌کند.</string>
-    <string name="wireguard_port_info_port_range">پورت سفارشی می‌تواند هر عددی در محدوده‌های معتبر زیر باشد: %1$s.</string>
     <string name="wireguard_port_is_not_supported">پورتِ %1$s انتخاب‌شده پشتیبانی نمی‌شود؛ لطفاً آن را در بخش مربوطه تغییر دهید</string>
     <string name="wireguard_port_title">پورت ‏WireGuard</string>
     <string name="wireguard_settings">تنظیمات %1$s.</string>

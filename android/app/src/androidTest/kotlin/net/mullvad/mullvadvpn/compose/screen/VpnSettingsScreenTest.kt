@@ -15,6 +15,7 @@ import io.mockk.MockKAnnotations
 import io.mockk.mockk
 import io.mockk.verify
 import net.mullvad.mullvadvpn.feaure.vpnsettings.impl.CustomDnsItem
+import net.mullvad.mullvadvpn.feaure.vpnsettings.impl.VpnSettingsScreen
 import net.mullvad.mullvadvpn.feaure.vpnsettings.impl.VpnSettingsUiState
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.toLc

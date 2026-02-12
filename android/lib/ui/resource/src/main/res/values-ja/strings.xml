@@ -315,8 +315,6 @@
     <string name="not_found">見つかりませんでした</string>
     <string name="number_of_providers">プロバイダ数: %1$d</string>
     <string name="number_parentheses">(%1$d)</string>
-    <string name="obfuscation_info">難読化は、WireGuardトラフィックを別のプロトコル内に隠します。プレーンなWireGuard接続がブロックされる検閲やその他のフィルタリングを回避するために使用できます。</string>
-    <string name="obfuscation_info_shadowsocks_batteryusage">注意: Shadowsocksの場合、データ通信の使い方 (動画配信など) によってはバッテリー消費量が増加する可能性があります。</string>
     <string name="off">オフ</string>
     <string name="on">オン</string>
     <string name="open_app_details">アプリの詳細を開く</string>
@@ -439,7 +437,6 @@
     <string name="type">種類</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp">UDP-over-TCP</string>
-    <string name="udp_over_tcp_port_info">UDP-over-TCP難読化プロトコルで接続する必要のあるVPNサーバーのTCPポートです。</string>
     <string name="unable_to_reach_api_dialog_message_first_create_account">アプリがMullvad APIに接続できず、アカウントを作成できませんでした。</string>
     <string name="unable_to_reach_api_dialog_message_first_login">アプリがMullvad APIに接続できず、ログインできませんでした。</string>
     <string name="unable_to_reach_api_dialog_message_list_first">デバイスを再起動する</string>
@@ -478,8 +475,6 @@
     <string name="we_will_look_into_this">この問題を調査いたします。</string>
     <string name="wireguard_custon_port_title">カスタム</string>
     <string name="wireguard_mtu_footer">WireGuardのMTU値を設定します。有効範囲: %1$d ～ %2$d</string>
-    <string name="wireguard_port_info_description">自動設定では、以下の有効なポート範囲からランダムに選択されます。</string>
-    <string name="wireguard_port_info_port_range">カスタムポートは次の有効範囲内の任意の値に設定できます: %1$s。</string>
     <string name="wireguard_port_is_not_supported">選択した%1$sポートには対応していません。</string>
     <string name="wireguard_port_title">WireGuardポート</string>
     <string name="wireguard_settings">%1$sの設定。</string>

@@ -315,8 +315,6 @@
     <string name="not_found">غير موجود</string>
     <string name="number_of_providers">موفرو الخدمات: %1$d</string>
     <string name="number_parentheses">(%1$d)</string>
-    <string name="obfuscation_info">يُخفي التمويه حركة بيانات WireGuard داخل بروتوكول آخر. ويمكن استخدامه للمساعدة في تجاوز الرقابة وأنواع التصفية الأخرى، حيث يتم حظر اتصال WireGuard العادي.</string>
-    <string name="obfuscation_info_shadowsocks_batteryusage">انتبه: قد يؤدي استخدام بروتوكول Shadowsocks إلى زيادة استهلاك البطارية بناءً على استخدام البيانات، مثل بث فيديو.</string>
     <string name="off">إيقاف</string>
     <string name="on">تشغيل</string>
     <string name="open_app_details">فتح تفاصيل التطبيق</string>
@@ -439,7 +437,6 @@
     <string name="type">النوع</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp">UDP-over-TCP</string>
-    <string name="udp_over_tcp_port_info">أي منفذ TCP ينبغي أن يتصل به بروتوكول تمويه UDP-over-TCP على خادم شبكة VPN.</string>
     <string name="unable_to_reach_api_dialog_message_first_create_account">لم يتمكن التطبيق من إنشاء حساب لعدم قدرته على الوصول إلى Mullvad API.</string>
     <string name="unable_to_reach_api_dialog_message_first_login">لم يتمكن التطبيق من تسجيل الدخول بسبب عدم قدرته على الوصول إلى Mullvad API.</string>
     <string name="unable_to_reach_api_dialog_message_list_first">إعادة تشغيل الجهاز</string>
@@ -478,8 +475,6 @@
     <string name="we_will_look_into_this">سوف ننظر في هذا الأمر.</string>
     <string name="wireguard_custon_port_title">مُخصَّص</string>
     <string name="wireguard_mtu_footer">قم بتعيين قيمة WireGuard MTU. النطاق الصالح: %1$d - %2$d.</string>
-    <string name="wireguard_port_info_description">سيختار الإعداد التلقائي عشوائيًا من نطاقات المنافذ الصالحة المُوضَّحة أدناه.</string>
-    <string name="wireguard_port_info_port_range">يمكن أن يكون المنفذ المُخصَّص أي قيمة ضمن النطاقات الصالحة: %1$s.</string>
     <string name="wireguard_port_is_not_supported">المنفذ المُحدَّد %1$s غير مدعوم، يُرجى تغييره ضمن</string>
     <string name="wireguard_port_title">منفذ WireGuard</string>
     <string name="wireguard_settings">إعدادات %1$s.</string>

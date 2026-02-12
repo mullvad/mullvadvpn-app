@@ -315,8 +315,6 @@
     <string name="not_found">Não encontrada</string>
     <string name="number_of_providers">Fornecedores: %1$d</string>
     <string name="number_parentheses">(%1$d)</string>
-    <string name="obfuscation_info">A ofuscação oculta o tráfego do WireGuard dentro de outro protocolo. Pode ser utilizado para ajudar a contornar a censura e outros tipos de filtragem, onde uma simples ligação WireGuard seria bloqueada.</string>
-    <string name="obfuscation_info_shadowsocks_batteryusage">Atenção: Shadowsocks pode aumentar o consumo da bateria dependendo da utilização de dados, como a transmissão de um vídeo.</string>
     <string name="off">Desligado</string>
     <string name="on">Ligado</string>
     <string name="open_app_details">Abrir detalhes da aplicação</string>
@@ -439,7 +437,6 @@
     <string name="type">Tipo</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp">UDP sobre TCP</string>
-    <string name="udp_over_tcp_port_info">A que porta TCP o protocolo de ofuscação UDP sobre TCP deve ligar-se no servidor VPN.</string>
     <string name="unable_to_reach_api_dialog_message_first_create_account">Não foi possível à aplicação criar uma conta devido a falta de acesso à API da Mullvad.</string>
     <string name="unable_to_reach_api_dialog_message_first_login">Não foi possível à aplicação iniciar sessão devido a falta de acesso à API da Mullvad.</string>
     <string name="unable_to_reach_api_dialog_message_list_first">Reiniciar o seu dispositivo</string>
@@ -478,8 +475,6 @@
     <string name="we_will_look_into_this">Vamos analisar esta situação.</string>
     <string name="wireguard_custon_port_title">Personalizado</string>
     <string name="wireguard_mtu_footer">Definir o valor MTU do WireGuard. Intervalo válido: %1$d — %2$d.</string>
-    <string name="wireguard_port_info_description">A definição automática escolherá aleatoriamente a partir do intervalo de portas válido apresentado abaixo.</string>
-    <string name="wireguard_port_info_port_range">A porta personalizada pode ser qualquer valor dentro dos intervalos válidos: %1$s.</string>
     <string name="wireguard_port_is_not_supported">A porta %1$s selecionada não é suportada. Altere-a em</string>
     <string name="wireguard_port_title">Porta WireGuard</string>
     <string name="wireguard_settings">Definições do %1$s.</string>
