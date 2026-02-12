@@ -10,5 +10,6 @@ source "$SCRIPT_DIR/../env.sh" ""
 
 # Hard deny on all warnings when running in CI
 export RUSTFLAGS="--deny warnings"
+export RUSTDOCFLAGS="--deny warnings"
 
 exec cargo --locked "$@"
