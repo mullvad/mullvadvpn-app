@@ -54,6 +54,9 @@ on your platform please submit an issue or a pull request.
   - macOS: The default installed version (3.2.5) is not supported. Install a newer version via Homebrew: `brew install bash`
   - Windows: Install [Git for Windows] which includes Git Bash and other required unix utilities.
 
+- Install `podman`: https://podman.io/
+
+
 [Git for Windows]: https://git-scm.com/download/win
 
 ## Linux
