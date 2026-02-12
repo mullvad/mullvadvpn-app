@@ -372,6 +372,8 @@
     <string name="multihop">Multihop</string>
     <string name="multihop_description">Multihop routes your traffic into one WireGuard server and out another, making it harder to trace. This results in increased latency but increases anonymity online.</string>
     <string name="x_via_x">%1$s via %2$s</string>
+    <string name="country_comma_city">%1$s, %2$s</string>
+    <string name="country_comma_city_comma_relay">%1$s, %2$s, %3$s</string>
     <string name="entry">Entry</string>
     <string name="exit">Exit</string>
     <string name="clear_input">Clear input</string>

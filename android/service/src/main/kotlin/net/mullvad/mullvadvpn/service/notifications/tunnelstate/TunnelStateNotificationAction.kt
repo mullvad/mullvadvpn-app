@@ -19,7 +19,7 @@ internal fun Notification.Tunnel.toNotification(context: Context) =
     NotificationCompat.Builder(context, channelId.value)
         .setContentIntent(contentIntent(context))
         .setContentTitle(state.contentTitleResourceId(context))
-        .setContentText(state.contentText())
+        .setContentText(state.contentText(context))
         .setSmallIcon(R.drawable.small_logo_white)
         .apply { actions.forEach { addAction(it.toCompatAction(context)) } }
         .setOngoing(ongoing)
@@ -62,17 +62,20 @@ private fun NotificationTunnelState.contentTitleResourceId(context: Context): St
             context.getString(R.string.legacy_always_on_vpn_error_notification_title)
     }
 
-private fun NotificationTunnelState.contentText(): CharSequence? {
+private fun NotificationTunnelState.contentText(context: Context): CharSequence? {
     val location =
         when (this) {
             is NotificationTunnelState.Connected -> location
             is NotificationTunnelState.Connecting -> location
             else -> null
         }
-    return if (location != null) {
-        "${location.country}, ${location.city}, ${location.hostname}"
-    } else {
-        null
+    return location?.let {
+        context.getString(
+            R.string.country_comma_city_comma_relay,
+            location.country,
+            location.city,
+            location.hostname,
+        )
     }
 }
 

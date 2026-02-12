@@ -105,6 +105,7 @@
     <string name="copied_mullvad_account_number">شمارهٔ حساب Mullvad در کلیپ‌بورد کپی شد</string>
     <string name="copy">کپی</string>
     <string name="copy_account_number">کپی کردن شمارهٔ حساب</string>
+    <string name="country_comma_city">%1$s, %2$s</string>
     <string name="create">ایجاد کردن</string>
     <string name="create_account_fail_title">ایجاد حساب کاربری ناموفق بود</string>
     <string name="create_custom_list_message">%1$s ایجاد شد</string>

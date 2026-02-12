@@ -105,6 +105,7 @@
     <string name="copied_mullvad_account_number">Numero account di Mullvad copiato negli appunti</string>
     <string name="copy">Copia</string>
     <string name="copy_account_number">Copia numero di account</string>
+    <string name="country_comma_city">%1$s, %2$s</string>
     <string name="create">Crea</string>
     <string name="create_account_fail_title">Creazione dell\'account non riuscita</string>
     <string name="create_custom_list_message">\"%1$s\" creato</string>

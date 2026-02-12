@@ -154,9 +154,14 @@ private fun RecentListItem(
     onUpdateBottomSheetState: (LocationBottomSheetState) -> Unit,
 ) {
     val subtitle =
-        when (listItem.item) {
-            is RelayItem.Location.Relay -> "${listItem.cityName}, ${listItem.countryName}"
-            is RelayItem.Location.City -> listItem.countryName
+        when (val relayItem = listItem.item) {
+            is RelayItem.Location.Relay ->
+                stringResource(
+                    R.string.country_comma_city,
+                    relayItem.countryName,
+                    relayItem.cityName,
+                )
+            is RelayItem.Location.City -> relayItem.countryName
             is RelayItem.Location.Country,
             is RelayItem.CustomList -> null
         }

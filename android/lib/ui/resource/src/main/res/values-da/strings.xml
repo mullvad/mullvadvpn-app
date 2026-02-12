@@ -105,6 +105,7 @@
     <string name="copied_mullvad_account_number">Kopierede Mullvad-kontonummer til udklipsholder</string>
     <string name="copy">Kopiér</string>
     <string name="copy_account_number">Kopiér kontonummer</string>
+    <string name="country_comma_city">%1$s, %2$s</string>
     <string name="create">Opret</string>
     <string name="create_account_fail_title">Oprettelse af konto mislykkedes</string>
     <string name="create_custom_list_message">\"%1$s\" blev oprettet</string>
