@@ -49,7 +49,6 @@
     <string name="appearance">外観</string>
     <string name="appearance_description">Androidデバイス上で、Mullvad VPNアプリのタイトルとアイコンを変更します。この変更は、Mullvad VPNに関連する通知のアイコンには適用されません。</string>
     <string name="appearance_description_warning">&lt;b&gt;注意：&lt;/b&gt;新しいアイコンとタイトルを選択すると、アプリは自動的に終了します。その後、手動で再起動する必要があります。なお、この操作によってVPN接続が切断されることはありません。</string>
-    <string name="appearance_description_warning_tv">TVデバイスをご利用の場合は、デバイス自体の再起動が必要になることがあります。</string>
     <string name="apply">適用</string>
     <string name="applying_changes">変更内容を適用しています…</string>
     <string name="at_least_on_method_needs_to_enabled">方法は少なくとも 1 つは有効化する必要があります</string>

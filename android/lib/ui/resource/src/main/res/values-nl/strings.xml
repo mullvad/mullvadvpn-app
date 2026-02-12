@@ -49,7 +49,6 @@
     <string name="appearance">Uiterlijk</string>
     <string name="appearance_description">Wijzig de titel en het pictogram van de Mullvad VPN-app op uw Android-apparaat. Dit wijzigt het pictogram voor Mullvad VPN-gerelateerde meldingen niet.</string>
     <string name="appearance_description_warning">&lt;b&gt;Let op:&lt;/b&gt; de app wordt automatisch gesloten en moet handmatig opnieuw worden geopend na het selecteren van een nieuw pictogram en een nieuwe titel. Dit heeft geen invloed op uw VPN-verbinding.</string>
-    <string name="appearance_description_warning_tv">Op tv-apparaten moet u uw apparaat mogelijk ook opnieuw opstarten.</string>
     <string name="apply">Toevoegen</string>
     <string name="applying_changes">Wijzigingen toepassen...</string>
     <string name="at_least_on_method_needs_to_enabled">Er moet minimaal één methode ingeschakeld zijn</string>

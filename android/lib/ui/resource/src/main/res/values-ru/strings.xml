@@ -49,7 +49,6 @@
     <string name="appearance">Внешний вид</string>
     <string name="appearance_description">Измените название и значок приложения Mullvad VPN на устройстве Android. Это не повлияет на значок уведомлений, связанных с Mullvad VPN.</string>
     <string name="appearance_description_warning">&lt;b&gt;Внимание:&lt;/b&gt; после выбора нового значка и названия приложение автоматически закроется и его потребуется открыть вручную. Это не повлияет на ваше VPN-соединение.</string>
-    <string name="appearance_description_warning_tv">Для ТВ-устройств может потребоваться перезагрузка.</string>
     <string name="apply">Применить</string>
     <string name="applying_changes">Применяем изменения...</string>
     <string name="at_least_on_method_needs_to_enabled">Должен быть включен хотя бы один метод</string>

@@ -49,7 +49,6 @@
     <string name="appearance">Ulkoasu</string>
     <string name="appearance_description">Vaihda Mullvad VPN -sovelluksen otsikko ja kuvake Android-laitteellasi. Mullvad VPN:ään liittyvien ilmoitusten kuvake ei muutu.</string>
     <string name="appearance_description_warning">&lt;b&gt;Huomio:&lt;/b&gt; Sovellus sulkeutuu automaattisesti uuden kuvakkeen ja otsikon valitsemisen jälkeen, ja se täytyy avata uudelleen manuaalisesti. Tämä ei vaikuta VPN-yhteyteesi.</string>
-    <string name="appearance_description_warning_tv">TV-laitteilla saatat myös joutua käynnistämään laitteesi uudelleen.</string>
     <string name="apply">Ota käyttöön</string>
     <string name="applying_changes">Muutoksia otetaan käyttöön...</string>
     <string name="at_least_on_method_needs_to_enabled">Vähintään yhden menetelmän on oltava käytössä</string>

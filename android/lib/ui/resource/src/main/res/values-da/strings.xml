@@ -49,7 +49,6 @@
     <string name="appearance">Udseende</string>
     <string name="appearance_description">Ændr titlen og ikonet for Mullvad VPN-appen på din Android-enhed. Dette ændrer ikke ikonet for Mullvad VPN-relaterede notifikationer.</string>
     <string name="appearance_description_warning">&lt;b&gt;Bemærk:&lt;/b&gt; Appen lukker automatisk og skal åbnes igen manuelt efter valg af et nyt ikon og en ny titel. Dette påvirker ikke din VPN-forbindelse.</string>
-    <string name="appearance_description_warning_tv">På tv-enheder skal du muligvis også genstarte din enhed.</string>
     <string name="apply">Anvend</string>
     <string name="applying_changes">Anvender ændringer ...</string>
     <string name="at_least_on_method_needs_to_enabled">Mindst én metode skal aktiveres</string>

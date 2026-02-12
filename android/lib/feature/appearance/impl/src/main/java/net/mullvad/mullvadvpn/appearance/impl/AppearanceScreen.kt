@@ -164,10 +164,8 @@ private fun Description() {
                 appendLine(stringResource(R.string.appearance_description))
                 appendLine()
                 append(annotatedStringResource(R.string.appearance_description_warning))
-                if (isTv()) {
-                    append(SPACE_CHAR)
-                    append(stringResource(R.string.appearance_description_warning_tv))
-                }
+                append(SPACE_CHAR)
+                append(stringResource(R.string.appearance_description_warning_restart))
             },
         modifier = Modifier.padding(bottom = Dimens.smallPadding),
     )

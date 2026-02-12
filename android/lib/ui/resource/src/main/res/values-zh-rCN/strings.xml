@@ -49,7 +49,6 @@
     <string name="appearance">外观</string>
     <string name="appearance_description">更改 Android 设备上 Mullvad VPN 应用的标题和图标。这不会更改任何 Mullvad VPN 相关通知的图标。</string>
     <string name="appearance_description_warning">&lt;b&gt;注意&lt;/b&gt;：应用将自动关闭，在选择新的图标和标题后，需要手动再次打开。这不会影响您的 VPN 连接。</string>
-    <string name="appearance_description_warning_tv">在电视设备上，您可能还需要重新启动设备。</string>
     <string name="apply">应用</string>
     <string name="applying_changes">正在应用更改…</string>
     <string name="at_least_on_method_needs_to_enabled">至少需要启用一个方法</string>
