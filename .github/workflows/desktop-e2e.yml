@@ -21,8 +21,8 @@ on:
           windows10 windows11 \
           macos12 macos13 macos14 macos15 macos26`.\n
           Default images:\n
-          `debian13 ubuntu2204 ubuntu2404 ubuntu2504 ubuntu2510 \
-          fedora41 fedora42 fedora43 windows10 windows11 \
+          `ubuntu2204 ubuntu2404 ubuntu2504 ubuntu2510 \
+          debian13 fedora42 fedora43 windows10 windows11 \
           macos13 macos14 macos15 macos26`."
         default: ''
         required: false
@@ -50,7 +50,7 @@ jobs:
           # A list of VMs to run the tests on. These refer to the names defined
           # in $XDG_CONFIG_DIR/mullvad-test/config.json on the runner.
           all='["debian11","debian12","debian13","ubuntu2204","ubuntu2404","ubuntu2504","ubuntu2510","fedora41","fedora42","fedora43"]'
-          default='["debian13","ubuntu2204","ubuntu2404","ubuntu2504","ubuntu2510","fedora41","fedora42","fedora43"]'
+          default='["debian13","ubuntu2204","ubuntu2404","ubuntu2504","ubuntu2510","fedora42","fedora43"]'
           oses="${{ github.event.inputs.oses }}"
           echo "OSES: $oses"
           if [[ -z "$oses" || "$oses" == "null" ]]; then
