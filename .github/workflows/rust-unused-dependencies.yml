@@ -17,11 +17,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install cargo-binstall
-        uses: cargo-bins/cargo-binstall@main
-
       - name: Install cargo-shear
-        run: cargo binstall --no-confirm cargo-shear
+        uses: taiki-e/install-action@cargo-shear
 
       - name: Run cargo shear in all workspaces
         shell: bash
