@@ -31,8 +31,12 @@ message Predicate {
   oneof context {
     // Get matching relays for singlehop.
     EntryConstraints singlehop = 1;
-    // Get matching relays for singlehop, or the exit relays in an implicit
-    // multihop setup if necessary to resolve the constraints.
+    // Get matching relays with automatic multihop when necessary.
+    //
+    // If the entry-specific constraints are not met for a given relay but an alternative
+    // entry node can be selected that matches the constraints, the relay will still be
+    // returned as a viable exit node. Connecting to the relay will result in a implicit
+    // multihop connection.
     EntryConstraints autohop = 2;
     // Get matching entry relays for multihop.
     MultiHopConstraints entry = 3;
