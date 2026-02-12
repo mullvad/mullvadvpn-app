@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.compose.state
+package net.mullvad.mullvadvpn.feature.settings.impl
 
 data class SettingsUiState(
     val appVersion: String,

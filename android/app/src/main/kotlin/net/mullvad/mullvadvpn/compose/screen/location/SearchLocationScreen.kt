@@ -62,7 +62,7 @@ import net.mullvad.mullvadvpn.compose.constant.ContentType
 import net.mullvad.mullvadvpn.compose.preview.SearchLocationsUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.screen.MainGraph
 import net.mullvad.mullvadvpn.compose.state.SearchLocationUiState
-import net.mullvad.mullvadvpn.compose.transitions.TopLevelTransition
+import net.mullvad.mullvadvpn.core.animation.TopLevelTransition
 import net.mullvad.mullvadvpn.lib.common.Lce
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.RelayItem

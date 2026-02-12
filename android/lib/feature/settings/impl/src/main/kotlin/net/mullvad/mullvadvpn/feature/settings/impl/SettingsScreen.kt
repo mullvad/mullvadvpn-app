@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.compose.screen
+package net.mullvad.mullvadvpn.feature.settings.impl
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Spacer
@@ -21,6 +21,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
 import com.ramcosta.composedestinations.generated.apiaccess.destinations.ApiAccessListDestination
 import com.ramcosta.composedestinations.generated.appearance.destinations.AppearanceDestination
 import com.ramcosta.composedestinations.generated.appinfo.destinations.AppInfoDestination
@@ -31,12 +32,9 @@ import com.ramcosta.composedestinations.generated.problemreport.destinations.Rep
 import com.ramcosta.composedestinations.generated.splittunneling.destinations.SplitTunnelingDestination
 import com.ramcosta.composedestinations.generated.vpnsettings.destinations.VpnSettingsDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.common.compose.createUriHook
 import net.mullvad.mullvadvpn.common.compose.itemWithDivider
-import net.mullvad.mullvadvpn.compose.preview.SettingsUiStatePreviewParameterProvider
-import net.mullvad.mullvadvpn.compose.state.SettingsUiState
-import net.mullvad.mullvadvpn.compose.transitions.TopLevelTransition
+import net.mullvad.mullvadvpn.core.animation.TopLevelTransition
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.util.appendHideNavOnPlayBuild
 import net.mullvad.mullvadvpn.lib.ui.component.NavigateCloseIconButton
@@ -45,13 +43,13 @@ import net.mullvad.mullvadvpn.lib.ui.component.listitem.ExternalLinkListItem
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.NavigationListItem
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
+import net.mullvad.mullvadvpn.lib.ui.resource.R
 import net.mullvad.mullvadvpn.lib.ui.tag.DAITA_CELL_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.MULTIHOP_CELL_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.VPN_SETTINGS_CELL_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
-import net.mullvad.mullvadvpn.viewmodel.SettingsViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -78,7 +76,7 @@ private fun PreviewSettingsScreen(
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Destination<MainGraph>(style = TopLevelTransition::class)
+@Destination<ExternalModuleGraph>(style = TopLevelTransition::class)
 @Composable
 fun Settings(navigator: DestinationsNavigator) {
     val vm = koinViewModel<SettingsViewModel>()

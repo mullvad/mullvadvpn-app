@@ -1,7 +1,6 @@
-package net.mullvad.mullvadvpn.compose.preview
+package net.mullvad.mullvadvpn.feature.settings.impl
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import net.mullvad.mullvadvpn.compose.state.SettingsUiState
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.toLc
 

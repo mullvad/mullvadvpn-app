@@ -50,8 +50,8 @@ import com.ramcosta.composedestinations.generated.addtime.destinations.Verificat
 import com.ramcosta.composedestinations.generated.destinations.AccountDestination
 import com.ramcosta.composedestinations.generated.destinations.ConnectDestination
 import com.ramcosta.composedestinations.generated.destinations.DeviceNameInfoDestination
-import com.ramcosta.composedestinations.generated.destinations.SettingsDestination
 import com.ramcosta.composedestinations.generated.redeemvoucher.destinations.RedeemVoucherDestination
+import com.ramcosta.composedestinations.generated.settings.destinations.SettingsDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
