@@ -8,16 +8,13 @@
   "devDependencies": {
     "grpc_tools_node_protoc_ts": "^5.3.3"
   },
-  "optionalDependencies": {
-    "grpc-tools": "^1.12.4"
-  },
   "peerDependencies": {
     "google-protobuf": "*"
   },
   "scripts": {
     "postinstall": "npm run build",
     "build": "npm run build-proto && npm run build-typescript",
-    "build-proto": "bash ./build.sh",
+    "build-proto": "bash ./scripts/container-build-image.sh && bash ./scripts/container-run-generate-bindings.sh",
     "build-typescript": "tsc"
   }
 }
