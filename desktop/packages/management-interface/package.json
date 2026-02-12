@@ -9,7 +9,6 @@
     "grpc_tools_node_protoc_ts": "^5.3.3"
   },
   "scripts": {
-    "postinstall": "npm run build",
     "build": "bash ./scripts/container-run-generate-bindings.sh"
   }
 }
