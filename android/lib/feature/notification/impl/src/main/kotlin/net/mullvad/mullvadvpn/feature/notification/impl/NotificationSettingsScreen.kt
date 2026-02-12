@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.compose.screen
+package net.mullvad.mullvadvpn.feature.notification.impl
 
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.foundation.layout.Column
@@ -11,10 +11,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.preview.NotificationSettingsUiStatePreviewParameterProvider
-import net.mullvad.mullvadvpn.compose.state.NotificationSettingsUiState
 import net.mullvad.mullvadvpn.core.animation.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.ui.component.NavigateBackIconButton
@@ -23,7 +21,6 @@ import net.mullvad.mullvadvpn.lib.ui.component.listitem.SwitchListItem
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
-import net.mullvad.mullvadvpn.viewmodel.NotificationSettingsViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @Preview("Loading|Normal")
@@ -42,7 +39,7 @@ private fun PreviewNotificationSettingsScreen(
 }
 
 @OptIn(ExperimentalSharedTransitionApi::class)
-@Destination<MainGraph>(style = SlideInFromRightTransition::class)
+@Destination<ExternalModuleGraph>(style = SlideInFromRightTransition::class)
 @Composable
 fun NotificationSettings(navigator: DestinationsNavigator) {
     val vm = koinViewModel<NotificationSettingsViewModel>()

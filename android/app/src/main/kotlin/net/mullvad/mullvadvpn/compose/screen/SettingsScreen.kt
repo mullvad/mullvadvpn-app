@@ -25,9 +25,9 @@ import com.ramcosta.composedestinations.generated.apiaccess.destinations.ApiAcce
 import com.ramcosta.composedestinations.generated.appearance.destinations.AppearanceDestination
 import com.ramcosta.composedestinations.generated.appinfo.destinations.AppInfoDestination
 import com.ramcosta.composedestinations.generated.daita.destinations.DaitaDestination
-import com.ramcosta.composedestinations.generated.destinations.NotificationSettingsDestination
 import com.ramcosta.composedestinations.generated.destinations.VpnSettingsDestination
 import com.ramcosta.composedestinations.generated.multihop.destinations.MultihopDestination
+import com.ramcosta.composedestinations.generated.notification.destinations.NotificationSettingsDestination
 import com.ramcosta.composedestinations.generated.problemreport.destinations.ReportProblemDestination
 import com.ramcosta.composedestinations.generated.splittunneling.destinations.SplitTunnelingDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
