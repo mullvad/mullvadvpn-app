@@ -47,6 +47,8 @@ import com.ramcosta.composedestinations.generated.daita.destinations.DaitaDirect
 import com.ramcosta.composedestinations.generated.daita.destinations.DaitaDirectOnlyInfoDestination
 import com.ramcosta.composedestinations.generated.destinations.NoDaemonDestination
 import com.ramcosta.composedestinations.generated.filter.destinations.FilterDestination
+import com.ramcosta.composedestinations.generated.managedevices.destinations.ManageDevicesDestination
+import com.ramcosta.composedestinations.generated.managedevices.destinations.ManageDevicesRemoveConfirmationDestination
 import com.ramcosta.composedestinations.generated.multihop.destinations.MultihopDestination
 import com.ramcosta.composedestinations.generated.problemreport.destinations.ReportProblemDestination
 import com.ramcosta.composedestinations.generated.problemreport.destinations.ReportProblemNoEmailDestination
@@ -97,6 +99,8 @@ annotation class MainGraph {
     @ExternalDestination<EncryptedDnsProxyInfoDestination>
     @ExternalDestination<FilterDestination>
     @ExternalDestination<ImportOverridesByTextDestination>
+    @ExternalDestination<ManageDevicesDestination>
+    @ExternalDestination<ManageDevicesRemoveConfirmationDestination>
     @ExternalDestination<MultihopDestination>
     @ExternalDestination<RedeemVoucherDestination>
     @ExternalDestination<ReportProblemDestination>

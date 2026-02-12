@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.compose.state
+package net.mullvad.mullvadvpn.feature.managedevices.impl
 
 import net.mullvad.mullvadvpn.lib.model.Device
 

@@ -14,8 +14,8 @@ import com.ramcosta.composedestinations.result.EmptyResultBackNavigator
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.preview.DevicePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.screen.MainGraph
+import net.mullvad.mullvadvpn.feature.managedevices.impl.confirmation.ManageDeviceRemoveConfirmationPreviewParameterProvider
 import net.mullvad.mullvadvpn.lib.model.Device
 import net.mullvad.mullvadvpn.lib.model.DeviceId
 import net.mullvad.mullvadvpn.lib.ui.component.dialog.NegativeConfirmationDialog
@@ -25,7 +25,7 @@ import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 @Preview
 @Composable
 private fun PreviewRemoveDeviceConfirmationDialog(
-    @PreviewParameter(DevicePreviewParameterProvider::class) device: Device
+    @PreviewParameter(ManageDeviceRemoveConfirmationPreviewParameterProvider::class) device: Device
 ) {
     AppTheme { RemoveDeviceConfirmation(EmptyResultBackNavigator(), device = device) }
 }

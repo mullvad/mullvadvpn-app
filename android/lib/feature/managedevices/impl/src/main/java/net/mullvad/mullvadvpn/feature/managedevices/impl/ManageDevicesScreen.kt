@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.compose.screen
+package net.mullvad.mullvadvpn.feature.managedevices.impl
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -23,19 +23,18 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.generated.destinations.ManageDevicesRemoveConfirmationDestination
+import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
+import com.ramcosta.composedestinations.generated.managedevices.destinations.ManageDevicesRemoveConfirmationDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
 import kotlinx.coroutines.launch
-import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.common.compose.dropUnlessResumed
 import net.mullvad.mullvadvpn.common.compose.showSnackbarImmediately
-import net.mullvad.mullvadvpn.compose.preview.ManageDevicesUiStatePreviewParameterProvider
-import net.mullvad.mullvadvpn.compose.state.ManageDevicesUiState
 import net.mullvad.mullvadvpn.core.OnNavResultValue
 import net.mullvad.mullvadvpn.core.animation.DefaultTransition
 import net.mullvad.mullvadvpn.lib.common.Lce
+import net.mullvad.mullvadvpn.lib.model.AccountNumber
 import net.mullvad.mullvadvpn.lib.model.Device
 import net.mullvad.mullvadvpn.lib.model.DeviceId
 import net.mullvad.mullvadvpn.lib.model.GetDeviceListError
@@ -47,8 +46,6 @@ import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicat
 import net.mullvad.mullvadvpn.lib.ui.designsystem.PrimaryButton
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
-import net.mullvad.mullvadvpn.viewmodel.ManageDevicesSideEffect
-import net.mullvad.mullvadvpn.viewmodel.ManageDevicesViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -70,7 +67,12 @@ private fun PreviewDeviceListScreenContent(
 
 private typealias StateLce = Lce<Unit, ManageDevicesUiState, GetDeviceListError>
 
-@Destination<MainGraph>(style = DefaultTransition::class, navArgs = DeviceListNavArgs::class)
+data class ManageDevicesNavArgs(val accountNumber: AccountNumber)
+
+@Destination<ExternalModuleGraph>(
+    style = DefaultTransition::class,
+    navArgs = ManageDevicesNavArgs::class,
+)
 @Composable
 fun ManageDevices(
     navigator: DestinationsNavigator,

@@ -47,6 +47,7 @@ include(
     ":lib:feature:customlist:impl",
     ":lib:feature:daita:impl",
     ":lib:feature:filter:impl",
+    ":lib:feature:managedevices:impl",
     ":lib:feature:multihop:impl",
     ":lib:feature:problemreport:impl",
     ":lib:feature:redeemvoucher:impl",

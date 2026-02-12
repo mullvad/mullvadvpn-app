@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.compose.screen
+package net.mullvad.mullvadvpn.feature.managedevices.impl
 
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.ui.semantics.Role
@@ -13,9 +13,6 @@ import io.mockk.MockKAnnotations
 import io.mockk.mockk
 import io.mockk.verify
 import java.time.ZonedDateTime
-import net.mullvad.mullvadvpn.compose.state.ManageDevicesItemUiState
-import net.mullvad.mullvadvpn.compose.state.ManageDevicesUiState
-import net.mullvad.mullvadvpn.compose.util.withRole
 import net.mullvad.mullvadvpn.lib.common.Lce
 import net.mullvad.mullvadvpn.lib.model.Device
 import net.mullvad.mullvadvpn.lib.model.DeviceId

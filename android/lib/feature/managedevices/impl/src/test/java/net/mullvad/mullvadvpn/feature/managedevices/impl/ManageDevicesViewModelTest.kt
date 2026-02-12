@@ -1,25 +1,25 @@
-package net.mullvad.mullvadvpn.viewmodel
+package net.mullvad.mullvadvpn.feature.managedevices.impl
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import app.cash.turbine.test
 import arrow.core.left
 import arrow.core.right
-import com.ramcosta.composedestinations.generated.navargs.toSavedStateHandle
+import com.ramcosta.composedestinations.generated.managedevices.navargs.toSavedStateHandle
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.unmockkAll
 import java.time.ZonedDateTime
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertIs
+import kotlin.test.assertTrue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
-import net.mullvad.mullvadvpn.compose.screen.DeviceListNavArgs
-import net.mullvad.mullvadvpn.compose.state.ManageDevicesUiState
 import net.mullvad.mullvadvpn.lib.common.Lce
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.model.AccountNumber
@@ -29,8 +29,6 @@ import net.mullvad.mullvadvpn.lib.model.DeviceState
 import net.mullvad.mullvadvpn.lib.model.GetDeviceListError
 import net.mullvad.mullvadvpn.lib.repository.DeviceRepository
 import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.Assertions.assertFalse
-import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -58,14 +56,9 @@ class ManageDevicesViewModelTest {
         viewModel =
             ManageDevicesViewModel(
                 deviceRepository = mockDeviceRepository,
-                deviceListViewModel =
-                    DeviceListViewModel(
-                        deviceRepository = mockDeviceRepository,
-                        dispatcher = UnconfinedTestDispatcher(),
-                        savedStateHandle =
-                            DeviceListNavArgs(accountNumber = testAccountNumber)
-                                .toSavedStateHandle(),
-                    ),
+                dispatcher = UnconfinedTestDispatcher(),
+                savedStateHandle =
+                    ManageDevicesNavArgs(accountNumber = testAccountNumber).toSavedStateHandle(),
             )
     }
 
