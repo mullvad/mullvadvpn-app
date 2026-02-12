@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.compose.screen
+package net.mullvad.mullvadvpn.feature.account.impl
 
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.ui.test.ExperimentalTestApi
@@ -16,7 +16,6 @@ import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.model.AccountNumber
 import net.mullvad.mullvadvpn.screen.test.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.screen.test.setContentWithTheme
-import net.mullvad.mullvadvpn.viewmodel.AccountUiState
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
@@ -27,7 +26,8 @@ import org.koin.dsl.module
 @ExperimentalTestApi
 @OptIn(ExperimentalMaterial3Api::class)
 class AccountScreenTest {
-    @JvmField @RegisterExtension val composeExtension = createEdgeToEdgeComposeExtension()
+    @JvmField @RegisterExtension
+    val composeExtension = createEdgeToEdgeComposeExtension()
 
     private val addTimeViewModel: AddTimeViewModel = mockk(relaxed = true)
 
@@ -36,7 +36,7 @@ class AccountScreenTest {
         MockKAnnotations.init(this)
         loadKoinModules(module { viewModel { addTimeViewModel } })
         every { addTimeViewModel.uiState } returns
-            MutableStateFlow<Lc<Unit, AddTimeUiState>>(Lc.Loading(Unit))
+                MutableStateFlow<Lc<Unit, AddTimeUiState>>(Lc.Loading(Unit))
     }
 
     private fun ComposeContext.initScreen(

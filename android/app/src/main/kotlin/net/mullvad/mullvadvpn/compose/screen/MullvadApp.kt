@@ -20,6 +20,7 @@ import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.annotation.ExternalDestination
 import com.ramcosta.composedestinations.annotation.NavHostGraph
 import com.ramcosta.composedestinations.generated.NavGraphs
+import com.ramcosta.composedestinations.generated.account.destinations.AccountDestination
 import com.ramcosta.composedestinations.generated.addtime.destinations.VerificationPendingDestination
 import com.ramcosta.composedestinations.generated.anticensorship.destinations.AntiCensorshipSettingsDestination
 import com.ramcosta.composedestinations.generated.anticensorship.destinations.CustomPortDestination
@@ -88,6 +89,7 @@ val LocalSharedTransitionScope = compositionLocalOf<SharedTransitionScope?> { nu
 
 @NavHostGraph
 annotation class MainGraph {
+    @ExternalDestination<AccountDestination>
     @ExternalDestination<AntiCensorshipSettingsDestination>
     @ExternalDestination<ApiAccessListDestination>
     @ExternalDestination<ApiAccessMethodDetailsDestination>

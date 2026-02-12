@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.compose.component
+package net.mullvad.mullvadvpn.feature.account.impl
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding

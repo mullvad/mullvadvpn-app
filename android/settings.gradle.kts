@@ -38,6 +38,7 @@ include(
     ":lib:common-test",
     ":lib:grpc",
     ":lib:endpoint",
+    ":lib:feature:account:impl",
     ":lib:feature:addtime:impl",
     ":lib:feature:anticensorship:impl",
     ":lib:feature:apiaccess:impl",
