@@ -35,9 +35,9 @@ import net.mullvad.mullvadvpn.feature.problemreport.impl.viewlogs.ViewLogsViewMo
 import net.mullvad.mullvadvpn.feature.redeemvoucher.impl.VoucherDialogViewModel
 import net.mullvad.mullvadvpn.feature.splittunneling.impl.SplitTunnelingViewModel
 import net.mullvad.mullvadvpn.feature.splittunneling.impl.applist.ApplicationsProvider
-import net.mullvad.mullvadvpn.feaure.vpnsettings.impl.VpnSettingsViewModel
-import net.mullvad.mullvadvpn.feaure.vpnsettings.impl.dns.DnsDialogViewModel
-import net.mullvad.mullvadvpn.feaure.vpnsettings.impl.mtu.MtuDialogViewModel
+import net.mullvad.mullvadvpn.feature.vpnsettings.impl.VpnSettingsViewModel
+import net.mullvad.mullvadvpn.feature.vpnsettings.impl.dns.DnsDialogViewModel
+import net.mullvad.mullvadvpn.feature.vpnsettings.impl.mtu.MtuDialogViewModel
 import net.mullvad.mullvadvpn.filter.impl.FilterViewModel
 import net.mullvad.mullvadvpn.lib.common.constant.BillingTypes
 import net.mullvad.mullvadvpn.lib.common.constant.BuildTypes
