@@ -105,6 +105,7 @@
     <string name="copied_mullvad_account_number">已將 Mullvad 帳號複製到剪貼簿</string>
     <string name="copy">複製</string>
     <string name="copy_account_number">複製帳號</string>
+    <string name="country_comma_city">%2$s%1$s</string>
     <string name="create">建立</string>
     <string name="create_account_fail_title">建立帳戶失敗</string>
     <string name="create_custom_list_message">已建立「%1$s」</string>
