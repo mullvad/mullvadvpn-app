@@ -109,7 +109,8 @@ message IncompatibleConstraints {
   // The relay does not reside in the given location.
   bool location = 2;
   // The relay is not hosted by the given provider.
-  bool providers = 3; // TODO: Return which provider it needs? Can be looked up in the full relay list
+  // TODO: Return which provider it needs? Can be looked up in the full relay list
+  bool providers = 3;
   // The relay ownership does not match.
   bool ownership = 4;
 
