@@ -196,11 +196,9 @@
     <string name="custom_dns_disable_mode_subtitle">Disable all \"%s\" above to activate this setting.</string>
     <string name="settings_changes_effect_warning_short">DNS settings might not go into effect immediately</string>
     <string name="settings_changes_effect_warning_content_blocker">Changes to DNS related settings might not go into effect immediately due to cached results.</string>
-    <string name="obfuscation_info">Obfuscation hides the WireGuard traffic inside another protocol. It can be used to help circumvent censorship and other types of filtering, where a plain WireGuard connection would be blocked.</string>
     <string name="automatic">Automatic</string>
     <string name="off">Off</string>
     <string name="none">None</string>
-    <string name="udp_over_tcp_port_info">Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server.</string>
     <string name="created_x">Created: %s</string>
     <string name="local_network_sharing_info">This feature allows access to other devices on the local network, such as for sharing, printing, streaming, etc.</string>
     <string name="local_network_sharing_additional_info">It does this by allowing network communication outside the tunnel to local multicast and broadcast ranges as well as to and from these private IP ranges:</string>
@@ -209,10 +207,8 @@
     <string name="quantum_resistant_info_second_paragaph">It does this by performing an extra key exchange using a quantum safe algorithm and mixing the result into WireGuard’s regular encryption. This extra step uses approximately 500 kiB of traffic every time a new tunnel is established.</string>
     <string name="on">On</string>
     <string name="wireguard_port_title">WireGuard port</string>
-    <string name="wireguard_port_info_description">The automatic setting will randomly choose from the valid port ranges shown below.</string>
     <string name="search_placeholder">Search for...</string>
     <string name="search_location_empty_text">No result for \"%s\", please try a different search</string>
-    <string name="wireguard_port_info_port_range">The custom port can be any value inside the valid ranges: %s.</string>
     <string name="wireguard_custon_port_title">Custom</string>
     <string name="port">Port</string>
     <string name="custom_port_dialog_submit">Set port</string>
@@ -392,7 +388,6 @@
     <string name="multihop_entry_disabled_description">The entry server for %1$s is currently overridden by %2$s. To select an entry server, please first enable “%3$s” or disable \"%2$s\" in the settings.</string>
     <string name="open_feature_settings">Open %1$s settings</string>
     <string name="search">Search</string>
-    <string name="obfuscation_info_shadowsocks_batteryusage">Attention: Shadowsocks can increase battery consumption depending on data usage, such as streaming a video.</string>
     <string name="changelog_empty">No changelog was added for this version</string>
     <string name="device_ip_version_title">Device IP version</string>
     <string name="confirm_ipv6_dns">The IPv6 DNS server will not work unless you enable \"IPv6\" under VPN settings.</string>

@@ -315,8 +315,6 @@
     <string name="not_found">Ei löydy</string>
     <string name="number_of_providers">Palveluntarjoajat: %1$d</string>
     <string name="number_parentheses">(%1$d)</string>
-    <string name="obfuscation_info">Hämäysteknologian käyttäminen piilottaa WireGuard-liikenteen toisen protokollan sisään. Sitä voidaan käyttää kiertämään sensuuria ja muita suodatuksia niissä tapauksissa, kun tavallinen WireGuard-yhteys muutoin estettäisi.</string>
-    <string name="obfuscation_info_shadowsocks_batteryusage">Huomio: Shadowsocksin käyttö voi kasvattaa akun kulutusta riippuen tiedonsiirtomääristä (esimerkiksi suoratoistettaessa videoita).</string>
     <string name="off">Pois</string>
     <string name="on">Päällä</string>
     <string name="open_app_details">Avaa sovelluksen tiedot</string>
@@ -439,7 +437,6 @@
     <string name="type">Tyyppi</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp">UDP TCP:n kautta</string>
-    <string name="udp_over_tcp_port_info">Määrittää, mihin VPN-palvelimen TCP-porttiin \"UDP TCP:n kautta\" -hämäysteknologia-protokollan tulee muodostaa yhteys.</string>
     <string name="unable_to_reach_api_dialog_message_first_create_account">Sovellus ei voinut luoda tiliä, koska se ei saanut yhteyttä Mullvad API:hin.</string>
     <string name="unable_to_reach_api_dialog_message_first_login">Sovellus ei voinut kirjautua, koska se ei saanut yhteyttä Mullvad API:hin.</string>
     <string name="unable_to_reach_api_dialog_message_list_first">Käynnistä laitteesi uudelleen</string>
@@ -478,8 +475,6 @@
     <string name="we_will_look_into_this">Tutkimme asiaa.</string>
     <string name="wireguard_custon_port_title">Mukautettu</string>
     <string name="wireguard_mtu_footer">Aseta WireGuardin MTU-arvo väliltä %1$d–%2$d.</string>
-    <string name="wireguard_port_info_description">Automaattinen asetus valitsee satunnaisesti käytettävissä olevista, alla luetelluista porteista.</string>
-    <string name="wireguard_port_info_port_range">Mukautettu portti voi olla mikä tahansa sallittu arvo: %1$s.</string>
     <string name="wireguard_port_is_not_supported">Valittua %1$s-porttia ei tueta. Vaihda portti</string>
     <string name="wireguard_port_title">WireGuard-portti</string>
     <string name="wireguard_settings">%1$s-asetukset.</string>

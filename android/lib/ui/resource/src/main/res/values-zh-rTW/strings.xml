@@ -315,8 +315,6 @@
     <string name="not_found">找不到</string>
     <string name="number_of_providers">供應商：%1$d</string>
     <string name="number_parentheses">(%1$d)</string>
-    <string name="obfuscation_info">藉由混淆，WireGuard 的流量能隱藏在另一個通訊協定中。這有助於規避審查或其他類型的篩選。在這類篩選中，普通 WireGuard 連線將遭到封鎖。</string>
-    <string name="obfuscation_info_shadowsocks_batteryusage">注意：Shadowsocks 可能會因資料使用情形 (如播放串流影片) 而增加電力消耗。</string>
     <string name="off">關閉</string>
     <string name="on">開啟</string>
     <string name="open_app_details">開啟應用程式詳細資訊</string>
@@ -439,7 +437,6 @@
     <string name="type">類型</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp">UDP-over-TCP</string>
-    <string name="udp_over_tcp_port_info">UDP-over-TCP 混淆通訊協定應連線到 VPN 伺服器上的哪個 TCP 連接埠。</string>
     <string name="unable_to_reach_api_dialog_message_first_create_account">由於無法連至 Mullvad API，本應用程式無法建立帳戶。</string>
     <string name="unable_to_reach_api_dialog_message_first_login">由於無法連至 Mullvad API，本應用程式無法登入。</string>
     <string name="unable_to_reach_api_dialog_message_list_first">重新啟動裝置</string>
@@ -478,8 +475,6 @@
     <string name="we_will_look_into_this">我們會對此進行調查。</string>
     <string name="wireguard_custon_port_title">自訂</string>
     <string name="wireguard_mtu_footer">設定 WireGuard MTU 值。有效範圍：%1$d - %2$d。</string>
-    <string name="wireguard_port_info_description">自動設定將會隨機從下方顯示的有效連接埠範圍中進行選擇。</string>
-    <string name="wireguard_port_info_port_range">自訂連接埠可以是有效範圍內的任何值：%1$s。</string>
     <string name="wireguard_port_is_not_supported">不支援所選的 %1$s 連接埠，請至下列位置變更：</string>
     <string name="wireguard_port_title">WireGuard 連接埠</string>
     <string name="wireguard_settings">%1$s 設定.</string>
