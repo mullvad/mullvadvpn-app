@@ -181,15 +181,6 @@ In addition to the above requirements:
   The environment can also be set up in bash by sourcing `vcvars.sh`: `. ./scripts/vcvars.sh`. Note
   that that script assumes that you're running VS 2022 Community.
 
-- `grpc-tools` currently doesn't include ARM builds. The x64 binaries must be installed to build
-  the Electron app:
-
-  ```
-  pushd desktop/packages/mullvad-vpn
-  npm install --target_arch=x64 grpc-tools
-  popd
-  ```
-
 ## macOS
 
 The host has to have the following installed:
@@ -237,39 +228,7 @@ TARGETS="aarch64-pc-windows-msvc" ./build.sh
 
 ## Notes on building on ARM64 Linux hosts
 
-Due to inability to build the management interface proto files on ARM64 (see
-[this](https://github.com/grpc/grpc-node/issues/1497) issue), building on ARM64 must be done in
-2 stages:
-
-1. Build management interface proto files on another platform than arm64 Linux
-2. Use the built proto files during the main build by setting the
-   `MANAGEMENT_INTERFACE_PROTO_BUILD_DIR` environment variable to the path the proto files
-
-To build the management interface proto files there is a script (execute it on another platform than
-ARM64 Linux):
-
-```bash
-cd desktop
-npm ci -w mullvad-vpn
-npm run -w mullvad-vpn build-proto
-```
-
-After that copy the files from the following directories into a single directory:
-```
-desktop/packages/mullvad-vpn/src/main/management_interface/
-desktop/packages/mullvad-vpn/build/src/main/management_interface/
-```
-Set the value of `MANAGEMENT_INTERFACE_PROTO_BUILD_DIR` to that directory while running the main
-build.
-
-When all is done, run the main build. Assuming that you copied the proto files into
-`/tmp/management_interface_proto` directory, the build command will look as follows:
-
-```bash
-MANAGEMENT_INTERFACE_PROTO_BUILD_DIR=/tmp/management_interface_proto ./build.sh --dev-build
-```
-
-On Linux, you may also have to specify `USE_SYSTEM_FPM=true` to generate the deb/rpm packages.
+You may have to specify `USE_SYSTEM_FPM=true` to generate the deb/rpm packages.
 
 # Building and running mullvad-daemon
 
