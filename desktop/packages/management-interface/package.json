@@ -26,7 +26,6 @@
     }
   },
   "scripts": {
-    "postinstall": "npm run build",
     "build": "bash ./scripts/container-run-generate-bindings.sh"
   }
 }
