@@ -487,7 +487,7 @@
     <string name="icon_and_title">Icon and title</string>
     <string name="appearance_description">Change the title and icon of the Mullvad VPN app on your Android device. This will not change the icon for any Mullvad VPN related notifications.</string>
     <string name="appearance_description_warning"><b>Attention:</b> The app will close automatically and needs to be manually opened again after selecting a new icon and title. This will not impact your VPN connection.</string>
-    <string name="appearance_description_warning_tv">On TV devices you may also need to restart your device.</string>
+    <string name="appearance_description_warning_restart">If the icon and title is still not changed after the app has closed, please try restarting the device.</string>
     <string name="applying_changes">Applying changes...</string>
     <string name="app_name_weather">Weather</string>
     <string name="app_name_browser">Browser</string>

@@ -3075,6 +3075,9 @@ msgstr ""
 msgid "Icon and title"
 msgstr ""
 
+msgid "If the icon and title is still not changed after the app has closed, please try restarting the device."
+msgstr ""
+
 msgid "If the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
 msgstr ""
 
@@ -3184,9 +3187,6 @@ msgid "Notes"
 msgstr ""
 
 msgid "Obfuscation hides the WireGuard traffic inside another protocol. It can be used to help circumvent censorship and other types of filtering, where a plain WireGuard connection would be blocked."
-msgstr ""
-
-msgid "On TV devices you may also need to restart your device."
 msgstr ""
 
 msgid "Open app details"

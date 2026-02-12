@@ -49,7 +49,6 @@
     <string name="appearance">Apparence</string>
     <string name="appearance_description">Modifiez le titre et l\'icône de l\'application Mullvad VPN sur votre appareil Android. Cela ne modifiera pas l\'icône pour les notifications liées à Mullvad VPN.</string>
     <string name="appearance_description_warning">&lt;b&gt;Attention :&lt;/b&gt; l\'application se fermera automatiquement et devra être rouverte manuellement après avoir sélectionné une nouvelle icône et un nouveau titre. Cela n\'affectera pas votre connexion VPN.</string>
-    <string name="appearance_description_warning_tv">Sur les TV, il est possible que vous deviez également redémarrer votre appareil.</string>
     <string name="apply">Appliquer</string>
     <string name="applying_changes">Application des modifications...</string>
     <string name="at_least_on_method_needs_to_enabled">Au moins une méthode doit être activée</string>
