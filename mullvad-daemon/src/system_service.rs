@@ -92,7 +92,7 @@ pub fn handle_service_main(_arguments: Vec<OsString>) {
 
     let result = runtime.block_on(run_daemon(event_rx, &mut persistent_service_status));
     let exit_code = match result {
-        Ok(should_restart) if should_restart => ServiceExitCode::default(),
+        Ok(should_restart) if !should_restart => ServiceExitCode::default(),
         Ok(_should_restart) => ServiceExitCode::ServiceSpecific(1),
         Err(error) => {
             log::error!("{}", error);
@@ -122,14 +122,10 @@ async fn run_daemon(
     );
     log::info!("Service started.");
     persistent_service_status.set_running().unwrap();
-    match daemon.run().await.map_err(|e| e.display_chain()) {
-        Ok(()) => {
-            log::info!("Stopping service");
-            // check if shutdown signal was sent from the system
-            Ok(should_restart.load(Ordering::Acquire))
-        }
-        Err(e) => Err(e),
-    }
+    daemon.run().await.map_err(|e| e.display_chain())?;
+    log::info!("Stopping service");
+    // check if shutdown signal was sent from the system
+    Ok(should_restart.load(Ordering::Acquire))
 }
 
 /// Start event monitor thread that polls for `ServiceControl` and translates them into calls to
