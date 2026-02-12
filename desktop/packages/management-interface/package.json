@@ -4,20 +4,29 @@
   "author": "Mullvad VPN",
   "license": "GPL-3.0-or-later",
   "description": "Mullvad VPN IPC. Contains types and functions for IPC with daemon.",
-  "main": "./dist/index.js",
   "devDependencies": {
     "grpc_tools_node_protoc_ts": "^5.3.3"
   },
-  "optionalDependencies": {
-    "grpc-tools": "^1.12.4"
-  },
-  "peerDependencies": {
-    "google-protobuf": "*"
+  "exports": {
+    "./management-interface": {
+      "default": "./dist/management_interface_grpc_pb.js",
+      "types": "./dist/management_interface_grpc_pb.d.ts"
+    },
+    "./management-interface/grpc-types": {
+      "default": "./dist/management_interface_pb.js",
+      "types": "./dist/management_interface_pb.d.ts"
+    },
+    "./relay-selector": {
+      "default": "./dist/relay-selector.js",
+      "types": "./dist/relay-selector.d.ts"
+    },
+    "./relay-selector/grpc-types": {
+      "default": "./dist/relay-selector.js",
+      "types": "./dist/relay-selector.d.ts"
+    }
   },
   "scripts": {
     "postinstall": "npm run build",
-    "build": "npm run build-proto && npm run build-typescript",
-    "build-proto": "bash ./build.sh",
-    "build-typescript": "tsc"
+    "build": "bash ./scripts/container-run-generate-bindings.sh"
   }
 }
