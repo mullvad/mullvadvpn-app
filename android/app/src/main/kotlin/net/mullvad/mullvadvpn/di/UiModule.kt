@@ -28,6 +28,7 @@ import net.mullvad.mullvadvpn.customlist.impl.screen.lists.CustomListsViewModel
 import net.mullvad.mullvadvpn.feature.addtime.impl.AddTimeViewModel
 import net.mullvad.mullvadvpn.feature.autoconnect.impl.AutoConnectAndLockdownModeViewModel
 import net.mullvad.mullvadvpn.feature.daita.impl.DaitaViewModel
+import net.mullvad.mullvadvpn.feature.managedevices.impl.ManageDevicesViewModel
 import net.mullvad.mullvadvpn.feature.problemreport.impl.ReportProblemViewModel
 import net.mullvad.mullvadvpn.feature.problemreport.impl.viewlogs.ViewLogsViewModel
 import net.mullvad.mullvadvpn.feature.redeemvoucher.impl.VoucherDialogViewModel
@@ -100,7 +101,6 @@ import net.mullvad.mullvadvpn.viewmodel.DeviceListViewModel
 import net.mullvad.mullvadvpn.viewmodel.DeviceRevokedViewModel
 import net.mullvad.mullvadvpn.viewmodel.DnsDialogViewModel
 import net.mullvad.mullvadvpn.viewmodel.LoginViewModel
-import net.mullvad.mullvadvpn.viewmodel.ManageDevicesViewModel
 import net.mullvad.mullvadvpn.viewmodel.MtuDialogViewModel
 import net.mullvad.mullvadvpn.viewmodel.MullvadAppViewModel
 import net.mullvad.mullvadvpn.viewmodel.NotificationSettingsViewModel
@@ -286,7 +286,7 @@ val uiModule = module {
         )
     }
     viewModel { DeviceListViewModel(get(), get()) }
-    viewModel { ManageDevicesViewModel(get(), get()) }
+    viewModel { ManageDevicesViewModel(get(), Dispatchers.IO, get()) }
     viewModel { DeviceRevokedViewModel(get(), get(), get(), get()) }
     viewModel { MtuDialogViewModel(get(), get()) }
     viewModel { DnsDialogViewModel(get(), get(), get(), get()) }
