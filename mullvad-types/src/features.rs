@@ -248,8 +248,11 @@ mod tests {
             If this is not true anymore, please update this test."
         );
 
-        settings.lockdown_mode = true;
-        expected_indicators.0.insert(FeatureIndicator::LockdownMode);
+        #[cfg(not(target_os = "android"))]
+        {
+            settings.lockdown_mode = true;
+            expected_indicators.0.insert(FeatureIndicator::LockdownMode);
+        }
 
         assert_eq!(
             compute_feature_indicators(&settings, &endpoint, false),
