@@ -12,7 +12,6 @@
     "google-protobuf": "*"
   },
   "scripts": {
-    "postinstall": "npm run build",
     "build": "npm run build-proto && npm run build-typescript",
     "build-proto": "bash ./scripts/container-build-image.sh && bash ./scripts/container-run-generate-bindings.sh",
     "build-typescript": "tsc"
