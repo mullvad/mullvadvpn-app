@@ -138,11 +138,11 @@ impl LogHandle {
 ///
 /// * log_level: Base log level, used if `RUST_LOG` is not set.
 /// * log_location: Path to the log file, see [`LogLocation`].
-/// * output_timestamp: Whether timestamps should be included in the log output.
+/// * std_output_timestamp: Whether timestamps should be included in the stdout log output.
 pub fn init_logger(
     log_level: log::LevelFilter,
     log_location: Option<LogLocation>,
-    output_timestamp: bool,
+    std_output_timestamp: bool,
 ) -> Result<LogHandle, Error> {
     let level_filter = match log_level {
         log::LevelFilter::Off => LevelFilter::OFF,
@@ -192,19 +192,16 @@ pub fn init_logger(
         reg.with(android_layer)
     };
 
-    if output_timestamp {
-        let file_formatter = tracing_subscriber::fmt::layer()
-            .with_ansi(false)
-            .with_writer(non_blocking_file_appender);
-        let grpc_formatter = tracing_subscriber::fmt::layer()
-            .with_ansi(true)
-            .with_span_events(FmtSpan::NEW | FmtSpan::CLOSE)
-            .with_writer(std::sync::Mutex::new(log_stream));
-        reg.with(
-            stdout_formatter.with_timer(tracing_subscriber::fmt::time::ChronoUtc::new(
-                DATE_TIME_FORMAT_STR.to_string(),
-            )),
-        )
+    let grpc_formatter = tracing_subscriber::fmt::layer()
+        .with_ansi(true)
+        .with_span_events(FmtSpan::NEW | FmtSpan::CLOSE)
+        .with_writer(std::sync::Mutex::new(log_stream));
+
+    let file_formatter = tracing_subscriber::fmt::layer()
+        .with_ansi(false)
+        .with_writer(non_blocking_file_appender);
+
+    let reg = reg
         .with(
             grpc_formatter.with_timer(tracing_subscriber::fmt::time::ChronoUtc::new(
                 DATE_TIME_FORMAT_STR.to_string(),
@@ -214,20 +211,16 @@ pub fn init_logger(
             file_formatter.with_timer(tracing_subscriber::fmt::time::ChronoUtc::new(
                 DATE_TIME_FORMAT_STR.to_string(),
             )),
+        );
+    if std_output_timestamp {
+        reg.with(
+            stdout_formatter.with_timer(tracing_subscriber::fmt::time::ChronoUtc::new(
+                DATE_TIME_FORMAT_STR.to_string(),
+            )),
         )
         .init();
     } else {
-        let grpc_formatter = tracing_subscriber::fmt::layer()
-            .with_ansi(true)
-            .with_span_events(FmtSpan::NEW | FmtSpan::CLOSE)
-            .with_writer(std::sync::Mutex::new(log_stream));
-        let file_formatter = tracing_subscriber::fmt::layer()
-            .with_ansi(false)
-            .with_writer(non_blocking_file_appender);
-        reg.with(stdout_formatter.without_time())
-            .with(file_formatter.without_time())
-            .with(grpc_formatter.without_time())
-            .init();
+        reg.with(stdout_formatter.without_time()).init();
     }
 
     LOG_ENABLED.store(true, Ordering::SeqCst);
