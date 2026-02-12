@@ -14,8 +14,7 @@ service RelaySelectorService {
   // before they are applied.
   //
   // Returns a list of matching relays. For each connection using the given
-  // constraints one/a pair of these relays will be selected at random for
-  // the VPN connection.
+  // constraints, one/a pair of these relays will be selected at random.
   //
   // Also returns a list of non-matching relays along with the set of
   // constraints/conditions that made them unavailable.
@@ -29,7 +28,7 @@ service RelaySelectorService {
 // behavior.
 message Predicate {
   oneof context {
-    // Get matching relays for singlehop.
+    // Get matching relays for singlehop configuration.
     EntryConstraints singlehop = 1;
     // Get matching relays with automatic multihop when necessary.
     //
@@ -46,18 +45,19 @@ message Predicate {
 }
 
 // Constraints that apply to relays for singlehop or the first hop
-// in a multihop connection.
+// in a multihop configuration.
 //
 // These include all the of `ExitConstraints`, and a few entry
 // specific features.
 message EntryConstraints {
   ExitConstraints general_constraints = 1;
+  // -- Entry specific constraints --
   management_interface.ObfuscationSettings obfuscation_settings = 2;
   management_interface.DaitaSettings daita_settings = 3;
   management_interface.IpVersion ip_version = 4;
 }
 
-// Constraints that apply to the second hop in a multihop setup.
+// Constraints that apply to the second hop in a multihop configuration.
 // This is a subset of `EntryConstraints`.
 message ExitConstraints {
   management_interface.LocationConstraint location = 1;
@@ -65,7 +65,7 @@ message ExitConstraints {
   management_interface.Ownership ownership = 3;
 }
 
-// Constraints for both hops in a multihop connection.
+// Constraints for both hops in a multihop configuration.
 message MultiHopConstraints {
   EntryConstraints entry = 1;
   ExitConstraints exit = 2;
