@@ -20,6 +20,7 @@ mod macos;
 pub mod management_interface;
 mod migrations;
 mod relay_list;
+mod relay_selector;
 #[cfg(not(target_os = "android"))]
 pub mod rpc_uniqueness_check;
 pub mod runtime;
