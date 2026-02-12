@@ -9,15 +9,15 @@ package mullvad_daemon.relay_selector;
 import "management_interface.proto";
 
 service RelaySelectorService {
-  // Filter the available relays by a set of constraints. These can be
-  // derived from the currents settings, or a potential future settings
+  // Filter the available relays by a query. These can be
+  // derived from the current settings, or a potential future settings
   // before they are applied.
   //
   // Returns the list of matching relays. For each connection using the given
   // constraints one/a pair of these relays will be selected at random.
   // Also returns a list of non-matching relays along with the set of
   // constraints/conditions that made them unavailable.
-  rpc GetMatchingRelays(Query) returns (FilteredRelays);
+  rpc PartitionRelays(Predicate) returns (RelayPartitions);
 }
 
 // Query for selecting relays.
@@ -25,10 +25,10 @@ service RelaySelectorService {
 // This message is used to specify the constraints that should be applied
 // when selecting relays, along with a context that may affect the selection
 // behavior.
-message Query {
-  oneof query_context {
+message Predicate {
+  oneof context {
     // Get matching relays for singlehop.
-    EntryConstraints single_relay = 1;
+    EntryConstraints singlehop = 1;
     // Get matching relays for singlehop, or the exit relays for multihop
     // if necessary to resolve the constraints.
     EntryConstraints autohop = 2;
@@ -43,7 +43,7 @@ message Query {
 // This is a subset of `EntryConstraints`.
 message ExitConstraints {
   management_interface.LocationConstraint location = 1;
-  repeated string providers = 2;
+  repeated Provider providers = 2;
   management_interface.Ownership ownership = 3;
 }
 
@@ -67,31 +67,32 @@ message MultiHopConstraints {
 
 // The result of a relay selection query, contains the list of relays matching
 // a query and the list of relays that were discarded when evaluating a query.
-message FilteredRelays {
-  // List of relays matching a query
-  repeated Hostname matches = 1;
-  // List of relays that were discarded when evaluating a query
+message RelayPartitions {
+  // List of relays matching a query.
+  repeated Relay matches = 1;
+  // List of relays that were discarded when evaluating a query.
   repeated DiscardedRelay discards = 2;
 }
 
+// A relay which was discarded when evaluating some query, and why
 message DiscardedRelay {
-  // Hostname of the discarded relay
-  Hostname hostname = 1;
+  // Relay that was discarded.
+  Relay relay = 1;
   // The list of constraints that did not match the relay.
   // This can be interpreted as a list of criteria necessary
   // to unblock the relay from being selectable.
-  NonMatchingConstraints why = 2;
+  IncompatibleConstraints why = 2;
 }
 
-// A hostname that uniquely identifies a single VPN relay
-message Hostname {
-  // The full hostname, e.g. `se-got-wg-101`
-  // This can *NOT* be a location, e.g. `se` or `se-got`
-  string value = 1;
+message Relay {
+  // A hostname that uniquely identifies a single VPN relay.
+  // The full hostname, e.g. `se-got-wg-101`.
+  // This can *NOT* be a location, e.g. `se` or `se-got`.
+  string hostname = 1;
 }
 
 // Set of constraints that prevents the relay from being selected
-message NonMatchingConstraints {
+message IncompatibleConstraints {
   // The relay is currently offline
   bool inactive = 1;
   // The relay does not reside in the given location
@@ -113,4 +114,9 @@ message NonMatchingConstraints {
   bool port = 8;
   // This relay is already used for the other hop (entry/exit)
   bool conflict_with_other_hop = 9;
+}
+
+message Provider {
+  // The name of the provider
+  string name = 1;
 }
