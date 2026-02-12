@@ -24,6 +24,8 @@ pub type ManagementServiceClient =
     types::management_service_client::ManagementServiceClient<Channel>;
 pub use types::management_service_server::{ManagementService, ManagementServiceServer};
 
+pub use types::{RelaySelectorService, RelaySelectorServiceServer};
+
 #[cfg(unix)]
 use std::sync::LazyLock;
 #[cfg(unix)]
@@ -153,45 +155,65 @@ pub use client::MullvadProxyClient;
 
 pub type ServerJoinHandle = tokio::task::JoinHandle<()>;
 
-pub fn spawn_rpc_server<T: ManagementService, F: Future<Output = ()> + Send + 'static>(
-    service: T,
+pub fn spawn_rpc_server<M, R, F>(
+    management_service: M,
+    relay_selector_service: R,
     abort_rx: F,
     rpc_socket_path: PathBuf,
-) -> std::result::Result<ServerJoinHandle, Error> {
-    use futures::stream::TryStreamExt;
-    use tipsy::SecurityAttributes;
+) -> std::result::Result<ServerJoinHandle, Error>
+where
+    M: ManagementService,
+    R: RelaySelectorService,
+    F: Future<Output = ()> + Send + 'static,
+{
+    use futures::TryStreamExt;
 
-    let endpoint = IpcEndpoint::new(rpc_socket_path.clone(), tipsy::OnConflict::Error)
+    let endpoint = create_endpoint(rpc_socket_path)?;
+    let endpoint_path = endpoint.path().to_owned();
+
+    let incoming = endpoint
+        .incoming()
         .map_err(Error::StartServerError)?
-        .security_attributes(
-            SecurityAttributes::allow_everyone_create()
-                .map_err(Error::SecurityAttributes)?
-                .mode(0o766)
-                .map_err(Error::SecurityAttributes)?,
-        );
-    let incoming = endpoint.incoming().map_err(Error::StartServerError)?;
+        .map_ok(StreamBox);
 
+    // TODO: Can we skip this in favor of `TipsyEndpoint.security_attributes`?
     #[cfg(unix)]
     if let Some(group_name) = &*MULLVAD_MANAGEMENT_SOCKET_GROUP {
         let group = nix::unistd::Group::from_name(group_name)
             .map_err(Error::ObtainGidError)?
             .ok_or(Error::NoGidError)?;
-        nix::unistd::chown(&rpc_socket_path, None, Some(group.gid)).map_err(Error::SetGidError)?;
-        fs::set_permissions(rpc_socket_path, PermissionsExt::from_mode(0o760))
+        nix::unistd::chown(&endpoint_path, None, Some(group.gid)).map_err(Error::SetGidError)?;
+        fs::set_permissions(&endpoint_path, PermissionsExt::from_mode(0o760))
             .map_err(Error::PermissionsError)?;
     }
 
-    Ok(tokio::spawn(async move {
-        if let Err(execution_error) = Server::builder()
-            .add_service(ManagementServiceServer::new(service))
-            .serve_with_incoming_shutdown(incoming.map_ok(StreamBox), abort_rx)
-            .await
-            .map_err(Error::GrpcTransportError)
-        {
+    let grpc_server = Server::builder()
+        .add_service(ManagementServiceServer::new(management_service))
+        // TODO: Refactor this out of `management_interface` ?
+        .add_service(RelaySelectorServiceServer::new(relay_selector_service))
+        .serve_with_incoming_shutdown(incoming, abort_rx);
+
+    let server_task = tokio::spawn(async move {
+        if let Err(execution_error) = grpc_server.await.map_err(Error::GrpcTransportError) {
             log::error!("Management server panic: {execution_error}");
         }
         log::trace!("gRPC server is shutting down");
-    }))
+    });
+
+    Ok(server_task)
+}
+
+fn create_endpoint(rpc_socket_path: PathBuf) -> std::result::Result<tipsy::Endpoint, Error> {
+    use tipsy::SecurityAttributes;
+    let endpoint = IpcEndpoint::new(rpc_socket_path, tipsy::OnConflict::Error)
+        .map_err(Error::StartServerError)?;
+    let endpoint = endpoint.security_attributes(
+        SecurityAttributes::allow_everyone_create()
+            .map_err(Error::SecurityAttributes)?
+            .mode(0o766)
+            .map_err(Error::SecurityAttributes)?,
+    );
+    Ok(endpoint)
 }
 
 #[derive(Debug)]
