@@ -315,8 +315,6 @@
     <string name="not_found">ရှာမတွေ့ပါ</string>
     <string name="number_of_providers">ပံ့ပိုးသူများ- %1$d</string>
     <string name="number_parentheses">(%1$d)</string>
-    <string name="obfuscation_info">Obfuscation သည် အခြားပရိုတိုကောလ်အတွင်းရှိ WireGuard ကူးလူးမှုကို ဝှက်ထားပေးပါသည်။ သာမန် WireGuard ချိတ်ဆက်မှုကို ပိတ်ဆို့မည့် အခြားသော စစ်ထုတ်မှု အမျိုးအစားများနှင့် ဆင်ဆာဖြတ်တောက်ခြင်းကို ရှောင်လွှဲနိုင်စေရာတွင် ကူညီနိုင်စေရန် ၎င်းကို သုံးနိုင်ပါသည်။</string>
-    <string name="obfuscation_info_shadowsocks_batteryusage">သတိပြုရန်- Shadowsocks သည် ဗီဒီယိုတစ်ခုကို တိုက်ရိုက်ကြည့်ရှုနားဆင်ခြင်းကဲ့သို့ ဒေတာသုံးစွဲမှုပေါ် မူတည်၍ ဘက်ထရီသုံးစွဲမှု တိုးလာနိုင်ပါသည်။</string>
     <string name="off">ပိတ်</string>
     <string name="on">ဖွင့်</string>
     <string name="open_app_details">အက်ပ်အသေးစိတ်အချက်အလက်များကို ဖွင့်ပါ</string>
@@ -439,7 +437,6 @@
     <string name="type">အမျိုးအစား</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp">UDP-over-TCP</string>
-    <string name="udp_over_tcp_port_info">VPN ဆာဗာကို ဖွင့်ရန် ၎င်း TCP ပေါ့တ် UDP-over-TCP Obfuscation ပရိုတိုကောလ်နှင့် ချိတ်ဆက်ထားသင့်ပါသည်။</string>
     <string name="unable_to_reach_api_dialog_message_first_create_account">Mullvad API သို့ ဆက်သွယ်၍မရနိုင်သောကြောင့် အက်ပ်သည် အကောင့်တစ်ခု ဖန်တီး၍မရပါ။</string>
     <string name="unable_to_reach_api_dialog_message_first_login">Mullvad API သို့ ဆက်သွယ်၍ မရသောကြောင့် အက်ပ်သည် ဝင်ရောက်၍ မရခဲ့ပါ။</string>
     <string name="unable_to_reach_api_dialog_message_list_first">သင့်စက်ကို ပြန်လည်စတင်ကြည့်ပါ</string>
@@ -478,8 +475,6 @@
     <string name="we_will_look_into_this">ဤသည်ကို စစ်ဆေးလိုက်ပါမည်။</string>
     <string name="wireguard_custon_port_title">စိတ်ကြိုက်</string>
     <string name="wireguard_mtu_footer">WireGuard MTU တန်ဖိုးကို သတ်မှတ်ပါ။  အကျုံးဝင်သော အပိုင်းအခြား- %1$d - %2$d ။</string>
-    <string name="wireguard_port_info_description">အော်တိုဆက်တင်သည် အောက်တွင် ဖော်ပြထားသည့် အကျုံးဝင် ပေါ့တ် အပိုင်းအခြားများထဲမှ ကျပန်းရွေးချယ်ပါမည်။</string>
-    <string name="wireguard_port_info_port_range">စိတ်ကြိုက်ပေါ့တ်သည် အကျုံးဝင် အပိုင်းအခြားများထဲမှ မည်သည့်တန်ဖိုးမဆို ဖြစ်နိုင်ပါသည်- %1$s ။</string>
     <string name="wireguard_port_is_not_supported">ရွေးထားသည့် %1$s ပေါ့တ်ကို ပံ့ပိုးထားခြင်းမရှိပါသဖြင့် ၎င်းကို အောက်တွင် ပြောင်းပေးပါ </string>
     <string name="wireguard_port_title">WireGuard ပေါ့တ်</string>
     <string name="wireguard_settings">%1$s ဆက်တင်များ</string>

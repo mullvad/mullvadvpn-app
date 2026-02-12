@@ -315,8 +315,6 @@
     <string name="not_found">Non trovato</string>
     <string name="number_of_providers">Fornitori: %1$d</string>
     <string name="number_parentheses">(%1$d)</string>
-    <string name="obfuscation_info">L\'offuscamento nasconde il traffico WireGuard all\'interno di un altro protocollo. Può essere utilizzato per aggirare la censura e altri tipi di filtraggio, in cui una semplice connessione WireGuard verrebbe bloccata.</string>
-    <string name="obfuscation_info_shadowsocks_batteryusage">Attenzione: Shadowsocks può aumentare il consumo della batteria a seconda dell\'utilizzo dei dati, ad esempio durante lo streaming di un video.</string>
     <string name="off">Off</string>
     <string name="on">On</string>
     <string name="open_app_details">Apri dettagli app</string>
@@ -439,7 +437,6 @@
     <string name="type">Tipo</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp">UDP-over-TCP</string>
-    <string name="udp_over_tcp_port_info">A quale porta TCP deve connettersi il protocollo di offuscamento UDP-over-TCP sul server VPN.</string>
     <string name="unable_to_reach_api_dialog_message_first_create_account">L\'app non è riuscita a creare un account poiché non è riuscita a raggiungere l\'API Mullvad.</string>
     <string name="unable_to_reach_api_dialog_message_first_login">L\'app non è riuscita a eseguire il login poiché non è riuscita a raggiungere l\'API Mullvad.</string>
     <string name="unable_to_reach_api_dialog_message_list_first">Riavvia il tuo dispositivo</string>
@@ -478,8 +475,6 @@
     <string name="we_will_look_into_this">Verificheremo.</string>
     <string name="wireguard_custon_port_title">Personalizzato</string>
     <string name="wireguard_mtu_footer">Imposta il valore MTU WireGuard. Intervallo valido: %1$d - %2$d.</string>
-    <string name="wireguard_port_info_description">L\'impostazione automatica sceglierà in modo casuale una porta valida negli intervalli mostrati di seguito.</string>
-    <string name="wireguard_port_info_port_range">La porta personalizzata può essere qualsiasi valore all\'interno degli intervalli validi: %1$s.</string>
     <string name="wireguard_port_is_not_supported">La porta %1$s selezionata non è supportata, cambiala in</string>
     <string name="wireguard_port_title">Porta WireGuard</string>
     <string name="wireguard_settings">Impostazioni %1$s.</string>

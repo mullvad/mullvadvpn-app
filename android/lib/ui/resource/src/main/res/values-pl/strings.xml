@@ -315,8 +315,6 @@
     <string name="not_found">Nie znaleziono</string>
     <string name="number_of_providers">Dostawcy: %1$d</string>
     <string name="number_parentheses">(%1$d)</string>
-    <string name="obfuscation_info">Zaciemnianie ukrywa ruch WireGuard w innym protokole. Można go użyć do obchodzenia cenzury i innych typów filtrowania, w których zwykłe połączenie WireGuard byłoby blokowane.</string>
-    <string name="obfuscation_info_shadowsocks_batteryusage">Uwaga: protokół Shadowsocks może zwiększyć zużycie baterii w zależności od wykorzystania danych, takich jak przesyłanie strumieniowe wideo.</string>
     <string name="off">Wył.</string>
     <string name="on">Wł.</string>
     <string name="open_app_details">Otwórz szczegóły aplikacji</string>
@@ -439,7 +437,6 @@
     <string name="type">Typ</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp">UDP-przez-TCP</string>
-    <string name="udp_over_tcp_port_info">Port TCP, z którym powinien łączyć się protokół zaciemniania UDP-przez-TCP na serwerze VPN.</string>
     <string name="unable_to_reach_api_dialog_message_first_create_account">Aplikacja nie była w stanie utworzyć konta z powodu braku dostępu do interfejsu API Mullvad.</string>
     <string name="unable_to_reach_api_dialog_message_first_login">Aplikacja nie była w stanie zalogować, ponieważ nie mogła uzyskać dostępu do interfejsu API Mullvad.</string>
     <string name="unable_to_reach_api_dialog_message_list_first">Ponownie uruchom urządzenie</string>
@@ -478,8 +475,6 @@
     <string name="we_will_look_into_this">Sprawdzimy to.</string>
     <string name="wireguard_custon_port_title">Niestandardowy</string>
     <string name="wireguard_mtu_footer">Ustaw wartość MTU WireGuard. Prawidłowy zakres: %1$d–%2$d.</string>
-    <string name="wireguard_port_info_description">Ustawienie automatyczne skutkuje wyborem losowym prawidłowego zakresu portów spośród zakresów przedstawionych poniżej.</string>
-    <string name="wireguard_port_info_port_range">Port niestandardowy może mieć dowolną wartość z następujących prawidłowych zakresów: %1$s.</string>
     <string name="wireguard_port_is_not_supported">Wybrany port %1$s nie jest obsługiwany, zmień go w obszarze</string>
     <string name="wireguard_port_title">Port WireGuard</string>
     <string name="wireguard_settings">Ustawienia %1$s.</string>

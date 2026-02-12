@@ -315,8 +315,6 @@
     <string name="not_found">찾을 수 없음</string>
     <string name="number_of_providers">제공업체: %1$d</string>
     <string name="number_parentheses">(%1$d)</string>
-    <string name="obfuscation_info">난독 처리는 다른 프로토콜 내에서 WireGuard 트래픽을 숨깁니다. 일반 WireGuard 연결이 차단되는 상황에서 검열 및 기타 유형의 필터링을 우회하는 데 사용할 수 있습니다.</string>
-    <string name="obfuscation_info_shadowsocks_batteryusage">주의: Shadowsocks는 비디오 스트리밍 등 데이터 사용량에 따라 배터리 소모량이 증가할 수 있습니다.</string>
     <string name="off">끄기</string>
     <string name="on">켜기</string>
     <string name="open_app_details">앱 세부 정보 열기</string>
@@ -439,7 +437,6 @@
     <string name="type">유형</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp">UDP-over-TCP</string>
-    <string name="udp_over_tcp_port_info">UDP-over-TCP 난독 처리 프로토콜이 VPN 서버에서 연결해야 하는 TCP 포트입니다.</string>
     <string name="unable_to_reach_api_dialog_message_first_create_account">앱에서 Mullvad API를 사용할 수 없어 계정을 생성하지 못했습니다.</string>
     <string name="unable_to_reach_api_dialog_message_first_login">앱에서 Mullvad API를 사용할 수 없어 로그인하지 못했습니다.</string>
     <string name="unable_to_reach_api_dialog_message_list_first">장치 재시작</string>
@@ -478,8 +475,6 @@
     <string name="we_will_look_into_this">조사해보겠습니다.</string>
     <string name="wireguard_custon_port_title">사용자 지정</string>
     <string name="wireguard_mtu_footer">WireGuard MTU 값을 설정하세요. 유효 범위: %1$d ~ %2$d.</string>
-    <string name="wireguard_port_info_description">자동 설정은 아래 표시된 유효한 포트 범위에서 임의로 선택합니다.</string>
-    <string name="wireguard_port_info_port_range">사용자 지정 포트는 유효한 범위 내의 모든 값이 될 수 있습니다: %1$s</string>
     <string name="wireguard_port_is_not_supported">선택한 %1$s 포트는 지원되지 않습니다. 다음에서 변경하세요:</string>
     <string name="wireguard_port_title">WireGuard 포트</string>
     <string name="wireguard_settings">%1$s 설정.</string>

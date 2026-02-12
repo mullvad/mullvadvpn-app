@@ -2862,9 +2862,6 @@ msgstr ""
 msgid "Attention: If \"Block connections without VPN\" is enabled, split apps will not have Internet. Always keep in mind that split tunneling is a privacy risk."
 msgstr ""
 
-msgid "Attention: Shadowsocks can increase battery consumption depending on data usage, such as streaming a video."
-msgstr ""
-
 msgid "Attention: this setting cannot be used in combination with \"Use custom DNS server\"."
 msgstr ""
 
@@ -3187,9 +3184,6 @@ msgid "Not found"
 msgstr ""
 
 msgid "Notes"
-msgstr ""
-
-msgid "Obfuscation hides the WireGuard traffic inside another protocol. It can be used to help circumvent censorship and other types of filtering, where a plain WireGuard connection would be blocked."
 msgstr ""
 
 msgid "Open app details"

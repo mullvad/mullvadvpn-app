@@ -54,6 +54,7 @@ include(
     ":lib:feature:redeemvoucher:impl",
     ":lib:feature:serveripoverride:impl",
     ":lib:feature:splittunneling:impl",
+    ":lib:feature:vpnsettings:impl",
     ":lib:map",
     ":lib:model",
     ":lib:navigation",
