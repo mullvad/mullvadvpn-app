@@ -1,0 +1,156 @@
+---
+name: Daemon+CLI - Check rust documentation
+on:
+  pull_request:
+    paths:
+      - "**"
+      - "!**/**.md"
+      - "!.github/workflows/**"
+      - ".github/workflows/daemon.yml"
+      - "!.github/CODEOWNERS"
+      - "!android/**"
+      - "!audits/**"
+      - "!build.sh"
+      - "!ci/**"
+      - "ci/cargo-ci.sh"
+      - "!clippy.toml"
+      - "!deny.toml"
+      - "!docs/**"
+      - "!graphics/**"
+      - "!desktop/**"
+      - "!ios/**"
+      - "!scripts/**"
+      - "!.*ignore"
+      - "!prepare-release.sh"
+      - "!rustfmt.toml"
+      - "!.yamllint"
+      - "!**/osv-scanner.toml"
+
+  workflow_dispatch:
+    inputs:
+      override_container_image:
+        description: Override container image
+        type: string
+        required: false
+
+permissions: {}
+
+jobs:
+  prepare-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Use custom container image if specified
+        if: ${{ github.event.inputs.override_container_image != '' }}
+        run:
+          echo "inner_container_image=${{ github.event.inputs.override_container_image }}"
+          >> $GITHUB_ENV
+
+      - name: Use default container image and resolve digest
+        if: ${{ github.event.inputs.override_container_image == '' }}
+        run: echo "inner_container_image=$(cat ./building/linux-container-image.txt)" >> $GITHUB_ENV
+
+    outputs:
+      container_image: ${{ env.inner_container_image }}
+
+  document-linux:
+    needs: prepare-linux
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ needs.prepare-linux.outputs.container_image }}
+
+    strategy:
+      matrix:
+        rust: [stable, beta, nightly]
+    continue-on-error: true
+    steps:
+      # Fix for HOME path overridden by GH runners when building in containers, see:
+      # https://github.com/actions/runner/issues/863
+      - name: Fix HOME path
+        run: echo "HOME=/root" >> $GITHUB_ENV
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Checkout submodules
+        run: |
+          git config --global --add safe.directory '*'
+          git submodule update --init --depth=1 dist-assets/binaries
+          git submodule update --init wireguard-go-rs/libwg/wireguard-go
+
+      # The container image already has rustup and the pinned version of Rust
+      - name: Install Rust toolchain
+        # When running this job for "stable" test against our pinned rust version
+        # instead of the stable channel.
+        # TODO: Improve this so both "stable" and the pinned version are tested if
+        # they differ.
+        if: ${{ matrix.rust != 'stable' }}
+        run: rustup override set ${{ matrix.rust }}
+
+      - name: Setup Rust cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          add-job-id-key: "false" # Preserve cache across jobs
+          cache-targets: "false" # Only cache cargo registry
+
+      - name: Check rust docs
+        run: ci/cargo-ci.sh doc --workspace --document-private-items --no-deps --keep-going --color=always
+
+  document-macos:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - uses: ./.github/actions/mullvad-build-env
+
+      - name: Check rust docs
+        run: ci/cargo-ci.sh doc --workspace --document-private-items --no-deps --keep-going --color=always
+
+  document-windows:
+    strategy:
+      # Even if onw of the Windows jobs fail, the other should not be cancelled.
+      fail-fast: false
+      matrix:
+        config:
+          - os: windows-latest
+            arch: x64
+          - os: windows-11-arm
+            arch: arm64
+    runs-on: ${{ matrix.config.os }}
+    steps:
+      # By default, the longest path a filename can have in git on Windows is 260 character.
+      - name: Set git config for long paths
+        run: |
+          git config --system core.longpaths true
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - uses: ./.github/actions/mullvad-build-env
+        with:
+          rust-cache-targets: "true"
+
+      - name: Build Windows modules (x86_64)
+        if: ${{ matrix.config.arch == 'x64' }}
+        shell: bash
+        run: ./build-windows-modules.sh build winfw
+
+      - name: Build Windows modules (ARM64)
+        if: ${{ matrix.config.arch == 'arm64' }}
+        shell: bash
+        # By default, ./build-windows-modules.sh will use 4 concurrent processes during compilation
+        # because the Windows 11 ARM runner has 4 cores:
+        # https://docs.github.com/en/actions/how-tos/write-workflows/choose-where-workflows-run/choose-the-runner-for-a-job#standard-github-hosted-runners-for-public-repositories
+        #
+        # Cap the number of concurrent processes to something less than 4 to avoid OOM issues.
+        run: ./build-windows-modules.sh --max-concurrent-processes 2 build winfw
+
+      # Excluding windows-installer because it builds an actual full installer
+      # at the build step, which is not desired in a CI environment. Instead
+      # we just `cargo check` it below.
+      - name: Check rust docs
+        shell: bash
+        run: ci/cargo-ci.sh doc --workspace --document-private-items --no-deps --keep-going --color=always
