@@ -62,12 +62,6 @@ windows_service::define_windows_service!(service_main, handle_service_main);
 
 pub fn handle_service_main(_arguments: Vec<OsString>) {
     let runtime = new_multi_thread().build().expect("Starting runtime");
-    runtime.block_on(async_service_main());
-}
-
-async fn async_service_main() {
-    let config = cli::get_config();
-
     let (event_tx, event_rx) = mpsc::channel();
 
     // Register service event handler
@@ -89,75 +83,53 @@ async fn async_service_main() {
         }
     };
 
-    let (log_location, log_handle) =
-        init_daemon_logging(config).expect("Failed to initialize logging");
-
-    let status_handle = match service_control_handler::register(SERVICE_NAME, event_handler) {
-        Ok(handle) => handle,
-        Err(error) => {
-            log::error!(
-                "{}",
-                error.display_chain_with_msg("Failed to register a service control handler")
-            );
-            return;
-        }
-    };
+    let status_handle = service_control_handler::register(SERVICE_NAME, event_handler)
+        .expect("Failed to register a service control handler");
     let mut persistent_service_status = PersistentServiceStatus::new(status_handle);
     persistent_service_status
         .set_pending_start(Duration::from_secs(1))
         .unwrap();
 
-    let should_restart = Arc::new(AtomicBool::new(true));
-
-    log::info!("Service started.");
-
-    let result = run_daemon(
-        event_rx,
-        &mut persistent_service_status,
-        &should_restart,
-        log_location,
-        log_handle,
-    )
-    .await;
-
+    let result = runtime.block_on(run_daemon(event_rx, &mut persistent_service_status));
     let exit_code = match result {
-        Ok(()) => {
-            log::info!("Stopping service");
-            // check if shutdown signal was sent from the system
-            if !should_restart.load(Ordering::Acquire) {
-                ServiceExitCode::default()
-            } else {
-                // otherwise return a non-zero code so that the daemon gets restarted
-                ServiceExitCode::ServiceSpecific(1)
-            }
-        }
+        Ok(should_restart) if should_restart => ServiceExitCode::default(),
+        Ok(_should_restart) => ServiceExitCode::ServiceSpecific(1),
         Err(error) => {
             log::error!("{}", error);
             ServiceExitCode::ServiceSpecific(1)
         }
     };
-
     persistent_service_status.set_stopped(exit_code).unwrap();
 }
 
 async fn run_daemon(
     event_rx: mpsc::Receiver<ServiceControl>,
     persistent_service_status: &mut PersistentServiceStatus,
-    should_restart: &Arc<AtomicBool>,
-    log_location: Option<mullvad_daemon::logging::LogLocation>,
-    log_handle: mullvad_daemon::logging::LogHandle,
-) -> Result<(), String> {
+) -> Result<bool, String> {
+    let config = cli::get_config();
+    let (log_location, log_handle) =
+        init_daemon_logging(config).expect("Failed to initialize logging");
+
     let daemon = crate::create_daemon(log_location.map(|l| l.directory), log_handle).await?;
 
     let shutdown_handle = daemon.shutdown_handle();
+    let should_restart = Arc::new(AtomicBool::new(true));
     start_event_monitor(
         persistent_service_status.clone(),
         shutdown_handle,
         event_rx,
         should_restart.clone(),
     );
+    log::info!("Service started.");
     persistent_service_status.set_running().unwrap();
-    daemon.run().await.map_err(|e| e.display_chain())
+    match daemon.run().await.map_err(|e| e.display_chain()) {
+        Ok(()) => {
+            log::info!("Stopping service");
+            // check if shutdown signal was sent from the system
+            Ok(should_restart.load(Ordering::Acquire))
+        }
+        Err(e) => Err(e),
+    }
 }
 
 /// Start event monitor thread that polls for `ServiceControl` and translates them into calls to
