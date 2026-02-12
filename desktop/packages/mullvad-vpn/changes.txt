@@ -4,3 +4,4 @@ This is primarily a bug fix release.
 [macOS] Split tunneling should now work better while other network applications are running.
 [macOS] Fix potential problems with DNS not resolving while connected to the VPN.
 [Windows] Fix connection issue when third-party firewall applications are active.
+Update design of settings view and submenus.
