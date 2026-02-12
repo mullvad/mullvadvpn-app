@@ -630,16 +630,13 @@ private fun ConnectionCardHeader(
     }
 }
 
+@Composable
 private fun GeoIpLocation?.asString(): String {
-    return if (this == null) ""
-    else {
-        buildString {
-            append(country)
-            if (!city.isNullOrBlank()) {
-                append(", ")
-                append(city)
-            }
-        }
+    val city = this?.city
+    return when {
+        this == null -> ""
+        city.isNullOrBlank() -> country
+        else -> stringResource(R.string.country_comma_city, country, city)
     }
 }
 

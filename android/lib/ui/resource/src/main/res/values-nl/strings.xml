@@ -106,6 +106,7 @@
     <string name="copied_mullvad_account_number">Mullvad-accountnummer gekopieerd naar klembord</string>
     <string name="copy">Kopiëren</string>
     <string name="copy_account_number">Accountnummer kopiëren</string>
+    <string name="country_comma_city">%1$s, %2$s</string>
     <string name="create">Maken</string>
     <string name="create_account_fail_title">Account maken is mislukt</string>
     <string name="create_custom_list_message">\"%1$s\" is gemaakt</string>
