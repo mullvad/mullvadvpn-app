@@ -1,0 +1,135 @@
+// Relay Selector service.
+//
+// This API is used to query which relays are selectable for a set of filters,
+// and to provide information about about how to unblock discarded relays.
+
+syntax = "proto3";
+package mullvad_daemon.relay_selector;
+
+import "management_interface.proto";
+
+service RelaySelectorService {
+  // Partition the available relays by a predicate. The predicate can be
+  // derived from the current settings or a set of future settings changes
+  // before they are applied.
+  //
+  // Returns a list of matching relays. For each connection using the given
+  // constraints, one/a pair of these relays will be selected at random.
+  //
+  // Also returns a list of non-matching relays along with the set of
+  // constraints/conditions that made them unavailable.
+  rpc PartitionRelays(Predicate) returns (RelayPartitions);
+}
+
+// Predicate for selecting relays.
+//
+// This message is used to specify the constraints that should be applied
+// when selecting relays, along with a context that may affect the selection
+// behavior.
+message Predicate {
+  oneof context {
+    // Get matching relays for singlehop configuration.
+    EntryConstraints singlehop = 1;
+    // Get matching relays with automatic multihop when necessary.
+    //
+    // If the entry-specific constraints are not met for a given relay but an alternative
+    // entry node can be selected that matches the constraints, the relay will still be
+    // returned as a viable exit node. Connecting to the relay will result in a implicit
+    // multihop connection.
+    EntryConstraints autohop = 2;
+    // Get matching entry relays for multihop.
+    MultiHopConstraints entry = 3;
+    // Get matching exit relays for multihop.
+    MultiHopConstraints exit = 4;
+  }
+}
+
+// Constraints that apply to relays for singlehop or the first hop
+// in a multihop configuration.
+//
+// These include all the of `ExitConstraints`, and a few entry
+// specific features.
+message EntryConstraints {
+  ExitConstraints general_constraints = 1;
+  // -- Entry specific constraints --
+  management_interface.ObfuscationSettings obfuscation_settings = 2;
+  management_interface.DaitaSettings daita_settings = 3;
+  management_interface.IpVersion ip_version = 4;
+}
+
+// Constraints that apply to the second hop in a multihop configuration.
+// This is a subset of `EntryConstraints`.
+message ExitConstraints {
+  management_interface.LocationConstraint location = 1;
+  repeated Provider providers = 2;
+  management_interface.Ownership ownership = 3;
+}
+
+// Constraints for both hops in a multihop configuration.
+message MultiHopConstraints {
+  EntryConstraints entry = 1;
+  ExitConstraints exit = 2;
+}
+
+// The result of the relay selection algorithm.
+//
+// Contains the list of relays matching a predicate and the list of relays
+// that were discarded when evaluating a predicate.
+message RelayPartitions {
+  // List of relays matching a predicate.
+  repeated Relay matches = 1;
+  // List of relays that were discarded when evaluating the same predicate.
+  repeated DiscardedRelay discards = 2;
+}
+
+// A relay from the relay list.
+message Relay {
+  // A hostname that uniquely identifies a single VPN relay.
+  //
+  // It is the full hostname, e.g. `se-got-wg-101`.
+  // This can *NOT* be a location, e.g. `se` or `se-got`.
+  string hostname = 1;
+}
+
+// A relay which was discarded when evaluating some predicate, and why.
+message DiscardedRelay {
+  // Relay that was discarded.
+  Relay relay = 1;
+  // The list of constraints that did not match the relay.
+  //
+  // This can be interpreted as a list of criteria necessary
+  // to unblock the relay from being selectable.
+  IncompatibleConstraints why = 2;
+}
+
+// Set of constraints that prevents the relay from being selected.
+message IncompatibleConstraints {
+  // The relay is currently offline.
+  bool inactive = 1;
+  // The relay does not reside in the given location.
+  bool location = 2;
+  // The relay is not hosted by the given provider.
+  // TODO: Return which provider it needs? Can be looked up in the full relay list
+  bool providers = 3;
+  // The relay ownership does not match.
+  bool ownership = 4;
+
+  // -- Entry specific constraints --
+
+  // The relay cannot be connected to with the requested ip version.
+  bool ip_version = 5;
+  // The relay does not run DAITA.
+  bool daita = 6;
+  // The requested obfuscation method is not available.
+  bool obfuscation = 7;
+  // The relay cannot be connected to via the requested port.
+  bool port = 8;
+  // This relay is already used for the other hop (entry/exit).
+  bool conflict_with_other_hop = 9;
+}
+
+// A hosting provider.
+message Provider {
+  // The name of the provider.
+  string name = 1;
+}
