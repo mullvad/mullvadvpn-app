@@ -59,6 +59,7 @@ import com.ramcosta.composedestinations.generated.serveripoverride.destinations.
 import com.ramcosta.composedestinations.generated.serveripoverride.destinations.ResetServerIpOverridesConfirmationDestination
 import com.ramcosta.composedestinations.generated.serveripoverride.destinations.ServerIpOverridesDestination
 import com.ramcosta.composedestinations.generated.serveripoverride.destinations.ServerIpOverridesInfoDestination
+import com.ramcosta.composedestinations.generated.settings.destinations.SettingsDestination
 import com.ramcosta.composedestinations.generated.splittunneling.destinations.SplitTunnelingDestination
 import com.ramcosta.composedestinations.generated.vpnsettings.destinations.ConnectOnStartupInfoDestination
 import com.ramcosta.composedestinations.generated.vpnsettings.destinations.ContentBlockersInfoDestination
@@ -133,6 +134,7 @@ annotation class MainGraph {
     @ExternalDestination<SelectPortDestination>
     @ExternalDestination<ServerIpOverridesDestination>
     @ExternalDestination<ServerIpOverridesInfoDestination>
+    @ExternalDestination<SettingsDestination>
     @ExternalDestination<SplitTunnelingDestination>
     @ExternalDestination<VerificationPendingDestination>
     @ExternalDestination<ViewLogsDestination>
