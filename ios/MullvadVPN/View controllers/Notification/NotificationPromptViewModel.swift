@@ -25,6 +25,7 @@ enum NotificationPromptViewRowType: Identifiable {
     case action(
         text: LocalizedStringKey,
         style: MainButtonStyle.Style,
+        accessibilityIdentifier: AccessibilityIdentifier,
         action: () -> Void)
     case emptyView
 
@@ -55,6 +56,7 @@ final class NotificationPromptViewModel: NotificationPromptViewModelProtocol {
             .action(
                 text: "Enable notifications",
                 style: .success,
+                accessibilityIdentifier: .notificationPromptEnableButton,
                 action: { [weak self] in
                     guard let self else { return }
                     if isNotificationsDisabled {
@@ -72,6 +74,7 @@ final class NotificationPromptViewModel: NotificationPromptViewModelProtocol {
             .action(
                 text: "Skip",
                 style: .default,
+                accessibilityIdentifier: .notificationPromptSkipButton,
                 action: { [weak self] in
                     self?.isSkipped = true
                 }),
