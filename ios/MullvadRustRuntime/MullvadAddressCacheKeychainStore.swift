@@ -12,16 +12,12 @@ import MullvadSettings
 @_cdecl("swift_store_address_cache")
 func storeAddressCache(_ pointer: UnsafeRawPointer, dataSize: UInt64) {
     let data = Data(bytes: pointer, count: Int(dataSize))
-    // TODO: what if this throws?
+    // if writing to the Keychain fails, it will do so silently.
     try? SettingsManager.writeAddressCache(data)
 }
 
 @_cdecl("swift_read_address_cache")
-func readAddressCache() -> LateStringDeallocator {
+func readAddressCache() -> SwiftData {
     let data = (try? SettingsManager.readAddressCache()) ?? Data()
-    let pointer = UnsafeMutablePointer<CChar>.allocate(capacity: data.count)
-    data.withUnsafeBytes { dataPtr in
-        pointer.initialize(from: dataPtr, count: data.count)
-    }
-    return LateStringDeallocator(ptr: pointer, deallocate_ptr: { ptr in ptr?.deallocate() })
+    return SwiftData(data: data as NSData)
 }

@@ -1,6 +1,5 @@
 #![allow(rustdoc::private_intra_doc_links)]
 use async_trait::async_trait;
-use futures::FutureExt;
 #[cfg(target_os = "android")]
 use futures::channel::mpsc;
 use hyper::body::Incoming;
