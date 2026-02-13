@@ -398,6 +398,7 @@ dependencies {
     implementation(projects.lib.feature.daita.impl)
     implementation(projects.lib.feature.filter.impl)
     implementation(projects.lib.feature.home.impl)
+    implementation(projects.lib.feature.location.impl)
     implementation(projects.lib.feature.login.impl)
     implementation(projects.lib.feature.managedevices.impl)
     implementation(projects.lib.feature.multihop.impl)

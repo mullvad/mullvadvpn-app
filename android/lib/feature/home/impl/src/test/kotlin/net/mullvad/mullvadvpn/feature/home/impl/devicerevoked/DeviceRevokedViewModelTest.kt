@@ -10,6 +10,7 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
 import io.mockk.unmockkAll
+import kotlin.test.assertEquals
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.test.runTest
@@ -20,7 +21,6 @@ import net.mullvad.mullvadvpn.lib.pushnotification.accountexpiry.AccountExpiryNo
 import net.mullvad.mullvadvpn.lib.repository.AccountRepository
 import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
 import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -69,9 +69,9 @@ class DeviceRevokedViewModelTest {
 
         // Act, Assert
         viewModel.uiState.test {
-            Assertions.assertEquals(DeviceRevokedUiState.UNKNOWN, awaitItem())
+            assertEquals(DeviceRevokedUiState.UNKNOWN, awaitItem())
             tunnelStateFlow.emit(tunnelState)
-            Assertions.assertEquals(DeviceRevokedUiState.SECURED, awaitItem())
+            assertEquals(DeviceRevokedUiState.SECURED, awaitItem())
         }
     }
 
@@ -80,7 +80,7 @@ class DeviceRevokedViewModelTest {
         runTest {
             // Act, Assert
             viewModel.uiState.test {
-                Assertions.assertEquals(DeviceRevokedUiState.UNKNOWN, awaitItem())
+                assertEquals(DeviceRevokedUiState.UNKNOWN, awaitItem())
                 coVerify { mockScheduleNotificationAlarmUseCase(null, null) }
                 coVerify { mockAccountExpiryNotificationProvider.cancelNotification() }
             }

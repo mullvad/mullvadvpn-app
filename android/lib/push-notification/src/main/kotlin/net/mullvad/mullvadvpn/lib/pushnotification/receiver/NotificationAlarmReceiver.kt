@@ -18,7 +18,7 @@ class NotificationAlarmReceiver : BroadcastReceiver(), KoinComponent {
     override fun onReceive(context: Context, intent: Intent?) {
         // It is not possible to bind to a service from a notification alarm receiver so we will use
         // a worker instead.
-        Logger.Companion.d("Account expiry alarm triggered")
+        Logger.d("Account expiry alarm triggered")
 
         val work =
             OneTimeWorkRequestBuilder<ExpiryNotificationWorker>()

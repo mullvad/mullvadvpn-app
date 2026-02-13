@@ -16,8 +16,6 @@ import net.mullvad.mullvadvpn.apiaccess.impl.screen.save.SaveApiAccessMethodView
 import net.mullvad.mullvadvpn.appearance.impl.AppearanceViewModel
 import net.mullvad.mullvadvpn.appinfo.impl.AppInfoViewModel
 import net.mullvad.mullvadvpn.appinfo.impl.changelog.ChangelogViewModel
-import net.mullvad.mullvadvpn.compose.screen.location.LocationBottomSheetState
-import net.mullvad.mullvadvpn.compose.screen.location.RelayListScrollConnection
 import net.mullvad.mullvadvpn.customlist.impl.screen.create.CreateCustomListDialogViewModel
 import net.mullvad.mullvadvpn.customlist.impl.screen.delete.DeleteCustomListConfirmationViewModel
 import net.mullvad.mullvadvpn.customlist.impl.screen.editlist.EditCustomListViewModel
@@ -33,6 +31,12 @@ import net.mullvad.mullvadvpn.feature.home.impl.connect.notificationbanner.InApp
 import net.mullvad.mullvadvpn.feature.home.impl.devicerevoked.DeviceRevokedViewModel
 import net.mullvad.mullvadvpn.feature.home.impl.outoftime.OutOfTimeViewModel
 import net.mullvad.mullvadvpn.feature.home.impl.welcome.WelcomeViewModel
+import net.mullvad.mullvadvpn.feature.location.impl.RelayListScrollConnection
+import net.mullvad.mullvadvpn.feature.location.impl.SelectLocationViewModel
+import net.mullvad.mullvadvpn.feature.location.impl.bottomsheet.LocationBottomSheetState
+import net.mullvad.mullvadvpn.feature.location.impl.bottomsheet.LocationBottomSheetViewModel
+import net.mullvad.mullvadvpn.feature.location.impl.list.SelectLocationListViewModel
+import net.mullvad.mullvadvpn.feature.location.impl.search.SearchLocationViewModel
 import net.mullvad.mullvadvpn.feature.login.impl.LoginViewModel
 import net.mullvad.mullvadvpn.feature.login.impl.apiunreachable.ApiUnreachableViewModel
 import net.mullvad.mullvadvpn.feature.login.impl.devicelist.DeviceListViewModel
@@ -110,10 +114,6 @@ import net.mullvad.mullvadvpn.util.BackstackObserver
 import net.mullvad.mullvadvpn.viewmodel.MullvadAppViewModel
 import net.mullvad.mullvadvpn.viewmodel.PrivacyDisclaimerViewModel
 import net.mullvad.mullvadvpn.viewmodel.SplashViewModel
-import net.mullvad.mullvadvpn.viewmodel.location.LocationBottomSheetViewModel
-import net.mullvad.mullvadvpn.viewmodel.location.SearchLocationViewModel
-import net.mullvad.mullvadvpn.viewmodel.location.SelectLocationListViewModel
-import net.mullvad.mullvadvpn.viewmodel.location.SelectLocationViewModel
 import org.apache.commons.validator.routines.InetAddressValidator
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.viewModel

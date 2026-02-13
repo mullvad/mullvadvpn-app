@@ -100,7 +100,7 @@ fun SwitchLocationButton(
                         contentColor = MaterialTheme.colorScheme.onPrimary,
                     ),
                 modifier =
-                    Modifier.Companion.constrainAs(connectionButton) {
+                    Modifier.constrainAs(connectionButton) {
                             start.linkTo(parent.start)
                             if (isReconnectButtonEnabled) {
                                 end.linkTo(reconnectButton.start)
