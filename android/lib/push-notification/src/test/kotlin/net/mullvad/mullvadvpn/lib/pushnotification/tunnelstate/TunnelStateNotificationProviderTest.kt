@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.service.notifications.tunnelstate
+package net.mullvad.mullvadvpn.lib.pushnotification.tunnelstate
 
 import android.content.Context
 import app.cash.turbine.test
@@ -7,9 +7,6 @@ import arrow.core.right
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
-import java.time.ZonedDateTime
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -29,13 +26,15 @@ import net.mullvad.mullvadvpn.lib.model.NotificationUpdate
 import net.mullvad.mullvadvpn.lib.model.PrepareError
 import net.mullvad.mullvadvpn.lib.model.Prepared
 import net.mullvad.mullvadvpn.lib.model.TunnelState
-import net.mullvad.mullvadvpn.lib.pushnotification.tunnelstate.TunnelStateNotificationProvider
 import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
 import net.mullvad.mullvadvpn.lib.repository.DeviceRepository
 import net.mullvad.mullvadvpn.lib.repository.UserPreferencesRepository
 import net.mullvad.mullvadvpn.repository.UserPreferences
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import java.time.ZonedDateTime
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class TunnelStateNotificationProviderTest {
 

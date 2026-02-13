@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.service.util
+package net.mullvad.mullvadvpn.app.service
 
 import android.content.Context
 import co.touchlab.kermit.Logger

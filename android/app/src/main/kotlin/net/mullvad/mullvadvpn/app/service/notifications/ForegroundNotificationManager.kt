@@ -1,9 +1,10 @@
-package net.mullvad.mullvadvpn.service.notifications
+package net.mullvad.mullvadvpn.app.service.notifications
 
 import android.app.Service
 import android.content.pm.ServiceInfo
 import android.os.Build
 import co.touchlab.kermit.Logger
+import net.mullvad.mullvadvpn.app.service.MullvadVpnService
 import net.mullvad.mullvadvpn.lib.common.util.prepareVpnSafe
 import net.mullvad.mullvadvpn.lib.model.Notification
 import net.mullvad.mullvadvpn.lib.model.NotificationChannel
@@ -11,7 +12,6 @@ import net.mullvad.mullvadvpn.lib.model.NotificationTunnelState
 import net.mullvad.mullvadvpn.lib.model.NotificationUpdate
 import net.mullvad.mullvadvpn.lib.pushnotification.tunnelstate.TunnelStateNotificationProvider
 import net.mullvad.mullvadvpn.lib.pushnotification.tunnelstate.toNotification
-import net.mullvad.mullvadvpn.service.MullvadVpnService
 
 class ForegroundNotificationManager(
     private val vpnService: MullvadVpnService,

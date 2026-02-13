@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.service.migration
+package net.mullvad.mullvadvpn.app.service.migration
 
 import android.content.Context
 import java.io.File

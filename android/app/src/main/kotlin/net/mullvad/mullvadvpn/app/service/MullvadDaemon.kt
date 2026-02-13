@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.service
+package net.mullvad.mullvadvpn.app.service
 
 import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointOverride
 
