@@ -5,12 +5,15 @@
 
 set -eu
 
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
 if [[ $# != 1 ]]; then
     echo "!!! Please pass the app version as the first and only argument"
     exit 1
 fi
 
 URL_BASE="https://releases.mullvad.net/desktop"
+MULLVAD_CODE_SIGNING_KEY_PATH="$SCRIPT_DIR/../ci/keys/1.mullvad_signing.pub"
 
 # Pass Mullvad VPN app version as first and only argument
 version=$1
@@ -21,8 +24,11 @@ mkdir -p "$cache_dir"
 cd "$cache_dir"
 chmod 755 "$cache_dir"
 
-# Find GnuPG command to use. Prefer gpg2
-gpg_cmd=$(command -v gpg2 || command -v gpg)
+# Find sqv (Sequoia signature verification tool)
+if ! command -v sqv >/dev/null; then
+    echo "!!! sqv (Sequoia signature verification tool) not found. Please install it."
+    exit 1
+fi
 
 # Detect operating system and package manager
 if [[ "$(uname -s)" == "Darwin" ]] && command -v installer; then
@@ -62,7 +68,9 @@ fi
 # Verify the integrity of the files
 echo ""
 echo ">>> Verifying integrity of $pkg_filename"
-if ! $gpg_cmd --verify "$pkg_filename.asc" "$pkg_filename"; then
+# We prefer sqv for PGP key verification as it is a strict and easy-to-use implementation of PGP.
+# gpg is also not suitable for use in scripting.
+if ! sqv --keyring="$MULLVAD_CODE_SIGNING_KEY_PATH" --signature-file="$pkg_filename.asc" "$pkg_filename"; then
     echo ""
     echo "!!! INTEGRITY CHECKING FAILED !!!"
     rm "$pkg_filename" "$pkg_filename.asc"
