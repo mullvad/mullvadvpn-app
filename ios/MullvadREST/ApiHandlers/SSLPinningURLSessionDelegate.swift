@@ -39,10 +39,6 @@ final class SSLPinningURLSessionDelegate: NSObject, URLSessionDelegate, @uncheck
             var hostName = challenge.protectionSpace.host
             // this used to check for the current endpoint in the address cache as well, though this has been deprecated.
 
-            if hostName == "\(REST.defaultAPIEndpoint.ip)" {
-                hostName = sslHostname
-            }
-
             if verifyServerTrust(serverTrust, for: hostName) {
                 completionHandler(.useCredential, URLCredential(trust: serverTrust))
                 return
