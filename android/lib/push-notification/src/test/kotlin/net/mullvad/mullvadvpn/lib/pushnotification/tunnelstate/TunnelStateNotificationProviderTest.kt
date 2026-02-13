@@ -7,6 +7,9 @@ import arrow.core.right
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
+import java.time.ZonedDateTime
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -32,9 +35,6 @@ import net.mullvad.mullvadvpn.lib.repository.UserPreferencesRepository
 import net.mullvad.mullvadvpn.repository.UserPreferences
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import java.time.ZonedDateTime
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
 class TunnelStateNotificationProviderTest {
 
