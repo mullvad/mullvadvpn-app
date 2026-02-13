@@ -2,7 +2,6 @@ import styled from 'styled-components';
 
 import { IDevice } from '../../../shared/daemon-rpc-types';
 import { AnimatedList } from '../../lib/components/animated-list';
-import { ListItemPositions } from '../../lib/components/list-item';
 import { StyledListItemItem } from '../../lib/components/list-item/components';
 import { useSelector } from '../../redux/store';
 import { DeviceListItem } from '../device-list-item';
@@ -16,9 +15,26 @@ const StyledAnimatedList = styled(AnimatedList)`
   flex-direction: column;
 `;
 
-const StyledAnimatedListItem = styled(AnimatedList.Item)`
+const StyledAnimatedListItemRoot = styled(AnimatedList.Item)``;
+const StyledAnimatedListItem = styled(StyledAnimatedListItemRoot)`
   ${StyledListItemItem} {
     transition: border-radius 0.15s ease-out;
+  }
+  // If preceded by another item, remove the top border radius
+  ${StyledAnimatedListItemRoot} + & {
+    margin-top: 1px;
+    ${StyledListItemItem} {
+      border-top-left-radius: 0;
+      border-top-right-radius: 0;
+    }
+  }
+
+  // If followed by another item, remove the bottom border radius
+  &:has(~ ${StyledAnimatedListItemRoot}) {
+    ${StyledListItemItem} {
+      border-bottom-left-radius: 0;
+      border-bottom-right-radius: 0;
+    }
   }
 `;
 
@@ -31,16 +47,10 @@ export function DeviceList({ devices }: DeviceListProps) {
     <>
       {currentDevice && <DeviceListItem device={currentDevice} />}
       <StyledAnimatedList>
-        {nonCurrentDevices.map((device, idx) => {
-          let position: ListItemPositions | undefined = 'middle';
-          if (idx === 0) {
-            position = 'first';
-          } else if (idx === nonCurrentDevices.length - 1) {
-            position = 'last';
-          }
+        {nonCurrentDevices.map((device) => {
           return (
             <StyledAnimatedListItem key={device.id}>
-              <DeviceListItem position={position} device={device} />
+              <DeviceListItem device={device} />
             </StyledAnimatedListItem>
           );
         })}
