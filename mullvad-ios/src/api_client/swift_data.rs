@@ -3,19 +3,17 @@ pub struct SwiftData {
     ptr: *mut libc::c_void,
 }
 
-const EMPTY: [u8;0] = [];
+const EMPTY: [u8; 0] = [];
 
 impl AsRef<[u8]> for SwiftData {
     fn as_ref(&self) -> &[u8] {
         let data_ptr = unsafe { swift_data_get_ptr(self) };
-        let len = unsafe { swift_data_get_len(self)  };
+        let len = unsafe { swift_data_get_len(self) };
 
         if data_ptr.is_null() {
             &EMPTY
         } else {
-            unsafe {
-                std::slice::from_raw_parts(data_ptr, len)
-            }
+            unsafe { std::slice::from_raw_parts(data_ptr, len) }
         }
     }
 }
