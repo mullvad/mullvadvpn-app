@@ -274,7 +274,7 @@
             </intent-filter>
         </receiver>
         <receiver
-                android:name=".receiver.NotificationAlarmReceiver"
+                android:name=".lib.pushnotification.receiver.NotificationAlarmReceiver"
                 android:exported="false" />
         <receiver
                 android:name=".receiver.AutoStartVpnBootCompletedReceiver"

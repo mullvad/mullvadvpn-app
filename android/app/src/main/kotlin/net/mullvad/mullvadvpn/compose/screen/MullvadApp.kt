@@ -48,6 +48,11 @@ import com.ramcosta.composedestinations.generated.daita.destinations.DaitaDirect
 import com.ramcosta.composedestinations.generated.daita.destinations.DaitaDirectOnlyInfoDestination
 import com.ramcosta.composedestinations.generated.destinations.NoDaemonDestination
 import com.ramcosta.composedestinations.generated.filter.destinations.FilterDestination
+import com.ramcosta.composedestinations.generated.login.destinations.ApiUnreachableInfoDestination
+import com.ramcosta.composedestinations.generated.login.destinations.CreateAccountConfirmationDestination
+import com.ramcosta.composedestinations.generated.login.destinations.DeviceListDestination
+import com.ramcosta.composedestinations.generated.login.destinations.LoginDestination
+import com.ramcosta.composedestinations.generated.login.destinations.RemoveDeviceConfirmationDestination
 import com.ramcosta.composedestinations.generated.managedevices.destinations.ManageDevicesDestination
 import com.ramcosta.composedestinations.generated.managedevices.destinations.ManageDevicesRemoveConfirmationDestination
 import com.ramcosta.composedestinations.generated.multihop.destinations.MultihopDestination
@@ -94,12 +99,14 @@ annotation class MainGraph {
     @ExternalDestination<ApiAccessListDestination>
     @ExternalDestination<ApiAccessMethodDetailsDestination>
     @ExternalDestination<ApiAccessMethodInfoDestination>
+    @ExternalDestination<ApiUnreachableInfoDestination>
     @ExternalDestination<AppInfoDestination>
     @ExternalDestination<AppearanceDestination>
     @ExternalDestination<AutoConnectAndLockdownModeDestination>
     @ExternalDestination<ChangelogDestination>
     @ExternalDestination<ConnectOnStartupInfoDestination>
     @ExternalDestination<ContentBlockersInfoDestination>
+    @ExternalDestination<CreateAccountConfirmationDestination>
     @ExternalDestination<CreateCustomListDestination>
     @ExternalDestination<CustomDnsInfoDestination>
     @ExternalDestination<CustomListLocationsDestination>
@@ -111,6 +118,7 @@ annotation class MainGraph {
     @ExternalDestination<DeleteApiAccessMethodConfirmationDestination>
     @ExternalDestination<DeleteCustomListDestination>
     @ExternalDestination<DeviceIpInfoDestination>
+    @ExternalDestination<DeviceListDestination>
     @ExternalDestination<DiscardApiAccessChangesDestination>
     @ExternalDestination<DiscardChangesDestination>
     @ExternalDestination<DnsDestination>
@@ -121,6 +129,7 @@ annotation class MainGraph {
     @ExternalDestination<ImportOverridesByTextDestination>
     @ExternalDestination<Ipv6InfoDestination>
     @ExternalDestination<LocalNetworkSharingInfoDestination>
+    @ExternalDestination<LoginDestination>
     @ExternalDestination<MalwareInfoDestination>
     @ExternalDestination<ManageDevicesDestination>
     @ExternalDestination<ManageDevicesRemoveConfirmationDestination>
@@ -129,6 +138,7 @@ annotation class MainGraph {
     @ExternalDestination<NotificationSettingsDestination>
     @ExternalDestination<QuantumResistanceInfoDestination>
     @ExternalDestination<RedeemVoucherDestination>
+    @ExternalDestination<RemoveDeviceConfirmationDestination>
     @ExternalDestination<ReportProblemDestination>
     @ExternalDestination<ReportProblemNoEmailDestination>
     @ExternalDestination<ResetServerIpOverridesConfirmationDestination>

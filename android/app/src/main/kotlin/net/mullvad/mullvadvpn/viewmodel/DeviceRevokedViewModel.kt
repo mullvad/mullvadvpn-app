@@ -12,10 +12,10 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.DeviceRevokedUiState
 import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
+import net.mullvad.mullvadvpn.lib.pushnotification.ScheduleNotificationAlarmUseCase
+import net.mullvad.mullvadvpn.lib.pushnotification.accountexpiry.AccountExpiryNotificationProvider
 import net.mullvad.mullvadvpn.lib.repository.AccountRepository
 import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
-import net.mullvad.mullvadvpn.service.notifications.accountexpiry.AccountExpiryNotificationProvider
-import net.mullvad.mullvadvpn.usecase.ScheduleNotificationAlarmUseCase
 
 class DeviceRevokedViewModel(
     private val accountRepository: AccountRepository,

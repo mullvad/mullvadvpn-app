@@ -80,6 +80,7 @@ dependencies {
     implementation(projects.lib.grpc)
     implementation(projects.lib.endpoint)
     implementation(projects.lib.model)
+    implementation(projects.lib.pushNotification)
     implementation(projects.lib.repository)
     implementation(projects.lib.talpid)
 

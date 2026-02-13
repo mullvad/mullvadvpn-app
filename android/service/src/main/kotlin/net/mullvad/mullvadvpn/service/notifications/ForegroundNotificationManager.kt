@@ -9,9 +9,9 @@ import net.mullvad.mullvadvpn.lib.model.Notification
 import net.mullvad.mullvadvpn.lib.model.NotificationChannel
 import net.mullvad.mullvadvpn.lib.model.NotificationTunnelState
 import net.mullvad.mullvadvpn.lib.model.NotificationUpdate
+import net.mullvad.mullvadvpn.lib.pushnotification.tunnelstate.TunnelStateNotificationProvider
+import net.mullvad.mullvadvpn.lib.pushnotification.tunnelstate.toNotification
 import net.mullvad.mullvadvpn.service.MullvadVpnService
-import net.mullvad.mullvadvpn.service.notifications.tunnelstate.TunnelStateNotificationProvider
-import net.mullvad.mullvadvpn.service.notifications.tunnelstate.toNotification
 
 class ForegroundNotificationManager(
     private val vpnService: MullvadVpnService,
