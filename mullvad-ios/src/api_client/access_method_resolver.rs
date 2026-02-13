@@ -8,17 +8,16 @@ use talpid_types::net::{
 };
 use tonic::async_trait;
 
-use crate::get_string;
+use crate::{api_client::swift_data::SwiftData};
 
 use super::{
-    late_string_deallocator::LateStringDeallocator,
     shadowsocks_loader::SwiftShadowsocksLoaderWrapper,
 };
 
 unsafe extern "C" {
     pub fn swift_store_address_cache(data: *const u8, data_size: u64);
 
-    pub fn swift_read_address_cache() -> LateStringDeallocator;
+    pub fn swift_read_address_cache() -> SwiftData;
 }
 
 #[derive(Clone)]
@@ -27,9 +26,8 @@ pub struct IOSAddressCacheBacking {}
 #[async_trait]
 impl AddressCacheBacking for IOSAddressCacheBacking {
     async fn read(&self) -> Result<Vec<u8>, AddressCacheError> {
-        let lsd = unsafe { swift_read_address_cache() };
-        let val = unsafe { get_string(lsd.ptr) };
-        Ok(val.as_bytes().to_vec())
+        let sd = unsafe { swift_read_address_cache() };
+        Ok(sd.as_ref().to_vec())
     }
 
     async fn write(&self, data: &[u8]) -> Result<(), AddressCacheError> {
