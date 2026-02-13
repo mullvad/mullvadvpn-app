@@ -996,6 +996,7 @@
 		F09D04BD2AEBB7C5003D4F89 /* OutgoingConnectionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F09D04BC2AEBB7C5003D4F89 /* OutgoingConnectionService.swift */; };
 		F09D04C02AF39D63003D4F89 /* OutgoingConnectionServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F09D04BF2AF39D63003D4F89 /* OutgoingConnectionServiceTests.swift */; };
 		F09D04C12AF39EA2003D4F89 /* OutgoingConnectionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F09D04BC2AEBB7C5003D4F89 /* OutgoingConnectionService.swift */; };
+		F0A005572F3DFDDC00B09EFC /* NotificationPromptPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0A005562F3DFDCF00B09EFC /* NotificationPromptPage.swift */; };
 		F0A086902C22D6A700BF83E7 /* TunnelSettingsStrategyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0A0868F2C22D6A700BF83E7 /* TunnelSettingsStrategyTests.swift */; };
 		F0A7EBB22CEF6C79005BB671 /* ConsolidatedApplicationLogTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0A7EBB12CEF6C79005BB671 /* ConsolidatedApplicationLogTests.swift */; };
 		F0A7EBB62CF092CC005BB671 /* ApplicationConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BFA5CB22A7CE1F00A6173D /* ApplicationConfiguration.swift */; };
@@ -2469,6 +2470,7 @@
 		F09D04BC2AEBB7C5003D4F89 /* OutgoingConnectionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutgoingConnectionService.swift; sourceTree = "<group>"; };
 		F09D04BF2AF39D63003D4F89 /* OutgoingConnectionServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutgoingConnectionServiceTests.swift; sourceTree = "<group>"; };
 		F09F45242E4A35D600FF5C82 /* ko */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ko; path = ko.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		F0A005562F3DFDCF00B09EFC /* NotificationPromptPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationPromptPage.swift; sourceTree = "<group>"; };
 		F0A0868F2C22D6A700BF83E7 /* TunnelSettingsStrategyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelSettingsStrategyTests.swift; sourceTree = "<group>"; };
 		F0A163882C47B46300592300 /* SingleHopEphemeralPeerExchangerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleHopEphemeralPeerExchangerTests.swift; sourceTree = "<group>"; };
 		F0A66C992E4A3607006F190A /* th */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = th; path = th.lproj/InfoPlist.strings; sourceTree = "<group>"; };
@@ -4576,6 +4578,7 @@
 				A998DA802BD147AD001D61A2 /* ListCustomListsPage.swift */,
 				852969342B4E9270007EAD4C /* LoginPage.swift */,
 				7A8A19232CF4C9B8000BCB5B /* MultihopPage.swift */,
+				F0A005562F3DFDCF00B09EFC /* NotificationPromptPage.swift */,
 				85139B2C2B84B4A700734217 /* OutOfTimePage.swift */,
 				852969322B4E9232007EAD4C /* Page.swift */,
 				7A4ED7B52ECCC09C00E0DC51 /* PaymentPage.swift */,
@@ -6971,6 +6974,7 @@
 				85EC620C2B838D10005AFFB5 /* MullvadAPIWrapper.swift in Sources */,
 				A9DF789D2B7D1E8B0094E4AD /* LoggedInWithTimeUITestCase.swift in Sources */,
 				85607C892D131CD500037E34 /* TestRouterAPIClient.swift in Sources */,
+				F0A005572F3DFDDC00B09EFC /* NotificationPromptPage.swift in Sources */,
 				7A4ED7B62ECCC09F00E0DC51 /* PaymentPage.swift in Sources */,
 				85D2B0B12B6BD32400DF9DA7 /* BaseUITestCase.swift in Sources */,
 				F09084682C6E88ED001CD36E /* DaitaPromptAlert.swift in Sources */,

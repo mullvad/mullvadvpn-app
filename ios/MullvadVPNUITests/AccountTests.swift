@@ -60,11 +60,7 @@ class AccountTests: LoggedOutUITestCase {
 
     func testDeleteAccount() throws {
         let accountNumber = createTemporaryAccountWithoutTime()
-
-        LoginPage(app)
-            .tapAccountNumberTextField()
-            .enterText(accountNumber)
-            .tapAccountNumberSubmitButton()
+        login(accountNumber: accountNumber)
 
         OutOfTimePage(app)
 
@@ -96,10 +92,7 @@ class AccountTests: LoggedOutUITestCase {
             self.mullvadAPIWrapper.deleteAccount(temporaryAccountNumber)
         }
 
-        LoginPage(app)
-            .tapAccountNumberTextField()
-            .enterText(temporaryAccountNumber)
-            .tapAccountNumberSubmitButton()
+        login(accountNumber: temporaryAccountNumber)
 
         OutOfTimePage(app)
 
@@ -160,22 +153,7 @@ class AccountTests: LoggedOutUITestCase {
             self.deleteTemporaryAccountWithTime(accountNumber: hasTimeAccountNumber)
         }
 
-        var successIconShown = false
-        var retryCount = 0
-        let maxRetryCount = 3
-
-        let loginPage = LoginPage(app)
-            .tapAccountNumberTextField()
-            .enterText(hasTimeAccountNumber)
-
-        repeat {
-            successIconShown =
-                loginPage
-                .tapAccountNumberSubmitButton()
-                .getSuccessIconShown()
-
-            retryCount += 1
-        } while successIconShown == false && retryCount < maxRetryCount
+        login(accountNumber: hasTimeAccountNumber)
 
         HeaderBar(app)
             .verifyDeviceLabelShown()
