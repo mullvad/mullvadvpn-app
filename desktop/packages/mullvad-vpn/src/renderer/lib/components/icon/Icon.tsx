@@ -39,6 +39,7 @@ export const Icon = ({
 }: IconProps) => {
   const icon = icons[iconProp];
   const src = iconProp.startsWith('data:') ? iconProp : `assets/icons/${icon}.svg`;
+
   const color = colors[colorProp];
   return <StyledIcon $src={src} $size={iconSizes[size]} $color={color} role="img" {...props} />;
 };

@@ -2,6 +2,7 @@ export const icons = {
   'account-circle': 'icon-account-circle',
   'add-circle': 'icon-add-circle',
   'alert-circle': 'icon-alert-circle',
+  'checkbox-checkmark': 'icon-checkbox-checkmark',
   'checkmark-circle': 'icon-checkmark-circle',
   checkmark: 'icon-checkmark',
   'chevron-down-circle': 'icon-chevron-down-circle',

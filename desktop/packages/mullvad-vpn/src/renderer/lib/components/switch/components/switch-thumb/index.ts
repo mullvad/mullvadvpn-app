@@ -1,1 +1,1 @@
-export * from './SwitchThumb';
+export * from './SwitchInput';

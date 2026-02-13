@@ -19,7 +19,7 @@ function BlockGamblingSwitch({ children, ...props }: BlockGamblingSwitchProps) {
 
 const BlockGamblingSwitchNamespace = Object.assign(BlockGamblingSwitch, {
   Label: Switch.Label,
-  Thumb: Switch.Thumb,
+  Input: Switch.Input,
   Trigger: Switch.Trigger,
 });
 

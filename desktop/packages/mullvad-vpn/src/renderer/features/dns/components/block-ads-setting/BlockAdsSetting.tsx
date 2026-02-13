@@ -16,9 +16,7 @@ export function BlockAdsSetting(props: BlockAdsSettingProps) {
             }
           </BlockAdsSwitch.Label>
           <ListItem.ActionGroup>
-            <BlockAdsSwitch.Trigger>
-              <BlockAdsSwitch.Thumb />
-            </BlockAdsSwitch.Trigger>
+            <BlockAdsSwitch.Input />
           </ListItem.ActionGroup>
         </BlockAdsSwitch>
       </ListItem.Item>

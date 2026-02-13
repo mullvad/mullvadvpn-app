@@ -1,18 +1,18 @@
-import { Text, TextProps } from '../../../text';
+import { Label, LabelProps } from '../../../label';
 import { useSwitchContext } from '../../';
 
-export type SwitchLabelProps = TextProps;
+export type SwitchLabelProps = LabelProps;
 
 export function SwitchLabel({ children, ...props }: SwitchLabelProps) {
-  const { labelId, disabled } = useSwitchContext();
+  const { inputId, disabled } = useSwitchContext();
 
   return (
-    <Text
-      id={labelId}
+    <Label
+      htmlFor={inputId}
       variant="bodySmallSemibold"
       color={disabled ? 'whiteAlpha40' : 'white'}
       {...props}>
       {children}
-    </Text>
+    </Label>
   );
 }
