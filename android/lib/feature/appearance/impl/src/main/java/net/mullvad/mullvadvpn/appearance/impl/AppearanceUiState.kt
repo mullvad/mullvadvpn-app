@@ -1,6 +1,6 @@
 package net.mullvad.mullvadvpn.appearance.impl
 
-import net.mullvad.mullvadvpn.lib.repository.AppObfuscation
+import net.mullvad.mullvadvpn.appearance.impl.obfuscation.AppObfuscation
 
 data class AppearanceUiState(
     val availableObfuscations: List<AppObfuscation> = emptyList(),

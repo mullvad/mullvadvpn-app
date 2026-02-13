@@ -9,8 +9,8 @@ import io.mockk.MockKAnnotations
 import io.mockk.mockk
 import io.mockk.unmockkAll
 import io.mockk.verify
-import net.mullvad.mullvadvpn.compose.data.DUMMY_RELAY_ITEM_CUSTOM_LISTS
 import net.mullvad.mullvadvpn.feature.location.impl.UndoChangeMultihopAction
+import net.mullvad.mullvadvpn.feature.location.impl.data.DUMMY_RELAY_ITEM_CUSTOM_LISTS
 import net.mullvad.mullvadvpn.lib.common.Lce
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.RelayItem

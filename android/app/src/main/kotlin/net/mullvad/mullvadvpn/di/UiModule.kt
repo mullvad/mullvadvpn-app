@@ -13,6 +13,8 @@ import net.mullvad.mullvadvpn.apiaccess.impl.screen.detail.ApiAccessMethodDetail
 import net.mullvad.mullvadvpn.apiaccess.impl.screen.edit.EditApiAccessMethodViewModel
 import net.mullvad.mullvadvpn.apiaccess.impl.screen.list.ApiAccessListViewModel
 import net.mullvad.mullvadvpn.apiaccess.impl.screen.save.SaveApiAccessMethodViewModel
+import net.mullvad.mullvadvpn.app.MainActivity
+import net.mullvad.mullvadvpn.app.MullvadAppViewModel
 import net.mullvad.mullvadvpn.appearance.impl.AppearanceViewModel
 import net.mullvad.mullvadvpn.appinfo.impl.AppInfoViewModel
 import net.mullvad.mullvadvpn.appinfo.impl.changelog.ChangelogViewModel
@@ -106,14 +108,12 @@ import net.mullvad.mullvadvpn.lib.usecase.inappnotification.TunnelStateNotificat
 import net.mullvad.mullvadvpn.lib.usecase.inappnotification.VersionNotificationUseCase
 import net.mullvad.mullvadvpn.multihop.impl.MultihopViewModel
 import net.mullvad.mullvadvpn.receiver.AutoStartVpnBootCompletedReceiver
+import net.mullvad.mullvadvpn.screen.privacy.PrivacyDisclaimerViewModel
+import net.mullvad.mullvadvpn.screen.splash.SplashViewModel
 import net.mullvad.mullvadvpn.serveripoverride.impl.ServerIpOverridesViewModel
 import net.mullvad.mullvadvpn.serveripoverride.impl.reset.ResetServerIpOverridesConfirmationViewModel
-import net.mullvad.mullvadvpn.ui.MainActivity
-import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
+import net.mullvad.mullvadvpn.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.util.BackstackObserver
-import net.mullvad.mullvadvpn.viewmodel.MullvadAppViewModel
-import net.mullvad.mullvadvpn.viewmodel.PrivacyDisclaimerViewModel
-import net.mullvad.mullvadvpn.viewmodel.SplashViewModel
 import org.apache.commons.validator.routines.InetAddressValidator
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.viewModel
