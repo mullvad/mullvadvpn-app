@@ -86,6 +86,7 @@
 		44DD7D292B7113CA0005F67F /* MockTunnel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44DD7D282B7113CA0005F67F /* MockTunnel.swift */; };
 		44DD7D2D2B74E44A0005F67F /* QuantumResistanceSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44DD7D2C2B74E44A0005F67F /* QuantumResistanceSettings.swift */; };
 		44DF8AC42BF20BD200869CA4 /* PacketTunnelActor+PostQuantum.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44DF8AC32BF20BD200869CA4 /* PacketTunnelActor+PostQuantum.swift */; };
+		44DFB71C2F3DD8AB002C528E /* SwiftData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44DFB71B2F3DD8A6002C528E /* SwiftData.swift */; };
 		44E1F7582D3EA83A003A60FF /* DestinationDescriber.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44E1F7572D3EA82C003A60FF /* DestinationDescriber.swift */; };
 		44E1F75A2D3FDCCA003A60FF /* DestinationDescriberTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44E1F7592D3FDCBA003A60FF /* DestinationDescriberTests.swift */; };
 		44E1F75B2D3FEC81003A60FF /* DestinationDescriber.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44E1F7572D3EA82C003A60FF /* DestinationDescriber.swift */; };
@@ -1659,6 +1660,7 @@
 		44DD7D282B7113CA0005F67F /* MockTunnel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockTunnel.swift; sourceTree = "<group>"; };
 		44DD7D2C2B74E44A0005F67F /* QuantumResistanceSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuantumResistanceSettings.swift; sourceTree = "<group>"; };
 		44DF8AC32BF20BD200869CA4 /* PacketTunnelActor+PostQuantum.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PacketTunnelActor+PostQuantum.swift"; sourceTree = "<group>"; };
+		44DFB71B2F3DD8A6002C528E /* SwiftData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftData.swift; sourceTree = "<group>"; };
 		44E1F7572D3EA82C003A60FF /* DestinationDescriber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DestinationDescriber.swift; sourceTree = "<group>"; };
 		44E1F7592D3FDCBA003A60FF /* DestinationDescriberTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DestinationDescriberTests.swift; sourceTree = "<group>"; };
 		44EC6C592E3BB3EF0087F54A /* PersistentProxyConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistentProxyConfiguration.swift; sourceTree = "<group>"; };
@@ -4571,6 +4573,7 @@
 		A992DA1E2C24709F00DE7CE5 /* MullvadRustRuntime */ = {
 			isa = PBXGroup;
 			children = (
+				44DFB71B2F3DD8A6002C528E /* SwiftData.swift */,
 				01D13C202F11130500EC63DE /* RustLogging.swift */,
 				4491AC7A2ECF5FC8005789DF /* MullvadAddressCacheKeychainStore.swift */,
 				A948809A2BC9308D0090A44C /* EphemeralPeerExchangeActor.swift */,
@@ -6964,6 +6967,7 @@
 				A9D9A4B22C36D12D004088DD /* TunnelObfuscator.swift in Sources */,
 				A9B95DEF2EC73BB800C7FE9B /* MullvadAPIMock.swift in Sources */,
 				A98207F12D91A0AC00654558 /* MullvadShadowsocksBridgeProvider.swift in Sources */,
+				44DFB71C2F3DD8AB002C528E /* SwiftData.swift in Sources */,
 				7AB931262D43D22F005FCEBA /* MullvadApiResponse.swift in Sources */,
 				A98207F32D9ACE4C00654558 /* MullvadAccessMethodReceiver.swift in Sources */,
 				A9173C322C36CCDD00F6A08C /* EphemeralPeerReceiver.swift in Sources */,

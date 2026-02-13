@@ -45,10 +45,9 @@ typedef struct SwiftShadowsocksLoaderWrapper {
   struct SwiftShadowsocksLoaderWrapperContext _0;
 } SwiftShadowsocksLoaderWrapper;
 
-typedef struct LateStringDeallocator {
-  const char *ptr;
-  void (*deallocate_ptr)(const char*);
-} LateStringDeallocator;
+typedef struct SwiftData {
+  void *ptr;
+} SwiftData;
 
 typedef struct SwiftCancelHandle {
   struct RequestCancelHandle *ptr;
@@ -228,7 +227,7 @@ struct SwiftApiContext mullvad_api_init_inner(const char *host,
 
 extern void swift_store_address_cache(const uint8_t *data, uint64_t data_size);
 
-extern struct LateStringDeallocator swift_read_address_cache(void);
+extern struct SwiftData swift_read_address_cache(void);
 
 /**
  * Converts parameters into a `Box<AccessMethodSetting>` raw representation that
@@ -789,6 +788,12 @@ struct SwiftCancelHandle mullvad_ios_check_storekit_payment(struct SwiftApiConte
                                                             struct SwiftRetryStrategy retry_strategy,
                                                             const uint8_t *body,
                                                             uintptr_t body_size);
+
+extern uint8_t *swift_data_get_ptr(const struct SwiftData *data);
+
+extern uintptr_t swift_data_get_len(const struct SwiftData *data);
+
+extern void swift_data_drop(struct SwiftData *data);
 
 /**
  * To be called when ephemeral peer exchange has finished. All parameters except
