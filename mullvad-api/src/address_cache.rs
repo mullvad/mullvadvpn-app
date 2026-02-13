@@ -2,7 +2,7 @@
 
 use crate::{ApiEndpoint, DnsResolver};
 use async_trait::async_trait;
-use std::{io, net::SocketAddr, path::Path, sync::Arc, fmt::Debug};
+use std::{fmt::Debug, io, net::SocketAddr, path::Path, sync::Arc};
 use tokio::{
     fs,
     io::{AsyncReadExt, AsyncWriteExt},

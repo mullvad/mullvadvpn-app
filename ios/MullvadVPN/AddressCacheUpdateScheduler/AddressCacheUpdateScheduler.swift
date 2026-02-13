@@ -32,7 +32,7 @@ final class AddressCacheUpdateScheduler: @unchecked Sendable {
 
     /// The date of last failed attempt.
     private var lastFailureAttemptDate: Date?
-    
+
     /// The timestamp of the last update request
     private var lastUpdateRequestDate: Date?
 
@@ -44,7 +44,7 @@ final class AddressCacheUpdateScheduler: @unchecked Sendable {
 
     /// Lock used for synchronizing member access.
     private let nslock = NSLock()
-    
+
     private let apiContext: MullvadApiContext
 
     /// Designated initializer

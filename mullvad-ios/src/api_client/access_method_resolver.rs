@@ -1,5 +1,7 @@
 use mullvad_api::{
-    AddressCache, AddressCacheBacking, AddressCacheError, ApiEndpoint, access_mode::AccessMethodResolver, proxy::{ApiConnectionMode, ProxyConfig}
+    AddressCache, AddressCacheBacking, AddressCacheError, ApiEndpoint,
+    access_mode::AccessMethodResolver,
+    proxy::{ApiConnectionMode, ProxyConfig},
 };
 use mullvad_encrypted_dns_proxy::state::EncryptedDnsProxyState;
 use mullvad_types::access_method::{AccessMethod, BuiltInAccessMethod};
@@ -8,11 +10,9 @@ use talpid_types::net::{
 };
 use tonic::async_trait;
 
-use crate::{api_client::swift_data::SwiftData};
+use crate::api_client::swift_data::SwiftData;
 
-use super::{
-    shadowsocks_loader::SwiftShadowsocksLoaderWrapper,
-};
+use super::shadowsocks_loader::SwiftShadowsocksLoaderWrapper;
 
 unsafe extern "C" {
     pub fn swift_store_address_cache(data: *const u8, data_size: u64);
@@ -106,8 +106,10 @@ impl AccessMethodResolver for SwiftAccessMethodResolver {
     }
 
     async fn default_connection_mode(&self) -> AllowedEndpoint {
-        let endpoint =
-            Endpoint::from_socket_address(self.address_cache.get_address().await, TransportProtocol::Tcp);
+        let endpoint = Endpoint::from_socket_address(
+            self.address_cache.get_address().await,
+            TransportProtocol::Tcp,
+        );
 
         AllowedEndpoint {
             endpoint,
