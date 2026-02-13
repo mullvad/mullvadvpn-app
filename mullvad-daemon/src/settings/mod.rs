@@ -295,12 +295,6 @@ impl SettingsPersister {
         if crate::version::is_beta_version() {
             settings.show_beta_releases = true;
         }
-        // We only want to set this flag to true if the settings file hasn't been
-        // created yet so that we don't affect existing users' relay settings.
-        #[cfg(target_os = "android")]
-        {
-            settings.update_default_location = true;
-        }
 
         settings
     }
