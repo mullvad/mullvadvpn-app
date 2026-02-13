@@ -25,13 +25,13 @@ mod cancellation;
 mod completion;
 mod device;
 pub(super) mod helpers;
-mod late_string_deallocator;
 mod mock;
 mod problem_report;
 mod response;
 mod retry_strategy;
 mod shadowsocks_loader;
 mod storekit;
+mod swift_data;
 
 #[repr(C)]
 pub struct SwiftApiContext(*const ApiContext);
