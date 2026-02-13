@@ -48,6 +48,7 @@ include(
     ":lib:feature:customlist:impl",
     ":lib:feature:daita:impl",
     ":lib:feature:filter:impl",
+    ":lib:feature:home:impl",
     ":lib:feature:login:impl",
     ":lib:feature:managedevices:impl",
     ":lib:feature:multihop:impl",

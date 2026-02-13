@@ -35,9 +35,11 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
+import androidx.navigation.NavController
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
 import com.ramcosta.composedestinations.generated.addtime.destinations.VerificationPendingDestination
+import com.ramcosta.composedestinations.generated.login.destinations.LoginDestination
 import com.ramcosta.composedestinations.generated.managedevices.destinations.ManageDevicesDestination
 import com.ramcosta.composedestinations.generated.redeemvoucher.destinations.RedeemVoucherDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
@@ -84,7 +86,7 @@ private fun PreviewAccountScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Destination<ExternalModuleGraph>(style = AccountTransition::class)
 @Composable
-fun Account(navigator: DestinationsNavigator) {
+fun Account(navController: NavController, navigator: DestinationsNavigator) {
     val vm = koinViewModel<AccountViewModel>()
     val state by vm.uiState.collectAsStateWithLifecycle()
 
@@ -98,11 +100,10 @@ fun Account(navigator: DestinationsNavigator) {
     CollectSideEffectWithLifecycle(vm.uiSideEffect) { sideEffect ->
         when (sideEffect) {
             AccountViewModel.UiSideEffect.NavigateToLogin -> {
-                // TODO How to solve this?
-                /*navigator.navigate(LoginDestination(null)) {
+                navController.navigate(LoginDestination.route) {
                     launchSingleTop = true
-                    popUpTo(NavGraphs.main) { inclusive = true }
-                }*/
+                    popUpTo("main") { inclusive = true }
+                }
             }
             is AccountViewModel.UiSideEffect.OpenAccountManagementPageInBrowser ->
                 openAccountPage(sideEffect.token)

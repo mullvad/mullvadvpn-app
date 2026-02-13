@@ -16,6 +16,7 @@ dependencies {
     implementation(projects.lib.repository)
     implementation(projects.lib.payment)
     implementation(projects.lib.feature.addtime.impl)
+    implementation(projects.lib.feature.login.impl)
     implementation(projects.lib.feature.managedevices.impl)
     implementation(projects.lib.feature.redeemvoucher.impl)
 
