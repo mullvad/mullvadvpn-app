@@ -7,9 +7,9 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import net.mullvad.mullvadvpn.appearance.impl.obfuscation.AppObfuscation
+import net.mullvad.mullvadvpn.appearance.impl.obfuscation.AppObfuscationRepository
 import net.mullvad.mullvadvpn.lib.common.Lc
-import net.mullvad.mullvadvpn.lib.repository.AppObfuscation
-import net.mullvad.mullvadvpn.lib.repository.AppObfuscationRepository
 
 class AppearanceViewModel(private val appObfuscationRepository: AppObfuscationRepository) :
     ViewModel() {
