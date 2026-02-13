@@ -29,7 +29,6 @@ rootProject.name = "MullvadVPN"
 include(
     ":app",
     ":service",
-    ":tile"
 )
 include(
     ":lib:billing",
