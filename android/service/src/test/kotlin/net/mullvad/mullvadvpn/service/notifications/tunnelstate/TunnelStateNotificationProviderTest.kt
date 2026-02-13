@@ -29,6 +29,7 @@ import net.mullvad.mullvadvpn.lib.model.NotificationUpdate
 import net.mullvad.mullvadvpn.lib.model.PrepareError
 import net.mullvad.mullvadvpn.lib.model.Prepared
 import net.mullvad.mullvadvpn.lib.model.TunnelState
+import net.mullvad.mullvadvpn.lib.pushnotification.tunnelstate.TunnelStateNotificationProvider
 import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
 import net.mullvad.mullvadvpn.lib.repository.DeviceRepository
 import net.mullvad.mullvadvpn.lib.repository.UserPreferencesRepository

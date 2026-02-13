@@ -4,8 +4,8 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import co.touchlab.kermit.Logger
+import net.mullvad.mullvadvpn.lib.pushnotification.ScheduleNotificationAlarmUseCase
 import net.mullvad.mullvadvpn.lib.repository.UserPreferencesRepository
-import net.mullvad.mullvadvpn.usecase.ScheduleNotificationAlarmUseCase
 import net.mullvad.mullvadvpn.util.goAsync
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject

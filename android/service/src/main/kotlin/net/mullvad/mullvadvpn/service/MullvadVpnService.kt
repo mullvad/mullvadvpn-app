@@ -19,12 +19,12 @@ import net.mullvad.mullvadvpn.lib.common.constant.KEY_DISCONNECT_ACTION
 import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointFromIntentHolder
 import net.mullvad.mullvadvpn.lib.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.model.TunnelState
+import net.mullvad.mullvadvpn.lib.pushnotification.NotificationChannelFactory
+import net.mullvad.mullvadvpn.lib.pushnotification.NotificationManager
 import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
 import net.mullvad.mullvadvpn.service.di.vpnServiceModule
 import net.mullvad.mullvadvpn.service.migration.MigrateSplitTunneling
 import net.mullvad.mullvadvpn.service.notifications.ForegroundNotificationManager
-import net.mullvad.mullvadvpn.service.notifications.NotificationChannelFactory
-import net.mullvad.mullvadvpn.service.notifications.NotificationManager
 import net.mullvad.mullvadvpn.service.util.extractAndOverwriteIfAssetMoreRecent
 import net.mullvad.talpid.TalpidVpnService
 import org.koin.android.ext.android.getKoin

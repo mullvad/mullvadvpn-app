@@ -26,8 +26,7 @@ import org.koin.dsl.module
 @ExperimentalTestApi
 @OptIn(ExperimentalMaterial3Api::class)
 class AccountScreenTest {
-    @JvmField @RegisterExtension
-    val composeExtension = createEdgeToEdgeComposeExtension()
+    @JvmField @RegisterExtension val composeExtension = createEdgeToEdgeComposeExtension()
 
     private val addTimeViewModel: AddTimeViewModel = mockk(relaxed = true)
 
@@ -36,7 +35,7 @@ class AccountScreenTest {
         MockKAnnotations.init(this)
         loadKoinModules(module { viewModel { addTimeViewModel } })
         every { addTimeViewModel.uiState } returns
-                MutableStateFlow<Lc<Unit, AddTimeUiState>>(Lc.Loading(Unit))
+            MutableStateFlow<Lc<Unit, AddTimeUiState>>(Lc.Loading(Unit))
     }
 
     private fun ComposeContext.initScreen(

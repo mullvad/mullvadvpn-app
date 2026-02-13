@@ -28,6 +28,9 @@ import net.mullvad.mullvadvpn.feature.account.impl.AccountViewModel
 import net.mullvad.mullvadvpn.feature.addtime.impl.AddTimeViewModel
 import net.mullvad.mullvadvpn.feature.autoconnect.impl.AutoConnectAndLockdownModeViewModel
 import net.mullvad.mullvadvpn.feature.daita.impl.DaitaViewModel
+import net.mullvad.mullvadvpn.feature.login.impl.LoginViewModel
+import net.mullvad.mullvadvpn.feature.login.impl.apiunreachable.ApiUnreachableViewModel
+import net.mullvad.mullvadvpn.feature.login.impl.devicelist.DeviceListViewModel
 import net.mullvad.mullvadvpn.feature.managedevices.impl.ManageDevicesViewModel
 import net.mullvad.mullvadvpn.feature.notification.impl.NotificationSettingsViewModel
 import net.mullvad.mullvadvpn.feature.problemreport.impl.ReportProblemViewModel
@@ -100,11 +103,8 @@ import net.mullvad.mullvadvpn.serveripoverride.impl.reset.ResetServerIpOverrides
 import net.mullvad.mullvadvpn.ui.MainActivity
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.util.BackstackObserver
-import net.mullvad.mullvadvpn.viewmodel.ApiUnreachableViewModel
 import net.mullvad.mullvadvpn.viewmodel.ConnectViewModel
-import net.mullvad.mullvadvpn.viewmodel.DeviceListViewModel
 import net.mullvad.mullvadvpn.viewmodel.DeviceRevokedViewModel
-import net.mullvad.mullvadvpn.viewmodel.LoginViewModel
 import net.mullvad.mullvadvpn.viewmodel.MullvadAppViewModel
 import net.mullvad.mullvadvpn.viewmodel.OutOfTimeViewModel
 import net.mullvad.mullvadvpn.viewmodel.PrivacyDisclaimerViewModel
