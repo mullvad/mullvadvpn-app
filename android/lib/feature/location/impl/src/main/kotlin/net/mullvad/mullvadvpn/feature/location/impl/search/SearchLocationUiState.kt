@@ -1,0 +1,14 @@
+package net.mullvad.mullvadvpn.feature.location.impl.search
+
+import net.mullvad.mullvadvpn.lib.model.RelayItem
+import net.mullvad.mullvadvpn.lib.model.RelayListType
+import net.mullvad.mullvadvpn.lib.ui.component.relaylist.RelayListItem
+import net.mullvad.mullvadvpn.lib.usecase.FilterChip
+
+data class SearchLocationUiState(
+    val searchTerm: String,
+    val relayListType: RelayListType,
+    val filterChips: List<FilterChip>,
+    val relayListItems: List<RelayListItem>,
+    val customLists: List<RelayItem.CustomList>,
+)

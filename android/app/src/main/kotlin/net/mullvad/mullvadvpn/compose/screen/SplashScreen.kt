@@ -19,11 +19,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.generated.NavGraphs
-import com.ramcosta.composedestinations.generated.destinations.ConnectDestination
-import com.ramcosta.composedestinations.generated.destinations.DeviceRevokedDestination
-import com.ramcosta.composedestinations.generated.destinations.LoginDestination
-import com.ramcosta.composedestinations.generated.destinations.OutOfTimeDestination
 import com.ramcosta.composedestinations.generated.destinations.PrivacyDisclaimerDestination
+import com.ramcosta.composedestinations.generated.home.destinations.ConnectDestination
+import com.ramcosta.composedestinations.generated.home.destinations.DeviceRevokedDestination
+import com.ramcosta.composedestinations.generated.home.destinations.OutOfTimeDestination
+import com.ramcosta.composedestinations.generated.login.destinations.LoginDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle

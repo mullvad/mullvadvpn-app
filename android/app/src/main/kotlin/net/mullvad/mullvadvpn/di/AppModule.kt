@@ -16,6 +16,12 @@ import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointOverride
 import net.mullvad.mullvadvpn.lib.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.model.BuildVersion
 import net.mullvad.mullvadvpn.lib.model.NotificationChannel
+import net.mullvad.mullvadvpn.lib.pushnotification.NotificationChannelFactory
+import net.mullvad.mullvadvpn.lib.pushnotification.NotificationManager
+import net.mullvad.mullvadvpn.lib.pushnotification.NotificationProvider
+import net.mullvad.mullvadvpn.lib.pushnotification.ScheduleNotificationAlarmUseCase
+import net.mullvad.mullvadvpn.lib.pushnotification.accountexpiry.AccountExpiryNotificationProvider
+import net.mullvad.mullvadvpn.lib.pushnotification.tunnelstate.TunnelStateNotificationProvider
 import net.mullvad.mullvadvpn.lib.repository.AccountRepository
 import net.mullvad.mullvadvpn.lib.repository.AppObfuscationRepository
 import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
@@ -27,12 +33,6 @@ import net.mullvad.mullvadvpn.lib.repository.UserPreferencesRepository
 import net.mullvad.mullvadvpn.lib.repository.UserPreferencesSerializer
 import net.mullvad.mullvadvpn.lib.usecase.AccountExpiryNotificationActionUseCase
 import net.mullvad.mullvadvpn.repository.UserPreferences
-import net.mullvad.mullvadvpn.service.notifications.NotificationChannelFactory
-import net.mullvad.mullvadvpn.service.notifications.NotificationManager
-import net.mullvad.mullvadvpn.service.notifications.NotificationProvider
-import net.mullvad.mullvadvpn.service.notifications.accountexpiry.AccountExpiryNotificationProvider
-import net.mullvad.mullvadvpn.service.notifications.tunnelstate.TunnelStateNotificationProvider
-import net.mullvad.mullvadvpn.usecase.ScheduleNotificationAlarmUseCase
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.createdAtStart
 import org.koin.core.module.dsl.withOptions

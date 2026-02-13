@@ -1,0 +1,71 @@
+package net.mullvad.mullvadvpn.feature.location.impl
+
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+import net.mullvad.mullvadvpn.lib.common.Lc
+import net.mullvad.mullvadvpn.lib.common.toLc
+import net.mullvad.mullvadvpn.lib.model.HopSelection
+import net.mullvad.mullvadvpn.lib.model.MultihopRelayListType
+import net.mullvad.mullvadvpn.lib.usecase.FilterChip
+import net.mullvad.mullvadvpn.lib.usecase.ModelOwnership
+
+class SelectLocationsUiStatePreviewParameterProvider :
+    PreviewParameterProvider<Lc<Unit, SelectLocationUiState>> {
+    override val values =
+        sequenceOf(
+            Lc.Loading(Unit),
+            SelectLocationUiState(
+                    filterChips = emptyList(),
+                    multihopListSelection = MultihopRelayListType.EXIT,
+                    isSearchButtonEnabled = true,
+                    isFilterButtonEnabled = true,
+                    isRecentsEnabled = true,
+                    hopSelection = HopSelection.Single(null),
+                    tunnelErrorStateCause = null,
+                    entrySelectionAllowed = true,
+                )
+                .toLc(),
+            SelectLocationUiState(
+                    filterChips =
+                        listOf(
+                            FilterChip.Ownership(ownership = ModelOwnership.Rented),
+                            FilterChip.Provider(PROVIDER_COUNT),
+                        ),
+                    multihopListSelection = MultihopRelayListType.EXIT,
+                    isSearchButtonEnabled = true,
+                    isFilterButtonEnabled = true,
+                    isRecentsEnabled = true,
+                    hopSelection = HopSelection.Single(null),
+                    tunnelErrorStateCause = null,
+                    entrySelectionAllowed = true,
+                )
+                .toLc(),
+            SelectLocationUiState(
+                    filterChips = emptyList(),
+                    multihopListSelection = MultihopRelayListType.ENTRY,
+                    isSearchButtonEnabled = true,
+                    isFilterButtonEnabled = true,
+                    isRecentsEnabled = true,
+                    hopSelection = HopSelection.Multi(null, null),
+                    tunnelErrorStateCause = null,
+                    entrySelectionAllowed = true,
+                )
+                .toLc(),
+            SelectLocationUiState(
+                    filterChips =
+                        listOf(
+                            FilterChip.Ownership(ownership = ModelOwnership.MullvadOwned),
+                            FilterChip.Provider(PROVIDER_COUNT),
+                        ),
+                    multihopListSelection = MultihopRelayListType.ENTRY,
+                    isSearchButtonEnabled = true,
+                    isFilterButtonEnabled = true,
+                    isRecentsEnabled = true,
+                    hopSelection = HopSelection.Multi(null, null),
+                    tunnelErrorStateCause = null,
+                    entrySelectionAllowed = true,
+                )
+                .toLc(),
+        )
+}
+
+private const val PROVIDER_COUNT = 3

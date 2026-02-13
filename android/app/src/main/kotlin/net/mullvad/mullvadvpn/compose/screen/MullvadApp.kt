@@ -1,15 +1,14 @@
+@file:Suppress("MatchingDeclarationName")
+
 package net.mullvad.mullvadvpn.compose.screen
 
-import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
-import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.semantics
@@ -20,6 +19,7 @@ import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.annotation.ExternalDestination
 import com.ramcosta.composedestinations.annotation.NavHostGraph
 import com.ramcosta.composedestinations.generated.NavGraphs
+import com.ramcosta.composedestinations.generated.account.destinations.AccountDestination
 import com.ramcosta.composedestinations.generated.addtime.destinations.VerificationPendingDestination
 import com.ramcosta.composedestinations.generated.anticensorship.destinations.AntiCensorshipSettingsDestination
 import com.ramcosta.composedestinations.generated.anticensorship.destinations.CustomPortDestination
@@ -47,6 +47,19 @@ import com.ramcosta.composedestinations.generated.daita.destinations.DaitaDirect
 import com.ramcosta.composedestinations.generated.daita.destinations.DaitaDirectOnlyInfoDestination
 import com.ramcosta.composedestinations.generated.destinations.NoDaemonDestination
 import com.ramcosta.composedestinations.generated.filter.destinations.FilterDestination
+import com.ramcosta.composedestinations.generated.home.destinations.Android16UpgradeWarningInfoDestination
+import com.ramcosta.composedestinations.generated.home.destinations.ConnectDestination
+import com.ramcosta.composedestinations.generated.home.destinations.DeviceNameInfoDestination
+import com.ramcosta.composedestinations.generated.home.destinations.DeviceRevokedDestination
+import com.ramcosta.composedestinations.generated.home.destinations.OutOfTimeDestination
+import com.ramcosta.composedestinations.generated.home.destinations.WelcomeDestination
+import com.ramcosta.composedestinations.generated.location.destinations.SearchLocationDestination
+import com.ramcosta.composedestinations.generated.location.destinations.SelectLocationDestination
+import com.ramcosta.composedestinations.generated.login.destinations.ApiUnreachableInfoDestination
+import com.ramcosta.composedestinations.generated.login.destinations.CreateAccountConfirmationDestination
+import com.ramcosta.composedestinations.generated.login.destinations.DeviceListDestination
+import com.ramcosta.composedestinations.generated.login.destinations.LoginDestination
+import com.ramcosta.composedestinations.generated.login.destinations.RemoveDeviceConfirmationDestination
 import com.ramcosta.composedestinations.generated.managedevices.destinations.ManageDevicesDestination
 import com.ramcosta.composedestinations.generated.managedevices.destinations.ManageDevicesRemoveConfirmationDestination
 import com.ramcosta.composedestinations.generated.multihop.destinations.MultihopDestination
@@ -76,28 +89,30 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.navigation.dependency
 import com.ramcosta.composedestinations.rememberNavHostEngine
 import com.ramcosta.composedestinations.utils.rememberDestinationsNavigator
+import net.mullvad.mullvadvpn.common.compose.LocalSharedTransitionScope
 import net.mullvad.mullvadvpn.common.compose.accessibilityDataSensitive
 import net.mullvad.mullvadvpn.util.BackstackObserver
 import net.mullvad.mullvadvpn.viewmodel.DaemonScreenEvent
 import net.mullvad.mullvadvpn.viewmodel.MullvadAppViewModel
 import org.koin.androidx.compose.koinViewModel
 
-val LocalNavAnimatedVisibilityScope = compositionLocalOf<AnimatedVisibilityScope?> { null }
-@OptIn(ExperimentalSharedTransitionApi::class)
-val LocalSharedTransitionScope = compositionLocalOf<SharedTransitionScope?> { null }
-
 @NavHostGraph
 annotation class MainGraph {
+    @ExternalDestination<AccountDestination>
+    @ExternalDestination<Android16UpgradeWarningInfoDestination>
     @ExternalDestination<AntiCensorshipSettingsDestination>
     @ExternalDestination<ApiAccessListDestination>
     @ExternalDestination<ApiAccessMethodDetailsDestination>
     @ExternalDestination<ApiAccessMethodInfoDestination>
+    @ExternalDestination<ApiUnreachableInfoDestination>
     @ExternalDestination<AppInfoDestination>
     @ExternalDestination<AppearanceDestination>
     @ExternalDestination<AutoConnectAndLockdownModeDestination>
     @ExternalDestination<ChangelogDestination>
+    @ExternalDestination<ConnectDestination>
     @ExternalDestination<ConnectOnStartupInfoDestination>
     @ExternalDestination<ContentBlockersInfoDestination>
+    @ExternalDestination<CreateAccountConfirmationDestination>
     @ExternalDestination<CreateCustomListDestination>
     @ExternalDestination<CustomDnsInfoDestination>
     @ExternalDestination<CustomListLocationsDestination>
@@ -109,6 +124,9 @@ annotation class MainGraph {
     @ExternalDestination<DeleteApiAccessMethodConfirmationDestination>
     @ExternalDestination<DeleteCustomListDestination>
     @ExternalDestination<DeviceIpInfoDestination>
+    @ExternalDestination<DeviceListDestination>
+    @ExternalDestination<DeviceNameInfoDestination>
+    @ExternalDestination<DeviceRevokedDestination>
     @ExternalDestination<DiscardApiAccessChangesDestination>
     @ExternalDestination<DiscardChangesDestination>
     @ExternalDestination<DnsDestination>
@@ -119,18 +137,23 @@ annotation class MainGraph {
     @ExternalDestination<ImportOverridesByTextDestination>
     @ExternalDestination<Ipv6InfoDestination>
     @ExternalDestination<LocalNetworkSharingInfoDestination>
+    @ExternalDestination<LoginDestination>
     @ExternalDestination<MalwareInfoDestination>
     @ExternalDestination<ManageDevicesDestination>
     @ExternalDestination<ManageDevicesRemoveConfirmationDestination>
     @ExternalDestination<MtuDestination>
     @ExternalDestination<MultihopDestination>
     @ExternalDestination<NotificationSettingsDestination>
+    @ExternalDestination<OutOfTimeDestination>
     @ExternalDestination<QuantumResistanceInfoDestination>
     @ExternalDestination<RedeemVoucherDestination>
+    @ExternalDestination<RemoveDeviceConfirmationDestination>
     @ExternalDestination<ReportProblemDestination>
     @ExternalDestination<ReportProblemNoEmailDestination>
     @ExternalDestination<ResetServerIpOverridesConfirmationDestination>
     @ExternalDestination<SaveApiAccessMethodDestination>
+    @ExternalDestination<SearchLocationDestination>
+    @ExternalDestination<SelectLocationDestination>
     @ExternalDestination<SelectPortDestination>
     @ExternalDestination<ServerIpOverridesDestination>
     @ExternalDestination<ServerIpOverridesInfoDestination>
@@ -139,6 +162,7 @@ annotation class MainGraph {
     @ExternalDestination<VerificationPendingDestination>
     @ExternalDestination<ViewLogsDestination>
     @ExternalDestination<VpnSettingsDestination>
+    @ExternalDestination<WelcomeDestination>
     companion object Includes
 }
 

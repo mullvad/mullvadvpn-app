@@ -1,0 +1,146 @@
+@file:OptIn(ExperimentalSharedTransitionApi::class)
+@file:Suppress("DEPRECATION")
+
+package net.mullvad.mullvadvpn.feature.home.impl.connect.connectioninfo
+
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.core.EaseInQuart
+import androidx.compose.animation.core.EaseOutQuad
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.ContextualFlowRow
+import androidx.compose.foundation.layout.ContextualFlowRowOverflow
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
+import net.mullvad.mullvadvpn.common.compose.LocalNavAnimatedVisibilityScope
+import net.mullvad.mullvadvpn.common.compose.LocalSharedTransitionScope
+import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
+import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadFeatureChip
+import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadMoreChip
+import net.mullvad.mullvadvpn.lib.ui.resource.R
+import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
+
+@Composable
+fun FeatureIndicatorsPanel(
+    featureIndicators: List<FeatureIndicator>,
+    expanded: Boolean,
+    onToggleExpand: () -> Unit,
+    onNavigateToFeature: (FeatureIndicator) -> Unit,
+) {
+    if (featureIndicators.isNotEmpty()) {
+        if (expanded) {
+            ConnectionInfoHeader(
+                stringResource(R.string.connect_panel_active_features),
+                Modifier.fillMaxWidth(),
+            )
+        }
+        FeatureIndicators(featureIndicators, expanded, onToggleExpand, onNavigateToFeature)
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class, ExperimentalSharedTransitionApi::class)
+@Composable
+fun FeatureIndicators(
+    features: List<FeatureIndicator>,
+    expanded: Boolean,
+    onToggleExpand: () -> Unit,
+    onNavigateToFeature: (FeatureIndicator) -> Unit,
+) {
+    ContextualFlowRow(
+        modifier = Modifier.fillMaxWidth(),
+        itemCount = features.size,
+        // FlowRow may crash if maxLines is set to 1
+        // https://issuetracker.google.com/issues/367440149 &
+        // https://issuetracker.google.com/issues/355003185
+        maxLines = if (expanded) Int.MAX_VALUE else 2,
+        horizontalArrangement = Arrangement.spacedBy(Dimens.smallPadding),
+        overflow =
+            ContextualFlowRowOverflow.expandOrCollapseIndicator(
+                expandIndicator = {
+                    val hiddenFeatureCount = totalItemCount - shownItemCount
+                    MullvadMoreChip(
+                        onClick = onToggleExpand,
+                        text =
+                            stringResource(
+                                R.string.feature_indicators_show_more,
+                                hiddenFeatureCount,
+                            ),
+                        containerColor = Color.Transparent,
+                    )
+                },
+                collapseIndicator = {},
+            ),
+    ) { index ->
+        val featureIndicator = features[index]
+
+        val sharedTransitionScope = LocalSharedTransitionScope.current
+        val animatedVisibilityScope = LocalNavAnimatedVisibilityScope.current
+
+        with(sharedTransitionScope) {
+            MullvadFeatureChip(
+                text = featureIndicator.text(),
+                onClick = { onNavigateToFeature(featureIndicator) },
+                modifier =
+                    if (this@with != null && animatedVisibilityScope != null) {
+                        Modifier.sharedBounds(
+                            rememberSharedContentState(
+                                key =
+                                    if (featureIndicator == FeatureIndicator.DAITA_MULTIHOP)
+                                        FeatureIndicator.DAITA
+                                    else featureIndicator
+                            ),
+                            animatedVisibilityScope = animatedVisibilityScope,
+                            // This flag should be set to `true` (default), this would allow the
+                            // element to animate above all other views. However, it causes the
+                            // expand/collapse animation to become janky.
+                            renderInOverlayDuringTransition = false,
+                            enter = fadeIn(tween(easing = EaseInQuart)),
+                            exit = fadeOut(tween(easing = EaseOutQuad)),
+                        )
+                    } else {
+                        Modifier
+                    },
+            )
+        }
+    }
+
+    // Spacing are added to compensate for when there are no feature indicators, since each feature
+    // indicator has built-in padding. Padding looks the same towards Switch Location button with or
+    // without feature indicators.
+    if (features.isEmpty() && !expanded) {
+        Spacer(Modifier.height(Dimens.smallSpacer))
+    }
+}
+
+@Suppress("CyclomaticComplexMethod")
+@Composable
+private fun FeatureIndicator.text(): String {
+    val resource =
+        when (this) {
+            FeatureIndicator.QUANTUM_RESISTANCE -> R.string.feature_quantum_resistant
+            FeatureIndicator.SPLIT_TUNNELING -> R.string.split_tunneling
+            FeatureIndicator.SHADOWSOCKS -> R.string.shadowsocks
+            FeatureIndicator.UDP_2_TCP -> R.string.udp_over_tcp
+            FeatureIndicator.QUIC -> R.string.quic
+            FeatureIndicator.LWO -> R.string.lwo
+            FeatureIndicator.WIREGUARD_PORT -> R.string.wireguard_port_title
+            FeatureIndicator.LAN_SHARING -> R.string.local_network_sharing
+            FeatureIndicator.DNS_CONTENT_BLOCKERS -> R.string.dns_content_blockers
+            FeatureIndicator.CUSTOM_DNS -> R.string.feature_custom_dns
+            FeatureIndicator.SERVER_IP_OVERRIDE -> R.string.server_ip_override
+            FeatureIndicator.CUSTOM_MTU -> R.string.mtu
+            FeatureIndicator.DAITA -> R.string.daita
+            FeatureIndicator.DAITA_MULTIHOP ->
+                return stringResource(R.string.daita_multihop, stringResource(R.string.daita))
+            FeatureIndicator.MULTIHOP -> R.string.multihop
+        }
+    return stringResource(resource)
+}
