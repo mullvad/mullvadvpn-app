@@ -50,6 +50,8 @@ class ConnectivityTests: LoggedOutUITestCase {
             retryCount += 1
         } while successIconShown == false && retryCount < maxRetryCount
 
+        skipNotificationPromptIfShown()
+
         HeaderBar(app)
             .verifyDeviceLabelShown()
     }
@@ -134,6 +136,8 @@ class ConnectivityTests: LoggedOutUITestCase {
 
         LoginPage(app)
 
+        skipNotificationPromptIfShown()
+
         verifyDeviceHasBeenRemoved(deviceName: deviceName, accountNumber: hasTimeAccountNumber)
     }
 
@@ -166,6 +170,8 @@ class ConnectivityTests: LoggedOutUITestCase {
             .tapAccountNumberTextField()
             .enterText(hasTimeAccountNumber)
             .tapAccountNumberSubmitButton()
+
+        skipNotificationPromptIfShown()
 
         TunnelControlPage(app)
 

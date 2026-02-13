@@ -284,6 +284,13 @@ class BaseUITestCase: XCTestCase {
         }
     }
 
+    func skipNotificationPromptIfShown() {
+        if app.otherElements[.notificationPromptView].existsAfterWait() {
+            NotificationPromptPage(app)
+                .tapSkipButton()
+        }
+    }
+
     /// Login with specified account number. It is a prerequisite that the login page is currently shown.
     func login(accountNumber: String) {
         var successIconShown = false
@@ -313,6 +320,8 @@ class BaseUITestCase: XCTestCase {
 
             retryCount += 1
         } while successIconShown == false && retryCount < maxRetryCount
+
+        skipNotificationPromptIfShown()
 
         HeaderBar(app)
             .verifyDeviceLabelShown()

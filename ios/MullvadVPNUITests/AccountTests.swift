@@ -66,6 +66,8 @@ class AccountTests: LoggedOutUITestCase {
             .enterText(accountNumber)
             .tapAccountNumberSubmitButton()
 
+        skipNotificationPromptIfShown()
+
         OutOfTimePage(app)
 
         HeaderBar(app)
@@ -100,6 +102,8 @@ class AccountTests: LoggedOutUITestCase {
             .tapAccountNumberTextField()
             .enterText(temporaryAccountNumber)
             .tapAccountNumberSubmitButton()
+
+        skipNotificationPromptIfShown()
 
         OutOfTimePage(app)
 
@@ -176,6 +180,8 @@ class AccountTests: LoggedOutUITestCase {
 
             retryCount += 1
         } while successIconShown == false && retryCount < maxRetryCount
+
+        skipNotificationPromptIfShown()
 
         HeaderBar(app)
             .verifyDeviceLabelShown()
