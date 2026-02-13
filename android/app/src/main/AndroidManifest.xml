@@ -249,7 +249,7 @@
             Tile services must be exported and protected by the bind tile permission
             (android.permission.BIND_QUICK_SETTINGS_TILE).
         -->
-        <service android:name="net.mullvad.mullvadvpn.tile.MullvadTileService"
+        <service android:name="net.mullvad.mullvadvpn.app.tile.MullvadTileService"
                  android:exported="true"
                  android:icon="@drawable/small_logo_black"
                  android:label="@string/toggle_vpn"

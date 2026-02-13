@@ -425,7 +425,6 @@ dependencies {
     implementation(projects.lib.ui.theme)
     implementation(projects.lib.ui.util)
     implementation(projects.lib.usecase)
-    implementation(projects.tile)
     implementation(projects.service)
     implementation(libs.androidx.profileinstaller)
 
