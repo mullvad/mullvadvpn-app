@@ -60,7 +60,7 @@ default-members = [
 [workspace.package]
 edition = "2024"
 # Must be less than or equal to `channel` in `rust-toolchain.toml`
-rust-version = "1.91.0"
+rust-version = "1.93.0"
 repository = "https://github.com/mullvad/mullvadvpn-app/"
 license = "GPL-3.0-only"
 
