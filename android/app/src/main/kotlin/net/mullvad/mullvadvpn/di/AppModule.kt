@@ -90,12 +90,9 @@ val appModule = module {
     } bind NotificationProvider::class
     single { AccountExpiryNotificationProvider(get<NotificationChannel.AccountUpdates>().id) } bind
         NotificationProvider::class
-    if (net.mullvad.mullvadvpn.service.BuildConfig.FLAVOR_infrastructure != "prod") {
+    if (BuildConfig.FLAVOR_infrastructure != "prod") {
         single<ApiEndpointOverride> {
-            ApiEndpointOverride(
-                net.mullvad.mullvadvpn.service.BuildConfig.API_ENDPOINT,
-                net.mullvad.mullvadvpn.service.BuildConfig.API_IP,
-            )
+            ApiEndpointOverride(BuildConfig.API_ENDPOINT, BuildConfig.API_IP)
         }
     }
 }

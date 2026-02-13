@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.service
+package net.mullvad.mullvadvpn.app.service
 
 import android.app.KeyguardManager
 import android.content.Context
@@ -14,6 +14,10 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import net.mullvad.mullvadvpn.BuildConfig
+import net.mullvad.mullvadvpn.app.service.migration.MigrateSplitTunneling
+import net.mullvad.mullvadvpn.app.service.notifications.ForegroundNotificationManager
+import net.mullvad.mullvadvpn.di.vpnServiceModule
 import net.mullvad.mullvadvpn.lib.common.constant.KEY_CONNECT_ACTION
 import net.mullvad.mullvadvpn.lib.common.constant.KEY_DISCONNECT_ACTION
 import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointFromIntentHolder
@@ -22,10 +26,6 @@ import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.pushnotification.NotificationChannelFactory
 import net.mullvad.mullvadvpn.lib.pushnotification.NotificationManager
 import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
-import net.mullvad.mullvadvpn.service.di.vpnServiceModule
-import net.mullvad.mullvadvpn.service.migration.MigrateSplitTunneling
-import net.mullvad.mullvadvpn.service.notifications.ForegroundNotificationManager
-import net.mullvad.mullvadvpn.service.util.extractAndOverwriteIfAssetMoreRecent
 import net.mullvad.talpid.TalpidVpnService
 import org.koin.android.ext.android.getKoin
 import org.koin.core.context.loadKoinModules

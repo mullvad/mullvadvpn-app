@@ -145,14 +145,20 @@ android {
         create(Flavors.PROD) {
             dimension = FlavorDimensions.INFRASTRUCTURE
             isDefault = true
+            buildConfigField("String", "API_ENDPOINT", "\"\"")
+            buildConfigField("String", "API_IP", "\"\"")
         }
         create(Flavors.DEVMOLE) {
             dimension = FlavorDimensions.INFRASTRUCTURE
             applicationId = "net.mullvad.mullvadvpn.devmole"
+            buildConfigField("String", "API_ENDPOINT", "\"api-app.devmole.eu\"")
+            buildConfigField("String", "API_IP", "\"185.217.116.4\"")
         }
         create(Flavors.STAGEMOLE) {
             dimension = FlavorDimensions.INFRASTRUCTURE
             applicationId = "net.mullvad.mullvadvpn.stagemole"
+            buildConfigField("String", "API_ENDPOINT", "\"api-app.stagemole.eu\"")
+            buildConfigField("String", "API_IP", "\"185.217.116.132\"")
         }
     }
 
@@ -229,6 +235,12 @@ android {
             "boolean",
             "ENABLE_IN_APP_VERSION_NOTIFICATIONS",
             getBooleanProperty("mullvad.app.config.inAppVersionNotifications.enable").toString(),
+        )
+        val shouldRequireBundleRelayFile = isReleaseBuild() && !appVersion.isDev
+        buildConfigField(
+            "Boolean",
+            "REQUIRE_BUNDLED_RELAY_FILE",
+            shouldRequireBundleRelayFile.toString(),
         )
     }
 
@@ -425,7 +437,6 @@ dependencies {
     implementation(projects.lib.ui.theme)
     implementation(projects.lib.ui.util)
     implementation(projects.lib.usecase)
-    implementation(projects.service)
     implementation(libs.androidx.profileinstaller)
 
     // Baseline profile
