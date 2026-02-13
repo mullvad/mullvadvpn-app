@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.lib.repository
+package net.mullvad.mullvadvpn.appearance.impl.obfuscation
 
 import android.content.ComponentName
 import android.content.pm.PackageManager
@@ -10,12 +10,7 @@ import android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_ENABLED
 import android.content.pm.PackageManager.DONT_KILL_APP
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import net.mullvad.mullvadvpn.lib.common.constant.MAIN_ACTIVITY_ALT_BROWSER_CLASS
-import net.mullvad.mullvadvpn.lib.common.constant.MAIN_ACTIVITY_ALT_DEFAULT_CLASS
-import net.mullvad.mullvadvpn.lib.common.constant.MAIN_ACTIVITY_ALT_GAME_CLASS
-import net.mullvad.mullvadvpn.lib.common.constant.MAIN_ACTIVITY_ALT_NINJA_CLASS
-import net.mullvad.mullvadvpn.lib.common.constant.MAIN_ACTIVITY_ALT_NOTES_CLASS
-import net.mullvad.mullvadvpn.lib.common.constant.MAIN_ACTIVITY_ALT_WEATHER_CLASS
+import net.mullvad.mullvadvpn.lib.ui.resource.R
 
 class AppObfuscationRepository(
     private val packageManager: PackageManager,
@@ -69,37 +64,37 @@ enum class AppObfuscation(
     val labelId: Int,
 ) {
     DEFAULT(
-        MAIN_ACTIVITY_ALT_DEFAULT_CLASS,
+        MainActivityAltDefault::class.java.name,
         R.mipmap.ic_launcher,
         R.mipmap.ic_banner,
         R.string.app_name,
     ),
     GAME(
-        MAIN_ACTIVITY_ALT_GAME_CLASS,
+        MainActivityAltGame::class.java.name,
         R.mipmap.ic_launcher_game,
         R.mipmap.ic_banner_game,
         R.string.app_name_game,
     ),
     NINJA(
-        MAIN_ACTIVITY_ALT_NINJA_CLASS,
+        MainActivityAltNinja::class.java.name,
         R.mipmap.ic_launcher_ninja,
         R.mipmap.ic_banner_ninja,
         R.string.app_name_ninja,
     ),
     WEATHER(
-        MAIN_ACTIVITY_ALT_WEATHER_CLASS,
+        MainActivityAltWeather::class.java.name,
         R.mipmap.ic_launcher_weather,
         R.mipmap.ic_banner_weather,
         R.string.app_name_weather,
     ),
     NOTES(
-        MAIN_ACTIVITY_ALT_NOTES_CLASS,
+        MainActivityAltNotes::class.java.name,
         R.mipmap.ic_launcher_notes,
         R.mipmap.ic_banner_notes,
         R.string.app_name_notes,
     ),
     BROWSER(
-        MAIN_ACTIVITY_ALT_BROWSER_CLASS,
+        MainActivityAltBrowser::class.java.name,
         R.mipmap.ic_launcher_browser,
         R.mipmap.ic_banner_browser,
         R.string.app_name_browser,

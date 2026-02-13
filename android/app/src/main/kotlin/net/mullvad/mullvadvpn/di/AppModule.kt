@@ -9,6 +9,7 @@ import java.io.File
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
 import net.mullvad.mullvadvpn.BuildConfig
+import net.mullvad.mullvadvpn.appearance.impl.obfuscation.AppObfuscationRepository
 import net.mullvad.mullvadvpn.lib.common.constant.GRPC_SOCKET_FILE_NAME
 import net.mullvad.mullvadvpn.lib.common.constant.GRPC_SOCKET_FILE_NAMED_ARGUMENT
 import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointFromIntentHolder
@@ -23,7 +24,6 @@ import net.mullvad.mullvadvpn.lib.pushnotification.ScheduleNotificationAlarmUseC
 import net.mullvad.mullvadvpn.lib.pushnotification.accountexpiry.AccountExpiryNotificationProvider
 import net.mullvad.mullvadvpn.lib.pushnotification.tunnelstate.TunnelStateNotificationProvider
 import net.mullvad.mullvadvpn.lib.repository.AccountRepository
-import net.mullvad.mullvadvpn.lib.repository.AppObfuscationRepository
 import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
 import net.mullvad.mullvadvpn.lib.repository.DeviceRepository
 import net.mullvad.mullvadvpn.lib.repository.LocaleRepository
