@@ -10,6 +10,7 @@ use serde::{Deserialize, Serialize, de::Error};
 /// Rollout threshold. Any version in the response below this threshold will be ignored
 ///
 /// INVARIANT: The inner f32 must be in the `VALID_ROLLOUT` range.
+#[expect(clippy::derive_ord_xor_partial_ord)]
 #[derive(Debug, Clone, Copy, PartialOrd, PartialEq)]
 pub struct Rollout(f32);
 
@@ -87,7 +88,6 @@ impl TryFrom<f32> for Rollout {
 
 impl Eq for Rollout {}
 
-#[expect(clippy::derive_ord_xor_partial_ord)] // we impl Ord in terms of PartalOrd, so it's fine
 impl Ord for Rollout {
     fn cmp(&self, other: &Self) -> Ordering {
         debug_assert!(self.0.is_finite());
