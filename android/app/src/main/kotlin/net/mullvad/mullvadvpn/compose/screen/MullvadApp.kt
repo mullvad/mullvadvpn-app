@@ -1,3 +1,5 @@
+@file:Suppress("MatchingDeclarationName")
+
 package net.mullvad.mullvadvpn.compose.screen
 
 import androidx.compose.animation.ExperimentalSharedTransitionApi
@@ -51,6 +53,8 @@ import com.ramcosta.composedestinations.generated.home.destinations.DeviceNameIn
 import com.ramcosta.composedestinations.generated.home.destinations.DeviceRevokedDestination
 import com.ramcosta.composedestinations.generated.home.destinations.OutOfTimeDestination
 import com.ramcosta.composedestinations.generated.home.destinations.WelcomeDestination
+import com.ramcosta.composedestinations.generated.location.destinations.SearchLocationDestination
+import com.ramcosta.composedestinations.generated.location.destinations.SelectLocationDestination
 import com.ramcosta.composedestinations.generated.login.destinations.ApiUnreachableInfoDestination
 import com.ramcosta.composedestinations.generated.login.destinations.CreateAccountConfirmationDestination
 import com.ramcosta.composedestinations.generated.login.destinations.DeviceListDestination
@@ -148,6 +152,8 @@ annotation class MainGraph {
     @ExternalDestination<ReportProblemNoEmailDestination>
     @ExternalDestination<ResetServerIpOverridesConfirmationDestination>
     @ExternalDestination<SaveApiAccessMethodDestination>
+    @ExternalDestination<SearchLocationDestination>
+    @ExternalDestination<SelectLocationDestination>
     @ExternalDestination<SelectPortDestination>
     @ExternalDestination<ServerIpOverridesDestination>
     @ExternalDestination<ServerIpOverridesInfoDestination>

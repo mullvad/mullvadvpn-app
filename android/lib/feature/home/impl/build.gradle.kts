@@ -24,6 +24,7 @@ dependencies {
     implementation(projects.lib.feature.anticensorship.impl)
     implementation(projects.lib.feature.appinfo.impl)
     implementation(projects.lib.feature.daita.impl)
+    implementation(projects.lib.feature.location.impl)
     implementation(projects.lib.feature.login.impl)
     implementation(projects.lib.feature.multihop.impl)
     implementation(projects.lib.feature.redeemvoucher.impl)

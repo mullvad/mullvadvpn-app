@@ -92,7 +92,7 @@ fun ConnectionDetails(
         )
         SelectionContainer(
             modifier =
-                Modifier.Companion.constrainAs(inAddr) {
+                Modifier.constrainAs(inAddr) {
                     start.linkTo(headerBarrier)
                     end.linkTo(parent.end)
                     top.linkTo(parent.top)
@@ -134,7 +134,7 @@ fun ConnectionDetails(
             )
             Box(
                 modifier =
-                    Modifier.Companion.constrainAs(outAddrV4) {
+                    Modifier.constrainAs(outAddrV4) {
                         start.linkTo(headerBarrier)
                         end.linkTo(parent.end)
                         top.linkTo(inAddrBarrier)
@@ -185,7 +185,7 @@ fun ConnectionDetails(
             )
             Box(
                 modifier =
-                    Modifier.Companion.constrainAs(outAddrV6) {
+                    Modifier.constrainAs(outAddrV6) {
                         start.linkTo(headerBarrier)
                         end.linkTo(parent.end)
                         top.linkTo(outAddrV4Barrier)

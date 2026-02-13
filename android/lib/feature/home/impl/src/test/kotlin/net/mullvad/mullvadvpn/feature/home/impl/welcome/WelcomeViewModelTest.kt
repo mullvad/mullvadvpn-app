@@ -90,7 +90,7 @@ class WelcomeViewModelTest {
     @Test
     fun `on onSitePaymentClick call uiSideEffect should emit OpenAccountView`() = runTest {
         // Arrange
-        val mockToken = WebsiteAuthToken.Companion.fromString("154c4cc94810fddac78398662b7fa0c7")
+        val mockToken = WebsiteAuthToken.fromString("154c4cc94810fddac78398662b7fa0c7")
         coEvery { mockAccountRepository.getWebsiteAuthToken() } returns mockToken
 
         // Act, Assert

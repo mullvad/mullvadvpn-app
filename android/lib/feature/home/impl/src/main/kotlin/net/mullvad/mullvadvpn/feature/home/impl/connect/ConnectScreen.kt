@@ -74,12 +74,14 @@ import com.ramcosta.composedestinations.generated.daita.destinations.DaitaDestin
 import com.ramcosta.composedestinations.generated.home.destinations.Android16UpgradeWarningInfoDestination
 import com.ramcosta.composedestinations.generated.home.destinations.DeviceRevokedDestination
 import com.ramcosta.composedestinations.generated.home.destinations.OutOfTimeDestination
+import com.ramcosta.composedestinations.generated.location.destinations.SelectLocationDestination
 import com.ramcosta.composedestinations.generated.multihop.destinations.MultihopDestination
 import com.ramcosta.composedestinations.generated.serveripoverride.destinations.ServerIpOverridesDestination
 import com.ramcosta.composedestinations.generated.settings.destinations.SettingsDestination
 import com.ramcosta.composedestinations.generated.splittunneling.destinations.SplitTunnelingDestination
 import com.ramcosta.composedestinations.generated.vpnsettings.destinations.VpnSettingsDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import com.ramcosta.composedestinations.result.ResultRecipient
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.appinfo.impl.changelog.ChangelogNavArgs
 import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
@@ -93,6 +95,7 @@ import net.mullvad.mullvadvpn.common.compose.fallbackLatLong
 import net.mullvad.mullvadvpn.common.compose.isTv
 import net.mullvad.mullvadvpn.common.compose.safeOpenUri
 import net.mullvad.mullvadvpn.common.compose.showSnackbarImmediately
+import net.mullvad.mullvadvpn.core.OnNavResultValue
 import net.mullvad.mullvadvpn.feature.home.impl.HomeTransition
 import net.mullvad.mullvadvpn.feature.home.impl.connect.button.ConnectionButton
 import net.mullvad.mullvadvpn.feature.home.impl.connect.button.SwitchLocationButton
@@ -176,8 +179,7 @@ fun Connect(
     navController: NavController,
     navigator: DestinationsNavigator,
     animatedVisibilityScope: AnimatedVisibilityScope,
-    // TODO Restore this when we can navigate to select location
-    // selectLocationResultRecipient: ResultRecipient<SelectLocationMockDestination, Boolean>,
+    selectLocationResultRecipient: ResultRecipient<SelectLocationDestination, Boolean>,
 ) {
     val connectViewModel: ConnectViewModel = koinViewModel()
 
@@ -278,12 +280,11 @@ fun Connect(
         }
     }
 
-    // TODO Restore this when we can navigate to select location
-    /*selectLocationResultRecipient.OnNavResultValue { result ->
+    selectLocationResultRecipient.OnNavResultValue { result ->
         if (result) {
             connectViewModel.onConnectClick()
         }
-    }*/
+    }
 
     CompositionLocalProvider(LocalNavAnimatedVisibilityScope provides animatedVisibilityScope) {
         ConnectScreen(
@@ -293,9 +294,8 @@ fun Connect(
             onReconnectClick = connectViewModel::onReconnectClick,
             onConnectClick = connectViewModel::onConnectClick,
             onCancelClick = connectViewModel::onCancelClick,
-            onSwitchLocationClick = {},
-            // TODO Restore this when we can navigate to select location
-            // dropUnlessResumed { navigator.navigate(SelectLocationMockDestination) },
+            onSwitchLocationClick =
+                dropUnlessResumed { navigator.navigate(SelectLocationDestination) },
             onOpenAppListing = connectViewModel::openAppListing,
             onManageAccountClick = connectViewModel::onManageAccountClick,
             onChangelogClick =

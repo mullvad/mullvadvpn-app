@@ -100,7 +100,7 @@ fun Account(navController: NavController, navigator: DestinationsNavigator) {
     CollectSideEffectWithLifecycle(vm.uiSideEffect) { sideEffect ->
         when (sideEffect) {
             AccountViewModel.UiSideEffect.NavigateToLogin -> {
-                navController.navigate(LoginDestination.route) {
+                navController.navigate(LoginDestination.baseRoute) {
                     launchSingleTop = true
                     popUpTo("main") { inclusive = true }
                 }

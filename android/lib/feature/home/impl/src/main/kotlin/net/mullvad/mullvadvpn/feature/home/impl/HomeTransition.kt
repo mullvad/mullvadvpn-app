@@ -14,7 +14,6 @@ object HomeTransition : DestinationStyle.Animated() {
     override val enterTransition:
         AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition =
         {
-            fadeIn()
             when (initialState.destination) {
                 LoginDestination -> fadeIn()
                 else -> EnterTransition.None

@@ -26,5 +26,5 @@ class InAppNotificationController(
                     )
                 )
             }
-            .stateIn(scope, SharingStarted.Companion.Eagerly, emptyList())
+            .stateIn(scope, SharingStarted.Eagerly, emptyList())
 }

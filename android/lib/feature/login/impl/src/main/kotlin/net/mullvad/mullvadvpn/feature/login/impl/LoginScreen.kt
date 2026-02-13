@@ -339,8 +339,7 @@ private fun ColumnScope.LoginInput(
         keyboardOptions =
             KeyboardOptions(
                 imeAction = if (state.loginButtonEnabled) ImeAction.Done else ImeAction.None,
-                keyboardType =
-                    KeyboardType.Companion.accountNumberKeyboardType(LocalContext.current),
+                keyboardType = KeyboardType.accountNumberKeyboardType(LocalContext.current),
             ),
         onValueChange = onAccountNumberChange,
         singleLine = true,
@@ -443,8 +442,8 @@ private fun LoginState.supportingText(
 ): AnnotatedString? =
     when (this) {
         is LoginState.Idle if
-            loginUiStateError is LoginUiStateError.LoginError.ApiUnreachable ||
-                loginUiStateError is LoginUiStateError.CreateAccountError.ApiUnreachable
+            (loginUiStateError is LoginUiStateError.LoginError.ApiUnreachable ||
+                loginUiStateError is LoginUiStateError.CreateAccountError.ApiUnreachable)
          -> apiUnreachableText(loginUiStateError, onShowApiUnreachableDialog)
         is LoginState.Idle -> {
             when (loginUiStateError) {
