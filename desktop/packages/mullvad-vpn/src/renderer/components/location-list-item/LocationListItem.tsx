@@ -3,6 +3,8 @@ import { ListItem } from '../../lib/components/list-item';
 import {
   LocationAccordionContent,
   LocationAccordionTitle,
+  LocationListItemAccordion,
+  LocationListItemAccordionTrigger,
   LocationListItemHeader,
   LocationListItemIconButton,
 } from './components';
@@ -21,8 +23,8 @@ function LocationListItem({ selected, children, ...props }: LocationListItemProp
 }
 
 const LocationListItemNamespace = Object.assign(LocationListItem, {
-  Accordion: Accordion,
-  AccordionTrigger: Accordion.Trigger,
+  Accordion: LocationListItemAccordion,
+  AccordionTrigger: LocationListItemAccordionTrigger,
   AccordionContainer: Accordion.Container,
   AccordionContent: LocationAccordionContent,
   Icon: Accordion.Icon,
