@@ -42,29 +42,35 @@ Just like all other API communication, the problem reports are sent encrypted (T
 server certificate pinning.
 
 
-## Telemetry
+## Telemetry (version check)
 
-The app collects a very minimal amount of telemetry, and it does not in any way tie
-it to an account number, IP or other identifiable information. The *only* telemetry
-performed are aggregate numbers on which app versions are used and which operating system
-versions they are used on. This is referred to as the "version check".
+<!--
+This section of the docs is an *explanation*, and below it comes a *reference*. Please try
+to follow the documentation guidelines on this in https://github.com/mullvad/coding-guidelines/
+-->
 
-Every 24 hours the app calls an API designed to tell the app if there are any
-upgrades available and if the currently running version is still supported. This will
-alert the user if there are known vulnerabilities or if this version of the app is
-known to malfunction. All of this is first and foremost to improve
-the user experience and keep the user safe. This API call does not contain the currently
-used Mullvad account number or any other Mullvad device identifier. It only contains which
-version of the app is currently running and which operating system version it's running on.
+The app reports a very minimal amount of telemetry to Mullvad. And it does not in any way tie
+it to identifiable information. See reference below for exact telemetry data.
+
+The app calls an API designed to tell the app if there are any upgrades available and
+if the currently running version is still supported. The main purpose
+is to inform the users about new app versions, and alert the user if there are known
+vulnerabilities or bugs in the version they are currently running. All of this is first and
+foremost to improve the user experience and keep the user safe.
+
+This API request does not contain the currently used Mullvad account number or any other Mullvad
+device identifier. It only contains which version of the app is currently running and which
+operating system version it's running on.
 The API server aggregates this information and only keeps counters on number of used app versions
-and operating systems. These statistics are recorded so that the development team can
+and operating systems. These statistics are recorded for the purpose of letting Mullvad
 understand the impact of discovered bugs and issues, and to prioritize features.
 
-Just like all other API communication, the version checks are sent encrypted (TLS) with
-server certificate pinning.
+### Reference
 
-### Operating system version
+The following is the telemetry included in the version check API call. These are sent as
+http headers and are only submitted once per 24 hours:
 
-Only the most important parts of the OS version number is included.
-This means it can be `Windows 10`, `Linux Ubuntu 20.04`, `macOS 12.0` or similar.
-But not more granular than that. It will never include patch versions or build numbers.
+* `M-App-Version`: Contains the version of the Mullvad VPN app. For example `2026.1`.
+* `M-Platform-Version`: Contains the operating system name and version. Only the most important
+  parts of the OS version number is included. It will never include patch versions or build numbers.
+  Examples: `Windows 11`, `Linux Ubuntu 24.04`, `macOS 26.0`, `Android 16`.
