@@ -1,8 +1,9 @@
+import React from 'react';
 import styled from 'styled-components';
 
 import { colors, Radius, spacings } from '../../../../foundations';
 import { useDialogContext } from '../../DialogContext';
-import { useEffectSyncOpen, useHandleClick, useHandleClose } from './hooks';
+import { useEffectSyncOpen, useHandleAnimationEnd, useHandleClick, useHandleClose } from './hooks';
 
 export type DialogPopupProps = React.ComponentPropsWithoutRef<'dialog'>;
 
@@ -77,11 +78,14 @@ export function DialogPopup({ children, ...props }: DialogPopupProps) {
   const handleClick = useHandleClick();
   const handleClose = useHandleClose();
 
+  const handleAnimationEnd = useHandleAnimationEnd();
+
   return (
     <StyledDialogPopup
       ref={dialogRef}
       onClick={handleClick}
       onClose={handleClose}
+      onTransitionEnd={handleAnimationEnd}
       aria-modal="true"
       aria-labelledby={titleId}
       {...props}>
