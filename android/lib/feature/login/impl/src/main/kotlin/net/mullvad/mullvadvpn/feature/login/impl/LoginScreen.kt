@@ -62,6 +62,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
+import androidx.navigation.NavController
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
 import com.ramcosta.composedestinations.generated.login.destinations.ApiUnreachableInfoDestination
@@ -121,6 +122,7 @@ private const val BOTTOM_SPACER_WEIGHT = 3f
 @Destination<ExternalModuleGraph>(style = LoginTransition::class)
 @Composable
 fun Login(
+    navController: NavController,
     navigator: DestinationsNavigator,
     accountNumber: String? = null,
     vm: LoginViewModel = koinViewModel(),
@@ -164,28 +166,25 @@ fun Login(
 
     CollectSideEffectWithLifecycle(vm.uiSideEffect) {
         when (it) {
-            LoginUiSideEffect.NavigateToWelcome -> {}
-            // TODO How to solve this?
-            // navigator.navigate(WelcomeDestination) {
-            //    launchSingleTop = true
-            //    popUpTo(NavGraphs.main) { inclusive = true }
-            // }
-            is LoginUiSideEffect.NavigateToConnect -> {}
-            // TODO How to solve this?
-            // navigator.navigate(ConnectDestination) {
-            //    launchSingleTop = true
-            //    popUpTo(NavGraphs.main) { inclusive = true }
-            // }
+            LoginUiSideEffect.NavigateToWelcome ->
+                navController.navigate("home/welcome") {
+                    launchSingleTop = true
+                    popUpTo("main") { inclusive = true }
+                }
+            is LoginUiSideEffect.NavigateToConnect ->
+                navController.navigate("home/connect") {
+                    launchSingleTop = true
+                    popUpTo("main") { inclusive = true }
+                }
             is LoginUiSideEffect.TooManyDevices ->
                 navigator.navigate(DeviceListDestination(it.accountNumber)) {
                     launchSingleTop = true
                 }
-            LoginUiSideEffect.NavigateToOutOfTime -> {}
-            // TODO How to solve this?
-            // navigator.navigate(OutOfTimeDestination) {
-            //    launchSingleTop = true
-            //    popUpTo(NavGraphs.main) { inclusive = true }
-            // }
+            LoginUiSideEffect.NavigateToOutOfTime ->
+                navController.navigate("home/out_of_time") {
+                    launchSingleTop = true
+                    popUpTo("main") { inclusive = true }
+                }
             LoginUiSideEffect.NavigateToCreateAccountConfirmation ->
                 navigator.navigate(CreateAccountConfirmationDestination)
             LoginUiSideEffect.GenericError ->
