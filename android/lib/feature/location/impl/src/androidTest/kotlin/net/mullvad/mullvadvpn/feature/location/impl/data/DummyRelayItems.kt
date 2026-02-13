@@ -310,17 +310,3 @@ val DUMMY_RELAY_ITEM_CUSTOM_LISTS =
             locations = emptyList(),
         ),
     )
-
-val DUMMY_CUSTOM_LISTS =
-    listOf(
-        CustomList(
-            name = CustomListName.fromString("First list"),
-            id = CustomListId("1"),
-            locations = DUMMY_RELAY_COUNTRIES.map { it.id },
-        ),
-        CustomList(
-            name = CustomListName.fromString("Empty list"),
-            id = CustomListId("2"),
-            locations = emptyList(),
-        ),
-    )
