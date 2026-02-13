@@ -134,10 +134,8 @@ fun Login(
     val state by vm.uiState.collectAsStateWithLifecycle()
 
     // Login with argument, e.g when user comes from Too Many Devices screen
-    // Due to hack we can sometimes get "{accountNumber}" here, we should ignore that
-    // TODO Remove this code when migrating to nav3
     LaunchedEffect(accountNumber) {
-        if (accountNumber != null && accountNumber.toLongOrNull() != null) {
+        if (accountNumber != null) {
             vm.onAccountNumberChange(accountNumber)
             vm.login(accountNumber)
         }

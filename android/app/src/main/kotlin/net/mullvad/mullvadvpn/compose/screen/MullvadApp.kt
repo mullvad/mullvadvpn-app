@@ -1,3 +1,5 @@
+@file:Suppress("MatchingDeclarationName")
+
 package net.mullvad.mullvadvpn.compose.screen
 
 import androidx.compose.animation.ExperimentalSharedTransitionApi

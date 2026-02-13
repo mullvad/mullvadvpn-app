@@ -55,7 +55,7 @@ fun DeviceRevoked(navController: NavController, navigator: DestinationsNavigator
     CollectSideEffectWithLifecycle(viewModel.uiSideEffect) { sideEffect ->
         when (sideEffect) {
             DeviceRevokedSideEffect.NavigateToLogin ->
-                navController.navigate(LoginDestination.route) {
+                navController.navigate(LoginDestination.baseRoute) {
                     launchSingleTop = true
                     popUpTo("main") { inclusive = true }
                 }

@@ -6,6 +6,7 @@ import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.unmockkAll
 import io.mockk.verify
+import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -33,7 +34,6 @@ import net.mullvad.mullvadvpn.lib.usecase.SelectedLocationUseCase
 import net.mullvad.mullvadvpn.lib.usecase.customlists.CustomListsRelayItemUseCase
 import net.mullvad.mullvadvpn.lib.usecase.customlists.FilterCustomListsRelayItemUseCase
 import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -92,7 +92,7 @@ class SelectLocationListViewModelTest {
         viewModel = createSelectLocationListViewModel(relayListType = RelayListType.Single)
 
         // Assert
-        Assertions.assertEquals(Lce.Loading(Unit), viewModel.uiState.value)
+        assertEquals(Lce.Loading(Unit), viewModel.uiState.value)
     }
 
     @Test
@@ -272,7 +272,7 @@ class SelectLocationListViewModelTest {
 
     companion object {
         private const val RELAY_ITEM_LIST_CREATOR_CLASS =
-            "net.mullvad.mullvadvpn.viewmodel.location.RelayItemListCreatorKt"
+            "net.mullvad.mullvadvpn.feature.location.impl.search.RelayItemListCreatorKt"
         private const val LOCATION_UTIL_CLASS =
             "net.mullvad.mullvadvpn.lib.common.util.LocationUtilKt"
 
