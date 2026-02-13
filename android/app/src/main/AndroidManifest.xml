@@ -31,7 +31,7 @@
     <uses-feature android:glEsVersion="0x00020000"
                   android:required="false" />
 
-    <application android:name=".MullvadApplication"
+    <application android:name=".app.MullvadApplication"
                  android:allowBackup="false"
                  tools:targetApi="33"
                  android:memtagMode="async"
@@ -66,7 +66,7 @@
             since after that it has been patched on a OS level.
         -->
         <activity
-            android:name="net.mullvad.mullvadvpn.ui.MainActivity"
+            android:name="net.mullvad.mullvadvpn.app.MainActivity"
             android:enableOnBackInvokedCallback="true"
             android:launchMode="singleInstance"
             android:screenOrientation="fullUser"
@@ -85,13 +85,13 @@
         <!-- Alternative icons names -->
         <!-- Default -->
         <activity-alias
-            android:name="net.mullvad.mullvadvpn.ui.obfuscation.MainActivityAltDefault"
+            android:name="net.mullvad.mullvadvpn.appearance.impl.obfuscation.MainActivityAltDefault"
             android:enabled="true"
             android:exported="true"
             android:icon="@mipmap/ic_launcher"
             android:banner="@mipmap/ic_banner"
             android:label="@string/app_name"
-            android:targetActivity="net.mullvad.mullvadvpn.ui.MainActivity"
+            android:targetActivity="net.mullvad.mullvadvpn.app.MainActivity"
             tools:ignore="DiscouragedApi,UnusedAttribute">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -108,13 +108,13 @@
         </activity-alias>
         <!-- Game -->
         <activity-alias
-            android:name="net.mullvad.mullvadvpn.ui.obfuscation.MainActivityAltGame"
+            android:name="net.mullvad.mullvadvpn.appearance.impl.obfuscation.MainActivityAltGame"
             android:enabled="false"
             android:exported="true"
             android:icon="@mipmap/ic_launcher_game"
             android:banner="@mipmap/ic_banner_game"
             android:label="@string/app_name_game"
-            android:targetActivity="net.mullvad.mullvadvpn.ui.MainActivity"
+            android:targetActivity="net.mullvad.mullvadvpn.app.MainActivity"
             tools:ignore="DiscouragedApi,UnusedAttribute">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -131,13 +131,13 @@
         </activity-alias>
         <!-- Weather -->
         <activity-alias
-            android:name="net.mullvad.mullvadvpn.ui.obfuscation.MainActivityAltWeather"
+            android:name="net.mullvad.mullvadvpn.appearance.impl.obfuscation.MainActivityAltWeather"
             android:enabled="false"
             android:exported="true"
             android:icon="@mipmap/ic_launcher_weather"
             android:banner="@mipmap/ic_banner_weather"
             android:label="@string/app_name_weather"
-            android:targetActivity="net.mullvad.mullvadvpn.ui.MainActivity"
+            android:targetActivity="net.mullvad.mullvadvpn.app.MainActivity"
             tools:ignore="DiscouragedApi,UnusedAttribute">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -154,13 +154,13 @@
         </activity-alias>
         <!-- Notes -->
         <activity-alias
-            android:name="net.mullvad.mullvadvpn.ui.obfuscation.MainActivityAltNotes"
+            android:name="net.mullvad.mullvadvpn.appearance.impl.obfuscation.MainActivityAltNotes"
             android:enabled="false"
             android:exported="true"
             android:icon="@mipmap/ic_launcher_notes"
             android:banner="@mipmap/ic_banner_notes"
             android:label="@string/app_name_notes"
-            android:targetActivity="net.mullvad.mullvadvpn.ui.MainActivity"
+            android:targetActivity="net.mullvad.mullvadvpn.app.MainActivity"
             tools:ignore="DiscouragedApi,UnusedAttribute">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -177,13 +177,13 @@
         </activity-alias>
         <!-- Ninja -->
         <activity-alias
-            android:name="net.mullvad.mullvadvpn.ui.obfuscation.MainActivityAltNinja"
+            android:name="net.mullvad.mullvadvpn.appearance.impl.obfuscation.MainActivityAltNinja"
             android:enabled="false"
             android:exported="true"
             android:icon="@mipmap/ic_launcher_ninja"
             android:banner="@mipmap/ic_banner_ninja"
             android:label="@string/app_name_ninja"
-            android:targetActivity="net.mullvad.mullvadvpn.ui.MainActivity"
+            android:targetActivity="net.mullvad.mullvadvpn.app.MainActivity"
             tools:ignore="DiscouragedApi,UnusedAttribute">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -200,13 +200,13 @@
         </activity-alias>
         <!-- Browser -->
         <activity-alias
-            android:name="net.mullvad.mullvadvpn.ui.obfuscation.MainActivityAltBrowser"
+            android:name="net.mullvad.mullvadvpn.appearance.impl.obfuscation.MainActivityAltBrowser"
             android:enabled="false"
             android:exported="true"
             android:icon="@mipmap/ic_launcher_browser"
             android:banner="@mipmap/ic_banner_browser"
             android:label="@string/app_name_browser"
-            android:targetActivity="net.mullvad.mullvadvpn.ui.MainActivity"
+            android:targetActivity="net.mullvad.mullvadvpn.app.MainActivity"
             tools:ignore="DiscouragedApi,UnusedAttribute">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
