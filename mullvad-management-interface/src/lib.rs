@@ -24,7 +24,7 @@ pub type ManagementServiceClient =
     types::management_service_client::ManagementServiceClient<Channel>;
 pub use types::management_service_server::{ManagementService, ManagementServiceServer};
 
-pub use types::{RelaySelectorService, RelaySelectorServiceServer};
+pub use types::{RelaySelectorService, RelaySelectorServiceClient, RelaySelectorServiceServer};
 
 #[cfg(unix)]
 use std::sync::LazyLock;
@@ -134,20 +134,27 @@ impl From<tonic::Status> for Error {
 
 #[cfg(not(target_os = "android"))]
 #[deprecated(note = "Prefer MullvadProxyClient")]
-pub async fn new_rpc_client() -> Result<ManagementServiceClient, Error> {
+pub async fn new_management_service_client() -> Result<ManagementServiceClient, Error> {
+    grpc_transport_channel()
+        .await
+        .map(ManagementServiceClient::new)
+}
+
+/// Create a [Channel] for communication between any of the available gRPC clients (e.g.
+/// [ManagementServiceClient]) and the management interface gRPC service.
+#[cfg(not(target_os = "android"))]
+pub(crate) async fn grpc_transport_channel() -> Result<Channel, Error> {
     use futures::TryFutureExt;
 
     let ipc_path = mullvad_paths::get_rpc_socket_path();
 
     // The URI will be ignored
-    let channel = Endpoint::from_static("lttp://[::]:50051")
+    Endpoint::from_static("lttp://[::]:50051")
         .connect_with_connector(service_fn(move |_: Uri| {
             IpcEndpoint::connect(ipc_path.clone()).map_ok(hyper_util::rt::tokio::TokioIo::new)
         }))
         .await
-        .map_err(Error::GrpcTransportError)?;
-
-    Ok(ManagementServiceClient::new(channel))
+        .map_err(Error::GrpcTransportError)
 }
 
 #[cfg(not(target_os = "android"))]
