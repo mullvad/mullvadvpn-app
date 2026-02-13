@@ -27,28 +27,7 @@ class ConnectivityTests: LoggedOutUITestCase {
         firewallAPIClient.createRule(try FirewallRule.makeBlockAPIAccessFirewallRule())
         try Networking.verifyCannotAccessAPI()
 
-        var successIconShown = false
-        var retryCount = 0
-        let maxRetryCount = 3
-
-        let loginPage = LoginPage(app)
-            .tapAccountNumberTextField()
-            .enterText(hasTimeAccountNumber)
-
-        // After creating firewall rule first login attempt might fail. More attempts are allowed since the app is cycling between three methods.
-        repeat {
-            successIconShown =
-                loginPage
-                .tapAccountNumberSubmitButton()
-                .getSuccessIconShown()
-
-            if successIconShown == false {
-                // Give it some time to show up. App might be waiting for a network connection to timeout.
-                loginPage.waitForAccountNumberSubmitButton()
-            }
-
-            retryCount += 1
-        } while successIconShown == false && retryCount < maxRetryCount
+        login(accountNumber: hasTimeAccountNumber)
 
         HeaderBar(app)
             .verifyDeviceLabelShown()
@@ -161,11 +140,7 @@ class ConnectivityTests: LoggedOutUITestCase {
             self.deleteTemporaryAccountWithTime(accountNumber: hasTimeAccountNumber)
         }
 
-        // Setup. Create a dummy access method to simulate API being down(unreachable)
-        LoginPage(app)
-            .tapAccountNumberTextField()
-            .enterText(hasTimeAccountNumber)
-            .tapAccountNumberSubmitButton()
+        login(accountNumber: hasTimeAccountNumber)
 
         TunnelControlPage(app)
 

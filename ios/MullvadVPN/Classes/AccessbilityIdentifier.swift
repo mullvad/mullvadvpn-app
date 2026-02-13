@@ -176,6 +176,9 @@ public enum AccessibilityIdentifier: Equatable {
     case multihopView
     case daitaView
     case notificationSettingsView
+    case notificationPromptView
+    case notificationPromptSkipButton
+    case notificationPromptEnableButton
 
     // Other UI elements
     case accessMethodEnableSwitch

@@ -30,6 +30,7 @@ final class NotificationPromptCoordinator: Coordinator, Presentable {
                 didConclude?(self)
             })
         let viewController = UIHostingController(rootView: view)
+        viewController.view.setAccessibilityIdentifier(.notificationPromptView)
         navigationController.isNavigationBarHidden = true
         navigationController.pushViewController(viewController, animated: animated)
     }

@@ -314,8 +314,17 @@ class BaseUITestCase: XCTestCase {
             retryCount += 1
         } while successIconShown == false && retryCount < maxRetryCount
 
+        skipNotificationPromptIfShown()
+
         HeaderBar(app)
             .verifyDeviceLabelShown()
+    }
+
+    func skipNotificationPromptIfShown() {
+        if app.otherElements[.notificationPromptView].existsAfterWait() {
+            NotificationPromptPage(app)
+                .tapSkipButton()
+        }
     }
 
     func logoutIfLoggedIn() {

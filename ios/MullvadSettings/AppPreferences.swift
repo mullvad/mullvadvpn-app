@@ -26,34 +26,34 @@ enum AppStorageKey: String {
     case isAgreedToTermsOfService
     case lastSeenChangeLogVersion
     case lastVersionCheck
-    case isNotificationPermissionNeeded
+    case isNotificationPermissionAsked
     case notificationSettings
 }
 
 public final class AppPreferences: AppPreferencesDataSource {
     public init() {}
 
-    @AppStorage(key: AppStorageKey.hasDoneFirstTimeLaunch.rawValue, container: .standard)
+    @PrimitiveStorage(key: AppStorageKey.hasDoneFirstTimeLaunch.rawValue, container: .standard)
     public var hasDoneFirstTimeLaunch: Bool = false
 
-    @AppStorage(key: AppStorageKey.hasDoneFirstTimeLogin.rawValue, container: .standard)
+    @PrimitiveStorage(key: AppStorageKey.hasDoneFirstTimeLogin.rawValue, container: .standard)
     public var hasDoneFirstTimeLogin: Bool = false
 
-    @AppStorage(key: AppStorageKey.isShownOnboarding.rawValue, container: .standard)
+    @PrimitiveStorage(key: AppStorageKey.isShownOnboarding.rawValue, container: .standard)
     public var isShownOnboarding = true
 
-    @AppStorage(key: AppStorageKey.isAgreedToTermsOfService.rawValue, container: .standard)
+    @PrimitiveStorage(key: AppStorageKey.isAgreedToTermsOfService.rawValue, container: .standard)
     public var isAgreedToTermsOfService = false
 
-    @AppStorage(key: AppStorageKey.lastSeenChangeLogVersion.rawValue, container: .standard)
+    @PrimitiveStorage(key: AppStorageKey.lastSeenChangeLogVersion.rawValue, container: .standard)
     public var lastSeenChangeLogVersion = ""
 
-    @AppStorage(key: AppStorageKey.lastVersionCheck.rawValue, container: .standard)
+    @CompositeStorage(key: AppStorageKey.lastVersionCheck.rawValue, container: .standard)
     public var lastVersionCheck = VersionCheck(version: "", date: .distantPast)
 
-    @AppStorage(key: AppStorageKey.isNotificationPermissionNeeded.rawValue, container: .standard)
+    @PrimitiveStorage(key: AppStorageKey.isNotificationPermissionAsked.rawValue, container: .standard)
     public var isNotificationPermissionAsked = false
 
-    @AppStorage(key: AppStorageKey.notificationSettings.rawValue, container: .standard)
+    @CompositeStorage(key: AppStorageKey.notificationSettings.rawValue, container: .standard)
     public var notificationSettings = NotificationSettings()
 }

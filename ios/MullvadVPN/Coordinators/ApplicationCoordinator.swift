@@ -74,7 +74,6 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
         accessMethodRepository: AccessMethodRepositoryProtocol,
         ipOverrideRepository: IPOverrideRepository,
         relaySelectorWrapper: RelaySelectorWrapper
-
     ) {
         self.tunnelManager = tunnelManager
         self.storePaymentManager = storePaymentManager
@@ -89,13 +88,6 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
         self.relaySelectorWrapper = relaySelectorWrapper
 
         super.init()
-
-        Task {
-            let isAllowed = await UNUserNotificationCenter.isAllowed
-            let isNotificationPermissionAsked = self.appPreferences.isNotificationPermissionAsked
-            self.appPreferences.isNotificationPermissionAsked = !isAllowed && isNotificationPermissionAsked
-        }
-
         navigationContainer.delegate = self
 
         router = ApplicationRouter(self)
@@ -107,8 +99,15 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
 
     func start() {
         navigationContainer.notificationController = notificationController
-
-        continueFlow(animated: false)
+        if !appPreferences.isNotificationPermissionAsked {
+            Task {
+                let isAllowed = await UNUserNotificationCenter.isAllowed
+                appPreferences.isNotificationPermissionAsked = isAllowed
+                continueFlow(animated: false)
+            }
+        } else {
+            continueFlow(animated: false)
+        }
     }
 
     // MARK: - ApplicationRouterDelegate
