@@ -8,6 +8,8 @@
 
 import Foundation
 
+// When adding new cases here, make sure to check if they should be added to the
+// "completely" condition when reseting the store in SettingsManager.resetStore().
 public enum SettingsKey: String, CaseIterable, Sendable {
     case settings = "Settings"
     case deviceState = "DeviceState"

@@ -131,6 +131,11 @@ enum UIMetrics {
         static let cornerRadius: CGFloat = 4
     }
 
+    enum ActionBox {
+        static let cornerRadius: CGFloat = 4
+        static let padding: CGFloat = 8
+    }
+
     enum FeatureIndicators {
         static let chipViewHorisontalPadding: CGFloat = 8
         static let chipViewTrailingMargin: CGFloat = 6

@@ -106,42 +106,50 @@ struct DeviceManagementView: View {
                     deviceManagementAlert = MullvadAlert(
                         type: .warning,
                         messages: style.warningText(deviceName: device.name),
-                        action: .init(
-                            type: style.actionButtonStyle,
-                            title: style.actionButtonTitle,
-                            identifier: AccessibilityIdentifier.logOutDeviceConfirmButton,
-                            handler: {
-                                await withCheckedContinuation { continuation in
-                                    guard let loggedInDevices else {
-                                        return
-                                    }
-                                    self.loggedInDevices = loggedInDevices.map {
-                                        $0.id == device.id ? $0.setIsBeingRemoved(true) : $0
-                                    }
-                                    deviceManagementAlert = nil
-                                    _ = deviceManaging.deleteDevice(
-                                        device.id,
-                                        completionHandler: { result in
-                                            Task { @MainActor in
-                                                switch result {
-                                                case .success:
-                                                    self.loggedInDevices?.removeAll(where: { $0.id == device.id })
-                                                case let .failure(error):
-                                                    self.loggedInDevices = loggedInDevices.map {
-                                                        $0.id
-                                                            == device
-                                                            .id ? $0.setIsBeingRemoved(false) : $0
-                                                    }
-                                                    onError("Failed to log out device", error)
-                                                }
-                                                continuation.resume()
-                                            }
+                        actions: [
+                            .init(
+                                type: style.actionButtonStyle,
+                                title: style.actionButtonTitle,
+                                identifier: AccessibilityIdentifier.logOutDeviceConfirmButton,
+                                handler: {
+                                    await withCheckedContinuation { continuation in
+                                        guard let loggedInDevices else {
+                                            return
                                         }
-                                    )
+                                        self.loggedInDevices = loggedInDevices.map {
+                                            $0.id == device.id ? $0.setIsBeingRemoved(true) : $0
+                                        }
+                                        deviceManagementAlert = nil
+                                        _ = deviceManaging.deleteDevice(
+                                            device.id,
+                                            completionHandler: { result in
+                                                Task { @MainActor in
+                                                    switch result {
+                                                    case .success:
+                                                        self.loggedInDevices?.removeAll(where: { $0.id == device.id })
+                                                    case let .failure(error):
+                                                        self.loggedInDevices = loggedInDevices.map {
+                                                            $0.id
+                                                                == device
+                                                                .id ? $0.setIsBeingRemoved(false) : $0
+                                                        }
+                                                        onError("Failed to log out device", error)
+                                                    }
+                                                    continuation.resume()
+                                                }
+                                            }
+                                        )
+                                    }
                                 }
-                            }
-                        ),
-                        dismissButtonTitle: "Cancel"
+                            ),
+                            .init(
+                                type: .default,
+                                title: "Cancel",
+                                handler: {
+                                    deviceManagementAlert = nil
+                                }
+                            ),
+                        ]
                     )
                 },
                 header: {

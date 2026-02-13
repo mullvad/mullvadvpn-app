@@ -15,9 +15,6 @@ protocol VPNSettingsCellEventHandler {
     func addCustomPort(_ port: UInt16)
     func selectCustomPortEntry(_ port: UInt16) -> Bool
     func selectObfuscationState(_ state: WireGuardObfuscationState)
-    func switchMultihop(_ state: MultihopState)
-    func setLocalNetworkSharing(_ enabled: Bool, onCancel: @escaping () -> Void)
-    func setIncludeAllNetworks(_ enabled: Bool, onCancel: @escaping () -> Void)
 }
 
 @MainActor
@@ -42,31 +39,6 @@ final class VPNSettingsCellFactory: @preconcurrency CellFactoryProtocol {
     func configureCell(_ cell: UITableViewCell, item: VPNSettingsDataSource.Item, indexPath: IndexPath) {
         (cell as? SettingsCell)?.detailTitleLabel.accessibilityIdentifier = nil
         switch item {
-        case .includeAllNetworks:
-            guard let cell = cell as? SettingsSwitchCell else { return }
-            cell.action = { enable in
-                self.delegate?.setIncludeAllNetworks(enable) {
-                    cell.setOn(self.viewModel.includeAllNetworks, animated: true)
-                }
-            }
-
-            cell.titleLabel.text = NSLocalizedString("Include all networks", comment: "")
-            cell.setAccessibilityIdentifier(item.accessibilityIdentifier)
-            cell.setOn(viewModel.includeAllNetworks, animated: true)
-        case .localNetworkSharing:
-            guard let cell = cell as? SettingsSwitchCell else { return }
-            cell.infoButtonHandler = { self.delegate?.showInfo(for: .localNetworkSharing) }
-            cell.action = { enable in
-                self.delegate?.setLocalNetworkSharing(enable) {
-                    cell.setOn(self.viewModel.localNetworkSharing, animated: true)
-                }
-            }
-
-            cell.titleLabel.text = NSLocalizedString("Local network sharing", comment: "")
-            cell.setAccessibilityIdentifier(item.accessibilityIdentifier)
-            cell.setOn(viewModel.localNetworkSharing, animated: true)
-            cell.setSwitchEnabled(viewModel.includeAllNetworks)
-
         case .dnsSettings:
             guard let cell = cell as? SettingsCell else { return }
 

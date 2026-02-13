@@ -102,6 +102,8 @@ extension SettingsDataSource.Item {
             .language
         case .notificationSettings:
             .notificationSettings
+        case .includeAllNetworks:
+            .includeAllNetworks
         }
     }
 }

@@ -60,6 +60,10 @@ extension Color {
         static let _20: Color = _100.opacity(0.2)
     }
 
+    enum MullvadActionBox {
+        static let border: Color = .mullvadPrimaryColor
+    }
+
     enum MullvadText {
         static let inputPlaceholder: Color = MullvadWhite._60
         static let disabled: Color = MullvadWhite._20

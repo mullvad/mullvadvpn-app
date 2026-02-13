@@ -151,47 +151,4 @@ extension VPNSettingsViewController: @preconcurrency VPNSettingsDataSourceDelega
     func didSelectWireGuardPort(_ port: UInt16?) {
         interactor.setPort(port)
     }
-
-    func showLocalNetworkSharingWarning(_ enable: Bool, completion: @escaping (Bool) -> Void) {
-        if interactor.tunnelManager.tunnelStatus.state.isSecured {
-            let status =
-                enable
-                ? NSLocalizedString("Enabling", comment: "")
-                : NSLocalizedString("Disabling", comment: "")
-            let description = NSLocalizedString(
-                """
-                %@ “Local network sharing” requires restarting the VPN connection, \
-                which will disconnect you and briefly expose your traffic.
-                To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.
-                Would you like to continue to enable “Local network sharing”?
-                """,
-                comment: ""
-            )
-
-            let presentation = AlertPresentation(
-                id: "vpn-settings-local-network-sharing-warning",
-                icon: .info,
-                message: String(format: description, status),
-                buttons: [
-                    AlertAction(
-                        title: NSLocalizedString("Yes, continue", comment: ""),
-                        style: .destructive,
-                        accessibilityId: .acceptLocalNetworkSharingButton,
-                        handler: {
-                            completion(true)
-                        }
-                    ),
-                    AlertAction(
-                        title: NSLocalizedString("Cancel", comment: ""),
-                        style: .default,
-                        handler: { completion(false) }
-                    ),
-                ]
-            )
-
-            alertPresenter.showAlert(presentation: presentation, animated: true)
-        } else {
-            completion(true)
-        }
-    }
 }

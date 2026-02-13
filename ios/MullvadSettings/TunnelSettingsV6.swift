@@ -52,8 +52,7 @@ public struct TunnelSettingsV6: Codable, Equatable, TunnelSettings, Sendable {
             tunnelQuantumResistance: tunnelQuantumResistance,
             tunnelMultihopState: tunnelMultihopState,
             daita: daita,
-            localNetworkSharing: false,
-            includeAllNetworks: false
+            includeAllNetworks: IncludeAllNetworksSettings()
         )
     }
 }

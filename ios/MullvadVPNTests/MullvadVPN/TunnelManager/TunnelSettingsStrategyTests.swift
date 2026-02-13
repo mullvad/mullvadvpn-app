@@ -120,8 +120,12 @@ final class TunnelSettingsStrategyTests: XCTestCase {
     func testHardReconnectWhenIncludeAllNetworksChange() {
         let currentSettings = LatestTunnelSettings()
         var updatedSettings = currentSettings
-        TunnelSettingsUpdate.includeAllNetworks(true)
-            .apply(to: &updatedSettings)
+        TunnelSettingsUpdate.includeAllNetworks(
+            IncludeAllNetworksSettings(
+                includeAllNetworksState: .on
+            )
+        )
+        .apply(to: &updatedSettings)
 
         let tunnelSettingsStrategy = TunnelSettingsStrategy()
         XCTAssertEqual(
@@ -134,8 +138,12 @@ final class TunnelSettingsStrategyTests: XCTestCase {
     func testHardReconnectWhenLocalNetworkSharingChange() {
         let currentSettings = LatestTunnelSettings()
         var updatedSettings = currentSettings
-        TunnelSettingsUpdate.localNetworkSharing(true)
-            .apply(to: &updatedSettings)
+        TunnelSettingsUpdate.includeAllNetworks(
+            IncludeAllNetworksSettings(
+                localNetworkSharingState: .on
+            )
+        )
+        .apply(to: &updatedSettings)
 
         let tunnelSettingsStrategy = TunnelSettingsStrategy()
         XCTAssertEqual(

@@ -151,31 +151,23 @@ final class TunnelSettingsUpdateTests: XCTestCase {
         XCTAssertEqual(settings.daita, daitaSettings)
     }
 
-    func testApplyIAN() {
+    func testApplyIncludeAllNetworks() {
         // Given:
-        let includeAllNetworks = true
+        let includeAllNetworksState = InclueAllNetworksState.on
+        let localNetworkSharingState = LocalNetworkSharingState.on
         var settings = LatestTunnelSettings()
 
         // When:
-        let update = TunnelSettingsUpdate.includeAllNetworks(includeAllNetworks)
-        update.apply(to: &settings)
-
-        // Then:
-        XCTAssertEqual(settings.includeAllNetworks, includeAllNetworks)
-    }
-
-    func testApplyLocalNetworkSharing() {
-        // Given:
-        let localNetworkSharing = true
-        var settings = LatestTunnelSettings()
-
-        // When:
-        let update = TunnelSettingsUpdate.localNetworkSharing(
-            localNetworkSharing
+        let update = TunnelSettingsUpdate.includeAllNetworks(
+            IncludeAllNetworksSettings(
+                includeAllNetworksState: includeAllNetworksState,
+                localNetworkSharingState: localNetworkSharingState
+            )
         )
         update.apply(to: &settings)
 
         // Then:
-        XCTAssertEqual(settings.localNetworkSharing, localNetworkSharing)
+        XCTAssertEqual(settings.includeAllNetworks.includeAllNetworksIsEnabled, includeAllNetworksState.isEnabled)
+        XCTAssertEqual(settings.includeAllNetworks.localNetworkSharingIsEnabled, localNetworkSharingState.isEnabled)
     }
 }

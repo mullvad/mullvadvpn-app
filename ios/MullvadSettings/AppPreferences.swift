@@ -17,6 +17,7 @@ public protocol AppPreferencesDataSource {
     var lastVersionCheck: VersionCheck { get set }
     var isNotificationPermissionAsked: Bool { get set }
     var notificationSettings: NotificationSettings { get set }
+    var includeAllNetworksConsent: Bool { get set }
 }
 
 enum AppStorageKey: String {
@@ -28,6 +29,7 @@ enum AppStorageKey: String {
     case lastVersionCheck
     case isNotificationPermissionNeeded
     case notificationSettings
+    case includeAllNetworksConsent
 }
 
 public final class AppPreferences: AppPreferencesDataSource {
@@ -56,4 +58,7 @@ public final class AppPreferences: AppPreferencesDataSource {
 
     @AppStorage(key: AppStorageKey.notificationSettings.rawValue, container: .standard)
     public var notificationSettings = NotificationSettings()
+
+    @AppStorage(key: AppStorageKey.includeAllNetworksConsent.rawValue, container: .standard)
+    public var includeAllNetworksConsent = false
 }

@@ -44,6 +44,9 @@ enum SettingsNavigationRoute: Equatable {
 
     /// Notification settings route.
     case notificationSettings
+
+    /// IAN route.
+    case includeAllNetworks
 }
 
 /// Top-level settings coordinator.
@@ -95,7 +98,7 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
         accessMethodRepository: AccessMethodRepositoryProtocol,
         proxyConfigurationTester: ProxyConfigurationTesterProtocol,
         ipOverrideRepository: IPOverrideRepository,
-        notificationSettings: NotificationSettings
+        appPreferences: AppPreferencesDataSource
     ) {
         self.navigationController = navigationController
         self.interactorFactory = interactorFactory
@@ -109,9 +112,9 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
             accessMethodRepository: accessMethodRepository,
             proxyConfigurationTester: proxyConfigurationTester,
             ipOverrideRepository: ipOverrideRepository,
-            notificationSettings: notificationSettings,
             navigationController: navigationController,
-            alertPresenter: AlertPresenter(context: self)
+            alertPresenter: AlertPresenter(context: self),
+            appPreferences: appPreferences
         )
     }
 
@@ -129,7 +132,7 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
 
     // MARK: - Navigation
 
-    /// Request navigation to the speciifc route.
+    /// Request navigation to the specific route.
     ///
     /// - Parameters:
     ///   - route: the route to present.

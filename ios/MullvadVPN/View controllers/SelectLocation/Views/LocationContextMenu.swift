@@ -16,16 +16,23 @@ extension ExitLocationView {
                     alert = .init(
                         type: .warning,
                         messages: ["Do you want to delete the list **\(location.name)**?"],
-                        action: .init(
-                            type: .danger,
-                            title: "Delete list",
-                            identifier: nil,
-                            handler: {
-                                viewModel.deleteCustomList(name: location.name)
-                                alert = nil
-                            }
-                        ),
-                        dismissButtonTitle: "Cancel"
+                        actions: [
+                            .init(
+                                type: .danger,
+                                title: "Delete list",
+                                handler: {
+                                    viewModel.deleteCustomList(name: location.name)
+                                    alert = nil
+                                }
+                            ),
+                            .init(
+                                type: .default,
+                                title: "Cancel",
+                                handler: {
+                                    alert = nil
+                                }
+                            ),
+                        ]
                     )
                 }
 

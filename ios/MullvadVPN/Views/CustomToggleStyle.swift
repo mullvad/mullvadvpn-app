@@ -19,49 +19,34 @@ struct CustomToggleStyle: ToggleStyle {
     var infoButtonAction: (() -> Void)?
 
     func makeBody(configuration: Configuration) -> some View {
-        HStack {
-            configuration.label
+        ZStack(alignment: configuration.isOn ? .trailing : .leading) {
+            Capsule(style: .circular)
+                .frame(width: width, height: height)
+                .foregroundColor(.clear)
+                .overlay(
+                    RoundedRectangle(cornerRadius: circleRadius)
+                        .stroke(
+                            Color(.white.withAlphaComponent(0.8)),
+                            lineWidth: 2
+                        )
+                )
                 .opacity(disabled ? 0.2 : 1)
 
-            if let infoButtonAction {
-                Button(action: infoButtonAction) {
-                    Image(.iconInfo)
-                }
-                .adjustingTapAreaSize()
-                .tint(.white)
-            }
-
-            Spacer()
-
-            ZStack(alignment: configuration.isOn ? .trailing : .leading) {
-                Capsule(style: .circular)
-                    .frame(width: width, height: height)
-                    .foregroundColor(.clear)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: circleRadius)
-                            .stroke(
-                                Color(.white.withAlphaComponent(0.8)),
-                                lineWidth: 2
-                            )
-                    )
-                    .opacity(disabled ? 0.2 : 1)
-
-                Circle()
-                    .frame(width: circleRadius, height: circleRadius)
-                    .padding(3)
-                    .foregroundColor(
-                        configuration.isOn
-                            ? Color(uiColor: UIColor.Switch.onThumbColor)
-                            : Color(uiColor: UIColor.Switch.offThumbColor)
-                    )
-                    .opacity(disabled ? 0.4 : 1)
-            }
-            .accessibilityIdentifier(accessibilityId?.asString ?? "")
-            .onTapGesture {
-                toggle(configuration)
-            }
-            .adjustingTapAreaSize()
+            Circle()
+                .frame(width: circleRadius, height: circleRadius)
+                .padding(3)
+                .foregroundColor(
+                    configuration.isOn
+                        ? Color(uiColor: UIColor.Switch.onThumbColor)
+                        : Color(uiColor: UIColor.Switch.offThumbColor)
+                )
+                .opacity(disabled ? 0.4 : 1)
         }
+        .accessibilityIdentifier(accessibilityId?.asString ?? "")
+        .onTapGesture {
+            toggle(configuration)
+        }
+        .adjustingTapAreaSize()
     }
 
     private func toggle(_ configuration: Configuration) {

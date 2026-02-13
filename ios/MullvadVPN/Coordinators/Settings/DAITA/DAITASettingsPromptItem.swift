@@ -36,7 +36,8 @@ enum DAITASettingsPromptItem: CustomStringConvertible {
                 """
                 DAITA isn't available at the currently selected location. After enabling, please go to \
                 the "Select location" view and select a location that supports DAITA.
-                """, comment: "")
+                """,
+                comment: "")
 
         case .daitaSettingIncompatibleWithMultihop:
             NSLocalizedString(

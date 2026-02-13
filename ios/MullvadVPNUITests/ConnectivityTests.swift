@@ -256,9 +256,10 @@ class ConnectivityTests: LoggedOutUITestCase {
 
         SettingsPage(app)
             .tapVPNSettingsCell()
+            .tapIncludeAllNetworksCell()
 
-        VPNSettingsPage(app)
-            .tapLocalNetworkSharingSwitch()
+        IncludeAllNetworksPage(app)
+            .tapEnableLocalNetworkSharing()
             .tapBackButton()
 
         SettingsPage(app)
