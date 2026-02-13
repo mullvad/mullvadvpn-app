@@ -272,7 +272,9 @@ impl Default for Settings {
                 },
                 ..Default::default()
             }),
-            update_default_location: false,
+            // We only want to set this flag to true if the settings file hasn't been
+            // created yet so that we don't affect existing users' relay settings.
+            update_default_location: true,
             obfuscation_settings: ObfuscationSettings {
                 selected_obfuscation: SelectedObfuscation::Auto,
                 ..Default::default()
