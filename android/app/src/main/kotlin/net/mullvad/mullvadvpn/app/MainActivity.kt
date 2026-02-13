@@ -36,8 +36,8 @@ import net.mullvad.mullvadvpn.lib.model.Prepared
 import net.mullvad.mullvadvpn.lib.repository.SplashCompleteRepository
 import net.mullvad.mullvadvpn.lib.repository.UserPreferencesRepository
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
-import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
-import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
+import net.mullvad.mullvadvpn.serviceconnection.ServiceConnectionManager
+import net.mullvad.mullvadvpn.serviceconnection.ServiceConnectionState
 import net.mullvad.mullvadvpn.util.BackstackObserver
 import org.koin.android.ext.android.inject
 import org.koin.android.scope.AndroidScopeComponent
@@ -77,8 +77,8 @@ class MainActivity : ComponentActivity(), AndroidScopeComponent {
         }
 
         enableEdgeToEdge(
-            statusBarStyle = SystemBarStyle.Companion.dark(Color.TRANSPARENT),
-            navigationBarStyle = SystemBarStyle.Companion.dark(Color.TRANSPARENT),
+            statusBarStyle = SystemBarStyle.dark(Color.TRANSPARENT),
+            navigationBarStyle = SystemBarStyle.dark(Color.TRANSPARENT),
         )
 
         super.onCreate(savedInstanceState)
@@ -147,7 +147,7 @@ class MainActivity : ComponentActivity(), AndroidScopeComponent {
                     intent.getApiEndpointConfigurationExtras()
                 )
             KEY_REQUEST_VPN_PROFILE -> handleRequestVpnProfileIntent()
-            else -> Logger.Companion.w("Unhandled intent action: $action")
+            else -> Logger.w("Unhandled intent action: $action")
         }
     }
 

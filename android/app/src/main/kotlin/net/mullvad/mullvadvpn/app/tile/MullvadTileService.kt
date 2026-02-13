@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.tile
+package net.mullvad.mullvadvpn.app.tile
 
 import android.annotation.SuppressLint
 import android.app.PendingIntent
@@ -31,6 +31,7 @@ import net.mullvad.mullvadvpn.lib.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.model.ActionAfterDisconnect
 import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
+import net.mullvad.mullvadvpn.lib.ui.resource.R
 import org.koin.android.ext.android.get
 
 class MullvadTileService : TileService() {

@@ -112,7 +112,7 @@ import net.mullvad.mullvadvpn.screen.privacy.PrivacyDisclaimerViewModel
 import net.mullvad.mullvadvpn.screen.splash.SplashViewModel
 import net.mullvad.mullvadvpn.serveripoverride.impl.ServerIpOverridesViewModel
 import net.mullvad.mullvadvpn.serveripoverride.impl.reset.ResetServerIpOverridesConfirmationViewModel
-import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
+import net.mullvad.mullvadvpn.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.util.BackstackObserver
 import org.apache.commons.validator.routines.InetAddressValidator
 import org.koin.android.ext.koin.androidContext
