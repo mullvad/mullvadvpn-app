@@ -7,8 +7,8 @@ import android.content.pm.ServiceInfo
 import android.os.Build
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import net.mullvad.mullvadvpn.app.service.MullvadVpnService
 import net.mullvad.mullvadvpn.lib.common.serviceconnection.EmptyServiceConnection
-import net.mullvad.mullvadvpn.service.MullvadVpnService
 
 class ServiceConnectionManager(private val context: Context) {
     private val _connectionState =
