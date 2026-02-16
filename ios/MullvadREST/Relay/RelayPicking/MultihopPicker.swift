@@ -26,7 +26,7 @@ struct MultihopPicker: RelayPicking {
             daitaEnabled: daitaSettings.daitaState.isEnabled
         )
 
-        let supportedObfuscation = RelayObfuscator(
+        let supportedObfuscation = try RelayObfuscator(
             relays: obfuscation.allRelays,
             tunnelSettings: tunnelSettings,
             connectionAttemptCount: connectionAttemptCount,

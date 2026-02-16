@@ -14,11 +14,11 @@ struct LwoObfuscator: RelayObfuscating {
     let tunnelSettings: LatestTunnelSettings
     let connectionAttemptCount: UInt
 
-    func obfuscate() -> RelayObfuscation {
+    func obfuscate() throws -> RelayObfuscation {
         RelayObfuscation(
             allRelays: relays,
             obfuscatedRelays: filterLwoRelays(from: relays),
-            port: validateLwoPort(relays: relays, tunnelSettings: tunnelSettings),
+            port: try validateLwoPort(relays: relays, tunnelSettings: tunnelSettings),
             method: .lwo
         )
     }
@@ -40,7 +40,7 @@ struct LwoObfuscator: RelayObfuscating {
     private func validateLwoPort(
         relays: REST.ServerRelaysResponse,
         tunnelSettings: LatestTunnelSettings
-    ) -> RelayConstraint<UInt16> {
+    ) throws -> RelayConstraint<UInt16> {
         guard let customLwoPort = tunnelSettings.wireGuardObfuscation.lwoPort.portValue else {
             return .any
         }
@@ -53,10 +53,10 @@ struct LwoObfuscator: RelayObfuscating {
                 return false
             }
 
-        if portIsWithinValidWireGuardRanges {
-            return .only(customLwoPort)
-        } else {
-            return .any
+        if !portIsWithinValidWireGuardRanges {
+            throw NoRelaysSatisfyingConstraintsError(.invalidPort)
         }
+
+        return .only(customLwoPort)
     }
 }

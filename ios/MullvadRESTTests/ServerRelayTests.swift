@@ -76,8 +76,8 @@ class ServerRelayTests: XCTestCase {
     func testCheckForDaitaWorksFromFeatures() {
         let relayWithDaitaFeature = mockServerRelay.override(features: .init(daita: .init(), quic: nil, lwo: nil))
         let relayWithoutDaitaFeature = mockServerRelay
-        XCTAssertTrue(relayWithDaitaFeature.hasDaita)
-        XCTAssertFalse(relayWithoutDaitaFeature.hasDaita)
+        XCTAssertTrue(relayWithDaitaFeature.supportsDaita)
+        XCTAssertFalse(relayWithoutDaitaFeature.supportsDaita)
     }
 
     func testOverrideIPv4AddrIn() throws {

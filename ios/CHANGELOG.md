@@ -57,7 +57,7 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [2025.6 - 2025-09-23]
 ### Added
-- Add support for obfuscating WireGuard tunnel traffic by LWO (Lightweight WireGuard Obfuscation). 
+- Add support for obfuscating WireGuard tunnel traffic by LWO (Lightweight WireGuard Obfuscation).
   This helps circumvent censorship.
 - Make feature indicators clickable shortcuts to their corresponding settings.
 - Let users cancel sending a problem report.

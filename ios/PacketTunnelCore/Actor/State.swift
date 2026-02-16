@@ -214,6 +214,9 @@ public enum BlockedStateReason: String, Codable, Equatable, Sendable {
     case noRelaysSatisfyingObfuscationSettings
 
     /// No relays satisfying port constraints.
+    case noRelaysSatisfyingObfuscationPortConstraints
+
+    /// No relays satisfying port constraints.
     case noRelaysSatisfyingPortConstraints
 
     /// Any other failure when reading settings.
@@ -250,7 +253,7 @@ public enum BlockedStateReason: String, Codable, Equatable, Sendable {
         case .deviceLocked, .multihopEntryEqualsExit, .outdatedSchema, .noRelaysSatisfyingConstraints,
             .noRelaysSatisfyingPortConstraints, .noRelaysSatisfyingDaitaConstraints,
             .noRelaysSatisfyingFilterConstraints, .noRelaysSatisfyingObfuscationSettings, .readSettings,
-            .invalidRelayPublicKey, .offline:
+            .invalidRelayPublicKey, .noRelaysSatisfyingObfuscationPortConstraints, .offline:
             return true
         case .deviceRevoked, .deviceLoggedOut, .tunnelAdapter, .accountExpired, .invalidAccount, .unknown:
             return false

@@ -174,7 +174,12 @@ public struct WireGuardObfuscationSettings: Codable, Equatable, Sendable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
 
         state = try container.decode(WireGuardObfuscationState.self, forKey: .state)
-        lwoPort = try container.decode(WireGuardObfuscationLwoPort.self, forKey: .lwoPort)
+
+        lwoPort =
+            try container.decodeIfPresent(
+                WireGuardObfuscationLwoPort.self,
+                forKey: .lwoPort
+            ) ?? .automatic
 
         shadowsocksPort =
             try container.decodeIfPresent(

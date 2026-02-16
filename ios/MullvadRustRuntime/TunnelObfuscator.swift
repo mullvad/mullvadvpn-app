@@ -22,7 +22,7 @@ public enum TunnelObfuscationProtocol {
 public protocol TunnelObfuscation {
     init(
         remoteAddress: IPAddress,
-        tcpPort: UInt16,
+        remotePort: UInt16,
         obfuscationProtocol: TunnelObfuscationProtocol,
         clientPublicKey: PublicKey
     )
@@ -41,8 +41,8 @@ public protocol TunnelObfuscation {
 public final class TunnelObfuscator: TunnelObfuscation {
     private let stateLock = NSLock()
     private let remoteAddress: IPAddress
-    internal let tcpPort: UInt16
-    internal let obfuscationProtocol: TunnelObfuscationProtocol
+    private let port: UInt16
+    private let obfuscationProtocol: TunnelObfuscationProtocol
     private let clientPublicKey: PublicKey
 
     private var proxyHandle = ProxyHandle(context: nil, port: 0)
@@ -54,7 +54,7 @@ public final class TunnelObfuscator: TunnelObfuscation {
         return stateLock.withLock { proxyHandle.port }
     }
 
-    public var remotePort: UInt16 { tcpPort }
+    public var remotePort: UInt16 { port }
 
     public var transportLayer: TransportLayer {
         switch obfuscationProtocol {
@@ -62,20 +62,18 @@ public final class TunnelObfuscator: TunnelObfuscation {
             .tcp
         case .shadowsocks, .quic, .lwo:
             .udp
-        case .lwo:
-            .udp
         }
     }
 
-    /// Initialize tunnel obfuscator with remote server address and TCP port where udp2tcp is running.
+    /// Initialize tunnel obfuscator with remote server address and port where obfuscation is running.
     public init(
         remoteAddress: IPAddress,
-        tcpPort: UInt16,
+        remotePort: UInt16,
         obfuscationProtocol: TunnelObfuscationProtocol,
         clientPublicKey: PublicKey
     ) {
         self.remoteAddress = remoteAddress
-        self.tcpPort = tcpPort
+        self.port = remotePort
         self.obfuscationProtocol = obfuscationProtocol
         self.clientPublicKey = clientPublicKey
     }
@@ -96,21 +94,21 @@ public final class TunnelObfuscator: TunnelObfuscation {
                     start_udp2tcp_obfuscator_proxy(
                         addressData.map { $0 },
                         UInt(addressData.count),
-                        tcpPort,
+                        port,
                         proxyHandlePointer
                     )
                 case .shadowsocks:
                     start_shadowsocks_obfuscator_proxy(
                         addressData.map { $0 },
                         UInt(addressData.count),
-                        tcpPort,
+                        port,
                         proxyHandlePointer
                     )
                 case let .quic(hostname, token):
                     start_quic_obfuscator_proxy(
                         addressData.map { $0 },
                         UInt(addressData.count),
-                        tcpPort,
+                        port,
                         hostname,
                         token,
                         proxyHandlePointer
@@ -121,7 +119,7 @@ public final class TunnelObfuscator: TunnelObfuscation {
                             start_lwo_obfuscator_proxy(
                                 addressData.map { $0 },
                                 UInt(addressData.count),
-                                tcpPort,
+                                port,
                                 clientKeyPtr.baseAddress?.assumingMemoryBound(to: UInt8.self),
                                 serverKeyPtr.baseAddress?.assumingMemoryBound(to: UInt8.self),
                                 proxyHandlePointer

@@ -19,11 +19,11 @@ struct TunnelObfuscationStub: TunnelObfuscation {
     let remotePort: UInt16
     init(
         remoteAddress: IPAddress,
-        tcpPort: UInt16,
+        remotePort: UInt16,
         obfuscationProtocol: TunnelObfuscationProtocol,
         clientPublicKey: PublicKey
     ) {
-        remotePort = tcpPort
+        self.remotePort = remotePort
     }
 
     func start() {}

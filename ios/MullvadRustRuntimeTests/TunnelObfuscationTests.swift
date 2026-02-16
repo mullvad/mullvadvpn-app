@@ -26,7 +26,7 @@ final class TunnelObfuscationTests: XCTestCase {
 
         let obfuscator = TunnelObfuscator(
             remoteAddress: IPv4Address.loopback,
-            tcpPort: tcpListener.listenPort,
+            remotePort: tcpListener.listenPort,
             obfuscationProtocol: .udpOverTcp,
             clientPublicKey: testPublicKey
         )
@@ -64,7 +64,7 @@ final class TunnelObfuscationTests: XCTestCase {
 
         let localObfuscator = TunnelObfuscator(
             remoteAddress: IPv4Address.loopback,
-            tcpPort: localUdpListener.listenPort,
+            remotePort: localUdpListener.listenPort,
             obfuscationProtocol: .shadowsocks,
             clientPublicKey: testPublicKey
         )
@@ -108,7 +108,7 @@ final class TunnelObfuscationTests: XCTestCase {
 
         let obfuscator = TunnelObfuscator(
             remoteAddress: IPv4Address.loopback,
-            tcpPort: localUdpListener.listenPort,
+            remotePort: localUdpListener.listenPort,
             obfuscationProtocol: .lwo(serverPublicKey: serverPrivateKey.publicKey),
             clientPublicKey: clientPrivateKey.publicKey
         )
@@ -154,13 +154,14 @@ final class TunnelObfuscationTests: XCTestCase {
         for iteration in 1...5 {
             let obfuscator = TunnelObfuscator(
                 remoteAddress: IPv4Address.loopback,
-                tcpPort: localUdpListener.listenPort,
+                remotePort: localUdpListener.listenPort,
                 obfuscationProtocol: .lwo(serverPublicKey: serverPrivateKey.publicKey),
                 clientPublicKey: clientPrivateKey.publicKey
             )
 
             obfuscator.start()
-            XCTAssertNotEqual(obfuscator.localUdpPort, 0, "Iteration \(iteration): LWO obfuscator should allocate a port")
+            XCTAssertNotEqual(
+                obfuscator.localUdpPort, 0, "Iteration \(iteration): LWO obfuscator should allocate a port")
 
             obfuscator.stop()
         }
@@ -176,7 +177,7 @@ final class TunnelObfuscationTests: XCTestCase {
 
         let obfuscator = TunnelObfuscator(
             remoteAddress: IPv4Address.loopback,
-            tcpPort: localUdpListener.listenPort,
+            remotePort: localUdpListener.listenPort,
             obfuscationProtocol: .lwo(serverPublicKey: serverPrivateKey.publicKey),
             clientPublicKey: clientPrivateKey.publicKey
         )
