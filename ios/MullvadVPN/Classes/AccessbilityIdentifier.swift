@@ -34,6 +34,7 @@ public enum AccessibilityIdentifier: Equatable {
     case deleteButton
     case deviceCellRemoveButton
     case disconnectButton
+    case reconnectButton
     case revokedDeviceLoginButton
     case dnsSettingsEditButton
     case infoButton

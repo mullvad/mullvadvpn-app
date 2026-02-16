@@ -33,6 +33,8 @@ extension ConnectionView {
                     image: .iconReload,
                     style: .default,
                     accessibilityId: .selectLocationButton,
+                    secondaryAccessibilityId: .reconnectButton,
+                    secondaryAccessibilityLabel: LocalizedStringKey("Reconnect"),
                     primaryAction: { action?(.selectLocation) },
                     secondaryAction: { action?(.reconnect) }
                 )
