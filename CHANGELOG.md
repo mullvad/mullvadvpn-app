@@ -28,6 +28,8 @@ Line wrap the file at 100 chars.                                              Th
   Previously the access method was constrained to the five bridges closest to the exit relay.
 - Changed CLI command `mullvad obfuscation` to `mullvad anti-censorship`
 - The tunnel setup will not error out if sending ICMP is prohibited by the operating system.
+- Location setting no longer defaults to Sweden, instead it uses you current location if it
+  has available relays, and falls back to Sweden otherwise.
 
 #### Linux
 - Change "Go back" keyboard shortcut from `Esc` to `Alt + Left Arrow` or `Alt + [`.
@@ -237,6 +239,7 @@ No changes since 2025.8-beta1. This update is done in preparation for upcoming f
 - Make firewall rules applied while upgrading the app not persist on reboot, unless "Lockdown mode"
   or "Auto-connect along with "Launch app on start-up" is enabled. This serves as a safety fallback
   if the update fails and the user is left with blocking firewall rules and no app.
+
 
 ### Fixed
 #### macOS
