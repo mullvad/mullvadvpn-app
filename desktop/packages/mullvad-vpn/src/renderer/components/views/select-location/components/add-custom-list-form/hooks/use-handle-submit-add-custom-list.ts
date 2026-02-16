@@ -1,13 +1,12 @@
 import React from 'react';
 
-import log from '../../../../../../../shared/logging';
 import { useCustomLists } from '../../../../../../features/location/hooks';
 import { useCustomListListContext } from '../../custom-list-location-list/CustomListLocationListContext';
 import { useAddCustomListFormContext } from '../AddCustomListFormContext';
 
 export function useHandleSubmitAddCustomList() {
   const { createCustomList: contextCreateCustomList } = useCustomLists();
-  const { hideAddForm } = useCustomListListContext();
+  const { hideAddForm, setAddingForm } = useCustomListListContext();
   const {
     form: {
       setError,
@@ -17,20 +16,17 @@ export function useHandleSubmitAddCustomList() {
 
   const submitCustomList = React.useCallback(
     async (name: string) => {
-      try {
-        const result = await contextCreateCustomList(name);
-        if (result) {
-          setError(true);
-        } else {
-          reset();
-          hideAddForm();
-        }
-      } catch (e) {
-        const error = e as Error;
-        log.error('Failed to create list:', error.message);
+      setAddingForm(true);
+      const result = await contextCreateCustomList(name);
+      if (result) {
+        setError(true);
+      } else {
+        reset();
+        hideAddForm();
       }
+      setAddingForm(false);
     },
-    [contextCreateCustomList, hideAddForm, reset, setError],
+    [contextCreateCustomList, hideAddForm, reset, setAddingForm, setError],
   );
 
   return React.useCallback(

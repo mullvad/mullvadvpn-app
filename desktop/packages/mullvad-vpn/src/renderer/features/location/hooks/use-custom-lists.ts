@@ -19,10 +19,15 @@ export function useCustomLists() {
 
   const createCustomList = React.useCallback(
     async (name: string): Promise<void | CustomListError> => {
-      return contextCreateCustomList({
-        name,
-        locations: [],
-      });
+      try {
+        return contextCreateCustomList({
+          name,
+          locations: [],
+        });
+      } catch (e) {
+        const error = e as Error;
+        log.error('Failed to create list:', error.message);
+      }
     },
     [contextCreateCustomList],
   );

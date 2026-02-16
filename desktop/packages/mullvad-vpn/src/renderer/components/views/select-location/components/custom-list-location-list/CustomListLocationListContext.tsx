@@ -5,6 +5,8 @@ import type { LocationSelection } from './CustomListLocationList';
 
 type CustomListLocationListContextProps = Omit<CustomListLocationListProviderProps, 'children'> & {
   addFormVisible: boolean;
+  addingForm: boolean;
+  setAddingForm: React.Dispatch<React.SetStateAction<boolean>>;
   showAddForm: () => void;
   hideAddForm: () => void;
 };
@@ -32,15 +34,18 @@ export function CustomListLocationListProvider({
   ...props
 }: CustomListLocationListProviderProps) {
   const [addFormVisible, showAddForm, hideAddForm] = useBoolean(false);
+  const [addingForm, setAddingForm] = React.useState(false);
 
   const value = React.useMemo(
     () => ({
       addFormVisible,
       showAddForm,
       hideAddForm,
+      addingForm,
+      setAddingForm,
       ...props,
     }),
-    [addFormVisible, showAddForm, hideAddForm, props],
+    [addFormVisible, showAddForm, hideAddForm, addingForm, setAddingForm, props],
   );
 
   return (
