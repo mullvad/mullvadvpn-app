@@ -7,7 +7,6 @@ import {
 } from '../../../../../shared/daemon-rpc-types';
 import { hasValue } from '../../../../../shared/utils';
 import { useCustomLists } from '../../../../features/location/hooks';
-import { searchMatch } from '../../../../lib/filter-locations';
 import {
   formatRowName,
   isCustomListDisabled,
@@ -22,7 +21,6 @@ import {
   type GeographicalLocation,
   type RelayLocation,
 } from '../select-location-types';
-import { useSelectLocationViewContext } from '../SelectLocationViewContext';
 import { useDisabledLocation } from './use-disabled-location';
 import { useSelectedLocation } from './use-selected-location';
 
@@ -32,7 +30,6 @@ export function useCustomListsRelayList(
 ) {
   const disabledLocation = useDisabledLocation();
   const selectedLocation = useSelectedLocation();
-  const { searchTerm } = useSelectLocationViewContext();
   const { customLists } = useCustomLists();
 
   // Populate all custom lists with the real location trees for the list locations.
@@ -42,13 +39,12 @@ export function useCustomListsRelayList(
         return prepareCustomList(
           list,
           relayList,
-          searchTerm,
           selectedLocation,
           disabledLocation,
           expandedLocations,
         );
       }),
-    [customLists, relayList, searchTerm, selectedLocation, disabledLocation, expandedLocations],
+    [customLists, relayList, selectedLocation, disabledLocation, expandedLocations],
   );
 }
 
@@ -56,7 +52,6 @@ export function useCustomListsRelayList(
 function prepareCustomList(
   list: ICustomList,
   fullRelayList: CountryLocation[],
-  searchTerm: string,
   selectedLocation?: DaemonRelayLocation,
   disabledLocation?: { location: DaemonRelayLocation; reason: DisabledReason },
   expandedLocations?: DaemonRelayLocation[],
@@ -77,7 +72,6 @@ function prepareCustomList(
     disabledReason,
     expanded: isExpanded(location, expandedLocations),
     selected: isSelected(location, selectedLocation),
-    visible: searchMatch(searchTerm, list.name),
     locations,
   };
 }
@@ -146,7 +140,6 @@ function updateCountry(
     type: 'country',
     expanded: isExpanded(location, expandedLocations),
     selected: false,
-    visible: true,
     details: { ...country.details, customList: list.id },
     cities: country.cities.map((city) =>
       updateCity(city, list, locationCounter, expandedLocations, disabledLocation),
@@ -174,7 +167,6 @@ function updateCity(
     ...city,
     expanded: isExpanded(location, expandedLocations),
     selected: false,
-    visible: true,
     details: { ...city.details, customList: list.id },
     relays: city.relays.map((relay) => updateRelay(relay, list, disabledLocation)),
   };
@@ -216,6 +208,5 @@ function updateRelay(
     disabled: relay.disabled || disabledReason !== undefined,
     details: { ...relay.details, customList: list.id },
     selected: false,
-    visible: true,
   };
 }

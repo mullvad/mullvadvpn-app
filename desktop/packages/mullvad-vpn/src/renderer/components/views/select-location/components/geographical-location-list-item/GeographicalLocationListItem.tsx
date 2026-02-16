@@ -15,14 +15,11 @@ function GeographicalLocationListItemImpl({
 }: GeographicalLocationListItemProps) {
   const { loading } = useGeographicalLocationListItemContext();
 
-  if (!location.visible) {
-    return null;
-  }
-
   const children = getLocationChildrenByType(location);
   return (
     <AnyLocationListItem
       location={location}
+      rootLocation="geographical"
       level={level}
       disabled={disabled || loading}
       {...props}>
@@ -31,6 +28,7 @@ function GeographicalLocationListItemImpl({
           <GeographicalLocationListItem
             key={Object.values(child.details).join('-')}
             location={child}
+            rootLocation="geographical"
             level={level !== undefined ? level + 1 : undefined}
             disabled={disabled || loading}
             {...props}

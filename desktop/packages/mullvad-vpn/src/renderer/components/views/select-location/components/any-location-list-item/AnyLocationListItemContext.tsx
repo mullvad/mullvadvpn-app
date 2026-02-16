@@ -1,6 +1,7 @@
 import React from 'react';
 
 import type { AnyLocation } from '../../select-location-types';
+import { useSelectLocationViewContext } from '../../SelectLocationViewContext';
 
 type AnyLocationListItemContextProps = Omit<AnyLocationListItemProviderProps, 'children'> & {
   loading: boolean;
@@ -25,25 +26,33 @@ export const useAnyLocationListItemContext = (): AnyLocationListItemContextProps
 
 type AnyLocationListItemProviderProps = React.PropsWithChildren<{
   location: AnyLocation;
+  rootLocation?: 'customList' | 'geographical';
 }>;
 
 export function AnyLocationListItemProvider({
   location,
+  rootLocation,
   children,
   ...props
 }: AnyLocationListItemProviderProps) {
   const [loading, setLoading] = React.useState(false);
-  const [expanded, setExpanded] = React.useState(location.expanded ?? false);
+  const { searchTerm } = useSelectLocationViewContext();
+  const [expanded, setExpanded] = React.useState(location.expanded);
+
+  React.useEffect(() => {
+    setExpanded(location.expanded);
+  }, [location.expanded, searchTerm]);
 
   const value = React.useMemo(
     () => ({
       location,
+      rootLocation,
       loading,
       setLoading,
       expanded,
       setExpanded,
     }),
-    [location, loading, expanded],
+    [location, rootLocation, loading, expanded],
   );
 
   return (

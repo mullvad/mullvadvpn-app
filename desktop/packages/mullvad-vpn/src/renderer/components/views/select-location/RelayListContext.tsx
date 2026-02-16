@@ -194,7 +194,6 @@ function useRelayList(
                   disabledReason: relayDisabledReason,
                   expanded: isExpanded(relayLocation, expandedLocations),
                   selected: isLocationSelected(relayLocation),
-                  visible: relay.visible,
                 };
                 return mappedRelay;
               })
@@ -216,7 +215,6 @@ function useRelayList(
               disabledReason: cityDisabledReason,
               expanded: isExpanded(cityLocation, expandedLocations),
               selected: isLocationSelected(cityLocation),
-              visible: city.visible,
               relays,
             };
             return mappedCity;
@@ -234,7 +232,6 @@ function useRelayList(
           disabledReason: countryDisabledReason,
           expanded: isExpanded(countryLocation, expandedLocations),
           selected: isLocationSelected(countryLocation),
-          visible: country.visible,
           cities,
         };
 

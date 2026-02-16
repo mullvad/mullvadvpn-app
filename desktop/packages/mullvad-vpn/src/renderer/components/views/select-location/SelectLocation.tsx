@@ -35,7 +35,6 @@ import {
   SpacePreAllocationView,
 } from './components';
 import { useHandleSelectEntryLocation, useHandleSelectExitLocation } from './hooks';
-import { useRelayListContext } from './RelayListContext';
 import { useScrollPositionContext } from './ScrollPositionContext';
 import { LocationType, SpecialLocation } from './select-location-types';
 import {
@@ -50,7 +49,6 @@ export function SelectLocation() {
   const { saveScrollPosition, resetScrollPositions, scrollViewRef, spacePreAllocationViewRef } =
     useScrollPositionContext();
   const { locationType, setLocationType, setSearchTerm } = useSelectLocationViewContext();
-  const { expandSearchResults } = useRelayListContext();
 
   const relaySettings = useNormalRelaySettings();
   const ownership = relaySettings?.ownership ?? Ownership.any;
@@ -92,15 +90,13 @@ export function SelectLocation() {
     (value: string) => {
       setSearchValue(value);
       if (value.length === 1) {
-        expandSearchResults('');
         setSearchTerm('');
       } else {
         resetScrollPositions();
-        expandSearchResults(value);
         setSearchTerm(value);
       }
     },
-    [expandSearchResults, setSearchTerm, resetScrollPositions],
+    [setSearchTerm, resetScrollPositions],
   );
 
   const showOwnershipFilter = ownership !== Ownership.any;
@@ -111,6 +107,7 @@ export function SelectLocation() {
     showDaitaFilter ||
     showQuicFilter ||
     showLwoFilter;
+
   return (
     <View backgroundColor="darkBlue">
       <BackAction action={onClose}>

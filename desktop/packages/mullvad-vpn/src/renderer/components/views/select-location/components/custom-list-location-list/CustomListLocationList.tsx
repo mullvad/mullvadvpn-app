@@ -6,7 +6,7 @@ import { Text } from '../../../../../lib/components';
 import { AnimatedList } from '../../../../../lib/components/animated-list';
 import { FlexColumn } from '../../../../../lib/components/flex-column';
 import { spacings } from '../../../../../lib/foundations';
-import { useCustomListLocationContext } from '../../CustomListLocationContext';
+import { useCustomListLocationsContext } from '../../CustomListLocationsContext';
 import { AddCustomListForm } from '../add-custom-list-form/AddCustomListForm';
 import { CustomListLocationListItem } from '../custom-list-location-list-item';
 import { CustomListsSectionTitle } from './components';
@@ -42,7 +42,7 @@ const StyledAnimatedListItem = styled(AnimatedList.Item)`
 function CustomListLocationListImpl({
   selectedElementRef,
 }: Pick<CustomListListProps, 'selectedElementRef'>) {
-  const { customListLocations } = useCustomListLocationContext();
+  const { customListLocations } = useCustomListLocationsContext();
   const { addFormVisible } = useCustomListListContext();
   const handleSelectCustomList = useHandleSelectCustomList();
   const hasNoCustomListsInSearchResult = useHasNoCustomListsInSearchResult();

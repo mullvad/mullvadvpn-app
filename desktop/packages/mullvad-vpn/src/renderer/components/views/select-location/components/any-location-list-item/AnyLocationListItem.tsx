@@ -14,6 +14,7 @@ import { CustomListTrailingActions, GeographicalLocationTrailingActions } from '
 
 export type AnyLocationListItemProps = React.PropsWithChildren<{
   location: AnyLocation;
+  rootLocation?: 'customList' | 'geographical';
   level: ListItemProps['level'];
   position?: ListItemProps['position'];
   disabled?: boolean;
@@ -28,11 +29,11 @@ function AnyLocationListItemImpl({
   onSelect,
   selectedElementRef,
   children,
-}: Omit<AnyLocationListItemProps, 'location'>) {
+}: Omit<AnyLocationListItemProps, 'location' | 'rootLocation'>) {
   const { location, expanded, setExpanded } = useAnyLocationListItemContext();
 
   const childLocations = getLocationChildrenByType(location);
-  const hasChildren = childLocations.some((child) => child.visible);
+  const hasChildren = childLocations.length > 0;
 
   const handleClick = useCallback(() => {
     if (!location.selected) {
@@ -69,9 +70,13 @@ function AnyLocationListItemImpl({
   );
 }
 
-export function AnyLocationListItem({ location, ...props }: AnyLocationListItemProps) {
+export function AnyLocationListItem({
+  location,
+  rootLocation,
+  ...props
+}: AnyLocationListItemProps) {
   return (
-    <AnyLocationListItemProvider location={location}>
+    <AnyLocationListItemProvider location={location} rootLocation={rootLocation}>
       <AnyLocationListItemImpl {...props} />
     </AnyLocationListItemProvider>
   );

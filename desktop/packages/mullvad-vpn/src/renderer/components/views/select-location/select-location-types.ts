@@ -47,7 +47,6 @@ export interface RelayLocationCityWithVisibility
 export type RelayLocationRelayWithVisibility = IRelayLocationRelayRedux & LocationVisibility;
 
 type LocationState = {
-  visible: boolean;
   active: boolean;
   expanded: boolean;
   label: string;

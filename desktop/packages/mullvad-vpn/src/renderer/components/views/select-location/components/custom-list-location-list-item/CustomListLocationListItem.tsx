@@ -23,6 +23,7 @@ function CustomListLocationListItemImpl({
   return (
     <AnyLocationListItem
       location={customList}
+      rootLocation="customList"
       level={level}
       disabled={disabled || loading}
       {...props}>
@@ -32,8 +33,8 @@ function CustomListLocationListItemImpl({
             <AnimatedList.Item key={Object.values(child.details).join('-')}>
               <GeographicalLocationListItem
                 location={child}
+                rootLocation="customList"
                 disabled={disabled || loading}
-                key={Object.values(child.details).join('-')}
                 level={level !== undefined ? level + 1 : undefined}
                 position={idx !== customList.locations.length - 1 ? 'middle' : undefined}
                 {...props}

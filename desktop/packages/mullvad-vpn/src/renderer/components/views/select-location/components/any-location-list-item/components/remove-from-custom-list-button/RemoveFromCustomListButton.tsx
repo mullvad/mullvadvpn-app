@@ -17,7 +17,7 @@ export function RemoveFromCustomListButton({
   ...props
 }: RemoveFromCustomListButtonProps) {
   const { removeLocationFromCustomList, getCustomListById } = useCustomLists();
-  const { setLoading } = useGeographicalLocationListItemContext();
+  const { loading, setLoading } = useGeographicalLocationListItemContext();
 
   const customList = getCustomListById(location.details.customList);
 
@@ -37,6 +37,7 @@ export function RemoveFromCustomListButton({
   return (
     <LocationListItem.IconButton
       onClick={handleOnClick}
+      disabled={loading}
       aria-label={sprintf(
         // TRANSLATORS: Accessibility label for button to remove a location from a custom list.
         // TRANSLATORS: The first placeholder is replaced with the name of the location.
