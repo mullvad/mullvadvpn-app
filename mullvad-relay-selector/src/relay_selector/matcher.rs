@@ -122,7 +122,7 @@ fn filter_on_obfuscation(
 }
 
 /// Returns whether `relay` satisfies the Shadowsocks filter posed by `port`.
-fn filter_on_shadowsocks(
+pub(crate) fn filter_on_shadowsocks(
     port_ranges: &[RangeInclusive<u16>],
     ip_version: &Constraint<IpVersion>,
     settings: &ShadowsocksSettings,
