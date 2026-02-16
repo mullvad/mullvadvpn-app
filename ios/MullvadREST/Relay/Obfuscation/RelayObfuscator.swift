@@ -29,7 +29,7 @@ struct RelayObfuscator: RelayObfuscating {
     let connectionAttemptCount: UInt
     let obfuscationBypass: any ObfuscationProviding
 
-    func obfuscate() -> RelayObfuscation {
+    func obfuscate() throws -> RelayObfuscation {
         let obfuscationMethod = ObfuscationMethodSelector.obfuscationMethodBy(
             connectionAttemptCount: connectionAttemptCount,
             tunnelSettings: tunnelSettings,
@@ -56,7 +56,7 @@ struct RelayObfuscator: RelayObfuscating {
                 connectionAttemptCount: connectionAttemptCount
             ).obfuscate()
         case .lwo:
-            LwoObfuscator(
+            try LwoObfuscator(
                 relays: relays,
                 tunnelSettings: tunnelSettings,
                 connectionAttemptCount: connectionAttemptCount

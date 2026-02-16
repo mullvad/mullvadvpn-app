@@ -11,6 +11,7 @@ import MullvadSettings
 
 protocol LwoObfuscationSettingsViewModel: ObservableObject {
     var value: WireGuardObfuscationLwoPort { get set }
+    var portRanges: [[UInt16]] { get }
 
     func commit()
 }
@@ -18,6 +19,7 @@ protocol LwoObfuscationSettingsViewModel: ObservableObject {
 /** A simple mock view model for use in Previews and similar */
 class MockLwoObfuscationSettingsViewModel: LwoObfuscationSettingsViewModel {
     @Published var value: WireGuardObfuscationLwoPort
+    let portRanges: [[UInt16]] = []
 
     init(lwoPort: WireGuardObfuscationLwoPort = .automatic) {
         self.value = lwoPort
@@ -32,7 +34,11 @@ class TunnelLwoObfuscationSettingsViewModel: TunnelObfuscationSettingsWatchingOb
 >,
 LwoObfuscationSettingsViewModel
 {
-    init(tunnelManager: TunnelManager) {
+    let portRanges: [[UInt16]]
+
+    init(tunnelManager: TunnelManager, portRanges: [[UInt16]]) {
+        self.portRanges = portRanges
+
         super.init(
             tunnelManager: tunnelManager,
             keyPath: \.lwoPort

@@ -151,7 +151,10 @@ extension VPNSettingsViewController: @preconcurrency VPNSettingsDataSourceDelega
     }
 
     private func showLwoObfuscationSettings() {
-        let viewModel = TunnelLwoObfuscationSettingsViewModel(tunnelManager: interactor.tunnelManager)
+        let viewModel = TunnelLwoObfuscationSettingsViewModel(
+            tunnelManager: interactor.tunnelManager,
+            portRanges: interactor.cachedRelays?.relays.wireguard.portRanges ?? []
+        )
         let view = LwoObfuscationSettingsView(viewModel: viewModel)
         let vc = UIHostingController(rootView: view)
         vc.title = NSLocalizedString("LWO", comment: "")

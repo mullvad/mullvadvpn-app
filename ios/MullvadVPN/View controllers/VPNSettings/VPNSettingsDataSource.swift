@@ -170,7 +170,8 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
         WireGuardObfuscationSettings(
             state: viewModel.obfuscationState,
             udpOverTcpPort: viewModel.obfuscationUpdOverTcpPort,
-            shadowsocksPort: viewModel.obfuscationShadowsocksPort
+            shadowsocksPort: viewModel.obfuscationShadowsocksPort,
+            lwoPort: viewModel.obfuscationLwoPort
         )
     }
 
