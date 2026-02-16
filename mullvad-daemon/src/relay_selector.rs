@@ -2,13 +2,14 @@
 
 use mullvad_management_interface::types::relay_selector::*;
 use mullvad_management_interface::{RelaySelectorService, Request, Response, Status};
+use mullvad_relay_selector::RelaySelector;
 
 /// The relay selector exposed as a gRPC service.
-pub struct RelaySelectorServiceImpl;
+pub struct RelaySelectorServiceImpl(RelaySelector);
 
 impl RelaySelectorServiceImpl {
-    pub fn new() -> Self {
-        RelaySelectorServiceImpl {}
+    pub fn new(relay_selector: RelaySelector) -> Self {
+        RelaySelectorServiceImpl(relay_selector)
     }
 }
 
