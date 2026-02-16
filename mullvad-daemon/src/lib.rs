@@ -1979,7 +1979,7 @@ impl Daemon {
     }
 
     async fn on_update_default_location(&mut self, tx: ResponseTx<(), settings::Error>) {
-        log::info!(
+        log::debug!(
             "should_update_default_country: {}",
             &self.settings.update_default_location
         );
@@ -1992,6 +1992,7 @@ impl Daemon {
                     .or_else(|| relays.get_nearest_country_with_relay(location))
             })
         {
+            log::info!("Updating location setting to '{country_code}'");
             let relay_settings = RelaySettings::Normal(RelayConstraints {
                 location: Constraint::Only(LocationConstraint::Location(
                     GeographicLocationConstraint::Country(country_code.clone()),
