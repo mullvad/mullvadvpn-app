@@ -709,6 +709,42 @@ impl Daemon {
         #[cfg(target_os = "macos")]
         macos::bump_filehandle_limit();
 
+        // -- NEW --
+        // TODO: Is there a dependency between migrations and settings? Most likely.
+        let migration_data = migrations::migrate_all(&config.cache_dir, &config.settings_dir)
+            .await
+            .unwrap_or_else(|error| {
+                log::error!(
+                    "{}",
+                    error.display_chain_with_msg("Failed to migrate settings or cache")
+                );
+                None
+            });
+
+        let mut settings = SettingsPersister::load(&config.settings_dir).await;
+
+        // Initialize relay selector asap, since it's a pre-requisite for accepting incoming gRPC
+        // connections.
+        let initial_relay_list = parse_relays_from_file(&config.cache_dir, &config.resource_dir)
+            .inspect_err(|err| log::error!("{err}"))
+            .ok();
+        let relay_selector = {
+            let (initial_relay_list, initial_bridge_list) = initial_relay_list
+                .clone()
+                .map(CachedRelayList::into_internal_repr)
+                .unwrap_or_default();
+            // TODO: This should preferably be done once, by the relay list updater.
+            let initial_relay_list =
+                initial_relay_list.apply_overrides(settings.relay_overrides.clone());
+            let initial_selector_config = SelectorConfig::from_settings(&settings);
+            RelaySelector::new(
+                initial_selector_config,
+                initial_relay_list.clone(),
+                initial_bridge_list.clone(),
+            )
+        };
+        // -- / NEW --
+
         let command_sender = daemon_command_channel.sender();
         let app_upgrade_broadcast = tokio::sync::broadcast::channel(32).0;
         let management_interface = ManagementInterfaceServer::start(
@@ -716,6 +752,7 @@ impl Daemon {
             config.rpc_socket_path,
             app_upgrade_broadcast.clone(),
             config.log_handle,
+            relay_selector.clone(),
         )
         .map_err(Error::ManagementInterfaceError)?;
 
@@ -745,42 +782,12 @@ impl Daemon {
         let api_availability = api_runtime.availability_handle();
         api_availability.suspend();
 
-        let migration_data = migrations::migrate_all(&config.cache_dir, &config.settings_dir)
-            .await
-            .unwrap_or_else(|error| {
-                log::error!(
-                    "{}",
-                    error.display_chain_with_msg("Failed to migrate settings or cache")
-                );
-                None
-            });
-
+        // TODO: Document this behavior
         let settings_event_listener = management_interface.notifier().clone();
-        let mut settings = SettingsPersister::load(&config.settings_dir).await;
-
         settings.register_change_listener(move |settings| {
             // Notify management interface server of changes to the settings
             settings_event_listener.notify_settings(settings.to_owned());
         });
-
-        let initial_relay_list = parse_relays_from_file(&config.cache_dir, &config.resource_dir)
-            .inspect_err(|err| log::error!("{err}"))
-            .ok();
-        let relay_selector = {
-            let (initial_relay_list, initial_bridge_list) = initial_relay_list
-                .clone()
-                .map(CachedRelayList::into_internal_repr)
-                .unwrap_or_default();
-            // TODO: This should preferably be done once, by the relay list updater.
-            let initial_relay_list =
-                initial_relay_list.apply_overrides(settings.relay_overrides.clone());
-            let initial_selector_config = SelectorConfig::from_settings(&settings);
-            RelaySelector::new(
-                initial_selector_config,
-                initial_relay_list.clone(),
-                initial_bridge_list.clone(),
-            )
-        };
 
         let encrypted_dns_proxy_cache = EncryptedDnsProxyState::default();
         let method_resolver = DaemonAccessMethodResolver::new(
