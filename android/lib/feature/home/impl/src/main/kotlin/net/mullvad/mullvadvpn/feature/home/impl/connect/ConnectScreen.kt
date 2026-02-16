@@ -83,7 +83,6 @@ import com.ramcosta.composedestinations.generated.vpnsettings.destinations.VpnSe
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
 import kotlinx.coroutines.launch
-import net.mullvad.mullvadvpn.appinfo.impl.changelog.ChangelogNavArgs
 import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.common.compose.LocalNavAnimatedVisibilityScope
 import net.mullvad.mullvadvpn.common.compose.SECURE_ZOOM
@@ -96,6 +95,7 @@ import net.mullvad.mullvadvpn.common.compose.isTv
 import net.mullvad.mullvadvpn.common.compose.safeOpenUri
 import net.mullvad.mullvadvpn.common.compose.showSnackbarImmediately
 import net.mullvad.mullvadvpn.core.OnNavResultValue
+import net.mullvad.mullvadvpn.feature.appinfo.impl.changelog.ChangelogNavArgs
 import net.mullvad.mullvadvpn.feature.home.impl.HomeTransition
 import net.mullvad.mullvadvpn.feature.home.impl.connect.button.ConnectionButton
 import net.mullvad.mullvadvpn.feature.home.impl.connect.button.SwitchLocationButton
