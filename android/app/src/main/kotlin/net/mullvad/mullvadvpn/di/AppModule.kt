@@ -9,7 +9,7 @@ import java.io.File
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
 import net.mullvad.mullvadvpn.BuildConfig
-import net.mullvad.mullvadvpn.appearance.impl.obfuscation.AppObfuscationRepository
+import net.mullvad.mullvadvpn.feature.appearance.impl.obfuscation.AppObfuscationRepository
 import net.mullvad.mullvadvpn.lib.common.constant.GRPC_SOCKET_FILE_NAME
 import net.mullvad.mullvadvpn.lib.common.constant.GRPC_SOCKET_FILE_NAMED_ARGUMENT
 import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointFromIntentHolder

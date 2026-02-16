@@ -8,7 +8,7 @@
     <!-- Alternative icons names -->
     <!-- Default -->
     <activity-alias
-        android:name="net.mullvad.mullvadvpn.appearance.impl.obfuscation.MainActivityAltDefault"
+        android:name="net.mullvad.mullvadvpn.feature.appearance.impl.obfuscation.MainActivityAltDefault"
         android:enabled="true"
         android:exported="true"
         android:icon="@mipmap/ic_launcher"
@@ -31,7 +31,7 @@
     </activity-alias>
     <!-- Game -->
     <activity-alias
-        android:name="net.mullvad.mullvadvpn.appearance.impl.obfuscation.MainActivityAltGame"
+        android:name="net.mullvad.mullvadvpn.feature.appearance.impl.obfuscation.MainActivityAltGame"
         android:enabled="false"
         android:exported="true"
         android:icon="@mipmap/ic_launcher_game"
@@ -54,7 +54,7 @@
     </activity-alias>
     <!-- Weather -->
     <activity-alias
-        android:name="net.mullvad.mullvadvpn.appearance.impl.obfuscation.MainActivityAltWeather"
+        android:name="net.mullvad.mullvadvpn.feature.appearance.impl.obfuscation.MainActivityAltWeather"
         android:enabled="false"
         android:exported="true"
         android:icon="@mipmap/ic_launcher_weather"
@@ -77,7 +77,7 @@
     </activity-alias>
     <!-- Notes -->
     <activity-alias
-        android:name="net.mullvad.mullvadvpn.appearance.impl.obfuscation.MainActivityAltNotes"
+        android:name="net.mullvad.mullvadvpn.feature.appearance.impl.obfuscation.MainActivityAltNotes"
         android:enabled="false"
         android:exported="true"
         android:icon="@mipmap/ic_launcher_notes"
@@ -100,7 +100,7 @@
     </activity-alias>
     <!-- Ninja -->
     <activity-alias
-        android:name="net.mullvad.mullvadvpn.appearance.impl.obfuscation.MainActivityAltNinja"
+        android:name="net.mullvad.mullvadvpn.feature.appearance.impl.obfuscation.MainActivityAltNinja"
         android:enabled="false"
         android:exported="true"
         android:icon="@mipmap/ic_launcher_ninja"
@@ -123,7 +123,7 @@
     </activity-alias>
     <!-- Browser -->
     <activity-alias
-        android:name="net.mullvad.mullvadvpn.appearance.impl.obfuscation.MainActivityAltBrowser"
+        android:name="net.mullvad.mullvadvpn.feature.appearance.impl.obfuscation.MainActivityAltBrowser"
         android:enabled="false"
         android:exported="true"
         android:icon="@mipmap/ic_launcher_browser"

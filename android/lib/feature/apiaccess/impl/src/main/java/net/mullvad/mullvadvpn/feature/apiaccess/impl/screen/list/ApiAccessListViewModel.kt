@@ -1,0 +1,28 @@
+package net.mullvad.mullvadvpn.feature.apiaccess.impl.screen.list
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.WhileSubscribed
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
+import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
+import net.mullvad.mullvadvpn.lib.repository.ApiAccessRepository
+
+class ApiAccessListViewModel(apiAccessRepository: ApiAccessRepository) : ViewModel() {
+
+    val uiState =
+        combine(apiAccessRepository.accessMethods, apiAccessRepository.currentAccessMethod) {
+                apiAccessMethods,
+                currentAccessMethod ->
+                ApiAccessListUiState(
+                    currentApiAccessMethodSetting = currentAccessMethod,
+                    apiAccessMethodSettings = apiAccessMethods ?: emptyList(),
+                )
+            }
+            .stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(VIEW_MODEL_STOP_TIMEOUT),
+                ApiAccessListUiState(),
+            )
+}

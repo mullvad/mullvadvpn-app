@@ -1,0 +1,170 @@
+package net.mullvad.mullvadvpn.feature.anticensorship.impl.selectport
+
+import android.content.res.Resources
+import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import arrow.core.Either
+import arrow.core.right
+import co.touchlab.kermit.Logger
+import com.ramcosta.composedestinations.generated.anticensorship.destinations.SelectPortDestination
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.WhileSubscribed
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import net.mullvad.mullvadvpn.feature.anticensorship.impl.SHADOWSOCKS_AVAILABLE_PORTS
+import net.mullvad.mullvadvpn.feature.anticensorship.impl.SHADOWSOCKS_PRESET_PORTS
+import net.mullvad.mullvadvpn.feature.anticensorship.impl.UDP2TCP_PRESET_PORTS
+import net.mullvad.mullvadvpn.feature.anticensorship.impl.WIREGUARD_PRESET_PORTS
+import net.mullvad.mullvadvpn.lib.common.Lc
+import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
+import net.mullvad.mullvadvpn.lib.common.toLc
+import net.mullvad.mullvadvpn.lib.model.Constraint
+import net.mullvad.mullvadvpn.lib.model.ObfuscationSettings
+import net.mullvad.mullvadvpn.lib.model.Port
+import net.mullvad.mullvadvpn.lib.model.PortRange
+import net.mullvad.mullvadvpn.lib.model.PortType
+import net.mullvad.mullvadvpn.lib.model.SetObfuscationOptionsError
+import net.mullvad.mullvadvpn.lib.repository.RelayListRepository
+import net.mullvad.mullvadvpn.lib.repository.SettingsRepository
+import net.mullvad.mullvadvpn.lib.ui.resource.R
+
+class SelectPortViewModel(
+    private val settingsRepository: SettingsRepository,
+    private val resources: Resources,
+    relayListRepository: RelayListRepository,
+    savedStateHandle: SavedStateHandle,
+) : ViewModel() {
+
+    private val navArgs = SelectPortDestination.argsFrom(savedStateHandle)
+    private val portType = navArgs.portType
+
+    private val initialOrCustomPort = MutableStateFlow<Port?>(null)
+
+    init {
+        viewModelScope.launch {
+            val initialSettings = settingsRepository.settingsUpdates.filterNotNull().first()
+            initialOrCustomPort.value =
+                initialSettings.obfuscationSettings.port(portType).getOrNull()
+        }
+    }
+
+    val uiState: StateFlow<Lc<Unit, SelectPortUiState>> =
+        combine(
+                settingsRepository.settingsUpdates.filterNotNull(),
+                relayListRepository.portRanges,
+                relayListRepository.shadowsocksPortRanges,
+                initialOrCustomPort,
+            ) { settings, wireguardPortRanges, shadowsocksPortRanges, initialOrCustomPort ->
+                val portTypeState =
+                    portType.uiState(
+                        wireguardPortRanges = wireguardPortRanges,
+                        shadowsocksPortRanges = shadowsocksPortRanges,
+                    )
+                val customPort =
+                    if (initialOrCustomPort !in portTypeState.presetPorts) initialOrCustomPort
+                    else null
+
+                SelectPortUiState(
+                        portType = portType,
+                        port = settings.obfuscationSettings.port(portType),
+                        presetPorts = portTypeState.presetPorts,
+                        customPortEnabled = portTypeState.customPortEnabled,
+                        title = portTypeState.title,
+                        allowedPortRanges = portTypeState.allowedPortRanges,
+                        recommendedPortRanges = portTypeState.recommendedPortRanges,
+                        customPort = customPort,
+                    )
+                    .toLc<Unit, SelectPortUiState>()
+            }
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(VIEW_MODEL_STOP_TIMEOUT),
+                initialValue = Lc.Loading(Unit),
+            )
+
+    fun onPortSelected(port: Constraint<Port>) {
+        viewModelScope.launch {
+            updatePort(port)
+                .onLeft { Logger.e("Select shadowsocks port error $it") }
+                .onRight {
+                    val presets = uiState.value.contentOrNull()?.presetPorts ?: emptyList()
+                    if (port is Constraint.Only && port.value !in presets) {
+                        initialOrCustomPort.update { port.getOrNull() }
+                    }
+                }
+        }
+    }
+
+    private suspend fun updatePort(
+        port: Constraint<Port>
+    ): Either<SetObfuscationOptionsError, Unit> =
+        when (portType) {
+            PortType.Udp2Tcp -> settingsRepository.setCustomUdp2TcpObfuscationPort(port)
+            PortType.Shadowsocks -> settingsRepository.setCustomShadowsocksObfuscationPort(port)
+            PortType.Wireguard -> settingsRepository.setCustomWireguardPort(port)
+            PortType.Lwo -> Unit.right()
+        }
+
+    fun resetCustomPort() {
+        val isCustom = uiState.value.contentOrNull()?.isCustom == true
+        initialOrCustomPort.update { null }
+        // If custom port was selected, update selection to be any.
+        if (isCustom) {
+            viewModelScope.launch { updatePort(Constraint.Any) }
+        }
+    }
+
+    private fun PortType.uiState(
+        wireguardPortRanges: List<PortRange>,
+        shadowsocksPortRanges: List<PortRange>,
+    ): PortTypeUiState =
+        when (this) {
+            PortType.Udp2Tcp ->
+                PortTypeUiState(
+                    presetPorts = UDP2TCP_PRESET_PORTS,
+                    allowedPortRanges = emptyList(),
+                    recommendedPortRanges = emptyList(),
+                    customPortEnabled = false,
+                    title = resources.getString(R.string.udp_over_tcp),
+                )
+            PortType.Shadowsocks ->
+                PortTypeUiState(
+                    presetPorts = SHADOWSOCKS_PRESET_PORTS,
+                    allowedPortRanges = SHADOWSOCKS_AVAILABLE_PORTS,
+                    recommendedPortRanges = shadowsocksPortRanges,
+                    customPortEnabled = true,
+                    title = resources.getString(R.string.shadowsocks),
+                )
+            PortType.Wireguard ->
+                PortTypeUiState(
+                    presetPorts = WIREGUARD_PRESET_PORTS,
+                    allowedPortRanges = wireguardPortRanges,
+                    recommendedPortRanges = emptyList(),
+                    customPortEnabled = true,
+                    title = resources.getString(R.string.wireguard_port_title),
+                )
+            PortType.Lwo ->
+                PortTypeUiState(
+                    presetPorts = emptyList(),
+                    allowedPortRanges = emptyList(),
+                    recommendedPortRanges = emptyList(),
+                    customPortEnabled = false,
+                    title = resources.getString(R.string.lwo),
+                )
+        }
+
+    private fun ObfuscationSettings.port(portType: PortType): Constraint<Port> =
+        when (portType) {
+            PortType.Udp2Tcp -> udp2tcp.port
+            PortType.Shadowsocks -> shadowsocks.port
+            PortType.Wireguard -> wireguardPort
+            PortType.Lwo -> Constraint.Any
+        }
+}
