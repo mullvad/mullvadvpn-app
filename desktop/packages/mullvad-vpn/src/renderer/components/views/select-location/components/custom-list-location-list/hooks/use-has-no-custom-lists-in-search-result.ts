@@ -1,11 +1,11 @@
-import { useCustomListLocationContext } from '../../../CustomListLocationContext';
+import { useCustomListLocationsContext } from '../../../CustomListLocationsContext';
 import { useHasSearched } from './use-has-searched';
 
 export function useHasNoCustomListsInSearchResult() {
-  const { customListLocations } = useCustomListLocationContext();
+  const { customListLocations } = useCustomListLocationsContext();
   const hasSearched = useHasSearched();
 
-  if (hasSearched && !customListLocations.some((list) => list.visible)) {
+  if (hasSearched && customListLocations.length === 0) {
     return true;
   }
 

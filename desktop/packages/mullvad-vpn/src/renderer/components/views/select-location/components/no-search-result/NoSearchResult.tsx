@@ -2,8 +2,8 @@ import { sprintf } from 'sprintf-js';
 
 import { messages } from '../../../../../../shared/gettext';
 import { formatHtml } from '../../../../../lib/html-formatter';
-import { useCustomListLocationContext } from '../../CustomListLocationContext';
-import { useRelayListContext } from '../../RelayListContext';
+import { useCustomListLocationsContext } from '../../CustomListLocationsContext';
+import { useLocationsContext } from '../../LocationsContext';
 import {
   StyledSelectionUnavailable,
   StyledSelectionUnavailableText,
@@ -14,14 +14,14 @@ export interface NoSearchResultProps {
   specialLocationsLength: number;
 }
 export function NoSearchResult(props: NoSearchResultProps) {
-  const { relayList } = useRelayListContext();
-  const { customListLocations } = useCustomListLocationContext();
+  const { searchedLocations } = useLocationsContext();
+  const { customListLocations } = useCustomListLocationsContext();
   const { searchTerm } = useSelectLocationViewContext();
 
   if (
     searchTerm === '' ||
-    relayList.some((country) => country.visible) ||
-    customListLocations.some((list) => list.visible) ||
+    searchedLocations.length > 0 ||
+    customListLocations.length > 0 ||
     props.specialLocationsLength > 0
   ) {
     return null;
