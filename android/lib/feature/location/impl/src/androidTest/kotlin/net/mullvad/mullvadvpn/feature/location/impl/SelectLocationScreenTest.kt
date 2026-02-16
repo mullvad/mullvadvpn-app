@@ -34,7 +34,7 @@ import net.mullvad.mullvadvpn.lib.model.RelayListType
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.RelayListItem
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Hierarchy
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
-import net.mullvad.mullvadvpn.lib.ui.tag.GEOLOCATION_NAME_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.GEOLOCATION_ITEM_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.RECENT_CELL_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_CUSTOM_LIST_BOTTOM_SHEET_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_LOCATION_BOTTOM_SHEET_TEST_TAG
@@ -495,7 +495,7 @@ class SelectLocationScreenTest {
 
             // Assert
             onNodeTextAndAncestorTag(
-                    ancestorTag = GEOLOCATION_NAME_TAG,
+                    ancestorTag = GEOLOCATION_ITEM_TAG,
                     text = selectableItem.name,
                     useUnmergedTree = true,
                 )

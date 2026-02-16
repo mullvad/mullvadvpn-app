@@ -19,10 +19,11 @@ import net.mullvad.mullvadvpn.lib.ui.component.ExpandChevronDivider
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.SelectableListItem
 import net.mullvad.mullvadvpn.lib.ui.designsystem.ListItemClickArea
 import net.mullvad.mullvadvpn.lib.ui.resource.R
-import net.mullvad.mullvadvpn.lib.ui.tag.CUSTOM_LIST_ENTRY_NAME_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.CUSTOM_LIST_ENTRY_ITEM_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.CUSTOM_LIST_ITEM_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.EXPAND_BUTTON_TEST_TAG
-import net.mullvad.mullvadvpn.lib.ui.tag.GEOLOCATION_NAME_TAG
-import net.mullvad.mullvadvpn.lib.ui.tag.RECENT_NAME_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.GEOLOCATION_ITEM_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.RECENT_ITEM_TAG
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaInactive
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaVisible
@@ -65,10 +66,10 @@ fun SelectableRelayListItem(
         onLongClick = onLongClick,
         testTag =
             when (relayListItem) {
-                is RelayListItem.CustomListEntryItem -> CUSTOM_LIST_ENTRY_NAME_TAG
-                is RelayListItem.CustomListItem -> CUSTOM_LIST_ENTRY_NAME_TAG
-                is RelayListItem.GeoLocationItem -> GEOLOCATION_NAME_TAG
-                is RelayListItem.RecentListItem -> RECENT_NAME_TAG
+                is RelayListItem.CustomListEntryItem -> CUSTOM_LIST_ENTRY_ITEM_TAG
+                is RelayListItem.CustomListItem -> CUSTOM_LIST_ITEM_TAG
+                is RelayListItem.GeoLocationItem -> GEOLOCATION_ITEM_TAG
+                is RelayListItem.RecentListItem -> RECENT_ITEM_TAG
             },
         trailingContent = {
             if (relayListItem.canExpand) {
