@@ -20,7 +20,7 @@ unsafe extern "C" {
     pub fn swift_read_address_cache() -> SwiftData;
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct IOSAddressCacheBacking {}
 
 #[async_trait]
@@ -42,7 +42,7 @@ pub struct SwiftAccessMethodResolver {
     domain: String,
     state: EncryptedDnsProxyState,
     bridge_provider: SwiftShadowsocksLoaderWrapper,
-    address_cache: AddressCache,
+    address_cache: AddressCache<IOSAddressCacheBacking>,
 }
 
 impl SwiftAccessMethodResolver {
@@ -51,7 +51,7 @@ impl SwiftAccessMethodResolver {
         domain: String,
         state: EncryptedDnsProxyState,
         bridge_provider: SwiftShadowsocksLoaderWrapper,
-        address_cache: AddressCache,
+        address_cache: AddressCache<IOSAddressCacheBacking>,
     ) -> Self {
         Self {
             endpoint,

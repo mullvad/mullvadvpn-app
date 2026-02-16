@@ -55,7 +55,7 @@ impl SwiftApiContext {
 }
 
 pub struct ApiContext {
-    api_client: Runtime,
+    api_client: Runtime<IOSAddressCacheBacking>,
     rest_client: MullvadRestHandle,
     access_mode_handler: AccessModeSelectorHandle,
 }
@@ -87,7 +87,7 @@ impl ApiContext {
         });
     }
 
-    pub fn address_cache(&self) -> &AddressCache {
+    pub fn address_cache(&self) -> &AddressCache<IOSAddressCacheBacking> {
         self.api_client.address_cache()
     }
 }
