@@ -20,7 +20,7 @@ class RelayPickingTests: XCTestCase {
 
     override func setUpWithError() throws {
         // Default obfuscation settings to satisfy picker constructors for the tests below.
-        obfuscation = RelayObfuscator(
+        obfuscation = try RelayObfuscator(
             relays: sampleRelays,
             tunnelSettings: LatestTunnelSettings(),
             connectionAttemptCount: 0,
@@ -273,7 +273,7 @@ class RelayPickingTests: XCTestCase {
         settings.daita = DAITASettings(daitaState: .on, directOnlyState: .on)
 
         // Mimic the obfuscator ran by the relay selector wrapper prior to invoking the `MultihopPicker`
-        obfuscation = RelayObfuscator(
+        obfuscation = try RelayObfuscator(
             relays: sampleRelays,
             tunnelSettings: LatestTunnelSettings(),
             connectionAttemptCount: 2,
@@ -309,7 +309,7 @@ class RelayPickingTests: XCTestCase {
         settings.relayConstraints = constraints
 
         // Mimic the obfuscator ran by the relay selector wrapper prior to invoking the `SinglehopPicker`
-        obfuscation = RelayObfuscator(
+        obfuscation = try RelayObfuscator(
             relays: sampleRelays,
             tunnelSettings: LatestTunnelSettings(),
             connectionAttemptCount: 2,

@@ -20,7 +20,12 @@ extension PacketTunnelActor {
         nextRelays: NextRelays,
         reason: ActorReconnectReason
     ) async throws {
-        if let connectionState = try obfuscateConnection(nextRelays: nextRelays, settings: settings, reason: reason) {
+        if let connectionState = try obfuscateConnection(
+            nextRelays: nextRelays,
+            settings: settings,
+            ephemeralPeerKey: nil,
+            reason: reason
+        ) {
             let activeKey = activeKey(from: connectionState, in: settings)
             state = .negotiatingEphemeralPeer(connectionState, activeKey)
         }
@@ -53,15 +58,18 @@ extension PacketTunnelActor {
      Called to reconfigure the tunnel after each ephemeral peer negotiation.
      */
     internal func updateEphemeralPeerNegotiationState(configuration: EphemeralPeerNegotiationState) async throws {
+        let ephemeralPeerKey = configuration.ephemeralPeerKeys.entry ?? configuration.ephemeralPeerKeys.exit
+        let settings: Settings = try settingsReader.read()
+
         /**
-         The obfuscater needs to be restarted every time a new tunnel configuration is being used,
+         The obfuscator needs to be restarted every time a new tunnel configuration is being used,
          because the obfuscation may be tied to a specific UDP session, as is the case for udp2tcp.
          */
-        let settings: Settings = try settingsReader.read()
         guard
             let connectionData = try obfuscateConnection(
                 nextRelays: .current,
                 settings: settings,
+                ephemeralPeerKey: ephemeralPeerKey,
                 reason: .userInitiated
             )
         else {

@@ -2,11 +2,11 @@ use std::{
     io,
     net::{Ipv4Addr, SocketAddr},
 };
+use talpid_types::net::wireguard::PublicKey;
 use tokio::task::JoinHandle;
 use tunnel_obfuscation::{
-    Settings as ObfuscationSettings, create_obfuscator, quic, shadowsocks, udp2tcp, lwo,
+    Settings as ObfuscationSettings, create_obfuscator, lwo, quic, shadowsocks, udp2tcp,
 };
-use talpid_types::net::wireguard::PublicKey;
 
 mod ffi;
 

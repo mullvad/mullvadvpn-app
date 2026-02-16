@@ -60,6 +60,8 @@ public struct BlockedStateErrorMapper: BlockedStateErrorMapperProtocol {
                 .noRelaysSatisfyingObfuscationSettings
             case .invalidPort:
                 .noRelaysSatisfyingPortConstraints
+            case .invalidObfuscationPort:
+                .noRelaysSatisfyingObfuscationPortConstraints
             default:
                 .noRelaysSatisfyingConstraints
             }

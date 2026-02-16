@@ -53,7 +53,7 @@ extension REST {
     public struct ServerRelay: Codable, Equatable, Sendable {
         public struct Features: Codable, Equatable, Sendable {
             public struct DAITA: Codable, Equatable, Sendable {
-                // this structure intentionally left blank
+                // Intentionally left blank.
             }
 
             public struct QUIC: Codable, Equatable, Sendable {
@@ -63,7 +63,7 @@ extension REST {
             }
 
             public struct LWO: Codable, Equatable, Sendable {
-                // this structure intentionally left blank
+                // Intentionally left blank.
             }
 
             public let daita: DAITA?
@@ -84,6 +84,10 @@ extension REST {
         public let daita: Bool?
         public let shadowsocksExtraAddrIn: [String]?
         public let features: Features?
+
+        public var supportsDaita: Bool {
+            (features?.daita != nil) || daita == true
+        }
 
         public var supportsQuic: Bool {
             !(features?.quic?.addrIn.isEmpty ?? true)
@@ -127,10 +131,6 @@ extension REST {
                 shadowsocksExtraAddrIn: shadowsocksExtraAddrIn,
                 features: features
             )
-        }
-
-        public var hasDaita: Bool {
-            (features?.daita != nil) || daita == true
         }
     }
 

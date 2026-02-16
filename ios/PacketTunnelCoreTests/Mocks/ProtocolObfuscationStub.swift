@@ -18,6 +18,7 @@ struct ProtocolObfuscationStub: ProtocolObfuscation {
 
     func obfuscate(
         _ endpoint: MullvadTypes.SelectedEndpoint,
+        clientPublicKey: PublicKey
     ) -> ProtocolObfuscationResult {
         .init(endpoint: endpoint)
     }

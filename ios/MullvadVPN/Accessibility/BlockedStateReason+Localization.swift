@@ -41,6 +41,11 @@ extension BlockedStateReason {
                 "The selected WireGuard port is not supported, please change it under **VPN settings**.",
                 comment: ""
             )
+        case .noRelaysSatisfyingObfuscationPortConstraints:
+            NSLocalizedString(
+                "The selected obfuscation port is not supported, please change it under **VPN settings**.",
+                comment: ""
+            )
         case .invalidAccount:
             NSLocalizedString(
                 "You are logged in with an invalid account number. Please log out and try another one.",
