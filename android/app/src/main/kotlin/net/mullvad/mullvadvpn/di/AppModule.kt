@@ -9,6 +9,7 @@ import java.io.File
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
 import net.mullvad.mullvadvpn.BuildConfig
+import net.mullvad.mullvadvpn.appearance.impl.obfuscation.AppObfuscationRepository
 import net.mullvad.mullvadvpn.lib.common.constant.GRPC_SOCKET_FILE_NAME
 import net.mullvad.mullvadvpn.lib.common.constant.GRPC_SOCKET_FILE_NAMED_ARGUMENT
 import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointFromIntentHolder
@@ -23,7 +24,6 @@ import net.mullvad.mullvadvpn.lib.pushnotification.ScheduleNotificationAlarmUseC
 import net.mullvad.mullvadvpn.lib.pushnotification.accountexpiry.AccountExpiryNotificationProvider
 import net.mullvad.mullvadvpn.lib.pushnotification.tunnelstate.TunnelStateNotificationProvider
 import net.mullvad.mullvadvpn.lib.repository.AccountRepository
-import net.mullvad.mullvadvpn.lib.repository.AppObfuscationRepository
 import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
 import net.mullvad.mullvadvpn.lib.repository.DeviceRepository
 import net.mullvad.mullvadvpn.lib.repository.LocaleRepository
@@ -90,12 +90,9 @@ val appModule = module {
     } bind NotificationProvider::class
     single { AccountExpiryNotificationProvider(get<NotificationChannel.AccountUpdates>().id) } bind
         NotificationProvider::class
-    if (net.mullvad.mullvadvpn.service.BuildConfig.FLAVOR_infrastructure != "prod") {
+    if (BuildConfig.FLAVOR_infrastructure != "prod") {
         single<ApiEndpointOverride> {
-            ApiEndpointOverride(
-                net.mullvad.mullvadvpn.service.BuildConfig.API_ENDPOINT,
-                net.mullvad.mullvadvpn.service.BuildConfig.API_IP,
-            )
+            ApiEndpointOverride(BuildConfig.API_ENDPOINT, BuildConfig.API_IP)
         }
     }
 }
