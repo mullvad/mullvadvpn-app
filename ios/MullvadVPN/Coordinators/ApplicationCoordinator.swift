@@ -50,6 +50,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
     private let devicesProxy: DeviceHandling
     private let accountsProxy: RESTAccountHandling
     private var tunnelObserver: TunnelObserver?
+    private var tunnelStateAccessibilityAnnouncer: TunnelStateAccessibilityAnnouncer?
     private var appPreferences: AppPreferencesDataSource
     private var outgoingConnectionService: OutgoingConnectionServiceHandling
     private var accessMethodRepository: AccessMethodRepositoryProtocol
@@ -93,6 +94,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
         router = ApplicationRouter(self)
 
         addTunnelObserver()
+        tunnelStateAccessibilityAnnouncer = TunnelStateAccessibilityAnnouncer(tunnelManager: tunnelManager)
 
         NotificationManager.shared.delegate = self
     }

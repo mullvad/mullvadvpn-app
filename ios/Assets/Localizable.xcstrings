@@ -56770,6 +56770,114 @@
         }
       }
     },
+    "TUNNEL_STATE_BLOCKED_CONNECTION" : {
+      "comment" : "VoiceOver announcement when connection is blocked",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Blocked connection"
+          }
+        }
+      }
+    },
+    "TUNNEL_STATE_BLOCKED_WITH_REASON" : {
+      "comment" : "VoiceOver announcement for blocked/error state with reason",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Blocked connection: %@"
+          }
+        }
+      }
+    },
+    "TUNNEL_STATE_CONNECTED_TO" : {
+      "comment" : "VoiceOver announcement when connected to a relay",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Connected to %1$@, %2$@"
+          }
+        }
+      }
+    },
+    "TUNNEL_STATE_CONNECTING" : {
+      "comment" : "VoiceOver announcement when connecting without relay info",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Connecting"
+          }
+        }
+      }
+    },
+    "TUNNEL_STATE_CONNECTING_TO" : {
+      "comment" : "VoiceOver announcement when connecting to a relay",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Connecting to %1$@, %2$@"
+          }
+        }
+      }
+    },
+    "TUNNEL_STATE_DISCONNECTED" : {
+      "comment" : "VoiceOver announcement when disconnected",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Disconnected"
+          }
+        }
+      }
+    },
+    "TUNNEL_STATE_DISCONNECTING" : {
+      "comment" : "VoiceOver announcement when disconnecting",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Disconnecting"
+          }
+        }
+      }
+    },
+    "TUNNEL_STATE_NO_NETWORK" : {
+      "comment" : "VoiceOver announcement when no network is available",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "No network"
+          }
+        }
+      }
+    },
+    "TUNNEL_STATE_RECONNECTING_TO" : {
+      "comment" : "VoiceOver announcement when reconnecting to a relay",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Reconnecting to %1$@, %2$@"
+          }
+        }
+      }
+    },
     "Turkey" : {
       "localizations" : {
         "da" : {
