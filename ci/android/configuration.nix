@@ -267,6 +267,13 @@
       #containersConf.settings = {
       #  StopSignal = 9;
       #};
+
+      containersConf.settings = {
+        containers = {
+          # Increase pids_limit, otherwise ktfmt would always fail
+          pids_limit = 8096;
+        };
+      };
     };
     podman = {
       dockerSocket.enable = true;
