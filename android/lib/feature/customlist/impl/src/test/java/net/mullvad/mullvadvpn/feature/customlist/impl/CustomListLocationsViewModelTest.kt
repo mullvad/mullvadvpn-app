@@ -31,6 +31,7 @@ import net.mullvad.mullvadvpn.lib.model.communication.CustomListActionResultData
 import net.mullvad.mullvadvpn.lib.model.communication.LocationsChanged
 import net.mullvad.mullvadvpn.lib.repository.RelayListRepository
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.CheckableRelayListItem
+import net.mullvad.mullvadvpn.lib.ui.designsystem.Hierarchy
 import net.mullvad.mullvadvpn.lib.usecase.customlists.CustomListActionUseCase
 import net.mullvad.mullvadvpn.lib.usecase.customlists.CustomListRelayItemsUseCase
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -81,7 +82,7 @@ class CustomListLocationsViewModelTest {
                 DUMMY_COUNTRIES.map {
                     CheckableRelayListItem(
                         item = it,
-                        depth = it.toDepth(),
+                        hierarchy = it.toHierarchy(),
                         checked = false,
                         expanded = false,
                     )
@@ -333,11 +334,11 @@ class CustomListLocationsViewModelTest {
     private fun Lce.Content<CustomListLocationsData>.selectedLocations() =
         this.value.locations.filter { it.checked }.map { it.item.id }
 
-    private fun RelayItem.Location.toDepth() =
+    private fun RelayItem.Location.toHierarchy() =
         when (this) {
-            is RelayItem.Location.Country -> 0
-            is RelayItem.Location.City -> 1
-            is RelayItem.Location.Relay -> 2
+            is RelayItem.Location.Country -> Hierarchy.Parent
+            is RelayItem.Location.City -> Hierarchy.Child1
+            is RelayItem.Location.Relay -> Hierarchy.Child2
         }
 
     companion object {
