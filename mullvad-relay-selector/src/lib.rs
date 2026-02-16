@@ -11,3 +11,6 @@ pub use relay_selector::{
     RelaySelector, SelectedObfuscator, SelectorConfig, detailer, matcher,
     matcher::filter_matching_relay_list, query, relays::WireguardConfig,
 };
+
+// TODO: Merge new stuff with old exports.
+pub use relay_selector::{Predicate, Reject, Relay, RelayPartitions};
