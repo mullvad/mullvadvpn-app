@@ -30,16 +30,9 @@ pub enum Error {
 /// a backing store for an AddressCache.
 
 #[async_trait]
-pub trait AddressCacheBacking: Sync + Send {
+pub trait AddressCacheBacking: 'static + Sync + Send + std::clone::Clone {
     async fn read(&self) -> Result<Vec<u8>, Error>;
     async fn write(&self, data: &[u8]) -> Result<(), Error>;
-}
-
-// this should allow this to compile.
-impl Debug for dyn AddressCacheBacking {
-    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-        write!(f, "[some AddressCacheBacking]")
-    }
 }
 
 #[derive(Clone)]
@@ -74,7 +67,7 @@ impl AddressCacheBacking for FileAddressCacheBacking {
 
 /// A DNS resolver which resolves using `AddressCache`.
 #[async_trait]
-impl DnsResolver for AddressCache {
+impl<T: AddressCacheBacking> DnsResolver for AddressCache<T> {
     async fn resolve(&self, host: String) -> Result<Vec<SocketAddr>, io::Error> {
         self.resolve_hostname(&host)
             .await
@@ -84,69 +77,65 @@ impl DnsResolver for AddressCache {
 }
 
 #[derive(Clone, Debug)]
-pub struct AddressCache {
+pub struct AddressCache<T>
+where
+    T: Clone,
+{
     hostname: String,
     inner: Arc<Mutex<AddressCacheInner>>,
-    backing: Arc<dyn AddressCacheBacking>,
+    backing: Arc<T>,
 }
 
-impl AddressCache {
-    /// Initialise cache using a hardcoded address and a Backing for writing to
-    pub fn new_with_address(endpoint: &ApiEndpoint, backing: Arc<dyn AddressCacheBacking>) -> Self {
-        Self::new_inner(endpoint.address(), endpoint.host().to_owned(), backing)
-    }
-
-    /// Initialize cache using the hardcoded address, and write changes to `write_path`.
-    pub fn new(endpoint: &ApiEndpoint, write_path: Option<Box<Path>>) -> AddressCache {
-        AddressCache::new_with_address(
-            endpoint,
-            Arc::new(FileAddressCacheBacking {
-                read_path: None,
-                write_path: write_path.map(Arc::from),
-            }),
-        )
-    }
-
-    pub async fn from_backing(
-        hostname: String,
-        backing: Arc<dyn AddressCacheBacking>,
-    ) -> Result<Self, Error> {
-        let address = read_address_backing(&backing).await?;
-        Ok(Self::new_inner(address, hostname, backing))
-    }
-
-    pub async fn from_backing_or(
-        hostname: String,
-        backing: Arc<dyn AddressCacheBacking>,
-        endpoint: &ApiEndpoint,
-    ) -> Self {
-        Self::from_backing(hostname.clone(), backing.clone())
-            .await
-            .unwrap_or(Self::new_inner(endpoint.address(), hostname, backing))
-    }
-
+impl AddressCache<FileAddressCacheBacking> {
     /// Initialize cache using `read_path`, and write changes to `write_path`.
     pub async fn from_file(
         read_path: &Path,
         write_path: Option<Box<Path>>,
         hostname: String,
-    ) -> Result<AddressCache, Error> {
+    ) -> Result<AddressCache<FileAddressCacheBacking>, Error> {
         log::debug!("Loading API addresses from {}", read_path.display());
-        AddressCache::from_backing(
-            hostname,
-            Arc::new(FileAddressCacheBacking {
-                read_path: Some(Arc::from(read_path)),
-                write_path: write_path.map(Arc::from),
-            }),
-        )
-        .await
+        let backing = FileAddressCacheBacking {
+            read_path: Some(Arc::from(read_path)),
+            write_path: write_path.map(Arc::from),
+        };
+        AddressCache::from_backing(hostname, Arc::new(backing)).await
     }
 
-    fn new_inner(
-        address: SocketAddr,
+    /// Initialize cache using the hardcoded address, and write changes to `write_path`.
+    pub fn new(
+        endpoint: &ApiEndpoint,
+        write_path: Option<Box<Path>>,
+    ) -> AddressCache<FileAddressCacheBacking> {
+        let backing = FileAddressCacheBacking {
+            read_path: None,
+            write_path: write_path.map(Arc::from),
+        };
+        AddressCache::new_with_address(endpoint, Arc::new(backing))
+    }
+}
+
+impl<T: AddressCacheBacking + std::clone::Clone> AddressCache<T> {
+    /// Initialise cache using a hardcoded address and a Backing for writing to
+    pub fn new_with_address(endpoint: &ApiEndpoint, backing: Arc<T>) -> Self {
+        Self::new_inner(endpoint.address(), endpoint.host().to_owned(), backing)
+    }
+
+    pub async fn from_backing(hostname: String, backing: Arc<T>) -> Result<Self, Error> {
+        let address = read_address_backing(backing.as_ref()).await?;
+        Ok(Self::new_inner(address, hostname, backing))
+    }
+
+    pub async fn from_backing_or(
         hostname: String,
-        backing: Arc<dyn AddressCacheBacking>,
+        backing: Arc<T>,
+        endpoint: &ApiEndpoint,
     ) -> Self {
+        Self::from_backing(hostname.clone(), Arc::clone(&backing))
+            .await
+            .unwrap_or(Self::new_inner(endpoint.address(), hostname, backing))
+    }
+
+    fn new_inner(address: SocketAddr, hostname: String, backing: Arc<T>) -> Self {
         let cache = AddressCacheInner::from_address(address);
         log::debug!("Using API address: {}", cache.address);
 
@@ -201,9 +190,7 @@ impl AddressCacheInner {
     }
 }
 
-async fn read_address_backing(
-    backing: &Arc<dyn AddressCacheBacking + 'static>,
-) -> Result<SocketAddr, Error> {
+async fn read_address_backing(backing: &impl AddressCacheBacking) -> Result<SocketAddr, Error> {
     backing
         .read()
         .await
