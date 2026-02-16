@@ -6,7 +6,7 @@
 //  Copyright © 2026 Mullvad VPN AB. All rights reserved.
 //
 
-import Foundation
+@preconcurrency import WireGuardKitTypes
 
 /// Describes the resolved obfuscation method with all required parameters.
 public enum ObfuscationMethod: Equatable, Codable, Sendable {

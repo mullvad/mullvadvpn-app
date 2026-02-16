@@ -148,7 +148,7 @@ final class TunnelStatusNotificationProvider: NotificationProvider, InAppNotific
 
         let tapAction: InAppNotificationAction? =
             switch packetTunnelError {
-            case .noRelaysSatisfyingPortConstraints:
+            case .noRelaysSatisfyingPortConstraints, .noRelaysSatisfyingObfuscationPortConstraints:
                 InAppNotificationAction {
                     NotificationManager.shared
                         .notificationProvider(
@@ -266,6 +266,11 @@ final class TunnelStatusNotificationProvider: NotificationProvider, InAppNotific
         case .noRelaysSatisfyingPortConstraints:
             NSLocalizedString(
                 "The selected WireGuard port is not supported, please change it under **VPN settings**.",
+                comment: ""
+            )
+        case .noRelaysSatisfyingObfuscationPortConstraints:
+            NSLocalizedString(
+                "The selected obfuscation port is not supported, please change it under **VPN settings**.",
                 comment: ""
             )
         case .invalidAccount:

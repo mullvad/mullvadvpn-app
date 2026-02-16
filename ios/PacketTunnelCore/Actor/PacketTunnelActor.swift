@@ -315,7 +315,13 @@ extension PacketTunnelActor {
         nextRelays: NextRelays,
         reason: ActorReconnectReason
     ) async throws {
-        guard let connectionState = try obfuscateConnection(nextRelays: nextRelays, settings: settings, reason: reason),
+        guard
+            let connectionState = try obfuscateConnection(
+                nextRelays: nextRelays,
+                settings: settings,
+                ephemeralPeerKey: nil,
+                reason: reason
+            ),
             let targetState = state.targetStateForReconnect
         else { return }
         let configuration = try ConnectionConfigurationBuilder(
@@ -447,12 +453,16 @@ extension PacketTunnelActor {
     internal func obfuscateConnection(
         nextRelays: NextRelays,
         settings: Settings,
+        ephemeralPeerKey: PrivateKey?,
         reason: ActorReconnectReason
     ) throws -> State.ConnectionData? {
         guard let connectionState = try makeConnectionState(nextRelays: nextRelays, settings: settings, reason: reason)
         else { return nil }
 
-        let obfuscated = protocolObfuscator.obfuscate(connectionState.connectedEndpoint)
+        let obfuscated = protocolObfuscator.obfuscate(
+            connectionState.connectedEndpoint,
+            clientPublicKey: ephemeralPeerKey?.publicKey ?? settings.privateKey.publicKey
+        )
         let transportLayer = protocolObfuscator.transportLayer.map { $0 } ?? .udp
 
         return State.ConnectionData(

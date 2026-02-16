@@ -22,7 +22,11 @@ struct LwoObfuscationSettingsView<VM>: View where VM: LwoObfuscationSettingsView
             tableAccessibilityIdentifier: AccessibilityIdentifier.wireGuardObfuscationLwoTable.asString,
             itemDescription: { item in NSLocalizedString("\(item)", comment: "") },
             parseCustomValue: {
-                UInt16($0).flatMap { $0 > 0 ? WireGuardObfuscationLwoPort.custom($0) : nil }
+                if let portValue = UInt16($0) {
+                    validatePort(portValue)
+                } else {
+                    nil
+                }
             },
             formatCustomValue: {
                 if case let .custom(port) = $0 {
@@ -33,14 +37,41 @@ struct LwoObfuscationSettingsView<VM>: View where VM: LwoObfuscationSettingsView
             },
             customLabel: NSLocalizedString("Custom", comment: ""),
             customPrompt: NSLocalizedString("Port", comment: ""),
-            customLegend: String(
-                format: NSLocalizedString("Valid range: %d - %d", comment: ""), arguments: [1, 65535]),
+            customLegend: portRangesString(for: viewModel.portRanges),
             customInputMinWidth: 100,
             customInputMaxLength: 5,
             customFieldMode: .numericText
         ).onDisappear {
             viewModel.commit()
         }
+    }
+
+    private func validatePort(_ port: UInt16) -> WireGuardObfuscationLwoPort? {
+        let portIsWithinValidRanges = viewModel.portRanges
+            .contains { range in
+                if let minPort = range.first, let maxPort = range.last {
+                    return (minPort...maxPort).contains(port)
+                }
+                return false
+            }
+
+        return portIsWithinValidRanges ? .custom(port) : nil
+    }
+
+    private func portRangesString(for ranges: [[UInt16]]) -> String {
+        var string = "Valid ranges: "
+
+        ranges.enumerated().forEach { (index, range) in
+            if let minPort = range.first, let maxPort = range.last {
+                if index != 0 {
+                    string.append(", ")
+                }
+
+                string.append(String(format: "%d - %d", minPort, maxPort))
+            }
+        }
+
+        return NSLocalizedString(string, comment: "")
     }
 }
 
