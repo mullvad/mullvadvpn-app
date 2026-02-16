@@ -22,6 +22,7 @@ struct ConnectionView: View {
         VStack {
             Spacer()
                 .accessibilityIdentifier(AccessibilityIdentifier.connectionView.asString)
+                .accessibilityHidden(true)
             VStack(spacing: 16) {
                 VStack(alignment: .leading, spacing: 0) {
                     HeaderView(viewModel: connectionViewModel, isExpanded: $isExpanded)
