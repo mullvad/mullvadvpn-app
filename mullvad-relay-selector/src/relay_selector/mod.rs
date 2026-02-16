@@ -17,6 +17,7 @@ use crate::{
 };
 
 use itertools::Itertools;
+pub use mullvad_types::relay_list::Relay;
 use mullvad_types::{
     CustomTunnelEndpoint, Intersection,
     constraints::Constraint,
@@ -26,7 +27,7 @@ use mullvad_types::{
     relay_constraints::{
         ObfuscationSettings, RelayConstraints, RelaySettings, WireguardConstraints,
     },
-    relay_list::{Bridge, BridgeList, Relay, RelayList, WireguardRelay},
+    relay_list::{Bridge, BridgeList, RelayList, WireguardRelay},
     settings::Settings,
     wireguard::QuantumResistantState,
 };
@@ -811,6 +812,45 @@ impl RelaySelector {
             .ok_or(Error::NoBridge)?;
         Ok((endpoint, bridge))
     }
+
+    // NEW relay selector API.
+    // Starting afresh, but this should be used in existing functions.
+
+    /// As oppossed to the prior [`Self::get_relay_by_query`], this function is stateless with
+    /// regards to any particular config / settings.
+    pub fn partition_relays(
+        &self, // TODO: If relay list is an in-parameter, we don't need this to be an associated
+        // function.
+        _predicate: Predicate,
+        // relays: &'a [Relay], // Implicit argument for now.
+    ) -> RelayPartitions {
+        let partitions: RelayPartitions = RelayPartitions::default();
+        partitions
+    }
+}
+
+/// Specify the constraints that should be applied when selecting relays,
+/// along with a context that may affect the selection behavior.
+pub enum Predicate {
+    Singlehop,
+    Autohop,
+    // Multihop-only
+    Entry,
+    Exit,
+}
+
+// TODO: Work with references instead of copies?
+#[derive(Debug, Default, PartialEq)]
+pub struct RelayPartitions {
+    pub matches: Vec<Relay>,
+    pub discards: Vec<(Relay, Vec<Reject>)>,
+}
+
+/// All possible reasons why a relay was filtered out for a particular query.
+#[derive(Debug, Clone, PartialEq)]
+pub enum Reject {
+    Inactive,
+    // TODO: Add more reasons - at least all in `relay_selector.proto`.
 }
 
 fn apply_ip_availability(

@@ -17,11 +17,15 @@ impl RelaySelectorServiceImpl {
 impl RelaySelectorService for RelaySelectorServiceImpl {
     async fn partition_relays(
         &self,
-        _: Request<Predicate>,
+        predicate: Request<Predicate>,
     ) -> Result<Response<RelayPartitions>, Status> {
         log::trace!("Handling `partition_relays` call with predicate: TODO");
         // TODO: Call out to the relay selector
-        let partitions: RelayPartitions = RelayPartitions::default();
+        let predicate = predicate.into_inner();
+        // TODO: unwrap
+        let predicate = mullvad_relay_selector::Predicate::try_from(predicate).unwrap();
+        let partitions = self.0.partition_relays(predicate);
+        let partitions = RelayPartitions::from(partitions);
         Ok(Response::new(partitions))
     }
 }
