@@ -1,5 +1,4 @@
-<!-- mobsf-ignore: android_task_hijacking2 -->
-<!-- mobsf-ignore: android_manifest_missing_explicit_allow_backup -->
+<!-- mobsf-ignore: android_task_hijacking2, android_manifest_missing_explicit_allow_backup -->
 <!-- This is added due to requiring launchMode="singleInstance" on activity aliases,
   but launchMode does nothing on activity aliases -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
