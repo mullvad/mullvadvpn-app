@@ -42,6 +42,7 @@ import com.ramcosta.composedestinations.generated.customlist.destinations.Custom
 import com.ramcosta.composedestinations.generated.customlist.destinations.DeleteCustomListDestination
 import com.ramcosta.composedestinations.generated.customlist.destinations.DiscardChangesDestination
 import com.ramcosta.composedestinations.generated.customlist.destinations.EditCustomListDestination
+import com.ramcosta.composedestinations.generated.customlist.destinations.EditCustomListNameDestination
 import com.ramcosta.composedestinations.generated.daita.destinations.DaitaDestination
 import com.ramcosta.composedestinations.generated.daita.destinations.DaitaDirectOnlyConfirmationDestination
 import com.ramcosta.composedestinations.generated.daita.destinations.DaitaDirectOnlyInfoDestination
@@ -103,8 +104,8 @@ annotation class MainGraph {
     @ExternalDestination<ApiAccessMethodDetailsDestination>
     @ExternalDestination<ApiAccessMethodInfoDestination>
     @ExternalDestination<ApiUnreachableInfoDestination>
-    @ExternalDestination<AppInfoDestination>
     @ExternalDestination<AppearanceDestination>
+    @ExternalDestination<AppInfoDestination>
     @ExternalDestination<AutoConnectAndLockdownModeDestination>
     @ExternalDestination<ChangelogDestination>
     @ExternalDestination<ConnectDestination>
@@ -130,6 +131,7 @@ annotation class MainGraph {
     @ExternalDestination<DnsDestination>
     @ExternalDestination<EditApiAccessMethodDestination>
     @ExternalDestination<EditCustomListDestination>
+    @ExternalDestination<EditCustomListNameDestination>
     @ExternalDestination<EncryptedDnsProxyInfoDestination>
     @ExternalDestination<FilterDestination>
     @ExternalDestination<ImportOverridesByTextDestination>
