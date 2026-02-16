@@ -3129,6 +3129,7 @@ dependencies = [
  "hyper-util",
  "log",
  "mullvad-paths",
+ "mullvad-relay-selector",
  "mullvad-types",
  "nix 0.30.1",
  "prost",
