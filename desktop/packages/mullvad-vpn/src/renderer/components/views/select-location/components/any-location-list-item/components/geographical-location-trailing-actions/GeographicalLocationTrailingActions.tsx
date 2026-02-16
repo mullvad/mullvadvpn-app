@@ -2,12 +2,14 @@ import React from 'react';
 import { sprintf } from 'sprintf-js';
 
 import { messages } from '../../../../../../../../shared/gettext';
+import { useAccordionContext } from '../../../../../../../lib/components/accordion/AccordionContext';
 import { useListItemContext } from '../../../../../../../lib/components/list-item/ListItemContext';
 import { LocationListItem } from '../../../../../../location-list-item';
 import {
   type GeographicalLocation,
   getLocationChildrenByType,
 } from '../../../../select-location-types';
+import { useAnyLocationListItemContext } from '../../AnyLocationListItemContext';
 import { AddToCustomListButton } from '../add-to-custom-list-button';
 import { RemoveFromCustomListButton } from '../remove-from-custom-list-button';
 
@@ -18,17 +20,18 @@ export type GeographicalLocationTrailingActionsProps = React.PropsWithChildren<{
 export function GeographicalLocationTrailingActions({
   location,
 }: GeographicalLocationTrailingActionsProps) {
+  const { rootLocation } = useAnyLocationListItemContext();
   const { level } = useListItemContext();
+  const { expanded } = useAccordionContext();
 
   const childLocations = getLocationChildrenByType(location);
-  const hasChildren = childLocations.some((child) => child.visible);
 
-  const showAddToCustomListButton = location.details.customList === undefined;
-
-  const showRemoveFromCustomListButton = location.details.customList !== undefined && level === 1;
+  const showAccordionTrigger = childLocations.length > 0;
+  const showAddToCustomListButton = rootLocation === 'geographical';
+  const showRemoveFromCustomListButton = rootLocation === 'customList' && level === 1;
 
   const hasAnyTrailingAction =
-    showAddToCustomListButton || showRemoveFromCustomListButton || hasChildren;
+    showAddToCustomListButton || showRemoveFromCustomListButton || showAccordionTrigger;
 
   if (!hasAnyTrailingAction) {
     return null;
@@ -47,10 +50,10 @@ export function GeographicalLocationTrailingActions({
           <RemoveFromCustomListButton location={location} />
         </LocationListItem.HeaderTrailingAction>
       )}
-      {hasChildren && (
+      {showAccordionTrigger && (
         <LocationListItem.AccordionTrigger
           aria-label={sprintf(
-            location.expanded === true
+            expanded === true
               ? messages.pgettext('accessibility', 'Collapse %(location)s')
               : messages.pgettext('accessibility', 'Expand %(location)s'),
             { location: location.label },

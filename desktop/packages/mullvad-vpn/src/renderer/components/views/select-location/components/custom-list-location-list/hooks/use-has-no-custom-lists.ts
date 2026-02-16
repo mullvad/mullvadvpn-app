@@ -1,7 +1,7 @@
-import { useCustomListLocationContext } from '../../../CustomListLocationContext';
+import { useCustomListLocationsContext } from '../../../CustomListLocationsContext';
 
 export function useHasCustomLists() {
-  const { customListLocations } = useCustomListLocationContext();
+  const { customListLocations } = useCustomListLocationsContext();
 
   if (customListLocations.length > 0) {
     return true;
