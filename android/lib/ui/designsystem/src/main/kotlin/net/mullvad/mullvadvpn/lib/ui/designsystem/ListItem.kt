@@ -26,10 +26,13 @@ import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.KeyboardArrowDown
 import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.Alignment
@@ -38,6 +41,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewFontScale
@@ -87,6 +91,32 @@ val Hierarchy.paddingStart: Dp
             Hierarchy.Child2 -> ListTokens.listItemPaddingStart * 2
             Hierarchy.Child3 -> ListTokens.listItemPaddingStart * 3
         }
+
+fun Hierarchy.nextDown(): Hierarchy =
+    when (this) {
+        Hierarchy.Parent -> Hierarchy.Child1
+        Hierarchy.Child1 -> Hierarchy.Child2
+        Hierarchy.Child2 -> Hierarchy.Child3
+        Hierarchy.Child3 -> error("Child3 is the lowest hierarchy")
+    }
+
+@Composable
+internal fun ProvideContentColorTextStyle(
+    contentColor: Color,
+    textStyle: TextStyle,
+    content: @Composable () -> Unit,
+) {
+    val mergedStyle = LocalTextStyle.current.merge(textStyle)
+    CompositionLocalProvider(
+        LocalContentColor provides contentColor,
+        LocalTextStyle provides mergedStyle,
+        content = content,
+    )
+}
+
+object RelayListTokens {
+    const val RelayListItemDisabledLabelTextOpacity = AlphaInactive
+}
 
 @Composable
 @Suppress("LongMethod")

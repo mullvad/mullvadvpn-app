@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.feature.location.impl.util
 
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.SemanticsNodeInteractionsProvider
+import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasParent
 import androidx.compose.ui.test.hasTestTag
@@ -15,6 +16,18 @@ fun SemanticsNodeInteractionsProvider.onNodeWithTagAndText(
     useUnmergedTree: Boolean = false,
 ): SemanticsNodeInteraction =
     onNode(hasTestTag(testTag).and(hasText(text, substring, ignoreCase)), useUnmergedTree)
+
+fun SemanticsNodeInteractionsProvider.onNodeTextAndAncestorTag(
+    text: String,
+    ancestorTag: String,
+    substring: Boolean = false,
+    ignoreCase: Boolean = false,
+    useUnmergedTree: Boolean = false,
+): SemanticsNodeInteraction =
+    onNode(
+        hasText(text, substring, ignoreCase).and(hasAnyAncestor(hasTestTag(ancestorTag))),
+        useUnmergedTree,
+    )
 
 fun SemanticsNodeInteractionsProvider.onNodeWithContentDescriptionAndParentTag(
     contentDescription: String,

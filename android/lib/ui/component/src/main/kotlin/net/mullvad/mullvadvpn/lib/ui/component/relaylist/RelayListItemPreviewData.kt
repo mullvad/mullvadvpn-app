@@ -4,6 +4,8 @@ import net.mullvad.mullvadvpn.lib.model.CustomList
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
 import net.mullvad.mullvadvpn.lib.model.RelayItem
+import net.mullvad.mullvadvpn.lib.ui.designsystem.Hierarchy
+import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
 
 object RelayListItemPreviewData {
     @Suppress("LongMethod")
@@ -37,7 +39,7 @@ object RelayListItemPreviewData {
                     isSelected = false,
                     state = null,
                     expanded = false,
-                    itemPosition = ItemPosition.Single,
+                    itemPosition = Position.Single,
                 )
             }
             if (!isSearching) {
@@ -65,50 +67,50 @@ object RelayListItemPreviewData {
                 RelayListItem.GeoLocationItem(
                     item = locations[0],
                     isSelected = false,
-                    depth = 0,
+                    hierarchy = Hierarchy.Parent,
                     expanded = true,
                     state = null,
-                    itemPosition = ItemPosition.Middle,
+                    itemPosition = Position.Middle,
                 ),
                 RelayListItem.GeoLocationItem(
                     item = locations[0].cities[0],
                     isSelected = true,
-                    depth = 1,
+                    hierarchy = Hierarchy.Child1,
                     expanded = false,
                     state = null,
-                    itemPosition = ItemPosition.Middle,
+                    itemPosition = Position.Middle,
                 ),
                 RelayListItem.GeoLocationItem(
                     item = locations[0].cities[1],
                     isSelected = false,
-                    depth = 1,
+                    hierarchy = Hierarchy.Child1,
                     expanded = true,
                     state = null,
-                    itemPosition = ItemPosition.Middle,
+                    itemPosition = Position.Middle,
                 ),
                 RelayListItem.GeoLocationItem(
                     item = locations[0].cities[1].relays[0],
                     isSelected = false,
-                    depth = 2,
+                    hierarchy = Hierarchy.Child2,
                     expanded = false,
                     state = RelayListItemState.USED_AS_EXIT,
-                    itemPosition = ItemPosition.Middle,
+                    itemPosition = Position.Middle,
                 ),
                 RelayListItem.GeoLocationItem(
                     item = locations[0].cities[1].relays[1],
                     isSelected = false,
-                    depth = 2,
+                    hierarchy = Hierarchy.Child2,
                     expanded = false,
                     state = null,
-                    itemPosition = ItemPosition.Middle,
+                    itemPosition = Position.Middle,
                 ),
                 RelayListItem.GeoLocationItem(
                     item = locations[1],
                     isSelected = false,
-                    depth = 0,
+                    hierarchy = Hierarchy.Parent,
                     expanded = false,
                     state = null,
-                    itemPosition = ItemPosition.Bottom,
+                    itemPosition = Position.Bottom,
                 ),
             )
         )

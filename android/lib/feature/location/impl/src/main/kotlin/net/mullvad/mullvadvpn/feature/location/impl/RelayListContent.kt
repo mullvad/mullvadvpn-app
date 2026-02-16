@@ -26,11 +26,12 @@ import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.model.RelayListType
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.SelectableListItem
-import net.mullvad.mullvadvpn.lib.ui.component.relaylist.ItemPosition
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.RelayListItem
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.SelectableRelayListItem
 import net.mullvad.mullvadvpn.lib.ui.component.text.ListItemInfo
+import net.mullvad.mullvadvpn.lib.ui.designsystem.Hierarchy
 import net.mullvad.mullvadvpn.lib.ui.designsystem.ListHeader
+import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
 import net.mullvad.mullvadvpn.lib.ui.tag.LOCATION_CELL_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.RECENT_CELL_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_CUSTOM_LIST_HEADER_TEST_TAG
@@ -113,12 +114,12 @@ private fun LocationsEmptyText(searchTerm: String) {
 }
 
 @Composable
-fun Modifier.positionalPadding(itemPosition: ItemPosition): Modifier =
+fun Modifier.positionalPadding(itemPosition: Position): Modifier =
     when (itemPosition) {
-        ItemPosition.Top,
-        ItemPosition.Single -> padding(top = Dimens.miniPadding)
-        ItemPosition.Middle -> padding(top = Dimens.listItemDivider)
-        ItemPosition.Bottom -> padding(top = Dimens.listItemDivider, bottom = Dimens.miniPadding)
+        Position.Top,
+        Position.Single -> padding(top = Dimens.miniPadding)
+        Position.Middle -> padding(top = Dimens.listItemDivider)
+        Position.Bottom -> padding(top = Dimens.listItemDivider, bottom = Dimens.miniPadding)
     }
 
 @Composable
@@ -231,7 +232,7 @@ private fun CustomListEntryItem(
         onClick = { onSelect(listItem.item) },
         // Only direct children can be removed
         onLongClick =
-            if (listItem.depth == 1) {
+            if (listItem.hierarchy == Hierarchy.Child1) {
                 {
                     onUpdateBottomSheetState(
                         LocationBottomSheetState.ShowCustomListsEntryBottomSheet(

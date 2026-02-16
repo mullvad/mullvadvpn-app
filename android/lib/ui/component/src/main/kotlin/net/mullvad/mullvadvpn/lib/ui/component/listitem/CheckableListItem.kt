@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.lib.ui.component.listitem
 
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -57,6 +58,7 @@ fun CheckableListItem(
     isChecked: Boolean,
     isEnabled: Boolean = true,
     onCheckedChange: (isChecked: Boolean) -> Unit,
+    trailingContent: @Composable ((BoxScope.() -> Unit))? = null,
 ) {
     MullvadListItem(
         modifier = modifier,
@@ -72,5 +74,6 @@ fun CheckableListItem(
         hierarchy = hierarchy,
         isEnabled = isEnabled,
         onClick = { onCheckedChange(!isChecked) },
+        trailingContent = trailingContent,
     )
 }

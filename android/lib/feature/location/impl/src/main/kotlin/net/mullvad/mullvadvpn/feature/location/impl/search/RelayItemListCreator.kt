@@ -8,9 +8,11 @@ import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.model.RelayItemSelection
 import net.mullvad.mullvadvpn.lib.model.RelayListType
-import net.mullvad.mullvadvpn.lib.ui.component.relaylist.ItemPosition
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.RelayListItem
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.RelayListItemState
+import net.mullvad.mullvadvpn.lib.ui.designsystem.Hierarchy
+import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
+import net.mullvad.mullvadvpn.lib.ui.designsystem.nextDown
 
 const val RECENTS_MAX_VISIBLE: Int = 3
 
@@ -247,9 +249,9 @@ private fun createCustomListRelayItems(
                     expanded = expanded,
                     itemPosition =
                         if (expanded) {
-                            ItemPosition.Top
+                            Position.Top
                         } else {
-                            ItemPosition.Single
+                            Position.Single
                         },
                 )
             )
@@ -262,7 +264,7 @@ private fun createCustomListRelayItems(
                             item = item,
                             relayListType = relayListType,
                             selectedByOtherEntryExitList = selectedByOtherEntryExitList,
-                            depth = 1,
+                            hierarchy = Hierarchy.Child1,
                             isExpanded = isExpanded,
                             isLast = index == customList.locations.lastIndex,
                         )
@@ -323,7 +325,7 @@ private fun createCustomListEntry(
     item: RelayItem.Location,
     relayListType: RelayListType,
     selectedByOtherEntryExitList: RelayItemId?,
-    depth: Int = 1,
+    hierarchy: Hierarchy = Hierarchy.Child1,
     isExpanded: (String) -> Boolean,
     isLast: Boolean,
 ): List<RelayListItem.CustomListEntryItem> = buildList {
@@ -339,12 +341,12 @@ private fun createCustomListEntry(
                     selectedByOtherId = selectedByOtherEntryExitList,
                 ),
             expanded = expanded,
-            depth = depth,
+            hierarchy = hierarchy,
             itemPosition =
                 if (!expanded && isLast) {
-                    ItemPosition.Bottom
+                    Position.Bottom
                 } else {
-                    ItemPosition.Middle
+                    Position.Middle
                 },
         )
     )
@@ -359,7 +361,7 @@ private fun createCustomListEntry(
                             item = relay,
                             relayListType = relayListType,
                             selectedByOtherEntryExitList = selectedByOtherEntryExitList,
-                            depth = depth + 1,
+                            hierarchy = hierarchy.nextDown(),
                             isExpanded = isExpanded,
                             isLast = isLast && index == item.relays.lastIndex,
                         )
@@ -373,7 +375,7 @@ private fun createCustomListEntry(
                             item = city,
                             relayListType = relayListType,
                             selectedByOtherEntryExitList = selectedByOtherEntryExitList,
-                            depth = depth + 1,
+                            hierarchy = hierarchy.nextDown(),
                             isExpanded = isExpanded,
                             isLast = isLast && index == item.cities.lastIndex,
                         )
@@ -389,7 +391,7 @@ private fun createGeoLocationEntry(
     relayListType: RelayListType,
     selectedByThisEntryExitList: RelayItemId?,
     selectedByOtherEntryExitList: RelayItemId?,
-    depth: Int = 0,
+    hierarchy: Hierarchy = Hierarchy.Parent,
     isExpanded: (String) -> Boolean,
     isLast: Boolean,
 ): List<RelayListItem.GeoLocationItem> = buildList {
@@ -404,23 +406,23 @@ private fun createGeoLocationEntry(
                     relayListType = relayListType,
                     selectedByOtherId = selectedByOtherEntryExitList,
                 ),
-            depth = depth,
+            hierarchy = hierarchy,
             expanded = expanded,
             itemPosition =
                 when (item) {
                     is RelayItem.Location.Country -> {
                         if (expanded) {
-                            ItemPosition.Top
+                            Position.Top
                         } else {
-                            ItemPosition.Single
+                            Position.Single
                         }
                     }
 
                     else -> {
                         if (isLast && !expanded) {
-                            ItemPosition.Bottom
+                            Position.Bottom
                         } else {
-                            ItemPosition.Middle
+                            Position.Middle
                         }
                     }
                 },
@@ -437,7 +439,7 @@ private fun createGeoLocationEntry(
                             relayListType = relayListType,
                             selectedByThisEntryExitList = selectedByThisEntryExitList,
                             selectedByOtherEntryExitList = selectedByOtherEntryExitList,
-                            depth = depth + 1,
+                            hierarchy = hierarchy.nextDown(),
                             isExpanded = isExpanded,
                             isLast = isLast && index == item.relays.lastIndex,
                         )
@@ -451,7 +453,7 @@ private fun createGeoLocationEntry(
                             relayListType = relayListType,
                             selectedByThisEntryExitList = selectedByThisEntryExitList,
                             selectedByOtherEntryExitList = selectedByOtherEntryExitList,
-                            depth = depth + 1,
+                            hierarchy = hierarchy.nextDown(),
                             isExpanded = isExpanded,
                             isLast = isLast && index == item.cities.lastIndex,
                         )
