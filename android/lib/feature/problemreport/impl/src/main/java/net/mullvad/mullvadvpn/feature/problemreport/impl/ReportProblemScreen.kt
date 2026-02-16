@@ -58,6 +58,7 @@ import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.common.compose.SecureScreenWhileInView
 import net.mullvad.mullvadvpn.common.compose.clickableAnnotatedString
 import net.mullvad.mullvadvpn.common.compose.createUriHook
+import net.mullvad.mullvadvpn.common.compose.isTv
 import net.mullvad.mullvadvpn.core.animation.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.lib.common.util.appendHideNavOnPlayBuild
 import net.mullvad.mullvadvpn.lib.ui.component.ExpandChevron
@@ -427,7 +428,7 @@ private fun ProblemMessageTextField(
             KeyboardOptions(
                 capitalization = KeyboardCapitalization.Sentences,
                 keyboardType = KeyboardType.Text,
-                imeAction = ImeAction.Next,
+                imeAction = if (isTv()) ImeAction.Next else ImeAction.Unspecified,
             ),
     )
 }
