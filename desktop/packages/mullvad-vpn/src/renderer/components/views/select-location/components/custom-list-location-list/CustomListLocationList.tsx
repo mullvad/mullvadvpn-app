@@ -43,7 +43,7 @@ function CustomListLocationListImpl({
   selectedElementRef,
 }: Pick<CustomListListProps, 'selectedElementRef'>) {
   const { customListLocations } = useCustomListLocationsContext();
-  const { addFormVisible } = useCustomListLocationListContext();
+  const { addFormVisible, addingForm } = useCustomListLocationListContext();
   const handleSelectCustomList = useHandleSelectCustomList();
   const hasNoCustomListsInSearchResult = useHasNoCustomListsInSearchResult();
   const hasCustomLists = useHasCustomLists();
@@ -77,7 +77,7 @@ function CustomListLocationListImpl({
           })}
         </StyledAnimatedList>
 
-        {!hasCustomLists && !addFormVisible && (
+        {!hasCustomLists && !addFormVisible && !addingForm && (
           <Text variant="labelTiny" color="whiteAlpha60">
             {messages.pgettext(
               'select-location-view',
