@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { messages } from '../../../../../../shared/gettext';
 import { ListItem } from '../../../../../lib/components/list-item';
 import { spacings } from '../../../../../lib/foundations';
+import { useCustomListListContext } from '../custom-list-location-list/CustomListLocationListContext';
 import { AddCustomListFormProvider, useAddCustomListFormContext } from './AddCustomListFormContext';
 import {
   useHandleClickCreateCustomList,
@@ -19,6 +20,7 @@ function AddListFormImpl() {
   const itemRef = React.useRef<HTMLDivElement>(null);
   const descriptionId = React.useId();
 
+  const { addingForm } = useCustomListListContext();
   const {
     formRef,
     inputRef,
@@ -53,7 +55,7 @@ function AddListFormImpl() {
         </ListItem.TextField>
       </ListItem.Item>
       <ListItem.TrailingActions>
-        <ListItem.Trigger onClick={handleClick} disabled={invalid}>
+        <ListItem.Trigger onClick={handleClick} disabled={invalid || addingForm}>
           <ListItem.TrailingAction
             aria-label={messages.pgettext('accessibility', 'Create custom list')}>
             <ListItem.TrailingAction.Icon icon="checkmark" />
