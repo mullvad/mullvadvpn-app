@@ -4,7 +4,7 @@ import { messages } from '../../../../../../shared/gettext';
 import { FlexColumn } from '../../../../../lib/components/flex-column';
 import { SectionTitle } from '../../../../../lib/components/section-title';
 import { spacings } from '../../../../../lib/foundations';
-import { useRelayListContext } from '../../RelayListContext';
+import { useLocationsContext } from '../../LocationsContext';
 import { useSelectLocationViewContext } from '../../SelectLocationViewContext';
 import { GeographicalLocationListItem } from '../geographical-location-list-item';
 import { type RelayLocationListProps } from '../relay-location-list';
@@ -24,9 +24,9 @@ export function CountryLocationList({
   ...props
 }: CountryLocationListProps) {
   const { searchTerm } = useSelectLocationViewContext();
-  const { relayList } = useRelayListContext();
+  const { searchedLocations } = useLocationsContext();
 
-  if (searchTerm !== '' && !relayList.some((location) => location.visible)) {
+  if (searchTerm !== '' && searchedLocations.length === 0) {
     return null;
   } else {
     return (
@@ -38,7 +38,7 @@ export function CountryLocationList({
           <SectionTitle.Divider />
         </SectionTitle>
         <FlexColumn>
-          {relayList.map((country) => {
+          {searchedLocations.map((country) => {
             return (
               <StyledLocationContainer key={Object.values(country.details).join('-')}>
                 <GeographicalLocationListItem
