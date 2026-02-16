@@ -12,6 +12,7 @@ futures = { workspace = true }
 hyper-util = { workspace = true }
 log = { workspace = true }
 mullvad-paths = { path = "../mullvad-paths" }
+mullvad-relay-selector = { path = "../mullvad-relay-selector" }
 mullvad-types = { path = "../mullvad-types" }
 prost = { workspace = true }
 prost-types = { workspace = true }
