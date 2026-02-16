@@ -311,9 +311,12 @@ impl DnsResolver for NullDnsResolver {
 }
 
 /// A type that helps with the creation of API connections.
-pub struct Runtime {
+pub struct Runtime<B = FileAddressCacheBacking>
+where
+    B: AddressCacheBacking,
+{
     handle: tokio::runtime::Handle,
-    address_cache: AddressCache,
+    address_cache: AddressCache<B>,
     api_availability: availability::ApiAvailability,
     endpoint: ApiEndpoint,
     #[cfg(target_os = "android")]
@@ -413,12 +416,29 @@ impl Runtime {
         })
     }
 
+    /// Returns a new request service handle
+    pub fn rest_handle(&self, dns_resolver: impl DnsResolver) -> rest::RequestServiceHandle {
+        self.new_request_service(
+            ApiConnectionMode::Direct.into_provider(),
+            Arc::new(dns_resolver),
+            #[cfg(target_os = "android")]
+            None,
+            #[cfg(any(feature = "api-override", test))]
+            false,
+        )
+    }
+}
+
+impl<B: AddressCacheBacking> Runtime<B> {
     pub async fn with_cache_backing(
         handle: tokio::runtime::Handle,
         endpoint: &ApiEndpoint,
-        backing: Arc<dyn AddressCacheBacking>,
+        backing: Arc<B>,
         #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
-    ) -> Self {
+    ) -> Runtime<B>
+    where
+        B: AddressCacheBacking,
+    {
         let address_cache =
             AddressCache::from_backing_or(endpoint.host().to_owned(), backing, endpoint).await;
         Runtime {
@@ -429,6 +449,10 @@ impl Runtime {
             #[cfg(target_os = "android")]
             socket_bypass_tx,
         }
+    }
+
+    pub fn address_cache(&self) -> &AddressCache<B> {
+        &self.address_cache
     }
 
     /// Returns a request factory initialized to create requests for the master API Assumes an API
@@ -450,18 +474,6 @@ impl Runtime {
         let factory = rest::RequestFactory::new(hostname, Some(token_store));
 
         rest::MullvadRestHandle::new(service, factory, self.availability_handle())
-    }
-
-    /// Returns a new request service handle
-    pub fn rest_handle(&self, dns_resolver: impl DnsResolver) -> rest::RequestServiceHandle {
-        self.new_request_service(
-            ApiConnectionMode::Direct.into_provider(),
-            Arc::new(dns_resolver),
-            #[cfg(target_os = "android")]
-            None,
-            #[cfg(any(feature = "api-override", test))]
-            false,
-        )
     }
 
     /// Creates a new request service and returns a handle to it.
@@ -489,10 +501,6 @@ impl Runtime {
 
     pub fn availability_handle(&self) -> ApiAvailability {
         self.api_availability.clone()
-    }
-
-    pub fn address_cache(&self) -> &AddressCache {
-        &self.address_cache
     }
 }
 
