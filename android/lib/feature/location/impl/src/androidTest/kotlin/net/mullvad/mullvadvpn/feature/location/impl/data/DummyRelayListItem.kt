@@ -3,8 +3,9 @@ package net.mullvad.mullvadvpn.feature.location.impl.data
 import net.mullvad.mullvadvpn.lib.common.util.relaylist.descendants
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
-import net.mullvad.mullvadvpn.lib.ui.component.relaylist.ItemPosition
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.RelayListItem
+import net.mullvad.mullvadvpn.lib.ui.designsystem.Hierarchy
+import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
 
 @Suppress("CyclomaticComplexMethod")
 fun createSimpleRelayListItemList(
@@ -35,11 +36,12 @@ fun createSimpleRelayListItemList(
                     item = country,
                     isSelected = country == selectedItem,
                     expanded = descendantIsSelected,
+                    hierarchy = Hierarchy.Parent,
                     itemPosition =
                         if (descendantIsSelected) {
-                            ItemPosition.Top
+                            Position.Top
                         } else {
-                            ItemPosition.Single
+                            Position.Single
                         },
                 )
             )
@@ -51,11 +53,12 @@ fun createSimpleRelayListItemList(
                             item = city,
                             isSelected = city.id == selectedItem,
                             expanded = childIsSelected,
+                            hierarchy = Hierarchy.Parent,
                             itemPosition =
                                 if (country.cities.last() == city && !childIsSelected) {
-                                    ItemPosition.Bottom
+                                    Position.Bottom
                                 } else {
-                                    ItemPosition.Middle
+                                    Position.Middle
                                 },
                         )
                     )
@@ -65,11 +68,12 @@ fun createSimpleRelayListItemList(
                                 RelayListItem.GeoLocationItem(
                                     item = relay,
                                     isSelected = relay.id == selectedItem,
+                                    hierarchy = Hierarchy.Parent,
                                     itemPosition =
                                         if (city.relays.last() == relay) {
-                                            ItemPosition.Bottom
+                                            Position.Bottom
                                         } else {
-                                            ItemPosition.Middle
+                                            Position.Middle
                                         },
                                 )
                             )

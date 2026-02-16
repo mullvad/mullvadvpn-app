@@ -1,6 +1,8 @@
 package net.mullvad.mullvadvpn.lib.ui.component.relaylist
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+import net.mullvad.mullvadvpn.lib.ui.designsystem.Hierarchy
+import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
 
 class SelectableRelayListItemPreviewParameterProvider :
     PreviewParameterProvider<List<RelayListItem.SelectableItem>> {
@@ -16,7 +18,8 @@ class SelectableRelayListItemPreviewParameterProvider :
                         ),
                     isSelected = true,
                     expanded = false,
-                    itemPosition = ItemPosition.Single,
+                    hierarchy = Hierarchy.Parent,
+                    itemPosition = Position.Single,
                 ),
                 RelayListItem.GeoLocationItem(
                     item =
@@ -27,7 +30,8 @@ class SelectableRelayListItemPreviewParameterProvider :
                             active = false,
                         ),
                     isSelected = false,
-                    itemPosition = ItemPosition.Single,
+                    hierarchy = Hierarchy.Parent,
+                    itemPosition = Position.Single,
                 ),
                 RelayListItem.GeoLocationItem(
                     item =
@@ -38,7 +42,8 @@ class SelectableRelayListItemPreviewParameterProvider :
                         ),
                     isSelected = true,
                     expanded = true,
-                    itemPosition = ItemPosition.Single,
+                    hierarchy = Hierarchy.Parent,
+                    itemPosition = Position.Single,
                 ),
                 RelayListItem.GeoLocationItem(
                     item =
@@ -48,7 +53,8 @@ class SelectableRelayListItemPreviewParameterProvider :
                             relaysPerCity = 2,
                         ),
                     isSelected = false,
-                    itemPosition = ItemPosition.Single,
+                    hierarchy = Hierarchy.Parent,
+                    itemPosition = Position.Single,
                 ),
                 RelayListItem.GeoLocationItem(
                     item =
@@ -59,7 +65,8 @@ class SelectableRelayListItemPreviewParameterProvider :
                             active = false,
                         ),
                     isSelected = true,
-                    itemPosition = ItemPosition.Single,
+                    hierarchy = Hierarchy.Parent,
+                    itemPosition = Position.Single,
                 ),
             )
         )

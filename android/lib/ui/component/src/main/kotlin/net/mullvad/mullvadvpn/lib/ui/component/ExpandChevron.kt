@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.KeyboardArrowDown
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -49,20 +48,36 @@ fun ExpandChevron(modifier: Modifier = Modifier, isExpanded: Boolean) {
     Icon(
         imageVector = Icons.Rounded.KeyboardArrowDown,
         contentDescription = stateLabel,
-        //        tint = color,
         modifier = modifier.rotate(animatedRotation.value),
     )
 }
 
 @Composable
-fun ExpandChevronIconButton(
+fun ExpandChevronDivider(
     modifier: Modifier = Modifier,
-    onExpand: (Boolean) -> Unit,
     isExpanded: Boolean,
+    onClick: () -> Unit = {},
 ) {
-    IconButton(modifier = modifier, onClick = { onExpand(!isExpanded) }) {
-        ExpandChevron(isExpanded = isExpanded)
-    }
+    val degree = remember(isExpanded) { if (isExpanded) UP_ROTATION else DOWN_ROTATION }
+    val stateLabel =
+        if (isExpanded) {
+            stringResource(id = R.string.collapse)
+        } else {
+            stringResource(id = R.string.expand)
+        }
+    val animatedRotation =
+        animateFloatAsState(
+            targetValue = degree,
+            label = "",
+            animationSpec = TweenSpec(ROTATION_ANIMATION_DURATION, easing = LinearEasing),
+        )
+
+    DividerButton(
+        iconModifier = modifier.rotate(animatedRotation.value),
+        icon = Icons.Rounded.KeyboardArrowDown,
+        iconContentDescriptions = stateLabel,
+        onClick = onClick,
+    )
 }
 
 private const val DOWN_ROTATION = 0f

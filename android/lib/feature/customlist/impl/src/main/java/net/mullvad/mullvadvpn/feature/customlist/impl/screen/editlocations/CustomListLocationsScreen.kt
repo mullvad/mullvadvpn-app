@@ -47,9 +47,9 @@ import net.mullvad.mullvadvpn.lib.ui.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithSmallTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.dialog.Confirmed
 import net.mullvad.mullvadvpn.lib.ui.component.drawVerticalScrollbar
-import net.mullvad.mullvadvpn.lib.ui.component.relaylist.CheckableRelayLocationCell
-import net.mullvad.mullvadvpn.lib.ui.component.relaylist.ItemPosition
+import net.mullvad.mullvadvpn.lib.ui.component.relaylist.CheckableRelayListItem
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
+import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
 import net.mullvad.mullvadvpn.lib.ui.resource.R
 import net.mullvad.mullvadvpn.lib.ui.tag.SAVE_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
@@ -236,7 +236,7 @@ private fun LazyListScope.content(
         }
     } else {
         items(uiState.locations, key = { listItem -> listItem.item.id }) { listItem ->
-            CheckableRelayLocationCell(
+            CheckableRelayListItem(
                 modifier = Modifier.animateItem().positionalPadding(listItem.itemPosition),
                 item = listItem,
                 onRelayCheckedChange = { isChecked ->
@@ -263,10 +263,10 @@ private fun LocationsEmptyText(searchTerm: String) {
 
 // TODO Should maybe be in design system? Maybe if we use the correct composable we have it already?
 @Composable
-fun Modifier.positionalPadding(itemPosition: ItemPosition): Modifier =
+fun Modifier.positionalPadding(itemPosition: Position): Modifier =
     when (itemPosition) {
-        ItemPosition.Top,
-        ItemPosition.Single -> padding(top = Dimens.miniPadding)
-        ItemPosition.Middle -> padding(top = Dimens.listItemDivider)
-        ItemPosition.Bottom -> padding(top = Dimens.listItemDivider, bottom = Dimens.miniPadding)
+        Position.Top,
+        Position.Single -> padding(top = Dimens.miniPadding)
+        Position.Middle -> padding(top = Dimens.listItemDivider)
+        Position.Bottom -> padding(top = Dimens.listItemDivider, bottom = Dimens.miniPadding)
     }
