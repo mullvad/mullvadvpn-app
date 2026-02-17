@@ -18,7 +18,7 @@ const variants = {
   expanded: { height: 'auto', opacity: 1 },
 };
 
-export function AccordionContent({ children }: AccordionContentProps) {
+export function AccordionContent({ children, ...props }: AccordionContentProps) {
   const { contentId, triggerId, expanded, setContent } = useAccordionContext();
 
   return (
@@ -33,7 +33,8 @@ export function AccordionContent({ children }: AccordionContentProps) {
           initial="collapsed"
           animate="expanded"
           exit="collapsed"
-          transition={{ duration: 0.25, ease: 'easeInOut' }}>
+          transition={{ duration: 0.25, ease: 'easeInOut' }}
+          {...props}>
           {children}
         </StyledAccordionContent>
       )}
