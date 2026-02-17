@@ -839,7 +839,7 @@ impl RelaySelector {
         // We may explore the entire search space (`relays` x `criteria`) without any synchronisation
         // between different branches.
         let (matches, discards) = relays.partition_map(|relay| {
-            let reasons = predicate.get_relay_match(&relay, custom_lists);
+            let reasons = predicate.get_relay_discard_reasons(&relay, custom_lists);
             if reasons.is_none() {
                 Either::Left(relay)
             } else {
@@ -869,11 +869,11 @@ pub enum Predicate {
 }
 
 impl Predicate {
-    fn get_relay_match(
+    fn get_relay_discard_reasons(
         &self,
         relay: &WireguardRelay,
         custom_lists: &CustomListsSettings,
-    ) -> Reasons {
+    ) -> DiscardReasons {
         match self {
             Predicate::Singlehop {
                 location,
@@ -923,7 +923,7 @@ impl Predicate {
                         }
                     })
                 };
-                Reasons {
+                DiscardReasons {
                     inactive: !relay.active,
                     location,
                     providers: matcher::filter_on_providers(providers, relay),
@@ -935,7 +935,7 @@ impl Predicate {
                     },
                     obfuscation,
                     port: false,
-                    conflict: false,
+                    conflict: false, // Impossible for singlehop
                 }
             }
             Predicate::Autohop => todo!(),
@@ -949,14 +949,14 @@ impl Predicate {
 #[derive(Debug, Default, PartialEq)]
 pub struct RelayPartitions {
     pub matches: Vec<WireguardRelay>,
-    pub discards: Vec<(WireguardRelay, Reasons)>,
+    pub discards: Vec<(WireguardRelay, DiscardReasons)>,
 }
 
 /// All possible reasons why a relay was filtered out for a particular query.
 //
 // TODO: Sort all variants in alphanumeric ordering.
 #[derive(Debug, Clone, PartialEq, Default)]
-pub struct Reasons {
+pub struct DiscardReasons {
     /// TODO: Document
     pub inactive: bool,
     /// TODO: Document
@@ -978,10 +978,10 @@ pub struct Reasons {
     pub conflict: bool,
 }
 
-impl Reasons {
+impl DiscardReasons {
     /// There are no reasons for the relay to be filter out, i.e. it was a match
     pub fn is_none(&self) -> bool {
-        self == &Reasons::default()
+        self == &DiscardReasons::default()
     }
 }
 

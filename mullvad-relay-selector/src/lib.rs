@@ -13,4 +13,4 @@ pub use relay_selector::{
 };
 
 // TODO: Merge new stuff with old exports.
-pub use relay_selector::{Predicate, Reasons, Relay, RelayPartitions};
+pub use relay_selector::{DiscardReasons, Predicate, Relay, RelayPartitions};

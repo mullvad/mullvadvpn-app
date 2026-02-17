@@ -102,8 +102,8 @@ impl From<mullvad_relay_selector::Relay> for Relay {
     }
 }
 
-impl From<mullvad_relay_selector::Reasons> for IncompatibleConstraints {
-    fn from(reasons: mullvad_relay_selector::Reasons) -> Self {
+impl From<mullvad_relay_selector::DiscardReasons> for IncompatibleConstraints {
+    fn from(reasons: mullvad_relay_selector::DiscardReasons) -> Self {
         IncompatibleConstraints {
             inactive: reasons.inactive,
             location: reasons.location,
