@@ -1,4 +1,4 @@
-import { useCustomListLocationsContext } from '../../../CustomListLocationsContext';
+import { useCustomListLocationsContext } from '../CustomListLocationsContext';
 
 export function useHasCustomLists() {
   const { customListLocations } = useCustomListLocationsContext();
