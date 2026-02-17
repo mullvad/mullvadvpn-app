@@ -102,23 +102,18 @@ impl From<mullvad_relay_selector::Relay> for Relay {
     }
 }
 
-impl From<Vec<mullvad_relay_selector::Reason>> for IncompatibleConstraints {
-    fn from(reasons: Vec<mullvad_relay_selector::Reason>) -> Self {
-        use mullvad_relay_selector::Reason::*;
-        let mut incompatible = IncompatibleConstraints::default();
-        for reason in reasons {
-            match reason {
-                Inactive => incompatible.inactive = true,
-                Ownership => incompatible.ownership = true,
-                Location => incompatible.location = true,
-                Providers => incompatible.providers = true,
-                IpVersion => incompatible.ip_version = true,
-                Daita => incompatible.daita = true,
-                Obfuscation => incompatible.obfuscation = true,
-                Port => incompatible.port = true,
-                Conflict => incompatible.conflict_with_other_hop = true,
-            };
+impl From<mullvad_relay_selector::Reasons> for IncompatibleConstraints {
+    fn from(reasons: mullvad_relay_selector::Reasons) -> Self {
+        IncompatibleConstraints {
+            inactive: reasons.inactive,
+            location: reasons.location,
+            providers: reasons.providers,
+            ownership: reasons.ownership,
+            ip_version: reasons.ip_version,
+            daita: reasons.daita,
+            obfuscation: reasons.obfuscation,
+            port: reasons.port,
+            conflict_with_other_hop: reasons.conflict,
         }
-        incompatible
     }
 }
