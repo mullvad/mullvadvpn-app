@@ -22,7 +22,7 @@ import net.mullvad.mullvadvpn.feature.location.impl.data.DUMMY_RELAY_ITEM_CUSTOM
 import net.mullvad.mullvadvpn.feature.location.impl.data.createSimpleRelayListItemList
 import net.mullvad.mullvadvpn.feature.location.impl.list.SelectLocationListUiState
 import net.mullvad.mullvadvpn.feature.location.impl.list.SelectLocationListViewModel
-import net.mullvad.mullvadvpn.feature.location.impl.util.onNodeWithTagAndText
+import net.mullvad.mullvadvpn.feature.location.impl.util.onNodeTextAndAncestorTag
 import net.mullvad.mullvadvpn.feature.location.impl.util.performLongClick
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.Lce
@@ -31,9 +31,10 @@ import net.mullvad.mullvadvpn.lib.model.HopSelection
 import net.mullvad.mullvadvpn.lib.model.MultihopRelayListType
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayListType
-import net.mullvad.mullvadvpn.lib.ui.component.relaylist.ItemPosition
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.RelayListItem
-import net.mullvad.mullvadvpn.lib.ui.tag.GEOLOCATION_NAME_TAG
+import net.mullvad.mullvadvpn.lib.ui.designsystem.Hierarchy
+import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
+import net.mullvad.mullvadvpn.lib.ui.tag.GEOLOCATION_ITEM_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.RECENT_CELL_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_CUSTOM_LIST_BOTTOM_SHEET_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_LOCATION_BOTTOM_SHEET_TEST_TAG
@@ -151,7 +152,8 @@ class SelectLocationScreenTest {
                                 DUMMY_RELAY_COUNTRIES.map {
                                     RelayListItem.GeoLocationItem(
                                         item = it,
-                                        itemPosition = ItemPosition.Single,
+                                        itemPosition = Position.Single,
+                                        hierarchy = Hierarchy.Parent,
                                     )
                                 },
                             customLists = emptyList(),
@@ -362,7 +364,8 @@ class SelectLocationScreenTest {
                                 listOf(
                                     RelayListItem.GeoLocationItem(
                                         relayItem,
-                                        itemPosition = ItemPosition.Single,
+                                        itemPosition = Position.Single,
+                                        hierarchy = Hierarchy.Parent,
                                     )
                                 ),
                             customLists = emptyList(),
@@ -491,8 +494,8 @@ class SelectLocationScreenTest {
             )
 
             // Assert
-            onNodeWithTagAndText(
-                    testTag = GEOLOCATION_NAME_TAG,
+            onNodeTextAndAncestorTag(
+                    ancestorTag = GEOLOCATION_ITEM_TAG,
                     text = selectableItem.name,
                     useUnmergedTree = true,
                 )

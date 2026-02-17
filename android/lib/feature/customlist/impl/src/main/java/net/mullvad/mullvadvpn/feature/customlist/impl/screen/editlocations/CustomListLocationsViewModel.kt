@@ -30,7 +30,9 @@ import net.mullvad.mullvadvpn.lib.model.communication.CustomListActionResultData
 import net.mullvad.mullvadvpn.lib.model.communication.LocationsChanged
 import net.mullvad.mullvadvpn.lib.repository.RelayListRepository
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.CheckableRelayListItem
-import net.mullvad.mullvadvpn.lib.ui.component.relaylist.ItemPosition
+import net.mullvad.mullvadvpn.lib.ui.designsystem.Hierarchy
+import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
+import net.mullvad.mullvadvpn.lib.ui.designsystem.nextDown
 import net.mullvad.mullvadvpn.lib.usecase.customlists.CustomListActionUseCase
 import net.mullvad.mullvadvpn.lib.usecase.customlists.CustomListRelayItemsUseCase
 
@@ -83,6 +85,7 @@ class CustomListLocationsViewModel(
                                         locations =
                                             filteredRelayCountries.flatMap {
                                                 it.toRelayItems(
+                                                    hierarchy = Hierarchy.Parent,
                                                     isSelected = { it in selectedLocations },
                                                     isExpanded = { it in expandedLocations },
                                                     isLastChild = true,
@@ -253,22 +256,22 @@ class CustomListLocationsViewModel(
     private fun RelayItem.Location.toRelayItems(
         isSelected: (RelayItem) -> Boolean,
         isExpanded: (RelayItemId) -> Boolean,
-        depth: Int = 0,
+        hierarchy: Hierarchy,
         isLastChild: Boolean,
     ): List<CheckableRelayListItem> = buildList {
         val expanded = isExpanded(id)
         add(
             CheckableRelayListItem(
                 item = this@toRelayItems,
-                depth = depth,
+                hierarchy = hierarchy,
                 checked = isSelected(this@toRelayItems),
                 expanded = expanded,
                 itemPosition =
                     when {
                         this@toRelayItems is RelayItem.Location.Country ->
-                            if (!expanded) ItemPosition.Single else ItemPosition.Top
-                        isLastChild && !expanded -> ItemPosition.Bottom
-                        else -> ItemPosition.Middle
+                            if (!expanded) Position.Single else Position.Top
+                        isLastChild && !expanded -> Position.Bottom
+                        else -> Position.Middle
                     },
             )
         )
@@ -280,7 +283,7 @@ class CustomListLocationsViewModel(
                             relay.toRelayItems(
                                 isSelected = isSelected,
                                 isExpanded = isExpanded,
-                                depth = depth + 1,
+                                hierarchy = hierarchy.nextDown(),
                                 isLastChild = isLastChild && index == relays.lastIndex,
                             )
                         }
@@ -292,7 +295,7 @@ class CustomListLocationsViewModel(
                             item.toRelayItems(
                                 isSelected = isSelected,
                                 isExpanded = isExpanded,
-                                depth = depth + 1,
+                                hierarchy = hierarchy.nextDown(),
                                 isLastChild = isLastChild && index == cities.lastIndex,
                             )
                         }

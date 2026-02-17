@@ -3,6 +3,8 @@ package net.mullvad.mullvadvpn.lib.ui.component.relaylist
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
 import net.mullvad.mullvadvpn.lib.model.RelayItem
+import net.mullvad.mullvadvpn.lib.ui.designsystem.Hierarchy
+import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
 
 enum class RelayListItemContentType {
     CUSTOM_LIST_HEADER,
@@ -30,12 +32,12 @@ sealed interface RelayListItem {
 
     sealed interface SelectableItem : RelayListItem {
         val item: RelayItem
-        val depth: Int
+        val hierarchy: Hierarchy
         val isSelected: Boolean
         val expanded: Boolean
         val canExpand: Boolean
         val state: RelayListItemState?
-        val itemPosition: ItemPosition
+        val itemPosition: Position
     }
 
     data object CustomListHeader : RelayListItem {
@@ -48,10 +50,10 @@ sealed interface RelayListItem {
         override val isSelected: Boolean = false,
         override val expanded: Boolean = false,
         override val state: RelayListItemState? = null,
-        override val itemPosition: ItemPosition = ItemPosition.Single,
+        override val itemPosition: Position = Position.Single,
     ) : SelectableItem {
         override val key = item.id
-        override val depth: Int = 0
+        override val hierarchy = Hierarchy.Parent
         override val contentType = RelayListItemContentType.CUSTOM_LIST_ITEM
         override val canExpand: Boolean = item.hasChildren
     }
@@ -61,9 +63,9 @@ sealed interface RelayListItem {
         val parentName: CustomListName,
         override val item: RelayItem.Location,
         override val expanded: Boolean,
-        override val depth: Int = 0,
+        override val hierarchy: Hierarchy,
         override val state: RelayListItemState? = null,
-        override val itemPosition: ItemPosition,
+        override val itemPosition: Position,
     ) : SelectableItem {
         override val key = parentId to item.id
 
@@ -86,10 +88,10 @@ sealed interface RelayListItem {
     data class GeoLocationItem(
         override val item: RelayItem.Location,
         override val isSelected: Boolean = false,
-        override val depth: Int = 0,
+        override val hierarchy: Hierarchy,
         override val expanded: Boolean = false,
         override val state: RelayListItemState? = null,
-        override val itemPosition: ItemPosition,
+        override val itemPosition: Position,
     ) : SelectableItem {
         override val key = item.id
         override val contentType = RelayListItemContentType.LOCATION_ITEM
@@ -106,10 +108,10 @@ sealed interface RelayListItem {
         override val isSelected: Boolean = false,
         override val expanded: Boolean = false,
         override val state: RelayListItemState? = null,
-        override val itemPosition: ItemPosition = ItemPosition.Single,
+        override val itemPosition: Position = Position.Single,
     ) : SelectableItem {
         override val key = "recents$item"
-        override val depth: Int = 0
+        override val hierarchy: Hierarchy = Hierarchy.Parent
         override val contentType = RelayListItemContentType.RECENT_LIST_ITEM
         override val canExpand: Boolean = false
     }
@@ -137,32 +139,8 @@ sealed interface RelayListItem {
 
 data class CheckableRelayListItem(
     val item: RelayItem.Location,
-    val depth: Int = 0,
     val checked: Boolean = false,
     val expanded: Boolean = false,
-    val itemPosition: ItemPosition = ItemPosition.Single,
+    val itemPosition: Position = Position.Single,
+    val hierarchy: Hierarchy = Hierarchy.Parent,
 )
-
-sealed interface ItemPosition {
-    data object Top : ItemPosition
-
-    data object Middle : ItemPosition
-
-    data object Bottom : ItemPosition
-
-    data object Single : ItemPosition
-
-    fun roundTop(): Boolean =
-        when (this) {
-            is Single,
-            Top -> true
-            else -> false
-        }
-
-    fun roundBottom(): Boolean =
-        when (this) {
-            is Single,
-            Bottom -> true
-            else -> false
-        }
-}

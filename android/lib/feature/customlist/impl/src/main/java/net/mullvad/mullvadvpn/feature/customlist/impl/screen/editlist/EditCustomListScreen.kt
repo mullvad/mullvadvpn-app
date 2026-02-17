@@ -143,7 +143,7 @@ fun EditCustomListScreen(
         },
     ) { modifier: Modifier ->
         Column(
-            modifier = modifier,
+            modifier = modifier.padding(horizontal = Dimens.sideMarginNew),
             verticalArrangement = Arrangement.spacedBy(Dimens.listItemDivider),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {

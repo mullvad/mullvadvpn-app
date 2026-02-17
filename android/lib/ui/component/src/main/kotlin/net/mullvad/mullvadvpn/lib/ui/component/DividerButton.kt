@@ -29,8 +29,10 @@ private fun PreviewDividerButton() {
 @Composable
 fun DividerButton(
     modifier: Modifier = Modifier,
+    iconModifier: Modifier = Modifier,
     isEnabled: Boolean = true,
     icon: ImageVector,
+    iconContentDescriptions: String? = null,
     onClick: () -> Unit = {},
 ) {
     Row(modifier) {
@@ -43,8 +45,9 @@ fun DividerButton(
             contentAlignment = Alignment.Center,
         ) {
             Icon(
+                modifier = iconModifier,
                 imageVector = icon,
-                contentDescription = null,
+                contentDescription = iconContentDescriptions,
                 tint =
                     if (isEnabled) LocalContentColor.current
                     else LocalContentColor.current.copy(AlphaInactive),

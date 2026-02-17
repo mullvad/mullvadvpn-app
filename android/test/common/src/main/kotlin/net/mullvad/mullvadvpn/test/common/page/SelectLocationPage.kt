@@ -5,7 +5,7 @@ import androidx.test.uiautomator.Direction
 import androidx.test.uiautomator.Until
 import androidx.test.uiautomator.waitForStableInActiveWindow
 import net.mullvad.mullvadvpn.lib.ui.tag.EXPAND_BUTTON_TEST_TAG
-import net.mullvad.mullvadvpn.lib.ui.tag.GEOLOCATION_NAME_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.GEOLOCATION_ITEM_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_LIST_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_MENU_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_SCREEN_TEST_TAG
@@ -20,7 +20,9 @@ class SelectLocationPage internal constructor() : Page() {
     fun clickLocationExpandButton(locationName: String) {
         val locationCell =
             uiDevice
-                .findObjectWithTimeout(By.textContains(locationName).res(GEOLOCATION_NAME_TAG))
+                .findObjectWithTimeout(
+                    By.textContains(locationName).hasAncestor(By.res(GEOLOCATION_ITEM_TAG))
+                )
                 .parent
                 .parent
         val expandButton = locationCell.findObjectWithTimeout(By.res(EXPAND_BUTTON_TEST_TAG))
