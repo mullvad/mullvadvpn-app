@@ -8,8 +8,10 @@ import {
 import log from '../../../../shared/logging';
 import { useAppContext } from '../../../context';
 import { useRelaySettingsModifier } from '../../../lib/constraint-updater';
+import { useSelector } from '../../../redux/store';
 
-export function useSelectLocation() {
+export function useRelayLocations() {
+  const relayLocations = useSelector((state) => state.settings.relayLocations);
   const { setRelaySettings } = useAppContext();
   const relaySettingsModifier = useRelaySettingsModifier();
 
@@ -25,7 +27,7 @@ export function useSelectLocation() {
     [setRelaySettings],
   );
 
-  const selectEntryLocation = React.useCallback(
+  const selectEntryRelayLocation = React.useCallback(
     async (entryLocation: RelayLocation) => {
       const settings = relaySettingsModifier((settings) => {
         settings.wireguardConstraints.entryLocation = wrapConstraint(entryLocation);
@@ -36,7 +38,7 @@ export function useSelectLocation() {
     [relaySettingsModifier, selectLocation],
   );
 
-  const selectExitLocation = React.useCallback(
+  const selectExitRelayLocation = React.useCallback(
     async (relayLocation: RelayLocation) => {
       const settings = relaySettingsModifier((settings) => ({
         ...settings,
@@ -47,5 +49,9 @@ export function useSelectLocation() {
     [relaySettingsModifier, selectLocation],
   );
 
-  return { selectEntryLocation, selectExitLocation };
+  return {
+    relayLocations,
+    selectEntryRelayLocation,
+    selectExitRelayLocation,
+  };
 }
