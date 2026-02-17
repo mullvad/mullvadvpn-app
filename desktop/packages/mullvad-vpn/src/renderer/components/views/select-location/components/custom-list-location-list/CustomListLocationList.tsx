@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 
 import { messages } from '../../../../../../shared/gettext';
-import { Text } from '../../../../../lib/components';
+import { Container, Text } from '../../../../../lib/components';
 import { AnimatedList } from '../../../../../lib/components/animated-list';
 import { FlexColumn } from '../../../../../lib/components/flex-column';
 import { spacings } from '../../../../../lib/foundations';
@@ -84,6 +84,16 @@ function CustomListLocationListImpl({
               'Add a custom list by clicking the “+” icon ',
             )}
           </Text>
+        )}
+        {hasCustomLists && (
+          <Container horizontalMargin="small">
+            <Text variant="labelTiny" color="whiteAlpha60">
+              {messages.pgettext(
+                'select-location-view',
+                'Add locations by clicking on “+” when hovering over a location.',
+              )}
+            </Text>
+          </Container>
         )}
       </FlexColumn>
     </FlexColumn>
