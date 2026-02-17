@@ -1,9 +1,9 @@
 import React from 'react';
 
-import { type RelayLocation } from '../../../../../shared/daemon-rpc-types';
-import { useAppContext } from '../../../../context';
-import { useSelectLocation } from '../../../../features/location/hooks';
-import { useHistory } from '../../../../lib/history';
+import { type RelayLocation } from '../../../../../../../shared/daemon-rpc-types';
+import { useAppContext } from '../../../../../../context';
+import { useSelectLocation } from '../../../../../../features/location/hooks';
+import { useHistory } from '../../../../../../lib/history';
 
 export function useHandleSelectExitLocation() {
   const { selectExitLocation } = useSelectLocation();
