@@ -9,17 +9,23 @@ shopt -s nullglob
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 ###########################################
-# Verify environment configuration
+# Parse arguments
 ###########################################
 
-if [[ -z ${IOS_PROVISIONING_PROFILES_DIR-} ]]; then
-    IOS_PROVISIONING_PROFILES_DIR="$SCRIPT_DIR/iOS Provisioning Profiles"
+usage() {
+    echo "Usage: $0 <provisioning-profiles-dir> [archive-path]"
+    echo ""
+    echo "Arguments:"
+    echo "  provisioning-profiles-dir  Directory containing .mobileprovision files"
+    echo "  archive-path               Path to .xcarchive (default: Build/MullvadVPN.xcarchive)"
+    exit 1
+}
 
-    echo "The variable IOS_PROVISIONING_PROFILES_DIR is not set."
-    echo "Default: $IOS_PROVISIONING_PROFILES_DIR"
-
-    export IOS_PROVISIONING_PROFILES_DIR
+if [[ $# -lt 1 ]]; then
+    usage
 fi
+
+IOS_PROVISIONING_PROFILES_DIR="$1"
 
 ###########################################
 # Build configuration
@@ -27,13 +33,17 @@ fi
 
 PROJECT_NAME="MullvadVPN"
 BUILD_OUTPUT_DIR="$SCRIPT_DIR/Build"
-XCODE_ARCHIVE_DIR="${1:-$BUILD_OUTPUT_DIR/$PROJECT_NAME.xcarchive}"
+XCODE_ARCHIVE_DIR="${2:-$BUILD_OUTPUT_DIR/$PROJECT_NAME.xcarchive}"
 EXPORT_OPTIONS_PATH="$SCRIPT_DIR/ExportOptions.plist"
+
+if [[ ! -d "$IOS_PROVISIONING_PROFILES_DIR" ]]; then
+    echo "Error: Provisioning profiles directory not found at $IOS_PROVISIONING_PROFILES_DIR"
+    exit 1
+fi
 
 if [[ ! -d "$XCODE_ARCHIVE_DIR" ]]; then
     echo "Error: Archive not found at $XCODE_ARCHIVE_DIR"
-    echo "Usage: $0 [path/to/archive.xcarchive]"
-    exit 1
+    usage
 fi
 
 ###########################################

@@ -25,10 +25,11 @@ release_build() {
   xcodebuild \
     -project "$XCODE_PROJECT_DIR" \
     -scheme "$PROJECT_NAME" \
-    -destination "generic/platform=iphoneos" \
+    -sdk iphoneos \
     -configuration Release \
     -derivedDataPath "$DERIVED_DATA_DIR" \
     -disableAutomaticPackageResolution \
+    COMPILER_INDEX_STORE_ENABLE=NO \
     CODE_SIGNING_ALLOWED=NO \
     CODE_SIGNING_REQUIRED=NO \
     CODE_SIGN_IDENTITY="" \
