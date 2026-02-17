@@ -10,7 +10,6 @@ import {
   RelayLocationCityWithVisibility,
   RelayLocationCountryWithVisibility,
   RelayLocationRelayWithVisibility,
-  SpecialLocation,
 } from '../components/views/select-location/select-location-types';
 import {
   IRelayLocationCityRedux,
@@ -222,11 +221,4 @@ function getCityLocationsExpandecBySearch(
 
 export function searchMatch(searchTerm: string, value: string): boolean {
   return value.toLowerCase().includes(searchTerm.toLowerCase());
-}
-
-export function filterSpecialLocations<T>(
-  searchTerm: string,
-  locations: Array<SpecialLocation<T>>,
-): Array<SpecialLocation<T>> {
-  return locations.filter((location) => searchMatch(searchTerm, location.label));
 }
