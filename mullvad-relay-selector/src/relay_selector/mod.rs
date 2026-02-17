@@ -859,6 +859,9 @@ impl RelaySelector {
         let relays = self.get_relays();
         let relays = relays.into_relays();
         let custom_lists: &CustomListsSettings = &self.custom_lists();
+        // Generic criteria.
+        let active = &Criteria::new(|relay: &WireguardRelay| relay.active.reject(Reason::Inactive));
+
         // The relay selection algorithm is embarrassingly parallel: https://en.wikipedia.org/wiki/Embarrassingly_parallel.
         // We may explore the entire search space (`relays` x `criteria`) without any synchronisation
         // between different branches.
@@ -871,8 +874,6 @@ impl RelaySelector {
                 daita,
                 ip_version,
             } => {
-                let active =
-                    &Criteria::new(|relay: &WireguardRelay| relay.active.reject(Reason::Inactive));
                 let location = &Criteria::new(|relay| {
                     let location = matcher::ResolvedLocationConstraint::from_constraint(
                         &location,
@@ -886,7 +887,7 @@ impl RelaySelector {
                 let providers = &Criteria::new(|relay| {
                     matcher::filter_on_providers(&providers, relay).reject(Reason::Providers)
                 });
-                let daita = &Criteria::new(|relay| {
+                let daita = &Criteria::new(move |relay| {
                     let daita_on = daita.as_ref().map(|settings| settings.enabled);
                     matcher::filter_on_daita(&daita_on, relay).reject(Reason::Daita)
                 });
@@ -942,7 +943,39 @@ impl RelaySelector {
                     })
                     .collect()
             }
-            Predicate::Autohop => todo!("Implement partition_relays(Autohop)"),
+            Predicate::Autohop {
+                location,
+                providers,
+                ownership,
+                obfuscation_settings: _,
+                daita: _,
+                ip_version: _,
+            } => {
+                // This case is identical to `singlehop`, except that it does not generally care about: obfuscation settings or daita. In those cases, the VPN traffic may be routed through an alternative entry relay.
+                // TODO: Implement the edge case where the only alternative entry relay must be
+                // selected by the given location constraint.
+                let location = &Criteria::new(|relay| {
+                    let location = matcher::ResolvedLocationConstraint::from_constraint(
+                        &location,
+                        custom_lists,
+                    );
+                    matcher::filter_on_location(&location, relay).reject(Reason::Location)
+                });
+                let ownership = &Criteria::new(|relay| {
+                    matcher::filter_on_ownership(&ownership, relay).reject(Reason::Ownership)
+                });
+                let providers = &Criteria::new(|relay| {
+                    matcher::filter_on_providers(&providers, relay).reject(Reason::Providers)
+                });
+
+                let criteria = [active, location, ownership, providers];
+                relays
+                    .map(|relay| {
+                        let verdict = Criteria::fold(criteria.into_iter(), &relay);
+                        (relay, verdict)
+                    })
+                    .collect()
+            }
             Predicate::Entry => todo!("Implement partition_relays(Entry)"),
             Predicate::Exit => todo!("Implement partition_relays(Exit)"),
         };
@@ -1074,7 +1107,15 @@ pub enum Predicate {
         daita: Constraint<DaitaSettings>,
         ip_version: Constraint<IpVersion>,
     },
-    Autohop,
+    Autohop {
+        location: Constraint<LocationConstraint>,
+        providers: Constraint<Providers>,
+        ownership: Constraint<Ownership>,
+        // Entry-specific constraints.
+        obfuscation_settings: Constraint<ObfuscationSettings>,
+        daita: Constraint<DaitaSettings>,
+        ip_version: Constraint<IpVersion>,
+    },
     // Multihop-only
     Entry,
     Exit,
