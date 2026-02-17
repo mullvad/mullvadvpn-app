@@ -9,7 +9,6 @@ import { Container, Flex, IconButton, LabelTinySemiBold } from '../../../lib/com
 import { View } from '../../../lib/components/view';
 import {
   daitaFilterActive,
-  filterSpecialLocations,
   lwoFilterActive,
   quicFilterActive,
 } from '../../../lib/filter-locations';
@@ -22,7 +21,6 @@ import { NavigationScrollbars } from '../../NavigationScrollbars';
 import { SearchTextField } from '../../search-text-field';
 import {
   CountryLocationList,
-  CustomExitLocationRow,
   CustomListLocationList,
   DaitaFilterChip,
   DisabledEntrySelection,
@@ -36,7 +34,7 @@ import {
 } from './components';
 import { useHandleSelectEntryLocation, useHandleSelectExitLocation } from './hooks';
 import { useScrollPositionContext } from './ScrollPositionContext';
-import { LocationType, SpecialLocation } from './select-location-types';
+import { LocationType } from './select-location-types';
 import {
   StyledContent,
   StyledNavigationBarAttachment,
@@ -190,7 +188,7 @@ export function SelectLocation() {
 }
 
 function SelectLocationContent() {
-  const { locationType, searchTerm } = useSelectLocationViewContext();
+  const { locationType } = useSelectLocationViewContext();
 
   const handleSelectExitLocation = useHandleSelectExitLocation();
   const handleSelectEntryLocation = useHandleSelectEntryLocation();
@@ -201,23 +199,11 @@ function SelectLocationContent() {
   const relaySettings = useNormalRelaySettings();
 
   if (locationType === LocationType.exit) {
-    // Add "Custom" item if a custom relay is selected
-    const specialList: Array<SpecialLocation<undefined>> = [];
-    if (relaySettings === undefined) {
-      specialList.push({
-        label: messages.gettext('Custom'),
-        value: undefined,
-        selected: true,
-        component: CustomExitLocationRow,
-      });
-    }
-
-    const specialLocations = filterSpecialLocations(searchTerm, specialList);
     return (
       <Container horizontalMargin="medium" flexDirection="column" gap="large">
         <CustomListLocationList locationSelection="exit" />
         <CountryLocationList key={locationType} onSelect={handleSelectExitLocation} />
-        <NoSearchResult specialLocationsLength={specialLocations.length} />
+        <NoSearchResult />
       </Container>
     );
   } else {
@@ -229,7 +215,7 @@ function SelectLocationContent() {
       <Container horizontalMargin="medium" flexDirection="column" gap="large">
         <CustomListLocationList locationSelection="entry" />
         <CountryLocationList key={locationType} onSelect={handleSelectEntryLocation} />
-        <NoSearchResult specialLocationsLength={0} />
+        <NoSearchResult />
       </Container>
     );
   }
