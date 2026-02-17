@@ -236,7 +236,7 @@ pub fn init_logger(
 
     #[cfg(all(target_os = "android", debug_assertions))]
     let reg = {
-        let android_layer = paranoid_android::layer("mullvad-daemon");
+        let android_layer = paranoid_android::layer("mullvad-daemon").with_ansi(false);
         reg.with(android_layer)
     };
 
