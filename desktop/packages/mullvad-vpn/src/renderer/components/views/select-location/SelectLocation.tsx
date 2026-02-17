@@ -191,7 +191,6 @@ export function SelectLocation() {
 
 function SelectLocationContent() {
   const { locationType, searchTerm } = useSelectLocationViewContext();
-  const { selectedLocationRef } = useScrollPositionContext();
 
   const handleSelectExitLocation = useHandleSelectExitLocation();
   const handleSelectEntryLocation = useHandleSelectEntryLocation();
@@ -216,12 +215,8 @@ function SelectLocationContent() {
     const specialLocations = filterSpecialLocations(searchTerm, specialList);
     return (
       <Container horizontalMargin="medium" flexDirection="column" gap="large">
-        <CustomListLocationList locationSelection="exit" selectedElementRef={selectedLocationRef} />
-        <CountryLocationList
-          key={locationType}
-          selectedElementRef={selectedLocationRef}
-          onSelect={handleSelectExitLocation}
-        />
+        <CustomListLocationList locationSelection="exit" />
+        <CountryLocationList key={locationType} onSelect={handleSelectExitLocation} />
         <NoSearchResult specialLocationsLength={specialLocations.length} />
       </Container>
     );
@@ -232,15 +227,8 @@ function SelectLocationContent() {
 
     return (
       <Container horizontalMargin="medium" flexDirection="column" gap="large">
-        <CustomListLocationList
-          locationSelection="entry"
-          selectedElementRef={selectedLocationRef}
-        />
-        <CountryLocationList
-          key={locationType}
-          selectedElementRef={selectedLocationRef}
-          onSelect={handleSelectEntryLocation}
-        />
+        <CustomListLocationList locationSelection="entry" />
+        <CountryLocationList key={locationType} onSelect={handleSelectEntryLocation} />
         <NoSearchResult specialLocationsLength={0} />
       </Container>
     );
