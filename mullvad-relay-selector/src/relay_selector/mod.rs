@@ -826,30 +826,6 @@ impl RelaySelector {
 
     // == NEW relay selector API. ==
     // Starting afresh, but this should be used in existing functions.
-
-    /// As oppossed to the prior [`Self::get_relay_by_query`], this function is stateless with
-    /// regards to any particular config / settings. <TODO: Document me more>
-    ///
-    /// # Algorithm
-    /// pseudo-code (implemented mostly in `Criteria`).
-    ///
-    /// ```no_run
-    /// let criterias := [<is relay active?>, <is relay in expected location?>, ..]
-    ///
-    /// for each relay in relay list ..
-    /// let mut reject_reasons := []
-    /// for each criteria in criterias ..
-    /// if let Reject(reason) = critera.eval(relay) {
-    ///   reject_reasons.push(reason)
-    /// }
-    /// ..
-    /// if rejections_reasons.empty() {
-    ///   (relay, Accept),
-    /// } else {
-    ///   (relay, Reject(reject_reasons))
-    /// }
-    ///
-    /// ```
     pub fn partition_relays(
         // TODO: If relay list is an in-parameter, we don't need this to be an associated function.
         &self,
@@ -862,7 +838,43 @@ impl RelaySelector {
         // The relay selection algorithm is embarrassingly parallel: https://en.wikipedia.org/wiki/Embarrassingly_parallel.
         // We may explore the entire search space (`relays` x `criteria`) without any synchronisation
         // between different branches.
-        let verdicts: Vec<(WireguardRelay, Verdict)> = match predicate {
+        let (matches, discards) = relays.partition_map(|relay| {
+            let reasons = predicate.get_relay_match(&relay, custom_lists);
+            if reasons.is_none() {
+                Either::Left(relay)
+            } else {
+                Either::Right((relay, reasons))
+            }
+        });
+        RelayPartitions { matches, discards }
+    }
+}
+
+/// Specify the constraints that should be applied when selecting relays,
+/// along with a context that may affect the selection behavior.
+pub enum Predicate {
+    Singlehop {
+        location: Constraint<LocationConstraint>,
+        providers: Constraint<Providers>,
+        ownership: Constraint<Ownership>,
+        // Entry-specific constraints.
+        obfuscation_settings: Constraint<ObfuscationSettings>,
+        daita: Constraint<DaitaSettings>,
+        ip_version: Constraint<IpVersion>,
+    },
+    Autohop,
+    // Multihop-only
+    Entry,
+    Exit,
+}
+
+impl Predicate {
+    fn get_relay_match(
+        &self,
+        relay: &WireguardRelay,
+        custom_lists: &CustomListsSettings,
+    ) -> Reasons {
+        match self {
             Predicate::Singlehop {
                 location,
                 providers,
@@ -871,36 +883,20 @@ impl RelaySelector {
                 daita,
                 ip_version,
             } => {
-                let active =
-                    &Criteria::new(|relay: &WireguardRelay| relay.active.reject(Reason::Inactive));
-                let location = &Criteria::new(|relay| {
-                    let location = matcher::ResolvedLocationConstraint::from_constraint(
-                        &location,
-                        custom_lists,
-                    );
-                    matcher::filter_on_location(&location, relay).reject(Reason::Location)
-                });
-                let ownership = &Criteria::new(|relay| {
-                    matcher::filter_on_ownership(&ownership, relay).reject(Reason::Ownership)
-                });
-                let providers = &Criteria::new(|relay| {
-                    matcher::filter_on_providers(&providers, relay).reject(Reason::Providers)
-                });
-                let daita = &Criteria::new(|relay| {
-                    let daita_on = daita.as_ref().map(|settings| settings.enabled);
-                    matcher::filter_on_daita(&daita_on, relay).reject(Reason::Daita)
-                });
-                let obfuscation = &Criteria::new(|relay: &WireguardRelay| {
+                let location = matcher::filter_on_location(
+                    &matcher::ResolvedLocationConstraint::from_constraint(location, custom_lists),
+                    relay,
+                );
+                let obfuscation = {
                     use mullvad_types::relay_constraints::SelectedObfuscation::*;
-                    obfuscation_settings
-                        .as_ref()
-                        .is_only_and(|settings| match settings.selected_obfuscation {
+                    obfuscation_settings.as_ref().is_only_and(|settings| {
+                        match settings.selected_obfuscation {
                             Shadowsocks => {
                                 // let wg_data = &relay_list.wireguard;
                                 matcher::filter_on_shadowsocks(
                                     //&wg_data.shadowsocks_port_ranges,
                                     &[(0..=u16::MAX)], // TODO: We might need access to 'Wireguard endpoint data' from relay list.
-                                    &ip_version,
+                                    ip_version,
                                     &settings.shadowsocks,
                                     relay.endpoint(),
                                 )
@@ -924,193 +920,69 @@ impl RelaySelector {
                             // TODO:^ This might not be true. We might want to consider the selected port for
                             // udp2tcp & wireguard port ..
                             Off | Auto | WireguardPort | Udp2Tcp => true,
-                        })
-                        .reject(Reason::Obfuscation)
-                });
-                // TODO: Consolidate with `matcher` module. This is just re-implemented as a POC.
-                let criteria = [active, location, ownership, providers, daita, obfuscation];
-                // &Criteria::new(|relay| {
-                //     // Criterias can reference each other!!
-                //     active.eval(relay)
-                // }),
-                relays
-                    // This part of the algorithm maps each relay to a verdict: Either Accept or
-                    // Reject(Reason).
-                    .map(|relay| {
-                        let verdict = Criteria::fold(criteria.into_iter(), &relay);
-                        (relay, verdict)
+                        }
                     })
-                    .collect()
+                };
+                Reasons {
+                    inactive: !relay.active,
+                    location,
+                    providers: matcher::filter_on_providers(providers, relay),
+                    ownership: matcher::filter_on_ownership(ownership, relay),
+                    ip_version: false, // TODO: Implement filtering by IP version
+                    daita: {
+                        let daita_on = daita.as_ref().map(|settings| settings.enabled);
+                        matcher::filter_on_daita(&daita_on, relay)
+                    },
+                    obfuscation,
+                    port: false,
+                    conflict: false,
+                }
             }
-            Predicate::Autohop => todo!("Implement partition_relays(Autohop)"),
-            Predicate::Entry => todo!("Implement partition_relays(Entry)"),
-            Predicate::Exit => todo!("Implement partition_relays(Exit)"),
-        };
-        // After this mapping, a single reduce is performed to partition the relays based on
-        // their assigned verdict.
-        verdicts
-            .into_iter()
-            .partition_map(|(relay, verdict)| match verdict {
-                Verdict::Accept => Either::Left(relay),
-                Verdict::Reject(rejected) => Either::Right((relay, rejected)),
-            })
-            .into()
-    }
-}
-
-/// A criteria is a function from a _single_ constraint and a relay to a [`Verdict`].
-///
-/// Multiple [`Criteria`] can be evaluated against a single relay at once by [`Criteria::eval`]. A
-/// final verdict is then compiled. If applicable, all reject reasons are accumulated and presented
-/// as a single [`Verdict::Reject`].
-struct Criteria<'a, T> {
-    f: Box<dyn Fn(&T) -> Verdict + 'a>,
-}
-
-impl<'a, T> Criteria<'a, T> {
-    /// Create a new [`Criteria`].
-    fn new(f: impl Fn(&T) -> Verdict + 'a) -> Self {
-        Criteria { f: Box::new(f) }
-    }
-}
-
-impl<'a> Criteria<'a, WireguardRelay> {
-    /// If the given criteria [`f`] evaulates to `false`, the second provided function `reason` is
-    /// run to provide a single [`Reject`] reason. `reason` gets access to the failing relay, which
-    /// means that `reason` may derivce additional information for why this particular relay was
-    /// rejected.
-    ///
-    /// This is a short-hand for how most common [`Criteria`]s will be formulated, and it allows the
-    /// caller to nicely separate the scrutinizing rejection logic from the logic extracting data to
-    /// provide together with the final rejection. In the happy case this carries minimal additional
-    /// runtime overhead compared to [`Criteria::new`], but upon a rejection two functions will run
-    /// instead of one. For more fine-grained control over this behavior, prefer [`Criteria::new`].
-    #[expect(unused)] // TODO: Use or remove.
-    fn otherwise(
-        f: impl Fn(&WireguardRelay) -> bool + 'a,
-        reason: impl Fn(&WireguardRelay) -> Reason + 'a,
-    ) -> Self {
-        Criteria::new(move |relay| f(relay).reject(reason(relay)))
-    }
-
-    /// Evaluate a single [`Criteria`] for a single [`Relay`].
-    fn eval(&self, relay: &WireguardRelay) -> Verdict {
-        (self.f)(relay)
-    }
-
-    /// Evaluate all criterias for a given relay, resulting in a single final verdict.
-    ///
-    /// This function is biased towards [`Verdict::Accept`]. E.g. if `criterias` is emtpy, the
-    /// scrutinized `relay` is accepted.
-    fn fold(criterias: impl Iterator<Item = &'a Self>, relay: &WireguardRelay) -> Verdict {
-        criterias
-            .into_iter()
-            .map(|criteria| criteria.eval(relay))
-            .fold(Verdict::Accept, Verdict::compose)
-    }
-}
-
-/// If a relay is accepted or rejected .
-///
-/// # Note
-/// The associated relay is implied from the environment.
-#[derive(Debug)]
-enum Verdict {
-    Accept,
-    Reject(Vec<Reason>),
-}
-
-impl Verdict {
-    /// Compose two [`Verdict`]s into one single verdict.
-    ///
-    /// This composition is biased towards the negative case, i.e. rejections always take
-    /// precedence. If two rejecting verdicts are composed, all of their reasons are composed as
-    /// well.
-    fn compose(self, other: Verdict) -> Verdict {
-        use Verdict::*;
-        match (self, other) {
-            (Accept, Accept) => Accept,
-            (Accept, Reject(reasons)) | (Reject(reasons), Accept) => Reject(reasons),
-            (Reject(left), Reject(right)) => Reject([left, right].concat()),
+            Predicate::Autohop => todo!(),
+            Predicate::Entry => todo!(),
+            Predicate::Exit => todo!(),
         }
     }
-}
-
-trait VerdictExt {
-    /// TODO: Document
-    fn reject(self, reason: Reason) -> Verdict;
-}
-
-impl VerdictExt for bool {
-    /// Reject with `reason` if `self` is false.
-    fn reject(self, reason: Reason) -> Verdict {
-        if self {
-            Verdict::Accept
-        } else {
-            Verdict::Reject(vec![reason])
-        }
-    }
-}
-
-impl From<(Vec<WireguardRelay>, Vec<(WireguardRelay, Vec<Reason>)>)> for RelayPartitions {
-    /// Map the result of [`Itertools::partition_map`] to [`RelayPartitions`].
-    fn from(partitions: (Vec<WireguardRelay>, Vec<(WireguardRelay, Vec<Reason>)>)) -> Self {
-        Self {
-            matches: partitions.0,
-            discards: partitions.1,
-        }
-    }
-}
-
-/// Specify the constraints that should be applied when selecting relays,
-/// along with a context that may affect the selection behavior.
-pub enum Predicate {
-    Singlehop {
-        location: Constraint<LocationConstraint>,
-        providers: Constraint<Providers>,
-        ownership: Constraint<Ownership>,
-        // Entry-specific constraints.
-        obfuscation_settings: Constraint<ObfuscationSettings>,
-        daita: Constraint<DaitaSettings>,
-        ip_version: Constraint<IpVersion>,
-    },
-    Autohop,
-    // Multihop-only
-    Entry,
-    Exit,
 }
 
 // TODO: Work with references instead of copies?
 #[derive(Debug, Default, PartialEq)]
 pub struct RelayPartitions {
     pub matches: Vec<WireguardRelay>,
-    pub discards: Vec<(WireguardRelay, Vec<Reason>)>,
+    pub discards: Vec<(WireguardRelay, Reasons)>,
 }
 
 /// All possible reasons why a relay was filtered out for a particular query.
 //
 // TODO: Sort all variants in alphanumeric ordering.
-#[derive(Debug, Clone, PartialEq)]
-pub enum Reason {
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Reasons {
     /// TODO: Document
-    Inactive,
+    pub inactive: bool,
     /// TODO: Document
-    Location,
+    pub location: bool,
     /// TODO: Document
-    Providers,
+    pub providers: bool,
     /// TODO: Document
-    Ownership,
+    pub ownership: bool,
     /// TODO: Document
-    IpVersion,
+    pub ip_version: bool,
     /// TODO: Document
-    Daita,
+    pub daita: bool,
     /// TODO: Document
-    Obfuscation,
+    pub obfuscation: bool,
     /// TODO: Document
-    Port,
+    pub port: bool,
     /// TODO: Document
     /// Conflict with other hop.
-    Conflict,
+    pub conflict: bool,
+}
+
+impl Reasons {
+    /// There are no reasons for the relay to be filter out, i.e. it was a match
+    pub fn is_none(&self) -> bool {
+        self == &Reasons::default()
+    }
 }
 
 // == End of new relay selector API. ==
