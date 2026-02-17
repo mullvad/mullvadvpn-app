@@ -52,6 +52,7 @@ struct ConnectionView: View {
                                     .accessibilityIdentifier(
                                         AccessibilityIdentifier.connectionPanelServerLabel.asString
                                     )
+                                    .accessibilityLabel(connectionViewModel.accessibilityLabelForServer ?? "")
                                     .multilineTextAlignment(.leading)
                                     .fixedSize(horizontal: false, vertical: true)
                             }
