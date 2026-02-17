@@ -67,8 +67,9 @@ extension ConnectionView {
                 Text(value)
                     .font(.subheadline)
                     .foregroundStyle(UIColor.primaryTextColor.color)
-                    .accessibilityIdentifier(accessibilityId.asString)
             }
+            .accessibilityElement(children: .combine)
+            .accessibilityIdentifier(accessibilityId.asString)
         }
     }
 }
