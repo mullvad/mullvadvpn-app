@@ -42,6 +42,7 @@ struct ConnectionView: View {
                                     .lineLimit(isExpanded ? 2 : 1)
                                     .font(.title3.weight(.semibold))
                                     .foregroundStyle(UIColor.primaryTextColor.color)
+                                    .accessibilityHidden(true)
                             }
                             if let titleForServer = connectionViewModel.titleForServer {
                                 Text(titleForServer)
