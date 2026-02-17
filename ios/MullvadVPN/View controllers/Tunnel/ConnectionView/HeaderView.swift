@@ -39,6 +39,7 @@ extension ConnectionView {
                                     .foregroundStyle(.white)
                                     .accessibilityIdentifier(AccessibilityIdentifier.relayStatusCollapseButton.asString)
                             }
+                            .accessibilityHint(LocalizedStringKey("Hide additional details about your connection"))
                         }
                         .showIf(viewModel.showsConnectionDetails)
                     }
