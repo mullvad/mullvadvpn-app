@@ -728,7 +728,6 @@ impl SharedTunnelStateValues {
         let config = tun_provider.config_mut();
         if blocking {
             config.set_blocking_config();
-            config.dns_servers = Some(vec![]);
         } else {
             let addrs: Vec<_> = self.dns_config.resolve(&[]).addresses().collect();
             config.dns_servers = if addrs.is_empty() { None } else { Some(addrs) };

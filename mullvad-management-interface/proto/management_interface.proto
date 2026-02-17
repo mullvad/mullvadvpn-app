@@ -223,9 +223,9 @@ message ErrorState {
     // Android only
     INVALID_DNS_SERVERS = 11;
     // Android only
-    INVALID_IPV6_CONFIG = 12;
-    SPLIT_TUNNEL_ERROR = 13;
-    NEED_FULL_DISK_PERMISSIONS = 14;
+    INVALID_IPV6_CONFIG = 14;
+    SPLIT_TUNNEL_ERROR = 12;
+    NEED_FULL_DISK_PERMISSIONS = 13;
   }
 
   enum AuthFailedError {

@@ -1,3 +1,5 @@
+#[cfg(target_os = "android")]
+use crate::android::InetNetwork;
 use crate::net::{IpVersion, TunnelEndpoint};
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -89,7 +91,11 @@ pub enum ErrorStateCause {
     InvalidDnsServers(Vec<IpAddr>),
     /// Android has rejected due to invalid IPV6 config.
     #[cfg(target_os = "android")]
-    InvalidIPv6Config(Vec<IpAddr>, Vec<IpAddr>, Vec<IpAddr>),
+    InvalidIPv6Config {
+        addresses: Vec<IpAddr>,
+        routes: Vec<InetNetwork>,
+        dns_servers: Vec<IpAddr>,
+    },
     /// Failed to create tunnel device.
     #[cfg(target_os = "windows")]
     CreateTunnelDevice { os_error: Option<i32> },
@@ -204,10 +210,14 @@ impl fmt::Display for ErrorStateCause {
                 );
             }
             #[cfg(target_os = "android")]
-            InvalidIPv6Config(addresses, routes, dns_servers) => {
+            InvalidIPv6Config {
+                addresses,
+                routes,
+                dns_servers,
+            } => {
                 return write!(
                     f,
-                    "Invalid ipv6 tunnel configuration addresses: {} routes: {} dns_servers: {}",
+                    "Invalid ipv6 tunnel configuration. addresses: {} routes: {} dns_servers: {}",
                     addresses
                         .iter()
                         .map(IpAddr::to_string)
@@ -215,7 +225,7 @@ impl fmt::Display for ErrorStateCause {
                         .join(", "),
                     routes
                         .iter()
-                        .map(IpAddr::to_string)
+                        .map(InetNetwork::to_string)
                         .collect::<Vec<_>>()
                         .join(", "),
                     dns_servers
