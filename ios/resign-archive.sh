@@ -81,22 +81,29 @@ echo "App profile: $APP_PROFILE"
 echo "Extension profile: $EXTENSION_PROFILE"
 
 ###########################################
-# Extract entitlements from profiles
+# Resolve entitlements from project sources
 ###########################################
 
-extract_entitlements() {
-    local profile_path="$1"
-    local entitlements_path="$2"
-    security cms -D -i "$profile_path" 2>/dev/null \
-        | plutil -extract Entitlements xml1 -o "$entitlements_path" -
+# Use the project's .entitlements files as the source of truth, not the
+# provisioning profiles. Profiles may contain extra capabilities enabled
+# on the App ID that the app does not use (e.g. url-filter-provider).
+
+APP_ENTITLEMENTS_SRC="$SCRIPT_DIR/MullvadVPN/Supporting Files/MullvadVPN.entitlements"
+EXTENSION_ENTITLEMENTS_SRC="$SCRIPT_DIR/PacketTunnel/PacketTunnel.entitlements"
+SECURITY_GROUP_IDENTIFIER="group.net.mullvad.MullvadVPN"
+
+resolve_entitlements() {
+    local src="$1"
+    local dest="$2"
+    sed "s/\$(SECURITY_GROUP_IDENTIFIER)/$SECURITY_GROUP_IDENTIFIER/g" "$src" > "$dest"
 }
 
 APP_ENTITLEMENTS=$(mktemp)
 EXTENSION_ENTITLEMENTS=$(mktemp)
 trap 'rm -f "$APP_ENTITLEMENTS" "$EXTENSION_ENTITLEMENTS"' EXIT
 
-extract_entitlements "$APP_PROFILE" "$APP_ENTITLEMENTS"
-extract_entitlements "$EXTENSION_PROFILE" "$EXTENSION_ENTITLEMENTS"
+resolve_entitlements "$APP_ENTITLEMENTS_SRC" "$APP_ENTITLEMENTS"
+resolve_entitlements "$EXTENSION_ENTITLEMENTS_SRC" "$EXTENSION_ENTITLEMENTS"
 
 echo ""
 echo "App entitlements:"
