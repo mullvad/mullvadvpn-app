@@ -65,7 +65,58 @@ impl TryFrom<Predicate> for mullvad_relay_selector::Predicate {
                     ip_version,
                 })
             }
-            predicate::Context::Autohop(_constraints) => Ok(Self::Autohop),
+            predicate::Context::Autohop(constraints) => {
+                let EntryConstraints {
+                    general_constraints,
+                    obfuscation_settings,
+                    daita_settings,
+                    ip_version,
+                } = constraints;
+
+                // TODO: It might be beneficial to consolidate this whole conversion into a single
+                // type.
+                let (location, providers, ownership) = {
+                    match general_constraints {
+                        None => Default::default(),
+                        Some(constraints) => {
+                            let location = constraints
+                                .location
+                                .map(mullvad_types::relay_constraints::LocationConstraint::try_from)
+                                .transpose()?
+                                .into();
+                            let providers = try_providers_from_proto(constraints.providers)?;
+                            let ownership =
+                                try_ownership_constraint_from_i32(constraints.ownership)?;
+                            (location, providers, ownership)
+                        }
+                    }
+                };
+
+                let ip_version = IpVersion::try_from(ip_version)
+                    .map(talpid_types::net::IpVersion::from)
+                    .map(Constraint::Only)
+                    .map_err(|_| {
+                        FromProtobufTypeError::InvalidArgument("invalid IP protocol version")
+                    })?;
+
+                let obfuscation_settings = obfuscation_settings
+                    .map(mullvad_types::relay_constraints::ObfuscationSettings::try_from)
+                    .transpose()?
+                    .into();
+
+                let daita = daita_settings
+                    .map(mullvad_types::wireguard::DaitaSettings::from)
+                    .into();
+
+                Ok(Self::Autohop {
+                    location,
+                    providers,
+                    ownership,
+                    obfuscation_settings,
+                    daita,
+                    ip_version,
+                })
+            }
             predicate::Context::Entry(_constraints) => Ok(Self::Entry),
             predicate::Context::Exit(_constraints) => Ok(Self::Exit),
         }
