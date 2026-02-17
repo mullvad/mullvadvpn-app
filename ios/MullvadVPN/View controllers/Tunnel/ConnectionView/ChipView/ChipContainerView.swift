@@ -40,6 +40,7 @@ struct ChipContainerView<ViewModel>: View where ViewModel: ChipViewModelProtocol
                 .font(.subheadline)
                 .lineLimit(1)
                 .foregroundStyle(UIColor.primaryTextColor.color)
+                .accessibilityHint(LocalizedStringKey("Show additional details about your connection"))
                 .showIf(showMoreButton)
                 .transition(.move(edge: .bottom).combined(with: .opacity))
 
