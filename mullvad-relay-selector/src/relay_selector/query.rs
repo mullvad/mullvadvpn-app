@@ -605,7 +605,7 @@ pub mod builder {
             }
         }
 
-        /// Enable `UDP2TCP` obufscation. This will in turn enable the option to configure the
+        /// Enable `UDP2TCP` obfuscation. This will in turn enable the option to configure the
         /// `UDP2TCP` port.
         pub fn udp2tcp(
             mut self,
@@ -627,7 +627,7 @@ pub mod builder {
             }
         }
 
-        /// Enable Shadowsocks obufscation. This will in turn enable the option to configure the
+        /// Enable Shadowsocks obfuscation. This will in turn enable the option to configure the
         /// port.
         pub fn shadowsocks(
             mut self,

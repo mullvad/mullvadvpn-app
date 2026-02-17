@@ -69,7 +69,7 @@ pub static RETRY_ORDER: LazyLock<Vec<RelayQuery>> = LazyLock::new(|| {
 #[derive(Clone)]
 pub struct RelaySelector {
     config: Arc<Mutex<SelectorConfig>>,
-    // Relays are updated very infrequenly, but might conceivably be accessed by multiple readers at
+    // Relays are updated very infrequently, but might conceivably be accessed by multiple readers at
     // the same time.
     relays: Arc<RwLock<RelayList>>,
     bridges: Arc<RwLock<BridgeList>>,
@@ -144,7 +144,7 @@ pub struct AdditionalWireguardConstraints {
 /// [`RelaySettings::Normal`]. This is the most common variant, and there exists a
 /// mapping from this variant to [`RelayQueryBuilder`]. Being able to implement
 /// `From<NormalSelectorConfig> for RelayQueryBuilder` was the main motivator for introducing these
-/// seemingly useless derivates of [`SelectorConfig`].
+/// seemingly useless derivatives of [`SelectorConfig`].
 ///
 /// The second one is a custom config, where [`SelectorConfig::relay_settings`] is
 /// [`RelaySettings::CustomTunnelEndpoint`]. For this variant, the endpoint where the client should
@@ -218,8 +218,8 @@ impl TryFrom<Settings> for RelayQuery {
 
     fn try_from(value: Settings) -> Result<Self, Self::Error> {
         let selector_config = SelectorConfig::from_settings(&value);
-        let specilized_selector_config = SpecializedSelectorConfig::from(&selector_config);
-        let SpecializedSelectorConfig::Normal(normal_selector_config) = specilized_selector_config
+        let specialized_selector_config = SpecializedSelectorConfig::from(&selector_config);
+        let SpecializedSelectorConfig::Normal(normal_selector_config) = specialized_selector_config
         else {
             return Err(Error::InvalidConstraints);
         };
@@ -252,7 +252,7 @@ impl<'a> TryFrom<NormalSelectorConfig<'a>> for RelayQuery {
 
     /// Map user settings to [`RelayQuery`].
     fn try_from(value: NormalSelectorConfig<'a>) -> Result<Self, Self::Error> {
-        /// Map the Wireguard-specific bits of `value` to [`WireguradRelayQuery`]
+        /// Map the Wireguard-specific bits of `value` to [`WireguardRelayQuery`]
         fn wireguard_constraints(
             wireguard_constraints: WireguardConstraints,
             additional_constraints: AdditionalWireguardConstraints,
@@ -345,7 +345,7 @@ impl RelaySelector {
         self.relay_list(RelayList::clone)
     }
 
-    /// Returns all bridgees.
+    /// Returns all bridges.
     pub fn get_bridges(&self) -> BridgeList {
         self.bridge_list(BridgeList::clone)
     }
@@ -742,7 +742,7 @@ impl RelaySelector {
             WireguardConfig::Singlehop { exit } => exit,
             WireguardConfig::Multihop { entry, .. } => entry,
         };
-        let box_obfsucation_error = |error: helpers::Error| Error::NoObfuscator(Box::new(error));
+        let box_obfuscation_error = |error: helpers::Error| Error::NoObfuscator(Box::new(error));
 
         match &query.wireguard_constraints().obfuscation {
             ObfuscationQuery::Off => Ok(None),
@@ -760,14 +760,14 @@ impl RelaySelector {
                     endpoint,
                 )
                 .map(Some)
-                .map_err(box_obfsucation_error)
+                .map_err(box_obfuscation_error)
             }
             ObfuscationQuery::Udp2tcp(settings) => {
                 let udp2tcp_ports = &parsed_relays.wireguard.udp2tcp_ports;
 
                 helpers::get_udp2tcp_obfuscator(settings, udp2tcp_ports, obfuscator_relay, endpoint)
                     .map(|obfs| Some(obfs.into()))
-                    .map_err(box_obfsucation_error)
+                    .map_err(box_obfuscation_error)
             }
             ObfuscationQuery::Shadowsocks(settings) => {
                 let port_ranges = &parsed_relays.wireguard.shadowsocks_port_ranges;
@@ -778,7 +778,7 @@ impl RelaySelector {
                     endpoint,
                 )
                 .map(|obfs| obfs.into())
-                .map_err(box_obfsucation_error)?;
+                .map_err(box_obfuscation_error)?;
 
                 Ok(Some(obfuscation))
             }
