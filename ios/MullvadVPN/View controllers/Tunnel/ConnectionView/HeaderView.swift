@@ -18,6 +18,14 @@ extension ConnectionView {
                 withAnimation {
                     isExpanded.toggle()
                 }
+                if UIAccessibility.isVoiceOverRunning {
+                    let message = isExpanded
+                        ? NSLocalizedString("Connection details expanded", comment: "")
+                        : NSLocalizedString("Connection details collapsed", comment: "")
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        UIAccessibility.post(notification: .announcement, argument: message)
+                    }
+                }
             } label: {
                 VStack(alignment: .leading, spacing: 0) {
                     HStack(alignment: .top) {
