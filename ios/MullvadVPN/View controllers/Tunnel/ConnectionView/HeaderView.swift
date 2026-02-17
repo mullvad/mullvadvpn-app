@@ -14,46 +14,34 @@ extension ConnectionView {
         @Binding var isExpanded: Bool
 
         var body: some View {
-            Button {
-                withAnimation {
-                    isExpanded.toggle()
-                }
-                if UIAccessibility.isVoiceOverRunning {
-                    let message = isExpanded
-                        ? NSLocalizedString("Connection details expanded", comment: "")
-                        : NSLocalizedString("Connection details collapsed", comment: "")
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                        UIAccessibility.post(notification: .announcement, argument: message)
-                    }
-                }
-            } label: {
-                VStack(alignment: .leading, spacing: 0) {
-                    HStack(alignment: .top) {
-                        Text(viewModel.localizedTitleForSecureLabel)
-                            .font(.title3.weight(.semibold))
-                            .foregroundStyle(viewModel.textColorForSecureLabel.color)
-                            .accessibilityIdentifier(viewModel.accessibilityIdForSecureLabel.asString)
-                            .accessibilityLabel(viewModel.localizedAccessibilityLabelForSecureLabel)
-                        Group {
-                            Spacer()
-                            Button {
-                                withAnimation {
-                                    isExpanded.toggle()
-                                }
-                            } label: {
-                                Image(.iconChevronUp)
-                                    .renderingMode(.template)
-                                    .rotationEffect(isExpanded ? .degrees(-180) : .degrees(0))
-                                    .foregroundStyle(.white)
-                                    .accessibilityIdentifier(AccessibilityIdentifier.relayStatusCollapseButton.asString)
-                            }
-                            .accessibilityHint(LocalizedStringKey("Hide additional details about your connection"))
+            HStack(alignment: .top) {
+                Text(viewModel.localizedTitleForSecureLabel)
+                    .font(.title3.weight(.semibold))
+                    .foregroundStyle(viewModel.textColorForSecureLabel.color)
+                    .accessibilityIdentifier(viewModel.accessibilityIdForSecureLabel.asString)
+                    .accessibilityLabel(viewModel.localizedAccessibilityLabelForSecureLabel)
+                    .accessibilityRemoveTraits(.isButton)
+                Group {
+                    Spacer()
+                    Button {
+                        withAnimation {
+                            isExpanded.toggle()
                         }
-                        .showIf(viewModel.showsConnectionDetails)
+                    } label: {
+                        Image(.iconChevronUp)
+                            .renderingMode(.template)
+                            .rotationEffect(isExpanded ? .degrees(-180) : .degrees(0))
+                            .foregroundStyle(.white)
                     }
+                    .accessibilityIdentifier(AccessibilityIdentifier.relayStatusCollapseButton.asString)
+                    .accessibilityLabel(
+                        isExpanded
+                            ? LocalizedStringKey("Collapse connection details")
+                            : LocalizedStringKey("Expand connection details")
+                    )
                 }
+                .showIf(viewModel.showsConnectionDetails)
             }
-            .disabled(!viewModel.showsConnectionDetails)
         }
     }
 }
