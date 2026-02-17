@@ -62,7 +62,7 @@ pub fn pick_random_relay_weighted<'a, RelayType>(
         relays.choose(&mut rng)
     } else {
         // Assign each relay a subset of the range 0..total_weight with size equal to its weight.
-        // Pick a random number in the range 1..=total_weight. This choses the relay with a
+        // Pick a random number in the range 1..=total_weight. This chooses the relay with a
         // non-zero weight.
         //
         //                           rng(1..=total_weight)
