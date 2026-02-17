@@ -9,7 +9,6 @@ import {
   IRelayLocationCountryRedux,
   IRelayLocationRelayRedux,
 } from '../../../redux/settings/reducers';
-import type { SpecialLocationRowInnerProps } from './components';
 
 export enum LocationType {
   entry = 0,
@@ -18,18 +17,6 @@ export enum LocationType {
 
 export interface LocationVisibility {
   visible: boolean;
-}
-
-interface CommonLocationSpecification {
-  label: string;
-  selected: boolean;
-  disabled?: boolean;
-  disabledReason?: DisabledReason;
-}
-
-export interface SpecialLocation<T> extends CommonLocationSpecification {
-  value: T;
-  component: React.ComponentType<SpecialLocationRowInnerProps<T>>;
 }
 
 export interface RelayLocationCountryWithVisibility

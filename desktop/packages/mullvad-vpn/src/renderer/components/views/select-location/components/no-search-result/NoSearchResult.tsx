@@ -10,20 +10,12 @@ import {
 } from '../../SelectLocationStyles';
 import { useSelectLocationViewContext } from '../../SelectLocationViewContext';
 
-export interface NoSearchResultProps {
-  specialLocationsLength: number;
-}
-export function NoSearchResult(props: NoSearchResultProps) {
+export function NoSearchResult() {
   const { searchedLocations } = useLocationsContext();
   const { customListLocations } = useCustomListLocationsContext();
   const { searchTerm } = useSelectLocationViewContext();
 
-  if (
-    searchTerm === '' ||
-    searchedLocations.length > 0 ||
-    customListLocations.length > 0 ||
-    props.specialLocationsLength > 0
-  ) {
+  if (searchTerm === '' || searchedLocations.length > 0 || customListLocations.length > 0) {
     return null;
   }
 
