@@ -15,6 +15,7 @@ struct SplitMainButton: View {
     var accessibilityId: AccessibilityIdentifier?
     var secondaryAccessibilityId: AccessibilityIdentifier?
     var secondaryAccessibilityLabel: LocalizedStringKey?
+    var secondaryAccessibilityHint: LocalizedStringKey?
 
     @State private var secondaryButtonSize: CGSize = .zero
     @State private var primaryButtonSize: CGSize = .zero
@@ -54,6 +55,9 @@ struct SplitMainButton: View {
                 })
             .ifLet(secondaryAccessibilityLabel) { view, label in
                 view.accessibilityLabel(label)
+            }
+            .ifLet(secondaryAccessibilityHint) { view, hint in
+                view.accessibilityHint(hint)
             }
             .ifLet(secondaryAccessibilityId) { view, value in
                 view.accessibilityIdentifier(value.asString)

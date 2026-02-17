@@ -35,6 +35,7 @@ extension ConnectionView {
                     accessibilityId: .selectLocationButton,
                     secondaryAccessibilityId: .reconnectButton,
                     secondaryAccessibilityLabel: LocalizedStringKey("Reconnect"),
+                    secondaryAccessibilityHint: LocalizedStringKey("Cycle through available servers"),
                     primaryAction: { action?(.selectLocation) },
                     secondaryAction: { action?(.reconnect) }
                 )
