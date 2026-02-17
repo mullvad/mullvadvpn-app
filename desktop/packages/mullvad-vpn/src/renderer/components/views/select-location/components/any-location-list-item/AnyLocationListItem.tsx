@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 import { sprintf } from 'sprintf-js';
 
-import { RelayLocation } from '../../../../../../shared/daemon-rpc-types';
+import type { RelayLocation as DaemonRelayLocation } from '../../../../../../shared/daemon-rpc-types';
 import { messages } from '../../../../../../shared/gettext';
 import type { ListItemProps } from '../../../../../lib/components/list-item';
 import { LocationListItem } from '../../../../location-list-item';
@@ -19,7 +19,7 @@ export type AnyLocationListItemProps = React.PropsWithChildren<{
   level: ListItemProps['level'];
   position?: ListItemProps['position'];
   disabled?: boolean;
-  onSelect: (value: RelayLocation) => void;
+  onSelect: (value: DaemonRelayLocation) => void;
 }>;
 
 function AnyLocationListItemImpl({
@@ -39,7 +39,7 @@ function AnyLocationListItemImpl({
     if (!location.selected) {
       onSelect(location.details);
     }
-  }, [onSelect, location]);
+  }, [location.details, location.selected, onSelect]);
 
   const selectedRef = location.selected ? selectedLocationRef : undefined;
   return (
