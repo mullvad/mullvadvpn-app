@@ -72,14 +72,18 @@ struct LocationDisclosureGroup<Label: View, Content: View, ContextMenu: View>: V
                         Color.colorForLevel(level)
                     }
             }
-            .accessibilityLabel(
-                isExpanded ? Text("Collapse".localizedCapitalized) : Text("Expand".localizedCapitalized)
-            )
-            .accessibilityIdentifier(.expandButton)
             .contentShape(Rectangle())
         }
         .accessibilityElement(children: .combine)
         .accessibilityIdentifier(accessibilityIdentifier)
+        .accessibilityAction {
+            withAnimation(.default.speed(3)) {
+                isExpanded.toggle()
+            }
+        }
+        .accessibilityAction(named: Text("Select location")) {
+            onSelect?()
+        }
         .clipShape(
             UnevenRoundedRectangle(
                 cornerRadii: .init(
