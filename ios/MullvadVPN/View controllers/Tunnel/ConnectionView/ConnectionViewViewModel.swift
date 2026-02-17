@@ -200,6 +200,26 @@ extension ConnectionViewViewModel {
         }
     }
 
+    var accessibilityLabelForServer: String? {
+        guard let tunnelRelays = tunnelStatus.state.relays else {
+            return nil
+        }
+
+        let exitName = tunnelRelays.exit.hostname
+        if let entryName = tunnelRelays.entry?.hostname {
+            return String(
+                format: NSLocalizedString("Server hostnames: %@ via %@", comment: ""),
+                exitName,
+                entryName
+            )
+        } else {
+            return String(
+                format: NSLocalizedString("Server hostname: %@", comment: ""),
+                exitName
+            )
+        }
+    }
+
     var inAddress: String? {
         guard let tunnelRelays = tunnelStatus.state.relays else {
             return nil
