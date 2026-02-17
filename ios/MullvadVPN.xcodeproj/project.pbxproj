@@ -13,6 +13,7 @@
 		014E8C312F294FB000837D0A /* relays-test-data.json in Resources */ = {isa = PBXBuildFile; fileRef = 014E8C2F2F294FB000837D0A /* relays-test-data.json */; };
 		01B2FF862D70B914004AED35 /* MullvadRustRuntime.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A992DA1D2C24709F00DE7CE5 /* MullvadRustRuntime.framework */; };
 		01C981E82F43C3410002D284 /* BlockedStateReason+Localization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01C981E52F43C3410002D284 /* BlockedStateReason+Localization.swift */; };
+		01C981EA2F43C3410002D284 /* BlockedStateReason+Localization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01C981E52F43C3410002D284 /* BlockedStateReason+Localization.swift */; };
 		01C981E92F43C3410002D284 /* TunnelStateAccessibilityAnnouncer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01C981E62F43C3410002D284 /* TunnelStateAccessibilityAnnouncer.swift */; };
 		01D13C212F11130500EC63DE /* RustLogging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01D13C202F11130500EC63DE /* RustLogging.swift */; };
 		01EF6F342B6A590700125696 /* libmullvad_api.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 01EF6F332B6A590700125696 /* libmullvad_api.a */; };
@@ -6091,6 +6092,7 @@
 				7ABFB09E2BA316220074A49E /* RelayConstraintsTests.swift in Sources */,
 				F072D3D22C071AD100906F64 /* ShadowsocksLoaderTests.swift in Sources */,
 				F050AE5C2B73797D003F4EDB /* CustomListRepositoryTests.swift in Sources */,
+				01C981EA2F43C3410002D284 /* BlockedStateReason+Localization.swift in Sources */,
 				A9A5F9F62ACB05160083449F /* TunnelStatusNotificationProvider.swift in Sources */,
 				A9A5F9F72ACB05160083449F /* NotificationProviderProtocol.swift in Sources */,
 				A9A5F9F92ACB05160083449F /* NotificationProvider.swift in Sources */,
