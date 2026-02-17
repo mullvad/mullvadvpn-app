@@ -6,8 +6,12 @@ import {
   CustomListLocationListItemProvider,
   useCustomListLocationListItemContext,
 } from './CustomListLocationListItemContext';
+import { useHandleSelectCustomList } from './hooks';
 
-export type CustomListLocationListItemProps = Omit<AnyLocationListItemProps, 'location'> & {
+export type CustomListLocationListItemProps = Omit<
+  AnyLocationListItemProps,
+  'location' | 'onSelect'
+> & {
   disabled?: boolean;
   customList: CustomListLocation;
 };
@@ -19,6 +23,7 @@ function CustomListLocationListItemImpl({
   ...props
 }: CustomListLocationListItemProps) {
   const { loading } = useCustomListLocationListItemContext();
+  const handleSelectCustomList = useHandleSelectCustomList();
 
   return (
     <AnyLocationListItem
@@ -26,6 +31,7 @@ function CustomListLocationListItemImpl({
       rootLocation="customList"
       level={level}
       disabled={disabled || loading}
+      onSelect={handleSelectCustomList}
       {...props}>
       <AnimatedList>
         {customList.locations.map((child, idx) => {
@@ -37,6 +43,7 @@ function CustomListLocationListItemImpl({
                 disabled={disabled || loading}
                 level={level !== undefined ? level + 1 : undefined}
                 position={idx !== customList.locations.length - 1 ? 'middle' : undefined}
+                onSelect={handleSelectCustomList}
                 {...props}
               />
             </AnimatedList.Item>

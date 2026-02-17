@@ -2,8 +2,6 @@ import { sprintf } from 'sprintf-js';
 
 import { messages } from '../../../../../../shared/gettext';
 import { formatHtml } from '../../../../../lib/html-formatter';
-import { useCustomListLocationsContext } from '../../CustomListLocationsContext';
-import { useLocationsContext } from '../../LocationsContext';
 import {
   StyledSelectionUnavailable,
   StyledSelectionUnavailableText,
@@ -11,14 +9,7 @@ import {
 import { useSelectLocationViewContext } from '../../SelectLocationViewContext';
 
 export function NoSearchResult() {
-  const { searchedLocations } = useLocationsContext();
-  const { customListLocations } = useCustomListLocationsContext();
   const { searchTerm } = useSelectLocationViewContext();
-
-  if (searchTerm === '' || searchedLocations.length > 0 || customListLocations.length > 0) {
-    return null;
-  }
-
   return (
     <StyledSelectionUnavailable>
       <StyledSelectionUnavailableText>

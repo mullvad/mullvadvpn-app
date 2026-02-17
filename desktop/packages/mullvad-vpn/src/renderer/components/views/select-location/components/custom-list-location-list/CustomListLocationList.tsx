@@ -6,6 +6,7 @@ import { AnimatedList } from '../../../../../lib/components/animated-list';
 import { FlexColumn } from '../../../../../lib/components/flex-column';
 import { spacings } from '../../../../../lib/foundations';
 import { useCustomListLocationsContext } from '../../CustomListLocationsContext';
+import { useHasCustomLists } from '../../hooks';
 import { AddCustomListForm } from '../add-custom-list-form/AddCustomListForm';
 import { CustomListLocationListItem } from '../custom-list-location-list-item';
 import { CustomListsSectionTitle } from './components';
@@ -13,17 +14,6 @@ import {
   CustomListLocationListProvider,
   useCustomListListContext,
 } from './CustomListLocationListContext';
-import {
-  useHandleSelectCustomList,
-  useHasCustomLists,
-  useHasNoCustomListsInSearchResult,
-} from './hooks';
-
-export type LocationSelection = 'entry' | 'exit';
-
-export type CustomListListProps = {
-  locationSelection: LocationSelection;
-};
 
 const StyledAnimatedList = styled(AnimatedList)`
   display: flex;
@@ -33,20 +23,14 @@ const StyledAnimatedList = styled(AnimatedList)`
 const StyledAnimatedListItem = styled(AnimatedList.Item)`
   // Add spacing to the last child
   & > :last-child {
-    margin-bottom: ${spacings.small};
+    margin-bottom: ${spacings.tiny};
   }
 `;
 
 function CustomListLocationListImpl() {
   const { customListLocations } = useCustomListLocationsContext();
   const { addFormVisible, addingForm } = useCustomListListContext();
-  const handleSelectCustomList = useHandleSelectCustomList();
-  const hasNoCustomListsInSearchResult = useHasNoCustomListsInSearchResult();
   const hasCustomLists = useHasCustomLists();
-
-  if (hasNoCustomListsInSearchResult) {
-    return null;
-  }
 
   return (
     <FlexColumn gap="tiny">
@@ -62,11 +46,7 @@ function CustomListLocationListImpl() {
           {customListLocations.map((customList) => {
             return (
               <StyledAnimatedListItem key={Object.values(customList.details).join('-')}>
-                <CustomListLocationListItem
-                  customList={customList}
-                  level={0}
-                  onSelect={handleSelectCustomList}
-                />
+                <CustomListLocationListItem customList={customList} level={0} />
               </StyledAnimatedListItem>
             );
           })}
@@ -95,10 +75,10 @@ function CustomListLocationListImpl() {
   );
 }
 
-export function CustomListLocationList({ locationSelection, ...props }: CustomListListProps) {
+export function CustomListLocationList() {
   return (
-    <CustomListLocationListProvider locationSelection={locationSelection}>
-      <CustomListLocationListImpl {...props} />
+    <CustomListLocationListProvider>
+      <CustomListLocationListImpl />
     </CustomListLocationListProvider>
   );
 }

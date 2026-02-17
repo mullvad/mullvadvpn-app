@@ -5,6 +5,7 @@ import { messages } from '../../../../shared/gettext';
 import { RoutePath } from '../../../../shared/routes';
 import { useObfuscation } from '../../../features/anti-censorship/hooks';
 import { useDaitaDirectOnly, useDaitaEnabled } from '../../../features/daita/hooks';
+import { useMultihop } from '../../../features/multihop/hooks';
 import { Container, Flex, IconButton, LabelTinySemiBold } from '../../../lib/components';
 import { View } from '../../../lib/components/view';
 import {
@@ -20,19 +21,16 @@ import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
 import { SearchTextField } from '../../search-text-field';
 import {
-  CountryLocationList,
-  CustomListLocationList,
   DaitaFilterChip,
   DisabledEntrySelection,
+  LocationLists,
   LwoFilterChip,
-  NoSearchResult,
   OwnershipFilterChip,
   ProvidersFilterChip,
   QuicFilterChip,
   ScopeBarItem,
   SpacePreAllocationView,
 } from './components';
-import { useHandleSelectEntryLocation, useHandleSelectExitLocation } from './hooks';
 import { useScrollPositionContext } from './ScrollPositionContext';
 import { LocationType } from './select-location-types';
 import {
@@ -190,33 +188,24 @@ export function SelectLocation() {
 function SelectLocationContent() {
   const { locationType } = useSelectLocationViewContext();
 
-  const handleSelectExitLocation = useHandleSelectExitLocation();
-  const handleSelectEntryLocation = useHandleSelectEntryLocation();
-
   const { daitaEnabled } = useDaitaEnabled();
   const { daitaDirectOnly } = useDaitaDirectOnly();
+  const { multihop } = useMultihop();
 
-  const relaySettings = useNormalRelaySettings();
-
-  if (locationType === LocationType.exit) {
-    return (
-      <Container horizontalMargin="medium" flexDirection="column" gap="large">
-        <CustomListLocationList locationSelection="exit" />
-        <CountryLocationList key={locationType} onSelect={handleSelectExitLocation} />
-        <NoSearchResult />
-      </Container>
-    );
-  } else {
-    if (daitaEnabled && !daitaDirectOnly && relaySettings?.wireguard.useMultihop) {
+  if (locationType === LocationType.entry) {
+    if (daitaEnabled && !daitaDirectOnly && multihop) {
       return <DisabledEntrySelection />;
     }
-
-    return (
-      <Container horizontalMargin="medium" flexDirection="column" gap="large">
-        <CustomListLocationList locationSelection="entry" />
-        <CountryLocationList key={locationType} onSelect={handleSelectEntryLocation} />
-        <NoSearchResult />
-      </Container>
-    );
   }
+
+  return (
+    <Container
+      // Set key to reset list when switching between entry and exit
+      key={locationType === LocationType.entry ? 'entry' : 'exit'}
+      horizontalMargin="medium"
+      flexDirection="column"
+      gap="large">
+      <LocationLists type={locationType} />
+    </Container>
+  );
 }
