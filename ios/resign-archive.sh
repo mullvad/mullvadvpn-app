@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-# This script signs an existing .xcarchive and exports it as an IPA
-# for distribution. It expects provisioning profiles and signing keys
-# to be available on this machine.
+# This script signs an existing unsigned .xcarchive and exports it as
+# an IPA for distribution. It manually codesigns all binaries since
+# xcodebuild -exportArchive cannot re-sign a fully unsigned archive.
 set -eu
 shopt -s nullglob
 
@@ -34,7 +34,13 @@ IOS_PROVISIONING_PROFILES_DIR="$1"
 PROJECT_NAME="MullvadVPN"
 BUILD_OUTPUT_DIR="$SCRIPT_DIR/Build"
 XCODE_ARCHIVE_DIR="${2:-$BUILD_OUTPUT_DIR/$PROJECT_NAME.xcarchive}"
-EXPORT_OPTIONS_PATH="$SCRIPT_DIR/ExportOptions.plist"
+
+SIGNING_IDENTITY="Apple Distribution: Mullvad VPN AB"
+APP_BUNDLE_ID="net.mullvad.MullvadVPN"
+EXTENSION_BUNDLE_ID="net.mullvad.MullvadVPN.PacketTunnel"
+
+APP_DIR="$XCODE_ARCHIVE_DIR/Products/Applications/$PROJECT_NAME.app"
+EXTENSION_DIR="$APP_DIR/PlugIns/PacketTunnel.appex"
 
 if [[ ! -d "$IOS_PROVISIONING_PROFILES_DIR" ]]; then
     echo "Error: Provisioning profiles directory not found at $IOS_PROVISIONING_PROFILES_DIR"
@@ -47,54 +53,109 @@ if [[ ! -d "$XCODE_ARCHIVE_DIR" ]]; then
 fi
 
 ###########################################
-# Install provisioning profiles
+# Locate provisioning profiles
 ###########################################
 
-SYSTEM_PROVISIONING_PROFILES_DIR="$HOME/Library/MobileDevice/Provisioning Profiles"
-
-get_mobile_provisioning_uuid() {
-  security cms -D -i "$1" | grep -aA1 UUID | grep -o "[-a-zA-Z0-9]\{36\}"
-}
-
-install_mobile_provisioning() {
-    echo "Install system provisioning profiles into $SYSTEM_PROVISIONING_PROFILES_DIR"
-
-    if [[ ! -d "$SYSTEM_PROVISIONING_PROFILES_DIR" ]]; then
-        echo "Missing system provisioning profiles directory. Creating one."
-        mkdir -p "$SYSTEM_PROVISIONING_PROFILES_DIR"
-    fi
-
-    for mobile_provisioning_path in "$IOS_PROVISIONING_PROFILES_DIR"/*.mobileprovision; do
-        local profile_uuid
-        profile_uuid=$(get_mobile_provisioning_uuid "$mobile_provisioning_path")
-        local target_path="$SYSTEM_PROVISIONING_PROFILES_DIR/$profile_uuid.mobileprovision"
-
-        if [[ -f "$target_path" ]]; then
-            echo "Skip installing $mobile_provisioning_path"
-        else
-            echo "Install $mobile_provisioning_path -> $target_path"
-
-            cp "$mobile_provisioning_path" "$target_path"
+# Find the provisioning profile for a given bundle ID by inspecting the
+# embedded application-identifier entitlement.
+find_profile_for_bundle_id() {
+    local target_bundle_id="$1"
+    for profile_path in "$IOS_PROVISIONING_PROFILES_DIR"/*.mobileprovision; do
+        local app_id
+        app_id=$(security cms -D -i "$profile_path" 2>/dev/null \
+            | plutil -extract Entitlements.application-identifier raw -o - -)
+        # application-identifier is "TEAMID.bundle.id"
+        if [[ "$app_id" == *".$target_bundle_id" ]]; then
+            echo "$profile_path"
+            return 0
         fi
     done
+    echo "Error: No provisioning profile found for bundle ID $target_bundle_id" >&2
+    exit 1
 }
 
-install_mobile_provisioning
+APP_PROFILE=$(find_profile_for_bundle_id "$APP_BUNDLE_ID")
+EXTENSION_PROFILE=$(find_profile_for_bundle_id "$EXTENSION_BUNDLE_ID")
+
+echo "App profile: $APP_PROFILE"
+echo "Extension profile: $EXTENSION_PROFILE"
 
 ###########################################
-# Sign and export IPA
+# Extract entitlements from profiles
+###########################################
+
+extract_entitlements() {
+    local profile_path="$1"
+    local entitlements_path="$2"
+    security cms -D -i "$profile_path" 2>/dev/null \
+        | plutil -extract Entitlements xml1 -o "$entitlements_path" -
+}
+
+APP_ENTITLEMENTS=$(mktemp)
+EXTENSION_ENTITLEMENTS=$(mktemp)
+trap 'rm -f "$APP_ENTITLEMENTS" "$EXTENSION_ENTITLEMENTS"' EXIT
+
+extract_entitlements "$APP_PROFILE" "$APP_ENTITLEMENTS"
+extract_entitlements "$EXTENSION_PROFILE" "$EXTENSION_ENTITLEMENTS"
+
+echo ""
+echo "App entitlements:"
+cat "$APP_ENTITLEMENTS"
+echo ""
+echo "Extension entitlements:"
+cat "$EXTENSION_ENTITLEMENTS"
+echo ""
+
+###########################################
+# Embed provisioning profiles
+###########################################
+
+echo "Embedding provisioning profiles..."
+cp "$APP_PROFILE" "$APP_DIR/embedded.mobileprovision"
+cp "$EXTENSION_PROFILE" "$EXTENSION_DIR/embedded.mobileprovision"
+
+###########################################
+# Codesign
+###########################################
+
+# Sign frameworks first (no entitlements needed)
+echo "Signing frameworks..."
+for framework in "$APP_DIR"/Frameworks/*.framework; do
+    echo "  $(basename "$framework")"
+    codesign --force --sign "$SIGNING_IDENTITY" --timestamp "$framework"
+done
+
+# Sign the extension
+echo "Signing PacketTunnel extension..."
+codesign --force --sign "$SIGNING_IDENTITY" --timestamp \
+    --entitlements "$EXTENSION_ENTITLEMENTS" \
+    "$EXTENSION_DIR"
+
+# Sign the main app
+echo "Signing main app..."
+codesign --force --sign "$SIGNING_IDENTITY" --timestamp \
+    --entitlements "$APP_ENTITLEMENTS" \
+    "$APP_DIR"
+
+###########################################
+# Package IPA
 ###########################################
 
 echo ""
-echo "Signing archive: $XCODE_ARCHIVE_DIR"
-echo ""
+echo "Packaging IPA..."
 
-xcodebuild \
-    -exportArchive \
-    -archivePath "$XCODE_ARCHIVE_DIR" \
-    -exportOptionsPlist "$EXPORT_OPTIONS_PATH" \
-    -exportPath "$BUILD_OUTPUT_DIR" \
-    -disableAutomaticPackageResolution
+IPA_STAGING=$(mktemp -d)
+IPA_PATH="$BUILD_OUTPUT_DIR/$PROJECT_NAME.ipa"
+trap 'rm -f "$APP_ENTITLEMENTS" "$EXTENSION_ENTITLEMENTS"; rm -rf "$IPA_STAGING"' EXIT
+
+mkdir -p "$IPA_STAGING/Payload"
+cp -a "$APP_DIR" "$IPA_STAGING/Payload/"
+(cd "$IPA_STAGING" && zip -qr "$IPA_PATH" Payload)
 
 echo ""
-echo "Signed IPA exported to: $BUILD_OUTPUT_DIR"
+echo "Signed IPA exported to: $IPA_PATH"
+
+# Verify signature
+echo ""
+echo "Verifying signature..."
+codesign -dvv "$APP_DIR" 2>&1 | grep -E "^(Authority|TeamIdentifier|Identifier)"
