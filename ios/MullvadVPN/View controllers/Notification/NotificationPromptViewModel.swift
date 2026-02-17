@@ -21,7 +21,7 @@ protocol NotificationPromptViewModelProtocol: ObservableObject {
 
 enum NotificationPromptViewRowType: Identifiable {
     case header(image: Image, text: LocalizedStringKey)
-    case message(LocalizedStringKey)
+    case message(LocalizedStringKey, font: Font)
     case action(
         text: LocalizedStringKey,
         style: MainButtonStyle.Style,
@@ -44,17 +44,20 @@ final class NotificationPromptViewModel: NotificationPromptViewModelProtocol {
     var rows: [NotificationPromptViewRowType] {
         [
             .emptyView,
-            .header(image: .mullvadIconAlert, text: "Set up notifications"),
-            .message("Stay informed about your VPN connection and any actions needed to ensure it works correctly."),
-            .message("We will never send you any ads or tips."),
+            .header(image: .mullvadIconInfo, text: "Set up notifications"),
+            .message(
+                "Stay informed about your VPN connection and any actions needed to ensure it works correctly.",
+                font: .mullvadSmall),
+            .message("We will never send you any ads or tips.", font: .body),
             .emptyView,
             isNotificationsDisabled
                 ? NotificationPromptViewRowType.message(
-                    "Notifications for Mullvad VPN are disabled on this device. Please change your system settings for Mullvad VPN if you wish to enable them again. These settings can be changed at any time."
-                )
-                : NotificationPromptViewRowType.message("These settings can be changed at any time"),
+                    "Notifications for Mullvad VPN are disabled on this device. Please change your system settings for Mullvad VPN if you wish to enable them again. These settings can be changed at any time.",
+                    font: .mullvadTiny)
+                : NotificationPromptViewRowType.message(
+                    "These settings can be changed at any time", font: .mullvadTiny),
             .action(
-                text: "Enable notifications",
+                text: isNotificationsDisabled ? "Open system settings" : "Enable notifications",
                 style: .success,
                 accessibilityIdentifier: .notificationPromptEnableButton,
                 action: { [weak self] in
