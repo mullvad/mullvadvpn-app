@@ -1,5 +1,5 @@
 //! Client that returns and takes mullvad types as arguments instead of prost-generated types
-use crate::{grpc_transport_channel, types};
+use crate::types;
 #[cfg(not(target_os = "android"))]
 use futures::{Stream, StreamExt};
 #[cfg(all(daita, not(target_os = "android")))]
@@ -729,12 +729,14 @@ impl TryFrom<types::LeakInfo> for LeakInfo {
 }
 
 // TODO: Move this somewhere else
+#[cfg(not(target_os = "android"))]
 pub struct RelaySelectorClient(crate::RelaySelectorServiceClient);
 
 // TODO: Move this somewhere else
+#[cfg(not(target_os = "android"))]
 impl RelaySelectorClient {
     pub async fn new() -> Result<Self> {
-        let channel = grpc_transport_channel().await?;
+        let channel = crate::grpc_transport_channel().await?;
         let client = crate::RelaySelectorServiceClient::new(channel);
         Ok(Self(client))
     }

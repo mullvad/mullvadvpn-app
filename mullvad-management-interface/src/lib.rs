@@ -142,6 +142,7 @@ pub async fn new_management_service_client() -> Result<ManagementServiceClient, 
 
 /// Create a [Channel] for communication between any of the available gRPC clients (e.g.
 /// [ManagementServiceClient]) and the management interface gRPC service.
+#[cfg(not(target_os = "android"))]
 pub(crate) async fn grpc_transport_channel() -> Result<Channel, Error> {
     use futures::TryFutureExt;
 
