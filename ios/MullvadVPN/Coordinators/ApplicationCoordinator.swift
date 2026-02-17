@@ -94,7 +94,9 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
         router = ApplicationRouter(self)
 
         addTunnelObserver()
-        tunnelStateAccessibilityAnnouncer = TunnelStateAccessibilityAnnouncer(tunnelManager: tunnelManager)
+        Task { @MainActor in
+            self.tunnelStateAccessibilityAnnouncer = TunnelStateAccessibilityAnnouncer(tunnelManager: tunnelManager)
+        }
 
         NotificationManager.shared.delegate = self
     }
