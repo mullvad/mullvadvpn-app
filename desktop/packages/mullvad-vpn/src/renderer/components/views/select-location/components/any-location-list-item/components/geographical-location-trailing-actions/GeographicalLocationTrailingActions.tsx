@@ -2,6 +2,7 @@ import React from 'react';
 import { sprintf } from 'sprintf-js';
 
 import { messages } from '../../../../../../../../shared/gettext';
+import { useCustomLists } from '../../../../../../../features/location/hooks';
 import { useAccordionContext } from '../../../../../../../lib/components/accordion/AccordionContext';
 import { useListItemContext } from '../../../../../../../lib/components/list-item/ListItemContext';
 import { LocationListItem } from '../../../../../../location-list-item';
@@ -20,13 +21,14 @@ export function GeographicalLocationTrailingActions({
   location,
 }: GeographicalLocationTrailingActionsProps) {
   const { rootLocation } = useAnyLocationListItemContext();
+  const { customLists } = useCustomLists();
   const { level } = useListItemContext();
   const { expanded } = useAccordionContext();
 
   const childLocations = getLocationChildrenByType(location);
 
   const showAccordionTrigger = childLocations.length > 0;
-  const showAddToCustomListButton = rootLocation === 'geographical';
+  const showAddToCustomListButton = rootLocation === 'geographical' && customLists.length > 0;
   const showRemoveFromCustomListButton = rootLocation === 'customList' && level === 1;
 
   const hasAnyTrailingAction =
