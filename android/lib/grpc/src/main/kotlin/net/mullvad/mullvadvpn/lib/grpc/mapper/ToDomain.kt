@@ -12,8 +12,12 @@ import mullvad_daemon.management_interface.ManagementInterface
 import mullvad_daemon.management_interface.entryLocationOrNull
 import mullvad_daemon.management_interface.locationOrNull
 import mullvad_daemon.management_interface.recentsOrNull
+import mullvad_daemon.relay_selector.RelaySelector
+import net.mullvad.mullvadvpn.lib.model.DiscardedRelay
 import net.mullvad.mullvadvpn.lib.grpc.GrpcConnectivityState
+import net.mullvad.mullvadvpn.lib.model.IncompatibleConstraints
 import net.mullvad.mullvadvpn.lib.grpc.RelayNameComparator
+import net.mullvad.mullvadvpn.lib.model.RelayPartitions
 import net.mullvad.mullvadvpn.lib.model.AccountData
 import net.mullvad.mullvadvpn.lib.model.AccountId
 import net.mullvad.mullvadvpn.lib.model.AccountNumber
@@ -766,3 +770,25 @@ internal fun ManagementInterface.Recent.toDomain(): Recent =
 
         ManagementInterface.Recent.TypeCase.TYPE_NOT_SET -> error("Recent type must be set")
     }
+
+internal fun RelaySelector.RelayPartitions.toDomain() =
+    RelayPartitions(
+        matches = matchesList.map { GeoLocationId.Hostname.from(it.hostname) },
+        discards = discardsList.map { it.toDomain() },
+    )
+
+internal fun RelaySelector.DiscardedRelay.toDomain() =
+    DiscardedRelay(GeoLocationId.Hostname.from(relay.hostname), why = why.toDomain())
+
+internal fun RelaySelector.IncompatibleConstraints.toDomain() =
+    IncompatibleConstraints(
+        inactive = inactive,
+        location = location,
+        providers = providers,
+        ownership = ownership,
+        ipVersion = ipVersion,
+        daita = daita,
+        obfuscation = obfuscation,
+        port = port,
+        conflictWithOtherHop = conflictWithOtherHop,
+    )

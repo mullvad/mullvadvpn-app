@@ -34,7 +34,12 @@ sealed interface GeoLocationId : RelayItemId, Parcelable {
     @optics
     @Parcelize
     data class Hostname(val city: City, override val code: String) : GeoLocationId {
-        companion object
+        companion object {
+            fun from(hostname: String): Hostname {
+                val (country, city, code) = hostname.split('-', limit = 3)
+                return Hostname(City(Country(country), city), code)
+            }
+        }
     }
 
     val code: String

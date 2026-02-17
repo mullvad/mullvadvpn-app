@@ -1,6 +1,11 @@
 package net.mullvad.mullvadvpn.lib.grpc.mapper
 
 import mullvad_daemon.management_interface.ManagementInterface
+import mullvad_daemon.relay_selector.RelaySelector
+import net.mullvad.mullvadvpn.lib.model.EntryConstraints
+import net.mullvad.mullvadvpn.lib.model.ExitConstraints
+import net.mullvad.mullvadvpn.lib.model.MultihopConstraints
+import net.mullvad.mullvadvpn.lib.model.RelaySelectorPredicate
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethod
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodId
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodSetting
@@ -8,6 +13,7 @@ import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.CustomDnsOptions
 import net.mullvad.mullvadvpn.lib.model.CustomList
 import net.mullvad.mullvadvpn.lib.model.CustomListId
+import net.mullvad.mullvadvpn.lib.model.DaitaSettings
 import net.mullvad.mullvadvpn.lib.model.DefaultDnsOptions
 import net.mullvad.mullvadvpn.lib.model.DnsOptions
 import net.mullvad.mullvadvpn.lib.model.DnsState
@@ -270,4 +276,64 @@ internal fun IpVersion.fromDomain(): ManagementInterface.IpVersion =
     when (this) {
         IpVersion.IPV4 -> ManagementInterface.IpVersion.V4
         IpVersion.IPV6 -> ManagementInterface.IpVersion.V6
+    }
+
+internal fun RelaySelectorPredicate.fromDomain(): RelaySelector.Predicate =
+    when (this) {
+        is RelaySelectorPredicate.Autohop -> fromDomain()
+        is RelaySelectorPredicate.Entry -> fromDomain()
+        is RelaySelectorPredicate.Exit -> fromDomain()
+        is RelaySelectorPredicate.SingleHop -> fromDomain()
+    }
+
+internal fun RelaySelectorPredicate.SingleHop.fromDomain() =
+    RelaySelector.Predicate.newBuilder().setSinglehop(entryConstraints.fromDomain()).build()
+
+internal fun RelaySelectorPredicate.Autohop.fromDomain() =
+    RelaySelector.Predicate.newBuilder().setAutohop(entryConstraints.fromDomain()).build()
+
+internal fun RelaySelectorPredicate.Entry.fromDomain() =
+    RelaySelector.Predicate.newBuilder().setEntry(multihopConstraints.fromDomain()).build()
+
+internal fun RelaySelectorPredicate.Exit.fromDomain() =
+    RelaySelector.Predicate.newBuilder().setExit(multihopConstraints.fromDomain()).build()
+
+internal fun MultihopConstraints.fromDomain(): RelaySelector.MultiHopConstraints =
+    RelaySelector.MultiHopConstraints.newBuilder()
+        .setEntry(entryConstraints.fromDomain())
+        .setExit(exitConstraints.fromDomain())
+        .build()
+
+internal fun EntryConstraints.fromDomain(): RelaySelector.EntryConstraints =
+    RelaySelector.EntryConstraints.newBuilder()
+        .setGeneralConstraints(generalConstraints.fromDomain())
+        .applyIfOnly(obfuscation) { setObfuscationSettings(it.fromDomain()) }
+        .applyIfOnly(daitaSettings) { setDaitaSettings(it.fromDomain()) }
+        .applyIfOnly(ipVersion) { setIpVersion(it.fromDomain()) }
+        .build()
+
+internal fun ExitConstraints.fromDomain(): RelaySelector.ExitConstraints =
+    RelaySelector.ExitConstraints.newBuilder()
+        .setLocation(location.fromDomain())
+        .setOwnership(ownership.fromDomain())
+        .addAllProviders(providers.fromDomain1())
+        .build()
+
+internal fun DaitaSettings.fromDomain(): ManagementInterface.DaitaSettings =
+    ManagementInterface.DaitaSettings.newBuilder()
+        .setEnabled(enabled)
+        .setDirectOnly(directOnly)
+        .build()
+
+internal fun Constraint<Providers>.fromDomain1(): List<RelaySelector.Provider> =
+    when (this) {
+        is Constraint.Any -> emptyList()
+        is Constraint.Only ->
+            value.map { RelaySelector.Provider.newBuilder().setName(it.value).build() }
+    }
+
+fun <L, T> L.applyIfOnly(constraint: Constraint<T>, transform: L.(T) -> L): L =
+    when (constraint) {
+        Constraint.Any -> this
+        is Constraint.Only<T> -> this.transform(constraint.value)
     }
