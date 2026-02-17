@@ -18,11 +18,7 @@ const StyledLocationContainer = styled.div`
   }
 `;
 
-export function CountryLocationList({
-  onSelect,
-  selectedElementRef,
-  ...props
-}: CountryLocationListProps) {
+export function CountryLocationList({ onSelect, ...props }: CountryLocationListProps) {
   const { searchTerm } = useSelectLocationViewContext();
   const { searchedLocations } = useLocationsContext();
 
@@ -44,7 +40,6 @@ export function CountryLocationList({
                 <GeographicalLocationListItem
                   location={country}
                   level={0}
-                  selectedElementRef={selectedElementRef}
                   onSelect={onSelect}
                   {...props}
                 />
