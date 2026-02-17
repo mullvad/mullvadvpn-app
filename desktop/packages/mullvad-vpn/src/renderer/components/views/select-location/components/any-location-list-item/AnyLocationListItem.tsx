@@ -5,6 +5,7 @@ import { RelayLocation } from '../../../../../../shared/daemon-rpc-types';
 import { messages } from '../../../../../../shared/gettext';
 import type { ListItemProps } from '../../../../../lib/components/list-item';
 import { LocationListItem } from '../../../../location-list-item';
+import { useScrollPositionContext } from '../../ScrollPositionContext';
 import { type AnyLocation, getLocationChildrenByType } from '../../select-location-types';
 import {
   AnyLocationListItemProvider,
@@ -18,7 +19,6 @@ export type AnyLocationListItemProps = React.PropsWithChildren<{
   level: ListItemProps['level'];
   position?: ListItemProps['position'];
   disabled?: boolean;
-  selectedElementRef: React.Ref<HTMLDivElement>;
   onSelect: (value: RelayLocation) => void;
 }>;
 
@@ -27,10 +27,10 @@ function AnyLocationListItemImpl({
   position,
   disabled,
   onSelect,
-  selectedElementRef,
   children,
 }: Omit<AnyLocationListItemProps, 'location' | 'rootLocation'>) {
   const { location, expanded, setExpanded } = useAnyLocationListItemContext();
+  const { selectedLocationRef } = useScrollPositionContext();
 
   const childLocations = getLocationChildrenByType(location);
   const hasChildren = childLocations.length > 0;
@@ -41,7 +41,7 @@ function AnyLocationListItemImpl({
     }
   }, [onSelect, location]);
 
-  const selectedRef = location.selected ? selectedElementRef : undefined;
+  const selectedRef = location.selected ? selectedLocationRef : undefined;
   return (
     <LocationListItem selected={location.selected}>
       <LocationListItem.Accordion

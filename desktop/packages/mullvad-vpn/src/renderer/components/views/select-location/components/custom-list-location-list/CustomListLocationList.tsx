@@ -1,4 +1,3 @@
-import React from 'react';
 import styled from 'styled-components';
 
 import { messages } from '../../../../../../shared/gettext';
@@ -24,7 +23,6 @@ export type LocationSelection = 'entry' | 'exit';
 
 export type CustomListListProps = {
   locationSelection: LocationSelection;
-  selectedElementRef: React.Ref<HTMLDivElement>;
 };
 
 const StyledAnimatedList = styled(AnimatedList)`
@@ -39,9 +37,7 @@ const StyledAnimatedListItem = styled(AnimatedList.Item)`
   }
 `;
 
-function CustomListLocationListImpl({
-  selectedElementRef,
-}: Pick<CustomListListProps, 'selectedElementRef'>) {
+function CustomListLocationListImpl() {
   const { customListLocations } = useCustomListLocationsContext();
   const { addFormVisible, addingForm } = useCustomListListContext();
   const handleSelectCustomList = useHandleSelectCustomList();
@@ -69,7 +65,6 @@ function CustomListLocationListImpl({
                 <CustomListLocationListItem
                   customList={customList}
                   level={0}
-                  selectedElementRef={selectedElementRef}
                   onSelect={handleSelectCustomList}
                 />
               </StyledAnimatedListItem>

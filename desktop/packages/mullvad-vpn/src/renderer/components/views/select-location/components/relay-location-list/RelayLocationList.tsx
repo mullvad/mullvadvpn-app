@@ -1,4 +1,3 @@
-import React from 'react';
 import styled from 'styled-components';
 
 import { type RelayLocation as RelayLocationType } from '../../../../../../shared/daemon-rpc-types';
@@ -9,7 +8,6 @@ import { GeographicalLocationListItem } from '../geographical-location-list-item
 
 export type RelayLocationListProps = {
   locations: AnyLocation[];
-  selectedElementRef: React.Ref<HTMLDivElement>;
   onSelect: (value: RelayLocationType) => void;
 };
 
