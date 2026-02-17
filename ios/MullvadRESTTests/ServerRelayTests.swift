@@ -4,7 +4,7 @@ import XCTest
 @testable import MullvadREST
 
 class ServerRelayTests: XCTestCase {
-    func testDecodeFronJSON() throws {
+    func testDecodeFromJSON() throws {
         let json = """
             {
                 "active": true,
@@ -67,7 +67,7 @@ class ServerRelayTests: XCTestCase {
                         domain: "se-got-wg-881.blockerad.eu",
                         token: "test"
                     )
-                )
+                ), isOverridden: nil
             ))
     }
 

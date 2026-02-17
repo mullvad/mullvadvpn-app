@@ -18,12 +18,10 @@ public protocol AnyRelay {
     var active: Bool { get }
     var includeInCountry: Bool { get }
     var daita: Bool? { get }
-
+    var isOverridden: Bool? { get }
     func override(ipv4AddrIn: IPv4Address?, ipv6AddrIn: IPv6Address?) -> Self
 }
-
-extension REST.ServerRelay: AnyRelay {}
-extension REST.BridgeRelay: AnyRelay {
+extension REST.BridgeRelay {
     public func override(ipv4AddrIn: IPv4Address?, ipv6AddrIn: IPv6Address?) -> REST.BridgeRelay {
         override(ipv4AddrIn: ipv4AddrIn)
     }

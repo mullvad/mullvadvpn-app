@@ -112,6 +112,7 @@ final class AppMessageHandlerTests: XCTestCase {
                 ),
                 hostname: match.relay.hostname,
                 location: match.location,
+                isOverridden: false,
                 features: nil
             ),
             retryAttempt: 0,

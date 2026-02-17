@@ -75,7 +75,6 @@ struct ConnectionViewComponentPreview<Content: View>: View {
         content(
             FeatureIndicatorsViewModel(
                 tunnelSettings: tunnelSettings,
-                ipOverrides: [],
                 tunnelStatus: connectedTunnelStatus
             ),
             viewModel,

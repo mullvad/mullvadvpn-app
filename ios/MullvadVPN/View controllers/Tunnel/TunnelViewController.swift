@@ -74,7 +74,6 @@ class TunnelViewController: UIViewController, RootContainment {
         )
         indicatorsViewViewModel = FeatureIndicatorsViewModel(
             tunnelSettings: interactor.tunnelSettings,
-            ipOverrides: interactor.ipOverrides,
             tunnelStatus: interactor.tunnelStatus
         )
 
@@ -115,10 +114,6 @@ class TunnelViewController: UIViewController, RootContainment {
         interactor.didUpdateTunnelSettings = { [weak self] tunnelSettings in
             self?.indicatorsViewViewModel.tunnelSettings = tunnelSettings
             self?.connectionViewViewModel.relayConstraints = tunnelSettings.relayConstraints
-        }
-
-        interactor.didUpdateIpOverrides = { [weak self] overrides in
-            self?.indicatorsViewViewModel.ipOverrides = overrides
         }
 
         connectionView.action = { [weak self] action in

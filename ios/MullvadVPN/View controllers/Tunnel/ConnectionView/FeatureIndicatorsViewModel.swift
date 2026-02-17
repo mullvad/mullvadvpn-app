@@ -12,17 +12,14 @@ import SwiftUI
 
 class FeatureIndicatorsViewModel: ChipViewModelProtocol {
     @Published var tunnelSettings: LatestTunnelSettings
-    @Published var ipOverrides: [IPOverride]
     @Published var tunnelState: TunnelState
     @Published var observedState: ObservedState
     var onFeaturePressed: ((FeatureType) -> Void)?
     init(
         tunnelSettings: LatestTunnelSettings,
-        ipOverrides: [IPOverride],
         tunnelStatus: TunnelStatus
     ) {
         self.tunnelSettings = tunnelSettings
-        self.ipOverrides = ipOverrides
         self.tunnelState = tunnelStatus.state
         self.observedState = tunnelStatus.observedState
     }
@@ -39,7 +36,7 @@ class FeatureIndicatorsViewModel: ChipViewModelProtocol {
                 MultihopFeature(state: tunnelState, settings: tunnelSettings),
                 ObfuscationFeature(settings: tunnelSettings, state: observedState),
                 DNSFeature(settings: tunnelSettings),
-                IPOverrideFeature(state: tunnelState, overrides: ipOverrides),
+                IPOverrideFeature(state: tunnelState),
             ]
 
             return

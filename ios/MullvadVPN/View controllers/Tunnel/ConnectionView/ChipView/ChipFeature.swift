@@ -119,24 +119,12 @@ struct DNSFeature: ChipFeature {
 struct IPOverrideFeature: ChipFeature {
     let id: FeatureType = .ipOverrides
     let state: TunnelState
-    let overrides: [IPOverride]
 
     var isEnabled: Bool {
-        guard
-            let endpoint = state.relays?.ingress.endpoint
-        else { return false }
-
-        // Check if the socket address matches any override
-        switch endpoint.socketAddress {
-        case let .ipv4(ipv4Endpoint):
-            return overrides.contains { override in
-                override.ipv4Address.map { $0 == ipv4Endpoint.ip } ?? false
-            }
-        case let .ipv6(ipv6Endpoint):
-            return overrides.contains { override in
-                override.ipv6Address.map { $0 == ipv6Endpoint.ip } ?? false
-            }
+        guard let selectedRelays = state.relays else {
+            return false
         }
+        return (selectedRelays.entry?.isOverridden ?? false) || selectedRelays.exit.isOverridden
     }
 
     var name: String {

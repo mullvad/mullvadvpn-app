@@ -36,7 +36,7 @@ public struct EphemeralPeerRelayConfiguration: Equatable, CustomDebugStringConve
     }
 
     public var debugDescription: String {
-        "{ relay : \(relay.debugDescription), post quantum: \(configuration.debugDescription) }"
+        "{ relay : \(relay.description), post quantum: \(configuration.debugDescription) }"
     }
 }
 

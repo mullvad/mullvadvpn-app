@@ -59,6 +59,7 @@ public final class RelaySelectorStub: RelaySelectorProtocol {
             latitude: 0,
             longitude: 0
         ),
+        isOverridden: false,
         features: nil
     )
 
