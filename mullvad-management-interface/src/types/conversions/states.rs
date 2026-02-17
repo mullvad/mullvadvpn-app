@@ -127,9 +127,11 @@ impl From<mullvad_types::states::TunnelState> for proto::TunnelState {
                                 i32::from(Cause::InvalidDnsServers)
                             }
                             #[cfg(target_os = "android")]
-                            talpid_tunnel::ErrorStateCause::InvalidIPv6Config(_, _, _) => {
-                                i32::from(Cause::InvalidIpv6Config)
-                            }
+                            talpid_tunnel::ErrorStateCause::InvalidIPv6Config {
+                                addresses: _,
+                                routes: _,
+                                dns_servers: _,
+                            } => i32::from(Cause::InvalidIpv6Config),
                             #[cfg(any(
                                 target_os = "windows",
                                 target_os = "macos",
@@ -174,16 +176,16 @@ impl From<mullvad_types::states::TunnelState> for proto::TunnelState {
                         invalid_ipv6_config_error: None,
                         #[cfg(target_os = "android")]
                         invalid_ipv6_config_error:
-                            if let talpid_tunnel::ErrorStateCause::InvalidIPv6Config(
-                                addrs,
+                            if let talpid_tunnel::ErrorStateCause::InvalidIPv6Config {
+                                addresses,
                                 routes,
-                                dns,
-                            ) = error_state.cause()
+                                dns_servers,
+                            } = error_state.cause()
                             {
                                 Some(proto::error_state::InvalidIpv6Config {
-                                    addrs: addrs.iter().map(|ip| ip.to_string()).collect(),
+                                    addrs: addresses.iter().map(|ip| ip.to_string()).collect(),
                                     routes: routes.iter().map(|route| route.to_string()).collect(),
-                                    dns: dns.iter().map(|dns| dns.to_string()).collect(),
+                                    dns: dns_servers.iter().map(|dns| dns.to_string()).collect(),
                                 })
                             } else {
                                 None
