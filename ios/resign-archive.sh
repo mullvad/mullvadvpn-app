@@ -90,20 +90,24 @@ echo "Extension profile: $EXTENSION_PROFILE"
 
 APP_ENTITLEMENTS_SRC="$SCRIPT_DIR/MullvadVPN/Supporting Files/MullvadVPN.entitlements"
 EXTENSION_ENTITLEMENTS_SRC="$SCRIPT_DIR/PacketTunnel/PacketTunnel.entitlements"
+TEAM_ID="CKG9MXH72F"
 SECURITY_GROUP_IDENTIFIER="group.net.mullvad.MullvadVPN"
 
 resolve_entitlements() {
     local src="$1"
     local dest="$2"
+    local bundle_id="$3"
     sed "s/\$(SECURITY_GROUP_IDENTIFIER)/$SECURITY_GROUP_IDENTIFIER/g" "$src" > "$dest"
+    # Inject application-identifier (TEAMID.BUNDLEID), normally added by Xcode during signing
+    plutil -insert application-identifier -string "$TEAM_ID.$bundle_id" "$dest"
 }
 
 APP_ENTITLEMENTS=$(mktemp)
 EXTENSION_ENTITLEMENTS=$(mktemp)
 trap 'rm -f "$APP_ENTITLEMENTS" "$EXTENSION_ENTITLEMENTS"' EXIT
 
-resolve_entitlements "$APP_ENTITLEMENTS_SRC" "$APP_ENTITLEMENTS"
-resolve_entitlements "$EXTENSION_ENTITLEMENTS_SRC" "$EXTENSION_ENTITLEMENTS"
+resolve_entitlements "$APP_ENTITLEMENTS_SRC" "$APP_ENTITLEMENTS" "$APP_BUNDLE_ID"
+resolve_entitlements "$EXTENSION_ENTITLEMENTS_SRC" "$EXTENSION_ENTITLEMENTS" "$EXTENSION_BUNDLE_ID"
 
 echo ""
 echo "App entitlements:"
