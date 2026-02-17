@@ -52,7 +52,8 @@ struct SplitMainButton: View {
                             width: min(max(primaryButtonSize.height, 44), 60), height: max(primaryButtonSize.height, 44)
                         )
                         .sizeOfView { secondaryButtonSize = $0 }
-                })
+                }
+            )
             .ifLet(secondaryAccessibilityLabel) { view, label in
                 view.accessibilityLabel(label)
             }
