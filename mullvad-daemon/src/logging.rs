@@ -251,18 +251,18 @@ pub fn init_logger(
 
     let reg = reg
         .with(
-            grpc_formatter.with_timer(tracing_subscriber::fmt::time::ChronoUtc::new(
+            grpc_formatter.with_timer(tracing_subscriber::fmt::time::ChronoLocal::new(
                 DATE_TIME_FORMAT_STR.to_string(),
             )),
         )
         .with(
-            file_formatter.with_timer(tracing_subscriber::fmt::time::ChronoUtc::new(
+            file_formatter.with_timer(tracing_subscriber::fmt::time::ChronoLocal::new(
                 DATE_TIME_FORMAT_STR.to_string(),
             )),
         );
     if std_output_timestamp {
         reg.with(
-            stdout_formatter.with_timer(tracing_subscriber::fmt::time::ChronoUtc::new(
+            stdout_formatter.with_timer(tracing_subscriber::fmt::time::ChronoLocal::new(
                 DATE_TIME_FORMAT_STR.to_string(),
             )),
         )
