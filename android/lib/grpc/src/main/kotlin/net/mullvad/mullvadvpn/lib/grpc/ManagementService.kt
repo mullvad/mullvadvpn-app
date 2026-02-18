@@ -189,7 +189,9 @@ class ManagementService(
     }
 
     suspend fun partitionRelays(predicate: RelaySelectorPredicate): RelayPartitions {
-        return service.partitionRelays(predicate.fromDomain()).toDomain()
+        return service.partitionRelays(predicate.fromDomain()).toDomain().also {
+            Logger.d("Partition relays matches: ${it.matches}")
+        }
     }
 
     private val grpc by lazy {

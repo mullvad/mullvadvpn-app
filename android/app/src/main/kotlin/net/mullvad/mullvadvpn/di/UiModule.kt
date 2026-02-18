@@ -181,7 +181,7 @@ val uiModule = module {
     single { CustomListActionUseCase(get(), get()) }
     single { SelectedLocationTitleUseCase(get(), get()) }
     single { ProviderToOwnershipsUseCase(get()) }
-    single { FilterCustomListsRelayItemUseCase(get(), get(), get()) }
+    single { FilterCustomListsRelayItemUseCase(get(), get()) }
     single { CustomListsRelayItemUseCase(get(), get()) }
     single { CustomListRelayItemsUseCase(get(), get()) }
     single { FilteredRelayListUseCase(get(), get(), get()) }
