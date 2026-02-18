@@ -196,7 +196,6 @@ class LocationCell: UITableViewCell {
     private func setupAccessibility(_ locationCellViewModel: LocationCellViewModel) {
         isAccessibilityElement = true
         accessibilityTraits = .button
-        accessibilityIdentifier = locationCellViewModel.node.code
         accessibilityLabel = locationCellViewModel.node.name
 
         let hasChildren = !locationCellViewModel.node.children.isEmpty
