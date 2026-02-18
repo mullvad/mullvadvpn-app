@@ -7,7 +7,7 @@ export type AccordionTriggerProps = {
   children?: React.ReactNode;
 } & React.ComponentProps<'button'>;
 
-export function AccordionTrigger({ children, ...props }: AccordionTriggerProps) {
+export function AccordionHeaderTrigger({ children, ...props }: AccordionTriggerProps) {
   const { contentId, triggerId, titleId, expanded, onExpandedChange } = useAccordionContext();
 
   const onClick = React.useCallback(

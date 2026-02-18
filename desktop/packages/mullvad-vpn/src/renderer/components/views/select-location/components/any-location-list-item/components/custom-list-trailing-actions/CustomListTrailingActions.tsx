@@ -23,7 +23,7 @@ export function CustomListTrailingActions({ customList }: CustomListTrailingActi
           { location: customList.label },
         )}>
         <LocationListItem.HeaderTrailingAction>
-          <LocationListItem.Icon />
+          <LocationListItem.HeaderChevron />
         </LocationListItem.HeaderTrailingAction>
       </LocationListItem.AccordionTrigger>
     </LocationListItem.HeaderTrailingActions>

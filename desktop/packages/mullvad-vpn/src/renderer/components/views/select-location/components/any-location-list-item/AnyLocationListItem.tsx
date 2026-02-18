@@ -64,7 +64,7 @@ function AnyLocationListItemImpl({
               location: location.label,
             })}>
             <LocationListItem.HeaderItem>
-              <LocationListItem.Title>{location.label}</LocationListItem.Title>
+              <LocationListItem.HeaderTitle>{location.label}</LocationListItem.HeaderTitle>
             </LocationListItem.HeaderItem>
           </LocationListItem.HeaderTrigger>
           {location.type !== 'customList' && (

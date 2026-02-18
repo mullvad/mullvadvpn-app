@@ -60,7 +60,7 @@ export function GeographicalLocationTrailingActions({
             { location: location.label },
           )}>
           <LocationListItem.HeaderTrailingAction>
-            <LocationListItem.Icon />
+            <LocationListItem.HeaderChevron />
           </LocationListItem.HeaderTrailingAction>
         </LocationListItem.AccordionTrigger>
       )}
