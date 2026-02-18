@@ -42,6 +42,7 @@ impl LockdownMode {
     async fn test() -> Result<()> {
         use mullvad_management_interface::types::LocationConstraint;
         //use mullvad_management_interface::types::location_constraints::*;
+        use mullvad_management_interface::types::IpVersion;
         use mullvad_management_interface::types::location_constraint::Type;
         use mullvad_management_interface::types::relay_selector::*;
         use mullvad_types::relay_constraints::GeographicLocationConstraint;
@@ -62,7 +63,7 @@ impl LockdownMode {
                 }),
                 // obfuscation_settings: None,
                 // daita_settings: None,
-                ip_version: 4,
+                ip_version: IpVersion::V4.into(),
                 ..Default::default()
             };
             let context = predicate::Context::Singlehop(entry_constraints);
