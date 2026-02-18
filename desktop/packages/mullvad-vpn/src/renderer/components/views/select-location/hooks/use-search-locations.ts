@@ -21,6 +21,8 @@ export function useSearchLocations(
         if (searchMatchesLocation(relay.label, searchTerm)) {
           relaysResult.push(relay);
         }
+        // If it's the last relay in the city and we have a match, push the city with
+        // a copy of relay result array. Then reset the relay result array for the next city
         if (index === city.relays.length - 1 && relaysResult.length > 0) {
           citiesResult.push({ ...city, expanded: true, relays: Array.from(relaysResult) });
           pushedCities.add(`${city.details.country}-${city.details.city}`);
@@ -32,12 +34,14 @@ export function useSearchLocations(
           citiesResult.push(city);
         }
       }
+      // Handle countries in the same way as was described for cities above
       if (index === country.cities.length - 1 && citiesResult.length > 0) {
         countriesResult.push({ ...country, expanded: true, cities: Array.from(citiesResult) });
         pushedCountries.add(country.details.country);
         citiesResult.length = 0;
       }
     });
+    // If country not already has been pushed and matches search, add country with all locations
     if (!pushedCountries.has(country.details.country)) {
       if (searchMatchesLocation(country.label, searchTerm)) {
         countriesResult.push(country);
