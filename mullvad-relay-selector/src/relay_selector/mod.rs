@@ -867,14 +867,17 @@ impl RelaySelector {
         // We may explore the entire search space (`relays` x `criteria`) without any synchronisation
         // between different branches.
         let verdicts: Vec<(WireguardRelay, Verdict)> = match predicate {
-            Predicate::Singlehop {
-                location,
-                providers,
-                ownership,
+            Predicate::Singlehop(EntryConstraints {
+                general:
+                    ExitConstraints {
+                        location,
+                        providers,
+                        ownership,
+                    },
                 obfuscation_settings,
                 daita,
                 ip_version,
-            } => {
+            }) => {
                 let location = &Criteria::new(|relay| {
                     let location = matcher::ResolvedLocationConstraint::from_constraint(
                         &location,
@@ -947,14 +950,20 @@ impl RelaySelector {
                     })
                     .collect()
             }
-            Predicate::Autohop {
-                location,
-                providers,
-                ownership,
-                obfuscation_settings: _,
-                daita: _,
-                ip_version: _,
-            } => {
+            Predicate::Autohop(EntryConstraints {
+                general:
+                    ExitConstraints {
+                        location,
+                        providers,
+                        ownership,
+                    },
+                #[expect(unused)]
+                obfuscation_settings,
+                #[expect(unused)]
+                daita,
+                #[expect(unused)]
+                ip_version,
+            }) => {
                 // This case is identical to `singlehop`, except that it does not generally care about: obfuscation settings or daita. In those cases, the VPN traffic may be routed through an alternative entry relay.
                 // TODO: Implement the edge case where the only alternative entry relay must be
                 // selected by the given location constraint.
@@ -980,8 +989,10 @@ impl RelaySelector {
                     })
                     .collect()
             }
-            Predicate::Entry => todo!("Implement partition_relays(Entry)"),
-            Predicate::Exit => todo!("Implement partition_relays(Exit)"),
+            #[expect(unused)]
+            Predicate::Entry(constraints) => todo!("Implement partition_relays(Entry)"),
+            #[expect(unused)]
+            Predicate::Exit(constraints) => todo!("Implement partition_relays(Exit)"),
         };
         // After this mapping, a single reduce is performed to partition the relays based on
         // their assigned verdict.
@@ -1102,27 +1113,39 @@ impl From<(Vec<WireguardRelay>, Vec<(WireguardRelay, Vec<Reason>)>)> for RelayPa
 /// Specify the constraints that should be applied when selecting relays,
 /// along with a context that may affect the selection behavior.
 pub enum Predicate {
-    Singlehop {
-        location: Constraint<LocationConstraint>,
-        providers: Constraint<Providers>,
-        ownership: Constraint<Ownership>,
-        // Entry-specific constraints.
-        obfuscation_settings: Constraint<ObfuscationSettings>,
-        daita: Constraint<DaitaSettings>,
-        ip_version: Constraint<IpVersion>,
-    },
-    Autohop {
-        location: Constraint<LocationConstraint>,
-        providers: Constraint<Providers>,
-        ownership: Constraint<Ownership>,
-        // Entry-specific constraints.
-        obfuscation_settings: Constraint<ObfuscationSettings>,
-        daita: Constraint<DaitaSettings>,
-        ip_version: Constraint<IpVersion>,
-    },
+    Singlehop(EntryConstraints),
+    Autohop(EntryConstraints),
     // Multihop-only
-    Entry,
-    Exit,
+    Entry(MultihopConstraints),
+    Exit(MultihopConstraints),
+}
+
+// TODO: Document
+// TODO: Should all fields be pub??
+#[derive(Debug, Default)]
+pub struct EntryConstraints {
+    pub general: ExitConstraints,
+    // Entry-specific constraints.
+    pub obfuscation_settings: Constraint<ObfuscationSettings>,
+    pub daita: Constraint<DaitaSettings>,
+    pub ip_version: Constraint<IpVersion>,
+}
+
+// TODO: Document
+// TODO: Should all fields be pub??
+#[derive(Debug, Default)]
+pub struct ExitConstraints {
+    pub location: Constraint<LocationConstraint>,
+    pub providers: Constraint<Providers>,
+    pub ownership: Constraint<Ownership>,
+}
+
+// TODO: Document
+// TODO: Should all fields be pub??
+#[derive(Debug, Default)]
+pub struct MultihopConstraints {
+    pub entry: EntryConstraints,
+    pub exit: ExitConstraints,
 }
 
 // TODO: Work with references instead of copies?
