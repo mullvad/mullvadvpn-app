@@ -39,18 +39,8 @@ class SettingsMigrationTests: BaseUITestCase {
     let customDNSServerIPAddress = "123.123.123.123"
     let wireGuardPort = "4001"
 
-    override class func shouldUninstallAppInTeardown() -> Bool {
+    override class func shouldResetAppStateInSetup() -> Bool {
         return false
-    }
-
-    override func setUp() async throws {
-        try await super.setUp()
-
-        agreeToTermsOfServiceIfShown()
-
-        // Relaunch app so that tests start from a deterministic state
-        app.terminate()
-        app.launch()
     }
 
     func testChangeCustomDNSSettings() {

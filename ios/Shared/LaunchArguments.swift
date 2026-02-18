@@ -29,6 +29,8 @@ public struct LaunchArguments: Codable, Taggable {
 
     // Disable animations to speed up tests.
     public var areAnimationsDisabled = false
+
+    public var isResetAppAllowed: Bool = false
 }
 
 public extension ProcessInfo {

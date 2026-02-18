@@ -180,25 +180,26 @@ class BaseUITestCase: XCTestCase {
 
     // MARK: - Setup & teardown
 
-    /// Override this class function to change the uninstall behaviour in suite level teardown
-    class func shouldUninstallAppInTeardown() -> Bool {
+    /// Override this class function to control whether the app state
+    /// should be reset during the test suite setup phase.
+    ///
+    /// Return `true` to ensure the application starts from a clean state
+    /// before tests are executed.
+    class func shouldResetAppStateInSetup() -> Bool {
         return true
     }
-
-    /// Suite level teardown ran after all tests in suite have been executed
-    override class func tearDown() {
-        // This function is not marked `@MainActor` therefore cannot legally enter its context without help
-        Task { @MainActor in
-            if shouldUninstallAppInTeardown() && uninstallAppInTestSuiteTearDown() {
-                uninstallApp()
-            }
-        }
-    }
-
     /// Test level setup
     override func setUp() async throws {
         currentTestCaseShouldCapturePackets = false  // Reset for each test case run
         continueAfterFailure = false
+
+        let argumentsJsonString = try? LaunchArguments(
+            target: .uiTests,
+            areAnimationsDisabled: true,
+            isResetAppAllowed: Self.shouldResetAppStateInSetup()
+        ).toJSON()
+        app.launchEnvironment[LaunchArguments.tag] = argumentsJsonString
+
         app.launch()
     }
 
@@ -348,50 +349,5 @@ class BaseUITestCase: XCTestCase {
 
             LoginPage(app)
         }
-    }
-
-    static func uninstallApp() {
-        let appName = "Mullvad VPN"
-        let searchQuery =
-            appName
-            .replacingOccurrences(
-                of: " ",
-                with: ""
-            )  // With space in the query Spotlight search sometimes don't match the Mullvad VPN app
-
-        let timeout: XCUIElement.Timeout = .default
-        let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
-        let spotlight = XCUIApplication(bundleIdentifier: "com.apple.Spotlight")
-
-        /// iPhone uses spotlight, iPad uses springboard. But the usage is quite similar
-        let spotlightOrSpringboard = BaseUITestCase.testDeviceIsIPad() ? springboard : spotlight
-        var mullvadAppIcon: XCUIElement
-
-        // How to navigate to Spotlight search differs between iPhone and iPad
-        if BaseUITestCase.testDeviceIsIPad() == false {  // iPhone
-            springboard.swipeDown()
-            spotlight.textFields["SpotlightSearchField"].typeText(searchQuery)
-            mullvadAppIcon = spotlightOrSpringboard.icons[appName]
-        } else {  // iPad
-            // Swipe left enough times to reach the last page
-            for _ in 0..<3 {
-                springboard.swipeLeft()
-                Thread.sleep(forTimeInterval: 0.5)
-            }
-
-            springboard.swipeDown()
-            springboard.searchFields.firstMatch.typeText(searchQuery)
-            mullvadAppIcon = spotlightOrSpringboard.icons.matching(identifier: appName).allElementsBoundByIndex[1]
-        }
-
-        // The rest of the delete app flow is same for iPhone and iPad with the exception that iPhone uses spotlight and iPad uses springboard
-        if mullvadAppIcon.existsAfterWait() {
-            mullvadAppIcon.press(forDuration: 2)
-        } else {
-            XCTFail("Failed to find app icon named \(appName)")
-        }
-
-        spotlightOrSpringboard.buttons["Delete App"].tapWhenHittable()
-        springboard.alerts.buttons["Delete"].tapWhenHittable()
     }
 }

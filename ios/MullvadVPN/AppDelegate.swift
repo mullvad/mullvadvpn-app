@@ -67,10 +67,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             launchArguments = overriddenLaunchArguments
         }
 
-        if launchArguments.areAnimationsDisabled {
-            UIView.setAnimationsEnabled(false)
-        }
-
         let containerURL = ApplicationConfiguration.containerURL
         migrationManager = MigrationManager(cacheDirectory: containerURL)
         configureLogging()
@@ -181,11 +177,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             apiTransportProvider: apiTransportProvider,
             relaySelector: relaySelector
         )
-
         registerBackgroundTasks()
         setupNotifications()
         addApplicationNotifications(application: application)
-
         startInitialization(application: application)
 
         // Pre-warm @Observable infrastructure for LocationNode to avoid first-render lag

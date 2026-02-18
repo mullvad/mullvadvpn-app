@@ -14,11 +14,6 @@ class LoggedOutUITestCase: BaseUITestCase {
         try await super.setUp()
 
         agreeToTermsOfServiceIfShown()
-        logoutIfLoggedIn()
-
-        // Relaunch app so that tests start from a deterministic state
-        app.terminate()
-        app.launch()
     }
 
     func disableBridgesAccessMethod() {

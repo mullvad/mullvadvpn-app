@@ -17,10 +17,6 @@ class LoggedInWithTimeUITestCase: BaseUITestCase {
         try await super.setUp()
 
         agreeToTermsOfServiceIfShown()
-        // Make sure that if a previous test ended up in a state where the app got stuck connecting to a relay
-        // does not affect the next test running
-        logoutIfLoggedIn()
-
         hasTimeAccountNumber = getAccountWithTime()
 
         guard let hasTimeAccountNumber = self.hasTimeAccountNumber else {
@@ -29,10 +25,6 @@ class LoggedInWithTimeUITestCase: BaseUITestCase {
         }
 
         login(accountNumber: hasTimeAccountNumber)
-
-        // Relaunch app so that tests start from a deterministic state
-        app.terminate()
-        app.launch()
     }
 
     override func tearDown() async throws {

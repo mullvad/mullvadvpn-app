@@ -167,21 +167,25 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
         options connectionOptions: UIScene.ConnectionOptions
     ) {
         guard let windowScene = scene as? UIWindowScene else { return }
+        let launchViewController = LaunchViewController(tunnelManager: tunnelManager)
+
+        launchViewController.onAppReady = { [weak self] in
+            guard let self = self else { return }
+            print("settings is :\(try? SettingsManager.getLastUsedAccount() ?? "nil")")
+            if tunnelManager.isConfigurationLoaded {
+                configureScene()
+            }
+        }
 
         window = UIWindow(windowScene: windowScene)
-        window?.rootViewController = LaunchViewController()
+        window?.rootViewController = launchViewController
 
         privacyOverlayWindow = UIWindow(windowScene: windowScene)
-        privacyOverlayWindow?.rootViewController = LaunchViewController()
+        privacyOverlayWindow?.rootViewController = launchViewController
         privacyOverlayWindow?.windowLevel = .alert + 1
 
         window?.makeKeyAndVisible()
-
         addTunnelObserver()
-
-        if tunnelManager.isConfigurationLoaded {
-            configureScene()
-        }
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {}
