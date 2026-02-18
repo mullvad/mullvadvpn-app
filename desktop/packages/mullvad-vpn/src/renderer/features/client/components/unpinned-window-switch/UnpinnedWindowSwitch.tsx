@@ -15,7 +15,7 @@ function UnpinnedWindowSwitch({ children, ...props }: UnpinnedWindowSwitchProps)
 
 const UnpinnedWindowSwitchNamespace = Object.assign(UnpinnedWindowSwitch, {
   Label: Switch.Label,
-  Thumb: Switch.Thumb,
+  Input: Switch.Input,
   Trigger: Switch.Trigger,
 });
 

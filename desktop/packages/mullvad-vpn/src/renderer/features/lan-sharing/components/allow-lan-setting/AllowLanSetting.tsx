@@ -47,9 +47,7 @@ export function AllowLanSetting(props: AllowLanSettingProps) {
               </ModalMessage>
             </InfoButton>
 
-            <AllowLanSwitch.Trigger>
-              <AllowLanSwitch.Thumb />
-            </AllowLanSwitch.Trigger>
+            <AllowLanSwitch.Input />
           </SettingsListItem.ActionGroup>
         </AllowLanSwitch>
       </SettingsListItem.Item>

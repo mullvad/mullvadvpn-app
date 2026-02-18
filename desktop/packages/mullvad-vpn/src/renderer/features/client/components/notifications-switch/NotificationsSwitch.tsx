@@ -19,7 +19,7 @@ function NotificationsSwitch({ children, ...props }: NotificationSwitchProps) {
 
 const NotificationSwitchNamespace = Object.assign(NotificationsSwitch, {
   Label: Switch.Label,
-  Thumb: Switch.Thumb,
+  Input: Switch.Input,
   Trigger: Switch.Trigger,
 });
 

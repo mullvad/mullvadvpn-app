@@ -24,7 +24,10 @@ export function useListboxOptionContext<T>(): ListboxOptionContext<T> {
 export function ListboxOptionProvider<T>({ children, value }: ListboxOptionProviderProps<T>) {
   const TypedListboxOptionContext = ListboxOptionContext as React.Context<ListboxOptionContext<T>>;
   const { value: selectedValue } = useListboxContext();
-  const selected = value === selectedValue;
+
+  const selected = Array.isArray(selectedValue)
+    ? selectedValue.includes(value)
+    : value === selectedValue;
 
   return (
     <TypedListboxOptionContext.Provider value={{ value, selected }}>

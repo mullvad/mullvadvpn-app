@@ -15,7 +15,7 @@ function MonochromaticTrayIconSwitch({ children, ...props }: MonochromaticTrayIc
 
 const MonochromaticTrayIconSwitchNamespace = Object.assign(MonochromaticTrayIconSwitch, {
   Label: Switch.Label,
-  Thumb: Switch.Thumb,
+  Input: Switch.Input,
   Trigger: Switch.Trigger,
 });
 

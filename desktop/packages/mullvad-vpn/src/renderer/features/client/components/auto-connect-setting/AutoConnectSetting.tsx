@@ -12,14 +12,12 @@ export function AutoConnectSetting(props: AutoConnectSettingProps) {
   return (
     <SettingsListItem {...props}>
       <SettingsListItem.Item>
-        <AutoConnectSwitch>
+        <AutoConnectSwitch descriptionId={descriptionId}>
           <AutoConnectSwitch.Label>
             {messages.pgettext('vpn-settings-view', 'Auto-connect')}
           </AutoConnectSwitch.Label>
           <SettingsListItem.ActionGroup>
-            <AutoConnectSwitch.Trigger aria-describedby={descriptionId}>
-              <AutoConnectSwitch.Thumb />
-            </AutoConnectSwitch.Trigger>
+            <AutoConnectSwitch.Input />
           </SettingsListItem.ActionGroup>
         </AutoConnectSwitch>
       </SettingsListItem.Item>

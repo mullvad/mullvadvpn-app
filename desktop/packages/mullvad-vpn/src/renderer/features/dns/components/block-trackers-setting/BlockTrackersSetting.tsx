@@ -16,9 +16,7 @@ export function BlockTrackersSetting(props: BlockTrackersSettingProps) {
             }
           </BlockTrackersSwitch.Label>
           <ListItem.ActionGroup>
-            <BlockTrackersSwitch.Trigger>
-              <BlockTrackersSwitch.Thumb />
-            </BlockTrackersSwitch.Trigger>
+            <BlockTrackersSwitch.Input />
           </ListItem.ActionGroup>
         </BlockTrackersSwitch>
       </ListItem.Item>

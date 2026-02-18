@@ -295,9 +295,7 @@ function ApiAccessMethod(props: ApiAccessMethodProps) {
           <ContextMenu items={menuItems} align="right" />
         </ContextMenuContainer>
         <Switch checked={props.method.enabled} onCheckedChange={toggle}>
-          <Switch.Trigger>
-            <Switch.Thumb />
-          </Switch.Trigger>
+          <Switch.Input />
         </Switch>
       </Flex>
 
