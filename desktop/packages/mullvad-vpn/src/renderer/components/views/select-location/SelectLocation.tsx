@@ -7,6 +7,7 @@ import { useObfuscation } from '../../../features/anti-censorship/hooks';
 import { useDaitaDirectOnly, useDaitaEnabled } from '../../../features/daita/hooks';
 import { useMultihop } from '../../../features/multihop/hooks';
 import { Container, Flex, IconButton, LabelTinySemiBold } from '../../../lib/components';
+import { FlexColumn } from '../../../lib/components/flex-column';
 import { View } from '../../../lib/components/view';
 import {
   daitaFilterActive,
@@ -33,11 +34,7 @@ import {
 } from './components';
 import { useScrollPositionContext } from './ScrollPositionContext';
 import { LocationType } from './select-location-types';
-import {
-  StyledContent,
-  StyledNavigationBarAttachment,
-  StyledScopeBar,
-} from './SelectLocationStyles';
+import { StyledScopeBar } from './SelectLocationStyles';
 import { useSelectLocationViewContext } from './SelectLocationViewContext';
 
 export function SelectLocation() {
@@ -122,14 +119,12 @@ export function SelectLocation() {
             </IconButton>
           </AppNavigationHeader>
 
-          <StyledNavigationBarAttachment>
+          <FlexColumn padding={{ horizontal: 'medium', bottom: 'medium' }}>
             {allowEntrySelection && (
-              <>
-                <StyledScopeBar selectedIndex={locationType} onChange={changeLocationType}>
-                  <ScopeBarItem>{messages.pgettext('select-location-view', 'Entry')}</ScopeBarItem>
-                  <ScopeBarItem>{messages.pgettext('select-location-view', 'Exit')}</ScopeBarItem>
-                </StyledScopeBar>
-              </>
+              <StyledScopeBar selectedIndex={locationType} onChange={changeLocationType}>
+                <ScopeBarItem>{messages.pgettext('select-location-view', 'Entry')}</ScopeBarItem>
+                <ScopeBarItem>{messages.pgettext('select-location-view', 'Exit')}</ScopeBarItem>
+              </StyledScopeBar>
             )}
 
             {locationType === LocationType.entry && daitaEnabled && !daitaDirectOnly ? null : (
@@ -168,14 +163,12 @@ export function SelectLocation() {
                 </SearchTextField>
               </>
             )}
-          </StyledNavigationBarAttachment>
+          </FlexColumn>
 
           <NavigationScrollbars ref={scrollViewRef}>
             <View.Content>
               <SpacePreAllocationView ref={spacePreAllocationViewRef}>
-                <StyledContent>
-                  <SelectLocationContent />
-                </StyledContent>
+                <SelectLocationContent />
               </SpacePreAllocationView>
             </View.Content>
           </NavigationScrollbars>
