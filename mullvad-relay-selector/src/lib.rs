@@ -13,4 +13,7 @@ pub use relay_selector::{
 };
 
 // TODO: Merge new stuff with old exports.
-pub use relay_selector::{Predicate, Reason, Relay, RelayPartitions};
+pub use relay_selector::{
+    EntryConstraints, ExitConstraints, MultihopConstraints, Predicate, Reason, Relay,
+    RelayPartitions,
+};
