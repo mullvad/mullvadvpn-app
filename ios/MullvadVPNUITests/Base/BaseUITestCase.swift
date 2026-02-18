@@ -140,9 +140,15 @@ class BaseUITestCase: XCTestCase {
         let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
 
         springboard.buttons["Allow"].tapWhenHittable(timeout: .short)
+        if !iOSDevicePinCode.isEmpty {
+            let passcodeScreenVisible =
+                springboard.buttons["1"].existsAfterWait()
+                || springboard.keys["1"].existsAfterWait()
+                || springboard.secureTextFields.firstMatch.existsAfterWait()
 
-        if !iOSDevicePinCode.isEmpty, springboard.buttons["1"].existsAfterWait() {
-            springboard.typeText(iOSDevicePinCode)
+            if passcodeScreenVisible {
+                springboard.typeText(iOSDevicePinCode)
+            }
         }
     }
 
