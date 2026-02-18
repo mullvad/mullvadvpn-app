@@ -55,7 +55,7 @@ struct NotificationSettingsView<ViewModel>: View where ViewModel: NotificationSe
                             viewModel.openAppSettings()
                         }
                     )
-                    .showIf(viewModel.isNotificationsAllowed)
+                    .showIf(viewModel.isNotificationsDisabled)
                 }
                 .padding(.horizontal, 16)
                 .padding(.bottom, 24)
