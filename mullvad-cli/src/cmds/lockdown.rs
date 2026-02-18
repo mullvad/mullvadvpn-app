@@ -49,18 +49,21 @@ impl LockdownMode {
         let mut relay_selector = RelaySelectorClient::new().await?;
         println!("Connected to relay selector gRPC client!");
         let predicate = {
-            let location = GeographicLocationConstraint::country("se").into();
             let entry_constraints = EntryConstraints {
                 general_constraints: Some(ExitConstraints {
-                    location: Some(LocationConstraint {
-                        r#type: Some(Type::Location(location)),
-                    }),
+                    location: None,
+                    // location: Some(LocationConstraint {
+                    //     r#type: Some(Type::Location(
+                    //         GeographicLocationConstraint::country("se").into(),
+                    //     )),
+                    // }),
                     // TODO: Make sure the empty vec maps to Constraint::Any.
                     ..Default::default()
                 }),
-                obfuscation_settings: None,
-                daita_settings: None,
+                // obfuscation_settings: None,
+                // daita_settings: None,
                 ip_version: 4,
+                ..Default::default()
             };
             let context = predicate::Context::Singlehop(entry_constraints);
             Predicate {
@@ -69,7 +72,7 @@ impl LockdownMode {
         };
         println!("Running query {predicate:#?}");
         let relays = relay_selector.partition_relays(predicate).await?;
-        println!("{relays:?}");
+        println!("{:#?}", relays.matches);
         Ok(())
     }
 }
