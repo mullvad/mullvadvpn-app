@@ -2,7 +2,6 @@ import { sprintf } from 'sprintf-js';
 
 import {
   compareRelayLocation,
-  compareRelayLocationCount,
   compareRelayLocationLoose,
   LiftedConstraint,
   RelayLocation,
@@ -16,55 +15,14 @@ import {
   IRelayLocationCityRedux,
   IRelayLocationCountryRedux,
   IRelayLocationRelayRedux,
-  NormalRelaySettingsRedux,
 } from '../../../redux/settings/reducers';
-import { DisabledReason, type GeographicalLocation, LocationType } from './select-location-types';
+import { DisabledReason, type GeographicalLocation } from './select-location-types';
 
 export function isSelected(
   relayLocation: RelayLocation,
   selected?: LiftedConstraint<RelayLocation>,
 ) {
   return selected !== 'any' && compareRelayLocationLoose(selected, relayLocation);
-}
-
-export function isExpanded(
-  relayLocation: RelayLocation & { count?: number },
-  expandedLocations?: Array<RelayLocation>,
-) {
-  return (
-    expandedLocations?.some((location) => compareRelayLocationCount(location, relayLocation)) ??
-    false
-  );
-}
-
-// Calculates which locations should be expanded based on selected location
-export function defaultExpandedLocations(relaySettings?: NormalRelaySettingsRedux) {
-  const expandedLocations: Partial<Record<LocationType, Array<RelayLocation>>> = {};
-
-  const exitLocation = relaySettings?.location;
-  if (exitLocation && exitLocation !== 'any') {
-    expandedLocations[LocationType.exit] = expandRelayLocation(exitLocation);
-  }
-
-  if (relaySettings?.wireguard.useMultihop) {
-    const entryLocation = relaySettings?.wireguard.entryLocation;
-    if (entryLocation && entryLocation !== 'any') {
-      expandedLocations[LocationType.entry] = expandRelayLocation(entryLocation);
-    }
-  }
-
-  return expandedLocations;
-}
-
-// Expands a relay location and its parents
-function expandRelayLocation(location: RelayLocation): RelayLocation[] {
-  if ('hostname' in location) {
-    return [{ country: location.country }, { country: location.country, city: location.city }];
-  } else if ('city' in location) {
-    return [{ country: location.country }];
-  } else {
-    return [];
-  }
 }
 
 // Formats the label that is discplayed for a country, city or relay
