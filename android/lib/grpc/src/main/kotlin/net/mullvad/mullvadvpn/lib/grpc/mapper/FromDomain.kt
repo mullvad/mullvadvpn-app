@@ -315,7 +315,6 @@ internal fun EntryConstraints.fromDomain(): RelaySelector.EntryConstraints =
 
 internal fun ExitConstraints.fromDomain(): RelaySelector.ExitConstraints =
     RelaySelector.ExitConstraints.newBuilder()
-        .setLocation(location.fromDomain())
         .applyIfOnly(location) { setLocation(it.fromDomain()) }
         .setOwnership(ownership.fromDomain())
         .addAllProviders(providers.fromDomain1())

@@ -588,20 +588,17 @@ internal fun ManagementInterface.RelayListCity.toDomain(
         id = cityCode,
         relays =
             relaysList
-                .map {
-                    it.toDomain(cityCode = cityCode, cityName = name, countryName = countryName)
-                }
+                .map { it.toDomain(cityName = name, countryName = countryName) }
                 .sortedWith(RelayNameComparator),
     )
 }
 
 internal fun ManagementInterface.Relay.toDomain(
-    cityCode: GeoLocationId.City,
     cityName: String,
     countryName: String,
 ): RelayItem.Location.Relay =
     RelayItem.Location.Relay(
-        id = GeoLocationId.Hostname(cityCode, hostname),
+        id = GeoLocationId.Hostname.from(hostname),
         cityName = cityName,
         countryName = countryName,
         active = active,

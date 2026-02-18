@@ -37,7 +37,7 @@ sealed interface GeoLocationId : RelayItemId, Parcelable {
         companion object {
             fun from(hostname: String): Hostname {
                 val (country, city, code) = hostname.split('-', limit = 3)
-                return Hostname(City(Country(country), city), code)
+                return Hostname(city = City(country = Country(country), code = city), code = code)
             }
         }
     }
