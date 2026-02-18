@@ -69,9 +69,12 @@ function toCountryLocation(
       })
       .sort((a, b) => a.label.localeCompare(b.label, locale));
 
+    const label = formatRowName(country.name, countryLocation, countryDisabledReason);
+
     return {
       type: 'country',
-      label: formatRowName(country.name, countryLocation, countryDisabledReason),
+      label,
+      searchText: label.toLowerCase(),
       details: {
         country: country.code,
       },
@@ -115,10 +118,12 @@ function toCityLocation(
   const cityLocation: DaemonRelayLocation = { country: country.code, city: city.code };
   const cityDisabledReason =
     parentDisabledReason ?? isCityDisabled(city, cityLocation, disabledLocation);
+  const label = formatRowName(city.name, cityLocation, cityDisabledReason);
 
   return {
     type: 'city',
-    label: formatRowName(city.name, cityLocation, cityDisabledReason),
+    label,
+    searchText: label.toLowerCase(),
     details: {
       city: city.code,
       country: country.code,
@@ -148,10 +153,12 @@ function toRelayLocations(
 
   const relayDisabledReason =
     parentDisabledReason ?? isRelayDisabled(relay, relayLocation, disabledLocation);
+  const label = formatRowName(relay.hostname, relayLocation, relayDisabledReason);
 
   return {
     type: 'relay',
-    label: formatRowName(relay.hostname, relayLocation, relayDisabledReason),
+    label,
+    searchText: label.toLowerCase(),
     details: {
       country: country.code,
       city: city.code,

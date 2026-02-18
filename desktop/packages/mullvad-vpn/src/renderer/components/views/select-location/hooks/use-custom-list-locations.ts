@@ -74,6 +74,7 @@ export function useCustomListLocations(): CustomListLocation[] {
     return {
       type: 'customList',
       label: customList.name,
+      searchText: customList.name.toLowerCase(),
       details,
       disabled: disabledReason !== undefined,
       disabledReason,

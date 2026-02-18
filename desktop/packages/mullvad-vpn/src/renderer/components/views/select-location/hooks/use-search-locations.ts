@@ -18,7 +18,7 @@ export function useSearchLocations(
 
     country.cities.forEach((city, index) => {
       city.relays.forEach((relay, index) => {
-        if (searchMatchesLocation(relay.label, searchTerm)) {
+        if (searchMatchesLocation(relay.searchText, searchTerm)) {
           relaysResult.push(relay);
         }
         // If it's the last relay in the city and we have a match, push the city with
@@ -30,7 +30,7 @@ export function useSearchLocations(
         }
       });
       if (!pushedCities.has(`${city.details.country}-${city.details.city}`)) {
-        if (searchMatchesLocation(city.label, searchTerm)) {
+        if (searchMatchesLocation(city.searchText, searchTerm)) {
           citiesResult.push(city);
         }
       }
@@ -43,7 +43,7 @@ export function useSearchLocations(
     });
     // If country not already has been pushed and matches search, add country with all locations
     if (!pushedCountries.has(country.details.country)) {
-      if (searchMatchesLocation(country.label, searchTerm)) {
+      if (searchMatchesLocation(country.searchText, searchTerm)) {
         countriesResult.push(country);
       }
     }

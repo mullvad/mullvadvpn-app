@@ -14,6 +14,7 @@ type LocationState = {
   active: boolean;
   expanded: boolean;
   label: string;
+  searchText: string;
   selected: boolean;
   disabled?: boolean;
   disabledReason?: DisabledReason;
