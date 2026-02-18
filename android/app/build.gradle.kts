@@ -455,6 +455,7 @@ dependencies {
         // https://github.com/gradle/gradle/issues/26367#issuecomment-2120830998
         exclude("commons-beanutils", "commons-beanutils")
     }
+    implementation(libs.accompanist.permissions)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.datastore)
     implementation(libs.androidx.coresplashscreen)

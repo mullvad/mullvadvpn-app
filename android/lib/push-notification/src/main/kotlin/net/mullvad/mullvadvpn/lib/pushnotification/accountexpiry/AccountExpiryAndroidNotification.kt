@@ -7,7 +7,7 @@ import android.content.res.Resources
 import androidx.core.app.NotificationCompat
 import java.time.Duration
 import net.mullvad.mullvadvpn.lib.common.constant.MAIN_ACTIVITY_CLASS
-import net.mullvad.mullvadvpn.lib.common.util.SdkUtils
+import net.mullvad.mullvadvpn.lib.common.util.getSupportedPendingIntentFlags
 import net.mullvad.mullvadvpn.lib.model.Notification
 import net.mullvad.mullvadvpn.lib.ui.resource.R
 
@@ -28,7 +28,7 @@ private fun contentIntent(context: Context): PendingIntent {
             flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
             action = Intent.ACTION_MAIN
         }
-    return PendingIntent.getActivity(context, 1, intent, SdkUtils.getSupportedPendingIntentFlags())
+    return PendingIntent.getActivity(context, 1, intent, getSupportedPendingIntentFlags())
 }
 
 private fun Resources.contentTitle(remainingTime: Duration): String =

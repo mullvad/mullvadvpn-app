@@ -2,6 +2,10 @@
 
 package net.mullvad.mullvadvpn.app
 
+import android.Manifest
+import android.annotation.TargetApi
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,6 +19,9 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.navigation.NavHostController
 import co.touchlab.kermit.Logger
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberPermissionState
 import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.annotation.ExternalDestination
 import com.ramcosta.composedestinations.annotation.NavHostGraph
@@ -90,8 +97,11 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.navigation.dependency
 import com.ramcosta.composedestinations.rememberNavHostEngine
 import com.ramcosta.composedestinations.utils.rememberDestinationsNavigator
+import kotlinx.coroutines.cancel
 import net.mullvad.mullvadvpn.common.compose.LocalSharedTransitionScope
 import net.mullvad.mullvadvpn.common.compose.accessibilityDataSensitive
+import net.mullvad.mullvadvpn.serviceconnection.ServiceConnectionManager
+import net.mullvad.mullvadvpn.serviceconnection.ServiceConnectionState
 import net.mullvad.mullvadvpn.util.BackstackObserver
 import org.koin.androidx.compose.koinViewModel
 
@@ -166,9 +176,16 @@ annotation class MainGraph {
     companion object Includes
 }
 
-@OptIn(ExperimentalComposeUiApi::class, ExperimentalSharedTransitionApi::class)
+@OptIn(
+    ExperimentalComposeUiApi::class,
+    ExperimentalSharedTransitionApi::class,
+    ExperimentalPermissionsApi::class,
+)
 @Composable
-fun MullvadApp(backstackObserver: BackstackObserver) {
+fun MullvadApp(
+    backstackObserver: BackstackObserver,
+    serviceConnectionManager: ServiceConnectionManager,
+) {
     val engine = rememberNavHostEngine()
     val navHostController: NavHostController = engine.rememberNavController()
     val navigator: DestinationsNavigator = navHostController.rememberDestinationsNavigator()
@@ -178,6 +195,10 @@ fun MullvadApp(backstackObserver: BackstackObserver) {
     DisposableEffect(Unit) {
         backstackObserver.addOnDestinationChangedListener(navHostController)
         onDispose { backstackObserver.removeOnDestinationChangedListener(navHostController) }
+    }
+
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        CheckNotificationPermission(serviceConnectionManager)
     }
 
     SharedTransitionLayout {
@@ -207,6 +228,27 @@ fun MullvadApp(backstackObserver: BackstackObserver) {
                     navigator.navigate(NoDaemonDestination) { launchSingleTop = true }
 
                 DaemonScreenEvent.Remove -> navigator.popBackStack(NoDaemonDestination, true)
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalPermissionsApi::class)
+@Composable
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
+private fun CheckNotificationPermission(serviceConnectionManager: ServiceConnectionManager) {
+    val notificationPermission =
+        rememberPermissionState(permission = Manifest.permission.POST_NOTIFICATIONS)
+    LaunchedEffect(Unit) {
+        serviceConnectionManager.connectionState.collect {
+            if (it is ServiceConnectionState.Bound) {
+                if (!notificationPermission.status.isGranted) {
+                    notificationPermission.launchPermissionRequest()
+                    cancel(
+                        message =
+                            "We should only show one notification permission dialog per app start"
+                    )
+                }
             }
         }
     }

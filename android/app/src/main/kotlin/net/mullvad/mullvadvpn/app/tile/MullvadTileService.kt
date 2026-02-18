@@ -23,8 +23,7 @@ import net.mullvad.mullvadvpn.lib.common.constant.KEY_CONNECT_ACTION
 import net.mullvad.mullvadvpn.lib.common.constant.KEY_DISCONNECT_ACTION
 import net.mullvad.mullvadvpn.lib.common.constant.MAIN_ACTIVITY_CLASS
 import net.mullvad.mullvadvpn.lib.common.constant.VPN_SERVICE_CLASS
-import net.mullvad.mullvadvpn.lib.common.util.SdkUtils
-import net.mullvad.mullvadvpn.lib.common.util.SdkUtils.setSubtitleIfSupported
+import net.mullvad.mullvadvpn.lib.common.util.getSupportedPendingIntentFlags
 import net.mullvad.mullvadvpn.lib.common.util.prepareVpnSafe
 import net.mullvad.mullvadvpn.lib.grpc.GrpcConnectivityState
 import net.mullvad.mullvadvpn.lib.grpc.ManagementService
@@ -132,7 +131,7 @@ class MullvadTileService : TileService() {
                     applicationContext,
                     0,
                     intent,
-                    SdkUtils.getSupportedPendingIntentFlags(),
+                    getSupportedPendingIntentFlags(),
                 )
             startActivityAndCollapse(pendingIntent)
         } else {
@@ -197,6 +196,12 @@ class MullvadTileService : TileService() {
                 setSubtitleIfSupported(resources.getText(R.string.disconnected))
             }
             updateTile()
+        }
+    }
+
+    private fun Tile.setSubtitleIfSupported(subtitleText: CharSequence) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            this.subtitle = subtitleText
         }
     }
 

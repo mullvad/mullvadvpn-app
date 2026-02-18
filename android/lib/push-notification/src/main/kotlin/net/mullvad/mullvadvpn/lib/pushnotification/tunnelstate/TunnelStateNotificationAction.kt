@@ -8,7 +8,7 @@ import net.mullvad.mullvadvpn.lib.common.constant.KEY_CONNECT_ACTION
 import net.mullvad.mullvadvpn.lib.common.constant.KEY_DISCONNECT_ACTION
 import net.mullvad.mullvadvpn.lib.common.constant.KEY_REQUEST_VPN_PROFILE
 import net.mullvad.mullvadvpn.lib.common.constant.MAIN_ACTIVITY_CLASS
-import net.mullvad.mullvadvpn.lib.common.util.SdkUtils
+import net.mullvad.mullvadvpn.lib.common.util.getSupportedPendingIntentFlags
 import net.mullvad.mullvadvpn.lib.model.Notification
 import net.mullvad.mullvadvpn.lib.model.NotificationAction
 import net.mullvad.mullvadvpn.lib.model.NotificationTunnelState
@@ -34,7 +34,7 @@ private fun Notification.Tunnel.contentIntent(context: Context): PendingIntent {
             action = Intent.ACTION_MAIN
         }
 
-    return PendingIntent.getActivity(context, 1, intent, SdkUtils.getSupportedPendingIntentFlags())
+    return PendingIntent.getActivity(context, 1, intent, getSupportedPendingIntentFlags())
 }
 
 private fun NotificationTunnelState.contentTitleResourceId(context: Context): String =
@@ -91,10 +91,10 @@ internal fun NotificationAction.Tunnel.toCompatAction(context: Context): Notific
                     setAction(KEY_REQUEST_VPN_PROFILE)
                 }
 
-            PendingIntent.getActivity(context, 1, intent, SdkUtils.getSupportedPendingIntentFlags())
+            PendingIntent.getActivity(context, 1, intent, getSupportedPendingIntentFlags())
         } else {
             val intent = Intent(toKey()).setPackage(context.packageName)
-            PendingIntent.getService(context, 1, intent, SdkUtils.getSupportedPendingIntentFlags())
+            PendingIntent.getService(context, 1, intent, getSupportedPendingIntentFlags())
         }
 
     return NotificationCompat.Action(
