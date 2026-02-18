@@ -6,10 +6,10 @@ import {
   AccordionContainer,
   AccordionContent,
   AccordionHeader,
+  AccordionHeaderChevron,
   AccordionHeaderItem,
-  AccordionIcon,
-  AccordionTitle,
-  AccordionTrigger,
+  AccordionHeaderTitle,
+  AccordionHeaderTrigger,
 } from './components';
 
 export type AccordionProps = React.PropsWithChildren<{
@@ -39,15 +39,15 @@ function Accordion({
 
 const AccordionNamespace = Object.assign(Accordion, {
   Container: AccordionContainer,
-  Trigger: AccordionTrigger,
+  HeaderTrigger: AccordionHeaderTrigger,
   Header: AccordionHeader,
+  HeaderTitle: AccordionHeaderTitle,
   HeaderItem: AccordionHeaderItem,
   HeaderActionGroup: ListItem.ActionGroup,
   HeaderTrailingActions: ListItem.TrailingActions,
   HeaderTrailingAction: ListItem.TrailingAction,
+  HeaderChevron: AccordionHeaderChevron,
   Content: AccordionContent,
-  Title: AccordionTitle,
-  Icon: AccordionIcon,
 });
 
 export { AccordionNamespace as Accordion };
