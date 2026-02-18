@@ -114,6 +114,12 @@ class SettingsPage: Page {
 
     @discardableResult func dismissAlert() -> Self {
         app.buttons["Cancel"]
+        return self
+    }
+
+    @discardableResult func tapIncludeAllNetworksCell() -> Self {
+        app.tables[AccessibilityIdentifier.settingsTableView]
+            .cells[AccessibilityIdentifier.includeAllNetworksCell]
             .tap()
 
         return self
