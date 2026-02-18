@@ -64,12 +64,13 @@ extension ConnectionView {
                     .foregroundStyle(UIColor.primaryTextColor.color.opacity(0.6))
                     .frame(minWidth: columnWidth, alignment: .leading)
                     .sizeOfView { columnWidth = max(columnWidth, $0.width) }
+                    .accessibilityHidden(true)
                 Text(value)
                     .font(.subheadline)
                     .foregroundStyle(UIColor.primaryTextColor.color)
+                    .accessibilityLabel(Text(title) + Text(verbatim: " \(value)"))
+                    .accessibilityIdentifier(accessibilityId.asString)
             }
-            .accessibilityElement(children: .combine)
-            .accessibilityIdentifier(accessibilityId.asString)
         }
     }
 }
