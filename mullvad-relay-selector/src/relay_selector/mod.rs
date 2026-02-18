@@ -893,40 +893,43 @@ impl RelaySelector {
                 });
                 let obfuscation = &Criteria::new(|relay: &WireguardRelay| {
                     use mullvad_types::relay_constraints::SelectedObfuscation::*;
-                    obfuscation_settings
-                        .as_ref()
-                        .is_only_and(|settings| match settings.selected_obfuscation {
-                            Shadowsocks => {
-                                // let wg_data = &relay_list.wireguard;
-                                matcher::filter_on_shadowsocks(
-                                    //&wg_data.shadowsocks_port_ranges,
-                                    &[(0..=u16::MAX)], // TODO: We might need access to 'Wireguard endpoint data' from relay list.
-                                    &ip_version,
-                                    &settings.shadowsocks,
-                                    relay.endpoint(),
-                                )
-                            }
-                            // QUIC is only enabled on some relays
-                            Quic => match relay.endpoint().quic() {
-                                Some(quic) => match ip_version.as_ref() {
-                                    Constraint::Any => true,
-                                    Constraint::Only(IpVersion::V4) => {
-                                        quic.in_ipv4().next().is_some()
-                                    }
-                                    Constraint::Only(IpVersion::V6) => {
-                                        quic.in_ipv6().next().is_some()
-                                    }
+                    match obfuscation_settings.as_ref() {
+                        Constraint::Any => true,
+                        Constraint::Only(settings) => {
+                            match settings.selected_obfuscation {
+                                Shadowsocks => {
+                                    // let wg_data = &relay_list.wireguard;
+                                    matcher::filter_on_shadowsocks(
+                                        //&wg_data.shadowsocks_port_ranges,
+                                        &[(0..=u16::MAX)], // TODO: We might need access to 'Wireguard endpoint data' from relay list.
+                                        &ip_version,
+                                        &settings.shadowsocks,
+                                        relay.endpoint(),
+                                    )
+                                }
+                                // QUIC is only enabled on some relays
+                                Quic => match relay.endpoint().quic() {
+                                    Some(quic) => match ip_version.as_ref() {
+                                        Constraint::Any => true,
+                                        Constraint::Only(IpVersion::V4) => {
+                                            quic.in_ipv4().next().is_some()
+                                        }
+                                        Constraint::Only(IpVersion::V6) => {
+                                            quic.in_ipv6().next().is_some()
+                                        }
+                                    },
+                                    None => false,
                                 },
-                                None => false,
-                            },
-                            // LWO is only enabled on some relays
-                            Lwo => relay.endpoint().lwo,
-                            // Other relays are always valid
-                            // TODO:^ This might not be true. We might want to consider the selected port for
-                            // udp2tcp & wireguard port ..
-                            Off | Auto | WireguardPort | Udp2Tcp => true,
-                        })
-                        .reject(Reason::Obfuscation)
+                                // LWO is only enabled on some relays
+                                Lwo => relay.endpoint().lwo,
+                                // Other relays are always valid
+                                // TODO:^ This might not be true. We might want to consider the selected port for
+                                // udp2tcp & wireguard port ..
+                                Off | Auto | WireguardPort | Udp2Tcp => true,
+                            }
+                        }
+                    }
+                    .reject(Reason::Obfuscation)
                 });
                 // TODO: Consolidate with `matcher` module. This is just re-implemented as a POC.
                 let criteria = [active, location, ownership, providers, daita, obfuscation];
