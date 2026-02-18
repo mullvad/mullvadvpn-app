@@ -82,11 +82,11 @@ export function SelectLocation() {
   const updateSearchTerm = useCallback(
     (value: string) => {
       setSearchValue(value);
-      if (value.length === 1) {
+      if (value.length < 2) {
         setSearchTerm('');
       } else {
         resetScrollPositions();
-        setSearchTerm(value);
+        setSearchTerm(value.toLowerCase());
       }
     },
     [setSearchTerm, resetScrollPositions],
