@@ -54,8 +54,8 @@ export function AddToCustomListDialog({ location, onOpenChange, open }: AddToCus
                 <SelectList key={list.id} list={list} location={location} />
               ))}
             </FlexColumn>
-            <Dialog.Button key="cancel" onClick={handleClickCancel}>
-              <Dialog.Button.Text>{messages.gettext('Cancel')}</Dialog.Button.Text>
+            <Dialog.Button onClick={handleClickCancel}>
+              <Dialog.Button.Text>{messages.gettext('Close')}</Dialog.Button.Text>
             </Dialog.Button>
           </Dialog.PopupContent>
         </Dialog.Popup>
