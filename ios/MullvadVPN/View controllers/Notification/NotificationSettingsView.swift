@@ -39,15 +39,8 @@ struct NotificationSettingsView<ViewModel>: View where ViewModel: NotificationSe
                     .foregroundStyle(.white.opacity(0.6))
                     .padding(.bottom, 16)
                     .showIf(viewModel.isNotificationsDisabled)
-                    MainButton(
-                        text: "Enable notifications",
-                        style: .default,
-                        action: {
-                            viewModel.enableNotifications()
-                        }
-                    )
-                    .showIf(!viewModel.isNotificationsAllowed)
 
+                    // Show the button if notifications are allowed or disabled
                     MainButton(
                         text: "Open system settings",
                         style: .default,
@@ -55,7 +48,18 @@ struct NotificationSettingsView<ViewModel>: View where ViewModel: NotificationSe
                             viewModel.openAppSettings()
                         }
                     )
-                    .showIf(viewModel.isNotificationsAllowed)
+                    .showIf(viewModel.isNotificationsDisabled || viewModel.isNotificationsAllowed)
+
+                    // Show the button if notifications are not set
+                    MainButton(
+                        text: "Enable notifications",
+                        style: .default,
+                        action: {
+                            viewModel.enableNotifications()
+                        }
+                    )
+                    .showIf(!viewModel.isNotificationsAllowed && !viewModel.isNotificationsDisabled)
+
                 }
                 .padding(.horizontal, 16)
                 .padding(.bottom, 24)

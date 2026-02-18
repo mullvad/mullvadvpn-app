@@ -31,6 +31,7 @@ struct NotificationPromptView<ViewModel>: View where ViewModel: NotificationProm
                                 image
                                     .resizable()
                                     .frame(width: iconSize, height: iconSize)
+                                    .foregroundStyle(Color(.primaryTextColor))
 
                                 Text(text)
                                     .font(.mullvadLarge)
@@ -38,9 +39,9 @@ struct NotificationPromptView<ViewModel>: View where ViewModel: NotificationProm
                                     .multilineTextAlignment(.center)
                             }
 
-                        case .message(let message):
+                        case .message(let message, let font):
                             Text(message)
-                                .font(.mullvadSmall)
+                                .font(font)
                                 .multilineTextAlignment(.center)
                                 .foregroundStyle(.white.opacity(0.6))
 
