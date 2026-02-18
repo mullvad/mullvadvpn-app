@@ -4,10 +4,9 @@ import { sprintf } from 'sprintf-js';
 import { strings } from '../../../../../../shared/constants';
 import { messages } from '../../../../../../shared/gettext';
 import { RoutePath } from '../../../../../../shared/routes';
-import { Button } from '../../../../../lib/components';
+import { Button, LabelTinySemiBold } from '../../../../../lib/components';
 import { FlexColumn } from '../../../../../lib/components/flex-column';
 import { useHistory } from '../../../../../lib/history';
-import { StyledSelectionUnavailableText } from '../../SelectLocationStyles';
 
 export function DisabledEntrySelection() {
   const { push } = useHistory();
@@ -21,7 +20,7 @@ export function DisabledEntrySelection() {
 
   return (
     <FlexColumn gap="large" margin={{ horizontal: 'large', bottom: 'tiny' }}>
-      <StyledSelectionUnavailableText>
+      <LabelTinySemiBold color="whiteAlpha60">
         {sprintf(
           messages.pgettext(
             'select-location-view',
@@ -29,7 +28,7 @@ export function DisabledEntrySelection() {
           ),
           { daita: strings.daita, multihop, directOnly },
         )}
-      </StyledSelectionUnavailableText>
+      </LabelTinySemiBold>
       <Button onClick={navigateToDaitaSettings}>
         <Button.Text>
           {sprintf(messages.pgettext('select-location-view', 'Open %(daita)s settings'), {
