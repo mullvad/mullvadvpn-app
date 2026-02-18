@@ -30,7 +30,7 @@ pub enum Error {
 /// a backing store for an AddressCache.
 
 #[async_trait]
-pub trait AddressCacheBacking: 'static + Sync + Send + Debug + std::clone::Clone {
+pub trait AddressCacheBacking: 'static + Sync + Send + std::clone::Clone {
     async fn read(&self) -> Result<Vec<u8>, Error>;
     async fn write(&self, data: &[u8]) -> Result<(), Error>;
 }
