@@ -25,6 +25,12 @@ pub enum FromProtobufTypeError {
     InvalidArgument(&'static str),
 }
 
+/// Shorthand for `FromProtobufTypeError::InvalidArgument`.
+#[inline(always)]
+pub(crate) fn invalid_argument(msg: &'static str) -> FromProtobufTypeError {
+    FromProtobufTypeError::InvalidArgument(msg)
+}
+
 fn bytes_to_pubkey(
     bytes: &[u8],
 ) -> Result<talpid_types::net::wireguard::PublicKey, FromProtobufTypeError> {
