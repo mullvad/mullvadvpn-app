@@ -4,34 +4,11 @@ import {
   RelayLocationCustomList as DaemonRelayLocationCustomList,
   RelayLocationRelay as DaemonRelayLocationRelay,
 } from '../../../../shared/daemon-rpc-types';
-import {
-  IRelayLocationCityRedux,
-  IRelayLocationCountryRedux,
-  IRelayLocationRelayRedux,
-} from '../../../redux/settings/reducers';
 
 export enum LocationType {
   entry = 0,
   exit,
 }
-
-export interface LocationVisibility {
-  visible: boolean;
-}
-
-export interface RelayLocationCountryWithVisibility
-  extends IRelayLocationCountryRedux,
-    LocationVisibility {
-  cities: Array<RelayLocationCityWithVisibility>;
-}
-
-export interface RelayLocationCityWithVisibility
-  extends IRelayLocationCityRedux,
-    LocationVisibility {
-  relays: Array<RelayLocationRelayWithVisibility>;
-}
-
-export type RelayLocationRelayWithVisibility = IRelayLocationRelayRedux & LocationVisibility;
 
 type LocationState = {
   active: boolean;
