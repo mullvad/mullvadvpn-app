@@ -8,7 +8,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.util.Consumer
 import androidx.lifecycle.Lifecycle
@@ -25,7 +24,6 @@ import net.mullvad.mullvadvpn.di.paymentModule
 import net.mullvad.mullvadvpn.di.uiModule
 import net.mullvad.mullvadvpn.lib.common.constant.KEY_REQUEST_VPN_PROFILE
 import net.mullvad.mullvadvpn.lib.common.util.CreateVpnProfile
-import net.mullvad.mullvadvpn.lib.common.util.SdkUtils.requestNotificationPermissionIfMissing
 import net.mullvad.mullvadvpn.lib.common.util.prepareVpnSafe
 import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointFromIntentHolder
 import net.mullvad.mullvadvpn.lib.endpoint.getApiEndpointConfigurationExtras
@@ -47,11 +45,6 @@ import org.koin.core.context.loadKoinModules
 class MainActivity : ComponentActivity(), AndroidScopeComponent {
     override val scope by activityScope()
 
-    private val requestNotificationPermissionLauncher =
-        registerForActivityResult(ActivityResultContracts.RequestPermission()) {
-            // NotificationManager.areNotificationsEnabled is used to check the state rather than
-            // handling the callback value.
-        }
     private val launchVpnPermission =
         registerForActivityResult(CreateVpnProfile()) { _ -> mullvadAppViewModel.connect() }
 
@@ -83,7 +76,7 @@ class MainActivity : ComponentActivity(), AndroidScopeComponent {
 
         super.onCreate(savedInstanceState)
 
-        setContent { AppTheme { MullvadApp(backstackObserver) } }
+        setContent { AppTheme { MullvadApp(backstackObserver, serviceConnectionManager) } }
 
         // This is to protect against tapjacking attacks
         // This is applied at an OS level since Android 12 so it is only required on older versions
@@ -124,7 +117,6 @@ class MainActivity : ComponentActivity(), AndroidScopeComponent {
     }
 
     fun bindService() {
-        requestNotificationPermissionIfMissing(requestNotificationPermissionLauncher)
         serviceConnectionManager.bind()
     }
 
