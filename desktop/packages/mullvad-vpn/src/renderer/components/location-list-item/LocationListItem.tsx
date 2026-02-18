@@ -1,9 +1,9 @@
 import { Accordion } from '../../lib/components/accordion';
 import { ListItem } from '../../lib/components/list-item';
 import {
-  LocationAccordionContent,
-  LocationAccordionTitle,
   LocationListItemAccordion,
+  LocationListItemAccordionContent,
+  LocationListItemAccordionHeaderTitle,
   LocationListItemAccordionTrigger,
   LocationListItemHeader,
   LocationListItemIconButton,
@@ -26,8 +26,8 @@ const LocationListItemNamespace = Object.assign(LocationListItem, {
   Accordion: LocationListItemAccordion,
   AccordionTrigger: LocationListItemAccordionTrigger,
   AccordionContainer: Accordion.Container,
-  AccordionContent: LocationAccordionContent,
-  Icon: Accordion.Icon,
+  AccordionContent: LocationListItemAccordionContent,
+  HeaderChevron: Accordion.HeaderChevron,
   IconButton: LocationListItemIconButton,
   Header: LocationListItemHeader,
   HeaderActionGroup: Accordion.HeaderActionGroup,
@@ -35,7 +35,7 @@ const LocationListItemNamespace = Object.assign(LocationListItem, {
   HeaderTrigger: ListItem.Trigger,
   HeaderTrailingActions: Accordion.HeaderTrailingActions,
   HeaderTrailingAction: Accordion.HeaderTrailingAction,
-  Title: LocationAccordionTitle,
+  HeaderTitle: LocationListItemAccordionHeaderTitle,
 });
 
 export { LocationListItemNamespace as LocationListItem };

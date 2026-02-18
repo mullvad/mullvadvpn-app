@@ -6,9 +6,9 @@ import type { AccordionContentProps } from '../../../../lib/components/accordion
 import { useScrollPositionContext } from '../../../views/select-location/ScrollPositionContext';
 import { useLocationListItemAccordionContext } from '../location-list-item-accordion/LocationListItemAccordionContext';
 
-export type LocationAccordionProps = AccordionContentProps;
+export type LocationListItemAccordionContentProps = AccordionContentProps;
 
-export const LocationAccordionContent = (props: LocationAccordionProps) => {
+export const LocationListItemAccordionContent = (props: LocationListItemAccordionContentProps) => {
   const { userTriggeredExpand, setUserTriggeredExpand } = useLocationListItemAccordionContext();
   const { headerRef, content } = useAccordionContext();
   const { spacePreAllocationViewRef, scrollIntoView, resetHeight, scrollViewRef } =

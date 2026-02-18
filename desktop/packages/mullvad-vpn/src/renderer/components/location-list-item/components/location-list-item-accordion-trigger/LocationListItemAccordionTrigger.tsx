@@ -24,8 +24,8 @@ export function LocationListItemAccordionTrigger({
   );
 
   return (
-    <Accordion.Trigger onClick={handleClick} {...props}>
+    <Accordion.HeaderTrigger onClick={handleClick} {...props}>
       {children}
-    </Accordion.Trigger>
+    </Accordion.HeaderTrigger>
   );
 }

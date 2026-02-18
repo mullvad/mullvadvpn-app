@@ -2,9 +2,9 @@ import { ListItem } from '../../list-item';
 import { TextProps } from '../../text';
 import { useAccordionContext } from '../AccordionContext';
 
-export type AccordionTitleProps = TextProps;
+export type AccordionHeaderTitleProps = TextProps;
 
-export function AccordionTitle({ children }: AccordionTitleProps) {
+export function AccordionHeaderTitle({ children }: AccordionHeaderTitleProps) {
   const { titleId } = useAccordionContext();
   return <ListItem.Label id={titleId}>{children}</ListItem.Label>;
 }
