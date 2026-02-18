@@ -2,14 +2,18 @@ import React from 'react';
 
 import { useCustomLists } from '../../../../features/location/hooks';
 import { useLocationsContext } from '../LocationsContext';
-import { isCustomListDisabled, isSelected } from '../select-location-helpers';
 import {
   type CustomListLocation,
   DisabledReason,
   type GeographicalLocation,
 } from '../select-location-types';
 import { useSelectLocationViewContext } from '../SelectLocationViewContext';
-import { createLocationMap, searchMatchesLocation } from '../utils';
+import {
+  createLocationMap,
+  isCustomListDisabled,
+  isLocationSelected,
+  searchMatchesLocation,
+} from '../utils';
 import { useSelectedLocation } from './use-selected-location';
 
 export function useCustomListLocations(): CustomListLocation[] {
@@ -82,7 +86,7 @@ export function useCustomListLocations(): CustomListLocation[] {
       active: disabledReason !== DisabledReason.inactive,
       // If not custom list matches search, one of the children did
       expanded: !customListMatchesSearch,
-      selected: isSelected(details, selectedLocation),
+      selected: isLocationSelected(details, selectedLocation),
     };
   });
 

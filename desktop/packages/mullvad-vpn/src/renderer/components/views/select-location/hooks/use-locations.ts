@@ -8,18 +8,18 @@ import type {
 } from '../../../../redux/settings/reducers';
 import { useSelector } from '../../../../redux/store';
 import {
-  formatRowName,
-  isCityDisabled,
-  isCountryDisabled,
-  isRelayDisabled,
-  isSelected,
-} from '../select-location-helpers';
-import {
   type CityLocation,
   type CountryLocation,
   DisabledReason,
   type RelayLocation,
 } from '../select-location-types';
+import {
+  createLocationLabel,
+  isCityDisabled,
+  isCountryDisabled,
+  isLocationSelected,
+  isRelayDisabled,
+} from '../utils';
 import { useDisabledLocation, useSelectedLocation } from './';
 
 export function useLocations(relayList: Array<IRelayLocationCountryRedux>): CountryLocation[] {
@@ -69,7 +69,7 @@ function toCountryLocation(
       })
       .sort((a, b) => a.label.localeCompare(b.label, locale));
 
-    const label = formatRowName(country.name, countryLocation, countryDisabledReason);
+    const label = createLocationLabel(country.name, countryLocation, countryDisabledReason);
 
     return {
       type: 'country',
@@ -81,7 +81,7 @@ function toCountryLocation(
       active: countryDisabledReason !== DisabledReason.inactive,
       disabled: countryDisabledReason !== undefined,
       disabledReason: countryDisabledReason,
-      selected: isSelected(countryLocation, selectedLocation),
+      selected: isLocationSelected(countryLocation, selectedLocation),
       expanded: hasExpandedChild || hasSelectedChild,
       cities,
     };
@@ -118,7 +118,7 @@ function toCityLocation(
   const cityLocation: DaemonRelayLocation = { country: country.code, city: city.code };
   const cityDisabledReason =
     parentDisabledReason ?? isCityDisabled(city, cityLocation, disabledLocation);
-  const label = formatRowName(city.name, cityLocation, cityDisabledReason);
+  const label = createLocationLabel(city.name, cityLocation, cityDisabledReason);
 
   return {
     type: 'city',
@@ -131,7 +131,7 @@ function toCityLocation(
     active: cityDisabledReason !== DisabledReason.inactive,
     disabled: cityDisabledReason !== undefined,
     disabledReason: cityDisabledReason,
-    selected: isSelected(cityLocation, selectedLocation),
+    selected: isLocationSelected(cityLocation, selectedLocation),
     expanded: hasSelectedChild,
     relays,
   };
@@ -153,7 +153,7 @@ function toRelayLocations(
 
   const relayDisabledReason =
     parentDisabledReason ?? isRelayDisabled(relay, relayLocation, disabledLocation);
-  const label = formatRowName(relay.hostname, relayLocation, relayDisabledReason);
+  const label = createLocationLabel(relay.hostname, relayLocation, relayDisabledReason);
 
   return {
     type: 'relay',
@@ -167,7 +167,7 @@ function toRelayLocations(
     active: relayDisabledReason !== DisabledReason.inactive,
     disabled: relayDisabledReason !== undefined,
     disabledReason: relayDisabledReason,
-    selected: isSelected(relayLocation, selectedLocation),
+    selected: isLocationSelected(relayLocation, selectedLocation),
     expanded: false,
   };
 }
