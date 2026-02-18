@@ -75,23 +75,26 @@ struct LocationDisclosureGroup<Label: View, Content: View, ContextMenu: View>: V
                         Color.colorForLevel(level)
                     }
             }
+            .accessibilityLabel(
+                isExpanded ? Text("Collapse") : Text("Expand")
+            )
+            .accessibilityIdentifier(.expandButton)
             .contentShape(Rectangle())
         }
-        .accessibilityRepresentation {
-            Text(accessibilityName)
-                .accessibilityValue(isExpanded ? Text("Expanded") : Text("Collapsed"))
-                .accessibilityAction(named: Text("Select \(accessibilityName)")) {
-                    onSelect?()
-                }
-                .accessibilityAction(
-                    named: isExpanded
-                        ? Text("Collapse \(accessibilityName)")
-                        : Text("Expand \(accessibilityName)")
-                ) {
-                    withAnimation(.default.speed(3)) {
-                        isExpanded.toggle()
-                    }
-                }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(accessibilityName)
+        .accessibilityValue(isExpanded ? Text("Expanded") : Text("Collapsed"))
+        .accessibilityAction(named: Text("Select \(accessibilityName)")) {
+            onSelect?()
+        }
+        .accessibilityAction(
+            named: isExpanded
+                ? Text("Collapse \(accessibilityName)")
+                : Text("Expand \(accessibilityName)")
+        ) {
+            withAnimation(.default.speed(3)) {
+                isExpanded.toggle()
+            }
         }
         .accessibilityIdentifier(accessibilityIdentifier)
         .clipShape(
