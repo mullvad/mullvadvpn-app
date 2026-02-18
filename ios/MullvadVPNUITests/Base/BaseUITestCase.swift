@@ -143,8 +143,15 @@ class BaseUITestCase: XCTestCase {
         if alertAllowButton.existsAfterWait(timeout: .short) {
             alertAllowButton.tap()
 
-            if !iOSDevicePinCode.isEmpty, springboard.buttons["1"].existsAfterWait() {
-                springboard.typeText(iOSDevicePinCode)
+            if !iOSDevicePinCode.isEmpty {
+                let passcodeScreenVisible =
+                    springboard.buttons["1"].existsAfterWait()
+                    || springboard.keys["1"].existsAfterWait()
+                    || springboard.secureTextFields.firstMatch.existsAfterWait()
+
+                if passcodeScreenVisible {
+                    springboard.typeText(iOSDevicePinCode)
+                }
             }
         }
     }
