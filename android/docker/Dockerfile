@@ -19,7 +19,7 @@ FROM ghcr.io/mullvad/mullvadvpn-app-build:dbc170b2c5
 # === Metadata ===
 LABEL org.opencontainers.image.source=https://github.com/mullvad/mullvadvpn-app
 LABEL org.opencontainers.image.description="Mullvad VPN app Android build container"
-LABEL org.opencontainers.image.licenses=GPL-3.0
+LABEL org.opencontainers.image.licenses=GPL-3.0-or-later
 
 # === Define toolchain versions and paths ===
 
