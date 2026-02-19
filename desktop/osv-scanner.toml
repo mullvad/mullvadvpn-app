@@ -23,3 +23,9 @@ reason = "The vulnerable tar dependency does not handle arbitrary tar files as i
 id = "CVE-2026-24842"  # GHSA-34x7-hfp2-rc4v
 ignoreUntil = 2026-02-24
 reason = "The vulnerable tar dependency does not handle arbitrary tar files as it is only used by grpc-tools. Unless the files uploaded by the grpc-tools team to node-precompiled-binaries.grpc.io are compromised an attack is not possible."
+
+# ajv: ajv has ReDoS when using $data option
+[[IgnoredVulns]]
+id = "CVE-2025-69873"  # GHSA-2g4f-4pwh-qvx6
+ignoreUntil = 2026-08-04
+reason = "This vulnerability only concerns ReDoS and the package is only used in development by eslint and electron-builder. eslint explicitly does not use the $data option and electron-builder uses it to validate its config, which we fully dictate ourselves."
