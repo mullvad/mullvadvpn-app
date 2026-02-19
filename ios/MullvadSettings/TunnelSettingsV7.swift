@@ -49,6 +49,12 @@ public struct TunnelSettingsV7: Codable, Equatable, TunnelSettings, Sendable {
         self.includeAllNetworks = includeAllNetworks
     }
 
+    /// Legacy coding key for the `localNetworkSharing` Bool field that existed prior to its
+    /// consolidation into `IncludeAllNetworksSettings`.
+    private enum LegacyCodingKeys: String, CodingKey {
+        case localNetworkSharing
+    }
+
     public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
 
@@ -64,11 +70,25 @@ public struct TunnelSettingsV7: Codable, Equatable, TunnelSettings, Sendable {
             try container.decode(MultihopState.self, forKey: .tunnelMultihopState)
         self.daita =
             try container.decode(DAITASettings.self, forKey: .daita)
-        self.includeAllNetworks =
-            try container.decodeIfPresent(
-                IncludeAllNetworksSettings.self,
-                forKey: .includeAllNetworks
-            ) ?? IncludeAllNetworksSettings()
+
+        // Handle both the new struct format and the legacy Bool format for `includeAllNetworks`.
+        // Prior to the IAN activation flow, `includeAllNetworks` was a Bool and `localNetworkSharing`
+        // was a separate Bool field.
+        if let settings = try? container.decode(IncludeAllNetworksSettings.self, forKey: .includeAllNetworks) {
+            self.includeAllNetworks = settings
+        } else {
+            let includeAllNetworks = try container.decodeIfPresent(Bool.self, forKey: .includeAllNetworks) ?? false
+            let legacyContainer = try decoder.container(keyedBy: LegacyCodingKeys.self)
+            let localNetworkSharing =
+                try legacyContainer.decodeIfPresent(
+                    Bool.self,
+                    forKey: .localNetworkSharing
+                ) ?? false
+            self.includeAllNetworks = IncludeAllNetworksSettings(
+                includeAllNetworksState: includeAllNetworks ? .on : .off,
+                localNetworkSharingState: localNetworkSharing ? .on : .off
+            )
+        }
     }
 
     public func upgradeToNextVersion() -> any TunnelSettings {
