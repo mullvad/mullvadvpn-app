@@ -2,6 +2,8 @@ package net.mullvad.mullvadvpn.lib.common.util
 
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageInfo
+import android.content.pm.PackageManager
 import android.net.VpnService
 import android.net.VpnService.prepare
 import android.os.Build
@@ -15,7 +17,6 @@ import arrow.core.raise.either
 import arrow.core.raise.ensureNotNull
 import arrow.core.right
 import co.touchlab.kermit.Logger
-import net.mullvad.mullvadvpn.lib.common.util.SdkUtils.getInstalledPackagesList
 import net.mullvad.mullvadvpn.lib.model.PrepareError
 import net.mullvad.mullvadvpn.lib.model.Prepared
 
@@ -112,6 +113,13 @@ fun VpnService.Builder.establishSafe(): Either<EstablishError, ParcelFileDescrip
 
     vpnInterfaceFd
 }
+
+private fun PackageManager.getInstalledPackagesList(flags: Int = 0): List<PackageInfo> =
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        getInstalledPackages(PackageManager.PackageInfoFlags.of(flags.toLong()))
+    } else {
+        @Suppress("DEPRECATION") getInstalledPackages(flags)
+    }
 
 sealed interface EstablishError {
     data class ParameterNotApplied(val exception: IllegalStateException) : EstablishError

@@ -43,7 +43,7 @@ compose-material-icons-extended = "1.7.8"
 compose-material3 = "1.4.0"
 dependency-versions = "0.53.0"
 detekt = "1.23.8"
-drawablepainter = "0.37.3"
+accompanist = "0.37.3"
 # Update suppression for 'InvalidPackage' in config/lint.xml
 grpc = "1.78.0"
 grpc-kotlin = "1.5.0"
@@ -75,7 +75,8 @@ junit-version = "4.13.2"
 material = "1.10.0"
 
 [libraries]
-accompanist-drawablepainter = { module = "com.google.accompanist:accompanist-drawablepainter", version.ref = "drawablepainter" }
+accompanist-drawablepainter = { module = "com.google.accompanist:accompanist-drawablepainter", version.ref = "accompanist" }
+accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanist" }
 android-billingclient = { module = "com.android.billingclient:billing-ktx", version.ref = "android-billingclient" }
 android-gradle-aapt = { module = "com.android.tools.build:aapt2" }
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activitycompose" }

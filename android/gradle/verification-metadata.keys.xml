@@ -132,7 +132,10 @@
             <trusting group="com.facebook" name="ktfmt" version="0.58"/>
             <trusting group="com.facebook" name="ktfmt" version="0.59"/>
          </trusted-key>
-         <trusted-key id="64B9B09F164AA0BF88742EB61188B69F6D6259CA" group="com.google.accompanist" name="accompanist-drawablepainter" version="0.37.3"/>
+         <trusted-key id="64B9B09F164AA0BF88742EB61188B69F6D6259CA">
+            <trusting group="com.google.accompanist" name="accompanist-drawablepainter" version="0.37.3"/>
+            <trusting group="com.google.accompanist" name="accompanist-permissions" version="0.37.3"/>
+         </trusted-key>
          <trusted-key id="694621A7227D8D5289699830ABE9F3126BB741C1" group="^com[.]google($|([.].*))" regex="true"/>
          <trusted-key id="696B6199A2A9D8C29CE78CC0D041CAD2E452550F" group="com.google.protobuf"/>
          <trusted-key id="6CE63E2E1685215A995BB3020B99A4AB5DB59AA2" group="io.arrow-kt"/>
