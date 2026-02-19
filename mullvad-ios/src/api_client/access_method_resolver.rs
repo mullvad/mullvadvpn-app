@@ -25,11 +25,16 @@ pub struct IOSAddressCacheBacking {}
 
 #[async_trait]
 impl AddressCacheBacking for IOSAddressCacheBacking {
+    // SAFETY: swift_read_address_cache is a synchronous Swift function 
+    // which always returns. its failure mode (in the absence of data) 
+    // is to return zero-length data
     async fn read(&self) -> Result<Vec<u8>, AddressCacheError> {
         let sd = unsafe { swift_read_address_cache() };
         Ok(sd.as_ref().to_vec())
     }
 
+    // SAFETY: swift_store_address_cache always returns.
+    // failures to store data to the settings manager are ignored
     async fn write(&self, data: &[u8]) -> Result<(), AddressCacheError> {
         unsafe { swift_store_address_cache(data.as_ptr(), data.len().try_into().unwrap()) };
         Ok(())
