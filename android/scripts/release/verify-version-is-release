@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+set -eu
+
+version=$(cargo run -q --bin mullvad-version)
+if [[ "$version" == *-dev-* ]]; then
+    echo "Current commit doesn't correspond to an app release. Please checkout a release tag."
+    exit 1
+fi
