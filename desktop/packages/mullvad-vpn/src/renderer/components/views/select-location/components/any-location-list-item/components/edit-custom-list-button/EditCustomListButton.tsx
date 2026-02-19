@@ -6,7 +6,7 @@ import { LocationListItem } from '../../../../../../location-list-item';
 import type { LocationListItemIconButtonProps } from '../../../../../../location-list-item/components';
 import type { CustomListLocation } from '../../../../select-location-types';
 import { useCustomListLocationListItemContext } from '../../../custom-list-location-list-item/CustomListLocationListItemContext';
-import { EditListDialog } from '../../../edit-list-dialog';
+import { EditListDialog } from '../../../edit-custom-list-dialog';
 
 export type EditCustomListButtonProps = LocationListItemIconButtonProps & {
   customList: CustomListLocation;
