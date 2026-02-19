@@ -42,6 +42,10 @@ export function SelectList({ list, location }: SelectListProps) {
             disabled={loading || addedToList}
             onClick={handleClickAdd}
             aria-label={sprintf(
+              // TRANSLATORS: This is an accessibility label for a button that adds a location to a custom list.
+              // TRANSLATORS: Available placeholders:
+              // TRANSLATORS: %(location)s - The name of the location being added to the list.
+              // TRANSLATORS: %(listName)s - The name of the custom list the location will be added to.
               messages.pgettext('accessibility', 'Add %(location)s to %(listName)s'),
               {
                 location: location.label,

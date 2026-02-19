@@ -44,6 +44,10 @@ export function ConfirmDeleteCustomListDialog({
             <Dialog.Text>
               {formatHtml(
                 sprintf(
+                  // TRANSLATORS: Confirmation message shown when the user tries to delete a custom list.
+                  // TRANSLATORS: Asks the user if they are sure they want to delete the list.
+                  // TRANSLATORS: Available placeholder:
+                  // TRANSLATORS: %(list)s - The name of the custom list that is about to be deleted.
                   messages.pgettext(
                     'select-location-view',
                     'Do you want to delete the list %(list)s?',

@@ -76,7 +76,8 @@ function EditListDialogImpl(
                     <Dialog.Text role="status" id={descriptionId}>
                       {dirty && invalid && invalidReason
                         ? invalidReason
-                        : messages.pgettext(
+                        : // TRANSLATORS: Helper text under input for editing the name of a custom list.
+                          messages.pgettext(
                             'select-location-view',
                             'Enter a new name for the custom list',
                           )}

@@ -24,7 +24,10 @@ export function CustomListsSectionTitle({ ...props }: CustomListsSectionTitlePro
       <SectionTitle.Divider />
       <SectionTitle.IconButton
         onClick={handleOnClick}
-        aria-label={messages.pgettext('accessibility', 'Add a new custom list')}>
+        aria-label={
+          // TRANSLATORS: This is an accessibility label for a button that opens a dialog to create a new custom list.
+          messages.pgettext('accessibility', 'Add a new custom list')
+        }>
         <SectionTitle.IconButton.Icon icon="add" />
       </SectionTitle.IconButton>
     </SectionTitle>

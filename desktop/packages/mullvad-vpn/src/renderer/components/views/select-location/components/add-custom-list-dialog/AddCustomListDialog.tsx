@@ -60,7 +60,10 @@ function AddCustomListDialogImpl(props: AddCustomListDialogProps) {
                 invalid={dirty && (error || invalid)}>
                 <Dialog.TextGroup gap="small" flexGrow="1">
                   <TextField.Label color="whiteAlpha60">
-                    {messages.pgettext('select-location-view', 'Create custom list')}
+                    {
+                      // TRANSLATORS: Label for the input where the user can enter the name of a new custom list.
+                      messages.pgettext('select-location-view', 'Create custom list')
+                    }
                   </TextField.Label>
                   <FlexColumn gap="small">
                     <TextField.Input
@@ -68,14 +71,14 @@ function AddCustomListDialogImpl(props: AddCustomListDialogProps) {
                       width="medium"
                       maxLength={30}
                       autoFocus
-                      aria-label={messages.pgettext('accessibility', 'Custom list name')}
                       aria-describedby={descriptionId}
                       aria-errormessage={invalidReason ? descriptionId : undefined}
                     />
                     <Dialog.Text id={descriptionId} role="status">
                       {invalidReason
                         ? invalidReason
-                        : messages.pgettext(
+                        : // TRANSLATORS: Helper text under input for creating a custom list.
+                          messages.pgettext(
                             'select-location-view',
                             'Enter a name for the custom list',
                           )}

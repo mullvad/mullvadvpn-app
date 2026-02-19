@@ -54,19 +54,27 @@ function CustomListLocationListImpl() {
 
         {!hasCustomLists && !addingCustomList && (
           <Text variant="labelTiny" color="whiteAlpha60">
-            {messages.pgettext(
-              'select-location-view',
-              'Add a custom list by clicking the “+” icon ',
-            )}
+            {
+              // TRANSLATORS: Message shown when the user has no custom lists.
+              // TRANSLATORS:Instructs the user how to create a custom list.
+              messages.pgettext(
+                'select-location-view',
+                'Add a custom list by clicking the “+” icon',
+              )
+            }
           </Text>
         )}
         {hasCustomLists && (
           <Container horizontalMargin="small">
             <Text variant="labelTiny" color="whiteAlpha60">
-              {messages.pgettext(
-                'select-location-view',
-                'Add locations by clicking on “+” when hovering over a location.',
-              )}
+              {
+                // TRANSLATORS: Message shown in the custom list section when the user has at least one custom list.
+                // TRANSLATORS: Instructs the user how to add locations to the custom list.
+                messages.pgettext(
+                  'select-location-view',
+                  'Add locations by clicking on “+” when hovering over a location.',
+                )
+              }
             </Text>
           </Container>
         )}
