@@ -43,7 +43,6 @@ final class TunnelStateAccessibilityAnnouncer {
     }
 
     private func handleTunnelStateChange(_ state: TunnelState) {
-        guard UIAccessibility.isVoiceOverRunning else { return }
         guard let announcement = announcementString(for: state) else { return }
 
         // Avoid repeating the same announcement.
@@ -73,7 +72,7 @@ final class TunnelStateAccessibilityAnnouncer {
                 String(
                     format: NSLocalizedString(
                         "TUNNEL_STATE_CONNECTING_TO",
-                        value: "Connecting to %@, %@",
+                        value: "Tunnel connecting to %@, %@",
                         comment: "VoiceOver announcement when connecting to a relay"
                     ),
                     relays.exit.location.city,
@@ -82,7 +81,7 @@ final class TunnelStateAccessibilityAnnouncer {
             } else {
                 NSLocalizedString(
                     "TUNNEL_STATE_CONNECTING",
-                    value: "Connecting",
+                    value: "Tunnel connecting",
                     comment: "VoiceOver announcement when connecting without relay info"
                 )
             }
@@ -91,7 +90,7 @@ final class TunnelStateAccessibilityAnnouncer {
             String(
                 format: NSLocalizedString(
                     "TUNNEL_STATE_CONNECTED_TO",
-                    value: "Connected to %@, %@",
+                    value: "Tunnel connected to %@, %@",
                     comment: "VoiceOver announcement when connected to a relay"
                 ),
                 relays.exit.location.city,
@@ -101,14 +100,14 @@ final class TunnelStateAccessibilityAnnouncer {
         case .disconnecting(.nothing):
             NSLocalizedString(
                 "TUNNEL_STATE_DISCONNECTING",
-                value: "Disconnecting",
+                value: "Tunnel disconnecting",
                 comment: "VoiceOver announcement when disconnecting"
             )
 
         case .disconnected:
             NSLocalizedString(
                 "TUNNEL_STATE_DISCONNECTED",
-                value: "Disconnected",
+                value: "Tunnel disconnected",
                 comment: "VoiceOver announcement when disconnected"
             )
 
@@ -116,7 +115,7 @@ final class TunnelStateAccessibilityAnnouncer {
             String(
                 format: NSLocalizedString(
                     "TUNNEL_STATE_RECONNECTING_TO",
-                    value: "Reconnecting to %@, %@",
+                    value: "Tunnel reconnecting to %@, %@",
                     comment: "VoiceOver announcement when reconnecting to a relay"
                 ),
                 relays.exit.location.city,

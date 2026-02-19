@@ -56869,7 +56869,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "Connected to %1$@, %2$@"
+            "value" : "Tunnel connected to %1$@, %2$@"
           }
         }
       }
@@ -56881,7 +56881,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "Connecting"
+            "value" : "Tunnel connecting"
           }
         }
       }
@@ -56893,7 +56893,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "Connecting to %1$@, %2$@"
+            "value" : "Tunnel connecting to %1$@, %2$@"
           }
         }
       }
@@ -56905,7 +56905,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "Disconnected"
+            "value" : "Tunnel disconnected"
           }
         }
       }
@@ -56917,7 +56917,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "Disconnecting"
+            "value" : "Tunnel disconnecting"
           }
         }
       }
@@ -56941,7 +56941,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "Reconnecting to %1$@, %2$@"
+            "value" : "Tunnel reconnecting to %1$@, %2$@"
           }
         }
       }
