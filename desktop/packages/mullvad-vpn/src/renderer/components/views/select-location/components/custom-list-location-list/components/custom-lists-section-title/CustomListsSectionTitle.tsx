@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import React from 'react';
 
 import { messages } from '../../../../../../../../shared/gettext';
 import {
@@ -9,16 +9,12 @@ import { useCustomListListContext } from '../../CustomListLocationListContext';
 
 export type CustomListsSectionTitleProps = SectionTitleProps;
 
-const StyledIconButton = styled(SectionTitle.IconButton)<{ $active: boolean }>`
-  transform: ${({ $active }) => (!$active ? 'rotate(45deg)' : 'rotate(0deg)')};
-  transition: transform 0.2s ease-in-out;
-`;
-
 export function CustomListsSectionTitle({ ...props }: CustomListsSectionTitleProps) {
-  const { addFormVisible, hideAddForm, showAddForm } = useCustomListListContext();
-  const handleOnClick = addFormVisible ? hideAddForm : showAddForm;
-  const createAriaLabel = messages.pgettext('accessibility', 'Create new custom list');
-  const cancelAriaLabel = messages.pgettext('accessibility', 'Cancel creating new custom list');
+  const { setAddCustomListDialogOpen } = useCustomListListContext();
+
+  const handleOnClick = React.useCallback(() => {
+    setAddCustomListDialogOpen(true);
+  }, [setAddCustomListDialogOpen]);
 
   return (
     <SectionTitle {...props}>
@@ -26,12 +22,11 @@ export function CustomListsSectionTitle({ ...props }: CustomListsSectionTitlePro
         {messages.pgettext('select-location-view', 'Custom lists')}
       </SectionTitle.Title>
       <SectionTitle.Divider />
-      <StyledIconButton
-        $active={addFormVisible}
+      <SectionTitle.IconButton
         onClick={handleOnClick}
-        aria-label={addFormVisible ? cancelAriaLabel : createAriaLabel}>
-        <SectionTitle.IconButton.Icon icon="cross" />
-      </StyledIconButton>
+        aria-label={messages.pgettext('accessibility', 'Add a new custom list')}>
+        <SectionTitle.IconButton.Icon icon="add" />
+      </SectionTitle.IconButton>
     </SectionTitle>
   );
 }

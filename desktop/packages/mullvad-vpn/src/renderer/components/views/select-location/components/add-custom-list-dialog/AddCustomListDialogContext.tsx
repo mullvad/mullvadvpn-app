@@ -1,9 +1,10 @@
 import React from 'react';
 
+import type { DialogProps } from '../../../../../lib/components/dialog';
 import { useTextField, type UseTextFieldState } from '../../../../../lib/components/text-field';
 import { useIsCustomListNameValid } from './hooks';
 
-type AddCustomListFormContext = Omit<AddCustomListFormProviderProps, 'children'> & {
+type AddCustomListDialogContextProps = Omit<AddCustomListDialogProviderProps, 'children'> & {
   formRef: React.RefObject<HTMLFormElement | null>;
   inputRef: React.RefObject<HTMLInputElement | null>;
   form: {
@@ -13,21 +14,26 @@ type AddCustomListFormContext = Omit<AddCustomListFormProviderProps, 'children'>
   };
 };
 
-const AddCustomListFormContext = React.createContext<AddCustomListFormContext | undefined>(
+const AddCustomListDialogContext = React.createContext<AddCustomListDialogContextProps | undefined>(
   undefined,
 );
 
-export const useAddCustomListFormContext = (): AddCustomListFormContext => {
-  const context = React.useContext(AddCustomListFormContext);
+export const useAddCustomListDialogContext = (): AddCustomListDialogContextProps => {
+  const context = React.useContext(AddCustomListDialogContext);
   if (!context) {
-    throw new Error('useAddCustomListFormContext must be used within a AddCustomListFormProvider');
+    throw new Error(
+      'useAddCustomListDialogContext must be used within a AddCustomListDialogProvider',
+    );
   }
   return context;
 };
 
-type AddCustomListFormProviderProps = React.PropsWithChildren;
+type AddCustomListDialogProviderProps = Pick<DialogProps, 'open' | 'onOpenChange' | 'children'>;
 
-export function AddCustomListFormProvider({ children, ...props }: AddCustomListFormProviderProps) {
+export function AddCustomListDialogProvider({
+  children,
+  ...props
+}: AddCustomListDialogProviderProps) {
   const formRef = React.useRef<HTMLFormElement>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
   const [error, setError] = React.useState<boolean>(false);
@@ -53,6 +59,8 @@ export function AddCustomListFormProvider({ children, ...props }: AddCustomListF
   );
 
   return (
-    <AddCustomListFormContext.Provider value={value}>{children}</AddCustomListFormContext.Provider>
+    <AddCustomListDialogContext.Provider value={value}>
+      {children}
+    </AddCustomListDialogContext.Provider>
   );
 }

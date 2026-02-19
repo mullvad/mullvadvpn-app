@@ -1,13 +1,10 @@
 import React from 'react';
 
-import { useBoolean } from '../../../../../lib/utility-hooks';
-
 type CustomListLocationListContextProps = Omit<CustomListLocationListProviderProps, 'children'> & {
-  addFormVisible: boolean;
-  addingForm: boolean;
-  setAddingForm: React.Dispatch<React.SetStateAction<boolean>>;
-  showAddForm: () => void;
-  hideAddForm: () => void;
+  addingCustomList: boolean;
+  setAddingCustomList: React.Dispatch<React.SetStateAction<boolean>>;
+  addCustomListDialogOpen: boolean;
+  setAddCustomListDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 const CustomListLocationListContext = React.createContext<
@@ -27,18 +24,17 @@ export const useCustomListListContext = (): CustomListLocationListContextProps =
 type CustomListLocationListProviderProps = React.PropsWithChildren;
 
 export function CustomListLocationListProvider({ children }: CustomListLocationListProviderProps) {
-  const [addFormVisible, showAddForm, hideAddForm] = useBoolean(false);
-  const [addingForm, setAddingForm] = React.useState(false);
+  const [addingCustomList, setAddingCustomList] = React.useState(false);
+  const [addCustomListDialogOpen, setAddCustomListDialogOpen] = React.useState(false);
 
   const value = React.useMemo(
     () => ({
-      addFormVisible,
-      showAddForm,
-      hideAddForm,
-      addingForm,
-      setAddingForm,
+      addingCustomList,
+      setAddingCustomList,
+      addCustomListDialogOpen,
+      setAddCustomListDialogOpen,
     }),
-    [addFormVisible, showAddForm, hideAddForm, addingForm, setAddingForm],
+    [addCustomListDialogOpen, addingCustomList],
   );
 
   return (

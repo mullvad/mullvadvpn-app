@@ -5,7 +5,7 @@ import { useTextField, type UseTextFieldState } from '../../../../../lib/compone
 import type { CustomListLocation } from '../../select-location-types';
 import { useIsUpdatedCustomListNameValid } from './hooks';
 
-type EditListDialogContext = Omit<EditListDialogProviderProps, 'children'> & {
+type EditCustomListDialogContextProps = Omit<EditCustomListDialogProviderProps, 'children'> & {
   formRef: React.RefObject<HTMLFormElement | null>;
   inputRef: React.RefObject<HTMLInputElement | null>;
   form: {
@@ -15,25 +15,29 @@ type EditListDialogContext = Omit<EditListDialogProviderProps, 'children'> & {
   };
 };
 
-const EditListDialogContext = React.createContext<EditListDialogContext | undefined>(undefined);
+const EditCustomListDialogContext = React.createContext<
+  EditCustomListDialogContextProps | undefined
+>(undefined);
 
-export const useEditListDialogContext = (): EditListDialogContext => {
-  const context = React.useContext(EditListDialogContext);
+export const useEditCustomListDialogContext = (): EditCustomListDialogContextProps => {
+  const context = React.useContext(EditCustomListDialogContext);
   if (!context) {
-    throw new Error('useEditListDialogContext must be used within a EditListDialogProvider');
+    throw new Error(
+      'useEditCustomListDialogContext must be used within a EditCustomListDialogProvider',
+    );
   }
   return context;
 };
 
-type EditListDialogProviderProps = React.PropsWithChildren<DialogProps> & {
+type EditCustomListDialogProviderProps = Pick<DialogProps, 'open' | 'onOpenChange' | 'children'> & {
   customList: CustomListLocation;
 };
 
-export function EditListDialogProvider({
+export function EditCustomListDialogProvider({
   customList,
   children,
   ...props
-}: EditListDialogProviderProps) {
+}: EditCustomListDialogProviderProps) {
   const formRef = React.useRef<HTMLFormElement>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
   const [error, setError] = React.useState<boolean>(false);
@@ -60,5 +64,9 @@ export function EditListDialogProvider({
     [customListTextField, error, props, customList],
   );
 
-  return <EditListDialogContext.Provider value={value}>{children}</EditListDialogContext.Provider>;
+  return (
+    <EditCustomListDialogContext.Provider value={value}>
+      {children}
+    </EditCustomListDialogContext.Provider>
+  );
 }

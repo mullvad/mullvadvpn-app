@@ -1,9 +1,9 @@
 import React from 'react';
 
-import { useAddCustomListFormContext } from '../AddCustomListFormContext';
+import { useAddCustomListDialogContext } from '../AddCustomListDialogContext';
 
 export function useHandleClickCreateCustomList() {
-  const { formRef } = useAddCustomListFormContext();
+  const { formRef } = useAddCustomListDialogContext();
 
   return React.useCallback(
     (event: React.MouseEvent) => {

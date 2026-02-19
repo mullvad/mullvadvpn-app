@@ -7,7 +7,7 @@ import { FlexColumn } from '../../../../../lib/components/flex-column';
 import { spacings } from '../../../../../lib/foundations';
 import { useCustomListLocationsContext } from '../../CustomListLocationsContext';
 import { useHasCustomLists } from '../../hooks';
-import { AddCustomListForm } from '../add-custom-list-form/AddCustomListForm';
+import { AddCustomListDialog } from '../add-custom-list-dialog';
 import { CustomListLocationListItem } from '../custom-list-location-list-item';
 import { CustomListsSectionTitle } from './components';
 import {
@@ -29,20 +29,20 @@ const StyledAnimatedListItem = styled(AnimatedList.Item)`
 
 function CustomListLocationListImpl() {
   const { customListLocations } = useCustomListLocationsContext();
-  const { addFormVisible, addingForm } = useCustomListListContext();
+  const { addingCustomList, addCustomListDialogOpen, setAddCustomListDialogOpen } =
+    useCustomListListContext();
   const hasCustomLists = useHasCustomLists();
 
   return (
     <FlexColumn gap="tiny">
       <CustomListsSectionTitle />
+      <AddCustomListDialog
+        open={addCustomListDialogOpen}
+        onOpenChange={setAddCustomListDialogOpen}
+      />
 
       <FlexColumn>
         <StyledAnimatedList>
-          {addFormVisible && (
-            <AnimatedList.Item>
-              <AddCustomListForm />
-            </AnimatedList.Item>
-          )}
           {customListLocations.map((customList) => {
             return (
               <StyledAnimatedListItem key={Object.values(customList.details).join('-')}>
@@ -52,7 +52,7 @@ function CustomListLocationListImpl() {
           })}
         </StyledAnimatedList>
 
-        {!hasCustomLists && !addFormVisible && !addingForm && (
+        {!hasCustomLists && !addingCustomList && (
           <Text variant="labelTiny" color="whiteAlpha60">
             {messages.pgettext(
               'select-location-view',

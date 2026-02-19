@@ -1,9 +1,9 @@
 import React from 'react';
 
-import { useEditListDialogContext } from '../EditListDialogContext';
+import { useEditCustomListDialogContext } from '../EditCustomListDialogContext';
 
 export function useHandleClickUpdateCustomList() {
-  const { formRef } = useEditListDialogContext();
+  const { formRef } = useEditCustomListDialogContext();
 
   return React.useCallback(
     (event: React.MouseEvent) => {

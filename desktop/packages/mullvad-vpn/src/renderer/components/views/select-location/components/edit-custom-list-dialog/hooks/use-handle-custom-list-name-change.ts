@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { useAddCustomListFormContext } from '../AddCustomListFormContext';
+import { useEditCustomListDialogContext } from '../EditCustomListDialogContext';
 
 export function useHandleCustomListNameChange() {
   const {
@@ -9,7 +9,7 @@ export function useHandleCustomListNameChange() {
       setError,
       customListTextField: { handleOnValueChange: onValueChange },
     },
-  } = useAddCustomListFormContext();
+  } = useEditCustomListDialogContext();
 
   return React.useCallback(
     (newValue: string) => {
@@ -18,6 +18,6 @@ export function useHandleCustomListNameChange() {
       }
       onValueChange(newValue);
     },
-    [onValueChange, error, setError],
+    [error, onValueChange, setError],
   );
 }

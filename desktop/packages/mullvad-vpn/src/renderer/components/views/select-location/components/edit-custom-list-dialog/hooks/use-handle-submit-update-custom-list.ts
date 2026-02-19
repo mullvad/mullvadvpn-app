@@ -1,11 +1,11 @@
 import React from 'react';
 
 import { useCustomLists } from '../../../../../../features/location/hooks';
-import { useEditListDialogContext } from '../EditListDialogContext';
+import { useEditCustomListDialogContext } from '../EditCustomListDialogContext';
 
 export function useHandleSubmitUpdateCustomList() {
   const { updateCustomListName: contextUpdateCustomListName } = useCustomLists();
-  const { customList } = useEditListDialogContext();
+  const { customList } = useEditCustomListDialogContext();
 
   const {
     onOpenChange,
@@ -13,7 +13,7 @@ export function useHandleSubmitUpdateCustomList() {
       setError,
       customListTextField: { value, invalid, reset },
     },
-  } = useEditListDialogContext();
+  } = useEditCustomListDialogContext();
 
   const updateCustomList = React.useCallback(
     async (name: string) => {

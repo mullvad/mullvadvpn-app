@@ -4,21 +4,21 @@ import { messages } from '../../../../../../shared/gettext';
 import { Dialog, type DialogProps } from '../../../../../lib/components/dialog';
 import { FlexColumn } from '../../../../../lib/components/flex-column';
 import { TextField } from '../../../../../lib/components/text-field';
-import type { CustomListLocation } from '../../select-location-types';
-import { EditListDialogProvider, useEditListDialogContext } from './EditListDialogContext';
 import {
-  useHandleClickUpdateCustomList,
+  AddCustomListDialogProvider,
+  useAddCustomListDialogContext,
+} from './AddCustomListDialogContext';
+import {
+  useHandleClickCreateCustomList,
   useHandleCustomListNameChange,
-  useHandleSubmitUpdateCustomList,
+  useHandleSubmitAddCustomList,
 } from './hooks';
 
-export type EditListProps = Omit<DialogProps, 'children'> & {
-  customList: CustomListLocation;
-};
+export type AddCustomListDialogProps = Omit<DialogProps, 'children'>;
 
-function EditListDialogImpl(
-  props: Omit<EditListProps, 'children' | 'open' | 'onOpenChange' | 'customList'>,
-) {
+function AddCustomListDialogImpl(props: AddCustomListDialogProps) {
+  const descriptionId = React.useId();
+
   const {
     open,
     onOpenChange,
@@ -26,13 +26,13 @@ function EditListDialogImpl(
     inputRef,
     form: {
       error,
-      customListTextField: { value, invalid, invalidReason, dirty, reset },
+      customListTextField: { value, invalid, dirty, invalidReason, reset },
     },
-  } = useEditListDialogContext();
+  } = useAddCustomListDialogContext();
 
   const handleOnValueChange = useHandleCustomListNameChange();
-  const handleSubmit = useHandleSubmitUpdateCustomList();
-  const handleClick = useHandleClickUpdateCustomList();
+  const handleSubmit = useHandleSubmitAddCustomList();
+  const handleClick = useHandleClickCreateCustomList();
 
   const handleOnOpenChange = React.useCallback(
     (open: boolean) => {
@@ -57,19 +57,27 @@ function EditListDialogImpl(
               <TextField
                 value={value}
                 onValueChange={handleOnValueChange}
-                invalid={dirty && invalid}>
+                invalid={dirty && (error || invalid)}>
                 <Dialog.TextGroup gap="small" flexGrow="1">
                   <TextField.Label color="whiteAlpha60">
-                    {messages.pgettext('select-location-view', 'Edit list name')}
+                    {messages.pgettext('select-location-view', 'Create custom list')}
                   </TextField.Label>
                   <FlexColumn gap="small">
-                    <TextField.Input ref={inputRef} maxLength={30} autoFocus></TextField.Input>
-                    <Dialog.Text>
-                      {dirty && invalid && invalidReason
+                    <TextField.Input
+                      ref={inputRef}
+                      width="medium"
+                      maxLength={30}
+                      autoFocus
+                      aria-label={messages.pgettext('accessibility', 'Custom list name')}
+                      aria-describedby={descriptionId}
+                      aria-errormessage={invalidReason ? descriptionId : undefined}
+                    />
+                    <Dialog.Text id={descriptionId} role="status">
+                      {invalidReason
                         ? invalidReason
                         : messages.pgettext(
                             'select-location-view',
-                            'Enter a new name for the custom list',
+                            'Enter a name for the custom list',
                           )}
                     </Dialog.Text>
                   </FlexColumn>
@@ -78,7 +86,7 @@ function EditListDialogImpl(
             </form>
             <Dialog.ButtonGroup>
               <Dialog.Button key="save" disabled={error || invalid} onClick={handleClick}>
-                <Dialog.Button.Text>{messages.gettext('Save')}</Dialog.Button.Text>
+                <Dialog.Button.Text>{messages.gettext('Create')}</Dialog.Button.Text>
               </Dialog.Button>
               <Dialog.Button key="cancel" onClick={handleCancel}>
                 <Dialog.Button.Text>{messages.gettext('Cancel')}</Dialog.Button.Text>
@@ -91,10 +99,10 @@ function EditListDialogImpl(
   );
 }
 
-export function EditListDialog({ customList, open, onOpenChange, ...prop }: EditListProps) {
+export function AddCustomListDialog({ open, onOpenChange, ...props }: AddCustomListDialogProps) {
   return (
-    <EditListDialogProvider customList={customList} open={open} onOpenChange={onOpenChange}>
-      <EditListDialogImpl {...prop} />
-    </EditListDialogProvider>
+    <AddCustomListDialogProvider open={open} onOpenChange={onOpenChange}>
+      <AddCustomListDialogImpl {...props} />
+    </AddCustomListDialogProvider>
   );
 }
