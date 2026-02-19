@@ -7,6 +7,7 @@ use mullvad_types::account::{AccountData, AccountNumber, VoucherSubmission};
 #[cfg(target_os = "android")]
 use mullvad_types::account::{PlayPurchase, PlayPurchasePaymentToken};
 use proxy::{ApiConnectionMode, ConnectionModeProvider};
+use std::ops::Deref;
 use std::{collections::BTreeMap, future::Future, io, net::SocketAddr, path::Path, sync::Arc};
 use talpid_types::ErrorExt;
 
@@ -316,7 +317,7 @@ where
     B: AddressCacheBacking,
 {
     handle: tokio::runtime::Handle,
-    address_cache: AddressCache<B>,
+    address_cache: Arc<AddressCache<B>>,
     api_availability: availability::ApiAvailability,
     endpoint: ApiEndpoint,
     #[cfg(target_os = "android")]
@@ -345,9 +346,10 @@ impl Runtime {
         endpoint: &ApiEndpoint,
         #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
     ) -> Self {
+        let address_cache = Arc::new(AddressCache::new(endpoint, None));
         Runtime {
             handle,
-            address_cache: AddressCache::new(endpoint, None),
+            address_cache,
             api_availability: ApiAvailability::default(),
             endpoint: endpoint.clone(),
             #[cfg(target_os = "android")]
@@ -403,7 +405,7 @@ impl Runtime {
                 AddressCache::new(endpoint, write_file)
             }
         };
-
+        let address_cache = Arc::new(address_cache);
         let api_availability = ApiAvailability::default();
 
         Ok(Runtime {
@@ -440,7 +442,7 @@ impl<B: AddressCacheBacking> Runtime<B> {
         B: AddressCacheBacking,
     {
         let address_cache =
-            AddressCache::from_backing_or(endpoint.host().to_owned(), backing, endpoint).await;
+            Arc::new(AddressCache::from_backing_or(endpoint.host().to_owned(), backing, endpoint).await);
         Runtime {
             handle,
             address_cache,
@@ -463,7 +465,7 @@ impl<B: AddressCacheBacking> Runtime<B> {
     ) -> rest::MullvadRestHandle {
         let service = self.new_request_service(
             connection_mode_provider,
-            Arc::new(self.address_cache.clone()),
+            Arc::clone(&self.address_cache),
             #[cfg(target_os = "android")]
             self.socket_bypass_tx.clone(),
             #[cfg(any(feature = "api-override", test))]
@@ -480,7 +482,7 @@ impl<B: AddressCacheBacking> Runtime<B> {
     fn new_request_service<T: ConnectionModeProvider + 'static>(
         &self,
         connection_mode_provider: T,
-        dns_resolver: Arc<dyn DnsResolver>,
+        dns_resolver: Arc<impl DnsResolver>,
         #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
         #[cfg(any(feature = "api-override", test))] disable_tls: bool,
     ) -> rest::RequestServiceHandle {

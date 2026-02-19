@@ -30,7 +30,7 @@ pub enum Error {
 /// a backing store for an AddressCache.
 
 #[async_trait]
-pub trait AddressCacheBacking: 'static + Sync + Send + std::clone::Clone {
+pub trait AddressCacheBacking: 'static + Sync + Send {
     async fn read(&self) -> Result<Vec<u8>, Error>;
     async fn write(&self, data: &[u8]) -> Result<(), Error>;
 }
@@ -78,8 +78,6 @@ impl<T: AddressCacheBacking> DnsResolver for AddressCache<T> {
 
 #[derive(Clone, Debug)]
 pub struct AddressCache<T>
-where
-    T: Clone,
 {
     hostname: String,
     inner: Arc<Mutex<AddressCacheInner>>,
@@ -114,7 +112,7 @@ impl AddressCache<FileAddressCacheBacking> {
     }
 }
 
-impl<T: AddressCacheBacking + std::clone::Clone> AddressCache<T> {
+impl<T: AddressCacheBacking> AddressCache<T> {
     /// Initialise cache using a hardcoded address and a Backing for writing to
     pub fn new_with_address(endpoint: &ApiEndpoint, backing: Arc<T>) -> Self {
         Self::new_inner(endpoint.address(), endpoint.host().to_owned(), backing)
