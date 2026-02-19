@@ -139,13 +139,10 @@ class BaseUITestCase: XCTestCase {
     func allowAddVPNConfigurationsIfAsked() {
         let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
 
-        let alertAllowButton = springboard.buttons["Allow"]
-        if alertAllowButton.existsAfterWait(timeout: .short) {
-            alertAllowButton.tap()
+        springboard.buttons["Allow"].tapWhenHittable(timeout: .short)
 
-            if !iOSDevicePinCode.isEmpty, springboard.buttons["1"].existsAfterWait() {
-                springboard.typeText(iOSDevicePinCode)
-            }
+        if !iOSDevicePinCode.isEmpty, springboard.buttons["1"].existsAfterWait() {
+            springboard.typeText(iOSDevicePinCode)
         }
     }
 

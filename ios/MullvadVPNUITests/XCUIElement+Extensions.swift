@@ -111,7 +111,7 @@ extension XCUIElement {
         description: String? = nil
     ) -> Self {
         if wait(
-            for: .exists,
+            for: .hittable,
             timeout: timeout,
             failOnUnmetCondition: failOnUnmetCondition,
             description: description
