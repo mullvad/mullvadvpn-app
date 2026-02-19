@@ -71,13 +71,14 @@ class LaunchViewController: UIViewController {
             return
         }
         isFirstLaunch = false
-        do {
-            tunnelManager.updateSettings([.relayConstraints(RelayConstraints())])
-            await tunnelManager.unsetAccount()
-
-        } catch {
-            print("Failed during tunnel shutdown:", error)
-        }
+        await tunnelManager.unsetAccount()
+        let settings = LatestTunnelSettings()
+        tunnelManager.updateSettings([
+            .relayConstraints(settings.relayConstraints), .dnsSettings(settings.dnsSettings),
+            .daita(settings.daita), .includeAllNetworks(settings.includeAllNetworks),
+            .multihop(settings.tunnelMultihopState), .quantumResistance(settings.tunnelQuantumResistance),.obfuscation(settings.wireGuardObfuscation)
+        ])
+       
     }
 
     private func setupLaunchScreen() {
