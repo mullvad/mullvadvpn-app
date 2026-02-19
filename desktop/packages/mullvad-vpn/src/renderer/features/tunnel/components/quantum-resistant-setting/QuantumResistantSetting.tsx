@@ -32,7 +32,7 @@ export function QuantumResistantSetting(props: QuantumResistantSettingProps) {
                 <ModalMessage>
                   {messages.pgettext(
                     'wireguard-settings-view',
-                    'It does this by performing an extra key exchange using a quantum safe algorithm and mixing the result into WireGuard’s regular encryption. This extra step uses approximately 500 kiB of traffic every time a new tunnel is established.',
+                    'It does this by performing an extra key exchange using a quantum safe algorithm and mixing the result into WireGuard’s regular encryption.',
                   )}
                 </ModalMessage>
               </>
