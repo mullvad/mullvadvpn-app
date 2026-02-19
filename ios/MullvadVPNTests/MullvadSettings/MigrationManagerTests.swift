@@ -256,6 +256,56 @@ final class MigrationManagerTests: XCTestCase, @unchecked Sendable {
         XCTAssertEqual(osakaRelayConstraints, latestSettings.relayConstraints)
     }
 
+    /// Settings serialized by ios/2026.1-build5 had `includeAllNetworks` and `localNetworkSharing`
+    /// as Bool fields in TunnelSettingsV7. The IAN activation flow changed `includeAllNetworks`
+    /// to an `IncludeAllNetworksSettings` struct (absorbing `localNetworkSharing`) without bumping
+    /// the schema version, so existing V7 data must still deserialize correctly.
+    func testDeserializationOfV7SettingsFromBuild5() throws {
+        // Verbatim representation of default V7 settings as written by ios/2026.1-build5.
+        let oldSettingsJSON = Data(
+            """
+            {
+                "version": 7,
+                "data": {
+                    "relayConstraints": {
+                        "location": {"only": ["se"]},
+                        "locations": {"only": {"locations": [["se"]]}},
+                        "entryLocations": {"only": {"locations": [["se"]]}},
+                        "exitLocations": {"only": {"locations": [["se"]]}},
+                        "port": "any",
+                        "filter": "any"
+                    },
+                    "dnsSettings": {
+                        "blockingOptions": 0,
+                        "enableCustomDNS": false,
+                        "customDNSDomains": []
+                    },
+                    "wireGuardObfuscation": {
+                        "port": 0,
+                        "state": {"automatic": {}},
+                        "udpOverTcpPort": {"automatic": {}},
+                        "shadowsocksPort": {"automatic": {}}
+                    },
+                    "tunnelQuantumResistance": {"automatic": {}},
+                    "tunnelMultihopState": {"off": {}},
+                    "daita": {
+                        "state": {"off": {}},
+                        "daitaState": {"off": {}},
+                        "directOnlyState": {"off": {}}
+                    },
+                    "localNetworkSharing": true,
+                    "includeAllNetworks": true
+                }
+            }
+            """.utf8)
+
+        let parser = SettingsParser(decoder: JSONDecoder(), encoder: JSONEncoder())
+        let settings = try parser.parsePayload(as: TunnelSettingsV7.self, from: oldSettingsJSON)
+
+        XCTAssertTrue(settings.includeAllNetworks.includeAllNetworksIsEnabled)
+        XCTAssertTrue(settings.includeAllNetworks.localNetworkSharingIsEnabled)
+    }
+
     private func migrateToLatest(_ settings: any TunnelSettings, version: SchemaVersion) throws {
         let store = Self.store
         try write(settings: settings, version: version.rawValue, in: store)
