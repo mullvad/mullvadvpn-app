@@ -764,7 +764,6 @@
 		A96D0B452D675F0400DD6C59 /* MullvadConnectionModeProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A96D0B442D675F0400DD6C59 /* MullvadConnectionModeProvider.swift */; };
 		A9711B2B2D662AE3003DA71D /* SwiftConnectionModeProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9711B2A2D662AE3003DA71D /* SwiftConnectionModeProvider.swift */; };
 		A97275562CE36CAE00029F15 /* DaitaV2Parameters.swift in Sources */ = {isa = PBXBuildFile; fileRef = A97275552CE36CAE00029F15 /* DaitaV2Parameters.swift */; };
-		A97687C82DD60D5D000D96E8 /* AddressCacheProviding.swift in Sources */ = {isa = PBXBuildFile; fileRef = A97687C72DD60D5D000D96E8 /* AddressCacheProviding.swift */; };
 		A977E15D2E816B8200B7ABF6 /* MullvadAccessMethodChangeListening.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4483EC352E2693D5007E5473 /* MullvadAccessMethodChangeListening.swift */; };
 		A97D25AE2B0BB18100946B2D /* ProtocolObfuscator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A97D25AD2B0BB18100946B2D /* ProtocolObfuscator.swift */; };
 		A97D25B02B0BB5C400946B2D /* ProtocolObfuscationStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = A97D25AF2B0BB5C400946B2D /* ProtocolObfuscationStub.swift */; };
@@ -2319,7 +2318,6 @@
 		A96D0B442D675F0400DD6C59 /* MullvadConnectionModeProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadConnectionModeProvider.swift; sourceTree = "<group>"; };
 		A9711B2A2D662AE3003DA71D /* SwiftConnectionModeProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftConnectionModeProvider.swift; sourceTree = "<group>"; };
 		A97275552CE36CAE00029F15 /* DaitaV2Parameters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DaitaV2Parameters.swift; sourceTree = "<group>"; };
-		A97687C72DD60D5D000D96E8 /* AddressCacheProviding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressCacheProviding.swift; sourceTree = "<group>"; };
 		A97D25AD2B0BB18100946B2D /* ProtocolObfuscator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProtocolObfuscator.swift; sourceTree = "<group>"; };
 		A97D25AF2B0BB5C400946B2D /* ProtocolObfuscationStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProtocolObfuscationStub.swift; sourceTree = "<group>"; };
 		A97D25B12B0CB02D00946B2D /* ProtocolObfuscatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProtocolObfuscatorTests.swift; sourceTree = "<group>"; };
@@ -3066,7 +3064,6 @@
 			isa = PBXGroup;
 			children = (
 				588D7ED72AF3A533005DF40A /* AccessMethodKind.swift */,
-				A97687C72DD60D5D000D96E8 /* AddressCacheProviding.swift */,
 				584D26BE270C550B004EA533 /* AnyIPAddress.swift */,
 				586A951329013235007BAF2B /* AnyIPEndpoint.swift */,
 				7A460F9C2F34E2FC005A265D /* Bundle+ProductVersion.swift */,
@@ -6871,7 +6868,6 @@
 				58D22413294C90210029F5F8 /* RelayConstraints.swift in Sources */,
 				A977E15D2E816B8200B7ABF6 /* MullvadAccessMethodChangeListening.swift in Sources */,
 				7AB401852DA53D5300522E17 /* NewAccountData.swift in Sources */,
-				A97687C82DD60D5D000D96E8 /* AddressCacheProviding.swift in Sources */,
 				A97275562CE36CAE00029F15 /* DaitaV2Parameters.swift in Sources */,
 				7AF9BE8C2A321D1F00DBFEDB /* RelayFilter.swift in Sources */,
 				7A460FA32F363045005A265D /* NotificationProviderIdentifier.swift in Sources */,
