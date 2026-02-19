@@ -2,7 +2,7 @@
   "name": "management-interface",
   "version": "0.0.0",
   "author": "Mullvad VPN",
-  "license": "GPL-3.0",
+  "license": "GPL-3.0-or-later",
   "description": "Mullvad VPN IPC. Contains types and functions for IPC with daemon.",
   "main": "./dist/index.js",
   "devDependencies": {
