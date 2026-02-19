@@ -33,11 +33,31 @@ class SelectLocationPage: Page {
     @discardableResult func tapLocationCellExpandButton(withName name: String) -> Self {
         let cell = app.buttons[AccessibilityIdentifier.locationListItem(name)]
         app.scrollDownToElement(element: cell)
-        cell.wait()
-        let expandButton = cell.buttons[AccessibilityIdentifier.expandButton]
-        expandButton.wait()
-        expandButton.tap()
+        cell.wait(for: .hittable)
 
+        // The expand chevron is a fixed-width button at the trailing edge of the
+        // row. Because .accessibilityElement(children: .combine) merges children
+        // into a single element, the chevron cannot be queried individually.
+        // Calculate the tap position dynamically from the cell's actual width so
+        // it works on any device size.
+        let chevronCenter = 1.0 - (28.0 / cell.frame.width)
+
+        // Retry the tap if the cell didn't expand — the first tap after a scroll
+        // can be absorbed by scroll deceleration.
+        for _ in 0..<3 {
+            cell.coordinate(withNormalizedOffset: CGVector(dx: chevronCenter, dy: 0.5)).tap()
+
+            // Poll for the accessibility value to update after the expand animation.
+            let deadline = Date().addingTimeInterval(2)
+            while Date() < deadline {
+                if cell.value as? String == "Expanded" {
+                    return self
+                }
+                RunLoop.current.run(until: Date().addingTimeInterval(0.2))
+            }
+        }
+
+        XCTFail("Failed to expand location cell '\(name)' after multiple attempts")
         return self
     }
 
@@ -91,8 +111,9 @@ class SelectLocationPage: Page {
     }
 
     func locationCellIsExpanded(_ name: String) -> Bool {
-        let matchingCells = app.cells.containing(.any, identifier: name)
-        return matchingCells.buttons[AccessibilityIdentifier.expandButton].exists ? false : true
+        let cell = app.buttons[AccessibilityIdentifier.locationListItem(name)]
+        guard cell.exists else { return false }
+        return cell.value as? String == "Expanded"
     }
 
     func verifyEditCustomListsButtonIs(enabled: Bool) {
