@@ -65,10 +65,8 @@ public struct TunnelSettingsV7: Codable, Equatable, TunnelSettings, Sendable {
         self.daita =
             try container.decode(DAITASettings.self, forKey: .daita)
         self.includeAllNetworks =
-            try container.decodeIfPresent(
-                IncludeAllNetworksSettings.self,
-                forKey: .includeAllNetworks
-            ) ?? IncludeAllNetworksSettings()
+            (try? container.decode(IncludeAllNetworksSettings.self, forKey: .includeAllNetworks))
+            ?? IncludeAllNetworksSettings()
     }
 
     public func upgradeToNextVersion() -> any TunnelSettings {
