@@ -60,9 +60,15 @@ function AnyLocationListItemImpl({
         <LocationListItem.Header ref={selectedRef} level={level} position={position}>
           <LocationListItem.HeaderTrigger
             onClick={handleClick}
-            aria-label={sprintf(messages.pgettext('accessibility', 'Connect to %(location)s'), {
-              location: location.label,
-            })}>
+            aria-label={sprintf(
+              // TRANSLATORS: Accessibility label for a button that connects to a location.
+              // TRANSLATORS: Available placeholders:
+              // TRANSLATORS: %(location)s - The name of the location that will be connected to when the button is clicked.
+              messages.pgettext('accessibility', 'Connect to %(location)s'),
+              {
+                location: location.label,
+              },
+            )}>
             <LocationListItem.HeaderItem>
               <LocationListItem.HeaderTitle>{location.label}</LocationListItem.HeaderTitle>
             </LocationListItem.HeaderItem>
