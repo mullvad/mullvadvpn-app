@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react';
+import React from 'react';
 
 import { ObfuscationType, Ownership } from '../../../../shared/daemon-rpc-types';
 import { messages } from '../../../../shared/gettext';
@@ -64,7 +65,17 @@ export function SelectLocation() {
 
   const showDaitaFilter = daitaFilterActive(daitaEnabled, daitaDirectOnly, locationType, multihop);
 
-  const [searchValue, setSearchValue] = useState<string | undefined>(undefined);
+  const [searchValue, setSearchValue] = useState('');
+  const deferredSearchValue = React.useDeferredValue(searchValue);
+
+  React.useEffect(() => {
+    if (deferredSearchValue.length < 2) {
+      setSearchTerm('');
+    } else {
+      resetScrollPositions();
+      setSearchTerm(deferredSearchValue.toLowerCase());
+    }
+  }, [deferredSearchValue, resetScrollPositions, setSearchTerm]);
 
   const onClose = useCallback(() => history.pop(), [history]);
   const onViewFilter = useCallback(() => history.push(RoutePath.filter), [history]);
@@ -79,18 +90,9 @@ export function SelectLocation() {
     [saveScrollPosition, setLocationType],
   );
 
-  const updateSearchTerm = useCallback(
-    (value: string) => {
-      setSearchValue(value);
-      if (value.length < 2) {
-        setSearchTerm('');
-      } else {
-        resetScrollPositions();
-        setSearchTerm(value.toLowerCase());
-      }
-    },
-    [setSearchTerm, resetScrollPositions],
-  );
+  const handleInputValueChange = useCallback((value: string) => {
+    setSearchValue(value);
+  }, []);
 
   const showOwnershipFilter = ownership !== Ownership.any;
   const showProvidersFilter = providers.length > 0;
@@ -150,7 +152,7 @@ export function SelectLocation() {
                 <SearchTextField
                   variant="secondary"
                   value={searchValue}
-                  onValueChange={updateSearchTerm}>
+                  onValueChange={handleInputValueChange}>
                   <SearchTextField.Icon icon="search" />
                   <SearchTextField.Input
                     autoFocus
