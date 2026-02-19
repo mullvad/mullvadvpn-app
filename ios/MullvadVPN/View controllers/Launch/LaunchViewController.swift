@@ -11,13 +11,15 @@ import UIKit
 
 class LaunchViewController: UIViewController {
     private let tunnelManager: TunnelManager
-    private var hasStartedBootstrap = false
     private var isFirstLaunch: Bool = true
+    private var tunnelObserver: TunnelObserver!
+    private let launchArguments: LaunchArguments
 
     var onAppReady: (() -> Void)?
 
-    init(tunnelManager: TunnelManager) {
+    init(launchArguments: LaunchArguments, tunnelManager: TunnelManager) {
         self.tunnelManager = tunnelManager
+        self.launchArguments = launchArguments
         super.init(nibName: nil, bundle: nil)
         setupLaunchScreen()
     }
@@ -32,26 +34,49 @@ class LaunchViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        Task { [weak self] in
-            await self?.bootstrap()
-        }
-
+        addTunnelObserver()
     }
 
-    private func bootstrap() async {
-        guard let launchArguments = try? ProcessInfo.processInfo.decode(LaunchArguments.self) else {
+    private func addTunnelObserver() {
+        guard launchArguments.isResetAppAllowed else { return }
+        let tunnelObserver =
+            TunnelBlockObserver(
+                didLoadConfiguration: { [weak self] tunnelManager in
+                    guard let self else { return }
+                    Task {
+                        await reset()
+                    }
+                },
+                didUpdateTunnelStatus: { [weak self] _, tunnelStatus in
+                    guard let self else { return }
+                    if case .connected = tunnelStatus.observedState {
+                        tunnelManager.stopTunnel()
+                    } else if case .disconnected = tunnelStatus.observedState {
+                        Task {
+                            await reset()
+                        }
+                    }
+                })
+
+        tunnelManager.addObserver(tunnelObserver)
+        self.tunnelObserver = tunnelObserver
+    }
+
+    private func reset() async {
+        defer {
+            tunnelManager.removeObserver(self.tunnelObserver)
             onAppReady?()
+        }
+        guard launchArguments.isResetAppAllowed, isFirstLaunch else {
             return
         }
+        isFirstLaunch = false
+        do {
+            tunnelManager.updateSettings([.relayConstraints(RelayConstraints())])
+            await tunnelManager.unsetAccount()
 
-        if launchArguments.isResetAppAllowed {
-            tunnelManager.stopTunnel()
-            try? SettingsManager.writeSettings(LatestTunnelSettings())
-            Task {
-                await tunnelManager.unsetAccount()
-                isFirstLaunch = false
-                onAppReady?()
-            }
+        } catch {
+            print("Failed during tunnel shutdown:", error)
         }
     }
 

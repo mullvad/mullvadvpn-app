@@ -167,12 +167,14 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
         options connectionOptions: UIScene.ConnectionOptions
     ) {
         guard let windowScene = scene as? UIWindowScene else { return }
-        let launchViewController = LaunchViewController(tunnelManager: tunnelManager)
+        let launchViewController = LaunchViewController(
+            launchArguments: appDelegate.launchArguments,
+            tunnelManager: tunnelManager)
 
         launchViewController.onAppReady = { [weak self] in
             guard let self = self else { return }
-            print("settings is :\(try? SettingsManager.getLastUsedAccount() ?? "nil")")
             if tunnelManager.isConfigurationLoaded {
+                isSceneConfigured = false
                 configureScene()
             }
         }

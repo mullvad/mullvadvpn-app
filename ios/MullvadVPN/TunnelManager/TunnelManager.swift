@@ -435,7 +435,11 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
     }
 
     func unsetAccount() async {
-        _ = try? await setAccount(action: .unset)
+        do {
+            _ = try await setAccount(action: .unset)
+        } catch {
+            logger.debug("Failed to unset account: \(error.description)")
+        }
     }
 
     func updateAccountData(_ completionHandler: (@Sendable (Error?) -> Void)? = nil) {
