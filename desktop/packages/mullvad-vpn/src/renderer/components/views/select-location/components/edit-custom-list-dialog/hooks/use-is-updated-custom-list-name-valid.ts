@@ -11,16 +11,14 @@ export function useIsUpdatedCustomListNameValid() {
   );
   return React.useCallback(
     (name: string): boolean | string => {
-      if (existingNames.has(name.trim())) {
+      const trimmedName = name.trim();
+      if (existingNames.has(trimmedName)) {
         return messages.pgettext('select-location-view', 'List names must be unique');
       }
 
-      const nameIsNotEmpty = name.trim() !== '';
-      if (!nameIsNotEmpty) {
-        return false;
-      }
+      const customListNameValid = trimmedName.length > 0;
 
-      return true;
+      return customListNameValid;
     },
     [existingNames],
   );
