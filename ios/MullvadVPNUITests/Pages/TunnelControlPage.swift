@@ -202,7 +202,12 @@ class TunnelControlPage: Page {
     }
 
     @discardableResult func verifyConnectedRelays(entry: String, exit: String) -> Self {
-        XCTAssertTrue(app.staticTexts["\(exit) via \(entry)"].exists)
+        let serverLabel = app.staticTexts[.connectionPanelServerLabel]
+        XCTAssertTrue(serverLabel.exists)
+        XCTAssertTrue(
+            serverLabel.label.contains(exit) && serverLabel.label.contains(entry),
+            "Expected server label to contain '\(exit)' and '\(entry)', got '\(serverLabel.label)'"
+        )
         return self
     }
 

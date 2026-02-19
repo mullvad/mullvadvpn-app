@@ -140,7 +140,7 @@ class BaseUITestCase: XCTestCase {
         let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
 
         let alertAllowButton = springboard.buttons["Allow"]
-        if alertAllowButton.existsAfterWait(timeout: .short) {
+        if alertAllowButton.existsAfterWait() {
             alertAllowButton.tap()
 
             if !iOSDevicePinCode.isEmpty {
