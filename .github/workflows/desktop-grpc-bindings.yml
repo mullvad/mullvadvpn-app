@@ -1,0 +1,33 @@
+---
+name: Desktop check grpc bindings
+on:
+  pull_request:
+    paths:
+      - desktop/packages/management-interface/dist/**
+      - mullvad-management-interface/proto/**
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  check-grpc-bindings:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - uses: ./.github/actions/mullvad-build-env
+
+      - name: Install dependencies
+        working-directory: desktop
+        shell: bash
+        run: npm ci
+
+      - name: Generate bindings
+        working-directory: desktop
+        shell: bash
+        run: npm run build -w management-interface
+
+      - name: Check working directory is clean
+        shell: bash
+        run: git diff --exit-code HEAD
