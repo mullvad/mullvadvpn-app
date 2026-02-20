@@ -38,7 +38,7 @@ sealed interface CreateTunResult {
 
     data class InvalidIpv6Config(
         val addresses: ArrayList<InetAddress>,
-        val routes: ArrayList<InetAddress>,
+        val routes: ArrayList<InetNetwork>,
         val dnsServers: ArrayList<InetAddress>,
         val tunFd: Int,
     ) : Error {
@@ -47,7 +47,7 @@ sealed interface CreateTunResult {
             tunFd: Int,
         ) : this(
             addresses = ArrayList(config.addresses),
-            routes = ArrayList(config.routes.map { it.address }),
+            routes = ArrayList(config.routes),
             dnsServers = ArrayList(config.dnsServers),
             tunFd = tunFd,
         )
