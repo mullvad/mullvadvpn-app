@@ -152,18 +152,9 @@ private fun ManagementInterface.TunnelState.Error.toDomain(): TunnelState.Error 
         errorState.let { error ->
             if (error.hasInvalidIpv6ConfigError()) {
                 ErrorStateCause.InvalidIpv6Config(
-                    addresses =
-                        error.invalidIpv6ConfigError.addrsList.toList().map {
-                            InetAddress.getByName(it)
-                        },
-                    routes =
-                        error.invalidIpv6ConfigError.routesList.toList().map {
-                            InetAddress.getByName(it)
-                        },
-                    dnsServers =
-                        error.invalidIpv6ConfigError.dnsList.toList().map {
-                            InetAddress.getByName(it)
-                        },
+                    addresses = error.invalidIpv6ConfigError.addrsList,
+                    routes = error.invalidIpv6ConfigError.routesList,
+                    dnsServers = error.invalidIpv6ConfigError.dnsList,
                 )
             } else {
                 null

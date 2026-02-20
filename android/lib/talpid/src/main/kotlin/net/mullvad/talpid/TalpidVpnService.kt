@@ -11,6 +11,7 @@ import arrow.core.Nel
 import arrow.core.left
 import arrow.core.mapOrAccumulate
 import arrow.core.merge
+import arrow.core.raise.context.bind
 import arrow.core.raise.either
 import arrow.core.right
 import co.touchlab.kermit.Logger
@@ -116,7 +117,7 @@ open class TalpidVpnService : LifecycleVpnService() {
             builder.addAddressesAndRoutesSafe(config),
             builder.addDnsServersSafe(config),
         ) { _, _ ->
-        }
+        }.bind()
     }
 
     // Blocking fallback for when we receive an invalid IPv6 config

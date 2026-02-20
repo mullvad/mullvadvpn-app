@@ -34,9 +34,9 @@ sealed class ErrorStateCause {
     data class NoRelaysMatchSelectedPort(val port: Port) : ErrorStateCause()
 
     data class InvalidIpv6Config(
-        val addresses: List<InetAddress>,
-        val routes: List<InetAddress>,
-        val dnsServers: List<InetAddress>,
+        val addresses: List<String>,
+        val routes: List<String>,
+        val dnsServers: List<String>,
     ) : ErrorStateCause()
 }
 
