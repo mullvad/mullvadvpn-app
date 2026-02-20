@@ -117,6 +117,6 @@ extension AccountExpiryInAppNotificationProvider {
             )
         else { return nil }
 
-        return String(format: NSLocalizedString("%@ left on this account", comment: ""), duration).uppercased()
+        return String(format: NSLocalizedString("%@ left on this account", comment: ""), duration).localizedUppercase
     }
 }

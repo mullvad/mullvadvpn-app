@@ -93,10 +93,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             relayCache: ipOverrideWrapper
         )
 
+        let tunnelSettings = (try? SettingsManager.readSettings()) ?? LatestTunnelSettings()
+
         shadowsocksLoader = ShadowsocksLoader(
             cache: shadowsocksCache,
             relaySelector: shadowsocksRelaySelector,
-            tunnelSettings: (try? SettingsManager.readSettings()) ?? LatestTunnelSettings(),
+            tunnelSettings: tunnelSettings,
             settingsUpdater: tunnelSettingsUpdater
         )
 
@@ -183,7 +185,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         )
 
         registerBackgroundTasks()
-        setupNotifications()
+        setupNotifications(
+            tunnelSettings: tunnelSettings,
+            tunnelSettingsUpdater: tunnelSettingsUpdater
+        )
         addApplicationNotifications(application: application)
 
         startInitialization(application: application)
@@ -459,7 +464,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         )
     }
 
-    private func setupNotifications() {
+    private func setupNotifications(
+        tunnelSettings: LatestTunnelSettings,
+        tunnelSettingsUpdater: SettingsUpdater
+
+    ) {
+        let appVersionService = AppVersionService(
+            urlSession: URLSession.shared,
+            appPreferences: appPreferences,
+            mainAppBundleIdentifier: ApplicationTarget.mainApp.bundleIdentifier
+        )
+
         NotificationManager.shared.notificationProviders = [
             LatestChangesNotificationProvider(appPreferences: appPreferences),
             TunnelStatusNotificationProvider(tunnelManager: tunnelManager),
@@ -468,6 +483,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                 notificationSettingsUpdater: notificationSettingsUpdater, tunnelManager: tunnelManager),
             AccountExpiryInAppNotificationProvider(tunnelManager: tunnelManager),
             NewDeviceNotificationProvider(tunnelManager: tunnelManager),
+            NewAppVersionInAppNotificationProvider(
+                tunnelManager: tunnelManager,
+                appVersionService: appVersionService
+            ),
         ]
         UNUserNotificationCenter.current().delegate = self
     }

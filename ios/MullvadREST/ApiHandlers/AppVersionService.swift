@@ -1,5 +1,5 @@
 //
-//  AppStoreMetaDataService.swift
+//  AppVersionService.swift
 //  MullvadVPN
 //
 //  Created by Jon Petersson on 2026-01-09.
@@ -9,26 +9,24 @@
 import MullvadLogging
 import MullvadSettings
 import MullvadTypes
-import UserNotifications
 
-public final class AppStoreMetaDataService: @unchecked Sendable {
+public final class AppVersionService: @unchecked Sendable {
     private var timer: DispatchSourceTimer?
     private let checkInterval: TimeInterval = Duration.days(1).timeInterval
-    private let logger = Logger(label: "AppStoreMetaDataService")
+    private let logger = Logger(label: "AppVersionService")
 
-    private let tunnelSettings: LatestTunnelSettings
     private let urlSession: URLSessionProtocol
     private let appPreferences: AppPreferences
     private let mainAppBundleIdentifier: String
-    private let appStoreLink: URL
+    private let iTunesLink: URL
+
+    public var onNewAppVersion: (() -> Void)?
 
     public init(
-        tunnelSettings: LatestTunnelSettings,
         urlSession: URLSessionProtocol,
         appPreferences: AppPreferences,
-        mainAppBundleIdentifier: String
+        mainAppBundleIdentifier: String,
     ) {
-        self.tunnelSettings = tunnelSettings
         self.urlSession = urlSession
         self.appPreferences = appPreferences
         self.mainAppBundleIdentifier = mainAppBundleIdentifier
@@ -38,7 +36,7 @@ public final class AppStoreMetaDataService: @unchecked Sendable {
             resolvingAgainstBaseURL: true
         )!
         urlComponents.queryItems = [URLQueryItem(name: "bundleId", value: mainAppBundleIdentifier)]
-        appStoreLink = urlComponents.url!
+        iTunesLink = urlComponents.url!
     }
 
     public func scheduleTimer() {
@@ -46,13 +44,11 @@ public final class AppStoreMetaDataService: @unchecked Sendable {
 
         newTimer.setEventHandler {
             Task { [weak self] in
-                guard let self, tunnelSettings.includeAllNetworks.includeAllNetworksIsEnabled else {
-                    return
-                }
+                guard let self else { return }
 
                 let newVersionExists = (try? await performVersionCheck()) ?? false
                 if newVersionExists {
-                    sendNotification()
+                    onNewAppVersion?()
                 }
             }
         }
@@ -85,7 +81,7 @@ public final class AppStoreMetaDataService: @unchecked Sendable {
     private func fetchAppStoreMetaData() async throws -> AppStoreMetaData? {
         do {
             let data = try await urlSession.data(
-                for: URLRequest(url: appStoreLink, timeoutInterval: REST.defaultAPINetworkTimeout.timeInterval)
+                for: URLRequest(url: iTunesLink, timeoutInterval: REST.defaultAPINetworkTimeout.timeInterval)
             )
             let response = try JSONDecoder().decode(AppStoreMetaDataResponse.self, from: data.0)
             return response.results.first { $0.bundleId == mainAppBundleIdentifier }
@@ -94,42 +90,6 @@ public final class AppStoreMetaDataService: @unchecked Sendable {
         }
 
         return nil
-    }
-
-    private func sendNotification() {
-        let content = UNMutableNotificationContent()
-        content.title = NSLocalizedString("Update available", comment: "")
-        content.body = String(
-            format: NSLocalizedString(
-                "Disable “%@” or disconnect before updating in order not to lose network connectivity.",
-                comment: ""
-            ),
-            "Force all apps"
-        )
-
-        // When scheduling a user notification we need to make sure that the date has not passed
-        // when it's actually added to the system. Giving it a few seconds leeway lets us be sure
-        // that this is the case.
-        let dateComponents = Calendar.current.dateComponents(
-            [.second, .minute, .hour, .day, .month, .year],
-            from: Date(timeIntervalSinceNow: 5)
-        )
-        let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: false)
-
-        let request = UNNotificationRequest(
-            identifier: NotificationProviderIdentifier.newAppVersionSystemNotification.domainIdentifier,
-            content: content,
-            trigger: trigger
-        )
-
-        let identifier = request.identifier
-        UNUserNotificationCenter.current().add(request) { [weak self, identifier] error in
-            if let error {
-                self?.logger.error(
-                    "Failed to add notification request with identifier \(identifier). Error: \(error.description)"
-                )
-            }
-        }
     }
 }
 
