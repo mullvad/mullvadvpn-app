@@ -989,9 +989,30 @@ impl RelaySelector {
                     .collect()
             }
             #[expect(unused)]
-            Predicate::Entry(constraints) => todo!("Implement partition_relays(Entry)"),
+            Predicate::Entry(constraints) => {
+                // Here we have to consider extra entry constraints, such as DAITA, obfuscation etc.
+                let criteria = [active];
+
+                relays
+                    .map(|relay| {
+                        let verdict = Criteria::fold(criteria.into_iter(), &relay);
+                        (relay, verdict)
+                    })
+                    .collect()
+            }
             #[expect(unused)]
-            Predicate::Exit(constraints) => todo!("Implement partition_relays(Exit)"),
+            Predicate::Exit(constraints) => {
+                // Here we *do not* have to consider any additional entry constraints. An entry
+                // relay is selected separately.
+                let criteria = [active];
+
+                relays
+                    .map(|relay| {
+                        let verdict = Criteria::fold(criteria.into_iter(), &relay);
+                        (relay, verdict)
+                    })
+                    .collect()
+            }
         };
         // After this mapping, a single reduce is performed to partition the relays based on
         // their assigned verdict.
