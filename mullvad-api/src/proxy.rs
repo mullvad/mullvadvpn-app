@@ -1,7 +1,7 @@
 use hyper_util::client::legacy::connect::{Connected, Connection};
 use serde::{Deserialize, Serialize};
 use std::{
-    io,
+    fmt, io,
     net::SocketAddr,
     path::Path,
     pin::Pin,
@@ -59,6 +59,15 @@ pub enum ApiConnectionMode {
     Direct,
     /// Connect to the destination via a proxy.
     Proxied(ProxyConfig),
+}
+
+impl fmt::Display for ApiConnectionMode {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            ApiConnectionMode::Direct => write!(f, "Direct"),
+            ApiConnectionMode::Proxied(proxy_config) => write!(f, "Proxied({:?})", proxy_config),
+        }
+    }
 }
 
 #[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
