@@ -26,7 +26,7 @@ use mullvad_types::{
     location::Coordinates,
     relay_constraints::{
         LocationConstraint, ObfuscationSettings, Ownership, Providers, RelayConstraints,
-        RelaySettings, WireguardConstraints,
+        RelaySettings, ShadowsocksSettings, WireguardConstraints,
     },
     relay_list::{Bridge, BridgeList, RelayList, WireguardRelay},
     settings::Settings,
@@ -887,54 +887,63 @@ impl Predicate {
                     &matcher::ResolvedLocationConstraint::from_constraint(location, custom_lists),
                     relay,
                 );
-                let obfuscation = {
-                    use mullvad_types::relay_constraints::SelectedObfuscation::*;
-                    obfuscation_settings.as_ref().is_only_and(|settings| {
-                        match settings.selected_obfuscation {
-                            Shadowsocks => {
-                                // let wg_data = &relay_list.wireguard;
-                                matcher::filter_on_shadowsocks(
-                                    //&wg_data.shadowsocks_port_ranges,
-                                    &[(0..=u16::MAX)], // TODO: We might need access to 'Wireguard endpoint data' from relay list.
-                                    ip_version,
-                                    &settings.shadowsocks,
-                                    relay.endpoint(),
-                                )
-                            }
-                            // QUIC is only enabled on some relays
-                            Quic => match relay.endpoint().quic() {
-                                Some(quic) => match ip_version.as_ref() {
-                                    Constraint::Any => true,
-                                    Constraint::Only(IpVersion::V4) => {
-                                        quic.in_ipv4().next().is_some()
-                                    }
-                                    Constraint::Only(IpVersion::V6) => {
-                                        quic.in_ipv6().next().is_some()
-                                    }
-                                },
-                                None => false,
-                            },
-                            // LWO is only enabled on some relays
-                            Lwo => relay.endpoint().lwo,
-                            // Other relays are always valid
-                            // TODO:^ This might not be true. We might want to consider the selected port for
-                            // udp2tcp & wireguard port ..
-                            Off | Auto | WireguardPort | Udp2Tcp => true,
-                        }
-                    })
-                };
+                let ObfuscationDiscardReasons {
+                    obfuscation,
+                    port,
+                    ip_version,
+                } = match_obfuscation(relay, obfuscation_settings, ip_version);
+                // {
+                //     use mullvad_types::relay_constraints::SelectedObfuscation::*;
+                // obfuscation_settings.as_ref().is_only_and(|settings| {
+                //     match settings.selected_obfuscation {
+                //         Shadowsocks => {
+                //             // let wg_data = &relay_list.wireguard;
+                //             matcher::filter_on_shadowsocks(
+                //                 //&wg_data.shadowsocks_port_ranges,
+                //                 &[(0..=u16::MAX)], // TODO: We might need access to 'Wireguard endpoint data' from relay list.
+                //                 ip_version,
+                //                 &settings.shadowsocks,
+                //                 relay.endpoint(),
+                //             )
+                //         }
+                //         // QUIC is only enabled on some relays
+                //         Quic => match relay.endpoint().quic() {
+                //             Some(quic) => match ip_version.as_ref() {
+                //                 Constraint::Any => true,
+                //                 Constraint::Only(IpVersion::V4) => {
+                //                     quic.in_ipv4().next().is_some()
+                //                 }
+                //                 Constraint::Only(IpVersion::V6) => {
+                //                     quic.in_ipv6().next().is_some()
+                //                 }
+                //             },
+                //             None => false,
+                //         },
+                //         // LWO is only enabled on some relays
+                //         Lwo => relay.endpoint().lwo,
+                //         // Other relays are always valid
+                //         // TODO:^ This might not be true. We might want to consider the selected port for
+                //         // udp2tcp & wireguard port ..
+                //         Off | Auto | WireguardPort | Udp2Tcp => ObfuscationMatch {
+                //             has_obfuscation: true,
+                //             port_is_supported: true, // TODO
+                //             ip_version_is_supported: true,
+                //         },
+                //     }
+                // })
+                // };
                 DiscardReasons {
                     inactive: !relay.active,
                     location,
                     providers: matcher::filter_on_providers(providers, relay),
                     ownership: matcher::filter_on_ownership(ownership, relay),
-                    ip_version: false, // TODO: Implement filtering by IP version
+                    ip_version, // TODO: Implement filtering by IP version
                     daita: {
                         let daita_on = daita.as_ref().map(|settings| settings.enabled);
                         matcher::filter_on_daita(&daita_on, relay)
                     },
                     obfuscation,
-                    port: false,
+                    port,
                     conflict: false, // Impossible for singlehop
                 }
             }
@@ -942,6 +951,94 @@ impl Predicate {
             Predicate::Entry => todo!(),
             Predicate::Exit => todo!(),
         }
+    }
+}
+
+struct ObfuscationDiscardReasons {
+    obfuscation: bool,
+    port: bool,
+    ip_version: bool,
+}
+
+fn match_obfuscation(
+    relay: &WireguardRelay,
+    obfuscation_settings: &Constraint<ObfuscationSettings>,
+    ip_version: &Constraint<IpVersion>,
+) -> ObfuscationDiscardReasons {
+    let Constraint::Only(settings) = obfuscation_settings else {
+        return ObfuscationDiscardReasons {
+            obfuscation: false,
+            port: false,
+            ip_version: false,
+        };
+    };
+    use mullvad_types::relay_constraints::SelectedObfuscation::*;
+
+    match settings.selected_obfuscation {
+        Shadowsocks => {
+            match settings.shadowsocks {
+                // If Shadowsocks is specifically asked for, we must check if the specific relay supports
+                // our port. If there are extra addresses, then all ports are available, so we do
+                // not need to do this.
+                ShadowsocksSettings {
+                    port: Constraint::Only(desired_port),
+                } => {
+                    let ip_version_match = match ip_version {
+                        Constraint::Any => false,
+                        Constraint::Only(v) => relay
+                            .endpoint()
+                            .shadowsocks_extra_addr_in
+                            .iter()
+                            .any(|&addr| &IpVersion::from(addr) == v),
+                    };
+
+                    let ip_version = super::detailer::resolve_ip_version(*ip_version);
+                    let filtered_extra_addrs = relay
+                        .endpoint()
+                        .shadowsocks_extra_addr_in
+                        .iter()
+                        .find(|&&addr| IpVersion::from(addr) == ip_version);
+
+                    let port_ranges = &[(0..=u16::MAX)];
+                    let port = filtered_extra_addrs.is_some()
+                        || port_ranges
+                            .iter()
+                            .any(|range| range.contains(&desired_port));
+
+                    ObfuscationDiscardReasons {
+                        obfuscation: false,
+                        port,
+                        ip_version: ip_version_match,
+                    }
+                }
+
+                // Otherwise, any relay works.
+                _ => ObfuscationDiscardReasons {
+                    obfuscation: false,
+                    port: false,
+                    ip_version: false,
+                },
+            }
+        }
+        // QUIC is only enabled on some relays
+        Quic => match relay.endpoint().quic() {
+            Some(quic) => match ip_version.as_ref() {
+                Constraint::Any => true,
+                Constraint::Only(IpVersion::V4) => quic.in_ipv4().next().is_some(),
+                Constraint::Only(IpVersion::V6) => quic.in_ipv6().next().is_some(),
+            },
+            None => false,
+        },
+        // LWO is only enabled on some relays
+        Lwo => relay.endpoint().lwo,
+        // Other relays are always valid
+        // TODO:^ This might not be true. We might want to consider the selected port for
+        // udp2tcp & wireguard port ..
+        Off | Auto | WireguardPort | Udp2Tcp => ObfuscationDiscardReasons {
+            obfuscation: false,
+            port: false,
+            ip_version: false,
+        },
     }
 }
 
