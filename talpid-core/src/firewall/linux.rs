@@ -351,36 +351,10 @@ impl<'a> PolicyBatch<'a> {
         policy: &FirewallPolicy,
         firewall: &Firewall,
     ) -> Result<()> {
-        if cfg!(feature = "cgroup2")
-            && let Some(cgroup2) = &firewall.excluded_cgroup2
-        {
-            self.add_actual_split_tunneling_rules(policy, firewall.fwmark, |rule| {
-                // 1. From Linux kernel documentation:
-                // cgroup(2) is a mechanism to organize processes hierarchically ... cgroups form a tree structure and
-                // every process in the system belongs to one and only one cgroup ... On creation, all processes are put
-                // in the cgroup that the parent process belongs to at the time.
-                //
-                // 2. From `man nft` on "Socket expression":
-                // .. You can also use it [socket expression] to match on the socket cgroupv2 at a given ancestor level,
-                // e.g. if the socket belongs to cgroupv2 a/b, ancestor level 1 checks for a matching on cgroup a and
-                // ancestor level 2 checks for a matching on cgroup b.
-                //
-                // 3. Since the current split-tunnel implementation spawn each split process into the same cgroup2, the
-                // nftables rule does not have to look at any level of ancestry away *from* `cgroup`. This applies for
-                // any sub-process that a split process may spawn, as per the kernel docs.
-                //
-                // Following from 1,2,3, `socket cgroupv2 level 1` should be fine here.
-                rule.add_expr(&nft_expr!(socket cgroupv2 level 1));
-                rule.add_expr(&nft_expr!(cmp == cgroup2.inode()));
-            })?;
+        if let Some(cgroup2) = &firewall.excluded_cgroup2 {
+            self.add_actual_split_tunneling_rules(policy, firewall.fwmark, None)?;
         } else if let Some(net_cls) = firewall.net_cls {
-            self.add_actual_split_tunneling_rules(policy, firewall.fwmark, |rule| {
-                // For cgroups v1, processes are assigned to a net_cls.                                                                                                      ║
-                // This causes all packets sent by that process to be marked with the                                                                                        ║
-                // cgroups classid (`net_cls`), which we can reference in nftables.
-                rule.add_expr(&nft_expr!(meta cgroup));
-                rule.add_expr(&nft_expr!(cmp == net_cls));
-            })?;
+            self.add_actual_split_tunneling_rules(policy, firewall.fwmark, Some(net_cls))?;
         } else {
             log::warn!("no cgroups, skipping add_split_tunneling_rules");
         };
@@ -393,7 +367,7 @@ impl<'a> PolicyBatch<'a> {
         &mut self,
         policy: &FirewallPolicy,
         fwmark: u32,
-        mut add_selector_rules: impl FnMut(&mut Rule<'_>),
+        cgroup_v1_net_cls: Option<u32>,
     ) -> Result<()> {
         // Send select DNS requests in the tunnel
         if let FirewallPolicy::Connected {
@@ -418,27 +392,43 @@ impl<'a> PolicyBatch<'a> {
             }
         }
 
-        // Split tunneled processes have their PIDs added to a cgroup (v1 or v2).
-        //
-        // This rule matches packets sent by those processes.
-        // Packet will have two new marks applied to it, the `split_tunnel::MARK`
-        // as a connection tracking mark and the `fwmark` as packet metadata.
-        let mut rule = Rule::new(&self.mangle_chain);
-        // Add rules for matching packets from a cgroup.
-        // This is the only implementation detail of the split tunneling rule that differs between cgroup v1 and v2.
-        add_selector_rules(&mut rule);
-        // Loads `split_tunnel::MARK` into first nftnl register
-        rule.add_expr(&nft_expr!(immediate data split_tunnel::MARK));
-        // Sets `split_tunnel::MARK` as connection tracker mark
-        rule.add_expr(&nft_expr!(ct mark set));
-        // Loads `fwmark` into first nftnl register
-        rule.add_expr(&nft_expr!(immediate data fwmark));
-        // Sets `fwmark` as metadata mark for packet
-        rule.add_expr(&nft_expr!(meta mark set));
+        // HACK: this makes eBPF split tunneling work
+        // set `ct mark` on packets with `meta mark`/`fwmark`
+        let mut ct_mark_from_fwmark = Rule::new(&self.mangle_chain);
+        ct_mark_from_fwmark.add_expr(&nft_expr!(meta mark));
+        ct_mark_from_fwmark.add_expr(&nft_expr!(cmp == fwmark));
+        ct_mark_from_fwmark.add_expr(&nft_expr!(immediate data split_tunnel::MARK));
+        ct_mark_from_fwmark.add_expr(&nft_expr!(ct mark set));
         if *ADD_COUNTERS {
-            rule.add_expr(&nft_expr!(counter));
+            ct_mark_from_fwmark.add_expr(&nft_expr!(counter));
         }
-        self.batch.add(&rule, nftnl::MsgType::Add);
+        self.batch.add(&ct_mark_from_fwmark, nftnl::MsgType::Add);
+
+        if let Some(net_cls) = cgroup_v1_net_cls {
+            // Split tunneled processes have their PIDs added to a cgroup.
+            //
+            // This rule matches packets sent by those processes.
+            // Packet will have two new marks applied to it, the `split_tunnel::MARK`
+            // as a connection tracking mark and the `fwmark` as packet metadata.
+            let mut rule = Rule::new(&self.mangle_chain);
+            // For cgroups v1, processes are assigned to a net_cls.                                                                                                      ║
+            // This causes all packets sent by that process to be marked with the                                                                                        ║
+            // cgroups classid (`net_cls`), which we can reference in nftables.
+            rule.add_expr(&nft_expr!(meta cgroup));
+            rule.add_expr(&nft_expr!(cmp == net_cls));
+            // Loads `split_tunnel::MARK` into first nftnl register
+            rule.add_expr(&nft_expr!(immediate data split_tunnel::MARK));
+            // Sets `split_tunnel::MARK` as connection tracker mark
+            rule.add_expr(&nft_expr!(ct mark set));
+            // Loads `fwmark` into first nftnl register
+            rule.add_expr(&nft_expr!(immediate data fwmark));
+            // Sets `fwmark` as metadata mark for packet
+            rule.add_expr(&nft_expr!(meta mark set));
+            if *ADD_COUNTERS {
+                rule.add_expr(&nft_expr!(counter));
+            }
+            self.batch.add(&rule, nftnl::MsgType::Add);
+        }
 
         for chain in &[&self.in_chain, &self.out_chain, &self.forward_chain] {
             let mut rule = Rule::new(chain);
@@ -458,23 +448,34 @@ impl<'a> PolicyBatch<'a> {
             self.batch.add(&block_tunnel_rule, nftnl::MsgType::Add);
         }
 
-        // Fix source IP address in rerouted packets using masquerade.
-        // Don't masquerade packets on the loopback device.
-        let mut rule = Rule::new(&self.nat_chain);
+        if cgroup_v1_net_cls.is_some() {
+            // Fix source IP address in rerouted packets using masquerade.
+            // Don't masquerade packets on the loopback device.
 
-        let iface_index = crate::linux::iface_index("lo")
-            .map_err(|e| Error::LookupIfaceIndexError("lo".to_string(), e))?;
-        rule.add_expr(&nft_expr!(meta oif));
-        rule.add_expr(&nft_expr!(cmp != iface_index));
+            // This is necessary when we use the mangle chain to change the fwmark
+            // (e.g. using 'meta cgroup' or socket expressions). The source address
+            // is based on whatever the routing table contained when the packet was created
+            // or socket was bound.
+            //
+            // If we have an early BPF hook (e.g. before bind()/connect()), then the socket will
+            // already be bound to the correct interface. No masquerading needed.
 
-        rule.add_expr(&nft_expr!(ct mark));
-        rule.add_expr(&nft_expr!(cmp == split_tunnel::MARK));
+            let mut rule = Rule::new(&self.nat_chain);
 
-        rule.add_expr(&nft_expr!(masquerade));
-        if *ADD_COUNTERS {
-            rule.add_expr(&nft_expr!(counter));
+            let iface_index = crate::linux::iface_index("lo")
+                .map_err(|e| Error::LookupIfaceIndexError("lo".to_string(), e))?;
+            rule.add_expr(&nft_expr!(meta oif));
+            rule.add_expr(&nft_expr!(cmp != iface_index));
+
+            rule.add_expr(&nft_expr!(ct mark));
+            rule.add_expr(&nft_expr!(cmp == split_tunnel::MARK));
+
+            rule.add_expr(&nft_expr!(masquerade));
+            if *ADD_COUNTERS {
+                rule.add_expr(&nft_expr!(counter));
+            }
+            self.batch.add(&rule, nftnl::MsgType::Add);
         }
-        self.batch.add(&rule, nftnl::MsgType::Add);
 
         // Route incoming traffic correctly to prevent strict rpf from rejecting packets
         // for excluded processes
