@@ -18,13 +18,13 @@ pub struct DaitaStats {
     pub tx_padding_bytes: u64,
 
     /// Bytes of standalone padding packets transmitted
-    pub tx_padding_packet_bytes: u64,
+    pub tx_decoy_packet_bytes: u64,
 
     /// Total extra bytes removed due to constant-size padding of data packets
     pub rx_padding_bytes: u64,
 
     /// Bytes of standalone padding packets received
-    pub rx_padding_packet_bytes: u64,
+    pub rx_decoy_packet_bytes: u64,
 }
 
 impl fmt::Debug for Stats {

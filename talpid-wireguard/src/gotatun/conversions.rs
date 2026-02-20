@@ -1,6 +1,6 @@
 //! Conversions between [`gotatun`]-types and `talpid_wireguard`-types.
 
-use std::time::SystemTime;
+use std::{num::NonZero, time::SystemTime};
 
 use gotatun::device::Peer;
 use talpid_tunnel_config_client::DaitaSettings;
@@ -30,11 +30,11 @@ pub fn to_gotatun_peer(peer: &PeerConfig, daita: Option<&DaitaSettings>) -> Peer
     if let Some(daita) = daita {
         let daita = gotatun::device::daita::DaitaSettings {
             maybenot_machines: daita.client_machines.clone(),
-            max_padding_frac: daita.max_padding_frac,
-            max_blocking_frac: daita.max_blocking_frac,
+            max_decoy_frac: daita.max_decoy_frac,
+            max_delay_frac: daita.max_delay_frac,
             // TODO: tweak to sane values
-            max_blocked_packets: 1024,
-            min_blocking_capacity: 50,
+            max_delayed_packets: NonZero::new(1024).unwrap(),
+            min_delay_capacity: 50,
         };
         peer = peer.with_daita(daita);
     }
@@ -63,9 +63,9 @@ impl From<&gotatun::device::configure::DaitaStats> for DaitaStats {
     fn from(daita_stats: &gotatun::device::configure::DaitaStats) -> Self {
         Self {
             tx_padding_bytes: daita_stats.tx_padding_bytes as u64,
-            tx_padding_packet_bytes: daita_stats.tx_padding_packet_bytes as u64,
+            tx_decoy_packet_bytes: daita_stats.tx_decoy_packet_bytes as u64,
             rx_padding_bytes: daita_stats.rx_padding_bytes as u64,
-            rx_padding_packet_bytes: daita_stats.rx_padding_packet_bytes as u64,
+            rx_decoy_packet_bytes: daita_stats.rx_decoy_packet_bytes as u64,
         }
     }
 }
