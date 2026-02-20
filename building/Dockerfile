@@ -22,7 +22,7 @@ FROM debian@sha256:77f46c1cf862290e750e913defffb2828c889d291a93bdd10a7a059772094
 
 LABEL org.opencontainers.image.source=https://github.com/mullvad/mullvadvpn-app
 LABEL org.opencontainers.image.description="Mullvad VPN app Linux build container"
-LABEL org.opencontainers.image.licenses=GPL-3.0
+LABEL org.opencontainers.image.licenses=GPL-3.0-or-later
 
 # === Define toolchain versions and paths ===
 

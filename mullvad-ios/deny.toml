@@ -1,4 +1,4 @@
-# This file is for an additional check to prevent GPL-3.0 licensed crates
+# This file is for an additional check to prevent GPL-3.0-or-later licensed crates
 # from being introduced into the iOS app's Rust dependency tree, due to
 # App Store restrictions.
 # It does not override the main deny.toml file and needs to be run separately.
@@ -20,23 +20,23 @@ allow = [
 ]
 # Allow GPL3 licensed crates with permission to relicense like Mullvads own.
 exceptions = [
-  { crate = "intersection-derive", allow = ["GPL-3.0-only"] },
-  { crate = "mullvad-api", allow = ["GPL-3.0-only"] },
-  { crate = "mullvad-api-constants", allow = ["GPL-3.0-only"] },
-  { crate = "mullvad-encrypted-dns-proxy", allow = ["GPL-3.0-only"] },
-  { crate = "mullvad-fs", allow = ["GPL-3.0-only"] },
-  { crate = "mullvad-ios", allow = ["GPL-3.0-only"] },
-  { crate = "mullvad-logging", allow = ["GPL-3.0-only"] },
-  { crate = "mullvad-masque-proxy", allow = ["GPL-3.0-only"] },
-  { crate = "mullvad-types", allow = ["GPL-3.0-only"] },
-  { crate = "mullvad-update", allow = ["GPL-3.0-only"] },
-  { crate = "mullvad-version", allow = ["GPL-3.0-only"] },
-  { crate = "talpid-future", allow = ["GPL-3.0-only"] },
-  { crate = "talpid-routing", allow = ["GPL-3.0-only"] },
-  { crate = "talpid-time", allow = ["GPL-3.0-only"] },
-  { crate = "talpid-tunnel", allow = ["GPL-3.0-only"] },
-  { crate = "talpid-tunnel-config-client", allow = ["GPL-3.0-only"] },
-  { crate = "talpid-types", allow = ["GPL-3.0-only"] },
-  { crate = "talpid-windows", allow = ["GPL-3.0-only"] },
-  { crate = "tunnel-obfuscation", allow = ["GPL-3.0-only"] },
+  { crate = "intersection-derive", allow = ["GPL-3.0-or-later"] },
+  { crate = "mullvad-api", allow = ["GPL-3.0-or-later"] },
+  { crate = "mullvad-api-constants", allow = ["GPL-3.0-or-later"] },
+  { crate = "mullvad-encrypted-dns-proxy", allow = ["GPL-3.0-or-later"] },
+  { crate = "mullvad-fs", allow = ["GPL-3.0-or-later"] },
+  { crate = "mullvad-ios", allow = ["GPL-3.0-or-later"] },
+  { crate = "mullvad-logging", allow = ["GPL-3.0-or-later"] },
+  { crate = "mullvad-masque-proxy", allow = ["GPL-3.0-or-later"] },
+  { crate = "mullvad-types", allow = ["GPL-3.0-or-later"] },
+  { crate = "mullvad-update", allow = ["GPL-3.0-or-later"] },
+  { crate = "mullvad-version", allow = ["GPL-3.0-or-later"] },
+  { crate = "talpid-future", allow = ["GPL-3.0-or-later"] },
+  { crate = "talpid-routing", allow = ["GPL-3.0-or-later"] },
+  { crate = "talpid-time", allow = ["GPL-3.0-or-later"] },
+  { crate = "talpid-tunnel", allow = ["GPL-3.0-or-later"] },
+  { crate = "talpid-tunnel-config-client", allow = ["GPL-3.0-or-later"] },
+  { crate = "talpid-types", allow = ["GPL-3.0-or-later"] },
+  { crate = "talpid-windows", allow = ["GPL-3.0-or-later"] },
+  { crate = "tunnel-obfuscation", allow = ["GPL-3.0-or-later"] },
 ]

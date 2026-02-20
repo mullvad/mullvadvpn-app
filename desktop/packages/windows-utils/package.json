@@ -2,7 +2,7 @@
   "name": "windows-utils",
   "version": "0.0.0",
   "author": "Mullvad VPN",
-  "license": "GPL-3.0",
+  "license": "GPL-3.0-or-later",
   "description": "",
   "type": "module",
   "main": "./lib/index.cjs",

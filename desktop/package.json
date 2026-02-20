@@ -10,7 +10,7 @@
     "email": "support@mullvadvpn.net"
   },
   "repository": "https://github.com/mullvad/mullvadvpn-app",
-  "license": "GPL-3.0",
+  "license": "GPL-3.0-or-later",
   "scripts": {
     "lint": "eslint --ignore-pattern packages/ . && npm run lint --workspaces --if-present",
     "lint-fix": "eslint --fix --ignore-pattern packages/ . && npm run lint-fix --workspaces --if-present",
