@@ -5,9 +5,15 @@ import { useFilterChipContext } from '../FilterChipContext';
 
 type FilterChipIconProps = Omit<IconProps, 'size'>;
 
-export const StyledIcon = styled(Icon)({});
+export const StyledFilterChipIcon = styled(Icon)``;
 
 export const FilterChipIcon = ({ ...props }: FilterChipIconProps) => {
   const { disabled } = useFilterChipContext();
-  return <Icon size="small" color={disabled ? 'whiteAlpha40' : 'white'} {...props} />;
+  return (
+    <StyledFilterChipIcon
+      size="small"
+      color={disabled ? 'whiteAlpha40' : 'whiteAlpha60'}
+      {...props}
+    />
+  );
 };
