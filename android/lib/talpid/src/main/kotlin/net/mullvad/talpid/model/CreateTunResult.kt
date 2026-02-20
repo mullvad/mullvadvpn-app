@@ -31,7 +31,7 @@ sealed interface CreateTunResult {
     }
 
     data class InvalidDnsServers(val addresses: ArrayList<InetAddress>, val tunFd: Int) : Error {
-        constructor(address: List<InetAddress>, tunFd: Int) : this(ArrayList(address), tunFd)
+        constructor(addresses: List<InetAddress>, tunFd: Int) : this(ArrayList(addresses), tunFd)
 
         override val isOpen = true
     }
@@ -43,12 +43,14 @@ sealed interface CreateTunResult {
         val tunFd: Int,
     ) : Error {
         constructor(
-            config: TunConfig,
+            addresses: List<InetAddress>,
+            routes: List<InetNetwork>,
+            dnsServers: List<InetAddress>
             tunFd: Int,
         ) : this(
-            addresses = ArrayList(config.addresses),
-            routes = ArrayList(config.routes),
-            dnsServers = ArrayList(config.dnsServers),
+            addresses = ArrayList(addresses),
+            routes = ArrayList(routes),
+            dnsServers = ArrayList(dnsServers),
             tunFd = tunFd,
         )
 
