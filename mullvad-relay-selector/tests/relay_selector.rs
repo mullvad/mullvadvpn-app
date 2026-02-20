@@ -13,8 +13,8 @@ use talpid_types::net::{
 };
 
 use mullvad_relay_selector::{
-    Error, GetRelay, RETRY_ORDER, RelaySelector, SelectedObfuscator, SelectorConfig,
-    WireguardConfig,
+    Error, GetRelay, MultihopConstraints, Predicate, RETRY_ORDER, Reason, RelaySelector,
+    SelectedObfuscator, SelectorConfig, WireguardConfig,
     query::{ObfuscationQuery, builder::RelayQueryBuilder},
 };
 use mullvad_types::{
@@ -1562,8 +1562,9 @@ mod new {
     /// "Daita + No Direct only + Provider verkar lite iffy tycker jag. Fick fram matches som inte stämmer" - David G @ 25/2.
     #[test]
     fn daita_no_direct_only_provider() {
-        // "31137" should have DAITA, "iRegister" should not.
-        let providers = Providers::new(["31137", "iRegister"]).unwrap();
+        // "100TB" does not have any DAITA relays, and because filters should apply for both entry
+        // and exit even if we're autohoppin', we should not show any matching relays.
+        let providers = Providers::new(["100TB"]).unwrap();
 
         let mut constraints = EntryConstraints::default();
         constraints.general.providers = providers.into();
@@ -1578,12 +1579,17 @@ mod new {
 
         let query = RELAY_SELECTOR.partition_relays(Predicate::Autohop(constraints));
 
-        assert!(!query.matches.is_empty());
-
+        assert_eq!(query.matches.len(), 0);
         for (relay, reason) in query.discards {
-            // Autohop should in trivial cases always be able to resolve an alternative entry relay
-            // when DAITA is used.
-            assert!(!reason.contains(&Reason::Daita), "{relay:#?}");
+            // Assert that a relay was discarded because we could not select an entry because of
+            // DAITA and provider constraints not making sense.
+            //
+            // Note that some relays will be discarded because they only lack DAITA or are operated
+            // by the wrong provider, which is why we have to OR the reasons.
+            assert!(
+                reason.contains(&Reason::Daita) || reason.contains(&Reason::Providers),
+                "{reason:#?}:{relay:#?}"
+            );
         }
     }
 }

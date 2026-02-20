@@ -180,6 +180,10 @@ impl GeographicLocationConstraint {
         matches!(self, GeographicLocationConstraint::Country(_))
     }
 
+    pub fn is_hostname(&self) -> bool {
+        self.get_hostname().is_some()
+    }
+
     pub fn get_hostname(&self) -> Option<&Hostname> {
         match self {
             GeographicLocationConstraint::Hostname(_, _, hostname) => Some(hostname),
@@ -188,7 +192,7 @@ impl GeographicLocationConstraint {
     }
 }
 
-impl Match<WireguardRelay> for GeographicLocationConstraint {
+impl Match<WireguardRelay> for &GeographicLocationConstraint {
     fn matches(&self, relay: &WireguardRelay) -> bool {
         match self {
             GeographicLocationConstraint::Country(country) => {
@@ -237,7 +241,7 @@ pub enum Ownership {
     Rented,
 }
 
-impl Match<WireguardRelay> for Ownership {
+impl Match<WireguardRelay> for &Ownership {
     fn matches(&self, relay: &WireguardRelay) -> bool {
         match self {
             Ownership::MullvadOwned => relay.owned,
@@ -309,7 +313,7 @@ impl Providers {
     }
 }
 
-impl Match<WireguardRelay> for Providers {
+impl Match<WireguardRelay> for &Providers {
     fn matches(&self, relay: &WireguardRelay) -> bool {
         self.providers.contains(&relay.provider)
     }

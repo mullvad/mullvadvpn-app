@@ -95,8 +95,8 @@ impl RelayQuery {
         }
     }
 
-    pub fn location(&self) -> &Constraint<LocationConstraint> {
-        &self.location
+    pub fn location(&self) -> Constraint<&LocationConstraint> {
+        self.location.as_ref()
     }
 
     pub fn set_location(&mut self, location: Constraint<LocationConstraint>) {
