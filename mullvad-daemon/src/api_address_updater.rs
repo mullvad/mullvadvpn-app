@@ -2,15 +2,15 @@
 //! Mullvad API.
 #[cfg(feature = "api-override")]
 use mullvad_api::ApiEndpoint;
-use mullvad_api::{AddressCache, ApiProxy, rest::MullvadRestHandle};
+use mullvad_api::{AddressCache, AddressCacheBacking, ApiProxy, rest::MullvadRestHandle};
 use std::time::Duration;
 
 const API_IP_CHECK_INITIAL: Duration = Duration::from_mins(15);
 const API_IP_CHECK_INTERVAL: Duration = Duration::from_hours(24);
 const API_IP_CHECK_ERROR_INTERVAL: Duration = Duration::from_mins(15);
 
-pub async fn run_api_address_fetcher(
-    address_cache: AddressCache,
+pub async fn run_api_address_fetcher<B: AddressCacheBacking>(
+    address_cache: AddressCache<B>,
     handle: MullvadRestHandle,
     #[cfg(feature = "api-override")] endpoint: ApiEndpoint,
 ) {

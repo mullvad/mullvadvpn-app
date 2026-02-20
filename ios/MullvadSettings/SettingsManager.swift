@@ -164,6 +164,16 @@ public enum SettingsManager {
         }
     }
 
+    // MARK: - API-side Address Cache
+
+    public static func writeAddressCache(_ cache: Data) throws {
+        try store.write(cache, for: .addressCache)
+    }
+
+    public static func readAddressCache() throws -> Data {
+        try store.read(key: .addressCache)
+    }
+
     // MARK: - Private
 
     private static func checkLatestSettingsVersion() throws {

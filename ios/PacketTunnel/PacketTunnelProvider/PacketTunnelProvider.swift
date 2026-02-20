@@ -48,8 +48,6 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
         providerLogger.info("Starting new packet tunnel")
 
         let containerURL = ApplicationConfiguration.containerURL
-        let addressCache = REST.AddressCache(canWriteToCache: false, cacheDirectory: containerURL)
-        addressCache.loadFromFile()
 
         let ipOverrideWrapper = IPOverrideWrapper(
             relayCache: RelayCache(cacheDirectory: containerURL),
@@ -75,7 +73,6 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
         setUpApiContextAndAccessMethodReceiver(
             appContainerURL: containerURL,
             ipOverrideWrapper: ipOverrideWrapper,
-            addressCache: addressCache,
             accessMethodRepository: accessMethodRepository,
             tunnelSettings: tunnelSettings
         )
@@ -253,7 +250,6 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
     private func setUpApiContextAndAccessMethodReceiver(
         appContainerURL: URL,
         ipOverrideWrapper: IPOverrideWrapper,
-        addressCache: REST.AddressCache,
         accessMethodRepository: AccessMethodRepository,
         tunnelSettings: LatestTunnelSettings
     ) {
@@ -283,7 +279,6 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
             domain: REST.encryptedDNSHostname,
             shadowsocksProvider: shadowsocksLoader,
             accessMethodWrapper: opaqueAccessMethodSettingsWrapper,
-            addressCacheProvider: addressCache,
             accessMethodChangeListeners: [accessMethodRepository, shadowsocksCacheCleaner]
         )
     }
