@@ -18,15 +18,22 @@ export const useDialogContext = (): DialogContextProps => {
 type DialogProviderProps = React.PropsWithChildren<{
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
+  mounted?: boolean;
+  setMounted: React.Dispatch<React.SetStateAction<boolean | undefined>>;
 }>;
 
 export function DialogProvider({ children, ...props }: DialogProviderProps) {
   const titleId = React.useId();
   const dialogRef = React.useRef<HTMLDialogElement>(null);
 
-  return (
-    <DialogContext.Provider value={{ titleId, dialogRef, ...props }}>
-      {children}
-    </DialogContext.Provider>
+  const value = React.useMemo(
+    () => ({
+      titleId,
+      dialogRef,
+      ...props,
+    }),
+    [titleId, dialogRef, props],
   );
+
+  return <DialogContext.Provider value={value}>{children}</DialogContext.Provider>;
 }

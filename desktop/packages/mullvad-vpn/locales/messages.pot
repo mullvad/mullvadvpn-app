@@ -104,6 +104,9 @@ msgstr ""
 msgid "CONNECTING..."
 msgstr ""
 
+msgid "Create"
+msgstr ""
+
 #. Creating a secure connection that isn't breakable by quantum computers.
 msgid "CREATING QUANTUM SECURE CONNECTION"
 msgstr ""
@@ -315,12 +318,43 @@ msgctxt "accessibility"
 msgid "%(wireguard)s port settings"
 msgstr ""
 
+#. This is an accessibility label for a button that adds a location to a custom list.
+#. Available placeholders:
+#. %(location)s - The name of the location being added to the list.
+#. %(listName)s - The name of the custom list the location will be added to.
+msgctxt "accessibility"
+msgid "Add %(location)s to %(listName)s"
+msgstr ""
+
+#. Accessibility label for button to add a location to a custom list.
+#. The placeholder is replaced with the name of the location.
+msgctxt "accessibility"
+msgid "Add %(locationName)s to custom list"
+msgstr ""
+
+#. This is an accessibility label for a button that opens a dialog to create a new custom list.
+msgctxt "accessibility"
+msgid "Add a new custom list"
+msgstr ""
+
+#. Accessibility description for button clearing the ownership filter.
+msgctxt "accessibility"
+msgid "Clear ownership filter"
+msgstr ""
+
 msgctxt "accessibility"
 msgid "Close notification"
 msgstr ""
 
 msgctxt "accessibility"
 msgid "Collapse %(location)s"
+msgstr ""
+
+#. Accessibility label for a button that connects to a location.
+#. Available placeholders:
+#. %(location)s - The name of the location that will be connected to when the button is clicked.
+msgctxt "accessibility"
+msgid "Connect to %(location)s"
 msgstr ""
 
 #. Provided to accessibility tools such as screenreaders to describe a button
@@ -332,6 +366,18 @@ msgstr ""
 #. Accessibility label for a carousel that explains the DAITA feature to the user.
 msgctxt "accessibility"
 msgid "DAITA information carousel"
+msgstr ""
+
+#. Accessibility label for button to delete a custom list.
+#. The placeholder is replaced with the name of the custom list.
+msgctxt "accessibility"
+msgid "Delete custom list %(listName)s"
+msgstr ""
+
+#. Accessibility label for button to edit a custom list.
+#. The placeholder is replaced with the name of the custom list.
+msgctxt "accessibility"
+msgid "Edit custom list %(listName)s"
 msgstr ""
 
 msgctxt "accessibility"
@@ -423,6 +469,13 @@ msgstr ""
 #. Accessibility label for a button that navigates to the previous slide in a carousel.
 msgctxt "accessibility"
 msgid "Previous slide"
+msgstr ""
+
+#. Accessibility label for button to remove a location from a custom list.
+#. The first placeholder is replaced with the name of the location.
+#. The second placeholder is replaced with the name of the custom list.
+msgctxt "accessibility"
+msgid "Remove %(location)s from %(customList)s"
 msgstr ""
 
 #. Button action description provided to accessibility tools such as screen
@@ -1847,10 +1900,6 @@ msgctxt "select-location-nav"
 msgid "Select location"
 msgstr ""
 
-msgctxt "select-location-view"
-msgid "(Added)"
-msgstr ""
-
 #. This is used for appending information about a location.
 #. E.g. "Gothenburg (Entry)" if Gothenburg has been selected as the entrypoint.
 #. Available placeholders:
@@ -1864,7 +1913,19 @@ msgstr ""
 #. Available placeholder:
 #. %(locationType) - Could be either "Country", "City" and "Relay"
 msgctxt "select-location-view"
-msgid "Add <b>%(locationType)s</b> to list"
+msgid "Add %(locationType)s to list"
+msgstr ""
+
+#. Message shown when the user has no custom lists.
+#. Instructs the user how to create a custom list.
+msgctxt "select-location-view"
+msgid "Add a custom list by clicking the “+” icon"
+msgstr ""
+
+#. Message shown in the custom list section when the user has at least one custom list.
+#. Instructs the user how to add locations to the custom list.
+msgctxt "select-location-view"
+msgid "Add locations by clicking on “+” when hovering over a location."
 msgstr ""
 
 msgctxt "select-location-view"
@@ -1879,16 +1940,33 @@ msgctxt "select-location-view"
 msgid "Country"
 msgstr ""
 
+#. Label for the input where the user can enter the name of a new custom list.
+msgctxt "select-location-view"
+msgid "Create custom list"
+msgstr ""
+
 msgctxt "select-location-view"
 msgid "Custom lists"
 msgstr ""
 
+#. Confirmation message shown when the user tries to delete a custom list.
+#. Asks the user if they are sure they want to delete the list.
+#. Available placeholder:
+#. %(list)s - The name of the custom list that is about to be deleted.
 msgctxt "select-location-view"
-msgid "Do you want to delete the list <b>%(list)s</b>?"
+msgid "Do you want to delete the list %(list)s?"
 msgstr ""
 
 msgctxt "select-location-view"
 msgid "Edit list name"
+msgstr ""
+
+msgctxt "select-location-view"
+msgid "Enter a name for the custom list"
+msgstr ""
+
+msgctxt "select-location-view"
+msgid "Enter a new name for the custom list"
 msgstr ""
 
 msgctxt "select-location-view"
@@ -1904,11 +1982,7 @@ msgid "Filtered:"
 msgstr ""
 
 msgctxt "select-location-view"
-msgid "List names must be unique."
-msgstr ""
-
-msgctxt "select-location-view"
-msgid "Name is already taken."
+msgid "List names must be unique"
 msgstr ""
 
 #. Label for indicator that shows that obfuscation is being used as a filter.
@@ -1926,12 +2000,21 @@ msgctxt "select-location-view"
 msgid "Providers: %(numberOfProviders)d"
 msgstr ""
 
+#. This refers to our VPN relays/servers
 msgctxt "select-location-view"
 msgid "Relay"
 msgstr ""
 
 msgctxt "select-location-view"
 msgid "Setting: %(settingName)s"
+msgstr ""
+
+#. Text showing how many locations are currently shown out of the total number of locations, e.g. "Showing 5 of 250"
+#. Available placeholders:
+#. %(visibleRelays)s: The number of relays currently shown
+#. %(totalRelays)s: The total number of relays
+msgctxt "select-location-view"
+msgid "Showing %(visibleRelays)s of %(totalRelays)s"
 msgstr ""
 
 msgctxt "select-location-view"
@@ -2922,9 +3005,6 @@ msgstr ""
 msgid "Copy"
 msgstr ""
 
-msgid "Create"
-msgstr ""
-
 msgid "Create new list"
 msgstr ""
 
@@ -3141,6 +3221,9 @@ msgstr ""
 msgid "Multihop is enabled"
 msgstr ""
 
+msgid "Name is already taken."
+msgstr ""
+
 msgid "Name was changed to %s"
 msgstr ""
 
@@ -3238,9 +3321,6 @@ msgid "Recents disabled and history cleared"
 msgstr ""
 
 msgid "Recursion limit"
-msgstr ""
-
-msgid "Remove %1$s from %2$s"
 msgstr ""
 
 msgid "Remove %s?"

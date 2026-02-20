@@ -1,0 +1,173 @@
+import React from 'react';
+
+import type { RelayLocation as DaemonRelayLocation } from '../../../../../shared/daemon-rpc-types';
+import type {
+  IRelayLocationCityRedux,
+  IRelayLocationCountryRedux,
+  IRelayLocationRelayRedux,
+} from '../../../../redux/settings/reducers';
+import { useSelector } from '../../../../redux/store';
+import {
+  type CityLocation,
+  type CountryLocation,
+  DisabledReason,
+  type RelayLocation,
+} from '../select-location-types';
+import {
+  createLocationLabel,
+  isCityDisabled,
+  isCountryDisabled,
+  isLocationSelected,
+  isRelayDisabled,
+} from '../utils';
+import { useDisabledLocation, useSelectedLocation } from './';
+
+export function useLocations(relayList: Array<IRelayLocationCountryRedux>): CountryLocation[] {
+  const locale = useSelector((state) => state.userInterface.locale);
+  const selectedLocation = useSelectedLocation();
+  const disabledLocation = useDisabledLocation();
+
+  return React.useMemo(() => {
+    return relayList
+      .map((country) => {
+        return toCountryLocation(country, selectedLocation, disabledLocation, locale);
+      })
+      .sort((a, b) => a.label.localeCompare(b.label, locale));
+  }, [relayList, disabledLocation, selectedLocation, locale]);
+}
+
+function toCountryLocation(
+  country: IRelayLocationCountryRedux,
+  selectedLocation: ReturnType<typeof useSelectedLocation>,
+  disabledLocation: ReturnType<typeof useDisabledLocation>,
+  locale: string,
+): CountryLocation {
+  {
+    const countryLocation = { country: country.code };
+    const countryDisabledReason = isCountryDisabled(country, countryLocation, disabledLocation);
+
+    let hasSelectedChild = false;
+    let hasExpandedChild = false;
+
+    const cities = country.cities
+      .map((city) => {
+        const cityLocation = toCityLocation(
+          country,
+          city,
+          selectedLocation,
+          disabledLocation,
+          countryDisabledReason,
+          locale,
+        );
+        if (cityLocation.selected) {
+          hasSelectedChild = true;
+        }
+        if (cityLocation.expanded) {
+          hasExpandedChild = true;
+        }
+        return cityLocation;
+      })
+      .sort((a, b) => a.label.localeCompare(b.label, locale));
+
+    const label = createLocationLabel(country.name, countryLocation, countryDisabledReason);
+
+    return {
+      type: 'country',
+      label,
+      searchText: label.toLowerCase(),
+      details: {
+        country: country.code,
+      },
+      active: countryDisabledReason !== DisabledReason.inactive,
+      disabled: countryDisabledReason !== undefined,
+      disabledReason: countryDisabledReason,
+      selected: isLocationSelected(countryLocation, selectedLocation),
+      expanded: hasExpandedChild || hasSelectedChild,
+      cities,
+    };
+  }
+}
+
+function toCityLocation(
+  country: IRelayLocationCountryRedux,
+  city: IRelayLocationCityRedux,
+  selectedLocation: ReturnType<typeof useSelectedLocation>,
+  disabledLocation: ReturnType<typeof useDisabledLocation>,
+  parentDisabledReason: DisabledReason | undefined,
+  locale: string,
+): CityLocation {
+  let hasSelectedChild = false;
+
+  const relays = city.relays
+    .map((relay) => {
+      const relayLocation = toRelayLocations(
+        country,
+        city,
+        relay,
+        selectedLocation,
+        disabledLocation,
+        parentDisabledReason,
+      );
+      if (relayLocation.selected) {
+        hasSelectedChild = true;
+      }
+      return relayLocation;
+    })
+    .sort((a, b) => a.label.localeCompare(b.label, locale, { numeric: true }));
+
+  const cityLocation: DaemonRelayLocation = { country: country.code, city: city.code };
+  const cityDisabledReason =
+    parentDisabledReason ?? isCityDisabled(city, cityLocation, disabledLocation);
+  const label = createLocationLabel(city.name, cityLocation, cityDisabledReason);
+
+  return {
+    type: 'city',
+    label,
+    searchText: label.toLowerCase(),
+    details: {
+      city: city.code,
+      country: country.code,
+    },
+    active: cityDisabledReason !== DisabledReason.inactive,
+    disabled: cityDisabledReason !== undefined,
+    disabledReason: cityDisabledReason,
+    selected: isLocationSelected(cityLocation, selectedLocation),
+    expanded: hasSelectedChild,
+    relays,
+  };
+}
+
+function toRelayLocations(
+  country: IRelayLocationCountryRedux,
+  city: IRelayLocationCityRedux,
+  relay: IRelayLocationRelayRedux,
+  selectedLocation: ReturnType<typeof useSelectedLocation>,
+  disabledLocation: ReturnType<typeof useDisabledLocation>,
+  parentDisabledReason: DisabledReason | undefined,
+): RelayLocation {
+  const relayLocation: DaemonRelayLocation = {
+    country: country.code,
+    city: city.code,
+    hostname: relay.hostname,
+  };
+
+  const relayDisabledReason =
+    parentDisabledReason ?? isRelayDisabled(relay, relayLocation, disabledLocation);
+  const label = createLocationLabel(relay.hostname, relayLocation, relayDisabledReason);
+
+  return {
+    type: 'relay',
+    label,
+    searchText: label.toLowerCase(),
+    details: {
+      country: country.code,
+      city: city.code,
+      hostname: relay.hostname,
+    },
+    active: relayDisabledReason !== DisabledReason.inactive,
+    disabled: relayDisabledReason !== undefined,
+    disabledReason: relayDisabledReason,
+    selected: isLocationSelected(relayLocation, selectedLocation),
+    expanded: false,
+  };
+}
