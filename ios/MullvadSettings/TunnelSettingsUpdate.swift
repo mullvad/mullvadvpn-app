@@ -9,6 +9,11 @@
 import Foundation
 import MullvadTypes
 
+// Note:
+// Existing keys in `TunnelSettingsUpdate` must not be removed.
+// They are required for backward compatibility.
+// If a key is no longer used, mark it as deprecated instead of deleting it.
+// Version upgrades should be handled in `upgradeToNextVersion()`.
 public enum TunnelSettingsUpdate: Sendable {
     case dnsSettings(DNSSettings)
     case obfuscation(WireGuardObfuscationSettings)
