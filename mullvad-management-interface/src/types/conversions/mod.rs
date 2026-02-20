@@ -11,6 +11,7 @@ mod logging;
 mod net;
 pub mod relay_constraints;
 mod relay_list;
+mod relay_selector;
 mod settings;
 #[cfg(target_os = "windows")]
 mod split_tunnel;
@@ -22,6 +23,12 @@ mod wireguard;
 pub enum FromProtobufTypeError {
     #[error("Invalid argument for type conversion: {0}")]
     InvalidArgument(&'static str),
+}
+
+/// Shorthand for `FromProtobufTypeError::InvalidArgument`.
+#[inline(always)]
+pub(crate) fn invalid_argument(msg: &'static str) -> FromProtobufTypeError {
+    FromProtobufTypeError::InvalidArgument(msg)
 }
 
 fn bytes_to_pubkey(

@@ -61,6 +61,10 @@ message EntryConstraints {
 // This is a subset of `EntryConstraints`.
 message ExitConstraints {
   management_interface.LocationConstraint location = 1;
+  // Only show exit locations operated by these providers.
+  //
+  // Constructing this parameter with 0 providers means that no filtering is done based on the provider.
+  // I.e. relays from all providers are shown.
   repeated Provider providers = 2;
   management_interface.Ownership ownership = 3;
 }
