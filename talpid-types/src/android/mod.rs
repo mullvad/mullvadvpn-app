@@ -41,7 +41,7 @@ pub struct NetworkState {
 
 impl fmt::Display for InetNetwork {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}.{}", self.address, self.prefix_length)
+        write!(f, "{}/{}", self.address, self.prefix_length)
     }
 }
 

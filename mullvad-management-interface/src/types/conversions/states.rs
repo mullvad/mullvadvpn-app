@@ -127,11 +127,9 @@ impl From<mullvad_types::states::TunnelState> for proto::TunnelState {
                                 i32::from(Cause::InvalidDnsServers)
                             }
                             #[cfg(target_os = "android")]
-                            talpid_tunnel::ErrorStateCause::InvalidIPv6Config {
-                                addresses: _,
-                                routes: _,
-                                dns_servers: _,
-                            } => i32::from(Cause::InvalidIpv6Config),
+                            talpid_tunnel::ErrorStateCause::InvalidIPv6Config { .. } => {
+                                i32::from(Cause::InvalidIpv6Config)
+                            }
                             #[cfg(any(
                                 target_os = "windows",
                                 target_os = "macos",
