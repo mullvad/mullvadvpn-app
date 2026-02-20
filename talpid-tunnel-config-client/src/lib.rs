@@ -106,8 +106,8 @@ pub struct EphemeralPeer {
 
 pub struct DaitaSettings {
     pub client_machines: Vec<daita::Machine>,
-    pub max_padding_frac: f64,
-    pub max_blocking_frac: f64,
+    pub max_decoy_frac: f64,
+    pub max_delay_frac: f64,
 }
 
 /// Negotiate a short-lived peer with a PQ-safe PSK or with DAITA enabled.
@@ -242,8 +242,8 @@ fn parse_daita_response(daita: proto::DaitaResponseV2) -> Result<DaitaSettings, 
         })?;
     Ok(DaitaSettings {
         client_machines: machines,
-        max_padding_frac: daita.max_padding_frac,
-        max_blocking_frac: daita.max_blocking_frac,
+        max_decoy_frac: daita.max_padding_frac,
+        max_delay_frac: daita.max_blocking_frac,
     })
 }
 

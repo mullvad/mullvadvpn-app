@@ -715,8 +715,8 @@ impl Tunnel for WgGoTunnel {
                     .activate_daita(
                         peer_public_key.as_bytes(),
                         &machines,
-                        daita.max_padding_frac,
-                        daita.max_blocking_frac,
+                        daita.max_decoy_frac,
+                        daita.max_delay_frac,
                         DAITA_EVENTS_CAPACITY,
                         DAITA_ACTIONS_CAPACITY,
                     )
