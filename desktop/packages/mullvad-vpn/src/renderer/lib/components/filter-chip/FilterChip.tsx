@@ -1,9 +1,7 @@
-import { forwardRef } from 'react';
-import styled, { WebTarget } from 'styled-components';
+import styled, { css, WebTarget } from 'styled-components';
 
-import { colors, Radius } from '../../foundations';
-import { Flex } from '../flex';
-import { FilterChipIcon, FilterChipText } from './components';
+import { colors, Radius, spacings } from '../../foundations';
+import { FilterChipIcon, FilterChipText, StyledFilterChipIcon } from './components';
 import { FilterChipProvider } from './FilterChipContext';
 
 export interface FilterChipProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -13,61 +11,77 @@ export interface FilterChipProps extends React.ButtonHTMLAttributes<HTMLButtonEl
 const variables = {
   background: colors.blue,
   hover: colors.blue60,
+  active: colors.blue40,
   disabled: colors.blue50,
 } as const;
 
-const StyledButton = styled.button({
-  display: 'flex',
-  alignItems: 'center',
+export const StyledFilterChip = styled.button<{ $hasOnClick?: boolean }>`
+  ${({ $hasOnClick }) => {
+    return css`
+      --background: ${variables.background};
+      --hover: ${variables.hover};
+      --active: ${variables.active};
+      --disabled: ${variables.disabled};
 
-  borderRadius: Radius.radius8,
-  minWidth: '32px',
-  minHeight: '24px',
-  background: 'var(--background)',
-  '&:not(:disabled):hover': {
-    background: 'var(--hover)',
-  },
-  '&:disabled': {
-    background: 'var(--disabled)',
-  },
-  '&:focus-visible': {
-    outline: `2px solid ${colors.white}`,
-  },
-});
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: ${spacings.tiny};
 
-const FilterChip = forwardRef<HTMLButtonElement, FilterChipProps>(
-  ({ children, disabled, style, onClick, ...props }, ref) => {
-    return (
-      <FilterChipProvider disabled={disabled}>
-        <StyledButton
-          ref={ref}
-          style={
-            {
-              '--background': variables.background,
-              '--hover': onClick ? variables.hover : variables.background,
-              '--disabled': variables.disabled,
-              ...style,
-            } as React.CSSProperties
-          }
-          disabled={disabled}
-          onClick={onClick}
-          {...props}>
-          <Flex
-            gap="tiny"
-            alignItems="center"
-            justifyContent="space-between"
-            padding={{
-              horizontal: 'small',
-            }}>
-            {children}
-          </Flex>
-        </StyledButton>
-      </FilterChipProvider>
-    );
-  },
-);
+      min-width: 32px;
+      min-height: 24px;
+      padding: ${spacings.tiny} ${spacings.small};
+      border-radius: ${Radius.radius8};
+      background: var(--background);
+      > ${StyledFilterChipIcon} {
+        border: 1px solid red;
+      }
 
-FilterChip.displayName = 'FilterChip';
+      ${() => {
+        if ($hasOnClick) {
+          return css`
+            &:not(:disabled) {
+              &:hover {
+                background-color: var(--hover);
+                > ${StyledFilterChipIcon} {
+                  background-color: ${colors.whiteAlpha80};
+                }
+              }
+              &:active {
+                background-color: var(--active);
+                > ${StyledFilterChipIcon} {
+                  background-color: ${colors.white};
+                }
+              }
+            }
+          `;
+        }
+        return null;
+      }}
+
+      &:disabled {
+        background: var(--disabled);
+      }
+      &:focus-visible {
+        outline: 2px solid ${colors.white};
+      }
+    `;
+  }}
+`;
+
+function FilterChip({ children, disabled, style, onClick, ...props }: FilterChipProps) {
+  return (
+    <FilterChipProvider disabled={disabled}>
+      <StyledFilterChip
+        disabled={disabled}
+        onClick={onClick}
+        $hasOnClick={onClick !== undefined}
+        {...props}>
+        {children}
+      </StyledFilterChip>
+    </FilterChipProvider>
+  );
+}
 
 const FilterChipNamespace = Object.assign(FilterChip, {
   Text: FilterChipText,

@@ -73,7 +73,8 @@ export type Typography =
   | 'bodySmallSemibold'
   | 'labelTiny'
   | 'labelTinySemiBold'
-  | 'footnoteMini';
+  | 'footnoteMini'
+  | 'footnoteMiniSemiBold';
 
 export interface TypographyProperties {
   fontFamily: React.CSSProperties['fontFamily'];
@@ -126,6 +127,12 @@ export const typography: Record<Typography, TypographyProperties> = {
     lineHeight: LineHeights.tiny,
   },
   footnoteMini: {
+    fontFamily: Fonts.footnote,
+    fontWeight: FontWeights.semiBold,
+    fontSize: FontSizes.mini,
+    lineHeight: LineHeights.mini,
+  },
+  footnoteMiniSemiBold: {
     fontFamily: Fonts.footnote,
     fontWeight: FontWeights.semiBold,
     fontSize: FontSizes.mini,
