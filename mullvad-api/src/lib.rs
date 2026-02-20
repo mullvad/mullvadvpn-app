@@ -7,7 +7,6 @@ use mullvad_types::account::{AccountData, AccountNumber, VoucherSubmission};
 #[cfg(target_os = "android")]
 use mullvad_types::account::{PlayPurchase, PlayPurchasePaymentToken};
 use proxy::{ApiConnectionMode, ConnectionModeProvider};
-use std::ops::Deref;
 use std::{collections::BTreeMap, future::Future, io, net::SocketAddr, path::Path, sync::Arc};
 use talpid_types::ErrorExt;
 
@@ -441,8 +440,9 @@ impl<B: AddressCacheBacking> Runtime<B> {
     where
         B: AddressCacheBacking,
     {
-        let address_cache =
-            Arc::new(AddressCache::from_backing_or(endpoint.host().to_owned(), backing, endpoint).await);
+        let address_cache = Arc::new(
+            AddressCache::from_backing_or(endpoint.host().to_owned(), backing, endpoint).await,
+        );
         Runtime {
             handle,
             address_cache,

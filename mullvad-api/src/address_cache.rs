@@ -77,8 +77,7 @@ impl<T: AddressCacheBacking> DnsResolver for AddressCache<T> {
 }
 
 #[derive(Clone, Debug)]
-pub struct AddressCache<T>
-{
+pub struct AddressCache<T> {
     hostname: String,
     inner: Arc<Mutex<AddressCacheInner>>,
     backing: Arc<T>,

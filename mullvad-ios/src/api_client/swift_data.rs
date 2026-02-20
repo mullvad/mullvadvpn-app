@@ -6,15 +6,16 @@ pub struct SwiftData {
 const EMPTY: [u8; 0] = [];
 
 impl AsRef<[u8]> for SwiftData {
-    // SAFETY: swift_data_get_{ptr,len} are synchronous deterministic functions
-    // that return a pointer/length or a null/0 value in all cases.
     fn as_ref(&self) -> &[u8] {
+        // SAFETY: swift_data_get_{ptr,len} are synchronous deterministic functions
+        // that return a pointer/length or a null/0 value in all cases.
         let data_ptr = unsafe { swift_data_get_ptr(self) };
         let len = unsafe { swift_data_get_len(self) };
 
         if data_ptr.is_null() {
             &EMPTY
         } else {
+            // SAFETY: we know that data_ptr points to len u8s
             unsafe { std::slice::from_raw_parts(data_ptr, len) }
         }
     }
