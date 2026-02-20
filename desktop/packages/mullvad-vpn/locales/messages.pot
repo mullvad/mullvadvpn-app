@@ -2633,7 +2633,7 @@ msgid "If an observer monitors these data packets, %(daita)s makes it significan
 msgstr ""
 
 msgctxt "wireguard-settings-view"
-msgid "It does this by performing an extra key exchange using a quantum safe algorithm and mixing the result into WireGuard’s regular encryption. This extra step uses approximately 500 kiB of traffic every time a new tunnel is established."
+msgid "It does this by performing an extra key exchange using a quantum safe algorithm and mixing the result into WireGuard’s regular encryption."
 msgstr ""
 
 #. The title for the WireGuard MTU setting. MTU stands for Maximum
@@ -3103,6 +3103,9 @@ msgid "Include my account token for faster help with payment or account related 
 msgstr ""
 
 msgid "Invalid or missing value \"%1$s\""
+msgstr ""
+
+msgid "It does this by performing an extra key exchange using a quantum safe algorithm and mixing the result into WireGuard’s regular encryption. This extra step uses approximately 500 kiB of traffic every time a new tunnel is established."
 msgstr ""
 
 msgid "Less than a day left on this account"
