@@ -72,6 +72,7 @@ clap = { version = "4.4.18", features = ["cargo", "derive"] }
 dirs = "6.0.0"
 futures = "0.3.15"
 gotatun = { version = "0.2.0" }
+hex = { version = "0.4" }
 hickory-proto = "0.25.2"
 hickory-resolver = "0.25.2"
 hickory-server = { version = "0.25.2", features = ["resolver"] }
@@ -106,6 +107,7 @@ serde = "1.0.204"
 serde_json = "1.0.122"
 sha2 = "0.10"
 shadowsocks = "1.23.2"
+sigsum = "0.2.0"
 socket2 = "0.5.7"
 strum = { version = "0.27" }
 thiserror = "2.0"

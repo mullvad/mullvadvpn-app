@@ -20,10 +20,14 @@ pub fn api_endpoint_from_java(
     let ip_addr = IpAddr::from_str(&address).expect("Invalid IP address");
     let port = port_from_java(env, endpoint_override);
     let socket_addr = (ip_addr, port).to_socket_addrs().unwrap().next().unwrap();
+    let sigsum_trusted_pubkeys = sigsum_trusted_pubkeys_from_java(env, endpoint_override);
+    let parsed_pubkeys = mullvad_api::ApiEndpoint::parse_sigsum_pubkeys(&sigsum_trusted_pubkeys)
+        .expect("invalid sigsum trusted pubkeys");
 
     Some(mullvad_api::ApiEndpoint {
         host: Some(hostname),
         address: Some(socket_addr),
+        sigsum_trusted_pubkeys: Some(parsed_pubkeys),
         disable_tls: disable_tls_from_java(env, endpoint_override),
         force_direct: force_direct_from_java(env, endpoint_override),
     })
@@ -87,4 +91,15 @@ fn force_direct_from_java(env: &JnixEnv<'_>, endpoint_override: JObject<'_>) -> 
         .expect("missing ApiEndpointOverride.forceDirectConnection")
         .z()
         .expect("ApiEndpointOverride.forceDirectConnection is not a bool")
+}
+
+#[cfg(feature = "api-override")]
+fn sigsum_trusted_pubkeys_from_java(env: &JnixEnv<'_>, endpoint_override: JObject<'_>) -> String {
+    let pubkeys = env
+        .call_method(endpoint_override, "component6", "()Ljava/lang/String;", &[])
+        .expect("missing ApiEndpointOverride.sigsumTrustedPubkeys")
+        .l()
+        .expect("ApiEndpointOverride.forceDirectConnection is not a string");
+
+    String::from_java(env, pubkeys)
 }

@@ -1,7 +1,7 @@
 #[cfg(target_os = "android")]
 pub use crate::https_client_with_sni::SocketBypassRequest;
 use crate::{
-    DnsResolver,
+    DnsResolver, SigsumPublicKey,
     access::AccessTokenStore,
     availability::ApiAvailability,
     https_client_with_sni::{HttpsConnectorWithSni, HttpsConnectorWithSniHandle},
@@ -81,6 +81,14 @@ pub enum Error {
     /// Body exceeded size limit
     #[error("Body exceeded size limit")]
     BodyTooLarge,
+
+    // TODO: better way to do this? Can't use DeserializeError because it expects a serde_json::Error
+    #[error("Failed to deserialize sigsum data")]
+    SigsumDeserializeError,
+
+    /// Body contained invalid UTF-8
+    #[error("Body contained invalid UTF-8")]
+    InvalidUtf8Error,
 }
 
 impl From<Infallible> for Error {
@@ -738,6 +746,7 @@ pub struct MullvadRestHandle {
     pub(crate) service: RequestServiceHandle,
     pub factory: RequestFactory,
     pub availability: ApiAvailability,
+    pub sigsum_trusted_pubkeys: Vec<SigsumPublicKey>,
 }
 
 impl MullvadRestHandle {
@@ -745,11 +754,13 @@ impl MullvadRestHandle {
         service: RequestServiceHandle,
         factory: RequestFactory,
         availability: ApiAvailability,
+        sigsum_trusted_pubkeys: Vec<SigsumPublicKey>,
     ) -> Self {
         Self {
             service,
             factory,
             availability,
+            sigsum_trusted_pubkeys,
         }
     }
 
