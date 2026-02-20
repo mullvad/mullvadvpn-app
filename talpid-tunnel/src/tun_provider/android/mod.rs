@@ -21,7 +21,7 @@ use std::{
 };
 use talpid_routing::Route;
 use talpid_types::net::{ALLOWED_LAN_MULTICAST_NETS, ALLOWED_LAN_NETS};
-use talpid_types::{ErrorExt, android::AndroidContext};
+use talpid_types::{ErrorExt, android::AndroidContext, android::InetNetwork};
 
 /// Errors that occur while setting up VpnService tunnel.
 #[derive(Debug, thiserror::Error)]
@@ -46,6 +46,15 @@ pub enum Error {
 
     #[error("Received an invalid result from TalpidVpnService.{0}: {1}")]
     InvalidMethodResult(&'static str, String),
+
+    #[error(
+        "Attempt to configure the tunnel with invalid config addresses: {addresses:?} routes: {routes:?} dnsServers: {dns_servers:?}"
+    )]
+    InvalidIpv6Config {
+        addresses: Vec<IpAddr>,
+        routes: Vec<InetNetwork>,
+        dns_servers: Vec<IpAddr>,
+    },
 
     #[error("Failed to create tunnel device")]
     TunnelDeviceError,
@@ -362,28 +371,6 @@ impl VpnServiceConfig {
     }
 }
 
-#[derive(Clone, Debug, Eq, PartialEq, IntoJava)]
-#[jnix(package = "net.mullvad.talpid.model")]
-pub struct InetNetwork {
-    address: IpAddr,
-    prefix: i16,
-}
-
-impl From<IpNetwork> for InetNetwork {
-    fn from(ip_network: IpNetwork) -> Self {
-        InetNetwork {
-            address: ip_network.ip(),
-            prefix: ip_network.prefix() as i16,
-        }
-    }
-}
-
-impl From<&InetNetwork> for IpNetwork {
-    fn from(inet_network: &InetNetwork) -> Self {
-        IpNetwork::new(inet_network.address, inet_network.prefix as u8).unwrap()
-    }
-}
-
 /// Handle to a tunnel device on Android.
 pub struct VpnServiceTun {
     tunnel: RawFd,
@@ -447,12 +434,22 @@ impl AsFd for VpnServiceTun {
 #[derive(FromJava)]
 #[jnix(package = "net.mullvad.talpid.model")]
 enum CreateTunResult {
-    Success { tun_fd: i32 },
-    InvalidDnsServers { addresses: Vec<IpAddr> },
-    InvalidIpv6Config,
+    Success {
+        tun_fd: i32,
+    },
+    InvalidDnsServers {
+        addresses: Vec<IpAddr>,
+    },
+    InvalidIpv6Config {
+        addresses: Vec<IpAddr>,
+        routes: Vec<InetNetwork>,
+        dns_servers: Vec<IpAddr>,
+    },
     EstablishError,
     OtherLegacyAlwaysOnVpn,
-    OtherAlwaysOnApp { app_name: String },
+    OtherAlwaysOnApp {
+        app_name: String,
+    },
     NotPrepared,
 }
 
@@ -463,7 +460,15 @@ impl From<CreateTunResult> for Result<RawFd, Error> {
             CreateTunResult::InvalidDnsServers { addresses } => {
                 Err(Error::InvalidDnsServers(addresses))
             }
-            CreateTunResult::InvalidIpv6Config => Err(Error::TunnelDeviceError),
+            CreateTunResult::InvalidIpv6Config {
+                addresses,
+                routes,
+                dns_servers,
+            } => Err(Error::InvalidIpv6Config {
+                addresses,
+                routes,
+                dns_servers,
+            }),
             CreateTunResult::EstablishError => Err(Error::TunnelDeviceError),
             CreateTunResult::OtherLegacyAlwaysOnVpn => Err(Error::OtherLegacyAlwaysOnVpn),
             CreateTunResult::OtherAlwaysOnApp { app_name } => {

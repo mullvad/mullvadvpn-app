@@ -63,6 +63,21 @@ impl From<Error> for ErrorStateCause {
                     tun_provider::Error::InvalidDnsServers(addresses),
                 ),
             )) => ErrorStateCause::InvalidDnsServers(addresses),
+
+            #[cfg(target_os = "android")]
+            Error::TunnelMonitoring(talpid_wireguard::Error::TunnelError(
+                talpid_wireguard::TunnelError::SetupTunnelDevice(
+                    tun_provider::Error::InvalidIpv6Config {
+                        addresses,
+                        routes,
+                        dns_servers,
+                    },
+                ),
+            )) => ErrorStateCause::InvalidIPv6Config {
+                addresses,
+                routes,
+                dns_servers,
+            },
             #[cfg(target_os = "windows")]
             error => match error.get_tunnel_device_error() {
                 Some(error) => ErrorStateCause::CreateTunnelDevice {

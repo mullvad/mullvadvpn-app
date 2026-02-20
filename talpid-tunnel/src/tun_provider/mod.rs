@@ -98,6 +98,22 @@ impl TunConfig {
             .map(IpNetwork::from)
             .collect()
     }
+
+    /// Applies the blocking config to the current tunnel config
+    ///
+    /// This is so that if the android system rejects the tun config due to some improper values
+    /// we will apply a set of safe values that work so that we can properly route all
+    /// traffic in the tunnel and block it.
+    #[cfg(target_os = "android")]
+    pub fn set_blocking_config(&mut self) {
+        let blocking_config = blocking_config();
+        self.mtu = blocking_config.mtu;
+        self.addresses = blocking_config.addresses;
+        self.ipv4_gateway = blocking_config.ipv4_gateway;
+        self.ipv6_gateway = blocking_config.ipv6_gateway;
+        self.routes = blocking_config.routes;
+        self.dns_servers = blocking_config.dns_servers;
+    }
 }
 
 /// Return a tunnel configuration that routes all traffic inside the tunnel.
@@ -121,6 +137,9 @@ pub fn blocking_config(
         ipv6_gateway: None,
         routes: DEFAULT_ROUTES.to_vec(),
         allow_lan: false,
+        #[cfg(target_os = "android")]
+        dns_servers: Some(vec![IpAddr::V4(Ipv4Addr::new(192, 0, 2, 1))]),
+        #[cfg(not(target_os = "android"))]
         dns_servers: None,
         excluded_packages: vec![],
         #[cfg(target_os = "windows")]
