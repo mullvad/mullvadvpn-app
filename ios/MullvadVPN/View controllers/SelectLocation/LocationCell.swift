@@ -126,11 +126,17 @@ class LocationCell: UITableViewCell {
         updateLeadingImage()
         updateStatusIndicatorColor()
 
-        // Set the accessibility value to indicate selection status
-        accessibilityValue =
-            selected
-            ? NSLocalizedString("Selected", comment: "")
-            : nil
+        switch behavior {
+        case .add:
+            // In add mode, accessibility value is managed by setupAccessibility
+            // based on checkbox state, not cell selection.
+            break
+        case .select:
+            accessibilityValue =
+                selected
+                ? NSLocalizedString("Selected", comment: "")
+                : nil
+        }
     }
 
     private func setupCell() {
@@ -190,27 +196,53 @@ class LocationCell: UITableViewCell {
     private func setupAccessibility(_ locationCellViewModel: LocationCellViewModel) {
         isAccessibilityElement = true
         accessibilityTraits = .button
+        accessibilityLabel = locationCellViewModel.node.name
 
-        // Set the accessibility label to the location name
-        accessibilityLabel = locationCellViewModel.node.code
+        let hasChildren = !locationCellViewModel.node.children.isEmpty
 
-        // Provide a hint about the action
-        if !locationCellViewModel.node.children.isEmpty {
-            accessibilityHint =
-                locationCellViewModel.node.showsChildren
-                ? NSLocalizedString("Collapses this location.", comment: "")
-                : NSLocalizedString("Expands this location.", comment: "")
-        } else {
+        switch behavior {
+        case .add:
+            accessibilityValue =
+                locationCellViewModel.isSelected
+                ? NSLocalizedString("Checked", comment: "")
+                : NSLocalizedString("Unchecked", comment: "")
             accessibilityHint = nil
+
+            if hasChildren {
+                let expandActionName =
+                    locationCellViewModel.node.showsChildren
+                    ? NSLocalizedString("Collapse", comment: "")
+                    : NSLocalizedString("Expand", comment: "")
+                let expandAction = UIAccessibilityCustomAction(
+                    name: expandActionName,
+                    target: self,
+                    selector: #selector(toggleCollapseAccessibilityAction)
+                )
+                accessibilityCustomActions = [expandAction]
+            } else {
+                accessibilityCustomActions = nil
+            }
+
+        case .select:
+            accessibilityValue = nil
+
+            if hasChildren {
+                accessibilityHint =
+                    locationCellViewModel.node.showsChildren
+                    ? NSLocalizedString("Collapses this location.", comment: "")
+                    : NSLocalizedString("Expands this location.", comment: "")
+
+                let selectAction = UIAccessibilityCustomAction(
+                    name: NSLocalizedString("Select location", comment: ""),
+                    target: self,
+                    selector: #selector(handleSelectAction)
+                )
+                accessibilityCustomActions = [selectAction]
+            } else {
+                accessibilityHint = nil
+                accessibilityCustomActions = nil
+            }
         }
-
-        let selectAction = UIAccessibilityCustomAction(
-            name: "SelectLocation",
-            target: self,
-            selector: #selector(handleSelectAction)
-        )
-
-        accessibilityCustomActions = [selectAction]
     }
 
     private func updateLeadingImage() {
@@ -302,7 +334,18 @@ class LocationCell: UITableViewCell {
     }
 
     override func accessibilityActivate() -> Bool {
-        toggleCollapseAccessibilityAction()
+        switch behavior {
+        case .add:
+            delegate?.toggleSelecting(cell: self)
+            return true
+        case .select:
+            if collapseButton.isHidden {
+                delegate?.toggleSelecting(cell: self)
+            } else {
+                delegate?.toggleExpanding(cell: self)
+            }
+            return true
+        }
     }
 }
 
@@ -313,6 +356,7 @@ extension LocationCell {
     }
 
     func configure(item: LocationCellViewModel, behavior: LocationCellBehavior) {
+        self.behavior = behavior
         isDisabled = !item.node.isActive
         locationLabel.text = item.node.name
         isExpanded = item.node.showsChildren
@@ -340,7 +384,7 @@ extension LocationCell {
             }
         }
 
-        setBehavior(behavior)
+        updateLeadingImage()
     }
 
     func setExcluded(relayTitle: String? = nil) {

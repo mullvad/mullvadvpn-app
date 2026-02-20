@@ -43,6 +43,7 @@ struct LineOverlayView: View {
                     )
             }
         }
+        .accessibilityHidden(true)
         .animation(.default, value: iconPositionPairs.count)
     }
 }

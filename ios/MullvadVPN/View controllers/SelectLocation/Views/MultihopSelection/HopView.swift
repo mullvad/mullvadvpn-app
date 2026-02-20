@@ -8,6 +8,7 @@ struct HopView: View {
     var body: some View {
         HStack {
             hop.icon
+                .accessibilityHidden(true)
                 .capturePosition(
                     in: .multihopSelection
                 ) { position in

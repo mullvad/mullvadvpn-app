@@ -26,6 +26,7 @@ struct MullvadListSectionHeader: View {
             }
         }
         .frame(minHeight: 44, alignment: .center)
+        .accessibilityAddTraits(.isHeader)
     }
 }
 

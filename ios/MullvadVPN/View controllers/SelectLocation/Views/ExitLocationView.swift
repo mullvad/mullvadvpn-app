@@ -94,7 +94,12 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
                 subtitle: context.relaysAreFiltered
                     ? ("Showing \(context.availableRelayCount) of \(context.totalRelayCount)") : nil
             )
+            .accessibilityHint(
+                Text(
+                    "Locations can be selected directly or expanded. When a city or country is selected, all compatible servers in that location will be candidates for any given tunnel connection."
+                ))
         }
+
         LocationsListView(
             locations: $context.locations,
             multihopContext: viewModel.multihopContext,
@@ -141,6 +146,7 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
                     Image.mullvadIconAdd
                         .padding(.horizontal, 10)
                 }
+                .accessibilityLabel(Text("Create new custom list"))
                 .accessibilityIdentifier(.addNewCustomListButton)
                 if !context.customLists.isEmpty {
                     Button {
@@ -151,6 +157,7 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
                         Image.mullvadIconEdit
                             .padding(.horizontal, 10)
                     }
+                    .accessibilityLabel(Text("Edit custom lists"))
                     .accessibilityIdentifier(.editCustomListButton)
                 }
             }
@@ -175,6 +182,7 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
         MullvadListSectionFooter(title: text)
             .padding(.horizontal, context.customLists.isEmpty ? 0 : 16)
             .padding(.top, context.customLists.isEmpty ? 0 : 4)
+            .accessibilityHidden(true)
     }
 
     private func scrollToCurrentSelection(_ scrollProxy: ScrollViewProxy) {

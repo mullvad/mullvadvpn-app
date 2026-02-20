@@ -45,7 +45,8 @@ struct LocationListItem<ContextMenu>: View where ContextMenu: View {
                     isActive: location.isActive && !location.isExcluded,
                     isExpanded: $location.showsChildren,
                     contextMenu: { contextMenu(location) },
-                    accessibilityIdentifier: .locationListItem(location.name)
+                    accessibilityIdentifier: .locationListItem(location.name),
+                    accessibilityName: location.name
                 ) {
                     if location.showsChildren {
                         ForEach(

@@ -11,6 +11,7 @@ struct LocationDisclosureGroup<Label: View, Content: View, ContextMenu: View>: V
     let onSelect: (() -> Void)?
     let contextMenu: () -> ContextMenu
     let accessibilityIdentifier: AccessibilityIdentifier?
+    let accessibilityName: String
 
     private var topRadius: CGFloat {
         level == 0 ? 16 : 0
@@ -28,6 +29,7 @@ struct LocationDisclosureGroup<Label: View, Content: View, ContextMenu: View>: V
         isExpanded: Binding<Bool>,
         @ViewBuilder contextMenu: @escaping () -> ContextMenu,
         accessibilityIdentifier: AccessibilityIdentifier? = nil,
+        accessibilityName: String = "",
         @ViewBuilder content: @escaping () -> Content,
         @ViewBuilder label: @escaping () -> Label,
         onSelect: (() -> Void)? = nil,
@@ -37,6 +39,7 @@ struct LocationDisclosureGroup<Label: View, Content: View, ContextMenu: View>: V
         self.isActive = isActive
         self._isExpanded = isExpanded
         self.accessibilityIdentifier = accessibilityIdentifier
+        self.accessibilityName = accessibilityName
 
         self.label = label
         self.content = content
@@ -73,12 +76,26 @@ struct LocationDisclosureGroup<Label: View, Content: View, ContextMenu: View>: V
                     }
             }
             .accessibilityLabel(
-                isExpanded ? Text("Collapse".localizedCapitalized) : Text("Expand".localizedCapitalized)
+                isExpanded ? Text("Collapse") : Text("Expand")
             )
             .accessibilityIdentifier(.expandButton)
             .contentShape(Rectangle())
         }
         .accessibilityElement(children: .combine)
+        .accessibilityLabel(accessibilityName)
+        .accessibilityValue(isExpanded ? Text("Expanded") : Text("Collapsed"))
+        .accessibilityAction(named: Text("Select \(accessibilityName)")) {
+            onSelect?()
+        }
+        .accessibilityAction(
+            named: isExpanded
+                ? Text("Collapse \(accessibilityName)")
+                : Text("Expand \(accessibilityName)")
+        ) {
+            withAnimation(.default.speed(3)) {
+                isExpanded.toggle()
+            }
+        }
         .accessibilityIdentifier(accessibilityIdentifier)
         .clipShape(
             UnevenRoundedRectangle(

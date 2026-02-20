@@ -60,8 +60,8 @@ class CustomListsTests: LoggedInWithTimeUITestCase {
         startEditingCustomList(named: customListName)
 
         EditCustomListLocationsPage(app)
-            .scrollToLocationWith(identifier: BaseUITestCase.testsDefaultCountryIdentifier)
-            .toggleLocationCheckmarkWith(identifier: BaseUITestCase.testsDefaultCountryIdentifier)
+            .scrollToLocationWith(identifier: BaseUITestCase.testsDefaultCountryName)
+            .toggleLocationCheckmarkWith(identifier: BaseUITestCase.testsDefaultCountryName)
             .tapBackButton()
 
         CustomListPage(app)
@@ -90,9 +90,9 @@ class CustomListsTests: LoggedInWithTimeUITestCase {
         startEditingCustomList(named: customListName)
 
         EditCustomListLocationsPage(app)
-            .scrollToLocationWith(identifier: BaseUITestCase.testsDefaultCountryIdentifier)
-            .unfoldLocationwith(identifier: BaseUITestCase.testsDefaultCountryIdentifier)
-            .unfoldLocationwith(identifier: BaseUITestCase.testsDefaultCityIdentifier)
+            .scrollToLocationWith(identifier: BaseUITestCase.testsDefaultCountryName)
+            .unfoldLocationwith(identifier: BaseUITestCase.testsDefaultCountryName)
+            .unfoldLocationwith(identifier: BaseUITestCase.testsDefaultCityName)
             .toggleLocationCheckmarkWith(identifier: BaseUITestCase.testsDefaultRelayName)
             .tapBackButton()
 

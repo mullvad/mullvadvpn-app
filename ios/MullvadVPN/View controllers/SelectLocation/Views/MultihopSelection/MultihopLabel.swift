@@ -8,6 +8,7 @@ struct MultihopLabel: View {
     var body: some View {
         HStack(spacing: 10) {
             image
+                .accessibilityHidden(true)
                 .capturePosition(in: .multihopSelection) {
                     onIconPositionChange($0)
                 }
@@ -15,5 +16,6 @@ struct MultihopLabel: View {
         }
         .foregroundStyle(Color.mullvadTextPrimary.opacity(0.6))
         .font(.mullvadMiniSemiBold)
+        .accessibilityHidden(true)
     }
 }

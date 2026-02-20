@@ -22,6 +22,7 @@ struct ConnectionView: View {
         VStack {
             Spacer()
                 .accessibilityIdentifier(AccessibilityIdentifier.connectionView.asString)
+                .accessibilityHidden(true)
             VStack(spacing: 16) {
                 VStack(alignment: .leading, spacing: 0) {
                     HeaderView(viewModel: connectionViewModel, isExpanded: $isExpanded)
@@ -31,6 +32,7 @@ struct ConnectionView: View {
                         .background(UIColor.secondaryTextColor.color)
                         .padding(.top, 4)
                         .padding(.bottom, 8)
+                        .accessibilityHidden(true)
                         .showIf(isExpanded)
 
                     ScrollView {
@@ -40,6 +42,7 @@ struct ConnectionView: View {
                                     .lineLimit(isExpanded ? 2 : 1)
                                     .font(.title3.weight(.semibold))
                                     .foregroundStyle(UIColor.primaryTextColor.color)
+                                    .accessibilityHidden(true)
                             }
                             if let titleForServer = connectionViewModel.titleForServer {
                                 Text(titleForServer)
@@ -49,6 +52,7 @@ struct ConnectionView: View {
                                     .accessibilityIdentifier(
                                         AccessibilityIdentifier.connectionPanelServerLabel.asString
                                     )
+                                    .accessibilityLabel(connectionViewModel.accessibilityLabelForServer ?? "")
                                     .multilineTextAlignment(.leading)
                                     .fixedSize(horizontal: false, vertical: true)
                             }
@@ -58,6 +62,7 @@ struct ConnectionView: View {
                                         .font(.footnote.weight(.semibold))
                                         .foregroundStyle(UIColor.primaryTextColor.color.opacity(0.6))
                                         .padding(.top, 8)
+                                        .accessibilityAddTraits(.isHeader)
                                         .showIf(isExpanded && hasFeatureIndicators)
 
                                     ChipContainerView(
