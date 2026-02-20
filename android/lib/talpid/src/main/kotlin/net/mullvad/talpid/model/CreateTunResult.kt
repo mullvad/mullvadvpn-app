@@ -45,7 +45,7 @@ sealed interface CreateTunResult {
         constructor(
             addresses: List<InetAddress>,
             routes: List<InetNetwork>,
-            dnsServers: List<InetAddress>
+            dnsServers: List<InetAddress>,
             tunFd: Int,
         ) : this(
             addresses = ArrayList(addresses),
