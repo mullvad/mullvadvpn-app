@@ -135,7 +135,8 @@ pub unsafe extern "C" fn mullvad_api_use_access_method(
 ///
 /// # SAFETY
 ///
-/// this takes no arguments other than the API context
+/// this takes no arguments other than the API context. The API context
+/// needs to be valid, and the function should not be called concurrently.
 
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn mullvad_api_update_address_cache(swift_api_context: SwiftApiContext) {

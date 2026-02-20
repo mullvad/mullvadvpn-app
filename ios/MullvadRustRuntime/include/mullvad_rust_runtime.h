@@ -143,7 +143,8 @@ void mullvad_api_use_access_method(struct SwiftApiContext api_context,
  *
  * # SAFETY
  *
- * this takes no arguments other than the API context
+ * this takes no arguments other than the API context. The API context
+ * needs to be valid, and the function should not be called concurrently.
  */
 void mullvad_api_update_address_cache(struct SwiftApiContext swift_api_context);
 
