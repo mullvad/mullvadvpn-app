@@ -110,7 +110,7 @@ class PaymentPage: Page {
     }
 
     @discardableResult func submitRenewSubscriptionSheet() -> Self {
-        springboard.buttons["Buy"].tapWhenHittable()
+        springboard.buttons["Buy"].tapWhenHittable(timeout: .long)
 
         return self
     }
