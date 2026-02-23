@@ -1,0 +1,1 @@
+mullvadvpn-app-build-proto-js-ts-bindings

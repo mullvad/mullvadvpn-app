@@ -1,4 +1,4 @@
-# Management interface
+# Node gRPC bindings
 
 This package provides JS/TS gRPC bindings generated from our `.proto` files. The bindings are
 generated within a Linux container. The bindings consists of two parts:
@@ -20,14 +20,15 @@ Builds the container image which can then be run to generate JS/TS bindings from
 Normally you would only need to do this if you are updating the image.
 
 ```bash
-podman build . -t mullvadvpn-app-build-proto-js-ts-bindings
+cd /desktop
+podman build building -t mullvadvpn-app-build-proto-js-ts-bindings
 ```
 
 ## Update image
 
-If changes have been made in the `Dockerfile` or the `scripts/container` shell scripts then the
-image should be [re-built](#build-image) and then pushed to the container repository. After a new
-image is pushed to the container repository the hash of the new image should be updated in the
+If changes have been made in the `Dockerfile` or the `scripts` shell scripts then the image should
+be [re-built](#build-image) and then pushed to the container repository. After a new image is pushed
+to the container repository the hash of the new image should be updated in the
 `linux-container-image.txt` file.
 
 _TODO: Add more info on how to actually push the image_

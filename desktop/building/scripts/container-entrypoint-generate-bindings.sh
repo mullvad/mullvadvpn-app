@@ -1,17 +1,15 @@
 #!/usr/bin/env bash
 
-# This script runs within the management interface container
-# and is used to generate JS bindings for each proto files in the
+# This script runs within the gRPC node bindings container
+# and is used to generate JS/TS bindings for each proto files in the
 # /proto folder and then output them to the /proto-bindings folder
 #
-# This script is invoked by the scripts/container-run-generate-bindings.sh
-# script. Please refer to the documentation for more information on how to use
-# this script.
+# This script is used as the entrypoint of the gRPC node bindings container.
 
 set -eu
 
-GRPC_TOOLS_NODE_PROTOC="/grpc-tools-binaries/grpc_tools_node_protoc"
-TS_PROTOC_PLUGIN="/grpc-tools-binaries/protoc-gen-ts"
+GRPC_TOOLS_NODE_PROTOC="/grpc-node-bindings-dependencies/grpc_tools_node_protoc"
+TS_PROTOC_PLUGIN="/grpc-node-bindings-dependencies/protoc-gen-ts"
 
 IN_DIR="/proto"
 OUT_DIR="/proto-bindings"
