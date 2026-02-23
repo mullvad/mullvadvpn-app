@@ -49,6 +49,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaInactive
+import net.mullvad.mullvadvpn.lib.ui.theme.color.positive
 import net.mullvad.mullvadvpn.lib.ui.util.applyIfNotNull
 
 enum class Hierarchy {
@@ -112,10 +113,6 @@ internal fun ProvideContentColorTextStyle(
         LocalTextStyle provides mergedStyle,
         content = content,
     )
-}
-
-object RelayListTokens {
-    const val RelayListItemDisabledLabelTextOpacity = AlphaInactive
 }
 
 @Composable
@@ -264,13 +261,13 @@ class ListItemColors(
 object ListItemDefaults {
     @Composable
     fun colors(
-        containerColorParent: Color = MaterialTheme.colorScheme.primary,
-        containerColorChild1: Color = MaterialTheme.colorScheme.surfaceContainerHighest,
-        containerColorChild2: Color = MaterialTheme.colorScheme.surfaceContainerHigh,
+        containerColorParent: Color = MaterialTheme.colorScheme.surfaceContainerHighest,
+        containerColorChild1: Color = MaterialTheme.colorScheme.surfaceContainerHigh,
+        containerColorChild2: Color = MaterialTheme.colorScheme.surfaceContainer,
         containerColorChild3: Color = MaterialTheme.colorScheme.surfaceContainerLow,
         headlineColor: Color = MaterialTheme.colorScheme.onSurface,
         trailingIconColor: Color = MaterialTheme.colorScheme.onSurface,
-        selectedHeadlineColor: Color = MaterialTheme.colorScheme.tertiary,
+        selectedHeadlineColor: Color = MaterialTheme.colorScheme.positive,
         disabledHeadlineColor: Color =
             headlineColor.copy(alpha = ListTokens.ListItemDisabledLabelTextOpacity),
     ): ListItemColors =

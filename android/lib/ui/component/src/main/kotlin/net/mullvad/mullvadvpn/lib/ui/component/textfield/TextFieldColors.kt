@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -18,6 +19,8 @@ import androidx.compose.ui.unit.dp
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.color.Alpha20
 import net.mullvad.mullvadvpn.lib.ui.theme.color.Alpha40
+import net.mullvad.mullvadvpn.lib.ui.theme.color.Alpha5
+import net.mullvad.mullvadvpn.lib.ui.theme.color.Alpha60
 
 @Composable
 fun mullvadWhiteTextFieldColors(): TextFieldColors =
@@ -88,55 +91,39 @@ private fun PreviewDarkTextField() {
 @Composable
 fun mullvadDarkTextFieldColors(): TextFieldColors =
     TextFieldDefaults.colors(
-        focusedTextColor = MaterialTheme.colorScheme.primary,
-        unfocusedTextColor = MaterialTheme.colorScheme.onPrimary,
-        disabledTextColor = MaterialTheme.colorScheme.onPrimary,
-        disabledContainerColor = MaterialTheme.colorScheme.primary,
-        errorContainerColor = MaterialTheme.colorScheme.onPrimary,
-        focusedContainerColor = MaterialTheme.colorScheme.onPrimary,
-        unfocusedContainerColor =
-            MaterialTheme.colorScheme.onPrimary
-                .copy(alpha = Alpha20)
-                .compositeOver(MaterialTheme.colorScheme.primary),
-        errorTextColor = MaterialTheme.colorScheme.error,
-        cursorColor = MaterialTheme.colorScheme.background,
-        focusedPlaceholderColor = MaterialTheme.colorScheme.primary,
-        unfocusedPlaceholderColor = MaterialTheme.colorScheme.onPrimary,
-        focusedLabelColor = MaterialTheme.colorScheme.primary,
-        disabledLabelColor = Color.Gray,
-        unfocusedLabelColor = MaterialTheme.colorScheme.onPrimary,
-        focusedLeadingIconColor = Color.Black,
-        focusedSupportingTextColor = Color.Black,
-        unfocusedSupportingTextColor = Color.Black,
-        focusedIndicatorColor = Color.Transparent,
-        disabledIndicatorColor = Color.Transparent,
-        errorIndicatorColor = Color.Transparent,
-        unfocusedIndicatorColor = Color.Transparent,
-    )
-
-@Composable
-fun apiAccessTextFieldColors(): TextFieldColors =
-    TextFieldDefaults.colors(
         focusedTextColor = MaterialTheme.colorScheme.onSurface,
         unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
-        disabledTextColor = MaterialTheme.colorScheme.onSurface,
-        disabledContainerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
-        errorContainerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
-        focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
-        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+        disabledTextColor = MaterialTheme.colorScheme.onSurface.copy(Alpha20),
+        disabledContainerColor =
+            MaterialTheme.colorScheme.onSurface
+                .copy(alpha = Alpha5)
+                .compositeOver(MaterialTheme.colorScheme.surfaceContainer),
+        errorContainerColor = MaterialTheme.colorScheme.surfaceContainer,
+        focusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
+        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
         errorTextColor = MaterialTheme.colorScheme.onSurface,
         cursorColor = MaterialTheme.colorScheme.onSurface,
-        focusedPlaceholderColor = MaterialTheme.colorScheme.onSecondary,
-        unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSecondary,
-        focusedLabelColor = MaterialTheme.colorScheme.onSecondary,
-        disabledLabelColor = MaterialTheme.colorScheme.onSecondary,
-        unfocusedLabelColor = MaterialTheme.colorScheme.onSecondary,
-        errorLabelColor = MaterialTheme.colorScheme.onSecondary,
-        focusedIndicatorColor = MaterialTheme.colorScheme.onSurface,
-        disabledIndicatorColor = Color.Transparent,
-        errorIndicatorColor = MaterialTheme.colorScheme.error,
-        unfocusedIndicatorColor = Color.Transparent,
+        focusedPlaceholderColor = MaterialTheme.colorScheme.onSurface.copy(Alpha60),
+        unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSurface.copy(Alpha60),
+        focusedLabelColor = MaterialTheme.colorScheme.onSurface,
+        disabledLabelColor = MaterialTheme.colorScheme.onSurface.copy(Alpha20),
+        unfocusedLabelColor = MaterialTheme.colorScheme.onSurface,
+        focusedLeadingIconColor = MaterialTheme.colorScheme.onSurface,
+        unfocusedLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
         focusedTrailingIconColor = MaterialTheme.colorScheme.onSurface,
-        disabledTrailingIconColor = MaterialTheme.colorScheme.onSurface,
-        unfocusedTrailingIconColor = MaterialTheme.colorScheme.onSurface,
+        unfocusedTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+        focusedSupportingTextColor = MaterialTheme.colorScheme.onSurface,
+        unfocusedSupportingTextColor = MaterialTheme.colorScheme.onSurface,
+        focusedIndicatorColor = MaterialTheme.colorScheme.onSurface,
+        disabledIndicatorColor =
+            MaterialTheme.colorScheme.onSurface
+                .copy(alpha = Alpha20)
+                .compositeOver(MaterialTheme.colorScheme.surfaceContainer),
+        errorIndicatorColor = MaterialTheme.colorScheme.error,
+        unfocusedIndicatorColor = MaterialTheme.colorScheme.onSurface.copy(alpha = Alpha40),
+        selectionColors =
+            TextSelectionColors(
+                handleColor = MaterialTheme.colorScheme.primary,
+                backgroundColor = MaterialTheme.colorScheme.tertiary,
+            ),
     )

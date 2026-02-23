@@ -14,6 +14,7 @@ import net.mullvad.mullvadvpn.lib.model.ActionAfterDisconnect
 import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.ui.resource.R
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
+import net.mullvad.mullvadvpn.lib.ui.theme.color.positive
 
 @Preview
 @Composable
@@ -60,7 +61,7 @@ private fun TunnelState.text() =
 @Composable
 private fun TunnelState.textColor() =
     when (this) {
-        is TunnelState.Connected -> MaterialTheme.colorScheme.tertiary
+        is TunnelState.Connected -> MaterialTheme.colorScheme.positive
         is TunnelState.Connecting -> MaterialTheme.colorScheme.onSurface
         is TunnelState.Disconnected -> MaterialTheme.colorScheme.error
         is TunnelState.Disconnecting ->

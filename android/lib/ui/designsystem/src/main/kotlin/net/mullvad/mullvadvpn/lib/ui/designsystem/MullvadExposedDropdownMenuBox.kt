@@ -51,7 +51,7 @@ fun MullvadExposedDropdownMenuBox(
         ExposedDropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false },
-            modifier = Modifier.background(MaterialTheme.colorScheme.primary),
+            modifier = Modifier.background(MaterialTheme.colorScheme.secondaryContainer),
         ) {
             content { expanded = false }
         }

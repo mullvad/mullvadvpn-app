@@ -125,7 +125,7 @@ fun ErrorSupportingText(text: String, modifier: Modifier = Modifier) {
             text = text,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             style = MaterialTheme.typography.bodySmall,
-            modifier = Modifier.padding(horizontal = Dimens.smallPadding),
+            modifier = Modifier.padding(horizontal = Dimens.tinyPadding),
         )
     }
 }

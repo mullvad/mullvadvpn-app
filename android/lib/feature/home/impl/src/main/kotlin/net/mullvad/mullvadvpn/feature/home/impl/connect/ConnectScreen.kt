@@ -136,6 +136,7 @@ import net.mullvad.mullvadvpn.lib.ui.theme.color.Alpha80
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaInvisible
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaScrollbar
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaVisible
+import net.mullvad.mullvadvpn.lib.ui.theme.color.positive
 import org.koin.androidx.compose.koinViewModel
 
 private const val CONNECT_BUTTON_THROTTLE_MILLIS = 1000
@@ -535,8 +536,8 @@ private fun ConnectionCard(
         rememberSaveable(state.tunnelState is TunnelState.Disconnected) { mutableStateOf(false) }
     val containerColor =
         animateColorAsState(
-            if (expanded) MaterialTheme.colorScheme.surfaceContainer
-            else MaterialTheme.colorScheme.surfaceContainer.copy(alpha = Alpha80),
+            if (expanded) MaterialTheme.colorScheme.secondaryContainer
+            else MaterialTheme.colorScheme.secondaryContainer.copy(alpha = Alpha80),
             label = "connection_card_color",
         )
 
@@ -764,7 +765,7 @@ fun TunnelState.toMarker(location: GeoIpLocation?): Marker? {
         is TunnelState.Connected ->
             Marker(
                 location.toLatLong(),
-                colors = LocationMarkerColors(centerColor = MaterialTheme.colorScheme.tertiary),
+                colors = LocationMarkerColors(centerColor = MaterialTheme.colorScheme.positive),
             )
 
         is TunnelState.Connecting -> null
@@ -781,7 +782,7 @@ fun TunnelState.toMarker(location: GeoIpLocation?): Marker? {
 
 @Composable
 fun TunnelState.topBarColor(): Color =
-    if (isSecured()) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.error
+    if (isSecured()) MaterialTheme.colorScheme.positive else MaterialTheme.colorScheme.error
 
 @Composable
 fun TunnelState.iconTintColor(): Color =
