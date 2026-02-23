@@ -716,9 +716,9 @@ object HopSelectorDefaults {
     fun colors(
         selectedContentColor: Color = MaterialTheme.colorScheme.onPrimary,
         deselectedContentColor: Color = deselectedColor,
-        selectedContainerColor: Color = MaterialTheme.colorScheme.surfaceContainerHighest,
+        selectedContainerColor: Color = MaterialTheme.colorScheme.primaryContainer,
         deselectedContainerColor: Color = Color.Transparent,
-        panelColor: Color = MaterialTheme.colorScheme.surfaceContainer,
+        panelColor: Color = MaterialTheme.colorScheme.tertiaryContainer,
         errorColor: Color = MaterialTheme.colorScheme.error,
         hintColor: Color = deselectedColor,
         legendColor: Color = deselectedColor,

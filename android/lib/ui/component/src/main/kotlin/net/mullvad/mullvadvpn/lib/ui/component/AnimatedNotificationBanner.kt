@@ -37,6 +37,7 @@ import net.mullvad.mullvadvpn.lib.ui.tag.NOTIFICATION_BANNER_ACTION_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.NOTIFICATION_BANNER_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.NOTIFICATION_BANNER_TEXT_ACTION_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
+import net.mullvad.mullvadvpn.lib.ui.theme.color.positive
 import net.mullvad.mullvadvpn.lib.ui.theme.color.warning
 
 @Composable
@@ -100,7 +101,7 @@ private fun Notification(modifier: Modifier = Modifier, notificationBannerData: 
     ConstraintLayout(
         modifier =
             modifier
-                .background(color = MaterialTheme.colorScheme.surfaceContainer)
+                .background(color = MaterialTheme.colorScheme.secondaryContainer)
                 .padding(
                     start = Dimens.notificationBannerStartPadding,
                     end = Dimens.notificationBannerEndPadding,
@@ -205,7 +206,7 @@ private fun NotificationDot(statusLevel: StatusLevel, modifier: Modifier) {
                         when (statusLevel) {
                             StatusLevel.Error -> MaterialTheme.colorScheme.error
                             StatusLevel.Warning -> MaterialTheme.colorScheme.warning
-                            StatusLevel.Info -> MaterialTheme.colorScheme.tertiary
+                            StatusLevel.Info -> MaterialTheme.colorScheme.positive
                             StatusLevel.None -> Color.Transparent
                         },
                     shape = CircleShape,

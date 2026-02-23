@@ -54,7 +54,7 @@ import net.mullvad.mullvadvpn.lib.ui.designsystem.VariantButton
 import net.mullvad.mullvadvpn.lib.ui.resource.R
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
-import net.mullvad.mullvadvpn.lib.ui.theme.color.selected
+import net.mullvad.mullvadvpn.lib.ui.theme.color.positive
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -301,7 +301,7 @@ private fun DeviceListButtonPanel(
             text = stringResource(id = R.string.continue_login),
             onClick = onContinueWithLogin,
             isEnabled = state is DeviceListUiState.Content && !state.hasTooManyDevices,
-            background = MaterialTheme.colorScheme.selected,
+            background = MaterialTheme.colorScheme.positive,
         )
 
         PrimaryButton(

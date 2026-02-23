@@ -30,7 +30,7 @@ private fun PreviewDisabledMullvadFilterChip() = PreviewColumn {
 
 @Composable
 fun MullvadFilterChip(
-    containerColor: Color = MaterialTheme.colorScheme.primary,
+    containerColor: Color = MaterialTheme.colorScheme.primaryContainer,
     borderColor: Color = Color.Transparent,
     labelColor: Color = MaterialTheme.colorScheme.onPrimary,
     iconColor: Color = MaterialTheme.colorScheme.onPrimary,

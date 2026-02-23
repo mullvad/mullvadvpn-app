@@ -9,7 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import net.mullvad.mullvadvpn.lib.ui.designsystem.preview.PreviewColumn
-import net.mullvad.mullvadvpn.lib.ui.theme.color.selected
+import net.mullvad.mullvadvpn.lib.ui.theme.color.positive
 
 @Composable
 fun Checkbox(
@@ -21,7 +21,7 @@ fun Checkbox(
         CheckboxDefaults.colors(
             checkedColor = MaterialTheme.colorScheme.onPrimary,
             uncheckedColor = MaterialTheme.colorScheme.onPrimary,
-            checkmarkColor = MaterialTheme.colorScheme.selected,
+            checkmarkColor = MaterialTheme.colorScheme.positive,
         ),
     interactionSource: MutableInteractionSource? = null,
 ) {

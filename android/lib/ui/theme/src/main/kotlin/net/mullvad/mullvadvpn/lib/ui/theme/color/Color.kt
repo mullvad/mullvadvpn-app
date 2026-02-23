@@ -8,26 +8,29 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
 const val AlphaVisible = 1f
+const val Alpha5 = 0.05f
 const val Alpha10 = 0.1f
 const val AlphaDisabled = 0.2f
 const val Alpha20 = 0.2f
 const val AlphaInactive = 0.4f
 const val Alpha40 = 0.4f
+const val Alpha60 = 0.6f
 const val AlphaDisconnectButton = 0.6f
 const val AlphaScrollbar = 0.6f
 const val AlphaInvisible = 0f
 const val Alpha80 = 0.8f
 
-// Custom colors, they only link to normal material 3 colors for now
-val ColorScheme.selected: Color
-    @Composable get() = MaterialTheme.colorScheme.tertiary
+// Special colors
+// Static defined positive/success/selected color
+val ColorScheme.positive: Color
+    @Composable get() = PaletteTokens.Green
 
 val ColorScheme.onSelected: Color
     @Composable get() = MaterialTheme.colorScheme.onTertiary
 
-// Static defined waring color
+// Static defined warning color
 val ColorScheme.warning: Color
-    @Composable get() = PaletteTokens.Yellow500
+    @Composable get() = PaletteTokens.Yellow
 
 // Disabled colors for buttons
 val ColorScheme.tertiaryDisabled: Color

@@ -34,6 +34,7 @@ import net.mullvad.mullvadvpn.lib.ui.resource.R
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaScrollbar
+import net.mullvad.mullvadvpn.lib.ui.theme.color.positive
 import org.koin.androidx.compose.koinViewModel
 
 @Preview("Secured|Unsecured|Unknown")
@@ -77,7 +78,7 @@ fun DeviceRevokedScreen(
 ) {
     val topColor =
         if (state == DeviceRevokedUiState.SECURED) {
-            MaterialTheme.colorScheme.tertiary
+            MaterialTheme.colorScheme.positive
         } else {
             MaterialTheme.colorScheme.error
         }

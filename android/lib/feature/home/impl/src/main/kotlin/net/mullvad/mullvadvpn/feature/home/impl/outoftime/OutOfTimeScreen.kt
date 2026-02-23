@@ -61,6 +61,7 @@ import net.mullvad.mullvadvpn.lib.ui.tag.PLAY_PAYMENT_INFO_ICON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaScrollbar
+import net.mullvad.mullvadvpn.lib.ui.theme.color.positive
 import org.koin.androidx.compose.koinViewModel
 
 @Preview("Disconnected|Connecting|Error")
@@ -133,7 +134,7 @@ fun OutOfTimeScreen(
         snackbarHostState = snackbarHostState,
         topBarColor =
             if (state.tunnelState.isSecured()) {
-                MaterialTheme.colorScheme.tertiary
+                MaterialTheme.colorScheme.positive
             } else {
                 MaterialTheme.colorScheme.error
             },

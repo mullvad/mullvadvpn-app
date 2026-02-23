@@ -150,8 +150,8 @@ fun CustomListLocationsScreen(
                     Modifier.fillMaxWidth()
                         .height(Dimens.searchFieldHeight)
                         .padding(horizontal = Dimens.mediumPadding),
-                backgroundColor = MaterialTheme.colorScheme.tertiaryContainer,
-                textColor = MaterialTheme.colorScheme.onTertiaryContainer,
+                backgroundColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                textColor = MaterialTheme.colorScheme.onSurfaceVariant,
             ) { searchString ->
                 onSearchTermInput.invoke(searchString)
             }

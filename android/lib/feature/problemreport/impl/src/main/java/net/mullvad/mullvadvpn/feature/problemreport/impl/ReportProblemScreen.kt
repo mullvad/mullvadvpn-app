@@ -44,7 +44,6 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
@@ -64,7 +63,7 @@ import net.mullvad.mullvadvpn.lib.common.util.appendHideNavOnPlayBuild
 import net.mullvad.mullvadvpn.lib.ui.component.ExpandChevron
 import net.mullvad.mullvadvpn.lib.ui.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithMediumTopBar
-import net.mullvad.mullvadvpn.lib.ui.component.textfield.mullvadWhiteTextFieldColors
+import net.mullvad.mullvadvpn.lib.ui.component.textfield.mullvadDarkTextFieldColors
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Checkbox
 import net.mullvad.mullvadvpn.lib.ui.designsystem.ListTokens
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
@@ -73,7 +72,8 @@ import net.mullvad.mullvadvpn.lib.ui.designsystem.VariantButton
 import net.mullvad.mullvadvpn.lib.ui.resource.R
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
-import net.mullvad.mullvadvpn.lib.ui.theme.color.Alpha80
+import net.mullvad.mullvadvpn.lib.ui.theme.color.Alpha40
+import net.mullvad.mullvadvpn.lib.ui.theme.color.positive
 import net.mullvad.mullvadvpn.lib.ui.theme.color.warning
 import org.koin.androidx.compose.koinViewModel
 
@@ -220,7 +220,7 @@ private fun InputContent(
         singleLine = true,
         textStyle = MaterialTheme.typography.bodyLarge.copy(textDirection = TextDirection.Ltr),
         placeholder = { Text(text = stringResource(id = R.string.user_email_hint)) },
-        colors = mullvadWhiteTextFieldColors(),
+        colors = mullvadDarkTextFieldColors(),
         keyboardOptions =
             KeyboardOptions(
                 autoCorrectEnabled = false,
@@ -290,7 +290,13 @@ private fun IncludeAccountInformationCheckBox(
                     shape = MaterialTheme.shapes.medium,
                 )
                 .clip(shape = MaterialTheme.shapes.medium)
-                .padding(bottom = if (includeAccountInformation) Dimens.smallPadding else 0.dp)
+                .padding(
+                    bottom =
+                        if (includeAccountInformation) Dimens.smallPadding else Dimens.tinyPadding,
+                    end = Dimens.tinyPadding,
+                    start = Dimens.tinyPadding,
+                    top = Dimens.tinyPadding,
+                )
     ) {
         Row(
             modifier =
@@ -335,7 +341,7 @@ private fun AccountInformationWarning(
         modifier =
             Modifier.padding(horizontal = Dimens.tinyPadding)
                 .background(
-                    color = MaterialTheme.colorScheme.surfaceContainer.copy(alpha = Alpha80),
+                    color = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = Alpha40),
                     shape = MaterialTheme.shapes.medium,
                 )
                 .animateContentSize()
@@ -423,7 +429,7 @@ private fun ProblemMessageTextField(
         value = value,
         onValueChange = onDescriptionChanged,
         placeholder = { Text(stringResource(R.string.user_message_hint)) },
-        colors = mullvadWhiteTextFieldColors(),
+        colors = mullvadDarkTextFieldColors(),
         keyboardOptions =
             KeyboardOptions(
                 capitalization = KeyboardCapitalization.Sentences,
@@ -463,7 +469,7 @@ private fun ColumnScope.SentContent(sendingState: SendingReportUiState.Success) 
     Text(
         text =
             buildAnnotatedString {
-                withStyle(SpanStyle(color = MaterialTheme.colorScheme.tertiary)) {
+                withStyle(SpanStyle(color = MaterialTheme.colorScheme.positive)) {
                     append(stringResource(id = R.string.sent_thanks))
                 }
                 append(" ")

@@ -20,7 +20,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
@@ -30,6 +29,7 @@ import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.theme.color.Alpha20
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaInvisible
 import net.mullvad.mullvadvpn.lib.ui.theme.color.errorDisabled
+import net.mullvad.mullvadvpn.lib.ui.theme.color.positive
 import net.mullvad.mullvadvpn.lib.ui.theme.color.primaryDisabled
 import net.mullvad.mullvadvpn.lib.ui.theme.color.tertiaryDisabled
 
@@ -114,7 +114,7 @@ fun VariantButton(
     onClick: () -> Unit,
     text: String,
     modifier: Modifier = Modifier,
-    background: Color = MaterialTheme.colorScheme.tertiary,
+    background: Color = MaterialTheme.colorScheme.positive,
     colors: ButtonColors =
         ButtonDefaults.buttonColors(
             containerColor = background,
@@ -194,7 +194,6 @@ fun PrimaryTextButton(
             } else {
                 ButtonDefaults.TextButtonContentPadding
             },
-        shape = MaterialTheme.shapes.small,
     ) {
         BaseButtonContent(
             text = text,
@@ -221,7 +220,6 @@ fun NegativeOutlinedButton(
             width = Dimens.outLineButtonBorderWidth,
             color = MaterialTheme.colorScheme.error,
         ),
-    shape: Shape = MaterialTheme.shapes.large,
     isEnabled: Boolean = true,
     isLoading: Boolean = false,
     leadingIcon: @Composable (() -> Unit)? = null,
@@ -240,7 +238,6 @@ fun NegativeOutlinedButton(
             } else {
                 ButtonDefaults.TextButtonContentPadding
             },
-        shape = shape,
     ) {
         BaseButtonContent(
             text = text,
@@ -275,7 +272,6 @@ private fun BaseButton(
                 ButtonDefaults.ContentPadding
             },
         modifier = modifier.wrapContentHeight().fillMaxWidth(),
-        shape = MaterialTheme.shapes.small,
     ) {
         BaseButtonContent(
             text = text,
