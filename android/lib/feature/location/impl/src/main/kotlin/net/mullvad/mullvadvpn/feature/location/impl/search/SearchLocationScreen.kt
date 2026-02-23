@@ -23,7 +23,6 @@ import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -34,7 +33,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
@@ -73,6 +71,7 @@ import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.model.RelayListType
 import net.mullvad.mullvadvpn.lib.model.communication.CustomListActionResultData
 import net.mullvad.mullvadvpn.lib.ui.component.drawVerticalScrollbar
+import net.mullvad.mullvadvpn.lib.ui.component.textfield.mullvadDarkTextFieldColors
 import net.mullvad.mullvadvpn.lib.ui.designsystem.ListHeader
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadSnackbar
@@ -299,8 +298,6 @@ fun SearchLocationScreen(
     onMultihopChanged: (UndoChangeMultihopAction) -> Unit,
     onGoBack: () -> Unit,
 ) {
-    val backgroundColor = MaterialTheme.colorScheme.surface
-    val onBackgroundColor = MaterialTheme.colorScheme.onSurface
     val keyboardController = LocalSoftwareKeyboardController.current
     Scaffold(
         snackbarHost = {
@@ -331,19 +328,17 @@ fun SearchLocationScreen(
                 modifier = Modifier.focusRequester(focusRequester),
                 searchTerm = state.contentOrNull()?.searchTerm ?: "",
                 enabled = state is Lce.Content,
-                backgroundColor = backgroundColor,
-                onBackgroundColor = onBackgroundColor,
                 onSearchInputChanged = onSearchInputChanged,
                 hideKeyboard = { keyboardController?.hide() },
                 onGoBack = onGoBack,
             )
-            HorizontalDivider(color = onBackgroundColor)
+            HorizontalDivider(color = MaterialTheme.colorScheme.onSurface)
             val lazyListState = rememberLazyListState()
             LazyColumn(
                 modifier =
                     Modifier.fillMaxSize()
                         .padding(horizontal = Dimens.mediumPadding)
-                        .background(color = backgroundColor)
+                        .background(color = MaterialTheme.colorScheme.surface)
                         .drawVerticalScrollbar(
                             lazyListState,
                             MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaScrollbar),
@@ -410,8 +405,6 @@ fun SearchLocationScreen(
 private fun SearchBar(
     searchTerm: String,
     enabled: Boolean,
-    backgroundColor: Color,
-    onBackgroundColor: Color,
     onSearchInputChanged: (String) -> Unit,
     hideKeyboard: () -> Unit,
     onGoBack: () -> Unit,
@@ -445,19 +438,14 @@ private fun SearchBar(
         },
         placeholder = { Text(text = stringResource(id = R.string.search_placeholder)) },
         colors =
-            TextFieldDefaults.colors(
-                focusedContainerColor = backgroundColor,
-                unfocusedContainerColor = backgroundColor,
-                focusedPlaceholderColor = onBackgroundColor,
-                unfocusedPlaceholderColor = onBackgroundColor,
-                focusedTextColor = onBackgroundColor,
-                unfocusedTextColor = onBackgroundColor,
-                cursorColor = onBackgroundColor,
-                focusedLeadingIconColor = onBackgroundColor,
-                unfocusedLeadingIconColor = onBackgroundColor,
-                focusedTrailingIconColor = onBackgroundColor,
-                unfocusedTrailingIconColor = onBackgroundColor,
-            ),
+            mullvadDarkTextFieldColors()
+                .copy(
+                    focusedContainerColor = MaterialTheme.colorScheme.surface,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                    errorContainerColor = MaterialTheme.colorScheme.surface,
+                    disabledContainerColor = MaterialTheme.colorScheme.surface,
+                    disabledLeadingIconColor = MaterialTheme.colorScheme.onSurface,
+                ),
     )
 }
 

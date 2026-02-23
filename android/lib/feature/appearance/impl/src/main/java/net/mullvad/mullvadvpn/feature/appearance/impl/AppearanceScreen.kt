@@ -46,6 +46,7 @@ import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicat
 import net.mullvad.mullvadvpn.lib.ui.resource.R
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
+import net.mullvad.mullvadvpn.lib.ui.theme.color.positive
 import org.koin.androidx.compose.koinViewModel
 
 @Preview
@@ -132,10 +133,13 @@ private fun LazyGridScope.content(
             shape = MaterialTheme.shapes.large,
             onClick = { onObfuscationSelected(item) },
             enabled = !state.applyingChange,
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceDim),
+            colors =
+                CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.tertiaryContainer
+                ),
             border =
                 if (item == state.currentAppObfuscation) {
-                    BorderStroke(width = BORDER_WIDTH, color = MaterialTheme.colorScheme.tertiary)
+                    BorderStroke(width = BORDER_WIDTH, color = MaterialTheme.colorScheme.positive)
                 } else {
                     null
                 },

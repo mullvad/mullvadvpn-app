@@ -139,8 +139,8 @@ private fun LocationBottomSheets(
             onHideBottomSheet()
         }
     }
-    val backgroundColor: Color = MaterialTheme.colorScheme.surfaceContainer
-    val onBackgroundColor: Color = MaterialTheme.colorScheme.onSurface
+    val backgroundColor: Color = MaterialTheme.colorScheme.secondaryContainer
+    val onBackgroundColor: Color = MaterialTheme.colorScheme.onSecondary
 
     when (val state = locationBottomSheetUiState.contentOrNull()) {
         is LocationBottomSheetUiState.Location -> {

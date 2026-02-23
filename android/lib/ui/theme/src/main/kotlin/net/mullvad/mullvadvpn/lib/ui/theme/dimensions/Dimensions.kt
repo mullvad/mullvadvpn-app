@@ -27,7 +27,9 @@ data class Dimensions(
     val deleteIconSize: Dp = 24.dp,
     val dialogIconHeight: Dp = 48.dp,
     val fabSpacing: Dp = 16.dp, // Copied from the private val FabSpacing in Scaffold.kt
-    val formTextFieldMinHeight: Dp = 72.dp,
+    val formTextFieldMinHeight: Dp = 56.dp,
+    val formVerticalSpacingGroups: Dp = 32.dp,
+    val formVerticalSpacingInsideGroups: Dp = 16.dp,
     val hopIconSize: Dp = 24.dp,
     val hopIconVerticalInternalPadding: Dp = 2.dp,
     val hopRadius: Dp = 12.dp,
@@ -56,6 +58,7 @@ data class Dimensions(
     val privacyPolicyIconSize: Dp = 16.dp,
     val problemReportTextFieldMinHeight: Dp = 220.dp,
     val reconnectButtonMinInteractiveComponentSize: Dp = 40.dp,
+    val reconnectButtonDivider: Dp = 2.dp,
     val relayCirclePadding: Dp = 8.dp,
     val relayCircleSize: Dp = 16.dp,
     val relayItemCornerRadius: Dp = 16.dp,

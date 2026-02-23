@@ -12,6 +12,7 @@ import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.ui.designsystem.PrimaryButton
 import net.mullvad.mullvadvpn.lib.ui.resource.R
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
+import net.mullvad.mullvadvpn.lib.ui.theme.color.positive
 
 @Composable
 @Preview
@@ -39,7 +40,7 @@ fun ConnectionButton(
 
     val containerColor =
         if (state is TunnelState.Disconnected) {
-            MaterialTheme.colorScheme.tertiary
+            MaterialTheme.colorScheme.positive
         } else {
             MaterialTheme.colorScheme.error
         }

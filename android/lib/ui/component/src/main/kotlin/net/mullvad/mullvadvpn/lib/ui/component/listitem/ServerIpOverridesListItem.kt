@@ -17,7 +17,7 @@ import net.mullvad.mullvadvpn.lib.ui.component.preview.PreviewColumn
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorSmall
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadListItem
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
-import net.mullvad.mullvadvpn.lib.ui.theme.color.selected
+import net.mullvad.mullvadvpn.lib.ui.theme.color.positive
 
 @Preview
 @Composable
@@ -33,7 +33,7 @@ private fun PreviewServerIpOverridesListItem() {
 fun ServerIpOverridesListItem(
     active: Boolean?,
     modifier: Modifier = Modifier,
-    activeColor: Color = MaterialTheme.colorScheme.selected,
+    activeColor: Color = MaterialTheme.colorScheme.positive,
     inactiveColor: Color = MaterialTheme.colorScheme.error,
 ) {
     MullvadListItem(

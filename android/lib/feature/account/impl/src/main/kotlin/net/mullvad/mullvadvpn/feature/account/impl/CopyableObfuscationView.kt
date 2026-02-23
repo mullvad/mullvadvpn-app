@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
+import net.mullvad.mullvadvpn.lib.ui.theme.color.positive
 
 @Preview
 @Composable
@@ -59,7 +60,7 @@ fun CopyAnimatedIconButton(onClick: () -> Unit) {
         defaultIcon = Icons.Rounded.ContentCopy,
         secondaryIcon = Icons.Rounded.Check,
         defaultIconTint = MaterialTheme.colorScheme.onSurface,
-        secondaryIconTint = MaterialTheme.colorScheme.tertiary,
+        secondaryIconTint = MaterialTheme.colorScheme.positive,
         isToggleButton = false,
         contentDescription = stringResource(id = R.string.copy_account_number),
         onClick = onClick,

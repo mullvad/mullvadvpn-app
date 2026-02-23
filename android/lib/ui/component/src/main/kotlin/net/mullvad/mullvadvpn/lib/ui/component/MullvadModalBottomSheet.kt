@@ -33,7 +33,7 @@ private fun PreviewMullvadModalBottomSheet() {
             content = {
                 BottomSheetListItem(
                     title = "Title",
-                    backgroundColor = MaterialTheme.colorScheme.surfaceContainer,
+                    backgroundColor = MaterialTheme.colorScheme.secondaryContainer,
                     onBackgroundColor = MaterialTheme.colorScheme.onSurface,
                 )
                 HorizontalDivider(
@@ -42,7 +42,7 @@ private fun PreviewMullvadModalBottomSheet() {
                 )
                 BottomSheetListItem(
                     title = "Select",
-                    backgroundColor = MaterialTheme.colorScheme.surfaceContainer,
+                    backgroundColor = MaterialTheme.colorScheme.secondaryContainer,
                     onBackgroundColor = MaterialTheme.colorScheme.onSurface,
                 )
             },
@@ -57,7 +57,7 @@ private fun PreviewMullvadModalBottomSheet() {
 fun MullvadModalBottomSheet(
     modifier: Modifier = Modifier,
     sheetState: SheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-    backgroundColor: Color = MaterialTheme.colorScheme.surfaceContainer,
+    backgroundColor: Color = MaterialTheme.colorScheme.secondaryContainer,
     onBackgroundColor: Color = MaterialTheme.colorScheme.onSurface,
     onDismissRequest: () -> Unit,
     content: @Composable ColumnScope.(bottomPadding: Dp) -> Unit,

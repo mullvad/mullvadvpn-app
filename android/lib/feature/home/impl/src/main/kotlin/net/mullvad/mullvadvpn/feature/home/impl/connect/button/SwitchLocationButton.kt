@@ -5,7 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.CornerSize
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.FilledIconButton
@@ -81,22 +81,19 @@ fun SwitchLocationButton(
             LocalMinimumInteractiveComponentSize provides
                 Dimens.reconnectButtonMinInteractiveComponentSize
         ) {
-            val dividerSize = Dimens.listItemDivider
+            val dividerSize = Dimens.reconnectButtonDivider
 
             Button(
                 onClick = onSwitchLocation,
                 shape =
                     if (isReconnectButtonEnabled) {
-                        MaterialTheme.shapes.small.copy(
-                            topEnd = CornerSize(percent = 0),
-                            bottomEnd = CornerSize(percent = 0),
-                        )
+                        RoundedCornerShape(bottomStartPercent = 50, topStartPercent = 50)
                     } else {
-                        MaterialTheme.shapes.small
+                        ButtonDefaults.shape
                     },
                 colors =
                     ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
+                        containerColor = MaterialTheme.colorScheme.primaryContainer,
                         contentColor = MaterialTheme.colorScheme.onPrimary,
                     ),
                 modifier =
@@ -135,14 +132,10 @@ fun SwitchLocationButton(
 
             if (isReconnectButtonEnabled) {
                 FilledIconButton(
-                    shape =
-                        MaterialTheme.shapes.small.copy(
-                            topStart = CornerSize(percent = 0),
-                            bottomStart = CornerSize(percent = 0),
-                        ),
+                    shape = RoundedCornerShape(topEndPercent = 50, bottomEndPercent = 50),
                     colors =
                         IconButtonDefaults.filledIconButtonColors(
-                            containerColor = MaterialTheme.colorScheme.primary,
+                            containerColor = MaterialTheme.colorScheme.primaryContainer,
                             contentColor = MaterialTheme.colorScheme.onPrimary,
                         ),
                     onClick = reconnectClick,

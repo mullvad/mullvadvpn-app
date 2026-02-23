@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.feature.apiaccess.impl.screen.edit
 
 import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Spacer
@@ -55,7 +56,7 @@ import net.mullvad.mullvadvpn.lib.ui.component.NavigateCloseIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithSmallTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.dialog.Confirmed
 import net.mullvad.mullvadvpn.lib.ui.component.drawVerticalScrollbar
-import net.mullvad.mullvadvpn.lib.ui.component.textfield.apiAccessTextFieldColors
+import net.mullvad.mullvadvpn.lib.ui.component.textfield.mullvadDarkTextFieldColors
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadDropdownMenuItem
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadExposedDropdownMenuBox
@@ -126,6 +127,7 @@ fun EditApiAccessMethod(
                 ) {
                     launchSingleTop = true
                 }
+
             is EditApiAccessSideEffect.TestApiAccessMethodResult -> {
                 launch {
                     snackbarHostState.showSnackbarImmediately(
@@ -243,9 +245,9 @@ fun EditApiAccessMethodScreen(
                         nameError = state.formData.nameError,
                         onNameChanged = onNameChanged,
                     )
-                    Spacer(modifier = Modifier.height(Dimens.verticalSpace))
+                    Spacer(modifier = Modifier.height(Dimens.formVerticalSpacingGroups))
                     ApiAccessMethodTypeSelection(state.formData, onTypeSelected)
-                    Spacer(modifier = Modifier.height(Dimens.verticalSpace))
+                    Spacer(modifier = Modifier.height(Dimens.formVerticalSpacingGroups))
                     when (state.formData.apiAccessMethodTypes) {
                         ApiAccessMethodTypes.SHADOWSOCKS ->
                             ShadowsocksForm(
@@ -255,6 +257,7 @@ fun EditApiAccessMethodScreen(
                                 onPasswordChanged = onPasswordChanged,
                                 onCipherChange = onCipherChange,
                             )
+
                         ApiAccessMethodTypes.SOCKS5_REMOTE ->
                             Socks5RemoteForm(
                                 formData = state.formData,
@@ -313,14 +316,16 @@ private fun ApiAccessMethodTypeSelection(
     onTypeSelected: (ApiAccessMethodTypes) -> Unit,
 ) {
     MullvadExposedDropdownMenuBox(
-        modifier = Modifier.padding(vertical = Dimens.miniPadding),
         label = stringResource(id = R.string.type),
         title = formData.apiAccessMethodTypes.text(),
-        colors = apiAccessTextFieldColors(),
+        colors = mullvadDarkTextFieldColors(),
     ) { close ->
         ApiAccessMethodTypes.entries.forEachIndexed { index, item ->
             if (index > 0) {
-                HorizontalDivider(color = MaterialTheme.colorScheme.surface, thickness = Hairline)
+                HorizontalDivider(
+                    color = MaterialTheme.colorScheme.outlineVariant,
+                    thickness = Hairline,
+                )
             }
             MullvadDropdownMenuItem(
                 text = item.text(),
@@ -353,19 +358,21 @@ private fun ShadowsocksForm(
     onPasswordChanged: (String) -> Unit,
     onCipherChange: (Cipher) -> Unit,
 ) {
-    ServerIpInput(
-        serverIp = formData.serverIp,
-        serverIpError = formData.serverIpError,
-        onIpChanged = onIpChanged,
-    )
-    PortInput(port = formData.port, formData.portError, onPortChanged = onPortChanged)
-    PasswordInput(
-        password = formData.password,
-        passwordError = formData.passwordError,
-        optional = true,
-        onPasswordChanged = onPasswordChanged,
-    )
-    CipherSelection(cipher = formData.cipher, onCipherChange = onCipherChange)
+    Column(verticalArrangement = Arrangement.spacedBy(Dimens.formVerticalSpacingInsideGroups)) {
+        ServerIpInput(
+            serverIp = formData.serverIp,
+            serverIpError = formData.serverIpError,
+            onIpChanged = onIpChanged,
+        )
+        PortInput(port = formData.port, formData.portError, onPortChanged = onPortChanged)
+        PasswordInput(
+            password = formData.password,
+            passwordError = formData.passwordError,
+            optional = true,
+            onPasswordChanged = onPasswordChanged,
+        )
+        CipherSelection(cipher = formData.cipher, onCipherChange = onCipherChange)
+    }
 }
 
 @Composable
@@ -377,25 +384,31 @@ private fun Socks5RemoteForm(
     onUsernameChanged: (String) -> Unit,
     onPasswordChanged: (String) -> Unit,
 ) {
-    ServerIpInput(
-        serverIp = formData.serverIp,
-        serverIpError = formData.serverIpError,
-        onIpChanged = onIpChanged,
-    )
-    PortInput(port = formData.port, portError = formData.portError, onPortChanged = onPortChanged)
-    EnableAuthentication(formData.enableAuthentication, onToggleAuthenticationEnabled)
-    if (formData.enableAuthentication) {
-        UsernameInput(
-            username = formData.username,
-            usernameError = formData.usernameError,
-            onUsernameChanged = onUsernameChanged,
+    Column(verticalArrangement = Arrangement.spacedBy(Dimens.formVerticalSpacingInsideGroups)) {
+        ServerIpInput(
+            serverIp = formData.serverIp,
+            serverIpError = formData.serverIpError,
+            onIpChanged = onIpChanged,
         )
-        PasswordInput(
-            password = formData.password,
-            passwordError = formData.passwordError,
-            optional = false,
-            onPasswordChanged = onPasswordChanged,
+        PortInput(
+            port = formData.port,
+            portError = formData.portError,
+            onPortChanged = onPortChanged,
         )
+        EnableAuthentication(formData.enableAuthentication, onToggleAuthenticationEnabled)
+        if (formData.enableAuthentication) {
+            UsernameInput(
+                username = formData.username,
+                usernameError = formData.usernameError,
+                onUsernameChanged = onUsernameChanged,
+            )
+            PasswordInput(
+                password = formData.password,
+                passwordError = formData.passwordError,
+                optional = false,
+                onPasswordChanged = onPasswordChanged,
+            )
+        }
     }
 }
 
@@ -498,14 +511,16 @@ private fun PasswordInput(
 @Composable
 private fun CipherSelection(cipher: Cipher, onCipherChange: (Cipher) -> Unit) {
     MullvadExposedDropdownMenuBox(
-        modifier = Modifier.padding(vertical = Dimens.miniPadding),
         label = stringResource(id = R.string.cipher),
         title = cipher.label,
-        colors = apiAccessTextFieldColors(),
+        colors = mullvadDarkTextFieldColors(),
     ) { close ->
         Cipher.listAll().forEachIndexed { index, item ->
             if (index > 0) {
-                HorizontalDivider(color = MaterialTheme.colorScheme.surface, thickness = Hairline)
+                HorizontalDivider(
+                    color = MaterialTheme.colorScheme.outlineVariant,
+                    thickness = Hairline,
+                )
             }
             MullvadDropdownMenuItem(
                 text = item.label,
@@ -533,7 +548,6 @@ private fun EnableAuthentication(
     onToggleAuthenticationEnabled: (Boolean) -> Unit,
 ) {
     MullvadExposedDropdownMenuBox(
-        modifier = Modifier.padding(vertical = Dimens.miniPadding),
         label = stringResource(id = R.string.authentication),
         title =
             stringResource(
@@ -544,7 +558,7 @@ private fun EnableAuthentication(
                         R.string.off
                     }
             ),
-        colors = apiAccessTextFieldColors(),
+        colors = mullvadDarkTextFieldColors(),
     ) { close ->
         MullvadDropdownMenuItem(
             text = stringResource(id = R.string.on),
@@ -562,7 +576,7 @@ private fun EnableAuthentication(
                 )
             },
         )
-        HorizontalDivider(color = MaterialTheme.colorScheme.surface, thickness = Hairline)
+        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant, thickness = Hairline)
         MullvadDropdownMenuItem(
             text = stringResource(id = R.string.off),
             onClick = {

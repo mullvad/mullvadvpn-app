@@ -52,14 +52,15 @@ import net.mullvad.mullvadvpn.lib.ui.tag.TOP_BAR_SETTINGS_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.TOP_BAR_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
+import net.mullvad.mullvadvpn.lib.ui.theme.color.positive
 
 @Preview
 @Composable
 private fun PreviewTopBar() {
     AppTheme {
         MullvadTopBar(
-            containerColor = MaterialTheme.colorScheme.tertiary,
-            iconTintColor = MaterialTheme.colorScheme.onTertiary,
+            containerColor = MaterialTheme.colorScheme.positive,
+            iconTintColor = MaterialTheme.colorScheme.onSurface,
             onSettingsClicked = null,
             onAccountClicked = {},
         )
@@ -71,8 +72,8 @@ private fun PreviewTopBar() {
 private fun PreviewSlimTopBar() {
     AppTheme {
         MullvadTopBar(
-            containerColor = MaterialTheme.colorScheme.tertiary,
-            iconTintColor = MaterialTheme.colorScheme.onTertiary,
+            containerColor = MaterialTheme.colorScheme.positive,
+            iconTintColor = MaterialTheme.colorScheme.onSurface,
             onSettingsClicked = null,
             onAccountClicked = {},
         )
@@ -84,8 +85,8 @@ private fun PreviewSlimTopBar() {
 private fun PreviewNoIconAndLogoTopBar() {
     AppTheme {
         MullvadTopBar(
-            containerColor = MaterialTheme.colorScheme.tertiary,
-            iconTintColor = MaterialTheme.colorScheme.onTertiary,
+            containerColor = MaterialTheme.colorScheme.positive,
+            iconTintColor = MaterialTheme.colorScheme.onSurface,
             isIconAndLogoVisible = false,
             onSettingsClicked = {},
             onAccountClicked = null,
@@ -98,8 +99,8 @@ private fun PreviewNoIconAndLogoTopBar() {
 private fun PreviewNothingTopBar() {
     AppTheme {
         MullvadTopBar(
-            containerColor = MaterialTheme.colorScheme.tertiary,
-            iconTintColor = MaterialTheme.colorScheme.onTertiary,
+            containerColor = MaterialTheme.colorScheme.positive,
+            iconTintColor = MaterialTheme.colorScheme.onSurface,
             isIconAndLogoVisible = false,
             onSettingsClicked = null,
             onAccountClicked = null,

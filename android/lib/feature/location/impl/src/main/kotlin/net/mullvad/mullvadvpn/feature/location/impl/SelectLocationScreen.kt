@@ -406,8 +406,8 @@ fun SelectLocationScreen(
                 FloatingActionButton(
                     modifier = Modifier.onGloballyPositioned { fabHeight = it.size.height },
                     onClick = { onSearchClick(state.value.relayListType) },
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    contentColor = MaterialTheme.colorScheme.onPrimary,
+                    containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onTertiary,
                 ) {
                     Icon(
                         imageVector = Icons.Rounded.Search,
@@ -571,7 +571,7 @@ private fun SelectLocationDropdownMenu(
         )
     }
     DropdownMenu(
-        modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainer),
+        modifier = Modifier.background(MaterialTheme.colorScheme.tertiaryContainer),
         expanded = showMenu,
         onDismissRequest = { showMenu = false },
     ) {

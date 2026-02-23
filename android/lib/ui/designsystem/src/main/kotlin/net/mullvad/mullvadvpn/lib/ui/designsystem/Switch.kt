@@ -17,7 +17,7 @@ import net.mullvad.mullvadvpn.lib.ui.designsystem.preview.PreviewColumn
 import net.mullvad.mullvadvpn.lib.ui.tag.SWITCH_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaDisabled
-import net.mullvad.mullvadvpn.lib.ui.theme.color.selected
+import net.mullvad.mullvadvpn.lib.ui.theme.color.positive
 
 @Preview(backgroundColor = 0xFF192E45, showBackground = true)
 @Composable
@@ -57,13 +57,13 @@ fun MullvadSwitch(
 @Composable
 fun mullvadSwitchColors(): SwitchColors =
     SwitchDefaults.colors(
-        checkedThumbColor = MaterialTheme.colorScheme.selected,
+        checkedThumbColor = MaterialTheme.colorScheme.positive,
         checkedTrackColor = Color.Transparent,
         checkedBorderColor = MaterialTheme.colorScheme.onPrimary,
         uncheckedThumbColor = MaterialTheme.colorScheme.error,
         uncheckedTrackColor = Color.Transparent,
         uncheckedBorderColor = MaterialTheme.colorScheme.onPrimary,
-        disabledCheckedThumbColor = MaterialTheme.colorScheme.selected.copy(alpha = AlphaDisabled),
+        disabledCheckedThumbColor = MaterialTheme.colorScheme.positive.copy(alpha = AlphaDisabled),
         disabledCheckedTrackColor = Color.Transparent,
         disabledCheckedBorderColor =
             MaterialTheme.colorScheme.onPrimary.copy(alpha = AlphaDisabled),

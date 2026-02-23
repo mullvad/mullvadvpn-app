@@ -1,7 +1,5 @@
 package net.mullvad.mullvadvpn.feature.apiaccess.impl.screen.edit
 
-import androidx.compose.foundation.layout.defaultMinSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -13,8 +11,7 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import net.mullvad.mullvadvpn.lib.ui.component.textfield.CustomTextField
 import net.mullvad.mullvadvpn.lib.ui.component.textfield.ErrorSupportingText
-import net.mullvad.mullvadvpn.lib.ui.component.textfield.apiAccessTextFieldColors
-import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
+import net.mullvad.mullvadvpn.lib.ui.component.textfield.mullvadDarkTextFieldColors
 
 @Composable
 fun ApiAccessMethodTextField(
@@ -35,11 +32,8 @@ fun ApiAccessMethodTextField(
     CustomTextField(
         value = value,
         keyboardType = keyboardType,
-        modifier =
-            modifier
-                .defaultMinSize(minHeight = Dimens.formTextFieldMinHeight)
-                .padding(vertical = Dimens.miniPadding),
         onValueChanged = onValueChanged,
+        modifier = modifier,
         onSubmit = {
             if (imeAction == ImeAction.Done) {
                 focusManager.clearFocus()
@@ -49,7 +43,7 @@ fun ApiAccessMethodTextField(
         maxCharLength = maxCharLength,
         isValidValue = isValidValue,
         isDigitsOnlyAllowed = isDigitsOnlyAllowed,
-        colors = apiAccessTextFieldColors(),
+        colors = mullvadDarkTextFieldColors(),
         keyboardOptions =
             KeyboardOptions(
                 capitalization = capitalization,
@@ -57,15 +51,7 @@ fun ApiAccessMethodTextField(
                 keyboardType = keyboardType,
                 imeAction = imeAction,
             ),
-        supportingText =
-            errorText?.let {
-                {
-                    ErrorSupportingText(
-                        errorText,
-                        modifier = Modifier.padding(top = Dimens.miniPadding),
-                    )
-                }
-            },
+        supportingText = errorText?.let { { ErrorSupportingText(errorText) } },
         textStyle = textStyle,
     )
 }
