@@ -2,12 +2,19 @@ import { TextField, TextFieldProps } from '../../../text-field';
 import { ListItemTextFieldInput } from './components';
 
 export type ListItemTextFieldProps = TextFieldProps & {
+  formRef?: React.RefObject<HTMLFormElement | null>;
   onSubmit?: (event: React.FormEvent) => Promise<void>;
 };
 
-function ListItemTextField({ invalid, onSubmit, children, ...props }: ListItemTextFieldProps) {
+function ListItemTextField({
+  invalid,
+  onSubmit,
+  formRef,
+  children,
+  ...props
+}: ListItemTextFieldProps) {
   return (
-    <form onSubmit={onSubmit}>
+    <form ref={formRef} onSubmit={onSubmit}>
       <TextField invalid={invalid} {...props}>
         {children}
       </TextField>

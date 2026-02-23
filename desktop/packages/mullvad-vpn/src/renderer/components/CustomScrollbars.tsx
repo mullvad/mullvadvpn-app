@@ -125,7 +125,7 @@ class CustomScrollbars extends React.Component<IProps, IState> {
     dragStart: { x: 0, y: 0 },
   };
 
-  private scrollableRef = React.createRef<HTMLDivElement>();
+  public scrollableRef = React.createRef<HTMLDivElement>();
   private scrollableContentRef = React.createRef<HTMLDivElement>();
   private trackRef = React.createRef<HTMLDivElement>();
   private thumbRef = React.createRef<HTMLDivElement>();

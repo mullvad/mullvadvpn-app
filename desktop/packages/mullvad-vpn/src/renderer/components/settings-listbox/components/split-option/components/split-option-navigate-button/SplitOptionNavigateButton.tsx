@@ -19,10 +19,12 @@ export function SplitOptionNavigateButton({
   }, [history, to]);
 
   return (
-    <ListItem.Trigger data-split-button onClick={navigate} tabIndex={-1} {...props}>
-      <ListItem.TrailingAction>
-        <ListItem.TrailingAction.Icon icon={'chevron-right'} aria-hidden="true" />
-      </ListItem.TrailingAction>
-    </ListItem.Trigger>
+    <ListItem.TrailingActions>
+      <ListItem.Trigger data-split-button onClick={navigate} tabIndex={-1} {...props}>
+        <ListItem.TrailingAction>
+          <ListItem.TrailingAction.Icon icon={'chevron-right'} aria-hidden="true" />
+        </ListItem.TrailingAction>
+      </ListItem.Trigger>
+    </ListItem.TrailingActions>
   );
 }

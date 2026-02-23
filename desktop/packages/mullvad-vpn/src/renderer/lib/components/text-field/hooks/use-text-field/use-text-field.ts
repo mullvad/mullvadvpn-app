@@ -3,13 +3,14 @@ import React from 'react';
 export type UseTextFieldProps = {
   inputRef: React.RefObject<HTMLInputElement | null>;
   defaultValue?: string;
-  validate?: (value: string) => boolean;
+  validate?: (value: string) => boolean | string;
   format?: (value: string) => string;
 };
 
 export type UseTextFieldState = {
   value: string;
   invalid: boolean;
+  invalidReason: string | null;
   dirty: boolean;
   reset: (value?: string) => void;
   focus: () => void;
@@ -25,7 +26,21 @@ export function useTextField({
   validate,
 }: UseTextFieldProps): UseTextFieldState {
   const [value, setValue] = React.useState(defaultValue ?? '');
-  const [invalid, setInvalid] = React.useState(validate ? !validate(value) : false);
+  const validateValue = React.useCallback(
+    (value: string) => {
+      const result = validate ? validate(value) : true;
+      if (typeof result === 'string') {
+        return { invalid: true, invalidReason: result };
+      } else {
+        return { invalid: !result, invalidReason: null };
+      }
+    },
+    [validate],
+  );
+
+  const { invalid: initialInvalid, invalidReason: initialInvalidReason } = validateValue(value);
+  const [invalid, setInvalid] = React.useState(initialInvalid);
+  const [invalidReason, setInvalidReason] = React.useState<string | null>(initialInvalidReason);
   const [dirty, setDirty] = React.useState(false);
 
   const reset = React.useCallback(
@@ -36,11 +51,15 @@ export function useTextField({
       } else if (defaultValue !== undefined) {
         newValue = defaultValue;
       }
+
+      const { invalid, invalidReason } = validateValue(newValue);
+
       setValue(newValue);
-      setInvalid(validate ? !validate(newValue) : false);
+      setInvalid(invalid);
+      setInvalidReason(invalidReason);
       setDirty(false);
     },
-    [defaultValue, validate],
+    [defaultValue, validateValue],
   );
 
   const focus = React.useCallback(() => {
@@ -54,13 +73,25 @@ export function useTextField({
   const handleOnValueChange = React.useCallback(
     (newValue: string) => {
       const formattedValue = format ? format(newValue) : newValue;
-      const invalid = validate ? !validate(formattedValue) : false;
+      const { invalid, invalidReason } = validateValue(formattedValue);
+
       setInvalid(invalid);
+      setInvalidReason(invalidReason);
       setValue(formattedValue);
       setDirty(true);
     },
-    [format, validate],
+    [format, validateValue],
   );
 
-  return { value, invalid, dirty, reset, blur, focus, handleOnValueChange, inputRef };
+  return {
+    value,
+    invalid,
+    invalidReason,
+    dirty,
+    reset,
+    blur,
+    focus,
+    handleOnValueChange,
+    inputRef,
+  };
 }

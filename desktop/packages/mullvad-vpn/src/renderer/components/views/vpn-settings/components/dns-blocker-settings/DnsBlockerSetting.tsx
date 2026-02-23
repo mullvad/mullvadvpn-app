@@ -22,7 +22,7 @@ import { CustomDnsEnabledFooter } from './components';
 export type DnsBlockerSettingsProps = Omit<AccordionProps, 'children'> &
   Pick<ListItemProps, 'position'>;
 
-const StyledAccordionTrigger = styled(SettingsAccordion.Trigger)`
+const StyledAccordionTrigger = styled(SettingsAccordion.HeaderTrigger)`
   display: grid;
   place-items: center;
 `;
@@ -42,9 +42,9 @@ export function DnsBlockerSettings({ position, ...props }: DnsBlockerSettingsPro
         <SettingsAccordion.Container>
           <SettingsAccordion.Header position={position}>
             <SettingsAccordion.HeaderItem>
-              <SettingsAccordion.Title variant="bodySmallSemibold">
+              <SettingsAccordion.HeaderTitle variant="bodySmallSemibold">
                 {messages.pgettext('vpn-settings-view', 'DNS content blockers')}
-              </SettingsAccordion.Title>
+              </SettingsAccordion.HeaderTitle>
               <SettingsAccordion.HeaderActionGroup>
                 <InfoButton>
                   <ModalMessage>
@@ -72,7 +72,7 @@ export function DnsBlockerSettings({ position, ...props }: DnsBlockerSettingsPro
                   </ModalMessage>
                 </InfoButton>
                 <StyledAccordionTrigger>
-                  <SettingsAccordion.Icon />
+                  <SettingsAccordion.HeaderChevron />
                 </StyledAccordionTrigger>
               </SettingsAccordion.HeaderActionGroup>
             </SettingsAccordion.HeaderItem>
