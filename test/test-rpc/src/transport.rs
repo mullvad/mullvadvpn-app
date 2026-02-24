@@ -1,12 +1,12 @@
 use bytes::{Buf, BufMut, Bytes, BytesMut};
-use futures::{FutureExt, SinkExt, StreamExt, channel::mpsc};
-use serde::{Serialize, de::DeserializeOwned};
+use futures::{channel::mpsc, FutureExt, SinkExt, StreamExt};
+use serde::{de::DeserializeOwned, Serialize};
 use std::{
     fmt::Write,
     io,
     sync::{
-        Arc,
         atomic::{AtomicBool, Ordering},
+        Arc,
     },
     time::Duration,
 };
@@ -100,7 +100,7 @@ impl ConnectionHandle {
     pub async fn reset_connected_state(&self) {
         let mut handshake_fwd = self.handshake_fwd_rx.lock().await;
         // empty stream
-        while let Ok(Some(_)) = handshake_fwd.try_next() {}
+        while let Ok(()) = handshake_fwd.try_recv() {}
 
         self.is_connected.store(false, Ordering::SeqCst);
         self.reset_notify.notify_waiters();
