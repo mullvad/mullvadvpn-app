@@ -1,4 +1,4 @@
-use anyhow::{Context, Result, anyhow};
+use anyhow::{anyhow, Context, Result};
 use gotatun::{
     device::{self, DefaultDeviceTransports, Device, Peer},
     tun::tun_async_device::TunDevice,
@@ -97,19 +97,12 @@ async fn create_wireguard_interface() -> Result<Device<DefaultDeviceTransports>>
     let device = device::build()
         .with_default_udp()
         .with_ip(tun)
+        .with_private_key(CUSTOM_TUN_REMOTE_PRIVKEY.into())
+        .with_peer(peer)
+        .with_listen_port(CUSTOM_TUN_REMOTE_REAL_PORT)
         .build()
         .await
         .context("Failed to create gotatun device")?;
-
-    device
-        .write(async |device| {
-            device
-                .set_private_key(CUSTOM_TUN_REMOTE_PRIVKEY.into())
-                .await;
-            device.add_peer(peer);
-            device.set_listen_port(CUSTOM_TUN_REMOTE_REAL_PORT);
-        })
-        .await?;
 
     Ok(device)
 }
