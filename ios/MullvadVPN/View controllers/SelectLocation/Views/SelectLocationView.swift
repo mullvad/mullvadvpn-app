@@ -54,6 +54,7 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                         text: $viewModel.searchText
                     )
                     .focused($focusSearchField)
+                    .accessibilityAddTraits(.isSearchField)
                     .padding(.horizontal)
                     .transition(.move(edge: .top).combined(with: .opacity))
                 }

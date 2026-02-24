@@ -16,6 +16,17 @@ class TunnelControlPage: Page {
         let protocolName: String
     }
 
+    /// Strips the accessibility label prefix (e.g. "In ") from a combined row label,
+    /// returning just the value portion (e.g. "85.203.53.104:56678 UDP").
+    nonisolated static func connectionDetailValue(from label: String) -> String {
+        let components = label.split(separator: " ")
+        // The value starts at the first component containing ":" (ip:port) or "." (ip address)
+        if let index = components.firstIndex(where: { $0.contains(":") || $0.contains(".") }) {
+            return components[index...].joined(separator: " ")
+        }
+        return label
+    }
+
     var connectionIsSecured: Bool {
         app.staticTexts[AccessibilityIdentifier.connectionStatusConnectedLabel].exists
     }
@@ -41,7 +52,11 @@ class TunnelControlPage: Page {
 
             _ = XCTWaiter.wait(for: [expectation], timeout: pollingInterval + 0.5)
 
-            let currentText = inAddressRow.label
+            guard inAddressRow.exists else {
+                continue
+            }
+
+            let currentText = Self.connectionDetailValue(from: inAddressRow.label)
 
             // Skip initial label value with IP address only - no port or protocol
             guard currentText.contains(" ") == true else {
@@ -187,7 +202,12 @@ class TunnelControlPage: Page {
     }
 
     @discardableResult func verifyConnectedRelays(entry: String, exit: String) -> Self {
-        XCTAssertTrue(app.staticTexts["\(exit) via \(entry)"].exists)
+        let serverLabel = app.staticTexts[.connectionPanelServerLabel]
+        XCTAssertTrue(serverLabel.exists)
+        XCTAssertTrue(
+            serverLabel.label.contains(exit) && serverLabel.label.contains(entry),
+            "Expected server label to contain '\(exit)' and '\(entry)', got '\(serverLabel.label)'"
+        )
         return self
     }
 
@@ -257,10 +277,11 @@ class TunnelControlPage: Page {
 
     func getInIPAddressAndPortFromConnectionStatus() -> (String, Int) {
         let inAddressRow = app.staticTexts[.connectionPanelInAddressRow]
-        // The row looks like this "85.203.53.145:43030 UDP"
-        let components = inAddressRow.label.components(separatedBy: ":")
+        // The combined row label looks like "In, 85.203.53.145:43030 UDP"
+        let value = Self.connectionDetailValue(from: inAddressRow.label)
+        let components = value.components(separatedBy: ":")
         let inIpAddress = components[0]  // 85.203.53.145
-        let inPort = components[1].components(separatedBy: " ")[0]  // 43030 UDP, take only the port part
+        let inPort = components[1].components(separatedBy: " ")[0]  // 43030
         return (inIpAddress, Int(inPort)!)
     }
 

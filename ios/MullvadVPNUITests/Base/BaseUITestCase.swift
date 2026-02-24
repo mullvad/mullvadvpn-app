@@ -139,10 +139,20 @@ class BaseUITestCase: XCTestCase {
     func allowAddVPNConfigurationsIfAsked() {
         let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
 
-        springboard.buttons["Allow"].tapWhenHittable(timeout: .short)
+        let alertAllowButton = springboard.buttons["Allow"]
+        if alertAllowButton.existsAfterWait(timeout: .short) {
+            alertAllowButton.tap()
+            if !iOSDevicePinCode.isEmpty {
 
-        if !iOSDevicePinCode.isEmpty, springboard.buttons["1"].existsAfterWait() {
-            springboard.typeText(iOSDevicePinCode)
+                // Springboard sometimes has digit buttons, sometimes they are keys?
+                let passcodeScreenVisible =
+                    springboard.buttons["1"].existsAfterWait()
+                    || springboard.keys["1"].existsAfterWait()
+                    || springboard.secureTextFields.firstMatch.existsAfterWait()
+                if passcodeScreenVisible {
+                    springboard.typeText(iOSDevicePinCode)
+                }
+            }
         }
     }
 

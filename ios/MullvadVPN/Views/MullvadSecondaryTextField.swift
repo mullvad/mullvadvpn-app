@@ -11,6 +11,7 @@ struct MullvadSecondaryTextField: View {
     var body: some View {
         HStack(spacing: 4) {
             Image.mullvadIconSearch
+                .accessibilityHidden(true)
             TextField(
                 placeholder,
                 text: $text,
