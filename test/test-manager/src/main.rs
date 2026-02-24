@@ -279,6 +279,9 @@ async fn inner_main() -> Result<()> {
             #[cfg(target_os = "linux")]
             container::relaunch_with_rootlesskit(vnc).await;
 
+            #[cfg(target_os = "macos")]
+            relaunch_with_sudo().await;
+
             let mut config = config.clone();
             config.runtime_opts.keep_changes = keep_changes;
             config.runtime_opts.display = if vnc.is_some() {
@@ -311,6 +314,9 @@ async fn inner_main() -> Result<()> {
         } => {
             #[cfg(target_os = "linux")]
             container::relaunch_with_rootlesskit(vnc).await;
+
+            #[cfg(target_os = "macos")]
+            relaunch_with_sudo().await;
 
             let mut config = config.clone();
             config.runtime_opts.display = match (display, vnc.is_some()) {
@@ -434,4 +440,23 @@ async fn inner_main() -> Result<()> {
             Ok(())
         }
     }
+}
+
+async fn relaunch_with_sudo() {
+    // check if user is root (`man getuid`).
+    if nix::unistd::geteuid().is_root() {
+        return;
+    }
+    let mut cmd = tokio::process::Command::new("sudo");
+    cmd.arg("--preserve-env");
+    cmd.args(std::env::args());
+
+    log::info!("Root privileges required. Re-launching with sudo.");
+    eprintln!("{cmd:?}");
+
+    let status = cmd.status().await.unwrap_or_else(|e| {
+        panic!("failed to execute [{cmd:?}]: {e}");
+    });
+
+    std::process::exit(status.code().unwrap_or(1));
 }
