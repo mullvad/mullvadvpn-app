@@ -25,6 +25,9 @@ dependencies {
     implementation(libs.kotlinx.coroutines.android)
 
     // Billing library
+    // play-services-location is a dependency of billing-ktx, but the billing-ktx specifies a
+    // vulnerable version (19.0.0), so we need to explicitly use a later version here.
+    implementation(libs.play.services.location)
     implementation(libs.android.billingclient)
 
     // Model

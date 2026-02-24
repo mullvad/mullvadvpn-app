@@ -66,6 +66,7 @@ ktor = "3.4.0"
 leakcanary = "2.14"
 mockk = "1.14.9"
 play-publisher = "3.12.1"
+play-services-location = "21.3.0"
 profileinstaller = "1.4.1"
 protobuf = "4.33.5"
 protobuf-gradle-plugin = "0.9.6"
@@ -167,6 +168,7 @@ ktor-server-engine-netty = { module = "io.ktor:ktor-server-netty", version.ref =
 leakCanary = { module = "com.squareup.leakcanary:leakcanary-android", version.ref = "leakcanary" }
 mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
 mockk-android = { module = "io.mockk:mockk-android", version.ref = "mockk" }
+play-services-location = { module = "com.google.android.gms:play-services-location", version.ref = "play-services-location" }
 protobuf-kotlin-lite = { module = "com.google.protobuf:protobuf-kotlin-lite", version.ref = "protobuf" }
 turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
 junit = { group = "junit", name = "junit", version.ref = "junit-version" }
