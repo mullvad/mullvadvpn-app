@@ -1,5 +1,6 @@
 use crate::config::{self, Config, VmConfig};
 use anyhow::{Context, Result, anyhow};
+use gotatun::device::{DefaultDeviceTransports, Device};
 use regex::Regex;
 use std::{net::IpAddr, process::Stdio, time::Duration};
 use tokio::process::{Child, Command};
@@ -17,6 +18,9 @@ pub struct TartInstance {
     pub ip_addr: IpAddr,
     child: Child,
     machine_copy: Option<MachineCopy>,
+
+    /// WireGuard device. If this value is dropped, the device is shut down.
+    _wg: Device<DefaultDeviceTransports>,
 }
 
 #[async_trait::async_trait]
@@ -38,7 +42,7 @@ impl VmInstance for TartInstance {
 }
 
 pub async fn run(config: &Config, vm_config: &VmConfig) -> Result<TartInstance> {
-    super::network::macos::setup_test_network()
+    let wg = super::network::macos::setup_test_network()
         .await
         .context("Failed to set up networking")?;
 
@@ -132,6 +136,7 @@ pub async fn run(config: &Config, vm_config: &VmConfig) -> Result<TartInstance> 
         pty_path,
         ip_addr,
         machine_copy: Some(machine_copy),
+        _wg: wg,
     })
 }
 
