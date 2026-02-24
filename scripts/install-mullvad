@@ -25,8 +25,7 @@ cd "$cache_dir"
 chmod 755 "$cache_dir"
 
 # Find sqv (Sequoia signature verification tool)
-sqv_cmd=$(command -v sqv)
-if [[ -z "$sqv_cmd" ]]; then
+if ! command -v sqv >/dev/null; then
     echo "!!! sqv (Sequoia signature verification tool) not found. Please install it."
     exit 1
 fi
@@ -71,7 +70,7 @@ echo ""
 echo ">>> Verifying integrity of $pkg_filename"
 # We prefer sqv for PGP key verification as it is a strict and easy-to-use implementation of PGP.
 # gpg is also not suitable for use in scripting.
-if ! $sqv_cmd --keyring="$MULLVAD_CODE_SIGNING_KEY_PATH" --signature-file="$pkg_filename.asc" "$pkg_filename"; then
+if ! sqv --keyring="$MULLVAD_CODE_SIGNING_KEY_PATH" --signature-file="$pkg_filename.asc" "$pkg_filename"; then
     echo ""
     echo "!!! INTEGRITY CHECKING FAILED !!!"
     rm "$pkg_filename" "$pkg_filename.asc"
