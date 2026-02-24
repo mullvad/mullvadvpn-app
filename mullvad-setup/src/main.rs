@@ -6,7 +6,7 @@ use std::{path::PathBuf, process, str::FromStr, sync::LazyLock, time::Duration};
 use talpid_core::firewall::{self, Firewall};
 use talpid_future::retry::{ConstantInterval, retry_future};
 use talpid_types::ErrorExt;
-use tracing_subscriber::{EnvFilter, filter::LevelFilter};
+use tracing_subscriber::EnvFilter;
 
 #[cfg(target_os = "windows")]
 mod service;
@@ -118,7 +118,7 @@ enum Cli {
 #[tokio::main]
 async fn main() {
     tracing_subscriber::fmt()
-        .with_env_filter(EnvFilter::from_default_env().add_directive(LevelFilter::INFO.into()))
+        .with_env_filter(EnvFilter::from_default_env())
         .init();
 
     let result = match Cli::parse() {
