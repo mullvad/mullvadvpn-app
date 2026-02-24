@@ -57,13 +57,13 @@ pub async fn run(config: &Config, vm_config: &VmConfig) -> Result<TartInstance> 
         log::error!("Failed to configure tart vm: {err}");
     }
 
-    // Start VM
-    let mut tart_cmd = Command::new("tart");
-    tart_cmd.args(["run", &machine_copy.name, "--serial"]);
-
     if !vm_config.disks.is_empty() {
         log::warn!("Mounting disks is not yet supported")
     }
+
+    // Start VM
+    let mut tart_cmd = tart();
+    tart_cmd.args(["run", &machine_copy.name, "--serial"]);
 
     match config.runtime_opts.display {
         config::Display::None => {
@@ -71,7 +71,6 @@ pub async fn run(config: &Config, vm_config: &VmConfig) -> Result<TartInstance> 
         }
         config::Display::Local => (),
         config::Display::Vnc => {
-            // tart_cmd.args(["--vnc-experimental", "--no-graphics"]);
             tart_cmd.args(["--vnc", "--no-graphics"]);
         }
     }
@@ -111,14 +110,13 @@ pub async fn run(config: &Config, vm_config: &VmConfig) -> Result<TartInstance> 
     // Get IP address of VM
     log::debug!("Waiting for IP address");
 
-    let mut tart_cmd = Command::new("tart");
-    tart_cmd.args([
-        "ip",
-        &machine_copy.name,
-        "--wait",
-        &format!("{}", OBTAIN_IP_TIMEOUT.as_secs()),
-    ]);
-    let output = tart_cmd.output().await.context("Could not obtain VM IP")?;
+    let output = tart()
+        .args(["ip", &machine_copy.name])
+        .args(["--wait", &format!("{}", OBTAIN_IP_TIMEOUT.as_secs())])
+        .output()
+        .await
+        .context("Could not obtain VM IP")?;
+
     let ip_addr = std::str::from_utf8(&output.stdout)
         .context("'tart ip' returned non-UTF8")?
         .trim()
@@ -160,9 +158,8 @@ impl MachineCopy {
     pub async fn clone_vm(name: &str) -> Result<Self> {
         let clone_name = format!("test-{}", Uuid::new_v4());
 
-        let mut tart_cmd = Command::new("tart");
-        tart_cmd.args(["clone", name, &clone_name]);
-        let output = tart_cmd
+        let output = tart()
+            .args(["clone", name, &clone_name])
             .status()
             .await
             .context("failed to run 'tart clone'")?;
@@ -187,10 +184,9 @@ impl MachineCopy {
             log::info!("Memory: {mem} MB");
         }
         if !args.is_empty() {
-            let mut tart_cmd = Command::new("tart");
-            tart_cmd.args(["set", &self.name]);
-            tart_cmd.args(args);
-            tart_cmd
+            tart()
+                .args(["set", &self.name])
+                .args(args)
                 .status()
                 .await
                 .context("failed to update tart config")?;
@@ -215,11 +211,11 @@ impl MachineCopy {
     }
 
     fn destroy_inner(&mut self) -> Result<()> {
-        use std::process::Command;
-
-        let mut tart_cmd = Command::new("tart");
-        tart_cmd.args(["delete", &self.name]);
-        let output = tart_cmd.status().context("Failed to run 'tart delete'")?;
+        let output = tart()
+            .into_std()
+            .args(["delete", &self.name])
+            .status()
+            .context("Failed to run 'tart delete'")?;
         if !output.success() {
             return Err(anyhow!("'tart delete' failed: {output}"));
         }
@@ -231,5 +227,22 @@ impl MachineCopy {
 impl Drop for MachineCopy {
     fn drop(&mut self) {
         self.try_destroy();
+    }
+}
+
+/// Create a [`Command`] that invokes `tart`. Use [`Command::arg`] etc to specify a tart command.
+///
+/// `tart` likes to be invoked as a non-privileged user. If this program was invoked with `sudo`,
+/// the returned [`Command`] will invoke `tart` using `sudo -u $SUDO_USER`.
+fn tart() -> Command {
+    if let Some(user) = std::env::var("SUDO_USER").ok() {
+        log::debug!("SUDO_USER is set. Invoking tart as user {user:?}");
+        let mut tart_cmd = Command::new("sudo");
+        tart_cmd.args(["-u", &user]);
+        tart_cmd.arg("tart");
+        tart_cmd
+    } else {
+        log::debug!("Invoking tart as current user");
+        Command::new("tart")
     }
 }
