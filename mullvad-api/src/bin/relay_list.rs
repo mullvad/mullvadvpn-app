@@ -1,6 +1,9 @@
 //! Fetches and prints the full relay list in JSON.
 //! Used by the installer artifact packer to bundle the latest available
 //! relay list at the time of creating the installer.
+//!
+//! # Arguments
+//! - `internal`: Mangle the relay list and output the representation internal to the `mullvad-types` crate.
 
 #[cfg(not(target_os = "android"))]
 mod imp {
@@ -38,7 +41,18 @@ mod imp {
                 process::exit(1);
             }
         };
-        println!("{}", serde_json::to_string_pretty(&relay_list).unwrap());
+
+        // Poor man's clap.
+        if let Some(arg) = std::env::args().nth(1)
+            && arg == "--internal"
+        {
+            println!(
+                "{}",
+                serde_json::to_string_pretty(&relay_list.unwrap().into_internal_repr()).unwrap()
+            );
+        } else {
+            println!("{}", serde_json::to_string_pretty(&relay_list).unwrap());
+        }
     }
 }
 
