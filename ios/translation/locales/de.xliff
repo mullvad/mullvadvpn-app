@@ -545,7 +545,7 @@ Möchten Sie mit der Aktivierung von „Teilen im lokalen Netzwerk“ fortfahren
       </trans-unit>
       <trans-unit id="Connect" xml:space="preserve" approved="yes">
         <source>Connect</source>
-        <target state="final">Connect (Verbinden)</target>
+        <target state="final">Verbinden</target>
         <note/>
       </trans-unit>
       <trans-unit id="Connected server" xml:space="preserve" approved="yes">

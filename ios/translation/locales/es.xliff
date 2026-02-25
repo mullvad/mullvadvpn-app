@@ -546,7 +546,7 @@ Para evitarlo, habilite manualmente el modo avión y desactive el wifi antes de 
       </trans-unit>
       <trans-unit id="Connect" xml:space="preserve" approved="yes">
         <source>Connect</source>
-        <target state="final">Connect (Conectar)</target>
+        <target state="final">Conectar</target>
         <note/>
       </trans-unit>
       <trans-unit id="Connected server" xml:space="preserve" approved="yes">

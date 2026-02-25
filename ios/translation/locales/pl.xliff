@@ -546,7 +546,7 @@ Czy chcesz kontynuować włączanie funkcji „Udostępnianie sieci lokalnej”?
       </trans-unit>
       <trans-unit id="Connect" xml:space="preserve" approved="yes">
         <source>Connect</source>
-        <target state="final">Connect (Połącz)</target>
+        <target state="final">Połącz</target>
         <note/>
       </trans-unit>
       <trans-unit id="Connected server" xml:space="preserve" approved="yes">

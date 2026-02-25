@@ -542,9 +542,9 @@ Would you like to continue to enable “Local network sharing”?</source>
         <target state="final">Grattis!</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Connect" xml:space="preserve" approved="yes">
+      <trans-unit id="Connect" xml:space="preserve">
         <source>Connect</source>
-        <target state="final">Connect (anslut)</target>
+        <target state="translated">Anslut</target>
         <note/>
       </trans-unit>
       <trans-unit id="Connected server" xml:space="preserve" approved="yes">
