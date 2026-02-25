@@ -32,7 +32,7 @@ struct UdpOverTcpObfuscator: RelayObfuscating {
     ) -> RelayConstraint<UInt16> {
         switch tunnelSettings.wireGuardObfuscation.udpOverTcpPort {
         case .automatic:
-            return [.only(80), .only(443)].randomElement()!
+            return [.only(80), .only(443), .only(5001)].randomElement()!
         case .port5001:
             return .only(5001)
         case .port80:

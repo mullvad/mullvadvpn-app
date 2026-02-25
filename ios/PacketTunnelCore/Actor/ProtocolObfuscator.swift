@@ -38,6 +38,8 @@ public class ProtocolObfuscator<Obfuscator: TunnelObfuscation>: ProtocolObfuscat
     ///
     /// - Parameters:
     ///   - endpoint: The endpoint to obfuscate. Contains socket address and obfuscation method.
+    ///   - clientPublicKey: The client public key. Can be device key or - if post quantum is enabled - the
+    ///   ephemeral key.
     /// - Returns: The endpoint (possibly modified) with obfuscation applied.
     ///
     /// Note: Obfuscation currently only supports IPv4. If the endpoint uses IPv6,
@@ -58,7 +60,7 @@ public class ProtocolObfuscator<Obfuscator: TunnelObfuscation>: ProtocolObfuscat
                 .quic(hostname: hostname, token: token)
             case .lwo:
                 if let key = PublicKey(rawValue: endpoint.publicKey) {
-                    .lwo(serverPublicKey: key)
+                    .lwo(serverPublicKey: key, clientPublicKey: clientPublicKey)
                 } else {
                     nil
                 }
@@ -73,8 +75,7 @@ public class ProtocolObfuscator<Obfuscator: TunnelObfuscation>: ProtocolObfuscat
         let obfuscator = Obfuscator(
             remoteAddress: endpoint.socketAddress.ip,
             remotePort: remotePort,
-            obfuscationProtocol: obfuscationProtocol,
-            clientPublicKey: clientPublicKey
+            obfuscationProtocol: obfuscationProtocol
         )
 
         obfuscator.start()

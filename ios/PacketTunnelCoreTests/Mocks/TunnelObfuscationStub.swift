@@ -20,8 +20,7 @@ struct TunnelObfuscationStub: TunnelObfuscation {
     init(
         remoteAddress: IPAddress,
         remotePort: UInt16,
-        obfuscationProtocol: TunnelObfuscationProtocol,
-        clientPublicKey: PublicKey
+        obfuscationProtocol: TunnelObfuscationProtocol
     ) {
         self.remotePort = remotePort
     }
