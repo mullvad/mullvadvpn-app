@@ -23,13 +23,20 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 ### Changed
+- Location setting no longer defaults to Sweden, instead it uses you current location if it
+  has available relays, and falls back to Sweden otherwise.
+
+#### macOS
+- GotaTun is now used as the WireGuard implementation. It replaces wireguard-go.
+
+
+## [2026.1-beta1] - 2026-02-23
+### Changed
 - Change `WireGuard port` to no longer affect the port used for LWO.
 - Change `Mullvad Bridges` access method to randomly pick any Mullvad-owned bridge.
   Previously the access method was constrained to the five bridges closest to the exit relay.
 - Changed CLI command `mullvad obfuscation` to `mullvad anti-censorship`
 - The tunnel setup will not error out if sending ICMP is prohibited by the operating system.
-- Location setting no longer defaults to Sweden, instead it uses you current location if it
-  has available relays, and falls back to Sweden otherwise.
 
 #### Linux
 - Change "Go back" keyboard shortcut from `Esc` to `Alt + Left Arrow` or `Alt + [`.
@@ -37,7 +44,6 @@ Line wrap the file at 100 chars.                                              Th
 
 #### macOS
 - Change "Go back" keyboard shortcut from `Esc` to `Cmd + Left Arrow` or `Cmd + [`.
-- GotaTun is now used as the WireGuard implementation. It replaces wireguard-go.
 
 #### Windows
 - Change "Go back" keyboard shortcut from `Esc` to `Alt + Left Arrow` or `Alt + [`.
