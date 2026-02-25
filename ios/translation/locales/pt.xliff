@@ -546,7 +546,7 @@ Pretende continuar para ativar a "Partilha de rede local"?</target>
       </trans-unit>
       <trans-unit id="Connect" xml:space="preserve" approved="yes">
         <source>Connect</source>
-        <target state="final">Connect (Ligar)</target>
+        <target state="final">Ligar</target>
         <note/>
       </trans-unit>
       <trans-unit id="Connected server" xml:space="preserve" approved="yes">

@@ -546,7 +546,7 @@ Wilt u doorgaan met het inschakelen van "Delen met lokaal netwerk"?</target>
       </trans-unit>
       <trans-unit id="Connect" xml:space="preserve" approved="yes">
         <source>Connect</source>
-        <target state="final">Connect (Verbinden)</target>
+        <target state="final">Verbinden</target>
         <note/>
       </trans-unit>
       <trans-unit id="Connected server" xml:space="preserve" approved="yes">

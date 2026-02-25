@@ -358,125 +358,6 @@
         }
       }
     },
-    "%@ “Local network sharing” requires restarting the VPN connection, which will disconnect you and briefly expose your traffic.\nTo prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.\nWould you like to continue to enable “Local network sharing”?" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "da" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "\"%@ Lokal netværksdeling\" kræver genstart af VPN-forbindelsen, hvilket vil afbryde forbindelsen og kortvarigt blotlægge din trafik.\nFor at undgå dette skal du manuelt aktivere flytilstand og slukke for wi-fi, inden du fortsætter.\nVil du fortsætte med at aktivere \"Lokal netværksdeling\"?"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "„%@ Teilen im lokalen Netzwerk“ erfordert einen Neustart der VPN-Verbindung, wodurch Ihre Verbindung unterbrochen und Ihr Traffic kurzzeitig offengelegt wird. Sie können dies verhindern, indem Sie den Flugzeugmodus aktivieren und WLAN manuell deaktivieren, bevor Sie fortfahren.\nMöchten Sie mit der Aktivierung von „Teilen im lokalen Netzwerk“ fortfahren?"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "La %@ del «Uso compartido de la red local» requiere reiniciar la conexión VPN, que le desconectará y expondrá brevemente su tráfico.\nPara evitarlo, habilite manualmente el modo avión y desactive el wifi antes de continuar.\n¿Quiere continuar y habilitar el «Uso compartido de red la local»?"
-          }
-        },
-        "fi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "\"%@ Paikallisen verkon jakaminen\" vaatii VPN-yhteyden käynnistämistä uudelleen, mikä katkaisee yhteytesi ja paljastaa liikenteesi hetkeksi.\nVoit estää tämän ottamalla lentokonetilan käyttöön ja poistamalla WiFi-yhteyden käytöstä manuaalisesti ennen jatkamista.\nHaluatko jatkaa paikallisen verkon jakamisen käyttöönottoa?"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "« %@ du partage de réseau local » nécessite de redémarrer la connexion VPN, ce qui vous déconnectera et exposera brièvement votre trafic.\nPour empêcher cela, activez manuellement le mode avion et désactivez le Wi-Fi avant de continuer.\nVoulez-vous continuer et activer le « partage de réseau local » ?"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "\"Condivisione rete locale: %@\" richiede il riavvio della connessione VPN, che ti disconnetterà e renderà temporaneamente pubblico il tuo traffico.\nPer evitare ciò, attiva manualmente la Modalità aereo e disattiva il Wi-Fi prima di continuare.\nVuoi continuare ad abilitare \"Condivisione rete locale\"?"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "「ローカルネットワーク共有の%@」には、VPN接続の再起動が必要です。これを行うと接続が切断され、一時的に通信が露出する可能性があります。\nこれを防ぐには、続行する前に手動で機内モードを有効にし、Wi-Fiをオフにしてください。\n「ローカルネットワーク共有」の有効化を続行しますか？"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "\"%@ 로컬 네트워크 공유\"를 수행하려면 VPN 연결을 재시작해야 하며, 사용자의 연결이 해제되고 잠시 트래픽이 노출됩니다.\n이를 방지하려면 계속하기 전 수동으로 비행기 모드를 활성화하고 Wi-Fi를 끄세요.\n\"로컬 네트워크 공유\"를 활성화하시겠습니까?"
-          }
-        },
-        "my" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "\"လိုကယ် ကွန်ရက် ဝေမျှမှု %@” သည် VPN ချိတ်ဆက်မှုကို ပြန်လည်စတင်ရန် လိုအပ်ပါသည်၊ ပြန်လည်စတင်သည့်အခါ ချိတ်ဆက်မှုကို ဖြုတ်လိုက်ပြီး အင်တာနက်ပေါ်သို့ ကူးလူးနေသော ဒေတာတို့ကို အများက ခဏတာ မြင်တွေ့နိုင်ပါသည်။\nဤကဲ့သို့ မဖြစ်စေရန် ဆက်မလုပ်မီ Airplane Mode ကို ကိုယ်တိုင်ဖွင့်ပြီး Wi-Fi ကို ပိတ်ပါ။ \"လိုကယ် ကွန်ရက် ဝေမျှမှု\"ကို ဖွင့်ရန် ဆက်လုပ်လိုပါသလား။"
-          }
-        },
-        "nb" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "«%@ Deling over lokalt nettverk» krever at VPN-tilkoblingen startes på nytt, noe som vil koble deg fra og midlertidig eksponere trafikken din.\nFor å forhindre dette må du aktivere flymodus manuelt og slå av Wi-Fi før du fortsetter.\nVil du fortsette å aktivere «Deling over lokalt nettverk»?"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Voor \"Delen met lokaal netwerk %@\" moet u de VPN-verbinding opnieuw opstarten. De verbinding wordt dan kort onderbroken en uw verkeer wordt blootgesteld.\nOm dit te voorkomen, kunt u handmatig de vliegtuigmodus inschakelen en wifi uitschakelen voordat u doorgaat.\nWilt u doorgaan met het inschakelen van \"Delen met lokaal netwerk\"?"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ „Udostępnianie sieci lokalnej” wymaga ponownego uruchomienia połączenia VPN, co spowoduje rozłączenie i krótkotrwałe ujawnienie ruchu sieciowego.\nAby temu zapobiec, przed kontynuowaniem ręcznie włącz tryb samolotowy i wyłącz Wi-Fi.\nCzy chcesz kontynuować włączanie funkcji „Udostępnianie sieci lokalnej”?"
-          }
-        },
-        "pt" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ \"a partilha de rede local\" requer reiniciar a ligação VPN, o que o irá desligar e expor temporariamente o seu tráfego.\nPara evitar isto, ative manualmente o Modo avião e desligue o Wi-Fi antes de continuar.\nPretende continuar para ativar a \"Partilha de rede local\"?"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ «Обмен данными в локальной сети» требует перезапуска VPN-соединения, что приведет к отключению и кратковременной уязвимости вашего трафика. Чтобы этого не произошло, вручную включите режим «В самолете» и отключите Wi-Fi, прежде чем продолжить. Продолжить и включить параметр «Обмен данными в локальной сети»?"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ \"Lokal nätverksdelning\" kräver att VPN-anslutningen startas om, vilket kopplar från dig och exponerar din trafik tillfälligt. För att undvika det kan du aktivera Flygplansläge och inaktivera Wi-Fi innan du fortsätter. Vill du fortsätta och aktivera \"Lokal nätverksdelning\"?"
-          }
-        },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ “การแชร์เครือข่ายท้องถิ่น” จำเป็นต้องรีสตาร์ทการเชื่อมต่อ VPN ซึ่งจะทำให้การเชื่อมต่อของคุณถูกตัดและเปิดเผยการรับส่งข้อมูลของคุณชั่วครู่\nเพื่อป้องกันปัญหานี้ โปรดเปิดใช้งานโหมดเครื่องบินและปิด Wi-Fi ด้วยตนเองก่อนดำเนินการต่อ\nคุณต้องการเปิดใช้งาน “การแชร์เครือข่ายท้องถิ่น” ต่อไปหรือไม่"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "“Yerel ağ paylaşımını %@”, VPN bağlantısının yeniden başlatılmasını gerektirdiği için bağlantınız kesilir ve trafiğiniz kısa süreliğine korumasız kalır. \nBunu önlemek için devam etmeden önce Uçak Modu’nu manuel olarak etkinleştirin ve Wi-Fi’yi kapatın. \n“Yerel ağ paylaşımını” etkinleştirmeye devam etmek ister misiniz?"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "“%@本地网络共享”需要重启 VPN 连接，这将导致您断开连接并短暂暴露您的流量。\n为防止发生这种情况，请在继续之前手动启用飞行模式并关闭 Wi-Fi。\n是否继续启用“本地网络共享”？"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "「%@ 本機網路分享」需要重新啟動 VPN 連線，這會導致您中斷連線，並短暫暴露您的網路流量。\n為避免此情形，請在繼續操作前手動啟用飛行模式並關閉 Wi-Fi。\n您是否要繼續啟用「本機網路分享」？"
-          }
-        }
-      }
-    },
     "%@ (%@) hides patterns in your encrypted VPN traffic." : {
       "localizations" : {
         "da" : {
@@ -12344,43 +12225,43 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Connect (Verbinden)"
+            "value" : "Verbinden"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Connect (Conectar)"
+            "value" : "Conectar"
           }
         },
         "fi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Connect (Yhdistä)"
+            "value" : "Yhdistä"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Connect (Connexion)"
+            "value" : "Connexion"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Connect (Connetti)"
+            "value" : "Connetti"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Connect (接続)"
+            "value" : "接続"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Connect(연결)"
+            "value" : "연결"
           }
         },
         "my" : {
@@ -12398,19 +12279,19 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Connect (Verbinden)"
+            "value" : "Verbinden"
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Connect (Połącz)"
+            "value" : "Połącz"
           }
         },
         "pt" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Connect (Ligar)"
+            "value" : "Ligar"
           }
         },
         "ru" : {
@@ -12422,31 +12303,31 @@
         "sv" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Connect (anslut)"
+            "value" : "Anslut"
           }
         },
         "th" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Connect (เชื่อมต่อ)"
+            "value" : "เชื่อมต่อ"
           }
         },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Connect (bağlan)"
+            "value" : "Bağlan"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Connect（连接）"
+            "value" : "连接"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Connect (連線)"
+            "value" : "連線"
           }
         }
       }
@@ -17773,125 +17654,6 @@
         }
       }
     },
-    "Disabling" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "da" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Deaktiverer"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Deaktivieren von"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "desactivación"
-          }
-        },
-        "fi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Poistetaan käytöstä"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "La désactivation"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Disabilitazione"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "無効化"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "비활성화:"
-          }
-        },
-        "my" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ပိတ်ခြင်း"
-          }
-        },
-        "nb" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Deaktiverer"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Uitschakelen van"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wyłączanie:"
-          }
-        },
-        "pt" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Desativar"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Отключение параметра"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Inaktivering av"
-          }
-        },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "การปิดใช้งาน"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "devre dışı bırakmak"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "停用"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "正在停用"
-          }
-        }
-      }
-    },
     "Disabling recents will also clear history." : {
       "localizations" : {
         "da" : {
@@ -20850,125 +20612,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "啟用最近使用"
-          }
-        }
-      }
-    },
-    "Enabling" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "da" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aktiverer"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aktivieren von"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "activación"
-          }
-        },
-        "fi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Otetaan käyttöön"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "L'activation"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Abilitazione"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "有効化"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "활성화:"
-          }
-        },
-        "my" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ဖွင့်ခြင်း"
-          }
-        },
-        "nb" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aktivering av"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Inschakelen van"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Włączanie:"
-          }
-        },
-        "pt" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ativar"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Включение параметра"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aktivering av"
-          }
-        },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "การเปิดใช้งาน"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "etkinleştirmek"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "启用"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "正在啟用"
           }
         }
       }
@@ -28200,125 +27843,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "正在使用"
-          }
-        }
-      }
-    },
-    "Include all networks" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "da" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Inkluder alle netværk"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Alle Netzwerke einbeziehen"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Incluir todas las redes"
-          }
-        },
-        "fi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sisällytä kaikki verkot"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Inclure tous les réseaux"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Includi tutte le reti"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "すべてのネットワークを含める"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "모든 네트워크 포함"
-          }
-        },
-        "my" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ကွန်ရက်အားလုံး ထည့်သွင်းပါ"
-          }
-        },
-        "nb" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Inkluder alle nettverk"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Alle netwerken opnemen"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Uwzględnij wszystkie sieci"
-          }
-        },
-        "pt" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Incluir todas as redes"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Включить все сети"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Inkludera alla nätverk"
-          }
-        },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "รวมทุกเครือข่าย"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tüm ağları dahil et"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "包括所有网络"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "加入所有網路"
           }
         }
       }
