@@ -7,10 +7,7 @@
 //
 
 import MullvadLogging
-import MullvadREST
 import MullvadSettings
-import MullvadTypes
-import Operations
 import StoreKit
 import UIKit
 
@@ -39,7 +36,6 @@ class AccountViewController: UIViewController, @unchecked Sendable {
 
     private var isFetchingProducts = false
     private var paymentState: PaymentState = .none
-    private let storeKit2TestProduct = LegacyStoreSubscription.thirtyDays.rawValue
 
     var actionHandler: ActionHandler?
 
@@ -200,13 +196,15 @@ class AccountViewController: UIViewController, @unchecked Sendable {
         actionHandler?(.showRestorePurchases)
     }
 
-    // For testing StoreKit 2 refunds only.
-    @objc private func handleStoreKit2Refund() {
-        setPaymentState(.makingStoreKit2Refund, animated: true)
+    // For testing refunds only.
+    @objc private func handleStoreKitRefund() {
+        setPaymentState(.makingRefund, animated: true)
 
         Task {
             guard
-                let latestTransactionResult = await Transaction.latest(for: storeKit2TestProduct),
+                let latestTransactionResult = await Transaction.latest(
+                    for: StoreSubscription.thirtyDays.rawValue
+                ),
                 let windowScene = view.window?.windowScene
             else { return }
 
@@ -262,7 +260,7 @@ class AccountViewController: UIViewController, @unchecked Sendable {
                 title: "Refund last purchase",
                 style: .default,
                 handler: { _ in
-                    self.handleStoreKit2Refund()
+                    self.handleStoreKitRefund()
                 }
             )
         )

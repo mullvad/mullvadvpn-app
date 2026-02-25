@@ -14,7 +14,6 @@ import MullvadTypes
 import NetworkExtension
 import Operations
 import PacketTunnelCore
-import StoreKit
 import UIKit
 import WireGuardKitTypes
 
@@ -23,7 +22,7 @@ private let tunnelStatusPollInterval: Duration = .milliseconds(500)
 
 /// A class that provides a convenient interface for VPN tunnels configuration, manipulation and
 /// monitoring.
-final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
+final class TunnelManager: @unchecked Sendable {
     private enum OperationCategory: String, Sendable {
         case manageTunnel
         case deviceStateUpdate
@@ -601,35 +600,6 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
     /// Remove tunnel observer.
     func removeObserver(_ observer: TunnelObserver) {
         observerList.remove(observer)
-    }
-
-    // MARK: - StorePaymentObserver
-
-    func storePaymentManager(didReceiveEvent event: LegacyStorePaymentEvent) {
-        guard case let .finished(paymentCompletion) = event else {
-            return
-        }
-
-        scheduleDeviceStateUpdate(
-            taskName: "Update account expiry after in-app purchase",
-            modificationBlock: { deviceState in
-                switch deviceState {
-                case .loggedIn(var accountData, let deviceData):
-                    if accountData.number == paymentCompletion.accountNumber {
-                        accountData.expiry = paymentCompletion.serverResponse.newExpiry
-                        deviceState = .loggedIn(accountData, deviceData)
-                    }
-
-                case .loggedOut, .revoked:
-                    break
-                }
-            },
-            completionHandler: nil
-        )
-    }
-
-    func storePaymentManager(didReceiveEvent event: StorePaymentEvent) {
-        // Not used.
     }
 
     // MARK: - TunnelInteractor

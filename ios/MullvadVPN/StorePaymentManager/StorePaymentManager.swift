@@ -7,9 +7,8 @@
 //
 
 import MullvadLogging
-import MullvadREST
 import MullvadTypes
-@preconcurrency import StoreKit
+import StoreKit
 
 /// Manager responsible for handling App Store payments and passing StoreKit receipts to the backend.
 ///
@@ -21,28 +20,17 @@ final actor StorePaymentManager: @unchecked Sendable {
     private var processedTransactionIds: Set<UInt64> = []
     private var updateListenerTask: Task<Void, Never>?
 
-    // Legacy payment manager, kept around until Store Kit 2 is fully migrated and tested.
-    private let legacyStorePaymentManager: LegacyStorePaymentManager
-
     /// Designated initializer
     ///
     /// - Parameters:
-    ///   - backgroundTaskProvider: the background task provider.
     ///   - interactor: interactor for communicating with API etc.
-    init(backgroundTaskProvider: BackgroundTaskProviding, interactor: StorePaymentManagerInteractor) {
+    init(interactor: StorePaymentManagerInteractor) {
         self.interactor = interactor
-
-        legacyStorePaymentManager = LegacyStorePaymentManager(
-            backgroundTaskProvider: backgroundTaskProvider,
-            queue: .default(),
-            transactionLog: .default,
-            interactor: interactor
-        )
     }
 
     /// Start listening for transaction updates.
     func start() async {
-        logger.debug("Starting StoreKit 2 transaction listener.")
+        logger.debug("Starting StoreKit transaction listener.")
 
         #if !DEBUG
             // Always clean up non-production transactions immediately. Reason for this is that if there
@@ -76,7 +64,6 @@ final actor StorePaymentManager: @unchecked Sendable {
 
     func addPaymentObserver(_ observer: StorePaymentObserver) {
         observerList.append(observer)
-        legacyStorePaymentManager.addPaymentObserver(observer)
     }
 
     // MARK: - Products and payments
@@ -138,15 +125,7 @@ final actor StorePaymentManager: @unchecked Sendable {
             await payload.finish()
 
             addToProcessedTransactions(verification)
-
-            let isStoreKit2Transaction = StoreSubscription.allCases
-                .map { $0.rawValue }
-                .contains(payload.productID)
-
-            timeAdded +=
-                isStoreKit2Transaction
-                ? timeFromProduct(id: payload.productID)
-                : legacyStorePaymentManager.timeFromProduct(id: payload.productID)
+            timeAdded += timeFromProduct(id: payload.productID)
         }
 
         await updateAccountData()
@@ -186,16 +165,7 @@ final actor StorePaymentManager: @unchecked Sendable {
     }
 
     private func uploadReceipt(verification: VerificationResult<Transaction>) async throws {
-        let isStoreKit2Transaction = try StoreSubscription.allCases
-            .map { $0.rawValue }
-            .contains(verification.payloadValue.productID)
-
-        let result: Result<Void, Error>
-        if isStoreKit2Transaction {
-            result = await interactor.checkPayment(jwsRepresentation: verification.jwsRepresentation)
-        } else {
-            result = await interactor.legacySendReceipt()
-        }
+        let result = await interactor.checkPayment(jwsRepresentation: verification.jwsRepresentation)
 
         switch result {
         case .success(): return
@@ -357,26 +327,5 @@ final actor StorePaymentManager: @unchecked Sendable {
                 observer.storePaymentManager(didReceiveEvent: storeKitEvent)
             }
         }
-    }
-}
-
-// Proxy functions for legacy payment
-extension StorePaymentManager {
-    nonisolated func requestProducts(
-        with productIdentifiers: Set<LegacyStoreSubscription>,
-        completionHandler: @escaping @Sendable (Result<SKProductsResponse, Error>) -> Void
-    ) -> Cancellable {
-        legacyStorePaymentManager.requestProducts(with: productIdentifiers, completionHandler: completionHandler)
-    }
-
-    nonisolated func addPayment(_ payment: SKPayment, for accountNumber: String) async {
-        await legacyStorePaymentManager.addPayment(payment, for: accountNumber)
-    }
-
-    nonisolated func restorePurchases(
-        for accountNumber: String,
-        completionHandler: @escaping @Sendable (Result<REST.CreateApplePaymentResponse, Error>) -> Void
-    ) async -> Cancellable {
-        await legacyStorePaymentManager.restorePurchases(for: accountNumber, completionHandler: completionHandler)
     }
 }

@@ -6,11 +6,7 @@
 //  Copyright © 2026 Mullvad VPN AB. All rights reserved.
 //
 
-import Foundation
-import MullvadREST
-@preconcurrency import StoreKit
-
-// MARK: StoreKit 2 flow
+import StoreKit
 
 enum StorePaymentEvent {
     /// Successful payment
@@ -65,55 +61,4 @@ enum StorePaymentError: Error {
             NSLocalizedString("Unexpected error occured.", comment: "")
         }
     }
-}
-
-// MARK: Legacy StoreKit flow
-
-/// The payment event received by observers implementing ``StorePaymentObserver``.
-enum LegacyStorePaymentEvent: @unchecked Sendable {
-    /// The payment is successfully completed.
-    case finished(LegacyStorePaymentCompletion)
-
-    /// Failure to complete the payment.
-    case failure(LegacyStorePaymentFailure)
-
-    /// An instance of `SKPayment` held in the associated value.
-    var payment: SKPayment {
-        switch self {
-        case let .finished(completion):
-            return completion.transaction.payment
-        case let .failure(failure):
-            return failure.payment
-        }
-    }
-}
-
-/// Successful payment metadata.
-struct LegacyStorePaymentCompletion {
-    /// Transaction object.
-    let transaction: SKPaymentTransaction
-
-    /// The account number credited.
-    let accountNumber: String
-
-    /// The server response received after uploading the App Store receipt.
-    let serverResponse: REST.CreateApplePaymentResponse
-}
-
-/// Failed payment metadata.
-struct LegacyStorePaymentFailure: @unchecked Sendable {
-    /// Transaction object, if available.
-    /// May not be available due to account validation failure.
-    let transaction: SKPaymentTransaction?
-
-    /// The payment object associated with payment request.
-    let payment: SKPayment
-
-    /// The account number to credit.
-    /// May not be available if the payment manager couldn't establish the association between the payment and account number.
-    /// Typically in such case, the error would be set to ``StorePaymentManagerError/noAccountSet``.
-    let accountNumber: String?
-
-    /// The payment manager error.
-    let error: LegacyStorePaymentManagerError
 }

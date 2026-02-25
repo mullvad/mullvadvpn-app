@@ -13,8 +13,6 @@ import Routing
 struct PaymentAlertPresenter {
     let alertContext: any Presenting
 
-    // MARK: StoreKit 2 flow
-
     func showAlertForOutcome(
         _ outcome: StorePaymentOutcome,
         context: StorePaymentOutcome.Context,
@@ -62,34 +60,6 @@ struct PaymentAlertPresenter {
         let presenter = AlertPresenter(context: alertContext)
         presenter.showAlert(presentation: presentation, animated: true)
     }
-
-    // MARK: Legacy StoreKit flow
-
-    func showAlertForError(
-        _ error: LegacyStorePaymentManagerError,
-        context: StorePaymentOutcome.Context,
-        completion: (@MainActor @Sendable () -> Void)? = nil
-    ) {
-        let presentation = AlertPresentation(
-            id: "payment-error-alert",
-            title: context.errorTitle,
-            message: error.displayErrorDescription,
-            buttons: [
-                AlertAction(
-                    title: NSLocalizedString("Got it!", comment: ""),
-                    style: .default,
-                    handler: {
-                        completion?()
-                    }
-                )
-            ]
-        )
-
-        let presenter = AlertPresenter(context: alertContext)
-        presenter.showAlert(presentation: presentation, animated: true)
-    }
-
-    // MARK: StoreKit 2 refunds
 
     func showAlertForRefund(completion: (@MainActor @Sendable () -> Void)? = nil) {
         let presentation = AlertPresentation(

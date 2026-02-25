@@ -12,7 +12,6 @@ import MullvadREST
 import MullvadSettings
 import MullvadTypes
 import Operations
-@preconcurrency import StoreKit
 
 final class OutOfTimeInteractor: Sendable {
     private let tunnelManager: TunnelManager

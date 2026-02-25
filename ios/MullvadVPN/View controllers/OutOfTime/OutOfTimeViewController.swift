@@ -9,7 +9,6 @@
 import Foundation
 import MullvadREST
 import Operations
-@preconcurrency import StoreKit
 import UIKit
 
 protocol OutOfTimeViewControllerDelegate: AnyObject, Sendable {

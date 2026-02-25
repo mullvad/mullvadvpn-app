@@ -11,7 +11,6 @@ import MullvadREST
 import MullvadSettings
 import MullvadTypes
 import Operations
-import StoreKit
 
 final class AccountInteractor: Sendable {
     let tunnelManager: TunnelManager

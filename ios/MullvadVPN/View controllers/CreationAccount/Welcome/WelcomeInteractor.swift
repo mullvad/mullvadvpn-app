@@ -9,7 +9,6 @@
 import Foundation
 import MullvadLogging
 import MullvadTypes
-import StoreKit
 
 final class WelcomeInteractor: @unchecked Sendable {
     private let tunnelManager: TunnelManager
@@ -20,7 +19,6 @@ final class WelcomeInteractor: @unchecked Sendable {
 
     private let logger = Logger(label: "\(WelcomeInteractor.self)")
     private var tunnelObserver: TunnelObserver?
-    private(set) var products: [SKProduct]?
 
     var didAddMoreCredit: (() -> Void)?
 

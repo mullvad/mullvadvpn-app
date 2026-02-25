@@ -18,7 +18,6 @@ struct APIProxyStub: APIQuerying {
     var getRelaysResult: Result<REST.ServerRelaysCacheResponse, Error> = .failure(APIProxyStubError())
     var sendProblemReportResult: Result<Void, Error> = .failure(APIProxyStubError())
     var submitVoucherResult: Result<REST.SubmitVoucherResponse, Error> = .failure(APIProxyStubError())
-    var legacyStorekitPaymentResult: Result<REST.CreateApplePaymentResponse, Error> = .failure(APIProxyStubError())
     var initStorekitPaymentResult: Result<UUID, Error> = .failure(APIProxyStubError())
     var checkStorekitPaymentResult: Result<Void, Error> = .failure(APIProxyStubError())
     var checkApiAvailabilityResult: Result<Bool, Error> = .failure(APIProxyStubError())
@@ -56,16 +55,6 @@ struct APIProxyStub: APIQuerying {
         completionHandler: @escaping ProxyCompletionHandler<REST.SubmitVoucherResponse>
     ) -> Cancellable {
         completionHandler(submitVoucherResult)
-        return AnyCancellable()
-    }
-
-    func legacyStoreKitPayment(
-        accountNumber: String,
-        request: LegacyStoreKitRequest,
-        retryStrategy: REST.RetryStrategy,
-        completionHandler: @escaping ProxyCompletionHandler<REST.CreateApplePaymentResponse>
-    ) -> any Cancellable {
-        completionHandler(legacyStorekitPaymentResult)
         return AnyCancellable()
     }
 

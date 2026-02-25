@@ -5570,6 +5570,7 @@
       }
     },
     "App Store receipt is not found on disk." : {
+      "extractionState" : "stale",
       "localizations" : {
         "da" : {
           "stringUnit" : {
@@ -10422,6 +10423,7 @@
       }
     },
     "Cannot read the App Store receipt from disk" : {
+      "extractionState" : "stale",
       "localizations" : {
         "da" : {
           "stringUnit" : {
@@ -10540,6 +10542,7 @@
       }
     },
     "Cannot refresh the App Store receipt: %@" : {
+      "extractionState" : "stale",
       "localizations" : {
         "da" : {
           "stringUnit" : {
@@ -11728,6 +11731,7 @@
       }
     },
     "Client is not allowed to issue the request." : {
+      "extractionState" : "stale",
       "localizations" : {
         "da" : {
           "stringUnit" : {
@@ -22276,6 +22280,7 @@
       }
     },
     "Failed to send the receipt to server: %@" : {
+      "extractionState" : "stale",
       "localizations" : {
         "da" : {
           "stringUnit" : {
@@ -29027,6 +29032,7 @@
       }
     },
     "Invalid account number: %@" : {
+      "extractionState" : "stale",
       "localizations" : {
         "da" : {
           "stringUnit" : {
@@ -29263,6 +29269,7 @@
       }
     },
     "Invalid purchase identifier." : {
+      "extractionState" : "stale",
       "localizations" : {
         "da" : {
           "stringUnit" : {
@@ -42033,6 +42040,7 @@
       }
     },
     "Please retry by using the \"Restore purchases\" button." : {
+      "extractionState" : "stale",
       "localizations" : {
         "da" : {
           "stringUnit" : {
@@ -53063,6 +53071,7 @@
       }
     },
     "The payment request was cancelled." : {
+      "extractionState" : "stale",
       "localizations" : {
         "da" : {
           "stringUnit" : {
@@ -53657,6 +53666,7 @@
       }
     },
     "This device is not allowed to make the payment." : {
+      "extractionState" : "stale",
       "localizations" : {
         "da" : {
           "stringUnit" : {
@@ -58371,6 +58381,7 @@
       }
     },
     "Unknown error." : {
+      "extractionState" : "stale",
       "localizations" : {
         "da" : {
           "stringUnit" : {
