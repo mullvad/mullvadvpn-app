@@ -546,7 +546,7 @@ Voulez-vous continuer et activer le « partage de réseau local » ?</target>
       </trans-unit>
       <trans-unit id="Connect" xml:space="preserve" approved="yes">
         <source>Connect</source>
-        <target state="final">Connect (Connexion)</target>
+        <target state="final">Connexion</target>
         <note/>
       </trans-unit>
       <trans-unit id="Connected server" xml:space="preserve" approved="yes">

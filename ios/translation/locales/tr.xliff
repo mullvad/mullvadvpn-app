@@ -546,7 +546,7 @@ Bunu önlemek için devam etmeden önce Uçak Modu’nu manuel olarak etkinleşt
       </trans-unit>
       <trans-unit id="Connect" xml:space="preserve" approved="yes">
         <source>Connect</source>
-        <target state="final">Connect (bağlan)</target>
+        <target state="final">Bağlan</target>
         <note/>
       </trans-unit>
       <trans-unit id="Connected server" xml:space="preserve" approved="yes">

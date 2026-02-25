@@ -546,7 +546,7 @@ Vuoi continuare ad abilitare "Condivisione rete locale"?</target>
       </trans-unit>
       <trans-unit id="Connect" xml:space="preserve" approved="yes">
         <source>Connect</source>
-        <target state="final">Connect (Connetti)</target>
+        <target state="final">Connetti</target>
         <note/>
       </trans-unit>
       <trans-unit id="Connected server" xml:space="preserve" approved="yes">

@@ -546,7 +546,7 @@ Haluatko jatkaa paikallisen verkon jakamisen käyttöönottoa?</target>
       </trans-unit>
       <trans-unit id="Connect" xml:space="preserve" approved="yes">
         <source>Connect</source>
-        <target state="final">Connect (Yhdistä)</target>
+        <target state="final">Yhdistä</target>
         <note/>
       </trans-unit>
       <trans-unit id="Connected server" xml:space="preserve" approved="yes">

@@ -546,7 +546,7 @@ Would you like to continue to enable “Local network sharing”?</source>
       </trans-unit>
       <trans-unit id="Connect" xml:space="preserve" approved="yes">
         <source>Connect</source>
-        <target state="final">Connect（连接）</target>
+        <target state="final">连接</target>
         <note/>
       </trans-unit>
       <trans-unit id="Connected server" xml:space="preserve" approved="yes">
