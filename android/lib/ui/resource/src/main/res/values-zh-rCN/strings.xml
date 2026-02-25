@@ -415,6 +415,7 @@
     <string name="settings_patch_success">导入成功，覆盖设置已激活</string>
     <string name="settings_vpn">VPN 设置</string>
     <string name="share">共享…</string>
+    <string name="show_account_number">显示帐号</string>
     <string name="show_system_apps">显示系统应用</string>
     <string name="split_tunneling_description">允许您选择不经过 VPN 隧道而直接访问互联网的应用。</string>
     <string name="split_tunneling_description_warning">注意：如果启用了“屏蔽未使用 VPN 的所有连接”，分割应用将无法连接互联网。请牢记，分割隧道存在隐私风险。</string>

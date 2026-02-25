@@ -415,6 +415,7 @@
     <string name="settings_patch_success">ထည့်သွင်းမှု အောင်မြင်ပါသည်၊ ကျော်လွန် ပယ်ဖျက်မှု သက်ဝင်ပါသည်</string>
     <string name="settings_vpn">VPN ဆက်တင်များ</string>
     <string name="share">ဝေမျှရန်...</string>
+    <string name="show_account_number">အကောင့်နံပါတ်ကို ပြရန်</string>
     <string name="show_system_apps">စနစ်အက်ပ်များ ပြရန်</string>
     <string name="split_tunneling_description">VPN Tunnel ကို မဝင်ရောက်ဘဲ အင်တာနက်ကို တိုက်ရိုက် ဝင်ရောက်သုံးစွဲသင့်သည့် အက်ပ်များကို ရွေးချယ်ပေးပါ။</string>
     <string name="split_tunneling_description_warning">သတိပြုရန်- \"VPN မသုံးဘဲချိတ်ဆက်မှုများကို ပိတ်ဆို့ရန်\" ကို ဖွင့်ထားပါက Split အက်ပ်များသည် အင်တာနက်သုံး၍ရမည်မဟုတ်ပါ။ တစ်စိတ်တစ်ပိုင်း လိုင်းကျော်သုံးခြင်းသည် ကိုယ်ရေးလုံခြုံမှုအန္တရာယ်ဖြစ်စေကြောင်း အမြဲသတိရပါ။</string>

@@ -415,6 +415,7 @@
     <string name="settings_patch_success">Importazione riuscita, sovrascritture attiva</string>
     <string name="settings_vpn">Impostazioni VPN</string>
     <string name="share">Condividi…</string>
+    <string name="show_account_number">Mostra numero di account</string>
     <string name="show_system_apps">Mostra app di sistema</string>
     <string name="split_tunneling_description">Ti consente di selezionare le app che devono accedere direttamente a Internet senza passare attraverso il tunnel VPN.</string>
     <string name="split_tunneling_description_warning">Attenzione: se è abilitata l\'opzione \"Blocca connessioni senza VPN\", le app divise non avranno Internet. Tieni sempre a mente che lo split tunneling rappresenta un rischio per la privacy.</string>

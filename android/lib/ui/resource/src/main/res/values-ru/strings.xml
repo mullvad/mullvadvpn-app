@@ -415,6 +415,7 @@
     <string name="settings_patch_success">Импортировано, переопределения активны</string>
     <string name="settings_vpn">Настройки VPN</string>
     <string name="share">Поделиться…</string>
+    <string name="show_account_number">Показать номер учетной записи</string>
     <string name="show_system_apps">Показывать системные приложения</string>
     <string name="split_tunneling_description">Позволяет выбрать приложения, которые должны получать доступ к Интернету напрямую, не проходя через VPN-туннель.</string>
     <string name="split_tunneling_description_warning">Внимание! Если включена функция «Блокировать соединения без VPN», у приложений из списка раздельного туннелирования не будет доступа в Интернет. Не забывайте, что раздельное туннелирование представляет собой риск для конфиденциальности.</string>

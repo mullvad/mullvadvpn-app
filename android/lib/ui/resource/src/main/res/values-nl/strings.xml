@@ -415,6 +415,7 @@
     <string name="settings_patch_success">Importeren geslaagd, overschrijvingen actief</string>
     <string name="settings_vpn">VPN-instellingen</string>
     <string name="share">Delen…</string>
+    <string name="show_account_number">Accountnummer weergeven</string>
     <string name="show_system_apps">Systeemapps weergeven</string>
     <string name="split_tunneling_description">Hier kunt u apps selecteren die rechtstreeks toegang tot het internet moeten hebben zonder via de VPN-tunnel te gaan.</string>
     <string name="split_tunneling_description_warning">Let op: Als \"Verbindingen zonder VPN blokkeren\" is ingeschakeld, hebben gesplitste apps geen internet. Houd er altijd rekening mee dat split tunneling een privacyrisico vormt.</string>

@@ -358,7 +358,9 @@ private fun ColumnScope.LoginInput(
                     imageVector =
                         if (showPassword) Icons.Outlined.VisibilityOff
                         else Icons.Outlined.Visibility,
-                    contentDescription = null,
+                    contentDescription =
+                        if (showPassword) stringResource(id = R.string.hide_account_number)
+                        else stringResource(id = R.string.show_account_number),
                 )
             }
         },
