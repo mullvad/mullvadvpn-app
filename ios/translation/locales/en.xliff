@@ -2,7 +2,7 @@
 <xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.2" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 http://docs.oasis-open.org/xliff/v1.2/os/xliff-core-1.2-strict.xsd">
   <file original="Assets/Localizable.xcstrings" source-language="en" target-language="en" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
     </header>
     <body>
       <trans-unit id="" translate="no" xml:space="preserve">
@@ -48,15 +48,6 @@
       <trans-unit id="%@ was added to your account." xml:space="preserve">
         <source>%@ was added to your account.</source>
         <target state="new">%@ was added to your account.</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="%@ “Local network sharing” requires restarting the VPN connection, which will disconnect you and briefly expose your traffic.&#10;To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.&#10;Would you like to continue to enable “Local network sharing”?" xml:space="preserve">
-        <source>%@ “Local network sharing” requires restarting the VPN connection, which will disconnect you and briefly expose your traffic.
-To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.
-Would you like to continue to enable “Local network sharing”?</source>
-        <target state="new">%@ “Local network sharing” requires restarting the VPN connection, which will disconnect you and briefly expose your traffic.
-To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.
-Would you like to continue to enable “Local network sharing”?</target>
         <note/>
       </trans-unit>
       <trans-unit id="%@, %@" xml:space="preserve">
@@ -344,6 +335,16 @@ Would you like to continue to enable “Local network sharing”?</target>
         <target state="new">Barcelona</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Be cautious when using automatic updates as this will trigger the network connectivity loss." xml:space="preserve">
+        <source>Be cautious when using automatic updates as this will trigger the network connectivity loss.</source>
+        <target state="new">Be cautious when using automatic updates as this will trigger the network connectivity loss.</target>
+        <note from="auto-generated">Text displayed in a settings page explaining the potential consequences of using automatic updates when the IAN is enabled.</note>
+      </trans-unit>
+      <trans-unit id="Because of these iOS limitations, you will lose network connectivity if Mullvad VPN is updated when this is enabled and you are connected to the VPN. Network connectivity can only be restored by rebooting the device." xml:space="preserve">
+        <source>Because of these iOS limitations, you will lose network connectivity if Mullvad VPN is updated when this is enabled and you are connected to the VPN. Network connectivity can only be restored by rebooting the device.</source>
+        <target state="new">Because of these iOS limitations, you will lose network connectivity if Mullvad VPN is updated when this is enabled and you are connected to the VPN. Network connectivity can only be restored by rebooting the device.</target>
+        <note from="auto-generated">Text describing the potential network connectivity loss when the IAN feature is enabled and the device is connected to the VPN.</note>
+      </trans-unit>
       <trans-unit id="Belgium" xml:space="preserve">
         <source>Belgium</source>
         <target state="new">Belgium</target>
@@ -479,6 +480,16 @@ Would you like to continue to enable “Local network sharing”?</target>
         <target state="new">Cannot restore purchases</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Changing language will disconnect you from the VPN and restart the app" xml:space="preserve">
+        <source>Changing language will disconnect you from the VPN and restart the app</source>
+        <target state="new">Changing language will disconnect you from the VPN and restart the app</target>
+        <note from="auto-generated">Footer text in the settings screen that explains the impact of changing the app's language.</note>
+      </trans-unit>
+      <trans-unit id="Checked" xml:space="preserve">
+        <source>Checked</source>
+        <target state="new">Checked</target>
+        <note from="auto-generated">Text describing a checked checkbox.</note>
+      </trans-unit>
       <trans-unit id="Checking account number" xml:space="preserve">
         <source>Checking account number</source>
         <target state="new">Checking account number</target>
@@ -524,10 +535,25 @@ Would you like to continue to enable “Local network sharing”?</target>
         <target state="new">Client is not allowed to issue the request.</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Collapse" xml:space="preserve">
+        <source>Collapse</source>
+        <target state="new">Collapse</target>
+        <note from="auto-generated">Name of the accessibility action that collapses a location.</note>
+      </trans-unit>
       <trans-unit id="Collapse %@" xml:space="preserve">
         <source>Collapse %@</source>
         <target state="new">Collapse %@</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Collapse connection details" xml:space="preserve">
+        <source>Collapse connection details</source>
+        <target state="new">Collapse connection details</target>
+        <note from="auto-generated">Accessibility label for the button that collapses the connection details.</note>
+      </trans-unit>
+      <trans-unit id="Collapsed" xml:space="preserve">
+        <source>Collapsed</source>
+        <target state="new">Collapsed</target>
+        <note from="auto-generated">A description of a list item that is collapsed.</note>
       </trans-unit>
       <trans-unit id="Collapses this location." xml:space="preserve">
         <source>Collapses this location.</source>
@@ -604,6 +630,11 @@ Would you like to continue to enable “Local network sharing”?</target>
         <target state="new">Create new account</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Create new custom list" xml:space="preserve">
+        <source>Create new custom list</source>
+        <target state="new">Create new custom list</target>
+        <note from="auto-generated">An accessibility label for the button that allows the user to create a new custom list.</note>
+      </trans-unit>
       <trans-unit id="Create new list" xml:space="preserve">
         <source>Create new list</source>
         <target state="new">Create new list</target>
@@ -629,6 +660,11 @@ Would you like to continue to enable “Local network sharing”?</target>
         <target state="new">Current device</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Currently there is no way to work around this behaviour, but you can avoid losing network connectivity by disabling this feature or disconnecting before updating Mullvad VPN." xml:space="preserve">
+        <source>Currently there is no way to work around this behaviour, but you can avoid losing network connectivity by disabling this feature or disconnecting before updating Mullvad VPN.</source>
+        <target state="new">Currently there is no way to work around this behaviour, but you can avoid losing network connectivity by disabling this feature or disconnecting before updating Mullvad VPN.</target>
+        <note from="auto-generated">Text displayed on the last page of the IAN settings info view, explaining that there is no way to work around the current behaviour, but that they can avoid losing network connectivity by disabling the feature or disconnecting before</note>
+      </trans-unit>
       <trans-unit id="Custom" xml:space="preserve">
         <source>Custom</source>
         <target state="new">Custom</target>
@@ -643,6 +679,11 @@ Would you like to continue to enable “Local network sharing”?</target>
         <source>Custom lists</source>
         <target state="new">Custom lists</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Cycle through available servers" xml:space="preserve">
+        <source>Cycle through available servers</source>
+        <target state="new">Cycle through available servers</target>
+        <note from="auto-generated">Accessibility hint for the "Reconnect" action button in the "Select location" split button.</note>
       </trans-unit>
       <trans-unit id="Cyprus" xml:space="preserve">
         <source>Cyprus</source>
@@ -784,11 +825,6 @@ Would you like to continue to enable “Local network sharing”?</target>
         <target state="new">Disable recents</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Disabling" xml:space="preserve">
-        <source>Disabling</source>
-        <target state="new">Disabling</target>
-        <note/>
-      </trans-unit>
       <trans-unit id="Disabling recents will also clear history." xml:space="preserve">
         <source>Disabling recents will also clear history.</source>
         <target state="new">Disabling recents will also clear history.</target>
@@ -833,6 +869,11 @@ Would you like to continue to enable “Local network sharing”?</target>
         <source>Dublin</source>
         <target state="new">Dublin</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Due to iOS limitations, this not enabled by default. Our other apps tunnel all traffic via the VPN by default." xml:space="preserve">
+        <source>Due to iOS limitations, this not enabled by default. Our other apps tunnel all traffic via the VPN by default.</source>
+        <target state="new">Due to iOS limitations, this not enabled by default. Our other apps tunnel all traffic via the VPN by default.</target>
+        <note from="auto-generated">Explanation of why the "Use Include All Networks" feature is not enabled by default in the IAN settings view.</note>
       </trans-unit>
       <trans-unit id="Dusseldorf" xml:space="preserve">
         <source>Dusseldorf</source>
@@ -889,14 +930,14 @@ Would you like to continue to enable “Local network sharing”?</target>
         <target state="new">Enable multihop</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Enable notifications" xml:space="preserve">
+        <source>Enable notifications</source>
+        <target state="new">Enable notifications</target>
+        <note from="auto-generated">Text for an action button that enables notifications.</note>
+      </trans-unit>
       <trans-unit id="Enable recents" xml:space="preserve">
         <source>Enable recents</source>
         <target state="new">Enable recents</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Enabling" xml:space="preserve">
-        <source>Enabling</source>
-        <target state="new">Enabling</target>
         <note/>
       </trans-unit>
       <trans-unit id="Enter IP" xml:space="preserve">
@@ -929,10 +970,25 @@ Would you like to continue to enable “Local network sharing”?</target>
         <target state="new">Exit</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Expand" xml:space="preserve">
+        <source>Expand</source>
+        <target state="new">Expand</target>
+        <note from="auto-generated">Name of the accessibility action that expands a location.</note>
+      </trans-unit>
       <trans-unit id="Expand %@" xml:space="preserve">
         <source>Expand %@</source>
         <target state="new">Expand %@</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Expand connection details" xml:space="preserve">
+        <source>Expand connection details</source>
+        <target state="new">Expand connection details</target>
+        <note from="auto-generated">Accessibility label for the button that expands or collapses the connection details section.</note>
+      </trans-unit>
+      <trans-unit id="Expanded" xml:space="preserve">
+        <source>Expanded</source>
+        <target state="new">Expanded</target>
+        <note from="auto-generated">A label describing the expanded state of a list item.</note>
       </trans-unit>
       <trans-unit id="Expands this location." xml:space="preserve">
         <source>Expands this location.</source>
@@ -1013,6 +1069,21 @@ Would you like to continue to enable “Local network sharing”?</target>
         <source>Finland</source>
         <target state="new">Finland</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Force all apps" xml:space="preserve">
+        <source>Force all apps</source>
+        <target state="new">Force all apps</target>
+        <note from="auto-generated">Title of the settings screen for forcing all apps to use the IAN tunnel.</note>
+      </trans-unit>
+      <trans-unit id="Forces all app traffic on the device into the VPN tunnel, ensuring that other apps can’t accidentally or maliciously leak data. Apple system apps and services necessary for device functionality are not affected." xml:space="preserve">
+        <source>Forces all app traffic on the device into the VPN tunnel, ensuring that other apps can’t accidentally or maliciously leak data. Apple system apps and services necessary for device functionality are not affected.</source>
+        <target state="new">Forces all app traffic on the device into the VPN tunnel, ensuring that other apps can’t accidentally or maliciously leak data. Apple system apps and services necessary for device functionality are not affected.</target>
+        <note from="auto-generated">Description of the IAN feature, including a note that Apple system apps and services are not affected.</note>
+      </trans-unit>
+      <trans-unit id="Forces all apps on the device to use the VPN tunnel, preventing data leaks" xml:space="preserve">
+        <source>Forces all apps on the device to use the VPN tunnel, preventing data leaks</source>
+        <target state="new">Forces all apps on the device to use the VPN tunnel, preventing data leaks</target>
+        <note from="auto-generated">Footer text in the VPN settings section of the settings screen.</note>
       </trans-unit>
       <trans-unit id="Fortaleza" xml:space="preserve">
         <source>Fortaleza</source>
@@ -1104,6 +1175,11 @@ Would you like to continue to enable “Local network sharing”?</target>
         <target state="new">Hungary</target>
         <note/>
       </trans-unit>
+      <trans-unit id="I understand the benefits and risks of using this feature" xml:space="preserve">
+        <source>I understand the benefits and risks of using this feature</source>
+        <target state="new">I understand the benefits and risks of using this feature</target>
+        <note from="auto-generated">Label for a toggle switch in the "Include all networks" settings view, indicating that the user has understood the benefits and risks of using this feature.</note>
+      </trans-unit>
       <trans-unit id="IMPORT SUCCESSFUL" xml:space="preserve">
         <source>IMPORT SUCCESSFUL</source>
         <target state="new">IMPORT SUCCESSFUL</target>
@@ -1118,6 +1194,11 @@ Would you like to continue to enable “Local network sharing”?</target>
         <source>If needed we will contact you at %@</source>
         <target state="new">If needed we will contact you at %@</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="If this is not enabled, malicious apps on your device can leak traffic outside the tunnel." xml:space="preserve">
+        <source>If this is not enabled, malicious apps on your device can leak traffic outside the tunnel.</source>
+        <target state="new">If this is not enabled, malicious apps on your device can leak traffic outside the tunnel.</target>
+        <note from="auto-generated">Text describing the potential risk of data leakage when the IAN feature is disabled.</note>
       </trans-unit>
       <trans-unit id="If you are having issues connecting to VPN servers, please contact support." xml:space="preserve">
         <source>If you are having issues connecting to VPN servers, please contact support.</source>
@@ -1204,11 +1285,6 @@ Would you like to continue to enable “Local network sharing”?</target>
         <target state="new">In use</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Include all networks" xml:space="preserve">
-        <source>Include all networks</source>
-        <target state="new">Include all networks</target>
-        <note/>
-      </trans-unit>
       <trans-unit id="Include my account token for faster help with payment or account related issues" xml:space="preserve">
         <source>Include my account token for faster help with payment or account related issues</source>
         <target state="new">Include my account token for faster help with payment or account related issues</target>
@@ -1218,6 +1294,11 @@ Would you like to continue to enable “Local network sharing”?</target>
         <source>Indonesia</source>
         <target state="new">Indonesia</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Install the latest app version to stay up to date." xml:space="preserve">
+        <source>Install the latest app version to stay up to date.</source>
+        <target state="new">Install the latest app version to stay up to date.</target>
+        <note from="auto-generated">Body text of an in-app notification that reminds the user to update their app to the latest version.</note>
       </trans-unit>
       <trans-unit id="Internal error occurred. Settings will be reset to defaults and device logged out." xml:space="preserve">
         <source>Internal error occurred. Settings will be reset to defaults and device logged out.</source>
@@ -1378,6 +1459,11 @@ Would you like to continue to enable “Local network sharing”?</target>
         <source>Locations</source>
         <target state="new">Locations</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Locations can be selected directly or expanded. When a city or country is selected, all compatible servers in that location will be candidates for any given tunnel connection." xml:space="preserve">
+        <source>Locations can be selected directly or expanded. When a city or country is selected, all compatible servers in that location will be candidates for any given tunnel connection.</source>
+        <target state="new">Locations can be selected directly or expanded. When a city or country is selected, all compatible servers in that location will be candidates for any given tunnel connection.</target>
+        <note from="auto-generated">A description below the list of available locations, explaining how users can interact with them.</note>
       </trans-unit>
       <trans-unit id="Log out" xml:space="preserve">
         <source>Log out</source>
@@ -1639,6 +1725,21 @@ Would you like to continue to enable “Local network sharing”?</target>
         <target state="new">Not all our servers are %1$@-enabled. Therefore, we use multihop automatically to enable %2$@ with any server.</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Notifications" xml:space="preserve">
+        <source>Notifications</source>
+        <target state="new">Notifications</target>
+        <note from="auto-generated">Title of the screen where a user can configure their notification settings.</note>
+      </trans-unit>
+      <trans-unit id="Notifications for Mullvad VPN are disabled on this device. Please change your system settings for Mullvad VPN if you wish to enable them again." xml:space="preserve">
+        <source>Notifications for Mullvad VPN are disabled on this device. Please change your system settings for Mullvad VPN if you wish to enable them again.</source>
+        <target state="new">Notifications for Mullvad VPN are disabled on this device. Please change your system settings for Mullvad VPN if you wish to enable them again.</target>
+        <note from="auto-generated">A message displayed to users who have disabled notifications for Mullvad VPN on their device. It instructs them to open their system settings to re-enable notifications.</note>
+      </trans-unit>
+      <trans-unit id="Notifications for Mullvad VPN are disabled on this device. Please change your system settings for Mullvad VPN if you wish to enable them again. These settings can be changed at any time." xml:space="preserve">
+        <source>Notifications for Mullvad VPN are disabled on this device. Please change your system settings for Mullvad VPN if you wish to enable them again. These settings can be changed at any time.</source>
+        <target state="new">Notifications for Mullvad VPN are disabled on this device. Please change your system settings for Mullvad VPN if you wish to enable them again. These settings can be changed at any time.</target>
+        <note from="auto-generated">Text displayed in a notification prompt view model when notifications are disabled on the device.</note>
+      </trans-unit>
       <trans-unit id="OUT OF TIME" xml:space="preserve">
         <source>OUT OF TIME</source>
         <target state="new">OUT OF TIME</target>
@@ -1688,6 +1789,11 @@ Would you like to continue to enable “Local network sharing”?</target>
         <source>Open %@ settings</source>
         <target state="new">Open %@ settings</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Open system settings" xml:space="preserve">
+        <source>Open system settings</source>
+        <target state="new">Open system settings</target>
+        <note from="auto-generated">Text for a button that opens the user's system settings.</note>
       </trans-unit>
       <trans-unit id="Optional" xml:space="preserve">
         <source>Optional</source>
@@ -1794,6 +1900,11 @@ Would you like to continue to enable “Local network sharing”?</target>
         <target state="new">Please retry by using the "Restore purchases" button.</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Please swipe through and read all information in order to activate this feature" xml:space="preserve">
+        <source>Please swipe through and read all information in order to activate this feature</source>
+        <target state="new">Please swipe through and read all information in order to activate this feature</target>
+        <note from="auto-generated">A message encouraging users to read through all the information before activating a feature.</note>
+      </trans-unit>
       <trans-unit id="Poland" xml:space="preserve">
         <source>Poland</source>
         <target state="new">Poland</target>
@@ -1873,6 +1984,11 @@ Would you like to continue to enable “Local network sharing”?</target>
         <source>Recents</source>
         <target state="new">Recents</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Reconnect" xml:space="preserve">
+        <source>Reconnect</source>
+        <target state="new">Reconnect</target>
+        <note from="auto-generated">Text for the secondary action on the button panel in the connection view.</note>
       </trans-unit>
       <trans-unit id="Reconnecting to %@" xml:space="preserve">
         <source>Reconnecting to %@</source>
@@ -1991,6 +2107,11 @@ Do you want to remove the saved account number?</target>
         <target state="new">Secaucus, NJ</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Select %@" xml:space="preserve">
+        <source>Select %@</source>
+        <target state="new">Select %@</target>
+        <note from="auto-generated">A button that can be used to trigger an action, such as selecting an option or expanding/collapsing a list item. The label of the button is generated from the `accessibilityName` property.</note>
+      </trans-unit>
       <trans-unit id="Select location" xml:space="preserve">
         <source>Select location</source>
         <target state="new">Select location</target>
@@ -2041,6 +2162,21 @@ Do you want to remove the saved account number?</target>
         <target state="new">Server details</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Server hostname: %@" xml:space="preserve">
+        <source>Server hostname: %@</source>
+        <target state="new">Server hostname: %@</target>
+        <note from="auto-generated">A string that describes the hostname of the VPN server.</note>
+      </trans-unit>
+      <trans-unit id="Server hostnames: %@ via %@" xml:space="preserve">
+        <source>Server hostnames: %1$@ via %2$@</source>
+        <target state="new">Server hostnames: %1$@ via %2$@</target>
+        <note from="auto-generated">A string that describes the server hostnames visible to a user, including both the exit and entry server. The first argument is the hostname of the exit server. The second argument is the hostname of the entry server.</note>
+      </trans-unit>
+      <trans-unit id="Set up notifications" xml:space="preserve">
+        <source>Set up notifications</source>
+        <target state="new">Set up notifications</target>
+        <note from="auto-generated">Title of a section in the notification prompt view that instructs the user to set up notifications.</note>
+      </trans-unit>
       <trans-unit id="Setting: %@" xml:space="preserve">
         <source>Setting: %@</source>
         <target state="new">Setting: %@</target>
@@ -2071,6 +2207,11 @@ Do you want to remove the saved account number?</target>
         <target state="new">Show account number</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Show additional details about your connection" xml:space="preserve">
+        <source>Show additional details about your connection</source>
+        <target state="new">Show additional details about your connection</target>
+        <note from="auto-generated">Accessibility hint for the button that expands the chip container view.</note>
+      </trans-unit>
       <trans-unit id="Showing %lld of %lld" xml:space="preserve">
         <source>Showing %1$lld of %2$lld</source>
         <target state="new">Showing %1$lld of %2$lld</target>
@@ -2080,6 +2221,11 @@ Do you want to remove the saved account number?</target>
         <source>Singapore</source>
         <target state="new">Singapore</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Skip" xml:space="preserve">
+        <source>Skip</source>
+        <target state="new">Skip</target>
+        <note from="auto-generated">Text for a button that skips the notification prompt.</note>
       </trans-unit>
       <trans-unit id="Slovakia" xml:space="preserve">
         <source>Slovakia</source>
@@ -2126,6 +2272,11 @@ Do you want to remove the saved account number?</target>
         <target state="new">Stavanger</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Stay informed about your VPN connection and any actions needed to ensure it works correctly." xml:space="preserve">
+        <source>Stay informed about your VPN connection and any actions needed to ensure it works correctly.</source>
+        <target state="new">Stay informed about your VPN connection and any actions needed to ensure it works correctly.</target>
+        <note from="auto-generated">Message in the notification prompt view model explaining the purpose of the notifications.</note>
+      </trans-unit>
       <trans-unit id="Stockholm" xml:space="preserve">
         <source>Stockholm</source>
         <target state="new">Stockholm</target>
@@ -2165,6 +2316,51 @@ Do you want to remove the saved account number?</target>
         <source>TUNNEL ERROR</source>
         <target state="new">TUNNEL ERROR</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="TUNNEL_STATE_BLOCKED_CONNECTION" xml:space="preserve">
+        <source>Blocked connection</source>
+        <target state="new">Blocked connection</target>
+        <note>VoiceOver announcement when connection is blocked</note>
+      </trans-unit>
+      <trans-unit id="TUNNEL_STATE_BLOCKED_WITH_REASON" xml:space="preserve">
+        <source>Blocked connection: %@</source>
+        <target state="new">Blocked connection: %@</target>
+        <note>VoiceOver announcement for blocked/error state with reason</note>
+      </trans-unit>
+      <trans-unit id="TUNNEL_STATE_CONNECTED_TO" xml:space="preserve">
+        <source>Tunnel connected to %1$@, %2$@</source>
+        <target state="new">Tunnel connected to %1$@, %2$@</target>
+        <note>VoiceOver announcement when connected to a relay</note>
+      </trans-unit>
+      <trans-unit id="TUNNEL_STATE_CONNECTING" xml:space="preserve">
+        <source>Tunnel connecting</source>
+        <target state="new">Tunnel connecting</target>
+        <note>VoiceOver announcement when connecting without relay info</note>
+      </trans-unit>
+      <trans-unit id="TUNNEL_STATE_CONNECTING_TO" xml:space="preserve">
+        <source>Tunnel connecting to %1$@, %2$@</source>
+        <target state="new">Tunnel connecting to %1$@, %2$@</target>
+        <note>VoiceOver announcement when connecting to a relay</note>
+      </trans-unit>
+      <trans-unit id="TUNNEL_STATE_DISCONNECTED" xml:space="preserve">
+        <source>Tunnel disconnected</source>
+        <target state="new">Tunnel disconnected</target>
+        <note>VoiceOver announcement when disconnected</note>
+      </trans-unit>
+      <trans-unit id="TUNNEL_STATE_DISCONNECTING" xml:space="preserve">
+        <source>Tunnel disconnecting</source>
+        <target state="new">Tunnel disconnecting</target>
+        <note>VoiceOver announcement when disconnecting</note>
+      </trans-unit>
+      <trans-unit id="TUNNEL_STATE_NO_NETWORK" xml:space="preserve">
+        <source>No network</source>
+        <target state="new">No network</target>
+        <note>VoiceOver announcement when no network is available</note>
+      </trans-unit>
+      <trans-unit id="TUNNEL_STATE_RECONNECTING_TO" xml:space="preserve">
+        <source>Tunnel reconnecting to %1$@, %2$@</source>
+        <target state="new">Tunnel reconnecting to %1$@, %2$@</target>
+        <note>VoiceOver announcement when reconnecting to a relay</note>
       </trans-unit>
       <trans-unit id="Tallinn" xml:space="preserve">
         <source>Tallinn</source>
@@ -2270,6 +2466,11 @@ Do you want to remove the saved account number?</target>
         <source>The version of settings stored on device is unrecognized.Settings will be reset to defaults and the device will be logged out.</source>
         <target state="new">The version of settings stored on device is unrecognized.Settings will be reset to defaults and the device will be logged out.</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="These settings can be changed at any time" xml:space="preserve">
+        <source>These settings can be changed at any time</source>
+        <target state="new">These settings can be changed at any time</target>
+        <note from="auto-generated">Text displayed in a notification when a user enables notifications for the first time.</note>
       </trans-unit>
       <trans-unit id="This can be useful if the API is censored but Mullvad’s bridge servers are not." xml:space="preserve">
         <source>This can be useful if the API is censored but Mullvad’s bridge servers are not.</source>
@@ -2461,6 +2662,11 @@ Do you want to remove the saved account number?</target>
         <target state="new">Unable to start tunnel connection. Please send a problem report.</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Unchecked" xml:space="preserve">
+        <source>Unchecked</source>
+        <target state="new">Unchecked</target>
+        <note from="auto-generated">Accessibility label for a location cell when it is not selected.</note>
+      </trans-unit>
       <trans-unit id="Unexpected error occured." xml:space="preserve">
         <source>Unexpected error occured.</source>
         <target state="new">Unexpected error occured.</target>
@@ -2480,6 +2686,11 @@ Do you want to remove the saved account number?</target>
         <source>Unknown error.</source>
         <target state="new">Unknown error.</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Update available" xml:space="preserve">
+        <source>Update available</source>
+        <target state="new">Update available</target>
+        <note from="auto-generated">Title of an in-app notification that alerts the user that a new app version is available.</note>
       </trans-unit>
       <trans-unit id="Use custom DNS server" xml:space="preserve">
         <source>Use custom DNS server</source>
@@ -2575,6 +2786,11 @@ Do you want to remove the saved account number?</target>
         <source>We will look into this.</source>
         <target state="new">We will look into this.</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="We will never send you any ads or tips." xml:space="preserve">
+        <source>We will never send you any ads or tips.</source>
+        <target state="new">We will never send you any ads or tips.</target>
+        <note from="auto-generated">Additional information about the privacy policy of Mullvad VPN.</note>
       </trans-unit>
       <trans-unit id="What’s new" xml:space="preserve">
         <source>What’s new</source>
@@ -2773,49 +2989,49 @@ We strongly believe in retaining as little data as possible because we want you 
   </file>
   <file original="Assets/MullvadSettings-InfoPlist.xcstrings" source-language="en" target-language="en" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
     </header>
     <body>
     </body>
   </file>
   <file original="Assets/MullvadTypes-InfoPlist.xcstrings" source-language="en" target-language="en" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
     </header>
     <body>
     </body>
   </file>
   <file original="MullvadLogging-InfoPlist.xcstrings" source-language="en" target-language="en" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
     </header>
     <body>
     </body>
   </file>
   <file original="MullvadMockData/MullvadMockData-InfoPlist.xcstrings" source-language="en" target-language="en" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
     </header>
     <body>
     </body>
   </file>
   <file original="MullvadREST/InfoPlist.xcstrings" source-language="en" target-language="en" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
     </header>
     <body>
     </body>
   </file>
   <file original="MullvadRustRuntime-InfoPlist.xcstrings" source-language="en" target-language="en" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
     </header>
     <body>
     </body>
   </file>
   <file original="MullvadVPN/Supporting Files/InfoPlist.xcstrings" source-language="en" target-language="en" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
     </header>
     <body>
       <trans-unit id="NSLocalNetworkUsageDescription" xml:space="preserve">
@@ -2827,28 +3043,45 @@ We strongly believe in retaining as little data as possible because we want you 
   </file>
   <file original="Operations/Operations-InfoPlist.xcstrings" source-language="en" target-language="en" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
     </header>
     <body>
     </body>
   </file>
   <file original="PacketTunnel/InfoPlist.xcstrings" source-language="en" target-language="en" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
     </header>
     <body>
     </body>
   </file>
+  <file original="PacketTunnel/Localizable.xcstrings" source-language="en" target-language="en" datatype="plaintext">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
+    </header>
+    <body>
+      <trans-unit id="Disable “%@” or disconnect before updating in order not to lose network connectivity." xml:space="preserve">
+        <source>Disable “%@” or disconnect before updating in order not to lose network connectivity.</source>
+        <target state="new">Disable “%@” or disconnect before updating in order not to lose network connectivity.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Update available" xml:space="preserve">
+        <source>Update available</source>
+        <target state="new">Update available</target>
+        <note/>
+      </trans-unit>
+    </body>
+  </file>
   <file original="PacketTunnelCore/PacketTunnelCore-InfoPlist.xcstrings" source-language="en" target-language="en" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
     </header>
     <body>
     </body>
   </file>
   <file original="Routing/Routing-InfoPlist.xcstrings" source-language="en" target-language="en" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
     </header>
     <body>
     </body>
