@@ -9,7 +9,6 @@
 import MullvadREST
 import MullvadSettings
 import MullvadTypes
-import StoreKit
 
 final actor StorePaymentManagerInteractor {
     private let tunnelManager: TunnelManager
@@ -67,34 +66,6 @@ final actor StorePaymentManagerInteractor {
         }
     }
 
-    func legacySendReceipt() async -> Result<Void, Error> {
-        guard let accountNumber = accountNumber else {
-            return .failure(NSError(domain: "User is not logged in", code: 0))
-        }
-
-        let receiptData: Data
-        do {
-            receiptData = try readReceiptFromDisk()
-        } catch {
-            return .failure(error)
-        }
-
-        return await withCheckedContinuation { continuation in
-            _ = apiProxy.legacyStoreKitPayment(
-                accountNumber: accountNumber,
-                request: LegacyStoreKitRequest(receiptString: receiptData),
-                retryStrategy: .default,
-            ) { result in
-                switch result {
-                case .success:
-                    continuation.resume(returning: .success(()))
-                case let .failure(error):
-                    continuation.resume(returning: .failure(error))
-                }
-            }
-        }
-    }
-
     // MARK: Account proxy
 
     func getAccountData(accountNumber: String) async -> Result<Account, Error> {
@@ -105,24 +76,6 @@ final actor StorePaymentManagerInteractor {
             ) { result in
                 continuation.resume(returning: result)
             }
-        }
-    }
-
-    // MARK: Private functions
-
-    private func readReceiptFromDisk() throws -> Data {
-        guard let appStoreReceiptURL = Bundle.main.appStoreReceiptURL else {
-            throw StoreReceiptNotFound()
-        }
-
-        do {
-            return try Data(contentsOf: appStoreReceiptURL)
-        } catch let error as CocoaError
-            where error.code == .fileReadNoSuchFile || error.code == .fileNoSuchFile
-        {
-            throw StoreReceiptNotFound()
-        } catch {
-            throw error
         }
     }
 }

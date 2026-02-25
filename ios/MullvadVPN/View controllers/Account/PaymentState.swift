@@ -6,21 +6,17 @@
 //  Copyright © 2026 Mullvad VPN AB. All rights reserved.
 //
 
-import Foundation
-import StoreKit
-
 enum PaymentState: Equatable {
     case none
-    case makingPayment(SKPayment)
-    case makingStoreKit2Purchase
-    case makingStoreKit2Refund
+    case makingPurchase
+    case makingRefund
     case restoringPurchases
 
     var allowsViewInteraction: Bool {
         switch self {
         case .none:
             return true
-        case .restoringPurchases, .makingPayment, .makingStoreKit2Purchase, .makingStoreKit2Refund:
+        case .restoringPurchases, .makingPurchase, .makingRefund:
             return false
         }
     }

@@ -6,10 +6,6 @@
 //  Copyright © 2026 Mullvad VPN AB. All rights reserved.
 //
 
-import Foundation
-import StoreKit
-
 protocol StorePaymentObserver: AnyObject, Sendable {
     @MainActor func storePaymentManager(didReceiveEvent event: StorePaymentEvent)
-    @MainActor func storePaymentManager(didReceiveEvent event: LegacyStorePaymentEvent)
 }

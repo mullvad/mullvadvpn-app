@@ -8,7 +8,6 @@
 
 import MullvadREST
 import Routing
-import StoreKit
 import SwiftUI
 import UIKit
 

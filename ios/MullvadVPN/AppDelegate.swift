@@ -14,7 +14,6 @@ import MullvadRustRuntime
 import MullvadSettings
 import MullvadTypes
 import Operations
-import StoreKit
 import UIKit
 import UserNotifications
 
@@ -159,7 +158,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         tunnelManager.addObserver(settingsObserver)
 
         storePaymentManager = StorePaymentManager(
-            backgroundTaskProvider: backgroundTaskProvider,
             interactor: StorePaymentManagerInteractor(
                 tunnelManager: tunnelManager,
                 apiProxy: apiProxy,

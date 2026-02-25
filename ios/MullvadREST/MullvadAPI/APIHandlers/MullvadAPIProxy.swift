@@ -23,13 +23,6 @@ public protocol APIQuerying: Sendable {
         completionHandler: @escaping @Sendable ProxyCompletionHandler<REST.ServerRelaysCacheResponse>
     ) -> Cancellable
 
-    func legacyStoreKitPayment(
-        accountNumber: String,
-        request: LegacyStoreKitRequest,
-        retryStrategy: REST.RetryStrategy,
-        completionHandler: @escaping @Sendable ProxyCompletionHandler<REST.CreateApplePaymentResponse>
-    ) -> Cancellable
-
     func sendProblemReport(
         _ body: ProblemReportRequest,
         retryStrategy: REST.RetryStrategy,
@@ -166,45 +159,6 @@ extension REST {
                     completion(.success(true))
                 }
             }
-        }
-
-        public func legacyStoreKitPayment(
-            accountNumber: String,
-            request: LegacyStoreKitRequest,
-            retryStrategy: REST.RetryStrategy,
-            completionHandler: @escaping ProxyCompletionHandler<REST.CreateApplePaymentResponse>
-        ) -> Cancellable {
-            let responseHandler: REST.RustResponseHandler<REST.CreateApplePaymentResponse> =
-                rustCustomResponseHandler { [weak self] data, _ in
-                    guard
-                        let serverResponse = try? self?.responseDecoder.decode(
-                            CreateApplePaymentRawResponse.self,
-                            from: data
-                        )
-                    else {
-                        return nil
-                    }
-
-                    return if serverResponse.timeAdded > 0 {
-                        .timeAdded(
-                            serverResponse.timeAdded,
-                            serverResponse.newExpiry
-                        )
-                    } else {
-                        .noTimeAdded(serverResponse.newExpiry)
-                    }
-                }
-
-            return createNetworkOperation(
-                request:
-                    .legacyStorekitPayment(
-                        retryStrategy: retryStrategy,
-                        accountNumber: accountNumber,
-                        request: request
-                    ),
-                responseHandler: responseHandler,
-                completionHandler: completionHandler
-            )
         }
 
         public func initStoreKitPayment(

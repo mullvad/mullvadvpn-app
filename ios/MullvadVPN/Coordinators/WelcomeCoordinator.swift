@@ -8,7 +8,6 @@
 
 import MullvadREST
 import Routing
-import StoreKit
 import UIKit
 
 final class WelcomeCoordinator: Coordinator, Poppable, Presenting {

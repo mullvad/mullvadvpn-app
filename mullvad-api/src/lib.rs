@@ -585,21 +585,6 @@ impl AccountsProxy {
     }
 
     #[cfg(target_os = "ios")]
-    pub async fn legacy_storekit_payment(
-        &self,
-        account: AccountNumber,
-        body: Vec<u8>,
-    ) -> Result<rest::Response<Incoming>, rest::Error> {
-        let request = self
-            .handle
-            .factory
-            .post_json_bytes(&format!("{APP_URL_PREFIX}/create-apple-payment"), body)?
-            .expected_status(&[StatusCode::OK])
-            .account(account)?;
-        self.handle.service.request(request).await
-    }
-
-    #[cfg(target_os = "ios")]
     pub async fn init_storekit_payment(
         &self,
         account: AccountNumber,
