@@ -415,6 +415,7 @@
     <string name="settings_patch_success">İçe aktarma başarılı, geçersiz kılmalar etkin</string>
     <string name="settings_vpn">VPN ayarları</string>
     <string name="share">Paylaş…</string>
+    <string name="show_account_number">Hesap numarasını göster</string>
     <string name="show_system_apps">Sistem uygulamalarını göster</string>
     <string name="split_tunneling_description">VPN tünelinden geçmeden doğrudan internete erişmesi gereken uygulamaları seçmenizi sağlar.</string>
     <string name="split_tunneling_description_warning">Dikkat: \"VPN üzerinden olmayan bağlantıları engelle\" seçeneği etkinse, bölünmüş uygulamalarda internet kullanılamayacaktır. Bölünmüş tünellemenin, gizlilik riski taşıdığını her zaman göz önünde bulundurun.</string>

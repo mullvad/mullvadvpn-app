@@ -415,6 +415,7 @@
     <string name="settings_patch_success">Har importerats, åsidosättningar aktiva</string>
     <string name="settings_vpn">VPN-inställningar</string>
     <string name="share">Dela …</string>
+    <string name="show_account_number">Visa kontonummer</string>
     <string name="show_system_apps">Visa systemappar</string>
     <string name="split_tunneling_description">Låter dig välja appar som ska ge dig direktåtkomst till internet utan att gå igenom VPN-tunneln.</string>
     <string name="split_tunneling_description_warning">Obs! Om \"Blockera anslutningar utan VPN\" är aktiverat kommer inte delade appar att ha internet. Kom ihåg att det alltid finns en säkerhetsrisk med delade tunnlar.</string>

@@ -22,6 +22,8 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Visibility
+import androidx.compose.material.icons.outlined.VisibilityOff
 import androidx.compose.material.icons.rounded.Clear
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -33,8 +35,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -71,7 +75,10 @@ import com.ramcosta.composedestinations.generated.login.destinations.DeviceListD
 import com.ramcosta.composedestinations.generated.settings.destinations.SettingsDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
+import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import net.mullvad.mullvadvpn.common.compose.ACCOUNT_NUMBER_CHUNK_SIZE
 import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.common.compose.accountNumberKeyboardType
 import net.mullvad.mullvadvpn.common.compose.accountNumberVisualTransformation
@@ -118,6 +125,7 @@ private fun PreviewLoginScreen(
 
 private const val TOP_SPACER_WEIGHT = 1f
 private const val BOTTOM_SPACER_WEIGHT = 3f
+private val LAST_CHAR_VISIBILITY_TIMEOUT = 2.seconds
 
 @Destination<ExternalModuleGraph>(style = LoginTransition::class)
 @Composable
@@ -296,6 +304,7 @@ private fun LoginContent(
 }
 
 @Composable
+@Suppress("LongMethod")
 @OptIn(ExperimentalComposeUiApi::class)
 private fun ColumnScope.LoginInput(
     state: LoginUiState,
@@ -309,6 +318,15 @@ private fun ColumnScope.LoginInput(
         onShowApiUnreachableDialog = onShowApiUnreachableDialog,
         state = state,
     )
+
+    var showLastChar by remember { mutableStateOf(false) }
+    LaunchedEffect(state.accountNumberInput) {
+        showLastChar = true
+        delay(LAST_CHAR_VISIBILITY_TIMEOUT)
+        showLastChar = false
+    }
+
+    var showPassword by remember { mutableStateOf(false) }
 
     TextField(
         modifier =
@@ -335,6 +353,18 @@ private fun ColumnScope.LoginInput(
                 overflow = TextOverflow.Ellipsis,
             )
         },
+        trailingIcon = {
+            IconButton(onClick = { showPassword = !showPassword }) {
+                Icon(
+                    imageVector =
+                        if (showPassword) Icons.Outlined.VisibilityOff
+                        else Icons.Outlined.Visibility,
+                    contentDescription =
+                        if (showPassword) stringResource(id = R.string.hide_account_number)
+                        else stringResource(id = R.string.show_account_number),
+                )
+            }
+        },
         keyboardActions = KeyboardActions(onDone = { onLoginClick(state.accountNumberInput) }),
         keyboardOptions =
             KeyboardOptions(
@@ -344,7 +374,8 @@ private fun ColumnScope.LoginInput(
         onValueChange = onAccountNumberChange,
         singleLine = true,
         maxLines = 1,
-        visualTransformation = accountNumberVisualTransformation(),
+        visualTransformation =
+            accountNumberVisualTransformation(showPassword, if (showLastChar) 1 else 0),
         enabled = state.loginState is LoginState.Idle,
         colors = mullvadWhiteTextFieldColors(),
         textStyle = MaterialTheme.typography.bodyLarge.copy(textDirection = TextDirection.Ltr),
@@ -355,9 +386,17 @@ private fun ColumnScope.LoginInput(
         visible = state.lastUsedAccount != null && state.loginState is LoginState.Idle
     ) {
         val token = state.lastUsedAccount?.value.orEmpty()
-        val accountTransformation = remember { accountNumberVisualTransformation() }
+        val accountTransformation =
+            remember(showPassword) {
+                accountNumberVisualTransformation(
+                    showPassword,
+                    showLastX = ACCOUNT_NUMBER_CHUNK_SIZE,
+                )
+            }
         val transformedText =
-            remember(token) { accountTransformation.filter(AnnotatedString(token)).text }
+            remember(token, accountTransformation) {
+                accountTransformation.filter(AnnotatedString(token)).text
+            }
 
         // Since content is number we should always do Ltr
         CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {

@@ -46,7 +46,9 @@ fun CopyableObfuscationView(
             defaultIconTint = MaterialTheme.colorScheme.onSurface,
             secondaryIconTint = MaterialTheme.colorScheme.onSurface,
             isToggleButton = true,
-            contentDescription = stringResource(id = R.string.hide_account_number),
+            contentDescription =
+                if (obfuscationEnabled) stringResource(id = R.string.show_account_number)
+                else stringResource(id = R.string.hide_account_number),
             onClick = { obfuscationEnabled = !obfuscationEnabled },
         )
 

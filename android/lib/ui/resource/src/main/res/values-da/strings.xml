@@ -415,6 +415,7 @@
     <string name="settings_patch_success">Importen lykkedes, tilsidesættelser aktive</string>
     <string name="settings_vpn">VPN-indstillinger</string>
     <string name="share">Del…</string>
+    <string name="show_account_number">Vis kontonummer</string>
     <string name="show_system_apps">Vis systemapps</string>
     <string name="split_tunneling_description">Giver dig mulighed for at vælge apps, der skal have direkte adgang til internettet uden at gå gennem VPN-tunnelen.</string>
     <string name="split_tunneling_description_warning">Bemærk: Hvis \"Bloker forbindelser uden VPN\" er aktiveret, vil delte apps ikke have internet. Husk altid, at delt tunnelføring er en risiko for privatlivets fred.</string>

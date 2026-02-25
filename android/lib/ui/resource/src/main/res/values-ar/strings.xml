@@ -415,6 +415,7 @@
     <string name="settings_patch_success">تم الاستيراد بنجاح، التجاوزات نشطة</string>
     <string name="settings_vpn">إعدادات شبكة VPN</string>
     <string name="share">مشاركة…</string>
+    <string name="show_account_number">إظهار رقم الحساب</string>
     <string name="show_system_apps">إظهار تطبيقات النظام</string>
     <string name="split_tunneling_description">يتيح لك تحديد التطبيقات التي يجب أن تصل إلى الإنترنت مباشرةً دون المرور عبر نفق VPN.</string>
     <string name="split_tunneling_description_warning">تنبيه: في حال تفعيل \"حظر الاتصالات دون VPN\"، لن تتمكن التطبيقات المُقسَّمة من الاتصال بالإنترنت. تذكَّر دائمًا أن الانقسام النفقي يُشكِّل خطرًا على الخصوصية.</string>

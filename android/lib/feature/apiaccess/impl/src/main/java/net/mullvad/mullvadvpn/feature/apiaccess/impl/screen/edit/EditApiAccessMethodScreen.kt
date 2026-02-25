@@ -5,22 +5,35 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.TextObfuscationMode
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Visibility
+import androidx.compose.material.icons.outlined.VisibilityOff
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SecureTextField
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldLabelPosition
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -42,6 +55,7 @@ import com.ramcosta.composedestinations.generated.apiaccess.destinations.SaveApi
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.common.compose.showSnackbarImmediately
@@ -56,6 +70,7 @@ import net.mullvad.mullvadvpn.lib.ui.component.NavigateCloseIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithSmallTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.dialog.Confirmed
 import net.mullvad.mullvadvpn.lib.ui.component.drawVerticalScrollbar
+import net.mullvad.mullvadvpn.lib.ui.component.textfield.ErrorSupportingText
 import net.mullvad.mullvadvpn.lib.ui.component.textfield.mullvadDarkTextFieldColors
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadDropdownMenuItem
@@ -366,7 +381,7 @@ private fun ShadowsocksForm(
         )
         PortInput(port = formData.port, formData.portError, onPortChanged = onPortChanged)
         PasswordInput(
-            password = formData.password,
+            initialPassword = formData.password,
             passwordError = formData.passwordError,
             optional = true,
             onPasswordChanged = onPasswordChanged,
@@ -403,7 +418,7 @@ private fun Socks5RemoteForm(
                 onUsernameChanged = onUsernameChanged,
             )
             PasswordInput(
-                password = formData.password,
+                initialPassword = formData.password,
                 passwordError = formData.passwordError,
                 optional = false,
                 onPasswordChanged = onPasswordChanged,
@@ -475,36 +490,62 @@ private fun PortInput(
 
 @Composable
 private fun PasswordInput(
-    password: String,
+    initialPassword: String,
     passwordError: InvalidDataError.PasswordError?,
     optional: Boolean,
     onPasswordChanged: (String) -> Unit,
 ) {
-    ApiAccessMethodTextField(
-        value = password,
-        keyboardType = KeyboardType.Password,
-        onValueChanged = onPasswordChanged,
-        labelText =
-            stringResource(
-                id =
+    val passwordState = rememberTextFieldState(initialPassword)
+    LaunchedEffect(passwordState) {
+        snapshotFlow { passwordState.text.toString() }.collectLatest { onPasswordChanged(it) }
+    }
+    var showPassword by remember { mutableStateOf(false) }
+    SecureTextField(
+        passwordState,
+        isError = passwordError != null,
+        modifier = Modifier.fillMaxWidth(),
+        keyboardOptions =
+            KeyboardOptions(
+                imeAction =
+                    // So that we avoid going back to the name input when pressing done/next
                     if (optional) {
-                        R.string.password_optional
+                        ImeAction.Next
                     } else {
-                        R.string.password
+                        ImeAction.Done
                     }
             ),
-        isValidValue = passwordError == null,
-        isDigitsOnlyAllowed = false,
-        imeAction =
-            // So that we avoid going back to the name input when pressing done/next
-            if (optional) {
-                ImeAction.Next
-            } else {
-                ImeAction.Done
+        labelPosition = TextFieldLabelPosition.Above(),
+        textObfuscationMode =
+            if (showPassword) TextObfuscationMode.Visible else TextObfuscationMode.RevealLastTyped,
+        label = {
+            Text(
+                stringResource(
+                    id =
+                        if (optional) {
+                            R.string.password_optional
+                        } else {
+                            R.string.password
+                        }
+                )
+            )
+        },
+        trailingIcon = {
+            IconButton(onClick = { showPassword = !showPassword }) {
+                Icon(
+                    imageVector =
+                        if (showPassword) Icons.Outlined.VisibilityOff
+                        else Icons.Outlined.Visibility,
+                    contentDescription =
+                        if (showPassword) stringResource(id = R.string.hide_account_number)
+                        else stringResource(id = R.string.show_account_number),
+                )
+            }
+        },
+        supportingText =
+            passwordError?.let {
+                { ErrorSupportingText(stringResource(id = R.string.this_field_is_required)) }
             },
-        errorText = passwordError?.let { stringResource(id = R.string.this_field_is_required) },
-        modifier = Modifier.animateContentSize(),
-        textStyle = MaterialTheme.typography.bodyLarge.copy(textDirection = TextDirection.Ltr),
+        colors = mullvadDarkTextFieldColors(),
     )
 }
 
