@@ -81,7 +81,7 @@ extension UIImage {
         }
 
         static var tick: UIImage {
-            UIImage(named: "IconTickSml")!
+            UIImage(named: "IconTick")!
         }
     }
 
@@ -100,7 +100,7 @@ extension UIImage {
     }
 
     static var tick: UIImage {
-        UIImage(named: "IconTickSml")!
+        UIImage(named: "IconTick")!
     }
 
     static var iconExtLink: UIImage {
