@@ -14,7 +14,7 @@ use std::net::IpAddr;
 use std::{net::SocketAddr, path::PathBuf, time::Duration};
 
 use anyhow::{Context, Ok, Result};
-use clap::{Parser, builder::PossibleValuesParser};
+use clap::{builder::PossibleValuesParser, Parser};
 use config::ConfigFile;
 use package::TargetInfo;
 use tests::{config::TEST_CONFIG, get_filtered_tests};
@@ -280,7 +280,7 @@ async fn inner_main() -> Result<()> {
             container::relaunch_with_rootlesskit(vnc).await;
 
             #[cfg(target_os = "macos")]
-            relaunch_with_sudo().await;
+            container::relaunch_with_sudo().await;
 
             let mut config = config.clone();
             config.runtime_opts.keep_changes = keep_changes;
@@ -316,7 +316,7 @@ async fn inner_main() -> Result<()> {
             container::relaunch_with_rootlesskit(vnc).await;
 
             #[cfg(target_os = "macos")]
-            relaunch_with_sudo().await;
+            container::relaunch_with_sudo().await;
 
             let mut config = config.clone();
             config.runtime_opts.display = match (display, vnc.is_some()) {
@@ -440,23 +440,4 @@ async fn inner_main() -> Result<()> {
             Ok(())
         }
     }
-}
-
-async fn relaunch_with_sudo() {
-    // check if user is root (`man getuid`).
-    if nix::unistd::geteuid().is_root() {
-        return;
-    }
-    let mut cmd = tokio::process::Command::new("sudo");
-    cmd.arg("--preserve-env");
-    cmd.args(std::env::args());
-
-    log::info!("Root privileges required. Re-launching with sudo.");
-    eprintln!("{cmd:?}");
-
-    let status = cmd.status().await.unwrap_or_else(|e| {
-        panic!("failed to execute [{cmd:?}]: {e}");
-    });
-
-    std::process::exit(status.code().unwrap_or(1));
 }
