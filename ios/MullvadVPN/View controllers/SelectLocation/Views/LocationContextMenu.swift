@@ -8,37 +8,51 @@ extension ExitLocationView {
         VStack {
             switch location {
             case let location as CustomListLocationNode:
-                Button("Edit") {
-                    viewModel.showEditCustomList(name: location.name)
-                }
+                Section(LocalizedStringKey(location.name)) {
+                    Button {
+                        viewModel.showEditCustomList(name: location.name)
+                    } label: {
+                        HStack {
+                            Text("Edit list")
+                            Image.mullvadIconEdit
+                                .renderingMode(.template)
+                        }
+                    }
 
-                Button("Delete") {
-                    alert = .init(
-                        type: .warning,
-                        messages: ["Do you want to delete the list **\(location.name)**?"],
-                        actions: [
-                            .init(
-                                type: .danger,
-                                title: "Delete list",
-                                handler: {
-                                    viewModel.deleteCustomList(name: location.name)
-                                    alert = nil
-                                }
-                            ),
-                            .init(
-                                type: .default,
-                                title: "Cancel",
-                                handler: {
-                                    alert = nil
-                                }
-                            ),
-                        ]
-                    )
+                    Button(role: .destructive) {
+                        alert = .init(
+                            type: .warning,
+                            messages: ["Do you want to delete the list **\(location.name)**?"],
+                            actions: [
+                                .init(
+                                    type: .danger,
+                                    title: "Delete list",
+                                    handler: {
+                                        viewModel.deleteCustomList(name: location.name)
+                                        alert = nil
+                                    }
+                                ),
+                                .init(
+                                    type: .default,
+                                    title: "Cancel",
+                                    handler: {
+                                        alert = nil
+                                    }
+                                ),
+                            ]
+                        )
+                    } label: {
+                        HStack {
+                            Text("Delete list")
+                            Image.mullvadIconDelete
+                                .renderingMode(.template)
+                        }
+                    }
                 }
 
             default:
                 if let customListNode = location.parent?.asCustomListNode {
-                    Button("Remove") {
+                    Button(role: .destructive) {
                         viewModel
                             .removeLocationFromCustomList(
                                 location: location,
@@ -48,6 +62,12 @@ extension ExitLocationView {
                             style: .medium
                         )
                         .impactOccurred()
+                    } label: {
+                        HStack {
+                            Text("Remove")
+                            Image.mullvadIconDelete
+                                .renderingMode(.template)
+                        }
                     }
                 } else {
                     // Only top level nodes can be removed from a custom list
@@ -109,7 +129,11 @@ extension ExitLocationView {
                     dismissButtonTitle: "Cancel"
                 )
             } label: {
-                Label("New list", systemImage: "plus")
+                HStack {
+                    Text("New list")
+                    Image.mullvadIconAdd
+                        .renderingMode(.template)
+                }
             }
         }
     }
