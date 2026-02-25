@@ -260,6 +260,27 @@ class RelayPickingTests: XCTestCase {
         XCTAssertThrowsError(try picker.pick())
     }
 
+    // QUIC - ON, Multihop - ON, Entry supports QUIC - TRUE, Exit supports QUIC - FALSE
+    // Entry supports QUIC and thus should yield no errors.
+    func testQuicOnForMultihopWithQuicRelay() throws {
+        let constraints = RelayConstraints(
+            entryLocations: .only(UserSelectedRelays(locations: [.hostname("se", "got", "se10-wireguard")])),
+            exitLocations: .only(UserSelectedRelays(locations: [.hostname("se", "sto", "se2-wireguard")]))
+        )
+
+        var settings = LatestTunnelSettings()
+        settings.relayConstraints = constraints
+        settings.wireGuardObfuscation = .init(state: .quic)
+
+        let picker = MultihopPicker(
+            obfuscation: obfuscation,
+            tunnelSettings: settings,
+            connectionAttemptCount: 0
+        )
+
+        XCTAssertNoThrow(try picker.pick())
+    }
+
     // DAITA - ON, Direct only - ON, Entry supports DAITA - TRUE, Entry does not support QUIC
     // Shadowsocks obfuscation should be picked instead of QUIC since entry does not support it
     func testMultihopCannotPickAutomaticallyInvalidObfuscation() throws {
