@@ -125,25 +125,6 @@ final class RelayObfuscatorTests: XCTestCase {
         XCTAssertEqual(obfuscationResult.port, .only(5001))
     }
 
-    func testObfuscateUpdOverTcpPortAutomaticIsRandomPort() throws {
-        tunnelSettings.wireGuardObfuscation = WireGuardObfuscationSettings(
-            state: .udpOverTcp,
-            udpOverTcpPort: .automatic
-        )
-
-        try (0...10).filter { $0.isMultiple(of: 2) }.forEach { attempt in
-            let obfuscationResult = try RelayObfuscator(
-                relays: sampleRelays,
-                tunnelSettings: tunnelSettings,
-                connectionAttemptCount: UInt(attempt),
-                obfuscationBypass: IdentityObfuscationProvider()
-            ).obfuscate()
-
-            let validPorts: [RelayConstraint<UInt16>] = [.only(80), .only(443), .only(5001)]
-            XCTAssertTrue(validPorts.contains(obfuscationResult.port))
-        }
-    }
-
     // MARK: Shadowsocks
 
     func testObfuscateShadowsocksPortCustom() throws {

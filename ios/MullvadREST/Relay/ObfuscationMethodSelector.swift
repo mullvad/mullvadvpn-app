@@ -15,18 +15,13 @@ public protocol ObfuscationProviding {
 
 public struct ObfuscationMethodSelector {
     public static var obfuscationOrder: [WireGuardObfuscationState] {
-        var methods: [WireGuardObfuscationState] = [
+        [
             .off,
             .shadowsocks,
             .quic,
             .udpOverTcp,
+            .lwo,
         ]
-
-        #if DEBUG
-            methods.append(.lwo)
-        #endif
-
-        return methods
     }
 
     /// This retry logic used is explained at the following link:

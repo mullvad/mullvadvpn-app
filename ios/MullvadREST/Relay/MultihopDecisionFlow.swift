@@ -48,11 +48,11 @@ struct OneToOne: MultihopDecisionFlow {
             throw NoRelaysSatisfyingConstraintsError(.entryEqualsExit)
         }
 
-        let exitMatch = try relayPicker.findBestMatch(from: exitCandidates, applyObfuscatedIps: false)
+        let exitMatch = try relayPicker.findBestMatch(from: exitCandidates, applyObfuscation: false)
         let entryMatch = try relayPicker.findBestMatch(
             from: entryCandidates,
             closeTo: daitaAutomaticRouting ? exitMatch.location : nil,
-            applyObfuscatedIps: true,
+            applyObfuscation: true,
         )
 
         return SelectedRelays(
@@ -96,11 +96,11 @@ struct OneToMany: MultihopDecisionFlow {
             )
         }
 
-        let entryMatch = try multihopPicker.findBestMatch(from: entryCandidates, applyObfuscatedIps: true)
+        let entryMatch = try multihopPicker.findBestMatch(from: entryCandidates, applyObfuscation: true)
         let exitMatch = try multihopPicker.exclude(
             relay: entryMatch,
             from: exitCandidates,
-            applyObfuscatedIps: false,
+            applyObfuscation: false,
         )
 
         return SelectedRelays(
@@ -146,13 +146,13 @@ struct ManyToOne: MultihopDecisionFlow {
 
         let exitMatch = try multihopPicker.findBestMatch(
             from: exitCandidates,
-            applyObfuscatedIps: false,
+            applyObfuscation: false,
         )
         let entryMatch = try multihopPicker.exclude(
             relay: exitMatch,
             from: entryCandidates,
             closeTo: daitaAutomaticRouting ? exitMatch.location : nil,
-            applyObfuscatedIps: true
+            applyObfuscation: true
         )
 
         return SelectedRelays(
@@ -196,12 +196,12 @@ struct ManyToMany: MultihopDecisionFlow {
             )
         }
 
-        let exitMatch = try multihopPicker.findBestMatch(from: exitCandidates, applyObfuscatedIps: false)
+        let exitMatch = try multihopPicker.findBestMatch(from: exitCandidates, applyObfuscation: false)
         let entryMatch = try multihopPicker.exclude(
             relay: exitMatch,
             from: entryCandidates,
             closeTo: daitaAutomaticRouting ? exitMatch.location : nil,
-            applyObfuscatedIps: true
+            applyObfuscation: true
         )
 
         return SelectedRelays(

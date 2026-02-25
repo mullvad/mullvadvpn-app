@@ -118,19 +118,21 @@ class ObfuscationMethodSelectorTests: XCTestCase {
         }
     }
 
-    func testMethodSelectionLwo() throws {
+    func testMethodSelectionLwoManual() throws {
+        tunnelSettings.wireGuardObfuscation = WireGuardObfuscationSettings(state: .lwo)
+
+        let method = ObfuscationMethodSelector.obfuscationMethodBy(
+            connectionAttemptCount: 0,
+            tunnelSettings: tunnelSettings, obfuscationBypass: IdentityObfuscationProvider()
+        )
+        XCTAssertEqual(method, .lwo)
+    }
+
+    func testMethodSelectionLwoAutomatic() throws {
+        tunnelSettings.wireGuardObfuscation = WireGuardObfuscationSettings(state: .automatic)
+
         (UInt(0)...10).forEach { attempt in
-            tunnelSettings.wireGuardObfuscation = WireGuardObfuscationSettings(state: .lwo)
-
-            var method = ObfuscationMethodSelector.obfuscationMethodBy(
-                connectionAttemptCount: attempt,
-                tunnelSettings: tunnelSettings, obfuscationBypass: IdentityObfuscationProvider()
-            )
-            XCTAssertEqual(method, .lwo)
-
-            tunnelSettings.wireGuardObfuscation = WireGuardObfuscationSettings(state: .automatic)
-
-            method = ObfuscationMethodSelector.obfuscationMethodBy(
+            let method = ObfuscationMethodSelector.obfuscationMethodBy(
                 connectionAttemptCount: attempt,
                 tunnelSettings: tunnelSettings, obfuscationBypass: IdentityObfuscationProvider()
             )

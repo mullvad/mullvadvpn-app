@@ -15,4 +15,13 @@ public enum ObfuscationMethod: Equatable, Codable, Sendable {
     case shadowsocks
     case quic(hostname: String, token: String)
     case lwo
+
+    public var isEnabled: Bool {
+        switch self {
+        case .off:
+            false
+        case .udpOverTcp, .shadowsocks, .quic, .lwo:
+            true
+        }
+    }
 }

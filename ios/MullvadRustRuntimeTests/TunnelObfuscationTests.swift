@@ -15,6 +15,11 @@ final class TunnelObfuscationTests: XCTestCase {
     /// A test public key generated from a random private key.
     private let testPublicKey = PrivateKey().publicKey
 
+    override func setUp() {
+        super.setUp()
+        RustLogging.initialize()
+    }
+
     func testRunningUdpOverTcpObfuscatorProxy() async throws {
         // Each packet is prefixed with u16 that contains a payload length.
         let preambleLength = MemoryLayout<UInt16>.size
@@ -27,8 +32,7 @@ final class TunnelObfuscationTests: XCTestCase {
         let obfuscator = TunnelObfuscator(
             remoteAddress: IPv4Address.loopback,
             remotePort: tcpListener.listenPort,
-            obfuscationProtocol: .udpOverTcp,
-            clientPublicKey: testPublicKey
+            obfuscationProtocol: .udpOverTcp
         )
         obfuscator.start()
 
@@ -65,8 +69,7 @@ final class TunnelObfuscationTests: XCTestCase {
         let localObfuscator = TunnelObfuscator(
             remoteAddress: IPv4Address.loopback,
             remotePort: localUdpListener.listenPort,
-            obfuscationProtocol: .shadowsocks,
-            clientPublicKey: testPublicKey
+            obfuscationProtocol: .shadowsocks
         )
         localObfuscator.start()
 
@@ -109,8 +112,10 @@ final class TunnelObfuscationTests: XCTestCase {
         let obfuscator = TunnelObfuscator(
             remoteAddress: IPv4Address.loopback,
             remotePort: localUdpListener.listenPort,
-            obfuscationProtocol: .lwo(serverPublicKey: serverPrivateKey.publicKey),
-            clientPublicKey: clientPrivateKey.publicKey
+            obfuscationProtocol: .lwo(
+                serverPublicKey: serverPrivateKey.publicKey,
+                clientPublicKey: clientPrivateKey.publicKey
+            )
         )
         obfuscator.start()
 
@@ -155,8 +160,10 @@ final class TunnelObfuscationTests: XCTestCase {
             let obfuscator = TunnelObfuscator(
                 remoteAddress: IPv4Address.loopback,
                 remotePort: localUdpListener.listenPort,
-                obfuscationProtocol: .lwo(serverPublicKey: serverPrivateKey.publicKey),
-                clientPublicKey: clientPrivateKey.publicKey
+                obfuscationProtocol: .lwo(
+                    serverPublicKey: serverPrivateKey.publicKey,
+                    clientPublicKey: clientPrivateKey.publicKey
+                )
             )
 
             obfuscator.start()
@@ -178,8 +185,10 @@ final class TunnelObfuscationTests: XCTestCase {
         let obfuscator = TunnelObfuscator(
             remoteAddress: IPv4Address.loopback,
             remotePort: localUdpListener.listenPort,
-            obfuscationProtocol: .lwo(serverPublicKey: serverPrivateKey.publicKey),
-            clientPublicKey: clientPrivateKey.publicKey
+            obfuscationProtocol: .lwo(
+                serverPublicKey: serverPrivateKey.publicKey,
+                clientPublicKey: clientPrivateKey.publicKey
+            )
         )
 
         obfuscator.start()

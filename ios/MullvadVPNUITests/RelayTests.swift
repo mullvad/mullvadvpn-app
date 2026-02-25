@@ -267,7 +267,7 @@ class RelayTests: LoggedInWithTimeUITestCase {
 
         LwoObfuscationSettingsPage(app)
             .tapCustomCell()
-            .typeTextIntoCustomField("1")
+            .typeTextIntoCustomField("4000")
             .tapBackButton()
 
         VPNSettingsPage(app)
@@ -294,7 +294,7 @@ class RelayTests: LoggedInWithTimeUITestCase {
 
         try Networking.verifyCanAccessInternet()
 
-        try generateTrafficAndDisconnect(from: connectedToIPAddress, searchForPort: 1, assertProtocol: .UDP)
+        try generateTrafficAndDisconnect(from: connectedToIPAddress, searchForPort: 4000, assertProtocol: .UDP)
     }
 
     func testWireGuardOverTCPManually() throws {
