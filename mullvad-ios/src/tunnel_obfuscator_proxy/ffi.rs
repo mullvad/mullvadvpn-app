@@ -1,4 +1,5 @@
 use libc::c_char;
+use talpid_types::net::wireguard;
 
 use super::{TunnelObfuscatorHandle, TunnelObfuscatorRuntime};
 use crate::ProxyHandle;
@@ -80,8 +81,8 @@ pub unsafe extern "C" fn start_lwo_obfuscator_proxy(
 
     let result = TunnelObfuscatorRuntime::new_lwo(
         peer_sock_addr,
-        talpid_types::net::wireguard::PublicKey::from(client_key),
-        talpid_types::net::wireguard::PublicKey::from(server_key),
+        wireguard::PublicKey::from(client_key),
+        wireguard::PublicKey::from(server_key),
     )
     .run();
 

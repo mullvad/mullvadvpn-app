@@ -16,15 +16,14 @@ public enum TunnelObfuscationProtocol {
     case udpOverTcp
     case shadowsocks
     case quic(hostname: String, token: String)
-    case lwo(serverPublicKey: PublicKey)
+    case lwo(serverPublicKey: PublicKey, clientPublicKey: PublicKey)
 }
 
 public protocol TunnelObfuscation {
     init(
         remoteAddress: IPAddress,
         remotePort: UInt16,
-        obfuscationProtocol: TunnelObfuscationProtocol,
-        clientPublicKey: PublicKey
+        obfuscationProtocol: TunnelObfuscationProtocol
     )
     func start()
     func stop()
@@ -35,15 +34,11 @@ public protocol TunnelObfuscation {
 }
 
 /// Class that implements obfuscation by accepting traffic on a local port and proxying it to the remote endpoint.
-///
-/// The obfuscation happens either by wrapping UDP traffic into TCP traffic, or by using a local shadowsocks server
-/// to encrypt the UDP traffic sent.
 public final class TunnelObfuscator: TunnelObfuscation {
     private let stateLock = NSLock()
     private let remoteAddress: IPAddress
     private let port: UInt16
     private let obfuscationProtocol: TunnelObfuscationProtocol
-    private let clientPublicKey: PublicKey
 
     private var proxyHandle = ProxyHandle(context: nil, port: 0)
     private var isStarted = false
@@ -70,12 +65,10 @@ public final class TunnelObfuscator: TunnelObfuscation {
         remoteAddress: IPAddress,
         remotePort: UInt16,
         obfuscationProtocol: TunnelObfuscationProtocol,
-        clientPublicKey: PublicKey
     ) {
         self.remoteAddress = remoteAddress
         self.port = remotePort
         self.obfuscationProtocol = obfuscationProtocol
-        self.clientPublicKey = clientPublicKey
     }
 
     deinit {
@@ -113,7 +106,7 @@ public final class TunnelObfuscator: TunnelObfuscation {
                         token,
                         proxyHandlePointer
                     )
-                case let .lwo(serverPublicKey):
+                case let .lwo(serverPublicKey, clientPublicKey):
                     clientPublicKey.rawValue.withUnsafeBytes { clientKeyPtr in
                         serverPublicKey.rawValue.withUnsafeBytes { serverKeyPtr in
                             start_lwo_obfuscator_proxy(
