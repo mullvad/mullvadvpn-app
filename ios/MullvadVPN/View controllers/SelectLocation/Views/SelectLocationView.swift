@@ -142,10 +142,10 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                             viewModel.showFilterView()
                         } label: {
                             HStack {
-                                Image(systemName: "line.3.horizontal.decrease")
                                 Text("Filters")
+                                Image.mullvadIconFilter
+                                    .renderingMode(.template)
                             }
-                            .foregroundStyle(Color.mullvadTextPrimary)
                         }
                         .accessibilityIdentifier(.selectLocationFilterButton)
 
@@ -156,11 +156,13 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                                 viewModel.isMultihopEnabled ? "Disable multihop" : "Enable multihop"
                             }
                             HStack {
-                                Image.mullvadIconMultihop
-                                    .renderingMode(.template)
                                 Text(title)
+                                viewModel.isMultihopEnabled
+                                    ? Image.mullvadIconDisableMultihop
+                                        .renderingMode(.template)
+                                    : Image.mullvadIconEnableMultihop
+                                        .renderingMode(.template)
                             }
-                            .foregroundStyle(Color.mullvadTextPrimary)
                         }
                         .accessibilityIdentifier(.toggleMultihopButton)
 
@@ -195,10 +197,13 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
 
                         } label: {
                             HStack {
-                                Image(systemName: "clock")
                                 Text(viewModel.isRecentsEnabled ? "Disable recents" : "Enable recents")
+                                viewModel.isRecentsEnabled
+                                    ? Image.mullvadIconDisableRecents
+                                        .renderingMode(.template)
+                                    : Image.mullvadIconEnableRecents
+                                        .renderingMode(.template)
                             }
-                            .foregroundStyle(Color.mullvadTextPrimary)
                         }
                         .accessibilityIdentifier(.recentConnectionsToggleButton)
                     } label: {
