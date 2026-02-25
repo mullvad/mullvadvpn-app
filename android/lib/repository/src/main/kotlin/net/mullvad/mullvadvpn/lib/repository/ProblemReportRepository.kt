@@ -10,6 +10,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointFromIntentHolder
 import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointOverride
@@ -48,6 +50,7 @@ class ProblemReportRepository(
     private val logDirectory = File(context.filesDir.toURI())
     private val problemReportOutputPath = File(logDirectory, PROBLEM_REPORT_LOGS_FILE)
     private val kermitFileLogDirPath = File(logDirectory, kermitFileLogDirName)
+    private val collectReportMutex = Mutex()
 
     fun setEmail(email: String) = _problemReport.update { it.copy(email = email) }
 
@@ -56,21 +59,26 @@ class ProblemReportRepository(
 
     suspend fun collectLogs(): Boolean =
         withContext(dispatcher) {
-            // Delete any old report
-            deleteLogs()
 
-            val availableProducts = paymentLogic.allAvailableProducts()
+            // Lock to avoid potential truncation of the log file that the daemon creates
+            collectReportMutex.withLock {
+                // Delete any old report
+                deleteLogs()
 
-            collectReport(
-                logDirectory = logDirectory.absolutePath,
-                kermitFileLogDir = kermitFileLogDirPath.absolutePath,
-                problemReportOutputPath = problemReportOutputPath.absolutePath,
-                unverifiedPurchases =
-                    availableProducts?.count { it.status == PaymentStatus.VERIFICATION_IN_PROGRESS }
-                        ?: 0,
-                pendingPurchases =
-                    availableProducts?.count { it.status == PaymentStatus.PENDING } ?: 0,
-            )
+                val availableProducts = paymentLogic.allAvailableProducts()
+
+                collectReport(
+                    logDirectory = logDirectory.absolutePath,
+                    kermitFileLogDir = kermitFileLogDirPath.absolutePath,
+                    problemReportOutputPath = problemReportOutputPath.absolutePath,
+                    unverifiedPurchases =
+                        availableProducts?.count {
+                            it.status == PaymentStatus.VERIFICATION_IN_PROGRESS
+                        } ?: 0,
+                    pendingPurchases =
+                        availableProducts?.count { it.status == PaymentStatus.PENDING } ?: 0,
+                )
+            }
         }
 
     suspend fun sendReport(
