@@ -45,7 +45,7 @@ fun CustomTextField(
     isEnabled: Boolean = true,
     placeholder: @Composable (() -> Unit)? = null,
     labelText: String? = null,
-    maxCharLength: Int = Int.Companion.MAX_VALUE,
+    maxCharLength: Int = Int.MAX_VALUE,
     isValidValue: Boolean,
     isDigitsOnlyAllowed: Boolean,
     visualTransformation: VisualTransformation = VisualTransformation.None,
