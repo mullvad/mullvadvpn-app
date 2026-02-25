@@ -66,8 +66,11 @@ ENV AR_x86_64_linux_android=${NDK_TOOLCHAIN_DIR}/llvm-ar \
 # Set up python3 path for the rust gradle plugin
 ENV RUST_ANDROID_GRADLE_PYTHON_COMMAND=/usr/bin/python3
 
+# Set Java home for the downloaded JDK
+ENV JAVA_HOME=/opt/jdk-21
+
 # Make adb and other platform tools accessible
-ENV PATH="${ANDROID_SDK_ROOT}/platform-tools:${PATH}"
+ENV PATH="${JAVA_HOME}/bin:${ANDROID_SDK_ROOT}/platform-tools:${PATH}"
 
 # === Install/set up the image ===
 
@@ -79,13 +82,14 @@ RUN apt-get update -y && apt-get install -y \
     software-properties-common \
     unzip \
     ca-certificates-java \
-    openjdk-17-jdk \
     tidy \
     && rm -rf /var/lib/apt/lists/*
 
-# Set default java version
-RUN update-alternatives --set java  /usr/lib/jvm/java-17-openjdk-amd64/bin/java
-RUN update-alternatives --set javac /usr/lib/jvm/java-17-openjdk-amd64/bin/javac
+# Install openjdk-21 (this cannot be done with apt-get as it would require the image to be updated to Debian 13)
+RUN curl -sfLo /tmp/openjdk-21.tar.gz https://download.java.net/java/GA/jdk21.0.2/f2283984656d49d69e91c558476027ac/13/GPL/openjdk-21.0.2_linux-x64_bin.tar.gz && \
+    tar -xf /tmp/openjdk-21.tar.gz -C /tmp/ && \
+    mv /tmp/jdk-21.0.2 /opt/jdk-21 && \
+    rm /tmp/openjdk-21.tar.gz
 
 # Install Android command line tools
 RUN curl -sfLo /tmp/cmdline-tools.zip https://dl.google.com/android/repository/commandlinetools-linux-${COMMAND_LINE_TOOLS_VERSION}_latest.zip && \
