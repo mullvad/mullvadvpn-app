@@ -415,6 +415,7 @@
     <string name="settings_patch_success">นำเข้าสำเร็จ เปิดใช้โอเวอร์ไรด์อยู่</string>
     <string name="settings_vpn">การตั้งค่า VPN</string>
     <string name="share">แชร์…</string>
+    <string name="show_account_number">แสดงหมายเลขบัญชี</string>
     <string name="show_system_apps">แสดงแอประบบ</string>
     <string name="split_tunneling_description">ช่วยให้คุณเลือกแอปที่เข้าถึงอินเทอร์เน็ตได้โดยตรง โดยไม่ต้องผ่านอุโมงค์ VPN</string>
     <string name="split_tunneling_description_warning">โปรดทราบ: แอปแยกจะไม่มีอินเทอร์เน็ต ในกรณีที่เปิดใช้งาน \"ปิดกั้นการเชื่อมต่อโดยไม่ใช้ VPN\" โปรดทราบว่า การการแยกอุโมงค์จะก่อให้เกิดความเสี่ยงต่อความเป็นส่วนตัว</string>

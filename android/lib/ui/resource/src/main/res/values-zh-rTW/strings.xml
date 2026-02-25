@@ -415,6 +415,7 @@
     <string name="settings_patch_success">匯入成功，覆寫設定已啟用</string>
     <string name="settings_vpn">VPN 設定</string>
     <string name="share">共享…</string>
+    <string name="show_account_number">顯示帳號</string>
     <string name="show_system_apps">顯示系統應用程式</string>
     <string name="split_tunneling_description">允許您選擇不經過 VPN 通道而直接存取網際網路的應用程式。</string>
     <string name="split_tunneling_description_warning">注意：如果啟用了「在沒有 VPN 的情況下封鎖連線」，分割應用程式將無法進行網際網路連線。請謹記，分割通道存在隱私風險。</string>

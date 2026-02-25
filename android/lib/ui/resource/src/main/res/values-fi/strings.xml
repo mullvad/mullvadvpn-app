@@ -415,6 +415,7 @@
     <string name="settings_patch_success">Tuonti onnistui ja ohituksia on käytössä</string>
     <string name="settings_vpn">VPN-asetukset</string>
     <string name="share">Jaa…</string>
+    <string name="show_account_number">Näytä tilin numero</string>
     <string name="show_system_apps">Näytä järjestelmäsovellukset</string>
     <string name="split_tunneling_description">Voit valita sovelluksia, joiden pitäisi muodostaa yhteys Internetiin suoraan kulkematta VPN-tunnelin läpi.</string>
     <string name="split_tunneling_description_warning">Huomio: Jos \"Estä yhteydet ilman VPN:ää\" -vaihtoehto on käytössä, sovelluskohtaisesti yhdistettävillä sovelluksilla ei ole pääsyä internetiin. Muista aina, että sovelluskohtainen yhdistäminen on tietosuojariski.</string>

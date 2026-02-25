@@ -415,6 +415,7 @@
     <string name="settings_patch_success">Importering vellykket. Overstyringer aktive</string>
     <string name="settings_vpn">VPN-innstillinger</string>
     <string name="share">Del …</string>
+    <string name="show_account_number">Vis kontonummer</string>
     <string name="show_system_apps">Vis systemapper</string>
     <string name="split_tunneling_description">Lar deg velge apper som skal få tilgang til internett direkte uten å gå gjennom VPN-tunnelen.</string>
     <string name="split_tunneling_description_warning">Merk: Hvis «Blokker tilkoblinger uten VPN» er aktivert, har ikke splittede apper internettilgang. Ha i bakhodet at «split tunneling» er en personvernrisiko.</string>

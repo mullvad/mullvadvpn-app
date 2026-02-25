@@ -415,6 +415,7 @@
     <string name="settings_patch_success">インポートが正常に完了しました。オーバーライドは有効です</string>
     <string name="settings_vpn">VPN設定</string>
     <string name="share">共有…</string>
+    <string name="show_account_number">アカウント番号の表示</string>
     <string name="show_system_apps">システムアプリの表示</string>
     <string name="split_tunneling_description">VPN トンネルを経由せずに、直接インターネットにアクセスするアプリを選択できます。</string>
     <string name="split_tunneling_description_warning">注意: [VPNを使用していない接続をブロックする] が有効な場合、スプリット対象のアプリはインターネットを使用できません。スプリットトンネリングにはプライバシーのリスクがあることに常に注意してください。</string>

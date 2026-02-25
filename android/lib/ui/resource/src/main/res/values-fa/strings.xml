@@ -415,6 +415,7 @@
     <string name="settings_patch_success">وارد کردن موفقیت‌آمیز بود، تنظیمات جایگزین فعال شدند</string>
     <string name="settings_vpn">تنظیمات VPN</string>
     <string name="share">اشتراک‌گذاری…</string>
+    <string name="show_account_number">نمایش شمارهٔ حساب</string>
     <string name="show_system_apps">نمایش اپلیکیشن‌های سیستمی</string>
     <string name="split_tunneling_description">این قابلیت به شما اجازه می‌دهد اپلیکیشن‌هایی را انتخاب کنید که اینترنت را مستقیم و بدون عبور از تونل VPN استفاده کنند.</string>
     <string name="split_tunneling_description_warning">توجه: اگر «مسدود کردن اتصال‌ها بدون VPN» فعال باشد، اپلیکیشن‌های تفکیک‌شده به اینترنت دسترسی نخواهند داشت. همیشه در نظر داشته باشید که تونل‌گذاری تفکیک‌شده یک خطر برای حریم خصوصی است.</string>

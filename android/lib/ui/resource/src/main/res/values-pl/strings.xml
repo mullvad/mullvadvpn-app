@@ -415,6 +415,7 @@
     <string name="settings_patch_success">Import zakończony powodzeniem, zastąpienia są aktywne</string>
     <string name="settings_vpn">Ustawienia VPN</string>
     <string name="share">Udostępnij…</string>
+    <string name="show_account_number">Pokaż numer konta</string>
     <string name="show_system_apps">Pokaż aplikacje systemowe</string>
     <string name="split_tunneling_description">Umożliwia wybranie aplikacji, które powinny uzyskiwać bezpośredni dostęp do Internetu bez przechodzenia przez tunel VPN.</string>
     <string name="split_tunneling_description_warning">Uwaga: jeśli opcja „Blokuj połączenia bez pośrednictwa sieci VPN” jest włączona, wówczas aplikacje dzielące nie będą miały dostępu do Internetu. Należy pamiętać, że dzielone tunelowanie stanowi zagrożenie dla prywatności.</string>

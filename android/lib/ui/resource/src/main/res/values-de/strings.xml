@@ -415,6 +415,7 @@
     <string name="settings_patch_success">Import erfolgreich, Überschreibungen aktiv</string>
     <string name="settings_vpn">VPN-Einstellungen</string>
     <string name="share">Teilen …</string>
+    <string name="show_account_number">Kontonummer anzeigen</string>
     <string name="show_system_apps">System-Apps anzeigen</string>
     <string name="split_tunneling_description">Hiermit können Sie Apps auswählen, die ohne den VPN-Tunnel direkt auf das Internet zugreifen sollen.</string>
     <string name="split_tunneling_description_warning">Achtung! Wenn „Verbindungen ohne VPN blockieren“ aktiviert ist, haben Split-Apps keine Internetverbindung. Denken Sie immer daran, dass Split-Tunneling ein Datenschutzrisiko darstellt.</string>
