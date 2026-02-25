@@ -33,7 +33,7 @@ pub fn to_gotatun_peer(peer: &PeerConfig, daita: Option<&DaitaSettings>) -> Peer
             max_decoy_frac: daita.max_decoy_frac,
             max_delay_frac: daita.max_delay_frac,
             // TODO: tweak to sane values
-            max_delayed_packets: NonZero::new(1024).unwrap(),
+            max_delayed_packets: const { NonZeroUsize::new(1024).unwrap() },
             min_delay_capacity: 50,
         };
         peer = peer.with_daita(daita);
