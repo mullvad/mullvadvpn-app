@@ -6,10 +6,12 @@
 //  Copyright © 2026 Mullvad VPN AB. All rights reserved.
 //
 
+import MullvadLogging
 import MullvadSettings
 import MullvadTypes
 
 struct SinglehopPicker: RelayPicking {
+    let logger = Logger(label: "SinglehopPicker")
     let obfuscation: RelayObfuscation
     let tunnelSettings: LatestTunnelSettings
     let connectionAttemptCount: UInt

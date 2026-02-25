@@ -15,6 +15,11 @@ final class TunnelObfuscationTests: XCTestCase {
     /// A test public key generated from a random private key.
     private let testPublicKey = PrivateKey().publicKey
 
+    override func setUp() {
+        super.setUp()
+        RustLogging.initialize()
+    }
+
     func testRunningUdpOverTcpObfuscatorProxy() async throws {
         // Each packet is prefixed with u16 that contains a payload length.
         let preambleLength = MemoryLayout<UInt16>.size
