@@ -1,5 +1,5 @@
 //
-//  AppStoreMetaDataServiceTests.swift
+//  AppVersionServiceTests.swift
 //  MullvadVPN
 //
 //  Created by Jon Petersson on 2026-01-15.
@@ -12,7 +12,7 @@ import XCTest
 @testable import MullvadREST
 @testable import MullvadSettings
 
-class AppStoreMetaDataServiceTests: XCTestCase {
+class AppVersionServiceTests: XCTestCase {
     private let encoder = JSONEncoder()
 
     func testPerformVersionCheckNewVersionExists() async throws {
@@ -30,8 +30,7 @@ class AppStoreMetaDataServiceTests: XCTestCase {
             ]
         )
 
-        let metaDataService = AppStoreMetaDataService(
-            tunnelSettings: LatestTunnelSettings(),
+        let appVersionService = AppVersionService(
             urlSession: URLSessionStub(
                 response: (mockData, URLResponse())
             ),
@@ -40,7 +39,7 @@ class AppStoreMetaDataServiceTests: XCTestCase {
 
         )
 
-        let shouldSendNotification = try await metaDataService.performVersionCheck()
+        let shouldSendNotification = try await appVersionService.performVersionCheck()
         XCTAssertTrue(shouldSendNotification)
     }
 
@@ -58,8 +57,7 @@ class AppStoreMetaDataServiceTests: XCTestCase {
             ]
         )
 
-        let metaDataService = AppStoreMetaDataService(
-            tunnelSettings: LatestTunnelSettings(),
+        let appVersionService = AppVersionService(
             urlSession: URLSessionStub(
                 response: (mockData, URLResponse())
             ),
@@ -67,7 +65,7 @@ class AppStoreMetaDataServiceTests: XCTestCase {
             mainAppBundleIdentifier: bundleId
         )
 
-        let shouldSendNotification = try await metaDataService.performVersionCheck()
+        let shouldSendNotification = try await appVersionService.performVersionCheck()
         XCTAssertFalse(shouldSendNotification)
     }
 

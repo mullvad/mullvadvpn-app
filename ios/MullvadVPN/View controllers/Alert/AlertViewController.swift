@@ -43,8 +43,13 @@ enum AlertIcon {
 }
 
 class AlertViewController: UIViewController {
+    typealias InteractiveHandler = (AlertViewController, AppButton) -> Void
     typealias Handler = () -> Void
-    var onDismiss: Handler?
+
+    var onDismiss: (() -> Void)?
+
+    private var handlers = [UIButton: Handler]()
+    private var interactiveHandlers = [UIButton: InteractiveHandler]()
 
     private let scrollView = UIScrollView()
     private var scrollViewHeightConstraint: NSLayoutConstraint!
@@ -81,8 +86,6 @@ class AlertViewController: UIViewController {
         return view
     }()
 
-    private var handlers = [UIButton: Handler]()
-
     init(presentation: AlertPresentation) {
         self.presentation = presentation
 
@@ -116,6 +119,16 @@ class AlertViewController: UIViewController {
         setConstraints()
     }
 
+    func add(action: AlertAction) {
+        addAction(
+            title: action.title,
+            style: action.style,
+            accessibilityId: action.accessibilityId,
+            handler: action.handler,
+            interactiveHandler: action.interactiveHandler
+        )
+    }
+
     private func setContent() {
         presentation.icon.flatMap { addIcon($0) }
         presentation.header.flatMap { addHeader($0) }
@@ -132,7 +145,8 @@ class AlertViewController: UIViewController {
                 title: action.title,
                 style: action.style,
                 accessibilityId: action.accessibilityId,
-                handler: action.handler
+                handler: action.handler,
+                interactiveHandler: action.interactiveHandler
             )
         }
 
@@ -273,16 +287,18 @@ class AlertViewController: UIViewController {
         title: String,
         style: AlertActionStyle,
         accessibilityId: AccessibilityIdentifier?,
-        handler: (() -> Void)? = nil
+        handler: Handler? = nil,
+        interactiveHandler: InteractiveHandler? = nil,
     ) {
         let button = AppButton(style: style.buttonStyle)
-
         button.setTitle(title, for: .normal)
         button.setAccessibilityIdentifier(accessibilityId)
         button.addTarget(self, action: #selector(didTapButton), for: .touchUpInside)
 
         buttonView.addArrangedSubview(button)
+
         handler.flatMap { handlers[button] = $0 }
+        interactiveHandler.flatMap { interactiveHandlers[button] = $0 }
     }
 
     private func getImageView(for icon: AlertIcon) -> UIView {
@@ -317,10 +333,15 @@ class AlertViewController: UIViewController {
     }
 
     @objc private func didTapButton(_ button: AppButton) {
+        if let interactiveHandler = interactiveHandlers.removeValue(forKey: button) {
+            interactiveHandler(self, button)
+            return
+        }
+
         onDismiss?()
+
         if let handler = handlers.removeValue(forKey: button) {
             handler()
         }
-        handlers.removeAll()
     }
 }
