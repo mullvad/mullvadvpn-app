@@ -3400,7 +3400,7 @@ impl Daemon {
 
     // Debug features
 
-    /// Mark [relay] as active or inactive in the daemon's relay list.
+    /// Mark `relay` as active or inactive in the daemon's relay list.
     fn on_toggle_relay(&mut self, relay: String, active: bool, tx: oneshot::Sender<()>) {
         use mullvad_types::relay_list::RelayList;
         let relays = {
