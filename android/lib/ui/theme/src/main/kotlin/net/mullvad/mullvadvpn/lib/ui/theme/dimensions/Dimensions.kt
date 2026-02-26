@@ -59,7 +59,7 @@ data class Dimensions(
     val problemReportTextFieldMinHeight: Dp = 220.dp,
     val reconnectButtonMinInteractiveComponentSize: Dp = 40.dp,
     val reconnectButtonDivider: Dp = 2.dp,
-    val relayCirclePadding: Dp = 8.dp,
+    val relayCirclePadding: Dp = 5.dp,
     val relayCircleSize: Dp = 16.dp,
     val relayItemCornerRadius: Dp = 16.dp,
     // These two should be consolidated into one value when OK'd with design.
