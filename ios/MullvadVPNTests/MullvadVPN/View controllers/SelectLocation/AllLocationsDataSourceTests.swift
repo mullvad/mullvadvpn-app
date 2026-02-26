@@ -149,6 +149,21 @@ class AllLocationsDataSourceTests: XCTestCase {
         }
     }
 
+    func testSinglehopDoesNotExcludeLocations() throws {
+        // jp1-wireguard is the only relay in Japan. In multihop, selecting it
+        // as entry correctly excludes all of Japan from exit selection.
+        // But in singlehop, nothing should be excluded.
+        let entryRelays = UserSelectedRelays(locations: [.hostname("jp", "tyo", "jp1-wireguard")])
+        dataSource.setExcludedNode(excludedSelection: entryRelays, isMultihopEnabled: false)
+
+        // In singlehop, Japan should NOT be excluded
+        let jpNode = dataSource.node(by: entryRelays)!
+        XCTAssertFalse(jpNode.isExcluded)
+        jpNode.forEachAncestor { ancestor in
+            XCTAssertFalse(ancestor.isExcluded)
+        }
+    }
+
     func testExcludeLocationIncludesAncestors() throws {
         let excludedRelays = UserSelectedRelays(locations: [.hostname("jp", "tyo", "jp1-wireguard")])
         dataSource.setExcludedNode(excludedSelection: excludedRelays)
