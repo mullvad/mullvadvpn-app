@@ -83,6 +83,11 @@ const val PLAY_PAYMENT_INFO_ICON_TEST_TAG = "play_payment_info_icon_test_tag"
 
 const val LOGIN_TITLE_TEST_TAG = "login_title_test_tag"
 const val LOGIN_INPUT_TEST_TAG = "login_input_test_tag"
+<<<<<<< Updated upstream
+||||||| Stash base
+=======
+const val LOGIN_REVEAL_INPUT_BUTTON_TEST_TAG = "login_reveal_input_button_test_tag"
+>>>>>>> Stashed changes
 const val LOGIN_BUTTON_TEST_TAG = "login_button_test_tag"
 
 // VoucherDialog

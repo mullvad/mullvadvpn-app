@@ -33,6 +33,7 @@ class AccountHistoryMockApiTest : MockApiTest() {
 
         val expectedResult = "1234 1234 1234 1234"
         on<LoginPage> {
+            toggleRevealInput()
             assertHasAccountHistory(expectedResult)
             device.findObjectWithTimeout(By.text(expectedResult)).click()
         }
