@@ -1,6 +1,6 @@
 use crate::version::rollout::Rollout;
 
-/// Query type for [VersionInfo]
+/// Query type for [VersionInfo](super::info::VersionInfo)
 #[derive(Debug, Clone)]
 pub struct VersionParameters {
     /// Architecture to retrieve data for
