@@ -1,0 +1,199 @@
+# screenshot-flow.yaml
+appId: net.mullvad.mullvadvpn
+---
+- launchApp
+
+### Privacy
+- tapOn: "Agree and continue"
+
+### Login
+- tapOn:
+    text: "Allow"
+    optional: true
+- takeScreenshot:
+    path: LoginScreen
+- tapOn: "Enter your account number"
+- inputText: "1234123412341234"
+- hideKeyboard
+- tapOn:
+    point: "50%, 5%"
+- takeScreenshot:
+    path: LoginScreen2
+- eraseText
+- inputText: "${ACCOUNT_NUMBER}"
+- pressKey: Enter
+
+### Too many devices
+- takeScreenshot:
+    path: TooManyDevices
+- tapOn:
+    text: "Remove"
+    index: 0
+- takeScreenshot:
+    path: LogOutDevice
+- back
+- tapOn:
+    text: "Remove"
+    index: 4
+- tapOn: "Yes, log out device"
+- takeScreenshot:
+    path: TooManyDevices2
+- tapOn:
+    text: "Remove"
+    index: 3
+- tapOn: "Yes, log out device"
+- tapOn: "Continue with login"
+
+### Connect
+- tapOn: "Connect"
+- takeScreenshot:
+    path: ConnectionRequest
+- tapOn: "OK"
+- takeScreenshot:
+    path: MainScreen
+- tapOn: "Switch location"
+
+### Select location
+- scrollUntilVisible:
+    element:
+      text: "Ukraine"
+    direction: DOWN
+    speed: 95
+- takeScreenshot:
+    path: SelectLocation
+- tapOn:
+    id: "EXPAND_BUTTON_TEST_TAG"
+    below: "Spain"
+- tapOn:
+    id: "EXPAND_BUTTON_TEST_TAG"
+    below:
+      text: "Sweden"
+      index: 1
+- repeat:
+    while:
+      visible:
+        text: "Spain"
+    commands:
+      - swipe:
+          start: "50%, 50%"
+          end: "50%, 47%"
+- takeScreenshot:
+    path: SelectLocation2
+- scrollUntilVisible:
+    element:
+      text: "Internet"
+    direction: UP
+    speed: 95
+- tapOn: "More actions"
+- tapOn: "Enable multihop"
+- tapOn:
+    id: "hop_selector_entry_test_tag"
+- tapOn: "Austria"
+- takeScreenshot:
+    path: SelectLocationMultihop
+- tapOn: "More actions"
+- tapOn: "Disable multihop"
+
+### Search
+- tapOn: "Search"
+- inputText: "dallas"
+- hideKeyboard
+- takeScreenshot:
+    path: Search
+- back
+- back
+
+### Account
+- tapOn: "Account"
+- takeScreenshot:
+    path: Account
+- tapOn: "Manage devices"
+- takeScreenshot:
+    path: ManageDevices
+- back
+- back
+
+### Settings
+- tapOn: "Settings"
+- takeScreenshot:
+    path: Settings
+
+### DAITA
+- tapOn: "DAITA"
+- takeScreenshot:
+    path: Daita
+- back
+
+### Multihop
+- tapOn: "Multihop"
+- takeScreenshot:
+    path: Multihop
+- tapOn: "Enable"
+- back
+
+### VPN settings
+- tapOn: "VPN settings"
+- takeScreenshot:
+    path: VpnSettings
+- tapOn: "Anti-censorship"
+- takeScreenshot:
+    path: AntiCensorship
+- back
+- tapOn: "DNS content blockers"
+- swipe:
+    start: "50%, 50%"
+    end: "50%, 40%"
+- takeScreenshot:
+    path: ContentBlockers
+- scrollUntilVisible:
+    element:
+      text: "Server IP override"
+    direction: DOWN
+    speed: 95
+- tapOn: "Server IP override"
+- tapOn: "Import"
+- tapOn: "Text"
+- tapOn:
+    point: "50%, 50%"
+# yamllint disable-line rule:line-length
+- setClipboard: '{"relay_overrides":[{"hostname":"fi-hel-wg-001","ipv4_addr_in":"185.11.111.11","ipv6_addr_in":"2a0c:f111:0:2111::D111"}]}'
+- pasteText
+- tapOn: "Import"
+- takeScreenshot:
+    path: ServerIpOverride
+- back
+- back
+
+### Split tunneling
+- tapOn: "Split tunneling"
+- tapOn: "Enable"
+- scrollUntilVisible:
+    element:
+      text: "Photos"
+    direction: DOWN
+    speed: 95
+- tapOn: "Photos"
+- scrollUntilVisible:
+    element:
+      text: "Enable"
+    direction: UP
+    speed: 95
+- takeScreenshot:
+    path: SplitTunneling
+- back
+
+### API access
+- tapOn: "API access"
+- takeScreenshot:
+    path: ApiAccess
+
+- tapOn: "Mullvad Bridges"
+- takeScreenshot:
+    path: Bridges
+- back
+- back
+
+### Report a problem
+- tapOn: "Report a problem"
+- takeScreenshot:
+    path: ReportProblem

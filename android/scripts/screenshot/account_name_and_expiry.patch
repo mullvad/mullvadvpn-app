@@ -1,0 +1,81 @@
+diff --git a/android/lib/feature/login/impl/src/main/kotlin/net/mullvad/mullvadvpn/feature/login/impl/devicelist/DeviceListViewModel.kt b/android/lib/feature/login/impl/src/main/kotlin/net/mullvad/mullvadvpn/feature/login/impl/devicelist/DeviceListViewModel.kt
+index 341fe1c844..3a2fcdc4ea 100644
+--- a/android/lib/feature/login/impl/src/main/kotlin/net/mullvad/mullvadvpn/feature/login/impl/devicelist/DeviceListViewModel.kt
++++ b/android/lib/feature/login/impl/src/main/kotlin/net/mullvad/mullvadvpn/feature/login/impl/devicelist/DeviceListViewModel.kt
+@@ -53,7 +53,18 @@ class DeviceListViewModel(
+                     error != null -> DeviceListUiState.Error(error)
+                     else ->
+                         DeviceListUiState.Content(
+-                            devices.map { DeviceItemUiState(it, loadingDevices.contains(it.id)) }
++                            devices.mapIndexed { index, dev ->
++                                DeviceItemUiState(
++                                    dev.let {
++                                        if (index == 0) {
++                                            it.copy(name = "Secure Mole")
++                                        } else {
++                                            it
++                                        }
++                                    },
++                                    loadingDevices.contains(dev.id),
++                                )
++                            }
+                         )
+                 }
+             }
+diff --git a/android/lib/feature/managedevices/impl/src/main/java/net/mullvad/mullvadvpn/feature/managedevices/impl/ManageDevicesViewModel.kt b/android/lib/feature/managedevices/impl/src/main/java/net/mullvad/mullvadvpn/feature/managedevices/impl/ManageDevicesViewModel.kt
+index 77d4771ab9..3b7b87f27f 100644
+--- a/android/lib/feature/managedevices/impl/src/main/java/net/mullvad/mullvadvpn/feature/managedevices/impl/ManageDevicesViewModel.kt
++++ b/android/lib/feature/managedevices/impl/src/main/java/net/mullvad/mullvadvpn/feature/managedevices/impl/ManageDevicesViewModel.kt
+@@ -61,11 +61,15 @@ class ManageDevicesViewModel(
+                     error != null -> Lce.Error(error)
+                     else -> {
+                         val deviceItems =
+-                            devices.map {
++                            devices.map { device ->
+                                 ManageDevicesItemUiState(
+-                                    it,
+-                                    loadingDevices.contains(it.id),
+-                                    isCurrentDevice = it.id == currentDeviceState.device.id,
++                                    device.let { dev ->
++                                        if (dev.id == currentDeviceState.device.id)
++                                            dev.copy(name = "Secure Mole")
++                                        else dev
++                                    },
++                                    loadingDevices.contains(device.id),
++                                    isCurrentDevice = device.id == currentDeviceState.device.id,
+                                 )
+                             }
+                         Lce.Content(ManageDevicesUiState(deviceItems.sortedWith(deviceComparator)))
+diff --git a/android/lib/grpc/src/main/kotlin/net/mullvad/mullvadvpn/lib/grpc/mapper/ToDomain.kt b/android/lib/grpc/src/main/kotlin/net/mullvad/mullvadvpn/lib/grpc/mapper/ToDomain.kt
+index 656a910ad6..5cd4b0c3cf 100644
+--- a/android/lib/grpc/src/main/kotlin/net/mullvad/mullvadvpn/lib/grpc/mapper/ToDomain.kt
++++ b/android/lib/grpc/src/main/kotlin/net/mullvad/mullvadvpn/lib/grpc/mapper/ToDomain.kt
+@@ -7,6 +7,7 @@ import java.net.InetAddress
+ import java.net.InetSocketAddress
+ import java.time.Instant
+ import java.time.ZoneId
++import java.time.ZonedDateTime
+ import java.util.UUID
+ import mullvad_daemon.management_interface.ManagementInterface
+ import mullvad_daemon.management_interface.entryLocationOrNull
+@@ -624,7 +625,10 @@ internal fun ManagementInterface.Device.toDomain(): Device =
+ internal fun ManagementInterface.DeviceState.toDomain(): DeviceState =
+     when (state) {
+         ManagementInterface.DeviceState.State.LOGGED_IN ->
+-            DeviceState.LoggedIn(AccountNumber(device.accountNumber), device.device.toDomain())
++            DeviceState.LoggedIn(
++                AccountNumber(device.accountNumber),
++                device.device.toDomain().copy(name = "Secure Mole"),
++            )
+         ManagementInterface.DeviceState.State.LOGGED_OUT -> DeviceState.LoggedOut
+         ManagementInterface.DeviceState.State.REVOKED -> DeviceState.Revoked
+         ManagementInterface.DeviceState.State.UNRECOGNIZED ->
+@@ -636,7 +640,7 @@ internal fun ManagementInterface.AccountData.toDomain(accountNumber: AccountNumb
+     AccountData(
+         id = AccountId(UUID.fromString(id)),
+         accountNumber = accountNumber,
+-        expiryDate = Instant.ofEpochSecond(expiry.seconds).atDefaultZone(),
++        expiryDate = ZonedDateTime.now().plusDays(37).plusHours(1),
+     )
+ 
+ internal fun ManagementInterface.VoucherSubmission.toDomain(): RedeemVoucherSuccess =
