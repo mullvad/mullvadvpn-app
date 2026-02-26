@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.lib.ui.component.relaylist
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -67,7 +68,9 @@ fun SelectableRelayListItem(
     val selected = relayListItem.isSelected
 
     MullvadListItem(
-        modifier = modifier,
+        // combinedClickable is used here instead of the onClick and onLongClick because we want
+        // the row to be clickable even when it's not enabled (active).
+        modifier = modifier.combinedClickable(onClick = onClick, onLongClick = onLongClick),
         hierarchy = relayListItem.hierarchy,
         position = relayListItem.itemPosition,
         isSelected = selected,
@@ -82,8 +85,6 @@ fun SelectableRelayListItem(
         mainClickArea =
             if (relayListItem.canExpand) ListItemClickArea.LeadingAndMain
             else ListItemClickArea.All,
-        onClick = onClick,
-        onLongClick = onLongClick,
         leadingContent = {
             LeadingContentAnimatedVisibility(
                 modifier = Modifier.align(Alignment.Center),
