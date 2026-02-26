@@ -14,6 +14,16 @@ public protocol ObfuscationProviding {
 }
 
 public struct ObfuscationMethodSelector {
+    public static var obfuscationOrder: [WireGuardObfuscationState] {
+        [
+            .off,
+            .shadowsocks,
+            .quic,
+            .udpOverTcp,
+            .lwo,
+        ]
+    }
+
     /// This retry logic used is explained at the following link:
     /// https://github.com/mullvad/mullvadvpn-app/blob/main/docs/relay-selector.md#default-constraints-for-tunnel-endpoints
     ///
@@ -24,19 +34,9 @@ public struct ObfuscationMethodSelector {
         obfuscationBypass: any ObfuscationProviding
     ) -> WireGuardObfuscationState {
         if tunnelSettings.wireGuardObfuscation.state == .automatic {
-            let selectedObfuscation: WireGuardObfuscationState =
-                if connectionAttemptCount.isOrdered(
-                    nth: 2,
-                    forEverySetOf: 4
-                ) {
-                    .shadowsocks
-                } else if connectionAttemptCount.isOrdered(nth: 3, forEverySetOf: 4) {
-                    .quic
-                } else if connectionAttemptCount.isOrdered(nth: 4, forEverySetOf: 4) {
-                    .udpOverTcp
-                } else {
-                    .off
-                }
+            let attemptIndex = Int(connectionAttemptCount) % obfuscationOrder.count
+            let selectedObfuscation = obfuscationOrder[attemptIndex]
+
             return obfuscationBypass.bypassUnsupportedObfuscation(selectedObfuscation)
         }
         return tunnelSettings.wireGuardObfuscation.state

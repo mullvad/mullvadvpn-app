@@ -8,9 +8,13 @@
 
 import MullvadRustRuntime
 import Network
+import WireGuardKitTypes
 import XCTest
 
 final class TunnelObfuscationTests: XCTestCase {
+    /// A test public key generated from a random private key.
+    private let testPublicKey = PrivateKey().publicKey
+
     override func setUp() {
         super.setUp()
         RustLogging.initialize()
@@ -27,8 +31,9 @@ final class TunnelObfuscationTests: XCTestCase {
 
         let obfuscator = TunnelObfuscator(
             remoteAddress: IPv4Address.loopback,
-            tcpPort: tcpListener.listenPort,
-            obfuscationProtocol: .udpOverTcp
+            remotePort: tcpListener.listenPort,
+            obfuscationProtocol: .udpOverTcp,
+            clientPublicKey: testPublicKey
         )
         obfuscator.start()
 
@@ -64,8 +69,9 @@ final class TunnelObfuscationTests: XCTestCase {
 
         let localObfuscator = TunnelObfuscator(
             remoteAddress: IPv4Address.loopback,
-            tcpPort: localUdpListener.listenPort,
-            obfuscationProtocol: .shadowsocks
+            remotePort: localUdpListener.listenPort,
+            obfuscationProtocol: .shadowsocks,
+            clientPublicKey: testPublicKey
         )
         localObfuscator.start()
 
@@ -92,5 +98,98 @@ final class TunnelObfuscationTests: XCTestCase {
         // The connection from the local UDP listener writes back what it read from the obfuscator, unencrypted
         _ = try await localConnectionDataTask.value
         XCTAssertEqual(readDataFromObfuscator, markerData)
+    }
+
+    /// Tests that the LWO obfuscator proxy can be started and stopped correctly via FFI.
+    func testRunningLwoObfuscatorProxy() async throws {
+        let markerData = Data([109, 117, 108, 108, 118, 97, 100])
+
+        let localUdpListener = try UnsafeListener<UDPConnection>()
+        try await localUdpListener.start()
+
+        // Generate test keys for LWO
+        let clientPrivateKey = PrivateKey()
+        let serverPrivateKey = PrivateKey()
+
+        let obfuscator = TunnelObfuscator(
+            remoteAddress: IPv4Address.loopback,
+            remotePort: localUdpListener.listenPort,
+            obfuscationProtocol: .lwo(serverPublicKey: serverPrivateKey.publicKey),
+            clientPublicKey: clientPrivateKey.publicKey
+        )
+        obfuscator.start()
+
+        // Verify the obfuscator has allocated a local UDP port
+        XCTAssertNotEqual(obfuscator.localUdpPort, 0, "LWO obfuscator should allocate a local UDP port")
+
+        // Accept incoming connections and echo back
+        let connectionDataTask = Task {
+            for await connection in localUdpListener.newConnections {
+                try await connection.start()
+                let readDatagram = try await connection.readSingleDatagram()
+                try await connection.sendData(readDatagram)
+                return readDatagram
+            }
+            throw POSIXError(.ECANCELED)
+        }
+
+        // Send marker data over UDP to the obfuscator's local port
+        let connection = UDPConnection(remote: IPv4Address.loopback, port: obfuscator.localUdpPort)
+        try await connection.start()
+        try await connection.sendData(markerData)
+
+        // Wait for the data to be received by the listener
+        // The data will be obfuscated, so we just verify something was received
+        let receivedData = try await connectionDataTask.value
+        XCTAssertFalse(receivedData.isEmpty, "LWO obfuscator should forward data to the remote endpoint")
+
+        // Stop the obfuscator - this tests that stop() doesn't crash or cause memory issues
+        obfuscator.stop()
+    }
+
+    /// Tests that the LWO obfuscator can be started and stopped multiple times without memory issues.
+    func testLwoObfuscatorStartStopMultipleTimes() async throws {
+        let localUdpListener = try UnsafeListener<UDPConnection>()
+        try await localUdpListener.start()
+
+        let clientPrivateKey = PrivateKey()
+        let serverPrivateKey = PrivateKey()
+
+        // Create and destroy obfuscators multiple times to check for memory leaks/issues
+        for iteration in 1...5 {
+            let obfuscator = TunnelObfuscator(
+                remoteAddress: IPv4Address.loopback,
+                remotePort: localUdpListener.listenPort,
+                obfuscationProtocol: .lwo(serverPublicKey: serverPrivateKey.publicKey),
+                clientPublicKey: clientPrivateKey.publicKey
+            )
+
+            obfuscator.start()
+            XCTAssertNotEqual(
+                obfuscator.localUdpPort, 0, "Iteration \(iteration): LWO obfuscator should allocate a port")
+
+            obfuscator.stop()
+        }
+    }
+
+    /// Tests that calling stop() on an already stopped obfuscator doesn't crash.
+    func testLwoObfuscatorDoubleStopSafe() async throws {
+        let localUdpListener = try UnsafeListener<UDPConnection>()
+        try await localUdpListener.start()
+
+        let clientPrivateKey = PrivateKey()
+        let serverPrivateKey = PrivateKey()
+
+        let obfuscator = TunnelObfuscator(
+            remoteAddress: IPv4Address.loopback,
+            remotePort: localUdpListener.listenPort,
+            obfuscationProtocol: .lwo(serverPublicKey: serverPrivateKey.publicKey),
+            clientPublicKey: clientPrivateKey.publicKey
+        )
+
+        obfuscator.start()
+        obfuscator.stop()
+        // Second stop should be safe and not crash
+        obfuscator.stop()
     }
 }

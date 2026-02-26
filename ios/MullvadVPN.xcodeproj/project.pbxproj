@@ -626,6 +626,10 @@
 		7AA513862BC91C6B00D081A4 /* LogRotationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AA513852BC91C6B00D081A4 /* LogRotationTests.swift */; };
 		7AA564462F29014D001D1FB9 /* IncludeAllNetworksPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AA564452F290144001D1FB9 /* IncludeAllNetworksPage.swift */; };
 		7AA564482F2B6813001D1FB9 /* String+Assets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AA564472F2B680D001D1FB9 /* String+Assets.swift */; };
+		7AA5644C2F30C789001D1FB9 /* LwoObfuscationSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AA5644B2F30C779001D1FB9 /* LwoObfuscationSettingsView.swift */; };
+		7AA5644E2F30C7B3001D1FB9 /* LwoObfuscationSettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AA5644D2F30C7A6001D1FB9 /* LwoObfuscationSettingsViewModel.swift */; };
+		7AA564502F30D0DE001D1FB9 /* LwoObfuscator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AA5644F2F30D0D9001D1FB9 /* LwoObfuscator.swift */; };
+		7AA564522F30E033001D1FB9 /* LwoObfuscationSettingsPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AA564512F30E02C001D1FB9 /* LwoObfuscationSettingsPage.swift */; };
 		7AA5C3702E9D21DB00B35530 /* DefaultLocationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AA5C36F2E9D21CD00B35530 /* DefaultLocationService.swift */; };
 		7AA5C3752E9FCD9300B35530 /* DefaultLocationServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AA5C3742E9FCD5F00B35530 /* DefaultLocationServiceTests.swift */; };
 		7AA5C3792E9FD8BA00B35530 /* URLSessionStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = F09D04BA2AE95396003D4F89 /* URLSessionStub.swift */; };
@@ -670,8 +674,6 @@
 		7AD63A3B2CD5278900445268 /* ObfuscationMethodSelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AD63A3A2CD5278900445268 /* ObfuscationMethodSelector.swift */; };
 		7AD63A3D2CD9065D00445268 /* RelayObfuscatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AD63A3C2CD9065100445268 /* RelayObfuscatorTests.swift */; };
 		7AD63A3F2CDA53F600445268 /* ObfuscationMethodSelectorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AD63A3E2CDA53E900445268 /* ObfuscationMethodSelectorTests.swift */; };
-		7AD63A442CDA663300445268 /* UInt+Counting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AD63A432CDA662900445268 /* UInt+Counting.swift */; };
-		7AD63A472CDA666100445268 /* UIntTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AD63A462CDA665A00445268 /* UIntTests.swift */; };
 		7ADCB2D82B6A6EB300C88F89 /* AnyRelay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ADCB2D72B6A6EB300C88F89 /* AnyRelay.swift */; };
 		7ADCB2DA2B6A730400C88F89 /* IPOverrideRepositoryStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ADCB2D92B6A730400C88F89 /* IPOverrideRepositoryStub.swift */; };
 		7AE044BB2A935726003915D8 /* Routing.h in Headers */ = {isa = PBXBuildFile; fileRef = 7A88DCD02A8FABBE00D2FF0E /* Routing.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -2183,6 +2185,10 @@
 		7AA513852BC91C6B00D081A4 /* LogRotationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogRotationTests.swift; sourceTree = "<group>"; };
 		7AA564452F290144001D1FB9 /* IncludeAllNetworksPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncludeAllNetworksPage.swift; sourceTree = "<group>"; };
 		7AA564472F2B680D001D1FB9 /* String+Assets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Assets.swift"; sourceTree = "<group>"; };
+		7AA5644B2F30C779001D1FB9 /* LwoObfuscationSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LwoObfuscationSettingsView.swift; sourceTree = "<group>"; };
+		7AA5644D2F30C7A6001D1FB9 /* LwoObfuscationSettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LwoObfuscationSettingsViewModel.swift; sourceTree = "<group>"; };
+		7AA5644F2F30D0D9001D1FB9 /* LwoObfuscator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LwoObfuscator.swift; sourceTree = "<group>"; };
+		7AA564512F30E02C001D1FB9 /* LwoObfuscationSettingsPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LwoObfuscationSettingsPage.swift; sourceTree = "<group>"; };
 		7AA5C36F2E9D21CD00B35530 /* DefaultLocationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultLocationService.swift; sourceTree = "<group>"; };
 		7AA5C3742E9FCD5F00B35530 /* DefaultLocationServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultLocationServiceTests.swift; sourceTree = "<group>"; };
 		7AA636372D2D3BAC009B2C89 /* View+Conditionals.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+Conditionals.swift"; sourceTree = "<group>"; };
@@ -2222,8 +2228,6 @@
 		7AD63A3A2CD5278900445268 /* ObfuscationMethodSelector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObfuscationMethodSelector.swift; sourceTree = "<group>"; };
 		7AD63A3C2CD9065100445268 /* RelayObfuscatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayObfuscatorTests.swift; sourceTree = "<group>"; };
 		7AD63A3E2CDA53E900445268 /* ObfuscationMethodSelectorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObfuscationMethodSelectorTests.swift; sourceTree = "<group>"; };
-		7AD63A432CDA662900445268 /* UInt+Counting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UInt+Counting.swift"; sourceTree = "<group>"; };
-		7AD63A462CDA665A00445268 /* UIntTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIntTests.swift; sourceTree = "<group>"; };
 		7ADCB2D72B6A6EB300C88F89 /* AnyRelay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnyRelay.swift; sourceTree = "<group>"; };
 		7ADCB2D92B6A730400C88F89 /* IPOverrideRepositoryStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IPOverrideRepositoryStub.swift; sourceTree = "<group>"; };
 		7AE90B672C2D726000375A60 /* NSParagraphStyle+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSParagraphStyle+Extensions.swift"; sourceTree = "<group>"; };
@@ -2801,7 +2805,6 @@
 			children = (
 				F06045F02B2324DA00B2D37A /* ApiHandlers */,
 				062B45A228FD4C0F00746E77 /* Assets */,
-				7AD63A422CDA661B00445268 /* Extensions */,
 				582FFA82290A84E700895745 /* Info.plist */,
 				7A2C0E872D82E450003D8048 /* MullvadAPI */,
 				06799ABE28F98E1D00ACD94E /* MullvadREST.h */,
@@ -2851,7 +2854,6 @@
 			isa = PBXGroup;
 			children = (
 				F0F146932D9462BA00BF78E7 /* MullvadApi */,
-				7AD63A452CDA665200445268 /* Extensions */,
 				F072D3D02C071A9100906F64 /* Shadowsocks */,
 				440E9EF42BDA943B00B1FD11 /* ApiHandlers */,
 				440E9EF52BDA954000B1FD11 /* Relay */,
@@ -3008,6 +3010,8 @@
 		4422C06F2CCFF6520001A385 /* Obfuscation */ = {
 			isa = PBXGroup;
 			children = (
+				7AA5644B2F30C779001D1FB9 /* LwoObfuscationSettingsView.swift */,
+				7AA5644D2F30C7A6001D1FB9 /* LwoObfuscationSettingsViewModel.swift */,
 				447F3D892CDE1853006E3462 /* ShadowsocksObfuscationSettingsView.swift */,
 				447F3D882CDE1852006E3462 /* ShadowsocksObfuscationSettingsViewModel.swift */,
 				440E5AB32CDCF24500B09614 /* TunnelObfuscationSettingsWatchingObservableObject.swift */,
@@ -4431,6 +4435,7 @@
 		7A964BBB2E699B4300C6A4EC /* Obfuscation */ = {
 			isa = PBXGroup;
 			children = (
+				7AA5644F2F30D0D9001D1FB9 /* LwoObfuscator.swift */,
 				7A964BBA2E699B3000C6A4EC /* QuicObfuscator.swift */,
 				7AD63A382CD520FD00445268 /* RelayObfuscator.swift */,
 				7A964BB72E6999A500C6A4EC /* ShadowsocksObfuscator.swift */,
@@ -4469,22 +4474,6 @@
 				7ABBE0152F1A2D1100AD8176 /* IncludeAllNetworksSettingsViewModel.swift */,
 			);
 			path = IncludeAllNetworks;
-			sourceTree = "<group>";
-		};
-		7AD63A422CDA661B00445268 /* Extensions */ = {
-			isa = PBXGroup;
-			children = (
-				7AD63A432CDA662900445268 /* UInt+Counting.swift */,
-			);
-			path = Extensions;
-			sourceTree = "<group>";
-		};
-		7AD63A452CDA665200445268 /* Extensions */ = {
-			isa = PBXGroup;
-			children = (
-				7AD63A462CDA665A00445268 /* UIntTests.swift */,
-			);
-			path = Extensions;
 			sourceTree = "<group>";
 		};
 		7AE241492C20682B0076CE33 /* Presentation controllers */ = {
@@ -4585,6 +4574,7 @@
 				7AA564452F290144001D1FB9 /* IncludeAllNetworksPage.swift */,
 				A998DA802BD147AD001D61A2 /* ListCustomListsPage.swift */,
 				852969342B4E9270007EAD4C /* LoginPage.swift */,
+				7AA564512F30E02C001D1FB9 /* LwoObfuscationSettingsPage.swift */,
 				7A8A19232CF4C9B8000BCB5B /* MultihopPage.swift */,
 				F0A005562F3DFDCF00B09EFC /* NotificationPromptPage.swift */,
 				85139B2C2B84B4A700734217 /* OutOfTimePage.swift */,
@@ -5976,7 +5966,7 @@
 				7A2E7B702D6C9FCF009EF2C3 /* APITransport.swift in Sources */,
 				7A2E7B752D6CA0B1009EF2C3 /* APITransportProvider.swift in Sources */,
 				F0B894F12BF751E300817A42 /* RelayWithDistance.swift in Sources */,
-				7AD63A442CDA663300445268 /* UInt+Counting.swift in Sources */,
+				7AA564502F30D0DE001D1FB9 /* LwoObfuscator.swift in Sources */,
 				7A516C3A2B7111A700BBD33D /* IPOverrideWrapper.swift in Sources */,
 				7A964BB92E699A3F00C6A4EC /* ShadowsocksObfuscator.swift in Sources */,
 				7ACE19112C1C349200260BB6 /* MultihopDecisionFlow.swift in Sources */,
@@ -6117,7 +6107,6 @@
 				A9A5FA0E2ACB05160083449F /* StorePaymentObserver.swift in Sources */,
 				7A6811542DC8EC6E009CB61A /* UIFont+Weight.swift in Sources */,
 				A9A5FA102ACB05160083449F /* PacketTunnelAPITransport.swift in Sources */,
-				7AD63A472CDA666100445268 /* UIntTests.swift in Sources */,
 				A9A5FA112ACB05160083449F /* APITransportMonitor.swift in Sources */,
 				A9B6AC1A2ADE8FBB00F7802A /* InMemorySettingsStore.swift in Sources */,
 				A9A5FA132ACB05160083449F /* LoadTunnelConfigurationOperation.swift in Sources */,
@@ -6608,6 +6597,7 @@
 				7A1A26452A29CEF700B978AA /* RelayFilterViewController.swift in Sources */,
 				F947DA002ED5AC9200C9D728 /* CGRect+Properties.swift in Sources */,
 				587EB66A270EFACB00123C75 /* CharacterSet+IPAddress.swift in Sources */,
+				7AA5644C2F30C789001D1FB9 /* LwoObfuscationSettingsView.swift in Sources */,
 				5888AD83227B11080051EB06 /* LocationCell.swift in Sources */,
 				5878A26F2907E7E00096FC88 /* ProblemReportInteractor.swift in Sources */,
 				7A460FA42F36306D005A265D /* NotificationManager.swift in Sources */,
@@ -6744,6 +6734,7 @@
 				7A9CCCC22A96302800DD6A34 /* SafariCoordinator.swift in Sources */,
 				58CEB3082AFD484100E6E088 /* BasicCell.swift in Sources */,
 				7A5869C12B57D21A00640D27 /* IPOverrideStatusView.swift in Sources */,
+				7AA5644E2F30C7B3001D1FB9 /* LwoObfuscationSettingsViewModel.swift in Sources */,
 				F0ADF1D32D01B6B400299F09 /* FeatureIndicatorsViewModel.swift in Sources */,
 				58CEB2F52AFD0BB500E6E088 /* TextCellContentConfiguration.swift in Sources */,
 				58E20771274672CA00DE5D77 /* LaunchViewController.swift in Sources */,
@@ -6990,6 +6981,7 @@
 				850201DB2B503D7700EF8C96 /* RelayTests.swift in Sources */,
 				7A9F29352CAA8829005F2089 /* AccessMethodsTests.swift in Sources */,
 				7A45CFC62C05FF6A00D80B21 /* ScreenshotTests.swift in Sources */,
+				7AA564522F30E033001D1FB9 /* LwoObfuscationSettingsPage.swift in Sources */,
 				852D054D2BC3DE3A008578D2 /* APIAccessPage.swift in Sources */,
 				85139B2D2B84B4A700734217 /* OutOfTimePage.swift in Sources */,
 				852969362B4E9724007EAD4C /* AccessbilityIdentifier.swift in Sources */,

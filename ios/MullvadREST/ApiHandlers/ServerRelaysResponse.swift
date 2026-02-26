@@ -53,7 +53,7 @@ extension REST {
     public struct ServerRelay: Codable, Equatable, Sendable {
         public struct Features: Codable, Equatable, Sendable {
             public struct DAITA: Codable, Equatable, Sendable {
-                // this structure intentionally left blank
+                // Intentionally left blank.
             }
 
             public struct QUIC: Codable, Equatable, Sendable {
@@ -62,8 +62,13 @@ extension REST {
                 public let token: String
             }
 
+            public struct LWO: Codable, Equatable, Sendable {
+                // Intentionally left blank.
+            }
+
             public let daita: DAITA?
             public let quic: QUIC?
+            public let lwo: LWO?
         }
 
         public let hostname: String
@@ -80,8 +85,16 @@ extension REST {
         public let shadowsocksExtraAddrIn: [String]?
         public let features: Features?
 
+        public var supportsDaita: Bool {
+            (features?.daita != nil) || daita == true
+        }
+
         public var supportsQuic: Bool {
             !(features?.quic?.addrIn.isEmpty ?? true)
+        }
+
+        public var supportsLwo: Bool {
+            features?.lwo != nil
         }
 
         public func override(ipv4AddrIn: IPv4Address?, ipv6AddrIn: IPv6Address?) -> Self {
@@ -118,10 +131,6 @@ extension REST {
                 shadowsocksExtraAddrIn: shadowsocksExtraAddrIn,
                 features: features
             )
-        }
-
-        public var hasDaita: Bool {
-            (features?.daita != nil) || daita == true
         }
     }
 

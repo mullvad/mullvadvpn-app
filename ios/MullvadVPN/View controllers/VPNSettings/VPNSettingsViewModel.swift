@@ -90,6 +90,7 @@ struct VPNSettingsViewModel: Equatable {
     private(set) var obfuscationState: WireGuardObfuscationState
     private(set) var obfuscationUpdOverTcpPort: WireGuardObfuscationUdpOverTcpPort
     private(set) var obfuscationShadowsocksPort: WireGuardObfuscationShadowsocksPort
+    private(set) var obfuscationLwoPort: WireGuardObfuscationLwoPort
 
     private(set) var quantumResistance: TunnelQuantumResistance
     private(set) var multihopState: MultihopState
@@ -179,6 +180,10 @@ struct VPNSettingsViewModel: Equatable {
         obfuscationUpdOverTcpPort = newPort
     }
 
+    mutating func setWireGuardObfuscationLwoPort(_ newPort: WireGuardObfuscationLwoPort) {
+        obfuscationLwoPort = newPort
+    }
+
     mutating func setQuantumResistance(_ newState: TunnelQuantumResistance) {
         quantumResistance = newState
     }
@@ -249,6 +254,7 @@ struct VPNSettingsViewModel: Equatable {
         obfuscationState = tunnelSettings.wireGuardObfuscation.state
         obfuscationUpdOverTcpPort = tunnelSettings.wireGuardObfuscation.udpOverTcpPort
         obfuscationShadowsocksPort = tunnelSettings.wireGuardObfuscation.shadowsocksPort
+        obfuscationLwoPort = tunnelSettings.wireGuardObfuscation.lwoPort
 
         quantumResistance = tunnelSettings.tunnelQuantumResistance
         multihopState = tunnelSettings.tunnelMultihopState

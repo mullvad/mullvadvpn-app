@@ -7,6 +7,7 @@
 //
 
 import Network
+import WireGuardKitTypes
 import XCTest
 
 @testable import MullvadREST
@@ -16,6 +17,7 @@ import XCTest
 
 final class ProtocolObfuscatorTests: XCTestCase {
     var obfuscator: ProtocolObfuscator<TunnelObfuscationStub>!
+    var clientPublicKey = PrivateKey().publicKey
 
     override func setUpWithError() throws {
         obfuscator = ProtocolObfuscator<TunnelObfuscationStub>()
@@ -30,21 +32,21 @@ final class ProtocolObfuscatorTests: XCTestCase {
             socketAddress: .ipv4(v4Endpoint),
             ipv4Gateway: gateway,
             ipv6Gateway: .any,
-            publicKey: Data(),
+            publicKey: PrivateKey().publicKey.rawValue,
             obfuscation: obfuscation
         )
     }
 
     func testObfuscateOffDoesNotChangeEndpoint() throws {
         let endpoint = try makeEndpoint(obfuscation: .off)
-        let nonObfuscated = obfuscator.obfuscate(endpoint)
+        let nonObfuscated = obfuscator.obfuscate(endpoint, clientPublicKey: clientPublicKey)
 
         XCTAssertEqual(endpoint, nonObfuscated.endpoint)
     }
 
     func testObfuscateUdpOverTcp() throws {
         let endpoint = try makeEndpoint(obfuscation: .udpOverTcp)
-        let obfuscated = obfuscator.obfuscate(endpoint)
+        let obfuscated = obfuscator.obfuscate(endpoint, clientPublicKey: clientPublicKey)
         let obfuscationProtocol = try XCTUnwrap(obfuscator.tunnelObfuscator as? TunnelObfuscationStub)
 
         validate(obfuscated.endpoint, against: obfuscationProtocol)
@@ -52,7 +54,7 @@ final class ProtocolObfuscatorTests: XCTestCase {
 
     func testObfuscateShadowsocks() throws {
         let endpoint = try makeEndpoint(obfuscation: .shadowsocks)
-        let obfuscated = obfuscator.obfuscate(endpoint)
+        let obfuscated = obfuscator.obfuscate(endpoint, clientPublicKey: clientPublicKey)
         let obfuscationProtocol = try XCTUnwrap(obfuscator.tunnelObfuscator as? TunnelObfuscationStub)
 
         validate(obfuscated.endpoint, against: obfuscationProtocol)
@@ -60,12 +62,19 @@ final class ProtocolObfuscatorTests: XCTestCase {
 
     func testObfuscateQuic() throws {
         let endpoint = try makeEndpoint(obfuscation: .quic(hostname: "test.mullvad.net", token: "token"))
-        let obfuscated = obfuscator.obfuscate(endpoint)
+        let obfuscated = obfuscator.obfuscate(endpoint, clientPublicKey: clientPublicKey)
         let obfuscationProtocol = try XCTUnwrap(obfuscator.tunnelObfuscator as? TunnelObfuscationStub)
 
         validate(obfuscated.endpoint, against: obfuscationProtocol)
     }
 
+    func testObfuscateLwo() throws {
+        let endpoint = try makeEndpoint(obfuscation: .lwo)
+        let obfuscated = obfuscator.obfuscate(endpoint, clientPublicKey: clientPublicKey)
+        let obfuscationProtocol = try XCTUnwrap(obfuscator.tunnelObfuscator as? TunnelObfuscationStub)
+
+        validate(obfuscated.endpoint, against: obfuscationProtocol)
+    }
 }
 
 extension ProtocolObfuscatorTests {

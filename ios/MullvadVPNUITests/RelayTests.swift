@@ -241,6 +241,62 @@ class RelayTests: LoggedInWithTimeUITestCase {
         try generateTrafficAndDisconnect(from: connectedToIPAddress, searchForPort: 51900, assertProtocol: .UDP)
     }
 
+    func testWireGuardOverLwoCustomPort() throws {
+        addTeardownBlock {
+            HeaderBar(self.app)
+                .tapSettingsButton()
+
+            SettingsPage(self.app)
+                .tapVPNSettingsCell()
+
+            VPNSettingsPage(self.app)
+                .tapWireGuardObfuscationExpandButton()
+                .tapWireGuardObfuscationOffCell()
+        }
+
+        HeaderBar(app)
+            .tapSettingsButton()
+
+        SettingsPage(app)
+            .tapVPNSettingsCell()
+
+        VPNSettingsPage(app)
+            .tapWireGuardObfuscationExpandButton()
+            .tapWireGuardObfuscationLwoCell()
+            .tapLwoPortSelectorButton()
+
+        LwoObfuscationSettingsPage(app)
+            .tapCustomCell()
+            .typeTextIntoCustomField("1")
+            .tapBackButton()
+
+        VPNSettingsPage(app)
+            .tapBackButton()
+
+        SettingsPage(app)
+            .tapDoneButton()
+
+        // The packet capture has to start before the tunnel is up,
+        // otherwise the device cannot reach the in-house router anymore
+        startPacketCapture()
+
+        TunnelControlPage(app)
+            .tapConnectButton()
+
+        allowAddVPNConfigurationsIfAsked()
+
+        TunnelControlPage(app)
+            .waitForConnectedLabel()
+
+        let (connectedToIPAddress, _) = TunnelControlPage(app)
+            .tapRelayStatusExpandCollapseButton()
+            .getInIPAddressAndPortFromConnectionStatus()
+
+        try Networking.verifyCanAccessInternet()
+
+        try generateTrafficAndDisconnect(from: connectedToIPAddress, searchForPort: 1, assertProtocol: .UDP)
+    }
+
     func testWireGuardOverTCPManually() throws {
         addTeardownBlock {
             HeaderBar(self.app)
@@ -346,7 +402,7 @@ class RelayTests: LoggedInWithTimeUITestCase {
 
         VPNSettingsPage(app)
             .tapWireGuardObfuscationExpandButton()
-            .tapWireGuardObufscationQuicCell()
+            .tapWireGuardObfuscationQuicCell()
             .tapBackButton()
 
         SettingsPage(app)
@@ -393,6 +449,47 @@ class RelayTests: LoggedInWithTimeUITestCase {
         try Networking.verifyCanAccessInternet()
 
         try generateTrafficAndDisconnect(from: connectedToIPAddress, searchForPort: 443, assertProtocol: .UDP)
+    }
+
+    func testWireGuardOverLwoManually() throws {
+        addTeardownBlock {
+            HeaderBar(self.app)
+                .tapSettingsButton()
+
+            SettingsPage(self.app)
+                .tapVPNSettingsCell()
+
+            VPNSettingsPage(self.app)
+                .tapWireGuardObfuscationExpandButton()
+                .tapWireGuardObfuscationOffCell()
+        }
+
+        HeaderBar(app)
+            .tapSettingsButton()
+
+        SettingsPage(app)
+            .tapVPNSettingsCell()
+
+        VPNSettingsPage(app)
+            .tapWireGuardObfuscationExpandButton()
+            .tapWireGuardObfuscationLwoCell()
+            .tapBackButton()
+
+        SettingsPage(app)
+            .tapDoneButton()
+
+        TunnelControlPage(app)
+            .tapConnectButton()
+
+        allowAddVPNConfigurationsIfAsked()
+
+        TunnelControlPage(app)
+            .waitForConnectedLabel()
+
+        try Networking.verifyCanAccessInternet()
+
+        TunnelControlPage(app)
+            .tapDisconnectButton()
     }
 
     /// Test automatic switching to TCP is functioning when UDP traffic to relays is blocked.

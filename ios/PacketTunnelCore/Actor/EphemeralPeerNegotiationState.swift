@@ -14,6 +14,15 @@ public enum EphemeralPeerNegotiationState: Equatable, Sendable {
     case single(EphemeralPeerRelayConfiguration)
     case multi(entry: EphemeralPeerRelayConfiguration, exit: EphemeralPeerRelayConfiguration)
 
+    var ephemeralPeerKeys: (entry: PrivateKey?, exit: PrivateKey) {
+        switch self {
+        case .single(let configuration):
+            (nil, configuration.configuration.privateKey)
+        case .multi(let entryConfiguration, let exitConfiguration):
+            (entryConfiguration.configuration.privateKey, exitConfiguration.configuration.privateKey)
+        }
+    }
+
     public static func == (lhs: EphemeralPeerNegotiationState, rhs: EphemeralPeerNegotiationState) -> Bool {
         return switch (lhs, rhs) {
         case let (.single(hop1), .single(hop2)):

@@ -23,6 +23,8 @@ Line wrap the file at 100 chars.                                              Th
 
 ## UNRELEASED
 ### Add
+- Add support for obfuscating WireGuard tunnel traffic by LWO (Lightweight WireGuard Obfuscation).
+  This helps circumvent censorship.
 - Add support for additional languages.
 - Add recent connections in the Select location view.
 - Show disabled servers in location view.
@@ -37,7 +39,6 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Changed
 - Rework location view.
-
 
 ## [2025.9 - 2025-11-24]
 ### Changed
