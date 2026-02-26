@@ -11,7 +11,7 @@ use crate::config::{Obfuscator, ProxyConfig};
 
 /// Forwards local traffic to a proxy endpoint, obfuscating it if the proxy config says so.
 ///
-/// Obtain [`ProxyConfig`](ProxyConfig)s with [resolve_configs](crate::config_resolver::resolve_configs).
+/// Obtain [`ProxyConfig`]s with [resolve_configs](crate::config_resolver::resolve_configs).
 pub struct Forwarder<S> {
     read_obfuscator: Option<Box<dyn Obfuscator>>,
     write_obfuscator: Option<Box<dyn Obfuscator>>,
