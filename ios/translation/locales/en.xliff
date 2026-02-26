@@ -235,11 +235,6 @@
         <target state="new">Any</target>
         <note/>
       </trans-unit>
-      <trans-unit id="App Store receipt is not found on disk." xml:space="preserve">
-        <source>App Store receipt is not found on disk.</source>
-        <target state="new">App Store receipt is not found on disk.</target>
-        <note/>
-      </trans-unit>
       <trans-unit id="App logs" xml:space="preserve">
         <source>App logs</source>
         <target state="new">App logs</target>
@@ -465,16 +460,6 @@
         <target state="new">Cannot complete the purchase</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Cannot read the App Store receipt from disk" xml:space="preserve">
-        <source>Cannot read the App Store receipt from disk</source>
-        <target state="new">Cannot read the App Store receipt from disk</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Cannot refresh the App Store receipt: %@" xml:space="preserve">
-        <source>Cannot refresh the App Store receipt: %@</source>
-        <target state="new">Cannot refresh the App Store receipt: %@</target>
-        <note/>
-      </trans-unit>
       <trans-unit id="Cannot restore purchases" xml:space="preserve">
         <source>Cannot restore purchases</source>
         <target state="new">Cannot restore purchases</target>
@@ -528,11 +513,6 @@
       <trans-unit id="Clearing the imported overrides changes the server IPs, in the Select location view, back to default." xml:space="preserve">
         <source>Clearing the imported overrides changes the server IPs, in the Select location view, back to default.</source>
         <target state="new">Clearing the imported overrides changes the server IPs, in the Select location view, back to default.</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Client is not allowed to issue the request." xml:space="preserve">
-        <source>Client is not allowed to issue the request.</source>
-        <target state="new">Client is not allowed to issue the request.</target>
         <note/>
       </trans-unit>
       <trans-unit id="Collapse" xml:space="preserve">
@@ -895,6 +875,11 @@
         <target state="new">Edit custom lists</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Edit list" xml:space="preserve">
+        <source>Edit list</source>
+        <target state="new">Edit list</target>
+        <note from="auto-generated">A button label that opens a form to edit an existing custom list.</note>
+      </trans-unit>
       <trans-unit id="Edit message" xml:space="preserve">
         <source>Edit message</source>
         <target state="new">Edit message</target>
@@ -1013,11 +998,6 @@
       <trans-unit id="Failed to send" xml:space="preserve">
         <source>Failed to send</source>
         <target state="new">Failed to send</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Failed to send the receipt to server: %@" xml:space="preserve">
-        <source>Failed to send the receipt to server: %@</source>
-        <target state="new">Failed to send the receipt to server: %@</target>
         <note/>
       </trans-unit>
       <trans-unit id="Failed to start the tunnel." xml:space="preserve">
@@ -1320,19 +1300,9 @@
         <target state="new">Invalid account number</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Invalid account number: %@" xml:space="preserve">
-        <source>Invalid account number: %@</source>
-        <target state="new">Invalid account number: %@</target>
-        <note/>
-      </trans-unit>
       <trans-unit id="Invalid device state." xml:space="preserve">
         <source>Invalid device state.</source>
         <target state="new">Invalid device state.</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Invalid purchase identifier." xml:space="preserve">
-        <source>Invalid purchase identifier.</source>
-        <target state="new">Invalid purchase identifier.</target>
         <note/>
       </trans-unit>
       <trans-unit id="Ireland" xml:space="preserve">
@@ -1895,11 +1865,6 @@
         <target state="new">Please log out of at least one by removing it from the list below. You can find the corresponding device name under the device’s Account settings.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Please retry by using the &quot;Restore purchases&quot; button." xml:space="preserve">
-        <source>Please retry by using the "Restore purchases" button.</source>
-        <target state="new">Please retry by using the "Restore purchases" button.</target>
-        <note/>
-      </trans-unit>
       <trans-unit id="Please swipe through and read all information in order to activate this feature" xml:space="preserve">
         <source>Please swipe through and read all information in order to activate this feature</source>
         <target state="new">Please swipe through and read all information in order to activate this feature</target>
@@ -2372,6 +2337,11 @@ Do you want to remove the saved account number?</target>
         <target state="new">Tap **Edit** to add at least one DNS server.</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Tap here to go to AppStore" xml:space="preserve">
+        <source>Tap here to go to AppStore</source>
+        <target state="new">Tap here to go to AppStore</target>
+        <note from="auto-generated">Text that can be tapped in an in-app notification to navigate to the AppStore.</note>
+      </trans-unit>
       <trans-unit id="Tel Aviv" xml:space="preserve">
         <source>Tel Aviv</source>
         <target state="new">Tel Aviv</target>
@@ -2452,11 +2422,6 @@ Do you want to remove the saved account number?</target>
         <target state="new">The entry server for %1$@ is currently overridden by %2$@. To select an entry server, please first enable “%3$@” or disable “%4$@” in the settings.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="The payment request was cancelled." xml:space="preserve">
-        <source>The payment request was cancelled.</source>
-        <target state="new">The payment request was cancelled.</target>
-        <note/>
-      </trans-unit>
       <trans-unit id="The selected WireGuard port is not supported, please change it under **VPN settings**." xml:space="preserve">
         <source>The selected WireGuard port is not supported, please change it under **VPN settings**.</source>
         <target state="new">The selected WireGuard port is not supported, please change it under **VPN settings**.</target>
@@ -2480,11 +2445,6 @@ Do you want to remove the saved account number?</target>
       <trans-unit id="This can be useful when you are not affected by censorship." xml:space="preserve">
         <source>This can be useful when you are not affected by censorship.</source>
         <target state="new">This can be useful when you are not affected by censorship.</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="This device is not allowed to make the payment." xml:space="preserve">
-        <source>This device is not allowed to make the payment.</source>
-        <target state="new">This device is not allowed to make the payment.</target>
         <note/>
       </trans-unit>
       <trans-unit id="This device is now named **%@**. See more under &quot;Manage devices&quot; in Account." xml:space="preserve">
@@ -2680,11 +2640,6 @@ Do you want to remove the saved account number?</target>
       <trans-unit id="Unexpected server response: %d" xml:space="preserve">
         <source>Unexpected server response: %d</source>
         <target state="new">Unexpected server response: %d</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Unknown error." xml:space="preserve">
-        <source>Unknown error.</source>
-        <target state="new">Unknown error.</target>
         <note/>
       </trans-unit>
       <trans-unit id="Update available" xml:space="preserve">
