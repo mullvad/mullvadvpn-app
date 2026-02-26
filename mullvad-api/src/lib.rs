@@ -81,12 +81,12 @@ pub struct ApiEndpoint {
     /// An overriden API address. Initialized with the value of the environment
     /// variable `MULLVAD_API_ADDR` if it has been set.
     ///
-    /// Use the associated function [`Self::address()`] to read this value with
+    /// Use the associated function [`Self::address`] to read this value with
     /// a default fallback if `MULLVAD_API_ADDR` was not set.
     ///
     /// # Note
     ///
-    /// If [`Self::address`] is populated with [`Some(SocketAddr)`], it should
+    /// If [`Self::address`] is populated with `Some(SocketAddr)`, it should
     /// always be respected when establishing API connections.
     pub address: Option<SocketAddr>,
     #[cfg(any(feature = "api-override", test))]
@@ -255,7 +255,7 @@ impl ApiEndpoint {
     }
 
     /// Read the [`Self::address`] value, falling back to
-    /// [`Self::API_IP_DEFAULT`] as default value if it does not exist.
+    /// [`API_IP_DEFAULT`] as default value if it does not exist.
     pub fn address(&self) -> SocketAddr {
         self.address
             .unwrap_or(SocketAddr::new(API_IP_DEFAULT, API_PORT_DEFAULT))
