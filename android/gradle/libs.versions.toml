@@ -6,7 +6,7 @@ compile-sdk = "36"
 build-tools = "36.0.0"
 min-sdk = "26"
 target-sdk = "36"
-jvm-target = "17"
+jvm-toolchain = "21"
 ndk = "27.3.13750724"
 # The android-gradle-aapt plugin version must be in sync with the android gradle plugin version.
 # Required for Gradle metadata verification to work properly, see:
@@ -200,5 +200,6 @@ mullvad-android-library-feature-impl = { id = "mullvad.android-library-feature-i
 mullvad-android-library-compose = { id = "mullvad.android-library-compose" }
 mullvad-android-library-unit-test = { id = "mullvad.android-library-unit-test" }
 mullvad-android-library-instrumented-test = { id = "mullvad.android-library-instrumented-test" }
+mullvad-kotlin-toolchain = { id = "mullvad.kotlin-toolchain" }
 mullvad-utilities = { id = "mullvad.utilities" }
 mullvad-unit-test = { id = "mullvad.unit-test" }
