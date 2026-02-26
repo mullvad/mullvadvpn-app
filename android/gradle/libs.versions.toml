@@ -16,7 +16,7 @@ ndk = "27.3.13750724"
 android-gradle-aapt = "14304508"
 android-gradle-plugin = "8.13.2"
 # Other
-android-billingclient = "8.0.0"
+android-billingclient = "8.3.0"
 androidx-activitycompose = "1.12.3"
 androidx-appcompat = "1.7.1"
 androidx-coresplashscreen = "1.2.0"
