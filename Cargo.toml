@@ -66,15 +66,20 @@ license = "GPL-3.0-or-later"
 
 [workspace.dependencies]
 anyhow = "1.0"
+async-trait = "0.1"
 bytes = "1.11.1"
+cbindgen = { version = "0.28.0", default-features = false }
 chrono = { version = "0.4.26", default-features = false }
 clap = { version = "4.4.18", features = ["cargo", "derive"] }
+clap_complete = "4.4.8"
 dirs = "6.0.0"
 futures = "0.3.15"
 gotatun = { version = "0.2.0" }
 hickory-proto = "0.25.2"
 hickory-resolver = "0.25.2"
 hickory-server = { version = "0.25.2", features = ["resolver"] }
+http = "1.1.0"
+http-body-util = "0.1.2"
 hyper-util = { version = "0.1.8", features = [
   "client",
   "client-legacy",
@@ -84,7 +89,10 @@ hyper-util = { version = "0.1.8", features = [
 insta = { version = "1.42", features = ["yaml"] }
 ipnetwork = "0.21.1"
 itertools = "0.14"
+libc = "0.2"
 log = "0.4"
+mockito = "1.6.1"
+natord = "1.0.9"
 netlink-packet-core = "0.8.0"
 netlink-packet-route = "0.25"
 netlink-proto = "0.12"
@@ -111,6 +119,8 @@ strum = { version = "0.27" }
 thiserror = "2.0"
 tipsy = "0.6.5"
 tokio = { version = "1.44" }
+tokio-rustls = { version = "0.26.0", default-features = false }
+tokio-socks = "0.5.1"
 tokio-util = "0.7"
 tonic = "0.13.1"
 tonic-build = { version = "0.13.1", default-features = false }
@@ -118,12 +128,14 @@ tower = { version = "0.5.1", features = ["util"] }
 tracing-appender = "0.2.4"
 tracing-subscriber = { version = "0.3.22", features = ["env-filter"] }
 tun = { version = "0.5.5", features = ["async"] }
+uuid = "1.4.1"
 vec1 = "1.12"
 webpki-roots = "1.0.4"
 widestring = "1.2"
 windows = "0.62.2"
 windows-sys = "0.61.2"
 winreg = "0.55"
+winres = "0.1"
 zerocopy = "0.8.27"
 zeroize = "1.8.2"
 

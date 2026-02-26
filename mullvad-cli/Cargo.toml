@@ -26,7 +26,7 @@ itertools = { workspace = true }
 mullvad-management-interface = { path = "../mullvad-management-interface" }
 mullvad-types = { path = "../mullvad-types", features = ["clap"] }
 mullvad-version = { path = "../mullvad-version" }
-natord = "1.0.9"
+natord = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 talpid-types = { path = "../talpid-types" }
@@ -34,12 +34,12 @@ thiserror = { workspace = true }
 tokio = { workspace = true, features = ["fs", "macros", "rt-multi-thread"] }
 
 [target.'cfg(all(unix, not(target_os = "android")))'.dependencies]
-clap_complete = { version = "4.4.8" }
+clap_complete = { workspace = true }
 nix = { workspace = true, features = ["signal"] }
 
 [target.'cfg(windows)'.build-dependencies]
 mullvad-version = { path = "../mullvad-version" }
-winres = "0.1"
+winres = { workspace = true }
 
 [target.'cfg(windows)'.build-dependencies.windows-sys]
 workspace = true

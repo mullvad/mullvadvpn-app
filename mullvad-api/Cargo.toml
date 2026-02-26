@@ -12,16 +12,16 @@ crate-type = ["rlib", "staticlib"]
 
 [dependencies]
 anyhow = { workspace = true }
-async-trait = "0.1"
+async-trait = { workspace = true }
 chrono = { workspace = true }
 clap = { workspace = true, features = ["cargo", "derive"], optional = true }
 futures = { workspace = true }
-http = "1.1.0"
-http-body-util = "0.1.2"
+http = { workspace = true }
+http-body-util = { workspace = true }
 hyper = { version = "1.8.1", features = ["client", "http1"] }
 hyper-util = { workspace = true }
 ipnetwork = { workspace = true }
-libc = "0.2"
+libc = { workspace = true }
 log = { workspace = true }
 mullvad-api-constants = { path = "./mullvad-api-constants" }
 mullvad-encrypted-dns-proxy = { path = "../mullvad-encrypted-dns-proxy" }
@@ -44,25 +44,25 @@ tokio = { workspace = true, features = [
   "rt-multi-thread",
   "time",
 ] }
-tokio-rustls = { version = "0.26.0", default-features = false, features = [
+tokio-rustls = { workspace = true, features = [
   "logging",
   "ring",
   "tls12",
 ] }
-tokio-socks = "0.5.1"
+tokio-socks = { workspace = true }
 tower = { workspace = true }
 tracing-subscriber = { workspace = true, optional = true }
-uuid = { version = "1.4.1", features = ["v4"] }
+uuid = { workspace = true, features = ["v4"] }
 vec1 = { workspace = true, features = ["serde"] }
 webpki-roots = { workspace = true, optional = true }
 
 [dev-dependencies]
-mockito = "1.6.1"
+mockito = { workspace = true }
 talpid-time = { path = "../talpid-time", features = ["test"] }
 tokio = { workspace = true, features = ["test-util", "time"] }
 
 [build-dependencies]
-cbindgen = { version = "0.28.0", default-features = false }
+cbindgen = { workspace = true }
 
 [target.'cfg(any(target_os = "windows", target_os = "macos", target_os = "linux"))'.dependencies]
 mullvad-update = { path = "../mullvad-update", features = ["client"] }
