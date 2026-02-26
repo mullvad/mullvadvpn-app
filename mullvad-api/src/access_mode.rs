@@ -30,7 +30,7 @@ pub enum AccessMethodEvent {
     /// A [`AccessMethodEvent::New`] event is emitted when the active access
     /// method changes.
     ///
-    /// This happens when a [`mullvad_api::rest::RequestService`] requests a new
+    /// This happens when a [`crate::rest::RequestService`] requests a new
     /// [`ApiConnectionMode`] from the running [`AccessModeSelector`].
     New {
         /// The new active [`AccessMethodSetting`].
