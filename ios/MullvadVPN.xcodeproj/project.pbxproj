@@ -79,6 +79,7 @@
 		44A262672D63745C00085380 /* WireGuardKitTypes in Frameworks */ = {isa = PBXBuildFile; productRef = 44A262662D63745C00085380 /* WireGuardKitTypes */; };
 		44A2626B2D63746400085380 /* WireGuardKitTypes in Frameworks */ = {isa = PBXBuildFile; productRef = 44A2626A2D63746400085380 /* WireGuardKitTypes */; };
 		44A2626D2D63746400085380 /* WireGuardKitTypes in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 44A2626A2D63746400085380 /* WireGuardKitTypes */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		44A6D4382F50AB960085A50A /* InMemorySettingsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9B6AC192ADE8FBB00F7802A /* InMemorySettingsStore.swift */; };
 		44B02E3B2BC5732D008EDF34 /* LoggingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44B02E3A2BC5732D008EDF34 /* LoggingTests.swift */; };
 		44B3C43A2BFE2C800079782C /* PacketTunnelActorReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44B3C4392BFE2C800079782C /* PacketTunnelActorReducer.swift */; };
 		44B3C43D2C00CBBD0079782C /* PacketTunnelActorReducerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44B3C43C2C00CBBC0079782C /* PacketTunnelActorReducerTests.swift */; };
@@ -4212,7 +4213,6 @@
 		58FBFBE7291622580020E046 /* MullvadRESTTests */ = {
 			isa = PBXGroup;
 			children = (
-				58BDEB9E2A98F6B400F578F2 /* Mocks */,
 				7A56B3492F190C6D00CBF960 /* AppVersionServiceTests.swift */,
 				7AA5C3742E9FCD5F00B35530 /* DefaultLocationServiceTests.swift */,
 				58FBFBE8291622580020E046 /* ExponentialBackoffTests.swift */,
@@ -6904,6 +6904,7 @@
 			files = (
 				7AA5C3752E9FCD9300B35530 /* DefaultLocationServiceTests.swift in Sources */,
 				7A56B34A2F190C7B00CBF960 /* AppVersionServiceTests.swift in Sources */,
+				44A6D4382F50AB960085A50A /* InMemorySettingsStore.swift in Sources */,
 				58FBFBE9291622580020E046 /* ExponentialBackoffTests.swift in Sources */,
 				F924C4532D70692E001F4660 /* MullvadApiTests.swift in Sources */,
 				F0164EC32B4C49D30020268D /* ShadowsocksLoaderStub.swift in Sources */,
