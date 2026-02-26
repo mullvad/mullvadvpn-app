@@ -1454,6 +1454,7 @@ mod new {
     //! the relay selector internals have been refactored to use the new "partition relays"
     //! algorithm.
     use mullvad_relay_selector::EntryConstraints;
+    use mullvad_types::relay_constraints::LocationConstraint;
 
     use super::*;
 
@@ -1476,9 +1477,7 @@ mod new {
     //
     // - [status] <test> (port)
     //
-    // - [ ] assert_retry_order
-    // - [ ] include_in_country_with_few_relays
-    // - [ ] test_entry_hostname_collision
+    // - [x] test_entry_hostname_collision
     // - [ ] test_runtime_ipv4_unavailable
     // - [ ] test_selecting_endpoint_with_udp2tcp_obfuscation
     // - [ ] test_selecting_ignore_extra_ips_override_v4
@@ -1554,9 +1553,63 @@ mod new {
         }
 
         // Assert that the other relays were discarded for the right reason.
-        for (relay, reason) in query.discards {
-            assert!(reason.contains(&Reason::Providers), "{relay:#?}");
+        for (relay, reasons) in query.discards {
+            assert!(reasons.contains(&Reason::Providers), "{relay:#?}");
         }
+    }
+
+    /// If a multihop constraint has the same entry and exit relay, the relay selector
+    /// should fail to come up with a valid configuration.
+    ///
+    /// If instead the entry and exit relay are distinct, and assuming that the relays exist, the relay
+    /// selector should instead always return a valid configuration.
+    #[test]
+    fn entry_hostname_collision() {
+        // Define two distinct Wireguard relays.
+        let wg101 = LocationConstraint::from(GeographicLocationConstraint::hostname(
+            "se", "got", "wg-101",
+        ));
+        let wg001 = LocationConstraint::from(GeographicLocationConstraint::hostname(
+            "se", "got", "wg-001",
+        ));
+
+        let mut constraints = MultihopConstraints::default();
+        constraints.entry.general.location = wg101.clone().into();
+        constraints.exit.location = wg101.clone().into();
+
+        let query = RELAY_SELECTOR.partition_relays(Predicate::Exit(constraints));
+        assert_eq!(query.matches.len(), 0);
+
+        /*
+                let invalid_multihop_query = RelayQueryBuilder::new()
+                // Here we set `host1` to be the exit relay
+                .location(host1.clone())
+                .multihop()
+                // .. and here we set `host1` to also be the entry relay!
+                .entry(host1.clone())
+                .build();
+
+                // Assert that the same host cannot be used for entry and exit
+                assert!(
+                    relay_selector
+                        .get_relay_by_query(invalid_multihop_query)
+                        .is_err()
+                );
+
+                let valid_multihop_query = RelayQueryBuilder::new()
+                .location(host1)
+                .multihop()
+                // We correct the erroneous query by setting `host2` as the entry relay
+                .entry(host2)
+                .build();
+
+                // Assert that the new query succeeds when the entry and exit hosts differ
+                assert!(
+                    relay_selector
+                        .get_relay_by_query(valid_multihop_query)
+                        .is_ok()
+                )
+        */
     }
 
     /// "Daita + No Direct only + Provider verkar lite iffy tycker jag. Fick fram matches som inte stämmer" - David G @ 25/2.
@@ -1578,18 +1631,18 @@ mod new {
         .into();
 
         let query = RELAY_SELECTOR.partition_relays(Predicate::Autohop(constraints));
-
         assert_eq!(query.matches.len(), 0);
-        for (relay, reason) in query.discards {
-            // Assert that a relay was discarded because we could not select an entry because of
-            // DAITA and provider constraints not making sense.
-            //
-            // Note that some relays will be discarded because they only lack DAITA or are operated
-            // by the wrong provider, which is why we have to OR the reasons.
-            assert!(
-                reason.contains(&Reason::Daita) || reason.contains(&Reason::Providers),
-                "{reason:#?}:{relay:#?}"
-            );
+
+        // Assert that a relay was discarded because we could not select an entry because of
+        // DAITA and provider constraints not making sense.
+        //
+        // Note that some relays will be discarded simply because they lack DAITA OR are operated
+        // by the wrong provider.
+        for reasons in query.unique_reasons() {
+            match reasons.as_slice() {
+                &[Reason::Providers, Reason::Daita] | &[Reason::Providers] | &[Reason::Daita] => (),
+                _ => panic!("{reasons:#?}"),
+            }
         }
     }
 }

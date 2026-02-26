@@ -913,17 +913,16 @@ impl RelaySelector {
                 };
 
                 // Ugly hack for filters applying to both entry and exit, even if we're autohoping.
-                let snowflake = self
-                    .singlehop_criteria(constraints.clone())
-                    .into_iter()
-                    .reduce(Criteria::compose)
-                    // TODO: Unwrap
-                    .unwrap();
+                let apply_entry_guards = {
+                    let mut constraints = constraints.clone();
+                    constraints.general.location = Constraint::Any;
+                    self.singlehop_criteria(constraints)
+                        .into_iter()
+                        .reduce(Criteria::compose)
+                        .unwrap()
+                };
 
-                let exit = constraints.general;
-                let mut criteria = self.base_criteria(exit);
-                criteria.extend([occupied, snowflake]);
-                criteria
+                vec![occupied, apply_entry_guards]
             }
             Predicate::Entry(MultihopConstraints { entry, exit }) => {
                 // If an exit is already selected, it should be rejected as a possible entry relay.
@@ -931,21 +930,23 @@ impl RelaySelector {
                 // run `partition_relays` searching for the exit relay. If the result yields one
                 // (and only one) specific relay, we know that it must be excluded from the list of
                 // entry relays.
-                let exit_relay = self
+                let occupied = {
+                    let exit_relay = self
                             // Compare with the equiv predicate for the `Predicate::Exit` case. Que
                             // interesante.
                             .partition_relays(Predicate::Autohop(EntryConstraints { general: exit, ..Default::default()} ))
                             .matches
                             .into_iter()
                             .exactly_one();
-                let occupied = match exit_relay {
-                    Ok(entry_relay) => Criteria::new(move |relay: &WireguardRelay| {
-                        (relay.inner == entry_relay.inner).if_true(Reason::Conflict)
-                    }),
-                    Err(_) => {
-                        // There where more than 1 possible entry relays for the provided entry relay
-                        // predicate, any exit relay goes.
-                        Criteria::new(|_| Verdict::accept())
+                    match exit_relay {
+                        Ok(entry_relay) => Criteria::new(move |relay: &WireguardRelay| {
+                            (relay.inner == entry_relay.inner).if_true(Reason::Conflict)
+                        }),
+                        Err(_) => {
+                            // There where more than 1 possible entry relays for the provided entry relay
+                            // predicate, any exit relay goes.
+                            Criteria::new(|_| Verdict::accept())
+                        }
                     }
                 };
 
@@ -961,19 +962,21 @@ impl RelaySelector {
                 // run `partition_relays` searching for the entry relay. If the result yields one
                 // (and only one) specific relay, we know that it must be excluded from the list of
                 // exit relays.
-                let entry_relay = self
-                    .partition_relays(Predicate::Singlehop(entry))
-                    .matches
-                    .into_iter()
-                    .exactly_one();
-                let occupied = match entry_relay {
-                    Ok(entry_relay) => Criteria::new(move |relay: &WireguardRelay| {
-                        (relay.inner == entry_relay.inner).if_true(Reason::Conflict)
-                    }),
-                    Err(_) => {
-                        // There where more than 1 possible entry relays for the provided entry relay
-                        // predicate, any exit relay goes.
-                        Criteria::new(|_| Verdict::accept())
+                let occupied = {
+                    let entry_relay = self
+                        .partition_relays(Predicate::Singlehop(entry))
+                        .matches
+                        .into_iter()
+                        .exactly_one();
+                    match entry_relay {
+                        Ok(entry_relay) => Criteria::new(move |relay: &WireguardRelay| {
+                            (relay.inner == entry_relay.inner).if_true(Reason::Conflict)
+                        }),
+                        Err(_) => {
+                            // There where more than 1 possible entry relays for the provided entry relay
+                            // predicate, any exit relay goes.
+                            Criteria::new(|_| Verdict::accept())
+                        }
                     }
                 };
 
@@ -1265,10 +1268,21 @@ pub struct RelayPartitions {
     pub discards: Vec<(WireguardRelay, Vec<Reason>)>,
 }
 
+impl RelayPartitions {
+    /// Collect all unique reasons why a relay was filtered out.
+    pub fn unique_reasons(self) -> Vec<Vec<Reason>> {
+        self.discards
+            .into_iter()
+            .map(|(_relay, reasons)| reasons)
+            .unique()
+            .collect()
+    }
+}
+
 /// All possible reasons why a relay was filtered out for a particular query.
 //
 // TODO: Sort all variants in alphanumeric ordering.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum Reason {
     /// TODO: Document
     Inactive,
