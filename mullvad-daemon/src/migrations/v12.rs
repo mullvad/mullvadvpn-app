@@ -4,9 +4,9 @@ use mullvad_types::settings::SettingsVersion;
 /// NOTE: This migration has been closed.
 ///
 /// This migration handles:
-/// - Introduces 2 new fields to the [mullvad_constraints::WireguardConstraints] struct:
-///   pub entry_providers: Constraint<Providers>,
-///   pub entry_ownership: Constraint<Ownership>,
+/// - Introduces 2 new fields to the `mullvad_constraints::WireguardConstraints` struct:
+///   pub entry_providers: `Constraint<Providers>`,
+///   pub entry_ownership: `Constraint<Ownership>`,
 ///   When set, these filters apply to the entry relay when multihop is used.
 ///   A migration is needed to transfer the current providers and ownership to these new fields
 ///   so that the user's current filters don't change.
