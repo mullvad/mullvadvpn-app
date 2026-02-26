@@ -39,13 +39,13 @@ pub enum Error {
     PortSelectionError { port: Constraint<u16> },
 }
 
-/// Constructs a [`MullvadWireguardEndpoint`] with details for how to connect to a Wireguard relay.
+/// Constructs a [`MullvadEndpoint`] with details for how to connect to a Wireguard relay.
 ///
 /// # Returns
 /// - A configured endpoint for Wireguard relay, encapsulating either a single-hop or multi-hop
 ///   connection.
-/// - Returns [`Option::None`] if the desired port is not in a valid port range (see
-///   [`WireguardRelayQuery::port`]) or relay addresses cannot be resolved.
+/// - Returns [`None`] if the desired port is not in a valid port range (see
+///   [`get_port_for_wireguard_relay`]) or relay addresses cannot be resolved.
 pub fn wireguard_endpoint(
     query: &WireguardRelayQuery,
     data: &EndpointData,
@@ -194,8 +194,7 @@ fn get_port_for_wireguard_relay(
         .map_err(|_err| Error::PortSelectionError { port })
 }
 
-/// Read the [`PublicKey`] of a relay. This will only succeed if [relay][`Relay`] is a
-/// [Wireguard][`RelayEndpointData::Wireguard`] relay.
+/// Read the [`PublicKey`] of a relay.
 const fn get_public_key(relay: &WireguardRelay) -> &PublicKey {
     &relay.endpoint_data.public_key
 }
