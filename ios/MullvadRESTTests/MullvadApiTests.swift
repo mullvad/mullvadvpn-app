@@ -13,15 +13,19 @@ import Network
 import XCTest
 
 @testable import MullvadREST
+@testable import MullvadSettings
 
 /// This tests main purpose is to test the functionallity of the FFI rather than every function of the proxy itself.
 /// It makes sure the response and errors are parsed correctly.
 
 class MullvadApiTests: XCTestCase {
     let encoder = JSONEncoder()
+    
+    static let store = InMemorySettingsStore<SettingNotFound>()
 
     override func setUp() {
         super.setUp()
+        SettingsManager.unitTestStore = MullvadApiTests.store
         RustLogging.initialize()
     }
 
@@ -213,3 +217,5 @@ class MullvadApiTests: XCTestCase {
         XCTAssertNil(result.error)
     }
 }
+
+struct SettingNotFound: Error, Instantiable {}
