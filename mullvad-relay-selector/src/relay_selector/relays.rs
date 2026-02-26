@@ -1,5 +1,6 @@
-//! This module defines wrapper types around [`Relay`], often to provide certain runtime guarantees
-//! or disambiguate the type of relay which is used in the relay selector's internal APIs.
+//! This module defines wrapper types around [`WireguardRelay`], often to provide certain runtime
+//! guarantees or disambiguate the type of relay which is used in the relay selector's internal
+//! APIs.
 
 use mullvad_types::relay_list::WireguardRelay;
 
@@ -23,17 +24,17 @@ pub enum WireguardConfig {
 /// Before you can read any data out of a [`Singlehop`] value you need to convert it to
 /// [`WireguardConfig`]. This is easy since [`Singlehop`] implements [`Into<WireguardConfig>`].
 ///
-/// # Why not simply use [`Relay`]?
+/// # Why not simply use [`WireguardRelay`]?
 /// The only way to construct a [`Singlehop`] value is with [`Singlehop::new`] which performs
 /// additional validation which guarantees that the relay actually is a Wireguard relay, while
-/// [`Relay`] is not guaranteed to be a Wireguard relay.
+/// [`WireguardRelay`] is not guaranteed to be a Wireguard relay.
 pub struct Singlehop(WireguardRelay);
 /// A type representing two Wireguard relay - an entry and an exit.
 ///
 /// Before you can read any data out of a [`Multihop`] value you need to convert it to
 /// [`WireguardConfig`]. This is easy since [`Multihop`] implements [`Into<WireguardConfig>`].
 ///
-/// # Why not simply use [`Relay`]?
+/// # Why not simply use [`WireguardRelay`]?
 /// The same rationale as for [`Singlehop`] applies - [`Multihop::new`] performs additional
 /// validation on the entry and exit relays.
 pub struct Multihop {
