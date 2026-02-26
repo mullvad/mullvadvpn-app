@@ -3,7 +3,7 @@
 # Updating the sdk version requires updating the version used in the build container.
 # See Bump SDK or container image template in Linear for more details.
 compile-sdk = "36"
-build-tools = "36.0.0"
+build-tools = "36.1.0"
 min-sdk = "26"
 target-sdk = "36"
 jvm-target = "17"
@@ -16,8 +16,8 @@ ndk = "27.3.13750724"
 android-gradle-aapt = "14304508"
 android-gradle-plugin = "8.13.2"
 # Other
-android-billingclient = "8.0.0"
-androidx-activitycompose = "1.12.3"
+android-billingclient = "8.3.0"
+androidx-activitycompose = "1.12.4"
 androidx-appcompat = "1.7.1"
 androidx-coresplashscreen = "1.2.0"
 androidx-credentials = "1.5.0"
@@ -36,7 +36,7 @@ arrow = "2.2.1.1"
 baselineprofile = "1.4.1"
 benchmark-macro-junit4 = "1.4.1"
 commonsvalidator = "1.10.1"
-compose = "1.10.2"
+compose = "1.10.4"
 compose-constraintlayout = "1.1.1"
 compose-destinations = "2.3.0"
 compose-material-icons-extended = "1.7.8"
@@ -45,7 +45,7 @@ dependency-versions = "0.53.0"
 detekt = "1.23.8"
 accompanist = "0.37.3"
 # Update suppression for 'InvalidPackage' in config/lint.xml
-grpc = "1.78.0"
+grpc = "1.79.0"
 grpc-kotlin = "1.5.0"
 junit = "5.13.4"
 junit4 = "1.3.0"
@@ -58,22 +58,20 @@ konsist = "0.17.3"
 # Bump kotlin and kotlin-ksp together, find matching release here:
 # https://github.com/google/ksp/releases
 kotlin = "2.3.10"
-kotlin-ksp = "2.3.5"
+kotlin-ksp = "2.3.6"
 kotlinx = "1.10.2"
 kotlinx-serialization-json = "1.10.0"
 ktfmt = "0.25.0"
 ktor = "3.4.0"
 leakcanary = "2.14"
 mockk = "1.14.9"
-play-publisher = "3.12.1"
+play-publisher = "3.13.0"
 play-services-location = "21.3.0"
 profileinstaller = "1.4.1"
 protobuf = "4.33.5"
 protobuf-gradle-plugin = "0.9.6"
 turbine = "1.2.1"
 annotation-jvm = "1.9.1"
-junit-version = "4.13.2"
-material = "1.10.0"
 
 [libraries]
 accompanist-drawablepainter = { module = "com.google.accompanist:accompanist-drawablepainter", version.ref = "accompanist" }
@@ -171,8 +169,6 @@ mockk-android = { module = "io.mockk:mockk-android", version.ref = "mockk" }
 play-services-location = { module = "com.google.android.gms:play-services-location", version.ref = "play-services-location" }
 protobuf-kotlin-lite = { module = "com.google.protobuf:protobuf-kotlin-lite", version.ref = "protobuf" }
 turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
-junit = { group = "junit", name = "junit", version.ref = "junit-version" }
-material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "android-gradle-plugin" }
