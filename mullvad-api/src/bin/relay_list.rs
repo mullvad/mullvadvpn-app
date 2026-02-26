@@ -14,13 +14,13 @@ mod imp {
         let api_endpoint = ApiEndpoint::from_env_vars();
         let runtime = mullvad_api::Runtime::new(tokio::runtime::Handle::current(), &api_endpoint);
 
-        let relay_list_request = RelayListProxy::new(
+        let proxy = RelayListProxy::new(
             runtime.mullvad_rest_handle(ApiConnectionMode::Direct.into_provider()),
-        )
-        .relay_list(None)
-        .await;
+        );
 
-        let relay_list = match relay_list_request {
+        let response = proxy.relay_list(None, None).await;
+
+        let relay_list = match response {
             Ok(relay_list) => relay_list,
             Err(RestError::TimeoutError) => {
                 eprintln!("Request timed out");
