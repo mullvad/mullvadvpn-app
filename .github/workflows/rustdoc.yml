@@ -60,10 +60,6 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: ${{ needs.prepare-linux.outputs.container_image }}
-
-    strategy:
-      matrix:
-        rust: [stable, beta, nightly]
     continue-on-error: true
     steps:
       # Fix for HOME path overridden by GH runners when building in containers, see:
@@ -79,15 +75,6 @@ jobs:
           git config --global --add safe.directory '*'
           git submodule update --init --depth=1 dist-assets/binaries
           git submodule update --init wireguard-go-rs/libwg/wireguard-go
-
-      # The container image already has rustup and the pinned version of Rust
-      - name: Install Rust toolchain
-        # When running this job for "stable" test against our pinned rust version
-        # instead of the stable channel.
-        # TODO: Improve this so both "stable" and the pinned version are tested if
-        # they differ.
-        if: ${{ matrix.rust != 'stable' }}
-        run: rustup override set ${{ matrix.rust }}
 
       - name: Setup Rust cache
         uses: Swatinem/rust-cache@v2
