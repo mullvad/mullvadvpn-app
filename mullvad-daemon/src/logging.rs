@@ -124,7 +124,7 @@ impl LogHandle {
     /// Adjust the log level.
     ///
     /// - `level_filter`: A `RUST_LOG` string. See `env_logger` for more information:
-    ///   https://docs.rs/env_logger/latest/env_logger/
+    ///   <https://docs.rs/env_logger/latest/env_logger/>
     pub fn set_log_filter(
         &self,
         level_filter: impl AsRef<str>,

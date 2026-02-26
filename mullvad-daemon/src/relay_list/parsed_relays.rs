@@ -1,5 +1,4 @@
-//! This module provides functionality for parsing the local relay list,
-//! including support for loading these lists from disk & applying [overrides][`RelayOverride`].
+//! This module provides functionality for reading and parsing [`CachedRelayList`]s from disk.
 
 use std::io::{self, BufReader};
 use std::path::Path;
