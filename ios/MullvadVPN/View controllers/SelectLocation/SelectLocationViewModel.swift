@@ -374,7 +374,9 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
                 locationDataSource?.setSelectedNode(selectedRelays: selected)
                 locationDataSource?.expandSelection()
                 dataSources.forEach {
-                    $0.setExcludedNode(excludedSelection: excluded)
+                    if self.isMultihopEnabled {
+                        $0.setExcludedNode(excludedSelection: excluded)
+                    }
                 }
             }
         updateLocationsDataSources(
