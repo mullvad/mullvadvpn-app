@@ -1,4 +1,4 @@
-//! Forward [NSEvent]s from macOS to node.
+//! Forward `NSEvent`s from macOS to node.
 #![cfg(target_os = "macos")]
 
 use std::ptr::NonNull;
