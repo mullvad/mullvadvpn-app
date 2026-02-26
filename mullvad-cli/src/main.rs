@@ -205,7 +205,7 @@ async fn main() -> Result<()> {
 
 /// Install the default signal handler for `SIGPIPE`.
 ///
-/// By default, Rust replaces it with an empty handler because reasons: https://github.com/rust-lang/rust/issues/119980
+/// By default, Rust replaces it with an empty handler because reasons: <https://github.com/rust-lang/rust/issues/119980>
 #[cfg(unix)]
 fn handle_sigpipe() -> Result<(), nix::errno::Errno> {
     use nix::sys::signal::{SigHandler, Signal, signal};
