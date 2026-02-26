@@ -138,7 +138,7 @@ extern "C" fn fault_handler(
 
 /// Call from a signal handler to try to print the signal (and optionally a backtrace).
 ///
-/// The output is written to stdout, and to a file if [set_exception_logging_file] was called.
+/// The output is written to stdout, and to a file if [set_log_file] was called.
 ///
 /// # Safety
 /// This function is signal-safe if [ENABLE_BACKTRACE] is false.
