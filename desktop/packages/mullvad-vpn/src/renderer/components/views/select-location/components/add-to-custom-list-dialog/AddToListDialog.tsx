@@ -8,6 +8,7 @@ import { FlexColumn } from '../../../../../lib/components/flex-column';
 import { formatHtml } from '../../../../../lib/html-formatter';
 import type { GeographicalLocation } from '../../select-location-types';
 import { SelectList } from '../select-list';
+import { useLocationTypeMessage } from './hooks';
 
 type AddToCustomListDialog = Omit<DialogProps, 'children'> & {
   location: GeographicalLocation;
@@ -20,16 +21,7 @@ export function AddToCustomListDialog({ location, onOpenChange, open }: AddToCus
     onOpenChange?.(false);
   }, [onOpenChange]);
 
-  let locationType: string;
-  if (location.type === 'relay') {
-    locationType =
-      // TRANSLATORS: This refers to our VPN relays/servers
-      messages.pgettext('select-location-view', 'Relay');
-  } else if (location.type === 'city') {
-    locationType = messages.pgettext('select-location-view', 'City');
-  } else {
-    locationType = messages.pgettext('select-location-view', 'Country');
-  }
+  const locationTypeMessage = useLocationTypeMessage(location);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -44,7 +36,7 @@ export function AddToCustomListDialog({ location, onOpenChange, open }: AddToCus
                   // TRANSLATORS: %(locationType) - Could be either "Country", "City" and "Relay"
                   messages.pgettext('select-location-view', 'Add %(locationType)s to list'),
                   {
-                    locationType,
+                    locationType: locationTypeMessage,
                   },
                 ),
               )}
