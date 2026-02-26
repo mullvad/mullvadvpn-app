@@ -31,12 +31,29 @@ sealed interface CreateTunResult {
     }
 
     data class InvalidDnsServers(val addresses: ArrayList<InetAddress>, val tunFd: Int) : Error {
-        constructor(address: List<InetAddress>, tunFd: Int) : this(ArrayList(address), tunFd)
+        constructor(addresses: List<InetAddress>, tunFd: Int) : this(ArrayList(addresses), tunFd)
 
         override val isOpen = true
     }
 
-    data object InvalidIpv6Config : Error {
-        override val isOpen = false
+    data class InvalidIpv6Config(
+        val addresses: ArrayList<InetAddress>,
+        val routes: ArrayList<InetNetwork>,
+        val dnsServers: ArrayList<InetAddress>,
+        val tunFd: Int,
+    ) : Error {
+        constructor(
+            addresses: List<InetAddress>,
+            routes: List<InetNetwork>,
+            dnsServers: List<InetAddress>,
+            tunFd: Int,
+        ) : this(
+            addresses = ArrayList(addresses),
+            routes = ArrayList(routes),
+            dnsServers = ArrayList(dnsServers),
+            tunFd = tunFd,
+        )
+
+        override val isOpen = true
     }
 }
