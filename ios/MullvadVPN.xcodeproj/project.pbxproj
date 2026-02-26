@@ -1071,6 +1071,8 @@
 		F0E8CC0C2A4EE672007ED3B4 /* SetupAccountCompletedController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0E8CC0B2A4EE672007ED3B4 /* SetupAccountCompletedController.swift */; };
 		F0E8E4BB2A56C9F100ED26A3 /* WelcomeInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0E8E4BA2A56C9F100ED26A3 /* WelcomeInteractor.swift */; };
 		F0E8E4C32A602E0D00ED26A3 /* AccountDeletionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0E8E4C22A602E0D00ED26A3 /* AccountDeletionViewModel.swift */; };
+		F0EF2B7B2F4C802000C7ECA7 /* AppResetManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0EF2B762F4C801D00C7ECA7 /* AppResetManager.swift */; };
+		F0EF2B7D2F4F5FCC00C7ECA7 /* SettingsResetPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0EF2B7C2F4F5FC900C7ECA7 /* SettingsResetPolicy.swift */; };
 		F0EF50D52A949F8E0031E8DF /* ChangeLogViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0EF50D42A949F8E0031E8DF /* ChangeLogViewModel.swift */; };
 		F0F146942D9462E100BF78E7 /* RustProblemReportRequestTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0F146912D94491200BF78E7 /* RustProblemReportRequestTests.swift */; };
 		F0F266692EB3B71A00AAD7DA /* RelayLocationList.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0F266682EB3B71A00AAD7DA /* RelayLocationList.swift */; };
@@ -2528,6 +2530,8 @@
 		F0E8E4C22A602E0D00ED26A3 /* AccountDeletionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountDeletionViewModel.swift; sourceTree = "<group>"; };
 		F0EE6E772E4A321B0089DFF3 /* da */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = da; path = da.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		F0EEFB9E2D8D60E1007FE4B3 /* RustProblemReportRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RustProblemReportRequest.swift; sourceTree = "<group>"; };
+		F0EF2B762F4C801D00C7ECA7 /* AppResetManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppResetManager.swift; sourceTree = "<group>"; };
+		F0EF2B7C2F4F5FC900C7ECA7 /* SettingsResetPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsResetPolicy.swift; sourceTree = "<group>"; };
 		F0EF50D42A949F8E0031E8DF /* ChangeLogViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeLogViewModel.swift; sourceTree = "<group>"; };
 		F0F146912D94491200BF78E7 /* RustProblemReportRequestTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RustProblemReportRequestTests.swift; sourceTree = "<group>"; };
 		F0F1EF8C2BE8FF0A00CED01D /* LaunchArguments.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchArguments.swift; sourceTree = "<group>"; };
@@ -3709,9 +3713,10 @@
 		589A454A28DDF59B00565204 /* Shared */ = {
 			isa = PBXGroup;
 			children = (
-				F04789EB2E3A4FEB0011E3A5 /* ApplicationLanguage.swift */,
 				58BFA5CB22A7CE1F00A6173D /* ApplicationConfiguration.swift */,
+				F04789EB2E3A4FEB0011E3A5 /* ApplicationLanguage.swift */,
 				58C76A072A33850E00100D75 /* ApplicationTarget.swift */,
+				F0EF2B762F4C801D00C7ECA7 /* AppResetManager.swift */,
 				F0F1EF8C2BE8FF0A00CED01D /* LaunchArguments.swift */,
 			);
 			path = Shared;
@@ -3808,6 +3813,7 @@
 				F00FEA1F2E9FCF7C00F7EC6C /* RecentConnectionsRepositoryProtocol.swift */,
 				58FF2C02281BDE02009EF542 /* SettingsManager.swift */,
 				06410E03292D0F7100AFC18C /* SettingsParser.swift */,
+				F0EF2B7C2F4F5FC900C7ECA7 /* SettingsResetPolicy.swift */,
 				06410E06292D108E00AFC18C /* SettingsStore.swift */,
 				A92ECC232A7802520052F1B1 /* StoredAccountData.swift */,
 				A92ECC272A7802AB0052F1B1 /* StoredDeviceData.swift */,
@@ -6251,6 +6257,7 @@
 				7A9F293B2CAC4443005F2089 /* InfoHeaderConfig.swift in Sources */,
 				F0E61CAB2BF2911D000C4A95 /* MultihopSettings.swift in Sources */,
 				F053601D2EA03D8A00D6EDFF /* RecentConnectionsRepository.swift in Sources */,
+				F0EF2B7D2F4F5FCC00C7ECA7 /* SettingsResetPolicy.swift in Sources */,
 				F053601E2EA03D8A00D6EDFF /* RecentConnections.swift in Sources */,
 				F053601F2EA03D8A00D6EDFF /* RecentConnectionsRepositoryProtocol.swift in Sources */,
 				58B2FDE82AA71D5C003EB5C6 /* KeychainSettingsStore.swift in Sources */,
@@ -6749,6 +6756,7 @@
 				58E20771274672CA00DE5D77 /* LaunchViewController.swift in Sources */,
 				F0E8CC032A4C753B007ED3B4 /* WelcomeViewController.swift in Sources */,
 				584D26C4270C855B004EA533 /* VPNSettingsDataSource.swift in Sources */,
+				F0EF2B7B2F4C802000C7ECA7 /* AppResetManager.swift in Sources */,
 				F0D8825B2B04F53600D3EF9A /* OutgoingConnectionData.swift in Sources */,
 				7A8A18FB2CE4B678000BCB5B /* View+TapAreaSize.swift in Sources */,
 				7A6F2FAF2AFE36E7006D0856 /* VPNSettingsInfoButtonItem.swift in Sources */,

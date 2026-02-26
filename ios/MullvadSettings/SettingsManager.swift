@@ -139,19 +139,10 @@ public enum SettingsManager {
 
     /// Removes all legacy settings, device state, tunnel settings and API access methods but keeps
     /// the last used account number stored.
-    public static func resetStore(completely: Bool = false) {
+    public static func resetStore(policy: SettingsResetPolicy = .partially) {
         logger.debug("Reset store.")
 
-        let keys =
-            completely
-            ? SettingsKey.allCases
-            : [
-                .settings,
-                .deviceState,
-                .apiAccessMethods,
-                .ipOverrides,
-                .customRelayLists,
-            ]
+        let keys = policy.keys
 
         keys.forEach { key in
             do {

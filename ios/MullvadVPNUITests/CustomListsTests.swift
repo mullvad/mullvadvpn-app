@@ -20,8 +20,7 @@ class CustomListsTests: LoggedInWithTimeUITestCase {
             self.deleteCustomList(named: customListName)
         }
 
-        app.terminate()
-        app.launch()
+        try relaunch()
 
         TunnelControlPage(app)
             .tapSelectLocationButton()

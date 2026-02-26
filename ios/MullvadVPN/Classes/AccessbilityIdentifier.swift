@@ -123,6 +123,7 @@ public enum AccessibilityIdentifier: Equatable {
     case obfuscationFilterPill
     case languageCell
     case notificationSettingsCell
+    case selectedSingleOption
 
     // Labels
     case accountPageDeviceNameLabel

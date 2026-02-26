@@ -18,17 +18,36 @@ public extension Taggable {
     }
 }
 
-public enum MullvadExecutableTarget: Codable {
+public enum MullvadExecutableTarget: Codable, Sendable {
     case uiTests, screenshots, main
-}
 
+    var isUITest: Bool {
+        self == .uiTests || self == .screenshots
+    }
+}
 // This arguments are picked up in AppDelegate.
-public struct LaunchArguments: Codable, Taggable {
+public struct LaunchArguments: Codable, Taggable, Sendable {
+    public enum AuthenticationState: String, Codable, Sendable {
+        case keepLoggedIn
+        case forceLoggedOut
+    }
+
+    public enum LocalDataResetPolicy: String, Codable, Sendable {
+        case none
+        case all
+    }
+
     // Defines which target is running
     public var target: MullvadExecutableTarget = .main
 
     // Disable animations to speed up tests.
     public var areAnimationsDisabled = false
+
+    // Controls login state at launch.
+    public var authenticationState: AuthenticationState = .keepLoggedIn
+
+    // Controls which local data is cleared at launch.
+    public var localDataResetPolicy: LocalDataResetPolicy = .none
 }
 
 public extension ProcessInfo {
