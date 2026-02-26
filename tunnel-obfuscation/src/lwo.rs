@@ -114,7 +114,7 @@ struct Client {
     client_socket: Arc<UdpSocket>,
 }
 
-/// Start an LWO client by calling [Client::run].
+/// Tokio task handles of a running [Client].
 struct RunningClient {
     /// Egress task.
     send: JoinHandle<()>,
