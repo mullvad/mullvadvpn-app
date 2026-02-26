@@ -79,7 +79,7 @@ enum InnerConnectionMode {
     /// Connect to the destination via a Socks proxy.
     Socks5(SocksConfig),
     /// Connect to the destination via Mullvad Encrypted DNS proxy.
-    /// See [`mullvad-encrypted-dns-proxy`] for how the proxy works.
+    /// See [`mullvad_encrypted_dns_proxy`] for how the proxy works.
     EncryptedDnsProxy(EncryptedDNSConfig),
 }
 
