@@ -43,3 +43,13 @@ fun Context.openAppDetailsSettings(): Either<ActivityNotFoundException, Unit> =
         }
         .onLeft { Logger.e("Failed to open app details settings", it) }
         .mapLeft { it as? ActivityNotFoundException ?: throw it }
+
+fun Context.openAppInfoNotificationSettings(): Either<ActivityNotFoundException, Unit> =
+    Either.catch {
+            val intent = Intent(ACTION_APP_NOTIFICATION_SETTINGS)
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            intent.putExtra(EXTRA_APP_PACKAGE, packageName)
+            startActivity(intent)
+        }
+        .onLeft { Logger.e("Failed to open app info notification settings", it) }
+        .mapLeft { it as? ActivityNotFoundException ?: throw it }

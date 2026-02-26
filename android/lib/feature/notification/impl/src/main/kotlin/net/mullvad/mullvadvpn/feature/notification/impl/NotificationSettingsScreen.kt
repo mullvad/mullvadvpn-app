@@ -2,10 +2,21 @@ package net.mullvad.mullvadvpn.feature.notification.impl
 
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.OpenInNew
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -13,12 +24,16 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
+import net.mullvad.mullvadvpn.common.compose.isTv
 import net.mullvad.mullvadvpn.core.animation.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.lib.common.Lc
+import net.mullvad.mullvadvpn.lib.common.util.openAppInfoNotificationSettings
 import net.mullvad.mullvadvpn.lib.ui.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.SwitchListItem
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
+import net.mullvad.mullvadvpn.lib.ui.designsystem.PrimaryButton
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 import org.koin.androidx.compose.koinViewModel
@@ -34,6 +49,7 @@ private fun PreviewNotificationSettingsScreen(
             state = state,
             onBackClick = {},
             onToggleLocationInNotifications = {},
+            onOpenSystemNotificationsSettings = {},
         )
     }
 }
@@ -45,10 +61,20 @@ fun NotificationSettings(navigator: DestinationsNavigator) {
     val vm = koinViewModel<NotificationSettingsViewModel>()
     val state by vm.uiState.collectAsStateWithLifecycle()
 
+    val context = LocalContext.current
+    CollectSideEffectWithLifecycle(vm.uiSideEffect) {
+        when (it) {
+            NotificationSettingsSideEffect.OpenSystemNotificationsSettings -> {
+                context.openAppInfoNotificationSettings()
+            }
+        }
+    }
+
     NotificationSettingsScreen(
         state = state,
         onBackClick = { navigator.navigateUp() },
         onToggleLocationInNotifications = vm::onToggleLocationInNotifications,
+        onOpenSystemNotificationsSettings = vm::openSystemNotificationsSettings,
     )
 }
 
@@ -57,10 +83,34 @@ fun NotificationSettingsScreen(
     state: Lc<Unit, NotificationSettingsUiState>,
     onBackClick: () -> Unit,
     onToggleLocationInNotifications: (Boolean) -> Unit,
+    onOpenSystemNotificationsSettings: () -> Unit,
 ) {
     ScaffoldWithMediumTopBar(
         appBarTitle = stringResource(id = R.string.settings_notifications),
         navigationIcon = { NavigateBackIconButton { onBackClick() } },
+        bottomBar = {
+            if (!isTv()) {
+                PrimaryButton(
+                    modifier =
+                        Modifier.windowInsetsPadding(
+                                WindowInsets.systemBars.only(WindowInsetsSides.Bottom)
+                            )
+                            .padding(
+                                horizontal = Dimens.sideMargin,
+                                vertical = Dimens.screenBottomMargin,
+                            ),
+                    text = stringResource(R.string.notification_settings),
+                    onClick = onOpenSystemNotificationsSettings,
+                    trailingIcon = {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Rounded.OpenInNew,
+                            tint = MaterialTheme.colorScheme.onPrimary,
+                            contentDescription = null,
+                        )
+                    },
+                )
+            }
+        },
     ) { modifier ->
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
