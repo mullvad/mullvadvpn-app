@@ -80,7 +80,7 @@ pub(crate) struct VersionUpdater(());
 
 #[derive(Default)]
 struct VersionUpdaterInner {
-    /// The last known [AppVersionInfo]
+    /// The last known [VersionCache]
     last_app_version_info: Option<VersionCache>,
 }
 
@@ -314,7 +314,7 @@ struct ApiContext {
     rollout: Rollout,
 }
 
-/// Immediately query the API for the latest [AppVersionInfo].
+/// Immediately query the API for the latest [VersionCache].
 fn do_version_check(
     api: ApiContext,
     prev_cache: Option<VersionCache>,
@@ -336,10 +336,9 @@ fn do_version_check(
     ))
 }
 
-/// Query the API for the latest [AppVersionInfo] once, without retrying.
+/// Query the API for the latest [VersionCache] once, without retrying.
 ///
-/// This function waits until background calls are enabled in
-/// [ApiAvailability](mullvad_api::availability::ApiAvailability).
+/// This function waits until background calls are enabled in [ApiAvailability].
 fn do_version_check_in_background(
     api: ApiContext,
     cache: Option<VersionCache>,
@@ -491,7 +490,7 @@ async fn version_check_inner(
 
 /// Read the app version cache from the provided directory.
 ///
-/// Returns the [AppVersionInfo] along with the modification time of the cache file,
+/// Returns the [VersionCache] along with the modification time of the cache file,
 /// or `None` on any error.
 async fn load_cache(cache_path: &PathBuf) -> Option<VersionCache> {
     try_load_cache(cache_path)
