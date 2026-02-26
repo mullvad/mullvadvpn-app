@@ -746,34 +746,6 @@ struct SwiftShadowsocksLoaderWrapper init_swift_shadowsocks_loader_wrapper(const
  * object `MullvadApiCompletion`. The pointer will be freed by calling `mullvad_api_completion_finish`
  * when completion finishes (in completion.finish).
  *
- * `retry_strategy` must have been created by a call to either of the following functions
- * `mullvad_api_retry_strategy_never`, `mullvad_api_retry_strategy_constant` or `mullvad_api_retry_strategy_exponential`
- *
- * `account_number` must be a pointer to a null terminated string.
- *
- * `body` must be a pointer to a contiguous memory segment
- *
- * `body_size` must be the size of the body
- *
- * This function is not safe to call multiple times with the same `CompletionCookie`.
- */
-struct SwiftCancelHandle mullvad_ios_legacy_storekit_payment(struct SwiftApiContext api_context,
-                                                             void *completion_cookie,
-                                                             struct SwiftRetryStrategy retry_strategy,
-                                                             const char *account_number,
-                                                             const uint8_t *body,
-                                                             uintptr_t body_size);
-
-/**
- * # Safety
- *
- * `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
- * by calling `mullvad_api_init_new`.
- *
- * This function takes ownership of `completion_cookie`, which must be pointing to a valid instance of Swift
- * object `MullvadApiCompletion`. The pointer will be freed by calling `mullvad_api_completion_finish`
- * when completion finishes (in completion.finish).
- *
  * `account_number` must be a pointer to a null terminated string.
  *
  * `retry_strategy` must have been created by a call to either of the following functions
