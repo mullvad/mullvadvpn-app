@@ -97,7 +97,9 @@ import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicat
 import net.mullvad.mullvadvpn.lib.ui.designsystem.PrimaryButton
 import net.mullvad.mullvadvpn.lib.ui.designsystem.VariantButton
 import net.mullvad.mullvadvpn.lib.ui.resource.R
+import net.mullvad.mullvadvpn.lib.ui.tag.LOGIN_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.LOGIN_INPUT_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.LOGIN_REVEAL_INPUT_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.LOGIN_SCREEN_DELETE_ACCOUNT_HISTORY_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.LOGIN_TITLE_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
@@ -298,7 +300,8 @@ private fun LoginContent(
             isEnabled = state.loginButtonEnabled,
             onClick = { onLoginClick(state.accountNumberInput) },
             text = stringResource(id = R.string.log_in),
-            modifier = Modifier.padding(bottom = Dimens.mediumPadding),
+            modifier =
+                Modifier.testTag(LOGIN_BUTTON_TEST_TAG).padding(bottom = Dimens.mediumPadding),
         )
     }
 }
@@ -354,7 +357,10 @@ private fun ColumnScope.LoginInput(
             )
         },
         trailingIcon = {
-            IconButton(onClick = { showPassword = !showPassword }) {
+            IconButton(
+                modifier = Modifier.testTag(LOGIN_REVEAL_INPUT_BUTTON_TEST_TAG),
+                onClick = { showPassword = !showPassword },
+            ) {
                 Icon(
                     imageVector =
                         if (showPassword) Icons.Outlined.VisibilityOff

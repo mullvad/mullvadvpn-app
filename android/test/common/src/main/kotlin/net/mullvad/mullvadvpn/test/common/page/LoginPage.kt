@@ -1,8 +1,9 @@
 package net.mullvad.mullvadvpn.test.common.page
 
-import android.widget.Button
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.Until
+import net.mullvad.mullvadvpn.lib.ui.tag.LOGIN_BUTTON_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.LOGIN_REVEAL_INPUT_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.LOGIN_SCREEN_DELETE_ACCOUNT_HISTORY_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.TOP_BAR_SETTINGS_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.test.common.constant.DEFAULT_TIMEOUT
@@ -22,8 +23,7 @@ class LoginPage internal constructor() : Page() {
     }
 
     fun clickLoginButton() {
-        val accountTextField = uiDevice.findObjectWithTimeout(By.clazz("android.widget.EditText"))
-        val loginButton = accountTextField.parent.findObject(By.clazz(Button::class.java))
+        val loginButton = uiDevice.findObjectWithTimeout(By.res(LOGIN_BUTTON_TEST_TAG))
         loginButton.wait(Until.enabled(true), DEFAULT_TIMEOUT)
         loginButton.click()
     }
@@ -34,6 +34,10 @@ class LoginPage internal constructor() : Page() {
 
     fun verifyShowingInvalidAccount() {
         uiDevice.findObjectWithTimeout(invalidAccountNumberSelector, EXTREMELY_LONG_TIMEOUT)
+    }
+
+    fun toggleRevealInput() {
+        uiDevice.findObjectWithTimeout(By.res(LOGIN_REVEAL_INPUT_BUTTON_TEST_TAG)).click()
     }
 
     fun assertHasAccountHistory(accountNumber: String) {
