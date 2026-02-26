@@ -84,6 +84,8 @@ const val PLAY_PAYMENT_INFO_ICON_TEST_TAG = "play_payment_info_icon_test_tag"
 const val LOGIN_TITLE_TEST_TAG = "login_title_test_tag"
 const val LOGIN_INPUT_TEST_TAG = "login_input_test_tag"
 
+const val LOGIN_BUTTON_TEST_TAG = "login_button_test_tag"
+
 // VoucherDialog
 const val VOUCHER_INPUT_TEST_TAG = "voucher_input_test_tag"
 
