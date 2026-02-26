@@ -81,7 +81,7 @@ pub fn parse_inet_sockaddr(buffer: &[u8]) -> Result<SocketAddr, DecodeError> {
 }
 
 /// Parse the last WireGuard handshake timestamp.
-/// The resulting [SystemTime] is a timestamp relative to [SystemTime::UNIX_EPOCH].
+/// The resulting [KernelTimespec] is a timestamp relative to [UNIX_EPOCH](std::time::UNIX_EPOCH).
 pub fn parse_last_handshake_time(buffer: &[u8]) -> Result<KernelTimespec, DecodeError> {
     KernelTimespec::read_from_bytes(buffer)
         .map_err(|_err| format!("Unexpected size for timespec: {}", buffer.len()).into())
