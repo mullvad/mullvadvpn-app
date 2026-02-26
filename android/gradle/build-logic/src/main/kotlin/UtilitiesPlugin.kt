@@ -5,8 +5,6 @@ import org.gradle.kotlin.dsl.apply
 class UtilitiesPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         // Plugin intentionally empty - utilities are available via package import
-        with (project) {
-            apply(plugin = "mullvad.kotlin-toolchain")
-        }
+        with(project) { apply(plugin = "mullvad.kotlin-toolchain") }
     }
 }
