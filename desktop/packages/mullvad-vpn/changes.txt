@@ -1,5 +1,5 @@
 This is primarily a bug fix release.
-[linux] App now uses Wayland by default in supported desktop environments.
+[linux] App now uses Wayland by default on supported desktop environments.
 [macOS] Split tunneling should now work better while other network applications are running.
 [macOS] Fix potential problems with DNS not resolving while connected to the VPN.
 [Windows] Fix connection issue when third-party firewall applications are active.
