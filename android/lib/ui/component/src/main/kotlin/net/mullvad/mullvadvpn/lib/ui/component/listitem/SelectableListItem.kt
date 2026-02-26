@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.lib.ui.component.listitem
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.fadeIn
@@ -60,6 +61,21 @@ private fun PreviewSelectableListItem() {
 }
 
 @Composable
+fun LeadingContentAnimatedVisibility(
+    modifier: Modifier = Modifier,
+    visible: Boolean,
+    content: @Composable (AnimatedVisibilityScope.() -> Unit),
+) {
+    AnimatedVisibility(
+        modifier = modifier,
+        visible = visible,
+        enter = fadeIn(tween(ANIMATION_DURATION)) + expandHorizontally(tween(ANIMATION_DURATION)),
+        exit = fadeOut(tween(ANIMATION_DURATION)) + shrinkHorizontally(tween(ANIMATION_DURATION)),
+        content = content,
+    )
+}
+
+@Composable
 fun SelectableListItem(
     modifier: Modifier = Modifier,
     hierarchy: Hierarchy = Hierarchy.Parent,
@@ -85,15 +101,9 @@ fun SelectableListItem(
         onClick = onClick,
         onLongClick = onLongClick,
         leadingContent = {
-            AnimatedVisibility(
+            LeadingContentAnimatedVisibility(
                 modifier = Modifier.align(Alignment.Center),
                 visible = isSelected,
-                enter =
-                    fadeIn(tween(ANIMATION_DURATION)) +
-                        expandHorizontally(tween(ANIMATION_DURATION)),
-                exit =
-                    fadeOut(tween(ANIMATION_DURATION)) +
-                        shrinkHorizontally(tween(ANIMATION_DURATION)),
             ) {
                 val defaultColors = ListItemDefaults.colors()
                 Icon(
