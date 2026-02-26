@@ -55,7 +55,7 @@ jobs:
     outputs:
       container_image: ${{ env.inner_container_image }}
 
-  build-linux:
+  document-linux:
     needs: prepare-linux
     runs-on: ubuntu-latest
     container:
@@ -96,9 +96,9 @@ jobs:
           cache-targets: "false" # Only cache cargo registry
 
       - name: Check rust docs
-        run: ci/cargo-ci.sh doc --workspace --document-private-items --no-deps
+        run: ci/cargo-ci.sh doc --workspace --document-private-items --no-deps --keep-going
 
-  build-macos:
+  document-macos:
     runs-on: macos-latest
     steps:
       - name: Checkout repository
@@ -107,9 +107,9 @@ jobs:
       - uses: ./.github/actions/mullvad-build-env
 
       - name: Check rust docs
-        run: ci/cargo-ci.sh doc --workspace --document-private-items --no-deps
+        run: ci/cargo-ci.sh doc --workspace --document-private-items --no-deps --keep-going
 
-  build-windows:
+  document-windows:
     strategy:
       # Even if onw of the Windows jobs fail, the other should not be cancelled.
       fail-fast: false
@@ -153,4 +153,4 @@ jobs:
       # we just `cargo check` it below.
       - name: Check rust docs
         shell: bash
-        run: ci/cargo-ci.sh doc --workspace --document-private-items --no-deps
+        run: ci/cargo-ci.sh doc --workspace --document-private-items --no-deps --keep-going
