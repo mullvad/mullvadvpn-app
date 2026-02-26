@@ -4,6 +4,10 @@ import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+import android.provider.Settings.ACTION_APP_NOTIFICATION_SETTINGS
+import android.provider.Settings.ACTION_VPN_SETTINGS
+import android.provider.Settings.EXTRA_APP_PACKAGE
 import androidx.core.net.toUri
 import arrow.core.Either
 import co.touchlab.kermit.Logger
@@ -26,7 +30,7 @@ fun createAccountUri(accountUri: String, websiteAuthToken: WebsiteAuthToken?): U
 
 fun Context.openVpnSettings(): Either<ActivityNotFoundException, Unit> =
     Either.catch {
-            val intent = Intent("android.settings.VPN_SETTINGS")
+            val intent = Intent(ACTION_VPN_SETTINGS)
             startActivity(intent)
         }
         .onLeft { Logger.e("Failed to open VPN settings", it) }
@@ -34,11 +38,7 @@ fun Context.openVpnSettings(): Either<ActivityNotFoundException, Unit> =
 
 fun Context.openAppDetailsSettings(): Either<ActivityNotFoundException, Unit> =
     Either.catch {
-            val intent =
-                Intent(
-                    "android.settings.APPLICATION_DETAILS_SETTINGS",
-                    "package:$packageName".toUri(),
-                )
+            val intent = Intent(ACTION_APPLICATION_DETAILS_SETTINGS, "package:$packageName".toUri())
             startActivity(intent)
         }
         .onLeft { Logger.e("Failed to open app details settings", it) }
