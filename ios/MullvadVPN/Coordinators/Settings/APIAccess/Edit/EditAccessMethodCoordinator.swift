@@ -76,7 +76,7 @@ extension EditAccessMethodCoordinator: @preconcurrency EditAccessMethodViewContr
 
         controller.navigationItem.prompt = NSLocalizedString("The app will test the method before saving.", comment: "")
 
-        controller.navigationItem.title = NSLocalizedString("Edit method", comment: "")
+        controller.navigationItem.title = NSLocalizedString("Method settings", comment: "")
 
         controller.saveBarButton.title = NSLocalizedString("Save", comment: "")
 
@@ -116,7 +116,7 @@ extension EditAccessMethodCoordinator: @preconcurrency EditAccessMethodViewContr
 extension EditAccessMethodCoordinator: @preconcurrency MethodSettingsViewControllerDelegate {
     func accessMethodDidSave(_ accessMethod: PersistentAccessMethod) {
         editAccessMethodSubject.value = accessMethod.toViewModel()
-        navigationController.popViewController(animated: true)
+        onFinish?(self)
     }
 
     func controllerShouldShowProtocolPicker(_ controller: MethodSettingsViewController) {
@@ -128,7 +128,10 @@ extension EditAccessMethodCoordinator: @preconcurrency MethodSettingsViewControl
     }
 
     func controllerShouldShowShadowsocksCipherPicker(_ controller: MethodSettingsViewController) {
-        let picker = ShadowsocksCipherPicker(navigationController: navigationController)
+        let picker = ShadowsocksCipherPicker(
+            navigationController: navigationController,
+            ciphers: accessMethodRepository.shadowsocksCiphers
+        )
 
         picker.present(currentValue: methodSettingsSubject.value.shadowsocks.cipher) { [weak self] selectedCipher in
             self?.methodSettingsSubject.value.shadowsocks.cipher = selectedCipher

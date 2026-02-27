@@ -29,6 +29,7 @@ final class SettingsViewControllerFactory {
     private let interactorFactory: SettingsInteractorFactory
     private let accessMethodRepository: AccessMethodRepositoryProtocol
     private let proxyConfigurationTester: ProxyConfigurationTesterProtocol
+    private let breadcrumbsProvider: BreadcrumbsProvider
     private let ipOverrideRepository: IPOverrideRepository
 
     private let navigationController: UINavigationController
@@ -41,6 +42,7 @@ final class SettingsViewControllerFactory {
         interactorFactory: SettingsInteractorFactory,
         accessMethodRepository: AccessMethodRepositoryProtocol,
         proxyConfigurationTester: ProxyConfigurationTesterProtocol,
+        breadcrumbsProvider: BreadcrumbsProvider,
         ipOverrideRepository: IPOverrideRepository,
         navigationController: UINavigationController,
         alertPresenter: AlertPresenter,
@@ -49,6 +51,7 @@ final class SettingsViewControllerFactory {
         self.interactorFactory = interactorFactory
         self.accessMethodRepository = accessMethodRepository
         self.proxyConfigurationTester = proxyConfigurationTester
+        self.breadcrumbsProvider = breadcrumbsProvider
         self.ipOverrideRepository = ipOverrideRepository
         self.navigationController = navigationController
         self.alertPresenter = alertPresenter
@@ -108,7 +111,9 @@ final class SettingsViewControllerFactory {
             ListAccessMethodCoordinator(
                 navigationController: navigationController,
                 accessMethodRepository: accessMethodRepository,
-                proxyConfigurationTester: proxyConfigurationTester
+                proxyConfigurationTester: proxyConfigurationTester,
+                breadcrumbsProvider: breadcrumbsProvider,
+                route: .settings(.apiAccess)
             ))
     }
 

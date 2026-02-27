@@ -8,6 +8,7 @@
 
 import Combine
 import MullvadSettings
+import MullvadTypes
 
 /// Types describing API access list interactor.
 protocol ListAccessMethodInteractorProtocol {
@@ -17,9 +18,15 @@ protocol ListAccessMethodInteractorProtocol {
     /// Publisher that produces the last reachable method item upon persistent store modifications.
     var itemInUsePublisher: AnyPublisher<ListAccessMethodItem?, Never> { get }
 
+    /// Available Shadowsocks ciphers.
+    var shadowsocksCiphers: [String] { get }
+
     /// Returns an item by id.
     func item(by id: UUID) -> ListAccessMethodItem?
 
     /// Fetch all items.
     func fetch() -> [ListAccessMethodItem]
+
+    /// Returns an item by id.
+    func accessMethod(by id: UUID) -> PersistentAccessMethod?
 }

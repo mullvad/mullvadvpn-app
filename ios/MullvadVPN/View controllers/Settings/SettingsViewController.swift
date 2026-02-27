@@ -23,13 +23,16 @@ class SettingsViewController: UITableViewController {
     weak var delegate: SettingsViewControllerDelegate?
     private var dataSource: SettingsDataSource?
     private let interactor: SettingsInteractor
+    private let breadcrumbsProvider: BreadcrumbsProvider
+    private var breadcrumbsObserver: BreadcrumbsBlockObserver?
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
         .lightContent
     }
 
-    init(interactor: SettingsInteractor) {
+    init(interactor: SettingsInteractor, breadcrumbsProvider: BreadcrumbsProvider) {
         self.interactor = interactor
+        self.breadcrumbsProvider = breadcrumbsProvider
 
         super.init(style: .grouped)
     }
@@ -61,10 +64,21 @@ class SettingsViewController: UITableViewController {
         tableView.estimatedRowHeight = 60
 
         interactor.didUpdateSettings = { [weak self] in
-            self?.dataSource?.reload()
+            guard let self else { return }
+            dataSource?.reload()
         }
 
-        dataSource = SettingsDataSource(tableView: tableView, interactor: interactor)
+        let breadcrumbsObserver = BreadcrumbsBlockObserver(didUpdateBreadcrumbsHandler: { [weak self] in
+            self?.dataSource?.reloadBreadcrumbs($0)
+        })
+        self.breadcrumbsObserver = breadcrumbsObserver
+        breadcrumbsProvider.add(observer: breadcrumbsObserver)
+
+        dataSource = SettingsDataSource(
+            tableView: tableView,
+            interactor: interactor,
+            breadcrumbs: breadcrumbsProvider.breadcrumbs
+        )
         dataSource?.delegate = self
     }
 
@@ -81,7 +95,7 @@ extension SettingsViewController: @preconcurrency SettingsDataSourceDelegate {
     }
 }
 
-extension SettingsDataSource.Item {
+private extension SettingsDataSource.Item {
     var navigationRoute: SettingsNavigationRoute? {
         switch self {
         case .vpnSettings:

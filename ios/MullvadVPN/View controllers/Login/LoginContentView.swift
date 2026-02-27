@@ -91,6 +91,7 @@ class LoginContentView: UIView {
         return button
     }()
 
+    private var accessMethodInvalidViewController: UIHostingRootController<AccessMethodInvalidView>?
     private var isStatusImageVisible = false
     private var contentContainerBottomConstraint: NSLayoutConstraint?
 
@@ -117,6 +118,27 @@ class LoginContentView: UIView {
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    func showInvalidAccessMethodView(callback: @escaping () -> Void) {
+        removeInvalidAccessMethodView()
+
+        let view = AccessMethodInvalidView {
+            callback()
+        }
+        let hostingController = UIHostingRootController(rootView: view)
+        hostingController.view.backgroundColor = .clear
+
+        accessMethodInvalidViewController = hostingController
+
+        addConstrainedSubviews([hostingController.view]) {
+            hostingController.view.pinEdgesToSuperviewMargins(.all().excluding(.bottom))
+        }
+    }
+
+    func removeInvalidAccessMethodView() {
+        accessMethodInvalidViewController?.view.removeFromSuperview()
+        accessMethodInvalidViewController = nil
     }
 
     private func addSubviews() {

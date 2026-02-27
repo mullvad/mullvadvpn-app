@@ -97,7 +97,7 @@ class RelayListCacheTests: XCTestCase {
                 address: .ipv4(.loopback),
                 port: 1080,
                 password: "123",
-                cipher: CipherIdentifiers.CHACHA20.description
+                cipher: "aes-128-cfb"
             )
         )
 

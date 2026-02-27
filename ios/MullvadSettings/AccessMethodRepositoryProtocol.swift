@@ -10,6 +10,9 @@ import Combine
 import MullvadTypes
 
 public protocol AccessMethodRepositoryDataSource: Sendable {
+    /// Available Shadowsocks ciphers.
+    var shadowsocksCiphers: [String] { get }
+
     /// Publisher that propagates a snapshot of all access methods upon modifications.
     var accessMethodsPublisher: AnyPublisher<[PersistentAccessMethod], Never> { get }
 

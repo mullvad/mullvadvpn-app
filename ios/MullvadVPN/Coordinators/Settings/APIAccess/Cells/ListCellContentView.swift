@@ -13,6 +13,9 @@ class ListCellContentView: UIView, UIContentView, UITextFieldDelegate {
     private var textLabel = UILabel()
     private var secondaryTextLabel = UILabel()
     private var tertiaryTextLabel = UILabel()
+    private var tickImageView = UIImageView()
+    private var breadcrumbImageView = UIImageView()
+    private var contentView = UIStackView()
     private var containerView = UIStackView()
 
     var configuration: UIContentConfiguration {
@@ -54,6 +57,8 @@ class ListCellContentView: UIView, UIContentView, UITextFieldDelegate {
         configureTextLabel()
         configureSecondaryTextLabel()
         configureTertiaryTextLabel()
+        configureTickImageView()
+        configureBreadcrumbImageView()
         configureLayoutMargins()
     }
 
@@ -65,9 +70,9 @@ class ListCellContentView: UIView, UIContentView, UITextFieldDelegate {
     }
 
     private func updateAxisIfNeeded() {
-        let newAxis: NSLayoutConstraint.Axis = containerView.isOverflowed ? .vertical : .horizontal
-        guard newAxis != containerView.axis else { return }
-        containerView.axis = newAxis
+        let newAxis: NSLayoutConstraint.Axis = contentView.isOverflowed ? .vertical : .horizontal
+        guard newAxis != contentView.axis else { return }
+        contentView.axis = newAxis
         invalidateIntrinsicContentSize()
     }
 
@@ -76,7 +81,10 @@ class ListCellContentView: UIView, UIContentView, UITextFieldDelegate {
 
         textLabel.font = textProperties.font
         textLabel.adjustsFontForContentSizeCategory = true
-        textLabel.textColor = textProperties.color
+        textLabel.textColor =
+            actualConfiguration.isEnabled
+            ? textProperties.color
+            : .primaryTextColor.withAlphaComponent(0.2)
         textLabel.numberOfLines = 0
         textLabel.text = actualConfiguration.text
         textLabel.isHidden = actualConfiguration.text == nil
@@ -87,8 +95,12 @@ class ListCellContentView: UIView, UIContentView, UITextFieldDelegate {
 
         secondaryTextLabel.font = textProperties.font
         secondaryTextLabel.adjustsFontForContentSizeCategory = true
-        secondaryTextLabel.textColor = textProperties.color
+        secondaryTextLabel.textColor =
+            actualConfiguration.isEnabled
+            ? textProperties.color
+            : .primaryTextColor.withAlphaComponent(0.2)
         secondaryTextLabel.numberOfLines = 0
+        secondaryTextLabel.textAlignment = .right
         secondaryTextLabel.text = actualConfiguration.secondaryText
         secondaryTextLabel.isHidden = actualConfiguration.secondaryText == nil
     }
@@ -98,7 +110,10 @@ class ListCellContentView: UIView, UIContentView, UITextFieldDelegate {
 
         tertiaryTextLabel.font = textProperties.font
         tertiaryTextLabel.adjustsFontForContentSizeCategory = true
-        tertiaryTextLabel.textColor = textProperties.color
+        tertiaryTextLabel.textColor =
+            actualConfiguration.isEnabled
+            ? textProperties.color
+            : .primaryTextColor.withAlphaComponent(0.2)
         tertiaryTextLabel.numberOfLines = 0
 
         tertiaryTextLabel.text = actualConfiguration.tertiaryText
@@ -109,17 +124,40 @@ class ListCellContentView: UIView, UIContentView, UITextFieldDelegate {
         directionalLayoutMargins = actualConfiguration.directionalLayoutMargins
     }
 
+    private func configureTickImageView() {
+        let image = UIImage.tick
+            .withTintColor(.Cell.disclosureIndicatorColor)
+            .withAlpha(actualConfiguration.isEnabled ? 1 : 0.2)
+
+        tickImageView.image = image
+        tickImageView.contentMode = .center
+        tickImageView.widthAnchor.constraint(equalToConstant: 24).isActive = true
+        tickImageView.isHidden = !actualConfiguration.isSelected
+    }
+
+    private func configureBreadcrumbImageView() {
+        breadcrumbImageView.image = .stateIssue
+        breadcrumbImageView.contentMode = .scaleAspectFit
+        breadcrumbImageView.widthAnchor.constraint(equalToConstant: 18).isActive = true
+        breadcrumbImageView.isHidden = !actualConfiguration.showBreadcrumb
+    }
+
     private func addSubviews() {
         let leadingTextContainer = UIStackView(arrangedSubviews: [textLabel, tertiaryTextLabel])
         leadingTextContainer.axis = .vertical
 
         secondaryTextLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
 
-        containerView.addArrangedSubview(leadingTextContainer)
-        containerView.addArrangedSubview(secondaryTextLabel)
+        contentView.addArrangedSubview(leadingTextContainer)
+        contentView.addArrangedSubview(secondaryTextLabel)
+
+        containerView.spacing = 8
+        containerView.addArrangedSubview(tickImageView)
+        containerView.addArrangedSubview(contentView)
+        containerView.addArrangedSubview(breadcrumbImageView)
 
         addConstrainedSubviews([containerView]) {
-            containerView.pinEdgesToSuperviewMargins(.all())
+            containerView.pinEdgesToSuperviewMargins()
         }
     }
 }

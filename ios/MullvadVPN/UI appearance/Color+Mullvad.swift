@@ -108,6 +108,10 @@ extension Color {
         static let borderError: Color = .MullvadNewGraphicalProfile.red
     }
 
+    enum MullvadDashboard {
+        static let background: Color = MullvadDarkBlue._10_alpha80
+    }
+
     private enum MullvadOpacities {
         static let chalk40: Color = .MullvadNewGraphicalProfile.chalk.opacity(
             0.4

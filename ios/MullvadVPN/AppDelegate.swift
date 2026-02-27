@@ -42,7 +42,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     private var settingsObserver: TunnelBlockObserver!
     private var migrationManager: MigrationManager!
 
-    nonisolated(unsafe) private(set) var accessMethodRepository = AccessMethodRepository()
+    nonisolated(unsafe) private(set) var accessMethodRepository = AccessMethodRepository(
+        shadowsocksCiphers: ShadowsocksCipherService().getCiphers()
+    )
     nonisolated(unsafe) private(set) var appPreferences = AppPreferences()
     private(set) var shadowsocksLoader: ShadowsocksLoader!
     private(set) var ipOverrideRepository = IPOverrideRepository()
@@ -51,6 +53,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     var apiContext: MullvadApiContext!
     var accessMethodReceiver: MullvadAccessMethodReceiver!
     private var shadowsocksCacheCleaner: ShadowsocksCacheCleaner!
+    let breadcrumbsProvider = BreadcrumbsProvider()
 
     let notificationSettingsListener = NotificationSettingsListener()
     private var notificationSettingsUpdater: NotificationSettingsUpdater!
@@ -472,6 +475,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                 tunnelManager: tunnelManager,
                 appVersionService: appVersionService
             ),
+            InvalidShadowsocksCipherInAppNotificationProvider(breadcrumbsProvider: breadcrumbsProvider),
         ]
         UNUserNotificationCenter.current().delegate = self
     }
