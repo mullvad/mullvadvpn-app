@@ -455,6 +455,13 @@ pub enum DaemonCommand {
     AppUpgradeAbort(ResponseTx<(), version::Error>),
     /// Return the storage path for the installers during in-app upgrades.
     GetAppUpgradeCacheDir(ResponseTx<PathBuf, version::Error>),
+    /// Set custom VPN configuration
+    SetCustomVpnConfig(
+        oneshot::Sender<String>,
+        Option<mullvad_types::settings::CustomVpnConfig>,
+    ),
+    /// Enable or disable the custom VPN
+    SetCustomVpnConfigStatus(ResponseTx<(), settings::Error>, bool),
 }
 
 /// All events that can happen in the daemon. Sent from various threads and exposed interfaces.
@@ -875,6 +882,10 @@ impl Daemon {
             account_manager.clone(),
             relay_selector.clone(),
             settings.tunnel_options.clone(),
+            settings
+                .custom_vpn_config
+                .clone()
+                .filter(|_| settings.custom_vpn_enabled),
         );
 
         let param_gen = parameters_generator.clone();
@@ -1618,6 +1629,10 @@ impl Daemon {
             AppUpgradeAbort(tx) => self.on_app_upgrade_abort(tx).await,
             GetAppUpgradeCacheDir(tx) => self.on_get_app_upgrade_cache_dir(tx).await,
             GetBridges(tx) => self.on_get_bridges(tx),
+            SetCustomVpnConfig(tx, config) => self.on_set_custom_vpn_config(tx, config).await,
+            SetCustomVpnConfigStatus(tx, enabled) => {
+                self.on_set_custom_vpn_config_status(tx, enabled).await
+            }
         }
     }
 
@@ -2623,6 +2638,69 @@ impl Daemon {
                     err.display_chain_with_msg("Failed to set obfuscation settings")
                 );
                 Self::oneshot_send(tx, Err(err), "set_obfuscation_settings");
+            }
+        }
+    }
+
+    async fn on_set_custom_vpn_config(
+        &mut self,
+        tx: oneshot::Sender<String>,
+        config: Option<mullvad_types::settings::CustomVpnConfig>,
+    ) {
+        match self
+            .settings
+            .update(move |s| s.custom_vpn_config = config)
+            .await
+        {
+            Ok(_) => {
+                let effective = if self.settings.settings().custom_vpn_enabled {
+                    self.settings.settings().custom_vpn_config.clone()
+                } else {
+                    None
+                };
+                self.parameters_generator.set_custom_vpn(effective).await;
+                Self::oneshot_send(tx, String::new(), "set_custom_vpn_config");
+                self.reconnect_tunnel();
+            }
+            Err(err) => {
+                log::error!(
+                    "{}",
+                    err.display_chain_with_msg("Failed to set custom VPN config")
+                );
+                Self::oneshot_send(tx, err.to_string(), "set_custom_vpn_config");
+            }
+        }
+    }
+
+    async fn on_set_custom_vpn_config_status(
+        &mut self,
+        tx: ResponseTx<(), settings::Error>,
+        enabled: bool,
+    ) {
+        match self
+            .settings
+            .update(move |s| s.custom_vpn_enabled = enabled)
+            .await
+        {
+            Ok(changed) => {
+                if changed {
+                    // TODO: reconnect?
+                    let effective = if self.settings.settings().custom_vpn_enabled {
+                        self.settings.settings().custom_vpn_config.clone()
+                    } else {
+                        None
+                    };
+                    self.parameters_generator.set_custom_vpn(effective).await;
+                    self.reconnect_tunnel();
+                }
+                Self::oneshot_send(tx, Ok(()), "set_custom_vpn_config_status");
+            }
+            Err(err) => {
+                log::error!(
+                    "{}",
+                    err.display_chain_with_msg("Failed to set custom VPN config status")
+                );
+                Self::oneshot_send(tx, Err(err), "set_custom_vpn_config_status");
             }
         }
     }

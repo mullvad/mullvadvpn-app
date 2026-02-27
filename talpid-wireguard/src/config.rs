@@ -37,6 +37,8 @@ pub struct Config {
     pub quantum_resistant: bool,
     /// Enable DAITA
     pub daita: bool,
+    /// Custom VPN configuration
+    pub custom_vpn: Option<wireguard::CustomVpnConfig>,
 }
 
 /// Configuration errors
@@ -63,6 +65,7 @@ impl Config {
             &params.generic_options,
             &params.obfuscation,
             default_mtu,
+            params.custom_vpn.clone(),
         )
     }
 
@@ -73,6 +76,7 @@ impl Config {
         generic_options: &GenericTunnelOptions,
         obfuscator_config: &Option<Obfuscators>,
         default_mtu: u16,
+        custom_vpn: Option<wireguard::CustomVpnConfig>,
     ) -> Result<Config, Error> {
         let mut tunnel = connection.tunnel.clone();
 
@@ -106,6 +110,7 @@ impl Config {
             daita: wg_options.daita,
             #[cfg(not(daita))]
             daita: false,
+            custom_vpn,
         };
 
         for peer in config.peers_mut() {

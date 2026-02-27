@@ -55,6 +55,11 @@ impl From<&mullvad_types::settings::Settings> for proto::Settings {
                 .collect(),
             recents: settings.recents.clone().map(proto::Recents::from),
             update_default_location: settings.update_default_location,
+            custom_vpn_config: settings
+                .custom_vpn_config
+                .as_ref()
+                .map(|config| proto::CustomVpnConfig::from(config.clone())),
+            custom_vpn_enabled: settings.custom_vpn_enabled,
         }
     }
 }
@@ -179,6 +184,11 @@ impl TryFrom<proto::Settings> for mullvad_types::settings::Settings {
             )?,
             recents: Some(vec![]),
             update_default_location: settings.update_default_location,
+            custom_vpn_config: settings
+                .custom_vpn_config
+                .map(mullvad_types::settings::CustomVpnConfig::try_from)
+                .transpose()?,
+            custom_vpn_enabled: settings.custom_vpn_enabled,
             // HACK: The deamon should never read this random settings blob from a random client.
             // We should look into separating the serializable settings object that pass accross
             // gRPC from the daemon's trusted settings. There are multiple fields that would not be
