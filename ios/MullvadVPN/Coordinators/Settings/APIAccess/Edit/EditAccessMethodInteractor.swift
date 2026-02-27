@@ -7,7 +7,6 @@
 //
 
 @preconcurrency import Combine
-import Foundation
 import MullvadSettings
 
 struct EditAccessMethodInteractor: EditAccessMethodInteractorProtocol {
@@ -15,29 +14,39 @@ struct EditAccessMethodInteractor: EditAccessMethodInteractorProtocol {
     let repository: AccessMethodRepositoryProtocol
     let proxyConfigurationTester: ProxyConfigurationTesterProtocol
 
+    var shadowsocksCiphers: [String] {
+        repository.shadowsocksCiphers
+    }
+
+    var shouldShowBreadcrumb: Bool {
+        if subject.value.shadowsocks.cipher.isEmpty {
+            false
+        } else {
+            !shadowsocksCiphers.contains(subject.value.shadowsocks.cipher)
+        }
+    }
+
     init(
         subject: CurrentValueSubject<AccessMethodViewModel, Never>,
         repository: AccessMethodRepositoryProtocol,
-        proxyConfigurationTester: ProxyConfigurationTesterProtocol
+        proxyConfigurationTester: ProxyConfigurationTesterProtocol,
     ) {
         self.subject = subject
         self.repository = repository
         self.proxyConfigurationTester = proxyConfigurationTester
-        checkIfSwitchCanBeToggled()
-    }
 
-    // The access method can only be disabled if at least one other method is enabled
-    private func checkIfSwitchCanBeToggled() {
-        let enabledMethodsCount = repository.fetchAll().count { $0.isEnabled }
-        if enabledMethodsCount < 2 {
-            subject.value.canBeToggled = !subject.value.isEnabled
-        } else {
-            subject.value.canBeToggled = true
+        checkIfSwitchCanBeToggled()
+
+        // Populate with default cipher if empty. Should only ever happen when adding a new Shadowsocks configuration.
+        if subject.value.shadowsocks.cipher.isEmpty {
+            subject.value.shadowsocks.cipher = shadowsocksCiphers.first ?? ""
         }
     }
 
     func saveAccessMethod() {
-        guard let persistentMethod = try? subject.value.intoPersistentAccessMethod() else { return }
+        guard
+            let persistentMethod = try? subject.value.intoPersistentAccessMethod(shadowsocksCiphers: shadowsocksCiphers)
+        else { return }
 
         repository.save(persistentMethod, notifyingAPI: true)
         checkIfSwitchCanBeToggled()
@@ -52,7 +61,9 @@ struct EditAccessMethodInteractor: EditAccessMethodInteractorProtocol {
     }
 
     func startProxyConfigurationTest(_ completion: (@Sendable (Bool) -> Void)?) {
-        guard let config = try? subject.value.intoPersistentAccessMethod() else { return }
+        guard let config = try? subject.value.intoPersistentAccessMethod(shadowsocksCiphers: shadowsocksCiphers) else {
+            return
+        }
 
         let subject = subject
         subject.value.testingStatus = .inProgress
@@ -70,5 +81,15 @@ struct EditAccessMethodInteractor: EditAccessMethodInteractorProtocol {
         subject.value.testingStatus = .initial
 
         proxyConfigurationTester.cancel()
+    }
+
+    // The access method can only be disabled if at least one other method is enabled
+    private func checkIfSwitchCanBeToggled() {
+        let enabledMethodsCount = repository.fetchAll().count { $0.isEnabled }
+        if enabledMethodsCount < 2 {
+            subject.value.canBeToggled = !subject.value.isEnabled
+        } else {
+            subject.value.canBeToggled = true
+        }
     }
 }

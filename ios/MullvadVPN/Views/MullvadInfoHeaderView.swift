@@ -19,6 +19,7 @@ struct MullvadInfoHeaderView: View {
         } label: {
             Text(headerText)
                 .multilineTextAlignment(.leading)
+                .font(.mullvadTinySemiBold)
         }
     }
 }

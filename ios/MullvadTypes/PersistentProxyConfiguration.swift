@@ -87,13 +87,35 @@ extension PersistentProxyConfiguration {
         public var password: String
 
         /// Server cipher.
-        public var cipher: ShadowsocksCipherOptions
+        public var cipher: String
 
-        public init(server: AnyIPAddress, port: UInt16, password: String, cipher: ShadowsocksCipherOptions) {
+        private enum RawValueCodingKey: String, CodingKey {
+            case rawValue
+        }
+
+        public init(server: AnyIPAddress, port: UInt16, password: String, cipher: String) {
             self.server = server
             self.port = port
             self.password = password
             self.cipher = cipher
         }
+
+        public init(from decoder: any Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+
+            server = try container.decode(AnyIPAddress.self, forKey: .server)
+            port = try container.decode(UInt16.self, forKey: .port)
+            password = try container.decode(String.self, forKey: .password)
+
+            // Migrate from old ShadowsocksCipherOptions struct (encoded as {"rawValue": "..."})
+            // to plain String.
+            if let cipherString = try? container.decode(String.self, forKey: .cipher) {
+                cipher = cipherString
+            } else {
+                let nested = try container.nestedContainer(keyedBy: RawValueCodingKey.self, forKey: .cipher)
+                cipher = try nested.decode(String.self, forKey: .rawValue)
+            }
+        }
+
     }
 }

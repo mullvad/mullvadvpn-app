@@ -8,7 +8,7 @@
 
 import UIKit
 
-struct SettingsFieldValidationError: LocalizedError, Equatable {
+struct SettingsFieldValidationError: Error, Equatable {
     var errorDescription: String?
 }
 

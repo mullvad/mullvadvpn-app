@@ -11,6 +11,7 @@ import MullvadSettings
 import MullvadTypes
 
 public struct AccessMethodRepositoryStub: AccessMethodRepositoryDataSource, @unchecked Sendable {
+    public let shadowsocksCiphers: [String] = []
     public var directAccess: PersistentAccessMethod
 
     public var accessMethodsPublisher: AnyPublisher<[PersistentAccessMethod], Never> {

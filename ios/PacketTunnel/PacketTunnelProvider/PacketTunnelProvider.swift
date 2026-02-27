@@ -68,7 +68,9 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
         }
 
         let tunnelSettings = (try? settingsReader.read().tunnelSettings) ?? LatestTunnelSettings()
-        let accessMethodRepository = AccessMethodRepository()
+        let accessMethodRepository = AccessMethodRepository(
+            shadowsocksCiphers: ShadowsocksCipherService().getCiphers()
+        )
 
         setUpApiContextAndAccessMethodReceiver(
             appContainerURL: containerURL,
