@@ -82,8 +82,8 @@ impl DaitaParameters {
         let machines = CString::new(machines_string).ok()?.into_raw().cast();
         Some(Self {
             machines,
-            max_padding_frac: settings.max_padding_frac,
-            max_blocking_frac: settings.max_blocking_frac,
+            max_padding_frac: settings.max_decoy_frac,
+            max_blocking_frac: settings.max_delay_frac,
         })
     }
 }

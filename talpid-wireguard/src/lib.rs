@@ -1059,8 +1059,8 @@ async fn log_daita_overhead(tunnel: &TunnelType) {
         let daita = stats.daita.as_ref().unwrap();
         let total_out = bytes_to_mib(stats.tx_bytes);
         let total_in = bytes_to_mib(stats.rx_bytes);
-        let padding_packet_out = bytes_to_mib(daita.tx_padding_packet_bytes);
-        let padding_packet_in = bytes_to_mib(daita.rx_padding_packet_bytes);
+        let padding_packet_out = bytes_to_mib(daita.tx_decoy_packet_bytes);
+        let padding_packet_in = bytes_to_mib(daita.rx_decoy_packet_bytes);
         let constant_size_padding_out = bytes_to_mib(daita.tx_padding_bytes);
         let constant_size_padding_in = bytes_to_mib(daita.rx_padding_bytes);
 
