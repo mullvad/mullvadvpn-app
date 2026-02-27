@@ -1,4 +1,3 @@
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import utilities.FlavorDimensions
 import utilities.Flavors
 import utilities.Variant
@@ -66,17 +65,7 @@ android {
 
     testOptions { execution = "ANDROIDX_TEST_ORCHESTRATOR" }
 
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
-    }
-
-    kotlin {
-        compilerOptions {
-            jvmTarget = JvmTarget.fromTarget(libs.versions.jvm.target.get())
-            allWarningsAsErrors = true
-        }
-    }
+    kotlin { compilerOptions { allWarningsAsErrors = true } }
 
     lint {
         lintConfig = file("${rootProject.projectDir}/config/lint.xml")

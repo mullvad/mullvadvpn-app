@@ -3,7 +3,6 @@ import com.github.triplet.gradle.androidpublisher.ReleaseStatus
 import java.io.FileInputStream
 import java.util.Properties
 import org.gradle.internal.extensions.stdlib.capitalized
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import utilities.BuildTypes
 import utilities.FlavorDimensions
 import utilities.Flavors
@@ -180,14 +179,8 @@ android {
         buildConfig = true
     }
 
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
-    }
-
     kotlin {
         compilerOptions {
-            jvmTarget = JvmTarget.fromTarget(libs.versions.jvm.target.get())
             allWarningsAsErrors = true
             freeCompilerArgs =
                 listOf(

@@ -17,6 +17,12 @@ dependencies {
 
 gradlePlugin {
     plugins {
+        register("kotlin-toolchain") {
+            id = "mullvad.kotlin-toolchain"
+            implementationClass = "KotlinToolchainPlugin"
+        }
+    }
+    plugins {
         register("utilities") {
             id = "mullvad.utilities"
             implementationClass = "UtilitiesPlugin"
