@@ -8,9 +8,13 @@ import java.net.InetSocketAddress
 import java.time.Instant
 import java.time.ZoneId
 import java.util.UUID
+import kotlin.String
+import kotlin.io.encoding.Base64
 import mullvad_daemon.management_interface.ManagementInterface
 import mullvad_daemon.management_interface.entryLocationOrNull
+import mullvad_daemon.management_interface.lastHandshakeTimeOrNull
 import mullvad_daemon.management_interface.locationOrNull
+import mullvad_daemon.management_interface.publicKey
 import mullvad_daemon.management_interface.recentsOrNull
 import net.mullvad.mullvadvpn.lib.grpc.GrpcConnectivityState
 import net.mullvad.mullvadvpn.lib.grpc.RelayNameComparator
@@ -31,6 +35,7 @@ import net.mullvad.mullvadvpn.lib.model.CustomDnsOptions
 import net.mullvad.mullvadvpn.lib.model.CustomList
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
+import net.mullvad.mullvadvpn.lib.model.CustomVpnConfig
 import net.mullvad.mullvadvpn.lib.model.DaitaSettings
 import net.mullvad.mullvadvpn.lib.model.DefaultDnsOptions
 import net.mullvad.mullvadvpn.lib.model.Device
@@ -52,6 +57,7 @@ import net.mullvad.mullvadvpn.lib.model.ObfuscationSettings
 import net.mullvad.mullvadvpn.lib.model.ObfuscationType
 import net.mullvad.mullvadvpn.lib.model.Ownership
 import net.mullvad.mullvadvpn.lib.model.ParameterGenerationError
+import net.mullvad.mullvadvpn.lib.model.PeerConfig
 import net.mullvad.mullvadvpn.lib.model.PlayPurchasePaymentToken
 import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.model.PortRange
@@ -73,9 +79,11 @@ import net.mullvad.mullvadvpn.lib.model.ShadowsocksObfuscationSettings
 import net.mullvad.mullvadvpn.lib.model.SocksAuth
 import net.mullvad.mullvadvpn.lib.model.SplitTunnelSettings
 import net.mullvad.mullvadvpn.lib.model.TransportProtocol
+import net.mullvad.mullvadvpn.lib.model.TunnelConfig
 import net.mullvad.mullvadvpn.lib.model.TunnelEndpoint
 import net.mullvad.mullvadvpn.lib.model.TunnelOptions
 import net.mullvad.mullvadvpn.lib.model.TunnelState
+import net.mullvad.mullvadvpn.lib.model.TunnelStats
 import net.mullvad.mullvadvpn.lib.model.Udp2TcpObfuscationSettings
 import net.mullvad.mullvadvpn.lib.model.WireguardConstraints
 import net.mullvad.mullvadvpn.lib.model.WireguardEndpointData
@@ -355,6 +363,8 @@ internal fun ManagementInterface.Settings.toDomain(): Settings =
         splitTunnelSettings = splitTunnel.toDomain(),
         apiAccessMethodSettings = apiAccessMethods.toDomain(),
         recents = recentsOrNull.toDomain(),
+        customVpnEnabled = customVpnEnabled,
+        customVpnConfig = if (hasCustomVpnConfig()) customVpnConfig.toDomain() else null,
     )
 
 internal fun ManagementInterface.RelayOverride.toDomain(): RelayOverride =
@@ -786,3 +796,27 @@ internal fun ManagementInterface.Recent.toDomain(): Recent =
 
         ManagementInterface.Recent.TypeCase.TYPE_NOT_SET -> error("Recent type must be set")
     }
+
+internal fun ManagementInterface.CustomVpnConfig.toDomain() =
+    CustomVpnConfig(tunnelConfig = tunnel.toDomain(), peerConfig = peer.toDomain())
+
+internal fun ManagementInterface.CustomVpnConfig.TunnelConfig.toDomain(): TunnelConfig =
+    TunnelConfig(
+        privateKey = Base64.encode(privateKey.toByteArray()),
+        tunnelIp = InetAddress.getByName(ip),
+    )
+
+internal fun ManagementInterface.CustomVpnConfig.PeerConfig.toDomain() =
+    PeerConfig(
+        publicKey = Base64.encode(publicKey.toByteArray()),
+        allowedIp = allowedIp,
+        endpoint = endpoint.toInetSocketAddress(),
+    )
+
+internal fun ManagementInterface.CustomVpnStats.toDomain() =
+    TunnelStats(
+        rx = rxBytes,
+        tx = txBytes,
+        lastHandshake =
+            lastHandshakeTimeOrNull?.let { Instant.ofEpochSecond(lastHandshakeTime.seconds) },
+    )
