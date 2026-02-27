@@ -75,9 +75,8 @@ gotatun = { version = "0.4.0" }
 hickory-proto = "0.25.2"
 hickory-resolver = "0.25.2"
 hickory-server = { version = "0.25.2", features = ["resolver"] }
-hyper-util = { version = "0.1.8", features = [
+hyper-util = { version = "0.1.20", features = [
   "client",
-  "client-legacy",
   "http1",
   "http2",
 ] }

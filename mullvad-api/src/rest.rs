@@ -17,7 +17,6 @@ use hyper::{
     body::{Body, Buf, Bytes, Incoming},
     header::{self, HeaderValue},
 };
-use hyper_util::client::legacy::connect::Connect;
 use mullvad_types::account::AccountNumber;
 use std::{
     borrow::Cow,
@@ -45,11 +44,12 @@ pub enum Error {
     #[error("Request cancelled")]
     Aborted,
 
-    #[error("Legacy hyper error")]
-    LegacyHyperError(#[from] Arc<hyper_util::client::legacy::Error>),
-
     #[error("Hyper error")]
     HyperError(#[from] Arc<hyper::Error>),
+
+    /// Connection dropped
+    #[error("Connection dropped unexpectedly")]
+    ConnectionDropped,
 
     #[error("Invalid header value")]
     InvalidHeaderError,
@@ -91,30 +91,27 @@ impl From<Infallible> for Error {
 
 impl Error {
     pub fn is_network_error(&self) -> bool {
-        matches!(
-            self,
-            Error::HyperError(_) | Error::LegacyHyperError(_) | Error::TimeoutError
-        )
+        matches!(self, Error::HyperError(_) | Error::TimeoutError)
     }
 
-    /// Return true if there was no route to the destination
-    pub fn is_offline(&self) -> bool {
-        match self {
-            Error::LegacyHyperError(error) if error.is_connect() => {
-                if let Some(cause) = error.source()
-                    && let Some(err) = cause.downcast_ref::<std::io::Error>()
-                {
-                    return err.raw_os_error() == Some(libc::ENETUNREACH);
-                }
+    // Return true if there was no route to the destination
+    // pub fn is_offline(&self) -> bool {
+    //     match self {
+    //         Error::LegacyHyperError(error) if error.is_connect() => {
+    //             if let Some(cause) = error.source()
+    //                 && let Some(err) = cause.downcast_ref::<std::io::Error>()
+    //             {
+    //                 return err.raw_os_error() == Some(libc::ENETUNREACH);
+    //             }
 
-                false
-            }
-            // TODO: Currently, we use the legacy hyper client for all REST requests. If this
-            // changes in the future, we likely need to match on `Error::HyperError` here and
-            // determine how to achieve the equivalent behavior. See DES-1288.
-            _ => false,
-        }
-    }
+    //             false
+    //         }
+    //         // TODO: Currently, we use the legacy hyper client for all REST requests. If this
+    //         // changes in the future, we likely need to match on `Error::HyperError` here and
+    //         // determine how to achieve the equivalent behavior. See DES-1288.
+    //         _ => false,
+    //     }
+    // }
 
     pub fn is_aborted(&self) -> bool {
         matches!(self, Error::Aborted)
@@ -141,8 +138,6 @@ impl Error {
 }
 
 // TODO: Look into an alternative to using the legacy hyper client `DES-1288`
-type RequestClient =
-    hyper_util::client::legacy::Client<HttpsConnectorWithSni, BoxBody<Bytes, Error>>;
 
 /// A service that executes HTTP requests, allowing for on-demand termination of all in-flight
 /// requests
@@ -150,7 +145,7 @@ pub(crate) struct RequestService<T: ConnectionModeProvider> {
     command_tx: Weak<mpsc::UnboundedSender<RequestCommand>>,
     command_rx: mpsc::UnboundedReceiver<RequestCommand>,
     connector_handle: HttpsConnectorWithSniHandle,
-    client: RequestClient,
+    connector: HttpsConnectorWithSni,
     connection_mode_provider: T,
     connection_mode_generation: usize,
     api_availability: ApiAvailability,
@@ -176,9 +171,6 @@ impl<T: ConnectionModeProvider + 'static> RequestService<T> {
         connector_handle.set_connection_mode(connection_mode_provider.initial());
 
         let (command_tx, command_rx) = mpsc::unbounded();
-        let client =
-            hyper_util::client::legacy::Client::builder(hyper_util::rt::TokioExecutor::new())
-                .build(connector);
 
         let command_tx = Arc::new(command_tx);
 
@@ -186,7 +178,7 @@ impl<T: ConnectionModeProvider + 'static> RequestService<T> {
             command_tx: Arc::downgrade(&command_tx),
             command_rx,
             connector_handle,
-            client,
+            connector,
             connection_mode_provider,
             connection_mode_generation: 0,
             api_availability,
@@ -245,7 +237,7 @@ impl<T: ConnectionModeProvider + 'static> RequestService<T> {
         let api_availability = self.api_availability.clone();
         let request_future = request
             .map(|r| http::Request::map(r, BodyExt::boxed))
-            .into_future(self.client.clone(), api_availability.clone());
+            .into_future(self.connector.clone(), api_availability.clone());
 
         let connection_mode_generation = self.connection_mode_generation;
 
@@ -429,26 +421,23 @@ where
     B::Data: Send,
     B::Error: Into<Box<dyn StdError + Send + Sync>>,
 {
-    async fn into_future<C: Connect + Clone + Send + Sync + 'static>(
+    async fn into_future(
         self,
-        hyper_client: hyper_util::client::legacy::Client<C, B>,
+        connection: HttpsConnectorWithSni,
         api_availability: ApiAvailability,
     ) -> Result<Response<Incoming>> {
         let timeout = self.timeout;
-        let inner_fut = self.into_future_without_timeout(hyper_client, api_availability);
+        let inner_fut = self.into_future_without_timeout(connection, api_availability);
         tokio::time::timeout(timeout, inner_fut)
             .await
             .map_err(|_| Error::TimeoutError)?
     }
 
-    async fn into_future_without_timeout<C>(
+    async fn into_future_without_timeout(
         mut self,
-        hyper_client: hyper_util::client::legacy::Client<C, B>,
+        mut connection: HttpsConnectorWithSni,
         api_availability: ApiAvailability,
-    ) -> Result<Response<Incoming>>
-    where
-        C: Connect + Clone + Send + Sync + 'static,
-    {
+    ) -> Result<Response<Incoming>> {
         let _ = api_availability.wait_for_unsuspend().await;
 
         // Obtain access token first
@@ -461,11 +450,25 @@ where
                 .insert(header::AUTHORIZATION, auth);
         }
 
+        let stream = connection.get_stream(self.uri().clone()).await.unwrap();
+        let tokio_io = hyper_util::rt::TokioIo::new(stream);
+
+        hyper_util::client::pool::map::Map::builder::<http::Uri>()
+            .keys(|dst| (dst.scheme().cloned(), dst.authority().cloned()))
+            .values(move |dst| {});
+        let (mut sender, conn) = hyper::client::conn::http1::handshake(tokio_io).await?;
+
         // Make request to hyper client
-        let response = hyper_client
-            .request(self.request)
-            .await
-            .map_err(Error::from);
+        let response = tokio::select! {
+            res = sender.send_request(self.request) => res.map_err(Error::from),
+            conn_res = conn => {
+                log::error!("API request connection failed");
+                match conn_res {
+                    Ok(()) => Err(Error::ConnectionDropped),
+                    Err(err) => Err(Error::HyperError(Arc::new(err))),
+                }
+            }
+        };
 
         // Notify access token store of expired tokens
         if let (Some(account), Some(store)) = (&self.account, &self.access_token_store) {
@@ -769,7 +772,6 @@ macro_rules! impl_into_arc_err {
 }
 
 impl_into_arc_err!(hyper::Error);
-impl_into_arc_err!(hyper_util::client::legacy::Error);
 impl_into_arc_err!(serde_json::Error);
 impl_into_arc_err!(http::Error);
 impl_into_arc_err!(http::uri::InvalidUri);
