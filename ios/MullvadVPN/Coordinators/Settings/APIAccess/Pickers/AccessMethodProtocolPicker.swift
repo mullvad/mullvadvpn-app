@@ -24,7 +24,8 @@ struct AccessMethodProtocolPicker {
         let navigationController = navigationController
 
         let dataSource = AccessMethodProtocolPickerDataSource()
-        let controller = ListItemPickerViewController(dataSource: dataSource, selectedItemID: currentValue)
+        let selectedItem = AccessMethodProtocolPickerDataSource.Item(method: currentValue)
+        let controller = ListItemPickerViewController(dataSource: dataSource, selectedItem: selectedItem)
         controller.view.setAccessibilityIdentifier(.accessMethodProtocolPickerView)
 
         controller.navigationItem.title = NSLocalizedString("Type", comment: "")
@@ -43,7 +44,7 @@ struct AccessMethodProtocolPickerDataSource: ListItemDataSourceProtocol {
     struct Item: ListItemDataSourceItem {
         let method: AccessMethodKind
 
-        var id: AccessMethodKind { method }
+        var id: String { method.localizedDescription }
         var text: String { method.localizedDescription }
     }
 
@@ -57,8 +58,8 @@ struct AccessMethodProtocolPickerDataSource: ListItemDataSourceProtocol {
         items[indexPath.row]
     }
 
-    func indexPath(for itemID: AccessMethodKind) -> IndexPath? {
-        guard let index = items.firstIndex(where: { $0.id == itemID }) else { return nil }
+    func indexPath(for item: Item) -> IndexPath? {
+        guard let index = items.firstIndex(where: { $0.id == item.id }) else { return nil }
 
         return IndexPath(row: index, section: 0)
     }

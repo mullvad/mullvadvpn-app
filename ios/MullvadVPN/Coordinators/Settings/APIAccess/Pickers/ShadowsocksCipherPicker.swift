@@ -6,6 +6,7 @@
 //  Copyright © 2026 Mullvad VPN AB. All rights reserved.
 //
 
+import MullvadRustRuntime
 import MullvadSettings
 import MullvadTypes
 import UIKit
@@ -20,11 +21,12 @@ struct ShadowsocksCipherPicker {
     /// - Parameters:
     ///   - currentValue: current selection.
     ///   - completion: a completion handler.
-    func present(currentValue: ShadowsocksCipherOptions, completion: @escaping (ShadowsocksCipherOptions) -> Void) {
+    func present(currentValue: String, completion: @escaping (String) -> Void) {
         let navigationController = navigationController
 
         let dataSource = ShadowsocksCipherPickerDataSource()
-        let controller = ListItemPickerViewController(dataSource: dataSource, selectedItemID: currentValue)
+        let currentItem = ShadowsocksCipherPickerDataSource.Item(cipher: currentValue)
+        let controller = ListItemPickerViewController(dataSource: dataSource, selectedItem: currentItem)
 
         controller.navigationItem.title = NSLocalizedString("Cipher", comment: "")
 
@@ -40,13 +42,15 @@ struct ShadowsocksCipherPicker {
 /// Type implementing the data source for the shadowsocks cipher picker.
 struct ShadowsocksCipherPickerDataSource: ListItemDataSourceProtocol {
     struct Item: ListItemDataSourceItem {
-        let cipher: ShadowsocksCipherOptions
+        let cipher: String
 
-        var id: ShadowsocksCipherOptions { cipher }
-        var text: String { "\(cipher.rawValue.description)" }
+        var id: String { cipher }
+        var text: String { cipher }
     }
 
-    let items = ShadowsocksCipherOptions.all.map { Item(cipher: $0) }
+    let items = ShadowsocksCipherProvider.getCiphers()
+        .sorted()
+        .map { Item(cipher: $0) }
 
     var itemCount: Int {
         items.count
@@ -56,8 +60,8 @@ struct ShadowsocksCipherPickerDataSource: ListItemDataSourceProtocol {
         items[indexPath.row]
     }
 
-    func indexPath(for itemID: ShadowsocksCipherOptions) -> IndexPath? {
-        guard let index = items.firstIndex(where: { $0.id == itemID }) else { return nil }
+    func indexPath(for item: Item) -> IndexPath? {
+        guard let index = items.firstIndex(where: { $0.id == item.id }) else { return nil }
 
         return IndexPath(row: index, section: 0)
     }

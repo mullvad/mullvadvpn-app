@@ -158,7 +158,7 @@ extension AccessMethodViewModel.Shadowsocks {
             server: .ipv4(.loopback),
             port: 0,
             password: "",
-            cipher: .default
+            cipher: ""
         )
 
         let context: AccessMethodFieldValidationError.Context = .shadowsocks

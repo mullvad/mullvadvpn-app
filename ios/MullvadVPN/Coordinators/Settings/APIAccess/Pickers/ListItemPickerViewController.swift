@@ -9,8 +9,8 @@
 import UIKit
 
 /// An item type used by list item data source.
-protocol ListItemDataSourceItem<ID>: Identifiable {
-    /// Item's text representation for UI presentation.
+protocol ListItemDataSourceItem {
+    var id: String { get }
     var text: String { get }
 }
 
@@ -29,9 +29,9 @@ protocol ListItemDataSourceProtocol<Item> {
 
     /// Get index path by item ID.
     ///
-    /// - Parameter itemID: an item ID.
-    /// - Returns: the index path that corresponds to the given item ID upon success, otherwise `nil`.
-    func indexPath(for itemID: Item.ID) -> IndexPath?
+    /// - Parameter cipher: the item ID.
+    /// - Returns: the index path that corresponds to the given ID upon success, otherwise `nil`.
+    func indexPath(for item: Item) -> IndexPath?
 }
 
 /// A view controller presenting a list of items from which the user can choose one item.
@@ -39,7 +39,7 @@ class ListItemPickerViewController<DataSource: ListItemDataSourceProtocol>: UITa
     typealias Item = DataSource.Item
 
     private let dataSource: DataSource
-    private var selectedItemID: Item.ID?
+    private var selectedItem: Item?
     private var scrolledToSelection = false
 
     var onSelect: ((Item) -> Void)?
@@ -47,10 +47,10 @@ class ListItemPickerViewController<DataSource: ListItemDataSourceProtocol>: UITa
     /// Designated initializer.
     /// - Parameters:
     ///   - dataSource: a data source.
-    ///   - selectedValue: the initially selected item ID.
-    init(dataSource: DataSource, selectedItemID: Item.ID?) {
+    ///   - selectedValue: the initially selected item.
+    init(dataSource: DataSource, selectedItem: Item?) {
         self.dataSource = dataSource
-        self.selectedItemID = selectedItemID
+        self.selectedItem = selectedItem
 
         super.init(style: .plain)
     }
@@ -80,7 +80,7 @@ class ListItemPickerViewController<DataSource: ListItemDataSourceProtocol>: UITa
 
         scrolledToSelection = true
 
-        if let selectedItemID, let indexPath = dataSource.indexPath(for: selectedItemID) {
+        if let selectedItem, let indexPath = dataSource.indexPath(for: selectedItem) {
             tableView.scrollToRow(at: indexPath, at: .middle, animated: false)
         }
     }
@@ -94,7 +94,7 @@ class ListItemPickerViewController<DataSource: ListItemDataSourceProtocol>: UITa
         cell.contentConfiguration = configuration
 
         if let cell = cell as? CustomCellDisclosureHandling {
-            cell.disclosureType = item.id == selectedItemID ? .tick : .none
+            cell.disclosureType = item.id == selectedItem?.id ? .tick : .none
         }
 
         if let cell = cell as? DynamicBackgroundConfiguration {
@@ -113,9 +113,7 @@ class ListItemPickerViewController<DataSource: ListItemDataSourceProtocol>: UITa
     }
 
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let selectedItem = dataSource.item(at: indexPath)
-        selectedItemID = selectedItem.id
-        onSelect?(selectedItem)
+        onSelect?(dataSource.item(at: indexPath))
     }
 }
 

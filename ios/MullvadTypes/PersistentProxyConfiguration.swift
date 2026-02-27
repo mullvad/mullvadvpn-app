@@ -87,9 +87,9 @@ extension PersistentProxyConfiguration {
         public var password: String
 
         /// Server cipher.
-        public var cipher: ShadowsocksCipherOptions
+        public var cipher: String
 
-        public init(server: AnyIPAddress, port: UInt16, password: String, cipher: ShadowsocksCipherOptions) {
+        public init(server: AnyIPAddress, port: UInt16, password: String, cipher: String) {
             self.server = server
             self.port = port
             self.password = password
