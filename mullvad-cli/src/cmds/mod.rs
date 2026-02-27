@@ -13,6 +13,7 @@ pub mod lan;
 pub mod lockdown;
 pub mod log;
 pub mod patch;
+pub mod personal_vpn;
 pub mod proxies;
 pub mod relay;
 pub mod relay_constraints;
