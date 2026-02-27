@@ -63,7 +63,7 @@ type CustomInnerDevice = gotatun::device::Device<(
     NatIpRecv<ChannelIpRecv>,
 )>;
 type CustomOuterDevice = gotatun::device::Device<(
-    UdpSocketFactory,
+    UdpFactory,
     DemuxIpSend<TunChannelTx, gotatun::tun::tun_async_device::TunDevice>,
     MergingIpRecv<ChannelIpRecv, TunChannelRx>,
 )>;
