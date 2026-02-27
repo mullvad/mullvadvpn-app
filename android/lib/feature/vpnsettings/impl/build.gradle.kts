@@ -19,6 +19,7 @@ dependencies {
     // Used for destinations
     implementation(projects.lib.feature.autoconnect.impl)
     implementation(projects.lib.feature.anticensorship.impl)
+    implementation(projects.lib.feature.personalvpn.impl)
     implementation(projects.lib.feature.serveripoverride.impl)
 
     implementation(libs.koin.compose)

@@ -268,6 +268,9 @@
     <string name="name_was_changed_to">Name was changed to %s</string>
     <string name="locations_were_changed_for">Locations were changed for \"%s\"</string>
     <string name="not_found">Not found</string>
+    <string name="personal_vpn">Personal VPN</string>
+    <string name="personal_vpn_description">Personal VPN allows you to connect to another WireGuard peer, while using Mullvad VPN. The entire connection will be tunneled through your connection to Mullvad.\n\nWith Personal VPN you will hide your personal server IP VPN and can connect to it without having to switch VPN.</string>
+
     <string name="server_ip_override">Server IP override</string>
     <string name="server_ip_overrides_active">Overrides active</string>
     <string name="server_ip_overrides_inactive">Overrides inactive</string>
