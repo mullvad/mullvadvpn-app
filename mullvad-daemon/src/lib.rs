@@ -2658,7 +2658,6 @@ impl Daemon {
             .await
         {
             Ok(_) => {
-                // TODO: reconnect?
                 let effective = if self.settings.settings().custom_vpn_enabled {
                     self.settings.settings().custom_vpn_config.clone()
                 } else {
@@ -2666,6 +2665,7 @@ impl Daemon {
                 };
                 self.parameters_generator.set_custom_vpn(effective).await;
                 Self::oneshot_send(tx, String::new(), "set_custom_vpn_config");
+                self.reconnect_tunnel();
             }
             Err(err) => {
                 log::error!(
