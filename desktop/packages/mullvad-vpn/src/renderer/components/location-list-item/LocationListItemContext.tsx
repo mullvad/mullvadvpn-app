@@ -15,6 +15,7 @@ export const useLocationListItemContext = (): LocationListItemContextProps => {
 };
 
 type LocationListItemProviderProps = React.PropsWithChildren<{
+  root?: boolean;
   selected?: boolean;
 }>;
 

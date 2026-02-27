@@ -21,10 +21,7 @@ const StyledAnimatedList = styled(AnimatedList)`
 `;
 
 const StyledAnimatedListItem = styled(AnimatedList.Item)`
-  // Add spacing to the last child
-  & > :last-child {
-    margin-bottom: ${spacings.tiny};
-  }
+  margin-bottom: ${spacings.tiny};
 `;
 
 function CustomListLocationListImpl() {

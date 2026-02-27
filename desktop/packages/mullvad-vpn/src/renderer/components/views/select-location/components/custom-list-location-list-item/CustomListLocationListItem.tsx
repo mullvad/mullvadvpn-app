@@ -28,6 +28,7 @@ function CustomListLocationListItemImpl({
   return (
     <AnyLocationListItem
       location={customList}
+      root
       rootLocation="customList"
       level={level}
       disabled={disabled || loading}
