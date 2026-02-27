@@ -121,7 +121,6 @@ static RESOLVED_STUB_PATHS: LazyLock<Vec<&'static Path>> = LazyLock::new(|| {
     ]
 });
 
-// TODO: Link to relevant documentation for all of these constants.
 const RESOLV_CONF_PATH: &str = "/etc/resolv.conf";
 
 #[derive(Clone)]
