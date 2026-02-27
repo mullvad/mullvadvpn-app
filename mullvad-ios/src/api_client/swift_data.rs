@@ -7,12 +7,12 @@ const EMPTY: [u8; 0] = [];
 
 impl AsRef<[u8]> for SwiftData {
     fn as_ref(&self) -> &[u8] {
-        // SAFETY: swift_data_get_ptr is a synchronous deterministic functions
+        // SAFETY: swift_data_get_ptr is a synchronous deterministic function
         // that return a pointer to the data contained in the NSData object
         // contained in self, or null if self does not contain data.
         // Any failure to reach a valid NSData will yield a null result.
         let data_ptr = unsafe { swift_data_get_ptr(self) };
-        // SAFETY: swift_data_get_len} is a synchronous deterministic function
+        // SAFETY: swift_data_get_len is a synchronous deterministic function
         // that return the length of the data contained in self, or 0 if there
         // is none.  Any failure to reach a valid NSData will yield 0.
         let len = unsafe { swift_data_get_len(self) };
