@@ -445,7 +445,7 @@ async fn create_devices(
         // Outer device
         let entry_peer = to_gotatun_peer(&config.entry_peer, daita);
         let outer_device = DeviceBuilder::new()
-            .with_default_udp()
+            .with_udp(udp_factory)
             .with_ip_pair(outer_ip_send, outer_ip_recv)
             .with_private_key(outer_private_key)
             .with_peer(entry_peer)
