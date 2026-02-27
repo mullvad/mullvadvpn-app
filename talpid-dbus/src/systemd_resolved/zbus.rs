@@ -460,7 +460,7 @@ impl From<IpAddr> for LinkIpAddr {
     }
 }
 
-/// https://manpages.debian.org/bullseye/systemd/org.freedesktop.resolve1.5.en.html:
+/// <https://manpages.debian.org/bullseye/systemd/org.freedesktop.resolve1.5.en.html>:
 ///
 /// DNS contain arrays of all DNS servers currently used by systemd-resolved. DNS contains information similar
 /// to the DNS server data in /run/systemd/resolve/resolv.conf.
