@@ -51,6 +51,7 @@ trait ResolveLink {
     /// ```dbus
     /// SetDNS(in a(iay) addresses);
     /// ```
+    #[zbus(name = "SetDNS")]
     fn set_dns(&self, addresses: &[LinkIpAddr]) -> Result<(), zbus::Error>;
 
     /// ```dbus
