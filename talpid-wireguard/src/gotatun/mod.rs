@@ -403,6 +403,9 @@ async fn create_devices(
         let (router_task, alt_output, default_output) =
             gotatun::tun::router::tun_router(tun_dev.clone(), custom_vpn.peer.allowed_ip, 4000);
 
+        // FIXME: no
+        std::mem::forget(router_task);
+
         // Outer device IpRecv: merge direct + inner encrypted
         let outer_ip_recv =
             MergingIpRecv::new(default_output, bridge_tun_rx, PacketBufPool::new(100));
