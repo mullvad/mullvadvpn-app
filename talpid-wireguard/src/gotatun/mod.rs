@@ -135,6 +135,7 @@ enum Devices {
     SinglehopWithCustom {
         inner_device: CustomInnerDevice,
         outer_device: CustomOuterDevice,
+        _router_task: gotatun::task::Task,
     },
 
     Multihop {
@@ -152,6 +153,7 @@ impl Devices {
             Devices::SinglehopWithCustom {
                 inner_device,
                 outer_device,
+                _router_task,
             } => {
                 inner_device.stop().await;
                 outer_device.stop().await;
@@ -400,11 +402,8 @@ async fn create_devices(
             new_udp_tun_channel(4000, outer_tun_ip, Ipv6Addr::UNSPECIFIED, mtu);
 
         // TUN router (split real TUN reads by dest IP)
-        let (router_task, alt_output, default_output) =
+        let (_router_task, alt_output, default_output) =
             gotatun::tun::router::tun_router(tun_dev.clone(), custom_vpn.peer.allowed_ip, 4000);
-
-        // FIXME: no
-        std::mem::forget(router_task);
 
         // Outer device IpRecv: merge direct + inner encrypted
         let outer_ip_recv =
@@ -475,6 +474,7 @@ async fn create_devices(
         return Ok(Devices::SinglehopWithCustom {
             outer_device,
             inner_device,
+            _router_task,
         });
     } else {
         // Singlehop setup

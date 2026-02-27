@@ -574,9 +574,10 @@ impl WireguardMonitor {
             event_hook.on_event(TunnelEvent::Up(metadata)).await;
 
             // FIXME
-            if let Err(error) = connectivity::Monitor::init(connectivity_monitor, None)
-                .run(Arc::downgrade(&tunnel))
-                .await
+            if let Err(error) =
+                connectivity::Monitor::init(connectivity_monitor, args.private_tunnel_stats)
+                    .run(Arc::downgrade(&tunnel))
+                    .await
             {
                 log::error!(
                     "{}",
