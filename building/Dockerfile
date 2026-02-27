@@ -47,6 +47,8 @@ RUN dpkg --add-architecture arm64 && apt-get update -y && apt-get install -y \
     gcc-mingw-w64-x86-64 \
     # For building Arch Linux packages
     libarchive-tools \
+    # For seccomp
+    libseccomp-dev libelf-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # === Rust ===
