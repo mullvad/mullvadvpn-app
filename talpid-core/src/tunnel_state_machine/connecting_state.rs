@@ -148,6 +148,7 @@ impl ConnectingState {
                         shared_values.tun_provider.clone(),
                         &shared_values.route_manager,
                         retry_attempt,
+                        shared_values.private_tunnel_stats_tx.clone(),
                     );
 
                     let params = connecting_state.tunnel_parameters.clone();
@@ -230,6 +231,7 @@ impl ConnectingState {
         tun_provider: Arc<Mutex<TunProvider>>,
         route_manager: &RouteManagerHandle,
         retry_attempt: u32,
+        private_tunnel_stats_tx: Option<tokio::sync::broadcast::Sender<talpid_types::Stats>>,
     ) -> Self {
         let (event_tx, event_rx) = mpsc::unbounded();
         let event_hook = EventHook::new(event_tx);
@@ -257,6 +259,7 @@ impl ConnectingState {
                 tun_provider,
                 retry_attempt,
                 route_manager,
+                private_tunnel_stats: private_tunnel_stats_tx,
             };
 
             #[cfg(target_os = "windows")]

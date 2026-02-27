@@ -623,7 +623,7 @@ impl Tunnel for GotaTun {
         let stats = match self.devices.as_ref() {
             Some(Devices::Singlehop { device }) => get_stats(device).await,
             Some(Devices::SinglehopWithCustom {
-                inner_device,
+                inner_device: _,
                 outer_device,
                 ..
             }) => {
@@ -641,6 +641,36 @@ impl Tunnel for GotaTun {
             }
             None if cfg!(debug_assertions) => unreachable!("device must be Some"),
             None => StatsMap::default(),
+        };
+
+        Ok(stats)
+    }
+
+    async fn get_private_tunnel_stats(&self) -> Result<StatsMap, TunnelError> {
+        /// Read all peer stats from a gotatun [`Device`].
+        async fn get_stats(device: &Device<impl DeviceTransports>) -> StatsMap {
+            let peers = device.read(async |device| device.peers().await).await;
+
+            peers
+                .into_iter()
+                .map(|peer| {
+                    let public_key = peer.peer.public_key.to_bytes();
+                    let stats = Stats::from(peer.stats);
+                    (public_key, stats)
+                })
+                .collect()
+        }
+
+        let stats = match self.devices.as_ref() {
+            Some(Devices::SinglehopWithCustom {
+                inner_device,
+                outer_device: _,
+                ..
+            }) => {
+                // For connectivity checks, we only care about the Mullvad relay
+                get_stats(inner_device).await
+            }
+            _ => StatsMap::default(),
         };
 
         Ok(stats)

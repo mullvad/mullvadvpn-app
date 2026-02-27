@@ -2,6 +2,8 @@
 
 #![deny(missing_docs)]
 
+use crate::stats::StatsMap;
+
 use self::config::Config;
 #[cfg(windows)]
 use futures::channel::mpsc;
@@ -372,9 +374,10 @@ impl WireguardMonitor {
             let metadata = Self::tunnel_metadata(&iface_name, &config);
             event_hook.on_event(TunnelEvent::Up(metadata)).await;
 
-            if let Err(error) = connectivity::Monitor::init(connectivity_monitor)
-                .run(Arc::downgrade(&tunnel))
-                .await
+            if let Err(error) =
+                connectivity::Monitor::init(connectivity_monitor, args.private_tunnel_stats)
+                    .run(Arc::downgrade(&tunnel))
+                    .await
             {
                 log::error!(
                     "{}",
@@ -570,7 +573,8 @@ impl WireguardMonitor {
             let metadata = Self::tunnel_metadata(&iface_name, &config);
             event_hook.on_event(TunnelEvent::Up(metadata)).await;
 
-            if let Err(error) = connectivity::Monitor::init(connectivity_monitor)
+            // FIXME
+            if let Err(error) = connectivity::Monitor::init(connectivity_monitor, None)
                 .run(Arc::downgrade(&tunnel))
                 .await
             {
@@ -1085,6 +1089,9 @@ pub(crate) trait Tunnel: Send + Sync {
     fn get_interface_name(&self) -> String;
     fn stop(self: Box<Self>) -> std::result::Result<(), TunnelError>;
     async fn get_tunnel_stats(&self) -> std::result::Result<stats::StatsMap, TunnelError>;
+    async fn get_private_tunnel_stats(&self) -> std::result::Result<StatsMap, TunnelError> {
+        Ok(StatsMap::default())
+    }
     fn set_config<'a>(
         &'a mut self,
         _config: Config,
