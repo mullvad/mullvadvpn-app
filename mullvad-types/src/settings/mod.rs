@@ -366,27 +366,9 @@ impl Settings {
     }
 }
 
-/// Custom VPN tunnel interface configuration (WireGuard-based).
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-pub struct CustomVpnTunnelConfig {
-    pub private_key: talpid_types::net::wireguard::PrivateKey,
-    pub ip: std::net::IpAddr,
-}
-
-/// Custom VPN peer configuration (WireGuard-based).
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-pub struct CustomVpnPeerConfig {
-    pub public_key: talpid_types::net::wireguard::PublicKey,
-    pub allowed_ip: ipnetwork::IpNetwork,
-    pub endpoint: std::net::SocketAddr,
-}
-
-/// Custom VPN configuration (WireGuard-based).
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-pub struct CustomVpnConfig {
-    pub tunnel: CustomVpnTunnelConfig,
-    pub peer: CustomVpnPeerConfig,
-}
+pub use talpid_types::net::wireguard::{
+    CustomVpnConfig, CustomVpnPeerConfig, CustomVpnTunnelConfig,
+};
 
 /// TunnelOptions holds configuration data that applies to all kinds of tunnels.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]

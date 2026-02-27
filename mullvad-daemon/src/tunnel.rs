@@ -37,6 +37,7 @@ struct InnerParametersGenerator {
     relay_selector: RelaySelector,
     tunnel_options: TunnelOptions,
     account_manager: AccountManagerHandle,
+    custom_vpn: Option<talpid_types::net::wireguard::CustomVpnConfig>,
 
     last_generated_relays: Option<LastSelectedRelays>,
 }
@@ -51,8 +52,8 @@ impl ParametersGenerator {
         Self(Arc::new(Mutex::new(InnerParametersGenerator {
             tunnel_options,
             relay_selector,
-
             account_manager,
+            custom_vpn: None,
 
             last_generated_relays: None,
         })))
@@ -61,6 +62,14 @@ impl ParametersGenerator {
     /// Sets the tunnel options to use when generating new tunnel parameters.
     pub async fn set_tunnel_options(&self, tunnel_options: &TunnelOptions) {
         self.0.lock().await.tunnel_options = tunnel_options.clone();
+    }
+
+    /// Sets the custom VPN config to use when generating new tunnel parameters.
+    pub async fn set_custom_vpn(
+        &self,
+        config: Option<talpid_types::net::wireguard::CustomVpnConfig>,
+    ) {
+        self.0.lock().await.custom_vpn = config;
     }
 
     pub async fn last_relay_was_overridden(&self) -> bool {
@@ -184,6 +193,7 @@ impl InnerParametersGenerator {
                 .into_talpid_tunnel_options(),
             generic_options: self.tunnel_options.generic.clone(),
             obfuscation: obfuscator_config,
+            custom_vpn: self.custom_vpn.clone(),
         }
     }
 

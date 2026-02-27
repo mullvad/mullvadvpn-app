@@ -2648,7 +2648,16 @@ impl Daemon {
             .update(move |s| s.custom_vpn_config = config)
             .await
         {
-            Ok(_) => Self::oneshot_send(tx, String::new(), "set_custom_vpn_config"),
+            Ok(_) => {
+                // TODO: reconnect?
+                let effective = if self.settings.settings().custom_vpn_enabled {
+                    self.settings.settings().custom_vpn_config.clone()
+                } else {
+                    None
+                };
+                self.parameters_generator.set_custom_vpn(effective).await;
+                Self::oneshot_send(tx, String::new(), "set_custom_vpn_config");
+            }
             Err(err) => {
                 log::error!(
                     "{}",
@@ -2671,6 +2680,13 @@ impl Daemon {
         {
             Ok(changed) => {
                 if changed {
+                    // TODO: reconnect?
+                    let effective = if self.settings.settings().custom_vpn_enabled {
+                        self.settings.settings().custom_vpn_config.clone()
+                    } else {
+                        None
+                    };
+                    self.parameters_generator.set_custom_vpn(effective).await;
                     self.reconnect_tunnel();
                 }
                 Self::oneshot_send(tx, Ok(()), "set_custom_vpn_config_status");

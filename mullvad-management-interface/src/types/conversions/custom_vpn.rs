@@ -3,7 +3,7 @@ use crate::types::{
     conversions::{arg_from_str, bytes_to_privkey, bytes_to_pubkey},
     proto,
 };
-use mullvad_types::settings::{CustomVpnConfig, CustomVpnPeerConfig, CustomVpnTunnelConfig};
+use talpid_types::net::wireguard::{CustomVpnConfig, CustomVpnPeerConfig, CustomVpnTunnelConfig};
 
 impl TryFrom<proto::CustomVpnConfig> for CustomVpnConfig {
     type Error = FromProtobufTypeError;
