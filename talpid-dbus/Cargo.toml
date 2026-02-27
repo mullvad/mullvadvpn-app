@@ -16,7 +16,7 @@ zbus = { version = "5.12", optional = true }
 zvariant = { version = "5.8.0", optional = true }
 
 [features]
-default = ["libdbus"]
+default = ["libdbus", "zbus"] # TODO: remove zbus
 libdbus = ["dep:dbus"]
 zbus = ["dep:zbus", "dep:zvariant"]
 
