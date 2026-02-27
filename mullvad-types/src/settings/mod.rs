@@ -111,6 +111,10 @@ pub struct Settings {
     pub settings_version: SettingsVersion,
     /// Stores the user's recently connected locations. If None recents have been disabled by the user.
     pub recents: Option<Vec<Recent>>,
+    /// Custom VPN configuration (WireGuard-based)
+    pub custom_vpn_config: CustomVpnConfig,
+    /// Whether the custom VPN is enabled
+    pub custom_vpn_enabled: bool,
     /// A randomly generated number used as input when determining if the client should update. Note that this
     /// number is not solely responsible for determining _when_ the client should be updated, but
     /// it is expected to be fairly unique.
@@ -292,6 +296,8 @@ impl Default for Settings {
             split_tunnel: SplitTunnelSettings::default(),
             settings_version: CURRENT_SETTINGS_VERSION,
             recents: Some(vec![]),
+            custom_vpn_config: CustomVpnConfig::default(),
+            custom_vpn_enabled: false,
             #[cfg(not(target_os = "android"))]
             rollout_threshold_seed: None,
         }
@@ -358,6 +364,28 @@ impl Settings {
             }
         }
     }
+}
+
+/// Custom VPN tunnel interface configuration (WireGuard-based).
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct CustomVpnTunnelConfig {
+    pub private_key: talpid_types::net::wireguard::PrivateKey,
+    pub ip: std::net::IpAddr,
+}
+
+/// Custom VPN peer configuration (WireGuard-based).
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct CustomVpnPeerConfig {
+    pub public_key: talpid_types::net::wireguard::PublicKey,
+    pub allowed_ip: ipnetwork::IpNetwork,
+    pub endpoint: std::net::SocketAddr,
+}
+
+/// Custom VPN configuration (WireGuard-based).
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
+pub struct CustomVpnConfig {
+    pub tunnel: Option<CustomVpnTunnelConfig>,
+    pub peer: Option<CustomVpnPeerConfig>,
 }
 
 /// TunnelOptions holds configuration data that applies to all kinds of tunnels.

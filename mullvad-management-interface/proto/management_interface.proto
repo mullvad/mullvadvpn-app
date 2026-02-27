@@ -533,6 +533,8 @@ message Settings {
   repeated RelayOverride relay_overrides = 12;
   optional Recents recents = 13;
   bool update_default_location = 14;
+  optional CustomVpnConfig custom_vpn_config = 15;
+  bool custom_vpn_enabled = 16;
 }
 
 message RelayOverride {

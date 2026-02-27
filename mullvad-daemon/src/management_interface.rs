@@ -66,6 +66,7 @@ impl ManagementService for ManagementServiceImpl {
     type EventsListenStream = EventsListenerReceiver;
     type AppUpgradeEventsListenStream = AppUpgradeEventListenerReceiver;
     type LogListenStream = UnboundedReceiverStream<Result<types::LogMessage, Status>>;
+    type GetCustomVpnStatsStream = UnboundedReceiverStream<Result<types::CustomVpnStats, Status>>;
 
     // Control and get the tunnel state
     //
@@ -1287,6 +1288,42 @@ impl ManagementService for ManagementServiceImpl {
         self.send_command_to_daemon(DaemonCommand::SetEnableRecents(tx, enable_recents))?;
         self.wait_for_result(rx).await??;
         Ok(Response::new(()))
+    }
+
+    async fn set_custom_vpn_config(
+        &self,
+        request: Request<types::CustomVpnConfig>,
+    ) -> ServiceResult<types::CustomVpnConfigError> {
+        log::debug!("set_custom_vpn_config");
+        let config = mullvad_types::settings::CustomVpnConfig::try_from(request.into_inner())
+            .map_err(map_protobuf_type_err)?;
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::SetCustomVpnConfig(tx, config))?;
+        let error = self.wait_for_result(rx).await?;
+        Ok(Response::new(types::CustomVpnConfigError { error }))
+    }
+
+    async fn set_custom_vpn_config_status(&self, request: Request<bool>) -> ServiceResult<()> {
+        let enabled = request.into_inner();
+        log::debug!("set_custom_vpn_config_status({})", enabled);
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::SetCustomVpnConfigStatus(tx, enabled))?;
+        self.wait_for_result(rx).await??;
+        Ok(Response::new(()))
+    }
+
+    async fn get_custom_vpn_stats(
+        &self,
+        _: Request<()>,
+    ) -> ServiceResult<Self::GetCustomVpnStatsStream> {
+        log::debug!("get_custom_vpn_stats");
+        let (tx, rx) = tokio::sync::mpsc::unbounded_channel();
+        let _ = tx.send(Ok(types::CustomVpnStats {
+            tx_bytes: 0,
+            rx_bytes: 0,
+            last_handshake_time: None,
+        }));
+        Ok(Response::new(UnboundedReceiverStream::new(rx)))
     }
 }
 
