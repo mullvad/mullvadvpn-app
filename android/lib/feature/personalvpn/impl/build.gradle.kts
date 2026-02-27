@@ -15,6 +15,7 @@ android {
 dependencies {
     implementation(projects.lib.repository)
     implementation(projects.lib.usecase)
+    implementation(projects.lib.grpc)
 
     implementation(libs.koin.compose)
     implementation(libs.arrow)

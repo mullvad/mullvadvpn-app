@@ -2,8 +2,10 @@ package net.mullvad.mullvadvpn.lib.grpc
 
 import android.net.LocalSocketAddress
 import arrow.core.Either
+import arrow.core.flatten
 import arrow.core.raise.either
 import arrow.core.raise.ensure
+import arrow.core.right
 import arrow.optics.copy
 import arrow.optics.dsl.index
 import arrow.optics.typeclasses.Index
@@ -65,6 +67,7 @@ import net.mullvad.mullvadvpn.lib.model.CustomList as ModelCustomList
 import net.mullvad.mullvadvpn.lib.model.CustomListAlreadyExists
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
+import net.mullvad.mullvadvpn.lib.model.CustomVpnConfig
 import net.mullvad.mullvadvpn.lib.model.DefaultDnsOptions
 import net.mullvad.mullvadvpn.lib.model.DeleteCustomListError
 import net.mullvad.mullvadvpn.lib.model.DeleteDeviceError
@@ -110,6 +113,7 @@ import net.mullvad.mullvadvpn.lib.model.RemoveApiAccessMethodError
 import net.mullvad.mullvadvpn.lib.model.RemoveSplitTunnelingAppError
 import net.mullvad.mullvadvpn.lib.model.SetAllowLanError
 import net.mullvad.mullvadvpn.lib.model.SetApiAccessMethodError
+import net.mullvad.mullvadvpn.lib.model.SetCustomVpnConfigError
 import net.mullvad.mullvadvpn.lib.model.SetDaitaSettingsError
 import net.mullvad.mullvadvpn.lib.model.SetDnsOptionsError
 import net.mullvad.mullvadvpn.lib.model.SetObfuscationOptionsError
@@ -121,6 +125,7 @@ import net.mullvad.mullvadvpn.lib.model.Settings as ModelSettings
 import net.mullvad.mullvadvpn.lib.model.SettingsPatchError
 import net.mullvad.mullvadvpn.lib.model.TestApiAccessMethodError
 import net.mullvad.mullvadvpn.lib.model.TunnelState as ModelTunnelState
+import net.mullvad.mullvadvpn.lib.model.TunnelStats
 import net.mullvad.mullvadvpn.lib.model.UnknownApiAccessMethodError
 import net.mullvad.mullvadvpn.lib.model.UnknownCustomListError
 import net.mullvad.mullvadvpn.lib.model.UpdateApiAccessMethodError
@@ -923,6 +928,26 @@ class ManagementService(
             .onLeft { Logger.e("Set multihop error") }
             .mapLeft(SetWireguardConstraintsError::Unknown)
             .mapEmpty()
+
+    suspend fun toggleCustomVpn(enable: Boolean): Unit {
+        grpc.setCustomVpnConfigStatus(BoolValue.of(enable))
+    }
+
+    suspend fun setCustomVpnConfig(config: CustomVpnConfig): Either<SetCustomVpnConfigError, Unit> =
+        Either.catch { grpc.setCustomVpnConfig(config.fromDomain()) }
+            .mapLeft {
+                Logger.d("Random gRPC throwable error: $it")
+                SetCustomVpnConfigError.Unknown
+            }
+            .map {
+                Logger.d("setCustomVpnConfig returned: $it")
+                // Assume nothing goes wrong now
+                Unit.right()
+            }
+            .flatten()
+
+    fun customVpnStats(): Flow<TunnelStats> =
+        grpc.getCustomVpnStats(Empty.getDefaultInstance()).map { it.toDomain() }
 
     private fun <A> Either<A, Empty>.mapEmpty() = map {}
 
