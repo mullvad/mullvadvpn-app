@@ -624,11 +624,11 @@ impl Tunnel for GotaTun {
             Some(Devices::Singlehop { device }) => get_stats(device).await,
             Some(Devices::SinglehopWithCustom {
                 inner_device,
-                outer_device: _,
+                outer_device,
                 ..
             }) => {
                 // For connectivity checks, we only care about the Mullvad relay
-                get_stats(inner_device).await
+                get_stats(outer_device).await
             }
             Some(Devices::Multihop {
                 entry_device,
