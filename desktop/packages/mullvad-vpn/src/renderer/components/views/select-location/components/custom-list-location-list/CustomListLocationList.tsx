@@ -68,14 +68,14 @@ function CustomListLocationListImpl() {
           </Text>
         )}
         {showAddLocationToCustomListText && (
-          <Container horizontalMargin="small">
+          <Container horizontalMargin="medium">
             <Text variant="labelTiny" color="whiteAlpha60">
               {
                 // TRANSLATORS: Message shown in the custom list section when the user has at least one custom list.
                 // TRANSLATORS: Instructs the user how to add locations to the custom list.
                 messages.pgettext(
                   'select-location-view',
-                  'Add locations by clicking on “+” when hovering over a location.',
+                  'Click "+" on a location to add it to a list',
                 )
               }
             </Text>
