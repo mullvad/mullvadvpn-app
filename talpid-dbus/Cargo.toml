@@ -6,18 +6,22 @@ repository.workspace = true
 license.workspace = true
 
 [target.'cfg(target_os = "linux")'.dependencies]
-dbus = "0.9"
 libc = "0.2"
 log = { workspace = true }
 serde = { workspace = true }
 thiserror = { workspace = true }
 tokio = { workspace = true, features = ["rt"] }
+
+# libdbus
+dbus = { version = "0.9", optional = true }
+
 # pure-Rust dbus client
 zbus = { version = "5.12", optional = true }
 zvariant = { version = "5.8.0", optional = true }
 
 [features]
-default = ["zbus"]  # TODO: Remove
+default = ["zbus", "libdbus"]  # TODO: Remove zbus
+libdbus = ["dep:dbus"]
 zbus = ["dep:zbus", "dep:zvariant"]
 
 [lints]
