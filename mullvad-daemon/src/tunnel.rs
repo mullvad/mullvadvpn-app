@@ -48,12 +48,13 @@ impl ParametersGenerator {
         account_manager: AccountManagerHandle,
         relay_selector: RelaySelector,
         tunnel_options: TunnelOptions,
+        custom_vpn: Option<talpid_types::net::wireguard::CustomVpnConfig>,
     ) -> Self {
         Self(Arc::new(Mutex::new(InnerParametersGenerator {
             tunnel_options,
             relay_selector,
             account_manager,
-            custom_vpn: None,
+            custom_vpn,
 
             last_generated_relays: None,
         })))

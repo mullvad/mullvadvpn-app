@@ -882,6 +882,10 @@ impl Daemon {
             account_manager.clone(),
             relay_selector.clone(),
             settings.tunnel_options.clone(),
+            settings
+                .custom_vpn_config
+                .clone()
+                .filter(|_| settings.custom_vpn_enabled),
         );
 
         let param_gen = parameters_generator.clone();
