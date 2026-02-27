@@ -2645,7 +2645,7 @@ impl Daemon {
     ) {
         match self
             .settings
-            .update(move |s| s.custom_vpn_config = config)
+            .update(move |s| s.custom_vpn_config = Some(config))
             .await
         {
             Ok(_) => Self::oneshot_send(tx, String::new(), "set_custom_vpn_config"),

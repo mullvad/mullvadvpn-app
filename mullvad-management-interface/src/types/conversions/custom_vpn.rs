@@ -17,7 +17,9 @@ impl TryFrom<proto::CustomVpnConfig> for CustomVpnConfig {
                     ip: arg_from_str(&t.ip, "invalid tunnel IP address")?,
                 })
             })
-            .transpose()?;
+            .ok_or(FromProtobufTypeError::InvalidArgument(
+                "missing tunnel config",
+            ))??;
 
         let peer = config
             .peer
@@ -28,7 +30,9 @@ impl TryFrom<proto::CustomVpnConfig> for CustomVpnConfig {
                     endpoint: arg_from_str(&p.endpoint, "invalid endpoint")?,
                 })
             })
-            .transpose()?;
+            .ok_or(FromProtobufTypeError::InvalidArgument(
+                "missing peer config",
+            ))??;
 
         Ok(CustomVpnConfig { tunnel, peer })
     }
@@ -37,16 +41,14 @@ impl TryFrom<proto::CustomVpnConfig> for CustomVpnConfig {
 impl From<CustomVpnConfig> for proto::CustomVpnConfig {
     fn from(config: CustomVpnConfig) -> Self {
         proto::CustomVpnConfig {
-            tunnel: config
-                .tunnel
-                .map(|t| proto::custom_vpn_config::TunnelConfig {
-                    private_key: t.private_key.to_bytes().to_vec(),
-                    ip: t.ip.to_string(),
-                }),
-            peer: config.peer.map(|p| proto::custom_vpn_config::PeerConfig {
-                public_key: p.public_key.as_bytes().to_vec(),
-                allowed_ip: p.allowed_ip.to_string(),
-                endpoint: p.endpoint.to_string(),
+            tunnel: Some(proto::custom_vpn_config::TunnelConfig {
+                private_key: config.tunnel.private_key.to_bytes().to_vec(),
+                ip: config.tunnel.ip.to_string(),
+            }),
+            peer: Some(proto::custom_vpn_config::PeerConfig {
+                public_key: config.peer.public_key.as_bytes().to_vec(),
+                allowed_ip: config.peer.allowed_ip.to_string(),
+                endpoint: config.peer.endpoint.to_string(),
             }),
         }
     }
