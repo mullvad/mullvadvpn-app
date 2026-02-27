@@ -5,6 +5,7 @@ import { Container, Text } from '../../../../../lib/components';
 import { AnimatedList } from '../../../../../lib/components/animated-list';
 import { FlexColumn } from '../../../../../lib/components/flex-column';
 import { spacings } from '../../../../../lib/foundations';
+import { StyledLocationListItemAccordionContent } from '../../../../location-list-item/components';
 import { useCustomListLocationsContext } from '../../CustomListLocationsContext';
 import { useHasCustomLists } from '../../hooks';
 import { AddCustomListDialog } from '../add-custom-list-dialog';
@@ -21,8 +22,11 @@ const StyledAnimatedList = styled(AnimatedList)`
 `;
 
 const StyledAnimatedListItem = styled(AnimatedList.Item)`
-  // Add spacing to the last child
-  & > :last-child {
+  margin-bottom: ${spacings.tiny};
+  // If last child is an accordion content, it means there is an expanded list item
+  // and we should give it some extra bottom margin to separate it from the next location.
+  // We target the last child of the accordion to prevent stutters in expand/collapse animation.
+  &:has(+ &) > ${StyledLocationListItemAccordionContent}:last-child > :last-child {
     margin-bottom: ${spacings.tiny};
   }
 `;

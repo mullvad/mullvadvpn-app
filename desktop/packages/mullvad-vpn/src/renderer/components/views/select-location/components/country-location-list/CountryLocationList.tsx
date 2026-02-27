@@ -5,14 +5,18 @@ import { messages } from '../../../../../../shared/gettext';
 import { FlexColumn } from '../../../../../lib/components/flex-column';
 import { SectionTitle } from '../../../../../lib/components/section-title';
 import { spacings } from '../../../../../lib/foundations';
+import { StyledLocationListItemAccordionContent } from '../../../../location-list-item/components';
 import { useLocationsContext } from '../../LocationsContext';
 import { GeographicalLocationListItem } from '../geographical-location-list-item';
 import { useLocationListsContext } from '../location-lists/LocationListsContext';
 import { useRelayCount } from './hooks';
 
 const StyledLocationContainer = styled.div`
-  // Add spacing to the last child
-  & > :last-child {
+  margin-bottom: ${spacings.tiny};
+  // If last child is an accordion content, it means there is an expanded list item
+  // and we should give it some extra bottom margin to separate it from the next location.
+  // We target the last child of the accordion to prevent stutters in expand/collapse animation.
+  &:has(+ &) > ${StyledLocationListItemAccordionContent}:last-child > :last-child {
     margin-bottom: ${spacings.tiny};
   }
 `;

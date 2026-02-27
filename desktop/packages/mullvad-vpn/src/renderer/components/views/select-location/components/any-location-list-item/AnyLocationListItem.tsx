@@ -1,13 +1,11 @@
 import React, { useCallback } from 'react';
 import { sprintf } from 'sprintf-js';
-import styled from 'styled-components';
 
 import type { RelayLocation as DaemonRelayLocation } from '../../../../../../shared/daemon-rpc-types';
 import { messages } from '../../../../../../shared/gettext';
 import { FootnoteMiniSemiBold } from '../../../../../lib/components';
 import { FlexColumn } from '../../../../../lib/components/flex-column';
 import type { ListItemProps } from '../../../../../lib/components/list-item';
-import { spacings } from '../../../../../lib/foundations';
 import { LocationListItem } from '../../../../location-list-item';
 import { useScrollPositionContext } from '../../ScrollPositionContext';
 import { type AnyLocation, getLocationChildrenByType } from '../../select-location-types';
@@ -25,13 +23,6 @@ export type AnyLocationListItemProps = React.PropsWithChildren<{
   disabled?: boolean;
   onSelect: (value: DaemonRelayLocation) => void;
 }>;
-
-const StyledAccordionContent = styled(LocationListItem.AccordionContent)`
-  // Last accordion content for a location should have extra spacing at the bottom
-  &:not(:has(&)):last-child {
-    margin-bottom: ${spacings.small};
-  }
-`;
 
 function AnyLocationListItemImpl({
   level,
@@ -93,7 +84,7 @@ function AnyLocationListItemImpl({
           )}
         </LocationListItem.Header>
 
-        <StyledAccordionContent>{children}</StyledAccordionContent>
+        <LocationListItem.AccordionContent>{children}</LocationListItem.AccordionContent>
       </LocationListItem.Accordion>
     </LocationListItem>
   );
