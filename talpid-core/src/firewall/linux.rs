@@ -1,6 +1,7 @@
 use super::{FirewallArguments, FirewallPolicy};
 use crate::split_tunnel;
 use ipnetwork::IpNetwork;
+use nftables;
 use nftnl::{
     Batch, Chain, FinalizedBatch, ProtoFamily, Rule, Table,
     expr::{self, IcmpCode, Payload, RejectionType, Verdict},
@@ -148,6 +149,194 @@ impl Firewall {
         Self::send_and_process(&batch)?;
         Self::apply_kernel_config(&policy);
         self.verify_tables(&[TABLE_NAME])
+    }
+
+    /// Generate a serializable [`FirewallPolicy`] for [`TABLE_NAME`] nftable using nftables-json.
+    pub fn policy(&mut self) -> Result<nftables::schema::Nftables<'_>> {
+        use nftables::{batch, expr, schema, stmt, types};
+        let mut batch = batch::Batch::new();
+        let table_name = "mullvad";
+        let table = {
+            schema::NfListObject::Table(schema::Table {
+                family: types::NfFamily::INet,
+                name: "mullvad".into(),
+                ..Default::default()
+            })
+        };
+        // Create the table if it does not exist and clear it otherwise.
+        batch.add(table.clone());
+        batch.delete(table.clone());
+        batch.add(table.clone());
+
+        // Create batch [x]
+        // Add pre-routing chain.
+        let prerouting_chain = {
+            // prerouting_chain.set_hook(nftnl::Hook::PreRouting, PREROUTING_CHAIN_PRIORITY);
+            // prerouting_chain.set_type(nftnl::ChainType::Filter);
+            schema::NfListObject::Chain(schema::Chain {
+                name: "prerouting".into(),
+                table: table_name.into(),
+                hook: types::NfHook::Prerouting.into(),
+                prio: PREROUTING_CHAIN_PRIORITY.into(),
+                _type: types::NfChainType::Filter.into(),
+                ..schema::Chain::default()
+            })
+        };
+        batch.add(prerouting_chain);
+
+        // Add output chain.
+        let output_chain = {
+            // let mut out_chain = Chain::new(OUT_CHAIN_NAME, table);
+            // out_chain.set_hook(nftnl::Hook::Out, 0);
+            // out_chain.set_policy(nftnl::Policy::Drop);
+            schema::NfListObject::Chain(schema::Chain {
+                name: "output".into(),
+                table: table_name.into(),
+                hook: types::NfHook::Output.into(),
+                prio: 0.into(),
+                policy: types::NfChainPolicy::Drop.into(),
+                ..schema::Chain::default()
+            })
+        };
+        batch.add(output_chain);
+
+        // Add input chain.
+        let input_chain = {
+            // let mut in_chain = Chain::new(IN_CHAIN_NAME, table);
+            // in_chain.set_hook(nftnl::Hook::In, 0);
+            // in_chain.set_policy(nftnl::Policy::Drop);
+            schema::NfListObject::Chain(schema::Chain {
+                name: "input".into(),
+                table: table_name.into(),
+                hook: types::NfHook::Input.into(),
+                prio: 0.into(),
+                policy: types::NfChainPolicy::Drop.into(),
+                ..schema::Chain::default()
+            })
+        };
+        batch.add(input_chain);
+
+        // Add forward chain.
+        let forward_chain = {
+            // let mut forward_chain = Chain::new(FORWARD_CHAIN_NAME, table);
+            // forward_chain.set_hook(nftnl::Hook::Forward, 0);
+            // forward_chain.set_policy(nftnl::Policy::Drop);
+            schema::NfListObject::Chain(schema::Chain {
+                name: "forward".into(),
+                table: table_name.into(),
+                hook: types::NfHook::Forward.into(),
+                prio: 0.into(),
+                policy: types::NfChainPolicy::Drop.into(),
+                ..schema::Chain::default()
+            })
+        };
+        batch.add(forward_chain);
+
+        // Add mangle chain.
+        let mangle_chain = {
+            schema::NfListObject::Chain(schema::Chain {
+                // let mut mangle_chain = Chain::new(MANGLE_CHAIN_NAME, table);
+                name: "mangle".into(),
+                table: table_name.into(),
+                // mangle_chain.set_hook(nftnl::Hook::Out, MANGLE_CHAIN_PRIORITY);
+                hook: types::NfHook::Output.into(),
+                prio: MANGLE_CHAIN_PRIORITY.into(),
+                // mangle_chain.set_type(nftnl::ChainType::Route);
+                _type: types::NfChainType::Route.into(),
+                // mangle_chain.set_policy(nftnl::Policy::Accept);
+                policy: types::NfChainPolicy::Accept.into(),
+                ..schema::Chain::default()
+            })
+        };
+        batch.add(mangle_chain);
+
+        // Add nat chain.
+        let nat_chain = {
+            schema::NfListObject::Chain(schema::Chain {
+                // let mut nat_chain = Chain::new(NAT_CHAIN_NAME, table);
+                name: "nat".into(),
+                table: table_name.into(),
+                // nat_chain.set_hook(nftnl::Hook::PostRouting, libc::NF_IP_PRI_NAT_SRC);
+                hook: types::NfHook::Postrouting.into(),
+                prio: libc::NF_IP_PRI_NAT_SRC.into(),
+                // nat_chain.set_type(nftnl::ChainType::Nat);
+                _type: types::NfChainType::NAT.into(),
+                // nat_chain.set_policy(nftnl::Policy::Accept);
+                policy: types::NfChainPolicy::Accept.into(),
+                ..schema::Chain::default()
+            })
+        };
+        batch.add(nat_chain);
+
+        // TODO: Finalize batch [ ]
+        // Add loopback rules []
+        let loopback_rules = {
+            const LOOPBACK_IFACE_NAME: &str = "lo";
+            // Allow interface rules, direction: out
+            // let iface_index = crate::linux::iface_index(LOOPBACK_IFACE_NAME)
+            //     .map_err(|e| Error::LookupIfaceIndexError(LOOPBACK_IFACE_NAME.to_owned(), e))?;
+
+            let out = schema::NfListObject::Rule(schema::Rule {
+                chain: "output".into(),
+                comment: Some("Allow outgoing traffic on loopback".into()),
+                table: table_name.into(),
+                expr: vec![
+                    // // Direction::Out => nft_expr!(meta oif),
+                    // expr::Meta::Oif,
+                    // expr::Cmp::new(expr::CmpOp::Eq, iface_index),
+                    stmt::Statement::Match(stmt::Match {
+                        left: expr::Expression::Named(expr::NamedExpression::Meta(expr::Meta {
+                            key: expr::MetaKey::Iifname,
+                        })),
+                        right: expr::Expression::String(LOOPBACK_IFACE_NAME.into()),
+                        op: stmt::Operator::EQ,
+                    }),
+                    // TODO: Counters
+                    stmt::Statement::Accept(None),
+                ]
+                .into(),
+                ..schema::Rule::default()
+            });
+
+            let _in = schema::NfListObject::Rule(schema::Rule {
+                chain: "input".into(),
+                comment: Some("Allow incoming traffic on loopback".into()),
+                table: table_name.into(),
+                expr: vec![
+                    // Direction::In => nft_expr!(meta iif),
+                    // expr::Meta::Iif,
+                    // expr::Cmp::new(expr::CmpOp::Eq, iface_index),
+                    stmt::Statement::Match(stmt::Match {
+                        left: expr::Expression::Named(expr::NamedExpression::Meta(expr::Meta {
+                            key: expr::MetaKey::Oifname,
+                        })),
+                        right: expr::Expression::String(LOOPBACK_IFACE_NAME.into()),
+                        op: stmt::Operator::EQ,
+                    }),
+                    // TODO: Counters
+                    stmt::Statement::Accept(None),
+                ]
+                .into(),
+                ..schema::Rule::default()
+            });
+
+            // Allow interface rules, direction: in
+            vec![out, _in]
+        };
+        for rule in loopback_rules {
+            batch.add(rule);
+        }
+
+        // Add split-tunneling rules []
+        // Add dhcp-client rules []
+        // Add ndp rules []
+        // Add policy-specific rules []
+
+        Ok(batch.to_nftables())
+        // let batch = PolicyBatch::new(&table).finalize(&policy, self)?;
+        // Self::send_and_process(&batch)?;
+        // Self::apply_kernel_config(&policy);
+        // self.verify_tables(&[TABLE_NAME])
     }
 
     /// Remove [`TABLE_NAME`] nftable.
@@ -1175,4 +1364,18 @@ fn lock_down_arp_ignore_sysctl() -> io::Result<()> {
         _ => log::trace!("Not locking down arp_ignore since it is set to {current_arp_ignore}"),
     }
     Ok(())
+}
+
+mod test {
+    use super::*;
+
+    /// Snapshot the standard set of firewall rules.
+    #[test]
+    fn create_batch() -> Result<()> {
+        let mut firewall =
+            Firewall::new(Default::default(), Default::default(), Default::default())?;
+        let policy = firewall.policy()?;
+        panic!("{}", serde_json::to_string_pretty(&policy).unwrap());
+        Ok(())
+    }
 }

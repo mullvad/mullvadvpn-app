@@ -24,6 +24,7 @@ tokio = { workspace = true, features = ["fs", "process", "rt-multi-thread"] }
 
 [dev-dependencies]
 insta = { workspace = true }
+serde_json.workspace = true
 test-log = "0.2.17"
 tokio = { workspace = true, features = ["io-util", "test-util", "time"] }
 
@@ -32,6 +33,7 @@ jnix = { version = "0.5.1", features = ["derive"] }
 
 [target.'cfg(target_os = "linux")'.dependencies]
 mnl = { version = "0.3.1", features = ["mnl-1-0-4"] }
+nftables = "0.6.3"
 # NOTE: the libnftnl version specified in `features`
 # MUST match the version we link in /.cargo/config.toml
 nftnl = { version = "0.9.1", features = ["nftnl-1-2-0"] }
@@ -103,6 +105,7 @@ features = [
 [features]
 cgroup2 = []
 multihop-pcap = ["talpid-wireguard/multihop-pcap"]
+# nftables-json = ["dep:nftables"]
 wireguard-go = ["talpid-wireguard/wireguard-go"]
 
 [lints]
