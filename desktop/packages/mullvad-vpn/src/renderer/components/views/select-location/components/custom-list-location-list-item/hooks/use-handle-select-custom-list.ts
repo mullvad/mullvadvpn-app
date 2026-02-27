@@ -7,13 +7,14 @@ export function useHandleSelectCustomList() {
   const { handleSelect } = useLocationListsContext();
 
   return React.useCallback(
-    async (value: RelayLocation) => {
-      const location = { ...value };
+    async (location: RelayLocation) => {
+      // Only the geographical part should be sent to the daemon when setting a location.
       if ('country' in location) {
-        // Only the geographical part should be sent to the daemon when setting a location.
-        delete location.customList;
+        const { customList: _, ...geographicalLocation } = location;
+        await handleSelect(geographicalLocation);
+      } else {
+        await handleSelect(location);
       }
-      await handleSelect(location);
     },
     [handleSelect],
   );
