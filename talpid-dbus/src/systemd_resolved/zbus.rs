@@ -57,6 +57,7 @@ trait ResolveLink {
     /// ```dbus
     /// SetDNSOverTLS(in s mode);
     /// ```
+    #[zbus(name = "SetDNSOverTLS")]
     fn set_dns_over_tls(&self, mode: &str) -> Result<(), zbus::Error>;
 
     /// ```dbus
