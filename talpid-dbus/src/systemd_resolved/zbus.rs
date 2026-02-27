@@ -39,7 +39,7 @@ trait ResolveLink {
     /// ```dbus
     /// readonly a(iay) DNS = [...];
     /// ```
-    #[zbus(property)]
+    #[zbus(property, name = "DNS")]
     fn dns(&self) -> Result<Vec<LinkIpAddr>, zbus::Error>;
 
     /// ```dbus
