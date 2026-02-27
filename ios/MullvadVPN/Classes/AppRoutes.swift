@@ -43,12 +43,17 @@ enum AppRouteGroup: AppRouteGroupProtocol {
      */
     case alert(_ alertId: String)
 
+    /**
+     Debug group.
+     */
+    case debug
+
     var isModal: Bool {
         switch self {
         case .primary:
             return false
 
-        case .selectLocation, .account, .settings, .changelog, .alert:
+        case .selectLocation, .account, .settings, .changelog, .alert, .debug:
             return true
         }
     }
@@ -57,7 +62,7 @@ enum AppRouteGroup: AppRouteGroupProtocol {
         switch self {
         case .primary:
             return 0
-        case .account, .selectLocation, .changelog:
+        case .account, .selectLocation, .changelog, .debug:
             return 1
         case .settings:
             return 2
@@ -133,6 +138,11 @@ enum AppRoute: AppRouteProtocol {
      */
     case tos, login, main, revoked, outOfTime, welcome
 
+    /**
+     Debug view route.
+     */
+    case debug
+
     var isExclusive: Bool {
         switch self {
         case .account, .settings, .alert:
@@ -162,6 +172,8 @@ enum AppRoute: AppRouteProtocol {
             return .settings
         case let .alert(id):
             return .alert(id)
+        case .debug:
+            return .debug
         }
     }
 }

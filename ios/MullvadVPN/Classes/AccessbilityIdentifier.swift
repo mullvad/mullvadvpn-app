@@ -185,6 +185,7 @@ public enum AccessibilityIdentifier: Equatable {
     case notificationPromptSkipButton
     case notificationPromptEnableButton
     case includeAllNetworksView
+    case debugView
 
     // Other UI elements
     case accessMethodEnableSwitch

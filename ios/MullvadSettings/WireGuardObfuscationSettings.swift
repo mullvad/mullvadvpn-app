@@ -12,7 +12,7 @@ import MullvadTypes
 /// Whether obfuscation is enabled and which method is used.
 ///
 /// `.automatic` means an algorithm will decide whether to use obfuscation or not.
-public enum WireGuardObfuscationState: Codable, Sendable {
+public enum WireGuardObfuscationState: CustomStringConvertible, Codable, Sendable {
     @available(*, deprecated, renamed: "udpOverTcp")
     case on
 
@@ -53,6 +53,23 @@ public enum WireGuardObfuscationState: Codable, Sendable {
 
     public var isEnabled: Bool {
         [.udpOverTcp, .shadowsocks, .quic].contains(self)
+    }
+
+    public var description: String {
+        switch self {
+        case .automatic:
+            "Automatic"
+        case .on:
+            "On"
+        case .udpOverTcp:
+            "UDP over TCP"
+        case .shadowsocks:
+            "Shadowsocks"
+        case .quic:
+            "QUIC"
+        case .off:
+            "Off"
+        }
     }
 }
 

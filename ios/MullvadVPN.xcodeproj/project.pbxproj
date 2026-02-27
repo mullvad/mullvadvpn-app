@@ -478,6 +478,10 @@
 		7A3AD5012C1068A800E9AD90 /* RelayPicking.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A3AD5002C1068A800E9AD90 /* RelayPicking.swift */; };
 		7A3FD1B52AD4465A0042BEA6 /* AppMessageHandlerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A3FD1B42AD4465A0042BEA6 /* AppMessageHandlerTests.swift */; };
 		7A42DEC92A05164100B209BE /* SettingsInputCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A42DEC82A05164100B209BE /* SettingsInputCell.swift */; };
+		7A42EBF42F518BE2001B8B40 /* DebugViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A42EBF32F518BD0001B8B40 /* DebugViewModel.swift */; };
+		7A42EBF62F518DE1001B8B40 /* DebugView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A42EBF52F518DDC001B8B40 /* DebugView.swift */; };
+		7A42EBF82F51A0E3001B8B40 /* DebugCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A42EBF72F51A0DB001B8B40 /* DebugCoordinator.swift */; };
+		7A42EBFA2F51EC94001B8B40 /* String+Localization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A42EBF92F51EC8A001B8B40 /* String+Localization.swift */; };
 		7A45CFC62C05FF6A00D80B21 /* ScreenshotTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A45CFC22C05FF2F00D80B21 /* ScreenshotTests.swift */; };
 		7A45CFC72C071DD400D80B21 /* SnapshotHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58D0C79D23F1CEBA00FE9BA7 /* SnapshotHelper.swift */; };
 		7A460F9D2F34E2FC005A265D /* Bundle+ProductVersion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A460F9C2F34E2FC005A265D /* Bundle+ProductVersion.swift */; };
@@ -2060,6 +2064,10 @@
 		7A3AD5002C1068A800E9AD90 /* RelayPicking.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayPicking.swift; sourceTree = "<group>"; };
 		7A3FD1B42AD4465A0042BEA6 /* AppMessageHandlerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppMessageHandlerTests.swift; sourceTree = "<group>"; };
 		7A42DEC82A05164100B209BE /* SettingsInputCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsInputCell.swift; sourceTree = "<group>"; };
+		7A42EBF32F518BD0001B8B40 /* DebugViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugViewModel.swift; sourceTree = "<group>"; };
+		7A42EBF52F518DDC001B8B40 /* DebugView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugView.swift; sourceTree = "<group>"; };
+		7A42EBF72F51A0DB001B8B40 /* DebugCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugCoordinator.swift; sourceTree = "<group>"; };
+		7A42EBF92F51EC8A001B8B40 /* String+Localization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Localization.swift"; sourceTree = "<group>"; };
 		7A45CFC22C05FF2F00D80B21 /* ScreenshotTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotTests.swift; sourceTree = "<group>"; };
 		7A460F9C2F34E2FC005A265D /* Bundle+ProductVersion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Bundle+ProductVersion.swift"; sourceTree = "<group>"; };
 		7A460F9E2F35D04C005A265D /* NewAppVersionInAppNotificationProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewAppVersionInAppNotificationProvider.swift; sourceTree = "<group>"; };
@@ -3463,6 +3471,7 @@
 				7AA564472F2B680D001D1FB9 /* String+Assets.swift */,
 				7A09C98029D99215000C2CAC /* String+FuzzyMatch.swift */,
 				5807E2BF2432038B00F5FF30 /* String+Helpers.swift */,
+				7A42EBF92F51EC8A001B8B40 /* String+Localization.swift */,
 				58CEB2F82AFD136E00E6E088 /* UIBackgroundConfiguration+Extensions.swift */,
 				5891BF5025E66B1E006D6FB0 /* UIBarButtonItem+KeyboardNavigation.swift */,
 				587CBFE222807F530028DED3 /* UIColor+Helpers.swift */,
@@ -3996,6 +4005,7 @@
 				583FE02829C1B079006E85F9 /* Classes */,
 				58C774C929AB543C003A1A56 /* Containers */,
 				58CAF9F22983D32200BE19F7 /* Coordinators */,
+				7A42EBF22F518BC4001B8B40 /* Debug */,
 				583FE02329C1AC9F006E85F9 /* Extensions */,
 				F09D04B82AE94F27003D4F89 /* GeneralAPIs */,
 				58B26E1F2943516500D5980C /* Notifications */,
@@ -4305,6 +4315,16 @@
 				7A95B6742D5DF86400687524 /* APIRequestProxy.swift */,
 			);
 			path = APIRequest;
+			sourceTree = "<group>";
+		};
+		7A42EBF22F518BC4001B8B40 /* Debug */ = {
+			isa = PBXGroup;
+			children = (
+				7A42EBF72F51A0DB001B8B40 /* DebugCoordinator.swift */,
+				7A42EBF52F518DDC001B8B40 /* DebugView.swift */,
+				7A42EBF32F518BD0001B8B40 /* DebugViewModel.swift */,
+			);
+			path = Debug;
 			sourceTree = "<group>";
 		};
 		7A45CFCD2C08697100D80B21 /* Screenshots */ = {
@@ -6398,6 +6418,7 @@
 				586A950C290125EE007BAF2B /* AlertPresenter.swift in Sources */,
 				7A9FA1422A2E3306000B728D /* CheckboxView.swift in Sources */,
 				F062000A2CB7EB42002E6DB9 /* CGSize+Helpers.swift in Sources */,
+				7A42EBF82F51A0E3001B8B40 /* DebugCoordinator.swift in Sources */,
 				586C0D892B03D5E000E7CDD7 /* TextCellContentConfiguration+Extensions.swift in Sources */,
 				58C3F4F92964B08300D72515 /* MapViewController.swift in Sources */,
 				584D26C6270C8741004EA533 /* SettingsDNSTextCell.swift in Sources */,
@@ -6455,6 +6476,7 @@
 				58CEB30A2AFD584700E6E088 /* CustomCellDisclosureHandling.swift in Sources */,
 				58B26E22294351EA00D5980C /* InAppNotificationProvider.swift in Sources */,
 				7A9CCCB82A96302800DD6A34 /* SetupAccountCompletedCoordinator.swift in Sources */,
+				7A42EBF62F518DE1001B8B40 /* DebugView.swift in Sources */,
 				F09C97232D3122F300ADE747 /* ChangeLogReader.swift in Sources */,
 				447F3D8B2CDE1853006E3462 /* ShadowsocksObfuscationSettingsView.swift in Sources */,
 				58BFA5C622A7C97F00A6173D /* RelayCacheTracker.swift in Sources */,
@@ -6564,6 +6586,7 @@
 				F0EF50D52A949F8E0031E8DF /* ChangeLogViewModel.swift in Sources */,
 				F0E8E4BB2A56C9F100ED26A3 /* WelcomeInteractor.swift in Sources */,
 				7A6000F62B60092F001CF0D9 /* AccessMethodViewModelEditing.swift in Sources */,
+				7A42EBFA2F51EC94001B8B40 /* String+Localization.swift in Sources */,
 				58EF87572B16330B00C098B2 /* ProxyConfigurationTester.swift in Sources */,
 				5827B0A62B0F39E900CCBBA1 /* EditAccessMethodInteractor.swift in Sources */,
 				5827B0AE2B0F4CBE00CCBBA1 /* MethodSettingsViewControllerDelegate.swift in Sources */,
@@ -6719,6 +6742,7 @@
 				44E1F7582D3EA83A003A60FF /* DestinationDescriber.swift in Sources */,
 				58FD5BF42428C67600112C88 /* InAppPurchaseButton.swift in Sources */,
 				7AF10EB22ADE859200C090B9 /* AlertViewController.swift in Sources */,
+				7A42EBF42F518BE2001B8B40 /* DebugViewModel.swift in Sources */,
 				587D9676288989DB00CD8F1C /* NSLayoutConstraint+Helpers.swift in Sources */,
 				F028A56C2A34D8E600C0CAA3 /* AddCreditSucceededViewController.swift in Sources */,
 				58293FAE2510CA58005D0BB5 /* ProblemReportViewController.swift in Sources */,

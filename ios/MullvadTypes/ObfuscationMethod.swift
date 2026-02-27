@@ -9,7 +9,7 @@
 import Foundation
 
 /// Describes the resolved obfuscation method with all required parameters.
-public enum ObfuscationMethod: Equatable, Codable, Sendable {
+public enum ObfuscationMethod: CustomStringConvertible, Equatable, Codable, Sendable {
     case off
     case udpOverTcp
     case shadowsocks
@@ -21,6 +21,19 @@ public enum ObfuscationMethod: Equatable, Codable, Sendable {
             false
         case .udpOverTcp, .shadowsocks, .quic:
             true
+        }
+    }
+
+    public var description: String {
+        switch self {
+        case .off:
+            "Off"
+        case .udpOverTcp:
+            "UDP over TCP"
+        case .shadowsocks:
+            "Shadowsocks"
+        case .quic:
+            "QUIC"
         }
     }
 }

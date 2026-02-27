@@ -10,6 +10,7 @@ import Combine
 import MullvadREST
 import MullvadSettings
 import MullvadTypes
+import Network
 import Routing
 import UIKit
 
@@ -173,6 +174,8 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
             presentDNSSettings(animated: animated, completion: completion)
         case .ipOverrides:
             presentIPOverride(animated: animated, completion: completion)
+        case .debug:
+            presentDebug(animated: animated, completion: completion)
         }
     }
 
@@ -189,7 +192,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
                 completion()
                 context.dismissedRoutes.forEach { $0.coordinator.removeFromParent() }
 
-            case .selectLocation, .account, .settings, .changelog, .alert:
+            case .selectLocation, .account, .settings, .changelog, .alert, .debug:
                 guard let coordinator = dismissedRoute.coordinator as? Presentable else {
                     completion()
                     return assertionFailure("Expected presentable coordinator for \(dismissedRoute.route)")
@@ -819,7 +822,28 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
             animated: true,
             configuration: ModalPresentationConfiguration(modalPresentationStyle: .automatic)
         )
+    }
 
+    private func presentDebug(animated: Bool, completion: @escaping @Sendable (Coordinator) -> Void) {
+        let viewModel = DebugViewModelImpl(
+            tunnelManager: tunnelManager,
+            nwPathMonitor: NWPathMonitor(),
+            appPreferences: appPreferences
+        )
+        let coordinator = DebugCoordinator(
+            navigationController: CustomNavigationController(),
+            viewModel: viewModel
+        )
+
+        coordinator.didFinish = { [weak self] _ in
+            self?.router.dismiss(.debug, animated: true)
+        }
+
+        coordinator.start(animated: animated)
+
+        presentChild(coordinator, animated: animated) {
+            completion(coordinator)
+        }
     }
 
     private func addTunnelObserver() {
@@ -1081,6 +1105,13 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
     }
 
     // MARK: - RootContainerViewControllerDelegate
+
+    func rootContainerViewControllerShouldShowDebugView(
+        _ controller: RootContainerViewController,
+        animated: Bool
+    ) {
+        router.present(.debug, animated: animated)
+    }
 
     func rootContainerViewControllerShouldShowAccount(
         _ controller: RootContainerViewController,

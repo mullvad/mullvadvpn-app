@@ -62,6 +62,11 @@ extension RootContainment {
 }
 
 protocol RootContainerViewControllerDelegate: AnyObject, Sendable {
+    func rootContainerViewControllerShouldShowDebugView(
+        _ controller: RootContainerViewController,
+        animated: Bool
+    )
+
     func rootContainerViewControllerShouldShowAccount(
         _ controller: RootContainerViewController,
         animated: Bool
@@ -293,6 +298,14 @@ class RootContainerViewController: UIViewController {
         updateHeaderBarHiddenFromChildPreferences(animated: UIView.areAnimationsEnabled)
     }
 
+    /// Request to display debug view
+    func showDebugView(animated: Bool) {
+        delegate?.rootContainerViewControllerShouldShowDebugView(
+            self,
+            animated: animated
+        )
+    }
+
     /// Request to display settings controller
     func showAccount(animated: Bool) {
         delegate?.rootContainerViewControllerShouldShowAccount(
@@ -361,6 +374,15 @@ class RootContainerViewController: UIViewController {
         // Prevent automatic layout margins adjustment as we manually control them.
         headerBarView.insetsLayoutMarginsFromSafeArea = false
 
+        #if DEBUG
+            headerBarView.logoImageView.isUserInteractionEnabled = true
+            headerBarView.logoImageView.addGestureRecognizer(
+                UITapGestureRecognizer(
+                    target: self,
+                    action: #selector(handleLogoTap(_:)))
+            )
+        #endif
+
         headerBarView.accountButton.addTarget(
             self,
             action: #selector(handleAccountButtonTap),
@@ -416,6 +438,12 @@ class RootContainerViewController: UIViewController {
         }
 
         return button
+    }
+
+    @objc private func handleLogoTap(_ gestureRecognizer: UIGestureRecognizer) {
+        if gestureRecognizer.state == .ended {
+            showDebugView(animated: true)
+        }
     }
 
     @objc private func handleAccountButtonTap() {
