@@ -71,6 +71,7 @@ import com.ramcosta.composedestinations.generated.managedevices.destinations.Man
 import com.ramcosta.composedestinations.generated.managedevices.destinations.ManageDevicesRemoveConfirmationDestination
 import com.ramcosta.composedestinations.generated.multihop.destinations.MultihopDestination
 import com.ramcosta.composedestinations.generated.notification.destinations.NotificationSettingsDestination
+import com.ramcosta.composedestinations.generated.personalvpn.destinations.PersonalVpnDestination
 import com.ramcosta.composedestinations.generated.problemreport.destinations.ReportProblemDestination
 import com.ramcosta.composedestinations.generated.problemreport.destinations.ReportProblemNoEmailDestination
 import com.ramcosta.composedestinations.generated.problemreport.destinations.ViewLogsDestination
@@ -154,6 +155,7 @@ annotation class MainGraph {
     @ExternalDestination<MultihopDestination>
     @ExternalDestination<NotificationSettingsDestination>
     @ExternalDestination<OutOfTimeDestination>
+    @ExternalDestination<PersonalVpnDestination>
     @ExternalDestination<QuantumResistanceInfoDestination>
     @ExternalDestination<RedeemVoucherDestination>
     @ExternalDestination<RemoveDeviceConfirmationDestination>

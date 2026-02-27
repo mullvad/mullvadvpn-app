@@ -50,6 +50,7 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
 import com.ramcosta.composedestinations.generated.anticensorship.destinations.AntiCensorshipSettingsDestination
 import com.ramcosta.composedestinations.generated.autoconnect.destinations.AutoConnectAndLockdownModeDestination
+import com.ramcosta.composedestinations.generated.personalvpn.destinations.PersonalVpnDestination
 import com.ramcosta.composedestinations.generated.serveripoverride.destinations.ServerIpOverridesDestination
 import com.ramcosta.composedestinations.generated.vpnsettings.destinations.ConnectOnStartupInfoDestination
 import com.ramcosta.composedestinations.generated.vpnsettings.destinations.ContentBlockersInfoDestination
@@ -145,6 +146,7 @@ private fun PreviewVpnSettings(
             navigateToCustomDnsInfo = {},
             navigateToQuantumResistanceInfo = {},
             navigateToLocalNetworkSharingInfo = {},
+            navigateToPersonalVpn = {},
             navigateToServerIpOverrides = {},
             onSelectDeviceIpVersion = {},
             onToggleIpv6 = {},
@@ -233,6 +235,7 @@ fun SharedTransitionScope.VpnSettings(
             dropUnlessResumed { navigator.navigate(QuantumResistanceInfoDestination) },
         navigateToLocalNetworkSharingInfo =
             dropUnlessResumed { navigator.navigate(LocalNetworkSharingInfoDestination) },
+        navigateToPersonalVpn = dropUnlessResumed { navigator.navigate(PersonalVpnDestination()) },
         navigateToServerIpOverrides =
             dropUnlessResumed { navigator.navigate(ServerIpOverridesDestination()) },
         onToggleContentBlockersExpanded = vm::onToggleContentBlockersExpand,
@@ -279,6 +282,7 @@ fun VpnSettingsScreen(
     navigateToAntiCensorship: () -> Unit,
     navigateToQuantumResistanceInfo: () -> Unit,
     navigateToLocalNetworkSharingInfo: () -> Unit,
+    navigateToPersonalVpn: () -> Unit,
     navigateToServerIpOverrides: () -> Unit,
     onToggleContentBlockersExpanded: () -> Unit,
     onToggleAllBlockers: (Boolean) -> Unit,
@@ -345,6 +349,7 @@ fun VpnSettingsScreen(
                             navigateToMalwareInfo,
                             navigateToQuantumResistanceInfo,
                             navigateToLocalNetworkSharingInfo,
+                            navigateToPersonalVpn,
                             navigateToServerIpOverrides,
                             navigateToAntiCensorship,
                             onToggleContentBlockersExpanded,
@@ -385,6 +390,7 @@ fun VpnSettingsContent(
     navigateToMalwareInfo: () -> Unit,
     navigateToQuantumResistanceInfo: () -> Unit,
     navigateToLocalNetworkSharingInfo: () -> Unit,
+    navigateToPersonalVpn: () -> Unit,
     navigateToServerIpOverrides: () -> Unit,
     navigateToAntiCensorship: () -> Unit,
     onToggleContentBlockersExpanded: () -> Unit,
@@ -793,6 +799,11 @@ fun VpnSettingsContent(
                         )
                     }
 
+                VpnSettingItem.PersonalVpn ->
+                    item(key = it::class.simpleName) {
+                        PersonalVpn(navigateToPersonalVpn, Modifier.animateItem())
+                    }
+
                 is VpnSettingItem.QuantumResistantSetting ->
                     item(key = it::class.simpleName) {
                         SwitchListItem(
@@ -838,6 +849,15 @@ fun VpnSettingsContent(
             }
         }
     }
+}
+
+@Composable
+private fun PersonalVpn(onPersonalVpnClick: () -> Unit, modifier: Modifier = Modifier) {
+    NavigationListItem(
+        title = stringResource(id = R.string.personal_vpn),
+        modifier = modifier,
+        onClick = onPersonalVpnClick,
+    )
 }
 
 @Composable
