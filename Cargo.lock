@@ -1572,8 +1572,6 @@ checksum = "a8d1add55171497b4705a648c6b583acafb01d58050a51727785f0b2c8e0a2b2"
 [[package]]
 name = "gotatun"
 version = "0.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "edab90df8fab23febf092506e66e19b05eacd9e2e761e1d42c74aaea97c2c252"
 dependencies = [
  "aead",
  "base64",
@@ -1607,7 +1605,7 @@ dependencies = [
  "tokio",
  "tun 0.8.5",
  "typed-builder 0.21.0",
- "windows-sys 0.61.2",
+ "windows-sys 0.60.2",
  "x25519-dalek",
  "zerocopy",
 ]
@@ -2833,6 +2831,7 @@ dependencies = [
  "clap",
  "clap_complete",
  "futures",
+ "ipnetwork",
  "itertools 0.14.0",
  "mullvad-management-interface",
  "mullvad-types",
