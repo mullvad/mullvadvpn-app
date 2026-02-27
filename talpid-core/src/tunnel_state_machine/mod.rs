@@ -143,6 +143,7 @@ pub async fn spawn(
     resource_dir: PathBuf,
     state_change_listener: impl Sender<TunnelStateTransition> + Send + 'static,
     offline_state_listener: mpsc::UnboundedSender<Connectivity>,
+    private_tunnel_stats_tx: Option<tokio::sync::broadcast::Sender<talpid_types::Stats>>,
     route_manager: RouteManagerHandle,
     #[cfg(target_os = "windows")] volume_update_rx: mpsc::UnboundedReceiver<()>,
     #[cfg(target_os = "android")] android_context: AndroidContext,
@@ -169,6 +170,7 @@ pub async fn spawn(
         settings: initial_settings,
         command_tx: weak_command_tx,
         offline_state_tx: offline_state_listener,
+        private_tunnel_stats_tx,
         tunnel_parameters_generator,
         tun_provider,
         log_dir,
@@ -348,6 +350,7 @@ struct TunnelStateMachineInitArgs<G: TunnelParametersGenerator> {
     log_dir: Option<PathBuf>,
     resource_dir: PathBuf,
     commands_rx: mpsc::UnboundedReceiver<TunnelCommand>,
+    private_tunnel_stats_tx: Option<tokio::sync::broadcast::Sender<talpid_types::Stats>>,
     route_manager: RouteManagerHandle,
     #[cfg(target_os = "windows")]
     volume_update_rx: mpsc::UnboundedReceiver<()>,
@@ -467,6 +470,7 @@ impl TunnelStateMachine {
             dns_monitor,
             route_manager: args.route_manager,
             _offline_monitor: offline_monitor,
+            private_tunnel_stats_tx: args.private_tunnel_stats_tx,
             allow_lan: args.settings.allow_lan,
             #[cfg(not(target_os = "android"))]
             lockdown_mode: args.settings.lockdown_mode,
@@ -559,6 +563,7 @@ struct SharedTunnelStateValues {
     firewall: Firewall,
     dns_monitor: DnsMonitor,
     route_manager: RouteManagerHandle,
+    private_tunnel_stats_tx: Option<tokio::sync::broadcast::Sender<talpid_types::Stats>>,
     _offline_monitor: offline::MonitorHandle,
     /// Should LAN access be allowed outside the tunnel.
     allow_lan: bool,

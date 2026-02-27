@@ -715,6 +715,9 @@ impl Daemon {
         #[cfg(target_os = "macos")]
         macos::bump_filehandle_limit();
 
+        let (private_tunnel_stats_tx, private_tunnel_stats_rx) =
+            tokio::sync::broadcast::channel(32);
+
         let command_sender = daemon_command_channel.sender();
         let app_upgrade_broadcast = tokio::sync::broadcast::channel(32).0;
         let management_interface = ManagementInterfaceServer::start(
@@ -722,6 +725,7 @@ impl Daemon {
             config.rpc_socket_path,
             app_upgrade_broadcast.clone(),
             config.log_handle,
+            private_tunnel_stats_rx,
         )
         .map_err(Error::ManagementInterfaceError)?;
 
@@ -940,6 +944,7 @@ impl Daemon {
             config.resource_dir.clone(),
             internal_event_tx.to_specialized_sender(),
             offline_state_tx,
+            Some(private_tunnel_stats_tx),
             route_manager.clone(),
             #[cfg(target_os = "windows")]
             volume_update_rx,

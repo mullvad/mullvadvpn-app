@@ -17,11 +17,18 @@ const SUSPEND_TIMEOUT: Duration = Duration::from_secs(6);
 
 pub struct Monitor {
     connectivity_check: Check,
+    private_stats_tx: Option<tokio::sync::broadcast::Sender<talpid_types::Stats>>,
 }
 
 impl Monitor {
-    pub fn init(connectivity_check: Check) -> Self {
-        Self { connectivity_check }
+    pub fn init(
+        connectivity_check: Check,
+        private_stats_tx: Option<tokio::sync::broadcast::Sender<talpid_types::Stats>>,
+    ) -> Self {
+        Self {
+            connectivity_check,
+            private_stats_tx,
+        }
     }
 
     pub async fn run(
@@ -46,6 +53,36 @@ impl Monitor {
                 self.connectivity_check.reset(now).await;
             } else if !self.tunnel_exists_and_is_connected(&tunnel_handle).await? {
                 return Ok(());
+            }
+
+            // TODO: send private tunnel stats
+            if let Some(tx) = &self.private_stats_tx {
+                let Some(tunnel) = tunnel_handle.upgrade() else {
+                    continue;
+                };
+                let lock = tunnel.lock().await;
+                let Some(tunnel) = lock.as_ref() else {
+                    continue;
+                };
+
+                match tunnel.get_private_tunnel_stats().await {
+                    Ok(peers) => {
+                        // FIXME: hack
+                        if let Some((_peer, stats)) = peers.iter().next() {
+                            let tun_stats = talpid_types::Stats {
+                                last_handshake_time: stats.last_handshake_time,
+                                rx_bytes: stats.rx_bytes,
+                                tx_bytes: stats.tx_bytes,
+                            };
+                            if let Err(err) = tx.send(tun_stats) {
+                                log::error!("Failed to send inner tunnel stats update: {err}");
+                            }
+                        }
+                    }
+                    Err(err) => {
+                        log::error!("Failed to get inner tunnel stats: {err:#?}");
+                    }
+                }
             }
 
             interval.tick().await;
@@ -107,7 +144,10 @@ mod test {
             // Pointer dance
             let tunnel = Arc::new(Mutex::new(Some(tunnel)));
             let _tunnel = Arc::downgrade(&tunnel);
-            let result = Monitor::init(checker).run(_tunnel).await.map(|_| true);
+            let result = Monitor::init(checker, None)
+                .run(_tunnel)
+                .await
+                .map(|_| true);
             result_tx.send(result).await.unwrap();
         });
 
@@ -157,7 +197,7 @@ mod test {
             // Pointer dance
             let _tunnel = Arc::new(Mutex::new(Some(tunnel)));
             let tunnel = Arc::downgrade(&_tunnel);
-            let end_result = Monitor::init(checker).run(tunnel).await.map(|_| true);
+            let end_result = Monitor::init(checker, None).run(tunnel).await.map(|_| true);
             result_tx
                 .send(end_result)
                 .await

@@ -2,6 +2,7 @@ use std::{
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
     path::Path,
     sync::{Arc, Mutex},
+    time::SystemTime,
 };
 
 #[cfg(windows)]
@@ -18,6 +19,7 @@ use futures::{
 };
 use talpid_routing::RouteManagerHandle;
 use talpid_types::net::AllowedTunnelTraffic;
+use tokio::sync::mpsc;
 use tun_provider::TunProvider;
 
 /// Size of IPv4 header in bytes
@@ -49,6 +51,8 @@ pub struct TunnelArgs<'a> {
     pub retry_attempt: u32,
     /// Route manager handle.
     pub route_manager: RouteManagerHandle,
+    /// Private VPN tunnel stats
+    pub private_tunnel_stats: Option<tokio::sync::broadcast::Sender<talpid_types::Stats>>,
 }
 
 #[derive(Clone)]
