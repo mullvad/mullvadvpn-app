@@ -48,8 +48,7 @@ function AddCustomListDialogImpl(props: AddCustomListDialogProps) {
     handleOnOpenChange?.(false);
   }, [handleOnOpenChange]);
 
-  const textFieldInvalid = error || invalid;
-  const textFieldInvalidAndDirty = dirty && (error || invalid);
+  const textFieldInvalid = dirty && (error || invalid);
 
   return (
     <Dialog open={open} onOpenChange={handleOnOpenChange} {...props}>
@@ -60,7 +59,7 @@ function AddCustomListDialogImpl(props: AddCustomListDialogProps) {
               <TextField
                 value={value}
                 onValueChange={handleOnValueChange}
-                invalid={textFieldInvalidAndDirty}>
+                invalid={textFieldInvalid}>
                 <Dialog.TextGroup gap="small" flexGrow="1">
                   <TextField.Label color="whiteAlpha60">
                     {

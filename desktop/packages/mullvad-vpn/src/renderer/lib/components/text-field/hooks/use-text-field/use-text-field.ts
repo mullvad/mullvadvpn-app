@@ -78,9 +78,13 @@ export function useTextField({
       setInvalid(invalid);
       setInvalidReason(invalidReason);
       setValue(formattedValue);
-      setDirty(true);
+      if (formattedValue !== defaultValue) {
+        setDirty(true);
+      } else {
+        setDirty(false);
+      }
     },
-    [format, validateValue],
+    [defaultValue, format, validateValue],
   );
 
   return {
