@@ -150,6 +150,18 @@ service ManagementService {
 
   rpc SetLogFilter(LogFilter) returns (google.protobuf.Empty) {}
   rpc LogListen(google.protobuf.Empty) returns (stream LogMessage) {}
+
+  // Custom VPN
+  rpc SetCustomVpnConfig(CustomVpnConfig) returns (CustomVpnConfigError) {}
+  rpc SetCustomVpnConfigStatus(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
+  // Always exists
+  rpc GetCustomVpnStats(google.protobuf.Empty) returns (stream CustomVpnStats) {}
+}
+
+message CustomVpnStats {
+  uint64 tx_bytes = 1;
+  uint64 rx_bytes = 2;
+  google.protobuf.Timestamp last_handshake_time = 3;
 }
 
 message AppUpgradeEvent {
@@ -601,6 +613,30 @@ message WireguardConfig {
   PeerConfig peer = 2;
   string ipv4_gateway = 3;
   optional string ipv6_gateway = 4;
+}
+
+message CustomVpnConfig {
+  message TunnelConfig {
+    bytes private_key = 1;
+    // tunnel IP only
+    string ip = 2;
+  }
+  message PeerConfig {
+    bytes public_key = 1;
+    // CIDR
+    string allowed_ip = 2;
+    // <ip>:<port>
+    string endpoint = 3;
+  }
+
+  // optional
+  TunnelConfig tunnel = 1;
+  // optional
+  PeerConfig peer = 2;
+}
+
+message CustomVpnConfigError {
+  string error = 1;
 }
 
 message QuantumResistantState {
