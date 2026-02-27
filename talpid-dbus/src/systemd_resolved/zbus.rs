@@ -7,11 +7,70 @@ use std::sync::LazyLock;
 use libc::AF_INET;
 use libc::AF_INET6;
 use serde::{Deserialize, Serialize};
-use zbus::blocking::{Connection, Proxy};
+use zbus::blocking::Connection;
 use zbus::zvariant::ObjectPath;
 use zvariant::OwnedObjectPath;
 
 // TODO: newtype `interface_index`
+
+/// <https://www.freedesktop.org/software/systemd/man/latest/org.freedesktop.resolve1.html#The%20Manager%20Object>
+#[zbus::proxy(
+    interface = "org.freedesktop.resolve1.Manager",
+    default_service = "org.freedesktop.resolve1",
+    default_path = "/org/freedesktop/resolve1"
+)]
+trait ResolveManager {
+    /// ```dbus
+    /// readonly a(iiay) DNS = [...];
+    /// ```
+    #[zbus(property)]
+    fn dns(&self) -> Result<Vec<DnsServer>, zbus::Error>;
+
+    /// ```dbus
+    /// GetLink(in i ifindex, out o path);
+    /// ```
+    fn get_link(&self, ifindex: u32) -> Result<OwnedObjectPath, zbus::Error>;
+}
+
+/// <https://www.freedesktop.org/software/systemd/man/latest/org.freedesktop.resolve1.html#Link%20Object>
+#[zbus::proxy(
+    interface = "org.freedesktop.resolve1.Link",
+    default_service = "org.freedesktop.resolve1",
+    // default_path = "/org/freedesktop/resolve1/link/_1"
+)]
+trait ResolveLink {
+    /// ```dbus
+    /// readonly a(iay) DNS = [...];
+    /// ```
+    #[zbus(property)]
+    fn dns(&self) -> Result<Vec<LinkIpAddr>, zbus::Error>;
+
+    /// ```dbus
+    /// readonly a(sb) Domains = [...];
+    /// ```
+    #[zbus(property)]
+    fn domains(&self) -> Result<Vec<(String, bool)>, zbus::Error>;
+
+    /// ```dbus
+    /// SetDNS(in a(iay) addresses);
+    /// ```
+    fn set_dns(&self, addresses: &[LinkIpAddr]) -> Result<(), zbus::Error>;
+
+    /// ```dbus
+    /// SetDNSOverTLS(in s mode);
+    /// ```
+    fn set_dns_over_tls(&self, mode: &str) -> Result<(), zbus::Error>;
+
+    /// ```dbus
+    /// SetDomains(in a(sb) domains);
+    /// ```
+    fn set_domains(&self, domains: &[(&str, bool)]) -> Result<(), zbus::Error>;
+
+    /// ```dbus
+    /// Revert();
+    /// ```
+    fn revert(&self) -> Result<(), zbus::Error>;
+}
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
@@ -67,7 +126,6 @@ static RESOLVED_STUB_PATHS: LazyLock<Vec<&'static Path>> = LazyLock::new(|| {
 
 // TODO: Link to relevant documentation for all of these constants.
 const RESOLV_CONF_PATH: &str = "/etc/resolv.conf";
-const RESOLVED_BUS: &str = "org.freedesktop.resolve1";
 
 #[derive(Clone)]
 pub struct SystemdResolved {
@@ -95,7 +153,7 @@ impl SystemdResolved {
     /// If it is set, this function returns Ok(()).
     pub fn ensure_resolved_exists(&self) -> Result<Vec<DnsServer>, Error> {
         self.as_manager_object()?
-            .get_property("DNS")
+            .dns()
             .map_err(Error::NoSystemdResolved)
     }
 
@@ -185,29 +243,17 @@ impl SystemdResolved {
         }
     }
 
-    /// TODO: Document mee
-    fn as_manager_object(&self) -> Result<Proxy<'_>, Error> {
-        const RESOLVED_MANAGER_PATH: &str = "/org/freedesktop/resolve1";
-        const MANAGER_INTERFACE: &str = "org.freedesktop.resolve1.Manager";
-        Proxy::new(
-            &self.dbus_connection,
-            RESOLVED_BUS,
-            RESOLVED_MANAGER_PATH,
-            MANAGER_INTERFACE, // TODO: Inline
-        )
-        .map_err(Error::Proxy)
+    // /// TODO: Document mee
+    fn as_manager_object(&self) -> Result<ResolveManagerProxyBlocking<'_>, Error> {
+        ResolveManagerProxyBlocking::new(&self.dbus_connection).map_err(Error::Proxy)
     }
 
-    /// TODO: Document mee
-    fn as_link_object<'a>(&self, link_object_path: &ObjectPath<'a>) -> Result<Proxy<'a>, Error> {
-        const LINK_INTERFACE: &str = "org.freedesktop.resolve1.Link";
-        Proxy::new(
-            &self.dbus_connection,
-            RESOLVED_BUS,
-            link_object_path,
-            LINK_INTERFACE,
-        )
-        .map_err(Error::Proxy)
+    // /// TODO: Document mee
+    fn as_link_object<'a>(
+        &self,
+        link_object_path: &ObjectPath<'a>,
+    ) -> Result<ResolveLinkProxyBlocking<'a>, Error> {
+        ResolveLinkProxyBlocking::new(&self.dbus_connection, link_object_path).map_err(Error::Proxy)
     }
 
     pub fn get_dns(&self, interface_index: u32) -> Result<DnsState, Error> {
@@ -253,14 +299,15 @@ impl SystemdResolved {
     fn fetch_link(&self, interface_index: u32) -> Result<OwnedObjectPath, Error> {
         // grep `GetLink`:
         // https://manpages.debian.org/bullseye/systemd/org.freedesktop.resolve1.5.en.html
+
         self.as_manager_object()?
-            .call("GetLink", &interface_index)
+            .get_link(interface_index)
             .map_err(Error::GetLinkError)
     }
 
     fn get_link_dns(&self, link_object_path: &ObjectPath<'_>) -> Result<Vec<LinkIpAddr>, Error> {
         self.as_link_object(link_object_path)?
-            .get_property("DNS")
+            .dns()
             .map_err(Error::DBusRpcError)
     }
 
@@ -271,7 +318,7 @@ impl SystemdResolved {
     ) -> Result<(), Error> {
         // TODO: Check if workaround on main is relevant anymore.
         self.as_link_object(link_object_path)?
-            .call("SetDNS", &servers)
+            .set_dns(servers)
             .map_err(Error::DBusRpcError)
     }
 
@@ -282,7 +329,7 @@ impl SystemdResolved {
         let link_object_path = self.fetch_link(interface_index)?;
         self.as_link_object(&link_object_path)?
             // TODO: Handle "org.freedesktop.DBus.Error.UnknownMethod" gracefully.
-            .call("SetDNSOverTLS", &"no")
+            .set_dns_over_tls("no")
             .map_err(Error::DBusRpcError)
     }
 
@@ -292,17 +339,13 @@ impl SystemdResolved {
     ) -> Result<Vec<(String, bool)>, Error> {
         let domains: Vec<(String, bool)> = self
             .as_link_object(link_object_path)?
-            .get_property("Domains")
+            .domains()
             .map_err(Error::DBusRpcError)?;
         Ok(domains)
     }
 
     pub fn revert_link(&mut self, dns_state: &DnsState) -> std::result::Result<(), Error> {
-        const REVERT_METHOD: &str = "Revert";
-        match self
-            .as_link_object(&dns_state.interface_path)?
-            .call(REVERT_METHOD, &())
-        {
+        match self.as_link_object(&dns_state.interface_path)?.revert() {
             Ok(()) => Ok(()),
             Err(zbus::Error::FDO(fdo)) => match *fdo {
                 zbus::fdo::Error::UnknownObject(_) => todo!(),
@@ -318,9 +361,8 @@ impl SystemdResolved {
         link_object_path: &ObjectPath<'_>,
         domains: &[(&str, bool)],
     ) -> Result<(), Error> {
-        const SET_DOMAINS_METHOD: &str = "SetDomains";
         self.as_link_object(link_object_path)?
-            .call(SET_DOMAINS_METHOD, &domains)
+            .set_domains(domains)
             .map_err(Error::SetDomainsError)
     }
 
