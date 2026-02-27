@@ -5,7 +5,6 @@ import { RoutePath } from '../../../../shared/routes';
 import { useDaitaDirectOnly, useDaitaEnabled } from '../../../features/daita/hooks';
 import { useMultihop } from '../../../features/multihop/hooks';
 import { IconButton } from '../../../lib/components';
-import { FlexColumn } from '../../../lib/components/flex-column';
 import { View } from '../../../lib/components/view';
 import { useHistory } from '../../../lib/history';
 import { AppNavigationHeader } from '../../';
@@ -71,7 +70,10 @@ export function SelectLocation() {
             </IconButton>
           </AppNavigationHeader>
 
-          <FlexColumn padding={{ horizontal: 'medium', bottom: 'medium' }}>
+          <View.Container
+            flexDirection="column"
+            horizontalMargin="medium"
+            padding={{ bottom: 'small' }}>
             {multihop && (
               <StyledScopeBar selectedIndex={locationType} onChange={changeLocationType}>
                 <ScopeBarItem>{messages.pgettext('select-location-view', 'Entry')}</ScopeBarItem>
@@ -81,10 +83,10 @@ export function SelectLocation() {
 
             {showFilters && <FilterChips />}
             {showSearchField && <LocationSearchField />}
-          </FlexColumn>
+          </View.Container>
 
           <NavigationScrollbars ref={scrollViewRef}>
-            <View.Content>
+            <View.Content padding={{ top: 'small' }}>
               <SpacePreAllocationView ref={spacePreAllocationViewRef}>
                 {showDisabledEntrySelection ? (
                   <DisabledEntrySelection />
