@@ -20,7 +20,7 @@ import XCTest
 
 class MullvadApiTests: XCTestCase {
     let encoder = JSONEncoder()
-    
+
     static let store = InMemorySettingsStore<SettingNotFound>()
 
     override func setUp() {
