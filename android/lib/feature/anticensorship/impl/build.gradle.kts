@@ -15,6 +15,7 @@ android {
 dependencies {
     implementation(projects.lib.repository)
     implementation(projects.lib.navigation)
+    implementation(projects.lib.ui.util)
 
     implementation(libs.koin.compose)
     implementation(libs.arrow)

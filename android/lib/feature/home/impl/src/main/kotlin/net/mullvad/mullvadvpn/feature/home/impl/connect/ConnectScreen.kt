@@ -69,6 +69,7 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
 import com.ramcosta.composedestinations.generated.account.destinations.AccountDestination
 import com.ramcosta.composedestinations.generated.anticensorship.destinations.AntiCensorshipSettingsDestination
+import com.ramcosta.composedestinations.generated.anticensorship.destinations.AntiCensorshipSettingsDestination.invoke
 import com.ramcosta.composedestinations.generated.appinfo.destinations.ChangelogDestination
 import com.ramcosta.composedestinations.generated.daita.destinations.DaitaDestination
 import com.ramcosta.composedestinations.generated.home.destinations.Android16UpgradeWarningInfoDestination
@@ -816,7 +817,8 @@ private fun FeatureIndicator.destination() =
         FeatureIndicator.QUIC,
         FeatureIndicator.WIREGUARD_PORT,
         FeatureIndicator.SHADOWSOCKS,
-        FeatureIndicator.LWO -> AntiCensorshipSettingsDestination(isModal = true)
+        FeatureIndicator.LWO ->
+            AntiCensorshipSettingsDestination(selectedFeature = this, isModal = true)
 
         FeatureIndicator.QUANTUM_RESISTANCE,
         FeatureIndicator.LAN_SHARING,

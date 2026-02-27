@@ -1,7 +1,9 @@
 package net.mullvad.mullvadvpn.feature.anticensorship.impl
 
 import android.os.Parcelable
+import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
@@ -29,6 +31,7 @@ import kotlinx.parcelize.Parcelize
 import net.mullvad.mullvadvpn.common.compose.itemWithDivider
 import net.mullvad.mullvadvpn.core.animation.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.lib.common.Lc
+import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
 import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
 import net.mullvad.mullvadvpn.lib.model.PortType
 import net.mullvad.mullvadvpn.lib.ui.component.NavigateBackIconButton
@@ -52,6 +55,7 @@ import net.mullvad.mullvadvpn.lib.ui.tag.WIREGUARD_OBFUSCATION_UDP_OVER_TCP_CELL
 import net.mullvad.mullvadvpn.lib.ui.tag.WIREGUARD_OBFUSCATION_WG_PORT_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
+import net.mullvad.mullvadvpn.lib.ui.util.applyIfNotNull
 import org.koin.androidx.compose.koinViewModel
 
 @Preview("Udp2Tcp|Loading")
@@ -72,7 +76,11 @@ private fun PreviewAntiCensorshipSettingsScreen(
     }
 }
 
-@Parcelize data class AntiCensorshipSettingsNavArgs(val isModal: Boolean = false) : Parcelable
+@Parcelize
+data class AntiCensorshipSettingsNavArgs(
+    val selectedFeature: FeatureIndicator? = null,
+    val isModal: Boolean = false,
+) : Parcelable
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Destination<ExternalModuleGraph>(
@@ -80,11 +88,22 @@ private fun PreviewAntiCensorshipSettingsScreen(
     navArgs = AntiCensorshipSettingsNavArgs::class,
 )
 @Composable
-fun AntiCensorshipSettings(navigator: DestinationsNavigator) {
+fun SharedTransitionScope.AntiCensorshipSettings(
+    navigator: DestinationsNavigator,
+    navArgs: AntiCensorshipSettingsNavArgs,
+    animatedVisibilityScope: AnimatedVisibilityScope,
+) {
     val viewModel = koinViewModel<AntiCensorshipSettingsViewModel>()
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
     AntiCensorshipSettingsScreen(
+        modifier =
+            Modifier.applyIfNotNull(navArgs.selectedFeature) {
+                sharedBounds(
+                    rememberSharedContentState(key = it),
+                    animatedVisibilityScope = animatedVisibilityScope,
+                )
+            },
         state = state,
         navigateToShadowSocksSettings =
             dropUnlessResumed { navigator.navigate(SelectPortDestination(PortType.Shadowsocks)) },
@@ -99,6 +118,7 @@ fun AntiCensorshipSettings(navigator: DestinationsNavigator) {
 
 @Composable
 fun AntiCensorshipSettingsScreen(
+    modifier: Modifier = Modifier,
     state: Lc<Unit, AntiCensorshipSettingsUiState>,
     navigateToShadowSocksSettings: () -> Unit,
     navigateToUdp2TcpSettings: () -> Unit,
@@ -107,6 +127,7 @@ fun AntiCensorshipSettingsScreen(
     onSelectObfuscationMode: (obfuscationMode: ObfuscationMode) -> Unit,
 ) {
     ScaffoldWithMediumTopBar(
+        modifier = modifier,
         appBarTitle = stringResource(id = R.string.anti_censorship),
         navigationIcon = {
             if (state.contentOrNull()?.isModal == true) {
