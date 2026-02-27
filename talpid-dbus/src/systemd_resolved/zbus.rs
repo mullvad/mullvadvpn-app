@@ -11,8 +11,6 @@ use zbus::blocking::Connection;
 use zbus::zvariant::ObjectPath;
 use zvariant::OwnedObjectPath;
 
-// TODO: newtype `interface_index`
-
 /// <https://www.freedesktop.org/software/systemd/man/latest/org.freedesktop.resolve1.html#The%20Manager%20Object>
 #[zbus::proxy(
     interface = "org.freedesktop.resolve1.Manager",
