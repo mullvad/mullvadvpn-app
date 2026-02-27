@@ -11,12 +11,13 @@ import {
 import { LocationListItemProvider } from './LocationListItemContext';
 
 export type LocationListItemProps = React.PropsWithChildren<{
+  root?: boolean;
   selected?: boolean;
 }>;
 
-function LocationListItem({ selected, children, ...props }: LocationListItemProps) {
+function LocationListItem({ root, selected, children, ...props }: LocationListItemProps) {
   return (
-    <LocationListItemProvider selected={selected} {...props}>
+    <LocationListItemProvider root={root} selected={selected} {...props}>
       {children}
     </LocationListItemProvider>
   );

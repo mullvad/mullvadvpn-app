@@ -11,10 +11,7 @@ import { useLocationListsContext } from '../location-lists/LocationListsContext'
 import { useRelayCount } from './hooks';
 
 const StyledLocationContainer = styled.div`
-  // Add spacing to the last child
-  & > :last-child {
-    margin-bottom: ${spacings.tiny};
-  }
+  margin-bottom: ${spacings.tiny};
 `;
 
 export function CountryLocationList() {
@@ -55,7 +52,12 @@ export function CountryLocationList() {
         {searchedLocations.map((country) => {
           return (
             <StyledLocationContainer key={Object.values(country.details).join('-')}>
-              <GeographicalLocationListItem location={country} level={0} onSelect={handleSelect} />
+              <GeographicalLocationListItem
+                root
+                location={country}
+                level={0}
+                onSelect={handleSelect}
+              />
             </StyledLocationContainer>
           );
         })}

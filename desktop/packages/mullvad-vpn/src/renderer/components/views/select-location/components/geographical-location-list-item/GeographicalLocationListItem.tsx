@@ -11,6 +11,7 @@ function GeographicalLocationListItemImpl({
   location,
   level,
   disabled,
+  root,
   ...props
 }: GeographicalLocationListItemProps) {
   const { loading } = useGeographicalLocationListItemContext();
@@ -19,6 +20,7 @@ function GeographicalLocationListItemImpl({
   return (
     <AnyLocationListItem
       location={location}
+      root={root}
       rootLocation="geographical"
       level={level}
       disabled={disabled || loading}
