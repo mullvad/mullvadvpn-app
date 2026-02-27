@@ -24,14 +24,14 @@ final class APIAccessMethodsTests: XCTestCase {
     }
 
     override func tearDownWithError() throws {
-        let repository = AccessMethodRepository()
+        let repository = AccessMethodRepository(shadowsocksCiphers: [])
         repository.fetchAll().forEach {
             repository.delete(id: $0.id)
         }
     }
 
     func testDefaultAccessMethodsExist() throws {
-        let repository = AccessMethodRepository()
+        let repository = AccessMethodRepository(shadowsocksCiphers: [])
         let storedMethods = repository.fetchAll()
 
         let hasDirectMethod = storedMethods.contains { method in
@@ -51,7 +51,7 @@ final class APIAccessMethodsTests: XCTestCase {
     }
 
     func testAddingSocks5AccessMethod() throws {
-        let repository = AccessMethodRepository()
+        let repository = AccessMethodRepository(shadowsocksCiphers: [])
 
         let uuid = UUID()
         let methodToStore = socks5AccessMethod(with: uuid)
@@ -63,7 +63,7 @@ final class APIAccessMethodsTests: XCTestCase {
     }
 
     func testAddingShadowSocksAccessMethod() throws {
-        let repository = AccessMethodRepository()
+        let repository = AccessMethodRepository(shadowsocksCiphers: [])
 
         let uuid = UUID()
         let methodToStore = shadowsocksAccessMethod(with: uuid)
@@ -75,7 +75,7 @@ final class APIAccessMethodsTests: XCTestCase {
     }
 
     func testAddingDuplicateAccessMethodDoesNothing() throws {
-        let repository = AccessMethodRepository()
+        let repository = AccessMethodRepository(shadowsocksCiphers: [])
 
         let methodToStore = socks5AccessMethod(with: UUID())
 
@@ -89,7 +89,7 @@ final class APIAccessMethodsTests: XCTestCase {
     }
 
     func testUpdatingAccessMethod() throws {
-        let repository = AccessMethodRepository()
+        let repository = AccessMethodRepository(shadowsocksCiphers: [])
 
         let uuid = UUID()
         var methodToStore = socks5AccessMethod(with: uuid)
@@ -106,7 +106,7 @@ final class APIAccessMethodsTests: XCTestCase {
     }
 
     func testDeletingAccessMethod() throws {
-        let repository = AccessMethodRepository()
+        let repository = AccessMethodRepository(shadowsocksCiphers: [])
         let uuid = UUID()
         let methodToStore = socks5AccessMethod(with: uuid)
 
@@ -144,7 +144,7 @@ extension APIAccessMethodsTests {
                     server: .ipv4(.any),
                     port: 1,
                     password: "Password",
-                    cipher: .default
+                    cipher: "aes-128-cfb"
                 ))
         )
     }

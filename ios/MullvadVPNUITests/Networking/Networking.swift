@@ -142,7 +142,7 @@ class Networking {
     public static func verifyCanAccessInternet() throws {
         XCTAssertTrue(
             try canConnectSocket(host: getAlwaysReachableDomain(), port: "80"),
-            "Failed to verify that the Internet can be acccessed"
+            "Failed to verify that the Internet can be accessed"
         )
     }
 

@@ -103,11 +103,15 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
 
     weak var delegate: SettingsDataSourceDelegate?
 
-    init(tableView: UITableView, interactor: SettingsInteractor) {
+    init(tableView: UITableView, interactor: SettingsInteractor, breadcrumbs: Set<Breadcrumb>) {
         self.tableView = tableView
         self.interactor = interactor
 
-        let settingsCellFactory = SettingsCellFactory(tableView: tableView, interactor: interactor)
+        let settingsCellFactory = SettingsCellFactory(
+            tableView: tableView,
+            interactor: interactor,
+            breadcrumbs: breadcrumbs
+        )
         self.settingsCellFactory = settingsCellFactory
 
         super.init(tableView: tableView) { _, indexPath, itemIdentifier in
@@ -136,6 +140,11 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
         var snapshot = snapshot()
         snapshot.reconfigureItems(snapshot.itemIdentifiers)
         apply(snapshot, animatingDifferences: false)
+    }
+
+    func reloadBreadcrumbs(_ breadcrumbs: Set<Breadcrumb>) {
+        settingsCellFactory.breadcrumbs = breadcrumbs
+        reload()
     }
 
     // MARK: - UITableViewDelegate

@@ -18,6 +18,7 @@ class AddAccessMethodCoordinator: Coordinator, Presentable, Presenting {
     let navigationController: UINavigationController
     let accessMethodRepository: AccessMethodRepositoryProtocol
     let proxyConfigurationTester: ProxyConfigurationTesterProtocol
+    let interactor: EditAccessMethodInteractor
 
     var presentedViewController: UIViewController {
         navigationController
@@ -31,16 +32,18 @@ class AddAccessMethodCoordinator: Coordinator, Presentable, Presenting {
         self.navigationController = navigationController
         self.accessMethodRepository = accessMethodRepo
         self.proxyConfigurationTester = proxyConfigurationTester
+
+        interactor = EditAccessMethodInteractor(
+            subject: subject,
+            repository: accessMethodRepository,
+            proxyConfigurationTester: proxyConfigurationTester
+        )
     }
 
     func start() {
         let controller = MethodSettingsViewController(
             subject: subject,
-            interactor: EditAccessMethodInteractor(
-                subject: subject,
-                repository: accessMethodRepository,
-                proxyConfigurationTester: proxyConfigurationTester
-            ),
+            interactor: interactor,
             alertPresenter: AlertPresenter(context: self)
         )
 
@@ -81,9 +84,10 @@ extension AddAccessMethodCoordinator: @preconcurrency MethodSettingsViewControll
     }
 
     func controllerShouldShowShadowsocksCipherPicker(_ controller: MethodSettingsViewController) {
-        let picker = ShadowsocksCipherPicker(navigationController: navigationController)
+        let picker = ShadowsocksCipherPicker(
+            navigationController: navigationController, ciphers: interactor.shadowsocksCiphers)
 
-        picker.present(currentValue: subject.value.shadowsocks.cipher) { [weak self] selectedCipher in
+        picker.present(currentValue: interactor.shadowsocksCiphers.first ?? "") { [weak self] selectedCipher in
             self?.subject.value.shadowsocks.cipher = selectedCipher
         }
     }

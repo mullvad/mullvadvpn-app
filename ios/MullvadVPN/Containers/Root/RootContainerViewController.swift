@@ -116,6 +116,12 @@ class RootContainerViewController: UIViewController {
         viewControllers.last
     }
 
+    var breadcrumbs: Set<Breadcrumb> = [] {
+        didSet {
+            headerBarView.breadcrumb = breadcrumbs.mostSevere
+        }
+    }
+
     weak var delegate: RootContainerViewControllerDelegate?
 
     override var childForStatusBarStyle: UIViewController? {
@@ -879,5 +885,4 @@ extension RootContainerViewController {
         presentationContainerAccountButton?.isHidden = !configuration.showsAccountButton
         headerBarView.update(configuration: configuration)
     }
-
 }

@@ -1,8 +1,9 @@
 use std::{
-    ffi::{c_char, c_void},
+    ffi::{CString, c_char, c_void},
     net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr},
 };
 
+use shadowsocks::crypto::available_ciphers;
 use talpid_types::net::proxy::{Shadowsocks, Socks5Remote, SocksAuth};
 
 use super::get_string;
@@ -99,4 +100,22 @@ pub unsafe extern "C" fn new_socks5_access_method_setting(
 
     let socks5_configuration = Socks5Remote { endpoint, auth };
     Box::into_raw(Box::new(socks5_configuration)) as *mut c_void
+}
+
+#[unsafe(no_mangle)]
+pub extern "C" fn get_shadowsocks_chipers() -> *mut libc::c_char {
+    let ciphers_string = available_ciphers().join(",");
+    let ciphers_c_string = CString::new(ciphers_string).unwrap_or_default();
+
+    ciphers_c_string.into_raw()
+}
+
+/// Deallocates a CString returned by the Mullvad API client.
+///
+/// # Safety
+///
+/// `cstr_ptr` must be a pointer to a string allocated by another `mullvad_api` function.
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn mullvad_api_cstring_drop(cstr_ptr: *mut libc::c_char) {
+    let _ = unsafe { CString::from_raw(cstr_ptr) };
 }
