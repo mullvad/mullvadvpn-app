@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -49,10 +50,14 @@ class PersonalVpnViewModel(
                     .filterNotNull()
                     .onFirst { formData.value = PersonalVpnFormData.from(it.customVpnConfig) }
                     .map { it.customVpnEnabled },
-            managementService.customVpnStats(),
+                managementService.tunnelStats.onStart { emit(TunnelStats()) },
                 formData.filterNotNull(),
                 formErrors,
-            ) { customVpnEnabled: Boolean, customVpnStats: TunnelStats, formData: PersonalVpnFormData, formErrors ->
+            ) {
+                customVpnEnabled: Boolean,
+                customVpnStats: TunnelStats,
+                formData: PersonalVpnFormData,
+                formErrors ->
                 PersonalVpnUiState(
                         enabled = customVpnEnabled,
                         tunnelStats = customVpnStats,
@@ -153,7 +158,6 @@ data class PersonalVpnUiState(
     val allowedIpDataError: FormDataError.AllowedIp? = null,
     val endpointDataError: FormDataError.Endpoint? = null,
 )
-
 
 data class PersonalVpnFormData(
     val privateKey: String = "",

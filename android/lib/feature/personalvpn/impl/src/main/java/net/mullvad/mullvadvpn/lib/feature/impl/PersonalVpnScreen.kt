@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.lib.feature.impl
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,8 +11,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SecureTextField
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -34,6 +37,7 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
+import net.mullvad.mullvadvpn.common.compose.showSnackbarImmediately
 import net.mullvad.mullvadvpn.core.animation.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.model.TunnelStats
@@ -56,7 +60,12 @@ fun PersonalVpn(navigator: DestinationsNavigator) {
     val state by vm.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
 
-    CollectSideEffectWithLifecycle(vm.uiSideEffect) { sideEffect -> }
+    CollectSideEffectWithLifecycle(vm.uiSideEffect) { sideEffect ->
+        when (sideEffect) {
+            is PersonalVpnSideEffect.FailedToSave ->
+                snackbarHostState.showSnackbarImmediately(sideEffect.reason)
+        }
+    }
 
     PersonalVpnScreen(
         state = state,
@@ -120,16 +129,35 @@ fun PersonalVpnScreen(
                 )
 
                 val tunnelStats = state.value.tunnelStats
-                Column(modifier = Modifier.fillMaxWidth()) {
-                    Row(horizontalArrangement = Arrangement.SpaceBetween) {
+                Text(modifier = Modifier.padding(horizontal = 16.dp), text = "Tunnel stats:")
+                Column(
+                    modifier =
+                        Modifier.border(
+                                1.dp,
+                                MaterialTheme.colorScheme.primary,
+                                RoundedCornerShape(16.dp),
+                            )
+                            .padding(8.dp)
+                            .fillMaxWidth()
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                    ) {
                         Text("rx:")
-                        Text(tunnelStats.rx.toString())
+                        Text("${tunnelStats.rx} bytes")
                     }
-                    Row(horizontalArrangement = Arrangement.SpaceBetween) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                    ) {
                         Text("tx:")
-                        Text(tunnelStats.tx.toString())
+                        Text("${tunnelStats.tx} bytes")
                     }
-                    Row(horizontalArrangement = Arrangement.SpaceBetween) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                    ) {
                         Text("last handshake:")
                         Text(tunnelStats.lastHandshake.toString())
                     }
