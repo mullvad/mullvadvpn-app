@@ -21,7 +21,7 @@ use mullvad_types::{
     version,
     wireguard::{RotationInterval, RotationIntervalError},
 };
-use std::collections::BTreeSet;
+use std::{collections::BTreeSet, time::SystemTime};
 use std::{
     path::PathBuf,
     str::FromStr,
@@ -1335,7 +1335,11 @@ impl ManagementService for ManagementServiceImpl {
                         let stats = types::CustomVpnStats {
                             last_handshake_time: stats.last_handshake_time.and_then(|handshake| {
                                 Some(types::Timestamp {
-                                    seconds: handshake.elapsed().ok()?.as_secs() as _,
+                                    seconds: handshake
+                                        .duration_since(SystemTime::UNIX_EPOCH)
+                                        .ok()?
+                                        .as_secs()
+                                        as _,
                                     nanos: 0,
                                 })
                             }),
