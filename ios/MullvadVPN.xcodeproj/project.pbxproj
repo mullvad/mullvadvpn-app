@@ -762,7 +762,6 @@
 		A95EEE362B722CD600A8A39B /* TunnelMonitorState.swift in Sources */ = {isa = PBXBuildFile; fileRef = A95EEE352B722CD600A8A39B /* TunnelMonitorState.swift */; };
 		A95EEE382B722DFC00A8A39B /* PingStats.swift in Sources */ = {isa = PBXBuildFile; fileRef = A95EEE372B722DFC00A8A39B /* PingStats.swift */; };
 		A96D0B452D675F0400DD6C59 /* MullvadConnectionModeProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A96D0B442D675F0400DD6C59 /* MullvadConnectionModeProvider.swift */; };
-		A9711B2B2D662AE3003DA71D /* SwiftConnectionModeProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9711B2A2D662AE3003DA71D /* SwiftConnectionModeProvider.swift */; };
 		A97275562CE36CAE00029F15 /* DaitaV2Parameters.swift in Sources */ = {isa = PBXBuildFile; fileRef = A97275552CE36CAE00029F15 /* DaitaV2Parameters.swift */; };
 		A97687C82DD60D5D000D96E8 /* AddressCacheProviding.swift in Sources */ = {isa = PBXBuildFile; fileRef = A97687C72DD60D5D000D96E8 /* AddressCacheProviding.swift */; };
 		A97687CA2DD60F36000D96E8 /* MullvadAddressCacheProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A97687C92DD60F36000D96E8 /* MullvadAddressCacheProvider.swift */; };
@@ -2320,7 +2319,6 @@
 		A95EEE352B722CD600A8A39B /* TunnelMonitorState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelMonitorState.swift; sourceTree = "<group>"; };
 		A95EEE372B722DFC00A8A39B /* PingStats.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PingStats.swift; sourceTree = "<group>"; };
 		A96D0B442D675F0400DD6C59 /* MullvadConnectionModeProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadConnectionModeProvider.swift; sourceTree = "<group>"; };
-		A9711B2A2D662AE3003DA71D /* SwiftConnectionModeProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftConnectionModeProvider.swift; sourceTree = "<group>"; };
 		A97275552CE36CAE00029F15 /* DaitaV2Parameters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DaitaV2Parameters.swift; sourceTree = "<group>"; };
 		A97687C72DD60D5D000D96E8 /* AddressCacheProviding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressCacheProviding.swift; sourceTree = "<group>"; };
 		A97687C92DD60F36000D96E8 /* MullvadAddressCacheProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadAddressCacheProvider.swift; sourceTree = "<group>"; };
@@ -3079,6 +3077,7 @@
 		581943F228F8014500B0CB5E /* MullvadTypes */ = {
 			isa = PBXGroup;
 			children = (
+				449EBA242B975B7C00DFA4EB /* Protocols */,
 				588D7ED72AF3A533005DF40A /* AccessMethodKind.swift */,
 				A97687C72DD60D5D000D96E8 /* AddressCacheProviding.swift */,
 				584D26BE270C550B004EA533 /* AnyIPAddress.swift */,
@@ -3109,7 +3108,6 @@
 				586C0D962B04E0AC00E7CDD7 /* PersistentAccessMethod.swift */,
 				44EC6C592E3BB3EF0087F54A /* PersistentProxyConfiguration.swift */,
 				58CAFA01298530DC00BE19F7 /* Promise.swift */,
-				449EBA242B975B7C00DFA4EB /* Protocols */,
 				5898D2B12902A6DE00EB5EBA /* RelayConstraint.swift */,
 				58781CC822AE7CA8009B9D8E /* RelayConstraints.swift */,
 				7AF9BE8A2A321BEF00DBFEDB /* RelayFilter.swift */,
@@ -3122,7 +3120,6 @@
 				F0DDE4132B220458006B57A7 /* ShadowsocksConfiguration.swift */,
 				F924C5A32DA65F28001F4660 /* Storekit.swift */,
 				F0ADF1CC2CFDFF3100299F09 /* StringConversionError.swift */,
-				A9711B2A2D662AE3003DA71D /* SwiftConnectionModeProvider.swift */,
 				A91614D02B108D1B00F416EB /* TransportLayer.swift */,
 				58E511E028DDB7F100B0BCDE /* WrappingError.swift */,
 			);
@@ -4634,24 +4631,24 @@
 		A992DA1E2C24709F00DE7CE5 /* MullvadRustRuntime */ = {
 			isa = PBXGroup;
 			children = (
-				01D13C202F11130500EC63DE /* RustLogging.swift */,
 				A948809A2BC9308D0090A44C /* EphemeralPeerExchangeActor.swift */,
 				A9EB4F9C2B7FAB21002A2D7A /* EphemeralPeerNegotiator.swift */,
 				A9A557F42B7E3E5C0017ADA8 /* EphemeralPeerReceiver.swift */,
 				A9D9A4D32C36E1EA004088DD /* mullvad_rust_runtime.h */,
+				A98207F22D9ACE4C00654558 /* MullvadAccessMethodReceiver.swift */,
+				A97687C92DD60F36000D96E8 /* MullvadAddressCacheProvider.swift */,
 				7A99D3702D56220E00891FF7 /* MullvadApiCancellable.swift */,
 				7A3215702D392F0B005DF395 /* MullvadApiCompletion.swift */,
 				7AB931232D43C2C2005FCEBA /* MullvadApiContext.swift */,
+				A9B95DEE2EC73BB800C7FE9B /* MullvadAPIMock.swift */,
 				7AB931252D43D222005FCEBA /* MullvadApiResponse.swift */,
+				A96D0B442D675F0400DD6C59 /* MullvadConnectionModeProvider.swift */,
 				A992DA1F2C24709F00DE7CE5 /* MullvadRustRuntime.h */,
+				A98207F02D91A0AC00654558 /* MullvadShadowsocksBridgeProvider.swift */,
+				01D13C202F11130500EC63DE /* RustLogging.swift */,
 				F0EEFB9E2D8D60E1007FE4B3 /* RustProblemReportRequest.swift */,
 				F0A89CB62D9D922300580C27 /* String+UnsafePointer.swift */,
 				584023212A406BF5007B27AC /* TunnelObfuscator.swift */,
-				A96D0B442D675F0400DD6C59 /* MullvadConnectionModeProvider.swift */,
-				A98207F02D91A0AC00654558 /* MullvadShadowsocksBridgeProvider.swift */,
-				A98207F22D9ACE4C00654558 /* MullvadAccessMethodReceiver.swift */,
-				A97687C92DD60F36000D96E8 /* MullvadAddressCacheProvider.swift */,
-				A9B95DEE2EC73BB800C7FE9B /* MullvadAPIMock.swift */,
 			);
 			path = MullvadRustRuntime;
 			sourceTree = "<group>";
@@ -6906,7 +6903,6 @@
 				A959E2432D75F42500F95DDB /* ShadowsocksCipherOptions.swift in Sources */,
 				58D22417294C90210029F5F8 /* FixedWidthInteger+Arithmetics.swift in Sources */,
 				F0F56B092C0E058A009D676B /* ObserverList.swift in Sources */,
-				A9711B2B2D662AE3003DA71D /* SwiftConnectionModeProvider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

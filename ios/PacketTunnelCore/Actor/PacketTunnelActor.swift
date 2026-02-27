@@ -73,6 +73,8 @@ public actor PacketTunnelActor {
 
         Task { await setTunnelMonitorEventHandler() }
         consumeEvents(channel: eventChannel)
+
+        
     }
 
     deinit {
