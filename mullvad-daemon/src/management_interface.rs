@@ -1295,8 +1295,15 @@ impl ManagementService for ManagementServiceImpl {
         request: Request<types::CustomVpnConfig>,
     ) -> ServiceResult<types::CustomVpnConfigError> {
         log::debug!("set_custom_vpn_config");
-        let config = mullvad_types::settings::CustomVpnConfig::try_from(request.into_inner())
-            .map_err(map_protobuf_type_err)?;
+        let request = request.into_inner();
+        let config = if request.peer.is_none() && request.tunnel.is_none() {
+            None
+        } else {
+            Some(
+                mullvad_types::settings::CustomVpnConfig::try_from(request)
+                    .map_err(map_protobuf_type_err)?,
+            )
+        };
         let (tx, rx) = oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::SetCustomVpnConfig(tx, config))?;
         let error = self.wait_for_result(rx).await?;

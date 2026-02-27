@@ -458,7 +458,7 @@ pub enum DaemonCommand {
     /// Set custom VPN configuration
     SetCustomVpnConfig(
         oneshot::Sender<String>,
-        mullvad_types::settings::CustomVpnConfig,
+        Option<mullvad_types::settings::CustomVpnConfig>,
     ),
     /// Enable or disable the custom VPN
     SetCustomVpnConfigStatus(ResponseTx<(), settings::Error>, bool),
@@ -2641,11 +2641,11 @@ impl Daemon {
     async fn on_set_custom_vpn_config(
         &mut self,
         tx: oneshot::Sender<String>,
-        config: mullvad_types::settings::CustomVpnConfig,
+        config: Option<mullvad_types::settings::CustomVpnConfig>,
     ) {
         match self
             .settings
-            .update(move |s| s.custom_vpn_config = Some(config))
+            .update(move |s| s.custom_vpn_config = config)
             .await
         {
             Ok(_) => Self::oneshot_send(tx, String::new(), "set_custom_vpn_config"),

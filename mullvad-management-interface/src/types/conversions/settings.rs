@@ -55,7 +55,6 @@ impl From<&mullvad_types::settings::Settings> for proto::Settings {
                 .collect(),
             recents: settings.recents.clone().map(proto::Recents::from),
             update_default_location: settings.update_default_location,
-            // FIXME: If both fields are None, this should *unset* the config
             custom_vpn_config: settings
                 .custom_vpn_config
                 .as_ref()
