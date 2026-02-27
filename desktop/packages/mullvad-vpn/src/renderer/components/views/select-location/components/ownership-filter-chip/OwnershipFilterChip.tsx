@@ -2,8 +2,8 @@ import React from 'react';
 
 import { Ownership } from '../../../../../../shared/daemon-rpc-types';
 import { messages } from '../../../../../../shared/gettext';
+import { useOwnership } from '../../../../../features/location/hooks';
 import { FilterChip, type FilterChipProps } from '../../../../../lib/components';
-import { useRelaySettingsUpdater } from '../../../../../lib/constraint-updater';
 import { useNormalRelaySettings } from '../../../../../lib/relay-settings-hooks';
 import { useScrollPositionContext } from '../../ScrollPositionContext';
 import { useOwnershipFilterLabel } from './hooks';
@@ -12,18 +12,16 @@ export type OwnershipFilterChipProps = FilterChipProps;
 
 export function OwnershipFilterChip(props: OwnershipFilterChipProps) {
   const relaySettings = useNormalRelaySettings();
-  const relaySettingsUpdater = useRelaySettingsUpdater();
   const { resetScrollPositions } = useScrollPositionContext();
-
-  const ownership = relaySettings?.ownership ?? Ownership.any;
-  const ownershipFilterLabel = useOwnershipFilterLabel(ownership);
+  const { setOwnership } = useOwnership();
+  const ownershipFilterLabel = useOwnershipFilterLabel();
 
   const onClearOwnership = React.useCallback(async () => {
     resetScrollPositions();
     if (relaySettings) {
-      await relaySettingsUpdater((settings) => ({ ...settings, ownership: Ownership.any }));
+      await setOwnership(Ownership.any);
     }
-  }, [relaySettingsUpdater, resetScrollPositions, relaySettings]);
+  }, [setOwnership, resetScrollPositions, relaySettings]);
 
   return (
     <FilterChip

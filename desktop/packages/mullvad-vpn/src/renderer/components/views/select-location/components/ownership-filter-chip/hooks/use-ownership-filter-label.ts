@@ -1,10 +1,12 @@
 import { Ownership } from '../../../../../../../shared/daemon-rpc-types';
 import { messages } from '../../../../../../../shared/gettext';
+import { useOwnership } from '../../../../../../features/location/hooks';
 
-export const useOwnershipFilterLabel = (ownership: Ownership) => {
-  if (ownership === Ownership.mullvadOwned) {
+export const useOwnershipFilterLabel = () => {
+  const { activeOwnership } = useOwnership();
+  if (activeOwnership === Ownership.mullvadOwned) {
     return messages.pgettext('filter-view', 'Owned');
-  } else if (ownership === Ownership.rented) {
+  } else if (activeOwnership === Ownership.rented) {
     return messages.pgettext('filter-view', 'Rented');
   } else {
     return '';
