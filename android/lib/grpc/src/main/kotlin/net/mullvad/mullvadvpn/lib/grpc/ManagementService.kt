@@ -205,6 +205,9 @@ class ManagementService(
     private val _mutableRelayList = MutableStateFlow<RelayList?>(null)
     val relayList: Flow<RelayList> = _mutableRelayList.filterNotNull()
 
+    private val _mutableTunnelStats = MutableStateFlow<TunnelStats?>(null)
+    val tunnelStats: Flow<TunnelStats> = _mutableTunnelStats.filterNotNull()
+
     val relayCountries: Flow<List<RelayItem.Location.Country>> =
         relayList.mapNotNull { it.countries }
 
@@ -243,6 +246,15 @@ class ManagementService(
     private suspend fun subscribeEvents() =
         withContext(Dispatchers.IO) {
             launch {
+                launch {
+                    grpc
+                        .getCustomVpnStats(Empty.getDefaultInstance())
+                        .map { it.toDomain() }
+                        .collect {
+                            Logger.d("RECEIVED TUNNELSTATS: $it")
+                            _mutableTunnelStats.value = it
+                        }
+                }
                 grpc.eventsListen(Empty.getDefaultInstance()).collect { event ->
                     if (extensiveLogging) {
                         Logger.v("Event: $event")
