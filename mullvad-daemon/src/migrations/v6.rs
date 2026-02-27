@@ -123,173 +123,27 @@ fn version_matches(settings: &serde_json::Value) -> bool {
 
 #[cfg(test)]
 mod test {
-    use super::{migrate, migrate_location_constraint, migrate_pq_setting, version_matches};
+    use crate::migrations::load_seed;
 
-    pub const V6_SETTINGS: &str = r#"
-{
-  "relay_settings": {
-    "normal": {
-      "location": {
-        "only": {
-          "country": "se"
-        }
-      },
-      "tunnel_protocol": "any",
-      "wireguard_constraints": {
-        "port": "any",
-        "ip_version": "any",
-        "use_multihop": true,
-        "entry_location": "any"
-      },
-      "openvpn_constraints": {
-        "port": {
-          "only": {
-            "protocol": "udp",
-            "port": {
-              "only": 1195
-            }
-          }
-        }
-      }
-    }
-  },
-  "bridge_settings": {
-    "normal": {
-      "location": "any"
-    }
-  },
-  "obfuscation_settings": {
-    "selected_obfuscation": "udp2_tcp",
-    "udp2tcp": {
-      "port": {
-        "only": 443
-      }
-    }
-  },
-  "bridge_state": "auto",
-  "allow_lan": true,
-  "block_when_disconnected": false,
-  "auto_connect": false,
-  "tunnel_options": {
-    "openvpn": {
-      "mssfix": null
-    },
-    "wireguard": {
-      "mtu": null,
-      "rotation_interval": {
-          "secs": 86400,
-          "nanos": 0
-      },
-      "use_pq_safe_psk": false
-    },
-    "generic": {
-      "enable_ipv6": false
-    },
-    "dns_options": {
-      "state": "default",
-      "default_options": {
-        "block_ads": false,
-        "block_trackers": false
-      },
-      "custom_options": {
-        "addresses": [
-          "1.1.1.1",
-          "1.2.3.4"
-        ]
-      }
-    }
-  },
-  "settings_version": 6
-}
-"#;
+    use super::{migrate, migrate_location_constraint, migrate_pq_setting};
 
-    pub const V7_SETTINGS: &str = r#"
-{
-  "relay_settings": {
-    "normal": {
-      "location": {
-        "only": {
-          "location": {
-            "country": "se"
-          }
-        }
-      },
-      "tunnel_protocol": "any",
-      "wireguard_constraints": {
-        "port": "any",
-        "ip_version": "any",
-        "use_multihop": true,
-        "entry_location": "any"
-      },
-      "openvpn_constraints": {
-        "port": {
-          "only": {
-            "protocol": "udp",
-            "port": {
-              "only": 1195
-            }
-          }
-        }
-      }
+    /// Parse example v6 settings as a pretty printed JSON string.
+    fn v6_settings() -> serde_json::Value {
+        load_seed("v6.json")
     }
-  },
-  "bridge_settings": {
-    "normal": {
-      "location": "any"
+
+    #[test]
+    fn snapshot_v6_settings() {
+        let v6 = serde_json::to_string_pretty(&v6_settings()).unwrap();
+        insta::assert_snapshot!(v6);
     }
-  },
-  "obfuscation_settings": {
-    "selected_obfuscation": "udp2_tcp",
-    "udp2tcp": {
-      "port": "any"
-    }
-  },
-  "bridge_state": "auto",
-  "allow_lan": true,
-  "block_when_disconnected": false,
-  "auto_connect": false,
-  "tunnel_options": {
-    "openvpn": {
-      "mssfix": null
-    },
-    "wireguard": {
-      "mtu": null,
-      "rotation_interval": {
-          "secs": 86400,
-          "nanos": 0
-      },
-      "quantum_resistant": "auto"
-    },
-    "generic": {
-      "enable_ipv6": false
-    },
-    "dns_options": {
-      "state": "default",
-      "default_options": {
-        "block_ads": false,
-        "block_trackers": false
-      },
-      "custom_options": {
-        "addresses": [
-          "1.1.1.1",
-          "1.2.3.4"
-        ]
-      }
-    }
-  },
-  "settings_version": 7
-}
-"#;
 
     #[test]
     fn test_v6_to_v7_migration() {
-        let mut old_settings = serde_json::from_str(V6_SETTINGS).unwrap();
-
-        assert!(version_matches(&old_settings));
-        migrate(&mut old_settings).unwrap();
-        let new_settings: serde_json::Value = serde_json::from_str(V7_SETTINGS).unwrap();
-
-        assert_eq!(&old_settings, &new_settings);
+        let mut v6 = v6_settings();
+        migrate(&mut v6).unwrap();
+        let v7 = serde_json::to_string_pretty(&v6).unwrap();
+        insta::assert_snapshot!(v7);
     }
 
     /// For relay settings
