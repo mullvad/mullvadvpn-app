@@ -456,6 +456,21 @@ async fn create_devices(
                 TunnelError::SetConfigError
             })?;
 
+        #[cfg(target_os = "linux")]
+        outer_device
+            .write(async |device| {
+                if let Some(fwmark) = config.fwmark {
+                    device.set_fwmark(fwmark)?;
+                }
+                Ok(())
+            })
+            .await
+            .flatten()
+            .map_err(|err| {
+                log::error!("Failed to set gotatun config: {err:#}");
+                TunnelError::SetConfigError
+            })?;
+
         // TODO: allow reconfigure
         return Ok(Devices::SinglehopWithCustom {
             outer_device,
@@ -537,7 +552,7 @@ async fn configure_devices(
                 TunnelError::SetConfigError
             })?;
     } else if config.custom_vpn.is_some() {
-        log::error!("FIXME: Cannot reconfigure tunnel when custom VPN is enabld yet.");
+        log::error!("FIXME: Cannot reconfigure tunnel when custom VPN is enabled yet.");
     } else {
         log::trace!(
             "configuring gotatun singlehop device (daita={})",
