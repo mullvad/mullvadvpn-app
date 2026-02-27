@@ -27,7 +27,7 @@ class MtuDialogViewModel(
     private val navArgs = MtuDestination.argsFrom(savedStateHandle)
 
     private val _mtuInput = MutableStateFlow(navArgs.initialMtu?.value?.toString() ?: "")
-    private val _isValidMtu = MutableStateFlow(true)
+    private val _isValidMtu = MutableStateFlow(Mtu.fromString(_mtuInput.value).isRight())
 
     val uiState: StateFlow<MtuDialogUiState> =
         combine(_mtuInput, _isValidMtu, ::createState)
