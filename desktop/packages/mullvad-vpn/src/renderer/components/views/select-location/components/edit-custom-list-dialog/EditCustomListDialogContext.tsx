@@ -2,8 +2,8 @@ import React from 'react';
 
 import type { DialogProps } from '../../../../../lib/components/dialog';
 import { useTextField, type UseTextFieldState } from '../../../../../lib/components/text-field';
+import { useIsCustomListNameValid } from '../../hooks';
 import type { CustomListLocation } from '../../select-location-types';
-import { useIsUpdatedCustomListNameValid } from './hooks';
 
 type EditCustomListDialogContextProps = Omit<EditCustomListDialogProviderProps, 'children'> & {
   formRef: React.RefObject<HTMLFormElement | null>;
@@ -41,7 +41,7 @@ export function EditCustomListDialogProvider({
   const formRef = React.useRef<HTMLFormElement>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
   const [error, setError] = React.useState<boolean>(false);
-  const isCustomListNameValid = useIsUpdatedCustomListNameValid();
+  const isCustomListNameValid = useIsCustomListNameValid();
 
   const customListTextField = useTextField({
     defaultValue: customList.label,

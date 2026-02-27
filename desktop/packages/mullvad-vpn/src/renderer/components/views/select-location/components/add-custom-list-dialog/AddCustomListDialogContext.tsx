@@ -2,7 +2,7 @@ import React from 'react';
 
 import type { DialogProps } from '../../../../../lib/components/dialog';
 import { useTextField, type UseTextFieldState } from '../../../../../lib/components/text-field';
-import { useIsCustomListNameValid } from './hooks';
+import { useIsCustomListNameValid } from '../../hooks';
 
 type AddCustomListDialogContextProps = Omit<AddCustomListDialogProviderProps, 'children'> & {
   formRef: React.RefObject<HTMLFormElement | null>;
