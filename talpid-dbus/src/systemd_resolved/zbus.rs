@@ -33,8 +33,7 @@ trait ResolveManager {
 /// <https://www.freedesktop.org/software/systemd/man/latest/org.freedesktop.resolve1.html#Link%20Object>
 #[zbus::proxy(
     interface = "org.freedesktop.resolve1.Link",
-    default_service = "org.freedesktop.resolve1",
-    // default_path = "/org/freedesktop/resolve1/link/_1"
+    default_service = "org.freedesktop.resolve1"
 )]
 trait ResolveLink {
     /// ```dbus
