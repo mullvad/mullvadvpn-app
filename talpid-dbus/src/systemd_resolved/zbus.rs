@@ -498,3 +498,22 @@ impl TryFrom<DnsAddress> for IpAddr {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// Test that we can read the DNS property from `org.freedesktop.resolve1.Manager`.
+    ///
+    /// This test probably requires that you have configured DNS using systemd-resolved,
+    /// which is why it is marked with `#[ignore]`. Run this test using `cargo test -- --ignored`.
+    #[test]
+    #[ignore]
+    fn test_get_dns() {
+        let connection = Connection::system().unwrap();
+        let resolved = ResolveManagerProxyBlocking::new(&connection).unwrap();
+        let dns = resolved.dns().unwrap();
+        println!("{dns:?}");
+        assert!(!dns.is_empty(), "expect to DNS configured");
+    }
+}
