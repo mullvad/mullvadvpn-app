@@ -4,6 +4,8 @@ import styled from 'styled-components';
 
 import type { RelayLocation as DaemonRelayLocation } from '../../../../../../shared/daemon-rpc-types';
 import { messages } from '../../../../../../shared/gettext';
+import { FootnoteMiniSemiBold } from '../../../../../lib/components';
+import { FlexColumn } from '../../../../../lib/components/flex-column';
 import type { ListItemProps } from '../../../../../lib/components/list-item';
 import { spacings } from '../../../../../lib/foundations';
 import { LocationListItem } from '../../../../location-list-item';
@@ -43,6 +45,7 @@ function AnyLocationListItemImpl({
 
   const childLocations = getLocationChildrenByType(location);
   const hasChildren = childLocations.length > 0;
+  const showEmptySubtitle = location.type === 'customList' && !hasChildren;
 
   const handleClick = useCallback(() => {
     if (!location.selected) {
@@ -70,7 +73,17 @@ function AnyLocationListItemImpl({
               },
             )}>
             <LocationListItem.HeaderItem>
-              <LocationListItem.HeaderTitle>{location.label}</LocationListItem.HeaderTitle>
+              <FlexColumn>
+                <LocationListItem.HeaderTitle>{location.label}</LocationListItem.HeaderTitle>
+                {showEmptySubtitle && (
+                  <FootnoteMiniSemiBold color="whiteAlpha60">
+                    {
+                      // TRANSLATORS: Label for custom lists that don't have any locations added to them yet.
+                      messages.pgettext('select-location-view', 'Empty')
+                    }
+                  </FootnoteMiniSemiBold>
+                )}
+              </FlexColumn>
             </LocationListItem.HeaderItem>
           </LocationListItem.HeaderTrigger>
           {location.type === 'customList' ? (
