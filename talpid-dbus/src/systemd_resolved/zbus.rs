@@ -514,6 +514,6 @@ mod tests {
         let resolved = ResolveManagerProxyBlocking::new(&connection).unwrap();
         let dns = resolved.dns().unwrap();
         println!("{dns:?}");
-        assert!(!dns.is_empty(), "expect to DNS configured");
+        assert!(!dns.is_empty(), "expect DNS to be configured");
     }
 }
