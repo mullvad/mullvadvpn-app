@@ -796,7 +796,13 @@ fun VpnSettingsContent(
                 is VpnSettingItem.QuantumResistantSetting ->
                     item(key = it::class.simpleName) {
                         SwitchListItem(
-                            modifier = Modifier.animateItem(),
+                            modifier =
+                                Modifier.animateItem()
+                                    .focusRequester(
+                                        focusRequesters.getValue(
+                                            FeatureIndicator.QUANTUM_RESISTANCE
+                                        )
+                                    ),
                             position = Position.Single,
                             hierarchy = Hierarchy.Parent,
                             title = stringResource(R.string.quantum_resistant_title),
