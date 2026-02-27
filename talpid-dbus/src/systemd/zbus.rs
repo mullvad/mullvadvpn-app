@@ -40,7 +40,7 @@ trait SystemdManager {
 
 /// The current state of the system manager.
 ///
-/// NOTE: This type can not be used as the return value of `SystemdManager::system_state` just yet: https://github.com/z-galaxy/zbus/issues/1233.
+/// NOTE: This type can not be used as the return value of `SystemdManager::system_state` just yet: <https://github.com/z-galaxy/zbus/issues/1233>.
 #[derive(Debug, serde::Deserialize, zvariant::Type, zvariant::OwnedValue)]
 #[zvariant(signature = "s")]
 pub enum SystemState {
