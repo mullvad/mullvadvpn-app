@@ -21,7 +21,7 @@ trait ResolveManager {
     /// ```dbus
     /// readonly a(iiay) DNS = [...];
     /// ```
-    #[zbus(property)]
+    #[zbus(property, name = "DNS")]
     fn dns(&self) -> Result<Vec<DnsServer>, zbus::Error>;
 
     /// ```dbus
