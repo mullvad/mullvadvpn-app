@@ -26,7 +26,7 @@ pub fn is_host_running() -> Result<bool, Error> {
     Ok(running)
 }
 
-/// https://www.freedesktop.org/software/systemd/man/latest/org.freedesktop.systemd1
+/// <https://www.freedesktop.org/software/systemd/man/latest/org.freedesktop.systemd1>
 #[zbus::proxy(
     interface = "org.freedesktop.systemd1.Manager",
     default_service = "org.freedesktop.systemd1",
