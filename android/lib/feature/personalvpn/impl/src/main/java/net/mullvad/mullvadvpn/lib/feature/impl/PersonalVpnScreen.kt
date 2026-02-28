@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -29,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -36,6 +38,7 @@ import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import java.time.Instant
 import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.common.compose.showSnackbarImmediately
 import net.mullvad.mullvadvpn.core.animation.SlideInFromRightTransition
@@ -159,7 +162,15 @@ fun PersonalVpnScreen(
                         horizontalArrangement = Arrangement.SpaceBetween,
                     ) {
                         Text("last handshake:")
-                        Text(tunnelStats.lastHandshake.toString())
+                        val lastHandshakeSeconds = tunnelStats.lastHandshake?.epochSecond
+                        val lastHandshakeString =
+                            if (lastHandshakeSeconds == null) {
+                                "Never"
+                            } else {
+                                val diff = Instant.now().epochSecond - lastHandshakeSeconds
+                                "$diff seconds ago"
+                            }
+                        Text(lastHandshakeString)
                     }
                 }
 
@@ -178,6 +189,7 @@ fun PersonalVpnScreen(
                     labelPosition = TextFieldLabelPosition.Above(),
                     isError = state.value.privateKeyDataError != null,
                     placeholder = { Text("abcd...") },
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
                     supportingText =
                         state.value.privateKeyDataError?.let { { Text(it.toErrorMessage()) } },
                 )
@@ -190,6 +202,7 @@ fun PersonalVpnScreen(
                     isError = state.value.tunnelIpDataError != null,
                     supportingText =
                         state.value.tunnelIpDataError?.let { { Text(it.toErrorMessage()) } },
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -203,6 +216,7 @@ fun PersonalVpnScreen(
                     isError = state.value.publicKeyDataError != null,
                     supportingText =
                         state.value.publicKeyDataError?.let { { Text(it.toErrorMessage()) } },
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
                 )
                 TextField(
                     modifier = Modifier.fillMaxWidth(),
@@ -213,6 +227,7 @@ fun PersonalVpnScreen(
                     isError = state.value.allowedIpDataError != null,
                     supportingText =
                         state.value.allowedIpDataError?.let { { Text(it.toErrorMessage()) } },
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
                 )
                 TextField(
                     modifier = Modifier.fillMaxWidth(),
@@ -223,6 +238,18 @@ fun PersonalVpnScreen(
                     isError = state.value.endpointDataError != null,
                     supportingText =
                         state.value.endpointDataError?.let { { Text(it.toErrorMessage()) } },
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                    onKeyboardAction = {
+                        saveConfig(
+                            PersonalVpnFormData(
+                                privateKey = privateKeyTextFieldState.text.toString(),
+                                tunnelIp = addressTextFieldState.text.toString(),
+                                publicKey = publicKeyTextFieldState.text.toString(),
+                                allowedIP = allowedIpTextFieldState.text.toString(),
+                                endpoint = endpointTextFieldState.text.toString(),
+                            )
+                        )
+                    },
                 )
 
                 Spacer(modifier = Modifier.weight(1f))
@@ -247,3 +274,13 @@ fun PersonalVpnScreen(
         }
     }
 }
+
+@Composable
+fun FormDataError.toErrorMessage(): String =
+    when (this) {
+        FormDataError.AllowedIp -> "Bad allowed IP"
+        is FormDataError.Endpoint -> this.toString()
+        is FormDataError.PrivateKey -> keyParseError.toString()
+        is FormDataError.PublicKey -> keyParseError.toString()
+        FormDataError.TunnelIp -> "Bad address IP"
+    }
