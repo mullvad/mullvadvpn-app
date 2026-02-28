@@ -1,12 +1,13 @@
 package net.mullvad.mullvadvpn.lib.feature.impl
 
-import androidx.compose.runtime.Composable
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import arrow.core.Either
 import arrow.core.Either.Companion.zipOrAccumulate
 import arrow.core.EitherNel
+import arrow.core.raise.either
+import arrow.core.raise.ensure
 import java.net.InetAddress
 import java.net.InetSocketAddress
 import kotlinx.coroutines.channels.Channel
@@ -28,9 +29,13 @@ import net.mullvad.mullvadvpn.lib.common.toLc
 import net.mullvad.mullvadvpn.lib.common.util.onFirst
 import net.mullvad.mullvadvpn.lib.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.model.CustomVpnConfig
+import net.mullvad.mullvadvpn.lib.model.KeyParseError
+import net.mullvad.mullvadvpn.lib.model.ParsePortError
 import net.mullvad.mullvadvpn.lib.model.PeerConfig
+import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.model.TunnelConfig
 import net.mullvad.mullvadvpn.lib.model.TunnelStats
+import net.mullvad.mullvadvpn.lib.model.WireguardKey
 import net.mullvad.mullvadvpn.lib.repository.SettingsRepository
 
 class PersonalVpnViewModel(
@@ -119,15 +124,17 @@ class PersonalVpnViewModel(
             )
         }
 
-    private fun parsePrivateKey(privateKey: String): Either<FormDataError.PrivateKey, String> {
-        return Either.Right(privateKey)
+    private fun parsePrivateKey(
+        privateKey: String
+    ): Either<FormDataError.PrivateKey, WireguardKey> {
+        return WireguardKey.from(privateKey).mapLeft { FormDataError.PrivateKey(it) }
     }
 
     private fun parseAddress(address: String): Either<FormDataError.TunnelIp, InetAddress> =
         Either.catch { InetAddress.getByName(address) }.mapLeft { FormDataError.TunnelIp }
 
-    private fun parsePublicKey(privateKey: String): Either<FormDataError.PublicKey, String> {
-        return Either.Right(privateKey)
+    private fun parsePublicKey(privateKey: String): Either<FormDataError.PublicKey, WireguardKey> {
+        return WireguardKey.from(privateKey).mapLeft { FormDataError.PublicKey(it) }
     }
 
     private fun parseAllowedIp(privateKey: String): Either<FormDataError.AllowedIp, String> {
@@ -135,13 +142,20 @@ class PersonalVpnViewModel(
     }
 
     private fun parseEndpoint(endpoint: String): Either<FormDataError.Endpoint, InetSocketAddress> =
-        Either.catch {
-                val (host, port) = endpoint.trim().split(':')
-                val parsedHost = InetAddress.getByName(host)
-                val parsedPort = port.toInt()
-                InetSocketAddress(parsedHost, parsedPort)
-            }
-            .mapLeft { FormDataError.Endpoint }
+        either {
+            ensure(endpoint.isNotBlank()) { FormDataError.Endpoint.Empty }
+            ensure(endpoint.contains(':')) { FormDataError.Endpoint.InvalidAddress }
+            val (rawHost, rawPort) = endpoint.trim().split(':')
+            val host =
+                Either.catch { InetAddress.getByName(rawHost) }
+                    .mapLeft { FormDataError.Endpoint.InvalidAddress }
+                    .bind()
+
+            val port =
+                Port.fromString(rawPort).mapLeft { FormDataError.Endpoint.InvalidPort(it) }.bind()
+
+            InetSocketAddress(host, port.value)
+        }
 }
 
 sealed interface PersonalVpnSideEffect {
@@ -172,9 +186,9 @@ data class PersonalVpnFormData(
                 PersonalVpnFormData()
             } else {
                 PersonalVpnFormData(
-                    privateKey = customVpnConfig.tunnelConfig.privateKey,
+                    privateKey = customVpnConfig.tunnelConfig.privateKey.value,
                     tunnelIp = customVpnConfig.tunnelConfig.tunnelIp.hostAddress ?: "",
-                    publicKey = customVpnConfig.peerConfig.publicKey,
+                    publicKey = customVpnConfig.peerConfig.publicKey.value,
                     allowedIP = customVpnConfig.peerConfig.allowedIp,
                     endpoint = customVpnConfig.peerConfig.endpoint.hostString,
                 )
@@ -183,23 +197,19 @@ data class PersonalVpnFormData(
 }
 
 sealed interface FormDataError {
-    data object PrivateKey : FormDataError
+    data class PrivateKey(val keyParseError: KeyParseError) : FormDataError
 
     data object TunnelIp : FormDataError
 
-    data object PublicKey : FormDataError
+    data class PublicKey(val keyParseError: KeyParseError) : FormDataError
 
     data object AllowedIp : FormDataError
 
-    data object Endpoint : FormDataError
-}
+    sealed interface Endpoint : FormDataError {
+        data object Empty : Endpoint
 
-@Composable
-fun FormDataError.toErrorMessage(): String =
-    when (this) {
-        FormDataError.AllowedIp -> "Bad allowed IP"
-        FormDataError.Endpoint -> "Bad endpoint"
-        FormDataError.PrivateKey -> "Bad private key"
-        FormDataError.PublicKey -> "Bad public key"
-        FormDataError.TunnelIp -> "Bad address IP"
+        data object InvalidAddress : Endpoint
+
+        data class InvalidPort(val parsePortError: ParsePortError) : Endpoint
     }
+}

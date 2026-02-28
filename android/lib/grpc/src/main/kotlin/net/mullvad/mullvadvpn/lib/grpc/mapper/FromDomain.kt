@@ -286,12 +286,12 @@ internal fun CustomVpnConfig.fromDomain(): ManagementInterface.CustomVpnConfig =
 internal fun TunnelConfig.fromDomain(): ManagementInterface.CustomVpnConfig.TunnelConfig =
     ManagementInterface.CustomVpnConfig.TunnelConfig.newBuilder()
         .setIp(tunnelIp.hostAddress!!)
-        .setPrivateKey(ByteString.copyFrom(Base64.decode(privateKey)))
+        .setPrivateKey(ByteString.copyFrom(Base64.decode(privateKey.value)))
         .build()
 
 internal fun PeerConfig.fromDomain(): ManagementInterface.CustomVpnConfig.PeerConfig =
     ManagementInterface.CustomVpnConfig.PeerConfig.newBuilder()
         .setEndpoint("${endpoint.address.hostAddress}:${endpoint.port}")
         .setAllowedIp(allowedIp)
-        .setPublicKey(ByteString.copyFrom(Base64.decode(publicKey)))
+        .setPublicKey(ByteString.copyFrom(Base64.decode(publicKey.value)))
         .build()

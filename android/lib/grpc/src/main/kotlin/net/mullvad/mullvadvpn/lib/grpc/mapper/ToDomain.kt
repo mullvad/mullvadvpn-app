@@ -87,6 +87,7 @@ import net.mullvad.mullvadvpn.lib.model.TunnelStats
 import net.mullvad.mullvadvpn.lib.model.Udp2TcpObfuscationSettings
 import net.mullvad.mullvadvpn.lib.model.WireguardConstraints
 import net.mullvad.mullvadvpn.lib.model.WireguardEndpointData
+import net.mullvad.mullvadvpn.lib.model.WireguardKey
 
 internal fun ManagementInterface.TunnelState.toDomain(): TunnelState =
     when (stateCase!!) {
@@ -802,13 +803,13 @@ internal fun ManagementInterface.CustomVpnConfig.toDomain() =
 
 internal fun ManagementInterface.CustomVpnConfig.TunnelConfig.toDomain(): TunnelConfig =
     TunnelConfig(
-        privateKey = Base64.encode(privateKey.toByteArray()),
+        privateKey = WireguardKey.from(Base64.encode(privateKey.toByteArray())).getOrNull()!!,
         tunnelIp = InetAddress.getByName(ip),
     )
 
 internal fun ManagementInterface.CustomVpnConfig.PeerConfig.toDomain() =
     PeerConfig(
-        publicKey = Base64.encode(publicKey.toByteArray()),
+        publicKey = WireguardKey.from(Base64.encode(publicKey.toByteArray())).getOrNull()!!,
         allowedIp = allowedIp,
         endpoint = endpoint.toInetSocketAddress(),
     )
