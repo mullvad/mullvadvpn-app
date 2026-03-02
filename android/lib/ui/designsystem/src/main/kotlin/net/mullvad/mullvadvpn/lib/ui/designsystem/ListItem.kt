@@ -240,7 +240,7 @@ class ListItemColors(
     val disabledHeadlineColor: Color,
 ) {
     @Stable
-    internal fun headlineColor(enabled: Boolean, selected: Boolean): Color =
+    fun headlineColor(enabled: Boolean, selected: Boolean): Color =
         when {
             !enabled -> disabledHeadlineColor
             selected -> selectedHeadlineColor

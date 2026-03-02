@@ -16,7 +16,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -27,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import net.mullvad.mullvadvpn.lib.ui.component.ExpandChevronDivider
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.LeadingContentAnimatedVisibility
 import net.mullvad.mullvadvpn.lib.ui.designsystem.ListItemClickArea
+import net.mullvad.mullvadvpn.lib.ui.designsystem.ListItemDefaults
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadListItem
 import net.mullvad.mullvadvpn.lib.ui.resource.R
 import net.mullvad.mullvadvpn.lib.ui.tag.CUSTOM_LIST_ENTRY_ITEM_TAG
@@ -36,8 +36,6 @@ import net.mullvad.mullvadvpn.lib.ui.tag.GEOLOCATION_ITEM_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.RECENT_ITEM_TAG
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
-import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaInactive
-import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaVisible
 
 @Composable
 @Preview
@@ -66,12 +64,17 @@ fun SelectableRelayListItem(
     val active = relayListItem.item.active
     val selected = relayListItem.isSelected
 
+    val colors = ListItemDefaults.colors()
+
     MullvadListItem(
         modifier = modifier,
         hierarchy = relayListItem.hierarchy,
         position = relayListItem.itemPosition,
         isSelected = selected,
-        isEnabled = active,
+        isEnabled = true,
+        onClick = onClick,
+        onLongClick = onLongClick,
+        colors = colors,
         testTag =
             when (relayListItem) {
                 is RelayListItem.CustomListEntryItem -> CUSTOM_LIST_ENTRY_ITEM_TAG
@@ -82,8 +85,6 @@ fun SelectableRelayListItem(
         mainClickArea =
             if (relayListItem.canExpand) ListItemClickArea.LeadingAndMain
             else ListItemClickArea.All,
-        onClick = onClick,
-        onLongClick = onLongClick,
         leadingContent = {
             LeadingContentAnimatedVisibility(
                 modifier = Modifier.align(Alignment.Center),
@@ -110,7 +111,7 @@ fun SelectableRelayListItem(
             Name(
                 name = relayListItem.item.name,
                 state = relayListItem.state,
-                active = relayListItem.item.active,
+                colors.headlineColor(enabled = active, selected = selected),
             )
         },
         trailingContent = {
@@ -126,24 +127,12 @@ fun SelectableRelayListItem(
 }
 
 @Composable
-internal fun Name(
-    modifier: Modifier = Modifier,
-    name: String,
-    state: RelayListItemState?,
-    active: Boolean,
-) {
+internal fun Name(name: String, state: RelayListItemState?, textColor: Color) {
     Text(
         text = state?.let { name.withSuffix(state) } ?: name,
-        modifier =
-            modifier.alpha(
-                if (state == null && active) {
-                    AlphaVisible
-                } else {
-                    AlphaInactive
-                }
-            ),
         maxLines = 1,
         overflow = TextOverflow.Ellipsis,
+        color = textColor,
     )
 }
 
