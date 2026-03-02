@@ -11,6 +11,7 @@ bench = false
 crate-type = ["staticlib"]
 
 [target.'cfg(target_os = "ios")'.dependencies]
+chrono = { workspace = true }
 futures = { workspace = true }
 hyper = { version = "1.4.1", features = ["client", "http1"] }
 hyper-util = { workspace = true }
