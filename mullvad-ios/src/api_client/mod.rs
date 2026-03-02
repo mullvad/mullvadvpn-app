@@ -284,6 +284,7 @@ pub extern "C" fn mullvad_api_init_inner(
     let endpoint = ApiEndpoint {
         host: Some(host),
         address: Some(address.parse().unwrap()),
+        sigsum_trusted_pubkeys: None,
         #[cfg(feature = "api-override")]
         disable_tls,
         #[cfg(feature = "api-override")]
