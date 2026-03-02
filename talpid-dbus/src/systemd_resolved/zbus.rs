@@ -299,7 +299,7 @@ impl SystemdResolved {
         // https://manpages.debian.org/bullseye/systemd/org.freedesktop.resolve1.5.en.html
 
         self.as_manager_object()?
-            .get_link(interface_index)
+            .get_link(i32::try_from(interface_index).expect("interface index fits in an i32"))
             .map_err(Error::GetLinkError)
     }
 
