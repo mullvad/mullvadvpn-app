@@ -17,7 +17,6 @@ class SelectLocationsListUiStatePreviewParameterProvider :
                             includeCustomLists = true,
                             isSearching = false,
                         ),
-                    customLists = emptyList(),
                     relayListType = RelayListType.Multihop(MultihopRelayListType.EXIT),
                 )
             ),

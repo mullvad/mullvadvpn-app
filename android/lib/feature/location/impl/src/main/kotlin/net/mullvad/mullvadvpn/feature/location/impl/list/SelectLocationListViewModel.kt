@@ -35,7 +35,6 @@ import net.mullvad.mullvadvpn.lib.ui.component.relaylist.RelayListItem
 import net.mullvad.mullvadvpn.lib.usecase.FilteredRelayListUseCase
 import net.mullvad.mullvadvpn.lib.usecase.RecentsUseCase
 import net.mullvad.mullvadvpn.lib.usecase.SelectedLocationUseCase
-import net.mullvad.mullvadvpn.lib.usecase.customlists.CustomListsRelayItemUseCase
 import net.mullvad.mullvadvpn.lib.usecase.customlists.FilterCustomListsRelayItemUseCase
 
 @Suppress("LongParameterList")
@@ -49,17 +48,12 @@ class SelectLocationListViewModel(
     private val recentsUseCase: RecentsUseCase,
     private val settingsRepository: SettingsRepository,
     relayListScrollConnection: RelayListScrollConnection,
-    customListsRelayItemUseCase: CustomListsRelayItemUseCase,
 ) : ViewModel() {
     private val _expandedItems: MutableStateFlow<Set<String>> =
         MutableStateFlow(initialExpand(initialSelection()))
 
     val uiState: StateFlow<Lce<Unit, SelectLocationListUiState, Unit>> =
-        combine(
-                relayListItems(),
-                customListsRelayItemUseCase(),
-                settingsRepository.settingsUpdates,
-            ) { relayListItems, customLists, settings ->
+        combine(relayListItems(), settingsRepository.settingsUpdates) { relayListItems, settings ->
                 if (relayListType.isEntryAndBlocked(settings)) {
                     Lce.Error(Unit)
                 } else {
@@ -67,7 +61,6 @@ class SelectLocationListViewModel(
                         SelectLocationListUiState(
                             relayListType = relayListType,
                             relayListItems = relayListItems,
-                            customLists = customLists,
                         )
                     )
                 }
