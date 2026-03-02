@@ -1,4 +1,4 @@
-import { getLocationChildrenByType } from '../../select-location-types';
+import { getLocationChildren } from '../../../../../features/location/utils';
 import { AnyLocationListItem, type AnyLocationListItemProps } from '../any-location-list-item';
 import {
   GeographicalLocationListItemProvider,
@@ -15,7 +15,7 @@ function GeographicalLocationListItemImpl({
 }: GeographicalLocationListItemProps) {
   const { loading } = useGeographicalLocationListItemContext();
 
-  const children = getLocationChildrenByType(location);
+  const children = getLocationChildren(location);
   return (
     <AnyLocationListItem
       location={location}

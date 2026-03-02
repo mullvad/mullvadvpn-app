@@ -1,5 +1,5 @@
+import type { LocationType } from '../../../../../features/location/types';
 import { useHasCustomLists } from '../../hooks';
-import type { LocationType } from '../../select-location-types';
 import { CountryLocationList } from '../country-location-list';
 import { CustomListLocationList } from '../custom-list-location-list';
 import { NoSearchResult } from '../no-search-result';

@@ -1,12 +1,12 @@
 import { Action } from 'history';
 import React, { useCallback, useContext, useEffect, useMemo, useRef } from 'react';
 
+import { LocationType } from '../../../features/location/types';
 import { useHistory } from '../../../lib/history';
 import { useNormalRelaySettings } from '../../../lib/relay-settings-hooks';
 import { useStyledRef } from '../../../lib/utility-hooks';
 import { CustomScrollbarsRef } from '../../CustomScrollbars';
 import { SpacePreAllocationView } from './components';
-import { LocationType } from './select-location-types';
 import { useSelectLocationViewContext } from './SelectLocationViewContext';
 
 // Context containing the scroll position for each location type and methods to interact with it.

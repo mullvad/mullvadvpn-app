@@ -2,9 +2,9 @@ import React from 'react';
 import { sprintf } from 'sprintf-js';
 
 import { messages } from '../../../../../../../../shared/gettext';
+import type { CustomListLocation } from '../../../../../../../features/location/types';
 import { LocationListItem } from '../../../../../../location-list-item';
 import type { LocationListItemIconButtonProps } from '../../../../../../location-list-item/components';
-import type { CustomListLocation } from '../../../../select-location-types';
 import { ConfirmDeleteCustomListDialog } from '../../../confirm-delete-custom-list-dialog';
 import { useCustomListLocationListItemContext } from '../../../custom-list-location-list-item/CustomListLocationListItemContext';
 

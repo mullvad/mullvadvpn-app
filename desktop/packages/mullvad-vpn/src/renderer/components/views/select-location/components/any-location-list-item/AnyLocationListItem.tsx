@@ -3,12 +3,13 @@ import { sprintf } from 'sprintf-js';
 
 import type { RelayLocation as DaemonRelayLocation } from '../../../../../../shared/daemon-rpc-types';
 import { messages } from '../../../../../../shared/gettext';
+import { type AnyLocation } from '../../../../../features/location/types';
+import { getLocationChildren } from '../../../../../features/location/utils';
 import { FootnoteMiniSemiBold } from '../../../../../lib/components';
 import { FlexColumn } from '../../../../../lib/components/flex-column';
 import type { ListItemProps } from '../../../../../lib/components/list-item';
 import { LocationListItem } from '../../../../location-list-item';
 import { useScrollPositionContext } from '../../ScrollPositionContext';
-import { type AnyLocation, getLocationChildrenByType } from '../../select-location-types';
 import {
   AnyLocationListItemProvider,
   useAnyLocationListItemContext,
@@ -34,7 +35,7 @@ function AnyLocationListItemImpl({
   const { location, expanded, setExpanded } = useAnyLocationListItemContext();
   const { selectedLocationRef } = useScrollPositionContext();
 
-  const childLocations = getLocationChildrenByType(location);
+  const childLocations = getLocationChildren(location);
   const hasChildren = childLocations.length > 0;
   const showEmptySubtitle = location.type === 'customList' && !hasChildren;
 

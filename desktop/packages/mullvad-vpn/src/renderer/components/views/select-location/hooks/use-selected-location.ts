@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
 
 import type { RelayLocation } from '../../../../../shared/daemon-rpc-types';
+import { LocationType } from '../../../../features/location/types';
 import { useNormalRelaySettings } from '../../../../lib/relay-settings-hooks';
-import { LocationType } from '../select-location-types';
 import { useSelectLocationViewContext } from '../SelectLocationViewContext';
 
 // Returns the selected location for the current tunnel protocol and location type

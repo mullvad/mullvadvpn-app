@@ -7,10 +7,10 @@ import {
 } from '../../../../../../shared/daemon-rpc-types';
 import { messages } from '../../../../../../shared/gettext';
 import { useCustomLists } from '../../../../../features/location/hooks';
+import type { GeographicalLocation } from '../../../../../features/location/types';
 import { IconButton } from '../../../../../lib/components';
 import { ListItem } from '../../../../../lib/components/list-item';
 import { SelectableLabel } from '../../../../../lib/components/selectable-label';
-import type { GeographicalLocation } from '../../select-location-types';
 
 interface SelectListProps {
   list: ICustomList;
