@@ -25,6 +25,11 @@ const PROBLEMATIC_APPLICATIONS = {
     'mate-terminal',
     'opera',
     'xfce4-terminal',
+
+    // TODO:
+    // flatpak creates a new systemd unit when launching apps,
+    // which means that it escapes mullvad-excludes unit.
+    'flatpak',
   ],
   launchingElsewhere: ['gnome-terminal'],
 };
