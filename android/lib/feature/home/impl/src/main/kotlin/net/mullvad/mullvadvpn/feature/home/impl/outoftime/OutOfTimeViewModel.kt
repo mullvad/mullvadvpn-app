@@ -17,6 +17,7 @@ import net.mullvad.mullvadvpn.feature.addtime.impl.hasPendingPayment
 import net.mullvad.mullvadvpn.feature.addtime.impl.isSuccess
 import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.common.util.ACCOUNT_EXPIRY_POLL_INTERVAL
+import net.mullvad.mullvadvpn.lib.model.DisconnectReason
 import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
 import net.mullvad.mullvadvpn.lib.repository.AccountRepository
 import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
@@ -76,7 +77,9 @@ class OutOfTimeViewModel(
 
     fun onDisconnectClick() {
         viewModelScope.launch {
-            connectionProxy.disconnect().onLeft { _uiSideEffect.send(UiSideEffect.GenericError) }
+            connectionProxy.disconnect(DisconnectReason.USER_INITIATED_OUT_OF_TIME).onLeft {
+                _uiSideEffect.send(UiSideEffect.GenericError)
+            }
         }
     }
 

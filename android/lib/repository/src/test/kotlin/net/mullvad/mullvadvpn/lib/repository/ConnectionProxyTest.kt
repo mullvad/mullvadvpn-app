@@ -54,8 +54,8 @@ class ConnectionProxyTest {
 
     @Test
     fun `disconnect should call managementService disconnect`() = runTest {
-        connectionProxy.disconnect()
-        coVerify(exactly = 1) { mockManagementService.disconnect() }
+        connectionProxy.disconnect(mockk())
+        coVerify(exactly = 1) { mockManagementService.disconnect(any()) }
     }
 
     @Test

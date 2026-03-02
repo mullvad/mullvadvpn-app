@@ -27,6 +27,7 @@ import net.mullvad.mullvadvpn.lib.common.util.withPrev
 import net.mullvad.mullvadvpn.lib.model.ActionAfterDisconnect
 import net.mullvad.mullvadvpn.lib.model.ConnectError
 import net.mullvad.mullvadvpn.lib.model.DeviceState
+import net.mullvad.mullvadvpn.lib.model.DisconnectReason
 import net.mullvad.mullvadvpn.lib.model.PrepareError
 import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
@@ -138,7 +139,7 @@ class ConnectViewModel(
 
     fun onDisconnectClick() {
         viewModelScope.launch {
-            connectionProxy.disconnect().onLeft {
+            connectionProxy.disconnect(DisconnectReason.USER_INITIATED_DISCONNECT_BUTTON).onLeft {
                 _uiSideEffect.send(UiSideEffect.ConnectError.Generic)
             }
         }
@@ -182,7 +183,7 @@ class ConnectViewModel(
 
     fun onCancelClick() {
         viewModelScope.launch {
-            connectionProxy.disconnect().onLeft {
+            connectionProxy.disconnect(DisconnectReason.USER_INITIATED_CANCEL_BUTTON).onLeft {
                 _uiSideEffect.send(UiSideEffect.ConnectError.Generic)
             }
         }

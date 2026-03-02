@@ -21,6 +21,7 @@ import net.mullvad.mullvadvpn.lib.model.AccountData
 import net.mullvad.mullvadvpn.lib.model.AccountNumber
 import net.mullvad.mullvadvpn.lib.model.Device
 import net.mullvad.mullvadvpn.lib.model.DeviceState
+import net.mullvad.mullvadvpn.lib.model.DisconnectReason
 import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentAvailability
@@ -154,13 +155,14 @@ class WelcomeViewModelTest {
     @Test
     fun `when on disconnect click is called should call connection proxy disconnect`() = runTest {
         // Arrange
-        coEvery { mockConnectionProxy.disconnect() } returns true.right()
+        val mockDisconnectReason = DisconnectReason.USER_INITIATED_WELCOME
+        coEvery { mockConnectionProxy.disconnect(any()) } returns true.right()
 
         // Act
         viewModel.onDisconnectClick()
 
         // Assert
-        coVerify { mockConnectionProxy.disconnect() }
+        coVerify { mockConnectionProxy.disconnect(mockDisconnectReason) }
     }
 
     @Test

@@ -22,6 +22,7 @@ import net.mullvad.mullvadvpn.lib.common.constant.KEY_CONNECT_ACTION
 import net.mullvad.mullvadvpn.lib.common.constant.KEY_DISCONNECT_ACTION
 import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointFromIntentHolder
 import net.mullvad.mullvadvpn.lib.grpc.ManagementService
+import net.mullvad.mullvadvpn.lib.model.DisconnectReason
 import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.pushnotification.NotificationChannelFactory
 import net.mullvad.mullvadvpn.lib.pushnotification.NotificationManager
@@ -123,7 +124,9 @@ class MullvadVpnService : TalpidVpnService() {
                 // being foreground, thus it must go into foreground to please the android system
                 // requirements.
                 foregroundNotificationHandler.startForeground()
-                lifecycleScope.launch { connectionProxy.disconnect() }
+                lifecycleScope.launch {
+                    connectionProxy.disconnect(DisconnectReason.USER_INITIATED_NOTIFICATION_TILE)
+                }
 
                 // If disconnect intent is received and no one is using this service, simply stop
                 // foreground and let system stop service when it deems it not to be necessary.
@@ -184,7 +187,7 @@ class MullvadVpnService : TalpidVpnService() {
 
     override fun onRevoke() {
         Logger.d("onRevoke")
-        runBlocking { connectionProxy.disconnect() }
+        runBlocking { connectionProxy.disconnect(DisconnectReason.SYSTEM_REVOKE) }
     }
 
     override fun onUnbind(intent: Intent): Boolean {

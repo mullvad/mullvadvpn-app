@@ -16,6 +16,7 @@ import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.model.AccountData
 import net.mullvad.mullvadvpn.lib.model.DeviceState
+import net.mullvad.mullvadvpn.lib.model.DisconnectReason
 import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentAvailability
@@ -132,13 +133,14 @@ class OutOfTimeViewModelTest {
     @Test
     fun `onDisconnectClick should invoke disconnect on ConnectionProxy`() = runTest {
         // Arrange
-        coEvery { mockConnectionProxy.disconnect() } returns true.right()
+        val mockDisconnectReason = DisconnectReason.USER_INITIATED_OUT_OF_TIME
+        coEvery { mockConnectionProxy.disconnect(any()) } returns true.right()
 
         // Act
         viewModel.onDisconnectClick()
 
         // Assert
-        coVerify { mockConnectionProxy.disconnect() }
+        coVerify { mockConnectionProxy.disconnect(mockDisconnectReason) }
     }
 
     @Test

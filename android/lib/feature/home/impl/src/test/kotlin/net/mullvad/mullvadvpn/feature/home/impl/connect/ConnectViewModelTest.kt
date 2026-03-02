@@ -22,6 +22,7 @@ import net.mullvad.mullvadvpn.feature.home.impl.connect.notificationbanner.InApp
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.model.AccountData
 import net.mullvad.mullvadvpn.lib.model.DeviceState
+import net.mullvad.mullvadvpn.lib.model.DisconnectReason
 import net.mullvad.mullvadvpn.lib.model.ErrorState
 import net.mullvad.mullvadvpn.lib.model.GeoIpLocation
 import net.mullvad.mullvadvpn.lib.model.InAppNotification
@@ -222,13 +223,14 @@ class ConnectViewModelTest {
     @Test
     fun `onDisconnectClick should invoke disconnect on ConnectionProxy`() = runTest {
         // Arrange
-        coEvery { mockConnectionProxy.disconnect() } returns true.right()
+        val mockDisconnectReason = DisconnectReason.USER_INITIATED_DISCONNECT_BUTTON
+        coEvery { mockConnectionProxy.disconnect(any()) } returns true.right()
 
         // Act
         viewModel.onDisconnectClick()
 
         // Assert
-        coVerify { mockConnectionProxy.disconnect() }
+        coVerify { mockConnectionProxy.disconnect(mockDisconnectReason) }
     }
 
     @Test
@@ -258,13 +260,14 @@ class ConnectViewModelTest {
     @Test
     fun `onCancelClick should invoke disconnect on ConnectionProxy`() = runTest {
         // Arrange
-        coEvery { mockConnectionProxy.disconnect() } returns true.right()
+        val mockDisconnectReason = DisconnectReason.USER_INITIATED_CANCEL_BUTTON
+        coEvery { mockConnectionProxy.disconnect(any()) } returns true.right()
 
         // Act
         viewModel.onCancelClick()
 
         // Assert
-        coVerify { mockConnectionProxy.disconnect() }
+        coVerify { mockConnectionProxy.disconnect(mockDisconnectReason) }
     }
 
     @Test

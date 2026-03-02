@@ -15,6 +15,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
+import net.mullvad.mullvadvpn.lib.model.DisconnectReason
 import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.pushnotification.ScheduleNotificationAlarmUseCase
 import net.mullvad.mullvadvpn.lib.pushnotification.accountexpiry.AccountExpiryNotificationProvider
@@ -89,7 +90,7 @@ class DeviceRevokedViewModelTest {
     @Test
     fun `onGoToLoginClicked should invoke logout on AccountRepository`() {
         // Arrange
-        coEvery { mockConnectionProxy.disconnect() } returns true.right()
+        coEvery { mockConnectionProxy.disconnect(any()) } returns true.right()
         coEvery { mockedAccountRepository.logout() } returns Unit.right()
 
         // Act
@@ -102,7 +103,8 @@ class DeviceRevokedViewModelTest {
     @Test
     fun `onGoToLoginClicked should invoke disconnect before logout when connected`() {
         // Arrange
-        coEvery { mockConnectionProxy.disconnect() } returns true.right()
+        val mockDisconnectReason = DisconnectReason.USER_INITIATED_GO_TO_LOGIN
+        coEvery { mockConnectionProxy.disconnect(any()) } returns true.right()
         coEvery { mockedAccountRepository.logout() } returns Unit.right()
 
         // Act
@@ -110,7 +112,7 @@ class DeviceRevokedViewModelTest {
 
         // Assert
         coVerifyOrder {
-            mockConnectionProxy.disconnect()
+            mockConnectionProxy.disconnect(mockDisconnectReason)
             mockedAccountRepository.logout()
         }
     }
