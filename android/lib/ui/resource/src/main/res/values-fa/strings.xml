@@ -22,7 +22,7 @@
     <string name="all_applications">تمام اپلیکیشن‌ها</string>
     <string name="all_locations">تمام مکان‌ها</string>
     <string name="all_providers">تمام ارائه‌دهندگان</string>
-    <string name="always_on_vpn_error_notification_content">نمی‌توان اتصال تونل را آغاز کرد. لطفاً پیش از استفاده از Mullvad VPN، گزینهٔ «VPN همیشه‌فعال» را برای &lt;b&gt;%1$s&lt;/b&gt; غیرفعال کنید.</string>
+    <string name="always_on_vpn_error_notification_content">نمی‌توان اتصال تونل را آغاز کرد. لطفاً پیش از استفاده از Mullvad VPN، گزینهٔ «VPN همیشه‌فعال» را برای <b>%1$s</b> غیرفعال کنید.</string>
     <string name="always_on_vpn_error_notification_title">VPN همیشه‌فعال به %1$s اختصاص داده شد</string>
     <string name="android_16_upgrade_warning_dialog_first_message">پس از به‌روزرسانی یک اپلیکیشن VPN در اندروید 16، ممکن است دستگاه‌ها به حالتی برسند که اپلیکیشن‌های VPN دیگر نتوانند به اینترنت دسترسی پیدا کنند.</string>
     <string name="android_16_upgrade_warning_dialog_second_message">لطفاً دستگاه‌تان را دوباره راه‌اندازی کنید و دوباره تلاش کنید وصل شوید. اگر مشکل برطرف نشد، لطفاً یک ایمیل به %1$s به زبان سوئدی یا انگلیسی بنویسید.</string>
@@ -30,7 +30,7 @@
     <string name="android_16_upgrade_warning_title">اتصال برقرار نمی‌شود؟</string>
     <string name="anti_censorship">ضد سانسور</string>
     <string name="anti_censorship_info_first_paragraph">این روش‌ها ممکن است زمانی مفید باشند که دسترسی شما به Mullvad مسدود شده باشد. وقتی «خودکار» انتخاب شود، اپلیکیشن همهٔ روش‌ها را امتحان می‌کند تا یکی از آن‌ها کار کند.</string>
-    <string name="anti_censorship_info_second_paragraph">&lt;b&gt;لطفاً توجه داشته باشید که این روش‌ها کارایی را بهبود نمی‌بخشند و ممکن است مصرف سیستم و باتری را افزایش دهند.&lt;/b&gt;</string>
+    <string name="anti_censorship_info_second_paragraph"><b>لطفاً توجه داشته باشید که این روش‌ها کارایی را بهبود نمی‌بخشند و ممکن است مصرف سیستم و باتری را افزایش دهند.</b></string>
     <string name="any">هر کدام</string>
     <string name="api_access_description">مدیریت و افزودن روش‌های سفارشی برای دسترسی به ‏Mullvad API.</string>
     <string name="api_access_method_info_first_line">اپلیکیشن برای ورود شما، دریافت فهرست سرورها و انجام دیگر عملیات ضروری، باید با یک سرور Mullvad API ارتباط برقرار کند.</string>
@@ -48,7 +48,7 @@
     <string name="app_name_weather">آب و هوا</string>
     <string name="appearance">ظاهر</string>
     <string name="appearance_description">عنوان و آیکون اپلیکیشن Mullvad VPN را روی دستگاه اندرویدی خود تغییر دهید. این کار، آیکون هیچ‌یک از اعلان‌های مرتبط با Mullvad VPN را تغییر نخواهد داد.</string>
-    <string name="appearance_description_warning">&lt;b&gt;توجه:&lt;/b&gt; اپلیکیشن به‌صورت خودکار بسته می‌شود و پس از انتخاب آیکون و عنوان جدید، باید دوباره به‌صورت دستی باز شود. این موضوع بر اتصال VPN شما تأثیری نخواهد داشت.</string>
+    <string name="appearance_description_warning"><b>توجه:</b> اپلیکیشن به‌صورت خودکار بسته می‌شود و پس از انتخاب آیکون و عنوان جدید، باید دوباره به‌صورت دستی باز شود. این موضوع بر اتصال VPN شما تأثیری نخواهد داشت.</string>
     <string name="apply">اعمال</string>
     <string name="applying_changes">اعمال تغییرات...</string>
     <string name="at_least_on_method_needs_to_enabled">حداقل یک روش باید فعال باشد</string>
@@ -60,7 +60,7 @@
     <string name="auto_connect_carousel_first_slide_top_text">تنظیمات اتصال خودکار و حالت قفل در تنظیمات سیستمی اندروید قرار دارند. برای فعال‌کردن یکی یا هر دو، این راهنما را دنبال کنید.</string>
     <string name="auto_connect_carousel_second_slide_bottom_text">2. برای فعال کردن «اتصال خودکار»، روی دکمهٔ تغییر وضعیت کنار «VPN همیشه‌فعال» کلیک کنید.</string>
     <string name="auto_connect_carousel_second_slide_top_text">در تنظیمات سیستم اندروید، «اتصال خودکار» با نام «VPN همیشه‌فعال» شناخته می‌شود و باعث می‌شود دستگاه شما همیشه به تونل VPN وصل بماند و پس از راه‌اندازی مجدد نیز به‌طور خودکار دوباره متصل شود.</string>
-    <string name="auto_connect_carousel_third_slide_bottom_text">3. برای فعال کردن حالت قفل، روی کلید کنار «مسدود کردن اتصال‌ها بدون VPN» کلیک کنید.&lt;br /&gt;&lt;br /&gt;&lt;b&gt;هشدار: این تنظیم اپلیکیشن‌های تفکیک‌شده و قابلیت اشتراک‌گذاری شبکهٔ محلی را مسدود می‌کند.&lt;/b&gt;</string>
+    <string name="auto_connect_carousel_third_slide_bottom_text">3. برای فعال کردن حالت قفل، روی کلید کنار «مسدود کردن اتصال‌ها بدون VPN» کلیک کنید.<br /><br /><b>هشدار: این تنظیم اپلیکیشن‌های تفکیک‌شده و قابلیت اشتراک‌گذاری شبکهٔ محلی را مسدود می‌کند.</b></string>
     <string name="auto_connect_carousel_third_slide_top_text">حالت قفل در تنظیمات سیستمی اندروید با نام «مسدود کردن اتصال‌ها بدون VPN» نمایش داده می‌شود. این حالت به کاهش نشت ارتباطات کمک می‌کند، اما محدودیت‌های شناخته‌شده‌ای دارد که می‌توانید بیشتر دربارهٔ آن بخوانید</string>
     <string name="auto_connect_carousel_third_slide_top_text_website_link">اینجا</string>
     <string name="automatic">خودکار</string>
@@ -127,7 +127,7 @@
     <string name="custom_port_dialog_remove">حذف پورت سفارشی</string>
     <string name="custom_port_dialog_submit">تنظیم پورت</string>
     <string name="custom_port_dialog_valid_ranges">دامنه‌های معتبر: %1$s</string>
-    <string name="custom_port_recommended_range_first">&lt;b&gt;توجه:&lt;/b&gt; تنها بعضی سرورها از محدوده کامل پورت پشتیبانی می‌کنند.</string>
+    <string name="custom_port_recommended_range_first"><b>توجه:</b> تنها بعضی سرورها از محدوده کامل پورت پشتیبانی می‌کنند.</string>
     <string name="custom_port_recommended_range_second">محدوده معتبر برای همه سرورها: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">قادر به شناسایی میزبان تونل سفارشی نیست. لطفاً تنظیمات خود را تغییر دهید و دوباره تلاش کنید.</string>
     <string name="daita_description_slide_1_first_paragraph">توجه: این کار باعث افزایش ترافیک شبکه می‌شود و همچنین سرعت، تأخیر و مصرف باتری را تحت تأثیر منفی قرار می‌دهد. در طرح‌های اینترنتی محدود با احتیاط استفاده کنید.</string>
@@ -278,7 +278,7 @@
     <string name="manage_devices_confirm_removal_description_line1">%1$s حذف شود؟</string>
     <string name="manage_devices_confirm_removal_description_line2">دستگاه از فهرست حذف شده و خارج خواهد شد.</string>
     <string name="manage_devices_description">تمام دستگاه‌های وارد شده به حساب خود را مشاهده و مدیریت کنید. شما می‌توانید هم‌زمان حداکثر 5 دستگاه در یک حساب داشته باشید. هر دستگاه هنگام ورود یک نام دریافت می‌کند تا بتوانید به‌راحتی آن‌ها را از هم تشخیص دهید.</string>
-    <string name="max_devices_confirm_removal_description">آیا مطمئنید که می‌خواهید &lt;b&gt;%1$s&lt;/b&gt; را خارج کنید؟</string>
+    <string name="max_devices_confirm_removal_description">آیا مطمئنید که می‌خواهید <b>%1$s</b> را خارج کنید؟</string>
     <string name="max_devices_resolved_description">اکنون می‌توانید ورود به این دستگاه را ادامه دهید.</string>
     <string name="max_devices_resolved_title">عالی!</string>
     <string name="max_devices_warning_description">لطفاً حداقل یکی از دستگاه‌ها را با حذف آن از فهرست زیر خارج کنید. نام دستگاه مربوطه را می‌توانید در تنظیمات حساب همان دستگاه پیدا کنید.</string>
@@ -299,7 +299,7 @@
     <string name="navigate">پیمایش</string>
     <string name="new_changelog_notification_message">برای مشاهدهٔ تغییرات جدید، اینجا کلیک کنید.</string>
     <string name="new_changelog_notification_title">نسخهٔ جدید نصب شد</string>
-    <string name="new_device_notification_message">خوش آمدید، این دستگاه اکنون &lt;b&gt;%1$s&lt;/b&gt; نام دارد.</string>
+    <string name="new_device_notification_message">خوش آمدید، این دستگاه اکنون <b>%1$s</b> نام دارد.</string>
     <string name="new_device_notification_title">دستگاه جدید ایجاد شد</string>
     <string name="new_list">فهرست جدید</string>
     <string name="no_custom_lists_available">هیچ فهرست سفارشی موجود نیست</string>

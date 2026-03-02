@@ -22,7 +22,7 @@
     <string name="all_applications">แอปพลิเคชันทั้งหมด</string>
     <string name="all_locations">ตำแหน่งที่ตั้งทั้งหมด</string>
     <string name="all_providers">ผู้ให้บริการทั้งหมด</string>
-    <string name="always_on_vpn_error_notification_content">ไม่สามารถเริ่มการเชื่อมต่ออุโมงค์ได้ โปรดปิดใช้งาน Always-on VPN เป็นเวลา &lt;b&gt;%1$s&lt;/b&gt; ก่อนที่จะใช้งาน Mullvad VPN</string>
+    <string name="always_on_vpn_error_notification_content">ไม่สามารถเริ่มการเชื่อมต่ออุโมงค์ได้ โปรดปิดใช้งาน Always-on VPN เป็นเวลา <b>%1$s</b> ก่อนที่จะใช้งาน Mullvad VPN</string>
     <string name="always_on_vpn_error_notification_title">VPN เปิดอยู่เสมอ ได้รับการมอบหมายไปยัง %1$s แล้ว</string>
     <string name="android_16_upgrade_warning_dialog_first_message">หลังจากอัปเดตแอป VPN บน Android 16 อุปกรณ์อาจอยู่ในสถานะที่แอป VPN ไม่สามารถเข้าถึงอินเทอร์เน็ตได้อีกต่อไป</string>
     <string name="android_16_upgrade_warning_dialog_second_message">โปรดรีสตาร์ทอุปกรณ์ของคุณและลองเชื่อมต่ออีกครั้ง หากวิธีนี้ไม่ได้ผล โปรดเขียนอีเมลถึง %1$s เป็นภาษาสวีเดนหรืออังกฤษ</string>
@@ -30,7 +30,7 @@
     <string name="android_16_upgrade_warning_title">ไม่สามารถเชื่อมต่อได้ใช่ไหม</string>
     <string name="anti_censorship">การป้องกันการเซ็นเซอร์</string>
     <string name="anti_censorship_info_first_paragraph">วิธีการเหล่านี้อาจมีประโยชน์ในสถานการณ์ที่คุณถูกบล็อกไม่ให้เข้าถึง Mullvad เมื่อเลือก \"อัตโนมัติ\" แอปจะพยายามใช้ทุกวิธีจนกว่าจะมีวิธีใดวิธีหนึ่งที่ใช้งานได้</string>
-    <string name="anti_censorship_info_second_paragraph">&lt;b&gt;โปรดทราบว่าวิธีการเหล่านี้ไม่ได้ช่วยปรับปรุงประสิทธิภาพ แต่อาจเพิ่มการใช้งานระบบและการใช้แบตเตอรี่&lt;/b&gt;</string>
+    <string name="anti_censorship_info_second_paragraph"><b>โปรดทราบว่าวิธีการเหล่านี้ไม่ได้ช่วยปรับปรุงประสิทธิภาพ แต่อาจเพิ่มการใช้งานระบบและการใช้แบตเตอรี่</b></string>
     <string name="any">อะไรก็ได้</string>
     <string name="api_access_description">จัดการและเพิ่มวิธีแบบกำหนดเอง เพื่อเข้าถึง Mullvad API</string>
     <string name="api_access_method_info_first_line">แอปจำเป็นต้องสื่อสารกับเซิร์ฟเวอร์ Mullvad API เพื่อนำคุณเข้าสู่ระบบ ดึงข้อมูลรายการเซิร์ฟเวอร์ และการดำเนินการที่สำคัญอื่นๆ</string>
@@ -48,7 +48,7 @@
     <string name="app_name_weather">สภาพอากาศ</string>
     <string name="appearance">รูปลักษณ์</string>
     <string name="appearance_description">เปลี่ยนชื่อและไอคอนของแอป Mullvad VPN บนอุปกรณ์ Android ของคุณ การดำเนินการนี้จะไม่เปลี่ยนไอคอนสำหรับการแจ้งเตือนที่เกี่ยวข้องกับ Mullvad VPN</string>
-    <string name="appearance_description_warning">&lt;b&gt;ข้อควรระวัง:&lt;/b&gt; แอปจะปิดโดยอัตโนมัติและต้องเปิดใหม่ด้วยตนเองหลังจากเลือกไอคอนและชื่อใหม่ การดำเนินการนี้จะไม่ส่งผลต่อการเชื่อมต่อ VPN ของคุณ</string>
+    <string name="appearance_description_warning"><b>ข้อควรระวัง:</b> แอปจะปิดโดยอัตโนมัติและต้องเปิดใหม่ด้วยตนเองหลังจากเลือกไอคอนและชื่อใหม่ การดำเนินการนี้จะไม่ส่งผลต่อการเชื่อมต่อ VPN ของคุณ</string>
     <string name="apply">ใช้</string>
     <string name="applying_changes">กำลังปรับใช้การเปลี่ยนแปลง...</string>
     <string name="at_least_on_method_needs_to_enabled">จำเป็นต้องเปิดใช้อย่างน้อยหนึ่งวิธีการ</string>
@@ -60,7 +60,7 @@
     <string name="auto_connect_carousel_first_slide_top_text">การตั้งค่าการเชื่อมต่ออัตโนมัติและโหมดล็อกดาวน์ อยู่ในการตั้งค่าระบบ Android โปรดทำตามคำแนะนำนี้ เพื่อเปิดใช้งานโหมดใดโหมดหนึ่ง หรือทั้งสองโหมด</string>
     <string name="auto_connect_carousel_second_slide_bottom_text">2. ในการเปิดใช้การเชื่อมต่ออัตโนมัติ ให้คลิกปุ่มเปิด/ปิดที่อยู่ถัดจาก \"VPN เปิดอยู่เสมอ\"</string>
     <string name="auto_connect_carousel_second_slide_top_text">การเชื่อมต่ออัตโนมัติเรียกว่า Always-on VPN ในการตั้งค่าระบบ Android ซึ่งจะช่วยให้คุณมั่นใจได้ว่า คุณเชื่อมต่อกับช่องทาง VPN อย่างต่อเนื่อง และมีการเชื่อมต่ออัตโนมัติหลังจากรีสตาร์ต</string>
-    <string name="auto_connect_carousel_third_slide_bottom_text">3. ในการเปิดโหมดล็อกดาวน์ ให้คลิกปุ่มเปิด/ปิดที่อยู่ถัดจาก \"ปิดกั้นการเชื่อมต่อที่ไม่ใช้ VPN\"&lt;br /&gt;&lt;br /&gt;&lt;b&gt;คำเตือน: การตั้งค่านี้จะบล็อกแอปที่มีการแยก และคุณลักษณะการแชร์เครือข่ายท้องถิ่น&lt;/b&gt;</string>
+    <string name="auto_connect_carousel_third_slide_bottom_text">3. ในการเปิดโหมดล็อกดาวน์ ให้คลิกปุ่มเปิด/ปิดที่อยู่ถัดจาก \"ปิดกั้นการเชื่อมต่อที่ไม่ใช้ VPN\"<br /><br /><b>คำเตือน: การตั้งค่านี้จะบล็อกแอปที่มีการแยก และคุณลักษณะการแชร์เครือข่ายท้องถิ่น</b></string>
     <string name="auto_connect_carousel_third_slide_top_text">โหมดล็อกดาวน์ถูกเรียกว่า \"ปิดกั้นการเชื่อมต่อที่ไม่ใช้ VPN\" ในการตั้งค่าระบบ Android ซึ่งจะช่วยลดการรั่วไหล แต่ก็มีข้อจำกัดบางประการ ซึ่งคุณสามารถอ่านข้อมูลเพิ่มเติมเกี่ยวกับเรื่องดังกล่าวได้</string>
     <string name="auto_connect_carousel_third_slide_top_text_website_link">ที่นี่</string>
     <string name="automatic">อัตโนมัติ</string>
@@ -127,7 +127,7 @@
     <string name="custom_port_dialog_remove">นำพอร์ตแบบกำหนดเองออก</string>
     <string name="custom_port_dialog_submit">ตั้งค่าพอร์ต</string>
     <string name="custom_port_dialog_valid_ranges">ช่วงที่ใช้ได้: %1$s</string>
-    <string name="custom_port_recommended_range_first">&lt;b&gt;ข้อควรระวัง:&lt;/b&gt; มีเพียงบางเซิร์ฟเวอร์เท่านั้นที่รองรับช่วงพอร์ตได้ทั้งหมด</string>
+    <string name="custom_port_recommended_range_first"><b>ข้อควรระวัง:</b> มีเพียงบางเซิร์ฟเวอร์เท่านั้นที่รองรับช่วงพอร์ตได้ทั้งหมด</string>
     <string name="custom_port_recommended_range_second">ช่วงที่ใช้ได้สำหรับทุกเซิร์ฟเวอร์: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">ไม่พบโฮสต์ของช่องทางแบบกำหนดเอง กรุณาลองเปลี่ยนการตั้งค่าของคุณ</string>
     <string name="daita_description_slide_1_first_paragraph">โปรดทราบ: การดำเนินการนี้จะเพิ่มการรับส่งข้อมูลทางเครือข่าย และส่งผลเสียต่อความเร็ว ความหน่วงแฝง และการใช้งานแบตเตอรี่ โปรดใช้ด้วยความระมัดระวังในขณะที่ใช้แผนบริการแบบจำกัด</string>
@@ -278,7 +278,7 @@
     <string name="manage_devices_confirm_removal_description_line1">ลบ %1$s หรือไม่</string>
     <string name="manage_devices_confirm_removal_description_line2">อุปกรณ์จะถูกลบออกจากรายการและออกจากระบบ</string>
     <string name="manage_devices_description">ดูและจัดการอุปกรณ์ทั้งหมดที่คุณลงชื่อเข้าใช้ คุณสามารถมีอุปกรณ์ได้สูงสุด 5 เครื่องในหนึ่งบัญชีในเวลาเดียวกัน แต่ละอุปกรณ์จะได้รับชื่อในขณะที่ลงชื่อเข้าใช้ เพื่อช่วยให้คุณแยกแยะอุปกรณ์แต่ละเครื่องได้อย่างง่ายดาย</string>
-    <string name="max_devices_confirm_removal_description">คุณแน่ใจหรือไม่ว่าต้องการออกจากระบบ &lt;b&gt;%1$s&lt;/b&gt;</string>
+    <string name="max_devices_confirm_removal_description">คุณแน่ใจหรือไม่ว่าต้องการออกจากระบบ <b>%1$s</b></string>
     <string name="max_devices_resolved_description">คุณสามารถดำเนินการเข้าสู่ระบบต่อบนอุปกรณ์เครื่องนี้ได้แล้ว</string>
     <string name="max_devices_resolved_title">เยี่ยมยอด!</string>
     <string name="max_devices_warning_description">โปรดลงชื่อออกจากระบบบนอุปกรณ์อย่างน้อยหนึ่งเครื่อง เพื่อนำอุปกรณ์ออกจากรายการด้านล่าง คุณสามารถดูชื่ออุปกรณ์ที่เกี่ยวข้องได้ ภายใต้การตั้งค่าบัญชีของอุปกรณ์</string>
@@ -299,7 +299,7 @@
     <string name="navigate">นำทาง</string>
     <string name="new_changelog_notification_message">คลิกที่นี่ เพื่อดูว่ามีอะไรใหม่</string>
     <string name="new_changelog_notification_title">ติดตั้งเวอร์ชันใหม่แล้ว</string>
-    <string name="new_device_notification_message">ยินดีต้อนรับ อุปกรณ์นี้มีชื่อว่า &lt;b&gt;%1$s&lt;/b&gt; แล้ว</string>
+    <string name="new_device_notification_message">ยินดีต้อนรับ อุปกรณ์นี้มีชื่อว่า <b>%1$s</b> แล้ว</string>
     <string name="new_device_notification_title">สร้างอุปกรณ์ใหม่แล้ว</string>
     <string name="new_list">รายการใหม่</string>
     <string name="no_custom_lists_available">ไม่มีรายการแบบกำหนดเองที่พร้อมใช้งาน</string>

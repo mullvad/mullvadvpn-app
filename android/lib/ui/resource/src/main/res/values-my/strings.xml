@@ -22,7 +22,7 @@
     <string name="all_applications">အပလီကေးရှင်း အားလုံး</string>
     <string name="all_locations">တည်နေရာအာလုံး</string>
     <string name="all_providers">ပံ့ပိုးသူအားလုံး</string>
-    <string name="always_on_vpn_error_notification_content">Tunnel ချိတ်ဆက်မှုကို စတင်၍ မရနိုင်ပါ။ Mullvad VPN ကို မသုံးမီ &lt;b&gt;%1$s&lt;/b&gt; အတွက် VPN အမြဲဖွင့်ထားမှုကို ပိတ်ပေးပါ။</string>
+    <string name="always_on_vpn_error_notification_content">Tunnel ချိတ်ဆက်မှုကို စတင်၍ မရနိုင်ပါ။ Mullvad VPN ကို မသုံးမီ <b>%1$s</b> အတွက် VPN အမြဲဖွင့်ထားမှုကို ပိတ်ပေးပါ။</string>
     <string name="always_on_vpn_error_notification_title">အမြဲဖွင့် VPN ကို %1$s သို့ သတ်မှတ်ထားပါသည်</string>
     <string name="android_16_upgrade_warning_dialog_first_message">Android 16 တွင် VPN အက်ပ်ကို အပ်ဒိတ်လုပ်ပြီးနောက် စက်များတွင် VPN အက်ပ်များက အင်တာနက်ချိတ်မပေးနိုင်တော့သည့် အခြေအနေမျိုး ကြုံရတတ်သည်။</string>
     <string name="android_16_upgrade_warning_dialog_second_message">စက်ကို ရီစတက်ချပြီး ထပ်မံချိတ်ဆက်ကြည့်ပါ။ ချိတ်၍မရသေးလျှင် %1$s သို့ ဆွီဒင် သို့မဟုတ် အင်္ဂလိပ်ဘာသာစကားဖြင့် အီးမေးလ်ပို့ပါ။</string>
@@ -30,7 +30,7 @@
     <string name="android_16_upgrade_warning_title">ချိတ်မရဘူးလား။</string>
     <string name="anti_censorship">ဆင်ဆာဖြတ်တောက်မှု ကျော်လွှားရေး</string>
     <string name="anti_censorship_info_first_paragraph">Mullvad နှင့် ချိတ်ဆက်၍ မရအောင် ပိတ်ပင်ခံရသည့် အခြေအနေများတွင် ဤနည်းလမ်းများက အသုံးဝင်နိုင်ပါသည်။ “အော်တိုမက်တစ်” ကို ရွေးချယ်ထားချိန်တွင် အက်ပ်က အလုပ်ဖြစ်သည့် နည်းလမ်းတစ်ခုခုကို မတွေ့မချင်း နည်းလမ်းအားလုံးကို ကြိုးပမ်းသွားပါမည်။</string>
-    <string name="anti_censorship_info_second_paragraph">&lt;b&gt;ဤနည်းလမ်းများသည် စွမ်းဆောင်ရည်ကို မတိုးတက်စေဘဲ စနစ်ကို ပိုသုံးစွဲ၍ ဘက်ထရီ အားပိုကုန်စေနိုင်ကြောင်း သတိပြုပါ။&lt;/b&gt;</string>
+    <string name="anti_censorship_info_second_paragraph"><b>ဤနည်းလမ်းများသည် စွမ်းဆောင်ရည်ကို မတိုးတက်စေဘဲ စနစ်ကို ပိုသုံးစွဲ၍ ဘက်ထရီ အားပိုကုန်စေနိုင်ကြောင်း သတိပြုပါ။</b></string>
     <string name="any">တစ်ခုခု</string>
     <string name="api_access_description">Mullvad API ကို ရယူသုံးစွဲရန် စိတ်ကြိုက် နည်းလမ်းများကို ပေါင်းထည့်၍ စီမံပါ။</string>
     <string name="api_access_method_info_first_line">Mullvad API ဆာဗာသို့ သင်ဝင်ရောက်ရန်၊ ဆာဗာစာရင်းများ ရယူရန်နှင့် အလွန်အရေးပါသည့် အခြားလုပ်ဆောင်မှုများအတွက် ဤအက်ပ်သည် ၎င်းနှင့်ဆက်သွယ်ရန် လိုအပ်ပါသည်။</string>
@@ -48,7 +48,7 @@
     <string name="app_name_weather">Weather</string>
     <string name="appearance">ပုံသဏ္ဌာန်</string>
     <string name="appearance_description">Android စက်ရှိ Mullvad VPN အက်ပ်၏ ခေါင်းစဉ်နှင့် အိုင်ကွန်ကို ပြောင်းပါ။ ဤသို့ ပြောင်းခြင်းသည် Mullvad VPN ဆက်စပ်သော အသိပေးချက်မှန်သမျှအတွက် အိုင်ကွန်ကို မပြောင်းစေပါ။</string>
-    <string name="appearance_description_warning">&lt;b&gt;သတိပြုရန်-&lt;/b&gt; အိုင်ကွန်နှင့် ခေါင်းစဉ်အသစ်ကို ရွေးပြီးသည်နှင့် အက်ပ်က အော်တို ပိတ်သွားမည်ဖြစ်ပြီး ကိုယ်တိုင် ပြန်ဖွင့်ရန် လိုအပ်ပါသည်။ ဤလုပ်ဆောင်မှုသည် VPN ချိတ်ဆက်မှုကို မထိခိုက်ပါ။</string>
+    <string name="appearance_description_warning"><b>သတိပြုရန်-</b> အိုင်ကွန်နှင့် ခေါင်းစဉ်အသစ်ကို ရွေးပြီးသည်နှင့် အက်ပ်က အော်တို ပိတ်သွားမည်ဖြစ်ပြီး ကိုယ်တိုင် ပြန်ဖွင့်ရန် လိုအပ်ပါသည်။ ဤလုပ်ဆောင်မှုသည် VPN ချိတ်ဆက်မှုကို မထိခိုက်ပါ။</string>
     <string name="apply">သုံးရန်</string>
     <string name="applying_changes">ပြောင်းလဲမှုများ လုပ်ဆောင်နေဆဲ...</string>
     <string name="at_least_on_method_needs_to_enabled">အနည်းဆုံး နည်းလမ်းတစ်ခုကို ဖွင့်ရမည်</string>
@@ -60,7 +60,7 @@
     <string name="auto_connect_carousel_first_slide_top_text">အော်တို ချိတ်ဆက်မှုနှင့် လော့ခ်ဒေါင်းစနစ် ဆက်တင်များကို Android စနစ် ဆက်တင်များတွင် ရှာတွေ့နိုင်ပြီး တစ်ခု သို့မဟုတ် နှစ်ခုလုံးကို ဖွင့်ရန် ဤလမ်းညွှန်ချက်ကို လိုက်နာပါ။</string>
     <string name="auto_connect_carousel_second_slide_bottom_text">2. အော်တို ချိတ်ဆက်မှုကို ဖွင့်ရန် \"အမြဲဖွင့် VPN\" ဘေးရှိ ဖွင့်/ပိတ် ခလုတ်ကို နှိပ်ပါ။</string>
     <string name="auto_connect_carousel_second_slide_top_text">Android စနစ် ဆက်တင်တွင် အော်တိုချိတ်ဆက်မှုကို အမြဲဖွင့် VPN ဟုခေါ်ပြီး VPN Tunnel ကို အမြဲချိတ်ဆက်ထားကြောင်း သေချာစေပြီး အစမှ ပြန်ဖွင့်ပြီးနောက် အော်တို ချိတ်ဆက်ပါသည်။</string>
-    <string name="auto_connect_carousel_third_slide_bottom_text">3. လော့ခ်ဒေါင်းစနစ်ကို ဖွင့်ရန် \"VPN မသုံးဘဲ ချိတ်ဆက်မှုများကို ပိတ်ဆို့ရန်\"ဘေးရှိ ဖွင့်/ပိတ်ခလုတ်ကို နှိပ်ပါ။.&lt;br /&gt;&lt;br /&gt;&lt;b&gt;သတိပေးချက်- ဤဆက်တင်သည် Split အက်ပ်များနှင့် လိုကယ် ကွန်ရက် ဝေမျှမှု လုပ်ဆောင်ချက်ကို တားမြစ်ပါသည်။&lt;/b&gt;</string>
+    <string name="auto_connect_carousel_third_slide_bottom_text">3. လော့ခ်ဒေါင်းစနစ်ကို ဖွင့်ရန် \"VPN မသုံးဘဲ ချိတ်ဆက်မှုများကို ပိတ်ဆို့ရန်\"ဘေးရှိ ဖွင့်/ပိတ်ခလုတ်ကို နှိပ်ပါ။.<br /><br /><b>သတိပေးချက်- ဤဆက်တင်သည် Split အက်ပ်များနှင့် လိုကယ် ကွန်ရက် ဝေမျှမှု လုပ်ဆောင်ချက်ကို တားမြစ်ပါသည်။</b></string>
     <string name="auto_connect_carousel_third_slide_top_text">လော့ခ်ဒေါင်းစနစ်ကို Android စနစ်ဆက်တင်များတွင် \"VPN မသုံးဘဲ ချိတ်ဆက်မှုများကို ပိတ်ဆို့ရန်\"ဟု ခေါ်ဆိုပါသည်။ ၎င်းသည် ပေါက်ကြားမှုများကို လျှော့ချနိုင်အောင် ကူညီပေးနိုင်သော်လည်း အများသိ အကန့်အသတ်များရှိပြီး ၎င်းတို့အကြောင်းကို ဖော်ပြပါတွင် ဖတ်ရှုနိုင်သည်</string>
     <string name="auto_connect_carousel_third_slide_top_text_website_link">ဤနေရာတွင် ပိုမိုဖတ်ရှုနိုင်ပါသည်</string>
     <string name="automatic">အလိုအလျောက်</string>
@@ -127,7 +127,7 @@
     <string name="custom_port_dialog_remove">စိတ်ကြိုက် ပေါ့တ်ကို ဖယ်ရှားရန်</string>
     <string name="custom_port_dialog_submit">ပေါ့တ် သတ်မှတ်ရန်</string>
     <string name="custom_port_dialog_valid_ranges">အကျုံးဝင်သည့် အပိုင်းအခြား- %1$s</string>
-    <string name="custom_port_recommended_range_first">&lt;b&gt;သတိပြုရန်-&lt;/b&gt; ဆာဗာအချို့သာ ပေါ့တ်အပိုင်းအခြား အပြည့် ပံ့ပိုးပေးပါသည်။</string>
+    <string name="custom_port_recommended_range_first"><b>သတိပြုရန်-</b> ဆာဗာအချို့သာ ပေါ့တ်အပိုင်းအခြား အပြည့် ပံ့ပိုးပေးပါသည်။</string>
     <string name="custom_port_recommended_range_second">ဆာဗာအားလုံးအတွက် အကျုံးဝင်သော အပိုင်းအခြား- %1$s</string>
     <string name="custom_tunnel_host_resolution_error">စိတ်ကြိုက်ပြုလုပ်ထားသည့် Tunnel ၏ Host ကို ဖြေရှင်း၍ မရနိုင်ပါ။ သင့်ဆက်တင်ကို ပြောင်းကြည့်ပါ။</string>
     <string name="daita_description_slide_1_first_paragraph">သတိပြုပါ- ဤသည်က ကွန်ရက် ကူးလူးမှုကို မြင့်တက်စေပြီး အမြန်နှုန်း၊ တုံ့ပြန်မှုနှောင့်နှေးခြင်း (Latency) နှင့် ဘက်ထရီ သုံးစွဲမှုကိုလည်း ထိခိုက်စေပါလိမ့်မည်။ အကန့်အသတ်ရှိသော ပလန်များကို သတိဖြင့် သုံးစွဲပါ။</string>
@@ -278,7 +278,7 @@
     <string name="manage_devices_confirm_removal_description_line1">%1$s ကို ဖယ်ရှားမလား။</string>
     <string name="manage_devices_confirm_removal_description_line2">စက်ကို စာရင်းမှ ဖယ်ရှားပြီး စနစ်မှ ထွက်သွားလိမ့်မည်။</string>
     <string name="manage_devices_description">သင်ဝင်ရောက်ထားသည့် စက်အားလုံးကို ကြည့်ရှုစီမံပါ။ အကောင့်တစ်ခုလျှင် စက် ၅ လုံးအထိ တစ်ပြိုင်နက်ဝင်ထားနိုင်သည်။ ဝင်ရောက်သည့်အခါတိုင်း ခွဲခြားရလွယ်ကူစေရန် စက်တစ်လုံးချင်းကို အမည်ပေးထားသည်။</string>
-    <string name="max_devices_confirm_removal_description">&lt;b&gt;%1$s&lt;/b&gt; မှ ထွက်လိုသည်မှာ သေချာပါသလား။</string>
+    <string name="max_devices_confirm_removal_description"><b>%1$s</b> မှ ထွက်လိုသည်မှာ သေချာပါသလား။</string>
     <string name="max_devices_resolved_description">သင်သည် ယခု ဤစက်တွင် ဆက်လက် ဝင်ရောက်နိုင်သည်။</string>
     <string name="max_devices_resolved_title">အလွန်ကောင်း။</string>
     <string name="max_devices_warning_description">အောက်ပါစာရင်းမှ အနည်းဆုံး တစ်ခုကို ဖယ်ရှားခြင်းဖြင့် ၎င်းမှ ထွက်ပါ။ စက်၏ အကောင့်ဆက်တင်အောက်တွင် သက်ဆိုင်သော စက်အမည်ကို သင် ရှာနိုင်သည်။</string>
@@ -299,7 +299,7 @@
     <string name="navigate">သွားရန်</string>
     <string name="new_changelog_notification_message">အသစ်ထူးသော အကြောင်းအရာကို ကြည့်ရန် ဤနေရာကို နှိပ်ပါ</string>
     <string name="new_changelog_notification_title">ဗားရှင်းအသစ်ကို ထည့်သွင်းထားသည်</string>
-    <string name="new_device_notification_message">ကြိုဆိုပါတယ်၊ ဤစက်ကို ယခု &lt;b&gt;%1$s&lt;/b&gt; ဟု ခေါ်ပါသည်။</string>
+    <string name="new_device_notification_message">ကြိုဆိုပါတယ်၊ ဤစက်ကို ယခု <b>%1$s</b> ဟု ခေါ်ပါသည်။</string>
     <string name="new_device_notification_title">စက်အသစ် ဖန်တီးထားသည်</string>
     <string name="new_list">စာရင်းသစ်</string>
     <string name="no_custom_lists_available">စိတ်ကြိုက် စာရင်းများကို မရရှိနိုင်ပါ</string>

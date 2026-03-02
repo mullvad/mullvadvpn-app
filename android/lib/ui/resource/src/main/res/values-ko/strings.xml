@@ -22,7 +22,7 @@
     <string name="all_applications">모든 애플리케이션</string>
     <string name="all_locations">모든 위치</string>
     <string name="all_providers">모든 제공업체</string>
-    <string name="always_on_vpn_error_notification_content">터널 연결을 시작할 수 없습니다. Mullvad VPN을 사용하기 전에 &lt;b&gt;%1$s&lt;/b&gt;에 대한 상시 접속 VPN을 비활성화하세요.</string>
+    <string name="always_on_vpn_error_notification_content">터널 연결을 시작할 수 없습니다. Mullvad VPN을 사용하기 전에 <b>%1$s</b>에 대한 상시 접속 VPN을 비활성화하세요.</string>
     <string name="always_on_vpn_error_notification_title">상시 접속 VPN이 %1$s에 할당됨</string>
     <string name="android_16_upgrade_warning_dialog_first_message">Android 16에서 VPN 앱을 업데이트하면 VPN 앱이 더 이상 인터넷에 연결되지 않는 상태가 될 수 있습니다.</string>
     <string name="android_16_upgrade_warning_dialog_second_message">장치를 재시작하고 다시 연결해 주세요. 그래도 해결되지 않는다면 %1$s에 스웨덴어 또는 영어로 이메일을 보내주세요.</string>
@@ -30,7 +30,7 @@
     <string name="android_16_upgrade_warning_title">연결이 되지 않나요?</string>
     <string name="anti_censorship">검열 방지</string>
     <string name="anti_censorship_info_first_paragraph">이 방법들은 Mullvad 사용이 차단된 경우에 유용합니다. \"자동\"을 선택하면 통하는 방법이 있을 때까지 모든 방법을 시도합니다.</string>
-    <string name="anti_censorship_info_second_paragraph">&lt;b&gt;다음 방법은 성능을 향상하는 것이 아니며 시스템 사용률 및 배터리 소모량이 증가할 수 있습니다.&lt;/b&gt;</string>
+    <string name="anti_censorship_info_second_paragraph"><b>다음 방법은 성능을 향상하는 것이 아니며 시스템 사용률 및 배터리 소모량이 증가할 수 있습니다.</b></string>
     <string name="any">모두</string>
     <string name="api_access_description">Mullvad API에 액세스하기 위한 사용자 지정 방법을 관리하고 추가합니다.</string>
     <string name="api_access_method_info_first_line">이 앱은 로그인, 서버 목록 가져오기 및 기타 중요한 작업을 위해 Mullvad API 서버와 통신해야 합니다.</string>
@@ -48,7 +48,7 @@
     <string name="app_name_weather">날씨</string>
     <string name="appearance">외관 설정</string>
     <string name="appearance_description">Android 장치에서 Mullvad VPN의 타이틀과 아이콘을 변경하세요. Mullvad VPN과 관련된 알림의 아이콘은 변경되지 않습니다.</string>
-    <string name="appearance_description_warning">&lt;b&gt;주의:&lt;/b&gt; 새 아이콘과 타이틀을 선택하면 앱이 자동으로 종료되며 수동으로 다시 실행해야 합니다. VPN 연결에는 영향을 미치지 않습니다.</string>
+    <string name="appearance_description_warning"><b>주의:</b> 새 아이콘과 타이틀을 선택하면 앱이 자동으로 종료되며 수동으로 다시 실행해야 합니다. VPN 연결에는 영향을 미치지 않습니다.</string>
     <string name="apply">적용</string>
     <string name="applying_changes">변경 사항 적용 중...</string>
     <string name="at_least_on_method_needs_to_enabled">1개 이상의 방법이 활성화되어 있어야 합니다</string>
@@ -60,7 +60,7 @@
     <string name="auto_connect_carousel_first_slide_top_text">자동 연결 및 잠금 모드 설정은 Android 시스템 설정에서 찾을 수 있습니다. 이 가이드에 따라 하나 또는 둘 다를 활성화하세요.</string>
     <string name="auto_connect_carousel_second_slide_bottom_text">2. 자동 연결을 활성화하려면 \"상시 접속 VPN\" 옆에 있는 토글을 클릭합니다.</string>
     <string name="auto_connect_carousel_second_slide_top_text">자동 연결은 Android 시스템 설정에서 상시 접속 VPN이라고 하며 VPN 터널에 지속적으로 연결되고 다시 시작한 후 자동 연결되게 해줍니다.</string>
-    <string name="auto_connect_carousel_third_slide_bottom_text">3. 잠금 모드를 활성화하려면 \"VPN 없이 연결 차단\" 옆에 있는 토글을 클릭합니다.&lt;br /&gt;&lt;br /&gt;&lt;b&gt;경고: 이 설정은 분할 앱과 로컬 네트워크 공유 기능을 차단합니다.&lt;/b&gt;</string>
+    <string name="auto_connect_carousel_third_slide_bottom_text">3. 잠금 모드를 활성화하려면 \"VPN 없이 연결 차단\" 옆에 있는 토글을 클릭합니다.<br /><br /><b>경고: 이 설정은 분할 앱과 로컬 네트워크 공유 기능을 차단합니다.</b></string>
     <string name="auto_connect_carousel_third_slide_top_text">잠금 모드는 Android 시스템 설정에서 \"VPN 없이 연결 차단\"이라고 합니다. 유출을 최소화하는 데 도움이 되지만, 몇 가지 알려진 제한 사항이 있습니다. 다음에서 자세한 내용을 확인하세요.</string>
     <string name="auto_connect_carousel_third_slide_top_text_website_link">여기</string>
     <string name="automatic">자동</string>
@@ -127,7 +127,7 @@
     <string name="custom_port_dialog_remove">사용자 지정 포트 제거</string>
     <string name="custom_port_dialog_submit">포트 설정</string>
     <string name="custom_port_dialog_valid_ranges">유효한 범위: %1$s</string>
-    <string name="custom_port_recommended_range_first">&lt;b&gt;주의:&lt;/b&gt; 일부 서버에서만 전체 포트 범위를 지원합니다.</string>
+    <string name="custom_port_recommended_range_first"><b>주의:</b> 일부 서버에서만 전체 포트 범위를 지원합니다.</string>
     <string name="custom_port_recommended_range_second">모든 서버의 유효 범위: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">사용자 지정 터널의 호스트를 확인할 수 없습니다. 설정을 변경해 보세요.</string>
     <string name="daita_description_slide_1_first_paragraph">주의: 이 기능은 네트워크 트래픽을 증가시키며 속도, 대기 시간, 배터리 사용에도 부정적인 영향을 미칩니다. 제한된 데이터 플랜 사용 시에는 유의하시기 바랍니다.</string>
@@ -278,7 +278,7 @@
     <string name="manage_devices_confirm_removal_description_line1">%1$s을(를) 제거하시겠습니까?</string>
     <string name="manage_devices_confirm_removal_description_line2">장치가 목록에서 제거되고 로그아웃됩니다.</string>
     <string name="manage_devices_description">로그인된 모든 장치를 보고 관리하세요. 한 계정에서 최대 5대의 장치를 동시에 보유할 수 있습니다. 사용자가 쉽게 구분할 수 있도록 로그인 시 각 장치에 이름이 부여됩니다.</string>
-    <string name="max_devices_confirm_removal_description">&lt;b&gt;%1$s&lt;/b&gt;에서 로그아웃하시겠습니까?</string>
+    <string name="max_devices_confirm_removal_description"><b>%1$s</b>에서 로그아웃하시겠습니까?</string>
     <string name="max_devices_resolved_description">이제 이 장치에 계속 로그인할 수 있습니다.</string>
     <string name="max_devices_resolved_title">좋습니다!</string>
     <string name="max_devices_warning_description">하나 이상의 항목을 아래 목록에서 제거하여 로그아웃하세요. 장치의 계정 설정에서 해당 장치 이름을 찾을 수 있습니다.</string>
@@ -299,7 +299,7 @@
     <string name="navigate">이동</string>
     <string name="new_changelog_notification_message">업데이트 내역을 확인하려면 여기를 클릭하세요.</string>
     <string name="new_changelog_notification_title">새 버전 설치 완료</string>
-    <string name="new_device_notification_message">환영합니다. 이 장치의 호칭은 이제 &lt;b&gt;%1$s&lt;/b&gt;입니다.</string>
+    <string name="new_device_notification_message">환영합니다. 이 장치의 호칭은 이제 <b>%1$s</b>입니다.</string>
     <string name="new_device_notification_title">새 장치가 생성됨</string>
     <string name="new_list">새 목록</string>
     <string name="no_custom_lists_available">이용 가능한 사용자 지정 목록 없음</string>

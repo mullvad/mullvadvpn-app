@@ -22,7 +22,7 @@
     <string name="all_applications">Alle applikationer</string>
     <string name="all_locations">Alle placeringer</string>
     <string name="all_providers">Alle udbydere</string>
-    <string name="always_on_vpn_error_notification_content">Kunne ikke starte tunnelforbindelse. Deaktiver Altid-til VPN for &lt;b&gt;%1$s&lt;/b&gt;.</string>
+    <string name="always_on_vpn_error_notification_content">Kunne ikke starte tunnelforbindelse. Deaktiver Altid-til VPN for <b>%1$s</b>.</string>
     <string name="always_on_vpn_error_notification_title">Altid-til VPN tildelt %1$s</string>
     <string name="android_16_upgrade_warning_dialog_first_message">Når en VPN-app er blevet opdateret på Android 16, kan enheder ende i en tilstand, hvor VPN-apps ikke længere kan få kontakt til internettet.</string>
     <string name="android_16_upgrade_warning_dialog_second_message">Genstart din enhed, og prøv at oprette forbindelse igen. Hvis det ikke hjælper, kan du skrive en e-mail til %1$s på svensk eller engelsk.</string>
@@ -30,7 +30,7 @@
     <string name="android_16_upgrade_warning_title">Kan du ikke oprette forbindelse?</string>
     <string name="anti_censorship">Anti-censur</string>
     <string name="anti_censorship_info_first_paragraph">Disse metoder kan være nyttige i situationer, hvor du blokeres fra at nå Mullvad. Når \"Automatisk\" er valgt, vil appen forsøge alle metoder, indtil en virker.</string>
-    <string name="anti_censorship_info_second_paragraph">&lt;b&gt;Bemærk, at disse metoder ikke forbedrer præstationen og kan øge system- og batteriforbruget.&lt;/b&gt;</string>
+    <string name="anti_censorship_info_second_paragraph"><b>Bemærk, at disse metoder ikke forbedrer præstationen og kan øge system- og batteriforbruget.</b></string>
     <string name="any">Enhver</string>
     <string name="api_access_description">Administrer og tilføj brugerdefinerede metoder for at få adgang til Mullvad API.</string>
     <string name="api_access_method_info_first_line">Appen skal kommunikere med en Mullvad API-server for at kunne logge dig på, hente serverlister og andre kritiske operationer.</string>
@@ -48,7 +48,7 @@
     <string name="app_name_weather">Vejr</string>
     <string name="appearance">Udseende</string>
     <string name="appearance_description">Ændr titlen og ikonet for Mullvad VPN-appen på din Android-enhed. Dette ændrer ikke ikonet for Mullvad VPN-relaterede notifikationer.</string>
-    <string name="appearance_description_warning">&lt;b&gt;Bemærk:&lt;/b&gt; Appen lukker automatisk og skal åbnes igen manuelt efter valg af et nyt ikon og en ny titel. Dette påvirker ikke din VPN-forbindelse.</string>
+    <string name="appearance_description_warning"><b>Bemærk:</b> Appen lukker automatisk og skal åbnes igen manuelt efter valg af et nyt ikon og en ny titel. Dette påvirker ikke din VPN-forbindelse.</string>
     <string name="apply">Anvend</string>
     <string name="applying_changes">Anvender ændringer ...</string>
     <string name="at_least_on_method_needs_to_enabled">Mindst én metode skal aktiveres</string>
@@ -60,7 +60,7 @@
     <string name="auto_connect_carousel_first_slide_top_text">Indstillingerne for automatisk forbindelse og Lockdown-tilstand kan findes i Android- systemindstillingerne. Følg denne vejledning for at aktivere en eller begge.</string>
     <string name="auto_connect_carousel_second_slide_bottom_text">2. For at aktivere automatisk forbindelse skal du klikke på knappen ved siden af \"Altid-til VPN\".</string>
     <string name="auto_connect_carousel_second_slide_top_text">Auto-tilslutning kaldes Altid-til VPN i Android-systemindstillingerne, og det sørger for, at du konstant er forbundet til VPN-tunnelen og automatisk forbinder efter genstart.</string>
-    <string name="auto_connect_carousel_third_slide_bottom_text">3. For at aktivere Lockdown-tilstand skal du klikke på knappen ved siden af \"Bloker forbindelser uden VPN\".&lt;br /&gt;&lt;br /&gt;&lt;b&gt;Advarsel: Denne indstilling blokerer delte apps og funktionen Lokal netværksdeling.&lt;/b&gt;</string>
+    <string name="auto_connect_carousel_third_slide_bottom_text">3. For at aktivere Lockdown-tilstand skal du klikke på knappen ved siden af \"Bloker forbindelser uden VPN\".<br /><br /><b>Advarsel: Denne indstilling blokerer delte apps og funktionen Lokal netværksdeling.</b></string>
     <string name="auto_connect_carousel_third_slide_top_text">Lockdown-tilstanden kaldes \"Bloker forbindelser uden VPN\" i Android-systemindstillingerne. Det hjælper med at minimere lækager, men det har nogle kendte begrænsninger, som du kan læse mere om</string>
     <string name="auto_connect_carousel_third_slide_top_text_website_link">her</string>
     <string name="automatic">Automatisk</string>
@@ -127,7 +127,7 @@
     <string name="custom_port_dialog_remove">Fjern brugerdefineret port</string>
     <string name="custom_port_dialog_submit">Indstil port</string>
     <string name="custom_port_dialog_valid_ranges">Gyldige områder: %1$s</string>
-    <string name="custom_port_recommended_range_first">&lt;b&gt;Bemærk:&lt;/b&gt; Kun nogle servere understøtter hele portintervallet.</string>
+    <string name="custom_port_recommended_range_first"><b>Bemærk:</b> Kun nogle servere understøtter hele portintervallet.</string>
     <string name="custom_port_recommended_range_second">Gyldigt interval for alle servere: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Kunne ikke fortolke værten for den tilpassede tunnel. Prøv at ændre dine indstillinger.</string>
     <string name="daita_description_slide_1_first_paragraph">Bemærk: Dette øger netværkstrafikken og vil også påvirke hastighed, ventetid og batteriforbrug negativt. Brug det varsomt på abonnementer med begrænsninger.</string>
@@ -278,7 +278,7 @@
     <string name="manage_devices_confirm_removal_description_line1">Fjern %1$s?</string>
     <string name="manage_devices_confirm_removal_description_line2">Enheden fjernes fra listen og logges ud.</string>
     <string name="manage_devices_description">Vis og administrer alle dine enheder, der er logget på. Du kan have op til 5 enheder på en konto ad gangen. Hver enhed tildeles et navn, når du logger på, så du let kan se forskel på dem.</string>
-    <string name="max_devices_confirm_removal_description">Er du sikker på, at du vil logge &lt;b&gt;%1$s&lt;/b&gt; af?</string>
+    <string name="max_devices_confirm_removal_description">Er du sikker på, at du vil logge <b>%1$s</b> af?</string>
     <string name="max_devices_resolved_description">Du kan nu fortsætte med at logge ind på denne enhed.</string>
     <string name="max_devices_resolved_title">Super!</string>
     <string name="max_devices_warning_description">Log ud af mindst én ved at fjerne den fra listen nedenfor. Du kan finde det tilsvarende enhedsnavn under enhedens kontoindstillinger.</string>
@@ -299,7 +299,7 @@
     <string name="navigate">Naviger</string>
     <string name="new_changelog_notification_message">Klik her for at se nyhederne.</string>
     <string name="new_changelog_notification_title">NY VERSION INSTALLERET</string>
-    <string name="new_device_notification_message">Velkommen, denne enhed har nu fået navnet &lt;b&gt;%1$s&lt;/b&gt;.</string>
+    <string name="new_device_notification_message">Velkommen, denne enhed har nu fået navnet <b>%1$s</b>.</string>
     <string name="new_device_notification_title">NY ENHED OPRETTET</string>
     <string name="new_list">Ny liste</string>
     <string name="no_custom_lists_available">Ingen brugerdefinerede lister tilgængelige</string>

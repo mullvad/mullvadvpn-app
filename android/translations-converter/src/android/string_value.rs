@@ -17,8 +17,11 @@ impl StringValue {
     /// they don't have any. Indices are assigned sequentially starting from the previously
     /// specified index plus one, or starting from one if there aren't any previously specified
     /// indices.
+    ///
+    /// NOTE: Due to how we parse <b> tags in the code we do not escape all characters.
     pub fn from_unescaped(string: &str, arg_ordering: Option<&Vec<u8>>) -> Self {
-        let value_with_parameters = htmlize::escape_text(string)
+        let value_with_parameters = string
+            .replace('&', r"&amp;")
             .replace('\\', r"\\")
             .replace('\"', "\\\"")
             .replace('\'', r"\'");

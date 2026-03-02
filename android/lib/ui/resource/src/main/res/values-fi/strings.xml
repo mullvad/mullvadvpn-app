@@ -22,7 +22,7 @@
     <string name="all_applications">Kaikki sovellukset</string>
     <string name="all_locations">Kaikki sijainnit</string>
     <string name="all_providers">Kaikki palveluntarjoajat</string>
-    <string name="always_on_vpn_error_notification_content">Tunneliyhteyden käynnistäminen ei onnistu. Poista aina päällä oleva VPN käytöstä sovellukselle &lt;b&gt;%1$s&lt;/b&gt; ennen Mullvad VPN:n käyttämistä.</string>
+    <string name="always_on_vpn_error_notification_content">Tunneliyhteyden käynnistäminen ei onnistu. Poista aina päällä oleva VPN käytöstä sovellukselle <b>%1$s</b> ennen Mullvad VPN:n käyttämistä.</string>
     <string name="always_on_vpn_error_notification_title">%1$s on määritetty aina päällä olevan VPN:n asetukseksi</string>
     <string name="android_16_upgrade_warning_dialog_first_message">Kun VPN-sovellus päivitetään Android 16:ssa, laitteen saattavat päätyä tilaan, jossa VPN-sovellukset eivät voi enää muodostaa yhteyttä internetiin.</string>
     <string name="android_16_upgrade_warning_dialog_second_message">Käynnistä laitteesi uudelleen ja yritä muodostaa yhteys uudelleen. Jos tämä ei toimi, lähetä sähköpostiviesti osoitteeseen %1$s ruotsiksi tai englanniksi.</string>
@@ -30,7 +30,7 @@
     <string name="android_16_upgrade_warning_title">Eikö yhteyden muodostaminen onnistu?</string>
     <string name="anti_censorship">Sensuurinesto</string>
     <string name="anti_censorship_info_first_paragraph">Nämä tavat voivat olla hyödyllisiä tilanteissa, joissa sinua on estetty pääsemästä Mullvadiin. Kun \"automaattinen\" valitaan, sovellus kokeilee kaikkia tapoja, kunnes jokin niistä toimii.</string>
-    <string name="anti_censorship_info_second_paragraph">&lt;b&gt;Huomioithan, että nämä tavat eivät paranna suorituskykyä ja voivat lisätä järjestelmän käyttöastetta ja akun käyttöä.&lt;/b&gt;</string>
+    <string name="anti_censorship_info_second_paragraph"><b>Huomioithan, että nämä tavat eivät paranna suorituskykyä ja voivat lisätä järjestelmän käyttöastetta ja akun käyttöä.</b></string>
     <string name="any">Mikä tahansa</string>
     <string name="api_access_description">Hallitse ja lisää mukautettuja menetelmiä Mullvadin ohjelmointirajapinnan käyttämiseksi.</string>
     <string name="api_access_method_info_first_line">Sovelluksen on kommunikoitava Mullvadin ohjelmointirajapinnan palvelimen kanssa, jotta sinut voidaan kirjata sisään, palvelinluetteloiden hakemiseksi sekä muiden tärkeiden toimintojen suorittamiseksi.</string>
@@ -48,7 +48,7 @@
     <string name="app_name_weather">Sää</string>
     <string name="appearance">Ulkoasu</string>
     <string name="appearance_description">Vaihda Mullvad VPN -sovelluksen otsikko ja kuvake Android-laitteellasi. Mullvad VPN:ään liittyvien ilmoitusten kuvake ei muutu.</string>
-    <string name="appearance_description_warning">&lt;b&gt;Huomio:&lt;/b&gt; Sovellus sulkeutuu automaattisesti uuden kuvakkeen ja otsikon valitsemisen jälkeen, ja se täytyy avata uudelleen manuaalisesti. Tämä ei vaikuta VPN-yhteyteesi.</string>
+    <string name="appearance_description_warning"><b>Huomio:</b> Sovellus sulkeutuu automaattisesti uuden kuvakkeen ja otsikon valitsemisen jälkeen, ja se täytyy avata uudelleen manuaalisesti. Tämä ei vaikuta VPN-yhteyteesi.</string>
     <string name="apply">Ota käyttöön</string>
     <string name="applying_changes">Muutoksia otetaan käyttöön...</string>
     <string name="at_least_on_method_needs_to_enabled">Vähintään yhden menetelmän on oltava käytössä</string>
@@ -60,7 +60,7 @@
     <string name="auto_connect_carousel_first_slide_top_text">Automaattisen yhdistämisen ja lukitustilan asetukset löytyvät Androidin järjestelmäasetuksista. Voit ottaa jommankumman tai molemmat käyttöön tämän oppaan ohjeilla.</string>
     <string name="auto_connect_carousel_second_slide_bottom_text">2. Ota automaattinen yhteyden muodostus käyttöön napsauttamalla \"Aina päällä oleva VPN\" -kohdan vieressä olevaa valintapainiketta.</string>
     <string name="auto_connect_carousel_second_slide_top_text">Automaattista yhdistämistä kutsutaan aina päällä olevaksi VPN-yhteydeksi Androidin järjestelmäasetuksissa. Se varmistaa, että olet jatkuvasti yhteydessä VPN-tunneliin, sekä muodostaa yhteyden automaattisesti aina uudelleenkäynnistyksen jälkeen.</string>
-    <string name="auto_connect_carousel_third_slide_bottom_text">3. Ota lukitustila käyttöön napsauttamalla kohdan \"Estä yhteydet ilman VPN:ää\" vieressä olevaa kytkintä.&lt;br /&gt;&lt;br /&gt;&lt;b&gt;Varoitus: Tämä asetus estää jaetut sovellukset ja paikallisen verkon jakamisominaisuuden.&lt;/b&gt;</string>
+    <string name="auto_connect_carousel_third_slide_bottom_text">3. Ota lukitustila käyttöön napsauttamalla kohdan \"Estä yhteydet ilman VPN:ää\" vieressä olevaa kytkintä.<br /><br /><b>Varoitus: Tämä asetus estää jaetut sovellukset ja paikallisen verkon jakamisominaisuuden.</b></string>
     <string name="auto_connect_carousel_third_slide_top_text">Lukitustila löytyy Android-järjestelmäasetuksista nimellä \"Estä yhteydet ilman VPN:ää\". Lukitustila auttaa minimoimaan vuodot, mutta siihen liittyy myös muutamia tunnettuja rajoituksia. Voit lukea niistä lisää</string>
     <string name="auto_connect_carousel_third_slide_top_text_website_link">täältä</string>
     <string name="automatic">Automaattinen</string>
@@ -127,7 +127,7 @@
     <string name="custom_port_dialog_remove">Poista mukautettu portti</string>
     <string name="custom_port_dialog_submit">Määritä portti</string>
     <string name="custom_port_dialog_valid_ranges">Kelvolliset portit: %1$s</string>
-    <string name="custom_port_recommended_range_first">&lt;b&gt;Huomio:&lt;/b&gt; vain tietyt palvelimet tukevat koko porttiväliä.</string>
+    <string name="custom_port_recommended_range_first"><b>Huomio:</b> vain tietyt palvelimet tukevat koko porttiväliä.</string>
     <string name="custom_port_recommended_range_second">Kelvollinen väli kaikille palvelimille: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Muokatun tunnelin isännän selvittäminen ei onnistu. Kokeile muuttaa asetuksiasi.</string>
     <string name="daita_description_slide_1_first_paragraph">Huomio: Toiminto kasvattaa verkkoliikennettä ja vaikuttaa sen vuoksi negatiivisesti sekä nopeuteen, viiveeseen että akun kulumiseen. Käytä harkiten, kun datasopimuksesi on rajoitettu.</string>
@@ -278,7 +278,7 @@
     <string name="manage_devices_confirm_removal_description_line1">Poistetaanko %1$s?</string>
     <string name="manage_devices_confirm_removal_description_line2">Laite poistetaan luettelosta ja kirjataan ulos.</string>
     <string name="manage_devices_description">Tarkastele ja hallitse kaikkia kirjautuneita laitteitasi. Sinulla voi olla enintään viisi laitetta yhdellä tilillä samaan aikaan. Jokainen laite saa nimen, kun se kirjataan sisään, jotta erotat ne helposti.</string>
-    <string name="max_devices_confirm_removal_description">Haluatko varmasti kirjata laitteen &lt;b&gt;%1$s&lt;/b&gt; ulos?</string>
+    <string name="max_devices_confirm_removal_description">Haluatko varmasti kirjata laitteen <b>%1$s</b> ulos?</string>
     <string name="max_devices_resolved_description">Voit nyt jatkaa kirjautumista tällä laitteella.</string>
     <string name="max_devices_resolved_title">Mahtavaa!</string>
     <string name="max_devices_warning_description">Kirjaudu ulos vähintään yhdestä luettelon laitteesta poistamalla se. Löydät vastaavan laitteen nimen laitteen tiliasetuksista.</string>
@@ -299,7 +299,7 @@
     <string name="navigate">Siirry</string>
     <string name="new_changelog_notification_message">Katso uudet ominaisuudet napsauttamalla tästä.</string>
     <string name="new_changelog_notification_title">UUSI VERSIO ASENNETTIIN</string>
-    <string name="new_device_notification_message">Tervetuloa! Tämän laitteen nimi on nyt &lt;b&gt;%1$s&lt;/b&gt;.</string>
+    <string name="new_device_notification_message">Tervetuloa! Tämän laitteen nimi on nyt <b>%1$s</b>.</string>
     <string name="new_device_notification_title">UUSI LAITE LUOTIIN</string>
     <string name="new_list">Uusi luettelo</string>
     <string name="no_custom_lists_available">Mukautettuja luetteloita ei löytynyt</string>

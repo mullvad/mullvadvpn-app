@@ -22,7 +22,7 @@
     <string name="all_applications">Tüm uygulamalar</string>
     <string name="all_locations">Tüm konumlar</string>
     <string name="all_providers">Tüm hizmet sağlayıcılar</string>
-    <string name="always_on_vpn_error_notification_content">Tünel bağlantısı başlatılamıyor. Mullvad VPN\'i kullanmadan önce lütfen Her zaman açık VPN\'i &lt;b&gt;%1$s&lt;/b&gt; için devre dışı bırakın.</string>
+    <string name="always_on_vpn_error_notification_content">Tünel bağlantısı başlatılamıyor. Mullvad VPN\'i kullanmadan önce lütfen Her zaman açık VPN\'i <b>%1$s</b> için devre dışı bırakın.</string>
     <string name="always_on_vpn_error_notification_title">Her zaman açık VPN %1$s uygulamasına atandı</string>
     <string name="android_16_upgrade_warning_dialog_first_message">Android 16\'da bir VPN uygulaması güncellendikten sonra, cihazlar VPN uygulamalarının artık internete erişemediği bir duruma geçebilir.</string>
     <string name="android_16_upgrade_warning_dialog_second_message">Lütfen cihazınızı yeniden başlatın ve tekrar bağlanmayı deneyin. Bu işe yaramazsa lütfen %1$s adresine İsveççe veya İngilizce bir e-posta yazın.</string>
@@ -30,7 +30,7 @@
     <string name="android_16_upgrade_warning_title">Bağlanamıyor musunuz?</string>
     <string name="anti_censorship">Sansürü önleme</string>
     <string name="anti_censorship_info_first_paragraph">Bu yöntemler, Mullvad erişiminin engellendiği durumlarda faydalı olabilir. \"Otomatik\" seçeneği ayarlandığında uygulama yöntemlerden biri çalışana kadar tüm yöntemleri dener.</string>
-    <string name="anti_censorship_info_second_paragraph">&lt;b&gt;Bu yöntemlerin performansı iyileştirmediğini ve sistem kullanımı ile pil tüketimini artırabileceğini lütfen göz önünde bulundurun.&lt;/b&gt;</string>
+    <string name="anti_censorship_info_second_paragraph"><b>Bu yöntemlerin performansı iyileştirmediğini ve sistem kullanımı ile pil tüketimini artırabileceğini lütfen göz önünde bulundurun.</b></string>
     <string name="any">Tümü</string>
     <string name="api_access_description">Mullvad API\'sine erişim için özel yöntemler ekleyip yönetin.</string>
     <string name="api_access_method_info_first_line">Uygulamanın oturumunuzu açmak, sunucu listelerini almak ve diğer kritik işlemleri yapmak için bir Mullvad API sunucusuyla iletişim kurması gerekir.</string>
@@ -48,7 +48,7 @@
     <string name="app_name_weather">Hava durumu</string>
     <string name="appearance">Görünüm</string>
     <string name="appearance_description">Android cihazınızdaki Mullvad VPN uygulamasının başlığını ve simgesini değiştirin. Bu işlem, Mullvad VPN ile ilgili bildirimlerin simgesini değiştirmeyecektir.</string>
-    <string name="appearance_description_warning">&lt;b&gt;Dikkat:&lt;/b&gt; Uygulama otomatik olarak kapanacağı için yeni bir simge ve başlık seçildikten sonra manuel olarak tekrar açılması gerekecektir. Bu durum VPN bağlantınızı etkilemez.</string>
+    <string name="appearance_description_warning"><b>Dikkat:</b> Uygulama otomatik olarak kapanacağı için yeni bir simge ve başlık seçildikten sonra manuel olarak tekrar açılması gerekecektir. Bu durum VPN bağlantınızı etkilemez.</string>
     <string name="apply">Uygula</string>
     <string name="applying_changes">Değişiklikler uygulanıyor...</string>
     <string name="at_least_on_method_needs_to_enabled">En az bir yöntemin etkinleştirilmesi gerekiyor</string>
@@ -60,7 +60,7 @@
     <string name="auto_connect_carousel_first_slide_top_text">Otomatik Bağlantı ve Kilitleme modu ayarları Android sistem ayarlarında yer alır. Bu ayarlardan birini veya her ikisini de etkinleştirmek için bu kılavuza göz atın.</string>
     <string name="auto_connect_carousel_second_slide_bottom_text">2. Otomatik bağlantıyı etkinleştirmek için \"VPN her zaman açık\" seçeneğinin yanındaki düğmeye tıklayın.</string>
     <string name="auto_connect_carousel_second_slide_top_text">Otomatik bağlantı, Android sistem ayarlarında VPN her zaman açık olarak gösterilir ve VPN tüneline sürekli bağlı olmanızı ve yeniden başlatma sonrası otomatik olarak bağlanmanızı sağlar.</string>
-    <string name="auto_connect_carousel_third_slide_bottom_text">3. Kilitleme modunu etkinleştirmek için \"VPN üzerinden olmayan bağlantıları engelle\" seçeneğinin yanındaki düğmeye tıklayın.&lt;br /&gt;&lt;br /&gt;&lt;b&gt;Uyarı: Bu ayar, bölünmüş uygulamaları ve Yerel Ağ Paylaşımı özelliğini engeller.&lt;/b&gt;</string>
+    <string name="auto_connect_carousel_third_slide_bottom_text">3. Kilitleme modunu etkinleştirmek için \"VPN üzerinden olmayan bağlantıları engelle\" seçeneğinin yanındaki düğmeye tıklayın.<br /><br /><b>Uyarı: Bu ayar, bölünmüş uygulamaları ve Yerel Ağ Paylaşımı özelliğini engeller.</b></string>
     <string name="auto_connect_carousel_third_slide_top_text">Android sistem ayarlarında \"Kilitleme modu VPN üzerinden olmayan bağlantıları engelle\" olarak adlandırılmıştır. Bu özellik, sızıntıları en aza indirmeye yardımcı olsa da ayrıntılar konusunda bilgi edinmeniz gereken bazı bilinen sınırlamaları vardır</string>
     <string name="auto_connect_carousel_third_slide_top_text_website_link">burada</string>
     <string name="automatic">Otomatik</string>
@@ -127,7 +127,7 @@
     <string name="custom_port_dialog_remove">Özel portu kaldır</string>
     <string name="custom_port_dialog_submit">Portu ayarla</string>
     <string name="custom_port_dialog_valid_ranges">Geçerli aralıklar: %1$s</string>
-    <string name="custom_port_recommended_range_first">&lt;b&gt;Dikkat:&lt;/b&gt; Sadece bazı sunucular tam bağlantı noktası aralığını destekler.</string>
+    <string name="custom_port_recommended_range_first"><b>Dikkat:</b> Sadece bazı sunucular tam bağlantı noktası aralığını destekler.</string>
     <string name="custom_port_recommended_range_second">Tüm sunucular için geçerli aralık: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Özel tünel ana bilgisayarı çözülemedi. Ayarlarınızı değiştirmeyi deneyin.</string>
     <string name="daita_description_slide_1_first_paragraph">Dikkat: Bu, ağ trafiğini artırır ve hızı, gecikmeyi ve pil kullanımını da olumsuz bir şekilde etkiler. Sınırlı planlarda dikkatli kullanın.</string>
@@ -278,7 +278,7 @@
     <string name="manage_devices_confirm_removal_description_line1">%1$s kaldırılsın mı?</string>
     <string name="manage_devices_confirm_removal_description_line2">Cihaz listeden kaldırılacak ve oturum kapatılacak.</string>
     <string name="manage_devices_description">Oturum açtığınız tüm cihazları görüntüleyin ve yönetin. Bir hesapta aynı anda en fazla 5 cihaz bulunabilir. Kolayca ayırt edebilmeniz için her cihaza giriş sırasında bir ad atanır.</string>
-    <string name="max_devices_confirm_removal_description">&lt;b&gt;%1$s&lt;/b&gt; adlı cihazdan çıkış yapmak istediğinizden emin misiniz?</string>
+    <string name="max_devices_confirm_removal_description"><b>%1$s</b> adlı cihazdan çıkış yapmak istediğinizden emin misiniz?</string>
     <string name="max_devices_resolved_description">Artık bu cihazda oturum açmaya devam edebilirsiniz.</string>
     <string name="max_devices_resolved_title">Süper!</string>
     <string name="max_devices_warning_description">Lütfen aşağıdaki listeden en az bir cihazı kaldırarak çıkış yapın. İlgili cihaz adını cihazın Hesap ayarları altında bulabilirsiniz.</string>
@@ -299,7 +299,7 @@
     <string name="navigate">Git</string>
     <string name="new_changelog_notification_message">Yenilikleri incelemek için buraya tıklayın.</string>
     <string name="new_changelog_notification_title">YENİ SÜRÜM YÜKLENDİ</string>
-    <string name="new_device_notification_message">Hoş geldiniz, bu cihazın yeni adı artık &lt;b&gt;%1$s&lt;/b&gt;.</string>
+    <string name="new_device_notification_message">Hoş geldiniz, bu cihazın yeni adı artık <b>%1$s</b>.</string>
     <string name="new_device_notification_title">YENİ CİHAZ OLUŞTURULDU</string>
     <string name="new_list">Yeni liste</string>
     <string name="no_custom_lists_available">Özel listeler mevcut değil</string>

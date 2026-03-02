@@ -22,7 +22,7 @@
     <string name="all_applications">所有應用程式</string>
     <string name="all_locations">所有位置</string>
     <string name="all_providers">所有供應商</string>
-    <string name="always_on_vpn_error_notification_content">無法啟動通道連線。在使用 Mullvad VPN 之前，請先為 &lt;b&gt;%1$s&lt;/b&gt; 停用「始終啟用 VPN」。</string>
+    <string name="always_on_vpn_error_notification_content">無法啟動通道連線。在使用 Mullvad VPN 之前，請先為 <b>%1$s</b> 停用「始終啟用 VPN」。</string>
     <string name="always_on_vpn_error_notification_title">「一律啟用 VPN」已指派給 %1$s</string>
     <string name="android_16_upgrade_warning_dialog_first_message">在 Android 16 更新 VPN 應用程式後，裝置可能會出現 VPN 應用程式無法連線至網際網路的情況。</string>
     <string name="android_16_upgrade_warning_dialog_second_message">請重新啟動您的裝置並嘗試重新連線。若不成功，請以瑞典語或英語撰寫電子郵件並寄至 %1$s。</string>
@@ -30,7 +30,7 @@
     <string name="android_16_upgrade_warning_title">無法連線嗎？</string>
     <string name="anti_censorship">反審查</string>
     <string name="anti_censorship_info_first_paragraph">當您無法連上 Mullvad 時，這些方式可能會派上用場。選擇「自動」時，應用程式會嘗試所有方式，直到其中一種成功為止。</string>
-    <string name="anti_censorship_info_second_paragraph">&lt;b&gt;請注意，這些方式不會提升效能，還可能消耗更多系統資源與電力。&lt;/b&gt;</string>
+    <string name="anti_censorship_info_second_paragraph"><b>請注意，這些方式不會提升效能，還可能消耗更多系統資源與電力。</b></string>
     <string name="any">任何</string>
     <string name="api_access_description">管理並新增自訂方式以存取 Mullvad API。</string>
     <string name="api_access_method_info_first_line">該應用程式需要與 Mulvad API 伺服器通訊，以便您登入、取得伺服器清單並執行其他重要作業。</string>
@@ -48,7 +48,7 @@
     <string name="app_name_weather">天氣</string>
     <string name="appearance">外觀</string>
     <string name="appearance_description">變更您 Android 裝置上 Mullvad VPN 應用程式的圖示與標題。這不會變更 Mullvad VPN 相關通知所使用的圖示。</string>
-    <string name="appearance_description_warning">&lt;b&gt;請注意：&lt;/b&gt;應用程式將自動關閉，在選擇新的圖示與標題後，需手動重新開啟。這不會影響您的 VPN 連線。</string>
+    <string name="appearance_description_warning"><b>請注意：</b>應用程式將自動關閉，在選擇新的圖示與標題後，需手動重新開啟。這不會影響您的 VPN 連線。</string>
     <string name="apply">套用</string>
     <string name="applying_changes">正在套用變更…</string>
     <string name="at_least_on_method_needs_to_enabled">至少需要啟用一種方式</string>
@@ -60,7 +60,7 @@
     <string name="auto_connect_carousel_first_slide_top_text">自動連線和鎖定模式設定皆可在 Android 系統設定中找到，請按照本指南的指示，啟用其中一項或兩項設定。</string>
     <string name="auto_connect_carousel_second_slide_bottom_text">2. 若要啟用自動連線，請按一下「一律啟用 VPN」旁邊的開關。</string>
     <string name="auto_connect_carousel_second_slide_top_text">自動連線在 Android 系統設定中稱為「始終啟用 VPN」，此功能可確保您始終與 VPN 通道連線，並且會在重新啟動後自動連線。</string>
-    <string name="auto_connect_carousel_third_slide_bottom_text">3. 若要啟用鎖定模式，請按一下「在沒有 VPN 的情況下封鎖連線」旁邊的開關。&lt;br /&gt;&lt;br /&gt;&lt;b&gt;警告：此設定會封鎖分割應用程式和「本機網路共享」功能。&lt;/b&gt;</string>
+    <string name="auto_connect_carousel_third_slide_bottom_text">3. 若要啟用鎖定模式，請按一下「在沒有 VPN 的情況下封鎖連線」旁邊的開關。<br /><br /><b>警告：此設定會封鎖分割應用程式和「本機網路共享」功能。</b></string>
     <string name="auto_connect_carousel_third_slide_top_text">在 Android 系統設定中，鎖定模式稱為「在沒有 VPN 的情況下封鎖連線」。這有助於讓洩漏的情形降至最低。然而，也有一些已知的侷限性。如需進一步的相關資訊，請按一下</string>
     <string name="auto_connect_carousel_third_slide_top_text_website_link">此處</string>
     <string name="automatic">自動</string>
@@ -127,7 +127,7 @@
     <string name="custom_port_dialog_remove">移除自訂連接埠</string>
     <string name="custom_port_dialog_submit">設定連接埠</string>
     <string name="custom_port_dialog_valid_ranges">有效範圍：%1$s</string>
-    <string name="custom_port_recommended_range_first">&lt;b&gt;請注意：&lt;/b&gt;並非所有伺服器都支援完整連接埠範圍。</string>
+    <string name="custom_port_recommended_range_first"><b>請注意：</b>並非所有伺服器都支援完整連接埠範圍。</string>
     <string name="custom_port_recommended_range_second">所有伺服器的有效範圍：%1$s</string>
     <string name="custom_tunnel_host_resolution_error">無法解析自訂通道的主機。請嘗試變更您的設定。</string>
     <string name="daita_description_slide_1_first_paragraph">請注意：這會增加網路流量，並對速度、延遲與電池耗電產生負面影響。若方案流量有限，請謹慎使用。</string>
@@ -278,7 +278,7 @@
     <string name="manage_devices_confirm_removal_description_line1">是否移除 %1$s？</string>
     <string name="manage_devices_confirm_removal_description_line2">裝置將從清單中移除並登出。</string>
     <string name="manage_devices_description">檢視並管理所有已登入的裝置。一個帳戶最多能同時登入 5 台裝置。每台裝置登入時都會獲得一個名稱，以協助您輕鬆區分。</string>
-    <string name="max_devices_confirm_removal_description">確定要將 &lt;b&gt;%1$s&lt;/b&gt; 登出嗎？</string>
+    <string name="max_devices_confirm_removal_description">確定要將 <b>%1$s</b> 登出嗎？</string>
     <string name="max_devices_resolved_description">現在，您可以繼續在此裝置上登入。</string>
     <string name="max_devices_resolved_title">太好了！</string>
     <string name="max_devices_warning_description">請從底下清單至少移除一個裝置來將其登出。您可以在裝置的「帳戶」設定下找到相應裝置名稱。</string>
@@ -299,7 +299,7 @@
     <string name="navigate">導覽</string>
     <string name="new_changelog_notification_message">按一下此處查看最新動態。</string>
     <string name="new_changelog_notification_title">已安裝新版本</string>
-    <string name="new_device_notification_message">歡迎，此裝置現在名為 &lt;b&gt;%1$s&lt;/b&gt;。</string>
+    <string name="new_device_notification_message">歡迎，此裝置現在名為 <b>%1$s</b>。</string>
     <string name="new_device_notification_title">已建立新裝置</string>
     <string name="new_list">新清單</string>
     <string name="no_custom_lists_available">有可用的自訂清單</string>
