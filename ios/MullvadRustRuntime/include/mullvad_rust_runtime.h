@@ -65,6 +65,8 @@ typedef struct SwiftMullvadApiResponse {
   char *error_description;
   char *server_response_code;
   bool success;
+  int64_t sigsum_timestamp;
+  char *sigsum_digest;
 } SwiftMullvadApiResponse;
 
 typedef struct CompletionCookie {
