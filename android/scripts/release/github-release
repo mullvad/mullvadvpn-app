@@ -58,12 +58,12 @@ function publish_release {
       --draft
     )
 
-    previous_release=$(echo "$changelog_extract" | tail -1 | sed '## \[\K[^\]]+')
+    previous_release=$(echo "$changelog_extract" | tail -1 | awk -F'[][]' '/^## \[/{print $2}')
 
     if [[ $PRODUCT_VERSION == *-beta* ]]; then
         release_flags+=(--prerelease)
     else
-        body+="\n\nHere is a list of all changes since last stable release [$previous_release](https://github.com/mullvad/mullvadvpn-app/releases/tag/$previous_release):"
+        body+="Here is a list of all changes since last stable release [$previous_release](https://github.com/mullvad/mullvadvpn-app/releases/tag/$previous_release):"
         release_flags+=(--latest)
     fi
 
@@ -71,8 +71,6 @@ function publish_release {
     if [ "$version_count" -eq 1 ]; then
         changelog=$(echo "$changelog" | tail -n +2)
     fi
-
-    log_header "$changelog"
 
     body+="\n$changelog"
 
