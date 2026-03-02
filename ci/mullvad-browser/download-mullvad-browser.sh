@@ -2,7 +2,17 @@
 
 set -eu
 
-BROWSER_RELEASES=("stable" "alpha")
+# We'll need to add "stable_aarch64.rmp" and "stable_arm64.deb" later.
+# BROWSER_RELEASES=("stable" "alpha")
+BROWSER_RELEASES=( \
+    "stable_x86_64.rpm" \
+    "stable_amd64.deb" \
+    "alpha_x86_64.rpm" \
+    "alpha_amd64.deb" \
+    "alpha_aarch64.rpm" \
+    "alpha_arm64.deb" )
+
+
 REPOSITORIES=("stable" "beta")
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -24,8 +34,7 @@ function usage() {
 
 function main() {
     local package_filename_base=$1
-    local extension=$2
-    PACKAGE_FILENAME="$package_filename_base.$extension"
+    PACKAGE_FILENAME="$package_filename_base"
 
     PACKAGE_URL=https://cdn.mullvad.net/browser/$PACKAGE_FILENAME
     SIGNATURE_URL=$PACKAGE_URL.asc
@@ -50,11 +59,6 @@ function main() {
         exit 1
     fi
     rm "$PACKAGE_FILENAME.asc"
-
-    # Hack to get the architecture into the filename
-    local filename_with_arch="${package_filename_base}_x86_64.$extension"
-    mv "$PACKAGE_FILENAME" "$filename_with_arch"
-    PACKAGE_FILENAME="$filename_with_arch"
 
     # Check if the deb package has changed since last time
     # Handle the bootstrap problem by checking if the "output file" even exists and just moving on if it doesn't
@@ -94,8 +98,7 @@ trap 'delete_tmp_dir' EXIT
 
 echo "[#] Configured releases are: ${BROWSER_RELEASES[*]}"
 for release in "${BROWSER_RELEASES[@]}"; do
-    main "mullvad-browser-$release" "deb"
-    main "mullvad-browser-$release" "rpm"
+    main "mullvad-browser-$release"
 done
 
 if [[ -z "$(ls -A "$TMP_DIR")" ]]; then
