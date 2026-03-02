@@ -25,6 +25,7 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
+import net.mullvad.mullvadvpn.common.compose.isTv
 import net.mullvad.mullvadvpn.core.animation.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.util.openAppInfoNotificationSettings
@@ -88,25 +89,27 @@ fun NotificationSettingsScreen(
         appBarTitle = stringResource(id = R.string.settings_notifications),
         navigationIcon = { NavigateBackIconButton { onBackClick() } },
         bottomBar = {
-            PrimaryButton(
-                modifier =
-                    Modifier.windowInsetsPadding(
-                            WindowInsets.systemBars.only(WindowInsetsSides.Bottom)
+            if (!isTv()) {
+                PrimaryButton(
+                    modifier =
+                        Modifier.windowInsetsPadding(
+                                WindowInsets.systemBars.only(WindowInsetsSides.Bottom)
+                            )
+                            .padding(
+                                horizontal = Dimens.sideMargin,
+                                vertical = Dimens.screenBottomMargin,
+                            ),
+                    text = stringResource(R.string.notification_settings),
+                    onClick = onOpenSystemNotificationsSettings,
+                    trailingIcon = {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Rounded.OpenInNew,
+                            tint = MaterialTheme.colorScheme.onPrimary,
+                            contentDescription = null,
                         )
-                        .padding(
-                            horizontal = Dimens.sideMargin,
-                            vertical = Dimens.screenBottomMargin,
-                        ),
-                text = stringResource(R.string.notification_settings),
-                onClick = onOpenSystemNotificationsSettings,
-                trailingIcon = {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Rounded.OpenInNew,
-                        tint = MaterialTheme.colorScheme.onPrimary,
-                        contentDescription = null,
-                    )
-                },
-            )
+                    },
+                )
+            }
         },
     ) { modifier ->
         Column(
