@@ -21,7 +21,7 @@ use mullvad_types::{
     version,
     wireguard::{RotationInterval, RotationIntervalError},
 };
-use std::{collections::BTreeSet, time::SystemTime};
+use std::collections::BTreeSet;
 use std::{
     path::PathBuf,
     str::FromStr,
@@ -48,7 +48,6 @@ struct ManagementServiceImpl {
     subscriptions: Arc<Mutex<Vec<EventsListenerSender>>>,
     pub app_upgrade_broadcast: AppUpgradeBroadcast,
     log_reload_handle: crate::logging::LogHandle,
-    private_tunnel_stats: tokio::sync::broadcast::Receiver<talpid_types::Stats>,
 }
 
 pub type ServiceResult<T> = std::result::Result<Response<T>, Status>;
@@ -1325,39 +1324,12 @@ impl ManagementService for ManagementServiceImpl {
         _: Request<()>,
     ) -> ServiceResult<Self::GetCustomVpnStatsStream> {
         log::debug!("get_custom_vpn_stats");
-        let mut broadcast_rx = self.private_tunnel_stats.resubscribe();
-
         let (tx, rx) = tokio::sync::mpsc::unbounded_channel();
-        tokio::spawn(async move {
-            loop {
-                match broadcast_rx.recv().await {
-                    Ok(stats) => {
-                        let stats = types::CustomVpnStats {
-                            last_handshake_time: stats.last_handshake_time.and_then(|handshake| {
-                                Some(types::Timestamp {
-                                    seconds: handshake
-                                        .duration_since(SystemTime::UNIX_EPOCH)
-                                        .ok()?
-                                        .as_secs()
-                                        as _,
-                                    nanos: 0,
-                                })
-                            }),
-                            tx_bytes: stats.tx_bytes,
-                            rx_bytes: stats.rx_bytes,
-                        };
-                        let _ = tx.send(Ok(stats));
-                    }
-                    Err(tokio::sync::broadcast::error::RecvError::Lagged(n)) => {
-                        let _ = tx.send(Err(Status::internal(format!("{n} lagged messages"))));
-                    }
-                    Err(tokio::sync::broadcast::error::RecvError::Closed) => {
-                        break;
-                    }
-                }
-            }
-        });
-
+        let _ = tx.send(Ok(types::CustomVpnStats {
+            tx_bytes: 0,
+            rx_bytes: 0,
+            last_handshake_time: None,
+        }));
         Ok(Response::new(UnboundedReceiverStream::new(rx)))
     }
 }
@@ -1395,7 +1367,6 @@ impl ManagementInterfaceServer {
         rpc_socket_path: PathBuf,
         app_upgrade_broadcast: AppUpgradeBroadcast,
         log_reload_handle: crate::logging::LogHandle,
-        private_tunnel_stats: tokio::sync::broadcast::Receiver<talpid_types::Stats>,
     ) -> Result<ManagementInterfaceServer, Error> {
         let subscriptions = Arc::<Mutex<Vec<EventsListenerSender>>>::default();
 
@@ -1409,7 +1380,6 @@ impl ManagementInterfaceServer {
             subscriptions: subscriptions.clone(),
             app_upgrade_broadcast,
             log_reload_handle,
-            private_tunnel_stats,
         };
         let rpc_server_join_handle = mullvad_management_interface::spawn_rpc_server(
             server,
