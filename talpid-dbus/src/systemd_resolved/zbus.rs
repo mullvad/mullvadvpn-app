@@ -349,15 +349,23 @@ impl SystemdResolved {
         Ok(domains)
     }
 
-    pub fn revert_link(&mut self, dns_state: &DnsState) -> std::result::Result<(), Error> {
-        match self.as_link_object(&dns_state.interface_path)?.revert() {
-            Ok(()) => Ok(()),
-            Err(zbus::Error::FDO(fdo)) => match *fdo {
-                zbus::fdo::Error::UnknownObject(_) => todo!(),
-                _ => todo!(),
-            },
-            Err(err) => Err(Error::DBusRpcError(err)),
-        }
+    pub fn revert_link(&mut self, dns_state: &DnsState) -> Result<(), Error> {
+        self.as_link_object(&dns_state.interface_path)?
+            .revert()
+            .or_else(|err| {
+                if let zbus::Error::FDO(fdo) = &err
+                    && let zbus::fdo::Error::UnknownObject(..) = &**fdo
+                {
+                    log::trace!(
+                        "Not resetting DNS of interface {} because it no longer exists",
+                        dns_state.interface_index
+                    );
+                    return Ok(());
+                }
+
+                Err(err)
+            })
+            .map_err(Error::DBusRpcError)
     }
 
     pub fn async_handle(&self) -> AsyncHandle {
