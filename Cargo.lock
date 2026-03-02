@@ -3116,6 +3116,7 @@ name = "mullvad-ios"
 version = "0.0.0"
 dependencies = [
  "cbindgen",
+ "chrono",
  "futures",
  "hyper",
  "hyper-util",
