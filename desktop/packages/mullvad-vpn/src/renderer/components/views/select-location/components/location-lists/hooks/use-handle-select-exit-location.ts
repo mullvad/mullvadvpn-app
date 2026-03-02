@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { type RelayLocation } from '../../../../../../../shared/daemon-rpc-types';
+import { RoutePath } from '../../../../../../../shared/routes';
 import { useAppContext } from '../../../../../../context';
 import { useRelayLocations } from '../../../../../../features/location/hooks';
 import { useHistory } from '../../../../../../lib/history';
@@ -12,7 +13,7 @@ export function useHandleSelectExitLocation() {
 
   const handleSelectExitLocation = React.useCallback(
     async (relayLocation: RelayLocation) => {
-      history.pop();
+      history.push(RoutePath.main);
       await selectExitRelayLocation(relayLocation);
       await connectTunnel();
     },
