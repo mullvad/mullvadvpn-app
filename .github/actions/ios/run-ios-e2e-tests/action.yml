@@ -72,6 +72,13 @@ runs:
         TEST_NAME: ${{ inputs.test_name }}
         TEST_DEVICE_UDID: ${{ inputs.test_device_udid }}
 
+    - name: Recover unfinalised screen recordings from xcresult
+      if: always()
+      run: |
+        "${{ inputs.outputs_path }}/mullvadvpn-app/ci/ios/recover-screen-recordings.sh" \
+          "${{ env.TEST_OUTPUT_DIRECTORY }}/xcode-test-report.xcresult"
+      shell: bash
+
     - name: Set artifact name with branch and timestamp
       if: always()
       run: |
