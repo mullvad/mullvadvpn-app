@@ -3361,6 +3361,7 @@ version = "0.0.0"
 dependencies = [
  "bytes",
  "cbindgen",
+ "chrono",
  "either",
  "futures",
  "gotatun",
