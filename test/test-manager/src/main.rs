@@ -14,7 +14,7 @@ use std::net::IpAddr;
 use std::{net::SocketAddr, path::PathBuf, time::Duration};
 
 use anyhow::{Context, Ok, Result};
-use clap::{Parser, builder::PossibleValuesParser};
+use clap::{builder::PossibleValuesParser, Parser};
 use config::ConfigFile;
 use package::TargetInfo;
 use tests::{config::TEST_CONFIG, get_filtered_tests};
@@ -279,6 +279,9 @@ async fn inner_main() -> Result<()> {
             #[cfg(target_os = "linux")]
             container::relaunch_with_rootlesskit(vnc).await;
 
+            #[cfg(target_os = "macos")]
+            container::relaunch_with_sudo().await;
+
             let mut config = config.clone();
             config.runtime_opts.keep_changes = keep_changes;
             config.runtime_opts.display = if vnc.is_some() {
@@ -311,6 +314,9 @@ async fn inner_main() -> Result<()> {
         } => {
             #[cfg(target_os = "linux")]
             container::relaunch_with_rootlesskit(vnc).await;
+
+            #[cfg(target_os = "macos")]
+            container::relaunch_with_sudo().await;
 
             let mut config = config.clone();
             config.runtime_opts.display = match (display, vnc.is_some()) {

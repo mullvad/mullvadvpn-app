@@ -1,12 +1,11 @@
-#![cfg(target_os = "linux")]
-
-use nix::unistd::geteuid;
-use tokio::process::Command;
-
 /// Re-launch self with rootlesskit if we're not root.
 /// Allows for rootless and containerized networking.
 /// The VNC port is published to localhost.
+#[cfg(target_os = "linux")]
 pub async fn relaunch_with_rootlesskit(vnc_port: Option<u16>) {
+    use nix::unistd::geteuid;
+    use tokio::process::Command;
+
     // check if user is root (`man getuid`).
     if geteuid().is_root() {
         return;
@@ -37,6 +36,26 @@ pub async fn relaunch_with_rootlesskit(vnc_port: Option<u16>) {
     }
 
     cmd.args(std::env::args());
+
+    let status = cmd.status().await.unwrap_or_else(|e| {
+        panic!("failed to execute [{cmd:?}]: {e}");
+    });
+
+    std::process::exit(status.code().unwrap_or(1));
+}
+
+#[cfg(target_os = "macos")]
+async fn relaunch_with_sudo() {
+    // check if user is root (`man getuid`).
+    if nix::unistd::geteuid().is_root() {
+        return;
+    }
+    let mut cmd = tokio::process::Command::new("sudo");
+    cmd.arg("--preserve-env");
+    cmd.args(std::env::args());
+
+    log::info!("Root privileges required. Re-launching with sudo.");
+    eprintln!("{cmd:?}");
 
     let status = cmd.status().await.unwrap_or_else(|e| {
         panic!("failed to execute [{cmd:?}]: {e}");
