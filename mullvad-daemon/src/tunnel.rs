@@ -37,6 +37,7 @@ struct InnerParametersGenerator {
     relay_selector: RelaySelector,
     tunnel_options: TunnelOptions,
     account_manager: AccountManagerHandle,
+    #[cfg(feature = "personal-vpn")]
     custom_vpn: Option<talpid_types::net::wireguard::CustomVpnConfig>,
 
     last_generated_relays: Option<LastSelectedRelays>,
@@ -48,12 +49,15 @@ impl ParametersGenerator {
         account_manager: AccountManagerHandle,
         relay_selector: RelaySelector,
         tunnel_options: TunnelOptions,
-        custom_vpn: Option<talpid_types::net::wireguard::CustomVpnConfig>,
+        #[cfg(feature = "personal-vpn")] custom_vpn: Option<
+            talpid_types::net::wireguard::CustomVpnConfig,
+        >,
     ) -> Self {
         Self(Arc::new(Mutex::new(InnerParametersGenerator {
             tunnel_options,
             relay_selector,
             account_manager,
+            #[cfg(feature = "personal-vpn")]
             custom_vpn,
 
             last_generated_relays: None,
@@ -66,6 +70,7 @@ impl ParametersGenerator {
     }
 
     /// Sets the custom VPN config to use when generating new tunnel parameters.
+    #[cfg(feature = "personal-vpn")]
     pub async fn set_custom_vpn(
         &self,
         config: Option<talpid_types::net::wireguard::CustomVpnConfig>,
@@ -194,6 +199,7 @@ impl InnerParametersGenerator {
                 .into_talpid_tunnel_options(),
             generic_options: self.tunnel_options.generic.clone(),
             obfuscation: obfuscator_config,
+            #[cfg(feature = "personal-vpn")]
             custom_vpn: self.custom_vpn.clone(),
         }
     }

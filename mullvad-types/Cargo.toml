@@ -23,3 +23,6 @@ vec1 = { workspace = true }
 
 [lints]
 workspace = true
+
+[features]
+personal-vpn = []

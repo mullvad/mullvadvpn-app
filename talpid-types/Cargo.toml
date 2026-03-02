@@ -27,3 +27,6 @@ jnix = { version = "0.5.1", features = ["derive"] }
 
 [lints]
 workspace = true
+
+[features]
+personal-vpn = []

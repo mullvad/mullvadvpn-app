@@ -669,9 +669,10 @@ impl MullvadProxyClient {
         Ok(listener.map(|item| Ok(item?.message)))
     }
 
+    #[cfg(feature = "personal-vpn")]
     pub async fn set_custom_vpn_config(
         &mut self,
-        config: Option<mullvad_types::settings::CustomVpnConfig>,
+        config: Option<talpid_types::net::wireguard::CustomVpnConfig>,
     ) -> Result<String> {
         let proto_config = match config {
             Some(c) => types::CustomVpnConfig::from(c),
@@ -684,6 +685,7 @@ impl MullvadProxyClient {
         Ok(response.into_inner().error)
     }
 
+    #[cfg(feature = "personal-vpn")]
     pub async fn set_custom_vpn_config_status(&mut self, enabled: bool) -> Result<()> {
         self.0.set_custom_vpn_config_status(enabled).await?;
         Ok(())

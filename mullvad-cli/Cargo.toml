@@ -48,5 +48,8 @@ features = [
   "Win32_System_SystemServices",
 ]
 
+[features]
+personal-vpn = ["mullvad-types/personal-vpn", "talpid-types/personal-vpn", "mullvad-management-interface/personal-vpn"]
+
 [lints]
 workspace = true

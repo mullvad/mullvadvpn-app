@@ -20,6 +20,7 @@ pub struct TunnelParameters {
     pub options: TunnelOptions,
     pub generic_options: GenericTunnelOptions,
     pub obfuscation: Option<super::obfuscation::Obfuscators>,
+    #[cfg(feature = "personal-vpn")]
     pub custom_vpn: Option<CustomVpnConfig>,
 }
 
@@ -319,6 +320,7 @@ impl fmt::Debug for PresharedKey {
 }
 
 /// Custom VPN tunnel interface configuration (WireGuard-based).
+#[cfg(feature = "personal-vpn")]
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct CustomVpnTunnelConfig {
     pub private_key: PrivateKey,
@@ -326,6 +328,7 @@ pub struct CustomVpnTunnelConfig {
 }
 
 /// Custom VPN peer configuration (WireGuard-based).
+#[cfg(feature = "personal-vpn")]
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct CustomVpnPeerConfig {
     pub public_key: PublicKey,
@@ -334,6 +337,7 @@ pub struct CustomVpnPeerConfig {
 }
 
 /// Custom VPN configuration (WireGuard-based).
+#[cfg(feature = "personal-vpn")]
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct CustomVpnConfig {
     pub tunnel: CustomVpnTunnelConfig,

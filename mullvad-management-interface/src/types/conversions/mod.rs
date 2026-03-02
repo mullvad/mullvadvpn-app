@@ -4,6 +4,7 @@ mod access_method;
 mod account;
 mod custom_list;
 mod custom_tunnel;
+#[cfg(feature = "personal-vpn")]
 mod custom_vpn;
 mod device;
 mod features;

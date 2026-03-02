@@ -456,11 +456,13 @@ pub enum DaemonCommand {
     /// Return the storage path for the installers during in-app upgrades.
     GetAppUpgradeCacheDir(ResponseTx<PathBuf, version::Error>),
     /// Set custom VPN configuration
+    #[cfg(feature = "personal-vpn")]
     SetCustomVpnConfig(
         oneshot::Sender<String>,
-        Option<mullvad_types::settings::CustomVpnConfig>,
+        Option<talpid_types::net::wireguard::CustomVpnConfig>,
     ),
     /// Enable or disable the custom VPN
+    #[cfg(feature = "personal-vpn")]
     SetCustomVpnConfigStatus(ResponseTx<(), settings::Error>, bool),
 }
 
@@ -882,6 +884,7 @@ impl Daemon {
             account_manager.clone(),
             relay_selector.clone(),
             settings.tunnel_options.clone(),
+            #[cfg(feature = "personal-vpn")]
             settings
                 .custom_vpn_config
                 .clone()
@@ -1629,7 +1632,9 @@ impl Daemon {
             AppUpgradeAbort(tx) => self.on_app_upgrade_abort(tx).await,
             GetAppUpgradeCacheDir(tx) => self.on_get_app_upgrade_cache_dir(tx).await,
             GetBridges(tx) => self.on_get_bridges(tx),
+            #[cfg(feature = "personal-vpn")]
             SetCustomVpnConfig(tx, config) => self.on_set_custom_vpn_config(tx, config).await,
+            #[cfg(feature = "personal-vpn")]
             SetCustomVpnConfigStatus(tx, enabled) => {
                 self.on_set_custom_vpn_config_status(tx, enabled).await
             }
@@ -2642,10 +2647,11 @@ impl Daemon {
         }
     }
 
+    #[cfg(feature = "personal-vpn")]
     async fn on_set_custom_vpn_config(
         &mut self,
         tx: oneshot::Sender<String>,
-        config: Option<mullvad_types::settings::CustomVpnConfig>,
+        config: Option<talpid_types::net::wireguard::CustomVpnConfig>,
     ) {
         match self
             .settings
@@ -2672,6 +2678,7 @@ impl Daemon {
         }
     }
 
+    #[cfg(feature = "personal-vpn")]
     async fn on_set_custom_vpn_config_status(
         &mut self,
         tx: ResponseTx<(), settings::Error>,
@@ -2684,7 +2691,6 @@ impl Daemon {
         {
             Ok(changed) => {
                 if changed {
-                    // TODO: reconnect?
                     let effective = if self.settings.settings().custom_vpn_enabled {
                         self.settings.settings().custom_vpn_config.clone()
                     } else {

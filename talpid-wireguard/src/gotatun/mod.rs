@@ -8,15 +8,11 @@ use crate::{
 #[cfg(target_os = "android")]
 use gotatun::udp::UdpTransportFactory;
 use gotatun::{
-    device::{Device, DeviceBuilder, DeviceTransports, Peer},
-    packet::{Ipv4Header, Ipv6Header, PacketBufPool, UdpHeader, WgData},
+    device::{Device, DeviceBuilder, DeviceTransports},
+    packet::{Ipv4Header, Ipv6Header, UdpHeader, WgData},
     tun::{
         IpRecv,
         channel::{TunChannelRx, TunChannelTx},
-        demux::DemuxIpSend,
-        merge::MergingIpRecv,
-        nat::{NatIpRecv, NatIpSend},
-        router::ChannelIpRecv,
         tun_async_device::TunDevice as GotaTunDevice,
     },
     udp::{
@@ -45,6 +41,18 @@ use gotatun::tun::{
     pcap::{PcapSniffer, PcapStream},
 };
 
+#[cfg(feature = "personal-vpn")]
+use gotatun::{
+    device::Peer,
+    packet::PacketBufPool,
+    tun::{
+        demux::DemuxIpSend,
+        merge::MergingIpRecv,
+        nat::{NatIpRecv, NatIpSend},
+        router::ChannelIpRecv,
+    },
+};
+
 mod conversions;
 use conversions::to_gotatun_peer;
 
@@ -57,11 +65,13 @@ type UdpFactory = UdpSocketFactory;
 type SinglehopDevice = Device<(UdpFactory, GotaTunDevice, GotaTunDevice)>;
 type ExitDevice = Device<(UdpChannelFactory, GotaTunDevice, GotaTunDevice)>;
 
+#[cfg(feature = "personal-vpn")]
 type CustomInnerDevice = gotatun::device::Device<(
     UdpChannelFactory,
     NatIpSend<gotatun::tun::tun_async_device::TunDevice>,
     NatIpRecv<ChannelIpRecv>,
 )>;
+#[cfg(feature = "personal-vpn")]
 type CustomOuterDevice = gotatun::device::Device<(
     UdpFactory,
     DemuxIpSend<TunChannelTx, gotatun::tun::tun_async_device::TunDevice>,
@@ -132,6 +142,7 @@ enum Devices {
         device: SinglehopDevice,
     },
 
+    #[cfg(feature = "personal-vpn")]
     SinglehopWithCustom {
         inner_device: CustomInnerDevice,
         outer_device: CustomOuterDevice,
@@ -150,6 +161,7 @@ impl Devices {
             Devices::Singlehop { device, .. } => {
                 device.stop().await;
             }
+            #[cfg(feature = "personal-vpn")]
             Devices::SinglehopWithCustom {
                 inner_device,
                 outer_device,
@@ -313,65 +325,10 @@ async fn create_devices(
     #[cfg(not(target_os = "android"))]
     let udp_factory = UdpSocketFactory;
 
-    let mut devices = if let Some(exit_peer) = &config.exit_peer {
-        // Multihop setup
-
-        let source_v4 = config
-            .tunnel
-            .addresses
-            .iter()
-            .find_map(|ip| match ip {
-                &IpAddr::V4(ipv4_addr) => Some(ipv4_addr),
-                IpAddr::V6(..) => None,
-            })
-            .unwrap_or(Ipv4Addr::UNSPECIFIED);
-
-        let source_v6 = config
-            .tunnel
-            .addresses
-            .iter()
-            .find_map(|ip| match ip {
-                &IpAddr::V6(ipv6_addr) => Some(ipv6_addr),
-                IpAddr::V4(..) => None,
-            })
-            .unwrap_or(Ipv6Addr::UNSPECIFIED);
-
-        // Calculate length of extra headers, assuming no optional header fields (i.e. IP options)
-        let multihop_overhead = match exit_peer.endpoint.ip() {
-            IpAddr::V4(..) => Ipv4Header::LEN + UdpHeader::LEN + WgData::OVERHEAD,
-            IpAddr::V6(..) => Ipv6Header::LEN + UdpHeader::LEN + WgData::OVERHEAD,
-        };
-
-        let exit_mtu = tun_dev.mtu();
-        let entry_mtu = exit_mtu.increase(multihop_overhead as u16).unwrap(/* TODO: this can happen if tun mtu is max i think*/);
-
-        let (tun_channel_tx, tun_channel_rx, udp_channels) =
-            new_udp_tun_channel(PACKET_CHANNEL_CAPACITY, source_v4, source_v6, entry_mtu);
-
-        let exit_device = DeviceBuilder::new()
-            .with_udp(udp_channels)
-            .with_ip(tun_dev)
-            .build()
-            .await
-            .map_err(TunnelError::GotaTunDevice)?;
-
-        // Hacky way of dumping entry<->exit traffic to a unix socket which wireshark can read.
-        // See docs on wrap_in_pcap_sniffer for an explanation.
-        #[cfg(all(feature = "multihop-pcap", target_os = "linux"))]
-        let (tun_channel_tx, tun_channel_rx) = wrap_in_pcap_sniffer(tun_channel_tx, tun_channel_rx);
-
-        let entry_device = DeviceBuilder::new()
-            .with_udp(udp_factory)
-            .with_ip_pair(tun_channel_tx, tun_channel_rx)
-            .build()
-            .await
-            .map_err(TunnelError::GotaTunDevice)?;
-
-        Devices::Multihop {
-            entry_device,
-            exit_device,
-        }
-    } else if let Some(custom_vpn) = &config.custom_vpn {
+    #[cfg(feature = "personal-vpn")]
+    if let Some(custom_vpn) = custom_vpn
+        && config.exit_peer.is_none()
+    {
         let multihop_overhead = match custom_vpn.peer.endpoint.ip() {
             IpAddr::V4(..) => Ipv4Header::LEN + UdpHeader::LEN + WgData::OVERHEAD,
             IpAddr::V6(..) => Ipv6Header::LEN + UdpHeader::LEN + WgData::OVERHEAD,
@@ -435,12 +392,6 @@ async fn create_devices(
                 TunnelError::SetConfigError
             })?;
 
-        /*
-        #[cfg(feature = "pcap")]
-        let (outer_ip_send, outer_ip_recv) =
-            wrap_in_pcap_sniffer(outer_ip_send, outer_ip_recv, &args.pcap_socket);
-        */
-
         // Outer device
         let entry_peer = to_gotatun_peer(&config.entry_peer, daita);
         let outer_device = DeviceBuilder::new()
@@ -476,6 +427,66 @@ async fn create_devices(
             inner_device,
             _router_task,
         });
+    }
+
+    let mut devices = if let Some(exit_peer) = &config.exit_peer {
+        // Multihop setup
+
+        let source_v4 = config
+            .tunnel
+            .addresses
+            .iter()
+            .find_map(|ip| match ip {
+                &IpAddr::V4(ipv4_addr) => Some(ipv4_addr),
+                IpAddr::V6(..) => None,
+            })
+            .unwrap_or(Ipv4Addr::UNSPECIFIED);
+
+        let source_v6 = config
+            .tunnel
+            .addresses
+            .iter()
+            .find_map(|ip| match ip {
+                &IpAddr::V6(ipv6_addr) => Some(ipv6_addr),
+                IpAddr::V4(..) => None,
+            })
+            .unwrap_or(Ipv6Addr::UNSPECIFIED);
+
+        // Calculate length of extra headers, assuming no optional header fields (i.e. IP options)
+        let multihop_overhead = match exit_peer.endpoint.ip() {
+            IpAddr::V4(..) => Ipv4Header::LEN + UdpHeader::LEN + WgData::OVERHEAD,
+            IpAddr::V6(..) => Ipv6Header::LEN + UdpHeader::LEN + WgData::OVERHEAD,
+        };
+
+        let exit_mtu = tun_dev.mtu();
+        let entry_mtu = exit_mtu.increase(multihop_overhead as u16).unwrap(/* TODO: this can happen if tun mtu is max i think*/);
+
+        let (tun_channel_tx, tun_channel_rx, udp_channels) =
+            new_udp_tun_channel(PACKET_CHANNEL_CAPACITY, source_v4, source_v6, entry_mtu);
+
+        let exit_device = DeviceBuilder::new()
+            .with_udp(udp_channels)
+            .with_ip(tun_dev)
+            .build()
+            .await
+            .map_err(TunnelError::GotaTunDevice)?;
+
+        // Hacky way of dumping entry<->exit traffic to a unix socket which wireshark can read.
+        // See docs on wrap_in_pcap_sniffer for an explanation.
+        #[cfg(all(feature = "multihop-pcap", target_os = "linux"))]
+        let (tun_channel_tx, tun_channel_rx) = wrap_in_pcap_sniffer(tun_channel_tx, tun_channel_rx);
+
+        let entry_device = DeviceBuilder::new()
+            .with_udp(udp_factory)
+            .with_ip_pair(tun_channel_tx, tun_channel_rx)
+            .build()
+            .await
+            .map_err(TunnelError::GotaTunDevice)?;
+
+        Devices::Multihop {
+            entry_device,
+            exit_device,
+        }
     } else {
         // Singlehop setup
 
@@ -502,6 +513,15 @@ async fn configure_devices(
 ) -> Result<(), TunnelError> {
     let private_key = StaticSecret::from(config.tunnel.private_key.to_bytes());
     let entry_peer = to_gotatun_peer(&config.entry_peer, daita);
+
+    #[cfg(feature = "personal-vpn")]
+    if let Some(custom_vpn) = custom_vpn
+        && config.exit_peer.is_none()
+    {
+        // TODO:
+        log::error!("Not reconfiguring tunnel when personal VPN is enabled.");
+        return Ok(());
+    }
 
     if let Some(exit_peer) = &config.exit_peer {
         log::trace!(
@@ -551,8 +571,6 @@ async fn configure_devices(
                 log::error!("Failed to set gotatun config: {err:#}");
                 TunnelError::SetConfigError
             })?;
-    } else if config.custom_vpn.is_some() {
-        log::error!("FIXME: Cannot reconfigure tunnel when custom VPN is enabled yet.");
     } else {
         log::trace!(
             "configuring gotatun singlehop device (daita={})",
@@ -622,6 +640,7 @@ impl Tunnel for GotaTun {
 
         let stats = match self.devices.as_ref() {
             Some(Devices::Singlehop { device }) => get_stats(device).await,
+            #[cfg(feature = "personal-vpn")]
             Some(Devices::SinglehopWithCustom {
                 inner_device,
                 outer_device,

@@ -1,10 +1,12 @@
+#![cfg(feature = "personal-vpn")]
+
 use anyhow::Result;
 use clap::Subcommand;
 use ipnetwork::IpNetwork;
 use mullvad_management_interface::MullvadProxyClient;
-use mullvad_types::settings::{CustomVpnConfig, CustomVpnPeerConfig, CustomVpnTunnelConfig};
 use std::net::{IpAddr, SocketAddr};
 use talpid_types::net::wireguard;
+use talpid_types::net::wireguard::{CustomVpnConfig, CustomVpnPeerConfig, CustomVpnTunnelConfig};
 
 use super::BooleanOption;
 

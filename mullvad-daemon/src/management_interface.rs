@@ -1290,6 +1290,7 @@ impl ManagementService for ManagementServiceImpl {
         Ok(Response::new(()))
     }
 
+    #[cfg(feature = "personal-vpn")]
     async fn set_custom_vpn_config(
         &self,
         request: Request<types::CustomVpnConfig>,
@@ -1300,7 +1301,7 @@ impl ManagementService for ManagementServiceImpl {
             None
         } else {
             Some(
-                mullvad_types::settings::CustomVpnConfig::try_from(request)
+                talpid_types::net::wireguard::CustomVpnConfig::try_from(request)
                     .map_err(map_protobuf_type_err)?,
             )
         };
@@ -1310,6 +1311,7 @@ impl ManagementService for ManagementServiceImpl {
         Ok(Response::new(types::CustomVpnConfigError { error }))
     }
 
+    #[cfg(feature = "personal-vpn")]
     async fn set_custom_vpn_config_status(&self, request: Request<bool>) -> ServiceResult<()> {
         let enabled = request.into_inner();
         log::debug!("set_custom_vpn_config_status({})", enabled);
@@ -1319,10 +1321,12 @@ impl ManagementService for ManagementServiceImpl {
         Ok(Response::new(()))
     }
 
+    #[cfg(feature = "personal-vpn")]
     async fn get_custom_vpn_stats(
         &self,
         _: Request<()>,
     ) -> ServiceResult<Self::GetCustomVpnStatsStream> {
+        // TODO: not implemented
         log::debug!("get_custom_vpn_stats");
         let (tx, rx) = tokio::sync::mpsc::unbounded_channel();
         let _ = tx.send(Ok(types::CustomVpnStats {
@@ -1330,6 +1334,34 @@ impl ManagementService for ManagementServiceImpl {
             rx_bytes: 0,
             last_handshake_time: None,
         }));
+        Ok(Response::new(UnboundedReceiverStream::new(rx)))
+    }
+
+    #[cfg(not(feature = "personal-vpn"))]
+    async fn set_custom_vpn_config(
+        &self,
+        _request: Request<types::CustomVpnConfig>,
+    ) -> ServiceResult<types::CustomVpnConfigError> {
+        log::debug!("set_custom_vpn_config");
+        Ok(Response::new(types::CustomVpnConfigError {
+            error: "".to_string(),
+        }))
+    }
+
+    #[cfg(not(feature = "personal-vpn"))]
+    async fn set_custom_vpn_config_status(&self, request: Request<bool>) -> ServiceResult<()> {
+        let enabled = request.into_inner();
+        log::debug!("set_custom_vpn_config_status({})", enabled);
+        Ok(Response::new(()))
+    }
+
+    #[cfg(not(feature = "personal-vpn"))]
+    async fn get_custom_vpn_stats(
+        &self,
+        _: Request<()>,
+    ) -> ServiceResult<Self::GetCustomVpnStatsStream> {
+        log::debug!("get_custom_vpn_stats");
+        let (_tx, rx) = tokio::sync::mpsc::unbounded_channel();
         Ok(Response::new(UnboundedReceiverStream::new(rx)))
     }
 }

@@ -63,6 +63,7 @@ windows-sys = { workspace = true }
 
 [features]
 multihop-pcap = ["gotatun/pcap"]
+personal-vpn = []
 wireguard-go = [
   "dep:chrono",
   "dep:wireguard-go-rs",
