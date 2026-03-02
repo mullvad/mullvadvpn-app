@@ -2,9 +2,9 @@ import React from 'react';
 import { sprintf } from 'sprintf-js';
 
 import { messages } from '../../../../../../../../shared/gettext';
+import { type CustomListLocation } from '../../../../../../../features/location/types';
 import { useAccordionContext } from '../../../../../../../lib/components/accordion/AccordionContext';
 import { LocationListItem } from '../../../../../../location-list-item';
-import { type CustomListLocation } from '../../../../select-location-types';
 import { DeleteCustomListButton, EditCustomListButton } from '..';
 
 export type CustomListTrailingActionsProps = React.PropsWithChildren<{

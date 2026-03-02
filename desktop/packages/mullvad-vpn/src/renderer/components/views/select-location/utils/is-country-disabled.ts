@@ -3,8 +3,8 @@ import {
   type RelayLocation,
   type RelayLocationCountry,
 } from '../../../../../shared/daemon-rpc-types';
+import { DisabledReason } from '../../../../features/location/types';
 import type { IRelayLocationCountryRedux } from '../../../../redux/settings/reducers';
-import { DisabledReason } from '../select-location-types';
 import { isCityDisabled } from './is-city-disabled';
 
 export function isCountryDisabled(

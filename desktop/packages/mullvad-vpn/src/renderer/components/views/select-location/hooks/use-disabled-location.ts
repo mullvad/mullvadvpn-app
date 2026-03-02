@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 
+import { DisabledReason, LocationType } from '../../../../features/location/types';
 import { useNormalRelaySettings } from '../../../../lib/relay-settings-hooks';
-import { DisabledReason, LocationType } from '../select-location-types';
 import { useSelectLocationViewContext } from '../SelectLocationViewContext';
 
 // Returns the location (if any) that should be disabled. This is currently used for disabling the

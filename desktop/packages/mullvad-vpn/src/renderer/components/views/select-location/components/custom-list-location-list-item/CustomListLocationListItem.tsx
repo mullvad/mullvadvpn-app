@@ -1,5 +1,5 @@
+import { type CustomListLocation } from '../../../../../features/location/types';
 import { AnimatedList } from '../../../../../lib/components/animated-list';
-import { type CustomListLocation } from '../../select-location-types';
 import { AnyLocationListItem, type AnyLocationListItemProps } from '../any-location-list-item';
 import { GeographicalLocationListItem } from '../geographical-location-list-item';
 import {

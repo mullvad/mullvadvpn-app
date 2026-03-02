@@ -3,8 +3,8 @@ import {
   type RelayLocation,
   type RelayLocationRelay,
 } from '../../../../../shared/daemon-rpc-types';
+import { DisabledReason } from '../../../../features/location/types';
 import type { IRelayLocationRelayRedux } from '../../../../redux/settings/reducers';
-import { DisabledReason } from '../select-location-types';
 
 export function isRelayDisabled(
   relay: IRelayLocationRelayRedux,

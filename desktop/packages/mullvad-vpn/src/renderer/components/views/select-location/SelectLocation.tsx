@@ -3,6 +3,7 @@ import { useCallback } from 'react';
 import { messages } from '../../../../shared/gettext';
 import { RoutePath } from '../../../../shared/routes';
 import { useDaitaDirectOnly, useDaitaEnabled } from '../../../features/daita/hooks';
+import { LocationType } from '../../../features/location/types';
 import { useMultihop } from '../../../features/multihop/hooks';
 import { IconButton } from '../../../lib/components';
 import { View } from '../../../lib/components/view';
@@ -21,7 +22,6 @@ import {
 } from './components';
 import { useActiveFilters } from './hooks/use-active-filters';
 import { useScrollPositionContext } from './ScrollPositionContext';
-import { LocationType } from './select-location-types';
 import { StyledScopeBar } from './SelectLocationStyles';
 import { useSelectLocationViewContext } from './SelectLocationViewContext';
 

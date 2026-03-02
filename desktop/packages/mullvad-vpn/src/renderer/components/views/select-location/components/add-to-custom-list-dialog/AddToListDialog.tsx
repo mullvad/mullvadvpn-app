@@ -3,10 +3,10 @@ import { sprintf } from 'sprintf-js';
 
 import { messages } from '../../../../../../shared/gettext';
 import { useCustomLists } from '../../../../../features/location/hooks';
+import type { GeographicalLocation } from '../../../../../features/location/types';
 import { Dialog, type DialogProps } from '../../../../../lib/components/dialog';
 import { FlexColumn } from '../../../../../lib/components/flex-column';
 import { formatHtml } from '../../../../../lib/html-formatter';
-import type { GeographicalLocation } from '../../select-location-types';
 import { SelectList } from '../select-list';
 import { useLocationTypeMessage } from './hooks';
 

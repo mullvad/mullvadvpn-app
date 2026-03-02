@@ -3,13 +3,11 @@ import { sprintf } from 'sprintf-js';
 
 import { messages } from '../../../../../../../../shared/gettext';
 import { useCustomLists } from '../../../../../../../features/location/hooks';
+import { type GeographicalLocation } from '../../../../../../../features/location/types';
+import { getLocationChildren } from '../../../../../../../features/location/utils';
 import { useAccordionContext } from '../../../../../../../lib/components/accordion/AccordionContext';
 import { useListItemContext } from '../../../../../../../lib/components/list-item/ListItemContext';
 import { LocationListItem } from '../../../../../../location-list-item';
-import {
-  type GeographicalLocation,
-  getLocationChildrenByType,
-} from '../../../../select-location-types';
 import { useAnyLocationListItemContext } from '../../AnyLocationListItemContext';
 import { AddToCustomListButton } from '../add-to-custom-list-button';
 import { RemoveFromCustomListButton } from '../remove-from-custom-list-button';
@@ -26,7 +24,7 @@ export function GeographicalLocationTrailingActions({
   const { level } = useListItemContext();
   const { expanded } = useAccordionContext();
 
-  const childLocations = getLocationChildrenByType(location);
+  const childLocations = getLocationChildren(location);
 
   const showAccordionTrigger = childLocations.length > 0;
   const showAddToCustomListButton = rootLocation === 'geographical' && customLists.length > 0;

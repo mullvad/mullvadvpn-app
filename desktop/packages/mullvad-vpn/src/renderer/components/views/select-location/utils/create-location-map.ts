@@ -1,4 +1,4 @@
-import type { CountryLocation, GeographicalLocation } from '../select-location-types';
+import type { CountryLocation, GeographicalLocation } from '../../../../features/location/types';
 
 export function createLocationMap(locations: CountryLocation[]): Map<string, GeographicalLocation> {
   const map = new Map<string, GeographicalLocation>();

@@ -3,6 +3,7 @@ import React from 'react';
 import { ObfuscationType } from '../../../../shared/daemon-rpc-types';
 import { useObfuscation } from '../../../features/anti-censorship/hooks';
 import { useDaitaDirectOnly, useDaitaEnabled } from '../../../features/daita/hooks';
+import { type CountryLocation } from '../../../features/location/types';
 import {
   filterLocations as filterLocationsByOwnershipAndProviders,
   filterLocationsByDaita,
@@ -13,7 +14,6 @@ import { useNormalRelaySettings } from '../../../lib/relay-settings-hooks';
 import { useSelector } from '../../../redux/store';
 import { useLocations } from './hooks/use-locations';
 import { useSearchLocations } from './hooks/use-search-locations';
-import { type CountryLocation } from './select-location-types';
 import { useSelectLocationViewContext } from './SelectLocationViewContext';
 
 type LocationsContextProps = Omit<LocationsProviderProps, 'children'> & {
