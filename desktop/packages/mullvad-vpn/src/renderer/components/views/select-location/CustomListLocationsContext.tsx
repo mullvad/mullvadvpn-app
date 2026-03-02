@@ -1,7 +1,7 @@
 import React from 'react';
 
+import { type CustomListLocation } from '../../../features/location/types';
 import { useCustomListLocations } from './hooks';
-import { type CustomListLocation } from './select-location-types';
 
 type CustomListLocationsContextProps = Omit<CustomListLocationsProviderProps, 'children'> & {
   customListLocations: CustomListLocation[];

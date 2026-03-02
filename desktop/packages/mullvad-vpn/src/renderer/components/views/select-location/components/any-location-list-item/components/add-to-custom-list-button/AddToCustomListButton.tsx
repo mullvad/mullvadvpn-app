@@ -3,9 +3,9 @@ import { sprintf } from 'sprintf-js';
 
 import { messages } from '../../../../../../../../shared/gettext';
 import { useCustomLists } from '../../../../../../../features/location/hooks';
+import type { GeographicalLocation } from '../../../../../../../features/location/types';
 import { LocationListItem } from '../../../../../../location-list-item';
 import type { LocationListItemIconButtonProps } from '../../../../../../location-list-item/components';
-import type { GeographicalLocation } from '../../../../select-location-types';
 import { AddToCustomListDialog } from '../../../add-to-custom-list-dialog';
 
 export type AddToCustomListButtonProps = LocationListItemIconButtonProps & {

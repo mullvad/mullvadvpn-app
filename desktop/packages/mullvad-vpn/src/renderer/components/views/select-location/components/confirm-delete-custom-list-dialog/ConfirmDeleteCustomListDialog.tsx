@@ -3,9 +3,9 @@ import { sprintf } from 'sprintf-js';
 
 import { messages } from '../../../../../../shared/gettext';
 import { useCustomLists } from '../../../../../features/location/hooks';
+import { type CustomListLocation } from '../../../../../features/location/types';
 import { Dialog, type DialogProps } from '../../../../../lib/components/dialog';
 import { formatHtml } from '../../../../../lib/html-formatter';
-import { type CustomListLocation } from '../../select-location-types';
 import { useCustomListLocationListItemContext } from '../custom-list-location-list-item/CustomListLocationListItemContext';
 
 type ConfirmDeleteCustomListDialogProps = Omit<DialogProps, 'children'> & {

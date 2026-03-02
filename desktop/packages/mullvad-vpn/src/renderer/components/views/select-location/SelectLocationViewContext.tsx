@@ -1,10 +1,10 @@
 import React from 'react';
 
+import { LocationType } from '../../../features/location/types';
 import useActions from '../../../lib/actionsHook';
 import { useNormalRelaySettings } from '../../../lib/relay-settings-hooks';
 import { useSelector } from '../../../redux/store';
 import userInterface from '../../../redux/userinterface/actions';
-import { LocationType } from './select-location-types';
 
 type SelectLocationViewContextProps = {
   locationType: LocationType;

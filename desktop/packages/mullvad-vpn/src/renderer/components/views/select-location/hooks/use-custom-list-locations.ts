@@ -1,12 +1,12 @@
 import React from 'react';
 
 import { useCustomLists } from '../../../../features/location/hooks';
-import { useLocationsContext } from '../LocationsContext';
 import {
   type CustomListLocation,
   DisabledReason,
   type GeographicalLocation,
-} from '../select-location-types';
+} from '../../../../features/location/types';
+import { useLocationsContext } from '../LocationsContext';
 import { useSelectLocationViewContext } from '../SelectLocationViewContext';
 import {
   createLocationMap,

@@ -1,9 +1,9 @@
 import React from 'react';
 
+import type { CustomListLocation } from '../../../../../features/location/types';
 import type { DialogProps } from '../../../../../lib/components/dialog';
 import { useTextField, type UseTextFieldState } from '../../../../../lib/components/text-field';
 import { useIsCustomListNameValid } from '../../hooks';
-import type { CustomListLocation } from '../../select-location-types';
 
 type EditCustomListDialogContextProps = Omit<EditCustomListDialogProviderProps, 'children'> & {
   formRef: React.RefObject<HTMLFormElement | null>;

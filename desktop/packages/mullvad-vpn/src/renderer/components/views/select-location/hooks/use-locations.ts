@@ -1,18 +1,18 @@
 import React from 'react';
 
 import type { RelayLocation as DaemonRelayLocation } from '../../../../../shared/daemon-rpc-types';
+import {
+  type CityLocation,
+  type CountryLocation,
+  DisabledReason,
+  type RelayLocation,
+} from '../../../../features/location/types';
 import type {
   IRelayLocationCityRedux,
   IRelayLocationCountryRedux,
   IRelayLocationRelayRedux,
 } from '../../../../redux/settings/reducers';
 import { useSelector } from '../../../../redux/store';
-import {
-  type CityLocation,
-  type CountryLocation,
-  DisabledReason,
-  type RelayLocation,
-} from '../select-location-types';
 import {
   createLocationLabel,
   isCityDisabled,

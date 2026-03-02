@@ -1,7 +1,7 @@
 import React from 'react';
 
 import type { RelayLocation as DaemonRelayLocation } from '../../../../../../shared/daemon-rpc-types';
-import { LocationType } from '../../select-location-types';
+import { LocationType } from '../../../../../features/location/types';
 import { useHandleSelectEntryLocation, useHandleSelectExitLocation } from './hooks';
 import type { LocationsListsProps } from './LocationLists';
 

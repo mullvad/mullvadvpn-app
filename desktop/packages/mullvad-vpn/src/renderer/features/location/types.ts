@@ -3,7 +3,7 @@ import {
   RelayLocationCountry as DaemonRelayLocationCountry,
   RelayLocationCustomList as DaemonRelayLocationCustomList,
   RelayLocationRelay as DaemonRelayLocationRelay,
-} from '../../../../shared/daemon-rpc-types';
+} from '../../../shared/daemon-rpc-types';
 
 export enum LocationType {
   entry = 0,
@@ -50,16 +50,4 @@ export enum DisabledReason {
   entry,
   exit,
   inactive,
-}
-
-export function getLocationChildrenByType(location: AnyLocation): GeographicalLocation[] {
-  if (location.type === 'customList') {
-    return location.locations;
-  } else if (location.type === 'country') {
-    return location.cities;
-  } else if (location.type === 'city') {
-    return location.relays;
-  } else {
-    return [];
-  }
 }
