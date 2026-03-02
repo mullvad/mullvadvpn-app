@@ -61,7 +61,7 @@ fun SwitchListItem(
         content = { Text(title) },
         trailingContent = {
             Row(
-                modifier = modifier.fillMaxHeight(),
+                modifier = Modifier.fillMaxHeight(),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 if (onInfoClicked != null) {
