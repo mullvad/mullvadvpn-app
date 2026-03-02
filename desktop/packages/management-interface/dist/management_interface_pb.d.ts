@@ -368,6 +368,11 @@ export class ErrorState extends jspb.Message {
     getInvalidDnsServersError(): ErrorState.InvalidDnsServersError | undefined;
     setInvalidDnsServersError(value?: ErrorState.InvalidDnsServersError): ErrorState;
 
+    hasInvalidIpv6ConfigError(): boolean;
+    clearInvalidIpv6ConfigError(): void;
+    getInvalidIpv6ConfigError(): ErrorState.InvalidIpv6Config | undefined;
+    setInvalidIpv6ConfigError(value?: ErrorState.InvalidIpv6Config): ErrorState;
+
     serializeBinary(): Uint8Array;
     toObject(includeInstance?: boolean): ErrorState.AsObject;
     static toObject(includeInstance: boolean, msg: ErrorState): ErrorState.AsObject;
@@ -388,6 +393,7 @@ export namespace ErrorState {
         createTunnelError?: number,
         otherAlwaysOnAppError?: ErrorState.OtherAlwaysOnAppError.AsObject,
         invalidDnsServersError?: ErrorState.InvalidDnsServersError.AsObject,
+        invalidIpv6ConfigError?: ErrorState.InvalidIpv6Config.AsObject,
     }
 
 
@@ -468,6 +474,38 @@ export namespace ErrorState {
         }
     }
 
+    export class InvalidIpv6Config extends jspb.Message { 
+        clearAddrsList(): void;
+        getAddrsList(): Array<string>;
+        setAddrsList(value: Array<string>): InvalidIpv6Config;
+        addAddrs(value: string, index?: number): string;
+        clearRoutesList(): void;
+        getRoutesList(): Array<string>;
+        setRoutesList(value: Array<string>): InvalidIpv6Config;
+        addRoutes(value: string, index?: number): string;
+        clearDnsList(): void;
+        getDnsList(): Array<string>;
+        setDnsList(value: Array<string>): InvalidIpv6Config;
+        addDns(value: string, index?: number): string;
+
+        serializeBinary(): Uint8Array;
+        toObject(includeInstance?: boolean): InvalidIpv6Config.AsObject;
+        static toObject(includeInstance: boolean, msg: InvalidIpv6Config): InvalidIpv6Config.AsObject;
+        static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+        static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+        static serializeBinaryToWriter(message: InvalidIpv6Config, writer: jspb.BinaryWriter): void;
+        static deserializeBinary(bytes: Uint8Array): InvalidIpv6Config;
+        static deserializeBinaryFromReader(message: InvalidIpv6Config, reader: jspb.BinaryReader): InvalidIpv6Config;
+    }
+
+    export namespace InvalidIpv6Config {
+        export type AsObject = {
+            addrsList: Array<string>,
+            routesList: Array<string>,
+            dnsList: Array<string>,
+        }
+    }
+
 
     export enum Cause {
     AUTH_FAILED = 0,
@@ -482,6 +520,7 @@ export namespace ErrorState {
     OTHER_ALWAYS_ON_APP = 9,
     OTHER_LEGACY_ALWAYS_ON_VPN = 10,
     INVALID_DNS_SERVERS = 11,
+    INVALID_IPV6_CONFIG = 14,
     SPLIT_TUNNEL_ERROR = 12,
     NEED_FULL_DISK_PERMISSIONS = 13,
     }
