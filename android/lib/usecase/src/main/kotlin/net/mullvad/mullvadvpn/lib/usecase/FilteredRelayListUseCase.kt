@@ -1,73 +1,118 @@
 package net.mullvad.mullvadvpn.lib.usecase
 
 import kotlinx.coroutines.flow.combine
-import net.mullvad.mullvadvpn.lib.common.util.ipVersionConstraint
-import net.mullvad.mullvadvpn.lib.common.util.isDaitaAndDirectOnly
-import net.mullvad.mullvadvpn.lib.common.util.isLwoEnabled
-import net.mullvad.mullvadvpn.lib.common.util.isQuicEnabled
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.map
+import mullvad_daemon.relay_selector.exitConstraints
+import net.mullvad.mullvadvpn.lib.common.util.isDaitaAndNotDirectOnly
 import net.mullvad.mullvadvpn.lib.common.util.relaylist.filter
-import net.mullvad.mullvadvpn.lib.common.util.shouldFilterByDaita
-import net.mullvad.mullvadvpn.lib.common.util.shouldFilterByLwo
-import net.mullvad.mullvadvpn.lib.common.util.shouldFilterByQuic
+import net.mullvad.mullvadvpn.lib.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.model.Constraint
-import net.mullvad.mullvadvpn.lib.model.IpVersion
-import net.mullvad.mullvadvpn.lib.model.Ownership
-import net.mullvad.mullvadvpn.lib.model.Providers
+import net.mullvad.mullvadvpn.lib.model.DiscardedRelay
+import net.mullvad.mullvadvpn.lib.model.EntryConstraints
+import net.mullvad.mullvadvpn.lib.model.ExitConstraints
+import net.mullvad.mullvadvpn.lib.model.GeoLocationId
+import net.mullvad.mullvadvpn.lib.model.MultihopConstraints
+import net.mullvad.mullvadvpn.lib.model.MultihopRelayListType
 import net.mullvad.mullvadvpn.lib.model.RelayItem
+import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.model.RelayListType
-import net.mullvad.mullvadvpn.lib.repository.RelayListFilterRepository
+import net.mullvad.mullvadvpn.lib.model.RelayPartitions
+import net.mullvad.mullvadvpn.lib.model.RelaySelectorPredicate
+import net.mullvad.mullvadvpn.lib.model.Settings
 import net.mullvad.mullvadvpn.lib.repository.RelayListRepository
 import net.mullvad.mullvadvpn.lib.repository.SettingsRepository
 
 class FilteredRelayListUseCase(
     private val relayListRepository: RelayListRepository,
-    private val relayListFilterRepository: RelayListFilterRepository,
     private val settingsRepository: SettingsRepository,
+    private val managementService: ManagementService,
 ) {
     operator fun invoke(relayListType: RelayListType) =
         combine(
+            settingsRepository.settingsUpdates
+                .filterNotNull()
+                .map {
+                    when (relayListType) {
+                        is RelayListType.Multihop ->
+                            when (relayListType.multihopRelayListType) {
+                                MultihopRelayListType.ENTRY ->
+                                    RelaySelectorPredicate.Entry(
+                                        multihopConstraints =
+                                            MultihopConstraints(
+                                                entryConstraints =
+                                                    it.toEntryConstraint(Constraint.Any),
+                                                exitConstraints = it.toExitConstraint(),
+                                            )
+                                    )
+                                MultihopRelayListType.EXIT ->
+                                    RelaySelectorPredicate.Exit(
+                                        multihopConstraints =
+                                            MultihopConstraints(
+                                                entryConstraints = it.toEntryConstraint(),
+                                                exitConstraints =
+                                                    it.toExitConstraint(Constraint.Any),
+                                            )
+                                    )
+                            }
+                        RelayListType.Single ->
+                            if (it.isDaitaAndNotDirectOnly()) {
+                                RelaySelectorPredicate.Autohop(it.toEntryConstraint(Constraint.Any))
+                            } else {
+                                RelaySelectorPredicate.SingleHop(
+                                    it.toEntryConstraint(Constraint.Any)
+                                )
+                            }
+                    }
+                }
+                .distinctUntilChanged()
+                .map { managementService.partitionRelays(it) },
             relayListRepository.relayList,
-            relayListFilterRepository.selectedOwnership,
-            relayListFilterRepository.selectedProviders,
-            settingsRepository.settingsUpdates,
-        ) { relayList, selectedOwnership, selectedProviders, settings ->
-            relayList.filter(
-                ownership = selectedOwnership,
-                providers = selectedProviders,
-                shouldFilterByDaita =
-                    shouldFilterByDaita(
-                        daitaDirectOnly = settings?.isDaitaAndDirectOnly() == true,
-                        relayListType = relayListType,
-                    ),
-                shouldFilterByQuic =
-                    shouldFilterByQuic(
-                        isQuicEnabled = settings?.isQuicEnabled() == true,
-                        relayListType = relayListType,
-                    ),
-                shouldFilterByLwo =
-                    shouldFilterByLwo(
-                        isLwoEnable = settings?.isLwoEnabled() == true,
-                        relayListType = relayListType,
-                    ),
-                constraintIpVersion = settings?.ipVersionConstraint() ?: Constraint.Any,
-            )
+        ) { partitions, relayList ->
+            relayList.filter(partitions.relevantHostnames())
+        }
+
+    private fun RelayPartitions.relevantHostnames() =
+        matches + discards.filter { it.shouldBeShown() }.map { it.hostname }
+
+    private fun DiscardedRelay.shouldBeShown(): Boolean =
+        with(why) {
+            (conflictWithOtherHop or inactive) &&
+                !location &&
+                !providers &&
+                !ownership &&
+                !ipVersion &&
+                !daita &&
+                !obfuscation &&
+                !port
         }
 
     private fun List<RelayItem.Location.Country>.filter(
-        ownership: Constraint<Ownership>,
-        providers: Constraint<Providers>,
-        shouldFilterByDaita: Boolean,
-        shouldFilterByQuic: Boolean,
-        shouldFilterByLwo: Boolean,
-        constraintIpVersion: Constraint<IpVersion>,
-    ) = mapNotNull {
-        it.filter(
-            ownership,
-            providers,
-            shouldFilterByDaita,
-            shouldFilterByQuic,
-            shouldFilterByLwo,
-            constraintIpVersion,
-        )
-    }
+        validHostnames: List<GeoLocationId.Hostname>
+    ) = mapNotNull { it.filter(validHostnames) }
 }
+
+private fun Settings.toEntryConstraint(
+    overrideExitLocation: Constraint<RelayItemId>? = null
+): EntryConstraints =
+    EntryConstraints(
+        generalConstraints =
+            ExitConstraints(
+                location = overrideExitLocation ?: relaySettings.relayConstraints.location,
+                providers = relaySettings.relayConstraints.providers,
+                ownership = relaySettings.relayConstraints.ownership,
+            ),
+        obfuscation = Constraint.Only(obfuscationSettings),
+        daitaSettings = Constraint.Only(tunnelOptions.daitaSettings),
+        ipVersion = relaySettings.relayConstraints.wireguardConstraints.ipVersion,
+    )
+
+private fun Settings.toExitConstraint(
+    overrideEntryLocation: Constraint<RelayItemId>? = null
+): ExitConstraints =
+    ExitConstraints(
+        location = overrideEntryLocation ?: relaySettings.relayConstraints.location,
+        providers = relaySettings.relayConstraints.providers,
+        ownership = relaySettings.relayConstraints.ownership,
+    )
