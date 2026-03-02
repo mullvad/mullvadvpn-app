@@ -5,7 +5,8 @@ use mullvad_types::{
     constraints::{Constraint, Match},
     custom_list::CustomListsSettings,
     relay_constraints::{
-        GeographicLocationConstraint, LocationConstraint, Ownership, Providers, ShadowsocksSettings,
+        GeographicLocationConstraint, LocationConstraint, ObfuscationSettings, Ownership,
+        Providers, ShadowsocksSettings,
     },
     relay_list::{RelayList, WireguardRelay, WireguardRelayEndpointData},
 };
@@ -40,11 +41,11 @@ pub fn filter_matching_relay_list_include_all(
             // Filter on active relays
             .filter(|relay| filter_on_active(relay))
             // Filter by location
-            .filter(|relay| filter_on_location(&locations, relay))
+            .filter(|relay| filter_on_location(locations.as_ref(), relay))
             // Filter by ownership
-            .filter(|relay| filter_on_ownership(&query.ownership(), relay))
+            .filter(|relay| filter_on_ownership(query.ownership().as_ref(), relay))
             // Filter by providers
-            .filter(|relay| filter_on_providers(query.providers(), relay))
+            .filter(|relay| filter_on_providers(query.providers().as_ref(), relay))
             // Filter by DAITA support
             .filter(|relay| filter_on_daita(&query.wireguard_constraints().daita, relay))
             // Filter by obfuscation support
@@ -61,19 +62,19 @@ pub fn filter_on_active(relay: &WireguardRelay) -> bool {
 
 /// Returns whether `relay` satisfy the location constraint posed by `filter`.
 pub fn filter_on_location(
-    filter: &Constraint<ResolvedLocationConstraint<'_>>,
+    filter: Constraint<&ResolvedLocationConstraint<'_>>,
     relay: &WireguardRelay,
 ) -> bool {
     filter.matches(relay)
 }
 
 /// Returns whether `relay` satisfy the ownership constraint posed by `filter`.
-pub fn filter_on_ownership(filter: &Constraint<Ownership>, relay: &WireguardRelay) -> bool {
+pub fn filter_on_ownership(filter: Constraint<&Ownership>, relay: &WireguardRelay) -> bool {
     filter.matches(relay)
 }
 
 /// Returns whether `relay` satisfy the providers constraint posed by `filter`.
-pub fn filter_on_providers(filter: &Constraint<Providers>, relay: &WireguardRelay) -> bool {
+pub fn filter_on_providers(filter: Constraint<&Providers>, relay: &WireguardRelay) -> bool {
     filter.matches(relay)
 }
 
@@ -84,6 +85,42 @@ pub fn filter_on_daita(filter: &Constraint<bool>, relay: &WireguardRelay) -> boo
         (Constraint::Only(true), WireguardRelayEndpointData { daita, .. }) => *daita,
         // If we don't require DAITA, any relay works.
         _ => true,
+    }
+}
+
+/// TODO: Keep this, remove [`filter_on_obfuscation`].
+pub fn filter_on_obfuscation_neo(
+    relay: &WireguardRelay,
+    settings: &ObfuscationSettings,
+    ip_version: Constraint<&IpVersion>,
+) -> bool {
+    use mullvad_types::relay_constraints::SelectedObfuscation::*;
+    match settings.selected_obfuscation {
+        Shadowsocks => {
+            // let wg_data = &relay_list.wireguard;
+            filter_on_shadowsocks(
+                //&wg_data.shadowsocks_port_ranges,
+                &[(0..=u16::MAX)], // TODO: We might need access to 'Wireguard endpoint data' from relay list.
+                ip_version,
+                &settings.shadowsocks,
+                relay.endpoint(),
+            )
+        }
+        // QUIC is only enabled on some relays
+        Quic => match relay.endpoint().quic() {
+            Some(quic) => match ip_version {
+                Constraint::Any => true,
+                Constraint::Only(IpVersion::V4) => quic.in_ipv4().next().is_some(),
+                Constraint::Only(IpVersion::V6) => quic.in_ipv6().next().is_some(),
+            },
+            None => false,
+        },
+        // LWO is only enabled on some relays
+        Lwo => relay.endpoint().lwo,
+        // Other relays are always valid
+        // TODO:^ This might not be true. We might want to consider the selected port for
+        // udp2tcp & wireguard port ..
+        Off | Auto | WireguardPort | Udp2Tcp => true,
     }
 }
 
@@ -100,7 +137,7 @@ fn filter_on_obfuscation(
             let wg_data = &relay_list.wireguard;
             filter_on_shadowsocks(
                 &wg_data.shadowsocks_port_ranges,
-                &query.ip_version,
+                query.ip_version.as_ref(),
                 settings,
                 relay.endpoint(),
             )
@@ -122,13 +159,13 @@ fn filter_on_obfuscation(
 }
 
 /// Returns whether `relay` satisfies the Shadowsocks filter posed by `port`.
-fn filter_on_shadowsocks(
+pub(crate) fn filter_on_shadowsocks(
     port_ranges: &[RangeInclusive<u16>],
-    ip_version: &Constraint<IpVersion>,
+    ip_version: Constraint<&IpVersion>,
     settings: &ShadowsocksSettings,
     endpoint_data: &WireguardRelayEndpointData,
 ) -> bool {
-    let ip_version = super::detailer::resolve_ip_version(*ip_version);
+    let ip_version = super::detailer::resolve_ip_version(ip_version);
 
     match settings {
         // If Shadowsocks is specifically asked for, we must check if the specific relay supports
@@ -190,7 +227,7 @@ impl<'a> ResolvedLocationConstraint<'a> {
     /// Define the mapping from a [location][`LocationConstraint`] and a set of
     /// [custom lists][`CustomListsSettings`] to [`ResolvedLocationConstraint`].
     pub fn from_constraint(
-        location_constraint: &'a Constraint<LocationConstraint>,
+        location_constraint: Constraint<&'a LocationConstraint>,
         custom_lists: &'a CustomListsSettings,
     ) -> Constraint<ResolvedLocationConstraint<'a>> {
         match location_constraint {
@@ -223,7 +260,7 @@ impl<'a> IntoIterator for &'a ResolvedLocationConstraint<'a> {
     }
 }
 
-impl Match<WireguardRelay> for ResolvedLocationConstraint<'_> {
+impl Match<WireguardRelay> for &ResolvedLocationConstraint<'_> {
     fn matches(&self, relay: &WireguardRelay) -> bool {
         self.into_iter().any(|location| location.matches(relay))
     }

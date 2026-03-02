@@ -1,4 +1,7 @@
-use crate::{DaemonCommand, DaemonCommandSender, account_history, device};
+use crate::{
+    DaemonCommand, DaemonCommandSender, account_history, device,
+    relay_selector::RelaySelectorServiceImpl,
+};
 use futures::{
     StreamExt,
     channel::{mpsc, oneshot},
@@ -1323,6 +1326,7 @@ impl ManagementInterfaceServer {
         rpc_socket_path: PathBuf,
         app_upgrade_broadcast: AppUpgradeBroadcast,
         log_reload_handle: crate::logging::LogHandle,
+        relay_selector: mullvad_relay_selector::RelaySelector,
     ) -> Result<ManagementInterfaceServer, Error> {
         let subscriptions = Arc::<Mutex<Vec<EventsListenerSender>>>::default();
 
@@ -1331,14 +1335,18 @@ impl ManagementInterfaceServer {
         // received and started processing the shutdown signal.
         let (server_abort_tx, server_abort_rx) = mpsc::channel(0);
 
-        let server = ManagementServiceImpl {
+        let management_service = ManagementServiceImpl {
             daemon_tx,
             subscriptions: subscriptions.clone(),
             app_upgrade_broadcast,
             log_reload_handle,
         };
+
+        let relay_selector_service = RelaySelectorServiceImpl::new(relay_selector);
+
         let rpc_server_join_handle = mullvad_management_interface::spawn_rpc_server(
-            server,
+            management_service,
+            relay_selector_service,
             async move {
                 StreamExt::into_future(server_abort_rx).await;
             },

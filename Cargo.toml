@@ -70,6 +70,7 @@ bytes = "1.11.1"
 chrono = { version = "0.4.26", default-features = false }
 clap = { version = "4.4.18", features = ["cargo", "derive"] }
 dirs = "6.0.0"
+either = "1.15.0"
 futures = "0.3.15"
 gotatun = { version = "0.4.0" }
 hickory-proto = "0.25.2"

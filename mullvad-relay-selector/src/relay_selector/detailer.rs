@@ -163,7 +163,7 @@ fn get_address_for_wireguard_relay(
     query: &WireguardRelayQuery,
     relay: &WireguardRelay,
 ) -> Result<IpAddr, Error> {
-    match resolve_ip_version(query.ip_version) {
+    match resolve_ip_version(query.ip_version.as_ref()) {
         IpVersion::V4 => Ok(relay.ipv4_addr_in.into()),
         IpVersion::V6 => relay
             .ipv6_addr_in
@@ -172,7 +172,7 @@ fn get_address_for_wireguard_relay(
     }
 }
 
-pub fn resolve_ip_version(ip_version: Constraint<IpVersion>) -> IpVersion {
+pub fn resolve_ip_version(ip_version: Constraint<&IpVersion>) -> IpVersion {
     match ip_version {
         Constraint::Any | Constraint::Only(IpVersion::V4) => IpVersion::V4,
         Constraint::Only(IpVersion::V6) => IpVersion::V6,
