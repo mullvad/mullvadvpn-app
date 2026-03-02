@@ -6,11 +6,19 @@ repository.workspace = true
 license.workspace = true
 
 [target.'cfg(target_os = "linux")'.dependencies]
-dbus = "0.9"
+dbus = { version = "0.9", optional = true }
 libc = "0.2"
 log = { workspace = true }
+serde = { workspace = true }
 thiserror = { workspace = true }
 tokio = { workspace = true, features = ["rt"] }
+zbus = { version = "5.12", optional = true }
+zvariant = { version = "5.8.0", optional = true }
+
+[features]
+default = ["libdbus", "zbus"] # TODO: remove zbus
+libdbus = ["dep:dbus"]
+zbus = ["dep:zbus", "dep:zvariant"] # experimental: Prefer zbus over libdbus
 
 [lints]
 workspace = true
