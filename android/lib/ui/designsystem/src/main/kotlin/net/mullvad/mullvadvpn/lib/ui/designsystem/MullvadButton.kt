@@ -308,12 +308,12 @@ private fun RowScope.BaseButtonContent(
 ) {
     when {
         leadingIcon != null ->
-            Box(modifier = Modifier.padding(horizontal = Dimens.smallPadding)) { leadingIcon() }
+            Box(modifier = Modifier.padding(horizontal = Dimens.mediumPadding)) { leadingIcon() }
 
         trailingIcon != null ->
             // Used to center the text
             Box(
-                modifier = Modifier.padding(horizontal = Dimens.smallPadding).alpha(AlphaInvisible)
+                modifier = Modifier.padding(horizontal = Dimens.mediumPadding).alpha(AlphaInvisible)
             ) {
                 trailingIcon()
             }
@@ -333,12 +333,12 @@ private fun RowScope.BaseButtonContent(
     }
     when {
         trailingIcon != null ->
-            Box(modifier = Modifier.padding(horizontal = Dimens.smallPadding)) { trailingIcon() }
+            Box(modifier = Modifier.padding(horizontal = Dimens.mediumPadding)) { trailingIcon() }
 
         leadingIcon != null ->
             // Used to center the text
             Box(
-                modifier = Modifier.padding(horizontal = Dimens.smallPadding).alpha(AlphaInvisible)
+                modifier = Modifier.padding(horizontal = Dimens.mediumPadding).alpha(AlphaInvisible)
             ) {
                 leadingIcon()
             }
