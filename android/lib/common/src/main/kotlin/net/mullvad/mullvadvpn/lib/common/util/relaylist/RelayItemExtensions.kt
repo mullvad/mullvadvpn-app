@@ -2,10 +2,8 @@ package net.mullvad.mullvadvpn.lib.common.util.relaylist
 
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
-import net.mullvad.mullvadvpn.lib.model.IpVersion
 import net.mullvad.mullvadvpn.lib.model.Ownership
 import net.mullvad.mullvadvpn.lib.model.Providers
-import net.mullvad.mullvadvpn.lib.model.Quic
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 
 fun RelayItem.children(): List<RelayItem> {
@@ -56,36 +54,23 @@ private fun RelayItem.Location.hasProvider(providersConstraint: Constraint<Provi
     }
 
 fun RelayItem.CustomList.filter(
-    ownership: Constraint<Ownership>,
-    providers: Constraint<Providers>,
-    daita: Boolean,
-    quic: Boolean,
-    lwo: Boolean,
-    ipVersion: Constraint<IpVersion>,
+    validHostnames: List<GeoLocationId.Hostname>
 ): RelayItem.CustomList {
     val newLocations =
         locations.mapNotNull {
             when (it) {
-                is RelayItem.Location.Country ->
-                    it.filter(ownership, providers, daita, quic, lwo, ipVersion)
-                is RelayItem.Location.City ->
-                    it.filter(ownership, providers, daita, quic, lwo, ipVersion)
-                is RelayItem.Location.Relay ->
-                    it.filter(ownership, providers, daita, quic, lwo, ipVersion)
+                is RelayItem.Location.Country -> it.filter(validHostnames)
+                is RelayItem.Location.City -> it.filter(validHostnames)
+                is RelayItem.Location.Relay -> it.filter(validHostnames)
             }
         }
     return copy(locations = newLocations)
 }
 
 fun RelayItem.Location.Country.filter(
-    ownership: Constraint<Ownership>,
-    providers: Constraint<Providers>,
-    daita: Boolean,
-    quic: Boolean,
-    lwo: Boolean,
-    ipVersion: Constraint<IpVersion>,
+    validHostnames: List<GeoLocationId.Hostname>
 ): RelayItem.Location.Country? {
-    val cities = cities.mapNotNull { it.filter(ownership, providers, daita, quic, lwo, ipVersion) }
+    val cities = cities.mapNotNull { it.filter(validHostnames) }
     return if (cities.isNotEmpty()) {
         this.copy(cities = cities)
     } else {
@@ -94,14 +79,9 @@ fun RelayItem.Location.Country.filter(
 }
 
 private fun RelayItem.Location.City.filter(
-    ownership: Constraint<Ownership>,
-    providers: Constraint<Providers>,
-    daita: Boolean,
-    quic: Boolean,
-    lwo: Boolean,
-    ipVersion: Constraint<IpVersion>,
+    validHostnames: List<GeoLocationId.Hostname>
 ): RelayItem.Location.City? {
-    val relays = relays.mapNotNull { it.filter(ownership, providers, daita, quic, lwo, ipVersion) }
+    val relays = relays.mapNotNull { it.filter(validHostnames) }
     return if (relays.isNotEmpty()) {
         this.copy(relays = relays)
     } else {
@@ -109,44 +89,9 @@ private fun RelayItem.Location.City.filter(
     }
 }
 
-private fun RelayItem.Location.Relay.requiredFeatures(
-    requireDaita: Boolean,
-    requireQuic: Boolean,
-    requireLwo: Boolean,
-    ipVersion: Constraint<IpVersion>,
-): Boolean =
-    when {
-        // Can not require LWO and require QUIC at the same time
-        requireDaita && requireQuic -> daita && quic?.supports(ipVersion) == true
-        requireDaita && requireLwo -> daita && lwo
-        requireDaita -> daita
-        requireQuic -> quic?.supports(ipVersion) == true
-        requireLwo -> lwo
-        else -> true
-    }
-
-private fun Quic.supports(ipVersion: Constraint<IpVersion>) =
-    when (ipVersion.getOrNull()) {
-        IpVersion.IPV4 -> supportsIpv4
-        IpVersion.IPV6 -> supportsIpv6
-        else -> inAddresses.isNotEmpty()
-    }
-
 private fun RelayItem.Location.Relay.filter(
-    ownership: Constraint<Ownership>,
-    providers: Constraint<Providers>,
-    daita: Boolean,
-    quic: Boolean,
-    lwo: Boolean,
-    ipVersion: Constraint<IpVersion>,
-): RelayItem.Location.Relay? =
-    if (
-        requiredFeatures(daita, quic, lwo, ipVersion) &&
-            hasOwnership(ownership) &&
-            hasProvider(providers)
-    )
-        this
-    else null
+    validHostnames: List<GeoLocationId.Hostname>
+): RelayItem.Location.Relay? = if (validHostnames.contains(id)) this else null
 
 fun List<RelayItem.Location.Country>.findByGeoLocationId(
     geoLocationId: GeoLocationId
