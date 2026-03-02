@@ -8,7 +8,7 @@ license.workspace = true
 
 [target.'cfg(target_os = "linux")'.dependencies]
 rs-release = "0.1.7"
-talpid-dbus = { path = "../talpid-dbus", optional = true }
+talpid-dbus = { workspace = true, optional = true }
 
 [target.'cfg(target_os = "windows")'.dependencies]
 talpid-windows = { path = "../talpid-windows" }
