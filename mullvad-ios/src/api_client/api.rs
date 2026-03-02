@@ -1,8 +1,10 @@
+use chrono::{DateTime, Utc};
 use std::ffi::{CStr, c_void};
 use std::os::raw::c_char;
 
+use mullvad_api::relay_list_transparency::RelayListDigest;
 use mullvad_api::{
-    ApiProxy, ETag, RelayListProxy,
+    ApiProxy, RelayListProxy,
     rest::{self, MullvadRestHandle},
 };
 use mullvad_types::access_method::AccessMethodSetting;
@@ -169,16 +171,9 @@ pub unsafe extern "C" fn mullvad_ios_get_relays(
     // SAFETY: See notes for `into_rust`
     let retry_strategy = unsafe { retry_strategy.into_rust() };
 
-    let mut maybe_etag: Option<ETag> = None;
-    if !etag.is_null() {
-        // SAFETY: See param documentation for `etag`.
-        let unwrapped_tag = unsafe { CStr::from_ptr(etag.cast()) }.to_str().unwrap();
-        maybe_etag = Some(ETag(String::from(unwrapped_tag)));
-    }
-
     let completion = completion_handler.clone();
     let task = tokio_handle.clone().spawn(async move {
-        match mullvad_ios_get_relays_inner(api_context.rest_handle(), retry_strategy, maybe_etag)
+        match mullvad_ios_get_relays_inner(api_context.rest_handle(), retry_strategy, None, None)
             .await
         {
             Ok(response) => completion.finish(response),
@@ -206,13 +201,15 @@ async fn mullvad_ios_get_addresses_inner(
 async fn mullvad_ios_get_relays_inner(
     rest_client: MullvadRestHandle,
     retry_strategy: RetryStrategy,
-    etag: Option<ETag>,
+    digest: Option<RelayListDigest>,
+    digest_timestamp: Option<DateTime<Utc>>,
 ) -> Result<SwiftMullvadApiResponse, rest::Error> {
     let api = RelayListProxy::new(rest_client);
 
-    let future_factory = || api.relay_list_response(etag.clone());
+    let future_factory = || api.relay_list_response(digest.clone(), digest_timestamp.clone());
 
-    do_request(retry_strategy, future_factory).await
+    let response = retry_request(retry_strategy, future_factory).await?;
+    SwiftMullvadApiResponse::with_sigsum_verified_body(response)
 }
 
 async fn mullvad_ios_api_addrs_available_inner(

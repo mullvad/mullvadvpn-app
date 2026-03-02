@@ -1,6 +1,6 @@
 //! A module dedicated to retrieving the relay list from the Mullvad API.
 
-use crate::{relay_list_transparency, rest};
+use crate::{relay_list_transparency::{self, SigsumVerifiedPayload}, rest};
 
 use hyper::{StatusCode, body::Incoming};
 use mullvad_types::{
@@ -56,6 +56,21 @@ impl RelayListProxy {
             Ok(relay_list.cache(rl.digest, rl.timestamp))
         })
         .transpose()
+    }
+
+    /// Fetch the relay list
+    pub async fn relay_list_response(
+        &self,
+        digest: Option<RelayListDigest>,
+        digest_timestamp: Option<DateTime<Utc>>,
+    ) -> Result<Option<SigsumVerifiedPayload>, rest::Error> {
+        relay_list_transparency::download_and_verify_relay_list(
+            self,
+            digest,
+            digest_timestamp,
+            &self.handle.sigsum_trusted_pubkeys,
+        )
+        .await
     }
 
     /// Fetch the relay list
