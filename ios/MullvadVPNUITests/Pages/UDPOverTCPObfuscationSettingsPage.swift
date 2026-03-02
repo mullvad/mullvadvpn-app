@@ -47,4 +47,20 @@ class UDPOverTCPObfuscationSettingsPage: Page {
         app.navigationBars.buttons.element(boundBy: 0).tap()
         return self
     }
+
+    @discardableResult func verifyUDPOverTCPPort80Selected() -> Self {
+        let cells = table.cells
+        var isCorrectPortSelected = false
+        for i in 0..<cells.count {
+            let cell = cells.element(boundBy: i)
+
+            if cell.images[AccessibilityIdentifier.selectedSingleOption].exists {
+                if cell.staticTexts["80"].exists {
+                    isCorrectPortSelected = true
+                }
+            }
+        }
+        XCTAssertTrue(isCorrectPortSelected, "Port 80 is not selected")
+        return self
+    }
 }

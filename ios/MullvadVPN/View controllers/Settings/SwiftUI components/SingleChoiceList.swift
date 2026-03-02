@@ -203,6 +203,7 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
                 : Color(UIColor.Cell.Background.indentationLevelZero)
         )
         .foregroundColor(Color(UIColor.Cell.titleTextColor))
+        .accessibilityIdentifier(isSelected ? .selectedSingleOption : nil)
     }
 
     // Construct a literal row for a specific literal value

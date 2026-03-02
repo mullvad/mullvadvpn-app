@@ -10,16 +10,6 @@ import Foundation
 
 /// Base class for tests which should start from a logged out state
 class LoggedOutUITestCase: BaseUITestCase {
-    override func setUp() async throws {
-        try await super.setUp()
-
-        agreeToTermsOfServiceIfShown()
-        logoutIfLoggedIn()
-
-        // Relaunch app so that tests start from a deterministic state
-        app.terminate()
-        app.launch()
-    }
 
     func disableBridgesAccessMethod() {
         HeaderBar(app)

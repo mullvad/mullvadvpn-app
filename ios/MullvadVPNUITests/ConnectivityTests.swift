@@ -37,29 +37,6 @@ class ConnectivityTests: LoggedOutUITestCase {
     func testAPIReachableWhenBlocked() throws {
         let hasTimeAccountNumber = getAccountWithTime()
         addTeardownBlock {
-            // Reset any filters
-            self.login(accountNumber: hasTimeAccountNumber)
-
-            TunnelControlPage(self.app)
-                .tapSelectLocationButton()
-
-            let filterCloseButtons = self.app.buttons
-                .matching(identifier: AccessibilityIdentifier.relayFilterChipCloseButton.asString)
-                .allElementsBoundByIndex
-
-            for filterCloseButton in filterCloseButtons where filterCloseButton.isHittable {
-                filterCloseButton.tap()
-            }
-
-            // Reset selected location to Sweden
-            SelectLocationPage(self.app)
-                .tapLocationCell(withName: BaseUITestCase.appDefaultCountry)
-
-            self.allowAddVPNConfigurationsIfAsked()
-
-            TunnelControlPage(self.app)
-                .tapCancelOrDisconnectButton()
-
             self.deleteTemporaryAccountWithTime(accountNumber: hasTimeAccountNumber)
         }
 
@@ -212,7 +189,6 @@ class ConnectivityTests: LoggedOutUITestCase {
         addTeardownBlock {
             self.deleteTemporaryAccountWithTime(accountNumber: hasTimeAccountNumber)
         }
-        agreeToTermsOfServiceIfShown()
 
         login(accountNumber: hasTimeAccountNumber)
 

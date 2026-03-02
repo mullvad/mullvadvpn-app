@@ -15,6 +15,7 @@ import MullvadTypes
 // If a key is no longer used, mark it as deprecated instead of deleting it.
 // Version upgrades should be handled in `upgradeToNextVersion()`.
 public enum TunnelSettingsUpdate: Sendable {
+    case reset
     case dnsSettings(DNSSettings)
     case obfuscation(WireGuardObfuscationSettings)
     case relayConstraints(RelayConstraints)
@@ -27,6 +28,8 @@ public enum TunnelSettingsUpdate: Sendable {
 extension TunnelSettingsUpdate {
     public func apply(to settings: inout LatestTunnelSettings) {
         switch self {
+        case .reset:
+            settings = .default
         case let .dnsSettings(newDNSSettings):
             settings.dnsSettings = newDNSSettings
         case let .obfuscation(newObfuscationSettings):
@@ -46,6 +49,7 @@ extension TunnelSettingsUpdate {
 
     public var subjectName: String {
         switch self {
+        case .reset: "all settings"
         case .dnsSettings: "DNS settings"
         case .obfuscation: "obfuscation settings"
         case .relayConstraints: "relay constraints"
@@ -54,5 +58,11 @@ extension TunnelSettingsUpdate {
         case .daita: "daita"
         case .includeAllNetworks: "include all networks"
         }
+    }
+}
+
+extension LatestTunnelSettings {
+    static var `default`: LatestTunnelSettings {
+        LatestTunnelSettings()
     }
 }

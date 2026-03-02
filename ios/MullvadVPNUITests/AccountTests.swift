@@ -9,12 +9,6 @@
 import XCTest
 
 class AccountTests: LoggedOutUITestCase {
-    override func setUpWithError() throws {
-        continueAfterFailure = false
-
-        try super.setUpWithError()
-    }
-
     func testCreateAccount() throws {
         LoginPage(app)
             .tapCreateAccountButton()
@@ -35,10 +29,7 @@ class AccountTests: LoggedOutUITestCase {
             self.mullvadAPIWrapper.deleteAccount(temporaryAccountNumber)
         }
 
-        LoginPage(app)
-            .tapAccountNumberTextField()
-            .enterText(temporaryAccountNumber)
-            .tapAccountNumberSubmitButton()
+        login(accountNumber: temporaryAccountNumber)
 
         OutOfTimePage(app)
 
@@ -118,10 +109,7 @@ class AccountTests: LoggedOutUITestCase {
             self.mullvadAPIWrapper.deleteAccount(temporaryAccountNumber)
         }
 
-        LoginPage(app)
-            .tapAccountNumberTextField()
-            .enterText(temporaryAccountNumber)
-            .tapAccountNumberSubmitButton()
+        login(accountNumber: temporaryAccountNumber)
 
         OutOfTimePage(app)
 
@@ -178,26 +166,7 @@ class AccountTests: LoggedOutUITestCase {
             self.mullvadAPIWrapper.deleteAccount(temporaryAccountNumber)
         }
 
-        LoginPage(app)
-            .tapAccountNumberTextField()
-            .enterText(temporaryAccountNumber)
-            .tapAccountNumberSubmitButton()
-
-        DeviceManagementPage(app)
-            .waitForDeviceList()
-            .tapRemoveDeviceButton(cellIndex: 1)
-
-        DeviceManagementLogOutDeviceConfirmationAlert(app)
-            .tapYesLogOutDeviceButton()
-
-        DeviceManagementPage(app)
-            .waitForDeviceList()
-            .waitForNoLoading()
-            .tapContinueWithLoginButton()
-
-        // First taken back to login page and automatically being logged in
-        LoginPage(app)
-            .verifySuccessIconShown()
+        login(accountNumber: temporaryAccountNumber)
 
         HeaderBar(app)
             .verifyDeviceLabelShown()

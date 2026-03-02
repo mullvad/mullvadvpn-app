@@ -39,26 +39,15 @@ class SettingsMigrationTests: BaseUITestCase {
     let customDNSServerIPAddress = "123.123.123.123"
     let wireGuardPort = "4001"
 
-    override class func shouldUninstallAppInTeardown() -> Bool {
-        return false
+    override class var settingsResetPolicy: LaunchArguments.LocalDataResetPolicy {
+        .none
     }
-
-    override func setUp() async throws {
-        try await super.setUp()
-
-        agreeToTermsOfServiceIfShown()
-
-        // Relaunch app so that tests start from a deterministic state
-        app.terminate()
-        app.launch()
+    override class var authenticationState: LaunchArguments.AuthenticationState {
+        .keepLoggedIn
     }
 
     func testChangeCustomDNSSettings() {
         let hasTimeAccountNumber = getAccountWithTime()
-
-        addTeardownBlock {
-            self.deleteTemporaryAccountWithTime(accountNumber: hasTimeAccountNumber)
-        }
 
         logoutIfLoggedIn()
         login(accountNumber: hasTimeAccountNumber)
@@ -99,11 +88,6 @@ class SettingsMigrationTests: BaseUITestCase {
 
     func testChangeVPNSettings() {
         let hasTimeAccountNumber = getAccountWithTime()
-
-        addTeardownBlock {
-            self.deleteTemporaryAccountWithTime(accountNumber: hasTimeAccountNumber)
-        }
-
         logoutIfLoggedIn()
         login(accountNumber: hasTimeAccountNumber)
 
@@ -180,7 +164,9 @@ class SettingsMigrationTests: BaseUITestCase {
             .tapWireGuardPortsExpandButton()
             .verifyCustomWireGuardPortSelected(portNumber: wireGuardPort)
             .tapWireGuardObfuscationExpandButton()
-            .verifyWireGuardObfuscationOnSelected()
+            .tapUDPOverTCPPortSelectorButton()
+
+        UDPOverTCPObfuscationSettingsPage(app)
             .verifyUDPOverTCPPort80Selected()
     }
 }

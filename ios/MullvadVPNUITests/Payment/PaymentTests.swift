@@ -73,8 +73,7 @@ class PaymentTests: LoggedOutUITestCase {
         }
 
         // Relaunch to get to out-of-time view.
-        app.terminate()
-        app.launch()
+        try relaunch()
 
         HeaderBar(app)
             .tapAccountButton()

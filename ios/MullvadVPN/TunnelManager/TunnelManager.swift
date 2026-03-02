@@ -433,8 +433,12 @@ final class TunnelManager: @unchecked Sendable {
         }
     }
 
-    func unsetAccount() async {
-        _ = try? await setAccount(action: .unset)
+    func unsetAccount(isRemovingProfile: Bool = true) async {
+        do {
+            _ = try await setAccount(action: .unset(isRemovingProfile: isRemovingProfile))
+        } catch {
+            logger.debug("Failed to unset account: \(error.description)")
+        }
     }
 
     func updateAccountData(_ completionHandler: (@Sendable (Error?) -> Void)? = nil) {
