@@ -3195,6 +3195,9 @@ msgstr ""
 msgid "Notes"
 msgstr ""
 
+msgid "Notification settings"
+msgstr ""
+
 msgid "Open app details"
 msgstr ""
 

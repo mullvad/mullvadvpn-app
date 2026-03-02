@@ -22,6 +22,9 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+### Added
+- Add link to notifications system settings from notifications screen
+
 ### Changed
 - Hide password by default on login screen.
 
