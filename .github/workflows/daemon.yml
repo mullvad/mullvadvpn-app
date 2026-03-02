@@ -9,6 +9,7 @@ on:
       - ".github/workflows/daemon.yml"
       - "!.github/CODEOWNERS"
       - "!android/**"
+      - 'android/translations-converter/**'
       - "!audits/**"
       - "!build.sh"
       - "!ci/**"

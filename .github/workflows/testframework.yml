@@ -10,6 +10,7 @@ on:
       - '.github/workflows/testframework.yml'
       - "!.github/CODEOWNERS"
       - '!android/**'
+      - 'android/translations-converter/**'
       - '!audits/**'
       - '!build.sh'
       - '!ci/**'
