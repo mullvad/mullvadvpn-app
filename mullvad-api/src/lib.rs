@@ -33,7 +33,8 @@ mod relay_list;
 
 pub mod ffi;
 
-pub use address_cache::{AddressCache, FileAddressCacheBacking};
+pub use address_cache::Error as AddressCacheError;
+pub use address_cache::{AddressCache, AddressCacheBacking, FileAddressCacheBacking};
 pub use device::DevicesProxy;
 pub use hyper::StatusCode;
 pub use relay_list::{CachedRelayList, ETag, RelayListProxy};
@@ -310,9 +311,12 @@ impl DnsResolver for NullDnsResolver {
 }
 
 /// A type that helps with the creation of API connections.
-pub struct Runtime {
+pub struct Runtime<B = FileAddressCacheBacking>
+where
+    B: AddressCacheBacking,
+{
     handle: tokio::runtime::Handle,
-    address_cache: AddressCache,
+    address_cache: Arc<AddressCache<B>>,
     api_availability: availability::ApiAvailability,
     endpoint: ApiEndpoint,
     #[cfg(target_os = "android")]
@@ -341,9 +345,10 @@ impl Runtime {
         endpoint: &ApiEndpoint,
         #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
     ) -> Self {
+        let address_cache = Arc::new(AddressCache::new(endpoint, None));
         Runtime {
             handle,
-            address_cache: AddressCache::new(endpoint, None),
+            address_cache,
             api_availability: ApiAvailability::default(),
             endpoint: endpoint.clone(),
             #[cfg(target_os = "android")]
@@ -399,7 +404,7 @@ impl Runtime {
                 AddressCache::new(endpoint, write_file)
             }
         };
-
+        let address_cache = Arc::new(address_cache);
         let api_availability = ApiAvailability::default();
 
         Ok(Runtime {
@@ -410,27 +415,6 @@ impl Runtime {
             #[cfg(target_os = "android")]
             socket_bypass_tx,
         })
-    }
-
-    /// Returns a request factory initialized to create requests for the master API Assumes an API
-    /// endpoint that is constructed from env vars, or uses default values.
-    pub fn mullvad_rest_handle<T: ConnectionModeProvider + 'static>(
-        &self,
-        connection_mode_provider: T,
-    ) -> rest::MullvadRestHandle {
-        let service = self.new_request_service(
-            connection_mode_provider,
-            Arc::new(self.address_cache.clone()),
-            #[cfg(target_os = "android")]
-            self.socket_bypass_tx.clone(),
-            #[cfg(any(feature = "api-override", test))]
-            self.endpoint.disable_tls,
-        );
-        let hostname = self.endpoint.host().to_owned();
-        let token_store = access::AccessTokenStore::new(service.clone(), hostname.clone());
-        let factory = rest::RequestFactory::new(hostname, Some(token_store));
-
-        rest::MullvadRestHandle::new(service, factory, self.availability_handle())
     }
 
     /// Returns a new request service handle
@@ -444,12 +428,61 @@ impl Runtime {
             false,
         )
     }
+}
+
+impl<B: AddressCacheBacking> Runtime<B> {
+    pub async fn with_cache_backing(
+        handle: tokio::runtime::Handle,
+        endpoint: &ApiEndpoint,
+        backing: Arc<B>,
+        #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
+    ) -> Runtime<B>
+    where
+        B: AddressCacheBacking,
+    {
+        let address_cache = Arc::new(
+            AddressCache::from_backing_or(endpoint.host().to_owned(), backing, endpoint).await,
+        );
+        Runtime {
+            handle,
+            address_cache,
+            api_availability: ApiAvailability::default(),
+            endpoint: endpoint.clone(),
+            #[cfg(target_os = "android")]
+            socket_bypass_tx,
+        }
+    }
+
+    pub fn address_cache(&self) -> &AddressCache<B> {
+        &self.address_cache
+    }
+
+    /// Returns a request factory initialized to create requests for the master API Assumes an API
+    /// endpoint that is constructed from env vars, or uses default values.
+    pub fn mullvad_rest_handle<T: ConnectionModeProvider + 'static>(
+        &self,
+        connection_mode_provider: T,
+    ) -> rest::MullvadRestHandle {
+        let service = self.new_request_service(
+            connection_mode_provider,
+            Arc::clone(&self.address_cache),
+            #[cfg(target_os = "android")]
+            self.socket_bypass_tx.clone(),
+            #[cfg(any(feature = "api-override", test))]
+            self.endpoint.disable_tls,
+        );
+        let hostname = self.endpoint.host().to_owned();
+        let token_store = access::AccessTokenStore::new(service.clone(), hostname.clone());
+        let factory = rest::RequestFactory::new(hostname, Some(token_store));
+
+        rest::MullvadRestHandle::new(service, factory, self.availability_handle())
+    }
 
     /// Creates a new request service and returns a handle to it.
     fn new_request_service<T: ConnectionModeProvider + 'static>(
         &self,
         connection_mode_provider: T,
-        dns_resolver: Arc<dyn DnsResolver>,
+        dns_resolver: Arc<impl DnsResolver>,
         #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
         #[cfg(any(feature = "api-override", test))] disable_tls: bool,
     ) -> rest::RequestServiceHandle {
@@ -470,10 +503,6 @@ impl Runtime {
 
     pub fn availability_handle(&self) -> ApiAvailability {
         self.api_availability.clone()
-    }
-
-    pub fn address_cache(&self) -> &AddressCache {
-        &self.address_cache
     }
 }
 

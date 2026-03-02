@@ -1,5 +1,5 @@
 use mullvad_api::{
-    ApiEndpoint,
+    AddressCache, AddressCacheBacking, AddressCacheError, ApiEndpoint,
     access_mode::AccessMethodResolver,
     proxy::{ApiConnectionMode, ProxyConfig},
 };
@@ -10,10 +10,36 @@ use talpid_types::net::{
 };
 use tonic::async_trait;
 
-use super::{
-    address_cache_provider::SwiftAddressCacheWrapper,
-    shadowsocks_loader::SwiftShadowsocksLoaderWrapper,
-};
+use crate::api_client::swift_data::SwiftData;
+
+use super::shadowsocks_loader::SwiftShadowsocksLoaderWrapper;
+
+unsafe extern "C" {
+    pub fn swift_store_address_cache(data: *const u8, data_size: u64);
+
+    pub fn swift_read_address_cache() -> SwiftData;
+}
+
+#[derive(Clone, Debug)]
+pub struct IOSAddressCacheBacking {}
+
+#[async_trait]
+impl AddressCacheBacking for IOSAddressCacheBacking {
+    async fn read(&self) -> Result<Vec<u8>, AddressCacheError> {
+        // SAFETY: swift_read_address_cache is a synchronous Swift function
+        // which always returns. its failure mode (in the absence of data)
+        // is to return zero-length data
+        let sd = unsafe { swift_read_address_cache() };
+        Ok(sd.as_ref().to_vec())
+    }
+
+    async fn write(&self, data: &[u8]) -> Result<(), AddressCacheError> {
+        // SAFETY: swift_store_address_cache always returns.
+        // failures to store data to the settings manager are ignored
+        unsafe { swift_store_address_cache(data.as_ptr(), data.len().try_into().unwrap()) };
+        Ok(())
+    }
+}
 
 #[derive(Debug)]
 pub struct SwiftAccessMethodResolver {
@@ -21,7 +47,7 @@ pub struct SwiftAccessMethodResolver {
     domain: String,
     state: EncryptedDnsProxyState,
     bridge_provider: SwiftShadowsocksLoaderWrapper,
-    address_cache: SwiftAddressCacheWrapper,
+    address_cache: AddressCache<IOSAddressCacheBacking>,
 }
 
 impl SwiftAccessMethodResolver {
@@ -30,7 +56,7 @@ impl SwiftAccessMethodResolver {
         domain: String,
         state: EncryptedDnsProxyState,
         bridge_provider: SwiftShadowsocksLoaderWrapper,
-        address_cache: SwiftAddressCacheWrapper,
+        address_cache: AddressCache<IOSAddressCacheBacking>,
     ) -> Self {
         Self {
             endpoint,
@@ -80,13 +106,24 @@ impl AccessMethodResolver for SwiftAccessMethodResolver {
             let clients = AllowedClients::All;
             AllowedEndpoint { endpoint, clients }
         };
-
+        let provenance = match access_method {
+            AccessMethod::BuiltIn(_) => "Built-in",
+            AccessMethod::Custom(_) => "Custom",
+        };
+        log::info!(
+            "AccessMethodResolver: endpoint ({}): {:}, connection mode: {:}",
+            provenance,
+            allowed_endpoint,
+            connection_mode
+        );
         Some((allowed_endpoint, connection_mode))
     }
 
     async fn default_connection_mode(&self) -> AllowedEndpoint {
-        let endpoint =
-            Endpoint::from_socket_address(self.address_cache.get_addrs(), TransportProtocol::Tcp);
+        let endpoint = Endpoint::from_socket_address(
+            self.address_cache.get_address().await,
+            TransportProtocol::Tcp,
+        );
 
         AllowedEndpoint {
             endpoint,

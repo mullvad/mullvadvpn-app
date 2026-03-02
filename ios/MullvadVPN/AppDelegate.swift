@@ -29,14 +29,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
     private(set) var tunnelStore: TunnelStore!
     nonisolated(unsafe) private(set) var tunnelManager: TunnelManager!
-    private(set) var addressCache: REST.AddressCache!
 
     private var proxyFactory: ProxyFactoryProtocol!
     private(set) var apiProxy: APIQuerying!
     private(set) var accountsProxy: RESTAccountHandling!
     nonisolated(unsafe) private(set) var devicesProxy: DeviceHandling!
 
-    private(set) var addressCacheTracker: AddressCacheTracker!
+    private(set) var addressCacheUpdateScheduler: AddressCacheUpdateScheduler!
     nonisolated(unsafe) private(set) var relayCacheTracker: RelayCacheTracker!
     nonisolated(unsafe) private(set) var storePaymentManager: StorePaymentManager!
     nonisolated(unsafe) private var apiTransportMonitor: APITransportMonitor!
@@ -73,9 +72,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         let containerURL = ApplicationConfiguration.containerURL
         migrationManager = MigrationManager(cacheDirectory: containerURL)
         configureLogging()
-
-        addressCache = REST.AddressCache(canWriteToCache: true, cacheDirectory: containerURL)
-        addressCache.loadFromFile()
 
         let ipOverrideWrapper = IPOverrideWrapper(
             relayCache: RelayCache(cacheDirectory: containerURL),
@@ -114,7 +110,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             domain: REST.encryptedDNSHostname,
             shadowsocksProvider: shadowsocksLoader,
             accessMethodWrapper: opaqueAccessMethodSettingsWrapper,
-            addressCacheProvider: addressCache,
             accessMethodChangeListeners: [accessMethodRepository, shadowsocksCacheCleaner]
         )
 
@@ -136,10 +131,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             apiProxy: apiProxy
         )
 
-        addressCacheTracker = AddressCacheTracker(
+        addressCacheUpdateScheduler = AddressCacheUpdateScheduler(
             backgroundTaskProvider: backgroundTaskProvider,
             apiProxy: apiProxy,
-            store: addressCache
+            apiContext: apiContext
         )
 
         tunnelStore = TunnelStore(application: backgroundTaskProvider)
@@ -275,13 +270,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     @objc private func didBecomeActive(_ notification: Notification) {
         tunnelManager.startPeriodicPrivateKeyRotation()
         relayCacheTracker.startPeriodicUpdates()
-        addressCacheTracker.startPeriodicUpdates()
+        addressCacheUpdateScheduler.startPeriodicUpdates()
     }
 
     @objc private func willResignActive(_ notification: Notification) {
         tunnelManager.stopPeriodicPrivateKeyRotation()
         relayCacheTracker.stopPeriodicUpdates()
-        addressCacheTracker.stopPeriodicUpdates()
+        addressCacheUpdateScheduler.stopPeriodicUpdates()
     }
 
     @objc private func didEnterBackground(_ notification: Notification) {
@@ -346,13 +341,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             forTaskWithIdentifier: BackgroundTask.addressCacheUpdate.identifier,
             using: .main
         ) { [self] task in
-            nonisolated(unsafe) let handle = addressCacheTracker.updateEndpoints { [self] result in
+            addressCacheUpdateScheduler.updateEndpoints { [self] result in
                 scheduleAddressCacheUpdateTask()
                 task.setTaskCompleted(success: result.isSuccess)
-            }
-
-            task.expirationHandler = { @Sendable in
-                handle.cancel()
             }
         }
 
@@ -404,7 +395,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
     private func scheduleAddressCacheUpdateTask() {
         do {
-            let date = addressCacheTracker.nextScheduleDate()
+            let date = addressCacheUpdateScheduler.nextScheduleDate()
 
             let request = BGProcessingTaskRequest(identifier: BackgroundTask.addressCacheUpdate.identifier)
             request.requiresNetworkConnectivity = true

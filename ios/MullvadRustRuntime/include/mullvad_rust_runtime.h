@@ -45,13 +45,9 @@ typedef struct SwiftShadowsocksLoaderWrapper {
   struct SwiftShadowsocksLoaderWrapperContext _0;
 } SwiftShadowsocksLoaderWrapper;
 
-typedef struct SwiftAddressCacheProviderContext {
-  const void *address_cache;
-} SwiftAddressCacheProviderContext;
-
-typedef struct SwiftAddressCacheWrapper {
-  struct SwiftAddressCacheProviderContext _0;
-} SwiftAddressCacheWrapper;
+typedef struct SwiftData {
+  void *ptr;
+} SwiftData;
 
 typedef struct SwiftCancelHandle {
   struct RequestCancelHandle *ptr;
@@ -60,15 +56,6 @@ typedef struct SwiftCancelHandle {
 typedef struct SwiftRetryStrategy {
   struct RetryStrategy *_0;
 } SwiftRetryStrategy;
-
-/**
- * A struct used to deallocate a pointer to a C String later than when the pointer's control is relinquished from Swift.
- * Use the `deallocate_ptr` function on `ptr` to call the custom deallocator provided by Swift.
- */
-typedef struct LateStringDeallocator {
-  const char *ptr;
-  void (*deallocate_ptr)(const char*);
-} LateStringDeallocator;
 
 typedef struct SwiftMullvadApiResponse {
   uint8_t *body;
@@ -152,6 +139,16 @@ void mullvad_api_use_access_method(struct SwiftApiContext api_context,
                                    const char *access_method_id);
 
 /**
+ * Called by Swift to trigger a fetching and caching of addresses
+ *
+ * # SAFETY
+ *
+ * this takes no arguments other than the API context. The API context
+ * needs to be valid, and the function should not be called concurrently.
+ */
+void mullvad_api_update_address_cache(struct SwiftApiContext swift_api_context);
+
+/**
  * # Safety
  *
  * `host` must be a pointer to a null terminated string representing a hostname for Mullvad API host.
@@ -170,7 +167,6 @@ struct SwiftApiContext mullvad_api_init_new_tls_disabled(const char *host,
                                                          const char *domain,
                                                          struct SwiftShadowsocksLoaderWrapper bridge_provider,
                                                          struct SwiftAccessMethodSettingsWrapper settings_provider,
-                                                         struct SwiftAddressCacheWrapper address_cache,
                                                          void (*access_method_change_callback)(const void*,
                                                                                                const uint8_t*),
                                                          const void *access_method_change_context);
@@ -202,7 +198,6 @@ struct SwiftApiContext mullvad_api_init_new(const char *host,
                                             const char *domain,
                                             struct SwiftShadowsocksLoaderWrapper bridge_provider,
                                             struct SwiftAccessMethodSettingsWrapper settings_provider,
-                                            struct SwiftAddressCacheWrapper address_cache,
                                             void (*access_method_change_callback)(const void*,
                                                                                   const uint8_t*),
                                             const void *access_method_change_context);
@@ -227,10 +222,13 @@ struct SwiftApiContext mullvad_api_init_inner(const char *host,
                                               bool disable_tls,
                                               struct SwiftShadowsocksLoaderWrapper bridge_provider,
                                               struct SwiftAccessMethodSettingsWrapper settings_provider,
-                                              struct SwiftAddressCacheWrapper address_cache,
                                               void (*access_method_change_callback)(const void*,
                                                                                     const uint8_t*),
                                               const void *access_method_change_context);
+
+extern void swift_store_address_cache(const uint8_t *data, uint64_t data_size);
+
+extern struct SwiftData swift_read_address_cache(void);
 
 /**
  * Converts parameters into a `Box<AccessMethodSetting>` raw representation that
@@ -325,25 +323,6 @@ struct SwiftCancelHandle mullvad_ios_delete_account(struct SwiftApiContext api_c
                                                     void *completion_cookie,
                                                     struct SwiftRetryStrategy retry_strategy,
                                                     const char *account_number);
-
-/**
- * Return the latest available endpoint, or a default one if none are cached
- *
- * # SAFETY
- * `rawAddressCacheProvider` **must** be provided by a call to `init_swift_address_cache_wrapper`
- * It is okay to persist it, and use it accross multiple threads.
- */
-extern struct LateStringDeallocator swift_get_cached_endpoint(const void *rawAddressCacheProvider);
-
-/**
- * Called by the Swift side in order to provide an object to rust that provides API addresses in a UTF-8 string form
- *
- * # SAFETY
- * `address_cache` **must be** pointing to a valid instance of a `DefaultAddressCacheProvider`
- * That instance's lifetime has to be equivalent to a `'static` lifetime in Rust
- * This function does not take ownership of `address_cache`
- */
-struct SwiftAddressCacheWrapper init_swift_address_cache_wrapper(const void *address_cache);
 
 /**
  * # Safety
@@ -782,6 +761,12 @@ struct SwiftCancelHandle mullvad_ios_check_storekit_payment(struct SwiftApiConte
                                                             struct SwiftRetryStrategy retry_strategy,
                                                             const uint8_t *body,
                                                             uintptr_t body_size);
+
+extern uint8_t *swift_data_get_ptr(const struct SwiftData *data);
+
+extern uintptr_t swift_data_get_len(const struct SwiftData *data);
+
+extern void swift_data_drop(struct SwiftData *data);
 
 /**
  * To be called when ephemeral peer exchange has finished. All parameters except

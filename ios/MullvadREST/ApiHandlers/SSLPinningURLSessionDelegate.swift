@@ -14,14 +14,12 @@ import Security
 final class SSLPinningURLSessionDelegate: NSObject, URLSessionDelegate, @unchecked Sendable {
     private let sslHostname: String
     private let trustedRootCertificates: [SecCertificate]
-    private let addressCache: REST.AddressCache
 
     private let logger = Logger(label: "SSLPinningURLSessionDelegate")
 
-    init(sslHostname: String, trustedRootCertificates: [SecCertificate], addressCache: REST.AddressCache) {
+    init(sslHostname: String, trustedRootCertificates: [SecCertificate]) {
         self.sslHostname = sslHostname
         self.trustedRootCertificates = trustedRootCertificates
-        self.addressCache = addressCache
     }
 
     // MARK: - URLSessionDelegate
@@ -39,15 +37,7 @@ final class SSLPinningURLSessionDelegate: NSObject, URLSessionDelegate, @uncheck
             /// The same goes for direct connections to the API, the host would be the IP address of the endpoint.
             /// Certificates, cannot be signed for IP addresses, in such case, specify that the host name is `defaultAPIHostname`
             var hostName = challenge.protectionSpace.host
-            let overridenHostnames = [
-                "\(IPv4Address.loopback)",
-                "\(IPv6Address.loopback)",
-                "\(REST.defaultAPIEndpoint.ip)",
-                "\(addressCache.getCurrentEndpoint().ip)",
-            ]
-            if overridenHostnames.contains(hostName) {
-                hostName = sslHostname
-            }
+            // this used to check for the current endpoint in the address cache as well, though this has been deprecated.
 
             if verifyServerTrust(serverTrust, for: hostName) {
                 completionHandler(.useCredential, URLCredential(trust: serverTrust))

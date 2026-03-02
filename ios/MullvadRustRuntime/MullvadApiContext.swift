@@ -24,8 +24,6 @@ public class MullvadApiContext: @unchecked Sendable {
     public private(set) var context: SwiftApiContext!
     private let shadowsocksBridgeProvider: SwiftShadowsocksBridgeProviding!
     private let shadowsocksBridgeProviderWrapper: SwiftShadowsocksLoaderWrapper!
-    private let addressCacheWrapper: SwiftAddressCacheWrapper!
-    private let addressCacheProvider: AddressCacheProviding!
     public let accessMethodChangeListeners: [MullvadAccessMethodChangeListening]
 
     public init(
@@ -35,16 +33,12 @@ public class MullvadApiContext: @unchecked Sendable {
         disableTls: Bool = false,
         shadowsocksProvider: SwiftShadowsocksBridgeProviding,
         accessMethodWrapper: SwiftAccessMethodSettingsWrapper,
-        addressCacheProvider: AddressCacheProviding,
         accessMethodChangeListeners: [MullvadAccessMethodChangeListening]
     ) throws {
         let bridgeProvider = SwiftShadowsocksBridgeProvider(provider: shadowsocksProvider)
         self.shadowsocksBridgeProvider = bridgeProvider
         self.shadowsocksBridgeProviderWrapper = initMullvadShadowsocksBridgeProvider(provider: bridgeProvider)
 
-        let defaultAddressCache = DefaultAddressCacheProvider(provider: addressCacheProvider)
-        self.addressCacheProvider = defaultAddressCache
-        self.addressCacheWrapper = iniSwiftAddressCacheWrapper(provider: defaultAddressCache)
         self.accessMethodChangeListeners = accessMethodChangeListeners
 
         let selfPtr = Unmanaged.passUnretained(self).toOpaque()
@@ -57,7 +51,6 @@ public class MullvadApiContext: @unchecked Sendable {
                     domain,
                     shadowsocksBridgeProviderWrapper,
                     accessMethodWrapper,
-                    addressCacheWrapper,
                     onAccessChangeCallback,
                     selfPtr
                 )
@@ -68,7 +61,6 @@ public class MullvadApiContext: @unchecked Sendable {
                     domain,
                     shadowsocksBridgeProviderWrapper,
                     accessMethodWrapper,
-                    addressCacheWrapper,
                     onAccessChangeCallback,
                     selfPtr
                 )
