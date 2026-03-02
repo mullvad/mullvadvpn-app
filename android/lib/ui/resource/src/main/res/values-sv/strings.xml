@@ -22,7 +22,7 @@
     <string name="all_applications">Alla applikationer</string>
     <string name="all_locations">Alla platser</string>
     <string name="all_providers">Alla leverantörer</string>
-    <string name="always_on_vpn_error_notification_content">Det går inte att starta tunnelanslutning. Inaktivera Alltid på-VPN för &lt;b&gt;%1$s&lt;/b&gt; innan du använder Mullvad VPN.</string>
+    <string name="always_on_vpn_error_notification_content">Det går inte att starta tunnelanslutning. Inaktivera Alltid på-VPN för <b>%1$s</b> innan du använder Mullvad VPN.</string>
     <string name="always_on_vpn_error_notification_title">Alltid på-VPN har tilldelats %1$s</string>
     <string name="android_16_upgrade_warning_dialog_first_message">När en VPN-app har uppdaterats på Android 16 kan enheterna hamna i ett tillstånd där VPN-apparna inte längre har åtkomst till internet.</string>
     <string name="android_16_upgrade_warning_dialog_second_message">Starta om enheten och försök att ansluta igen. Om det inte fungerar kan du skicka ett e-postmeddelande till %1$s på svenska eller engelska.</string>
@@ -30,7 +30,7 @@
     <string name="android_16_upgrade_warning_title">Kan du inte ansluta?</string>
     <string name="anti_censorship">Anti-censur</string>
     <string name="anti_censorship_info_first_paragraph">Dessa metoder kan vara användbara i situationer där du blockeras från att nå Mullvad. När \"Automatiskt\" är valt försöker appen med alla metoder tills en fungerar.</string>
-    <string name="anti_censorship_info_second_paragraph">&lt;b&gt;Observera att dessa metoder inte förbättrar prestandan och kan komma att öka systemanvändningen och batteriförbrukningen.&lt;/b&gt;</string>
+    <string name="anti_censorship_info_second_paragraph"><b>Observera att dessa metoder inte förbättrar prestandan och kan komma att öka systemanvändningen och batteriförbrukningen.</b></string>
     <string name="any">Valfri</string>
     <string name="api_access_description">Hantera och lägg till anpassade metoder för att komma åt Mullvad API.</string>
     <string name="api_access_method_info_first_line">Appen måste kommunicera med en Mullvad API-server för att logga in dig, hämta serverlistor och andra viktiga åtgärder.</string>
@@ -48,7 +48,7 @@
     <string name="app_name_weather">Väder</string>
     <string name="appearance">Utseende</string>
     <string name="appearance_description">Ändra titeln och ikonen för Mullvad VPN-appen på Android-enheten. Detta ändrar inte ikonen för Mullvad VPN-relaterade aviseringar.</string>
-    <string name="appearance_description_warning">&lt;b&gt;Obs!&lt;/b&gt; Appen stängs automatiskt och måste öppnas igen manuellt efter att du väljer en ny ikon och titel. Detta påverkar inte din VPN-anslutning.</string>
+    <string name="appearance_description_warning"><b>Obs!</b> Appen stängs automatiskt och måste öppnas igen manuellt efter att du väljer en ny ikon och titel. Detta påverkar inte din VPN-anslutning.</string>
     <string name="apply">Använd</string>
     <string name="applying_changes">Tillämpar ändringar …</string>
     <string name="at_least_on_method_needs_to_enabled">Minst en metod måste vara aktiverad</string>
@@ -60,7 +60,7 @@
     <string name="auto_connect_carousel_first_slide_top_text">Inställningar för Anslut automatiskt och Låsningsläge finns i Androids systeminställningar. Följ guiden för att aktivera en av dem eller båda.</string>
     <string name="auto_connect_carousel_second_slide_bottom_text">2. Om du vill aktivera Anslut automatiskt klickar du på växlingsknappen bredvid \"Alltid på-VPN\".</string>
     <string name="auto_connect_carousel_second_slide_top_text">Anslut automatiskt kallas Alltid på-VPN i Androids systeminställningar och ser till att du är ansluten till VPN-tunneln oavbrutet och ansluter automatiskt efter omstart.</string>
-    <string name="auto_connect_carousel_third_slide_bottom_text">3. Om du vill aktivera Låsningsläge klickar du på växlingsknappen bredvid \"Blockera anslutningar utan VPN\".&lt;br /&gt;&lt;br /&gt;&lt;b&gt;Varning! Den här inställningen blockerar delade appar och funktionen Lokal nätverksdelning.&lt;/b&gt;</string>
+    <string name="auto_connect_carousel_third_slide_bottom_text">3. Om du vill aktivera Låsningsläge klickar du på växlingsknappen bredvid \"Blockera anslutningar utan VPN\".<br /><br /><b>Varning! Den här inställningen blockerar delade appar och funktionen Lokal nätverksdelning.</b></string>
     <string name="auto_connect_carousel_third_slide_top_text">Låsningsläget kallas \"Blockera anslutningar utan VPN\" i systeminställningarna på Android. Det minimerar läckor men det finns några kända begränsningar som du kan läsa mer om</string>
     <string name="auto_connect_carousel_third_slide_top_text_website_link">här</string>
     <string name="automatic">Automatisk</string>
@@ -127,7 +127,7 @@
     <string name="custom_port_dialog_remove">Ta bort anpassad port</string>
     <string name="custom_port_dialog_submit">Ställ in port</string>
     <string name="custom_port_dialog_valid_ranges">Giltiga intervall: %1$s</string>
-    <string name="custom_port_recommended_range_first">&lt;b&gt;Obs!&lt;/b&gt; Enbart några servrar har stöd för hela portintervallet.</string>
+    <string name="custom_port_recommended_range_first"><b>Obs!</b> Enbart några servrar har stöd för hela portintervallet.</string>
     <string name="custom_port_recommended_range_second">Giltigt intervall för alla servrar: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Det går inte att lösa värd för anpassad tunnel. Försök att ändra inställningarna.</string>
     <string name="daita_description_slide_1_first_paragraph">Obs! Detta ökar nätverkstrafiken men påverkar också hastighet, fördröjning och batterianvändning negativt. Var försiktig om du har ett abonnemang med begränsad datamängd.</string>
@@ -278,7 +278,7 @@
     <string name="manage_devices_confirm_removal_description_line1">Ta bort %1$s?</string>
     <string name="manage_devices_confirm_removal_description_line2">Enheten tas bort från listan och loggas ut.</string>
     <string name="manage_devices_description">Visa och hantera alla dina inloggade enheter. Du kan ha upp till fem enheter åt gången på ett konto. Varje enhet får ett namn när den loggas in så att du enklare kan skilja dem åt.</string>
-    <string name="max_devices_confirm_removal_description">Vill du verkligen logga ut &lt;b&gt;%1$s&lt;/b&gt;?</string>
+    <string name="max_devices_confirm_removal_description">Vill du verkligen logga ut <b>%1$s</b>?</string>
     <string name="max_devices_resolved_description">Du kan nu fortsätta med att logga in på den här enheten.</string>
     <string name="max_devices_resolved_title">Super!</string>
     <string name="max_devices_warning_description">Logga ut på minst en enhet genom att ta bort den från listan nedan. Du hittar motsvarande enhetsnamn i enhetens kontoinställningar.</string>
@@ -299,7 +299,7 @@
     <string name="navigate">Navigera</string>
     <string name="new_changelog_notification_message">Klicka här för att se nyheterna.</string>
     <string name="new_changelog_notification_title">NY VERSION INSTALLERAD</string>
-    <string name="new_device_notification_message">Välkommen. Den här enheten har fått namnet &lt;b&gt;%1$s&lt;/b&gt;.</string>
+    <string name="new_device_notification_message">Välkommen. Den här enheten har fått namnet <b>%1$s</b>.</string>
     <string name="new_device_notification_title">NY ENHET HAR SKAPATS</string>
     <string name="new_list">Ny lista</string>
     <string name="no_custom_lists_available">Inga anpassade listor är tillgängliga</string>

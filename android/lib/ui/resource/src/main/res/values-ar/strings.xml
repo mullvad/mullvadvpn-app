@@ -22,7 +22,7 @@
     <string name="all_applications">جميع التطبيقات</string>
     <string name="all_locations">جميع المواقع</string>
     <string name="all_providers">جميع موفري الخدمة</string>
-    <string name="always_on_vpn_error_notification_content">يتعذَّر بدء اتصال النفق. يُرجى إيقاف \"تشغيل VPN دائمًا\" لـ &lt;b&gt;%1$s&lt;/b&gt; قبل استخدام Mullvad VPN.</string>
+    <string name="always_on_vpn_error_notification_content">يتعذَّر بدء اتصال النفق. يُرجى إيقاف \"تشغيل VPN دائمًا\" لـ <b>%1$s</b> قبل استخدام Mullvad VPN.</string>
     <string name="always_on_vpn_error_notification_title">تم تعيين \"تشغيل VPN دائمًا\" إلى %1$s</string>
     <string name="android_16_upgrade_warning_dialog_first_message">بعد تحديث تطبيق VPN على نظام التشغيل Android 16، قد تصل الأجهزة إلى حالة تفقد فيها تطبيقات VPN قدرتها على الوصول إلى الإنترنت.</string>
     <string name="android_16_upgrade_warning_dialog_second_message">يُرجى إعادة تشغيل جهازك ومحاولة الاتصال مرة أخرى. إذا لم ينجح ذلك، يُرجى إرسال رسالة بريد إلكتروني إلى %1$s باللغة السويدية أو الإنجليزية.</string>
@@ -30,7 +30,7 @@
     <string name="android_16_upgrade_warning_title">هل يتعذَّر الاتصال؟</string>
     <string name="anti_censorship">مكافحة الرقابة</string>
     <string name="anti_censorship_info_first_paragraph">قد تكون هذه الطرق مفيدة في حال تم حظر وصولك إلى Mullvad. عند اختيار \"تلقائي\"، سيحاول التطبيق استخدام جميع الطرق حتى تنجح إحداها.</string>
-    <string name="anti_censorship_info_second_paragraph">&lt;b&gt;يُرجى ملاحظة أن هذه الطرق لا تعمل على تحسين الأداء، وقد تؤدي إلى زيادة استخدام النظام واستنزاف البطارية.&lt;/b&gt;</string>
+    <string name="anti_censorship_info_second_paragraph"><b>يُرجى ملاحظة أن هذه الطرق لا تعمل على تحسين الأداء، وقد تؤدي إلى زيادة استخدام النظام واستنزاف البطارية.</b></string>
     <string name="any">أي نوع</string>
     <string name="api_access_description">إدارة طرق مُخصَّصة للوصول إلى Mullvad API وإضافتها.</string>
     <string name="api_access_method_info_first_line">يحتاج التطبيق إلى التواصل مع خادم Mullvad API لتسجيل دخولك، وجلب قوائم الخوادم، وغيرها من العمليات المهمة.</string>
@@ -48,7 +48,7 @@
     <string name="app_name_weather">الطقس</string>
     <string name="appearance">المظهر</string>
     <string name="appearance_description">تغيير عنوان ورمز تطبيق VPN على جهاز Android لديك. لن يؤدي ذلك إلى تغيير الرمز لأي إشعارات متعلقة بـ Mullvad VPN.</string>
-    <string name="appearance_description_warning">&lt;b&gt;تنبيه:&lt;/b&gt; سيتم إيقاف التطبيق تلقائيًا ويلزم فتحه يدويًا مرة أخرى بعد اختيار أيقونة وعنوان جديدين. لن يؤثر ذلك على اتصال VPN لديك.</string>
+    <string name="appearance_description_warning"><b>تنبيه:</b> سيتم إيقاف التطبيق تلقائيًا ويلزم فتحه يدويًا مرة أخرى بعد اختيار أيقونة وعنوان جديدين. لن يؤثر ذلك على اتصال VPN لديك.</string>
     <string name="apply">تطبيق</string>
     <string name="applying_changes">يجري تطبيق التغييرات...</string>
     <string name="at_least_on_method_needs_to_enabled">يجب تفعيل طريقة واحدة على الأقل</string>
@@ -60,7 +60,7 @@
     <string name="auto_connect_carousel_first_slide_top_text">يمكن العثور على إعدادات \"الاتصال التلقائي\" و\"وضع التأمين\" في إعدادات نظام Android. اتَّبع هذا الدليل لتفعيل أحدهما أو كليهما.</string>
     <string name="auto_connect_carousel_second_slide_bottom_text">2. لتفعيل الاتصال التلقائي، انقر على زر التبديل بجوار \"تشغيل VPN دائمًا\".</string>
     <string name="auto_connect_carousel_second_slide_top_text">يُطلق على الاتصال التلقائي اسم \"تشغيل VPN دائمًا\" في إعدادات نظام Android، ويتأكد من اتصالك الدائم بنفق VPN ويتصل تلقائيًا بعد إعادة التشغيل.</string>
-    <string name="auto_connect_carousel_third_slide_bottom_text">3. لتفعيل وضع التأمين، انقر على زر التبديل بجوار \"حظر الاتصالات دون VPN\". &lt;br /&gt;&lt;br /&gt;&lt;b&gt;تحذير: يحظر هذا الإعداد التطبيقات المُقسَّمة وميزة مشاركة الشبكة المحلية.&lt;/b&gt;</string>
+    <string name="auto_connect_carousel_third_slide_bottom_text">3. لتفعيل وضع التأمين، انقر على زر التبديل بجوار \"حظر الاتصالات دون VPN\". <br /><br /><b>تحذير: يحظر هذا الإعداد التطبيقات المُقسَّمة وميزة مشاركة الشبكة المحلية.</b></string>
     <string name="auto_connect_carousel_third_slide_top_text">يُسمَّى \"وضع التأمين\" باسم \"حظر الاتصالات دون VPN\" في إعدادات نظام Android. يساعد هذا الوضع في تقليل التسريبات، لكن لديه بعض القيود المعروفة التي يمكنك قراءة المزيد عنها</string>
     <string name="auto_connect_carousel_third_slide_top_text_website_link">هنا</string>
     <string name="automatic">تلقائي</string>
@@ -127,7 +127,7 @@
     <string name="custom_port_dialog_remove">إزالة المنفذ المُخصَّص</string>
     <string name="custom_port_dialog_submit">تعيين المنفذ</string>
     <string name="custom_port_dialog_valid_ranges">النطاقات الصالحة: %1$s</string>
-    <string name="custom_port_recommended_range_first">&lt;b&gt;تنبيه:&lt;/b&gt; تدعم بعض الخوادم فقط نطاق المنفذ الكامل.</string>
+    <string name="custom_port_recommended_range_first"><b>تنبيه:</b> تدعم بعض الخوادم فقط نطاق المنفذ الكامل.</string>
     <string name="custom_port_recommended_range_second">النطاق الصالح لجميع الخوادم: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">يتعذَّر حل مشكلة مضيف النفق المُخصَّص. جرِّب تغيير إعداداتك.</string>
     <string name="daita_description_slide_1_first_paragraph">تنبيه: يزيد ذلك من حركة بيانات الشبكة، ويؤثر سلبًا على السرعة وزمن الوصول واستهلاك البطارية. يُرجى توخي الحذر عند استخدام الباقات المحدودة.</string>
@@ -278,7 +278,7 @@
     <string name="manage_devices_confirm_removal_description_line1">هل تريد إزالة %1$s؟</string>
     <string name="manage_devices_confirm_removal_description_line2">ستتم إزالة الجهاز من القائمة وتسجيل الخروج.</string>
     <string name="manage_devices_description">يمكنك عرض جميع أجهزتك المُسجَّلة وإدارتها. يمكنك ربط ما يصل إلى 5 أجهزة بحسابٍ واحد في الوقت نفسه. يحصل كل جهاز على اسم عند تسجيل الدخول ليسهُل عليك تمييزه.</string>
-    <string name="max_devices_confirm_removal_description">هل تريد بالتأكيد تسجيل خروج &lt;b&gt;%1$s&lt;/b&gt;؟</string>
+    <string name="max_devices_confirm_removal_description">هل تريد بالتأكيد تسجيل خروج <b>%1$s</b>؟</string>
     <string name="max_devices_resolved_description">يمكنك الآن متابعة تسجيل الدخول على هذا الجهاز.</string>
     <string name="max_devices_resolved_title">رائع!</string>
     <string name="max_devices_warning_description">يُرجى تسجيل الخروج من جهاز واحد على الأقل عن طريق إزالته من القائمة أدناه. يمكنك العثور على اسم الجهاز المقابل في إعدادات الحساب على ذلك الجهاز.</string>
@@ -299,7 +299,7 @@
     <string name="navigate">تنقل</string>
     <string name="new_changelog_notification_message">انقر هنا للاطلاع على آخر المستجدات.</string>
     <string name="new_changelog_notification_title">تم تثبيت إصدار جديد</string>
-    <string name="new_device_notification_message">مرحبًا، يُسمَّى هذا الجهاز الآن &lt;b&gt;%1$s&lt;/b&gt;.</string>
+    <string name="new_device_notification_message">مرحبًا، يُسمَّى هذا الجهاز الآن <b>%1$s</b>.</string>
     <string name="new_device_notification_title">تم إنشاء جهاز جديد</string>
     <string name="new_list">قائمة جديدة</string>
     <string name="no_custom_lists_available">لا توجد قوائم مُخصَّصة متاحة</string>

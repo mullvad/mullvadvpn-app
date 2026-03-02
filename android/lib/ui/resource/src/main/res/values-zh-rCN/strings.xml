@@ -22,7 +22,7 @@
     <string name="all_applications">所有应用程序</string>
     <string name="all_locations">所有位置</string>
     <string name="all_providers">所有提供商</string>
-    <string name="always_on_vpn_error_notification_content">无法启动隧道连接。在使用 Mullvad VPN 之前，请为 &lt;b&gt;%1$s&lt;/b&gt; 停用“始终开启 VPN”。</string>
+    <string name="always_on_vpn_error_notification_content">无法启动隧道连接。在使用 Mullvad VPN 之前，请为 <b>%1$s</b> 停用“始终开启 VPN”。</string>
     <string name="always_on_vpn_error_notification_title">“始终开启 VPN”已分配给 %1$s</string>
     <string name="android_16_upgrade_warning_dialog_first_message">在 Android 16 上更新 VPN 应用后，设备可能会出现 VPN 应用无法连接互联网的情况。</string>
     <string name="android_16_upgrade_warning_dialog_second_message">请重新启动您的设备，然后再次尝试连接。如果仍然无法连接，请用瑞典语或英语发送电子邮件至 %1$s。</string>
@@ -30,7 +30,7 @@
     <string name="android_16_upgrade_warning_title">无法连接？</string>
     <string name="anti_censorship">反审查</string>
     <string name="anti_censorship_info_first_paragraph">这些方法在您无法连接到 Mullvad 时可能会有所帮助。选择“自动”时，应用将尝试所有方法，直到其中一种方法生效。</string>
-    <string name="anti_censorship_info_second_paragraph">&lt;b&gt;请注意，这些方法并不能提高性能，反而可能会增加系统资源占用率和电量消耗。&lt;/b&gt;</string>
+    <string name="anti_censorship_info_second_paragraph"><b>请注意，这些方法并不能提高性能，反而可能会增加系统资源占用率和电量消耗。</b></string>
     <string name="any">任何</string>
     <string name="api_access_description">管理和添加访问 Mulvad API 的自定义方法。</string>
     <string name="api_access_method_info_first_line">该应用需要与 Mulvad API 服务器通信，以便您登录、获取服务器列表和执行其他关键操作。</string>
@@ -48,7 +48,7 @@
     <string name="app_name_weather">天气</string>
     <string name="appearance">外观</string>
     <string name="appearance_description">更改 Android 设备上 Mullvad VPN 应用的标题和图标。这不会更改任何 Mullvad VPN 相关通知的图标。</string>
-    <string name="appearance_description_warning">&lt;b&gt;注意&lt;/b&gt;：应用将自动关闭，在选择新的图标和标题后，需要手动再次打开。这不会影响您的 VPN 连接。</string>
+    <string name="appearance_description_warning"><b>注意</b>：应用将自动关闭，在选择新的图标和标题后，需要手动再次打开。这不会影响您的 VPN 连接。</string>
     <string name="apply">应用</string>
     <string name="applying_changes">正在应用更改…</string>
     <string name="at_least_on_method_needs_to_enabled">至少需要启用一个方法</string>
@@ -60,7 +60,7 @@
     <string name="auto_connect_carousel_first_slide_top_text">自动连接和锁定模式设置可以在 Android 系统设置中找到，请按照本指南启用其中一项或两项。</string>
     <string name="auto_connect_carousel_second_slide_bottom_text">2. 要启用自动连接，请点击“始终开启 VPN”旁边的开关。</string>
     <string name="auto_connect_carousel_second_slide_top_text">自动连接在 Android 系统设置中称为“始终开启 VPN”，此功能可确保您始终连接到 VPN 隧道并在重新启动后自动连接。</string>
-    <string name="auto_connect_carousel_third_slide_bottom_text">3. 要启用锁定模式，请点击“屏蔽未使用 VPN 的所有连接”旁边的开关。&lt;br /&gt;&lt;br /&gt;&lt;b&gt;警告：此设置会屏蔽分割应用和“本地网络共享”功能。&lt;/b&gt;</string>
+    <string name="auto_connect_carousel_third_slide_bottom_text">3. 要启用锁定模式，请点击“屏蔽未使用 VPN 的所有连接”旁边的开关。<br /><br /><b>警告：此设置会屏蔽分割应用和“本地网络共享”功能。</b></string>
     <string name="auto_connect_carousel_third_slide_top_text">在 Android 系统设置中，锁定模式被称为“屏蔽未使用 VPN 的所有连接”。该模式可以最大限度地减少泄露，但是也有一些已知的限制，要了解详情，请点击</string>
     <string name="auto_connect_carousel_third_slide_top_text_website_link">（点击此处）</string>
     <string name="automatic">自动</string>
@@ -127,7 +127,7 @@
     <string name="custom_port_dialog_remove">移除自定义端口</string>
     <string name="custom_port_dialog_submit">设置端口</string>
     <string name="custom_port_dialog_valid_ranges">有效范围：%1$s</string>
-    <string name="custom_port_recommended_range_first">&lt;b&gt;注意&lt;/b&gt;：只有部分服务器支持完整的端口范围。</string>
+    <string name="custom_port_recommended_range_first"><b>注意</b>：只有部分服务器支持完整的端口范围。</string>
     <string name="custom_port_recommended_range_second">所有服务器的有效范围：%1$s</string>
     <string name="custom_tunnel_host_resolution_error">无法解析自定义隧道的主机。请尝试更改您的设置。</string>
     <string name="daita_description_slide_1_first_paragraph">注意：这会增加网络流量，还会对速度、延迟和电池使用产生负面影响。如果套餐流量有限，请谨慎使用。</string>
@@ -278,7 +278,7 @@
     <string name="manage_devices_confirm_removal_description_line1">是否移除“%1$s”？</string>
     <string name="manage_devices_confirm_removal_description_line2">该设备将从列表中移除并退出登录。</string>
     <string name="manage_devices_description">查看和管理您所有已登录的设备。一个帐户最多可以同时登录 5 台设备。每台设备登录时都会获得一个名称，以便您能够轻松区分。</string>
-    <string name="max_devices_confirm_removal_description">确定要退出 &lt;b&gt;%1$s&lt;/b&gt; 吗？</string>
+    <string name="max_devices_confirm_removal_description">确定要退出 <b>%1$s</b> 吗？</string>
     <string name="max_devices_resolved_description">您现在可以继续在此设备上登录。</string>
     <string name="max_devices_resolved_title">太棒了！</string>
     <string name="max_devices_warning_description">请通过从以下列表中移除的方式退出至少一个帐户。您可以在设备的帐户设置下找到相应设备名称。</string>
@@ -299,7 +299,7 @@
     <string name="navigate">导航</string>
     <string name="new_changelog_notification_message">点击此处查看最新变化。</string>
     <string name="new_changelog_notification_title">已安装新版本</string>
-    <string name="new_device_notification_message">欢迎，此设备现已命名为 &lt;b&gt;%1$s&lt;/b&gt;。</string>
+    <string name="new_device_notification_message">欢迎，此设备现已命名为 <b>%1$s</b>。</string>
     <string name="new_device_notification_title">已创建新设备</string>
     <string name="new_list">新建列表</string>
     <string name="no_custom_lists_available">有可用的自定义列表</string>

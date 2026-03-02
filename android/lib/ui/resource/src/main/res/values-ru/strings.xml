@@ -22,7 +22,7 @@
     <string name="all_applications">Все приложения</string>
     <string name="all_locations">Все местоположения</string>
     <string name="all_providers">Все провайдеры</string>
-    <string name="always_on_vpn_error_notification_content">Не удалось запустить туннельное подключение. Перед использованием Mullvad VPN отключите опцию «Постоянная VPN» для приложения &lt;b&gt;%1$s&lt;/b&gt;.</string>
+    <string name="always_on_vpn_error_notification_content">Не удалось запустить туннельное подключение. Перед использованием Mullvad VPN отключите опцию «Постоянная VPN» для приложения <b>%1$s</b>.</string>
     <string name="always_on_vpn_error_notification_title">Опция «Постоянная VPN» назначена приложению «%1$s»</string>
     <string name="android_16_upgrade_warning_dialog_first_message">После обновления VPN-приложения на Android 16 VPN-приложения иногда теряют доступ к Интернету.</string>
     <string name="android_16_upgrade_warning_dialog_second_message">Перезагрузите устройство и снова попробуйте подключиться. Если это не поможет, отправьте письмо на %1$s на английском или шведском.</string>
@@ -30,7 +30,7 @@
     <string name="android_16_upgrade_warning_title">Проблемы с подключением?</string>
     <string name="anti_censorship">Обход цензуры</string>
     <string name="anti_censorship_info_first_paragraph">Эти методы могут помочь, если вам заблокировали доступ в Mullvad. Когда выбран вариант «Автоматически», приложение будет перебирать все методы, пока не найдет подходящий.</string>
-    <string name="anti_censorship_info_second_paragraph">&lt;b&gt;Обратите внимание: эти методы не улучшают производительность, а наоборот, могут увеличить энергопотребление и нагрузку на систему.&lt;/b&gt;</string>
+    <string name="anti_censorship_info_second_paragraph"><b>Обратите внимание: эти методы не улучшают производительность, а наоборот, могут увеличить энергопотребление и нагрузку на систему.</b></string>
     <string name="any">Все</string>
     <string name="api_access_description">Добавление пользовательских методов для доступа к API Mullvad и управление ими.</string>
     <string name="api_access_method_info_first_line">Приложение должно взаимодействовать с сервером API Mullvad для входа в учетную запись, получения списков серверов и других важных операций.</string>
@@ -48,7 +48,7 @@
     <string name="app_name_weather">Погода</string>
     <string name="appearance">Внешний вид</string>
     <string name="appearance_description">Измените название и значок приложения Mullvad VPN на устройстве Android. Это не повлияет на значок уведомлений, связанных с Mullvad VPN.</string>
-    <string name="appearance_description_warning">&lt;b&gt;Внимание:&lt;/b&gt; после выбора нового значка и названия приложение автоматически закроется и его потребуется открыть вручную. Это не повлияет на ваше VPN-соединение.</string>
+    <string name="appearance_description_warning"><b>Внимание:</b> после выбора нового значка и названия приложение автоматически закроется и его потребуется открыть вручную. Это не повлияет на ваше VPN-соединение.</string>
     <string name="apply">Применить</string>
     <string name="applying_changes">Применяем изменения...</string>
     <string name="at_least_on_method_needs_to_enabled">Должен быть включен хотя бы один метод</string>
@@ -60,7 +60,7 @@
     <string name="auto_connect_carousel_first_slide_top_text">Настройки автоподключения и режима блокировки можно найти в системных настройках Android. Чтобы включить их, следуйте этой инструкции.</string>
     <string name="auto_connect_carousel_second_slide_bottom_text">2. Чтобы включить автоподключение, нажмите на переключатель возле пункта «Постоянная VPN».</string>
     <string name="auto_connect_carousel_second_slide_top_text">В системных настройках Android автоподключение называется «Постоянная VPN». Эта опция обеспечивает постоянное подключение к туннелю VPN и автоподключение после перезапуска.</string>
-    <string name="auto_connect_carousel_third_slide_bottom_text">3. Чтобы включить режим блокировки, нажмите на переключатель рядом с пунктом «Блокировать соединения без VPN».&lt;br /&gt;&lt;br /&gt;&lt;b&gt;Предупреждение: этот параметр блокирует приложения из списка раздельного туннелирования и функцию «Обмен данными в локальной сети».&lt;/b&gt;</string>
+    <string name="auto_connect_carousel_third_slide_bottom_text">3. Чтобы включить режим блокировки, нажмите на переключатель рядом с пунктом «Блокировать соединения без VPN».<br /><br /><b>Предупреждение: этот параметр блокирует приложения из списка раздельного туннелирования и функцию «Обмен данными в локальной сети».</b></string>
     <string name="auto_connect_carousel_third_slide_top_text">В системных настройках Android режим блокировки называется «Блокировать соединения без VPN». Он помогает минимизировать утечки, однако имеет ряд известных ограничений, прочитать подробнее о которых можно</string>
     <string name="auto_connect_carousel_third_slide_top_text_website_link">здесь</string>
     <string name="automatic">Автоматически</string>
@@ -127,7 +127,7 @@
     <string name="custom_port_dialog_remove">Удалить пользовательский порт</string>
     <string name="custom_port_dialog_submit">Установить порт</string>
     <string name="custom_port_dialog_valid_ranges">Допустимые диапазоны: %1$s</string>
-    <string name="custom_port_recommended_range_first">&lt;b&gt;Внимание:&lt;/b&gt; не все серверы поддерживают полный диапазон портов.</string>
+    <string name="custom_port_recommended_range_first"><b>Внимание:</b> не все серверы поддерживают полный диапазон портов.</string>
     <string name="custom_port_recommended_range_second">Допустимый диапазон для всех серверов: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Не удалось преобразовать имя узла пользовательского туннеля. Попробуйте изменить настройки.</string>
     <string name="daita_description_slide_1_first_paragraph">Внимание! Включение этой функции приведет к увеличению сетевого трафика. Также снизится скорость, увеличится задержка и усилится расход заряда аккумулятора. Будьте внимательны при использовании функции на ограниченных по трафику планах.</string>
@@ -278,7 +278,7 @@
     <string name="manage_devices_confirm_removal_description_line1">Удалить устройство «%1$s»?</string>
     <string name="manage_devices_confirm_removal_description_line2">Устройство выйдет из профиля и будет удалено из списка.</string>
     <string name="manage_devices_description">Просмотр подключенных устройств и управление ими. К одной учетной записи можно подключить 5 устройств. При входе каждому устройству присваивается имя, чтобы их было легче различать.</string>
-    <string name="max_devices_confirm_removal_description">Действительно выйти из профиля на устройстве &lt;b&gt;%1$s&lt;/b&gt;?</string>
+    <string name="max_devices_confirm_removal_description">Действительно выйти из профиля на устройстве <b>%1$s</b>?</string>
     <string name="max_devices_resolved_description">Теперь можно войти в учетную запись на этом устройстве.</string>
     <string name="max_devices_resolved_title">Отлично!</string>
     <string name="max_devices_warning_description">Выйдите из учетной записи хотя бы на одном из устройств, удалив его из списка ниже. Имя устройства указано в настройках учетной записи.</string>
@@ -299,7 +299,7 @@
     <string name="navigate">Перейти</string>
     <string name="new_changelog_notification_message">Нажмите здесь и узнайте, что нового.</string>
     <string name="new_changelog_notification_title">УСТАНОВЛЕНА НОВАЯ ВЕРСИЯ</string>
-    <string name="new_device_notification_message">Добро пожаловать! Это устройство теперь называется &lt;b&gt;%1$s&lt;/b&gt;.</string>
+    <string name="new_device_notification_message">Добро пожаловать! Это устройство теперь называется <b>%1$s</b>.</string>
     <string name="new_device_notification_title">СОЗДАНО НОВОЕ УСТРОЙСТВО</string>
     <string name="new_list">Новый список</string>
     <string name="no_custom_lists_available">Нет своих списков</string>

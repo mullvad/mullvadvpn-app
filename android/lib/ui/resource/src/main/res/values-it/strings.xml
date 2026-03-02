@@ -22,7 +22,7 @@
     <string name="all_applications">Tutte le applicazioni</string>
     <string name="all_locations">Tutti i luoghi</string>
     <string name="all_providers">Tutti i fornitori</string>
-    <string name="always_on_vpn_error_notification_content">Impossibile avviare la connessione tunnel. Disabilita VPN sempre attiva per &lt;b&gt;%1$s&lt;/b&gt; prima di utilizzare Mullvad VPN.</string>
+    <string name="always_on_vpn_error_notification_content">Impossibile avviare la connessione tunnel. Disabilita VPN sempre attiva per <b>%1$s</b> prima di utilizzare Mullvad VPN.</string>
     <string name="always_on_vpn_error_notification_title">VPN sempre attiva assegnata a %1$s</string>
     <string name="android_16_upgrade_warning_dialog_first_message">Dopo aver aggiornato un\'app VPN su Android 16, i dispositivi potrebbero trovarsi in uno stato in cui le app VPN non sono più in grado di accedere a Internet.</string>
     <string name="android_16_upgrade_warning_dialog_second_message">Riavvia il dispositivo e riprova a connetterti. Se non funziona, scrivi un\'e-mail a %1$s in svedese o in inglese.</string>
@@ -30,7 +30,7 @@
     <string name="android_16_upgrade_warning_title">Impossibile connetterti?</string>
     <string name="anti_censorship">Anticensura</string>
     <string name="anti_censorship_info_first_paragraph">Questi metodi potrebbero essere utili in situazioni in cui non riesci a raggiungere Mullvad. Selezionando \"Automatico\", l\'app tenterà tutti i metodi finché uno non funziona.</string>
-    <string name="anti_censorship_info_second_paragraph">&lt;b&gt;Tieni presente che questi metodi non migliorano le prestazioni e potrebbero aumentare l\'utilizzo di risorse del sistema e il consumo della batteria.&lt;/b&gt;</string>
+    <string name="anti_censorship_info_second_paragraph"><b>Tieni presente che questi metodi non migliorano le prestazioni e potrebbero aumentare l\'utilizzo di risorse del sistema e il consumo della batteria.</b></string>
     <string name="any">Qualsiasi</string>
     <string name="api_access_description">Gestisci e aggiungi metodi personalizzati per accedere all\'API Mullvad.</string>
     <string name="api_access_method_info_first_line">L\'app deve comunicare con un server API Mullvad per accedere, recuperare elenchi di server e altre operazioni critiche.</string>
@@ -48,7 +48,7 @@
     <string name="app_name_weather">Meteo</string>
     <string name="appearance">Aspetto</string>
     <string name="appearance_description">Cambia il titolo e l\'icona dell\'app Mullvad VPN sul tuo dispositivo Android. Questa operazione non modificherà l\'icona delle notifiche relative a Mullvad VPN.</string>
-    <string name="appearance_description_warning">&lt;b&gt;Attenzione:&lt;/b&gt; l\'app si chiuderà automaticamente e dovrà essere riaperta manualmente dopo aver selezionato una nuova icona e un nuovo titolo. Ciò non influirà sulla connessione VPN.</string>
+    <string name="appearance_description_warning"><b>Attenzione:</b> l\'app si chiuderà automaticamente e dovrà essere riaperta manualmente dopo aver selezionato una nuova icona e un nuovo titolo. Ciò non influirà sulla connessione VPN.</string>
     <string name="apply">Applica</string>
     <string name="applying_changes">Applicazione modifiche...</string>
     <string name="at_least_on_method_needs_to_enabled">È necessario abilitare almeno un metodo</string>
@@ -60,7 +60,7 @@
     <string name="auto_connect_carousel_first_slide_top_text">Le impostazioni della modalità di Connessione automatica e di Blocco si trovano nelle impostazioni del sistema Android. Segui questa guida per abilitare una o entrambe.</string>
     <string name="auto_connect_carousel_second_slide_bottom_text">2. Per abilitare la connessione automatica, clicca sull\'interruttore accanto a \"VPN sempre attiva\".</string>
     <string name="auto_connect_carousel_second_slide_top_text">La connessione automatica è denominata VPN sempre attiva nelle impostazioni del sistema Android e garantisce di essere costantemente connessi al tunnel VPN e di connettersi automaticamente dopo il riavvio.</string>
-    <string name="auto_connect_carousel_third_slide_bottom_text">3. Per abilitare la Modalità Blocco, clicca sull\'interruttore accanto a \"Blocca connessioni senza VPN\".&lt;br /&gt;&lt;br /&gt;&lt;b&gt;Avviso: questa impostazione blocca le app divise e la funzionalità di condivisione della rete locale.&lt;/b&gt;</string>
+    <string name="auto_connect_carousel_third_slide_bottom_text">3. Per abilitare la Modalità Blocco, clicca sull\'interruttore accanto a \"Blocca connessioni senza VPN\".<br /><br /><b>Avviso: questa impostazione blocca le app divise e la funzionalità di condivisione della rete locale.</b></string>
     <string name="auto_connect_carousel_third_slide_top_text">La Modalità Blocco si chiama \"Blocca connessioni senza VPN\" nelle impostazioni del sistema Android. Aiuta a ridurre al minimo le perdite, tuttavia presenta alcune limitazioni su cui consigliamo di approfondire</string>
     <string name="auto_connect_carousel_third_slide_top_text_website_link">qui</string>
     <string name="automatic">Automatico</string>
@@ -127,7 +127,7 @@
     <string name="custom_port_dialog_remove">Rimuovi porta personalizzata</string>
     <string name="custom_port_dialog_submit">Imposta porta</string>
     <string name="custom_port_dialog_valid_ranges">Intervalli validi: %1$s</string>
-    <string name="custom_port_recommended_range_first">&lt;b&gt;Attenzione:&lt;/b&gt; solo alcuni server supportano l\'intervallo di porte completo.</string>
+    <string name="custom_port_recommended_range_first"><b>Attenzione:</b> solo alcuni server supportano l\'intervallo di porte completo.</string>
     <string name="custom_port_recommended_range_second">Intervallo valido per tutti i server: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Impossibile risolvere l\'host del tunnel personalizzato. Prova a modificare le impostazioni.</string>
     <string name="daita_description_slide_1_first_paragraph">Attenzione: questo aumenta il traffico di rete e avrà anche effetti negativi su velocità, latenza e consumo della batteria. Da usare con cautela su un piano dati limitato.</string>
@@ -278,7 +278,7 @@
     <string name="manage_devices_confirm_removal_description_line1">Rimuovere %1$s?</string>
     <string name="manage_devices_confirm_removal_description_line2">Il dispositivo verrà rimosso dall\'elenco e disconnesso.</string>
     <string name="manage_devices_description">Visualizza e gestisci tutti i dispositivi da cui effettui l\'accesso. Puoi avere contemporaneamente fino a 5 dispositivi su un account. Ogni dispositivo riceve un nome quando si effettua l\'accesso per aiutarti a distinguerli facilmente.</string>
-    <string name="max_devices_confirm_removal_description">Vuoi davvero disconnettere &lt;b&gt;%1$s&lt;/b&gt;?</string>
+    <string name="max_devices_confirm_removal_description">Vuoi davvero disconnettere <b>%1$s</b>?</string>
     <string name="max_devices_resolved_description">Ora puoi continuare ad accedere su questo dispositivo.</string>
     <string name="max_devices_resolved_title">Fantastico!</string>
     <string name="max_devices_warning_description">Disconnettiti da almeno un dispositivo rimuovendolo dall\'elenco seguente. Puoi trovare il nome del dispositivo corrispondente nelle impostazioni dell\'account del dispositivo.</string>
@@ -299,7 +299,7 @@
     <string name="navigate">Naviga</string>
     <string name="new_changelog_notification_message">Clicca qui per vedere le novità.</string>
     <string name="new_changelog_notification_title">NUOVA VERSIONE INSTALLATA</string>
-    <string name="new_device_notification_message">Ti diamo il benvenuto, questo dispositivo ora si chiama &lt;b&gt;%1$s&lt;/b&gt;.</string>
+    <string name="new_device_notification_message">Ti diamo il benvenuto, questo dispositivo ora si chiama <b>%1$s</b>.</string>
     <string name="new_device_notification_title">NUOVO DISPOSITIVO CREATO</string>
     <string name="new_list">Nuovo elenco</string>
     <string name="no_custom_lists_available">Nessun elenco personalizzato disponibile</string>

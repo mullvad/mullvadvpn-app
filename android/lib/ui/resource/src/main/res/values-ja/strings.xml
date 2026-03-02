@@ -22,7 +22,7 @@
     <string name="all_applications">すべてのアプリケーション</string>
     <string name="all_locations">すべての場所</string>
     <string name="all_providers">すべてのプロバイダ</string>
-    <string name="always_on_vpn_error_notification_content">トンネル接続を開始できません。Mullvad VPNを使用する前に&lt;b&gt;%1$s&lt;/b&gt;のAlways-on VPNを無効にしてください。</string>
+    <string name="always_on_vpn_error_notification_content">トンネル接続を開始できません。Mullvad VPNを使用する前に<b>%1$s</b>のAlways-on VPNを無効にしてください。</string>
     <string name="always_on_vpn_error_notification_title">Always-on VPNは%1$sに割り当てられました</string>
     <string name="android_16_upgrade_warning_dialog_first_message">Android 16でVPNアプリを更新すると、デバイス上のVPNアプリがインターネットにアクセス不可能な状態になる可能性があります。</string>
     <string name="android_16_upgrade_warning_dialog_second_message">デバイスを再起動して再接続してください。それでも問題が解決しない場合は、%1$sにスウェーデン語か英語のメールでお問い合わせください。</string>
@@ -30,7 +30,7 @@
     <string name="android_16_upgrade_warning_title">接続できませんか？</string>
     <string name="anti_censorship">検閲回避</string>
     <string name="anti_censorship_info_first_paragraph">これらの方式は、Mullvadへの接続がブロックされている状況で役立つ可能性があります。「自動」を選択すると、アプリは有効な方法が見つかるまですべての方式を試します。</string>
-    <string name="anti_censorship_info_second_paragraph">&lt;b&gt;これらの方式はパフォーマンスを向上させるものではなく、システム使用率やバッテリー消費量を増加させる可能性がありますのでご注意ください。&lt;/b&gt;</string>
+    <string name="anti_censorship_info_second_paragraph"><b>これらの方式はパフォーマンスを向上させるものではなく、システム使用率やバッテリー消費量を増加させる可能性がありますのでご注意ください。</b></string>
     <string name="any">すべて</string>
     <string name="api_access_description">Mullvad APIへのカスタムのアクセス方法を管理・追加します。</string>
     <string name="api_access_method_info_first_line">アプリはユーザーのログイン、サーバーリストの取得、およびその他の重要な操作を行うためにMullvad APIサーバーと通信する必要があります。</string>
@@ -48,7 +48,7 @@
     <string name="app_name_weather">天気</string>
     <string name="appearance">外観</string>
     <string name="appearance_description">Androidデバイス上で、Mullvad VPNアプリのタイトルとアイコンを変更します。この変更は、Mullvad VPNに関連する通知のアイコンには適用されません。</string>
-    <string name="appearance_description_warning">&lt;b&gt;注意：&lt;/b&gt;新しいアイコンとタイトルを選択すると、アプリは自動的に終了します。その後、手動で再起動する必要があります。なお、この操作によってVPN接続が切断されることはありません。</string>
+    <string name="appearance_description_warning"><b>注意：</b>新しいアイコンとタイトルを選択すると、アプリは自動的に終了します。その後、手動で再起動する必要があります。なお、この操作によってVPN接続が切断されることはありません。</string>
     <string name="apply">適用</string>
     <string name="applying_changes">変更内容を適用しています…</string>
     <string name="at_least_on_method_needs_to_enabled">方法は少なくとも 1 つは有効化する必要があります</string>
@@ -60,7 +60,7 @@
     <string name="auto_connect_carousel_first_slide_top_text">自動接続とロックダウンモードの設定はAndroidシステム設定にあります。どちらか、または両方をこのガイドに従って有効にしてください。</string>
     <string name="auto_connect_carousel_second_slide_bottom_text">2. 自動接続を有効にするには、[Always-on VPN] の横のトグルボタンをクリックします。</string>
     <string name="auto_connect_carousel_second_slide_top_text">自動接続はAndroidシステム設定で「Always-on VPN」と呼ばれており、確実に一貫してVPNトンネルに接続し、再起動の後に自動接続を行う機能です。</string>
-    <string name="auto_connect_carousel_third_slide_bottom_text">3. ロックダウンモードを有効にするには、[VPN 以外の接続のブロック] の横にあるトグルボタンをクリックします。&lt;br /&gt;&lt;br /&gt;&lt;b&gt;警告: この設定では、分割アプリとローカルネットワーク共有の機能がブロックされます。&lt;/b&gt;</string>
+    <string name="auto_connect_carousel_third_slide_bottom_text">3. ロックダウンモードを有効にするには、[VPN 以外の接続のブロック] の横にあるトグルボタンをクリックします。<br /><br /><b>警告: この設定では、分割アプリとローカルネットワーク共有の機能がブロックされます。</b></string>
     <string name="auto_connect_carousel_third_slide_top_text">このロックダウンモードは、Androidのシステム設定では [VPN以外の接続のブロック] と呼ばれています。情報漏洩の可能性を低減することが可能ですが、既知の制限がいくつかあります。制限については、</string>
     <string name="auto_connect_carousel_third_slide_top_text_website_link">こちらをご覧ください。</string>
     <string name="automatic">自動</string>
@@ -127,7 +127,7 @@
     <string name="custom_port_dialog_remove">カスタムポートを削除</string>
     <string name="custom_port_dialog_submit">ポートを設定</string>
     <string name="custom_port_dialog_valid_ranges">有効な範囲: %1$s</string>
-    <string name="custom_port_recommended_range_first">&lt;b&gt;注意:&lt;/b&gt; 全ポート範囲をサポートしているのは一部のサーバーのみです。</string>
+    <string name="custom_port_recommended_range_first"><b>注意:</b> 全ポート範囲をサポートしているのは一部のサーバーのみです。</string>
     <string name="custom_port_recommended_range_second">全サーバーの有効範囲: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">カスタムトンネルのホストを解決できません。設定を変更してみてください。</string>
     <string name="daita_description_slide_1_first_paragraph">注意: これによりネットワークトラフィックが増加し、速度、遅延、およびバッテリー使用率に悪影響を及ぼします。上限付きプランでは注意して使用してください。</string>
@@ -278,7 +278,7 @@
     <string name="manage_devices_confirm_removal_description_line1">%1$sを削除しますか？</string>
     <string name="manage_devices_confirm_removal_description_line2">リストからデバイスが削除され、ログアウトされます。</string>
     <string name="manage_devices_description">ログイン中のすべてのデバイスを表示・管理します。1つのアカウントで最大5台のデバイスを同時に利用できます。各デバイスは識別しやすくするため、ログイン時に名前が付けられます。</string>
-    <string name="max_devices_confirm_removal_description">本当に&lt;b&gt;%1$s&lt;/b&gt;をログアウトしますか？</string>
+    <string name="max_devices_confirm_removal_description">本当に<b>%1$s</b>をログアウトしますか？</string>
     <string name="max_devices_resolved_description">このデバイスでログインを続けられるようになりました。</string>
     <string name="max_devices_resolved_title">素晴らしい！</string>
     <string name="max_devices_warning_description">以下のリストから少なくとも1つを削除してログアウトしてください。対応するデバイス名はデバイスのアカウント設定で確認できます。</string>
@@ -299,7 +299,7 @@
     <string name="navigate">移動</string>
     <string name="new_changelog_notification_message">新機能を確認するにはここをクリックしてください。</string>
     <string name="new_changelog_notification_title">新バージョンがインストールされました</string>
-    <string name="new_device_notification_message">ようこそ。このデバイス名は&lt;b&gt;%1$s&lt;/b&gt;です。</string>
+    <string name="new_device_notification_message">ようこそ。このデバイス名は<b>%1$s</b>です。</string>
     <string name="new_device_notification_title">新しいデバイスが作成されました</string>
     <string name="new_list">新規リスト</string>
     <string name="no_custom_lists_available">利用可能なカスタムリストはありません</string>

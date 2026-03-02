@@ -22,7 +22,7 @@
     <string name="all_applications">Toutes les applications</string>
     <string name="all_locations">Toutes les localisations</string>
     <string name="all_providers">Tous les fournisseurs</string>
-    <string name="always_on_vpn_error_notification_content">Impossible de démarrer la connexion au tunnel. Veuillez désactiver « Toujours exiger un VPN « pour &lt;b&gt;%1$s&lt;/b&gt; avant d\'utiliser Mullvad VPN.</string>
+    <string name="always_on_vpn_error_notification_content">Impossible de démarrer la connexion au tunnel. Veuillez désactiver « Toujours exiger un VPN « pour <b>%1$s</b> avant d\'utiliser Mullvad VPN.</string>
     <string name="always_on_vpn_error_notification_title">« Toujours exiger un VPN » est assigné à %1$s</string>
     <string name="android_16_upgrade_warning_dialog_first_message">Après la mise à jour d\'une application de VPN sur Android 16, les appareils peuvent se retrouver dans un état où ces applications de VPN ne sont plus en mesure d\'accéder à Internet.</string>
     <string name="android_16_upgrade_warning_dialog_second_message">Veuillez redémarrer votre appareil et réessayer de vous connecter. Si cela ne fonctionne pas, veuillez envoyer un e-mail à %1$s en suédois ou en anglais.</string>
@@ -30,7 +30,7 @@
     <string name="android_16_upgrade_warning_title">Connexion impossible ?</string>
     <string name="anti_censorship">Anti-censure</string>
     <string name="anti_censorship_info_first_paragraph">Ces méthodes peuvent servir dans les situations où il vous est empêché d\'atteindre Mullvad. Quand « Automatique » est sélectionné, l\'application essaiera toutes les méthodes jusqu\'à ce que l\'une d\'entre elles fonctionne.</string>
-    <string name="anti_censorship_info_second_paragraph">&lt;b&gt;Veuillez noter que ces méthodes n\'améliorent pas les performances et pourraient augmenter l\'utilisation du système et la consommation de batterie.&lt;/b&gt;</string>
+    <string name="anti_censorship_info_second_paragraph"><b>Veuillez noter que ces méthodes n\'améliorent pas les performances et pourraient augmenter l\'utilisation du système et la consommation de batterie.</b></string>
     <string name="any">N\'importe lequel</string>
     <string name="api_access_description">Gérez et ajoutez des modes d\'accès personnalisés à l\'API Mullvad.</string>
     <string name="api_access_method_info_first_line">L\'application doit communiquer avec un serveur d\'API Mullvad pour vous connecter, récupérer des listes de serveurs et effectuer d\'autres opérations critiques.</string>
@@ -48,7 +48,7 @@
     <string name="app_name_weather">Météo</string>
     <string name="appearance">Apparence</string>
     <string name="appearance_description">Modifiez le titre et l\'icône de l\'application Mullvad VPN sur votre appareil Android. Cela ne modifiera pas l\'icône pour les notifications liées à Mullvad VPN.</string>
-    <string name="appearance_description_warning">&lt;b&gt;Attention :&lt;/b&gt; l\'application se fermera automatiquement et devra être rouverte manuellement après avoir sélectionné une nouvelle icône et un nouveau titre. Cela n\'affectera pas votre connexion VPN.</string>
+    <string name="appearance_description_warning"><b>Attention :</b> l\'application se fermera automatiquement et devra être rouverte manuellement après avoir sélectionné une nouvelle icône et un nouveau titre. Cela n\'affectera pas votre connexion VPN.</string>
     <string name="apply">Appliquer</string>
     <string name="applying_changes">Application des modifications...</string>
     <string name="at_least_on_method_needs_to_enabled">Au moins une méthode doit être activée</string>
@@ -60,7 +60,7 @@
     <string name="auto_connect_carousel_first_slide_top_text">Les paramètres de la connexion automatique et du mode Verrouillage se trouvent dans les paramètres du système Android, suivez ce guide pour activer l\'un, l\'autre ou les deux.</string>
     <string name="auto_connect_carousel_second_slide_bottom_text">2. Pour activer la connexion automatique, cliquez sur l\'interrupteur situé à côté de « Toujours exiger un VPN ».</string>
     <string name="auto_connect_carousel_second_slide_top_text">La connexion automatique est appelée VPN toujours actif dans les paramètres du système Android et elle s\'assure que vous êtes constamment connecté au tunnel VPN et se connecte automatiquement après le redémarrage.</string>
-    <string name="auto_connect_carousel_third_slide_bottom_text">3. Pour activer le mode Verrouillage, cliquez sur l\'interrupteur situé à côté de « Bloquer les connexions sans VPN ».&lt;br /&gt;&lt;br /&gt;&lt;b&gt;Avertissement : ce paramètre bloque les applications fractionnées et la fonctionnalité de partage du réseau local.&lt;/b&gt;</string>
+    <string name="auto_connect_carousel_third_slide_bottom_text">3. Pour activer le mode Verrouillage, cliquez sur l\'interrupteur situé à côté de « Bloquer les connexions sans VPN ».<br /><br /><b>Avertissement : ce paramètre bloque les applications fractionnées et la fonctionnalité de partage du réseau local.</b></string>
     <string name="auto_connect_carousel_third_slide_top_text">Le mode Verrouillage est appelé « Bloquer les connexions sans VPN » dans les paramètres système d\'Android. Il permet de minimiser les fuites, mais présente des limites connues sur lesquelles vous pouvez en savoir plus</string>
     <string name="auto_connect_carousel_third_slide_top_text_website_link">ici</string>
     <string name="automatic">Automatique</string>
@@ -127,7 +127,7 @@
     <string name="custom_port_dialog_remove">Supprimer le port personnalisé</string>
     <string name="custom_port_dialog_submit">Définir le port</string>
     <string name="custom_port_dialog_valid_ranges">Plages valides : %1$s</string>
-    <string name="custom_port_recommended_range_first">&lt;b&gt;Attention :&lt;/b&gt; seuls certains serveurs prennent en charge la plage de ports entière.</string>
+    <string name="custom_port_recommended_range_first"><b>Attention :</b> seuls certains serveurs prennent en charge la plage de ports entière.</string>
     <string name="custom_port_recommended_range_second">Plage valide pour tous les serveurs : %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Échec de la résolution de l\'hôte du tunnel personnalisé. Essayez de modifier vos paramètres.</string>
     <string name="daita_description_slide_1_first_paragraph">Attention : cette option augmente le trafic sur le réseau et peut avoir un impact négatif sur la vitesse, la latence et l\'utilisation de la batterie. À utiliser avec précaution pour les forfaits limités.</string>
@@ -278,7 +278,7 @@
     <string name="manage_devices_confirm_removal_description_line1">Supprimer %1$s ?</string>
     <string name="manage_devices_confirm_removal_description_line2">L\'appareil sera supprimé de la liste et déconnecté.</string>
     <string name="manage_devices_description">Affichez et gérez tous vos appareils connectés. Vous pouvez avoir jusqu\'à 5 appareils sur un même compte. Chaque appareil reçoit un nom lorsqu\'il est connecté, ce qui vous permet de le distinguer facilement.</string>
-    <string name="max_devices_confirm_removal_description">Voulez-vous vraiment déconnecter &lt;b&gt;%1$s&lt;/b&gt; ?</string>
+    <string name="max_devices_confirm_removal_description">Voulez-vous vraiment déconnecter <b>%1$s</b> ?</string>
     <string name="max_devices_resolved_description">Vous pouvez maintenant continuer la connexion sur cet appareil.</string>
     <string name="max_devices_resolved_title">Super !</string>
     <string name="max_devices_warning_description">Merci de vous déconnecter d\'au moins un appareil en le supprimant de la liste ci-dessous. Vous trouverez le nom de l\'appareil correspondant dans les paramètres du compte de l\'appareil.</string>
@@ -299,7 +299,7 @@
     <string name="navigate">Navigation</string>
     <string name="new_changelog_notification_message">Cliquez ici pour voir les nouveautés.</string>
     <string name="new_changelog_notification_title">NOUVELLE VERSION INSTALLÉE</string>
-    <string name="new_device_notification_message">Bienvenue, cet appareil est maintenant appelé &lt;b&gt;%1$s&lt;/b&gt;.</string>
+    <string name="new_device_notification_message">Bienvenue, cet appareil est maintenant appelé <b>%1$s</b>.</string>
     <string name="new_device_notification_title">NOUVEL APPAREIL CRÉÉ</string>
     <string name="new_list">Nouvelle liste</string>
     <string name="no_custom_lists_available">Aucune liste personnalisée disponible</string>

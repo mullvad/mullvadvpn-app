@@ -22,7 +22,7 @@
     <string name="all_applications">Todas as aplicações</string>
     <string name="all_locations">Todas as localizações</string>
     <string name="all_providers">Todos os fornecedores</string>
-    <string name="always_on_vpn_error_notification_content">Não foi possível iniciar a ligação de túnel. Desative a VPN sempre ligada para &lt;b&gt;%1$s&lt;/b&gt; antes de utilizar a Mullvad VPN.</string>
+    <string name="always_on_vpn_error_notification_content">Não foi possível iniciar a ligação de túnel. Desative a VPN sempre ligada para <b>%1$s</b> antes de utilizar a Mullvad VPN.</string>
     <string name="always_on_vpn_error_notification_title">VPN sempre ligada atribuída a %1$s</string>
     <string name="android_16_upgrade_warning_dialog_first_message">Após atualizar uma aplicação de VPN no Android 16, os dispositivos podem ficar num estado em que as aplicações de VPN deixam de conseguir aceder à internet.</string>
     <string name="android_16_upgrade_warning_dialog_second_message">Reinicie o seu dispositivo e tente estabelecer a ligação novamente. Se isto não funcionar, escreva um e-mail para %1$s em sueco ou inglês.</string>
@@ -30,7 +30,7 @@
     <string name="android_16_upgrade_warning_title">Não consegue ligar?</string>
     <string name="anti_censorship">Anti-censura</string>
     <string name="anti_censorship_info_first_paragraph">Estes métodos podem ser úteis em situações em que esteja impedido de aceder à Mullvad. Quando está selecionado \"Automático\", a aplicação tentará todos os métodos até que um funcione.</string>
-    <string name="anti_censorship_info_second_paragraph">&lt;b&gt;Tenha em atenção que estes métodos não melhoram o desempenho e podem aumentar a utilização do sistema e o consumo da bateria.&lt;/b&gt;</string>
+    <string name="anti_censorship_info_second_paragraph"><b>Tenha em atenção que estes métodos não melhoram o desempenho e podem aumentar a utilização do sistema e o consumo da bateria.</b></string>
     <string name="any">Qualquer</string>
     <string name="api_access_description">Gerir e adicionar métodos personalizados para aceder à Mullvad API.</string>
     <string name="api_access_method_info_first_line">A app precisa de comunicar com um servidor da Mullvad API para iniciar a sua sessão, obter listas de servidores e outras operações críticas.</string>
@@ -48,7 +48,7 @@
     <string name="app_name_weather">Meteorologia</string>
     <string name="appearance">Aparência</string>
     <string name="appearance_description">Altere o título e o ícone da aplicação Mullvad VPN no seu dispositivo Android. Isto não irá alterar o ícone de nenhuma notificação relacionada com a Mullvad VPN.</string>
-    <string name="appearance_description_warning">&lt;b&gt;Atenção:&lt;/b&gt; a aplicação será encerrada automaticamente e terá de ser aberta manualmente novamente após selecionar um novo ícone e título. Isto não afetará a sua ligação VPN.</string>
+    <string name="appearance_description_warning"><b>Atenção:</b> a aplicação será encerrada automaticamente e terá de ser aberta manualmente novamente após selecionar um novo ícone e título. Isto não afetará a sua ligação VPN.</string>
     <string name="apply">Aplicar</string>
     <string name="applying_changes">A aplicar alterações...</string>
     <string name="at_least_on_method_needs_to_enabled">É necessário ativar pelo menos um método</string>
@@ -60,7 +60,7 @@
     <string name="auto_connect_carousel_first_slide_top_text">As definições da ligação automática e do modo de bloqueio podem ser encontradas nas definições do sistema Android. Siga este guia para ativar uma ou ambas as funcionalidades.</string>
     <string name="auto_connect_carousel_second_slide_bottom_text">2. Para ativar a ligação automática, clique no botão de alternar junto a \"VPN sempre ligada\".</string>
     <string name="auto_connect_carousel_second_slide_top_text">A ligação automática é designada por VPN sempre ligada nas definições do sistema Android e assegura que está constantemente ligado ao túnel VPN e ligar-se-á automaticamente após o reinício.</string>
-    <string name="auto_connect_carousel_third_slide_bottom_text">3. Para ativar o modo de bloqueio, clique no botão de alternância junto a \"Bloquear ligações sem VPN\".&lt;br /&gt;&lt;br /&gt;&lt;b&gt;Aviso: esta definição bloqueia as aplicações divididas e a funcionalidade de Partilha de Rede Local.&lt;/b&gt;</string>
+    <string name="auto_connect_carousel_third_slide_bottom_text">3. Para ativar o modo de bloqueio, clique no botão de alternância junto a \"Bloquear ligações sem VPN\".<br /><br /><b>Aviso: esta definição bloqueia as aplicações divididas e a funcionalidade de Partilha de Rede Local.</b></string>
     <string name="auto_connect_carousel_third_slide_top_text">O modo de bloqueio é designado por \"Bloquear ligações sem VPN\" nas definições do sistema Android. Ajuda a minimizar fugas, mas tem algumas limitações conhecidas sobre as quais pode ler mais</string>
     <string name="auto_connect_carousel_third_slide_top_text_website_link">aqui</string>
     <string name="automatic">Automático</string>
@@ -127,7 +127,7 @@
     <string name="custom_port_dialog_remove">Remover porta personalizada</string>
     <string name="custom_port_dialog_submit">Definir porta</string>
     <string name="custom_port_dialog_valid_ranges">Intervalos válidos: %1$s</string>
-    <string name="custom_port_recommended_range_first">&lt;b&gt;Atenção:&lt;/b&gt; só alguns servidores suportam o intervalo completo de portas.</string>
+    <string name="custom_port_recommended_range_first"><b>Atenção:</b> só alguns servidores suportam o intervalo completo de portas.</string>
     <string name="custom_port_recommended_range_second">Intervalo válido para todos os servidores: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Não foi possível resolver o anfitrião do túnel personalizado. Experimente alterar as suas definições.</string>
     <string name="daita_description_slide_1_first_paragraph">Atenção: Isto aumenta o tráfego de rede e também afeta negativamente a velocidade, a latência e a utilização da bateria. Utilize com precaução em planos limitados.</string>
@@ -278,7 +278,7 @@
     <string name="manage_devices_confirm_removal_description_line1">Remover %1$s?</string>
     <string name="manage_devices_confirm_removal_description_line2">O dispositivo será removido da lista e terminará a sessão.</string>
     <string name="manage_devices_description">Veja e faça a gestão de todos os seus dispositivos com sessão iniciada. Pode ter até 5 dispositivos numa conta de cada vez. Cada dispositivo recebe um nome quando tem sessão iniciada para ajudar a distingui-los facilmente.</string>
-    <string name="max_devices_confirm_removal_description">Tem a certeza de que quer terminar a sessão de &lt;b&gt;%1$s&lt;/b&gt;?</string>
+    <string name="max_devices_confirm_removal_description">Tem a certeza de que quer terminar a sessão de <b>%1$s</b>?</string>
     <string name="max_devices_resolved_description">Agora pode continuar a ligação neste dispositivo.</string>
     <string name="max_devices_resolved_title">Excelente!</string>
     <string name="max_devices_warning_description">Desligue-se de pelo menos um dos dispositivos removendo-o da lista abaixo. Pode encontrar o nome do dispositivo correspondente nas definições de Conta do dispositivo.</string>
@@ -299,7 +299,7 @@
     <string name="navigate">Navegar</string>
     <string name="new_changelog_notification_message">Clique aqui para ver as novidades.</string>
     <string name="new_changelog_notification_title">NOVA VERSÃO INSTALADA</string>
-    <string name="new_device_notification_message">As boas-vindas, este dispositivo tem agora o nome &lt;b&gt;%1$s&lt;/b&gt;.</string>
+    <string name="new_device_notification_message">As boas-vindas, este dispositivo tem agora o nome <b>%1$s</b>.</string>
     <string name="new_device_notification_title">NOVO DISPOSITIVO CRIADO</string>
     <string name="new_list">Nova lista</string>
     <string name="no_custom_lists_available">Nenhuma lista personalizada disponível</string>

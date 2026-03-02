@@ -22,7 +22,7 @@
     <string name="all_applications">Alle toepassingen</string>
     <string name="all_locations">Alle locaties</string>
     <string name="all_providers">Alle aanbieders</string>
-    <string name="always_on_vpn_error_notification_content">Kan de tunnelverbinding niet starten. Schakel Altijd-aan VPN uit voor &lt;b&gt;%1$s&lt;/b&gt; voordat u Mullvad VPN gebruikt.</string>
+    <string name="always_on_vpn_error_notification_content">Kan de tunnelverbinding niet starten. Schakel Altijd-aan VPN uit voor <b>%1$s</b> voordat u Mullvad VPN gebruikt.</string>
     <string name="always_on_vpn_error_notification_title">Altijd-aan VPN toegewezen aan %1$s</string>
     <string name="android_16_upgrade_warning_dialog_first_message">Na het bijwerken van een VPN-app in Android 16 kan het apparaat in een toestand raken waarin de VPN-apps het internet niet meer kunnen bereiken.</string>
     <string name="android_16_upgrade_warning_dialog_second_message">Start uw apparaat opnieuw op en probeer het opnieuw. Als dat niet werkt, kun u een e-mail schrijven naar %1$s (in het Zweeds of in het Engels).</string>
@@ -30,7 +30,7 @@
     <string name="android_16_upgrade_warning_title">Krijgt u geen verbinding?</string>
     <string name="anti_censorship">Anti-censuur</string>
     <string name="anti_censorship_info_first_paragraph">Deze methoden kunnen nuttig zijn in situaties waarin de toegang tot Mullvad is geblokkeerd. Als \"Automatisch\" is geselecteerd, probeert de app alle methoden totdat er een werkt.</string>
-    <string name="anti_censorship_info_second_paragraph">&lt;b&gt;Houd er rekening mee dat deze methoden niet de prestaties verbeteren en mogelijk zorgen voor een hogere belasting van systeembronnen en meer energieverbruik.&lt;/b&gt;</string>
+    <string name="anti_censorship_info_second_paragraph"><b>Houd er rekening mee dat deze methoden niet de prestaties verbeteren en mogelijk zorgen voor een hogere belasting van systeembronnen en meer energieverbruik.</b></string>
     <string name="any">Elke</string>
     <string name="api_access_description">Beheer en voeg aangepaste methoden toe om toegang te krijgen tot de Mullvad-API.</string>
     <string name="api_access_method_info_first_line">De app moet communiceren met een Mullvad-API-server om u aan te melden, serverlijsten op te halen en andere belangrijke handelingen uit te voeren.</string>
@@ -48,7 +48,7 @@
     <string name="app_name_weather">Weer</string>
     <string name="appearance">Uiterlijk</string>
     <string name="appearance_description">Wijzig de titel en het pictogram van de Mullvad VPN-app op uw Android-apparaat. Dit wijzigt het pictogram voor Mullvad VPN-gerelateerde meldingen niet.</string>
-    <string name="appearance_description_warning">&lt;b&gt;Let op:&lt;/b&gt; de app wordt automatisch gesloten en moet handmatig opnieuw worden geopend na het selecteren van een nieuw pictogram en een nieuwe titel. Dit heeft geen invloed op uw VPN-verbinding.</string>
+    <string name="appearance_description_warning"><b>Let op:</b> de app wordt automatisch gesloten en moet handmatig opnieuw worden geopend na het selecteren van een nieuw pictogram en een nieuwe titel. Dit heeft geen invloed op uw VPN-verbinding.</string>
     <string name="apply">Toevoegen</string>
     <string name="applying_changes">Wijzigingen toepassen...</string>
     <string name="at_least_on_method_needs_to_enabled">Er moet minimaal één methode ingeschakeld zijn</string>
@@ -60,7 +60,7 @@
     <string name="auto_connect_carousel_first_slide_top_text">De instellingen Automatisch verbinden en Lockdownmodus zijn te vinden in de Android-systeeminstellingen, volg deze gids om een of beide in te schakelen.</string>
     <string name="auto_connect_carousel_second_slide_bottom_text">2. Klik om Automatisch verbinden in te schakelen op de schakelaar naast \"Altijd-aan VPN\".</string>
     <string name="auto_connect_carousel_second_slide_top_text">Automatisch verbinden heet Altijd-aan VPN in de Android-systeeminstellingen en zorgt ervoor dat u altijd verbonden bent met de VPN-tunnel en automatisch verbinding maakt na een herstart.</string>
-    <string name="auto_connect_carousel_third_slide_bottom_text">3. Klik om de Lockdownmodus in te schakelen op de schakelaar naast \"Verbindingen zonder VPN blokkeren\".&lt;br /&gt;&lt;br /&gt;&lt;b&gt;Waarschuwing: deze instelling blokkeert gesplitste apps en de functie Delen via lokaal netwerk.&lt;/b&gt;</string>
+    <string name="auto_connect_carousel_third_slide_bottom_text">3. Klik om de Lockdownmodus in te schakelen op de schakelaar naast \"Verbindingen zonder VPN blokkeren\".<br /><br /><b>Waarschuwing: deze instelling blokkeert gesplitste apps en de functie Delen via lokaal netwerk.</b></string>
     <string name="auto_connect_carousel_third_slide_top_text">De Lockdownmodus heet \"Verbindingen zonder VPN blokkeren\" in de Android-systeeminstellingen. Deze helpt om lekken te minimaliseren, maar heeft enkele bekende beperkingen. Meer daarover leest u</string>
     <string name="auto_connect_carousel_third_slide_top_text_website_link">hier</string>
     <string name="automatic">Automatisch</string>
@@ -127,7 +127,7 @@
     <string name="custom_port_dialog_remove">Aangepaste poort verwijderen</string>
     <string name="custom_port_dialog_submit">Poort instellen</string>
     <string name="custom_port_dialog_valid_ranges">Geldige bereiken: %1$s</string>
-    <string name="custom_port_recommended_range_first">&lt;b&gt;Let op:&lt;/b&gt; alleen sommige servers ondersteunen het volledige poortbereik.</string>
+    <string name="custom_port_recommended_range_first"><b>Let op:</b> alleen sommige servers ondersteunen het volledige poortbereik.</string>
     <string name="custom_port_recommended_range_second">Geldig bereik voor alle servers: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Kan host van aangepaste tunnel niet omzetten. Probeer uw instellingen te wijzigen.</string>
     <string name="daita_description_slide_1_first_paragraph">Let op: dit verhoogt het netwerkverkeer en heeft een negatieve invloed op de snelheid, de latentie en het batterijverbruik. Gebruik dit voorzichtig bij beperkte abonnementen.</string>
@@ -278,7 +278,7 @@
     <string name="manage_devices_confirm_removal_description_line1">%1$s verwijderen?</string>
     <string name="manage_devices_confirm_removal_description_line2">Het apparaat wordt verwijderd uit de lijst en afgemeld.</string>
     <string name="manage_devices_description">Bekijk en beheer al uw aangemelde apparaten. Eén account kan maximaal 5 apparaten tegelijkertijd bevatten. Elk apparaat krijgt bij aanmelding een naam, zodat u ze eenvoudig uit elkaar kunt houden.</string>
-    <string name="max_devices_confirm_removal_description">Weet u zeker dat u &lt;b&gt;%1$s&lt;/b&gt; wilt afmelden?</string>
+    <string name="max_devices_confirm_removal_description">Weet u zeker dat u <b>%1$s</b> wilt afmelden?</string>
     <string name="max_devices_resolved_description">U kunt nu doorgaan met het aanmelden bij dit apparaat.</string>
     <string name="max_devices_resolved_title">Super!</string>
     <string name="max_devices_warning_description">Meld u bij minstens één apparaat af door het te verwijderen uit de onderstaande lijst. U kunt de bijbehorende apparaatnaam vinden in de accountinstellingen van het apparaat.</string>
@@ -299,7 +299,7 @@
     <string name="navigate">Navigeren</string>
     <string name="new_changelog_notification_message">Klik hier om te zien wat er nieuw is.</string>
     <string name="new_changelog_notification_title">NIEUWE VERSIE GEÏNSTALLEERD</string>
-    <string name="new_device_notification_message">Welkom. De naam van dit apparaat is nu &lt;b&gt;%1$s&lt;/b&gt;.</string>
+    <string name="new_device_notification_message">Welkom. De naam van dit apparaat is nu <b>%1$s</b>.</string>
     <string name="new_device_notification_title">NIEUW APPARAAT GEMAAKT</string>
     <string name="new_list">Nieuwe lijst</string>
     <string name="no_custom_lists_available">Geen aangepaste lijsten beschikbaar</string>
