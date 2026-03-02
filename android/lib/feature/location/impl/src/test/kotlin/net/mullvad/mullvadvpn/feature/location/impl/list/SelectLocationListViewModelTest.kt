@@ -248,7 +248,6 @@ class SelectLocationListViewModelTest {
             selectedLocationUseCase = mockSelectedLocationUseCase,
             wireguardConstraintsRepository = mockWireguardConstraintsRepository,
             relayListRepository = mockRelayListRepository,
-            customListsRelayItemUseCase = mockCustomListRelayItemsUseCase,
             settingsRepository = mockSettingsRepository,
             relayListScrollConnection = relayListScrollConnection,
             recentsUseCase = mockRecentsUseCase,
@@ -264,7 +263,7 @@ class SelectLocationListViewModelTest {
             is RelayListItem.LocationsEmptyText,
             is RelayListItem.EmptyRelayList,
             is RelayListItem.SectionDivider,
-            RelayListItem.CustomListHeader,
+            is RelayListItem.CustomListHeader,
             RelayListItem.LocationHeader,
             RelayListItem.RecentsListHeader,
             RelayListItem.RecentsListFooter -> null
