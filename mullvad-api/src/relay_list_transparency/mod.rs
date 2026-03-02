@@ -75,7 +75,7 @@ impl RelayListSignature {
 
 /// The unparsed relay list and content digest and timestamp.
 #[derive(Debug)]
-pub struct RelayListContent {
+pub struct SigsumVerifiedPayload {
     /// The unparsed relay list JSON as raw bytes.
     pub content: Vec<u8>,
     /// The digest that for the raw JSON bytes.
@@ -95,12 +95,12 @@ pub struct RelayListContent {
 /// * `latest_timestamp` - The latest timestamp that the app has successfully fetched.
 ///   This is used to verify that the next timestamp we get isn't too old.
 /// * `sigsum_trusted_pubkeys` - The sigsum pubkeys that should be used for verification.
-pub(crate) async fn download_and_verify_relay_list(
+pub async fn download_and_verify_relay_list(
     proxy: &RelayListProxy,
     latest_digest: Option<RelayListDigest>,
     latest_timestamp: Option<DateTime<Utc>>,
     sigsum_trusted_pubkeys: &[SigsumPublicKey],
-) -> Result<Option<RelayListContent>, rest::Error> {
+) -> Result<Option<SigsumVerifiedPayload>, rest::Error> {
     // Fetch relay list latest sigsum signature.
     let relay_list_sig = proxy.relay_list_latest_timestamp().await?;
 
@@ -164,7 +164,7 @@ pub(crate) async fn download_and_verify_relay_list(
         Err(e) => log::error!("SIGSUM: Relay list sigsum data validation failed: {}", e),
     }
 
-    Ok(Some(RelayListContent {
+    Ok(Some(SigsumVerifiedPayload {
         content: relay_list_response.content,
         digest: relay_list_response.digest,
         timestamp: new_timestamp,
