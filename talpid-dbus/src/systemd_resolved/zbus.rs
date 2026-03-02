@@ -27,7 +27,7 @@ trait ResolveManager {
     /// ```dbus
     /// GetLink(in i ifindex, out o path);
     /// ```
-    fn get_link(&self, ifindex: u32) -> Result<OwnedObjectPath, zbus::Error>;
+    fn get_link(&self, ifindex: i32) -> Result<OwnedObjectPath, zbus::Error>;
 }
 
 /// <https://www.freedesktop.org/software/systemd/man/latest/org.freedesktop.resolve1.html#Link%20Object>
