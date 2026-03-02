@@ -171,7 +171,6 @@ class SelectLocationScreenTest {
                             isRecentsEnabled = true,
                             hopSelection = HopSelection.Single(null),
                             tunnelErrorStateCause = null,
-                            entrySelectionAllowed = true,
                         )
                     )
             )
@@ -210,7 +209,6 @@ class SelectLocationScreenTest {
                             isRecentsEnabled = true,
                             hopSelection = HopSelection.Single(null),
                             tunnelErrorStateCause = null,
-                            entrySelectionAllowed = true,
                         )
                     )
             )
@@ -246,7 +244,6 @@ class SelectLocationScreenTest {
                             isRecentsEnabled = true,
                             hopSelection = HopSelection.Single(null),
                             tunnelErrorStateCause = null,
-                            entrySelectionAllowed = true,
                         )
                     ),
                 onSelectHop = mockedOnSelectHop,
@@ -286,7 +283,6 @@ class SelectLocationScreenTest {
                             isRecentsEnabled = true,
                             hopSelection = HopSelection.Single(null),
                             tunnelErrorStateCause = null,
-                            entrySelectionAllowed = true,
                         )
                     ),
                 onSelectHop = mockedOnSelectHop,
@@ -338,7 +334,6 @@ class SelectLocationScreenTest {
                             isRecentsEnabled = true,
                             hopSelection = HopSelection.Single(null),
                             tunnelErrorStateCause = null,
-                            entrySelectionAllowed = true,
                         )
                     ),
                 onSelectHop = mockedOnSelectHop,
@@ -397,7 +392,6 @@ class SelectLocationScreenTest {
                             isRecentsEnabled = true,
                             hopSelection = HopSelection.Single(null),
                             tunnelErrorStateCause = null,
-                            entrySelectionAllowed = true,
                         )
                     ),
                 onSelectHop = mockedOnSelectHop,
@@ -442,7 +436,6 @@ class SelectLocationScreenTest {
                             isRecentsEnabled = true,
                             hopSelection = HopSelection.Single(null),
                             tunnelErrorStateCause = null,
-                            entrySelectionAllowed = true,
                         )
                     )
             )
@@ -488,7 +481,6 @@ class SelectLocationScreenTest {
                             isRecentsEnabled = false,
                             hopSelection = HopSelection.Single(null),
                             tunnelErrorStateCause = null,
-                            entrySelectionAllowed = true,
                         )
                     )
             )
@@ -534,7 +526,6 @@ class SelectLocationScreenTest {
                             isRecentsEnabled = true,
                             hopSelection = HopSelection.Single(null),
                             tunnelErrorStateCause = null,
-                            entrySelectionAllowed = true,
                         )
                     )
             )
