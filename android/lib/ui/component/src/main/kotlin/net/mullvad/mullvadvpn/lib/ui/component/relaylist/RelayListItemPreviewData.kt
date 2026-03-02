@@ -14,7 +14,7 @@ object RelayListItemPreviewData {
         isSearching: Boolean,
     ): List<RelayListItem> = buildList {
         if (!isSearching || includeCustomLists) {
-            add(RelayListItem.CustomListHeader)
+            add(RelayListItem.CustomListHeader(false))
             // Add custom list items
             if (includeCustomLists) {
                 RelayListItem.CustomListItem(

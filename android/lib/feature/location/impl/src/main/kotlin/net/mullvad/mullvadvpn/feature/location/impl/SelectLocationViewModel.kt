@@ -17,7 +17,6 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.common.util.combine
-import net.mullvad.mullvadvpn.lib.common.util.entryBlocked
 import net.mullvad.mullvadvpn.lib.common.util.isEntryAndBlocked
 import net.mullvad.mullvadvpn.lib.common.util.isMultihopEnabled
 import net.mullvad.mullvadvpn.lib.model.Constraint
@@ -90,7 +89,6 @@ class SelectLocationViewModel(
                         isRecentsEnabled = settings.recents is Recents.Enabled,
                         hopSelection = selectedHop,
                         tunnelErrorStateCause = errorStateCause,
-                        entrySelectionAllowed = !settings.entryBlocked(),
                     )
                 )
             }
