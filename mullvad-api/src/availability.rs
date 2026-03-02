@@ -5,7 +5,7 @@ use std::{
 };
 use tokio::sync::broadcast;
 
-/// Pause background requests if [ApiAvailabilityHandle::reset_inactivity_timer] hasn't been
+/// Pause background requests if [`ApiAvailability::reset_inactivity_timer`] hasn't been
 /// called for this long.
 const INACTIVITY_TIME: Duration = Duration::from_hours(3 * 24);
 

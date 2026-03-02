@@ -19,6 +19,17 @@ impl<T: Match<U>, U> Match<U> for Constraint<T> {
     }
 }
 
+#[macro_export]
+macro_rules! impl_intersection_partialeq {
+    ($ty:ty) => {
+        impl $crate::Intersection for $ty {
+            fn intersection(self, other: Self) -> Option<Self> {
+                if self == other { Some(self) } else { None }
+            }
+        }
+    };
+}
+
 // NOTE: This docstring cannot link to `mullvad_relay_selector::relay_selector::query` and
 // `RETRY_ORDER`as `mullvad_relay_selector` is not a dependency of this crate
 /// The intersection of two sets of criteria on [`Relay`](crate::relay_list::Relay)s is another
@@ -108,17 +119,6 @@ impl<T: Match<U>, U> Match<U> for Constraint<T> {
 /// - associativity
 pub trait Intersection: Sized {
     fn intersection(self, other: Self) -> Option<Self>;
-}
-
-#[macro_export]
-macro_rules! impl_intersection_partialeq {
-    ($ty:ty) => {
-        impl $crate::Intersection for $ty {
-            fn intersection(self, other: Self) -> Option<Self> {
-                if self == other { Some(self) } else { None }
-            }
-        }
-    };
 }
 
 // Note that deriving `Intersection` for using `impl_intersection_partialeq`

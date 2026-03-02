@@ -16,7 +16,8 @@ use super::query::{ObfuscationQuery, RelayQuery, WireguardRelayQuery};
 /// Filter a list of relays and their endpoints based on constraints.
 /// Only relays with (and including) matching endpoints are returned.
 ///
-/// This function filter relays on the `include_in_country` flag, as opposed to [filter_matching_relay_by_query].
+/// This function filter relays on the `include_in_country` flag, as opposed to
+/// [`filter_matching_relay_list_include_all`].
 pub fn filter_matching_relay_list(
     query: &RelayQuery,
     relay_list: &RelayList,

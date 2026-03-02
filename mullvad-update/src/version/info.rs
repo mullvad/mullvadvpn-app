@@ -12,7 +12,7 @@ use crate::version::parameters::VersionParameters;
 /// Lowest version to accept using 'verify'
 pub const MIN_VERIFY_METADATA_VERSION: usize = 0;
 
-/// Version update information derived from querying a [format::Response] and filtering with [VersionParameters]
+/// Version update information derived from querying a [`Response`] and filtering with [`VersionParameters`]
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize, PartialEq)]
 pub struct VersionInfo {
     /// Stable version info
