@@ -2,9 +2,9 @@ import React from 'react';
 
 import { useTextField, type UseTextFieldState } from '../../../../../lib/components/text-field';
 import { useIsCustomListNameValid } from '../../hooks';
-import type { AddCustomListDialogProps } from './AddCustomListDialog';
+import type { CreateCustomListDialogProps } from './CreateCustomListDialog';
 
-type AddCustomListDialogContextProps = Omit<AddCustomListDialogProviderProps, 'children'> & {
+type CreateCustomListDialogContextProps = Omit<CreateCustomListDialogProviderProps, 'children'> & {
   formRef: React.RefObject<HTMLFormElement | null>;
   inputRef: React.RefObject<HTMLInputElement | null>;
   form: {
@@ -14,28 +14,28 @@ type AddCustomListDialogContextProps = Omit<AddCustomListDialogProviderProps, 'c
   };
 };
 
-const AddCustomListDialogContext = React.createContext<AddCustomListDialogContextProps | undefined>(
-  undefined,
-);
+const CreateCustomListDialogContext = React.createContext<
+  CreateCustomListDialogContextProps | undefined
+>(undefined);
 
-export const useAddCustomListDialogContext = (): AddCustomListDialogContextProps => {
-  const context = React.useContext(AddCustomListDialogContext);
+export const useCreateCustomListDialogContext = (): CreateCustomListDialogContextProps => {
+  const context = React.useContext(CreateCustomListDialogContext);
   if (!context) {
     throw new Error(
-      'useAddCustomListDialogContext must be used within a AddCustomListDialogProvider',
+      'useCreateCustomListDialogContext must be used within a CreateCustomListDialogProvider',
     );
   }
   return context;
 };
 
-type AddCustomListDialogProviderProps = React.PropsWithChildren<
-  Pick<AddCustomListDialogProps, 'open' | 'onOpenChange' | 'loading' | 'onLoadingChange'>
+type CreateCustomListDialogProviderProps = React.PropsWithChildren<
+  Pick<CreateCustomListDialogProps, 'open' | 'onOpenChange' | 'loading' | 'onLoadingChange'>
 >;
 
-export function AddCustomListDialogProvider({
+export function CreateCustomListDialogProvider({
   children,
   ...props
-}: AddCustomListDialogProviderProps) {
+}: CreateCustomListDialogProviderProps) {
   const formRef = React.useRef<HTMLFormElement>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
   const [error, setError] = React.useState<boolean>(false);
@@ -61,8 +61,8 @@ export function AddCustomListDialogProvider({
   );
 
   return (
-    <AddCustomListDialogContext.Provider value={value}>
+    <CreateCustomListDialogContext.Provider value={value}>
       {children}
-    </AddCustomListDialogContext.Provider>
+    </CreateCustomListDialogContext.Provider>
   );
 }

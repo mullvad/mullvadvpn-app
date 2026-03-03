@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { useAddCustomListDialogContext } from '../AddCustomListDialogContext';
+import { useCreateCustomListDialogContext } from '../CreateCustomListDialogContext';
 
 export function useHandleCustomListNameChange() {
   const {
@@ -9,7 +9,7 @@ export function useHandleCustomListNameChange() {
       setError,
       customListTextField: { handleOnValueChange: onValueChange },
     },
-  } = useAddCustomListDialogContext();
+  } = useCreateCustomListDialogContext();
 
   return React.useCallback(
     (newValue: string) => {

@@ -5,7 +5,7 @@ import {
   SectionTitle,
   type SectionTitleProps,
 } from '../../../../../../../lib/components/section-title';
-import { AddCustomListDialog } from '../../../add-custom-list-dialog';
+import { CreateCustomListDialog } from '../../../create-custom-list-dialog';
 import { useCustomListLocationListContext } from '../../CustomListLocationListContext';
 
 export type CustomListsSectionTitleProps = SectionTitleProps;
@@ -36,7 +36,7 @@ export function CustomListsSectionTitle({ ...props }: CustomListsSectionTitlePro
         }>
         <SectionTitle.IconButton.Icon icon="add" />
       </SectionTitle.IconButton>
-      <AddCustomListDialog
+      <CreateCustomListDialog
         open={addCustomListDialogOpen}
         onOpenChange={setAddCustomListDialogOpen}
         loading={addingCustomList}
