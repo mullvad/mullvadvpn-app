@@ -1,13 +1,12 @@
 import React from 'react';
 import { sprintf } from 'sprintf-js';
 
-import { messages } from '../../../../../../../../shared/gettext';
-import { useCustomLists } from '../../../../../../../features/custom-lists/hooks';
-import type { GeographicalLocation } from '../../../../../../../features/location/types';
-import { LocationListItem } from '../../../../../../location-list-item';
-import type { LocationListItemIconButtonProps } from '../../../../../../location-list-item/components';
+import { messages } from '../../../../../shared/gettext';
+import { IconButton, type IconButtonProps } from '../../../../lib/components';
+import type { GeographicalLocation } from '../../../location/types';
+import { useCustomLists } from '../../hooks';
 
-export type RemoveFromCustomListButtonProps = LocationListItemIconButtonProps & {
+export type RemoveFromCustomListButtonProps = IconButtonProps & {
   location: GeographicalLocation;
   loading?: boolean;
   onLoadingChange?: (loading: boolean) => void;
@@ -37,7 +36,8 @@ export function RemoveLocationFromCustomListButton({
   }, [location.details, removeLocationFromCustomList, onLoadingChange]);
 
   return (
-    <LocationListItem.IconButton
+    <IconButton
+      variant="secondary"
       onClick={handleOnClick}
       disabled={loading}
       aria-label={sprintf(
@@ -51,7 +51,7 @@ export function RemoveLocationFromCustomListButton({
         },
       )}
       {...props}>
-      <LocationListItem.IconButton.Icon icon="remove-circle" />
-    </LocationListItem.IconButton>
+      <IconButton.Icon icon="remove-circle" />
+    </IconButton>
   );
 }

@@ -1,13 +1,13 @@
 import React from 'react';
 import { sprintf } from 'sprintf-js';
 
-import { messages } from '../../../../../../shared/gettext';
-import { useCustomLists } from '../../../../../features/custom-lists/hooks';
-import type { GeographicalLocation } from '../../../../../features/location/types';
-import { Dialog, type DialogProps } from '../../../../../lib/components/dialog';
-import { FlexColumn } from '../../../../../lib/components/flex-column';
-import { formatHtml } from '../../../../../lib/html-formatter';
-import { SelectList } from '../select-list';
+import { messages } from '../../../../../shared/gettext';
+import { SelectList } from '../../../../components/views/select-location/components/select-list';
+import { Dialog, type DialogProps } from '../../../../lib/components/dialog';
+import { FlexColumn } from '../../../../lib/components/flex-column';
+import { formatHtml } from '../../../../lib/html-formatter';
+import type { GeographicalLocation } from '../../../location/types';
+import { useCustomLists } from '../../hooks';
 import { useLocationTypeMessage } from './hooks';
 
 type AddToCustomListDialog = Omit<DialogProps, 'children'> & {

@@ -1,10 +1,10 @@
 import React from 'react';
 
-import { messages } from '../../../../../../shared/gettext';
-import type { CustomListLocation } from '../../../../../features/location/types';
-import { Dialog, type DialogProps } from '../../../../../lib/components/dialog';
-import { FlexColumn } from '../../../../../lib/components/flex-column';
-import { TextField } from '../../../../../lib/components/text-field';
+import { messages } from '../../../../../shared/gettext';
+import { Dialog, type DialogProps } from '../../../../lib/components/dialog';
+import { FlexColumn } from '../../../../lib/components/flex-column';
+import { TextField } from '../../../../lib/components/text-field';
+import type { CustomListLocation } from '../../../location/types';
 import {
   EditCustomListDialogProvider,
   useEditCustomListDialogContext,
