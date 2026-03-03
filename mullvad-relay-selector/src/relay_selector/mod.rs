@@ -1081,13 +1081,16 @@ impl RelaySelector {
                                 if ip_matches {
                                     Verdict::Accept
                                 } else if other_ip_matches {
-                                    // Switching IP version OR removing the port constraint would unblock the relay.
-                                    // Note that normally don't have "OR" conditions, but this is an exception.
-                                    Verdict::Reject(vec![Reason::Port, Reason::IpVersion])
+                                    // Switching IP version would unblock the relay.
+                                    // Note that the relay could also be unblocked by removing the port constraint
+                                    // so that a normal WireGuard endpoint can be used IFF that endpoint
+                                    // is available with the requested IP version. We cannot represent this, so we
+                                    // opt to only inform the user about the IP version.
+                                    Verdict::reject(Reason::IpVersion)
                                 } else {
                                     // No extra addresses are available at all, the the port must be changed
-                                    // so that a Wireguard endpoint can be used. This endpoint's address must
-                                    // then also match the requested IP version.
+                                    // so that a Wireguard endpoint can be used. This endpoint must
+                                    // then also be available with the requested IP version.
                                     Verdict::reject(Reason::Port)
                                         .compose(wg_endpoint_ip_version.eval(relay))
                                 }
