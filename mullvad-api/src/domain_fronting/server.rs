@@ -305,3 +305,98 @@ impl SessionCommand {
         let _ = self.return_tx.send(received_bytes);
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use tokio::io::DuplexStream;
+
+    /// Mock connector that returns pre-configured duplex streams.
+    #[derive(Clone)]
+    struct MockConnector {
+        streams: Arc<tokio::sync::Mutex<Vec<DuplexStream>>>,
+    }
+
+    impl MockConnector {
+        fn new(streams: Vec<DuplexStream>) -> Self {
+            Self {
+                streams: Arc::new(tokio::sync::Mutex::new(streams)),
+            }
+        }
+    }
+
+    impl UpstreamConnector for MockConnector {
+        type Stream = DuplexStream;
+
+        async fn connect(&self, _addr: SocketAddr) -> io::Result<DuplexStream> {
+            self.streams.lock().await.pop().ok_or_else(|| {
+                io::Error::new(io::ErrorKind::ConnectionRefused, "no streams available")
+            })
+        }
+    }
+
+    fn dummy_addr() -> SocketAddr {
+        "127.0.0.1:1234".parse().unwrap()
+    }
+
+    /// Verify that a session is removed from the session map after
+    /// `CONNECTION_TIMEOUT` elapses with no incoming requests.
+    #[tokio::test(start_paused = true)]
+    async fn session_removed_after_connection_timeout() {
+        let (upstream, _upstream_remote) = tokio::io::duplex(8192);
+        let connector = MockConnector::new(vec![upstream]);
+        let sessions =
+            Sessions::with_connector(dummy_addr(), "X-Session".to_string(), connector);
+
+        let session_id = Uuid::new_v4();
+
+        // First request creates the session
+        let response = sessions
+            .clone()
+            .handle_request_inner(session_id, Bytes::from("hello"))
+            .await;
+        assert_eq!(response.status(), StatusCode::OK);
+
+        // Session should be tracked
+        assert!(
+            sessions.sessions.pin().get(&session_id).is_some(),
+            "Session should exist after first request"
+        );
+
+        // Advance time past CONNECTION_TIMEOUT with no further requests
+        tokio::time::advance(CONNECTION_TIMEOUT + Duration::from_secs(1)).await;
+        // Let the session task process the timeout and run its Drop cleanup
+        tokio::time::sleep(Duration::from_millis(1)).await;
+
+        // Session should have been cleaned up
+        assert!(
+            sessions.sessions.pin().get(&session_id).is_none(),
+            "Session should be removed after connection timeout"
+        );
+    }
+
+    /// Verify that when the upstream does not respond within `READ_TIMEOUT`,
+    /// the server returns an OK response with an empty body.
+    #[tokio::test(start_paused = true)]
+    async fn read_timeout_returns_empty_body() {
+        // Upstream that accepts writes but never sends data back
+        let (upstream, _upstream_remote) = tokio::io::duplex(8192);
+        let connector = MockConnector::new(vec![upstream]);
+        let sessions =
+            Sessions::with_connector(dummy_addr(), "X-Session".to_string(), connector);
+
+        let session_id = Uuid::new_v4();
+
+        let response = sessions
+            .clone()
+            .handle_request_inner(session_id, Bytes::from("ping"))
+            .await;
+        assert_eq!(response.status(), StatusCode::OK);
+
+        let body = response.into_body().collect().await.unwrap().to_bytes();
+        assert!(
+            body.is_empty(),
+            "Body should be empty when upstream does not respond within read timeout"
+        );
+    }
+}
