@@ -1,5 +1,5 @@
-import { messages } from '../../../../../../../shared/gettext';
-import type { GeographicalLocation } from '../../../../../../features/location/types';
+import { messages } from '../../../../../../shared/gettext';
+import type { GeographicalLocation } from '../../../../location/types';
 
 export function useLocationTypeMessage(location: GeographicalLocation) {
   if (location.type === 'relay') {

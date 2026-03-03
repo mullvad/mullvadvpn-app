@@ -2,6 +2,10 @@ import React from 'react';
 import { sprintf } from 'sprintf-js';
 
 import { messages } from '../../../../../../../../shared/gettext';
+import {
+  AddLocationToCustomListButton,
+  RemoveLocationFromCustomListButton,
+} from '../../../../../../../features/custom-lists/components';
 import { useCustomLists } from '../../../../../../../features/custom-lists/hooks';
 import { type GeographicalLocation } from '../../../../../../../features/location/types';
 import { getLocationChildren } from '../../../../../../../features/location/utils';
@@ -10,8 +14,6 @@ import { useListItemContext } from '../../../../../../../lib/components/list-ite
 import { LocationListItem } from '../../../../../../location-list-item';
 import { useGeographicalLocationListItemContext } from '../../../geographical-location-list-item/GeographicalLocationListItemContext';
 import { useAnyLocationListItemContext } from '../../AnyLocationListItemContext';
-import { AddLocationToCustomListButton } from '../add-location-to-custom-list-button';
-import { RemoveLocationFromCustomListButton } from '../remove-location-from-custom-list-button';
 
 export type GeographicalLocationTrailingActionsProps = React.PropsWithChildren<{
   location: GeographicalLocation;

@@ -1,11 +1,11 @@
 import React from 'react';
 import { sprintf } from 'sprintf-js';
 
-import { messages } from '../../../../../../shared/gettext';
-import { useCustomLists } from '../../../../../features/custom-lists/hooks';
-import { type CustomListLocation } from '../../../../../features/location/types';
-import { Dialog, type DialogProps } from '../../../../../lib/components/dialog';
-import { formatHtml } from '../../../../../lib/html-formatter';
+import { messages } from '../../../../../shared/gettext';
+import { Dialog, type DialogProps } from '../../../../lib/components/dialog';
+import { formatHtml } from '../../../../lib/html-formatter';
+import { type CustomListLocation } from '../../../location/types';
+import { useCustomLists } from '../../hooks';
 
 type DeleteCustomListDialogProps = Omit<DialogProps, 'children'> & {
   customList: CustomListLocation;
