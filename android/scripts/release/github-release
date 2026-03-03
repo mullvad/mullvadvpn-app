@@ -39,8 +39,9 @@ function setup {
 }
 
 function publish_release {
-    log_header "Downloading changelog"
+    log_header "Parse changelog"
 
+    # For stable versions, include all changelog entries for all beta versions since the last stable version.
     changelog_end_version_pattern="android\/20[0-9]\{2\}\.[0-9]\{1,2\}"
     if [[ $PRODUCT_VERSION == *-beta* ]]; then
         changelog_end_version_pattern=".*"
@@ -68,7 +69,7 @@ function publish_release {
         release_flags+=(--latest)
     fi
 
-    version_count=$(echo "$changelog" | grep -c "^## ")
+    version_count=$(echo "$changelog" | grep -cE '^## \[android\/[0-9]+\.[0-9]+(-beta[0-9]+)?\] - [0-9]{4}-[0-9]{2}-[0-9]{2}')
     if [ "$version_count" -eq 1 ]; then
         changelog=$(echo "$changelog" | tail -n +2)
     fi
