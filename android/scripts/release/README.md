@@ -30,9 +30,9 @@ It will ask you to make any final changes to the changelog. After that it will p
 Add and remove supported versions and set the latest version.
 
 ### Prequisites
-This script requires `cargo` and access to the build server.
-It is possible change supported versions and latest version by calling `publish-metadata-to-api` directly,
-but this requires manually downloading and editing the metadata failes.
+This script requires `rust` and access to the build server.
+It is possible change supported versions and latest version without using rust by calling
+`publish-metadata-to-api` directly, but this requires manually downloading and editing the metadata files.
 
 #### Usage
 
