@@ -23,6 +23,7 @@ Line wrap the file at 100 chars.                                              Th
 
 ## UNRELEASED
 ### Add
+- Add button to manually update relay list
 - Add support for additional languages.
 - Add recent connections in the Select location view.
 - Show disabled servers in location view.

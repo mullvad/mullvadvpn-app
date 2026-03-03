@@ -206,6 +206,15 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                             }
                         }
                         .accessibilityIdentifier(.recentConnectionsToggleButton)
+
+                        Button {
+                            viewModel.manuallyFetchRelayList()
+                        } label: {
+                            HStack {
+                                Text("Update relay list")
+                                Image(systemName: "arrow.clockwise")
+                            }
+                        }
                     } label: {
                         Image(systemName: "ellipsis.circle.fill")
                             .foregroundStyle(Color.mullvadTextPrimary)

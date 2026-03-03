@@ -21,6 +21,10 @@ struct RelayCacheTrackerStub: RelayCacheTrackerProtocol {
         AnyCancellable()
     }
 
+    func fetchRelays(completionHandler: ((sending Result<RelaysFetchResult, Error>) -> Void)?) -> Cancellable {
+        AnyCancellable()
+    }
+
     func getCachedRelays() throws -> CachedRelays {
         CachedRelays(relays: ServerRelaysResponseStubs.sampleRelays, updatedAt: Date())
     }
