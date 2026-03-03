@@ -12,6 +12,11 @@ use mullvad_types::{
 };
 use talpid_types::net::IpVersion;
 
+use crate::{
+    Reason,
+    relay_selector::{Criteria, Verdict, VerdictExt},
+};
+
 use super::query::{ObfuscationQuery, RelayQuery, WireguardRelayQuery};
 
 /// Filter a list of relays and their endpoints based on constraints.
@@ -93,34 +98,67 @@ pub fn filter_on_obfuscation_neo(
     relay: &WireguardRelay,
     settings: &ObfuscationSettings,
     ip_version: Constraint<&IpVersion>,
-) -> bool {
+) -> Verdict {
     use mullvad_types::relay_constraints::SelectedObfuscation::*;
+    let wg_endpoint_ip_version = Criteria::new(move |relay: &WireguardRelay| match ip_version {
+        Constraint::Any => Verdict::Accept,
+        Constraint::Only(IpVersion::V4) => Verdict::Accept,
+        Constraint::Only(IpVersion::V6) => relay.ipv6_addr_in.is_some().if_false(Reason::IpVersion),
+    });
     match settings.selected_obfuscation {
         Shadowsocks => {
-            // let wg_data = &relay_list.wireguard;
-            filter_on_shadowsocks(
-                //&wg_data.shadowsocks_port_ranges,
-                &[(0..=u16::MAX)], // TODO: We might need access to 'Wireguard endpoint data' from relay list.
-                ip_version,
-                &settings.shadowsocks,
-                relay.endpoint(),
-            )
+            // TODO: We might need access to 'Wireguard endpoint data' from relay list.
+            let shadowsocks_port_ranges = &[(0..=u16::MAX)];
+            let mut ss_extra_addrs = relay.endpoint().shadowsocks_extra_addr_in.iter();
+
+            let port_verdict = match &settings.shadowsocks {
+                // If Shadowsocks is specifically asked for, we must check if the specific relay supports
+                // our port. If there are extra addresses, then all ports are available, so we do
+                // not need to do this.
+                ShadowsocksSettings {
+                    port: Constraint::Only(desired_port),
+                } => shadowsocks_port_ranges
+                    .iter()
+                    .any(|range| range.contains(desired_port))
+                    .if_false(Reason::Port),
+                _ => Verdict::Accept,
+            };
+            let ip_verdict = match ip_version {
+                Constraint::Any => Verdict::Accept,
+                Constraint::Only(IpVersion::V4) => ss_extra_addrs
+                    .any(|addr| addr.is_ipv4())
+                    .if_false(Reason::IpVersion),
+                Constraint::Only(IpVersion::V6) => ss_extra_addrs
+                    .any(|addr| addr.is_ipv6())
+                    .if_false(Reason::IpVersion),
+            };
+            ip_verdict.or(port_verdict)
         }
         // QUIC is only enabled on some relays
         Quic => match relay.endpoint().quic() {
             Some(quic) => match ip_version {
-                Constraint::Any => true,
-                Constraint::Only(IpVersion::V4) => quic.in_ipv4().next().is_some(),
-                Constraint::Only(IpVersion::V6) => quic.in_ipv6().next().is_some(),
+                Constraint::Any => Verdict::Accept,
+                Constraint::Only(IpVersion::V4) => {
+                    quic.in_ipv4().next().is_some().if_false(Reason::IpVersion)
+                }
+                Constraint::Only(IpVersion::V6) => {
+                    quic.in_ipv6().next().is_some().if_false(Reason::IpVersion)
+                }
             },
-            None => false,
+            None => {
+                Verdict::reject(Reason::Obfuscation).compose(wg_endpoint_ip_version.eval(relay))
+            }
         },
         // LWO is only enabled on some relays
-        Lwo => relay.endpoint().lwo,
+        Lwo => relay
+            .endpoint()
+            .lwo
+            .if_false(Reason::Obfuscation)
+            .compose(wg_endpoint_ip_version.eval(relay)),
         // Other relays are always valid
         // TODO:^ This might not be true. We might want to consider the selected port for
         // udp2tcp & wireguard port ..
-        Off | Auto | WireguardPort | Udp2Tcp => true,
+        Off | Auto | WireguardPort | Udp2Tcp => wg_endpoint_ip_version.eval(relay),
     }
 }
 
