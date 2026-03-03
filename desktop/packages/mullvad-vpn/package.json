@@ -55,18 +55,18 @@
     "globals": "^15.9.0",
     "playwright": "^1.55.1",
     "postject": "^1.0.0-alpha.6",
-    "vite": "7.1.11",
+    "vite": "7.3.1",
     "vite-plugin-electron": "^0.29.0",
     "vitest": "^4.0.16",
     "xvfb-maybe": "^0.2.1"
   },
   "optionalDependencies": {
-    "@rollup/rollup-darwin-arm64": "4.34.6",
-    "@rollup/rollup-darwin-x64": "4.34.6",
-    "@rollup/rollup-linux-arm64-gnu": "4.34.6",
-    "@rollup/rollup-linux-x64-gnu": "4.34.6",
-    "@rollup/rollup-win32-arm64-msvc": "4.34.6",
-    "@rollup/rollup-win32-x64-msvc": "4.34.6"
+    "@rollup/rollup-darwin-arm64": "4.59.0",
+    "@rollup/rollup-darwin-x64": "4.59.0",
+    "@rollup/rollup-linux-arm64-gnu": "4.59.0",
+    "@rollup/rollup-linux-x64-gnu": "4.59.0",
+    "@rollup/rollup-win32-arm64-msvc": "4.59.0",
+    "@rollup/rollup-win32-x64-msvc": "4.59.0"
   },
   "scripts": {
     "preinstall": "bash -c \"test -d node_modules || mkdir node_modules\"",
