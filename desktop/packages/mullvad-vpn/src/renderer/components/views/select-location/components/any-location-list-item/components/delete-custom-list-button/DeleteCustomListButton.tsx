@@ -5,7 +5,7 @@ import { messages } from '../../../../../../../../shared/gettext';
 import type { CustomListLocation } from '../../../../../../../features/location/types';
 import { LocationListItem } from '../../../../../../location-list-item';
 import type { LocationListItemIconButtonProps } from '../../../../../../location-list-item/components';
-import { ConfirmDeleteCustomListDialog } from '../../../confirm-delete-custom-list-dialog';
+import { DeleteCustomListDialog } from '../../../delete-custom-list-dialog';
 
 export type DeleteCustomListButtonProps = LocationListItemIconButtonProps & {
   customList: CustomListLocation;
@@ -41,7 +41,7 @@ export function DeleteCustomListButton({
           <LocationListItem.IconButton.Icon icon="cross-circle" />
         </LocationListItem.IconButton>
       </LocationListItem.HeaderTrailingAction>
-      <ConfirmDeleteCustomListDialog
+      <DeleteCustomListDialog
         customList={customList}
         open={deleteCustomListDialogOpen}
         onOpenChange={setDeleteCustomListDialogOpen}
