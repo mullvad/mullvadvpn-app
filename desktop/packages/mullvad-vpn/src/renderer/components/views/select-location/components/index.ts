@@ -1,5 +1,5 @@
 export * from './create-custom-list-dialog';
-export * from './add-to-custom-list-dialog';
+export * from './add-location-to-custom-list-dialog';
 export * from './custom-list-location-list';
 export * from './daita-filter-chip';
 export * from './filter-chips';
