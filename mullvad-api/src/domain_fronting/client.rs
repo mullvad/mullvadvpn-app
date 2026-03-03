@@ -229,7 +229,7 @@ impl AsyncRead for ProxyConnection {
             Poll::Ready(None) => {
                 if self.as_ref().recv_buffer_empty() {
                     self.as_mut().resolve_write_waker();
-                    self.as_mut().resolve_read_waker();
+                    let _ = self.as_mut().read_waker.take();
                     return Poll::Ready(Ok(()));
                 }
             }
