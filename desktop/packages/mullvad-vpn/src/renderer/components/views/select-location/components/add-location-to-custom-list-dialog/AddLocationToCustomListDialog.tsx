@@ -14,7 +14,11 @@ type AddToCustomListDialog = Omit<DialogProps, 'children'> & {
   location: GeographicalLocation;
 };
 
-export function AddToCustomListDialog({ location, onOpenChange, open }: AddToCustomListDialog) {
+export function AddLocationToCustomListDialog({
+  location,
+  onOpenChange,
+  open,
+}: AddToCustomListDialog) {
   const { customLists } = useCustomLists();
 
   const handleClickCancel = React.useCallback(() => {

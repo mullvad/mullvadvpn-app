@@ -1,4 +1,4 @@
-export * from './add-to-custom-list-button';
+export * from './add-location-to-custom-list-button';
 export * from './custom-list-trailing-actions';
 export * from './delete-custom-list-button';
 export * from './edit-custom-list-button';
