@@ -67,7 +67,10 @@ class FilteredRelayListUseCase(
                     }
                 }
                 .distinctUntilChanged()
-                .map { managementService.partitionRelays(it) },
+                .map {
+                    // We expect this to always work
+                    managementService.partitionRelays(it).getOrNull()!!
+                },
             relayListRepository.relayList,
         ) { partitions, relayList ->
             relayList.filter(partitions.relevantHostnames())
