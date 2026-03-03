@@ -13,7 +13,7 @@ export type RemoveFromCustomListButtonProps = LocationListItemIconButtonProps & 
   onLoadingChange?: (loading: boolean) => void;
 };
 
-export function RemoveFromCustomListButton({
+export function RemoveLocationFromCustomListButton({
   location,
   loading,
   onLoadingChange,
