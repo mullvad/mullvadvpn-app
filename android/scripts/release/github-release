@@ -35,7 +35,7 @@ function setup {
     export ARTIFACT_DIR
 
     log_header "Artifact directory"
-    log_info "artifact dir: $"
+    log_info "artifact dir: $ARTIFACT_DIR"
 }
 
 function publish_release {
