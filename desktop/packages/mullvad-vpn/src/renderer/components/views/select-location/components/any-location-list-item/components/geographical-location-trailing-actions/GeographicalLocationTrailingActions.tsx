@@ -2,7 +2,7 @@ import React from 'react';
 import { sprintf } from 'sprintf-js';
 
 import { messages } from '../../../../../../../../shared/gettext';
-import { useCustomLists } from '../../../../../../../features/location/hooks';
+import { useCustomLists } from '../../../../../../../features/custom-lists/hooks';
 import { type GeographicalLocation } from '../../../../../../../features/location/types';
 import { getLocationChildren } from '../../../../../../../features/location/utils';
 import { useAccordionContext } from '../../../../../../../lib/components/accordion/AccordionContext';

@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { messages } from '../../../../../shared/gettext';
-import { useCustomLists } from '../../../../features/location/hooks';
+import { useCustomLists } from '../../../../features/custom-lists/hooks';
 
 export function useIsCustomListNameValid() {
   const { customLists } = useCustomLists();

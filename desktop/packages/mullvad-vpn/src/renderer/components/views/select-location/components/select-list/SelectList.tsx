@@ -6,7 +6,7 @@ import {
   ICustomList,
 } from '../../../../../../shared/daemon-rpc-types';
 import { messages } from '../../../../../../shared/gettext';
-import { useCustomLists } from '../../../../../features/location/hooks';
+import { useCustomLists } from '../../../../../features/custom-lists/hooks';
 import type { GeographicalLocation } from '../../../../../features/location/types';
 import { IconButton } from '../../../../../lib/components';
 import { ListItem } from '../../../../../lib/components/list-item';
