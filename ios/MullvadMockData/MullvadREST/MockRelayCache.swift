@@ -24,5 +24,5 @@ public struct MockRelayCache: RelayCacheProtocol {
         try self.read()
     }
 
-    public func write(record: MullvadREST.StoredRelays) throws {}
+    public func write(content: Data, cachedContent: MullvadREST.StoredRelays) throws {}
 }

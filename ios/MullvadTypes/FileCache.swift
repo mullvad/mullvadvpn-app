@@ -14,6 +14,7 @@ public protocol FileCacheProtocol<Content> {
 
     func read() throws -> Content
     func write(_ content: Content) throws
+    func write(content: Data, cachedContent: Content) throws
     func clear() throws
 }
 
@@ -83,6 +84,15 @@ public final class FileCache<Content: Codable>: NSObject, FileCacheProtocol, NSF
         try fileCoordinator.coordinate(writingItemAt: fileURL, options: [.forReplacing]) { url in
             try JSONEncoder().encode(content).write(to: url)
             cacheQueue.sync { cachedContent = content }
+        }
+    }
+
+    public func write(content: Data, cachedContent: Content) throws {
+        let fileCoordinator = NSFileCoordinator(filePresenter: self)
+
+        try fileCoordinator.coordinate(writingItemAt: fileURL, options: [.forReplacing]) { url in
+            try content.write(to: url)
+            cacheQueue.sync { self.cachedContent = cachedContent }
         }
     }
 

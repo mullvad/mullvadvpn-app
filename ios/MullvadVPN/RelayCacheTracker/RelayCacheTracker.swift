@@ -131,13 +131,17 @@ final class RelayCacheTracker: RelayCacheTrackerProtocol, @unchecked Sendable {
         )
 
         let updatedRawRelayData = try REST.Coding.makeJSONEncoder().encode(updatedRelays)
-        let updatedCachedRelays = try StoredRelays(
+        let updatedCachedRelays = StoredRelays(
             etag: cachedRelays.etag,
             rawData: updatedRawRelayData,
             updatedAt: cachedRelays.updatedAt
         )
 
-        try cache.write(record: updatedCachedRelays)
+        try cache
+            .write(
+                content: updatedRawRelayData,
+                cachedContent: updatedCachedRelays,
+            )
         self.cachedRelays = CachedRelays(
             etag: cachedRelays.etag,
             relays: updatedRelays,
@@ -293,13 +297,13 @@ final class RelayCacheTracker: RelayCacheTrackerProtocol, @unchecked Sendable {
     }
 
     private func storeResponse(etag: String?, rawData: Data) throws {
-        let newCachedData = try StoredRelays(
+        let storedRelays = StoredRelays(
             etag: etag,
             rawData: rawData,
             updatedAt: Date()
         )
 
-        try cache.write(record: newCachedData)
+        try cache.write(content: rawData, cachedContent: storedRelays)
         try refreshCachedRelays()
     }
 

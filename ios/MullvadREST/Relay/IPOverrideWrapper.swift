@@ -10,6 +10,10 @@ import MullvadSettings
 import MullvadTypes
 
 public final class IPOverrideWrapper: RelayCacheProtocol {
+    public func write(content: Data, cachedContent: StoredRelays) throws {
+        try relayCache.write(content: content, cachedContent: cachedContent)
+    }
+
     private let relayCache: RelayCacheProtocol
     private let ipOverrideRepository: any IPOverrideRepositoryProtocol
 
@@ -34,10 +38,6 @@ public final class IPOverrideWrapper: RelayCacheProtocol {
             relays: relayResponse,
             updatedAt: prebundledRelays.updatedAt,
         )
-    }
-
-    public func write(record: StoredRelays) throws {
-        try relayCache.write(record: record)
     }
 
     private func apply(

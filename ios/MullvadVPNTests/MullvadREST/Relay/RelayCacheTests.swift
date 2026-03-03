@@ -14,13 +14,13 @@ import XCTest
 final class RelayCacheTests: XCTestCase {
     func testReadCache() throws {
         let fileCache = MockFileCache(
-            initialState: .exists(try StoredRelays(rawData: try .mock(), updatedAt: .distantPast))
+            initialState: .exists(StoredRelays(rawData: try .mock(), updatedAt: .distantPast))
         )
         let cache = RelayCache(fileCache: fileCache)
         let relays = try XCTUnwrap(cache.read())
 
         if case let .exists(storedRelays) = fileCache.getState() {
-            XCTAssertEqual(storedRelays.cachedRelays, relays)
+            XCTAssertEqual(try storedRelays.cachedRelays, relays)
         } else {
             XCTFail("Expected existing state, got \(fileCache.getState())")
         }
@@ -28,12 +28,13 @@ final class RelayCacheTests: XCTestCase {
 
     func testWriteCache() throws {
         let fileCache = MockFileCache(
-            initialState: .exists(try StoredRelays(rawData: try .mock(), updatedAt: .distantPast))
+            initialState: .exists(StoredRelays(rawData: try .mock(), updatedAt: .distantPast))
         )
         let cache = RelayCache(fileCache: fileCache)
-        let newCachedRelays = try StoredRelays(rawData: try .mock(), updatedAt: Date())
+        let rawData: Data = try .mock()
+        let newCachedRelays = StoredRelays(rawData: rawData, updatedAt: Date())
 
-        try cache.write(record: newCachedRelays)
+        try cache.write(content: rawData, cachedContent: newCachedRelays)
         XCTAssertEqual(fileCache.getState(), .exists(newCachedRelays))
     }
 

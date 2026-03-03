@@ -18,12 +18,13 @@ public protocol RelayCacheProtocol: Sendable {
     /// > Warning: Prefer `read()` over this unless there is an explicit need to read
     /// relays from the bundle, because those might contain stale data.
     func readPrebundledRelays() throws -> CachedRelays
-    func write(record: StoredRelays) throws
+    func write(content: Data, cachedContent: StoredRelays) throws
 }
 
 /// - Warning: `RelayCache` should not be used directly. It should be used through `IPOverrideWrapper` to have
 /// ip overrides applied.
 public final class RelayCache: RelayCacheProtocol, Sendable {
+
     private let fileURL: URL
     nonisolated(unsafe) private let fileCache: any FileCacheProtocol<StoredRelays>
 
@@ -59,8 +60,8 @@ public final class RelayCache: RelayCacheProtocol, Sendable {
     }
 
     /// Safely write the cache file on disk using file coordinator.
-    public func write(record: StoredRelays) throws {
-        try fileCache.write(record)
+    public func write(content: Data, cachedContent: StoredRelays) throws {
+        try fileCache.write(content: content, cachedContent: cachedContent)
     }
 
     /// Read pre-bundled relays file from disk.

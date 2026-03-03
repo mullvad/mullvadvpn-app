@@ -45,6 +45,13 @@ final class MockFileCache<Content: Codable & Equatable>: FileCacheProtocol {
         state = .exists(content)
     }
 
+    func write(content: Data, cachedContent: Content) throws {
+        stateLock.lock()
+        defer { stateLock.unlock() }
+
+        state = .exists(cachedContent)
+    }
+
     func clear() throws {
         stateLock.lock()
         defer { stateLock.unlock() }

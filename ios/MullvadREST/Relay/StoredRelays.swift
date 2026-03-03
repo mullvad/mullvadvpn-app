@@ -19,25 +19,26 @@ public struct StoredRelays: Codable, Equatable {
     /// The date when this cache was last updated
     public let updatedAt: Date
 
-    /// Relays parsed from the JSON data
-    public let relays: REST.ServerRelaysResponse
-
     /// `CachedRelays` representation
     public var cachedRelays: CachedRelays {
-        CachedRelays(etag: etag, relays: relays, updatedAt: updatedAt)
+        get throws {
+            let relays = try REST.Coding.makeJSONDecoder().decode(
+                REST.ServerRelaysResponse.self,
+                from: rawData
+            )
+            return CachedRelays(etag: etag, relays: relays, updatedAt: updatedAt)
+        }
     }
 
-    public init(etag: String? = nil, rawData: Data, updatedAt: Date) throws {
+    public init(etag: String? = nil, rawData: Data, updatedAt: Date) {
         self.etag = etag
         self.rawData = rawData
         self.updatedAt = updatedAt
-        relays = try REST.Coding.makeJSONDecoder().decode(REST.ServerRelaysResponse.self, from: rawData)
     }
 
     public init(cachedRelays: CachedRelays) throws {
         etag = cachedRelays.etag
         rawData = try REST.Coding.makeJSONEncoder().encode(cachedRelays.relays)
         updatedAt = cachedRelays.updatedAt
-        relays = cachedRelays.relays
     }
 }
