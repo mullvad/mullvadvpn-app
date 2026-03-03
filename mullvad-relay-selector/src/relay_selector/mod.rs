@@ -1009,8 +1009,26 @@ impl RelaySelector {
 
     /// All criteria that apply for specifically for entry relays.
     fn entry_criteria(&self, constraints: EntryConstraints) -> Vec<Criteria<'_, WireguardRelay>> {
+        let wg_endpoint_ip_version =
+            Criteria::new(move |relay: &WireguardRelay| match constraints.ip_version {
+                Constraint::Any => Verdict::Accept,
+                Constraint::Only(IpVersion::V4) => Verdict::Accept,
+                Constraint::Only(IpVersion::V6) => {
+                    relay.ipv6_addr_in.is_some().if_false(Reason::IpVersion)
+                }
+            });
+
         // Here we have to consider extra entry constraints, such as DAITA, obfuscation etc.
-        let obfuscation_ipversion_port = self.obfuscation_criteria(constraints.clone());
+        let constraints_clone = constraints.clone();
+        let obfuscation_ipversion_port = Criteria::new(move |relay: &WireguardRelay| {
+            match self.obfuscation_criteria(relay, &constraints_clone) {
+                ObfuscationVerdict::AcceptWireguardEndpoint => wg_endpoint_ip_version.eval(relay),
+                ObfuscationVerdict::AcceptSeparateEndpoint => Verdict::Accept,
+                ObfuscationVerdict::Reject(reasons) => {
+                    Verdict::Reject(reasons).compose(wg_endpoint_ip_version.eval(relay))
+                }
+            }
+        });
 
         let ownership = Criteria::new(move |relay| {
             matcher::filter_on_ownership(constraints.ownership.as_ref(), relay)
@@ -1028,33 +1046,28 @@ impl RelaySelector {
         vec![ownership, providers, daita, obfuscation_ipversion_port]
     }
 
-    fn obfuscation_criteria(&self, constraints: EntryConstraints) -> Criteria<'_, WireguardRelay> {
+    fn obfuscation_criteria(
+        &self,
+        relay: &WireguardRelay,
+        constraints: &EntryConstraints,
+    ) -> ObfuscationVerdict {
         let EntryConstraints {
             obfuscation_settings,
             ip_version,
             ..
         } = constraints;
-
-        let wg_endpoint_ip_version =
-            Criteria::new(move |relay: &WireguardRelay| match ip_version {
-                Constraint::Any => Verdict::Accept,
-                Constraint::Only(IpVersion::V4) => Verdict::Accept,
-                Constraint::Only(IpVersion::V6) => {
-                    relay.ipv6_addr_in.is_some().if_false(Reason::IpVersion)
-                }
-            });
-
+        use ObfuscationVerdict::*;
         match obfuscation_settings {
             // Possible edge case that we have not implemented:
             // - User has set IPv6=only and anti-censorship=auto
             // - A relay doesn't have an IPv6 for its wg endpoint, but it does have an IPv6 extra shadowsocks addr.
             // In this scenario, we could conceivably allow the relay by enabling shadowsocks to resolve the IP constraint.
             // This would negatively affect the performance of the connection, so we chose discard the relay.
-            Constraint::Any => wg_endpoint_ip_version,
+            Constraint::Any => AcceptWireguardEndpoint,
             Constraint::Only(settings) => {
                 use mullvad_types::relay_constraints::SelectedObfuscation::*;
                 match settings.selected_obfuscation {
-                    Shadowsocks => Criteria::new(move |relay: &WireguardRelay| {
+                    Shadowsocks => {
                         match &settings.shadowsocks {
                             // A few ports are dedicated to shadowsocks on the relays WireGuard endpoint.
                             // If the port lies outside this range, the relay may have extra shadowsocks addresses
@@ -1079,68 +1092,65 @@ impl RelaySelector {
                                 };
 
                                 if ip_matches {
-                                    Verdict::Accept
+                                    AcceptSeparateEndpoint
                                 } else if other_ip_matches {
                                     // Switching IP version would unblock the relay.
                                     // Note that the relay could also be unblocked by removing the port constraint
                                     // so that a normal WireGuard endpoint can be used IFF that endpoint
                                     // is available with the requested IP version. We cannot represent this, so we
                                     // opt to only inform the user about the IP version.
-                                    Verdict::reject(Reason::IpVersion)
+                                    Reject(vec![Reason::IpVersion])
                                 } else {
                                     // No extra addresses are available at all, the the port must be changed
                                     // so that a Wireguard endpoint can be used. This endpoint must
                                     // then also be available with the requested IP version.
-                                    Verdict::reject(Reason::Port)
-                                        .compose(wg_endpoint_ip_version.eval(relay))
+                                    Reject(vec![Reason::Port])
                                 }
                             }
-                            _ => Verdict::Accept,
+                            _ => AcceptWireguardEndpoint, // Right? Or should we attempt to use the extra addrs?
                         }
-                    }),
+                    }
                     // QUIC is only enabled on some relays
                     Quic => {
-                        Criteria::new(
-                            move |relay: &WireguardRelay| match relay.endpoint().quic() {
-                                Some(quic) => {
-                                    let has_ipv4 = quic.in_ipv4().count() > 0;
-                                    let has_ipv6 = quic.in_ipv6().count() > 0;
+                        match relay.endpoint().quic() {
+                            Some(quic) => {
+                                let has_ipv4 = quic.in_ipv4().count() > 0;
+                                let has_ipv6 = quic.in_ipv6().count() > 0;
 
-                                    let (ip_matches, other_ip_matches) = match ip_version {
-                                        Constraint::Any => (has_ipv4 | has_ipv6, false),
-                                        Constraint::Only(IpVersion::V4) => (has_ipv4, has_ipv6),
-                                        Constraint::Only(IpVersion::V6) => (has_ipv6, has_ipv4),
-                                    };
+                                let (ip_matches, other_ip_matches) = match ip_version {
+                                    Constraint::Any => (has_ipv4 | has_ipv6, false),
+                                    Constraint::Only(IpVersion::V4) => (has_ipv4, has_ipv6),
+                                    Constraint::Only(IpVersion::V6) => (has_ipv6, has_ipv4),
+                                };
 
-                                    if ip_matches {
-                                        Verdict::Accept
-                                    } else if other_ip_matches {
-                                        // Switching IP version would unblock the relay.
-                                        Verdict::reject(Reason::IpVersion)
-                                    } else {
-                                        // The relay has quic but no IPv4 or IPv6 addresses to use it.
-                                        // This scenario should be unreachable, but treat it as if obfuscation was
-                                        // unavailable just in case.
-                                        Verdict::reject(Reason::Obfuscation)
-                                            .compose(wg_endpoint_ip_version.eval(relay))
-                                    }
+                                if ip_matches {
+                                    AcceptSeparateEndpoint
+                                } else if other_ip_matches {
+                                    // Switching IP version would unblock the relay.
+                                    Reject(vec![Reason::IpVersion])
+                                } else {
+                                    // The relay has quic but no IPv4 or IPv6 addresses to use it.
+                                    // This scenario should be unreachable, but treat it as if obfuscation was
+                                    // unavailable just in case.
+                                    Reject(vec![Reason::Obfuscation])
                                 }
-                                None => Verdict::reject(Reason::Obfuscation)
-                                    .compose(wg_endpoint_ip_version.eval(relay)),
-                            },
-                        )
+                            }
+                            None => Reject(vec![Reason::Obfuscation]),
+                        }
                     }
                     // LWO is only enabled on some relays
-                    Lwo => wg_endpoint_ip_version.compose(Criteria::new(
-                        move |relay: &WireguardRelay| {
-                            relay.endpoint().lwo.if_false(Reason::Obfuscation)
-                        },
-                    )),
+                    Lwo => {
+                        if relay.endpoint().lwo {
+                            AcceptWireguardEndpoint
+                        } else {
+                            Reject(vec![Reason::Obfuscation])
+                        }
+                    }
 
                     // Other relays are always valid
                     // TODO:^ This might not be true. We might want to consider the selected port for
                     // udp2tcp & wireguard port ..
-                    Off | Auto | WireguardPort | Udp2Tcp => wg_endpoint_ip_version,
+                    Off | Auto | WireguardPort | Udp2Tcp => AcceptWireguardEndpoint,
                 }
             }
         }
@@ -1159,6 +1169,12 @@ impl RelaySelector {
             matcher::filter_on_location(location.as_ref(), relay).if_false(Reason::Location)
         })
     }
+}
+
+enum ObfuscationVerdict {
+    AcceptWireguardEndpoint,
+    AcceptSeparateEndpoint,
+    Reject(Vec<Reason>),
 }
 
 /// A criteria is a function from a _single_ constraint and a relay to a [`Verdict`].
