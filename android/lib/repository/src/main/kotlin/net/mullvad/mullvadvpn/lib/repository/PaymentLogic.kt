@@ -54,7 +54,6 @@ class PlayPaymentLogic(private val paymentRepository: PaymentRepository) : Payme
                     delay(EXTRA_LOADING_DELAY_MS)
                 }
             }
-            .onEach { Logger.i("Purchase state: ${it::class.simpleName}") }
             .onEach(::logPurchaseResult)
             .collect(_purchaseResult)
     }
