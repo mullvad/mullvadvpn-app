@@ -7,19 +7,19 @@ import { type CustomListLocation } from '../../../../../features/location/types'
 import { Dialog, type DialogProps } from '../../../../../lib/components/dialog';
 import { formatHtml } from '../../../../../lib/html-formatter';
 
-type ConfirmDeleteCustomListDialogProps = Omit<DialogProps, 'children'> & {
+type DeleteCustomListDialogProps = Omit<DialogProps, 'children'> & {
   customList: CustomListLocation;
   loading?: boolean;
   onLoadingChange?: (loading: boolean) => void;
 };
 
-export function ConfirmDeleteCustomListDialog({
+export function DeleteCustomListDialog({
   customList,
   open,
   onOpenChange,
   loading,
   onLoadingChange,
-}: ConfirmDeleteCustomListDialogProps) {
+}: DeleteCustomListDialogProps) {
   const { deleteCustomList } = useCustomLists();
 
   const handleConfirm = React.useCallback(async () => {

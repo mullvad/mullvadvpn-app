@@ -3,7 +3,7 @@ export * from './add-to-custom-list-dialog';
 export * from './custom-list-location-list';
 export * from './daita-filter-chip';
 export * from './filter-chips';
-export * from './confirm-delete-custom-list-dialog';
+export * from './delete-custom-list-dialog';
 export * from './disabled-entry-selection';
 export * from './edit-custom-list-dialog';
 export * from './country-location-list';
