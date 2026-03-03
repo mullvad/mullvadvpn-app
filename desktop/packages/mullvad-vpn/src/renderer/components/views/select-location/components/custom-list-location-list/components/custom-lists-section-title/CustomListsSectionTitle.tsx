@@ -5,12 +5,18 @@ import {
   SectionTitle,
   type SectionTitleProps,
 } from '../../../../../../../lib/components/section-title';
+import { AddCustomListDialog } from '../../../add-custom-list-dialog';
 import { useCustomListLocationListContext } from '../../CustomListLocationListContext';
 
 export type CustomListsSectionTitleProps = SectionTitleProps;
 
 export function CustomListsSectionTitle({ ...props }: CustomListsSectionTitleProps) {
-  const { setAddCustomListDialogOpen } = useCustomListLocationListContext();
+  const {
+    addingCustomList,
+    setAddingCustomList,
+    addCustomListDialogOpen,
+    setAddCustomListDialogOpen,
+  } = useCustomListLocationListContext();
 
   const handleOnClick = React.useCallback(() => {
     setAddCustomListDialogOpen(true);
@@ -30,6 +36,12 @@ export function CustomListsSectionTitle({ ...props }: CustomListsSectionTitlePro
         }>
         <SectionTitle.IconButton.Icon icon="add" />
       </SectionTitle.IconButton>
+      <AddCustomListDialog
+        open={addCustomListDialogOpen}
+        onOpenChange={setAddCustomListDialogOpen}
+        loading={addingCustomList}
+        onLoadingChange={setAddingCustomList}
+      />
     </SectionTitle>
   );
 }

@@ -17,15 +17,21 @@ import {
 
 export type EditListProps = Omit<DialogProps, 'children'> & {
   customList: CustomListLocation;
+  loading?: boolean;
+  onLoadingChange?: (loading: boolean) => void;
 };
 
-function EditListDialogImpl(
-  props: Omit<EditListProps, 'children' | 'open' | 'onOpenChange' | 'customList'>,
-) {
+export type EditListImplProps = Omit<
+  EditListProps,
+  'customList' | 'open' | 'onOpenChange' | 'loading' | 'onLoadingChange'
+>;
+
+function EditCustomListDialogImpl(props: EditListImplProps) {
   const descriptionId = React.useId();
   const {
     open,
     onOpenChange,
+    loading,
     formRef,
     inputRef,
     form: {
@@ -58,7 +64,7 @@ function EditListDialogImpl(
     ? invalidReason
     : // TRANSLATORS: Helper text under input for editing the name of a custom list.
       messages.pgettext('select-location-view', 'Enter a new name for the custom list');
-  const saveButtonDisabled = error || invalid;
+  const saveButtonDisabled = error || invalid || loading || !open || !dirty;
 
   return (
     <Dialog open={open} onOpenChange={handleOnOpenChange} {...props}>
@@ -103,10 +109,20 @@ function EditListDialogImpl(
   );
 }
 
-export function EditListDialog({ customList, open, onOpenChange, ...props }: EditListProps) {
+export function EditCustomListDialog({
+  customList,
+  open,
+  onOpenChange,
+  onLoadingChange,
+  ...props
+}: EditListProps) {
   return (
-    <EditCustomListDialogProvider customList={customList} open={open} onOpenChange={onOpenChange}>
-      <EditListDialogImpl {...props} />
+    <EditCustomListDialogProvider
+      customList={customList}
+      open={open}
+      onOpenChange={onOpenChange}
+      onLoadingChange={onLoadingChange}>
+      <EditCustomListDialogImpl {...props} />
     </EditCustomListDialogProvider>
   );
 }
