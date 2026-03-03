@@ -6,33 +6,35 @@ import { useCustomLists } from '../../../../../../../features/location/hooks';
 import type { GeographicalLocation } from '../../../../../../../features/location/types';
 import { LocationListItem } from '../../../../../../location-list-item';
 import type { LocationListItemIconButtonProps } from '../../../../../../location-list-item/components';
-import { useGeographicalLocationListItemContext } from '../../../geographical-location-list-item/GeographicalLocationListItemContext';
 
 export type RemoveFromCustomListButtonProps = LocationListItemIconButtonProps & {
   location: GeographicalLocation;
+  loading?: boolean;
+  onLoadingChange?: (loading: boolean) => void;
 };
 
 export function RemoveFromCustomListButton({
   location,
+  loading,
+  onLoadingChange,
   ...props
 }: RemoveFromCustomListButtonProps) {
   const { removeLocationFromCustomList, getCustomListById } = useCustomLists();
-  const { loading, setLoading } = useGeographicalLocationListItemContext();
 
   const customList = getCustomListById(location.details.customList);
 
   const handleOnClick = React.useCallback(async () => {
     const customList = location.details.customList;
     if (customList !== undefined) {
-      setLoading(true);
+      onLoadingChange?.(true);
       const success = await removeLocationFromCustomList(customList, location.details);
 
       // Only set loading to false if failed to keep disabled state while animating out
       if (!success) {
-        setLoading(false);
+        onLoadingChange?.(false);
       }
     }
-  }, [location.details, removeLocationFromCustomList, setLoading]);
+  }, [location.details, removeLocationFromCustomList, onLoadingChange]);
 
   return (
     <LocationListItem.IconButton

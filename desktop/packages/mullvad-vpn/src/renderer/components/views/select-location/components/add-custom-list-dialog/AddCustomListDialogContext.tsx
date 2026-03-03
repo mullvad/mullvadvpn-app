@@ -1,8 +1,8 @@
 import React from 'react';
 
-import type { DialogProps } from '../../../../../lib/components/dialog';
 import { useTextField, type UseTextFieldState } from '../../../../../lib/components/text-field';
 import { useIsCustomListNameValid } from '../../hooks';
+import type { AddCustomListDialogProps } from './AddCustomListDialog';
 
 type AddCustomListDialogContextProps = Omit<AddCustomListDialogProviderProps, 'children'> & {
   formRef: React.RefObject<HTMLFormElement | null>;
@@ -28,7 +28,9 @@ export const useAddCustomListDialogContext = (): AddCustomListDialogContextProps
   return context;
 };
 
-type AddCustomListDialogProviderProps = Pick<DialogProps, 'open' | 'onOpenChange' | 'children'>;
+type AddCustomListDialogProviderProps = React.PropsWithChildren<
+  Pick<AddCustomListDialogProps, 'open' | 'onOpenChange' | 'loading' | 'onLoadingChange'>
+>;
 
 export function AddCustomListDialogProvider({
   children,

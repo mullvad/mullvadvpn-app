@@ -5,7 +5,7 @@ import { useEditCustomListDialogContext } from '../EditCustomListDialogContext';
 
 export function useHandleSubmitUpdateCustomList() {
   const { updateCustomListName: contextUpdateCustomListName } = useCustomLists();
-  const { customList } = useEditCustomListDialogContext();
+  const { customList, onLoadingChange } = useEditCustomListDialogContext();
 
   const {
     onOpenChange,
@@ -17,6 +17,7 @@ export function useHandleSubmitUpdateCustomList() {
 
   const updateCustomList = React.useCallback(
     async (name: string) => {
+      onLoadingChange?.(true);
       const result = await contextUpdateCustomListName(customList.details.customList, name);
       if (result) {
         setError(true);
@@ -24,9 +25,16 @@ export function useHandleSubmitUpdateCustomList() {
         onOpenChange?.(false);
         reset(name);
       }
+      onLoadingChange?.(false);
     },
-
-    [contextUpdateCustomListName, customList.details.customList, onOpenChange, reset, setError],
+    [
+      contextUpdateCustomListName,
+      customList.details.customList,
+      onLoadingChange,
+      onOpenChange,
+      reset,
+      setError,
+    ],
   );
 
   return React.useCallback(

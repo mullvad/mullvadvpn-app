@@ -5,6 +5,7 @@ import { messages } from '../../../../../../../../shared/gettext';
 import { type CustomListLocation } from '../../../../../../../features/location/types';
 import { useAccordionContext } from '../../../../../../../lib/components/accordion/AccordionContext';
 import { LocationListItem } from '../../../../../../location-list-item';
+import { useCustomListLocationListItemContext } from '../../../custom-list-location-list-item/CustomListLocationListItemContext';
 import { DeleteCustomListButton, EditCustomListButton } from '..';
 
 export type CustomListTrailingActionsProps = React.PropsWithChildren<{
@@ -13,11 +14,20 @@ export type CustomListTrailingActionsProps = React.PropsWithChildren<{
 
 export function CustomListTrailingActions({ customList }: CustomListTrailingActionsProps) {
   const { expanded } = useAccordionContext();
+  const { loading, setLoading } = useCustomListLocationListItemContext();
 
   return (
     <LocationListItem.HeaderTrailingActions>
-      <EditCustomListButton customList={customList} />
-      <DeleteCustomListButton customList={customList} />
+      <EditCustomListButton
+        customList={customList}
+        loading={loading}
+        onLoadingChange={setLoading}
+      />
+      <DeleteCustomListButton
+        customList={customList}
+        loading={loading}
+        onLoadingChange={setLoading}
+      />
       <LocationListItem.AccordionTrigger
         aria-label={sprintf(
           expanded === true
