@@ -1,6 +1,6 @@
 import { Ownership } from '../../../../../../../shared/daemon-rpc-types';
 import { messages } from '../../../../../../../shared/gettext';
-import { useOwnership } from '../../../../../../features/location/hooks';
+import { useOwnership } from '../../../../../../features/locations/hooks';
 
 export const useOwnershipFilterLabel = () => {
   const { activeOwnership } = useOwnership();

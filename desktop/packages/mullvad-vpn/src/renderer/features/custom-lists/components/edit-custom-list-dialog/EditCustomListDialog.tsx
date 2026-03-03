@@ -4,7 +4,7 @@ import { messages } from '../../../../../shared/gettext';
 import { Dialog, type DialogProps } from '../../../../lib/components/dialog';
 import { FlexColumn } from '../../../../lib/components/flex-column';
 import { TextField } from '../../../../lib/components/text-field';
-import type { CustomListLocation } from '../../../location/types';
+import type { CustomListLocation } from '../../../locations/types';
 import {
   EditCustomListDialogProvider,
   useEditCustomListDialogContext,

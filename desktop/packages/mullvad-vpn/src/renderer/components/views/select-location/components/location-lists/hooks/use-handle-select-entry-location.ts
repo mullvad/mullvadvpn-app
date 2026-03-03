@@ -1,8 +1,8 @@
 import React from 'react';
 
 import { type RelayLocation } from '../../../../../../../shared/daemon-rpc-types';
-import { useRelayLocations } from '../../../../../../features/location/hooks';
-import { LocationType } from '../../../../../../features/location/types';
+import { useRelayLocations } from '../../../../../../features/locations/hooks';
+import { LocationType } from '../../../../../../features/locations/types';
 import { useSelectLocationViewContext } from '../../../SelectLocationViewContext';
 
 export function useHandleSelectEntryLocation() {
