@@ -1,5 +1,5 @@
-import { Accordion } from '../../lib/components/accordion';
-import { ListItem } from '../../lib/components/list-item';
+import { Accordion } from '../../../../../lib/components/accordion';
+import { ListItem } from '../../../../../lib/components/list-item';
 import {
   LocationListItemAccordion,
   LocationListItemAccordionContent,

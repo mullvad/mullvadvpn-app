@@ -8,8 +8,8 @@ import { getLocationChildren } from '../../../../../features/locations/utils';
 import { FootnoteMiniSemiBold } from '../../../../../lib/components';
 import { FlexColumn } from '../../../../../lib/components/flex-column';
 import type { ListItemProps } from '../../../../../lib/components/list-item';
-import { LocationListItem } from '../../../../location-list-item';
 import { useScrollPositionContext } from '../../ScrollPositionContext';
+import { LocationListItem } from '../location-list-item';
 import {
   AnyLocationListItemProvider,
   useAnyLocationListItemContext,

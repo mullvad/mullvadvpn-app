@@ -1,5 +1,5 @@
-import { useListItemContext } from '../../../../../lib/components/list-item/ListItemContext';
-import type { Colors } from '../../../../../lib/foundations';
+import { useListItemContext } from '../../../../../../../../lib/components/list-item/ListItemContext';
+import type { Colors } from '../../../../../../../../lib/foundations';
 import { useLocationListItemContext } from '../../../LocationListItemContext';
 
 const colors: Record<string, Colors> = {

@@ -5,10 +5,10 @@ import { Container, Text } from '../../../../../lib/components';
 import { AnimatedList } from '../../../../../lib/components/animated-list';
 import { FlexColumn } from '../../../../../lib/components/flex-column';
 import { spacings } from '../../../../../lib/foundations';
-import { StyledLocationListItemAccordionContent } from '../../../../location-list-item/components';
 import { useCustomListLocationsContext } from '../../CustomListLocationsContext';
 import { useHasCustomLists } from '../../hooks';
 import { CustomListLocationListItem } from '../custom-list-location-list-item';
+import { StyledLocationListItemAccordionContent } from '../location-list-item/components';
 import { CustomListsSectionTitle } from './components';
 import {
   CustomListLocationListProvider,

@@ -5,9 +5,9 @@ import { messages } from '../../../../../../shared/gettext';
 import { FlexColumn } from '../../../../../lib/components/flex-column';
 import { SectionTitle } from '../../../../../lib/components/section-title';
 import { spacings } from '../../../../../lib/foundations';
-import { StyledLocationListItemAccordionContent } from '../../../../location-list-item/components';
 import { useLocationsContext } from '../../LocationsContext';
 import { GeographicalLocationListItem } from '../geographical-location-list-item';
+import { StyledLocationListItemAccordionContent } from '../location-list-item/components';
 import { useLocationListsContext } from '../location-lists/LocationListsContext';
 import { useRelayCount } from './hooks';
 
