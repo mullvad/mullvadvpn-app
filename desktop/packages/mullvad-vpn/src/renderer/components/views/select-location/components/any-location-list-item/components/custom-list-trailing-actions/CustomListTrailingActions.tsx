@@ -8,8 +8,8 @@ import {
 } from '../../../../../../../features/custom-lists/components';
 import { type CustomListLocation } from '../../../../../../../features/locations/types';
 import { useAccordionContext } from '../../../../../../../lib/components/accordion/AccordionContext';
-import { LocationListItem } from '../../../../../../location-list-item';
 import { useCustomListLocationListItemContext } from '../../../custom-list-location-list-item/CustomListLocationListItemContext';
+import { LocationListItem } from '../../../location-list-item';
 
 export type CustomListTrailingActionsProps = React.PropsWithChildren<{
   customList: CustomListLocation;

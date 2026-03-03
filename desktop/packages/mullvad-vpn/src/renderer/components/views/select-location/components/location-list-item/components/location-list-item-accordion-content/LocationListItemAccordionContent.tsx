@@ -1,8 +1,8 @@
 import styled, { css } from 'styled-components';
 
-import { Accordion } from '../../../../lib/components/accordion';
-import type { AccordionContentProps } from '../../../../lib/components/accordion/components';
-import { spacings } from '../../../../lib/foundations';
+import { Accordion } from '../../../../../../../lib/components/accordion';
+import type { AccordionContentProps } from '../../../../../../../lib/components/accordion/components';
+import { spacings } from '../../../../../../../lib/foundations';
 import { useLocationListItemContext } from '../../LocationListItemContext';
 import { useEffectScrollOnExpand } from './hooks';
 
