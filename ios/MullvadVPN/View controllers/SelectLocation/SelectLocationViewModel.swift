@@ -27,6 +27,7 @@ protocol SelectLocationViewModel: ObservableObject {
     func showFilterView()
     func toggleMultihop()
     func toggleRecents()
+    func manuallyFetchRelayList()
 }
 
 struct SelectLocationDelegate {
@@ -58,6 +59,7 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
     private let exitRecentsDataSource: RecentListDataSource
 
     private let relaySelectorWrapper: RelaySelectorWrapper
+    private let relayCacheTracker: RelayCacheTrackerProtocol
     private let tunnelManager: TunnelManager
     private let customListInteractor: CustomListInteractorProtocol
     private let recentsInteractor: RecentsInteractorProtocol
@@ -76,12 +78,14 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
     init(
         tunnelManager: TunnelManager,
         relaySelectorWrapper: RelaySelectorWrapper,
+        relayCacheTracker: RelayCacheTrackerProtocol,
         customListRepository: CustomListRepositoryProtocol,
         recentConnectionsRepository: RecentConnectionsRepositoryProtocol,
         delegate: SelectLocationDelegate
     ) {
         self.tunnelManager = tunnelManager
         self.relaySelectorWrapper = relaySelectorWrapper
+        self.relayCacheTracker = relayCacheTracker
         self.customListInteractor = CustomListInteractor(
             tunnelManager: tunnelManager,
             repository: customListRepository
@@ -410,6 +414,15 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
 
     func toggleRecents() {
         recentsInteractor.toggle()
+    }
+
+    func manuallyFetchRelayList() {
+        _ = relayCacheTracker.fetchRelays { [weak self] _ in
+            guard let self else { return }
+            reloadAllDataSources()
+            updateSelections()
+            updateConnectedLocations(tunnelManager.tunnelStatus)
+        }
     }
 }
 

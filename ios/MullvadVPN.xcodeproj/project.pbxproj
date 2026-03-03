@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0107F3F92F56E3ED0012451B /* RelayCacheTrackerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0107F3F82F56E3ED0012451B /* RelayCacheTrackerTests.swift */; };
 		014E8C2A2F28B09700837D0A /* MullvadLogging.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 58D223F3294C8FF00029F5F8 /* MullvadLogging.framework */; };
 		014E8C302F294FB000837D0A /* relays-test-data.json in Resources */ = {isa = PBXBuildFile; fileRef = 014E8C2F2F294FB000837D0A /* relays-test-data.json */; };
 		014E8C312F294FB000837D0A /* relays-test-data.json in Resources */ = {isa = PBXBuildFile; fileRef = 014E8C2F2F294FB000837D0A /* relays-test-data.json */; };
@@ -1596,6 +1597,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		0107F3F82F56E3ED0012451B /* RelayCacheTrackerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayCacheTrackerTests.swift; sourceTree = "<group>"; };
 		014E8C2F2F294FB000837D0A /* relays-test-data.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "relays-test-data.json"; sourceTree = "<group>"; };
 		01C981E52F43C3410002D284 /* BlockedStateReason+Localization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BlockedStateReason+Localization.swift"; sourceTree = "<group>"; };
 		01C981E62F43C3410002D284 /* TunnelStateAccessibilityAnnouncer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelStateAccessibilityAnnouncer.swift; sourceTree = "<group>"; };
@@ -2950,6 +2952,7 @@
 		440E9EFE2BDA991200B1FD11 /* RelayCacheTracker */ = {
 			isa = PBXGroup;
 			children = (
+				0107F3F82F56E3ED0012451B /* RelayCacheTrackerTests.swift */,
 				A9C342C22ACC3EE90045F00E /* RelayCacheTracker+Stubs.swift */,
 			);
 			path = RelayCacheTracker;
@@ -6050,6 +6053,7 @@
 				7A6000F92B6273A4001CF0D9 /* AccessMethodViewModel.swift in Sources */,
 				7ABFB09E2BA316220074A49E /* RelayConstraintsTests.swift in Sources */,
 				F072D3D22C071AD100906F64 /* ShadowsocksLoaderTests.swift in Sources */,
+				0107F3F92F56E3ED0012451B /* RelayCacheTrackerTests.swift in Sources */,
 				F050AE5C2B73797D003F4EDB /* CustomListRepositoryTests.swift in Sources */,
 				01C981EA2F43C3410002D284 /* BlockedStateReason+Localization.swift in Sources */,
 				A9A5F9F62ACB05160083449F /* TunnelStatusNotificationProvider.swift in Sources */,
