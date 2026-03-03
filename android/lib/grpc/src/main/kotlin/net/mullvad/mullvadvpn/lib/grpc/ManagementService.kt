@@ -189,11 +189,15 @@ class ManagementService(
             .withWaitForReady()
     }
 
-    suspend fun partitionRelays(predicate: RelaySelectorPredicate): RelayPartitions {
-        return service.partitionRelays(predicate.fromDomain()).toDomain().also {
-            Logger.d("Partition relays matches: ${it.matches}")
-        }
-    }
+    suspend fun partitionRelays(
+        predicate: RelaySelectorPredicate
+    ): Either<PartitionRelaysError, RelayPartitions> =
+        Either.catch {
+                service.partitionRelays(predicate.fromDomain()).toDomain().also {
+                    Logger.d("Partition relays matches: ${it.matches}")
+                }
+            }
+            .mapLeft(PartitionRelaysError::Unknown)
 
     private val grpc by lazy {
         ManagementServiceGrpcKt.ManagementServiceCoroutineStub(channel)
@@ -964,6 +968,10 @@ class ManagementService(
 
         const val TOO_MANY_REQUESTS = "429 Too Many Requests"
     }
+}
+
+sealed interface PartitionRelaysError {
+    data class Unknown(val error: Throwable) : PartitionRelaysError
 }
 
 sealed interface GrpcConnectivityState {
