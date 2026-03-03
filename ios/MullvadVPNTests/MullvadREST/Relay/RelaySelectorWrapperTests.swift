@@ -36,7 +36,7 @@ class RelaySelectorWrapperTests: XCTestCase {
     override func setUpWithError() throws {
         let fileCache = MockFileCache(
             initialState: .exists(
-                try StoredRelays(
+                StoredRelays(
                     rawData: try REST.Coding.makeJSONEncoder().encode(ServerRelaysResponseStubs.sampleRelays),
                     updatedAt: .distantPast
                 ))

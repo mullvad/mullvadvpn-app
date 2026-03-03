@@ -78,13 +78,7 @@ extension REST {
                     switch httpStatus {
                     case let httpStatus where httpStatus.isSuccess:
                         return .decoding {
-                            // Discarding result since we're only interested in knowing that it's parseable.
-                            _ = try self.responseDecoder.decode(
-                                ServerRelaysResponse.self,
-                                from: data
-                            )
                             let newEtag = response.value(forHTTPHeaderField: HTTPHeader.etag)
-
                             return .newContent(newEtag, data)
                         }
 
