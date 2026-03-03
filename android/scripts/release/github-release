@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 
-# This script takes an artifact with a signature and a version. 
-# It verifies the signature and uploads the artifact with the signature to github as a draft. 
-# It is called by buildserver-build-android.sh as part of the release process.
+# This script downloads the current version (as defined by android-version-name.txt) from
+# release.mullvad.net and verify that the signature.
+# It then extract the changelog entries for that version and uploads it to github with the
+# apk file and the signature.
 
 set -eu
 
