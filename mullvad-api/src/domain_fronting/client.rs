@@ -475,6 +475,88 @@ mod tests {
     const TEST_SESSION_HEADER: &str = "X-Test-Session";
 
     #[tokio::test]
+    async fn test_client_write_without_read() {
+        let listener = TcpListener::bind("127.0.0.1:0")
+            .await
+            .expect("Failed to bind echo server");
+        let echo_addr = listener.local_addr().expect("Failed to get local addr");
+
+        let server_task = tokio::spawn(async move {
+            let (mut socket, _) = match listener.accept().await {
+                Ok(conn) => conn,
+                Err(_) => panic!("failed to accept connection"),
+            };
+
+            let mut buf = vec![0u8; 4096];
+            let n = socket
+                .read(&mut buf)
+                .await
+                .expect("Failed to read from socket");
+
+            assert_eq!(&buf[..n], b"Hello from client");
+
+            socket
+                .write_all(&buf[..n])
+                .await
+                .expect("Failed to write to socket");
+        });
+
+        // Create in-memory transport between client and proxy server HTTP layers
+        let (client_stream, server_stream) = duplex(8192);
+
+        // Start proxy server with default TCP connector pointing to echo server
+        let sessions = server::Sessions::new(echo_addr, TEST_SESSION_HEADER.to_string());
+        let sessions_clone = sessions.clone();
+
+        // Spawn HTTP server on server_stream
+        tokio::spawn(async move {
+            let io = TokioIo::new(server_stream);
+            let service = hyper::service::service_fn(move |req| {
+                let sessions = sessions_clone.clone();
+                async move { Ok::<_, Infallible>(sessions.handle_request(req).await) }
+            });
+
+            let _ = hyper::server::conn::http1::Builder::new()
+                .serve_connection(io, service)
+                .await;
+        });
+
+        // Create client connection using the in-memory stream (no TLS)
+        let proxy_config = ProxyConfig::new(
+            echo_addr,
+            DomainFronting::new(
+                "example.com".to_string(),
+                "api.example.com".to_string(),
+                TEST_SESSION_HEADER.to_string(),
+            ),
+        );
+
+        let mut client = proxy_config
+            .connect_with_stream(client_stream, false)
+            .await
+            .expect("Failed to create client connection");
+
+        // Test: write to client, should echo back
+        let test_data = b"Hello from client";
+        client
+            .write_all(test_data)
+            .await
+            .expect("Failed to write to client");
+
+        // server_task never receives anything unless we read here
+        /*
+        let mut buffer = vec![0u8; 1024];
+        client
+            .read(&mut buffer)
+            .await
+            .expect("Failed to read from client");
+        */
+
+        // This hangs
+        server_task.await.expect("Server task failed");
+    }
+
+    #[tokio::test]
     async fn test_client_server_bidirectional() {
         // Spawn echo server that will be the upstream target
         let echo_addr = spawn_echo_server().await;
