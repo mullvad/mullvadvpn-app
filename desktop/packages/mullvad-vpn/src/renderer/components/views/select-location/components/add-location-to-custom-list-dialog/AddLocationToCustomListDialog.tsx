@@ -2,7 +2,7 @@ import React from 'react';
 import { sprintf } from 'sprintf-js';
 
 import { messages } from '../../../../../../shared/gettext';
-import { useCustomLists } from '../../../../../features/location/hooks';
+import { useCustomLists } from '../../../../../features/custom-lists/hooks';
 import type { GeographicalLocation } from '../../../../../features/location/types';
 import { Dialog, type DialogProps } from '../../../../../lib/components/dialog';
 import { FlexColumn } from '../../../../../lib/components/flex-column';

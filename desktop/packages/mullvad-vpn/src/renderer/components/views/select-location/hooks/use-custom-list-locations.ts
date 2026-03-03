@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { useCustomLists } from '../../../../features/location/hooks';
+import { useCustomLists } from '../../../../features/custom-lists/hooks';
 import {
   type CustomListLocation,
   DisabledReason,
