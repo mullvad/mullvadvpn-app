@@ -10,7 +10,7 @@ import { useListItemContext } from '../../../../../../../lib/components/list-ite
 import { LocationListItem } from '../../../../../../location-list-item';
 import { useGeographicalLocationListItemContext } from '../../../geographical-location-list-item/GeographicalLocationListItemContext';
 import { useAnyLocationListItemContext } from '../../AnyLocationListItemContext';
-import { AddToCustomListButton } from '../add-to-custom-list-button';
+import { AddLocationToCustomListButton } from '../add-location-to-custom-list-button';
 import { RemoveFromCustomListButton } from '../remove-from-custom-list-button';
 
 export type GeographicalLocationTrailingActionsProps = React.PropsWithChildren<{
@@ -43,7 +43,7 @@ export function GeographicalLocationTrailingActions({
     <LocationListItem.HeaderTrailingActions>
       {showAddToCustomListButton && (
         <LocationListItem.HeaderTrailingAction>
-          <AddToCustomListButton location={location} />
+          <AddLocationToCustomListButton location={location} />
         </LocationListItem.HeaderTrailingAction>
       )}
       {/* Show remove from custom list button if location is top level item in a custom list. */}

@@ -6,13 +6,13 @@ import { useCustomLists } from '../../../../../../../features/location/hooks';
 import type { GeographicalLocation } from '../../../../../../../features/location/types';
 import { LocationListItem } from '../../../../../../location-list-item';
 import type { LocationListItemIconButtonProps } from '../../../../../../location-list-item/components';
-import { AddToCustomListDialog } from '../../../add-to-custom-list-dialog';
+import { AddLocationToCustomListDialog } from '../../../add-location-to-custom-list-dialog';
 
 export type AddToCustomListButtonProps = LocationListItemIconButtonProps & {
   location: GeographicalLocation;
 };
 
-export function AddToCustomListButton({ location, ...props }: AddToCustomListButtonProps) {
+export function AddLocationToCustomListButton({ location, ...props }: AddToCustomListButtonProps) {
   const [open, setOpen] = React.useState(false);
   const handleOpenDialog = React.useCallback(() => setOpen(true), []);
   const { customLists } = useCustomLists();
@@ -35,7 +35,7 @@ export function AddToCustomListButton({ location, ...props }: AddToCustomListBut
         <LocationListItem.IconButton.Icon icon="add-circle" />
       </LocationListItem.IconButton>
 
-      <AddToCustomListDialog open={open} onOpenChange={setOpen} location={location} />
+      <AddLocationToCustomListDialog open={open} onOpenChange={setOpen} location={location} />
     </>
   );
 }
