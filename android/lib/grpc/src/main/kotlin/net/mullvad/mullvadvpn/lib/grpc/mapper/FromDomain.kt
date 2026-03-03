@@ -1,3 +1,5 @@
+@file:Suppress("TooManyFunctions")
+
 package net.mullvad.mullvadvpn.lib.grpc.mapper
 
 import mullvad_daemon.management_interface.ManagementInterface
