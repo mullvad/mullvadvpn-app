@@ -205,9 +205,9 @@ internal fun ConnectivityManager.activeRawNetworkState(): RawNetworkState? =
  * check.
  *
  * Note: While the use of a combine of non-VPN networks and default network flows is primarily to
- * fix issues on Android 8 and 9, we have seen similar user reports on newer versions of Android as
- * well. When we stop supporting Android 8 and 9 and decide to remove this fix we should make sure
- * that it won't cause issues for users on Android 10+.
+ * fix issues on Android 9, we have seen similar user reports on newer versions of Android as well.
+ * When we stop supporting Android 9 and decide to remove this fix we should make sure that it won't
+ * cause issues for users on Android 10+.
  *
  * See DROID-2025 for more details.
  */
