@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.combine
 import net.mullvad.mullvadvpn.lib.common.util.prepareVpnSafe
 import net.mullvad.mullvadvpn.lib.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.model.ConnectError
+import net.mullvad.mullvadvpn.lib.model.DisconnectReason
 import net.mullvad.mullvadvpn.lib.model.GeoIpLocation
 import net.mullvad.mullvadvpn.lib.model.TunnelState
 
@@ -43,7 +44,8 @@ class ConnectionProxy(
     suspend fun connectWithoutPermissionCheck(): Either<ConnectError, Boolean> =
         managementService.connect()
 
-    suspend fun disconnect() = managementService.disconnect()
+    suspend fun disconnect(disconnectReason: DisconnectReason) =
+        managementService.disconnect(disconnectReason)
 
     suspend fun reconnect() = managementService.reconnect()
 }

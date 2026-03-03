@@ -72,6 +72,7 @@ import net.mullvad.mullvadvpn.lib.model.Device
 import net.mullvad.mullvadvpn.lib.model.DeviceId
 import net.mullvad.mullvadvpn.lib.model.DeviceState as ModelDeviceState
 import net.mullvad.mullvadvpn.lib.model.DeviceUpdateError
+import net.mullvad.mullvadvpn.lib.model.DisconnectReason
 import net.mullvad.mullvadvpn.lib.model.DnsOptions as ModelDnsOptions
 import net.mullvad.mullvadvpn.lib.model.DnsOptions
 import net.mullvad.mullvadvpn.lib.model.DnsState as ModelDnsState
@@ -305,8 +306,8 @@ class ManagementService(
             .onLeft { Logger.e("Connect error") }
             .mapLeft(ConnectError::Unknown)
 
-    suspend fun disconnect(): Either<ConnectError, Boolean> =
-        Either.catch { grpc.disconnectTunnel(StringValue.of("android-ui")).value }
+    suspend fun disconnect(disconnectReason: DisconnectReason): Either<ConnectError, Boolean> =
+        Either.catch { grpc.disconnectTunnel(StringValue.of(disconnectReason.logString)).value }
             .onLeft { Logger.e("Disconnect error") }
             .mapLeft(ConnectError::Unknown)
 

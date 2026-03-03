@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
+import net.mullvad.mullvadvpn.lib.model.DisconnectReason
 import net.mullvad.mullvadvpn.lib.pushnotification.ScheduleNotificationAlarmUseCase
 import net.mullvad.mullvadvpn.lib.pushnotification.accountexpiry.AccountExpiryNotificationProvider
 import net.mullvad.mullvadvpn.lib.repository.AccountRepository
@@ -47,7 +48,7 @@ class DeviceRevokedViewModel(
 
     fun onGoToLoginClicked() {
         viewModelScope.launch {
-            connectionProxy.disconnect()
+            connectionProxy.disconnect(DisconnectReason.USER_INITIATED_GO_TO_LOGIN)
             accountRepository.logout()
         }
 

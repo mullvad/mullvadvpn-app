@@ -23,6 +23,7 @@ import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.common.util.ACCOUNT_EXPIRY_POLL_INTERVAL
 import net.mullvad.mullvadvpn.lib.common.util.isAfterNowInstant
 import net.mullvad.mullvadvpn.lib.model.AccountNumber
+import net.mullvad.mullvadvpn.lib.model.DisconnectReason
 import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
 import net.mullvad.mullvadvpn.lib.repository.AccountRepository
 import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
@@ -97,7 +98,9 @@ class WelcomeViewModel(
 
     fun onDisconnectClick() {
         viewModelScope.launch {
-            connectionProxy.disconnect().onLeft { _uiSideEffect.send(UiSideEffect.GenericError) }
+            connectionProxy.disconnect(DisconnectReason.USER_INITIATED_WELCOME).onLeft {
+                _uiSideEffect.send(UiSideEffect.GenericError)
+            }
         }
     }
 
