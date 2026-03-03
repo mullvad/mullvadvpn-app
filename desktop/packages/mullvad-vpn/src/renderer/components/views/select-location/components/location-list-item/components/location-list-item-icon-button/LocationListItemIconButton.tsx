@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-import { IconButton, type IconButtonProps } from '../../../../lib/components';
+import { IconButton, type IconButtonProps } from '../../../../../../../lib/components';
 
 export type LocationListItemIconButtonProps = IconButtonProps;
 

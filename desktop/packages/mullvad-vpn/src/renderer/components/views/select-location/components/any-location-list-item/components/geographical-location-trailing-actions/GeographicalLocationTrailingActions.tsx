@@ -11,8 +11,8 @@ import { type GeographicalLocation } from '../../../../../../../features/locatio
 import { getLocationChildren } from '../../../../../../../features/locations/utils';
 import { useAccordionContext } from '../../../../../../../lib/components/accordion/AccordionContext';
 import { useListItemContext } from '../../../../../../../lib/components/list-item/ListItemContext';
-import { LocationListItem } from '../../../../../../location-list-item';
 import { useGeographicalLocationListItemContext } from '../../../geographical-location-list-item/GeographicalLocationListItemContext';
+import { LocationListItem } from '../../../location-list-item';
 import { useAnyLocationListItemContext } from '../../AnyLocationListItemContext';
 
 export type GeographicalLocationTrailingActionsProps = React.PropsWithChildren<{

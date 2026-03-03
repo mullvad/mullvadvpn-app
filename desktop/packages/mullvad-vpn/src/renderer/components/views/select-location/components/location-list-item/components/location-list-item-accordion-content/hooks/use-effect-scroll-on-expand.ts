@@ -1,7 +1,7 @@
 import React from 'react';
 
-import { useAccordionContext } from '../../../../../lib/components/accordion/AccordionContext';
-import { useScrollPositionContext } from '../../../../views/select-location/ScrollPositionContext';
+import { useAccordionContext } from '../../../../../../../../lib/components/accordion/AccordionContext';
+import { useScrollPositionContext } from '../../../../../ScrollPositionContext';
 import { useLocationListItemAccordionContext } from '../../location-list-item-accordion/LocationListItemAccordionContext';
 
 export function useEffectScrollOnExpand() {

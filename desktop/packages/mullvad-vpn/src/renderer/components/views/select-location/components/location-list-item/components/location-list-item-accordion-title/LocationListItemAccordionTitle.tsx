@@ -1,8 +1,8 @@
-import { useListItemContext } from '../../../../lib/components/list-item/ListItemContext';
+import { useListItemContext } from '../../../../../../../lib/components/list-item/ListItemContext';
 import {
   SelectableLabel,
   type SelectableLabelProps,
-} from '../../../../lib/components/selectable-label';
+} from '../../../../../../../lib/components/selectable-label';
 import { useLocationListItemContext } from '../../LocationListItemContext';
 
 export type LocationListItemAccordionHeaderTitleProps<E extends React.ElementType = 'span'> =

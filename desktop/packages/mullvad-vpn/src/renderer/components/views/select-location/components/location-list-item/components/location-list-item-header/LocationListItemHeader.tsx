@@ -1,13 +1,13 @@
 import styled from 'styled-components';
 
-import { Accordion } from '../../../../lib/components/accordion';
+import { Accordion } from '../../../../../../../lib/components/accordion';
 import {
   type AccordionHeaderProps,
   StyledAccordionContent,
   StyledAccordionHeader,
   StyledAccordionHeaderItem,
-} from '../../../../lib/components/accordion/components';
-import { StyledListItemTrailingAction } from '../../../../lib/components/list-item/components';
+} from '../../../../../../../lib/components/accordion/components';
+import { StyledListItemTrailingAction } from '../../../../../../../lib/components/list-item/components';
 
 export type LocationListItemHeaderProps = AccordionHeaderProps;
 

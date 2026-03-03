@@ -1,4 +1,4 @@
-import { Accordion, type AccordionProps } from '../../../../lib/components/accordion';
+import { Accordion, type AccordionProps } from '../../../../../../../lib/components/accordion';
 import { LocationListItemAccordionProvider } from './LocationListItemAccordionContext';
 
 export type LocationListItemAccordionProps = AccordionProps;
