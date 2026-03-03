@@ -1,18 +1,18 @@
 import React from 'react';
 
 import { useCustomLists } from '../../../../../../features/location/hooks';
-import { useAddCustomListDialogContext } from '../AddCustomListDialogContext';
+import { useCreateCustomListDialogContext } from '../CreateCustomListDialogContext';
 
 export function useHandleSubmitAddCustomList() {
   const { createCustomList: contextCreateCustomList } = useCustomLists();
-  const { onLoadingChange } = useAddCustomListDialogContext();
+  const { onLoadingChange } = useCreateCustomListDialogContext();
   const {
     onOpenChange,
     form: {
       setError,
       customListTextField: { value, invalid, reset },
     },
-  } = useAddCustomListDialogContext();
+  } = useCreateCustomListDialogContext();
 
   const submitCustomList = React.useCallback(
     async (name: string) => {

@@ -5,26 +5,26 @@ import { Dialog, type DialogProps } from '../../../../../lib/components/dialog';
 import { FlexColumn } from '../../../../../lib/components/flex-column';
 import { TextField } from '../../../../../lib/components/text-field';
 import {
-  AddCustomListDialogProvider,
-  useAddCustomListDialogContext,
-} from './AddCustomListDialogContext';
+  CreateCustomListDialogProvider,
+  useCreateCustomListDialogContext,
+} from './CreateCustomListDialogContext';
 import {
   useHandleClickCreateCustomList,
   useHandleCustomListNameChange,
-  useHandleSubmitAddCustomList,
+  useHandleSubmitAddCustomList as useHandleSubmitCreateCustomList,
 } from './hooks';
 
-export type AddCustomListDialogProps = Omit<DialogProps, 'children'> & {
+export type CreateCustomListDialogProps = Omit<DialogProps, 'children'> & {
   loading?: boolean;
   onLoadingChange?: (loading: boolean) => void;
 };
 
-export type AddCustomListDialogImplProps = Omit<
-  AddCustomListDialogProps,
+export type CreateCustomListDialogImplProps = Omit<
+  CreateCustomListDialogProps,
   'open' | 'onOpenChange' | 'loading' | 'onLoadingChange'
 >;
 
-function AddCustomListDialogImpl(props: AddCustomListDialogImplProps) {
+function CreateCustomListDialogImpl(props: CreateCustomListDialogImplProps) {
   const descriptionId = React.useId();
 
   const {
@@ -37,10 +37,10 @@ function AddCustomListDialogImpl(props: AddCustomListDialogImplProps) {
       error,
       customListTextField: { value, invalid, dirty, invalidReason, reset },
     },
-  } = useAddCustomListDialogContext();
+  } = useCreateCustomListDialogContext();
 
   const handleOnValueChange = useHandleCustomListNameChange();
-  const handleSubmit = useHandleSubmitAddCustomList();
+  const handleSubmit = useHandleSubmitCreateCustomList();
   const handleClick = useHandleClickCreateCustomList();
 
   const handleOnOpenChange = React.useCallback(
@@ -114,20 +114,20 @@ function AddCustomListDialogImpl(props: AddCustomListDialogImplProps) {
   );
 }
 
-export function AddCustomListDialog({
+export function CreateCustomListDialog({
   open,
   onOpenChange,
   loading,
   onLoadingChange,
   ...props
-}: AddCustomListDialogProps) {
+}: CreateCustomListDialogProps) {
   return (
-    <AddCustomListDialogProvider
+    <CreateCustomListDialogProvider
       open={open}
       onOpenChange={onOpenChange}
       loading={loading}
       onLoadingChange={onLoadingChange}>
-      <AddCustomListDialogImpl {...props} />
-    </AddCustomListDialogProvider>
+      <CreateCustomListDialogImpl {...props} />
+    </CreateCustomListDialogProvider>
   );
 }
