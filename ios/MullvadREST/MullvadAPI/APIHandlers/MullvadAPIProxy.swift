@@ -100,18 +100,11 @@ extension REST {
                 }
             }
 
-            let responseHandler = rustCustomResponseHandler { [weak self] data, responseEtag in
+            let responseHandler = rustCustomResponseHandler { data, responseEtag in
                 if let responseEtag, responseEtag == etag {
                     return REST.ServerRelaysCacheResponse.notModified
                 } else {
-                    // Discarding result since we're only interested in knowing that it's parseable.
-                    let canDecodeResponse =
-                        (try? self?.responseDecoder.decode(
-                            REST.ServerRelaysResponse.self,
-                            from: data
-                        )) != nil
-
-                    return canDecodeResponse ? REST.ServerRelaysCacheResponse.newContent(responseEtag, data) : nil
+                    return REST.ServerRelaysCacheResponse.newContent(responseEtag, data)
                 }
             }
 
