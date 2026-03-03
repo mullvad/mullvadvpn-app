@@ -1012,6 +1012,21 @@ impl RelaySelector {
     fn entry_criteria(&self, constraints: EntryConstraints) -> Vec<Criteria<'_, WireguardRelay>> {
         // Here we have to consider extra entry constraints, such as DAITA, obfuscation etc.
         let obfuscation = self.obfuscation_criteria(constraints.clone());
+
+        // Possible edge case that we have not implemented:
+        // - User has set IPv6=only and anti-censorship=auto
+        // - A relay doesn't have an IPv6 for its wg endpoint, but it does have an IPv6 extra shadowsocks addr.
+        // In this scenario, we could conceivably allow the relay by enabling shadowsocks to resolve the IP constraint.
+        // This would negatively affect the performance of the connection, so we chose discard the relay.
+        let ip_version =
+            Criteria::new(move |relay: &WireguardRelay| match constraints.ip_version {
+                Constraint::Any => Verdict::Accept,
+                Constraint::Only(IpVersion::V4) => Verdict::Accept,
+                Constraint::Only(IpVersion::V6) => {
+                    relay.ipv6_addr_in.is_some().if_false(Reason::IpVersion)
+                }
+            });
+
         let ownership = Criteria::new(move |relay| {
             matcher::filter_on_ownership(constraints.ownership.as_ref(), relay)
                 .if_false(Reason::Ownership)
@@ -1020,11 +1035,12 @@ impl RelaySelector {
             matcher::filter_on_providers(constraints.providers.as_ref(), relay)
                 .if_false(Reason::Providers)
         });
+
         let daita = Criteria::new(move |relay| {
             let daita_on = constraints.daita.as_ref().map(|settings| settings.enabled);
             matcher::filter_on_daita(&daita_on, relay).if_false(Reason::Daita)
         });
-        vec![ownership, providers, daita, obfuscation]
+        vec![ownership, providers, daita, obfuscation, ip_version]
     }
 
     fn obfuscation_criteria(&self, constraints: EntryConstraints) -> Criteria<'_, WireguardRelay> {
