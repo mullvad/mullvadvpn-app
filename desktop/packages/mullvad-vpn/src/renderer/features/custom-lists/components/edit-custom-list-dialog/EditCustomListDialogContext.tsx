@@ -1,8 +1,8 @@
 import React from 'react';
 
-import { useIsCustomListNameValid } from '../../../../components/views/select-location/hooks';
 import { useTextField, type UseTextFieldState } from '../../../../lib/components/text-field';
 import type { CustomListLocation } from '../../../locations/types';
+import { useIsCustomListNameValid } from '../../hooks';
 import type { EditListProps } from './EditCustomListDialog';
 
 type EditCustomListDialogContextProps = Omit<EditCustomListDialogProviderProps, 'children'> & {
