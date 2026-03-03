@@ -995,8 +995,7 @@ impl RelaySelector {
         constraints: EntryConstraints,
     ) -> Vec<Criteria<'_, WireguardRelay>> {
         // Here we have to consider extra entry constraints, such as DAITA, obfuscation etc.
-        let exit = constraints.general.clone();
-        let filters = self.filter_criteria(exit);
+        let filters = self.filter_criteria(constraints.general.clone());
         let obfuscation = self.obfuscation_criteria(constraints.clone());
         let daita = Criteria::new(move |relay| {
             let daita_on = constraints.daita.as_ref().map(|settings| settings.enabled);
@@ -1241,6 +1240,8 @@ pub struct EntryConstraints {
     pub obfuscation_settings: Constraint<ObfuscationSettings>,
     pub daita: Constraint<DaitaSettings>,
     pub ip_version: Constraint<IpVersion>,
+    pub providers: Constraint<Providers>,
+    pub ownership: Constraint<Ownership>,
 }
 
 // TODO: Document
