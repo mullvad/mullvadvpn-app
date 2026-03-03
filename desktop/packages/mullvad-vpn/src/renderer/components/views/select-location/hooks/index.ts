@@ -6,4 +6,3 @@ export * from './use-has-custom-lists';
 export * from './use-daita-active';
 export * from './use-lwo-filter-active';
 export * from './use-quic-filter-active';
-export * from './use-is-custom-list-name-valid';
