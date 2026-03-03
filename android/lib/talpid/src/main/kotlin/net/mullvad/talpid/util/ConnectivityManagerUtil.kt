@@ -74,7 +74,7 @@ fun ConnectivityManager.defaultNetworkEvents(): Flow<NetworkEvent> =
 
             awaitClose { unregisterNetworkCallback(callback) }
         }
-        .onEach { Logger.i("Got a default network event type: ${it::class.simpleName}") }
+        .onEach { Logger.d("Got a default network event type: ${it::class.simpleName}") }
 
 fun ConnectivityManager.nonVpnInternetNetworksEvents(): Flow<NetworkEvent> =
     callbackFlow {
@@ -219,9 +219,15 @@ fun ConnectivityManager.hasInternetConnectivity(
             defaultEvent
         }
         .debounce(CONNECTIVITY_DEBOUNCE)
-        .onEach { Logger.i("Resolving connectivity status") }
         .map { resolveConnectivityStatus(it, resolver) }
         .distinctUntilChanged()
+        .onEach {
+            if (it is Connectivity.Online) {
+                Logger.i("Device is online")
+            } else {
+                Logger.i("Device is offline")
+            }
+        }
 
 internal fun resolveConnectivityStatus(
     currentRawNetworkState: RawNetworkState?,
