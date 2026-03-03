@@ -6,30 +6,32 @@ import { useCustomLists } from '../../../../../features/location/hooks';
 import { type CustomListLocation } from '../../../../../features/location/types';
 import { Dialog, type DialogProps } from '../../../../../lib/components/dialog';
 import { formatHtml } from '../../../../../lib/html-formatter';
-import { useCustomListLocationListItemContext } from '../custom-list-location-list-item/CustomListLocationListItemContext';
 
 type ConfirmDeleteCustomListDialogProps = Omit<DialogProps, 'children'> & {
   customList: CustomListLocation;
+  loading?: boolean;
+  onLoadingChange?: (loading: boolean) => void;
 };
 
 export function ConfirmDeleteCustomListDialog({
   customList,
   open,
   onOpenChange,
+  loading,
+  onLoadingChange,
 }: ConfirmDeleteCustomListDialogProps) {
   const { deleteCustomList } = useCustomLists();
-  const { setLoading } = useCustomListLocationListItemContext();
 
   const handleConfirm = React.useCallback(async () => {
+    onLoadingChange?.(true);
     onOpenChange?.(false);
-    setLoading(true);
     const success = await deleteCustomList(customList.details.customList);
 
     // Only set loading to false if failed to keep disabled state while animating out
     if (!success) {
-      setLoading(false);
+      onLoadingChange?.(false);
     }
-  }, [customList.details.customList, deleteCustomList, onOpenChange, setLoading]);
+  }, [customList.details.customList, deleteCustomList, onOpenChange, onLoadingChange]);
 
   const handleCancel = React.useCallback(() => {
     onOpenChange?.(false);
@@ -57,7 +59,11 @@ export function ConfirmDeleteCustomListDialog({
               )}
             </Dialog.Text>
             <Dialog.ButtonGroup>
-              <Dialog.Button key="save" variant="destructive" onClick={handleConfirm}>
+              <Dialog.Button
+                key="save"
+                variant="destructive"
+                onClick={handleConfirm}
+                disabled={loading || !open}>
                 <Dialog.Button.Text>{messages.gettext('Delete list')}</Dialog.Button.Text>
               </Dialog.Button>
               <Dialog.Button key="cancel" onClick={handleCancel}>

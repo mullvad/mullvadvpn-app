@@ -1,9 +1,9 @@
 import React from 'react';
 
 import type { CustomListLocation } from '../../../../../features/location/types';
-import type { DialogProps } from '../../../../../lib/components/dialog';
 import { useTextField, type UseTextFieldState } from '../../../../../lib/components/text-field';
 import { useIsCustomListNameValid } from '../../hooks';
+import type { EditListProps } from './EditCustomListDialog';
 
 type EditCustomListDialogContextProps = Omit<EditCustomListDialogProviderProps, 'children'> & {
   formRef: React.RefObject<HTMLFormElement | null>;
@@ -29,9 +29,11 @@ export const useEditCustomListDialogContext = (): EditCustomListDialogContextPro
   return context;
 };
 
-type EditCustomListDialogProviderProps = Pick<DialogProps, 'open' | 'onOpenChange' | 'children'> & {
-  customList: CustomListLocation;
-};
+type EditCustomListDialogProviderProps = React.PropsWithChildren<
+  Pick<EditListProps, 'open' | 'onOpenChange' | 'loading' | 'onLoadingChange'> & {
+    customList: CustomListLocation;
+  }
+>;
 
 export function EditCustomListDialogProvider({
   customList,

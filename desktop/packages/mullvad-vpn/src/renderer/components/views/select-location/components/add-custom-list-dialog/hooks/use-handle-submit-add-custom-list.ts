@@ -1,12 +1,11 @@
 import React from 'react';
 
 import { useCustomLists } from '../../../../../../features/location/hooks';
-import { useCustomListLocationListContext } from '../../custom-list-location-list/CustomListLocationListContext';
 import { useAddCustomListDialogContext } from '../AddCustomListDialogContext';
 
 export function useHandleSubmitAddCustomList() {
   const { createCustomList: contextCreateCustomList } = useCustomLists();
-  const { setAddingCustomList } = useCustomListLocationListContext();
+  const { onLoadingChange } = useAddCustomListDialogContext();
   const {
     onOpenChange,
     form: {
@@ -17,7 +16,7 @@ export function useHandleSubmitAddCustomList() {
 
   const submitCustomList = React.useCallback(
     async (name: string) => {
-      setAddingCustomList(true);
+      onLoadingChange?.(true);
       const result = await contextCreateCustomList(name);
       if (result) {
         setError(true);
@@ -25,9 +24,9 @@ export function useHandleSubmitAddCustomList() {
         reset();
         onOpenChange?.(false);
       }
-      setAddingCustomList(false);
+      onLoadingChange?.(false);
     },
-    [contextCreateCustomList, onOpenChange, reset, setAddingCustomList, setError],
+    [contextCreateCustomList, onOpenChange, reset, onLoadingChange, setError],
   );
 
   return React.useCallback(

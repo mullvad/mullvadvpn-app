@@ -8,6 +8,7 @@ import { getLocationChildren } from '../../../../../../../features/location/util
 import { useAccordionContext } from '../../../../../../../lib/components/accordion/AccordionContext';
 import { useListItemContext } from '../../../../../../../lib/components/list-item/ListItemContext';
 import { LocationListItem } from '../../../../../../location-list-item';
+import { useGeographicalLocationListItemContext } from '../../../geographical-location-list-item/GeographicalLocationListItemContext';
 import { useAnyLocationListItemContext } from '../../AnyLocationListItemContext';
 import { AddToCustomListButton } from '../add-to-custom-list-button';
 import { RemoveFromCustomListButton } from '../remove-from-custom-list-button';
@@ -23,6 +24,7 @@ export function GeographicalLocationTrailingActions({
   const { customLists } = useCustomLists();
   const { level } = useListItemContext();
   const { expanded } = useAccordionContext();
+  const { loading, setLoading } = useGeographicalLocationListItemContext();
 
   const childLocations = getLocationChildren(location);
 
@@ -47,7 +49,11 @@ export function GeographicalLocationTrailingActions({
       {/* Show remove from custom list button if location is top level item in a custom list. */}
       {showRemoveFromCustomListButton && (
         <LocationListItem.HeaderTrailingAction>
-          <RemoveFromCustomListButton location={location} />
+          <RemoveFromCustomListButton
+            location={location}
+            loading={loading}
+            onLoadingChange={setLoading}
+          />
         </LocationListItem.HeaderTrailingAction>
       )}
       {showAccordionTrigger && (

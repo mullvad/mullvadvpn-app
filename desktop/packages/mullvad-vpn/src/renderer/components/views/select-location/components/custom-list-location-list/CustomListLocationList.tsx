@@ -7,7 +7,6 @@ import { FlexColumn } from '../../../../../lib/components/flex-column';
 import { spacings } from '../../../../../lib/foundations';
 import { useCustomListLocationsContext } from '../../CustomListLocationsContext';
 import { useHasCustomLists } from '../../hooks';
-import { AddCustomListDialog } from '../add-custom-list-dialog';
 import { CustomListLocationListItem } from '../custom-list-location-list-item';
 import { CustomListsSectionTitle } from './components';
 import {
@@ -26,8 +25,7 @@ const StyledAnimatedListItem = styled(AnimatedList.Item)`
 
 function CustomListLocationListImpl() {
   const { customListLocations } = useCustomListLocationsContext();
-  const { addingCustomList, addCustomListDialogOpen, setAddCustomListDialogOpen } =
-    useCustomListLocationListContext();
+  const { addingCustomList } = useCustomListLocationListContext();
 
   const hasCustomLists = useHasCustomLists();
   const showAddCustomListText = !hasCustomLists && !addingCustomList;
@@ -36,11 +34,6 @@ function CustomListLocationListImpl() {
   return (
     <FlexColumn gap="tiny">
       <CustomListsSectionTitle />
-      <AddCustomListDialog
-        open={addCustomListDialogOpen}
-        onOpenChange={setAddCustomListDialogOpen}
-      />
-
       <FlexColumn>
         <StyledAnimatedList>
           {customListLocations.map((customList) => {

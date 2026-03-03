@@ -14,9 +14,17 @@ import {
   useHandleSubmitAddCustomList,
 } from './hooks';
 
-export type AddCustomListDialogProps = Omit<DialogProps, 'children'>;
+export type AddCustomListDialogProps = Omit<DialogProps, 'children'> & {
+  loading?: boolean;
+  onLoadingChange?: (loading: boolean) => void;
+};
 
-function AddCustomListDialogImpl(props: AddCustomListDialogProps) {
+export type AddCustomListDialogImplProps = Omit<
+  AddCustomListDialogProps,
+  'open' | 'onOpenChange' | 'loading' | 'onLoadingChange'
+>;
+
+function AddCustomListDialogImpl(props: AddCustomListDialogImplProps) {
   const descriptionId = React.useId();
 
   const {
@@ -24,6 +32,7 @@ function AddCustomListDialogImpl(props: AddCustomListDialogProps) {
     onOpenChange,
     formRef,
     inputRef,
+    loading,
     form: {
       error,
       customListTextField: { value, invalid, dirty, invalidReason, reset },
@@ -49,6 +58,7 @@ function AddCustomListDialogImpl(props: AddCustomListDialogProps) {
   }, [handleOnOpenChange]);
 
   const textFieldInvalid = dirty && (error || invalid);
+  const saveButtonDisabled = textFieldInvalid || loading || !open || !dirty;
 
   return (
     <Dialog open={open} onOpenChange={handleOnOpenChange} {...props}>
@@ -90,7 +100,7 @@ function AddCustomListDialogImpl(props: AddCustomListDialogProps) {
               </TextField>
             </form>
             <Dialog.ButtonGroup>
-              <Dialog.Button key="save" disabled={textFieldInvalid} onClick={handleClick}>
+              <Dialog.Button key="save" disabled={saveButtonDisabled} onClick={handleClick}>
                 <Dialog.Button.Text>{messages.gettext('Create')}</Dialog.Button.Text>
               </Dialog.Button>
               <Dialog.Button key="cancel" onClick={handleCancel}>
@@ -104,9 +114,19 @@ function AddCustomListDialogImpl(props: AddCustomListDialogProps) {
   );
 }
 
-export function AddCustomListDialog({ open, onOpenChange, ...props }: AddCustomListDialogProps) {
+export function AddCustomListDialog({
+  open,
+  onOpenChange,
+  loading,
+  onLoadingChange,
+  ...props
+}: AddCustomListDialogProps) {
   return (
-    <AddCustomListDialogProvider open={open} onOpenChange={onOpenChange}>
+    <AddCustomListDialogProvider
+      open={open}
+      onOpenChange={onOpenChange}
+      loading={loading}
+      onLoadingChange={onLoadingChange}>
       <AddCustomListDialogImpl {...props} />
     </AddCustomListDialogProvider>
   );
