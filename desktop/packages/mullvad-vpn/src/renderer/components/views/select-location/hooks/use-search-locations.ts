@@ -2,7 +2,7 @@ import type {
   CityLocation,
   CountryLocation,
   RelayLocation,
-} from '../../../../features/location/types';
+} from '../../../../features/locations/types';
 import { searchMatchesLocation } from '../utils';
 
 export function useSearchLocations(

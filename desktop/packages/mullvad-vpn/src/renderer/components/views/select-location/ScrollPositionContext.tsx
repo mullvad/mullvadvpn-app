@@ -1,7 +1,7 @@
 import { Action } from 'history';
 import React, { useCallback, useContext, useEffect, useMemo, useRef } from 'react';
 
-import { LocationType } from '../../../features/location/types';
+import { LocationType } from '../../../features/locations/types';
 import { useHistory } from '../../../lib/history';
 import { useNormalRelaySettings } from '../../../lib/relay-settings-hooks';
 import { useStyledRef } from '../../../lib/utility-hooks';

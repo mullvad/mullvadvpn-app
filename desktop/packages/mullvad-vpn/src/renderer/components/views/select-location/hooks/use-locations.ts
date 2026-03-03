@@ -6,7 +6,7 @@ import {
   type CountryLocation,
   DisabledReason,
   type RelayLocation,
-} from '../../../../features/location/types';
+} from '../../../../features/locations/types';
 import type {
   IRelayLocationCityRedux,
   IRelayLocationCountryRedux,

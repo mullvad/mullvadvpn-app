@@ -5,7 +5,7 @@ import {
   type CustomListLocation,
   DisabledReason,
   type GeographicalLocation,
-} from '../../../../features/location/types';
+} from '../../../../features/locations/types';
 import { useLocationsContext } from '../LocationsContext';
 import { useSelectLocationViewContext } from '../SelectLocationViewContext';
 import {

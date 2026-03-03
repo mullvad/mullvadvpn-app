@@ -4,7 +4,7 @@ import { sprintf } from 'sprintf-js';
 import { messages } from '../../../../../shared/gettext';
 import { Dialog, type DialogProps } from '../../../../lib/components/dialog';
 import { formatHtml } from '../../../../lib/html-formatter';
-import { type CustomListLocation } from '../../../location/types';
+import { type CustomListLocation } from '../../../locations/types';
 import { useCustomLists } from '../../hooks';
 
 type DeleteCustomListDialogProps = Omit<DialogProps, 'children'> & {

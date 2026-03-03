@@ -1,4 +1,4 @@
-import { getLocationChildren } from '../../../../../features/location/utils';
+import { getLocationChildren } from '../../../../../features/locations/utils';
 import { AnyLocationListItem, type AnyLocationListItemProps } from '../any-location-list-item';
 import {
   GeographicalLocationListItemProvider,

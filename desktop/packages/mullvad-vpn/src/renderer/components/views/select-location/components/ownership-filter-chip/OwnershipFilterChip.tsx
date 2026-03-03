@@ -2,7 +2,7 @@ import React from 'react';
 
 import { Ownership } from '../../../../../../shared/daemon-rpc-types';
 import { messages } from '../../../../../../shared/gettext';
-import { useOwnership } from '../../../../../features/location/hooks';
+import { useOwnership } from '../../../../../features/locations/hooks';
 import { FilterChip, type FilterChipProps } from '../../../../../lib/components';
 import { useNormalRelaySettings } from '../../../../../lib/relay-settings-hooks';
 import { useScrollPositionContext } from '../../ScrollPositionContext';

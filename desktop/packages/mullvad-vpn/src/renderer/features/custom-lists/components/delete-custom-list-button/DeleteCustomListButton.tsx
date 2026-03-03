@@ -3,7 +3,7 @@ import { sprintf } from 'sprintf-js';
 
 import { messages } from '../../../../../shared/gettext';
 import { IconButton, type IconButtonProps } from '../../../../lib/components';
-import type { CustomListLocation } from '../../../location/types';
+import type { CustomListLocation } from '../../../locations/types';
 import { DeleteCustomListDialog } from '../delete-custom-list-dialog';
 
 export type DeleteCustomListButtonProps = IconButtonProps & {

@@ -3,7 +3,7 @@ import React from 'react';
 import { ObfuscationType } from '../../../../shared/daemon-rpc-types';
 import { useObfuscation } from '../../../features/anti-censorship/hooks';
 import { useDaitaDirectOnly, useDaitaEnabled } from '../../../features/daita/hooks';
-import { type CountryLocation } from '../../../features/location/types';
+import { type CountryLocation } from '../../../features/locations/types';
 import {
   filterLocations as filterLocationsByOwnershipAndProviders,
   filterLocationsByDaita,

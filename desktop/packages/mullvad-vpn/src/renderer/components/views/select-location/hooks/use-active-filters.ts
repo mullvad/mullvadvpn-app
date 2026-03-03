@@ -1,5 +1,5 @@
 import { Ownership } from '../../../../../shared/daemon-rpc-types';
-import { useOwnership, useProviders } from '../../../../features/location/hooks';
+import { useOwnership, useProviders } from '../../../../features/locations/hooks';
 import { useDaitaFilterActive } from './use-daita-active';
 import { useLwoFilterActive } from './use-lwo-filter-active';
 import { useQuicFilterActive } from './use-quic-filter-active';

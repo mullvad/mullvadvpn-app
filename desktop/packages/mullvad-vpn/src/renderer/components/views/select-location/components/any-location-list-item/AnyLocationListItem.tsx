@@ -3,8 +3,8 @@ import { sprintf } from 'sprintf-js';
 
 import type { RelayLocation as DaemonRelayLocation } from '../../../../../../shared/daemon-rpc-types';
 import { messages } from '../../../../../../shared/gettext';
-import { type AnyLocation } from '../../../../../features/location/types';
-import { getLocationChildren } from '../../../../../features/location/utils';
+import { type AnyLocation } from '../../../../../features/locations/types';
+import { getLocationChildren } from '../../../../../features/locations/utils';
 import { FootnoteMiniSemiBold } from '../../../../../lib/components';
 import { FlexColumn } from '../../../../../lib/components/flex-column';
 import type { ListItemProps } from '../../../../../lib/components/list-item';
