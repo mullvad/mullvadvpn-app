@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 
 import type { RelayLocation } from '../../../../../shared/daemon-rpc-types';
-import { LocationType } from '../../../../features/location/types';
+import { LocationType } from '../../../../features/locations/types';
 import { useNormalRelaySettings } from '../../../../lib/relay-settings-hooks';
 import { useSelectLocationViewContext } from '../SelectLocationViewContext';
 

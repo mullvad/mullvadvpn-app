@@ -1,6 +1,6 @@
 import React from 'react';
 
-import type { AnyLocation } from '../../../../../features/location/types';
+import type { AnyLocation } from '../../../../../features/locations/types';
 import { useSelectLocationViewContext } from '../../SelectLocationViewContext';
 
 type AnyLocationListItemContextProps = Omit<AnyLocationListItemProviderProps, 'children'> & {

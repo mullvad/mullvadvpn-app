@@ -3,7 +3,7 @@ import { useCallback } from 'react';
 import { messages } from '../../../../shared/gettext';
 import { RoutePath } from '../../../../shared/routes';
 import { useDaitaDirectOnly, useDaitaEnabled } from '../../../features/daita/hooks';
-import { LocationType } from '../../../features/location/types';
+import { LocationType } from '../../../features/locations/types';
 import { useMultihop } from '../../../features/multihop/hooks';
 import { IconButton } from '../../../lib/components';
 import { View } from '../../../lib/components/view';

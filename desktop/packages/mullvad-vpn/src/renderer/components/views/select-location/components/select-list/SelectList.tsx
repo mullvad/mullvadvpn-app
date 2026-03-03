@@ -7,7 +7,7 @@ import {
 } from '../../../../../../shared/daemon-rpc-types';
 import { messages } from '../../../../../../shared/gettext';
 import { useCustomLists } from '../../../../../features/custom-lists/hooks';
-import type { GeographicalLocation } from '../../../../../features/location/types';
+import type { GeographicalLocation } from '../../../../../features/locations/types';
 import { IconButton } from '../../../../../lib/components';
 import { ListItem } from '../../../../../lib/components/list-item';
 import { SelectableLabel } from '../../../../../lib/components/selectable-label';

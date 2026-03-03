@@ -1,5 +1,5 @@
 import { IpVersion, LiftedConstraint, Ownership } from '../../shared/daemon-rpc-types';
-import { LocationType } from '../features/location/types';
+import { LocationType } from '../features/locations/types';
 import { IRelayLocationCountryRedux, IRelayLocationRelayRedux } from '../redux/settings/reducers';
 import { IpAddress, IPv4Address, IPv6Address } from './ip';
 

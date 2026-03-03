@@ -3,7 +3,7 @@ import { sprintf } from 'sprintf-js';
 
 import { messages } from '../../../../../shared/gettext';
 import { IconButton, type IconButtonProps } from '../../../../lib/components';
-import type { GeographicalLocation } from '../../../location/types';
+import type { GeographicalLocation } from '../../../locations/types';
 import { useCustomLists } from '../../hooks';
 
 export type RemoveFromCustomListButtonProps = IconButtonProps & {

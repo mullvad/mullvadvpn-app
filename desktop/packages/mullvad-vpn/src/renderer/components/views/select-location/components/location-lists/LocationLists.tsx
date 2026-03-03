@@ -1,4 +1,4 @@
-import type { LocationType } from '../../../../../features/location/types';
+import type { LocationType } from '../../../../../features/locations/types';
 import { useHasCustomLists } from '../../hooks';
 import { CountryLocationList } from '../country-location-list';
 import { CustomListLocationList } from '../custom-list-location-list';

@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 
-import { DisabledReason, LocationType } from '../../../../features/location/types';
+import { DisabledReason, LocationType } from '../../../../features/locations/types';
 import { useNormalRelaySettings } from '../../../../lib/relay-settings-hooks';
 import { useSelectLocationViewContext } from '../SelectLocationViewContext';
 

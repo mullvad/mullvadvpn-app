@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { LocationType } from '../../../features/location/types';
+import { LocationType } from '../../../features/locations/types';
 import useActions from '../../../lib/actionsHook';
 import { useNormalRelaySettings } from '../../../lib/relay-settings-hooks';
 import { useSelector } from '../../../redux/store';

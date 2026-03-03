@@ -3,7 +3,7 @@ import React from 'react';
 import { type RelayLocation } from '../../../../../../../shared/daemon-rpc-types';
 import { RoutePath } from '../../../../../../../shared/routes';
 import { useAppContext } from '../../../../../../context';
-import { useRelayLocations } from '../../../../../../features/location/hooks';
+import { useRelayLocations } from '../../../../../../features/locations/hooks';
 import { useHistory } from '../../../../../../lib/history';
 
 export function useHandleSelectExitLocation() {

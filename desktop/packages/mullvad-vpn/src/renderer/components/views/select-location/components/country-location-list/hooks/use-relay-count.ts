@@ -1,4 +1,4 @@
-import { useRelayLocations } from '../../../../../../features/location/hooks';
+import { useRelayLocations } from '../../../../../../features/locations/hooks';
 import { useLocationsContext } from '../../../LocationsContext';
 
 export function useRelayCount() {

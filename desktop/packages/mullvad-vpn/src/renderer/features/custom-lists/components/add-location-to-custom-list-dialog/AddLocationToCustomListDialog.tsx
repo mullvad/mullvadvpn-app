@@ -6,7 +6,7 @@ import { SelectList } from '../../../../components/views/select-location/compone
 import { Dialog, type DialogProps } from '../../../../lib/components/dialog';
 import { FlexColumn } from '../../../../lib/components/flex-column';
 import { formatHtml } from '../../../../lib/html-formatter';
-import type { GeographicalLocation } from '../../../location/types';
+import type { GeographicalLocation } from '../../../locations/types';
 import { useCustomLists } from '../../hooks';
 import { useLocationTypeMessage } from './hooks';
 

@@ -7,8 +7,8 @@ import {
   RemoveLocationFromCustomListButton,
 } from '../../../../../../../features/custom-lists/components';
 import { useCustomLists } from '../../../../../../../features/custom-lists/hooks';
-import { type GeographicalLocation } from '../../../../../../../features/location/types';
-import { getLocationChildren } from '../../../../../../../features/location/utils';
+import { type GeographicalLocation } from '../../../../../../../features/locations/types';
+import { getLocationChildren } from '../../../../../../../features/locations/utils';
 import { useAccordionContext } from '../../../../../../../lib/components/accordion/AccordionContext';
 import { useListItemContext } from '../../../../../../../lib/components/list-item/ListItemContext';
 import { LocationListItem } from '../../../../../../location-list-item';
