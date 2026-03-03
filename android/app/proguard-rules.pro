@@ -29,9 +29,3 @@
 
 # datastore
 -keep class net.mullvad.mullvadvpn.repository.UserPreferences { *; }
-
-# for logging
--keepnames class net.mullvad.mullvadvpn.lib.payment.model.PurchaseResult
--keepnames class net.mullvad.mullvadvpn.lib.payment.model.PaymentAvailability
-
-

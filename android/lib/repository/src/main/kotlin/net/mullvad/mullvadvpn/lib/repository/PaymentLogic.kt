@@ -55,13 +55,14 @@ class PlayPaymentLogic(private val paymentRepository: PaymentRepository) : Payme
                 }
             }
             .onEach { Logger.i("Purchase state: ${it::class.simpleName}") }
+            .onEach(::logPurchaseResult)
             .collect(_purchaseResult)
     }
 
     override suspend fun queryPaymentAvailability() {
         paymentRepository
             .queryPaymentAvailability()
-            .onEach { Logger.i("Payment availability: ${it::class.simpleName}") }
+            .onEach(::logPaymentAvailability)
             .collect(_paymentAvailability)
     }
 
@@ -92,6 +93,57 @@ class PlayPaymentLogic(private val paymentRepository: PaymentRepository) : Payme
 
     private fun PurchaseResult?.shouldDelayLoading() =
         this is PurchaseResult.FetchingProducts || this is PurchaseResult.VerificationStarted
+
+    private fun logPurchaseResult(result: PurchaseResult) {
+        when (result) {
+            PurchaseResult.Completed.Cancelled -> {
+                Logger.i("Purchase cancelled")
+            }
+            is PurchaseResult.Completed -> {
+                Logger.i("Purchase completed")
+                if (result is PurchaseResult.Completed.Pending) {
+                    Logger.i("Purchase is now pending")
+                }
+            }
+            is PurchaseResult.Error -> {
+                Logger.e("Purchase error")
+                when (result) {
+                    is PurchaseResult.Error.VerificationError ->
+                        Logger.e("Could not verify purchase")
+                    is PurchaseResult.Error.BillingError -> Logger.e("BillingError")
+                    is PurchaseResult.Error.FetchProductsError ->
+                        Logger.e("Could not fetch any products")
+                    is PurchaseResult.Error.NoProductFound -> Logger.e("No product available")
+                    is PurchaseResult.Error.TransactionIdError ->
+                        Logger.e("Could not fetch transaction id")
+                }
+            }
+            PurchaseResult.BillingFlowStarted -> Logger.i("Purchase flow started")
+            PurchaseResult.FetchingObfuscationId -> Logger.i("Fetching obfuscation id...")
+            PurchaseResult.FetchingProducts -> Logger.i("Fetching products...")
+            PurchaseResult.VerificationStarted -> Logger.i("Verification started")
+        }
+    }
+
+    private fun logPaymentAvailability(paymentAvailability: PaymentAvailability) {
+        when (paymentAvailability) {
+            is PaymentAvailability.Error -> {
+                Logger.e("Unable to get products")
+                when (paymentAvailability) {
+                    PaymentAvailability.Error.BillingUnavailable -> Logger.e("BillingUnavailable")
+                    PaymentAvailability.Error.DeveloperError -> Logger.e("DeveloperError")
+                    PaymentAvailability.Error.FeatureNotSupported -> Logger.e("FeatureNotSupported")
+                    PaymentAvailability.Error.ItemUnavailable -> Logger.e("ItemUnavailable")
+                    is PaymentAvailability.Error.Other -> Logger.e("Other")
+                    PaymentAvailability.Error.ServiceUnavailable -> Logger.e("ServiceUnavailable")
+                }
+            }
+            PaymentAvailability.Loading -> Logger.i("Loading products...")
+            PaymentAvailability.NoProductsFound -> Logger.e("No products found")
+            is PaymentAvailability.ProductsAvailable -> Logger.i("Products available")
+            PaymentAvailability.ProductsUnavailable -> Logger.i("Products unavailable")
+        }
+    }
 
     companion object {
         const val EXTRA_LOADING_DELAY_MS = 300L
