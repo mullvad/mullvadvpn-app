@@ -874,10 +874,10 @@ impl RelaySelector {
     fn criteria(&self, predicate: Predicate) -> Vec<Criteria<'_, WireguardRelay>> {
         match predicate {
             Predicate::Singlehop(constraints) => {
-                let mut singlehop_criteria = self.singlehop_criteria(constraints.clone());
+                let mut singlehop_criteria = self.entry_criteria(constraints.clone());
                 let active =
                     Criteria::new(|relay: &WireguardRelay| relay.active.if_false(Reason::Inactive));
-                let location = self.location_criteria(constraints.general);
+                let location = self.location_criteria(constraints.general.location);
                 singlehop_criteria.extend([active, location]);
                 singlehop_criteria
             }
@@ -916,7 +916,7 @@ impl RelaySelector {
                 let apply_entry_guards = {
                     let mut constraints = constraints.clone();
                     constraints.general.location = Constraint::Any;
-                    self.singlehop_criteria(constraints)
+                    self.entry_criteria(constraints)
                         .into_iter()
                         .reduce(Criteria::compose)
                         .unwrap()
@@ -952,8 +952,11 @@ impl RelaySelector {
 
                 // Except for the `occupied` condition, the remainder of the work is ~equiv
                 // to `Predicate::Singlehop`.
-                let mut criteria = self.singlehop_criteria(entry);
-                criteria.extend([occupied]);
+                let mut criteria = self.entry_criteria(entry.clone());
+                let active =
+                    Criteria::new(|relay: &WireguardRelay| relay.active.if_false(Reason::Inactive));
+                let location = self.location_criteria(entry.general.location);
+                criteria.extend([active, location, occupied]);
                 criteria
             }
             Predicate::Exit(MultihopConstraints { entry, exit }) => {
@@ -982,27 +985,46 @@ impl RelaySelector {
 
                 // Here we *do not* have to consider any additional entry constraints, such as
                 // obfuscation, DAITA, etc.
-                let mut criteria = self.base_criteria(exit);
-                criteria.extend([occupied]);
-                criteria
+                let ExitConstraints {
+                    location,
+                    providers,
+                    ownership,
+                } = exit;
+
+                let active =
+                    Criteria::new(|relay: &WireguardRelay| relay.active.if_false(Reason::Inactive));
+                let location = self.location_criteria(location);
+                let ownership = Criteria::new(move |relay| {
+                    matcher::filter_on_ownership(ownership.as_ref(), relay)
+                        .if_false(Reason::Ownership)
+                });
+                let providers = Criteria::new(move |relay| {
+                    matcher::filter_on_providers(providers.as_ref(), relay)
+                        .if_false(Reason::Providers)
+                });
+
+                vec![active, location, ownership, providers, occupied]
             }
         }
     }
 
-    /// TODO: Document me
-    ///
-    fn singlehop_criteria(
-        &self,
-        constraints: EntryConstraints,
-    ) -> Vec<Criteria<'_, WireguardRelay>> {
+    /// All criteria that apply for specifically for entry relays.
+    fn entry_criteria(&self, constraints: EntryConstraints) -> Vec<Criteria<'_, WireguardRelay>> {
         // Here we have to consider extra entry constraints, such as DAITA, obfuscation etc.
-        let filters = self.filter_criteria(constraints.general.clone());
         let obfuscation = self.obfuscation_criteria(constraints.clone());
+        let ownership = Criteria::new(move |relay| {
+            matcher::filter_on_ownership(constraints.ownership.as_ref(), relay)
+                .if_false(Reason::Ownership)
+        });
+        let providers = Criteria::new(move |relay| {
+            matcher::filter_on_providers(constraints.providers.as_ref(), relay)
+                .if_false(Reason::Providers)
+        });
         let daita = Criteria::new(move |relay| {
             let daita_on = constraints.daita.as_ref().map(|settings| settings.enabled);
             matcher::filter_on_daita(&daita_on, relay).if_false(Reason::Daita)
         });
-        vec![filters, daita, obfuscation]
+        vec![ownership, providers, daita, obfuscation]
     }
 
     fn obfuscation_criteria(&self, constraints: EntryConstraints) -> Criteria<'_, WireguardRelay> {
@@ -1022,8 +1044,10 @@ impl RelaySelector {
         })
     }
 
-    fn location_criteria(&self, constraints: ExitConstraints) -> Criteria<'_, WireguardRelay> {
-        let ExitConstraints { location, .. } = constraints;
+    fn location_criteria(
+        &self,
+        location: Constraint<LocationConstraint>,
+    ) -> Criteria<'_, WireguardRelay> {
         let custom_lists: CustomListsSettings = self.custom_lists();
         Criteria::new(move |relay| {
             let location = matcher::ResolvedLocationConstraint::from_constraint(
@@ -1032,60 +1056,6 @@ impl RelaySelector {
             );
             matcher::filter_on_location(location.as_ref(), relay).if_false(Reason::Location)
         })
-    }
-
-    /// TODO: Document me
-    /// * active
-    /// * location
-    /// * filters
-    /// * providers
-    fn base_criteria(&self, constraints: ExitConstraints) -> Vec<Criteria<'_, WireguardRelay>> {
-        let ExitConstraints {
-            location,
-            providers,
-            ownership,
-        } = constraints;
-        let custom_lists: CustomListsSettings = self.custom_lists();
-
-        let active =
-            Criteria::new(|relay: &WireguardRelay| relay.active.if_false(Reason::Inactive));
-
-        let location = Criteria::new(move |relay| {
-            let location = matcher::ResolvedLocationConstraint::from_constraint(
-                location.as_ref(),
-                &custom_lists,
-            );
-            matcher::filter_on_location(location.as_ref(), relay).if_false(Reason::Location)
-        });
-        // TODO: Use `filter_criteria`
-        let ownership = Criteria::new(move |relay| {
-            matcher::filter_on_ownership(ownership.as_ref(), relay).if_false(Reason::Ownership)
-        });
-        let providers = Criteria::new(move |relay| {
-            matcher::filter_on_providers(providers.as_ref(), relay).if_false(Reason::Providers)
-        });
-
-        vec![active, location, ownership, providers]
-    }
-
-    /// All criteria for satisfying filter contraints.
-    ///
-    /// * ownership
-    /// * providers
-    fn filter_criteria(&self, constraints: ExitConstraints) -> Criteria<'_, WireguardRelay> {
-        let ExitConstraints {
-            providers,
-            ownership,
-            ..
-        } = constraints;
-        let ownership = Criteria::new(move |relay| {
-            matcher::filter_on_ownership(ownership.as_ref(), relay).if_false(Reason::Ownership)
-        });
-        let providers = Criteria::new(move |relay| {
-            matcher::filter_on_providers(providers.as_ref(), relay).if_false(Reason::Providers)
-        });
-
-        ownership.compose(providers)
     }
 }
 
