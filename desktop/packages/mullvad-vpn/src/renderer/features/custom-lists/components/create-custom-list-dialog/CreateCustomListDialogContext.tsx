@@ -1,7 +1,7 @@
 import React from 'react';
 
-import { useTextField, type UseTextFieldState } from '../../../../../lib/components/text-field';
-import { useIsCustomListNameValid } from '../../hooks';
+import { useIsCustomListNameValid } from '../../../../components/views/select-location/hooks';
+import { useTextField, type UseTextFieldState } from '../../../../lib/components/text-field';
 import type { CreateCustomListDialogProps } from './CreateCustomListDialog';
 
 type CreateCustomListDialogContextProps = Omit<CreateCustomListDialogProviderProps, 'children'> & {

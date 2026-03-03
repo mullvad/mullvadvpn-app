@@ -1,11 +1,11 @@
 import React from 'react';
 
 import { messages } from '../../../../../../../../shared/gettext';
+import { CreateCustomListDialog } from '../../../../../../../features/custom-lists/components';
 import {
   SectionTitle,
   type SectionTitleProps,
 } from '../../../../../../../lib/components/section-title';
-import { CreateCustomListDialog } from '../../../create-custom-list-dialog';
 import { useCustomListLocationListContext } from '../../CustomListLocationListContext';
 
 export type CustomListsSectionTitleProps = SectionTitleProps;

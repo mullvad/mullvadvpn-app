@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { useCustomLists } from '../../../../../../features/custom-lists/hooks';
+import { useCustomLists } from '../../../hooks';
 import { useEditCustomListDialogContext } from '../EditCustomListDialogContext';
 
 export function useHandleSubmitUpdateCustomList() {
