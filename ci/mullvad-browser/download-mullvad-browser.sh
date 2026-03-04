@@ -2,8 +2,7 @@
 
 set -eu
 
-# We'll need to add "stable_aarch64.rmp" and "stable_arm64.deb" later.
-# BROWSER_RELEASES=("stable" "alpha")
+# We'll need to add "stable_aarch64.rpm" and "stable_arm64.deb" later.
 BROWSER_RELEASES=( \
     "stable_x86_64.rpm" \
     "stable_amd64.deb" \
@@ -11,7 +10,6 @@ BROWSER_RELEASES=( \
     "alpha_amd64.deb" \
     "alpha_aarch64.rpm" \
     "alpha_arm64.deb" )
-
 
 REPOSITORIES=("stable" "beta")
 
@@ -33,38 +31,37 @@ function usage() {
 
 
 function main() {
-    local package_filename_base=$1
-    PACKAGE_FILENAME="$package_filename_base"
+    local package_filename=$1
 
-    PACKAGE_URL=https://cdn.mullvad.net/browser/$PACKAGE_FILENAME
+    PACKAGE_URL=https://cdn.mullvad.net/browser/$package_filename
     SIGNATURE_URL=$PACKAGE_URL.asc
 
-    echo "[#] Downloading $PACKAGE_FILENAME"
+    echo "[#] Downloading $package_filename"
     if ! wget --quiet "$PACKAGE_URL"; then
         echo "[!] Failed to download $PACKAGE_URL"
         exit 1
     fi
 
-    echo "[#] Downloading $PACKAGE_FILENAME.asc"
+    echo "[#] Downloading $package_filename.asc"
     if ! wget --quiet "$SIGNATURE_URL"; then
         echo "[!] Failed to download $SIGNATURE_URL"
-        rm "$PACKAGE_FILENAME"
+        rm "$package_filename"
         exit 1
     fi
 
-    echo "[#] Verifying $PACKAGE_FILENAME signature"
-    if ! gpg --verify "$PACKAGE_FILENAME".asc "$PACKAGE_FILENAME"; then
+    echo "[#] Verifying $package_filename signature"
+    if ! gpg --verify "$package_filename".asc "$package_filename"; then
         echo "[!] Failed to verify signature"
-        rm "$PACKAGE_FILENAME" "$PACKAGE_FILENAME.asc"
+        rm "$package_filename" "$package_filename.asc"
         exit 1
     fi
-    rm "$PACKAGE_FILENAME.asc"
+    rm "$package_filename.asc"
 
     # Check if the deb package has changed since last time
     # Handle the bootstrap problem by checking if the "output file" even exists and just moving on if it doesn't
-    if [[ -f "$WORKDIR/$PACKAGE_FILENAME" ]] && cmp "$PACKAGE_FILENAME" "$WORKDIR/$PACKAGE_FILENAME"; then
-        echo "[#] $PACKAGE_FILENAME has not changed"
-        rm "$PACKAGE_FILENAME"
+    if [[ -f "$WORKDIR/$package_filename" ]] && cmp "$package_filename" "$WORKDIR/$package_filename"; then
+        echo "[#] $package_filename has not changed"
+        rm "$package_filename"
         return
     fi
 
