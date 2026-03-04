@@ -1,8 +1,13 @@
 import { Ownership } from '../../../../../shared/daemon-rpc-types';
-import { useOwnership, useProviders } from '../../../../features/locations/hooks';
-import { useIsDaitaFilterActive } from '../../../../features/locations/hooks/use-is-daita-active';
-import { useIsLwoFilterActive } from '../../../../features/locations/hooks/use-is-lwo-filter-active';
-import { useIsQuicFilterActive } from '../../../../features/locations/hooks/use-is-quic-filter-active';
+import {
+  useIsQuicFilterActive,
+  useOwnership,
+  useProviders,
+} from '../../../../features/locations/hooks';
+import {
+  useIsDaitaFilterActive,
+  useIsLwoFilterActive,
+} from '../../../../features/locations/hooks/';
 import { useSelectLocationViewContext } from '../SelectLocationViewContext';
 
 export function useActiveFilters() {
