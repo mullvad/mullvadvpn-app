@@ -14,7 +14,7 @@ struct FilterDescriptor {
 
     var isEnabled: Bool {
         // Check if multihop is enabled via settings
-        let isMultihopEnabled = settings.tunnelMultihopState.isEnabled
+        let isMultihopEnabled = settings.tunnelMultihopState.isUserSelected
         let isSmartRoutingEnabled = settings.daita.isAutomaticRouting
 
         /// Closure to check if there are enough relays available for multihoping

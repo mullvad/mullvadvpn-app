@@ -18,7 +18,7 @@ struct SettingsMultihopView<ViewModel>: View where ViewModel: TunnelSettingsObse
                 SettingsInfoView(viewModel: dataViewModel)
 
                 SwitchRowView(
-                    isOn: $tunnelViewModel.value.isEnabled,
+                    isOn: $tunnelViewModel.value.isUserSelected,
                     text: NSLocalizedString("Enable", comment: ""),
                     accessibilityId: .multihopSwitch
                 )

@@ -32,7 +32,7 @@ public final class RelaySelectorWrapper: RelaySelectorProtocol, Sendable {
         ).obfuscate()
 
         return switch tunnelSettings.tunnelMultihopState {
-        case .off:
+        case .off, .whenNeeded:
             try SinglehopPicker(
                 obfuscation: obfuscation,
                 tunnelSettings: tunnelSettings,
@@ -83,11 +83,12 @@ public final class RelaySelectorWrapper: RelaySelectorProtocol, Sendable {
                 ),
                 exitRelays: try findCandidates(
                     // If multihop is explicitly enabled as well, any exit should be viable.
-                    tunnelSettings.tunnelMultihopState.isEnabled ? obfuscation.allRelays : obfuscation.obfuscatedRelays,
+                    tunnelSettings.tunnelMultihopState.isUserSelected
+                        ? obfuscation.allRelays : obfuscation.obfuscatedRelays,
                     false
                 )
             )
-        } else if tunnelSettings.tunnelMultihopState.isEnabled {
+        } else if tunnelSettings.tunnelMultihopState.isUserSelected {
             // Any exit is viable due to multihop. DAITA and obfuscation is applied on
             // the entry only.
             RelayCandidates(

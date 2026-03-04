@@ -39,7 +39,7 @@ struct DaitaFeature: ChipFeature {
     var name: String {
         // When multihop is enabled via DAITA without being explicitly enabled
         // by the user, display combined indicator instead.
-        state.isMultihop && !settings.tunnelMultihopState.isEnabled
+        state.isMultihop && !settings.tunnelMultihopState.isUserSelected
             ? "\(NSLocalizedString("DAITA", comment: "")): \(NSLocalizedString("Multihop", comment: ""))"
             : NSLocalizedString("DAITA", comment: "")
     }
@@ -66,7 +66,7 @@ struct MultihopFeature: ChipFeature {
     var isEnabled: Bool {
         // Multihop indicator should only be visible when user has explicitly turned on
         // multihop, not when using multihop via DAITA.
-        state.isMultihop && settings.tunnelMultihopState.isEnabled
+        state.isMultihop && settings.tunnelMultihopState.isUserSelected
     }
 
     var name: String {
