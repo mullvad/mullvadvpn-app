@@ -5,7 +5,8 @@
 //!   lets us use the routing table to determine where to send them, instead of them being forced
 //!   out on the primary interface (in some cases).
 //!
-//! See [start_resolver].
+//! See [start_resolver](crate::resolver::start_resolver).
+
 use std::{
     io,
     net::{IpAddr, Ipv4Addr, SocketAddr},
@@ -94,8 +95,8 @@ const DNS_PORT: u16 = if cfg!(test) {
 
 const ALLOWED_RECORD_TYPES: &[RecordType] = &[RecordType::A, RecordType::CNAME];
 /// Note: These domains need to be fully qualified domain names.
-/// - https://en.wikipedia.org/wiki/Fully_qualified_domain_name
-/// - https://github.com/hickory-dns/hickory-dns/issues/2932
+/// - <https://en.wikipedia.org/wiki/Fully_qualified_domain_name>
+/// - <https://github.com/hickory-dns/hickory-dns/issues/2932>
 const CAPTIVE_PORTAL_DOMAINS: &[&str] = &["captive.apple.com.", "netcts.cdn-apple.com."];
 
 static ALLOWED_DOMAINS: LazyLock<Vec<LowerName>> = LazyLock::new(|| {
@@ -589,7 +590,7 @@ impl LocalResolver {
         self.inner_resolver = Resolver::Blocking;
     }
 
-    /// Turn into a forwarding resolver (forward DNS queries to [dns_servers]).
+    /// Turn into a forwarding resolver (forward DNS queries to `dns_servers`).
     fn forwarding(&mut self, dns_servers: Vec<IpAddr>, filter_out_aaaa: bool) {
         let forward_server_config =
             NameServerConfigGroup::from_ips_clear(&dns_servers, DNS_PORT, true);

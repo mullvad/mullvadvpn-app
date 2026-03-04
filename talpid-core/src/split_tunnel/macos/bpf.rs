@@ -5,7 +5,7 @@
 //! directly on them, usually whole frames.
 //!
 //! Certain features may be macOS-specific, but much of the documentation for FreeBSD still holds
-//! true. Read more here: https://man.freebsd.org/cgi/man.cgi?bpf
+//! true. Read more here: <https://man.freebsd.org/cgi/man.cgi?bpf>
 use futures::ready;
 use libc::{
     BIOCGBLEN, BIOCGDLT, BIOCIMMEDIATE, BIOCSBLEN, BIOCSETIF, BIOCSHDRCMPLT, BIOCSSEESENT,

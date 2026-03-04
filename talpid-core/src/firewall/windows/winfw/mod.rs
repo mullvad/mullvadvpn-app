@@ -12,7 +12,7 @@ pub use sys::{WinFwAllowedEndpointContainer, WinFwCleanupPolicy, WinFwSettings};
 const WINFW_TIMEOUT_SECONDS: u32 = 5;
 
 /// Initialize WinFw module. Returns an initialization error if called multiple times without
-/// interleaving [Self::deinit].
+/// interleaving [deinit].
 pub(super) fn initialize() -> Result<(), Error> {
     // SAFETY: This function is always safe to call.
     let init = unsafe {
@@ -27,7 +27,7 @@ pub(super) fn initialize() -> Result<(), Error> {
 }
 
 /// Initialize WinFw module and apply blocking rules. Returns an initialization error if called
-/// multiple times without interleaving [Self::deinit].
+/// multiple times without interleaving [deinit].
 pub(super) fn initialize_blocked(
     allowed_endpoint: AllowedEndpoint,
     allow_lan: bool,
@@ -48,7 +48,7 @@ pub(super) fn initialize_blocked(
 }
 
 /// Deinitialize WinFw module. Trying to use WinFw after calling deinit will result in an
-/// error before [Self::initialize] is called.
+/// error before [initialize] is called.
 pub(super) fn deinit(cleanup_policy: WinFwCleanupPolicy) -> Result<(), Error> {
     // SAFETY: WinFw_Deinitialize is always safe to call.
     // Will simply return false if WinFw already has been deinitialized.
@@ -56,7 +56,7 @@ pub(super) fn deinit(cleanup_policy: WinFwCleanupPolicy) -> Result<(), Error> {
     deinit.into_result()
 }
 
-/// Reset all firewall policies applied by [winfw].
+/// Reset all firewall policies applied by [winfw](self).
 ///
 /// Sets the underlying active policy to None.
 pub(super) fn reset() -> Result<(), FirewallPolicyError> {
@@ -70,7 +70,7 @@ pub(super) fn reset() -> Result<(), FirewallPolicyError> {
 /// permitted through the firewall is defined by `winfw_settings` and `allowed_endpoint`. See
 /// the BlockAll class for more information.
 ///
-/// Returns an error if [winfw] is not initialized.
+/// Returns an error if [winfw](self) is not initialized.
 pub(super) fn apply_policy_blocked(
     winfw_settings: &WinFwSettings,
     allowed_endpoint: Option<WinFwAllowedEndpointContainer>,
