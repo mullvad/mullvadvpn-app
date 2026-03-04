@@ -105,21 +105,6 @@ jobs:
         with:
           rust-cache-targets: "true"
 
-      - name: Build Windows modules (x86_64)
-        if: ${{ matrix.config.arch == 'x64' }}
-        shell: bash
-        run: ./build-windows-modules.sh build winfw
-
-      - name: Build Windows modules (ARM64)
-        if: ${{ matrix.config.arch == 'arm64' }}
-        shell: bash
-        # By default, ./build-windows-modules.sh will use 4 concurrent processes during compilation
-        # because the Windows 11 ARM runner has 4 cores:
-        # https://docs.github.com/en/actions/how-tos/write-workflows/choose-where-workflows-run/choose-the-runner-for-a-job#standard-github-hosted-runners-for-public-repositories
-        #
-        # Cap the number of concurrent processes to something less than 4 to avoid OOM issues.
-        run: ./build-windows-modules.sh --max-concurrent-processes 2 build winfw
-
       - name: Check rust docs
         shell: bash
         run: ci/cargo-ci.sh doc --workspace --document-private-items --no-deps --keep-going --color=always
