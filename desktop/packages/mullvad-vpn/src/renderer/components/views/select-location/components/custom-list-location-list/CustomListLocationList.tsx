@@ -5,8 +5,8 @@ import { Container, Text } from '../../../../../lib/components';
 import { AnimatedList } from '../../../../../lib/components/animated-list';
 import { FlexColumn } from '../../../../../lib/components/flex-column';
 import { spacings } from '../../../../../lib/foundations';
-import { useCustomListLocationsContext } from '../../CustomListLocationsContext';
 import { useHasCustomLists } from '../../hooks';
+import { useSelectLocationViewContext } from '../../SelectLocationViewContext';
 import { CustomListLocationListItem } from '../custom-list-location-list-item';
 import { CustomListsSectionTitle } from './components';
 import {
@@ -24,7 +24,7 @@ const StyledAnimatedListItem = styled(AnimatedList.Item)`
 `;
 
 function CustomListLocationListImpl() {
-  const { customListLocations } = useCustomListLocationsContext();
+  const { customListLocations } = useSelectLocationViewContext();
   const { addingCustomList } = useCustomListLocationListContext();
 
   const hasCustomLists = useHasCustomLists();

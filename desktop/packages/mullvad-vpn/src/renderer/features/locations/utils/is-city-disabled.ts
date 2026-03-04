@@ -2,9 +2,9 @@ import {
   compareRelayLocation,
   type RelayLocation,
   type RelayLocationCity,
-} from '../../../../../shared/daemon-rpc-types';
-import { DisabledReason } from '../../../../features/locations/types';
-import type { IRelayLocationCityRedux } from '../../../../redux/settings/reducers';
+} from '../../../../shared/daemon-rpc-types';
+import type { IRelayLocationCityRedux } from '../../../redux/settings/reducers';
+import { DisabledReason } from '../types';
 import { isRelayDisabled } from './is-relay-disabled';
 
 export function isCityDisabled(

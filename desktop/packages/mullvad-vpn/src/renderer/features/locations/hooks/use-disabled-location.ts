@@ -1,16 +1,14 @@
-import { useMemo } from 'react';
+import React from 'react';
 
-import { DisabledReason, LocationType } from '../../../../features/locations/types';
-import { useNormalRelaySettings } from '../../../../lib/relay-settings-hooks';
-import { useSelectLocationViewContext } from '../SelectLocationViewContext';
+import { useNormalRelaySettings } from '../../../lib/relay-settings-hooks';
+import { DisabledReason, LocationType } from '../types';
 
 // Returns the location (if any) that should be disabled. This is currently used for disabling the
 // entry location when selecting exit location etc.
-export function useDisabledLocation() {
-  const { locationType } = useSelectLocationViewContext();
+export function useDisabledLocation(locationType: LocationType) {
   const relaySettings = useNormalRelaySettings();
 
-  return useMemo(() => {
+  return React.useMemo(() => {
     if (relaySettings?.wireguard.useMultihop) {
       if (locationType === LocationType.exit && relaySettings?.wireguard.entryLocation !== 'any') {
         return {

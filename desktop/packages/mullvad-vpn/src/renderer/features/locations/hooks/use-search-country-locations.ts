@@ -1,11 +1,7 @@
-import type {
-  CityLocation,
-  CountryLocation,
-  RelayLocation,
-} from '../../../../features/locations/types';
+import type { CityLocation, CountryLocation, RelayLocation } from '../types';
 import { searchMatchesLocation } from '../utils';
 
-export function useSearchLocations(
+export function useSearchCountryLocations(
   locations: CountryLocation[],
   searchTerm: string,
 ): CountryLocation[] {

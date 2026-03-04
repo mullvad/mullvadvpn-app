@@ -1,26 +1,24 @@
 import React from 'react';
 
-import { useCustomLists } from '../../../../features/custom-lists/hooks';
+import { useCustomLists } from '../../custom-lists/hooks';
 import {
   type CustomListLocation,
   DisabledReason,
   type GeographicalLocation,
-} from '../../../../features/locations/types';
-import { useLocationsContext } from '../LocationsContext';
-import { useSelectLocationViewContext } from '../SelectLocationViewContext';
-import {
-  createLocationMap,
-  isCustomListDisabled,
-  isLocationSelected,
-  searchMatchesLocation,
-} from '../utils';
+  type LocationType,
+} from '../types';
+import { isCustomListDisabled, isLocationSelected, searchMatchesLocation } from '../utils';
+import { createLocationMap } from '../utils';
+import { useCountryLocations } from './use-country-locations';
 import { useSelectedLocation } from './use-selected-location';
 
-export function useCustomListLocations(): CustomListLocation[] {
-  const { searchTerm } = useSelectLocationViewContext();
-  const { filteredLocations, searchedLocations } = useLocationsContext();
+export function useCustomListLocations(
+  locationType: LocationType,
+  searchTerm: string,
+): CustomListLocation[] {
   const { customLists } = useCustomLists();
-  const selectedLocation = useSelectedLocation();
+  const { filteredLocations, searchedLocations } = useCountryLocations(locationType, searchTerm);
+  const selectedLocation = useSelectedLocation(locationType);
 
   const activeSearch = searchTerm.length > 0;
 
