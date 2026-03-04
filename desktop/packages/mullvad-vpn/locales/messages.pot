@@ -2279,6 +2279,10 @@ msgid "If these steps do not work please send a problem report."
 msgstr ""
 
 msgctxt "troubleshoot"
+msgid "If you have installed another VPN then try to uninstall that."
+msgstr ""
+
+msgctxt "troubleshoot"
 msgid "Make sure you have NF tables support."
 msgstr ""
 
