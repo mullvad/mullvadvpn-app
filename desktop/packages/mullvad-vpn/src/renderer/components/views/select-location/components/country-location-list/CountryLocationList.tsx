@@ -6,6 +6,7 @@ import { FlexColumn } from '../../../../../lib/components/flex-column';
 import { SectionTitle } from '../../../../../lib/components/section-title';
 import { spacings } from '../../../../../lib/foundations';
 import { useSelectLocationViewContext } from '../../SelectLocationViewContext';
+import { getLocationListItemMapProps } from '../../utils';
 import { GeographicalLocationListItem } from '../geographical-location-list-item';
 import { useLocationListsContext } from '../location-lists/LocationListsContext';
 import { useRelayCount } from './hooks';
@@ -50,8 +51,9 @@ export function CountryLocationList() {
       </SectionTitle>
       <FlexColumn>
         {searchedLocations.map((country) => {
+          const { key } = getLocationListItemMapProps(country, undefined);
           return (
-            <StyledLocationContainer key={Object.values(country.details).join('-')}>
+            <StyledLocationContainer key={key}>
               <GeographicalLocationListItem
                 root
                 location={country}

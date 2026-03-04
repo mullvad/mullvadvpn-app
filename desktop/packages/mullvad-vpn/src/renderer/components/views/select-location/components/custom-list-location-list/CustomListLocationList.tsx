@@ -7,6 +7,7 @@ import { FlexColumn } from '../../../../../lib/components/flex-column';
 import { spacings } from '../../../../../lib/foundations';
 import { useHasCustomLists } from '../../hooks';
 import { useSelectLocationViewContext } from '../../SelectLocationViewContext';
+import { getLocationListItemMapProps } from '../../utils';
 import { CustomListLocationListItem } from '../custom-list-location-list-item';
 import { CustomListsSectionTitle } from './components';
 import {
@@ -37,8 +38,9 @@ function CustomListLocationListImpl() {
       <FlexColumn>
         <StyledAnimatedList>
           {customListLocations.map((customList) => {
+            const { key } = getLocationListItemMapProps(customList);
             return (
-              <StyledAnimatedListItem key={Object.values(customList.details).join('-')}>
+              <StyledAnimatedListItem key={key}>
                 <CustomListLocationListItem customList={customList} level={0} />
               </StyledAnimatedListItem>
             );
