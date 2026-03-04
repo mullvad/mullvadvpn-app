@@ -18,7 +18,7 @@ impl StringValue {
     /// specified index plus one, or starting from one if there aren't any previously specified
     /// indices.
     ///
-    /// NOTE: Due to how we parse <b> tags in the code we do not escape all characters.
+    /// NOTE: Due to how we parse `<b>` tags in the code we do not escape all characters.
     pub fn from_unescaped(string: &str, arg_ordering: Option<&Vec<u8>>) -> Self {
         let value_with_parameters = string
             .replace('&', r"&amp;")
