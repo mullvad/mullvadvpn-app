@@ -1482,7 +1482,7 @@ mod new {
     //
     // - [x] test_entry_hostname_collision
     // - [x] test_runtime_ipv4_unavailable
-    // - [ ] test_selecting_endpoint_with_udp2tcp_obfuscation
+    // - [-] test_selecting_endpoint_with_udp2tcp_obfuscation
     // - [-] test_selecting_ignore_extra_ips_override_v4
     // - [ ] test_include_in_country
     // - [-] test_selecting_ignore_extra_ips_override_v6
@@ -1492,9 +1492,9 @@ mod new {
     // - [x] test_selecting_over_shadowsocks
     // - [-] test_selecting_over_shadowsocks_extra_ips
     // - [x] test_daita
-    // - [ ] test_wg_port_selection
-    // - [ ] test_retry_order
-    // - [ ] valid_user_setting_should_yield_relay
+    // - [-] test_wg_port_selection
+    // - [-] test_retry_order
+    // - [-] valid_user_setting_should_yield_relay
     // - [x] test_multihop_providers ()
     // - [-] test_load_balancing
     // - [ ] test_daita_smart_routing_overrides_multihop
