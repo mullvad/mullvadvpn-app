@@ -150,19 +150,29 @@ final class VPNSettingsCellFactory: @preconcurrency CellFactoryProtocol {
             cell.detailTitleLabel.setAccessibilityIdentifier(.wireGuardObfuscationQuic)
             cell.applySubCellStyling()
 
+        case .wireGuardObfuscationLwo:
+            guard let cell = cell as? SelectableSettingsDetailsCell else { return }
+
+            cell.titleLabel.text = NSLocalizedString("LWO", comment: "")
+
+            cell.detailTitleLabel.text = String(
+                format: NSLocalizedString("Port: %@", comment: ""),
+                viewModel.obfuscationLwoPort.description
+            )
+
+            cell.setAccessibilityIdentifier(item.accessibilityIdentifier)
+            cell.detailTitleLabel.setAccessibilityIdentifier(.wireGuardObfuscationLwoPort)
+            cell.applySubCellStyling()
+
+            cell.buttonAction = { [weak self] in
+                self?.delegate?.showDetails(for: .lwo)
+            }
+
         case .wireGuardObfuscationOff:
             guard let cell = cell as? SelectableSettingsCell else { return }
 
             cell.titleLabel.text = NSLocalizedString("Off", comment: "")
             cell.setAccessibilityIdentifier(item.accessibilityIdentifier)
-            cell.applySubCellStyling()
-
-        case let .wireGuardObfuscationPort(port):
-            guard let cell = cell as? SelectableSettingsCell else { return }
-
-            let portString = port.description
-            cell.titleLabel.text = portString
-            cell.accessibilityIdentifier = "\(item.accessibilityIdentifier)\(portString)"
             cell.applySubCellStyling()
 
         case .quantumResistanceAutomatic:

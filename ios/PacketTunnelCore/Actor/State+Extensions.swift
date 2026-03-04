@@ -204,9 +204,10 @@ extension BlockedStateReason {
             return true
         case .noRelaysSatisfyingConstraints, .noRelaysSatisfyingFilterConstraints,
             .multihopEntryEqualsExit, .noRelaysSatisfyingObfuscationSettings,
-            .noRelaysSatisfyingDaitaConstraints, .readSettings, .invalidAccount, .accountExpired, .deviceRevoked,
-            .unknown, .deviceLoggedOut, .outdatedSchema, .invalidRelayPublicKey,
-            .noRelaysSatisfyingPortConstraints, .tunnelAdapter, .offline:
+            .noRelaysSatisfyingDaitaConstraints, .readSettings, .invalidAccount,
+            .accountExpired, .deviceRevoked, .unknown, .deviceLoggedOut, .outdatedSchema,
+            .invalidRelayPublicKey, .noRelaysSatisfyingPortConstraints, .tunnelAdapter,
+            .noRelaysSatisfyingObfuscationPortConstraints, .offline:
             return false
         }
     }

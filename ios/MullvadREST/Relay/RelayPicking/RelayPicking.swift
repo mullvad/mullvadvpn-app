@@ -6,11 +6,13 @@
 //  Copyright © 2026 Mullvad VPN AB. All rights reserved.
 //
 
+import MullvadLogging
 import MullvadSettings
 import MullvadTypes
 import Network
 
 protocol RelayPicking {
+    var logger: Logger { get }
     var obfuscation: RelayObfuscation { get }
     var tunnelSettings: LatestTunnelSettings { get }
     var connectionAttemptCount: UInt { get }
@@ -21,12 +23,12 @@ extension RelayPicking {
     func findBestMatch(
         from candidates: [RelayWithLocation<REST.ServerRelay>],
         closeTo location: Location? = nil,
-        applyObfuscatedIps: Bool,
+        applyObfuscation: Bool,
     ) throws -> SelectedRelay {
         let match = try RelaySelector.WireGuard.pickCandidate(
             from: candidates,
             wireguard: obfuscation.allRelays.wireguard,
-            portConstraint: applyObfuscatedIps
+            portConstraint: applyObfuscation
                 ? obfuscation.port
                 : tunnelSettings.relayConstraints.port,
             numberOfFailedAttempts: connectionAttemptCount,
@@ -36,11 +38,14 @@ extension RelayPicking {
         // Resolve the socket address based on IP version preference
         let socketAddress = resolveSocketAddress(
             match: match,
-            applyObfuscatedIps: applyObfuscatedIps,
+            applyObfuscation: applyObfuscation,
         )
 
         // Convert WireGuardObfuscationState to ObfuscationMethod
-        let obfuscationMethod = resolveObfuscationMethod(features: match.relay.features)
+        let obfuscationMethod = try resolveObfuscationMethod(
+            features: match.relay.features,
+            applyObfuscation: applyObfuscation
+        )
 
         let selectedEndpoint = SelectedEndpoint(
             socketAddress: socketAddress,
@@ -61,10 +66,10 @@ extension RelayPicking {
     /// Resolves a single socket address based on IP version preference and obfuscation settings.
     private func resolveSocketAddress(
         match: RelaySelectorMatch,
-        applyObfuscatedIps: Bool,
+        applyObfuscation: Bool,
     ) -> AnyIPEndpoint {
         let ipv4Address =
-            if applyObfuscatedIps {
+            if applyObfuscation {
                 applyObfuscatedIpAddresses(match: match)
             } else {
                 match.endpoint.ipv4Relay.ip
@@ -73,23 +78,35 @@ extension RelayPicking {
     }
 
     /// Converts WireGuardObfuscationState to ObfuscationMethod.
-    private func resolveObfuscationMethod(features: REST.ServerRelay.Features?) -> ObfuscationMethod {
-        switch obfuscation.method {
-        case .off, .automatic:
+    private func resolveObfuscationMethod(
+        features: REST.ServerRelay.Features?,
+        applyObfuscation: Bool
+    ) throws -> ObfuscationMethod {
+        guard applyObfuscation else {
             return .off
+        }
+
+        return switch obfuscation.method {
+        case .off, .automatic:
+            .off
         case .on:
             // `.on` is a legacy state that shouldn't occur in practice
-            return .off
+            .off
         case .udpOverTcp:
-            return .udpOverTcp
+            .udpOverTcp
         case .shadowsocks:
-            return .shadowsocks
+            .shadowsocks
         case .quic:
             if let quicFeatures = features?.quic {
-                return .quic(hostname: quicFeatures.domain, token: quicFeatures.token)
+                .quic(hostname: quicFeatures.domain, token: quicFeatures.token)
+            } else {
+                logger.error(
+                    "Relay should support QUIC, but config cannot be read from relay features. This is probably a bug."
+                )
+                throw NoRelaysSatisfyingConstraintsError(.relayConstraintNotMatching)
             }
-            // Fall back to off if QUIC features not available
-            return .off
+        case .lwo:
+            .lwo
         }
     }
 
@@ -99,7 +116,7 @@ extension RelayPicking {
             applyShadowsocksIpAddress(in: match)
         case .quic:
             applyQuicIpAddress(in: match)
-        case .off, .automatic, .on, .udpOverTcp:
+        case .off, .automatic, .on, .udpOverTcp, .lwo:
             match.endpoint.ipv4Relay.ip
         }
     }

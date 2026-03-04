@@ -6,10 +6,12 @@
 //  Copyright © 2026 Mullvad VPN AB. All rights reserved.
 //
 
+import MullvadLogging
 import MullvadSettings
 import MullvadTypes
 
 struct SinglehopPicker: RelayPicking {
+    let logger = Logger(label: "SinglehopPicker")
     let obfuscation: RelayObfuscation
     let tunnelSettings: LatestTunnelSettings
     let connectionAttemptCount: UInt
@@ -23,7 +25,7 @@ struct SinglehopPicker: RelayPicking {
             daitaEnabled: tunnelSettings.daita.daitaState.isEnabled
         )
 
-        let supportedObfuscation = RelayObfuscator(
+        let supportedObfuscation = try RelayObfuscator(
             relays: obfuscation.allRelays,
             tunnelSettings: tunnelSettings,
             connectionAttemptCount: connectionAttemptCount,
@@ -62,7 +64,7 @@ struct SinglehopPicker: RelayPicking {
             daitaEnabled: tunnelSettings.daita.daitaState.isEnabled
         )
 
-        let match = try findBestMatch(from: exitCandidates, applyObfuscatedIps: true)
+        let match = try findBestMatch(from: exitCandidates, applyObfuscation: true)
 
         return SelectedRelays(
             entry: nil,

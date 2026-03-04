@@ -4,7 +4,7 @@ import XCTest
 @testable import MullvadREST
 
 class ServerRelayTests: XCTestCase {
-    func testDecodeFronJSON() throws {
+    func testDecodeFromJSON() throws {
         let json = """
             {
                 "active": true,
@@ -35,7 +35,8 @@ class ServerRelayTests: XCTestCase {
                         ],
                         "domain": "se-got-wg-881.blockerad.eu",
                         "token": "test"
-                    }
+                    },
+                    "lwo": {}
                 }
             }
             """
@@ -66,16 +67,17 @@ class ServerRelayTests: XCTestCase {
                         addrIn: ["45.130.118.209"],
                         domain: "se-got-wg-881.blockerad.eu",
                         token: "test"
-                    )
+                    ),
+                    lwo: .init()
                 )
             ))
     }
 
     func testCheckForDaitaWorksFromFeatures() {
-        let relayWithDaitaFeature = mockServerRelay.override(features: .init(daita: .init(), quic: nil))
+        let relayWithDaitaFeature = mockServerRelay.override(features: .init(daita: .init(), quic: nil, lwo: nil))
         let relayWithoutDaitaFeature = mockServerRelay
-        XCTAssertTrue(relayWithDaitaFeature.hasDaita)
-        XCTAssertFalse(relayWithoutDaitaFeature.hasDaita)
+        XCTAssertTrue(relayWithDaitaFeature.supportsDaita)
+        XCTAssertFalse(relayWithoutDaitaFeature.supportsDaita)
     }
 
     func testOverrideIPv4AddrIn() throws {
@@ -122,12 +124,14 @@ class ServerRelayTests: XCTestCase {
         let overrideRelay: REST.ServerRelay = self.mockServerRelay.override(
             features: REST.ServerRelay.Features(
                 daita: REST.ServerRelay.Features.DAITA(),
-                quic: REST.ServerRelay.Features.QUIC(addrIn: [""], domain: "", token: "")
+                quic: REST.ServerRelay.Features.QUIC(addrIn: [""], domain: "", token: ""),
+                lwo: REST.ServerRelay.Features.LWO()
             )
         )
 
         XCTAssertNotNil(overrideRelay.features?.daita)
         XCTAssertNotNil(overrideRelay.features?.quic)
+        XCTAssertNotNil(overrideRelay.features?.lwo)
     }
 
     var shadowSocksExtraAddrIn: [String] {
