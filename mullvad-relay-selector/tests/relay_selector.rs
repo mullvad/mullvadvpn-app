@@ -1594,7 +1594,8 @@ mod new {
         assert!(!query.matches.is_empty());
     }
 
-    /// "Daita + No Direct only + Provider verkar lite iffy tycker jag. Fick fram matches som inte stämmer" - David G @ 25/2.
+    /// "Daita + No Direct only + Provider. Providers (currently) affects both entry and exit
+    /// relays, while DAITA only affects entry relays.
     #[test]
     fn daita_no_direct_only_provider() {
         // "100TB" does not have any DAITA relays, and because filters should apply for both entry
