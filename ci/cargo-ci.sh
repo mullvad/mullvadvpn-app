@@ -16,4 +16,4 @@ export RUSTFLAGS="--deny warnings"
 # and we're not publishing these crates on docs.rs anyway.
 export RUSTDOCFLAGS="--deny warnings --allow rustdoc::private-intra-doc-links"
 
-exec cargo --locked "$@"
+exec cargo --locked --color=always "$@"
