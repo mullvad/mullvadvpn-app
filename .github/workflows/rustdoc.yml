@@ -3,28 +3,13 @@ name: Daemon+CLI - Check rust documentation
 on:
   pull_request:
     paths:
-      - "**"
-      - "!**/**.md"
-      - "!.github/workflows/**"
-      - ".github/workflows/daemon.yml"
-      - "!.github/CODEOWNERS"
-      - "!android/**"
-      - "!audits/**"
-      - "!build.sh"
-      - "!ci/**"
+      - "**/*.rs"
+      - "**/Cargo.toml"
+      - "**/Cargo.lock"
+      - "rust-toolchain.toml"
+      - "rustfmt.toml"
       - "ci/cargo-ci.sh"
-      - "!clippy.toml"
-      - "!deny.toml"
-      - "!docs/**"
-      - "!graphics/**"
-      - "!desktop/**"
-      - "!ios/**"
-      - "!scripts/**"
-      - "!.*ignore"
-      - "!prepare-release.sh"
-      - "!rustfmt.toml"
-      - "!.yamllint"
-      - "!**/osv-scanner.toml"
+      - "env.sh"
 
   workflow_dispatch:
     inputs:
