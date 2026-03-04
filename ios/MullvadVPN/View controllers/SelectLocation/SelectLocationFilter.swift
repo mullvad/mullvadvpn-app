@@ -50,7 +50,7 @@ enum SelectLocationFilter: Hashable {
         var activeEntryFilter: [SelectLocationFilter] = []
         var activeExitFilter: [SelectLocationFilter] = []
 
-        let isMultihop = settings.tunnelMultihopState.isEnabled
+        let isMultihop = settings.tunnelMultihopState.isUserSelected
         if let ownershipFilter = settings.relayConstraints.filter.value {
             switch ownershipFilter.ownership {
             case .any:

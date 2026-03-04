@@ -13,12 +13,16 @@ import MullvadTypes
 public enum MultihopState: Codable, Sendable {
     case on
     case off
+    case whenNeeded
 
-    public var isEnabled: Bool {
+    // is multihop explicitly selected by the user?
+    public var isUserSelected: Bool {
         get {
             self == .on
         }
         set {
+            // once .whenNeeded is used, the .off value below should
+            // perhaps be replaced with .whenNeeded
             self = newValue ? .on : .off
         }
     }
