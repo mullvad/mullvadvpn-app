@@ -33,8 +33,8 @@ use mullvad_types::{
     settings::Settings,
     wireguard::{DaitaSettings, QuantumResistantState},
 };
-use std::ops::Deref;
 use std::sync::{Arc, LazyLock, Mutex, RwLock};
+use std::{net::IpAddr, ops::Deref};
 use talpid_types::net::{
     IpAvailability, IpVersion,
     obfuscation::{ObfuscatorConfig, Obfuscators},
@@ -1068,84 +1068,87 @@ impl RelaySelector {
                 use mullvad_types::relay_constraints::SelectedObfuscation::*;
                 match settings.selected_obfuscation {
                     Shadowsocks => {
-                        match &settings.shadowsocks {
-                            // A few ports are dedicated to shadowsocks on the relays WireGuard endpoint.
-                            // If the port lies outside this range, the relay may have extra shadowsocks addresses
-                            // that can be used to connect. Such addresses support any port, so we accept them.
-                            ShadowsocksSettings {
-                                port: Constraint::Only(desired_port),
-                            } if !self.relay_list(|rl| {
+                        // The relay may have IPs specifically meant for shadowsocks,
+                        // which we want to use if possible. Check if any matches the
+                        // requested IP version.
+                        let ss_extra_addrs = &relay.endpoint().shadowsocks_extra_addr_in;
+                        let has_ipv4 = ss_extra_addrs.iter().any(|addr| addr.is_ipv4());
+                        let has_ipv6 = ss_extra_addrs.iter().any(|addr| addr.is_ipv6());
+
+                        let (ip_matches, other_ip_matches) = match ip_version {
+                            Constraint::Any => (has_ipv4 | has_ipv6, false),
+                            Constraint::Only(IpVersion::V4) => (has_ipv4, has_ipv6),
+                            Constraint::Only(IpVersion::V6) => (has_ipv6, has_ipv4),
+                        };
+
+                        // Use a dedicated shadowsocks address if possible.
+                        if ip_matches {
+                            return AcceptSeparateEndpoint;
+                        }
+
+                        // Otherwise, we must fall back to using the WireGuard endpoint.
+                        // A few ports on the wg endpoint are dedicated to shadowsocks.
+                        // If a specific port is requested and it lies outside this range,
+                        // then we cannot resolve the constraint.
+                        if let ShadowsocksSettings {
+                            port: Constraint::Only(desired_port),
+                        } = &settings.shadowsocks
+                            && !self.relay_list(|rl| {
                                 rl.wireguard
                                     .shadowsocks_port_ranges
                                     .iter()
                                     .any(|range| range.contains(desired_port))
-                            }) =>
-                            {
-                                let ss_extra_addrs = &relay.endpoint().shadowsocks_extra_addr_in;
-                                let has_ipv4 = ss_extra_addrs.iter().any(|addr| addr.is_ipv4());
-                                let has_ipv6 = ss_extra_addrs.iter().any(|addr| addr.is_ipv6());
-
-                                let (ip_matches, other_ip_matches) = match ip_version {
-                                    Constraint::Any => (has_ipv4 | has_ipv6, false),
-                                    Constraint::Only(IpVersion::V4) => (has_ipv4, has_ipv6),
-                                    Constraint::Only(IpVersion::V6) => (has_ipv6, has_ipv4),
-                                };
-
-                                if ip_matches {
-                                    AcceptSeparateEndpoint
-                                } else if other_ip_matches {
-                                    // Switching IP version would unblock the relay.
-                                    // Note that the relay could also be unblocked by removing the port constraint
-                                    // so that a normal WireGuard endpoint can be used IFF that endpoint
-                                    // is available with the requested IP version. We cannot represent this, so we
-                                    // opt to only inform the user about the IP version.
-                                    Reject(vec![Reason::IpVersion])
-                                } else {
-                                    // No extra addresses are available at all, the the port must be changed
-                                    // so that a Wireguard endpoint can be used. This endpoint must
-                                    // then also be available with the requested IP version.
-                                    Reject(vec![Reason::Port])
-                                }
+                            })
+                        {
+                            // We cannot fall back
+                            if other_ip_matches {
+                                // Switching IP version would unblock the relay.
+                                // Note that the relay could also be unblocked by removing the port constraint
+                                // so that a normal WireGuard endpoint can be used IFF that endpoint
+                                // is available with the requested IP version. We cannot represent this, so we
+                                // opt to only inform the user about the IP version.
+                                Reject(vec![Reason::IpVersion])
+                            } else {
+                                // No extra addresses are available at all, the the port must be changed
+                                // so that a Wireguard endpoint can be used. This endpoint must
+                                // then also be available with the requested IP version.
+                                Reject(vec![Reason::Port])
                             }
-                            _ => AcceptWireguardEndpoint, // Right? Or should we attempt to use the extra addrs?
-                        }
-                    }
-                    // QUIC is only enabled on some relays
-                    Quic => {
-                        match relay.endpoint().quic() {
-                            Some(quic) => {
-                                let has_ipv4 = quic.in_ipv4().count() > 0;
-                                let has_ipv6 = quic.in_ipv6().count() > 0;
-
-                                let (ip_matches, other_ip_matches) = match ip_version {
-                                    Constraint::Any => (has_ipv4 | has_ipv6, false),
-                                    Constraint::Only(IpVersion::V4) => (has_ipv4, has_ipv6),
-                                    Constraint::Only(IpVersion::V6) => (has_ipv6, has_ipv4),
-                                };
-
-                                if ip_matches {
-                                    AcceptSeparateEndpoint
-                                } else if other_ip_matches {
-                                    // Switching IP version would unblock the relay.
-                                    Reject(vec![Reason::IpVersion])
-                                } else {
-                                    // The relay has quic but no IPv4 or IPv6 addresses to use it.
-                                    // This scenario should be unreachable, but treat it as if obfuscation was
-                                    // unavailable just in case.
-                                    Reject(vec![Reason::Obfuscation])
-                                }
-                            }
-                            None => Reject(vec![Reason::Obfuscation]),
-                        }
-                    }
-                    // LWO is only enabled on some relays
-                    Lwo => {
-                        if relay.endpoint().lwo {
-                            AcceptWireguardEndpoint
                         } else {
-                            Reject(vec![Reason::Obfuscation])
+                            // Port is usable on WireGuard endpoint, so fall back to it
+                            AcceptWireguardEndpoint
                         }
                     }
+                    Quic => match relay.endpoint().quic() {
+                        // QUIC is enabled
+                        Some(quic) => {
+                            let has_ipv4 = quic.in_ipv4().count() > 0;
+                            let has_ipv6 = quic.in_ipv6().count() > 0;
+
+                            let (ip_matches, other_ip_matches) = match ip_version {
+                                Constraint::Any => (has_ipv4 | has_ipv6, false),
+                                Constraint::Only(IpVersion::V4) => (has_ipv4, has_ipv6),
+                                Constraint::Only(IpVersion::V6) => (has_ipv6, has_ipv4),
+                            };
+
+                            if ip_matches {
+                                AcceptSeparateEndpoint
+                            } else if other_ip_matches {
+                                // Switching IP version would unblock the relay.
+                                Reject(vec![Reason::IpVersion])
+                            } else {
+                                // The relay has quic but no IPv4 or IPv6 addresses to use it.
+                                // This scenario should be unreachable, but treat it as if obfuscation was
+                                // unavailable just in case.
+                                Reject(vec![Reason::Obfuscation])
+                            }
+                        }
+                        None => Reject(vec![Reason::Obfuscation]),
+                    },
+
+                    // LWO is only enabled on some relays
+                    Lwo if relay.endpoint().lwo => AcceptWireguardEndpoint,
+                    Lwo => Reject(vec![Reason::Obfuscation]),
 
                     // Other relays are always valid
                     // TODO:^ This might not be true. We might want to consider the selected port for
