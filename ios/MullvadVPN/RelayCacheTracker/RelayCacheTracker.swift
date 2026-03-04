@@ -17,6 +17,7 @@ protocol RelayCacheTrackerProtocol: Sendable {
     func startPeriodicUpdates()
     func stopPeriodicUpdates()
     func updateRelays(completionHandler: ((sending Result<RelaysFetchResult, Error>) -> Void)?) -> Cancellable
+    func fetchRelays(completionHandler: ((sending Result<RelaysFetchResult, Error>) -> Void)?) -> Cancellable
     func getCachedRelays() throws -> CachedRelays
     func getNextUpdateDate() -> Date
     func addObserver(_ observer: RelayCacheTrackerObserver)
@@ -177,33 +178,13 @@ final class RelayCacheTracker: RelayCacheTrackerProtocol, @unchecked Sendable {
     func updateRelays(completionHandler: ((sending Result<RelaysFetchResult, Error>) -> Void)? = nil)
         -> Cancellable
     {
-        let operation = ResultBlockOperation<RelaysFetchResult> { finish in
-            let cachedRelays = try? self.getCachedRelays()
+        performUpdate(shouldThrottle: true, completionHandler: completionHandler)
+    }
 
-            if self.getNextUpdateDate() > Date() {
-                finish(.success(.throttled))
-                return AnyCancellable()
-            }
-
-            return self.apiProxy.getRelays(etag: cachedRelays?.etag, retryStrategy: .noRetry) { result in
-                finish(self.handleResponse(result: result))
-            }
-        }
-
-        operation.addObserver(
-            BackgroundObserver(
-                backgroundTaskProvider: backgroundTaskProvider,
-                name: "Update relays",
-                cancelUponExpiration: true
-            )
-        )
-
-        operation.completionQueue = .main
-        operation.completionHandler = completionHandler
-
-        operationQueue.addOperation(operation)
-
-        return operation
+    func fetchRelays(completionHandler: ((sending Result<RelaysFetchResult, Error>) -> Void)? = nil)
+        -> Cancellable
+    {
+        performUpdate(shouldThrottle: false, completionHandler: completionHandler)
     }
 
     func getCachedRelays() throws -> CachedRelays {
@@ -249,6 +230,39 @@ final class RelayCacheTracker: RelayCacheTrackerProtocol, @unchecked Sendable {
     }
 
     // MARK: - Private
+
+    private func performUpdate(
+        shouldThrottle: Bool,
+        completionHandler: ((sending Result<RelaysFetchResult, Error>) -> Void)? = nil
+    ) -> Cancellable {
+        let operation = ResultBlockOperation<RelaysFetchResult> { finish in
+            let cachedRelays = try? self.getCachedRelays()
+
+            if shouldThrottle, self.getNextUpdateDate() > Date() {
+                finish(.success(.throttled))
+                return AnyCancellable()
+            }
+
+            return self.apiProxy.getRelays(etag: cachedRelays?.etag, retryStrategy: .noRetry) { result in
+                finish(self.handleResponse(result: result))
+            }
+        }
+
+        operation.addObserver(
+            BackgroundObserver(
+                backgroundTaskProvider: backgroundTaskProvider,
+                name: "Update relays",
+                cancelUponExpiration: true
+            )
+        )
+
+        operation.completionQueue = .main
+        operation.completionHandler = completionHandler
+
+        operationQueue.addOperation(operation)
+
+        return operation
+    }
 
     private func _getNextUpdateDate() -> Date {
         let now = Date()
@@ -306,7 +320,7 @@ final class RelayCacheTracker: RelayCacheTrackerProtocol, @unchecked Sendable {
     private func scheduleRepeatingTimer(startTime: DispatchWallTime) {
         let timerSource = DispatchSource.makeTimerSource()
         timerSource.setEventHandler { [weak self] in
-            _ = self?.updateRelays()
+            _ = self?.updateRelays(completionHandler: nil)
         }
 
         timerSource.schedule(
