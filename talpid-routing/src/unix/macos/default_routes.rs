@@ -23,7 +23,7 @@ use super::{
 // best default route simply goes away for a few seconds.
 const NO_ROUTE_GRACE_TIME: Duration = Duration::from_secs(5);
 
-/// Monitors changes to the primary interface and reports [BestRoute].
+/// Monitors changes to the primary interface and reports [the default route](DefaultRoute).
 pub struct DefaultRouteMonitor {
     monitor: PrimaryInterfaceMonitor,
     event_rx: UnboundedReceiver<Vec<InterfaceEvent>>,
@@ -40,7 +40,7 @@ pub struct DefaultRouteMonitor {
 impl DefaultRouteMonitor {
     /// Start monitoring interfaces for changes to the best route.
     ///
-    /// Returns an IPv4 and an IPv6 channel of [BestRoute] updates.
+    /// Returns an IPv4 and an IPv6 channel of [DefaultRoute] updates.
     pub fn start(
         monitor: PrimaryInterfaceMonitor,
         event_rx: UnboundedReceiver<Vec<InterfaceEvent>>,
