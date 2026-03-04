@@ -1483,14 +1483,14 @@ mod new {
     // - [x] test_entry_hostname_collision
     // - [ ] test_runtime_ipv4_unavailable
     // - [ ] test_selecting_endpoint_with_udp2tcp_obfuscation
-    // - [ ] test_selecting_ignore_extra_ips_override_v4
+    // - [-] test_selecting_ignore_extra_ips_override_v4
     // - [ ] test_include_in_country
-    // - [ ] test_selecting_ignore_extra_ips_override_v6
+    // - [-] test_selecting_ignore_extra_ips_override_v6
     // - [x] test_selecting_over_lwo
     // - [x] test_selecting_over_quic
-    // - [ ] test_shadowsocks_runtime_ipv4_unavailable
+    // - [x] test_shadowsocks_runtime_ipv4_unavailable
     // - [x] test_selecting_over_shadowsocks
-    // - [ ] test_selecting_over_shadowsocks_extra_ips
+    // - [-] test_selecting_over_shadowsocks_extra_ips
     // - [x] test_daita
     // - [ ] test_wg_port_selection
     // - [ ] test_retry_order
@@ -1636,6 +1636,29 @@ mod new {
                     _ => panic!("{reasons:#?}"),
                 }
             }
+        }
+    }
+
+    /// Check that if IPv4 is not available and shadowsocks obfuscation is requested
+    /// it should return a relay with IPv6 address.
+    ///
+    /// This is a port of test_shadowsocks_runtime_ipv4_unavailable.
+    #[test]
+    fn shadowsocks_runtime_ipv4_unavailable() {
+        let constraints = EntryConstraints {
+            ip_version: IpVersion::V6.into(),
+            obfuscation_settings: ObfuscationSettings {
+                selected_obfuscation: SelectedObfuscation::Shadowsocks,
+                ..Default::default()
+            }
+            .into(),
+            ..Default::default()
+        };
+        // Query for all DAITA relays.
+        let query = RELAY_SELECTOR.partition_relays(Predicate::Singlehop(constraints));
+        assert!(!query.matches.is_empty());
+        for relay in &query.matches {
+            assert!(relay.ipv6_addr_in.is_some(), "{relay:#?}");
         }
     }
 
