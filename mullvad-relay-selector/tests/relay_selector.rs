@@ -1596,7 +1596,7 @@ mod new {
         assert!(!query.matches.is_empty());
     }
 
-    /// Test
+    /// Test that filtering on obfuscation works.
     ///
     /// This is a port of the following tests:
     /// * test_selecting_over_quic
