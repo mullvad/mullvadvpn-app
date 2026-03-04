@@ -917,8 +917,10 @@ impl RelaySelector {
                     constraints.general.location = Constraint::Any;
                     self.entry_criteria(constraints)
                 };
-
-                vec![occupied, apply_entry_guards]
+                let mut criteria = vec![];
+                criteria.extend(apply_entry_guards);
+                criteria.extend([occupied]);
+                criteria
             }
             Predicate::Entry(MultihopConstraints { entry, exit }) => {
                 // If an exit is already selected, it should be rejected as a possible entry relay.
