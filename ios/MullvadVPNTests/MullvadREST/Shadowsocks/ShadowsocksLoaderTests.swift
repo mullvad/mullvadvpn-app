@@ -108,7 +108,7 @@ class ShadowsocksRelaySelectorStub: ShadowsocksRelaySelectorProtocol, @unchecked
         switch settings.tunnelMultihopState {
         case .on:
             try entryBridgeResult.get()
-        case .off:
+        case .off, .whenNeeded:
             try exitBridgeResult.get()
         }
     }
