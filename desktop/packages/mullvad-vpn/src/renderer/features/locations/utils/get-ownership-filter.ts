@@ -4,10 +4,8 @@ import type { IRelayLocationRelayRedux } from '../../../redux/settings/reducers'
 export function getOwnershipFilter(
   ownership?: Ownership,
 ): ((relay: IRelayLocationRelayRedux) => boolean) | undefined {
-  if (ownership === undefined || ownership === Ownership.any) {
-    return undefined;
-  }
+  const filterActive = ownership !== undefined && ownership !== Ownership.any;
 
   const expectOwned = ownership === Ownership.mullvadOwned;
-  return (relay) => relay.owned === expectOwned;
+  return filterActive ? (relay) => relay.owned === expectOwned : undefined;
 }

@@ -1,14 +1,12 @@
 import React from 'react';
 
-import { ObfuscationType } from '../../../../shared/daemon-rpc-types';
 import { useObfuscation } from '../../../features/anti-censorship/hooks';
 import { useDaitaDirectOnly, useDaitaEnabled } from '../../../features/daita/hooks';
+import { useOwnership, useProviders } from '../../../features/locations/hooks';
 import { type CountryLocation } from '../../../features/locations/types';
-import { filterLocationsByDaita } from '../../../features/locations/utils/filter-locations-by-daita';
-import { filterLocationsByLwo } from '../../../features/locations/utils/filter-locations-by-lwo';
-import { filterLocationsByOwnershipAndProviders } from '../../../features/locations/utils/filter-locations-by-ownership-and-providers';
-import { filterLocationsByQuic } from '../../../features/locations/utils/filter-locations-by-quic';
-import { useNormalRelaySettings } from '../../../lib/relay-settings-hooks';
+import { filterLocations } from '../../../features/locations/utils';
+import { useMultihop } from '../../../features/multihop/hooks';
+import { useIpVersion } from '../../../features/tunnel/hooks';
 import { useSelector } from '../../../redux/store';
 import { useLocations } from './hooks/use-locations';
 import { useSearchLocations } from './hooks/use-search-locations';
@@ -33,40 +31,26 @@ type LocationsProviderProps = React.PropsWithChildren;
 
 export function LocationsProvider({ children }: LocationsProviderProps) {
   const { locationType, searchTerm } = useSelectLocationViewContext();
-  const relayLocations = useSelector((state) => state.settings.relayLocations);
-  const relaySettings = useNormalRelaySettings();
+  const locations = useSelector((state) => state.settings.relayLocations);
+  const { activeOwnership } = useOwnership();
+  const { providers } = useProviders();
   const { daitaEnabled } = useDaitaEnabled();
   const { daitaDirectOnly } = useDaitaDirectOnly();
   const { obfuscation } = useObfuscation();
-  const multihop = relaySettings?.wireguard.useMultihop ?? false;
-  const ipVersion = relaySettings?.wireguard.ipVersion ?? 'any';
-  const quic = obfuscation === ObfuscationType.quic;
-  const lwo = obfuscation === ObfuscationType.lwo;
+  const { multihop } = useMultihop();
+  const { ipVersion } = useIpVersion();
 
-  const daitaRelayLocations = filterLocationsByDaita(
-    relayLocations,
-    daitaEnabled,
-    daitaDirectOnly,
+  const filteredRelayLocations = filterLocations({
+    locations,
+    ownership: activeOwnership,
+    providers,
+    daita: daitaEnabled,
+    directOnly: daitaDirectOnly,
     locationType,
     multihop,
-  );
-
-  const quicRelayLocations = filterLocationsByQuic(
-    daitaRelayLocations,
-    quic,
-    locationType,
-    multihop,
+    obfuscation,
     ipVersion,
-  );
-
-  const lwoRelayLocations = filterLocationsByLwo(quicRelayLocations, lwo, locationType, multihop);
-
-  // Filters locations on ownership and providers
-  const filteredRelayLocations = filterLocationsByOwnershipAndProviders(
-    lwoRelayLocations,
-    relaySettings?.ownership,
-    relaySettings?.providers,
-  );
+  });
 
   const filteredLocations = useLocations(filteredRelayLocations);
   const searchedLocations = useSearchLocations(filteredLocations, searchTerm);
