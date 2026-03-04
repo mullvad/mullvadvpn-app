@@ -589,7 +589,7 @@ impl LocalResolver {
         self.inner_resolver = Resolver::Blocking;
     }
 
-    /// Turn into a forwarding resolver (forward DNS queries to [dns_servers]).
+    /// Turn into a forwarding resolver (forward DNS queries to `dns_servers`).
     fn forwarding(&mut self, dns_servers: Vec<IpAddr>, filter_out_aaaa: bool) {
         let forward_server_config =
             NameServerConfigGroup::from_ips_clear(&dns_servers, DNS_PORT, true);
