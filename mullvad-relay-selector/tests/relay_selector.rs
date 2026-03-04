@@ -1522,7 +1522,7 @@ mod new {
         let relay_selector = default_relay_selector();
 
         let mut constraints = MultihopConstraints::default();
-        constraints.entry.general.providers = entry_providers.into();
+        constraints.entry.providers = entry_providers.into();
         constraints.exit.providers = providers.into();
 
         // Entry case
@@ -1619,16 +1619,18 @@ mod new {
         // and exit even if we're autohoppin', we should not show any matching relays.
         let providers = Providers::new(["100TB"]).unwrap();
 
-        let mut constraints = EntryConstraints::default();
-        constraints.general.providers = providers.into();
-        constraints.daita = mullvad_types::wireguard::DaitaSettings {
-            enabled: true,
-            // NOTE: This does nothing in the new relay selector algorithm, as smart routing /
-            // autohop is dictated by if the in-parameter to `partition_relays` is `Predicate::Autohop`.
-            // TODO: Remove `use_multihop_if_necessary` now when autohop exists?
-            use_multihop_if_necessary: Default::default(),
-        }
-        .into();
+        let constraints = EntryConstraints {
+            providers: providers.into(),
+            daita: mullvad_types::wireguard::DaitaSettings {
+                enabled: true,
+                // NOTE: This does nothing in the new relay selector algorithm, as smart routing /
+                // autohop is dictated by if the in-parameter to `partition_relays` is `Predicate::Autohop`.
+                // TODO: Remove `use_multihop_if_necessary` now when autohop exists?
+                use_multihop_if_necessary: Default::default(),
+            }
+            .into(),
+            ..Default::default()
+        };
 
         let query = RELAY_SELECTOR.partition_relays(Predicate::Autohop(constraints));
         assert_eq!(query.matches.len(), 0);
