@@ -83,7 +83,7 @@ jobs:
 
   document-windows:
     strategy:
-      # Even if onw of the Windows jobs fail, the other should not be cancelled.
+      # Even if one of the Windows jobs fail, the other should not be cancelled.
       fail-fast: false
       matrix:
         config:
@@ -120,9 +120,6 @@ jobs:
         # Cap the number of concurrent processes to something less than 4 to avoid OOM issues.
         run: ./build-windows-modules.sh --max-concurrent-processes 2 build winfw
 
-      # Excluding windows-installer because it builds an actual full installer
-      # at the build step, which is not desired in a CI environment. Instead
-      # we just `cargo check` it below.
       - name: Check rust docs
         shell: bash
         run: ci/cargo-ci.sh doc --workspace --document-private-items --no-deps --keep-going --color=always
