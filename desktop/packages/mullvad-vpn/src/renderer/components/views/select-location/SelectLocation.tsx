@@ -34,7 +34,7 @@ export function SelectLocation() {
   const { daitaEnabled } = useDaitaEnabled();
   const { daitaDirectOnly } = useDaitaDirectOnly();
   const { multihop } = useMultihop();
-  const { anyFilterActive } = useActiveFilters();
+  const { isAnyFilterActive } = useActiveFilters();
 
   const onClose = useCallback(() => history.pop(), [history]);
   const onViewFilter = useCallback(() => history.push(RoutePath.filter), [history]);
@@ -49,7 +49,7 @@ export function SelectLocation() {
 
   const showDisabledEntrySelection =
     locationType === LocationType.entry && daitaEnabled && !daitaDirectOnly && multihop;
-  const showFilters = anyFilterActive && !showDisabledEntrySelection;
+  const showFilters = isAnyFilterActive && !showDisabledEntrySelection;
   const showSearchField = !showDisabledEntrySelection;
 
   return (

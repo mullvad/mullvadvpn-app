@@ -4,12 +4,10 @@ import { ObfuscationType } from '../../../../shared/daemon-rpc-types';
 import { useObfuscation } from '../../../features/anti-censorship/hooks';
 import { useDaitaDirectOnly, useDaitaEnabled } from '../../../features/daita/hooks';
 import { type CountryLocation } from '../../../features/locations/types';
-import {
-  filterLocations as filterLocationsByOwnershipAndProviders,
-  filterLocationsByDaita,
-  filterLocationsByLwo,
-  filterLocationsByQuic,
-} from '../../../lib/filter-locations';
+import { filterLocationsByDaita } from '../../../features/locations/utils/filter-locations-by-daita';
+import { filterLocationsByLwo } from '../../../features/locations/utils/filter-locations-by-lwo';
+import { filterLocationsByOwnershipAndProviders } from '../../../features/locations/utils/filter-locations-by-ownership-and-providers';
+import { filterLocationsByQuic } from '../../../features/locations/utils/filter-locations-by-quic';
 import { useNormalRelaySettings } from '../../../lib/relay-settings-hooks';
 import { useSelector } from '../../../redux/store';
 import { useLocations } from './hooks/use-locations';
