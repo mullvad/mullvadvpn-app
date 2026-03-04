@@ -463,8 +463,10 @@ impl From<Platform> for MetaRepositoryPlatform {
 }
 
 /// Print release info:
+/// ```text
 /// Version: 2025.3 (arm, x86) (50%)
 /// <Changelog>
+/// ```
 fn print_release_info(release: &Release) {
     let mut architectures: Vec<_> = release
         .installers

@@ -36,7 +36,7 @@ pub struct TracerouteOpt {
     pub icmp: bool,
 }
 
-/// Timeout of the leak test as a whole. Should be more than [SEND_TIMEOUT] + [RECV_TIMEOUT].
+/// Timeout of the leak test as a whole. Should be more than [`SEND_TIMEOUT`] + `RECV_GRACE_TIME`.
 const LEAK_TIMEOUT: Duration = Duration::from_secs(5);
 
 /// Timeout of sending probe packets

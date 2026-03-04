@@ -262,8 +262,6 @@ impl AsyncUdpSocket {
 ///
 /// Use [AsyncIcmpSocket::recv_ttl_responses] to receive replies.
 /// Send UDP packets with a very low TTL to `opt.destination`.
-///
-/// Use [Impl::recv_ttl_responses] to receive replies.
 async fn send_udp_probes(opt: &TracerouteOpt, socket: &mut AsyncUdpSocket) -> anyhow::Result<()> {
     // ensure we don't send anything to `opt.exclude_port`
     let ports = DEFAULT_PORT_RANGE

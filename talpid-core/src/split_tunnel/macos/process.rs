@@ -486,9 +486,9 @@ struct EsExecTargetExecutable {
 
 /// Event that triggered the message returned by `eslogger`.
 /// See the `es_events_t` struct for more information:
-/// https://developer.apple.com/documentation/endpointsecurity/es_message_t/3228969-event?language=objc
+/// <https://developer.apple.com/documentation/endpointsecurity/es_message_t/3228969-event?language=objc>
 /// A list of all event types can be found here:
-/// https://developer.apple.com/documentation/endpointsecurity/es_event_type_t/es_event_type_notify_fork?language=objc
+/// <https://developer.apple.com/documentation/endpointsecurity/es_event_type_t/es_event_type_notify_fork?language=objc>
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "lowercase")]
 enum ESEvent {
@@ -499,7 +499,7 @@ enum ESEvent {
 
 /// Message containing the path to the image of the process.
 /// This message is analogous to the `executable` field of `es_process_t`:
-/// https://developer.apple.com/documentation/endpointsecurity/es_process_t/3228975-audit_token?language=objc
+/// <https://developer.apple.com/documentation/endpointsecurity/es_process_t/3228975-audit_token?language=objc>
 #[derive(Debug, Deserialize)]
 struct ESExecutable {
     path: PathBuf,
@@ -507,7 +507,7 @@ struct ESExecutable {
 
 /// Message containing the process identifier of the process.
 /// This message is analogous to the `audit_token` field of `es_process_t`:
-/// https://developer.apple.com/documentation/endpointsecurity/es_process_t/3228975-audit_token?language=objc
+/// <https://developer.apple.com/documentation/endpointsecurity/es_process_t/3228975-audit_token?language=objc>
 #[derive(Debug)]
 struct ESAuditToken {
     pid: pid_t,
@@ -573,7 +573,7 @@ impl<'de> Deserialize<'de> for ESAuditToken {
 
 /// Process information for the message returned by `eslogger`.
 /// This message is analogous to the `es_process_t` struct:
-/// https://developer.apple.com/documentation/endpointsecurity/es_process_t?language=objc
+/// <https://developer.apple.com/documentation/endpointsecurity/es_process_t?language=objc>
 #[derive(Debug, Deserialize)]
 struct ESProcess {
     audit_token: ESAuditToken,
@@ -582,7 +582,7 @@ struct ESProcess {
 
 /// This struct represents each message returned by eslogger
 /// This message is analogous to the `es_message_t` struct:
-/// https://developer.apple.com/documentation/endpointsecurity/es_message_t?language=objc
+/// <https://developer.apple.com/documentation/endpointsecurity/es_message_t?language=objc>
 #[derive(Debug, Deserialize)]
 struct ESMessage {
     #[expect(dead_code)]

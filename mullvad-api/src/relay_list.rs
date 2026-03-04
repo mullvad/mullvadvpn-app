@@ -115,7 +115,7 @@ pub struct CachedRelayList {
     etag: Option<ETag>,
 }
 
-/// An (ETag header)[https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/ETag] returned by the relay list API.
+/// An [ETag header](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/ETag) returned by the relay list API.
 /// The etag is used to version the API response, and is used to check if the response has changed since the last request.
 /// This can potentially save some bandwidth, especially important for the server side.
 #[derive(Debug, Clone, Deserialize, Serialize)]

@@ -5,8 +5,8 @@ use crate::sync::Event;
 
 /// Abstraction over `OVERLAPPED`.
 ///
-/// - https://learn.microsoft.com/en-us/windows/win32/api/minwinbase/ns-minwinbase-overlapped
-/// - https://learn.microsoft.com/en-us/windows/win32/api/synchapi/nf-synchapi-createeventw
+/// - <https://learn.microsoft.com/en-us/windows/win32/api/minwinbase/ns-minwinbase-overlapped>
+/// - <https://learn.microsoft.com/en-us/windows/win32/api/synchapi/nf-synchapi-createeventw>
 pub struct Overlapped {
     overlapped: OVERLAPPED,
     event: Option<Event>,

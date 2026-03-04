@@ -207,7 +207,7 @@ fn parse_ip(packet: &[u8]) -> anyhow::Result<Ip<Ipv4Packet<'_>, Ipv6Packet<'_>>>
 }
 
 /// Try to parse an [Ipv4Packet] as an ICMP/TimeExceeded response to a packet sent by
-/// [send_udp_probes] or [send_icmp_probes]. If successful, returns the [Ipv4Addr] of the packet
+/// [super::send_udp_probes] or [super::send_icmp_probes]. If successful, returns the [IpAddr] of the packet
 /// source.
 ///
 /// If the packet fails to parse, or is not a reply to a packet sent by us, this function returns
@@ -220,7 +220,7 @@ fn parse_icmp4_time_exceeded(ip_packet: &Ipv4Packet<'_>) -> anyhow::Result<IpAdd
 }
 
 /// Try to parse some bytes into an ICMP or ICMP6 TimeExceeded response to a probe packet sent by
-/// [send_udp_probes] or [send_icmp_probes].
+/// [super::send_udp_probes] or [super::send_icmp_probes].
 ///
 /// If the packet fails to parse, or is not a reply to a packet sent by us, this function returns
 /// an error.

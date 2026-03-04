@@ -93,7 +93,7 @@ pub struct RouteManagerImpl {
     applied_routes: BTreeMap<RouteDestination, RouteMessage>,
 
     /// Callback that fires when we receive an event from our route-monitoring socket,
-    /// or from [Self::interface_change_rx]. It indicates that *something* has changed with the
+    /// or from [Self::best_default_route_rx_v4] (or v6). It indicates that *something* has changed with the
     /// routing table or with the network interfaces.
     update_trigger: BurstGuard,
 

@@ -1,8 +1,8 @@
-//! This module is used to extract the latest versions out of a raw [format::Response] using a query
-//! [VersionParameters]. It also contains additional logic for filtering and validating the raw
+//! This module is used to extract the latest versions out of a raw [`Response`] using a query
+//! [`VersionParameters`]. It also contains additional logic for filtering and validating the raw
 //! deserialized response.
 //!
-//! The main input here is [VersionParameters], and the main output is [VersionInfo].
+//! The main input here is [`VersionParameters`], and the main output is [`VersionInfo`].
 mod info;
 mod parameters;
 pub mod rollout;

@@ -62,7 +62,7 @@ pub fn init_wmi() -> Result<wmi::WMIConnection, Error> {
 ///
 /// Details about the `MSFT_NetFirewallHyperVRule`, including the meaning of properties, are
 /// documented here:
-/// https://learn.microsoft.com/en-us/windows/win32/fwp/wmi/wfascimprov/msft-netfirewallhypervrule
+/// <https://learn.microsoft.com/en-us/windows/win32/fwp/wmi/wfascimprov/msft-netfirewallhypervrule>
 ///
 /// `con` must be a valid WMI connection for the `root\standardcimv2` WMI namespace. Such a connection
 /// can be initialized using [`init_wmi`].
@@ -145,7 +145,7 @@ fn put_instance_property(
     }
 }
 
-/// Remove Hyper-V rule previously added by [`add_blocking_hyperv_firewall_rule`]. See the
+/// Remove Hyper-V rule previously added by [`add_blocking_hyperv_firewall_rules`]. See the
 /// documentation of that function for more details.
 ///
 /// This function succeeds if the rule is not present or has already been removed.
