@@ -917,9 +917,6 @@ impl RelaySelector {
                     let mut constraints = constraints.clone();
                     constraints.general.location = Constraint::Any;
                     self.entry_criteria(constraints)
-                        .into_iter()
-                        .reduce(Criteria::compose)
-                        .unwrap()
                 };
 
                 vec![occupied, apply_entry_guards]
