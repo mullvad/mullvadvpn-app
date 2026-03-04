@@ -1402,7 +1402,7 @@ msgstr ""
 #. Label for the in-app banner when the app encountered an error
 #. and will block network traffic until the error is resolved.
 msgctxt "in-app-notifications"
-msgid "Failed to start %(splitTunneling)s. <a>Please send a problem report.</a> To unblock network traffic, disable split tunneling."
+msgid "Failed to start %(splitTunneling)s. To unblock network traffic, disable split tunneling."
 msgstr ""
 
 #. The in-app banner displayed to the user when the app update is available.
@@ -1810,7 +1810,7 @@ msgstr ""
 #. Label for the system notification when the app encountered an error
 #. and will block network traffic until the error is resolved.
 msgctxt "notifications"
-msgid "Failed to start %(splitTunneling)s. Please send a problem report. To unblock network traffic, disable split tunneling."
+msgid "Failed to start %(splitTunneling)s. To unblock network traffic, disable split tunneling."
 msgstr ""
 
 #. Label for notification when IPv4 is not available.
@@ -2374,6 +2374,10 @@ msgid "If these steps do not work please send a problem report."
 msgstr ""
 
 msgctxt "troubleshoot"
+msgid "If you have installed another VPN then try to uninstall that."
+msgstr ""
+
+msgctxt "troubleshoot"
 msgid "Make sure you have NF tables support."
 msgstr ""
 
@@ -2387,10 +2391,6 @@ msgstr ""
 
 msgctxt "troubleshoot"
 msgid "This might be caused by an outdated kernel."
-msgstr ""
-
-msgctxt "troubleshoot"
-msgid "Try reconnecting."
 msgstr ""
 
 msgctxt "troubleshoot"
@@ -2410,7 +2410,7 @@ msgid "Try to uninstall VMware."
 msgstr ""
 
 msgctxt "troubleshoot"
-msgid "Unable to communicate with Mullvad kernel driver."
+msgid "Unable to communicate with the split tunnel driver."
 msgstr ""
 
 msgctxt "troubleshoot"
