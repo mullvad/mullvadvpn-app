@@ -1,6 +1,7 @@
 use anyhow::Result;
 use clap::Subcommand;
 use mullvad_management_interface::{MullvadProxyClient, client::RelaySelectorClient};
+use mullvad_types::relay_constraints::{ObfuscationSettings, SelectedObfuscation};
 
 use super::BooleanOption;
 
@@ -51,25 +52,16 @@ impl LockdownMode {
         let mut relay_selector = RelaySelectorClient::new().await?;
         println!("Connected to relay selector gRPC client!");
         let predicate = {
-            let entry_constraints = EntryConstraints {
-                general_constraints: Some(ExitConstraints {
-                    location: None,
-                    // location: Some(LocationConstraint {
-                    //     r#type: Some(Type::Location(
-                    //         GeographicLocationConstraint::country("se").into(),
-                    //     )),
-                    // }),
-                    // TODO: Make sure the empty vec maps to Constraint::Any.
+            let mut constraints = EntryConstraints::default();
+            constraints.obfuscation_settings = Some(
+                ObfuscationSettings {
+                    selected_obfuscation: SelectedObfuscation::Lwo,
                     ..Default::default()
-                }),
-                // obfuscation_settings: None,
-                // daita_settings: None,
-                ip_version: IpVersion::V4.into(),
-                ..Default::default()
-            };
-            let context = predicate::Context::Singlehop(entry_constraints);
+                }
+                .into(),
+            );
             Predicate {
-                context: Some(context),
+                context: Some(predicate::Context::Singlehop(constraints)),
             }
         };
         println!("Running query {predicate:#?}");
