@@ -1481,7 +1481,7 @@ mod new {
     // - [status] <test> (port)
     //
     // - [x] test_entry_hostname_collision
-    // - [ ] test_runtime_ipv4_unavailable
+    // - [x] test_runtime_ipv4_unavailable
     // - [ ] test_selecting_endpoint_with_udp2tcp_obfuscation
     // - [-] test_selecting_ignore_extra_ips_override_v4
     // - [ ] test_include_in_country
@@ -1496,7 +1496,7 @@ mod new {
     // - [ ] test_retry_order
     // - [ ] valid_user_setting_should_yield_relay
     // - [x] test_multihop_providers ()
-    // - [ ] test_load_balancing
+    // - [-] test_load_balancing
     // - [ ] test_daita_smart_routing_overrides_multihop
     // - [ ] test_selecting_endpoint_with_auto_obfuscation
     // - [ ] test_selecting_location_will_consider_multihop
@@ -1636,6 +1636,23 @@ mod new {
                     _ => panic!("{reasons:#?}"),
                 }
             }
+        }
+    }
+
+    /// Check that if IPv4 is not available, a relay with an IPv6 endpoint is returned.
+    ///
+    /// This is a port of test_runtime_ipv4_unavailable.
+    #[test]
+    fn runtime_ipv4_unavailable() {
+        let constraints = EntryConstraints {
+            ip_version: IpVersion::V6.into(),
+            ..Default::default()
+        };
+        // Query for all DAITA relays.
+        let query = RELAY_SELECTOR.partition_relays(Predicate::Singlehop(constraints));
+        assert!(!query.matches.is_empty());
+        for relay in &query.matches {
+            assert!(relay.ipv6_addr_in.is_some(), "{relay:#?}");
         }
     }
 
