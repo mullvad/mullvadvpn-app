@@ -3,6 +3,7 @@ import { useCallback } from 'react';
 import { messages } from '../../../../shared/gettext';
 import { RoutePath } from '../../../../shared/routes';
 import { useDaitaDirectOnly, useDaitaEnabled } from '../../../features/daita/hooks';
+import { useActiveFilters } from '../../../features/locations/hooks';
 import { LocationType } from '../../../features/locations/types';
 import { useMultihop } from '../../../features/multihop/hooks';
 import { IconButton } from '../../../lib/components';
@@ -20,7 +21,6 @@ import {
   ScopeBarItem,
   SpacePreAllocationView,
 } from './components';
-import { useActiveFilters } from './hooks/use-active-filters';
 import { useScrollPositionContext } from './ScrollPositionContext';
 import { StyledScopeBar } from './SelectLocationStyles';
 import { useSelectLocationViewContext } from './SelectLocationViewContext';
@@ -34,7 +34,7 @@ export function SelectLocation() {
   const { daitaEnabled } = useDaitaEnabled();
   const { daitaDirectOnly } = useDaitaDirectOnly();
   const { multihop } = useMultihop();
-  const { isAnyFilterActive } = useActiveFilters();
+  const { isAnyFilterActive } = useActiveFilters(locationType);
 
   const onClose = useCallback(() => history.pop(), [history]);
   const onViewFilter = useCallback(() => history.push(RoutePath.filter), [history]);

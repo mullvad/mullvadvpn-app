@@ -1,8 +1,8 @@
 import { useRelayLocations } from '../../../../../../features/locations/hooks';
-import { useLocationsContext } from '../../../LocationsContext';
+import { useSelectLocationViewContext } from '../../../SelectLocationViewContext';
 
 export function useRelayCount() {
-  const { searchedLocations } = useLocationsContext();
+  const { searchedLocations } = useSelectLocationViewContext();
   const { relayLocations } = useRelayLocations();
 
   const visibleRelays = searchedLocations.reduce(

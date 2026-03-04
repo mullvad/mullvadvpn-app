@@ -1,5 +1,7 @@
 import React from 'react';
 
+import { useCustomListLocations } from '../../../features/locations/hooks';
+import { useCountryLocations } from '../../../features/locations/hooks/use-country-locations';
 import { LocationType } from '../../../features/locations/types';
 import useActions from '../../../lib/actionsHook';
 import { useNormalRelaySettings } from '../../../lib/relay-settings-hooks';
@@ -11,6 +13,9 @@ type SelectLocationViewContextProps = {
   setLocationType: (locationType: LocationType) => void;
   searchTerm: string;
   setSearchTerm: (value: string) => void;
+  filteredLocations: ReturnType<typeof useCountryLocations>['filteredLocations'];
+  searchedLocations: ReturnType<typeof useCountryLocations>['searchedLocations'];
+  customListLocations: ReturnType<typeof useCustomListLocations>;
 };
 
 const SelectLocationViewContext = React.createContext<SelectLocationViewContextProps | undefined>(
@@ -34,6 +39,11 @@ export function SelectLocationViewProvider({ children }: SelectLocationViewProvi
   const { setSelectLocationView } = useActions(userInterface);
   const [searchTerm, setSearchTerm] = React.useState('');
   const relaySettings = useNormalRelaySettings();
+  const { filteredLocations, searchedLocations } = useCountryLocations(
+    locationTypeSelector,
+    searchTerm,
+  );
+  const customListLocations = useCustomListLocations(locationTypeSelector, searchTerm);
 
   const locationType = React.useMemo(() => {
     const allowEntryLocations = relaySettings?.wireguard.useMultihop;
@@ -50,8 +60,18 @@ export function SelectLocationViewProvider({ children }: SelectLocationViewProvi
       setLocationType: setSelectLocationView,
       searchTerm,
       setSearchTerm,
+      filteredLocations,
+      searchedLocations,
+      customListLocations,
     }),
-    [locationType, searchTerm, setSearchTerm, setSelectLocationView],
+    [
+      customListLocations,
+      filteredLocations,
+      locationType,
+      searchTerm,
+      searchedLocations,
+      setSelectLocationView,
+    ],
   );
 
   return (
