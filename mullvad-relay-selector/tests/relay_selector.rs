@@ -1454,7 +1454,9 @@ mod new {
     //! the relay selector internals have been refactored to use the new "partition relays"
     //! algorithm.
     use mullvad_relay_selector::EntryConstraints;
-    use mullvad_types::relay_constraints::LocationConstraint;
+    use mullvad_types::relay_constraints::{
+        LocationConstraint, ObfuscationSettings, SelectedObfuscation,
+    };
 
     use super::*;
 
@@ -1483,7 +1485,7 @@ mod new {
     // - [ ] test_selecting_ignore_extra_ips_override_v4
     // - [ ] test_include_in_country
     // - [ ] test_selecting_ignore_extra_ips_override_v6
-    // - [ ] test_selecting_over_lwo
+    // - [x] test_selecting_over_lwo
     // - [ ] test_selecting_over_quic
     // - [ ] test_shadowsocks_runtime_ipv4_unavailable
     // - [ ] test_selecting_over_shadowsocks
@@ -1592,6 +1594,29 @@ mod new {
         let query = RELAY_SELECTOR.partition_relays(Predicate::Exit(constraints.clone()));
         // Assert that the new query succeeds when the entry and exit hosts differ
         assert!(!query.matches.is_empty());
+    }
+
+    /// Test LWO relay selection
+    #[test]
+    fn selecting_over_lwo() {
+        let constraints = EntryConstraints {
+            obfuscation_settings: ObfuscationSettings {
+                selected_obfuscation: SelectedObfuscation::Lwo,
+                ..Default::default()
+            }
+            .into(),
+            ..Default::default()
+        };
+        let query = RELAY_SELECTOR.partition_relays(Predicate::Singlehop(constraints));
+
+        for reasons in query.unique_reasons() {
+            match reasons.as_slice() {
+                &[Reason::Obfuscation]
+                | &[Reason::Inactive]
+                | &[Reason::Obfuscation, Reason::Inactive] => (),
+                _ => panic!("{reasons:#?}"),
+            }
+        }
     }
 
     /// "Daita + No Direct only + Provider. Providers (currently) affects both entry and exit
