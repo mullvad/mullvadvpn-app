@@ -209,7 +209,8 @@ impl SplitApp {
         self.0.as_os_str().to_str().map(str::to_string)
     }
 
-    /// This is the String-representation as expected by [`SetExcludedApps`].
+    /// This is the String-representation as expected by
+    /// [`SetExcludedApps`](talpid_core::tunnel_state_machine::TunnelCommand::SetExcludedApps).
     pub fn to_tunnel_command_repr(self) -> std::ffi::OsString {
         self.0.as_os_str().to_owned()
     }
