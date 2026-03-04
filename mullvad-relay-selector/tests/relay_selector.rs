@@ -1567,49 +1567,31 @@ mod new {
     fn entry_hostname_collision() {
         // Define two distinct Wireguard relays.
         let wg101 = LocationConstraint::from(GeographicLocationConstraint::hostname(
-            "se", "got", "wg-101",
+            "se",
+            "got",
+            "se-got-wg-101",
         ));
         let wg001 = LocationConstraint::from(GeographicLocationConstraint::hostname(
-            "se", "got", "wg-001",
+            "se",
+            "got",
+            "se-got-wg-001",
         ));
 
         let mut constraints = MultihopConstraints::default();
         constraints.entry.general.location = wg101.clone().into();
         constraints.exit.location = wg101.clone().into();
 
-        let query = RELAY_SELECTOR.partition_relays(Predicate::Exit(constraints));
+        let query = RELAY_SELECTOR.partition_relays(Predicate::Exit(constraints.clone()));
+        // Assert that the same host cannot be used for entry and exit
         assert_eq!(query.matches.len(), 0);
 
-        /*
-                let invalid_multihop_query = RelayQueryBuilder::new()
-                // Here we set `host1` to be the exit relay
-                .location(host1.clone())
-                .multihop()
-                // .. and here we set `host1` to also be the entry relay!
-                .entry(host1.clone())
-                .build();
-
-                // Assert that the same host cannot be used for entry and exit
-                assert!(
-                    relay_selector
-                        .get_relay_by_query(invalid_multihop_query)
-                        .is_err()
-                );
-
-                let valid_multihop_query = RelayQueryBuilder::new()
-                .location(host1)
-                .multihop()
-                // We correct the erroneous query by setting `host2` as the entry relay
-                .entry(host2)
-                .build();
-
-                // Assert that the new query succeeds when the entry and exit hosts differ
-                assert!(
-                    relay_selector
-                        .get_relay_by_query(valid_multihop_query)
-                        .is_ok()
-                )
-        */
+        // Correct the erroneous query by setting `wg001` as the entry relay
+        let mut constraints = MultihopConstraints::default();
+        constraints.exit.location = wg101.into();
+        constraints.entry.general.location = wg001.into();
+        let query = RELAY_SELECTOR.partition_relays(Predicate::Exit(constraints.clone()));
+        // Assert that the new query succeeds when the entry and exit hosts differ
+        assert!(!query.matches.is_empty());
     }
 
     /// "Daita + No Direct only + Provider verkar lite iffy tycker jag. Fick fram matches som inte stämmer" - David G @ 25/2.
