@@ -9,11 +9,11 @@ import { QuicFilterChip } from '../quic-filter-chip';
 
 export function FilterChips() {
   const {
-    daitaFilterActive,
-    lwoFilterActive,
-    ownershipFilterActive,
-    providersFilterActive,
-    quicFilterActive,
+    isOwnershipFilterActive,
+    isProvidersFilterActive,
+    isDaitaFilterActive,
+    isLwoFilterActive,
+    isQuicFilterActive,
   } = useActiveFilters();
 
   return (
@@ -26,11 +26,11 @@ export function FilterChips() {
         {messages.pgettext('select-location-view', 'Filtered:')}
       </LabelTinySemiBold>
 
-      {ownershipFilterActive && <OwnershipFilterChip />}
-      {providersFilterActive && <ProvidersFilterChip />}
-      {daitaFilterActive && <DaitaFilterChip />}
-      {quicFilterActive && <QuicFilterChip />}
-      {lwoFilterActive && <LwoFilterChip />}
+      {isOwnershipFilterActive && <OwnershipFilterChip />}
+      {isProvidersFilterActive && <ProvidersFilterChip />}
+      {isDaitaFilterActive && <DaitaFilterChip />}
+      {isQuicFilterActive && <QuicFilterChip />}
+      {isLwoFilterActive && <LwoFilterChip />}
     </Flex>
   );
 }
