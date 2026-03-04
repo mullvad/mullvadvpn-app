@@ -1486,9 +1486,9 @@ mod new {
     // - [ ] test_include_in_country
     // - [ ] test_selecting_ignore_extra_ips_override_v6
     // - [x] test_selecting_over_lwo
-    // - [ ] test_selecting_over_quic
+    // - [x] test_selecting_over_quic
     // - [ ] test_shadowsocks_runtime_ipv4_unavailable
-    // - [ ] test_selecting_over_shadowsocks
+    // - [x] test_selecting_over_shadowsocks
     // - [ ] test_selecting_over_shadowsocks_extra_ips
     // - [ ] test_daita
     // - [ ] test_wg_port_selection
@@ -1596,25 +1596,44 @@ mod new {
         assert!(!query.matches.is_empty());
     }
 
-    /// Test LWO relay selection
+    /// Test
+    ///
+    /// This is a port of the following tests:
+    /// * test_selecting_over_quic
+    /// * test_selecting_over_lwo
+    /// * test_selecting_over_shadowsocks
     #[test]
-    fn selecting_over_lwo() {
-        let constraints = EntryConstraints {
-            obfuscation_settings: ObfuscationSettings {
-                selected_obfuscation: SelectedObfuscation::Lwo,
-                ..Default::default()
-            }
-            .into(),
+    fn obfuscation() {
+        // test_selecting_over_quic
+        let quic = ObfuscationSettings {
+            selected_obfuscation: SelectedObfuscation::Quic,
             ..Default::default()
         };
-        let query = RELAY_SELECTOR.partition_relays(Predicate::Singlehop(constraints));
+        // test_selecting_over_lwo
+        let lwo = ObfuscationSettings {
+            selected_obfuscation: SelectedObfuscation::Lwo,
+            ..Default::default()
+        };
+        // test_selecting_over_shadowsocks
+        let shadowsocks = ObfuscationSettings {
+            selected_obfuscation: SelectedObfuscation::Shadowsocks,
+            ..Default::default()
+        };
 
-        for reasons in query.unique_reasons() {
-            match reasons.as_slice() {
-                &[Reason::Obfuscation]
-                | &[Reason::Inactive]
-                | &[Reason::Obfuscation, Reason::Inactive] => (),
-                _ => panic!("{reasons:#?}"),
+        for obfuscation in [quic, lwo, shadowsocks] {
+            let constraints = EntryConstraints {
+                obfuscation_settings: obfuscation.into(),
+                ..Default::default()
+            };
+            let query = RELAY_SELECTOR.partition_relays(Predicate::Singlehop(constraints));
+
+            for reasons in query.unique_reasons() {
+                match reasons.as_slice() {
+                    &[Reason::Obfuscation]
+                    | &[Reason::Inactive]
+                    | &[Reason::Obfuscation, Reason::Inactive] => (),
+                    _ => panic!("{reasons:#?}"),
+                }
             }
         }
     }
