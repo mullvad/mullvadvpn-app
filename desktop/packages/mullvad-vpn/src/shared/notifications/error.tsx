@@ -368,6 +368,10 @@ export class ErrorNotificationProvider
           ),
           steps: [
             messages.pgettext('troubleshoot', 'Try reconnecting.'),
+            messages.pgettext(
+              'troubleshoot',
+              'If you have installed another VPN then try to uninstall that.',
+            ),
             messages.pgettext('troubleshoot', 'Try restarting your device.'),
           ],
         },
