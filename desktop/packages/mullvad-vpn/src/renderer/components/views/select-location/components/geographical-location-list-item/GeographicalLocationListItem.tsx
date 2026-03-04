@@ -1,4 +1,5 @@
 import { getLocationChildren } from '../../../../../features/locations/utils';
+import { getLocationListItemMapProps } from '../../utils';
 import { AnyLocationListItem, type AnyLocationListItemProps } from '../any-location-list-item';
 import {
   GeographicalLocationListItemProvider,
@@ -24,12 +25,13 @@ function GeographicalLocationListItemImpl({
       disabled={disabled || loading}
       {...props}>
       {children.map((child) => {
+        const { key, nextLevel } = getLocationListItemMapProps(child, level);
         return (
           <GeographicalLocationListItem
-            key={Object.values(child.details).join('-')}
+            key={key}
             location={child}
             rootLocation="geographical"
-            level={level !== undefined ? level + 1 : undefined}
+            level={nextLevel}
             disabled={disabled || loading}
             {...props}
           />
