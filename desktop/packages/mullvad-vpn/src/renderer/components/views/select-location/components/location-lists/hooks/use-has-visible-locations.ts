@@ -1,7 +1,7 @@
-import { useLocationsContext } from '../../../LocationsContext';
+import { useSelectLocationViewContext } from '../../../SelectLocationViewContext';
 
 export function useHasSearchedLocations() {
-  const { searchedLocations } = useLocationsContext();
+  const { searchedLocations } = useSelectLocationViewContext();
 
   const hasSearchedLocations = searchedLocations.length > 0;
 

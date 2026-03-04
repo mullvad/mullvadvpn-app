@@ -1,8 +1,8 @@
 import { sprintf } from 'sprintf-js';
 
-import type { RelayLocation } from '../../../../../shared/daemon-rpc-types';
-import { messages, relayLocations } from '../../../../../shared/gettext';
-import { DisabledReason } from '../../../../features/locations/types';
+import type { RelayLocation } from '../../../../shared/daemon-rpc-types';
+import { messages, relayLocations } from '../../../../shared/gettext';
+import { DisabledReason } from '../types';
 
 export function createLocationLabel(
   name: string,

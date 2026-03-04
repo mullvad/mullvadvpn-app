@@ -2,8 +2,8 @@ import {
   compareRelayLocation,
   RelayLocation,
   RelayLocationCustomList,
-} from '../../../../../shared/daemon-rpc-types';
-import { DisabledReason, type GeographicalLocation } from '../../../../features/locations/types';
+} from '../../../../shared/daemon-rpc-types';
+import { DisabledReason, type GeographicalLocation } from '../types';
 
 export function isCustomListDisabled(
   location: RelayLocationCustomList,

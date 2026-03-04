@@ -1,16 +1,14 @@
-import { useMemo } from 'react';
+import React from 'react';
 
-import type { RelayLocation } from '../../../../../shared/daemon-rpc-types';
-import { LocationType } from '../../../../features/locations/types';
-import { useNormalRelaySettings } from '../../../../lib/relay-settings-hooks';
-import { useSelectLocationViewContext } from '../SelectLocationViewContext';
+import type { RelayLocation } from '../../../../shared/daemon-rpc-types';
+import { useNormalRelaySettings } from '../../../lib/relay-settings-hooks';
+import { LocationType } from '../types';
 
 // Returns the selected location for the current tunnel protocol and location type
-export function useSelectedLocation(): RelayLocation | undefined {
-  const { locationType } = useSelectLocationViewContext();
+export function useSelectedLocation(locationType: LocationType): RelayLocation | undefined {
   const relaySettings = useNormalRelaySettings();
 
-  return useMemo(() => {
+  return React.useMemo(() => {
     if (locationType === LocationType.exit) {
       return relaySettings?.location === 'any' ? undefined : relaySettings?.location;
     } else {

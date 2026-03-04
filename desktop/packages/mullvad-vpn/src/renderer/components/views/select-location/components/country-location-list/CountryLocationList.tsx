@@ -5,7 +5,7 @@ import { messages } from '../../../../../../shared/gettext';
 import { FlexColumn } from '../../../../../lib/components/flex-column';
 import { SectionTitle } from '../../../../../lib/components/section-title';
 import { spacings } from '../../../../../lib/foundations';
-import { useLocationsContext } from '../../LocationsContext';
+import { useSelectLocationViewContext } from '../../SelectLocationViewContext';
 import { GeographicalLocationListItem } from '../geographical-location-list-item';
 import { StyledLocationListItemAccordionContent } from '../location-list-item/components';
 import { useLocationListsContext } from '../location-lists/LocationListsContext';
@@ -22,7 +22,7 @@ const StyledLocationContainer = styled.div`
 `;
 
 export function CountryLocationList() {
-  const { searchedLocations } = useLocationsContext();
+  const { searchedLocations } = useSelectLocationViewContext();
   const { visibleRelays, totalRelays } = useRelayCount();
 
   const showFilterText = visibleRelays !== totalRelays;
