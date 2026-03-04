@@ -82,16 +82,7 @@ jobs:
         run: ci/cargo-ci.sh doc --workspace --document-private-items --no-deps --keep-going
 
   document-windows:
-    strategy:
-      # Even if one of the Windows jobs fail, the other should not be cancelled.
-      fail-fast: false
-      matrix:
-        config:
-          - os: windows-latest
-            arch: x64
-          - os: windows-11-arm
-            arch: arm64
-    runs-on: ${{ matrix.config.os }}
+    runs-on: windows-latest
     steps:
       # By default, the longest path a filename can have in git on Windows is 260 character.
       - name: Set git config for long paths
