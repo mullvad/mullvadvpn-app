@@ -2,19 +2,24 @@
 
 Currently there are two release scripts that deal with different parts of the android release process.
 
-## Github-release
+## `github-release`
 Download and verifies a release from releases.mullvad.net and push it to gihub with a changelog.
 
 ### Prequisites
 This script requires `sequoia-pgp` and `GitHub CLI`.
+See https://github.com/cli/cli#installation for more detailed instructions on how to install `GitHub CLI`.
 
 #### Install dependencies
 
 ##### MacOS
-brew install sq sqv gh
+```bash
+brew install sequoia-sq sequoia-sqv gh
+```
 
-##### Linux
-sudo apt install sq
+##### Linux (Debian/Ubuntu)
+```bash
+sudo apt install sq sqv gh
+```
 
 #### Usage
 Checkout the release branch and make sure you are on the latest commit.
@@ -26,7 +31,7 @@ android/scripts/release/github-release
 
 It will ask you to make any final changes to the changelog. After that it will publish a draft to github.
 
-## Release
+## `release`
 Add and remove supported versions and set the latest version.
 
 ### Prequisites
