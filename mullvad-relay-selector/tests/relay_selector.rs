@@ -1453,9 +1453,10 @@ mod new {
     //! The long term goal is to completely remove all old tests, but they will have to remain until
     //! the relay selector internals have been refactored to use the new "partition relays"
     //! algorithm.
-    use mullvad_relay_selector::EntryConstraints;
-    use mullvad_types::relay_constraints::{
-        LocationConstraint, ObfuscationSettings, SelectedObfuscation,
+    use mullvad_relay_selector::{EntryConstraints, ExitConstraints};
+    use mullvad_types::{
+        relay_constraints::{LocationConstraint, ObfuscationSettings, SelectedObfuscation},
+        wireguard::DaitaSettings,
     };
 
     use super::*;
@@ -1490,7 +1491,7 @@ mod new {
     // - [ ] test_shadowsocks_runtime_ipv4_unavailable
     // - [x] test_selecting_over_shadowsocks
     // - [ ] test_selecting_over_shadowsocks_extra_ips
-    // - [ ] test_daita
+    // - [x] test_daita
     // - [ ] test_wg_port_selection
     // - [ ] test_retry_order
     // - [ ] valid_user_setting_should_yield_relay
@@ -1635,6 +1636,67 @@ mod new {
                     _ => panic!("{reasons:#?}"),
                 }
             }
+        }
+    }
+
+    /// Test that filtering on DAITA works.
+    ///
+    /// This is a port of `test_daita`
+    #[test]
+    fn daita() {
+        let constraints = EntryConstraints {
+            daita: DaitaSettings {
+                enabled: true,
+                // Do not use smart routing / "autohop".
+                use_multihop_if_necessary: false,
+            }
+            .into(),
+            ..Default::default()
+        };
+        // Query for all DAITA relays.
+        let query = RELAY_SELECTOR.partition_relays(Predicate::Singlehop(constraints));
+        for relay in &query.matches {
+            assert!(relay.endpoint_data.daita)
+        }
+        // Not all relays were discarded because they do not have DAITA, but some were!
+        // Use them as entry relays, and use smart routing to forcibly select alternate entry
+        // routes.
+        let non_daita_relays: Vec<_> = query
+            .discards
+            .into_iter()
+            .filter_map(|(discard, reasons)| {
+                if reasons.contains(&Reason::Daita) {
+                    Some(discard)
+                } else {
+                    None
+                }
+            })
+            .collect();
+        for relay in non_daita_relays {
+            // Force the entry relay to be a relay without DAITA.
+            let location = LocationConstraint::from(GeographicLocationConstraint::hostname(
+                relay.location.country.clone(),
+                relay.location.city.clone(),
+                relay.hostname.clone(),
+            ));
+            let constraints = EntryConstraints {
+                general: ExitConstraints {
+                    location: location.into(),
+                    ..Default::default()
+                },
+                daita: DaitaSettings {
+                    enabled: true,
+                    // NOTE: This does not actually do anything.
+                    use_multihop_if_necessary: false,
+                }
+                .into(),
+                ..Default::default()
+            };
+            // Demonstrate the difference between autohop / singlehop.
+            let query = RELAY_SELECTOR.partition_relays(Predicate::Autohop(constraints.clone()));
+            assert!(!query.matches.is_empty());
+            let query = RELAY_SELECTOR.partition_relays(Predicate::Singlehop(constraints));
+            assert!(query.matches.is_empty());
         }
     }
 
