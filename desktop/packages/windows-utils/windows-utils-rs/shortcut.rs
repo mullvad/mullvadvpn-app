@@ -46,7 +46,7 @@ enum Error {
 }
 
 /// Maximum path length of shortcut
-/// 32 KiB: https://learn.microsoft.com/en-us/windows/win32/fileio/maximum-file-path-limitation?tabs=registry
+/// 32 KiB: <https://learn.microsoft.com/en-us/windows/win32/fileio/maximum-file-path-limitation?tabs=registry>
 const MAX_PATH_LEN: usize = 0x7fff;
 
 pub fn read_shortcut(mut cx: FunctionContext<'_>) -> JsResult<'_, JsValue> {
