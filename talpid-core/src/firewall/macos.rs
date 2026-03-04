@@ -280,7 +280,8 @@ impl Firewall {
     ///
     /// This workaround is supposedly only needed for clients running macOS [14.6, 15.1).
     /// Apple has acknowleged the issue and released a patch in macOS 15.1:
-    /// https://developer.apple.com/documentation/macos-release-notes/macos-15_1-release-notes#Resolved-Issues
+    /// <https://developer.apple.com/documentation/macos-release-notes/macos-15_1-release-notes#Resolved-Issues>
+    ///
     /// If this naughty behavior does not make a comeback, it should be safe to drop these redirect
     /// rules in a future release since they were supposedly not needed until Apple tried to be a
     /// bit too clever.
