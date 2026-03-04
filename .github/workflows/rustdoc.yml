@@ -68,7 +68,7 @@ jobs:
           cache-targets: "false" # Only cache cargo registry
 
       - name: Check rust docs
-        run: ci/cargo-ci.sh doc --workspace --document-private-items --no-deps --keep-going --color=always
+        run: ci/cargo-ci.sh doc --workspace --document-private-items --no-deps --keep-going
 
   document-macos:
     runs-on: macos-latest
@@ -79,7 +79,7 @@ jobs:
       - uses: ./.github/actions/mullvad-build-env
 
       - name: Check rust docs
-        run: ci/cargo-ci.sh doc --workspace --document-private-items --no-deps --keep-going --color=always
+        run: ci/cargo-ci.sh doc --workspace --document-private-items --no-deps --keep-going
 
   document-windows:
     runs-on: windows-latest
@@ -98,4 +98,4 @@ jobs:
 
       - name: Check rust docs
         shell: bash
-        run: ci/cargo-ci.sh doc --workspace --document-private-items --no-deps --keep-going --color=always
+        run: ci/cargo-ci.sh doc --workspace --document-private-items --no-deps --keep-going
