@@ -4,6 +4,7 @@ export const urls = {
   purchase: 'https://mullvad.net/account/',
   faq: 'https://mullvad.net/help/tag/mullvad-app/',
   privacyGuide: 'https://mullvad.net/help/first-steps-towards-online-privacy/',
+  splitTunnelGuide: 'https://mullvad.net/help/split-tunneling-with-the-mullvad-app#known-issues',
   download: 'https://mullvad.net/download/vpn/',
   removingOpenVpnBlog: 'https://mullvad.net/blog/removing-openvpn-15th-january-2026',
 } as const;

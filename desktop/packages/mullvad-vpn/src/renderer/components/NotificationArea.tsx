@@ -12,8 +12,10 @@ import {
   InconsistentVersionNotificationProvider,
   LockdownModeNotificationProvider,
   ReconnectingNotificationProvider,
+  TroubleshootStep,
   UnsupportedVersionNotificationProvider,
 } from '../../shared/notifications';
+import { ExternalLink } from './ExternalLink';
 import { RoutePath } from '../../shared/routes';
 import { useAppContext } from '../context';
 import { useSplitTunnelingSupported } from '../features/split-tunneling/hooks';
@@ -347,7 +349,18 @@ function NotificationActionWrapper({
         <ModalMessage>{action.troubleshoot?.details}</ModalMessage>
         <ModalMessage>
           <ModalMessageList>
-            {action.troubleshoot?.steps.map((step) => <li key={step}>{step}</li>)}
+            {action.troubleshoot?.steps.map((step: TroubleshootStep) =>
+              typeof step === 'string' ? (
+                <li key={step}>{step}</li>
+              ) : (
+                <li key={step['aria-label']}>
+                  <ExternalLink variant="labelTinySemiBold" to={step.to}>
+                    <ExternalLink.Text>{step['aria-label']}</ExternalLink.Text>
+                    <ExternalLink.Icon icon="external" />
+                  </ExternalLink>
+                </li>
+              ),
+            )}
           </ModalMessageList>
         </ModalMessage>
         <ModalMessage>

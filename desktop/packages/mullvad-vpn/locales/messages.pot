@@ -1301,7 +1301,7 @@ msgstr ""
 #. Label for the in-app banner when the app encountered an error
 #. and will block network traffic until the error is resolved.
 msgctxt "in-app-notifications"
-msgid "Failed to start %(splitTunneling)s. <a>Please send a problem report.</a> To unblock network traffic, disable split tunneling."
+msgid "Failed to start %(splitTunneling)s. To unblock network traffic, disable split tunneling."
 msgstr ""
 
 #. The in-app banner displayed to the user when the app update is available.
@@ -2291,15 +2291,15 @@ msgid "Open system settings"
 msgstr ""
 
 msgctxt "troubleshoot"
+msgid "Read our troubleshooting guide"
+msgstr ""
+
+msgctxt "troubleshoot"
 msgid "This error can happen when something other than Mullvad is actively updating the DNS."
 msgstr ""
 
 msgctxt "troubleshoot"
 msgid "This might be caused by an outdated kernel."
-msgstr ""
-
-msgctxt "troubleshoot"
-msgid "Try reconnecting."
 msgstr ""
 
 msgctxt "troubleshoot"
