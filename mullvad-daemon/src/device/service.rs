@@ -405,16 +405,19 @@ impl AccountService {
     }
 
     #[cfg(target_os = "android")]
-    pub async fn delete_account_with_backoff(&self, number: AccountNumber) -> Result<(), Error> {
+    pub async fn delete_account(&self, account_number: AccountNumber) -> Result<(), Error> {
         let proxy = self.proxy.clone();
         let api_handle = self.api_availability.clone();
 
+        let factory = move || {
+            let account_number = account_number.clone();
+
+            proxy.delete_account(account_number)
+        };
         retry_future(
-            // NOTE: Not honoring "paused" state, because the account may have no time on it.
-            move || api_handle.when_online(proxy.delete_account(number.clone())),
-            should_retry_backoff,
-            // Not setting a maximum interval
-            RETRY_BACKOFF_STRATEGY.clone().max_delay(None),
+            factory,
+            move |result| should_retry(result, &api_handle),
+            RETRY_ACTION_STRATEGY,
         )
         .await
         .map_err(map_rest_error)?;

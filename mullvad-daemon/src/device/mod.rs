@@ -1043,7 +1043,7 @@ impl AccountManager {
 
         let service = self.account_service.clone();
         match service
-            .delete_account_with_backoff(old_config.unwrap().clone().account_number)
+            .delete_account(old_config.unwrap().clone().account_number)
             .await
         {
             Ok(_) => {
