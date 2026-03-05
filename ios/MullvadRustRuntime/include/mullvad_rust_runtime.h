@@ -367,7 +367,7 @@ struct SwiftCancelHandle mullvad_ios_api_addrs_available(struct SwiftApiContext 
  */
 struct SwiftCancelHandle mullvad_ios_get_relays(struct SwiftApiContext api_context,
                                                 struct SwiftRetryStrategy retry_strategy,
-                                                const char *etag);
+                                                const char *_etag);
 
 /**
  * Called by the Swift side to signal that a Mullvad API call should be started.
