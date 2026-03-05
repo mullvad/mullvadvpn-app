@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.feature.account.impl
 
 import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -9,11 +10,16 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.DeleteForever
 import androidx.compose.material.icons.rounded.Info
+import androidx.compose.material.icons.rounded.MoreVert
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -39,6 +45,7 @@ import androidx.navigation.NavController
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
 import com.ramcosta.composedestinations.generated.addtime.destinations.VerificationPendingDestination
+import com.ramcosta.composedestinations.generated.deleteaccount.destinations.DeleteAccountDestination
 import com.ramcosta.composedestinations.generated.login.destinations.LoginDestination
 import com.ramcosta.composedestinations.generated.managedevices.destinations.ManageDevicesDestination
 import com.ramcosta.composedestinations.generated.redeemvoucher.destinations.RedeemVoucherDestination
@@ -61,6 +68,7 @@ import net.mullvad.mullvadvpn.lib.ui.designsystem.PrimaryTextButton
 import net.mullvad.mullvadvpn.lib.ui.tag.MANAGE_DEVICES_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
+import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaDisabled
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -79,6 +87,7 @@ private fun PreviewAccountScreen(
             onRedeemVoucherClick = {},
             onPlayPaymentInfoClick = {},
             onBackClick = {},
+            navigateToDeleteAccount = {},
         )
     }
 }
@@ -128,6 +137,8 @@ fun Account(navController: NavController, navigator: DestinationsNavigator) {
         onRedeemVoucherClick = dropUnlessResumed { navigator.navigate(RedeemVoucherDestination) },
         onPlayPaymentInfoClick =
             dropUnlessResumed { navigator.navigate(VerificationPendingDestination) },
+        navigateToDeleteAccount =
+            dropUnlessResumed { navigator.navigate(DeleteAccountDestination) },
         onBackClick = dropUnlessResumed { navigator.navigateUp() },
     )
 }
@@ -143,6 +154,7 @@ fun AccountScreen(
     onRedeemVoucherClick: () -> Unit,
     onPlayPaymentInfoClick: () -> Unit,
     onBackClick: () -> Unit,
+    navigateToDeleteAccount: () -> Unit,
 ) {
     // This will enable SECURE_FLAG while this screen is visible to preview screenshot
     SecureScreenWhileInView()
@@ -151,6 +163,7 @@ fun AccountScreen(
         appBarTitle = stringResource(id = R.string.settings_account),
         navigationIcon = { NavigateCloseIconButton(onBackClick) },
         snackbarHostState = snackbarHostState,
+        actions = { AccountDropdownMenu(navigateToDeleteAccount) },
     ) { modifier ->
         var addTimeBottomSheetState by remember { mutableStateOf<Boolean>(false) }
         if (!LocalInspectionMode.current) {
@@ -201,6 +214,40 @@ fun AccountScreen(
                 modifier = Modifier.fillMaxWidth(),
             )
         }
+    }
+}
+
+@Composable
+private fun AccountDropdownMenu(navigateToDeleteAccount: () -> Unit) {
+    var showMenu by remember { mutableStateOf(false) }
+
+    IconButton(onClick = { showMenu = !showMenu }) {
+        Icon(
+            imageVector = Icons.Rounded.MoreVert,
+            contentDescription = stringResource(R.string.more_actions),
+        )
+    }
+    DropdownMenu(
+        modifier = Modifier.background(MaterialTheme.colorScheme.tertiaryContainer),
+        expanded = showMenu,
+        onDismissRequest = { showMenu = false },
+    ) {
+        val colors =
+            MenuDefaults.itemColors(
+                leadingIconColor = MaterialTheme.colorScheme.onPrimary,
+                disabledLeadingIconColor =
+                    MaterialTheme.colorScheme.onPrimary.copy(alpha = AlphaDisabled),
+            )
+
+        DropdownMenuItem(
+            text = { Text(text = stringResource(R.string.delete_account)) },
+            onClick = {
+                showMenu = false
+                navigateToDeleteAccount()
+            },
+            colors = colors,
+            leadingIcon = { Icon(Icons.Rounded.DeleteForever, contentDescription = null) },
+        )
     }
 }
 

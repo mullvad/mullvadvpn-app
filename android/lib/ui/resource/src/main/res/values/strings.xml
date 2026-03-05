@@ -496,4 +496,7 @@
     <string name="you_can_add_more_time_play">You can add more time via the account view to continue using the VPN.</string>
     <string name="you_can_add_more_time_oss">You can add more time via the account view or website to continue using the VPN.</string>
     <string name="invalid_ipv6_config">Invalid IPv6 config, please try to change the VPN settings.</string>
+    <string name="delete_account">Delete account</string>
+    <string name="cont">Continue</string>
+    <string name="delete_account_confirmation_check">By checking this box I agree to the risks involved with proceeding with this action</string>
 </resources>
