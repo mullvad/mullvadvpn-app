@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.lib.repository
 
 import androidx.datastore.core.DataStore
+import dev.zacsweers.metro.Inject
 import java.time.Instant
 import java.time.ZoneId
 import java.time.ZonedDateTime
@@ -10,6 +11,7 @@ import kotlinx.coroutines.flow.map
 import net.mullvad.mullvadvpn.lib.model.BuildVersion
 import net.mullvad.mullvadvpn.repository.UserPreferences
 
+@Inject
 class UserPreferencesRepository(
     private val userPreferencesStore: DataStore<UserPreferences>,
     private val buildVersion: BuildVersion,

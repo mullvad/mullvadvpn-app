@@ -5,10 +5,15 @@ import android.content.pm.PackageManager
 import androidx.core.app.NotificationManagerCompat
 import androidx.datastore.core.DataStore
 import androidx.datastore.dataStore
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.BindingContainer
+import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.Provides
 import java.io.File
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
 import net.mullvad.mullvadvpn.BuildConfig
+import net.mullvad.mullvadvpn.app.MullvadApplication
 import net.mullvad.mullvadvpn.feature.appearance.impl.obfuscation.AppObfuscationRepository
 import net.mullvad.mullvadvpn.lib.common.constant.GRPC_SOCKET_FILE_NAME
 import net.mullvad.mullvadvpn.lib.common.constant.GRPC_SOCKET_FILE_NAMED_ARGUMENT
@@ -39,6 +44,20 @@ import org.koin.core.module.dsl.withOptions
 import org.koin.core.qualifier.named
 import org.koin.dsl.bind
 import org.koin.dsl.module
+
+@BindingContainer
+class AppModuleBindings(private val application: MullvadApplication) {
+    @Provides
+    fun provideManagementService(context: Context): ManagementService =
+        ManagementService(
+            rpcSocketFile = File(context.noBackupFilesDir, GRPC_SOCKET_FILE_NAME),
+            extensiveLogging = BuildConfig.DEBUG,
+            scope = MainScope(),
+        )
+
+    @Provides
+    fun provideApplication(): MullvadApplication = application
+}
 
 val appModule = module {
     single(named(GRPC_SOCKET_FILE_NAMED_ARGUMENT)) {

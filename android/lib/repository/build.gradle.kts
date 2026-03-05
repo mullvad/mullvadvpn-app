@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.protobuf.core)
     alias(libs.plugins.mullvad.unit.test)
+    id("dev.zacsweers.metro") version "0.11.1"
 }
 
 android {

@@ -33,6 +33,7 @@ plugins {
     alias(libs.plugins.mullvad.unit.test)
     id("de.mannodermaus.android-junit5")
     id("net.mullvad.rust-android")
+    id("dev.zacsweers.metro") version "0.11.1"
 }
 
 val repoRootPath = rootProject.projectDir.absoluteFile.parentFile.absolutePath
@@ -438,6 +439,10 @@ dependencies {
     implementation(projects.lib.ui.util)
     implementation(projects.lib.usecase)
     implementation(libs.androidx.profileinstaller)
+
+    implementation("dev.zacsweers.metro:metrox-android:0.11.1")
+    implementation("dev.zacsweers.metro:metrox-viewmodel:0.11.1")
+    implementation("dev.zacsweers.metro:metrox-viewmodel-compose:0.11.1")
 
     // Baseline profile
     baselineProfile(projects.test.baselineprofile)

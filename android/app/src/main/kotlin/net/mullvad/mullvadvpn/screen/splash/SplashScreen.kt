@@ -25,6 +25,7 @@ import com.ramcosta.composedestinations.generated.home.destinations.DeviceRevoke
 import com.ramcosta.composedestinations.generated.home.destinations.OutOfTimeDestination
 import com.ramcosta.composedestinations.generated.login.destinations.LoginDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import dev.zacsweers.metrox.viewmodel.metroViewModel
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.app.MainGraph
 import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
@@ -43,7 +44,7 @@ private fun PreviewLoadingScreen() {
 @Destination<MainGraph>(start = true)
 @Composable
 fun Splash(navigator: DestinationsNavigator) {
-    val viewModel: SplashViewModel = koinViewModel()
+    val viewModel: SplashViewModel = metroViewModel()
 
     // We use CollectSideEffectWithLifecycle to re-evaluate the splash decision if the user
     // navigates away from the app to the resume before we leave the splash screen

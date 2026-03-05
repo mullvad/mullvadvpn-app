@@ -96,6 +96,8 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.navigation.dependency
 import com.ramcosta.composedestinations.rememberNavHostEngine
 import com.ramcosta.composedestinations.utils.rememberDestinationsNavigator
+import dev.zacsweers.metrox.viewmodel.LocalMetroViewModelFactory
+import dev.zacsweers.metrox.viewmodel.MetroViewModelFactory
 import kotlinx.coroutines.cancel
 import net.mullvad.mullvadvpn.common.compose.LocalSharedTransitionScope
 import net.mullvad.mullvadvpn.common.compose.accessibilityDataSensitive
@@ -185,51 +187,51 @@ fun MullvadApp(
     backstackObserver: BackstackObserver,
     serviceConnectionManager: ServiceConnectionManager,
 ) {
-    val engine = rememberNavHostEngine()
-    val navHostController: NavHostController = engine.rememberNavController()
-    val navigator: DestinationsNavigator = navHostController.rememberDestinationsNavigator()
+        val engine = rememberNavHostEngine()
+        val navHostController: NavHostController = engine.rememberNavController()
+        val navigator: DestinationsNavigator = navHostController.rememberDestinationsNavigator()
 
-    val mullvadAppViewModel = koinViewModel<MullvadAppViewModel>()
+        val mullvadAppViewModel = koinViewModel<MullvadAppViewModel>()
 
-    DisposableEffect(Unit) {
-        backstackObserver.addOnDestinationChangedListener(navHostController)
-        onDispose { backstackObserver.removeOnDestinationChangedListener(navHostController) }
-    }
-
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        CheckNotificationPermission(serviceConnectionManager)
-    }
-
-    SharedTransitionLayout {
-        CompositionLocalProvider(LocalSharedTransitionScope provides this@SharedTransitionLayout) {
-            DestinationsNavHost(
-                modifier =
-                    Modifier.semantics { testTagsAsResourceId = true }
-                        .fillMaxSize()
-                        .accessibilityDataSensitive(),
-                engine = engine,
-                navController = navHostController,
-                navGraph = NavGraphs.main,
-                dependenciesContainerBuilder = { dependency(this@SharedTransitionLayout) },
-            )
+        DisposableEffect(Unit) {
+            backstackObserver.addOnDestinationChangedListener(navHostController)
+            onDispose { backstackObserver.removeOnDestinationChangedListener(navHostController) }
         }
-    }
 
-    // For the following LaunchedEffect we do not use CollectSideEffectWithLifecycle since we
-    // collect from StateFlow/SharedFlow with replay and don't want to trigger a navigation again.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            CheckNotificationPermission(serviceConnectionManager)
+        }
 
-    // Globally handle daemon dropped connection with NoDaemonScreen
-    LaunchedEffect(Unit) {
-        mullvadAppViewModel.uiSideEffect.collect {
-            Logger.i { "DaemonScreenEvent: $it" }
-            when (it) {
-                DaemonScreenEvent.Show ->
-                    navigator.navigate(NoDaemonDestination) { launchSingleTop = true }
-
-                DaemonScreenEvent.Remove -> navigator.popBackStack(NoDaemonDestination, true)
+        SharedTransitionLayout {
+            CompositionLocalProvider(LocalSharedTransitionScope provides this@SharedTransitionLayout) {
+                DestinationsNavHost(
+                    modifier =
+                        Modifier.semantics { testTagsAsResourceId = true }
+                            .fillMaxSize()
+                            .accessibilityDataSensitive(),
+                    engine = engine,
+                    navController = navHostController,
+                    navGraph = NavGraphs.main,
+                    dependenciesContainerBuilder = { dependency(this@SharedTransitionLayout) },
+                )
             }
         }
-    }
+
+        // For the following LaunchedEffect we do not use CollectSideEffectWithLifecycle since we
+        // collect from StateFlow/SharedFlow with replay and don't want to trigger a navigation again.
+
+        // Globally handle daemon dropped connection with NoDaemonScreen
+        LaunchedEffect(Unit) {
+            mullvadAppViewModel.uiSideEffect.collect {
+                Logger.i { "DaemonScreenEvent: $it" }
+                when (it) {
+                    DaemonScreenEvent.Show ->
+                        navigator.navigate(NoDaemonDestination) { launchSingleTop = true }
+
+                    DaemonScreenEvent.Remove -> navigator.popBackStack(NoDaemonDestination, true)
+                }
+            }
+        }
 }
 
 @OptIn(ExperimentalPermissionsApi::class)

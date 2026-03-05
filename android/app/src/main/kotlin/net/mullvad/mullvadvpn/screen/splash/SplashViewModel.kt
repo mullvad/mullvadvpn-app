@@ -2,6 +2,10 @@ package net.mullvad.mullvadvpn.screen.splash
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesIntoMap
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metrox.viewmodel.ViewModelKey
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,6 +25,9 @@ import net.mullvad.mullvadvpn.lib.repository.UserPreferencesRepository
 
 data class SplashScreenState(val splashComplete: Boolean = false)
 
+@Inject
+@ViewModelKey(SplashViewModel::class)
+@ContributesIntoMap(AppScope::class)
 class SplashViewModel(
     private val userPreferencesRepository: UserPreferencesRepository,
     private val accountRepository: AccountRepository,

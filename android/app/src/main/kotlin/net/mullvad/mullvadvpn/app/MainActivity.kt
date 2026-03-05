@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.app
 
+import android.app.Activity
 import android.content.Intent
 import android.graphics.Color
 import android.os.Build
@@ -8,6 +9,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.util.Consumer
 import androidx.lifecycle.Lifecycle
@@ -15,6 +17,12 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import arrow.core.merge
 import co.touchlab.kermit.Logger
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesIntoMap
+import dev.zacsweers.metro.binding
+import dev.zacsweers.metrox.android.ActivityKey
+import dev.zacsweers.metrox.viewmodel.LocalMetroViewModelFactory
+import dev.zacsweers.metrox.viewmodel.MetroViewModelFactory
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.filter
@@ -42,7 +50,12 @@ import org.koin.android.scope.AndroidScopeComponent
 import org.koin.androidx.scope.activityScope
 import org.koin.core.context.loadKoinModules
 
-class MainActivity : ComponentActivity(), AndroidScopeComponent {
+@ContributesIntoMap(AppScope::class, binding<Activity>())
+@ActivityKey(MainActivity::class)
+class MainActivity(
+    private val metroVmf: MetroViewModelFactory,
+    private val splashCompleteRepository: SplashCompleteRepository,
+) : ComponentActivity(), AndroidScopeComponent {
     override val scope by activityScope()
 
     private val launchVpnPermission =
@@ -52,7 +65,7 @@ class MainActivity : ComponentActivity(), AndroidScopeComponent {
     private val mullvadAppViewModel by inject<MullvadAppViewModel>()
     private val userPreferencesRepository by inject<UserPreferencesRepository>()
     private val serviceConnectionManager by inject<ServiceConnectionManager>()
-    private val splashCompleteRepository by inject<SplashCompleteRepository>()
+    //        private val splashCompleteRepository by inject<SplashCompleteRepository>()
     private val managementService by inject<ManagementService>()
     private val backstackObserver by inject<BackstackObserver>()
 
@@ -76,7 +89,11 @@ class MainActivity : ComponentActivity(), AndroidScopeComponent {
 
         super.onCreate(savedInstanceState)
 
-        setContent { AppTheme { MullvadApp(backstackObserver, serviceConnectionManager) } }
+        setContent {
+            CompositionLocalProvider(LocalMetroViewModelFactory provides metroVmf) {
+                AppTheme { MullvadApp(backstackObserver, serviceConnectionManager) }
+            }
+        }
 
         // This is to protect against tapjacking attacks
         // This is applied at an OS level since Android 12 so it is only required on older versions
