@@ -13,7 +13,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -87,7 +87,7 @@ private fun DeleteAccountBottomBar(onClickContinue: () -> Unit) {
         Modifier.windowInsetsPadding(WindowInsets.systemBars.only(WindowInsetsSides.Bottom))
             .padding(horizontal = Dimens.sideMargin, vertical = Dimens.screenBottomMargin)
     ) {
-        var confirmed by remember { mutableStateOf(false) }
+        var confirmed by rememberSaveable { mutableStateOf(false) }
         CheckboxConfirmation(
             text = stringResource(R.string.delete_account_confirmation_check),
             checked = confirmed,
