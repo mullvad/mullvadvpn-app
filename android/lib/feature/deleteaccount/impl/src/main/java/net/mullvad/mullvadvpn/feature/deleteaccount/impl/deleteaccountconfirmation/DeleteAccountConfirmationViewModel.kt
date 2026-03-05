@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.WhileSubscribed
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
@@ -22,17 +23,25 @@ class DeleteAccountConfirmationViewModel(val accountRepository: AccountRepositor
     private val _uiSideEffect = Channel<DeleteAccountConfirmationUiSideEffect>()
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
     private val accountInput = MutableStateFlow("")
+    private val deleteError = MutableStateFlow<DeleteAccountError?>(null)
     private val isLoading = MutableStateFlow(false)
 
     val uiState: StateFlow<Lc<Unit, DeleteAccountConfirmationUiState>> =
-        combine(accountInput, accountRepository.accountData.filterNotNull(), isLoading) {
-                input,
-                account,
-                loading ->
+        combine(
+                combine(accountInput, accountRepository.accountData.filterNotNull()) {
+                        input,
+                        account ->
+                        input == account.accountNumber.value
+                    }
+                    .distinctUntilChanged(),
+                isLoading,
+                deleteError,
+            ) { hasEnterCorrectInput, isLoading, error ->
                 Lc.Content(
                     DeleteAccountConfirmationUiState(
-                        isLoading = loading,
-                        hasConfirmedAccount = input == account.accountNumber.value,
+                        isLoading = isLoading,
+                        hasEnterCorrectInput,
+                        deleteAccountError = error,
                     )
                 )
             }
@@ -44,21 +53,23 @@ class DeleteAccountConfirmationViewModel(val accountRepository: AccountRepositor
 
     fun deleteAccount() =
         viewModelScope.launch {
-            accountRepository.accountData.value
+            isLoading.value = true
             accountRepository
                 .deleteAccount()
                 .fold(
-                    {
-                    },
+                    { deleteError.value = it },
                     { _uiSideEffect.send(DeleteAccountConfirmationUiSideEffect.NavigateToLogin) },
                 )
+            isLoading.value = false
         }
 
     fun onAccountInputChanged(input: String) {
+        deleteError.value = null
         accountInput.value = input
     }
 }
 
+// 2731114520706402
 data class DeleteAccountConfirmationUiState(
     val isLoading: Boolean = false,
     val hasConfirmedAccount: Boolean = false,

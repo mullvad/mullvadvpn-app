@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Visibility
@@ -16,9 +17,9 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -45,6 +46,7 @@ import androidx.lifecycle.compose.dropUnlessResumed
 import androidx.navigation.NavController
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
+import com.ramcosta.composedestinations.generated.login.destinations.LoginDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
@@ -86,7 +88,7 @@ fun DeleteAccountConfirmation(navigator: DestinationsNavigator, navController: N
     val uiState = vm.uiState.collectAsStateWithLifecycle()
 
     CollectSideEffectWithLifecycle(vm.uiSideEffect) {
-        when(it) {
+        when (it) {
             DeleteAccountConfirmationUiSideEffect.NavigateToLogin ->
                 navController.navigate(LoginDestination.baseRoute) {
                     launchSingleTop = true
@@ -158,37 +160,43 @@ private fun DeleteAccountConfirmationContent(
         var showPassword by remember { mutableStateOf(false) }
         val localClipboard = LocalClipboard.current
         val clipboard = remember(localClipboard) { NoOpClipboardManager(localClipboard) }
-        CompositionLocalProvider(LocalClipboard provides clipboard) {
-            TextField(
-                state = textFieldState,
-                modifier =
-                    // Fix for DPad navigation
-                    Modifier.semantics { contentType = ContentType.Password }.fillMaxWidth(),
-                trailingIcon = {
-                    IconButton(onClick = { showPassword = !showPassword }) {
-                        Icon(
-                            imageVector =
-                                if (showPassword) Icons.Outlined.VisibilityOff
-                                else Icons.Outlined.Visibility,
-                            contentDescription =
-                                if (showPassword) stringResource(id = R.string.hide_account_number)
-                                else stringResource(id = R.string.show_account_number),
-                        )
-                    }
-                },
-                keyboardOptions =
-                    KeyboardOptions(
-                        imeAction = ImeAction.Done,
-                        keyboardType = KeyboardType.accountNumberKeyboardType(LocalContext.current),
-                    ),
-                outputTransformation =
-                    accountNumberOutputTransformation(showPassword, if (showLastChar) 1 else 0),
-                colors = mullvadWhiteTextFieldColors(),
-                textStyle =
-                    MaterialTheme.typography.bodyLarge.copy(textDirection = TextDirection.Ltr),
-                isError = state.deleteAccountError != null,
-            )
-        }
+
+        val transformation =
+            remember(showPassword, showLastChar) {
+                accountNumberOutputTransformation(showPassword, if (showLastChar) 1 else 0)
+            }
+        // TODO Restore this before merging
+        //        CompositionLocalProvider(LocalClipboard provides clipboard) {
+        TextField(
+            state = textFieldState,
+            modifier =
+                // Fix for DPad navigation
+                Modifier.semantics { contentType = ContentType.Password }.fillMaxWidth(),
+            trailingIcon = {
+                IconButton(onClick = { showPassword = !showPassword }) {
+                    Icon(
+                        imageVector =
+                            if (showPassword) Icons.Outlined.VisibilityOff
+                            else Icons.Outlined.Visibility,
+                        contentDescription =
+                            if (showPassword) stringResource(id = R.string.hide_account_number)
+                            else stringResource(id = R.string.show_account_number),
+                    )
+                }
+            },
+            keyboardOptions =
+                KeyboardOptions(
+                    imeAction = ImeAction.Done,
+                    keyboardType = KeyboardType.accountNumberKeyboardType(LocalContext.current),
+                ),
+            outputTransformation = transformation,
+            lineLimits = TextFieldLineLimits.SingleLine,
+            colors = mullvadWhiteTextFieldColors(),
+            textStyle = MaterialTheme.typography.bodyLarge.copy(textDirection = TextDirection.Ltr),
+            isError = state.deleteAccountError != null,
+            supportingText = state.deleteAccountError?.let { { Text(it.toErrorMessage()) } },
+        )
+        //        }
 
         Spacer(Modifier.weight(1f))
         DeleteAccountConfirmationBottomBar(
@@ -213,11 +221,11 @@ private fun DeleteAccountConfirmationBottomBar(
     onClickDeleteAccount: () -> Unit,
     onClickCancel: () -> Unit,
 ) {
-    Column {
+    Column(modifier = Modifier.padding(bottom = Dimens.screenBottomMargin)) {
         NegativeButton(
             text = stringResource(R.string.delete_account),
             onClick = onClickDeleteAccount,
-            isEnabled = hasConfirmedAccount,
+            isEnabled = !isLoading && hasConfirmedAccount,
             isLoading = isLoading,
         )
         PrimaryButton(onClick = onClickCancel, text = stringResource(R.string.cancel))
