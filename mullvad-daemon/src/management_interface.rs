@@ -453,13 +453,16 @@ impl ManagementService for ManagementServiceImpl {
     #[cfg(target_os = "android")]
     async fn delete_account(&self, _: Request<()>) -> ServiceResult<()> {
         log::debug!("delete_account");
-        //let (tx, rx) = oneshot::channel();
-        //self.send_command_to_daemon(DaemonCommand::LogoutAccount(tx))?;
-        //self.wait_for_result(rx)
-        //    .await?
-        //    .map(Response::new)
-        //    .map_err(map_daemon_error)
-        Ok(Response::new(()))
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::DeleteAccount(tx))?;
+        let result = self
+            .wait_for_result(rx)
+            .await?
+            .map(Response::new)
+            .map_err(map_daemon_error);
+        let (tx, _) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::ClearAccountHistory(tx))?;
+        result
     }
 
     #[cfg(not(target_os = "android"))]
