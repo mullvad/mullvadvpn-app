@@ -8,7 +8,9 @@ import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.SecureTextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
@@ -16,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
@@ -28,13 +31,18 @@ import net.mullvad.mullvadvpn.lib.ui.designsystem.PrimaryButton
 import net.mullvad.mullvadvpn.lib.ui.resource.R
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
+import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview("Loading|Supported|Unsupported")
 @Composable
 private fun PreviewDeleteAccountConfirmation() {
     AppTheme {
-        DeleteAccountConfirmation(hasConfirmedAccount = true, deleteAccount = {}, onBackClick = {})
+        DeleteAccountConfirmation(
+            state = DeleteAccountConfirmationUiState(),
+            deleteAccount = {},
+            onBackClick = {},
+        )
     }
 }
 
@@ -42,9 +50,11 @@ private fun PreviewDeleteAccountConfirmation() {
 @Destination<ExternalModuleGraph>(style = SlideInFromRightTransition::class)
 @Composable
 fun DeleteAccountConfirmation(navigator: DestinationsNavigator) {
+    val vm = koinViewModel<DeleteAccountConfirmationViewModel>()
+    val uiState = vm.uiState.collectAsStateWithLifecycle()
     DeleteAccountConfirmation(
-        hasConfirmedAccount = true,
-        deleteAccount = {},
+        state = uiState.value,
+        deleteAccount = vm::deleteAccount,
         onBackClick = dropUnlessResumed { navigator.navigateUp() },
     )
 }
@@ -52,7 +62,7 @@ fun DeleteAccountConfirmation(navigator: DestinationsNavigator) {
 @ExperimentalMaterial3Api
 @Composable
 fun DeleteAccountConfirmation(
-    hasConfirmedAccount: Boolean,
+    state: DeleteAccountConfirmationUiState,
     deleteAccount: () -> Unit,
     onBackClick: () -> Unit,
 ) {
@@ -61,7 +71,7 @@ fun DeleteAccountConfirmation(
         navigationIcon = { NavigateBackIconButton(onNavigateBack = onBackClick) },
         bottomBar = {
             DeleteAccountConfirmationBottomBar(
-                hasConfirmedAccount,
+                state.hasConfirmedAccount,
                 onClickDeleteAccount = deleteAccount,
                 onClickCancel = onBackClick,
             )
@@ -71,6 +81,9 @@ fun DeleteAccountConfirmation(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = modifier.animateContentSize().padding(horizontal = Dimens.sideMarginNew),
         ) {
+            val textFieldState = rememberTextFieldState()
+            SecureTextField(state = textFieldState)
+
             DeleteAccountConfirmationContent()
         }
     }

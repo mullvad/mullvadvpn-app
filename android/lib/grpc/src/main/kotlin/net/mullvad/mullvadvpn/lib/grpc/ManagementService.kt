@@ -66,6 +66,7 @@ import net.mullvad.mullvadvpn.lib.model.CustomListAlreadyExists
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
 import net.mullvad.mullvadvpn.lib.model.DefaultDnsOptions
+import net.mullvad.mullvadvpn.lib.model.DeleteAccountError
 import net.mullvad.mullvadvpn.lib.model.DeleteCustomListError
 import net.mullvad.mullvadvpn.lib.model.DeleteDeviceError
 import net.mullvad.mullvadvpn.lib.model.Device
@@ -362,6 +363,12 @@ class ManagementService(
                     }
                 }
             }
+            .mapEmpty()
+
+    suspend fun deleteAccount(): Either<DeleteAccountError, Unit> =
+        Either.catch { grpc.deleteAccount(Empty.getDefaultInstance()) }
+            .onLeft { Logger.e("Delete account error") }
+            .mapLeft(DeleteAccountError::Unknown)
             .mapEmpty()
 
     suspend fun clearAccountHistory(): Either<ClearAccountHistoryError, Unit> =
