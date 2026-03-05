@@ -182,7 +182,7 @@ export default class UserInterface implements WindowControllerDelegate {
         this.installWindowsMenubarAppWindowHandlers();
         break;
       case 'darwin':
-        this.installMacOsMenubarAppWindowHandlers();
+        await this.installMacOsMenubarAppWindowHandlers();
         this.setMacOsAppMenu();
         break;
       case 'linux':
@@ -532,13 +532,12 @@ export default class UserInterface implements WindowControllerDelegate {
 
   // setup NSEvent forwarder to fix inconsistent window.blur on macOS
   // see https://github.com/electron/electron/issues/8689
-  private installMacOsMenubarAppWindowHandlers() {
+  private async installMacOsMenubarAppWindowHandlers() {
     if (this.delegate.isUnpinnedWindow()) {
       return;
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const nseventforwarder = require('nseventforwarder');
+    const nseventforwarder = await import('nseventforwarder');
     let nseventforwarderStop: ReturnType<typeof nseventforwarder.start>;
 
     this.windowController.window?.on(
