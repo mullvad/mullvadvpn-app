@@ -5,7 +5,7 @@ import { messages } from '../../../../../shared/gettext';
 import { Dialog, type DialogProps } from '../../../../lib/components/dialog';
 import { formatHtml } from '../../../../lib/html-formatter';
 import { type CustomListLocation } from '../../../locations/types';
-import { useCustomLists } from '../../hooks';
+import { useDeleteCustomList } from '../../hooks';
 
 type DeleteCustomListDialogProps = Omit<DialogProps, 'children'> & {
   customList: CustomListLocation;
@@ -20,12 +20,12 @@ export function DeleteCustomListDialog({
   loading,
   onLoadingChange,
 }: DeleteCustomListDialogProps) {
-  const { deleteCustomList } = useCustomLists();
+  const deleteCustomList = useDeleteCustomList();
 
   const handleConfirm = React.useCallback(async () => {
     onLoadingChange?.(true);
     onOpenChange?.(false);
-    const success = await deleteCustomList(customList.details.customList);
+    const { success } = await deleteCustomList(customList.details.customList);
 
     // Only set loading to false if failed to keep disabled state while animating out
     if (!success) {

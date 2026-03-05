@@ -4,7 +4,7 @@ import { sprintf } from 'sprintf-js';
 import { messages } from '../../../../../shared/gettext';
 import { IconButton, type IconButtonProps } from '../../../../lib/components';
 import type { GeographicalLocation } from '../../../locations/types';
-import { useCustomLists } from '../../hooks';
+import { useGetCustomListById, useRemoveLocationFromCustomList } from '../../hooks';
 
 export type RemoveFromCustomListButtonProps = IconButtonProps & {
   location: GeographicalLocation;
@@ -18,9 +18,8 @@ export function RemoveLocationFromCustomListButton({
   onLoadingChange,
   ...props
 }: RemoveFromCustomListButtonProps) {
-  const { removeLocationFromCustomList, getCustomListById } = useCustomLists();
-
-  const customList = getCustomListById(location.details.customList);
+  const removeLocationFromCustomList = useRemoveLocationFromCustomList();
+  const getCustomListById = useGetCustomListById();
 
   const handleOnClick = React.useCallback(async () => {
     const customList = location.details.customList;
@@ -35,6 +34,11 @@ export function RemoveLocationFromCustomListButton({
     }
   }, [location.details, removeLocationFromCustomList, onLoadingChange]);
 
+  if (location.details.customList === undefined) {
+    return null;
+  }
+
+  const customList = getCustomListById(location.details.customList);
   return (
     <IconButton
       variant="secondary"
