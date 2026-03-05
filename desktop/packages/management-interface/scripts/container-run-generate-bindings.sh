@@ -8,7 +8,7 @@
 set -eu
 
 CONTAINER_RUNNER=${CONTAINER_RUNNER:-"podman"}
-IMAGE_HASH="TODO_HASH_CHANGE_ME"
+IMAGE_HASH="6ab0e2d8de09"
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 PROTO_DIR="$( cd "$SCRIPT_DIR/../../../../mullvad-management-interface/proto" && pwd )"
