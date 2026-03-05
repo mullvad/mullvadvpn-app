@@ -47,7 +47,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     private(set) var shadowsocksLoader: ShadowsocksLoader!
     private(set) var ipOverrideRepository = IPOverrideRepository()
     private(set) var relaySelector: RelaySelectorWrapper!
-    private var launchArguments = LaunchArguments()
+    private(set) var launchArguments = LaunchArguments()
     var apiContext: MullvadApiContext!
     var accessMethodReceiver: MullvadAccessMethodReceiver!
     private var shadowsocksCacheCleaner: ShadowsocksCacheCleaner!
@@ -63,10 +63,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     ) -> Bool {
         if let overriddenLaunchArguments = try? ProcessInfo.processInfo.decode(LaunchArguments.self) {
             launchArguments = overriddenLaunchArguments
-        }
-
-        if launchArguments.areAnimationsDisabled {
-            UIView.setAnimationsEnabled(false)
         }
 
         let containerURL = ApplicationConfiguration.containerURL
@@ -176,14 +172,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             apiTransportProvider: apiTransportProvider,
             relaySelector: relaySelector
         )
-
         registerBackgroundTasks()
         setupNotifications(
             tunnelSettings: tunnelSettings,
             tunnelSettingsUpdater: tunnelSettingsUpdater
         )
         addApplicationNotifications(application: application)
-
         startInitialization(application: application)
 
         // Pre-warm @Observable infrastructure for LocationNode to avoid first-render lag
@@ -481,26 +475,34 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     }
 
     private func startInitialization(application: UIApplication) {
-        let wipeSettingsOperation = getWipeSettingsOperation()
         let defaultLocationOperation = getDefaultLocationOperation()
         let loadTunnelStoreOperation = getLoadTunnelStoreOperation()
-        let migrateSettingsOperation = getMigrateSettingsOperation(application: application)
         let initTunnelManagerOperation = getInitTunnelManagerOperation()
 
+        var operations: [Operation] = [
+            defaultLocationOperation,
+            loadTunnelStoreOperation,
+        ]
+
+        let wipeSettingsOperation = getWipeSettingsOperation()
+        let migrateSettingsOperation = getMigrateSettingsOperation(application: application)
+
+        // Dependencies
         defaultLocationOperation.addDependency(wipeSettingsOperation)
-        migrateSettingsOperation.addDependencies([wipeSettingsOperation, loadTunnelStoreOperation])
+        migrateSettingsOperation.addDependencies([
+            wipeSettingsOperation,
+            loadTunnelStoreOperation,
+        ])
         initTunnelManagerOperation.addDependency(migrateSettingsOperation)
 
-        operationQueue.addOperations(
-            [
-                wipeSettingsOperation,
-                defaultLocationOperation,
-                loadTunnelStoreOperation,
-                migrateSettingsOperation,
-                initTunnelManagerOperation,
-            ],
-            waitUntilFinished: false
-        )
+        operations.append(contentsOf: [
+            wipeSettingsOperation,
+            migrateSettingsOperation,
+        ])
+
+        operations.append(initTunnelManagerOperation)
+
+        operationQueue.addOperations(operations, waitUntilFinished: false)
     }
 
     private func getLoadTunnelStoreOperation() -> AsyncBlockOperation {
@@ -614,7 +616,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                     }
                 }
 
-                SettingsManager.resetStore(completely: true)
+                SettingsManager.resetStore(policy: .all)
                 try? SettingsManager.writeSettings(LatestTunnelSettings())
 
                 // Default access methods need to be repopulated again after settings wipe.

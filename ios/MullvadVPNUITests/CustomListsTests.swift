@@ -9,6 +9,11 @@
 import XCTest
 
 class CustomListsTests: LoggedInWithTimeUITestCase {
+
+    override class var settingsResetPolicy: UITestSettingsResetPolicy {
+        .only([.customRelayLists])
+    }
+
     func testCreateCustomListPersistAfterAppRestarts() throws {
         TunnelControlPage(app)
             .tapSelectLocationButton()
@@ -20,8 +25,7 @@ class CustomListsTests: LoggedInWithTimeUITestCase {
             self.deleteCustomList(named: customListName)
         }
 
-        app.terminate()
-        app.launch()
+        try app.relaunch()
 
         TunnelControlPage(app)
             .tapSelectLocationButton()
