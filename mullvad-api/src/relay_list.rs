@@ -1,6 +1,9 @@
 //! A module dedicated to retrieving the relay list from the Mullvad API.
 
-use crate::{relay_list_transparency::{self, SigsumVerifiedPayload}, rest};
+use crate::{
+    relay_list_transparency::{self, SigsumVerifiedPayload},
+    rest,
+};
 
 use hyper::{StatusCode, body::Incoming};
 use mullvad_types::{
