@@ -1,5 +1,5 @@
 use chrono::{DateTime, Utc};
-use std::ffi::{CStr, c_void};
+use std::ffi::c_void;
 use std::os::raw::c_char;
 
 use mullvad_api::relay_list_transparency::RelayListDigest;
@@ -120,7 +120,7 @@ pub unsafe extern "C" fn mullvad_ios_api_addrs_available(
 pub unsafe extern "C" fn mullvad_ios_get_relays(
     api_context: SwiftApiContext,
     retry_strategy: SwiftRetryStrategy,
-    etag: *const c_char,
+    _etag: *const c_char,
 ) -> SwiftCancelHandle {
 // <<<<<<< HEAD
 //     let mut maybe_etag: Option<ETag> = None;
@@ -189,7 +189,7 @@ async fn mullvad_ios_get_relays_inner(
 ) -> Result<SwiftMullvadApiResponse, rest::Error> {
     let api = RelayListProxy::new(rest_client);
 
-    let future_factory = || api.relay_list_response(digest.clone(), digest_timestamp.clone());
+    let future_factory = || api.relay_list_response(digest.clone(), digest_timestamp);
 
     let response = retry_request(retry_strategy, future_factory).await?;
     SwiftMullvadApiResponse::with_sigsum_verified_body(response)
