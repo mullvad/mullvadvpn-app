@@ -292,7 +292,7 @@ impl ApiEndpoint {
     }
 
     /// Read the [`Self::sigsum_trusted_pubkeys`] value, falling back to
-    /// [`Self::SIGSUM_TRUSTED_PUBKEYS_DEFAULT`] as default value if it does not exist.
+    /// [`SIGSUM_TRUSTED_PUBKEYS_DEFAULT`] as default value if it does not exist.
     pub fn sigsum_trusted_pubkeys(&self) -> Vec<SigsumPublicKey> {
         self.sigsum_trusted_pubkeys.clone().unwrap_or(
             relay_list_transparency::parse_pubkeys(SIGSUM_TRUSTED_PUBKEYS_DEFAULT, '\n').unwrap(),
