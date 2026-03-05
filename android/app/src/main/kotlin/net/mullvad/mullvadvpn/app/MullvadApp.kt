@@ -52,6 +52,9 @@ import com.ramcosta.composedestinations.generated.customlist.destinations.EditCu
 import com.ramcosta.composedestinations.generated.daita.destinations.DaitaDestination
 import com.ramcosta.composedestinations.generated.daita.destinations.DaitaDirectOnlyConfirmationDestination
 import com.ramcosta.composedestinations.generated.daita.destinations.DaitaDirectOnlyInfoDestination
+import com.ramcosta.composedestinations.generated.deleteaccount.destinations.DeleteAccountCompleteDestination
+import com.ramcosta.composedestinations.generated.deleteaccount.destinations.DeleteAccountConfirmationDestination
+import com.ramcosta.composedestinations.generated.deleteaccount.destinations.DeleteAccountDestination
 import com.ramcosta.composedestinations.generated.destinations.NoDaemonDestination
 import com.ramcosta.composedestinations.generated.filter.destinations.FilterDestination
 import com.ramcosta.composedestinations.generated.home.destinations.Android16UpgradeWarningInfoDestination
@@ -129,6 +132,9 @@ annotation class MainGraph {
     @ExternalDestination<DaitaDestination>
     @ExternalDestination<DaitaDirectOnlyConfirmationDestination>
     @ExternalDestination<DaitaDirectOnlyInfoDestination>
+    @ExternalDestination<DeleteAccountDestination>
+    @ExternalDestination<DeleteAccountConfirmationDestination>
+    @ExternalDestination<DeleteAccountCompleteDestination>
     @ExternalDestination<DeleteApiAccessMethodConfirmationDestination>
     @ExternalDestination<DeleteCustomListDestination>
     @ExternalDestination<DeviceIpInfoDestination>

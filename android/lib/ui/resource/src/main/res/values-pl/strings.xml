@@ -438,6 +438,7 @@
     <string name="type">Typ</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp">UDP-przez-TCP</string>
+    <string name="unable_to_reach_api">Nie można osiągnąć interfejsu API</string>
     <string name="unable_to_reach_api_dialog_message_first_create_account">Aplikacja nie była w stanie utworzyć konta z powodu braku dostępu do interfejsu API Mullvad.</string>
     <string name="unable_to_reach_api_dialog_message_first_login">Aplikacja nie była w stanie zalogować, ponieważ nie mogła uzyskać dostępu do interfejsu API Mullvad.</string>
     <string name="unable_to_reach_api_dialog_message_list_first">Ponownie uruchom urządzenie</string>
@@ -445,7 +446,6 @@
     <string name="unable_to_reach_api_dialog_message_list_third">Włącz wszystkie metody dostępu w aplikacji</string>
     <string name="unable_to_reach_api_dialog_message_second">Może to być spowodowane cenzurą lub problemami z siecią. Spróbuj:</string>
     <string name="unable_to_reach_api_dialog_message_third">Jeśli te kroki nie pomogą, wyślij wiadomość e-mail do działu pomocy technicznej, korzystając z poniższego przycisku. Spowoduje to automatyczne dołączenie zanonimizowanych dzienników.</string>
-    <string name="unable_to_reach_api_dialog_title">Nie można osiągnąć interfejsu API</string>
     <string name="unavailable">Niedostępne</string>
     <string name="undo">Cofnij</string>
     <string name="unsupported_version">WERSJA NIEOBSŁUGIWANA</string>

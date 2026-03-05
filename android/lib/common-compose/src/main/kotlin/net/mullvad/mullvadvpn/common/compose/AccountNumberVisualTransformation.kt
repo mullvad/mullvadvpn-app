@@ -1,5 +1,7 @@
 package net.mullvad.mullvadvpn.common.compose
 
+import androidx.compose.foundation.text.input.OutputTransformation
+import androidx.compose.foundation.text.input.insert
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TransformedText
@@ -35,4 +37,23 @@ fun accountNumberVisualTransformation(showAccount: Boolean = true, showLastX: In
                     offset - (offset - 1) / (ACCOUNT_NUMBER_CHUNK_SIZE + 1)
             },
         )
+    }
+
+fun accountNumberOutputTransformation(showAccount: Boolean = true, showLastX: Int = 0) =
+    OutputTransformation {
+        val originalLength = length
+        val replacementLength = max(0, originalLength - showLastX)
+
+        // Replace characters with password dots if not showing account
+        if (!showAccount && replacementLength > 0) {
+            replace(0, replacementLength, PASSWORD_UNICODE.toString().repeat(replacementLength))
+        }
+
+        // Insert separators between chunks (from right to left to maintain correct positions)
+        // Start from the last chunk boundary that is within the string (not at the end)
+        var position = ((length - 1) / ACCOUNT_NUMBER_CHUNK_SIZE) * ACCOUNT_NUMBER_CHUNK_SIZE
+        while (position > 0) {
+            insert(position, ACCOUNT_NUMBER_SEPARATOR)
+            position -= ACCOUNT_NUMBER_CHUNK_SIZE
+        }
     }
