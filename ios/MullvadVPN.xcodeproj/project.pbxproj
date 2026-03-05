@@ -736,7 +736,7 @@
 		85978A542BE0F10E00F999A7 /* PacketCapture.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85978A532BE0F10E00F999A7 /* PacketCapture.swift */; };
 		85A42B882BB44D31007BABF7 /* DeviceManagementPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85A42B872BB44D31007BABF7 /* DeviceManagementPage.swift */; };
 		85B267612B849ADB0098E3CD /* mullvad-api.h in Headers */ = {isa = PBXBuildFile; fileRef = 85B267602B849ADB0098E3CD /* mullvad-api.h */; };
-		85C7A2E92B89024B00035D5A /* SettingsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85C7A2E82B89024B00035D5A /* SettingsTests.swift */; };
+		85C7A2E92B89024B00035D5A /* SettingsLoggedOutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85C7A2E82B89024B00035D5A /* SettingsLoggedOutTests.swift */; };
 		85D039982BA4711800940E7F /* SettingsMigrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85D039972BA4711800940E7F /* SettingsMigrationTests.swift */; };
 		85D2B0B12B6BD32400DF9DA7 /* BaseUITestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8590896A2B61763B003AF5F5 /* BaseUITestCase.swift */; };
 		85E3BDE52B70E18C00FA71FD /* Networking.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85E3BDE42B70E18C00FA71FD /* Networking.swift */; };
@@ -2294,7 +2294,7 @@
 		85978A532BE0F10E00F999A7 /* PacketCapture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PacketCapture.swift; sourceTree = "<group>"; };
 		85A42B872BB44D31007BABF7 /* DeviceManagementPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceManagementPage.swift; sourceTree = "<group>"; };
 		85B267602B849ADB0098E3CD /* mullvad-api.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "mullvad-api.h"; path = "../../mullvad-api/include/mullvad-api.h"; sourceTree = "<group>"; };
-		85C7A2E82B89024B00035D5A /* SettingsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsTests.swift; sourceTree = "<group>"; };
+		85C7A2E82B89024B00035D5A /* SettingsLoggedOutTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsLoggedOutTests.swift; sourceTree = "<group>"; };
 		85D039972BA4711800940E7F /* SettingsMigrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsMigrationTests.swift; sourceTree = "<group>"; };
 		85E3BDE42B70E18C00FA71FD /* Networking.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Networking.swift; sourceTree = "<group>"; };
 		85F1E17D2C0A256200DB8F55 /* LeakTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeakTests.swift; sourceTree = "<group>"; };
@@ -4533,7 +4533,7 @@
 				7A45CFCD2C08697100D80B21 /* Screenshots */,
 				7AB4018C2DA790CE00522E17 /* SelectLocationTests.swift */,
 				85D039972BA4711800940E7F /* SettingsMigrationTests.swift */,
-				85C7A2E82B89024B00035D5A /* SettingsTests.swift */,
+				85C7A2E82B89024B00035D5A /* SettingsLoggedOutTests.swift */,
 				856952E12BD6B04C008C1F84 /* XCUIElement+Extensions.swift */,
 				85557B152B5ABBBE00795FE1 /* XCUIElementQuery+Extensions.swift */,
 			);
@@ -6978,7 +6978,7 @@
 				7AB4018D2DA790DA00522E17 /* SelectLocationTests.swift in Sources */,
 				85E3BDE52B70E18C00FA71FD /* Networking.swift in Sources */,
 				856952E22BD6B04C008C1F84 /* XCUIElement+Extensions.swift in Sources */,
-				85C7A2E92B89024B00035D5A /* SettingsTests.swift in Sources */,
+				85C7A2E92B89024B00035D5A /* SettingsLoggedOutTests.swift in Sources */,
 				8590896F2B61763B003AF5F5 /* LoggedOutUITestCase.swift in Sources */,
 				85557B202B5FBBD700795FE1 /* AccountPage.swift in Sources */,
 				852969352B4E9270007EAD4C /* LoginPage.swift in Sources */,

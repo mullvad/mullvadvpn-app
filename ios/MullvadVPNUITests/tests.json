@@ -6,7 +6,6 @@
             "CustomListsTests",
             "LeakTests",
             "RelayTests",
-            "SettingsTests",
             "PaymentTests"
         ],
         "pr-merge-to-main": [
