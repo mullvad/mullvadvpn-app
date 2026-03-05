@@ -1,10 +1,10 @@
 use std::{
     ffi::{CString, c_char},
-    ptr::{self, null_mut},
+    ptr::null_mut,
 };
 
 use mullvad_api::{
-    RelayListProxy, StatusCode,
+    StatusCode,
     relay_list_transparency::SigsumVerifiedPayload,
     rest::{self, Response},
 };
