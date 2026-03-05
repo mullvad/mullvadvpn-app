@@ -450,6 +450,24 @@ impl ManagementService for ManagementServiceImpl {
             .map_err(map_daemon_error)
     }
 
+    #[cfg(target_os = "android")]
+    async fn delete_account(&self, _: Request<()>) -> ServiceResult<()> {
+        log::debug!("delete_account");
+        //let (tx, rx) = oneshot::channel();
+        //self.send_command_to_daemon(DaemonCommand::LogoutAccount(tx))?;
+        //self.wait_for_result(rx)
+        //    .await?
+        //    .map(Response::new)
+        //    .map_err(map_daemon_error)
+        Ok(Response::new(()))
+    }
+
+    #[cfg(not(target_os = "android"))]
+    async fn delete_account(&self, _: Request<()>) -> ServiceResult<()> {
+        log::error!("Called `delete_account` on non-Android platform");
+        Ok(Response::new(()))
+    }
+
     async fn get_account_data(
         &self,
         request: Request<AccountNumber>,
